@@ -6,8 +6,6 @@ import PropTypes from 'prop-types';
 import { Button, Icon, Popover, PopoverPosition } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
-import { t_global_icon_color_status_danger_default as dangerColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_danger_default';
-import { t_global_icon_color_status_warning_default as warningColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_warning_default';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import { SubscriptionCommonFieldsSupport_level as SubscriptionCommonFieldsSupportLevel } from '~/types/accounts_mgmt.v1';
@@ -49,8 +47,8 @@ function ClusterCreatedIndicator({ cluster }) {
           isInline
           className="pf-v6-u-display-inline-flex"
           icon={
-            <Icon>
-              <ExclamationTriangleIcon color={warningColor.value} />
+            <Icon status="warning">
+              <ExclamationTriangleIcon />
             </Icon>
           }
         >
@@ -86,8 +84,8 @@ function ClusterCreatedIndicator({ cluster }) {
           isInline
           className="pf-v6-u-display-inline-flex"
           icon={
-            <Icon>
-              <ExclamationCircleIcon color={dangerColor.value} />
+            <Icon status="danger">
+              <ExclamationCircleIcon />
             </Icon>
           }
         >
@@ -139,8 +137,8 @@ function ClusterCreatedIndicator({ cluster }) {
         isInline
         className="pf-v6-u-display-inline-flex"
         icon={
-          <Icon>
-            <ExclamationTriangleIcon color={warningColor.value} />
+          <Icon status="warning">
+            <ExclamationTriangleIcon />
           </Icon>
         }
       >
