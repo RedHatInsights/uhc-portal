@@ -461,15 +461,9 @@ describe('<ClusterStatusMonitor />', () => {
 
       expect(screen.getByText(alertTitle)).toBeInTheDocument();
       expect(screen.queryByText('unknown')).not.toBeInTheDocument();
-      expect(
-        screen.getByText('my-role-1@example-proj-4.gserviceaccount.com'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('my-role-2@example-proj-4.gserviceaccount.com'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('my-role-3@example-proj-4.gserviceaccount.com'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('my-role-1@example-proj-4.gserviceaccount.com')).toBeInTheDocument();
+      expect(screen.getByText('my-role-2@example-proj-4.gserviceaccount.com')).toBeInTheDocument();
+      expect(screen.getByText('my-role-3@example-proj-4.gserviceaccount.com')).toBeInTheDocument();
     });
 
     it('includes "unknown" if no service accounts are found', () => {

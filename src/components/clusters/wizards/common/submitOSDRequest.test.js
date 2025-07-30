@@ -159,15 +159,13 @@ describe('createClusterRequest', () => {
     type: 'service_account',
     project_id: 'sa-project-id',
     private_key_id: '13K16EWTCR1NNFU3P5K99CRMFJC6L9TP4HRQDYYY',
-    private_key:
-      '-----BEGIN PRIVATE KEY-----\n***REMOVED***\n-----END PRIVATE KEY-----\n',
+    private_key: '-----BEGIN PRIVATE KEY-----\n***REMOVED***\n-----END PRIVATE KEY-----\n',
     client_email: 'user@email.iam.gserviceaccount.com',
     client_id: '22TPSDA33N0FAU3KL2KP5',
     auth_uri: 'https://accounts.google.com/o/oauth2/auth',
     token_uri: 'https://oauth2.googleapis.com/token',
     auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
-    client_x509_cert_url:
-      'https://www.googleapis.com/robot/v1/metadata/x509/***REMOVED***',
+    client_x509_cert_url: 'https://www.googleapis.com/robot/v1/metadata/x509/***REMOVED***',
     universe_domain: 'googleapis.com',
   };
 
