@@ -134,7 +134,7 @@ export const GcpVpcSettings = () => {
         </div>
       </GridItem>
 
-      <GridItem md={3}>
+      <GridItem md={showPSCSubnet ? 12 : 4}>
         {installToSharedVpc ? (
           <TextInputField
             name={FieldId.VpcName}
@@ -158,7 +158,7 @@ export const GcpVpcSettings = () => {
         )}
       </GridItem>
 
-      <GridItem md={3}>
+      <GridItem md={showPSCSubnet ? 12 : 4}>
         {installToSharedVpc ? (
           <TextInputField
             name={FieldId.ControlPlaneSubnet}
@@ -182,7 +182,7 @@ export const GcpVpcSettings = () => {
         )}
       </GridItem>
 
-      <GridItem md={3}>
+      <GridItem md={showPSCSubnet ? 12 : 4}>
         {installToSharedVpc ? (
           <TextInputField
             name={FieldId.ComputeSubnet}
@@ -206,7 +206,7 @@ export const GcpVpcSettings = () => {
         )}
       </GridItem>
       {showPSCSubnet ? (
-        <GridItem md={3}>
+        <GridItem md={12}>
           {installToSharedVpc ? (
             <TextInputField
               name={FieldId.PSCSubnet}
