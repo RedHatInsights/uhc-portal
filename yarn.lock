@@ -2661,18 +2661,6 @@
     "@react-hook/latest" "^1.0.2"
     "@react-hook/passive-layout-effect" "^1.2.0"
 
-"@redhat-cloud-services/frontend-components-config-utilities@^4.3.5":
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components-config-utilities/-/frontend-components-config-utilities-4.4.1.tgz#63f8cb466be37d36dddf6912dd8cffad88253d9b"
-  integrity sha512-GG+wCpPWq2i9B6+NeH3UvSVhIGczxrEaRTSH0sFvIrcHMpMoUeFH467GT9w+PUeey24Ap0/Gi+/BiCSzUFrQMQ==
-  dependencies:
-    "@openshift/dynamic-plugin-sdk-webpack" "^4.0.1"
-    ajv "^8.17.1"
-    chalk "^4.1.2"
-    chokidar "^4.0.3"
-    js-yaml "^4.1.0"
-    node-fetch "2.6.7"
-
 "@redhat-cloud-services/frontend-components-config-utilities@^4.4.0":
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components-config-utilities/-/frontend-components-config-utilities-4.5.0.tgz#d5938bbe1433d4a8ad861116f43edfbf23066bc4"
@@ -2685,13 +2673,25 @@
     js-yaml "^4.1.0"
     node-fetch "2.6.7"
 
-"@redhat-cloud-services/frontend-components-config@^6.6.3":
-  version "6.6.3"
-  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components-config/-/frontend-components-config-6.6.3.tgz#11b08610ce673ebad7403937d7c6b687ed41c39b"
-  integrity sha512-TV334mhac3pcNwcgCMlHXes14entuSXw2r6HFOaQ9su1fLtWeL5r9KkVP4GXMCkBKwGZdnQydw0lX0Z0Snw92A==
+"@redhat-cloud-services/frontend-components-config-utilities@^4.5.1":
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components-config-utilities/-/frontend-components-config-utilities-4.5.1.tgz#c2cd7d2aed50e325d22245cb1b2fcdf6912439a3"
+  integrity sha512-4WISa6cZO1wUOrLe6GQl1/nvTQWAGoYFCmrxN3YEL22HjJe50E29cr79Ioa1+gXd/V0qwmpMDDbfOdXfRnWqxg==
+  dependencies:
+    "@openshift/dynamic-plugin-sdk-webpack" "^4.0.1"
+    ajv "^8.17.1"
+    chalk "^4.1.2"
+    chokidar "^4.0.3"
+    js-yaml "^4.1.0"
+    node-fetch "2.6.7"
+
+"@redhat-cloud-services/frontend-components-config@^6.6.6":
+  version "6.6.6"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components-config/-/frontend-components-config-6.6.6.tgz#886fbc5e713496e8a25e3a7e650ca95936c370f9"
+  integrity sha512-z7bgtspIYZSfegHh4sy3yLXJOIrdGtQfqcW8vvzIVT74dZJHnH3ANkmjIGktSlCGj2gOcUZoQRcbMR5b/QD0EQ==
   dependencies:
     "@pmmmwh/react-refresh-webpack-plugin" "^0.5.15"
-    "@redhat-cloud-services/frontend-components-config-utilities" "^4.3.5"
+    "@redhat-cloud-services/frontend-components-config-utilities" "^4.5.1"
     "@redhat-cloud-services/tsc-transform-imports" "^1.0.21"
     "@swc/core" "^1.3.76"
     assert "^2.0.0"

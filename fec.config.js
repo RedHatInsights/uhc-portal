@@ -9,7 +9,6 @@ module.exports = {
   useProxy: true,
   proxyVerbose: true,
   interceptChromeConfig: false,
-  useAgent: false,
   customProxy: [
     {
       context: ['/mockdata'],

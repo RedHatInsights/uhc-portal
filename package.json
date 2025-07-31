@@ -110,7 +110,7 @@
     "@chromatic-com/storybook": "3.2.2",
     "@cypress/code-coverage": "^3.12.39",
     "@cypress/grep": "^4.0.1",
-    "@redhat-cloud-services/frontend-components-config": "^6.6.3",
+    "@redhat-cloud-services/frontend-components-config": "^6.6.6",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.25",
     "@redhat-cloud-services/types": "1.0.11",
     "@sentry/cli": "^2.21.2",
