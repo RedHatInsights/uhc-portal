@@ -45,7 +45,7 @@ Here is the process to move a PR from draft to merged:
 
 1. :notebook: QE reviewer approves the PR once they feel the PR is production-ready
 
-1. :pencil2: Author pulls in changes from master if needed and waits for all checks/tests to pass
+1. :pencil2: Author pulls in changes from 'main' if needed and waits for all checks/tests to pass
 
 1. :pencil2: Author merges the PR using the "squash commits" button once there are 3 approvals (2 developer and 1 QE)
 

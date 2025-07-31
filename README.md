@@ -65,8 +65,8 @@ By default, UI run Assisted Installer without standalone mode. To run with Assis
 
 | uhc-portal branch            | deployed env                                            | insights-chrome | default backend |
 |------------------------------| ------------------------------------------------------- | --------------- | --------------- |
-| `master`                     | https://console.dev.redhat.com/openshift                | stable version  | staging         |
-| `master` (specific revision) | https://console.redhat.com/openshift                    | stable version  | production      |
+| `main`                       | https://console.dev.redhat.com/openshift                | stable version  | staging         |
+| `main` (specific revision) | https://console.redhat.com/openshift                    | stable version  | production      |
 
 
 ## Issues/Troubleshooting

@@ -1,8 +1,8 @@
 # :cookie: Release to Production
 
-1. #### Pick the latest commit hash that can be released to Prod from master
+1. #### Pick the latest commit hash that can be released to Prod from 'main'
 
-   Go to https://github.com/RedHatInsights/uhc-portal/commits/master/
+   Go to https://github.com/RedHatInsights/uhc-portal/commits/main/
 
    Look at commits and pick the last commit that has all pipelines passed. Click on the "copy full SHA" for the commit you chose, and save it for later use.
 

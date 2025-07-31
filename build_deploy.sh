@@ -17,7 +17,7 @@
 
 # -----------------------------------------------------------------
 # This script is executed by a Jenkins job upon merge to any of the
-# long-lived deployment branches (i.e. master).
+# long-lived deployment branches (i.e. 'main').
 # If it doesn't succeed the change won't be deployed.
 # -----------------------------------------------------------------
 

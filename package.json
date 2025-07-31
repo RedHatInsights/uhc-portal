@@ -220,7 +220,7 @@
     "prettier:fix": "prettier --write '{src,cypress,scripts}/**/*.{js,ts,mjs,jsx,tsx}' 'run/*js'",
     "test-no-coverage": "TZ=America/New_York LC_ALL=en_US.utf8 node --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage  ",
     "test": "yarn test-no-coverage --coverage ",
-    "test-changes": "yarn test --changedSince=master",
+    "test-changes": "yarn test --changedSince=main",
     "test-changes-with-enforcement": "yarn test-changes --coverageThreshold='{\"global\":{\"statements\":\"80\"}}'",
     "test-local": "yarn test --maxWorkers=50%",
     "test-no-cache": "yarn test --no-cache",

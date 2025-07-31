@@ -251,7 +251,7 @@ Ideally, tests will be written and coded before making changes to the actual app
 it.todo('displays “Hello Kim” when “Kim” is sent as a prop on initial render');
 ```
 
-These todo tests should be checked into git if there is a need to merge the code to master before the tests are done.
+These todo tests should be checked into git if there is a need to merge the code to 'main' before the tests are done.
 
 ## Skip tests that are producing unexpected results
 

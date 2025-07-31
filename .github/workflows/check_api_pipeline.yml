@@ -15,7 +15,7 @@ on:
 env:
   NODE_VERSION: ${{ github.event.inputs.node-version || '22.x' }}
   SWAP_BRANCH_NAME: ${{ github.event.inputs.swap-branch-name || 'openapi' }}
-  BASE_BRANCH_NAME: ${{ github.ref_name || 'master' }}
+  BASE_BRANCH_NAME: ${{ github.ref_name || 'main' }}
 
 jobs:
   check_api:

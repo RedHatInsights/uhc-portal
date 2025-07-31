@@ -22,13 +22,13 @@ variables:
 stages:
   - sync
 
-📦 Sync master branch:
+📦 Sync main branch:
   <<: *sync-default
   stage: sync
   rules:
     - if: $JOB_ID == "sync"
   script:
-    - git clone -b master https://$GITHUB_TOKEN@github.com/RedHatInsights/uhc-portal uhc-portal
+    - git clone -b main https://$GITHUB_TOKEN@github.com/RedHatInsights/uhc-portal uhc-portal
     - cd uhc-portal
     - git remote add gitlab https://GITLAB_SYNC_TOKEN:$GITLAB_SYNC_TOKEN@gitlab.cee.redhat.com/service/uhc-portal
     - git push gitlab master --force

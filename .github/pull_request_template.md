@@ -32,7 +32,7 @@ specially used CLI options, the user-flow, and so on -->
 
 # Review process
 
-Please review and follow the [PR process](https://github.com/RedHatInsights/uhc-portal/blob/master/docs/pull-request-process.md).
+Please review and follow the [PR process](https://github.com/RedHatInsights/uhc-portal/blob/main/docs/pull-request-process.md).
 
 ## QE Reviewer
 
