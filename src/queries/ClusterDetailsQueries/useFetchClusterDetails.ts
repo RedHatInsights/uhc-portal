@@ -11,7 +11,7 @@ import { useFetchAiCluster } from './useFetchAiCluster';
 import { useFetchCluster } from './useFetchCluster';
 import { useFetchInflightChecks } from './useFetchInflightChecks';
 import { useFetchLimitedSupportReasons } from './useFetchLimitedSupportReasons';
-import { useFetchUpgradeGates } from './useFetchUpgradeGates';
+import { useFetchUpgradeGateAgreements } from './useFetchUpgradeGateAgreements';
 
 /**
  * Function responsible for invalidation of cluster details (refetch)
@@ -71,7 +71,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
     queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
   );
   const { isLoading: isClusterGateAgreementsLoading, data: clusterUpgradeGatesResponse } =
-    useFetchUpgradeGates(
+    useFetchUpgradeGateAgreements(
       subscription?.subscription.cluster_id as string,
       subscription,
       queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,

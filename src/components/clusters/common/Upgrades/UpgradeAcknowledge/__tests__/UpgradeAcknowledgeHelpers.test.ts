@@ -1,4 +1,7 @@
-import { getClusterAcks } from '../UpgradeAcknowledgeHelpers';
+import type { UpgradePolicy } from '~/types/clusters_mgmt.v1';
+import type { AugmentedCluster } from '~/types/types';
+
+import { getFromVersionFromHelper, getToVersionFromHelper } from '../UpgradeAcknowledgeHelpers';
 
 const mockGCPCluster = {
   kind: 'Cluster',
@@ -171,7 +174,7 @@ const mockGCPCluster = {
     href: '/api/clusters_mgmt/v1/versions/openshift-v4.17.19-candidate',
     raw_id: '4.17.19',
     channel_group: 'candidate',
-    available_upgrades: ['4.18.2'],
+    available_upgrades: ['4.18.2', '4.19.0'],
     end_of_life_timestamp: '2026-02-14T00:00:00Z',
   },
   identity_providers: {
@@ -362,225 +365,31 @@ const mockGCPCluster = {
   wifConfigName: 're-wif-13',
 };
 
-const mockGates = [
+const mockSchedules = [
   {
-    kind: 'VersionGate',
-    id: '3c812985-ac36-11ee-afb8-0a580a83181f',
-    href: '/api/clusters_mgmt/v1/version_gates/3c812985-ac36-11ee-afb8-0a580a83181f',
-    version_raw_id_prefix: '4.15',
-    label: 'api.openshift.com/gate-sts',
-    value: '4.15',
-    warning_message:
-      'STS roles must be updated with 4.15 permissions before the cluster can be updated to OpenShift 4.15. Failure to update the roles before cluster update will cause cluster control plane degradation.',
-    description:
-      'OpenShift STS clusters include new required cloud provider permissions in OpenShift 4.15.',
-    documentation_url: 'https://access.redhat.com/solutions/6808671',
-    sts_only: true,
-    cluster_condition: '',
-    creation_timestamp: '2024-01-06T01:52:23.837326Z',
-  },
-  {
-    kind: 'VersionGate',
-    id: '4b6136f6-46c2-11ee-ae96-0a580a821aab',
-    href: '/api/clusters_mgmt/v1/version_gates/4b6136f6-46c2-11ee-ae96-0a580a821aab',
-    version_raw_id_prefix: '4.14',
-    label: 'api.openshift.com/gate-ingress',
-    value: '4.14',
-    warning_message:
-      'In version 4.14 of OSD/ROSA, we are changing how we manage Ingress Controllers. If you are using additional non-default Ingresses, or Custom Domains, your cluster may be affected.',
-    description: 'Upgrade to 4.14 may affect additional Ingress behaviour.',
-    documentation_url: 'https://access.redhat.com/node/7028653',
-    sts_only: false,
-    cluster_condition: '',
-    creation_timestamp: '2023-08-29T23:17:59.732608Z',
-  },
-  {
-    kind: 'VersionGate',
-    id: '596326fb-d1ea-11ed-9f29-0a580a8312f9',
-    href: '/api/clusters_mgmt/v1/version_gates/596326fb-d1ea-11ed-9f29-0a580a8312f9',
-    version_raw_id_prefix: '4.13',
-    label: 'api.openshift.com/gate-sts',
-    value: '4.13',
-    warning_message:
-      'STS roles must be updated with 4.13 permissions before the cluster can be updated to OpenShift 4.13. Failure to update the roles before cluster update will cause cluster control plane degradation.',
-    description:
-      'OpenShift STS clusters include new required cloud provider permissions in OpenShift 4.13.',
-    documentation_url: 'https://access.redhat.com/solutions/7005463',
-    sts_only: true,
-    cluster_condition: '',
-    creation_timestamp: '2023-04-03T06:39:57.057613Z',
-  },
-  {
-    kind: 'VersionGate',
-    id: '81c07dbd-57cf-11ee-949e-0a580a800925',
-    href: '/api/clusters_mgmt/v1/version_gates/81c07dbd-57cf-11ee-949e-0a580a800925',
-    version_raw_id_prefix: '4.14',
-    label: 'api.openshift.com/gate-sts',
-    value: '4.14',
-    warning_message:
-      'STS roles must be updated with 4.14 permissions before the cluster can be updated to OpenShift 4.14. Failure to update the roles before cluster update will cause cluster control plane degradation.',
-    description:
-      'OpenShift STS clusters include new required cloud provider permissions in OpenShift 4.14.',
-    documentation_url: 'https://access.redhat.com/solutions/6808671',
-    sts_only: true,
-    cluster_condition: '',
-    creation_timestamp: '2023-09-20T16:05:24.178682Z',
-  },
-  {
-    kind: 'VersionGate',
-    id: '86b27fae-d1ea-11ed-9f29-0a580a8312f9',
-    href: '/api/clusters_mgmt/v1/version_gates/86b27fae-d1ea-11ed-9f29-0a580a8312f9',
-    version_raw_id_prefix: '4.13',
-    label: 'api.openshift.com/gate-ocp',
-    value: '4.13',
-    warning_message:
-      'To prevent an outage on your cluster, review any APIs in use that will be removed, and migrate them to the appropriate new API version. Failure to evaluate and migrate components affected by this update can cause some types of workloads to stop functioning.',
-    description: 'OpenShift removes several Kubernetes APIs in OpenShift 4.13.',
-    documentation_url: 'https://access.redhat.com/solutions/7005465',
-    sts_only: false,
-    cluster_condition: '',
-    creation_timestamp: '2023-04-03T06:41:13.07509Z',
-  },
-  {
-    kind: 'VersionGate',
-    id: '8f669a07-1cb4-11ed-a47b-0a580a830836',
-    href: '/api/clusters_mgmt/v1/version_gates/8f669a07-1cb4-11ed-a47b-0a580a830836',
-    version_raw_id_prefix: '4.11',
-    label: 'api.openshift.com/gate-sts',
-    value: '4.11',
-    warning_message:
-      'STS roles must be updated with 4.11 permissions before the cluster can be updated to OpenShift 4.11. Failure to update the roles before cluster update will cause cluster control plane degradation.',
-    description:
-      'OpenShift STS clusters include new required cloud provider permissions in OpenShift 4.11.',
-    documentation_url: 'https://access.redhat.com/solutions/6808671',
-    sts_only: true,
-    cluster_condition: '',
-    creation_timestamp: '2022-08-15T16:08:54.391042Z',
-  },
-  {
-    kind: 'VersionGate',
-    id: '9f2d78a1-57d0-11ee-949e-0a580a800925',
-    href: '/api/clusters_mgmt/v1/version_gates/9f2d78a1-57d0-11ee-949e-0a580a800925',
-    version_raw_id_prefix: '4.14',
-    label: 'api.openshift.com/gate-ocp',
-    value: '4.14',
-    warning_message:
-      'To prevent an outage on your cluster, review any APIs in use that will be removed, and migrate them to the appropriate new API version. Failure to evaluate and migrate components affected by this update can cause some types of workloads to stop functioning.',
-    description: 'OpenShift removes several Kubernetes APIs in OpenShift 4.14.',
-    documentation_url: 'https://access.redhat.com/articles/6958395',
-    sts_only: false,
-    cluster_condition: '',
-    creation_timestamp: '2023-09-20T16:13:23.04355Z',
-  },
-  {
-    kind: 'VersionGate',
-    id: 'd6015d79-98a2-11ec-a445-0a580a820d8e',
-    href: '/api/clusters_mgmt/v1/version_gates/d6015d79-98a2-11ec-a445-0a580a820d8e',
-    version_raw_id_prefix: '4.9',
-    label: 'api.openshift.com/gate-ocp',
-    value: '4.9',
-    warning_message:
-      'To prevent an outage on your cluster, review any APIs in use that will be removed, and migrate them to the appropriate new API version. Failure to evaluate and migrate components affected by this update can cause some types of workloads to stop functioning.',
-    description: 'OpenShift removes several Kubernetes APIs in OpenShift 4.9.',
-    documentation_url: 'https://access.redhat.com/solutions/6657541',
-    sts_only: false,
-    cluster_condition: '',
-    creation_timestamp: '2022-02-28T14:29:28.418035Z',
-  },
-  {
-    kind: 'VersionGate',
-    id: 'e4dda6cd-7020-11ed-8152-0a580a810441',
-    href: '/api/clusters_mgmt/v1/version_gates/e4dda6cd-7020-11ed-8152-0a580a810441',
-    version_raw_id_prefix: '4.12',
-    label: 'api.openshift.com/gate-sts',
-    value: '4.12',
-    warning_message:
-      'STS roles must be updated with 4.12 permissions before the cluster can be updated to OpenShift 4.12. Failure to update the roles before cluster update will cause cluster control plane degradation.',
-    description:
-      'OpenShift STS clusters include new required cloud provider permissions in OpenShift 4.12.',
-    documentation_url: 'https://access.redhat.com/solutions/6988198',
-    sts_only: true,
-    cluster_condition: '',
-    creation_timestamp: '2022-11-29T20:03:29.934921Z',
-  },
-  {
-    kind: 'VersionGate',
-    id: 'e4e534f0-1f07-11ef-a973-0a580a81063b',
-    href: '/api/clusters_mgmt/v1/version_gates/e4e534f0-1f07-11ef-a973-0a580a81063b',
-    version_raw_id_prefix: '4.16',
-    label: 'api.openshift.com/gate-ocp',
-    value: '4.16',
-    warning_message:
-      'To prevent an outage on your cluster, review any APIs in use that will be removed, and migrate them to the appropriate new API version. Failure to evaluate and migrate components affected by this update can cause some types of workloads to stop functioning.',
-    description:
-      'OpenShift removes several Kubernetes APIs, including flowschemas (flowcontrol.apiserver.k8s.io/v1beta2) and prioritylevelconfigurations (flowcontrol.apiserver.k8s.io/v1beta2) in OpenShift 4.16.',
-    documentation_url: 'https://access.redhat.com/articles/6955985',
-    sts_only: false,
-    cluster_condition: '',
-    creation_timestamp: '2024-05-31T04:40:23.72334Z',
-  },
-  {
-    kind: 'VersionGate',
-    id: 'eef86fa3-39f6-11ef-9dc9-0a580a801130',
-    href: '/api/clusters_mgmt/v1/version_gates/eef86fa3-39f6-11ef-9dc9-0a580a801130',
-    version_raw_id_prefix: '4.10',
-    label: 'api.openshift.com/gate-label-test-b64q',
-    value: 'value-test',
-    warning_message: 'You have been warned',
-    description: 'test',
-    documentation_url: '',
-    sts_only: false,
-    cluster_condition: '',
-    creation_timestamp: '2024-07-04T11:17:00.577169Z',
-  },
-  {
-    kind: 'VersionGate',
-    id: 'f721546f-6f9d-11ef-9a77-0a580a81089a',
-    href: '/api/clusters_mgmt/v1/version_gates/f721546f-6f9d-11ef-9a77-0a580a81089a',
-    version_raw_id_prefix: '4.17',
-    label: 'api.openshift.com/gate-sts',
-    value: '4.17',
-    warning_message:
-      'STS roles must be updated with 4.17 permissions before the cluster can be updated to OpenShift 4.17. Failure to update the roles before cluster update will cause cluster control plane degradation.',
-    description:
-      'OpenShift STS clusters include new required cloud provider permissions in OpenShift 4.17.',
-    documentation_url: 'https://access.redhat.com/solutions/6808671',
-    sts_only: true,
-    cluster_condition: '',
-    creation_timestamp: '2024-09-10T17:56:11.847999Z',
+    version: '4.18.2',
+    schedule_type: 'automatic',
+    schedule: 'daily',
   },
 ];
-
-const GCPWIFGate = {
-  kind: 'VersionGate',
-  id: '50efa344-e7db-11ef-b42d-0a580a8010c8',
-  href: '/api/clusters_mgmt/v1/version_gates/50efa344-e7db-11ef-b42d-0a580a8010c8',
-  version_raw_id_prefix: '4.18',
-  label: 'api.openshift.com/gate-wif',
-  value: '4.18',
-  warning_message:
-    'The wif-config associated with this cluster must be updated to support 4.18 before the cluster can be updated to OpenShift 4.18. Failure to update the wif-config before cluster update will cause the upgrade request to fail.',
-  description: 'OpenShift WIF clusters require wif-config update.',
-  documentation_url: 'TBD',
-  sts_only: false,
-  cluster_condition: "gcp.authentication.wif_config_id != ''",
-  creation_timestamp: '2025-02-10T18:17:41.351099Z',
-};
-
 describe('UpgradeAcknowledgeHelpers', () => {
-  describe('getClusterAcks', () => {
-    it('should not filter out WIF-config realted alert in case of a GCP WIF cluster', () => {
-      const result = getClusterAcks({}, mockGCPCluster, [...mockGates, GCPWIFGate], '4.18.2');
-      expect(result).toEqual([[GCPWIFGate], []]);
+  describe('getFromVersionFromHelper', () => {
+    it('Get the version from the schedules', () => {
+      const result = getFromVersionFromHelper(mockGCPCluster as unknown as AugmentedCluster);
+      expect(result).toEqual('4.17.19');
     });
-    it('should filter out WIF-config realted alert in case of non GCP WIF cluster', () => {
-      const result = getClusterAcks(
-        {},
-        { id: 'fake-id', aws: {} },
-        [...mockGates, GCPWIFGate],
-        '4.18.2',
+  });
+  describe('getToVersionFromHelper', () => {
+    it('Should return the version from the schedules', () => {
+      const result = getToVersionFromHelper(
+        mockSchedules as unknown as UpgradePolicy[],
+        mockGCPCluster as unknown as AugmentedCluster,
       );
-      expect(result).toEqual([[], []]);
+      expect(result).toEqual('4.18.2');
+    });
+    it('Should return the highest available upgrade when no schedules set', () => {
+      const result = getToVersionFromHelper([], mockGCPCluster as unknown as AugmentedCluster);
+      expect(result).toEqual('4.19.0');
     });
   });
 });

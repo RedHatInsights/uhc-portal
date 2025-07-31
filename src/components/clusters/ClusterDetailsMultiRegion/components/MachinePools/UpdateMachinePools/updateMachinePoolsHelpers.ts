@@ -4,8 +4,9 @@ import semver from 'semver';
 import { updateStartedSelectorMultiRegion } from '~/components/clusters/common/Upgrades/upgradeHelpers';
 import { GlobalState } from '~/redux/store';
 import clusterService, { getClusterServiceForRegion } from '~/services/clusterService';
-import { NodePool, UpgradePolicy, UpgradePolicyState } from '~/types/clusters_mgmt.v1';
+import { NodePool } from '~/types/clusters_mgmt.v1';
 import { ScheduleType, UpgradeType } from '~/types/clusters_mgmt.v1/enums';
+import { UpgradePolicyWithState } from '~/types/types';
 
 import { NodePoolWithUpgradePolicies } from '../machinePoolCustomTypes';
 
@@ -18,7 +19,6 @@ export const controlPlaneVersionSelector = (state: GlobalState) =>
 export const displayControlPlaneVersion = (controlPlaneVersion: string | undefined) =>
   semver.coerce(controlPlaneVersion)?.version;
 
-type UpgradePolicyWithState = UpgradePolicy & { state: UpgradePolicyState };
 type Schedules = {
   items: UpgradePolicyWithState[];
   fulfilled: boolean;

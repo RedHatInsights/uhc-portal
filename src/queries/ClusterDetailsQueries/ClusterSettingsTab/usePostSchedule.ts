@@ -7,7 +7,7 @@ import { UpgradePolicy } from '~/types/clusters_mgmt.v1';
 import { refetchSchedules } from './useGetSchedules';
 
 export const usePostSchedule = (clusterID: string, isHypershift: boolean, region?: string) => {
-  const { data, isPending, isError, error, mutate } = useMutation({
+  const { data, isPending, isError, error, isSuccess, mutate } = useMutation({
     mutationKey: ['postSchedule'],
     mutationFn: async (schedule: UpgradePolicy) => {
       const clusterService = region ? getClusterServiceForRegion(region) : getClusterService();
@@ -38,6 +38,7 @@ export const usePostSchedule = (clusterID: string, isHypershift: boolean, region
   return {
     data,
     isPending,
+    isSuccess,
     isError,
     error,
     mutate,
