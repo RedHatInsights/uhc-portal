@@ -181,7 +181,11 @@ export const MachinePoolsTable = ({
       Object.keys(columnCells).map((column) => {
         const columnOptions = columnCells[column];
         return (
-          <Th key={column.title} width={column.columnWidth}>
+          <Th
+            key={columnOptions.title}
+            width={columnOptions.columnWidth}
+            screenReaderText={columnOptions.screenReaderText}
+          >
             {columnOptions.title}
           </Th>
         );
