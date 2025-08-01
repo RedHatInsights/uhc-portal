@@ -44,6 +44,7 @@ export const useEditCreateMachineOrNodePools = (
             isROSACluster: isROSA(cluster),
             isSecureBootUpdated: updatedSecureBoot,
           });
+
       if (currentMPId) {
         const request = isHypershift
           ? clusterService.patchNodePool

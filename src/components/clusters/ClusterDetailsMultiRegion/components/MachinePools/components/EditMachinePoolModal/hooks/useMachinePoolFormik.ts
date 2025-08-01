@@ -2,6 +2,8 @@ import * as React from 'react';
 import * as Yup from 'yup';
 
 import {
+  checkAwsTagKey,
+  checkAwsTagValue,
   checkLabelKey,
   checkLabelValue,
   checkMachinePoolName,
@@ -22,7 +24,10 @@ import {
   getWorkerNodeVolumeSizeMinGiB,
 } from '~/components/clusters/common/machinePools/utils';
 import { CloudProviderType, IMDSType } from '~/components/clusters/wizards/common';
-import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
+import {
+  ENABLE_AWS_TAGS_VIEW_IN_EDIT_MODAL,
+  MAX_NODES_TOTAL_249,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
@@ -40,7 +45,7 @@ export type EditMachinePoolValues = {
   autoscaleMin: number;
   autoscaleMax: number;
   replicas: number;
-  labels: { key: string; value: string }[];
+  labels: { key: string; value: string; isAwsTag?: boolean }[];
   taints: { key: string; value: string; effect: TaintEffect }[];
   useSpotInstances: boolean;
   spotInstanceType: 'onDemand' | 'maximum';
@@ -122,6 +127,28 @@ const useMachinePoolFormik = ({
       autoscaleMax /= 3;
     }
 
+    const labels = machinePool?.labels
+      ? Object.keys(machinePool.labels).map((key) => ({
+          key,
+          value: machinePool.labels?.[key]!!,
+        }))
+      : [];
+
+    const awsTags =
+      ENABLE_AWS_TAGS_VIEW_IN_EDIT_MODAL && (machinePool as NodePool)?.aws_node_pool?.tags
+        ? Object.keys((machinePool as NodePool).aws_node_pool!.tags!).map((key) => ({
+            key,
+            value: (machinePool as NodePool).aws_node_pool!.tags![key]!,
+            isAwsTag: true,
+          }))
+        : [];
+
+    const labelsValue = [
+      ...awsTags,
+      ...labels,
+      ...(!awsTags.length && !labels.length ? [{ key: '', value: '', isAwsTag: false }] : []),
+    ];
+
     const machinePoolData: EditMachinePoolValues = {
       name: machinePool?.id || '',
       autoscaling: !!machinePool?.autoscaling,
@@ -129,12 +156,8 @@ const useMachinePoolFormik = ({
       autoscaleMin,
       autoscaleMax: autoscaleMax || 1,
       replicas: machinePool?.replicas || minNodesRequired,
-      labels: machinePool?.labels
-        ? Object.keys(machinePool.labels).map((key) => ({
-            key,
-            value: machinePool.labels?.[key]!!,
-          }))
-        : [{ key: '', value: '' }],
+      labels: labelsValue,
+
       taints: machinePool?.taints?.map((taint) => ({
         key: taint.key || '',
         value: taint.value || '',
@@ -207,29 +230,53 @@ const useMachinePoolFormik = ({
                 if (values.labels.length === 1 && (!value || value.length === 0)) {
                   return true;
                 }
-                const err = checkLabelKey(value);
+
+                const { isAwsTag } = this.parent;
+
+                const err = isAwsTag ? checkAwsTagKey(value) : checkLabelKey(value);
+
                 if (err) {
                   return new Yup.ValidationError(err, value, this.path);
                 }
 
-                if (values.labels.filter(({ key }: { key: any }) => key === value).length > 1) {
+                const labelKeyMatch = values.labels.filter(
+                  ({ key, isAwsTag }: { key: any; isAwsTag: any }) => key === value && !isAwsTag,
+                );
+                const awsTagMatch = values.labels.filter(
+                  ({ key, isAwsTag }: { key: any; isAwsTag: any }) => key === value && isAwsTag,
+                );
+                if (labelKeyMatch.length > 1) {
                   return new Yup.ValidationError(
                     'Each label must have a different key.',
                     value,
                     this.path,
                   );
                 }
+                if (awsTagMatch.length > 1) {
+                  return new Yup.ValidationError(
+                    'Each AWS Tag must have a different key.',
+                    value,
+                    this.path,
+                  );
+                }
+
                 return true;
               }),
               value: Yup.string().test('label-value', '', function test(value) {
-                const err = checkLabelValue(value);
+                const { isAwsTag } = this.parent;
+                const err = isAwsTag ? checkAwsTagValue(value) : checkLabelValue(value);
+
                 if (err) {
                   return new Yup.ValidationError(err, value, this.path);
                 }
 
                 const labelKey = this.parent.key;
                 if (value && !labelKey) {
-                  return new Yup.ValidationError('Label key has to be defined', value, this.path);
+                  return new Yup.ValidationError(
+                    `${isAwsTag ? 'AWS Tag' : 'Label'} key has to be defined`,
+                    value,
+                    this.path,
+                  );
                 }
                 return true;
               }),

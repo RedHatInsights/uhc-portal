@@ -236,6 +236,8 @@ const EditMachinePoolModal = ({
     machineTypes: machineTypesResponse,
     tabKey: 3,
     initialTabContentShown: STARTING_TAB_KEY === 3,
+    isROSAHCP: isHypershift ?? false,
+    isNewMachinePool: !isEdit,
   });
 
   const [securityGroupsTab, securityGroupsContent] = useSecurityGroupsSubTab({
@@ -371,7 +373,10 @@ const EditMachinePoolModal = ({
                     ) : null}
                     <DiskSizeField cluster={cluster} isEdit={isEdit} />
                     <ExpandableSection toggleText="Edit node labels and taints">
-                      <EditLabelsSection />
+                      <EditLabelsSection
+                        isNewMachinePool={!isEdit}
+                        isROSAHCP={isHypershift ?? false}
+                      />
                       <EditTaintsSection
                         cluster={cluster}
                         machinePools={machinePoolsResponse || []}

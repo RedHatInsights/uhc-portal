@@ -1,3 +1,4 @@
+import { ENABLE_AWS_TAGS_EDITING_IN_EDIT_MODAL } from '~/queries/featureGates/featureConstants';
 import { AwsMachinePool, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 
 import { EditMachinePoolValues } from './hooks/useMachinePoolFormik';
@@ -6,7 +7,24 @@ const getLabels = (labels: EditMachinePoolValues['labels']) =>
   labels.length === 1 && !labels[0].key
     ? {}
     : labels.reduce(
-        (acc, { key, value }) => {
+        (acc, { key, value, isAwsTag }) => {
+          if (isAwsTag) {
+            return acc;
+          }
+          acc[key] = value;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+
+const getAWSTags = (labels: EditMachinePoolValues['labels']) =>
+  labels.length === 1 && !labels[0].key
+    ? {}
+    : labels.reduce(
+        (acc, { key, value, isAwsTag }) => {
+          if (!isAwsTag) {
+            return acc;
+          }
           acc[key] = value;
           return acc;
         },
@@ -116,6 +134,7 @@ export const buildNodePoolRequest = (
     id: values.name,
     labels: getLabels(values.labels),
     taints: getTaints(values.taints),
+
     ...getAutoscalingParams(values, isMultiZoneMachinePool, true),
     auto_repair: values.auto_repair,
   };
@@ -131,5 +150,18 @@ export const buildNodePoolRequest = (
       },
     };
   }
+
+  const awsTags = getAWSTags(values.labels);
+
+  if (Object.keys(awsTags).length > 0 && (!isEdit || ENABLE_AWS_TAGS_EDITING_IN_EDIT_MODAL)) {
+    if (nodePool.aws_node_pool) {
+      nodePool.aws_node_pool.tags = awsTags;
+    } else {
+      nodePool.aws_node_pool = {
+        tags: awsTags,
+      };
+    }
+  }
+
   return nodePool;
 };

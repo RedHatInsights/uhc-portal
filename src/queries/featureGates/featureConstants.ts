@@ -39,6 +39,9 @@ export const AWS_TAGS_NEW_MP = 'ocmui-aws-tags-new-mp';
 export const TABBED_MACHINE_POOL_MODAL = 'ocmui-tabbed-machine-pool-modal';
 export const ROSA_ARCHITECTURE_RENAMING_ALERT = 'ocmui-rosa-architecture-renaming-alert';
 
+export const ENABLE_AWS_TAGS_VIEW_IN_EDIT_MODAL = false;
+export const ENABLE_AWS_TAGS_EDITING_IN_EDIT_MODAL = false;
+
 export default {
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
   HYPERSHIFT_WIZARD_FEATURE,
