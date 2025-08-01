@@ -63,8 +63,8 @@ export const GcpVpcNameSelectField = ({
         options = (
           <>
             <FormSelectOption isDisabled isPlaceholder value="" label={placeholder} />
-            {items.map(({ name }: { name: string }) => (
-              <FormSelectOption key={name} value={name} label={name || ''} />
+            {items.map((item: CloudVpc) => (
+              <FormSelectOption key={item.name} value={item.name || ''} label={item.name || ''} />
             ))}
           </>
         );
