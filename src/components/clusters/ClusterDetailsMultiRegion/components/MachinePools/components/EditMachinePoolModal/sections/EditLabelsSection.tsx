@@ -37,19 +37,22 @@ const EditLabelsSection = ({
 }) => {
   const [input] = useField<EditMachinePoolValues['labels']>('labels');
 
-  const showAWSTags = useFeatureGate(AWS_TAGS_NEW_MP) && isROSAHCP;
-  const showAwsTagsInEditModal =
-    showAWSTags && !isNewMachinePool && ENABLE_AWS_TAGS_VIEW_IN_EDIT_MODAL;
-  const editAWSTagsInEditModal =
-    showAWSTags && !isNewMachinePool && ENABLE_AWS_TAGS_EDITING_IN_EDIT_MODAL;
+  const showAWSTagsFeatureGate = useFeatureGate(AWS_TAGS_NEW_MP) && isROSAHCP;
+
+  const canViewAwsTagsInEditModal =
+    showAWSTagsFeatureGate && !isNewMachinePool && ENABLE_AWS_TAGS_VIEW_IN_EDIT_MODAL;
+  const canEditAwsTagsInEditModal =
+    showAWSTagsFeatureGate && !isNewMachinePool && ENABLE_AWS_TAGS_EDITING_IN_EDIT_MODAL;
+  const showAwsTags = (isNewMachinePool && showAWSTagsFeatureGate) || canViewAwsTagsInEditModal;
 
   return (
     <GridItem>
-      <FormGroup fieldId="labels" label="Node labels">
+      <FormGroup fieldId="labels" label={`Node labels${showAwsTags ? ' and AWS Tags' : ''}`}>
         <FormGroupHelperText>
           <div className="uhc-labels-section__description">
-            Labels help you organize and select resources. Adding labels below will let you query
-            for objects that have similar, overlapping or dissimilar labels.
+            Labels {showAwsTags ? 'and AWS Tags ' : ''} help you organize and select resources.
+            Adding labels {showAwsTags ? 'or AWS Tags' : ''} below will let you query for objects
+            that have similar, overlapping or dissimilar labels{showAwsTags ? ' or AWS Tags' : ''}.
           </div>
         </FormGroupHelperText>
       </FormGroup>
@@ -72,17 +75,22 @@ const EditLabelsSection = ({
                 const isAwsTagField = `labels[${index}].isAwsTag`;
                 const isAwsTag = label.isAwsTag ?? false;
 
-                if (isAwsTag && (!showAWSTags || (!showAwsTagsInEditModal && !isNewMachinePool))) {
+                // Hide AWS tags if feature is not enabled or if in edit modal without view permission
+                if (
+                  isAwsTag &&
+                  (!showAWSTagsFeatureGate || (!isNewMachinePool && !canViewAwsTagsInEditModal))
+                ) {
                   return null;
                 }
 
-                const isReadOnly = isAwsTag && showAwsTagsInEditModal && !editAWSTagsInEditModal;
+                const isReadOnly =
+                  isAwsTag && canViewAwsTagsInEditModal && !canEditAwsTagsInEditModal;
 
                 const showCheckbox =
-                  showAWSTags &&
+                  showAWSTagsFeatureGate &&
                   (isNewMachinePool ||
-                    editAWSTagsInEditModal ||
-                    (isAwsTag && !editAWSTagsInEditModal));
+                    canEditAwsTagsInEditModal ||
+                    (isAwsTag && canViewAwsTagsInEditModal));
 
                 const tooManyAwsTags =
                   !isAwsTag &&
@@ -108,7 +116,7 @@ const EditLabelsSection = ({
                     ) : null}
 
                     <GridItem span={showCheckbox ? 2 : 4}>
-                      {!isAwsTag || isNewMachinePool || editAWSTagsInEditModal ? (
+                      {!isAwsTag || isNewMachinePool || canEditAwsTagsInEditModal ? (
                         <FieldArrayRemoveButton
                           input={input}
                           index={index}
@@ -129,9 +137,7 @@ const EditLabelsSection = ({
                   isInline
                 >
                   Add label
-                  {showAWSTags && (isNewMachinePool || ENABLE_AWS_TAGS_EDITING_IN_EDIT_MODAL)
-                    ? ' or AWS Tag'
-                    : ''}
+                  {showAwsTags ? ' or AWS Tag' : ''}
                 </Button>
               </GridItem>
             </Grid>
