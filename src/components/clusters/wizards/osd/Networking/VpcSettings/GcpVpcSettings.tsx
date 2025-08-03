@@ -1,7 +1,15 @@
 import React, { ReactElement, useMemo } from 'react';
 import { Field } from 'formik';
 
-import { Alert, AlertActionLink, GridItem, Title, useWizardContext } from '@patternfly/react-core';
+import {
+  Alert,
+  AlertActionLink,
+  Content,
+  ContentVariants,
+  GridItem,
+  Title,
+  useWizardContext,
+} from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import { required, validateGCPHostProjectId, validateGCPSubnet } from '~/common/validators';
@@ -112,10 +120,10 @@ export const GcpVpcSettings = () => {
             iconClassName="pf-v6-u-ml-sm"
             hint={
               <>
-                <p>
+                <Content component={ContentVariants.p}>
                   Install into a user-defined subnet within a custom VPC network that is provisioned
                   and fully managed within the same GCP project.
-                </p>
+                </Content>
                 <ExternalLink href={links.INSTALL_GCP_VPC}>
                   Learn more about installing into an existing VPC
                 </ExternalLink>
