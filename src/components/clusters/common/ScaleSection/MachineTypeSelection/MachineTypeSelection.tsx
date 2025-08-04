@@ -102,8 +102,8 @@ const MachineTypeSelection = ({
   // checks if previous selection was from unfiltered machine set. Will flip filter value.
   const previousSelectionFromUnfilteredSet =
     machineTypesByRegion.fulfilled &&
-    !machineTypesByRegion?.typesByID[instanceType]?.id &&
-    machineTypesResponse?.typesByID?.[instanceType]?.id;
+    !machineTypesByRegion?.typesByID[instanceType?.id]?.id &&
+    machineTypesResponse?.typesByID?.[instanceType?.id]?.id;
 
   /** Checks whether required data arrived. */
   const isDataReady =
@@ -204,14 +204,21 @@ const MachineTypeSelection = ({
   );
 
   const setDefaultValue = React.useCallback(() => {
-    const defaultType = cloudProviderID
+    const defaultTypeId = cloudProviderID
       ? flavours?.byID?.[DEFAULT_FLAVOUR_ID]?.[cloudProviderID]?.compute_instance_type
       : undefined;
 
-    if (defaultType && isTypeAvailable(defaultType)) {
-      setFieldValue(defaultType);
+    if (defaultTypeId && isTypeAvailable(defaultTypeId)) {
+      const defaultMachineType = activeMachineTypes?.typesByID?.[defaultTypeId];
+      setFieldValue(defaultMachineType);
     }
-  }, [cloudProviderID, flavours?.byID, isTypeAvailable, setFieldValue]);
+  }, [
+    cloudProviderID,
+    flavours?.byID,
+    isTypeAvailable,
+    setFieldValue,
+    activeMachineTypes?.typesByID,
+  ]);
 
   React.useEffect(() => {
     dispatch(getDefaultFlavour()); // This should be migrated to React Query instead of sorting it in Redux. See issue #OCMUI-3323
@@ -307,11 +314,8 @@ const MachineTypeSelection = ({
   // In the dropdown we put the machine type id in separate description row,
   // but the Select toggle doesn't support that, so combine both into one label.
   const selectionText = React.useMemo(
-    () =>
-      machineTypeFullLabel(
-        filteredMachineTypes.find((machineType) => machineType.id === instanceType) || null,
-      ),
-    [filteredMachineTypes, instanceType],
+    () => machineTypeFullLabel(instanceType || null),
+    [instanceType],
   );
 
   if (
@@ -332,7 +336,7 @@ const MachineTypeSelection = ({
     const currentSelectionPossiblyUnavailable =
       useRegionFilteredData &&
       instanceType &&
-      !isMachineTypeIncludedInFilteredSet(instanceType, machineTypesByRegion);
+      !isMachineTypeIncludedInFilteredSet(instanceType?.id, machineTypesByRegion);
     return (
       <FormGroup
         label="Compute node instance type"
@@ -342,9 +346,14 @@ const MachineTypeSelection = ({
       >
         <TreeViewSelect
           treeViewSelectionMap={machineTypeMap}
-          selected={findSelectedTreeViewItem(instanceType)}
+          // findSelectedTreeViewItem is used to find the selected item in the tree view (as a TreeViewData object).
+          selected={findSelectedTreeViewItem(instanceType?.id)}
           selectionPlaceholderText={selectionText}
-          setSelected={(_event, selection) => setFieldValue(selection.id)}
+          setSelected={(_event, selection) =>
+            setFieldValue(
+              filteredMachineTypes.find((machineType) => machineType.id === selection.id),
+            )
+          }
           menuToggleBadge={currentSelectionPossiblyUnavailable && possiblyUnavailableWarnIcon}
           treeViewSwitchActive={!isMachineTypeFilteredByRegion}
           setTreeViewSwitchActive={(switchValue) => setIsMachineTypeFilteredByRegion(!switchValue)}
