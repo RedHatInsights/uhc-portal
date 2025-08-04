@@ -65,6 +65,17 @@ const machineTypesResponse = {
       },
     ],
   },
+  typesByID: {
+    'm5.xlarge': {
+      id: 'm5.xlarge',
+      cpu: {
+        value: 4,
+      },
+      memory: {
+        value: 4,
+      },
+    },
+  },
 };
 
 const commonProps = {

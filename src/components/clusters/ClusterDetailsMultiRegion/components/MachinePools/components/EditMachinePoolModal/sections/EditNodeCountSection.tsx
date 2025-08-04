@@ -53,7 +53,7 @@ const EditNodeCountSection = ({
         cluster,
         machinePool,
         machinePools,
-        machineTypeId: values.instanceType,
+        machineTypeId: values.instanceType?.id,
         machineTypes,
         quota: organization.quotaList,
         minNodes: minNodesRequired,

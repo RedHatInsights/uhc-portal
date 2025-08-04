@@ -17,7 +17,7 @@ const defaultValues: EditMachinePoolValues = {
   spotInstanceType: 'maximum',
   maxPrice: 0.04,
   diskSize: 333,
-  instanceType: 'some-instance-type',
+  instanceType: { id: 'some-instance-type' },
   privateSubnetId: 'subnet-id',
   securityGroupIds: ['sg-1'],
   imds: IMDSType.V1AndV2,

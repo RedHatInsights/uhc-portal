@@ -67,7 +67,7 @@ export const buildMachinePoolRequest = (
   if (!isEdit) {
     const awsConfig: AwsMachinePool = {};
 
-    machinePool.instance_type = values.instanceType;
+    machinePool.instance_type = values.instanceType?.id;
 
     if (values.useSpotInstances) {
       awsConfig.spot_market_options =
@@ -123,7 +123,7 @@ export const buildNodePoolRequest = (
   if (!isEdit) {
     nodePool.subnet = values.privateSubnetId;
     nodePool.aws_node_pool = {
-      instance_type: values.instanceType,
+      instance_type: values.instanceType?.id,
       ec2_metadata_http_tokens: values.imds,
       additional_security_group_ids: values.securityGroupIds,
       root_volume: {
