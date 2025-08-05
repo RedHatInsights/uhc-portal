@@ -47,6 +47,7 @@ export type EditMachinePoolValues = {
   maxPrice: number;
   diskSize: number;
   instanceType: MachineType | undefined;
+  isWindowsLicenseIncluded?: boolean;
   privateSubnetId: string | undefined;
   securityGroupIds: string[];
   secure_boot?: boolean;
@@ -84,6 +85,7 @@ const useMachinePoolFormik = ({
   );
   const rosa = isROSA(cluster);
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
+  const isHypershift = isHypershiftCluster(cluster);
 
   const minNodesRequired = getClusterMinNodes({
     cluster,
@@ -161,10 +163,22 @@ const useMachinePoolFormik = ({
       machinePoolData.secure_boot = shieldedVmSecureBoot(machinePool as MachinePool, cluster);
     }
 
-    return machinePoolData;
-  }, [machinePool, isMachinePoolMz, minNodesRequired, cluster, isGCP, machineTypes.typesByID]);
+    if (isHypershift) {
+      // TODO: Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+      machinePoolData.isWindowsLicenseIncluded = false; // This involves extra costs, let's keep it false by default
+      // (machinePool as MachinePool)?.aws?.windows_license_included || false;
+    }
 
-  const isHypershift = isHypershiftCluster(cluster);
+    return machinePoolData;
+  }, [
+    machinePool,
+    isMachinePoolMz,
+    minNodesRequired,
+    cluster,
+    isGCP,
+    machineTypes.typesByID,
+    isHypershift,
+  ]);
 
   const minDiskSize = getWorkerNodeVolumeSizeMinGiB(isHypershift);
   const maxDiskSize = getWorkerNodeVolumeSizeMaxGiB(cluster.version?.raw_id || '');
