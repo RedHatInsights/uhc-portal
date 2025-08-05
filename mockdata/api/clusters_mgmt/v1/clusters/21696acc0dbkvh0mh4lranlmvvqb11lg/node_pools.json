@@ -26,7 +26,8 @@
         }
       },
       "availability_zone": "us-east-1d",
-      "subnet": "subnet-0da631ca7d1b2ef9c"
+      "subnet": "subnet-0da631ca7d1b2ef9c",
+      "imageType": "Windows"
     },
     {
       "kind": "NodePool",
