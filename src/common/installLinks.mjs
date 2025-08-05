@@ -397,6 +397,9 @@ const links = {
     'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html-single/managing_clusters/index#transferring-cluster-ownership_downloading-and-updating-pull-secrets',
 
   ROSA_ARCHITECTURE_RENAMING_KNOWLEDGE_BASE_ARTICLE: 'https://access.redhat.com/articles/7123990',
+
+  WINDOWS_LICENSE_INCLUDED_AWS_DOCS: 'https://aws.amazon.com/windows/resources/licensing/',
+  WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: 'https://access.redhat.com/articles/7096903',
 };
 
 // Tool identifiers are public — e.g. for linking to specific tool in DownloadsPage.

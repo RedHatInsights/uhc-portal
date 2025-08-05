@@ -48,7 +48,7 @@ import {
 } from './machineTypeSelectionHelper';
 import sortMachineTypes from './sortMachineTypes';
 
-const INSTANCE_TYPE_FIELD_ID = 'instanceType';
+const fieldId = 'instanceType';
 
 // Default selection scenarios:
 // - First time, default is available => select it.
@@ -90,7 +90,7 @@ const MachineTypeSelection = ({
     _field,
     { value: instanceType, touched, error: instanceTypeError },
     { setValue: setFieldValue },
-  ] = useField(INSTANCE_TYPE_FIELD_ID);
+  ] = useField(fieldId);
 
   const { flavours, machineTypesByRegion, organization, quota } = useGlobalState((state) => ({
     flavours: state.flavours,
@@ -388,4 +388,4 @@ const MachineTypeSelection = ({
   );
 };
 
-export { MachineTypeSelection, MachineTypeSelectionProps };
+export { MachineTypeSelection, MachineTypeSelectionProps, fieldId };
