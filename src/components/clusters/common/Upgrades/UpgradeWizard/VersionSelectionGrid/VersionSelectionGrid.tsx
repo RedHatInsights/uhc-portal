@@ -12,13 +12,13 @@ const VersionSelectionGrid = ({
   availableUpgrades,
   onSelect,
   selected,
-  getUnMetClusterAcknowledgements,
+  isUnMetClusterAcknowledgements,
 }: {
   clusterVersion: string;
   availableUpgrades?: string[];
-  onSelect: (availableUpgrade: string | null) => void;
+  onSelect: (version: string) => void;
   selected?: string;
-  getUnMetClusterAcknowledgements?: () => void;
+  isUnMetClusterAcknowledgements?: boolean;
 }) => {
   React.useEffect(
     () => {
@@ -34,7 +34,7 @@ const VersionSelectionGrid = ({
 
   const onClick = (event: React.FormEvent<HTMLInputElement>) => {
     const newSelected = event.currentTarget.id === selected ? null : event.currentTarget.id;
-    onSelect(newSelected);
+    onSelect(newSelected || '');
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -58,7 +58,7 @@ const VersionSelectionGrid = ({
               version={latestInCurrMinor}
               onKeyDown={onKeyDown}
               onClick={onClick}
-              getUnMetClusterAcknowledgements={getUnMetClusterAcknowledgements}
+              isUnMetClusterAcknowledgements={isUnMetClusterAcknowledgements}
             >
               The latest on your current minor version.
             </VersionCard>
@@ -72,7 +72,7 @@ const VersionSelectionGrid = ({
               version={latestVersion}
               onKeyDown={onKeyDown}
               onClick={onClick}
-              getUnMetClusterAcknowledgements={getUnMetClusterAcknowledgements}
+              isUnMetClusterAcknowledgements={isUnMetClusterAcknowledgements}
             >
               Start taking advantage of the new features{' '}
               {`${latestVersionParts?.major}.${latestVersionParts?.minor}`} has to offer.
@@ -119,7 +119,7 @@ const VersionSelectionGrid = ({
                 onKeyDown={onKeyDown}
                 onClick={onClick}
                 isSelected={selected === upgradeVersion}
-                getUnMetClusterAcknowledgements={getUnMetClusterAcknowledgements}
+                isUnMetClusterAcknowledgements={isUnMetClusterAcknowledgements}
               />
             </GridItem>
           ))}

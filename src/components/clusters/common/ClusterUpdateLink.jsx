@@ -14,7 +14,7 @@ import links from '../../../common/installLinks.mjs';
 import { openModal } from '../../common/Modal/ModalActions';
 import modals from '../../common/Modal/modals';
 
-import { isHibernating, isHypershiftCluster } from './clusterStates';
+import { isHibernating } from './clusterStates';
 
 const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
   const dispatch = useDispatch();
@@ -48,11 +48,6 @@ const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
   const cannotUpgrade =
     !cluster.canEdit || !osdUpgradeAvailable || isHibernating(cluster) || isStale;
   if ((cluster.managed && cannotUpgrade) || (!cluster.managed && (!upgrade.available || isStale))) {
-    return null;
-  }
-
-  // Only show update for non hypershift clusters
-  if (isHypershiftCluster(cluster)) {
     return null;
   }
 
