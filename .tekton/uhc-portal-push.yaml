@@ -25,7 +25,7 @@ spec:
   - name: output-image
     value: quay.io/redhat-user-workloads/ocm-ui-tenant/uhc-portal:{{revision}}
   - name: dockerfile
-    value: ./Dockerfile
+    value: build-tools/Dockerfile
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while reducing network traffic.
