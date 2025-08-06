@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useFormikContext } from 'formik';
 
-import { Grid, GridItem, Spinner } from '@patternfly/react-core';
+import { Spinner, Split, SplitItem } from '@patternfly/react-core';
 
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { getNodeOptions } from '~/components/clusters/common/machinePools/utils';
@@ -82,24 +82,24 @@ const EditNodeCountSection = ({
       ) : (
         <>
           {values.autoscaling ? (
-            <Grid hasGutter>
-              <GridItem span={5}>
+            <Split hasGutter>
+              <SplitItem>
                 <AutoscaleMinReplicasField
                   minNodes={minNodesRequired}
                   cluster={cluster}
                   mpAvailZones={machinePool?.availability_zones?.length}
                   options={options}
                 />
-              </GridItem>
-              <GridItem span={5}>
+              </SplitItem>
+              <SplitItem>
                 <AutoscaleMaxReplicasField
                   mpAvailZones={machinePool?.availability_zones?.length}
                   minNodes={minNodesRequired}
                   cluster={cluster}
                   options={options}
                 />
-              </GridItem>
-            </Grid>
+              </SplitItem>
+            </Split>
           ) : (
             <NodeCountField
               mpAvailZones={machinePool?.availability_zones?.length}
