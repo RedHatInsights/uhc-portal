@@ -217,7 +217,7 @@ describe('subnet ordering and grouping functionality', () => {
     const viewUsedButton = screen.getByRole('option', { name: 'View Used Subnets' });
     await user.click(viewUsedButton);
 
-    //used subnet should be visible with "- Used" suffix in group name
+    // used subnet should be visible with "- Used" suffix in group name
     expect(screen.getByText('us-east-2a - Used')).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'subnet-03df6fb9d7677c84c' })).toBeInTheDocument();
 
@@ -243,13 +243,13 @@ describe('subnet ordering and grouping functionality', () => {
       </Formik>,
     );
 
-    //add machine pool
+    // add machine pool
     const addButton = screen.getByRole('button', { name: /Add machine pool/i });
     expect(addButton).toBeInTheDocument();
 
     expect(screen.getByText('Machine pool 1')).toBeInTheDocument();
 
-    //select subnet for first machine pool
+    // select subnet for first machine pool
     const selectDropdowns = screen.getAllByRole('button', { name: 'Options menu' });
     await user.click(selectDropdowns[0]);
     const firstSubnet = screen.getByRole('option', { name: 'subnet-03df6fb9d7677c84c' });

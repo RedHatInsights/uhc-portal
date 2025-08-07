@@ -313,13 +313,13 @@ describe('Subent ordering and used subnet functionality', () => {
     const selectDropdown = screen.getByRole('button', { name: 'Options menu' });
     await user.click(selectDropdown);
 
-    //check availability groups are present for only unused subnets
+    // check availability groups are present for only unused subnets
     expect(screen.queryByText('us-east-1a')).not.toBeInTheDocument();
     expect(screen.queryByText('us-east-1b')).not.toBeInTheDocument();
     expect(screen.getByText('us-east-1c')).toBeInTheDocument();
     expect(screen.getByText('us-east-1d')).toBeInTheDocument();
 
-    //check that unused subnets are present and used subnets are not
+    // check that unused subnets are present and used subnets are not
     expect(
       screen.getByRole('option', { name: /ddonati-test4.*private-us-east-1c1/i }),
     ).toBeInTheDocument();
@@ -336,7 +336,7 @@ describe('Subent ordering and used subnet functionality', () => {
       screen.queryByRole('option', { name: /ddonati-test4.*private-us-east-1b/i }),
     ).not.toBeInTheDocument();
 
-    //"View Used Subnets" button shown
+    // "View Used Subnets" button shown
     expect(screen.getByRole('option', { name: 'View Used Subnets' })).toBeInTheDocument();
   });
 
@@ -351,7 +351,7 @@ describe('Subent ordering and used subnet functionality', () => {
     const viewUsedButton = screen.getByRole('option', { name: 'View Used Subnets' });
     await user.click(viewUsedButton);
 
-    //used subnets with '- Used' label should be visible
+    // used subnets with '- Used' label should be visible
     expect(screen.getByText('us-east-1a - Used')).toBeInTheDocument();
     expect(screen.getByText('us-east-1b - Used')).toBeInTheDocument();
     expect(
@@ -361,13 +361,13 @@ describe('Subent ordering and used subnet functionality', () => {
       screen.getByRole('option', { name: /ddonati-test4.*private-us-east-1b/i }),
     ).toBeInTheDocument();
 
-    //button text = 'Hide Used Subnets'
+    // button text = 'Hide Used Subnets'
     expect(screen.getByRole('option', { name: 'Hide Used Subnets' })).toBeInTheDocument();
 
     const hideUsedButton = screen.getByRole('option', { name: 'Hide Used Subnets' });
     await user.click(hideUsedButton);
 
-    //verify used subnet groups are hidden
+    // verify used subnet groups are hidden
     expect(screen.queryByText('us-east-1a - Used')).not.toBeInTheDocument();
     expect(screen.queryByText('us-east-1b - Used')).not.toBeInTheDocument();
     expect(
@@ -391,7 +391,7 @@ describe('Subent ordering and used subnet functionality', () => {
     const viewUsedButton = screen.getByRole('option', { name: 'View Used Subnets' });
     await user.click(viewUsedButton);
 
-    //1b should show both unused and used subnets in zone
+    // 1b should show both unused and used subnets in zone
     const searchBox = screen.getByPlaceholderText(/Filter by subnet/i);
     await user.clear(searchBox);
     await user.type(searchBox, '1b');

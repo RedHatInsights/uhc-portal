@@ -20,15 +20,15 @@ import {
 } from '@patternfly/react-core';
 
 import { truncateTextWithEllipsis } from '~/common/helpers';
+import { isSubnetMatchingPrivacy } from '~/common/vpcHelpers';
 import { FuzzySelectMatchName } from '~/components/common/FuzzySelect/components/FuzzySelectMatchName';
 import { FuzzySelectOption } from '~/components/common/FuzzySelect/components/FuzzySelectOption';
 import { FuzzyDataType, FuzzyEntryType } from '~/components/common/FuzzySelect/types';
+import { Subnetwork } from '~/types/clusters_mgmt.v1';
 
 import { findGroupedItemById, isFuzzyEntryGroup } from './fuzzySelectHelpers';
 
 import './FuzzySelect.scss';
-import { Subnetwork } from '~/types/clusters_mgmt.v1';
-import { isSubnetMatchingPrivacy } from '~/common/vpcHelpers';
 
 export interface FuzzySelectProps
   extends Omit<SelectProps, 'onOpenChange' | 'onOpenChangeKeys' | 'toggle' | 'selected'> {
@@ -132,7 +132,7 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
   const isSubnetSelectMode = Boolean(allSubnets);
 
   const generateOptions = useCallback(() => {
-    let allFilteredSubnets: Subnetwork[] = [];
+    const allFilteredSubnets: Subnetwork[] = [];
     if (allSubnets) {
       allSubnets.forEach((subnet) => {
         const subnetAZ = subnet.availability_zone || '';
@@ -220,7 +220,7 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
       }
 
       let selectionList: FuzzyEntryType[] = [];
-      //all options
+      // all options
       const fullSelectionData = isSubnetSelectMode ? generateOptions() : selectionData;
       if (Array.isArray(fullSelectionData)) {
         selectionList = fullSelectionData;
@@ -296,9 +296,12 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     sortFn,
     isSubnetSelectMode,
     selectionData,
-    ...(isSubnetSelectMode
-      ? [allSubnets, usedSubnetIds, showUsedSubnets, privacy, allowedAZs]
-      : []),
+    generateOptions,
+    allSubnets,
+    usedSubnetIds,
+    showUsedSubnets,
+    privacy,
+    allowedAZs,
   ]);
 
   const closeMenu = useCallback(() => {
@@ -326,15 +329,17 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
       event: React.MouseEvent<Element, MouseEvent> | undefined,
       value: string | number | undefined,
     ) => {
-      if (value == VIEW_MORE_OPTION_ID) {
+      if (value === VIEW_MORE_OPTION_ID) {
         onToggleUsedSubnets?.();
       } else if (value && value !== NO_RESULTS) {
-        const optionText =
-          isGroupedSelect && !Array.isArray(currentSelectOptions)
-            ? findGroupedItemById(currentSelectOptions, String(value))?.label
-            : Array.isArray(currentSelectOptions)
-              ? currentSelectOptions.find((option) => option.entryId === value)?.label
-              : undefined;
+        let optionText: string | undefined;
+        if (isGroupedSelect && !Array.isArray(currentSelectOptions)) {
+          optionText = findGroupedItemById(currentSelectOptions, String(value))?.label;
+        } else if (Array.isArray(currentSelectOptions)) {
+          optionText = currentSelectOptions.find((option) => option.entryId === value)?.label;
+        } else {
+          optionText = undefined;
+        }
         if (optionText) {
           selectOption(value, optionText, event);
         }
