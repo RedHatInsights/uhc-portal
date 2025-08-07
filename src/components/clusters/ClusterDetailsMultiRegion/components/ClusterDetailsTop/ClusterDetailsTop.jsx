@@ -16,6 +16,7 @@ import { HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT } from '~/common/localSt
 import { useNavigate } from '~/common/routing';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { PreviewLabel } from '~/components/clusters/common/PreviewLabel';
+import { RosaArchitectureRenamingAlert } from '~/components/clusters/wizards/rosa/common/Banners/RosaArchitectureRenamingAlert';
 import Breadcrumbs from '~/components/common/Breadcrumbs';
 import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import { modalActions } from '~/components/common/Modal/ModalActions';
@@ -352,6 +353,8 @@ function ClusterDetailsTop(props) {
       </Split>
 
       {topCard}
+
+      {isROSA ? <RosaArchitectureRenamingAlert /> : null}
 
       <LimitedSupportAlert
         limitedSupportReasons={cluster.limitedSupportReasons}
