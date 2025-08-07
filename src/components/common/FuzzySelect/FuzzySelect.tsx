@@ -112,12 +112,15 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     showUsedSubnets = false,
     onToggleUsedSubnets,
     hasUsedSubnets = false,
-    usedSubnetIds = [],
+    usedSubnetIds,
     allSubnets,
     privacy,
     allowedAZs,
     ...rest
   } = props;
+
+  const stableUsedSubnetIds = useMemo(() => usedSubnetIds || [], [usedSubnetIds]);
+  const stableAllowedAZs = useMemo(() => allowedAZs, [allowedAZs]);
 
   const [inputValue, setInputValue] = React.useState<string>('');
   const [filterValue, setFilterValue] = React.useState<string>('');
@@ -138,7 +141,7 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
         const subnetAZ = subnet.availability_zone || '';
         if (
           isSubnetMatchingPrivacy(subnet, privacy) &&
-          (allowedAZs === undefined || allowedAZs.includes(subnetAZ))
+          (stableAllowedAZs === undefined || stableAllowedAZs.includes(subnetAZ))
         ) {
           allFilteredSubnets.push(subnet);
         }
@@ -149,7 +152,7 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     const usedSubnets: Subnetwork[] = [];
 
     allFilteredSubnets.forEach((subnet) => {
-      if (usedSubnetIds.includes(subnet.subnet_id as string)) {
+      if (stableUsedSubnetIds.includes(subnet.subnet_id as string)) {
         usedSubnets.push(subnet);
       } else {
         unusedSubnets.push(subnet);
@@ -202,7 +205,7 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     }
 
     return subnetsByAZ;
-  }, [allSubnets, usedSubnetIds, showUsedSubnets, privacy, allowedAZs]);
+  }, [allSubnets, stableUsedSubnetIds, showUsedSubnets, privacy, stableAllowedAZs]);
 
   useEffect(() => {
     if (!filterValue) {
@@ -297,11 +300,6 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     isSubnetSelectMode,
     selectionData,
     generateOptions,
-    allSubnets,
-    usedSubnetIds,
-    showUsedSubnets,
-    privacy,
-    allowedAZs,
   ]);
 
   const closeMenu = useCallback(() => {
