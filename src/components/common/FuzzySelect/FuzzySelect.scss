@@ -8,8 +8,15 @@
   bottom: 0;
   background-color: var(--pf-t--global--background--color--secondary--default);
 }
+
 // Compensating the max height of a scrollable select with footer because the footer is now sticky
 // Increasing from 18.75rem (300px) to 23.75 (380px)
 .fuzzy-select--scrollable-with-footer {
   --pf-v6-c-menu--m-scrollable__content--MaxHeight: 23.75rem;
+}
+
+// Styling for the toggle used subnets options
+.fuzzy-select__toggle-used-subnets {
+  color: var(--pf-t--global--color--brand--default) !important;
+  cursor: pointer;
 }
