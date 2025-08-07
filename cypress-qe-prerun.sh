@@ -44,7 +44,6 @@ function setup_rosa_resources()
  # Reading and parsing cypress.env.json for CLI steps.
  echo "Reading and parsing $1 file."
  config_json=`cat $1`
- echo "cypress.env.json file contents : $config_json"
  TEST_QE_AWS_ACCESS_KEY_ID=`echo "$config_json" | jq '.QE_AWS_ACCESS_KEY_ID'`
  TEST_QE_AWS_ACCESS_KEY_SECRET=`echo "$config_json" | jq '.QE_AWS_ACCESS_KEY_SECRET'`
  TEST_QE_AWS_REGION=`echo "$config_json" | jq '.QE_AWS_REGION'`
