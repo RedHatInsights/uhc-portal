@@ -6,8 +6,8 @@ import { Spinner } from '@patternfly/react-core';
 import { RefreshClusterVPCAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/common/RefreshClusterVPCAlert';
 import { SubnetSelectField } from '~/components/clusters/common/SubnetSelectField';
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
-import { ClusterFromSubscription } from '~/types/types';
 import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
+import { ClusterFromSubscription } from '~/types/types';
 
 const fieldId = 'privateSubnetId';
 
