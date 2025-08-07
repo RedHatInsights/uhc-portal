@@ -66,7 +66,7 @@ const reducers = {
   persistentStorageValues: persistentStorageReducer,
   loadBalancerValues: loadBalancersReducer,
 
-  notifications: notificationsReducer,
+  notifications: notificationsReducer || ((state = { notifications: [] }) => state),
   subscriptionSettings: subscriptionSettingsReducer,
   subscriptionReleased: subscriptionReleasedReducer,
   insightsData: insightsReducer,
