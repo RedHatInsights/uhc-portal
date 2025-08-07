@@ -722,10 +722,12 @@ describe('<VersionSelection />', () => {
       await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
 
       expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
-      expect(screen.getAllByRole('listbox')).toHaveLength(2);
+      expect(screen.getAllByRole('listbox')).toHaveLength(3);
 
       // Assert
-      const fullSupportList = screen.getAllByRole('listbox')[0];
+      const fullSupportList = screen.getByRole('listbox', {
+        name: 'Select options list for Full support',
+      });
       expect(within(fullSupportList).getAllByRole('option')).toHaveLength(1);
       expect(within(fullSupportList).getByRole('option', { name: '4.12.1' })).toBeInTheDocument();
     });
@@ -742,10 +744,12 @@ describe('<VersionSelection />', () => {
       await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
 
       expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
-      expect(screen.getAllByRole('listbox')).toHaveLength(2);
+      expect(screen.getAllByRole('listbox')).toHaveLength(3);
 
       // Assert
-      const maintenanceSupportList = screen.getAllByRole('listbox')[1];
+      const maintenanceSupportList = screen.getByRole('listbox', {
+        name: 'Select options list for Maintenance support',
+      });
       expect(within(maintenanceSupportList).getAllByRole('option')).toHaveLength(3);
 
       expect(
