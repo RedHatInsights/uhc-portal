@@ -18,6 +18,7 @@
 /vendor/
 backend-config.yml
 /cypress/screenshots/
+/cypress/downloads/
 /cypress/videos/
 /coverage/
 .nyc_output/out.json
