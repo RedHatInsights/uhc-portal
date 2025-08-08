@@ -220,30 +220,6 @@ describe('<MachinePools />', () => {
       };
       render(<MachinePools {...newProps} />);
       expect(screen.getByText('foo = bar')).toHaveClass('pf-v6-c-label__text');
-      expect(screen.getByText('hello = world')).toHaveClass('pf-v6-c-label__text');
-    });
-
-    it('a truncated label that is longer than the cut length', () => {
-      useFetchMachineOrNodePoolsMock.mockReturnValue({
-        isLoading: false,
-        data: [
-          {
-            ...simpleMachinePoolList?.data,
-            labels: { label: 'this-label-goes-above-fifty-characters-and-it-will-be-truncated' },
-          },
-        ],
-        isError: false,
-        error: null,
-        refetch: jest.fn(),
-        isRefetching: jest.fn(),
-      });
-      const newProps = {
-        ...defaultProps,
-      };
-      render(<MachinePools {...newProps} />);
-      expect(
-        screen.getByText('label = this-lab... aracters-and-it-will-be-truncated'),
-      ).toBeInTheDocument();
     });
 
     // // TODO: to not skip once TableDeprecated is removed

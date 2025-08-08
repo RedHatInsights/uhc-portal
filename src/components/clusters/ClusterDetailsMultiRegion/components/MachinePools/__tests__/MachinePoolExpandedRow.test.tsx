@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { render, screen } from '~/testUtils';
+import { AWS_TAGS_NEW_MP } from '~/queries/featureGates/featureConstants';
+import { mockUseFeatureGate, render, screen } from '~/testUtils';
 import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
@@ -60,7 +61,13 @@ const defaultNodePool: NodePool = {
     { key: 'fooTaint', value: 'barTaint', effect: 'NoExecute' },
     { key: 'helloTaint', value: 'worldTaint', effect: 'NoSchedule' },
   ],
-
+  aws_node_pool: {
+    tags: {
+      fooTag: 'fooTagValue',
+      barTag: 'barTagValue',
+      foobarTag: 'fooBarValue',
+    },
+  },
   auto_repair: undefined,
 };
 
@@ -81,10 +88,20 @@ const verifyTextIsPresent = (textItems: string[]) => {
 
 describe('MachinePoolExpandedRow', () => {
   describe('Labels', () => {
-    it('are displayed correctly', () => {
+    it('are displayed correctly without AWS tags', () => {
+      mockUseFeatureGate([[AWS_TAGS_NEW_MP, false]]);
       render(<MachinePoolExpandedRow {...getDefaultProps({})} />);
-      expect(screen.getByText('Labels')).toBeInTheDocument();
-      verifyTextIsPresent(['fooLabel = barLabel', 'noValueLabel']);
+      expect(screen.getAllByText('Labels')[0]).toBeInTheDocument();
+      verifyTextIsPresent(['fooLabel = barLabel']);
+      expect(screen.getByRole('button', { name: /1 remaining/i })).toBeInTheDocument();
+    });
+
+    it('are displayed correctly with AWS tags', () => {
+      mockUseFeatureGate([[AWS_TAGS_NEW_MP, true]]);
+      render(<MachinePoolExpandedRow {...getNodePoolProps({})} />);
+      expect(screen.getByText('Labels and AWS tags')).toBeInTheDocument();
+      verifyTextIsPresent(['fooLabel = barLabel']);
+      expect(screen.getByRole('button', { name: /1 remaining/i })).toBeInTheDocument();
     });
 
     it('are not displayed if there are none', () => {
@@ -96,6 +113,27 @@ describe('MachinePoolExpandedRow', () => {
         />,
       );
       expect(screen.queryByText('Labels')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('AWS tags', () => {
+    it('are displayed correctly', () => {
+      mockUseFeatureGate([[AWS_TAGS_NEW_MP, true]]);
+      render(<MachinePoolExpandedRow {...getNodePoolProps({})} />);
+      expect(screen.getByText('AWS tags')).toBeInTheDocument();
+      verifyTextIsPresent(['fooTag = fooTagValue']);
+      expect(screen.getByRole('button', { name: /2 remaining/i })).toBeInTheDocument();
+    });
+
+    it('are not displayed if there are none', () => {
+      render(
+        <MachinePoolExpandedRow
+          {...getNodePoolProps({
+            aws_node_pool: {},
+          })}
+        />,
+      );
+      expect(screen.queryByText('AWS tags')).not.toBeInTheDocument();
     });
   });
 
