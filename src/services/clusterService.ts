@@ -597,15 +597,21 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         `/api/clusters_mgmt/v1/clusters/${clusterID}/ingresses/${routerID}`,
       ),
 
-    postUpgradeSchedule: (clusterID: string, schedule: UpgradePolicy) =>
+    postUpgradeSchedule: (clusterID: string, schedule: UpgradePolicy, dryRun?: boolean) =>
       apiRequest.post<UpgradePolicy>(
         `/api/clusters_mgmt/v1/clusters/${clusterID}/upgrade_policies`,
         schedule,
+        dryRun ? { params: { dryRun: true } } : undefined,
       ),
-    postControlPlaneUpgradeSchedule: (clusterID: string, schedule: UpgradePolicy) =>
+    postControlPlaneUpgradeSchedule: (
+      clusterID: string,
+      schedule: UpgradePolicy,
+      dryRun?: boolean,
+    ) =>
       apiRequest.post<UpgradePolicy>(
         `/api/clusters_mgmt/v1/clusters/${clusterID}/control_plane/upgrade_policies`,
         schedule,
+        dryRun ? { params: { dryRun: true } } : undefined,
       ),
 
     postNodePoolUpgradeSchedule: (

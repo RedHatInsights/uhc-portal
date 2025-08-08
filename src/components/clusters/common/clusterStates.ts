@@ -186,7 +186,8 @@ const isErrorSharedGCPVPCValues = (cluster: ClusterFromSubscription): boolean =>
  * @param cluster something extending ClusterFromSubscription since components are using either Cluster or ClusterFromSubscription
  */
 const isROSA = <E extends ClusterFromSubscription | Cluster>(cluster?: E): boolean =>
-  cluster?.product?.id === normalizedProducts.ROSA;
+  cluster?.product?.id === normalizedProducts.ROSA ||
+  (cluster as ClusterFromSubscription)?.subscription?.plan?.type === normalizedProducts.ROSA;
 
 const isCCS = <E extends ClusterFromSubscription>(cluster: E): boolean =>
   cluster.ccs?.enabled ?? false;
