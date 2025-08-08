@@ -457,7 +457,9 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                       <FlexItem>
                         <ButtonWithTooltip
                           disableReason={
-                            formDisableReason || (!formik.dirty && 'No changes to save')
+                            formDisableReason ||
+                            (!formik.dirty && 'No changes to save') ||
+                            notReadyReason
                           }
                           isAriaDisabled={isDisabled || upgradeStarted}
                           variant="primary"
@@ -502,7 +504,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
               unmetAcknowledgements={unmetAcknowledgements as VersionGate[]}
             />
             {showUpdateButton && (
-              <Button
+              <ButtonWithTooltip
                 variant="secondary"
                 onClick={() =>
                   dispatch(
@@ -512,9 +514,10 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                     }),
                   )
                 }
+                disableReason={notReadyReason}
               >
                 Update
-              </Button>
+              </ButtonWithTooltip>
             )}
           </CardBody>
         </Card>
