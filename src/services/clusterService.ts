@@ -776,7 +776,9 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         data,
       ),
 
-    addNodePool: (clusterID: string, data: NodePool) =>
+    // TODO: Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+    addNodePool: (clusterID: string, data: NodePool & { imageType?: string }) =>
+      // addNodePool: (clusterID: string, data: NodePool) =>
       apiRequest.post<MachinePool>(`/api/clusters_mgmt/v1/clusters/${clusterID}/node_pools`, data),
 
     deleteMachinePool: (clusterID: string, machinePoolID: string) =>
