@@ -1,7 +1,8 @@
 import React from 'react';
 import { FieldArray } from 'formik';
 
-import { Button, Grid, GridItem, Stack, StackItem } from '@patternfly/react-core';
+import { Bullseye, Button, Grid, GridItem, Icon, Stack, StackItem } from '@patternfly/react-core';
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { MinusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/minus-circle-icon';
 import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 
@@ -22,7 +23,12 @@ const FieldArrayErrorGridItem = ({ isLast, errorMessage, touched, isGroupError }
   if (errorMessage && isLast && (touched || isGroupError)) {
     return (
       <GridItem className="field-grid-item pf-v6-c-form__helper-text pf-m-error">
-        {errorMessage}
+        <span className="pf-v6-u-pl-sm pf-v6-u-font-size-sm pf-v6-u-font-weight-bold">
+          <Icon status="danger">
+            <ExclamationCircleIcon color="danger" />
+          </Icon>{' '}
+          {errorMessage}
+        </span>
       </GridItem>
     );
   }
@@ -41,7 +47,7 @@ export const FormikFieldArray = (props: FormikFieldArrayProps) => {
         <LabelGridItem
           fieldSpan={6}
           isRequired={isRequired}
-          label={`${label} (${fieldData?.length})`}
+          label={`${label} (${fieldData?.[0] === '' ? 0 : fieldData?.length || 0})`}
           helpText={helpText}
         />
       </StackItem>
@@ -60,15 +66,14 @@ export const FormikFieldArray = (props: FormikFieldArrayProps) => {
                 variant="link"
                 isInline
                 isDisabled={fieldData?.some((el: string) => el === '')}
+                aria-label={`Add ${label}`}
               >
-                Add more
+                Add
               </Button>
             </StackItem>
             {fieldData?.map((_: any, index: number) => {
-              const isRemoveDisabled = index === 0 && fieldData?.length === 1;
               const name = `${fieldID}.${index}`;
               return (
-                // eslint-disable-next-line react/no-array-index-key
                 <React.Fragment key={name}>
                   <Grid>
                     <Grid hasGutter span={6}>
@@ -80,25 +85,25 @@ export const FormikFieldArray = (props: FormikFieldArrayProps) => {
                           textInputClassName="field-grid-item"
                         />
                       </GridItem>
-                      <GridItem span={2} className="field-grid-item minus-button">
-                        <Button
-                          onClick={() => remove(index)}
-                          icon={<MinusCircleIcon />}
-                          variant="link"
-                          isInline
-                          isDisabled={isRemoveDisabled}
-                        />
+                      <GridItem span={1} className="field-grid-item minus-button">
+                        <Bullseye>
+                          <Button
+                            onClick={() => remove(index)}
+                            icon={<MinusCircleIcon />}
+                            variant="link"
+                            isInline
+                            aria-label={`Remove ${label} ${index + 1}`}
+                          />
+                        </Bullseye>
                       </GridItem>
                     </Grid>
-                  </Grid>
-                  <GridItem>
                     <FieldArrayErrorGridItem
                       isLast={index === fieldData.length - 1}
                       errorMessage={errors[fieldID]}
                       touched={touched}
                       isGroupError={false}
                     />
-                  </GridItem>
+                  </Grid>
                 </React.Fragment>
               );
             })}
