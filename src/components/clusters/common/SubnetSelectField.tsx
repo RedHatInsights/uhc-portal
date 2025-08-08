@@ -11,6 +11,72 @@ import { CloudVpc, Subnetwork } from '~/types/clusters_mgmt.v1';
 
 const TRUNCATE_THRESHOLD = 40;
 
+const filterSubnetsByPrivacyAndAZ = (
+  selectedVPC: CloudVpc,
+  privacy?: 'public' | 'private',
+  allowedAZs?: string[],
+): Subnetwork[] => {
+  const allFilteredSubnets: Subnetwork[] = [];
+  selectedVPC.aws_subnets?.forEach((subnet) => {
+    const subnetAZ = subnet.availability_zone || '';
+    if (
+      isSubnetMatchingPrivacy(subnet, privacy) &&
+      (allowedAZs === undefined || allowedAZs.includes(subnetAZ))
+    ) {
+      allFilteredSubnets.push(subnet);
+    }
+  });
+  return allFilteredSubnets;
+};
+
+const divideSubnetsUsedOrUnused = (
+  subnets: Subnetwork[],
+  usedSubnetIds: string[],
+): { unusedSubnets: Subnetwork[]; usedSubnets: Subnetwork[] } => {
+  const unusedSubnets: Subnetwork[] = [];
+  const usedSubnets: Subnetwork[] = [];
+
+  subnets.forEach((subnet) => {
+    if (usedSubnetIds.includes(subnet.subnet_id as string)) {
+      usedSubnets.push(subnet);
+    } else {
+      unusedSubnets.push(subnet);
+    }
+  });
+
+  return { unusedSubnets, usedSubnets };
+};
+
+const subnetsByAvailabilityZone = (subnets: Subnetwork[]): FuzzyDataType => {
+  if (subnets.length === 0) {
+    return {};
+  }
+
+  const subnetsByAZ: Record<string, Subnetwork[]> = {};
+
+  subnets.forEach((subnet) => {
+    const subnetAZ = subnet.availability_zone || '';
+    if (!subnetsByAZ[subnetAZ]) {
+      subnetsByAZ[subnetAZ] = [];
+    }
+    subnetsByAZ[subnetAZ].push(subnet);
+  });
+
+  const result: FuzzyDataType = {};
+
+  Object.entries(subnetsByAZ)
+    .sort(([azA], [azB]) => azA.localeCompare(azB))
+    .forEach(([az, azSubnets]) => {
+      result[az] = azSubnets.map((subnet) => ({
+        groupId: az,
+        entryId: subnet.subnet_id as string,
+        label: subnet.name || (subnet.subnet_id as string),
+      }));
+    });
+
+  return result;
+};
+
 // TODO: This should be cleaned up, but it mimics what was used
 // when this component was used for both Redux forms and Formik
 // at the same time.
@@ -63,52 +129,14 @@ export const SubnetSelectField = ({
     hasOptions: boolean;
     hasUsedSubnets: boolean;
   }>(() => {
-    const allFilteredSubnets: Subnetwork[] = [];
-    selectedVPC.aws_subnets?.forEach((subnet) => {
-      const subnetAZ = subnet.availability_zone || '';
-      if (
-        isSubnetMatchingPrivacy(subnet, privacy) &&
-        (allowedAZs === undefined || allowedAZs.includes(subnetAZ))
-      ) {
-        allFilteredSubnets.push(subnet);
-      }
-    });
-
-    const unusedSubnets: Subnetwork[] = [];
-    const usedSubnets: Subnetwork[] = [];
-
-    allFilteredSubnets.forEach((subnet) => {
-      if (usedSubnetIds.includes(subnet.subnet_id as string)) {
-        usedSubnets.push(subnet);
-      } else {
-        unusedSubnets.push(subnet);
-      }
-    });
+    const allFilteredSubnets = filterSubnetsByPrivacyAndAZ(selectedVPC, privacy, allowedAZs);
+    const { unusedSubnets, usedSubnets } = divideSubnetsUsedOrUnused(
+      allFilteredSubnets,
+      usedSubnetIds,
+    );
 
     const orderedSubnetList = [...unusedSubnets, ...usedSubnets];
-    const subnetsByAZ: FuzzyDataType = {};
-
-    if (unusedSubnets.length > 0) {
-      const unusedByAZ: Record<string, Subnetwork[]> = {};
-      unusedSubnets.forEach((subnet) => {
-        const subnetAZ = subnet.availability_zone || '';
-        if (!unusedByAZ[subnetAZ]) {
-          unusedByAZ[subnetAZ] = [];
-        }
-        unusedByAZ[subnetAZ].push(subnet);
-      });
-
-      Object.entries(unusedByAZ)
-        .sort(([azA], [azB]) => azA.localeCompare(azB))
-        .forEach(([az, subnets]) => {
-          const groupKey = az;
-          subnetsByAZ[groupKey] = subnets.map((subnet) => ({
-            groupId: groupKey,
-            entryId: subnet.subnet_id as string,
-            label: subnet.name || (subnet.subnet_id as string),
-          }));
-        });
-    }
+    const subnetsByAZ = subnetsByAvailabilityZone(unusedSubnets);
 
     const hasOptions = orderedSubnetList.length > 0;
     const hasUsedSubnets = usedSubnets.length > 0;
