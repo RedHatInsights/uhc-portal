@@ -55,7 +55,6 @@ const breadcrumbs = (
 const CreateRosaGetStarted = () => (
   <AppPage>
     <PageTitle breadcrumbs={breadcrumbs} title={title(productName)}>
-      <RosaArchitectureRenamingAlert />
       <Content className="pf-v6-u-mt-md pf-v6-u-mb-md">
         <Content component={ContentVariants.p}>
           Deploy fully operational and managed Red Hat OpenShift clusters while leveraging the full
@@ -66,6 +65,7 @@ const CreateRosaGetStarted = () => (
           <ExternalLink href={links.ROSA_COMMUNITY_SLACK}>Slack us</ExternalLink>
         </Content>
       </Content>
+      <RosaArchitectureRenamingAlert />
       <Alert
         variant={AlertVariant.info}
         isInline

@@ -4,8 +4,9 @@ import * as reactRedux from 'react-redux';
 import * as notifications from '@redhat-cloud-services/frontend-components-notifications';
 
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import { ROSA_ARCHITECTURE_RENAMING_ALERT } from '~/queries/featureGates/featureConstants';
 import * as clusterService from '~/services/clusterService';
-import { checkAccessibility, render, screen, within } from '~/testUtils';
+import { checkAccessibility, mockUseFeatureGate, render, screen, within } from '~/testUtils';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
 import clusterStates from '../../../common/clusterStates';
@@ -311,5 +312,31 @@ describe('<ClusterDetailsTop />', () => {
     render(<ClusterDetailsTop {...newProps} />);
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('Should show ROSA Architecture Renaming Alert when feature gate is enabled', () => {
+    // Arrange
+    mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, true]]);
+
+    render(<ClusterDetailsTop {...props} />);
+
+    // Act
+    // Assert
+    expect(
+      screen.getByText('Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed'),
+    ).toBeInTheDocument();
+  });
+
+  it('Should not show ROSA Architecture Renaming Alert when feature gate is disabled', () => {
+    // Arrange
+    mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, false]]);
+
+    render(<ClusterDetailsTop {...props} />);
+
+    // Act
+    // Assert
+    expect(
+      screen.queryByText('Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed'),
+    ).not.toBeInTheDocument();
   });
 });
