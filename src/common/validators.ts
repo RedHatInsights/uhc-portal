@@ -107,6 +107,11 @@ const AWS_KMS_MULTI_REGION_SERVICE_ACCOUNT_REGEX =
  * @see https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set
  */
 const LABEL_KEY_NAME_REGEX = /^([a-z0-9][a-z0-9-_.]*)?[a-z0-9]$/i;
+// Tag keys and values may only contain alphanumeric characters and the following symbols: [_ . : / = + - @].
+const AWS_TAG_KEY_VALUE_REGEX = /^([a-z0-9-_.:/=+-@]*)$/i;
+
+const AWS_TAG_KEY_MAX_LENGTH = 128;
+const AWS_TAG_VALUE_MAX_LENGTH = 256;
 
 /**
  * A valid label value must be an empty string or consist of alphanumeric characters, '-', '_'
@@ -647,6 +652,36 @@ const labelAndTaintKeyValidations = (
   ];
 };
 
+const awsTagKeyValidations = (value: string | undefined): Validations => [
+  { validated: !!value && value.length > 0, text: 'Required' },
+  {
+    validated: !!value && AWS_TAG_KEY_VALUE_REGEX.test(value),
+    text: "A valid AWS Tag key must consist of alphanumeric characters or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
+  },
+
+  {
+    validated: !!value && value.length <= AWS_TAG_KEY_MAX_LENGTH,
+    text: `A valid AWS Tag key must be ${AWS_TAG_KEY_MAX_LENGTH} characters or less`,
+  },
+
+  {
+    validated: !!value && !value.toLowerCase().startsWith('aws'),
+    text: 'AWS Tag keys cannot start with "aws"',
+  },
+];
+
+const awsTagValueValidations = (value: string | undefined): Validations => [
+  {
+    validated: !value || (!!value && AWS_TAG_KEY_VALUE_REGEX.test(value)),
+    text: "A valid AWS Tag value must consist of alphanumeric characters or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
+  },
+
+  {
+    validated: !value || (!!value && value.length <= AWS_TAG_VALUE_MAX_LENGTH),
+    text: `A valid AWS Tag key must be ${AWS_TAG_VALUE_MAX_LENGTH} characters or less`,
+  },
+];
+
 const labelAndTaintValueValidations = (value: string | undefined): Validations => [
   {
     validated:
@@ -676,6 +711,9 @@ const nodeLabelKeyValidations = (
 };
 
 const checkLabelKey = createPessimisticValidator(nodeLabelKeyValidations);
+const checkAwsTagKey = createPessimisticValidator(awsTagKeyValidations);
+const checkAwsTagValue = createPessimisticValidator(awsTagValueValidations);
+
 const checkLabelValue = createPessimisticValidator(labelAndTaintValueValidations);
 
 const checkTaintKey = createPessimisticValidator(taintKeyValidations);
@@ -1445,7 +1483,7 @@ const validateSecurityGroups = (securityGroups: string[], isHypershift: boolean)
   const maxSecurityGroups = isHypershift
     ? maxAdditionalSecurityGroupsHypershift
     : maxAdditionalSecurityGroups;
-  return securityGroups.length > maxSecurityGroups
+  return securityGroups?.length && securityGroups.length > maxSecurityGroups
     ? `A maximum of ${maxSecurityGroups} security groups can be selected.`
     : undefined;
 };
@@ -1905,6 +1943,8 @@ export {
   validateUrlHttpsAndHttp,
   validateUserOrGroupARN,
   validateWorkerVolumeSize,
+  checkAwsTagKey,
+  checkAwsTagValue,
 };
 
 export default validators;

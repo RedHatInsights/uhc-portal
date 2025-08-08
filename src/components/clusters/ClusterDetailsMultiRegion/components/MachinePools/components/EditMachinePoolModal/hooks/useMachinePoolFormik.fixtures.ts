@@ -161,6 +161,7 @@ export const defaultExpectedInitialValues = {
     {
       key: '',
       value: '',
+      isAwsTag: false,
     },
   ],
   maxPrice: 0.01,

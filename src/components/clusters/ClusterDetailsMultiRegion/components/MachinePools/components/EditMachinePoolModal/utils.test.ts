@@ -23,6 +23,15 @@ const defaultValues: EditMachinePoolValues = {
   imds: IMDSType.V1AndV2,
 };
 
+const valuesWithLabelsAndTags: EditMachinePoolValues = {
+  ...defaultValues,
+  labels: [
+    { key: 'label-key', value: 'label-value', isAwsTag: false },
+    { key: 'aws-tag-key', value: 'aws-tag-value', isAwsTag: true },
+    { key: 'environment', value: 'production' }, // no isAwsTag property (defaults to false)
+  ],
+};
+
 describe('buildMachinePoolRequest', () => {
   describe('when creating', () => {
     it('adds basic fields', () => {
@@ -193,6 +202,106 @@ describe('buildNodePoolRequest', () => {
       const badPool = nodePool as MachinePool;
       expect(badPool.root_volume).toBeFalsy();
       expect(badPool.aws).toBeFalsy();
+    });
+  });
+
+  describe('AWS Tags functionality', () => {
+    it('should separate regular labels from AWS tags when creating', () => {
+      const nodePool = buildNodePoolRequest(valuesWithLabelsAndTags, {
+        isEdit: false,
+        isMultiZoneMachinePool: false,
+      });
+
+      // Regular labels should be in the labels field
+      expect(nodePool.labels).toEqual({
+        'label-key': 'label-value',
+        environment: 'production',
+      });
+
+      // AWS tags should be in the aws_node_pool.tags field
+      expect(nodePool.aws_node_pool?.tags).toEqual({
+        'aws-tag-key': 'aws-tag-value',
+      });
+    });
+
+    it('should handle labels without AWS tags', () => {
+      const valuesWithOnlyLabels: EditMachinePoolValues = {
+        ...defaultValues,
+        labels: [
+          { key: 'label-key', value: 'label-value', isAwsTag: false },
+          { key: 'environment', value: 'production' },
+        ],
+      };
+
+      const nodePool = buildNodePoolRequest(valuesWithOnlyLabels, {
+        isEdit: false,
+        isMultiZoneMachinePool: false,
+      });
+
+      expect(nodePool.labels).toEqual({
+        'label-key': 'label-value',
+        environment: 'production',
+      });
+      expect(nodePool.aws_node_pool?.tags).toBeUndefined();
+    });
+
+    it('should handle AWS tags without labels', () => {
+      const valuesWithOnlyAwsTags: EditMachinePoolValues = {
+        ...defaultValues,
+        labels: [{ key: 'aws-tag-key', value: 'aws-tag-value', isAwsTag: true }],
+      };
+
+      const nodePool = buildNodePoolRequest(valuesWithOnlyAwsTags, {
+        isEdit: false,
+        isMultiZoneMachinePool: false,
+      });
+
+      expect(nodePool.labels).toEqual({});
+      expect(nodePool.aws_node_pool?.tags).toEqual({
+        'aws-tag-key': 'aws-tag-value',
+      });
+    });
+
+    it('should handle empty labels array', () => {
+      const nodePool = buildNodePoolRequest(defaultValues, {
+        isEdit: false,
+        isMultiZoneMachinePool: false,
+      });
+
+      expect(nodePool.labels).toEqual({});
+      expect(nodePool.aws_node_pool?.tags).toBeUndefined();
+    });
+
+    it('should handle single empty label entry', () => {
+      const valuesWithEmptyLabel: EditMachinePoolValues = {
+        ...defaultValues,
+        labels: [{ key: '', value: '', isAwsTag: false }],
+      };
+
+      const nodePool = buildNodePoolRequest(valuesWithEmptyLabel, {
+        isEdit: false,
+        isMultiZoneMachinePool: false,
+      });
+
+      expect(nodePool.labels).toEqual({});
+      expect(nodePool.aws_node_pool?.tags).toBeUndefined();
+    });
+
+    it('should preserve existing aws_node_pool when adding tags', () => {
+      const valuesWithAwsTags: EditMachinePoolValues = {
+        ...defaultValues,
+        labels: [{ key: 'new-tag', value: 'new-value', isAwsTag: true }],
+      };
+
+      const nodePool = buildNodePoolRequest(valuesWithAwsTags, {
+        isEdit: false,
+        isMultiZoneMachinePool: false,
+      });
+
+      expect(nodePool.aws_node_pool?.tags).toEqual({
+        'new-tag': 'new-value',
+      });
+      expect(nodePool.aws_node_pool?.additional_security_group_ids).toEqual(['sg-1']);
     });
   });
 });

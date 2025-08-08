@@ -97,12 +97,12 @@ const SharedVPCDomainSelect = ({ label, input, meta }: SharedVPCDomainSelectProp
       <Flex>
         <FlexItem flex={{ default: 'flex_1' }} className="pf-v6-u-m-0">
           <FuzzySelect
-            selectionData={
-              dnsDomains.map((domain: { id: string }) => ({
-                entryId: domain.id as string,
-                label: domain.id as string,
-              })) ?? []
-            }
+            selectionData={dnsDomains
+              .filter((domain): domain is { id: string } => typeof domain.id === 'string')
+              .map((domain) => ({
+                entryId: domain.id,
+                label: domain.id,
+              }))}
             fuzziness={0}
             onSelect={onSelect}
             selectedEntryId={input.value}

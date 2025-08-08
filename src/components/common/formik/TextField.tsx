@@ -11,6 +11,7 @@ type TextFieldProps = {
   label?: string;
   isRequired?: boolean;
   isDisabled?: boolean;
+  isReadOnly?: boolean;
   helpText?: string;
   placeHolderText?: string;
 };
@@ -20,6 +21,7 @@ const TextField = ({
   label,
   isRequired,
   isDisabled,
+  isReadOnly,
   helpText,
   placeHolderText,
 }: TextFieldProps) => {
@@ -48,6 +50,7 @@ const TextField = ({
           field.onChange(event);
         }}
         isDisabled={isDisabled}
+        readOnlyVariant={isReadOnly ? 'default' : undefined}
         placeholder={placeHolderText}
       />
 

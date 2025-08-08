@@ -1,9 +1,6 @@
 import { combineReducers } from 'redux';
 
 // TODO remove ignore statement once frontend-components-notifications has types
-// @ts-ignore
-import { notificationsReducer } from '@redhat-cloud-services/frontend-components-notifications';
-
 import apiErrorReducer from '../../components/App/ApiError/ApiErrorReducer';
 import clusterUsersReducer from '../../components/clusters/ClusterDetailsMultiRegion/components/AccessControl/UsersSection/UsersReducer';
 import addOnsReducer from '../../components/clusters/ClusterDetailsMultiRegion/components/AddOns/AddOnsReducer';
@@ -65,8 +62,6 @@ const reducers = {
   subscriptions: subscriptionsReducer,
   persistentStorageValues: persistentStorageReducer,
   loadBalancerValues: loadBalancersReducer,
-
-  notifications: notificationsReducer,
   subscriptionSettings: subscriptionSettingsReducer,
   subscriptionReleased: subscriptionReleasedReducer,
   insightsData: insightsReducer,

@@ -3,7 +3,10 @@ import { FormikErrors } from 'formik';
 
 import { Form, Tab, TabContent } from '@patternfly/react-core';
 
-import { AWS_TAGS_NEW_MP } from '~/queries/featureGates/featureConstants';
+import {
+  AWS_TAGS_NEW_MP,
+  ENABLE_AWS_TAGS_VIEW_IN_EDIT_MODAL,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
@@ -24,6 +27,8 @@ type Props = {
   machineTypes: MachineTypesResponse;
   tabKey: number | string;
   initialTabContentShown?: boolean;
+  isROSAHCP: boolean;
+  isNewMachinePool: boolean;
 };
 
 export const useLabelsTagsTaintsSubTab = ({
@@ -33,19 +38,26 @@ export const useLabelsTagsTaintsSubTab = ({
   machineTypes,
   tabKey,
   initialTabContentShown,
+  isROSAHCP,
+  isNewMachinePool,
 }: Props): [
   (errors: FormikErrors<EditMachinePoolValues>) => React.JSX.Element,
   () => React.JSX.Element,
 ] => {
-  const awsTagsNewMPFeature = useFeatureGate(AWS_TAGS_NEW_MP);
+  const showAWSTagsFeatureGate = useFeatureGate(AWS_TAGS_NEW_MP);
   const contentRef1 = React.createRef<HTMLElement>();
   const tab = (errors: FormikErrors<EditMachinePoolValues>) => {
     const tabErrors = hasErrors(errors, fieldsInTab);
 
+    const showAWSTagsLabel =
+      showAWSTagsFeatureGate &&
+      isROSAHCP &&
+      (isNewMachinePool || ENABLE_AWS_TAGS_VIEW_IN_EDIT_MODAL);
+
     return (
       <Tab
         eventKey={tabKey}
-        title={tabTitle(`Labels${awsTagsNewMPFeature ? ', AWS Tags,' : ''} and Taints`, tabErrors)}
+        title={tabTitle(`Labels${showAWSTagsLabel ? ', AWS Tags,' : ''} and Taints`, tabErrors)}
         tabContentRef={contentRef1}
       />
     );
@@ -60,7 +72,7 @@ export const useLabelsTagsTaintsSubTab = ({
       className="pf-v6-u-pt-md"
     >
       <Form>
-        <EditLabelsSection />
+        <EditLabelsSection isROSAHCP={isROSAHCP} isNewMachinePool={isNewMachinePool} />
         <EditTaintsSection
           cluster={cluster}
           machinePools={machinePools || []}

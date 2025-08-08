@@ -45,6 +45,8 @@ describe('LabelsTagsTaintsSubTab', () => {
     machineTypes: mockMachineTypes,
     tabKey: 3,
     initialTabContentShown: true,
+    isROSAHCP: false,
+    isNewMachinePool: false,
   };
 
   const checkForError = (show: boolean) => {
@@ -72,11 +74,46 @@ describe('LabelsTagsTaintsSubTab', () => {
 
     it('displays tab with AWS Tags title when AWS Tags feature is enabled', () => {
       mockUseFeatureGate([[AWS_TAGS_NEW_MP, true]]);
-      const { result } = renderHook(() => useLabelsTagsTaintsSubTab(defaultProps));
+      const newProps = {
+        ...defaultProps,
+        isROSAHCP: true,
+        isNewMachinePool: true,
+      };
+      const { result } = renderHook(() => useLabelsTagsTaintsSubTab(newProps));
       const [tabs] = result.current;
 
       render(tabs({}));
       expect(screen.getByRole('tab')).toHaveTextContent('Labels, AWS Tags, and Taints');
+      checkForError(false);
+    });
+
+    it('displays standard title when AWS Tags feature is enabled but not ROSA HCP', () => {
+      mockUseFeatureGate([[AWS_TAGS_NEW_MP, true]]);
+      const newProps = {
+        ...defaultProps,
+        isROSAHCP: false,
+        isNewMachinePool: true,
+      };
+      const { result } = renderHook(() => useLabelsTagsTaintsSubTab(newProps));
+      const [tabs] = result.current;
+
+      render(tabs({}));
+      expect(screen.getByRole('tab')).toHaveTextContent('Labels and Taints');
+      checkForError(false);
+    });
+
+    it('displays standard title when AWS Tags feature is enabled but not new machine pool', () => {
+      mockUseFeatureGate([[AWS_TAGS_NEW_MP, true]]);
+      const newProps = {
+        ...defaultProps,
+        isROSAHCP: true,
+        isNewMachinePool: false,
+      };
+      const { result } = renderHook(() => useLabelsTagsTaintsSubTab(newProps));
+      const [tabs] = result.current;
+
+      render(tabs({}));
+      expect(screen.getByRole('tab')).toHaveTextContent('Labels and Taints');
       checkForError(false);
     });
 
