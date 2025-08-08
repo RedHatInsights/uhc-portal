@@ -46,7 +46,7 @@ function ActionRequiredModal({ cluster, isOpen, onClose, regionalInstance }) {
     const oidcConfigID = cluster.aws.sts?.oidc_config?.id;
     const operatorRolePrefix = cluster.aws?.sts?.operator_role_prefix;
     const installerRole = cluster.aws?.sts?.role_arn;
-    const rosaRegionLoginCommand = `rosa login --url ${regionalInstance?.url}`;
+    const rosaRegionLoginCommand = `rosa login --use-auth-code`;
     const operatorRolesCliCommand = `rosa create operator-roles ${
       isHCPCluster ? '--hosted-cp' : ''
     } --prefix "${operatorRolePrefix}" --oidc-config-id "${oidcConfigID}"  --installer-role-arn ${installerRole}`;
