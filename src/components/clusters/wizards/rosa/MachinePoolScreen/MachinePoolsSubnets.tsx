@@ -52,9 +52,14 @@ const MachinePoolsSubnets = () => {
 
   const MachinePoolSubnetsFormComponent = useCallback(
     (props: any) => (
-      <MachinePoolSubnetsForm selectedVPC={selectedVPC} {...props} warning={subnetWarnings} />
+      <MachinePoolSubnetsForm
+        selectedVPC={selectedVPC}
+        allMachinePoolSubnets={machinePoolsSubnets as FormSubnet[]}
+        {...props}
+        warning={subnetWarnings}
+      />
     ),
-    [selectedVPC, subnetWarnings],
+    [selectedVPC, subnetWarnings, machinePoolsSubnets],
   );
 
   return (
