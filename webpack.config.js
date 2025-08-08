@@ -188,6 +188,7 @@ module.exports = async (_env, argv) => {
               options: {
                 sassOptions: {
                   includePaths: ['./node_modules/', './src'],
+                  silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin'],
                 },
               },
             },
