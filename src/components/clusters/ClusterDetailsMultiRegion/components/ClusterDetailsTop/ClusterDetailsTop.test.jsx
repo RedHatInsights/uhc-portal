@@ -120,7 +120,7 @@ describe('<ClusterDetailsTop />', () => {
     expect(await screen.findByRole('button', { name: 'Open console' })).not.toBeEnabled();
   });
 
-  it('should disable open console button when cluster is unistalling', async () => {
+  it('should disable open console button when cluster is uninstalling', async () => {
     const cluster = { ...defaultCluster, state: clusterStates.uninstalling };
     mockedGetLogs.mockResolvedValue('hello world');
     mockGetClusterServiceForRegion.mockReturnValue({ getLogs: mockedGetLogs });
@@ -314,29 +314,54 @@ describe('<ClusterDetailsTop />', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('Should show ROSA Architecture Renaming Alert when feature gate is enabled', () => {
-    // Arrange
-    mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, true]]);
+  describe('ROSA Architecture Renaming Alert', () => {
+    it('Should show Alert when cluster is ROSA and feature flag is enabled', () => {
+      // Arrange
+      mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, true]]);
+      const rosaCluster = { ...fixtures.ROSAClusterDetails.cluster };
+      const newProps = { ...props, cluster: rosaCluster };
 
-    render(<ClusterDetailsTop {...props} />);
+      render(<ClusterDetailsTop {...newProps} />);
 
-    // Act
-    // Assert
-    expect(
-      screen.getByText('Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed'),
-    ).toBeInTheDocument();
-  });
+      // Act
+      // Assert
+      expect(
+        screen.getByText('Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed'),
+      ).toBeInTheDocument();
+    });
 
-  it('Should not show ROSA Architecture Renaming Alert when feature gate is disabled', () => {
-    // Arrange
-    mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, false]]);
+    it('Should not show Alert when the cluster is not of type ROSA and feature flag is enabled', () => {
+      // Arrange
+      mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, true]]);
+      const nonRosaCluster = { ...fixtures.OSDGCPClusterDetails.cluster };
+      const newProps = { ...props, cluster: nonRosaCluster };
 
-    render(<ClusterDetailsTop {...props} />);
+      render(<ClusterDetailsTop {...newProps} />);
 
-    // Act
-    // Assert
-    expect(
-      screen.queryByText('Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed'),
-    ).not.toBeInTheDocument();
+      // Act
+      // Assert
+      expect(
+        screen.queryByText(
+          'Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    it('Should not show ROSA Architecture Renaming Alert when feature gate is disabled', () => {
+      // Arrange
+      mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, false]]);
+      const rosaCluster = { ...fixtures.ROSAClusterDetails.cluster };
+      const newProps = { ...props, cluster: rosaCluster };
+
+      render(<ClusterDetailsTop {...newProps} />);
+
+      // Act
+      // Assert
+      expect(
+        screen.queryByText(
+          'Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed',
+        ),
+      ).not.toBeInTheDocument();
+    });
   });
 });
