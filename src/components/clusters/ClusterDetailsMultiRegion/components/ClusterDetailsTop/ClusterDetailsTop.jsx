@@ -354,7 +354,7 @@ function ClusterDetailsTop(props) {
 
       {topCard}
 
-      {isROSA ? <RosaArchitectureRenamingAlert /> : null}
+      {isROSA ? <RosaArchitectureRenamingAlert className="pf-v6-u-mt-md" /> : null}
 
       <LimitedSupportAlert
         limitedSupportReasons={cluster.limitedSupportReasons}
