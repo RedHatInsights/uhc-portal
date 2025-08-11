@@ -449,13 +449,31 @@ class CreateRosaCluster extends Page {
     cy.get('[aria-label="Private subnet"]').contains('private').first().click();
   }
 
-  selectMachinePoolPrivateSubnet(privateSubnetNameOrId, machinePoolIndex = 1) {
+  selectMachinePoolPrivateSubnet(
+    privateSubnetNameOrId,
+    machinePoolIndex = 1,
+    viewUsedSubnets = false,
+  ) {
     let mpIndex = machinePoolIndex - 1;
     cy.get(`button[id="machinePoolsSubnets[${mpIndex}].privateSubnetId"]`).click();
+    if (viewUsedSubnets) {
+      cy.contains('button', 'View Used Subnets').scrollIntoView().click();
+    }
     cy.get('input[placeholder="Filter by subnet ID / name"]', { timeout: 50000 })
       .clear()
       .type(privateSubnetNameOrId);
     cy.get('li').contains(privateSubnetNameOrId).scrollIntoView().click();
+  }
+
+  checkVieworHideUsedSubnetsPresence(usedSubnetNameOrId, machinePoolIndex = 1) {
+    let mpIndex = machinePoolIndex - 1;
+    cy.get(`button[id="machinePoolsSubnets[${mpIndex}].privateSubnetId"]`).click();
+    cy.contains('button', 'View Used Subnets').scrollIntoView().should('be.visible').click();
+    cy.get('li').contains(usedSubnetNameOrId).scrollIntoView().should('be.visible');
+    cy.contains('button', 'Hide Used Subnets').scrollIntoView().should('be.visible').click();
+    cy.get('li').should('not.contain', usedSubnetNameOrId);
+    cy.contains('button', 'View Used Subnets').scrollIntoView().should('be.visible');
+    cy.get(`button[id="machinePoolsSubnets[${mpIndex}].privateSubnetId"]`).blur();
   }
 
   removeMachinePool(machinePoolIndex = 1) {
