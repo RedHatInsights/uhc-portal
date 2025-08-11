@@ -369,7 +369,12 @@ const ClusterStatusMonitor = (props) => {
       // Cluster install failure
       if (clusterStatus.state === clusterStates.error) {
         alerts.push(
-          <Alert variant="danger" isInline title={`${errorCode} Cluster installation failed`}>
+          <Alert
+            variant="danger"
+            isInline
+            title={`${errorCode} Cluster installation failed`}
+            className="pf-v6-u-mt-md"
+          >
             <p>
               This cluster cannot be recovered, however you can use the logs and network validation
               to diagnose the problem:
