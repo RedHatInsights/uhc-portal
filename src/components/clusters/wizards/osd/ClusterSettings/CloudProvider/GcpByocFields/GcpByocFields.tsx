@@ -60,6 +60,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
 
   const handleAuthChange: ToggleGroupItemProps['onChange'] = (event) => {
     const { id } = event.currentTarget;
+
     const selection =
       id === GCPAuthType.WorkloadIdentityFederation
         ? GCPAuthType.WorkloadIdentityFederation
@@ -95,14 +96,12 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
                   bodyContent={
                     <div>
                       <div>
-                        Workload Identity Federation (WIF) uses short-lived credentials which is
+                        Workload Identity Federation (WIF) uses short-lived credentials which are
                         more secure. Use of WIF requires an OSD cluster running OpenShift{' '}
                         <span className="pf-v6-u-font-family-monospace">4.17</span> or later.
                       </div>
                       <br />
-                      <div>
-                        Service Account uses longer-lived credentials, which are less secure.
-                      </div>
+                      <div>Service Account uses long-lived credentials, which are less secure.</div>
                     </div>
                   }
                 >
