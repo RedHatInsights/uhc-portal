@@ -105,7 +105,7 @@ describe('<WindowsLicenseIncludedField />', () => {
       await user.hover(checkbox);
       expect(
         screen.getByText(
-          'This instance type is not Windows License Included compatible, please see documentation for further details.',
+          'This instance type is not Windows License Included compatible, please see documentation for further details',
         ),
       ).toBeInTheDocument();
     });
@@ -125,7 +125,7 @@ describe('<WindowsLicenseIncludedField />', () => {
       await user.hover(checkbox);
       expect(
         screen.getByText(
-          'This instance type is not Windows License Included compatible, please see documentation for further details.',
+          'This instance type is not Windows License Included compatible, please see documentation for further details',
         ),
       ).toBeInTheDocument();
     });
