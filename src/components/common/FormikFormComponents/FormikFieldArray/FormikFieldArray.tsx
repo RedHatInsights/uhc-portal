@@ -47,7 +47,7 @@ export const FormikFieldArray = (props: FormikFieldArrayProps) => {
         <LabelGridItem
           fieldSpan={6}
           isRequired={isRequired}
-          label={`${label} (${fieldData?.length || 0})`}
+          label={`${label} (${fieldData?.[0] === '' ? 0 : fieldData?.length || 0})`}
           helpText={helpText}
         />
       </StackItem>
@@ -72,7 +72,6 @@ export const FormikFieldArray = (props: FormikFieldArrayProps) => {
               </Button>
             </StackItem>
             {fieldData?.map((_: any, index: number) => {
-              const isRemoveDisabled = index === 0 && fieldData?.length === 1;
               const name = `${fieldID}.${index}`;
               return (
                 <React.Fragment key={name}>
@@ -93,7 +92,6 @@ export const FormikFieldArray = (props: FormikFieldArrayProps) => {
                             icon={<MinusCircleIcon />}
                             variant="link"
                             isInline
-                            isDisabled={isRemoveDisabled}
                             aria-label={`Remove ${label} ${index + 1}`}
                           />
                         </Bullseye>

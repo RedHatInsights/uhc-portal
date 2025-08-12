@@ -136,6 +136,7 @@ export const IdentityProvidersPageValidationSchema = (selectedIDP: string) => {
         [FieldId.ISSUER]: Yup.string().required('Field is required'),
         [FieldId.OPENID_EMAIL]: Yup.array()
           .of(Yup.string())
+          .nullable()
           .test(
             'at-least-one-filled',
             'At least one claims mapping field must be entered',
@@ -143,6 +144,7 @@ export const IdentityProvidersPageValidationSchema = (selectedIDP: string) => {
           ),
         [FieldId.OPENID_NAME]: Yup.array()
           .of(Yup.string())
+          .nullable()
           .test(
             'at-least-one-filled',
             'At least one claims mapping field must be entered',
@@ -150,6 +152,7 @@ export const IdentityProvidersPageValidationSchema = (selectedIDP: string) => {
           ),
         [FieldId.OPENID_PREFFERED_USERNAME]: Yup.array()
           .of(Yup.string())
+          .nullable()
           .test(
             'at-least-one-filled',
             'At least one claims mapping field must be entered',
@@ -157,6 +160,7 @@ export const IdentityProvidersPageValidationSchema = (selectedIDP: string) => {
           ),
         [FieldId.OPENID_CLAIM_GROUPS]: Yup.array()
           .of(Yup.string())
+          .nullable()
           .test(
             'group-name-restriction',
             'Group label cannot be `cluster-admins` or `dedicated-admins`',
