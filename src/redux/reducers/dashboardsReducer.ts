@@ -27,7 +27,8 @@ import {
   PENDING_ACTION,
   REJECTED_ACTION,
 } from '../reduxHelpers';
-import type { PromiseActionType, PromiseReducerState } from '../types';
+import { PromiseReducerState } from '../state';
+import type { PromiseActionType } from '../types';
 
 // not an ideal union type for metrics
 type ModifiedSubscription = Omit<Subscription, 'metrics'> & { metrics: Partial<OneMetric> };

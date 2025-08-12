@@ -18,7 +18,8 @@ import * as featureGates from '~/queries/featureGates/useFetchFeatureGate';
 import promiseRejectionMiddleware from './redux/promiseRejectionMiddleware';
 import { reduxReducers } from './redux/reducers';
 import sentryMiddleware from './redux/sentryMiddleware';
-import { GlobalState, store as globalStore } from './redux/store';
+import { GlobalState } from './redux/state';
+import { store as globalStore } from './redux/store';
 import * as restrictedEnv from './restrictedEnv';
 
 import '@testing-library/jest-dom';

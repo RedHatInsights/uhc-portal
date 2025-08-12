@@ -12,7 +12,7 @@ import shouldShowModal from '~/components/common/Modal/ModalSelectors';
 import PopoverHint from '~/components/common/PopoverHint';
 import { refetchMachineOrNodePoolsQuery } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useGlobalState } from '~/redux/hooks';
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 
 import { NodePoolWithUpgradePolicies } from '../machinePoolCustomTypes';
 

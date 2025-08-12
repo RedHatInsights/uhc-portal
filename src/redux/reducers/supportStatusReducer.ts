@@ -11,7 +11,8 @@ import {
   PENDING_ACTION,
   REJECTED_ACTION,
 } from '../reduxHelpers';
-import type { PromiseActionType, PromiseReducerState } from '../types';
+import { PromiseReducerState } from '../state';
+import type { PromiseActionType } from '../types';
 
 type SupportStatusState = PromiseReducerState & {
   supportStatus: { [index: string]: string };

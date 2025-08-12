@@ -23,7 +23,7 @@ import {
   getMachineTypes,
   getMachineTypesByRegion,
 } from '~/redux/actions/machineTypesActions';
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 import { AWSCredentials } from '~/types/types';
 
 import { getAwsCcsCredentials } from '../../utils/ccsCredentials';

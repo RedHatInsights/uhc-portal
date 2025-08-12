@@ -5,7 +5,7 @@ import { FormSelect, FormSelectOption, Spinner } from '@patternfly/react-core';
 
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import ErrorBox from '~/components/common/ErrorBox';
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 
 import { CheckedRegion, defaultRegionID } from './validRegions';
 

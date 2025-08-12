@@ -7,7 +7,8 @@ import {
   PENDING_ACTION,
   REJECTED_ACTION,
 } from '~/redux/reduxHelpers';
-import type { PromiseActionType, PromiseReducerState } from '~/redux/types';
+import type { PromiseReducerState } from '~/redux/state';
+import type { PromiseActionType } from '~/redux/types';
 
 import { DeleteProtectionActions, deleteProtectionConstants } from './deleteProtectionActions';
 

@@ -1,5 +1,5 @@
 import { hasCapability, subscriptionCapabilities } from '~/common/subscriptionCapabilities';
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 import { Subscription } from '~/types/accounts_mgmt.v1';
 
 import { canSubscribeOCPMultiRegion, canSubscribeOCPSelector } from '../canSubscribeOCPSelector';

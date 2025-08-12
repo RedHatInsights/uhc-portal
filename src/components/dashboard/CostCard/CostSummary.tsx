@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Content, ContentVariants, Grid, GridItem, Skeleton, Title } from '@patternfly/react-core';
 
-import { PromiseReducerState } from '~/redux/types';
+import { PromiseReducerState } from '~/redux/state';
 
 import { Report } from './models/Report';
 import CostSummaryClusters from './CostSummaryClusters';

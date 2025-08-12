@@ -11,7 +11,7 @@ import {
 } from '@patternfly/react-core';
 
 import { useNavigate } from '~/common/routing';
-import type { PromiseReducerState } from '~/redux/types';
+import type { PromiseReducerState } from '~/redux/state';
 import type { TermsReviewResponse } from '~/types/accounts_mgmt.v1';
 
 import getTermsAppLink from '../../../common/getTermsAppLink';

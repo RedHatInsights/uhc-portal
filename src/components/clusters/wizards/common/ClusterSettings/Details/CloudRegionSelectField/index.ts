@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import type { GlobalState } from '~/redux/store';
+import type { GlobalState } from '~/redux/state';
 import type { CloudRegion } from '~/types/clusters_mgmt.v1';
 
 import { CloudRegionSelectField } from './CloudRegionSelectField';

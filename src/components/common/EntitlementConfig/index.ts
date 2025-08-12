@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 
 import { createRosaEntitlement } from '../../../redux/actions/tokensActions';
 
