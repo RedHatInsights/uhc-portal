@@ -35,8 +35,8 @@ export const IdentityProvidersPageFormInitialValues = (selectedIDP: string) => {
         [FieldId.NAME]: '',
         [FieldId.HOSTNAME]: '',
         [FieldId.GITHUB_AUTH_MODE]: 'organizations',
-        [FieldId.ORGANIZATIONS]: [''],
-        [FieldId.TEAMS]: [''],
+        [FieldId.ORGANIZATIONS]: ['TestOrg '],
+        [FieldId.TEAMS]: ['TestTeam'],
       };
     case 'GoogleIdentityProvider':
       return {

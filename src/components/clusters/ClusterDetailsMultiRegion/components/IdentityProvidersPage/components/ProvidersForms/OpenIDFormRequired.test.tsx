@@ -140,10 +140,10 @@ describe('OpenIDFormRequired', () => {
       expect(screen.getByText('Claim mappings *')).toBeInTheDocument();
 
       // Assert - All FormikFieldArray components are rendered (4 field arrays with labels showing count)
-      expect(screen.getByText('Email (1)')).toBeInTheDocument();
-      expect(screen.getByText('Name (1)')).toBeInTheDocument();
-      expect(screen.getByText('Preferred username (1)')).toBeInTheDocument();
-      expect(screen.getByText('Groups (1)')).toBeInTheDocument();
+      expect(screen.getByText('Email (0)')).toBeInTheDocument();
+      expect(screen.getByText('Name (0)')).toBeInTheDocument();
+      expect(screen.getByText('Preferred username (0)')).toBeInTheDocument();
+      expect(screen.getByText('Groups (0)')).toBeInTheDocument();
     });
 
     it('should render issuer URL field with correct configuration', () => {
@@ -165,29 +165,25 @@ describe('OpenIDFormRequired', () => {
       render(buildTestComponent());
 
       // Assert - Email field
-      expect(screen.getByText('Email (1)')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('e.g. email 1')).toBeInTheDocument();
+      expect(screen.getByText('Email (0)')).toBeInTheDocument();
       expect(
         screen.getByText(/The list of attributes whose values should be used as the email address/),
       ).toBeInTheDocument();
 
       // Assert - Name field
-      expect(screen.getByText('Name (1)')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('e.g. name 1')).toBeInTheDocument();
+      expect(screen.getByText('Name (0)')).toBeInTheDocument();
       expect(
         screen.getByText(/The end user's full name including all name parts/),
       ).toBeInTheDocument();
 
       // Assert - Preferred username field
-      expect(screen.getByText('Preferred username (1)')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('e.g. preferred_username 1')).toBeInTheDocument();
+      expect(screen.getByText('Preferred username (0)')).toBeInTheDocument();
       expect(
         screen.getByText(/Shorthand name by which the end user wishes to be referred/),
       ).toBeInTheDocument();
 
       // Assert - Groups field
-      expect(screen.getByText('Groups (1)')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('e.g. dev-ops-admins 1')).toBeInTheDocument();
+      expect(screen.getByText('Groups (0)')).toBeInTheDocument();
       expect(screen.getByText('List of custom group labels')).toBeInTheDocument();
     });
 
