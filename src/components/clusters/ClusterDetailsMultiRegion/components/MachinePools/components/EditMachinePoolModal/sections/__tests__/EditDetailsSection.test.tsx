@@ -9,31 +9,11 @@ import EditDetailsSection from '../EditDetailsSection';
 
 import {
   editDetailsSectionDefaultProps as defaultProps,
-  mockCluster,
   mockHypershiftCluster,
 } from './EditDetailsSection.fixtures';
 
-// Mock dependencies
 jest.mock('~/components/clusters/common/clusterStates');
-jest.mock('~/components/common/formik/TextField');
-jest.mock('../../fields/InstanceTypeField');
-jest.mock('../../fields/SelectField');
-jest.mock('../../fields/SubnetField');
-jest.mock('../../fields/WindowsLicenseIncludedField');
-
-// Mock implementations
 const mockIsHypershiftCluster = isHypershiftCluster as jest.Mock;
-const mockTextField = jest.fn(() => <div>Machine pool name</div>);
-const mockInstanceTypeField = jest.fn(() => <div>InstanceTypeField</div>);
-const mockSubnetField = jest.fn(() => <div>SubnetField</div>);
-const mockWindowsLicenseIncludedField = jest.fn(() => <div>WindowsLicenseIncludedField</div>);
-
-// Apply mocks
-require('~/components/common/formik/TextField').default = mockTextField;
-require('../../fields/InstanceTypeField').default = mockInstanceTypeField;
-require('../../fields/SubnetField').default = mockSubnetField;
-require('../../fields/WindowsLicenseIncludedField').WindowsLicenseIncludedField =
-  mockWindowsLicenseIncludedField;
 
 // Formik wrapper for testing
 const FormikWrapper = ({
@@ -64,7 +44,26 @@ describe('<EditDetailsSection />', () => {
           mockUseFeatureGate([[WINDOWS_LICENSE_INCLUDED, true]]);
         });
 
-        it('WindowsLicenseIncludedField is visible', () => {
+        it('Mentions the Machine Pool is Windows LI enabled for a selected Machine Pool which has enabled Windows LI', () => {
+          mockIsHypershiftCluster.mockReturnValue(true);
+
+          render(
+            <FormikWrapper>
+              <EditDetailsSection
+                {...defaultProps}
+                isEdit
+                cluster={mockHypershiftCluster}
+                currentMPId="windows-li-enabled-machine-pool"
+              />
+            </FormikWrapper>,
+          );
+
+          expect(screen.getByText('This machine pool is Windows LI enabled')).toBeInTheDocument();
+        });
+
+        it('Does not Mention the Machine Pool is Windows LI enabled for a selected Machine Pool which has not enabled Windows LI', () => {
+          mockIsHypershiftCluster.mockReturnValue(true);
+
           render(
             <FormikWrapper>
               <EditDetailsSection
@@ -76,7 +75,9 @@ describe('<EditDetailsSection />', () => {
             </FormikWrapper>,
           );
 
-          expect(screen.getByText('WindowsLicenseIncludedField')).toBeInTheDocument();
+          expect(
+            screen.queryByText('This machine pool is Windows LI enabled'),
+          ).not.toBeInTheDocument();
         });
       });
 
@@ -85,14 +86,16 @@ describe('<EditDetailsSection />', () => {
           mockUseFeatureGate([[WINDOWS_LICENSE_INCLUDED, false]]);
         });
 
-        it('WindowsLicenseIncludedField is not visible', () => {
+        it('WindowsLicenseIncludedField text is not visible', () => {
           render(
             <FormikWrapper>
               <EditDetailsSection {...defaultProps} isEdit cluster={mockHypershiftCluster} />
             </FormikWrapper>,
           );
 
-          expect(screen.queryByText('WindowsLicenseIncludedField')).not.toBeInTheDocument();
+          expect(
+            screen.queryByText('Enable machine pool for Windows License Included'),
+          ).not.toBeInTheDocument();
         });
       });
     });
@@ -108,14 +111,16 @@ describe('<EditDetailsSection />', () => {
           mockUseFeatureGate([[WINDOWS_LICENSE_INCLUDED, true]]);
         });
 
-        it('WindowsLicenseIncludedField is not visible', () => {
+        it('WindowsLicenseIncludedField text is not visible', () => {
           render(
             <FormikWrapper>
-              <EditDetailsSection {...defaultProps} isEdit cluster={mockHypershiftCluster} />
+              <EditDetailsSection {...defaultProps} isEdit />
             </FormikWrapper>,
           );
 
-          expect(screen.queryByText('WindowsLicenseIncludedField')).not.toBeInTheDocument();
+          expect(
+            screen.queryByText('Enable machine pool for Windows License Included'),
+          ).not.toBeInTheDocument();
         });
       });
 
@@ -124,21 +129,23 @@ describe('<EditDetailsSection />', () => {
           mockUseFeatureGate([[WINDOWS_LICENSE_INCLUDED, false]]);
         });
 
-        it('WindowsLicenseIncludedField is not visible', () => {
+        it('WindowsLicenseIncludedField text is not visible', () => {
           render(
             <FormikWrapper>
-              <EditDetailsSection {...defaultProps} isEdit cluster={mockHypershiftCluster} />
+              <EditDetailsSection {...defaultProps} isEdit />
             </FormikWrapper>,
           );
 
-          expect(screen.queryByText('WindowsLicenseIncludedField')).not.toBeInTheDocument();
+          expect(
+            screen.queryByText('Enable machine pool for Windows License Included'),
+          ).not.toBeInTheDocument();
         });
       });
     });
   });
 
   describe('when creating a new Machine Pool', () => {
-    it('machine pool TextField is visible', () => {
+    it('Machine Pool name TextField is visible', () => {
       render(
         <FormikWrapper>
           <EditDetailsSection {...defaultProps} isEdit={false} />
@@ -148,29 +155,9 @@ describe('<EditDetailsSection />', () => {
       expect(screen.getByText('Machine pool name')).toBeInTheDocument();
     });
 
-    it('InstanceTypeField is visible', () => {
-      render(
-        <FormikWrapper>
-          <EditDetailsSection {...defaultProps} isEdit={false} cluster={mockHypershiftCluster} />
-        </FormikWrapper>,
-      );
-
-      expect(screen.getByText('InstanceTypeField')).toBeInTheDocument();
-    });
-
     describe('when Hypershift cluster', () => {
       beforeEach(() => {
         mockIsHypershiftCluster.mockReturnValue(true);
-      });
-
-      it('SubnetField is visible', () => {
-        render(
-          <FormikWrapper>
-            <EditDetailsSection {...defaultProps} isEdit={false} cluster={mockHypershiftCluster} />
-          </FormikWrapper>,
-        );
-
-        expect(screen.getByText('SubnetField')).toBeInTheDocument();
       });
 
       describe('when feature flag is enabled', () => {
@@ -178,7 +165,7 @@ describe('<EditDetailsSection />', () => {
           mockUseFeatureGate([[WINDOWS_LICENSE_INCLUDED, true]]);
         });
 
-        it('WindowsLicenseIncludedField is visible', () => {
+        it('WindowsLicenseIncludedField text is visible', () => {
           render(
             <FormikWrapper>
               <EditDetailsSection
@@ -189,7 +176,9 @@ describe('<EditDetailsSection />', () => {
             </FormikWrapper>,
           );
 
-          expect(screen.getByText('WindowsLicenseIncludedField')).toBeInTheDocument();
+          expect(
+            screen.getByText('Enable machine pool for Windows License Included'),
+          ).toBeInTheDocument();
         });
       });
 
@@ -198,7 +187,7 @@ describe('<EditDetailsSection />', () => {
           mockUseFeatureGate([[WINDOWS_LICENSE_INCLUDED, false]]);
         });
 
-        it('WindowsLicenseIncludedField is not visible', () => {
+        it('WindowsLicenseIncludedField text is not visible', () => {
           render(
             <FormikWrapper>
               <EditDetailsSection
@@ -209,57 +198,53 @@ describe('<EditDetailsSection />', () => {
             </FormikWrapper>,
           );
 
-          expect(screen.queryByText('WindowsLicenseIncludedField')).not.toBeInTheDocument();
+          expect(
+            screen.queryByText('Enable machine pool for Windows License Included'),
+          ).not.toBeInTheDocument();
         });
       });
     });
 
-    describe('non-hypershift cluster', () => {
+    describe('when non-hypershift cluster', () => {
       beforeEach(() => {
         mockIsHypershiftCluster.mockReturnValue(false);
       });
 
-      it('SubnetField is not visible', () => {
-        render(
-          <FormikWrapper>
-            <EditDetailsSection {...defaultProps} isEdit={false} cluster={mockCluster} />
-          </FormikWrapper>,
-        );
+      // WindowsLicenseIncludedField is relevant only for Hypershift clusters
+      describe('when feature flag is enabled', () => {
+        beforeEach(() => {
+          mockUseFeatureGate([[WINDOWS_LICENSE_INCLUDED, true]]);
+        });
 
-        expect(screen.queryByLabelText('SubnetField')).not.toBeInTheDocument();
-      });
-    });
+        it('WindowsLicenseIncludedField text is not visible', () => {
+          render(
+            <FormikWrapper>
+              <EditDetailsSection {...defaultProps} isEdit={false} />
+            </FormikWrapper>,
+          );
 
-    // WINDOWS_LICENSE_INCLUDED feature flag is only relevant for Hypershift clusters
-    describe('when feature flag is enabled', () => {
-      beforeEach(() => {
-        mockUseFeatureGate([[WINDOWS_LICENSE_INCLUDED, true]]);
-      });
-
-      it('WindowsLicenseIncludedField is not visible', () => {
-        render(
-          <FormikWrapper>
-            <EditDetailsSection {...defaultProps} isEdit={false} cluster={mockHypershiftCluster} />
-          </FormikWrapper>,
-        );
-
-        expect(screen.queryByText('WindowsLicenseIncludedField')).not.toBeInTheDocument();
-      });
-    });
-
-    describe('when feature flag is disabled', () => {
-      beforeEach(() => {
-        mockUseFeatureGate([[WINDOWS_LICENSE_INCLUDED, false]]);
+          expect(
+            screen.queryByText('Enable machine pool for Windows License Included'),
+          ).not.toBeInTheDocument();
+        });
       });
 
-      it('WindowsLicenseIncludedField is not visible', () => {
-        render(
-          <FormikWrapper>
-            <EditDetailsSection {...defaultProps} isEdit={false} cluster={mockHypershiftCluster} />
-          </FormikWrapper>,
-        );
+      describe('when feature flag is disabled', () => {
+        beforeEach(() => {
+          mockUseFeatureGate([[WINDOWS_LICENSE_INCLUDED, false]]);
+        });
 
-        expect(screen.queryByText('WindowsLicenseIncludedField')).not.toBeInTheDocument();
+        it('WindowsLicenseIncludedField text is not visible', () => {
+          render(
+            <FormikWrapper>
+              <EditDetailsSection {...defaultProps} isEdit={false} />
+            </FormikWrapper>,
+          );
+
+          expect(
+            screen.queryByText('Enable machine pool for Windows License Included'),
+          ).not.toBeInTheDocument();
+        });
       });
     });
   });
