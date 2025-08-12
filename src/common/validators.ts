@@ -979,18 +979,18 @@ const awsMachineCidr = (value?: string, formData?: Record<string, string>): stri
 
   if (prefixLength != null) {
     if (prefixLength < AWS_MACHINE_CIDR_MIN) {
-      return `The subnet mask can't be larger than '/${AWS_MACHINE_CIDR_MIN}'.`;
+      return `The subnet mask can't be smaller than '/${AWS_MACHINE_CIDR_MIN}'.`;
     }
 
     if (
       (isMultiAz || formData?.hypershift === 'true') &&
       prefixLength > AWS_MACHINE_CIDR_MAX_MULTI_AZ
     ) {
-      return `The subnet mask can't be smaller than '/${AWS_MACHINE_CIDR_MAX_MULTI_AZ}'.`;
+      return `The subnet mask can't be larger than '/${AWS_MACHINE_CIDR_MAX_MULTI_AZ}'.`;
     }
 
     if (!isMultiAz && prefixLength > AWS_MACHINE_CIDR_MAX_SINGLE_AZ) {
-      return `The subnet mask can't be smaller than '/${AWS_MACHINE_CIDR_MAX_SINGLE_AZ}'.`;
+      return `The subnet mask can't be larger than '/${AWS_MACHINE_CIDR_MAX_SINGLE_AZ}'.`;
     }
   }
 
@@ -1009,13 +1009,13 @@ const gcpMachineCidr = (value?: string, formData?: Record<string, string>): stri
     if (isMultiAz && prefixLength > GCP_MACHINE_CIDR_MAX) {
       const maxComputeNodes = 2 ** (28 - GCP_MACHINE_CIDR_MAX);
       const multiAZ = (maxComputeNodes - 9) * 3;
-      return `The subnet mask can't be smaller than '/${GCP_MACHINE_CIDR_MAX}', which provides up to ${multiAZ} nodes.`;
+      return `The subnet mask can't be larger than '/${GCP_MACHINE_CIDR_MAX}', which provides up to ${multiAZ} nodes.`;
     }
 
     if (!isMultiAz && prefixLength > GCP_MACHINE_CIDR_MAX) {
       const maxComputeNodes = 2 ** (28 - GCP_MACHINE_CIDR_MAX);
       const singleAZ = maxComputeNodes - 9;
-      return `The subnet mask can't be smaller than '/${GCP_MACHINE_CIDR_MAX}', which provides up to ${singleAZ} nodes.`;
+      return `The subnet mask can't be larger than '/${GCP_MACHINE_CIDR_MAX}', which provides up to ${singleAZ} nodes.`;
     }
   }
 
@@ -1032,7 +1032,7 @@ const serviceCidr = (value?: string): string | undefined => {
   if (prefixLength != null) {
     if (prefixLength > SERVICE_CIDR_MAX) {
       const maxServices = 2 ** (32 - SERVICE_CIDR_MAX) - 2;
-      return `The subnet mask can't be smaller than '/${SERVICE_CIDR_MAX}', which provides up to ${maxServices} services.`;
+      return `The subnet mask can't be larger than '/${SERVICE_CIDR_MAX}', which provides up to ${maxServices} services.`;
     }
   }
 
@@ -1047,7 +1047,7 @@ const podCidr = (value?: string, formData?: Record<string, string>): string | un
   const prefixLength = parseCIDRSubnetLength(value);
   if (prefixLength != null) {
     if (prefixLength > POD_CIDR_MAX) {
-      return `The subnet mask can't be smaller than /${POD_CIDR_MAX}.`;
+      return `The subnet mask can't be larger than /${POD_CIDR_MAX}.`;
     }
 
     const hostPrefix = parseCIDRSubnetLength(formData?.network_host_prefix) || 23;
@@ -1183,11 +1183,11 @@ const hostPrefix = (value?: string): string | undefined => {
   if (prefixLength != null) {
     if (prefixLength < HOST_PREFIX_MIN) {
       const maxPodIPs = 2 ** (32 - HOST_PREFIX_MIN) - 2;
-      return `The subnet mask can't be larger than '/${HOST_PREFIX_MIN}', which provides up to ${maxPodIPs} Pod IP addresses.`;
+      return `The subnet mask can't be smaller than '/${HOST_PREFIX_MIN}', which provides up to ${maxPodIPs} Pod IP addresses.`;
     }
     if (prefixLength > HOST_PREFIX_MAX) {
       const maxPodIPs = 2 ** (32 - HOST_PREFIX_MAX) - 2;
-      return `The subnet mask can't be smaller than '/${HOST_PREFIX_MAX}', which provides up to ${maxPodIPs} Pod IP addresses.`;
+      return `The subnet mask can't be larger than '/${HOST_PREFIX_MAX}', which provides up to ${maxPodIPs} Pod IP addresses.`;
     }
   }
 

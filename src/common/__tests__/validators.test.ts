@@ -234,18 +234,18 @@ describe('Field is valid CIDR range', () => {
 describe('Field is valid Machine CIDR for AWS', () => {
   it.each([
     [undefined, undefined, undefined],
-    ['192.168.0.0/15', { multi_az: 'false' }, "The subnet mask can't be larger than '/16'."],
+    ['192.168.0.0/15', { multi_az: 'false' }, "The subnet mask can't be smaller than '/16'."],
     ['192.168.0.0/16', { multi_az: 'false' }, undefined],
     ['192.168.0.0/25', { multi_az: 'false' }, undefined],
-    ['192.168.0.0/26', { multi_az: 'false' }, "The subnet mask can't be smaller than '/25'."],
-    ['192.168.0.0/15', { multi_az: 'true' }, "The subnet mask can't be larger than '/16'."],
+    ['192.168.0.0/26', { multi_az: 'false' }, "The subnet mask can't be larger than '/25'."],
+    ['192.168.0.0/15', { multi_az: 'true' }, "The subnet mask can't be smaller than '/16'."],
     ['192.168.0.0/16', { multi_az: 'true' }, undefined],
     ['192.168.0.0/24', { multi_az: 'true' }, undefined],
-    ['192.168.0.0/25', { multi_az: 'true' }, "The subnet mask can't be smaller than '/24'."],
+    ['192.168.0.0/25', { multi_az: 'true' }, "The subnet mask can't be larger than '/24'."],
     [
       '192.168.0.0/25',
       { multi_az: 'false', hypershift: 'true' },
-      "The subnet mask can't be smaller than '/24'.",
+      "The subnet mask can't be larger than '/24'.",
     ],
     ['192.168.0.0/24', { multi_az: 'false', hypershift: 'true' }, undefined],
   ])(
@@ -266,19 +266,19 @@ describe('Field is valid Machine CIDR for GCP', () => {
     [
       '192.168.0.0/25',
       { multi_az: 'false', hypershift: 'true' },
-      "The subnet mask can't be smaller than '/23', which provides up to 23 nodes.",
+      "The subnet mask can't be larger than '/23', which provides up to 23 nodes.",
     ],
     ['192.168.0.0/23', { multi_az: 'false', hypershift: 'true' }, undefined],
     [
       '192.168.0.0/25',
       { multi_az: 'false' },
-      "The subnet mask can't be smaller than '/23', which provides up to 23 nodes.",
+      "The subnet mask can't be larger than '/23', which provides up to 23 nodes.",
     ],
     ['192.168.0.0/23', { multi_az: 'false' }, undefined],
     [
       '192.168.0.0/25',
       { multi_az: 'true' },
-      "The subnet mask can't be smaller than '/23', which provides up to 69 nodes.",
+      "The subnet mask can't be larger than '/23', which provides up to 69 nodes.",
     ],
     ['192.168.0.0/23', { multi_az: 'true' }, undefined],
   ])(
@@ -299,7 +299,7 @@ describe('Field is valid Service CIDR', () => {
     ['192.168.0.0/0', undefined],
     [
       '192.168.0.0/25',
-      "The subnet mask can't be smaller than '/24', which provides up to 254 services.",
+      "The subnet mask can't be larger than '/24', which provides up to 254 services.",
     ],
   ])('value %p to be %p', (value: string | undefined, expected: string | undefined) => {
     expect(validators.serviceCidr(value)).toBe(expected);
@@ -314,11 +314,7 @@ describe('Field is valid Pod CIDR', () => {
     ['192.168.0.0/19', { network_host_prefix: '/24' }, undefined],
     ['192.168.0.0/20', { network_host_prefix: '/25' }, undefined],
     ['192.168.0.0/21', { network_host_prefix: '/26' }, undefined],
-    [
-      '192.168.0.0/22',
-      { network_host_prefix: '/27' },
-      "The subnet mask can't be smaller than /21.",
-    ],
+    ['192.168.0.0/22', { network_host_prefix: '/27' }, "The subnet mask can't be larger than /21."],
     ['192.168.0.0/17', { network_host_prefix: '/23' }, undefined],
     ['192.168.0.0/18', { network_host_prefix: '/23' }, undefined],
     [
@@ -339,11 +335,7 @@ describe('Field is valid Pod CIDR', () => {
       'The subnet mask of /21 does not allow for enough nodes. Try changing the host prefix or the pod subnet range.',
     ],
     ['192.168.0.0/21', { network_host_prefix: '/26' }, undefined],
-    [
-      '192.168.0.0/22',
-      { network_host_prefix: '/26' },
-      "The subnet mask can't be smaller than /21.",
-    ],
+    ['192.168.0.0/22', { network_host_prefix: '/26' }, "The subnet mask can't be larger than /21."],
   ])(
     'value %p and formData %o to be %p',
     (
@@ -575,22 +567,19 @@ describe('Field is valid subnet mask', () => {
     [undefined, undefined],
     [
       '/22',
-      "The subnet mask can't be larger than '/23', which provides up to 510 Pod IP addresses.",
+      "The subnet mask can't be smaller than '/23', which provides up to 510 Pod IP addresses.",
     ],
     ['/23', undefined],
     ['/26', undefined],
     [
       '/27',
-      "The subnet mask can't be smaller than '/26', which provides up to 62 Pod IP addresses.",
+      "The subnet mask can't be larger than '/26', which provides up to 62 Pod IP addresses.",
     ],
     [
       '/33',
       "The value '/33' isn't a valid subnet mask. It must follow the RFC-4632 format: '/16'.",
     ],
-    [
-      '32',
-      "The subnet mask can't be smaller than '/26', which provides up to 62 Pod IP addresses.",
-    ],
+    ['32', "The subnet mask can't be larger than '/26', which provides up to 62 Pod IP addresses."],
     [
       '/foo',
       "The value '/foo' isn't a valid subnet mask. It must follow the RFC-4632 format: '/16'.",
@@ -602,9 +591,12 @@ describe('Field is valid subnet mask', () => {
     ['/', "The value '/' isn't a valid subnet mask. It must follow the RFC-4632 format: '/16'."],
     [
       '/0',
-      "The subnet mask can't be larger than '/23', which provides up to 510 Pod IP addresses.",
+      "The subnet mask can't be smaller than '/23', which provides up to 510 Pod IP addresses.",
     ],
-    ['0', "The subnet mask can't be larger than '/23', which provides up to 510 Pod IP addresses."],
+    [
+      '0',
+      "The subnet mask can't be smaller than '/23', which provides up to 510 Pod IP addresses.",
+    ],
     [
       '/-1',
       "The value '/-1' isn't a valid subnet mask. It must follow the RFC-4632 format: '/16'.",
