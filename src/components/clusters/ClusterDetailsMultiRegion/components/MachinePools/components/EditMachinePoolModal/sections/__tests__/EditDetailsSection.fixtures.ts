@@ -100,7 +100,8 @@ const mockHypershiftCluster: ClusterFromSubscription = {
   hypershift: { enabled: true },
 };
 
-const mockMachinePools: MachinePool[] = [
+// Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+const mockMachinePools: (MachinePool & { imageType?: string })[] = [
   {
     kind: 'MachinePool',
     id: 'workers-1',
@@ -111,11 +112,12 @@ const mockMachinePools: MachinePool[] = [
   },
   {
     kind: 'MachinePool',
-    id: 'workers-2',
-    href: '/api/clusters_mgmt/v1/clusters/test/machine_pools/workers-2',
+    id: 'windows-li-enabled-machine-pool',
+    href: '/api/clusters_mgmt/v1/clusters/test/machine_pools/windows-li-enabled-machine-pool',
     instance_type: 'm5.2xlarge',
     replicas: 2,
     availability_zones: ['us-east-1a', 'us-east-1b'],
+    imageType: 'Windows',
   },
 ];
 

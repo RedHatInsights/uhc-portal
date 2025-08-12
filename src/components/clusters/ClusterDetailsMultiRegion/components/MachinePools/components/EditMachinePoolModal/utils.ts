@@ -111,12 +111,10 @@ export const buildNodePoolRequest = (
     isEdit: boolean;
     isMultiZoneMachinePool: boolean;
   },
-  // TODO: Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+  // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
 ): NodePool & { imageType?: string } => {
-  // ): NodePool => {
-  // TODO: Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+  // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
   const nodePool: NodePool & { imageType?: string } = {
-    // const nodePool: NodePool = {
     id: values.name,
     labels: getLabels(values.labels),
     taints: getTaints(values.taints),

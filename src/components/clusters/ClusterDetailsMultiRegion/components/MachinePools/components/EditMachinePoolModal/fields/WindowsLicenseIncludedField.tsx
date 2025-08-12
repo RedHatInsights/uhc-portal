@@ -1,29 +1,20 @@
 import React from 'react';
 import { useField } from 'formik';
 
-import {
-  Checkbox,
-  Content,
-  ContentVariants,
-  Flex,
-  FlexItem,
-  Stack,
-  StackItem,
-  Tooltip,
-} from '@patternfly/react-core';
+import { Checkbox, Content, ContentVariants, Flex, FlexItem } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import { fieldId as instanceTypeFieldId } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
+import WithTooltip from '~/components/common/WithTooltip';
 import { MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 
 const fieldId = 'windowsLicenseIncluded';
 
 type WindowsLicenseIncludedFieldProps = {
   isEdit?: boolean;
-  // TODO: Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-  // currentMP?: NodePool;
+  // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
   currentMP?: NodePool & { imageType?: string };
 };
 
@@ -42,43 +33,26 @@ const WindowsLicenseIncludedField = ({
   // Instance type field -> get isWinLiCompatible from the selected instance type:
   const [__field, { value: instanceType }] = useField(instanceTypeFieldId);
   const isWinLiCompatible =
-    // TODO: Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+    // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
     (instanceType as MachineType & { features: { winLi: boolean } })?.features?.winLi ?? false;
-  // (instanceType as MachineType)?.features?.winLi ?? false;
-
-  const checkboxProps = {
-    isChecked,
-    onChange: () => {
-      setFieldValue(!isChecked);
-    },
-    id: fieldId,
-    label: 'Enable machine pool for Windows License Included',
-  };
-  const checkbox = isWinLiCompatible ? (
-    <Checkbox {...checkboxProps} />
-  ) : (
-    <Tooltip content="This instance type is not Windows License Included compatible, please see documentation for further details.">
-      <Checkbox {...checkboxProps} isDisabled />
-    </Tooltip>
-  );
 
   const isCurrentMPWinLiEnabled = isEdit && currentMP?.imageType === 'Windows';
 
   const hint = (
     <PopoverHint
       bodyContent={
-        <Stack hasGutter>
-          <StackItem>
+        <Content component={ContentVariants.ul} isPlainList>
+          <Content component={ContentVariants.li}>
             Learn more about{' '}
             <ExternalLink href={AWS_DOCS_LINK}>Microsoft licensing on AWS</ExternalLink> and{' '}
             <ExternalLink href={REDHAT_DOCS_LINK}>
               how to work with AWS-Windows-LI hosts
             </ExternalLink>
-          </StackItem>
-          <StackItem>
+          </Content>
+          <Content component={ContentVariants.li}>
             When enabled, the machine pool is AWS License Included for Windows with associated fees.
-          </StackItem>
-        </Stack>
+          </Content>
+        </Content>
       }
     />
   );
@@ -95,7 +69,22 @@ const WindowsLicenseIncludedField = ({
     )
   ) : (
     <Flex>
-      <FlexItem spacer={{ default: 'spacerXs' }}>{checkbox}</FlexItem>
+      <FlexItem spacer={{ default: 'spacerXs' }}>
+        <WithTooltip
+          showTooltip={!isWinLiCompatible}
+          content="This instance type is not Windows License Included compatible, please see documentation for further details"
+        >
+          <Checkbox
+            isChecked={isChecked}
+            onChange={() => {
+              setFieldValue(!isChecked);
+            }}
+            id={fieldId}
+            label="Enable machine pool for Windows License Included"
+            isDisabled={!isWinLiCompatible}
+          />
+        </WithTooltip>
+      </FlexItem>
       <FlexItem>{hint}</FlexItem>
     </Flex>
   );
