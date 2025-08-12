@@ -6,7 +6,7 @@ import type { Action, TypeConstant } from 'typesafe-actions';
 
 import type { ErrorState } from '../types/types';
 
-import type { GlobalState } from './store';
+import type { GlobalState } from './state';
 
 export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, GlobalState, unknown, AnyAction>;
 
