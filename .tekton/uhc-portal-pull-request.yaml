@@ -39,16 +39,19 @@ spec:
 
       yarn install
 
-      # todo - move to npm script (try to use NODE_OPTIONS to make it easier)
+      # todo - use NODE_OPTIONS="--max-old-space-size=..."
+      # todo - reduce unit-tests-memory-* back to 8Gi and see if it's okay still
+
+      # todo - move to npm script
       node --max-old-space-size=1536 ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
 
       yarn prettier
 
       # yarn test --runInBand --no-cache --coverage=false
-      TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
+      # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
       # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=2
       # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=1 --bail
-      # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false --bail
+      TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false --bail
       # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=2 --bail
       # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=1 --bail
   - name: unit-tests-memory-request
