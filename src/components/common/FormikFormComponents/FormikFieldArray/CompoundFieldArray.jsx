@@ -3,7 +3,7 @@ import { Field, FieldArray } from 'formik';
 import { pullAt } from 'lodash';
 import { PropTypes } from 'prop-types';
 
-import { Button, GridItem } from '@patternfly/react-core';
+import { Button, Flex, FlexItem, GridItem } from '@patternfly/react-core';
 import { MinusCircleIcon, PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons';
 
 import { FieldId } from '~/components/clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/constants';
@@ -33,7 +33,27 @@ LabelGridItem.propTypes = {
   helpText: PropTypes.string,
 };
 
-const AddMoreButtonGridItem = ({
+const LabelFlexItem = ({ label, isRequired, helpText }) => (
+  <GridItem className="field-array-title">
+    <p className="pf-v6-c-form__label-text" id="field-array-label">
+      {label}
+      {isRequired ? <span className="pf-v6-c-form__label-required">*</span> : null}
+    </p>
+    {helpText ? (
+      <p className="pf-v6-c-form__helper-text" id="field-array-help-text">
+        {helpText}
+      </p>
+    ) : null}
+  </GridItem>
+);
+
+LabelFlexItem.propTypes = {
+  label: PropTypes.string,
+  isRequired: PropTypes.bool,
+  helpText: PropTypes.string,
+};
+
+const AddMoreButtonFlexItem = ({
   addNewField,
   areFieldsFilled,
   title = 'Add more',
@@ -44,7 +64,7 @@ const AddMoreButtonGridItem = ({
     !areFieldsFilled?.length || areFieldsFilled?.includes(false) || addMoreButtonDisabled;
 
   return (
-    <GridItem className="field-grid-item">
+    <FlexItem>
       <Button
         label={label}
         onClick={addNewField}
@@ -54,11 +74,11 @@ const AddMoreButtonGridItem = ({
       >
         {title}
       </Button>
-    </GridItem>
+    </FlexItem>
   );
 };
 
-AddMoreButtonGridItem.propTypes = {
+AddMoreButtonFlexItem.propTypes = {
   addNewField: PropTypes.func.isRequired,
   areFieldsFilled: PropTypes.arrayOf(PropTypes.bool).isRequired,
   title: PropTypes.string,
@@ -66,11 +86,11 @@ AddMoreButtonGridItem.propTypes = {
   label: PropTypes.string,
 };
 
-const MinusButtonGridItem = ({ index, fields, onClick, minusButtonDisabledMessage }) => {
+const MinusButtonFlexItem = ({ index, fields, onClick, minusButtonDisabledMessage }) => {
   const isOnlyItem = index === 0 && fields.length === 1;
   const disableReason = minusButtonDisabledMessage || 'To delete the item, add another item first.';
   return (
-    <GridItem data-testid="remove-users" className="field-grid-item minus-button" span={1}>
+    <FlexItem className="field-grid-item minus-button" span={1}>
       <ButtonWithTooltip
         disableReason={isOnlyItem && disableReason}
         tooltipProps={{ position: 'right', distance: 0 }}
@@ -79,38 +99,37 @@ const MinusButtonGridItem = ({ index, fields, onClick, minusButtonDisabledMessag
         variant="link"
         aria-label="Remove"
       />
-    </GridItem>
+    </FlexItem>
   );
 };
 
-MinusButtonGridItem.propTypes = {
+MinusButtonFlexItem.propTypes = {
   index: PropTypes.number.isRequired,
   fields: PropTypes.array.isRequired,
   onClick: PropTypes.func.isRequired,
   minusButtonDisabledMessage: PropTypes.string,
 };
 
-const FieldArrayErrorGridItem = ({ isLast, errorMessage, touched, isGroupError }) => {
+const FieldArrayErrorFlexItem = ({ isLast, errorMessage, touched, isGroupError }) => {
   if (errorMessage && isLast && (touched || isGroupError)) {
     return (
-      <GridItem className="field-grid-item pf-v6-c-form__helper-text pf-m-error">
+      <FlexItem className="field-grid-item pf-v6-c-form__helper-text pf-m-error">
         {errorMessage}
-      </GridItem>
+      </FlexItem>
     );
   }
   return null;
 };
 
-FieldArrayErrorGridItem.propTypes = {
+FieldArrayErrorFlexItem.propTypes = {
   isLast: PropTypes.bool.isRequired,
   errorMessage: PropTypes.string,
   touched: PropTypes.bool,
   isGroupError: PropTypes.bool,
 };
 
-const FieldGridItemComponent = (props) => {
-  const { index, fieldSpan, compoundFields, disabled, onFieldChange } = props;
-  const compoundFieldSpan = Math.max(Math.floor(fieldSpan / compoundFields.length), 1);
+const FieldFlexItemComponent = (props) => {
+  const { index, compoundFields, disabled, onFieldChange } = props;
   const { getFieldProps, getFieldMeta, setFieldValue, values } = useFormState();
 
   React.useEffect(() => {
@@ -119,7 +138,7 @@ const FieldGridItemComponent = (props) => {
 
   return (
     <>
-      <GridItem className="field-grid-item" span={compoundFieldSpan}>
+      <FlexItem>
         <Field
           component={ReduxVerticalFormGroup}
           {...compoundFields[0]}
@@ -150,76 +169,78 @@ const FieldGridItemComponent = (props) => {
             undefined
           }
         />
-      </GridItem>
-      <GridItem className="field-grid-item" span={compoundFieldSpan}>
-        <Field
-          component={ReduxVerticalFormGroup}
-          {...compoundFields[1]}
-          id={`users.${index}.password`}
-          name={`users.${index}.password`}
-          type="password"
-          disabled={disabled}
-          input={{
-            ...getFieldProps(`users.${index}.password`),
-            onChange: (_, value) => {
-              onFieldChange(_, value, index, `users.${index}.password`);
-              setFieldValue(`users.${index}.password`, value);
-            },
-            onBlur: (event) => {
-              const { onBlur } = getFieldProps(`users.${index}.password`);
-              onBlur(event);
-            },
-          }}
-          meta={getFieldMeta(`users.${index}.password`)}
-          placeholder={
-            compoundFields[1].getPlaceholderText
-              ? compoundFields[1].getPlaceholderText(index)
-              : undefined
-          }
-          helpText={
-            compoundFields[1].helpText ||
-            (compoundFields[1].getHelpText && compoundFields[1].getHelpText(index)) ||
-            undefined
-          }
-        />
-      </GridItem>
-      <GridItem className="field-grid-item" span={compoundFieldSpan}>
-        <Field
-          component={ReduxVerticalFormGroup}
-          {...compoundFields[2]}
-          id={`users.${index}.password-confirm`}
-          name={`users.${index}.password-confirm`}
-          type="password"
-          disabled={disabled}
-          input={{
-            ...getFieldProps(`users.${index}.password-confirm`),
-            onChange: (_, value) => {
-              onFieldChange(_, value, index, `users.${index}.password-confirm`);
-              setFieldValue(`users.${index}.password-confirm`, value);
-            },
-            onBlur: (event) => {
-              const { onBlur } = getFieldProps(`users.${index}.password-confirm`);
-              onBlur(event);
-            },
-          }}
-          meta={getFieldMeta(`users.${index}.password-confirm`)}
-          placeholder={
-            compoundFields[2].getPlaceholderText
-              ? compoundFields[2].getPlaceholderText(index)
-              : undefined
-          }
-          helpText={
-            compoundFields[2].helpText ||
-            (compoundFields[2].getHelpText && compoundFields[2].getHelpText(index)) ||
-            undefined
-          }
-        />
-      </GridItem>
+      </FlexItem>
+      <Flex>
+        <FlexItem>
+          <Field
+            component={ReduxVerticalFormGroup}
+            {...compoundFields[1]}
+            id={`users.${index}.password`}
+            name={`users.${index}.password`}
+            type="password"
+            disabled={disabled}
+            input={{
+              ...getFieldProps(`users.${index}.password`),
+              onChange: (_, value) => {
+                onFieldChange(_, value, index, `users.${index}.password`);
+                setFieldValue(`users.${index}.password`, value);
+              },
+              onBlur: (event) => {
+                const { onBlur } = getFieldProps(`users.${index}.password`);
+                onBlur(event);
+              },
+            }}
+            meta={getFieldMeta(`users.${index}.password`)}
+            placeholder={
+              compoundFields[1].getPlaceholderText
+                ? compoundFields[1].getPlaceholderText(index)
+                : undefined
+            }
+            helpText={
+              compoundFields[1].helpText ||
+              (compoundFields[1].getHelpText && compoundFields[1].getHelpText(index)) ||
+              undefined
+            }
+          />
+        </FlexItem>
+        <FlexItem>
+          <Field
+            component={ReduxVerticalFormGroup}
+            {...compoundFields[2]}
+            id={`users.${index}.password-confirm`}
+            name={`users.${index}.password-confirm`}
+            type="password"
+            disabled={disabled}
+            input={{
+              ...getFieldProps(`users.${index}.password-confirm`),
+              onChange: (_, value) => {
+                onFieldChange(_, value, index, `users.${index}.password-confirm`);
+                setFieldValue(`users.${index}.password-confirm`, value);
+              },
+              onBlur: (event) => {
+                const { onBlur } = getFieldProps(`users.${index}.password-confirm`);
+                onBlur(event);
+              },
+            }}
+            meta={getFieldMeta(`users.${index}.password-confirm`)}
+            placeholder={
+              compoundFields[2].getPlaceholderText
+                ? compoundFields[2].getPlaceholderText(index)
+                : undefined
+            }
+            helpText={
+              compoundFields[2].helpText ||
+              (compoundFields[2].getHelpText && compoundFields[2].getHelpText(index)) ||
+              undefined
+            }
+          />
+        </FlexItem>
+      </Flex>
     </>
   );
 };
 
-FieldGridItemComponent.propTypes = {
+FieldFlexItemComponent.propTypes = {
   compoundFields: PropTypes.array.isRequired,
   index: PropTypes.number,
   fieldSpan: PropTypes.number,
@@ -301,7 +322,7 @@ export const CompoundFieldArray = (props) => {
                 isRequired={isRequired}
                 helpText={helpText}
               />
-              <AddMoreButtonGridItem
+              <AddMoreButtonFlexItem
                 addNewField={() => addNewField(insert)}
                 areFieldsFilled={areFieldsFilled}
                 label={addMoreTitle}
@@ -310,34 +331,35 @@ export const CompoundFieldArray = (props) => {
               />
             </>
           )}
-
-          {usersData?.map((_, index) => (
-            <React.Fragment key={`${usersData[index]}`}>
-              <FieldGridItemComponent
-                compoundFields={compoundFields}
-                item={`${usersData[index]}`}
-                index={index}
-                onFieldChange={onFieldChange}
-                setTouched={setTouched}
-                fieldSpan={fieldSpan}
-                {...props}
-              />
-              {onlySingleItem ? null : (
-                <MinusButtonGridItem
+          <Flex>
+            {usersData?.map((_, index) => (
+              <React.Fragment key={`${usersData[index]}`}>
+                <FieldFlexItemComponent
+                  compoundFields={compoundFields}
+                  item={`${usersData[index]}`}
                   index={index}
-                  fields={usersData}
-                  onClick={() => removeField(index, remove)}
-                  minusButtonDisabledMessage={minusButtonDisabledMessage}
+                  onFieldChange={onFieldChange}
+                  setTouched={setTouched}
+                  fieldSpan={fieldSpan}
+                  {...props}
                 />
-              )}
-              <FieldArrayErrorGridItem
-                isLast={index === usersData.length - 1}
-                errorMessage={getFieldMeta('users').error}
-                touched={touched}
-                isGroupError={isGroupError}
-              />
-            </React.Fragment>
-          ))}
+                {onlySingleItem ? null : (
+                  <MinusButtonFlexItem
+                    index={index}
+                    fields={usersData}
+                    onClick={() => removeField(index, remove)}
+                    minusButtonDisabledMessage={minusButtonDisabledMessage}
+                  />
+                )}
+                <FieldArrayErrorFlexItem
+                  isLast={index === usersData.length - 1}
+                  errorMessage={getFieldMeta('users').error}
+                  touched={touched}
+                  isGroupError={isGroupError}
+                />
+              </React.Fragment>
+            ))}
+          </Flex>
         </>
       )}
     />
