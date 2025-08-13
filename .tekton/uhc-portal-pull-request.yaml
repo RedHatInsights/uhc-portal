@@ -48,13 +48,17 @@ spec:
       # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
       # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=2
       # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=1 --bail
-      # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false --bail
+      TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false --bail
       # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=2 --bail
-      TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=1 --bail
+      # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=1 --bail
   - name: unit-tests-memory-request
     value: "16Gi"
   - name: unit-tests-memory-limit
     value: "16Gi"
+  - name: unit-tests-cpu-request
+    value: "4000m"
+  - name: unit-tests-cpu-limit
+    value: "4000m"
   pipelineRef:
     name: docker-build
   taskRunTemplate:
