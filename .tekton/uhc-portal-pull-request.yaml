@@ -35,6 +35,8 @@ spec:
       #!/bin/bash
       set -ex
 
+      npm install -g yarn
+
       yarn install
       yarn lint-prettier
       yarn test
