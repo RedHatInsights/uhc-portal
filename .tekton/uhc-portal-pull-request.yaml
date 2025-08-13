@@ -51,7 +51,8 @@ spec:
       # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
       # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=2048 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
       # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=5120 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
-      TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=6144 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
+      # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=6144 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
+      TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false --bail
   - name: unit-tests-memory-request
     value: "16Gi"
   - name: unit-tests-memory-limit
