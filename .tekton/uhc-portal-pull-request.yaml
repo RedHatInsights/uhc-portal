@@ -40,6 +40,10 @@ spec:
       yarn install
       yarn lint-prettier
       yarn test
+  - name: unit-tests-memory-request
+    value: "8Gi"
+  - name: unit-tests-memory-limit
+    value: "8Gi"
   pipelineRef:
     name: docker-build
   taskRunTemplate:
