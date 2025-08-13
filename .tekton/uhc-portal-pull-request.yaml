@@ -43,8 +43,7 @@ spec:
       # todo - reduce unit-tests-memory-* back to 8Gi and see if it's okay still
 
       # todo - move to npm script
-      # node --max-old-space-size=1536 ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
-      node --max-old-space-size=4096 ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
+      node --max-old-space-size=1536 ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
 
       yarn prettier
 
