@@ -39,10 +39,13 @@ spec:
 
       yarn install
 
+      # todo - move to npm script
       node --max-old-space-size=1536 ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
 
       yarn prettier
-      yarn test
+
+      # yarn test
+      yarn test --maxWorkers=50%
   - name: unit-tests-memory-request
     value: "16Gi"
   - name: unit-tests-memory-limit
