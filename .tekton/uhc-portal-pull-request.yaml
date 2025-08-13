@@ -46,7 +46,8 @@ spec:
 
       # yarn test --runInBand --no-cache --coverage=false
       # todo - reuse npm script
-      TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
+      # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
+      TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=2
   - name: unit-tests-memory-request
     value: "16Gi"
   - name: unit-tests-memory-limit
