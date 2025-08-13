@@ -38,7 +38,16 @@ spec:
       npm install -g yarn
 
       yarn install
+
+      echo "------------ 1 ------------"
+      node --max-old-space-size=1536 ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
+      echo "------------ 2 ------------"
       node --max-old-space-size=16384 ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
+      echo "------------ 3 ------------"
+      ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
+      echo "------------ 4 ------------"
+      node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
+
       yarn prettier
       yarn test
   - name: unit-tests-memory-request
