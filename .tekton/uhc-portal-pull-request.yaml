@@ -39,8 +39,6 @@ spec:
 
       yarn install
 
-#      yarn lint-prettier
-#      yarn lint
       node --max-old-space-size=8192 ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
       yarn prettier
 
