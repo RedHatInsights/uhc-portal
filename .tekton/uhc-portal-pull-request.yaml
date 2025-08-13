@@ -39,10 +39,7 @@ spec:
 
       yarn install
 
-      echo "------------ 1 ------------"
       node --max-old-space-size=1536 ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
-      echo "------------ 2 ------------"
-      node --max-old-space-size=2048 ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
 
       yarn prettier
       yarn test
