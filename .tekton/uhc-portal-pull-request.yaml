@@ -41,9 +41,9 @@ spec:
       yarn lint-prettier
       yarn test
   - name: unit-tests-memory-request
-    value: "8Gi"
+    value: "16Gi"
   - name: unit-tests-memory-limit
-    value: "8Gi"
+    value: "16Gi"
   pipelineRef:
     name: docker-build
   taskRunTemplate:
