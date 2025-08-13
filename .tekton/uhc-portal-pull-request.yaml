@@ -44,16 +44,14 @@ spec:
       echo "------------ 2 ------------"
       node ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
       echo "------------ 3 ------------"
-      ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
-      echo "------------ 4 ------------"
       yarn lint
 
       yarn prettier
       yarn test
   - name: unit-tests-memory-request
-    value: "8Gi"
+    value: "16Gi"
   - name: unit-tests-memory-limit
-    value: "8Gi"
+    value: "16Gi"
   pipelineRef:
     name: docker-build
   taskRunTemplate:
