@@ -48,12 +48,7 @@ spec:
       yarn prettier
 
       # yarn test --runInBand --no-cache --coverage=false
-      # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
-      # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=2
-      # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=1536 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=1 --bail
-      TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false --bail
-      # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=2 --bail
-      # TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --no-cache --coverage=false --maxWorkers=1 --bail
+      TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
   - name: unit-tests-memory-request
     value: "16Gi"
   - name: unit-tests-memory-limit
