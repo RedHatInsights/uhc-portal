@@ -219,6 +219,7 @@
     "prettier": "prettier --check '{src,cypress,scripts}/**/*.{js,ts,mjs,jsx,tsx}' 'run/*js'",
     "prettier:fix": "prettier --write '{src,cypress,scripts}/**/*.{js,ts,mjs,jsx,tsx}' 'run/*js'",
     "test": "TZ=America/New_York LC_ALL=en_US.utf8 node --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --coverage ",
+    "test-no-coverage": "yarn test --coverage=false",
     "test-changes": "yarn test --changedSince=main",
     "test-changes-with-enforcement": "yarn test-changes --coverageThreshold='{\"global\":{\"statements\":\"80\"}}'",
     "test-local": "yarn test --maxWorkers=50%",
