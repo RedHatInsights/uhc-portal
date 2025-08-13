@@ -44,8 +44,8 @@ spec:
 
       yarn prettier
 
-      # yarn test
-      yarn test --maxWorkers=50%
+      yarn test-no-coverage
+      # yarn test --maxWorkers=50%
   - name: unit-tests-memory-request
     value: "16Gi"
   - name: unit-tests-memory-limit
