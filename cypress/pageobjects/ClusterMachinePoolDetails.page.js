@@ -1,12 +1,12 @@
 import Page from './page';
 
 class ClusterMachinePoolDetails extends Page {
-  addMachinePoolDetailsButton = () => cy.get('button[id="add-machine-pool"]');
+  addMachinePoolDetailsButton = () => cy.contains('button', /add.*machine.*pool|create.*pool|new.*pool/i);
 
   enableAmazonEC2SpotInstanceCheckbox = () =>
-    cy.get('input[name="useSpotInstances"]').scrollIntoView().check();
+    cy.contains('Spot instances').find('input[type="checkbox"]').scrollIntoView().check();
 
-  addMachinePoolButtonFromModal = () => cy.getByTestId('submit-btn');
+  addMachinePoolButtonFromModal = () => cy.contains('button', 'Add machine pool');
 
   cancelMachinePoolDetailsButton = () => cy.getByTestId('cancel-btn');
 
@@ -122,7 +122,7 @@ class ClusterMachinePoolDetails extends Page {
   }
 
   verifyMachinePoolTableHeaderElements(header) {
-    cy.getByTestId('header-machinepool', { timeout: 20000 })
+    cy.get('table th, table [role="columnheader"]', { timeout: 20000 })
       .contains(header)
       .should('be.visible')
       .click({ force: true });

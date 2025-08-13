@@ -202,6 +202,11 @@
       "ServiceCIDR": "172.30.0.0/16",
       "PodCIDR": "10.128.0.0/14",
       "HostPrefix": "/23"
+    },
+    "day2-profile": {
+      "SetMaximumPrice": "0.05",
+      "Autoscaling": "Enabled",
+      "SecondaryAWSBillingAccountId": "463992265265"
     }
   }
 }

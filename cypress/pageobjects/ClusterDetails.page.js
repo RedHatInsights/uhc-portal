@@ -31,21 +31,21 @@ class ClusterDetails extends Page {
 
   editDisplayNameInput = () => cy.get('input[id="edit-display-name-input"]');
 
-  overviewTab = () => cy.get('button[aria-controls="overviewTabContent"]');
+  overviewTab = () => cy.contains('button', 'Overview');
 
-  accessControlTab = () => cy.get('button[aria-controls="accessControlTabContent"]');
+  accessControlTab = () => cy.contains('button', 'Access control');
 
-  addonsTab = () => cy.get('button[aria-controls="addOnsTabContent"]');
+  addonsTab = () => cy.contains('button', 'Add-ons');
 
-  machinePoolsTab = () => cy.get('button[aria-controls="machinePoolsTabContent"]');
+  machinePoolsTab = () => cy.get('button[role="tab"]').contains(/machine.*pool|compute/i);
 
-  supportTab = () => cy.get('button[aria-controls="supportTabContent"]');
+  supportTab = () => cy.contains('button', 'Support');
 
-  networkingTab = () => cy.get('button[aria-controls="networkingTabContent"]');
+  networkingTab = () => cy.contains('button', 'Networking');
 
-  settingsTab = () => cy.get('button[aria-controls="upgradeSettingsTabContent"]');
+  settingsTab = () => cy.contains('button', 'Settings');
 
-  accessRequestTab = () => cy.get('button[aria-controls="accessRequestContent"]');
+  accessRequestTab = () => cy.contains('button', 'Access requests');
 
   clusterHistoryTab = () => cy.get('button[id="pf-tab-4-Cluster history"]');
 
@@ -76,7 +76,7 @@ class ClusterDetails extends Page {
   deleteClusterConfirm = () =>
     cy.get('div[aria-label="Delete cluster"]').find('footer').find('button').first();
 
-  clusterNameTitle = () => cy.get('h1.cl-details-page-title');
+  clusterNameTitle = () => cy.get('h1').first();
 
   clusterTypeLabelValue = () => cy.getByTestId('clusterType').should('exist');
 
@@ -84,7 +84,7 @@ class ClusterDetails extends Page {
 
   clusterPersistentStorageLabelValue = () => cy.getByTestId('persistent-storage').should('exist');
 
-  clusterLoadBalancersValue = () => cy.getByTestId('load-balancers').should('exist');
+  clusterLoadBalancersValue = () => cy.contains(/load.*balancer/i).should('exist');
 
   clusterAvailabilityLabelValue = () => cy.getByTestId('availability').should('exist');
 

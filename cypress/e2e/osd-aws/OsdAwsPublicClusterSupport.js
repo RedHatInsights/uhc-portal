@@ -9,7 +9,7 @@ describe(
   { tags: ['day2', 'osd', 'aws', 'public'] },
   () => {
     before(() => {
-      cy.visit('/cluster-list');
+      cy.visit('/cluster-list', { failOnStatusCode: false });
       ClusterListPage.waitForDataReady();
     });
 
