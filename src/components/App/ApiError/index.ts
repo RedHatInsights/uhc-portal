@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 
 import ApiError from './ApiError';
 import { apiErrorActions } from './ApiErrorActions';

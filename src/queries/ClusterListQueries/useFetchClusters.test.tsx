@@ -1,5 +1,5 @@
 import * as useGlobalState from '~/redux/hooks/useGlobalState';
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 import { renderHook, waitFor } from '~/testUtils';
 import { Cluster } from '~/types/clusters_mgmt.v1';
 

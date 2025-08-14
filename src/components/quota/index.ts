@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 
 import { clustersActions } from '../../redux/actions/clustersActions';
 import { subscriptionsActions } from '../../redux/actions/subscriptionsActions';

@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 import { UpgradePolicy, UpgradePolicyState } from '~/types/clusters_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
 

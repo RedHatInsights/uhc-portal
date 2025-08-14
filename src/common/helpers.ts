@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import semver from 'semver';
 
 import { OrganizationState } from '~/redux/reducers/userReducer';
-import { PromiseReducerState } from '~/redux/types';
+import { PromiseReducerState } from '~/redux/state';
 
 const noop = Function.prototype;
 

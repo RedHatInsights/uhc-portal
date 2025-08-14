@@ -3,7 +3,7 @@ import {
   defaultClusterFromSubscription,
   defaultSubscription,
 } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 import { ClusterFromSubscription } from '~/types/types';
 
 import {

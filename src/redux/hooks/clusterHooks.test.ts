@@ -5,7 +5,7 @@ import { renderHook } from '@testing-library/react';
 
 import apiRequest from '~/services/apiRequest';
 
-import { GlobalState } from '../store';
+import { GlobalState } from '../state';
 
 import { techPreviewStatusSelector, useGetTechPreviewStatus } from './clusterHooks';
 

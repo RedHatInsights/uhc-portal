@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import ErrorModal from '~/components/common/ErrorModal';
 import { resetCreatedClusterResponse } from '~/redux/actions/clustersActions';
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 
 const CreateClusterErrorModal = () => {
   const dispatch = useDispatch();

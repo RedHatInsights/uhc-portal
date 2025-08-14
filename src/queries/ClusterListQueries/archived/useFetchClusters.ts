@@ -4,7 +4,7 @@ import { ErrorResponse } from 'react-router-dom';
 
 import { useQueries } from '@tanstack/react-query';
 
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 
 import { queryConstants } from '../../queriesConstants';
 import { useFetchCanEditDelete } from '../helpers/useFetchCanEditDelete';

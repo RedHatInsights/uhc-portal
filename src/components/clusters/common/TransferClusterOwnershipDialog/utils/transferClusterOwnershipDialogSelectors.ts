@@ -1,4 +1,4 @@
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/state';
 import { ClusterFromSubscription, ClusterWithPermissions } from '~/types/types';
 
 import {
