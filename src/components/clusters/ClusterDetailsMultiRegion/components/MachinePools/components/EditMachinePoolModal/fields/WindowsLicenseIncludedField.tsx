@@ -8,7 +8,6 @@ import { fieldId as instanceTypeFieldId } from '~/components/clusters/common/Sca
 import { CheckboxField } from '~/components/clusters/wizards/form';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import WithTooltip from '~/components/common/WithTooltip';
 import { MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 
 const fieldId = 'windowsLicenseIncluded';
@@ -56,17 +55,14 @@ const WindowsLicenseIncludedField = ({
       </Content>
     )
   ) : (
-    <WithTooltip
+    <CheckboxField
+      name={fieldId}
+      label="Enable machine pool for Windows License Included"
+      isDisabled={!isWinLiCompatible}
+      hint={hint}
       showTooltip={!isWinLiCompatible}
-      content="This instance type is not Windows License Included compatible, please see documentation for further details"
-    >
-      <CheckboxField
-        tooltip={hint}
-        name={fieldId}
-        label="Enable machine pool for Windows License Included"
-        isDisabled={!isWinLiCompatible}
-      />
-    </WithTooltip>
+      tooltip="This instance type is not Windows License Included compatible, please see documentation for further details"
+    />
   );
 };
 

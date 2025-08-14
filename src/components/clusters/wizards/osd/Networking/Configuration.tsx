@@ -291,7 +291,7 @@ export const Configuration = () => {
                           description: constants.privateServiceConnectHint,
                         }}
                         isDisabled={isWifAuth}
-                        tooltip={
+                        hint={
                           <p>
                             Red Hat recommends using Private Service Connect when deploying a
                             Private OpenShift Dedicated cluster on Google Cloud. Private Service
