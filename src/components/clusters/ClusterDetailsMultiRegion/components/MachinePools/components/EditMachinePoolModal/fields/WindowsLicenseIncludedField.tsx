@@ -1,10 +1,11 @@
 import React from 'react';
 import { useField } from 'formik';
 
-import { Checkbox, Content, ContentVariants, Flex, FlexItem } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import { fieldId as instanceTypeFieldId } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
+import { CheckboxField } from '~/components/clusters/wizards/form';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import WithTooltip from '~/components/common/WithTooltip';
@@ -27,9 +28,6 @@ const WindowsLicenseIncludedField = ({
   isEdit = false,
   currentMP,
 }: WindowsLicenseIncludedFieldProps) => {
-  // Windows LI checkbox field:
-  const [_field, { value: isChecked }, { setValue: setFieldValue }] = useField(fieldId);
-
   // Instance type field -> get isWinLiCompatible from the selected instance type:
   const [__field, { value: instanceType }] = useField(instanceTypeFieldId);
   const isWinLiCompatible =
@@ -39,54 +37,36 @@ const WindowsLicenseIncludedField = ({
   const isCurrentMPWinLiEnabled = isEdit && currentMP?.imageType === 'Windows';
 
   const hint = (
-    <PopoverHint
-      bodyContent={
-        <Content component={ContentVariants.ul} isPlainList>
-          <Content component={ContentVariants.li}>
-            Learn more about{' '}
-            <ExternalLink href={AWS_DOCS_LINK}>Microsoft licensing on AWS</ExternalLink> and{' '}
-            <ExternalLink href={REDHAT_DOCS_LINK}>
-              how to work with AWS-Windows-LI hosts
-            </ExternalLink>
-          </Content>
-          <Content component={ContentVariants.li}>
-            When enabled, the machine pool is AWS License Included for Windows with associated fees.
-          </Content>
-        </Content>
-      }
-    />
+    <>
+      <Content component={ContentVariants.p}>
+        Learn more about{' '}
+        <ExternalLink href={AWS_DOCS_LINK}>Microsoft licensing on AWS</ExternalLink> and{' '}
+        <ExternalLink href={REDHAT_DOCS_LINK}>how to work with AWS-Windows-LI hosts</ExternalLink>
+      </Content>
+      <Content component={ContentVariants.p}>
+        When enabled, the machine pool is AWS License Included for Windows with associated fees.
+      </Content>
+    </>
   );
 
   return isEdit ? (
     isCurrentMPWinLiEnabled && (
-      <Flex>
-        <FlexItem spacer={{ default: 'spacerXs' }}>
-          <Content component={ContentVariants.p}>This machine pool is Windows LI enabled</Content>
-        </FlexItem>
-        {hint}
-        <FlexItem />
-      </Flex>
+      <Content component={ContentVariants.p}>
+        This machine pool is Windows LI enabled <PopoverHint hint={hint} />
+      </Content>
     )
   ) : (
-    <Flex>
-      <FlexItem spacer={{ default: 'spacerXs' }}>
-        <WithTooltip
-          showTooltip={!isWinLiCompatible}
-          content="This instance type is not Windows License Included compatible, please see documentation for further details"
-        >
-          <Checkbox
-            isChecked={isChecked}
-            onChange={() => {
-              setFieldValue(!isChecked);
-            }}
-            id={fieldId}
-            label="Enable machine pool for Windows License Included"
-            isDisabled={!isWinLiCompatible}
-          />
-        </WithTooltip>
-      </FlexItem>
-      <FlexItem>{hint}</FlexItem>
-    </Flex>
+    <WithTooltip
+      showTooltip={!isWinLiCompatible}
+      content="This instance type is not Windows License Included compatible, please see documentation for further details"
+    >
+      <CheckboxField
+        tooltip={hint}
+        name={fieldId}
+        label="Enable machine pool for Windows License Included"
+        isDisabled={!isWinLiCompatible}
+      />
+    </WithTooltip>
   );
 };
 
