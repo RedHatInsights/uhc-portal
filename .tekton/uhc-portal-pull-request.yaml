@@ -35,19 +35,15 @@ spec:
       #!/bin/bash
       set -ex
 
+      # todo - for debugging - remove this
+      node -v
+
       npm install -g yarn
 
       yarn install
-
-      # todo - use NODE_OPTIONS="--max-old-space-size=..."
-
-      # todo - move to npm script
-      node --max-old-space-size=1536 ./node_modules/.bin/eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx
-
+      NODE_OPTIONS='--max-old-space-size=1536' yarn lint
       yarn prettier
-
-      # yarn test --runInBand --no-cache --coverage=false
-      TZ=America/New_York LC_ALL=en_US.utf8 node --max-old-space-size=4096 --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --runInBand --no-cache --coverage=false
+      NODE_OPTIONS='--max-old-space-size=4096' yarn test-no-coverage --runInBand --no-cache
   - name: unit-tests-memory-request
     value: "32Gi"
   - name: unit-tests-memory-limit
