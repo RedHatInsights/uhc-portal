@@ -84,7 +84,12 @@ describe('Utility functions', () => {
       const result = canTransferClusterOwnershipMultiRegion(cluster);
       expect(result).toBe(true);
       expect(hasCapability).toHaveBeenCalledWith(
-        { capabilities: [subscriptionCapabilities.RELEASE_OCP_CLUSTERS] },
+        {
+          capabilities: [
+            { name: subscriptionCapabilities.RELEASE_OCP_CLUSTERS, inherited: false, value: '' },
+          ],
+          managed: false,
+        },
         subscriptionCapabilities.RELEASE_OCP_CLUSTERS,
       );
     });
@@ -102,7 +107,7 @@ describe('Utility functions', () => {
       const result = canTransferClusterOwnershipMultiRegion(cluster);
       expect(result).toBe(false);
       expect(hasCapability).toHaveBeenCalledWith(
-        { capabilities: [] },
+        { capabilities: [], managed: false },
         subscriptionCapabilities.RELEASE_OCP_CLUSTERS,
       );
     });
