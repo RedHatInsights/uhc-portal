@@ -1,23 +1,22 @@
 import * as React from 'react';
 
 import { ClusterState } from '~/types/clusters_mgmt.v1/enums';
+import { AugmentedCluster } from '~/types/types';
 
 import { mockRestrictedEnv, render, screen } from '../../../../../../../testUtils';
 
-import VPCDetailsCard from './VPCDetailsCard';
+import { VPCDetailsCard } from './VPCDetailsCard';
 
 describe('<VPCDetailsCard />', () => {
-  const defaultProps = {
-    cluster: {
-      aws: {
-        subnet_ids: ['subnet-05281fa2678b6d8cd', 'subnet-03f3654ffc25369ac'],
-      },
+  const defaultCluster = {
+    aws: {
+      subnet_ids: ['subnet-05281fa2678b6d8cd', 'subnet-03f3654ffc25369ac'],
     },
-  };
+  } as AugmentedCluster;
 
   describe('in default environment', () => {
     it('renders footer', () => {
-      render(<VPCDetailsCard {...defaultProps} />);
+      render(<VPCDetailsCard cluster={defaultCluster} />);
       expect(screen.queryByText('Edit cluster-wide proxy')).toBeInTheDocument();
     });
   });
@@ -31,25 +30,24 @@ describe('<VPCDetailsCard />', () => {
       isRestrictedEnv.mockReturnValue(false);
     });
     it('does not render footer', () => {
-      render(<VPCDetailsCard {...defaultProps} />);
+      render(<VPCDetailsCard cluster={defaultCluster} />);
       expect(screen.queryByText('Edit cluster-wide proxy')).not.toBeInTheDocument();
     });
   });
 
   describe('When Private Service Connect Subnet is provided', () => {
-    const props = {
-      cluster: {
-        gcp_network: 'gcpNetwork',
-        gcp: {
-          private_service_connect: {
-            service_attachment_subnet: 'gcpPrivateServiceConnect',
-          },
+    const cluster = {
+      ...defaultCluster,
+      gcp_network: 'gcpNetwork',
+      gcp: {
+        private_service_connect: {
+          service_attachment_subnet: 'gcpPrivateServiceConnect',
         },
       },
-    };
+    } as AugmentedCluster;
 
     it('renders Private Service Connect Subnet', () => {
-      render(<VPCDetailsCard {...props} />);
+      render(<VPCDetailsCard cluster={cluster} />);
       expect(screen.queryByText('Private Service Connect Subnet')).toBeInTheDocument();
       expect(screen.queryByText('gcpPrivateServiceConnect')).toBeInTheDocument();
     });
@@ -85,15 +83,13 @@ describe('<VPCDetailsCard />', () => {
       },
     ],
   ])('When %s', (title, clusterProps) => {
-    const props = {
-      cluster: {
-        ...defaultProps.cluster,
-        ...clusterProps,
-      },
-    };
+    const cluster = {
+      ...defaultCluster,
+      ...clusterProps,
+    } as AugmentedCluster;
 
     it('Edit button is disabled', () => {
-      render(<VPCDetailsCard {...props} />);
+      render(<VPCDetailsCard cluster={cluster} />);
       expect(screen.queryByText('Edit cluster-wide proxy').parentElement).toHaveAttribute(
         'aria-disabled',
         'true',
@@ -102,19 +98,17 @@ describe('<VPCDetailsCard />', () => {
   });
 
   describe('When cluster is neither in read-only mode nor in one of the hibernation states, and user is allowed updates to the cluster resource', () => {
-    const props = {
-      cluster: {
-        ...defaultProps.cluster,
-        canUpdateClusterResource: true,
-        state: ClusterState.installing,
-        status: {
-          configuration_mode: 'full',
-        },
+    const cluster = {
+      ...defaultCluster,
+      canUpdateClusterResource: true,
+      state: ClusterState.installing,
+      status: {
+        configuration_mode: 'full',
       },
-    };
+    } as AugmentedCluster;
 
     it('Edit button is enabled', () => {
-      render(<VPCDetailsCard {...props} />);
+      render(<VPCDetailsCard cluster={cluster} />);
       expect(screen.queryByText('Edit cluster-wide proxy')).not.toHaveAttribute(
         'aria-disabled',
         'false',

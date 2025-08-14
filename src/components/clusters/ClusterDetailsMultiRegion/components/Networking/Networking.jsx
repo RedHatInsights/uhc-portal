@@ -8,7 +8,7 @@ import { useGetClusterRouters } from '~/queries/ClusterDetailsQueries/Networking
 import ApplicationIngressCard from './components/ApplicationIngressCard';
 import { ClusterIngressCard } from './components/ClusterIngressCard/ClusterIngressCard';
 import NetworkConfigurationCard from './components/NetworkConfigurationCard';
-import VPCDetailsCard from './components/VPCDetailsCard';
+import { VPCDetailsCard } from './components/VPCDetailsCard/VPCDetailsCard';
 import VPCSubnetsCard from './components/VPCSubnetsCard';
 
 import './Networking.scss';
