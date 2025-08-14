@@ -100,7 +100,7 @@ describe('<WindowsLicenseIncludedField />', () => {
       // Assert
       const checkbox = screen.getByText('Enable machine pool for Windows License Included');
       expect(checkbox).toBeInTheDocument();
-      expect(checkbox).toHaveClass('pf-m-disabled');
+      expect(checkbox.parentNode).toHaveClass('pf-m-disabled');
 
       await user.hover(checkbox);
       expect(
@@ -120,7 +120,7 @@ describe('<WindowsLicenseIncludedField />', () => {
       // Assert
       const checkbox = screen.getByText('Enable machine pool for Windows License Included');
       expect(checkbox).toBeInTheDocument();
-      expect(checkbox).toHaveClass('pf-m-disabled');
+      expect(checkbox.parentNode).toHaveClass('pf-m-disabled');
 
       await user.hover(checkbox);
       expect(
