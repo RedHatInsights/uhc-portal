@@ -3,6 +3,26 @@ import * as Yup from 'yup';
 import { FieldId } from '../constants';
 import { IDPformValues, IDPTypeNames } from '../IdentityProvidersHelper';
 
+export const hasAtLeastOneOpenIdClaimField = (context: any): boolean => {
+  const {
+    [FieldId.OPENID_EMAIL]: openIdEmail,
+    [FieldId.OPENID_NAME]: openIdName,
+    [FieldId.OPENID_PREFFERED_USERNAME]: openIdPrerredName,
+    [FieldId.OPENID_CLAIM_GROUPS]: claimGroups,
+  } = context.parent || context || {};
+
+  const hasEmailValue =
+    openIdEmail?.some((val: string) => val !== undefined && val.trim() !== '') || false;
+  const hasNameValue =
+    openIdName?.some((val: string) => val !== undefined && val.trim() !== '') || false;
+  const hasUsernameValue =
+    openIdPrerredName?.some((val: string) => val !== undefined && val.trim() !== '') || false;
+  const hasGroupsValue =
+    claimGroups?.some((val: string) => val !== undefined && val.trim() !== '') || false;
+
+  return hasEmailValue || hasNameValue || hasUsernameValue || hasGroupsValue;
+};
+
 export const IdentityProvidersPageFormInitialValues = (selectedIDP: string) => {
   const defaultIDP = IDPformValues.GITHUB;
   switch (selectedIDP) {
@@ -15,8 +35,8 @@ export const IdentityProvidersPageFormInitialValues = (selectedIDP: string) => {
         [FieldId.NAME]: '',
         [FieldId.HOSTNAME]: '',
         [FieldId.GITHUB_AUTH_MODE]: 'organizations',
-        [FieldId.ORGANIZATIONS]: [''],
-        [FieldId.TEAMS]: [''],
+        [FieldId.ORGANIZATIONS]: ['TestOrg '],
+        [FieldId.TEAMS]: ['TestTeam'],
       };
     case 'GoogleIdentityProvider':
       return {
@@ -36,9 +56,10 @@ export const IdentityProvidersPageFormInitialValues = (selectedIDP: string) => {
         [FieldId.CLIENT_SECRET]: '',
         [FieldId.ISSUER]: '',
         [FieldId.OPENID_CA]: '',
-        [FieldId.OPENID_EMAIL]: [''],
-        [FieldId.OPENID_NAME]: [''],
-        [FieldId.OPENID_PREFFERED_USERNAME]: [''],
+        [FieldId.OPENID_EMAIL]: null,
+        [FieldId.OPENID_NAME]: null,
+        [FieldId.OPENID_PREFFERED_USERNAME]: null,
+        [FieldId.OPENID_CLAIM_GROUPS]: null,
         [FieldId.OPENID_EXTRA_SCOPES]: '',
       };
     case 'LDAPIdentityProvider':
@@ -108,25 +129,48 @@ export const IdentityProvidersPageValidationSchema = (selectedIDP: string) => {
         [FieldId.HOSTED_DOMAIN]: Yup.string().required(),
       });
     case 'OpenIDIdentityProvider':
-      return Yup.object({
+      return Yup.object().shape({
         [FieldId.NAME]: Yup.string().required(),
         [FieldId.CLIENT_ID]: Yup.string().required('Field is required'),
         [FieldId.CLIENT_SECRET]: Yup.string().required('Field is required'),
         [FieldId.ISSUER]: Yup.string().required('Field is required'),
         [FieldId.OPENID_EMAIL]: Yup.array()
           .of(Yup.string())
-          .test('at-least-one-filled', 'At least one field must be filled', (value) =>
-            value?.some((val) => val !== undefined && val.trim() !== ''),
+          .nullable()
+          .test(
+            'at-least-one-filled',
+            'At least one claims mapping field must be entered',
+            (value, context) => hasAtLeastOneOpenIdClaimField(context),
           ),
         [FieldId.OPENID_NAME]: Yup.array()
           .of(Yup.string())
-          .test('at-least-one-filled', 'At least one field must be filled', (value) =>
-            value?.some((val) => val !== undefined && val.trim() !== ''),
+          .nullable()
+          .test(
+            'at-least-one-filled',
+            'At least one claims mapping field must be entered',
+            (value, context) => hasAtLeastOneOpenIdClaimField(context),
           ),
         [FieldId.OPENID_PREFFERED_USERNAME]: Yup.array()
           .of(Yup.string())
-          .test('at-least-one-filled', 'At least one field must be filled', (value) =>
-            value?.some((val) => val !== undefined && val.trim() !== ''),
+          .nullable()
+          .test(
+            'at-least-one-filled',
+            'At least one claims mapping field must be entered',
+            (value, context) => hasAtLeastOneOpenIdClaimField(context),
+          ),
+        [FieldId.OPENID_CLAIM_GROUPS]: Yup.array()
+          .of(Yup.string())
+          .nullable()
+          .test(
+            'group-name-restriction',
+            'Group label cannot be `cluster-admins` or `dedicated-admins`',
+            (value) =>
+              !value?.some((val) => val === 'cluster-admins' || val === 'dedicated-admins'),
+          )
+          .test(
+            'at-least-one-filled',
+            'At least one claims mapping field must be entered',
+            (value, context) => hasAtLeastOneOpenIdClaimField(context),
           ),
       });
     case 'LDAPIdentityProvider':
