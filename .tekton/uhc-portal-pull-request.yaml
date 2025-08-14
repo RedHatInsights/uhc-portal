@@ -42,9 +42,9 @@ spec:
       yarn prettier
       NODE_OPTIONS='--max-old-space-size=4096' yarn test-no-coverage --runInBand --no-cache
   - name: unit-tests-memory-request
-    value: "32Gi"
+    value: "64Gi"
   - name: unit-tests-memory-limit
-    value: "32Gi"
+    value: "64Gi"
   - name: unit-tests-cpu-request
     value: "12000m"
   - name: unit-tests-cpu-limit
