@@ -58,9 +58,9 @@ spec:
   - name: unit-tests-memory-limit
     value: "16Gi"
   - name: unit-tests-cpu-request
-    value: "4000m"
+    value: "6000m"
   - name: unit-tests-cpu-limit
-    value: "4000m"
+    value: "6000m"
   pipelineRef:
     name: docker-build
   taskRunTemplate:
