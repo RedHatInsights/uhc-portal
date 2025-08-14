@@ -147,7 +147,7 @@ function CustomerOIDCConfiguration({
     [oidcConfigs],
   );
 
-  const rosaRegionLoginCommand = `rosa login --url ${regionalInstance?.url}`;
+  const rosaRegionLoginCommand = `rosa login --use-auth-code --url ${regionalInstance?.url}`;
 
   return (
     <Instructions wide>
