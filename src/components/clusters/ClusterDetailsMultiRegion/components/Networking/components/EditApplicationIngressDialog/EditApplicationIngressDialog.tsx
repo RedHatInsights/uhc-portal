@@ -2,12 +2,18 @@ import React from 'react';
 import { Formik } from 'formik';
 import { useDispatch } from 'react-redux';
 
-import { Form } from '@patternfly/react-core';
-import { ModalVariant } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  Form,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+} from '@patternfly/react-core';
 
 import { DefaultIngressFieldsFormik } from '~/components/clusters/wizards/rosa/NetworkScreen/DefaultIngressFieldsFormik';
 import ErrorBox from '~/components/common/ErrorBox';
-import Modal from '~/components/common/Modal/Modal';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import shouldShowModal from '~/components/common/Modal/ModalSelectors';
@@ -105,30 +111,43 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
         );
       }}
     >
-      {({ dirty, errors, handleSubmit, values }) => (
+      {({ dirty, handleSubmit, values }) => (
         <Modal
+          id="edit-application-ingress-modal"
           variant={ModalVariant.medium}
-          primaryText="Save"
-          secondaryText="Cancel"
-          title="Edit application ingress"
           onClose={onClose}
-          onPrimaryClick={handleSubmit as () => void}
-          onSecondaryClick={onClose}
-          isPending={isPending}
-          isPrimaryDisabled={!errors || !dirty}
+          isOpen
+          aria-labelledby="edit-application-ingress-modal"
+          aria-describedby="modal-box-edit-application-ingress"
         >
-          {editRoutersError}
-          <Form>
-            <DefaultIngressFieldsFormik
-              isDay2
-              hasSufficientIngressEditVersion={hasSufficientIngressEditVersion}
-              canEditLoadBalancer={canEditLoadBalancer}
-              canShowLoadBalancer={canShowLoadBalancer}
-              areFieldsDisabled={isHypershiftCluster}
-              isHypershiftCluster={isHypershiftCluster}
-              values={values}
-            />
-          </Form>
+          <ModalHeader title="Edit application ingress" labelId="edit-application-ingress-modal" />
+          <ModalBody>
+            {editRoutersError}
+            <Form>
+              <DefaultIngressFieldsFormik
+                isDay2
+                hasSufficientIngressEditVersion={hasSufficientIngressEditVersion}
+                canEditLoadBalancer={canEditLoadBalancer}
+                canShowLoadBalancer={canShowLoadBalancer}
+                areFieldsDisabled={isHypershiftCluster}
+                isHypershiftCluster={isHypershiftCluster}
+                values={values}
+              />
+            </Form>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="primary"
+              onClick={handleSubmit as unknown as () => void}
+              isDisabled={!dirty || isPending}
+              isLoading={isPending}
+            >
+              Save
+            </Button>
+            <Button variant="link" onClick={onClose} isDisabled={isPending}>
+              Cancel
+            </Button>
+          </ModalFooter>
         </Modal>
       )}
     </Formik>

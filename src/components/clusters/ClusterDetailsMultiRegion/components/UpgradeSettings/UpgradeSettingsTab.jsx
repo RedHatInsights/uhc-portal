@@ -16,8 +16,12 @@ import {
   Form,
   Grid,
   GridItem,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
 } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
 
 import { knownProducts } from '~/common/subscriptionTypes';
 import getClusterVersion from '~/components/clusters/common/getClusterVersion';
@@ -329,17 +333,28 @@ const UpgradeSettingsTab = ({ cluster }) => {
                   <CardBody>
                     {confirmationModalOpen && scheduledManualUpgrade && (
                       <Modal
-                        variant="small"
-                        title="Recurring updates"
+                        id="recurring-updates-confirm-modal"
+                        variant={ModalVariant.small}
                         isOpen
                         onClose={() => {
                           closeConfirmationModal();
                           formik.resetForm();
                         }}
-                        actions={[
+                        aria-labelledby="recurring-updates-confirm-modal"
+                        aria-describedby="modal-box-recurring-updates-confirm"
+                      >
+                        <ModalHeader
+                          title="Recurring updates"
+                          labelId="recurring-updates-confirm-modal"
+                        />
+                        <ModalBody>
+                          By choosing recurring updates, any individually scheduled update will be
+                          cancelled. Are you sure you want to continue?
+                        </ModalBody>
+                        <ModalFooter>
                           <Button key="confirm" variant="primary" onClick={closeConfirmationModal}>
                             Yes, cancel scheduled update
-                          </Button>,
+                          </Button>
                           <Button
                             key="cancel"
                             variant="secondary"
@@ -349,11 +364,8 @@ const UpgradeSettingsTab = ({ cluster }) => {
                             }}
                           >
                             No, keep scheduled update
-                          </Button>,
-                        ]}
-                      >
-                        By choosing recurring updates, any individually scheduled update will be
-                        cancelled. Are you sure you want to continue?
+                          </Button>
+                        </ModalFooter>
                       </Modal>
                     )}
                     {clusterHibernating && hibernatingClusterInfo}

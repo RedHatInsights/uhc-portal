@@ -1,7 +1,15 @@
 import React from 'react';
 
-import { Button, ClipboardCopy, ClipboardCopyVariant, StackItem } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  ClipboardCopy,
+  ClipboardCopyVariant,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  StackItem,
+} from '@patternfly/react-core';
 
 import ErrorBox from '~/components/common/ErrorBox';
 import { useFetchBreakGlassCredentialDetails } from '~/queries/ClusterDetailsQueries/AccessControlTab/ExternalAuthenticationQueries/useFetchBreakGlassCredentialDetails';
@@ -59,38 +67,44 @@ export function BreakGlassCredentialDetailsModal(props: BreakGlassCredentialDeta
 
   return (
     <Modal
-      id="edit-mp-modal"
-      title={`${credential?.username} credentials`}
       onClose={handleClose}
       variant="medium"
-      description="Use these temporary credentials to access your cluster."
       isOpen={isOpen}
-      actions={[
+      ouiaId="BreakGlassCredentialDetailsModal"
+      aria-labelledby="breakglass-credential-details-modal"
+      aria-describedby="Use these temporary credentials to access your cluster."
+    >
+      <ModalHeader
+        title={`${credential?.username} credentials`}
+        labelId="breakglass-credential-details-modal-id"
+      />
+      <ModalBody>
+        {statusMessage()}
+        {isError && (
+          <StackItem>
+            <ErrorBox
+              message="A problem occurred while retrieving credential"
+              response={{
+                errorMessage: error.error.reason,
+                operationID: error.error.operationID,
+              }}
+            />
+          </StackItem>
+        )}
+
+        <ClipboardCopy isReadOnly variant={ClipboardCopyVariant.expansion}>
+          {isLoading ? 'Loading...' : credentialData?.kubeconfig || 'No kubeconfig'}
+        </ClipboardCopy>
+      </ModalBody>
+      <ModalFooter>
         <DownloadButton
           textOutput={credentialData?.kubeconfig || ''}
           disabled={isLoading || !credentialData?.kubeconfig}
-        />,
+        />
         <Button key="cancel" variant="secondary" onClick={handleClose}>
           Cancel
-        </Button>,
-      ]}
-    >
-      {statusMessage()}
-      {isError && (
-        <StackItem>
-          <ErrorBox
-            message="A problem occurred while retrieving credential"
-            response={{
-              errorMessage: error.error.reason,
-              operationID: error.error.operationID,
-            }}
-          />
-        </StackItem>
-      )}
-
-      <ClipboardCopy isReadOnly variant={ClipboardCopyVariant.expansion}>
-        {isLoading ? 'Loading...' : credentialData?.kubeconfig || 'No kubeconfig'}
-      </ClipboardCopy>
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 }

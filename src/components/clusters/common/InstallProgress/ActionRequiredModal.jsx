@@ -6,6 +6,10 @@ import {
   ClipboardCopyVariant,
   Content,
   ContentVariants,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalVariant,
   Stack,
   StackItem,
   Tab,
@@ -13,7 +17,6 @@ import {
   Tabs,
   TabTitleText,
 } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 
 import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -200,14 +203,22 @@ function ActionRequiredModal({ cluster, isOpen, onClose, regionalInstance }) {
 
   return (
     <Modal
-      title="Action required to continue installation"
+      id="action-required-installation-modal"
       isOpen={isOpen}
       onClose={onClose}
       variant={ModalVariant.medium}
+      aria-labelledby="action-required-installation-modal"
+      aria-describedby="modal-box-action-required-installation"
     >
-      {isWaitingAndROSAManual && createInteractively}
-      {isWaitingForOIDCProviderOrOperatorRoles && createByOIDCId(cluster)}
-      {isBadSharedGCPVPCValues && showGCPVPCSharedError}
+      <ModalHeader
+        title="Action required to continue installation"
+        labelId="action-required-installation-modal"
+      />
+      <ModalBody>
+        {isWaitingAndROSAManual && createInteractively}
+        {isWaitingForOIDCProviderOrOperatorRoles && createByOIDCId(cluster)}
+        {isBadSharedGCPVPCValues && showGCPVPCSharedError}
+      </ModalBody>
     </Modal>
   );
 }

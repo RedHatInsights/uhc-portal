@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import { Modal, ModalBody, ModalHeader, ModalVariant } from '@patternfly/react-core';
 
 interface MachineConfigurationModalProps {
   children: React.ReactNode;
@@ -11,13 +11,19 @@ export const MachineConfigurationModal: React.FC<MachineConfigurationModalProps>
 
   return (
     <Modal
-      title="Edit machine configuration"
-      description="Make custom edits to your machine configuration"
+      id="edit-machine-configuration-modal"
       variant={ModalVariant.medium}
       isOpen
       onClose={onClose}
+      aria-labelledby="edit-machine-configuration-modal"
+      aria-describedby="modal-box-edit-machine-configuration"
     >
-      {children}
+      <ModalHeader
+        title="Edit machine configuration"
+        description="Make custom edits to your machine configuration"
+        labelId="edit-machine-configuration-modal"
+      />
+      <ModalBody>{children}</ModalBody>
     </Modal>
   );
 };

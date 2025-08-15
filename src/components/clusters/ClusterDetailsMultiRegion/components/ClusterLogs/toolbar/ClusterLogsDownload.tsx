@@ -1,8 +1,19 @@
 import React from 'react';
 import dayjs from 'dayjs';
 
-import { Alert, Button, FormGroup, Radio, Stack, StackItem } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
+import {
+  Alert,
+  Button,
+  FormGroup,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Radio,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
 
 import { createServiceLogQueryObject } from '~/common/queryHelpers';
 import { serviceLogService } from '~/services';
@@ -38,8 +49,8 @@ const ClusterLogsDownload = ({
     const query = createServiceLogQueryObject(
       {
         ...viewOptions,
-        currentPage: 1, // Start from beginning
-        pageSize: -1, // All data, no pagination
+        currentPage: 1,
+        pageSize: -1,
       },
       format,
     );
@@ -101,11 +112,44 @@ const ClusterLogsDownload = ({
       </Button>
       {isOpen && (
         <Modal
-          variant="small"
-          title="Download cluster history"
+          id="download-cluster-history-modal"
+          variant={ModalVariant.small}
           isOpen
           onClose={isDownloading ? undefined : close}
-          actions={[
+          aria-labelledby="download-cluster-history-modal"
+          aria-describedby="modal-box-download-cluster-history"
+        >
+          <ModalHeader title="Download cluster history" labelId="download-cluster-history-modal" />
+          <ModalBody>
+            <Stack hasGutter>
+              <StackItem>
+                <FormGroup label="Choose a file type">
+                  <Radio
+                    id="json-format"
+                    isChecked={format === 'json'}
+                    name="format"
+                    onChange={(_event, checked) => checked && setFormat('json')}
+                    label="JSON"
+                    isDisabled={isDownloading}
+                  />
+                  <Radio
+                    id="csv-format"
+                    isChecked={format === 'csv'}
+                    name="format"
+                    onChange={(_event, checked) => checked && setFormat('csv')}
+                    label="CSV"
+                    isDisabled={isDownloading}
+                  />
+                </FormGroup>
+              </StackItem>
+              {error && (
+                <StackItem>
+                  <Alert variant="danger" title="Unable to download records" isInline />
+                </StackItem>
+              )}
+            </Stack>
+          </ModalBody>
+          <ModalFooter>
             <Button
               data-testid="submit-btn"
               key="download"
@@ -116,39 +160,11 @@ const ClusterLogsDownload = ({
               spinnerAriaLabel="Loading cluster logs"
             >
               Download
-            </Button>,
+            </Button>
             <Button key="close" variant="link" onClick={close} isDisabled={isDownloading}>
               Cancel
-            </Button>,
-          ]}
-        >
-          <Stack hasGutter>
-            <StackItem>
-              <FormGroup label="Choose a file type">
-                <Radio
-                  id="json-format"
-                  isChecked={format === 'json'}
-                  name="format"
-                  onChange={(_event, checked) => checked && setFormat('json')}
-                  label="JSON"
-                  isDisabled={isDownloading}
-                />
-                <Radio
-                  id="csv-format"
-                  isChecked={format === 'csv'}
-                  name="format"
-                  onChange={(_event, checked) => checked && setFormat('csv')}
-                  label="CSV"
-                  isDisabled={isDownloading}
-                />
-              </FormGroup>
-            </StackItem>
-            {error && (
-              <StackItem>
-                <Alert variant="danger" title="Unable to download records" isInline />
-              </StackItem>
-            )}
-          </Stack>
+            </Button>
+          </ModalFooter>
         </Modal>
       )}
     </>
