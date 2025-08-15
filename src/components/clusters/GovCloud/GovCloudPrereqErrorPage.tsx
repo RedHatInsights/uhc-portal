@@ -2,11 +2,10 @@ import * as React from 'react';
 
 import { Button, Content, EmptyState, EmptyStateBody, Icon } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { t_global_icon_color_status_danger_default as dangerColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_danger_default';
 
 const EmptyIcon = (props: any) => (
-  <Icon {...props}>
-    <ExclamationCircleIcon color={dangerColor.value} />
+  <Icon {...props} status="danger">
+    <ExclamationCircleIcon />
   </Icon>
 );
 

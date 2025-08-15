@@ -6,11 +6,11 @@ import {
   CardTitle,
   Content,
   ContentVariants,
+  Icon,
   Spinner,
   Title,
 } from '@patternfly/react-core';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { t_global_icon_color_status_danger_default as dangerColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_danger_default';
 
 import clusterStates, {
   hasInflightEgressErrors,
@@ -76,7 +76,9 @@ const ClusterProgressCard = ({ cluster, regionalInstance }: ClusterProgressCardP
             )}
             {isError && (
               <span className="pf-v6-u-mr-xs">
-                <ExclamationCircleIcon color={dangerColor.value} />{' '}
+                <Icon status="danger">
+                  <ExclamationCircleIcon />{' '}
+                </Icon>
               </span>
             )}
             {titleText}

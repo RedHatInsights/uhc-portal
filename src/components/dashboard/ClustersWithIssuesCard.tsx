@@ -3,8 +3,6 @@ import React from 'react';
 import { Bullseye, Card, CardBody, CardTitle, Icon, Title } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { OkIcon } from '@patternfly/react-icons/dist/esm/icons/ok-icon';
-import { t_global_icon_color_status_danger_default as dangerColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_danger_default';
-import { t_global_icon_color_status_success_default as successColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_success_default';
 
 type ClustersWithIssuesCardProps = {
   totalConnectedClusters: number;
@@ -47,11 +45,15 @@ const ClustersWithIssuesCard = ({
   }
 
   const icon = (
-    <Icon className="status-icon" size="sm">
+    <Icon
+      className="status-icon"
+      status={totalUnhealthyClusters === 0 ? 'success' : 'danger'}
+      size="sm"
+    >
       {totalUnhealthyClusters === 0 ? (
-        <OkIcon color={successColor.value} data-testid="ok-icon" />
+        <OkIcon data-testid="ok-icon" />
       ) : (
-        <ExclamationCircleIcon color={dangerColor.value} data-testid="exclamation-icon" />
+        <ExclamationCircleIcon data-testid="exclamation-icon" />
       )}
     </Icon>
   );
