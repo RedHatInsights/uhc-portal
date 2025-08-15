@@ -80,6 +80,7 @@ const MinusButtonGridItem = ({ index, fields, onClick, minusButtonDisabledMessag
         icon={<MinusCircleIcon />}
         variant="link"
         aria-label="Remove"
+        className="minus-button"
       />
     </GridItem>
   );
