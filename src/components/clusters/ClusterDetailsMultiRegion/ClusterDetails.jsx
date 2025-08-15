@@ -83,7 +83,7 @@ import { canSubscribeOCPMultiRegion } from '../common/EditSubscriptionSettingsDi
 import { userCanHibernateClustersSelector } from '../common/HibernateClusterModal/HibernateClusterModalSelectors';
 import ReadOnlyBanner from '../common/ReadOnlyBanner';
 import { canTransferClusterOwnershipMultiRegion } from '../common/TransferClusterOwnershipDialog/utils/transferClusterOwnershipDialogSelectors';
-import CancelUpgradeModal from '../common/Upgrades/CancelUpgradeModal';
+import CancelUpgradeModal from '../common/Upgrades/CancelUpgradeModal/CancelUpgradeModal';
 import { getSchedules } from '../common/Upgrades/clusterUpgradeActions';
 
 import AccessControl from './components/AccessControl/AccessControl';

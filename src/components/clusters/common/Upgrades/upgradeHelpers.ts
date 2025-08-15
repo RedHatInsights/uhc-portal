@@ -1,7 +1,6 @@
 /* eslint-disable camelcase */
 import { GlobalState } from '~/redux/store';
-import { UpgradePolicy, UpgradePolicyState } from '~/types/clusters_mgmt.v1';
-import { AugmentedCluster } from '~/types/types';
+import { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
 
 export const hasAvailableUpdates = (cluster: AugmentedCluster) => {
   const availableUpdates = cluster?.version?.available_upgrades;
@@ -10,8 +9,6 @@ export const hasAvailableUpdates = (cluster: AugmentedCluster) => {
 
 export const hasAvailableUpdatesSelector = (state: GlobalState) =>
   hasAvailableUpdates(state.clusters.details.cluster);
-
-type UpgradePolicyWithState = UpgradePolicy & { state: UpgradePolicyState };
 
 export const updateStartedSelector = (state: GlobalState) => {
   const { schedules } = state.clusterUpgrades;
