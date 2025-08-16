@@ -10,7 +10,9 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
       == "main"
-    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-unit-tests.yaml
+    # pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-unit-tests.yaml
+    # todo - testing a local version of the remote pipeline, so i can alter it.  revert to the line above when done testing
+    pipelinesascode.tekton.dev/pipeline: .tekton/docker-build-run-unit-tests.yaml
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: ocm-ui
