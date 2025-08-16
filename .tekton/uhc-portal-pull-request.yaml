@@ -19,6 +19,11 @@ metadata:
   name: uhc-portal-on-pull-request
   namespace: ocm-ui-tenant
 spec:
+  # todo - 'taskRunSpecs' is added to work around the broken params of the remote-pipeline;
+  #        for some reason, 'unit-tests-memory-request', 'unit-tests-memory-limit',
+  #        'unit-tests-cpu-request' and 'unit-tests-cpu-limit' aren't being passed
+  #        properly down to docker-build-run-unit-tests, or are otherwise non-effective.
+  #        when it's fixed upstream, remove the entire 'taskRunSpecs' block here.
   taskRunSpecs:
     - pipelineTaskName: run-unit-tests
       stepSpecs:
@@ -47,6 +52,10 @@ spec:
       npm install -g yarn
 
       yarn install
+      # todo - 1536 was used here because the remote-pipeline's params
+      #        are broken, and we always got a 2-giga RAM VM.
+      #        when params are fixed, revert the 'lint' npm command impl'
+      #        to include 4096 again, and only call 'yarn lint' here.
       # NODE_OPTIONS='--max-old-space-size=1536' yarn lint
       NODE_OPTIONS='--max-old-space-size=4096' yarn lint
       yarn prettier
