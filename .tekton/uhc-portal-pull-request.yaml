@@ -19,6 +19,15 @@ metadata:
   name: uhc-portal-on-pull-request
   namespace: ocm-ui-tenant
 spec:
+  taskRunSpecs:
+    - pipelineTaskName: run-unit-tests
+      stepSpecs:
+        - name: unit-tests
+          computeResources:
+            requests:
+              memory: "10Gi"
+            limits:
+              memory: "10Gi"
   params:
   - name: git-url
     value: '{{source_url}}'
