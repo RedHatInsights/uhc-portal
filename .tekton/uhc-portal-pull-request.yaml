@@ -40,17 +40,18 @@ spec:
       npm install -g yarn
 
       yarn install
-      NODE_OPTIONS='--max-old-space-size=1536' yarn lint
+      # NODE_OPTIONS='--max-old-space-size=1536' yarn lint
+      NODE_OPTIONS='--max-old-space-size=4096' yarn lint
       yarn prettier
       NODE_OPTIONS='--max-old-space-size=4096' yarn test-no-coverage --run-in-band --no-cache
   - name: unit-tests-memory-request
-    value: "64Gi"
+    value: "32Gi"
   - name: unit-tests-memory-limit
-    value: "64Gi"
+    value: "32Gi"
   - name: unit-tests-cpu-request
-    value: "12000m"
+    value: "8000m"
   - name: unit-tests-cpu-limit
-    value: "12000m"
+    value: "8000m"
   pipelineRef:
     name: docker-build
   taskRunTemplate:
