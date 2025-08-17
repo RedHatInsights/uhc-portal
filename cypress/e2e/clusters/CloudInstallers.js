@@ -2,23 +2,16 @@ import InstallersPage from '../../pageobjects/Installers.page';
 import installerData from '../../fixtures/installer/CloudInstaller.json';
 
 describe('Installer Subpage Component Tests', { tags: ['smoke'] }, () => {
-  // Test a representative sample of pages instead of all 16
-  const pagesToTest = [
-    installerData.installerSubpages[0], // Platform Agnostic Agent-based
-    installerData.installerSubpages[2], // AWS x86_64 Automated
-    installerData.installerSubpages[3], // AWS x86_64 Full Control (has RHCOS)
-    installerData.installerSubpages[7], // Azure x86_64 Automated
-    installerData.installerSubpages[11], // GCP Automated
-    installerData.installerSubpages[15], // IBM PowerVS (different architecture)
-  ];
-
+  let currentVersion;
   before(() => {
-    cy.log(
-      `Testing ${pagesToTest.length} out of ${installerData.installerSubpages.length} pages to prevent memory issues`,
-    );
+    cy.request(
+      'https://access.redhat.com/product-life-cycles/api/v1/products?name=Openshift+Container+Platform+4',
+    ).then((response) => {
+      currentVersion = response.body.data[0].versions[0].name;
+    });
   });
 
-  pagesToTest.forEach((testData, index) => {
+  installerData.installerSubpages.forEach((testData, index) => {
     describe(`Verification for: ${testData.name}`, () => {
       before(() => {
         if (index > 0) {
@@ -32,14 +25,14 @@ describe('Installer Subpage Component Tests', { tags: ['smoke'] }, () => {
         }
       });
 
-      beforeEach(() => {
+      before(() => {
         cy.visit(testData.url);
         InstallersPage.verifyPageTitle(testData.expectedTitle);
       });
 
       it('should verify installer and OC CLI dropdowns exist and work', () => {
-        InstallersPage.verifyInstallerDropdown(testData.installerType);
-        InstallersPage.verifyOCDropdown();
+        InstallersPage.verifyInstallerDropdownThoroughly();
+        InstallersPage.verifyOCDropdownThoroughly();
       });
 
       it('should verify pull secret buttons are visible', () => {
@@ -80,6 +73,7 @@ describe('Installer Subpage Component Tests', { tags: ['smoke'] }, () => {
       if (testData.hasPreReleaseLink) {
         it('should verify the pre-release builds link', () => {
           InstallersPage.getPrereleaseLink()
+            .scrollIntoView()
             .should('be.visible')
             .and('have.attr', 'href')
             .and('include', '/openshift/install/')
@@ -94,6 +88,8 @@ describe('Installer Subpage Component Tests', { tags: ['smoke'] }, () => {
           InstallersPage.verifyDocumentationLink(
             InstallersPage.getGetStartedButton(),
             testData.getStartedLink,
+            'documentation',
+            currentVersion,
           );
         });
       }
@@ -106,30 +102,15 @@ describe('Installer Subpage Component Tests', { tags: ['smoke'] }, () => {
             .and('have.attr', 'href')
             .and('include', testData.rhcosData.learnMoreLinkPartial);
 
-          // Test only the first RHCOS download button to save memory
-          const firstButton = testData.rhcosData.downloadButtons[0];
-          InstallersPage.getRhcosDownloadButtonByText(firstButton.text)
-            .scrollIntoView()
-            .should('be.visible')
-            .and('have.attr', 'href')
-            .and('include', firstButton.hrefPartial);
+          testData.rhcosData.downloadButtons.forEach((button) => {
+            InstallersPage.getRhcosDownloadButtonByText(button.text)
+              .scrollIntoView()
+              .should('be.visible')
+              .and('have.attr', 'href')
+              .and('include', button.hrefPartial);
+          });
         });
       }
-    });
-  });
-
-  describe('Detailed Dropdown Functionality Test - AWS Page', () => {
-    beforeEach(() => {
-      cy.visit('/install/aws/installer-provisioned');
-      cy.wait(2000);
-    });
-
-    it('should thoroughly verify all installer dropdown combinations', () => {
-      InstallersPage.verifyInstallerDropdownThoroughly();
-    });
-
-    it('should thoroughly verify all OC CLI dropdown combinations', () => {
-      InstallersPage.verifyOCDropdownThoroughly();
     });
   });
 });

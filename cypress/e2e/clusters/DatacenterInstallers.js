@@ -2,22 +2,16 @@ import InstallersPage from '../../pageobjects/Installers.page';
 import installerData from '../../fixtures/installer/DatacenterInstaller.json';
 
 describe('Datacenter Installer Subpage Component Tests', { tags: ['smoke'] }, () => {
-  // Test a representative sample of pages instead of all 16
-  const pagesToTest = [
-    installerData.installerSubpages[0], // Bare Metal Agent-based (x86_64)
-    installerData.installerSubpages[3], // ARM Bare Metal Agent-based (aarch64)
-    installerData.installerSubpages[8], // IBM Z Agent-based (s390x)
-    installerData.installerSubpages[10], // IBM Power Agent-based (ppc64le)
-    installerData.installerSubpages[16], // vSphere Automated (common datacenter)
-  ];
-
+  let currentVersion;
   before(() => {
-    cy.log(
-      `Testing ${pagesToTest.length} out of ${installerData.installerSubpages.length} datacenter pages to prevent memory issues`,
-    );
+    cy.request(
+      'https://access.redhat.com/product-life-cycles/api/v1/products?name=Openshift+Container+Platform+4',
+    ).then((response) => {
+      currentVersion = response.body.data[0].versions[0].name;
+    });
   });
 
-  pagesToTest.forEach((testData, index) => {
+  installerData.installerSubpages.forEach((testData, index) => {
     describe(`Verification for: ${testData.name}`, () => {
       before(() => {
         if (index > 0) {
@@ -31,14 +25,14 @@ describe('Datacenter Installer Subpage Component Tests', { tags: ['smoke'] }, ()
         }
       });
 
-      beforeEach(() => {
+      before(() => {
         cy.visit(testData.url);
         InstallersPage.verifyPageTitle(testData.expectedTitle);
       });
 
       it('should verify installer and OC CLI dropdowns exist', () => {
-        InstallersPage.verifyInstallerDropdown(testData.installerType);
-        InstallersPage.verifyOCDropdown();
+        InstallersPage.verifyInstallerDropdownThoroughly();
+        InstallersPage.verifyOCDropdownThoroughly();
       });
 
       it('should verify pull secret buttons are visible', () => {
@@ -93,6 +87,8 @@ describe('Datacenter Installer Subpage Component Tests', { tags: ['smoke'] }, ()
           InstallersPage.verifyDocumentationLink(
             InstallersPage.getGetStartedButton(),
             testData.getStartedLink,
+            'documentation',
+            currentVersion,
           );
         });
       }
@@ -123,23 +119,6 @@ describe('Datacenter Installer Subpage Component Tests', { tags: ['smoke'] }, ()
           }
         });
       }
-    });
-  });
-
-  describe('Detailed Dropdown Functionality Test - First Datacenter Page', () => {
-    const firstDatacenterPage = installerData.installerSubpages[0];
-
-    beforeEach(() => {
-      cy.visit(firstDatacenterPage.url);
-      cy.wait(2000);
-    });
-
-    it('should thoroughly verify all installer dropdown combinations', () => {
-      InstallersPage.verifyInstallerDropdownThoroughly();
-    });
-
-    it('should thoroughly verify all OC CLI dropdown combinations', () => {
-      InstallersPage.verifyOCDropdownThoroughly();
     });
   });
 });

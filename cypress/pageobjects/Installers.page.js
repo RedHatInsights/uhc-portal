@@ -48,18 +48,20 @@ class Installers {
     this.getPageTitle().should('contain', expectedTitle);
   }
 
-  verifyDocumentationLink(linkElement, expectedPath, linkType = 'documentation') {
-    const baseUrls = {
-      documentation: 'https://docs.redhat.com/en/documentation/openshift_container_platform/',
-    };
-
+  verifyDocumentationLink(linkElement, expectedPath, linkType = 'documentation', expectedVersion) {
     return linkElement.should('have.attr', 'href').then((href) => {
       expect(href, `${linkType} link should be absolute URL`).to.match(/^https:\/\//);
 
-      const baseUrl = baseUrls[linkType] || baseUrls.documentation;
+      const baseUrl = 'https://docs.redhat.com/en/documentation/openshift_container_platform/';
       expect(href, `${linkType} link should point to correct docs site`).to.include(baseUrl);
 
-      expect(href, `${linkType} link should include version`).to.match(/\/\d+\.\d+\//);
+      if (expectedVersion) {
+        expect(href, `${linkType} link should include version ${expectedVersion}`).to.include(
+          `/${expectedVersion}/`,
+        );
+      } else {
+        expect(href, `${linkType} link should include version`).to.match(/\/\d+\.\d+\//);
+      }
 
       expect(href, `${linkType} link should include correct path`).to.include(expectedPath);
     });
