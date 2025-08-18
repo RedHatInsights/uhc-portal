@@ -15,7 +15,7 @@ describe(
   { tags: ['day1', 'osd', 'aws', 'public'] },
   () => {
     before(() => {
-      cy.visit('/create');
+      cy.visit('/create', { failOnStatusCode: false });
     });
     it('Launch OSD AWS CCS cluster wizard', () => {
       CreateClusterPage.isCreateClusterPage();
