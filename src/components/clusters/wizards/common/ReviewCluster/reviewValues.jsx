@@ -220,8 +220,11 @@ const reviewValues = {
   nodes_compute: {
     title: 'Compute node count',
     valueTransform: (value, allValues) => {
-      if (allValues.multi_az === 'true' && allValues.hypershift !== 'true') {
-        return `${value / 3} (× 3 zones = ${value} compute nodes)`;
+      if (allValues.hypershift === 'true') {
+        return String(Number(value) * allValues.machinePoolsSubnets.length);
+      }
+      if (allValues.multi_az === 'true') {
+        return `${value} (× 3 zones = ${Number(value) * 3} compute nodes)`;
       }
       return value;
     },

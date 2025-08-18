@@ -36,6 +36,7 @@ const formStateBaseMock = {
   setFieldValue: jest.fn(),
   setFieldTouched: jest.fn(),
   getFieldMeta: jest.fn().mockReturnValue({}),
+  validateField: jest.fn(),
 };
 
 describe('<ScaleSection />', () => {
