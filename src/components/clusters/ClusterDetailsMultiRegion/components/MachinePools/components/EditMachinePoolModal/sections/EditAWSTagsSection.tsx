@@ -22,7 +22,8 @@ import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
 
 import './EditLabelsSection.scss';
 
-export const AWS_TAG_MAX_COUNT = 17; // only exported for testing
+// TODO set this to a real number once there is an accurate max number of tags
+export const AWS_TAG_MAX_COUNT = Infinity; // only exported for testing
 
 const canNotEditMessage = 'This option cannot be edited from its original setting selection.';
 
