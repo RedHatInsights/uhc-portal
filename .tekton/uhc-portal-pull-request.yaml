@@ -57,9 +57,9 @@ spec:
         - name: unit-tests
           computeResources:
             requests:
-              memory: "10Gi"
+              memory: "8Gi"
             limits:
-              memory: "10Gi"
+              memory: "8Gi"
   workspaces:
   - name: workspace
     volumeClaimTemplate:
