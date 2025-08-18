@@ -585,6 +585,13 @@ describe('createClusterRequest', () => {
         const data = {
           ...rosaFormData,
           hypershift: 'true',
+          machinePoolsSubnets: [
+            {
+              availabilityZone: '',
+              privateSubnetId: 'subnet-00b3753ab2dd892ac',
+              publicSubnetId: '',
+            },
+          ],
         };
         const request = createClusterRequest({}, data);
         expect(request.node_drain_grace_period).toBeUndefined();
@@ -727,6 +734,40 @@ describe('createClusterRequest', () => {
             expect(request.aws.additional_compute_security_group_ids).toEqual(['sg-cp']);
           });
         });
+      });
+    });
+    describe('Compute nodes', () => {
+      it('are calculated correctly for hypershift', () => {
+        const data = {
+          ...rosaFormData,
+          hypershift: 'true',
+          nodes_compute: '2',
+          machinePoolsSubnets: [{}, {}],
+        };
+        const request = createClusterRequest({}, data);
+        expect(request.nodes.compute).toEqual(4);
+      });
+
+      it('are calculated correctly for rosa classic, multi-AZ', () => {
+        const data = {
+          ...rosaFormData,
+          hypershift: 'false',
+          multi_az: 'true',
+          nodes_compute: '2',
+        };
+        const request = createClusterRequest({}, data);
+        expect(request.nodes.compute).toEqual(6);
+      });
+
+      it('are calculated correctly for rosa classic, single-AZ', () => {
+        const data = {
+          ...rosaFormData,
+          hypershift: 'false',
+          multi_az: 'false',
+          nodes_compute: '2',
+        };
+        const request = createClusterRequest({}, data);
+        expect(request.nodes.compute).toEqual(2);
       });
     });
   });
