@@ -1,5 +1,38 @@
 # Playwright E2E Tests
 
+## Installation
+
+### Prerequisites
+
+Ensure you have Node.js (>= 18.12.0) and Yarn (>= 1.22.19) installed on your system.
+
+### Install Dependencies
+
+From the project root directory, install all dependencies including Playwright:
+
+```bash
+# Install all project dependencies (including Playwright)
+yarn install
+
+# Install Playwright browsers
+npx playwright install
+
+# Optional: Install only Chromium browser for faster setup
+npx playwright install chromium
+```
+
+### Verify Installation
+
+You can verify that Playwright is properly installed by running:
+
+```bash
+# Check Playwright version
+npx playwright --version
+
+# List available tests (without running them)
+npx playwright test --list
+```
+
 ## Setup
 
 ### Environment Variables
