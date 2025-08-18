@@ -18,7 +18,6 @@
 /vendor/
 backend-config.yml
 /cypress/screenshots/
-/cypress/downloads/
 /cypress/videos/
 /coverage/
 .nyc_output/out.json
@@ -35,6 +34,8 @@ openapi/*.json
 
 .env*
 
-/unitTestCoverage
+# Playwright test configuration and state
+playwright.env.json
+playwright/fixtures/storageState.json
 
-.cache/
+/unitTestCoverage
