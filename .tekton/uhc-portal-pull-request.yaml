@@ -36,8 +36,8 @@ spec:
       set -ex
       npm install -g yarn
       yarn install
-      # limit heap size for the linter, as it tends to hog all available RAM,
-      # causing the OS to kill the runtime due to out-of-memory errors
+      # cap the linter's heap size, as it tends to hog the RAM,
+      # causing the OS to kill the process due to out-of-memory errors
       NODE_OPTIONS='--max-old-space-size=4096' yarn lint
       yarn prettier
       yarn test-no-coverage --run-in-band --no-cache
