@@ -19,20 +19,6 @@ metadata:
   name: uhc-portal-on-pull-request
   namespace: ocm-ui-tenant
 spec:
-  # todo - 'taskRunSpecs' is added to work around the broken params of the remote-pipeline;
-  #        for some reason, 'unit-tests-memory-request', 'unit-tests-memory-limit',
-  #        'unit-tests-cpu-request' and 'unit-tests-cpu-limit' aren't being passed
-  #        properly down to docker-build-run-unit-tests, or are otherwise non-effective.
-  #        when it's fixed upstream, remove the entire 'taskRunSpecs' block here.
-  taskRunSpecs:
-    - pipelineTaskName: run-unit-tests
-      stepSpecs:
-        - name: unit-tests
-          computeResources:
-            requests:
-              memory: "10Gi"
-            limits:
-              memory: "10Gi"
   params:
   - name: git-url
     value: '{{source_url}}'
@@ -60,18 +46,20 @@ spec:
       NODE_OPTIONS='--max-old-space-size=4096' yarn lint
       yarn prettier
       NODE_OPTIONS='--max-old-space-size=4096' yarn test-no-coverage --run-in-band --no-cache
-  - name: unit-tests-memory-request
-    value: "64Gi"
-  - name: unit-tests-memory-limit
-    value: "64Gi"
-  - name: unit-tests-cpu-request
-    value: "12000m"
-  - name: unit-tests-cpu-limit
-    value: "12000m"
   pipelineRef:
     name: docker-build
   taskRunTemplate:
     serviceAccountName: build-pipeline-uhc-portal
+  # extend the unit-tests pipeline task to increase RAM
+  taskRunSpecs:
+    - pipelineTaskName: run-unit-tests
+      stepSpecs:
+        - name: unit-tests
+          computeResources:
+            requests:
+              memory: "10Gi"
+            limits:
+              memory: "10Gi"
   workspaces:
   - name: workspace
     volumeClaimTemplate:
