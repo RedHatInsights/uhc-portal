@@ -1,0 +1,43 @@
+{
+  "ControlPlaneType": "Hosted architecture",
+  "Type": "ROSA",
+  "DomainPrefix": "smokerosahcp1",
+  "Region": "us-west-2, US West, Oregon",
+  "Availability": "Multi-zone",
+  "AdditionalEncryption": "Disabled",
+  "EncryptVolumesWithCustomerKeys": "Disabled",
+  "Nodes": {
+    "Control plane": "3/3",
+    "Infra": "2/2",
+    "Compute": "3/3"
+  },
+  "InstanceMetadataService": "IMDSv2",
+  "ClusterAutoscaling": "Disabled",
+  "ClusterPrivacy": "Public",
+  "ClusterWideProxy": "Disabled",
+  "MachineCIDR": "10.0.0.0/16",
+  "ServiceCIDR": "172.30.0.0/16",
+  "PodCIDR": "10.128.0.0/14",
+  "HostPrefix": "/23",
+  "OidcConfigId": "22rif2kh7jagoe7u2ak1caoi74hjrjvj",
+  "OidcConfigType": "Red Hat managed",
+  "UpdateStrategy": "Recurring updates",
+  "MachinePools": [
+    {
+      "Name": "worker",
+      "InstanceType": "m6id.xlarge",
+      "AvailabilityZones": "us-west-2a",
+      "NodeCount": "4",
+      "Autoscaling": "Disabled",
+      "RootDiskSize": "555"
+    }
+  ],
+  "networking": {
+    "CIDRRanges": {
+      "MachineCIDR": "10.0.0.0/16",
+      "ServiceCIDR": "172.30.0.0/16",
+      "PodCIDR": "10.128.0.0/14",
+      "Hostprefix": "/23"
+    }
+  }
+}
