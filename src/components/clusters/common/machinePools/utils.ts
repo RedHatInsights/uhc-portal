@@ -132,7 +132,6 @@ export const buildOptions = ({
   if (isHypershift && isEditingCluster && maxValue > maxNodesHCP - currentNodeCount) {
     maxValue = maxNodesHCP - currentNodeCount;
   }
-
   return optionsAvailable ? range(minNodes, maxValue + 1, increment) : [minNodes];
 };
 
@@ -216,6 +215,7 @@ export type getNodeOptionsType = {
   editMachinePoolId?: string;
   allow249NodesOSDCCSROSA?: boolean;
 };
+
 export const getNodeOptions = ({
   cluster,
   quota,
