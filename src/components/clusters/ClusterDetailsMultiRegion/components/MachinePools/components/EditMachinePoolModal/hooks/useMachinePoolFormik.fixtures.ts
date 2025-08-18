@@ -163,6 +163,12 @@ export const defaultExpectedInitialValues = {
       value: '',
     },
   ],
+  awsTags: [
+    {
+      key: '',
+      value: '',
+    },
+  ],
   maxPrice: 0.01,
   name: '',
   privateSubnetId: undefined,

@@ -2,6 +2,8 @@ import * as React from 'react';
 import * as Yup from 'yup';
 
 import {
+  checkAwsTagKey,
+  checkAwsTagValue,
   checkLabelKey,
   checkLabelValue,
   checkMachinePoolName,
@@ -41,6 +43,7 @@ export type EditMachinePoolValues = {
   autoscaleMax: number;
   replicas: number;
   labels: { key: string; value: string }[];
+  awsTags: { key: string; value: string }[];
   taints: { key: string; value: string; effect: TaintEffect }[];
   useSpotInstances: boolean;
   spotInstanceType: 'onDemand' | 'maximum';
@@ -135,6 +138,14 @@ const useMachinePoolFormik = ({
             value: machinePool.labels?.[key]!!,
           }))
         : [{ key: '', value: '' }],
+
+      awsTags:
+        isNodePool(machinePool) && machinePool.aws_node_pool?.tags
+          ? Object.keys(machinePool.aws_node_pool.tags).map((key) => ({
+              key,
+              value: machinePool.aws_node_pool!.tags?.[key]!!,
+            }))
+          : [{ key: '', value: '' }],
       taints: machinePool?.taints?.map((taint) => ({
         key: taint.key || '',
         value: taint.value || '',
@@ -230,6 +241,40 @@ const useMachinePoolFormik = ({
                 const labelKey = this.parent.key;
                 if (value && !labelKey) {
                   return new Yup.ValidationError('Label key has to be defined', value, this.path);
+                }
+                return true;
+              }),
+            }),
+          ),
+          awsTags: Yup.array().of(
+            Yup.object().shape({
+              key: Yup.string().test('awsTag-key', '', function test(value) {
+                if (values.awsTags.length === 1 && (!value || value.length === 0)) {
+                  return true;
+                }
+                const err = checkAwsTagKey(value);
+                if (err) {
+                  return new Yup.ValidationError(err, value, this.path);
+                }
+
+                if (values.awsTags.filter(({ key }: { key: any }) => key === value).length > 1) {
+                  return new Yup.ValidationError(
+                    'Each AWS Tag must have a different key.',
+                    value,
+                    this.path,
+                  );
+                }
+                return true;
+              }),
+              value: Yup.string().test('awsTag-value', '', function test(value) {
+                const err = checkAwsTagValue(value);
+                if (err) {
+                  return new Yup.ValidationError(err, value, this.path);
+                }
+
+                const awsTagKey = this.parent.key;
+                if (value && !awsTagKey) {
+                  return new Yup.ValidationError('AWS Tag key has to be defined', value, this.path);
                 }
                 return true;
               }),
