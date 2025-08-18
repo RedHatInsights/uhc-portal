@@ -34,18 +34,17 @@ spec:
     value: |
       #!/bin/bash
       set -ex
-
       npm install -g yarn
-
       yarn install
-      # todo - 1536 was used here because the remote-pipeline's params
-      #        are broken, and we always got a 2-giga RAM VM.
-      #        when params are fixed, revert the 'lint' npm command impl'
-      #        to include 4096 again, and only call 'yarn lint' here.
-      # NODE_OPTIONS='--max-old-space-size=1536' yarn lint
+      echo "1) NODE_OPTIONS: $NODE_OPTIONS"
+      # limit heap size for the linter, as it tends to hog all available RAM,
+      # causing the OS to kill the runtime due to out-of-memory errors
       NODE_OPTIONS='--max-old-space-size=4096' yarn lint
+      echo "2) NODE_OPTIONS: $NODE_OPTIONS"
       yarn prettier
-      NODE_OPTIONS='--max-old-space-size=4096' yarn test-no-coverage --run-in-band --no-cache
+      echo "3) NODE_OPTIONS: $NODE_OPTIONS"
+      yarn test-no-coverage --run-in-band --no-cache
+      echo "4) NODE_OPTIONS: $NODE_OPTIONS"
   pipelineRef:
     name: docker-build
   taskRunTemplate:

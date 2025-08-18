@@ -209,7 +209,7 @@
     "build:prod": "yarn build --mode=production",
     "build:saas": ". run/sentry-env.sh && yarn build:prod --output-path 'dist'",
     "postbuild:saas": "[[ ${BETA} != 'true' ]] && yarn sentry:sourcemaps-release:saas || :",
-    "verify": "concurrently --group --names=BUILD,LINT,TEST 'yarn build:prod --output-path dist' 'yarn lint-prettier' 'yarn test'",
+    "verify": "concurrently --group --names=BUILD,LINT,TEST 'yarn build:prod --output-path dist' 'NODE_OPTIONS=--max-old-space-size=4096 yarn lint-prettier' 'yarn test'",
     "dev-server": "webpack serve $(run/progress-flag-if-tty.sh)",
     "insights-proxy": "make insights-proxy-check && run/insights-proxy.sh",
     "stop-insights-proxy": "run/podman-or-docker.sh kill insightsproxy; run/podman-or-docker.sh rm --force insightsproxy; true",
