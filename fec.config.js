@@ -22,7 +22,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       APP_DEVMODE: process.env.NODE_ENV !== 'production',
-      APP_SENTRY_RELEASE_VERSION: JSON.stringify(process.env.SENTRY_RELEASE_VERSION),
+      APP_SENTRY_RELEASE_VERSION: JSON.stringify(process.env.SENTRY_VERSION),
       APP_DEV_SERVER: process.env.NODE_ENV !== 'production',
     }),
   ],
