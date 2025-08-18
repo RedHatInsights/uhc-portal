@@ -1,8 +1,11 @@
 const path = require('path');
 const webpack = require('webpack');
+const { insights } = require('./package.json');
+
+const name = insights.appname;
 
 module.exports = {
-  appUrl: '/openshift',
+  appUrl: `/${name}`,
   appEntry: path.resolve(__dirname, 'src/bootstrap.ts'),
   hotReload: process.env.HOT === 'true',
   debug: true,
@@ -18,8 +21,9 @@ module.exports = {
   ],
   plugins: [
     new webpack.DefinePlugin({
+      APP_DEVMODE: process.env.NODE_ENV !== 'production',
+      APP_SENTRY_RELEASE_VERSION: JSON.stringify(process.env.SENTRY_RELEASE_VERSION),
       APP_DEV_SERVER: process.env.NODE_ENV !== 'production',
-      APP_API_ENV: JSON.stringify(process.env.CLOUDOT_ENV === 'stage' ? 'staging' : 'production'),
     }),
   ],
   resolve: {
