@@ -9,66 +9,64 @@ export class DownloadsPage extends BasePage {
     super(page);
   }
 
-  async isDownloadsPage(timeout: number = 60000): Promise<void> {
-    await expect(this.page).toHaveURL(/\/downloads/, { timeout });
-    await expect(this.page.locator('h1')).toContainText('Downloads', { timeout });
-  }
-
-  async isHiddenRowContaining(text: string): Promise<void> {
-    const row = this.page.locator('.pf-v6-c-expandable-section__content').filter({ hasText: text });
-    await expect(row).toBeHidden();
-  }
-
-  async isVisibleRowContaining(text: string): Promise<void> {
-    const row = this.page.locator('.pf-v6-c-expandable-section__content').filter({ hasText: text });
-    await expect(row).toBeVisible();
-  }
-
-  async clickExpandableRow(identifier: string): Promise<void> {
-    await this.page.locator(`[data-testid*="${identifier}"] button`).first().click();
-  }
-
   async filterByCategory(category: string): Promise<void> {
-    await this.page.selectOption('select[data-testid="category-filter"]', category);
+    await this.page.getByTestId('downloads-category-dropdown').selectOption(category);
   }
 
   async clickExpandAll(): Promise<void> {
-    await this.page.locator('button').filter({ hasText: 'Expand all' }).click();
+    await this.page.getByText('Expand all').click();
   }
 
   async clickCollapseAll(): Promise<void> {
-    await this.page.locator('button').filter({ hasText: 'Collapse all' }).click();
+    await this.page.getByText('Collapse all').click();
   }
 
-  async enabledDropdownOptions(testId: string, expectedOptions: string[]): Promise<void> {
-    const dropdown = this.page.getByTestId(testId);
-    const options = await dropdown.locator('option:not([disabled])').allTextContents();
-    expect(options.filter(opt => opt.trim())).toEqual(expect.arrayContaining(expectedOptions));
-  }
-
-  async allDropdownOptions(testId: string, expectedOptions: string[]): Promise<void> {
-    const dropdown = this.page.getByTestId(testId);
-    const options = await dropdown.locator('option').allTextContents();
-    expect(options.filter(opt => opt.trim())).toEqual(expect.arrayContaining(expectedOptions));
-  }
-
-  async rowDoesNotExist(testId: string): Promise<void> {
-    await expect(this.page.getByTestId(testId)).not.toBeVisible();
-  }
-
-  tokenSection(): Locator {
-    return this.page.locator('[data-testid="tokens-section"]');
+  async isDownloadsPage(): Promise<void> {
+    await expect(this.page.locator('h1').filter({ hasText: 'Downloads' })).toBeVisible();
   }
 
   pullSecretSection(): Locator {
-    return this.page.locator('[data-testid="pull-secret-section"]');
+    return this.page.getByTestId('expandable-row-pull-secret');
   }
 
-  copyPullSecretButton(): Locator {
-    return this.page.locator('button').filter({ hasText: 'Copy pull secret' });
+  tokenSection(): Locator {
+    return this.page.getByTestId('downloads-section-TOKENS');
   }
 
   downloadPullSecretButton(): Locator {
-    return this.page.locator('button').filter({ hasText: 'Download pull secret' });
+    return this.pullSecretSection().locator('button').filter({ hasText: 'Download' });
+  }
+
+  copyPullSecretButton(): Locator {
+    return this.pullSecretSection().locator('button').filter({ hasText: 'Copy' });
+  }
+
+  async isVisibleRowContaining(substring: string): Promise<void> {
+    await expect(this.page.getByText(substring)).toBeVisible();
+  }
+
+  async isHiddenRowContaining(substring: string): Promise<void> {
+    await expect(this.page.getByText(substring)).not.toBeVisible();
+  }
+
+  async rowDoesNotExist(rowDataTestId: string): Promise<void> {
+    await expect(this.page.getByTestId(rowDataTestId)).not.toBeVisible();
+  }
+
+  async clickExpandableRow(substring: string): Promise<void> {
+    // Find the expand button by looking for buttons with expand-toggle
+    await this.page.locator('button[id*="expand-toggle"]').first().click();
+  }
+
+  async allDropdownOptions(dropdownDataTestId: string, testValues: string[]): Promise<void> {
+    const dropdown = this.page.getByTestId(dropdownDataTestId);
+    const options = await dropdown.locator('option').allTextContents();
+    expect(options).toEqual(testValues);
+  }
+
+  async enabledDropdownOptions(dropdownDataTestId: string, testValues: string[]): Promise<void> {
+    const dropdown = this.page.getByTestId(dropdownDataTestId);
+    const options = await dropdown.locator('option:not([disabled])').allTextContents();
+    expect(options).toEqual(testValues);
   }
 }
