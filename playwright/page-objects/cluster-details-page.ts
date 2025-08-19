@@ -10,7 +10,9 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   async isClusterDetailsPage(displayName: string): Promise<void> {
-    await expect(this.page.locator('.cl-details-page-title')).toContainText(displayName, { timeout: 10000 });
+    await expect(this.page.locator('.cl-details-page-title')).toContainText(displayName, {
+      timeout: 10000,
+    });
   }
 
   addConsoleURLButton(): Locator {
@@ -26,7 +28,8 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   editConsoleURLDialogConfirm(): Locator {
-    return this.page.locator('div[aria-label="Add console URL"]')
+    return this.page
+      .locator('div[aria-label="Add console URL"]')
       .locator('footer')
       .locator('button')
       .filter({ hasText: 'Add URL' });
@@ -49,7 +52,8 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   editDisplaynameConfirm(): Locator {
-    return this.page.locator('div[aria-label="Edit display name"]')
+    return this.page
+      .locator('div[aria-label="Edit display name"]')
       .locator('footer')
       .locator('button')
       .first();
@@ -60,7 +64,8 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   archiveClusterDialogConfirm(): Locator {
-    return this.page.locator('div[aria-label="Archive cluster"]')
+    return this.page
+      .locator('div[aria-label="Archive cluster"]')
       .locator('footer')
       .locator('button')
       .first();
@@ -71,8 +76,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   unarchiveClusterButton(): Locator {
-    return this.page.locator('[id="cl-details-btns"]')
-      .getByRole('button', { name: 'Unarchive' });
+    return this.page.locator('[id="cl-details-btns"]').getByRole('button', { name: 'Unarchive' });
   }
 
   unarchiveClusterDialogConfirm(): Locator {
@@ -132,44 +136,67 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   async waitForEditUrlModalToLoad(): Promise<void> {
-    await this.page.getByTestId('edit-console-url-dialog').waitFor({ state: 'visible', timeout: 30000 });
-    await this.page.locator('input[id="edit-console-url-input"]').waitFor({ state: 'visible', timeout: 30000 });
+    await this.page
+      .getByTestId('edit-console-url-dialog')
+      .waitFor({ state: 'visible', timeout: 30000 });
+    await this.page
+      .locator('input[id="edit-console-url-input"]')
+      .waitFor({ state: 'visible', timeout: 30000 });
   }
 
   async waitForEditUrlModalToClear(): Promise<void> {
-    await this.page.getByTestId('edit-console-url-dialog').waitFor({ state: 'detached', timeout: 30000 });
+    await this.page
+      .getByTestId('edit-console-url-dialog')
+      .waitFor({ state: 'detached', timeout: 30000 });
   }
 
   async waitForEditDisplayNamelModalToLoad(): Promise<void> {
-    await this.page.getByTestId('edit-displayname-modal').waitFor({ state: 'visible', timeout: 30000 });
-    await this.page.locator('input[id="edit-display-name-input"]').waitFor({ state: 'visible', timeout: 30000 });
+    await this.page
+      .getByTestId('edit-displayname-modal')
+      .waitFor({ state: 'visible', timeout: 30000 });
+    await this.page
+      .locator('input[id="edit-display-name-input"]')
+      .waitFor({ state: 'visible', timeout: 30000 });
   }
 
   async waitForEditDisplayNameModalToClear(): Promise<void> {
-    await this.page.getByTestId('edit-displayname-modal').waitFor({ state: 'detached', timeout: 30000 });
+    await this.page
+      .getByTestId('edit-displayname-modal')
+      .waitFor({ state: 'detached', timeout: 30000 });
   }
 
   async waitForDisplayNameChange(originalDisplayName: string): Promise<void> {
-    await expect(this.page.locator('h1.cl-details-page-title')).not.toHaveText(originalDisplayName, { timeout: 30000 });
+    await expect(this.page.locator('h1.cl-details-page-title')).not.toHaveText(
+      originalDisplayName,
+      { timeout: 30000 },
+    );
   }
 
   async waitForArchiveClusterModalToLoad(): Promise<void> {
-    await this.page.getByTestId('archive-cluster-dialog').waitFor({ state: 'visible', timeout: 30000 });
-    await expect(this.page.getByRole('button', { name: 'Archive cluster' })).toBeVisible({ timeout: 30000 });
+    await this.page
+      .getByTestId('archive-cluster-dialog')
+      .waitFor({ state: 'visible', timeout: 30000 });
+    await expect(this.page.getByRole('button', { name: 'Archive cluster' })).toBeVisible({
+      timeout: 30000,
+    });
   }
 
   async waitForUnarchiveClusterModalToLoad(): Promise<void> {
-    await this.page.getByTestId(' unarchive-cluster-dialog').waitFor({ state: 'visible', timeout: 30000 });
+    await this.page
+      .getByTestId(' unarchive-cluster-dialog')
+      .waitFor({ state: 'visible', timeout: 30000 });
     await expect(this.page.getByRole('button', { name: 'Unarchive cluster' })).toBeVisible();
   }
 
   async waitForClusterDetailsLoad(): Promise<void> {
-    await this.page.locator('div.ins-c-spinner.cluster-details-spinner').waitFor({ state: 'detached', timeout: 30000 });
+    await this.page
+      .locator('div.ins-c-spinner.cluster-details-spinner')
+      .waitFor({ state: 'detached', timeout: 30000 });
   }
 
   // ROSA cluster installation methods
   deleteClusterDropdownItem(): Locator {
-    return this.page.getByRole('button', { name: 'Delete cluster' });
+    return this.page.getByRole('menuitem', { name: 'Delete cluster' });
   }
 
   deleteClusterNameInput(): Locator {
@@ -177,33 +204,44 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   deleteClusterConfirm(): Locator {
-    return this.page.locator('div[aria-label="Delete cluster"]')
+    return this.page
+      .locator('div[aria-label="Delete cluster"]')
       .locator('footer')
       .locator('button')
       .first();
   }
 
   async waitForInstallerScreenToLoad(): Promise<void> {
-    await this.page.locator('li.pf-v6-c-wizard__nav-item').waitFor({ state: 'detached', timeout: 30000 });
-    await this.page.locator('div.cluster-loading-container').waitFor({ state: 'detached', timeout: 100000 });
+    await this.page.waitForSelector('li.pf-v6-c-wizard__nav-item', {
+      state: 'detached',
+      timeout: 30000,
+    });
+    await this.page.waitForSelector('div.cluster-loading-container', {
+      state: 'detached',
+      timeout: 100000,
+    });
   }
 
   async waitForDeleteClusterActionComplete(): Promise<void> {
-    await this.page.getByTestId('delete-cluster-dialog')
-      .locator('div.ins-c-spinner')
-      .waitFor({ state: 'detached', timeout: 100000 });
+    await this.page.waitForSelector('[data-testid="delete-cluster-dialog"] div.ins-c-spinner', {
+      state: 'detached',
+      timeout: 100000,
+    });
   }
 
   async checkInstallationStepStatus(step: string, status: string = ''): Promise<void> {
-    const installStep = this.page.locator('div.pf-v6-c-progress-stepper__step-title')
+    const installStep = this.page
+      .locator('div.pf-v6-c-progress-stepper__step-title')
       .filter({ hasText: step });
-    
+
     await expect(installStep).toBeVisible({ timeout: 80000 });
-    
+
     if (status !== '') {
       // Check if the step has the expected status
       if (status === 'Completed') {
-        await expect(installStep.locator('..').locator('..').locator('li')).toHaveClass(/pf-m-success/);
+        await expect(installStep.locator('..').locator('..').locator('li')).toHaveClass(
+          /pf-m-success/,
+        );
       }
     }
   }
@@ -239,7 +277,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   clusterBillingMarketplaceAccountLabelValue(): Locator {
-    return this.page.getByTestId('billingMarketplaceAccount');
+    return this.page.getByTestId('billingMarketplaceAccountLink');
   }
 
   clusterMachineCIDRLabelValue(): Locator {
@@ -256,5 +294,22 @@ export class ClusterDetailsPage extends BasePage {
 
   clusterHostPrefixLabelValue(): Locator {
     return this.page.getByTestId('hostPrefix');
+  }
+
+  // Additional cluster property getters for advanced settings
+  clusterFipsCryptographyStatus(): Locator {
+    return this.page.getByTestId('fipsCryptography');
+  }
+
+  clusterIMDSValue(): Locator {
+    return this.page.getByTestId('imdsSettings');
+  }
+
+  clusterAutoScalingStatus(): Locator {
+    return this.page.getByTestId('autoscaling');
+  }
+
+  clusterAdditionalEncryptionStatus(): Locator {
+    return this.page.getByTestId('additionalEncryption');
   }
 }

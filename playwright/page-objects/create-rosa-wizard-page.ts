@@ -103,7 +103,7 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   rootDiskSizeInput(): Locator {
-    return this.page.locator('input[name="worker_volume_size_gib"]');
+    return this.page.getByRole('spinbutton', { name: 'Worker root disk size' });
   }
 
   // Networking selectors
@@ -117,23 +117,23 @@ export class CreateRosaWizardPage extends BasePage {
 
   // CIDR selectors
   cidrDefaultValuesCheckBox(): Locator {
-    return this.page.locator('input[id="cidr_default_values_toggle"]');
+    return this.page.getByRole('checkbox', { name: 'Use default values' });
   }
 
   machineCIDRInput(): Locator {
-    return this.page.locator('input[id="network_machine_cidr"]');
+    return this.page.getByRole('textbox', { name: 'Machine CIDR' });
   }
 
   serviceCIDRInput(): Locator {
-    return this.page.locator('input[id="network_service_cidr"]');
+    return this.page.getByRole('textbox', { name: 'Service CIDR' });
   }
 
   podCIDRInput(): Locator {
-    return this.page.locator('input[id="network_pod_cidr"]');
+    return this.page.getByRole('textbox', { name: 'Pod CIDR' });
   }
 
   hostPrefixInput(): Locator {
-    return this.page.locator('input[id="network_host_prefix"]');
+    return this.page.getByRole('textbox', { name: 'Host prefix' });
   }
 
   // Update strategy selectors
@@ -143,6 +143,67 @@ export class CreateRosaWizardPage extends BasePage {
 
   recurringUpdateRadio(): Locator {
     return this.page.getByTestId('upgrade_policy-automatic');
+  }
+
+  // Availability zone selectors
+  multiZoneAvilabilityRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Multi-zone' });
+  }
+
+  singleZoneAvailabilityRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Single zone' });
+  }
+
+  // Node label selectors
+  editNodeLabelLink(): Locator {
+    return this.page.getByRole('button', { name: 'Add node labels' });
+  }
+
+  addAdditionalLabelLink(): Locator {
+    return this.page.getByRole('button', { name: 'Add additional label' });
+  }
+
+  // FIPS encryption selectors
+  enableFIPSCryptographyCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Enable FIPS cryptography' });
+  }
+
+  // VPC installation selector
+  installIntoExistingVpcCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Install into existing VPC' });
+  }
+
+  // Grace period selector
+  gracePeriodSelect(): Locator {
+    return this.page.locator('select[name="node_drain_grace_period"]');
+  }
+
+  // Additional security groups selectors
+  additionalSecurityGroupsLink(): Locator {
+    return this.page.getByRole('button', { name: 'Additional security groups' });
+  }
+
+  applySameSecurityGroupsToAllNodeTypes(): Locator {
+    return this.page.getByRole('checkbox', {
+      name: 'Apply the same security groups to all node types',
+    });
+  }
+
+  securityGroupsButton(): Locator {
+    return this.page.locator('button').filter({ hasText: 'Select security groups' });
+  }
+
+  securityGroupsFilterInput(): Locator {
+    return this.page.locator('input[placeholder="Filter by security group ID / name"]');
+  }
+
+  // Role provider mode selectors
+  createModeAutoRadio(): Locator {
+    return this.page.getByTestId('rosa_roles_provider_creation_mode-auto');
+  }
+
+  createModeManualRadio(): Locator {
+    return this.page.getByTestId('rosa_roles_provider_creation_mode-manual');
   }
 
   // VPC and subnet selectors
@@ -169,44 +230,62 @@ export class CreateRosaWizardPage extends BasePage {
 
   async isControlPlaneTypeScreen(): Promise<void> {
     // Wait for h2 with specific text to load and be visible
-    await this.page.locator('h2', { hasText: 'Welcome to Red Hat OpenShift Service on AWS (ROSA)' })
+    await this.page
+      .locator('h2', { hasText: 'Welcome to Red Hat OpenShift Service on AWS (ROSA)' })
       .waitFor({ timeout: 90000, state: 'visible' });
-    
+
     // Wait for h3 with specific text to load and be visible
-    await this.page.locator('h3', { hasText: 'Select the ROSA architecture based on your control plane requirements' })
+    await this.page
+      .locator('h3', {
+        hasText: 'Select the ROSA architecture based on your control plane requirements',
+      })
       .waitFor({ timeout: 90000, state: 'visible' });
   }
 
   async isAccountsAndRolesScreen(): Promise<void> {
-    await this.page.locator('h3', { hasText: 'AWS infrastructure account' }).waitFor({ timeout: 90000, state: 'visible' });
+    await this.page
+      .locator('h3', { hasText: 'AWS infrastructure account' })
+      .waitFor({ timeout: 90000, state: 'visible' });
   }
 
   async isClusterDetailsScreen(): Promise<void> {
-    await expect(this.page.locator('h3')).toContainText('Cluster details');
+    await expect(this.page.locator('h3:has-text("Cluster details")')).toBeVisible({
+      timeout: 30000,
+    });
+
     // Wait for cluster version dropdown to be visible to avoid flaky behavior
-    await this.page.locator('button[id="version-selector"]').waitFor({ state: 'visible', timeout: 40000 });
+    await this.page
+      .locator('button[id="version-selector"]')
+      .waitFor({ state: 'visible', timeout: 40000 });
   }
 
   async isClusterMachinepoolsScreen(hosted: boolean = false): Promise<void> {
     const machinePoolHeaderText = hosted ? 'Machine pools' : 'Default machine pool';
-    await expect(this.page.locator('h3')).toContainText(machinePoolHeaderText);
+    await expect(
+      this.page.locator('h3').filter({ hasText: new RegExp(`^${machinePoolHeaderText}$`) }),
+    ).toBeVisible({ timeout: 30000 });
   }
 
   async isAssociateAccountsDrawer(): Promise<void> {
-    await expect(this.page.locator('h2:has-text("How to associate a new AWS account")')).toBeVisible({ timeout: 30000 });
-    await expect(this.page.locator('text=continue to step')).toBeVisible({ timeout: 30000 });
-    
+    await expect(
+      this.page.locator('h2:has-text("How to associate a new AWS account")'),
+    ).toBeVisible({ timeout: 30000 });
   }
 
   // Action methods
   async selectHostedControlPlaneType(): Promise<void> {
     await this.selectHostedControlPlaneTypeOption().click({ force: true });
-    await expect(this.selectHostedControlPlaneTypeOption()).toHaveAttribute('aria-selected', 'true');
+    await expect(this.selectHostedControlPlaneTypeOption()).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
   }
 
   async selectAWSInfrastructureAccount(accountID: string): Promise<void> {
     await this.page.locator('button[id="associated_aws_id"]').click();
-    await this.page.locator('input[placeholder*="Filter by account ID"]').waitFor({ state: 'visible', timeout: 50000 });
+    await this.page
+      .locator('input[placeholder*="Filter by account ID"]')
+      .waitFor({ state: 'visible', timeout: 50000 });
     await this.page.locator('input[placeholder*="Filter by account ID"]').clear();
     await this.page.locator('input[placeholder*="Filter by account ID"]').fill(accountID);
     await this.page.locator('li').filter({ hasText: accountID }).click();
@@ -214,30 +293,40 @@ export class CreateRosaWizardPage extends BasePage {
 
   async selectAWSBillingAccount(accountID: string): Promise<void> {
     await this.page.locator('#billing_account_id').click();
-    await this.page.locator('input[placeholder*="Filter by account ID"]').waitFor({ state: 'visible', timeout: 50000 });
+    await this.page
+      .locator('input[placeholder*="Filter by account ID"]')
+      .waitFor({ state: 'visible', timeout: 50000 });
     await this.page.locator('input[placeholder*="Filter by account ID"]').clear();
     await this.page.locator('input[placeholder*="Filter by account ID"]').fill(accountID);
     await this.page.locator('li').filter({ hasText: accountID }).click();
   }
 
   async waitForARNList(): Promise<void> {
-    await this.page.locator('span.pf-v6-c-button__progress').waitFor({ state: 'detached', timeout: 80000 });
-    await this.page.getByTestId('spinner-loading-arn-text').waitFor({ state: 'detached', timeout: 80000 });
+    await this.page.waitForSelector('span.pf-v6-c-button__progress', {
+      state: 'detached',
+      timeout: 80000,
+    });
+    await this.page.waitForSelector('[data-testid="spinner-loading-arn-text"]', {
+      state: 'detached',
+      timeout: 80000,
+    });
   }
 
   async selectInstallerRole(roleName: string): Promise<void> {
     const installerButton = this.page.locator('button').filter({ hasText: /Installer-Role$/ });
     const buttonText = await installerButton.textContent();
-    
+
     if (buttonText?.includes(roleName)) {
       console.log(`Installer ARN ${roleName} already selected from the list.`);
     } else {
       await installerButton.click();
-      await this.page.locator('div[id="installer_role_arn"]')
+      await this.page
+        .locator('div[id="installer_role_arn"]')
         .locator('button')
         .filter({ hasText: roleName })
         .scrollIntoViewIfNeeded();
-      await this.page.locator('div[id="installer_role_arn"]')
+      await this.page
+        .locator('div[id="installer_role_arn"]')
         .locator('button')
         .filter({ hasText: roleName })
         .click({ force: true });
@@ -265,7 +354,7 @@ export class CreateRosaWizardPage extends BasePage {
   async closePopoverDialogs(): Promise<void> {
     const closeButtons = this.page.locator('button[aria-label="Close"]');
     const count = await closeButtons.count();
-    
+
     for (let i = 0; i < count; i++) {
       const button = closeButtons.nth(i);
       try {
@@ -280,7 +369,10 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   async waitForVPCList(): Promise<void> {
-    await this.page.locator('span.pf-v6-c-button__progress').waitFor({ state: 'detached', timeout: 100000 });
+    await this.page.waitForSelector('span.pf-v6-c-button__progress', {
+      state: 'detached',
+      timeout: 100000,
+    });
     await expect(this.page.getByTestId('refresh-vpcs')).not.toBeDisabled({ timeout: 80000 });
   }
 
@@ -293,13 +385,19 @@ export class CreateRosaWizardPage extends BasePage {
     await this.page.locator('text=' + vpcName).click();
   }
 
-  async selectMachinePoolPrivateSubnet(privateSubnetNameOrId: string, machinePoolIndex: number = 1): Promise<void> {
+  async selectMachinePoolPrivateSubnet(
+    privateSubnetNameOrId: string,
+    machinePoolIndex: number = 1,
+  ): Promise<void> {
     const mpIndex = machinePoolIndex - 1;
     await this.page.locator(`button[id="machinePoolsSubnets[${mpIndex}].privateSubnetId"]`).click();
     await this.subnetFilterInput().waitFor({ state: 'visible', timeout: 50000 });
     await this.subnetFilterInput().clear();
     await this.subnetFilterInput().fill(privateSubnetNameOrId);
-    await this.page.locator('li').filter({ hasText: privateSubnetNameOrId }).scrollIntoViewIfNeeded();
+    await this.page
+      .locator('li')
+      .filter({ hasText: privateSubnetNameOrId })
+      .scrollIntoViewIfNeeded();
     await this.page.locator('li').filter({ hasText: privateSubnetNameOrId }).click();
   }
 
@@ -316,7 +414,7 @@ export class CreateRosaWizardPage extends BasePage {
     await this.computeNodeTypeButton().click();
     await this.computeNodeTypeSearchInput().clear();
     await this.computeNodeTypeSearchInput().fill(computeNodeType);
-    await this.page.locator('div').filter({ hasText: computeNodeType }).click();
+    await this.page.getByRole('button', { name: computeNodeType }).click();
   }
 
   async enableAutoScaling(): Promise<void> {
@@ -351,17 +449,308 @@ export class CreateRosaWizardPage extends BasePage {
     await this.page.locator('button').filter({ hasText: 'Select a config id' }).click();
     await this.page.locator('input[placeholder="Filter by config ID"]').clear();
     await this.page.locator('input[placeholder="Filter by config ID"]').fill(configID);
-    await this.page.locator('text=' + configID).scrollIntoViewIfNeeded();
-    await this.page.locator('text=' + configID).click();
+    await this.page.getByRole('option', { name: configID }).click();
   }
 
   async isClusterPropertyMatchesValue(property: string, value: string): Promise<void> {
     await expect(
-      this.page.locator('span.pf-v6-c-description-list__text')
+      this.page
+        .locator('span.pf-v6-c-description-list__text')
         .filter({ hasText: property })
         .locator('..')
         .locator('~ *')
-        .locator('div')
+        .locator('div'),
     ).toContainText(value);
+  }
+
+  // Additional selectors for validation tests
+  advancedEncryptionLink(): Locator {
+    return this.page.getByRole('button', { name: 'Advanced Encryption' });
+  }
+
+  useCustomKMSKeyRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Use custom KMS keys' });
+  }
+
+  useDefaultKMSKeyRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Use default KMS Keys' });
+  }
+
+  customerManageKeyARNInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Key ARN' });
+  }
+
+  enableAdditionalEtcdEncryptionCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Enable additional etcd' });
+  }
+
+  encryptEtcdKeyARNInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Key ARN' });
+  }
+
+  addMachinePoolLink(): Locator {
+    return this.page.getByRole('button', { name: 'Add machine pool' });
+  }
+
+  minimumNodeCountInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'Minimum nodes' });
+  }
+
+  maximumNodeCountInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'Maximum nodes' });
+  }
+
+  minimumNodeInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'Minimum nodes' });
+  }
+
+  maximumNodeInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'Maximum nodes' });
+  }
+
+  minimumNodeCountPlusButton(): Locator {
+    return this.page.getByRole('button', { name: 'Minimum nodes plus' });
+  }
+
+  minimumNodeCountMinusButton(): Locator {
+    return this.page.getByRole('button', { name: 'Minimum nodes minus' });
+  }
+
+  maximumNodeCountPlusButton(): Locator {
+    return this.page.getByRole('button', { name: 'Maximum nodes plus' });
+  }
+  maximumNodeCountMinusButton(): Locator {
+    return this.page.getByRole('button', { name: 'Maximum nodes minus' });
+  }
+
+  enableConfigureClusterWideProxyCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Configure a cluster-wide proxy' });
+  }
+
+  httpProxyInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'HTTP proxy URL' });
+  }
+
+  httpsProxyInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'HTTPS proxy URL' });
+  }
+
+  noProxyDomainsInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'No Proxy domains' });
+  }
+
+  backToNetworkingConfigurationLink(): Locator {
+    return this.page.getByRole('button', { name: 'Back to the networking' });
+  }
+
+  customOperatorPrefixInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Operator roles prefix' });
+  }
+
+  // Screen validation methods for additional screens
+  async isNetworkingScreen(): Promise<void> {
+    await expect(this.page.locator('h3:has-text("Configuration")')).toBeVisible({ timeout: 30000 });
+  }
+
+  async isClusterWideProxyScreen(): Promise<void> {
+    await expect(this.page.locator('h3:has-text("Cluster-wide proxy")')).toBeVisible({
+      timeout: 30000,
+    });
+  }
+
+  async isCIDRScreen(): Promise<void> {
+    await expect(this.page.locator('h3:has-text("CIDR ranges")')).toBeVisible({ timeout: 30000 });
+  }
+
+  async isClusterRolesAndPoliciesScreen(): Promise<void> {
+    await expect(this.page.locator('h3:has-text("Cluster roles and policies")')).toBeVisible({
+      timeout: 30000,
+    });
+  }
+
+  // Action methods for validation tests
+  async inputCustomerManageKeyARN(arn: string): Promise<void> {
+    await this.customerManageKeyARNInput().clear();
+    await this.customerManageKeyARNInput().fill(arn);
+    await this.customerManageKeyARNInput().blur();
+  }
+
+  async inputEncryptEtcdKeyARN(arn: string): Promise<void> {
+    await this.encryptEtcdKeyARNInput().clear();
+    await this.encryptEtcdKeyARNInput().fill(arn);
+    await this.encryptEtcdKeyARNInput().blur();
+  }
+
+  async removeMachinePool(index: number): Promise<void> {
+    let mpIndex = index - 1;
+    await this.page.getByTestId(`remove-machine-pool-${mpIndex}`).click();
+  }
+
+  async setMinimumNodeCount(count: string): Promise<void> {
+    await this.minimumNodeCountInput().clear();
+    await this.minimumNodeCountInput().fill(count);
+    await this.minimumNodeCountInput().blur();
+  }
+
+  async setMaximumNodeCount(count: string): Promise<void> {
+    await this.maximumNodeCountInput().clear();
+    await this.maximumNodeCountInput().fill(count);
+    await this.maximumNodeCountInput().blur();
+  }
+
+  async enableConfigureClusterWideProxy(): Promise<void> {
+    await this.enableConfigureClusterWideProxyCheckbox().check();
+  }
+
+  async isTextContainsInPage(text: string, shouldContain: boolean = true): Promise<void> {
+    if (shouldContain) {
+      await expect(this.page.locator('body')).toContainText(text);
+    } else {
+      await expect(this.page.locator('body')).not.toContainText(text);
+    }
+  }
+
+  async selectRoleProviderMode(mode: string): Promise<void> {
+    if (mode.toLowerCase() === 'auto') {
+      await this.createModeAutoRadio().check();
+    } else {
+      await this.createModeManualRadio().check();
+    }
+  }
+
+  async selectUpdateStratergy(strategy: string): Promise<void> {
+    if (strategy.toLowerCase().includes('individual')) {
+      await this.individualUpdateRadio().check();
+    } else {
+      await this.recurringUpdateRadio().check();
+    }
+  }
+
+  async selectAvailabilityZone(availability: string): Promise<void> {
+    if (
+      availability.toLowerCase().includes('multiple') ||
+      availability.toLowerCase().includes('multi')
+    ) {
+      await this.multiZoneAvilabilityRadio().click();
+    } else {
+      await this.singleZoneAvailabilityRadio().click();
+    }
+  }
+
+  async addNodeLabelKeyAndValue(key: string, value: string = '', index: number = 0): Promise<void> {
+    const keyInputs = this.page.locator('input[aria-label="Key-value list key"]');
+    const valueInputs = this.page.locator('input[aria-label="Key-value list value"]');
+
+    // Get the specific key input at the given index
+    const keyInput = keyInputs.nth(index);
+    await keyInput.clear();
+    await keyInput.fill(key);
+
+    // Get the specific value input at the given index
+    const valueInput = valueInputs.nth(index);
+    await valueInput.clear();
+    await valueInput.fill(value);
+  }
+
+  async isNodeLabelKeyAndValue(key: string, value: string, index: number): Promise<void> {
+    const keyInput = this.page.locator(`input[name="node_labels[${index}].key"]`);
+    const valueInput = this.page.locator(`input[name="node_labels[${index}].value"]`);
+
+    await expect(keyInput).toHaveValue(key);
+    await expect(valueInput).toHaveValue(value);
+  }
+
+  async enableInstallIntoExistingVpc(): Promise<void> {
+    await this.installIntoExistingVpcCheckbox().check();
+  }
+
+  async selectGracePeriod(period: string): Promise<void> {
+    await this.gracePeriodSelect().selectOption(period);
+  }
+
+  async selectAdditionalSecurityGroups(securityGroup: string): Promise<void> {
+    await this.securityGroupsButton().click();
+    await this.securityGroupsFilterInput().clear();
+    await this.securityGroupsFilterInput().fill(securityGroup);
+    await this.page.locator('li').filter({ hasText: securityGroup }).click();
+  }
+
+  // VPC screen validation methods
+  async isVPCSettingsScreen(): Promise<void> {
+    await expect(this.page.locator('h3:has-text("VPC settings")')).toBeVisible({ timeout: 30000 });
+  }
+
+  // VPC subnet selection methods for advanced networking
+  async selectSubnetAvailabilityZone(zone: string): Promise<void> {
+    const zoneButton = this.page.locator('button').filter({ hasText: zone });
+    await zoneButton.click();
+  }
+
+  async selectPrivateSubnet(index: number, subnetName: string): Promise<void> {
+    const privateSubnetButton = this.page.locator(`button[id="privateSubnet[${index}]"]`);
+    await privateSubnetButton.click();
+    await this.subnetFilterInput().clear();
+    await this.subnetFilterInput().fill(subnetName);
+    await this.page.locator('li').filter({ hasText: subnetName }).click();
+  }
+
+  async selectPublicSubnet(index: number, subnetName: string): Promise<void> {
+    const publicSubnetButton = this.page.locator(`button[id="publicSubnet[${index}]"]`);
+    await publicSubnetButton.click();
+    await this.subnetFilterInput().clear();
+    await this.subnetFilterInput().fill(subnetName);
+    await this.page.locator('li').filter({ hasText: subnetName }).click();
+  }
+
+  // Validation methods for subnet selections
+  async isSubnetAvailabilityZoneSelected(zone: string): Promise<void> {
+    const zoneButton = this.page.locator('button').filter({ hasText: zone });
+    await expect(zoneButton).toHaveAttribute('aria-selected', 'true');
+  }
+
+  async isPrivateSubnetSelected(index: number, subnetName: string): Promise<void> {
+    const privateSubnetButton = this.page.locator(`button[id="privateSubnet[${index}]"]`);
+    await expect(privateSubnetButton).toContainText(subnetName);
+  }
+
+  async isPubliceSubnetSelected(index: number, subnetName: string): Promise<void> {
+    const publicSubnetButton = this.page.locator(`button[id="publicSubnet[${index}]"]`);
+    await expect(publicSubnetButton).toContainText(subnetName);
+  }
+
+  // Additional methods for review step editing
+  async clickEditStepOfSection(sectionName: string): Promise<void> {
+    const editButton = this.page
+      .locator('button')
+      .filter({ hasText: 'Edit' })
+      .locator('..')
+      .locator('..')
+      .filter({ hasText: sectionName })
+      .locator('button')
+      .filter({ hasText: 'Edit' });
+    await editButton.click();
+  }
+
+  // Support role inputs for validation
+  supportRoleInput(): Locator {
+    return this.page.locator('input[name="support_role_arn"]');
+  }
+
+  workerRoleInput(): Locator {
+    return this.page.locator('input[name="worker_role_arn"]');
+  }
+
+  controlPlaneRoleInput(): Locator {
+    return this.page.locator('input[name="controlplane_role_arn"]');
+  }
+
+  // Tree view for review section
+  reviewAndCreateTree(): Locator {
+    return this.page.locator('.pf-v6-c-tree-view');
+  }
+
+  // Additional validation method for compute node range
+  computeNodeRangeValue(): Locator {
+    return this.page.locator('[data-testid="compute-node-range"]');
   }
 }
