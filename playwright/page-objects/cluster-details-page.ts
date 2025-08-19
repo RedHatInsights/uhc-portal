@@ -88,7 +88,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   editSubscriptionSettingsLink(): Locator {
-    return this.page.locator('button:has-text("Edit subscription settings")');
+    return this.page.locator('#cl-details-top button:has-text("Edit subscription settings")');
   }
 
   serviceLevelAgreementPremiumRadio(): Locator {
