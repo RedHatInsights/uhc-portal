@@ -32,7 +32,7 @@ spec:
       #!/bin/bash
       set -ex
       npm install -g yarn
-      yarn install
+      yarn install --immutable
       # cap the linter's heap size, as it tends to hog the RAM,
       # causing the OS to kill the process due to out-of-memory errors
       NODE_OPTIONS='--max-old-space-size=4096' yarn lint
