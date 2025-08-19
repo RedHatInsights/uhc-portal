@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux';
 
 import { Button, Icon, Title, useWizardContext } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { t_global_icon_color_status_danger_default as dangerColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_danger_default';
 
 import Modal from '~/components/common/Modal/Modal';
 import { closeModal } from '~/components/common/Modal/ModalActions';
@@ -38,8 +37,8 @@ const MissingPrereqErrorModal = ({
     <Modal
       header={
         <Title headingLevel="h2" size="2xl">
-          <Icon className="pf-v6-u-mr-sm">
-            <ExclamationCircleIcon color={dangerColor.value} />
+          <Icon className="pf-v6-u-mr-sm" status="danger">
+            <ExclamationCircleIcon />
           </Icon>
           {title}
         </Title>
