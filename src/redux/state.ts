@@ -1,4 +1,3 @@
-// import { reduxReducers } from './reducers';
 import { Reducer } from 'redux';
 
 import type { ErrorState } from '../types/types';
