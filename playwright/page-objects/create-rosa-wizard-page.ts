@@ -24,7 +24,7 @@ export class CreateROSAWizardPage extends BasePage {
   }
 
   get primaryButton(): string {
-    return 'button[type="submit"], .pf-v6-c-button.pf-m-primary, button:has-text("Next")';
+    return 'button[type="submit"], [class*="button"][class*="primary"], button:has-text("Next")';
   }
 
   async isAccountsAndRolesScreen(): Promise<void> {
@@ -36,7 +36,7 @@ export class CreateROSAWizardPage extends BasePage {
   }
 
   get accountIdMenuItem(): string {
-    return 'option[value], .pf-v6-c-menu__item';
+    return 'option[value], [class*="menu__item"]';
   }
 
   async showsNoAssociatedAccounts(): Promise<void> {
@@ -48,7 +48,7 @@ export class CreateROSAWizardPage extends BasePage {
   }
 
   get ARNFieldRequiredMsg(): string {
-    return '.pf-v6-c-helper-text__item-text:has-text("required"), [class*="error"]:has-text("required")';
+    return '[class*="helper-text"]:has-text("required"), [class*="error"]:has-text("required")';
   }
 
   async showsNoUserRoleAlert(): Promise<void> {

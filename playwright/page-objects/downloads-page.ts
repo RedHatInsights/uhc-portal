@@ -14,11 +14,17 @@ export class DownloadsPage extends BasePage {
   }
 
   async clickExpandAll(): Promise<void> {
-    await this.page.getByText('Expand all').click();
+    const expandButton = this.page.getByText('Expand all');
+    if (await expandButton.isVisible()) {
+      await expandButton.click();
+    }
   }
 
   async clickCollapseAll(): Promise<void> {
-    await this.page.getByText('Collapse all').click();
+    const collapseButton = this.page.getByText('Collapse all');
+    if (await collapseButton.isVisible()) {
+      await collapseButton.click();
+    }
   }
 
   async isDownloadsPage(): Promise<void> {

@@ -10,7 +10,7 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   osdCreateClusterButton(): Locator {
-    return this.page.getByTestId('osd-create-cluster');
+    return this.page.getByTestId('osd-create-cluster-button');
   }
 
   async isCreateOSDPage(): Promise<void> {
@@ -22,15 +22,17 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   async isBillingModelScreen(): Promise<void> {
-    await expect(this.page.getByText('Billing model')).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: 'Welcome to Red Hat OpenShift Dedicated' }),
+    ).toBeVisible();
   }
 
   get billingModelRedHatCloudAccountOption(): string {
-    return '[data-testid="billing-model-red-hat"], input[value="red-hat-cloud-account"]';
+    return 'input[id="form-radiobutton-byoc-false-field"]';
   }
 
   get primaryButton(): string {
-    return 'button[type="submit"], .pf-v6-c-button.pf-m-primary, button:has-text("Next")';
+    return '[data-testid="wizard-next-button"], button:has-text("Next")';
   }
 
   async isClusterDetailsScreen(): Promise<void> {
@@ -42,7 +44,7 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   get clusterNameInputError(): string {
-    return '.pf-v6-c-helper-text__item-text, [class*="error"], .pf-v6-c-form__helper-text';
+    return 'ul#rich-input-popover-name li.pf-v6-c-helper-text__item.pf-m-error';
   }
 
   async isMachinePoolScreen(): Promise<void> {
@@ -50,7 +52,9 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   async isNetworkingScreen(): Promise<void> {
-    await expect(this.page.getByText('Networking')).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: 'Networking configuration' }),
+    ).toBeVisible();
   }
 
   async isCIDRScreen(): Promise<void> {
@@ -66,10 +70,10 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   get CCSSelected(): string {
-    return '[data-testid="ccs-selected"], .pf-v6-c-radio__input:checked + .pf-v6-c-radio__label:has-text("CCS")';
+    return '[data-testid="ccs-selected"], [class*="radio"]:checked + [class*="radio__label"]:has-text("CCS")';
   }
 
   get TrialSelected(): string {
-    return '[data-testid="trial-selected"], .pf-v6-c-radio__input:checked + .pf-v6-c-radio__label:has-text("Trial")';
+    return '[data-testid="trial-selected"], [class*="radio"]:checked + [class*="radio__label"]:has-text("Trial")';
   }
 }
