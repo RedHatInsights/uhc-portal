@@ -30,7 +30,7 @@ test.describe.serial(
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-Installer-Role`;
     const clusterSuffix = Math.random().toString(36).slice(3, 7);
     const clusterName = `${clusterProperties.ClusterNamePrefix}-${clusterSuffix}`;
-    const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2)}`;
+    const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2, 13)}`;
 
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to overview
@@ -266,9 +266,7 @@ test.describe.serial(
           `text=Select a VPC to install your cluster into your selected region: ${region}`,
         ),
       ).toBeVisible();
-      await expect(
-        sharedPage.locator('text', { hasText: new RegExp(`^${qeInfrastructure.VPC_NAME}$`) }),
-      ).toBeVisible();
+      await expect(sharedPage.locator('#selected_vpc')).toHaveText(qeInfrastructure.VPC_NAME);
 
       let i = 0;
       for (const zone of clusterProperties.MachinePools[0].AvailabilityZones) {
@@ -285,7 +283,7 @@ test.describe.serial(
       }
 
       for (const securityGroup of securityGroups) {
-        await expect(sharedPage.locator('text', { hasText: securityGroup })).toBeVisible();
+        await expect(sharedPage.getByTestId('appDrawerContent')).toContainText(securityGroup);
       }
       await createRosaWizardPage.rosaNextButton().click();
     });
@@ -300,7 +298,7 @@ test.describe.serial(
       );
       await expect(createRosaWizardPage.podCIDRInput()).toHaveValue(clusterProperties.PodCIDR);
       await expect(createRosaWizardPage.hostPrefixInput()).toHaveValue(
-        clusterProperties.HostPrefix,
+        `/${clusterProperties.HostPrefix}`,
       );
       await createRosaWizardPage.rosaNextButton().click();
     });
@@ -321,11 +319,11 @@ test.describe.serial(
 
     test('Step - Review and create step - its definitions', async () => {
       // Some situation the ARN spinner in progress and blocks cluster creation.
-      await expect(sharedPage.locator('.pf-v6-c-spinner')).not.toBeVisible({ timeout: 30000 });
-      await createRosaWizardPage.isClusterPropertyMatchesValue(
-        'Control plane',
+      await expect(sharedPage.locator('.pf-v6-c-spinner')).toHaveCount(0, { timeout: 30000 });
+      await expect(sharedPage.getByTestId('Control-plane')).toHaveText(
         clusterProperties.ControlPlaneType,
       );
+
       await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Availability',
         clusterProperties.Availability,
@@ -354,6 +352,7 @@ test.describe.serial(
         'Node instance type',
         clusterProperties.MachinePools[0].InstanceType,
       );
+
       await expect(createRosaWizardPage.computeNodeRangeValue()).toContainText(
         `Minimum nodes per zone: ${clusterProperties.MachinePools[0].MinimumNodeCount}`,
       );
@@ -412,10 +411,10 @@ test.describe.serial(
         'Node draining',
         clusterProperties.NodeDrainingGracePeriod,
       );
-      await createRosaWizardPage.reviewAndCreateTree().click();
     });
 
     test('Create Rosa advanced cluster and check the installation progress', async () => {
+      await sharedPage.waitForTimeout(2000); // Small delay for UI stability
       await createRosaWizardPage.createClusterButton().click();
       await clusterDetailsPage.waitForInstallerScreenToLoad();
       await expect(clusterDetailsPage.clusterNameTitle()).toContainText(clusterName);
@@ -442,9 +441,11 @@ test.describe.serial(
       await expect(clusterDetailsPage.clusterInfrastructureAWSaccountLabelValue()).toContainText(
         awsAccountID,
       );
+      await clusterDetailsPage.clusterFipsCryptographyStatus().scrollIntoViewIfNeeded();
       await expect(clusterDetailsPage.clusterFipsCryptographyStatus()).toContainText(
         'FIPS Cryptography enabled',
       );
+
       await expect(clusterDetailsPage.clusterIMDSValue()).toContainText(
         clusterProperties.InstanceMetadataService,
       );
@@ -469,6 +470,7 @@ test.describe.serial(
       await clusterDetailsPage.deleteClusterNameInput().fill(clusterName);
       await clusterDetailsPage.deleteClusterConfirm().click();
       await clusterDetailsPage.waitForDeleteClusterActionComplete();
+      await sharedPage.waitForTimeout(2000); // Small delay for UI stability
     });
   },
 );

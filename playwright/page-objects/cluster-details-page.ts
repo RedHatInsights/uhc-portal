@@ -298,18 +298,18 @@ export class ClusterDetailsPage extends BasePage {
 
   // Additional cluster property getters for advanced settings
   clusterFipsCryptographyStatus(): Locator {
-    return this.page.getByTestId('fipsCryptography');
+    return this.page.getByTestId('fipsCryptographyStatus');
   }
 
   clusterIMDSValue(): Locator {
-    return this.page.getByTestId('imdsSettings');
+    return this.page.getByTestId('instanceMetadataService');
   }
 
   clusterAutoScalingStatus(): Locator {
-    return this.page.getByTestId('autoscaling');
+    return this.page.getByTestId('clusterAutoscalingStatus');
   }
 
   clusterAdditionalEncryptionStatus(): Locator {
-    return this.page.getByTestId('additionalEncryption');
+    return this.page.getByTestId('etcEncryptionStatus');
   }
 }
