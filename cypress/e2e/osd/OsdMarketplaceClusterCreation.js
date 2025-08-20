@@ -38,6 +38,7 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
       CreateOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
 
       if (clusterProperties.AuthenticationType.includes('Service Account')) {
+        CreateOSDWizardPage.serviceAccountButton().click();
         CreateOSDWizardPage.uploadGCPServiceAccountJSON(JSON.stringify(QE_GCP));
       } else {
         CreateOSDWizardPage.workloadIdentityFederationButton().click();

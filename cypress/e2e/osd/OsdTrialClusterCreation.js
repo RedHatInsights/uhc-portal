@@ -32,6 +32,7 @@ describe(`OSDTrial cluster creation tests(OCP-39415)`, { tags: ['smoke'] }, () =
       CreateOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
       CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       if (clusterProperties.CloudProvider.includes('GCP')) {
+        CreateOSDWizardPage.serviceAccountButton().click();
         CreateOSDWizardPage.uploadGCPServiceAccountJSON(JSON.stringify(QE_GCP));
       } else {
         CreateOSDWizardPage.awsAccountIDInput().type(awsAccountID);
