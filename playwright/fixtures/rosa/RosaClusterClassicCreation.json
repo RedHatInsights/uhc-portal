@@ -35,7 +35,7 @@
     "ControlPlaneType": "Classic architecture",
     "Type": "ROSA",
     "Region": "us-west-2",
-    "Availability": "Multiple zones",
+    "Availability": "Multi-zone",
     "MachinePools": [
       {
         "Name": "worker",
@@ -46,12 +46,12 @@
         "AvailabilityZones": ["us-west-2a", "us-west-2b", "us-west-2c"],
         "NodeLabels": [
           {
-            "Key": "test-key1",
-            "Value": "test-value1"
+            "Key": "name",
+            "Value": "play-rosa-advanced-smoke-public-custom-profile"
           },
           {
-            "Key": "test-key2",
-            "Value": "test-value2"
+            "Key": "type",
+            "Value": "smoke"
           }
         ]
       }
@@ -71,6 +71,6 @@
     "PodCIDR": "10.128.0.0/14",
     "HostPrefix": "23",
     "UpdateStrategy": "Recurring updates",
-    "NodeDrainingGracePeriod": "60 minutes"
+    "NodeDrainingGracePeriod": "30 minutes"
   }
 }

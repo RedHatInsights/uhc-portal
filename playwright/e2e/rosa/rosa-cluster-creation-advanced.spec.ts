@@ -177,7 +177,7 @@ test.describe.serial(
       );
       await expect(createRosaWizardPage.podCIDRInput()).toHaveValue(clusterProperties.PodCIDR);
       await expect(createRosaWizardPage.hostPrefixInput()).toHaveValue(
-        clusterProperties.HostPrefix,
+        `/${clusterProperties.HostPrefix}`,
       );
       await createRosaWizardPage.rosaNextButton().click();
     });
