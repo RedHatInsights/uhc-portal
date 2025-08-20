@@ -1,0 +1,36 @@
+{
+  "kind": "AccountRolesList",
+  "aws_acccount_id": "264732383067",
+  "items": [
+    {
+      "prefix": "ManagedOpenShift",
+      "kind": "AccountRoles",
+      "items": [
+        {
+          "arn": "arn:aws:iam::264732383067:role/ManagedOpenShift-ControlPlane-Role",
+          "type": "ControlPlane",
+          "isAdmin": false,
+          "roleVersion": "4.10"
+        },
+        {
+          "arn": "arn:aws:iam::264732383067:role/ManagedOpenShift-Installer-Role",
+          "type": "Installer",
+          "isAdmin": false,
+          "roleVersion": "4.10"
+        },
+        {
+          "arn": "arn:aws:iam::264732383067:role/ManagedOpenShift-Support-Role",
+          "type": "Support",
+          "isAdmin": false,
+          "roleVersion": "4.10"
+        },
+        {
+          "arn": "arn:aws:iam::264732383067:role/ManagedOpenShift-Worker-Role",
+          "type": "Worker",
+          "isAdmin": false,
+          "roleVersion": "4.10"
+        }
+      ]
+    }
+  ]
+}

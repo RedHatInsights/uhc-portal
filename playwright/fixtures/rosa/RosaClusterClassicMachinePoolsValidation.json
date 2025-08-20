@@ -1,0 +1,108 @@
+{
+  "Clusters": [
+    {
+      "ClusterName": "cyp-rosa-classic-default-sz-public-profile",
+      "ControlPlaneType": "Classic architecture",
+      "Type": "ROSA",
+      "Region": "us-west-2, US West, Oregon",
+      "Availability": "Single-zone",
+      "SetMaximumPrice": "0.03",
+      "ComputeNodeCount": "4",
+      "Nodes": {
+        "Control plane": "3",
+        "Infra": "2",
+        "Compute": "2"
+      },
+      "NodeLabel": [
+        {
+          "Key": "ocmcypress-tests-key",
+          "Value": "cyp-rosa-classic-default-sz-public-profile"
+        },
+        {
+          "Key": "Available-zone",
+          "Value": "Single-zone"
+        }
+      ],
+      "Taints": [
+        {
+          "Key": "controlplane",
+          "Value": "classic",
+          "Effect": "NoExecute"
+        },
+        {
+          "Key": "ocmcypress-tests-taints",
+          "Value": "single-zone",
+          "Effect": "NoSchedule"
+        }
+      ],
+      "ClusterAutoscaling": "Disabled",
+      "RootDiskSize": {
+        "LimitError": "Disk size can not be more than 16384 GiB",
+        "NonSupportedValue": "Disk size must be atleast 128 GiB"
+      },
+      "MachinePools": [
+        {
+          "Name": "worker2",
+          "InstanceType": "m5.xlarge",
+          "AvailabilityZones": "us-west-2a",
+          "NodeCount": "1",
+          "MinimumNodeCount": "3",
+          "MaximumNodeCount": "4",
+          "Autoscaling": "Enabled"
+        }
+      ]
+    },
+    {
+      "ClusterName": "cyp-rosa-classic-advanced-mz-public-profile",
+      "ControlPlaneType": "Classic architecture",
+      "Type": "ROSA",
+      "Region": "us-west-2, US West, Oregon",
+      "Availability": "Multi-zone",
+      "ComputeNodeCount": "4",
+      "SetMaximumPrice": "0.03",
+      "Nodes": {
+        "Control plane": "3",
+        "Infra": "3",
+        "Compute": "3"
+      },
+      "NodeLabel": [
+        {
+          "Key": "ocmcypress-tests-key",
+          "Value": "cyp-rosa-classic-advanced-mz-public-profile"
+        },
+        {
+          "Key": "Available-zone",
+          "Value": "Multi-zone"
+        }
+      ],
+      "Taints": [
+        {
+          "Key": "controlplane",
+          "Value": "classic",
+          "Effect": "NoSchedule"
+        },
+        {
+          "Key": "ocm-tests-taints",
+          "Value": "cyprosa-def-12",
+          "Effect": "PreferNoSchedule"
+        }
+      ],
+      "ClusterAutoscaling": "Disabled",
+      "RootDiskSize": {
+        "LimitError": "Disk size can not be more than 16384 GiB",
+        "NonSupportedValue": "Disk size must be atleast 128 GiB"
+      },
+      "MachinePools": [
+        {
+          "Name": "worker2",
+          "InstanceType": "m5.xlarge",
+          "AvailabilityZones": "us-west-2a, us-west-2b, us-west-2c",
+          "NodeCount": "1",
+          "MinimumNodeCount": "3",
+          "MaximumNodeCount": "4",
+          "Autoscaling": "Enabled"
+        }
+      ]
+    }
+  ]
+}
