@@ -15,10 +15,10 @@ From the project root directory, install all dependencies including Playwright:
 yarn install
 
 # Install Playwright browsers
-npx playwright install
+yarn playwright install
 
 # Optional: Install only Chromium browser for faster setup
-npx playwright install chromium
+yarn playwright install chromium
 ```
 
 ### Verify Installation
@@ -27,10 +27,10 @@ You can verify that Playwright is properly installed by running:
 
 ```bash
 # Check Playwright version
-npx playwright --version
+yarn playwright --version
 
 # List available tests (without running them)
-npx playwright test --list
+yarn playwright test --list
 ```
 
 ## Setup
@@ -52,6 +52,21 @@ The tests support:
 
 The test configuration uses `playwright.env.json` for environment-specific settings. All authentication credentials, cloud provider settings, infrastructure configurations, and test environment options are mapped in this file.
 
+#### Example `playwright.env.json` Structure
+
+```json
+{
+  "TEST_WITHQUOTA_USER": "your-username@example.com",
+  "TEST_WITHQUOTA_PASSWORD": "your-password",
+  "GOV_CLOUD": "false",
+  "BROWSER": "firefox",
+  "BASE_URL": "https://console.dev.redhat.com/openshift/"
+  .....
+}
+```
+
+**Note**: Create your own `playwright.env.json` file based on this structure. This file is not part of the repository and should not be committed to version control as it contains sensitive credentials.
+
 
 
 
@@ -59,31 +74,35 @@ The test configuration uses `playwright.env.json` for environment-specific setti
 
 ```bash
 # Run all tests
-npx playwright test
+yarn playwright test
 
 # Run specific test file
-npx playwright test playwright/e2e/clusters/register-cluster.spec.ts
+yarn playwright test playwright/e2e/clusters/register-cluster.spec.ts
 
 # Run tests for specific directory
-npx playwright test playwright/e2e/downloads/
+yarn playwright test playwright/e2e/downloads/
 
 # Run with specific browser
-BROWSER=chromium npx playwright test
+BROWSER=chromium yarn playwright test
 
 # Run with UI mode (interactive)
-npx playwright test --ui
+yarn playwright test --ui
 
 # Run in headed mode (see browser)
-npx playwright test --headed
+yarn playwright test --headed
 
 # Run with debug mode
-npx playwright test --debug
+yarn playwright test --debug
 
 # Run with specific reporter
-npx playwright test --reporter=html
+yarn playwright test --reporter=html
 
 # Run with parallel execution disabled
-npx playwright test --workers=1
+yarn playwright test --workers=1
+
+# Run  playwright for record the page definition 
+
+yarn playwright codegen
 ```
 
 ### Authentication
@@ -147,8 +166,7 @@ playwright/
 ### Configuration Files
 
 - `playwright.config.ts` - Main Playwright configuration
-- `playwright.env.json` - Environment-specific variables
-- `playwright.env.json.example` - Template for environment configuration
+- `playwright.env.json` - Environment-specific variables (This is not part of repo)
 
 ### Troubleshooting
 
@@ -167,15 +185,12 @@ playwright/
 2. **Loading Issues**: Tests wait for skeleton loaders and spinners to disappear
 3. **Browser Issues**: Try different browsers using `BROWSER` environment variable
 
-#### ROSA CLI Integration
-1. **CLI Authentication**: Ensure ROSA CLI is installed and accessible
-2. **Token Expiration**: Check if offline tokens need renewal
-3. **Log Files**: Review `cli-logs.txt` for CLI command output
+
 
 ### Common Issues
 
 #### Authentication Problems
-- **Solution**: Delete `playwright/fixtures/storageState.json` to force re-authentication
+- **Solution**: Delete `playwright/fixtures/storageState.json` to force re-authentication (only required for localruns)
 - **Root Cause**: Expired or corrupted authentication state
 
 #### Base URL Mismatch
@@ -184,14 +199,5 @@ playwright/
 
 #### Environment Variable Issues
 - **Solution**: Verify all required variables are set in `playwright.env.json`
-- **Check**: Run `npx playwright test --list` to verify configuration loading
-
-#### Browser Compatibility
-- **Solution**: Test with different browsers using `BROWSER=chromium|firefox|webkit`
-- **Default**: All browsers run unless specified
-
-#### Network and Connectivity
-- **VPN Required**: Some environments may require VPN access
-- **Firewall**: Ensure test runner can access target URLs
-- **Proxy**: Configure proxy settings if required by your environment
+- **Check**: Run `yarn playwright test --list` to verify configuration loading
 
