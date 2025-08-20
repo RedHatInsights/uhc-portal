@@ -10,7 +10,7 @@ import { ResourcesAlmostFullIcon } from '@patternfly/react-icons/dist/esm/icons/
 import { ResourcesFullIcon } from '@patternfly/react-icons/dist/esm/icons/resources-full-icon';
 
 import { Link } from '~/common/routing';
-import type { GlobalState } from '~/redux/state';
+import type { GlobalState } from '~/redux/stateTypes';
 import {
   QuotaCost,
   RelatedResource,

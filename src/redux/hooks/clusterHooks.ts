@@ -3,7 +3,7 @@ import { AnyAction, Dispatch } from 'redux';
 
 import { clusterService } from '../../services';
 import techPreviewActions from '../actions/techPreviewActions';
-import { GlobalState } from '../state';
+import { GlobalState } from '../stateTypes';
 
 export const techPreviewStatusSelector = (state: GlobalState, product: string, type: string) =>
   state.clusters.techPreview[product] && state.clusters.techPreview[product][type];

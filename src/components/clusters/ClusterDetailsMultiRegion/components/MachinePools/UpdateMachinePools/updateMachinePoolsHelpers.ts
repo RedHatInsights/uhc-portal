@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import semver from 'semver';
 
 import { updateStartedSelectorMultiRegion } from '~/components/clusters/common/Upgrades/upgradeHelpers';
-import { GlobalState } from '~/redux/state';
+import { GlobalState } from '~/redux/stateTypes';
 import clusterService, { getClusterServiceForRegion } from '~/services/clusterService';
 import { NodePool } from '~/types/clusters_mgmt.v1';
 import { ScheduleType, UpgradeType } from '~/types/clusters_mgmt.v1/enums';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { GlobalState } from '~/redux/state';
+import { GlobalState } from '~/redux/stateTypes';
 
 import shouldShowModal from '../ModalSelectors';
 

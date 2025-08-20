@@ -1,4 +1,4 @@
-import { GlobalState } from '~/redux/state';
+import { GlobalState } from '~/redux/stateTypes';
 
 const shouldShowModal = (state: GlobalState, id: string) => state.modal.modalName === id;
 

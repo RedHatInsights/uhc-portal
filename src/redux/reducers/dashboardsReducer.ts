@@ -27,7 +27,7 @@ import {
   PENDING_ACTION,
   REJECTED_ACTION,
 } from '../reduxHelpers';
-import { PromiseReducerState } from '../state';
+import { PromiseReducerState } from '../stateTypes';
 import type { PromiseActionType } from '../types';
 
 // not an ideal union type for metrics

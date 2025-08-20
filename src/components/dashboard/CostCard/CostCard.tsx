@@ -6,7 +6,7 @@ import { Card, CardBody, CardFooter, CardTitle, Title } from '@patternfly/react-
 import { ocmBaseName } from '~/common/routing';
 import { getReport, getSources } from '~/redux/actions/costActions';
 import { useGlobalState } from '~/redux/hooks';
-import { PromiseReducerState } from '~/redux/state';
+import { PromiseReducerState } from '~/redux/stateTypes';
 
 import { Report } from './models/Report';
 import CostEmptyState from './CostEmptyState';

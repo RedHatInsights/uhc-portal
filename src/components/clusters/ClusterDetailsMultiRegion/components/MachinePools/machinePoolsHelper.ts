@@ -2,7 +2,7 @@ import { normalizeProductID } from '~/common/normalize';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { MachineTypesResponse } from '~/queries/types';
-import { GlobalState } from '~/redux/state';
+import { GlobalState } from '~/redux/stateTypes';
 import { Cluster, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 

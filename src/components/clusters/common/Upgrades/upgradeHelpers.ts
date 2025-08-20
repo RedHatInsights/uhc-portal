@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { GlobalState } from '~/redux/state';
+import { GlobalState } from '~/redux/stateTypes';
 import { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
 
 export const hasAvailableUpdates = (cluster: AugmentedCluster) => {

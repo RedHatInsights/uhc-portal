@@ -12,7 +12,7 @@ import {
 } from '@patternfly/react-core';
 
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
-import { PromiseReducerState } from '~/redux/state';
+import { PromiseReducerState } from '~/redux/stateTypes';
 
 import ErrorBox from './ErrorBox';
 

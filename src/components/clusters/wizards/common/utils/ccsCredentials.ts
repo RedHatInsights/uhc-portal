@@ -14,7 +14,7 @@ import {
   getGCPCloudProviderVPCs,
   VALIDATE_CLOUD_PROVIDER_CREDENTIALS,
 } from '~/redux/actions/ccsInquiriesActions';
-import { GlobalState } from '~/redux/state';
+import { GlobalState } from '~/redux/stateTypes';
 import { AWSCredentials } from '~/types/types';
 
 /**

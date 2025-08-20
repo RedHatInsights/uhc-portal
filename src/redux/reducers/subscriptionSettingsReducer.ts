@@ -26,7 +26,7 @@ import {
   PENDING_ACTION,
   REJECTED_ACTION,
 } from '../reduxHelpers';
-import { PromiseReducerState } from '../state';
+import { PromiseReducerState } from '../stateTypes';
 import { PromiseActionType } from '../types';
 
 // TODO requestState separated from data is inconsistent with other reducers

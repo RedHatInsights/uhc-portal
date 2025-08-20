@@ -15,7 +15,7 @@ import { WelcomeMessage } from '~/components/clusters/wizards/rosa/common/Welcom
 import ErrorBox from '~/components/common/ErrorBox';
 import useAnalytics from '~/hooks/useAnalytics';
 import { clearMachineTypesByRegion } from '~/redux/actions/machineTypesActions';
-import { GlobalState } from '~/redux/state';
+import { GlobalState } from '~/redux/stateTypes';
 
 import { FieldId } from '../constants';
 

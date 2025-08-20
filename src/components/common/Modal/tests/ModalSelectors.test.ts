@@ -1,4 +1,4 @@
-import { GlobalState } from '~/redux/state';
+import { GlobalState } from '~/redux/stateTypes';
 
 import reducer from '../ModalReducer';
 import shouldShowModal from '../ModalSelectors';

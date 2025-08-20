@@ -1,6 +1,6 @@
 import { OrganizationState } from '~/redux/reducers/userReducer';
 import { baseRequestState } from '~/redux/reduxHelpers';
-import { PromiseReducerState } from '~/redux/state';
+import { PromiseReducerState } from '~/redux/stateTypes';
 import { MachineType } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 

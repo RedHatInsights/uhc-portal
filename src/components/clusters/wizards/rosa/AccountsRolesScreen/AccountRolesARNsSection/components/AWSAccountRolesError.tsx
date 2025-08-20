@@ -5,7 +5,7 @@ import { Alert } from '@patternfly/react-core';
 import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import ErrorBox from '~/components/common/ErrorBox';
 import InstructionCommand from '~/components/common/InstructionCommand';
-import { GlobalState } from '~/redux/state';
+import { GlobalState } from '~/redux/stateTypes';
 
 import { AwsRoleErrorAlert } from '../../AwsRoleErrorAlert';
 import { RosaCliCommand } from '../../constants/cliCommands';

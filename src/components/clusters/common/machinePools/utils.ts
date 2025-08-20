@@ -8,7 +8,7 @@ import {
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
 import { MachineTypesResponse } from '~/queries/types';
-import { GlobalState } from '~/redux/state';
+import { GlobalState } from '~/redux/stateTypes';
 import { QuotaCostList } from '~/types/accounts_mgmt.v1';
 import {
   CloudProvider,

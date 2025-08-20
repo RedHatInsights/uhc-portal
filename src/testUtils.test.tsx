@@ -4,7 +4,7 @@ import { Dispatch } from 'redux';
 
 import { render, screen, withState } from '~/testUtils';
 
-import { GlobalState } from './redux/state';
+import { GlobalState } from './redux/stateTypes';
 
 // Small components to exercise rendering, redux connection and re-rendering.
 

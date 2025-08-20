@@ -18,7 +18,7 @@ import {
   PENDING_ACTION,
   REJECTED_ACTION,
 } from '~/redux/reduxHelpers';
-import type { PromiseReducerState } from '~/redux/state';
+import type { PromiseReducerState } from '~/redux/stateTypes';
 import type { PromiseActionType } from '~/redux/types';
 import {
   CloudRegion,

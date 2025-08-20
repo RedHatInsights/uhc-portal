@@ -1,5 +1,5 @@
 import { TypedUseSelectorHook, useSelector } from 'react-redux';
 
-import { GlobalState } from '../state';
+import { GlobalState } from '../stateTypes';
 
 export const useGlobalState: TypedUseSelectorHook<GlobalState> = useSelector;

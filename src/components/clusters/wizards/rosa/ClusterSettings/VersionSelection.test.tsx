@@ -5,7 +5,7 @@ import * as helpers from '~/common/helpers';
 import * as ReleaseHooks from '~/components/releases/hooks';
 import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
 import { clustersActions } from '~/redux/actions/clustersActions';
-import type { GlobalState } from '~/redux/state';
+import type { GlobalState } from '~/redux/stateTypes';
 import {
   checkAccessibility,
   mockUseFeatureGate,

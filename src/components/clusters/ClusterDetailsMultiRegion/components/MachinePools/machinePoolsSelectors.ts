@@ -2,7 +2,7 @@ import get from 'lodash/get';
 
 import { QuotaParams, QuotaTypes } from '~/components/clusters/common/quotaModel';
 import { OrganizationState } from '~/redux/reducers/userReducer';
-import { PromiseReducerState } from '~/redux/state';
+import { PromiseReducerState } from '~/redux/stateTypes';
 import {
   Organization,
   QuotaCostList,

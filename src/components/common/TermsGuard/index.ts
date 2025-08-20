@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import { GlobalState } from '~/redux/state';
+import { GlobalState } from '~/redux/stateTypes';
 
 import { selfTermsReview } from '../../../redux/actions/userActions';
 
