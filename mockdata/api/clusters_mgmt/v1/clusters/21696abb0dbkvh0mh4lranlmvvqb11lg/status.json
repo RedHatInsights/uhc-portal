@@ -1,0 +1,10 @@
+{
+  "kind": "ClusterStatus",
+  "id": "21696abb0dbkvh0mh4lranlmvvqb11lg",
+  "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/status",
+  "state": "ready",
+  "dns_ready": true,
+  "oidc_ready": true,
+  "provision_error_message": "",
+  "provision_error_code": ""
+}
