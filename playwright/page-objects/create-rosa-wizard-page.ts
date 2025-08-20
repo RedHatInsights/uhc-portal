@@ -170,12 +170,12 @@ export class CreateRosaWizardPage extends BasePage {
 
   // VPC installation selector
   installIntoExistingVpcCheckbox(): Locator {
-    return this.page.getByRole('checkbox', { name: 'Install into existing VPC' });
+    return this.page.locator('#install_to_vpc');
   }
 
   // Grace period selector
   gracePeriodSelect(): Locator {
-    return this.page.locator('select[name="node_drain_grace_period"]');
+    return this.page.getByTestId('grace-period-select');
   }
 
   // Additional security groups selectors
@@ -665,29 +665,37 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   async selectGracePeriod(period: string): Promise<void> {
-    await this.gracePeriodSelect().selectOption(period);
+    await this.gracePeriodSelect().click();
+    await this.page.getByRole('option', { name: period }).click();
   }
 
   async selectAdditionalSecurityGroups(securityGroup: string): Promise<void> {
     await this.securityGroupsButton().click();
-    await this.securityGroupsFilterInput().clear();
-    await this.securityGroupsFilterInput().fill(securityGroup);
     await this.page.locator('li').filter({ hasText: securityGroup }).click();
+    await this.securityGroupsButton().click();
   }
 
   // VPC screen validation methods
   async isVPCSettingsScreen(): Promise<void> {
-    await expect(this.page.locator('h3:has-text("VPC settings")')).toBeVisible({ timeout: 30000 });
+    await expect(
+      this.page.locator('h3:has-text("Virtual Private Cloud (VPC) subnet settings")'),
+    ).toBeVisible({ timeout: 30000 });
   }
 
   // VPC subnet selection methods for advanced networking
   async selectSubnetAvailabilityZone(zone: string): Promise<void> {
-    const zoneButton = this.page.locator('button').filter({ hasText: zone });
-    await zoneButton.click();
+    await this.page
+      .locator('button')
+      .filter({ hasText: 'Select availability zone' })
+      .first()
+      .click();
+    await this.page.getByRole('option', { name: zone }).click();
   }
 
   async selectPrivateSubnet(index: number, subnetName: string): Promise<void> {
-    const privateSubnetButton = this.page.locator(`button[id="privateSubnet[${index}]"]`);
+    const privateSubnetButton = this.page.locator(
+      `[id="machinePoolsSubnets[${index}].privateSubnetId"]`,
+    );
     await privateSubnetButton.click();
     await this.subnetFilterInput().clear();
     await this.subnetFilterInput().fill(subnetName);
@@ -695,7 +703,9 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   async selectPublicSubnet(index: number, subnetName: string): Promise<void> {
-    const publicSubnetButton = this.page.locator(`button[id="publicSubnet[${index}]"]`);
+    const publicSubnetButton = this.page.locator(
+      `[id="machinePoolsSubnets[${index}].publicSubnetId"]`,
+    );
     await publicSubnetButton.click();
     await this.subnetFilterInput().clear();
     await this.subnetFilterInput().fill(subnetName);
@@ -741,7 +751,7 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   controlPlaneRoleInput(): Locator {
-    return this.page.locator('input[name="controlplane_role_arn"]');
+    return this.page.locator('input[name="control_plane_role_arn"]');
   }
 
   // Tree view for review section
