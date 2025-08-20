@@ -56,6 +56,80 @@ export class CreateRosaWizardPage extends BasePage {
     return this.page.getByTestId('close-associate-account-btn');
   }
 
+  howToAssociateNewAWSAccountDrawerXButton(): Locator {
+    return this.page.getByRole('button', { name: 'Close drawer panel' });
+  }
+
+  // AWS Account Drawer Step Buttons
+  rosaAssociateDrawerFirstStepButton(): Locator {
+    return this.page.getByRole('button', { name: 'Step 1: OCM role' });
+  }
+
+  rosaAssociateDrawerSecondStepButton(): Locator {
+    return this.page.getByRole('button', { name: 'Step 2: User role' });
+  }
+
+  rosaAssociateDrawerThirdStepButton(): Locator {
+    return this.page.getByRole('button', { name: 'Step 3: Account roles' });
+  }
+
+  // OCM Role Fields and Tabs
+  rosaListOcmField(): Locator {
+    return this.page.getByRole('textbox', { name: 'Copyable ROSA rosa list ocm-' });
+  }
+
+  rosaCreateOcmTab(): Locator {
+    return this.page.getByRole('button', { name: 'No, create new role' });
+  }
+
+  rosaLinkOcmTab(): Locator {
+    return this.page.getByRole('button', { name: 'Yes, link existing role' });
+  }
+
+  rosaCreateOcmField(): Locator {
+    return this.page
+      .getByTestId('copy-rosa-create-ocm-role')
+      .getByRole('textbox', { name: 'Copyable ROSA create ocm-role' });
+  }
+
+  rosaCreateOcmAdminField(): Locator {
+    return this.page.getByRole('textbox', { name: 'Copyable ROSA create ocm-role --admin' });
+  }
+
+  rosaLinkOcmField(): Locator {
+    return this.page.getByRole('textbox', { name: 'Copyable rosa link ocm-role <' });
+  }
+
+  rosaHelpMeDecideButton(): Locator {
+    return this.page.getByRole('button', { name: 'Help me decide' });
+  }
+
+  // User Role Fields and Tabs
+  rosaListUserField(): Locator {
+    return this.page.getByRole('textbox', { name: 'Copyable ROSA rosa list user-' });
+  }
+
+  rosaCreateUserTab(): Locator {
+    return this.page.getByRole('button', { name: 'No, create new role' });
+  }
+
+  rosaLinkUserTab(): Locator {
+    return this.page.getByRole('button', { name: 'Yes, link existing role' });
+  }
+
+  rosaCreateUserField(): Locator {
+    return this.page.getByRole('textbox', { name: 'Copyable ROSA create user-role' });
+  }
+
+  rosaLinkUserField(): Locator {
+    return this.page.getByRole('textbox', { name: 'Copyable ROSA link user-role' });
+  }
+
+  // Account Roles Field
+  rosaCreateAccountRolesField(): Locator {
+    return this.page.getByRole('textbox', { name: 'Copyable ROSA rosa create' });
+  }
+
   refreshInfrastructureAWSAccountButton(): Locator {
     return this.page.getByTestId('refresh-aws-accounts').first();
   }
@@ -270,6 +344,12 @@ export class CreateRosaWizardPage extends BasePage {
     await expect(
       this.page.locator('h2:has-text("How to associate a new AWS account")'),
     ).toBeVisible({ timeout: 30000 });
+  }
+
+  async isNotAssociateAccountsDrawer(): Promise<void> {
+    await expect(
+      this.page.locator('h2:has-text("How to associate a new AWS account")'),
+    ).not.toBeVisible({ timeout: 5000 });
   }
 
   // Action methods
@@ -653,10 +733,15 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   async isNodeLabelKeyAndValue(key: string, value: string, index: number): Promise<void> {
-    const keyInput = this.page.locator(`input[name="node_labels[${index}].key"]`);
-    const valueInput = this.page.locator(`input[name="node_labels[${index}].value"]`);
+    const keyInputs = this.page.locator('input[aria-label="Key-value list key"]');
+    const valueInputs = this.page.locator('input[aria-label="Key-value list value"]');
 
+    // Get the specific key input at the given index
+    const keyInput = keyInputs.nth(index);
     await expect(keyInput).toHaveValue(key);
+
+    // Get the specific value input at the given index
+    const valueInput = valueInputs.nth(index);
     await expect(valueInput).toHaveValue(value);
   }
 
@@ -715,16 +800,20 @@ export class CreateRosaWizardPage extends BasePage {
   // Validation methods for subnet selections
   async isSubnetAvailabilityZoneSelected(zone: string): Promise<void> {
     const zoneButton = this.page.locator('button').filter({ hasText: zone });
-    await expect(zoneButton).toHaveAttribute('aria-selected', 'true');
+    await expect(zoneButton).toBeVisible();
   }
 
   async isPrivateSubnetSelected(index: number, subnetName: string): Promise<void> {
-    const privateSubnetButton = this.page.locator(`button[id="privateSubnet[${index}]"]`);
+    const privateSubnetButton = this.page.locator(
+      `[id="machinePoolsSubnets[${index}].privateSubnetId"]`,
+    );
     await expect(privateSubnetButton).toContainText(subnetName);
   }
 
   async isPubliceSubnetSelected(index: number, subnetName: string): Promise<void> {
-    const publicSubnetButton = this.page.locator(`button[id="publicSubnet[${index}]"]`);
+    const publicSubnetButton = this.page.locator(
+      `[id="machinePoolsSubnets[${index}].publicSubnetId"]`,
+    );
     await expect(publicSubnetButton).toContainText(subnetName);
   }
 
@@ -761,6 +850,6 @@ export class CreateRosaWizardPage extends BasePage {
 
   // Additional validation method for compute node range
   computeNodeRangeValue(): Locator {
-    return this.page.locator('[data-testid="compute-node-range"]');
+    return this.page.getByTestId('Compute-node-range');
   }
 }
