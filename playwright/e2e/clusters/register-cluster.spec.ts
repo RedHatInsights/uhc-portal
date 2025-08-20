@@ -12,7 +12,7 @@ let clusterListPage: ClusterListPage;
 let registerClusterPage: RegisterClusterPage;
 let clusterDetailsPage: ClusterDetailsPage;
 
-test.describe.serial('Register cluster flow', { tag: ['@ci', '@play'] }, () => {
+test.describe.serial('Register cluster flow', { tag: ['@ci', '@smoke'] }, () => {
   const clusterID = v4();
   const displayName = `cypress-${clusterID}`;
 
