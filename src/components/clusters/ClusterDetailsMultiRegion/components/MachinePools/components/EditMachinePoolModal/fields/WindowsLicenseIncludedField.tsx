@@ -50,7 +50,7 @@ const WindowsLicenseIncludedField = ({
 
   return isEdit ? (
     isCurrentMPWinLiEnabled && (
-      <Content component={ContentVariants.p}>
+      <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
         This machine pool is Windows LI enabled <PopoverHint hint={hint} />
       </Content>
     )
