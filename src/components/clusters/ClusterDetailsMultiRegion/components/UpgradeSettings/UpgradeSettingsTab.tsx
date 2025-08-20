@@ -16,6 +16,7 @@ import {
   Grid,
   GridItem,
   Modal,
+  ModalBody,
   ModalFooter,
 } from '@patternfly/react-core';
 
@@ -381,8 +382,10 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                           formik.resetForm();
                         }}
                       >
-                        By choosing recurring updates, any individually scheduled update will be
-                        cancelled. Are you sure you want to continue?
+                        <ModalBody id="modal-box-body-message">
+                          By choosing recurring updates, any individually scheduled update will be
+                          cancelled. Are you sure you want to continue?
+                        </ModalBody>
                         <ModalFooter>
                           {' '}
                           <Button key="confirm" variant="primary" onClick={closeConfirmationModal}>
