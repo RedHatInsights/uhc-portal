@@ -31,7 +31,7 @@ export class OCMRolesAndAccessPage extends BasePage {
 
   userInputError(): Locator {
     return this.page.locator(
-      '.pf-v6-c-helper-text__item-text, .pf-v6-c-form__helper-text, [class*="error"]',
+      '[class*="helper-text"], [class*="form__helper-text"], [class*="error"]',
     );
   }
 
@@ -41,7 +41,7 @@ export class OCMRolesAndAccessPage extends BasePage {
 
   async waitForGrantRoleModalToClear(): Promise<void> {
     await this.page
-      .locator('[role="dialog"], .pf-v6-c-modal-box')
+      .locator('[role="dialog"], [class*="modal"]')
       .waitFor({ state: 'hidden', timeout: 10000 });
   }
 
@@ -53,7 +53,9 @@ export class OCMRolesAndAccessPage extends BasePage {
 
   OCMRolesAndAccessTableActionButton(): Locator {
     return this.page
-      .locator('button[aria-label*="Actions"], .pf-v6-c-dropdown__toggle, [data-testid*="action"]')
+      .locator(
+        'button[aria-label*="Actions"], [class*="dropdown__toggle"], [data-testid*="action"]',
+      )
       .first();
   }
 
