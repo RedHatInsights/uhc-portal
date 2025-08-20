@@ -1,0 +1,17 @@
+{
+  "items":[
+    {
+      "created_at":"2022-06-23T00:04:46.521394Z",
+      "href":"/api/accounts_mgmt/v1/organizations/8888/labels/sts_ocm_role",
+      "id":"264732383067",
+      "internal":false,
+      "key":"sts_ocm_role",
+      "kind":"Label",
+      "organization_id":"1wuANBLgbvRABRXN10OuFFE3gzB",
+      "type":"Organization",
+      "updated_at":"2022-06-23T00:04:46.521394Z",
+      "value":"arn:aws:iam::264732383067:role/ManagedOpenShift-OCM-Role-1515115"
+    }
+  ],
+  "kind":"LabelList"
+}
