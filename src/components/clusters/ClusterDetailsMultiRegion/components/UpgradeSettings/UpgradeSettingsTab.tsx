@@ -18,6 +18,7 @@ import {
   Modal,
   ModalBody,
   ModalFooter,
+  ModalHeader,
 } from '@patternfly/react-core';
 
 import { knownProducts } from '~/common/subscriptionTypes';
@@ -375,14 +376,17 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                     {confirmationModalOpen && scheduledManualUpgrade && (
                       <Modal
                         variant="small"
-                        title="Recurring updates"
                         isOpen
                         onClose={() => {
                           closeConfirmationModal();
                           formik.resetForm();
                         }}
                       >
-                        <ModalBody id="modal-box-body-message">
+                        <ModalHeader
+                          title="Recurring updates"
+                          labelId="recurring-updates-modal-title"
+                        />
+                        <ModalBody id="recurring-updates-modal-body">
                           By choosing recurring updates, any individually scheduled update will be
                           cancelled. Are you sure you want to continue?
                         </ModalBody>
