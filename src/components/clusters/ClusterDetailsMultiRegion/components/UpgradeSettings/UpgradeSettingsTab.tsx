@@ -515,14 +515,15 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
             {showUpdateButton && (
               <ButtonWithTooltip
                 variant="secondary"
-                onClick={() =>
+                onClick={() => {
+                  setConfirmationModalOpen(false);
                   dispatch(
                     openModal(modals.UPGRADE_WIZARD, {
                       clusterName: getClusterName(cluster),
                       subscriptionID: cluster?.subscription?.id,
                     }),
-                  )
-                }
+                  );
+                }}
                 disableReason={notReadyReason}
               >
                 Update
