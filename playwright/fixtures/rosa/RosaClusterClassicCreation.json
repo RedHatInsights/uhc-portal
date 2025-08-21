@@ -1,9 +1,9 @@
 {
   "rosa-classic-smoke-default": {
-    "ClusterNamePrefix": "ocmui-cypress-smoke-rosa-default",
+    "ClusterNamePrefix": "smoke-playwright-rosa-classic",
     "ControlPlaneType": "Classic architecture",
     "Type": "ROSA",
-    "Region": "us-west-2, US West, Oregon",
+    "Region": "us-west-2",
     "Availability": "Single zone",
     "MachinePools": [
       {
@@ -26,48 +26,28 @@
     "MachineCIDR": "10.0.0.0/16",
     "ServiceCIDR": "172.30.0.0/16",
     "PodCIDR": "10.128.0.0/14",
-    "HostPrefix": "/23",
+    "HostPrefix": "23",
     "UpdateStrategy": "Recurring updates",
     "NodeDrainingGracePeriod": "60 minutes"
   },
   "rosa-classic-smoke-advanced": {
-    "ClusterNamePrefix": "ocmui-cypress-smoke-rosa-advanced",
+    "ClusterNamePrefix": "smoke-playwright-rosa-adv",
     "ControlPlaneType": "Classic architecture",
     "Type": "ROSA",
-    "Region": "us-west-2, US West, Oregon",
+    "Region": "us-west-2",
     "Availability": "Multi-zone",
-    "AdditionalEncryption": "Enabled",
-    "FIPSCryptography": "Enabled",
-    "Nodes": {
-      "Control plane": "3/3",
-      "Infra": "2/2",
-      "Compute": "3/3"
-    },
-    "ClusterAutoscaling": "Enabled",
-    "UserWorkloadMonitoring": "Enabled",
-    "InstanceMetadataService": "IMDSv2",
-    "RootDiskSize": "555",
-    "ClusterPrivacy": "Public",
-    "ClusterWideProxy": "Disabled",
-    "MachineCIDR": "10.0.0.0/16",
-    "ServiceCIDR": "172.30.0.0/16",
-    "PodCIDR": "10.128.0.0/14",
-    "HostPrefix": "/23",
-    "InstallIntoExistingVPC": "Enabled",
-    "UpdateStrategy": "Recurring updates",
-    "NodeDrainingGracePeriod": "30 minutes",
     "MachinePools": [
       {
         "Name": "worker",
         "InstanceType": "m6id.xlarge",
-        "AvailabilityZones": ["us-west-2a", "us-west-2b", "us-west-2c"],
         "Autoscaling": "Enabled",
         "MinimumNodeCount": "2",
         "MaximumNodeCount": "3",
+        "AvailabilityZones": ["us-west-2a", "us-west-2b", "us-west-2c"],
         "NodeLabels": [
           {
             "Key": "name",
-            "Value": "cyp-rosa-advanced-smoke-public-custom-profile"
+            "Value": "play-rosa-advanced-smoke-public-custom-profile"
           },
           {
             "Key": "type",
@@ -75,6 +55,22 @@
           }
         ]
       }
-    ]
+    ],
+    "ClusterPrivacy": "Public",
+    "InstallIntoExistingVPC": "Enabled",
+    "EncryptVolumesWithCustomerKeys": "Disabled",
+    "AdditionalEncryption": "Enabled",
+    "FIPSCryptography": "Enabled",
+    "UserWorkloadMonitoring": "Enabled",
+    "InstanceMetadataService": "IMDSv2 only",
+    "RootDiskSize": "400",
+    "ApplicationIngress": "Use default settings",
+    "OidcProviderMode": "auto",
+    "MachineCIDR": "10.0.0.0/16",
+    "ServiceCIDR": "172.30.0.0/16",
+    "PodCIDR": "10.128.0.0/14",
+    "HostPrefix": "23",
+    "UpdateStrategy": "Recurring updates",
+    "NodeDrainingGracePeriod": "30 minutes"
   }
 }

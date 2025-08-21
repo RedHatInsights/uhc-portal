@@ -4,7 +4,7 @@ import { BasePage } from './base-page';
 /**
  * Create ROSA Wizard page object for Playwright tests
  */
-export class CreateROSAWizardPage extends BasePage {
+export class CreateRosaWizardPage extends BasePage {
   constructor(page: Page) {
     super(page);
   }
@@ -122,7 +122,7 @@ export class CreateROSAWizardPage extends BasePage {
   }
 
   rosaLinkUserField(): Locator {
-    return this.page.getByRole('textbox', { name: 'Copyable rosa link user-role' });
+    return this.page.getByRole('textbox', { name: 'Copyable ROSA link user-role' });
   }
 
   // Account Roles Field
@@ -299,53 +299,27 @@ export class CreateROSAWizardPage extends BasePage {
 
   // Screen validation methods
   async isCreateRosaPage(): Promise<void> {
-    await this.assertUrlIncludes('/openshift/create/rosa');
+    await expect(this.page).toHaveURL(/\/openshift\/create\/rosa\/wizard/);
   }
 
   async isControlPlaneTypeScreen(): Promise<void> {
-    await expect(this.page.getByText('Control plane type')).toBeVisible();
-  }
-
-  async selectStandaloneControlPlaneTypeOption(): Promise<void> {
+    // Wait for h2 with specific text to load and be visible
     await this.page
-      .locator('input[value="standalone"], input[type="radio"]:has-text("Standalone")')
-      .click();
-  }
+      .locator('h2', { hasText: 'Welcome to Red Hat OpenShift Service on AWS (ROSA)' })
+      .waitFor({ timeout: 90000, state: 'visible' });
 
-  get primaryButton(): string {
-    return 'button[type="submit"], [class*="button"][class*="primary"], button:has-text("Next")';
+    // Wait for h3 with specific text to load and be visible
+    await this.page
+      .locator('h3', {
+        hasText: 'Select the ROSA architecture based on your control plane requirements',
+      })
+      .waitFor({ timeout: 90000, state: 'visible' });
   }
 
   async isAccountsAndRolesScreen(): Promise<void> {
-    await expect(this.page.getByText('Accounts and roles')).toBeVisible();
-  }
-
-  get associatedAccountsDropdown(): string {
-    return '[data-testid="associated-accounts-dropdown"], select[name*="account"]';
-  }
-
-  get accountIdMenuItem(): string {
-    return 'option[value], [class*="menu__item"]';
-  }
-
-  async showsNoAssociatedAccounts(): Promise<void> {
-    await expect(this.page.getByText('No associated accounts')).toBeVisible();
-  }
-
-  async showsNoARNsDetectedAlert(): Promise<void> {
-    await expect(this.page.getByText('No ARNs detected')).toBeVisible();
-  }
-
-  get ARNFieldRequiredMsg(): string {
-    return '[class*="helper-text"]:has-text("required"), [class*="error"]:has-text("required")';
-  }
-
-  async showsNoUserRoleAlert(): Promise<void> {
-    await expect(this.page.getByText('User role could not be detected')).toBeVisible();
-  }
-
-  async showsNoOcmRoleAlert(): Promise<void> {
-    await expect(this.page.getByText('OCM role')).toBeVisible();
+    await this.page
+      .locator('h3', { hasText: 'AWS infrastructure account' })
+      .waitFor({ timeout: 90000, state: 'visible' });
   }
 
   async isClusterDetailsScreen(): Promise<void> {
@@ -869,8 +843,9 @@ export class CreateROSAWizardPage extends BasePage {
     return this.page.locator('input[name="control_plane_role_arn"]');
   }
 
-  get versionsDropdown(): string {
-    return '[data-testid="versions-dropdown"], select[name*="version"]';
+  // Tree view for review section
+  reviewAndCreateTree(): Locator {
+    return this.page.locator('.pf-v6-c-tree-view');
   }
 
   // Additional validation method for compute node range
