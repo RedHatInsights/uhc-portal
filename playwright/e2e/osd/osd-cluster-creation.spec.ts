@@ -101,7 +101,7 @@ test.describe.serial('OSD cluster tests', { tag: ['@ci'] }, () => {
       await sharedPage.locator(createOSDWizardPage.primaryButton).click();
       await createOSDWizardPage.isCIDRScreen();
       await sharedPage.locator(createOSDWizardPage.primaryButton).click();
-      await createOSDWizardPage.isUpdatesScreen();
+      await createOSDWizardPage.isClusterUpdatesScreen();
       await sharedPage.locator(createOSDWizardPage.primaryButton).click();
       await createOSDWizardPage.isReviewScreen();
     });

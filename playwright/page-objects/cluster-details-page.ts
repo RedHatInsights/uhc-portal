@@ -312,4 +312,38 @@ export class ClusterDetailsPage extends BasePage {
   clusterAdditionalEncryptionStatus(): Locator {
     return this.page.getByTestId('etcEncryptionStatus');
   }
+
+  // Installation screen elements
+  clusterInstallationHeader(): Locator {
+    return this.page.locator('h2, h3').filter({ hasText: 'Installing cluster' });
+  }
+
+  clusterInstallationExpectedText(): Locator {
+    return this.page.getByText('Cluster creation usually takes 30 to 60 minutes to complete');
+  }
+
+  downloadOcCliLink(): Locator {
+    return this.page.getByRole('link', { name: 'Download OC CLI' });
+  }
+
+  // Additional cluster property getters for review screen
+  clusterSubscriptionBillingModelValue(): Locator {
+    return this.page.getByTestId('subscription-billing-model');
+  }
+
+  clusterInfrastructureBillingModelValue(): Locator {
+    return this.page.getByTestId('infrastructure-billing-model');
+  }
+
+  clusterSecureBootSupportForShieldedVMsValue(): Locator {
+    return this.page.getByTestId('secureBootSupportForShieldedVMs');
+  }
+
+  clusterAuthenticationTypeLabelValue(): Locator {
+    return this.page.getByTestId('authenticationType');
+  }
+
+  clusterWifConfigurationValue(): Locator {
+    return this.page.getByTestId('wifConfiguration');
+  }
 }
