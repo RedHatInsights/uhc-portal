@@ -37,7 +37,7 @@ import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/Mach
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
-import { AugmentedCluster } from '~/types/types';
+import { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
 
 import getClusterName from '../../../../../common/getClusterName';
 import ButtonWithTooltip from '../../../../common/ButtonWithTooltip';
@@ -209,13 +209,15 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
       schedule.upgrade_type === (isHypershift ? 'ControlPlane' : 'OSD'),
   );
 
-  const scheduledUpgrade = schedules.find(
-    (schedule: UpgradePolicy) =>
+  const scheduledUpgrade: UpgradePolicyWithState | undefined = schedules.find(
+    (schedule: UpgradePolicyWithState) =>
       ['manual', 'automatic'].includes(schedule.schedule_type || '') &&
       schedule.upgrade_type === (isHypershift ? 'ControlPlane' : 'OSD'),
   );
 
-  const upgradeStarted = scheduledUpgrade && scheduledUpgrade.schedule_type === 'manual';
+  const upgradeStarted =
+    scheduledUpgrade &&
+    (scheduledUpgrade.state?.value === 'started' || scheduledUpgrade.state?.value === 'delayed');
 
   // eslint-disable-next-line camelcase
   const availableUpgrades = cluster?.version?.available_upgrades;
