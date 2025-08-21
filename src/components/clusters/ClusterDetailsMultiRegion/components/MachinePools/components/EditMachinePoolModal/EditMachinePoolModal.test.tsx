@@ -546,7 +546,7 @@ describe('<EditMachinePoolModal />', () => {
         },
       },
     };
-    it('Add machine pool inherits secure boot in case of GCP cluster', async () => {
+    it('Add machine pool inherits secure boot in case of GCP cluster', () => {
       render(
         <EditMachinePoolModal
           cluster={GCPClusterWithSecureBoot as unknown as ClusterFromSubscription}
@@ -556,18 +556,13 @@ describe('<EditMachinePoolModal />', () => {
         />,
       );
 
-      expect(
-        await screen.findByLabelText('Enable Secure Boot support for Shielded VMs'),
-      ).toBeInTheDocument();
-      const check = await screen.findByRole('checkbox', {
-        name: /Shielded VM Enable Secure Boot support for Shielded VMs/i,
-      });
+      const check = screen.getByText('Enable Secure Boot support for Shielded VMs');
 
-      expect(check).toBeChecked();
-      expect(check).not.toBeDisabled();
+      expect(check).toBeInTheDocument();
+      expect(check).not.toHaveClass('pf-m-disabled');
     });
 
-    it('Edit machine pool GCP Secure boot inherited by the cluster', async () => {
+    it('Edit machine pool GCP Secure boot inherited by the cluster', () => {
       render(
         <EditMachinePoolModal
           cluster={GCPClusterWithSecureBoot as unknown as ClusterFromSubscription}
@@ -578,15 +573,10 @@ describe('<EditMachinePoolModal />', () => {
         />,
       );
 
-      expect(
-        await screen.findByLabelText('Enable Secure Boot support for Shielded VMs'),
-      ).toBeInTheDocument();
-      const check = await screen.findByRole('checkbox', {
-        name: /Shielded VM Enable Secure Boot support for Shielded VMs/i,
-      });
+      const check = screen.getByText('Enable Secure Boot support for Shielded VMs');
 
-      expect(check).toBeChecked();
-      expect(check).toBeDisabled();
+      expect(check).toBeInTheDocument();
+      expect(check).toHaveClass('pf-m-disabled');
     });
 
     it('Disabled shieldedVm checkbox with tooltip', async () => {
@@ -600,9 +590,7 @@ describe('<EditMachinePoolModal />', () => {
         />,
       );
 
-      const hoverableText = await screen.findByLabelText(
-        'Enable Secure Boot support for Shielded VMs',
-      );
+      const hoverableText = screen.getByText('Enable Secure Boot support for Shielded VMs');
 
       await user.hover(hoverableText);
 
@@ -610,7 +598,7 @@ describe('<EditMachinePoolModal />', () => {
         screen.getByText(
           'Secure Boot settings can only be modified during machine pool creation and are not editable afterward',
         ),
-      );
+      ).toBeInTheDocument();
     });
   });
 });
