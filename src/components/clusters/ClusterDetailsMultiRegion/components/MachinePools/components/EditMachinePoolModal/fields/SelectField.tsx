@@ -32,6 +32,7 @@ const SelectField = ({ value, fieldId, onSelect, isDisabled, children }: SelectF
       onClick={onToggle}
       isExpanded={isOpen}
       isFullWidth
+      data-testid="select-effect"
       aria-label="select menu"
       className="select-field-menu-toggle"
     >
