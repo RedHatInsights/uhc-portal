@@ -97,6 +97,7 @@ const EditSecurityGroups = ({
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
+      data-testid="securitygroups-id"
       ref={toggleRef}
       onClick={onToggle}
       isExpanded={isOpen}
@@ -132,7 +133,7 @@ const EditSecurityGroups = ({
   const validationError = validateSecurityGroups(selectedGroupIds, isHypershift);
 
   return (
-    <GridItem>
+    <GridItem data-testtag="text-securitygroups">
       <FormGroup fieldId="securityGroupIds" label={label} className="pf-v5-u-mt-md">
         <Grid>
           <GridItem span={10}>

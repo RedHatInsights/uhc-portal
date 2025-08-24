@@ -81,17 +81,28 @@ class ClusterMachinePoolDetails extends Page {
   pidPlusButton = () => cy.get('button[aria-label="plus"]');
 
   selectMachinePoolComputeNodeCount(computeNodeCount) {
-    cy.getByTestId('compute-node-count')
-      .find('button[aria-haspopup="listbox"]')
-      .click({ force: true });
+    cy.getByTestId('select-effect').first().click({ force: true });
 
-    cy.get('ul[id="replicas"][role="listbox"]').find('button').contains(computeNodeCount).click();
+    cy.get('div').contains(computeNodeCount).click({ force: true });
+  }
+
+  selectSecurityGroups() {
+    cy.getByTestId('securitygroups-id').click({ force: true });
+    cy.get('ul[role="menu"] li[role="menuitem"]').click({ multiple: true });
+  }
+
+  clickTab(tabName) {
+    cy.get('button').contains(tabName).click({ force: true });
+  }
+
+  verifyAllMachinePoolTableHeaders(headerName) {
+    cy.get('th').contains(headerName).should('be.visible');
   }
 
   selectComputeNodeType(computeNodeType) {
     cy.get('button[aria-label="Machine type select toggle"]').click();
     cy.get('input[aria-label="Machine type select search field"]').clear().type(computeNodeType);
-    cy.get('div').contains(computeNodeType).click({ force: true }).blur();
+    cy.get('div').contains(computeNodeType).click({ force: true });
   }
 
   verifyMachinePoolTableDefaultElementValues(property) {
@@ -117,8 +128,10 @@ class ClusterMachinePoolDetails extends Page {
   }
 
   selectMachinePoolTaintsEffectType(effectOption = '', index = 0) {
-    cy.get('div button[id="effect-toggle-id"]').click({ multiple: true });
-    cy.get(`ul[id="taints[${index}].effect"]`).find('button').contains(effectOption).click();
+    cy.getByTestId('select-effect').last().click({ force: true });
+
+    // Step 2: Select the desired option by text
+    cy.contains('button', effectOption).click({ force: true });
     index = index + 1;
   }
 
@@ -128,27 +141,28 @@ class ClusterMachinePoolDetails extends Page {
       .should('be.visible')
       .click({ force: true });
   }
-
-  clickMachinePoolExpandableCollapsible(index = 0, rowIndex = 1) {
+  clickAWSMachinePoolExpandableCollapsible(workerName, index = 0, rowIndex = 1) {
     let machinePoolIndex = index + rowIndex;
-    cy.get(`td button[id="expandable-toggle${machinePoolIndex}"]`).click();
+    cy.get(`button[id="${workerName}${machinePoolIndex}"]`).click({ force: true });
+  }
+
+  clickMachinePoolExpandableCollapsible(workerName) {
+    cy.contains('td', workerName).parent().find('button[aria-label="Details"]').click();
   }
 
   validateTextforCreatedSpotInstances(spotinstance) {
     cy.get('h4').should('contain', 'Spot instance pricing');
-    cy.getByTestId('spotinstance-id').should('contain', `Maximum hourly price: ${spotinstance}`);
+    cy.contains(`Maximum hourly price: ${spotinstance}`);
   }
 
   validateTextforCreatedLabels(keys, values) {
     cy.contains('h4', 'Labels');
-    cy.getByTestId('labels-id').children('div span').should('contain', `${keys} = ${values}`);
+    cy.getByTestId('labels-id').children('div span').contains(`${keys} = ${values}`);
   }
 
   validateTextforCreatedTaints(taints, values, effect) {
     cy.contains('h4', 'Taints');
-    cy.getByTestId('taintstext-id')
-      .children('div span')
-      .should('contain', `${taints} = ${values}:${effect}`);
+    cy.getByTestId('taints-id').get('span').contains(`${taints} = ${values}:${effect}`);
   }
 
   validateTextforSingleZoneAutoScaling(minNodes, maxNodes) {
@@ -164,7 +178,7 @@ class ClusterMachinePoolDetails extends Page {
   }
 
   deleteWorkerMachinePool(workerMachinePoolName) {
-    cy.get('td[data-label="Machine pool"]').contains(workerMachinePoolName);
+    cy.get('td').contains(workerMachinePoolName);
     cy.get('button[aria-label="Kebab toggle"]').last().click();
     cy.get('button[role="menuitem"][type="button"]').contains('Delete').click({ force: true });
     cy.getByTestId('btn-primary').click();
@@ -176,6 +190,80 @@ class ClusterMachinePoolDetails extends Page {
 
   isOverviewClusterPropertyMatchesValue(property, value) {
     cy.get('span').contains(property).parent().siblings().find('div').contains(value);
+  }
+
+  // Machine Pool Modal Verification Methods
+  verifyMachinePoolModalIsOpen() {
+    // Verify the modal is visible and accessible
+    cy.get('#edit-mp-modal').should('be.visible');
+
+    return this;
+  }
+
+  verifyMachinePoolModalTitle(expectedTitle) {
+    // Verify modal title matches expected text
+    cy.get('h1').contains(expectedTitle);
+  }
+
+  verifySubTabExists(tabName) {
+    // Use regex for flexible matching, especially for "Labels" in "Labels and Taints"
+    if (tabName.toLowerCase().includes('labels')) {
+      const labelsRegex = /^Labels\b/i;
+      cy.get('[role="tab"]').contains(labelsRegex).should('be.visible');
+    } else {
+      cy.get('[role="tab"]').contains(tabName).should('be.visible');
+    }
+    return this;
+  }
+
+  selectMachinePoolSubTab(tabName) {
+    // Use regex for flexible matching for Labels tab
+    if (tabName.toLowerCase().includes('labels')) {
+      const labelsRegex = /^Labels\b/i;
+      cy.get('[role="tab"]').contains(labelsRegex).click();
+    } else {
+      cy.get('[role="tab"]').contains(tabName).click({ force: true });
+    }
+    return this;
+  }
+
+  verifySubTabContent() {
+    cy.get('[role="tabpanel"]').should('be.visible');
+    return this;
+  }
+
+  // Content verification methods for specific tabs
+  verifyOverviewTabContent() {
+    this.verifySubTabContent();
+    cy.contains('Machine pool name').should('be.visible');
+    cy.contains('Compute node count').should('be.visible');
+
+    return this;
+  }
+
+  verifyLabelsTagsTaintsTabContent() {
+    this.verifySubTabContent();
+    cy.contains('Node labels').should('be.visible');
+    cy.get('span').contains('Taints').should('be.visible');
+    return this;
+  }
+
+  verifyCostSavingsTabContent() {
+    this.verifySubTabContent();
+    cy.contains('Cost saving').should('be.visible');
+    return this;
+  }
+
+  verifySecurityGroupsTabContent() {
+    this.verifySubTabContent();
+    cy.contains('Security groups').should('be.visible');
+    return this;
+  }
+
+  verifyMaintenanceTabContent() {
+    this.verifySubTabContent();
+    cy.contains('AutoRepair').should('be.visible');
+    return this;
   }
 }
 
