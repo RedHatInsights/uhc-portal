@@ -38,7 +38,7 @@ const EditNodeCountSection = ({
 
   const hasClusterAutoScaler = useGlobalState((state) => state.clusterAutoscaler.hasAutoscaler);
   const organization = useGlobalState((state) => state.userProfile.organization);
-  const hcpCluster = isHypershiftCluster(cluster);
+  const isHcpCluster = isHypershiftCluster(cluster);
 
   const minNodesRequired = getClusterMinNodes({
     cluster,
@@ -109,7 +109,7 @@ const EditNodeCountSection = ({
               options={options}
             />
           )}
-          {!hcpCluster && (
+          {!isHcpCluster && (
             <MachinePoolsAutoScalingWarning
               hasClusterAutoScaler={hasClusterAutoScaler}
               hasAutoscalingMachinePools={machinePools.some((mp) => !!mp.autoscaling)}
@@ -117,7 +117,7 @@ const EditNodeCountSection = ({
               warningType={machinePool ? 'editMachinePool' : 'addMachinePool'}
             />
           )}
-          {machinePool?.id && !hcpCluster && (
+          {machinePool?.id && !isHcpCluster && (
             <ResizingAlert
               autoscalingEnabled={values.autoscaling}
               autoScaleMaxNodesValue={values.autoscaleMax}

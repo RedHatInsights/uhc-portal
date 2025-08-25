@@ -37,8 +37,7 @@ const nonHCPCluster: ClusterFromSubscription = {
 } as ClusterFromSubscription;
 
 const hcpCluster: ClusterFromSubscription = {
-  product: { id: 'ROSA' },
-  cloud_provider: { id: 'aws' },
+  ...nonHCPCluster,
   hypershift: { enabled: true },
 } as ClusterFromSubscription;
 
@@ -49,7 +48,7 @@ describe('<EditNodeCountSection />', () => {
       jest.spyOn(utils, 'masterResizeAlertThreshold').mockReturnValue(1);
     });
 
-    it('shows ResizingAlert for non HCP clusters', async () => {
+    it('shows ResizingAlert for non HCP clusters', () => {
       withState(initialState).render(
         <Formik
           initialValues={{ replicas: 30, instanceType: 'm5.xlarge', autoscaling: false }}
@@ -66,11 +65,11 @@ describe('<EditNodeCountSection />', () => {
       );
 
       expect(
-        await screen.findByText(/Node scaling is automatic and will be performed immediately/i),
+        screen.getByText(/Node scaling is automatic and will be performed immediately/i),
       ).toBeInTheDocument();
     });
 
-    it('hides ResizingAlert for HCP clusters', async () => {
+    it('hides ResizingAlert for HCP clusters', () => {
       withState(initialState).render(
         <Formik
           initialValues={{ replicas: 30, instanceType: 'm5.xlarge', autoscaling: false }}
