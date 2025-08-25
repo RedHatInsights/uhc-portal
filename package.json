@@ -204,7 +204,8 @@
   },
   "resolutions": {
     "@cypress/webpack-preprocessor": "6.0.2",
-    "@redhat-cloud-services/**/axios": "^1.7.4"
+    "@redhat-cloud-services/**/axios": "^1.7.4",
+    "form-data": "^4.0.4"
   },
   "scripts": {
     "start": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'yarn dev-server --env noproxy {@}' 'mockdata/mockserver.py' --",
