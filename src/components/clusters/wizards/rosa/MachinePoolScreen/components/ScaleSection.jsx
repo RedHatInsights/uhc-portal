@@ -35,7 +35,6 @@ function ScaleSection() {
       [FieldId.SelectedVpc]: selectedVpc,
       [FieldId.Hypershift]: isHypershift,
       [FieldId.MultiAz]: isMultiAz,
-      [FieldId.MachineType]: machineType,
       [FieldId.CloudProviderId]: cloudProviderID,
       [FieldId.Product]: product,
       [FieldId.AutoscalingEnabled]: autoscalingEnabled,
