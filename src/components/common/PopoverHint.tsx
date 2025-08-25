@@ -42,6 +42,7 @@ const PopoverHint = ({
       className="popover-hint-button"
       aria-label={buttonAriaLabel || (isError ? 'Error' : 'More information')}
       variant="plain"
+      hasNoPadding
     />
   </Popover>
 );
