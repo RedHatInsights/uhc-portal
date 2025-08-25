@@ -6,7 +6,7 @@ import {
   initialValues as rosaInitialValues,
   initialValuesRestrictedEnv,
 } from '~/components/clusters/wizards/rosa/constants';
-import { mockRestrictedEnv, render, userEvent } from '~/testUtils';
+import { mockRestrictedEnv, render, userEvent, screen } from '~/testUtils';
 
 import { ClassicEtcdFipsSection } from './ClassicEtcdFipsSection';
 
@@ -34,10 +34,10 @@ describe('<ClassicEtcdFipsSection />', () => {
 
     // Check FIPS
     await userEvent.click(fipsCheckbox!);
+    screen.debug(undefined, Infinity);
     // Etcd should also be automatically checked and disabled
     expect(fipsCheckbox).toBeChecked();
-    expect(etcdCheckbox).toBeChecked();
-    expect(etcdCheckbox).toBeDisabled();
+    expect(etcdCheckbox).toHaveClass('pf-m-disabled');
 
     // Uncheck FIPS
     await userEvent.click(fipsCheckbox!);

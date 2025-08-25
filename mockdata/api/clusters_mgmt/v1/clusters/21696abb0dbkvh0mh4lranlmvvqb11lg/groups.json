@@ -1,0 +1,30 @@
+{
+  "kind": "GroupList",
+  "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/groups",
+  "page": 1,
+  "size": 2,
+  "total": 2,
+  "items": [
+    {
+      "kind": "Group",
+      "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/groups/dedicated-admins",
+      "id": "dedicated-admins"
+    },
+    {
+      "kind": "Group",
+      "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/groups/cluster-admins",
+      "id": "cluster-admins",
+      "users": {
+        "kind": "UserList",
+        "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/groups/cluster-admins/users",
+        "items": [
+          {
+            "kind": "User",
+            "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/groups/cluster-admins/users/cluster-admin",
+            "id": "cluster-admin"
+          }
+        ]
+      }
+    }
+  ]
+}
