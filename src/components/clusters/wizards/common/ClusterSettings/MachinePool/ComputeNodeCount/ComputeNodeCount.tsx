@@ -3,6 +3,7 @@ import { Field } from 'formik';
 
 import { FormHelperText, HelperText, Tooltip } from '@patternfly/react-core';
 
+import { noQuotaTooltip } from '~/common/helpers';
 import links from '~/common/installLinks.mjs';
 import { required, validateNumericInput } from '~/common/validators';
 import {
@@ -23,8 +24,6 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
-
-import { noQuotaTooltip } from '~/common/helpers';
 
 import NodeCountInput from './NodeCountInput';
 
