@@ -40,7 +40,7 @@ spec:
       # causing the OS to kill the process due to out-of-memory errors
       NODE_OPTIONS='--max-old-space-size=4096' yarn lint
       yarn prettier
-      yarn test-no-coverage --run-in-band --no-cache
+      yarn test --run-in-band --no-cache
   pipelineRef:
     name: docker-build
   taskRunTemplate:
