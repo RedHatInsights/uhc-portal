@@ -192,7 +192,9 @@ const ComputeNodeCount = ({
   }
 
   const validateNodes = (value: number) => {
-    const stringValue = value?.toString();
+    // For multi-zone, we need to validate the per-zone value that the user sees
+    const perZoneValue = isMultiAzSelected ? value / increment : value;
+    const stringValue = perZoneValue?.toString();
     const requiredError = required(stringValue);
     const minNodesError = validateNumericInput(stringValue, {
       min: minUserInputNodes,
@@ -234,8 +236,12 @@ const ComputeNodeCount = ({
       validate={(value: number) => validateNodes(value)}
       input={{
         ...getFieldProps(FieldId.NodesCompute),
+        // For multi-zone, display per-zone value but store total value
+        value: isMultiAzSelected ? Number(nodes) / increment : Number(nodes),
         onChange: (value: number) => {
-          setFieldValue(FieldId.NodesCompute, value, true);
+          // For multi-zone, convert per-zone input back to total value for storage
+          const totalValue = isMultiAzSelected ? value * increment : value;
+          setFieldValue(FieldId.NodesCompute, totalValue, true);
         },
       }}
       meta={getFieldMeta(FieldId.NodesCompute)}
