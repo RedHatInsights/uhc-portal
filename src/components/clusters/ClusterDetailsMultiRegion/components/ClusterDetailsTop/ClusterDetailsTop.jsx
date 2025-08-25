@@ -37,7 +37,7 @@ import clusterStates, {
 } from '../../../common/clusterStates';
 import ErrorTriangle from '../../../common/ErrorTriangle';
 import HibernatingClusterCard from '../../../common/HibernatingClusterCard/HibernatingClusterCard';
-import { shouldShowLogs } from '../Overview/InstallationLogView';
+import InstallationLogView, { shouldShowLogs } from '../Overview/InstallationLogView';
 
 import ClusterNonEditableAlert from './components/ClusterNonEditableAlert';
 import ClusterProgressCard from './components/ClusterProgressCard';
@@ -119,10 +119,9 @@ function ClusterDetailsTop(props) {
   );
 
   let topCard = null;
-
   // Temporary solution needs update inside the component. (class based into functional) - OCMUI-2357
   const { openModal } = modalActions;
-
+  const isUninstalling = cluster.state === clusterStates.uninstalling;
   if (isHibernating(cluster)) {
     topCard = <HibernatingClusterCard cluster={cluster} openModal={openModal} />;
   } else if (
@@ -130,7 +129,24 @@ function ClusterDetailsTop(props) {
     !isAssistedInstallSubscription(cluster.subscription) &&
     (shouldShowLogs(cluster) || hasInflightEgressErrors(cluster))
   ) {
-    topCard = <ClusterProgressCard cluster={cluster} regionalInstance={regionalInstance} />;
+    topCard =
+      cluster.state !== clusterStates.error ? (
+        <ClusterProgressCard cluster={cluster} regionalInstance={regionalInstance} />
+      ) : (
+        <Alert
+          variant="danger"
+          isInline
+          title="An error occured during cluster install or uninstall process."
+          className="pf-v6-u-mt-md"
+        >
+          <p>
+            This cluster cannot be recovered, however you can use the logs and network validation to
+            diagnose the problem:
+          </p>
+
+          <InstallationLogView isExpandable={!isUninstalling} cluster={cluster} />
+        </Alert>
+      );
   }
 
   const dispatch = useDispatch();
