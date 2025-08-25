@@ -261,7 +261,7 @@ const ClusterStatusMonitor = (props) => {
         // show spinner on rerun button
         const runningInflightCheck = wasRunClicked || isValidatorRunning;
         return (
-          <Alert variant="warning" isInline title="User action required">
+          <Alert variant="warning" isInline title="User action required" className="pf-v6-u-mt-md">
             <Flex direction={{ default: 'column' }}>
               <FlexItem>{`${reason}`}</FlexItem>
               {inflightTable && <FlexItem>{inflightTable}</FlexItem>}
@@ -346,7 +346,7 @@ const ClusterStatusMonitor = (props) => {
       reason.push(<strong>Compute Security Administrator, </strong>);
       reason.push(<strong>DNS Administrator.</strong>);
       return (
-        <Alert variant="warning" isInline title="Permissions needed:">
+        <Alert variant="warning" isInline title="Permissions needed:" className="pf-v6-u-mt-md">
           <Flex direction={{ default: 'column' }}>
             <FlexItem>{reason}</FlexItem>
             <FlexItem>
