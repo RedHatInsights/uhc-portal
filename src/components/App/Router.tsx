@@ -191,7 +191,6 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
             </TermsGuard>
           }
         />
-        <Route path="/create/rosa/wizard" element={<CreateROSAWizard />} />
         <Route path="/create" element={<CreateClusterPage activeTab="" />} />
         <Route
           path="/details/s/:id/insights/:reportId/:errorKey"
