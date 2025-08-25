@@ -12,6 +12,8 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import ButtonWithTooltip from '../../ButtonWithTooltip';
 import { ReduxVerticalFormGroup } from '../../ReduxFormComponents_deprecated';
 
+import './CompoundFieldArray.scss';
+
 export const LabelGridItem = ({ fieldSpan, label, isRequired, helpText }) => (
   <GridItem className="field-array-title" span={fieldSpan}>
     <p className="pf-v6-c-form__label-text" id="field-array-label">
@@ -78,6 +80,7 @@ const MinusButtonGridItem = ({ index, fields, onClick, minusButtonDisabledMessag
         icon={<MinusCircleIcon />}
         variant="link"
         aria-label="Remove"
+        className="compound-field-array__minus-button"
       />
     </GridItem>
   );
@@ -213,6 +216,7 @@ const FieldGridItemComponent = (props) => {
             (compoundFields[2].getHelpText && compoundFields[2].getHelpText(index)) ||
             undefined
           }
+          formGroupClass="confirm-password-field"
         />
       </GridItem>
     </>
