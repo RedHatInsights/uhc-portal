@@ -4,9 +4,7 @@ import type { ActionType as PActionType } from 'redux-promise-middleware';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { Action, TypeConstant } from 'typesafe-actions';
 
-import type { ErrorState } from '../types/types';
-
-import type { GlobalState } from './store';
+import type { GlobalState } from './stateTypes';
 
 export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, GlobalState, unknown, AnyAction>;
 
@@ -17,12 +15,6 @@ export type BaseRequestState = {
   error: false;
   pending: false;
 };
-
-export type PromiseReducerState<T = unknown> =
-  | (Partial<T> & { pending: boolean; fulfilled: false; error: false })
-  // Should error state have access to the Partial<T> or should it be only ErrorState?
-  | (Partial<T> & ErrorState)
-  | (T & { pending: boolean; fulfilled: true; error: false });
 
 interface AsyncAction extends Action {
   payload?: Promise<any>;

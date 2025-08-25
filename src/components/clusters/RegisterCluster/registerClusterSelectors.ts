@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/stateTypes';
 import { Capability } from '~/types/accounts_mgmt.v1';
 
 const hasOrgLevelsubscribeOCPCapability = (state: GlobalState): boolean => {
