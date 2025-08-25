@@ -1,0 +1,323 @@
+{
+  "installerSubpages": [
+    {
+      "name": "Bare Metal Agent-based",
+      "url": "/install/metal/agent-based",
+      "expectedTitle": "Install OpenShift on Bare Metal locally with Agent",
+      "installerType": "x86_64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "Bare Metal (x86_64)",
+      "clusterType": "agent-based",
+      "isDatacenter": true,
+      "getStartedLink": "installing_an_on-premise_cluster_with_the_agent-based_installer/preparing-to-install-with-agent-based-installer"
+    },
+    {
+      "name": "Bare Metal Automated",
+      "url": "/install/metal/installer-provisioned",
+      "expectedTitle": "Install OpenShift on Bare Metal with installer-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": true,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "Bare Metal (x86_64)",
+      "clusterType": "automated",
+      "isDatacenter": true,
+      "getStartedLink": "installing_on_bare_metal/installer-provisioned-infrastructure#installing-rhel-on-the-provisioner-node_ipi-install-installation-workflow"
+    },
+    {
+      "name": "Bare Metal Full Control",
+      "url": "/install/metal/user-provisioned",
+      "expectedTitle": "Install OpenShift on Bare Metal with user-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "Bare Metal (x86_64)",
+      "clusterType": "full-control",
+      "isDatacenter": true,
+      "rhcosData": {
+        "learnMoreLinkPartial": "/installing_on_bare_metal/user-provisioned-infrastructure#creating-machines-bare-metal",
+        "downloadButtons": [
+          {
+            "text": "Download RHCOS ISO",
+            "hrefPartial": "/rhcos/latest/rhcos-live.x86_64.iso"
+          },
+          {
+            "text": "Download RHCOS kernel",
+            "hrefPartial": "/rhcos/latest/rhcos-live-kernel-x86_64"
+          },
+          {
+            "text": "Download RHCOS initramfs",
+            "hrefPartial": "/rhcos/latest/rhcos-live-initramfs.x86_64.img"
+          },
+          {
+            "text": "Download RHCOS rootfs",
+            "hrefPartial": "/rhcos/latest/rhcos-live-rootfs.x86_64.img"
+          }
+        ]
+      },
+      "getStartedLink": "installing_on_bare_metal/user-provisioned-infrastructure#installing-bare-metal"
+    },
+    {
+      "name": "ARM Bare Metal Agent-based",
+      "url": "/install/arm/agent-based",
+      "expectedTitle": "Install OpenShift on ARM Bare Metal locally with Agent",
+      "installerType": "aarch64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "Bare Metal (ARM)",
+      "clusterType": "agent-based",
+      "isDatacenter": true,
+      "getStartedLink": "installing_an_on-premise_cluster_with_the_agent-based_installer/preparing-to-install-with-agent-based-installer"
+    },
+    {
+      "name": "ARM Bare Metal Automated",
+      "url": "/install/arm/installer-provisioned",
+      "expectedTitle": "Install OpenShift on ARM Bare Metal with installer-provisioned infrastructure",
+      "installerType": "aarch64",
+      "hasCommandSnippet": true,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "Bare Metal (ARM)",
+      "clusterType": "automated",
+      "isDatacenter": true,
+      "getStartedLink": "installing_on_bare_metal/installer-provisioned-infrastructure#installing-rhel-on-the-provisioner-node_ipi-install-installation-workflow"
+    },
+    {
+      "name": "ARM Bare Metal Full Control",
+      "url": "/install/arm/user-provisioned",
+      "expectedTitle": "Install OpenShift on ARM Bare Metal with user-provisioned infrastructure",
+      "installerType": "aarch64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "Bare Metal (ARM)",
+      "clusterType": "full-control",
+      "isDatacenter": true,
+      "rhcosData": {
+        "learnMoreLinkPartial": "/installing_on_bare_metal/user-provisioned-infrastructure#creating-machines-bare-metal",
+        "downloadButtons": [
+          {
+            "text": "Download RHCOS ISO",
+            "hrefPartial": "/rhcos/latest/rhcos-live.aarch64.iso"
+          },
+          {
+            "text": "Download RHCOS kernel",
+            "hrefPartial": "/rhcos/latest/rhcos-live-kernel-aarch64"
+          },
+          {
+            "text": "Download RHCOS initramfs",
+            "hrefPartial": "/rhcos/latest/rhcos-live-initramfs.aarch64.img"
+          },
+          {
+            "text": "Download RHCOS rootfs",
+            "hrefPartial": "/rhcos/latest/rhcos-live-rootfs.aarch64.img"
+          }
+        ]
+      },
+      "getStartedLink": "installing_on_bare_metal/user-provisioned-infrastructure#installing-bare-metal"
+    },
+    {
+      "name": "Azure Stack Hub Automated",
+      "url": "/install/azure-stack-hub/installer-provisioned",
+      "expectedTitle": "Install OpenShift on Azure Stack Hub with installer-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": true,
+      "customizeLink": "/installing_on_azure_stack_hub/installer-provisioned-infrastructure#installing-azure-stack-hub-network-customizations",
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "Azure Stack Hub",
+      "clusterType": "automated",
+      "isDatacenter": true,
+      "getStartedLink": "installing_on_azure_stack_hub/installer-provisioned-infrastructure#ash-preparing-to-install-ipi"
+    },
+    {
+      "name": "Azure Stack Hub Full Control",
+      "url": "/install/azure-stack-hub/user-provisioned",
+      "expectedTitle": "Install OpenShift on Azure Stack Hub with user-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "Azure Stack Hub",
+      "clusterType": "full-control",
+      "isDatacenter": true,
+      "getStartedLink": "installing_on_azure_stack_hub/user-provisioned-infrastructure#installing-azure-stack-hub-user-infra"
+    },
+    {
+      "name": "IBM Z Agent-based",
+      "url": "/install/ibmz/agent-based",
+      "expectedTitle": "Install OpenShift on IBM Z (s390x) locally with Agent",
+      "installerType": "s390x",
+      "hasCommandSnippet": false,
+      "customizeLink": "/installing_an_on-premise_cluster_with_the_agent-based_installer/prepare-pxe-assets-agent#installing-ocp-agent-ibm-z_prepare-pxe-assets-agent",
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "IBM Z (s390x)",
+      "clusterType": "agent-based",
+      "isDatacenter": true,
+      "getStartedLink": "installing_an_on-premise_cluster_with_the_agent-based_installer/preparing-to-install-with-agent-based-installer"
+    },
+    {
+      "name": "IBM Z Full Control",
+      "url": "/install/ibmz/user-provisioned",
+      "expectedTitle": "Install OpenShift on IBM Z (s390x) with user-provisioned infrastructure",
+      "installerType": "s390x",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "IBM Z (s390x)",
+      "clusterType": "full-control",
+      "isDatacenter": true,
+      "rhcosData": {
+        "learnMoreLinkPartial": "/installing_on_ibm_z_and_ibm_linuxone/user-provisioned-infrastructure#installation-user-infra-machines-iso-ibm-z_installing-ibm-z",
+        "downloadButtons": [
+          {
+            "text": "Download RHCOS initramfs",
+            "hrefPartial": "/rhcos/latest/rhcos-live-initramfs.s390x.img"
+          },
+          {
+            "text": "Download RHCOS kernel",
+            "hrefPartial": "/rhcos/latest/rhcos-live-kernel-s390x"
+          },
+          {
+            "text": "Download RHCOS rootfs",
+            "hrefPartial": "/rhcos/latest/rhcos-live-rootfs.s390x.img"
+          },
+          {
+            "text": "Download QCOW2 image",
+            "hrefPartial": "/rhcos/latest/rhcos-qemu.s390x.qcow2.gz"
+          }
+        ]
+      },
+      "getStartedLink": "installing_on_ibm_z_and_ibm_linuxone/user-provisioned-infrastructure#installing-ibm-z-reqs"
+    },
+    {
+      "name": "IBM Power Agent-based",
+      "url": "/install/power/agent-based",
+      "expectedTitle": "Install OpenShift on IBM Power (ppc64le) locally with Agent",
+      "installerType": "ppc64le",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "IBM Power (ppc64le)",
+      "clusterType": "agent-based",
+      "isDatacenter": true,
+      "getStartedLink": "installing_an_on-premise_cluster_with_the_agent-based_installer/preparing-to-install-with-agent-based-installer"
+    },
+    {
+      "name": "IBM Power Full Control",
+      "url": "/install/power/user-provisioned",
+      "expectedTitle": "Install OpenShift on IBM Power (ppc64le) with user-provisioned infrastructure",
+      "installerType": "ppc64le",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "IBM Power (ppc64le)",
+      "clusterType": "full-control",
+      "isDatacenter": true,
+      "rhcosData": {
+        "learnMoreLinkPartial": "/installing_on_ibm_power/installing-ibm-power",
+        "downloadButtons": [
+          {
+            "text": "Download RHCOS ISO",
+            "hrefPartial": "/rhcos/latest/rhcos-live.ppc64le.iso"
+          },
+          {
+            "text": "Download RHCOS kernel",
+            "hrefPartial": "/rhcos/latest/rhcos-live-kernel-ppc64le"
+          },
+          {
+            "text": "Download RHCOS initramfs",
+            "hrefPartial": "/rhcos/latest/rhcos-live-initramfs.ppc64le.img"
+          },
+          {
+            "text": "Download RHCOS rootfs",
+            "hrefPartial": "/rhcos/latest/rhcos-live-rootfs.ppc64le.img"
+          }
+        ]
+      },
+      "getStartedLink": "installing_on_ibm_power/installing-ibm-power"
+    },
+    {
+      "name": "Nutanix AOS Automated",
+      "url": "/install/nutanix/installer-provisioned",
+      "expectedTitle": "Install OpenShift on Nutanix AOS with installer-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": true,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "Nutanix AOS",
+      "clusterType": "automated",
+      "isDatacenter": true,
+      "getStartedLink": "installing_on_nutanix/preparing-to-install-on-nutanix"
+    },
+    {
+      "name": "OpenStack Automated",
+      "url": "/install/openstack/installer-provisioned",
+      "expectedTitle": "Install OpenShift on Red Hat OpenStack Platform with installer-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": true,
+      "customizeLink": "/installing_on_openstack/installing-openstack-installer-custom",
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "Red Hat OpenStack",
+      "clusterType": "automated",
+      "isDatacenter": true,
+      "getStartedLink": "installing_on_openstack/installing-openstack-installer-custom"
+    },
+    {
+      "name": "OpenStack Full Control",
+      "url": "/install/openstack/user-provisioned",
+      "expectedTitle": "Install OpenShift on Red Hat OpenStack Platform with user-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "Red Hat OpenStack",
+      "clusterType": "full-control",
+      "isDatacenter": true,
+      "rhcosData": {
+        "learnMoreLinkPartial": "/installing_on_openstack/installing-openstack-user#installation-osp-creating-image_installing-openstack-user",
+        "downloadButtons": [
+          {
+            "text": "Download RHCOS QCOW",
+            "hrefPartial": "/rhcos/latest/rhcos-openstack.x86_64.qcow2.gz"
+          }
+        ]
+      },
+      "getStartedLink": "installing_on_openstack/installing-openstack-user"
+    },
+    {
+      "name": "vSphere Agent-based",
+      "url": "/install/vsphere/agent-based",
+      "expectedTitle": "Install OpenShift on vSphere locally with Agent",
+      "installerType": "x86_64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "vSphere",
+      "clusterType": "agent-based",
+      "isDatacenter": true,
+      "getStartedLink": "installing_an_on-premise_cluster_with_the_agent-based_installer/preparing-to-install-with-agent-based-installer"
+    },
+    {
+      "name": "vSphere Automated",
+      "url": "/install/vsphere/installer-provisioned",
+      "expectedTitle": "Install OpenShift on vSphere with installer-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": true,
+      "customizeLink": "/installing_on_vmware_vsphere/installer-provisioned-infrastructure#installing-vsphere-installer-provisioned-customizations",
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "vSphere",
+      "clusterType": "automated",
+      "isDatacenter": true,
+      "getStartedLink": "installing_on_vmware_vsphere/installer-provisioned-infrastructure#installing-vsphere-installer-provisioned"
+    },
+    {
+      "name": "vSphere Full Control",
+      "url": "/install/vsphere/user-provisioned",
+      "expectedTitle": "Install OpenShift on vSphere with user-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "vSphere",
+      "clusterType": "full-control",
+      "isDatacenter": true,
+      "getStartedLink": "installing_on_vmware_vsphere/user-provisioned-infrastructure#installing-vsphere"
+    }
+  ]
+}
