@@ -63,7 +63,7 @@ const WindowsLicenseIncludedField = ({
       isDisabled={isDisabled}
       hint={hint}
       showTooltip={isDisabled}
-      tooltip="This instance type is not Windows License Included compatible, please see documentation for further details"
+      tooltip="This instance type is not Windows License Included compatible."
       input={isDisabled ? { isChecked: false } : undefined}
     />
   );
