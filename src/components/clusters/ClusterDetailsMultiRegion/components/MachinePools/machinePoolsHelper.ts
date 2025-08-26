@@ -48,11 +48,11 @@ const getMinNodesRequiredNonHypershift = (
   isMultiAz?: boolean,
 ) => {
   if (isDefaultMachinePool) {
-    // Default machine pool
+    // Default machine pool - return per-zone values since form stores per-zone
     if (isByoc) {
-      return isMultiAz ? 3 : 2;
+      return isMultiAz ? 1 : 2; // 1 per zone for multi-AZ, 2 total for single-AZ
     }
-    return isMultiAz ? 9 : 4;
+    return isMultiAz ? 1 : 4; // 1 per zone for multi-AZ, 4 total for single-AZ
   }
 
   // Custom machine pool

@@ -280,7 +280,7 @@ export const BillingModel = () => {
     const isBYOC = value === 'true';
     const isMultiAz = values[FieldId.MultiAz] === 'true';
 
-    setFieldValue(FieldId.NodesCompute, getNodesCount(isBYOC, isMultiAz, true));
+    setFieldValue(FieldId.NodesCompute, getNodesCount(isBYOC, isMultiAz, true, false));
     setFieldValue(FieldId.MinReplicas, getMinReplicasCount(isBYOC, isMultiAz, true));
     setFieldValue(FieldId.MaxReplicas, '');
   };

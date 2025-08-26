@@ -90,7 +90,7 @@ export const MachinePool = () => {
   // set an initial value based on infrastructure and availability selections.
   React.useEffect(() => {
     if (!nodesCompute) {
-      setFieldValue(FieldId.NodesCompute, getNodesCount(isByoc, isMultiAz));
+      setFieldValue(FieldId.NodesCompute, getNodesCount(isByoc, isMultiAz, false, false));
     }
   }, [isByoc, isMultiAz, nodesCompute, setFieldValue]);
 

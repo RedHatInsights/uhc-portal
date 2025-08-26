@@ -323,9 +323,10 @@ function Details() {
   const handleMultiAzChange = (_event: React.FormEvent<HTMLDivElement>, value: string) => {
     // when multiAz changes, reset node count
     const isValueMultiAz = value === 'true';
-    // For ROSA, store per-zone values since submitOSDRequest multiplies by 3 for multi-zone
-    const nodeCount = isValueMultiAz ? 1 : 2; // 1 per zone for multi-AZ, 2 total for single-AZ
-    setFieldValue(FieldId.NodesCompute, nodeCount);
+    setFieldValue(
+      FieldId.NodesCompute,
+      getNodesCount(true, isValueMultiAz, true, isHypershiftSelected),
+    );
     const replicas = getMinReplicasCount(true, isValueMultiAz, true, isHypershiftSelected);
     setFieldValue(FieldId.MinReplicas, replicas);
     setFieldValue(FieldId.MaxReplicas, replicas);

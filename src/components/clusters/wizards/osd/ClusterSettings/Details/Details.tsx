@@ -189,7 +189,7 @@ function Details() {
     const isMultiAz = value === 'true';
 
     // When multiAz changes, update the node count
-    setFieldValue(FieldId.NodesCompute, getNodesCount(isByoc, isMultiAz, true));
+    setFieldValue(FieldId.NodesCompute, getNodesCount(isByoc, isMultiAz, true, false));
     setFieldValue(FieldId.MinReplicas, getMinReplicasCount(isByoc, isMultiAz, true));
     setFieldValue(FieldId.MaxReplicas, '');
 

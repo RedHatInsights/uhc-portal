@@ -87,15 +87,15 @@ describe('ComputeNodeCount', () => {
     });
   });
 
-  it('converts per-zone values to total values for multi-zone deployments', async () => {
+  it('displays per-zone values correctly for multi-zone deployments', async () => {
     const mockSetFieldValue = jest.fn();
 
     (useFormStateModule.useFormState as jest.Mock).mockReturnValue({
       values: {
         [FieldId.MultiAz]: 'true',
-        [FieldId.NodesCompute]: 3,
+        [FieldId.NodesCompute]: 1, // Form now stores per-zone values
       },
-      getFieldProps: () => ({ value: 3, onChange: jest.fn() }),
+      getFieldProps: () => ({ value: 1, onChange: jest.fn() }),
       getFieldMeta: () => ({ touched: true, error: undefined }),
       setFieldValue: mockSetFieldValue,
       validateField: jest.fn(),
@@ -104,15 +104,15 @@ describe('ComputeNodeCount', () => {
     renderWithFormik();
 
     const input = screen.getByTestId('mock-node-input');
-    // User sees 1 (per zone) but form stores 3 (total)
-    expect(input).toHaveValue(1); // 3 / 3 = 1 per zone
+    // Form stores and displays per-zone values directly
+    expect(input).toHaveValue(1); // 1 per zone
 
-    // When user changes to 2 per zone, it should store 6 total
+    // When user changes to 2 per zone, it should store 2 per zone
     // eslint-disable-next-line testing-library/prefer-user-event
     fireEvent.change(input, { target: { value: '2' } });
 
     await waitFor(() => {
-      expect(mockSetFieldValue).toHaveBeenCalledWith(FieldId.NodesCompute, 6, true); // 2 * 3 = 6
+      expect(mockSetFieldValue).toHaveBeenCalledWith(FieldId.NodesCompute, 2, true); // 2 per zone
     });
   });
 });

@@ -117,10 +117,8 @@ export const AutoScaleEnabledInputs = () => {
       isHypershiftWizard: isHypershiftSelected,
     });
 
-    if (minNodesAllowed) {
-      return minNodesAllowed / (isMultiAz && !isHypershiftSelected ? 3 : 1);
-    }
-    return undefined;
+    // getMinNodesAllowed now returns per-zone values, no need to divide by 3
+    return minNodesAllowed || undefined;
   }, [product, isByoc, isMultiAz, defaultMinAllowed, isHypershiftSelected]);
 
   const maxNodes = useMemo(() => {
