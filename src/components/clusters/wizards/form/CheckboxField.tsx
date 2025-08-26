@@ -1,7 +1,14 @@
 import React from 'react';
 import { Field, FieldConfig, FieldProps, FieldValidator } from 'formik';
 
-import { Checkbox, CheckboxProps, Flex, FormGroup, FormGroupProps } from '@patternfly/react-core';
+import {
+  Checkbox,
+  CheckboxProps,
+  Flex,
+  FlexItem,
+  FormGroup,
+  FormGroupProps,
+} from '@patternfly/react-core';
 
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -37,20 +44,35 @@ const CheckboxField = ({
   <Field name={name} validate={validate} {...field}>
     {({ field, form, meta }: FieldProps) => (
       <FormGroup fieldId={field.name} {...(validate && { isRequired: true })} {...formGroup}>
-        <Flex flexWrap={{ default: 'nowrap' }}>
+        {hint ? (
+          <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsXs' }}>
+            <FlexItem>
+              <WithTooltip showTooltip={showTooltip} content={tooltip}>
+                <Checkbox
+                  id={field.name}
+                  label={label}
+                  isChecked={field.value}
+                  isDisabled={isDisabled}
+                  onBlur={() => form.setFieldTouched(name, true, true)}
+                  onChange={(event) => {
+                    field.onChange(event);
+                    setTimeout(() => form.setFieldTouched(name, true, true));
+                  }}
+                  value={field.value || false}
+                  {...(!formGroup?.label && validate && { isRequired: true })}
+                  {...input}
+                />
+              </WithTooltip>
+            </FlexItem>
+            <FlexItem>
+              <PopoverHint hint={hint} />
+            </FlexItem>
+          </Flex>
+        ) : (
           <WithTooltip showTooltip={showTooltip} content={tooltip}>
             <Checkbox
               id={field.name}
-              label={
-                hint ? (
-                  <Flex flexWrap={{ default: 'nowrap' }}>
-                    {label}
-                    <div className="pf-v6-u-ml-md">{hint && <PopoverHint hint={hint} />}</div>
-                  </Flex>
-                ) : (
-                  label
-                )
-              }
+              label={label}
               isChecked={field.value}
               isDisabled={isDisabled}
               onBlur={() => form.setFieldTouched(name, true, true)}
@@ -63,7 +85,7 @@ const CheckboxField = ({
               {...input}
             />
           </WithTooltip>
-        </Flex>
+        )}
 
         <FormGroupHelperText touched={meta.touched} error={meta.error}>
           {helperText}
