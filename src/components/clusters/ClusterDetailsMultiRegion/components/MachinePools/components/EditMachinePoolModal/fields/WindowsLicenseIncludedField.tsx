@@ -48,6 +48,8 @@ const WindowsLicenseIncludedField = ({
     </>
   );
 
+  const isDisabled = !isWinLiCompatible;
+
   return isEdit ? (
     isCurrentMPWinLiEnabled && (
       <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
@@ -58,10 +60,11 @@ const WindowsLicenseIncludedField = ({
     <CheckboxField
       name={fieldId}
       label="Enable machine pool for Windows License Included"
-      isDisabled={!isWinLiCompatible}
+      isDisabled={isDisabled}
       hint={hint}
-      showTooltip={!isWinLiCompatible}
+      showTooltip={isDisabled}
       tooltip="This instance type is not Windows License Included compatible, please see documentation for further details"
+      input={isDisabled ? { isChecked: false } : undefined}
     />
   );
 };
