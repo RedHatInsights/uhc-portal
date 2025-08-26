@@ -1,7 +1,7 @@
 FROM registry.ci.openshift.org/ci/rosa-aws-cli:latest AS builder
 WORKDIR /usr/bin
 
-FROM quay.io/openshifttest/cypress-included:13.6.4
+FROM quay.io/openshifttest/cypress-included:14.3.2
 
 COPY --from=builder /usr/bin/curl /usr/bin/curl
 COPY --from=builder /usr/bin/unzip /usr/bin/unzip
