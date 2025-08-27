@@ -40,7 +40,7 @@ const buildTestComponent = (
 describe('<WindowsLicenseIncludedField />', () => {
   describe('When creating a new Machine Pool', () => {
     describe('When selected Machine Type is Windows LI compatible', () => {
-      it('Shows the checkbox text', async () => {
+      it('Shows the checkbox text', () => {
         // Arrange
         render(
           buildTestComponent(
@@ -98,9 +98,9 @@ describe('<WindowsLicenseIncludedField />', () => {
 
       // Act
       // Assert
-      const checkbox = screen.getByText('Enable machine pool for Windows License Included');
+      const checkbox = screen.getByRole('checkbox');
       expect(checkbox).toBeInTheDocument();
-      expect(checkbox).toHaveClass('pf-m-disabled');
+      expect(checkbox).toBeDisabled();
 
       await user.hover(checkbox);
       expect(
@@ -116,9 +116,9 @@ describe('<WindowsLicenseIncludedField />', () => {
 
       // Act
       // Assert
-      const checkbox = screen.getByText('Enable machine pool for Windows License Included');
+      const checkbox = screen.getByRole('checkbox');
       expect(checkbox).toBeInTheDocument();
-      expect(checkbox).toHaveClass('pf-m-disabled');
+      expect(checkbox).toBeDisabled();
 
       await user.hover(checkbox);
       expect(
