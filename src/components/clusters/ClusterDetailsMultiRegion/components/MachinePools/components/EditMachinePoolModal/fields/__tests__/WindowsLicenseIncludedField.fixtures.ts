@@ -3,7 +3,7 @@ import { fieldId as instanceTypeFieldId } from '~/components/clusters/common/Sca
 const defaultMachinePool = {
   id: 'fooId',
   availability_zones: ['us-east-1a'],
-  href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/daznauro-mp',
+  href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/some-user-mp',
   instance_type: 'm5.xlarge',
   kind: 'MachinePool',
   replicas: 21,

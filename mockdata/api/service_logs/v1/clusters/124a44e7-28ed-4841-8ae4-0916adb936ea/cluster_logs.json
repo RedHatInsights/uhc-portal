@@ -38,7 +38,7 @@
       "severity": "Info",
       "summary": "Identity provider added",
       "timestamp": "2023-01-11T16:28:55Z",
-      "username": "maupadhy-hypershift"
+      "username": "user-hypershift"
     },
     {
       "cluster_id": "21696acc0dbkvh0mh4lranlmvvqb11lg",
@@ -58,7 +58,7 @@
       "severity": "Info",
       "summary": "Group user added",
       "timestamp": "2023-01-11T16:28:54Z",
-      "username": "maupadhy-hypershift"
+      "username": "user-hypershift"
     },
     {
       "cluster_id": "21696acc0dbkvh0mh4lranlmvvqb11lg",
@@ -78,7 +78,7 @@
       "severity": "Info",
       "summary": "NodePool added",
       "timestamp": "2023-01-11T16:27:21Z",
-      "username": "maupadhy-hypershift"
+      "username": "user-hypershift"
     },
     {
       "cluster_id": "21696acc0dbkvh0mh4lranlmvvqb11lg",
@@ -98,7 +98,7 @@
       "severity": "Info",
       "summary": "Default router is enabled",
       "timestamp": "2023-01-11T16:17:50Z",
-      "username": "maupadhy-hypershift"
+      "username": "user-hypershift"
     }
   ],
   "kind": "ClusterLogList",
