@@ -31,7 +31,7 @@ const WindowsLicenseIncludedField = ({
   const [__field, { value: instanceType }] = useField(instanceTypeFieldId);
   const isWinLiCompatible =
     // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-    (instanceType as MachineType & { features: { winLi: boolean } })?.features?.winLi ?? false;
+    !!(instanceType as MachineType & { features: { winLi: boolean } })?.features?.winLi;
 
   const isCurrentMPWinLiEnabled = isEdit && currentMP?.imageType === 'Windows';
 
