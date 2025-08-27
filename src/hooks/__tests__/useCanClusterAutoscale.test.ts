@@ -1,3 +1,4 @@
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import * as reduxHooks from '~/redux/hooks';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
@@ -72,7 +73,7 @@ describe('canAutoScale', () => {
   it('should allow autoscaling when there is a cluster level autosacle capability', () => {
     useGlobalStateMock.mockReturnValue(false);
     const mockCapabilites = [
-      { name: 'capability.cluster.subscribed_ocp', value: 'true', inherited: true },
+      { name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'true', inherited: true },
       { name: 'capability.cluster.cluster', value: 'true', inherited: false },
     ];
     const result = useCanClusterAutoscale(

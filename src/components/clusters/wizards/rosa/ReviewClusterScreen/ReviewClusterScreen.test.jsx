@@ -1,6 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
 import { render, screen, waitFor } from '~/testUtils';
 
@@ -416,7 +417,7 @@ describe('<ReviewClusterScreen />', () => {
           organization: {
             capabilities: [
               {
-                name: 'capability.organization.hcp_allow_external_authentication',
+                name: subscriptionCapabilities.HCP_ALLOW_EXTERNAL_AUTHENTICATION,
                 value: 'true',
                 inherited: false,
               },
