@@ -139,6 +139,14 @@ describe('<ClusterDetailsTop />', () => {
     expect(await screen.findByLabelText('Warning')).toBeInTheDocument();
   });
 
+  it('should show error card if install or uninstall fails', async () => {
+    const newProps = { ...props, cluster: { ...defaultCluster, state: 'error' } };
+
+    render(<ClusterDetailsTop {...newProps} />);
+
+    expect(await screen.findByText('Cluster is in an error state.')).toBeInTheDocument();
+  });
+
   it('should show only Unarchive button if the cluster is archived', async () => {
     const cluster = {
       ...fixtures.clusterDetails.cluster,
