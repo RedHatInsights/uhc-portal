@@ -101,22 +101,13 @@ describe('Datacenter Installer Subpage Component Tests', { tags: ['smoke'] }, ()
             .and('have.attr', 'href')
             .and('include', testData.rhcosData.learnMoreLinkPartial);
 
-          // Test only the first RHCOS download button to save memory
-          const firstButton = testData.rhcosData.downloadButtons[0];
-          InstallersPage.getRhcosDownloadButtonByText(firstButton.text)
-            .scrollIntoView()
-            .should('be.visible')
-            .and('have.attr', 'href')
-            .and('include', firstButton.hrefPartial);
-
-          if (testData.rhcosData.downloadButtons.length > 1) {
-            cy.log(
-              `Verifying existence of ${testData.rhcosData.downloadButtons.length - 1} additional RHCOS buttons`,
-            );
-            testData.rhcosData.downloadButtons.slice(1).forEach((button) => {
-              InstallersPage.getRhcosDownloadButtonByText(button.text).should('exist');
-            });
-          }
+          testData.rhcosData.downloadButtons.forEach((button) => {
+            InstallersPage.getRhcosDownloadButtonByText(button.text)
+              .scrollIntoView()
+              .should('be.visible')
+              .and('have.attr', 'href')
+              .and('include', button.hrefPartial);
+          });
         });
       }
     });
