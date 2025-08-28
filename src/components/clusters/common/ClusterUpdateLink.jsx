@@ -14,7 +14,7 @@ import links from '../../../common/installLinks.mjs';
 import { openModal } from '../../common/Modal/ModalActions';
 import modals from '../../common/Modal/modals';
 
-import { isHibernating } from './clusterStates';
+import clusterStates, { isHibernating } from './clusterStates';
 
 const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
   const dispatch = useDispatch();
@@ -27,6 +27,7 @@ const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
     clusterVersion &&
     !hideOSDUpdates;
   const isStale = cluster?.subscription?.status === SubscriptionCommonFieldsStatus.Stale;
+  const isClusterReady = cluster.state === clusterStates.ready;
 
   // Show which version the cluster is currently updating to
   if (
@@ -51,7 +52,7 @@ const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
     return null;
   }
 
-  if (cluster.managed) {
+  if (cluster.managed && isClusterReady) {
     return (
       <Button
         className="cluster-inline-link pf-v6-u-mt-0"
