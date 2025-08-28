@@ -1,3 +1,5 @@
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+
 const transfers = [
   {
     cluster_uuid: '19a65d3e-0603-406b-9cc8-6fe9541bbe46',
@@ -16,22 +18,22 @@ const transfers = [
       capabilities: [
         {
           inherited: false,
-          name: 'capability.cluster.manage_cluster_admin',
+          name: subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
           value: 'true',
         },
         {
           inherited: true,
-          name: 'capability.cluster.enable_access_protection',
+          name: subscriptionCapabilities.ENABLE_ACCESS_PROTECTION,
           value: 'true',
         },
         {
           inherited: true,
-          name: 'capability.cluster.subscribed_ocp',
+          name: subscriptionCapabilities.SUBSCRIBED_OCP,
           value: 'true',
         },
         {
           inherited: true,
-          name: 'capability.cluster.autoscale_clusters',
+          name: subscriptionCapabilities.AUTOSCALE_CLUSTERS,
           value: 'true',
         },
       ],

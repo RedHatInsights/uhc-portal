@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import { checkAccessibility, render, screen } from '~/testUtils';
 
 import { subscriptionSettings } from '../../../../common/subscriptionTypes';
@@ -30,7 +31,7 @@ describe('<SubscriptionCompliancy />', () => {
     cluster.subscription[SUPPORT_LEVEL] = SubscriptionCommonFieldsSupportLevel.Eval;
     cluster.subscription.capabilities = [
       {
-        name: 'capability.cluster.subscribed_ocp',
+        name: subscriptionCapabilities.SUBSCRIBED_OCP,
         value: 'true',
         inherited: true,
       },
@@ -53,7 +54,7 @@ describe('<SubscriptionCompliancy />', () => {
     cluster.subscription[SUPPORT_LEVEL] = SubscriptionCommonFieldsSupportLevel.Eval;
     cluster.subscription.capabilities = [
       {
-        name: 'capability.cluster.subscribed_ocp',
+        name: subscriptionCapabilities.SUBSCRIBED_OCP,
         value: 'true',
         inherited: true,
       },

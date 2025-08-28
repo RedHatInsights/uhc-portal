@@ -1,3 +1,4 @@
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import { Version } from '~/types/clusters_mgmt.v1';
 
 import {
@@ -133,19 +134,19 @@ const stableExpected = {
 
 const stateWithNonStableChannelGroupCapability = {
   capabilities: [
-    { name: 'capability.organization.non_stable_channel_group', value: 'true', inherited: false },
-    { name: 'capability.account.allow_etcd_encryption', value: 'false', inherited: false },
-    { name: 'capability.cluster.autoscale_clusters', value: 'true', inherited: false },
-    { name: 'capability.cluster.subscribed_ocp', value: 'false', inherited: false },
+    { name: subscriptionCapabilities.NON_STABLE_CHANNEL_GROUP, value: 'true', inherited: false },
+    { name: subscriptionCapabilities.ALLOW_ETCD_ENCRYPTION, value: 'false', inherited: false },
+    { name: subscriptionCapabilities.AUTOSCALE_CLUSTERS, value: 'true', inherited: false },
+    { name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'false', inherited: false },
   ],
 };
 
 const stateWithoutNonStableChannelGroupCapability = {
   capabilities: [
-    { name: 'capability.organization.non_stable_channel_group', value: 'false', inherited: false },
-    { name: 'capability.account.allow_etcd_encryption', value: 'false', inherited: false },
-    { name: 'capability.cluster.autoscale_clusters', value: 'true', inherited: false },
-    { name: 'capability.cluster.subscribed_ocp', value: 'false', inherited: false },
+    { name: subscriptionCapabilities.NON_STABLE_CHANNEL_GROUP, value: 'false', inherited: false },
+    { name: subscriptionCapabilities.ALLOW_ETCD_ENCRYPTION, value: 'false', inherited: false },
+    { name: subscriptionCapabilities.AUTOSCALE_CLUSTERS, value: 'true', inherited: false },
+    { name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'false', inherited: false },
   ],
 };
 
