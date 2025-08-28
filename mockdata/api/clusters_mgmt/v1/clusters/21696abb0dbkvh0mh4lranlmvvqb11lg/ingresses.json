@@ -1,14 +1,14 @@
 {
   "kind": "IngressList",
-  "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/ingresses",
-  "id": "21696acc0dbkvh0mh4lranlmvvqb11lg",
+  "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/ingresses",
+  "id": "21696abb0dbkvh0mh4lranlmvvqb11lg",
   "page": 1,
   "size": 1,
   "total": 1,
   "items": [
     {
       "kind": "Ingress",
-      "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/ingresses/j0l3",
+      "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/ingresses/j0l3",
       "id": "j0l3",
       "listening": "external",
       "default": true,

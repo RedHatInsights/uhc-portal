@@ -99,7 +99,7 @@ export const AwsAccountDetails = () => {
           <CheckboxField
             name={FieldId.DisableScpChecks}
             label="Bypass AWS service control policy (SCP) checks"
-            tooltip={constants.bypassSCPChecksHint}
+            hint={constants.bypassSCPChecksHint}
           />
         </GridItem>
       </Flex>

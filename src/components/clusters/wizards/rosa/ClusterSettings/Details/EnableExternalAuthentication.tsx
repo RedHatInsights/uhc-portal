@@ -13,7 +13,7 @@ export const EnableExternalAuthentication = () => (
     <CheckboxField
       name={FieldId.EnableExteranlAuthentication}
       label="External authentication"
-      tooltip={
+      hint={
         <ExternalLink href={links.ROSA_HCP_EXT_AUTH}>
           Learn more about external authentication
         </ExternalLink>
