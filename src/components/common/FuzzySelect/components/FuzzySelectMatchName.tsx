@@ -21,7 +21,7 @@ export const FuzzySelectMatchName: React.FC<FuzzySelectMatchNameProps> = ({
   <>
     {getIdSlices(entry.label, filterText).map((idSplit, index) => (
       // eslint-disable-next-line react/no-array-index-key
-      <span key={`slice-${index}`} className={idSplit.isBold ? 'pf-v5-u-font-weight-bold' : ''}>
+      <span key={`slice-${index}`} className={idSplit.isBold ? 'pf-v6-u-font-weight-bold' : ''}>
         {idSplit.text}
       </span>
     ))}

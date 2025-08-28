@@ -32,6 +32,7 @@ import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import {
   CREATE_CLUSTER_YAML_EDITOR,
   HYPERSHIFT_WIZARD_FEATURE,
+  IMDS_SELECTION,
   MULTIREGION_PREVIEW_ENABLED,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -60,6 +61,7 @@ const ReviewClusterScreen = ({
   createClusterResponse,
 }) => {
   const isCreateClusterYamlEditorEnabled = useFeatureGate(CREATE_CLUSTER_YAML_EDITOR);
+  const isImdsEnabledHypershift = useFeatureGate(IMDS_SELECTION);
   const {
     values: {
       [FieldId.ApplicationIngress]: applicationIngress,
@@ -260,7 +262,7 @@ const ReviewClusterScreen = ({
       <div className="ocm-create-osd-review-screen">
         <Flex>
           <FlexItem>
-            <Title headingLevel="h2" className="pf-v5-u-pb-md">
+            <Title headingLevel="h2" className="pf-v6-u-pb-md">
               Review your ROSA cluster
             </Title>
           </FlexItem>
@@ -335,6 +337,10 @@ const ReviewClusterScreen = ({
           {!(nodeLabels?.length === 1 && isEmpty(nodeLabels[0].key)) &&
             ReviewItem(FieldId.NodeLabels)}
           {!isHypershiftSelected && canSelectImds(clusterVersionRawId) && ReviewItem(FieldId.IMDS)}
+          {isHypershiftSelected &&
+            isImdsEnabledHypershift &&
+            canSelectImds(clusterVersionRawId) &&
+            ReviewItem(FieldId.IMDS)}
           {workerVolumeSizeGib && ReviewItem(FieldId.WorkerVolumeSizeGib)}
         </ReviewSection>
         <ReviewSection

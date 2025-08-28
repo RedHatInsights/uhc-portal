@@ -12,7 +12,7 @@ const awsSecretKey = Cypress.env('QE_AWS_ACCESS_KEY_SECRET');
 
 describe(
   'OSD AWS CCS Cluster - Create default public cluster with properties OCP-21086, OCP-21090)',
-  { tags: ['day1', 'aws', 'public'] },
+  { tags: ['day1', 'osd', 'aws', 'public'] },
   () => {
     before(() => {
       cy.visit('/create');

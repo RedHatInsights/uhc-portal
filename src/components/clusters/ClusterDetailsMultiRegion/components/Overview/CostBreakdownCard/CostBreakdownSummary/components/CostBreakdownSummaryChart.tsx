@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ChartPie } from '@patternfly/react-charts';
+import { ChartPie } from '@patternfly/react-charts/victory';
 
 import { Report } from '~/components/dashboard/CostCard/models/Report';
 

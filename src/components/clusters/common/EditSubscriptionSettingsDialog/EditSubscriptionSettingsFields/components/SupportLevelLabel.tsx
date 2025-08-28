@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core';
 
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -14,17 +14,17 @@ const SupportLevelLabel = () => (
       id="subscripiton-settings-support-level-hint"
       headerContent="Service level agreement (SLA)"
       hint={
-        <TextContent>
-          <Text component={TextVariants.p}>
+        <Content>
+          <Content component={ContentVariants.p}>
             How your subscription is supported, including the hours of support coverage and support
             ticket response times.
-          </Text>
-          <Text component={TextVariants.p}>
+          </Content>
+          <Content component={ContentVariants.p}>
             <ExternalLink href="https://access.redhat.com/support/">
               Production Support Terms of Service
             </ExternalLink>
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
       }
       iconClassName={LABEL_ICON_CLASS}
       hasAutoWidth

@@ -37,7 +37,7 @@ describe('<ReleaseChannel />', () => {
 
     expect(screen.getByRole('link')).toHaveAttribute(
       'href',
-      'https://docs.openshift.com/container-platform/4.6/release_notes/ocp-4-6-release-notes.html#ocp-4-6-12',
+      'https://docs.redhat.com/en/documentation/openshift_container_platform/4.6/html/release_notes/ocp-4-6-release-notes#ocp-4-6-12',
     );
     expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
   });

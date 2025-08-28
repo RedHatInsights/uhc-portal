@@ -3,13 +3,13 @@
 }
 
 .progressing-icon {
-  --pf-v5-c-spinner--diameter: var(--pf-v5-c-spinner--m-md--diameter) !important;
+  --pf-v6-c-spinner--diameter: var(--pf-v6-c-spinner--m-md--diameter) !important;
   vertical-align: middle;
 }
 
 .expected-cluster-installation-text {
-  color: var(--pf-v5-global--Color--400);
-  padding-top: var(--pf-v5-global--spacer--sm);
-  font-size: var(--pf-v5-global--FontSize--md);
-  font-weight: var(--pf-v5-global--FontWeight--normal);
+  color: var(--pf-t--global--text--color--subtle);
+  padding-top: var(--pf-t--global--spacer--sm);
+  font-size: var(--pf-t--global--font--size--md);
+  font-weight: var(--pf-t--global--font--weight--body--default);
 }

@@ -1,18 +1,8 @@
 import React from 'react';
 import { Location, useLocation } from 'react-router-dom';
 
-import {
-  Button,
-  Modal as PfModal,
-  ModalProps,
-  ModalVariant,
-  Spinner,
-  Split,
-  SplitItem,
-  Stack,
-  StackItem,
-  Title,
-} from '@patternfly/react-core';
+import { Button, Spinner, Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
+import { Modal as PfModal, ModalProps, ModalVariant } from '@patternfly/react-core/deprecated';
 
 import { NavigateFunction, useNavigate } from '~/common/routing';
 
@@ -177,7 +167,7 @@ const Modal = ({
       {...extraProps}
     >
       {isPending ? (
-        <div className="pf-v5-u-text-align-center">
+        <div className="pf-v6-u-text-align-center">
           <Spinner size="lg" aria-label="Loading..." />
         </div>
       ) : (

@@ -12,104 +12,93 @@ import './AvailabilityZoneSelection.scss';
 // https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-availability-zones
 const azLetters = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-class AvailabilityZoneSelection extends React.Component {
-  state = { isOpen: false };
+const AvailabilityZoneSelection = ({
+  input,
+  vpcId: newVpcId,
+  isDisabled,
+  enabledAvailabilityZones,
+  region,
+  label,
+  meta: { error, touched },
+}) => {
+  const [isOpen, setIsOpen] = React.useState(false);
 
-  componentDidUpdate(prevProps) {
-    // When the VPC changes, clear the existing selection
-    const { input, vpcId: newVpcId } = this.props;
-    if (prevProps.vpcId !== newVpcId && input.value) {
+  const prevVpc = React.useRef(newVpcId);
+
+  React.useEffect(() => {
+    if (prevVpc.current !== newVpcId && input.value) {
       input.onChange('');
     }
-  }
+  }, [input, newVpcId, prevVpc]);
 
-  onToggle = (isOpen) => {
-    this.setState({ isOpen });
+  const onToggle = (isOpen) => {
+    setIsOpen(isOpen);
   };
 
-  onSelect = (_, selection) => {
-    const { input } = this.props;
-    this.setState({ isOpen: false });
+  const onSelect = (_, selection) => {
+    setIsOpen(false);
     input.onChange(selection);
   };
 
-  render() {
-    const { isOpen } = this.state;
-    const {
-      input,
-      isDisabled,
-      enabledAvailabilityZones,
-      region,
-      label,
-      meta: { error, touched },
-    } = this.props;
+  const availabilityZones = azLetters
+    .map((letter) => ({
+      zoneId: `${region}${letter}`,
+      isDisabled:
+        enabledAvailabilityZones && !enabledAvailabilityZones.includes(`${region}${letter}`),
+    }))
+    .sort((azA, azB) => {
+      if (azA.isDisabled && !azB.isDisabled) {
+        return 1;
+      }
+      if (azB.isDisabled && !azA.isDisabled) {
+        return -1;
+      }
+      return azA.zoneId.localeCompare(azB.zoneId);
+    });
 
-    const availabilityZones = azLetters
-      .map((letter) => ({
-        zoneId: `${region}${letter}`,
-        isDisabled:
-          enabledAvailabilityZones && !enabledAvailabilityZones.includes(`${region}${letter}`),
-      }))
-      .sort((azA, azB) => {
-        if (azA.isDisabled && !azB.isDisabled) {
-          return 1;
-        }
-        if (azB.isDisabled && !azA.isDisabled) {
-          return -1;
-        }
-        return azA.zoneId.localeCompare(azB.zoneId);
-      });
+  const toggle = (toggleRef) => (
+    <MenuToggle
+      ref={toggleRef}
+      onClick={() => onToggle(!isOpen)}
+      isExpanded={isOpen}
+      isDisabled={isDisabled}
+      isFullWidth
+      aria-label="Options menu"
+      className="availability-zone-select"
+    >
+      {input.value ? input.value : 'Select availability zone'}
+    </MenuToggle>
+  );
 
-    const toggle = (toggleRef) => (
-      <MenuToggle
-        ref={toggleRef}
-        onClick={() => this.onToggle(!isOpen)}
-        isExpanded={isOpen}
-        isDisabled={isDisabled}
-        isFullWidth
-        aria-label="Options menu"
-        className="availability-zone-select"
+  return (
+    <FormGroup fieldId={input.name} label={label} className="ocm-c-create-osd-az-select" isRequired>
+      <Select
+        isOpen={isOpen}
+        selected={input.value}
+        onOpenChange={(isOpen) => onToggle(isOpen)}
+        toggle={toggle}
+        onSelect={onSelect}
+        aria-label={label}
       >
-        {input.value ? input.value : 'Select availability zone'}
-      </MenuToggle>
-    );
+        <SelectList aria-label="availability zone list">
+          {availabilityZones.map(({ zoneId, isDisabled }) => (
+            <SelectOption
+              key={zoneId}
+              value={zoneId}
+              isDisabled={isDisabled}
+              description={isDisabled ? 'This zone does not have all required subnets' : undefined}
+            >
+              {zoneId}
+            </SelectOption>
+          ))}
+        </SelectList>
+      </Select>
 
-    return (
-      <FormGroup
-        fieldId={input.name}
-        label={label}
-        className="ocm-c-create-osd-az-select"
-        isRequired
-      >
-        <Select
-          isOpen={isOpen}
-          selected={input.value}
-          onOpenChange={(isOpen) => this.onToggle(isOpen)}
-          toggle={toggle}
-          onSelect={this.onSelect}
-          aria-label={label}
-        >
-          <SelectList aria-label="availability zone list">
-            {availabilityZones.map(({ zoneId, isDisabled }) => (
-              <SelectOption
-                key={zoneId}
-                value={zoneId}
-                isDisabled={isDisabled}
-                description={
-                  isDisabled ? 'This zone does not have all required subnets' : undefined
-                }
-              >
-                {zoneId}
-              </SelectOption>
-            ))}
-          </SelectList>
-        </Select>
+      <FormGroupHelperText touched={touched} error={error} />
+    </FormGroup>
+  );
+};
 
-        <FormGroupHelperText touched={touched} error={error} />
-      </FormGroup>
-    );
-  }
-}
 AvailabilityZoneSelection.propTypes = {
   isDisabled: PropTypes.bool,
   label: PropTypes.string,

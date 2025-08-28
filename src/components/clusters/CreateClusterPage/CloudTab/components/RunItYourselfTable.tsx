@@ -12,10 +12,10 @@ const RunItYourselfTable = () => {
       key: 'alibaba',
       provider: (
         <>
-          <Link to="/install/alibaba" className="pf-v5-u-mr-xs">
+          <Link to="/install/alibaba" className="pf-v6-u-mr-xs">
             Alibaba Cloud
           </Link>
-          <TechnologyPreview className="pf-v5-u-ml-md pf-v5-u-display-inline" />
+          <TechnologyPreview className="pf-v6-u-ml-md pf-v6-u-display-inline" />
         </>
       ),
       options: 'Pre-existing infrastructure',
@@ -48,7 +48,7 @@ const RunItYourselfTable = () => {
     {
       key: 'azure_multi',
       provider: (
-        <Link to="/install/azure/multi/installer-provisioned" className="pf-v5-u-mr-xs">
+        <Link to="/install/azure/multi/installer-provisioned" className="pf-v6-u-mr-xs">
           Azure (multi-architecture)
         </Link>
       ),
@@ -81,15 +81,13 @@ const RunItYourselfTable = () => {
     },
     {
       key: 'oracle',
-      provider: (
-        <Link to="/install/oracle-cloud">Oracle Cloud Infrastructure (virtual machines)</Link>
-      ),
+      provider: <Link to="/install/oracle-cloud">Oracle Cloud Infrastructure</Link>,
       options: 'Pre-existing infrastructure',
     },
   ];
 
   return (
-    <Table aria-label="Run it yourself">
+    <Table aria-label="Run it yourself" data-testid="run-it-yourself">
       <Thead>
         <Tr>
           <Th>{columnNames.cloudProvider}</Th>

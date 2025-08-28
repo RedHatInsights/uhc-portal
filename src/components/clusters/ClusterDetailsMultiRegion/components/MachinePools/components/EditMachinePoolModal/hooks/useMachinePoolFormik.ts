@@ -21,10 +21,8 @@ import {
   getWorkerNodeVolumeSizeMaxGiB,
   getWorkerNodeVolumeSizeMinGiB,
 } from '~/components/clusters/common/machinePools/utils';
-import {
-  HCP_ROOT_DISK_SIZE,
-  OCMUI_MAX_NODES_TOTAL_249,
-} from '~/queries/featureGates/featureConstants';
+import { CloudProviderType, IMDSType } from '~/components/clusters/wizards/common';
+import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
@@ -51,6 +49,8 @@ export type EditMachinePoolValues = {
   instanceType: string | undefined;
   privateSubnetId: string | undefined;
   securityGroupIds: string[];
+  secure_boot?: boolean;
+  imds: IMDSType;
 };
 
 type UseMachinePoolFormikArgs = {
@@ -65,19 +65,25 @@ const isMachinePool = (pool?: MachinePool | NodePool): pool is MachinePool =>
 
 const isNodePool = (pool?: MachinePool | NodePool): pool is NodePool => pool?.kind === 'NodePool';
 
+const shieldedVmSecureBoot = (machinePool: MachinePool, cluster: ClusterFromSubscription) => {
+  if (!(machinePool as MachinePool)?.gcp) {
+    return cluster.gcp?.security?.secure_boot;
+  }
+  return (machinePool as MachinePool)?.gcp?.secure_boot !== false;
+};
+
 const useMachinePoolFormik = ({
   machinePool,
   cluster,
   machineTypes,
   machinePools,
 }: UseMachinePoolFormikArgs) => {
-  const hasHcpRootDiskSizeFeature = useFeatureGate(HCP_ROOT_DISK_SIZE);
-
   const isMachinePoolMz = isMPoolAz(
     cluster,
     (machinePool as MachinePool)?.availability_zones?.length,
   );
   const rosa = isROSA(cluster);
+  const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
 
   const minNodesRequired = getClusterMinNodes({
     cluster,
@@ -106,7 +112,7 @@ const useMachinePoolFormik = ({
       maxPrice = machinePool.aws?.spot_market_options?.max_price;
       diskSize = machinePool.root_volume?.aws?.size || machinePool.root_volume?.gcp?.size;
     } else if (isNodePool(machinePool)) {
-      diskSize = hasHcpRootDiskSizeFeature && machinePool.aws_node_pool?.root_volume?.size;
+      diskSize = machinePool.aws_node_pool?.root_volume?.size;
       const autoRepairValue = (machinePool as NodePool)?.auto_repair;
       autoRepair = autoRepairValue ?? true;
     }
@@ -116,7 +122,7 @@ const useMachinePoolFormik = ({
       autoscaleMax /= 3;
     }
 
-    return {
+    const machinePoolData: EditMachinePoolValues = {
       name: machinePool?.id || '',
       autoscaling: !!machinePool?.autoscaling,
       auto_repair: autoRepair,
@@ -140,12 +146,19 @@ const useMachinePoolFormik = ({
       diskSize: diskSize || defaultWorkerNodeVolumeSizeGiB,
       instanceType,
       privateSubnetId: undefined,
+      imds: IMDSType.V1AndV2,
       securityGroupIds:
         (machinePool as MachinePool)?.aws?.additional_security_group_ids ||
         (machinePool as NodePool)?.aws_node_pool?.additional_security_group_ids ||
         [],
     };
-  }, [machinePool, isMachinePoolMz, minNodesRequired, hasHcpRootDiskSizeFeature]);
+
+    if (isGCP) {
+      machinePoolData.secure_boot = shieldedVmSecureBoot(machinePool as MachinePool, cluster);
+    }
+
+    return machinePoolData;
+  }, [machinePool, isMachinePoolMz, minNodesRequired, cluster, isGCP]);
 
   const isHypershift = isHypershiftCluster(cluster);
 
@@ -156,7 +169,7 @@ const useMachinePoolFormik = ({
 
   const organization = useOrganization();
 
-  const allow249NodesOSDCCSROSA = useFeatureGate(OCMUI_MAX_NODES_TOTAL_249);
+  const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
 
   const validationSchema = React.useMemo(
     () =>

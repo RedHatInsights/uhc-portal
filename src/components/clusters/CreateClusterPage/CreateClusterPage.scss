@@ -1,25 +1,25 @@
 .cluster-create-page {
   h2.ocm-ocp-datacenter-title {
     display: inline-block;
-    margin-right: var(--pf-v5-global--spacer--md);
+    margin-right: var(--pf-t--global--spacer--md);
   }
   .create-button {
     min-width: 170px;
   }
   h2.font-weight-light {
-    font-weight: var(--pf-v5-global--FontWeight--normal);
+    font-weight: var(--pf-t--global--font--weight--body--default);
   }
 
   table.install-options-table {
     margin-top: 10px;
 
-    .pf-v5-c-table__th, .pf-v5-c-table__td {
+    .pf-v6-c-table__th, .pf-v6-c-table__td {
       padding-left: 20px;
     }
   }
 
   table.managed-subscriptions {
-    &.pf-v5-c-table tbody > tr > * {
+    &.pf-v6-c-table tbody > tr > * {
       vertical-align: middle;
     }
   }
@@ -39,6 +39,5 @@
 
   #subscriptions {
     float: right;
-    display: block;
   }
 }

@@ -17,14 +17,14 @@ const UserRoleStep = (props: AssociateAWSAccountStepProps) => {
   const { expandable } = props;
   return (
     <AssociateAWSAccountStep {...props}>
-      <Title headingLevel="h3" className="pf-v5-u-mb-md" size="md">
+      <Title headingLevel="h3" className="pf-v6-u-mb-md" size="md">
         First, check if a role exists and is linked with:
       </Title>
 
       <InstructionCommand
         data-testId="copy-rosa-list-user-role"
         textAriaLabel={`Copyable ROSA ${RosaCliCommand.ListUserRole} command`}
-        className="pf-v5-u-mb-lg"
+        className="pf-v6-u-mb-lg"
       >
         {RosaCliCommand.ListUserRole}
       </InstructionCommand>
@@ -36,10 +36,10 @@ const UserRoleStep = (props: AssociateAWSAccountStepProps) => {
         title={`If there is an existing role and it's already linked to your Red Hat account, ${
           expandable ? 'you can continue to step 3' : 'no further action is needed'
         }.`}
-        className="pf-v5-u-mb-lg"
+        className="pf-v6-u-mb-lg"
       />
 
-      <Title headingLevel="h3" size="md" className="pf-v5-u-mb-lg">
+      <Title headingLevel="h3" size="md" className="pf-v6-u-mb-lg">
         Next, is there an existing role that isn&apos;t linked?
       </Title>
 
@@ -47,6 +47,7 @@ const UserRoleStep = (props: AssociateAWSAccountStepProps) => {
         tabs={[
           {
             'data-testid': 'copy-user-role-tab-no',
+            id: 'copy-user-role-tab-no-id',
             title: 'No, create new role',
             body: (
               <>
@@ -64,6 +65,7 @@ const UserRoleStep = (props: AssociateAWSAccountStepProps) => {
           },
           {
             'data-testid': 'copy-user-role-tab-yes',
+            id: 'copy-user-role-tab-yes-id',
             title: 'Yes, link existing role',
             body: (
               <InstructionCommand

@@ -108,4 +108,34 @@ describe('isCompatibleFeature', () => {
       );
     });
   });
+  describe('Auto Cluster Transfer Ownership', () => {
+    const checkCompatibility = (testCluster: Partial<ClusterFromSubscription>) =>
+      isCompatibleFeature(SupportedFeature.AUTO_CLUSTER_TRANSFER_OWNERSHIP, testCluster);
+    describe('are incompatible for', () => {
+      it.each([
+        [
+          'Hypershift enabled',
+          { product: { id: normalizedProducts.ROSA }, hypershift: { enabled: true } },
+          false,
+        ],
+        [
+          'ROSA, not Hypershift',
+          { product: { id: normalizedProducts.ROSA }, hypershift: { enabled: false } },
+          true,
+        ],
+        ['ROSA_HyperShift', { product: { id: normalizedProducts.ROSA_HyperShift } }, false],
+        ['OCP', { product: { id: normalizedProducts.OCP } }, false],
+        ['OSD', { product: { id: normalizedProducts.OSD } }, false],
+      ])(
+        '"%s" clusters',
+        (
+          _clusterDesc: string,
+          clusterSettings: Partial<ClusterFromSubscription>,
+          result: boolean,
+        ) => {
+          expect(checkCompatibility(clusterSettings)).toEqual(result);
+        },
+      );
+    });
+  });
 });

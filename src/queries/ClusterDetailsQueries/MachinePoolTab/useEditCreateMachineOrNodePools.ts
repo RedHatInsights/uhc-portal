@@ -7,8 +7,6 @@ import {
   buildNodePoolRequest,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/components/EditMachinePoolModal/utils';
 import { isROSA } from '~/components/clusters/common/clusterStates';
-import { HCP_ROOT_DISK_SIZE } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { getClusterService, getClusterServiceForRegion } from '~/services/clusterService';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
@@ -18,8 +16,6 @@ export const useEditCreateMachineOrNodePools = (
   cluster: ClusterFromSubscription,
   currentMachinePool?: MachinePool,
 ) => {
-  const hasHcpRootDiskSizeFeature = useFeatureGate(HCP_ROOT_DISK_SIZE);
-
   const { data, isPending, isError, isSuccess, mutate, mutateAsync } = useMutation({
     mutationKey: ['createOrEditMachineOrNodePool', 'clusterService'],
     mutationFn: async ({
@@ -31,6 +27,7 @@ export const useEditCreateMachineOrNodePools = (
       values: EditMachinePoolValues;
       currentMPId?: string;
     }) => {
+      const updatedSecureBoot = cluster.gcp?.security?.secure_boot === values.secure_boot;
       const clusterService = region ? getClusterServiceForRegion(region) : getClusterService();
       const isMultiZoneMachinePool = isMPoolAz(
         cluster,
@@ -40,12 +37,12 @@ export const useEditCreateMachineOrNodePools = (
         ? buildNodePoolRequest(values, {
             isEdit: !!currentMPId,
             isMultiZoneMachinePool,
-            hasHcpRootDiskSizeFeature,
           })
         : buildMachinePoolRequest(values, {
             isEdit: !!currentMPId,
             isMultiZoneMachinePool,
             isROSACluster: isROSA(cluster),
+            isSecureBootUpdated: updatedSecureBoot,
           });
       if (currentMPId) {
         const request = isHypershift
@@ -54,7 +51,6 @@ export const useEditCreateMachineOrNodePools = (
         const response = await request(cluster.id || '', currentMPId, pool);
         return response;
       }
-
       const request = isHypershift ? clusterService.addNodePool : clusterService.addMachinePool;
       const response = await request(cluster.id || '', pool);
       return response;

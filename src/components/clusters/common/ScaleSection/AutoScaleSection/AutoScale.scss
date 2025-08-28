@@ -1,15 +1,15 @@
 #autoscaling {
   .autoscaling__nodes-formGroup,
-  .autoscaling__nodes-formGroup > .pf-v5-c-form__group-control {
+  .autoscaling__nodes-formGroup > .pf-v6-c-form__group-control {
     > input {
       width: 60px;
-      margin-right: var(--pf-v5-global--spacer--sm);
+      margin-right: var(--pf-t--global--spacer--sm);
     }
     > span {
-      margin-right: var(--pf-v5-global--spacer--sm);
+      margin-right: var(--pf-t--global--spacer--sm);
     }
   }
   .autoscaling__container {
-    margin-top: var(--pf-v5-global--spacer--md);
+    margin-top: var(--pf-t--global--spacer--md);
   }
 }

@@ -1,14 +1,5 @@
 .ocm-tile-create-cluster {
-  margin: 0 var(--pf-v5-global--spacer--lg) 0 0;
-  width: 293px;
-  --pf-v5-c-tile--PaddingLeft: 0;
-  --pf-v5-c-tile--PaddingRight: 0;
-  --pf-v5-c-tile__header--m-stacked__icon--MarginBottom: var(--pf-v5-global--spacer--md);
-  cursor: pointer;
-  border-radius: 3px;
-
-  .pf-v5-c-tile__title {
-    font-size: var(--pf-v5-global--FontSize--md);
-    font-weight: var(--pf-v5-global--FontWeight--bold);
+  .pf-v6-c-card__header-main {
+    font-size: 2rem;
   }
 }

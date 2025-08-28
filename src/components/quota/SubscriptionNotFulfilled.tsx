@@ -5,7 +5,6 @@ import {
   EmptyState,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateHeader,
   PageSection,
   Spinner,
 } from '@patternfly/react-core';
@@ -36,9 +35,8 @@ const SubscriptionNotFulfilled = ({ data, refresh, marketplace }: Props) => {
     text: React.ReactNode,
     button?: React.ReactNode,
   ) => (
-    <PageSection className="subscriptions-empty-state">
-      <EmptyState>
-        <EmptyStateHeader titleText={title} headingLevel="h4" />
+    <PageSection hasBodyWrapper={false}>
+      <EmptyState headingLevel="h4" titleText={title}>
         <EmptyStateBody>{text}</EmptyStateBody>
         <EmptyStateFooter>{button}</EmptyStateFooter>
       </EmptyState>
@@ -145,8 +143,8 @@ const SubscriptionNotFulfilled = ({ data, refresh, marketplace }: Props) => {
     content = getEmptyState(configType.errorTitle, errorText, errorButton);
   } else if (data.pending) {
     content = (
-      <PageSection>
-        <div className="pf-v5-u-text-align-center">
+      <PageSection hasBodyWrapper={false}>
+        <div className="pf-v6-u-text-align-center">
           <Spinner size="lg" aria-label="Loading..." />
         </div>
       </PageSection>

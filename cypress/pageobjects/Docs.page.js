@@ -1,7 +1,8 @@
 import Page from './page';
 
 class Docs extends Page {
-  containerPlatformDocPath = 'https://docs.openshift.com/container-platform/';
+  containerPlatformDocPath =
+    'https://docs.redhat.com/en/documentation/openshift_container_platform/';
 
   getcontainerPlatformDocAbsolutePath(version, relativePath) {
     var expression =

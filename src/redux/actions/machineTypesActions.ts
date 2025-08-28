@@ -44,11 +44,15 @@ const getMachineTypesByRegion = (
     { region: { id: region } },
   );
 
-const getMachineTypesByRegionARN = (roleARN: string, region: string) =>
+const getMachineTypesByRegionARN = (
+  roleARN: string,
+  region: string,
+  availabilityZones?: string[],
+) =>
   action(
     machineTypesConstants.GET_MACHINE_TYPES_BY_REGION,
     clusterService
-      .getMachineTypesByRegionARN(roleARN, region)
+      .getMachineTypesByRegionARN(roleARN, region, availabilityZones)
       .then((response) => groupByCloudProvider(response.data.items)),
     { region: { id: region } },
   );

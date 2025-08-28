@@ -105,4 +105,13 @@ describe('Formik fields change', () => {
 
     expect(screen.getAllByLabelText('Password *')).toHaveLength(2);
   });
+  describe('onlySingleItem', () => {
+    it('does not show label, add, or delete buttons if onlySingleItem', () => {
+      render(buildTestComponent(<CompoundFieldArray {...defaultProps} onlySingleItem />));
+
+      expect(screen.queryByText('Users list (1)')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Add user' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
+    });
+  });
 });

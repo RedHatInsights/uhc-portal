@@ -69,6 +69,7 @@ describe(
     });
     // WARNING! This test mimics the catchpoint test.  Please see comments above.
     it('[Catchpoint] Cluster list should contain at least on anchor with "/openshift/details/"', () => {
+      ClusterListPage.viewOnlyMyCluster().click({ force: true });
       ClusterListPage.checkForDetailsInAnchor();
     });
     it('Cluster list page: first anchor should navigate to details page', () => {

@@ -29,8 +29,8 @@ const TokenBox = ({
 }: Props) => {
   if (!token) {
     return (
-      <div className="pf-v5-u-mt-md">
-        <div className="pf-v5-u-mb-xs">
+      <div className="pf-v6-u-mt-md">
+        <div className="pf-v6-u-mb-xs">
           <Spinner size="lg" aria-label="Loading..." />
           <span>Loading token, this might take a minute</span>
         </div>
@@ -42,7 +42,7 @@ const TokenBox = ({
     <InstructionCommand
       className={className}
       textAriaLabel={textAriaLabel}
-      outerClassName="pf-v5-u-mt-md"
+      outerClassName="pf-v6-u-mt-md"
       {...props}
     >
       {command.replace('{{TOKEN}}', token === InvalidGrant ? '' : token)}
@@ -56,7 +56,7 @@ const TokenBox = ({
           <Alert
             variant="warning"
             isInline
-            className="pf-v5-u-mt-md"
+            className="pf-v6-u-mt-md"
             id="invalid_grant-message"
             title="Could not grant an offline token"
           >

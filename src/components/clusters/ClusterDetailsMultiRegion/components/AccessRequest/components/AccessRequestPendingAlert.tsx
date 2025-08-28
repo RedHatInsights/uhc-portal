@@ -19,7 +19,7 @@ const AccessRequestPendingAlert = ({
   total ? (
     <Alert
       id="pendingAccessRequestAlert"
-      className="pf-v5-u-mt-md"
+      className="pf-v6-u-mt-md"
       variant="warning"
       isInline
       title="Pending Access Requests"

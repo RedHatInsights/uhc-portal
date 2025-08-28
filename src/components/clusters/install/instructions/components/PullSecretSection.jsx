@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Text } from '@patternfly/react-core';
+import { ActionList, ActionListGroup, ActionListItem, Content } from '@patternfly/react-core';
 
 import CopyPullSecret from '../../../../downloads/CopyPullSecret';
 import DownloadPullSecret from '../../../../downloads/DownloadPullSecret';
@@ -9,14 +9,20 @@ import DownloadPullSecret from '../../../../downloads/DownloadPullSecret';
 function PullSecretSection({ token, pendoID, text }) {
   return (
     <>
-      <Text component="p">
+      <Content component="p">
         {text ||
           "Download or copy your pull secret. You'll be prompted for this information during installation."}
-      </Text>
-      <div>
-        <DownloadPullSecret token={token} pendoID={pendoID} />
-        <CopyPullSecret token={token} variant="link-tooltip" pendoID={pendoID} />
-      </div>
+      </Content>
+      <ActionList>
+        <ActionListGroup>
+          <ActionListItem>
+            <DownloadPullSecret token={token} pendoID={pendoID} />
+          </ActionListItem>
+          <ActionListItem>
+            <CopyPullSecret token={token} variant="link-tooltip" pendoID={pendoID} />
+          </ActionListItem>
+        </ActionListGroup>
+      </ActionList>
     </>
   );
 }

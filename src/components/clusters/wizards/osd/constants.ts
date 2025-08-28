@@ -90,7 +90,7 @@ export const breadcrumbs: BreadcrumbPath[] = [
 export const initialValues: FormikValues = {
   [FieldId.Product]: normalizedProducts.OSD,
   [FieldId.Byoc]: 'true',
-  [FieldId.CloudProvider]: CloudProviderType.Aws,
+  [FieldId.CloudProvider]: CloudProviderType.Gcp,
   [FieldId.AcknowledgePrereq]: false,
   [FieldId.BillingModel]: SubscriptionCommonFieldsClusterBillingModel.standard,
   [FieldId.MultiAz]: 'false',

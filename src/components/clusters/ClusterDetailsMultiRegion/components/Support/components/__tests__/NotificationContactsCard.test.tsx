@@ -1,7 +1,7 @@
 import React from 'react';
 import * as reactRedux from 'react-redux';
 
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
+import * as notifications from '@redhat-cloud-services/frontend-components-notifications';
 
 import { useDeleteNotificationContact } from '~/queries/ClusterDetailsQueries/ClusterSupportTab/useDeleteNotificationContact';
 import { useFetchNotificationContacts } from '~/queries/ClusterDetailsQueries/ClusterSupportTab/useFetchNotificationContacts';
@@ -29,9 +29,13 @@ jest.mock('react-redux', () => {
   return config;
 });
 
-jest.mock('@redhat-cloud-services/frontend-components-notifications/redux', () => ({
-  addNotification: jest.fn(),
-}));
+jest.mock('@redhat-cloud-services/frontend-components-notifications', () => {
+  const config = {
+    __esModule: true,
+    ...jest.requireActual('@redhat-cloud-services/frontend-components-notifications'),
+  };
+  return config;
+});
 
 jest.mock('~/components/common/ErrorBox', () => () => <div data-testid="error-box" />);
 
@@ -43,6 +47,10 @@ describe('<NotificationContactsCard />', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
   const mockedDispatch = jest.fn();
   useDispatchMock.mockReturnValue(mockedDispatch);
+
+  const useAddNotificationsMock = jest.spyOn(notifications, 'useAddNotification');
+  const mockedAddNotification = jest.fn();
+  useAddNotificationsMock.mockReturnValue(mockedAddNotification);
 
   const defaultProps = {
     subscriptionID: '1iGW3xYbKZAEdZLi207rcA1l0ob',
@@ -185,9 +193,11 @@ describe('<NotificationContactsCard />', () => {
 
     await user.click(deleteBtn);
     expect(mockedDispatch).toHaveBeenCalledWith(clearDeleteNotificationContacts());
-    expect(mockedDispatch).toHaveBeenCalledWith(
-      addNotification({ variant: 'success', title, dismissable: false }),
-    );
+    expect(mockedAddNotification).toHaveBeenCalledWith({
+      variant: 'success',
+      title,
+      dismissable: false,
+    });
   });
 
   it('renders what it is expected with error', async () => {
@@ -221,9 +231,11 @@ describe('<NotificationContactsCard />', () => {
     render(<NotificationContactsCard {...errorProps} />);
 
     // Assert
-    expect(useDispatchMock).not.toHaveBeenCalledWith(
-      addNotification({ variant: 'success', title, dismissable: false }),
-    );
+    expect(mockedAddNotification).not.toHaveBeenCalledWith({
+      variant: 'success',
+      title,
+      dismissable: false,
+    });
     expect(screen.getByTestId('error-box')).toBeInTheDocument();
   });
 });

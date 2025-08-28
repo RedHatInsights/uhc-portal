@@ -81,11 +81,11 @@ const ExternalLink = ({
   const childrenComp = (
     <>
       {children}
-      {noTarget ? null : <span className="pf-v5-u-screen-reader"> (new window or tab)</span>}
+      {noTarget ? null : <span className="pf-v6-u-screen-reader"> (new window or tab)</span>}
       {
         // TODO: replace it by <Button component="a" href="..." variant="link" icon={<ExternalLinkSquareAltIcon />} ...
         !noIcon && (
-          <Icon size="md" className="external-link-alt-icon">
+          <Icon size="md" isInline className="external-link-alt-icon">
             <ExternalLinkAltIcon data-testid="openInNewWindowIcon" />
           </Icon>
         )

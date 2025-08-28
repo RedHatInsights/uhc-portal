@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Field } from 'formik';
 import get from 'lodash/get';
 import PropTypes from 'prop-types';
@@ -6,17 +6,13 @@ import PropTypes from 'prop-types';
 import {
   Alert,
   Button,
+  Content,
+  ContentVariants,
   ExpandableSection,
   Grid,
   GridItem,
   Label,
   Spinner,
-  Text,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextListVariants,
-  TextVariants,
   Title,
 } from '@patternfly/react-core';
 
@@ -52,12 +48,19 @@ const hasCompleteRoleSet = (role, isHypershiftSelected) =>
   role.Installer && role.Support && role.Worker && (role.ControlPlane || isHypershiftSelected);
 
 // Order: current selected role > 'ManagedOpenShift'-prefixed role > first managed policy role > first complete role set > first incomplete role set > 'No Role Detected'
-const getDefaultInstallerRole = (
+export const getDefaultInstallerRole = (
   selectedInstallerRoleARN,
   accountRolesARNs,
   isHypershiftSelected,
 ) => {
-  if (selectedInstallerRoleARN && selectedInstallerRoleARN !== NO_ROLE_DETECTED) {
+  const isSelectedRoleValid = accountRolesARNs.some(
+    (role) => role.Installer === selectedInstallerRoleARN,
+  );
+  if (
+    selectedInstallerRoleARN &&
+    selectedInstallerRoleARN !== NO_ROLE_DETECTED &&
+    isSelectedRoleValid
+  ) {
     return selectedInstallerRoleARN;
   }
 
@@ -65,21 +68,29 @@ const getDefaultInstallerRole = (
     return NO_ROLE_DETECTED;
   }
 
-  const firstManagedPolicyRole = accountRolesARNs.find(
-    (role) => role.managedPolicies || role.hcpManagedPolicies,
+  const firstCompleteManagedPolicyRole = accountRolesARNs.find(
+    (role) =>
+      (role.managedPolicies || role.hcpManagedPolicies) &&
+      hasCompleteRoleSet(role, isHypershiftSelected),
   );
 
-  const hasManagedOpenshiftPrefix = accountRolesARNs.find(
+  const firstManagedOpenshiftPrefix = accountRolesARNs.find(
     (role) => role.prefix === 'ManagedOpenShift',
+  );
+
+  const firstCompleteManagedOpenshiftPrefix = accountRolesARNs.find(
+    (role) => role.prefix === 'ManagedOpenShift' && hasCompleteRoleSet(role, isHypershiftSelected),
   );
 
   const firstCompleteRoleSet = accountRolesARNs.find((role) =>
     hasCompleteRoleSet(role, isHypershiftSelected),
   );
+
   const defaultRole =
-    hasManagedOpenshiftPrefix ||
-    firstManagedPolicyRole ||
+    firstCompleteManagedOpenshiftPrefix ||
+    firstCompleteManagedPolicyRole ||
     firstCompleteRoleSet ||
+    (!firstCompleteRoleSet && firstManagedOpenshiftPrefix) ||
     accountRolesARNs[0];
 
   return defaultRole.Installer;
@@ -119,56 +130,59 @@ function AccountRolesARNsSection({
     if (!isHypershiftSelected) {
       setFieldTouched(FieldId.ControlPlaneRoleArn, true, false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHypershiftSelected]);
+  }, [isHypershiftSelected, setFieldTouched]);
 
-  const updateRoleArns = (role) => {
-    const promiseArr = [
-      setFieldValue(FieldId.InstallerRoleArn, role?.Installer || NO_ROLE_DETECTED, false),
-      setFieldValue(FieldId.SupportRoleArn, role?.Support || NO_ROLE_DETECTED, false),
-      setFieldValue(FieldId.WorkerRoleArn, role?.Worker || NO_ROLE_DETECTED, false),
-    ];
-    if (!isHypershiftSelected) {
-      promiseArr.push(
-        setFieldValue(FieldId.ControlPlaneRoleArn, role?.ControlPlane || NO_ROLE_DETECTED, false),
-      );
-    }
-    Promise.all(promiseArr).then(() => {
-      setTimeout(() => {
-        validateForm();
-      }, 10);
-    });
-  };
+  const updateRoleArns = useCallback(
+    (role) => {
+      const promiseArr = [
+        setFieldValue(FieldId.InstallerRoleArn, role?.Installer || NO_ROLE_DETECTED, false),
+        setFieldValue(FieldId.SupportRoleArn, role?.Support || NO_ROLE_DETECTED, false),
+        setFieldValue(FieldId.WorkerRoleArn, role?.Worker || NO_ROLE_DETECTED, false),
+      ];
+      if (!isHypershiftSelected) {
+        promiseArr.push(
+          setFieldValue(FieldId.ControlPlaneRoleArn, role?.ControlPlane || NO_ROLE_DETECTED, false),
+        );
+      }
+      Promise.all(promiseArr).then(() => {
+        setTimeout(() => {
+          validateForm();
+        }, 10);
+      });
+    },
+    [isHypershiftSelected, setFieldValue, validateForm],
+  );
 
   useEffect(() => {
     // Skips first render since prevSelected is undefined
     if (prevSelected && selectedAWSAccountID !== prevSelected) {
       updateRoleArns(null);
+      setSelectedInstallerRole(NO_ROLE_DETECTED);
+      setAccountRoles([]);
+      setInstallerRoleOptions([]);
+      setShowMissingArnsError(false);
+      clearGetAWSAccountRolesARNsResponse();
+      onAccountChanged();
     }
-    setSelectedInstallerRole(NO_ROLE_DETECTED);
-    setAccountRoles([]);
-    setInstallerRoleOptions([]);
-    setShowMissingArnsError(false);
-    clearGetAWSAccountRolesARNsResponse();
-    onAccountChanged();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAWSAccountID]);
+  }, [
+    selectedAWSAccountID,
+    prevSelected,
+    clearGetAWSAccountRolesARNsResponse,
+    onAccountChanged,
+    updateRoleArns,
+  ]);
 
   useEffect(() => {
-    let hasMissingArns = true;
-    accountRoles.forEach((role) => {
-      if (role.Installer === selectedInstallerRole) {
-        hasMissingArns = !hasCompleteRoleSet(role, isHypershiftSelected);
-        updateRoleArns(role);
-        setFieldValue(FieldId.RosaMaxOsVersion, role.version, false);
-      }
-    });
-    setShowMissingArnsError(hasMissingArns);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedInstallerRole]);
+    const selectedRole = accountRoles.find((role) => role.Installer === selectedInstallerRole);
+    setShowMissingArnsError(
+      !selectedRole || !hasCompleteRoleSet(selectedRole, isHypershiftSelected),
+    );
+  }, [selectedInstallerRole, accountRoles, isHypershiftSelected]);
 
-  const hasManagedPoliciesByRole = (role) =>
-    isHypershiftSelected ? role.hcpManagedPolicies : role.managedPolicies;
+  const hasManagedPoliciesByRole = useCallback(
+    (role) => (isHypershiftSelected ? role.hcpManagedPolicies : role.managedPolicies),
+    [isHypershiftSelected],
+  );
 
   // Determine whether the current selected role has managed policies and set to state managed value
   useEffect(() => {
@@ -177,61 +191,81 @@ function AccountRolesARNsSection({
     if (getAWSAccountRolesARNsResponse.fulfilled && selectedRole) {
       setHasManagedPolicies(hasManagedPoliciesByRole(selectedRole));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAWSAccountID, getAWSAccountRolesARNsResponse, selectedInstallerRole]);
+  }, [
+    getAWSAccountRolesARNsResponse,
+    selectedInstallerRole,
+    hasManagedPoliciesByRole,
+    accountRoles,
+  ]);
 
-  const setSelectedInstallerRoleAndOptions = (accountRolesARNs) => {
-    const installerOptions = accountRolesARNs.map((role) => ({
-      name: role.Installer,
-      value: role.Installer,
-      ...(!isHypershiftSelected &&
-        hasManagedPoliciesByRole(role) && {
-          label: (
-            <Label color="blue" isCompact>
-              Recommended
-            </Label>
-          ),
-        }),
-    }));
+  const setSelectedInstallerRoleAndOptions = useCallback(
+    (accountRolesARNs) => {
+      // Filter out ARN sets which do not have an Installer role, which is required and used as key for the dropdown.
+      // Other roles, if undefined, will show up as 'No Role Detected' in their respective fields.
+      const filteredRoles = accountRolesARNs.filter((role) => role.Installer);
 
-    if (installerOptions.length === 0) {
-      updateRoleArns(null);
-      setInstallerRoleOptions([]);
-      setFieldValue(FieldId.RosaMaxOsVersion, undefined);
-      setShowMissingArnsError(true);
-    } else {
-      setInstallerRoleOptions(
-        installerOptions.filter((installerRole) => installerRole.value !== undefined),
+      const installerOptions = filteredRoles.map((role) => ({
+        name: role.Installer,
+        value: role.Installer,
+        ...(!isHypershiftSelected &&
+          hasManagedPoliciesByRole(role) && {
+            label: (
+              <Label color="blue" isCompact>
+                Recommended
+              </Label>
+            ),
+          }),
+      }));
+
+      const defaultInstallerRole = getDefaultInstallerRole(
+        selectedInstallerRoleARN,
+        filteredRoles,
+        isHypershiftSelected,
       );
-      setShowMissingArnsError(false);
-    }
-    setAccountRoles(accountRolesARNs);
-    setHasFinishedLoadingRoles(true);
+      const defaultRole = filteredRoles.find((role) => role.Installer === defaultInstallerRole);
 
-    const defaultInstallerRole = getDefaultInstallerRole(
-      selectedInstallerRoleARN,
-      accountRolesARNs,
+      if (installerOptions.length === 0) {
+        updateRoleArns(null);
+        setInstallerRoleOptions([]);
+        setFieldValue(FieldId.RosaMaxOsVersion, undefined);
+      } else {
+        updateRoleArns(defaultRole);
+        setInstallerRoleOptions(installerOptions);
+        setFieldValue(FieldId.RosaMaxOsVersion, defaultRole.version, false);
+      }
+      setAccountRoles(filteredRoles);
+      setHasFinishedLoadingRoles(true);
+
+      setSelectedInstallerRole(defaultInstallerRole);
+    },
+    [
       isHypershiftSelected,
-    );
-    setSelectedInstallerRole(defaultInstallerRole);
-  };
+      hasManagedPoliciesByRole,
+      selectedInstallerRoleARN,
+      setFieldValue,
+      updateRoleArns,
+    ],
+  );
 
-  const trackArnsRefreshed = (response) => {
-    const alertErrorTitle = isMissingOCMRole
-      ? 'Cannot detect an OCM role'
-      : 'Error getting AWS account ARNs';
-    track(trackEvents.ARNsRefreshed, {
-      customProperties: {
-        error: !!response.error,
-        ...(response.error && {
-          error_title: alertErrorTitle,
-          error_message: response.errorMessage || undefined, // omit empty strings
-          error_code: response.errorCode,
-          error_operation_id: response.operationID,
-        }),
-      },
-    });
-  };
+  const trackArnsRefreshed = useCallback(
+    (response) => {
+      const alertErrorTitle = isMissingOCMRole
+        ? 'Cannot detect an OCM role'
+        : 'Error getting AWS account ARNs';
+      track(trackEvents.ARNsRefreshed, {
+        customProperties: {
+          error: !!response.error,
+          ...(response.error && {
+            error_title: alertErrorTitle,
+            error_message: response.errorMessage || undefined, // omit empty strings
+            error_code: response.errorCode,
+            error_operation_id: response.operationID,
+          }),
+        },
+      });
+    },
+    [isMissingOCMRole, track],
+  );
 
   useEffect(() => {
     if (
@@ -255,15 +289,20 @@ function AccountRolesARNsSection({
     } else if (getAWSAccountRolesARNsResponse.error) {
       setSelectedInstallerRoleAndOptions([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAWSAccountID, getAWSAccountRolesARNsResponse]);
+  }, [
+    selectedAWSAccountID,
+    getAWSAccountRolesARNsResponse,
+    getAWSAccountRolesARNs,
+    isHypershiftSelected,
+    useHCPManagedAndUnmanaged,
+    setSelectedInstallerRoleAndOptions,
+  ]);
 
   useEffect(() => {
     if (getAWSAccountRolesARNsResponse.fulfilled || getAWSAccountRolesARNsResponse.error) {
       trackArnsRefreshed(getAWSAccountRolesARNsResponse);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getAWSAccountRolesARNsResponse]);
+  }, [getAWSAccountRolesARNsResponse, trackArnsRefreshed]);
 
   const onToggle = () => {
     setIsExpanded(!isExpanded);
@@ -274,6 +313,8 @@ function AccountRolesARNsSection({
     // rosa_max_os_version, so clear the cluster_version which
     // will get a new default on next step of the wizard
     setFieldValue(FieldId.ClusterVersion, undefined);
+    const role = accountRoles.find((r) => r.Installer === value);
+    updateRoleArns(role);
     setSelectedInstallerRole(value);
   };
 
@@ -285,13 +326,6 @@ function AccountRolesARNsSection({
     getAWSAccountRolesARNs(selectedAWSAccountID);
     setHasFinishedLoadingRoles(false);
     setShowMissingArnsError(false);
-
-    // Clear the installer role/version if the latest fetched roles do not possess the previously selected one.
-    if (!accountRoles.some((role) => role.Installer === selectedInstallerRole)) {
-      setFieldValue(FieldId.InstallerRoleArn, '', false);
-      setSelectedInstallerRole('');
-      setFieldValue(FieldId.ClusterVersion, undefined);
-    }
   };
 
   const [latestOCPVersion, latestVersionLoaded] = useOCPLatestVersion('stable');
@@ -301,7 +335,7 @@ function AccountRolesARNsSection({
 
   const arnCompatibilityAlertTitle = React.useMemo(() => {
     if (isHypershiftSelected)
-      return 'The selected account-wide roles are compatible with all OpenShift versions which support hosted control planes.';
+      return 'The selected account-wide roles are compatible with all OpenShift versions which support a hosted control plane.';
     if (hasStandaloneManagedRole)
       return `The selected account-wide roles are preferred and compatible with OpenShift version ${MIN_MANAGED_POLICY_VERSION} and newer.`;
 
@@ -345,13 +379,13 @@ function AccountRolesARNsSection({
             onToggle={onToggle}
             toggleText="Account roles ARNs"
           >
-            <Text component={TextVariants.p}>
+            <Content component={ContentVariants.p}>
               The following roles were detected in your AWS account.{' '}
               <ExternalLink href={links.ROSA_AWS_IAM_RESOURCES}>
                 Learn more about account roles
               </ExternalLink>
               .
-            </Text>
+            </Content>
             <br />
             <Button
               variant="secondary"
@@ -374,7 +408,6 @@ function AccountRolesARNsSection({
                     // name, value, onBlur, onChange
                     ...getFieldProps(FieldId.InstallerRoleArn),
                     onChange: (value) => {
-                      setFieldValue(FieldId.InstallerRoleArn, value);
                       onInstallerRoleChange(null, value);
                     },
                   }}
@@ -481,30 +514,30 @@ function AccountRolesARNsSection({
                     title={arnCompatibilityAlertTitle}
                   >
                     {rolesOutOfDate && !(hasStandaloneManagedRole || isHypershiftSelected) && (
-                      <TextContent>
-                        <Text component={TextVariants.p} className="pf-v5-u-mt-sm">
+                      <Content>
+                        <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
                           <strong>
                             To update account roles to the latest OpenShift version (
                             {formatMinorVersion(latestOCPVersion)}):
                           </strong>
-                        </Text>
-                        <TextList component={TextListVariants.ol}>
-                          <TextListItem>
-                            <Text component={TextVariants.p}>
+                        </Content>
+                        <Content component={ContentVariants.ol}>
+                          <Content component="li">
+                            <Content component={ContentVariants.p}>
                               Download latest ({formatMinorVersion(latestOCPVersion)}){' '}
                               <Link to="/downloads#tool-ocm">ocm</Link> and{' '}
                               <Link to="/downloads#tool-rosa">rosa</Link> CLIs
-                            </Text>
-                          </TextListItem>
-                          <TextListItem className="pf-v5-u-mb-sm">
-                            <Text component={TextVariants.p}>Recreate ARNs using</Text>
-                            <Text component={TextVariants.p}>
+                            </Content>
+                          </Content>
+                          <Content component="li" className="pf-v6-u-mb-sm">
+                            <Content component={ContentVariants.p}>Recreate ARNs using</Content>
+                            <Content component={ContentVariants.p}>
                               <InstructionCommand textAriaLabel="Copyable ROSA create account-roles command">
                                 {RosaCliCommand.CreateAccountRoles}
                               </InstructionCommand>
-                            </Text>
-                          </TextListItem>
-                        </TextList>
+                            </Content>
+                          </Content>
+                        </Content>
                         {/*
                         // TODO restore this when we have a doc URL (see https://issues.redhat.com/browse/OSDOCS-4138)
                         <Text component={TextVariants.p}>
@@ -513,7 +546,7 @@ function AccountRolesARNsSection({
                           </ExternalLink>
                         </Text>
                         */}
-                      </TextContent>
+                      </Content>
                     )}
                   </Alert>
                 </GridItem>

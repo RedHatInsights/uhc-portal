@@ -2,8 +2,12 @@ import React, { useCallback, useState } from 'react';
 
 import { Flex, FlexItem, PageSection, Title } from '@patternfly/react-core';
 
+import { useScrollToAnchor } from '~/common/helpers';
 import { Link } from '~/common/routing';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
+import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
+import { ASSISTED_MIGRATION_ENABLED } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import docLinks from '../../common/installLinks.mjs';
 import OpenShiftProductIcon from '../../styles/images/OpenShiftProductIcon.svg';
@@ -26,20 +30,18 @@ const openshiftHeaderContent: OverviewProductBannerProps = {
   icon: OpenShiftProductIcon,
   altText: 'OpenShift',
   learnMoreLink: docLinks.WHAT_IS_OPENSHIFT,
-  description: (
-    <>
-      Focus on work that matters with the industry&#39;s leading hybrid cloud application platform
-      powered by Kubernetes.
-      <br />
-      Develop, modernize, deploy, run, and manage your applications faster and easier.
-    </>
-  ),
+  description:
+    "Focus on work that matters with the industry's leading hybrid cloud application platform powered by Kubernetes. \nDevelop, modernize, deploy, run, and manage your applications faster and easier.",
   dataTestId: 'OverviewHeader',
 };
 
 const PAGE_TITLE = 'Overview | Red Hat OpenShift Cluster Manager';
 
 function OverviewEmptyState() {
+  useScrollToAnchor();
+
+  const { canCreateManagedCluster } = useCanCreateManagedCluster();
+
   const createClusterURL = '/create';
   const CreateClusterLink = useCallback(
     (props: any) => <Link {...props} data-testid="create-cluster" to={createClusterURL} />,
@@ -67,6 +69,8 @@ function OverviewEmptyState() {
     setSelectedCardTitle('');
   };
 
+  const isAssistedMigrationEnabled = useFeatureGate(ASSISTED_MIGRATION_ENABLED);
+
   return (
     <DrawerPanel
       title={drawerInfo?.title}
@@ -76,29 +80,37 @@ function OverviewEmptyState() {
     >
       <AppPage title={PAGE_TITLE}>
         <OverviewProductBanner {...openshiftHeaderContent} />
-        <PageSection>
+        <PageSection hasBodyWrapper={false}>
           <Title size="xl" headingLevel="h2">
             Featured OpenShift cluster types
           </Title>
-          <Flex className="pf-v5-u-mb-lg">
-            <FlexItem className="pf-v5-u-pt-md" data-testid="offering-card_RHOSD">
-              <OfferingCard offeringType="RHOSD" />
+          <Flex className="pf-v6-u-mb-lg">
+            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_RHOSD">
+              <OfferingCard
+                offeringType="RHOSD"
+                canCreateManagedCluster={canCreateManagedCluster}
+              />
             </FlexItem>
-            <FlexItem className="pf-v5-u-pt-md" data-testid="offering-card_AWS">
-              <OfferingCard offeringType="AWS" />
+            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_AWS">
+              <OfferingCard offeringType="AWS" canCreateManagedCluster={canCreateManagedCluster} />
             </FlexItem>
-            <FlexItem className="pf-v5-u-pt-md" data-testid="offering-card_Azure">
+            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_Azure">
               <OfferingCard offeringType="Azure" />
             </FlexItem>
-            <FlexItem className="pf-v5-u-pt-md" data-testid="offering-card_RHOCP">
+            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_RHOCP">
               <OfferingCard offeringType="RHOCP" />
             </FlexItem>
-            <FlexItem className="pf-v5-u-pt-md" data-testid="offering-card_RHOIBM">
+            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_RHOIBM">
               <OfferingCard offeringType="RHOIBM" />
             </FlexItem>
-            <FlexItem className="pf-v5-u-pt-md" data-testid="offering-card_DEVSNBX">
+            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_DEVSNBX">
               <OfferingCard offeringType="DEVSNBX" />
             </FlexItem>
+            {isAssistedMigrationEnabled && (
+              <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_MIGRATION">
+                <OfferingCard offeringType="MIGRATION" />
+              </FlexItem>
+            )}
           </Flex>
           <InternalTrackingLink
             to={createClusterURL}

@@ -105,7 +105,7 @@ const reviewValues = {
   hypershift: {
     title: 'Control plane',
     isBoolean: true,
-    values: { true: 'Hosted', false: 'Classic' },
+    values: { true: 'Hosted architecture', false: 'Classic architecture' },
   },
   region: {
     title: 'Region',
@@ -240,7 +240,7 @@ const reviewValues = {
           {allValues.multi_az === 'true' && allValues.hypershift !== 'true' ? ' per zone' : ''}:
         </span>{' '}
         {value || 0}
-        <span className="pf-v5-u-ml-lg">
+        <span className="pf-v6-u-ml-lg">
           Maximum nodes
           {allValues.hypershift === 'true' ? ' per machine pool' : ''}
           {allValues.multi_az === 'true' && allValues.hypershift !== 'true' ? ' per zone' : ''}:
@@ -253,12 +253,11 @@ const reviewValues = {
     title: 'Node labels',
     valueTransform: (labels) => (
       <LabelGroup>
-        {
-          // eslint-disable-next-line react/destructuring-assignment
-          labels.map((label) => (
-            <Label color="blue" isTruncated>{`${label.key} = ${label.value || ''}`}</Label>
-          ))
-        }
+        {labels.map((label) => (
+          <Label key={label.key} color="blue" textMaxWidth="15em">
+            {`${label.key} = ${label.value || ''}`}
+          </Label>
+        ))}
       </LabelGroup>
     ),
   },
@@ -443,7 +442,7 @@ const reviewValues = {
       <LabelGroup>
         {/* eslint-disable-next-line react/destructuring-assignment */}
         {noProxyDomains.map((domain) => (
-          <Label color="blue" isCompact isTruncated>
+          <Label color="blue" isCompact textMaxWidth="15em">
             {domain}
           </Label>
         ))}

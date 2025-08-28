@@ -30,7 +30,9 @@ const initialState = {
 };
 
 describe('<AccessControl />', () => {
-  const buildComponent = (cluster) => <AccessControl cluster={cluster || buildCluster({})} />;
+  const buildComponent = (cluster) => (
+    <AccessControl cluster={cluster || buildCluster({})} isAutoClusterTransferOwnershipEnabled />
+  );
 
   describe('Tab grouping', () => {
     it('has "single-tab" class if only one section is shown', () => {
@@ -48,7 +50,7 @@ describe('<AccessControl />', () => {
       });
       withState(initialState, true).render(buildComponent(singleTabCluster));
 
-      const cardBody = document.querySelector('.pf-v5-c-card__body');
+      const cardBody = document.querySelector('.pf-v6-c-card__body');
       expect(cardBody.classList).toContain('single-tab');
       expect(screen.getAllByRole('tab')).toHaveLength(1);
     });
@@ -68,7 +70,7 @@ describe('<AccessControl />', () => {
       });
       withState(initialState, true).render(buildComponent(multipleTabCluster));
 
-      const cardBody = document.querySelector('.pf-v5-c-card__body');
+      const cardBody = document.querySelector('.pf-v6-c-card__body');
       expect(cardBody.classList).not.toContain('single-tab');
       expect(screen.getAllByRole('tab')).toHaveLength(3);
     });
@@ -185,6 +187,54 @@ describe('<AccessControl />', () => {
       withState(initialState, true).render(buildComponent(hypershiftCluster));
 
       expect(screen.getByRole('tab', { name: 'Cluster Roles and Access' })).toBeInTheDocument();
+    });
+  });
+
+  describe('Transfer Ownership section', () => {
+    it('is hidden for invalid clusters', () => {
+      const testCluster = buildCluster({
+        clusterProps: {
+          hypershift: { enabled: true },
+          state: clusterStates.INSTALLING,
+          idpActions: {
+            get: false,
+            list: false,
+            create: false,
+            update: false,
+            delete: false,
+          },
+        },
+        subscriptionProps: {
+          plan: { id: normalizedProducts.ROSA_HyperShift },
+        },
+        consoleUrl: '',
+      });
+      withState(initialState, true).render(buildComponent(testCluster));
+
+      expect(screen.queryByRole('tab', { name: 'Transfer Ownership' })).not.toBeInTheDocument();
+    });
+
+    it('is shown for ROSA cluster', () => {
+      const testCluster = buildCluster({
+        clusterProps: {
+          hypershift: { enabled: false },
+          product: { id: 'ROSA' },
+          idpActions: {
+            get: false,
+            list: false,
+            create: false,
+            update: false,
+            delete: false,
+          },
+        },
+        subscriptionProps: {
+          plan: { id: normalizedProducts.ROSA },
+        },
+        consoleUrl: '',
+      });
+      withState(initialState, true).render(buildComponent(testCluster));
+
+      expect(screen.getByRole('tab', { name: 'Transfer Ownership' })).toBeInTheDocument();
     });
   });
 });

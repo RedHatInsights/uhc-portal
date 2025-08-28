@@ -15,7 +15,7 @@ const getReleaseNotesLink = (version: string | undefined): string | null => {
     return null;
   }
 
-  const pageURL = `https://docs.openshift.com/container-platform/${major}.${minor}/release_notes/ocp-${major}-${minor}-release-notes.html`;
+  const pageURL = `https://docs.redhat.com/en/documentation/openshift_container_platform/${major}.${minor}/html/release_notes/ocp-${major}-${minor}-release-notes`;
   const patchAnchor = `#ocp-${major}-${minor}-${patch}`;
 
   if (patch > 0) {

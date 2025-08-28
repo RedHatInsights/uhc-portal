@@ -1,7 +1,7 @@
 import React from 'react';
 import { Field } from 'formik';
 
-import { Grid, GridItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Content, ContentVariants, Grid, GridItem } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import { required, validatePrivateHostedZoneId, validateRoleARN } from '~/common/validators';
@@ -15,20 +15,24 @@ import { FieldId } from '../constants';
 
 import SharedVPCDomainSelect from './SharedVPCDomainSelect';
 
-function HostedZoneHelpText({ domainName }: { domainName: string }) {
+type HostedZoneHelpTextProps = { domainName?: string };
+
+function HostedZoneHelpText({ domainName }: HostedZoneHelpTextProps) {
   return (
-    <TextContent>
-      <Text component={TextVariants.small} className="pf-v5-u-color-100">
+    <Content>
+      <Content component={ContentVariants.small} className="pf-v6-u-color-100">
         Enter the private hosted zone ID that&apos;s linked to the AWS owner account you want to
         use. The private hosted zone must have been created with
-        <strong className="pf-v5-u-font-size-md"> {domainName} </strong>as the domain name.
+        <strong className="pf-v6-u-font-size-md"> {domainName} </strong>as the domain name.
         <ExternalLink href={links.AWS_CONSOLE_HOSTED_ZONES}> AWS console</ExternalLink>
-      </Text>
-    </TextContent>
+      </Content>
+    </Content>
   );
 }
 
-const SharedVPCField = ({ hostedZoneDomainName }: { hostedZoneDomainName: string }) => {
+type SharedVPCFieldProps = { hostedZoneDomainName?: string };
+
+const SharedVPCField = ({ hostedZoneDomainName }: SharedVPCFieldProps) => {
   const { setFieldValue, setFieldTouched, getFieldProps, getFieldMeta } = useFormState();
   const baseDnsDomainFieldName = `${FieldId.SharedVpc}.base_dns_domain`;
   const hostedZoneIdFieldName = `${FieldId.SharedVpc}.hosted_zone_id`;
@@ -38,11 +42,11 @@ const SharedVPCField = ({ hostedZoneDomainName }: { hostedZoneDomainName: string
       <GridItem span={10}>
         <Instructions wide>
           <Instruction simple>
-            <TextContent className="pf-v5-u-pb-md">
-              <Text component={TextVariants.p}>
+            <Content className="pf-v6-u-pb-md">
+              <Content component={ContentVariants.p}>
                 Select an existing base DNS domain or reserve a new base DNS domain.
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
 
             <Field
               label="Base DNS domain"
@@ -59,11 +63,11 @@ const SharedVPCField = ({ hostedZoneDomainName }: { hostedZoneDomainName: string
           </Instruction>
 
           <Instruction simple>
-            <TextContent className="pf-v5-u-pb-md">
-              <Text component={TextVariants.p}>
+            <Content className="pf-v6-u-pb-md">
+              <Content component={ContentVariants.p}>
                 Associate your DNS domain with a private hosted zone.
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
             <Field
               label="Private hosted zone ID"
               name={hostedZoneIdFieldName}
@@ -84,9 +88,11 @@ const SharedVPCField = ({ hostedZoneDomainName }: { hostedZoneDomainName: string
           </Instruction>
 
           <Instruction simple>
-            <TextContent className="pf-v5-u-pb-md">
-              <Text component={TextVariants.p}>Provide the role ARN for the existing VPC.</Text>
-            </TextContent>
+            <Content className="pf-v6-u-pb-md">
+              <Content component={ContentVariants.p}>
+                Provide the role ARN for the existing VPC.
+              </Content>
+            </Content>
             <Field
               label="Shared VPC role"
               name={hostedZoneRoleArnFieldName}

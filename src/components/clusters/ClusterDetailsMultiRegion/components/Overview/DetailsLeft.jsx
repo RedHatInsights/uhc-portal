@@ -7,8 +7,10 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Skeleton,
 } from '@patternfly/react-core';
 
+import { Owner } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/Owner/Owner';
 import { isCCS, isGCP, isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import getBillingModelLabel from '~/components/clusters/common/getBillingModelLabel';
 import { OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
@@ -33,7 +35,7 @@ const getIdFields = (cluster, showAssistedId) => {
   }
   return { id, idLabel: label };
 };
-function DetailsLeft({ cluster, cloudProviders, showAssistedId }) {
+function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData }) {
   const cloudProviderId = cluster.cloud_provider ? cluster.cloud_provider.id : null;
   const region = cluster?.region?.id;
   const planType = get(cluster, 'subscription.plan.type');
@@ -47,10 +49,18 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId }) {
   const hasAuthenticationType = isWifEnabled && isGCP(cluster) && isCCS(cluster);
   // We only have information about the wif configuration, we imply that if a wif config is not used
   // the user chose the other GCP authentication type, the service account
-  const authenticationType =
-    cluster?.gcp?.authentication?.kind === 'WifConfig'
-      ? 'Workload Identity Federation'
-      : 'Service Account';
+  const isWifCluster = hasAuthenticationType && cluster?.gcp?.authentication?.kind === 'WifConfig';
+  const authenticationType = isWifCluster ? 'Workload Identity Federation' : 'Service Account';
+  const wifConfigName = useMemo(() => {
+    switch (true) {
+      case wifConfigData?.isLoading:
+        return <Skeleton fontSize="md" width="10em" screenreaderText="Loading WIF configuration" />;
+      case wifConfigData?.isSuccess:
+        return wifConfigData?.displayName;
+      default:
+        return 'N/A';
+    }
+  }, [wifConfigData]);
 
   let cloudProvider;
   if (cloudProviderId && cloudProviders && cloudProviders[cloudProviderId]) {
@@ -60,7 +70,7 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId }) {
   }
 
   const { id, idLabel } = getIdFields(cluster, showAssistedId);
-  const controlPlaneType = isHypershift ? 'Hosted' : 'Classic';
+  const controlPlaneType = `${isHypershift ? 'Hosted' : 'Classic'} architecture`;
   const sharedVpcZoneId = get(cluster, 'aws.private_hosted_zone_id', false);
   const domainPrefix = cluster?.domain_prefix;
   const availabilityLabel = useMemo(() => {
@@ -92,7 +102,7 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId }) {
           <ClusterTypeLabel cluster={cluster} />
         </DescriptionListDescription>
       </DescriptionListGroup>
-      {isHypershift && (
+      {isROSA && (
         <DescriptionListGroup>
           <DescriptionListTerm>Control plane type</DescriptionListTerm>
           <DescriptionListDescription data-testid="controlType">
@@ -124,11 +134,11 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId }) {
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
-      {cluster.wifConfigName && (
+      {isWifCluster && (
         <DescriptionListGroup>
           <DescriptionListTerm>WIF configuration</DescriptionListTerm>
           <DescriptionListDescription>
-            <span data-testid="wifConfiguration">{cluster.wifConfigName}</span>
+            <span data-testid="wifConfiguration">{wifConfigName}</span>
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
@@ -145,7 +155,7 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId }) {
           Version
           {isHypershift && (
             <PopoverHint
-              iconClassName="pf-v5-u-ml-sm"
+              iconClassName="pf-v6-u-ml-sm"
               hint="This version is only for the control plane. Worker nodes may have a different version."
             />
           )}
@@ -166,7 +176,7 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId }) {
         <DescriptionListGroup>
           <DescriptionListTerm>Encryption level</DescriptionListTerm>
           <DescriptionListDescription>
-            <dl className="pf-v5-l-stack">
+            <dl className="pf-v6-l-stack">
               <dt data-testid="fipsCryptographyStatus">FIPS Cryptography enabled</dt>
             </dl>
           </DescriptionListDescription>
@@ -190,13 +200,7 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId }) {
           <Timestamp value={get(cluster, 'creation_timestamp', 'N/A')} />
         </DescriptionListDescription>
       </DescriptionListGroup>
-      <DescriptionListGroup>
-        <DescriptionListTerm>Owner</DescriptionListTerm>
-        <DescriptionListDescription>
-          {get(cluster, 'subscription.creator.name') ||
-            get(cluster, 'subscription.creator.username', 'N/A')}
-        </DescriptionListDescription>
-      </DescriptionListGroup>
+      <Owner />
       {cluster.managed && !isROSA && (
         <>
           <DescriptionListGroup>
@@ -221,6 +225,11 @@ DetailsLeft.propTypes = {
   cluster: PropTypes.any,
   cloudProviders: PropTypes.object.isRequired,
   showAssistedId: PropTypes.bool.isRequired,
+  wifConfigData: PropTypes.shape({
+    displayName: PropTypes.string,
+    isLoading: PropTypes.bool,
+    isSuccess: PropTypes.bool,
+  }),
 };
 
 export default DetailsLeft;

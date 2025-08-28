@@ -755,7 +755,9 @@ export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     ClusterLog: components['schemas']['ObjectReference'] & {
+      /** @description Internal Id of a cluster, required unless cluster_uuid is provided */
       cluster_id?: string;
+      /** @description External id of a cluster, required unless cluster_id is provided */
       cluster_uuid?: string;
       /** Format: date-time */
       created_at?: string;
@@ -769,12 +771,12 @@ export interface components {
       internal_only: boolean;
       last_name?: string;
       /** @enum {string} */
-      log_type?: ClusterLogLog_type;
-      service_name?: string;
+      log_type: ClusterLogLog_type;
+      service_name: string;
       /** @enum {string} */
       severity: ClusterLogSeverity;
       subscription_id?: string;
-      summary?: string;
+      summary: string;
       /** Format: date-time */
       timestamp?: string;
       username?: string;
@@ -945,13 +947,12 @@ export enum ClusterLogLog_type {
   Customer_Support = 'Customer Support',
   Cluster_Networking = 'Cluster Networking',
   General_Notification = 'General Notification',
+  cluster_transfer_recipient = 'cluster-transfer-recipient',
 }
 export enum ClusterLogSeverity {
   Debug = 'Debug',
   Info = 'Info',
   Warning = 'Warning',
-  Error = 'Error',
-  Fatal = 'Fatal',
   Major = 'Major',
   Critical = 'Critical',
 }

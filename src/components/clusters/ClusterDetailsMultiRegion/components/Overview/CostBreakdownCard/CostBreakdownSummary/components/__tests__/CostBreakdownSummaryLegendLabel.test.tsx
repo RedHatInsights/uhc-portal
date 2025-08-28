@@ -5,7 +5,7 @@ import { render, screen } from '~/testUtils';
 import CostBreakdownSummaryLegendLabel from '../CostBreakdownSummaryLegendLabel';
 
 // Mock the components and functions used
-jest.mock('@patternfly/react-charts', () => ({
+jest.mock('@patternfly/react-charts/victory', () => ({
   ChartLabel: jest.fn(({ text, style, ...props }) => (
     <div data-testid="chart-label" style={style}>
       {text.map((t: string, index: number) => (

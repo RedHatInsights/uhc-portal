@@ -12,6 +12,8 @@ import type {
   ClusterState,
   ClusterStatus,
   LimitedSupportReason,
+  UpgradePolicy,
+  UpgradePolicyState,
   VersionGateAgreement,
 } from './clusters_mgmt.v1';
 
@@ -61,9 +63,14 @@ export type FakeCluster = // AICluster &
     | 'version'
     | 'hypershift'
     | 'aws'
+    | 'gcp'
     | 'gcp_network'
     | 'status'
     | 'multi_az'
+    | 'proxy'
+    | 'additional_trust_bundle'
+    | 'node_drain_grace_period'
+    | 'disable_user_workload_monitoring'
   > & {
     metrics: OneMetric;
     state?: string | ClusterState;
@@ -110,8 +117,6 @@ export type AugmentedCluster = ClusterWithPermissions & {
   aiSupportLevels?: FeaturesSupportsLevel;
   status?: ClusterStatus;
   api?: ClusterApi;
-  // WIF configuration name for OSD GCP clusters using authentication with Workload Identity Federation
-  wifConfigName?: string;
 };
 
 export type AugmentedClusterResponse = {
@@ -130,6 +135,7 @@ export type ErrorState = {
   errorMessage?: string;
   errorDetails?: ErrorDetail[];
   operationID?: string;
+  message?: string;
 };
 
 export type AWSCredentials = Pick<
@@ -158,3 +164,5 @@ export type ListAPIParams = {
 };
 
 export type ToggleEvent = React.MouseEvent | React.ChangeEvent | React.KeyboardEvent | Event;
+
+export type UpgradePolicyWithState = UpgradePolicy & { state?: UpgradePolicyState };

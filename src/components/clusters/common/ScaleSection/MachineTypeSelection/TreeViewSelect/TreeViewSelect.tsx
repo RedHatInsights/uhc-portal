@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Fuse from 'fuse.js';
 
 import {
+  Content,
   MenuContainer,
   MenuToggle,
   Panel,
@@ -13,8 +14,6 @@ import {
   Stack,
   StackItem,
   Switch,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -26,6 +25,7 @@ import {
 import './TreeViewSelect.scss';
 
 export interface TreeViewData extends TreeViewDataItem {
+  name: React.ReactNode | string;
   category?: string;
   descriptionLabel?: string;
   nameLabel?: string;
@@ -49,7 +49,6 @@ interface TreeViewSelectProps {
   selectionPlaceholderText?: string;
   placeholder?: string;
   switchLabelOnText?: string;
-  switchLabelOffText?: string;
   searchPlaceholder?: string;
   allExpanded?: boolean;
   ariaLabel?: string;
@@ -70,9 +69,9 @@ export function TreeViewSelectMenuItem(props: TreeViewSelectMenuItemProps) {
         <Stack>
           <StackItem>{name}</StackItem>
           <StackItem>
-            <TextContent>
-              <Text component="small">{description}</Text>
-            </TextContent>
+            <Content>
+              <Content component="small">{description}</Content>
+            </Content>
           </StackItem>
         </Stack>
       </SplitItem>
@@ -106,7 +105,7 @@ export function TreeViewSelect(props: TreeViewSelectProps) {
     placeholder,
     searchPlaceholder,
     switchLabelOnText,
-    switchLabelOffText,
+
     ariaLabel,
     allExpanded = false,
   } = props;
@@ -176,14 +175,10 @@ export function TreeViewSelect(props: TreeViewSelectProps) {
     <Toolbar className="tree-view-select-toolbar">
       <ToolbarContent>
         {includeFilterSwitch && (
-          <ToolbarItem
-            widths={{ default: '100%' }}
-            className="pf-u-pt-xs pf-u-pb-sm pf-u-pl-md pf-u-pr-sm"
-          >
+          <ToolbarItem className="pf-v6-u-pt-xs pf-v6-u-pb-sm pf-v6-u-pl-md pf-v6-u-pr-sm">
             <Switch
               data-testid="display-switch"
               label={switchLabelOnText}
-              labelOff={switchLabelOffText}
               isChecked={treeViewSwitchActive}
               onChange={() => {
                 setTreeViewSwitchActive(!treeViewSwitchActive);
@@ -191,10 +186,10 @@ export function TreeViewSelect(props: TreeViewSelectProps) {
             />
           </ToolbarItem>
         )}
-        <ToolbarItem widths={{ default: '100%' }}>
+        <ToolbarItem>
           <TreeViewSearch
             autoComplete="off"
-            className="pf-u-pt-sm pf-u-pb-sm pf-u-pl-sm pf-u-pr-sm pf-u-w-inherit"
+            className="tree-view-select-search-fullwidth pf-v6-u-pt-sm pf-v6-u-pb-sm pf-v6-u-pl-sm pf-v6-u-pr-sm pf-v6-u-w-inherit"
             placeholder={searchPlaceholder}
             onSearch={onSearch}
             aria-label={ariaLabel && `${ariaLabel} search field`}

@@ -9,16 +9,16 @@
     }
 
     .ocm--cost-title {
-      .pf-v5-c-title {
+      .pf-v6-c-title {
         display: inline;
       }
     }
 
     .ocm--cost-total {
-      font-weight: var(--pf-v5-global--FontWeight--normal);
+      font-weight: var(--pf-t--global--font--weight--body--default);
     }
 
-    .pf-v5-c-empty-state {
+    .pf-v6-c-empty-state {
       padding: 0;
     }
   }

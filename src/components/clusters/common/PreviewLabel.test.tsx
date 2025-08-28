@@ -6,12 +6,12 @@ import { checkAccessibility, screen, within, withState } from '~/testUtils';
 import { createdPostGa, GA_DATE_STR, PreviewLabel } from './PreviewLabel';
 
 const expectLabelToBePresent = (container: HTMLElement) => {
-  expect(container.querySelector('.pf-v5-c-label')).toBeInTheDocument();
+  expect(container.querySelector('.pf-v6-c-label')).toBeInTheDocument();
   expect(screen.queryByText(/Preview/)).toBeInTheDocument();
 };
 
 const expectLabelToBeAbsent = (container: HTMLElement) => {
-  expect(container.querySelector('.pf-v5-c-label')).not.toBeInTheDocument();
+  expect(container.querySelector('.pf-v6-c-label')).not.toBeInTheDocument();
   expect(screen.queryByText(/Preview/)).not.toBeInTheDocument();
 };
 

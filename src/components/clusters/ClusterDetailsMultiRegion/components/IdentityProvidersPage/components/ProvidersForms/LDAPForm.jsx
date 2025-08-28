@@ -14,7 +14,7 @@ const LDAPForm = ({ isEditForm, idpEdited, isPending }) => {
   const [isInsecure, setIsInsecure] = React.useState(false);
   const [caDisabledHelpText, setCaDisabledHelpText] = React.useState('');
 
-  const { getFieldProps, getFieldMeta, setFieldValue } = useFormState();
+  const { getFieldProps, getFieldMeta, setFieldValue, setFieldTouched } = useFormState();
 
   React.useEffect(() => {
     setIsInsecure(isEditForm ? idpEdited.ldap.insecure : false);
@@ -42,8 +42,12 @@ const LDAPForm = ({ isEditForm, idpEdited, isPending }) => {
           meta={getFieldMeta(FieldId.LDAP_CA)}
           input={{
             ...getFieldProps(FieldId.LDAP_CA),
-            onChange: (_, value) => setFieldValue(FieldId.LDAP_CA, value),
+            onChange: (value) => {
+              setFieldValue(FieldId.LDAP_CA, value);
+              setFieldTouched(FieldId.LDAP_CA, true);
+            },
           }}
+          fieldName="ldap_ca"
           label="CA file"
           helpText={`PEM encoded certificate bundle to use to validate server certificates for the configured URL. ${caDisabledHelpText}`}
           isDisabled={isInsecure || isPending}
@@ -59,6 +63,7 @@ const LDAPForm = ({ isEditForm, idpEdited, isPending }) => {
             ...getFieldProps(FieldId.LDAP_INSECURE),
             onChange: (event, value) => {
               setFieldValue(FieldId.LDAP_INSECURE, value);
+              setFieldTouched(FieldId.LDAP_INSECURE, true);
               toggleCADisabled(event, value);
             },
           }}

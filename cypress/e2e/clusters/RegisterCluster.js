@@ -23,19 +23,19 @@ describe('Register cluster flow', { tags: ['ci', 'smoke'] }, () => {
     RegisterClusterPage.clusterIDInput().type('not really a uuid').blur();
     RegisterClusterPage.clusterIDError().should('be.visible');
     RegisterClusterPage.clusterIDError().should(
-      'have.text',
+      'include.text',
       "Cluster ID 'not really a uuid' is not a valid UUID.",
     );
     RegisterClusterPage.clusterIDInput().clear();
     RegisterClusterPage.clusterIDError().should('be.visible');
-    RegisterClusterPage.clusterIDError().should('have.text', 'Cluster ID is required.');
+    RegisterClusterPage.clusterIDError().should('include.text', 'Cluster ID is required.');
   });
 
   it('shows error when display name is not valid', () => {
     RegisterClusterPage.displayNameInput().type('a'.repeat(70)).blur();
     RegisterClusterPage.displayNameError().should('be.visible');
     RegisterClusterPage.displayNameError().should(
-      'have.text',
+      'include.text',
       'Cluster display name may not exceed 63 characters.',
     );
   });
@@ -44,13 +44,13 @@ describe('Register cluster flow', { tags: ['ci', 'smoke'] }, () => {
     RegisterClusterPage.clusterURLInput().type('asdf').blur();
     RegisterClusterPage.clusterURLError().should('be.visible');
     RegisterClusterPage.clusterURLError().should(
-      'have.text',
+      'include.text',
       'The URL should include the scheme prefix (http://, https://)',
     );
     RegisterClusterPage.clusterURLInput().clear();
     RegisterClusterPage.clusterURLInput().type('https://uwu').blur();
     RegisterClusterPage.clusterURLError().should('be.visible');
-    RegisterClusterPage.clusterURLError().should('have.text', 'Invalid URL');
+    RegisterClusterPage.clusterURLError().should('include.text', 'Invalid URL');
   });
 
   it('redirects to cluster list when clicking cancel', () => {
@@ -59,7 +59,7 @@ describe('Register cluster flow', { tags: ['ci', 'smoke'] }, () => {
   });
 
   it('creates a new cluster and redirects to its details page', () => {
-    ClusterListPage.registerCluster().should('be.visible').click();
+    ClusterListPage.registerCluster().click();
     ClusterListPage.isRegisterClusterUrl();
     RegisterClusterPage.clusterIDInput().type(clusterID).blur();
     RegisterClusterPage.clusterIDError().should('not.exist');
@@ -80,7 +80,7 @@ describe('Register cluster flow', { tags: ['ci', 'smoke'] }, () => {
     ClusterDetailsPage.openConsoleLink()
       .should('have.attr', 'href', url)
       .find('button')
-      .should('have.text', 'Open console');
+      .should('include.text', 'Open console');
   });
 
   it('successfully changes display name', () => {
@@ -93,7 +93,7 @@ describe('Register cluster flow', { tags: ['ci', 'smoke'] }, () => {
     ClusterDetailsPage.waitForEditDisplayNameModalToClear();
     ClusterDetailsPage.waitForClusterDetailsLoad();
     ClusterDetailsPage.waitForDisplayNameChange(displayName);
-    ClusterDetailsPage.clusterNameTitle().should('have.text', `${displayName}-test`);
+    ClusterDetailsPage.clusterNameTitle().should('include.text', `${displayName}-test`);
   });
 
   it('successfully edit Subscription settings', () => {

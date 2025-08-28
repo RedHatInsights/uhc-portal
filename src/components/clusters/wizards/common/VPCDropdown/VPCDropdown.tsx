@@ -2,8 +2,8 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { Button, Flex, FlexItem, FormGroup, Tooltip } from '@patternfly/react-core';
-import { SelectOptionObject as SelectOptionObjectDeprecated } from '@patternfly/react-core/deprecated';
 
+// import { SelectOptionObject as SelectOptionObjectDeprecated } from '@patternfly/react-core/deprecated';
 import { filterOutRedHatManagedVPCs, vpcHasRequiredSubnets } from '~/common/vpcHelpers';
 import { useAWSVPCInquiry } from '~/components/clusters/common/useVPCInquiry';
 import ErrorBox from '~/components/common/ErrorBox';
@@ -19,7 +19,7 @@ interface VCPDropdownProps {
   input: {
     name: string;
     value: string;
-    onChange: (selectedVPC: CloudVpc | SelectOptionObjectDeprecated) => void;
+    onChange: (selectedVPC: CloudVpc) => void;
     onBlur: () => void;
   };
   meta: {
@@ -117,14 +117,14 @@ const VPCDropdown = ({
 
     const isValidSelection = originalVPCs.some((item) => item?.id === selectedVPC.id);
     if (originalVPCs.length > 0 && selectedVPC.id && !isValidSelection) {
-      inputProps.onChange({ id: '', name: '' } as SelectOptionObjectDeprecated);
+      inputProps.onChange({ id: '', name: '' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVPC, originalVPCs]);
 
   const refreshVPCs = () => {
     if (requestParams.cloudProviderID === 'aws') {
-      inputProps.onChange({ id: '', name: '' } as SelectOptionObjectDeprecated);
+      inputProps.onChange({ id: '', name: '' });
       dispatch(
         getAWSCloudProviderVPCs({
           region: requestParams.region,

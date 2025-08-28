@@ -126,7 +126,7 @@ const AddGrantModal = ({
               label="AWS IAM ARN"
               isRequired
               fieldId="aws-iam-arn"
-              labelIcon={
+              labelHelp={
                 <PopoverHint
                   hint={
                     <div>

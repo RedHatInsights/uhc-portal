@@ -1,7 +1,14 @@
 import * as React from 'react';
 import { FieldArray, useField } from 'formik';
 
-import { Button, FormGroup, Grid, GridItem, Text, TextVariants } from '@patternfly/react-core';
+import {
+  Button,
+  Content,
+  ContentVariants,
+  FormGroup,
+  Grid,
+  GridItem,
+} from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 
 import TextField from '~/components/common/formik/TextField';
@@ -62,13 +69,13 @@ const EditTaintsSection = ({
               <>
                 <Grid hasGutter>
                   <GridItem span={4}>
-                    <Text component={TextVariants.small}>Key</Text>
+                    <Content component={ContentVariants.small}>Key</Content>
                   </GridItem>
                   <GridItem span={4}>
-                    <Text component={TextVariants.small}>Value</Text>
+                    <Content component={ContentVariants.small}>Value</Content>
                   </GridItem>
                   <GridItem span={4}>
-                    <Text component={TextVariants.small}>Effect</Text>
+                    <Content component={ContentVariants.small}>Effect</Content>
                   </GridItem>
                 </Grid>
                 <Grid hasGutter>

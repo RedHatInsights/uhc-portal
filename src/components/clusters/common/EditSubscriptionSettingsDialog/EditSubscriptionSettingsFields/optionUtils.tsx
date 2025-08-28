@@ -116,4 +116,5 @@ const resetOptions = (
     {},
   );
 
+// getOptions is exported only for testing
 export { getOptions, resetOptions };

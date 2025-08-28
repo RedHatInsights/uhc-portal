@@ -3,7 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Button, Chip, ChipGroup, Split, SplitItem } from '@patternfly/react-core';
+import { Button, Label, LabelGroup, Split, SplitItem } from '@patternfly/react-core';
 
 import { useNavigate } from '~/common/routing';
 import { onListFlagsSet } from '~/redux/actions/viewOptionsActions';
@@ -50,7 +50,7 @@ function ClusterListFilterChipGroup({ archive }) {
   return (
     <Split data-testid="cluster-list-filter-chipgroup">
       <SplitItem>
-        <ChipGroup>
+        <LabelGroup>
           {groups
             .map((group) => {
               const currentFilter = currentFilters[group.key] || [];
@@ -58,7 +58,7 @@ function ClusterListFilterChipGroup({ archive }) {
                 return null;
               }
               return (
-                <ChipGroup key={`chipgroup-${group.key}`} categoryName={group.label}>
+                <LabelGroup key={`chipgroup-${group.key}`} categoryName={group.label}>
                   {currentFilter.map((key) => {
                     const { label } = group.options.find((opt) => opt.key === key);
                     const deleteItem = () => {
@@ -68,16 +68,16 @@ function ClusterListFilterChipGroup({ archive }) {
                       });
                     };
                     return (
-                      <Chip key={key} onClick={deleteItem}>
+                      <Label variant="outline" key={key} onClose={deleteItem}>
                         {label}
-                      </Chip>
+                      </Label>
                     );
                   })}
-                </ChipGroup>
+                </LabelGroup>
               );
             })
             .filter(Boolean)}
-        </ChipGroup>
+        </LabelGroup>
       </SplitItem>
       <SplitItem>
         <Button variant="link" onClick={() => setFilterAndQueryParams({})}>

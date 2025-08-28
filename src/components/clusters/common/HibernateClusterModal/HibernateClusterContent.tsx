@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { List, ListItem, Text, TextContent } from '@patternfly/react-core';
+import { Content, List, ListItem } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -17,13 +17,13 @@ const HibernateClusterContent = ({
   isHibernating: boolean;
 }) =>
   isHibernating ? (
-    <TextContent>
-      <Text>
+    <Content>
+      <Content component="p">
         Cluster <strong>{clusterName}</strong> will move out of Hibernating state and all cluster
         operations will be resumed.
-      </Text>
+      </Content>
       <HibernateInfoLink />
-    </TextContent>
+    </Content>
   ) : (
     <>
       <List>
@@ -36,11 +36,11 @@ const HibernateClusterContent = ({
         </ListItem>
       </List>
       <HibernateInfoLink />
-      <TextContent>
-        <Text>
+      <Content>
+        <Content component="p">
           Are you sure you want to hibernate <strong>{clusterName}</strong>?
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </>
   );
 

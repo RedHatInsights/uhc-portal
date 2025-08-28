@@ -8,13 +8,13 @@ class OCMRolesAndAccess extends Page {
   OCMRolesAndAccessTable = () => cy.get('table[aria-label="OCM Roles and Access"]');
 
   OCMRolesAndAccessTableActionButton = () =>
-    cy.get('td.pf-v5-c-table__action > button[aria-label="Kebab toggle"]').focus();
+    cy.get('td.pf-v6-c-table__action > button[aria-label="Kebab toggle"]').focus();
 
-  OCMRolesAndAccessTableDeleteButton = () => cy.get('.pf-v5-c-menu button');
+  OCMRolesAndAccessTableDeleteButton = () => cy.get('.pf-v6-c-menu button');
 
   grantRoleUserInput = () => cy.get('input[id="username"]');
 
-  userInputError = () => cy.get('.pf-v5-c-helper-text__item-text');
+  userInputError = () => cy.get('.pf-v6-c-helper-text__item-text');
 
   submitButton = () => cy.get('button[type="submit"]').should('have.text', 'Grant role');
 

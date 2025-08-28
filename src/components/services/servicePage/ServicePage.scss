@@ -1,16 +1,11 @@
-@import '~@patternfly/patternfly/sass-utilities/_all';
+@import '~@patternfly/patternfly/sass-utilities';
 
-.pf-v5-c-list.pf-m-bordered.pf-m-plain > .rosa-expandable-list-item {
-   padding: 0;
-   margin: 0;
-}
-
-.pf-v5-c-list.pf-m-bordered.pf-m-plain > .rosa-expandable-list-item > div {
+.pf-v6-c-list.pf-m-bordered.pf-m-plain > .rosa-expandable-list-item > div {
    box-shadow: none; 
 }
 
 .rosa-expandable-list-item h3 {
-   color: var(--pf-v5-global--BackgroundColor--dark-100);
+   color: var(--pf-t--global--text--color--regular);
 }
 
 .rosa-aws-redhat-vertical-logo {
@@ -18,5 +13,5 @@
 }
 
 .rosa-cube-icon {
-   color: var(--pf-v5-global--primary-color--100)
+   color: var(--pf-t--global--icon--color--brand--default)
 }

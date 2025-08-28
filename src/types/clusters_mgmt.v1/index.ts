@@ -7660,6 +7660,160 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/clusters_mgmt/v1/clusters/{cluster_id}/migrations': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: {
+          /** @description Index of the returned page, where one corresponds to the first page. */
+          page?: number;
+          /** @description Number of items that will be contained in the returned page. */
+          size?: number;
+        };
+        header?: never;
+        path: {
+          cluster_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @description Retrieved list of cluster migrations. */
+              items?: components['schemas']['ClusterMigration'][];
+              /**
+               * Format: int32
+               * @description Index of the returned page, where one corresponds to the first page.
+               */
+              page?: number;
+              /**
+               * Format: int32
+               * @description Number of items that will be contained in the returned page.
+               */
+              size?: number;
+              /**
+               * Format: int32
+               * @description Total number of items of the collection that match the search criteria,
+               *     regardless of the size of the page. As this collection doesn't support paging or
+               *     searching the result will always be the total number of migrations of the cluster.
+               */
+              total?: number;
+            };
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    /** @description Adds a cluster migration to the database. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['ClusterMigration'];
+        };
+      };
+      responses: {
+        /** @description Success. */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ClusterMigration'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/clusters_mgmt/v1/clusters/{cluster_id}/migrations/{migration_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the details of the cluster migration. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+          migration_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ClusterMigration'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/clusters_mgmt/v1/clusters/{cluster_id}/node_pools': {
     parameters: {
       query?: never;
@@ -14007,6 +14161,8 @@ export interface components {
       billing_model?: components['schemas']['BillingModel'];
       /** @description Contains information about BYO OIDC. */
       byo_oidc?: components['schemas']['ByoOidc'];
+      /** @description OpenShift Cluster Capabilities configuration */
+      capabilities?: components['schemas']['ClusterCapabilities'];
       /** @description Link to the cloud provider where the cluster is installed. */
       cloud_provider?: components['schemas']['CloudProvider'];
       /** @description Information about the console of the cluster. */
@@ -14185,6 +14341,12 @@ export interface components {
       /** @description Enables/Disables `--skip-nodes-with-local-storage` CA feature flag. If true cluster autoscaler will never delete nodes with pods with local storage, e.g. EmptyDir or HostPath. true by default at autoscaler. */
       skip_nodes_with_local_storage?: boolean;
     };
+    ClusterCapabilities: {
+      /** @description Immutable list of disabled capabilities. May only contain "ImageRegistry" at
+       *     this time. Additional capabilities may be available in the future. Clients
+       *     should expect to handle additional values. */
+      disabled?: string[];
+    };
     /**
      * @description Configuration mode of a cluster.
      * @enum {string}
@@ -14229,6 +14391,54 @@ export interface components {
       /** @description The cluster's ID. */
       id?: string;
     };
+    /** @description Representation of a cluster migration. */
+    ClusterMigration: {
+      /** @description Indicates the type of this object. Will be 'ClusterMigration' if this is a complete object or 'ClusterMigrationLink' if it is just a link. */
+      kind?: string;
+      /** @description Unique identifier of the object. */
+      id?: string;
+      /** @description Self link. */
+      href?: string;
+      /** @description Internal cluster ID. */
+      cluster_id?: string;
+      /**
+       * Format: date-time
+       * @description Date and time when the cluster migration was initially created, using the
+       *     format defined in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt).
+       */
+      creation_timestamp?: string;
+      /** @description Details for `SdnToOvn` cluster migrations. */
+      sdn_to_ovn?: components['schemas']['SdnToOvnClusterMigration'];
+      /** @description The state of the cluster migration. */
+      state?: components['schemas']['ClusterMigrationState'];
+      /** @description Type of cluster migration. The rest of the attributes will be populated according to this
+       *     value. For example, if the type is `sdnToOvn` then only the `SdnToOvn` attribute will be
+       *     populated. */
+      type?: components['schemas']['ClusterMigrationType'];
+      /**
+       * Format: date-time
+       * @description Date and time when the cluster migration was last updated, using the
+       *     format defined in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt).
+       */
+      updated_timestamp?: string;
+    };
+    /** @description Representation of a cluster migration state. */
+    ClusterMigrationState: {
+      /** @description A longer description of the current state of the cluster migration. */
+      description?: string;
+      /** @description The current state of the cluster migration. */
+      value?: components['schemas']['ClusterMigrationStateValue'];
+    };
+    /**
+     * @description The state of the cluster migration.
+     * @enum {string}
+     */
+    ClusterMigrationStateValue: 'completed' | 'in progress' | 'scheduled';
+    /**
+     * @description Type of cluster migration.
+     * @enum {string}
+     */
+    ClusterMigrationType: 'sdnToOvn';
     /** @description Counts of different classes of nodes inside a cluster. */
     ClusterNodes: {
       /** @description Details for auto-scaling the compute machine pool.
@@ -15266,6 +15476,22 @@ export interface components {
       type?: string;
     };
     /** @description Representation of the status of a node pool. */
+    NodePoolState: {
+      /** @description Indicates the type of this object. Will be 'NodePoolState' if this is a complete object or 'NodePoolStateLink' if it is just a link. */
+      kind?: string;
+      /** @description Unique identifier of the object. */
+      id?: string;
+      /** @description Self link. */
+      href?: string;
+      /**
+       * Format: date-time
+       * @description The current number of replicas for the node pool.
+       */
+      last_updated_timestamp?: string;
+      /** @description The current state of the node pool */
+      value?: string;
+    };
+    /** @description Representation of the status of a node pool. */
     NodePoolStatus: {
       /** @description Indicates the type of this object. Will be 'NodePoolStatus' if this is a complete object or 'NodePoolStatusLink' if it is just a link. */
       kind?: string;
@@ -15280,6 +15506,8 @@ export interface components {
       current_replicas?: number;
       /** @description Adds additional information about the NodePool status when the node pool doesn't reach the desired replicas. */
       message?: string;
+      /** @description The current state of the node pool */
+      state?: components['schemas']['NodePoolState'];
     };
     /** @description Representation of an upgrade policy that can be set for a node pool. */
     NodePoolUpgradePolicy: {
@@ -15698,6 +15926,18 @@ export interface components {
      * @enum {string}
      */
     ScheduleType: 'automatic' | 'manual';
+    /** @description Details for `SdnToOvn` cluster migrations. */
+    SdnToOvnClusterMigration: {
+      /** @description The IP address range to use for the internalJoinSubnet parameter of OVN-Kubernetes
+       *     upon migration. */
+      join_ipv4?: string;
+      /** @description The IP address range to us for the internalMasqueradeSubnet parameter of OVN-Kubernetes
+       *     upon migration. */
+      masquerade_ipv4?: string;
+      /** @description The IP address range to use for the internalTransSwitchSubnet parameter of OVN-Kubernetes
+       *     upon migration. */
+      transit_ipv4?: string;
+    };
     /** @description AWS security group object */
     SecurityGroup: {
       /** @description The security group ID. */
@@ -16031,8 +16271,12 @@ export interface components {
       id?: string;
       /** @description Self link. */
       href?: string;
-      /** @description STSOnly indicates if this version gate is for STS clusters only */
+      /** @description STSOnly indicates if this version gate is for STS clusters only,
+       *     deprecated: to be replaced with ClusterCondition */
       sts_only?: boolean;
+      /** @description ClusterCondition aims at selecting the clusters targeted by this version gate,
+       *     ignored if STSOnly is true */
+      cluster_condition?: string;
       /**
        * Format: date-time
        * @description CreationTimestamp is the date and time when the version gate was created,
@@ -16278,12 +16522,17 @@ export type Cluster = components['schemas']['Cluster'];
 export type ClusterApi = components['schemas']['ClusterAPI'];
 export type ClusterArchitecture = components['schemas']['ClusterArchitecture'];
 export type ClusterAutoscaler = components['schemas']['ClusterAutoscaler'];
+export type ClusterCapabilities = components['schemas']['ClusterCapabilities'];
 export type ClusterConfigurationMode = components['schemas']['ClusterConfigurationMode'];
 export type ClusterConsole = components['schemas']['ClusterConsole'];
 export type ClusterCredentials = components['schemas']['ClusterCredentials'];
 export type ClusterDeployment = components['schemas']['ClusterDeployment'];
 export type ClusterHealthState = components['schemas']['ClusterHealthState'];
 export type ClusterLink = components['schemas']['ClusterLink'];
+export type ClusterMigration = components['schemas']['ClusterMigration'];
+export type ClusterMigrationState = components['schemas']['ClusterMigrationState'];
+export type ClusterMigrationStateValue = components['schemas']['ClusterMigrationStateValue'];
+export type ClusterMigrationType = components['schemas']['ClusterMigrationType'];
 export type ClusterNodes = components['schemas']['ClusterNodes'];
 export type ClusterOperatorInfo = components['schemas']['ClusterOperatorInfo'];
 export type ClusterOperatorState = components['schemas']['ClusterOperatorState'];
@@ -16353,6 +16602,7 @@ export type NodeInfo = components['schemas']['NodeInfo'];
 export type NodePool = components['schemas']['NodePool'];
 export type NodePoolAutoscaling = components['schemas']['NodePoolAutoscaling'];
 export type NodePoolManagementUpgrade = components['schemas']['NodePoolManagementUpgrade'];
+export type NodePoolState = components['schemas']['NodePoolState'];
 export type NodePoolStatus = components['schemas']['NodePoolStatus'];
 export type NodePoolUpgradePolicy = components['schemas']['NodePoolUpgradePolicy'];
 export type NodeType = components['schemas']['NodeType'];
@@ -16389,6 +16639,7 @@ export type RolePolicyBinding = components['schemas']['RolePolicyBinding'];
 export type RolePolicyBindingStatus = components['schemas']['RolePolicyBindingStatus'];
 export type RootVolume = components['schemas']['RootVolume'];
 export type ScheduleType = components['schemas']['ScheduleType'];
+export type SdnToOvnClusterMigration = components['schemas']['SdnToOvnClusterMigration'];
 export type SecurityGroup = components['schemas']['SecurityGroup'];
 export type ServerConfig = components['schemas']['ServerConfig'];
 export type SocketTotalNodeRoleOsMetricNode =

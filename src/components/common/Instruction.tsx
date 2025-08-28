@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TextListItem } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 
 import './Instruction.scss';
 
@@ -10,11 +10,12 @@ type Props = {
 };
 
 const Instruction = ({ children, simple }: Props) => (
-  <TextListItem
+  <Content
+    component="li"
     className={simple ? 'ocm-instructions__list-item-simple' : 'ocm-instructions__list-item'}
   >
     <div className="ocm-instructions__list-item-contents">{children}</div>
-  </TextListItem>
+  </Content>
 );
 
 export default Instruction;

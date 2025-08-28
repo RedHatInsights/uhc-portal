@@ -1,4 +1,4 @@
-import semver, { SemVer } from 'semver';
+import semver from 'semver';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -17,6 +17,7 @@ const useFetchNodePoolWithUpgradePolicies = (
   clusterVersion: string,
   isHypershiftCluster: boolean,
   region?: any,
+  clusterVersionRaw?: string,
 ) => {
   const isModalOpen = useIsModalOpen();
   const { isLoading, data, isError, error, refetch, isRefetching } = useQuery({
@@ -38,10 +39,10 @@ const useFetchNodePoolWithUpgradePolicies = (
             !clusterVersion ||
             !pool.version ||
             !semver.gt(
-              semver.coerce(clusterVersion) as SemVer,
-              semver.coerce(pool.version.id) as SemVer,
+              semver.coerce(clusterVersionRaw, { includePrerelease: true })?.version || '',
+              semver.coerce(pool.version?.raw_id, { includePrerelease: true })?.version || '',
             ) ||
-            !isControlPlaneValidForMachinePool(pool, clusterVersion)
+            !isControlPlaneValidForMachinePool(pool, clusterVersionRaw || '')
           ) {
             return pool;
           }
@@ -86,10 +87,10 @@ const useFetchNodePoolWithUpgradePolicies = (
           !clusterVersion ||
           !pool.version ||
           !semver.gt(
-            semver.coerce(clusterVersion) as SemVer,
-            semver.coerce(pool.version.id) as SemVer,
+            semver.coerce(clusterVersionRaw, { includePrerelease: true })?.version || '',
+            semver.coerce(pool.version?.raw_id, { includePrerelease: true })?.version || '',
           ) ||
-          !isControlPlaneValidForMachinePool(pool, clusterVersion)
+          !isControlPlaneValidForMachinePool(pool, clusterVersionRaw || '')
         ) {
           return pool;
         }
@@ -186,6 +187,7 @@ export const useFetchMachineOrNodePools = (
   isHypershiftCluster: boolean,
   clusterVersion: any,
   region?: string,
+  clusterRawVersion?: string,
 ) => {
   const {
     isLoading: isNodepoolWithUpgradePoliciesLoading,
@@ -194,7 +196,13 @@ export const useFetchMachineOrNodePools = (
     error: nodePoolWithUpgradePoliciesError,
     refetch: refetchNodePoolWithUpgradePolicies,
     isRefetching: isNodePoolWithUpgradePoliciesRefetching,
-  } = useFetchNodePoolWithUpgradePolicies(clusterID, clusterVersion, isHypershiftCluster, region);
+  } = useFetchNodePoolWithUpgradePolicies(
+    clusterID,
+    clusterVersion,
+    isHypershiftCluster,
+    region,
+    clusterRawVersion || '',
+  );
 
   const {
     isLoading: isMachinePoolsLoading,

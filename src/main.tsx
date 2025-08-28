@@ -42,25 +42,10 @@ const renderDevEnvError = () => {
   );
 };
 
-const renderUnsupportedEnvError = () => {
-  const root = createRoot(document.getElementById('root') as HTMLElement);
-  root.render(
-    <div style={{ margin: '25px' }}>
-      <h1>Unsupported environment</h1>
-      <h2>OCM does not support this environment</h2>
-      <p>Please use one of our supported environments.</p>
-      <p>OCM is only being deployed to this environment to ensure navigation keeps working.</p>
-    </div>,
-  );
-};
-
 if (!window.insights && APP_DEV_SERVER) {
   // we don't want this info to ever be complied to the prod build,
   // so I made sure it's only ever called in development mode
   renderDevEnvError();
-} else if (APP_API_ENV === 'disabled') {
-  // This is a build for an environment we don't support. render an error.
-  renderUnsupportedEnvError();
 } else {
   const root = createRoot(document.getElementById('root') as HTMLElement);
   root.render(<AppEntry />);

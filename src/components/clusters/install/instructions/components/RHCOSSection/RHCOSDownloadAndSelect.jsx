@@ -6,23 +6,17 @@ import { FormSelect, FormSelectOption, Split, SplitItem } from '@patternfly/reac
 import { architectureOptions, tools } from '../../../../../../common/installLinks.mjs';
 import DownloadButton from '../DownloadButton';
 
-class RHCOSDownloadAndSelect extends React.Component {
-  state = {
-    selection: 'x86',
-  };
+const RHCOSDownloadAndSelect = ({ token, pendoID, rhcosDownloads }) => {
+  const [selection, setSelection] = React.useState({ selection: 'x86' });
 
-  options = [
+  const options = [
     { value: 'Select architecture', label: 'Select architecture', disabled: true },
     ...architectureOptions.map(({ value, label }) => ({ value, label, disabled: false })),
   ];
 
-  onChange = (selection) => {
-    this.setState({ selection });
-  };
+  const onChange = (selection) => setSelection({ selection });
 
-  downloadButtons = () => {
-    const { token, pendoID, rhcosDownloads } = this.props;
-    const { selection } = this.state;
+  const downloadButtons = () => {
     const rhcosDownloadsArray = Array.isArray(rhcosDownloads) ? rhcosDownloads : [rhcosDownloads];
 
     const buttons = rhcosDownloadsArray.map((download) => {
@@ -44,34 +38,30 @@ class RHCOSDownloadAndSelect extends React.Component {
     return buttons;
   };
 
-  render() {
-    const { selection } = this.state;
-    const buttons = this.downloadButtons();
-    return (
-      <Split hasGutter className="os-based-download">
-        <SplitItem key="select-arch">
-          <FormSelect
-            value={selection}
-            onChange={(_event, selection) => this.onChange(selection)}
-            aria-label="select-arch-dropdown"
-          >
-            {this.options.map((option) => (
-              <FormSelectOption
-                isDisabled={option.disabled}
-                key={`arch.${option.value}`}
-                value={option.value}
-                label={option.label}
-              />
-            ))}
-          </FormSelect>
-        </SplitItem>
-        <SplitItem key="download-buttons">
-          <Split hasGutter>{buttons}</Split>
-        </SplitItem>
-      </Split>
-    );
-  }
-}
+  return (
+    <Split hasGutter className="os-based-download">
+      <SplitItem key="select-arch">
+        <FormSelect
+          value={selection}
+          onChange={(_event, selection) => onChange(selection)}
+          aria-label="select-arch-dropdown"
+        >
+          {options.map((option) => (
+            <FormSelectOption
+              isDisabled={option.disabled}
+              key={`arch.${option.value}`}
+              value={option.value}
+              label={option.label}
+            />
+          ))}
+        </FormSelect>
+      </SplitItem>
+      <SplitItem key="download-buttons">
+        <Split hasGutter>{downloadButtons()}</Split>
+      </SplitItem>
+    </Split>
+  );
+};
 
 RHCOSDownloadAndSelect.propTypes = {
   token: PropTypes.object.isRequired,

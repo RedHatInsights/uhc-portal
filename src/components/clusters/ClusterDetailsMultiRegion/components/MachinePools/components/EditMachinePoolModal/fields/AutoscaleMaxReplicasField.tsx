@@ -45,7 +45,7 @@ const AutoscaleMaxReplicasField = ({
       fieldId={fieldId}
       label="Maximum nodes count"
       isRequired
-      labelIcon={
+      labelHelp={
         <PopoverHint
           buttonAriaLabel="Compute node count information"
           hint={

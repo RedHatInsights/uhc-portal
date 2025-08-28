@@ -11,10 +11,11 @@ import * as updateMachinePoolsHelpers from './updateMachinePoolsHelpers';
 
 const clusterId = 'cluster-1';
 const clusterVersionID = 'openshift-v4.13.3';
+const clusterVersionRawID = '4.13.3';
 
 const defaultMachinePool = {
   id: 'my-machine-pool',
-  version: { id: 'openshift-v4.12.5' },
+  version: { id: 'openshift-v4.12.5', raw_id: '4.12.5' },
 };
 
 const defaultCluster = {
@@ -67,6 +68,7 @@ describe('UpdateMachinePoolModal', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
         />,
       );
 
@@ -100,6 +102,7 @@ describe('UpdateMachinePoolModal', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
         />,
       );
 
@@ -124,6 +127,7 @@ describe('UpdateMachinePoolModal', () => {
             isMachinePoolError={false}
             isHypershift={false}
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
           />,
         );
 
@@ -147,6 +151,7 @@ describe('UpdateMachinePoolModal', () => {
             isMachinePoolError={false}
             isHypershift
             controlPlaneVersion=""
+            controlPlaneRawVersion=""
           />,
         );
 
@@ -166,6 +171,7 @@ describe('UpdateMachinePoolModal', () => {
             isMachinePoolError
             isHypershift
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
           />,
         );
 
@@ -185,6 +191,7 @@ describe('UpdateMachinePoolModal', () => {
             isMachinePoolError={false}
             isHypershift
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
           />,
         );
 
@@ -204,6 +211,7 @@ describe('UpdateMachinePoolModal', () => {
             isMachinePoolError={false}
             isHypershift
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
           />,
         );
 
@@ -227,6 +235,7 @@ describe('UpdateMachinePoolModal', () => {
             isMachinePoolError={false}
             isHypershift
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
           />,
         );
 
@@ -241,6 +250,7 @@ describe('UpdateMachinePoolModal', () => {
             isMachinePoolError={false}
             isHypershift
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
           />,
         );
 
@@ -257,6 +267,7 @@ describe('UpdateMachinePoolModal', () => {
             isMachinePoolError={false}
             isHypershift
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
           />,
         );
 
@@ -278,6 +289,7 @@ describe('UpdateMachinePoolModal', () => {
               isMachinePoolError={false}
               isHypershift
               controlPlaneVersion={clusterVersionID}
+              controlPlaneRawVersion={clusterVersionRawID}
             />,
           );
 
@@ -308,6 +320,7 @@ describe('UpdateMachinePoolModal', () => {
               isMachinePoolError={false}
               isHypershift
               controlPlaneVersion={clusterVersionID}
+              controlPlaneRawVersion={clusterVersionRawID}
             />,
           );
 
@@ -334,6 +347,7 @@ describe('UpdateMachinePoolModal', () => {
               isMachinePoolError={false}
               isHypershift
               controlPlaneVersion={clusterVersionID}
+              controlPlaneRawVersion={clusterVersionRawID}
             />,
           );
 

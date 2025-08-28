@@ -1,32 +1,18 @@
 import * as React from 'react';
 
-import {
-  Button,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  Icon,
-  TextContent,
-} from '@patternfly/react-core';
+import { Button, Content, EmptyState, EmptyStateBody, Icon } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { global_danger_color_100 as dangerColor } from '@patternfly/react-tokens/dist/esm/global_danger_color_100';
 
 const EmptyIcon = (props: any) => (
-  <Icon {...props}>
-    <ExclamationCircleIcon color={dangerColor.value} />
+  <Icon status="danger" {...props}>
+    <ExclamationCircleIcon />
   </Icon>
 );
 
 const RosaHandsOnErrorPage = ({ message }: { message: string }) => (
-  <EmptyState>
-    <EmptyStateHeader
-      titleText="Failed to fetch demo experience."
-      icon={<EmptyStateIcon icon={EmptyIcon} />}
-      headingLevel="h4"
-    />
+  <EmptyState headingLevel="h4" icon={EmptyIcon} titleText="Failed to fetch demo experience.">
     <EmptyStateBody>
-      <TextContent className="pf-v5-u-mb-md">{message}</TextContent>
+      <Content className="pf-v6-u-mb-md">{message}</Content>
       <Button variant="link" iconPosition="right" isInline onClick={() => window.location.reload()}>
         Try refreshing the page.
       </Button>

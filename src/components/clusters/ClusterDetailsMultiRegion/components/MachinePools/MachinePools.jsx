@@ -1,6 +1,4 @@
 import React, { useMemo } from 'react';
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
@@ -10,22 +8,12 @@ import {
   CardBody,
   Divider,
   EmptyState,
-  Label,
-  Skeleton,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { cellWidth, expandable } from '@patternfly/react-table';
-import {
-  Table as TableDeprecated,
-  TableBody as TableBodyDeprecated,
-  TableHeader as TableHeaderDeprecated,
-} from '@patternfly/react-table/deprecated';
 
 import { noQuotaTooltip } from '~/common/helpers';
-import { versionFormatter } from '~/common/versionHelpers';
-import { isMultiAZ } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
 import { LoadingSkeletonCard } from '~/components/clusters/common/LoadingSkeletonCard/LoadingSkeletonCard';
 import { MachineConfiguration } from '~/components/clusters/common/MachineConfiguration';
@@ -40,7 +28,7 @@ import { useDeleteMachinePool } from '~/queries/ClusterDetailsQueries/MachinePoo
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import {
   ENABLE_MACHINE_CONFIGURATION,
-  OCMUI_MAX_NODES_TOTAL_249,
+  MAX_NODES_TOTAL_249,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
@@ -65,56 +53,19 @@ import clusterStates, {
 import { ClusterAutoscalerForm } from './components/AutoscalerModal/ClusterAutoscalerForm';
 import DeleteMachinePoolModal from './components/DeleteMachinePoolModal/DeleteMachinePoolModal';
 import EditMachinePoolModal from './components/EditMachinePoolModal/EditMachinePoolModal';
-import MachinePoolExpandedRow from './components/MachinePoolExpandedRow';
-import { canMachinePoolBeUpgradedSelector } from './UpdateMachinePools/updateMachinePoolsHelpers';
-import MachinePoolNodesSummary from './MachinePoolNodesSummary';
-import {
-  actionResolver,
-  hasDefaultOrExplicitAutoscalingMachinePool,
-  hasSubnets,
-} from './machinePoolsHelper';
+import { hasDefaultOrExplicitAutoscalingMachinePool } from './machinePoolsHelper';
 import {
   hasMachinePoolsQuotaSelector,
   hasOrgLevelBypassPIDsLimitCapability,
 } from './machinePoolsSelectors';
-import {
-  UpdateAllMachinePools,
-  UpdateMachinePoolModal,
-  UpdatePoolButton,
-} from './UpdateMachinePools';
+import { MachinePoolsTable } from './MachinePoolsTable';
+import { UpdateAllMachinePools, UpdateMachinePoolModal } from './UpdateMachinePools';
 
 import './MachinePools.scss';
 
-const getOpenShiftVersion = (
-  machinePool,
-  isDisabled,
-  isMachinePoolError,
-  isHypershift,
-  clusterVersionID,
-) => {
-  const extractedVersion = get(machinePool, 'version.id', '');
-
-  if (!extractedVersion) {
-    return 'N/A';
-  }
-  return (
-    <>
-      {versionFormatter(extractedVersion) || extractedVersion}{' '}
-      {!isDisabled ? (
-        <UpdatePoolButton
-          machinePool={machinePool}
-          isMachinePoolError={isMachinePoolError}
-          isHypershift={isHypershift}
-          controlPlaneVersion={clusterVersionID}
-        />
-      ) : null}
-    </>
-  );
-};
-
 const MachinePools = ({ cluster }) => {
   const dispatch = useDispatch();
-  const allow249NodesOSDCCSROSA = useFeatureGate(OCMUI_MAX_NODES_TOTAL_249);
+  const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
 
   const isDeleteMachinePoolModalOpen = useGlobalState((state) =>
     shouldShowModal(state, modals.DELETE_MACHINE_POOL),
@@ -122,8 +73,6 @@ const MachinePools = ({ cluster }) => {
   const isClusterAutoscalingModalOpen = useGlobalState((state) =>
     shouldShowModal(state, modals.EDIT_CLUSTER_AUTOSCALING_V2),
   );
-
-  const clusterUpgradesSchedules = useGlobalState((state) => state.clusterUpgrades.schedules);
 
   const hasMachineConfiguration = useFeatureGate(ENABLE_MACHINE_CONFIGURATION);
   const organization = useGlobalState((state) => state.userProfile.organization);
@@ -133,9 +82,8 @@ const MachinePools = ({ cluster }) => {
   const region = cluster?.subscription?.rh_region_id;
   const clusterID = cluster?.id;
   const clusterVersionID = cluster?.version?.id;
+  const clusterRawVersionID = cluster?.version?.raw_id;
   // Initial state
-  const [deletedRowIndex, setDeletedRowIndex] = React.useState(null);
-  const [openedRows, setOpenedRows] = React.useState([]);
   const [hideDeleteMachinePoolError, setHideDeleteMachinePoolError] = React.useState(false);
   const [editMachinePoolId, setEditMachinePoolId] = React.useState(undefined);
   const [addMachinePool, setAddMachinePool] = React.useState(false);
@@ -155,7 +103,13 @@ const MachinePools = ({ cluster }) => {
     isError: isMachinePoolError,
     error: machinePoolError,
     refetch: machinePoolOrNodePoolsRefetch,
-  } = useFetchMachineOrNodePools(clusterID, isHypershift, clusterVersionID, region);
+  } = useFetchMachineOrNodePools(
+    clusterID,
+    isHypershift,
+    clusterVersionID,
+    region,
+    clusterRawVersionID,
+  );
 
   const {
     data: clusterAutoscalerData,
@@ -186,10 +140,6 @@ const MachinePools = ({ cluster }) => {
       machinePoolOrNodePoolsRefetch();
     }
 
-    if ((isDeleteMachinePoolSuccess || isDeleteMachinePoolError) && deletedRowIndex !== null) {
-      setDeletedRowIndex(null);
-    }
-
     if (
       !isHypershiftCluster(cluster) &&
       hasClusterAutoscaler &&
@@ -205,7 +155,6 @@ const MachinePools = ({ cluster }) => {
     isDeleteMachinePoolError,
     isDeleteMachinePoolSuccess,
     isMachinePoolLoading,
-    deletedRowIndex,
     clusterAutoscalerData,
     hasClusterAutoscaler,
     isClusterAutoscalerLoading,
@@ -221,19 +170,6 @@ const MachinePools = ({ cluster }) => {
     [allow249NodesOSDCCSROSA, cluster.version?.raw_id, cluster.multi_az],
   );
 
-  const onCollapse = (event, rowKey, isOpen, rowData) => {
-    let rows = [];
-    if (isOpen) {
-      if (!openedRows.includes(rowData.machinePool.id)) {
-        rows.push(rowData.machinePool.id);
-        setOpenedRows(rows);
-      }
-    } else {
-      rows = openedRows.filter((machinePoolId) => machinePoolId !== rowData.machinePool.id);
-      setOpenedRows(rows);
-    }
-  };
-
   const hasMachinePoolsQuota = hasMachinePoolsQuotaSelector(
     organization,
     cluster,
@@ -241,7 +177,6 @@ const MachinePools = ({ cluster }) => {
   );
   const machinePoolsActions = cluster?.machinePoolsActions || {}; // Data not defined on the cluster list response
   const hasMachinePools = !!machinePoolData?.length;
-  const isMultiZoneCluster = isMultiAZ(cluster);
   const hasAutoscalingMachinePools = hasDefaultOrExplicitAutoscalingMachinePool(
     cluster,
     machinePoolData,
@@ -277,17 +212,6 @@ const MachinePools = ({ cluster }) => {
     }
   };
 
-  const columns = [
-    { title: 'Machine pool', cellFormatters: [expandable] },
-    { title: 'Instance type' },
-    { title: 'Availability zones', transforms: [cellWidth(15)] },
-  ];
-  columns.push({ title: 'Node count' });
-  columns.push({ title: 'Autoscaling', transforms: [cellWidth(15)] });
-  if (isHypershift) {
-    columns.push({ title: 'Version', transforms: [cellWidth(15)] });
-  }
-
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
   const readOnlyReason = isReadOnly && 'This operation is not available during maintenance';
   const quotaReason = !hasMachinePoolsQuota && noQuotaTooltip;
@@ -307,150 +231,7 @@ const MachinePools = ({ cluster }) => {
 
   const tableActionsDisabled = !!(readOnlyReason || hibernatingReason || canNotCreateOrEditReason);
 
-  const getMachinePoolRow = (isExpandableRow, machinePool = {}) => {
-    const cells = [
-      machinePool.id,
-      {
-        title: (
-          <>
-            {isHypershift ? machinePool.aws_node_pool?.instance_type : machinePool.instance_type}
-            {machinePool.aws?.spot_market_options && (
-              <Label variant="outline" className="ocm-c-machine-pools__spot-label">
-                Spot
-              </Label>
-            )}
-          </>
-        ),
-      },
-      machinePool.availability_zones?.join(', ') || machinePool.availability_zone,
-      {
-        title: (
-          <MachinePoolNodesSummary
-            isMultiZoneCluster={isMultiZoneCluster}
-            machinePool={machinePool}
-          />
-        ),
-      },
-
-      {
-        title: machinePool.autoscaling ? 'Enabled' : 'Disabled',
-      },
-      isHypershift
-        ? {
-            title: getOpenShiftVersion(
-              machinePool,
-              tableActionsDisabled,
-              isMachinePoolError,
-              isHypershift,
-              clusterVersionID,
-            ),
-          }
-        : null,
-    ].filter((column) => column !== null);
-
-    const row = {
-      cells,
-      key: machinePool.id,
-      machinePool,
-    };
-    if (isExpandableRow) {
-      row.isOpen = openedRows.includes(machinePool.id);
-    }
-    return row;
-  };
-
-  const getExpandableRow = (machinePool, parentIndex) => ({
-    parent: parentIndex,
-    fullWidth: true,
-    cells: [
-      {
-        title: (
-          <MachinePoolExpandedRow
-            region={region}
-            cluster={cluster}
-            isMultiZoneCluster={isMultiZoneCluster}
-            machinePool={machinePool}
-          />
-        ),
-      },
-    ],
-    key: `${machinePool.id}-child`,
-  });
-
-  // row is expandable if there are extra details to show
-  const isExpandable = (machinePool = {}) =>
-    !isEmpty(machinePool.labels) ||
-    machinePool.taints?.length > 0 ||
-    machinePool.autoscaling ||
-    machinePool.aws ||
-    hasSubnets(machinePool);
-
-  const rows = [];
-
-  // set all other machine pools rows
-  machinePoolData?.forEach((machinePool) => {
-    const isExpandableRow = isExpandable(machinePool);
-    const machinePoolRow = getMachinePoolRow(isExpandableRow, machinePool);
-
-    rows.push(machinePoolRow);
-
-    if (isExpandableRow) {
-      const expandableRow = getExpandableRow(machinePool, rows.length - 1);
-      rows.push(expandableRow);
-    }
-  });
-
-  const performDeleteAction = async (rowID, rowData) => {
-    if (isDeleteMachinePoolError) {
-      setHideDeleteMachinePoolError(false);
-    }
-
-    setDeletedRowIndex(rowID);
-    setOpenedRows(openedRows?.filter((machinePoolId) => machinePoolId !== rowData.machinePool.id));
-    deleteMachinePoolMutation(rowData.machinePool.id);
-  };
-
-  const onClickDeleteAction = (_, rowID, rowData) => {
-    dispatch(
-      openModal(modals.DELETE_MACHINE_POOL, {
-        machinePool: rowData.machinePool,
-        performDeleteAction: () => performDeleteAction(rowID, rowData),
-      }),
-    );
-  };
-
-  const onClickEdit = (_, __, rowData) => setEditMachinePoolId(rowData.machinePool.id);
-
-  const onClickUpdateAction = (_, __, rowData) =>
-    dispatch(
-      openModal(modals.UPDATE_MACHINE_POOL_VERSION, {
-        machinePool: rowData.machinePool,
-      }),
-    );
-
   const showSkeleton = !hasMachinePools && isMachinePoolLoading;
-
-  const skeletonRow = {
-    cells: [
-      {
-        props: { colSpan: 4 },
-        title: <Skeleton fontSize="lg" screenreaderText="Loading..." />,
-      },
-    ],
-  };
-
-  if (hasMachinePools && isMachinePoolLoading && deletedRowIndex === null) {
-    rows.push(skeletonRow);
-  }
-
-  if (hasMachinePools && deletedRowIndex !== null) {
-    // when deleting a row check if the row is expandable
-    if (rows[deletedRowIndex + 1]?.parent) {
-      // remove the child row
-      rows.splice(deletedRowIndex + 1, 1);
-    }
-    rows[deletedRowIndex] = skeletonRow;
-  }
   const openAutoScalingModal = () => dispatch(openModal(modals.EDIT_CLUSTER_AUTOSCALING_V2));
   const initialValues = getDefaultClusterAutoScaling(maxNodesTotalDefault);
 
@@ -466,6 +247,7 @@ const MachinePools = ({ cluster }) => {
               clusterId={clusterID}
               isHypershift={isHypershift}
               controlPlaneVersion={clusterVersionID}
+              controlPlaneRawVersion={clusterRawVersionID}
               machinePoolData={machinePoolData}
               region={region}
               refreshMachinePools={refreshMachinePools}
@@ -530,36 +312,21 @@ const MachinePools = ({ cluster }) => {
                 />
               )}
               {machinePoolsActions.list && (
-                <TableDeprecated
-                  aria-label="Machine pools"
-                  cells={columns}
-                  rows={rows}
-                  onCollapse={onCollapse}
-                  actionResolver={(rowData) =>
-                    actionResolver({
-                      rowData,
-                      onClickDelete: onClickDeleteAction,
-                      onClickUpdate: canMachinePoolBeUpgradedSelector(
-                        clusterUpgradesSchedules,
-                        cluster?.version?.id || '',
-                        rowData.machinePool,
-                        isMachinePoolError,
-                        isHypershift,
-                      )
-                        ? onClickUpdateAction
-                        : undefined,
-                      canDelete: machinePoolsActions.delete,
-                      cluster,
-                      machinePools: machinePoolData,
-                      machineTypes,
-                      onClickEdit,
-                    })
-                  }
-                  areActionsDisabled={() => tableActionsDisabled}
-                >
-                  <TableHeaderDeprecated />
-                  <TableBodyDeprecated />
-                </TableDeprecated>
+                <MachinePoolsTable
+                  isHypershift={isHypershift}
+                  machinePoolData={machinePoolData}
+                  isDeleteMachinePoolPending={isDeleteMachinePoolPending}
+                  isDeleteMachinePoolSuccess={isDeleteMachinePoolSuccess}
+                  isDeleteMachinePoolError={isDeleteMachinePoolError}
+                  setEditMachinePoolId={setEditMachinePoolId}
+                  setHideDeleteMachinePoolError={setHideDeleteMachinePoolError}
+                  cluster={cluster}
+                  isMachinePoolError={isMachinePoolError}
+                  machinePoolsActions={machinePoolsActions}
+                  machineTypes={machineTypes}
+                  tableActionsDisabled={tableActionsDisabled}
+                  deleteMachinePoolMutation={deleteMachinePoolMutation}
+                />
               )}
             </CardBody>
           </Card>
@@ -592,6 +359,7 @@ const MachinePools = ({ cluster }) => {
         clusterId={clusterID}
         refreshMachinePools={refreshMachinePools}
         controlPlaneVersion={clusterVersionID}
+        controlPlaneRawVersion={clusterRawVersionID}
         region={region}
       />
       {isClusterAutoscalingModalOpen && (

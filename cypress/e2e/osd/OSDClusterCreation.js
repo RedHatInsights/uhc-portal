@@ -17,7 +17,7 @@ describe('OSD cluster tests', { tags: ['ci'] }, () => {
     it('navigates to create OSD cluster', () => {
       cy.getByTestId('create_cluster_btn').click();
       CreateClusterPage.isCreateClusterPage();
-      cy.getByTestId('osd-create-cluster-button').click({ force: true }); // need force=true to get past 'element detached from dom' error
+      CreateOSDWizardPage.osdCreateClusterButton().click();
       CreateOSDWizardPage.isCreateOSDPage();
     });
 
@@ -30,9 +30,9 @@ describe('OSD cluster tests', { tags: ['ci'] }, () => {
       cy.get(CreateOSDWizardPage.primaryButton).click();
 
       CreateOSDWizardPage.isClusterDetailsScreen();
-      cy.get(CreateOSDWizardPage.clusterNameInput).type(
-        'aaaaaaaaaaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa',
-      );
+      cy.get(CreateOSDWizardPage.clusterNameInput)
+        .scrollIntoView()
+        .type('aaaaaaaaaaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa');
       cy.get(CreateOSDWizardPage.clusterNameInputError).contains('1 - 54 characters');
       cy.get(CreateOSDWizardPage.clusterNameInput).clear();
       cy.get(CreateOSDWizardPage.clusterNameInputError).should('have.length', 4);
@@ -74,7 +74,6 @@ describe('OSD Trial cluster tests', () => {
   describe('View Create OSD Trial cluster page', () => {
     it('navigates to create OSD Trial cluster and CCS is selected', () => {
       GlobalNav.breadcrumbItem('Cluster List').click({ force: true }); // need force=true to get past 'element detached from dom' error
-      LeaveCreateClusterPrompt.submit();
 
       ClusterListPage.waitForDataReady();
 

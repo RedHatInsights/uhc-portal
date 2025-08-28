@@ -9,6 +9,7 @@ type ServicePageDataType = {
   featuresExpandableContents: ExpandalbeContents[];
   linkTextLabelLinkCardContents: LinkTextLabelLinkCardContents;
   getStartedSection: GetStartedSection;
+  breadcrumbsLabel: string;
 };
 
 export { ServicePageDataType };

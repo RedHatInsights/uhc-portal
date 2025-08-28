@@ -15,9 +15,8 @@ describe('<SubscriptionSettings />', () => {
 
     const { container } = render(<SubscriptionSettings {...newProps} />);
     expect(screen.getByRole('button', { name: 'Edit subscription settings' })).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Edit subscription settings' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Edit subscription settings' })).not.toHaveAttribute(
       'aria-disabled',
-      'false',
     );
     await checkAccessibility(container);
   });
@@ -39,10 +38,6 @@ describe('<SubscriptionSettings />', () => {
 
     render(<SubscriptionSettings {...newProps} />);
     expect(screen.getByRole('button', { name: 'Edit subscription settings' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Edit subscription settings' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
 
     expect(screen.getByRole('link', { name: 'Contact sales (new window or tab)' })).toHaveAttribute(
       'href',

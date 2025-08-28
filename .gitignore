@@ -6,18 +6,19 @@
 /dist/
 /build/
 /node_modules/
-/run/ocm-api-model/
-/run/ocm-api-metamodel/
 /run/insights-proxy/
 
 # No longer `git clone`d, kept here in case anyone has them checked out:
 /run/cucushift/
 /run/verification-tests/
+/run/ocm-api-model/
+/run/ocm-api-metamodel/
 
 /run/output
 /vendor/
 backend-config.yml
 /cypress/screenshots/
+/cypress/downloads/
 /cypress/videos/
 /coverage/
 .nyc_output/out.json
@@ -29,3 +30,9 @@ yalc.lock
 *.patch
 
 *storybook.log
+
+openapi/*.json
+
+.env*
+
+/unitTestCoverage

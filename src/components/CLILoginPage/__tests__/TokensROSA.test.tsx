@@ -34,10 +34,18 @@ describe('<TokensROSA />', () => {
       getOfflineToken: getOfflineTokenMock,
     },
   });
+  const setShouldShowTokens = jest.fn();
 
   it('is accessible with button', async () => {
     const { container } = render(
-      <TokensROSA isRosa SSOLogin={false} show={false} showPath="/token/show" />,
+      <TokensROSA
+        isRosa
+        SSOLogin={false}
+        show={false}
+        showPath="/token/show"
+        shouldShowTokens
+        setShouldShowTokens={setShouldShowTokens}
+      />,
     );
 
     expect(screen.getByRole('button', { name: 'Load token' })).toBeInTheDocument();
@@ -45,7 +53,15 @@ describe('<TokensROSA />', () => {
   });
 
   it('Renders token', async () => {
-    render(<TokensROSA isRosa SSOLogin={false} show />);
+    render(
+      <TokensROSA
+        isRosa
+        SSOLogin={false}
+        show
+        shouldShowTokens
+        setShouldShowTokens={setShouldShowTokens}
+      />,
+    );
     expect(await screen.findByRole('link', { name: 'Download the ROSA CLI' })).toBeInTheDocument();
   });
 });

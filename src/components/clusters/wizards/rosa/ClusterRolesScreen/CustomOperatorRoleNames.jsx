@@ -1,7 +1,7 @@
 import React from 'react';
 import { Field } from 'formik';
 
-import { GridItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
+import { Content, ContentVariants, GridItem, Title } from '@patternfly/react-core';
 
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
@@ -21,11 +21,11 @@ function CustomOperatorRoleNames() {
         <Title headingLevel="h3">Name operator roles</Title>
       </GridItem>
       <GridItem span={10}>
-        <Text component={TextVariants.p}>
+        <Content component={ContentVariants.p}>
           To easily identify the Operator IAM roles for a cluster in your AWS account, the Operator
           role names are prefixed with your cluster name and a random 4-digit hash. You can
           optionally replace this prefix.
-        </Text>
+        </Content>
       </GridItem>
       <GridItem span={6}>
         <Field
@@ -37,16 +37,16 @@ function CustomOperatorRoleNames() {
           validate={validators.checkCustomOperatorRolesPrefix}
           helpText={`Maximum ${MAX_CUSTOM_OPERATOR_ROLES_PREFIX_LENGTH} characters.  Changing the cluster name will regenerate this value.`}
           extendedHelpText={
-            <TextContent>
-              <Text component={TextVariants.p}>
+            <Content>
+              <Content component={ContentVariants.p}>
                 You can specify a custom prefix for the cluster-specific Operator IAM roles to use.{' '}
                 <br />
                 See examples in{' '}
                 <ExternalLink href={links.ROSA_AWS_OPERATOR_ROLE_PREFIX}>
                   Defining a custom Operator IAM role prefix
                 </ExternalLink>
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
           }
           input={getFieldProps(FieldId.CustomOperatorRolesPrefix)}
           meta={getFieldMeta(FieldId.CustomOperatorRolesPrefix)}

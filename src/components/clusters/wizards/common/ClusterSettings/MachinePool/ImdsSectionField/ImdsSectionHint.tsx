@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text, TextVariants } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -12,13 +12,13 @@ export const ImdsSectionHint = () => (
     title="Amazon EC2 Instance Metadata Service (IMDS)"
     bodyContent={
       <>
-        <Text component={TextVariants.p}>
+        <Content component={ContentVariants.p}>
           Instance metadata is data that is related to an Amazon Elastic Compute Cloud (Amazon EC2)
           instance that applications can use to configure or manage the running instance.
-        </Text>
-        <Text component={TextVariants.p}>
+        </Content>
+        <Content component={ContentVariants.p}>
           <ExternalLink href={links.AWS_IMDS}>Learn more about IMDS</ExternalLink>
-        </Text>
+        </Content>
       </>
     }
   />

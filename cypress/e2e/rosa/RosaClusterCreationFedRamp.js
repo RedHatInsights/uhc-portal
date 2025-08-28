@@ -80,11 +80,9 @@ describe('Create ROSA Cluster in FedRamp (OCP-TBD)', { tags: ['fedramp'] }, () =
     });
 
     it('Step - Accounts and roles - Select Account roles, ARN definitions', () => {
-      if (!Cypress.env('GOV_CLOUD')) {
-        CreateRosaWizardPage.isControlPlaneTypeScreen();
-        CreateRosaWizardPage.selectStandaloneControlPlaneTypeOption();
-        cy.get(CreateRosaWizardPage.primaryButton).click({ force: true });
-      }
+      CreateRosaWizardPage.isControlPlaneTypeScreen();
+      CreateRosaWizardPage.selectStandaloneControlPlaneTypeOption();
+      cy.get(CreateRosaWizardPage.primaryButton).click({ force: true });
       CreateRosaWizardPage.isAccountsAndRolesScreen();
       CreateRosaWizardPage.selectAWSInfrastructureAccount(Cypress.env('QE_AWS_ID'));
       CreateRosaWizardPage.refreshInfrastructureAWSAccountButton().click();
@@ -110,7 +108,8 @@ describe('Create ROSA Cluster in FedRamp (OCP-TBD)', { tags: ['fedramp'] }, () =
       }
       if (!Cypress.env('GOV_CLOUD') && Cypress.env('ADDITIONAL_ETCD_ENCRYPTION') == 'Enabled') {
         CreateRosaWizardPage.enableEtcEncryption();
-      } else {
+      }
+      if (!Cypress.env('GOV_CLOUD') && Cypress.env('ADDITIONAL_ETCD_ENCRYPTION') == 'Disabled') {
         CreateRosaWizardPage.isEtcEncryptionDisabled();
       }
       if (!Cypress.env('GOV_CLOUD') && Cypress.env('FIPS_CRYPTOGRAPHY') == 'Enabled') {
@@ -151,10 +150,11 @@ describe('Create ROSA Cluster in FedRamp (OCP-TBD)', { tags: ['fedramp'] }, () =
         CreateRosaWizardPage.clusterPrivacyIsDisabled();
         CreateRosaWizardPage.clickButtonContainingText('Next');
         CreateRosaWizardPage.clickButtonContainingText('Select a VPC');
-        CreateRosaWizardPage.clickButtonContainingText(Cypress.env('VPC_NAME'));
+        CreateRosaWizardPage.selectFirstVPC();
         CreateRosaWizardPage.clickButtonContainingText('Select availability zone');
-        CreateRosaWizardPage.clickButtonContainingText(Cypress.env('AVAILABILITY_ZONE_REGION'));
-        CreateRosaWizardPage.inputPrivateSubnetIdFedRamp(Cypress.env('SUBNET_ID'));
+        CreateRosaWizardPage.selectFirstAvailabilityZone();
+        CreateRosaWizardPage.clickButtonContainingText('Select private subnet');
+        CreateRosaWizardPage.selectFirstPrivateSubnet();
         if (Cypress.env('INSTALL_INTO_AWS_SHARED_VPC')) {
           cy.get('#shared_vpc\\.is_selected').check().should('be.enabled');
           if (Cypress.env('SHARED_VPC_BASE_DNS_DOMAIN') == 'auto') {
@@ -166,29 +166,6 @@ describe('Create ROSA Cluster in FedRamp (OCP-TBD)', { tags: ['fedramp'] }, () =
             cy.get('sharedvpcdropdown')
               .type(Cypress.env('SHARED_VPC_BASE_DNS_DOMAIN'))
               .should('have.value', Cypress.env('SHARED_VPC_BASE_DNS_DOMAIN'));
-          }
-        }
-        CreateRosaWizardPage.clickButtonContainingText('Next');
-      } else {
-        if (Cypress.env('CLUSTER_PRIVACY') == 'private') {
-          CreateRosaWizardPage.enableClusterPrivacyPrivate();
-          CreateRosaWizardPage.clickButtonContainingText('Next');
-          CreateRosaWizardPage.clickButtonContainingText('Select a VPC');
-          CreateRosaWizardPage.clickButtonContainingText(Cypress.env('VPC_NAME'));
-          CreateRosaWizardPage.clickButtonContainingText('Select availability zone');
-          CreateRosaWizardPage.selectAvailabilityZoneRegion(
-            Cypress.env('AVAILABILITY_ZONE_REGION'),
-          );
-          CreateRosaWizardPage.inputPrivateSubnetId(Cypress.env('SUBNET_ID'));
-          CreateRosaWizardPage.clickButtonContainingText('Next');
-        }
-        if (Cypress.env('CLUSTER_PRIVACY') == 'public') {
-          CreateRosaWizardPage.enableClusterPrivacyPublic();
-          if (Cypress.env('INSTALL_INTO_EXISTING_VPC') == 'Enabled') {
-            CreateRosaWizardPage.enableInstallIntoExistingVpc();
-          }
-          if (Cypress.env('CONFIGURE_CLUSTER_WIDE_PROXY') == 'Enabled') {
-            CreateRosaWizardPage.enableConfigureClusterWideProxy();
           }
         }
         CreateRosaWizardPage.clickButtonContainingText('Next');
@@ -215,9 +192,6 @@ describe('Create ROSA Cluster in FedRamp (OCP-TBD)', { tags: ['fedramp'] }, () =
           .clear()
           .type(Cypress.env('HOST_PREFIX'))
           .should('have.value', Cypress.env('HOST_PREFIX'));
-      } else {
-        CreateRosaWizardPage.useCIDRDefaultValues(false);
-        CreateRosaWizardPage.useCIDRDefaultValues(true);
       }
       CreateRosaWizardPage.machineCIDRInput().should('have.value', Cypress.env('MACHINE_CIDR'));
       CreateRosaWizardPage.serviceCIDRInput().should('have.value', Cypress.env('SERVICE_CIDR'));

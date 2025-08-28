@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 
 import type { GlobalState } from '~/redux/store';
+import type { CloudRegion } from '~/types/clusters_mgmt.v1';
 
 import { CloudRegionSelectField } from './CloudRegionSelectField';
 import { checkRegion } from './validRegions';
@@ -18,7 +19,7 @@ const mapStateToProps = (state: GlobalState, ownProps: OwnProps) => {
 
   return {
     cloudProviders,
-    regions: Object.values(regions).map((region) => checkRegion(region, ownProps)),
+    regions: Object.values(regions).map((region) => checkRegion(region as CloudRegion, ownProps)),
   };
 };
 

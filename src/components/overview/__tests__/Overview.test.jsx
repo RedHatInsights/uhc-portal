@@ -11,6 +11,7 @@ describe('<Overview />', () => {
   const advancedClusterSecurityCardData = { ...FEATURED_PRODUCTS_CARDS[0] };
   const openshiftAiCardData = { ...FEATURED_PRODUCTS_CARDS[1] };
   const openshiftVirtualizationData = { ...FEATURED_PRODUCTS_CARDS[2] };
+  const advancedClusterManagementData = { ...FEATURED_PRODUCTS_CARDS[3] };
 
   const gitopsCardData = { ...RECOMMENDED_OPERATORS_CARDS_DATA[0] };
   const pipelinesCardData = { ...RECOMMENDED_OPERATORS_CARDS_DATA[1] };
@@ -144,6 +145,14 @@ describe('<Overview />', () => {
         'https://docs.redhat.com/en/documentation/migration_toolkit_for_virtualization/2.0/html/installing_and_using_the_migration_toolkit_for_virtualization/about-mtv_mtv#mtv-resources-and-services_mtv',
       learnMoreLinkTextContent: 'Learn more about Migration Toolkit for Virtualization',
     },
+    {
+      ...advancedClusterManagementData,
+      index: 3,
+      someDrawerContent: 'Reduce operational costs for multicloud environments:',
+      learnMoreLinkDestination:
+        'https://www.redhat.com/en/technologies/management/advanced-cluster-management',
+      learnMoreLinkTextContent: 'Learn more about Advanced Cluster Management for Kubernetes',
+    },
   ])(
     'verifies Featured Product Card "$title" content (basic functionality verification of each Card separately)',
     async ({
@@ -169,7 +178,7 @@ describe('<Overview />', () => {
       const learnMoreBtns = screen.getAllByTestId(
         'product-overview-card__learn-more-button-Featured products',
       );
-      expect(learnMoreBtns).toHaveLength(3);
+      expect(learnMoreBtns).toHaveLength(4);
 
       // click on Card's Learn more button
       await userEvent.click(learnMoreBtns[index]);
@@ -203,7 +212,7 @@ describe('<Overview />', () => {
     const learnMoreBtns = screen.getAllByTestId(
       'product-overview-card__learn-more-button-Featured products',
     );
-    expect(learnMoreBtns).toHaveLength(3);
+    expect(learnMoreBtns).toHaveLength(4);
 
     // click on Advanced Cluster Security card's Learn more button
     await userEvent.click(learnMoreBtns[0]);
@@ -256,6 +265,25 @@ describe('<Overview />', () => {
         'Transition your virtual machines to a modern hybrid cloud application platform. Run your VMs alongside containers using the same set of tools and processes.',
       ),
     ).toBeInTheDocument();
+
+    // click on Advanced Cluster Management card's Learn more button
+    await userEvent.click(learnMoreBtns[3]);
+
+    // ensure the title and some drawer content is shown
+    expect(screen.getByTestId('drawer-panel-content__title')).toHaveTextContent(
+      advancedClusterManagementData.title,
+    );
+
+    expect(
+      screen.getByText('Reduce operational costs for multicloud environments:'),
+    ).toBeInTheDocument();
+
+    // ensure some of the previously shown content of the Drawer is no longer shown:
+    expect(
+      screen.queryByText(
+        'Transition your virtual machines to a modern hybrid cloud application platform. Run your VMs alongside containers using the same set of tools and processes.',
+      ),
+    ).not.toBeInTheDocument();
   });
 
   it('tests Recommended Operators Cards Functionality -> Click on the learnMore of each card and verify that the content of the Drawer switches to the appropriate card that was clicked', async () => {
@@ -332,7 +360,7 @@ describe('<Overview />', () => {
       'product-overview-card__learn-more-button-Featured products',
     );
     expect(recommendedOperatorsLearnMoreBtns).toHaveLength(3);
-    expect(featuredProductsLearnMoreBtns).toHaveLength(3);
+    expect(featuredProductsLearnMoreBtns).toHaveLength(4);
 
     const learnMoreBtns = [...featuredProductsLearnMoreBtns, ...recommendedOperatorsLearnMoreBtns];
 
@@ -390,8 +418,27 @@ describe('<Overview />', () => {
       ),
     ).not.toBeInTheDocument();
 
-    // click on Gitops card's Learn more button
+    // click on Advanced Cluster Management card's Learn more button
     await userEvent.click(learnMoreBtns[3]);
+
+    // ensure the title and some drawer content is shown
+    expect(screen.getByTestId('drawer-panel-content__title')).toHaveTextContent(
+      advancedClusterManagementData.title,
+    );
+
+    expect(
+      screen.getByText('Reduce operational costs for multicloud environments:'),
+    ).toBeInTheDocument();
+
+    // ensure some of the previously shown content of the Drawer is no longer shown:
+    expect(
+      screen.queryByText(
+        'Transition your virtual machines to a modern hybrid cloud application platform. Run your VMs alongside containers using the same set of tools and processes.',
+      ),
+    ).not.toBeInTheDocument();
+
+    // click on Gitops card's Learn more button
+    await userEvent.click(learnMoreBtns[4]);
 
     // ensure the title and some drawer content is shown
     expect(screen.getByTestId('drawer-panel-content__title')).toHaveTextContent(
@@ -405,13 +452,11 @@ describe('<Overview />', () => {
 
     // ensure some of the previously shown content of the Drawer is no longer shown:
     expect(
-      screen.queryByText(
-        'Transition your virtual machines to a modern hybrid cloud application platform. Run your VMs alongside containers using the same set of tools and processes.',
-      ),
+      screen.queryByText('Reduce operational costs for multicloud environments:'),
     ).not.toBeInTheDocument();
 
     // click on Pipelines card's Learn more button
-    await userEvent.click(learnMoreBtns[4]);
+    await userEvent.click(learnMoreBtns[5]);
 
     // ensure the title and some drawer content is shown
     expect(screen.getByTestId('drawer-panel-content__title')).toHaveTextContent(
@@ -431,7 +476,7 @@ describe('<Overview />', () => {
     ).not.toBeInTheDocument();
 
     // click on Service Mesh card's Learn more button
-    await userEvent.click(learnMoreBtns[5]);
+    await userEvent.click(learnMoreBtns[6]);
 
     // ensure the title and some drawer content is shown
     expect(screen.getByTestId('drawer-panel-content__title')).toHaveTextContent(

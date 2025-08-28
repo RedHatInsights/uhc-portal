@@ -16,6 +16,8 @@ import { CloudProviderType } from '~/components/clusters/wizards/common/constant
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import './MarketplaceSelectField.scss';
@@ -29,6 +31,8 @@ export const MarketplaceSelectField = ({
   hasGcpQuota,
   hasRhmQuota,
 }: MarketplaceSelectFieldProps) => {
+  const hideRHMarketplace = useFeatureGate(HIDE_RH_MARKETPLACE);
+
   const [input] = useField(FieldId.MarketplaceSelection);
   const {
     values: {
@@ -43,8 +47,11 @@ export const MarketplaceSelectField = ({
   } = useFormState();
 
   const reset = useCallback(() => {
+    if (hideRHMarketplace) {
+      return;
+    }
     setFieldValue(FieldId.MarketplaceSelection, null, false);
-  }, [setFieldValue]);
+  }, [hideRHMarketplace, setFieldValue]);
 
   useEffect(() => {
     // reset if we select a radio button other than the parent radio
@@ -79,12 +86,16 @@ export const MarketplaceSelectField = ({
       isDisabled: !hasGcpQuota,
       description: !hasGcpQuota ? gcmError : null,
     },
-    {
-      label: rhmLabel,
-      value: SubscriptionCommonFieldsClusterBillingModel.marketplace,
-      isDisabled: !hasRhmQuota,
-      description: !hasRhmQuota ? rhmError : null,
-    },
+    ...(hideRHMarketplace
+      ? []
+      : [
+          {
+            label: rhmLabel,
+            value: SubscriptionCommonFieldsClusterBillingModel.marketplace,
+            isDisabled: !hasRhmQuota,
+            description: !hasRhmQuota ? rhmError : null,
+          },
+        ]),
   ];
 
   const onToggle = () => {
@@ -96,7 +107,7 @@ export const MarketplaceSelectField = ({
       ref={toggleRef}
       onClick={onToggle}
       isExpanded={isOpen}
-      isDisabled={!hasGcpQuota && !hasRhmQuota}
+      isDisabled={!hasGcpQuota && (!hasRhmQuota || hideRHMarketplace)}
       isFullWidth
       className="marketplace-select-menu-toggle"
     >
@@ -129,6 +140,34 @@ export const MarketplaceSelectField = ({
     setIsOpen(false);
   };
 
+  // If we are hiding RHMarketplace, the selected option should be GCP Marketplace
+  useEffect(() => {
+    if (hideRHMarketplace) {
+      setFieldValue(
+        FieldId.MarketplaceSelection,
+        SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
+        false,
+      );
+      setFieldValue(FieldId.CloudProvider, CloudProviderType.Gcp, false);
+    }
+    // We want this to run only on load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    if (
+      billingModel.startsWith('marketplace') &&
+      billingModel !== SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp &&
+      hideRHMarketplace
+    ) {
+      setFieldValue(
+        FieldId.BillingModel,
+        SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
+        false,
+      );
+    }
+  }, [billingModel, hideRHMarketplace, setFieldValue]);
+
   const validate = (value: string): string | undefined => {
     if (
       (!value || value === 'placeholder') &&
@@ -142,7 +181,7 @@ export const MarketplaceSelectField = ({
   return (
     <Field name={FieldId.MarketplaceSelection} validate={validate}>
       {({ field, form, meta }: FieldProps) => (
-        <FormGroup {...input} fieldId={field.name} isRequired className="pf-v5-u-mt-sm">
+        <FormGroup {...input} fieldId={field.name} isRequired className="pf-v6-u-mt-sm">
           <Select
             isOpen={isOpen}
             selected={selectedMarketplace}

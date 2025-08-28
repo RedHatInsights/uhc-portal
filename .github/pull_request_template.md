@@ -2,75 +2,42 @@
 
 <!-- add a summarized description of the PR content -->
 
+<!-- add information about AI usage if substantial contributions are generated/assisted by AI tools -->
+<!-- for example: Assisted by: Cursor/gemini-2.5-pro -->
 
-# Details
+# Jira
 
-<!-- add a detailed list of changes, and link to the relevant commit-revision on each item.
-alternatively, use the below generated text to simply show the PR commits' messages -->
+<!-- link to the corresponding Jira item -->
+<!-- for example: Fixes [OCMUI-XXXX](https://issues.redhat.com/browse/OCMUI-XXXX) -->
 
+# Additional information
+
+<!-- any additional information reviewers should know for example:
+  - how the fix was made if not clear in the code
+  - things for the reviewer to pay close attention to
+  - any other approaches taken that failed
+  - requests for any exceptions
+ -->
 
 # How to Test
 
 <!-- add any useful information for local testing, like environment or tooling prerequisites,
 specially used CLI options, the user-flow, and so on -->
 
-
 # Screen Captures
 
 | Before                                              | After                                   |
 | --------------------------------------------------- | --------------------------------------- |
 | <!-- attach a "before" screenshot or video here --> | <!-- attach an "after" capture here --> |
-             
 
-# Reviews
+# Review process
 
-See [OCM UI PR into Master/Main process guide](https://docs.google.com/document/d/1utGXwyP63cViOyLR7T2R7eU5BoeNOKMf7MyqjY1VApo/) for more information.
+Please review and follow the [PR process](https://github.com/RedHatInsights/uhc-portal/blob/main/docs/pull-request-process.md).
 
-## Reviewer 1 < name >
+## QE Reviewer
 
-- [ ] Reviewed code
-- [ ] Verified unit tests were added/modified for changed logic
-- [ ] Verified change locally in a browser (downloaded and ran code)
-- [ ] Closed threads I started after the author made changes or added an explanation
-
-## Reviewer 2 < name >
-
-- [ ] Reviewed code
-- [ ] Verified unit tests were added/modified for changed logic
-- [ ] Verified change locally in a browser (downloaded and ran code)
-- [ ] Closed threads I started after the author made changes or added an explanation
-
-## QE Reviewer < name >
 - [ ] _Pre-merge testing : Verified change locally in a browser (downloaded and ran code using reviewx tool)_
 - [ ] Updated/created Polarion test cases which were peer QE reviewed
 - [ ] Confirmed 'tc-approved' label was added by dev to the linked JIRA ticket
 - [ ] (optional) Updated/created Cypress e2e tests
 - [ ] Closed threads I started after the author made changes or added an explanation
-
-NOTE: The author of the PR will merge the PR.
-
-## Author
-
-### Check the following:
-- [ ] Unit tests have been created and/or modified
-- [ ] All PR Checks have passed
-- [ ] Assign 2 Dev Reviewers
-- [ ] Assign ‘QA contact’ from associated JIRA ticket as the QE Reviewer
-- [ ] &#x1F53B; _When PR has 2 dev approvals, change JIRA status to ‘Review’_
-
-### Check the following before merging:
-- [ ] All checkboxes for all above reviewers have been checked
-- [ ] PR has 3 approvals (2 Dev, 1 QE)
-
-### Check the following after PR has merged:
-- [ ] Verified PR was deployed to staging via the [build job](https://ci.int.devshift.net/job/RedHatInsights-uhc-portal-gh-build-master/) or the related deployment was mentioned on [#ocm-ui-deploys](https://redhat.enterprise.slack.com/archives/C03GKHGMX7U)
-- [ ] Quick test code/feature again on staging (https://console.dev.redhat.com/openshift/)
-- [ ] Change JIRA status to 'Closed'
-
-
-# Ticketing
-
-<!-- state the ticket or tickets this PR pertains to, e.g. "closes OCMUI-nnn, OCMUI-mmm".
-note that "fixes", "closes" or "resolves" (case-insensitive) will automatically
-move the ticket(s) to "review" upon merge.
-to avoid this, you can use e.g. "addresses OCMUI-nnn" -->

@@ -40,7 +40,6 @@ const ScaleClusterDialog = ({ handleSubmit, initialValues, pristine }: ScaleClus
   const clusterDisplayName = getClusterName(modalData);
   // @ts-ignore
   const shouldDisplayClusterName = modalData.shouldDisplayClusterName || false;
-  const clusterId = modalData.id || '';
 
   /* Data mutation */
   const {
@@ -48,7 +47,7 @@ const ScaleClusterDialog = ({ handleSubmit, initialValues, pristine }: ScaleClus
     isError: editIsError,
     error: editError,
     mutate,
-  } = useEditCluster(clusterId, region);
+  } = useEditCluster(region);
 
   const onSubmit = (formData: { load_balancers: string; persistent_storage: string }) => {
     const clusterRequest: {
@@ -69,21 +68,33 @@ const ScaleClusterDialog = ({ handleSubmit, initialValues, pristine }: ScaleClus
         : null;
     }
 
-    mutate(clusterRequest as Cluster, {
-      onSuccess: () => {
-        dispatch(closeModal());
-        refreshQueries();
+    mutate(
+      {
+        clusterID: modalData.id,
+        cluster: clusterRequest as Cluster,
       },
-    });
+      {
+        onSuccess: () => {
+          dispatch(closeModal());
+          refreshQueries();
+        },
+      },
+    );
   };
 
   const cancelEdit = () => {
     closeScaleClusterModal();
   };
-
-  const error = editIsError ? (
-    <ErrorBox message="Error editing cluster" response={editError} />
-  ) : null;
+  const error =
+    editIsError && editError ? (
+      <ErrorBox
+        message="Error editing cluster"
+        response={{
+          errorMessage: editError?.message || editError?.errorMessage,
+          operationID: editError?.operationID,
+        }}
+      />
+    ) : null;
 
   const pending = editPending;
 

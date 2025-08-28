@@ -1,7 +1,14 @@
 import * as React from 'react';
 import { FieldArray, useField } from 'formik';
 
-import { Button, FormGroup, Grid, GridItem, Text, TextVariants } from '@patternfly/react-core';
+import {
+  Button,
+  Content,
+  ContentVariants,
+  FormGroup,
+  Grid,
+  GridItem,
+} from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
@@ -30,10 +37,10 @@ const EditLabelsSection = () => {
           <>
             <Grid hasGutter>
               <GridItem span={4}>
-                <Text component={TextVariants.small}>Key</Text>
+                <Content component={ContentVariants.small}>Key</Content>
               </GridItem>
               <GridItem span={8}>
-                <Text component={TextVariants.small}>Value</Text>
+                <Content component={ContentVariants.small}>Value</Content>
               </GridItem>
             </Grid>
             <Grid hasGutter>

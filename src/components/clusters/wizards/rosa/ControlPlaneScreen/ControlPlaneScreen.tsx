@@ -1,10 +1,20 @@
 import React from 'react';
 import { Field } from 'formik';
 
-import { Form, Grid, GridItem, Text, TextVariants, Title } from '@patternfly/react-core';
+import {
+  Content,
+  ContentVariants,
+  Form,
+  Grid,
+  GridItem,
+  Stack,
+  StackItem,
+  Title,
+} from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import { clusterBillingModelToRelatedResource } from '~/components/clusters/common/billingModelMapper';
 import { QuotaTypes } from '~/components/clusters/common/quotaModel';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
 import { emptyAWSSubnet } from '~/components/clusters/wizards/common/constants';
@@ -17,13 +27,15 @@ import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
 import AWSLogo from '~/styles/images/AWS.png';
 import RedHat from '~/styles/images/Logo-Red_Hat-B-Standard-RGB.png';
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { NO_ROLE_DETECTED } from '../AccountsRolesScreen/AccountRolesARNsSection/AccountRolesARNsSection';
+import { RosaArchitectureRenamingAlert } from '../common/Banners/RosaArchitectureRenamingAlert';
 import { FieldId, initialValuesHypershift } from '../constants';
 
 import { hypershiftValue } from './ControlPlaneCommon';
-import HostedTile from './HostedTile';
-import StandAloneTile from './StandAloneTile';
+import { HostedTile } from './HostedTile';
+import { StandAloneTile } from './StandAloneTile';
 
 import './controlPlaneScreen.scss';
 
@@ -103,12 +115,7 @@ const ControlPlaneField = ({
 };
 
 const ControlPlaneScreen = () => {
-  const {
-    values: { [FieldId.BillingModel]: billingModel },
-    setFieldValue,
-    getFieldProps,
-    setFieldTouched,
-  } = useFormState();
+  const { setFieldValue, getFieldProps, setFieldTouched } = useFormState();
 
   const quotaList = useGlobalState((state) => state.userProfile.organization.quotaList);
 
@@ -116,10 +123,13 @@ const ControlPlaneScreen = () => {
     () =>
       availableQuota(quotaList, {
         product: normalizedProducts.ROSA,
-        billingModel,
+        // marketplace_aws is the ROSA HCP billing model
+        billingModel: clusterBillingModelToRelatedResource(
+          SubscriptionCommonFieldsClusterBillingModel.marketplace_aws,
+        ),
         resourceType: QuotaTypes.CLUSTER,
       }) >= 1,
-    [billingModel, quotaList],
+    [quotaList],
   );
 
   return (
@@ -134,7 +144,7 @@ const ControlPlaneScreen = () => {
         <img src={RedHat} className="ocm-c-wizard-intro-image-top" aria-hidden="true" alt="" />
         <img src={AWSLogo} className="ocm-c-wizard-intro-image-bottom" aria-hidden="true" alt="" />
       </div>
-      <Grid hasGutter className="pf-v5-u-mt-md">
+      <Grid hasGutter className="pf-v6-u-mt-md">
         <GridItem span={10}>
           <WelcomeMessage />
         </GridItem>
@@ -142,15 +152,22 @@ const ControlPlaneScreen = () => {
           <PrerequisitesInfoBox />
         </GridItem>
         <GridItem span={10}>
-          <Title headingLevel="h3" className="pf-v5-u-mb-sm">
-            Select an AWS control plane type
+          <Title headingLevel="h3" className="pf-v6-u-mb-sm">
+            Select the ROSA architecture based on your control plane requirements
           </Title>
-          <Text component={TextVariants.p}>
-            Not sure what to choose?{' '}
-            <ExternalLink href={links.AWS_CONTROL_PLANE_URL}>
-              Learn more about AWS control plane types
-            </ExternalLink>
-          </Text>
+          <Stack hasGutter>
+            <StackItem>
+              <RosaArchitectureRenamingAlert />
+            </StackItem>
+            <StackItem>
+              <Content component={ContentVariants.p}>
+                Not sure what to choose?{' '}
+                <ExternalLink href={links.AWS_CONTROL_PLANE_URL}>
+                  Learn more about control plane architecture
+                </ExternalLink>
+              </Content>
+            </StackItem>
+          </Stack>
         </GridItem>
       </Grid>
       <Field

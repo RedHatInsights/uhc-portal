@@ -28,7 +28,7 @@ const ServiceAccount = () => {
           </>
         }
       />
-      <p className="pf-v5-u-mt-md">{ccsCredentialsValidity.pending && 'Validating...'}</p>
+      <p className="pf-v6-u-mt-md">{ccsCredentialsValidity.pending && 'Validating...'}</p>
     </>
   );
 };

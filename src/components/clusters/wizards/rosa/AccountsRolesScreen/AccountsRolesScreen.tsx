@@ -4,15 +4,7 @@ import { Field } from 'formik';
 import get from 'lodash/get';
 import { useDispatch, useSelector } from 'react-redux';
 
-import {
-  Button,
-  Form,
-  Grid,
-  GridItem,
-  Text,
-  TextContent,
-  TextVariants,
-} from '@patternfly/react-core';
+import { Button, Content, ContentVariants, Form, Grid, GridItem } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
 import { AWS_ACCOUNT_ROSA_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
@@ -175,7 +167,7 @@ function AccountsRolesScreen({
 
   return (
     <Form onSubmit={() => false}>
-      <Grid hasGutter className="pf-v5-u-mt-md">
+      <Grid hasGutter className="pf-v6-u-mt-md">
         {!isHypershiftEnabled && (
           <>
             <GridItem span={12}>
@@ -187,13 +179,13 @@ function AccountsRolesScreen({
           </>
         )}
         <GridItem span={8}>
-          <TextContent>
-            <Text component={TextVariants.h3}>AWS infrastructure account</Text>
-            <Text component={TextVariants.p}>
+          <Content>
+            <Content component={ContentVariants.h3}>AWS infrastructure account</Content>
+            <Content component={ContentVariants.p}>
               Select an AWS account that is associated with your Red Hat account or associate a new
               account. This account will contain the ROSA infrastructure.
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         </GridItem>
         <GridItem span={4} />
         <GridItem sm={12} md={7}>
@@ -235,7 +227,7 @@ function AccountsRolesScreen({
           />
           <Button
             variant="secondary"
-            className="pf-v5-u-mt-md"
+            className="pf-v6-u-mt-md"
             data-testid="launch-associate-account-btn"
             ref={openDrawerButtonRef}
             onClick={onClick}
@@ -264,7 +256,7 @@ function AccountsRolesScreen({
         )}
 
         {(getUserRoleResponse?.error || noUserForSelectedAWSAcct) && (
-          <GridItem span={8} className="pf-v5-u-mt-sm">
+          <GridItem span={8} className="pf-v6-u-mt-sm">
             <AwsRoleErrorAlert title="A user-role could not be detected" targetRole="user" />
           </GridItem>
         )}

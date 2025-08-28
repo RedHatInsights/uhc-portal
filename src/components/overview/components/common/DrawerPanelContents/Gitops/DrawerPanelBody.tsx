@@ -1,34 +1,25 @@
 import React from 'react';
 
-import {
-  Stack,
-  StackItem,
-  Text,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextVariants,
-  Title,
-} from '@patternfly/react-core';
+import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
 import ExternalLink from '~/components/common/ExternalLink';
 
 const GitopsDrawerPanelBody = (
   <Stack hasGutter className="drawer-panel-content-body">
     <StackItem>
-      <TextContent>
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           Consistently configure and deploy Kubernetes-based infrastructure and applications across
           clusters and development lifecycles using Red Hat OpenShift GitOps.
-        </Text>
-        <Text component={TextVariants.p}>
+        </Content>
+        <Content component={ContentVariants.p}>
           Red Hat OpenShift GitOps uses the open source project{' '}
           <ExternalLink href="https://www.redhat.com/en/blog/argocd-and-gitops-whats-next" noIcon>
             Argo CD{' '}
           </ExternalLink>
           as the declarative GitOps engine.
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem>
       <Title headingLevel="h3" data-testid="drawer-panel-content-benefits-title">
@@ -36,24 +27,24 @@ const GitopsDrawerPanelBody = (
       </Title>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <TextList isPlain>
-          <TextListItem>
+      <Content>
+        <Content component="ul" isPlainList>
+          <Content component="li">
             <b>Enhance traceability and visibility:</b> Infrastructure and applications are stored
             and versioned in Git.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Ensure consistency:</b> Red Hat OpenShift GitOps makes the configuration repositories
             the central element and ensures consistency in applications when you deploy them to
             different clusters in different environments, such as development, staging, and
             production.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Automate infrastructure and deployment requirements:</b> Updates and changes are
             pushed through declarative code across environments.
-          </TextListItem>
-        </TextList>
-      </TextContent>
+          </Content>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink

@@ -4,12 +4,11 @@ import {
   Card,
   CardBody,
   CardTitle,
+  Content,
   List,
   ListItem,
   Stack,
   StackItem,
-  Text,
-  TextContent,
   Title,
 } from '@patternfly/react-core';
 
@@ -17,10 +16,10 @@ import links, { channels, tools } from '../../common/installLinks.mjs';
 import DownloadAndOSSelection from '../clusters/install/instructions/components/DownloadAndOSSelection';
 import ExternalLink from '../common/ExternalLink';
 import InstructionCommand from '../common/InstructionCommand';
-import PopoverHint from '../common/PopoverHint';
 import SupportLevelBadge, { DEV_PREVIEW } from '../common/SupportLevelBadge';
 
 import LeadingInfo from './LeadingInfo';
+import { SSOAlert } from './SSOAlert';
 
 import './Instructions.scss';
 
@@ -28,54 +27,58 @@ const SSOLogin = ({
   isRosa,
   commandName,
   commandTool,
+  SSOLogin,
+  setShouldShowTokens,
 }: {
   isRosa: boolean;
   commandName: string;
   commandTool: string;
+  SSOLogin: boolean;
+  setShouldShowTokens: (v: boolean) => void;
 }) => (
   <Stack hasGutter>
     <StackItem>
       <Card className="ocm-c-api-token__card">
+        {!SSOLogin ? <SSOAlert isRosa={isRosa} setShouldShowTokens={setShouldShowTokens} /> : null}
         <CardTitle>
           <Title headingLevel="h2">SSO Login</Title>
         </CardTitle>
         <CardBody className="ocm-c-api-token__card--body">
-          <TextContent>
+          <Content>
             <LeadingInfo isRosa={isRosa} SSOLogin />
-          </TextContent>
-          <TextContent className="pf-v5-u-mt-lg">
+          </Content>
+          <Content className="pf-v6-u-mt-lg">
             <List component="ol">
               <ListItem>
                 Download and install the <code>{commandName}</code> command-line tool:{' '}
                 {commandTool === tools.OCM && <SupportLevelBadge {...DEV_PREVIEW} />}
-                <Text component="p" />
+                <Content component="p" />
                 <DownloadAndOSSelection tool={commandTool} channel={channels.STABLE} />
-                <Text component="p" />
+                <Content component="p" />
               </ListItem>
               <ListItem>
-                {`Make sure your ${commandTool.toUpperCase()} CLI version is ${commandTool === 'ocm' ? '0.1.73' : '1.2.37'} or higher `}
-                <PopoverHint
-                  hint={
-                    <>
-                      {`To check your ${commandTool.toUpperCase()} CLI version, run this command: `}
-                      <code>{`${commandTool} version`}</code>
-                    </>
-                  }
-                />
-                . To authenticate, run this command:
-                <Text component="p" />
+                To authenticate, run one of these commands:
+                <Content component="p" />
+                <Content component="p">Option 1 (for browsers)</Content>
                 <InstructionCommand
                   className="ocm-c-api-token-limit-width"
-                  outerClassName="pf-v5-u-mt-md"
+                  outerClassName="pf-v6-u-mt-md"
                 >
                   {`${commandName} login --use-auth-code`}
+                </InstructionCommand>
+                <Content component="p">Option 2 (for browserless environment)</Content>
+                <InstructionCommand
+                  className="ocm-c-api-token-limit-width"
+                  outerClassName="pf-v6-u-mt-md"
+                >
+                  {`${commandName} login --use-device-code`}
                 </InstructionCommand>
               </ListItem>
               <ListItem>
                 Enter your Red Hat login credentials via SSO in the browser window.
               </ListItem>
             </List>
-          </TextContent>
+          </Content>
         </CardBody>
       </Card>
     </StackItem>
@@ -85,7 +88,7 @@ const SSOLogin = ({
           <Title headingLevel="h2">Additional resources:</Title>
         </CardTitle>
         <CardBody>
-          <TextContent>
+          <Content>
             You can find documentation for these related products and services here:
             <List>
               <ListItem>
@@ -94,7 +97,7 @@ const SSOLogin = ({
                 </ExternalLink>
               </ListItem>
             </List>
-          </TextContent>
+          </Content>
         </CardBody>
       </Card>
     </StackItem>

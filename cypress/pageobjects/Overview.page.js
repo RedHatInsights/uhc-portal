@@ -32,7 +32,7 @@ class Overview extends Page {
         return this;
       },
       checkLink: function (title, link) {
-        return new LinkHelper({ name: 'header', isParent: true }, title, link).linkExists();
+        return new LinkHelper({ name: 'header', isParent: false }, title, link).linkExists();
       },
     };
   };

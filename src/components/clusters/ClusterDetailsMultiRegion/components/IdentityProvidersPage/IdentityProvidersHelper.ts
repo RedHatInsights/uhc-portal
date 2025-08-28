@@ -205,6 +205,7 @@ const getCreateIDPRequestData = (formData: IDPFormDataType) => {
       email: formData.openid_email,
       name: formData.openid_name,
       preferred_username: formData.openid_preferred_username,
+      groups: formData.openid_claim_groups,
     },
     client_id: formData.client_id.trim(),
     client_secret: formData.client_secret.trim(),
@@ -282,6 +283,11 @@ const getOpenIdClaims = (
         return claimsToIterate.map((openid_preferred_username, id: number) => ({
           id,
           openid_preferred_username,
+        }));
+      case 'groups':
+        return claimsToIterate.map((openid_claim_groups, id: number) => ({
+          id,
+          openid_claim_groups,
         }));
       default: {
         break;
@@ -379,6 +385,7 @@ const getInitialValuesForEditing = (idpEdited: IdentityProvider, editedType: IDP
     case 'gitlab':
       return {
         ...baseValues,
+        gitlab_ca: idpEdited[editedType]?.ca,
         gitlab_url: idpEdited[editedType]?.url,
         client_id: idpEdited[editedType]?.client_id,
       };
@@ -389,6 +396,7 @@ const getInitialValuesForEditing = (idpEdited: IdentityProvider, editedType: IDP
         openid_name: idpEdited[editedType]?.claims?.name,
         openid_email: idpEdited[editedType]?.claims?.email,
         openid_preferred_username: idpEdited[editedType]?.claims?.preferred_username,
+        openid_claim_groups: idpEdited[editedType]?.claims?.groups,
         openid_extra_scopes: idpEdited[editedType]?.extra_scopes
           ? idpEdited[editedType]?.extra_scopes?.join()
           : '',

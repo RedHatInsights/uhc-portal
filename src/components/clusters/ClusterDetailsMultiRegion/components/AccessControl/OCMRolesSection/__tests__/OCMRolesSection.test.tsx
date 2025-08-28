@@ -42,7 +42,7 @@ describe('<OCMRolesSection />', () => {
 
     const { container } = render(<OCMRolesSection {...props} />);
 
-    expect(container.querySelectorAll('.pf-v5-c-skeleton').length).toBeGreaterThan(0);
+    expect(container.querySelectorAll('.pf-v6-c-skeleton').length).toBeGreaterThan(0);
   });
 
   it('should render', async () => {

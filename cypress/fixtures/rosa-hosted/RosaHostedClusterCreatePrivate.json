@@ -2,13 +2,12 @@
   "rosa-hosted-private": {
     "day1-profile": {
       "Description": "rosa hosted private cluster with base configuration",
-      "ControlPlaneType": "Hosted",
+      "ControlPlaneType": "Hosted architecture",
       "Type": "ROSA",
       "DomainPrefix": "rosahcppvt",
       "ClusterName": "cyp-rosa-hosted-private",
       "Region": "us-west-2, US West, Oregon",
       "Availability": "Multi-zone",
-      "AWSBillingAccountId": "425464789085",
       "AdditionalEncryption": "Disabled",
       "EncryptVolumesWithCustomerKeys": "Disabled",
       "Nodes": {
@@ -47,13 +46,12 @@
   "rosa-hosted-private-advanced": {
     "day1-profile": {
       "Description": "rosa hosted private cluster with autoscaling, proxy etc",
-      "ControlPlaneType": "Hosted",
+      "ControlPlaneType": "Hosted architecture",
       "Type": "ROSA",
       "DomainPrefix": "rosahcppvtad",
       "ClusterName": "cyp-rosa-hosted-private-advanced",
       "Region": "us-west-2, US West, Oregon",
       "Availability": "Multi-zone",
-      "AWSBillingAccountId": "425464789085",
       "AdditionalEncryption": "Disabled",
       "EncryptVolumesWithCustomerKeys": "Disabled",
       "Nodes": {

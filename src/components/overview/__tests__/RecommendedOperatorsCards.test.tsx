@@ -84,7 +84,7 @@ describe('RecommendedOperatorsCards', () => {
     for (let i = 0; i < 2; i += 1)
       expect(productOverviewCards[i]).not.toHaveClass('pf-m-selected-raised');
 
-    const labelTexts = screen.getAllByText(/Free/i);
+    const labelTexts = screen.getAllByText(/Included/i);
     expect(labelTexts).toHaveLength(3);
 
     const openRightDrawerIcons = screen.getAllByTestId('open-right-drawer-icon');

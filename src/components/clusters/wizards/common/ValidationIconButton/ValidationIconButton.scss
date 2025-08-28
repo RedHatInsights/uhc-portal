@@ -1,32 +1,32 @@
 .validation-icon-button {
   &:after {
     border-left: none;
-    border-bottom-width: var(--pf-v5-c-button--m-control--hover--after--BorderBottomWidth);
+    border-bottom-width: var(--pf-v6-c-button--m-control--hover--after--BorderBottomWidth);
   }
 
   &_not-valid:after {
-    border-bottom-color: var(--pf-v5-global--danger-color--100);
+    border-bottom-color: var(--pf-t--global--border--color--status--danger--default);
   }
 
   &_valid:after {
-    border-bottom-color: var(--pf-v5-global--success-color--100);
+    border-bottom-color: var(--pf-t--global--border--color--status--success--default);
   }
 
   &_info:after {
-    border-bottom-color: var(--pf-v5-global--info-color--100);
+    border-bottom-color: var(--pf-t--global--border--color--status--info--default);
   }
 }
 
 .validation-icon {
   &_info {
-    color: var(--pf-v5-global--info-color--100);
+    color: var(--pf-t--global--icon--color--status--info--default);
   }
 
   &_success {
-    color: var(--pf-v5-global--success-color--100);
+    color: var(--pf-t--global--icon--color--status--success--default);
   }
 
   &_danger {
-    color: var(--pf-v5-global--danger-color--100);
+    color: var(--pf-t--global--icon--color--status--danger--default);
   }
 }

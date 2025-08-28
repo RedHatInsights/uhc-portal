@@ -45,11 +45,11 @@ const SupportLevelBadge = ({
   text,
   popoverContent,
   externalLink,
-  className = 'pf-v5-u-ml-md',
+  className = 'pf-v6-u-ml-md',
 }: SupportLevelProps) => {
   const infoElem = (
     <>
-      <div className="pf-v5-u-mb-sm">{popoverContent}</div>
+      <div className="pf-v6-u-mb-sm">{popoverContent}</div>
       {externalLink && <ExternalLink href={externalLink}>Learn more</ExternalLink>}
     </>
   );
@@ -63,10 +63,10 @@ const SupportLevelBadge = ({
         }}
         icon={
           <Icon>
-            <InfoCircleIcon color="var(--pf-v5-c-label__content--Color)" />
+            <InfoCircleIcon />
           </Icon>
         }
-        className={`${className} pf-v5-u-display-inline`}
+        className={`${className} pf-v6-u-display-inline`}
       >
         {text}
       </Label>

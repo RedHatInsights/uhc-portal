@@ -1,15 +1,15 @@
 .instructions-chooser {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  grid-gap: var(--pf-v5-global--gutter);
+  grid-gap: var(--pf-t--global--spacer--gutter--default);
 
   .infra-card {
-    .pf-v5-c-label {
+    .pf-v6-c-label {
       font-weight: normal;
     }
 
-    .pf-v5-c-list .pf-v5-c-list__item .pf-v5-c-list__item-icon {
-      margin-top: var(--pf-v5-global--spacer--xs);
+    .pf-v6-c-list .pf-v6-c-list__item .pf-v6-c-list__item-icon {
+      margin-top: var(--pf-t--global--spacer--xs);
     }
   }
 }

@@ -42,10 +42,7 @@ describe('<RevokeBreakGlassCredentialsModal />', () => {
         onClose={mockModalData.onClose}
       />,
     );
-    expect(screen.getByRole('button', { name: 'Revoke all' })).toHaveAttribute(
-      'aria-disabled',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: 'Revoke all' })).not.toHaveAttribute('aria-disabled');
   });
 
   it('closes modal on cancel', async () => {

@@ -7,6 +7,7 @@ import {
   CardBody,
   CardFooter,
   CardHeader,
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -16,13 +17,12 @@ import {
   Label,
   Split,
   SplitItem,
-  Text,
-  TextContent,
   Title,
 } from '@patternfly/react-core';
 
 import docLinks from '~/common/installLinks.mjs';
 import { Link } from '~/common/routing';
+import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import ExternalLink from '~/components/common/ExternalLink';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 import AWSLogo from '~/styles/images/AWSLogo';
@@ -34,7 +34,8 @@ import RHLogo from '~/styles/images/RedHatLogo';
 import './OfferingCard.scss';
 
 type OfferingCardProps = {
-  offeringType?: 'AWS' | 'Azure' | 'RHOSD' | 'RHOCP' | 'RHOIBM' | 'DEVSNBX';
+  offeringType?: 'AWS' | 'Azure' | 'RHOSD' | 'RHOCP' | 'RHOIBM' | 'DEVSNBX' | 'MIGRATION';
+  canCreateManagedCluster?: boolean;
 };
 
 const createRosaClusterURL = '/create/rosa/getstarted';
@@ -43,6 +44,7 @@ const OSDServicePageURL = '/overview/osd';
 const createOSDClusterURL = '/create/osd';
 const createClusterURL = '/create';
 const registerClusterURL = '/register';
+const openMigrationWizard = '/migration-assessment';
 
 const CreateRosaClusterLink = (props: any) => (
   <Link {...props} data-testid="create-cluster" to={createRosaClusterURL} />
@@ -62,8 +64,14 @@ const DEVSNBXOfferingCardDocLinkComponent = () => (
   </ExternalLink>
 );
 
+const CreateMigrationLink = (props: any) => (
+  <Link {...props} href={openMigrationWizard}>
+    Start evaluation
+  </Link>
+);
+
 function OfferingCard(props: OfferingCardProps) {
-  const { offeringType } = props;
+  const { offeringType, canCreateManagedCluster } = props;
 
   let offeringCardTitle: string | undefined;
   let offeringCardLabel: string = 'Managed service';
@@ -90,6 +98,30 @@ function OfferingCard(props: OfferingCardProps) {
     [],
   );
 
+  const createAWSClusterBtn = (
+    <InternalTrackingLink
+      isButton
+      variant="secondary"
+      to={createRosaClusterURL}
+      component={CreateRosaClusterLink}
+      isAriaDisabled={!canCreateManagedCluster}
+    >
+      Create cluster
+    </InternalTrackingLink>
+  );
+
+  const createOSDBtnCluster = (
+    <InternalTrackingLink
+      isButton
+      variant="secondary"
+      to={createOSDClusterURL}
+      component={CreateOSDCluterLink}
+      isAriaDisabled={!canCreateManagedCluster}
+    >
+      Create cluster
+    </InternalTrackingLink>
+  );
+
   switch (offeringType) {
     case 'AWS':
       offeringCardTitle = 'Red Hat OpenShift Service on AWS (ROSA)';
@@ -102,14 +134,9 @@ function OfferingCard(props: OfferingCardProps) {
         { descriptionListTerm: 'Billing type', descriptionListDescription: 'Flexible hourly' },
       ];
       offeringCardCreationLink = (
-        <InternalTrackingLink
-          isButton
-          variant="secondary"
-          to={createRosaClusterURL}
-          component={CreateRosaClusterLink}
-        >
-          Create cluster
-        </InternalTrackingLink>
+        <CreateManagedClusterButtonWithTooltip wrap>
+          {createAWSClusterBtn}
+        </CreateManagedClusterButtonWithTooltip>
       );
       offeringCardDocLink = (
         <InternalTrackingLink
@@ -137,19 +164,14 @@ function OfferingCard(props: OfferingCardProps) {
     case 'RHOSD':
       offeringCardTitle = 'Red Hat OpenShift Dedicated';
       offeringCardDescriptionList = [
-        { descriptionListTerm: 'Runs on', descriptionListDescription: 'Google Cloud or AWS' },
+        { descriptionListTerm: 'Runs on', descriptionListDescription: 'Google Cloud' },
         { descriptionListTerm: 'Purchase through', descriptionListDescription: 'Red Hat' },
         { descriptionListTerm: 'Billing type', descriptionListDescription: 'Flexible or fixed' },
       ];
       offeringCardCreationLink = (
-        <InternalTrackingLink
-          isButton
-          variant="secondary"
-          to={createOSDClusterURL}
-          component={CreateOSDCluterLink}
-        >
-          Create cluster
-        </InternalTrackingLink>
+        <CreateManagedClusterButtonWithTooltip wrap>
+          {createOSDBtnCluster}
+        </CreateManagedClusterButtonWithTooltip>
       );
       offeringCardDocLink = (
         <InternalTrackingLink
@@ -220,6 +242,25 @@ function OfferingCard(props: OfferingCardProps) {
       );
       cardLogo = <RHLogo className="offering-logo" />;
       break;
+    case 'MIGRATION':
+      offeringCardTitle = 'Evaluate VMware to Openshift Migration';
+      offeringCardLabel = 'Self-managed service';
+      offeringCardTextBody =
+        'Discover your VMware environment, select a target cluster and create a migration plan.';
+      offeringCardCreationLink = (
+        <InternalTrackingLink
+          isButton
+          variant="secondary"
+          to={openMigrationWizard}
+          component={CreateMigrationLink}
+        >
+          Start evaluation
+        </InternalTrackingLink>
+      );
+      cardLogo = (
+        <img className="offering-logo" src={OpenShiftProductIcon} alt="OpenShift product logo" />
+      );
+      break;
     default:
       break;
   }
@@ -240,9 +281,9 @@ function OfferingCard(props: OfferingCardProps) {
       <CardBody className="card-title">
         <Title headingLevel="h2">{offeringCardTitle}</Title>
       </CardBody>
-      <CardBody className="pf-v5-u-mt-md">
-        <TextContent>
-          {offeringCardTextBody && <Text>{offeringCardTextBody}</Text>}
+      <CardBody className="pf-v6-u-mt-md">
+        <Content>
+          {offeringCardTextBody && <Content component="p">{offeringCardTextBody}</Content>}
           {offeringCardDescriptionList?.length && (
             <DescriptionList isHorizontal isCompact isAutoFit>
               <DescriptionListGroup>
@@ -250,10 +291,10 @@ function OfferingCard(props: OfferingCardProps) {
                   ({ descriptionListTerm, descriptionListDescription }) => (
                     <React.Fragment key={descriptionListTerm}>
                       <DescriptionListTerm>
-                        <Text component="small">{descriptionListTerm}</Text>
+                        <Content component="small">{descriptionListTerm}</Content>
                       </DescriptionListTerm>
                       <DescriptionListDescription>
-                        <Text component="small">{descriptionListDescription}</Text>
+                        <Content component="small">{descriptionListDescription}</Content>
                       </DescriptionListDescription>
                     </React.Fragment>
                   ),
@@ -261,7 +302,7 @@ function OfferingCard(props: OfferingCardProps) {
               </DescriptionListGroup>
             </DescriptionList>
           )}
-        </TextContent>
+        </Content>
       </CardBody>
       <CardFooter>
         <Flex>

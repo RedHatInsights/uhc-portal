@@ -3,24 +3,23 @@ import { Field, Formik } from 'formik';
 import { get } from 'lodash';
 import { useDispatch } from 'react-redux';
 
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import {
   Button,
   Card,
   CardBody,
   CardFooter,
+  Content,
+  ContentVariants,
   Form,
   Grid,
   GridItem,
   PageSection,
   Spinner,
-  Text,
-  TextContent,
-  TextVariants,
   Title,
   Tooltip,
   TooltipPosition,
 } from '@patternfly/react-core';
-import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 
 import { Link, Navigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
@@ -121,7 +120,7 @@ const RegisterCluster = () => {
 
   if (quotaResponse?.error) {
     return (
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Unavailable message="Error retrieving quota" response={quotaResponse} />
       </PageSection>
     );
@@ -129,13 +128,16 @@ const RegisterCluster = () => {
 
   return (
     <AppPage>
-      <PageHeader>
-        <Breadcrumbs
-          path={[{ label: 'Cluster List' }, { label: 'Register disconnected cluster' }]}
-        />
-        <PageHeaderTitle title="Register disconnected cluster" />
-      </PageHeader>
-      <PageSection>
+      <PageHeader
+        title="Register disconnected cluster"
+        subtitle=""
+        breadcrumbs={
+          <Breadcrumbs
+            path={[{ label: 'Cluster List' }, { label: 'Register disconnected cluster' }]}
+          />
+        }
+      />
+      <PageSection hasBodyWrapper={false}>
         {errorModal}
         <Formik
           initialValues={{
@@ -150,13 +152,13 @@ const RegisterCluster = () => {
               <CardBody>
                 <Grid>
                   <GridItem md={8}>
-                    <TextContent id="register-cluster-top-text">
-                      <Text component={TextVariants.p}>
+                    <Content id="register-cluster-top-text">
+                      <Content component={ContentVariants.p}>
                         Register clusters that are not connected to OpenShift Cluster Manager.
                         Existing cluster owners, cluster editors, or admins can edit existing
                         cluster subscriptions from the cluster details page.
-                      </Text>
-                    </TextContent>
+                      </Content>
+                    </Content>
                     {quotaResponse?.fulfilled ? (
                       <Form onSubmit={submitForm} className="subscription-settings form">
                         {/* @ts-ignore */}
@@ -206,13 +208,13 @@ const RegisterCluster = () => {
                         <Title headingLevel="h4" size="xl">
                           Subscription settings
                         </Title>
-                        <TextContent>
-                          <Text component={TextVariants.p}>
+                        <Content>
+                          <Content component={ContentVariants.p}>
                             Editing the subscription settings will help ensure that you receive the
                             level of support that you expect, and that your cluster is consuming the
                             correct type of subscription.
-                          </Text>
-                        </TextContent>
+                          </Content>
+                        </Content>
                         {canSubscribeOCP ? (
                           <EditSubscriptionSettings
                             setSettings={setSettings}

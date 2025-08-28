@@ -2,6 +2,8 @@ import { FormikValues } from 'formik';
 
 import { isMajorMinorEqualOrGreater, splitVersion } from '~/common/versionHelpers';
 
+import { FormSubnet } from './FormSubnet';
+
 // Fields that are used in both OSD and ROSA wizards.
 export enum FieldId {
   AccessKeyId = 'access_key_id',
@@ -99,7 +101,7 @@ export enum IMDSType {
 export const AWS_DEFAULT_REGION = 'us-east-1';
 export const GCP_DEFAULT_REGION = 'us-east1';
 
-export const emptyAWSSubnet = () => ({
+export const emptyAWSSubnet: () => FormSubnet = () => ({
   availabilityZone: '',
   privateSubnetId: '',
   publicSubnetId: '',

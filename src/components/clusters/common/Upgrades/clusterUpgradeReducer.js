@@ -25,10 +25,6 @@ import {
 } from '../../../../redux/reduxHelpers';
 
 import {
-  CLEAR_DELETE_UPGRADE_SCHEDULE,
-  CLEAR_GET_UPGRADE_SCHEDULE,
-  CLEAR_POST_UPGRADE_SCHEDULE,
-  DELETE_UPGRADE_SCHEDULE,
   GET_UPGRADE_SCHEDULES,
   POST_UPGRADE_SCHEDULE,
   SET_CLUSTER_UPGRADE_POLICY,
@@ -43,9 +39,7 @@ const initialState = {
   postedUpgradeSchedule: {
     ...baseRequestState,
   },
-  deleteScheduleRequest: {
-    ...baseRequestState,
-  },
+
   schedules: {
     ...baseRequestState,
     items: [],
@@ -73,16 +67,15 @@ function UpgradesRecuder(state = initialState, action) {
           ...getErrorState(action),
         };
         break;
-      case CLEAR_POST_UPGRADE_SCHEDULE:
-        draft.postedUpgradeSchedule = { ...initialState };
-        break;
 
       case PENDING_ACTION(GET_UPGRADE_SCHEDULES):
         draft.schedules.pending = true;
         break;
       case FULFILLED_ACTION(GET_UPGRADE_SCHEDULES): {
         const items = action.payload?.data?.items || [];
+
         items.sort((a, b) => dayjs(a.next_run).unix() - dayjs(b.next_run).unix());
+
         draft.schedules = {
           ...initialState.schedules,
           fulfilled: true,
@@ -95,30 +88,6 @@ function UpgradesRecuder(state = initialState, action) {
           ...initialState.schedules,
           ...getErrorState(action),
         };
-        break;
-
-      case CLEAR_GET_UPGRADE_SCHEDULE:
-        draft.schedules = { ...initialState.schedules };
-        break;
-
-      case PENDING_ACTION(DELETE_UPGRADE_SCHEDULE):
-        draft.deleteScheduleRequest.pending = true;
-        break;
-      case FULFILLED_ACTION(DELETE_UPGRADE_SCHEDULE):
-        draft.deleteScheduleRequest = {
-          ...initialState.deleteScheduleRequest,
-          fulfilled: true,
-        };
-        break;
-      case REJECTED_ACTION(DELETE_UPGRADE_SCHEDULE):
-        draft.deleteScheduleRequest = {
-          ...initialState.deleteScheduleRequest,
-          ...getErrorState(action),
-        };
-        break;
-
-      case CLEAR_DELETE_UPGRADE_SCHEDULE:
-        draft.deleteScheduleRequest = { ...initialState.deleteScheduleRequest };
         break;
 
       case SET_CLUSTER_UPGRADE_POLICY: {

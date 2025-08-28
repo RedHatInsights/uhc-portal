@@ -1,7 +1,7 @@
 .ocm-c-monitoring-health__card {
   &--header {
-    h2.pf-v5-c-title {
-      font-size: var(--pf-v5-c-title--m-md--FontSize);
+    h2.pf-v6-c-title {
+      font-size: var(--pf-v6-c-title--m-md--FontSize);
     }
     svg {
       margin-right: 10px;
@@ -15,8 +15,8 @@
 
 .ocm-c-monitoring-status__card {
   &--body {
-    h4.pf-v5-c-title {
-      font-size: var(--pf-v5-c-title--m-lg--FontSize);
+    h4.pf-v6-c-title {
+      font-size: var(--pf-v6-c-title--m-lg--FontSize);
       margin-left: -30px;
     }
     .item-summary {
@@ -27,24 +27,24 @@
 
 // all tabs
 
-h2.pf-v5-c-title.card-title {
-  font-size: var(--pf-v5-c-title--m-md--FontSize);
+h2.pf-v6-c-title.card-title {
+  font-size: var(--pf-v6-c-title--m-md--FontSize);
 }
 
 .status-icon {
-  font-size: var(--pf-v5-global--icon--FontSize--md);
+  font-size: var(--pf-t--global--icon--size--font--md);
   margin-right: 5px;
 }
 
 .danger {
-  color: var(--pf-v5-global--danger-color--100);
+  color: var(--pf-t--global--color--status--danger--default);
 }
 .info {
-  color: var(--pf-v5-global--info-color--100);
+  color: var(--pf-t--global--color--status--info--default);
 }
 .success {
-  color: var(--pf-v5-global--success-color--100);
+  color: var(--pf-t--global--color--status--success--default);
 }
 .warning {
-  color: var(--pf-v5-global--warning-color--100);
+  color: var(--pf-t--global--color--status--warning--default);
 }

@@ -1,17 +1,17 @@
 .rich-input-field {
-  &.pf-v5-c-form-control {
-    --pf-v5-c-form-control__icon--m-status--Color: transparent;
+  &.pf-v6-c-form-control {
+    --pf-v6-c-form-control__icon--m-status--Color: transparent;
     &::after {
-      border-bottom-width: var(--pf-v5-global--BorderWidth--md);
+      border-bottom-width: var(--pf-t--global--border--width--strong);
     }
   }
   &.rich-input-field_not-valid::after {
-    border-bottom-color: var(--pf-v5-global--danger-color--100);
+    border-bottom-color: var(--pf-t--global--border--color--status--danger--default);
   }
   &.rich-input-field_valid::after {
-    border-bottom-color: var(--pf-v5-global--success-color--100);
+    border-bottom-color: var(--pf-t--global--border--color--status--success--default);
   }
   &.rich-input-field_info::after {
-    border-bottom-color: var(--pf-v5-global--info-color--100);
+    border-bottom-color: var(--pf-t--global--border--color--status--info--default);
   }
 }

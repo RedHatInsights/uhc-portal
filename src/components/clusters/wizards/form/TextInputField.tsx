@@ -53,7 +53,7 @@ export const HelperTextInvalid = ({
     }
     return (
       <div
-        className={`pf-v5-c-form__helper-text pf-m-error${additionalClasses}`}
+        className={`pf-v6-c-form__helper-text pf-m-error${additionalClasses}`}
         id={`${name}-helper`}
         aria-live="polite"
       >
@@ -89,7 +89,7 @@ export const TextInputField = ({
         fieldId={field.name}
         label={label}
         className={formGroupClassName}
-        {...(tooltip && { labelIcon: <PopoverHint maxWidth={tooltipWidth} hint={tooltip} /> })}
+        {...(tooltip && { labelHelp: <PopoverHint maxWidth={tooltipWidth} hint={tooltip} /> })}
         {...(validate && { isRequired: true })}
         {...formGroup}
       >

@@ -5,8 +5,6 @@ import {
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
 } from '@patternfly/react-core';
 
@@ -16,12 +14,13 @@ import ExternalLink from '../../common/ExternalLink';
 import CostIcon from './CostIcon';
 
 const CostEmptyState = () => (
-  <EmptyState variant={EmptyStateVariant.lg} className="pf-m-redhat-font">
-    <EmptyStateHeader
-      titleText="Track your OpenShift spending!"
-      icon={<EmptyStateIcon icon={CostIcon} />}
-      headingLevel="h2"
-    />
+  <EmptyState
+    headingLevel="h2"
+    icon={CostIcon}
+    titleText="Track your OpenShift spending!"
+    variant={EmptyStateVariant.lg}
+    className="pf-m-redhat-font"
+  >
     <EmptyStateBody>
       Add an OpenShift Container Platform cluster to see a total cost breakdown of your pods by
       cluster, node, project, or labels.

@@ -2,14 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
+  Content,
   Divider,
   Icon,
   Label,
   PageSection,
   Split,
   SplitItem,
-  Text,
-  TextContent,
   Title,
 } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
@@ -25,54 +24,54 @@ import PullSecretSection from '../install/instructions/components/PullSecretSect
 import TokenErrorAlert from '../install/instructions/components/TokenErrorAlert';
 
 const pendoID = window.location.pathname;
-const docURL = links.INSTALL_CRC_GETTING_STARTED;
+const docURL = links.OPENSHIFT_LOCAL_SUPPORT_AND_COMMUNITY_DOCS;
 
 const LocalTab = ({ token }) => {
   const track = useAnalytics();
   return (
-    <PageSection className="pf-v5-u-p-lg">
+    <PageSection hasBodyWrapper={false} className="pf-v6-u-p-lg">
       <Split hasGutter>
         <Title headingLevel="h2">Red Hat OpenShift Local</Title>
         <SplitItem>
           <Label variant="outline">local sandbox</Label>
         </SplitItem>
       </Split>
-      <TextContent>
-        <Text component="p">
+      <Content>
+        <Content component="p">
           Create a minimal cluster on your desktop/laptop for local development and testing.
-        </Text>
-        <Text component="p" className="ocm-secondary-text">
+        </Content>
+        <Content component="p" className="ocm-secondary-text">
           <b>Note: </b>
           Your OpenShift Local installation won&apos;t appear in the OpenShift Cluster Manager
           unless you enable cluster monitoring and telemetry.
-        </Text>
-      </TextContent>
-      <Divider className="pf-v5-u-mt-lg pf-v5-u-mb-xl" />
+        </Content>
+      </Content>
+      <Divider className="pf-v6-u-mt-lg pf-v6-u-mb-xl" />
       {token.error && (
         <>
           <TokenErrorAlert token={token} />
-          <div className="pf-v5-u-mb-lg" />
+          <div className="pf-v6-u-mb-lg" />
         </>
       )}
       <Instructions>
         <Instruction>
-          <Text component="h3">Download what you need to get started</Text>
-          <Text component="h4">OpenShift Local</Text>
+          <Content component="h3">Download what you need to get started</Content>
+          <Content component="h4">OpenShift Local</Content>
           <DownloadAndOSSelection tool={tools.CRC} channel={channels.STABLE} pendoID={pendoID} />
-          <Text component="h3">Pull secret</Text>
+          <Content component="h3">Pull secret</Content>
           <PullSecretSection token={token} pendoID={pendoID} />
         </Instruction>
         <Instruction>
-          <Text component="h3">Follow the documentation to install OpenShift Local</Text>
-          <Text component="p">
+          <Content component="h3">Follow the documentation to install OpenShift Local</Content>
+          <Content component="p">
             Run <code>crc setup</code> to set up your host operating system for the OpenShift Local
             virtual machine.
-          </Text>
-          <Text component="p">
+          </Content>
+          <Content component="p">
             Then, run <code>crc start</code> to create a minimal OpenShift 4 cluster on your
             computer.
-          </Text>
-          <Text component="p">
+          </Content>
+          <Content component="p">
             <a
               href={docURL}
               rel="noreferrer noopener"
@@ -84,12 +83,12 @@ const LocalTab = ({ token }) => {
                 });
               }}
             >
-              View the OpenShift Local Getting started guide{' '}
-              <Icon size="sm">
-                <ExternalLinkAltIcon color="#0066cc" />
+              For more information on the OpenShift Local support and community docs click here{' '}
+              <Icon size="sm" isInline>
+                <ExternalLinkAltIcon />
               </Icon>
             </a>
-          </Text>
+          </Content>
         </Instruction>
       </Instructions>
     </PageSection>

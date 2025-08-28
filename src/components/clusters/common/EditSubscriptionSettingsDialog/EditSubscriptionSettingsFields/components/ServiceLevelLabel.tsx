@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core';
 
 import PopoverHint from '~/components/common/PopoverHint';
 
@@ -13,9 +13,9 @@ const ServiceLevelLabel = () => (
       id="subscripiton-settings-service-level-hit"
       headerContent="Support type"
       hint={
-        <TextContent>
-          <Text component={TextVariants.p}>Who you can call for primary support.</Text>
-        </TextContent>
+        <Content>
+          <Content component={ContentVariants.p}>Who you can call for primary support.</Content>
+        </Content>
       }
       iconClassName={LABEL_ICON_CLASS}
     />

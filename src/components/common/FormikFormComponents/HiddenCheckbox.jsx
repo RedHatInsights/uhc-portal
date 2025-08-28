@@ -11,7 +11,7 @@ import Checkbox from './Checkbox';
      Ex: change('detected_ocm_and_user_roles', false|true);
 */
 const HiddenCheckbox = ({ name }) => (
-  <span className="pf-v5-u-display-none">
+  <span className="pf-v6-u-display-none">
     <Field
       fieldId={name}
       component={Checkbox}

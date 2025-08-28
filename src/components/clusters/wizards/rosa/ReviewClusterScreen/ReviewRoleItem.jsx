@@ -2,13 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
+  Content,
+  ContentVariants,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
   Spinner,
-  Text,
-  TextContent,
-  TextVariants,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 
@@ -29,17 +28,17 @@ const ReviewRoleItem = ({ name, getRoleResponse, content }) => (
           isErrorHint
           title={`${name} could not be detected`}
           bodyContent={
-            <TextContent>
-              <Text component={TextVariants.p}>
+            <Content>
+              <Content component={ContentVariants.p}>
                 <span className="danger">
                   <ExclamationCircleIcon className="status-icon danger" />
                   <strong>{`${name} is no longer linked to your Red Hat organization.`}</strong>
                 </span>
-              </Text>
-              <Text component={TextVariants.p}>
+              </Content>
+              <Content component={ContentVariants.p}>
                 <p>Follow the AWS account association instructions and try again</p>
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
           }
           footer={<BackToAssociateAwsAccountLink />}
           iconClassName="hand-pointer"

@@ -1,9 +1,9 @@
 .shared-vpc-domain-select {
   /* Copy DNS name / Delete DNS icon */
-  .dns-domain-action-icon .pf-v5-c-button {
+  .dns-domain-action-icon .pf-v6-c-button {
     background-color: unset;
     &.pf-m-aria-disabled {
-      background-color: var(--pf-v5-global--disabled-color--300);
+      background-color: var(--pf-t--global--background--color--disabled--default);
     }
   }
 }

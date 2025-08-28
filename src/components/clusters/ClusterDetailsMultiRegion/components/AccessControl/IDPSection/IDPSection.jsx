@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
 import {
-  Card,
-  CardBody,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -16,6 +14,7 @@ import {
 } from '@patternfly/react-core';
 import {
   ActionsColumn,
+  ExpandableRowContent,
   Table,
   TableVariant,
   Tbody,
@@ -25,15 +24,19 @@ import {
   Tr,
 } from '@patternfly/react-table';
 
-import { useNavigate } from '~/common/routing';
+import { Link, useNavigate } from '~/common/routing';
 import { LoadingSkeletonCard } from '~/components/clusters/common/LoadingSkeletonCard/LoadingSkeletonCard';
-import { useFetchClusterIdentityProviders } from '~/queries/ClusterDetailsQueries/useFetchClusterIdentityProviders';
-import { OCMUI_ENHANCED_HTPASSWRD } from '~/queries/featureGates/featureConstants';
+import { useFetchIDPsWithHTPUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchIDPsWithHTPUsers';
+import { ENHANCED_HTPASSWRD } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import links from '../../../../../../common/installLinks.mjs';
 import ClipboardCopyLinkButton from '../../../../../common/ClipboardCopyLinkButton';
 import { modalActions } from '../../../../../common/Modal/ModalActions';
+import {
+  isSingleUserHtpasswd,
+  singleUserHtpasswdMessage,
+} from '../../IdentityProvidersPage/components/HtpasswdDetails/htpasswdUtilities';
 import {
   getOauthCallbackURL,
   IDPformValues,
@@ -51,24 +54,28 @@ const IDPSection = (props) => {
     isHypershift,
     subscriptionID,
     cluster,
+    isROSA,
   } = props;
-  const isHTPasswdEnhanced = useFeatureGate(OCMUI_ENHANCED_HTPASSWRD);
+  const isHTPasswdEnhanced = useFeatureGate(ENHANCED_HTPASSWRD);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
-
   const region = cluster?.subscription?.rh_region_id;
 
   const {
-    clusterIdentityProviders: identityProvidersData,
+    data: identityProviders,
     isLoading: isIdentityProvidersLoading,
     isError: isIdentityProvidersError,
-  } = useFetchClusterIdentityProviders(clusterID, region);
-
-  const identityProviders = identityProvidersData?.items;
+  } = useFetchIDPsWithHTPUsers(clusterID, region);
 
   const learnMoreLink = (
-    <a rel="noopener noreferrer" href={links.UNDERSTANDING_IDENTITY_PROVIDER} target="_blank">
+    <a
+      rel="noopener noreferrer"
+      href={
+        isROSA ? links.ROSA_UNDERSTANDING_IDENTITY_PROVIDER : links.UNDERSTANDING_IDENTITY_PROVIDER
+      }
+      target="_blank"
+    >
       Learn more.
     </a>
   );
@@ -145,11 +152,20 @@ const IDPSection = (props) => {
   const idpActionResolver = (idp) => {
     const editIDPAction = {
       title: 'Edit',
-      isAriaDisabled: !idpActions.update,
       onClick: () => {
         navigate(`/details/s/${subscriptionID}/edit-idp/${idp.name}`);
       },
     };
+
+    if (
+      !idpActions.update ||
+      (idp.type === IDPformValues.HTPASSWD && isSingleUserHtpasswd(idp.htpasswd))
+    ) {
+      editIDPAction.isAriaDisabled = true;
+      editIDPAction.tooltipProps = {
+        content: !idpActions.update ? notAllowedReason('edit') : singleUserHtpasswdMessage,
+      };
+    }
     const deleteIDPAction = {
       title: 'Delete',
       isAriaDisabled: !idpActions.delete,
@@ -165,72 +181,118 @@ const IDPSection = (props) => {
         );
       },
     };
+    if (!idpActions.delete) {
+      deleteIDPAction.isAriaDisabled = true;
+      deleteIDPAction.tooltipProps = { content: notAllowedReason('delete') };
+    }
+
     if (IDPTypeNames[idp.type] === IDPTypeNames[IDPformValues.HTPASSWD] && !isHTPasswdEnhanced) {
       return [deleteIDPAction];
     }
     return [editIDPAction, deleteIDPAction];
   };
 
-  const idpRow = (idp) => {
-    const actions = idpActionResolver(idp);
-    return (
-      <Tr key={idp.id}>
-        <Td dataLabel={columnNames.name} modifier="truncate">
-          {idp.name}
-        </Td>
-        <Td dataLabel={columnNames.type}>{IDPTypeNames[idp.type] ?? idp.type}</Td>
-        <Td dataLabel={columnNames.callbackUrl}>
-          {IDPNeedsOAuthURL(idp.type) ? (
-            <ClipboardCopyLinkButton
-              className="access-control-tables-copy"
-              text={getOauthCallbackURL(clusterUrls, idp.name, isHypershift)}
-            >
-              Copy URL to clipboard
-            </ClipboardCopyLinkButton>
-          ) : (
-            'N/A'
-          )}
-        </Td>
-        <Td isActionCell>
-          <ActionsColumn items={actions} isDisabled={!!disableReason} />
-        </Td>
-      </Tr>
-    );
-  };
+  const [expandedIdps, setExpandedIdps] = React.useState([]);
+  const setIdpExpanded = (idp, isExpanding = true) =>
+    setExpandedIdps((prevExpanded) => {
+      const otherExpandedIdps = prevExpanded.filter((r) => r !== idp.id);
+      return isExpanding ? [...otherExpandedIdps, idp.id] : otherExpandedIdps;
+    });
+
+  const isIdpExpanded = (idp) => expandedIdps.includes(idp.id);
 
   return pending ? (
     <LoadingSkeletonCard />
   ) : (
-    <Card>
-      <CardBody>
-        <Stack hasGutter>
-          <StackItem>
-            <Title headingLevel="h2" size="lg" className="card-title">
-              Identity providers
-            </Title>
-            <p>
-              Configure identity providers to allow users to log into the cluster. {learnMoreLink}
-            </p>
-          </StackItem>
-          <StackItem>{addIDPDropdown}</StackItem>
-          <StackItem>
-            {hasIDPs && idpActions.list && (
-              <Table aria-label="Identity Providers" variant={TableVariant.compact}>
-                <Thead>
+    <Stack hasGutter>
+      <StackItem>
+        <Title headingLevel="h2" size="lg" className="card-title">
+          Identity providers
+        </Title>
+        <p>Configure identity providers to allow users to log into the cluster. {learnMoreLink}</p>
+      </StackItem>
+      <StackItem>{addIDPDropdown}</StackItem>
+      <StackItem>
+        {hasIDPs && idpActions.list && (
+          <Table aria-label="Identity Providers" variant={TableVariant.compact}>
+            <Thead>
+              <Tr>
+                <Th screenReaderText="Row expansion" />
+                <Th width={30}>{columnNames.name}</Th>
+                <Th width={30}>{columnNames.type}</Th>
+                <Th width={30}>{columnNames.callbackUrl}</Th>
+                <Th screenReaderText="Action" />
+              </Tr>
+            </Thead>
+            {identityProviders.map((idp, rowIndex) => {
+              const actions = idpActionResolver(idp);
+              const htpUsersCount = idp.htpUsers?.length;
+
+              return (
+                <Tbody key={idp.id} isExpanded={isIdpExpanded(idp)}>
                   <Tr>
-                    <Th width={30}>{columnNames.name}</Th>
-                    <Th width={30}>{columnNames.type}</Th>
-                    <Th width={30}>{columnNames.callbackUrl}</Th>
-                    <Th screenReaderText="Action" />
+                    <Td
+                      expand={
+                        idp?.htpUsers && idpActions.update && isHTPasswdEnhanced
+                          ? {
+                              rowIndex,
+                              isExpanded: isIdpExpanded(idp),
+                              onToggle: () => setIdpExpanded(idp, !isIdpExpanded(idp)),
+                              expandId: idp.id,
+                            }
+                          : undefined
+                      }
+                    />
+                    <Td dataLabel={columnNames.name} modifier="truncate">
+                      {idp.name}
+                    </Td>
+                    <Td dataLabel={columnNames.type}>{IDPTypeNames[idp.type] ?? idp.type}</Td>
+                    <Td dataLabel={columnNames.callbackUrl}>
+                      {IDPNeedsOAuthURL(idp.type) ? (
+                        <ClipboardCopyLinkButton
+                          className="access-control-tables-copy"
+                          text={getOauthCallbackURL(clusterUrls, idp.name, isHypershift)}
+                        >
+                          Copy URL to clipboard
+                        </ClipboardCopyLinkButton>
+                      ) : (
+                        'N/A'
+                      )}
+                    </Td>
+                    <Td isActionCell>
+                      <ActionsColumn items={actions} isDisabled={!!disableReason} />
+                    </Td>
                   </Tr>
-                </Thead>
-                <Tbody>{identityProviders.map(idpRow)}</Tbody>
-              </Table>
-            )}
-          </StackItem>
-        </Stack>
-      </CardBody>
-    </Card>
+                  {idp?.htpUsers && idpActions.update && isHTPasswdEnhanced ? (
+                    <Tr
+                      key="expandable-row"
+                      isExpanded={isIdpExpanded(idp)}
+                      data-testid="expandable-row"
+                    >
+                      <Td />
+                      <Td dataLabel="Users" noPadding colSpan={4}>
+                        <ExpandableRowContent>
+                          <ul className="pf-v6-u-mb-md" style={{ wordBreak: 'break-word' }}>
+                            {idp.htpUsers.slice(0, 5).map((user) => (
+                              <li key={user.id}>{user.username}</li>
+                            ))}
+                            <li>
+                              <Link to={`/details/s/${subscriptionID}/edit-idp/${idp.name}`}>
+                                View all users ({htpUsersCount})
+                              </Link>
+                            </li>
+                          </ul>
+                        </ExpandableRowContent>
+                      </Td>
+                    </Tr>
+                  ) : null}
+                </Tbody>
+              );
+            })}
+          </Table>
+        )}
+      </StackItem>
+    </Stack>
   );
 };
 
@@ -252,6 +314,7 @@ IDPSection.propTypes = {
   isReadOnly: PropTypes.bool,
   isHypershift: PropTypes.bool,
   subscriptionID: PropTypes.string,
+  isROSA: PropTypes.bool.isRequired,
 };
 
 export default IDPSection;

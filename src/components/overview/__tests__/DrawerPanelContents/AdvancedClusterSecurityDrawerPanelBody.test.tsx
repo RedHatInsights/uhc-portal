@@ -1,4 +1,3 @@
-import VideoImg from '~/styles/images/AdvancedClusterSecurityExplanationVideoImg.png';
 import { render, screen } from '~/testUtils';
 
 import { AdvancedClusterSecurityDrawerPanelBody } from '../../components/common/DrawerPanelContents/AdvancedClusterSecurity/DrawerPanelBody';
@@ -22,14 +21,9 @@ describe('<AdvancedClusterSecurityDrawerPanelHead />', () => {
       ),
     ).toBeInTheDocument();
 
-    const VideoImgElement = screen.getByTestId('drawer-panel-content__explanation-video');
-    expect(VideoImgElement).toBeInTheDocument();
-    expect(VideoImgElement).toHaveAttribute('src', VideoImg);
-    expect(VideoImgElement).toHaveAttribute('alt', 'explanation-video');
-
-    expect(screen.getByTestId('drawer-panel-content__explanation-video-parent')).toHaveAttribute(
-      'href',
-      'https://www.youtube.com/watch?v=lFBFW3HmgsA&t=2s',
+    expect(screen.getByTestId('drawer-panel-content__explanation-video')).toHaveAttribute(
+      'src',
+      'https://www.youtube.com/embed/lFBFW3HmgsA',
     );
 
     expect(screen.getByText(/Video duration 2:21/i)).toBeInTheDocument();

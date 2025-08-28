@@ -1,46 +1,26 @@
 import React from 'react';
 
-import {
-  Stack,
-  StackItem,
-  Text,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextVariants,
-  Title,
-} from '@patternfly/react-core';
+import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
 import ExternalLink from '~/components/common/ExternalLink';
-import VideoImg from '~/styles/images/OpenshiftAiExplanationVideoImg.png';
+import { YoutubePlayer } from '~/components/common/YoutubePlayer/YoutubePlayer';
 
 const OpenShiftAiDrawerPanelBody = (
   <Stack hasGutter className="drawer-panel-content-body">
     <StackItem>
-      <TextContent>
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           Build, train, tune, and deploy AI models at scale across hybrid cloud environments with
           Red Hat OpenShift AI, an AI platform.
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </StackItem>
 
     <StackItem>
-      <ExternalLink
-        href="https://www.youtube.com/watch?v=JGesQwL-lkg&t=6s"
-        noIcon
-        data-testid="drawer-panel-content__explanation-video-parent"
-      >
-        <img
-          src={VideoImg}
-          alt="explanation-video"
-          className="drawer-panel-content__explanation-video"
-          data-testid="drawer-panel-content__explanation-video"
-        />
-      </ExternalLink>
-      <TextContent>
-        <Text component={TextVariants.small}>Video duration 5:26</Text>
-      </TextContent>
+      <YoutubePlayer videoID="JGesQwL-lkg" />
+      <Content>
+        <Content component={ContentVariants.small}>Video duration 5:26</Content>
+      </Content>
     </StackItem>
 
     <StackItem>
@@ -49,22 +29,22 @@ const OpenShiftAiDrawerPanelBody = (
       </Title>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <TextList isPlain>
-          <TextListItem>
+      <Content>
+        <Content component="ul" isPlainList>
+          <Content component="li">
             <b>Innovate faster:</b> Iterate and experiment quickly with a single platform for the
             entire AI platform. No need to switch between different tools.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Scale easily:</b> Built on Kubernetes, OpenShift AI allows for easy scaling of AI
             workloads.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Enhance collaboration:</b> Bring together your data scientist, operations, and
             developer teams in a unified AI platform.
-          </TextListItem>
-        </TextList>
-      </TextContent>
+          </Content>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem>
       <Title headingLevel="h3" data-testid="drawer-panel-content-capabilities-title">
@@ -72,33 +52,33 @@ const OpenShiftAiDrawerPanelBody = (
       </Title>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <TextList isPlain>
-          <TextListItem>
+      <Content>
+        <Content component="ul" isPlainList>
+          <Content component="li">
             <b>Model training- projects:</b> Organize model development files, data connections, and
             other artifacts needed for a given project. Projects can be shared with specific
             permissions to enable collaboration with colleagues.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Model training- distributed workloads:</b> Leverage multiple cluster nodes
             simultaneously for faster, more efficient model training. It can be used for both
             predictive AI training and GenAI training.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Notebook images:</b> Choose from a default set of pre-configured notebook images or
             use your own custom notebook images.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Model serving:</b> Data scientists can deploy trained machine-learning models to
             serve intelligent applications in production. You have control over how this serving is
             performed.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Accelerators:</b> Scale your work, reduce latency, and increase productivity with
             NVIDIA graphics processing units (GPUs) or Habana Gaudi devices.
-          </TextListItem>
-        </TextList>
-      </TextContent>
+          </Content>
+        </Content>
+      </Content>
     </StackItem>
 
     <StackItem>
@@ -107,36 +87,40 @@ const OpenShiftAiDrawerPanelBody = (
       </Title>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           You can choose where to develop and deploy your models. Red Hat OpenShift AI lets you
           choose the environment that best suits your needs from:
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <Text component={TextVariants.p}>On-premise (including disconnected environments)</Text>
-      </TextContent>
+      <Content>
+        <Content component={ContentVariants.p}>
+          On-premise (including disconnected environments)
+        </Content>
+      </Content>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <Text component={TextVariants.p}>Any major public cloud, such as:</Text>
-      </TextContent>
+      <Content>
+        <Content component={ContentVariants.p}>Any major public cloud, such as:</Content>
+      </Content>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <TextList>
+      <Content>
+        <Content component="ul">
           {[
             'Microsoft Azure Kubernetes Service (AKS)',
             'Google Cloud Platform (GCP)',
             'Amazon Web Services (AWS)',
             'IBM Cloud Platform',
           ].map((item) => (
-            <TextListItem data-testid="major-public-cloud-list-item">{item}</TextListItem>
+            <Content component="li" data-testid="major-public-cloud-list-item">
+              {item}
+            </Content>
           ))}
-        </TextList>
-      </TextContent>
+        </Content>
+      </Content>
     </StackItem>
 
     <StackItem className="drawer-panel-content__learn-more">

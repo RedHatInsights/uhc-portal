@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux';
 
 import { Button, Icon, Title, useWizardContext } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { global_danger_color_100 as dangerColor } from '@patternfly/react-tokens/dist/esm/global_danger_color_100';
 
 import Modal from '~/components/common/Modal/Modal';
 import { closeModal } from '~/components/common/Modal/ModalActions';
@@ -38,8 +37,8 @@ const MissingPrereqErrorModal = ({
     <Modal
       header={
         <Title headingLevel="h2" size="2xl">
-          <Icon className="pf-v5-u-mr-sm">
-            <ExclamationCircleIcon color={dangerColor.value} />
+          <Icon className="pf-v6-u-mr-sm" status="danger">
+            <ExclamationCircleIcon />
           </Icon>
           {title}
         </Title>
@@ -68,7 +67,7 @@ const MissingPrereqErrorModal = ({
         <strong>AdministratorAccess</strong> policy.
       </p>
 
-      <p className="pf-v5-u-mt-md">
+      <p className="pf-v6-u-mt-md">
         Make sure the IAM user exists in your AWS account and try creating the cluster again.
       </p>
     </Modal>

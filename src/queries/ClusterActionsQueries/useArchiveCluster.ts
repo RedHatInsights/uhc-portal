@@ -1,6 +1,4 @@
-import { useDispatch } from 'react-redux';
-
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 import { useMutation } from '@tanstack/react-query';
 
 import { getClusterServiceForRegion } from '~/services/clusterService';
@@ -15,7 +13,7 @@ export const buildArchiveNotifications = (name: string, archived: boolean) => ({
 });
 
 export const useArchiveCluster = () => {
-  const dispatch = useDispatch();
+  const addNotification = useAddNotification();
   const { isSuccess, error, isError, isPending, mutate, reset } = useMutation({
     mutationKey: ['clusterService', 'archiveCluster'],
     mutationFn: ({
@@ -34,7 +32,7 @@ export const useArchiveCluster = () => {
 
       return clusterService.archiveCluster(subscriptionID).then((response) => {
         // @ts-ignore
-        dispatch(addNotification(buildArchiveNotifications(displayName, true)));
+        addNotification(buildArchiveNotifications(displayName, true));
         return response;
       });
     },

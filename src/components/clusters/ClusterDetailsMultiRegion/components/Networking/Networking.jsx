@@ -27,7 +27,7 @@ const Networking = ({ cluster, refreshCluster, clusterID, isManaged, region }) =
     return (
       <EmptyState>
         <EmptyStateBody>
-          <div className="pf-v5-u-text-align-center">
+          <div className="pf-v6-u-text-align-center">
             <Spinner size="lg" aria-label="Loading..." />
           </div>
         </EmptyStateBody>

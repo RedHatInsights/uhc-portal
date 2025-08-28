@@ -7,7 +7,7 @@ const OpenshiftIcon = () => (
     src={svg}
     alt="Openshift"
     aria-hidden="true"
-    style={{ height: 'var(--pf-v5-global--icon--FontSize--xl)' }}
+    style={{ height: 'var(--pf-t--global--icon--size--font--4xl)' }}
   />
 );
 

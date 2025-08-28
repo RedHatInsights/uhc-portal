@@ -27,6 +27,7 @@ const SingleSubnetFieldsRow = ({
     setFieldValue,
     getFieldProps,
     getFieldMeta,
+    validateField,
     values: { [FieldId.MachinePoolsSubnets]: machinePoolsSubnets },
   } = useFormState();
   const azFieldName = `${FieldId.MachinePoolsSubnets}[${index}].availabilityZone`;
@@ -35,6 +36,14 @@ const SingleSubnetFieldsRow = ({
 
   const azValidations = (value) =>
     required(value) || (isMultiAz && validateUniqueAZ(value, { machinePoolsSubnets }));
+
+  React.useEffect(() => {
+    if (selectedAZ) {
+      validateField(azFieldName);
+    }
+    // Only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const showLabels = index === 0;
   let disabledSubnetReason;
@@ -129,6 +138,10 @@ const AWSSubnetFields = ({
   privateLinkSelected,
 }) => {
   const { setFieldValue, getFieldProps, getFieldMeta } = useFormState();
+  const controlPlaneFieldName = `${FieldId.SecurityGroups}.controlPlane`;
+  const infraFieldName = `${FieldId.SecurityGroups}.infra`;
+  const workerFieldName = `${FieldId.SecurityGroups}.worker`;
+
   return (
     <>
       <Field
@@ -141,7 +154,12 @@ const AWSSubnetFields = ({
         usePrivateLink={privateLinkSelected}
         input={{
           ...getFieldProps(FieldId.SelectedVpc),
-          onChange: (value) => setFieldValue(FieldId.SelectedVpc, value),
+          onChange: (newVpcValue) => {
+            setFieldValue(FieldId.SelectedVpc, newVpcValue);
+            setFieldValue(controlPlaneFieldName, []);
+            setFieldValue(infraFieldName, []);
+            setFieldValue(workerFieldName, []);
+          },
         }}
         meta={getFieldMeta(FieldId.SelectedVpc)}
       />

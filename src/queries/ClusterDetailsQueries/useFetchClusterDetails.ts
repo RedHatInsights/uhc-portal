@@ -1,4 +1,3 @@
-import { useFetchGCPWifConfig } from '~/queries/ClusterDetailsQueries/useFetchGCPWifConfig';
 import { AugmentedClusterResponse } from '~/types/types';
 
 import { normalizeCluster, normalizeMetrics } from '../../common/normalize';
@@ -12,7 +11,7 @@ import { useFetchAiCluster } from './useFetchAiCluster';
 import { useFetchCluster } from './useFetchCluster';
 import { useFetchInflightChecks } from './useFetchInflightChecks';
 import { useFetchLimitedSupportReasons } from './useFetchLimitedSupportReasons';
-import { useFetchUpgradeGates } from './useFetchUpgradeGates';
+import { useFetchUpgradeGateAgreements } from './useFetchUpgradeGateAgreements';
 
 /**
  * Function responsible for invalidation of cluster details (refetch)
@@ -56,6 +55,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
     subscriptionID,
     queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
     subscription?.subscription.status,
+    subscription?.subscription.cluster_id as string,
   );
 
   const {
@@ -71,7 +71,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
     queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
   );
   const { isLoading: isClusterGateAgreementsLoading, data: clusterUpgradeGatesResponse } =
-    useFetchUpgradeGates(
+    useFetchUpgradeGateAgreements(
       subscription?.subscription.cluster_id as string,
       subscription,
       queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
@@ -96,6 +96,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
     subscription,
     queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
   );
+
   const {
     isLoading: isInflightChecksLoading,
     data: inflightChecksResponse,
@@ -103,7 +104,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
   } = useFetchInflightChecks(
     subscription?.subscription.cluster_id as string,
     subscription,
-    queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
+    subscription?.subscription.rh_region_id,
   );
 
   const { isLoading: isAIClusterLoading, data: aiClusterResponse } = useFetchAiCluster(
@@ -112,21 +113,13 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
     subscription?.subscription,
   );
 
-  const wifConfigId = clusterDetailsResponse?.data?.gcp?.authentication?.id;
-  const {
-    data: wifConfig,
-    isLoading: isWifConfigLoading,
-    isFetching: isWifConfigFetching,
-  } = useFetchGCPWifConfig(wifConfigId);
-
   const isFetching =
     isSubscriptionFetching ||
     isActionsPermissionsFetching ||
     isClusterFetching ||
     isInflightChecksFetching ||
     isCanDeleteAccessReviewFetching ||
-    isLimitedSupportReasonsfetching ||
-    isWifConfigFetching;
+    isLimitedSupportReasonsfetching;
   if (
     !subscriptionLoading &&
     !isClusterDetailsLoading &&
@@ -135,8 +128,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
     !isClusterGateAgreementsLoading &&
     !isInflightChecksLoading &&
     !isActionQueriesLoading &&
-    !isAIClusterLoading &&
-    !isWifConfigLoading
+    !isAIClusterLoading
   ) {
     // Handles any query if it returns Axios Error
     if (
@@ -189,7 +181,6 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
       cluster.data.machinePoolsActions = machinePoolsActions;
       cluster.data.kubeletConfigActions = kubeletConfigActions;
       cluster.data.canDelete = !!canDeleteAccessReviewResponse?.data?.allowed;
-      cluster.data.wifConfigName = wifConfig?.display_name;
 
       return {
         isLoading: false,

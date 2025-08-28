@@ -71,7 +71,10 @@ describe('updateMachinePoolsHelpers', () => {
     });
 
     it('returns true if control plane version is in available versions', () => {
-      const machinePool = { id: 'myPool1', version: { available_upgrades: ['4.14.0', ' 4.14.1'] } };
+      const machinePool = {
+        id: 'myPool1',
+        version: { available_upgrades: ['4.14.0', '4.14.1'] },
+      };
       expect(isControlPlaneValidForMachinePool(machinePool, controlPlaneVersion)).toBeTruthy();
     });
 
@@ -131,12 +134,14 @@ describe('updateMachinePoolsHelpers', () => {
   describe('canMachinePoolBeUpgradedSelector', () => {
     const machinePool = {
       upgradePolicies: { errorMessage: '', items: [] },
-      version: { id: '4.14.0', available_upgrades: ['4.14.1'] },
+      version: { id: '4.14.0', raw_id: '4.14.0', available_upgrades: ['4.14.1'] },
     };
 
     const state = {
       clusters: {
-        details: { cluster: { hypershift: { enabled: true }, version: { id: '4.14.1' } } },
+        details: {
+          cluster: { hypershift: { enabled: true }, version: { id: '4.14.1', raw_id: '4.14.1' } },
+        },
       },
       machinePools: { getMachinePools: { data: 'machinePoolData', fulfilled: true, error: false } },
       clusterUpgrades: {
@@ -251,6 +256,8 @@ describe('updateMachinePoolsHelpers', () => {
 
     it('returns true when machine pool can be upgraded', () => {
       const controlPlaneVersion = state?.clusters?.details?.cluster?.version?.id || '';
+      const controlPlaneRawVersion = state?.clusters?.details?.cluster?.version?.raw_id || '';
+
       const schedules = {
         items: [],
         fulfilled: true,
@@ -258,7 +265,14 @@ describe('updateMachinePoolsHelpers', () => {
         pending: false,
       };
       expect(
-        canMachinePoolBeUpgradedSelector(schedules, controlPlaneVersion, machinePool, false, true),
+        canMachinePoolBeUpgradedSelector(
+          schedules,
+          controlPlaneVersion,
+          machinePool,
+          false,
+          true,
+          controlPlaneRawVersion,
+        ),
       ).toBeTruthy();
     });
   });

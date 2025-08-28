@@ -4,6 +4,7 @@ import { Alert } from '@patternfly/react-core';
 
 import { ENV_OVERRIDE_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
 import { Link } from '~/common/routing';
+import { APP_API_ENV } from '~/config';
 
 type Props = {
   env: string;
@@ -24,7 +25,7 @@ const EnvOverrideMessage = ({ env }: Props) => {
           Using the <em>{env}</em> environment API
         </>
       }
-      className="pf-v5-u-flex-basis-0 pf-v5-u-flex-grow-1"
+      className="pf-v6-u-flex-basis-0 pf-v6-u-flex-grow-1"
     >
       <Link to="/" reloadDocument onClick={goBackToNormal}>
         Go back to <strong>{APP_API_ENV}</strong>

@@ -5,7 +5,7 @@ import {
   useFetchInflightChecks,
   useFetchRerunInflightChecks,
   useMutateRerunInflightChecks,
-} from '~/queries/ClusterDetailsQueries/ClusterStatusMonitor/useFetchInflightChecks';
+} from '~/queries/ClusterDetailsQueries/useFetchInflightChecks';
 import { render, screen, within } from '~/testUtils';
 
 import fixtures from '../../../../__tests__/ClusterDetails.fixtures';
@@ -16,7 +16,7 @@ jest.mock('~/queries/ClusterDetailsQueries/ClusterStatusMonitor/useFetchClusterS
   useFetchClusterStatus: jest.fn(),
   useInvalidateFetchClusterStatus: jest.fn(),
 }));
-jest.mock('~/queries/ClusterDetailsQueries/ClusterStatusMonitor/useFetchInflightChecks', () => ({
+jest.mock('~/queries/ClusterDetailsQueries/useFetchInflightChecks', () => ({
   useFetchInflightChecks: jest.fn(),
   useFetchRerunInflightChecks: jest.fn(),
   useMutateRerunInflightChecks: jest.fn(),
@@ -72,9 +72,10 @@ describe('<ClusterStatusMonitor />', () => {
     expect(useFetchClusterStatusMock).toBeCalledWith(clusterDetails.cluster.id, undefined, false);
     expect(useFetchInflightChecksMock).toBeCalledWith(
       clusterDetails.cluster.id,
+      clusterDetails.cluster.subscription,
       undefined,
       false,
-      'fetchClusterStatusMonitorInflightChecks',
+      true,
     );
   });
 
@@ -110,9 +111,10 @@ describe('<ClusterStatusMonitor />', () => {
     );
     expect(useFetchInflightChecksMock).toBeCalledWith(
       clusterDetails.cluster.id,
+      clusterDetails.cluster.subscription,
       'aws.ap-southeast-1.stage',
       false,
-      'fetchClusterStatusMonitorInflightChecks',
+      true,
     );
   });
 
@@ -268,7 +270,7 @@ describe('<ClusterStatusMonitor />', () => {
 
     useFetchInflightChecksMock.mockReturnValue({
       isLoading: false,
-      checks: {
+      data: {
         items: [{ state: 'running' }],
       },
     });
@@ -459,15 +461,9 @@ describe('<ClusterStatusMonitor />', () => {
 
       expect(screen.getByText(alertTitle)).toBeInTheDocument();
       expect(screen.queryByText('unknown')).not.toBeInTheDocument();
-      expect(
-        screen.getByText('my-role-1@example-proj-4.gserviceaccount.com'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('my-role-2@example-proj-4.gserviceaccount.com'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('my-role-3@example-proj-4.gserviceaccount.com'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('my-role-1@example-proj-4.gserviceaccount.com')).toBeInTheDocument();
+      expect(screen.getByText('my-role-2@example-proj-4.gserviceaccount.com')).toBeInTheDocument();
+      expect(screen.getByText('my-role-3@example-proj-4.gserviceaccount.com')).toBeInTheDocument();
     });
 
     it('includes "unknown" if no service accounts are found', () => {

@@ -17,15 +17,24 @@ const reduceCardDescription = (addOn) => {
 
 const AddOnsCard = ({ addOn, installedAddOn, requirements, activeCard, onClick }) => (
   <Card
-    isSelectableRaised
+    id={`card-addon-id-${addOn.id}`}
+    isSelectable
     isSelected={activeCard === addOn.id}
     key={addOn.id}
     ouiaId={`card-addon-${addOn.id}`}
-    onClick={onClick}
     className="ocm-c-addons__card"
     data-testid="addOnCard"
   >
-    <CardHeader className="ocm-c-addons__card--header">
+    <CardHeader
+      className="ocm-c-addons__card--header"
+      selectableActions={{
+        selectableActionAriaLabelledby: `card-addon-id-${addOn.id}`,
+        name: `card-addon-id-${addOn.id}`,
+        variant: 'single',
+        onChange: onClick,
+        isHidden: true,
+      }}
+    >
       {addOn.icon && <img alt={addOn.name} src={`data:image/png;base64,${addOn.icon}`} />}
     </CardHeader>
     <CardTitle>{addOn.name}</CardTitle>

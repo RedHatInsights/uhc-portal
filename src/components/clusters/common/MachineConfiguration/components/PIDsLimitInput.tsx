@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { FormGroup, NumberInput, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Content, ContentVariants, FormGroup, NumberInput } from '@patternfly/react-core';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
@@ -111,7 +111,7 @@ export const PIDsLimitInput: React.FC<PIDsLimitInputProps> = (props) => {
     <FormGroup
       required
       label="Pod process IDs limit (PIDs)"
-      labelIcon={
+      labelHelp={
         <PopoverHint
           title="Pod process IDs limit (PIDs)"
           hint={
@@ -126,12 +126,12 @@ export const PIDsLimitInput: React.FC<PIDsLimitInputProps> = (props) => {
       isRequired
       fieldId="pids-limit"
     >
-      <TextContent className="pf-v5-u-mb-md">
-        <Text component={TextVariants.p}>
+      <Content className="pf-v6-u-mb-md">
+        <Content component={ContentVariants.p}>
           Adjusting the PIDs limit will result in all nodes that are not control plane nodes to
           reboot, potentially impacting workload downtime.
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
       <NumberInput
         id="pids-limit"
         name="pids-limit"

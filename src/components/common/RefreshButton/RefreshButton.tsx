@@ -76,15 +76,14 @@ const RefreshBtn = ({
   return (
     <Tooltip position={TooltipPosition.bottom} content="Refresh">
       <Button
+        icon={<RedoIcon />}
         variant="plain"
         aria-label="Refresh"
         className={classOptions}
         onClick={clickRefreshFunc || refreshFunc}
         isAriaDisabled={isDisabled}
         ouiaId={ouiaId}
-      >
-        <RedoIcon />
-      </Button>
+      />
     </Tooltip>
   );
 };

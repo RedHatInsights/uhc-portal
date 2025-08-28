@@ -1,7 +1,7 @@
 import React, { FormEvent } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { Form, FormSection, Grid, GridItem, Text } from '@patternfly/react-core';
+import { Content, Form, FormSection, Grid, GridItem } from '@patternfly/react-core';
 
 import installLinks from '~/common/installLinks.mjs';
 import { clusterAutoScalingValidators, validateListOfBalancingLabels } from '~/common/validators';
@@ -164,7 +164,7 @@ const ClusterAutoScaleSettingsDialog = ({
       showClose={false}
     >
       <>
-        <Text component="p">
+        <Content component="p">
           The cluster autoscaler adjusts the size of a cluster to meet its current deployment needs.
           Learn more about{' '}
           <ExternalLink
@@ -176,7 +176,7 @@ const ClusterAutoScaleSettingsDialog = ({
           </ExternalLink>{' '}
           or
           <ExternalLink href={installLinks.APPLYING_AUTOSCALING_API_DETAIL}> APIs</ExternalLink>.
-        </Text>
+        </Content>
         <Form onSubmit={handleSave} className="cluster-autoscaling-form">
           <FormSection title="General settings">
             <Grid hasGutter>

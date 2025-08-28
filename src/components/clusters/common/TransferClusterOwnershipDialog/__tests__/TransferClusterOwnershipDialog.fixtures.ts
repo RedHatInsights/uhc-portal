@@ -4,4 +4,7 @@ export const subscription = {
   id: '0',
   released: false,
   status: SubscriptionCommonFieldsStatus.Active,
+  creator: {
+    username: 'testuser',
+  },
 };

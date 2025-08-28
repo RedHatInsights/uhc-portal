@@ -12,6 +12,7 @@ import {
 
 import { getQueryParam } from '~/common/queryHelpers';
 import { hasSecurityGroupIds } from '~/common/securityGroupsHelpers';
+import AIClusterStatus from '~/components/AIComponents/AIClusterStatus';
 import { OverviewBillingAccount } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/BillingAccount/OverviewBillingAccount';
 import clusterStates, {
   canViewMachinePoolTab,
@@ -21,7 +22,6 @@ import clusterStates, {
 import ClusterStatusErrorDisplay from '~/components/clusters/common/ClusterStatusErrorDisplay';
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
 import { IMDSType } from '~/components/clusters/wizards/common';
-import AIClusterStatus from '~/components/common/AIClusterStatus';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { isRestrictedEnv } from '~/restrictedEnv';
@@ -47,12 +47,14 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const region = cluster?.subscription?.rh_region_id;
   const clusterID = cluster?.id;
   const clusterVersionID = cluster?.version?.id;
+  const clusterRawVersionID = cluster?.version?.raw_id;
 
   const { data: machinePools } = useFetchMachineOrNodePools(
     clusterID,
     isHypershift,
     clusterVersionID,
     region,
+    clusterRawVersionID,
   );
 
   const nodesSectionData = totalNodesDataSelector(cluster, machinePools);
@@ -252,7 +254,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
               />
             </DescriptionListTerm>
             <DescriptionListDescription>
-              <dl className="pf-v5-l-stack">
+              <dl className="pf-v6-l-stack">
                 {!isHypershift && (
                   <Flex data-testid="controlPlaneNodesCountContainer">
                     <dt>Control plane: </dt>
@@ -288,7 +290,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
           <DescriptionListGroup>
             <DescriptionListTerm>Nodes</DescriptionListTerm>
             <DescriptionListDescription>
-              <dl className="pf-v5-l-stack">
+              <dl className="pf-v6-l-stack">
                 {!isHypershift && (
                   <Flex data-testid="controlPlaneNodesCountContainer">
                     <dt>Control plane: </dt>
@@ -314,7 +316,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
         <DescriptionListGroup>
           <DescriptionListTerm>Additional security groups</DescriptionListTerm>
           <DescriptionListDescription>
-            <dl className="pf-l-stack" data-testid="securityGroupsByNode">
+            <dl className="pf-v6-l-stack" data-testid="securityGroupsByNode">
               <SecurityGroupsDisplayByNode
                 securityGroups={clusterVpc?.aws_security_groups || []}
                 securityGroupIdsForControl={
@@ -378,7 +380,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
           <DescriptionListDescription>Enabled</DescriptionListDescription>
           <DescriptionListDescription>
             <span className="autoscale-data-t">Min:</span> {totalMinNodesCount}
-            <span className="pf-v5-u-ml-lg autoscale-data-t">Max: </span>
+            <span className="pf-v6-u-ml-lg autoscale-data-t">Max: </span>
             {totalMaxNodesCount}
           </DescriptionListDescription>
         </DescriptionListGroup>
@@ -412,7 +414,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
         <DescriptionListGroup>
           <DescriptionListTerm>OIDC Configuration</DescriptionListTerm>
           <DescriptionListDescription>
-            <dl className="pf-v5-l-stack">
+            <dl className="pf-v6-l-stack">
               <Flex>
                 <dt>Type:</dt>
                 <dd>{oidcConfig?.managed ? 'Red Hat managed' : 'Self-managed'}</dd>

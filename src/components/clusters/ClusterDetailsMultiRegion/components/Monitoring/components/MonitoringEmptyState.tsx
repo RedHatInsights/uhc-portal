@@ -1,11 +1,6 @@
 import React from 'react';
 
-import {
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-} from '@patternfly/react-core';
+import { EmptyState, EmptyStateBody } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
@@ -24,9 +19,11 @@ const MonitoringEmptyState = ({
   hideIcon = false,
   title = 'Monitoring data is not available',
 }: MonitoringEmptyStateProps) => (
-  <EmptyState>
-    {!hideIcon && <EmptyStateIcon icon={ExclamationTriangleIcon} />}
-    <EmptyStateHeader titleText={title} headingLevel="h5" />
+  <EmptyState
+    headingLevel="h5"
+    titleText={title}
+    {...(!hideIcon && { icon: ExclamationTriangleIcon })}
+  >
     <EmptyStateBody>
       {children}
       {!hideLastCheckIn && (

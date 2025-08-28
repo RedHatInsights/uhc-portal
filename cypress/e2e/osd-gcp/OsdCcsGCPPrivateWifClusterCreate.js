@@ -3,10 +3,14 @@ import CreateOSDWizardPage from '../../pageobjects/CreateOSDWizard.page';
 
 const clusterProfiles = require('../../fixtures/osd-gcp/OsdCcsGCPClusterCreate.json');
 const clusterProperties = clusterProfiles['osd-ccs-gcp-private-multizone-wif']['day1-profile'];
+const gcpKeyRingLocation = Cypress.env('QE_GCP_KEY_RING_LOCATION');
+const gcpKeyRing = Cypress.env('QE_GCP_KEY_RING');
+const gcpKeyName = Cypress.env('QE_GCP_KEY_NAME');
+const gcpKMSServiceAccount = Cypress.env('QE_GCP_KMS_SERVICE_ACCOUNT');
 
 describe(
   'OSD GCP (Workload identity federation) private PSC advanced cluster creation tests()',
-  { tags: ['osd', 'ccs', 'gcp', 'private', 'wif', 'multizone', 'psc'] },
+  { tags: ['day1', 'osd', 'ccs', 'gcp', 'private', 'wif', 'multizone', 'psc'] },
   () => {
     before(() => {
       cy.visit('/create');
@@ -60,14 +64,10 @@ describe(
         }
         if (clusterProperties.EncryptVolumesWithCustomKeys.includes('Enabled')) {
           CreateOSDWizardPage.useCustomKMSKeyRadio().check();
-          CreateOSDWizardPage.selectKeylocation(
-            clusterProperties.EncryptCustomKeys.KeyRingLocation,
-          );
-          CreateOSDWizardPage.selectKeyRing(clusterProperties.EncryptCustomKeys.KeyRing);
-          CreateOSDWizardPage.selectKeyName(clusterProperties.EncryptCustomKeys.KeyName);
-          CreateOSDWizardPage.kmsServiceAccountInput().type(
-            clusterProperties.EncryptCustomKeys.KmsServiceAccount,
-          );
+          CreateOSDWizardPage.selectKeylocation(gcpKeyRingLocation);
+          CreateOSDWizardPage.selectKeyRing(gcpKeyRing);
+          CreateOSDWizardPage.selectKeyName(gcpKeyName);
+          CreateOSDWizardPage.kmsServiceAccountInput().type(gcpKMSServiceAccount);
         }
       }
       CreateOSDWizardPage.wizardNextButton().click();

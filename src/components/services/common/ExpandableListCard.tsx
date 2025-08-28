@@ -1,12 +1,11 @@
 import React from 'react';
 
 import {
-  Card,
+  Content,
+  ContentVariants,
   ExpandableSection,
   List,
   ListItem,
-  Text,
-  TextVariants,
 } from '@patternfly/react-core';
 
 import { ExpandalbeContents } from '../servicePageData/expandableContentsData';
@@ -16,19 +15,17 @@ interface ExpandableListCardProps {
 }
 
 export const ExpandableListCard = ({ items }: ExpandableListCardProps) => (
-  <Card>
-    <List isPlain isBordered>
-      {items.map(({ title, contents }) => (
-        <ListItem className="rosa-expandable-list-item" key={title}>
-          <ExpandableSection
-            className="rosa-expandable-section"
-            toggleContent={<Text component={TextVariants.h3}>{title}</Text>}
-            displaySize="lg"
-          >
-            {contents}
-          </ExpandableSection>
-        </ListItem>
-      ))}
-    </List>
-  </Card>
+  <List isPlain>
+    {items.map(({ title, contents }) => (
+      <ListItem className="rosa-expandable-list-item" key={title}>
+        <ExpandableSection
+          className="rosa-expandable-section"
+          toggleContent={<Content component={ContentVariants.h3}>{title}</Content>}
+          displaySize="lg"
+        >
+          {contents}
+        </ExpandableSection>
+      </ListItem>
+    ))}
+  </List>
 );

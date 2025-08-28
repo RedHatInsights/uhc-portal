@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Chip } from '@patternfly/react-core';
+import { Label } from '@patternfly/react-core';
 
 import { isMac } from '~/common/navigator';
 
@@ -12,9 +12,9 @@ type ShortcutProps = {
 const Shortcut = ({ shortcut }: ShortcutProps) =>
   shortcut[isMac ? 'Mac' : 'PC']
     .map((key) => (
-      <Chip key={key} isReadOnly>
+      <Label variant="outline" key={key}>
         {key}
-      </Chip>
+      </Label>
     ))
     .reduce((prev, curr) => (
       // eslint-disable-next-line react/jsx-no-useless-fragment

@@ -18,10 +18,20 @@ class CreateOSDCluster extends Page {
   }
 
   isClusterDetailsScreen() {
+    // Inline snippet to avoid flaky behavior around cluster version dropdown.
+    this.clusterVersionPane()
+      .scrollIntoView()
+      .within(() => {
+        cy.get('button[id="version-selector"]', { timeout: 40000 }).should('be.visible');
+      });
     cy.contains('h3', 'Cluster details');
   }
 
   isMachinePoolScreen() {
+    cy.get('button[aria-label="Machine type select toggle"]', { timeout: 40000 })
+      .should('exist')
+      .scrollIntoView()
+      .should('be.visible');
     cy.contains('h3', 'Default machine pool');
   }
 
@@ -52,10 +62,15 @@ class CreateOSDCluster extends Page {
   showsFakeClusterBanner = () =>
     cy.contains('div', 'On submit, a fake OSD cluster will be created.');
 
-  osdCreateClusterButton = () => cy.getByTestId('osd-create-cluster-button', { timeout: 50000 });
+  osdCreateClusterButton = () =>
+    cy
+      .get('a[data-testid="osd-create-cluster-button"]', { timeout: 50000 })
+      .should('not.have.class', 'pf-m-aria-disabled');
 
   osdTrialCreateClusterButton = () =>
-    cy.getByTestId('osd-create-trial-cluster', { timeout: 20000 });
+    cy
+      .get('a[data-testid="osd-create-trial-cluster"]', { timeout: 20000 })
+      .should('not.have.class', 'pf-m-aria-disabled');
 
   subscriptionTypeFreeTrialRadio = () =>
     cy.get('input[name="billing_model"][value="standard-trial"]');
@@ -94,7 +109,9 @@ class CreateOSDCluster extends Page {
 
   createCustomDomainPrefixCheckbox = () => cy.get('input[id="has_domain_prefix"]');
 
-  domainPrefixInput = () => cy.get('input[id="domain_prefix"]');
+  domainPrefixInput = () => cy.get('input[name="domain_prefix"]');
+
+  clusterVersionPane = () => cy.get('div[name="cluster_version"]');
 
   singleZoneAvilabilityRadio = () => cy.get('input[id="form-radiobutton-multi_az-false-field"]');
 
@@ -336,15 +353,15 @@ class CreateOSDCluster extends Page {
   wizardCancelButton = () => cy.getByTestId('wizard-cancel-button');
 
   get clusterNameInput() {
-    return 'input#name';
+    return 'input[name="name"]';
   }
 
   get clusterNameInputError() {
-    return 'ul#rich-input-popover-name li.pf-v5-c-helper-text__item.pf-m-error.pf-m-dynamic';
+    return 'ul#rich-input-popover-name li.pf-v6-c-helper-text__item.pf-m-error';
   }
 
   get primaryButton() {
-    return '#osd-wizard button.pf-v5-c-button.pf-m-primary';
+    return '#osd-wizard button.pf-v6-c-button.pf-m-primary';
   }
 
   get CCSSelected() {
@@ -361,7 +378,7 @@ class CreateOSDCluster extends Page {
 
   waitForVPCRefresh() {
     cy.getByTestId('refresh-vpcs').should('be.disabled');
-    cy.get('span.pf-v5-c-button__progress', { timeout: 80000 }).should('not.exist');
+    cy.get('span.pf-v6-c-button__progress', { timeout: 80000 }).should('not.exist');
   }
 
   selectVersion(version) {
@@ -428,7 +445,7 @@ class CreateOSDCluster extends Page {
   }
   selectSubnetAvailabilityZone(subnetAvailability) {
     cy.contains('Select availability zone').first().click();
-    cy.get('.pf-v5-c-menu__list').within(() => {
+    cy.get('.pf-v6-c-menu__list').within(() => {
       cy.contains('li button', subnetAvailability).click({ force: true });
     });
   }
@@ -452,16 +469,16 @@ class CreateOSDCluster extends Page {
     cy.contains('Control plane nodes')
       .parent()
       .parent()
-      .find('div ul[aria-label="Chip group category"]')
-      .should('have.text', controlPlane);
+      .find('span')
+      .should('include.text', controlPlane);
   }
 
   infrastructureNodesValue(infrastructureNodes) {
     cy.contains('Infrastructure nodes')
       .parent()
       .parent()
-      .find('div ul[aria-label="Chip group category"]')
-      .should('have.text', infrastructureNodes);
+      .find('span')
+      .should('include.text', infrastructureNodes);
   }
 
   workerNodesValue = () => cy.contains('strong', 'Worker nodes');
@@ -541,6 +558,7 @@ class CreateOSDCluster extends Page {
 
   selectMarketplaceSubscription(marketplace) {
     cy.get('div[name="marketplace_selection"]').find('button').click();
+    cy.contains('button', 'Red Hat Marketplace').should('not.exist');
     cy.get('button').contains(marketplace).click();
   }
 
@@ -590,7 +608,11 @@ class CreateOSDCluster extends Page {
   }
 
   selectComputeNodeType(computeNodeType) {
-    cy.get('button[aria-label="Machine type select toggle"]').click();
+    cy.get('button[aria-label="Machine type select toggle"]', { timeout: 40000 })
+      .should('exist')
+      .scrollIntoView()
+      .should('be.visible')
+      .click();
     cy.get('input[aria-label="Machine type select search field"]').clear().type(computeNodeType);
     cy.get('div').contains(computeNodeType).click();
   }
@@ -606,8 +628,8 @@ class CreateOSDCluster extends Page {
   }
 
   addNodeLabelKeyAndValue(key, value = '', index = 0) {
-    cy.get(`input[id="node_labels.${index}.key"]`).clear().type(key).blur();
-    cy.get(`input[id="node_labels.${index}.value"]`).clear().type(value).blur();
+    cy.get(`input[id="node_labels.${index}.key"]`).scrollIntoView().clear().type(key).blur();
+    cy.get(`input[id="node_labels.${index}.value"]`).scrollIntoView().clear().type(value).blur();
   }
 
   selectNodeDraining(nodeDrain) {
@@ -617,7 +639,7 @@ class CreateOSDCluster extends Page {
 
   isTextContainsInPage(text, present = true) {
     if (present) {
-      cy.contains(text).should('be.exist').should('be.visible');
+      cy.contains(text).should('exist').should('be.visible');
     } else {
       cy.contains(text).should('not.exist');
     }

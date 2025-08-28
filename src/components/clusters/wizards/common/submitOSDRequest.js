@@ -2,6 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
 
 import {
+  parseCIDRSubnetLength,
   parseReduxFormKeyValueList,
   stringToArrayTrimmed,
   strToKeyValueObject,
@@ -123,7 +124,7 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
       machine_cidr: formData.network_machine_cidr,
       service_cidr: formData.network_service_cidr,
       pod_cidr: formData.network_pod_cidr,
-      host_prefix: parseInt(formData.network_host_prefix, 10),
+      host_prefix: parseCIDRSubnetLength(formData.network_host_prefix),
     };
 
     const wasClusterPrivacyShown =
@@ -243,8 +244,7 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
         }
       }
 
-      if (formData.imds && !isHypershiftSelected) {
-        // ROSA Classic and OSD CCS only
+      if (formData.imds) {
         clusterRequest.aws.ec2_metadata_http_tokens = formData.imds;
       }
 

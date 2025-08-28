@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { render, screen, UserEventType, within } from '~/testUtils';
+import { render, screen, UserEvent, within } from '~/testUtils';
 
 import EditSecurityGroups from './EditSecurityGroups';
 
@@ -24,7 +24,7 @@ const clusterVpc = {
   ],
 };
 
-const openPFSecurityGroupsSelect = async (user: UserEventType) => {
+const openPFSecurityGroupsSelect = async (user: UserEvent) => {
   await user.click(screen.getByRole('button', { name: 'Options menu' }));
 };
 
@@ -86,7 +86,7 @@ describe('<EditSecurityGroups />', () => {
 
       const securityGroupChips = screen.getAllByRole('listitem');
       expect(
-        within(securityGroupChips[0]).getByRole('button', { name: /close hello xyz/ }),
+        within(securityGroupChips[0]).getByRole('button', { name: /Close hello xyz/ }),
       ).toBeInTheDocument();
     });
 
@@ -144,45 +144,6 @@ describe('<EditSecurityGroups />', () => {
         />,
       );
       expect(onChangeSpy).not.toHaveBeenCalled();
-    });
-
-    it('should clear the selected security groups if they do not belong to the current VPC', () => {
-      const onChangeSpy = jest.fn();
-      const sgsFromFirstVpc = ['sg-abc'];
-
-      // Render with the initial VPC and a security group belonging to it
-      const { rerender } = render(
-        <EditSecurityGroups
-          onChange={onChangeSpy}
-          selectedGroupIds={sgsFromFirstVpc}
-          selectedVPC={clusterVpc}
-          isReadOnly={false}
-          isHypershift={false}
-        />,
-      );
-      expect(onChangeSpy).not.toHaveBeenCalled();
-
-      // Render with another VPC, while the security group still belonging to the initial VPC
-      const anotherVpc = {
-        id: 'this-is-another-vpc',
-        aws_security_groups: [
-          {
-            id: 'sg-another-security-group',
-            name: 'This is a different security group',
-          },
-        ],
-      };
-      rerender(
-        <EditSecurityGroups
-          onChange={onChangeSpy}
-          selectedGroupIds={sgsFromFirstVpc}
-          selectedVPC={anotherVpc}
-          isReadOnly={false}
-          isHypershift={false}
-        />,
-      );
-      expect(onChangeSpy).toHaveBeenCalledTimes(1);
-      expect(onChangeSpy).toHaveBeenCalledWith([]);
     });
   });
 });

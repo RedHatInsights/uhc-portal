@@ -13,7 +13,7 @@
     vertical-align: top;
   }
   dd > dl > dd {
-    margin-bottom: var(--pf-v5-global--spacer--sm);
+    margin-bottom: var(--pf-t--global--spacer--sm);
   }
 }
 
@@ -23,17 +23,17 @@
   height: 4em;
 }
 
-.pf-v5-c-menu-toggle.upgrade-time-select {
+.pf-v6-c-menu-toggle.upgrade-time-select {
   width: 10em;
 }
 
-.pf-v5-c-select.pf-m-expanded.upgrade-schedule-time-input .pf-v5-c-select__menu{
+.pf-v6-c-select.pf-m-expanded.upgrade-schedule-time-input .pf-v6-c-select__menu{
   max-height: 15em;
   overflow-y: auto;
 }
 
 .ocm-upgrade-wizard {
-  .pf-v5-c-wizard__main-body {
+  .pf-v6-c-wizard__main-body {
     padding: 0;
     display: flex;
     flex-flow: column;
@@ -51,12 +51,7 @@
   .wizard-step-title {
     padding: 24px 24px 0 24px;
   }
-
-  #version-grid-wrapper {
-    height: 100%;
-    background-color: var(--pf-v5-global--BackgroundColor--200);
-  }
-
+  
   .version-select-step-title {
     padding: 24px;
     background-color: #ffffff;
@@ -69,7 +64,7 @@
   .version-card {
     height: 100%;
 
-    .pf-v5-c-label__content {
+    .pf-v6-c-label__content {
       font-weight: 400;
     }
   }

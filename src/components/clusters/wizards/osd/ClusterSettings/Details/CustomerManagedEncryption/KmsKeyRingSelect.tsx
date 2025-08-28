@@ -3,7 +3,7 @@ import { Field } from 'formik';
 import isEqual from 'lodash/isEqual';
 import { useDispatch } from 'react-redux';
 
-import { GridItem, Text } from '@patternfly/react-core';
+import { Content, GridItem } from '@patternfly/react-core';
 
 import { required } from '~/common/validators';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
@@ -45,16 +45,16 @@ export const KmsKeyRingSelect = () => {
         emptyAlertTitle="No key rings found for this location"
         emptyAlertBody={
           <>
-            <Text>
+            <Content component="p">
               If available, change the Key ring location. Or go to your{' '}
               <ExternalLink href="https://console.cloud.google.com/security/kms">
                 Google Cloud Console
               </ExternalLink>{' '}
               and create the key ring.
-            </Text>
-            <Text>
+            </Content>
+            <Content component="p">
               Once created, refresh using the <strong>Refresh custom key rings</strong> button.
-            </Text>
+            </Content>
           </>
         }
         refreshButtonText="Refresh custom key rings"

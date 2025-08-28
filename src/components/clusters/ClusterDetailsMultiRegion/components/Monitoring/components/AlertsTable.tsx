@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { EmptyState, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core';
+import { EmptyState } from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
@@ -41,15 +41,7 @@ function AlertsTable({ alerts = [], clusterConsole }: AlertsTableProps) {
   const isNotRealAlert = (name?: string) => name === 'Watchdog' || name === 'DeadMansSwitch';
 
   if (alerts.every((alert) => isNotRealAlert(alert.name))) {
-    return (
-      <EmptyState>
-        <EmptyStateHeader
-          titleText="No alerts firing"
-          icon={<EmptyStateIcon icon={CheckCircleIcon} />}
-          headingLevel="h5"
-        />
-      </EmptyState>
-    );
+    return <EmptyState headingLevel="h5" icon={CheckCircleIcon} titleText="No alerts firing" />;
   }
 
   const rows = alerts

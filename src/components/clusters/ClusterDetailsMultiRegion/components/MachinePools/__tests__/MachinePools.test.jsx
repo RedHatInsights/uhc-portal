@@ -219,8 +219,8 @@ describe('<MachinePools />', () => {
         ...defaultProps,
       };
       render(<MachinePools {...newProps} />);
-      expect(screen.getByText('foo = bar')).toHaveClass('pf-v5-c-label__text');
-      expect(screen.getByText('hello = world')).toHaveClass('pf-v5-c-label__text');
+      expect(screen.getByText('foo = bar')).toHaveClass('pf-v6-c-label__text');
+      expect(screen.getByText('hello = world')).toHaveClass('pf-v6-c-label__text');
     });
 
     it('a truncated label that is longer than the cut length', () => {
@@ -349,7 +349,7 @@ describe('<MachinePools />', () => {
       };
 
       const { container } = render(<MachinePools {...newProps} />);
-      expect(container.querySelectorAll('.pf-v5-c-skeleton').length).toBeGreaterThan(0);
+      expect(container.querySelectorAll('.pf-v6-c-skeleton').length).toBeGreaterThan(0);
 
       await checkAccessibility(container);
     });
@@ -549,7 +549,7 @@ describe('<MachinePools />', () => {
       screen.getAllByRole('button', { name: 'Kebab toggle' }).forEach(async (button) => {
         await user.click(button);
         const menuItems = container.querySelectorAll(
-          '.pf-v5-c-dropdown__menu .pf-v5-c-dropdown__menu-item',
+          '.pf-v6-c-dropdown__menu .pf-v6-c-dropdown__menu-item',
         );
         menuItems.forEach((item) => {
           expect(item).not.toHaveAttribute('aria-disabled');
@@ -699,7 +699,7 @@ describe('<MachinePools />', () => {
       screen.getAllByRole('button', { name: 'Kebab toggle' }).forEach(async (button) => {
         await user.click(button);
         const menuItems = container.querySelectorAll(
-          '.pf-v5-c-dropdown__menu .pf-v5-c-dropdown__menu-item',
+          '.pf-v6-c-dropdown__menu .pf-v6-c-dropdown__menu-item',
         );
         menuItems.forEach((item) => {
           expect(item).not.toHaveAttribute('aria-disabled');
@@ -949,10 +949,7 @@ describe('<MachinePools />', () => {
       };
       const { container } = render(<MachinePools {...props} />);
       // add machine pool button is enabled
-      expect(container.querySelector('#add-machine-pool')).toHaveAttribute(
-        'aria-disabled',
-        'false',
-      );
+      expect(container.querySelector('#add-machine-pool')).not.toHaveAttribute('aria-disabled');
       // table actions are enabled
       expect(screen.getByRole('button', { name: 'Kebab toggle' })).toBeEnabled();
     });
@@ -991,10 +988,16 @@ describe('<MachinePools />', () => {
     const expectActionButton = ({ toBePresent, toBeEnabled = true }) => {
       if (toBePresent) {
         expect(screen.getByRole('button', { name: machineConfigLabel })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: machineConfigLabel })).toHaveAttribute(
-          'aria-disabled',
-          `${String(!toBeEnabled)}`,
-        );
+        if (toBeEnabled === true) {
+          expect(screen.getByRole('button', { name: machineConfigLabel })).not.toHaveAttribute(
+            'aria-disabled',
+          );
+        } else {
+          expect(screen.getByRole('button', { name: machineConfigLabel })).toHaveAttribute(
+            'aria-disabled',
+            `${String(!toBeEnabled)}`,
+          );
+        }
       } else {
         expect(screen.queryByRole('button', { name: machineConfigLabel })).not.toBeInTheDocument();
       }

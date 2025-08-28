@@ -168,7 +168,7 @@ const isMinimumCountWithoutTaints = ({
 };
 
 const actionResolver = ({
-  rowData,
+  machinePool,
   onClickEdit,
   onClickDelete,
   onClickUpdate,
@@ -177,7 +177,7 @@ const actionResolver = ({
   machinePools,
   machineTypes,
 }: {
-  rowData: any;
+  machinePool: any;
   onClickEdit: (...args: any[]) => any;
   onClickDelete: (...args: any[]) => any;
   onClickUpdate: (...args: any[]) => any;
@@ -187,19 +187,19 @@ const actionResolver = ({
   machineTypes: GlobalState['machineTypes'];
 }) => {
   // hide actions kebab for expandable rows
-  if (!rowData.machinePool) {
+  if (!machinePool) {
     return [];
   }
 
   const isEnforcedDefaultMP = isEnforcedDefaultMachinePool(
-    rowData.machinePool.id,
+    machinePool.id,
     machinePools,
     machineTypes,
     cluster,
   );
 
   const hasMinimumCount = isMinimumCountWithoutTaints({
-    currentMachinePoolId: rowData.machinePool.id,
+    currentMachinePoolId: machinePool.id,
     machinePools,
     cluster,
   });
@@ -213,13 +213,13 @@ const actionResolver = ({
 
   const editAction = {
     title: 'Edit',
-    onClick: onClickEdit,
+    onClick: (_: any) => onClickEdit(_, machinePool.id, machinePool),
     className: 'hand-pointer',
   };
 
   const deleteAction = {
     title: 'Delete',
-    onClick: onClickDelete,
+    onClick: (_: any) => onClickDelete(_, machinePool.id, machinePool),
     className: 'hand-pointer',
     isAriaDisabled: !!deleteDisabledReason,
     ...(!!deleteDisabledReason && {
@@ -231,7 +231,7 @@ const actionResolver = ({
 
   const updateAction = {
     title: 'Update version',
-    onClick: onClickUpdate,
+    onClick: () => onClickUpdate(machinePool),
     className: 'hand-pointer',
   };
 

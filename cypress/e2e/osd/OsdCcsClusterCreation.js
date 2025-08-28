@@ -28,7 +28,11 @@ describe(
           : '';
 
       it(`Launch OSD - ${clusterProperties.CloudProvider} cluster wizard`, () => {
-        CreateOSDWizardPage.osdCreateClusterButton().click();
+        CreateOSDWizardPage.osdCreateClusterButton()
+          .should('exist')
+          .should('not.be.disabled')
+          .scrollIntoView()
+          .click();
         CreateOSDWizardPage.isCreateOSDPage();
       });
 
@@ -47,6 +51,7 @@ describe(
 
         if (clusterProperties.CloudProvider.includes('GCP')) {
           if (clusterProperties.AuthenticationType.includes('Service Account')) {
+            CreateOSDWizardPage.serviceAccountButton().click();
             CreateOSDWizardPage.uploadGCPServiceAccountJSON(JSON.stringify(QE_GCP));
           } else {
             CreateOSDWizardPage.workloadIdentityFederationButton().click();

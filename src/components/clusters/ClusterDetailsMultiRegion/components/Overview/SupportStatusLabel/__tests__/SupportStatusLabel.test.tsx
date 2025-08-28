@@ -115,7 +115,7 @@ describe('<SupportStatusLabel />', () => {
       render(<SupportStatusLabel clusterVersion="4.5" />);
 
       // Assert
-      expect(screen.getByText('Full support')).toHaveClass('pf-v5-c-label__text');
+      expect(screen.getByText('Full support')).toHaveClass('pf-v6-c-label__text');
     });
 
     it('renders for Maintenance Support', () => {
@@ -123,7 +123,7 @@ describe('<SupportStatusLabel />', () => {
       render(<SupportStatusLabel clusterVersion="4.4" />);
 
       // Assert
-      expect(screen.getByText('Maintenance support')).toHaveClass('pf-v5-c-label__text');
+      expect(screen.getByText('Maintenance support')).toHaveClass('pf-v6-c-label__text');
     });
 
     it('renders for Extended Update Support', () => {
@@ -131,7 +131,7 @@ describe('<SupportStatusLabel />', () => {
       render(<SupportStatusLabel clusterVersion="4.3" />);
 
       // Assert
-      expect(screen.getByText('Extended update support')).toHaveClass('pf-v5-c-label__text');
+      expect(screen.getByText('Extended update support')).toHaveClass('pf-v6-c-label__text');
     });
 
     it('renders for End of Life', () => {
@@ -139,7 +139,7 @@ describe('<SupportStatusLabel />', () => {
       render(<SupportStatusLabel clusterVersion="4.2" />);
 
       // Assert
-      expect(screen.getByText('End of life')).toHaveClass('pf-v5-c-label__text');
+      expect(screen.getByText('End of life')).toHaveClass('pf-v6-c-label__text');
     });
 
     it('renders for an unrecognized status', () => {
@@ -147,7 +147,7 @@ describe('<SupportStatusLabel />', () => {
       render(<SupportStatusLabel clusterVersion="4.1" />);
 
       // Assert
-      expect(screen.getByText('some other status')).toHaveClass('pf-v5-c-label__text');
+      expect(screen.getByText('some other status')).toHaveClass('pf-v6-c-label__text');
     });
   });
 });

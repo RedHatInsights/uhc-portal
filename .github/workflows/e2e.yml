@@ -1,8 +1,11 @@
-name: Pull Request e2e CI
+name: e2e CI
 
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - 'main'
 
 jobs:
   install:

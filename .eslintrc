@@ -128,7 +128,7 @@
   "overrides": [
     {
       "files": [
-        // Tests & scripts - run in NodeJS not browser
+        // Tests - run in NodeJS not browser
         "**/*setupTests.ts",
         "**/*.test.js*",
         "**/*test.js*",
@@ -143,7 +143,6 @@
         "webpack.config.js",
         "*.mjs",
         "run/**/*",
-        "scripts/**/*"
       ],
       "rules": {
         "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
@@ -182,7 +181,6 @@
   "globals": {
     "insights": "readonly",
     "APP_DEVMODE": "readonly",
-    "APP_API_ENV": "readonly",
     "APP_DEV_SERVER": "readonly",
     "APP_SENTRY_RELEASE_VERSION": "readonly",
     "OCM_SHOW_OLD_METRICS": "readonly"

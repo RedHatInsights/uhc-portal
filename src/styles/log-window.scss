@@ -1,7 +1,7 @@
 $color-log-window-body-bg: #030303;
 $color-log-window-header-bg: #72767b;
 $color-log-window-text: #f5f5f5;
-$font-family-log-window-body: var(--pf-v5-global--FontFamily--monospace);
+$font-family-log-window-body: var(--pf-t--global--font--family--mono);
 $log-window-container-min-height: 25em;
 
 .log-window-container {
@@ -66,7 +66,7 @@ $log-window-container-min-height: 25em;
 }
 
 #toggle-logs {
-  --pf-v5-c-expandable-section__content--MarginTop: 0;
+  --pf-v6-c-expandable-section__content--MarginTop: 0;
 
   padding-top: 10px;
 }

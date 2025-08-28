@@ -3,7 +3,7 @@
     "day1-profile": {
       "Description": "rosa classic private cluster with advanced configuration",
 
-      "ControlPlaneType": "Classic",
+      "ControlPlaneType": "Classic architecture",
       "Type": "ROSA",
       "ClusterName": "cyp-rosa-classic-advanced-mz-private-profile",
       "DomainPrefix": "rosamzopvtaz",

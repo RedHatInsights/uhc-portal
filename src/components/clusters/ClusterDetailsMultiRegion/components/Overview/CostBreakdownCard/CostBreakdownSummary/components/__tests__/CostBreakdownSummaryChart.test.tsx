@@ -10,7 +10,7 @@ jest.mock('../../utils/CostBreakdownSummaryUtils', () => ({
   formatCurrency: (value: any, unit: any) => `${value} ${unit}`,
 }));
 
-jest.mock('@patternfly/react-charts', () => ({
+jest.mock('@patternfly/react-charts/victory', () => ({
   ChartPie: jest.fn(({ ariaDesc, data, labels, legendComponent, legendData, ...props }) => (
     <div aria-label={ariaDesc} data-testid="chart-pie">
       {data.map((datum: any, index: number) => (

@@ -3,7 +3,7 @@
 }
 
 .ocm-l-ocp-releases__channel-detail {
-  color: var(--pf-v5-global--secondary-color--100);
+  color: var(--pf-t--global--text--color--subtle);
 }
 
 .ocm-l-ocp-releases__channel-detail-level {
@@ -11,11 +11,11 @@
 }
 
 .ocm-l-ocp-releases__channels {
-  font-size: var(--pf-v5-global--FontSize--sm);
-  font-weight: var(--pf-v5-global--FontWeight--regular);
+  font-size: var(--pf-t--global--font--size--sm);
+  font-weight: var(--pf-v6-global--FontWeight--regular);
 }
 
 .ocm-l-ocp-releases__subheading {
-  font-size: var(--pf-v5-global--FontSize--sm);
-  font-weight: var(--pf-v5-global--FontWeight--bold);
+  font-size: var(--pf-t--global--font--size--sm);
+  font-weight: var(--pf-t--global--font--weight--heading--bold);
 }

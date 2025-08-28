@@ -1,10 +1,10 @@
 .cluster-autoscaling-form {
   margin-top: 1rem;
 
-  .pf-v5-c-form__helper-text .default-value,
-  .pf-v5-c-form__helper-text.pf-m-error .default-value {
+  .pf-v6-c-form__helper-text,
+  .pf-v6-c-helper-text__item.pf-m-error .pf-v6-c-helper-text__item-text {
     /* Keep the grey color even when the value is invalid */
-    color: var(--pf-v5-global--Color--200);
+    color: var(--pf-t--global--text--color--subtle);
     font-size: small;
   }
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text, TextContent } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 
 import links, { channels, tools } from '~/common/installLinks.mjs';
 import { Link } from '~/common/routing';
@@ -35,18 +35,18 @@ const InstallationRows = ({
         channel={channels.STABLE}
         name="OpenShift for x86_64 Installer"
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               Download and extract your operating system&apos;s installation program and place the
               file in the directory where you&apos;ll store your configuration details. Then, create
               clusters on supported x86_64 infrastructure using our{' '}
               <ExternalLink href={links.INSTALL_DOCS_ENTRY}>documentation</ExternalLink> as a guide.
-            </Text>
-            <Text>
+            </Content>
+            <Content component="p">
               Learn how to deploy in the <Link to="/create">cloud</Link>, or in your{' '}
               <Link to="/create/datacenter">data center</Link>.
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         }
       />
 
@@ -56,19 +56,19 @@ const InstallationRows = ({
         channel={channels.STABLE}
         name="OpenShift for ARM Installer"
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               Download and extract your operating system&apos;s installation program and place the
               file in the directory where you&apos;ll store your configuration details. Then, create
               clusters on supported ARM infrastructure using our{' '}
               <ExternalLink href={links.INSTALL_DOCS_ENTRY}>documentation</ExternalLink> as a guide.
-            </Text>
-            <Text>
+            </Content>
+            <Content component="p">
               Learn how to deploy in <Link to="/install/aws/arm">AWS</Link>,{' '}
               <Link to="/install/azure/arm/installer-provisioned">Azure</Link>, or in your{' '}
               <Link to="/install/arm">data center</Link>.
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         }
       />
 
@@ -78,18 +78,18 @@ const InstallationRows = ({
         channel={channels.STABLE}
         name="OpenShift for IBM Z (s390x) Installer"
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               Download and extract your operating system&apos;s installation program and place the
               file in the directory where you&apos;ll store your configuration details. Then, create
               clusters on supported IBM Z (s390x) infrastructure using our{' '}
               <ExternalLink href={links.INSTALL_DOCS_ENTRY}>documentation</ExternalLink> as a guide.
-            </Text>
-            <Text>
+            </Content>
+            <Content component="p">
               Learn how to deploy in your{' '}
               <Link to="/install/ibmz/user-provisioned">data center</Link>.
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         }
       />
 
@@ -99,18 +99,18 @@ const InstallationRows = ({
         channel={channels.STABLE}
         name="OpenShift for Power Installer"
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               Download and extract your operating system&apos;s installation program and place the
               file in the directory where you&apos;ll store your configuration details. Then, create
               clusters on supported Power infrastructure using our{' '}
               <ExternalLink href={links.INSTALL_DOCS_ENTRY}>documentation</ExternalLink> as a guide.
-            </Text>
-            <Text>
+            </Content>
+            <Content component="p">
               Learn how to deploy in your{' '}
               <Link to="/install/power/user-provisioned">data center</Link>.
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         }
       />
 
@@ -120,18 +120,18 @@ const InstallationRows = ({
         channel={channels.STABLE}
         name="OpenShift Installer with multi-architecture compute machines"
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               Download and extract your operating system&apos;s installation program and place the
               file in the directory where you&apos;ll store your configuration details. Then, create
               clusters on supported infrastructure using our{' '}
               <ExternalLink href={links.INSTALL_DOCS_ENTRY}>documentation</ExternalLink> as a guide.
-            </Text>
-            <Text>
+            </Content>
+            <Content component="p">
               Learn how to deploy in{' '}
               <Link to="/install/azure/multi/installer-provisioned">Azure</Link>.
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         }
       />
 
@@ -145,16 +145,16 @@ const InstallationRows = ({
           </>
         }
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               Download and open the OpenShift Local file to automatically start a step-by-step
               installation guide.
-            </Text>
-            <Text>
+            </Content>
+            <Content component="p">
               <Link to="/create/local">Create a minimal cluster on your desktop</Link> for local
               development and testing.
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         }
       />
     </>

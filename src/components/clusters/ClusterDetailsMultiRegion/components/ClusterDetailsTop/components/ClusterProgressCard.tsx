@@ -4,13 +4,13 @@ import {
   Card,
   CardBody,
   CardTitle,
+  Content,
+  ContentVariants,
+  Icon,
   Spinner,
-  Text,
-  TextVariants,
   Title,
 } from '@patternfly/react-core';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { global_danger_color_100 as dangerColor } from '@patternfly/react-tokens/dist/esm/global_danger_color_100';
 
 import clusterStates, {
   hasInflightEgressErrors,
@@ -64,19 +64,21 @@ const ClusterProgressCard = ({ cluster, regionalInstance }: ClusterProgressCardP
           <Title
             headingLevel="h2"
             size="lg"
-            className="card-title pf-v5-u-display-inline-block pf-v5-u-mr-md"
+            className="card-title pf-v6-u-display-inline-block pf-v6-u-mr-md"
             data-testid="installation-header"
           >
             {inProgress && (
               <Spinner
                 size="sm"
                 aria-label="Loading..."
-                className="progressing-icon pf-v5-u-mr-md"
+                className="progressing-icon pf-v6-u-mr-md"
               />
             )}
             {isError && (
-              <span className="pf-v5-u-mr-xs">
-                <ExclamationCircleIcon color={dangerColor.value} />{' '}
+              <span className="pf-v6-u-mr-xs">
+                <Icon status="danger">
+                  <ExclamationCircleIcon />{' '}
+                </Icon>
               </span>
             )}
             {titleText}
@@ -85,13 +87,13 @@ const ClusterProgressCard = ({ cluster, regionalInstance }: ClusterProgressCardP
             <DownloadOcCliButton />
           )}
           {installationInProgress && !isUninstalling && (
-            <Text
-              component={TextVariants.p}
+            <Content
+              component={ContentVariants.p}
               data-testid="expected-cluster-installation-msg"
               className="expected-cluster-installation-text"
             >
               Cluster creation usually takes {estCompletionTime} minutes to complete.
-            </Text>
+            </Content>
           )}
         </CardTitle>
       )}

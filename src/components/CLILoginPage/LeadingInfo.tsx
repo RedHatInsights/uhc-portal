@@ -1,18 +1,18 @@
 import React from 'react';
 
-import { Text, Title } from '@patternfly/react-core';
+import { Content, Title } from '@patternfly/react-core';
 
 const LeadingInfo = ({ isRosa, SSOLogin }: { isRosa: boolean; SSOLogin: boolean }) => (
   <>
-    <Text component="p">
-      {`Red Hat OpenShift ${isRosa ? 'Service on AWS' : 'Cluster Manager'} is a managed service that makes it easy for you to use OpenShift ${isRosa ? 'on AWS' : ''} without needing to install, operate or upgrade your own OpenShift (Kubernetes) cluster.`}
-    </Text>
+    <Content component="p">
+      {`Red Hat Single Sign-On centralizes and simplifies login for the OpenShift Cluster Manager ${isRosa ? 'ROSA' : ''} CLI, letting you sign in once and securely access the service without maintaining separate credentials.`}
+    </Content>
     {!SSOLogin && (
       <>
         <Title headingLevel="h3">Your API token</Title>
-        <Text component="p">
+        <Content component="p">
           Use this API token to authenticate against your Red Hat OpenShift Cluster Manager account.
-        </Text>
+        </Content>
       </>
     )}
   </>

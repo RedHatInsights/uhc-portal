@@ -44,10 +44,10 @@ describe('AccessRequestTable', () => {
 
       // Assert
       expect(container.querySelectorAll('tbody tr')).toHaveLength(10);
-      expect(container.querySelectorAll('.pf-v5-c-skeleton').length).toBe(40);
+      expect(container.querySelectorAll('.pf-v6-c-skeleton').length).toBe(10);
     });
 
-    describe('isPeding false', () => {
+    describe('isPending false', () => {
       it('Undefined access request', async () => {
         // Act
         const { container } = render(
@@ -60,7 +60,7 @@ describe('AccessRequestTable', () => {
 
         // Assert
         expect(container.querySelectorAll('tbody tr')).toHaveLength(0);
-        expect(container.querySelectorAll('.pf-v5-c-skeleton').length).toBe(0);
+        expect(container.querySelectorAll('.pf-v6-c-skeleton').length).toBe(0);
         expect(
           screen.getByRole('heading', { name: /no access request entries found/i }),
         ).toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('AccessRequestTable', () => {
 
         // Assert
         expect(container.querySelectorAll('tbody tr')).toHaveLength(0);
-        expect(container.querySelectorAll('.pf-v5-c-skeleton').length).toBe(0);
+        expect(container.querySelectorAll('.pf-v6-c-skeleton').length).toBe(0);
         expect(
           screen.getByRole('heading', { name: /no access request entries found/i }),
         ).toBeInTheDocument();
@@ -110,7 +110,7 @@ describe('AccessRequestTable', () => {
 
         // Assert
         expect(container.querySelectorAll('tbody tr')).toHaveLength(2);
-        expect(container.querySelectorAll('.pf-v5-c-skeleton').length).toBe(0);
+        expect(container.querySelectorAll('.pf-v6-c-skeleton').length).toBe(0);
         expect(screen.getByText(/approved/i)).toBeInTheDocument();
         expect(screen.getByText(/denied/i)).toBeInTheDocument();
       });

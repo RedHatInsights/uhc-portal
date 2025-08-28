@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TextListItem, TextListItemVariants } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core';
 
 import { Report } from './models/Report';
 import { formatCurrency, formatPercentage } from './CostSummaryHelper';
@@ -25,8 +25,8 @@ const CostSummaryClusters = ({ report }: CostSummaryClustersProps) => {
 
             return (
               <React.Fragment key={value.cluster}>
-                <TextListItem component={TextListItemVariants.dt}>{id}</TextListItem>
-                <TextListItem component={TextListItemVariants.dd}>{val}</TextListItem>
+                <Content component={ContentVariants.dt}>{id}</Content>
+                <Content component={ContentVariants.dd}>{val}</Content>
               </React.Fragment>
             );
           }),

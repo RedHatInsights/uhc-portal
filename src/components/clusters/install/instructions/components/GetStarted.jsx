@@ -2,7 +2,7 @@ import React from 'react';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 
-import { Button, ClipboardCopy, Stack, StackItem, Text, TextContent } from '@patternfly/react-core';
+import { Button, ClipboardCopy, Content, Stack, StackItem } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
 import useAnalytics from '~/hooks/useAnalytics';
@@ -17,17 +17,17 @@ const GetStarted = ({ docURL, pendoID, cloudProviderID, customizations, prerequi
   return (
     <Stack hasGutter>
       <StackItem>
-        <TextContent>
+        <Content>
           <div>
             The installer will take about 45 minutes to run.
             {get(instructionsMapping, `${cloudProviderID}.getStartedAdditional`, null) || ''}
-            <Text component="p">
+            <Content component="p">
               When the installer is complete you will see the console URL and credentials for
               accessing your new cluster. A <code>kubeconfig</code> file will also be generated for
               you to use with the <code>oc</code> CLI tools you downloaded.
-            </Text>
+            </Content>
           </div>
-        </TextContent>
+        </Content>
       </StackItem>
       <StackItem>
         <Button
@@ -48,9 +48,9 @@ const GetStarted = ({ docURL, pendoID, cloudProviderID, customizations, prerequi
       </StackItem>
       {!isUPI && (
         <StackItem>
-          <Text component="p">
+          <Content component="p">
             To quickly create a cluster with the default options, run the following command:
-          </Text>
+          </Content>
           <ClipboardCopy id="copy-command" data-testid="copy-command" isReadOnly isCode>
             ./openshift-install create cluster
           </ClipboardCopy>
@@ -58,23 +58,23 @@ const GetStarted = ({ docURL, pendoID, cloudProviderID, customizations, prerequi
       )}
       {customizations && (
         <StackItem>
-          <TextContent>
-            <Text component="p">
+          <Content>
+            <Content component="p">
               Refer to the documentation to{' '}
               <ExternalLink href={customizations}>install with customizations</ExternalLink>.
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         </StackItem>
       )}
       {prerequisites && (
         <StackItem>
-          <TextContent>
-            <Text component="p">
+          <Content>
+            <Content component="p">
               Please make sure you{' '}
               <ExternalLink href={prerequisites}>install the pre-requisites</ExternalLink> before
               proceeding with the cluster installation.
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         </StackItem>
       )}
       <StackItem>

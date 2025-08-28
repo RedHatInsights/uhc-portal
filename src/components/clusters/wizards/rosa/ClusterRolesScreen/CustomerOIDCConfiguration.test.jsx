@@ -74,9 +74,8 @@ describe('<CustomerOIDCConfiguration />', () => {
 
       render(buildTestComponent(<CustomerOIDCConfiguration {...defaultProps} />));
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /Refresh/ })).toHaveAttribute(
+        expect(screen.getByRole('button', { name: /Refresh/ })).not.toHaveAttribute(
           'aria-disabled',
-          'false',
         );
       });
 
@@ -128,9 +127,8 @@ describe('<CustomerOIDCConfiguration />', () => {
       expect(await screen.findByText(/No OIDC configurations found/i)).toBeInTheDocument();
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /Refresh/ })).toHaveAttribute(
+        expect(screen.getByRole('button', { name: /Refresh/ })).not.toHaveAttribute(
           'aria-disabled',
-          'false',
         );
       });
     });
@@ -145,9 +143,8 @@ describe('<CustomerOIDCConfiguration />', () => {
       const { user } = render(buildTestComponent(<CustomerOIDCConfiguration {...defaultProps} />));
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /Refresh/ })).toHaveAttribute(
+        expect(screen.getByRole('button', { name: /Refresh/ })).not.toHaveAttribute(
           'aria-disabled',
-          'false',
         );
       });
 

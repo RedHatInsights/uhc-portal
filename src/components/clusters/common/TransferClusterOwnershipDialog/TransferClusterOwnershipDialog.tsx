@@ -1,15 +1,8 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 
-import {
-  Text,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextListVariants,
-  TextVariants,
-} from '@patternfly/react-core';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications';
+import { Content, ContentVariants } from '@patternfly/react-core';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
 import getClusterName from '~/common/getClusterName';
 import { ocmBaseName } from '~/common/routing';
@@ -37,6 +30,7 @@ type ModaData = {
 
 const TransferClusterOwnershipDialog = ({ onClose }: TransferClusterOwnershipDialogProps) => {
   const dispatch = useDispatch();
+  const addNotification = useAddNotification();
 
   const modalData: ModaData = useGlobalState((state) => state.modal.data) as ModaData;
 
@@ -75,13 +69,11 @@ const TransferClusterOwnershipDialog = ({ onClose }: TransferClusterOwnershipDia
           // for the code that is called on the cluster actions
           onSuccess: () => {
             if (isReleased) {
-              dispatch(
-                addNotification({
-                  variant: 'success',
-                  title: 'Cluster ownership transfer canceled',
-                  dismissable: false,
-                }),
-              );
+              addNotification({
+                variant: 'success',
+                title: 'Cluster ownership transfer canceled',
+                dismissable: false,
+              });
             }
           },
         },
@@ -119,40 +111,40 @@ const TransferClusterOwnershipDialog = ({ onClose }: TransferClusterOwnershipDia
           response={toggleSubscriptionReleasedError?.error as ErrorState}
         />
       ) : null}
-      <TextContent>
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           Transferring cluster ownership will allow another individual to manage this cluster. The
           steps for transferring cluster ownership are:
-        </Text>
+        </Content>
         {subscription?.status === SubscriptionCommonFieldsStatus.Disconnected ? (
-          <TextList component={TextListVariants.ol}>
-            <TextListItem>Initiate transfer</TextListItem>
-            <TextListItem>
+          <Content component={ContentVariants.ol}>
+            <Content component="li">Initiate transfer</Content>
+            <Content component="li">
               <ExternalLink href={`${ocmBaseName}/register`}>Register the cluster</ExternalLink>{' '}
               within 5 days
-            </TextListItem>
-          </TextList>
+            </Content>
+          </Content>
         ) : (
           <>
-            <TextList component={TextListVariants.ol}>
-              <TextListItem>Initiate transfer</TextListItem>
-              <TextListItem>
+            <Content component={ContentVariants.ol}>
+              <Content component="li">Initiate transfer</Content>
+              <Content component="li">
                 <ExternalLink href={CHANGE_PULL_SECRET_URL}>
                   Change the cluster&apos;s pull secret
                 </ExternalLink>{' '}
                 within 5 days
-              </TextListItem>
-            </TextList>
-            <Text component={TextVariants.p}>
+              </Content>
+            </Content>
+            <Content component={ContentVariants.p}>
               The transfer is complete when OpenShift Cluster Manager receives telemetry data from
               the cluster with the new pull secret.
-            </Text>
+            </Content>
           </>
         )}
-        <Text component={TextVariants.h4}>
+        <Content component={ContentVariants.h4}>
           If the transfer is not completed within 5 days, the procedure must be restarted.
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </Modal>
   );
 };

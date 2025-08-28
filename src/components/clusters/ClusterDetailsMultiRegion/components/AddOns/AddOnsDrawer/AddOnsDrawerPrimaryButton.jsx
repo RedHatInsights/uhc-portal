@@ -121,7 +121,7 @@ function AddOnsPrimaryButton(props) {
           }),
         )
       }
-      className={hasMarginLeft && 'pf-v5-u-ml-xs'}
+      className={hasMarginLeft && 'pf-v6-u-ml-xs'}
     >
       Uninstall
     </ButtonWithTooltip>
@@ -187,6 +187,7 @@ function AddOnsPrimaryButton(props) {
         return (
           <div>
             <Button
+              icon={<ExternalLinkAltIcon className="link-icon" />}
               component="a"
               variant="primary"
               href={url}
@@ -194,7 +195,7 @@ function AddOnsPrimaryButton(props) {
               rel="noopener noreferrer"
               size={ButtonSize.sm}
             >
-              Open in Console <ExternalLinkAltIcon className="link-icon" />
+              Open in Console
             </Button>{' '}
             {/* {updateAddonAction} */}
             {uninstallAddonAction()}

@@ -165,20 +165,20 @@ const ReviewSection = ({ initiallyExpanded, title, children, onGoToStep }) => {
         </ExpandableSectionToggle>
         <Button
           variant="link"
-          isInline
-          className="pf-v5-u-font-size-sm pf-v5-u-ml-sm"
+          className="pf-v6-u-font-size-sm pf-v6-u-ml-sm"
           data-testid={title}
           onClick={(event) => {
             event.stopPropagation();
             onGoToStep();
           }}
         >
-          Edit <span className="pf-v5-u-screen-reader">{title}</span> step
+          Edit <span className="pf-v6-u-screen-reader">{title}</span> step
         </Button>
 
         <ExpandableSection
           isExpanded={isExpanded}
           isDetached
+          isIndented
           toggleId={toggleId}
           contentId={contentId}
         >

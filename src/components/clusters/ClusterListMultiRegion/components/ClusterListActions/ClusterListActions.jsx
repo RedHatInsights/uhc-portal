@@ -30,6 +30,8 @@ import {
 import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 import { Link } from '~/common/routing';
+import { AUTO_CLUSTER_TRANSFER_OWNERSHIP } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
 const useMediaQuery = (query) => {
@@ -54,7 +56,7 @@ const useMediaQuery = (query) => {
 
 const dropdownRegisterCluster = (
   <DropdownItem key="registercluster" data-testid="register-cluster-item">
-    <Link to="/register" className="pf-v5-c-dropdown__menu-item">
+    <Link to="/register" className="pf-v6-c-dropdown__menu-item">
       Register disconnected cluster
     </Link>
   </DropdownItem>
@@ -64,9 +66,22 @@ const toolbarViewArchivedClusters = (
     <Link to="/archived">View cluster archives</Link>
   </ToolbarItem>
 );
+const toolbarViewRequest = (
+  <ToolbarItem key="cluster-request" alignSelf="center">
+    <Link to="/cluster-request">View cluster requests</Link>
+  </ToolbarItem>
+);
+const dropdownRequest = (
+  <DropdownItem key="cluster-request-dropdown" data-testid="cluster-request-dropdown-item">
+    <Link to="/cluster-request" className="pf-v6-c-dropdown__menu-item">
+      View cluster requests
+    </Link>
+  </DropdownItem>
+);
+
 const dropdownArchived = (
   <DropdownItem key="archived" data-testid="archived-cluster-item">
-    <Link to="/archived" className="pf-v5-c-dropdown__menu-item">
+    <Link to="/archived" className="pf-v6-c-dropdown__menu-item">
       View cluster archives
     </Link>
   </DropdownItem>
@@ -76,7 +91,7 @@ const toolbarCreateCluster = (
     <Link
       to="/create"
       role="button"
-      className="pf-v5-c-button pf-m-primary"
+      className="pf-v6-c-button pf-m-primary"
       data-testid="create_cluster_btn"
     >
       Create cluster
@@ -93,7 +108,7 @@ const toolbarRegisterCluster = (
   </ToolbarItem>
 );
 
-const useItems = (isDashboardView) => {
+const useItems = (isDashboardView, showClusterRequest) => {
   const wide = useMediaQuery('(min-width: 900px)');
 
   const toolbarItems = [];
@@ -105,16 +120,20 @@ const useItems = (isDashboardView) => {
       if (wide) {
         toolbarItems.push(toolbarRegisterCluster);
         dropdownItems.push(dropdownArchived);
+        if (showClusterRequest) dropdownItems.push(dropdownRequest);
       } else {
         dropdownItems.push(dropdownRegisterCluster);
         dropdownItems.push(dropdownArchived);
+        if (showClusterRequest) dropdownItems.push(dropdownRequest);
       }
     } else if (wide) {
       toolbarItems.push(toolbarRegisterCluster);
       toolbarItems.push(toolbarViewArchivedClusters);
+      if (showClusterRequest) toolbarItems.push(toolbarViewRequest);
     } else {
       dropdownItems.push(dropdownRegisterCluster);
       dropdownItems.push(dropdownArchived);
+      if (showClusterRequest) dropdownItems.push(dropdownRequest);
     }
   }
 
@@ -122,8 +141,9 @@ const useItems = (isDashboardView) => {
 };
 
 const ClusterListActions = ({ className, isDashboardView }) => {
+  const showClusterRequest = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownItems, toolbarItems] = useItems(isDashboardView);
+  const [dropdownItems, toolbarItems] = useItems(isDashboardView, showClusterRequest);
   const toggleRef = useRef();
 
   if (isDashboardView) {

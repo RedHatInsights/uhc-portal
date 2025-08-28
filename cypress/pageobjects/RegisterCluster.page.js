@@ -7,13 +7,13 @@ class RegisterCluster extends Page {
 
   clusterURLInput = () => cy.get('input[name="web_console_url"]');
 
-  clusterIDError = () => cy.get('div[id="cluster_id-helper"]');
+  clusterIDError = () => cy.get('.pf-v6-c-helper-text__item-text');
 
   displayNameError = () => cy.get('div[id="display_name-helper"]');
 
   clusterURLError = () => cy.get('div[id="web_console_url-helper"]');
 
-  cancelButton = () => cy.get('button.pf-v5-c-button.pf-m-secondary');
+  cancelButton = () => cy.contains('button', 'Cancel');
 
   submitButton = () => cy.get('button[type="submit"]');
 }

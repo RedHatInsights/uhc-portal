@@ -1,14 +1,14 @@
-import * as reactRedux from 'react-redux';
+import * as notifications from '@redhat-cloud-services/frontend-components-notifications';
 
 import * as clusterService from '~/services/clusterService';
 import { renderHook, waitFor } from '~/testUtils';
 
 import { useUnArchiveCluster } from './useUnArchiveCluster';
 
-jest.mock('react-redux', () => {
+jest.mock('@redhat-cloud-services/frontend-components-notifications', () => {
   const config = {
     __esModule: true,
-    ...jest.requireActual('react-redux'),
+    ...jest.requireActual('@redhat-cloud-services/frontend-components-notifications'),
   };
   return config;
 });
@@ -18,10 +18,11 @@ const mockGetClusterServiceForRegion = jest.spyOn(clusterService, 'getClusterSer
 const mockedUnArchiveCluster = jest.fn();
 
 describe('useArchiveCluster', () => {
-  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
-  const mockedDispatch = jest.fn();
-  useDispatchMock.mockReturnValue(mockedDispatch);
   mockedUnArchiveCluster.mockResolvedValue('hello world');
+
+  const useAddNotificationsMock = jest.spyOn(notifications, 'useAddNotification');
+  const mockedAddNotification = jest.fn();
+  useAddNotificationsMock.mockReturnValue(mockedAddNotification);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -43,16 +44,14 @@ describe('useArchiveCluster', () => {
     });
 
     expect(mockedUnArchiveCluster).toHaveBeenCalledWith('mySubscriptionId');
-    expect(mockedDispatch).toHaveBeenCalled();
 
-    expect(mockedDispatch).toHaveBeenCalledWith({
-      type: '@@INSIGHTS-CORE/NOTIFICATIONS/ADD_NOTIFICATION',
-      payload: expect.objectContaining({
+    expect(mockedAddNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
         variant: 'success',
         title: 'Cluster myClusterName has been unarchived',
         dismissDelay: 8000,
         dismissable: false,
       }),
-    });
+    );
   });
 });

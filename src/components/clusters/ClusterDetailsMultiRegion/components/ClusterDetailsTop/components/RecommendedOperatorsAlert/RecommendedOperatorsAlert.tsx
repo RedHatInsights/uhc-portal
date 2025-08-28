@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 
-import { Alert, AlertActionCloseButton, ExpandableSection, Text } from '@patternfly/react-core';
+import { Alert, AlertActionCloseButton, Content, ExpandableSection } from '@patternfly/react-core';
 
 import { HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT } from '~/common/localStorageConstants';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -90,13 +90,13 @@ const RecommendedOperatorsAlert = ({
             ready: {
               title: 'Optimize your cluster with operators.',
               description: (
-                <Text data-testid="alert-description-with-consoleURL-provided">
+                <Content component="p" data-testid="alert-description-with-consoleURL-provided">
                   Check out our recommended operators for you, or view all operators in the{' '}
                   <ExternalLink noIcon href={consoleURL}>
                     console
                   </ExternalLink>
                   .
-                </Text>
+                </Content>
               ),
             },
           }
@@ -128,10 +128,10 @@ const RecommendedOperatorsAlert = ({
       title={title}
       isInline
       actionClose={<AlertActionCloseButton onClose={onDismissAlert} />}
-      className="pf-v5-u-mt-md"
+      className="pf-v6-u-mt-md"
       component="h2"
     >
-      <Text>{description}</Text>
+      <Content component="p">{description}</Content>
       <ExpandableSection
         toggleText={`${isExpanded ? 'Hide' : 'Show'} recommended operators`}
         onToggle={onToggle}

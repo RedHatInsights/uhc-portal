@@ -1,27 +1,18 @@
 import React from 'react';
 
-import {
-  Stack,
-  StackItem,
-  Text,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextVariants,
-  Title,
-} from '@patternfly/react-core';
+import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
 import ExternalLink from '~/components/common/ExternalLink';
-import ServiceMeshThumbnail from '~/styles/images/ServiceMeshThumbnail.png';
+import { YoutubePlayer } from '~/components/common/YoutubePlayer/YoutubePlayer';
 
 const ServiceMeshDrawerPanelBody = (
   <Stack hasGutter className="drawer-panel-content-body">
     <StackItem>
-      <TextContent>
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           Connect, manage, and observe microservices-based applications in a uniform way.
-        </Text>
-        <Text component={TextVariants.p}>
+        </Content>
+        <Content component={ContentVariants.p}>
           Red Hat OpenShift Service Mesh is based on the open source{' '}
           <ExternalLink href="https://www.redhat.com/en/topics/microservices/what-is-istio" noIcon>
             Istio{' '}
@@ -39,20 +30,14 @@ const ServiceMeshDrawerPanelBody = (
             Red Hat OpenShift Observability{' '}
           </ExternalLink>
           for managing logging, metrics, and distributed tracing.
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem>
-      <ExternalLink href="https://www.youtube.com/watch?v=6nyVOg2BZek" noIcon>
-        <img
-          src={ServiceMeshThumbnail}
-          alt="explanation-video"
-          className="drawer-panel-content__explanation-video"
-        />
-      </ExternalLink>
-      <TextContent>
-        <Text component={TextVariants.small}>Video duration 3:08</Text>
-      </TextContent>
+      <YoutubePlayer videoID="6nyVOg2BZek" />
+      <Content>
+        <Content component={ContentVariants.small}>Video duration 3:08</Content>
+      </Content>
     </StackItem>
     <StackItem>
       <Title headingLevel="h3" data-testid="drawer-panel-content-benefits-title">
@@ -60,42 +45,42 @@ const ServiceMeshDrawerPanelBody = (
       </Title>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <TextList isPlain>
-          <TextListItem>
+      <Content>
+        <Content component="ul" isPlainList>
+          <Content component="li">
             <b>Identify and diagnose problems easier:</b> Red Hat OpenShift Service Mesh adds
             tracing and visualization so you have a greater understanding of what is happening in
             and across applications as they are running, from start to finish.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Implement secure zero-trust application networks:</b> Secure your application network
             using Red Hat OpenShift Service Mesh’s tools, including automated identity and
             certificate management, end-to-end mTLS encryption, and fine-grain application specific
             network policies.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Focus on business value:</b> Give developers time back to delivering business value
             and writing application code.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Enable traffic management capabilities:</b> Red Hat OpenShift Service Mesh provides a
             control plane and infrastructure that transparently enables traffic management
             capabilities, without requiring developers to make changes to their application code.
             Traffic management policies are language agnostic, making it easy to develop and run
             distributed architectures.
-          </TextListItem>
-        </TextList>
-      </TextContent>
+          </Content>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem>
       <Title headingLevel="h3">Use cases:</Title>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           Deploy your applications to multiple platforms, including:
-        </Text>
-        <TextList>
+        </Content>
+        <Content component="ul">
           {[
             'Canary releases',
             'Access control',
@@ -104,12 +89,12 @@ const ServiceMeshDrawerPanelBody = (
             'Service-to-service authentication',
             'Failure recovery',
           ].map((item) => (
-            <TextListItem data-testid="use-cases-list-item" key={item}>
+            <Content component="li" data-testid="use-cases-list-item" key={item}>
               {item}
-            </TextListItem>
+            </Content>
           ))}
-        </TextList>
-      </TextContent>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink

@@ -31,6 +31,7 @@ const getApiPatchParams = (index: number) => apiRequestMock.patch.mock.calls[ind
 // ********************* Variables ***********************
 
 const clusterVersionID = 'openshift-v4.12.13';
+const clusterVersionRawID = '4.12.13';
 const clusterId = 'myClusterId';
 
 const updateAllButtonTestId = 'btn-update-all';
@@ -55,11 +56,23 @@ const clickUpdateButton = async (user: any) => {
 };
 
 // ********************* Default store values ***********************
-const machinePoolUpToDate1 = { version: { id: clusterVersionID }, id: 'uptodate1' };
-const machinePoolUpToDate2 = { version: { id: clusterVersionID }, id: 'uptodate2' };
+const machinePoolUpToDate1 = {
+  version: { id: clusterVersionID, raw_id: clusterVersionRawID },
+  id: 'uptodate1',
+};
+const machinePoolUpToDate2 = {
+  version: { id: clusterVersionID, raw_id: clusterVersionRawID },
+  id: 'uptodate2',
+};
 
-const machinePoolBehind1 = { version: { id: 'openshift-v4.12.5' }, id: 'behind1' };
-const machinePoolBehind2 = { version: { id: 'openshift-v4.11.0' }, id: 'behind2' };
+const machinePoolBehind1 = {
+  version: { id: 'openshift-v4.12.5', raw_id: '4.12.5' },
+  id: 'behind1',
+};
+const machinePoolBehind2 = {
+  version: { id: 'openshift-v4.11.0', raw_id: '4.11.0' },
+  id: 'behind2',
+};
 
 const machineAhead1 = { version: { id: 'openshift-v4.12.15-candidate' }, id: 'ahead1' };
 
@@ -104,6 +117,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
           machinePoolData={defaultMachinePools.data}
         />,
@@ -129,6 +143,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift={false}
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
         />,
       );
@@ -146,6 +161,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
           machinePoolData={[]}
         />,
@@ -170,6 +186,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
         />,
       );
@@ -193,6 +210,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
         />,
       );
@@ -218,6 +236,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion=""
+          controlPlaneRawVersion=""
           clusterId={clusterId}
         />,
       );
@@ -237,6 +256,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
         />,
       );
@@ -261,6 +281,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
         />,
       );
@@ -303,6 +324,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
         />,
       );
@@ -346,6 +368,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
         />,
       );
@@ -389,6 +412,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
         />,
       );
@@ -418,6 +442,7 @@ describe('<UpdateAllMachinePools />', () => {
             isMachinePoolError={false}
             isHypershift
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
             clusterId={clusterId}
           />,
         );
@@ -442,6 +467,7 @@ describe('<UpdateAllMachinePools />', () => {
             isMachinePoolError={false}
             isHypershift={false}
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
             clusterId={clusterId}
           />,
         );
@@ -466,6 +492,7 @@ describe('<UpdateAllMachinePools />', () => {
             isMachinePoolError={false}
             isHypershift={false}
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
             clusterId={clusterId}
           />,
         );
@@ -490,6 +517,7 @@ describe('<UpdateAllMachinePools />', () => {
             isMachinePoolError={false}
             isHypershift={false}
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
             clusterId={clusterId}
           />,
         );
@@ -514,6 +542,7 @@ describe('<UpdateAllMachinePools />', () => {
             isMachinePoolError={false}
             isHypershift={false}
             controlPlaneVersion={clusterVersionID}
+            controlPlaneRawVersion={clusterVersionRawID}
             clusterId={clusterId}
           />,
         );
@@ -533,6 +562,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
           machinePoolData={[machinePoolBehind1, machinePoolBehind2]}
         />,
@@ -554,6 +584,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
           machinePoolData={[machinePoolUpToDate1, machinePoolBehind1]}
         />,
@@ -578,12 +609,12 @@ describe('<UpdateAllMachinePools />', () => {
       const machinePoolData = [
         {
           ...machinePoolBehind1,
-          version: { id: '4.12.10', available_upgrades: ['4.12.13'] },
+          version: { id: '4.12.10', raw_id: '4.12.10', available_upgrades: ['4.12.13'] },
           upgradePolicies: { items: [] },
         },
         {
           ...machinePoolBehind2,
-          version: { id: '4.12.10', available_upgrades: ['4.12.13'] },
+          version: { id: '4.12.10', raw_id: '4.12.10', available_upgrades: ['4.12.13'] },
           upgradePolicies: { items: [] },
         },
       ];
@@ -592,6 +623,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
           machinePoolData={machinePoolData}
         />,
@@ -631,7 +663,7 @@ describe('<UpdateAllMachinePools />', () => {
       const machinePoolData = [
         {
           ...machinePoolBehind1,
-          version: { id: '4.12.10', available_upgrades: ['4.12.13'] },
+          version: { id: '4.12.10', raw_id: '4.12.10', available_upgrades: ['4.12.13'] },
           upgradePolicies: { items: [] },
         },
         machinePoolUpToDate1,
@@ -642,6 +674,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
           machinePoolData={machinePoolData}
         />,
@@ -688,6 +721,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
           machinePoolData={[machinePoolBehind1]}
         />,
@@ -714,6 +748,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
           machinePoolData={[machinePoolUpToDate1, machinePoolBehind1]}
         />,
@@ -736,6 +771,7 @@ describe('<UpdateAllMachinePools />', () => {
           isMachinePoolError={false}
           isHypershift
           controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
           clusterId={clusterId}
           machinePoolData={[machinePoolUpToDate1, machinePoolBehind1]}
         />,

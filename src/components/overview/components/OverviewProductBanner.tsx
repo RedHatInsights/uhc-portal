@@ -1,9 +1,7 @@
 import React from 'react';
 
-import { Split, SplitItem, TextContent, Title } from '@patternfly/react-core';
-import { PageHeader } from '@redhat-cloud-services/frontend-components/PageHeader';
-
-import ExternalLink from '~/components/common/ExternalLink';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
+import { Grid } from '@patternfly/react-core';
 
 import './OverviewProductBanner.scss';
 
@@ -12,7 +10,7 @@ export type OverviewProductBannerProps = {
   icon?: string;
   altText?: string;
   learnMoreLink?: string;
-  description: string | React.ReactNode;
+  description: string;
   dataTestId?: string;
 };
 
@@ -24,18 +22,22 @@ export const OverviewProductBanner = ({
   description,
   dataTestId,
 }: OverviewProductBannerProps) => (
-  <PageHeader>
-    <Split hasGutter data-testid={dataTestId}>
-      <SplitItem>
-        {icon ? <img src={icon} alt={altText} className="overview-product-banner-icon" /> : null}
-      </SplitItem>
-      <SplitItem>
-        <Title headingLevel="h1">{title}</Title>
-        <TextContent>
-          {description}{' '}
-          {learnMoreLink ? <ExternalLink href={learnMoreLink}>Learn more</ExternalLink> : null}
-        </TextContent>
-      </SplitItem>
-    </Split>
-  </PageHeader>
+  <Grid className="overview-product-banner-grid" data-testid={dataTestId}>
+    <PageHeader
+      title={title}
+      subtitle={description}
+      icon={icon ? <img src={icon} alt={altText} className="overview-product-banner-icon" /> : null}
+      linkProps={
+        learnMoreLink
+          ? {
+              label: 'Learn more',
+              isExternal: true,
+              href: learnMoreLink,
+              target: '_blank',
+            }
+          : undefined
+      }
+      data-testid={dataTestId}
+    />
+  </Grid>
 );

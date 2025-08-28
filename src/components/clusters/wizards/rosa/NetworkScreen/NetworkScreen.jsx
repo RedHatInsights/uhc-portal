@@ -4,12 +4,12 @@ import PropTypes from 'prop-types';
 
 import {
   Alert,
+  Content,
   Form,
   FormFieldGroup,
   FormGroup,
   Grid,
   GridItem,
-  Text,
   Title,
   Tooltip,
 } from '@patternfly/react-core';
@@ -211,7 +211,7 @@ function NetworkScreen(props) {
           }}
           meta={getFieldMeta(FieldId.ClusterPrivacyPublicSubnetId)}
           label="Public subnet name"
-          className="pf-v5-u-mt-md pf-v5-u-ml-lg"
+          className="pf-v6-u-mt-md pf-v6-u-ml-lg"
           isRequired
           validate={(value) => validateRequiredPublicSubnetId(value, {})}
           withAutoSelect={false}
@@ -236,7 +236,7 @@ function NetworkScreen(props) {
           <Title headingLevel="h3">Networking configuration</Title>
         </GridItem>
         <GridItem>
-          <Text>Configure network access for your cluster.</Text>
+          <Content component="p">Configure network access for your cluster.</Content>
         </GridItem>
 
         {showClusterPrivacy && (
@@ -247,11 +247,11 @@ function NetworkScreen(props) {
               </Title>
             </GridItem>
             <GridItem>
-              <Text>
+              <Content component="p">
                 Install your cluster with all public or private API endpoints and application
                 routes.{' '}
                 {isHypershiftSelected && 'You can customize these options after installation.'}
-              </Text>
+              </Content>
             </GridItem>
             <Field
               component={RadioButtons}
@@ -298,10 +298,10 @@ function NetworkScreen(props) {
               </Title>
             </GridItem>
             <GridItem>
-              <Text>
+              <Content component="p">
                 By default, a new VPC will be created for your cluster. Alternatively, you may opt
                 to install to an existing VPC below.
-              </Text>
+              </Content>
             </GridItem>
             <GridItem>
               <FormGroup fieldId="install-to-vpc">
@@ -356,7 +356,7 @@ function NetworkScreen(props) {
               <Title headingLevel="h4" size="xl">
                 Application ingress settings
               </Title>
-              <Text className="pf-v5-u-mt-sm">
+              <Content component="p" className="pf-v6-u-mt-sm">
                 Ingress is configured by default.{' '}
                 {isManagedIngressAllowed
                   ? 'Customize settings if needed.'
@@ -371,7 +371,7 @@ function NetworkScreen(props) {
                     .
                   </>
                 )}
-              </Text>
+              </Content>
             </GridItem>
 
             {isManagedIngressAllowed && (
@@ -400,7 +400,7 @@ function NetworkScreen(props) {
                     extraField: applicationIngress !== 'default' && (
                       <DefaultIngressFieldsFormik
                         hasSufficientIngressEditVersion
-                        className="pf-v5-u-mt-md pf-v5-u-ml-lg"
+                        className="pf-v6-u-mt-md pf-v6-u-ml-lg"
                         isDay2={false}
                         canShowLoadBalancer={false}
                       />

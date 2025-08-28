@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { List, ListItem, Text, TextContent } from '@patternfly/react-core';
+import { Content, List, ListItem } from '@patternfly/react-core';
 
 import ExternalLink from '../common/ExternalLink';
 
@@ -11,14 +11,14 @@ type Props = {
 };
 
 const RevokeTokensInstructions = ({ reason }: Props) => (
-  <TextContent className="ocm-c-revoke-tokens">
+  <Content className="ocm-c-revoke-tokens">
     {reason && (
-      <p className="pf-v5-u-mt-sm">
+      <p className="pf-v6-u-mt-sm">
         <strong>{reason}</strong>
       </p>
     )}
 
-    <Text>To manage and revoke previous tokens:</Text>
+    <Content component="p">To manage and revoke previous tokens:</Content>
 
     <List component="ol">
       <ListItem>
@@ -36,14 +36,14 @@ const RevokeTokensInstructions = ({ reason }: Props) => (
       </ListItem>
     </List>
 
-    <Text>
+    <Content component="p">
       All refresh tokens will stop working immediately after you Remove access, but existing access
       tokens (which are cached by <code>ocm</code> and <code>rosa</code> commands) may take up to 15
       minutes to expire.
-    </Text>
+    </Content>
 
-    <Text>Refresh this page afterwards to generate a new token.</Text>
-  </TextContent>
+    <Content component="p">Refresh this page afterwards to generate a new token.</Content>
+  </Content>
 );
 
 export default RevokeTokensInstructions;

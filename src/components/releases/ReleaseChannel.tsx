@@ -25,14 +25,14 @@ const ReleaseChannel = ({ channel, status }: Props) => {
   return (
     <>
       <ReleaseChannelName>
-        {isCandidate && <Divider className="ocm-l-ocp-releases__divider pf-v5-u-my-lg" />}
+        {isCandidate && <Divider className="ocm-l-ocp-releases__divider pf-v6-u-my-lg" />}
         {channel}
         {isCandidate && (
           <PopoverHint
-            iconClassName="pf-v5-u-ml-sm"
+            iconClassName="pf-v6-u-ml-sm"
             hint={
               <>
-                <p className="pf-v5-u-mb-md">
+                <p className="pf-v6-u-mb-md">
                   {`Candidate channels contain candidate releases for a z-stream
                   (e.g., ${major}.${minor}.z). A candidate channel release contains
                   all the features of the product, but is not supported until the

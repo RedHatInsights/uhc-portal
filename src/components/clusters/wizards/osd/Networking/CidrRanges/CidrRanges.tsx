@@ -2,14 +2,14 @@ import React from 'react';
 
 import {
   Alert,
+  Content,
+  ContentVariants,
   Flex,
   Form,
   Grid,
   GridItem,
   List,
   ListItem,
-  Text,
-  TextVariants,
   Title,
 } from '@patternfly/react-core';
 
@@ -105,10 +105,10 @@ export const CidrRanges = () => {
             id="advanced-networking-alert"
             isInline
             variant="info"
-            className="pf-v5-u-mt-sm"
+            className="pf-v6-u-mt-sm"
             title="CIDR ranges cannot be changed after you create your cluster."
           >
-            <p className="pf-v5-u-mb-md">
+            <p className="pf-v6-u-mb-md">
               Specify non-overlapping ranges for machine, service, and pod ranges. Each range should
               correspond to the first IP address in their subnet.
             </p>
@@ -141,7 +141,7 @@ export const CidrRanges = () => {
               validate={(value: string) => validateMachineCidr(value)(values, selectedSubnets)}
               isDisabled={isDefaultValuesChecked}
               helperText={
-                <div className="pf-v5-c-form__helper-text">
+                <div className="pf-v6-c-form__helper-text">
                   {cloudProvider === CloudProviderType.Aws
                     ? `Subnet mask must be between /${validators.AWS_MACHINE_CIDR_MIN} and /${awsMachineCIDRMax}.`
                     : `Range must be private. Subnet mask must be at most /${validators.GCP_MACHINE_CIDR_MAX}.`}
@@ -160,9 +160,9 @@ export const CidrRanges = () => {
                   {constants.machineCIDRHint}
                   {privateRangesHint}
 
-                  <Text component={TextVariants.p}>
+                  <Content component={ContentVariants.p}>
                     <ExternalLink href={links.OSD_CIDR_MACHINE}>Learn more</ExternalLink>
-                  </Text>
+                  </Content>
                 </>
               }
               input={{ placeholder: MACHINE_CIDR_DEFAULT }}
@@ -185,9 +185,9 @@ export const CidrRanges = () => {
                   {constants.serviceCIDRHint}
                   {privateRangesHint}
 
-                  <Text component={TextVariants.p}>
+                  <Content component={ContentVariants.p}>
                     <ExternalLink href={links.OSD_CIDR_SERVICE}>Learn more</ExternalLink>
-                  </Text>
+                  </Content>
                 </>
               }
               input={{ placeholder: SERVICE_CIDR_DEFAULT }}
@@ -210,9 +210,9 @@ export const CidrRanges = () => {
                   {constants.podCIDRHint}
                   {privateRangesHint}
 
-                  <Text component={TextVariants.p}>
+                  <Content component={ContentVariants.p}>
                     <ExternalLink href={links.OSD_CIDR_POD}>Learn more</ExternalLink>
-                  </Text>
+                  </Content>
                 </>
               }
               input={{ placeholder: POD_CIDR_DEFAULT }}

@@ -162,6 +162,7 @@ export const VersionSelectField = ({
           isOpen={isOpen}
           onOpenChange={onToggle}
           onSelect={onSelect}
+          fuzziness={0}
           selectedEntryId={selectedClusterVersion?.id}
           selectionData={versionsData}
           isDisabled={isDisabled}

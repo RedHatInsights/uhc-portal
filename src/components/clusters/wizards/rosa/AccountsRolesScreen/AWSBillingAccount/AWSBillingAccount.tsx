@@ -6,12 +6,12 @@ import {
   Alert,
   AlertVariant,
   Button,
+  Content,
+  ContentVariants,
   GridItem,
   Popover,
   Stack,
   StackItem,
-  Text,
-  TextVariants,
   Title,
 } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
@@ -97,7 +97,7 @@ const AWSBillingAccount = ({
     <ExternalLink
       isButton
       variant="secondary"
-      className="pf-v5-u-mt-md"
+      className="pf-v6-u-mt-md"
       href={links.AWS_CONSOLE_ROSA_HOME}
       noIcon
     >
@@ -114,11 +114,11 @@ const AWSBillingAccount = ({
     <>
       <GridItem span={8}>
         <Title headingLevel="h3">AWS billing account</Title>
-        <Text component={TextVariants.p}>
+        <Content component={ContentVariants.p}>
           This account will be charged for your subscription usage. You can select an already
           connected AWS account or sign in to a different AWS account that you want to connect to
           ROSA.
-        </Text>
+        </Content>
       </GridItem>
       <GridItem span={4} />
       <GridItem sm={12} md={7}>

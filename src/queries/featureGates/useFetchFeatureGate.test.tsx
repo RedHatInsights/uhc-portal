@@ -13,7 +13,7 @@ const apiRequestMock = apiRequest as unknown as MockedJest;
 describe('useFetchFeatureGate', () => {
   Storage.prototype.getItem = jest.fn();
 
-  const sampleFeature = Object.values(featureConstants)[1];
+  const sampleFeature = Object.values(featureConstants)[2];
 
   afterEach(() => {
     jest.clearAllMocks();

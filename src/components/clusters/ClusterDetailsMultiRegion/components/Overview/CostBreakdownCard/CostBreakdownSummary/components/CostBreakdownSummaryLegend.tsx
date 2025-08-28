@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ChartLegend } from '@patternfly/react-charts';
+import { ChartLegend } from '@patternfly/react-charts/victory';
 
 import CostBreakdownSummaryLegendLabel from './CostBreakdownSummaryLegendLabel';
 

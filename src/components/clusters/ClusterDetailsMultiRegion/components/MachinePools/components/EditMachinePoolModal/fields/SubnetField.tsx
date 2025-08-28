@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { useField } from 'formik';
 
-import { Alert, Spinner } from '@patternfly/react-core';
+import { Spinner } from '@patternfly/react-core';
 
+import { RefreshClusterVPCAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/common/RefreshClusterVPCAlert';
 import { SubnetSelectField } from '~/components/clusters/common/SubnetSelectField';
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
 import { ClusterFromSubscription } from '~/types/types';
@@ -17,7 +18,7 @@ const SubnetField = ({
   region?: string;
 }) => {
   const [inputField, metaField, { setValue }] = useField<string | undefined>(fieldId);
-  const { clusterVpc, isLoading, hasError } = useAWSVPCFromCluster(cluster, region);
+  const { clusterVpc, isLoading, hasError, refreshVPC } = useAWSVPCFromCluster(cluster, region);
   const fieldProps = React.useMemo(
     () => ({
       input: {
@@ -40,15 +41,7 @@ const SubnetField = ({
   }
 
   if (!clusterVpc || hasError) {
-    return (
-      <Alert
-        variant="danger"
-        isInline
-        isPlain
-        title="Failed to load the machine pool VPC. Please try refreshing the page."
-        className="pf-v5-u-mb-sm"
-      />
-    );
+    return <RefreshClusterVPCAlert isLoading={isLoading} refreshVPC={refreshVPC} />;
   }
 
   return (

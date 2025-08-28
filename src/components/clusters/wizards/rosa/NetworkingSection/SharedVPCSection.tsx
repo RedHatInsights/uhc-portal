@@ -1,7 +1,7 @@
 import React from 'react';
 import { Field } from 'formik';
 
-import { Alert, Text, Title } from '@patternfly/react-core';
+import { Alert, Content, Title } from '@patternfly/react-core';
 
 import { SupportedFeature } from '~/common/featureCompatibility';
 import links from '~/common/installLinks.mjs';
@@ -14,17 +14,19 @@ import SharedVPCField from './SharedVPCField';
 
 import './SharedVPCSection.scss';
 
+type SharedVPCSectionProps = {
+  hostedZoneDomainName?: string;
+  isSelected: boolean;
+  openshiftVersion: string;
+  isHypershiftSelected: boolean;
+};
+
 const SharedVPCSection = ({
   hostedZoneDomainName,
   isSelected,
   openshiftVersion,
   isHypershiftSelected,
-}: {
-  hostedZoneDomainName: string;
-  isSelected: boolean;
-  openshiftVersion: string;
-  isHypershiftSelected: boolean;
-}) => {
+}: SharedVPCSectionProps) => {
   const { getFieldProps, getFieldMeta } = useFormState();
   const incompatibleReason = getIncompatibleVersionReason(
     SupportedFeature.AWS_SHARED_VPC,
@@ -34,10 +36,10 @@ const SharedVPCSection = ({
   if (incompatibleReason) {
     return (
       <>
-        <Title headingLevel="h3" className="pf-v5-u-mt-lg">
+        <Title headingLevel="h3" className="pf-v6-u-mt-lg">
           AWS shared VPC
         </Title>
-        <Text>{incompatibleReason}</Text>
+        <Content component="p">{incompatibleReason}</Content>
       </>
     );
   }
@@ -62,7 +64,7 @@ const SharedVPCSection = ({
       {isSelected && (
         <section className="shared-vpc-instructions">
           <Alert
-            className="pf-v5-u-mb-md"
+            className="pf-v6-u-mb-md"
             variant="info"
             isInline
             title={

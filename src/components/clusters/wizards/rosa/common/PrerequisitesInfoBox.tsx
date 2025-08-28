@@ -25,7 +25,7 @@ export const PrerequisitesInfoBox: React.FC<PrerequisitesInfoBoxProps> = (props)
         {showRosaCliRequirement && (
           <p>
             Make sure you are using ROSA CLI version {ROSA_HOSTED_CLI_MIN_VERSION} or above for
-            &quot;Hosted&quot; control plane.
+            hosted control plane architecture.
           </p>
         )}
       </HintBody>

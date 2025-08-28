@@ -12,7 +12,7 @@ const FormKeyLabelValue = ({ input, meta: { touched, error } }: LabelKeyValuePro
       onChange={(_, value) => input.onChange(value)}
       value={input.value}
     />
-    {touched && error && <span className="pf-v5-c-form__helper-text pf-m-error">{error}</span>}
+    {touched && error && <span className="pf-v6-c-form__helper-text pf-m-error">{error}</span>}
   </>
 );
 

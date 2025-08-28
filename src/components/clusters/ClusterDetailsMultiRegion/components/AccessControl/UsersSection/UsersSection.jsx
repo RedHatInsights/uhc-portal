@@ -4,13 +4,13 @@ import { useDispatch } from 'react-redux';
 
 import {
   Button,
-  Card,
-  CardBody,
   EmptyState,
   Icon,
   Popover,
   PopoverPosition,
   Skeleton,
+  Stack,
+  StackItem,
   Title,
 } from '@patternfly/react-core';
 import { HelpIcon } from '@patternfly/react-icons/dist/esm/icons/help-icon';
@@ -45,7 +45,7 @@ import AddUserDialog from './AddUserDialog';
 import canAllowAdminHelper from './UsersHelper';
 
 const UsersSection = (props) => {
-  const { cluster, clusterHibernating, isReadOnly, region } = props;
+  const { cluster, clusterHibernating, isReadOnly, region, isROSA } = props;
 
   const dispatch = useDispatch();
 
@@ -136,11 +136,16 @@ const UsersSection = (props) => {
         aria-label="User IDs"
         bodyContent={<p>User IDs are matched by the cluster&apos;s identity providers.</p>}
       >
-        <Button variant="plain" isInline aria-label="Help">
-          <Icon size="md">
-            <HelpIcon />
-          </Icon>
-        </Button>
+        <Button
+          icon={
+            <Icon size="md">
+              <HelpIcon />
+            </Icon>
+          }
+          variant="plain"
+          isInline
+          aria-label="Help"
+        />
       </Popover>
     </>
   );
@@ -160,11 +165,16 @@ const UsersSection = (props) => {
           </p>
         }
       >
-        <Button variant="plain" isInline aria-label="Help">
-          <Icon size="md">
-            <HelpIcon />
-          </Icon>
-        </Button>
+        <Button
+          icon={
+            <Icon size="md">
+              <HelpIcon />
+            </Icon>
+          }
+          variant="plain"
+          isInline
+          aria-label="Help"
+        />
       </Popover>
     </>
   );
@@ -213,47 +223,59 @@ const UsersSection = (props) => {
   return showSkeleton ? (
     <LoadingSkeletonCard />
   ) : (
-    <Card>
-      {isUsersError && (
-        <ErrorBox message="Error getting cluster users" response={usersError.error} />
-      )}
-      <CardBody>
-        <Title className="card-title" headingLevel="h3" size="lg">
-          Cluster administrative users
-        </Title>
-        <p>
-          Grant permission to manage this cluster to users defined in your identity provider.{' '}
-          <ExternalLink href={links.OSD_DEDICATED_ADMIN_ROLE}>Learn more.</ExternalLink>
-        </p>
-        {isDeleteUserError && (
-          <ErrorBox message="Error deleting user" response={deleteUserError.error} />
-        )}
-        {hasUsers && (
-          <Table aria-label="Users" variant={TableVariant.compact}>
-            <Thead>
-              <Tr>
-                <Th>{userIdHeading}</Th>
-                <Th>{groupHeading}</Th>
-                <Th screenReaderText="User action" />
-              </Tr>
-            </Thead>
-            <Tbody>{users?.users?.map(userRow)}</Tbody>
-          </Table>
-        )}
-        {addUserBtn}
-        <AddUserDialog
-          addUserMutate={addUserMutate}
-          resetAddUserMutate={resetAddUserMutate}
-          isAddUserSuccess={isAddUserSuccess}
-          isAddUserPending={isAddUserPending}
-          isAddUserError={isAddUserError}
-          addUserError={addUserError}
-          isOpen={isAddUserModalOpen}
-          clusterID={cluster.id}
-          canAddClusterAdmin={canAddClusterAdmin}
-        />
-      </CardBody>
-    </Card>
+    <>
+      <Stack hasGutter>
+        <StackItem>
+          {isUsersError && (
+            <ErrorBox message="Error getting cluster users" response={usersError.error} />
+          )}
+        </StackItem>
+        <StackItem>
+          <Title className="card-title" headingLevel="h3" size="lg">
+            Cluster administrative users
+          </Title>
+        </StackItem>
+        <StackItem>
+          <p>
+            <ExternalLink href={isROSA ? links.ROSA_ADMIN_ROLE : links.OSD_DEDICATED_ADMIN_ROLE}>
+              Learn more.
+            </ExternalLink>
+          </p>
+        </StackItem>
+        <StackItem>
+          {isDeleteUserError && (
+            <ErrorBox message="Error deleting user" response={deleteUserError.error} />
+          )}
+        </StackItem>
+        <StackItem>
+          {hasUsers && (
+            <Table aria-label="Users" variant={TableVariant.compact}>
+              <Thead>
+                <Tr>
+                  <Th>{userIdHeading}</Th>
+                  <Th>{groupHeading}</Th>
+                  <Th screenReaderText="User action" />
+                </Tr>
+              </Thead>
+              <Tbody>{users?.users?.map(userRow)}</Tbody>
+            </Table>
+          )}
+        </StackItem>
+        <StackItem>{addUserBtn}</StackItem>
+      </Stack>
+      <AddUserDialog
+        addUserMutate={addUserMutate}
+        resetAddUserMutate={resetAddUserMutate}
+        isAddUserSuccess={isAddUserSuccess}
+        isAddUserPending={isAddUserPending}
+        isAddUserError={isAddUserError}
+        addUserError={addUserError}
+        isOpen={isAddUserModalOpen}
+        clusterID={cluster.id}
+        canAddClusterAdmin={canAddClusterAdmin}
+        isROSA={isROSA}
+      />
+    </>
   );
 };
 
@@ -262,6 +284,7 @@ UsersSection.propTypes = {
   cluster: PropTypes.object.isRequired,
   clusterHibernating: PropTypes.bool.isRequired,
   isReadOnly: PropTypes.bool.isRequired,
+  isROSA: PropTypes.bool.isRequired,
 };
 
 export default UsersSection;

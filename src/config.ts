@@ -8,7 +8,11 @@ import {
   RESTRICTED_ENV_OVERRIDE_LOCALSTORAGE_KEY,
 } from './common/localStorageConstants';
 import { Chrome } from './types/types';
-import { getRestrictedEnvApi, isRestrictedEnv } from './restrictedEnv';
+import {
+  resolveIsRestrictedEnv,
+  resolveRestrictedEnvApi,
+  resolveRestrictedEnvSso,
+} from './restrictedEnv';
 
 export type Config = {
   configData: EnvConfigWithFedRamp;
@@ -34,6 +38,7 @@ type EnvConfig = {
 type EnvConfigWithFedRamp = {
   restrictedEnv: boolean;
   restrictedEnvApi: string;
+  restrictedEnvSso: string;
 } & EnvConfig;
 
 const configs: { [env: string]: Promise<EnvConfig> | undefined } = {};
@@ -50,7 +55,11 @@ if (APP_DEV_SERVER) {
   configs.mockdata = import(/* webpackMode: "eager" */ './config/mockdata.json');
 }
 
-// select config according to the APP_API_ENV flag (see webpack.config.js)
+// select config according to the environment
+export const APP_API_ENV =
+  window.location.host.includes('dev') || window.location.host.includes('foo')
+    ? 'staging'
+    : 'production';
 configs.default = configs[APP_API_ENV];
 
 const parseEnvQueryParam = (): string | undefined => {
@@ -126,10 +135,10 @@ const config = {
 
     const simulatedRestrictedEnv = !!localStorage.getItem(RESTRICTED_ENV_OVERRIDE_LOCALSTORAGE_KEY);
     const fedRampConfig = {
-      restrictedEnv: simulatedRestrictedEnv || isRestrictedEnv(chrome),
-      restrictedEnvApi: simulatedRestrictedEnv
-        ? configData.apiGateway
-        : getRestrictedEnvApi(chrome),
+      restrictedEnv: simulatedRestrictedEnv || resolveIsRestrictedEnv(chrome),
+      restrictedEnvApi: simulatedRestrictedEnv ? configData.apiGateway : resolveRestrictedEnvApi(),
+      // restricted-env sso domain cannot be inferred in simulated restricted-env, so leave it empty
+      restrictedEnvSso: simulatedRestrictedEnv ? '' : resolveRestrictedEnvSso(),
     };
 
     this.configData = {

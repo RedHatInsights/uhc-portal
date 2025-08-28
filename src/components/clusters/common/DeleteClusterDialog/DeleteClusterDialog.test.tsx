@@ -6,13 +6,10 @@ import { checkAccessibility, screen, withState } from '~/testUtils';
 
 import DeleteClusterDialog from './DeleteClusterDialog';
 
-jest.mock('react-redux', () => {
-  const config = {
-    __esModule: true,
-    ...jest.requireActual('react-redux'),
-  };
-  return config;
-});
+jest.mock('react-redux', () => ({
+  __esModule: true,
+  ...jest.requireActual('react-redux'),
+}));
 
 const mockedUseDeleteCluster = jest.spyOn(useDeleteCluster, 'useDeleteCluster');
 
@@ -101,22 +98,19 @@ describe('<DeleteClusterDialog />', () => {
 
   it('enables delete button after inputting the cluster name', async () => {
     const { user } = withState(defaultReduxState).render(<DeleteClusterDialog {...defaultProps} />);
-    expect(screen.getByRole('button', { name: 'Delete' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Delete' })).not.toBeEnabled();
 
     await user.type(screen.getByRole('textbox'), 'wrong_name');
 
-    expect(screen.getByRole('button', { name: 'Delete' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Delete' })).not.toBeEnabled();
 
     await user.clear(screen.getByRole('textbox'));
     await user.type(screen.getByRole('textbox'), 'mockedClusterName');
 
-    expect(screen.getByRole('button', { name: 'Delete' })).toHaveAttribute(
-      'aria-disabled',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: 'Delete' })).not.toHaveAttribute('aria-disabled');
   });
 
-  it('closes the modal on success', async () => {
+  it('closes the modal on success', () => {
     const newUseDeleteClusterResponse = { ...defaultUseDeleteClusterResponse, isSuccess: true };
 
     mockedUseDeleteCluster.mockReturnValue(newUseDeleteClusterResponse);
@@ -130,18 +124,33 @@ describe('<DeleteClusterDialog />', () => {
     expect(onClose).toHaveBeenCalledWith(true);
   });
 
-  it('displays an error', async () => {
+  it('displays an error', () => {
     const newUseDeleteClusterResponse = {
       ...defaultUseDeleteClusterResponse,
       isError: true,
       error: { errorMessage: 'Mocked error message' },
     };
 
-    // @ts-ignore
     mockedUseDeleteCluster.mockReturnValue(newUseDeleteClusterResponse);
-    checkForNoCalls();
     withState(defaultReduxState).render(<DeleteClusterDialog {...defaultProps} />);
+
     expect(screen.getByTestId('alert-error')).toBeInTheDocument();
     expect(screen.getByText('Mocked error message')).toBeInTheDocument();
+  });
+
+  it('displays error operation id', () => {
+    const newUseDeleteClusterResponse = {
+      ...defaultUseDeleteClusterResponse,
+      isError: true,
+      error: {
+        errorMessage: 'Mocked error message',
+        operationID: 'operation-id-123456789',
+      },
+    };
+
+    mockedUseDeleteCluster.mockReturnValue(newUseDeleteClusterResponse);
+    withState(defaultReduxState).render(<DeleteClusterDialog {...defaultProps} />);
+
+    expect(screen.getByText(/operation-id-123456789/)).toBeInTheDocument();
   });
 });

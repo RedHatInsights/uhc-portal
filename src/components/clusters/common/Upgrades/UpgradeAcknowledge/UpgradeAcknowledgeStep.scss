@@ -1,11 +1,11 @@
 .ocm-upgrade-ack-step {
   p {
-    font-size: var(--pf-v5-global--FontSize--sm);
-    margin-top: var(--pf-v5-global--spacer--sm);
-    margin-bottom: var(--pf-v5-global--spacer--sm);
+    font-size: var(--pf-t--global--font--size--sm);
+    margin-top: var(--pf-t--global--spacer--sm);
+    margin-bottom: var(--pf-t--global--spacer--sm);
   }
   .ocm-upgrade-ack-step_text-input-label {
-    font-size: var(--pf-v5-global--FontSize--md);
-    font-weight: var(--pf-v5-global--FontWeight--normal);
+    font-size: var(--pf-t--global--font--size--md);
+    font-weight: var(--pf-t--global--font--weight--body--default);
   }
 }

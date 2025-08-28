@@ -6,10 +6,6 @@
     height: 3em;
     width: 3em;
   }
-
-  &__learn-more-button {
-    padding-left: 0;
-  }
 }
 
 .product-overview-card .card-title {
@@ -17,8 +13,8 @@
 }
 
 .product-overview-card .card-textlist {
-  color: var(--pf-v5-c-content--small--Color);
+  color: var(--pf-v6-c-content--small--Color);
   li::marker {
-    font-size: var(--pf-v5-u-font-size-xs);
+    font-size: var(--pf-v6-u-font-size-xs);
   }
 }

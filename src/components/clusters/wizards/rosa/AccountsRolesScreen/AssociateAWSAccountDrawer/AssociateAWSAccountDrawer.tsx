@@ -3,6 +3,8 @@ import React, { forwardRef, useCallback, useContext, useRef } from 'react';
 import {
   Button,
   ButtonVariant,
+  Content,
+  ContentVariants,
   DrawerActions,
   DrawerCloseButton,
   DrawerHead,
@@ -11,8 +13,6 @@ import {
   PageSection,
   Stack,
   StackItem,
-  Text,
-  TextVariants,
   Title,
 } from '@patternfly/react-core';
 
@@ -86,17 +86,17 @@ const AssociateRolesDrawerContent = forwardRef<HTMLInputElement, AssociateRolesD
           </DrawerActions>
         </DrawerHead>
         <DrawerPanelBody hasNoPadding>
-          <PageSection variant="light">
+          <PageSection hasBodyWrapper={false}>
             <Stack hasGutter>
               <StackItem>
-                <Text component={TextVariants.p}>
+                <Content component={ContentVariants.p}>
                   ROSA cluster deployments use the AWS Security Token Service for added security.
                   Run the following required steps from a CLI authenticated with both AWS and ROSA.
-                </Text>
+                </Content>
                 {showRosaCliRequirement && (
-                  <Text component={TextVariants.p}>
+                  <Content component={ContentVariants.p}>
                     You must use ROSA CLI version {ROSA_HOSTED_CLI_MIN_VERSION} or above.
-                  </Text>
+                  </Content>
                 )}
               </StackItem>
               {(allSteps || targetRole === 'ocm') && (
@@ -115,9 +115,9 @@ const AssociateRolesDrawerContent = forwardRef<HTMLInputElement, AssociateRolesD
                 </StackItem>
               )}
               <StackItem>
-                <Text component={TextVariants.p} className="pf-v5-u-mr-md">
+                <Content component={ContentVariants.p} className="pf-v6-u-mr-md">
                   {footer}
-                </Text>
+                </Content>
               </StackItem>
               <StackItem>
                 <Button

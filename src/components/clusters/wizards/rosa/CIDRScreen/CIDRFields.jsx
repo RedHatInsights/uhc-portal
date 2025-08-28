@@ -2,7 +2,7 @@ import React from 'react';
 import { Field } from 'formik';
 import PropTypes from 'prop-types';
 
-import { Alert, GridItem, Text, TextVariants } from '@patternfly/react-core';
+import { Alert, Content, ContentVariants, GridItem } from '@patternfly/react-core';
 
 import { constructSelectedSubnets } from '~/common/helpers';
 import links from '~/common/installLinks.mjs';
@@ -43,13 +43,6 @@ function CIDRFields({
   const formatHostPrefix = (value) => {
     if (value && value.charAt(0) !== '/') {
       return `/${value}`;
-    }
-    return value;
-  };
-
-  const normalizeHostPrefix = (value) => {
-    if (value && value.charAt(0) === '/') {
-      return value.substring(1);
     }
     return value;
   };
@@ -117,7 +110,7 @@ function CIDRFields({
           variant="info"
           title="CIDR ranges cannot be changed after you create your cluster."
         >
-          <p className="pf-v5-u-mb-md">
+          <p className="pf-v6-u-mb-md">
             Specify non-overlapping ranges for machine, service, and pod ranges. Each range should
             correspond to the first IP address in their subnet.
           </p>
@@ -152,7 +145,7 @@ function CIDRFields({
           input={getFieldProps(FieldId.NetworkMachineCidr)}
           meta={getFieldMeta(FieldId.NetworkMachineCidr)}
           helpText={
-            <div className="pf-v5-c-form__helper-text">
+            <div className="pf-v6-c-form__helper-text">
               {`Subnet mask must be between /${validators.AWS_MACHINE_CIDR_MIN} and /${awsMachineCIDRMax}.`}
               {installToVpcSelected && (
                 <Alert
@@ -168,9 +161,9 @@ function CIDRFields({
             <>
               {constants.machineCIDRHint}
 
-              <Text component={TextVariants.p}>
+              <Content component={ContentVariants.p}>
                 <ExternalLink href={links.ROSA_CIDR_MACHINE}>Learn more</ExternalLink>
-              </Text>
+              </Content>
             </>
           }
           showHelpTextOnError={false}
@@ -197,9 +190,9 @@ function CIDRFields({
             <>
               {constants.serviceCIDRHint}
 
-              <Text component={TextVariants.p}>
+              <Content component={ContentVariants.p}>
                 <ExternalLink href={links.ROSA_CIDR_SERVICE}>Learn more</ExternalLink>
-              </Text>
+              </Content>
             </>
           }
           showHelpTextOnError={false}
@@ -226,9 +219,9 @@ function CIDRFields({
             <>
               {constants.podCIDRHint}
 
-              <Text component={TextVariants.p}>
+              <Content component={ContentVariants.p}>
                 <ExternalLink href={links.ROSA_CIDR_POD}>Learn more</ExternalLink>
-              </Text>
+              </Content>
             </>
           }
           showHelpTextOnError={false}
@@ -242,20 +235,21 @@ function CIDRFields({
           label="Host prefix"
           placeholder={HOST_PREFIX_DEFAULT}
           type="text"
-          format={formatHostPrefix}
-          normalize={normalizeHostPrefix}
           validate={hostValidators}
           disabled={isFieldDisabled}
           input={getFieldProps(FieldId.NetworkHostPrefix)}
           meta={getFieldMeta(FieldId.NetworkHostPrefix)}
+          onChange={(_event, value) =>
+            setFieldValue(FieldId.NetworkHostPrefix, formatHostPrefix(value))
+          }
           helpText={`Must be between /${validators.HOST_PREFIX_MIN} and /${validators.HOST_PREFIX_MAX}.`}
           extendedHelpText={
             <>
               {constants.hostPrefixHint}
 
-              <Text component={TextVariants.p}>
+              <Content component={ContentVariants.p}>
                 <ExternalLink href={links.ROSA_CIDR_HOST}>Learn more</ExternalLink>
-              </Text>
+              </Content>
             </>
           }
           showHelpTextOnError={false}

@@ -1,7 +1,7 @@
 /* eslint-disable testing-library/prefer-user-event */
 /* eslint-disable testing-library/no-wait-for-side-effects */
 import React from 'react';
-import { FieldInputProps } from 'formik';
+import { FieldInputProps, Formik } from 'formik';
 import fs from 'fs';
 import path from 'path';
 
@@ -22,7 +22,11 @@ describe('<CAUpload />', () => {
   it('properly renders', () => {
     // Act
     // @ts-ignore
-    render(<CAUpload {...inputProp} label="label" />);
+    render(
+      <Formik initialValues={{}} onSubmit={() => {}}>
+        <CAUpload {...inputProp} label="label" fieldName="ldap_ca" />
+      </Formik>,
+    );
 
     // Assert
     expect(screen.queryByTestId('ca-upload-form')).toBeInTheDocument();
@@ -41,7 +45,11 @@ describe('<CAUpload />', () => {
       type: 'text/plain',
     });
     // @ts-ignore
-    render(<CAUpload label="label" {...inputProp} maxFileSize={10} />);
+    render(
+      <Formik initialValues={{}} onSubmit={() => {}}>
+        <CAUpload label="label" {...inputProp} maxFileSize={10} fieldName="ldap_ca" />
+      </Formik>,
+    );
     expect(
       screen.queryByText(/Maximum file size exceeded. File size limit/),
     ).not.toBeInTheDocument();
@@ -67,7 +75,11 @@ describe('<CAUpload />', () => {
       type: 'text/plain',
     });
     // @ts-ignore
-    render(<CAUpload label="label" {...inputProp} />);
+    render(
+      <Formik initialValues={{}} onSubmit={() => {}}>
+        <CAUpload label="label" {...inputProp} fieldName="ldap_ca" />
+      </Formik>,
+    );
     expect(onChangeMock).toBeCalledTimes(0);
 
     // Act
@@ -100,7 +112,11 @@ describe('<CAUpload />', () => {
       type: 'text/plain',
     });
     // @ts-ignore
-    render(<CAUpload {...inputProp} label="label" maxFileSize={2000} />);
+    render(
+      <Formik initialValues={{}} onSubmit={() => {}}>
+        <CAUpload {...inputProp} label="label" maxFileSize={2000} fieldName="ldap_ca" />
+      </Formik>,
+    );
     expect(onChangeMock).toBeCalledTimes(0);
 
     // Act
@@ -133,7 +149,11 @@ describe('<CAUpload />', () => {
       type: 'text/plain',
     });
     // @ts-ignore
-    const { user } = render(<CAUpload label="label" {...inputProp} />);
+    const { user } = render(
+      <Formik initialValues={{}} onSubmit={() => {}}>
+        <CAUpload label="label" {...inputProp} fieldName="ldap_ca" />
+      </Formik>,
+    );
 
     expect(screen.getByRole('button', { name: 'Reveal' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reveal' }).getAttribute('disabled')).toBe('');
@@ -171,7 +191,11 @@ describe('<CAUpload />', () => {
       type: 'text/plain',
     });
     // @ts-ignore
-    const { user } = render(<CAUpload label="label" {...inputProp} />);
+    const { user } = render(
+      <Formik initialValues={{}} onSubmit={() => {}}>
+        <CAUpload label="label" {...inputProp} fieldName="ldap_ca" />
+      </Formik>,
+    );
 
     expect(screen.getByRole('button', { name: 'Reveal' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reveal' }).getAttribute('disabled')).toBe('');
@@ -220,7 +244,11 @@ describe('<CAUpload />', () => {
       },
     );
     // @ts-ignore
-    render(<CAUpload label="label" {...inputProp} />);
+    render(
+      <Formik initialValues={{}} onSubmit={() => {}}>
+        <CAUpload label="label" {...inputProp} fieldName="ldap_ca" />
+      </Formik>,
+    );
     await waitFor(() =>
       fireEvent.change(screen.getByTestId('ca-upload-input-file'), {
         target: { files: [file] },

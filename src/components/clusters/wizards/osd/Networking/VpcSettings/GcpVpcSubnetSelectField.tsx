@@ -86,7 +86,7 @@ export const GcpVpcSubnetSelectField = ({
         options = (
           <>
             <FormSelectOption isDisabled isPlaceholder value="" label={placeholder} />
-            {items.map((item) => (
+            {items.map((item: string) => (
               <FormSelectOption key={item} value={item} label={item} />
             ))}
           </>

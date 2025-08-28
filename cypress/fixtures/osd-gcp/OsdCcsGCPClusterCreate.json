@@ -57,12 +57,6 @@
       "SecureBootSupportForShieldedVMs": "Enabled",
       "UserWorkloadMonitoring": "Enabled",
       "EncryptVolumesWithCustomKeys": "Enabled",
-      "EncryptCustomKeys": {
-        "KeyRingLocation": "global",
-        "KeyRing": "xueliring",
-        "KeyName": "xuelikey",
-        "KmsServiceAccount": "***REMOVED***"
-      },
       "ClusterAutoscaling": "Enabled",
       "InstallIntoExistingVPC": "Enabled",
       "ClusterPrivacy": "Public",
@@ -116,12 +110,6 @@
       "SecureBootSupportForShieldedVMs": "Enabled",
       "UserWorkloadMonitoring": "Enabled",
       "EncryptVolumesWithCustomKeys": "Enabled",
-      "EncryptCustomKeys": {
-        "KeyRingLocation": "global",
-        "KeyRing": "xueliring",
-        "KeyName": "xuelikey",
-        "KmsServiceAccount": "***REMOVED***"
-      },
       "ClusterAutoscaling": "Enabled",
       "InstallIntoExistingVPC": "Enabled",
       "UsePrivateServiceConnect": "Disabled",
@@ -176,12 +164,6 @@
       "SecureBootSupportForShieldedVMs": "Enabled",
       "UserWorkloadMonitoring": "Enabled",
       "EncryptVolumesWithCustomKeys": "Enabled",
-      "EncryptCustomKeys": {
-        "KeyRingLocation": "global",
-        "KeyRing": "xueliring",
-        "KeyName": "xuelikey",
-        "KmsServiceAccount": "***REMOVED***"
-      },
       "ClusterAutoscaling": "Enabled",
       "InstallIntoExistingVPC": "Enabled",
       "ClusterPrivacy": "Public",
@@ -235,12 +217,6 @@
       "SecureBootSupportForShieldedVMs": "Enabled",
       "UserWorkloadMonitoring": "Enabled",
       "EncryptVolumesWithCustomKeys": "Enabled",
-      "EncryptCustomKeys": {
-        "KeyRingLocation": "global",
-        "KeyRing": "xueliring",
-        "KeyName": "xuelikey",
-        "KmsServiceAccount": "***REMOVED***"
-      },
       "ClusterAutoscaling": "Enabled",
       "InstallIntoExistingVPC": "Enabled",
       "UsePrivateServiceConnect": "Enabled",

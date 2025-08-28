@@ -26,6 +26,7 @@ import {
   createPessimisticValidator,
   domainPrefixAsyncValidation,
   domainPrefixValidation,
+  required,
   validateAWSKMSKeyARN,
 } from '~/common/validators';
 import { versionComparator } from '~/common/versionComparator';
@@ -68,6 +69,9 @@ import {
 } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
+import { ShieldedVM } from '../../../common/ShieldedVM';
+import { ClusterPrivacyType } from '../../Networking/constants';
+
 function Details() {
   const dispatch = useDispatch();
   const {
@@ -78,6 +82,7 @@ function Details() {
       [FieldId.BillingModel]: billingModel,
       [FieldId.Region]: region,
       [FieldId.CloudProvider]: cloudProvider,
+      [FieldId.ClusterPrivacy]: clusterPrivacy,
       [FieldId.CustomerManagedKey]: hasCustomerManagedKey,
       [FieldId.KmsKeyArn]: kmsKeyArn,
       [FieldId.ClusterVersion]: selectedVersion,
@@ -161,6 +166,12 @@ function Details() {
       ...azQuotaParams,
     }) > 0;
 
+  React.useEffect(() => {
+    if (!hasSingleAzResources && hasMultiAzResources) {
+      setFieldValue(FieldId.MultiAz, 'true');
+    }
+  }, [hasSingleAzResources, hasMultiAzResources, setFieldValue]);
+
   const handleCloudRegionChange = useCallback(() => {
     // Clears fields related to the region: VPC and machinePoolsSubnets
     const azCount = isMultiAz ? 3 : 1;
@@ -191,11 +202,11 @@ function Details() {
     setFieldValue(FieldId.MachinePoolsSubnets, mpSubnetsReset);
   };
 
-  const handleVersionChange = (clusterVersion: Version) => {
+  const handleVersionChange = (clusterVersion?: Version) => {
     // If features become incompatible with the new version, clear their settings
     const canDefineSecurityGroups = !getIncompatibleVersionReason(
       SupportedFeature.SECURITY_GROUPS,
-      clusterVersion.raw_id,
+      clusterVersion?.raw_id,
       { day1: true },
     );
     if (!canDefineSecurityGroups) {
@@ -206,8 +217,11 @@ function Details() {
         worker: [],
       });
     }
-    if (!canConfigureDayOnePrivateServiceConnect(clusterVersion.raw_id || '')) {
+    if (!canConfigureDayOnePrivateServiceConnect(clusterVersion?.raw_id || '')) {
       setFieldValue(FieldId.PrivateServiceConnect, false);
+    } else if (clusterPrivacy === ClusterPrivacyType.Internal) {
+      setFieldValue(FieldId.PrivateServiceConnect, true);
+      setFieldValue(FieldId.InstallToVpc, true);
     }
   };
 
@@ -229,6 +243,11 @@ function Details() {
   ];
 
   const validateClusterName = async (value: string) => {
+    const requiredError = required(value);
+    if (requiredError) {
+      return requiredError;
+    }
+
     const syncError = createPessimisticValidator(clusterNameValidation)(
       value,
       clusterNameMaxLength,
@@ -264,7 +283,7 @@ function Details() {
   };
 
   const secureBootAlert = (
-    <div className="pf-v5-u-mt-sm">
+    <div className="pf-v6-u-mt-sm">
       <Alert
         isInline
         variant="danger"
@@ -295,7 +314,7 @@ function Details() {
           </GridItem>
 
           <GridItem>
-            <Split hasGutter className="pf-u-mb-0">
+            <Split hasGutter className="pf-v6-u-mb-0">
               <SplitItem>
                 <CheckboxField name={FieldId.HasDomainPrefix} label="Create custom domain prefix" />
               </SplitItem>
@@ -337,7 +356,7 @@ function Details() {
               label="Region"
               isRequired
               fieldId={FieldId.Region}
-              labelIcon={<PopoverHint hint={constants.regionHint} />}
+              labelHelp={<PopoverHint hint={constants.regionHint} />}
             >
               <Field
                 component={CloudRegionSelectField}
@@ -367,7 +386,7 @@ function Details() {
                 <FormGroup
                   label="Persistent storage"
                   fieldId={FieldId.PersistentStorage}
-                  labelIcon={<PopoverHint hint={constants.persistentStorageHint} />}
+                  labelHelp={<PopoverHint hint={constants.persistentStorageHint} />}
                 >
                   <Field
                     name={FieldId.PersistentStorage}
@@ -389,7 +408,7 @@ function Details() {
                 <FormGroup
                   label="Load balancers"
                   fieldId={FieldId.LoadBalancers}
-                  labelIcon={<PopoverHint hint={constants.loadBalancersHint} />}
+                  labelHelp={<PopoverHint hint={constants.loadBalancersHint} />}
                 >
                   <Field
                     name={FieldId.LoadBalancers}
@@ -410,29 +429,18 @@ function Details() {
             </>
           )}
           {isGCP && (
-            <GridItem>
-              <FormGroup label="Shielded VM" fieldId={FieldId.SecureBoot}>
-                <Split hasGutter className="pf-u-mb-0">
-                  <SplitItem>
-                    <CheckboxField
-                      name={FieldId.SecureBoot}
-                      label="Enable Secure Boot support for Shielded VMs"
-                      isDisabled={isIncompatibleSecureBootVersion}
-                    />
-                  </SplitItem>
-                  <SplitItem>
-                    <PopoverHint hint={constants.enableSecureBootHint} />
-                  </SplitItem>
-                </Split>
-                {showSecureBootAlert && secureBootAlert}
-              </FormGroup>
-            </GridItem>
+            <ShieldedVM
+              isEditModal={false}
+              showSecureBootAlert={showSecureBootAlert}
+              secureBootAlert={secureBootAlert}
+              isIncompatibleSecureBootVersion={isIncompatibleSecureBootVersion}
+            />
           )}
           <GridItem>
             <Title headingLevel="h4">Monitoring</Title>
           </GridItem>
 
-          <Split hasGutter className="pf-v5-u-mb-0">
+          <Split hasGutter className="pf-v6-u-mb-0">
             <SplitItem>
               <CheckboxField
                 name={FieldId.EnableUserWorkloadMonitoring}

@@ -24,7 +24,7 @@ node_modules:
 
 .PHONY: app
 app: node_modules
-	yarn build:prod --env api-env=staging
+	yarn build:prod
 
 # Marking git clones .PHONY so we can git pull even if they already exist.
 
@@ -32,18 +32,8 @@ app: node_modules
 run/insights-proxy:
 	[ -e $@ ] || git clone https://github.com/RedHatInsights/insights-proxy --depth=1 $@
 
-.PHONY: run/ocm-api-model
-run/ocm-api-model:
-	[ -e $@ ] || git clone https://github.com/openshift-online/ocm-api-model --depth=1 $@
-	(cd $@; git pull)
-
-.PHONY: run/ocm-api-metamodel
-run/ocm-api-metamodel:
-	[ -e $@ ] || git clone https://github.com/openshift-online/ocm-api-metamodel --depth=1 $@
-	(cd $@; git pull)
-
 .PHONY: openapi
-openapi: run/ocm-api-model run/ocm-api-metamodel
+openapi:
 	# --root-types-no-schema-prefix can't be used since there schema objects and enums with the same name. It would be good to use it once https://github.com/openapi-ts/openapi-typescript/issues/2099 is solved
 	yarn run openapi-typescript https://api.stage.openshift.com/api/accounts_mgmt/v1/openapi -o src/types/accounts_mgmt.v1/index.ts --root-types --root-types-no-schema-prefix --enum
 	# --root-types-no-schema-prefix can't be used since there schema objects and enums with the same name. It would be good to use it once https://github.com/openapi-ts/openapi-typescript/issues/2099 is solved
@@ -51,22 +41,17 @@ openapi: run/ocm-api-model run/ocm-api-metamodel
 	yarn run openapi-typescript https://api.stage.openshift.com/api/access_transparency/v1/openapi -o src/types/access_transparency.v1/index.ts --root-types --root-types-no-schema-prefix --enum
 	yarn run openapi-typescript https://console.redhat.com/api/insights-results-aggregator/v1/openapi.json -o src/types/insights-results-aggregator.v1/index.ts --root-types --root-types-no-schema-prefix --enum
 	yarn run openapi-typescript https://console.redhat.com/api/insights-results-aggregator/v2/openapi.json -o src/types/insights-results-aggregator.v2/index.ts --root-types --root-types-no-schema-prefix --enum
-	yarn run openapi-typescript https://api.stage.openshift.com/api/service_logs/v1/openapi -o src/types/service_logs.v1/schema.ts --root-types --root-types-no-schema-prefix --enum
+	yarn run openapi-typescript https://api.stage.openshift.com/api/service_logs/v1/openapi -o src/types/service_logs.v1/index.ts --root-types --root-types-no-schema-prefix --enum
 	yarn run openapi-typescript https://api.stage.openshift.com/api/upgrades_info/v1/openapi -o src/types/upgrades_info.v1/index.ts --root-types --root-types-no-schema-prefix --enum
 
-	# This one will be overwritten, below (if successful).
 	curl https://api.stage.openshift.com/api/clusters_mgmt/v1/openapi | jq . > openapi/clusters_mgmt.v1.json
-
-	# Get fresher specs for clusters-service. See openapi/README.md.
-	(cd run/ocm-api-metamodel; make)
-	run/ocm-api-metamodel/metamodel generate openapi --model=run/ocm-api-model/model --output=run/ocm-api-model/openapi
-	cat run/ocm-api-model/openapi/clusters_mgmt/v1/openapi.json | jq . > openapi/clusters_mgmt.v1.json
-
 	# due to https://github.com/openapi-ts/openapi-typescript/issues/2099 and waiting for a workaround or solution for it...
 	# the idea is about to generate index.ts file without enums, and specific one with enums (prefixing objects with `Schema` avoiding `--root-types-no-schema-prefix` usage )
 	# this way model will be kept up to date and future refactoring will be easier
 	yarn run openapi-typescript ./openapi/clusters_mgmt.v1.json -o src/types/clusters_mgmt.v1/index.ts --root-types --root-types-no-schema-prefix
 	yarn run openapi-typescript ./openapi/clusters_mgmt.v1.json -o src/types/clusters_mgmt.v1/enums.ts --root-types --enum
+
+	yarn prettier:fix
 
 # Patching /etc/hosts is needed (once) for development with local server;
 .PHONY: insights-proxy-check

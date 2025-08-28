@@ -8,7 +8,7 @@ const MachinePoolAutoRepairDetail = ({
   isAutoRepairEnabled: boolean | undefined;
 }) => (
   <>
-    <Title headingLevel="h4" className="pf-v5-u-mb-sm pf-v5-u-mt-lg">
+    <Title headingLevel="h4" className="pf-v6-u-mb-sm pf-v6-u-mt-lg">
       AutoRepair
     </Title>
     <Split hasGutter>

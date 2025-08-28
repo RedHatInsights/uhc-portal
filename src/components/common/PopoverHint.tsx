@@ -34,14 +34,16 @@ const PopoverHint = ({
     {...popoverProps}
   >
     <Button
+      icon={
+        <span className={iconClassName}>
+          {isError ? <ExclamationCircleIcon className="danger" /> : <OutlinedQuestionCircleIcon />}
+        </span>
+      }
       className="popover-hint-button"
       aria-label={buttonAriaLabel || (isError ? 'Error' : 'More information')}
       variant="plain"
-    >
-      <span className={iconClassName}>
-        {isError ? <ExclamationCircleIcon className="danger" /> : <OutlinedQuestionCircleIcon />}
-      </span>
-    </Button>
+      hasNoPadding
+    />
   </Popover>
 );
 

@@ -5,11 +5,11 @@ import {
   CardBody,
   CardHeader,
   CardTitle,
+  Content,
   Flex,
   FlexItem,
   List,
   ListItem,
-  Text,
   Title,
 } from '@patternfly/react-core';
 
@@ -20,18 +20,21 @@ import docLinks from '../../../common/installLinks.mjs';
 const pricingData = [
   {
     title: 'Hourly',
-    first: 'Control plane - $0.03/hour',
-    second: 'Worker nodes CPU - As low as $0.171/4vCPU/hour',
+    first: 'Worker nodes CPU',
+    second: 'As low as $0.171/4vCPU/hour',
+    third: 'Equivalent to $1500/year',
   },
   {
     title: '1-Year',
-    first: 'Control plane - $0.03/hour',
-    second: 'Worker nodes CPU - As low as $0.114/4vCPU/hour',
+    first: 'Worker nodes CPU',
+    second: 'As low as $0.114/4vCPU/hour',
+    third: 'Equivalent to $1000/year',
   },
   {
     title: '3-Year',
-    first: 'Control plane - $0.03/hour',
-    second: 'Worker nodes CPU - As low as $0.076/4vCPU/hour',
+    first: 'Worker nodes CPU',
+    second: 'As low as $0.076/4vCPU/hour',
+    third: 'Equivalent to $667/year',
   },
 ];
 
@@ -54,19 +57,15 @@ const recommendationsData = [
 
 export const OSDPricingCard = () => (
   <>
-    <Title className="pf-v5-u-mt-lg pf-v5-u-mb-lg" headingLevel="h2">
+    <Title className="pf-v6-u-mt-lg pf-v6-u-mb-lg" headingLevel="h2">
       Pricing
     </Title>
     <Flex direction={{ default: 'column' }}>
       <FlexItem>
-        <Flex
-          justifyContent={{ default: 'justifyContentSpaceBetween' }}
-          flexWrap={{ default: 'nowrap' }}
-          alignItems={{ default: 'alignItemsStretch' }}
-        >
+        <Flex flexWrap={{ default: 'nowrap' }} alignItems={{ default: 'alignItemsStretch' }}>
           {pricingData.map((card) => (
             <FlexItem>
-              <Card>
+              <Card data-testid="pricing-card">
                 <Flex>
                   <FlexItem>
                     <CardHeader>
@@ -75,8 +74,9 @@ export const OSDPricingCard = () => (
                       </CardTitle>
                     </CardHeader>
                     <CardBody>
-                      <Text>{card.first}</Text>
-                      <Text>{card.second}</Text>
+                      <Title headingLevel="h4">{card.first}</Title>
+                      <Content component="p">{card.second}</Content>
+                      <Content component="p">{card.third}</Content>
                     </CardBody>
                   </FlexItem>
                 </Flex>
@@ -86,20 +86,20 @@ export const OSDPricingCard = () => (
         </Flex>
       </FlexItem>
       <FlexItem>
-        <div className="pf-v5-u-mb-md">
+        <div className="pf-v6-u-mb-md">
           <ExternalLink href={docLinks.OSD_PRICING}>Learn more about pricing</ExternalLink>
         </div>
       </FlexItem>
     </Flex>
 
-    <Title className="pf-v5-u-mt-lg pf-v5-u-mb-lg" headingLevel="h2">
+    <Title className="pf-v6-u-mt-lg pf-v6-u-mb-lg" headingLevel="h2">
       Recommendations
     </Title>
 
     <Flex flexWrap={{ default: 'nowrap' }} alignItems={{ default: 'alignItemsStretch' }}>
       {recommendationsData.map((card) => (
         <FlexItem>
-          <Card style={{ height: '100%' }}>
+          <Card style={{ height: '100%' }} data-testid="recommendations-card">
             <CardHeader>
               <CardTitle>
                 <Title headingLevel="h3">{card.title}</Title>

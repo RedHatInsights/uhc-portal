@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { Split, SplitItem } from '@patternfly/react-core';
-import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 
 type Props = {
   title: string;
@@ -10,13 +9,7 @@ type Props = {
 };
 
 const PageTitle = ({ title, breadcrumbs, children }: Props) => (
-  <PageHeader>
-    {breadcrumbs}
-    <Split>
-      <SplitItem isFilled>
-        <PageHeaderTitle className="ocm-page-title" title={title} />
-      </SplitItem>
-    </Split>
+  <PageHeader title={title} breadcrumbs={breadcrumbs} subtitle="">
     {children}
   </PageHeader>
 );

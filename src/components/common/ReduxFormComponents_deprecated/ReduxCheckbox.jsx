@@ -51,7 +51,7 @@ function ReduxCheckbox(props) {
                 {label}
                 {isRequired ? (
                   <span
-                    className="pf-v5-c-form__label-required redux-checkbox-required"
+                    className="pf-v6-c-form__label-required redux-checkbox-required"
                     aria-hidden="true"
                   >
                     *

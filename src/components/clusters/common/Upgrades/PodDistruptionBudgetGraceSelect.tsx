@@ -73,7 +73,9 @@ const PodDistruptionBudgetGraceSelect: React.FC<PodDistruptionBudgetGraceSelectP
       >
         <SelectList>
           {Object.keys(options).map((key) => (
-            <SelectOption value={Number(key)}>{options[key]}</SelectOption>
+            <SelectOption key={key} value={Number(key)}>
+              {options[key]}
+            </SelectOption>
           ))}
         </SelectList>
       </Select>

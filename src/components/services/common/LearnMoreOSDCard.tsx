@@ -7,7 +7,7 @@ import ExternalLink from '~/components/common/ExternalLink';
 import docLinks from '../../../common/installLinks.mjs';
 
 export const LearnMoreOSDCard = () => (
-  <Card style={{ height: '100%' }}>
+  <Card style={{ height: '100%' }} data-testid="learn-more-osdcard">
     <CardHeader>
       <CardTitle>
         <Title headingLevel="h3">Want to learn more?</Title>

@@ -1,13 +1,13 @@
 .ocm-c-networking-vpc-details__card {
   &--body {
-    margin-right: var(--pf-v5-global--spacer--3xl);
+    margin-right: var(--pf-t--global--spacer--3xl);
   }
   &--replace-button {
     margin-left: 8px;
     margin-right: 8px;
   }
   .details-card-dl {
-    .pf-v5-c-description-list__group {
+    .pf-v6-c-description-list__group {
       display: flex;
       dt {
         display: inline-block;
@@ -18,7 +18,7 @@
       }
     }
   }
-  &.pf-v5-c-form__group-label {
+  &.pf-v6-c-form__group-label {
     font-size: 14px;
   }
 }

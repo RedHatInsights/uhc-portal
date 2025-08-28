@@ -1,6 +1,10 @@
 import Page from './page';
 
 class Subscription extends Page {
+  subscriptionLeftNavigationMenu = () => cy.get('li[data-quickstart-id="Subscriptions"]');
+
+  annualSubscriptionLeftNavigationMenu = () => cy.get('a[data-quickstart-id="openshift_quota"]');
+
   planTypeHelpButton = () => cy.get('th').contains('Plan type').find('button');
 
   enableMarketplaceLink = () => cy.get('a').contains('Enable in Marketplace');
@@ -10,10 +14,17 @@ class Subscription extends Page {
   dedicatedOnDemandLink = () => cy.get('a').contains('Dedicated (On-Demand Limits)');
 
   isDedicatedAnnualPage() {
-    cy.contains('h1', 'Dedicated (Annual)', { timeout: 50000 });
+    cy.contains('h1', 'Annual Subscriptions (Managed)', { timeout: 20000 });
   }
 
   isDedicatedSectionHeader() {
+    cy.contains('div', 'Annual Subscriptions');
+  }
+
+  isContainEmbeddedLink(text, link) {
+    cy.contains('a', text).invoke('attr', 'href').should('include', link);
+  }
+  isDedicatedOnDemandSectionHeader() {
     cy.contains('div', 'OpenShift Dedicated');
   }
 
@@ -22,7 +33,7 @@ class Subscription extends Page {
   }
 
   isDedicatedOnDemandPage() {
-    cy.contains('h1', 'Dedicated (On-Demand Limits)');
+    cy.contains('h1', 'Dedicated (On-Demand Limits)', { timeout: 20000 });
   }
 
   checkQuotaTableColumns(columnName) {
@@ -33,6 +44,15 @@ class Subscription extends Page {
     return cy
       .get('td')
       .contains(new RegExp('^' + items.related_resources[0].resource_type + '$', 'g'));
+  }
+
+  patchCustomQuotaDefinition(data = []) {
+    cy.intercept('**/quota_cost*', (req) => {
+      req.continue((res) => {
+        res.body = data;
+        res.send(res.body);
+      });
+    });
   }
 }
 export default new Subscription();

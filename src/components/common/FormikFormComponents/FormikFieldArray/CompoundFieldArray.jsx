@@ -12,14 +12,16 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import ButtonWithTooltip from '../../ButtonWithTooltip';
 import { ReduxVerticalFormGroup } from '../../ReduxFormComponents_deprecated';
 
+import './CompoundFieldArray.scss';
+
 export const LabelGridItem = ({ fieldSpan, label, isRequired, helpText }) => (
   <GridItem className="field-array-title" span={fieldSpan}>
-    <p className="pf-v5-c-form__label-text" id="field-array-label">
+    <p className="pf-v6-c-form__label-text" id="field-array-label">
       {label}
-      {isRequired ? <span className="pf-v5-c-form__label-required">*</span> : null}
+      {isRequired ? <span className="pf-v6-c-form__label-required">*</span> : null}
     </p>
     {helpText ? (
-      <p className="pf-v5-c-form__helper-text" id="field-array-help-text">
+      <p className="pf-v6-c-form__helper-text" id="field-array-help-text">
         {helpText}
       </p>
     ) : null}
@@ -70,13 +72,15 @@ const MinusButtonGridItem = ({ index, fields, onClick, minusButtonDisabledMessag
   const isOnlyItem = index === 0 && fields.length === 1;
   const disableReason = minusButtonDisabledMessage || 'To delete the item, add another item first.';
   return (
-    <GridItem className="field-grid-item minus-button" span={1}>
+    <GridItem data-testid="remove-users" className="field-grid-item minus-button" span={1}>
       <ButtonWithTooltip
         disableReason={isOnlyItem && disableReason}
         tooltipProps={{ position: 'right', distance: 0 }}
         onClick={onClick}
         icon={<MinusCircleIcon />}
         variant="link"
+        aria-label="Remove"
+        className="compound-field-array__minus-button"
       />
     </GridItem>
   );
@@ -92,7 +96,7 @@ MinusButtonGridItem.propTypes = {
 const FieldArrayErrorGridItem = ({ isLast, errorMessage, touched, isGroupError }) => {
   if (errorMessage && isLast && (touched || isGroupError)) {
     return (
-      <GridItem className="field-grid-item pf-v5-c-form__helper-text pf-m-error">
+      <GridItem className="field-grid-item pf-v6-c-form__helper-text pf-m-error">
         {errorMessage}
       </GridItem>
     );
@@ -125,7 +129,7 @@ const FieldGridItemComponent = (props) => {
           id={`users.${index}.username`}
           name={`users.${index}.username`}
           type="text"
-          disabled={disabled}
+          disabled={disabled || compoundFields[0]?.disabled}
           input={{
             ...getFieldProps(`users.${index}.username`),
             onChange: (_, value) => {
@@ -212,6 +216,7 @@ const FieldGridItemComponent = (props) => {
             (compoundFields[2].getHelpText && compoundFields[2].getHelpText(index)) ||
             undefined
           }
+          formGroupClass="confirm-password-field"
         />
       </GridItem>
     </>
@@ -238,6 +243,7 @@ export const CompoundFieldArray = (props) => {
     addMoreButtonDisabled,
     minusButtonDisabledMessage,
     isGroupError,
+    onlySingleItem,
   } = props;
   const [areFieldsFilled, setAreFieldsFilled] = React.useState([]);
   const [touched, setTouched] = React.useState(false);
@@ -291,19 +297,24 @@ export const CompoundFieldArray = (props) => {
       name={FieldId.USERS}
       render={({ remove, insert }) => (
         <>
-          <LabelGridItem
-            fieldSpan={fieldSpan}
-            label={`${label} (${usersData?.length})`}
-            isRequired={isRequired}
-            helpText={helpText}
-          />
-          <AddMoreButtonGridItem
-            addNewField={() => addNewField(insert)}
-            areFieldsFilled={areFieldsFilled}
-            label={addMoreTitle}
-            title={addMoreTitle}
-            addMoreButtonDisabled={addMoreButtonDisabled}
-          />
+          {onlySingleItem ? null : (
+            <>
+              <LabelGridItem
+                fieldSpan={fieldSpan}
+                label={`${label} (${usersData?.length})`}
+                isRequired={isRequired}
+                helpText={helpText}
+              />
+              <AddMoreButtonGridItem
+                addNewField={() => addNewField(insert)}
+                areFieldsFilled={areFieldsFilled}
+                label={addMoreTitle}
+                title={addMoreTitle}
+                addMoreButtonDisabled={addMoreButtonDisabled}
+              />
+            </>
+          )}
+
           {usersData?.map((_, index) => (
             <React.Fragment key={`${usersData[index]}`}>
               <FieldGridItemComponent
@@ -315,12 +326,14 @@ export const CompoundFieldArray = (props) => {
                 fieldSpan={fieldSpan}
                 {...props}
               />
-              <MinusButtonGridItem
-                index={index}
-                fields={usersData}
-                onClick={() => removeField(index, remove)}
-                minusButtonDisabledMessage={minusButtonDisabledMessage}
-              />
+              {onlySingleItem ? null : (
+                <MinusButtonGridItem
+                  index={index}
+                  fields={usersData}
+                  onClick={() => removeField(index, remove)}
+                  minusButtonDisabledMessage={minusButtonDisabledMessage}
+                />
+              )}
               <FieldArrayErrorGridItem
                 isLast={index === usersData.length - 1}
                 errorMessage={getFieldMeta('users').error}
@@ -345,4 +358,5 @@ CompoundFieldArray.propTypes = {
   addMoreButtonDisabled: PropTypes.bool,
   minusButtonDisabledMessage: PropTypes.string,
   isGroupError: PropTypes.bool,
+  onlySingleItem: PropTypes.bool,
 };

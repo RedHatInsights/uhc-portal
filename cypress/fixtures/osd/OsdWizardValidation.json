@@ -3,29 +3,34 @@
     {
       "CloudProvider": "AWS",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
-      "InfrastructureType": "Red Hat cloud account"
+      "InfrastructureType": "Red Hat cloud account",
+      "InstanceType": "m5.xlarge"
     },
     {
       "CloudProvider": "GCP",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
-      "InfrastructureType": "Red Hat cloud account"
+      "InfrastructureType": "Red Hat cloud account",
+      "InstanceType": "custom-4-16384"
     },
     {
       "CloudProvider": "AWS",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
-      "InfrastructureType": "Customer cloud subscription"
+      "InfrastructureType": "Customer cloud subscription",
+      "InstanceType": "m5.xlarge"
     },
     {
       "CloudProvider": "GCP",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
       "InfrastructureType": "Customer cloud subscription",
-      "AuthenticationType": "Service Account"
+      "AuthenticationType": "Service Account",
+      "InstanceType": "custom-4-16384"
     },
     {
       "CloudProvider": "GCP",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
       "InfrastructureType": "Customer cloud subscription",
-      "AuthenticationType": "Workload Identity Federation"
+      "AuthenticationType": "Workload Identity Federation",
+      "InstanceType": "custom-4-16384"
     }
   ],
   "ClustersValidation": {

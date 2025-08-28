@@ -19,7 +19,7 @@ export const AppPage: React.FC<PropsWithChildren<{ title?: string }>> = ({ child
   const restrictedEnvOverride = !!localStorage.getItem(RESTRICTED_ENV_OVERRIDE_LOCALSTORAGE_KEY);
   return (
     <AppDrawer>
-      <div className="pf-v5-u-display-flex pf-v5-u-flex-direction-row">
+      <div className="pf-v6-u-display-flex pf-v6-u-flex-direction-row">
         {restrictedEnvOverride && <RestrictedEnvOverrideMessage />}
         {config.envOverride && <EnvOverrideMessage env={config.envOverride} />}
       </div>

@@ -28,7 +28,7 @@ describe('useGetInflightChecks hook', () => {
     // Mock the network request using axios
     apiRequestMock.get.mockResolvedValueOnce(mockedInflightChecks);
     const { result } = renderHook(() =>
-      useFetchInflightChecks(clusterID, mockedSubscriptionWithClusterType, MAIN_QUERY_KEY),
+      useFetchInflightChecks(clusterID, mockedSubscriptionWithClusterType),
     );
 
     expect(result.current.isLoading).toBe(true);

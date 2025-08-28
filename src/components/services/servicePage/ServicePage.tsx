@@ -45,6 +45,7 @@ export const ServicePage = ({ serviceName }: ServicePageProps) => {
           featuresExpandableContents: osdFeaturesExpandableContents,
           linkTextLabelLinkCardContents: osdLinkTextLabelLinkCardContents,
           getStartedSection: osdGetStartedSectionData,
+          breadcrumbsLabel: 'Red Hat OpenShift Dedicated',
         };
       case 'ROSA':
       default:
@@ -54,6 +55,7 @@ export const ServicePage = ({ serviceName }: ServicePageProps) => {
           featuresExpandableContents: rosaFeaturesExpandableContents,
           linkTextLabelLinkCardContents: rosaLinkTextLabelLinkCardContents,
           getStartedSection: rosaGetStartedSectionData,
+          breadcrumbsLabel: 'Red Hat OpenShift Service on AWS',
         };
     }
   }, [serviceName]);
@@ -62,37 +64,37 @@ export const ServicePage = ({ serviceName }: ServicePageProps) => {
     <AppPage>
       <ProductBanner
         icon={<ServiceLogo serviceName={serviceName} />}
-        learnMoreLink={data.bannerContent?.learnMoreLink}
-        title={data.bannerContent?.title}
-        text={data.bannerContent?.text}
-        iconCardBodyClassName={data.bannerContent?.iconCardBodyClassName}
+        title={data.bannerContent.title}
+        text={data.bannerContent.text}
+        linkLabel={data.bannerContent.linkLabel}
+        linkHref={data.bannerContent.linkHref}
         breadcrumbs={
           <Breadcrumbs
             path={[
               { label: 'Overview', path: `/overview` },
               {
-                label: 'Red Hat OpenShift Dedicated',
+                label: data.breadcrumbsLabel,
               },
             ]}
           />
         }
       />
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <GetStartedSection {...data.getStartedSection} />
 
-        <Title className="pf-v5-u-mt-lg pf-v5-u-mb-lg" headingLevel="h2">
+        <Title className="pf-v6-u-mt-lg pf-v6-u-mb-lg" headingLevel="h2">
           Benefits
         </Title>
         <ExpandableListCard items={data.benefitsExpandableContents} />
 
-        <Title className="pf-v5-u-mt-lg pf-v5-u-mb-lg" headingLevel="h2">
+        <Title className="pf-v6-u-mt-lg pf-v6-u-mb-lg" headingLevel="h2">
           Features
         </Title>
         <ExpandableListCard items={data.featuresExpandableContents} />
 
         {serviceName === 'OSD' ? <OSDPricingCard /> : null}
         {serviceName === 'ROSA' ? <RosaPricingCard /> : null}
-        <Title headingLevel="h2" className="pf-v5-u-mt-lg pf-v5-u-mb-lg">
+        <Title headingLevel="h2" className="pf-v6-u-mt-lg pf-v6-u-mb-lg">
           Recommended content
         </Title>
 

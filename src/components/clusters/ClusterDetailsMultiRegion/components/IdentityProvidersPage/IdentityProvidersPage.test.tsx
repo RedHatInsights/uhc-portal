@@ -3,7 +3,7 @@ import * as reactRedux from 'react-redux';
 import * as reactRouter from 'react-router-dom';
 
 import { useFetchHtpasswdUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchHtpasswdUsers';
-import { OCMUI_ENHANCED_HTPASSWRD } from '~/queries/featureGates/featureConstants';
+import { ENHANCED_HTPASSWRD } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen, waitFor, within } from '~/testUtils';
 
 import IdentityProvidersPage from './IdentityProvidersPage';
@@ -19,6 +19,7 @@ jest.mock('react-router-dom', () => {
   const config = {
     __esModule: true,
     ...jest.requireActual('react-router-dom'),
+    Navigate: jest.fn(({ to }) => `Redirected to "${to}"`),
   };
   return config;
 });
@@ -123,9 +124,17 @@ describe('<IdentityProvidersPage />', () => {
     jest.clearAllMocks();
   });
 
-  it('displays htpasswd page if provided idp is htpasswd', async () => {
-    mockUseFeatureGate([[OCMUI_ENHANCED_HTPASSWRD, true]]);
+  it('displays htpasswd page if provided idp is htpasswd and has ipd.update access', async () => {
+    mockUseFeatureGate([[ENHANCED_HTPASSWRD, true]]);
     useParamsMock.mockReturnValue({ id: 'mySubscriptionId', idpName: 'myHTPasswdIDP' });
+
+    useFetchClusterDetailsMock.useFetchClusterDetails.mockReturnValue({
+      cluster: { ...sampleCluster, idpActions: { update: true } },
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
     render(<IdentityProvidersPage isEditForm />);
 
     await waitFor(() => {
@@ -144,5 +153,22 @@ describe('<IdentityProvidersPage />', () => {
     expect(within(headerRow).getByRole('columnheader', { name: 'Username' })).toBeInTheDocument();
 
     expect(within(firstDataRow).getByRole('cell', { name: 'myUser1' })).toBeInTheDocument();
+  });
+
+  it('navigates to cluster details if user does not have ipd.update access', async () => {
+    mockUseFeatureGate([[ENHANCED_HTPASSWRD, true]]);
+    useParamsMock.mockReturnValue({ id: 'mySubscriptionId', idpName: 'myHTPasswdIDP' });
+
+    useFetchClusterDetailsMock.useFetchClusterDetails.mockReturnValue({
+      cluster: { ...sampleCluster, idpActions: { update: false } },
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(<IdentityProvidersPage isEditForm />);
+    expect(
+      screen.getByText('Redirected to "/openshift/details/s/mySubscriptionId#accessControl"'),
+    ).toBeInTheDocument();
   });
 });

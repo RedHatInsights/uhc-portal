@@ -147,6 +147,63 @@ const selfManagedProps = {
   },
   ...props,
 };
+const readyRosa = {
+  cluster: {
+    state: clusterStates.ready,
+    managed: false,
+    ccs: {
+      enabled: false,
+    },
+    canEdit: true,
+    canDelete: true,
+    subscription: { plan: { type: 'ROSA' } },
+    product: {
+      id: 'ROSA',
+    },
+  },
+  subscription: {
+    items: [
+      {
+        id: 42,
+        support_level: 'Standard',
+        plan: {
+          id: 'ROSA',
+        },
+      },
+    ],
+  },
+  organization: {
+    ebs_account_id: '123456',
+  },
+  ...props,
+};
+const disconnectOCP = {
+  cluster: {
+    state: clusterStates.disconnected,
+    managed: false,
+    ccs: {
+      enabled: false,
+    },
+    canEdit: true,
+    canDelete: true,
+    subscription: { plan: { type: 'OCP' } },
+  },
+  subscription: {
+    items: [
+      {
+        id: 42,
+        support_level: 'Standard',
+        plan: {
+          id: 'OCP',
+        },
+      },
+    ],
+  },
+  organization: {
+    ebs_account_id: '123456',
+  },
+  ...props,
+};
 
 const rhoicCluster = {
   cluster: {
@@ -190,6 +247,8 @@ export {
   clusterNotReadyProps,
   clusterReadOnlyProps,
   selfManagedProps,
+  readyRosa,
+  disconnectOCP,
   cluster,
   osdTrialCluster,
   organizationClusterProps,

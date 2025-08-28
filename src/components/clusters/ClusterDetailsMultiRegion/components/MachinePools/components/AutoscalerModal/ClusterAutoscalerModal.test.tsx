@@ -126,7 +126,7 @@ describe('Cluster autoscaler modal', () => {
       </Formik>,
     );
 
-    const clusterSwitch = screen.getByRole('checkbox', { name: /Autoscale cluster/i });
+    const clusterSwitch = screen.getByRole('switch', { name: /Autoscale cluster/i });
 
     await userEvent.click(clusterSwitch);
 
@@ -149,7 +149,7 @@ describe('Cluster autoscaler modal', () => {
       </Formik>,
     );
 
-    const clusterSwitch = screen.getByRole('checkbox', { name: /Autoscale cluster/i });
+    const clusterSwitch = screen.getByRole('switch', { name: /Autoscale cluster/i });
 
     await userEvent.click(clusterSwitch);
     expect(mutateEnableMock).toHaveBeenCalled();
@@ -208,7 +208,7 @@ describe('Cluster autoscaler modal', () => {
       </Formik>,
     );
 
-    const clusterSwitch = screen.getByRole('checkbox', { name: /Autoscale cluster/i });
+    const clusterSwitch = screen.getByRole('switch', { name: /Autoscale cluster/i });
 
     await userEvent.click(clusterSwitch);
 

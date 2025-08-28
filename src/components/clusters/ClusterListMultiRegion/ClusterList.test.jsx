@@ -37,6 +37,9 @@ const mockedUseGetOrganizationalPendingRequests = jest.spyOn(
   'useGetOrganizationalPendingRequests',
 );
 
+const mockedClearGlobalError = jest.fn();
+const mockedCloseModal = jest.fn();
+
 describe('<ClusterList />', () => {
   const props = {
     cloudProviders: fixtures.cloudProviders,
@@ -47,15 +50,19 @@ describe('<ClusterList />', () => {
     organization: fixtures.organization,
     pendingOrganizationAccessRequests: {},
     organizationId: 'whateverTheOrganizationId',
-    closeModal: jest.fn(),
+    closeModal: mockedCloseModal,
     openModal: jest.fn(),
-    clearGlobalError: jest.fn(),
+    clearGlobalError: mockedClearGlobalError,
     getOrganizationAndQuota: jest.fn(),
     getMachineTypes: jest.fn(),
     getCloudProviders: jest.fn(),
   };
 
   const emptyStateText = "Let's create your first cluster";
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('shows skeleton while loading and no data is returned yet', () => {
     mockedGetFetchedClusters.mockReturnValue({
@@ -159,10 +166,7 @@ describe('<ClusterList />', () => {
     });
     withState({}, true).render(<ClusterList {...props} />);
 
-    expect(screen.getByRole('button', { name: 'Refresh' })).toHaveAttribute(
-      'aria-disabled',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: 'Refresh' })).not.toHaveAttribute('aria-disabled');
 
     expect(
       screen.queryByRole('progressbar', { name: 'Loading cluster list data' }),
@@ -477,6 +481,27 @@ describe('<ClusterList />', () => {
 
       // Assert
       expect(mockNavigate).toHaveBeenLastCalledWith({ search: 'plan_id=OSD' }, { replace: true });
+    });
+  });
+
+  describe('unmount', () => {
+    it('Clears global errors and closes modals', () => {
+      mockedGetFetchedClusters.mockReturnValue({
+        data: { items: [] },
+        isLoading: false,
+        isFetching: false,
+        errors: [],
+      });
+      const { unmount } = withState({}, true).render(<ClusterList {...props} />);
+
+      jest.clearAllMocks();
+
+      expect(mockedClearGlobalError).not.toHaveBeenCalled();
+      expect(mockedCloseModal).not.toHaveBeenCalled();
+      unmount();
+
+      expect(mockedClearGlobalError.mock.calls).toEqual([['clusterList'], ['clusterDetails']]);
+      expect(mockedCloseModal).toHaveBeenCalled();
     });
   });
 });

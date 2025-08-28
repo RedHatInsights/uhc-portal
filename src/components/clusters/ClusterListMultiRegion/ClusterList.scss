@@ -14,16 +14,16 @@
   .cluster-list {
     margin-left: 0 !important;
     margin-right: 0 !important;
-    .pf-v5-c-toolbar__content-section {
+    .pf-v6-c-toolbar__content-section {
       .ocm-c-toolbar__item-cluster-filter-list {
-        --pf-v5-c-toolbar__item--Width: 100%;
-        margin-bottom: var(--pf-v5-global--spacer--sm);
+        --pf-v6-c-toolbar__item--Width: 100%;
+        margin-bottom: var(--pf-t--global--spacer--sm);
         margin-right: 0;
       }
       .ocm-c-toolbar__item-cluster-list-filter-dropdown {
         .cluster-filter-dropdown {
           width: 100%;
-          .pf-v5-c-dropdown__toggle {
+          .pf-v6-c-dropdown__toggle {
             width: 100%;
           }
         }
@@ -31,3 +31,5 @@
     }
   }
 }
+
+.cluster-list .pf-v6-c-toolbar:not(:first-child) { margin-top: var(--pf-t--global--spacer--md)}

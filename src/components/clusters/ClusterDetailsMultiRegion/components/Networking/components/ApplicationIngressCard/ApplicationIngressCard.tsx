@@ -7,13 +7,12 @@ import {
   CardBody,
   CardFooter,
   CardTitle,
+  Content,
+  ContentVariants,
   Form,
   FormGroup,
   Switch,
-  Text,
-  TextContent,
   TextInput,
-  TextVariants,
 } from '@patternfly/react-core';
 
 import { isHibernating, isHypershiftCluster } from '~/components/clusters/common/clusterStates';
@@ -139,11 +138,11 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
               value={`*.${defaultRouterAddress}`}
               readOnlyVariant="default"
             />
-            <TextContent>
-              <Text component={TextVariants.small}>
+            <Content>
+              <Content component={ContentVariants.small}>
                 {`${isDefaultRouterPrivate || isRestrictedEnv() ? 'Private' : 'Public'} router`}
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
           </FormGroup>
 
           {hasSufficientIngressEditVersion && (
@@ -151,7 +150,7 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
               <FormGroup
                 fieldId="defaultRouterSelectors"
                 label="Route selector"
-                labelIcon={<RouteSelectorsPopover />}
+                labelHelp={<RouteSelectorsPopover />}
                 isStack
               >
                 <TextInput
@@ -164,7 +163,7 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
               <FormGroup
                 fieldId="defaultRouterExcludedNamespacesFlag"
                 label="Excluded namespaces"
-                labelIcon={<ExcludedNamespacesPopover />}
+                labelHelp={<ExcludedNamespacesPopover />}
                 isStack
               >
                 <TextInput
@@ -188,21 +187,19 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
 
               <FormGroup
                 label="Namespace ownership policy"
-                labelIcon={<NamespaceOwnerPolicyPopover />}
+                labelHelp={<NamespaceOwnerPolicyPopover />}
                 isStack
               >
                 <Switch
                   label="Strict"
-                  labelOff="Inter-namespace ownership"
                   isChecked={!!isDefaultRouterNamespaceOwnershipPolicyStrict}
                   isDisabled
                 />
               </FormGroup>
 
-              <FormGroup label="Wildcard policy" labelIcon={<WildcardPolicyPopover />} isStack>
+              <FormGroup label="Wildcard policy" labelHelp={<WildcardPolicyPopover />} isStack>
                 <Switch
                   label="Allowed"
-                  labelOff="Disallowed"
                   isChecked={isDefaultIngressWildcardPolicyAllowed}
                   isDisabled
                 />
@@ -211,10 +208,9 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
           )}
 
           {canShowLoadBalancer && (
-            <FormGroup label="Load balancer type" labelIcon={<LoadBalancerPopover />}>
+            <FormGroup label="Load balancer type" labelHelp={<LoadBalancerPopover />}>
               <Switch
                 label={LoadBalancerFlavorLabel[LoadBalancerFlavor.nlb]}
-                labelOff={LoadBalancerFlavorLabel[LoadBalancerFlavor.classic]}
                 isChecked={isNLB}
                 isDisabled
               />
@@ -233,18 +229,20 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
           />
         </Form>
       </CardBody>
-      <CardFooter>
-        <ActionList>
-          <ButtonWithTooltip
-            variant="secondary"
-            onClick={handleEditSettings}
-            disableReason={disableEditReason}
-            isAriaDisabled={!!disableEditReason}
-          >
-            Edit application ingress
-          </ButtonWithTooltip>
-        </ActionList>
-      </CardFooter>
+      {!isRestrictedEnv() && (
+        <CardFooter>
+          <ActionList>
+            <ButtonWithTooltip
+              variant="secondary"
+              onClick={handleEditSettings}
+              disableReason={disableEditReason}
+              isAriaDisabled={!!disableEditReason}
+            >
+              Edit application ingress
+            </ButtonWithTooltip>
+          </ActionList>
+        </CardFooter>
+      )}
     </Card>
   );
 };

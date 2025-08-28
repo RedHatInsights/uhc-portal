@@ -7,11 +7,11 @@ import { closeModal } from '~/components/common/Modal/ModalActions';
 import { useDeleteCluster } from '~/queries/ClusterActionsQueries/useDeleteCluster';
 import { useGlobalState } from '~/redux/hooks';
 
-import ErroBox from '../../../common/ErrorBox';
+import ErrorBox from '../../../common/ErrorBox';
 import Modal from '../../../common/Modal/Modal';
 import modals from '../../../common/Modal/modals';
 
-type DeleteCusterDialogProps = {
+type DeleteClusterDialogProps = {
   onClose: (clusterDeleted?: boolean) => void;
   textContent?: string;
   title?: string;
@@ -24,11 +24,7 @@ type ModalData = {
   region: string | undefined;
 };
 
-type ErrorType = {
-  errorMessage?: string | undefined;
-};
-
-const DeleteClusterDialog = ({ onClose, textContent, title }: DeleteCusterDialogProps) => {
+const DeleteClusterDialog = ({ onClose, textContent, title }: DeleteClusterDialogProps) => {
   const [clusterNameInput, setClusterNameInput] = React.useState<string>('');
   const modalData = useGlobalState((state) => state.modal.data) as ModalData;
 
@@ -49,7 +45,7 @@ const DeleteClusterDialog = ({ onClose, textContent, title }: DeleteCusterDialog
     reset: resetResponse,
   } = useDeleteCluster();
 
-  const error = deleteClusterError as ErrorType;
+  const error = deleteClusterError;
 
   if (isSuccess) {
     resetResponse();
@@ -63,10 +59,11 @@ const DeleteClusterDialog = ({ onClose, textContent, title }: DeleteCusterDialog
   };
 
   const errorContainer = isError && (
-    <ErroBox
+    <ErrorBox
       message="Error deleting cluster"
       response={{
         errorMessage: error.errorMessage,
+        operationID: error.operationID,
       }}
     />
   );

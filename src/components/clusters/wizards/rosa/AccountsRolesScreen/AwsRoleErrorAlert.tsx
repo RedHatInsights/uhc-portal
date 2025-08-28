@@ -1,6 +1,6 @@
 import React, { MouseEventHandler, useCallback } from 'react';
 
-import { Alert, AlertProps, Button, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Alert, AlertProps, Button, Content, ContentVariants } from '@patternfly/react-core';
 
 import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/AssociateAWSAccountDrawer';
 import { AWSAccountRole } from './AssociateAWSAccountDrawer/common/AssociateAWSAccountStep';
@@ -19,15 +19,15 @@ export const AwsRoleErrorAlert = ({ title, targetRole }: AwsRoleErrorAlertProps)
   );
   return (
     <Alert variant="danger" isInline title={title}>
-      <TextContent className="pf-v5-u-font-size-sm">
-        <Text component={TextVariants.p}>
+      <Content className="pf-v6-u-font-size-sm">
+        <Content component={ContentVariants.p}>
           To continue,{' '}
           <Button variant="link" isInline onClick={onClick}>
             create the required role
           </Button>{' '}
           with the ROSA CLI.
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </Alert>
   );
 };

@@ -18,8 +18,8 @@ const BillingModelAlert = ({ title }: BillingModelAlertProps) => (
   >
     <a href={links.OCM_DOCS_SUBSCRIPTIONS} target="_blank" rel="noreferrer noopener">
       Learn more about subscriptions{' '}
-      <Icon size="sm">
-        <ExternalLinkAltIcon color="#0066cc" />
+      <Icon size="sm" isInline>
+        <ExternalLinkAltIcon />
       </Icon>
     </a>
   </Alert>

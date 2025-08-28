@@ -26,23 +26,25 @@ import {
   Card,
   CardBody,
   CardTitle,
+  Content,
   List,
   ListItem,
   Skeleton,
   Stack,
   StackItem,
-  Text,
-  TextContent,
   Title,
 } from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 import { Link } from '~/common/routing';
-import { CLI_SSO_AUTHORIZATION } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { setOfflineToken } from '~/redux/actions/rosaActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
-import { getRefreshToken, isRestrictedEnv } from '~/restrictedEnv';
+import {
+  getRefreshToken,
+  getRestrictedEnvApi,
+  getRestrictedEnvSso,
+  isRestrictedEnv,
+} from '~/restrictedEnv';
 import { Chrome } from '~/types/types';
 
 import links, { channels, tools } from '../../common/installLinks.mjs';
@@ -74,6 +76,8 @@ type Props = {
   showPath?: To;
   SSOLogin: boolean;
   isRosa: boolean;
+  shouldShowTokens: boolean;
+  setShouldShowTokens: (v: boolean) => void;
 };
 
 const Instructions = (props: Props) => {
@@ -86,11 +90,12 @@ const Instructions = (props: Props) => {
     blockedByTerms,
     SSOLogin,
     isRosa,
+    shouldShowTokens,
+    setShouldShowTokens,
   } = props;
   const offlineToken = useGlobalState((state) => state.rosaReducer.offlineToken);
   const dispatch = useDispatch();
   const chrome = useChrome() as Chrome;
-  const showDeprecationMessage = useFeatureGate(CLI_SSO_AUTHORIZATION) && !SSOLogin;
   const restrictedEnv = isRestrictedEnv();
   const [token, setToken] = React.useState<string>('');
 
@@ -102,7 +107,7 @@ const Instructions = (props: Props) => {
         setToken(offlineToken as string);
       }
     }
-  }, [chrome, restrictedEnv, offlineToken, SSOLogin]);
+  }, [chrome, restrictedEnv, offlineToken, SSOLogin, shouldShowTokens]);
   React.useEffect(() => {
     if (!SSOLogin) {
       // After requesting token, we might need to reload page doing stronger auth;
@@ -123,21 +128,31 @@ const Instructions = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (SSOLogin) {
+  if (!restrictedEnv && !shouldShowTokens) {
     return (
-      <SSOLoginInstructions isRosa={isRosa} commandName={commandName} commandTool={commandTool} />
+      <SSOLoginInstructions
+        isRosa={isRosa}
+        commandName={commandName}
+        commandTool={commandTool}
+        SSOLogin={SSOLogin}
+        setShouldShowTokens={setShouldShowTokens}
+      />
     );
   }
 
-  const ocmLoginCommand = `ocm login --token="${token}" ${restrictedEnv ? '--url https://api.***REMOVED***.com --token-url https://sso.***REMOVED***.com/realms/redhat-external/protocol/openid-connect/token --client-id console-dot' : ''}`;
+  const loginCommand = `${commandName} login --token="${token}" ${
+    restrictedEnv
+      ? `--url ${getRestrictedEnvApi()} --token-url ${getRestrictedEnvSso()}/realms/redhat-external/protocol/openid-connect/token --client-id console-dot`
+      : ''
+  }`;
 
   return (
     <Stack hasGutter>
       <StackItem>
         <Card className="ocm-c-api-token__card">
-          {!restrictedEnv && showDeprecationMessage ? (
+          {!restrictedEnv && shouldShowTokens ? (
             <CardTitle>
-              <OfflineTokensAlert />
+              <OfflineTokensAlert isRosa={isRosa} setShouldShowTokens={setShouldShowTokens} />
             </CardTitle>
           ) : null}
           <CardTitle>
@@ -145,32 +160,33 @@ const Instructions = (props: Props) => {
               {`Connect with ${restrictedEnv ? 'refresh' : 'offline'} tokens`}
             </Title>
           </CardTitle>
+
           <CardBody className="ocm-c-api-token__card--body">
-            <TextContent>
+            <Content>
               <LeadingInfo isRosa={isRosa} SSOLogin={false} />
-            </TextContent>
+            </Content>
             {show || token ? (
               <>
                 <TokenBox token={token} />
-                <TextContent className="pf-v5-u-mt-lg">
+                <Content className="pf-v6-u-mt-lg">
                   <Title headingLevel="h3">Using your token in the command line</Title>
                   <List component="ol">
                     <ListItem>
                       Download and install the <code>{commandName}</code> command-line tool:{' '}
                       {commandTool === tools.OCM && <SupportLevelBadge {...DEV_PREVIEW} />}
-                      <Text component="p" />
+                      <Content component="p" />
                       <DownloadAndOSSelection tool={commandTool} channel={channels.STABLE} />
-                      <Text component="p" />
+                      <Content component="p" />
                     </ListItem>
                     <ListItem>
                       Copy and paste the authentication command in your terminal:
-                      <Text component="p" />
+                      <Content component="p" />
                       {offlineToken == null && !restrictedEnv ? (
                         <Skeleton fontSize="md" screenreaderText="Loading..." />
                       ) : (
                         <TokenBox
                           token={token}
-                          command={ocmLoginCommand}
+                          command={loginCommand}
                           showCommandOnError
                           showInstructionsOnError={false}
                         />
@@ -181,18 +197,18 @@ const Instructions = (props: Props) => {
                   <Title headingLevel="h3">
                     {`Need help connecting with your ${restrictedEnv ? 'refresh' : 'offline'} token?`}
                   </Title>
-                  <Text component="p">
+                  <Content component="p">
                     Run <code>{commandName} login --help</code> for in-terminal guidance, or{' '}
                     {docsLink} for more information about setting up the <code>{commandName}</code>{' '}
                     CLI.
-                  </Text>
-                </TextContent>
+                  </Content>
+                </Content>
               </>
             ) : (
               <Link to={showPath}>
                 <Button
                   variant="primary"
-                  className="pf-v5-u-mt-md"
+                  className="pf-v6-u-mt-md"
                   data-testid="load-token-btn"
                   onClick={() =>
                     loadOfflineToken(

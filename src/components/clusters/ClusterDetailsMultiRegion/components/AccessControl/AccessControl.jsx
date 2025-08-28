@@ -4,7 +4,12 @@ import PropTypes from 'prop-types';
 
 import { Card, CardBody, Tab, Tabs, TabTitleText } from '@patternfly/react-core';
 
-import { isHibernating, isHypershiftCluster } from '../../../common/clusterStates';
+import { isCompatibleFeature, SupportedFeature } from '~/common/featureCompatibility';
+import clusterStates, {
+  isHibernating,
+  isHypershiftCluster,
+} from '~/components/clusters/common/clusterStates';
+
 import {
   isExtenalAuthenicationActive,
   isReadyForAwsAccessActions,
@@ -13,13 +18,21 @@ import {
   isReadyForRoleAccessActions,
 } from '../../clusterDetailsHelper';
 
+import { ClusterTransferSection } from './ClusterTransferOwnership/ClusterTransferSection';
 import { ExternalAuthenticationSection } from './ExternalAuthentication/ExternalAuthenticationSection';
 import IDPSection from './IDPSection';
 import NetworkSelfServiceSection from './NetworkSelfServiceSection';
 import OCMRolesSection from './OCMRolesSection';
 import UsersSection from './UsersSection';
 
-function AccessControl({ cluster, refreshEvent = null }) {
+import './AccessControl.scss';
+
+function AccessControl({
+  cluster,
+  refreshEvent = null,
+  isAutoClusterTransferOwnershipEnabled = false,
+  isROSA,
+}) {
   const [activeKey, setActiveKey] = React.useState(0);
 
   const clusterID = cluster?.id;
@@ -43,6 +56,7 @@ function AccessControl({ cluster, refreshEvent = null }) {
   const [identityProvidersIsHidden, setIdentityProvidersIsHidden] = useState(false);
   const [AWSInfrastructureAccessIsHidden, setAWSInfrastructureAccessIsHidden] = useState(false);
   const [externalAuthenicationIsHidden, setExternalAuthenicationIsHidden] = useState(false);
+  const [transferOwnershipIsHidden, setTransferOwnershipIsHidden] = useState(false);
 
   // dynamically adjust the tab to be vertical (wider screen) or on the top
   useEffect(() => {
@@ -76,17 +90,24 @@ function AccessControl({ cluster, refreshEvent = null }) {
       !isReadyForRoleAccessActions(cluster) || isExtenalAuthenicationActive(cluster);
     const hideIdpActions = !isReadyForIdpActions(cluster) || isExtenalAuthenicationActive(cluster);
     const hideAwsInfrastructureAccess = !isReadyForAwsAccessActions(cluster);
+    const hideTransferOwnership =
+      !isAutoClusterTransferOwnershipEnabled ||
+      cluster.state !== clusterStates.ready ||
+      !isCompatibleFeature(SupportedFeature.AUTO_CLUSTER_TRANSFER_OWNERSHIP, cluster);
 
     setClusterRolesAndAccessIsHidden(hideRolesActions);
     setIdentityProvidersIsHidden(hideIdpActions);
     setAWSInfrastructureAccessIsHidden(hideAwsInfrastructureAccess);
     setIsReadOnly(cluster?.status?.configuration_mode === 'read_only');
     setExternalAuthenicationIsHidden(hideExternalAuthenication);
+    setTransferOwnershipIsHidden(hideTransferOwnership);
 
     // hide the tab title if there is only one tab ("OCM Roles and Access").
     const isSingleTab = hideRolesActions && hideIdpActions && hideAwsInfrastructureAccess;
-    setBodyClass(isSingleTab ? 'single-tab' : '');
-  }, [cluster]);
+    setBodyClass(
+      isSingleTab ? 'single-tab access-control-tab-content' : 'access-control-tab-content',
+    );
+  }, [cluster, isAutoClusterTransferOwnershipEnabled]);
 
   return (
     <Card>
@@ -96,7 +117,6 @@ function AccessControl({ cluster, refreshEvent = null }) {
           onSelect={(event, key) => setActiveKey(key)}
           isVertical={isVerticalTab}
           className={tabClass}
-          isBox
         >
           <Tab
             eventKey={0}
@@ -113,6 +133,7 @@ function AccessControl({ cluster, refreshEvent = null }) {
               isReadOnly={isReadOnly}
               subscriptionID={subscriptionID}
               cluster={cluster}
+              isROSA={isROSA}
             />
           </Tab>
           <Tab
@@ -126,6 +147,7 @@ function AccessControl({ cluster, refreshEvent = null }) {
               clusterHibernating={isHibernating(cluster)}
               isReadOnly={isReadOnly}
               region={region}
+              isROSA={isROSA}
             />
           </Tab>
           <Tab
@@ -167,6 +189,18 @@ function AccessControl({ cluster, refreshEvent = null }) {
               region={region}
             />
           </Tab>
+          <Tab
+            eventKey={5}
+            id="transfer-ownership"
+            title={<TabTitleText>Transfer Ownership</TabTitleText>}
+            isHidden={transferOwnershipIsHidden}
+          >
+            <ClusterTransferSection
+              canEdit={cluster?.canEdit}
+              clusterExternalID={cluster.subscription?.external_cluster_id}
+              subscription={cluster.subscription}
+            />
+          </Tab>
         </Tabs>
       </CardBody>
     </Card>
@@ -176,6 +210,8 @@ function AccessControl({ cluster, refreshEvent = null }) {
 AccessControl.propTypes = {
   cluster: PropTypes.object.isRequired,
   refreshEvent: PropTypes.object,
+  isAutoClusterTransferOwnershipEnabled: PropTypes.bool,
+  isROSA: PropTypes.bool.isRequired,
 };
 
 export default AccessControl;

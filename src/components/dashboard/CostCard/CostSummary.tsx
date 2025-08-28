@@ -1,16 +1,6 @@
 import React from 'react';
 
-import {
-  Grid,
-  GridItem,
-  Skeleton,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextListItemVariants,
-  TextListVariants,
-  Title,
-} from '@patternfly/react-core';
+import { Content, ContentVariants, Grid, GridItem, Skeleton, Title } from '@patternfly/react-core';
 
 import { PromiseReducerState } from '~/redux/types';
 
@@ -37,14 +27,14 @@ const CostSummary = ({ report }: CostSummaryProps) =>
       </GridItem>
       <GridItem lg={7} md={12}>
         <div className="ocm--cost-clusters">
-          <TextContent>
-            <TextList component={TextListVariants.dl}>
-              <TextListItem component={TextListItemVariants.dt} key="top-clusters">
+          <Content>
+            <Content component={ContentVariants.dl}>
+              <Content component={ContentVariants.dt} key="top-clusters">
                 Top clusters
-              </TextListItem>
+              </Content>
               <CostSummaryClusters report={report as Report} />
-            </TextList>
-          </TextContent>
+            </Content>
+          </Content>
         </div>
       </GridItem>
     </Grid>

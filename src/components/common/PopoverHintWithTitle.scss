@@ -1,6 +1,6 @@
 .popover-with-title-div {
   display: inline-block;
-  padding-top: var(--pf-v5-global--spacer--md);
+  padding-top: var(--pf-t--global--spacer--md);
 }
 
 .popover-with-title-button {
@@ -8,5 +8,5 @@
 }
 
 .popover-with-title-span {
-  color: var(--pf-v5-global--primary-color--100);
+  color: var(--pf-t--global--text--color--link--default);
 }

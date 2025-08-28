@@ -36,7 +36,7 @@ export const AWSBillingAccountForm = ({
     <ExternalLink
       isButton={false}
       variant="link"
-      className="pf-v5-u-mt-md"
+      className="pf-v6-u-mt-md"
       href={links.AWS_CONSOLE_ROSA_HOME}
       noIcon
     >

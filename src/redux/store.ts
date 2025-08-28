@@ -1,6 +1,5 @@
 import promiseMiddleware from 'redux-promise-middleware';
 
-import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { configureStore, Middleware } from '@reduxjs/toolkit';
 
 import { NormalizedAWSAccountRole } from './model/NormalizedAWSAccountRole';
@@ -8,10 +7,6 @@ import promiseRejectionMiddleware from './promiseRejectionMiddleware';
 import { reduxReducers } from './reducers';
 import sentryMiddleware from './sentryMiddleware';
 import { PromiseReducerState } from './types';
-
-const defaultOptions = {
-  dispatchDefaultFailure: false, // automatic error notifications
-};
 
 // NOTE: in order to keep testing accurate
 // if you change the store (see below)
@@ -24,7 +19,6 @@ const store = configureStore({
     })
       .concat(promiseRejectionMiddleware as Middleware)
       .concat(promiseMiddleware)
-      .concat(notificationsMiddleware({ ...defaultOptions }) as Middleware) // TODO: remove type convertion as soon as @redhat-cloud-services incorporates RTK
       .concat(sentryMiddleware as Middleware),
   reducer: reduxReducers,
 });

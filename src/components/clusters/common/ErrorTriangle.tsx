@@ -3,7 +3,6 @@ import { ReactElementLike, ReactNodeLike } from 'prop-types';
 
 import { Icon, Tooltip } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
-import { global_warning_color_100 as warningColor } from '@patternfly/react-tokens/dist/esm/global_warning_color_100';
 
 type ErrorTriangleProps = {
   item?: string;
@@ -17,11 +16,12 @@ const ErrorTriangle = ({ item = 'clusters', errorMessage }: ErrorTriangleProps) 
   >
     <Icon
       size="lg"
+      status="warning"
       className="cluster-error-triangle"
       aria-label="Warning"
       data-testid="error-triangle-icon"
     >
-      <ExclamationTriangleIcon color={warningColor.value} />
+      <ExclamationTriangleIcon />
     </Icon>
   </Tooltip>
 );

@@ -57,7 +57,7 @@ const credentialStatus = (status: BreakGlassCredentialStatus | undefined) => {
 
   return (
     <Tooltip content={helpText}>
-      <Button variant="plain">{message}</Button>
+      <Button icon={message} variant="plain" />
     </Tooltip>
   );
 };

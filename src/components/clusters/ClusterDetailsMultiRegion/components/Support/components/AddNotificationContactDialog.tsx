@@ -77,7 +77,7 @@ const AddNotificationContactDialog = ({
       isPrimaryDisabled={!!validationMessage || isAddNotificationContactPending || userName === ''}
       isPending={isAddNotificationContactPending}
     >
-      <p className="pf-v5-u-mb-xl">
+      <p className="pf-v6-u-mb-xl">
         Identify the user to be added as notification contact. These users will be contacted in the
         event of notifications about this cluster.
       </p>

@@ -21,10 +21,11 @@ describe('<AddNotificationContactButton />', () => {
     render(<AddNotificationContactButton canEdit={canEdit} openModal={() => {}} />);
 
     // Assert
-    expect(screen.getByRole('button', { name: /add notification contact/i })).toHaveAttribute(
-      'aria-disabled',
-      `${!canEdit}`,
-    );
+    if (canEdit) {
+      expect(screen.getByRole('button', { name: /add notification contact/i })).toBeEnabled();
+    } else {
+      expect(screen.getByRole('button', { name: /add notification contact/i })).not.toBeEnabled();
+    }
   });
 
   it('opens the modal', async () => {

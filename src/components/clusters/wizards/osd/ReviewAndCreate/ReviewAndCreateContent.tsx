@@ -139,7 +139,7 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
         {!(nodeLabels.length === 1 && isEmpty(nodeLabels[0].key)) && (
           <ReviewItem name={FieldId.NodeLabels} formValues={formValues} />
         )}
-        {isAWS && isByoc && canSelectImds(clusterVersion.raw_id) && (
+        {isAWS && isByoc && clusterVersion && canSelectImds(clusterVersion.raw_id) && (
           <ReviewItem name={FieldId.IMDS} formValues={formValues} />
         )}
       </ReviewSection>

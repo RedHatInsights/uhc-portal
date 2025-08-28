@@ -7,6 +7,6 @@ export const ImdsSectionAlert = () => (
     variant={AlertVariant.info}
     isInline
     title="In order to use the IMDS settings, a cluster version of at least 4.11 must be selected in the previous step."
-    className="pf-v5-u-mb-sm"
+    className="pf-v6-u-mb-sm"
   />
 );

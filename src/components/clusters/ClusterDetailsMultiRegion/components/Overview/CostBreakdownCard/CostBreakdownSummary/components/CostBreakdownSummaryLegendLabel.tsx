@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ChartLabel } from '@patternfly/react-charts';
+import { ChartLabel } from '@patternfly/react-charts/victory';
 
 type CostBreakdownSummaryLegendLabelProps = {
   values: string[];

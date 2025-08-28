@@ -9,6 +9,7 @@ const region = clusterProperties.Region.split(',')[0];
 const qeInfrastructure = Cypress.env('QE_INFRA_REGIONS')[region][0];
 const clusterName = clusterProperties.ClusterName;
 const awsAccountID = Cypress.env('QE_AWS_ID');
+const awsBillingAccountID = Cypress.env('QE_AWS_BILLING_ID');
 const rolePrefix = Cypress.env('QE_ACCOUNT_ROLE_PREFIX');
 const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
 
@@ -56,7 +57,7 @@ describe(
       CreateRosaWizardPage.waitForARNList();
       CreateRosaWizardPage.refreshInfrastructureAWSAccountButton().click();
       CreateRosaWizardPage.waitForARNList();
-      CreateRosaWizardPage.selectAWSBillingAccount(clusterProperties.AWSBillingAccountId);
+      CreateRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
       CreateRosaWizardPage.selectInstallerRole(installerARN);
       CreateRosaWizardPage.rosaNextButton().click();
     });
@@ -99,6 +100,11 @@ describe(
       } else {
         CreateRosaWizardPage.disabledAutoScaling();
         CreateRosaWizardPage.selectComputeNodeCount(clusterProperties.MachinePools.NodeCount);
+      }
+      if (clusterProperties.InstanceMetadataService.includes('IMDSv1')) {
+        CreateRosaWizardPage.useBothIMDSv1AndIMDSv2Radio().check();
+      } else {
+        CreateRosaWizardPage.useIMDSv2Radio().check();
       }
       CreateRosaWizardPage.rosaNextButton().click();
     });
@@ -172,7 +178,7 @@ describe(
       );
       CreateRosaWizardPage.isClusterPropertyMatchesValue(
         'AWS billing account ID',
-        clusterProperties.AWSBillingAccountId,
+        awsBillingAccountID,
       );
       CreateRosaWizardPage.isClusterPropertyMatchesValue('Installer role', installerARN);
     });
@@ -235,6 +241,10 @@ describe(
               .PRIVATE_SUBNET_NAME,
           );
       }
+      CreateRosaWizardPage.isClusterPropertyMatchesValue(
+        'Instance Metadata Service (IMDS)',
+        clusterProperties.InstanceMetadataService,
+      );
     });
 
     it('Step - Review and create : Networking definitions', () => {

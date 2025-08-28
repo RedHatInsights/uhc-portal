@@ -32,6 +32,7 @@ class ButtonHelper {
     this.#element()
       .contains(this.#title)
       .as(`btn-${this.#btnNumber}`)
+      .closest('a')
       .should('have.attr', 'href', this.#href);
     const href = this.#href;
     const btnNumber = this.#btnNumber;

@@ -12,163 +12,45 @@ import { metricsStatusMessages } from '../../../../common/ResourceUsage/constant
 
 const AUTOSCROLL_THRESHOLD = 20;
 
-// TODO: Part of the installation story
-class LogWindow extends React.Component {
-  constructor(props) {
-    super(props);
-    this.logPaneRef = React.createRef();
-    this.cardRef = React.createRef(); // for fullscreen
-  }
+// shouldComponentUpdate into React.memo
+const areEqual = (prevProps, nextProps) =>
+  prevProps.lines === nextProps.lines &&
+  prevProps.cluster.state === nextProps.cluster.state &&
+  prevProps.cluster.id === nextProps.cluster.id &&
+  prevProps.errorCode === nextProps.errorCode &&
+  prevProps.logType === nextProps.logType &&
+  prevProps.isExpandable === nextProps.isExpandable;
 
-  state = {
-    userScrolled: false,
-    isFullScreen: false,
-    isExpanded: false,
-  };
+const LogWindow = ({
+  isExpandable,
+  getLogs,
+  cluster,
+  lines,
+  len,
+  logType,
+  pending,
+  errorCode,
+  clearLogs,
+}) => {
+  const logPaneRef = React.useRef(null);
+  const cardRef = React.useRef(null);
+  const updateTimer = React.useRef(null);
 
-  componentDidMount() {
-    if (this.isShown()) {
-      this.update();
-      this.updateTimer = window.setInterval(this.update, 2000);
-    }
-    if (screenfull.isEnabled) {
-      screenfull.on('change', this.onFullscreenChange);
-    }
-    document.addEventListener('visibilitychange', this.onVisibilityChange);
-    this.isPageVisible = document.visibilityState === 'visible';
-  }
+  const [userScrolled, setUserScrolled] = React.useState(false);
+  const [isFullScreen, setIsFullScreen] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isPageVisible, setIsPageVisible] = React.useState(false);
 
-  shouldComponentUpdate(nextProps, nextState) {
-    // avoid rendering on every prop/state change by manually comparing the ones we care about.
-    // effectively this avoids rendering when a completed request has no new lines.
-    return (
-      nextState.userScrolled !== this.state.userScrolled ||
-      nextState.isExpanded !== this.state.isExpanded ||
-      nextState.isFullScreen !== this.state.isFullScreen ||
-      nextProps.lines !== this.props.lines ||
-      nextProps.cluster.state !== this.props.cluster.state ||
-      nextProps.cluster.id !== this.props.cluster.id ||
-      nextProps.errorCode !== this.props.errorCode ||
-      nextProps.logType !== this.props.logType ||
-      nextProps.isExpandable !== this.props.isExpandable
-    );
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { lines, errorCode, cluster } = this.props;
-    const { isExpanded } = this.state;
-    if (!prevProps.lines && lines) {
-      // If this is the first time we're getting the log, it'll trigger a scroll event,
-      // setting userScrolled since the view won't be scrolled all the way down.
-      // So we need to account for that, and set it to false here.
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ userScrolled: false });
-    }
-    if (
-      (prevProps.errorCode !== 403 && errorCode === 403) ||
-      cluster.state === clusterStates.error
-    ) {
-      if (this.updateTimer !== null) {
-        window.clearInterval(this.updateTimer);
-      }
-    }
-    if (isExpanded !== prevState.isExpanded) {
-      // make sure to start or stop the timer when expanding / collapsing
-      if (isExpanded) {
-        // eslint-disable-next-line react/no-did-update-set-state
-        this.setState({ userScrolled: false });
-      }
-      this.onVisibilityChange();
-    }
-  }
-
-  componentWillUnmount() {
-    const { clearLogs } = this.props;
-    if (this.updateTimer !== null) {
-      window.clearInterval(this.updateTimer);
-    }
-    if (screenfull.isEnabled) {
-      screenfull.off('change', this.onFullscreenChange);
-    }
-    document.removeEventListener('visibilitychange', this.onVisibilityChange);
-    clearLogs();
-    if (screenfull.isFullscreen) {
-      screenfull.exit();
-    }
-  }
+  // Needed for componentDidUpdate
+  const prevProps = React.useRef({ lines: null, errorCode: null, cluster: {} });
+  const prevState = React.useRef({ isExpanded: false });
 
   /**
    * Is the view expanded (or non-expandable)?
    */
-  isShown = () => {
-    const { isExpanded } = this.state;
-    const { isExpandable } = this.props;
-    return !isExpandable || isExpanded;
-  };
+  const isShown = () => !isExpandable || isExpanded;
 
-  toggleExpanded = (isExpanded) => {
-    this.setState({ isExpanded });
-  };
-
-  scrollToEnd = () => {
-    const { lines } = this.props;
-    if (lines) {
-      const pane = this.logPaneRef.current;
-      if (pane && pane.scrollTo) {
-        pane.scrollTo({ top: pane.scrollHeight });
-      }
-    }
-  };
-
-  onScroll = (event) => {
-    const { userScrolled } = this.state;
-    const view = event.target;
-    const currentScrollDiff = view.scrollHeight - view.clientHeight - view.scrollTop;
-    if (
-      !userScrolled &&
-      currentScrollDiff > AUTOSCROLL_THRESHOLD &&
-      this.isPageVisible &&
-      this.isShown()
-    ) {
-      // user scrolled to anywhere which isn't the very bottom, stop auto-scrolling
-      this.setState({ userScrolled: true });
-    }
-    if (userScrolled && currentScrollDiff <= AUTOSCROLL_THRESHOLD) {
-      // user scrolled to the bottom (approximately), start auto-scrolling again
-      this.setState({ userScrolled: false });
-    }
-  };
-
-  onFullscreenChange = () => {
-    const { userScrolled } = this.state;
-    const isFullScreen = screenfull.isFullscreen;
-    this.setState({ isFullScreen });
-    if (!userScrolled) {
-      this.scrollToEnd();
-    }
-  };
-
-  onVisibilityChange = () => {
-    if (this.updateTimer !== null) {
-      window.clearInterval(this.updateTimer);
-    }
-    this.isPageVisible = document.visibilityState === 'visible';
-    if (this.isShown()) {
-      if (this.isPageVisible) {
-        // update very 2s when page is visible
-        this.updateTimer = window.setInterval(this.update, 2000);
-        // issue another update call just to make sure we show fresh logs
-        //  when the page becomes visible
-        this.update();
-      } else {
-        // update every 15s if page is not visible, for better performance
-        this.updateTimer = window.setInterval(this.update, 15000);
-      }
-    }
-  };
-
-  update = () => {
-    const { getLogs, cluster, lines, len, logType, pending, errorCode } = this.props;
+  const update = () => {
     if (!pending && errorCode !== 403) {
       const requestLogType = cluster.state !== clusterStates.uninstalling ? 'install' : 'uninstall';
       let offset = lines ? len : 0;
@@ -180,95 +62,196 @@ class LogWindow extends React.Component {
     }
   };
 
-  fullScreen = () => {
-    const { userScrolled } = this.state;
+  const scrollToEnd = () => {
+    if (lines) {
+      const pane = logPaneRef.current;
+      if (pane && pane.scrollTo) {
+        pane.scrollTo({ top: pane.scrollHeight });
+      }
+    }
+  };
+
+  const onFullscreenChange = () => {
+    setIsFullScreen(screenfull.isFullscreen);
+    if (!userScrolled) {
+      scrollToEnd();
+    }
+  };
+
+  const onVisibilityChange = () => {
+    if (updateTimer.current !== null) {
+      window.clearInterval(updateTimer.current);
+      updateTimer.current = null;
+    }
+    setIsPageVisible(document.visibilityState === 'visible');
+    if (isShown()) {
+      if (isPageVisible) {
+        // update very 2s when page is visible
+        updateTimer.current = window.setInterval(update, 2000);
+        // issue another update call just to make sure we show fresh logs
+        //  when the page becomes visible
+        update();
+      } else {
+        // update every 15s if page is not visible, for better performance
+        updateTimer.current = window.setInterval(update, 15000);
+      }
+    }
+  };
+
+  const onScroll = (event) => {
+    const view = event.target;
+    const currentScrollDiff = view.scrollHeight - view.clientHeight - view.scrollTop;
+    if (!userScrolled && currentScrollDiff > AUTOSCROLL_THRESHOLD && isPageVisible && isShown()) {
+      // user scrolled to anywhere which isn't the very bottom, stop auto-scrolling
+      setUserScrolled(true);
+    }
+    if (userScrolled && currentScrollDiff <= AUTOSCROLL_THRESHOLD) {
+      // user scrolled to the bottom (approximately), start auto-scrolling again
+      setUserScrolled(false);
+    }
+  };
+
+  const fullScreen = () => {
     if (!screenfull.isFullscreen) {
-      const card = this.cardRef.current;
+      const card = cardRef.current;
       screenfull.request(card).then(() => {
         if (!userScrolled) {
           // scroll to end if userScrolled was false *before* the fullscreen transition
           // with timeout to allow slower browsers to complete the fullscreen transition.
           setTimeout(() => {
-            this.scrollToEnd();
+            scrollToEnd();
           }, 100);
         }
-        this.setState({ isFullScreen: true });
+        setIsFullScreen(true);
       });
     } else {
       screenfull.exit().then(() => {
-        this.setState({ isFullScreen: false });
+        setIsFullScreen(false);
       });
     }
   };
 
-  render() {
-    const { lines, len, errorCode, cluster, isExpandable } = this.props;
-    const { userScrolled, isFullScreen, isExpanded } = this.state;
-    const totalLines = lines ? len - 1 : 0;
-    if (!userScrolled && !!totalLines && this.isShown()) {
-      // requestAnimationFrame so this happens *after* render
-      requestAnimationFrame(this.scrollToEnd);
+  React.useEffect(() => {
+    if (isShown()) {
+      update();
+      updateTimer.current = window.setInterval(update, 2000);
+    }
+    if (screenfull.isEnabled) {
+      screenfull.on('change', onFullscreenChange);
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    setIsPageVisible(document.visibilityState === 'visible');
+
+    return () => {
+      if (updateTimer.current !== null) {
+        clearInterval(updateTimer.current);
+        updateTimer.current = null;
+      }
+
+      if (screenfull.isEnabled) {
+        screenfull.off('change', onFullscreenChange);
+      }
+
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      clearLogs();
+
+      if (screenfull.isFullscreen) {
+        screenfull.exit();
+      }
+    };
+
+    // componentDidMount and componentWillUnmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    if (!prevProps.lines && lines) {
+      // If this is the first time we're getting the log, it'll trigger a scroll event,
+      // setting userScrolled since the view won't be scrolled all the way down.
+      // So we need to account for that, and set it to false here.
+      // eslint-disable-next-line react/no-did-update-set-state
+      setUserScrolled(false);
     }
 
-    let message;
-    if (cluster.state === clusterStates.uninstalling) {
-      message =
-        errorCode === 403
-          ? metricsStatusMessages.uninstalling
-          : 'Cluster uninstallation has started. Uninstallation log will appear here once it becomes available.';
-    } else {
-      message =
-        errorCode === 403
-          ? metricsStatusMessages.installing
-          : 'Cluster installation has started. Installation log will appear here once it becomes available.';
+    if (
+      updateTimer.current !== null &&
+      ((prevProps.errorCode !== 403 && errorCode === 403) || cluster.state === clusterStates.error)
+    ) {
+      window.clearInterval(updateTimer.current);
+      updateTimer.current = null;
+    }
+    if (isExpanded !== prevState.isExpanded) {
+      // make sure to start or stop the timer when expanding / collapsing
+      if (isExpanded) {
+        setUserScrolled(false);
+      }
+      onVisibilityChange();
     }
 
-    const view = (
-      <div
-        className={cx('log-window-container', !!totalLines && 'log-window-container--with-lines')}
-        ref={this.cardRef}
-      >
-        {!!totalLines && screenfull.isEnabled && (
-          <div className="logview-buttons">
-            <Button onClick={this.fullScreen} variant="link" icon={<ExpandIcon />}>
-              {isFullScreen ? 'Exit full screen' : 'Full screen'}
-            </Button>
-          </div>
-        )}
-        {totalLines ? (
-          <div className="log-window">
-            <div className="log-window__header">{totalLines} lines</div>
-            <div className="log-window__body">
-              <div
-                className="log-window__scroll-pane"
-                ref={this.logPaneRef}
-                onScroll={this.onScroll}
-              >
-                <div className="log-window__contents">{lines || ''}</div>
-              </div>
+    prevProps.current = { lines, errorCode, cluster };
+    prevState.current = { isExpanded };
+    // onVisibilityChange should not be a dependency, makes too many API calls
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lines, errorCode, cluster, isExpanded]);
+
+  const totalLines = lines ? len - 1 : 0;
+  if (!userScrolled && !!totalLines && isShown()) {
+    // requestAnimationFrame so this happens *after* render
+    requestAnimationFrame(scrollToEnd);
+  }
+  let message;
+  if (cluster.state === clusterStates.uninstalling) {
+    message =
+      errorCode === 403
+        ? metricsStatusMessages.uninstalling
+        : 'Cluster uninstallation has started. Uninstallation log will appear here once it becomes available.';
+  } else {
+    message =
+      errorCode === 403
+        ? metricsStatusMessages.installing
+        : 'Cluster installation has started. Installation log will appear here once it becomes available.';
+  }
+
+  const view = (
+    <div
+      className={cx('log-window-container', !!totalLines && 'log-window-container--with-lines')}
+      ref={cardRef}
+    >
+      {!!totalLines && screenfull.isEnabled && (
+        <div className="logview-buttons">
+          <Button onClick={fullScreen} variant="link" icon={<ExpandIcon />}>
+            {isFullScreen ? 'Exit full screen' : 'Full screen'}
+          </Button>
+        </div>
+      )}
+      {totalLines ? (
+        <div className="log-window">
+          <div className="log-window__header">{totalLines} lines</div>
+          <div className="log-window__body">
+            <div className="log-window__scroll-pane" ref={logPaneRef} onScroll={onScroll}>
+              <div className="log-window__contents">{lines || ''}</div>
             </div>
           </div>
-        ) : (
-          cluster.state !== clusterStates.error && <p className="pf-v5-u-mt-sm">{message}</p>
-        )}
-      </div>
-    );
-    return isExpandable ? (
-      <ExpandableSection
-        id="toggle-logs"
-        toggleTextCollapsed="View logs"
-        toggleTextExpanded="Hide logs"
-        onToggle={(_event, isExpanded) => this.toggleExpanded(isExpanded)}
-        isExpanded={isExpanded}
-        isActive={!isFullScreen}
-      >
-        {view}
-      </ExpandableSection>
-    ) : (
-      view
-    );
-  }
-}
+        </div>
+      ) : (
+        cluster.state !== clusterStates.error && <p className="pf-v6-u-mt-sm">{message}</p>
+      )}
+    </div>
+  );
+  return isExpandable ? (
+    <ExpandableSection
+      id="toggle-logs"
+      toggleTextCollapsed="View logs"
+      toggleTextExpanded="Hide logs"
+      onToggle={(_event, isExpanded) => setIsExpanded(isExpanded)}
+      isExpanded={isExpanded}
+    >
+      {view}
+    </ExpandableSection>
+  ) : (
+    view
+  );
+};
 
 LogWindow.propTypes = {
   isExpandable: PropTypes.bool,
@@ -286,4 +269,4 @@ LogWindow.propTypes = {
   errorCode: PropTypes.number,
 };
 
-export default LogWindow;
+export default React.memo(LogWindow, areEqual);

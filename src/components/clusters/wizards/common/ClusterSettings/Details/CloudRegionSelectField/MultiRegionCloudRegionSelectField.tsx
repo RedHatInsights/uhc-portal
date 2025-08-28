@@ -89,7 +89,7 @@ export const MultiRegionCloudRegionSelectField = ({
             title="Some regions failed to load"
             variant="warning"
             isInline
-            className="pf-u-pt-sm"
+            className="pf-v6-u-pt-sm"
           />
         ) : null}
       </>

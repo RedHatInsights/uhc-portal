@@ -11,15 +11,14 @@ import {
   CardFooter,
   CardTitle,
   Checkbox,
+  Content,
+  ContentVariants,
   Flex,
   FlexItem,
   FormGroup,
   Stack,
   StackItem,
-  Text,
-  TextContent,
   TextInput,
-  TextVariants,
 } from '@patternfly/react-core';
 
 import config from '~/config';
@@ -58,35 +57,35 @@ const GovCloudForm = ({
             <Brand src={redhatLogoImg} alt="Red Hat Logo" />
           </FlexItem>
           <FlexItem>
-            <TextContent>
-              <Text component={TextVariants.h1}>{title}</Text>
-            </TextContent>
+            <Content>
+              <Content component={ContentVariants.h1}>{title}</Content>
+            </Content>
           </FlexItem>
         </Flex>
       </CardTitle>
       <CardBody>
         <Stack hasGutter>
           <StackItem>
-            <TextContent>
-              <Text component={TextVariants.p}>
+            <Content>
+              <Content component={ContentVariants.p}>
                 Red Hat OpenShift Service on AWS (ROSA) and Red Hat Insights in the GovCloud Region
                 have been authorized (agency) under the Federal Risk Assessment and Management
                 Program (FedRAMP) High and DoD Cloud Computing Security Requirements Guide (SRG).
-              </Text>
-              <Text component={TextVariants.p}>
+              </Content>
+              <Content component={ContentVariants.p}>
                 Federal and government agencies can be granted access to the FedRAMP environment
                 without further verification. However, commercial organizations and FISMA R&D
                 universities will need to provide documentation to show that they are supporting a
                 government contract/grant or in the process of bidding on a government
                 contract/grant (RFP, RFI, pre-bid stage), confirmation of U.S. Person only access at
                 the root level and agreement to the FedRAMP Rules of Behavior.
-              </Text>
-              <Text component={TextVariants.p}>
+              </Content>
+              <Content component={ContentVariants.p}>
                 Upon submission, this form will be processed by Red Hat. If further information is
                 required you will receive a follow up email, or you will receive instructions on how
                 to access the service. By checking the boxes below you confirm that:
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
           </StackItem>
           <StackItem>
             <Checkbox

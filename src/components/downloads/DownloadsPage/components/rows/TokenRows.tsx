@@ -1,14 +1,6 @@
 import React from 'react';
 
-import {
-  Alert,
-  Button,
-  Spinner,
-  Split,
-  SplitItem,
-  Text,
-  TextContent,
-} from '@patternfly/react-core';
+import { Alert, Button, Content, Spinner, Split, SplitItem } from '@patternfly/react-core';
 import { ArrowRightIcon } from '@patternfly/react-icons/dist/esm/icons/arrow-right-icon';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
 
@@ -57,21 +49,21 @@ const PullSecretRow = ({ expanded, setExpanded, toolRefs, token }: PullSecretRow
       </Td>,
     ]}
     description={
-      <TextContent>
-        <Text>
+      <Content>
+        <Content component="p">
           An image pull secret provides authentication for the cluster to access services and
           registries which serve the container images for OpenShift components. Every individual
           user gets a single pull secret generated. The pull secret can be used when installing
           clusters, based on the required infrastructure.
-        </Text>
-        <Text>
+        </Content>
+        <Content component="p">
           Learn how to <Link to="/create">create a cluster</Link> or{' '}
           <ExternalLink href={links.OCM_DOCS_PULL_SECRETS}>
             learn more about pull secrets
           </ExternalLink>
           .
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     }
   />
 );
@@ -100,9 +92,9 @@ const ApiTokenRow = ({ expanded, setExpanded, toolRefs }: CommonProps) => (
       </Td>,
     ]}
     description={
-      <Text>
+      <Content component="p">
         Use your API token to authenticate against your OpenShift Cluster Manager account.
-      </Text>
+      </Content>
     }
   />
 );
@@ -150,7 +142,7 @@ const TokenRows = ({
         <Tbody>
           <Tr>
             <Td>
-              <div className="pf-v5-u-text-align-center">
+              <div className="pf-v6-u-text-align-center">
                 <Spinner size="lg" aria-label="Loading..." />
               </div>
             </Td>

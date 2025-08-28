@@ -40,10 +40,10 @@ const FormKeyValueList = ({ push, remove }: ArrayHelpers) => {
 
   return (
     <Grid hasGutter>
-      <GridItem span={4} className="pf-v5-c-form__label pf-v5-c-form__label-text">
+      <GridItem span={4} className="pf-v6-c-form__label pf-v6-c-form__label-text">
         Key
       </GridItem>
-      <GridItem span={4} className="pf-v5-c-form__label pf-v5-c-form__label-text">
+      <GridItem span={4} className="pf-v6-c-form__label pf-v6-c-form__label-text">
         Value
       </GridItem>
       <GridItem span={4} />

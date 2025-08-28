@@ -13,9 +13,22 @@ const supportMap = {
   '4.14': 'Maintenance Support',
   '4.15': 'Full Support',
   '4.16': 'Full Support',
+  '4.20': 'Full Support',
 };
 
 const satbleVersions: Version[] = [
+  {
+    kind: 'Version',
+    raw_id: '4.20.0',
+    id: 'openshift-v4.20.0',
+    enabled: true,
+    default: false,
+    channel_group: 'stable',
+    rosa_enabled: true,
+    hosted_control_plane_enabled: true,
+    gcp_marketplace_enabled: true,
+    end_of_life_timestamp: '2026-10-21T00:00:00Z',
+  },
   {
     kind: 'Version',
     raw_id: '4.16.8',
@@ -108,6 +121,7 @@ const stableAndUnstableVersions = [
 
 const stableExpected = {
   'Full support': [
+    { entryId: 'openshift-v4.20.0', label: '4.20.0', groupKey: supportStatuses.FULL },
     { entryId: 'openshift-v4.16.8', label: '4.16.8', groupKey: supportStatuses.FULL },
     { entryId: 'openshift-v4.16.7', label: '4.16.7', groupKey: supportStatuses.FULL },
   ],

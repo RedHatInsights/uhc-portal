@@ -251,7 +251,7 @@ Ideally, tests will be written and coded before making changes to the actual app
 it.todo('displays “Hello Kim” when “Kim” is sent as a prop on initial render');
 ```
 
-These todo tests should be checked into git if there is a need to merge the code to master before the tests are done.
+These todo tests should be checked into git if there is a need to merge the code to 'main' before the tests are done.
 
 ## Skip tests that are producing unexpected results
 
@@ -370,6 +370,8 @@ In order to achieve this, it is important to ensure that actions taken in one te
 - Changing the value of a variable - especially during a `beforeEach`, `beforeAll`, `afterEach`, `afterAll` blocks
 
 See [Avoid Nesting when you’re Testing](https://kentcdodds.com/blog/avoid-nesting-when-youre-testing)
+
+In addition, jest will automatically clear mocks after each test to ensure that mocks aren't bleed between tests.  See [jest documentation](https://jestjs.io/docs/configuration#clearmocks-boolean) for more information.  While manually calling `jest.clearAllMocks()` in a beforeEach or afterEach block is not necessary, it causes no harm and can be added to remind future coders of a given unit test file that clearing mocks is important between tests.
 
 ## Use `user` helper object
 

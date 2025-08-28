@@ -9,8 +9,6 @@ import {
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
 } from '@patternfly/react-core';
 import { AsleepIcon } from '@patternfly/react-icons/dist/esm/icons/asleep-icon';
@@ -68,14 +66,9 @@ function HibernatingClusterCard({ cluster }) {
   }
 
   return (
-    <Card isFlat>
+    <Card>
       <CardBody>
-        <EmptyState variant={EmptyStateVariant.sm}>
-          <EmptyStateHeader
-            titleText={title}
-            icon={<EmptyStateIcon icon={icon} />}
-            headingLevel="h4"
-          />
+        <EmptyState headingLevel="h4" icon={icon} titleText={title} variant={EmptyStateVariant.sm}>
           <EmptyStateBody>{body}</EmptyStateBody>
           <EmptyStateFooter>
             <EmptyStateActions>

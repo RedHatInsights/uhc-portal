@@ -17,90 +17,81 @@ import ClusterLogsDatePicker from './ClusterLogsDatePicker';
 import ClusterLogsDownload from './ClusterLogsDownload';
 import ClusterLogsFilterChipGroup from './ClusterLogsFilterChipGroup';
 
-class ClusterLogsToolbar extends React.PureComponent {
-  render() {
-    const {
-      viewOptions,
-      history,
-      setFlags,
-      setFilter,
-      externalClusterID,
-      currentFilter,
-      currentFlags,
-      clearFiltersAndFlags,
-      isPendingNoData,
-      createdAt,
-      clusterID,
-      logs,
-      itemCount,
-      page,
-      perPage,
-      itemsStart,
-      itemsEnd,
-      onSetPage,
-      onPerPageSelect,
-      region,
-    } = this.props;
-
-    return (
-      <>
-        <Toolbar className="cluster-log__toolbar" data-testid="cluster-history-toolbar">
-          <ToolbarContent>
-            <ToolbarGroup variant="filter-group">
-              <ClusterLogsDatePicker
-                currentFilter={currentFilter}
-                currentFlags={currentFlags}
-                setFilter={setFilter}
-                setFlags={setFlags}
-                createdAt={createdAt}
-              />
-            </ToolbarGroup>
-            <ToolbarItem>
-              <ClusterLogsConditionalFilter
-                view={viewConstants.CLUSTER_LOGS_VIEW}
-                history={history}
-                currentFilter={currentFilter}
-                currentFlags={currentFlags}
-                setFilter={setFilter}
-                setFlags={setFlags}
-              />
-            </ToolbarItem>
-            <ToolbarItem>
-              <ClusterLogsDownload
-                externalClusterID={externalClusterID}
-                clusterID={clusterID}
-                viewOptions={viewOptions}
-                logs={logs}
-                region={region}
-              />
-            </ToolbarItem>
-            <ToolbarItem align={{ default: 'alignRight' }} variant="pagination">
-              <ClusterLogsPagination
-                itemCount={itemCount}
-                isDisabled={isPendingNoData}
-                page={page}
-                perPage={perPage}
-                itemsStart={itemsStart}
-                itemsEnd={itemsEnd}
-                variant={PaginationVariant.top}
-                onSetPage={onSetPage}
-                onPerPageSelect={onPerPageSelect}
-              />
-            </ToolbarItem>
-          </ToolbarContent>
-        </Toolbar>
-        <ClusterLogsFilterChipGroup
-          view={viewConstants.CLUSTER_LOGS_VIEW}
-          currentFilter={currentFilter}
-          currentFlags={currentFlags}
-          setFilter={setFilter}
-          setFlags={setFlags}
-          clearFiltersAndFlags={clearFiltersAndFlags}
-        />
-      </>
-    );
-  }
-}
+const ClusterLogsToolbar = ({
+  viewOptions,
+  setFlags,
+  setFilter,
+  externalClusterID,
+  currentFilter,
+  currentFlags,
+  clearFiltersAndFlags,
+  isPendingNoData,
+  createdAt,
+  clusterID,
+  logs,
+  itemCount,
+  page,
+  perPage,
+  itemsStart,
+  itemsEnd,
+  onSetPage,
+  onPerPageSelect,
+  region,
+}) => (
+  <>
+    <Toolbar className="cluster-log__toolbar" data-testid="cluster-history-toolbar">
+      <ToolbarContent>
+        <ToolbarGroup variant="filter-group">
+          <ClusterLogsDatePicker
+            currentFilter={currentFilter}
+            currentFlags={currentFlags}
+            setFilter={setFilter}
+            setFlags={setFlags}
+            createdAt={createdAt}
+          />
+        </ToolbarGroup>
+        <ToolbarItem>
+          <ClusterLogsConditionalFilter
+            currentFilter={currentFilter}
+            currentFlags={currentFlags}
+            setFilter={setFilter}
+            setFlags={setFlags}
+          />
+        </ToolbarItem>
+        <ToolbarItem>
+          <ClusterLogsDownload
+            externalClusterID={externalClusterID}
+            clusterID={clusterID}
+            viewOptions={viewOptions}
+            logs={logs}
+            region={region}
+          />
+        </ToolbarItem>
+        <ToolbarItem align={{ default: 'alignEnd' }} variant="pagination">
+          <ClusterLogsPagination
+            itemCount={itemCount}
+            isDisabled={isPendingNoData}
+            page={page}
+            perPage={perPage}
+            itemsStart={itemsStart}
+            itemsEnd={itemsEnd}
+            variant={PaginationVariant.top}
+            onSetPage={onSetPage}
+            onPerPageSelect={onPerPageSelect}
+          />
+        </ToolbarItem>
+      </ToolbarContent>
+    </Toolbar>
+    <ClusterLogsFilterChipGroup
+      view={viewConstants.CLUSTER_LOGS_VIEW}
+      currentFilter={currentFilter}
+      currentFlags={currentFlags}
+      setFilter={setFilter}
+      setFlags={setFlags}
+      clearFiltersAndFlags={clearFiltersAndFlags}
+    />
+  </>
+);
 
 ClusterLogsToolbar.propTypes = {
   setFilter: PropTypes.func.isRequired,

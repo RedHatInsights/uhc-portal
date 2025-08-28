@@ -5,7 +5,7 @@ const clusterProfiles = ['osdccs-aws-public', 'osdccs-aws-public-advanced'];
 
 describe(
   'OSD AWS CCS Cluster - delete public clusters',
-  { tags: ['day3', 'aws', 'public'] },
+  { tags: ['day3', 'osd', 'aws', 'public'] },
   () => {
     beforeEach(() => {
       if (Cypress.currentTest.title.match(/Open.*cluster/g)) {

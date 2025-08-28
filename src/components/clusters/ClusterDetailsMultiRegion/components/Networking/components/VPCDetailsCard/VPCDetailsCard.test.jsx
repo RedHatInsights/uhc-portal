@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { ClusterState } from '~/types/clusters_mgmt.v1/enums';
+
 import { mockRestrictedEnv, render, screen } from '../../../../../../../testUtils';
 
 import VPCDetailsCard from './VPCDetailsCard';
@@ -14,7 +16,7 @@ describe('<VPCDetailsCard />', () => {
   };
 
   describe('in default environment', () => {
-    it('renders footer', async () => {
+    it('renders footer', () => {
       render(<VPCDetailsCard {...defaultProps} />);
       expect(screen.queryByText('Edit cluster-wide proxy')).toBeInTheDocument();
     });
@@ -28,7 +30,7 @@ describe('<VPCDetailsCard />', () => {
     afterAll(() => {
       isRestrictedEnv.mockReturnValue(false);
     });
-    it('does not render footer', async () => {
+    it('does not render footer', () => {
       render(<VPCDetailsCard {...defaultProps} />);
       expect(screen.queryByText('Edit cluster-wide proxy')).not.toBeInTheDocument();
     });
@@ -46,10 +48,77 @@ describe('<VPCDetailsCard />', () => {
       },
     };
 
-    it('renders Private Service Connect Subnet', async () => {
+    it('renders Private Service Connect Subnet', () => {
       render(<VPCDetailsCard {...props} />);
       expect(screen.queryByText('Private Service Connect Subnet')).toBeInTheDocument();
       expect(screen.queryByText('gcpPrivateServiceConnect')).toBeInTheDocument();
+    });
+  });
+
+  describe.each([
+    [
+      'cluster is in read-only mode, and user is allowed to update cluster resource',
+      {
+        status: {
+          configuration_mode: 'read_only',
+        },
+        canUpdateClusterResource: true,
+      },
+    ],
+    [
+      'cluster is hibernating',
+      {
+        state: ClusterState.hibernating,
+      },
+    ],
+    [
+      'cluster is resuming from hibernation, and user is allowed to update cluster resource',
+      {
+        state: ClusterState.resuming,
+        canUpdateClusterResource: true,
+      },
+    ],
+    [
+      'user is not allowed to update cluster resource',
+      {
+        canUpdateClusterResource: false,
+      },
+    ],
+  ])('When %s', (title, clusterProps) => {
+    const props = {
+      cluster: {
+        ...defaultProps.cluster,
+        ...clusterProps,
+      },
+    };
+
+    it('Edit button is disabled', () => {
+      render(<VPCDetailsCard {...props} />);
+      expect(screen.queryByText('Edit cluster-wide proxy').parentElement).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+    });
+  });
+
+  describe('When cluster is neither in read-only mode nor in one of the hibernation states, and user is allowed updates to the cluster resource', () => {
+    const props = {
+      cluster: {
+        ...defaultProps.cluster,
+        canUpdateClusterResource: true,
+        state: ClusterState.installing,
+        status: {
+          configuration_mode: 'full',
+        },
+      },
+    };
+
+    it('Edit button is enabled', () => {
+      render(<VPCDetailsCard {...props} />);
+      expect(screen.queryByText('Edit cluster-wide proxy')).not.toHaveAttribute(
+        'aria-disabled',
+        'false',
+      );
     });
   });
 });

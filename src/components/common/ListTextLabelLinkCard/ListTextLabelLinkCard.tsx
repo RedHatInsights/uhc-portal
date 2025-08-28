@@ -19,17 +19,17 @@ export function ListTextLabelLinkCard(props: ListTextLabelLinkCardProps) {
   const { cardClassName, textLabelLinkItems } = props;
 
   return (
-    <Card className={cardClassName}>
+    <Card className={cardClassName} data-testid="recommended-content">
       <List isPlain isBordered>
         {textLabelLinkItems.length &&
           textLabelLinkItems.map(
             ({ listItemText, listItemLabel, listItemLink, dataTestId }, index) => {
-              let splitClassName = 'pf-v5-u-pt-md pf-v5-u-pr-md pf-v5-u-pb-md pf-v5-u-pl-md';
+              let splitClassName = 'pf-v6-u-pt-md pf-v6-u-pr-md pf-v6-u-pb-md pf-v6-u-pl-md';
               if (index === textLabelLinkItems.length - 1) {
-                splitClassName += ' pf-v5-u-pb-lg';
+                splitClassName += ' pf-v6-u-pb-lg';
               }
               if (index === 0) {
-                splitClassName += ' pf-v5-u-pt-lg';
+                splitClassName += ' pf-v6-u-pt-lg';
               }
 
               return (

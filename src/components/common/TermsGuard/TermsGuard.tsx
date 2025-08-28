@@ -3,12 +3,11 @@ import { useLocation } from 'react-router-dom';
 
 import {
   Button,
+  Content,
+  ContentVariants,
   EmptyState,
   EmptyStateBody,
   Spinner,
-  Text,
-  TextContent,
-  TextVariants,
 } from '@patternfly/react-core';
 
 import { useNavigate } from '~/common/routing';
@@ -65,7 +64,7 @@ const TermsGuard = ({ selfTermsReview, selfTermsReviewResult, children, gobackPa
     return (
       <EmptyState>
         <EmptyStateBody>
-          <div className="pf-v5-u-text-align-center">
+          <div className="pf-v6-u-text-align-center">
             <Spinner size="lg" aria-label="Loading..." />
           </div>
         </EmptyStateBody>
@@ -82,25 +81,25 @@ const TermsGuard = ({ selfTermsReview, selfTermsReviewResult, children, gobackPa
     : 'Updated Terms and Conditions';
   const dialogText = selfTermsReviewResult.terms_required ? (
     // required: user needs accept or cancel.
-    <TextContent>
-      <Text component={TextVariants.p}>
+    <Content>
+      <Content component={ContentVariants.p}>
         Red Hat has Terms and Conditions for its managed services.
-      </Text>
-      <Text component={TextVariants.p}>
+      </Content>
+      <Content component={ContentVariants.p}>
         <b>
           If you do not accept the terms, you will not be able to create new clusters or to alter
           existing clusters.
         </b>{' '}
         Existing clusters will not be affected, however access will be read-only.
-      </Text>
-    </TextContent>
+      </Content>
+    </Content>
   ) : (
     // optional: user needs accept, decline, defer, or cancel.
-    <TextContent>
-      <Text component={TextVariants.p}>
+    <Content>
+      <Content component={ContentVariants.p}>
         Red Hat has updated the Terms and Conditions for its managed services.
-      </Text>
-    </TextContent>
+      </Content>
+    </Content>
   );
   const tncAppURL = getTncAppURL(selfTermsReviewResult.redirect_url);
   const actions = [

@@ -1,66 +1,44 @@
 .ocm-create-osd-review-screen {
   h3 {
-    margin-top: var(--pf-v5-global--spacer--md);
-    margin-bottom: var(--pf-v5-global--spacer--md);
+    margin-top: var(--pf-t--global--spacer--md);
+    margin-bottom: var(--pf-t--global--spacer--md);
   }
-  .pf-v5-c-description-list {
-    --pf-v5-c-description-list--m-horizontal__term--width: 21ch;
-    --pf-v5-c-description-list--RowGap: var(--pf-v5-global--gutter);
-  }
-  .pf-v5-c-description-list__term .pf-v5-c-description-list__text {
-    font-weight: normal;
-    font-size: var(--pf-v5-global--FontSize--md);
-  }
-  .pf-v5-c-description-list__description .pf-v5-c-description-list__text {
-    color: var(--pf-v5-global--Color--dark-200);
+  .pf-v6-c-description-list {
+    --pf-v6-c-description-list--m-horizontal__term--width: 21ch;
+    --pf-v6-c-description-list--RowGap: var(--pf-t--global--spacer--gutter--default);
   }
 
-  .prerequisites-expandable-section .pf-v5-c-expandable-section__content {
-    padding-left: 29px;
-  }
-
-  .review-screen-expandable-section {
-    margin-top: var(--pf-v5-c-expandable-section__content--MarginTop);
+  .pf-v6-c-description-list__description .pf-v6-c-description-list__text {
+    color: var(--pf-t--global--dark--text--color--200);
   }
 
   .review-screen-expandable-section__toggle-wrapper {
     display: inline-block;
   }
 
-  .review-screen-expandable-section .pf-v5-c-expandable-section__content {
-    padding-left: 29px;
-  }
-  .review-screen-item-expandable-section .pf-v5-c-expandable-section__content {
-    padding-left: var(--pf-v5-c-expandable-section__content--PaddingLeft);
+  .review-screen-item-expandable-section .pf-v6-c-expandable-section__content {
+    padding-left: var(--pf-v6-c-expandable-section__content--PaddingInlineStart);
   }
 
-  .pf-v5-c-expandable-section__toggle {
+  .pf-v6-c-expandable-section__toggle {
     color: rgb(0, 0, 0);
   }
-  .review-screen-item-expandable-section .pf-v5-c-expandable-section__toggle {
-    color: var(--pf-v5-c-expandable-section__toggle--Color);
-  }
 
-  .pf-v5-c-expandable-section__toggle-text {
-    font-size: 18px;
-    font-weight: 502;
-    line-height: 27px;
-    /* TODO: why aren't these --pf-v5-c-title vars not defined when inspecting in browser?
-    font-size: var(--pf-v5-c-title--m-lg--FontSize);
-    font-weight: var(--pf-v5-c-title--m-lg--FontWeight);
-    line-height: var(--pf-v5-c-title--m-lg--LineHeight);
-     */
-  }
-  .review-screen-item-expandable-section .pf-v5-c-expandable-section__toggle-text {
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 24px;
-  }
-  .pf-v5-c-description-list__text .popover-with-title-div {
+  .pf-v6-c-description-list__text .popover-with-title-div {
     padding-top: 0;
   }
-  .pf-v5-c-expandable-section.pf-m-detached {
-    // --pf-v5-c-expandable-section__content--MarginTop: var(--pf-v5-c-expandable-section__content--MarginTop)}  // Note vars are not showing in the browser
+  .pf-v6-c-expandable-section{
+    margin-top: var(--pf-v6-c-expandable-section--Gap);
+  }
+
+  .review-screen-expandable-section__toggle-wrapper {
     margin-top: 1rem;
+  }
+
+  // Fix a weird spacing issue on Safari where the grid items did not expand to
+  // contain the content.
+  .ocm-aws-vpc-table  .pf-v6-l-grid__item {
+    min-height: auto;
+    padding:3px
   }
 }

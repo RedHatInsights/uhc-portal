@@ -41,7 +41,7 @@ describe('<ExternalLink />', () => {
     // Assert
     expect(screen.getByRole('link')).toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
-    expect(screen.getByRole('link').getAttribute('class')).toMatch(/pf-v5-c-button/);
+    expect(screen.getByRole('link').getAttribute('class')).toMatch(/pf-v6-c-button/);
     expect(screen.getByRole('link').getAttribute('class')).toMatch(/secondary/);
   });
 
@@ -56,7 +56,7 @@ describe('<ExternalLink />', () => {
     // Assert
     expect(screen.getByRole('link')).toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
-    expect(screen.getByRole('link').getAttribute('class')).toMatch(/pf-v5-c-button/);
+    expect(screen.getByRole('link').getAttribute('class')).toMatch(/pf-v6-c-button/);
     expect(screen.getByRole('link').getAttribute('class')).toMatch(/primary/);
   });
 

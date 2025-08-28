@@ -1,30 +1,30 @@
-@import '~@patternfly/patternfly/sass-utilities/_all';
+@import '~@patternfly/patternfly/sass-utilities';
 
 $ocm-c-marketing-banner--breakpoint-map: build-breakpoint-map();
 
 .ocm-c-marketing-banner {
-  --ocm-m-marketing-page--RowGap: var(--pf-v5-global--spacer--xl);
-  --ocm-m-marketing-page--ColumnGap: var(--pf-v5-global--spacer--xl);
-  --ocm-m-marketing-page--section--PaddingTop: var(--pf-v5-global--spacer--xl);
-  --ocm-m-marketing-page--section--PaddingRight: var(--pf-v5-global--spacer--2xl);
-  --ocm-m-marketing-page--section--PaddingBottom: var(--pf-v5-global--spacer--xl);
-  --ocm-m-marketing-page--section--PaddingLeft: var(--pf-v5-global--spacer--2xl);
+  --ocm-m-marketing-page--RowGap: var(--pf-t--global--spacer--xl);
+  --ocm-m-marketing-page--ColumnGap: var(--pf-t--global--spacer--xl);
+  --ocm-m-marketing-page--section--PaddingTop: var(--pf-t--global--spacer--xl);
+  --ocm-m-marketing-page--section--PaddingRight: var(--pf-t--global--spacer--2xl);
+  --ocm-m-marketing-page--section--PaddingBottom: var(--pf-t--global--spacer--xl);
+  --ocm-m-marketing-page--section--PaddingLeft: var(--pf-t--global--spacer--2xl);
 
   .ocm-l-autofit {
     --ocm-l-autofit--m-gutter--RowGap: var(--ins-m-marketing-page--RowGap);
     --ocm-l-autofit--m-gutter--ColumnGap: var(--ins-m-marketing-page--ColumnGap);
   }
 
-  .pf-v5-c-page__main-section {
-    --pf-v5-c-page__main-section--PaddingTop: var(--ins-m-marketing-page--section--PaddingTop);
-    --pf-v5-c-page__main-section--PaddingRight: var(--ins-m-marketing-page--section--PaddingRight);
-    --pf-v5-c-page__main-section--PaddingBottom: var(--ins-m-marketing-page--section--PaddingBottom);
-    --pf-v5-c-page__main-section--PaddingLeft: var(--ins-m-marketing-page--section--PaddingLeft);
+  .pf-v6-c-page__main-section {
+    --pf-v6-c-page__main-section--PaddingBlockStart: var(--ins-m-marketing-page--section--PaddingTop);
+    --pf-v6-c-page__main-section--PaddingInlineEnd: var(--ins-m-marketing-page--section--PaddingRight);
+    --pf-v6-c-page__main-section--PaddingBlockEnd: var(--ins-m-marketing-page--section--PaddingBottom);
+    --pf-v6-c-page__main-section--PaddingInlineStart: var(--ins-m-marketing-page--section--PaddingLeft);
   }
 
   .ocm-c-marketing-banner {
-    --ocm-c-marketing-banner--PaddingTop: var(--pf-v5-global--spacer--2xl);
-    --ocm-c-marketing-banner--PaddingBottom: var(--pf-v5-global--spacer--2xl);
+    --ocm-c-marketing-banner--PaddingTop: var(--pf-t--global--spacer--2xl);
+    --ocm-c-marketing-banner--PaddingBottom: var(--pf-t--global--spacer--2xl);
   }
 
   a {
@@ -32,22 +32,22 @@ $ocm-c-marketing-banner--breakpoint-map: build-breakpoint-map();
     text-decoration: none;
   }
 
-  .pf-v5-l-grid {
-    --pf-v5-l-grid--m-gutter--GridGap: var(--pf-v5-global--spacer--xl);
+  .pf-v6-l-grid {
+    --pf-v6-l-grid--m-gutter--GridGap: var(--pf-t--global--spacer--xl);
   }
 }
 
-.dashboard-emptystate-card .pf-v5-c-card__body {
+.dashboard-emptystate-card .pf-v6-c-card__body {
   a {
     display: block;
     margin-top: 16px;
   }
 
-  .pf-v5-c-button {
+  .pf-v6-c-button {
     padding-left: 0;
   }
 
-  .pf-v5-c-button > .pf-v5-c-button__icon {
+  .pf-v6-c-button > .pf-v6-c-button__icon {
     float: right;
     margin-left: 5px;
   }
@@ -58,12 +58,12 @@ $ocm-c-marketing-banner--breakpoint-map: build-breakpoint-map();
 }
 
 #dashboard-emptystate-osd {
-  padding-bottom: var(--pf-v5-global--spacer--lg);
+  padding-bottom: var(--pf-t--global--spacer--lg);
 }
 
 #overview-emptystate-get-productive .flex-pair{
   div{
-    margin-bottom: var(--pf-v5-global--spacer--lg);
+    margin-bottom: var(--pf-t--global--spacer--lg);
     @media (max-width: 480px) {
       width: 338px;
     }
@@ -76,7 +76,7 @@ $ocm-c-marketing-banner--breakpoint-map: build-breakpoint-map();
   }
   div:first-child{
       @media (min-width: 1023px) {
-      margin-right: var(--pf-v5-global--spacer--lg);
+      margin-right: var(--pf-t--global--spacer--lg);
     }
   }
 }
@@ -89,16 +89,16 @@ $ocm-c-marketing-banner--breakpoint-map: build-breakpoint-map();
     min-height: 375px;
   }
 
-  .pf-v5-c-list{
+  .pf-v6-c-list{
    list-style: none;
   }
 
   div:first-child{
     @media (max-width: 769px) {
-      margin-bottom: var(--pf-v5-global--spacer--lg);
+      margin-bottom: var(--pf-t--global--spacer--lg);
     }
     @media (min-width: 737px) {
-      margin-right: var(--pf-v5-global--spacer--lg);
+      margin-right: var(--pf-t--global--spacer--lg);
     }
   }
 }
@@ -107,7 +107,7 @@ $ocm-c-marketing-banner--breakpoint-map: build-breakpoint-map();
   text-decoration: none;
   button {
     display: block;
-    margin-top: var(--pf-v5-global--spacer--md);
+    margin-top: var(--pf-t--global--spacer--md);
   }
 }
 

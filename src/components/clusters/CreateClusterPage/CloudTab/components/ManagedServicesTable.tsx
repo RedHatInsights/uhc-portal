@@ -7,7 +7,9 @@ import { ExpandableRowContent, Table, Tbody, Td, Th, Thead, Tr } from '@patternf
 import { Link } from '~/common/routing';
 import CreateClusterDropDown from '~/components/clusters/CreateClusterPage/CloudTab/components/CreateClusterDropDown';
 import links from '~/components/clusters/CreateClusterPage/CreateClusterConsts';
+import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import ExternalLink from '~/components/common/ExternalLink';
+import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import AWSLogo from '~/styles/images/AWS.png';
 import IBMCloudLogo from '~/styles/images/ibm_cloud-icon.png';
@@ -20,6 +22,8 @@ interface ManagedServicesTableProps {
 }
 
 const ManagedServicesTable = (props: ManagedServicesTableProps) => {
+  const { canCreateManagedCluster } = useCanCreateManagedCluster();
+
   const { hasOSDQuota = false, isTrialEnabled = false } = props;
   const [openRows, setOpenRows] = useState<Array<string>>([]);
   const setRowExpanded = (rowKey: string, isExpanding = true) =>
@@ -54,12 +58,14 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
       </ExternalLink>
     ),
     purchasedThrough: 'Red Hat',
-    details: 'Available on AWS and GCP',
+    details: 'Available on GCP',
     action: (
-      <Button
+      <CreateManagedClusterButtonWithTooltip
+        childComponent={Button}
         className="create-button"
+        isAriaDisabled={!canCreateManagedCluster}
         variant={ButtonVariant.primary}
-        component={(props) => (
+        component={(props: any) => (
           <Link
             {...props}
             id="create-trial-cluster"
@@ -70,10 +76,45 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
         )}
       >
         Create trial cluster
-      </Button>
+      </CreateManagedClusterButtonWithTooltip>
     ),
     expandedSection: null,
   };
+
+  let osdRowaction;
+
+  if (hasOSDQuota) {
+    osdRowaction = (
+      <CreateManagedClusterButtonWithTooltip
+        childComponent={Button}
+        className="create-button"
+        isAriaDisabled={!canCreateManagedCluster}
+        variant={ButtonVariant.primary}
+        component={(props: any) => (
+          <Link
+            {...props}
+            id="create-cluster"
+            to="/create/osd"
+            data-testid="osd-create-cluster-button"
+          />
+        )}
+      >
+        Create cluster
+      </CreateManagedClusterButtonWithTooltip>
+    );
+  } else {
+    osdRowaction = (
+      <ExternalLink
+        href={links.OSD_LEARN_MORE}
+        isButton
+        variant={ButtonVariant.secondary}
+        className="create-button"
+        noIcon
+      >
+        <span>Learn more</span>
+      </ExternalLink>
+    );
+  }
 
   const osdRow = {
     key: rowKeys.osd,
@@ -84,33 +125,8 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
       </ExternalLink>
     ),
     purchasedThrough: 'Red Hat',
-    details: 'Available on AWS and GCP',
-    action: hasOSDQuota ? (
-      <Button
-        className="create-button"
-        variant={ButtonVariant.primary}
-        component={(props) => (
-          <Link
-            {...props}
-            id="create-cluster"
-            to="/create/osd"
-            data-testid="osd-create-cluster-button"
-          />
-        )}
-      >
-        Create cluster
-      </Button>
-    ) : (
-      <ExternalLink
-        href={links.OSD_LEARN_MORE}
-        isButton
-        variant={ButtonVariant.secondary}
-        className="create-button"
-        noIcon
-      >
-        <span>Learn more</span>
-      </ExternalLink>
-    ),
+    details: 'Available on GCP',
+    action: osdRowaction,
     expandedSection: {
       content: (
         <Stack hasGutter>
@@ -121,7 +137,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
             Reduce operational complexity and focus on building and scaling applications that add
             more value to your business.
             <br />
-            Hosted on Amazon Web Services (AWS) and Google Cloud.
+            Hosted on Google Cloud.
           </StackItem>
           <StackItem>
             <ExternalLink href={links.OSD_LEARN_MORE}>
@@ -221,7 +237,14 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
     ),
     purchasedThrough: 'Amazon Web Services',
     details: 'Flexible hourly billing',
-    action: <CreateClusterDropDown toggleId="rosa-create-cluster-dropdown" />,
+
+    action: (
+      <CreateManagedClusterButtonWithTooltip
+        childComponent={CreateClusterDropDown}
+        isDisabled={!canCreateManagedCluster}
+        wrap
+      />
+    ),
     expandedSection: {
       content: (
         <Stack hasGutter>
@@ -251,7 +274,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
   rows.push(rosaRow);
 
   return (
-    <Table aria-label="Managed services">
+    <Table aria-label="Managed services" data-testid="managed-service-table">
       <Thead>
         <Tr>
           <Th screenReaderText="Row expansion" />

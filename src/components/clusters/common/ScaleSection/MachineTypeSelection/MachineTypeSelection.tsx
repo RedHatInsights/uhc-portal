@@ -1,0 +1,382 @@
+// MachineTypeSelection renders a series of radio buttons for all available node types,
+// allowing the user to select just one.
+
+import React from 'react';
+import { useField } from 'formik';
+import { useDispatch } from 'react-redux';
+
+import {
+  Alert,
+  AlertVariant,
+  FormGroup,
+  HelperText,
+  HelperTextItem,
+  Icon,
+  Spinner,
+} from '@patternfly/react-core';
+import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
+
+import { noMachineTypes } from '~/common/helpers';
+import { normalizedProducts } from '~/common/subscriptionTypes';
+import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
+import { availableQuota } from '~/components/clusters/common/quotaSelectors';
+import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
+import ErrorBox from '~/components/common/ErrorBox';
+import ExternalLink from '~/components/common/ExternalLink';
+import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+import PopoverHint from '~/components/common/PopoverHint';
+import { MachineTypesResponse } from '~/queries/types';
+import { DEFAULT_FLAVOUR_ID, getDefaultFlavour } from '~/redux/actions/flavourActions';
+import { useGlobalState } from '~/redux/hooks';
+import { RelatedResourceBilling_model as RelatedResourceBillingModel } from '~/types/accounts_mgmt.v1';
+import { BillingModel, MachineType } from '~/types/clusters_mgmt.v1';
+import { ErrorState } from '~/types/types';
+
+import { QuotaTypes } from '../../quotaModel';
+
+import {
+  TreeViewData,
+  TreeViewSelect,
+  TreeViewSelectMenuItem,
+} from './TreeViewSelect/TreeViewSelect';
+import {
+  groupedMachineTypes,
+  isMachineTypeIncludedInFilteredSet,
+  machineTypeDescriptionLabel,
+  machineTypeFullLabel,
+  machineTypeLabel,
+} from './machineTypeSelectionHelper';
+import sortMachineTypes from './sortMachineTypes';
+
+const INSTANCE_TYPE_FIELD_ID = 'instanceType';
+
+// Default selection scenarios:
+// - First time, default is available => select it.
+// - First time, default is not listed (due to quota or ccs_only) => leave placeholder ''.
+// - Error fetching flavours (very unlikely) => no need to show error to user, leave placeholder.
+// - User selected a type manually, then changed CSS or multiAz, choice still listed.
+//   => keep it.
+// - User selected a type manually, then changed CSS or multiAz, choice no longer listed.
+//   => restore placeholder '' to force choice (even if have quota for default).
+//   - componentDidUpdate running in this situation (e.g. onToggle) should not select default.
+// - Something was selected (either automatically or manually), then changed cloud provider.
+//   CloudProviderSelectionField does `change('machine_type', '')` => same as first time.
+type MachineTypeSelectionProps = {
+  machineTypesResponse: MachineTypesResponse;
+  isMultiAz: boolean;
+  isBYOC: boolean;
+  isMachinePool: boolean;
+  inModal: boolean;
+  cloudProviderID: 'aws' | 'gcp' | undefined;
+  productId: string;
+  billingModel: BillingModel;
+  allExpanded?: boolean;
+};
+
+const MachineTypeSelection = ({
+  machineTypesResponse,
+  isMultiAz,
+  isBYOC,
+  isMachinePool,
+  inModal = false,
+  cloudProviderID,
+  productId,
+  billingModel,
+  allExpanded = true,
+}: MachineTypeSelectionProps) => {
+  const dispatch = useDispatch();
+
+  const [
+    _field,
+    { value: instanceType, touched, error: instanceTypeError },
+    { setValue: setFieldValue },
+  ] = useField(INSTANCE_TYPE_FIELD_ID);
+
+  const { flavours, machineTypesByRegion, organization, quota } = useGlobalState((state) => ({
+    flavours: state.flavours,
+    machineTypesByRegion: state.machineTypesByRegion,
+    organization: state.userProfile.organization,
+    quota: state.userProfile.organization.quotaList,
+  }));
+
+  // checks if previous selection was from unfiltered machine set. Will flip filter value.
+  const previousSelectionFromUnfilteredSet =
+    machineTypesByRegion.fulfilled &&
+    !machineTypesByRegion?.typesByID[instanceType]?.id &&
+    machineTypesResponse?.typesByID?.[instanceType]?.id;
+
+  /** Checks whether required data arrived. */
+  const isDataReady =
+    organization.fulfilled &&
+    machineTypesResponse &&
+    // Tolerate flavours error gracefully.
+    (flavours.fulfilled || flavours.error);
+
+  const isRegionSpecificDataReady =
+    machineTypesByRegion.fulfilled || (machineTypesByRegion.error && isDataReady);
+
+  // use region data switch, wait for region data to be ready
+  const useRegionFilteredData =
+    (isBYOC || productId === normalizedProducts.ROSA) &&
+    cloudProviderID === CloudProviderType.Aws &&
+    !inModal;
+
+  const [isMachineTypeFilteredByRegion, setIsMachineTypeFilteredByRegion] = React.useState(
+    !previousSelectionFromUnfilteredSet,
+  );
+  const activeMachineTypes =
+    isRegionSpecificDataReady && useRegionFilteredData && isMachineTypeFilteredByRegion
+      ? machineTypesByRegion
+      : machineTypesResponse;
+
+  /**
+   * Checks whether type can be offered, based on quota and ccs_only.
+   * Returns false if necessary data not fulfilled yet.
+   */
+  const isTypeAvailable = React.useCallback(
+    (machineTypeID: string) => {
+      if (
+        !isDataReady ||
+        (useRegionFilteredData && !isRegionSpecificDataReady) ||
+        !activeMachineTypes.typesByID
+      ) {
+        return false;
+      }
+
+      const machineType = activeMachineTypes?.typesByID[machineTypeID];
+      if (!machineType) {
+        return false;
+      }
+      const resourceName = machineType.generic_name;
+
+      if (!isBYOC && machineType.ccs_only) {
+        return false;
+      }
+
+      const quotaParams = {
+        product: productId,
+        cloudProviderID,
+        isBYOC,
+        isMultiAz,
+        resourceName,
+        // availableQuota expects a RelatedResourceBillingModel, but checks for a 'marketplace' prefix too, so the availableQuota function should be changed.
+        // link to comment on PR explainng this: https://github.com/RedHatInsights/uhc-portal/pull/224#discussion_r2055913698
+        billingModel: billingModel as RelatedResourceBillingModel,
+      };
+
+      const clustersAvailable = availableQuota(quota, {
+        ...quotaParams,
+        resourceType: QuotaTypes.CLUSTER,
+      });
+      const nodesAvailable = availableQuota(quota, {
+        ...quotaParams,
+        resourceType: QuotaTypes.NODE,
+      });
+
+      if (isMachinePool) {
+        // TODO: backend does allow creating machine pool with 0 nodes!
+        // But in most cases you want a machine type you do have quota for,
+        // and if we allow >= 0, the highlight of available types becomes useless.
+        // Can we improve the experience without blocking 0-node pool creation?
+        return nodesAvailable >= 1;
+      }
+
+      if (isBYOC) {
+        const minimumNodes = isMultiAz ? 3 : 2;
+        return clustersAvailable > 0 && nodesAvailable >= minimumNodes;
+      }
+
+      return clustersAvailable >= 1;
+    },
+    [
+      activeMachineTypes?.typesByID,
+      billingModel,
+      cloudProviderID,
+      isBYOC,
+      isDataReady,
+      isRegionSpecificDataReady,
+      useRegionFilteredData,
+      isMachinePool,
+      isMultiAz,
+      productId,
+      quota,
+    ],
+  );
+
+  const setDefaultValue = React.useCallback(() => {
+    const defaultType = cloudProviderID
+      ? flavours?.byID?.[DEFAULT_FLAVOUR_ID]?.[cloudProviderID]?.compute_instance_type
+      : undefined;
+
+    if (defaultType && isTypeAvailable(defaultType)) {
+      setFieldValue(defaultType);
+    }
+  }, [cloudProviderID, flavours?.byID, isTypeAvailable, setFieldValue]);
+
+  React.useEffect(() => {
+    dispatch(getDefaultFlavour()); // This should be migrated to React Query instead of sorting it in Redux. See issue #OCMUI-3323
+  }, [dispatch]);
+
+  React.useEffect(() => {
+    if (
+      isDataReady &&
+      (!useRegionFilteredData || isRegionSpecificDataReady) &&
+      activeMachineTypes.typesByID &&
+      !instanceType
+    ) {
+      setDefaultValue();
+    }
+  }, [
+    instanceType,
+    isDataReady,
+    activeMachineTypes?.typesByID,
+    useRegionFilteredData,
+    isRegionSpecificDataReady,
+    isTypeAvailable,
+    setDefaultValue,
+  ]);
+
+  const sortedMachineTypes = React.useMemo(
+    () => sortMachineTypes(activeMachineTypes, cloudProviderID),
+    [cloudProviderID, activeMachineTypes],
+  );
+
+  const filteredMachineTypes = React.useMemo(
+    () => sortedMachineTypes.filter((type) => isTypeAvailable(type.id)),
+    [isTypeAvailable, sortedMachineTypes],
+  );
+
+  const machineTypeUnavailableWarning =
+    'OCM does not have access to all AWS account details. Machine node type cannot be verified to be accessible for this AWS user.';
+  const possiblyUnavailableWarnIcon = React.useMemo(
+    () => (
+      <Icon status="warning" size="md">
+        <ExclamationTriangleIcon />
+      </Icon>
+    ),
+    [],
+  );
+
+  const machineTypeMap: TreeViewData[] = React.useMemo(
+    () =>
+      Object.entries(groupedMachineTypes(filteredMachineTypes))
+        .filter(([_label, categoryMachines]) => categoryMachines.length)
+        .map(([categoryLabel, categoryMachines]) => ({
+          name: categoryLabel,
+          category: categoryLabel,
+          children: categoryMachines.map((machineType: MachineType) => {
+            const possiblyUnavailable =
+              useRegionFilteredData &&
+              !isMachineTypeFilteredByRegion &&
+              !isMachineTypeIncludedInFilteredSet(machineType.id, machineTypesByRegion);
+            return {
+              name: (
+                <TreeViewSelectMenuItem
+                  name={machineTypeLabel(machineType)}
+                  description={machineTypeDescriptionLabel(machineType)}
+                  popoverText={possiblyUnavailable ? machineTypeUnavailableWarning : ''}
+                  icon={possiblyUnavailable && possiblyUnavailableWarnIcon}
+                />
+              ),
+              category: categoryLabel,
+              nameLabel: machineTypeLabel(machineType),
+              descriptionLabel: machineTypeDescriptionLabel(machineType),
+              id: machineType.id,
+            };
+          }),
+        })),
+    [
+      filteredMachineTypes,
+      isMachineTypeFilteredByRegion,
+      machineTypesByRegion,
+      useRegionFilteredData,
+      possiblyUnavailableWarnIcon,
+    ],
+  );
+
+  const findSelectedTreeViewItem = (machineID: string) => {
+    let selectedTreeViewNode;
+    machineTypeMap.forEach((category) => {
+      category.children?.forEach((machineType) => {
+        if (machineType.id === machineID) selectedTreeViewNode = machineType;
+      });
+    });
+    return selectedTreeViewNode;
+  };
+
+  // In the dropdown we put the machine type id in separate description row,
+  // but the Select toggle doesn't support that, so combine both into one label.
+  const selectionText = React.useMemo(
+    () =>
+      machineTypeFullLabel(
+        filteredMachineTypes.find((machineType) => machineType.id === instanceType) || null,
+      ),
+    [filteredMachineTypes, instanceType],
+  );
+
+  if (
+    isDataReady &&
+    (!useRegionFilteredData || isRegionSpecificDataReady) &&
+    !('error' in activeMachineTypes ? activeMachineTypes.error : false)
+  ) {
+    if (filteredMachineTypes.length === 0) {
+      return (
+        <Alert variant={AlertVariant.danger} isInline title={noMachineTypes} role="alert">
+          <ExternalLink href="https://cloud.redhat.com/products/dedicated/contact/">
+            Contact sales to purchase additional quota.
+          </ExternalLink>
+        </Alert>
+      );
+    }
+
+    const currentSelectionPossiblyUnavailable =
+      useRegionFilteredData &&
+      instanceType &&
+      !isMachineTypeIncludedInFilteredSet(instanceType, machineTypesByRegion);
+    return (
+      <FormGroup
+        label="Compute node instance type"
+        isRequired
+        fieldId="node_type"
+        labelHelp={<PopoverHint hint={constants.computeNodeInstanceTypeHint} />}
+      >
+        <TreeViewSelect
+          treeViewSelectionMap={machineTypeMap}
+          selected={findSelectedTreeViewItem(instanceType)}
+          selectionPlaceholderText={selectionText}
+          setSelected={(_event, selection) => setFieldValue(selection.id)}
+          menuToggleBadge={currentSelectionPossiblyUnavailable && possiblyUnavailableWarnIcon}
+          treeViewSwitchActive={!isMachineTypeFilteredByRegion}
+          setTreeViewSwitchActive={(switchValue) => setIsMachineTypeFilteredByRegion(!switchValue)}
+          helperText={
+            currentSelectionPossiblyUnavailable && (
+              <HelperText>
+                <HelperTextItem variant="warning">{machineTypeUnavailableWarning}</HelperTextItem>
+              </HelperText>
+            )
+          }
+          placeholder="Select instance type"
+          searchPlaceholder="Find an instance size"
+          includeFilterSwitch={useRegionFilteredData}
+          switchLabelOnText="Include types that might be unavailable to your account or region"
+          allExpanded={allExpanded}
+          ariaLabel="Machine type select"
+        />
+        <FormGroupHelperText touched={touched} error={instanceTypeError} />
+      </FormGroup>
+    );
+  }
+
+  return (activeMachineTypes as ErrorState)?.error ? (
+    <ErrorBox message="Error loading node types" response={activeMachineTypes as ErrorState} />
+  ) : (
+    <>
+      <div className="spinner-fit-container">
+        <Spinner size="md" aria-label="Loading..." />
+      </div>
+      <div className="spinner-loading-text">Loading node types...</div>
+    </>
+  );
+};
+
+export { MachineTypeSelection, MachineTypeSelectionProps };

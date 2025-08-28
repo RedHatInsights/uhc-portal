@@ -8,6 +8,7 @@ const config = {
   testEnvironmentOptions: {
     customExportConditions: [''],
   },
+  clearMocks: true,
   transform: {
     '^.+\\.(js|jsx|mjs)$': 'babel-jest',
   },
@@ -36,7 +37,6 @@ const config = {
   globals: {
     APP_DEVMODE: false,
     APP_DEV_SERVER: false,
-    APP_API_ENV: false,
     // Warning! Moving this config to the "ts-jes" transform makes the test slower and close to double the used heap size
     'ts-jest': {
       isolatedModules: true,
@@ -45,6 +45,19 @@ const config = {
   },
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node', 'mjs'],
   testTimeout: 10000,
+  collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}'],
+  coveragePathIgnorePatterns: [
+    '<rootDir>/src/.*fixtures.*',
+    '<rootDir>/src/.*mock.*',
+    '<rootDir>/src/.*index.*',
+    '<rootDir>/src/.*stories.*',
+    '<rootDir>/src/.*styles.*',
+    '<rootDir>/src/.*types.*',
+    '<rootDir>/src/.*constants.*',
+    '<rootDir>/src/services/apiRequest.*',
+  ],
+  coverageDirectory: 'unitTestCoverage',
+  coverageReporters: ['html', 'json-summary', 'text-summary'],
 };
 
 module.exports = config;

@@ -24,7 +24,7 @@ const content = [
 ];
 
 const RosaHandsOnRecommendedContentTable = () => (
-  <PageSection style={{ paddingBottom: 'unset', paddingTop: 'unset' }}>
+  <PageSection hasBodyWrapper={false} style={{ paddingBottom: 'unset', paddingTop: 'unset' }}>
     <Table aria-label="Recommended content table">
       {content.map((item) => (
         <Tbody>

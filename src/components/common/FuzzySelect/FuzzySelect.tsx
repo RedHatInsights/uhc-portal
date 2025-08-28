@@ -61,6 +61,10 @@ export interface FuzzySelectProps
   footer?: React.ReactNode;
   /** Style to apply to the toggle. */
   toggleStyle?: MenuToggleProps['style'];
+  /** Additional UI elements to render directly below the filter input field, such as buttons, switch or help text. */
+  additionalFilterControls?: React.ReactNode;
+  /** Flag to include disabled results while filtering options. Default to false. */
+  includeDisabledInSearchResults?: boolean;
 }
 
 const defaultSortFn = (a: FuzzyEntryType, b: FuzzyEntryType): number =>
@@ -86,6 +90,9 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     footer,
     toggleStyle,
     className,
+    additionalFilterControls,
+    includeDisabledInSearchResults = false,
+    isScrollable = true,
     ...rest
   } = props;
 
@@ -144,7 +151,10 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
 
       let hasGroupEntries = false;
       fuseResult.forEach(({ item, matches }) => {
-        if (item && !item.disabled && matches) {
+        const shouldProcessItem = includeDisabledInSearchResults
+          ? item && matches
+          : item && !item.disabled && matches;
+        if (shouldProcessItem) {
           if (item.groupId) {
             hasGroupEntries = true;
             if (matchedEntriesByGroup[item.groupId]) {
@@ -173,7 +183,14 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
         ]);
       }
     }
-  }, [filterValidate, filterValue, fuzziness, selectionData, sortFn]);
+  }, [
+    filterValidate,
+    filterValue,
+    fuzziness,
+    includeDisabledInSearchResults,
+    selectionData,
+    sortFn,
+  ]);
 
   const closeMenu = useCallback(() => {
     onOpenChange(false);
@@ -365,8 +382,7 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     isPopover,
   ]);
 
-  const scrollableClass =
-    props?.isScrollable && footer ? ' fuzzy-select--scrollable-with-footer' : '';
+  const scrollableClass = isScrollable && footer ? ' fuzzy-select--scrollable-with-footer' : '';
 
   return (
     <Select
@@ -382,6 +398,7 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
       shouldFocusFirstItemOnOpen={false}
       onOpenChangeKeys={['Escape']}
       className={`${className ?? ''}${scrollableClass}`}
+      isScrollable={isScrollable}
       {...rest}
     >
       <MenuSearch>
@@ -393,10 +410,12 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
             onClear={onTextInputClear}
             placeholder={inlineFilterPlaceholderText}
             ref={textInputRef}
+            name="filter"
           />
         </MenuSearchInput>
       </MenuSearch>
       <Divider />
+      {additionalFilterControls}
       {optionList}
       {footer ? <MenuFooter className="fuzzy-select__footer">{footer}</MenuFooter> : null}
     </Select>

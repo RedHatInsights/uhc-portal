@@ -36,8 +36,8 @@ export const ValidationItem = ({
   }
 
   return (
-    <HelperTextItem variant={variant} hasIcon isDynamic component="li" key={text}>
-      <span className="pf-v5-u-screen-reader">{iconAlt}</span>
+    <HelperTextItem variant={variant} component="li" key={text}>
+      <span className="pf-v6-u-screen-reader">{iconAlt}</span>
       {text}
     </HelperTextItem>
   );

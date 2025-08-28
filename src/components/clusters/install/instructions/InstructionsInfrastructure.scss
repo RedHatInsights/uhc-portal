@@ -1,8 +1,8 @@
 .ocp-infrastructure {
-  .pf-v5-l-stack__item:not(:last-child) {
+  .pf-v6-l-stack__item:not(:last-child) {
     margin-bottom: 24px;
   }
-  .pf-v5-l-gallery {
+  .pf-v6-l-gallery {
     a {
       height: 212px;
       &.card-badge-container {
@@ -32,19 +32,19 @@
           height: 54px;
         }
         h5 {
-          margin-bottom: var(--pf-v5-global--spacer--xs);
+          margin-bottom: var(--pf-t--global--spacer--xs);
         }
         span {
           display: block;
-          font-size: var(--pf-v5-global--FontSize--xs);
+          font-size: var(--pf-t--global--font--size--xs);
         }
       }
     }
   }
 
   @media only screen and (min-width: 769px) {
-    .pf-v5-l-gallery {
-      --pf-v5-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(380px, 1fr));
+    .pf-v6-l-gallery {
+      --pf-v6-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(380px, 1fr));
     }
   }
 

@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 
+import { AdvancedClusterManagementDrawerPanelBody } from './DrawerPanelContents/AdvancedClusterManagement/DrawerPanelBody';
 import { AdvancedClusterSecurityDrawerPanelBody } from './DrawerPanelContents/AdvancedClusterSecurity/DrawerPanelBody';
 import { GeneralDrawerPanelHead } from './DrawerPanelContents/GeneralDrawerPanelHead';
 import { GitopsDrawerPanelBody } from './DrawerPanelContents/Gitops/DrawerPanelBody';
@@ -50,6 +51,15 @@ const DRAWER_PANEL_CONTENT = {
   OpenshiftVirtualization: {
     head: <GeneralDrawerPanelHead {...PRODUCT_CARD_LOGOS.openshiftVirtualization} />,
     body: OpenShiftVirtualizationPanelBody,
+  },
+  AdvancedClusterManagement: {
+    head: (
+      <GeneralDrawerPanelHead
+        {...PRODUCT_CARD_LOGOS.advancedClusterManagement}
+        trialButtonLink="https://www.redhat.com/en/technologies/management/advanced-cluster-management/trial"
+      />
+    ),
+    body: AdvancedClusterManagementDrawerPanelBody,
   },
 };
 

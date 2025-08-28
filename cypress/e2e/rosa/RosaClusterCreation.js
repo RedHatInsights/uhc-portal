@@ -227,6 +227,9 @@ describe(
       ClusterDetailsPage.checkInstallationStepStatus('Cluster installation');
       ClusterDetailsPage.clusterTypeLabelValue().contains(clusterProperties.Type);
       ClusterDetailsPage.clusterDomainPrefixLabelValue().contains(clusterDomainPrefix);
+      ClusterDetailsPage.clusterControlPlaneTypeLabelValue()
+        .scrollIntoView()
+        .contains(clusterProperties.ControlPlaneType);
       ClusterDetailsPage.clusterRegionLabelValue().contains(clusterProperties.Region.split(',')[0]);
       ClusterDetailsPage.clusterAvailabilityLabelValue().contains(clusterProperties.Availability);
       ClusterDetailsPage.clusterInfrastructureAWSaccountLabelValue().contains(awsAccountID);

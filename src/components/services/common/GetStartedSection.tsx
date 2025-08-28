@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Flex, FlexItem, TextContent, Title } from '@patternfly/react-core';
+import { Content, Flex, FlexItem, Title } from '@patternfly/react-core';
 
 import { CreateClusterCard } from './CreateClusterCard';
 
@@ -20,9 +20,9 @@ export const GetStartedSection = ({
   createClusterBtnTitle,
 }: GetStartedSectionProps) => (
   <>
-    <TextContent className="pf-v5-u-mb-lg">
+    <Content className="pf-v6-u-mb-lg">
       <Title headingLevel="h2">{title}</Title>
-    </TextContent>
+    </Content>
     <Flex>
       <FlexItem flex={{ default: 'flex_1' }}>
         <CreateClusterCard

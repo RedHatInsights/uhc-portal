@@ -3,6 +3,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
 
 import {
   Alert,
@@ -26,6 +27,7 @@ import ExternalLink from '~/components/common/ExternalLink';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
 import { DEFAULT_FLAVOUR_ID } from '~/redux/actions/flavourActions';
+import { getMachineTypesByRegionARN } from '~/redux/actions/machineTypesActions';
 
 import { QuotaTypes } from '../../quotaModel';
 import sortMachineTypes, {
@@ -108,9 +110,12 @@ const groupedMachineTypes = (machines) => {
 const MachineTypeSelection = ({
   machine_type: machineType,
   machine_type_force_choice: machineTypeForceChoice,
+  selectedVpc,
   getDefaultFlavour,
   flavours,
   machineTypes,
+  region,
+  installerRoleArn,
   machineTypesByRegion,
   isMultiAz,
   isBYOC,
@@ -130,6 +135,7 @@ const MachineTypeSelection = ({
   } = machineType;
   const { input: forceChoiceInput } = machineTypeForceChoice;
 
+  const dispatch = useDispatch();
   // checks if previous selection was from unfiltered machine set. Will flip filter value.
   const previousSelectionFromUnfilteredSet =
     machineTypesByRegion.fulfilled &&
@@ -307,6 +313,12 @@ const MachineTypeSelection = ({
     () => sortedMachineTypes.filter((type) => isTypeAvailable(type.id)),
     [isTypeAvailable, sortedMachineTypes],
   );
+  React.useEffect(() => {
+    const AZs = [...new Set(selectedVpc?.aws_subnets?.map((el) => el.availability_zone))];
+    if (AZs) {
+      dispatch(getMachineTypesByRegionARN(installerRoleArn, region, [...AZs]));
+    }
+  }, [selectedVpc, dispatch, installerRoleArn, region]);
 
   const machineTypeUnavailableWarning =
     'OCM does not have access to all AWS account details. Machine node type cannot be verified to be accessible for this AWS user.';
@@ -405,7 +417,7 @@ const MachineTypeSelection = ({
         label="Compute node instance type"
         isRequired
         fieldId="node_type"
-        labelIcon={<PopoverHint hint={constants.computeNodeInstanceTypeHint} />}
+        labelHelp={<PopoverHint hint={constants.computeNodeInstanceTypeHint} />}
       >
         <TreeViewSelect
           treeViewSelectionMap={machineTypeMap}
@@ -425,9 +437,7 @@ const MachineTypeSelection = ({
           helperText={
             currentSelectionPossiblyUnavailable && (
               <HelperText>
-                <HelperTextItem variant="warning" hasIcon>
-                  {machineTypeUnavailableWarning}
-                </HelperTextItem>
+                <HelperTextItem variant="warning">{machineTypeUnavailableWarning}</HelperTextItem>
               </HelperText>
             )
           }
@@ -487,6 +497,9 @@ MachineTypeSelection.propTypes = {
   quota: PropTypes.object.isRequired,
   organization: PropTypes.object.isRequired,
   menuAppendTo: PropTypes.object,
+  selectedVpc: PropTypes.object,
+  region: PropTypes.string,
+  installerRoleArn: PropTypes.object,
   allExpanded: PropTypes.bool,
 };
 

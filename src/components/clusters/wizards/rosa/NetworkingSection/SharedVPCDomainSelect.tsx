@@ -95,10 +95,10 @@ const SharedVPCDomainSelect = ({ label, input, meta }: SharedVPCDomainSelectProp
   return (
     <FormGroup label={label} isRequired className="shared-vpc-domain-select">
       <Flex>
-        <FlexItem flex={{ default: 'flex_1' }} className="pf-v5-u-m-0">
+        <FlexItem flex={{ default: 'flex_1' }} className="pf-v6-u-m-0">
           <FuzzySelect
             selectionData={
-              dnsDomains.map((domain) => ({
+              dnsDomains.map((domain: { id: string }) => ({
                 entryId: domain.id as string,
                 label: domain.id as string,
               })) ?? []
@@ -115,7 +115,7 @@ const SharedVPCDomainSelect = ({ label, input, meta }: SharedVPCDomainSelectProp
               <Button
                 isInline
                 variant="link"
-                className="pf-v5-u-py-sm"
+                className="pf-v6-u-py-sm"
                 onClick={createNewDnsDomain}
                 isDisabled={isDisabled}
               >

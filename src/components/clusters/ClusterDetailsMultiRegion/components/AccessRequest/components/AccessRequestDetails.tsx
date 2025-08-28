@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 
 import {
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
   Grid,
   GridItem,
-  Text,
   Tooltip,
 } from '@patternfly/react-core';
 
@@ -66,11 +66,11 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
                   </span>
                 }
               >
-                <Text>
+                <Content component="p">
                   {accessRequest.created_at
                     ? new Date(accessRequest.created_at).toLocaleDateString()
                     : 'N/A'}
-                </Text>
+                </Content>
               </Tooltip>
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -122,7 +122,7 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
             <DescriptionListGroup>
               <DescriptionListTerm>Decision</DescriptionListTerm>
               <DescriptionListDescription>
-                <Text data-testid="decision-text">
+                <Content component="p" data-testid="decision-text">
                   <b>{decision?.decision}</b>
                   {decision?.created_at ? (
                     <>
@@ -142,7 +142,7 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
                       because <i>{decision.justification}</i>
                     </>
                   ) : null}
-                </Text>
+                </Content>
               </DescriptionListDescription>
             </DescriptionListGroup>
           </DescriptionList>

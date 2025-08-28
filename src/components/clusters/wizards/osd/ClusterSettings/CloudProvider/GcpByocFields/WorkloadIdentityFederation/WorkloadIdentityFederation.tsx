@@ -5,11 +5,10 @@ import { Field } from 'formik';
 import {
   Alert,
   ClipboardCopy,
+  Content,
+  ContentVariants,
   Stack,
   StackItem,
-  Text,
-  TextContent,
-  TextVariants,
 } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
@@ -67,22 +66,22 @@ const WorkloadIdentityFederation = (props: WorkloadIdentityFederationProps) => {
   return (
     <Stack hasGutter>
       <StackItem>
-        <TextContent>
-          <Text component="h4">
+        <Content>
+          <Content component="h4">
             1. Create a new Workload Identity Federation (WIF) configuration
-          </Text>
+          </Content>
 
-          <Text component={TextVariants.p}>
+          <Content component={ContentVariants.p}>
             Workload Identity Federation is a keyless authentication mechanism for calling Google
             Cloud APIs. It eliminates the maintenance and security burden associated with service
             account keys.
-          </Text>
-          <Text component={TextVariants.p}>
+          </Content>
+          <Content component={ContentVariants.p}>
             Run the following <code>ocm</code> CLI command to create a Workload Identity Federation
             configuration (automatic mode). Make sure to replace the WIF name and GCP Project ID
             with your own values.
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
       </StackItem>
       <StackItem>
         <ClipboardCopy
@@ -97,21 +96,21 @@ const WorkloadIdentityFederation = (props: WorkloadIdentityFederationProps) => {
         </ClipboardCopy>
       </StackItem>
       <StackItem>
-        <TextContent>
-          <Text component={TextVariants.small}>
+        <Content>
+          <Content component={ContentVariants.small}>
             This command creates all the necessary resources for deploying OSD on GCP using only
             temporary credentials. You can also run the command in manual mode.{' '}
             <ExternalLink noIcon href={links.OSD_CCS_GCP_WIF_CREATION_LEARN_MORE}>
               Learn more
             </ExternalLink>
             .
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
       </StackItem>
       <StackItem>
-        <TextContent>
-          <Text component="h4">2. Select configuration</Text>
-        </TextContent>
+        <Content>
+          <Content component="h4">2. Select configuration</Content>
+        </Content>
       </StackItem>
       {error ? (
         <StackItem>

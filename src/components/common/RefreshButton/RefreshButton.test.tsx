@@ -34,10 +34,7 @@ describe('<RefreshButton />', () => {
     render(<RefreshButton refreshFunc={onClickFunc} />);
 
     expect(screen.getByRole('button', { name: 'Refresh' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Refresh' })).toHaveAttribute(
-      'aria-disabled',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: 'Refresh' })).not.toHaveAttribute('aria-disabled');
   });
 
   it('calls refreshFunc when clicked', async () => {
@@ -78,10 +75,7 @@ describe('<RefreshButton autoRefresh />', () => {
     render(<RefreshButton refreshFunc={onClickFunc} autoRefresh />);
 
     expect(screen.getByRole('button', { name: 'Refresh' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Refresh' })).toHaveAttribute(
-      'aria-disabled',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: 'Refresh' })).not.toHaveAttribute('aria-disabled');
   });
 
   it('calls refreshFunc when clicked', async () => {

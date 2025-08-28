@@ -73,15 +73,11 @@ describe('<AddOnsPrimaryButton />', () => {
       'https://example.com/veryfakeconsole/k8s/ns/redhat-rhmi-operator/operators.coreos.com~v1alpha1~ClusterServiceVersion/fake-addon.0.0.1',
     );
 
-    expect(screen.getByRole('link', { name: 'Open in Console' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Open in Console' })).not.toHaveAttribute(
       'aria-disabled',
-      'false',
     );
 
-    expect(screen.getByRole('button', { name: 'Uninstall' })).toHaveAttribute(
-      'aria-disabled',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: 'Uninstall' })).not.toHaveAttribute('aria-disabled');
   });
 
   it('uninstall button should open uninstall modal', async () => {
@@ -211,10 +207,7 @@ describe('<AddOnsPrimaryButton />', () => {
 
     const { user } = render(<AddOnsPrimaryButton {...canInstallProps} />);
 
-    expect(screen.getByRole('button', { name: 'Install' })).toHaveAttribute(
-      'aria-disabled',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: 'Install' })).not.toHaveAttribute('aria-disabled');
 
     await user.click(screen.getByRole('button', { name: 'Install' }));
 

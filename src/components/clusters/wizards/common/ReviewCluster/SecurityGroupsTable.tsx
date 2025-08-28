@@ -37,10 +37,7 @@ const SecurityGroupByNodeType = ({
       <strong>{nodeType} nodes</strong>
     </FlexItem>
     <FlexItem wrap="wrap">
-      <SecurityGroupsViewList
-        securityGroups={buildSecurityGroups(vpcGroups, selectedGroupIds)}
-        isReadOnly
-      />
+      <SecurityGroupsViewList securityGroups={buildSecurityGroups(vpcGroups, selectedGroupIds)} />
     </FlexItem>
   </Flex>
 );

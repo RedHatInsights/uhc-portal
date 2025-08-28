@@ -32,7 +32,7 @@ describe('Releases pages tests', () => {
   it('Check all the links from release page(OCP-41253)', { tags: ['smoke'] }, () => {
     Docs.getcontainerPlatformDocAbsolutePath(
       current_version,
-      'updating/understanding_updates/understanding-update-channels-release.html',
+      'html/updating_clusters/understanding-openshift-updates-1#understanding-update-channels-releases',
     )
       .should('exist')
       .and('contain.text', 'Learn more about updating channels');

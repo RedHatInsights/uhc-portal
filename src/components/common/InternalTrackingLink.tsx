@@ -17,6 +17,7 @@ type InternalTrackingLinkProps = {
   variant?: ButtonProps['variant'];
   component?: (props: any) => React.JSX.Element;
   'data-testid'?: string;
+  isAriaDisabled?: boolean;
 };
 
 enum servicePageLinks {

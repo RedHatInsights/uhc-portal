@@ -60,7 +60,6 @@ class Login extends Page {
     });
     cy.get('#username').type(username);
     cy.get('#kc-login').click();
-    cy.get('#username').type(username);
     cy.get('#password').type(password);
     cy.get('#kc-login').click();
   }

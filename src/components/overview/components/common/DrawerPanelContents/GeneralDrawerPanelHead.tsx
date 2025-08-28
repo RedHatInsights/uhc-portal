@@ -1,6 +1,14 @@
 import React from 'react';
 
-import { Flex, FlexItem, Grid, GridItem, Text, TextVariants, Title } from '@patternfly/react-core';
+import {
+  Content,
+  ContentVariants,
+  Flex,
+  FlexItem,
+  Grid,
+  GridItem,
+  Title,
+} from '@patternfly/react-core';
 
 import ExternalLink from '~/components/common/ExternalLink';
 
@@ -29,7 +37,7 @@ const GeneralDrawerPanelHead = ({ title, logo, trialButtonLink }: GeneralDrawerP
         <Title headingLevel="h2" data-testid="drawer-panel-content__title">
           {title}
         </Title>
-        <Text component={TextVariants.small}>by Red Hat</Text>
+        <Content component={ContentVariants.small}>by Red Hat</Content>
       </GridItem>
       {trialButtonLink ? (
         <GridItem span={12}>

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
 import {
-  Button,
   Card,
   CardBody,
   CardFooter,
@@ -18,13 +17,25 @@ import {
 } from '@patternfly/react-core';
 
 import { stringToArray } from '~/common/helpers';
+import { isHibernating } from '~/components/clusters/common/clusterStates';
+import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
+import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
-import { modalActions } from '../../../../../../common/Modal/ModalActions';
 import EditClusterWideProxyDialog from '../EditClusterWideProxyDialog';
 
 import './VPCDetailsCard.scss';
+
+const resolveDisableEditReason = ({ isReadOnly, clusterHibernating, canUpdateClusterResource }) => {
+  const readOnlyReason = isReadOnly && 'This operation is not available during maintenance';
+  const hibernatingReason =
+    clusterHibernating && 'This operation is not available while cluster is hibernating';
+  const canNotEditReason =
+    !canUpdateClusterResource &&
+    'You do not have permission to edit proxies. Only cluster owners, cluster editors, and organization administrators can edit proxies.';
+  return readOnlyReason || hibernatingReason || canNotEditReason;
+};
 
 const VPCDetailsCard = ({ cluster }) => {
   const dispatch = useDispatch();
@@ -42,6 +53,16 @@ const VPCDetailsCard = ({ cluster }) => {
   const region = cluster.subscription?.rh_region_id;
 
   const isPrivateLinkInitialized = typeof privateLink !== 'undefined';
+
+  const { canUpdateClusterResource } = cluster;
+  const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
+  const clusterHibernating = isHibernating(cluster);
+
+  const disableEditReason = resolveDisableEditReason({
+    isReadOnly,
+    clusterHibernating,
+    canUpdateClusterResource,
+  });
 
   const handleEditClusterProxy = () => {
     dispatch(modalActions.openModal(modals.EDIT_CLUSTER_WIDE_PROXY));
@@ -64,15 +85,15 @@ const VPCDetailsCard = ({ cluster }) => {
           Virtual Private Cloud (VPC)
         </Title>
       </CardTitle>
-      <CardBody className="ocm-c-networking-vpc-details__card--body pf-v5-l-stack pf-m-gutter">
+      <CardBody className="ocm-c-networking-vpc-details__card--body pf-v6-l-stack pf-m-gutter">
         {gcpVPCName || isPrivateLinkInitialized || gcpPrivateServiceConnect ? (
           <>
-            <Title headingLevel="h3" className="pf-v5-l-stack__item">
+            <Title headingLevel="h3" className="pf-v6-l-stack__item">
               VPC Details
             </Title>
             <DescriptionList
               isHorizontal
-              className="pf-v5-l-stack__item pf-m-auto-column-widths details-card-dl"
+              className="pf-v6-l-stack__item pf-m-auto-column-widths details-card-dl"
             >
               {gcpVPCName ? (
                 <DescriptionListGroup>
@@ -99,10 +120,10 @@ const VPCDetailsCard = ({ cluster }) => {
             </DescriptionList>
           </>
         ) : null}
-        <Title headingLevel="h3" className="pf-v5-l-stack__item --">
+        <Title headingLevel="h3" className="pf-v6-l-stack__item --">
           Cluster-wide Proxy
         </Title>
-        <DescriptionList isHorizontal className="pf-v5-l-stack__item details-card-dl">
+        <DescriptionList isHorizontal className="pf-v6-l-stack__item details-card-dl">
           <DescriptionListGroup>
             <DescriptionListTerm>HTTP proxy URL</DescriptionListTerm>
             <DescriptionListDescription>{httpProxyUrl || 'N/A'}</DescriptionListDescription>
@@ -128,9 +149,14 @@ const VPCDetailsCard = ({ cluster }) => {
       </CardBody>
       {!isRestrictedEnv() && (
         <CardFooter>
-          <Button variant="secondary" onClick={handleEditClusterProxy}>
+          <ButtonWithTooltip
+            variant="secondary"
+            onClick={handleEditClusterProxy}
+            disableReason={disableEditReason}
+            isAriaDisabled={!!disableEditReason}
+          >
             Edit cluster-wide proxy
-          </Button>
+          </ButtonWithTooltip>
         </CardFooter>
       )}
     </Card>

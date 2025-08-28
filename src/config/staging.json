@@ -1,9 +1,7 @@
 {
   "apiGateway": "https://api.stage.openshift.com",
-  "apiRegionalGatewayHardcode": "https://***REMOVED***",
   "apiRegionalGatewayTemplate": "https://api.$REGION$.openshift.com",
   "insightsGateway": "https://$SELF_PATH$/api",
-  "sentryDSN": "https://***REMOVED***/64",
   "fedrampGateway": "https://$SELF_PATH$/api",
   "fedrampS3": "https://fedramp-customer-interest-rob-stage.s3.us-east-1.amazonaws.com",
   "demoExperience": "https://api.demo-experience.stage.demo.redhat.com"

@@ -6,9 +6,11 @@ import { MinusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/minus-ci
 import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 
 import { scrollToFirstField } from '~/common/helpers';
-import { FormSubnet, validateMultipleMachinePoolsSubnets } from '~/common/validators';
+import { validateMultipleMachinePoolsSubnets } from '~/common/validators';
+import { getMatchingAvailabilityZones } from '~/common/vpcHelpers';
 import { SubnetSelectField } from '~/components/clusters/common/SubnetSelectField';
 import { emptyAWSSubnet, FieldId } from '~/components/clusters/wizards/common/constants';
+import { FormSubnet } from '~/components/clusters/wizards/common/FormSubnet';
 import { getScrollErrorIds } from '~/components/clusters/wizards/form/utils';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { CloudVpc } from '~/types/clusters_mgmt.v1';
@@ -50,6 +52,26 @@ const MachinePoolSubnetsForm = ({ selectedVPC, warning }: MachinePoolSubnetsForm
     [machinePoolsSubnets, setTouched, validateForm],
   );
 
+  // Helper to infer region if not present
+  const inferRegionFromSubnets = (vpc: CloudVpc) => {
+    const azLetters = ['a', 'b', 'c', 'd', 'e', 'f'];
+    const availabilityZone = vpc.aws_subnets?.find(
+      (subnet) => subnet.availability_zone,
+    )?.availability_zone;
+
+    const regionPrefix = availabilityZone?.split('-').slice(0, 3).join('-');
+    const region =
+      regionPrefix && azLetters.includes(regionPrefix.slice(-1))
+        ? regionPrefix.slice(0, -1)
+        : regionPrefix;
+
+    return region;
+  };
+
+  const region = selectedVPC ? inferRegionFromSubnets(selectedVPC) : undefined;
+  const allowedAZs =
+    region && selectedVPC ? getMatchingAvailabilityZones(region, selectedVPC, ['private']) : [];
+
   const addMachinePool = (machinePoolSubnet: FormSubnet) =>
     setFieldValue(FieldId.MachinePoolsSubnets, [...machinePoolsSubnets, machinePoolSubnet], false);
 
@@ -75,10 +97,10 @@ const MachinePoolSubnetsForm = ({ selectedVPC, warning }: MachinePoolSubnetsForm
           <Alert variant="warning" isPlain isInline title={warning} />
         </GridItem>
       )}
-      <GridItem span={2} className="pf-v5-c-form__label pf-v5-c-form__label-text">
+      <GridItem span={2} className="pf-v6-c-form__label pf-v6-c-form__label-text">
         Machine pool
       </GridItem>
-      <GridItem span={4} className="pf-v5-c-form__label pf-v5-c-form__label-text">
+      <GridItem span={4} className="pf-v6-c-form__label pf-v6-c-form__label-text">
         Private subnet name
       </GridItem>
       <GridItem span={6} />
@@ -88,7 +110,7 @@ const MachinePoolSubnetsForm = ({ selectedVPC, warning }: MachinePoolSubnetsForm
         const fieldNameSubnetId = `${FieldId.MachinePoolsSubnets}[${index}].privateSubnetId`;
         return selectedVPC ? (
           // eslint-disable-next-line react/no-array-index-key
-          <React.Fragment key={`${subnet.privateSubnetId}`}>
+          <React.Fragment key={`${subnet.privateSubnetId}_${index}`}>
             <GridItem span={2}>Machine pool {index + 1}</GridItem>
             <GridItem span={4}>
               <Field
@@ -100,12 +122,14 @@ const MachinePoolSubnetsForm = ({ selectedVPC, warning }: MachinePoolSubnetsForm
                 isRequired
                 privacy="private"
                 selectedVPC={selectedVPC}
+                allowedAZs={allowedAZs}
                 withAutoSelect={false}
                 isNewCluster
                 input={{
                   ...getFieldProps(fieldNameSubnetId),
-                  onChange: (subnetId: string) => {
-                    setFieldValue(fieldNameSubnetId, subnetId, false);
+                  onChange: async (subnetId: string) => {
+                    await setFieldValue(fieldNameSubnetId, subnetId, false);
+                    validateForm();
                   },
                 }}
                 meta={getFieldMeta(fieldNameSubnetId)}

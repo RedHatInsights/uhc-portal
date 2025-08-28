@@ -43,7 +43,9 @@ const GovCloudPage = () => {
 
   return (
     <AppPage title={`${govCloudTitle} | Red Hat OpenShift Cluster Manager`}>
-      <PageSection className="govcloud-page">{body}</PageSection>
+      <PageSection hasBodyWrapper={false} className="govcloud-page">
+        {body}
+      </PageSection>
     </AppPage>
   );
 };

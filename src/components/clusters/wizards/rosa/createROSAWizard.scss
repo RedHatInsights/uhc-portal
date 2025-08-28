@@ -1,28 +1,28 @@
-@import '~@patternfly/patternfly/sass-utilities/_all';
+@import '~@patternfly/patternfly/sass-utilities';
 
 .ocm-c-wizard-get-started--card-icon {
   display: block;
-  color: var(--pf-v5-global--palette--blue-400);
+  color: var(--pf-t--global--icon--color--brand--default);
   margin-bottom: 10px;
 }
 
 .ocm-c-wizard-get-started-terraform--card-icon {
   display: block;
-  color: var(--pf-v5-global--palette--blue-400);
+  color: var(--pf-t--global--icon--color--brand--default);
   margin-bottom: 2px;
 }
 
 .ocm-instructions__list-item-contents {
-  .pf-v5-c-alert.pf-m-inline {
-    .pf-v5-c-alert__title {
+  .pf-v6-c-alert.pf-m-inline {
+    .pf-v6-c-alert__title {
       margin-top: 0;
     }
   }
 }
 
-.pf-v5-c-wizard.rosa-wizard {
+.pf-v6-c-wizard.rosa-wizard {
   min-height: 60vh;
-  .pf-v5-c-wizard__footer {
+  .pf-v6-c-wizard__footer {
     z-index: 0;
   }
   .ocm-c-wizard-intro-image-container {
@@ -43,16 +43,16 @@
     }
   }
   #node-labels-alert {
-    margin-top: var(--pf-v5-global--spacer--md);
+    margin-top: var(--pf-t--global--spacer--md);
   }
-  .pf-v5-c-form__field-group {
+  .pf-v6-c-form__field-group {
     border-top: 0;
   }
-  .pf-v5-c-content {
-    .pf-v5-c-alert {
-      --pf-v5-c-content--h4--MarginTop: 0;
-      --pf-v5-c-content--h4--FontSize: var(--pf-v5-c-alert__title--FontSize);
-      --pf-v5-c-content--h4--FontWeight: var(--pf-v5-c-alert__title--FontWeight);
+  .pf-v6-c-content {
+    .pf-v6-c-alert {
+      --pf-v6-c-content--h4--MarginBlockStart: 0;
+      --pf-v6-c-content--h4--FontSize: var(--pf-v6-c-alert__title--FontSize);
+      --pf-v6-c-content--h4--FontWeight: var(--pf-v6-c-alert__title--FontWeight);
     }
   }
 }
@@ -67,24 +67,34 @@
   p {
     align-self: flex-end;
   }
-  @media only screen and (max-width: $pf-v5-global--breakpoint--md) {
+  @media only screen and (max-width: $pf-v6-global--breakpoint--md) {
     justify-content: start;
-    margin-top: var(--pf-v5-global--spacer--md);
-    margin-bottom: var(--pf-v5-global--spacer--sm);
+    margin-top: var(--pf-t--global--spacer--md);
+    margin-bottom: var(--pf-t--global--spacer--sm);
   }
 }
 
 .ocm-instruction-block {
-  border-inline-start: var(--pf-v5-global--BorderWidth--lg) solid var(--pf-v5-global--BorderColor--100);
-  padding: var(--pf-v5-global--spacer--lg);
+  border-inline-start: var(--pf-t--global--border--width--extra-strong) solid var(--pf-t--global--border--color--default);
+  padding: var(--pf-t--global--spacer--lg);
   .ocm-instruction-block_alert {
-    margin-top: var(--pf-v5-global--spacer--lg);
+    margin-top: var(--pf-t--global--spacer--lg);
   }
 }
 
 // TODO: Should not be needed once https://github.com/patternfly/patternfly-react/issues/9884 is fixed
 .rosa-get-started {
-  .pf-v5-c-card__header-main {
+  .pf-v6-c-card__header-main {
     flex-basis: auto;
   }
+}
+
+// HCC is overwriting wizard styles, so we are overwriting them back to the PF styles in the next 2 blocks.
+button.pf-v6-c-wizard__nav-link.pf-m-current {
+  --pf-v6-c-wizard__nav-link-main--BackgroundColor: var(--pf-v6-c-wizard__nav-link--m-current--BackgroundColor);
+}
+
+button.pf-v6-c-wizard__nav-link::before {
+  background-color: var(--pf-v6-c-wizard__nav-link--before--BackgroundColor);
+  color: var(--pf-v6-c-wizard__nav-link--before--Color);
 }

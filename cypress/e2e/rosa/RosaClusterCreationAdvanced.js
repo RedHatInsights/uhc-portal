@@ -12,7 +12,8 @@ const rolePrefix = Cypress.env('QE_ACCOUNT_ROLE_PREFIX');
 const qeInfrastructure = Cypress.env('QE_INFRA_REGIONS')[region][0];
 const securityGroups = qeInfrastructure.SECURITY_GROUPS_NAME;
 const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-Installer-Role`;
-const clusterName = `${clusterProperties.ClusterNamePrefix}-${(Math.random() + 1).toString(36).substring(7)}`;
+const clusterSuffix = (Math.random() + 1).toString(36).slice(3, 7);
+const clusterName = `${clusterProperties.ClusterNamePrefix}-${clusterSuffix}`;
 const clusterDomainPrefix = `rosa${(Math.random() + 1).toString(36).substring(2)}`;
 
 describe(
@@ -145,7 +146,7 @@ describe(
         .should('include', clusterName.substring(0, 27));
       CreateRosaWizardPage.customOperatorPrefixInput()
         .type('{selectAll}')
-        .type(clusterName.substring(0, 27));
+        .type(`${clusterName.substring(0, 27)}${clusterSuffix}`);
       CreateRosaWizardPage.rosaNextButton().click();
     });
 
@@ -213,7 +214,13 @@ describe(
       CreateRosaWizardPage.rosaNextButton().click();
     });
     it('Cluster wizard revisit - Step - Networking VPC settings', () => {
-      CreateRosaWizardPage.isButtonContainingText(qeInfrastructure.VPC_NAME);
+      CreateRosaWizardPage.isVPCSettingsScreen();
+      cy.contains(`Select a VPC to install your cluster into your selected region: ${region}`)
+        .scrollIntoView()
+        .should('be.visible');
+      cy.contains(new RegExp(`^${qeInfrastructure.VPC_NAME}$`, 'g'))
+        .scrollIntoView()
+        .should('be.visible');
       let i = 0;
       clusterProperties.MachinePools[0].AvailabilityZones.forEach((zone) => {
         CreateRosaWizardPage.isSubnetAvailabilityZoneSelected(zone);
@@ -227,6 +234,7 @@ describe(
         );
         i = i + 1;
       });
+
       securityGroups.forEach((value) => {
         cy.contains(value).scrollIntoView().should('be.visible').should('be.exist');
       });
@@ -244,7 +252,7 @@ describe(
       CreateRosaWizardPage.createModeAutoRadio().should('be.checked');
       CreateRosaWizardPage.customOperatorPrefixInput().should(
         'have.value',
-        clusterName.substring(0, 27),
+        `${clusterName.substring(0, 27)}${clusterSuffix}`,
       );
       CreateRosaWizardPage.rosaNextButton().click();
     });
@@ -256,7 +264,7 @@ describe(
 
     it('Step - Review and create step -its definitions', () => {
       // Some situation the ARN spinner in progress and blocks cluster creation.
-      cy.get('.pf-v5-c-spinner', { timeout: 30000 }).should('not.exist');
+      cy.get('.pf-v6-c-spinner', { timeout: 30000 }).should('not.exist');
       CreateRosaWizardPage.isClusterPropertyMatchesValue(
         'Control plane',
         clusterProperties.ControlPlaneType,
@@ -367,6 +375,9 @@ describe(
       ClusterDetailsPage.clusterTypeLabelValue().contains(clusterProperties.Type);
       ClusterDetailsPage.clusterAvailabilityLabelValue().contains(clusterProperties.Availability);
       ClusterDetailsPage.clusterDomainPrefixLabelValue().contains(clusterDomainPrefix);
+      ClusterDetailsPage.clusterControlPlaneTypeLabelValue()
+        .scrollIntoView()
+        .contains(clusterProperties.ControlPlaneType);
       ClusterDetailsPage.clusterInfrastructureAWSaccountLabelValue().contains(awsAccountID);
       ClusterDetailsPage.clusterFipsCryptographyStatus().contains('FIPS Cryptography enabled');
       ClusterDetailsPage.clusterIMDSValue().contains(clusterProperties.InstanceMetadataService);

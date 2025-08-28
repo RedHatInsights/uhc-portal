@@ -9,8 +9,6 @@ import {
   CardHeader,
   CardTitle,
   EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
   PaginationVariant,
   Spinner,
@@ -281,14 +279,12 @@ const ClusterLogs = ({
           region={region}
         />
         {isError && !size(logs) && ignoreErrors ? (
-          <PageSection>
-            <EmptyState>
-              <EmptyStateHeader
-                titleText="No cluster log entries found"
-                icon={<EmptyStateIcon icon={SearchIcon} />}
-                headingLevel="h4"
-              />
-            </EmptyState>
+          <PageSection hasBodyWrapper={false}>
+            <EmptyState
+              headingLevel="h4"
+              icon={SearchIcon}
+              titleText="No cluster log entries found"
+            />
           </PageSection>
         ) : (
           <>

@@ -1,11 +1,9 @@
-import * as OCM from '@openshift-assisted/ui-lib/ocm';
+import { Services } from '@openshift-assisted/ui-lib/ocm';
 
 const {
-  Services: {
-    APIs: { ClustersAPI },
-    NewFeatureSupportLevelsService,
-  },
-} = OCM;
+  APIs: { ClustersAPI },
+  NewFeatureSupportLevelsService,
+} = Services;
 
 const getAIClustersBySubscription = ClustersAPI.listBySubscriptionIds;
 

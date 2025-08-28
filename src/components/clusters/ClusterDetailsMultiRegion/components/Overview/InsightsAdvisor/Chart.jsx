@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { ChartDonut, ChartLegend } from '@patternfly/react-charts';
+import { ChartDonut, ChartLegend } from '@patternfly/react-charts/victory';
 
 import {
   chartColorScale,

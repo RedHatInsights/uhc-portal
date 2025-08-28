@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
 import { isRestrictedEnv } from '~/restrictedEnv';
-import { Cluster, Group, User } from '~/types/clusters_mgmt.v1';
+import { Cluster, Group, IdentityProvider, User } from '~/types/clusters_mgmt.v1';
 import { ErrorState } from '~/types/types';
 
 import { AvailableRegionalInstance, RQApiErrorType, SearchRegionalClusterItems } from './types';
@@ -44,7 +44,7 @@ export const formatErrorData = (
     isError,
     error: error as any as Pick<
       ErrorState,
-      'errorMessage' | 'errorDetails' | 'operationID' | 'errorCode' | 'reason'
+      'errorMessage' | 'errorDetails' | 'operationID' | 'errorCode' | 'reason' | 'message'
     >,
   };
 };
@@ -209,4 +209,14 @@ export const regionalizedClusterId = (formData: {
     formData?.regional_instance?.isDefault !== true;
 
   return isRegionalizedCluster ? formData?.regional_instance?.id : undefined;
+};
+
+export const getHtpasswdIds = (idpData: IdentityProvider[]) => {
+  const htpasswdIds: string[] = [];
+  idpData?.forEach((idp: IdentityProvider) => {
+    if (idp.type === 'HTPasswdIdentityProvider' && idp.id) {
+      htpasswdIds.push(idp.id);
+    }
+  });
+  return htpasswdIds;
 };

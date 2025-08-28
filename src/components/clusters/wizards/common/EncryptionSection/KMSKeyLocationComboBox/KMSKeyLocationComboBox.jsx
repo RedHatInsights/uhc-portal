@@ -3,35 +3,37 @@ import PropTypes from 'prop-types';
 
 import { FormSelect, FormSelectOption } from '@patternfly/react-core';
 
-class KMSKeyLocationComboBox extends React.Component {
-  componentDidMount() {
-    const { selectedRegion, input } = this.props;
-    input.onChange(input.value || selectedRegion);
-  }
+import { usePreviousProps } from '~/hooks/usePreviousProps';
 
-  componentDidUpdate(prevProps) {
-    const { selectedRegion, input } = this.props;
-    if (prevProps.selectedRegion !== selectedRegion) {
+const KMSKeyLocationComboBox = ({ selectedRegion, input, kmsRegionsArray }) => {
+  React.useEffect(() => {
+    input.onChange(input.value || selectedRegion);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const prevSelectedRegion = usePreviousProps(selectedRegion);
+
+  React.useEffect(() => {
+    if (prevSelectedRegion !== selectedRegion) {
       input.onChange(input.value || selectedRegion);
     }
-  }
+  }, [selectedRegion, input, prevSelectedRegion]);
 
-  render() {
-    const { kmsRegionsArray, input } = this.props;
-    const { onChange, ...restInput } = input;
-    return (
-      <FormSelect
-        aria-label="KMS location"
-        onChange={(_event, value) => onChange(value)}
-        {...restInput}
-      >
-        {kmsRegionsArray.map((location) => (
-          <FormSelectOption key={location} value={location} label={location} />
-        ))}
-      </FormSelect>
-    );
-  }
-}
+  const { onChange, ...restInput } = input;
+
+  return (
+    <FormSelect
+      aria-label="KMS location"
+      onChange={(_event, value) => onChange(value)}
+      {...restInput}
+    >
+      {kmsRegionsArray.map((location) => (
+        <FormSelectOption key={location} value={location} label={location} />
+      ))}
+    </FormSelect>
+  );
+};
+
 KMSKeyLocationComboBox.propTypes = {
   input: PropTypes.object.isRequired,
   kmsRegionsArray: PropTypes.array,

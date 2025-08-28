@@ -111,7 +111,7 @@ export const ReduxSelectDropdown = ({
       fieldId={input.name}
       label={label}
       isRequired={isRequired}
-      labelIcon={extendedHelpText ? <PopoverHint hint={extendedHelpText} /> : undefined}
+      labelHelp={extendedHelpText ? <PopoverHint hint={extendedHelpText} /> : undefined}
     >
       {formSelect}
 
