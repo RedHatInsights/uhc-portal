@@ -7,12 +7,15 @@ import {
   Button,
   Flex,
   FlexItem,
+  Icon,
   Spinner,
   Stack,
   StackItem,
   Title,
+  Tooltip,
   useWizardContext,
 } from '@patternfly/react-core';
+import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
 import { hasExternalAuthenticationCapability } from '~/common/externalAuthHelper';
 import { hasSelectedSecurityGroups } from '~/common/securityGroupsHelpers';
@@ -92,10 +95,13 @@ const ReviewClusterScreen = ({
       [FieldId.BillingModel]: billingModel,
       [FieldId.CustomerManagedKey]: customerManagedKey,
       [FieldId.ClusterName]: clusterName,
+      [FieldId.MachineTypeAvailability]: machineTypeAvailability,
     },
     values: formValues,
     setFieldValue,
   } = useFormState();
+  const machineTypeUnavailableWarning =
+    'OCM does not have access to all AWS account details. Machine node type cannot be verified to be accessible for this AWS user.';
 
   const { goToStepByIndex, getStep } = useWizardContext();
   const canAutoScale = useCanClusterAutoscale(product, billingModel);
@@ -315,7 +321,21 @@ const ReviewClusterScreen = ({
           title="Default machine pool"
           onGoToStep={() => goToStepByIndex(getStepIndex('CLUSTER_SETTINGS__MACHINE_POOL'))}
         >
-          {ReviewItem(FieldId.MachineType)}
+          <Flex spaceItems={{ default: 'spaceItemsNone' }}>
+            <FlexItem>{ReviewItem(FieldId.MachineType)}</FlexItem>
+            {machineTypeAvailability && (
+              <FlexItem>
+                <Tooltip
+                  aria-label="Possibly unavailable machine type"
+                  content={machineTypeUnavailableWarning}
+                >
+                  <Icon status="warning" size="md">
+                    <ExclamationTriangleIcon />
+                  </Icon>
+                </Tooltip>
+              </FlexItem>
+            )}
+          </Flex>
           {canAutoScale && ReviewItem(FieldId.AutoscalingEnabled)}
           {autoscalingEnabled
             ? ReviewItem(FieldId.MinReplicas, {
