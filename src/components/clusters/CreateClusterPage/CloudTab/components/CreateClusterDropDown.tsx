@@ -6,6 +6,8 @@ import {
   Dropdown,
   DropdownItem,
   DropdownList,
+  Flex,
+  FlexItem,
   MenuItemProps,
   MenuToggle,
 } from '@patternfly/react-core';
@@ -55,44 +57,47 @@ const CreateClusterDropDown = ({ toggleId, isDisabled }: CreateClusterDropDownPr
   };
 
   return (
-    <>
-      <Dropdown
-        ref={dropDownRef}
-        isOpen={isDropDownOpen}
-        onSelect={onSelect}
-        onOpenChange={(isOpen) => setIsDropDownOpen(isOpen)}
-        popperProps={{ appendTo: () => document.body }}
-        toggle={{
-          toggleRef: menuToggleRef,
-          toggleNode: (
-            <MenuToggle
-              id={toggleId}
-              ref={menuToggleRef}
-              onClick={onToggleClick}
-              isExpanded={isDropDownOpen}
-              variant={ButtonVariant.primary}
-              className="create-button"
-              data-testid="rosa-create-cluster-button"
-              isDisabled={isDisabled}
-            >
-              Create cluster
-            </MenuToggle>
-          ),
-        }}
-      >
-        {newDropdownItems}
-      </Dropdown>
+    <Flex direction={{ default: 'column' }}>
+      <FlexItem>
+        <Dropdown
+          ref={dropDownRef}
+          isOpen={isDropDownOpen}
+          onSelect={onSelect}
+          onOpenChange={(isOpen) => setIsDropDownOpen(isOpen)}
+          popperProps={{ appendTo: () => document.body }}
+          toggle={{
+            toggleRef: menuToggleRef,
+            toggleNode: (
+              <MenuToggle
+                id={toggleId}
+                ref={menuToggleRef}
+                onClick={onToggleClick}
+                isExpanded={isDropDownOpen}
+                variant={ButtonVariant.primary}
+                className="create-button"
+                data-testid="rosa-create-cluster-button"
+                isDisabled={isDisabled}
+              >
+                Create cluster
+              </MenuToggle>
+            ),
+          }}
+        >
+          {newDropdownItems}
+        </Dropdown>
+      </FlexItem>
 
-      <br />
-      <Button
-        variant="link"
-        className="create-button"
-        component={CreateButtonLink}
-        isDisabled={isDisabled}
-      >
-        Prerequisites
-      </Button>
-    </>
+      <FlexItem>
+        <Button
+          variant="link"
+          className="create-button"
+          component={CreateButtonLink}
+          isDisabled={isDisabled}
+        >
+          Prerequisites
+        </Button>
+      </FlexItem>
+    </Flex>
   );
 };
 

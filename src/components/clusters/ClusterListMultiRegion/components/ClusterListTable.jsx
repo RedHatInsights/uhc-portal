@@ -6,6 +6,7 @@ import {
   Button,
   EmptyState,
   EmptyStateBody,
+  Icon,
   Label,
   Popover,
   PopoverPosition,
@@ -23,7 +24,6 @@ import {
   Thead,
   Tr,
 } from '@patternfly/react-table';
-import { t_global_icon_color_status_warning_default as warningColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_warning_default';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
 import { Link } from '~/common/routing';
@@ -247,7 +247,11 @@ function ClusterListTable(props) {
         return (
           <ActionRequiredLink
             cluster={cluster}
-            icon={<ExclamationTriangleIcon color={warningColor.value} />}
+            icon={
+              <Icon status="warning">
+                <ExclamationTriangleIcon />
+              </Icon>
+            }
             regionalInstance={regionalInstance}
           />
         );

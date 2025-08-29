@@ -22,7 +22,10 @@ const WorkerNodeVolumeSizeSection = ({
   maxWorkerVolumeSizeGiB,
 }: WorkerNodeVolumeSizeSectionProps) => {
   const {
-    values: { [FieldId.WorkerVolumeSizeGib]: workerVolumeSizeGib },
+    values: {
+      [FieldId.WorkerVolumeSizeGib]: workerVolumeSizeGib,
+      [FieldId.MinReplicas]: minReplicas,
+    },
     setFieldValue,
     setFieldTouched,
     getFieldProps,
@@ -34,6 +37,12 @@ const WorkerNodeVolumeSizeSection = ({
       setFieldValue(FieldId.WorkerVolumeSizeGib, defaultWorkerNodeVolumeSizeGiB, true);
     }
   }, [setFieldValue, workerVolumeSizeGib]);
+
+  useEffect(() => {
+    // to trigger WorkerVolumeSizeGib field validation on min replicas change
+    setFieldTouched(FieldId.WorkerVolumeSizeGib, true, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [minReplicas]);
 
   return (
     <FormGroup

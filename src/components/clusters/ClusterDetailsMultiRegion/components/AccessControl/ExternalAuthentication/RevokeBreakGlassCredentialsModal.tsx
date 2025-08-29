@@ -1,7 +1,14 @@
 import React from 'react';
 
-import { Button, Flex } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  Flex,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+} from '@patternfly/react-core';
 
 import ErrorBox from '~/components/common/ErrorBox';
 import { useRevokeBreakGlassCredentials } from '~/queries/ClusterDetailsQueries/AccessControlTab/ExternalAuthenticationQueries/useRevokeBreakGlassCredentials';
@@ -30,11 +37,30 @@ export const RevokeBreakGlassCredentialsModal = (props: RevokeBreakGlassCredenti
 
   return (
     <Modal
-      title="Revoke all credentials for cluster"
+      id="revoke-break-glass-modal"
       onClose={handleClose}
       isOpen={isOpen}
-      variant="medium"
-      actions={[
+      variant={ModalVariant.medium}
+      aria-labelledby="revoke-break-glass-modal"
+      aria-describedby="modal-box-revoke-break-glass"
+    >
+      <ModalHeader title="Revoke all credentials for cluster" labelId="revoke-break-glass-modal" />
+      <ModalBody>
+        {isError ? (
+          <ErrorBox
+            message="A problem occurred while deleting the credentials."
+            response={{
+              errorMessage: error.error.errorMessage,
+              operationID: error.error.operationID,
+            }}
+          />
+        ) : (
+          <Flex direction={{ default: 'column' }}>
+            <p>This action cannot be undone. It will permanently revoke all credentials.</p>
+          </Flex>
+        )}
+      </ModalBody>
+      <ModalFooter>
         <Button
           key="revoke"
           variant="primary"
@@ -46,25 +72,11 @@ export const RevokeBreakGlassCredentialsModal = (props: RevokeBreakGlassCredenti
           }}
         >
           Revoke all
-        </Button>,
+        </Button>
         <Button key="cancel" variant="secondary" onClick={handleClose}>
           Cancel
-        </Button>,
-      ]}
-    >
-      {isError ? (
-        <ErrorBox
-          message="A problem occurred while deleting the credentials."
-          response={{
-            errorMessage: error.error.errorMessage,
-            operationID: error.error.operationID,
-          }}
-        />
-      ) : (
-        <Flex direction={{ default: 'column' }}>
-          <p>This action cannot be undone. It will permanently revoke all credentials.</p>
-        </Flex>
-      )}
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

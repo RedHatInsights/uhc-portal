@@ -110,7 +110,7 @@ const UpgradeScheduleSelection = ({
       isDisabled={isDisabled}
       isFullWidth
     >
-      {daysOptions[selectedDay] ?? 'Select day'}
+      {daysOptions[selectedDay as number] ?? 'Select day'}
     </MenuToggle>
   );
 
@@ -122,7 +122,7 @@ const UpgradeScheduleSelection = ({
       isDisabled={isDisabled}
       isFullWidth
     >
-      {selectedHour ? formatHourLabel(selectedHour) : 'Select hour'}
+      {selectedHour ? formatHourLabel(selectedHour as number) : 'Select hour'}
     </MenuToggle>
   );
 

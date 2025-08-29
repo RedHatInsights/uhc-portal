@@ -252,7 +252,11 @@ class ClusterDetails extends Page {
   }
 
   clickAWSBillingAccountsDropDown() {
-    cy.get('button[aria-describedby="aws-infra-accounts"]').click();
+    cy.get('#edit-billing-aws-account-modal').within(() => {
+      cy.get('button[aria-label="Options menu"]')
+        .should('be.enabled', { timeout: 30000 })
+        .click({ force: true });
+    });
   }
 
   updateAWSBillingAccount() {
@@ -260,9 +264,8 @@ class ClusterDetails extends Page {
   }
 
   verifyBillingAccountDocLink(text) {
-    cy.get('a')
-      .contains(text)
-      .should('have.attr', 'href', 'https://console.aws.amazon.com/rosa/home');
+    // Find the link that contains the text (even if text is in a nested span)
+    cy.contains('a', text).should('have.attr', 'href', 'https://console.aws.amazon.com/rosa/home');
   }
 
   filterAWSBillingAccount(awsBillingAccount) {
@@ -272,10 +275,9 @@ class ClusterDetails extends Page {
   }
 
   selectAWSBillingAccount(awsBillingAccount) {
-    cy.get('div[label="AWS billing account"]')
-      .find('button')
-      .contains(awsBillingAccount)
-      .click({ force: true });
+    cy.get('div[aria-describedby="aws-infra-accounts"]').within(() => {
+      cy.contains('button', awsBillingAccount).click({ force: true });
+    });
   }
 
   showEditAWSBillingAccountModal() {

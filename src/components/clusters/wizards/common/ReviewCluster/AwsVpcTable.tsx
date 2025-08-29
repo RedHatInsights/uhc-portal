@@ -24,7 +24,7 @@ const AwsVpcTable = ({ vpc, machinePoolsSubnets, hasPublicSubnets }: AwsVpcTable
   const subnetColumns = hasPublicSubnets ? 5 : 9;
 
   return (
-    <Grid>
+    <Grid className="ocm-aws-vpc-table">
       <GridItem md={azColumns}>
         <strong>Availability zone</strong>
       </GridItem>
