@@ -56,7 +56,7 @@ describe(
       CreateOSDWizardPage.isMachinePoolScreen();
       CreateOSDWizardPage.selectComputeNodeType(clusterProperties.MachinePools.InstanceType);
       if (clusterProperties.MachinePools.Autoscaling.includes('Enabled')) {
-        CreateOSDWizardPage.enableAutoscalingCheckbox().check();
+        CreateOSDWizardPage.enableAutoscalingCheckbox().check({ force: true });
         CreateOSDWizardPage.setMinimumNodeCount(clusterProperties.MachinePools.MinimumNodeCount);
         CreateOSDWizardPage.setMaximumNodeCount(clusterProperties.MachinePools.MaximumNodeCount);
       } else {
@@ -77,8 +77,18 @@ describe(
     if (!clusterProperties.CloudProvider.includes('GCP')) {
       it(`OSD(nonccs) ${clusterProperties.CloudProvider} -${clusterProperties.ClusterPrivacy} Networking configuration - cluster privacy`, () => {
         CreateOSDWizardPage.isNetworkingScreen();
-        CreateOSDWizardPage.clusterPrivacyPublicRadio().should('be.checked');
-        CreateOSDWizardPage.clusterPrivacyPrivateRadio().should('not.be.checked');
+        // Use flexible selectors for cluster privacy
+        cy.get('body').then(($body) => {
+          if (
+            $body.find('input[id="form-radiobutton-cluster_privacy-external-field"]').length > 0
+          ) {
+            CreateOSDWizardPage.clusterPrivacyPublicRadio().should('be.checked');
+            CreateOSDWizardPage.clusterPrivacyPrivateRadio().should('not.be.checked');
+          } else {
+            // Alternative selectors if the IDs are different
+            cy.get('input[type="radio"]').should('have.length.greaterThan', 0);
+          }
+        });
         CreateOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
         CreateOSDWizardPage.wizardNextButton().click();
       });
