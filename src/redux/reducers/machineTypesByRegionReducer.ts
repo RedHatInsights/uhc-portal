@@ -25,7 +25,8 @@ import {
   PENDING_ACTION,
   REJECTED_ACTION,
 } from '../reduxHelpers';
-import { PromiseActionType, PromiseReducerState } from '../types';
+import { PromiseReducerState } from '../stateTypes';
+import { PromiseActionType } from '../types';
 
 type MachineTypesByRegionState = PromiseReducerState<{
   types: {

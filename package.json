@@ -174,6 +174,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "lint-staged": "^15.0.0",
     "mini-css-extract-plugin": "^2.7.5",
+    "madge": "8.0.0",
     "monaco-editor-webpack-plugin": "^7.1.0",
     "node-fetch": "^3.0.0",
     "nyc": "^17.0.0",
@@ -244,7 +245,8 @@
     "sentry:sourcemaps-release:saas": "yarn sentry:sourcemaps && yarn sentry:release --auth-token $GLITCHTIP_TOKEN --project=$SENTRY_PROJECT files $SENTRY_VERSION upload-sourcemaps dist/ --url-prefix '/apps'",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "postinstall": "ts-patch install"
+    "postinstall": "ts-patch install",
+    "find-circular-dependencies": "madge --circular --extensions ts,js ./src "
   },
   "insights": {
     "appname": "openshift"
