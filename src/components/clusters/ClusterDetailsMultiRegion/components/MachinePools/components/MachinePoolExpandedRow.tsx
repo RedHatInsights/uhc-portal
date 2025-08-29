@@ -1,24 +1,36 @@
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
 
-import { Grid, GridItem, Label, Title } from '@patternfly/react-core';
+import {
+  Flex,
+  FlexItem,
+  Grid,
+  GridItem,
+  Label,
+  LabelGroup,
+  Stack,
+  StackItem,
+  Title,
+} from '@patternfly/react-core';
 
 import { truncateTextWithEllipsis } from '~/common/helpers';
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
+import { AWS_TAGS_NEW_MP } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachinePool, NodePool, SecurityGroup } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { isHypershiftCluster, isMPoolAz } from '../../../clusterDetailsHelper';
 import MachinePoolAutoRepairDetail from '../MachinePoolAutoRepairDetail';
 import MachinePoolAutoScalingDetail from '../MachinePoolAutoscalingDetail';
-import { getSubnetIds, hasSubnets } from '../machinePoolsHelper';
+import { getSubnetIds, hasAwsTags, hasSubnets } from '../machinePoolsHelper';
 
 const LABEL_MAX_LENGTH = 50;
 
 const taintsRenderer = (taints: MachinePool['taints']) =>
   (taints || []).map((taint) => `${taint.key} = ${taint.value}:${taint.effect}`);
 
-const labelsRenderer = (labels: Record<string, string>) =>
+const labelsTagsRenderer = (labels: Record<string, string>) =>
   Object.keys(labels || {}).map((labelKey) => {
     const value = labels[labelKey] || '';
     return `${labelKey}${value ? ' = ' : ''}${value}`;
@@ -59,8 +71,8 @@ export const MachinePoolItemList = ({
           color="blue"
           // eslint-disable-next-line react/no-array-index-key
           key={`${title}-${index}`}
+          textMaxWidth="16ch"
           className="pf-v6-c-label--break-word pf-v6-u-m-sm pf-v6-u-ml-0"
-          title={isTruncated ? item : ''}
         >
           {/* Use HTML tooltip, PF's won't show because the parent tab is initially hidden */}
           {displayName}
@@ -81,6 +93,7 @@ const MachinePoolExpandedRow = ({
   machinePool: MachinePool;
   region?: string;
 }) => {
+  const awsTagsNewMP = useFeatureGate(AWS_TAGS_NEW_MP);
   const { clusterVpc } = useAWSVPCFromCluster(cluster, region);
   const spotMarketOptions = machinePool?.aws?.spot_market_options;
   const securityGroupIds =
@@ -91,11 +104,86 @@ const MachinePoolExpandedRow = ({
   const isHypershift = isHypershiftCluster(cluster);
   const isAutoRepairEnabled = (machinePool as NodePool)?.auto_repair;
 
+  const awsTagsAvailable = hasAwsTags(machinePool);
+  const labelsAvailable = !isEmpty(machinePool.labels);
+  const nodePoolTags = (machinePool as NodePool).aws_node_pool?.tags;
+  const awsTags = React.useMemo(() => labelsTagsRenderer(nodePoolTags || {}), [nodePoolTags]);
+
+  const labels = React.useMemo(
+    () => labelsTagsRenderer(machinePool.labels || {}),
+    [machinePool.labels],
+  );
+
   return (
     <Grid hasGutter>
-      {!isEmpty(machinePool.labels) && (
-        <GridItem md={6}>
-          <MachinePoolItemList title="Labels" items={labelsRenderer(machinePool.labels || {})} />
+      {(labelsAvailable || (awsTagsNewMP && awsTagsAvailable)) && (
+        <GridItem md={8}>
+          <Stack hasGutter>
+            {awsTagsNewMP && awsTagsAvailable ? (
+              <StackItem>
+                <Title headingLevel="h4">Labels and AWS tags</Title>
+              </StackItem>
+            ) : (
+              <StackItem>
+                <Title headingLevel="h4">Labels</Title>
+              </StackItem>
+            )}
+
+            {labelsAvailable && (
+              <StackItem>
+                <Flex>
+                  <FlexItem>
+                    <div className="pf-v6-u-font-size-sm pf-v6-u-disabled-color-100">Labels</div>
+                  </FlexItem>
+                  <FlexItem>
+                    <LabelGroup
+                      numLabels={1}
+                      collapsedText={`${labels.length - 1} remaining`}
+                      title="Labels"
+                    >
+                      {labels.map((fullLabel) => (
+                        <Label
+                          key={`${fullLabel}`}
+                          color="blue"
+                          className="pf-v6-c-label__text-awstag"
+                        >
+                          {fullLabel}
+                        </Label>
+                      ))}
+                    </LabelGroup>
+                  </FlexItem>
+                </Flex>
+              </StackItem>
+            )}
+
+            {awsTagsNewMP && awsTagsAvailable && (
+              <StackItem>
+                <Flex>
+                  <FlexItem>
+                    <div className="pf-v6-u-font-size-sm pf-v6-u-disabled-color-100">AWS tags</div>
+                  </FlexItem>
+                  <FlexItem>
+                    <LabelGroup
+                      numLabels={1}
+                      collapsedText={`${awsTags.length - 1} remaining`}
+                      isCompact
+                    >
+                      {awsTags &&
+                        awsTags.map((fullTag) => (
+                          <Label
+                            key={`${fullTag}`}
+                            color="orange"
+                            className="pf-v6-c-label__text-awstag"
+                          >
+                            {fullTag}
+                          </Label>
+                        ))}
+                    </LabelGroup>
+                  </FlexItem>
+                </Flex>
+              </StackItem>
+            )}
+          </Stack>
         </GridItem>
       )}
       {machinePool.taints && (
@@ -112,7 +200,7 @@ const MachinePoolExpandedRow = ({
         </GridItem>
       )}
       {hasSubnets(machinePool) && (
-        <GridItem md={6}>
+        <GridItem md={4}>
           <MachinePoolItemList title="Subnets" items={getSubnetIds(machinePool)} />
         </GridItem>
       )}
