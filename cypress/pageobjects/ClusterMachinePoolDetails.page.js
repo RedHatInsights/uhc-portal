@@ -1,7 +1,8 @@
 import Page from './page';
 
 class ClusterMachinePoolDetails extends Page {
-  addMachinePoolDetailsButton = () => cy.contains('button', /add.*machine.*pool|create.*pool|new.*pool/i);
+  addMachinePoolDetailsButton = () =>
+    cy.contains('button', /add.*machine.*pool|create.*pool|new.*pool/i);
 
   enableAmazonEC2SpotInstanceCheckbox = () =>
     cy.contains('Spot instances').find('input[type="checkbox"]').scrollIntoView().check();
