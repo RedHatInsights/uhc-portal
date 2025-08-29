@@ -10,12 +10,13 @@ import { MachinePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
+import EditAWSTagsSection from '../sections/EditAWSTagsSection';
 import EditLabelsSection from '../sections/EditLabelsSection';
 import EditTaintsSection from '../sections/EditTaintsSection';
 
 import { hasErrors, tabTitle } from './subTabHelpers';
 
-const fieldsInTab = ['labels', 'taints'];
+const fieldsInTab = ['labels', 'taints', 'awsTags'];
 
 type Props = {
   cluster: ClusterFromSubscription;
@@ -24,6 +25,8 @@ type Props = {
   machineTypes: MachineTypesResponse;
   tabKey: number | string;
   initialTabContentShown?: boolean;
+  isROSAHCP: boolean;
+  isNewMachinePool: boolean;
 };
 
 export const useLabelsTagsTaintsSubTab = ({
@@ -33,19 +36,27 @@ export const useLabelsTagsTaintsSubTab = ({
   machineTypes,
   tabKey,
   initialTabContentShown,
+  isROSAHCP,
+  isNewMachinePool,
 }: Props): [
   (errors: FormikErrors<EditMachinePoolValues>) => React.JSX.Element,
   () => React.JSX.Element,
 ] => {
   const awsTagsNewMPFeature = useFeatureGate(AWS_TAGS_NEW_MP);
   const contentRef1 = React.createRef<HTMLElement>();
+
+  const showAWSTags = awsTagsNewMPFeature && isROSAHCP;
+
   const tab = (errors: FormikErrors<EditMachinePoolValues>) => {
     const tabErrors = hasErrors(errors, fieldsInTab);
 
     return (
       <Tab
         eventKey={tabKey}
-        title={tabTitle(`Labels${awsTagsNewMPFeature ? ', AWS Tags,' : ''} and Taints`, tabErrors)}
+        title={tabTitle(
+          `Labels${showAWSTags ? ', Taints and AWS Tags' : ' and Taints'}`,
+          tabErrors,
+        )}
         tabContentRef={contentRef1}
       />
     );
@@ -67,6 +78,7 @@ export const useLabelsTagsTaintsSubTab = ({
           machinePoolId={currentMachinePoolId}
           machineTypes={machineTypes}
         />
+        {showAWSTags ? <EditAWSTagsSection isNewMachinePool={isNewMachinePool} /> : null}
       </Form>
     </TabContent>
   );
