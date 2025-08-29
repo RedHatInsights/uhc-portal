@@ -48,13 +48,10 @@ describe(
 
     it(`Update billing account values within the Billing marketplace account dropdown`, () => {
       ClusterDetailsPage.showBillingMarketplaceAccountLink();
-
+      ClusterDetailsPage.verifyBillingAccountDocLink('Connect a new AWS billing account');
       ClusterDetailsPage.clickAWSBillingAccountsDropDown();
-
       ClusterDetailsPage.filterAWSBillingAccount(secondaryAWSBillingAccountId);
       ClusterDetailsPage.selectAWSBillingAccount(secondaryAWSBillingAccountId);
-      ClusterDetailsPage.verifyBillingAccountDocLink('Connect a new AWS billing account');
-
       ClusterDetailsPage.refreshBillingAWSAccountButton();
       ClusterDetailsPage.updateAWSBillingAccount();
     });
@@ -71,7 +68,6 @@ describe(
     after(`Revert the Billing account changes made in the earlier test steps`, () => {
       ClusterDetailsPage.overviewTab().click();
       ClusterDetailsPage.showBillingMarketplaceAccountLink();
-
       ClusterDetailsPage.clickAWSBillingAccountsDropDown();
       ClusterDetailsPage.filterAWSBillingAccount(awsBillingAccountId);
       ClusterDetailsPage.selectAWSBillingAccount(awsBillingAccountId);

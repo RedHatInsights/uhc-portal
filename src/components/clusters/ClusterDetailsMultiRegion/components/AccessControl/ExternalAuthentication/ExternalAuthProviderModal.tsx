@@ -2,8 +2,17 @@ import React from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 
-import { Button, Form, Stack, StackItem } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  Form,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
 
 import { getErrorMessage } from '~/common/errors';
 import { validateSecureURL } from '~/common/validators';
@@ -83,7 +92,6 @@ export function ExternalAuthProviderModal(props: ExternalAuthProviderModalProps)
     mutate,
   } = useAddEditExternalAuth(clusterID, region);
 
-  // find the first client with component name console
   const consoleClient = externalAuthProvider?.clients?.find(
     (client) => client.component?.name === 'console',
   );
@@ -174,85 +182,93 @@ export function ExternalAuthProviderModal(props: ExternalAuthProviderModalProps)
       {(formik) => (
         <Modal
           id="edit-ext-auth-provider-modal"
-          title={
-            isEdit
-              ? `Edit provider ${externalAuthProvider?.id}`
-              : 'Add external authentication provider'
-          }
           onClose={onClose}
+          variant={ModalVariant.medium}
           isOpen={isOpen}
-          variant="medium"
-          description={!isEdit && modalDescription}
-          actions={[
+          aria-labelledby="edit-ext-auth-provider-modal"
+          aria-describedby="modal-box-edit-ext-auth-provider"
+        >
+          <ModalHeader
+            title={
+              isEdit
+                ? `Edit provider ${externalAuthProvider?.id}`
+                : 'Add external authentication provider'
+            }
+            description={!isEdit ? modalDescription : undefined}
+            labelId="edit-ext-auth-provider-modal"
+          />
+          <ModalBody>
+            <Form>
+              {!isEdit && <TextField fieldId="id" label="Name" isRequired />}
+              <TextField fieldId="issuer" label="Issuer URL" isRequired />
+              <TextField
+                fieldId="audiences"
+                label="Audiences"
+                isRequired
+                helpText="The audience IDs that this authentication provider issues tokens for. Use commas to separate multiple audiences."
+              />
+              <TextField fieldId="groups" label="Groups mapping" isRequired />
+              <TextField fieldId="username" label="Username mapping" isRequired />
+              <TextField
+                fieldId="consoleClientID"
+                label="Console client ID"
+                helpText="The console identifier of the OIDC client from the OIDC provider. Once set, a client ID can be modified by not removed."
+              />
+              <TextField
+                fieldId="consoleClientSecret"
+                label="Console client secret"
+                helpText="The console secret of the OIDC client from the OIDC provider."
+                placeHolderText={
+                  consoleClient?.id && formik.values.consoleClientID === consoleClient?.id
+                    ? 'Secret not displayed'
+                    : ''
+                }
+              />
+              <Field
+                component={CAUpload}
+                onChange={(value: string) => formik.setFieldValue('provider_ca', value)}
+                input={{
+                  name: 'provider_ca',
+                  value: formik.values.provider_ca,
+                  onChange: (value: string) => formik.setFieldValue('provider_ca', value),
+                  onBlur: formik.handleBlur,
+                }}
+                fieldName="provider_ca"
+                name="provider_ca"
+                label="CA file"
+                helpText="PEM encoded certificate bundle to use to validate server certificates for the configured issuer URL."
+                certValue={isEdit ? formik.values.provider_ca : ''}
+              />
+            </Form>
+            {isError && (
+              <Stack hasGutter>
+                <StackItem>
+                  <ErrorBox
+                    message={isEdit ? 'Error editing provider' : 'Error adding provider'}
+                    response={{
+                      errorDetails: submitError.error.errorDetails,
+                      errorMessage: getErrorMessage({ payload: submitError.error as any }),
+                      operationID: submitError.error.operationID,
+                    }}
+                  />
+                </StackItem>
+              </Stack>
+            )}
+          </ModalBody>
+          <ModalFooter>
             <Button
               key="add-ext-auth-provider"
+              variant="primary"
               isDisabled={isPending}
               isLoading={isPending}
               onClick={formik.submitForm}
             >
               {isEdit ? 'Save' : 'Add'}
-            </Button>,
+            </Button>
             <Button key="cancel" variant="secondary" onClick={onClose}>
               Cancel
-            </Button>,
-          ]}
-        >
-          <Form>
-            {!isEdit && <TextField fieldId="id" label="Name" isRequired />}
-            <TextField fieldId="issuer" label="Issuer URL" isRequired />
-            <TextField
-              fieldId="audiences"
-              label="Audiences"
-              isRequired
-              helpText="The audience IDs that this authentication provider issues tokens for. Use commas to separate multiple audiences."
-            />
-            <TextField fieldId="groups" label="Groups mapping" isRequired />
-            <TextField fieldId="username" label="Username mapping" isRequired />
-            <TextField
-              fieldId="consoleClientID"
-              label="Console client ID"
-              helpText="The console identifier of the OIDC client from the OIDC provider. Once set, a client ID can be modified by not removed."
-            />
-            <TextField
-              fieldId="consoleClientSecret"
-              label="Console client secret"
-              helpText="The console secret of the OIDC client from the OIDC provider."
-              placeHolderText={
-                consoleClient?.id && formik.values.consoleClientID === consoleClient?.id
-                  ? 'Secret not displayed'
-                  : ''
-              }
-            />
-            <Field
-              component={CAUpload}
-              onChange={(value: string) => formik.setFieldValue('provider_ca', value)}
-              input={{
-                name: 'provider_ca',
-                value: formik.values.provider_ca,
-                onChange: (value: string) => formik.setFieldValue('provider_ca', value),
-                onBlur: formik.handleBlur,
-              }}
-              fieldName="provider_ca"
-              name="provider_ca"
-              label="CA file"
-              helpText="PEM encoded certificate bundle to use to validate server certificates for the configured issuer URL."
-              certValue={isEdit ? formik.values.provider_ca : ''}
-            />
-          </Form>
-          {isError && (
-            <Stack hasGutter>
-              <StackItem>
-                <ErrorBox
-                  message={isEdit ? 'Error editing provider' : 'Error adding provider'}
-                  response={{
-                    errorDetails: submitError.error.errorDetails,
-                    errorMessage: getErrorMessage({ payload: submitError.error as any }),
-                    operationID: submitError.error.operationID,
-                  }}
-                />
-              </StackItem>
-            </Stack>
-          )}
+            </Button>
+          </ModalFooter>
         </Modal>
       )}
     </Formik>

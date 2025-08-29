@@ -2,11 +2,10 @@ import * as React from 'react';
 
 import { EmptyState, EmptyStateBody, Icon } from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
-import { t_global_icon_color_status_success_default as okColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_success_default';
 
 const EmptyIcon = (props: any) => (
-  <Icon {...props}>
-    <CheckCircleIcon color={okColor.value} />
+  <Icon {...props} status="success">
+    <CheckCircleIcon />
   </Icon>
 );
 

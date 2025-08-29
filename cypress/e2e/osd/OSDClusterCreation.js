@@ -17,9 +17,7 @@ describe('OSD cluster tests', { tags: ['ci'] }, () => {
     it('navigates to create OSD cluster', () => {
       cy.getByTestId('create_cluster_btn').click();
       CreateClusterPage.isCreateClusterPage();
-      cy.get('a[data-testid="osd-create-cluster-button"]', {
-        timeout: 15000,
-      }).click();
+      CreateOSDWizardPage.osdCreateClusterButton().click();
       CreateOSDWizardPage.isCreateOSDPage();
     });
 

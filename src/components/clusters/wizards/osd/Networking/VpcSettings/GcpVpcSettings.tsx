@@ -1,7 +1,15 @@
 import React, { ReactElement, useMemo } from 'react';
 import { Field } from 'formik';
 
-import { Alert, AlertActionLink, GridItem, Title, useWizardContext } from '@patternfly/react-core';
+import {
+  Alert,
+  AlertActionLink,
+  Content,
+  ContentVariants,
+  GridItem,
+  Title,
+  useWizardContext,
+} from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import { required, validateGCPHostProjectId, validateGCPSubnet } from '~/common/validators';
@@ -112,9 +120,12 @@ export const GcpVpcSettings = () => {
             iconClassName="pf-v6-u-ml-sm"
             hint={
               <>
-                Install into a non-default subnet shared by another account in your CP organization
+                <Content component={ContentVariants.p}>
+                  Install into a user-defined subnet within a custom VPC network that is provisioned
+                  and fully managed within the same GCP project.
+                </Content>
                 <ExternalLink href={links.INSTALL_GCP_VPC}>
-                  Learn more about GCP shared VPC
+                  Learn more about installing into an existing VPC
                 </ExternalLink>
               </>
             }
@@ -134,7 +145,7 @@ export const GcpVpcSettings = () => {
         </div>
       </GridItem>
 
-      <GridItem md={3}>
+      <GridItem md={showPSCSubnet ? 12 : 4}>
         {installToSharedVpc ? (
           <TextInputField
             name={FieldId.VpcName}
@@ -158,7 +169,7 @@ export const GcpVpcSettings = () => {
         )}
       </GridItem>
 
-      <GridItem md={3}>
+      <GridItem md={showPSCSubnet ? 12 : 4}>
         {installToSharedVpc ? (
           <TextInputField
             name={FieldId.ControlPlaneSubnet}
@@ -182,7 +193,7 @@ export const GcpVpcSettings = () => {
         )}
       </GridItem>
 
-      <GridItem md={3}>
+      <GridItem md={showPSCSubnet ? 12 : 4}>
         {installToSharedVpc ? (
           <TextInputField
             name={FieldId.ComputeSubnet}
@@ -206,7 +217,7 @@ export const GcpVpcSettings = () => {
         )}
       </GridItem>
       {showPSCSubnet ? (
-        <GridItem md={3}>
+        <GridItem md={12}>
           {installToSharedVpc ? (
             <TextInputField
               name={FieldId.PSCSubnet}

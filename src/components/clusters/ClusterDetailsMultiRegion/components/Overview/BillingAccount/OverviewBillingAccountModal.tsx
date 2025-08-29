@@ -1,8 +1,15 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { Button, StackItem } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  StackItem,
+} from '@patternfly/react-core';
 
 import { queryClient } from '~/components/App/queryClient';
 import ErrorBox from '~/components/common/ErrorBox';
@@ -28,7 +35,6 @@ export function OverviewBillingAccountModal(props: OverviewBillingAccountModalPr
     isError: isClusterEditError,
     error: clusterEditError,
     mutate: mutateClusterEdit,
-    // reset: resetEditClusterResponse,
   } = useEditCluster(region);
 
   const handleClose = () => {
@@ -70,12 +76,35 @@ export function OverviewBillingAccountModal(props: OverviewBillingAccountModalPr
       {(formik) => (
         <Modal
           id="edit-billing-aws-account-modal"
-          title="Edit AWS billing account"
           onClose={handleClose}
-          variant="small"
-          description="Updating the billing marketplace account changes the account that is charged for your subscription usage. There might be a delay in updating the account."
+          variant={ModalVariant.small}
           isOpen={isOpen}
-          actions={[
+          aria-labelledby="edit-billing-aws-account-modal"
+          aria-describedby="modal-box-edit-billing-aws-account"
+        >
+          <ModalHeader
+            title="Edit AWS billing account"
+            description="Updating the billing marketplace account changes the account that is charged for your subscription usage. There might be a delay in updating the account."
+            labelId="edit-billing-aws-account-modal"
+          />
+          <ModalBody>
+            <AWSBillingAccountForm
+              name="billingAccountId"
+              selectedAWSBillingAccountID={formik.values.billingAccountId}
+            />
+            {isClusterEditError && (
+              <StackItem>
+                <ErrorBox
+                  message="A problem occurred updating the billing account."
+                  response={{
+                    errorMessage: clusterEditError?.message || clusterEditError?.errorMessage,
+                    operationID: clusterEditError?.operationID,
+                  }}
+                />
+              </StackItem>
+            )}
+          </ModalBody>
+          <ModalFooter>
             <Button
               data-testid="Update"
               key="update"
@@ -84,30 +113,14 @@ export function OverviewBillingAccountModal(props: OverviewBillingAccountModalPr
               isDisabled={
                 !formik.isValid || !formik.dirty || formik.isSubmitting || isClusterEditPending
               }
+              isLoading={isClusterEditPending}
             >
               Update
-            </Button>,
+            </Button>
             <Button key="cancel" variant="secondary" onClick={handleClose}>
               Cancel
-            </Button>,
-          ]}
-        >
-          {' '}
-          <AWSBillingAccountForm
-            name="billingAccountId"
-            selectedAWSBillingAccountID={formik.values.billingAccountId}
-          />
-          {isClusterEditError && (
-            <StackItem>
-              <ErrorBox
-                message="A problem occurred updating the billing account."
-                response={{
-                  errorMessage: clusterEditError?.message || clusterEditError?.errorMessage,
-                  operationID: clusterEditError?.operationID,
-                }}
-              />
-            </StackItem>
-          )}
+            </Button>
+          </ModalFooter>
         </Modal>
       )}
     </Formik>

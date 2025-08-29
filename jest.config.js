@@ -8,6 +8,7 @@ const config = {
   testEnvironmentOptions: {
     customExportConditions: [''],
   },
+  clearMocks: true,
   transform: {
     '^.+\\.(js|jsx|mjs)$': 'babel-jest',
   },
