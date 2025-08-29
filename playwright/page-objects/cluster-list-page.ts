@@ -33,6 +33,14 @@ export class ClusterListPage extends BasePage {
     return this.page.locator('a').filter({ hasText: 'View cluster archives' });
   }
 
+  viewClusterRequests(): Locator {
+    return this.page.locator('a').filter({ hasText: 'View cluster requests' });
+  }
+
+  viewClusterRequestsButton(): Locator {
+    return this.page.locator('button').filter({ hasText: 'View cluster requests' });
+  }
+
   assistedInstallerClusters(): Locator {
     return this.page.locator('a').filter({ hasText: 'Assisted Installer clusters' });
   }
@@ -51,7 +59,9 @@ export class ClusterListPage extends BasePage {
   }
 
   async isClusterListScreen(): Promise<void> {
-    await expect(this.page.locator('h1, h4')).toContainText(/Cluster List|Let's create your first cluster/);
+    await expect(this.page.locator('h1, h4')).toContainText(
+      /Cluster List|Let's create your first cluster/,
+    );
   }
 
   async isRegisterClusterUrl(): Promise<void> {
@@ -89,7 +99,7 @@ export class ClusterListPage extends BasePage {
   async checkForDetailsInAnchor(): Promise<void> {
     const anchors = this.page.locator('tr.pf-v6-c-table__tr').locator('td[data-label="Name"] a');
     await expect(anchors.first()).toBeVisible();
-    
+
     const count = await anchors.count();
     for (let i = 0; i < count; i++) {
       const href = await anchors.nth(i).getAttribute('href');
@@ -98,7 +108,10 @@ export class ClusterListPage extends BasePage {
   }
 
   async checkIfFirstAnchorNavigatesToCorrectRoute(): Promise<void> {
-    const anchor = this.page.locator('tr.pf-v6-c-table__tr').locator('td[data-label="Name"] a').first();
+    const anchor = this.page
+      .locator('tr.pf-v6-c-table__tr')
+      .locator('td[data-label="Name"] a')
+      .first();
     const href = await anchor.getAttribute('href');
     await anchor.click();
     await expect(this.page).toHaveURL(new RegExp('/openshift/details/'));
@@ -135,13 +148,15 @@ export class ClusterListPage extends BasePage {
 
   async waitForArchiveDataReady(): Promise<void> {
     await this.page.locator('div.cluster-list').waitFor({ timeout: 30000 });
-    await this.page.locator('div.ins-c-spinner.cluster-list-spinner').waitFor({ state: 'detached', timeout: 30000 });
+    await this.page
+      .locator('div.ins-c-spinner.cluster-list-spinner')
+      .waitFor({ state: 'detached', timeout: 30000 });
   }
 
   async checkFilteredClusterTypes(type: string, isContains: boolean): Promise<void> {
     const elements = this.page.locator('span.pf-v6-c-label__text');
     const count = await elements.count();
-    
+
     for (let i = 0; i < count; i++) {
       const text = await elements.nth(i).textContent();
       if (isContains) {
@@ -155,7 +170,7 @@ export class ClusterListPage extends BasePage {
   async checkFilteredClustersFromClusterList(type: string, isContains: boolean): Promise<void> {
     const elements = this.page.locator('td[data-label="Type"] span');
     const count = await elements.count();
-    
+
     for (let i = 0; i < count; i++) {
       const text = await elements.nth(i).textContent();
       if (isContains) {
