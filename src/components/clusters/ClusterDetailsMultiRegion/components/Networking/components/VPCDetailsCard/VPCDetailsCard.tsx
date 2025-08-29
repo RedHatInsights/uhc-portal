@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -22,12 +21,20 @@ import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { isRestrictedEnv } from '~/restrictedEnv';
+import { AugmentedCluster } from '~/types/types';
 
 import EditClusterWideProxyDialog from '../EditClusterWideProxyDialog';
 
 import './VPCDetailsCard.scss';
 
-const resolveDisableEditReason = ({ isReadOnly, clusterHibernating, canUpdateClusterResource }) => {
+const resolveDisableEditReason = ({
+  isReadOnly,
+  clusterHibernating,
+  canUpdateClusterResource,
+}: Pick<AugmentedCluster, 'canUpdateClusterResource'> & {
+  isReadOnly: boolean;
+  clusterHibernating: boolean;
+}) => {
   const readOnlyReason = isReadOnly && 'This operation is not available during maintenance';
   const hibernatingReason =
     clusterHibernating && 'This operation is not available while cluster is hibernating';
@@ -37,7 +44,11 @@ const resolveDisableEditReason = ({ isReadOnly, clusterHibernating, canUpdateClu
   return readOnlyReason || hibernatingReason || canNotEditReason;
 };
 
-const VPCDetailsCard = ({ cluster }) => {
+type VPCDetailsCardProps = {
+  cluster: AugmentedCluster;
+};
+
+const VPCDetailsCard = ({ cluster }: VPCDetailsCardProps) => {
   const dispatch = useDispatch();
 
   const privateLink = cluster.aws?.private_link;
@@ -64,9 +75,8 @@ const VPCDetailsCard = ({ cluster }) => {
     canUpdateClusterResource,
   });
 
-  const handleEditClusterProxy = () => {
+  const handleEditClusterProxy = () =>
     dispatch(modalActions.openModal(modals.EDIT_CLUSTER_WIDE_PROXY));
-  };
 
   const renderNoProxyDomains = noProxyDomains
     ? noProxyDomains.map((domain) => (
@@ -163,8 +173,4 @@ const VPCDetailsCard = ({ cluster }) => {
   );
 };
 
-VPCDetailsCard.propTypes = {
-  cluster: PropTypes.object.isRequired,
-};
-
-export default VPCDetailsCard;
+export { VPCDetailsCard };
