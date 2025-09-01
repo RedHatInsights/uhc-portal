@@ -303,3 +303,116 @@ describe('SubnetSelectField', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+describe('Subent ordering and used subnet functionality', () => {
+  it('groups subnets by availability zone and orders unused before used', async () => {
+    const usedSubnetIds = ['subnet-011f8e5c954b17ad9', 'subnet-013caf96f643315eb'];
+
+    const { user } = render(<SubnetSelectField {...defaultProps} usedSubnetIds={usedSubnetIds} />);
+
+    const selectDropdown = screen.getByRole('button', { name: 'Options menu' });
+    await user.click(selectDropdown);
+
+    // check availability groups are present for only unused subnets
+    expect(screen.queryByText('us-east-1a')).not.toBeInTheDocument();
+    expect(screen.queryByText('us-east-1b')).not.toBeInTheDocument();
+    expect(screen.getByText('us-east-1c')).toBeInTheDocument();
+    expect(screen.getByText('us-east-1d')).toBeInTheDocument();
+
+    // check that unused subnets are present and used subnets are not
+    expect(
+      screen.getByRole('option', { name: /ddonati-test4.*private-us-east-1c1/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: /ddonati-test4.*private-us-east-1c2/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: /ddonati-test4.*private-us-east-1d/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('option', { name: /ddonati-test4.*private-us-east-1a/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('option', { name: /ddonati-test4.*private-us-east-1b/i }),
+    ).not.toBeInTheDocument();
+
+    // "View Used Subnets" button shown
+    expect(screen.getByRole('option', { name: 'View Used Subnets' })).toBeInTheDocument();
+  });
+
+  it('shows and hides used subnets when toggle is clicked', async () => {
+    const usedSubnetIds = ['subnet-011f8e5c954b17ad9', 'subnet-013caf96f643315eb'];
+
+    const { user } = render(<SubnetSelectField {...defaultProps} usedSubnetIds={usedSubnetIds} />);
+
+    const selectDropdown = screen.getByRole('button', { name: 'Options menu' });
+    await user.click(selectDropdown);
+
+    const viewUsedButton = screen.getByRole('option', { name: 'View Used Subnets' });
+    await user.click(viewUsedButton);
+
+    // used subnets with '- Used' label should be visible
+    expect(screen.getByText('us-east-1a - Used')).toBeInTheDocument();
+    expect(screen.getByText('us-east-1b - Used')).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: /ddonati-test4.*private-us-east-1a/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: /ddonati-test4.*private-us-east-1b/i }),
+    ).toBeInTheDocument();
+
+    // button text = 'Hide Used Subnets'
+    expect(screen.getByRole('option', { name: 'Hide Used Subnets' })).toBeInTheDocument();
+
+    const hideUsedButton = screen.getByRole('option', { name: 'Hide Used Subnets' });
+    await user.click(hideUsedButton);
+
+    // verify used subnet groups are hidden
+    expect(screen.queryByText('us-east-1a - Used')).not.toBeInTheDocument();
+    expect(screen.queryByText('us-east-1b - Used')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('option', { name: /ddonati-test4.*private-us-east-1a/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('option', { name: /ddonati-test4.*private-us-east-1b/i }),
+    ).not.toBeInTheDocument();
+
+    expect(screen.getByRole('option', { name: 'View Used Subnets' })).toBeInTheDocument();
+  });
+
+  it('filters work correctly with used subnets shown', async () => {
+    const usedSubnetIds = ['subnet-011f8e5c954b17ad9', 'subnet-013caf96f643315eb'];
+
+    const { user } = render(<SubnetSelectField {...defaultProps} usedSubnetIds={usedSubnetIds} />);
+
+    const selectDropdown = screen.getByRole('button', { name: 'Options menu' });
+    await user.click(selectDropdown);
+
+    const viewUsedButton = screen.getByRole('option', { name: 'View Used Subnets' });
+    await user.click(viewUsedButton);
+
+    // 1b should show both unused and used subnets in zone
+    const searchBox = screen.getByPlaceholderText(/Filter by subnet/i);
+    await user.clear(searchBox);
+    await user.type(searchBox, '1b');
+    const options = await screen.findAllByRole('option');
+    expect(options.length).toBeGreaterThan(0);
+  });
+
+  it('respects allowedAZs when filtering subnets', async () => {
+    const allowedAZs = ['us-east-1a', 'us-east-1b'];
+
+    const { user } = render(<SubnetSelectField {...defaultProps} allowedAZs={allowedAZs} />);
+
+    const selectDropdown = screen.getByRole('button', { name: 'Options menu' });
+    await user.click(selectDropdown);
+
+    expect(screen.getByText('us-east-1a')).toBeInTheDocument();
+    expect(screen.getByText('us-east-1b')).toBeInTheDocument();
+    expect(screen.queryByText('us-east-1c')).not.toBeInTheDocument();
+    expect(screen.queryByText('us-east-1d')).not.toBeInTheDocument();
+
+    const options = await screen.findAllByRole('option');
+    expect(options).toHaveLength(2);
+  });
+});

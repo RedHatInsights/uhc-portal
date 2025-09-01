@@ -20,9 +20,11 @@ import {
 } from '@patternfly/react-core';
 
 import { truncateTextWithEllipsis } from '~/common/helpers';
+import { isSubnetMatchingPrivacy } from '~/common/vpcHelpers';
 import { FuzzySelectMatchName } from '~/components/common/FuzzySelect/components/FuzzySelectMatchName';
 import { FuzzySelectOption } from '~/components/common/FuzzySelect/components/FuzzySelectOption';
 import { FuzzyDataType, FuzzyEntryType } from '~/components/common/FuzzySelect/types';
+import { Subnetwork } from '~/types/clusters_mgmt.v1';
 
 import { findGroupedItemById, isFuzzyEntryGroup } from './fuzzySelectHelpers';
 
@@ -65,6 +67,20 @@ export interface FuzzySelectProps
   additionalFilterControls?: React.ReactNode;
   /** Flag to include disabled results while filtering options. Default to false. */
   includeDisabledInSearchResults?: boolean;
+  /** Flag to show/hide used subnets in the dropdown. */
+  showUsedSubnets?: boolean;
+  /** Callback to toggle the visibility of used subnets. */
+  onToggleUsedSubnets?: () => void;
+  /** Flag to indicate if there are any used subnets. */
+  hasUsedSubnets?: boolean;
+  /** Array of used subnets ids. */
+  usedSubnetIds?: string[];
+  /** All available subnets. */
+  allSubnets?: Subnetwork[];
+  /** Privacy setting for subnets. */
+  privacy?: 'public' | 'private';
+  /** Allowed availability zones for subnets. */
+  allowedAZs?: string[];
 }
 
 const defaultSortFn = (a: FuzzyEntryType, b: FuzzyEntryType): number =>
@@ -93,21 +109,111 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     additionalFilterControls,
     includeDisabledInSearchResults = false,
     isScrollable = true,
+    showUsedSubnets = false,
+    onToggleUsedSubnets,
+    hasUsedSubnets = false,
+    usedSubnetIds,
+    allSubnets,
+    privacy,
+    allowedAZs,
     ...rest
   } = props;
 
+  const stableUsedSubnetIds = useMemo(() => usedSubnetIds || [], [usedSubnetIds]);
+  const stableAllowedAZs = useMemo(() => allowedAZs, [allowedAZs]);
+
   const [inputValue, setInputValue] = React.useState<string>('');
   const [filterValue, setFilterValue] = React.useState<string>('');
-  const [selectOptions, setSelectOptions] = React.useState<FuzzyDataType>(selectionData);
+  const [currentSelectOptions, setCurrentSelectOptions] =
+    React.useState<FuzzyDataType>(selectionData);
   const textInputRef = React.useRef<HTMLInputElement>(null);
   const [invalidFilter, setInvalidFilter] = React.useState(false);
-  const isGroupedSelect = isFuzzyEntryGroup(selectOptions);
+  const isGroupedSelect = isFuzzyEntryGroup(selectionData);
 
   const NO_RESULTS = 'no results';
+  const VIEW_MORE_OPTION_ID = 'view-more-used-subnets';
+  const isSubnetSelectMode = Boolean(allSubnets);
 
-  React.useEffect(() => {
+  const generateOptions = useCallback(() => {
+    const allFilteredSubnets: Subnetwork[] = [];
+    if (allSubnets) {
+      allSubnets.forEach((subnet) => {
+        const subnetAZ = subnet.availability_zone || '';
+        if (
+          isSubnetMatchingPrivacy(subnet, privacy) &&
+          (stableAllowedAZs === undefined || stableAllowedAZs.includes(subnetAZ))
+        ) {
+          allFilteredSubnets.push(subnet);
+        }
+      });
+    }
+
+    const unusedSubnets: Subnetwork[] = [];
+    const usedSubnets: Subnetwork[] = [];
+
+    allFilteredSubnets.forEach((subnet) => {
+      if (stableUsedSubnetIds.includes(subnet.subnet_id as string)) {
+        usedSubnets.push(subnet);
+      } else {
+        unusedSubnets.push(subnet);
+      }
+    });
+
+    const subnetsByAZ: FuzzyDataType = {};
+
+    if (unusedSubnets.length > 0) {
+      const unusedByAZ: Record<string, FuzzyEntryType[]> = {};
+      unusedSubnets.forEach((subnet) => {
+        const subnetAZ = subnet.availability_zone || '';
+        if (!unusedByAZ[subnetAZ]) {
+          unusedByAZ[subnetAZ] = [];
+        }
+        unusedByAZ[subnetAZ].push({
+          groupId: subnetAZ,
+          entryId: subnet.subnet_id as string,
+          label: subnet.name || (subnet.subnet_id as string),
+        });
+      });
+
+      Object.entries(unusedByAZ)
+        .sort(([azA], [azB]) => azA.localeCompare(azB))
+        .forEach(([az, subnets]) => {
+          subnetsByAZ[az] = subnets;
+        });
+    }
+
+    if (showUsedSubnets && usedSubnets.length > 0) {
+      const usedByAZ: Record<string, FuzzyEntryType[]> = {};
+      usedSubnets.forEach((subnet) => {
+        const subnetAZ = subnet.availability_zone || '';
+        if (!usedByAZ[subnetAZ]) {
+          usedByAZ[subnetAZ] = [];
+        }
+        usedByAZ[subnetAZ].push({
+          groupId: `${subnetAZ} - Used`,
+          entryId: subnet.subnet_id as string,
+          label: subnet.name || (subnet.subnet_id as string),
+        });
+      });
+
+      Object.entries(usedByAZ)
+        .sort(([azA], [azB]) => azA.localeCompare(azB))
+        .forEach(([az, subnets]) => {
+          const groupKey = `${az} - Used`;
+          subnetsByAZ[groupKey] = subnets;
+        });
+    }
+
+    return subnetsByAZ;
+  }, [allSubnets, stableUsedSubnetIds, showUsedSubnets, privacy, stableAllowedAZs]);
+
+  useEffect(() => {
     if (!filterValue) {
-      setSelectOptions(selectionData);
+      if (isSubnetSelectMode) {
+        setCurrentSelectOptions(generateOptions());
+      } else {
+        setCurrentSelectOptions(selectionData);
+      }
       setInvalidFilter(false);
     } else {
       if (filterValidate) {
@@ -117,10 +223,12 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
       }
 
       let selectionList: FuzzyEntryType[] = [];
-      if (Array.isArray(selectionData)) {
-        selectionList = selectionData;
+      // all options
+      const fullSelectionData = isSubnetSelectMode ? generateOptions() : selectionData;
+      if (Array.isArray(fullSelectionData)) {
+        selectionList = fullSelectionData;
       } else {
-        Object.entries(selectionData || {}).forEach(([_group, list]) => {
+        Object.entries(fullSelectionData || {}).forEach(([_group, list]) => {
           selectionList = [...selectionList, ...list];
         });
       }
@@ -169,12 +277,12 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
       });
 
       if (matchedEntries.length) {
-        setSelectOptions(matchedEntries);
+        setCurrentSelectOptions(matchedEntries);
       } else if (hasGroupEntries) {
-        setSelectOptions(matchedEntriesByGroup);
+        setCurrentSelectOptions(matchedEntriesByGroup);
       } else {
         // no results
-        setSelectOptions([
+        setCurrentSelectOptions([
           {
             disabled: true,
             label: `No results found`,
@@ -188,8 +296,10 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     filterValue,
     fuzziness,
     includeDisabledInSearchResults,
-    selectionData,
     sortFn,
+    isSubnetSelectMode,
+    selectionData,
+    generateOptions,
   ]);
 
   const closeMenu = useCallback(() => {
@@ -217,16 +327,23 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
       event: React.MouseEvent<Element, MouseEvent> | undefined,
       value: string | number | undefined,
     ) => {
-      if (value && value !== NO_RESULTS) {
-        const optionText = isGroupedSelect
-          ? findGroupedItemById(selectOptions, String(value))?.label
-          : selectOptions.find((option) => option.entryId === value)?.label;
+      if (value === VIEW_MORE_OPTION_ID) {
+        onToggleUsedSubnets?.();
+      } else if (value && value !== NO_RESULTS) {
+        let optionText: string | undefined;
+        if (isGroupedSelect && !Array.isArray(currentSelectOptions)) {
+          optionText = findGroupedItemById(currentSelectOptions, String(value))?.label;
+        } else if (Array.isArray(currentSelectOptions)) {
+          optionText = currentSelectOptions.find((option) => option.entryId === value)?.label;
+        } else {
+          optionText = undefined;
+        }
         if (optionText) {
           selectOption(value, optionText, event);
         }
       }
     },
-    [isGroupedSelect, selectOption, selectOptions],
+    [isGroupedSelect, selectOption, currentSelectOptions, onToggleUsedSubnets],
   );
 
   const onTextInputChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
@@ -301,85 +418,115 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     }
 
     if (
-      Array.isArray(selectOptions) &&
-      selectOptions.length === 1 &&
-      selectOptions[0].entryId === NO_RESULTS
+      Array.isArray(currentSelectOptions) &&
+      currentSelectOptions.length === 1 &&
+      currentSelectOptions[0].entryId === NO_RESULTS
     ) {
       return (
         <SelectList aria-label="Select options list">
           <SelectOption isDisabled key="no-results">
-            {selectOptions[0].label}
+            {currentSelectOptions[0].label}
           </SelectOption>
         </SelectList>
       );
     }
 
-    if (Array.isArray(selectOptions)) {
-      const sortedItems = selectOptions.sort(sortFn);
-      return (
-        <SelectList aria-label="Select options list">
-          {sortedItems.map((entry) => {
-            const entryLabel = filterValue ? (
-              <FuzzySelectMatchName key={entry.entryId} entry={entry} filterText={filterValue} />
-            ) : (
-              truncateTextWithEllipsis(entry.label, truncation)
-            );
-            return (
-              <FuzzySelectOption
-                key={entry.entryId}
-                entry={entry}
-                displayLabel={entryLabel}
-                nonTruncatedLabel={entry.label}
-                isPopover={isPopover}
-              />
-            );
-          })}
-        </SelectList>
-      );
+    let optionsToRender: React.ReactNode[] = [];
+
+    if (Array.isArray(currentSelectOptions)) {
+      const sortedItems = currentSelectOptions.sort(sortFn);
+      optionsToRender = sortedItems.map((entry) => {
+        const entryLabel = filterValue ? (
+          <FuzzySelectMatchName key={entry.entryId} entry={entry} filterText={filterValue} />
+        ) : (
+          truncateTextWithEllipsis(entry.label, truncation)
+        );
+        return (
+          <FuzzySelectOption
+            key={entry.entryId}
+            entry={entry}
+            displayLabel={entryLabel}
+            nonTruncatedLabel={entry.label}
+            isPopover={isPopover}
+          />
+        );
+      });
+    } else {
+      const originalOrder = isSubnetSelectMode
+        ? Object.keys(generateOptions())
+        : Object.keys(selectionData);
+      const sortedGroups = filterValue
+        ? Object.entries(currentSelectOptions).sort(
+            ([groupA], [groupB]) => originalOrder.indexOf(groupA) - originalOrder.indexOf(groupB),
+          )
+        : Object.entries(currentSelectOptions);
+
+      optionsToRender = sortedGroups.map(([groupKey, groupEntries], index) => {
+        const showDivider =
+          isSubnetSelectMode &&
+          index > 0 &&
+          !sortedGroups[index - 1][0].endsWith('Used') &&
+          groupKey.endsWith('Used');
+
+        return (
+          <React.Fragment key={groupKey}>
+            {showDivider && <Divider />}
+            <SelectGroup label={groupKey}>
+              <SelectList aria-label={`Select options list for ${groupKey}`}>
+                {groupEntries.map((groupEntry) => {
+                  const entryLabel = filterValue ? (
+                    <FuzzySelectMatchName
+                      key={groupEntry.entryId}
+                      entry={groupEntry}
+                      filterText={filterValue}
+                    />
+                  ) : (
+                    truncateTextWithEllipsis(groupEntry.label, truncation)
+                  );
+                  return (
+                    <FuzzySelectOption
+                      key={groupEntry.entryId}
+                      entry={groupEntry}
+                      displayLabel={entryLabel}
+                      nonTruncatedLabel={groupEntry.label}
+                      isPopover={isPopover}
+                    />
+                  );
+                })}
+              </SelectList>
+            </SelectGroup>
+          </React.Fragment>
+        );
+      });
     }
 
-    const originalOrder = Object.keys(selectionData);
-    const sortedGroups = filterValue
-      ? Object.entries(selectOptions).sort(
-          ([groupA], [groupB]) => originalOrder.indexOf(groupA) - originalOrder.indexOf(groupB),
-        )
-      : Object.entries(selectOptions);
-
-    return sortedGroups.map(([groupKey, groupEntries]) => (
-      <SelectGroup label={groupKey} key={groupKey}>
-        <SelectList aria-label={`Select options list for ${groupKey}`}>
-          {groupEntries.map((groupEntry) => {
-            const entryLabel = filterValue ? (
-              <FuzzySelectMatchName
-                key={groupEntry.entryId}
-                entry={groupEntry}
-                filterText={filterValue}
-              />
-            ) : (
-              truncateTextWithEllipsis(groupEntry.label, truncation)
-            );
-            return (
-              <FuzzySelectOption
-                key={groupEntry.entryId}
-                entry={groupEntry}
-                displayLabel={entryLabel}
-                nonTruncatedLabel={groupEntry.label}
-                isPopover={isPopover}
-              />
-            );
-          })}
-        </SelectList>
-      </SelectGroup>
-    ));
+    if (isSubnetSelectMode && hasUsedSubnets && !filterValue) {
+      optionsToRender.push(
+        <SelectOption
+          key={VIEW_MORE_OPTION_ID}
+          id={VIEW_MORE_OPTION_ID}
+          onClick={(e) => handleSelect(e, VIEW_MORE_OPTION_ID)}
+          className="fuzzy-select__toggle-used-subnets"
+        >
+          {showUsedSubnets ? 'Hide Used Subnets' : 'View Used Subnets'}
+        </SelectOption>,
+      );
+    }
+    return <SelectList aria-label="Select options list">{optionsToRender}</SelectList>;
   }, [
     invalidFilter,
-    selectOptions,
-    selectionData,
+    currentSelectOptions,
     filterValue,
     filterValidate?.message,
     sortFn,
     truncation,
     isPopover,
+    isSubnetSelectMode,
+    hasUsedSubnets,
+    showUsedSubnets,
+    handleSelect,
+    generateOptions,
+    selectionData,
   ]);
 
   const scrollableClass = isScrollable && footer ? ' fuzzy-select--scrollable-with-footer' : '';
