@@ -18,7 +18,7 @@ let globalNavPage: GlobalNavPage;
 test.describe.serial('OSD cluster tests', { tag: ['@ci'] }, () => {
   test.beforeAll(async ({ browser }) => {
     // Setup: auth + navigate to cluster list
-    const setup = await setupTestSuite(browser, '/openshift/cluster-list');
+    const setup = await setupTestSuite(browser, 'cluster-list');
 
     sharedContext = setup.context;
     sharedPage = setup.page;
@@ -118,7 +118,7 @@ test.describe('OSD Trial cluster tests', () => {
 
   test.beforeAll(async ({ browser }) => {
     // Setup: auth + navigate to cluster list
-    const setup = await setupTestSuite(browser, '/openshift/cluster-list');
+    const setup = await setupTestSuite(browser, 'cluster-list');
 
     trialSharedContext = setup.context;
     trialSharedPage = setup.page;

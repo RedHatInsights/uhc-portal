@@ -13,12 +13,16 @@ export class CreateOSDWizardPage extends BasePage {
     return this.page.getByTestId('osd-create-cluster-button');
   }
 
+  osdTrialCreateClusterButton(): Locator {
+    return this.page.getByTestId('osd-create-trial-cluster');
+  }
+
   async isCreateOSDPage(): Promise<void> {
     await this.assertUrlIncludes('/openshift/create/osd');
   }
 
   async isCreateOSDTrialPage(): Promise<void> {
-    await this.assertUrlIncludes('/openshift/create/osd/trial');
+    await this.assertUrlIncludes('/openshift/create/osdtrial');
   }
 
   async isBillingModelScreen(): Promise<void> {
@@ -50,6 +54,11 @@ export class CreateOSDWizardPage extends BasePage {
 
   async isClusterDetailsScreen(): Promise<void> {
     await expect(this.page.getByText('Cluster details')).toBeVisible();
+    // Wait for cluster version dropdown to be visible to avoid flaky behavior
+    await this.page
+      .getByRole('button', { name: 'Options menu' })
+      .waitFor({ state: 'visible', timeout: 40000 });
+    // await this.page.locator('button[id="version-selector"]').waitFor({ state: 'visible', timeout: 40000 });
   }
 
   get clusterNameInput(): string {
@@ -99,6 +108,10 @@ export class CreateOSDWizardPage extends BasePage {
     return this.page.locator('input[name="billing_model"][value="standard"]');
   }
 
+  subscriptionTypeFreeTrialRadio(): Locator {
+    return this.page.locator('input[name="billing_model"][value="standard-trial"]');
+  }
+
   infrastructureTypeClusterCloudSubscriptionRadio(): Locator {
     return this.page.locator('input[id="form-radiobutton-byoc-true-field"]');
   }
@@ -118,7 +131,11 @@ export class CreateOSDWizardPage extends BasePage {
 
   // GCP authentication
   workloadIdentityFederationButton(): Locator {
-    return this.page.locator('button[id="workloadIdentityFederation"]');
+    return this.page.getByRole('button', { name: 'Workload Identity Federation' });
+  }
+
+  serviceAccountButton(): Locator {
+    return this.page.getByRole('button', { name: 'Service Account' });
   }
 
   async uploadGCPServiceAccountJSON(jsonContent: string): Promise<void> {
@@ -185,6 +202,10 @@ export class CreateOSDWizardPage extends BasePage {
 
   singleZoneAvilabilityRadio(): Locator {
     return this.page.locator('input[id="form-radiobutton-multi_az-false-field"]');
+  }
+
+  multiZoneAvilabilityRadio(): Locator {
+    return this.page.locator('input[id="form-radiobutton-multi_az-true-field"]');
   }
 
   async selectRegion(region: string): Promise<void> {
@@ -395,7 +416,7 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   privateServiceConnectValue(): Locator {
-    return this.page.getByTestId('Private-service-connect').locator('div');
+    return this.page.getByLabel('Networking').getByTestId('Private-service-connect').locator('div');
   }
 
   applicationIngressValue(): Locator {
@@ -428,5 +449,179 @@ export class CreateOSDWizardPage extends BasePage {
 
   createClusterButton(): Locator {
     return this.page.getByRole('button', { name: 'Create cluster' });
+  }
+
+  // Cluster privacy private radio
+  clusterPrivacyPrivateRadio(): Locator {
+    return this.page.locator('input[id="form-radiobutton-cluster_privacy-internal-field"]');
+  }
+
+  // Persistent storage selection
+  async selectPersistentStorage(storage: string): Promise<void> {
+    // This would be a dropdown or input field for persistent storage
+    // The exact selector would depend on the UI implementation
+    await this.page
+      .locator('select[name="persistent_storage"], input[name="persistent_storage"]')
+      .selectOption(storage);
+  }
+
+  // Load balancers selection
+  async selectLoadBalancers(loadBalancers: string): Promise<void> {
+    // This would be a dropdown or input field for load balancers
+    // The exact selector would depend on the UI implementation
+    await this.page
+      .locator('select[name="load_balancers"], input[name="load_balancers"]')
+      .selectOption(loadBalancers);
+  }
+
+  // Persistent storage value in review screen
+  persistentStorageValue(): Locator {
+    return this.page.getByTestId('Persistent-storage').locator('div');
+  }
+
+  // Update strategy recurring radio
+  updateStrategyRecurringRadio(): Locator {
+    return this.page.locator('input[id="form-radiobutton-upgrade_policy-automatic-field"]');
+  }
+
+  // Additional billing model options
+  subscriptionTypeOnDemandFlexibleRadio(): Locator {
+    return this.page.locator('input[name="billing_model"][value="marketplace-select"]');
+  }
+
+  infrastructureTypeRedHatCloudAccountRadio(): Locator {
+    return this.page.locator('input[id="form-radiobutton-byoc-false-field"]');
+  }
+
+  // Marketplace selection
+  async selectSubscriptionType(subscriptionType: string): Promise<void> {
+    if (subscriptionType.toLowerCase().includes('on-demand')) {
+      await this.subscriptionTypeOnDemandFlexibleRadio().check({ force: true });
+    } else if (subscriptionType.toLowerCase().includes('annual')) {
+      await this.subscriptionTypeAnnualFixedCapacityRadio().check({ force: true });
+    } else if (subscriptionType.toLowerCase().includes('trial')) {
+      await this.subscriptionTypeFreeTrialRadio().check({ force: true });
+    }
+  }
+
+  async selectMarketplaceSubscription(marketplace: string): Promise<void> {
+    await this.page.locator('div[name="marketplace_selection"]').locator('button').click();
+    await this.page.getByRole('button', { name: marketplace }).click();
+  }
+
+  async selectInfrastructureType(infrastructureType: string): Promise<void> {
+    if (infrastructureType.toLowerCase().includes('customer cloud')) {
+      await this.infrastructureTypeClusterCloudSubscriptionRadio().check({ force: true });
+    } else {
+      await this.infrastructureTypeRedHatCloudAccountRadio().check({ force: true });
+    }
+  }
+
+  // Cluster version selection
+  async selectVersion(version: string): Promise<void> {
+    await this.page.locator('button[id="version-selector"]').click();
+    if (version === '') {
+      await this.page.locator('button[id^="openshift-"]').first().click();
+    } else {
+      await this.page.getByRole('button', { name: version }).click();
+    }
+  }
+
+  async selectAvailabilityZone(az: string): Promise<void> {
+    if (az.toLowerCase().includes('single')) {
+      await this.singleZoneAvilabilityRadio().check();
+    } else {
+      await this.page.locator('input[id="form-radiobutton-multi_az-true-field"]').check();
+    }
+  }
+
+  // Advanced encryption settings
+  advancedEncryptionLink(): Locator {
+    return this.page.getByText('Advanced Encryption');
+  }
+
+  enableAdditionalEtcdEncryptionCheckbox(): Locator {
+    return this.page.locator('input[id="etcd_encryption"]');
+  }
+
+  enableFIPSCryptographyCheckbox(): Locator {
+    return this.page.locator('input[id="fips"]');
+  }
+
+  async enableAdditionalEtcdEncryption(
+    enable: boolean,
+    fipsCryptography: boolean = false,
+  ): Promise<void> {
+    await this.advancedEncryptionLink().click();
+
+    if (enable) {
+      await this.enableAdditionalEtcdEncryptionCheckbox().check();
+      if (fipsCryptography) {
+        await this.enableFIPSCryptographyCheckbox().check();
+      }
+    } else {
+      await this.enableFIPSCryptographyCheckbox().uncheck();
+    }
+  }
+
+  // Node labels
+  addNodeLabelLink(): Locator {
+    return this.page.getByText('Add node labels');
+  }
+
+  async addNodeLabelKeyAndValue(key: string, value: string = '', index: number = 0): Promise<void> {
+    await this.page.locator(`input[id="node_labels.${index}.key"]`).scrollIntoViewIfNeeded();
+    await this.page.locator(`input[id="node_labels.${index}.key"]`).clear();
+    await this.page.locator(`input[id="node_labels.${index}.key"]`).fill(key);
+    await this.page.locator(`input[id="node_labels.${index}.key"]`).blur();
+
+    await this.page.locator(`input[id="node_labels.${index}.value"]`).scrollIntoViewIfNeeded();
+    await this.page.locator(`input[id="node_labels.${index}.value"]`).clear();
+    await this.page.locator(`input[id="node_labels.${index}.value"]`).fill(value);
+    await this.page.locator(`input[id="node_labels.${index}.value"]`).blur();
+  }
+
+  //   async addNodeLabelKeyAndValue(key: string, value: string = '', index: number = 0): Promise<void> {
+  //     const keyInputs = this.page.locator('input[aria-label="Key-value list key"]');
+  //     const valueInputs = this.page.locator('input[aria-label="Key-value list value"]');
+  // id="node_labels.0.key"
+  //     // Get the specific key input at the given index
+  //     const keyInput = keyInputs.nth(index);
+  //     await keyInput.clear();
+  //     await keyInput.fill(key);
+
+  //     // Get the specific value input at the given index
+  //     const valueInput = valueInputs.nth(index);
+  //     await valueInput.clear();
+  //     await valueInput.fill(value);
+  //   }
+  // CIDR range helpers
+  async useCIDRDefaultValues(value: boolean = true): Promise<void> {
+    if (value) {
+      await this.cidrDefaultValuesCheckBox().check();
+    } else {
+      await this.cidrDefaultValuesCheckBox().uncheck();
+    }
+  }
+
+  // Updates screen validation
+  async isUpdatesScreen(): Promise<void> {
+    await expect(this.page.getByRole('heading', { name: 'Cluster update strategy' })).toBeVisible();
+  }
+
+  // Review screen node labels value
+  nodeLabelsValue(labelText: string): Locator {
+    return this.page.getByTestId('Node-labels').getByText(labelText);
+  }
+
+  // Helper method to hide cluster name validation popup
+  clusterDetailsTree(): Locator {
+    return this.page.locator('button[id="cluster-settings-details"]').getByText('Details');
+  }
+
+  async hideClusterNameValidation(): Promise<void> {
+    // Validation popup on cluster name field creates flaky situation on below version field.
+    // To remove the validation popup a click action in cluster left tree is required.
+    await this.clusterDetailsTree().click();
   }
 }

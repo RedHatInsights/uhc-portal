@@ -346,4 +346,26 @@ export class ClusterDetailsPage extends BasePage {
   clusterWifConfigurationValue(): Locator {
     return this.page.getByTestId('wifConfiguration');
   }
+
+  // Settings tab functionality
+  settingsTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Settings' });
+  }
+
+  enableUserWorkloadMonitoringCheckbox(): Locator {
+    return this.page.locator('input[id="enable_user_workload_monitoring"]');
+  }
+
+  individualUpdatesRadioButton(): Locator {
+    return this.page.getByTestId('upgrade_policy-manual');
+  }
+
+  recurringUpdatesRadioButton(): Locator {
+    return this.page.getByTestId('upgrade_policy-automatic');
+  }
+
+  // Additional cluster property getters for persistent storage
+  clusterPersistentStorageLabelValue(): Locator {
+    return this.page.getByTestId('persistent-storage');
+  }
 }
