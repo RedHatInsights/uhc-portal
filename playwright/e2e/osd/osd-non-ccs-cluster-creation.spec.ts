@@ -2,14 +2,8 @@ import { test, expect, Page, BrowserContext } from '@playwright/test';
 import { ClusterDetailsPage } from '../../page-objects/cluster-details-page';
 import { CreateOSDWizardPage } from '../../page-objects/create-osd-wizard-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
-const clusterData = require('../../fixtures/osd/OsdCcsClusterProperties.json');
+const clusterData = require('../../fixtures/osd/OsdNonCcsClusterProperties.json');
 const { Clusters } = clusterData;
-
-// Environment variables
-const QE_GCP = process.env.QE_GCP_OSDCCSADMIN_JSON;
-const awsAccountID = process.env.QE_AWS_ID;
-const awsAccessKey = process.env.QE_AWS_ACCESS_KEY_ID;
-const awsSecretKey = process.env.QE_AWS_ACCESS_KEY_SECRET;
 
 // Shared context and page objects for serial test execution
 let sharedContext: BrowserContext;
@@ -18,99 +12,66 @@ let clusterDetailsPage: ClusterDetailsPage;
 let createOSDWizardPage: CreateOSDWizardPage;
 
 test.describe(
-  'OSD GCP and AWS CCS cluster creation tests (OCP-35992, OCP-26750)',
+  'OSD Non CCS cluster creation tests (OCP-42746, OCP-21086)',
   { tag: ['@smoke'] },
   () => {
-    test.beforeAll(async ({ browser }) => {
-      // Setup: auth + navigate to cluster creation
-      const setup = await setupTestSuite(browser, '/openshift/create');
-
-      sharedContext = setup.context;
-      sharedPage = setup.page;
-
-      // Initialize page objects for this test suite
-      clusterDetailsPage = new ClusterDetailsPage(sharedPage);
-      createOSDWizardPage = new CreateOSDWizardPage(sharedPage);
-    });
-
-    test.afterAll(async () => {
-      await cleanupTestSuite(sharedContext);
-    });
-
     // Iterate through each cluster configuration
     for (const clusterProperties of Clusters) {
-      const authType = clusterProperties.CloudProvider.includes('Google Cloud Platform')
-        ? `-${clusterProperties.AuthenticationType} `
-        : '';
-      const isPscEnabled =
-        clusterProperties.hasOwnProperty('UsePrivateServiceConnect') &&
-        clusterProperties.UsePrivateServiceConnect.includes('Enabled')
-          ? 'PrivateServiceConnect'
-          : '';
+      test.describe.serial(`${clusterProperties.CloudProvider} cluster creation`, () => {
+        test.beforeAll(async ({ browser }) => {
+          // Setup: auth + navigate to cluster creation
+          const setup = await setupTestSuite(browser, 'create');
 
-      test.describe
-        .serial(`${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} cluster creation`, () => {
+          sharedContext = setup.context;
+          sharedPage = setup.page;
+
+          // Initialize page objects for this test suite
+          clusterDetailsPage = new ClusterDetailsPage(sharedPage);
+          createOSDWizardPage = new CreateOSDWizardPage(sharedPage);
+        });
+
+        test.afterAll(async () => {
+          await cleanupTestSuite(sharedContext);
+        });
+
         test(`Launch OSD - ${clusterProperties.CloudProvider} cluster wizard`, async () => {
-          await sharedPage.goto('/openshift/create');
-          await createOSDWizardPage.osdCreateClusterButton().scrollIntoViewIfNeeded();
+          await sharedPage.goto('create');
           await expect(createOSDWizardPage.osdCreateClusterButton()).toBeVisible();
           await expect(createOSDWizardPage.osdCreateClusterButton()).toBeEnabled();
           await createOSDWizardPage.osdCreateClusterButton().click();
           await createOSDWizardPage.isCreateOSDPage();
         });
 
-        test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Billing model and its definitions`, async () => {
+        test(`OSD ${clusterProperties.CloudProvider} wizard - Billing model and its definitions`, async () => {
           await createOSDWizardPage.isBillingModelScreen();
           await expect(
             createOSDWizardPage.subscriptionTypeAnnualFixedCapacityRadio(),
           ).toBeChecked();
-          await createOSDWizardPage
-            .infrastructureTypeClusterCloudSubscriptionRadio()
-            .check({ force: true });
+          await createOSDWizardPage.infrastructureTypeRedHatCloudAccountRadio().check();
           await sharedPage.locator(createOSDWizardPage.primaryButton).click();
         });
 
-        test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Cluster Settings - Cloud provider definitions`, async () => {
+        test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster Settings - Cloud provider definitions`, async () => {
           await createOSDWizardPage.isCloudProviderSelectionScreen();
           await createOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
-
-          if (clusterProperties.CloudProvider.includes('GCP')) {
-            if (clusterProperties.AuthenticationType.includes('Service Account')) {
-              await createOSDWizardPage.serviceAccountButton().click();
-              await createOSDWizardPage.uploadGCPServiceAccountJSON(QE_GCP || '{}');
-            } else {
-              await createOSDWizardPage.workloadIdentityFederationButton().click();
-              await createOSDWizardPage.selectWorkloadIdentityConfiguration(
-                process.env.QE_GCP_WIF_CONFIG || '',
-              );
-            }
-          } else {
-            await createOSDWizardPage.awsAccountIDInput().fill(awsAccountID || '');
-            await createOSDWizardPage.awsAccessKeyInput().fill(awsAccessKey || '');
-            await createOSDWizardPage.awsSecretKeyInput().fill(awsSecretKey || '');
-          }
-          await createOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
           await sharedPage.locator(createOSDWizardPage.primaryButton).click();
         });
 
-        test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Cluster Settings - Cluster details definitions`, async () => {
+        test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster Settings - Cluster details definitions`, async () => {
           await createOSDWizardPage.isClusterDetailsScreen();
-          await createOSDWizardPage.createCustomDomainPrefixCheckbox().scrollIntoViewIfNeeded();
-          await createOSDWizardPage.createCustomDomainPrefixCheckbox().check();
-          await createOSDWizardPage.setClusterName(clusterProperties.ClusterName);
-          await createOSDWizardPage.closePopoverDialogs();
-          await createOSDWizardPage.setDomainPrefix(clusterProperties.ClusterDomainPrefix);
-          await createOSDWizardPage.closePopoverDialogs();
+          await sharedPage
+            .locator(createOSDWizardPage.clusterNameInput)
+            .fill(clusterProperties.ClusterName);
+          await createOSDWizardPage.hideClusterNameValidation();
           await expect(createOSDWizardPage.singleZoneAvilabilityRadio()).toBeChecked();
           await createOSDWizardPage.selectRegion(clusterProperties.Region);
-          if (clusterProperties.CloudProvider.includes('GCP')) {
-            await createOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
-          }
+          await createOSDWizardPage.selectPersistentStorage(clusterProperties.PersistentStorage);
+          await createOSDWizardPage.selectLoadBalancers(clusterProperties.LoadBalancers);
           await expect(createOSDWizardPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
           await sharedPage.locator(createOSDWizardPage.primaryButton).click();
         });
 
-        test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Cluster Settings - Default machinepool definitions`, async () => {
+        test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster Settings - Default machinepool definitions`, async () => {
           await createOSDWizardPage.isMachinePoolScreen();
           await createOSDWizardPage.selectComputeNodeType(
             clusterProperties.MachinePools[0].InstanceType,
@@ -119,51 +80,20 @@ test.describe(
             clusterProperties.MachinePools[0].NodeCount,
           );
           await expect(createOSDWizardPage.enableAutoscalingCheckbox()).not.toBeChecked();
-          if (clusterProperties.CloudProvider.includes('AWS')) {
-            await expect(createOSDWizardPage.useBothIMDSv1AndIMDSv2Radio()).toBeChecked();
-          }
+          await expect(createOSDWizardPage.addNodeLabelLink()).toBeVisible();
           await sharedPage.locator(createOSDWizardPage.primaryButton).click();
         });
 
-        test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Networking configuration - cluster privacy definitions`, async () => {
-          await createOSDWizardPage.isNetworkingScreen();
-          await expect(createOSDWizardPage.clusterPrivacyPublicRadio()).toBeChecked();
-          await expect(createOSDWizardPage.applicationIngressDefaultSettingsRadio()).toBeChecked();
-          await createOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
-          if (
-            clusterProperties.ClusterPrivacy.includes('Private') &&
-            clusterProperties.CloudProvider.includes('GCP')
-          ) {
-            await expect(createOSDWizardPage.installIntoExistingVpcCheckBox()).toBeChecked();
-            await expect(createOSDWizardPage.usePrivateServiceConnectCheckBox()).toBeChecked();
-          } else {
-            await expect(createOSDWizardPage.installIntoExistingVpcCheckBox()).not.toBeChecked();
-          }
-          await sharedPage.locator(createOSDWizardPage.primaryButton).click();
-        });
-
-        if (
-          clusterProperties.ClusterPrivacy.includes('Private') &&
-          clusterProperties.UsePrivateServiceConnect?.includes('Enabled')
-        ) {
-          test(`OSD wizard - ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} : VPC Settings definitions`, async () => {
-            await createOSDWizardPage.isVPCSubnetScreen();
-            const qeInfraGcp = JSON.parse(process.env.QE_INFRA_GCP || '{}');
-            await createOSDWizardPage.selectGcpVPC(qeInfraGcp?.PSC_INFRA?.VPC_NAME || '');
-            await createOSDWizardPage.selectControlPlaneSubnetName(
-              qeInfraGcp?.PSC_INFRA?.CONTROLPLANE_SUBNET || '',
-            );
-            await createOSDWizardPage.selectComputeSubnetName(
-              qeInfraGcp?.PSC_INFRA?.COMPUTE_SUBNET || '',
-            );
-            await createOSDWizardPage.selectPrivateServiceConnectSubnetName(
-              qeInfraGcp?.PSC_INFRA?.PRIVATE_SERVICE_CONNECT_SUBNET || '',
-            );
-            await createOSDWizardPage.wizardNextButton().click();
+        if (!clusterProperties.CloudProvider.includes('GCP')) {
+          test(`OSD ${clusterProperties.CloudProvider} wizard - Networking configuration - cluster privacy definitions`, async () => {
+            await createOSDWizardPage.isNetworkingScreen();
+            await expect(createOSDWizardPage.clusterPrivacyPublicRadio()).toBeChecked();
+            await expect(createOSDWizardPage.clusterPrivacyPrivateRadio()).not.toBeChecked();
+            await sharedPage.locator(createOSDWizardPage.primaryButton).click();
           });
         }
 
-        test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - CIDR configuration - cidr definitions`, async () => {
+        test(`OSD ${clusterProperties.CloudProvider} wizard - Networking configuration - CIDR definitions`, async () => {
           await createOSDWizardPage.isCIDRScreen();
           await expect(createOSDWizardPage.cidrDefaultValuesCheckBox()).toBeChecked();
           await expect(createOSDWizardPage.machineCIDRInput()).toHaveValue(
@@ -179,14 +109,15 @@ test.describe(
           await sharedPage.locator(createOSDWizardPage.primaryButton).click();
         });
 
-        test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Cluster updates definitions`, async () => {
+        test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster updates definitions`, async () => {
           await createOSDWizardPage.isClusterUpdatesScreen();
           await expect(createOSDWizardPage.updateStrategyIndividualRadio()).toBeChecked();
+          await expect(createOSDWizardPage.updateStrategyRecurringRadio()).not.toBeChecked();
           await createOSDWizardPage.selectNodeDraining(clusterProperties.NodeDraining);
           await sharedPage.locator(createOSDWizardPage.primaryButton).click();
         });
 
-        test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Review and create page and its definitions`, async () => {
+        test(`OSD ${clusterProperties.CloudProvider} wizard - Review and create page and its definitions`, async () => {
           await createOSDWizardPage.isReviewScreen();
           await expect(createOSDWizardPage.subscriptionTypeValue()).toContainText(
             clusterProperties.SubscriptionType,
@@ -197,21 +128,6 @@ test.describe(
           await expect(createOSDWizardPage.cloudProviderValue()).toContainText(
             clusterProperties.CloudProvider,
           );
-
-          if (clusterProperties.CloudProvider.includes('GCP')) {
-            await expect(createOSDWizardPage.authenticationTypeValue()).toContainText(
-              clusterProperties.AuthenticationType,
-            );
-            if (clusterProperties.AuthenticationType.includes('Workload Identity Federation')) {
-              await expect(createOSDWizardPage.wifConfigurationValue()).toContainText(
-                process.env.QE_GCP_WIF_CONFIG || '',
-              );
-            }
-          }
-
-          await expect(createOSDWizardPage.clusterDomainPrefixLabelValue()).toContainText(
-            clusterProperties.ClusterDomainPrefix,
-          );
           await expect(createOSDWizardPage.clusterNameValue()).toContainText(
             clusterProperties.ClusterName,
           );
@@ -221,18 +137,11 @@ test.describe(
           await expect(createOSDWizardPage.availabilityValue()).toContainText(
             clusterProperties.Availability,
           );
-
-          if (clusterProperties.CloudProvider.includes('GCP')) {
-            await expect(createOSDWizardPage.securebootSupportForShieldedVMsValue()).toContainText(
-              clusterProperties.SecureBootSupportForShieldedVMs,
-            );
-          }
-
           await expect(createOSDWizardPage.userWorkloadMonitoringValue()).toContainText(
             clusterProperties.UserWorkloadMonitoring,
           );
-          await expect(createOSDWizardPage.encryptVolumesWithCustomerkeysValue()).toContainText(
-            clusterProperties.EncryptVolumesWithCustomerKeys,
+          await expect(createOSDWizardPage.persistentStorageValue()).toContainText(
+            clusterProperties.PersistentStorage,
           );
           await expect(createOSDWizardPage.additionalEtcdEncryptionValue()).toContainText(
             clusterProperties.AdditionalEncryption,
@@ -253,20 +162,6 @@ test.describe(
           await expect(createOSDWizardPage.clusterPrivacyValue()).toContainText(
             clusterProperties.ClusterPrivacy,
           );
-          await expect(createOSDWizardPage.installIntoExistingVpcValue()).toContainText(
-            clusterProperties.InstallIntoExistingVPC,
-          );
-
-          if (clusterProperties.hasOwnProperty('UsePrivateServiceConnect')) {
-            await expect(createOSDWizardPage.privateServiceConnectValue()).toContainText(
-              clusterProperties.UsePrivateServiceConnect,
-            );
-          }
-
-          await expect(createOSDWizardPage.applicationIngressValue()).toContainText(
-            clusterProperties.ApplicationIngress,
-          );
-
           await expect(createOSDWizardPage.machineCIDRValue()).toContainText(
             clusterProperties.MachineCIDR,
           );
@@ -277,7 +172,6 @@ test.describe(
           await expect(createOSDWizardPage.hostPrefixValue()).toContainText(
             clusterProperties.HostPrefix,
           );
-
           await expect(createOSDWizardPage.updateStratergyValue()).toContainText(
             clusterProperties.UpdateStrategy,
           );
@@ -286,7 +180,7 @@ test.describe(
           );
         });
 
-        test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Cluster submission & overview definitions`, async () => {
+        test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster submission & overview definitions`, async () => {
           await createOSDWizardPage.createClusterButton().click();
           await clusterDetailsPage.waitForInstallerScreenToLoad();
           await expect(clusterDetailsPage.clusterNameTitle()).toContainText(
@@ -302,18 +196,22 @@ test.describe(
           await expect(clusterDetailsPage.clusterInstallationExpectedText()).toBeVisible();
           await expect(clusterDetailsPage.downloadOcCliLink()).toContainText('Download OC CLI');
           await expect(clusterDetailsPage.downloadOcCliLink()).toBeVisible();
-
           await clusterDetailsPage.clusterDetailsPageRefresh();
           await clusterDetailsPage.checkInstallationStepStatus('Account setup');
           await clusterDetailsPage.checkInstallationStepStatus('Network settings');
           await clusterDetailsPage.checkInstallationStepStatus('DNS setup');
           await clusterDetailsPage.checkInstallationStepStatus('Cluster installation');
-
           await expect(clusterDetailsPage.clusterTypeLabelValue()).toContainText(
             clusterProperties.Type,
           );
+          await expect(clusterDetailsPage.clusterAutoScalingStatus()).toContainText(
+            clusterProperties.ClusterAutoscaling,
+          );
           await expect(clusterDetailsPage.clusterRegionLabelValue()).toContainText(
             clusterProperties.Region.split(',')[0],
+          );
+          await expect(clusterDetailsPage.clusterPersistentStorageLabelValue()).toContainText(
+            clusterProperties.PersistentStorage,
           );
           await expect(clusterDetailsPage.clusterAvailabilityLabelValue()).toContainText(
             clusterProperties.Availability,
@@ -337,29 +235,20 @@ test.describe(
             clusterProperties.InfrastructureType,
           );
 
-          if (clusterProperties.CloudProvider.includes('GCP')) {
-            await expect(
-              clusterDetailsPage.clusterSecureBootSupportForShieldedVMsValue(),
-            ).toContainText(clusterProperties.SecureBootSupportForShieldedVMs);
-            await expect(clusterDetailsPage.clusterAuthenticationTypeLabelValue()).toContainText(
-              clusterProperties.AuthenticationType,
-            );
-            if (clusterProperties.AuthenticationType.includes('Workload Identity Federation')) {
-              await expect(clusterDetailsPage.clusterWifConfigurationValue()).toContainText(
-                process.env.QE_GCP_WIF_CONFIG || '',
-              );
-            }
-          }
+          await clusterDetailsPage.settingsTab().click();
+          await expect(clusterDetailsPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
+          await expect(clusterDetailsPage.individualUpdatesRadioButton()).toBeChecked();
+          await expect(clusterDetailsPage.recurringUpdatesRadioButton()).not.toBeChecked();
         });
 
-        test(`Delete OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} cluster`, async () => {
+        test(`Delete OSD ${clusterProperties.CloudProvider} cluster`, async () => {
           await clusterDetailsPage.actionsDropdownToggle().click();
           await clusterDetailsPage.deleteClusterDropdownItem().click();
           await clusterDetailsPage.deleteClusterNameInput().clear();
           await clusterDetailsPage.deleteClusterNameInput().fill(clusterProperties.ClusterName);
           await clusterDetailsPage.deleteClusterConfirm().click();
           await clusterDetailsPage.waitForDeleteClusterActionComplete();
-          await sharedPage.waitForTimeout(2000); // Small delay for UI stability
+          await sharedPage.waitForTimeout(5000); // Small delay for UI stability
         });
       });
     }
