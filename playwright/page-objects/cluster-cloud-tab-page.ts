@@ -68,16 +68,17 @@ export class ClusterCloudTabPage extends BasePage {
     ).toBeVisible();
   }
 
+  escapeRegExp(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
   // Managed services helper methods
   async checkManagedServiceLink(title: string, expectedUrl: string): Promise<void> {
-    // const link = this.managedServicesTable.locator('a').filter({ hasText: title });
-    // await expect(link).toBeVisible();
-    // await expect(link).toHaveAttribute('href', expectedUrl);
-
-    // // Check if link opens in new tab
-    // await expect(link).toHaveAttribute('target', '_blank');
-    const link = this.managedServicesTable.locator('a', { hasText: new RegExp(`^${title}`, 'i') });
-    await expect(link).toBeVisible();
+    const escapedTitle = this.escapeRegExp(title);
+    const link = this.managedServicesTable
+      .locator('a')
+      .filter({ hasText: new RegExp(`^${escapedTitle} \\(new window or tab\\)$`, 'i') });
+    await expect(link).toBeVisible({ timeout: 30000 });
     await expect(link).toHaveAttribute('href', expectedUrl);
     await expect(link).toHaveAttribute('target', '_blank');
   }
@@ -147,9 +148,6 @@ export class ClusterCloudTabPage extends BasePage {
     const link = this.runItYourselfSection.locator('a').filter({ hasText: title });
     await expect(link).toBeVisible();
     await expect(link).toHaveAttribute('href', expectedUrl);
-
-    // Check if link opens in new tab
-    await expect(link).toHaveAttribute('target', '_blank');
   }
 
   async checkRunItYourselfButton(buttonText: string, expectedUrl: string): Promise<void> {

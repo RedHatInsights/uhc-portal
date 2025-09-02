@@ -168,7 +168,7 @@ test.describe.serial(
       );
 
       await createRosaWizardPage.useDefaultKMSKeyRadio().check();
-      await createRosaWizardPage.enableAdditionalEtcdEncryptionCheckbox().check();
+      await createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox().check();
       await createRosaWizardPage.rosaNextButton().click();
       await createRosaWizardPage.isTextContainsInPage('Field is required.');
 
@@ -186,7 +186,7 @@ test.describe.serial(
         clusterFieldValidations.ClusterSettings.Details.KeyARNs[1].WrongFormatWithWhitespaceError,
       );
 
-      await createRosaWizardPage.enableAdditionalEtcdEncryptionCheckbox().uncheck();
+      await createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox().uncheck();
       await expect(createRosaWizardPage.rosaNextButton()).not.toBeDisabled();
       await expect(createRosaWizardPage.rosaBackButton()).not.toBeDisabled();
       await expect(createRosaWizardPage.rosaCancelButton()).not.toBeDisabled();

@@ -564,6 +564,10 @@ export class CreateRosaWizardPage extends BasePage {
     return this.page.getByRole('checkbox', { name: 'Enable additional etcd' });
   }
 
+  enableEncyptEtcdWithCustomKMSKeyCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Encrypt etcd with a custom' });
+  }
+
   encryptEtcdKeyARNInput(): Locator {
     return this.page.getByRole('textbox', { name: 'Key ARN' });
   }
