@@ -20,7 +20,7 @@ const RestrictedEnvOverrideMessage = () => {
           Simulating a <em>restricted</em> environment
         </>
       }
-      className="pf-v5-u-flex-basis-0 pf-v5-u-flex-grow-1"
+      className="pf-v6-u-flex-basis-0 pf-v6-u-flex-grow-1"
     >
       <Link to="/" reloadDocument onClick={goBackToNormal}>
         Remove <strong>restricted env</strong> override

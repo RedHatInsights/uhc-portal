@@ -4,13 +4,13 @@ import { FieldInputProps, FormikErrors } from 'formik';
 import {
   FormGroup,
   HelperText,
-  InputGroup,
-  InputGroupItem,
   Popover,
-  TextInput,
+  TextInputGroup,
+  TextInputGroupMain,
+  ValidatedOptions,
 } from '@patternfly/react-core';
 
-import { ValidationIconButton, ValidationItem } from '~/components/clusters/wizards/common';
+import { ValidationItem } from '~/components/clusters/wizards/common';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -92,7 +92,18 @@ type Props = {
   disabled?: boolean;
   isRequired?: boolean;
   formGroupClass?: string;
-  type?: React.ComponentProps<typeof TextInput>['type'];
+  type?:
+    | 'text'
+    | 'number'
+    | 'search'
+    | 'time'
+    | 'date'
+    | 'datetime-local'
+    | 'email'
+    | 'month'
+    | 'password'
+    | 'tel'
+    | 'url';
   validation?: (value: string) => {
     text: string;
     validated: boolean;
@@ -160,6 +171,14 @@ export const RichInputField = ({
   const isValidating = touched && validationState.asyncValidation.some((item) => item.validating);
   // required to distinguish a non-valid status due to failures, from one due to incomplete evaluation
   const hasFailures = touched && evaluatedValidation.some((item) => item.validated === false);
+
+  // validated value for TextInpuGroup
+  let validated;
+  if (touched && isValid) {
+    validated = ValidatedOptions.success;
+  } else if (touched && !isValid) {
+    validated = ValidatedOptions.error;
+  }
 
   let inputClassName = 'rich-input-field_info';
   if (touched && !isValidating) {
@@ -250,7 +269,7 @@ export const RichInputField = ({
       fieldId={inputName}
       label={label}
       isRequired={isRequired}
-      labelIcon={extendedHelpText ? <PopoverHint hint={extendedHelpText} /> : undefined}
+      labelHelp={extendedHelpText ? <PopoverHint hint={extendedHelpText} /> : undefined}
       className={`${formGroupClass || ''}`}
     >
       <Popover
@@ -282,58 +301,47 @@ export const RichInputField = ({
         }
         footerContent={helpExample}
       >
-        <InputGroup>
-          <InputGroupItem isFill>
-            <TextInput
-              value={inputValue}
-              isRequired={isRequired}
-              id={inputName}
-              name={inputName}
-              isDisabled={disabled}
-              type={type}
-              autoComplete="off"
-              onBlur={() => {
-                setIsFocused(false);
-                setShowPopover(false);
-                validateField(inputName);
+        <TextInputGroup
+          {...((validated === ValidatedOptions.success || validated === ValidatedOptions.error) && {
+            validated,
+          })}
+        >
+          <TextInputGroupMain
+            value={inputValue}
+            inputProps={{ isRequired }}
+            id={inputName}
+            name={inputName}
+            disabled={disabled}
+            type={type}
+            autoComplete="off"
+            onBlur={() => {
+              setIsFocused(false);
+              setShowPopover(false);
+              validateField(inputName);
+              setTouched(true);
+            }}
+            onClick={() => {
+              setIsFocused(true);
+              setShowPopover(true);
+            }}
+            onFocus={() => {
+              setIsFocused(true);
+              setShowPopover(true);
+            }}
+            onChange={async (_event, val) => {
+              if (!touched && val?.length) {
+                setFieldTouched(inputName, true, false);
+                setFieldError(inputName, '');
                 setTouched(true);
-              }}
-              onClick={() => {
-                setIsFocused(true);
-                setShowPopover(true);
-              }}
-              onFocus={() => {
-                setIsFocused(true);
-                setShowPopover(true);
-              }}
-              onChange={async (_event, val) => {
-                if (!touched && val?.length) {
-                  setFieldTouched(inputName, true, false);
-                  setFieldError(inputName, '');
-                  setTouched(true);
-                }
-                await setFieldValue(inputName, val, false);
-                inputOnChange(val);
-              }}
-              ref={textInputRef}
-              aria-describedby={`rich-input-popover-${inputName}`}
-              className={`${inputClassName} rich-input-field`}
-            />
-          </InputGroupItem>
-          <InputGroupItem>
-            <ValidationIconButton
-              touched={touched}
-              isValid={isValid}
-              hasFailures={hasFailures}
-              isValidating={isValidating}
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowPopover(true);
-                textInputRef.current?.focus();
-              }}
-            />
-          </InputGroupItem>
-        </InputGroup>
+              }
+              await setFieldValue(inputName, val, false);
+              inputOnChange(val);
+            }}
+            ref={textInputRef}
+            aria-describedby={`rich-input-popover-${inputName}`}
+            className={`${inputClassName} rich-input-field`}
+          />
+        </TextInputGroup>
       </Popover>
       <FormGroupHelperText touched={touched} error={error as string}>
         {helpText}

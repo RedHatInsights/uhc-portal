@@ -2,19 +2,30 @@ import React from 'react';
 
 import { Alert } from '@patternfly/react-core';
 
+import { Link } from '~/common/routing';
 import ExternalLink from '~/components/common/ExternalLink';
 
-const OfflineTokensAlert = () => (
+type OfflineTokensAlertProps = {
+  isRosa: boolean;
+  setShouldShowTokens: (el: boolean) => void;
+};
+
+const OfflineTokensAlert = ({ isRosa, setShouldShowTokens }: OfflineTokensAlertProps) => (
   <Alert
-    className="pf-v5-u-mt-md"
+    className="pf-v6-u-mt-md"
     variant="warning"
     isInline
-    title="Logging in with offline tokens is deprecated"
+    title="Logging in with offline tokens is being deprecated"
   >
-    Logging in using offline tokens has been deprecated and is no longer getting maintained or
-    enhanced. You can now log in using your Red Hat SSO credentials. Learn more about{' '}
+    Logging in using tokens is being deprecated. You can now log in using your{' '}
+    <Link to={isRosa ? '/token/rosa' : '/token'} onClick={() => setShouldShowTokens(false)}>
+      Red Hat SSO credentials
+    </Link>
+    {'. '}
+    <br />
     <ExternalLink href="https://access.redhat.com/articles/7074172" noIcon>
-      how to log in using your Red Hat SSO credentials and why we’re deprecating tokens.
+      Learn more about how to log in using your Red Hat SSO credentials and why we’re deprecating
+      tokens.
     </ExternalLink>
   </Alert>
 );

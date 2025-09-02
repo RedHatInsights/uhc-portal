@@ -27,7 +27,7 @@ export const GcpEncryption = ({ region }: GcpEncryptionProps) => {
         <FormGroup
           label="Key ring location"
           fieldId={FieldId.KeyLocation}
-          labelIcon={<PopoverHint hint={constants.regionHint} />}
+          labelHelp={<PopoverHint hint={constants.regionHint} />}
         >
           <Field
             component={KMSKeyLocationComboBox}

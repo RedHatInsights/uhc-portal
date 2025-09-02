@@ -3,14 +3,14 @@
 }
 
 .ocm-upgrade-available-icon {
-  color: var(--pf-v5-global--default-color--200);
+  color: var(--pf-v6-global--default-color--200);
 }
 
 .ocm-cluster-up-to-date-icon {
-  color: var(--pf-v5-global--success-color--100);
+  color: var(--pf-t--global--icon--color--status--success--default);
 }
 
 .ocm-upgrade-status-scheduled-title {
-  font-size: var(--pf-v5-global--FontSize--sm);
-  font-weight: var(--pf-v5-global--FontWeight--bold);
+  font-size: var(--pf-t--global--font--size--sm);
+  font-weight: var(--pf-t--global--font--weight--heading--bold);
 }

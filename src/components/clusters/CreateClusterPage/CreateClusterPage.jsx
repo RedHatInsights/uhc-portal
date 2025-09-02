@@ -116,7 +116,7 @@ const CreateCluster = ({
       {quotaRequestComplete ? (
         <>
           {title}
-          <PageSection variant="light" className="cluster-create-page">
+          <PageSection hasBodyWrapper={false} className="cluster-create-page">
             <Tabs isFilled activeKey={activeTabIndex} onSelect={handleTabClick}>
               {[
                 <Tab eventKey={0} title={tabTitle(0)}>
@@ -143,8 +143,8 @@ const CreateCluster = ({
       ) : (
         <>
           {title}
-          <PageSection variant="light">
-            <div className="pf-v5-u-text-align-center">
+          <PageSection hasBodyWrapper={false}>
+            <div className="pf-v6-u-text-align-center">
               <Spinner size="lg" aria-label="Loading..." />
             </div>
           </PageSection>

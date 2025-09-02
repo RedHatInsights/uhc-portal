@@ -27,6 +27,8 @@ class RosaGetstarted extends Page {
 
   rosaClientDropdown = () => cy.getByTestId('os-dropdown-rosa');
 
+  rosaClientButton = () => cy.getByTestId('download-btn-rosa');
+
   rosaFedRampRequestFormlink = () => cy.getByTestId('fedramp-access-request-form');
 
   deployWithCliCard = () => cy.getByTestId('deploy-with-cli-card');
@@ -47,11 +49,17 @@ class RosaGetstarted extends Page {
   }
 
   isCompleteAWSPrerequisitesHeaderShown() {
-    cy.contains('h2', 'Complete AWS prerequisites').should('be.exist').should('be.visible');
+    cy.contains('h2', 'Complete AWS prerequisites')
+      .scrollIntoView()
+      .should('be.exist')
+      .should('be.visible');
   }
 
   isCompleteROSAPrerequisitesHeaderShown() {
-    cy.contains('h2', 'Complete ROSA prerequisites').should('be.exist').should('be.visible');
+    cy.contains('h2', 'Complete ROSA prerequisites')
+      .scrollIntoView()
+      .should('be.exist')
+      .should('be.visible');
   }
 
   isDeployClusterAndSetupAccessHeaderShown() {

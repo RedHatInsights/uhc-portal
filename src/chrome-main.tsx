@@ -19,6 +19,7 @@ import { Provider } from 'react-redux';
 import * as OCM from '@openshift-assisted/ui-lib/ocm';
 import { GenerateId } from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { NotificationsProvider } from '@redhat-cloud-services/frontend-components-notifications';
 // No type definitions
 // @ts-ignore
 import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal';
@@ -34,7 +35,7 @@ import { userInfoResponse } from './redux/actions/userActions';
 import { store } from './redux/store';
 import { authInterceptor } from './services/apiRequest';
 import { Chrome } from './types/types';
-import config from './config';
+import config, { APP_API_ENV } from './config';
 
 import './styles/main.scss';
 
@@ -123,8 +124,10 @@ class AppEntry extends React.Component<Props> {
     if (ready) {
       return (
         <Provider store={store}>
-          <NotificationPortal />
-          <App />
+          {/* <NotificationPortal /> */}
+          <NotificationsProvider>
+            <App />
+          </NotificationsProvider>
         </Provider>
       );
     }

@@ -24,6 +24,8 @@ import { queryClient } from './queryClient';
 import Router from './Router';
 
 import './App.scss';
+// import patternfly styles until hcc is on PF v6
+// import '@patternfly/patternfly/patternfly.css';
 
 type Props = {
   children?: ReactNode | undefined;

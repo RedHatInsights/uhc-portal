@@ -37,7 +37,7 @@ const LimitedSupportAlert = ({
     <Alert
       id="limited-support-alert"
       variant="danger"
-      className="pf-v5-u-mt-md"
+      className="pf-v6-u-mt-md"
       isInline
       role="alert"
       isExpandable={legitReasons.length > 1}

@@ -14,7 +14,7 @@ import CAUpload from '../CAUpload';
 import IDPBasicFields from './IDPBasicFields';
 
 const GitlabFormRequired = ({ isPending, isEditForm, idpEdited }) => {
-  const { getFieldProps, getFieldMeta, setFieldValue } = useFormState();
+  const { getFieldProps, getFieldMeta, setFieldValue, setFieldTouched } = useFormState();
   return (
     <>
       <IDPBasicFields />
@@ -44,8 +44,12 @@ const GitlabFormRequired = ({ isPending, isEditForm, idpEdited }) => {
           meta={getFieldMeta(FieldId.GITLAB_CA)}
           input={{
             ...getFieldProps(FieldId.GITLAB_CA),
-            onChange: (_, value) => setFieldValue(FieldId.GITLAB_CA, value),
+            onChange: (value) => {
+              setFieldValue(FieldId.GITLAB_CA, value);
+              setFieldTouched(FieldId.GITLAB_CA, true);
+            },
           }}
+          fieldName="gitlab_ca"
           label="CA file"
           type="text"
           disabled={isPending}

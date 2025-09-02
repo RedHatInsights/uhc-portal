@@ -5,35 +5,17 @@ import { Radio, Split, SplitItem, Tooltip } from '@patternfly/react-core';
 
 import PopoverHint from '../PopoverHint';
 
-class RadioButtons extends React.Component {
-  componentDidMount() {
-    const { defaultValue, disableDefaultValueHandling, input } = this.props;
-
-    if (!disableDefaultValueHandling || this.isCurrentValueDisabled()) {
-      input.onChange(defaultValue);
-    }
-  }
-
-  componentDidUpdate() {
-    const { defaultValue, input, disableDefaultValueHandling } = this.props;
-
-    if (!disableDefaultValueHandling) {
-      // when we set the default value dynamically in the parent file
-      // it was not updated until it is rendered.
-      if (input.value === '') {
-        input.onChange(defaultValue);
-      }
-    }
-    // if an option got disabled during the lifetime of the component, we should revert to default
-    if (this.isCurrentValueDisabled()) {
-      input.onChange(defaultValue);
-    }
-  }
-
-  changeHandler = (event) => {
-    const { input, onChangeCallback } = this.props;
+const RadioButtons = ({
+  defaultValue,
+  isDisabled,
+  onChangeCallback,
+  disableDefaultValueHandling,
+  input,
+  className,
+  options,
+}) => {
+  const changeHandler = (event) => {
     const newValue = event.target.value;
-
     input.onChange(newValue);
 
     if (onChangeCallback) {
@@ -41,60 +23,78 @@ class RadioButtons extends React.Component {
     }
   };
 
-  isCurrentValueDisabled() {
-    const { options, input, defaultValue } = this.props;
-    return options.some(
+  const isCurrentValueDisabled = React.useCallback(() => {
+    options.some(
       (option) => input.value === option.value && option.disabled && option.value !== defaultValue,
     );
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultValue]);
 
-  render() {
-    const { options, className, input, isDisabled } = this.props;
+  React.useEffect(() => {
+    if (!disableDefaultValueHandling || isCurrentValueDisabled()) {
+      input.onChange(defaultValue);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    return (
-      <>
-        {options.map((option) => {
-          const button = (
-            <SplitItem className="pf-v5-u-mr-sm">
-              <Radio
-                className={className || ''}
-                isChecked={input.value === option.value}
-                key={`${input.name}-${option.value}`}
-                value={option.value}
-                name={input.name}
-                id={`${input.name}-${option.value}`}
-                data-testid={`${input.name}-${option.value}`}
-                aria-label={option.ariaLabel || option.label}
-                label={option.label}
-                onChange={this.changeHandler}
-                isDisabled={option.disabled || isDisabled}
-                description={option.description}
-              />
-              {option.extraField ? option.extraField : null}
-            </SplitItem>
-          );
+  React.useEffect(() => {
+    if (!disableDefaultValueHandling) {
+      // when we set the default value dynamically in the parent file
+      // it was not updated until it is rendered.
+      if (input.value === '') {
+        input.onChange(defaultValue);
+      }
+    }
 
-          return (
-            <Split key={`${input.name}-${option.value}-fragment`}>
-              {option.tooltipText ? (
-                <Tooltip content={option.tooltipText} position="right">
-                  {button}
-                </Tooltip>
-              ) : (
-                button
-              )}
-              {option.extendedHelpText ? (
-                <SplitItem>
-                  <PopoverHint hint={option.extendedHelpText} />
-                </SplitItem>
-              ) : null}
-            </Split>
-          );
-        })}
-      </>
-    );
-  }
-}
+    if (isCurrentValueDisabled()) {
+      input.onChange(defaultValue);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultValue, disableDefaultValueHandling, input.value]);
+
+  return (
+    <>
+      {options.map((option) => {
+        const button = (
+          <SplitItem className="pf-v6-u-mr-sm">
+            <Radio
+              className={className || ''}
+              isChecked={input.value === option.value}
+              key={`${input.name}-${option.value}`}
+              value={option.value}
+              name={input.name}
+              id={`${input.name}-${option.value}`}
+              data-testid={`${input.name}-${option.value}`}
+              aria-label={option.ariaLabel || option.label}
+              label={option.label}
+              onChange={changeHandler}
+              isDisabled={option.disabled || isDisabled}
+              description={option.description}
+            />
+            {option.extraField ? option.extraField : null}
+          </SplitItem>
+        );
+
+        return (
+          <Split key={`${input.name}-${option.value}-fragment`}>
+            {option.tooltipText ? (
+              <Tooltip content={option.tooltipText} position="right">
+                {button}
+              </Tooltip>
+            ) : (
+              button
+            )}
+            {option.extendedHelpText ? (
+              <SplitItem>
+                <PopoverHint hint={option.extendedHelpText} />
+              </SplitItem>
+            ) : null}
+          </Split>
+        );
+      })}
+    </>
+  );
+};
 
 RadioButtons.propTypes = {
   defaultValue: PropTypes.string,

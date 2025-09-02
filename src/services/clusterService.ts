@@ -195,6 +195,23 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         `/api/clusters_mgmt/v1/clusters/${clusterID}/identity_providers/${idpID}/htpasswd_users`,
       ),
 
+    createHtpasswdUser: (clusterID: string, idpID: string, username: string, password: string) =>
+      apiRequest.post<unknown>(
+        `/api/clusters_mgmt/v1/clusters/${clusterID}/identity_providers/${idpID}/htpasswd_users`,
+        { password, username },
+      ),
+
+    editHtpasswdUser: (clusterID: string, idpID: string, userId: string, password: string) =>
+      apiRequest.patch<unknown>(
+        `/api/clusters_mgmt/v1/clusters/${clusterID}/identity_providers/${idpID}/htpasswd_users/${userId}`,
+        { password },
+      ),
+
+    deleteHtpasswdUser: (clusterID: string, idpID: string, htpasswdUserID: string) =>
+      apiRequest.delete<unknown>(
+        `/api/clusters_mgmt/v1/clusters/${clusterID}/identity_providers/${idpID}/htpasswd_users/${htpasswdUserID}`,
+      ),
+
     getClusterGroupUsers: (clusterID: string) =>
       apiRequest.get<{
         /**
@@ -302,7 +319,7 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         },
       ),
 
-    getMachineTypesByRegionARN: (roleARN: string, region: string) =>
+    getMachineTypesByRegionARN: (roleARN: string, region: string, availabilityZones?: string[]) =>
       apiRequest.post<{
         /**
          * Retrieved list of cloud providers.
@@ -332,6 +349,7 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
           region: {
             id: region,
           },
+          availability_zones: availabilityZones,
         },
         {
           params: {
@@ -579,15 +597,21 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         `/api/clusters_mgmt/v1/clusters/${clusterID}/ingresses/${routerID}`,
       ),
 
-    postUpgradeSchedule: (clusterID: string, schedule: UpgradePolicy) =>
+    postUpgradeSchedule: (clusterID: string, schedule: UpgradePolicy, dryRun?: boolean) =>
       apiRequest.post<UpgradePolicy>(
         `/api/clusters_mgmt/v1/clusters/${clusterID}/upgrade_policies`,
         schedule,
+        dryRun ? { params: { dryRun: true } } : undefined,
       ),
-    postControlPlaneUpgradeSchedule: (clusterID: string, schedule: UpgradePolicy) =>
+    postControlPlaneUpgradeSchedule: (
+      clusterID: string,
+      schedule: UpgradePolicy,
+      dryRun?: boolean,
+    ) =>
       apiRequest.post<UpgradePolicy>(
         `/api/clusters_mgmt/v1/clusters/${clusterID}/control_plane/upgrade_policies`,
         schedule,
+        dryRun ? { params: { dryRun: true } } : undefined,
       ),
 
     postNodePoolUpgradeSchedule: (

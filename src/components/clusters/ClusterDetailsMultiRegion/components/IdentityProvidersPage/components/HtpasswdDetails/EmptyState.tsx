@@ -8,8 +8,6 @@ import {
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
 } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons/dist/esm/icons/search-icon';
@@ -22,12 +20,12 @@ const EmptyState = ({
   resetFilters?: (value: string) => void;
 }) => (
   <Bullseye>
-    <PFEmptyState variant={EmptyStateVariant.sm}>
-      <EmptyStateHeader
-        icon={<EmptyStateIcon icon={SearchIcon} />}
-        titleText="No results found"
-        headingLevel="h2"
-      />
+    <PFEmptyState
+      headingLevel="h2"
+      icon={SearchIcon}
+      titleText="No results found"
+      variant={EmptyStateVariant.sm}
+    >
       {showClearFilterButton ? (
         <>
           <EmptyStateBody>Clear all filters and try again.</EmptyStateBody>

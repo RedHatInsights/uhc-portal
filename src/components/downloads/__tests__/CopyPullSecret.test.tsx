@@ -23,9 +23,8 @@ describe('<CopyPullSecret />', () => {
 
     it('displays an enabled copy button', () => {
       render(<CopyPullSecret variant={variant} token={token} />);
-      expect(screen.getByRole('button', { name: 'Copy pull secret' })).toHaveAttribute(
+      expect(screen.getByRole('button', { name: 'Copy pull secret' })).not.toHaveAttribute(
         'aria-disabled',
-        'false',
       );
     });
   });

@@ -3,16 +3,15 @@ import { produce } from 'immer';
 import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import {
+  Content,
   ExpandableSectionToggle,
   PageSection,
   Split,
   SplitItem,
-  Text,
 } from '@patternfly/react-core';
-import { Th, Thead, Tr } from '@patternfly/react-table';
-import { Table as TableDeprecated } from '@patternfly/react-table/deprecated';
-import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
+import { Table, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { hasRestrictTokensCapability } from '~/common/restrictTokensHelper';
 import { Link, useNavigate } from '~/common/routing';
@@ -181,12 +180,7 @@ const DownloadsPage = () => {
 
   return (
     <AppPage title="Downloads | Red Hat OpenShift Cluster Manager">
-      <PageHeader className="downloads-page-header">
-        <Split>
-          <SplitItem isFilled>
-            <PageHeaderTitle className="ocm-page-title" title="Downloads" />
-          </SplitItem>
-        </Split>
+      <PageHeader title="Downloads" subtitle="">
         <Split className="subheader">
           <SplitItem>
             <DownloadsCategoryDropdown
@@ -206,9 +200,9 @@ const DownloadsPage = () => {
         </Split>
       </PageHeader>
 
-      <PageSection className="downloads-page-body">
+      <PageSection hasBodyWrapper={false} className="downloads-page-body">
         <PageSection
-          variant="light"
+          hasBodyWrapper={false}
           padding={{ default: 'noPadding' }}
           className="downloads-page-body"
         >
@@ -216,15 +210,15 @@ const DownloadsPage = () => {
             selectedCategory={selectedCategory}
             category="CLI"
             description={
-              <Text>
+              <Content component="p">
                 Download command line tools to manage and work with OpenShift from your terminal.
-              </Text>
+              </Content>
             }
           >
-            <TableDeprecated aria-label="CLI tools table" cells={[]} rows={[]}>
+            <Table aria-label="CLI tools table">
               <DownloadsPageColumnHeadings />
               <CliToolRows {...commonPropsRowsComponents} />
-            </TableDeprecated>
+            </Table>
           </DownloadsSection>
 
           {!restrictedEnv && (
@@ -233,80 +227,81 @@ const DownloadsPage = () => {
                 selectedCategory={selectedCategory}
                 category="DEV"
                 description={
-                  <Text>
+                  <Content component="p">
                     Access all the powers of Kubernetes through a simplified workflow with Red Hat’s
                     developer tools.{' '}
                     <ExternalLink href="https://developers.redhat.com/topics/developer-tools">
                       Learn more
                     </ExternalLink>
-                  </Text>
+                  </Content>
                 }
               >
-                <TableDeprecated aria-label="Developer tools table">
+                <Table aria-label="Developer tools table">
                   <DownloadsPageColumnHeadings />
                   <DevToolRows {...commonPropsRowsComponents} />
-                </TableDeprecated>
+                </Table>
               </DownloadsSection>
               <DownloadsSection
                 selectedCategory={selectedCategory}
                 category="INSTALLATION"
                 description={
-                  <Text>
+                  <Content component="p">
                     Install OpenShift based on your infrastructure. For the installer matching your
                     infrastructure type, select the operating system and architecture on which you
                     wish to run the installer. Then follow the steps provided within your
                     infrastructure&apos;s tab on the <Link to="/create">create cluster</Link> page
                     to install an OpenShift cluster.
-                  </Text>
+                  </Content>
                 }
               >
-                <TableDeprecated aria-label="OpenShift installation table">
+                <Table aria-label="OpenShift installation table">
                   <DownloadsPageColumnHeadings />
                   <InstallationRows {...commonPropsRowsComponents} />
-                </TableDeprecated>
+                </Table>
               </DownloadsSection>
 
               <DownloadsSection
                 selectedCategory={selectedCategory}
                 category="DISCONNECTED_INSTALLATION"
                 description={
-                  <Text>
+                  <Content component="p">
                     Utilities to simplify preparation of disconnected cluster installations.
-                  </Text>
+                  </Content>
                 }
               >
-                <TableDeprecated aria-label="OpenShift disconnected installation tools table">
+                <Table aria-label="OpenShift disconnected installation tools table">
                   <DownloadsPageColumnHeadings />
                   <DisconnectedInstallationRows {...commonPropsRowsComponents} />
-                </TableDeprecated>
+                </Table>
               </DownloadsSection>
 
               <DownloadsSection
                 selectedCategory={selectedCategory}
                 category="CUSTOM_INSTALLATION"
                 description={
-                  <Text>
+                  <Content component="p">
                     Customize OpenShift and Red Hat Enterprise Linux CoreOS (RHCOS) installation
                     with these tools.
-                  </Text>
+                  </Content>
                 }
               >
-                <TableDeprecated aria-label="OpenShift installation customization downloads table">
+                <Table aria-label="OpenShift installation customization downloads table">
                   <DownloadsPageColumnHeadings />
                   <CustomInstallationRows {...commonPropsRowsComponents} />
-                </TableDeprecated>
+                </Table>
               </DownloadsSection>
             </>
           )}
           <DownloadsSection category="TOKENS" selectedCategory={selectedCategory}>
-            <TableDeprecated aria-label="Tokens table">
+            <Table aria-label="Tokens table">
               <Thead>
                 <Tr>
-                  <Th width={10} />
-                  <Th width={90} />
-                  <Th width={10} />
+                  <Th width={10} aria-label="Expand for more information" />
+                  <Th width={90} aria-label="Token type" />
+                  <Th width={10} aria-label="Download or view token" />
                 </Tr>
-              </Thead>{' '}
+              </Thead>
+
               <TokenRows
                 expanded={expanded}
                 setExpanded={setExpandedState}
@@ -316,7 +311,7 @@ const DownloadsPage = () => {
                 orgRequest={{ isLoading, error: error as any }}
                 restrictedEnv={restrictedEnv}
               />
-            </TableDeprecated>
+            </Table>
           </DownloadsSection>
         </PageSection>
       </PageSection>

@@ -89,8 +89,8 @@ const ReduxVerticalFormGroup = ({
 
     onBlur = (...args) => {
       if (
-        args[0].relatedTarget.attributes?.role?.nodeValue !== 'menuitem' &&
-        args[0].relatedTarget.id !== redoId
+        args[0].relatedTarget?.attributes?.role?.nodeValue !== 'menuitem' &&
+        args[0].relatedTarget?.id !== redoId
       ) {
         setIsAutocompleteOpen(false);
       }
@@ -108,7 +108,11 @@ const ReduxVerticalFormGroup = ({
               actions={
                 <MenuItemAction
                   icon={<RedoIcon aria-hidden />}
-                  onClick={regenerateAutocomplete}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    regenerateAutocomplete();
+                  }}
                   actionId="redo"
                   id={redoId}
                   aria-label="Redo"
@@ -166,7 +170,7 @@ const ReduxVerticalFormGroup = ({
       fieldId={input.name}
       label={label}
       isRequired={isRequired}
-      labelIcon={extendedHelpText && <PopoverHint hint={extendedHelpText} />}
+      labelHelp={extendedHelpText && <PopoverHint hint={extendedHelpText} />}
       className={formGroupClass}
     >
       {getAutocompleteValue && (

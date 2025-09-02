@@ -1,9 +1,12 @@
 import React from 'react';
 import * as reactRedux from 'react-redux';
 
+import * as notifications from '@redhat-cloud-services/frontend-components-notifications';
+
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import { ROSA_ARCHITECTURE_RENAMING_ALERT } from '~/queries/featureGates/featureConstants';
 import * as clusterService from '~/services/clusterService';
-import { checkAccessibility, render, screen, within } from '~/testUtils';
+import { checkAccessibility, mockUseFeatureGate, render, screen, within } from '~/testUtils';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
 import clusterStates from '../../../common/clusterStates';
@@ -29,10 +32,22 @@ jest.mock('react-redux', () => {
   return config;
 });
 
+jest.mock('@redhat-cloud-services/frontend-components-notifications', () => {
+  const config = {
+    __esModule: true,
+    ...jest.requireActual('@redhat-cloud-services/frontend-components-notifications'),
+  };
+  return config;
+});
+
 describe('<ClusterDetailsTop />', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
   const mockedDispatch = jest.fn();
   useDispatchMock.mockReturnValue(mockedDispatch);
+
+  const useAddNotificationsMock = jest.spyOn(notifications, 'useAddNotification');
+  const mockedAddNotification = jest.fn();
+  useAddNotificationsMock.mockReturnValue(mockedAddNotification);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -90,9 +105,8 @@ describe('<ClusterDetailsTop />', () => {
 
   it('should enable open console button when cluster has console url and cluster is not uninstalling', async () => {
     render(<ClusterDetailsTop {...props} />);
-    expect(await screen.findByRole('button', { name: 'Open console' })).toHaveAttribute(
+    expect(await screen.findByRole('button', { name: 'Open console' })).not.toHaveAttribute(
       'aria-disabled',
-      'false',
     );
   });
 
@@ -103,13 +117,10 @@ describe('<ClusterDetailsTop />', () => {
     };
 
     render(<ClusterDetailsTop {...newProps} />);
-    expect(await screen.findByRole('button', { name: 'Open console' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
+    expect(await screen.findByRole('button', { name: 'Open console' })).not.toBeEnabled();
   });
 
-  it('should disable open console button when cluster is unistalling', async () => {
+  it('should disable open console button when cluster is uninstalling', async () => {
     const cluster = { ...defaultCluster, state: clusterStates.uninstalling };
     mockedGetLogs.mockResolvedValue('hello world');
     mockGetClusterServiceForRegion.mockReturnValue({ getLogs: mockedGetLogs });
@@ -117,10 +128,7 @@ describe('<ClusterDetailsTop />', () => {
     const newProps = { ...props, cluster };
 
     render(<ClusterDetailsTop {...newProps} />);
-    expect(await screen.findByRole('button', { name: 'Open console' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
+    expect(await screen.findByRole('button', { name: 'Open console' })).not.toBeEnabled();
   });
 
   it('should show error icon if an error occurred', async () => {
@@ -184,9 +192,11 @@ describe('<ClusterDetailsTop />', () => {
 
     rerender(<ClusterDetailsTop {...endProps} />);
     expect(mockNavigate).toHaveBeenCalledWith('/openshift/cluster-list', undefined);
-    const dispatchCall = mockedDispatch.mock.calls[0][0];
-    expect(dispatchCall.type).toEqual('@@INSIGHTS-CORE/NOTIFICATIONS/ADD_NOTIFICATION');
-    expect(dispatchCall.payload.title).toEqual('Successfully uninstalled cluster Unnamed Cluster');
+
+    expect(mockedAddNotification).toHaveBeenCalledWith({
+      title: 'Successfully uninstalled cluster Unnamed Cluster',
+      variant: 'success',
+    });
   });
 
   it('should show expiration alert based on expiration_time', async () => {
@@ -302,5 +312,56 @@ describe('<ClusterDetailsTop />', () => {
     render(<ClusterDetailsTop {...newProps} />);
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  describe('ROSA Architecture Renaming Alert', () => {
+    it('Should show Alert when cluster is ROSA and feature flag is enabled', () => {
+      // Arrange
+      mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, true]]);
+      const rosaCluster = { ...fixtures.ROSAClusterDetails.cluster };
+      const newProps = { ...props, cluster: rosaCluster };
+
+      render(<ClusterDetailsTop {...newProps} />);
+
+      // Act
+      // Assert
+      expect(
+        screen.getByText('Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed'),
+      ).toBeInTheDocument();
+    });
+
+    it('Should not show Alert when the cluster is not of type ROSA and feature flag is enabled', () => {
+      // Arrange
+      mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, true]]);
+      const nonRosaCluster = { ...fixtures.OSDGCPClusterDetails.cluster };
+      const newProps = { ...props, cluster: nonRosaCluster };
+
+      render(<ClusterDetailsTop {...newProps} />);
+
+      // Act
+      // Assert
+      expect(
+        screen.queryByText(
+          'Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    it('Should not show ROSA Architecture Renaming Alert when feature gate is disabled', () => {
+      // Arrange
+      mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, false]]);
+      const rosaCluster = { ...fixtures.ROSAClusterDetails.cluster };
+      const newProps = { ...props, cluster: rosaCluster };
+
+      render(<ClusterDetailsTop {...newProps} />);
+
+      // Act
+      // Assert
+      expect(
+        screen.queryByText(
+          'Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed',
+        ),
+      ).not.toBeInTheDocument();
+    });
   });
 });

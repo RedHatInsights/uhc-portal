@@ -14,7 +14,7 @@ import links from '../../../common/installLinks.mjs';
 import { openModal } from '../../common/Modal/ModalActions';
 import modals from '../../common/Modal/modals';
 
-import { isHibernating, isHypershiftCluster } from './clusterStates';
+import { isHibernating } from './clusterStates';
 
 const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
   const dispatch = useDispatch();
@@ -51,15 +51,10 @@ const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
     return null;
   }
 
-  // Only show update for non hypershift clusters
-  if (isHypershiftCluster(cluster)) {
-    return null;
-  }
-
   if (cluster.managed) {
     return (
       <Button
-        className="cluster-inline-link pf-v5-u-mt-0"
+        className="cluster-inline-link pf-v6-u-mt-0"
         variant="link"
         onClick={() =>
           dispatch(
@@ -81,7 +76,7 @@ const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
     return (
       <a href={`${cluster.console.url}/settings/cluster`} target="_blank" rel="noopener noreferrer">
         <Button
-          className="cluster-inline-link pf-v5-u-mt-0"
+          className="cluster-inline-link pf-v6-u-mt-0"
           variant="link"
           icon={<OutlinedArrowAltCircleUpIcon />}
         >
@@ -106,7 +101,7 @@ const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
         </div>
       }
     >
-      <Button className="cluster-inline-link pf-v5-u-mt-0" variant="link" icon={<InfoCircleIcon />}>
+      <Button className="cluster-inline-link pf-v6-u-mt-0" variant="link" icon={<InfoCircleIcon />}>
         Update
       </Button>
     </Popover>

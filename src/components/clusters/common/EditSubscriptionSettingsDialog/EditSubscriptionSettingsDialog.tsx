@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { Form, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Content, ContentVariants, Form } from '@patternfly/react-core';
 
 import getClusterName from '~/common/getClusterName';
 import ErrorBox from '~/components/common/ErrorBox';
@@ -94,11 +94,11 @@ const EditSubscriptionSettingsDialog = ({ onClose }: EditSubscriptionSettingsDia
         }}
         className="subscription-settings form"
       >
-        <TextContent>
-          <Text component={TextVariants.p}>
+        <Content>
+          <Content component={ContentVariants.p}>
             Edit your subscription settings to receive the correct level of cluster support.
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
         <EditSubscriptionSettingsFields
           initialSettings={subscription}
           onSettingsChange={setSettings}

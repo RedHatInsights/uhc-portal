@@ -32,29 +32,14 @@ describe('machine pools action resolver', () => {
   const onClickDelete = jest.fn();
   const onClickEdit = jest.fn();
 
-  const editAction = {
-    title: 'Edit',
-    onClick: onClickEdit,
-    className: 'hand-pointer',
-  };
-
-  const deleteAction = {
-    title: 'Delete',
-    onClick: onClickDelete,
-    className: 'hand-pointer',
-    isAriaDisabled: false,
-  };
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('should not have actions for an expandable row', () => {
-    const expandableRowData = {
-      parent: 1,
-      cells: [{ title: 'test' }],
-      key: 'Default-child',
-    };
-
     expect(
       actionResolver({
-        rowData: expandableRowData,
+        machinePool: null,
         onClickDelete,
         onClickEdit,
         machinePools: [],
@@ -63,118 +48,82 @@ describe('machine pools action resolver', () => {
   });
 
   it('should have edit and delete actions', () => {
-    const machinePoolRowData = {
-      cells: ['test-mp', 'm5.xlarge', 'us-east-1a', '4'],
-      machinePool: { id: 'test-mp' },
-      key: 'test-mp',
-    };
-    const expected = [editAction, deleteAction];
-    expect(
-      actionResolver({
-        rowData: machinePoolRowData,
-        onClickDelete,
-        onClickEdit,
-        canDelete: true,
-        machinePools: [
-          {
-            id: 'test-mp',
-          },
-          {
-            id: 'foo-mp',
-            instance_type: 'm5.xlarge',
-            replicas: 5,
-          },
-        ],
-        machineTypes: {
-          types: {
-            aws: [
-              {
-                id: 'm5.xlarge',
-                cpu: {
-                  value: 4,
-                },
-                memory: {
-                  value: 4,
-                },
-              },
-            ],
-          },
-        },
-        cluster: {
-          ccs: {
-            enabled: true,
-          },
-          cloud_provider: {
-            id: 'aws',
-          },
-        },
-      }),
-    ).toEqual(expect.arrayContaining(expected));
-  });
-
-  it('disables Delete for enforced default pool', () => {
-    const defaultMachinePoolRowData = {
-      cells: ['worker', 'm5.xlarge', 'us-east-1a', '4'],
-      machinePool: { id: 'worker' },
-      key: 'worker',
-    };
-    const deleteDisabledAction = {
-      ...deleteAction,
-      isAriaDisabled: true,
-      tooltipProps: { content: 'Machine pool ineligible for deletion' },
-    };
-    const expected = [editAction, deleteDisabledAction];
-    expect(
-      actionResolver({
-        rowData: defaultMachinePoolRowData,
-        onClickDelete,
-        onClickEdit,
-        canDelete: true,
-        machinePools: [
-          {
-            id: 'foo-mp',
-          },
-          {
-            id: 'bar-mp',
-          },
-        ],
-        cluster: {
-          product: {
-            id: normalizedProducts.ROSA,
-          },
-          ccs: {
-            enabled: true,
-          },
-        },
-        machineTypes: {},
-      }),
-    ).toEqual(expect.arrayContaining(expected));
-  });
-
-  it('disables Delete and taints for non-ccs worker Machine Pool', () => {
-    const defaultMachinePoolRowData = {
-      cells: ['worker', 'm5.xlarge', 'us-east-1a', '4'],
-      machinePool: { id: 'worker' },
-      key: 'worker',
-    };
-    const deleteDisabledAction = {
-      ...deleteAction,
-      isAriaDisabled: true,
-      tooltipProps: { content: 'Machine pool ineligible for deletion' },
-    };
-
-    const expected = [editAction, deleteDisabledAction];
-    const actions = actionResolver({
-      rowData: defaultMachinePoolRowData,
+    const machinePoolRowData = { id: 'test-mp' };
+    const result = actionResolver({
+      machinePool: machinePoolRowData,
       onClickDelete,
       onClickEdit,
       canDelete: true,
       machinePools: [
         {
-          id: 'worker',
+          id: 'test-mp',
         },
         {
-          id: 'foo',
+          id: 'foo-mp',
+          instance_type: 'm5.xlarge',
+          replicas: 5,
+        },
+      ],
+      machineTypes: {
+        types: {
+          aws: [
+            {
+              id: 'm5.xlarge',
+              cpu: {
+                value: 4,
+              },
+              memory: {
+                value: 4,
+              },
+            },
+          ],
+        },
+      },
+      cluster: {
+        ccs: {
+          enabled: true,
+        },
+        cloud_provider: {
+          id: 'aws',
+        },
+      },
+    });
+
+    expect(result).toHaveLength(2);
+
+    expect(result[0]).toEqual({
+      title: 'Edit',
+      onClick: expect.any(Function),
+      className: 'hand-pointer',
+    });
+
+    expect(result[1]).toEqual({
+      title: 'Delete',
+      onClick: expect.any(Function),
+      className: 'hand-pointer',
+      isAriaDisabled: false,
+    });
+
+    result[0].onClick();
+    expect(onClickEdit).toHaveBeenCalledWith(undefined, 'test-mp', machinePoolRowData);
+
+    result[1].onClick();
+    expect(onClickDelete).toHaveBeenCalledWith(undefined, 'test-mp', machinePoolRowData);
+  });
+
+  it('disables Delete for enforced default pool', () => {
+    const defaultMachinePoolRowData = { id: 'worker' };
+    const result = actionResolver({
+      machinePool: defaultMachinePoolRowData,
+      onClickDelete,
+      onClickEdit,
+      canDelete: true,
+      machinePools: [
+        {
+          id: 'foo-mp',
+        },
+        {
+          id: 'bar-mp',
         },
       ],
       cluster: {
@@ -182,13 +131,84 @@ describe('machine pools action resolver', () => {
           id: normalizedProducts.ROSA,
         },
         ccs: {
-          enabled: false,
+          enabled: true,
         },
       },
       machineTypes: {},
     });
 
-    expect(actions).toEqual(expect.arrayContaining(expected));
+    expect(result).toHaveLength(2);
+
+    const editAction = result.find((action) => action.title === 'Edit');
+    expect(editAction).toEqual({
+      title: 'Edit',
+      onClick: expect.any(Function),
+      className: 'hand-pointer',
+    });
+
+    const deleteAction = result.find((action) => action.title === 'Delete');
+    expect(deleteAction).toEqual({
+      title: 'Delete',
+      onClick: expect.any(Function),
+      className: 'hand-pointer',
+      isAriaDisabled: true,
+      tooltipProps: {
+        content: 'Machine pool ineligible for deletion',
+      },
+    });
+
+    editAction.onClick();
+    expect(onClickEdit).toHaveBeenCalledWith(undefined, 'worker', defaultMachinePoolRowData);
+
+    deleteAction.onClick();
+    expect(onClickDelete).toHaveBeenCalledWith(undefined, 'worker', defaultMachinePoolRowData);
+  });
+
+  it('disables Delete and taints for non-ccs worker Machine Pool', () => {
+    const machinePoolData = { id: 'mp-no-taints' };
+
+    const actions = actionResolver({
+      machinePool: machinePoolData,
+      onClickDelete,
+      onClickEdit,
+      canDelete: true,
+      machinePools: [
+        {
+          id: 'mp-with-taints',
+          replicas: 2,
+          taints: [{ key: 'hello', value: 'world', effect: 'NoSchedule' }],
+        },
+        {
+          id: 'mp1',
+          replicas: 1,
+        },
+        {
+          id: 'mp-no-taints',
+          replicas: 1,
+        },
+      ],
+      cluster: {
+        product: {
+          id: normalizedProducts.ROSA,
+        },
+        hypershift: { enabled: true },
+        ccs: {
+          enabled: true,
+        },
+      },
+      machineTypes: {},
+    });
+
+    expect(actions).toHaveLength(2);
+
+    const deleteAction = actions.find((action) => action.title === 'Delete');
+    expect(deleteAction.isAriaDisabled).toBeTruthy();
+    expect(deleteAction.tooltipProps.content).toEqual(
+      'There needs to be at least 2 nodes without taints across all machine pools',
+    );
+
+    const editAction = actions.find((action) => action.title === 'Edit');
+    expect(editAction.isAriaDisabled).toBeFalsy();
   });
 
   it('disables delete for HCP cluster if less than 2 replicas without taints', () => {

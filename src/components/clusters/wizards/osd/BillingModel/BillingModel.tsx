@@ -3,13 +3,13 @@ import { useDispatch } from 'react-redux';
 
 import {
   Button,
+  Content,
   Flex,
   FlexItem,
   Popover,
   PopoverPosition,
   Stack,
   StackItem,
-  Text,
   Title,
 } from '@patternfly/react-core';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
@@ -25,6 +25,8 @@ import { RadioGroupField, RadioGroupOption } from '~/components/clusters/wizards
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import ExternalLink from '~/components/common/ExternalLink';
+import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
 import { useGlobalState } from '~/redux/hooks';
 import CreateOSDWizardIntro from '~/styles/images/CreateOSDWizard-intro.png';
@@ -36,6 +38,7 @@ import { useGetBillingQuotas } from './useGetBillingQuotas';
 import './BillingModel.scss';
 
 export const BillingModel = () => {
+  const hideRHMarketplace = useFeatureGate(HIDE_RH_MARKETPLACE);
   const sourceIsGCP = getQueryParam('source') === 'gcp';
   const {
     values: {
@@ -113,14 +116,15 @@ export const BillingModel = () => {
           headerContent="On-Demand subscription"
           bodyContent={
             <p>
-              Billing based on cluster consumption. Purchase a subscription via {rhmLink} or{' '}
+              Billing based on cluster consumption. Purchase a subscription via{' '}
+              {!hideRHMarketplace ? `${rhmLink} or  ` : ''}
               {gcpLink}
             </p>
           }
           aria-label="help"
         >
-          <Button variant="link">
-            <OutlinedQuestionCircleIcon /> How can I purchase a subscription?
+          <Button icon={<OutlinedQuestionCircleIcon />} variant="link">
+            How can I purchase a subscription?
           </Button>
         </Popover>
       </div>
@@ -146,7 +150,7 @@ export const BillingModel = () => {
       description: 'Use the quota pre-purchased by your organization',
     },
     {
-      disabled: !quotas.marketplace && !quotas.gcpResources,
+      disabled: (!quotas.marketplace || hideRHMarketplace) && !quotas.gcpResources,
       value: 'marketplace-select',
       // check the radio button if billingModel starts with 'marketplace'
       shouldCheck: (fieldValue: string, radioValue: React.ReactText) =>
@@ -154,7 +158,8 @@ export const BillingModel = () => {
       label: (
         <>
           <div>
-            On-Demand: Flexible usage billed through {gcpLink} or {rhmLink}
+            On-Demand: Flexible usage billed through {gcpLink}{' '}
+            {!hideRHMarketplace ? <>or {rhmLink}</> : ''}
           </div>
           <MarketplaceSelectField
             hasGcpQuota={quotas.gcpResources}
@@ -163,7 +168,7 @@ export const BillingModel = () => {
         </>
       ),
       description:
-        !quotas.marketplace && !quotas.gcpResources
+        (!quotas.marketplace || hideRHMarketplace) && !quotas.gcpResources
           ? marketplaceDisabledDescription
           : marketplaceQuotaDescription,
     },
@@ -242,12 +247,18 @@ export const BillingModel = () => {
       description: 'Provision the cluster using your existing cloud provider account',
       value: 'true',
       disabled: isByocQuotaDisabled,
+      tooltip: isByocQuotaDisabled
+        ? 'No available quota for Customer cloud subscription in your organization.'
+        : null,
     },
     {
       label: 'Red Hat cloud account',
       description: 'Deploy in cloud provider accounts owned by Red Hat',
       value: 'false',
       disabled: isRhInfraQuotaDisabled,
+      tooltip: isRhInfraQuotaDisabled
+        ? 'No available quota for Red Hat cloud account in your organization.'
+        : null,
     },
   ];
 
@@ -278,19 +289,19 @@ export const BillingModel = () => {
     <Flex alignItems={{ default: 'alignItemsFlexStart' }}>
       <FlexItem flex={{ default: 'flex_3' }}>
         <Stack hasGutter>
-          <StackItem className="pf-v5-u-mb-xl">
-            <Title headingLevel="h2" className="pf-v5-u-pb-md">
+          <StackItem className="pf-v6-u-mb-xl">
+            <Title headingLevel="h2" className="pf-v6-u-pb-md">
               Welcome to Red Hat OpenShift Dedicated
             </Title>
-            <Text component="p" id="welcome-osd-text">
+            <Content component="p" id="welcome-osd-text">
               Reduce operational complexity and focus on building applications that add more value
               to your business with Red Hat OpenShift Dedicated, a fully-managed service of Red Hat
-              OpenShift on Amazon Web Services (AWS) and Google Cloud.
-            </Text>
+              OpenShift on Google Cloud.
+            </Content>
           </StackItem>
 
           <StackItem>
-            <Title headingLevel="h3" className="pf-v5-u-mb-sm">
+            <Title headingLevel="h3" className="pf-v6-u-mb-sm">
               Subscription type
             </Title>
             <RadioGroupField
@@ -301,7 +312,7 @@ export const BillingModel = () => {
           </StackItem>
 
           <StackItem>
-            <Title headingLevel="h3" className="pf-v5-u-mb-sm">
+            <Title headingLevel="h3" className="pf-v6-u-mb-sm">
               Infrastructure type
             </Title>
 

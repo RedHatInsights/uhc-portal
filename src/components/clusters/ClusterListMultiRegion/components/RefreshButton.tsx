@@ -12,13 +12,12 @@ type Props = {
 export const RefreshButton = ({ classOptions, refreshFunc, isDisabled }: Props) => (
   <Tooltip position={TooltipPosition.bottom} content="Refresh">
     <Button
+      icon={<RedoIcon />}
       variant="plain"
       aria-label="Refresh"
       className={classOptions}
       onClick={refreshFunc}
       isAriaDisabled={isDisabled}
-    >
-      <RedoIcon />
-    </Button>
+    />
   </Tooltip>
 );

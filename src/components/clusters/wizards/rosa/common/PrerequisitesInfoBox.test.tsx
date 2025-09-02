@@ -6,7 +6,7 @@ import { checkAccessibility, render, screen, within } from '~/testUtils';
 import { PrerequisitesInfoBox } from './PrerequisitesInfoBox';
 
 const rosaCLIMessage = new RegExp(
-  `Make sure you are using ROSA CLI version ${ROSA_HOSTED_CLI_MIN_VERSION} or above for "Hosted" control plane.`,
+  `Make sure you are using ROSA CLI version ${ROSA_HOSTED_CLI_MIN_VERSION} or above for hosted control plane architecture.`,
 );
 
 describe('<PrerequisitesInfoBox} />', () => {

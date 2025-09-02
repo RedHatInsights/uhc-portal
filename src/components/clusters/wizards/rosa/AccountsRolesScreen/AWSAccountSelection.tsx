@@ -7,7 +7,6 @@ import {
   ButtonProps,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
   Flex,
   FlexItem,
   FormGroup,
@@ -33,10 +32,11 @@ const AWS_ACCT_ID_PLACEHOLDER = 'Select an account';
 function NoAssociatedAWSAccounts() {
   return (
     <EmptyState
+      headingLevel="h6"
+      titleText="No associated accounts were found."
       data-testid="no_associated_accounts"
       className="no-associated-aws-accounts_empty-state"
     >
-      <EmptyStateHeader titleText="No associated accounts were found." headingLevel="h6" />
       <EmptyStateBody>Associate an AWS account to your Red Hat account.</EmptyStateBody>
     </EmptyState>
   );
@@ -172,7 +172,7 @@ function AWSAccountSelection({
   return (
     <FormGroup
       label={label}
-      labelIcon={extendedHelpText ? <PopoverHint hint={extendedHelpText} /> : undefined}
+      labelHelp={extendedHelpText ? <PopoverHint hint={extendedHelpText} /> : undefined}
       className="aws-account-selection"
       isRequired
     >

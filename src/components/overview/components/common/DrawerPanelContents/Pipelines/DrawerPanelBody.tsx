@@ -1,32 +1,23 @@
 import React from 'react';
 
-import {
-  Stack,
-  StackItem,
-  Text,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextVariants,
-  Title,
-} from '@patternfly/react-core';
+import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
 import ExternalLink from '~/components/common/ExternalLink';
 
 const PipelinesDrawerPanelBody = (
   <Stack hasGutter className="drawer-panel-content-body">
     <StackItem>
-      <TextContent>
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           Speed up the delivery of your applications with advanced continuous integration (CI)
           workflows and automation.
-        </Text>
-        <Text component={TextVariants.p}>
+        </Content>
+        <Content component={ContentVariants.p}>
           Built on the open source Tekton framework, Red Hat OpenShift Pipelines provides a
           continuous integration and continuous deployment (CI/CD) experience through tight
           integration with OpenShift and Red Hat developer tools.
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem>
       <Title headingLevel="h3" data-testid="drawer-panel-content-benefits-title">
@@ -34,26 +25,26 @@ const PipelinesDrawerPanelBody = (
       </Title>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <TextList isPlain>
-          <TextListItem>
+      <Content>
+        <Content component="ul" isPlainList>
+          <Content component="li">
             <b>React quickly with the market:</b> Continuous integration / continuous deployment
             (CI/CD) allows you to deliver new products and features faster.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Automate application delivery:</b> Create pipelines of activity from simple,
             repeatable steps.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Ensure security:</b> Kubernetes role-based access control (RBAC) and security model
             ensures security consistently across pipelines and workloads.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <b>Adapt to your customers’ needs:</b> You’ll have full control of your application
             lifecycle to support your exact requirements.
-          </TextListItem>
-        </TextList>
-      </TextContent>
+          </Content>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem>
       <Title headingLevel="h3" data-testid="drawer-panel-content-platforms-title">
@@ -61,16 +52,18 @@ const PipelinesDrawerPanelBody = (
       </Title>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           Deploy your applications to multiple platforms, including:
-        </Text>
-        <TextList>
+        </Content>
+        <Content component="ul">
           {['Kubernetes', 'Serverless', 'Virtual machines'].map((item) => (
-            <TextListItem data-testid="platforms-list-item">{item}</TextListItem>
+            <Content component="li" data-testid="platforms-list-item">
+              {item}
+            </Content>
           ))}
-        </TextList>
-      </TextContent>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink

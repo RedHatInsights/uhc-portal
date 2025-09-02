@@ -11,11 +11,8 @@ $widget-min-height: 250px;
       display: flex;
       flex-direction: row-reverse;
 
-      .pf-v5-c-content dt:not(:first-child) {
+      .pf-v6-c-content dt:not(:first-child) {
         font-weight: normal;
-      }
-      .pf-v5-c-content dd {
-        color: var(--pf-v5-global--Color--200);
       }
     }
 
@@ -26,11 +23,11 @@ $widget-min-height: 250px;
 
     .ocm--cost-total {
       &__desc {
-        color: var(--pf-v5-global--Color--200);
+        color: var(---pf-t--global--text--color--subtle);
       }
     }
 
-    .pf-v5-c-empty-state {
+    .pf-v6-c-empty-state {
       padding: 0;
     }
   }

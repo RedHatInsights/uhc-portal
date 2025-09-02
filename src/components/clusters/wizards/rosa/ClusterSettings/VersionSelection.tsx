@@ -1,32 +1,23 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useField } from 'formik';
 import { useDispatch } from 'react-redux';
+import semver from 'semver';
 
-import {
-  Button,
-  FormGroup,
-  MenuToggle,
-  MenuToggleElement,
-  Popover,
-  Select,
-  SelectGroup,
-  SelectList,
-  SelectOption,
-  SelectProps,
-  Spinner,
-  Switch,
-} from '@patternfly/react-core';
+import { Button, FormGroup, Popover, SelectProps, Spinner, Switch } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
 import { isSupportedMinorVersion } from '~/common/helpers';
+import { versionComparator } from '~/common/versionComparator';
 import {
   channelGroups,
-  getVersionNameWithChannel,
+  getVersionsData,
   hasUnstableVersionsCapability,
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/versionSelectHelper';
 import { MIN_MANAGED_POLICY_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import ErrorBox from '~/components/common/ErrorBox';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+import { FuzzySelect } from '~/components/common/FuzzySelect/FuzzySelect';
+import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
 import { useOCPLifeCycleStatusData } from '~/components/releases/hooks';
 import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -39,22 +30,13 @@ import { FieldId } from '../constants';
 
 import RosaVersionErrorAlert from './RosaVersionErrorAlert';
 
-const SupportStatusType = {
-  Full: 'Full Support',
-  Maintenance: 'Maintenance Support',
-};
-
 type VersionSelectionProps = {
   label: string;
   onChange: (version?: Version) => void;
   isOpen?: boolean;
 };
 
-function VersionSelection({
-  label,
-  onChange,
-  isOpen: isInitiallyOpen = false, // for testing
-}: VersionSelectionProps) {
+function VersionSelection({ label, onChange }: VersionSelectionProps) {
   const [input, { touched, error }, { setValue }] = useField(FieldId.ClusterVersion);
   const {
     values: {
@@ -94,7 +76,7 @@ function VersionSelection({
         roleGroup.Worker === workerRoleArn),
   );
 
-  const [isOpen, setIsOpen] = useState(isInitiallyOpen);
+  const [isOpen, setIsOpen] = useState(false);
   const [versions, setVersions] = useState<Version[]>([]);
   const [rosaVersionError, setRosaVersionError] = useState(false);
   const [showOnlyCompatibleVersions, setShowOnlyCompatibleVersions] = useState(true);
@@ -105,20 +87,12 @@ function VersionSelection({
     // version.name is 'major.minor' string e.g. '4.11'.
     statusVersions.map((version) => [version.name, version.type]),
   );
+
   const isValidRosaVersion = React.useCallback(
     (version: Version) =>
-      isSupportedMinorVersion(version?.raw_id || '', rosaMaxOSVersion) && version.rosa_enabled,
-    [rosaMaxOSVersion],
-  );
-
-  const isValidHypershiftVersion = React.useCallback(
-    // rosaMaxOSVersion - is actually the max version allowed by the chosen AccountRoles
-    // if Hypershift is used outside of ROSA, the logic to determine the max version (aka rosaMaxOSVersion)
-    // may need to change
-    (version: Version) =>
-      isSupportedMinorVersion(version?.raw_id || '', rosaMaxOSVersion) &&
-      version.hosted_control_plane_enabled,
-    [rosaMaxOSVersion],
+      version.rosa_enabled &&
+      (isHypershiftSelected || isSupportedMinorVersion(version?.raw_id || '', rosaMaxOSVersion)),
+    [rosaMaxOSVersion, isHypershiftSelected], // rosaMaxOSVersion is actually the max version allowed by the chosen AccountRoles,
   );
 
   const toggleCompatibleVersions = (
@@ -129,13 +103,6 @@ function VersionSelection({
     ev.stopPropagation();
     setShowOnlyCompatibleVersions(showCompatible);
   };
-
-  // HACK: This relies on parseFloat of '4.11.3' to return 4.11 ignoring trailing '.3'.
-  // BUG(OCMUI-1736): Comparisons may be wrong e.g. 4.9 > 4.11!
-  // BUG(OCMUI-1736): We later rely on converting float back to exactly '4.11'
-  //   for indexing `supportVersionMap`.  Float round-tripping is fragile.
-  //   Will break when parseFloat('4.20.0').toString() returns '4.2' not '4.20'!
-  const versionName = (version: Version) => parseFloat(version.raw_id || '');
 
   const isHostedDisabled = React.useCallback(
     (version: Version) => isHypershiftSelected && !version.hosted_control_plane_enabled,
@@ -152,17 +119,8 @@ function VersionSelection({
         return 'This version is not compatible with a Hosted control plane';
       }
 
-      const minManagedPolicyVersionName = parseFloat(MIN_MANAGED_POLICY_VERSION);
-
-      const versionPatch = Number(version.raw_id.split('.')[2]);
-
-      const minManagedPolicyVersionPatch = Number(MIN_MANAGED_POLICY_VERSION.split('.')[2]);
-
       const isIncompatibleManagedVersion =
-        hasManagedArnsSelected &&
-        (versionName(version) < minManagedPolicyVersionName ||
-          (versionName(version) === minManagedPolicyVersionName &&
-            versionPatch < minManagedPolicyVersionPatch));
+        hasManagedArnsSelected && semver.lt(version.raw_id, MIN_MANAGED_POLICY_VERSION);
 
       if (!isValidRosaVersion(version) || isIncompatibleManagedVersion) {
         return 'This version is not compatible with the selected ARNs in previous step';
@@ -194,7 +152,7 @@ function VersionSelection({
         const versions = getInstallableVersionsResponse?.versions ?? [];
 
         const selectedVersionInVersionList = versions.find(
-          (ver) => ver.id === selectedClusterVersion?.id,
+          (ver: Version) => ver.id === selectedClusterVersion?.id,
         );
 
         if (
@@ -212,7 +170,7 @@ function VersionSelection({
       }
     },
     // We only want to run this code when the full set of available versions is available.
-    // and not when  selectedClusterVersion? changes.
+    // and not when selectedClusterVersion? changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [getInstallableVersionsResponse],
   );
@@ -229,7 +187,7 @@ function VersionSelection({
         isHypershiftSelected &&
         versions.find(
           (version) =>
-            isValidHypershiftVersion(version) && version.channel_group === channelGroups.STABLE,
+            version.hosted_control_plane_enabled && version.channel_group === channelGroups.STABLE,
         );
 
       if (!defaultRosaVersion || (isHypershiftSelected && !defaultHypershiftVersion)) {
@@ -252,17 +210,7 @@ function VersionSelection({
     onChange,
     isHypershiftSelected,
     isValidRosaVersion,
-    isValidHypershiftVersion,
   ]);
-
-  const onToggle = (_event: unknown) => {
-    setIsOpen(!isOpen);
-    // In case of backend error, don't want infinite loop reloading,
-    // but allow manual reload by opening the dropdown.
-    if (!isOpen && getInstallableVersionsResponse.error) {
-      getInstallableVersions(isHypershiftSelected);
-    }
-  };
 
   const onSelect: SelectProps['onSelect'] = (_event, selection) => {
     setIsOpen(false);
@@ -276,93 +224,82 @@ function VersionSelection({
     return selectedVersion ? selectedVersion.id : '';
   };
 
-  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
-    <MenuToggle
-      ref={toggleRef}
-      onClick={onToggle}
-      isExpanded={isOpen}
-      style={{
-        width: '100%',
-        minWidth: '100%',
-      }}
-      id={FieldId.ClusterVersion}
-    >
-      {getVersionNameWithChannel(selectedClusterVersion) || getSelection()}
-    </MenuToggle>
-  );
+  const { versionsData, hasIncompatibleVersions } = React.useMemo(() => {
+    const hasIncompatible = versions.some((version) => incompatibleVersionReason(version));
 
-  const selectOptions = React.useMemo(() => {
-    const fullSupport: ReactElement[] = [];
-    const maintenanceSupport: ReactElement[] = [];
-    const nightlySupport: ReactElement[] = [];
-    const candidateSupport: ReactElement[] = [];
-    const fastSupport: ReactElement[] = [];
-    let hasIncompatibleVersions = false;
+    const filteredVersions = showOnlyCompatibleVersions
+      ? versions.filter((version) => !incompatibleVersionReason(version))
+      : versions;
 
-    versions.forEach((version) => {
-      const { raw_id: versionRawId, id: versionId, channel_group: channelGroup } = version;
-      if (versionRawId && versionId) {
-        const disableReason = incompatibleVersionReason(version);
+    const groupedVersions = getVersionsData(
+      filteredVersions,
+      unstableOCPVersionsEnabled,
+      supportVersionMap,
+    );
 
-        hasIncompatibleVersions ||= !!disableReason;
+    const processedGroups = Object.entries(groupedVersions).reduce<
+      Record<string, FuzzyEntryType[]>
+    >((groups, [groupName, groupVersions]) => {
+      const processedVersions = groupVersions.map((version) => {
+        const originalVersion = versions.find((v) => v.id === version.entryId)!;
+        const incompatibilityReason = incompatibleVersionReason(originalVersion);
+        return {
+          ...version,
+          description: incompatibilityReason || version.description || '',
+          disabled: !!incompatibilityReason,
+        };
+      });
 
-        if (disableReason && showOnlyCompatibleVersions) {
-          return;
-        }
-
-        const selectOption = (
-          <SelectOption
-            value={version.id}
-            key={version.id}
-            isDisabled={!!disableReason}
-            description={disableReason || ''}
-          >
-            {getVersionNameWithChannel(version)}
-          </SelectOption>
-        );
-
-        if (!unstableOCPVersionsEnabled || channelGroup === channelGroups.STABLE) {
-          switch (supportVersionMap?.[versionName(version)]) {
-            case SupportStatusType.Full:
-              fullSupport.push(selectOption);
-              break;
-            default:
-              maintenanceSupport.push(selectOption);
-          }
-        }
-        if (unstableOCPVersionsEnabled) {
-          switch (channelGroup) {
-            case channelGroups.CANDIDATE:
-              candidateSupport.push(selectOption);
-              break;
-            case channelGroups.NIGHTLY:
-              nightlySupport.push(selectOption);
-              break;
-            case channelGroups.FAST:
-              fastSupport.push(selectOption);
-              break;
-            default:
-              break;
-          }
-        }
-      }
-    });
+      return {
+        ...groups,
+        [groupName]: processedVersions,
+      };
+    }, {});
 
     return {
-      fullSupport,
-      maintenanceSupport,
-      nightlySupport,
-      candidateSupport,
-      fastSupport,
-      hasIncompatibleVersions,
+      versionsData: processedGroups,
+      hasIncompatibleVersions: hasIncompatible,
     };
   }, [
-    incompatibleVersionReason,
-    supportVersionMap,
     versions,
     showOnlyCompatibleVersions,
+    incompatibleVersionReason,
     unstableOCPVersionsEnabled,
+    supportVersionMap,
   ]);
+
+  const sortFn = (a: FuzzyEntryType, b: FuzzyEntryType) => versionComparator(b.label, a.label);
+
+  const compatibleVersionsSwitchControl = hasIncompatibleVersions ? (
+    <Switch
+      className="pf-v6-u-mx-md pf-v6-u-mt-md pf-v6-u-font-size-sm"
+      id="view-only-compatible-versions"
+      aria-label="View only compatible versions"
+      key={`compatible-switch-${showOnlyCompatibleVersions}`}
+      label={
+        <>
+          <span>View only compatible versions</span>
+          <Popover
+            bodyContent={
+              isHypershiftSelected
+                ? 'View only versions that are compatible with a Hosted control plane'
+                : 'View only versions that are compatible with the selected ARNs in previous step'
+            }
+            enableFlip={false}
+          >
+            <Button
+              icon={<OutlinedQuestionCircleIcon />}
+              variant="plain"
+              className="pf-v6-u-p-0 pf-v6-u-ml-md"
+            />
+          </Popover>
+        </>
+      }
+      hasCheckIcon
+      isChecked={showOnlyCompatibleVersions}
+      onChange={toggleCompatibleVersions}
+    />
+  ) : null;
 
   return (
     <FormGroup {...input} label={label} isRequired>
@@ -381,81 +318,28 @@ function VersionSelection({
         </div>
       )}
       {getInstallableVersionsResponse.fulfilled && !rosaVersionError && (
-        <Select
+        <FuzzySelect
+          aria-label={label}
           isOpen={isOpen}
-          selected={selectedClusterVersion?.id || getSelection()}
-          toggle={toggle}
           onOpenChange={setIsOpen}
           onSelect={onSelect}
-          maxMenuHeight="20em"
+          selectedEntryId={selectedClusterVersion?.id || getSelection()}
+          fuzziness={0}
+          selectionData={versionsData}
+          sortFn={sortFn}
+          placeholderText="Filter by versions"
+          filterValidate={{
+            pattern: /^[0-9.]*$/gm,
+            message: 'Please enter only digits or periods.',
+          }}
+          truncation={100}
+          inlineFilterPlaceholderText="Filter by version number"
+          toggleId="version-selector"
+          isDisabled={false}
           isScrollable
-        >
-          {selectOptions.hasIncompatibleVersions ? (
-            <Switch
-              className="pf-v5-u-mx-md pf-v5-u-mt-md pf-v5-u-font-size-sm"
-              id="view-only-compatible-versions"
-              aria-label="View only compatible versions"
-              key={`compatible-switch-${showOnlyCompatibleVersions}`}
-              label={
-                <>
-                  <span>View only compatible versions</span>
-                  <Popover
-                    bodyContent={
-                      isHypershiftSelected
-                        ? 'View only versions that are compatible with a Hosted control plane'
-                        : 'View only versions that are compatible with the selected ARNs in previous step'
-                    }
-                    enableFlip={false}
-                  >
-                    <Button variant="plain" className="pf-v5-u-p-0 pf-v5-u-ml-md">
-                      <OutlinedQuestionCircleIcon />
-                    </Button>
-                  </Popover>
-                </>
-              }
-              hasCheckIcon
-              isChecked={showOnlyCompatibleVersions}
-              onChange={toggleCompatibleVersions}
-            />
-          ) : null}
-
-          <SelectGroup label="Full support" id="full-support">
-            <SelectList aria-labelledby="full-support">{selectOptions.fullSupport}</SelectList>
-          </SelectGroup>
-          {selectOptions.maintenanceSupport?.length > 0 ? (
-            <SelectGroup label="Maintenance support" id="maintenance-support">
-              <SelectList aria-labelledby="maintenance-support">
-                {selectOptions.maintenanceSupport}
-              </SelectList>
-            </SelectGroup>
-          ) : null}
-          {unstableOCPVersionsEnabled ? (
-            <>
-              {' '}
-              {selectOptions.nightlySupport?.length > 0 ? (
-                <SelectGroup label="Nightly" id="nightly-support">
-                  <SelectList aria-labelledby="nightly-support">
-                    {selectOptions.nightlySupport}
-                  </SelectList>
-                </SelectGroup>
-              ) : null}
-              {selectOptions.candidateSupport?.length > 0 ? (
-                <SelectGroup label="Candidate" id="candidate-support">
-                  <SelectList aria-labelledby="candidate-support">
-                    {selectOptions.candidateSupport}
-                  </SelectList>
-                </SelectGroup>
-              ) : null}
-              {selectOptions.fastSupport?.length > 0 ? (
-                <SelectGroup label="Fast" id="fast-support">
-                  <SelectList aria-labelledby="fast-support">
-                    {selectOptions.fastSupport}
-                  </SelectList>
-                </SelectGroup>
-              ) : null}
-            </>
-          ) : null}
-        </Select>
+          includeDisabledInSearchResults
+          additionalFilterControls={compatibleVersionsSwitchControl}
+        />
       )}
 
       <FormGroupHelperText touched={touched} error={error} />

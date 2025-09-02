@@ -67,7 +67,65 @@
     },
     "day2-profile": {
       "SetMaximumPrice": "0.03",
-      "Autoscaling": "Enabled"
+      "Autoscaling": "Enabled",
+      "SecondaryAWSBillingAccountId": "463992265265",
+      "IDPs": {
+        "HtPasswd": {
+          "Definitions": {
+            "ValidHtPasswdName": [
+              "OsdRosaHtpasswdName1",
+              "OsdRosaHtpasswdName2",
+              "OsdRosaHtpasswdName3"
+            ],
+            "ValidUserNames": [
+              "ocmcypress1",
+              "ocmcypress2",
+              "ocmcypress3",
+              "ocmcypress4",
+              "ocmcypress5",
+              "ocmcypress6",
+              "ocmcypress7",
+              "ocmcypress8",
+              "ocmcypress9",
+              "ocmcypress10",
+              "ocmcypress11",
+              "ocmcypress12",
+              "ocmcypress13",
+              "ocmcypress14",
+              "ocmcypress15"
+            ],
+            "ValidPassword": "Ocmcypresstest!123",
+            "AddNewUserName": "ocmaddnewuser",
+            "LongUserName": "characterslimtgreaterthan60testingssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+          },
+          "Validations": {
+            "HtPasswdName": {
+              "DefaultNameInformation": "Unique name for the identity provider. This cannot be changed later.",
+              "EmptyNameError": "Name must not contain whitespaces",
+              "InvalidHtPasswdName": ["OsdR%%"],
+              "InvalidHtPasswdNameError": "Name should contain only alphanumeric and dashes"
+            },
+            "Usernames": {
+              "EmptyUserNameError": "Username is required",
+              "InvalidUserNameInput": ["Osd%Rosa:asd", "1234567890"],
+              "InValidUserNameError": "Username must not contain /, :, %, or empty spaces.",
+              "DefaultUsernameInformation": "Unique name of the user within the cluster.",
+
+              "NoMatchingUserName": "No results found"
+            },
+            "Password": {
+              "DefaultPasswordInformation": [
+                "At least 14 characters (ASCII-standard) without whitespaces",
+                "Include lowercase letters",
+                "Include uppercase letters",
+                "Include numbers or symbols (ASCII-standard characters only)"
+              ],
+              "ConfirmPassword": "Retype the password to confirm.",
+              "InformationalAlert": "Securely store your usernames and passwords"
+            }
+          }
+        }
+      }
     }
   },
   "osdccs-aws-public-advanced": {
@@ -144,9 +202,6 @@
       "ServiceCIDR": "172.30.0.0/16",
       "PodCIDR": "10.128.0.0/14",
       "HostPrefix": "/23"
-    },
-    "day2-profile": {
-      "SetMaximumPrice": "0.03"
     }
   }
 }

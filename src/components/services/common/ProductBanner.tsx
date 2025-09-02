@@ -1,66 +1,37 @@
 import React from 'react';
 
-import {
-  CardBody,
-  CardFooter,
-  CardTitle,
-  Divider,
-  Split,
-  SplitItem,
-  Stack,
-  StackItem,
-  Text,
-  Title,
-} from '@patternfly/react-core';
-import { PageHeader } from '@redhat-cloud-services/frontend-components/PageHeader';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 
 export type ProductBannerProps = {
   icon?: React.ReactNode;
-  learnMoreLink?: React.ReactNode;
-  title?: string;
-  text?: string | React.ReactNode;
-  iconCardBodyClassName?: string;
+  title: string;
+  text: string;
+  linkLabel: string;
+  linkHref: string;
   breadcrumbs?: React.ReactNode;
   dataTestId?: string;
 };
 
 export const ProductBanner = ({
   icon,
-  learnMoreLink,
   title,
   text,
-  iconCardBodyClassName,
+  linkLabel,
+  linkHref,
   breadcrumbs,
   dataTestId,
 }: ProductBannerProps) => (
-  <PageHeader>
-    {breadcrumbs}
-    <Split data-testid={dataTestId}>
-      <SplitItem className="pf-v5-u-pr-md">
-        <CardBody className={iconCardBodyClassName}>{icon}</CardBody>
-      </SplitItem>
-      <Divider
-        orientation={{
-          default: 'vertical',
-        }}
-      />
-      <SplitItem className="pf-v5-u-pl-md">
-        <Stack hasGutter>
-          <StackItem isFilled>
-            <CardTitle>
-              <Title headingLevel="h1">{title}</Title>
-            </CardTitle>
-          </StackItem>
-          <StackItem isFilled>
-            <CardBody>
-              <Text>{text}</Text>
-            </CardBody>
-          </StackItem>
-          <StackItem>
-            <CardFooter>{learnMoreLink}</CardFooter>
-          </StackItem>
-        </Stack>
-      </SplitItem>
-    </Split>
-  </PageHeader>
+  <PageHeader
+    title={title}
+    subtitle={text}
+    breadcrumbs={breadcrumbs}
+    icon={icon}
+    data-testid={dataTestId}
+    linkProps={{
+      label: linkLabel,
+      isExternal: true,
+      href: linkHref,
+      target: '_blank',
+    }}
+  />
 );

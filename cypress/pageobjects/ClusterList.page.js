@@ -14,15 +14,21 @@ class ClusterList extends Page {
 
   viewOnlyMyClusterHelp = () => cy.get('label[for="view-only-my-clusters"]').find('button').first();
 
-  tooltipviewOnlyMyCluster = () => cy.get('div.pf-v5-c-popover__body');
+  tooltipviewOnlyMyCluster = () => cy.get('div.pf-v6-c-popover__body');
 
   viewClusterArchives = () => cy.contains('a', 'View cluster archives');
+
+  viewClusterRequests = () => cy.contains('a', 'View cluster requests');
+
+  viewClusterRequestsButton = () => cy.contains('button', 'View cluster requests');
 
   assistedInstallerClusters = () => cy.contains('a', 'Assisted Installer clusters');
 
   registerCluster = () => cy.getByTestId('register-cluster-item');
 
   showActiveClusters = () => cy.get('a').contains('Show active clusters');
+
+  clusterKebabIcon = () => cy.get('button[aria-label="Kebab toggle"]').should('be.visible');
 
   itemPerPage = () => cy.get('#options-menu-bottom-toggle').last();
 
@@ -32,9 +38,13 @@ class ClusterList extends Page {
 
   typeColumnsInClusterList = () => cy.get('td[data-label="Type"] span');
 
-  filterdClusterTypesValues = () => cy.get('span.pf-v5-c-chip__text');
+  filterdClusterTypesValues = () => cy.get('span.pf-v6-c-label__text');
 
   createClusterButton = () => cy.getByTestId('create_cluster_btn');
+
+  pendingTransferRequestsBanner = () => cy.get('#pendingTransferOwnerAlert', { timeout: 15000 });
+
+  showPendingTransferRequestsLink = () => cy.get('a').contains('Show pending transfer requests');
 
   isRegisterClusterUrl() {
     super.assertUrlIncludes('/openshift/register');
@@ -112,12 +122,16 @@ class ClusterList extends Page {
       .click({ force: true });
   }
 
+  clickKebabMenuItem(menuText) {
+    cy.get('button').contains(menuText).click();
+  }
+
   clickClusterListExtraActions() {
     cy.getByTestId('cluster-list-extra-actions-dropdown').should('be.visible').click();
   }
 
   clickClusterListExtraActions() {
-    cy.get('button.pf-v5-c-dropdown__toggle').should('be.visible').click();
+    cy.get('button.pf-v6-c-dropdown__toggle').should('be.visible').click();
   }
 
   clickClusterListTableHeader(header) {
@@ -149,13 +163,28 @@ class ClusterList extends Page {
   searchForClusterWithStatus(status) {
     cy.contains('td[data-label="Status"]', status)
       .siblings()
-      .get('td.pf-v5-c-table__action > div')
+      .get('td.pf-v6-c-table__action > div')
       .first()
       .click();
   }
 
   waitForDataReady() {
     cy.get('div[data-ready="true"]', { timeout: 60000 }).should('exist');
+  }
+
+  waitForClusterInClusterList(clusterName) {
+    cy.getByTestId('clusterListTableBody').within(() => {
+      cy.get('a').contains(clusterName, { timeout: 60000 }).should('exist');
+      cy.get('span').contains('loading cluster status', { timeout: 60000 }).should('not.exist');
+    });
+  }
+
+  clickClusterKebabIcon(clusterName) {
+    cy.get(`a:contains(${clusterName})`)
+      .parents('tr')
+      .within(() => {
+        cy.get('button[aria-label="Kebab toggle"]').click();
+      });
   }
 
   waitForArchiveDataReady() {
@@ -171,8 +200,24 @@ class ClusterList extends Page {
     cy.getByTestId('create_cluster_btn').should('be.visible');
   }
 
+  isPendingTransferRequestsBannerShown(isShown, transferRequests) {
+    if (isShown) {
+      this.pendingTransferRequestsBanner()
+        .should('be.visible')
+        .within(() => {
+          cy.get('h4').contains('Pending Transfer Requests').should('be.visible');
+          cy.contains(`You have ${transferRequests} pending cluster transfer ownership request`);
+          this.showPendingTransferRequestsLink()
+            .invoke('attr', 'href')
+            .should('include', '/openshift/./cluster-request');
+        });
+    } else {
+      this.pendingTransferRequestsBanner().should('not.be.exist');
+    }
+  }
+
   checkForDetailsInAnchor() {
-    cy.get('tbody.pf-v5-c-table__tbody tr')
+    cy.get('tr.pf-v6-c-table__tr')
       .find('td[data-label="Name"] a')
       .should('have.length.greaterThan', 0)
       .each((anchor) => {
@@ -181,7 +226,7 @@ class ClusterList extends Page {
   }
 
   checkIfFirstAnchorNavigatesToCorrectRoute() {
-    cy.get('tbody.pf-v5-c-table__tbody tr')
+    cy.get('tr.pf-v6-c-table__tr')
       .find('td[data-label="Name"] a')
       .first()
       .then((anchor) => {

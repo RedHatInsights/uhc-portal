@@ -1,5 +1,4 @@
 {
-  "AWSBillingAccountId": "425464789085",
   "Region": "us-west-2, US West, Oregon",
   "ClusterPrivacy": "public",
   "OidcConfigId": "22rif2kh7jagoe7u2ak1caoi74hjrjvj",
@@ -11,6 +10,10 @@
     {
       "InstanceType": "m6id.xlarge",
       "AvailabilityZones": "us-west-2b"
+    },
+    {
+      "InstanceType": "m6id.xlarge",
+      "AvailabilityZones": "us-west-2c"
     }
   ],
   "ClusterSettings": {
@@ -99,7 +102,7 @@
       "HostPrefix": [
         {
           "Value": "hello",
-          "Error": "The value 'hello' isn't a valid subnet mask. It must follow the RFC-4632 format: '/16'"
+          "Error": "The value '/hello' isn't a valid subnet mask. It must follow the RFC-4632 format: '/16'"
         },
         {
           "Value": "28",

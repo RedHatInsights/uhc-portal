@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import ErrorModal from '~/components/common/ErrorModal';
@@ -13,9 +13,9 @@ type Props = Omit<ErrorModalProps, 'closeModal'>;
 
 const ShieldedVmErrorModal = (props: Props) => (
   <ErrorModal {...props}>
-    <Text className="pf-v5-u-mt-sm">
+    <Content component="p" className="pf-v6-u-mt-sm">
       <ExternalLink href={links.OSD_CCS_GCP_SHEILDED_VM}>Learn more about Secure Boot</ExternalLink>
-    </Text>
+    </Content>
   </ErrorModal>
 );
 

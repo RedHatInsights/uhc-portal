@@ -18,11 +18,11 @@ export type LinkTextLabelLinkCardContents = {
 };
 
 export const osdLinkTextLabelLinkCardContents: LinkTextLabelLinkCardContents = {
-  cardClassName: 'pf-v5-u-mb-lg',
+  cardClassName: 'pf-v6-u-mb-lg',
   textLabelLinkItems: [
     {
       listItemText: 'Red Hat OpenShift Dedicated on Google Cloud Marketplace',
-      listItemLabel: <Label color="gold">Documentation</Label>,
+      listItemLabel: <Label color="yellow">Documentation</Label>,
       listItemLink: <ExternalLink href={docLinks.OSD_GOOGLE_MARKETPLACE}>Learn More</ExternalLink>,
     },
     {
@@ -32,18 +32,18 @@ export const osdLinkTextLabelLinkCardContents: LinkTextLabelLinkCardContents = {
     },
     {
       listItemText: 'How to get started with OpenShift Dedicated on Google Cloud Marketplace',
-      listItemLabel: <Label color="gold">Quickstart</Label>,
+      listItemLabel: <Label color="yellow">Quickstart</Label>,
       listItemLink: <ExternalLink href={docLinks.OSD_QUICKSTART}>Learn More</ExternalLink>,
     },
   ],
 };
 
 export const rosaLinkTextLabelLinkCardContents: LinkTextLabelLinkCardContents = {
-  cardClassName: 'pf-v5-u-mb-lg',
+  cardClassName: 'pf-v6-u-mb-lg',
   textLabelLinkItems: [
     {
       listItemText: 'Product Documentation for Red Hat OpenShift Service on AWS 4',
-      listItemLabel: <Label color="gold">Documentation</Label>,
+      listItemLabel: <Label color="yellow">Documentation</Label>,
       listItemLink: <ExternalLink href={docLinks.ROSA_CP_DOCS}>Learn More</ExternalLink>,
     },
     {
@@ -53,14 +53,14 @@ export const rosaLinkTextLabelLinkCardContents: LinkTextLabelLinkCardContents = 
     },
     {
       listItemText: 'Troubleshooting installations',
-      listItemLabel: <Label color="gold">Documentation</Label>,
+      listItemLabel: <Label color="yellow">Documentation</Label>,
       listItemLink: (
         <ExternalLink href={docLinks.ROSA_TROUBLESHOOTING_INSTALLATIONS}>Learn More</ExternalLink>
       ),
     },
     {
       listItemText: 'Red Hat OpenShift Service on AWS service definition',
-      listItemLabel: <Label color="gold">Documentation</Label>,
+      listItemLabel: <Label color="yellow">Documentation</Label>,
       listItemLink: <ExternalLink href={docLinks.ROSA_DEFINITION_DOC}>Learn More</ExternalLink>,
     },
   ],

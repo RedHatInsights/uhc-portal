@@ -58,7 +58,7 @@ export const RadioGroupField = ({
               value={option.value}
               isDisabled={option.disabled}
               description={option.description}
-              className={classNames('pf-v5-u-mb-md', { 'pf-v5-u-mr-sm': !!option.popoverHint })}
+              className={classNames('pf-v6-u-mb-md', { 'pf-v6-u-mr-sm': !!option.popoverHint })}
               onChange={(value) => {
                 setFieldValue(name, value);
                 // pf-formik's RadioButtonField change handler does not return an event to forward

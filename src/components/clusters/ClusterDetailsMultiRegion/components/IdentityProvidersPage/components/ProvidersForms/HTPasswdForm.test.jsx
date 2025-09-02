@@ -95,6 +95,6 @@ describe('HTPasswdForm', () => {
     });
 
     render(buildTestComponent(<HTPasswdForm />));
-    expect(screen.getByText('Add user')).toBeDisabled();
+    expect(screen.getByText('Add user').parentElement).toBeDisabled();
   });
 });

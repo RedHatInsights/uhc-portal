@@ -2,20 +2,20 @@
   margin-bottom: 0 !important;
 
   h1 {
-    margin-top: var(--pf-v5-global--spacer--md);
+    margin-top: var(--pf-t--global--spacer--md);
   }
   .subheader {
-    margin-top: var(--pf-v5-global--spacer--lg);
-    margin-bottom: var(--pf-v5-global--spacer--md);
+    margin-top: var(--pf-t--global--spacer--lg);
+    margin-bottom: var(--pf-t--global--spacer--md);
   }
 
   .expand-collapse-all {
-    margin-left: var(--pf-v5-global--spacer--xl);
+    margin-left: var(--pf-t--global--spacer--xl);
   }
 }
 
 .downloads-page-body {
   code {
-    font-family: var(--pf-v5-global--FontFamily--monospace);
+    font-family: var(--pf-t--global--font--family--mono);
   }
 }

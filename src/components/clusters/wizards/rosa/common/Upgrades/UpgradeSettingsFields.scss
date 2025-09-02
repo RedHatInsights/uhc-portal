@@ -1,45 +1,45 @@
 .ocm-upgrade-schedule-selection {
-  padding-left: var(--pf-v5-global--spacer--lg);
-  margin-bottom: var(--pf-v5-global--spacer--lg);
+  padding-left: var(--pf-t--global--spacer--lg);
+  margin-bottom: var(--pf-t--global--spacer--lg);
 
-  button.pf-v5-c-menu-toggle {
+  button.pf-v6-c-menu-toggle {
     max-width: 100%;
   }
 }
 .ocm-c-upgrade-policy-radios {
-  .pf-v5-c-radio {
-    margin-bottom: var(--pf-v5-global--spacer--lg);
+  .pf-v6-c-radio {
+    margin-bottom: var(--pf-t--global--spacer--lg);
   }
 }
 .ocm-c-upgrade-node-draining-title {
-  margin-bottom: var(--pf-v5-global--spacer--sm);
+  margin-bottom: var(--pf-t--global--spacer--sm);
 }
 
 .ocm-c-upgrade-node-draining-subtitle {
-  margin-bottom: var(--pf-v5-global--spacer--sm);
-  font-size: var(--pf-v5-global--FontSize--lg);
-  font-weight: var(--pf-v5-global--FontWeight--normal);
+  margin-bottom: var(--pf-t--global--spacer--sm);
+  font-size: var(--pf-t--global--font--size--lg);
+  font-weight: var(--pf-t--global--font--weight--body--default);
 }
 
 .ocm-c-upgrades-pdb-select {
-  margin-top: var(--pf-v5-global--spacer--md);
+  margin-top: var(--pf-t--global--spacer--md);
   &__toggle {
     min-width: 150px;
   }
 }
 
 .ocm-c-upgrade-monitoring {
-  margin-top: var(--pf-v5-global--spacer--lg);
+  margin-top: var(--pf-t--global--spacer--lg);
   grid-gap: 24px;
 }
 
 .ocm-c-upgrade-monitoring-top {
-  margin-top: var(--pf-v5-global--spacer--sm);
+  margin-top: var(--pf-t--global--spacer--sm);
 }
 
 .automatic-cluster-updates-alert {
-  margin-bottom: var(--pf-v5-global--spacer--lg);
+  margin-bottom: var(--pf-t--global--spacer--lg);
   &.inline-alert {
-    margin-left: var(--pf-v5-global--spacer--lg);
+    margin-left: var(--pf-t--global--spacer--lg);
   }
 }

@@ -12,6 +12,8 @@ import {
 } from '@patternfly/react-core';
 
 import { BillingQuota } from '~/components/clusters/common/quotaModel';
+import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { setAddonsDrawer } from '../AddOnsActions';
@@ -42,6 +44,8 @@ const AddOnsSubscription = ({
     );
   };
   const activeSubscription = subscriptionModels[activeCardId];
+
+  const hideRHMarketplace = useFeatureGate(HIDE_RH_MARKETPLACE);
 
   // TODO: We are hiding RHM and Azure options for now until backend is ready
   const hideRhmAzureForNow = true;
@@ -115,7 +119,7 @@ const AddOnsSubscription = ({
   const standardOptions = (
     <Card
       id="standard-rh"
-      isSelectableRaised
+      isSelectable
       isSelected={activeSubscription?.billingModel === 'standard'}
       isDisabled={!hasQuotaStandard || !isReady}
     >
@@ -128,7 +132,7 @@ const AddOnsSubscription = ({
   const cloudAccounts = billingQuota.marketplace?.cloudAccounts;
   const marketplaceOptions = (
     <>
-      {!hideRhmAzureForNow && (
+      {!hideRhmAzureForNow && !hideRHMarketplace ? (
         <AddOnsSubscriptionCard
           subscriptionModels={subscriptionModels}
           setSubscriptionModel={setSubscriptionModel}
@@ -141,7 +145,7 @@ const AddOnsSubscription = ({
           name="Red Hat Marketplace"
           cloudProvider="rhm"
         />
-      )}
+      ) : null}
       <AddOnsSubscriptionCard
         subscriptionModels={subscriptionModels}
         setSubscriptionModel={setSubscriptionModel}
@@ -181,7 +185,7 @@ const AddOnsSubscription = ({
       value={SubscriptionCommonFieldsClusterBillingModel.standard}
       label={
         <div>
-          <span className={disabled ? 'pf-v5-u-mr-xs' : ''}>Standard</span>
+          <span className={disabled ? 'pf-v6-u-mr-xs' : ''}>Standard</span>
         </div>
       }
       isDisabled={disabled}
@@ -207,7 +211,7 @@ const AddOnsSubscription = ({
       value={SubscriptionCommonFieldsClusterBillingModel.marketplace}
       label={
         <div>
-          <span className={disabled ? 'pf-v5-u-mr-xs' : ''}>Marketplace</span>
+          <span className={disabled ? 'pf-v6-u-mr-xs' : ''}>Marketplace</span>
         </div>
       }
       isDisabled={disabled}
@@ -227,7 +231,7 @@ const AddOnsSubscription = ({
     <>
       <div
         className={
-          billingQuota.standard && billingQuota.marketplace ? 'pf-v5-u-mb-sm' : 'pf-v5-u-mb-lg'
+          billingQuota.standard && billingQuota.marketplace ? 'pf-v6-u-mb-sm' : 'pf-v6-u-mb-lg'
         }
       >
         <strong>

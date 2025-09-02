@@ -1,25 +1,20 @@
 .controlPlaneScreenTile {
   text-align: left !important;
   height: 100%;
-  .pf-v5-c-tile__body {
-    --pf-v5-c-tile__body--FontSize: var(--pf-v5-global--FontSize--md);
+  .pf-v6-c-tile__body {
+    --pf-v6-c-tile__body--FontSize: var(--pf-t--global--font--size--md);
   }
 
-  .pf-v5-c-tile__header {
+  .pf-v6-c-tile__header {
     align-items: flex-start;
   }
-  .pf-v5-c-tile__title {
-    font-size: var(--pf-v5-global--FontSize--lg);
-    font-weight: var(--pf-v5-global--FontWeight--bold);
+  .pf-v6-c-tile__title {
+    font-size: var(--pf-t--global--font--size--lg);
+    font-weight: var(--pf-t--global--font--weight--heading--bold);
   }
 
-  .pf-v5-c-alert {
-    --pf-v5-c-alert__FontSize: var(--pf-v5-global--FontSize--md);
+  .pf-v6-c-alert {
+    --pf-v6-c-alert--FontSize: var(--pf-t--global--font--size--md);
   }
 
-}
-
-.controlPlaneScreenTile.pf-v5-c-tile {
-  --pf-v5-c-tile--Transition: none !important;
-  --pf-v5-c-tile--TranslateY: 0 !important;
 }

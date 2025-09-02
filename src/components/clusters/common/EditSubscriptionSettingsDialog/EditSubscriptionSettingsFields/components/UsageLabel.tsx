@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core';
 
 import PopoverHint from '~/components/common/PopoverHint';
 
@@ -13,9 +13,9 @@ const UsageLabel = () => (
       id="subscripiton-settings-usage-hint"
       headerContent="Cluster usage"
       hint={
-        <TextContent>
-          <Text component={TextVariants.p}>How you are using this cluster.</Text>
-        </TextContent>
+        <Content>
+          <Content component={ContentVariants.p}>How you are using this cluster.</Content>
+        </Content>
       }
       iconClassName={LABEL_ICON_CLASS}
     />

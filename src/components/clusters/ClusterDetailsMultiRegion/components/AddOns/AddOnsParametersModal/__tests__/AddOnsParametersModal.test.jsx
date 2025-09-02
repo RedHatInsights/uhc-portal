@@ -246,10 +246,10 @@ describe('<AddOnsParametersModal />', () => {
 
     const { user } = render(<AddOnsParametersModal {...props} />);
 
-    const combobox = screen.getByRole('button', { name: /options menu/i });
+    const combobox = screen.getByRole('button', { name: /Options menu/i });
 
     await user.click(combobox);
 
-    expect(screen.getByRole('option')).toHaveTextContent('Option 1');
+    expect(screen.getByText('Option 1')).toBeInTheDocument();
   });
 });

@@ -3,6 +3,8 @@ import { Formik } from 'formik';
 import { useDispatch } from 'react-redux';
 
 import {
+  Content,
+  ContentVariants,
   Form,
   FormGroup,
   MenuToggle,
@@ -10,10 +12,7 @@ import {
   Select,
   SelectList,
   SelectOption,
-  Text,
-  TextContent,
   TextInput,
-  TextVariants,
 } from '@patternfly/react-core';
 
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
@@ -197,7 +196,7 @@ function OCMRolesDialog({
           isPrimaryDisabled={isPrimaryDisabled}
           id="ocm-roles-access-dialog"
         >
-          <p className="pf-v5-u-mb-xl">
+          <p className="pf-v6-u-mb-xl">
             Allow users in your organization to edit or view clusters. These permissions only apply
             to cluster management in OpenShift Cluster Manager.
           </p>
@@ -209,11 +208,11 @@ function OCMRolesDialog({
                   <PopoverHint
                     id="ocm-roles-section-username-tooltip"
                     hint={
-                      <TextContent>
-                        <Text component={TextVariants.p}>
+                      <Content>
+                        <Content component={ContentVariants.p}>
                           Your Red Hat login is the username you use to access your Red Hat account.
-                        </Text>
-                      </TextContent>
+                        </Content>
+                      </Content>
                     }
                     iconClassName="text-input-tootip-icon"
                     hasAutoWidth

@@ -16,7 +16,7 @@ import docLinks from '../../../common/installLinks.mjs';
 
 export const RosaPricingCard = () => (
   <>
-    <Title className="pf-v5-u-mt-lg pf-v5-u-mb-lg" headingLevel="h2">
+    <Title className="pf-v6-u-mt-lg pf-v6-u-mb-lg" headingLevel="h2">
       Pricing
     </Title>
     <Flex>
@@ -56,7 +56,7 @@ export const RosaPricingCard = () => (
         </Card>
       </FlexItem>
     </Flex>
-    <div className="pf-v5-u-mt-md">
+    <div className="pf-v6-u-mt-md">
       <ExternalLink href={docLinks.ROSA_PRICING}>Learn more about pricing</ExternalLink>
     </div>
   </>

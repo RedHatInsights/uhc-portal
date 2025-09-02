@@ -1,18 +1,18 @@
 .ocm-c-access-request__card {
-  .pf-v5-c-card__title {
+  .pf-v6-c-card__title {
     &--header {
-      .pf-v5-c-title {
-        margin-bottom: var(--pf-v5-global--spacer--md);
+      .pf-v6-c-title {
+        margin-bottom: var(--pf-t--global--spacer--md);
       }
       .access-request-subtitle {
-        font-size: var(--pf-v5-global--FontSize--md);
-        font-weight: var(--pf-v5-global--FontWeight--normal);
+        font-size: var(--pf-t--global--font--size--md);
+        font-weight: var(--pf-t--global--font--weight--body--default);
       }
     }
   }
   &--body {
-    .pf-v5-c-button {
-      margin-top: var(--pf-v5-global--spacer--md);
+    .pf-v6-c-button {
+      margin-top: var(--pf-t--global--spacer--md);
     }
   }
 }

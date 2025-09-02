@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { UnavailableContent as PFUnavailable } from '@patternfly/react-component-groups/';
 import {
   EmptyState,
   EmptyStateBody,
@@ -8,7 +9,6 @@ import {
   StackItem,
   Title,
 } from '@patternfly/react-core';
-import { Unavailable as FcUnavailable } from '@redhat-cloud-services/frontend-components/Unavailable';
 import * as Sentry from '@sentry/browser';
 
 import ErrorDetailsDisplay from '~/components/common/ErrorDetailsDisplay';
@@ -65,7 +65,7 @@ const Unavailable = ({ errors, message = '', response }: Props) => {
   return (
     <EmptyState>
       <EmptyStateBody>
-        <FcUnavailable />
+        <PFUnavailable />
         <ExpandableSection id="error-expand" toggleText="Error details">
           <Stack hasGutter>
             {errors ? errors.map(errorDetails) : errorDetails({ response, message })}

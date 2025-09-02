@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text, TextContent } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 
 import links, { channels, tools } from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -34,15 +34,15 @@ const DisconnectedInstallationRows = ({
         channel={channels.STABLE}
         name="mirror registry for Red Hat OpenShift"
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               Download and install a local, minimal single instance deployment of Red Hat Quay to
               aid bootstrapping the first disconnected cluster.{' '}
               <ExternalLink href={links.INSTALL_MIRROR_REGISTRY_LEARN_MORE}>
                 Learn more
               </ExternalLink>
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         }
       />
       <ToolAndDescriptionRows
@@ -51,17 +51,19 @@ const DisconnectedInstallationRows = ({
         channel={channels.STABLE}
         name="OpenShift Client (oc) mirror plugin"
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               The &quot;mirror&quot; plugin for the OpenShift CLI client (oc) controls the process{' '}
               of mirroring all relevant container image for a full disconnected OpenShift{' '}
               installation in a central, declarative tool.{' '}
               <ExternalLink href={links.INSTALL_OC_MIRROR_PLUGIN_LEARN_MORE}>
                 Learn more
               </ExternalLink>
-            </Text>
-            <Text>RHEL 9 is FIPS compatible; RHEL 8 is non-FIPS compatible.</Text>
-          </TextContent>
+            </Content>
+            <Content component="p">
+              RHEL 9 is FIPS compatible; RHEL 8 is non-FIPS compatible.
+            </Content>
+          </Content>
         }
       />
     </>

@@ -8,6 +8,8 @@ import {
   CardBody,
   CardHeader,
   CardTitle,
+  Content,
+  ContentVariants,
   Grid,
   GridItem,
   PageSection,
@@ -15,11 +17,6 @@ import {
   SplitItem,
   Stack,
   StackItem,
-  Text,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextVariants,
   Title,
 } from '@patternfly/react-core';
 
@@ -30,6 +27,8 @@ import ExternalLink from '~/components/common/ExternalLink';
 import Instruction from '~/components/common/Instruction';
 import Instructions from '~/components/common/Instructions';
 import PageTitle from '~/components/common/PageTitle';
+
+import { RosaArchitectureRenamingAlert } from '../common/Banners/RosaArchitectureRenamingAlert';
 
 import StepCreateNetwork from './StepCreateAWSAccountRoles/StepCreateNetwork';
 import StepCreateAWSAccountRoles from './StepCreateAWSAccountRoles';
@@ -56,16 +55,17 @@ const breadcrumbs = (
 const CreateRosaGetStarted = () => (
   <AppPage>
     <PageTitle breadcrumbs={breadcrumbs} title={title(productName)}>
-      <TextContent className="pf-v5-u-mt-md pf-v5-u-mb-md">
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           Deploy fully operational and managed Red Hat OpenShift clusters while leveraging the full
           breadth and depth of AWS using ROSA.
-        </Text>
-        <Text component={TextVariants.p}>
+        </Content>
+        <Content component={ContentVariants.p}>
           Learn more about <ExternalLink href={links.WHAT_IS_ROSA}>ROSA</ExternalLink> or{' '}
           <ExternalLink href={links.ROSA_COMMUNITY_SLACK}>Slack us</ExternalLink>
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
+      <RosaArchitectureRenamingAlert />
       <Alert
         variant={AlertVariant.info}
         isInline
@@ -76,7 +76,7 @@ const CreateRosaGetStarted = () => (
         <ExternalLink data-testid="rosa-aws-fedramp" href={links.ROSA_AWS_FEDRAMP}>
           Learn more about ROSA in AWS GovCloud (US) with FedRAMP
         </ExternalLink>
-        or start the onboarding process with the
+        or start the onboarding process with the{' '}
         <ExternalLink
           data-testid="fedramp-access-request-form"
           href={links.FEDRAMP_ACCESS_REQUEST_FORM}
@@ -85,7 +85,7 @@ const CreateRosaGetStarted = () => (
         </ExternalLink>
       </Alert>
     </PageTitle>
-    <PageSection>
+    <PageSection hasBodyWrapper={false}>
       <Stack hasGutter>
         {/* ************ Start of AWS prerequisites section ***************** */}
         <StackItem>
@@ -94,47 +94,46 @@ const CreateRosaGetStarted = () => (
               <Title headingLevel="h2">Complete AWS prerequisites</Title>
             </CardTitle>
             <CardBody>
-              <TextContent>
-                <Title headingLevel="h3">Have you prepared your AWS account?</Title>
-                <Text component={TextVariants.p}>
-                  Make sure your AWS account is set up for ROSA deployment. If you&apos;ve already
-                  set it up, you can continue to the ROSA prerequisites.
-                </Text>
+              <Title headingLevel="h3">Have you prepared your AWS account?</Title>
+              <Content component={ContentVariants.p}>
+                Make sure your AWS account is set up for ROSA deployment. If you&apos;ve already set
+                it up, you can continue to the ROSA prerequisites.
+              </Content>
 
-                <Grid hasGutter span={10}>
-                  <GridItem span={4}>
-                    <TextList>
-                      <TextListItem>Enable AWS</TextListItem>
-                      <TextListItem>Configure Elastic Load Balancer (ELB)</TextListItem>
-                    </TextList>
-                  </GridItem>
+              <Grid hasGutter span={10}>
+                <GridItem span={4}>
+                  <Content component="ul">
+                    <Content component="li">Enable AWS</Content>
+                    <Content component="li">Configure Elastic Load Balancer (ELB)</Content>
+                  </Content>
+                </GridItem>
 
-                  <GridItem span={6}>
-                    <TextList>
-                      <TextListItem>
-                        Set up a VPC for ROSA HCP clusters (optional for ROSA classic clusters)
-                      </TextListItem>
-                      <TextListItem>Verify your quotas on AWS console</TextListItem>
-                    </TextList>
-                  </GridItem>
-                </Grid>
+                <GridItem span={6}>
+                  <Content component="ul">
+                    <Content component="li">
+                      Set up a VPC for ROSA hosted control plane architecture (HCP) clusters
+                      (optional for ROSA classic architecture clusters)
+                    </Content>
+                    <Content component="li">Verify your quotas on AWS console</Content>
+                  </Content>
+                </GridItem>
+              </Grid>
 
-                <ExternalLink
-                  className="pf-v5-u-mt-md"
-                  href={links.AWS_CONSOLE_ROSA_HOME_GET_STARTED}
-                  isButton
-                  variant={ButtonVariant.secondary}
-                >
-                  Open AWS Console
-                </ExternalLink>
-              </TextContent>
+              <ExternalLink
+                className="pf-v6-u-mt-md"
+                href={links.AWS_CONSOLE_ROSA_HOME_GET_STARTED}
+                isButton
+                variant={ButtonVariant.secondary}
+              >
+                Open AWS Console
+              </ExternalLink>
             </CardBody>
           </Card>
         </StackItem>
         <StackItem>
           <Card>
             <CardBody>
-              <Split className="pf-v5-u-mb-lg">
+              <Split className="pf-v6-u-mb-lg">
                 <SplitItem isFilled>
                   <Title headingLevel="h2">Complete ROSA prerequisites</Title>
                 </SplitItem>
@@ -170,9 +169,9 @@ const CreateRosaGetStarted = () => (
                 <Title headingLevel="h2" size="xl">
                   Deploy the cluster and set up access
                 </Title>
-                <Text component={TextVariants.p} className="pf-v5-u-font-weight-normal">
+                <Content component={ContentVariants.p} className="pf-v6-u-font-weight-normal">
                   Select a deployment method
-                </Text>
+                </Content>
               </CardTitle>
             </CardHeader>
 

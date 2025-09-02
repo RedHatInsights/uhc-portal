@@ -1,11 +1,13 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
 import { Formik } from 'formik';
+import { isEqual } from 'lodash';
 import get from 'lodash/get';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import {
   Button,
   Card,
@@ -18,7 +20,6 @@ import {
   Split,
   SplitItem,
 } from '@patternfly/react-core';
-import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 
 import { Link, Navigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
@@ -29,7 +30,7 @@ import {
   refetchClusterIdentityProviders,
   useFetchClusterIdentityProviders,
 } from '~/queries/ClusterDetailsQueries/useFetchClusterIdentityProviders';
-import { OCMUI_ENHANCED_HTPASSWRD } from '~/queries/featureGates/featureConstants';
+import { ENHANCED_HTPASSWRD } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import getClusterName from '../../../../../common/getClusterName';
@@ -40,6 +41,7 @@ import Breadcrumbs from '../../../../common/Breadcrumbs';
 import Unavailable from '../../../../common/Unavailable';
 
 import HtpasswdDetails from './components/HtpasswdDetails/HtpasswdDetails';
+import { isSingleUserHtpasswd } from './components/HtpasswdDetails/htpasswdUtilities';
 import {
   IdentityProvidersPageFormInitialValues,
   IdentityProvidersPageValidationSchema,
@@ -61,7 +63,7 @@ const IdentityProvidersPage = (props) => {
   const params = useParams();
   const subscriptionID = params.id;
 
-  const canViewHtpasswd = useFeatureGate(OCMUI_ENHANCED_HTPASSWRD);
+  const canViewHtpasswd = useFeatureGate(ENHANCED_HTPASSWRD);
 
   const {
     cluster,
@@ -90,6 +92,8 @@ const IdentityProvidersPage = (props) => {
   } = usePostIDPForm(clusterID, region);
 
   const IDPList = clusterIDPs?.items || [];
+
+  const hasIDPUpdateAccess = cluster?.idpActions?.update;
 
   const dispatch = useDispatch();
   let idpEdited = {};
@@ -137,7 +141,7 @@ const IdentityProvidersPage = (props) => {
       <AppPage title={PAGE_TITLE}>
         <div id="clusterdetails-content">
           <div className="cluster-loading-container">
-            <div className="pf-v5-u-text-align-center">
+            <div className="pf-v6-u-text-align-center">
               <Spinner size="lg" aria-label="Loading..." />
             </div>
           </div>
@@ -147,7 +151,7 @@ const IdentityProvidersPage = (props) => {
   }
 
   const htpasswd = IDPList.find(
-    (idp) => idp.name === params.idpName && idp.type === 'HTPasswdIdentityProvider',
+    (idp) => idp.name === params.idpName && idp.type === IDPformValues.HTPASSWD,
   );
 
   const errorState = () => (
@@ -193,6 +197,11 @@ const IdentityProvidersPage = (props) => {
   ) {
     return <Navigate replace to={`/details/s/${cluster?.subscription.id}#accessControl`} />;
   }
+
+  if (!isClusterDetailsLoading && !hasIDPUpdateAccess && htpasswd && canViewHtpasswd) {
+    return <Navigate replace to={`/details/s/${cluster?.subscription.id}#accessControl`} />;
+  }
+
   const idpTypeName = IDPTypeNames[selectedIDP];
   const title = isEditForm
     ? `Edit identity provider: ${idpEdited.name}`
@@ -211,27 +220,31 @@ const IdentityProvidersPage = (props) => {
 
   return (
     <AppPage title={PAGE_TITLE}>
-      <PageHeader>
-        <Breadcrumbs
-          path={[
-            { label: 'Cluster List' },
-            { label: clusterName, path: `/details/s/${cluster.subscription.id}` },
-            {
-              label: 'Access control',
-              path: `/details/s/${cluster.subscription.id}#accessControl`,
-            },
-            { label: title },
-          ]}
-        />
-        <PageHeaderTitle title={title} />
-      </PageHeader>
-      <PageSection>
+      <PageHeader
+        title={title}
+        breadcrumbs={
+          <Breadcrumbs
+            path={[
+              { label: 'Cluster List' },
+              { label: clusterName, path: `/details/s/${cluster.subscription.id}` },
+              {
+                label: 'Access control',
+                path: `/details/s/${cluster.subscription.id}#accessControl`,
+              },
+              { label: title },
+            ]}
+          />
+        }
+      />
+      <PageSection hasBodyWrapper={false}>
         {htpasswd && canViewHtpasswd ? (
           <HtpasswdDetails
             idpName={htpasswd.name}
             idpId={htpasswd.id}
             clusterId={cluster.id}
             region={region}
+            idpActions={cluster.idpActions}
+            isSingleUserHtpasswd={isSingleUserHtpasswd(htpasswd.htpasswd)}
           />
         ) : (
           <Formik
@@ -251,66 +264,72 @@ const IdentityProvidersPage = (props) => {
               });
             }}
           >
-            {(formik) => (
-              <Card>
-                <CardBody>
-                  <Grid>
-                    <GridItem md={8}>
-                      {isClusterIDPsSuccess ? (
-                        <IDPForm
-                          selectedIDP={selectedIDP}
-                          idpTypeName={idpTypeName}
-                          formTitle={secondaryTitle}
-                          clusterUrls={{
-                            console: get(cluster, 'console.url'),
-                            api: get(cluster, 'api.url'),
-                          }}
-                          isPostIDPFormError={isPostIDPFormError}
-                          postIDPFormError={postIDPFormError}
-                          isPostIDPFormPending={isPostIDPFormPending}
-                          IDPList={IDPList}
-                          idpEdited={idpEdited}
-                          idpName={idpTypeName}
-                          isHypershift={isHypershiftCluster(cluster)}
-                          HTPasswdErrors={formik.errors?.users}
-                          isClusterIDPsLoading={isClusterIDPsLoading}
-                          isEditForm={isEditForm}
-                        />
-                      ) : (
-                        <Spinner size="lg" aria-label="Loading..." />
-                      )}
-                    </GridItem>
-                  </Grid>
-                </CardBody>
-                <CardFooter>
-                  <Split hasGutter>
-                    <SplitItem>
-                      <Button
-                        variant="primary"
-                        type="submit"
-                        isDisabled={!formik.dirty || isFormReadyForSubmit(formik)}
-                        onClick={formik.submitForm}
-                      >
-                        {isEditForm ? 'Save' : 'Add'}
-                      </Button>
-                    </SplitItem>
-                    <SplitItem>
-                      <Button
-                        variant="secondary"
-                        component={(props) => (
-                          <Link
-                            {...props}
-                            to={`/details/s/${cluster.subscription.id}#accessControl`}
+            {(formik) => {
+              const isModified = isEqual(formik.values, formik.initialValues);
+              return (
+                <Card>
+                  <CardBody>
+                    <Grid>
+                      <GridItem md={8}>
+                        {isClusterIDPsSuccess ? (
+                          <IDPForm
+                            selectedIDP={selectedIDP}
+                            idpTypeName={idpTypeName}
+                            formTitle={secondaryTitle}
+                            clusterUrls={{
+                              console: get(cluster, 'console.url'),
+                              api: get(cluster, 'api.url'),
+                            }}
+                            isPostIDPFormError={isPostIDPFormError}
+                            postIDPFormError={postIDPFormError}
+                            isPostIDPFormPending={isPostIDPFormPending}
+                            IDPList={IDPList}
+                            idpEdited={idpEdited}
+                            idpName={idpTypeName}
+                            isHypershift={isHypershiftCluster(cluster)}
+                            HTPasswdErrors={formik.errors?.users}
+                            isClusterIDPsLoading={isClusterIDPsLoading}
+                            isEditForm={isEditForm}
                           />
+                        ) : (
+                          <Spinner size="lg" aria-label="Loading..." />
                         )}
-                      >
-                        Cancel
-                      </Button>
-                    </SplitItem>
-                  </Split>
-                </CardFooter>
-              </Card>
-            )}
+                      </GridItem>
+                    </Grid>
+                  </CardBody>
+                  <CardFooter>
+                    <Split hasGutter>
+                      <SplitItem>
+                        <Button
+                          variant="primary"
+                          type="submit"
+                          isDisabled={
+                            isPostIDPFormPending || isModified || isFormReadyForSubmit(formik)
+                          }
+                          isLoading={isPostIDPFormPending}
+                          onClick={formik.submitForm}
+                        >
+                          {isEditForm ? 'Save' : 'Add'}
+                        </Button>
+                      </SplitItem>
+                      <SplitItem>
+                        <Button
+                          variant="secondary"
+                          component={(props) => (
+                            <Link
+                              {...props}
+                              to={`/details/s/${cluster.subscription.id}#accessControl`}
+                            />
+                          )}
+                        >
+                          Cancel
+                        </Button>
+                      </SplitItem>
+                    </Split>
+                  </CardFooter>
+                </Card>
+              );
+            }}
           </Formik>
         )}
       </PageSection>

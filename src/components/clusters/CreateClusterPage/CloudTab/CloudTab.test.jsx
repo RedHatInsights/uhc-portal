@@ -8,7 +8,7 @@ const componentText = {
   CREATE_CLUSTER_BUTTON: 'Create cluster',
   LEARN_MORE_OSD_LINK: 'Learn more (new window or tab)',
   CREATE_TRIAL_CLUSTER_BUTTON: 'Create trial cluster',
-  VIEW_OSD_QUOTA_LINK: 'View your available OpenShift Dedicated quota',
+  VIEW_OSD_QUOTA_LINK: 'View your annual subscriptions quota',
 };
 
 const verifyBothSectionsShowing = () => {

@@ -1,0 +1,19 @@
+---
+description: General coding rules and best practices
+globs: src/**/*.tsx, src/**/*.jsx, src/**/*.ts, src/**/*.js
+alwaysApply: false
+---
+
+- Keep methods and functions small and focused on a single responsibility
+- Use CamelCase for file names unless they are react files (jsx or tsx)
+- Avoid abbreviations in variable names
+- Match the file name with the default exported component or function name exactly
+- Use camelCase for function and variable names
+- Use descriptive names for variable names
+- Extract reusable logic into custom hooks, methods or functions
+- Keep hooks, methods and functions focused on a single concern
+- Handle loading and error states properly and provide user-friendly error messages
+- If possible, use ternary operators instead of if/else statements but do not nest ternary operators
+- Use an early return pattern in functions or methods
+- If code has been modified or added, check to see if there are unit tests that cover these changes. If no unit tests exist that cover the changes, suggest that unit tests be created or modified
+- Use `UPPER_SNAKE_CASE` for constants that are truly constant values

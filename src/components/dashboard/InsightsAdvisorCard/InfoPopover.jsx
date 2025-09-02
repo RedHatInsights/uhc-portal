@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Icon, Popover } from '@patternfly/react-core';
 import { HelpIcon } from '@patternfly/react-icons/dist/esm/icons/help-icon';
-import { global_Color_dark_200 as darkColor } from '@patternfly/react-tokens/dist/esm/global_Color_dark_200';
 
 import links from '../../../common/installLinks.mjs';
 import ExternalLink from '../../common/ExternalLink';
@@ -29,7 +28,7 @@ const InfoPopover = () => (
     }
   >
     <Icon className="ocm-insights--info-popover__icon">
-      <HelpIcon color={darkColor.value} />
+      <HelpIcon />
     </Icon>
   </Popover>
 );

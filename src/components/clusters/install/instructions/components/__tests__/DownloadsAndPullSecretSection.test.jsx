@@ -29,9 +29,8 @@ describe('<DownloadsAndPullSecretSection />', () => {
         <DownloadsAndPullSecretSection {...defaultProps} token={token} />,
       );
 
-      expect(screen.getByRole('button', { name: 'Download pull secret' })).toHaveAttribute(
+      expect(screen.getByRole('button', { name: 'Download pull secret' })).not.toHaveAttribute(
         'aria-disabled',
-        'false',
       );
 
       await checkAccessibility(container);
@@ -46,10 +45,7 @@ describe('<DownloadsAndPullSecretSection />', () => {
         <DownloadsAndPullSecretSection {...defaultProps} token={badToken} />,
       );
 
-      expect(screen.getByRole('button', { name: 'Download pull secret' })).toHaveAttribute(
-        'aria-disabled',
-        'true',
-      );
+      expect(screen.getByRole('button', { name: 'Download pull secret' })).not.toBeEnabled();
 
       await checkAccessibility(container);
     });

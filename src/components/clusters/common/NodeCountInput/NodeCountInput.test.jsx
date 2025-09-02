@@ -398,7 +398,7 @@ describe('<NodeCountInput>', () => {
           />,
         );
         // verify initial value
-        expect(onChange).toBeCalledTimes(0);
+        expect(onChange).toBeCalledTimes(1);
         expect(screen.getByRole('combobox')).toHaveValue(`${6}`); // 6 = 2 nodes * 3 pools
 
         rerender(
@@ -411,7 +411,7 @@ describe('<NodeCountInput>', () => {
         );
 
         // Assert
-        expect(onChange).toBeCalledTimes(1);
+        expect(onChange).toBeCalledTimes(3);
         expect(onChange).toBeCalledWith(10); // 10 = 2 nodes  * 5 pools
       });
 
@@ -437,7 +437,7 @@ describe('<NodeCountInput>', () => {
           />,
         );
         // verify initial value
-        expect(onChange).toBeCalledTimes(0);
+        expect(onChange).toBeCalledTimes(1);
         expect(screen.getByRole('combobox')).toHaveValue(`${3}`); // 3 = 1 nodes * 3 pools
 
         rerender(
@@ -451,7 +451,7 @@ describe('<NodeCountInput>', () => {
 
         // Assert
         const minNodes = getMinNodesRequired(true, { numMachinePools: 1 }); // min number of nodes for 1 machine pool
-        expect(onChange).toBeCalledTimes(1);
+        expect(onChange).toBeCalledTimes(2);
         expect(onChange).toBeCalledWith(minNodes); // Returns min value of 2 vs 1 node * 1 pool (which would fail cluster creation)
       });
 

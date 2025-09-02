@@ -2,6 +2,7 @@
 
 ## Table of contents
 
+- [Setup](#setup)
 - [Insights "Chrome" Architecture](#insights-chrome-architecture)
 - [Code Style](#code-style)
   - [Linting](#linting)
@@ -9,9 +10,24 @@
 - [Testing](#testing)
   - [Unit tests](#unit-tests)
   - [End-to-end tests](#end-to-end-tests)
+- [Code assistants](#code-assistants)
 - [OpenAPI types definitions](#openapi-types-definitions)
 - [Storybook](#storybook)
 - [Merge request review](#merge-request-review)
+- [Information security](#information-security)
+
+## Setup
+
+Following [RedHat's Information Security guidelines](https://source.redhat.com/departments/it/it_information_security/blog/prevent_costly_leaks_with_rh_pre_commit), contributors need to install the _rh-pre-commit_ git-hook, which scans for sensitive data.  
+To install, follow the [_quickstart-install_ section of the rh-pre-commit repo docs](https://gitlab.cee.redhat.com/infosec-public/developer-workbench/tools/-/tree/main/rh-pre-commit#quickstart-install) (which is part of the general [LeakTK rh-pre-commit installation guide](https://source.redhat.com/departments/operations/it-information-security/leaktk/leaktk_guides/rh_pre_commit_installation)).
+
+See the [Information security](#information-security) section below for details on what constitutes sensitive data.
+                   
+> [!NOTE]
+> 
+> When running the quickstart.sh installation script, make sure to use the `-r` flag with the local repo path as value; If omitted, the hook will be installed for all existing repos under the home dir.
+> 
+> Note that regardless of that flag, any future repo-clones on your system will have the hook installed automatically.
 
 ## Insights "Chrome" Architecture
 
@@ -98,6 +114,30 @@ End-to-end tests are written using [Cypress](https://www.cypress.io/).
 
 You can read more in the [dedicated `README`](../cypress/README.md) inside the `/cypress` folder.
 
+## Code assistants
+
+### Usage
+
+When using AI tools to write, modify, or generate code or documentation make sure to always follow these guidelines:
+
+* Treat AI-generated code as suggestions, not final code. Review all the generated code and modify as appropriate. Thoroughly review and test all code that you intend to integrate into your work.
+* Do not blindly trust AI-generated or assisted code. Always apply your own judgment and expertise. AI coding assistants can introduce security vulnerabilities if not used carefully, and AI models can sometimes hallucinate and provide incorrect or non-functional code.
+* Make sure you thoroughly understand any AI-generated code. If the generated code you intend to incorporate in your work is outside your expertise, consult with someone knowledgeable in the area prior to making it available to others.
+* Never input confidential, personal or proprietary data, such as API keys, customer data, or protected content like passwords and credentials directly into code assistants.
+
+### "Marking" generated code
+
+Any nontrivial and substantial AI-generated or AI-assisted content needs to be “marked” in appropriate cases.
+
+You have to mark at least two places: 
+* the PR description field
+* the commit message when squashing and merging the PR
+
+You should use a message like “Assisted-by:” or “Generated-by:”. For example: "Assisted-by: Cursor/gemini-2.5-pro". You can eventually elaborate on how the code assistant was used if necessary.
+
+When a significant portion of code inside a file is generated or assisted, you should add a source file comment to indicate it.
+
+
 ## OpenAPI types definitions
 
 Types generated from OpenAPI spec files are located in the `src/types` folder.
@@ -125,11 +165,19 @@ You can have a look at storybook docs for more info about [how to write stories]
 ## Merge Request review
 
 - For external contributors: If you need a merge request review, please message the OCM UI team at the `#ocm-osd-ui` slack channel.
-
 - Code that changes behavior requires a test
-
 - When you touch a component without tests add one
-
 - Large merge requests should be resubmitted in smaller chunks
-
 - Test broad changes locally
+                                                              
+## Information security
+
+When proposing changes, take care to:
+
+- Not include any sensitive client or QE data in the source-code (e.g. account IDs, emails, passwords)
+- Not refer to any sensitive data in the docs (e.g. readme, wiki), including references to specific customers, or references to nonpublic Red Hat strategies/product plans
+- Not include any source-code obtained from a vendor/partner/customer, or through an acquisition
+- According to FedRAMP guidance, not include any instances of in-boundary names (e.g. domains, URLs)
+
+If you have any doubts on whether data is sensitive or not, please reach out to OCM UI Core team or Infosec team first, before pushing any code.
+

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { Form, FormSection, Grid, GridItem, Switch, Text } from '@patternfly/react-core';
+import { Content, Form, FormSection, Grid, GridItem, Switch } from '@patternfly/react-core';
 
 import installLinks from '~/common/installLinks.mjs';
 import { clusterAutoScalingValidators, validateListOfBalancingLabels } from '~/common/validators';
@@ -222,7 +222,7 @@ export const ClusterAutoscalerModal = ({
       onClose={closeScalerModal}
     >
       <>
-        <Text component="p">
+        <Content component="p">
           The cluster autoscaler adjusts the size of a cluster to meet its current deployment needs.
           Learn more about{' '}
           <ExternalLink
@@ -234,13 +234,12 @@ export const ClusterAutoscalerModal = ({
           </ExternalLink>{' '}
           or
           <ExternalLink href={installLinks.APPLYING_AUTOSCALING_API_DETAIL}> APIs</ExternalLink>.
-        </Text>
+        </Content>
         {!isWizard && (
-          <div className="pf-v5-u-mt-md">
+          <div className="pf-v6-u-mt-md">
             <Switch
-              className="pf-v5-u-ml-0 pf-v5-u-mb-md"
+              className="pf-v6-u-ml-0 pf-v6-u-mb-md"
               label="Autoscale cluster"
-              labelOff="Autoscale cluster"
               isChecked={hasClusterAutoscaler}
               hasCheckIcon
               isDisabled={isSaving}

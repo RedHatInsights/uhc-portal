@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Card, CardBody, Text } from '@patternfly/react-core';
+import { Card, CardBody, Content } from '@patternfly/react-core';
 
 import { channels, tools } from '../../../../common/installLinks.mjs';
 import Instruction from '../../../common/Instruction';
@@ -39,7 +39,7 @@ const OCPInstructions = (props) => {
         {token.error && (
           <>
             <TokenErrorAlert token={token} />
-            <div className="pf-v5-u-mb-lg" />
+            <div className="pf-v6-u-mb-lg" />
           </>
         )}
         <Instructions>
@@ -57,7 +57,7 @@ const OCPInstructions = (props) => {
             />
           </Instruction>
           <Instruction>
-            <Text component="h2">{getStartedTitleText}</Text>
+            <Content component="h2">{getStartedTitleText}</Content>
             <GetStarted
               docURL={docURL}
               pendoID={pendoID}

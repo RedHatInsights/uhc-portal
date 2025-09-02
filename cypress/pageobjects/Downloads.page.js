@@ -27,14 +27,14 @@ class Downloads extends Page {
   isVisibleRowContaining = (substring) =>
     cy
       .contains(substring)
-      .parents('tr.pf-v5-c-table__expandable-row')
+      .parents('tr.pf-v6-c-table__expandable-row')
       .invoke('attr', 'hidden')
       .should('not.exist');
 
   isHiddenRowContaining = (substring) =>
     cy
       .contains(substring)
-      .parents('tr.pf-v5-c-table__expandable-row')
+      .parents('tr.pf-v6-c-table__expandable-row')
       .invoke('attr', 'hidden')
       .should('exist');
 

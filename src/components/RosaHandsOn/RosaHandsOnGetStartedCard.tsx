@@ -7,13 +7,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  Content,
   Grid,
   GridItem,
   Icon,
   List,
   ListItem,
   Popover,
-  Text,
   Title,
   Toolbar,
   ToolbarContent,
@@ -22,7 +22,7 @@ import {
 } from '@patternfly/react-core';
 import { CheckIcon } from '@patternfly/react-icons/dist/esm/icons/check-icon';
 import { HelpIcon } from '@patternfly/react-icons/dist/esm/icons/help-icon';
-import { global_link_Color_dark as darkColor } from '@patternfly/react-tokens/dist/esm/global_link_Color_dark';
+import { t_global_icon_color_status_success_default as darkColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_success_default';
 
 import { Link } from '~/common/routing';
 
@@ -52,7 +52,7 @@ const CheckListItem = ({
     }
     style={{ alignItems: 'baseline' }}
   >
-    <Text>
+    <Content component="p">
       {children}
       {popoverContent && (
         <>
@@ -68,7 +68,7 @@ const CheckListItem = ({
           </Popover>
         </>
       )}
-    </Text>
+    </Content>
   </ListItem>
 );
 

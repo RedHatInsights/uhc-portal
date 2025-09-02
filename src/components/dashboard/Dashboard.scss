@@ -1,4 +1,4 @@
-@import '~@patternfly/patternfly/sass-utilities/_all';
+@import '~@patternfly/patternfly/sass-utilities';
 
 .ocm-c-overview {
   max-width: 1710px;
@@ -12,26 +12,26 @@
   .ocm-overview-clusters__card {
     height: 100%;
     span.clusters-with-issues-zero {
-      font-size: var(--pf-v5-global--FontSize--3xl);
-      padding-right: var(--pf-v5-global--spacer--sm);
+      font-size: var(--pf-t--global--font--size--3xl);
+      padding-right: var(--pf-t--global--spacer--sm);
     }
     span.clusters-with-issues-non-zero {
-      color: var(--pf-v5-global--danger-color--100);
-      font-size: var(--pf-v5-global--FontSize--3xl);
-      padding-right: var(--pf-v5-global--spacer--sm);
+      color: var(--pf-t--global--color--status--danger--default);
+      font-size: var(--pf-t--global--font--size--3xl);
+      padding-right: var(--pf-t--global--spacer--sm);
     }
   }
 
   .ocm-c-metrics-charts__card {
      min-height: 300px;
-    .pf-v5-c-card__header .pf-v5-c-alert {
+    .pf-v6-c-card__header .pf-v6-c-alert {
       margin-top: 10px;
     }
   }
 
-  @media only screen and (max-width: $pf-v5-global--breakpoint--md) {
+  @media only screen and (max-width: $pf-v6-global--breakpoint--md) {
     .ocm-overview-clusters__card {
-      .pf-v5-c-table.clusters-with-issues td {
+      .pf-v6-c-table.clusters-with-issues td {
         text-align: left;
       }
     }

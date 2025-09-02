@@ -7,14 +7,9 @@ import {
   CardTitle,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
+  Skeleton,
 } from '@patternfly/react-core';
-import { TableVariant } from '@patternfly/react-table';
-import {
-  Table as TableDeprecated,
-  TableBody as TableBodyDeprecated,
-  TableHeader as TableHeaderDeprecated,
-} from '@patternfly/react-table/deprecated';
+import { ActionsColumn, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { Link } from '~/common/routing';
 import { useGlobalState } from '~/redux/hooks';
@@ -28,7 +23,6 @@ import { viewConstants } from '../../../redux/constants';
 import ViewPaginationRow from '../../clusters/common/ViewPaginationRow/viewPaginationRow';
 import { openModal } from '../../common/Modal/ModalActions';
 import modals from '../../common/Modal/modals';
-import skeletonRows from '../../common/SkeletonRows';
 
 import { expiredTrialsFilter } from './expiredTrialsHelpers';
 
@@ -45,24 +39,73 @@ const ExpiredTrialsCard = () => {
       subscriptionsState.pending && subscriptionsState.items && subscriptionsState.items.length > 0,
     [subscriptionsState.items, subscriptionsState.pending],
   );
-  const rows = useMemo(
-    () =>
-      showSkeleton
-        ? skeletonRows(viewOptions.pageSize)
-        : subscriptionsState.items?.map((subscription) => ({
-            cells: [
-              {
-                title: (
-                  <Link to={`/details/s/${subscription.id}`}>
-                    {subscription.display_name || subscription.external_cluster_id}
-                  </Link>
-                ),
-              },
-            ],
-            subscription,
-          })),
-    [showSkeleton, subscriptionsState.items, viewOptions.pageSize],
+
+  const actionResolver = (subscription: Subscription) => [
+    {
+      title: 'Edit subscription settings',
+      onClick: () => dispatch(openModal(modals.EDIT_SUBSCRIPTION_SETTINGS, { subscription })),
+    },
+    {
+      title: 'Archive cluster',
+      onClick: () =>
+        dispatch(
+          openModal(modals.ARCHIVE_CLUSTER, {
+            subscriptionID: subscription.id,
+            name: subscription.display_name || subscription.external_cluster_id,
+          }),
+        ),
+    },
+  ];
+
+  const columns = {
+    name: 'Name',
+    actions: { title: '', screenReaderText: 'Cluster actions' },
+  };
+
+  const tableColumns = (
+    <Thead>
+      <Tr>
+        <Th>{columns.name}</Th>
+        <Th screenReaderText={columns.actions.screenReaderText}>{columns.actions.title}</Th>
+      </Tr>
+    </Thead>
   );
+
+  const expiredTrialsRows = () => {
+    if (!subscriptionsState.items) return null;
+
+    return subscriptionsState.items.map((subscription: Subscription) => {
+      const subscriptionWithPermissions = subscription as SubscriptionWithPermissions;
+
+      return showSkeleton ? (
+        <Tr key={`skeleton-${subscription.cluster_id}`}>
+          <Td>
+            <Skeleton fontSize="lg" screenreaderText="Loading..." />
+          </Td>
+          <Td isActionCell>
+            <ActionsColumn
+              items={actionResolver(subscription)}
+              isDisabled={!subscriptionWithPermissions.canEdit}
+            />
+          </Td>
+        </Tr>
+      ) : (
+        <Tr key={subscription.id}>
+          <Td>
+            <Link to={`/details/s/${subscription.id}`}>
+              {subscription.display_name || subscription.external_cluster_id}
+            </Link>
+          </Td>
+          <Td isActionCell>
+            <ActionsColumn
+              items={actionResolver(subscription)}
+              isDisabled={!subscriptionWithPermissions.canEdit}
+            />
+          </Td>
+        </Tr>
+      );
+    });
+  };
 
   useEffect(() => {
     if (!subscriptionsState.fulfilled && !subscriptionsState.pending) {
@@ -90,30 +133,12 @@ const ExpiredTrialsCard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscriptionsState.pending, subscriptionsState.valid, viewOptions, dispatch]);
 
-  const actionResolver = ({ subscription }: { subscription: Subscription }) => [
-    {
-      title: 'Edit subscription settings',
-      onClick: () => dispatch(openModal(modals.EDIT_SUBSCRIPTION_SETTINGS, { subscription })),
-    },
-    {
-      title: 'Archive cluster',
-      onClick: () =>
-        dispatch(
-          openModal(modals.ARCHIVE_CLUSTER, {
-            subscriptionID: subscription.id,
-            name: subscription.display_name || subscription.external_cluster_id,
-          }),
-        ),
-    },
-  ];
-
   if (subscriptionsState.error) {
     return (
       <Card className="ocm-overview-clusters__card">
         <CardTitle>Expired Trials</CardTitle>
         <CardBody>
-          <EmptyState>
-            <EmptyStateHeader titleText="No data available" headingLevel="h2" />
+          <EmptyState headingLevel="h2" titleText="No data available">
             <EmptyStateBody>
               There was an error fetching the data. Try refreshing the page.
             </EmptyStateBody>
@@ -127,21 +152,10 @@ const ExpiredTrialsCard = () => {
     <Card className="ocm-overview-clusters__card">
       <CardTitle>Expired Trials</CardTitle>
       <CardBody>
-        <TableDeprecated
-          aria-label="Expired Trials"
-          cells={[{ title: 'Name' }]}
-          rows={rows}
-          variant={TableVariant.compact}
-          actionResolver={(rowData) =>
-            showSkeleton
-              ? []
-              : actionResolver(rowData as { subscription: SubscriptionWithPermissions })
-          }
-          areActionsDisabled={(rowData) => rowData.subscription && !rowData.subscription.canEdit}
-        >
-          <TableHeaderDeprecated />
-          <TableBodyDeprecated />
-        </TableDeprecated>
+        <Table aria-label="Expired trials table">
+          {tableColumns}
+          <Tbody>{expiredTrialsRows()}</Tbody>
+        </Table>
         <ViewPaginationRow
           viewType={viewConstants.OVERVIEW_EXPIRED_TRIALS}
           currentPage={viewOptions.currentPage}

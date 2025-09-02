@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Icon, List, ListItem, Text } from '@patternfly/react-core';
+import { Content, Icon, List, ListItem } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
 
 import links from '../../../../common/installLinks.mjs';
@@ -10,7 +10,7 @@ const AdditionalInstructionsS390x = () => (
     <ListItem>
       If you plan your installation with z/VM, download the initramfs, the kernel, and the rootfs
       files.{' '}
-      <Text
+      <Content
         component="a"
         href={links.INSTALL_IBMZ_LEARN_MORE_ZVM}
         target="_blank"
@@ -22,12 +22,12 @@ const AdditionalInstructionsS390x = () => (
           <ExternalLinkAltIcon />
         </Icon>
         .
-      </Text>
+      </Content>
     </ListItem>
     <ListItem>
       If you plan your installation with RHEL KVM, depending on the installation type you plan to
       perform, download the QCOW2 file or the initramfs, the kernel, and the rootfs files.{' '}
-      <Text
+      <Content
         component="a"
         href={links.INSTALL_IBMZ_RHCOS_LEARN_MORE_RHEL_KVM}
         target="_blank"
@@ -39,7 +39,7 @@ const AdditionalInstructionsS390x = () => (
           <ExternalLinkAltIcon />
         </Icon>
         .{' '}
-      </Text>
+      </Content>
     </ListItem>
   </List>
 );

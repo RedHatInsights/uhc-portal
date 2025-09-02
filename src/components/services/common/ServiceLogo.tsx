@@ -21,7 +21,7 @@ const AWSRedHatVerticalLogo = () => (
 
 const RedHatVerticalLogo = () => (
   <Stack hasGutter>
-    <span className="pf-v5-u-mt-xl">
+    <span className="pf-v6-u-mt-xl">
       <RedHatLogo height="3em" width="5em" />
     </span>
   </Stack>

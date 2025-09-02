@@ -1,14 +1,18 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { EmptyState } from '@patternfly/react-core';
-import { IActions, IExtraData, IRowData, TableVariant } from '@patternfly/react-table';
 import {
-  Table as TableDeprecated,
-  TableBody as TableBodyDeprecated,
-  TableHeader as TableHeaderDeprecated,
-} from '@patternfly/react-table/deprecated';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
+  ActionsColumn,
+  Table,
+  TableVariant,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from '@patternfly/react-table';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
 import ErrorBox from '~/components/common/ErrorBox';
 import { usePreviousProps } from '~/hooks/usePreviousProps';
@@ -18,7 +22,6 @@ import {
   buildNotificationsMeta,
   clearDeleteNotificationContacts,
 } from '~/redux/actions/supportActions';
-import { Contact } from '~/redux/reducers/supportReducer';
 import { ErrorState } from '~/types/types';
 
 type NotificationContactsCardProps = {
@@ -37,6 +40,7 @@ const NotificationContactsCard = ({
   addNotificationStatus,
 }: NotificationContactsCardProps) => {
   const dispatch = useDispatch();
+  const addNotification = useAddNotification();
   const { notificationContacts, refetch } = useFetchNotificationContacts(subscriptionID);
   const {
     mutate,
@@ -66,13 +70,11 @@ const NotificationContactsCard = ({
       //     ? 'Notification contact added successfully'
       //     : `${addContactResponse.count} notification contacts added successfully`;
 
-      dispatch(
-        addNotification({
-          variant: 'success',
-          title,
-          dismissable: false,
-        }),
-      );
+      addNotification({
+        variant: 'success',
+        title,
+        dismissable: false,
+      });
     }
 
     // fetch contacts again if we just added/deleted one.
@@ -94,47 +96,59 @@ const NotificationContactsCard = ({
     previousAddContactResponsePending,
     previousDeleteContactResponsePending,
     subscriptionID,
+    addNotification,
   ]);
 
-  const actions: IActions = useMemo(
-    () => [
-      {
-        title: 'Delete',
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData,
-          extraData: IExtraData,
-        ) => {
-          dispatch(clearDeleteNotificationContacts());
-          mutate(rowData.userID);
-          const title = 'Notification contact deleted successfully';
-          if (!isDeleteNotificationError) {
-            dispatch(
-              addNotification({
-                variant: 'success',
-                title,
-                dismissable: false,
-              }),
-            );
-            buildNotificationsMeta('Notification contact deleted successfully', rowData.userID);
-          }
-        },
-        className: 'hand-pointer',
-      },
-    ],
-    [isDeleteNotificationError, dispatch, mutate],
-  );
+  const columns = [
+    {
+      title: 'Username',
+    },
+    { title: 'Email' },
+    {
+      title: 'First Name',
+    },
+    { title: 'Last Name' },
+    { title: '', screenReaderText: 'Actions' },
+  ];
 
-  const rows = useMemo(
-    () =>
-      notificationContacts.contacts?.map(
-        ({ username, email, firstName, lastName, userID }: Contact) => ({
-          cells: [username, email, firstName, lastName],
-          userID,
-        }),
-      ),
-    [notificationContacts.contacts],
+  const actions = (userId: string) => [
+    {
+      title: 'Delete',
+      onClick: () => {
+        dispatch(clearDeleteNotificationContacts());
+        mutate(userId);
+        const title = 'Notification contact deleted successfully';
+        if (!isDeleteNotificationError) {
+          addNotification({
+            variant: 'success',
+            title,
+            dismissable: false,
+          });
+          buildNotificationsMeta('Notification contact deleted successfully', userId);
+        }
+      },
+      className: 'hand-pointer',
+    },
+  ];
+
+  const tableRow = (contact: {
+    userID: string | undefined;
+    username: string;
+    email: string | undefined;
+    firstName: string | undefined;
+    lastName: string | undefined;
+  }) => (
+    <Tr key={contact.userID}>
+      <Td>{contact.username}</Td>
+      <Td>{contact.email}</Td>
+      <Td>{contact.firstName}</Td>
+      <Td>{contact.lastName}</Td>
+      {contact.userID ? (
+        <Td isActionCell>
+          <ActionsColumn items={actions(contact.userID)} isDisabled={isDisabled} />
+        </Td>
+      ) : null}
+    </Tr>
   );
 
   return notificationContacts.contacts && notificationContacts.contacts.length ? (
@@ -147,22 +161,17 @@ const NotificationContactsCard = ({
           />
         </EmptyState>
       )}
-      <TableDeprecated
-        aria-label="Notification Contacts"
-        actions={actions}
-        variant={TableVariant.compact}
-        cells={[
-          { title: 'Username' },
-          { title: 'Email' },
-          { title: 'First Name' },
-          { title: 'Last Name' },
-        ]}
-        rows={rows}
-        areActionsDisabled={() => isDisabled}
-      >
-        <TableHeaderDeprecated />
-        <TableBodyDeprecated />
-      </TableDeprecated>
+
+      <Table aria-label="Notification Contacts" variant={TableVariant.compact}>
+        <Thead>
+          <Tr>
+            {columns.map((header) => (
+              <Th screenReaderText={header.screenReaderText}>{header.title}</Th>
+            ))}
+          </Tr>
+        </Thead>
+        <Tbody>{notificationContacts?.contacts.map((contact) => tableRow(contact))}</Tbody>
+      </Table>
     </>
   ) : null;
 };

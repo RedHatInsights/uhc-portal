@@ -3,11 +3,20 @@ import { setNestedObjectValues } from 'formik';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
-import { Button, useWizardContext, WizardFooterWrapper } from '@patternfly/react-core';
+import {
+  ActionList,
+  ActionListGroup,
+  ActionListItem,
+  Button,
+  useWizardContext,
+  WizardFooterWrapper,
+} from '@patternfly/react-core';
 
 import { scrollToFirstField } from '~/common/helpers';
 import { getScrollErrorIds } from '~/components/clusters/wizards/form/utils';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
+import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 
 import { isUserRoleForSelectedAWSAccount } from './AccountsRolesScreen/AccountsRolesScreen';
 import { FieldId } from './constants';
@@ -38,6 +47,8 @@ const CreateRosaWizardFooter = ({
   // used to determine the actions' disabled state.
   // (as a more exclusive rule than isValidating, which relying upon would block progress to the next step)
   const [isNextDeferred, setIsNextDeferred] = useState(false);
+
+  const { canCreateManagedCluster } = useCanCreateManagedCluster();
 
   useEffect(() => {
     // callback to pass updated context back up
@@ -112,40 +123,61 @@ const CreateRosaWizardFooter = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isValidating, isNextDeferred]);
 
+  const primaryBtnCommonProps = {
+    variant: 'primary',
+    className: canCreateManagedCluster ? '' : 'pf-v6-u-mr-md',
+    'data-testid': 'wizard-next-button',
+  };
+
+  const primaryBtn =
+    activeStep.id === stepId.REVIEW_AND_CREATE ? (
+      <Button
+        {...primaryBtnCommonProps}
+        onClick={() => submitForm()}
+        isDisabled={!canCreateManagedCluster}
+      >
+        Create cluster
+      </Button>
+    ) : (
+      <Button
+        {...primaryBtnCommonProps}
+        onClick={onValidateNext}
+        isLoading={hasLoadingState(activeStep.id) && isButtonLoading}
+        isDisabled={
+          !canCreateManagedCluster || (hasLoadingState(activeStep.id) && isButtonDisabled)
+        }
+      >
+        Next
+      </Button>
+    );
+
   return isSubmitting ? null : (
     <WizardFooterWrapper>
-      <>
-        {activeStep.id === stepId.REVIEW_AND_CREATE ? (
-          <Button
-            variant="primary"
-            data-testid="create-cluster-button"
-            onClick={() => submitForm()}
-          >
-            Create cluster
-          </Button>
-        ) : (
-          <Button
-            variant="primary"
-            data-testid="wizard-next-button"
-            onClick={onValidateNext}
-            isLoading={hasLoadingState(activeStep.id) && isButtonLoading}
-            isDisabled={hasLoadingState(activeStep.id) && isButtonDisabled}
-          >
-            Next
-          </Button>
-        )}
-        <Button
-          variant="secondary"
-          data-testid="wizard-back-button"
-          onClick={goToPrevStep}
-          isDisabled={steps.indexOf(activeStep) === 0}
-        >
-          Back
-        </Button>
-        <Button variant="link" data-testid="wizard-cancel-button" onClick={close}>
-          Cancel
-        </Button>
-      </>
+      <ActionList>
+        <ActionListGroup>
+          <CreateManagedClusterButtonWithTooltip wrap>
+            {primaryBtn}
+          </CreateManagedClusterButtonWithTooltip>
+
+          <ActionListItem>
+            <Button
+              variant="secondary"
+              data-testid="wizard-back-button"
+              onClick={goToPrevStep}
+              isDisabled={steps.indexOf(activeStep) === 0}
+            >
+              Back
+            </Button>
+          </ActionListItem>
+        </ActionListGroup>
+        <ActionListGroup>
+          <ActionListItem>
+            <Button variant="link" data-testid="wizard-cancel-button" onClick={close}>
+              Cancel
+            </Button>
+          </ActionListItem>
+        </ActionListGroup>
+      </ActionList>
     </WizardFooterWrapper>
   );
 };

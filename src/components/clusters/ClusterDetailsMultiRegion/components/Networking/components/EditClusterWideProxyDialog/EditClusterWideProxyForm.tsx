@@ -1,7 +1,8 @@
 import React from 'react';
 import { Field } from 'formik';
+import { isEqual } from 'lodash';
 
-import { Alert, Button, Form, Grid, GridItem, Text } from '@patternfly/react-core';
+import { Alert, Button, Content, Form, Grid, GridItem } from '@patternfly/react-core';
 
 import { stringToArray } from '~/common/helpers';
 import links from '~/common/installLinks.mjs';
@@ -40,7 +41,7 @@ const FormFieldId = {
 
 type EditClusterWideProxyFormProps = {
   isClusterEditError: boolean;
-  clusterEditError: Pick<ErrorState, 'errorDetails' | 'errorMessage' | 'operationID'>;
+  clusterEditError: Pick<ErrorState, 'errorDetails' | 'errorMessage' | 'operationID' | 'message'>;
   isClusterEditPending: boolean;
   submitForm: () => void;
   handleClose: () => void;
@@ -63,7 +64,11 @@ const EditClusterWideProxyForm = ({
       [FormFieldId.HttpsProxyURL]: httpsProxyUrl,
       [FormFieldId.AdditionalTrustBundle]: additionalTrustBundle,
     },
+    values,
+    initialValues,
   } = useFormState();
+
+  const isNotModified = isEqual(values, initialValues);
 
   const [anyTouched, setAnyTouched] = React.useState(false);
 
@@ -101,7 +106,13 @@ const EditClusterWideProxyForm = ({
   }, [noUrlValues]);
 
   const clusterProxyError = isClusterEditError && (
-    <ErrorBox message="Error editing cluster-wide proxy" response={clusterEditError} />
+    <ErrorBox
+      message="Error editing cluster-wide proxy"
+      response={{
+        errorMessage: clusterEditError?.errorMessage || clusterEditError?.message,
+        operationID: clusterEditError?.operationID,
+      }}
+    />
   );
 
   const uploadTrustBundleField = (
@@ -137,14 +148,17 @@ const EditClusterWideProxyForm = ({
 
   const replaceTrustBundle = (
     <>
-      <Text className="ocm-c-networking-vpc-details__card pf-v5-c-form__label-text pf-v5-c-form__group-label">
+      <Content
+        component="p"
+        className="ocm-c-networking-vpc-details__card pf-v6-c-form__label-text pf-v6-c-form__group-label"
+      >
         Additional Trust Bundle{' '}
         <PopoverHint
           headerContent="Additional trust bundle"
           bodyContent={TRUST_BUNDLE_HELPER_TEXT}
         />
-      </Text>
-      <Text>
+      </Content>
+      <Content component="p">
         File Uploaded Successfully{' '}
         <Button
           // opens field to replace addition trust bundle
@@ -158,7 +172,7 @@ const EditClusterWideProxyForm = ({
         >
           Replace file
         </Button>
-      </Text>
+      </Content>
     </>
   );
 
@@ -168,6 +182,7 @@ const EditClusterWideProxyForm = ({
       title="Edit cluster-wide Proxy"
       onPrimaryClick={submitForm}
       primaryText="Save"
+      isPrimaryDisabled={isNotModified}
       onSecondaryClick={handleClose}
       isPending={isClusterEditPending}
       width="max(30%, 600px)"
@@ -176,14 +191,14 @@ const EditClusterWideProxyForm = ({
       <Form>
         <Grid hasGutter>
           <GridItem>
-            <Text>
+            <Content component="p">
               Enable an HTTP or HTTPS proxy to deny direct access to the Internet from your cluster
-            </Text>
-            <Text className="pf-v5-u-mt-sm">
+            </Content>
+            <Content component="p" className="pf-v6-u-mt-sm">
               <ExternalLink href={links.CONFIGURE_PROXY_URL}>
                 Learn more about configuring a cluster-wide proxy
               </ExternalLink>
-            </Text>
+            </Content>
           </GridItem>
 
           <GridItem>

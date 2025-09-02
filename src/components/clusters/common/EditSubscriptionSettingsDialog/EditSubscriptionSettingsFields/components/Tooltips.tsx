@@ -9,7 +9,7 @@ type TooltipsProps = {
 };
 
 const Tooltips = ({ isShown, startPosition = 0, additionalGroupSelectors = '' }: TooltipsProps) => {
-  const radioGroupSelector = `${additionalGroupSelectors} .pf-v5-c-form__group-control`;
+  const radioGroupSelector = `${additionalGroupSelectors} .pf-v6-c-form__group-control`;
 
   return isShown ? (
     <>

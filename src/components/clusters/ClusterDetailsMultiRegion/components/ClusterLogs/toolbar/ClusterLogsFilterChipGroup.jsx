@@ -3,7 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router-dom';
 
-import { Button, Chip, ChipGroup, Split, SplitItem } from '@patternfly/react-core';
+import { Button, Label, LabelGroup, Split, SplitItem } from '@patternfly/react-core';
 
 import { useNavigate } from '~/common/routing';
 
@@ -36,11 +36,11 @@ const mapFilterGroup = (group, currentFilter, setFilter, navigate, location) => 
     });
   };
   return (
-    <ChipGroup key={`chipgroup-${group.key}`} categoryName={group.label}>
-      <Chip key={key} onClick={deleteItem}>
+    <LabelGroup key={`chipgroup-${group.key}`} categoryName={group.label}>
+      <Label variant="outline" key={key} onClose={deleteItem}>
         {filter}
-      </Chip>
-    </ChipGroup>
+      </Label>
+    </LabelGroup>
   );
 };
 
@@ -62,7 +62,7 @@ const mapFlagsGroup = (group, currentFlags, setFlags, navigate, location) => {
     return null;
   }
   return (
-    <ChipGroup key={`chipgroup-${group.key}`} categoryName={group.label}>
+    <LabelGroup key={`chipgroup-${group.key}`} categoryName={group.label}>
       {currentFlag.map((value) => {
         const label = group.optionLabels[value];
         const deleteItem = () => {
@@ -72,12 +72,12 @@ const mapFlagsGroup = (group, currentFlags, setFlags, navigate, location) => {
           });
         };
         return (
-          <Chip key={value} onClick={deleteItem}>
+          <Label variant="outline" key={value} onClose={deleteItem}>
             {label}
-          </Chip>
+          </Label>
         );
       })}
-    </ChipGroup>
+    </LabelGroup>
   );
 };
 
@@ -146,17 +146,17 @@ function ClusterLogsFilterChipGroup({
     <Split>
       <SplitItem>
         {/* Filters */}
-        <ChipGroup>
+        <LabelGroup>
           {groupFilters
             .map((group) => mapFilterGroup(group, currentFilter, setFilter, navigate, location))
             .filter(Boolean)}
-        </ChipGroup>
+        </LabelGroup>
         {/* Flags */}
-        <ChipGroup>
+        <LabelGroup>
           {groupFlags
             .map((group) => mapFlagsGroup(group, currentFlags, setFlags, navigate, location))
             .filter(Boolean)}
-        </ChipGroup>
+        </LabelGroup>
       </SplitItem>
       <SplitItem>
         <Button

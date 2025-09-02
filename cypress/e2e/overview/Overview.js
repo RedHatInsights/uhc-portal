@@ -15,7 +15,7 @@ describe('OCM Overview Page tests (OCP-65189)', { tags: ['smoke'] }, () => {
       .opensInRightTab()
       .successfullyOpens();
 
-    Overview.centralSectionCardsExpected(6);
+    Overview.centralSectionCardsExpected(7);
 
     const runOn = 'Runs on',
       purchaseThrough = 'Purchase through',
@@ -27,7 +27,7 @@ describe('OCM Overview Page tests (OCP-65189)', { tags: ['smoke'] }, () => {
       .opensExpectedPage('Create an OpenShift Dedicated Cluster');
     card.shouldHaveLabel('Managed service');
     card.cardDetails({
-      [runOn]: 'Google Cloud or AWS',
+      [runOn]: 'Google Cloud',
       [purchaseThrough]: 'Red Hat',
       [billingType]: 'Flexible or fixed',
     });
@@ -92,6 +92,11 @@ describe('OCM Overview Page tests (OCP-65189)', { tags: ['smoke'] }, () => {
     card.shouldHaveLabel('Managed service');
     card.checkLink('View details', '/openshift/sandbox').opensInRightTab();
 
+    card = Overview.centralSectionCard('offering-card_MIGRATION');
+    card.cyObj.contains('Evaluate VMware to Openshift Migration');
+    card.shouldHaveLabel('Self-managed service');
+    card.checkLink('Start evaluation', '/openshift/migration-assessment').opensInRightTab();
+
     Overview.centralSectionFooterLinkExists(
       'View all OpenShift cluster types',
       '/openshift/create',
@@ -99,7 +104,7 @@ describe('OCM Overview Page tests (OCP-65189)', { tags: ['smoke'] }, () => {
   });
 
   it('OCM Overview Page - Featured products section', () => {
-    Overview.featuredProductsExpected(3);
+    Overview.featuredProductsExpected(4);
 
     var recommendedOperator = Overview.productsOrOperatorCards(
       'Advanced Cluster Security for Kubernetes',
@@ -123,6 +128,17 @@ describe('OCM Overview Page tests (OCP-65189)', { tags: ['smoke'] }, () => {
     );
     recommendedOperator.click();
     Overview.drawerContentTitle().should('have.text', 'OpenShift Virtualization');
+    Overview.drawerCloseButton();
+
+    recommendedOperator = Overview.productsOrOperatorCards(
+      'Red Hat Advanced Cluster Management for Kubernetes',
+      'Manage any Kubernetes cluster in your fleet',
+    );
+    recommendedOperator.click();
+    Overview.drawerContentTitle().should(
+      'have.text',
+      'Red Hat Advanced Cluster Management for Kubernetes',
+    );
     Overview.drawerCloseButton();
   });
 

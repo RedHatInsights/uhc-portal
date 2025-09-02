@@ -93,7 +93,7 @@ export const NodeLabelsFieldArray = () => {
                         isInline
                         isDisabled={isRemoveDisabled}
                         className={`${classNames(
-                          isRemoveDisabled && 'pf-v5-u-disabled-color-200',
+                          isRemoveDisabled && 'pf-v6-u-disabled-color-200',
                         )} ${classNames(
                           index === 0 ? 'label-button-padding-lg' : 'label-button-padding-sm',
                         )}`}

@@ -4,14 +4,13 @@ import { Field } from 'formik';
 import {
   Alert,
   Button,
+  Content,
+  ContentVariants,
   Form,
   FormGroup,
   Grid,
   GridItem,
   Spinner,
-  Text,
-  TextContent,
-  TextVariants,
   Title,
   ToggleGroup,
   ToggleGroupItem,
@@ -180,42 +179,42 @@ const ClusterRolesScreen = () => {
 
   const EnableAutoModeTip = (
     <Alert
-      className="pf-v5-u-ml-lg"
+      className="pf-v6-u-ml-lg"
       variant="info"
       isInline
       isExpandable
       title="If you would like to enable auto mode, expand the alert and follow the steps below."
     >
-      <TextContent className="pf-v5-u-font-size-sm">
-        <Text component={TextVariants.p} className="pf-v5-u-mb-sm">
+      <Content className="pf-v6-u-font-size-sm">
+        <Content component={ContentVariants.p} className="pf-v6-u-mb-sm">
           Create the Admin OCM role using the following command in the ROSA CLI. Only one OCM role
           can be linked per Red Hat org.{' '}
           <PopoverHint title="If an OCM role with basic privileges exists in your account, you might need to delete or unlink the role before creating an OCM role with administrative privileges." />
-        </Text>
+        </Content>
         <InstructionCommand
           textAriaLabel="Copyable ROSA create ocm-role command"
           trackEvent={trackEvents.CopyOCMRoleCreateAdmin}
         >
           rosa create ocm-role --admin
         </InstructionCommand>
-        <Text component={TextVariants.p} className="pf-v5-u-mb-sm">
+        <Content component={ContentVariants.p} className="pf-v6-u-mb-sm">
           If not yet linked, run the following command to associate the OCM role with your AWS{' '}
           account.
-        </Text>
+        </Content>
         <InstructionCommand
           textAriaLabel="Copyable ROSA link ocm-role command"
           trackEvent={trackEvents.CopyOCMRoleLink}
         >
           rosa link ocm-role &lt;arn&gt;
         </InstructionCommand>
-        <Text component={TextVariants.p} className="pf-v5-u-mb-sm">
+        <Content component={ContentVariants.p} className="pf-v6-u-mb-sm">
           After running the command, you may need to refresh using the button below to enable auto
           mode.
-        </Text>
+        </Content>
         <Button onClick={handleRefresh} variant="secondary">
           Refresh to enable auto mode
         </Button>
-      </TextContent>
+      </Content>
     </Alert>
   );
 
@@ -267,10 +266,10 @@ const ClusterRolesScreen = () => {
         ) : (
           <>
             <GridItem>
-              <Text component={TextVariants.p}>
+              <Content component={ContentVariants.p}>
                 Set whether you&apos;d like to create the OIDC now or wait to create the OIDC until
                 after installation.
-              </Text>
+              </Content>
             </GridItem>
             <GridItem>
               <ToggleGroup>
@@ -296,18 +295,18 @@ const ClusterRolesScreen = () => {
             <div className="spinner-fit-container">
               <Spinner size="lg" aria-label="Loading..." />
             </div>
-            <div className="spinner-loading-text pf-v5-u-ml-xl">Checking for admin OCM role...</div>
+            <div className="spinner-loading-text pf-v6-u-ml-xl">Checking for admin OCM role...</div>
           </GridItem>
         )}
         {isGetOCMRoleSuccess && !hasByoOidcConfig && (
           <>
             <GridItem>
-              <Text component={TextVariants.p}>
+              <Content component={ContentVariants.p}>
                 Choose the preferred mode for creating the operator roles and OIDC provider.{' '}
                 <ExternalLink href={links.ROSA_AWS_IAM_ROLES}>
                   Learn more about ROSA roles
                 </ExternalLink>
-              </Text>
+              </Content>
             </GridItem>
             <GridItem span={10}>
               <FormGroup isRequired fieldId="role_mode">

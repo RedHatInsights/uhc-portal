@@ -8,7 +8,6 @@ import { Alert, Button, ButtonVariant, Flex, FlexItem, Spinner } from '@patternf
 import MinusCircleIcon from '@patternfly/react-icons/dist/esm/icons/minus-circle-icon';
 import PlusCircleIcon from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
 
 import { HAD_INFLIGHT_ERROR_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
 import { emailRegex } from '~/common/regularExpressions';
@@ -29,7 +28,7 @@ import {
   useInvalidateFetchInflightChecks,
   useInvalidateFetchRerunInflightChecks,
   useMutateRerunInflightChecks,
-} from '~/queries/ClusterDetailsQueries/ClusterStatusMonitor/useFetchInflightChecks';
+} from '~/queries/ClusterDetailsQueries/useFetchInflightChecks';
 import { InflightCheckState } from '~/types/clusters_mgmt.v1/enums';
 
 // TODO: Part of the installation story
@@ -44,11 +43,13 @@ const ClusterStatusMonitor = (props) => {
     isError: isClusterStatusError,
   } = useFetchClusterStatus(cluster.id, region, refetchInterval);
 
-  const { checks: inflightChecks, isLoading: isInflightChecksLoading } = useFetchInflightChecks(
+  const isClusterStatusMonitor = true;
+  const { data: inflightChecks, isLoading: isInflightChecksLoading } = useFetchInflightChecks(
     cluster.id,
+    cluster.subscription,
     region,
     refetchInterval,
-    'fetchClusterStatusMonitorInflightChecks',
+    isClusterStatusMonitor,
   );
 
   const { data: rerunInflightChecksData, isLoading: isRerunInflightChecksLoading } =
@@ -99,10 +100,11 @@ const ClusterStatusMonitor = (props) => {
       setRefetchInterval(false);
       // if not running any checks final state is success
       const shouldUpdateInflightChecks = () =>
-        inflightChecks.items?.some(
+        inflightChecks?.data?.items?.some(
           (check) =>
             check.state === InflightCheckState.running || check.state === InflightCheckState.failed,
         );
+
       if (!isClusterStatusLoading && !isInflightChecksLoading) {
         const clusterState = clusterStatus.state;
         // refresh main detail page if cluster state changed or if still running inflight checks
@@ -128,7 +130,7 @@ const ClusterStatusMonitor = (props) => {
     }
     // Minified React error #185 if added all dependencies based on linter
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refetchInterval, inflightChecks, clusterStatus, addNotification]);
+  }, [refetchInterval, clusterStatus]);
 
   React.useEffect(() => {
     if (!isRerunInflightChecksMutationPending) {
@@ -170,7 +172,7 @@ const ClusterStatusMonitor = (props) => {
     const isClusterValidating =
       cluster.state === clusterStates.validating || cluster.state === clusterStates.pending;
     if (!isClusterValidating) {
-      const inflightError = inflightChecks?.items?.find(
+      const inflightError = inflightChecks?.data?.items?.find(
         (check) => check.state === InflightCheckState.failed,
       );
       if (hasInflightEgressErrors(cluster) && inflightError) {
@@ -259,7 +261,7 @@ const ClusterStatusMonitor = (props) => {
         // show spinner on rerun button
         const runningInflightCheck = wasRunClicked || isValidatorRunning;
         return (
-          <Alert variant="warning" isInline title="User action required">
+          <Alert variant="warning" isInline title="User action required" className="pf-v6-u-mt-md">
             <Flex direction={{ default: 'column' }}>
               <FlexItem>{`${reason}`}</FlexItem>
               {inflightTable && <FlexItem>{inflightTable}</FlexItem>}
@@ -279,7 +281,7 @@ const ClusterStatusMonitor = (props) => {
                   </FlexItem>
                   <FlexItem>
                     {runningInflightCheck && (
-                      <span className="pf-v5-u-mr-sm">
+                      <span className="pf-v6-u-mr-sm">
                         <Spinner size="sm" aria-label="Loading..." />
                       </span>
                     )}
@@ -344,7 +346,7 @@ const ClusterStatusMonitor = (props) => {
       reason.push(<strong>Compute Security Administrator, </strong>);
       reason.push(<strong>DNS Administrator.</strong>);
       return (
-        <Alert variant="warning" isInline title="Permissions needed:">
+        <Alert variant="warning" isInline title="Permissions needed:" className="pf-v6-u-mt-md">
           <Flex direction={{ default: 'column' }}>
             <FlexItem>{reason}</FlexItem>
             <FlexItem>
@@ -367,7 +369,12 @@ const ClusterStatusMonitor = (props) => {
       // Cluster install failure
       if (clusterStatus.state === clusterStates.error) {
         alerts.push(
-          <Alert variant="danger" isInline title={`${errorCode} Cluster installation failed`}>
+          <Alert
+            variant="danger"
+            isInline
+            title={`${errorCode} Cluster installation failed`}
+            className="pf-v6-u-mt-md"
+          >
             <p>
               This cluster cannot be recovered, however you can use the logs and network validation
               to diagnose the problem:
@@ -410,6 +417,7 @@ ClusterStatusMonitor.propTypes = {
   region: PropTypes.string,
   cluster: PropTypes.shape({
     id: PropTypes.string,
+    subscription: PropTypes.object,
     state: PropTypes.string,
     status: PropTypes.shape({
       description: PropTypes.string,

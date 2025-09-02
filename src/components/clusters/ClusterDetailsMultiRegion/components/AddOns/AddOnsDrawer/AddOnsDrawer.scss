@@ -1,5 +1,6 @@
 .drawer-panel-body {
   padding-top: 24px !important;
+  padding-left: 24px !important;
 }
 
 body .ocm-c-addons__drawer {
@@ -13,7 +14,7 @@ body .ocm-c-addons__drawer {
     z-index: 2;
 
     /* Undo the margin set in app.scss */
-    .pf-v5-c-card {
+    .pf-v6-c-card {
       margin-top: 0 !important;
     }
   }
@@ -25,7 +26,7 @@ body .ocm-c-addons__drawer {
 
 .ocm-addons-tab {
   &--configuration-title {
-    color: var(--pf-v5-global--Color--100);
+    color: var(--pf-t--global-text--color--regular);
     font-family: RedHatText;
     font-size: 16px;
     line-height: 24px;
@@ -34,7 +35,7 @@ body .ocm-c-addons__drawer {
   }
 
   &--configuration-title-icon {
-    color: var(--pf-v5-global--Color--200);
+    color: var(--pf-t--global--icon--color--subtle);
   }
 
   &--parameter-tooltip-icon {
@@ -42,7 +43,7 @@ body .ocm-c-addons__drawer {
     width: 18px;
     padding-left: 4px;
     margin-right: 3px;
-    color: var(--pf-v5-global--Color--200);
+    color: var(--pf-t--global--icon--color--subtle);
   }
 
   &--addon-drawer {
@@ -51,15 +52,7 @@ body .ocm-c-addons__drawer {
 
   &--drawer-panel-body {
     padding-top: 24px;
-
-    .info-icon {
-      color: var(--pf-v5-global--info-color--100);
-      cursor: pointer;
-    }
-
-    .info-button {
-      padding: 0 0 0 2px;
-    }
+    padding-left: 24px; 
   }
 }
 

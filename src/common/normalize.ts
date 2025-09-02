@@ -2,7 +2,12 @@ import type { AxiosResponse } from 'axios';
 import { Draft, produce } from 'immer';
 
 import type { Cluster as AICluster } from '@openshift-assisted/types/assisted-installer-service';
-import * as OCM from '@openshift-assisted/ui-lib/ocm';
+import {
+  getClusterMemoryAmount as getAIMemoryAmount,
+  getClustervCPUCount as getAIClusterCPUCount,
+  getMasterCount as getAICMasterCount,
+  getWorkerCount as getAICWorkerCount,
+} from '@openshift-assisted/ui-lib/ocm';
 
 import {
   type ClusterMetricsNodes,
@@ -18,13 +23,6 @@ import type { FakeCluster } from '../types/types';
 import { isAISubscriptionWithoutMetrics } from './isAssistedInstallerCluster';
 import { clustersServiceProducts, normalizedProducts } from './subscriptionTypes';
 import { versionComparator } from './versionComparator';
-
-const {
-  getClustervCPUCount: getAIClusterCPUCount,
-  getClusterMemoryAmount: getAIMemoryAmount,
-  getMasterCount: getAICMasterCount,
-  getWorkerCount: getAICWorkerCount,
-} = OCM;
 
 /**
  * Erases the differences between clusters-service products and account-manager plans

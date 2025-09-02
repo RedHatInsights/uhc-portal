@@ -600,6 +600,18 @@ export interface components {
         };
       };
     };
+    /** @description The requester is unauthorized. If using a service account, you may not belong to the right group with the right role. Please make sure you configured your user access on the console. */
+    unauthorized: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': {
+          /** @example Account does not have the required permissions */
+          status?: string;
+        };
+      };
+    };
     /** @description Content service is unavailable */
     unavailable: {
       headers: {
@@ -642,6 +654,7 @@ export type RuleContent = components['schemas']['ruleContent'];
 export type RuleContentErrorKey = components['schemas']['ruleContentErrorKey'];
 export type RuleContentPlugin = components['schemas']['ruleContentPlugin'];
 export type ResponseStatus = components['responses']['status'];
+export type ResponseUnauthorized = components['responses']['unauthorized'];
 export type ResponseUnavailable = components['responses']['unavailable'];
 export type ParameterClusterId = components['parameters']['clusterId'];
 export type ParameterErrorKey = components['parameters']['errorKey'];
@@ -682,6 +695,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
     };
   };
   getReportForCluster: {
@@ -732,6 +746,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
       /** @description Resource not found, usually caused when the cluster ID is not registered and request come from Insights Operator. */
       404: {
         headers: {
@@ -788,6 +803,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
     };
   };
   getSingleReportForCluster: {
@@ -823,6 +839,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
     };
   };
   disableRule: {
@@ -858,6 +875,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service */
       404: {
         headers: {
@@ -919,6 +937,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service */
       404: {
         headers: {
@@ -961,6 +980,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service */
       404: {
         headers: {
@@ -1003,6 +1023,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service */
       404: {
         headers: {
@@ -1045,6 +1066,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service */
       404: {
         headers: {
@@ -1087,6 +1109,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service */
       404: {
         headers: {
@@ -1127,6 +1150,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
     };
   };
   getContent: {
@@ -1151,6 +1175,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
     };
   };
   getRuleGroups: {
@@ -1179,6 +1204,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
       /** @description Content service is unavailable */
       503: {
         headers: {
@@ -1291,6 +1317,7 @@ export interface operations {
           'application/json': components['schemas']['overviewResponse'];
         };
       };
+      403: components['responses']['unauthorized'];
     };
   };
   postOverviewForOrganization: {
@@ -1319,6 +1346,7 @@ export interface operations {
           'application/json': components['schemas']['overviewResponse'];
         };
       };
+      403: components['responses']['unauthorized'];
     };
   };
   getClustersForOrganization: {
@@ -1346,6 +1374,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
     };
   };
   getRuleIDs: {
@@ -1370,6 +1399,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
     };
   };
   getContentForRule: {
@@ -1400,6 +1430,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
       /** @description Rule ID is not available */
       404: {
         headers: {

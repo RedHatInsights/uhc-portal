@@ -1,22 +1,22 @@
 .ocm-p-subscriptions {
-  .pf-v5-c-card__title {
-    font-size: var(--pf-v5-global--FontSize--lg);
-    font-weight: var(--pf-v5-global--FontWeight--normal);
+  .pf-v6-c-card__title {
+    font-size: var(--pf-t--global--font--size--lg);
+    font-weight: var(--pf-t--global--font--weight--body--default);
   }
 
   .ocm-l-ocp-subscription__section {
     .osp-list {
-      padding-left: var(--pf-v5-global--spacer--2xl);
+      padding-left: var(--pf-t--global--spacer--2xl);
       li {
-        padding-left: var(--pf-v5-global--spacer--sm);
+        padding-left: var(--pf-t--global--spacer--sm);
       }
     }
   }
 
   .ocm-l-osd-subscription__section {
     .content-header {
-      font-size: var(--pf-v5-global--FontSize--md);
-      font-weight: var(--pf-v5-global--FontWeight--bold);
+      font-size: var(--pf-t--global--font--size--md);
+      font-weight: var(--pf-t--global--font--weight--heading--bold);
     }
     .table-container {
       overflow-x: auto;
@@ -25,12 +25,8 @@
         word-break: normal;
       }
       .warn-icon {
-        fill: var(--pf-v5-global--warning-color--100);
+        fill: var(--pf-t--global--icon--color--status--warning--default);
       }
     }
-  }
-
-  .subscriptions-empty-state {
-    background-color: var(--pf-v5-global--BackgroundColor--100);
   }
 }

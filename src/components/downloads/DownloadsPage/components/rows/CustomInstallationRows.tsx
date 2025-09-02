@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text, TextContent } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 
 import links, { channels, tools } from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -34,13 +34,13 @@ const CustomInstallationRows = ({
         channel={channels.STABLE}
         name="Butane config transpiler CLI"
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               Write and validate machine configs in a convenient short-hand syntax with the Butane
               config transpiler CLI tool.{' '}
               <ExternalLink href={links.BUTANE_DOCS}>Learn more</ExternalLink>
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         }
       />
 
@@ -50,12 +50,12 @@ const CustomInstallationRows = ({
         channel={channels.STABLE}
         name="CoreOS Installer CLI"
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               Download and install RHCOS disk images with the coreos-installer CLI tool.{' '}
               <ExternalLink href={links.COREOS_INSTALLER_DOCS}>Learn more</ExternalLink>
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         }
       />
 
@@ -69,14 +69,14 @@ const CustomInstallationRows = ({
           </>
         }
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               The ccoctl tool provides various commands to assist with the creating and maintenance
               of cloud credentials from outside the cluster (necessary when Cloud Credential
               Operator is put in Manual mode).{' '}
               <ExternalLink href={links.CCO_MANUAL_MODE}>Learn more</ExternalLink>
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         }
       />
     </>

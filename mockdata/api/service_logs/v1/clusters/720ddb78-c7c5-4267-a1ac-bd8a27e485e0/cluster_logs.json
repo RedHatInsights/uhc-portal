@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "cluster_id": "",
+      "cluster_uuid": "720ddb78-c7c5-4267-a1ac-bd8a27e485e0",
+      "created_at": "2025-03-03T18:10:29.453701Z",
+      "created_by": "service-account-ocm-ams-service",
+      "description": "Cluster installation completed and the cluster registered successfully.",
+      "email": "",
+      "event_stream_id": "2tojg89s21OpGlHyhAfF1cGHQEM",
+      "first_name": "",
+      "href": "/api/service_logs/v1/cluster_logs/2tojg71EqVJFS7zxJhqfo9wzyZw",
+      "id": "2tojg71EqVJFS7zxJhqfo9wzyZw",
+      "internal_only": false,
+      "kind": "ClusterLog",
+      "last_name": "",
+      "log_type": "General Notification",
+      "service_name": "AccountManager",
+      "severity": "Info",
+      "summary": "Cluster registered successfully",
+      "timestamp": "2025-03-03T18:10:29.419082Z",
+      "username": "service-account-telemeter-service-staging"
+    },
+    {
+      "cluster_id": "2h9pah3dia23jtu9or8f0kgt87lq15vc",
+      "cluster_uuid": "720ddb78-c7c5-4267-a1ac-bd8a27e485e0",
+      "created_at": "2025-03-03T18:01:51.288393Z",
+      "created_by": "service-account-ocm-cs-staging",
+      "description": "",
+      "email": "",
+      "event_stream_id": "2toid2aQXZGL8CFGuMs2AOFti1i",
+      "first_name": "",
+      "href": "/api/service_logs/v1/cluster_logs/2toid1LZ0ju6Cg1M3H8eLcTNSxd",
+      "id": "2toid1LZ0ju6Cg1M3H8eLcTNSxd",
+      "internal_only": true,
+      "kind": "ClusterLog",
+      "last_name": "",
+      "log_type": "cluster-state-updates",
+      "service_name": "ClusterService",
+      "severity": "Info",
+      "summary": "cluster_state_ready",
+      "timestamp": "2025-03-03T18:01:51Z",
+      "username": ""
+    }
+  ],
+  "kind": "ClusterLogList",
+  "page": 1,
+  "size": 2,
+  "total": 2
+}

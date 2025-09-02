@@ -91,7 +91,7 @@ export const ClusterStatus = ({ cluster, limitedSupport, machinePools }: Cluster
           spaceItems={{ default: 'spaceItemsXs' }}
           data-testid="control-plane-status"
         >
-          <span className="pf-v5-u-mr-sm">Control plane:</span>
+          <span className="pf-v6-u-mr-sm">Control plane:</span>
           {clusterWideStateIcon}
           <div>{clusterState?.description}</div>
         </Flex>
@@ -102,7 +102,7 @@ export const ClusterStatus = ({ cluster, limitedSupport, machinePools }: Cluster
             spaceItems={{ default: 'spaceItemsXs' }}
             data-testid="machine-pools-status"
           >
-            <span className="pf-v5-u-mr-sm">Machine pools:</span>
+            <span className="pf-v6-u-mr-sm">Machine pools:</span>
             <ClusterStateIcon
               clusterState={machinePoolsState()}
               limitedSupport={limitedSupport}
@@ -121,7 +121,7 @@ export const ClusterStatus = ({ cluster, limitedSupport, machinePools }: Cluster
   return (
     <>
       {clusterWideStateIcon}
-      <span className="pf-v5-u-ml-xs">{clusterState?.description}</span>
+      <span className="pf-v6-u-ml-xs">{clusterState?.description}</span>
     </>
   );
 };

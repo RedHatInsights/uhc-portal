@@ -1,7 +1,7 @@
 {
   "rosa-classic-smoke-default": {
     "ClusterNamePrefix": "ocmui-cypress-smoke-rosa-default",
-    "ControlPlaneType": "Classic",
+    "ControlPlaneType": "Classic architecture",
     "Type": "ROSA",
     "Region": "us-west-2, US West, Oregon",
     "Availability": "Single zone",
@@ -32,7 +32,7 @@
   },
   "rosa-classic-smoke-advanced": {
     "ClusterNamePrefix": "ocmui-cypress-smoke-rosa-advanced",
-    "ControlPlaneType": "Classic",
+    "ControlPlaneType": "Classic architecture",
     "Type": "ROSA",
     "Region": "us-west-2, US West, Oregon",
     "Availability": "Multi-zone",

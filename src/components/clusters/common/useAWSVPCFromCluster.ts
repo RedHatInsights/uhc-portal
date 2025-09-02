@@ -28,13 +28,13 @@ const readVpcFromList = (
   return undefined;
 };
 
-const adaptVPCDetails = (vpc: CloudVpc) => {
+export const adaptVPCDetails = (vpc: CloudVpc) => {
   const securityGroups = (vpc.aws_security_groups || []).filter((sg) => !sg.red_hat_managed);
   securityGroups.sort(securityGroupsSort);
   return { ...vpc, aws_security_groups: securityGroups };
 };
 
-const fetchVpcByClusterId = async (clusterId: string, region?: string) => {
+export const fetchVpcByClusterId = async (clusterId: string, region?: string) => {
   if (region) {
     const clusterService = getClusterServiceForRegion(region);
     let vpc;
@@ -55,7 +55,7 @@ const fetchVpcByClusterId = async (clusterId: string, region?: string) => {
 };
 
 // TODO: needs multiregion
-const fetchVpcByStsCredentials = async (
+export const fetchVpcByStsCredentials = async (
   vpcRequestMemo: CloudProviderVPCRequest,
   dataSovereigntyRegion?: string,
 ) => {
@@ -96,7 +96,7 @@ export const useAWSVPCFromCluster = (cluster: ClusterFromSubscription, region?: 
   const subnetIds = cluster.aws?.subnet_ids || [];
   const isBYOVPC = subnetIds.length > 0;
 
-  const manageVpcFetch = async (vpcPromise: Promise<CloudVpc | undefined>) => {
+  const manageVpcFetch = React.useCallback(async (vpcPromise: Promise<CloudVpc | undefined>) => {
     setHasError(false);
     setIsLoading(true);
     try {
@@ -113,15 +113,7 @@ export const useAWSVPCFromCluster = (cluster: ClusterFromSubscription, region?: 
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Fetches the VPC by the cluster's id
-  React.useEffect(() => {
-    const loadVpcByClusterId = async () => manageVpcFetch(fetchVpcByClusterId(clusterId, region));
-    if (clusterId && !isHypershift && isBYOVPC) {
-      loadVpcByClusterId();
-    }
-  }, [clusterId, isHypershift, isBYOVPC, region]);
+  }, []);
 
   // Fetches the VPC by the cluster's STS credentials
   // The dependencies are the primitive values - if we use an object the event will trigger even when no data has changed.
@@ -129,7 +121,7 @@ export const useAWSVPCFromCluster = (cluster: ClusterFromSubscription, region?: 
   const roleArn = cluster.aws?.sts?.role_arn;
   const regionId = cluster.region?.id || '';
 
-  React.useEffect(() => {
+  const fetchVPC = () => {
     const loadVpcByStsCredentials = async () => {
       const request = {
         awsCredentials: { sts: { role_arn: roleArn } },
@@ -139,10 +131,25 @@ export const useAWSVPCFromCluster = (cluster: ClusterFromSubscription, region?: 
       };
       return manageVpcFetch(fetchVpcByStsCredentials(request, region));
     };
+    const loadVpcByClusterId = async () => manageVpcFetch(fetchVpcByClusterId(clusterId, region));
+
     if (isHypershift && roleArn && subnetId && regionId) {
       loadVpcByStsCredentials();
     }
-  }, [isHypershift, subnetId, roleArn, regionId, region]);
+    if (clusterId && !isHypershift && isBYOVPC) {
+      loadVpcByClusterId();
+    }
+  };
 
-  return { clusterVpc, isLoading, hasError, errorReason };
+  React.useEffect(fetchVPC, [
+    isHypershift,
+    subnetId,
+    roleArn,
+    regionId,
+    region,
+    manageVpcFetch,
+    clusterId,
+    isBYOVPC,
+  ]);
+  return { clusterVpc, isLoading, hasError, errorReason, refreshVPC: fetchVPC };
 };

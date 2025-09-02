@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Alert, AlertVariant, Text, TextVariants } from '@patternfly/react-core';
+import { Alert, AlertVariant, Content, ContentVariants } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
 import links from '~/common/installLinks.mjs';
@@ -25,15 +25,15 @@ const AccountRoleStep = (props: AssociateAWSAccountStepProps) => {
     : RosaCliCommand.CreateAccountRoles;
   return (
     <AssociateAWSAccountStep {...props}>
-      <Text component={TextVariants.p} className="pf-v5-u-mb-lg">
+      <Content component={ContentVariants.p} className="pf-v6-u-mb-lg">
         To create the necessary account-wide roles and policies quickly, use the default auto method
         that&apos;s provided by the ROSA CLI.
-      </Text>
+      </Content>
       <InstructionCommand
         data-testId="copy-rosa-create-account-role"
         trackEvent={trackEvents.CopyCreateAccountRoles}
         textAriaLabel={`Copyable ROSA ${accountRolesCommand} command`}
-        className="pf-v5-u-mb-lg"
+        className="pf-v6-u-mb-lg"
       >
         {accountRolesCommand}
       </InstructionCommand>
@@ -42,7 +42,7 @@ const AccountRoleStep = (props: AssociateAWSAccountStepProps) => {
         variant={AlertVariant.info}
         isInline
         isPlain
-        className="pf-v5-u-mb-lg"
+        className="pf-v6-u-mb-lg"
         title={
           <>
             If you would prefer to manually create the required roles and policies within your AWS

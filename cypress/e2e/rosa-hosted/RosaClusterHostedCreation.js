@@ -7,6 +7,7 @@ const clusterProperties = require('../../fixtures/rosa-hosted/RosaClusterHostedC
 // awsAccountID,rolePrefix and installerARN are set by prerun script for smoke requirements.
 const region = clusterProperties.Region.split(',')[0];
 const awsAccountID = Cypress.env('QE_AWS_ID');
+const awsBillingAccountID = Cypress.env('QE_AWS_BILLING_ID');
 const qeInfrastructure = Cypress.env('QE_INFRA_REGIONS')[region][0];
 const rolePrefix = Cypress.env('QE_ACCOUNT_ROLE_PREFIX');
 const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
@@ -43,7 +44,7 @@ describe(
       CreateRosaWizardPage.waitForARNList();
       CreateRosaWizardPage.refreshInfrastructureAWSAccountButton().click();
       CreateRosaWizardPage.waitForARNList();
-      CreateRosaWizardPage.selectAWSBillingAccount(clusterProperties.AWSBillingAccountId);
+      CreateRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
       CreateRosaWizardPage.selectInstallerRole(installerARN);
       CreateRosaWizardPage.rosaNextButton().click();
     });
@@ -75,6 +76,8 @@ describe(
       CreateRosaWizardPage.enableAutoScaling();
       CreateRosaWizardPage.disabledAutoScaling();
       CreateRosaWizardPage.selectComputeNodeCount(clusterProperties.MachinePools[0].NodeCount);
+      CreateRosaWizardPage.useBothIMDSv1AndIMDSv2Radio().should('be.checked');
+      CreateRosaWizardPage.useIMDSv2Radio().check();
       CreateRosaWizardPage.rootDiskSizeInput().should('have.value', '300');
       CreateRosaWizardPage.rootDiskSizeInput()
         .clear()
@@ -128,7 +131,7 @@ describe(
       );
       CreateRosaWizardPage.isClusterPropertyMatchesValue(
         'AWS billing account ID',
-        clusterProperties.AWSBillingAccountId,
+        awsBillingAccountID,
       );
       CreateRosaWizardPage.isClusterPropertyMatchesValue('Installer role', installerARN);
     });
@@ -174,6 +177,10 @@ describe(
       CreateRosaWizardPage.isClusterPropertyMatchesValue(
         'Install to selected VPC',
         qeInfrastructure.VPC_NAME,
+      );
+      CreateRosaWizardPage.isClusterPropertyMatchesValue(
+        'Instance Metadata Service (IMDS)',
+        clusterProperties.InstanceMetadataService,
       );
     });
 
@@ -245,7 +252,7 @@ describe(
         .contains(awsAccountID);
       ClusterDetailsPage.clusterBillingMarketplaceAccountLabelValue()
         .scrollIntoView()
-        .contains(clusterProperties.AWSBillingAccountId);
+        .contains(awsBillingAccountID);
       ClusterDetailsPage.clusterMachineCIDRLabelValue()
         .scrollIntoView()
         .contains(clusterProperties.MachineCIDR);

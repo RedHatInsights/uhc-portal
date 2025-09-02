@@ -4,10 +4,10 @@ import { Field } from 'formik';
 import {
   Alert,
   AlertActionLink,
+  Content,
   Form,
   Grid,
   GridItem,
-  Text,
   Title,
   useWizardContext,
 } from '@patternfly/react-core';
@@ -82,7 +82,7 @@ function ClusterProxyScreen() {
           {
             "Complete at least 1 of the fields above. If you don't want to set a cluster-wide proxy, disable this option in the "
           }
-          <strong style={{ fontSize: 'var(--pf-v5-global--FontSize--md)' }}>
+          <strong style={{ fontSize: 'var(--pf-t--global--font--size--md)' }}>
             {'Networking > Configuration'}
           </strong>
           {' step.'}
@@ -125,12 +125,12 @@ function ClusterProxyScreen() {
           <Title headingLevel="h3">Cluster-wide proxy</Title>
         </GridItem>
         <GridItem>
-          <Text>{constants.clusterProxyHint}</Text>
-          <Text className="pf-v5-u-mt-sm">
+          <Content component="p">{constants.clusterProxyHint}</Content>
+          <Content component="p" className="pf-v6-u-mt-sm">
             <ExternalLink href={links.ROSA_CLUSTER_WIDE_PROXY}>
               Learn more about configuring a cluster-wide proxy
             </ExternalLink>
-          </Text>
+          </Content>
         </GridItem>
         <GridItem>
           <Alert

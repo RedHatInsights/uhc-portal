@@ -17,7 +17,7 @@ const GcpOrgPolicyAlert = ({ summary }: GcpOrgPolicyAlertProps) => {
         <Alert
           id="gcp-org-policy-alert"
           variant="warning"
-          className="pf-v5-u-mt-md"
+          className="pf-v6-u-mt-md"
           isInline
           title={
             <>

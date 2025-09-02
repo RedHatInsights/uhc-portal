@@ -27,11 +27,11 @@ const ProductCardView = ({
 }: ProductCardViewProps) => (
   <div className={`${title ? `${title}-` : ''}product-card-view`}>
     {title ? (
-      <Title size="xl" headingLevel="h2" className="pf-v5-u-mt-lg">
+      <Title size="xl" headingLevel="h2" className="pf-v6-u-mt-lg">
         {title}
       </Title>
     ) : null}
-    <Flex className="pf-v5-u-mb-lg">
+    <Flex className="pf-v6-u-mb-lg">
       {cards.map((card: ProductCardNode) => (
         <FlexItem data-testid="product-overview-card-flex-item">
           <ProductCard

@@ -1,0 +1,61 @@
+name: Check Backend Open API changes
+
+on:
+  workflow_dispatch:
+    inputs:
+      node-version:
+        default: '22.x'
+        description: 'NodeJs version'
+      swap-branch-name:
+        default: 'openapi'
+        description: 'Swap branch name to work with'
+  schedule:
+    - cron: '0 0 * * *'
+
+env:
+  NODE_VERSION: ${{ github.event.inputs.node-version || '22.x' }}
+  SWAP_BRANCH_NAME: ${{ github.event.inputs.swap-branch-name || 'openapi' }}
+  BASE_BRANCH_NAME: ${{ github.ref_name || 'main' }}
+
+jobs:
+  check_api:
+    name: Check API
+    concurrency:
+      group: check_api-${{ github.event_name }}-${{ github.head_ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: './node_modules'
+          key: check_api-${{ env.NODE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Install yarn
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install --frozen-lockfile --cache-folder .yarn
+      - name: Generating model based on OpenAPI contracts
+        run: make openapi
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          # limitation imposed by GitHub Actions that an action cannot trigger other workflows
+          token: ${{ secrets.CHECK_API_TOKEN }}
+          base: ${{ env.BASE_BRANCH_NAME }}
+          branch: ${{ env.SWAP_BRANCH_NAME }}
+          add-paths: |
+            src/types/**
+          commit-message: Update API model
+          committer: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          delete-branch: true
+          title: '[OPEN API] update model'
+          body: |
+            Automatically created by Github action.\nReviewers should pay attention to changes from `src/types/` files have a correspondant change on the Open API related contract.
+            Additionally to it, build and lint output should be checked. In case of build errors, our code should be adapted accordingly.
+          labels: |
+            update_open_api

@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import { Tile, Tooltip } from '@patternfly/react-core';
+import { Bullseye, Card, CardBody, CardHeader, Gallery, Tooltip } from '@patternfly/react-core';
 
 import { noQuotaTooltip } from '~/common/helpers';
 import {
@@ -34,14 +34,14 @@ export const CloudProviderTileField = () => {
     isBYOC,
   });
   const hasGcpResources = quotas.gcpResources;
-  const hasAwsResources =
+  const shouldShowAwsTile = !(
     billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
-      ? false
-      : quotas.awsResources;
+  );
+  const hasAwsResources = shouldShowAwsTile ? quotas.awsResources : false;
   const notAvailableTooltip =
-    billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
-      ? 'OpenShift Dedicated purchased through the Google Cloud marketplace can only be provisioned on GCP.'
-      : noQuotaTooltip;
+    billingModel === shouldShowAwsTile
+      ? noQuotaTooltip
+      : 'OpenShift Dedicated purchased through the Google Cloud marketplace can only be provisioned on GCP.';
 
   const handleChange = (value: string) => {
     // Silently reset some user choices that are now meaningless.
@@ -66,41 +66,76 @@ export const CloudProviderTileField = () => {
   };
 
   const gcpTile = (
-    <Tile
+    <Card
       id={CloudProviderType.Gcp}
       className={classNames('ocm-tile-create-cluster', !hasGcpResources && 'tile-disabled')}
-      onClick={() => hasGcpResources && handleChange(CloudProviderType.Gcp)}
-      onKeyDown={handleKeyDown}
       isDisabled={!hasGcpResources}
       data-testid="gcp-provider-card"
-      title="Run on Google Cloud Platform"
-      icon={<GCPLogo />}
-      isDisplayLarge
-      isStacked
+      isLarge
       isSelected={cloudProvider === CloudProviderType.Gcp}
-    />
+      isSelectable
+      onKeyDown={handleKeyDown}
+    >
+      <CardHeader
+        selectableActions={{
+          selectableActionAriaLabelledby: CloudProviderType.Gcp,
+          name: 'gcp-tile',
+          variant: 'single',
+          onChange: () => hasGcpResources && handleChange(CloudProviderType.Gcp),
+          isHidden: true,
+        }}
+      >
+        <Bullseye>
+          <GCPLogo />
+        </Bullseye>
+      </CardHeader>
+      <CardBody>Run on Google Cloud Platform</CardBody>
+    </Card>
   );
 
   const awsTile = (
-    <Tile
+    <Card
       id={CloudProviderType.Aws}
       className={classNames('ocm-tile-create-cluster', !hasAwsResources && 'tile-disabled')}
-      onClick={() => hasAwsResources && handleChange(CloudProviderType.Aws)}
-      onKeyDown={handleKeyDown}
       isDisabled={!hasAwsResources}
       data-testid="aws-provider-card"
-      title="Run on Amazon Web Services"
-      icon={<AWSLogo />}
-      isDisplayLarge
-      isStacked
+      isLarge
       isSelected={cloudProvider === CloudProviderType.Aws}
-    />
+      isSelectable
+      onKeyDown={handleKeyDown}
+    >
+      <CardHeader
+        selectableActions={{
+          selectableActionAriaLabelledby: CloudProviderType.Aws,
+          name: 'aws-tile',
+          variant: 'single',
+          onChange: () => hasAwsResources && handleChange(CloudProviderType.Aws),
+          isHidden: true,
+        }}
+      >
+        <Bullseye>
+          <AWSLogo />
+        </Bullseye>
+      </CardHeader>
+      <CardBody>Run on Amazon Web Services</CardBody>
+    </Card>
   );
 
   return (
-    <div role="listbox" aria-label="Providers options">
-      {hasAwsResources ? awsTile : <Tooltip content={notAvailableTooltip}>{awsTile}</Tooltip>}
+    <Gallery
+      hasGutter
+      aria-label="Providers options"
+      className="ocm-fix-selectable-card-border"
+      minWidths={{
+        default: '293px',
+      }}
+      maxWidths={{
+        default: '293px',
+      }}
+    >
       {hasGcpResources ? gcpTile : <Tooltip content={noQuotaTooltip}>{gcpTile}</Tooltip>}
-    </div>
+      {shouldShowAwsTile &&
+        (hasAwsResources ? awsTile : <Tooltip content={notAvailableTooltip}>{awsTile}</Tooltip>)}
+    </Gallery>
   );
 };

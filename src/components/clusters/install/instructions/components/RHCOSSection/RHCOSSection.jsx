@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Icon, Stack, StackItem, Text } from '@patternfly/react-core';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
+import { Content, Stack, StackItem } from '@patternfly/react-core';
 
 import { tools } from '../../../../../../common/installLinks.mjs';
+import ExternalLink from '../../../../../common/ExternalLink';
 import DownloadButton from '../DownloadButton';
 
 import RHCOSDownloadAndSelect from './RHCOSDownloadAndSelect';
@@ -38,28 +38,20 @@ const RHCOSSection = (props) => {
       );
     });
     return (
-      <Stack hasGutter className="pf-v5-u-mt-md">
+      <Stack hasGutter className="pf-v6-u-mt-md">
         {buttons}
       </Stack>
     );
   };
   return (
     <>
-      <Text component="p">
+      <Content component="p">
         Download RHCOS to create machines for your cluster to use during installation.
         {rhcos.additionalInstructions && typeof rhcos.additionalInstructions === 'string' && (
           <> {rhcos.additionalInstructions}</>
         )}{' '}
-        {rhcos.learnMoreURL && (
-          <Text component="a" href={rhcos.learnMoreURL} rel="noreferrer noopener" target="_blank">
-            Learn more{' '}
-            <Icon size="sm">
-              <ExternalLinkAltIcon />
-            </Icon>
-            .
-          </Text>
-        )}
-      </Text>
+        {rhcos.learnMoreURL && <ExternalLink href={rhcos.learnMoreURL}>Learn more</ExternalLink>}
+      </Content>
       {rhcos.additionalInstructions && typeof rhcos.additionalInstructions !== 'string' && (
         <> {rhcos.additionalInstructions}</>
       )}

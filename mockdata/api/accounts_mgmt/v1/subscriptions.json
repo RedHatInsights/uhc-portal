@@ -1,8 +1,8 @@
 {
   "kind": "SubscriptionList",
   "page": 1,
-  "size": 22,
-  "total": 22,
+  "size": 23,
+  "total": 23,
   "items": [
     {
       "id": "1KgB0WcVBZBdRGAreuve29yoxUB",
@@ -1880,6 +1880,165 @@
       "support_level": "Premium",
       "trial_end_date": "0001-01-01T00:00:00Z",
       "updated_at": "2024-06-17T23:41:02.33716Z"
+    },
+    {
+      "billing_expiration_date": "0001-01-01T00:00:00Z",
+      "cloud_account_id": "000000000006",
+      "cloud_provider_id": "aws",
+      "cluster_billing_model": "standard",
+      "cluster_id": "2h9pah3dia23jtu9or8f0kgt87lq15vc",
+      "console_url": "https://console-openshift-console.apps.zac-rosa-3b.k0pc.s1.devshift.org",
+      "created_at": "2025-03-03T17:13:44.936562Z",
+      "creator": {
+        "href": "/api/accounts_mgmt/v1/accounts/2YowPCy6HqB2xO23gibXQ6046VD",
+        "id": "2YowPCy6HqB2xO23gibXQ6046VD",
+        "kind": "Account"
+      },
+      "display_name": "zac-rosa-3b",
+      "eval_expiration_date": "0001-01-01T00:00:00Z",
+      "external_cluster_id": "720ddb78-c7c5-4267-a1ac-bd8a27e485e0",
+      "href": "/api/accounts_mgmt/v1/subscriptions/2tocmBfjW2Emn0ZobMbxsk889tn",
+      "id": "2tocmBfjW2Emn0ZobMbxsk889tn",
+      "kind": "Subscription",
+      "last_reconcile_date": "0001-01-01T00:00:00Z",
+      "last_released_at": "0001-01-01T00:00:00Z",
+      "last_telemetry_date": "2025-03-03T18:18:20.793208Z",
+      "managed": true,
+      "metrics": [
+        {
+          "arch": "amd64",
+          "cloud_provider": "aws",
+          "cluster_type": "",
+          "compute_nodes_cpu": {
+            "total": {
+              "unit": "",
+              "value": 8
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "",
+              "value": 0
+            }
+          },
+          "compute_nodes_memory": {
+            "total": {
+              "unit": "B",
+              "value": 32747384832
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "B",
+              "value": 0
+            }
+          },
+          "compute_nodes_sockets": {
+            "total": {
+              "unit": "",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "",
+              "value": 0
+            }
+          },
+          "console_url": "https://console-openshift-console.apps.zac-rosa-3b.k0pc.s1.devshift.org",
+          "cpu": {
+            "total": {
+              "unit": "",
+              "value": 40
+            },
+            "updated_timestamp": "2025-03-03T22:30:04.752Z",
+            "used": {
+              "unit": "",
+              "value": 3.6559999999999784
+            }
+          },
+          "critical_alerts_firing": 0,
+          "health_state": "healthy",
+          "memory": {
+            "total": {
+              "unit": "B",
+              "value": 197888393216
+            },
+            "updated_timestamp": "2025-03-03T22:30:04.658Z",
+            "used": {
+              "unit": "B",
+              "value": 38815870976
+            }
+          },
+          "nodes": {
+            "compute": 2,
+            "infra": 2,
+            "master": 3,
+            "total": 7
+          },
+          "nodes_arch": [
+            {
+              "arch": "amd64",
+              "compute": 2,
+              "infra": 2,
+              "master": 3,
+              "total": 7
+            }
+          ],
+          "non_virt_nodes": 0,
+          "openshift_version": "4.18.1",
+          "operating_system": "",
+          "operators_condition_failing": 0,
+          "query_timestamp": "2025-03-03T22:30:04Z",
+          "region": "us-west-2",
+          "sockets": {
+            "total": {
+              "unit": "",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "",
+              "value": 0
+            }
+          },
+          "state": "ready",
+          "state_description": "",
+          "storage": {
+            "total": {
+              "unit": "B",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "B",
+              "value": 0
+            }
+          },
+          "subscription_cpu_total": 4,
+          "subscription_obligation_exists": 3,
+          "subscription_socket_total": 2,
+          "upgrade": {
+            "available": false,
+            "state": "",
+            "updated_timestamp": "2025-03-03T22:30:04.707Z",
+            "version": ""
+          }
+        }
+      ],
+      "organization": {
+        "id": "1wuVGGV6SCmD8ya6yRGEJzvmVuC"
+      },
+      "organization_id": "1wuVGGV6SCmD8ya6yRGEJzvmVuC",
+      "plan": {
+        "href": "/api/accounts_mgmt/v1/plans/MOA",
+        "id": "MOA",
+        "kind": "Plan",
+        "type": "MOA"
+      },
+      "provenance": "Provisioning",
+      "region_id": "us-west-2",
+      "status": "Active",
+      "support_level": "Premium",
+      "trial_end_date": "0001-01-01T00:00:00Z",
+      "updated_at": "2025-03-03T18:18:20.794573Z"
     }
   ]
 }

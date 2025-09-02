@@ -20,7 +20,7 @@ const QuotaLink = (props) => <Link {...props} to="/quota" />;
 
 const CloudTab = ({ hasOSDQuota, trialEnabled }) => (
   <>
-    <PageSection>
+    <PageSection hasBodyWrapper={false}>
       <Stack hasGutter>
         <StackItem>
           <Title headingLevel="h2">Managed services</Title>
@@ -28,16 +28,24 @@ const CloudTab = ({ hasOSDQuota, trialEnabled }) => (
         <StackItem>
           Create clusters in the cloud using a managed service.
           <ManagedServicesTable hasOSDQuota={hasOSDQuota} isTrialEnabled={trialEnabled} />
+        </StackItem>
+        <StackItem>
           {!isRestrictedEnv() && (
-            <Button variant={ButtonVariant.link} id="subscriptions" component={QuotaLink}>
-              View your available OpenShift Dedicated quota <ArrowRightIcon />
+            <Button
+              icon={<ArrowRightIcon />}
+              iconPosition="end"
+              variant={ButtonVariant.link}
+              id="subscriptions"
+              component={QuotaLink}
+            >
+              View your annual subscriptions quota
             </Button>
           )}
         </StackItem>
       </Stack>
     </PageSection>
     {!isRestrictedEnv() && (
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Stack hasGutter>
           <StackItem>
             <Title headingLevel="h2">Run it yourself</Title>

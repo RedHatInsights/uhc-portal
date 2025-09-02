@@ -26,7 +26,7 @@ describe('<Releases />', () => {
   beforeAll(() => {
     MockReleaseChannel.mockImplementation(
       ({ channel }: React.ComponentProps<typeof ReleaseChannel>) => (
-        <dt className="pf-v5-c-description-list__term pf-v5-u-mt-md">{channel}</dt>
+        <dt className="pf-v6-c-description-list__term pf-v6-u-mt-md">{channel}</dt>
       ),
     );
   });

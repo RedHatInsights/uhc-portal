@@ -12,7 +12,7 @@ const DeveloperPreviewSection = ({
   devPreviewLink = '/install/pre-release',
 }) => (
   <>
-    <span className="pf-v5-c-label pf-m-compact dev-preview-label">
+    <span className="pf-v6-c-label pf-m-compact dev-preview-label">
       <CodeIcon /> Developer Preview
     </span>{' '}
     <Link to={devPreviewLink}>{isDevPreview ? 'About' : 'Download'} pre-release builds</Link>

@@ -1,4 +1,4 @@
-.fuzzy-select__toggle.pf-v5-c-menu-toggle {
+.fuzzy-select__toggle.pf-v6-c-menu-toggle {
   max-width: none;
 }
 
@@ -6,10 +6,10 @@
 .fuzzy-select__footer {
   position: sticky;
   bottom: 0;
-  background-color: var(--pf-v5-global--BackgroundColor--light-100);
+  background-color: var(--pf-t--global--background--color--secondary--default);
 }
 // Compensating the max height of a scrollable select with footer because the footer is now sticky
 // Increasing from 18.75rem (300px) to 23.75 (380px)
 .fuzzy-select--scrollable-with-footer {
-  --pf-v5-c-menu--m-scrollable__content--MaxHeight: 23.75rem;
+  --pf-v6-c-menu--m-scrollable__content--MaxHeight: 23.75rem;
 }

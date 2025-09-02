@@ -5,13 +5,12 @@ Manager site.
 
 The UI is a JavaScript/TypeScript application written in React and Redux.
 
-Additionally it contains a helper development server, `backend`, written in Go.
-
 Slack channels: `#service-development` for OCM in general, `#ocm-osd-ui` for UI.
 
 ## Table of contents
 
 - [Requirements](#requirements)
+- [Setup](#setup)
 - [Building](#building)
 - [Running locally](#running-locally)
 - [Environments and Deployments](#environments-and-deployments)
@@ -20,7 +19,15 @@ Slack channels: `#service-development` for OCM in general, `#ocm-osd-ui` for UI.
 ## Requirements
 
 - [NodeJS](https://nodejs.org/) `>= 18.12.0`
-- [Yarn](https://classic.yarnpkg.com/lang/en/) `1.22.19`
+- [Yarn](https://classic.yarnpkg.com/lang/en/) `1.22.19` - (higher versions are not supported)
+     
+## Setup
+
+For a first time setup, it's required to run `make dev-env-setup`.
+
+This will ask for your `sudo` password, to add some entries to `/etc/hosts`.
+ 
+If you intend to contribute code, also refer to the [Setup section of the Contributing guide](docs/contributing.md#setup).
 
 ## Building
 
@@ -33,9 +40,7 @@ yarn build
 
 ## Running locally
 
-For a first time setup, run `make dev-env-setup`. This will ask for your `sudo` password, to add some entries to `/etc/hosts`
-
-After initial setup, run `yarn install && yarn start`.
+Run `yarn install && yarn start`.
 
 The UI will be available at https://prod.foo.redhat.com:1337/openshift/
 
@@ -58,21 +63,11 @@ By default, UI run Assisted Installer without standalone mode. To run with Assis
 
 ## Environments and Deployments
 
-| uhc-portal branch | deployed env                                            | insights-chrome | default backend |
-| ----------------- | ------------------------------------------------------- | --------------- | --------------- |
-| `master`          | https://console.dev.redhat.com/openshift                | stable version  | staging         |
-| `stable`          | https://console.redhat.com/openshift                    | stable version  | production      |
+| uhc-portal branch            | deployed env                                            | insights-chrome | default backend |
+|------------------------------| ------------------------------------------------------- | --------------- | --------------- |
+| `main`                       | https://console.dev.redhat.com/openshift                | stable version  | staging         |
+| `main` (specific revision) | https://console.redhat.com/openshift                    | stable version  | production      |
 
-On every update to the above branches, the code gets deployed into the relevant
-enviroment(s) using the `push_to_insights.sh` script. This script is
-called via git hooks. See the script for more details.
-
-So for a regular weekly deploy, we open an merge request master -> candidate,
-followed by candidate -> stable.
-
-Use `./deploy_info.mjs` script to check which versions are now deployed.
-If you want to monitor/debug the deploy jobs, `./deploy_info.mjs --json`
-output has all the info you’ll need.
 
 ## Issues/Troubleshooting
 
@@ -81,9 +76,8 @@ If you get a timeout/network connection issue when running `yarn install`, try i
 
 ## Contributing
 
-For in depth guidance see [the contributing guidelines](docs/contributing.md).
+See [Contributing guide](docs/contributing.md).
 
 ### Release
 
-A detailed explanation of how to make a release can be found on the [Release to Production wiki page](https://github.com/RedHatInsights/uhc-portal/wiki/Release-Guide)
-
+A detailed explanation of how to make a release can be found on the [Release to Production page](docs/releasing.md)

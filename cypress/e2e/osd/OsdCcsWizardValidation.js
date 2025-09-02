@@ -39,10 +39,17 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
 
         if (clusterProperties.CloudProvider.includes('GCP')) {
           if (clusterProperties.AuthenticationType.includes('Service Account')) {
+            CreateOSDWizardPage.serviceAccountButton().click();
+
             CreateOSDWizardPage.wizardNextButton().click();
             CreateOSDWizardPage.isTextContainsInPage(
               ClustersValidation.ClusterSettings.CloudProvider.GCP.EmptyGCPServiceJSONFieldError,
             );
+            CreateOSDWizardPage.isTextContainsInPage(
+              ClustersValidation.ClusterSettings.CloudProvider.Common.AcknowledgementUncheckedError,
+            );
+            CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+
             CreateOSDWizardPage.uploadGCPServiceAccountJSON(
               ClustersValidation.ClusterSettings.CloudProvider.GCP
                 .InvalidFormatGCPServiceJSONValues,
@@ -61,19 +68,14 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
             );
             CreateOSDWizardPage.uploadGCPServiceAccountJSON(JSON.stringify(QE_GCP));
           } else {
-            CreateOSDWizardPage.workloadIdentityFederationButton().click();
             CreateOSDWizardPage.wizardNextButton().click();
             CreateOSDWizardPage.isTextContainsInPage(
               ClustersValidation.ClusterSettings.CloudProvider.GCP.NoWIFConfigSelectionError,
-            );
-            CreateOSDWizardPage.isTextContainsInPage(
-              ClustersValidation.ClusterSettings.CloudProvider.Common.AcknowledgementUncheckedError,
             );
             CreateOSDWizardPage.gcpWIFCommandInput().should(
               'have.value',
               ClustersValidation.ClusterSettings.CloudProvider.GCP.WIFCommandValue,
             );
-            CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
             CreateOSDWizardPage.selectWorkloadIdentityConfiguration(
               Cypress.env('QE_GCP_WIF_CONFIG'),
             );
@@ -200,6 +202,7 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
     });
     it(`OSD wizard - ${clusterProperties.CloudProvider} -${clusterProperties.SubscriptionType}-${clusterProperties.InfrastructureType} : Cluster Settings - Machinepool(nodes) field validations`, () => {
       CreateOSDWizardPage.isMachinePoolScreen();
+      CreateOSDWizardPage.selectComputeNodeType(clusterProperties.InstanceType);
       CreateOSDWizardPage.computeNodeCountSelect()
         .get('option')
         .first()
@@ -236,7 +239,9 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
       CreateOSDWizardPage.wizardBackButton().click();
       CreateOSDWizardPage.selectAvailabilityZone('Multi-zone');
       CreateOSDWizardPage.wizardNextButton().click();
+      CreateOSDWizardPage.selectComputeNodeType(clusterProperties.InstanceType);
       CreateOSDWizardPage.selectAutoScaling('disabled');
+      CreateOSDWizardPage.computeNodeCountSelect().should('not.have.attr', 'disabled');
       CreateOSDWizardPage.computeNodeCountSelect()
         .get('option')
         .first()
@@ -418,6 +423,7 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
         CreateOSDWizardPage.wizardBackButton().click();
         CreateOSDWizardPage.selectAvailabilityZone('Single Zone');
         CreateOSDWizardPage.wizardNextButton().click();
+        CreateOSDWizardPage.selectComputeNodeType(clusterProperties.InstanceType);
         CreateOSDWizardPage.enableAutoscalingCheckbox().uncheck();
         CreateOSDWizardPage.enableAutoscalingCheckbox().check();
         CreateOSDWizardPage.editClusterAutoscalingSettingsButton().click();
@@ -432,48 +438,14 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
         );
         if (
           clusterProperties.CloudProvider.includes('AWS') ||
-          (clusterProperties.CloudProvider.includes('GCP') &&
-            clusterProperties.AuthenticationType.includes('Service Account'))
+          clusterProperties.CloudProvider.includes('GCP')
         ) {
-          CreateOSDWizardPage.clusterAutoscalingRevertAllToDefaultsButton().click();
-          CreateOSDWizardPage.clusterAutoscalingCloseButton().click();
-          CreateOSDWizardPage.wizardBackButton().click();
-          CreateOSDWizardPage.selectVersion('4.14.0');
-          CreateOSDWizardPage.wizardNextButton().click();
-          CreateOSDWizardPage.enableAutoscalingCheckbox().uncheck();
-          CreateOSDWizardPage.enableAutoscalingCheckbox().check();
-          CreateOSDWizardPage.editClusterAutoscalingSettingsButton().click();
-          CreateOSDWizardPage.clusterAutoscalingMaxNodesTotalInput().should('have.value', '185');
-          CreateOSDWizardPage.clusterAutoscalingMaxNodesTotalInput()
-            .type('{selectAll}')
-            .type('186')
-            .blur();
-          CreateOSDWizardPage.isTextContainsInPage(
-            ClustersValidation.ClusterSettings.Machinepool.Common.ClusterAutoscaling
-              .MaxNodesValueOcpLower41414SinglezoneLimitError,
-          );
           CreateOSDWizardPage.clusterAutoscalingRevertAllToDefaultsButton().click();
           CreateOSDWizardPage.clusterAutoscalingCloseButton().click();
           CreateOSDWizardPage.wizardBackButton().click();
           CreateOSDWizardPage.selectAvailabilityZone('Multi-zone');
           CreateOSDWizardPage.wizardNextButton().click();
-          CreateOSDWizardPage.enableAutoscalingCheckbox().uncheck();
-          CreateOSDWizardPage.enableAutoscalingCheckbox().check();
-          CreateOSDWizardPage.editClusterAutoscalingSettingsButton().click();
-          CreateOSDWizardPage.clusterAutoscalingMaxNodesTotalInput().should('have.value', '186');
-          CreateOSDWizardPage.clusterAutoscalingMaxNodesTotalInput()
-            .type('{selectAll}')
-            .type('187')
-            .blur();
-          CreateOSDWizardPage.isTextContainsInPage(
-            ClustersValidation.ClusterSettings.Machinepool.Common.ClusterAutoscaling
-              .MaxNodesValueOcpLower41414MultizoneLimitError,
-          );
-          CreateOSDWizardPage.clusterAutoscalingRevertAllToDefaultsButton().click();
-          CreateOSDWizardPage.clusterAutoscalingCloseButton().click();
-          CreateOSDWizardPage.wizardBackButton().click();
-          CreateOSDWizardPage.selectVersion('');
-          CreateOSDWizardPage.wizardNextButton().click();
+          CreateOSDWizardPage.selectComputeNodeType(clusterProperties.InstanceType);
           CreateOSDWizardPage.enableAutoscalingCheckbox().uncheck();
           CreateOSDWizardPage.enableAutoscalingCheckbox().check();
           CreateOSDWizardPage.editClusterAutoscalingSettingsButton().click();
@@ -613,7 +585,7 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
       });
     }
     it(`OSD wizard - ${clusterProperties.CloudProvider} -${clusterProperties.SubscriptionType}-${clusterProperties.InfrastructureType} : Cluster Settings - Machinepool(Labels) field validations`, () => {
-      CreateOSDWizardPage.addNodeLabelLink().click();
+      CreateOSDWizardPage.addNodeLabelLink().scrollIntoView().click();
       CreateOSDWizardPage.addNodeLabelKeyAndValue(
         ClustersValidation.ClusterSettings.Machinepool.Common.NodeLabel[0].UpperCharacterLimitValue,
         'test',

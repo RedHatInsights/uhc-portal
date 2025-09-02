@@ -1,3 +1,4 @@
+import AdvancedClusterManagementLogo from '~/styles/images/ACMLogo.svg';
 import AdvancedClusterSecurityForKubernetesLogo from '~/styles/images/AdvancedClusterSecurityForKubernetesLogo.svg';
 import RedHatOpenShiftAILogo from '~/styles/images/RedHatOpenShiftAILogo.svg';
 import RedHatOpenShiftGitOpsLogo from '~/styles/images/RedHatOpenShiftGitOpsLogo.svg';
@@ -29,6 +30,10 @@ const PRODUCT_CARD_LOGOS = {
   openshiftVirtualization: {
     title: 'OpenShift Virtualization',
     logo: RedHatOpenShiftVirtualization,
+  },
+  advancedClusterManagement: {
+    title: 'Red Hat Advanced Cluster Management for Kubernetes',
+    logo: AdvancedClusterManagementLogo,
   },
 };
 

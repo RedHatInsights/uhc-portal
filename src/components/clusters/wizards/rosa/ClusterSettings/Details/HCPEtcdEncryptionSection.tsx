@@ -68,7 +68,7 @@ export function HCPEtcdEncryptionSection() {
               helperText={!etcdKeyArn ? 'Provide a custom key ARN' : ''}
               tooltip={
                 <>
-                  <p className="pf-v5-u-mb-sm">{constants.awsKeyARN}</p>
+                  <p className="pf-v6-u-mb-sm">{constants.awsKeyARN}</p>
                   <ExternalLink href={links.AWS_FINDING_KEY_ARN}>
                     Finding the key ID and ARN
                   </ExternalLink>
@@ -79,7 +79,7 @@ export function HCPEtcdEncryptionSection() {
 
           <GridItem>
             <Alert
-              className="pf-v5-u-mt-sm"
+              className="pf-v6-u-mt-sm"
               isInline
               isLiveRegion
               variant="info"

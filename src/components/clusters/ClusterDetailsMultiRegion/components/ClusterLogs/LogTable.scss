@@ -1,14 +1,24 @@
 .cluster-log__toolbar {
-  .pf-v5-c-toolbar__group,
-  .pf-v5-c-toolbar__content-section {
+  .pf-v6-c-toolbar__group,
+  .pf-v6-c-toolbar__content-section {
     align-items: start;
   }
 }
 
 .cluster-log__resources {
-  padding-top: var(--pf-v5-global--spacer--sm);
+  padding-top: var(--pf-t--global--spacer--sm);
 }
 
 .cluster-log {
   overflow-wrap: anywhere !important;
+}
+
+.cluster-log__table-body {
+  background-color: var(--pf-t--global--color--nonstatus--red--default);
+  color: var(--pf-t--global--text--color--nonstatus--on-red--default);
+  
+  .pf-v6-c-table__expandable-row-content {
+    background-color: var(--pf-t--global--color--nonstatus--red--default);
+    color: var(--pf-t--global--text--color--nonstatus--on-red--default);
+  }
 }

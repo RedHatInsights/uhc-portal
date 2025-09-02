@@ -31,12 +31,12 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
   return (
     <>
       <GridItem span={9}>
-        <FormGroup label="Route selector" labelIcon={<RouteSelectorsPopover />}>
+        <FormGroup label="Route selector" labelHelp={<RouteSelectorsPopover />}>
           <Field
             name={FieldId.DefaultRouterSelectors}
             type="text"
             validate={checkRouteSelectors}
-            className="pf-v5-u-w-100"
+            className="pf-v6-u-w-100"
             input={{
               ...getFieldProps(FieldId.DefaultRouterSelectors),
               onChange: (value: string) =>
@@ -51,12 +51,12 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
       </GridItem>
 
       <GridItem span={9}>
-        <FormGroup label="Excluded namespaces" labelIcon={<ExcludedNamespacesPopover />}>
+        <FormGroup label="Excluded namespaces" labelHelp={<ExcludedNamespacesPopover />}>
           <Field
             name={FieldId.DefaultRouterExcludedNamespacesFlag}
             type="text"
             validate={validateNamespacesList}
-            className="pf-v5-u-w-100"
+            className="pf-v6-u-w-100"
             input={{
               ...getFieldProps(FieldId.DefaultRouterExcludedNamespacesFlag),
               onChange: (value: string) =>
@@ -71,9 +71,9 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
       </GridItem>
 
       <FormGroup
-        className="pf-v5-u-mb-0"
+        className="pf-v6-u-mb-0"
         label="Namespace ownership policy"
-        labelIcon={<NamespaceOwnerPolicyPopover />}
+        labelHelp={<NamespaceOwnerPolicyPopover />}
       >
         <Field
           id={FieldId.IsDefaultRouterNamespaceOwnershipPolicyStrict}
@@ -88,9 +88,9 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
       </FormGroup>
 
       <FormGroup
-        className="pf-v5-u-mb-0"
+        className="pf-v6-u-mb-0"
         label="Wildcard policy"
-        labelIcon={<WildcardPolicyPopover />}
+        labelHelp={<WildcardPolicyPopover />}
       >
         <Field
           id={FieldId.IsDefaultRouterWildcardPolicyAllowed}

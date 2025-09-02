@@ -14,7 +14,7 @@ const TechnologyPreview = ({ className }: { className?: string }) => {
       scope="assistedInstallerApp"
       module="./TechnologyPreview"
       fallback={
-        <Skeleton fontSize="md" width="8em" className="pf-v5-u-display-inline-flex pf-v5-u-ml-md" />
+        <Skeleton fontSize="md" width="8em" className="pf-v6-u-display-inline-flex pf-v6-u-ml-md" />
       }
     />
   );

@@ -1,15 +1,22 @@
 import React from 'react';
 import { FieldValidator, useField, useFormikContext } from 'formik';
 
-import { Flex, FormGroup } from '@patternfly/react-core';
 import {
-  Select as SelectDeprecated,
-  SelectOption as SelectOptionDeprecated,
-  SelectOptionObject as SelectOptionObjectDeprecated,
-} from '@patternfly/react-core/deprecated';
+  Flex,
+  FormGroup,
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
+} from '@patternfly/react-core';
 
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
+
+import './AddOnsFormDropdown.scss';
+
+const SELECT_PLACEHOLDER = '-- Please Select --';
 
 type Option = {
   value: string;
@@ -46,50 +53,67 @@ export const AddOnsFormDropdown = ({
   ...extraProps
 }: AddOnsFormDropdownProps) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const [selectedString, setSelectedString] = React.useState<string | undefined>(undefined);
   const { setFieldValue } = useFormikContext();
   const [field, meta, form] = useField(fieldId);
 
   const onSelect = (
-    _: React.MouseEvent<Element, MouseEvent> | React.ChangeEvent<Element>,
-    value: string | SelectOptionObjectDeprecated,
+    _: React.MouseEvent<Element, MouseEvent> | undefined,
+    value: string | number | undefined,
   ) => {
+    const selectedString = options.find((option) => option.value === value);
+    setSelectedString(selectedString?.name);
     setFieldValue(fieldId, value);
     setIsExpanded(false);
   };
 
-  const formSelect = (
-    <SelectDeprecated
-      placeholderText="-- Please Select --"
-      variant="single"
-      {...field}
-      id={name}
-      name={name}
+  const selectToggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      aria-label="Options menu"
+      onClick={(_event) => setIsExpanded(!isExpanded)}
+      isExpanded={isExpanded}
       isDisabled={disabled}
+      name={name}
+      {...(meta.touched && meta.error && { status: 'danger' })}
+      isFullWidth
+      className="add-ons-form-toggle"
+    >
+      {selectedString || SELECT_PLACEHOLDER}
+    </MenuToggle>
+  );
+
+  const formSelect = (
+    <Select
+      id={name}
+      {...field}
+      toggle={selectToggle}
+      selected={field.value}
       isOpen={isExpanded}
-      selections={field.value}
-      onToggle={(_event, isExpanded) => setIsExpanded(isExpanded)}
-      validated={meta.touched || meta.error ? 'error' : 'default'}
       onSelect={onSelect}
       onBlur={() => form.setTouched(true, true)}
+      shouldFocusFirstItemOnOpen
       {...extraProps}
     >
-      {options.map((option) => (
-        <SelectOptionDeprecated key={option.value} value={option.value}>
-          {option.label ? (
-            <Flex
-              flexWrap={{ default: 'nowrap' }}
-              spaceItems={{ default: 'spaceItemsSm' }}
-              alignItems={{ default: 'alignItemsCenter' }}
-            >
-              <span>{option.name}</span>
-              {option.label}
-            </Flex>
-          ) : (
-            option.name
-          )}
-        </SelectOptionDeprecated>
-      ))}
-    </SelectDeprecated>
+      <SelectList>
+        {options.map((option) => (
+          <SelectOption key={option.value} value={option.value}>
+            {option.label ? (
+              <Flex
+                flexWrap={{ default: 'nowrap' }}
+                spaceItems={{ default: 'spaceItemsSm' }}
+                alignItems={{ default: 'alignItemsCenter' }}
+              >
+                <span>{option.name}</span>
+                {option.label}
+              </Flex>
+            ) : (
+              option.name
+            )}
+          </SelectOption>
+        ))}
+      </SelectList>
+    </Select>
   );
 
   return isFormGroup ? (
@@ -98,7 +122,7 @@ export const AddOnsFormDropdown = ({
       fieldId={name}
       label={label}
       isRequired={isRequired}
-      labelIcon={extendedHelpText ? <PopoverHint hint={extendedHelpText} /> : undefined}
+      labelHelp={extendedHelpText ? <PopoverHint hint={extendedHelpText} /> : undefined}
     >
       {formSelect}
       <FormGroupHelperText

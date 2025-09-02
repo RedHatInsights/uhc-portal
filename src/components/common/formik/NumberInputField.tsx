@@ -22,16 +22,20 @@ export const NumberInputField = (props: NumberInputFieldProps) => {
 
   const labelIcon = helpText ? (
     <Popover bodyContent={<p>{helpText}</p>}>
-      <Button variant="plain" isInline>
-        <Icon size="md">
-          <HelpIcon />
-        </Icon>
-      </Button>
+      <Button
+        icon={
+          <Icon size="md">
+            <HelpIcon />
+          </Icon>
+        }
+        variant="plain"
+        isInline
+      />
     </Popover>
   ) : undefined;
 
   return (
-    <FormGroup fieldId={fieldId} label={label} labelIcon={labelIcon} isRequired={isRequired}>
+    <FormGroup fieldId={fieldId} label={label} labelHelp={labelIcon} isRequired={isRequired}>
       <TextInput
         type="number"
         min={min}

@@ -1,8 +1,7 @@
 import React, { ComponentProps } from 'react';
 
-import { Title } from '@patternfly/react-core';
+import { Icon, Title } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { global_danger_color_100 as dangerColor } from '@patternfly/react-tokens/dist/esm/global_danger_color_100';
 
 import ErrorDetailsDisplay from '~/components/common/ErrorDetailsDisplay';
 import { ErrorState } from '~/types/types';
@@ -32,7 +31,10 @@ const ErrorModal = ({
     <Modal
       header={
         <Title headingLevel="h2" size="2xl">
-          <ExclamationCircleIcon color={dangerColor.value} /> {title}
+          <Icon status="danger">
+            <ExclamationCircleIcon />
+          </Icon>
+          {title}
         </Title>
       }
       primaryText="Close"

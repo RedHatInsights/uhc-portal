@@ -12,7 +12,7 @@ import shouldShowModal from '~/components/common/Modal/ModalSelectors';
 import PopoverHint from '~/components/common/PopoverHint';
 import { refetchMachineOrNodePoolsQuery } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useGlobalState } from '~/redux/hooks';
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/stateTypes';
 
 import { NodePoolWithUpgradePolicies } from '../machinePoolCustomTypes';
 
@@ -32,36 +32,41 @@ export const UpdatePoolButton = ({
   isMachinePoolError,
   isHypershift,
   controlPlaneVersion,
+  controlPlaneRawVersion,
 }: {
   machinePool: NodePoolWithUpgradePolicies;
   isMachinePoolError: boolean;
   isHypershift: boolean;
   controlPlaneVersion: string;
+  controlPlaneRawVersion: string;
 }) => {
   const dispatch = useDispatch();
 
   const updateSchedules = useGlobalState((state) => state.clusterUpgrades.schedules);
 
-  const canBeUpdated = useSelector((state: GlobalState) =>
-    canMachinePoolBeUpgradedSelector(
-      updateSchedules,
-      controlPlaneVersion,
-      machinePool,
-      isMachinePoolError,
-      isHypershift,
-    ),
+  const canBeUpdated = canMachinePoolBeUpgradedSelector(
+    updateSchedules,
+    controlPlaneVersion,
+    machinePool,
+    isMachinePoolError,
+    isHypershift,
+    controlPlaneRawVersion,
   );
-  const isAvailableVersion = useIsControlPlaneValidForMachinePool(machinePool, controlPlaneVersion);
+  const isAvailableVersion = useIsControlPlaneValidForMachinePool(
+    machinePool,
+    controlPlaneRawVersion,
+  );
   const machinePoolUpdating = isMachinePoolUpgrading(machinePool);
 
   if (canBeUpdated && !isMachinePoolError) {
     return (
       <Button
+        icon={<OutlinedArrowAltCircleUpIcon />}
         variant={ButtonVariant.link}
         isInline
         onClick={() => dispatch(modalActions.openModal(updateModalId, { machinePool }))}
       >
-        Update <OutlinedArrowAltCircleUpIcon />
+        Update
       </Button>
     );
   }
@@ -69,7 +74,7 @@ export const UpdatePoolButton = ({
   if (isMachinePoolScheduleError(machinePool)) {
     return (
       <PopoverHint
-        iconClassName="pf-v5-u-ml-sm"
+        iconClassName="pf-v6-u-ml-sm"
         isError
         hint={machinePool.upgradePolicies?.errorMessage}
       />
@@ -79,7 +84,7 @@ export const UpdatePoolButton = ({
   if (!isAvailableVersion) {
     return (
       <PopoverHint
-        iconClassName="pf-v5-u-ml-sm"
+        iconClassName="pf-v6-u-ml-sm"
         hint={`This machine pool cannot be updated because there isn't a migration path to version ${controlPlaneVersion}`}
       />
     );
@@ -93,7 +98,7 @@ export const UpdatePoolButton = ({
     if (schedule?.next_run && schedule?.version) {
       return (
         <PopoverHint
-          iconClassName="pf-v5-u-ml-sm"
+          iconClassName="pf-v6-u-ml-sm"
           hint={
             <>
               {scheduledMessage} at <DateFormat type="exact" date={Date.parse(schedule.next_run)} />{' '}
@@ -104,7 +109,7 @@ export const UpdatePoolButton = ({
       );
     }
 
-    return <PopoverHint iconClassName="pf-v5-u-ml-sm" hint={scheduledMessage} />;
+    return <PopoverHint iconClassName="pf-v6-u-ml-sm" hint={scheduledMessage} />;
   }
   return null;
 };
@@ -114,12 +119,14 @@ export const UpdateMachinePoolModal = ({
   clusterId,
   refreshMachinePools,
   controlPlaneVersion,
+  controlPlaneRawVersion,
   region,
 }: {
   isHypershift: boolean;
   clusterId: string;
   refreshMachinePools?: () => void;
   controlPlaneVersion?: string;
+  controlPlaneRawVersion?: string;
   region?: string;
 }) => {
   const [pending, setPending] = React.useState(false);
@@ -154,7 +161,7 @@ export const UpdateMachinePoolModal = ({
 
   const updateNodePool = async () => {
     setPending(true);
-    const errors = await updatePool([machinePool], clusterId, controlPlaneVersion || '', region);
+    const errors = await updatePool([machinePool], clusterId, controlPlaneRawVersion || '', region);
 
     setPending(false);
     setError(errors[0] || '');
@@ -189,7 +196,7 @@ export const UpdateMachinePoolModal = ({
           isExpandable
           isInline
           role="alert"
-          className="pf-v5-u-mt-md"
+          className="pf-v6-u-mt-md"
         >
           <p>{error}</p>
         </Alert>

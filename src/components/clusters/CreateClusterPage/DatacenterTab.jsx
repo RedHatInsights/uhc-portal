@@ -76,7 +76,7 @@ const ocpTableRows = [
 
 const DatacenterTab = () => (
   <>
-    <PageSection variant="light" className="pf-v5-u-p-lg">
+    <PageSection hasBodyWrapper={false} className="pf-v6-u-p-lg">
       <Stack hasGutter>
         <StackItem>
           <Title headingLevel="h2" className="ocm-ocp-datacenter-title">
@@ -95,19 +95,21 @@ const DatacenterTab = () => (
                 Create cluster
               </Button>
             </SplitItem>
-            <SplitItem className="pf-v5-u-align-self-center">
+            <SplitItem className="pf-v6-u-align-self-center">
               <Link to="/install/metal/agent-based">Run Agent-based Installer locally</Link>
               <Popover bodyContent="Runs Assisted Installer securely and locally to create clusters in disconnected or air-gapped environments.">
-                <Button variant="plain" onClick={(e) => e.preventDefault()}>
-                  <OutlinedQuestionCircleIcon />
-                </Button>
+                <Button
+                  icon={<OutlinedQuestionCircleIcon />}
+                  variant="plain"
+                  onClick={(e) => e.preventDefault()}
+                />
               </Popover>
             </SplitItem>
           </Split>
         </StackItem>
       </Stack>
     </PageSection>
-    <PageSection>
+    <PageSection hasBodyWrapper={false}>
       <Stack hasGutter>
         <StackItem>
           <Title headingLevel="h2">Other datacenter options</Title>

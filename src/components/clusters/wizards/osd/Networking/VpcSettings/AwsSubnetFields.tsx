@@ -12,6 +12,9 @@ import AwsSingleSubnetField from './AwsSingleSubnetField';
 
 const AwsSubnetFields = () => {
   const { values, dirty, getFieldProps, getFieldMeta, setFieldValue } = useFormState();
+  const controlPlaneFieldName = `${FieldId.SecurityGroups}.controlPlane`;
+  const infraFieldName = `${FieldId.SecurityGroups}.infra`;
+  const workerFieldName = `${FieldId.SecurityGroups}.worker`;
 
   const {
     [FieldId.MultiAz]: multiAz,
@@ -31,7 +34,12 @@ const AwsSubnetFields = () => {
             name={FieldId.SelectedVpc}
             input={{
               ...getFieldProps(FieldId.SelectedVpc),
-              onChange: (value: string) => setFieldValue(FieldId.SelectedVpc, value),
+              onChange: (newVpcValue: string) => {
+                setFieldValue(FieldId.SelectedVpc, newVpcValue);
+                setFieldValue(controlPlaneFieldName, []);
+                setFieldValue(infraFieldName, []);
+                setFieldValue(workerFieldName, []);
+              },
             }}
             isOSD
             meta={vpcMeta}

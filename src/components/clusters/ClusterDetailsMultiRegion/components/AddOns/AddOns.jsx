@@ -8,8 +8,6 @@ import {
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Spinner,
 } from '@patternfly/react-core';
 import { CubesIcon } from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
@@ -85,12 +83,7 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
 
   if (isHypershift) {
     return (
-      <EmptyState>
-        <EmptyStateHeader
-          titleText="Coming soon"
-          icon={<EmptyStateIcon icon={CubesIcon} />}
-          headingLevel="h5"
-        />
+      <EmptyState headingLevel="h5" icon={CubesIcon} titleText="Coming soon">
         <EmptyStateBody>
           Add-ons will be available soon for hosted control plane clusters.
         </EmptyStateBody>
@@ -114,7 +107,7 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
     return (
       <EmptyState>
         <EmptyStateBody>
-          <div className="pf-v5-u-text-align-center">
+          <div className="pf-v6-u-text-align-center">
             <Spinner size="lg" aria-label="Loading..." />
           </div>
         </EmptyStateBody>
@@ -127,12 +120,11 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
 
   if (!hasAddOns) {
     return (
-      <EmptyState>
-        <EmptyStateHeader
-          titleText="No add-ons available for this cluster"
-          icon={<EmptyStateIcon icon={PlusCircleIcon} />}
-          headingLevel="h5"
-        />
+      <EmptyState
+        headingLevel="h5"
+        icon={PlusCircleIcon}
+        titleText="No add-ons available for this cluster"
+      >
         {isFetchAddOnsError && <ErrorBox message="Error getting add-ons" response={addOnsError} />}
 
         <EmptyStateBody>There are no add-ons available for this cluster.</EmptyStateBody>

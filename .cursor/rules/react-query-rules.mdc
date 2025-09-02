@@ -1,0 +1,26 @@
+---
+description: React Query (TanStack Query) rules and best practices
+globs: src/queries/**/*.ts, src/queries/**/*.tsx, src/**/*Query*.ts, src/**/*Query*.tsx
+alwaysApply: false
+---
+
+- Create custom hooks that wrap React Query hooks for reusability and consistency
+- Add data sent to the API as part of the query key
+- Always use the `enabled` option to prevent queries from running when dependencies are not available
+- Use the `formatErrorData` helper function for consistent error handling across queries
+- Implement proper loading states using `isLoading`, `isPending`, and `isFetching` appropriately
+- Use `useQuery` for data fetching and `useMutation` for data modifications instead of Redux
+- Use `refetchInterval` for data that needs periodic updates (e.g., cluster status monitoring)
+- Always handle error states and provide meaningful error messages to users
+- Use `queryClient.invalidateQueries` in mutation `onSuccess` callbacks to refresh related data
+- Implement proper TypeScript types for query functions and return values
+- Use `useQueries` for running multiple related queries efficiently
+- Keep query functions pure and extract complex logic into separate service functions
+- Use conditional query execution with `enabled` rather than conditional hooks
+- Implement proper cleanup and cancellation for long-running queries
+- Use `select` option to transform data at the query level when appropriate
+- Handle regional API calls consistently using service patterns
+- Use `mutateAsync` for mutations that need to be awaited in async functions
+- Create query utilities and helpers in a shared location for consistency
+- Always provide proper fallback values for query data to prevent undefined errors
+- Create separate query files organized by feature/domain for better maintainability

@@ -10,7 +10,8 @@ describe('<ButtonWithTooltip>', () => {
       <ButtonWithTooltip className="myClassIsPassedToButton">My button text</ButtonWithTooltip>,
     );
 
-    expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'false');
+    expect(screen.getByRole('button')).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByRole('button')).toBeEnabled();
     expect(screen.getByRole('button')).toHaveClass('myClassIsPassedToButton');
 
     await checkAccessibility(container);
@@ -23,7 +24,8 @@ describe('<ButtonWithTooltip>', () => {
   it('displays as enabled button with only  an empty disableReason', async () => {
     const { user } = render(<ButtonWithTooltip disableReason="">My button text</ButtonWithTooltip>);
 
-    expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'false');
+    expect(screen.getByRole('button')).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByRole('button')).toBeEnabled();
 
     // make sure tooltip is not present
     await user.hover(screen.getByRole('button'));

@@ -33,7 +33,6 @@ const AssociateAWSAccountStep: React.FC<PropsWithChildren<AssociateAWSAccountSte
     <ExpandableSection
       onToggle={(event, isExpanded) => onToggle(event, isExpanded)}
       isExpanded={isExpanded}
-      isActive={isExpanded}
       toggleContent={
         <Title headingLevel={level} size="md">
           {title}

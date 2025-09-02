@@ -36,7 +36,7 @@ describe('<MachineConfiguration />', () => {
     };
     render(<MachineConfiguration {...props} />);
 
-    expect(await screen.findByText('Save changes')).toBeDisabled();
+    expect((await screen.findByText('Save changes')).parentElement).toBeDisabled();
     expect(screen.queryByLabelText(pidsInputLabel)).not.toBeInTheDocument();
     expect(screen.getByText('Loading PIDs limit')).toBeInTheDocument();
   });
@@ -172,7 +172,7 @@ describe('<MachineConfiguration />', () => {
     const { user } = render(<MachineConfiguration {...props} />);
 
     expect(await screen.findByLabelText(pidsInputLabel)).toBeInTheDocument();
-    expect(screen.getByText('Save changes')).toBeDisabled();
+    expect(screen.getByText('Save changes').parentElement).toBeDisabled();
 
     await user.clear(screen.getByLabelText(pidsInputLabel));
     await user.type(screen.getByLabelText(pidsInputLabel), '10_000');
@@ -185,7 +185,7 @@ describe('<MachineConfiguration />', () => {
       `${existingConfigResponse.data.pod_pids_limit}`,
     );
 
-    expect(screen.getByText('Save changes')).toBeDisabled();
+    expect(screen.getByText('Save changes').parentElement).toBeDisabled();
   });
 
   it('save changes by creating a new configuration if one does not exist yet', async () => {
@@ -263,8 +263,8 @@ describe('<MachineConfiguration />', () => {
     const { user } = render(<MachineConfiguration {...props} />);
 
     expect(await screen.findByLabelText(pidsInputLabel)).toBeInTheDocument();
-    expect(screen.getByText('Save changes')).toBeDisabled();
-    expect(screen.getByText('Cancel')).toBeEnabled();
+    expect(screen.getByText('Save changes').parentElement).toBeDisabled();
+    expect(screen.getByText('Cancel').parentElement).toBeEnabled();
 
     await user.clear(screen.getByLabelText(pidsInputLabel));
     await user.type(screen.getByLabelText(pidsInputLabel), '5000');
@@ -273,8 +273,8 @@ describe('<MachineConfiguration />', () => {
 
     await user.click(screen.getByText('Save changes'));
 
-    expect(await screen.findByText('Save changes')).toBeDisabled();
-    expect(await screen.findByText('Cancel')).toBeDisabled();
+    expect((await screen.findByText('Save changes')).parentElement).toBeDisabled();
+    expect((await screen.findByText('Cancel')).parentElement).toBeDisabled();
   });
 
   it('calls the onClose callback when clicking the "Cancel" button', async () => {

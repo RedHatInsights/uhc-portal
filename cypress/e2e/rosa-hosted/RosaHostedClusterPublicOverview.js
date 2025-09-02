@@ -3,6 +3,7 @@ import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 const clusterDetails = require('../../fixtures/rosa-hosted/RosaHostedClusterCreatePublic.json');
 const clusterProfiles = ['rosa-hosted-public', 'rosa-hosted-public-advanced'];
 const awsAccountID = Cypress.env('QE_AWS_ID');
+const awsBillingAccountID = Cypress.env('QE_AWS_BILLING_ID');
 
 describe(
   'Rosa hosted cluster (hypershift) -create public cluster Overview properties',
@@ -49,7 +50,7 @@ describe(
           .contains(awsAccountID);
         ClusterDetailsPage.clusterBillingMarketplaceAccountLabelValue()
           .scrollIntoView()
-          .contains(clusterProperties.AWSBillingAccountId);
+          .contains(awsBillingAccountID);
 
         if (clusterProperties.MachinePools.Autoscaling.includes('Enabled')) {
           cy.contains(

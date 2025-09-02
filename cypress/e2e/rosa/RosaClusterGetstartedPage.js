@@ -33,19 +33,21 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
       .scrollIntoView()
       .within(() => {
         cy.contains('Enable AWS').should('be.exist').should('be.visible');
-        cy.contains('Set up a VPC for ROSA HCP clusters (optional for ROSA classic clusters)')
+        cy.contains(
+          'Set up a VPC for ROSA hosted control plane architecture (HCP) clusters (optional for ROSA classic architecture clusters)',
+        )
           .should('be.exist')
           .should('be.visible');
         cy.contains('Configure Elastic Load Balancer (ELB)')
           .should('be.exist')
           .should('be.visible');
         cy.contains('Verify your quotas on AWS console').should('be.exist').should('be.visible');
-        RosaGetstartedPage.checkAnchorProperties(
-          cy.get('a'),
+        cy.contains(
+          'a[href="https://console.aws.amazon.com/rosa/home#/get-started"]',
           'Open AWS Console',
-          'https://console.aws.amazon.com/rosa/home#/get-started',
-          true,
-        );
+        )
+          .should('be.exist')
+          .should('be.visible');
       });
   });
   it(`ROSA Getstarted page - check for "Complete ROSA prerequisites" section`, () => {
@@ -79,13 +81,17 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
       true,
     );
     const rosaClientOptions = {
-      MacOS: 'https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-macosx.tar.gz',
-      Windows: 'https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-windows.zip',
-      Linux: 'https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz',
+      MacOS: 'https://mirror.openshift.com/pub/cgw/rosa/latest/rosa-macosx.tar.gz',
+      Windows: 'https://mirror.openshift.com/pub/cgw/rosa/latest/rosa-windows.zip',
+      Linux: 'https://mirror.openshift.com/pub/cgw/rosa/latest/rosa-linux.tar.gz',
     };
     Object.entries(rosaClientOptions).forEach(([key, value]) => {
       RosaGetstartedPage.rosaClientDropdown().select(key);
-      RosaGetstartedPage.checkAnchorProperties(cy.get('a'), 'Download the ROSA CLI', value, false);
+      RosaGetstartedPage.rosaClientButton({ timeout: 20000 }).should(
+        'have.attr',
+        'href',
+        `${value}`,
+      );
     });
 
     RosaGetstartedPage.rosaPrerequisitesStep12Content()
@@ -114,11 +120,22 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
     RosaGetstartedPage.rosaPrerequisitesStep2Section()
       .scrollIntoView()
       .contains(
-        'Log in to the ROSA CLI with your Red Hat account token and create AWS account roles and policies',
+        'Log in to the ROSA CLI with your Red Hat account and create AWS account roles and policies.',
       )
       .should('be.visible');
     RosaGetstartedPage.rosaPrerequisitesStep21Content().within(() => {
-      cy.contains('To authenticate, run this command').should('be.exist').should('be.visible');
+      cy.contains(
+        'To authenticate, run this command and enter your Red Hat login credentials via SSO',
+      )
+        .should('be.exist')
+        .should('be.visible');
+      cy.get('input').should('have.value', 'rosa login --use-auth-code');
+      RosaGetstartedPage.checkAnchorProperties(
+        cy.get('a'),
+        'logging into OpenShift Cluster Manager ROSA CLI with Red Hat single sign-on',
+        'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/cli_tools/rosa-cli#rosa-login-sso_rosa-getting-started-cli',
+        true,
+      );
     });
 
     RosaGetstartedPage.rosaPrerequisitesStep22Content().within(() => {
@@ -179,7 +196,7 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
       RosaGetstartedPage.checkAnchorProperties(
         cy.get('a'),
         'deploy ROSA clusters with the ROSA CLI',
-        'https://docs.openshift.com/rosa/rosa_hcp/rosa-hcp-sts-creating-a-cluster-quickly.html#rosa-hcp-sts-creating-a-cluster-cli_rosa-hcp-sts-creating-a-cluster-quickly',
+        'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_rosa_with_hcp_clusters/rosa-hcp-sts-creating-a-cluster-quickly',
         true,
       );
     });
@@ -193,15 +210,9 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
       cy.get('h4')
         .contains('Your AWS account will need to be associated with your Red Hat account')
         .should('be.visible');
-      cy.get('a')
-        .contains('Create with web interface')
-        .then((anchor) => {
-          const href = anchor.prop('href');
-          cy.wrap(anchor).click();
-          cy.url().should('include', '/openshift/create/rosa/wizard');
-          cy.url().should('include', href);
-          cy.go('back');
-        });
+      cy.get('a').contains('Create with web interface').click();
+      cy.url({ timeout: 20000 }).should('include', '/create/rosa/wizard');
+      cy.go('back');
     });
     RosaGetstartedPage.deployWithTerraformCard().scrollIntoView().should('be.visible');
     RosaGetstartedPage.deployWithTerraformCard().within(() => {
@@ -213,7 +224,7 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
       RosaGetstartedPage.checkAnchorProperties(
         cy.get('a'),
         'deploy a ROSA HCP cluster',
-        'https://docs.openshift.com/rosa/rosa_hcp/terraform/rosa-hcp-creating-a-cluster-quickly-terraform.html',
+        'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_rosa_with_hcp_clusters/creating-a-rosa-cluster-using-terraform#rosa-hcp-creating-a-cluster-quickly-terraform',
         true,
       );
       RosaGetstartedPage.checkAnchorProperties(

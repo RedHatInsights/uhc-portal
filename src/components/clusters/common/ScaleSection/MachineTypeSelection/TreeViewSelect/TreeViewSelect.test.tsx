@@ -91,6 +91,7 @@ const TreeViewSelectTestWrapper = (props: { allExpanded?: boolean }) => {
 
   return (
     <TreeViewSelect
+      data-testid="tree-view-select"
       selected={selected}
       setSelected={(_, selection) => setSelected(selection)}
       selectionPlaceholderText={selectionText}
@@ -101,16 +102,13 @@ const TreeViewSelectTestWrapper = (props: { allExpanded?: boolean }) => {
       helperText={
         !filteredByRegion && (
           <HelperText>
-            <HelperTextItem variant="warning" hasIcon>
-              Selection is from a filtered set
-            </HelperTextItem>
+            <HelperTextItem variant="warning">Selection is from a filtered set</HelperTextItem>
           </HelperText>
         )
       }
       placeholder="Select instance type"
       searchPlaceholder="Find an instance size"
       switchLabelOnText="Show compatible instances only"
-      switchLabelOffText="Show compatible instances only"
       ariaLabel="TreeViewSelect"
       allExpanded={allExpanded}
     />
@@ -123,7 +121,7 @@ describe('TreeViewSelect ', () => {
 
     expect(screen.getByText('Select instance type')).toBeInTheDocument();
     await user.click(screen.getByLabelText('TreeViewSelect toggle'));
-    expect(container.querySelector('.pf-v5-c-tree-view')).toBeInTheDocument();
+    expect(screen.getByRole('tree').parentElement).toHaveClass('pf-v6-c-tree-view');
     await checkAccessibility(container);
   });
 
@@ -132,7 +130,7 @@ describe('TreeViewSelect ', () => {
 
     expect(screen.getByText('Select instance type')).toBeInTheDocument();
     await user.click(screen.getByLabelText('TreeViewSelect toggle'));
-    expect(container.querySelector('.pf-v5-c-tree-view')).toBeInTheDocument();
+    expect(screen.getByRole('tree').parentElement).toHaveClass('pf-v6-c-tree-view');
 
     const input = await screen.findByLabelText('TreeViewSelect search field');
     await user.type(input, machineTypeMapFiltered[0].children![0].id!);
@@ -145,7 +143,7 @@ describe('TreeViewSelect ', () => {
 
     expect(screen.getByText('Select instance type')).toBeInTheDocument();
     await user.click(screen.getByLabelText('TreeViewSelect toggle'));
-    expect(container.querySelector('.pf-v5-c-tree-view')).toBeInTheDocument();
+    expect(screen.getByRole('tree').parentElement).toHaveClass('pf-v6-c-tree-view');
 
     await user.click(screen.getByTestId('display-switch'));
 
@@ -160,7 +158,7 @@ describe('TreeViewSelect ', () => {
 
     expect(screen.getByText('Select instance type')).toBeInTheDocument();
     await user.click(screen.getByLabelText('TreeViewSelect toggle'));
-    expect(container.querySelector('.pf-v5-c-tree-view')).toBeInTheDocument();
+    expect(screen.getByRole('tree').parentElement).toHaveClass('pf-v6-c-tree-view');
 
     const input = await screen.findByLabelText('TreeViewSelect search field');
     await user.type(input, 'c5a.Olarge');
@@ -173,7 +171,7 @@ describe('TreeViewSelect ', () => {
 
     expect(screen.getByText('Select instance type')).toBeInTheDocument();
     await user.click(screen.getByLabelText('TreeViewSelect toggle'));
-    expect(container.querySelector('.pf-v5-c-tree-view')).toBeInTheDocument();
+    expect(screen.getByRole('tree').parentElement).toHaveClass('pf-v6-c-tree-view');
 
     const input = await screen.findByLabelText('TreeViewSelect search field');
     await user.type(input, 'c5a.false');
@@ -209,7 +207,7 @@ describe('TreeViewSelect ', () => {
 
     expect(screen.getByText('Select instance type')).toBeInTheDocument();
     await user.click(screen.getByLabelText('TreeViewSelect toggle'));
-    expect(container.querySelector('.pf-v5-c-tree-view')).toBeInTheDocument();
+    expect(screen.getByRole('tree').parentElement).toHaveClass('pf-v6-c-tree-view');
     await user.click(screen.getByTestId('display-switch'));
     expect(screen.getByText('Selection is from a filtered set')).toBeInTheDocument();
 

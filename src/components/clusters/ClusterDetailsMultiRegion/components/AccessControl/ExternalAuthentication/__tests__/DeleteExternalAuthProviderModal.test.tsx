@@ -44,7 +44,7 @@ describe('<DeleteExternalAuthProviderModal />', () => {
         externalAuthProvider={mockModalData.externalAuthProvider}
       />,
     );
-    expect(screen.getByRole('button', { name: 'Delete' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Delete' })).not.toBeEnabled();
   });
 
   it('closes modal on cancel', async () => {
@@ -70,15 +70,12 @@ describe('<DeleteExternalAuthProviderModal />', () => {
     );
     await user.type(screen.getByRole('textbox'), 'wrong_name');
 
-    expect(screen.getByRole('button', { name: 'Delete' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Delete' })).not.toBeEnabled();
 
     await user.clear(screen.getByRole('textbox'));
     await user.type(screen.getByRole('textbox'), 'myprovider1');
 
-    expect(screen.getByRole('button', { name: 'Delete' })).toHaveAttribute(
-      'aria-disabled',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: 'Delete' })).not.toHaveAttribute('aria-disabled');
   });
 
   it('calls delete function on confirm', async () => {
@@ -91,10 +88,7 @@ describe('<DeleteExternalAuthProviderModal />', () => {
     );
     await user.type(screen.getByRole('textbox'), 'myprovider1');
 
-    expect(screen.getByRole('button', { name: 'Delete' })).toHaveAttribute(
-      'aria-disabled',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: 'Delete' })).not.toHaveAttribute('aria-disabled');
 
     await user.click(screen.getByRole('button', { name: 'Delete' }));
     apiRequestMock.delete.mockResolvedValue({

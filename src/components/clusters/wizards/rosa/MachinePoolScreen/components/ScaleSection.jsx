@@ -1,7 +1,13 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Field, FieldArray } from 'formik';
 
-import { ExpandableSection, GridItem, Text, TextVariants, Title } from '@patternfly/react-core';
+import {
+  Content,
+  ContentVariants,
+  ExpandableSection,
+  GridItem,
+  Title,
+} from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import { required } from '~/common/validators';
@@ -24,7 +30,7 @@ import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import FormKeyValueList from '~/components/common/FormikFormComponents/FormKeyValueList';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
-import { OCMUI_MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
+import { IMDS_SELECTION, MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import WorkerNodeVolumeSizeSection from './WorkerNodeVolumeSizeSection/WorkerNodeVolumeSizeSection';
@@ -33,6 +39,7 @@ import ImdsSection from './ImdsSection';
 function ScaleSection() {
   const {
     values: {
+      [FieldId.SelectedVpc]: selectedVpc,
       [FieldId.Hypershift]: isHypershift,
       [FieldId.MultiAz]: isMultiAz,
       [FieldId.MachineType]: machineType,
@@ -42,6 +49,8 @@ function ScaleSection() {
       [FieldId.NodeLabels]: nodeLabels,
       [FieldId.ClusterVersion]: clusterVersion,
       [FieldId.MachinePoolsSubnets]: machinePoolsSubnets,
+      [FieldId.InstallerRoleArn]: installerRoleArn,
+      [FieldId.Region]: region,
       [FieldId.BillingModel]: billingModel,
       [FieldId.IMDS]: imds,
     },
@@ -51,6 +60,8 @@ function ScaleSection() {
     getFieldMeta,
   } = useFormState();
 
+  const isImdsEnabledHypershift = useFeatureGate(IMDS_SELECTION);
+
   const isByoc = true;
   const poolsLength = machinePoolsSubnets?.length;
   const isMultiAzSelected = isMultiAz === 'true';
@@ -59,7 +70,7 @@ function ScaleSection() {
   const hasNodeLabels = nodeLabels?.[0]?.key ?? false;
   const [isNodeLabelsExpanded, setIsNodeLabelsExpanded] = useState(!!hasNodeLabels);
   const canAutoScale = useCanClusterAutoscale(product, billingModel) ?? false;
-  const allow249NodesOSDCCSROSA = useFeatureGate(OCMUI_MAX_NODES_TOTAL_249);
+  const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
   const clusterVersionRawId = clusterVersion?.raw_id;
 
   const minNodesRequired = useMemo(
@@ -103,7 +114,7 @@ function ScaleSection() {
           onToggle={(_event, val) => setIsNodeLabelsExpanded(val)}
         >
           <Title headingLevel="h3">Node labels (optional)</Title>
-          <p className="pf-v5-u-mb-md">
+          <p className="pf-v6-u-mb-md">
             Configure labels that will apply to all nodes in this machine pool.
           </p>
           <FieldArray
@@ -118,7 +129,7 @@ function ScaleSection() {
 
   const ImdsSectionComponent = useCallback(
     () =>
-      !isHypershiftSelected && imds ? (
+      imds ? (
         <>
           <GridItem md={8}>
             <ImdsSection
@@ -130,7 +141,7 @@ function ScaleSection() {
           <GridItem md={4} />
         </>
       ) : null,
-    [clusterVersionRawId, imds, isHypershiftSelected, setFieldValue],
+    [clusterVersionRawId, imds, setFieldValue],
   );
 
   const WorkerNodeVolumeSizeSectionComponent = useCallback(
@@ -157,11 +168,11 @@ function ScaleSection() {
             <Title headingLevel="h3">Machine pools settings</Title>
           </GridItem>
           <GridItem md={12}>
-            <Text component={TextVariants.p}>
+            <Content component={ContentVariants.p}>
               These settings apply to all created machine pools. After cluster creation, you can
               alter your compute machine count at any time, but your selected default machine pool
               instance type is permanent.
-            </Text>
+            </Content>
           </GridItem>
         </>
       )}
@@ -169,7 +180,10 @@ function ScaleSection() {
       <GridItem md={6}>
         <Field
           component={MachineTypeSelection}
+          selectedVpc={selectedVpc}
           name={FieldId.MachineType}
+          installerRoleArn={installerRoleArn}
+          region={region}
           validate={required}
           isMultiAz={isMultiAzSelected}
           isBYOC={isByoc}
@@ -241,7 +255,8 @@ function ScaleSection() {
       ) : null}
 
       {/* IMDS */}
-      <ImdsSectionComponent />
+      {isImdsEnabledHypershift && isHypershiftSelected ? <ImdsSectionComponent /> : null}
+      {!isHypershiftSelected ? <ImdsSectionComponent /> : null}
       {/* Worker node disk size */}
       <WorkerNodeVolumeSizeSectionComponent />
       {/* Labels */}

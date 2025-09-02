@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Grid, GridItem, Text, Title } from '@patternfly/react-core';
+import { Content, Grid, GridItem, Title } from '@patternfly/react-core';
 
 const HypershiftMachinePoolHeader = () => (
   <Grid>
@@ -8,11 +8,11 @@ const HypershiftMachinePoolHeader = () => (
       <Title headingLevel="h3">Machine pools</Title>
     </GridItem>
     <GridItem>
-      <Text component="p">
+      <Content component="p">
         Create machine pools and specify the private subnet for each machine pool. To make your
         cluster highly available, add machine pools on different availability zones. Additional
         machine pools can be created after cluster creation.
-      </Text>
+      </Content>
     </GridItem>
   </Grid>
 );
@@ -23,12 +23,12 @@ const DefaultMachinePoolHeader = () => (
       <Title headingLevel="h3">Default machine pool</Title>
     </GridItem>
     <GridItem>
-      <Text component="p">
+      <Content component="p">
         Select a compute node instance type and count for your default machine pool.
-      </Text>
-      <Text component="p">
+      </Content>
+      <Content component="p">
         After cluster creation, your selected default machine pool instance type is permanent.
-      </Text>
+      </Content>
     </GridItem>
   </Grid>
 );

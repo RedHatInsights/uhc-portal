@@ -22,7 +22,7 @@ const GithubFormRequired = ({ isEditForm, idpEdited, isPending }) => {
   const [authMode, setAuthMode] = React.useState('organizations');
   const [hostnameRequired, setHostnameRequired] = React.useState(false);
 
-  const { setFieldValue, getFieldProps, getFieldMeta } = useFormState();
+  const { setFieldValue, getFieldProps, getFieldMeta, setFieldTouched } = useFormState();
 
   React.useEffect(() => {
     if (isEditForm) {
@@ -77,8 +77,12 @@ const GithubFormRequired = ({ isEditForm, idpEdited, isPending }) => {
           input={{
             // name, value, onBlur, onChange
             ...getFieldProps(FieldId.GITHUB_CA),
-            onChange: (_, value) => setFieldValue(FieldId.GITHUB_CA, value),
+            onChange: (value) => {
+              setFieldValue(FieldId.GITHUB_CA, value);
+              setFieldTouched(FieldId.GITHUB_CA, true);
+            },
           }}
+          fieldName="github_ca"
           meta={getFieldMeta(FieldId.GITHUB_CA)}
           helpText="PEM encoded certificate bundle to use to validate server certificates for the configured GitHub Enterprise URL."
           isDisabled={isPending}
@@ -89,7 +93,7 @@ const GithubFormRequired = ({ isEditForm, idpEdited, isPending }) => {
 
       <GridItem span={8}>
         <Divider />
-        <Title headingLevel="h3" size="xl" className="pf-v5-u-mt-lg">
+        <Title headingLevel="h3" size="xl" className="pf-v6-u-mt-lg">
           Organizations or teams
         </Title>
         <p>

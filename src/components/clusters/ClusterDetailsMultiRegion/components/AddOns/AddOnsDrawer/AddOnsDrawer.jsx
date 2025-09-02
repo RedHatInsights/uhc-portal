@@ -233,7 +233,7 @@ const AddOnsDrawer = ({
               </Flex>
             </DrawerPanelBody>
             {installedAddOn?.state === AddOnsConstants.INSTALLATION_STATE.DELETING ? null : (
-              <DrawerPanelBody>
+              <DrawerPanelBody className="drawer-panel-body">
                 <AddOnsPrimaryButton
                   activeCard={activeCard}
                   activeCardRequirementsFulfilled={activeCardRequirementsFulfilled}
@@ -276,8 +276,8 @@ const AddOnsDrawer = ({
           panelContent={activeCard ? panelContent : null}
           className="pf-m-no-background ocm-c-addons__drawer--panel-gallery"
         >
-          <DrawerContentBody>
-            <Gallery hasGutter>
+          <DrawerContentBody hasPadding>
+            <Gallery hasGutter className="ocm-fix-selectable-card-border">
               {addOnsList.map((addOn) => (
                 <AddOnsCard
                   key={addOn.id}

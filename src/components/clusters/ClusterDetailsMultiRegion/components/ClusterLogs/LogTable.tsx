@@ -4,14 +4,12 @@ import dayjs from 'dayjs';
 
 import {
   Bullseye,
+  Content,
+  ContentVariants,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
   Spinner,
-  Text,
-  TextVariants,
 } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { WrenchIcon } from '@patternfly/react-icons/dist/esm/icons/wrench-icon';
@@ -65,12 +63,12 @@ const emptyState = (colSpan: number) => (
     <Tr>
       <Td colSpan={colSpan}>
         <Bullseye>
-          <EmptyState variant={EmptyStateVariant.sm}>
-            <EmptyStateHeader
-              titleText="No results found"
-              icon={<EmptyStateIcon icon={SearchIcon} />}
-              headingLevel="h2"
-            />
+          <EmptyState
+            headingLevel="h2"
+            icon={SearchIcon}
+            titleText="No results found"
+            variant={EmptyStateVariant.sm}
+          >
             <EmptyStateBody>
               No results match the filter criteria. Remove all filters or clear all filters to show
               results.
@@ -142,13 +140,13 @@ const LogTable = ({ logs, setSorting, pending, refreshEvent }: LogTableParams) =
 
     const references = hasDocReferences ? (
       <>
-        <Text
+        <Content
           data-testid={`references_${rowIndex}`}
           className="cluster-log__resources"
-          component={TextVariants.h2}
+          component={ContentVariants.h2}
         >
           <strong>References:</strong>
-        </Text>
+        </Content>
         <ul>
           {docReferences.map((url) => (
             <li key={url}>
@@ -162,7 +160,7 @@ const LogTable = ({ logs, setSorting, pending, refreshEvent }: LogTableParams) =
     const isInternal = internal_only; // summary.trim() === 'INTERNAL';
 
     return (
-      <Tbody className={isInternal ? 'pf-v5-u-background-color-danger' : undefined} key={rowIndex}>
+      <Tbody className={isInternal ? 'cluster-log__table-body' : undefined} key={rowIndex}>
         <Tr>
           <Td
             expand={{
@@ -221,7 +219,7 @@ const LogTable = ({ logs, setSorting, pending, refreshEvent }: LogTableParams) =
         <Table aria-label="Expandable table" variant={TableVariant.compact}>
           <Thead>
             <Tr>
-              <Th />
+              <Th screenReaderText="Row expansion" />
               {columns.map((column, index) => (
                 <Th sort={getSortParams(index + 1)} key={column.title}>
                   {column.title}

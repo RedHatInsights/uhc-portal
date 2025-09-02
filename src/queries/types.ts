@@ -90,3 +90,20 @@ export type AvailableRegionalInstance = {
   environment?: string;
   isDefault?: boolean;
 };
+
+export type HTPasswdUser = {
+  id?: string;
+  username?: string;
+  kind?: string;
+  href?: string;
+};
+
+export type HTPasswdIdpUsers = {
+  idpId: string;
+  htpUsers: HTPasswdUser[];
+};
+
+export type BulkDeleteHtpasswdUserError = {
+  username?: string;
+  error: { errorMessage?: string; operationID?: string };
+};

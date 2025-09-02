@@ -1,3 +1,4 @@
+import { IMDSType } from '~/components/clusters/wizards/common';
 import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 
 import { EditMachinePoolValues } from './hooks/useMachinePoolFormik';
@@ -19,6 +20,7 @@ const defaultValues: EditMachinePoolValues = {
   instanceType: 'some-instance-type',
   privateSubnetId: 'subnet-id',
   securityGroupIds: ['sg-1'],
+  imds: IMDSType.V1AndV2,
 };
 
 describe('buildMachinePoolRequest', () => {
@@ -142,7 +144,6 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: false,
         isMultiZoneMachinePool: false,
-        hasHcpRootDiskSizeFeature: true,
       });
 
       expect(nodePool.aws_node_pool?.root_volume?.size).toEqual(333);

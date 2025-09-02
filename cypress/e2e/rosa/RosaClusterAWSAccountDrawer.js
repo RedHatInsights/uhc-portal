@@ -56,13 +56,21 @@ describe('Rosa cluster AWS account drawer check(OCP-48396)', { tags: ['smoke'] }
         .find('input')
         .should('have.value', 'rosa list ocm-role');
 
-      CreateRosaWizardPage.rosaCreateOcmTab().should('have.attr', 'aria-selected', 'true');
-      CreateRosaWizardPage.rosaLinkOcmTab().should('have.attr', 'aria-selected', 'false');
+      CreateRosaWizardPage.rosaCreateOcmTab()
+        .find('button')
+        .should('have.attr', 'aria-pressed', 'true');
+      CreateRosaWizardPage.rosaLinkOcmTab()
+        .find('button')
+        .should('have.attr', 'aria-pressed', 'false');
 
       CreateRosaWizardPage.rosaLinkOcmTab().click();
 
-      CreateRosaWizardPage.rosaCreateOcmTab().should('have.attr', 'aria-selected', 'false');
-      CreateRosaWizardPage.rosaLinkOcmTab().should('have.attr', 'aria-selected', 'true');
+      CreateRosaWizardPage.rosaCreateOcmTab()
+        .find('button')
+        .should('have.attr', 'aria-pressed', 'false');
+      CreateRosaWizardPage.rosaLinkOcmTab()
+        .find('button')
+        .should('have.attr', 'aria-pressed', 'true');
 
       CreateRosaWizardPage.rosaCreateOcmTab().click();
 
@@ -91,13 +99,21 @@ describe('Rosa cluster AWS account drawer check(OCP-48396)', { tags: ['smoke'] }
         .find('input')
         .should('have.value', 'rosa list user-role');
 
-      CreateRosaWizardPage.rosaCreateUserTab().should('have.attr', 'aria-selected', 'true');
-      CreateRosaWizardPage.rosaLinkUserTab().should('have.attr', 'aria-selected', 'false');
+      CreateRosaWizardPage.rosaCreateUserTab()
+        .find('button')
+        .should('have.attr', 'aria-pressed', 'true');
+      CreateRosaWizardPage.rosaLinkUserTab()
+        .find('button')
+        .should('have.attr', 'aria-pressed', 'false');
 
       CreateRosaWizardPage.rosaLinkUserTab().click();
 
-      CreateRosaWizardPage.rosaCreateUserTab().should('have.attr', 'aria-selected', 'false');
-      CreateRosaWizardPage.rosaLinkUserTab().should('have.attr', 'aria-selected', 'true');
+      CreateRosaWizardPage.rosaCreateUserTab()
+        .find('button')
+        .should('have.attr', 'aria-pressed', 'false');
+      CreateRosaWizardPage.rosaLinkUserTab()
+        .find('button')
+        .should('have.attr', 'aria-pressed', 'true');
 
       CreateRosaWizardPage.rosaCreateUserTab().click();
 

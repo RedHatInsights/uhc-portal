@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text, TextContent } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 
 import links, { channels, tools } from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -43,11 +43,11 @@ const DevToolRows = ({
           </>
         }
         description={
-          <Text>
+          <Content component="p">
             Write, build, and deploy applications on OpenShift with <code>odo</code>, a fast,
             iterative, and straightforward CLI tool for developers.{' '}
             <ExternalLink href={links.ODO_DOCS}>Learn more</ExternalLink>
-          </Text>
+          </Content>
         }
       />
 
@@ -61,10 +61,10 @@ const DevToolRows = ({
           </>
         }
         description={
-          <Text>
+          <Content component="p">
             Define, install, and upgrade application packages as Helm charts using Helm 3, a package
             manager for Kubernetes. <ExternalLink href={links.HELM_DOCS}>Learn more</ExternalLink>
-          </Text>
+          </Content>
         }
       />
 
@@ -78,10 +78,10 @@ const DevToolRows = ({
           </>
         }
         description={
-          <Text>
+          <Content component="p">
             Create and maintain catalogs of Operators from a list of bundles with the Operator
             Package Manager. <ExternalLink href={links.OPM_DOCS}>Learn more</ExternalLink>
-          </Text>
+          </Content>
         }
       />
 
@@ -95,10 +95,11 @@ const DevToolRows = ({
           </>
         }
         description={
-          <Text>
-            Build, test, and deploy Operators with the Operator SDK CLI.{' '}
-            <ExternalLink href={links.OSDK_DOCS}>Learn more</ExternalLink>
-          </Text>
+          <Content component="p">
+            Build, test, and deploy Operators with the Operator SDK CLI. <br />
+            As of OCP 4.19, the Operator SDK CLI is no longer released with OpenShift Container
+            Platform. <ExternalLink href={links.OSDK_REMOVAL_DOCS}>Learn more</ExternalLink>
+          </Content>
         }
       />
 
@@ -113,15 +114,15 @@ const DevToolRows = ({
           </>
         }
         description={
-          <TextContent>
-            <Text>
+          <Content>
+            <Content component="p">
               Create and manage Kafka instances and topics, service accounts, and more using{' '}
               <code>rhoas</code>.
-            </Text>
-            <Text>
+            </Content>
+            <Content component="p">
               <ExternalLink href={links.RHOAS_CLI_DOCS}>Get started</ExternalLink>
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         }
       />
     </>

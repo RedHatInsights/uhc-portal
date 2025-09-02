@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useFormikContext } from 'formik';
 
-import { Grid, GridItem, Spinner } from '@patternfly/react-core';
+import { Flex, FlexItem, Spinner } from '@patternfly/react-core';
 
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { getNodeOptions } from '~/components/clusters/common/machinePools/utils';
@@ -38,6 +38,7 @@ const EditNodeCountSection = ({
 
   const hasClusterAutoScaler = useGlobalState((state) => state.clusterAutoscaler.hasAutoscaler);
   const organization = useGlobalState((state) => state.userProfile.organization);
+  const isHcpCluster = isHypershiftCluster(cluster);
 
   const minNodesRequired = getClusterMinNodes({
     cluster,
@@ -82,24 +83,24 @@ const EditNodeCountSection = ({
       ) : (
         <>
           {values.autoscaling ? (
-            <Grid hasGutter>
-              <GridItem span={5}>
+            <Flex>
+              <FlexItem>
                 <AutoscaleMinReplicasField
                   minNodes={minNodesRequired}
                   cluster={cluster}
                   mpAvailZones={machinePool?.availability_zones?.length}
                   options={options}
                 />
-              </GridItem>
-              <GridItem span={5}>
+              </FlexItem>
+              <FlexItem>
                 <AutoscaleMaxReplicasField
                   mpAvailZones={machinePool?.availability_zones?.length}
                   minNodes={minNodesRequired}
                   cluster={cluster}
                   options={options}
                 />
-              </GridItem>
-            </Grid>
+              </FlexItem>
+            </Flex>
           ) : (
             <NodeCountField
               mpAvailZones={machinePool?.availability_zones?.length}
@@ -108,7 +109,7 @@ const EditNodeCountSection = ({
               options={options}
             />
           )}
-          {!isHypershiftCluster(cluster) && (
+          {!isHcpCluster && (
             <MachinePoolsAutoScalingWarning
               hasClusterAutoScaler={hasClusterAutoScaler}
               hasAutoscalingMachinePools={machinePools.some((mp) => !!mp.autoscaling)}
@@ -116,7 +117,7 @@ const EditNodeCountSection = ({
               warningType={machinePool ? 'editMachinePool' : 'addMachinePool'}
             />
           )}
-          {machinePool?.id && (
+          {machinePool?.id && !isHcpCluster && (
             <ResizingAlert
               autoscalingEnabled={values.autoscaling}
               autoScaleMaxNodesValue={values.autoscaleMax}

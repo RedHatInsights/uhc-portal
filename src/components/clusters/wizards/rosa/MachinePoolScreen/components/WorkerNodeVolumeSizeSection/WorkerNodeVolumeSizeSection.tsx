@@ -22,7 +22,10 @@ const WorkerNodeVolumeSizeSection = ({
   maxWorkerVolumeSizeGiB,
 }: WorkerNodeVolumeSizeSectionProps) => {
   const {
-    values: { [FieldId.WorkerVolumeSizeGib]: workerVolumeSizeGib },
+    values: {
+      [FieldId.WorkerVolumeSizeGib]: workerVolumeSizeGib,
+      [FieldId.MinReplicas]: minReplicas,
+    },
     setFieldValue,
     setFieldTouched,
     getFieldProps,
@@ -35,13 +38,19 @@ const WorkerNodeVolumeSizeSection = ({
     }
   }, [setFieldValue, workerVolumeSizeGib]);
 
+  useEffect(() => {
+    // to trigger WorkerVolumeSizeGib field validation on min replicas change
+    setFieldTouched(FieldId.WorkerVolumeSizeGib, true, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [minReplicas]);
+
   return (
     <FormGroup
       className="worker-node-volume-size-section"
       label="Root disk size"
       isRequired
       fieldId={FieldId.WorkerVolumeSizeGib}
-      labelIcon={
+      labelHelp={
         <PopoverHint
           hint={`Root disks are AWS EBS volumes attached as the primary disk for AWS EC2 instances. The root disk size for this machine pool group of nodes must be between ${minWorkerVolumeSizeGiB}GiB and ${maxWorkerVolumeSizeGiB}GiB.`}
         />

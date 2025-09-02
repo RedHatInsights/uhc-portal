@@ -25,9 +25,10 @@ import {
   PENDING_ACTION,
   REJECTED_ACTION,
 } from '../reduxHelpers';
-import { PromiseActionType, PromiseReducerState } from '../types';
+import { PromiseReducerState } from '../stateTypes';
+import { PromiseActionType } from '../types';
 
-type State = PromiseReducerState<{
+type MachineTypesByRegionState = PromiseReducerState<{
   types: {
     [key: string]: MachineType[];
   };
@@ -35,7 +36,7 @@ type State = PromiseReducerState<{
   region?: { [id: string]: any };
 }>;
 
-const initialState: State = {
+const initialState: MachineTypesByRegionState = {
   ...baseRequestState,
   types: {},
   typesByID: {},
@@ -48,7 +49,7 @@ const mapMachineTypesById = (types: { [id: string]: MachineType[] }) =>
 function machineTypesByRegionReducer(
   state = initialState,
   action: PromiseActionType<MachineTypesByRegionAction>,
-): State {
+): MachineTypesByRegionState {
   switch (action.type) {
     case REJECTED_ACTION(machineTypesConstants.GET_MACHINE_TYPES_BY_REGION):
       return {
@@ -90,6 +91,6 @@ function machineTypesByRegionReducer(
 
 machineTypesByRegionReducer.initialState = initialState;
 
-export { initialState, mapMachineTypesById };
+export { initialState, mapMachineTypesById, MachineTypesByRegionState };
 
 export default machineTypesByRegionReducer;

@@ -6,15 +6,13 @@ import PropTypes from 'prop-types';
 import {
   Alert,
   Button,
+  Content,
+  ContentVariants,
   ExpandableSection,
   List,
   ListItem,
   Stack,
   StackItem,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextListVariants,
 } from '@patternfly/react-core';
 
 import { accountsService, clusterService } from '../../../../services';
@@ -165,18 +163,18 @@ the roles and OIDC provider are available.
         </StackItem>
       )}
       <StackItem>
-        <TextContent>
-          <TextList component={TextListVariants.ol}>
-            <TextListItem>Download and extract the following .zip file.</TextListItem>
-            <TextListItem>
+        <Content>
+          <Content component={ContentVariants.ol}>
+            <Content component="li">Download and extract the following .zip file.</Content>
+            <Content component="li">
               In the AWS CLI, run the commands with the included policy files to create the operator
               roles and OIDC provider.
-            </TextListItem>
-          </TextList>
+            </Content>
+          </Content>
           <Button variant="secondary" onClick={downloadZip} isDisabled={!ready}>
             {ready ? <>Download .zip</> : <>Preparing .zip</>}
           </Button>
-        </TextContent>
+        </Content>
       </StackItem>
     </Stack>
   );

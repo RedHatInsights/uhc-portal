@@ -2,7 +2,7 @@
   "Clusters": [
     {
       "ClusterName": "cyp-rosa-classic-default-sz-public-profile",
-      "ControlPlaneType": "Classic",
+      "ControlPlaneType": "Classic architecture",
       "Type": "ROSA",
       "Region": "us-west-2, US West, Oregon",
       "Availability": "Single-zone",
@@ -54,7 +54,7 @@
     },
     {
       "ClusterName": "cyp-rosa-classic-advanced-mz-public-profile",
-      "ControlPlaneType": "Classic",
+      "ControlPlaneType": "Classic architecture",
       "Type": "ROSA",
       "Region": "us-west-2, US West, Oregon",
       "Availability": "Multi-zone",

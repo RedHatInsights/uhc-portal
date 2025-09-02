@@ -98,7 +98,6 @@ const AddOnsSubscriptionCard = ({
   return (
     <Card
       id={billingModel}
-      isSelectableRaised
       isSelected={activeSubscription?.billingModel === billingModel}
       isDisabled={!hasCloudAccounts || !hasQuota || !isReady}
       onClick={() => {

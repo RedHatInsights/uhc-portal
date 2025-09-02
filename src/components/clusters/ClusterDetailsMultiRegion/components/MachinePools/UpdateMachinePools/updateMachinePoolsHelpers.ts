@@ -2,10 +2,11 @@ import { useSelector } from 'react-redux';
 import semver from 'semver';
 
 import { updateStartedSelectorMultiRegion } from '~/components/clusters/common/Upgrades/upgradeHelpers';
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/stateTypes';
 import clusterService, { getClusterServiceForRegion } from '~/services/clusterService';
-import { NodePool, UpgradePolicy, UpgradePolicyState } from '~/types/clusters_mgmt.v1';
+import { NodePool } from '~/types/clusters_mgmt.v1';
 import { ScheduleType, UpgradeType } from '~/types/clusters_mgmt.v1/enums';
+import { UpgradePolicyWithState } from '~/types/types';
 
 import { NodePoolWithUpgradePolicies } from '../machinePoolCustomTypes';
 
@@ -18,7 +19,6 @@ export const controlPlaneVersionSelector = (state: GlobalState) =>
 export const displayControlPlaneVersion = (controlPlaneVersion: string | undefined) =>
   semver.coerce(controlPlaneVersion)?.version;
 
-type UpgradePolicyWithState = UpgradePolicy & { state: UpgradePolicyState };
 type Schedules = {
   items: UpgradePolicyWithState[];
   fulfilled: boolean;
@@ -51,16 +51,16 @@ export const useHCPControlPlaneUpdating = (
   );
 
 export const compareIsMachinePoolBehindControlPlane = (
-  controlPlaneVersion?: string,
-  machinePoolVersion?: string,
+  controlPlaneRawVersion?: string,
+  machinePoolRawVersion?: string,
 ) => {
-  if (!controlPlaneVersion || !machinePoolVersion) {
+  if (!controlPlaneRawVersion || !machinePoolRawVersion) {
     return false;
   }
 
   return semver.gt(
-    semver.coerce(controlPlaneVersion) || '',
-    semver.coerce(machinePoolVersion) || '',
+    semver.coerce(controlPlaneRawVersion, { includePrerelease: true })?.version || '',
+    semver.coerce(machinePoolRawVersion, { includePrerelease: true })?.version || '',
   );
 };
 
@@ -68,22 +68,22 @@ export const isMachinePoolBehindControlPlane = (
   state: GlobalState,
   machinePool: NodePoolWithUpgradePolicies,
 ) => {
-  if (!machinePool || !machinePool.version?.id) {
+  if (!machinePool || !machinePool.version?.raw_id) {
     return false;
   }
   const controlPlaneVersion = controlPlaneVersionSelector(state);
 
-  return compareIsMachinePoolBehindControlPlane(controlPlaneVersion, machinePool.version.id);
+  return compareIsMachinePoolBehindControlPlane(controlPlaneVersion, machinePool.version.raw_id);
 };
 export const isMachinePoolBehindControlPlaneMulti = (
-  controlPlaneVersion: string,
+  controlPlaneRawVersion: string,
   machinePool: NodePoolWithUpgradePolicies,
 ) => {
-  if (!machinePool || !machinePool.version?.id) {
+  if (!machinePool || !machinePool.version?.raw_id) {
     return false;
   }
 
-  return compareIsMachinePoolBehindControlPlane(controlPlaneVersion, machinePool.version.id);
+  return compareIsMachinePoolBehindControlPlane(controlPlaneRawVersion, machinePool.version.raw_id);
 };
 
 export const useMachinePoolBehindControlPlane = (machinePool: NodePoolWithUpgradePolicies) =>
@@ -92,7 +92,7 @@ export const useMachinePoolBehindControlPlane = (machinePool: NodePoolWithUpgrad
 export const updateAllMachinePools = async (
   machinePools: NodePool[],
   clusterId: string,
-  toBeVersion: string,
+  toBeRawVersion: string,
   region?: string,
 ) => {
   // NOTE this results of this helper does NOT put the information into Redux
@@ -101,7 +101,7 @@ export const updateAllMachinePools = async (
   const errors: string[] = [];
 
   // In theory, this should never be called because we check for a version before calling this method
-  if (!toBeVersion || toBeVersion === '') {
+  if (!toBeRawVersion || toBeRawVersion === '') {
     return ['Machine pools could not be updated because control plane version is unknown'];
   }
 
@@ -111,7 +111,7 @@ export const updateAllMachinePools = async (
     const schedule = {
       schedule_type: ScheduleType.manual,
       next_run: new Date(new Date().getTime() + 6 * MINUTES_IN_MS).toISOString(),
-      version: semver.coerce(toBeVersion)?.version,
+      version: semver.coerce(toBeRawVersion, { includePrerelease: true })?.version,
       node_pool_id: pool.id,
       upgrade_type: UpgradeType.NodePool,
     };
@@ -135,22 +135,20 @@ export const updateAllMachinePools = async (
 
 export const isControlPlaneValidForMachinePool = (
   machinePool: NodePool,
-  controlPlaneVersion: string,
+  controlPlaneRawVersion: string,
 ) => {
   const availableVersions = machinePool?.version?.available_upgrades;
-  if (!controlPlaneVersion || !availableVersions) {
+  if (!controlPlaneRawVersion || !availableVersions) {
     return true; // we are returning true so the API can verify
   }
 
-  return availableVersions.some((version: string) =>
-    semver.eq(semver.coerce(controlPlaneVersion)?.version || '', version),
-  );
+  return availableVersions.some((version: string) => controlPlaneRawVersion === version);
 };
 
 export const useIsControlPlaneValidForMachinePool = (
   machinePool: NodePool,
-  controlPlaneVersion: string,
-): boolean => isControlPlaneValidForMachinePool(machinePool, controlPlaneVersion || '');
+  controlPlaneRawVersion: string,
+): boolean => isControlPlaneValidForMachinePool(machinePool, controlPlaneRawVersion || '');
 
 export const isMachinePoolUpgrading = (machinePool: NodePoolWithUpgradePolicies) =>
   !!machinePool.upgradePolicies?.items?.length;
@@ -164,6 +162,7 @@ export const canMachinePoolBeUpgradedSelector = (
   machinePool: NodePoolWithUpgradePolicies,
   isMachinePoolError: boolean,
   isHypershift: boolean,
+  controlPlaneRawVersion?: string,
 ) =>
   !isHCPControlPlaneUpdatingMultiRegion(
     clusterUpgradesSchedules,
@@ -171,7 +170,7 @@ export const canMachinePoolBeUpgradedSelector = (
     isMachinePoolError,
     isHypershift,
   ) &&
-  isMachinePoolBehindControlPlaneMulti(controlPlaneVersion, machinePool) &&
+  isMachinePoolBehindControlPlaneMulti(controlPlaneRawVersion || '', machinePool) &&
   !isMachinePoolScheduleError(machinePool) &&
-  isControlPlaneValidForMachinePool(machinePool, controlPlaneVersion) &&
+  isControlPlaneValidForMachinePool(machinePool, controlPlaneRawVersion || '') &&
   !isMachinePoolUpgrading(machinePool);

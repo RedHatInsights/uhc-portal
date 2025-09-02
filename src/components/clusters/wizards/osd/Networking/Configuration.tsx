@@ -1,12 +1,11 @@
 import React from 'react';
 
-import { Alert, Form, FormGroup, Grid, GridItem, Text, Title } from '@patternfly/react-core';
+import { Alert, Content, Form, FormGroup, Grid, GridItem, Title } from '@patternfly/react-core';
 
 import { ocmResourceType, TrackEvent, trackEvents } from '~/common/analytics';
 import links from '~/common/installLinks.mjs';
 import { getDefaultSecurityGroupsSettings } from '~/common/securityGroupsHelpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
-import { FormSubnet } from '~/common/validators';
 import { isExactMajorMinor } from '~/common/versionHelpers';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import {
@@ -26,6 +25,8 @@ import ExternalLink from '~/components/common/ExternalLink';
 import useAnalytics from '~/hooks/useAnalytics';
 import { PRIVATE_SERVICE_CONNECT } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+
+import { FormSubnet } from '../../common/FormSubnet';
 
 import { ApplicationIngressType, ClusterPrivacyType } from './constants';
 import { DefaultIngressFields } from './DefaultIngressFields';
@@ -57,11 +58,13 @@ export const Configuration = () => {
     cloudProvider === CloudProviderType.Aws || (cloudProvider === CloudProviderType.Gcp && isByoc);
   const showConfigureProxy =
     isByoc && [normalizedProducts.OSD, normalizedProducts.OSDTrial].includes(product);
+  const clusterVersionRawId: string | undefined = clusterVersion?.raw_id;
   const showPrivateServiceConnect =
     isByoc &&
     isGCP &&
     [normalizedProducts.OSD, normalizedProducts.OSDTrial].includes(product) &&
-    canConfigureDayOnePrivateServiceConnect(clusterVersion.raw_id) &&
+    clusterVersionRawId &&
+    canConfigureDayOnePrivateServiceConnect(clusterVersionRawId) &&
     hasPSCFeatureGate;
   const isWifAuth = authTypeFormValue === GCPAuthType.WorkloadIdentityFederation;
   const PSCPrivateWifWarning =
@@ -73,15 +76,16 @@ export const Configuration = () => {
     product === normalizedProducts.ROSA ? ocmResourceType.MOA : ocmResourceType.OSD;
 
   const showIngressSection = isByoc;
-  const isManagedIngressAllowed = canConfigureDayOneManagedIngress(clusterVersion.raw_id);
-  const isOcp413 = isExactMajorMinor(clusterVersion.raw_id, 4, 13);
+  const isManagedIngressAllowed =
+    clusterVersionRawId && canConfigureDayOneManagedIngress(clusterVersionRawId);
+  const isOcp413 = clusterVersionRawId && isExactMajorMinor(clusterVersionRawId, 4, 13);
 
   React.useEffect(() => {
     if (isWifAuth && showPrivateServiceConnect && isPrivateCluster) {
       setFieldValue(FieldId.InstallToVpc, true);
       setFieldValue(FieldId.PrivateServiceConnect, true);
     }
-  }, [isWifAuth, showPrivateServiceConnect, isPrivateCluster, installToVpc, setFieldValue]);
+  }, [isWifAuth, showPrivateServiceConnect, isPrivateCluster, setFieldValue]);
 
   const trackCheckedState = (trackEvent: TrackEvent, checked: boolean) =>
     track(trackEvent, {
@@ -198,7 +202,9 @@ export const Configuration = () => {
       <Grid hasGutter>
         <GridItem>
           <Title headingLevel="h3">Networking configuration</Title>
-          <Text className="pf-v5-u-mt-sm">Configure network access for your cluster.</Text>
+          <Content component="p" className="pf-v6-u-mt-sm">
+            Configure network access for your cluster.
+          </Content>
         </GridItem>
 
         {showClusterPrivacy && (
@@ -207,10 +213,10 @@ export const Configuration = () => {
               <Title headingLevel="h4" size="xl" className="privacy-heading">
                 Cluster privacy
               </Title>
-              <Text className="pf-v5-u-mt-sm">
+              <Content component="p" className="pf-v6-u-mt-sm">
                 Install your cluster with all public or private API endpoints and application
                 routes.
-              </Text>
+              </Content>
             </GridItem>
 
             <GridItem span={6}>
@@ -245,10 +251,10 @@ export const Configuration = () => {
               <Title headingLevel="h4" size="xl" className="privacy-heading">
                 Virtual Private Cloud (VPC)
               </Title>
-              <Text className="pf-v5-u-mt-sm">
+              <Content component="p" className="pf-v6-u-mt-sm">
                 By default, a new VPC will be created for your cluster. Alternatively, you may opt
                 to install to an existing VPC below.
-              </Text>
+              </Content>
             </GridItem>
 
             <GridItem span={6}>
@@ -264,7 +270,7 @@ export const Configuration = () => {
                   }
                 />
 
-                <div className="pf-v5-u-ml-lg pf-v5-u-mt-md">
+                <div className="pf-v6-u-ml-lg pf-v6-u-mt-md">
                   {isPrivateCluster && cloudProvider === CloudProviderType.Aws && (
                     <CheckboxField
                       name={FieldId.UsePrivateLink}
@@ -276,7 +282,7 @@ export const Configuration = () => {
                     />
                   )}
                   {isPrivateCluster && showPrivateServiceConnect && (
-                    <div className="pf-v5-u-mt-md">
+                    <div className="pf-v6-u-mt-md">
                       <CheckboxField
                         name={FieldId.PrivateServiceConnect}
                         label="Use Private Service Connect"
@@ -298,7 +304,7 @@ export const Configuration = () => {
                     </div>
                   )}
                   {showConfigureProxy && (
-                    <div className="pf-v5-u-mt-md">
+                    <div className="pf-v6-u-mt-md">
                       <CheckboxField
                         name={FieldId.ConfigureProxy}
                         label="Configure a cluster-wide proxy"
@@ -321,7 +327,7 @@ export const Configuration = () => {
               <Title headingLevel="h4" size="xl">
                 Application ingress settings
               </Title>
-              <Text className="pf-v5-u-mt-sm">
+              <Content component="p" className="pf-v6-u-mt-sm">
                 Ingress is configured by default.{' '}
                 {isManagedIngressAllowed
                   ? 'Customize settings if needed.'
@@ -336,7 +342,7 @@ export const Configuration = () => {
                     .
                   </>
                 )}
-              </Text>
+              </Content>
             </GridItem>
 
             {isManagedIngressAllowed && (

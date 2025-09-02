@@ -1,6 +1,7 @@
 import React from 'react';
 import semver from 'semver';
 
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import {
   Button,
   Card,
@@ -15,7 +16,6 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
-import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 
 import { Link } from '~/common/routing';
 import { isRestrictedEnv } from '~/restrictedEnv';
@@ -52,10 +52,8 @@ const Releases = () => {
 
   return (
     <AppPage title="Releases | Red Hat OpenShift Cluster Manager">
-      <PageHeader>
-        <PageHeaderTitle title="Releases" className="page-title" />
-      </PageHeader>
-      <PageSection className="ocm-p-releases">
+      <PageHeader title="Releases" subtitle="" />
+      <PageSection hasBodyWrapper={false} className="ocm-p-releases">
         <Stack hasGutter>
           <StackItem className="ocm-l-ocp-releases__section">
             <Card>
@@ -70,7 +68,7 @@ const Releases = () => {
                       aria-label="Version help"
                       bodyContent={
                         <>
-                          <p className="pf-v5-u-mb-md">
+                          <p className="pf-v6-u-mb-md">
                             The most recent versions aren&apos;t always available for every cluster.
                             To keep your cluster up to date with the recommended version, run
                             regular updates from the <Link to="/cluster-list">clusters list</Link>.
@@ -83,9 +81,13 @@ const Releases = () => {
                       }
                       id="version-help"
                     >
-                      <Button variant="link" isInline>
+                      <Button
+                        icon={<OutlinedQuestionCircleIcon />}
+                        iconPosition="end"
+                        variant="link"
+                        isInline
+                      >
                         I don&apos;t see these versions as upgrade options for my cluster.{' '}
-                        <OutlinedQuestionCircleIcon />
                       </Button>
                     </Popover>
                   </StackItem>
@@ -102,9 +104,9 @@ const Releases = () => {
                       const releaseNotesLink = getReleaseNotesLink(version.name);
                       return (
                         <GalleryItem key={version.name} data-testid={`version-${version.name}`}>
-                          <Card isFlat className="ocm-l-ocp-releases__card">
+                          <Card className="ocm-l-ocp-releases__card">
                             <CardTitle>
-                              <div className="ocm-l-ocp-releases__card-title pf-v5-u-mb-sm">
+                              <div className="ocm-l-ocp-releases__card-title pf-v6-u-mb-sm">
                                 {releaseNotesLink ? (
                                   <ExternalLink href={releaseNotesLink} noIcon>
                                     {renderProductName(version.name)}
@@ -113,7 +115,7 @@ const Releases = () => {
                                   renderProductName(version.name)
                                 )}
                               </div>
-                              <Divider className="ocm-l-ocp-releases__divider pf-v5-u-mt-lg pf-v5-u-mb-sm" />
+                              <Divider className="ocm-l-ocp-releases__divider pf-v6-u-mt-lg pf-v6-u-mb-sm" />
                             </CardTitle>
                             <CardBody>
                               <div className="ocm-l-ocp-releases__subheading">Channel details</div>
@@ -168,7 +170,7 @@ const Releases = () => {
                   </StackItem>
                   <StackItem>
                     <ExternalLink
-                      href={`https://docs.openshift.com/container-platform/${latestVersion}/updating/understanding_updates/understanding-update-channels-release.html`}
+                      href={`https://docs.redhat.com/en/documentation/openshift_container_platform/${latestVersion}/html/updating_clusters/understanding-openshift-updates-1#understanding-update-channels-releases`}
                       noIcon
                     >
                       Learn more about updating channels

@@ -90,12 +90,12 @@ describe('<EditConsoleURLDialog />', () => {
       <EditConsoleURLDialog {...defaultProps} />,
     );
 
-    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Save' })).not.toBeEnabled();
 
     await user.clear(screen.getByRole('textbox'));
     await user.type(screen.getByRole('textbox'), 'http://www.my-new-console-url.com');
 
-    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('aria-disabled', 'false');
+    expect(screen.getByRole('button', { name: 'Save' })).not.toHaveAttribute('aria-disabled');
 
     expect(mutate).not.toHaveBeenCalled();
 
@@ -125,12 +125,12 @@ describe('<EditConsoleURLDialog />', () => {
 
     const { user } = withState(newState, true).render(<EditConsoleURLDialog {...defaultProps} />);
 
-    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Save' })).not.toBeEnabled();
 
     await user.clear(screen.getByRole('textbox'));
     await user.type(screen.getByRole('textbox'), 'http://www.my-new-console-url.com');
 
-    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('aria-disabled', 'false');
+    expect(screen.getByRole('button', { name: 'Save' })).not.toHaveAttribute('aria-disabled');
 
     expect(mutate).not.toHaveBeenCalled();
 

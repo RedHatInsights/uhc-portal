@@ -1,19 +1,19 @@
 import React from 'react';
 
-import { List, ListItem, Text, TextContent } from '@patternfly/react-core';
+import { Content, List, ListItem } from '@patternfly/react-core';
 
 import PopoverHint from '~/components/common/PopoverHint';
-import { OCMUI_MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
+import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { MAX_NODES, MAX_NODES_INSUFFICIEN_VERSION } from '../machinePools/constants';
 
 export const MaxNodesTotalPopoverText = () => {
-  const allow249NodesOSDCCSROSA = useFeatureGate(OCMUI_MAX_NODES_TOTAL_249);
+  const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
 
   return (
-    <TextContent>
-      <Text>
+    <Content>
+      <Content component="p">
         The total number of master, infrastructure, and worker nodes of a single cluster. The
         maximum value for max-nodes-total should be the sum of:
         <List>
@@ -41,8 +41,8 @@ export const MaxNodesTotalPopoverText = () => {
             </ListItem>
           )}
         </List>
-      </Text>
-    </TextContent>
+      </Content>
+    </Content>
   );
 };
 

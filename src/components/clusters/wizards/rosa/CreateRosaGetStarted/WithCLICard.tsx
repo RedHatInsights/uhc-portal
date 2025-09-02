@@ -5,8 +5,8 @@ import {
   CardBody,
   CardFooter,
   CardTitle,
-  Text,
-  TextVariants,
+  Content,
+  ContentVariants,
   Title,
 } from '@patternfly/react-core';
 import { CodeIcon } from '@patternfly/react-icons/dist/esm/icons/code-icon';
@@ -19,7 +19,7 @@ import InstructionCommand from '~/components/common/InstructionCommand';
 import { RosaCliCommand } from '../AccountsRolesScreen/constants/cliCommands';
 
 const WithCLICard = () => (
-  <Card isFlat isFullHeight data-testid="deploy-with-cli-card">
+  <Card isFullHeight data-testid="deploy-with-cli-card">
     <CardTitle>
       <Title headingLevel="h3" size="lg">
         <CodeIcon className="ocm-c-wizard-get-started--card-icon" />
@@ -27,9 +27,9 @@ const WithCLICard = () => (
       </Title>
     </CardTitle>
     <CardBody>
-      <Text component={TextVariants.p} className="pf-v5-u-mb-sm">
+      <Content component={ContentVariants.p} className="pf-v6-u-mb-sm">
         Run the create command in your terminal to begin setup in interactive mode.
-      </Text>
+      </Content>
       <InstructionCommand
         textAriaLabel="Copyable ROSA create cluster command"
         trackEvent={trackEvents.CopyRosaCreateCluster}

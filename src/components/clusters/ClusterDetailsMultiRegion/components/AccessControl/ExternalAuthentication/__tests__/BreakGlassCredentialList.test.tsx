@@ -81,9 +81,8 @@ describe('<BreakGlassCredentialList />', () => {
         />,
       );
 
-      expect(await screen.findByRole('button', { name: /New Credentials/i })).toHaveAttribute(
+      expect(await screen.findByRole('button', { name: /New Credentials/i })).not.toHaveAttribute(
         'aria-disabled',
-        'false',
       );
       expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
       expect(apiRequestMock.get).toHaveBeenCalledWith(

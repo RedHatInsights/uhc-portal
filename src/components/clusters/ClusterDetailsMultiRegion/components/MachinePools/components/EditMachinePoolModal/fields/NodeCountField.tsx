@@ -68,7 +68,7 @@ const NodeCountField = ({
       fieldId={fieldId}
       label={isMultizoneMachinePool ? 'Compute node count (per zone)' : 'Compute node count'}
       isRequired
-      labelIcon={
+      labelHelp={
         <PopoverHint
           hint={
             <>

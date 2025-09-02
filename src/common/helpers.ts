@@ -1,9 +1,11 @@
 /* eslint-disable camelcase */
+import { useEffect, useRef } from 'react';
 import isEmpty from 'lodash/isEmpty';
+import { useLocation } from 'react-router-dom';
 import semver from 'semver';
 
 import { OrganizationState } from '~/redux/reducers/userReducer';
-import { PromiseReducerState } from '~/redux/types';
+import { PromiseReducerState } from '~/redux/stateTypes';
 
 const noop = Function.prototype;
 
@@ -367,6 +369,45 @@ const constructSelectedSubnets = (formValues?: Record<string, any>) => {
   return selectedSubnets;
 };
 
+/**
+ * A custom React hook for smooth scrolling to an element based on the URL hash.
+ * It listens for hash changes and scrolls to the corresponding element if it exists.
+ *
+ * Notes:
+ * - Ensure elements have unique `id` attributes matching the hash.
+ * - Resets the `lastHash` reference after scrolling to avoid redundant actions.
+ */
+const useScrollToAnchor = () => {
+  const location = useLocation();
+  const lastHash = useRef('');
+  useEffect(() => {
+    if (location.hash) {
+      // Sanitize the hash value (remove the '#' and allow only alphanumeric characters and hyphens)
+      const sanitizedHash = location.hash.slice(1).replace(/[^a-zA-Z0-9-_]/g, '');
+      lastHash.current = sanitizedHash;
+    }
+
+    if (lastHash.current && document.getElementById(lastHash.current)) {
+      setTimeout(() => {
+        document
+          .getElementById(lastHash.current)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        lastHash.current = '';
+      }, 100);
+    }
+  }, [location]);
+
+  return null;
+};
+
+const parseCIDRSubnetLength = (value?: string): number | undefined => {
+  if (!value) {
+    return undefined;
+  }
+
+  return parseInt(value.split('/').pop() ?? '', 10);
+};
+
 export {
   noop,
   isValid,
@@ -394,6 +435,8 @@ export {
   stringToArrayTrimmed,
   constructSelectedSubnets,
   Subnet,
+  useScrollToAnchor,
+  parseCIDRSubnetLength,
 };
 
 export default helpers;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TextContent, TextList, TextListVariants } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core';
 
 import './Instructions.scss';
 
@@ -10,14 +10,14 @@ type Props = {
 };
 
 const Instructions = ({ children, wide }: Props) => (
-  <TextContent className="ocm-instructions">
-    <TextList
-      component={TextListVariants.ol}
-      className={`ocm-instructions__list ${wide ? 'pf-v5-u-max-width' : ''}`}
+  <div className="ocm-instructions">
+    <Content
+      component={ContentVariants.ol}
+      className={`ocm-instructions__list ${wide ? 'pf-v6-u-max-width' : ''}`}
     >
       {children}
-    </TextList>
-  </TextContent>
+    </Content>
+  </div>
 );
 
 export default Instructions;

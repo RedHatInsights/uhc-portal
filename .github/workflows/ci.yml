@@ -1,0 +1,148 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  install:
+    name: ${{ matrix.os }} - Install - Node ${{ matrix.node-version }}
+    concurrency:
+      group: install-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [22.x]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache@v4
+        with:
+          path: './node_modules'
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - name: Check uncommitted changes
+        if: ${{ always() }}
+        # Check that Git working tree is clean after running `install` command.
+        # The `git` command exits with 1 and fails the build if there are any uncommitted changes.
+        run: git diff HEAD --exit-code
+  build:
+    name: ${{ matrix.os }} - Build - Node ${{ matrix.node-version }}
+    concurrency:
+      group: build-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
+      cancel-in-progress: true
+    needs: install
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [22.x]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache/restore@v4
+        with:
+          path: './node_modules'
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          fail-on-cache-miss: true
+      - name: Build
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: build
+  lint:
+    name: ${{ matrix.os }} - Lint - Node ${{ matrix.node-version }}
+    concurrency:
+      group: lint-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
+      cancel-in-progress: true
+    needs: install
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [22.x]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache/restore@v4
+        with:
+          path: './node_modules'
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          fail-on-cache-miss: true
+      - name: Lint
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: lint-prettier
+  unitary-test:
+    name: ${{ matrix.os }} - Unitary Tests - Node ${{ matrix.node-version }}
+    concurrency:
+      group: unitary-test-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
+      cancel-in-progress: true
+    needs: [build]
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [22.x]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache/restore@v4
+        with:
+          path: './node_modules'
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          fail-on-cache-miss: true
+      - name: Test
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: test
+  circular-dependencies:
+    name: ${{ matrix.os }} - Circular Dependencies - Node ${{ matrix.node-version }}
+    concurrency:
+      group: circular-dependencies-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
+      cancel-in-progress: true
+    needs: [build]
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [22.x]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache/restore@v4
+        with:
+          path: './node_modules'
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          fail-on-cache-miss: true
+      - name: Find Circular Dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: find-circular-dependencies

@@ -169,7 +169,7 @@ function SubscriptionSettings({
                     {serviceLevelStr}
                   </DescriptionListDescription>
                   {isEditViewable && (
-                    <DescriptionListDescription class="pf-v5-u-mt-lg">
+                    <DescriptionListDescription class="pf-v6-u-mt-lg">
                       <Button
                         variant="link"
                         isDisabled={!canSubscribeOCP}

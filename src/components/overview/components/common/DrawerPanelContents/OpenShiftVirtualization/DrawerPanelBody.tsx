@@ -1,46 +1,26 @@
 import React from 'react';
 
-import {
-  Stack,
-  StackItem,
-  Text,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextVariants,
-  Title,
-} from '@patternfly/react-core';
+import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
 import ExternalLink from '~/components/common/ExternalLink';
-import VideoImg from '~/styles/images/OpenshiftVirtualizationExplanationVideoImg.png';
+import { YoutubePlayer } from '~/components/common/YoutubePlayer/YoutubePlayer';
 
 const OpenShiftVirtualizationPanelBody = (
   <Stack hasGutter className="drawer-panel-content-body">
     <StackItem>
-      <TextContent>
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           Transition your virtual machines to a modern hybrid cloud application platform. Run your
           VMs alongside containers using the same set of tools and processes.
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </StackItem>
 
     <StackItem>
-      <ExternalLink
-        href="https://www.youtube.com/watch?v=ZplrufNY9cY&t=5s"
-        noIcon
-        data-testid="drawer-panel-content__explanation-video-parent"
-      >
-        <img
-          src={VideoImg}
-          alt="OpenShift Virtualization video"
-          className="drawer-panel-content__explanation-video"
-          data-testid="drawer-panel-content__explanation-video"
-        />
-      </ExternalLink>
-      <TextContent>
-        <Text component={TextVariants.small}>Video duration: 2:08</Text>
-      </TextContent>
+      <YoutubePlayer videoID="ZplrufNY9cY" />
+      <Content>
+        <Content component={ContentVariants.small}>Video duration: 2:08</Content>
+      </Content>
     </StackItem>
 
     <StackItem>
@@ -49,24 +29,24 @@ const OpenShiftVirtualizationPanelBody = (
       </Title>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <TextList isPlain>
-          <TextListItem>
+      <Content>
+        <Content component="ul" isPlainList>
+          <Content component="li">
             <strong>Faster deployment times:</strong> When you run your workloads on a consistent
             platform, you streamline application development and deployment, accelerating time to
             market.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <strong>Enhanced developer productivity:</strong> Harness the simplicity and speed of a
             modern hybrid application platform and enable self-service.
-          </TextListItem>
-          <TextListItem>
+          </Content>
+          <Content component="li">
             <strong>Manage from 1 platform:</strong> With a single platform for VMs, containers, and
             serverless workloads, you can simplify your operations and standardize infrastructure
             deployment.
-          </TextListItem>
-        </TextList>
-      </TextContent>
+          </Content>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem>
       <Title headingLevel="h3" data-testid="drawer-panel-content-capabilities-title">
@@ -74,15 +54,15 @@ const OpenShiftVirtualizationPanelBody = (
       </Title>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <TextList isPlain>
-          <TextListItem>
+      <Content>
+        <Content component="ul" isPlainList>
+          <Content component="li">
             You can quickly and easily migrate your VMs from VMware vSphere to OpenShift
             Virtualization using the Migration Toolkit for Virtualization (MTV). You must have
             OpenShift Virtualization Operator installed to use MTV.
-          </TextListItem>
-        </TextList>
-      </TextContent>
+          </Content>
+        </Content>
+      </Content>
     </StackItem>
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink
@@ -99,13 +79,13 @@ const OpenShiftVirtualizationPanelBody = (
       </Title>
     </StackItem>
     <StackItem>
-      <TextContent>
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           Using Red Hat Advanced Cluster Management for Kubernetes (RHACM), you can manage any
           Kubernetes cluster in your fleet. Using the self-service cluster deployment that
           automatically delivers applications, you can reduce operational costs.
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </StackItem>
 
     <StackItem className="drawer-panel-content__learn-more">

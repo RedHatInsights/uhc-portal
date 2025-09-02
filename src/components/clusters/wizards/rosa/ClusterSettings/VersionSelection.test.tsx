@@ -5,7 +5,7 @@ import * as helpers from '~/common/helpers';
 import * as ReleaseHooks from '~/components/releases/hooks';
 import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
 import { clustersActions } from '~/redux/actions/clustersActions';
-import type { GlobalState } from '~/redux/store';
+import type { GlobalState } from '~/redux/stateTypes';
 import {
   checkAccessibility,
   mockUseFeatureGate,
@@ -194,7 +194,6 @@ const defaultFields = {
 
 const onChangeMock = jest.fn();
 const defaultProps = {
-  isOpen: true, // Shortcut: avoids need to click it.
   onChange: onChangeMock,
   label: 'Version select label',
 };
@@ -231,7 +230,6 @@ describe('<VersionSelection />', () => {
     const state = { clusters: { clusterVersions: fulfilledVersionsState } };
     const newProps = {
       ...defaultProps,
-      isOpen: false,
     };
     const { container } = withState(state).render(
       <Formik onSubmit={() => {}} initialValues={defaultFields}>
@@ -337,11 +335,15 @@ describe('<VersionSelection />', () => {
         [FieldId.Hypershift]: 'true',
         ...managedARNsFields,
       };
-      withState(state).render(
+
+      const { user } = withState(state).render(
         <Formik onSubmit={() => {}} initialValues={newFields}>
           <VersionSelection {...defaultProps} />
         </Formik>,
       );
+
+      // Open the dropdown
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
 
       // Assert
       expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
@@ -360,11 +362,13 @@ describe('<VersionSelection />', () => {
         ...defaultFields,
         [FieldId.Hypershift]: 'true',
       };
-      withState(state).render(
+      const { user } = withState(state).render(
         <Formik onSubmit={() => {}} initialValues={newFields}>
           <VersionSelection {...defaultProps} />
         </Formik>,
       );
+      // Open the dropdown
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
 
       // Assert
       expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
@@ -514,6 +518,56 @@ describe('<VersionSelection />', () => {
       expect(onChangeMock).not.toHaveBeenCalledWith(latestVersion);
       expect(onChangeMock).toHaveBeenCalledWith(newVersions[1]);
     });
+    it('shows all versions when hypershift regardless of ARN maxOS version settings', async () => {
+      const newVersions = [
+        {
+          ami_overrides: [],
+          channel_group: 'stable',
+          default: false,
+          enabled: true,
+          end_of_life_timestamp: '2025-03-17T00:00:00Z',
+          hosted_control_plane_enabled: true,
+          href: '/api/clusters_mgmt/v1/versions/openshift-v4.18.1',
+          id: 'openshift-v4.18.1',
+          kind: 'Version',
+          raw_id: '4.18.1',
+          release_image: 'quay.io/openshift-release-dev/ocp-release@sha256:mock1234',
+          rosa_enabled: true,
+        },
+        ...versions,
+      ];
+      const fulfilledUpdatedVersionsState: GlobalState['clusters']['clusterVersions'] = {
+        error: false,
+        pending: false,
+        fulfilled: true,
+        params: {},
+        versions: newVersions,
+      };
+      // Arrange
+      const state = {
+        clusters: {
+          clusterVersions: { ...fulfilledUpdatedVersionsState, params: { product: 'hcp' } },
+        },
+      };
+      const newFields = {
+        ...defaultFields,
+        [FieldId.RosaMaxOsVersion]: '4.16',
+        [FieldId.Hypershift]: 'true',
+      };
+      const { user } = withState(state).render(
+        <Formik onSubmit={() => {}} initialValues={newFields}>
+          <VersionSelection {...defaultProps} />
+        </Formik>,
+      );
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
+      // Assert
+      expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
+      newVersions.forEach((version) => {
+        expect(screen.getByRole('option', { name: version.raw_id })).toBeInTheDocument();
+      });
+    });
   });
 
   describe('all clusters', () => {
@@ -590,11 +644,13 @@ describe('<VersionSelection />', () => {
         ...defaultFields,
         [FieldId.RosaMaxOsVersion]: '4.11.3',
       };
-      withState(state).render(
+      const { user } = withState(state).render(
         <Formik onSubmit={() => {}} initialValues={newFields}>
           <VersionSelection {...defaultProps} />
         </Formik>,
       );
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
 
       // Assert
       expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
@@ -632,6 +688,8 @@ describe('<VersionSelection />', () => {
         </Formik>,
       );
 
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
       expect(screen.getByLabelText('View only compatible versions')).toBeInTheDocument();
       expect(screen.queryByRole('option', { name: '4.12.1' })).not.toBeInTheDocument();
 
@@ -655,11 +713,13 @@ describe('<VersionSelection />', () => {
     it('shows full support versions grouped together', async () => {
       // Arrange
       const state = { clusters: { clusterVersions: fulfilledVersionsState } };
-      withState(state).render(
+      const { user } = withState(state).render(
         <Formik onSubmit={() => {}} initialValues={defaultFields}>
           <VersionSelection {...defaultProps} />
         </Formik>,
       );
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
 
       expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
       expect(screen.getAllByRole('listbox')).toHaveLength(2);
@@ -673,11 +733,13 @@ describe('<VersionSelection />', () => {
     it('shows maintenance support versions grouped together', async () => {
       // Arrange
       const state = { clusters: { clusterVersions: fulfilledVersionsState } };
-      withState(state).render(
+      const { user } = withState(state).render(
         <Formik onSubmit={() => {}} initialValues={defaultFields}>
           <VersionSelection {...defaultProps} />
         </Formik>,
       );
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
 
       expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
       expect(screen.getAllByRole('listbox')).toHaveLength(2);
@@ -706,7 +768,6 @@ describe('<VersionSelection />', () => {
       const state = { clusters: { clusterVersions: fulfilledVersionsState } };
       const newProps = {
         ...defaultProps,
-        isOpen: false,
       };
       const newFields = {
         ...defaultFields,
@@ -725,7 +786,7 @@ describe('<VersionSelection />', () => {
       // Act
       await user.click(
         screen.getByRole('button', {
-          name: version,
+          name: componentText.SELECT_TOGGLE.label,
         }),
       );
 
@@ -767,6 +828,50 @@ describe('<VersionSelection />', () => {
 
       expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
 
+      // onChange is called on render to set the default version
+      expect(onChangeMock).toHaveBeenCalled();
+      expect(onChangeMock).toHaveBeenCalledWith(latestVersion);
+    });
+
+    it('parses displays and selects version 4.20.0 if it is latest version', async () => {
+      const newVersions = [...versions];
+
+      const latestVersion = {
+        ...versions[0],
+        raw_id: '4.20.0',
+        id: 'openshift-v4.20.0',
+        default: false,
+        enabled: true,
+        rosa_enabled: true,
+        hosted_control_plane_enabled: true,
+      };
+
+      newVersions.unshift(latestVersion);
+
+      const state = {
+        clusters: { clusterVersions: { ...fulfilledAllVersionsState, versions: newVersions } },
+      };
+      const newProps = {
+        ...defaultProps,
+        input: { onChange: onChangeMock },
+      };
+      const newFields = {
+        ...defaultFields,
+        [FieldId.RosaMaxOsVersion]: '4.20.0',
+      };
+
+      const { user } = withState(state).render(
+        <Formik onSubmit={() => {}} initialValues={newFields}>
+          <VersionSelection {...newProps} />
+        </Formik>,
+      );
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
+      expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: '4.2' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: '4.2.0' })).not.toBeInTheDocument();
+      expect(screen.getByRole('option', { name: '4.20.0' })).toBeInTheDocument();
       // onChange is called on render to set the default version
       expect(onChangeMock).toHaveBeenCalled();
       expect(onChangeMock).toHaveBeenCalledWith(latestVersion);
@@ -818,7 +923,6 @@ describe('<VersionSelection />', () => {
       const state = { clusters: { clusterVersions: fulfilledVersionsState } };
       const newProps = {
         ...defaultProps,
-        isOpen: false,
       };
       const { user } = withState(state).render(
         <Formik onSubmit={() => {}} initialValues={defaultFields}>
@@ -861,7 +965,6 @@ describe('<VersionSelection />', () => {
       const state = { clusters: { clusterVersions: fulfilledVersionsState } };
       const newProps = {
         ...defaultProps,
-        isOpen: true,
       };
       const { user } = withState(state).render(
         <Formik onSubmit={() => {}} initialValues={defaultFields}>
@@ -872,12 +975,20 @@ describe('<VersionSelection />', () => {
       // this is due to preselecting an item
       expect(onChangeMock.mock.calls).toHaveLength(1);
 
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
       // Act
-      await user.click(screen.getByRole('option', { name: version }));
+      // Click a different version to ensure onChange is called again
+      const versionToSelect = '4.11.4';
+      const selectedVersionAfterClick = versions.find((v) => v.raw_id === versionToSelect);
+      expect(selectedVersionAfterClick).not.toBeUndefined();
+      await user.click(screen.getByRole('option', { name: versionToSelect }));
 
       // Assert
-      expect(onChangeMock.mock.calls).toHaveLength(2);
-      expect(onChangeMock.mock.calls[1][0]).toEqual(selectedClusterVersion);
+      await waitFor(() => {
+        expect(onChangeMock.mock.calls).toHaveLength(2);
+      });
+      expect(onChangeMock.mock.calls[1][0]).toEqual(selectedVersionAfterClick);
     });
 
     it('resets value when selected version is not valid', async () => {
@@ -903,13 +1014,16 @@ describe('<VersionSelection />', () => {
         [FieldId.ClusterVersion]: selectedClusterVersion,
         [FieldId.Hypershift]: 'true',
       };
-      withState(state).render(
+      const { user } = withState(state).render(
         <Formik onSubmit={() => {}} initialValues={newFields}>
           <div>
             <VersionSelection {...defaultProps} />
           </div>
         </Formik>,
       );
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
       expect(onChangeMock).toHaveBeenCalledWith(undefined);
 
       // After that it renders again, sees it has no value and picks a new default.
@@ -930,13 +1044,16 @@ describe('<VersionSelection />', () => {
         [FieldId.ClusterVersion]: { raw_id: '4.10.9999', id: 'openshift-4.10.9999' },
       };
 
-      withState(state).render(
+      const { user } = withState(state).render(
         <Formik onSubmit={() => {}} initialValues={newFields}>
           <div>
             <VersionSelection {...defaultProps} />
           </div>
         </Formik>,
       );
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
       expect(onChangeMock).toHaveBeenCalledWith(undefined);
 
       // After that it renders again, sees it has no value and picks a new default.
@@ -945,6 +1062,98 @@ describe('<VersionSelection />', () => {
       );
       expect(onChangeMock.mock.calls).toHaveLength(2);
       expect(onChangeMock.mock.lastCall[0]).toMatchObject({ raw_id: '4.12.1' });
+    });
+
+    it('displays only matching results when text is entered', async () => {
+      const state = { clusters: { clusterVersions: fulfilledVersionsState } };
+      const { user } = withState(state).render(
+        <Formik onSubmit={() => {}} initialValues={defaultFields}>
+          <VersionSelection {...defaultProps} />
+        </Formik>,
+      );
+
+      expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
+
+      // Open the dropdown
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
+      // Find the filter input and type
+      const filterInput = screen.getByPlaceholderText('Filter by version number');
+
+      await user.type(filterInput, '4.11');
+
+      // Assert that only versions matching the filter are shown
+      expect(screen.getByRole('option', { name: '4.11 .4' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: '4.11 .3' })).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: '4.12.1' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: '4.10.1' })).not.toBeInTheDocument();
+    });
+
+    it('filters results by compatibility and text input', async () => {
+      const state = { clusters: { clusterVersions: fulfilledVersionsState } };
+      const newFields = {
+        ...defaultFields,
+        [FieldId.RosaMaxOsVersion]: '4.11.3',
+      };
+      const { user } = withState(state).render(
+        <Formik onSubmit={() => {}} initialValues={newFields}>
+          <VersionSelection {...defaultProps} />
+        </Formik>,
+      );
+
+      expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
+      const compatibleSwitch = screen.getByLabelText('View only compatible versions');
+      expect(compatibleSwitch).toBeInTheDocument();
+      expect(compatibleSwitch).toBeChecked();
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
+      const filterInput = screen.getByPlaceholderText('Filter by version number');
+      await user.type(filterInput, '4.11.4');
+
+      expect(screen.queryByRole('option', { name: '4.11.4' })).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: '4.12.1' })).not.toBeInTheDocument();
+
+      await user.click(compatibleSwitch);
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
+      expect(screen.getByRole('option', { name: '4.11.4' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: '4.11.3' })).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: '4.12.1' })).not.toBeInTheDocument();
+    });
+
+    it('clears the text filter when compatibility switch is toggled', async () => {
+      const state = { clusters: { clusterVersions: fulfilledVersionsState } };
+      const newFields = {
+        ...defaultFields,
+        [FieldId.RosaMaxOsVersion]: '4.11.3',
+      };
+      const { user } = withState(state).render(
+        <Formik onSubmit={() => {}} initialValues={newFields}>
+          <VersionSelection {...defaultProps} />
+        </Formik>,
+      );
+
+      expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+      const filterInput = screen.getByPlaceholderText('Filter by version number');
+      await user.type(filterInput, '4.12');
+
+      expect(filterInput).toHaveValue('4.12');
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
+      const compatibleSwitch = screen.getByLabelText('View only compatible versions');
+      await user.click(compatibleSwitch);
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
+      expect(filterInput).toHaveValue('');
     });
   });
   describe('Test feature flag unstable versions', () => {
@@ -960,11 +1169,14 @@ describe('<VersionSelection />', () => {
         [FieldId.Hypershift]: 'true',
         ...managedARNsFields,
       };
-      withState(state).render(
+
+      const { user } = withState(state).render(
         <Formik onSubmit={() => {}} initialValues={newFields}>
           <VersionSelection {...defaultProps} />
         </Formik>,
       );
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
 
       // Assert
       expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
@@ -985,18 +1197,20 @@ describe('<VersionSelection />', () => {
         [FieldId.Hypershift]: 'true',
         ...managedARNsFields,
       };
-      withState(state).render(
+      const { user } = withState(state).render(
         <Formik onSubmit={() => {}} initialValues={newFields}>
           <VersionSelection {...defaultProps} />
         </Formik>,
       );
 
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
       // Assert
       expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
       expect(screen.getByRole('option', { name: '4.12.1' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: '4.11.4' })).toBeInTheDocument();
-      expect(screen.getByRole('option', { name: '4.11.5 (candidate)' })).toBeInTheDocument();
-      expect(screen.getByRole('option', { name: '4.11.5 (fast)' })).toBeInTheDocument();
+      expect(document.getElementById('openshift-v4.11.5-fast')).toBeInTheDocument();
+      expect(document.getElementById('openshift-v4.11.5-candidate')).toBeInTheDocument();
     });
   });
 });

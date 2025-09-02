@@ -52,27 +52,18 @@ describe('<AddOnsDeleteModal />', () => {
     useGlobalState.mockReturnValue(mockModalData);
     const { user } = render(<AddOnsDeleteModal {...props} />);
 
-    expect(screen.getByRole('button', { name: 'Uninstall' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
+    expect(screen.getByRole('button', { name: 'Uninstall' })).not.toBeEnabled();
 
     const input = screen.getByPlaceholderText(/Enter name/i);
     await user.clear(input);
     await user.type(input, 'fake-addon-name');
 
-    expect(screen.getByRole('button', { name: 'Uninstall' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
+    expect(screen.getByRole('button', { name: 'Uninstall' })).not.toBeEnabled();
 
     await user.clear(input);
     await user.type(input, 'mockedAddOnName');
 
-    expect(screen.getByRole('button', { name: 'Uninstall' })).toHaveAttribute(
-      'aria-disabled',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: 'Uninstall' })).not.toHaveAttribute('aria-disabled');
   });
 
   it('should close modal on cancel', async () => {

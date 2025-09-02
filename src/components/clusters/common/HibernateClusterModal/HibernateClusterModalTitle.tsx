@@ -16,7 +16,7 @@ const HibernateClusterModalTitle = ({ title }: { title: string }) => (
       <Title headingLevel="h2">{title}</Title>
     </FlexItem>
     <FlexItem>
-      <TechnologyPreview className="pf-v5-u-ml-0" />
+      <TechnologyPreview className="pf-v6-u-ml-0" />
     </FlexItem>
   </Flex>
 );

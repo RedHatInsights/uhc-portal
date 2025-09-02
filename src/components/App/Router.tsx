@@ -17,15 +17,14 @@ limitations under the License.
 import React, { useEffect } from 'react';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
-import { HistoryRouterProps, Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 
-import { UILibRoutes as AssistedInstallerRoutes } from '@openshift-assisted/ui-lib/ocm';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 import { Navigate, ocmBaseName } from '~/common/routing';
 import ClusterDetailsClusterOrExternalIdMR from '~/components/clusters/ClusterDetailsMultiRegion/ClusterDetailsClusterOrExternalId';
 import {
-  CLUSTER_OWNERSHIP_TRANSFER,
+  AUTO_CLUSTER_TRANSFER_OWNERSHIP,
   HYPERSHIFT_WIZARD_FEATURE,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -33,71 +32,20 @@ import { isRestrictedEnv } from '~/restrictedEnv';
 import apiRequest from '~/services/apiRequest';
 
 import { normalizedProducts } from '../../common/subscriptionTypes';
+import AIRootApp from '../AIComponents/AIRootApp';
 import CLILoginPage from '../CLILoginPage/CLILoginPage';
 import ArchivedClusterListMultiRegion from '../clusters/ArchivedClusterListMultiRegion';
 import ClusterDetailsSubscriptionIdMultiRegion from '../clusters/ClusterDetailsMultiRegion/ClusterDetailsSubscriptionIdMultiRegion';
 import AccessRequestNavigate from '../clusters/ClusterDetailsMultiRegion/components/AccessRequest/components/AccessRequestNavigate';
 import IdentityProviderPageMultiregion from '../clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/index';
 import ClusterListMultiRegion from '../clusters/ClusterListMultiRegion';
+import ClusterRequestList from '../clusters/ClusterTransfer/ClusterRequest';
 import CreateClusterPage from '../clusters/CreateClusterPage';
 import GovCloudPage from '../clusters/GovCloud/GovCloudPage';
 import InsightsAdvisorRedirector from '../clusters/InsightsAdvisorRedirector';
-import InstallAlibabaCloud from '../clusters/install/InstallAlibabaCloud';
-import InstallArmAWS from '../clusters/install/InstallArmAWS';
-import ConnectedInstallArmAWSIPI from '../clusters/install/InstallArmAWSIPI';
-import ConnectedInstallArmAWSUPI from '../clusters/install/InstallArmAWSUPI';
-import ConnectedInstallArmAzureIPI from '../clusters/install/InstallArmAzureIPI';
-import InstallArmBareMetal from '../clusters/install/InstallArmBareMetal';
-import ConnectedInstallArmBareMetalABI from '../clusters/install/InstallArmBareMetalABI';
-import InstallArmBMIPI from '../clusters/install/InstallArmBareMetalIPI';
-import InstallArmBMUPI from '../clusters/install/InstallArmBareMetalUPI';
-import ConnectedInstallArmPreRelease from '../clusters/install/InstallArmPreRelease';
-import InstallASH from '../clusters/install/InstallASH';
-import ConnectedInstallASHIPI from '../clusters/install/InstallASHIPI';
-import ConnectedInstallASHUPI from '../clusters/install/InstallASHUPI';
-import InstallAWS from '../clusters/install/InstallAWS';
-import ConnectedInstallAWSIPI from '../clusters/install/InstallAWSIPI';
-import ConnectedInstallAWSUPI from '../clusters/install/InstallAWSUPI';
-import InstallAzure from '../clusters/install/InstallAzure';
-import ConnectedInstallAzureIPI from '../clusters/install/InstallAzureIPI';
-import ConnectedInstallAzureUPI from '../clusters/install/InstallAzureUPI';
-import InstallBareMetal from '../clusters/install/InstallBareMetal';
-import InstallBMABI from '../clusters/install/InstallBareMetalABI';
-import InstallBMIPI from '../clusters/install/InstallBareMetalIPI';
-import InstallBMUPI from '../clusters/install/InstallBareMetalUPI';
-import InstallGCP from '../clusters/install/InstallGCP';
-import ConnectedInstallGCPIPI from '../clusters/install/InstallGCPIPI';
-import ConnectedInstallGCPUPI from '../clusters/install/InstallGCPUPI';
-import ConnectedInstallIBMCloud from '../clusters/install/InstallIBMCloud';
-import InstallIBMZ from '../clusters/install/InstallIBMZ';
-import ConnectedInstallIBMZABI from '../clusters/install/InstallIBMZABI';
-import ConnectedInstallIBMZPreRelease from '../clusters/install/InstallIBMZPreRelease';
-import ConnectedInstallIBMZUPI from '../clusters/install/InstallIBMZUPI';
-import ConnectedInstallMultiAWSIPI from '../clusters/install/InstallMultiAWSIPI';
-import ConnectedInstallMultiAzureIPI from '../clusters/install/InstallMultiAzureIPI';
-import InstallMultiBMUPI from '../clusters/install/InstallMultiBareMetalUPI';
-import ConnectedInstallMultiPreRelease from '../clusters/install/InstallMultiPreRelease';
-import InstallNutanix from '../clusters/install/InstallNutanix';
-import ConnectedInstallNutanixIPI from '../clusters/install/InstallNutanixIPI';
-import InstallOracleCloud from '../clusters/install/InstallOracleCloud';
-import InstallOSP from '../clusters/install/InstallOSP';
-import ConnectedInstallOSPIPI from '../clusters/install/InstallOSPIPI';
-import ConnectedInstallOSPUPI from '../clusters/install/InstallOSPUPI';
-import InstallPlatformAgnostic from '../clusters/install/InstallPlatformAgnostic';
-import ConnectedInstallPlatformAgnosticABI from '../clusters/install/InstallPlatformAgnosticABI';
-import ConnectedInstallPlatformAgnosticUPI from '../clusters/install/InstallPlatformAgnosticUPI';
-import InstallPower from '../clusters/install/InstallPower';
-import ConnectedInstallPowerABI from '../clusters/install/InstallPowerABI';
-import ConnectedInstallPowerPreRelease from '../clusters/install/InstallPowerPreRelease';
-import ConnectedInstallPowerUPI from '../clusters/install/InstallPowerUPI';
-import InstallPowerVSIPI from '../clusters/install/InstallPowerVirtualServerIPI';
-import ConnectedInstallPreRelease from '../clusters/install/InstallPreRelease';
-import ConnectedInstallPullSecret from '../clusters/install/InstallPullSecret';
-import ConnectedInstallPullSecretAzure from '../clusters/install/InstallPullSecretAzure';
-import InstallVSphere from '../clusters/install/InstallVSphere';
-import ConnectedInstallVSphereABI from '../clusters/install/InstallVSphereABI';
-import ConnectedInstallVSphereIPI from '../clusters/install/InstallVSphereIPI';
-import ConnectedInstallVSphereUPI from '../clusters/install/InstallVSphereUPI';
+import { InstallPullSecretAzure } from '../clusters/install/InstallPullSecretAzure';
+import { InstallRouteMap } from '../clusters/install/InstallWrapper';
+import { routesData } from '../clusters/install/InstallWrapperRoutes';
 import RegisterCluster from '../clusters/RegisterCluster';
 import { CreateOsdWizard } from '../clusters/wizards/osd';
 import CreateROSAWizard from '../clusters/wizards/rosa';
@@ -117,12 +65,6 @@ import { AppPage } from './AppPage';
 import NotFoundError from './NotFoundError';
 import { is404, metadataByRoute } from './routeMetadata';
 
-const AssistedUiRouterPage: typeof AssistedInstallerRoutes = (props: any) => (
-  <AppPage>
-    <AssistedInstallerRoutes {...props} />
-  </AppPage>
-);
-
 interface RouterProps {
   planType: string;
   clusterId: string;
@@ -134,12 +76,10 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
 
   const {
     segment: { setPageMetadata },
-    chromeHistory,
   } = useChrome();
 
   const isHypershiftWizardEnabled = useFeatureGate(HYPERSHIFT_WIZARD_FEATURE);
-
-  const isClusterTransferEnabled = useFeatureGate(CLUSTER_OWNERSHIP_TRANSFER);
+  const isClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
 
   // For testing purposes, show which major features are enabled/disabled
   React.useEffect(() => {
@@ -149,7 +89,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
       `HYPERSHIFT_WIZARD_FEATURE: ${isHypershiftWizardEnabled ? 'Enabled' : 'Disabled'}\n`,
       '-------------------------------------',
     );
-  }, [isHypershiftWizardEnabled, isClusterTransferEnabled]);
+  }, [isHypershiftWizardEnabled]);
 
   useEffect(() => {
     setPageMetadata({
@@ -202,100 +142,10 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
             </TermsGuard>
           }
         />
+        {InstallRouteMap(routesData)}
         <Route path="/token/show" element={<CLILoginPage showToken />} />
         <Route path="/token" element={<CLILoginPage showToken={false} showPath="/token/show" />} />
-        <Route path="/install/alibaba" element={<InstallAlibabaCloud />} />
-        <Route path="/install/arm/installer-provisioned" element={<InstallArmBMIPI />} />
-        <Route path="/install/arm/user-provisioned" element={<InstallArmBMUPI />} />
-        <Route path="/install/arm/agent-based" element={<ConnectedInstallArmBareMetalABI />} />
-        <Route path="/install/arm/pre-release" element={<ConnectedInstallArmPreRelease />} />
-        <Route path="/install/arm" element={<InstallArmBareMetal />} />
-        <Route path="/install/aws/installer-provisioned" element={<ConnectedInstallAWSIPI />} />
-        <Route path="/install/aws/user-provisioned" element={<ConnectedInstallAWSUPI />} />
-        <Route
-          path="/install/aws/arm/installer-provisioned"
-          element={<ConnectedInstallArmAWSIPI />}
-        />
-        <Route path="/install/aws/arm/user-provisioned" element={<ConnectedInstallArmAWSUPI />} />
-        <Route path="/install/aws/arm" element={<InstallArmAWS />} />
-        <Route
-          path="/install/aws/multi/installer-provisioned"
-          element={<ConnectedInstallMultiAWSIPI />}
-        />
-        <Route path="/install/aws" element={<InstallAWS />} />
-        <Route path="/install/gcp/installer-provisioned" element={<ConnectedInstallGCPIPI />} />
-        <Route path="/install/gcp/user-provisioned" element={<ConnectedInstallGCPUPI />} />
-        <Route path="/install/gcp" element={<InstallGCP />} />
-        <Route path="/install/nutanix" element={<InstallNutanix />} />
-        <Route
-          path="/install/nutanix/installer-provisioned"
-          element={<ConnectedInstallNutanixIPI />}
-        />
-        <Route
-          path="/install/openstack/installer-provisioned"
-          element={<ConnectedInstallOSPIPI />}
-        />
-        <Route path="/install/openstack/user-provisioned" element={<ConnectedInstallOSPUPI />} />
-        <Route path="/install/openstack" element={<InstallOSP />} />
-        <Route
-          path="/install/azure/arm/installer-provisioned"
-          element={<ConnectedInstallArmAzureIPI />}
-        />
-        <Route
-          path="/install/azure/multi/installer-provisioned"
-          element={<ConnectedInstallMultiAzureIPI />}
-        />
-        <Route path="/install/azure/installer-provisioned" element={<ConnectedInstallAzureIPI />} />
-        <Route path="/install/azure/user-provisioned" element={<ConnectedInstallAzureUPI />} />
-        <Route path="/install/azure" element={<InstallAzure />} />
-        <Route
-          path="/install/azure-stack-hub/installer-provisioned"
-          element={<ConnectedInstallASHIPI />}
-        />
-        <Route
-          path="/install/azure-stack-hub/user-provisioned"
-          element={<ConnectedInstallASHUPI />}
-        />
-        <Route path="/install/azure-stack-hub" element={<InstallASH />} />
-        <Route path="/install/metal/user-provisioned" element={<InstallBMUPI />} />
-        <Route path="/install/metal/installer-provisioned" element={<InstallBMIPI />} />
-        <Route path="/install/metal/agent-based" element={<InstallBMABI />} />
-        <Route path="/install/metal/multi" element={<InstallMultiBMUPI />} />
-        <Route path="/install/metal" element={<InstallBareMetal />} />
-        <Route path="/install/multi/pre-release" element={<ConnectedInstallMultiPreRelease />} />
-        <Route path="/install/vsphere" element={<InstallVSphere />} />
-        <Route path="/install/vsphere/agent-based" element={<ConnectedInstallVSphereABI />} />
-        <Route path="/install/vsphere/user-provisioned" element={<ConnectedInstallVSphereUPI />} />
-        <Route
-          path="/install/vsphere/installer-provisioned"
-          element={<ConnectedInstallVSphereIPI />}
-        />
-        <Route path="/install/ibm-cloud" element={<ConnectedInstallIBMCloud />} />
-        <Route path="/install/ibmz/user-provisioned" element={<ConnectedInstallIBMZUPI />} />
-        <Route path="/install/ibmz/pre-release" element={<ConnectedInstallIBMZPreRelease />} />
-        <Route path="/install/ibmz/agent-based" element={<ConnectedInstallIBMZABI />} />
-        <Route path="/install/ibmz" element={<InstallIBMZ />} />
-        <Route path="/install/power/user-provisioned" element={<ConnectedInstallPowerUPI />} />
-        <Route path="/install/power/pre-release" element={<ConnectedInstallPowerPreRelease />} />
-        <Route path="/install/power/agent-based" element={<ConnectedInstallPowerABI />} />
-        <Route path="/install/power" element={<InstallPower />} />
-        <Route path="/install/powervs/installer-provisioned" element={<InstallPowerVSIPI />} />
-        <Route
-          path="/install/platform-agnostic/agent-based"
-          element={<ConnectedInstallPlatformAgnosticABI />}
-        />
-        <Route
-          path="/install/platform-agnostic/user-provisioned"
-          element={<ConnectedInstallPlatformAgnosticUPI />}
-        />
-        <Route path="/install/platform-agnostic" element={<InstallPlatformAgnostic />} />
-        <Route path="/install/pre-release" element={<ConnectedInstallPreRelease />} />
-        <Route path="/install/pull-secret" element={<ConnectedInstallPullSecret />} />
-        <Route
-          path="/install/azure/aro-provisioned"
-          element={<ConnectedInstallPullSecretAzure />}
-        />
-        <Route path="/install/oracle-cloud" element={<InstallOracleCloud />} />
+        <Route path="/install/azure/aro-provisioned" element={<InstallPullSecretAzure />} />
         <Route path="/install" element={<Navigate replace to="/create" />} />
         <Route path="/create/osd/aws" element={<Navigate replace to="/create/osd" />} />
         <Route path="/create/osd/gcp" element={<Navigate replace to="/create/osd" />} />
@@ -341,7 +191,6 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
             </TermsGuard>
           }
         />
-        <Route path="/create/rosa/wizard" element={<CreateROSAWizard />} />
         <Route path="/create" element={<CreateClusterPage activeTab="" />} />
         <Route
           path="/details/s/:id/insights/:reportId/:errorKey"
@@ -370,22 +219,19 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         <Route path="/quota" element={<Quota />} />
         <Route path="/archived" element={<ArchivedClusterListMultiRegion getMultiRegion />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/overview/rosa/hands-on" element={<RosaHandsOnPage />} />
+        <Route
+          path="/overview/rosa/hands-on"
+          element={
+            <TermsGuard gobackPath="/overview/rosa/hands-on">
+              <RosaHandsOnPage />
+            </TermsGuard>
+          }
+        />
         <Route path="/overview/rosa" element={<ServicePage serviceName="ROSA" />} />
         <Route path="/overview/osd" element={<ServicePage serviceName="OSD" />} />
         <Route path="/overview" element={<Overview />} />
         <Route path="/releases" element={<Releases />} />
-        <Route
-          path="/assisted-installer/*"
-          element={
-            <AssistedUiRouterPage
-              allEnabledFeatures={{}}
-              // @ts-ignore this throws a type error
-              history={chromeHistory as unknown as HistoryRouterProps['history']}
-              basename={ocmBaseName}
-            />
-          }
-        />
+        <Route path="/assisted-installer/*" element={<AIRootApp />} />
         {/* TODO: remove these redirects once links from trials and demo system emails are updated */}
         <Route
           path="/services/rosa/demo"
@@ -404,6 +250,9 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         'http:///status.redhat.com' site. If this route is changed, then the related catchpoint
         tests must be updated. For more info. see: https://issues.redhat.com/browse/OCMUI-2398 */}
         <Route path="/cluster-list" element={<ClusterListMultiRegion getMultiRegion />} />
+        {isClusterTransferOwnershipEnabled ? (
+          <Route path="/cluster-request" element={<ClusterRequestList />} />
+        ) : null}
         <Route
           path="/"
           element={<Navigate replace to={isRestrictedEnv() ? '/cluster-list' : '/overview'} />}

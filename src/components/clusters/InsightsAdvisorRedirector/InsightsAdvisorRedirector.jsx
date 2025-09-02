@@ -82,7 +82,7 @@ const InsightsAdvisorRedirector = (props) => {
 
   return (
     <Bullseye>
-      <div className="pf-v5-u-text-align-center">
+      <div className="pf-v6-u-text-align-center">
         <Spinner size="lg" aria-label="Loading..." />
       </div>
     </Bullseye>

@@ -4,7 +4,11 @@ import PropTypes from 'prop-types';
 import {
   ClipboardCopy,
   ClipboardCopyVariant,
+  Content,
+  ContentVariants,
   Modal,
+  ModalBody,
+  ModalHeader,
   ModalVariant,
   Stack,
   StackItem,
@@ -12,11 +16,6 @@ import {
   TabContent,
   Tabs,
   TabTitleText,
-  Text,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextVariants,
 } from '@patternfly/react-core';
 
 import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConstants';
@@ -50,7 +49,7 @@ function ActionRequiredModal({ cluster, isOpen, onClose, regionalInstance }) {
     const oidcConfigID = cluster.aws.sts?.oidc_config?.id;
     const operatorRolePrefix = cluster.aws?.sts?.operator_role_prefix;
     const installerRole = cluster.aws?.sts?.role_arn;
-    const rosaRegionLoginCommand = `rosa login --url ${regionalInstance?.url}`;
+    const rosaRegionLoginCommand = `rosa login --use-auth-code --url ${regionalInstance?.url}`;
     const operatorRolesCliCommand = `rosa create operator-roles ${
       isHCPCluster ? '--hosted-cp' : ''
     } --prefix "${operatorRolePrefix}" --oidc-config-id "${oidcConfigID}"  --installer-role-arn ${installerRole}`;
@@ -59,19 +58,19 @@ function ActionRequiredModal({ cluster, isOpen, onClose, regionalInstance }) {
     return (
       <Stack hasGutter>
         <StackItem>
-          <TextContent className="pf-v5-u-pb-md">
-            <Text component={TextVariants.p}>
+          <Content className="pf-v6-u-pb-md">
+            <Content component={ContentVariants.p}>
               Your cluster will proceed to ready state only after the operator roles and OIDC
               provider are created.
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         </StackItem>
         {isMultiRegionEnabled ? (
           <StackItem>
-            <TextContent>
-              <Text component={TextVariants.p}>
+            <Content>
+              <Content component={ContentVariants.p}>
                 To log in to your cluster&apos;s region, run the following command:
-              </Text>
+              </Content>
               <ClipboardCopy
                 textAriaLabel="Copyable ROSA region login"
                 variant={ClipboardCopyVariant.expansion}
@@ -79,14 +78,14 @@ function ActionRequiredModal({ cluster, isOpen, onClose, regionalInstance }) {
               >
                 {rosaRegionLoginCommand}
               </ClipboardCopy>
-            </TextContent>
+            </Content>
           </StackItem>
         ) : null}
         <StackItem>
-          <TextContent>
-            <Text component={TextVariants.p}>
+          <Content>
+            <Content component={ContentVariants.p}>
               To create the operator roles, run the following command:
-            </Text>
+            </Content>
             <ClipboardCopy
               textAriaLabel="Copyable ROSA create operator-roles"
               variant={ClipboardCopyVariant.expansion}
@@ -94,14 +93,14 @@ function ActionRequiredModal({ cluster, isOpen, onClose, regionalInstance }) {
             >
               {operatorRolesCliCommand}
             </ClipboardCopy>
-          </TextContent>
+          </Content>
         </StackItem>
         <StackItem>
-          <TextContent className="pf-v5-u-pb-md">
-            <Text component={TextVariants.p}>
+          <Content className="pf-v6-u-pb-md">
+            <Content component={ContentVariants.p}>
               {' '}
               To create an OIDC provider, run the following command:
-            </Text>
+            </Content>
             <ClipboardCopy
               textAriaLabel="Copyable ROSA OIDC provider"
               variant={ClipboardCopyVariant.expansion}
@@ -109,7 +108,7 @@ function ActionRequiredModal({ cluster, isOpen, onClose, regionalInstance }) {
             >
               {oidcProviderCliCommand}
             </ClipboardCopy>
-          </TextContent>
+          </Content>
         </StackItem>
       </Stack>
     );
@@ -183,35 +182,43 @@ function ActionRequiredModal({ cluster, isOpen, onClose, regionalInstance }) {
   const showGCPVPCSharedError = (
     <Stack hasGutter>
       <StackItem>
-        <TextContent className="pf-v5-u-pb-md">
-          <Text component={TextVariants.p}>{cluster?.status?.description}</Text>
-          <Text component={TextVariants.p}>You entered these values:</Text>
-        </TextContent>
-        <TextContent>
-          <TextList>
-            <TextListItem>{`Existing VPC name: ${cluster.gcp_network?.vpc_name}`}</TextListItem>
-            <TextListItem>
+        <Content className="pf-v6-u-pb-md">
+          <Content component={ContentVariants.p}>{cluster?.status?.description}</Content>
+          <Content component={ContentVariants.p}>You entered these values:</Content>
+        </Content>
+        <Content>
+          <Content component="ul">
+            <Content component="li">{`Existing VPC name: ${cluster.gcp_network?.vpc_name}`}</Content>
+            <Content component="li">
               {`Control plane subnet name: ${cluster.gcp_network?.control_plane_subnet}`}
-            </TextListItem>
-            <TextListItem>
+            </Content>
+            <Content component="li">
               {`Compute subnet name: ${cluster.gcp_network?.compute_subnet}`}
-            </TextListItem>
-          </TextList>
-        </TextContent>
+            </Content>
+          </Content>
+        </Content>
       </StackItem>
     </Stack>
   );
 
   return (
     <Modal
-      title="Action required to continue installation"
+      id="action-required-installation-modal"
       isOpen={isOpen}
       onClose={onClose}
       variant={ModalVariant.medium}
+      aria-labelledby="action-required-installation-modal"
+      aria-describedby="modal-box-action-required-installation"
     >
-      {isWaitingAndROSAManual && createInteractively}
-      {isWaitingForOIDCProviderOrOperatorRoles && createByOIDCId(cluster)}
-      {isBadSharedGCPVPCValues && showGCPVPCSharedError}
+      <ModalHeader
+        title="Action required to continue installation"
+        labelId="action-required-installation-modal"
+      />
+      <ModalBody>
+        {isWaitingAndROSAManual && createInteractively}
+        {isWaitingForOIDCProviderOrOperatorRoles && createByOIDCId(cluster)}
+        {isBadSharedGCPVPCValues && showGCPVPCSharedError}
+      </ModalBody>
     </Modal>
   );
 }

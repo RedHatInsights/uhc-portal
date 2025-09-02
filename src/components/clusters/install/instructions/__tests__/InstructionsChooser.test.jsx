@@ -12,7 +12,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 const checkForCard = async (url, cardTitle, user) => {
-  const instructionCard = screen.getByRole('link', { name: cardTitle });
+  const instructionCard = screen.getByRole('button', { name: cardTitle });
   expect(instructionCard).toBeInTheDocument();
   await user.click(instructionCard);
   return expect(mockNavigate).toHaveBeenLastCalledWith(`/openshift${url}`, undefined);
@@ -32,8 +32,8 @@ describe('<InstructionsChooser />', () => {
 
     await checkAccessibility(container);
 
-    await checkForCard(ipiPageLink, 'Automated CLI-based', user);
-    await checkForCard(upiPageLink, 'Full control CLI-based', user);
+    await checkForCard(ipiPageLink, 'Automated', user);
+    await checkForCard(upiPageLink, 'Full control', user);
 
     const aiLink = screen.queryByRole('link', { name: 'Interactive Recommended Web-based' });
     expect(aiLink).not.toBeInTheDocument();
@@ -53,9 +53,9 @@ describe('<InstructionsChooser />', () => {
     );
     await checkAccessibility(container);
 
-    await checkForCard(ipiPageLink, 'Automated CLI-based', user);
-    await checkForCard(upiPageLink, 'Full control CLI-based', user);
-    await checkForCard(aiPageLink, 'Interactive Recommended Web-based', user);
+    await checkForCard(ipiPageLink, 'Automated', user);
+    await checkForCard(upiPageLink, 'Full control', user);
+    await checkForCard(aiPageLink, 'Interactive', user);
   });
 
   it('renders correctly with AI and UPI', async () => {
@@ -74,10 +74,10 @@ describe('<InstructionsChooser />', () => {
 
     await checkAccessibility(container);
 
-    await checkForCard(upiPageLink, 'Full control CLI-based', user);
-    await checkForCard(aiPageLink, 'Interactive Recommended Web-based', user);
+    await checkForCard(upiPageLink, 'Full control', user);
+    await checkForCard(aiPageLink, 'Interactive', user);
 
-    const ipiLink = screen.queryByRole('link', { name: 'Automated CLI-based' });
+    const ipiLink = screen.queryByRole('link', { name: 'Automated' });
     expect(ipiLink).not.toBeInTheDocument();
   });
 });

@@ -12,10 +12,19 @@ const defaultProps = {
   cluster: fixtures.clusterDetails.cluster,
   cloudProviders: fixtures.cloudProviders,
   showAssistedId: false,
+  wifConfigData: {
+    isLoading: false,
+    isSuccess: false,
+    displayName: null,
+  },
 };
 
 const componentText = {
-  CONTROL_PLANE: { label: 'Control plane type', hosted: 'Hosted' },
+  CONTROL_PLANE: {
+    label: 'Control plane type',
+    hosted: 'Hosted architecture',
+    classic: 'Classic architecture',
+  },
   AVAILABILITY: { label: 'Availability', multi: 'Multi-zone', single: 'Single zone', NA: 'N/A' },
   REGION: { label: 'Region', NA: 'N/A' },
   PROVIDER: { label: 'Provider', NA: 'N/A' },
@@ -41,8 +50,6 @@ jest.mock('./SupportStatusLabel');
 const checkForValue = (label, value) => {
   expect(screen.getByText(label)).toBeInTheDocument();
   if (value) {
-    expect(screen.getByText(value)).toBeInTheDocument();
-
     // Verify that the value is below the label
     // Cannot use roles of "term" and "definition" because there are children elements
     const labelObj = screen.getByText(label);
@@ -159,7 +166,7 @@ describe('<DetailsLeft />', () => {
   });
 
   describe('Control plane', () => {
-    it('shows control plane type as Hosted if hypershift', async () => {
+    it('shows control plane type as Hosted architecture if hypershift', async () => {
       // Arrange
       const ROSAHypershiftClusterFixture = fixtures.ROSAHypershiftClusterDetails.cluster;
       expect(ROSAHypershiftClusterFixture.hypershift.enabled).toBeTruthy();
@@ -172,7 +179,7 @@ describe('<DetailsLeft />', () => {
       checkForValue(componentText.CONTROL_PLANE.label, componentText.CONTROL_PLANE.hosted);
     });
 
-    it('hides control plane type if not hypershift', async () => {
+    it('hides control plane type if OSD', async () => {
       // Arrange
       const OSDClusterFixture = fixtures.clusterDetails.cluster;
       expect(OSDClusterFixture.hypershift?.enabled).toBeFalsy();
@@ -183,6 +190,19 @@ describe('<DetailsLeft />', () => {
 
       // Assert
       checkForValueAbsence(componentText.CONTROL_PLANE.label, componentText.CONTROL_PLANE.hosted);
+    });
+
+    it('shows control plane type as Classic architecture if ROSA Classic', async () => {
+      // Arrange
+      const ROSAClusterFixture = fixtures.ROSAClusterDetails.cluster;
+      expect(ROSAClusterFixture.hypershift?.enabled).toBeFalsy();
+
+      const props = { ...defaultProps, cluster: ROSAClusterFixture };
+      render(<DetailsLeft {...props} />);
+      await checkIfRendered();
+
+      // Assert
+      checkForValue(componentText.CONTROL_PLANE.label, componentText.CONTROL_PLANE.classic);
     });
   });
 
@@ -457,27 +477,32 @@ describe('<DetailsLeft />', () => {
   });
 
   describe('GCP WIF Configuration', () => {
+    const cluster = {
+      ...fixtures.clusterDetails.cluster,
+      cloud_provider: {
+        id: 'gcp',
+      },
+      ccs: { enabled: true },
+      gcp: {
+        authentication: {
+          href: '/api/clusters_mgmt/v1/gcp/wif_configs/123456789123456789',
+          id: '123456789123456789',
+          kind: 'WifConfig',
+        },
+      },
+    };
+
     it('shows the WIF name when a WIF configuration is present', async () => {
       // Arrange
       mockUseFeatureGate([[OSD_GCP_WIF, true]]);
       const wifConfigName = 'some-wif-config';
-      const cluster = {
-        ...fixtures.clusterDetails.cluster,
-        cloud_provider: {
-          id: 'gcp',
-        },
-        ccs: { enabled: true },
-        gcp: {
-          authentication: {
-            href: '/api/clusters_mgmt/v1/gcp/wif_configs/123456789123456789',
-            id: '123456789123456789',
-            kind: 'WifConfig',
-          },
-        },
-        wifConfigName,
+      const wifConfigData = {
+        isLoading: false,
+        isSuccess: true,
+        displayName: wifConfigName,
       };
 
-      const props = { ...defaultProps, cluster };
+      const props = { ...defaultProps, cluster, wifConfigData };
       render(<DetailsLeft {...props} />);
       await checkIfRendered();
 
@@ -497,13 +522,46 @@ describe('<DetailsLeft />', () => {
         gcp: {},
       };
 
-      const wifConfig = { status: 'pending', data: {} };
-      const props = { ...defaultProps, cluster, wifConfig };
+      const props = { ...defaultProps, cluster };
       render(<DetailsLeft {...props} />);
       await checkIfRendered();
 
       // Assert
       checkForValueAbsence(componentText.WIF_CONFIGURATION.label);
+    });
+
+    it('shows N/A when a WIF config cannot be retrieved', async () => {
+      // Arrange
+      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
+
+      const wifConfigData = {
+        isLoading: false,
+        isSuccess: false,
+        displayName: null,
+      };
+      const props = { ...defaultProps, cluster, wifConfigData };
+      render(<DetailsLeft {...props} />);
+      await checkIfRendered();
+
+      // Assert
+      checkForValue(componentText.WIF_CONFIGURATION.label, 'N/A');
+    });
+
+    it('shows a skeleton while fetching the WIF config info', async () => {
+      // Arrange
+      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
+
+      const wifConfigData = {
+        isLoading: true,
+        isSuccess: false,
+        displayName: null,
+      };
+      const props = { ...defaultProps, cluster, wifConfigData };
+      render(<DetailsLeft {...props} />);
+      await checkIfRendered();
+
+      // Assert
+      expect(screen.getByText('Loading WIF configuration')).toBeInTheDocument();
     });
   });
 
@@ -660,64 +718,6 @@ describe('<DetailsLeft />', () => {
       // Assert
       checkForValueAbsence(componentText.CUSTOM_KMS_KEY.label);
       checkForValueAbsence(componentText.ENCRYPT_WITH_CUSTOM_KEYS.label);
-    });
-  });
-
-  describe('Owner', () => {
-    it('shows creator name as the owner', async () => {
-      // Arrange
-      const OSDClusterFixture = {
-        ...fixtures.clusterDetails.cluster,
-        subscription: {
-          ...fixtures.clusterDetails.cluster.subscription,
-          creator: { name: 'creator name' },
-        },
-      };
-
-      const props = { ...defaultProps, cluster: OSDClusterFixture };
-      render(<DetailsLeft {...props} />);
-      await checkIfRendered();
-
-      // Assert
-      checkForValue(componentText.OWNER.label, 'creator name');
-    });
-
-    it('shows creator username if name is not available as owner ', async () => {
-      // Arrange
-      const OSDClusterFixture = {
-        ...fixtures.clusterDetails.cluster,
-        subscription: {
-          ...fixtures.clusterDetails.cluster.subscription,
-          creator: { username: 'creator username', name: undefined },
-        },
-      };
-
-      const props = { ...defaultProps, cluster: OSDClusterFixture };
-      render(<DetailsLeft {...props} />);
-      await checkIfRendered();
-
-      // Assert
-      checkForValue(componentText.OWNER.label, 'creator username');
-    });
-
-    it('shows "N/A" as the owner if creator name and creator username are not available', async () => {
-      // Arrange
-      const OSDClusterFixture = {
-        ...fixtures.clusterDetails.cluster,
-        subscription: {
-          ...fixtures.clusterDetails.cluster.subscription,
-          creator: { username: undefined, name: undefined },
-        },
-      };
-
-      const props = { ...defaultProps, cluster: OSDClusterFixture };
-      render(<DetailsLeft {...props} />);
-      await checkIfRendered();
-
-      // Assert
-      checkForValue(componentText.OWNER.label, componentText.OWNER.NA);
-
-      // type
     });
   });
 

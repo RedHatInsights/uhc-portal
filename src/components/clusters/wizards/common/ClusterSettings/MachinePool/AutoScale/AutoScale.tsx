@@ -16,7 +16,7 @@ import ExternalLink from '~/components/common/ExternalLink';
 import { openModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import PopoverHint from '~/components/common/PopoverHint';
-import { OCMUI_MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
+import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { AutoScaleEnabledInputs } from './AutoScaleEnabledInputs';
@@ -34,7 +34,7 @@ export const AutoScale = () => {
     },
     setFieldValue,
   } = useFormState();
-  const allow249Nodes = useFeatureGate(OCMUI_MAX_NODES_TOTAL_249);
+  const allow249Nodes = useFeatureGate(MAX_NODES_TOTAL_249);
   const dispatch = useDispatch();
   const openAutoScalingModal = () => dispatch(openModal(modals.EDIT_CLUSTER_AUTOSCALING_V2));
 
@@ -66,7 +66,7 @@ export const AutoScale = () => {
       <FormGroup
         fieldId="autoscaling"
         label="Autoscaling"
-        labelIcon={
+        labelHelp={
           <PopoverHint
             hint={
               <>
@@ -96,7 +96,7 @@ export const AutoScale = () => {
           <Button
             data-testid="set-cluster-autoscaling-btn"
             variant="secondary"
-            className="pf-v5-u-mt-md"
+            className="pf-v6-u-mt-md"
             onClick={openAutoScalingModal}
             isDisabled={!autoscalingEnabled}
           >

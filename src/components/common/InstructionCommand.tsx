@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ClipboardCopy, clipboardCopyFunc, Text } from '@patternfly/react-core';
+import { ClipboardCopy, clipboardCopyFunc, Content } from '@patternfly/react-core';
 
 import { TrackEvent } from '~/common/analytics';
 import useAnalytics from '~/hooks/useAnalytics';
@@ -25,7 +25,7 @@ const InstructionCommand = ({
 }: Props) => {
   const track = useAnalytics();
   return (
-    <Text component="pre" className={outerClassName}>
+    <Content component="pre" className={outerClassName}>
       <ClipboardCopy
         isReadOnly
         textAriaLabel={textAriaLabel}
@@ -40,7 +40,7 @@ const InstructionCommand = ({
       >
         {children}
       </ClipboardCopy>
-    </Text>
+    </Content>
   );
 };
 

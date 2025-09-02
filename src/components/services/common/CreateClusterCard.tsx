@@ -14,7 +14,9 @@ import {
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
 
 import { Link } from '~/common/routing';
+import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
+import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 
 interface CreateClusterCardProps {
   linkComponentURL: string;
@@ -33,15 +35,30 @@ export const CreateClusterCard = ({
     (props: any) => <Link data-testid="register-cluster" to={linkComponentURL} {...props} />,
     [linkComponentURL],
   );
+  const { canCreateManagedCluster } = useCanCreateManagedCluster();
+
+  const createClusterBtn = (
+    <InternalTrackingLink
+      isButton
+      data-testid="register-cluster"
+      variant="primary"
+      to={linkComponentURL}
+      component={LinkComponent}
+      isAriaDisabled={!canCreateManagedCluster}
+    >
+      {createClusterBtnTitle}
+    </InternalTrackingLink>
+  );
+
   return (
-    <Card>
+    <Card data-testid="create-cluster-card">
       <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
         <FlexItem>
           <CardHeader>
             <CardTitle>
               <Title headingLevel="h3">
-                <Icon size="md">
-                  <CubeIcon className="pf-v5-u-mr-sm rosa-cube-icon" />
+                <Icon className="pf-v6-u-mr-sm" size="md">
+                  <CubeIcon className="rosa-cube-icon" />
                 </Icon>
                 {title}
               </Title>
@@ -51,15 +68,9 @@ export const CreateClusterCard = ({
           <CardFooter>
             <Flex>
               <FlexItem>
-                <InternalTrackingLink
-                  isButton
-                  data-testid="register-cluster"
-                  variant="primary"
-                  to={linkComponentURL}
-                  component={LinkComponent}
-                >
-                  {createClusterBtnTitle}
-                </InternalTrackingLink>
+                <CreateManagedClusterButtonWithTooltip wrap>
+                  {createClusterBtn}
+                </CreateManagedClusterButtonWithTooltip>
               </FlexItem>
             </Flex>
           </CardFooter>

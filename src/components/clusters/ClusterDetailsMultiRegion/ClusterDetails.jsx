@@ -17,10 +17,12 @@ import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useLocation, useParams } from 'react-router-dom';
 
-import * as OCM from '@openshift-assisted/ui-lib/ocm';
+import { getAddHostsTabState } from '@openshift-assisted/ui-lib/ocm';
 import { PageSection, Spinner, TabContent, Tooltip } from '@patternfly/react-core';
 
 import { Navigate, useNavigate } from '~/common/routing';
+import { knownProducts, normalizedProducts } from '~/common/subscriptionTypes';
+import AIHostsClusterDetailTab from '~/components/AIComponents/AIHostsClusterDetailTab';
 import { AppPage } from '~/components/App/AppPage';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import DrawerPanel from '~/components/overview/components/common/DrawerPanel';
@@ -39,11 +41,14 @@ import {
   refetchClusterIdentityProviders,
   useFetchClusterIdentityProviders,
 } from '~/queries/ClusterDetailsQueries/useFetchClusterIdentityProviders';
+import { useFetchGCPWifConfig } from '~/queries/ClusterDetailsQueries/useFetchGCPWifConfig';
 import { refetchClusterLogsQueries } from '~/queries/ClusterLogsQueries/useFetchClusterLogs';
 import {
   invalidateCloudProviders,
   useFetchCloudProviders,
 } from '~/queries/common/useFetchCloudProviders';
+import { AUTO_CLUSTER_TRANSFER_OWNERSHIP } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { findRegionalInstance } from '~/queries/helpers';
 import { useFetchGetAvailableRegionalInstances } from '~/queries/RosaWizardQueries/useFetchGetAvailableRegionalInstances';
 import { clearListVpcs } from '~/redux/actions/ccsInquiriesActions';
@@ -60,7 +65,6 @@ import {
   isUninstalledAICluster,
 } from '../../../common/isAssistedInstallerCluster';
 import { hasCapability, subscriptionCapabilities } from '../../../common/subscriptionCapabilities';
-import { knownProducts } from '../../../common/subscriptionTypes';
 import { userActions } from '../../../redux/actions';
 import { getUserAccess } from '../../../redux/actions/costActions';
 import { clearGlobalError, setGlobalError } from '../../../redux/actions/globalErrorActions';
@@ -79,11 +83,10 @@ import { canSubscribeOCPMultiRegion } from '../common/EditSubscriptionSettingsDi
 import { userCanHibernateClustersSelector } from '../common/HibernateClusterModal/HibernateClusterModalSelectors';
 import ReadOnlyBanner from '../common/ReadOnlyBanner';
 import { canTransferClusterOwnershipMultiRegion } from '../common/TransferClusterOwnershipDialog/utils/transferClusterOwnershipDialogSelectors';
-import CancelUpgradeModal from '../common/Upgrades/CancelUpgradeModal';
+import CancelUpgradeModal from '../common/Upgrades/CancelUpgradeModal/CancelUpgradeModal';
 import { getSchedules } from '../common/Upgrades/clusterUpgradeActions';
 
 import AccessControl from './components/AccessControl/AccessControl';
-import { getGrants } from './components/AccessControl/NetworkSelfServiceSection/NetworkSelfServiceActions';
 import usersActions from './components/AccessControl/UsersSection/UsersActions';
 import AccessRequest from './components/AccessRequest';
 import AddOns from './components/AddOns';
@@ -105,8 +108,6 @@ import AddNotificationContactDialog from './components/Support/components/AddNot
 import TabsRow from './components/TabsRow/TabsRow';
 import UpgradeSettingsTab from './components/UpgradeSettings';
 import { eventTypes } from './clusterDetailsHelper';
-
-const { HostsClusterDetailTab, getAddHostsTabState } = OCM;
 
 const PAGE_TITLE = 'Red Hat OpenShift Cluster Manager';
 
@@ -132,6 +133,7 @@ const ClusterDetails = (props) => {
   const isSubscriptionSettingsRequestPending = useGlobalState((state) =>
     get(state, 'subscriptionSettings.requestState.pending', false),
   );
+  const isAutoClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
 
   const navigate = useNavigate();
   const params = useParams();
@@ -173,6 +175,13 @@ const ClusterDetails = (props) => {
 
   const { data: accessProtection, isLoading: isAccessProtectionLoading } =
     useFetchAccessProtection(subscriptionID);
+
+  const wifConfigId = cluster?.gcp?.authentication?.id;
+  const {
+    data: wifConfigData,
+    isLoading: isWifLoading,
+    isSuccess: isWifSuccess,
+  } = useFetchGCPWifConfig(wifConfigId);
 
   const { data: pendingAccessRequests } = useFetchPendingAccessRequests(
     subscriptionID,
@@ -294,11 +303,6 @@ const ClusterDetails = (props) => {
       refreshIDP();
       dispatch(getSchedules(clusterID, isHypershiftCluster(cluster)));
       dispatch(fetchUpgradeGates());
-      if (get(cluster, 'cloud_provider.id') !== 'gcp') {
-        // don't fetch grants if cloud provider is known to be gcp
-
-        dispatch(getGrants(clusterID));
-      }
     } else {
       const subscriptionID = cluster?.subscription?.id;
 
@@ -377,7 +381,7 @@ const ClusterDetails = (props) => {
       <AppPage title={PAGE_TITLE}>
         <div id="clusterdetails-content">
           <div className="cluster-loading-container">
-            <div className="pf-v5-u-text-align-center">
+            <div className="pf-v6-u-text-align-center">
               <Spinner size="lg" arial-label="Loading..." />
             </div>
           </div>
@@ -419,6 +423,7 @@ const ClusterDetails = (props) => {
   const isOSDTrial = get(cluster, 'subscription.plan.type', '') === knownProducts.OSDTrial;
   const isRHOIC = get(cluster, 'subscription.plan.type', '') === knownProducts.RHOIC;
   const gotRouters = get(clusterRouters, 'getRouters.routers.length', 0) > 0;
+  const isROSA = get(cluster, 'subscription.plan.type') === normalizedProducts.ROSA;
 
   // eslint-disable-next-line no-unused-vars
   const isManaged = cluster.managed;
@@ -494,7 +499,7 @@ const ClusterDetails = (props) => {
     >
       <AppPage title={PAGE_TITLE}>
         <ReadOnlyBanner isReadOnly={isReadOnly} />
-        <PageSection id="clusterdetails-content">
+        <PageSection hasBodyWrapper={false} id="clusterdetails-content">
           <ClusterDetailsTop
             cluster={cluster}
             isRefetching={isFetching}
@@ -507,6 +512,7 @@ const ClusterDetails = (props) => {
             errorMessage={error?.errorObj.response.data.reason}
             canSubscribeOCP={canSubscribeOCP}
             canTransferClusterOwnership={canTransferClusterOwnership}
+            isAutoClusterTransferOwnershipEnabled={isAutoClusterTransferOwnershipEnabled}
             canHibernateCluster={canHibernateCluster}
             autoRefreshEnabled={!anyModalOpen}
             toggleSubscriptionReleased={toggleSubscriptionReleased}
@@ -599,6 +605,11 @@ const ClusterDetails = (props) => {
                 userAccess={userAccess}
                 canSubscribeOCP={canSubscribeOCP}
                 isSubscriptionSettingsRequestPending={isSubscriptionSettingsRequestPending}
+                wifConfigData={{
+                  displayName: wifConfigData?.display_name,
+                  isLoading: isWifLoading,
+                  isSuccess: isWifSuccess,
+                }}
               />
             </ErrorBoundary>
           </TabContent>
@@ -629,6 +640,8 @@ const ClusterDetails = (props) => {
                   cluster={cluster}
                   refreshEvent={refreshEvent}
                   region={cluster.subscription.rh_region_id}
+                  isAutoClusterTransferOwnershipEnabled={isAutoClusterTransferOwnershipEnabled}
+                  isROSA={isROSA}
                 />
               </ErrorBoundary>
             </TabContent>
@@ -751,7 +764,7 @@ const ClusterDetails = (props) => {
               hidden
             >
               <ErrorBoundary>
-                <HostsClusterDetailTab
+                <AIHostsClusterDetailTab
                   cluster={cluster}
                   isVisible={selectedTab === ClusterTabsId.ADD_ASSISTED_HOSTS}
                 />

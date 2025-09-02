@@ -1,14 +1,8 @@
 import { combineReducers } from 'redux';
 
-// TODO remove ignore statement once frontend-components-notifications has types
-// @ts-ignore
-import { notificationsReducer } from '@redhat-cloud-services/frontend-components-notifications/redux';
-
 import apiErrorReducer from '../../components/App/ApiError/ApiErrorReducer';
-import NetworkSelfServiceReducer from '../../components/clusters/ClusterDetailsMultiRegion/components/AccessControl/NetworkSelfServiceSection/NetworkSelfServiceReducer';
 import clusterUsersReducer from '../../components/clusters/ClusterDetailsMultiRegion/components/AccessControl/UsersSection/UsersReducer';
 import addOnsReducer from '../../components/clusters/ClusterDetailsMultiRegion/components/AddOns/AddOnsReducer';
-import { IdentityProvidersReducer } from '../../components/clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/IdentityProvidersReducer';
 import insightsReducer from '../../components/clusters/ClusterDetailsMultiRegion/components/Insights/InsightsReducer';
 import { MonitoringReducer } from '../../components/clusters/ClusterDetailsMultiRegion/components/Monitoring/MonitoringReducer';
 import { NetworkingReducer } from '../../components/clusters/ClusterDetailsMultiRegion/components/Networking/NetworkingReducer';
@@ -18,7 +12,6 @@ import clusterUpgrades from '../../components/clusters/common/Upgrades/clusterUp
 import modalReducer from '../../components/common/Modal/ModalReducer';
 
 import { accessProtectionReducer } from './accessProtectionReducer';
-import { accessRequestReducer } from './accessRequestReducer';
 import ccsInquiriesReducer from './ccsInquiriesReducer';
 import { cloudProvidersReducer } from './cloudProvidersReducer';
 import { clusterAutoscalerReducer } from './clusterAutoscalerReducer';
@@ -46,7 +39,6 @@ import userReducer from './userReducer';
 import { viewOptionsReducer } from './viewOptionsReducer';
 
 const reducers = {
-  accessRequest: accessRequestReducer,
   accessProtection: accessProtectionReducer,
   clusters: clustersReducer,
 
@@ -56,7 +48,6 @@ const reducers = {
   tollbooth: tollboothReducer,
   modal: modalReducer,
   logs: InstallationLogReducer,
-  identityProviders: IdentityProvidersReducer,
   clusterAutoscaler: clusterAutoscalerReducer,
   clusterUsers: clusterUsersReducer,
   clusterSupport: supportReducer,
@@ -71,8 +62,6 @@ const reducers = {
   persistentStorageValues: persistentStorageReducer,
   loadBalancerValues: loadBalancersReducer,
 
-  notifications: notificationsReducer,
-  networkSelfService: NetworkSelfServiceReducer,
   subscriptionSettings: subscriptionSettingsReducer,
   subscriptionReleased: subscriptionReleasedReducer,
   insightsData: insightsReducer,

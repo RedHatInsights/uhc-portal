@@ -23,6 +23,7 @@ const UpdateAllMachinePools = ({
   clusterId,
   isHypershift,
   controlPlaneVersion,
+  controlPlaneRawVersion,
   initialErrorMessage, // introduced for testing purposes
   goToMachinePoolTab,
   machinePoolData,
@@ -33,6 +34,7 @@ const UpdateAllMachinePools = ({
   clusterId: string;
   isHypershift: boolean;
   controlPlaneVersion: string;
+  controlPlaneRawVersion: string;
   initialErrorMessage?: string;
   goToMachinePoolTab?: boolean;
   machinePoolData?: NodePool[];
@@ -59,8 +61,8 @@ const UpdateAllMachinePools = ({
   const machinePoolsToUpdate =
     existingMachinePools?.filter(
       (pool: NodePool) =>
-        compareIsMachinePoolBehindControlPlane(controlPlaneVersion, pool.version?.id) &&
-        isControlPlaneValidForMachinePool(pool, controlPlaneVersion) &&
+        compareIsMachinePoolBehindControlPlane(controlPlaneRawVersion, pool.version?.raw_id) &&
+        isControlPlaneValidForMachinePool(pool, controlPlaneRawVersion) &&
         !isMachinePoolScheduleError(pool) &&
         !isMachinePoolUpgrading(pool),
     ) || [];
@@ -74,7 +76,7 @@ const UpdateAllMachinePools = ({
     const errors = await updateAllPools(
       machinePoolsToUpdate,
       clusterId,
-      controlPlaneVersion,
+      controlPlaneRawVersion,
       region,
     );
     setPending(false);
@@ -96,7 +98,7 @@ const UpdateAllMachinePools = ({
           isExpandable
           isInline
           role="alert"
-          className="pf-v5-u-mt-md"
+          className="pf-v6-u-mt-md"
           data-testid="alert-danger"
         >
           {errors.map((error, index) => (
@@ -107,7 +109,7 @@ const UpdateAllMachinePools = ({
         </Alert>
       ) : null}
       <Alert
-        className={goToMachinePoolTab ? 'pf-v5-u-mb-lg' : 'pf-v5-u-mt-lg'}
+        className={goToMachinePoolTab ? 'pf-v6-u-mb-lg' : 'pf-v6-u-mt-lg'}
         isExpandable
         isInline
         role="alert"
@@ -140,5 +142,4 @@ const UpdateAllMachinePools = ({
     </>
   );
 };
-
 export default UpdateAllMachinePools;

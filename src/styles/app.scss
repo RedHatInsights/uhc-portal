@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-@import '~@patternfly/patternfly/sass-utilities/_all';
+@import '~@patternfly/patternfly/sass-utilities';
 
 // override the blue patternfly header border to match other properties
 .navbar-pf-vertical {
@@ -39,8 +39,8 @@ limitations under the License.
 
 .cluster-list {
   margin: 0px 30px 0 30px;
-  > .pf-v5-c-alert {
-    margin-top: var(--pf-v5-global--spacer--xs);
+  > .pf-v6-c-alert {
+    margin-top: var(--pf-t--global--spacer--xs);
   }
 }
 
@@ -48,15 +48,15 @@ limitations under the License.
   margin: 20px 0 20px 0;
 }
 
-.cluster-list-empty-state .pf-v5-c-empty-state__secondary {
-  margin-top: var(--pf-v5-global--spacer--sm);
+.cluster-list-empty-state .pf-v6-c-empty-state__secondary {
+  margin-top: var(--pf-t--global--spacer--sm);
 }
 
-.pf-v5-c-empty-state.pf-m-lg {
+.pf-v6-c-empty-state.pf-m-lg {
   margin: 0 auto;
 }
 
-#not-found > div.pf-v5-c-alert__description {
+#not-found > div.pf-v6-c-alert__description {
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -117,25 +117,12 @@ limitations under the License.
   font-weight: normal;
 }
 
-.cluster-details-item-list {
-  margin-bottom: 0px;
-  dt {
-    text-transform: none;
-    display: inline;
-    font-weight: bold;
-    color: var(--pf-v5-global--Color--400);
-  }
-  dd {
-    display: inline;
-  }
-}
-
 .radio-tooltip {
   left: -70px;
 }
 
 .cl-details-page-title {
-  font-size: var(--pf-v5-global--FontSize--2xl);
+  font-size: var(--pf-t--global--font--size--2xl);
   position: relative;
   top: 50%;
   transform: translateY(-50%);
@@ -144,11 +131,11 @@ limitations under the License.
 }
 
 .page-title {
-  font-size: var(--pf-v5-global--FontSize--2xl);
+  font-size: var(--pf-t--global--font--size--2xl);
 }
 
 .card-title {
-  font-size: var(--pf-v5-global--FontSize--lg);
+  font-size: var(--pf-t--global--font--size--lg);
 }
 
 #cl-details-btns > * {
@@ -174,7 +161,7 @@ limitations under the License.
   }
 }
 
-#cl-details-top .pf-v5-c-tabs {
+#cl-details-top .pf-v6-c-tabs {
   margin-top: 20px;
 }
 
@@ -186,7 +173,7 @@ limitations under the License.
   margin-bottom: 40px;
 }
 
-.pf-v5-c-banner.configuration_mode_read_only {
+.pf-v6-c-banner.configuration_mode_read_only {
   text-align: center;
   white-space: normal;
 }
@@ -194,16 +181,16 @@ limitations under the License.
 /*
 TODO: This is overriding too much, should be more specific
 */
-#clusterdetails-content .pf-v5-c-card {
+#clusterdetails-content .pf-v6-c-card {
   margin-top: 24px;
 }
 
-#upgradeSettingsContent .pf-v5-c-card {
+#upgradeSettingsContent .pf-v6-c-card {
   margin-top: 0px;
 }
 
 .empty-state-color {
-  color: var(--pf-v5-global--Color--200);
+  color: var(--pf-t--global--text--color--subtle);
 }
 
 #subs-hint {
@@ -211,7 +198,7 @@ TODO: This is overriding too much, should be more specific
 }
 
 .ocm-c-overview-resource-usage__card--body,
-.ocm-c-metrics-charts__card .pf-v5-c-card__body,
+.ocm-c-metrics-charts__card .pf-v6-c-card__body,
 .metrics-chart {
   display: flex;
   justify-content: space-evenly;
@@ -220,11 +207,11 @@ TODO: This is overriding too much, should be more specific
     flex-direction: column;
   }
   &.chart-title {
-    font-size: var(--pf-v5-global--FontSize--md);
+    font-size: var(--pf-t--global--font--size--md);
     font-weight: 700;
   }
   &.chart-title-with-legend {
-    font-size: var(--pf-v5-global--FontSize--md);
+    font-size: var(--pf-t--global--font--size--md);
     font-weight: 700;
     padding-right: 180px; // Adjusted to accommodate legend
   }
@@ -234,11 +221,11 @@ TODO: This is overriding too much, should be more specific
   width: 410px;
 }
 
-.pf-v5-c-modal-box .error-box {
+.pf-v6-c-modal-box .error-box {
   margin-bottom: 15px;
 }
 
-.pf-v5-c-modal-box__footer {
+.pf-v6-c-modal-box__footer {
   display: block;
 }
 
@@ -248,7 +235,7 @@ footer {
 
     li {
       display: inline;
-      border-right-width: var(--pf-v5-global--BorderWidth--sm);
+      border-right-width: var(--pf-t--global--border--width--regular);
       border-right-style: solid;
 
       &:last-child {
@@ -262,7 +249,7 @@ footer {
   a:focus,
   a:visited {
     margin: auto 10px;
-    color: var(--pf-v5-global--Color--200);
+    color: var(--pf-t--global--text--color--subtle);
   }
 }
 
@@ -278,11 +265,11 @@ p.notfound {
 .ca-textarea {
   min-height: 442px;
   min-width: 497px;
-  font-family: var(--pf-v5-global--FontFamily--monospace);
+  font-family: var(--pf-t--global--font--family--mono);
   white-space: pre;
 }
 
-.pf-v5-c-button.cluster-inline-link {
+.pf-v6-c-button.cluster-inline-link {
   padding: 5px;
 }
 
@@ -295,13 +282,12 @@ p.notfound {
 }
 
 .top-row {
-  background-color: var(--pf-v5-global--BackgroundColor--100);
-  margin-top: calc(var(--pf-v5-c-page__main-section--PaddingTop) * -1);
-  margin-right: calc(var(--pf-v5-c-page__main-section--PaddingRight) * -1);
-  margin-left: calc(var(--pf-v5-c-page__main-section--PaddingLeft) * -1);
-  padding-top: var(--pf-v5-c-page__main-section--PaddingTop);
-  padding-right: var(--pf-v5-c-page__main-section--PaddingRight);
-  padding-left: var(--pf-v5-c-page__main-section--PaddingLeft);
+  margin-top: calc(var(--pf-v6-c-page__main-section--PaddingBlockStart) * -1);
+  margin-right: calc(var(--pf-v6-c-page__main-section--PaddingInlineEnd) * -1);
+  margin-left: calc(var(--pf-v6-c-page__main-section--PaddingInlineStart) * -1);
+  padding-top: var(--pf-v6-c-page__main-section--PaddingBlockStart);
+  padding-right: var(--pf-v6-c-page__main-section--PaddingInlineEnd);
+  padding-left: var(--pf-v6-c-page__main-section--PaddingInlineStart);
 }
 
 #clusterdetails-content .container-fluid {
@@ -323,7 +309,7 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
 }
 
 // To display organization names in the masthead, we need a longer max length for the text
-.uhc_header .pf-v5-c-page__header-tools .pf-v5-c-dropdown__toggle-text {
+.uhc_header .pf-v6-c-page__header-tools .pf-v6-c-dropdown__toggle-text {
   max-width: 50ch; // pf default is 20ch
 }
 
@@ -334,23 +320,14 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
 
   // style for vertical tab in AccessControl
   @media (min-width: 768px) {
-    .pf-v5-c-tabs {
+    .pf-v6-c-tabs {
       float: left;
       width: 220px;
     }
   }
 
-  // tab content
-  .pf-v5-c-tab-content {
-    // the parent already draws a box.
-    // no boxes for the nested cards.
-    .pf-v5-c-card {
-      --pf-v5-c-card--BoxShadow: none;
-    }
-  }
-
   // hide if there's single tab item
-  &.single-tab .pf-v5-c-tabs {
+  &.single-tab .pf-v6-c-tabs {
     display: none;
   }
   &.single-tab section {
@@ -358,8 +335,8 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
   }
 }
 
-.pf-v5-c-tabs__item-text > #monitoring-issues-icon,
-.pf-v5-c-tabs__item-text > #insights-issues-icon {
+.pf-v6-c-tabs__item-text > #monitoring-issues-icon,
+.pf-v6-c-tabs__item-text > #insights-issues-icon {
   margin-left: 5px;
 }
 
@@ -372,10 +349,10 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
   margin-left: 16px;
 }
 
-.pf-v5-c-radio.radio-az {
+.pf-v6-c-radio.radio-az {
   display: inline-block;
   width: 120px;
-  .pf-v5-c-radio__label {
+  .pf-v6-c-radio__label {
     padding-left: 6px;
   }
 }
@@ -395,7 +372,7 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
   margin: 20px;
 }
 
-.pf-v5-c-content h3.downloads-subtitle {
+.pf-v6-c-content h3.downloads-subtitle {
   margin-bottom: 6px;
 }
 
@@ -415,41 +392,12 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
   }
 }
 
-.card-badge-container > span.card-badge {
-  background-color: var(--pf-v5-global--BackgroundColor--300);
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--pf-v5-global--Color--300);
-  padding: 5px 10px 5px 10px;
-  width: 95%;
-  margin: 8px;
-  min-height: 21px;
-  line-height: 21px;
-  border-radius: 3px;
-  text-align: center;
-  display: inline-block;
-  svg {
-    margin-right: var(--pf-v5-global--spacer--xs);
-  }
-  &.card-badge-hidden {
-    // for card size/layout consistency, we want a "placeholder" badge that takes the same space, but is not visibile
-    visibility: hidden;
-  }
-}
-
-.card-badge-container {
-  align-self: stretch;
-  margin-left: -7%;
-  margin-right: -7%;
-  margin-top: -20px;
-}
-
 .create-cluster-logo {
   height: 75px;
 }
 .infra-card.create-cluster-card.tile-disabled {
-  background: var(--pf-v5-global--disabled-color--300);
-  color: var(--pf-v5-global--disabled-color--100) !important;
+  background: var(--pf-t--global--background--color--disabled--default);
+  color: var(--pf-t--global--text--color--disabled) !important;
   box-shadow: none;
   border: none;
   .create-cluster-logo {
@@ -458,21 +406,23 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
   }
 }
 
-.infra-card .create-cluster-header.pf-v5-c-card__header {
+.infra-card .create-cluster-header.pf-v6-c-card__header {
   margin-top: 55px;
   padding-top: 0;
 }
 
-// Disabled tiles should still allow for tooltips
-.pf-v5-c-tile.pf-m-disabled {
+// workarounds for Tile components in 'disabled' state
+.pf-v6-c-tile.pf-m-disabled {
+  // allow triggering tooltips, or interacting with actionable content like links
   pointer-events: all;
+  // re-hide the bottom border, which indicates interactive state (e.g. 'active', 'hover', 'focus')
   &::after {
     background-color: transparent;
   }
 }
 
 // Enable word wrapping in tooltips, this is useful in case of extremely long cluster names
-.pf-v5-c-tooltip__content {
+.pf-v6-c-tooltip__content {
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -491,7 +441,7 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
 
 .cluster-status-string {
   &.status-installing svg {
-    color: var(--pf-v5-c-table--cell--Color);
+    color: var(--pf-v6-c-table--cell--Color);
   }
 }
 
@@ -509,13 +459,13 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
   margin-left: 15px;
 }
 
-.cluster-list .pf-v5-c-chip-group .pf-v5-c-chip-group__label {
+.cluster-list .pf-v6-c-chip-group .pf-v6-c-chip-group__label {
   margin-right: 10px;
   overflow: visible;
 }
 
 // add some space between the text input label and the help icon
-.pf-v5-c-form__group-label .text-input-tootip-icon {
+.pf-v6-c-form__group-label .text-input-tootip-icon {
   margin-left: 5px;
 }
 
@@ -533,7 +483,7 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
   }
   select {
     width: 100%;
-    margin-right: var(--pf-v5-global--spacer--xs);
+    margin-right: var(--pf-t--global--spacer--xs);
     display: block;
   }
 }
@@ -545,7 +495,7 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
 }
 
 // selects the input box in PF Pagination component
-.pf-v5-c-pagination__nav-page-select > input:nth-child(1) {
+.pf-v6-c-pagination__nav-page-select > input:nth-child(1) {
   width: 100px;
 }
 
@@ -555,42 +505,42 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
 
 .subscription-settings {
   &.form {
-    margin-top: var(--pf-v5-c-modal-box--c-title--body--MarginTop);
+    margin-top: var(--pf-v6-c-modal-box--c-title--body--MarginTop);
   }
   &.radio-group {
-    .pf-v5-c-form__group-control {
+    .pf-v6-c-form__group-control {
       position: relative;
       padding-left: 10px;
       // change to inline display, so the fields do not take the whole line.
       // the tooltip can be nicely displayed side by side.
       display: inline-block;
-      .pf-v5-c-radio:not(:last-child) {
-        margin-bottom: var(--pf-v5-global--spacer--sm);
+      .pf-v6-c-radio:not(:last-child) {
+        margin-bottom: var(--pf-t--global--spacer--sm);
       }
       &.pf-m-inline {
         display: inline-flex;
-        .pf-v5-c-radio:not(:last-child) {
+        .pf-v6-c-radio:not(:last-child) {
           margin-bottom: 0;
         }
       }
     }
 
-    .pf-v5-c-form__label-text {
-      font-weight: var(--pf-v5-global--FontWeight--bold);
-      font-size: var(--pf-v5-global--FontSize--sm);
+    .pf-v6-c-form__label-text {
+      font-weight: var(--pf-t--global--font--weight--heading--bold);
+      font-size: var(--pf-t--global--font--size--sm);
     }
   }
   &.expired-eval-option {
-    color: var(--pf-v5-global--danger-color--100);
-    font-weight: var(--pf-v5-global--FontWeight--bold);
+    color: var(--pf-t--global--text--color--status--danger--default);
+    font-weight: var(--pf-t--global--font--weight--heading--bold);
   }
   &.warning-title-icon {
     margin-left: 10px;
-    fill: var(--pf-v5-global--warning-color--100);
+    fill: var(--pf-t--global--icon--color--status--warning--default);
   }
   &.danger-title-icon {
     margin-left: 10px;
-    fill: var(--pf-v5-global--danger-color--100);
+    fill: var(--pf-t--global--icon--color--status--danger--default);
   }
   .subscription-settings-label-tooltip-icon {
     margin-left: 5px;
@@ -598,8 +548,8 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
 
   // slightly reduce the alert margin to hide the scroll
   #subscription-settings-cluster-billing-model-alert {
-    margin-top: calc(var(--pf-v5-global--spacer--md) - var(--pf-v5-c-form--GridGap));
-    margin-bottom: calc(var(--pf-v5-global--spacer--md) - var(--pf-v5-c-form--GridGap));
+    margin-top: calc(var(--pf-t--global--spacer--md) - var(--pf-v6-c-form--GridGap));
+    margin-bottom: calc(var(--pf-t--global--spacer--md) - var(--pf-v6-c-form--GridGap));
   }
 }
 
@@ -608,48 +558,52 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
 }
 
 .control-form-cursor {
-  div.pf-v5-c-form__group .pf-v5-c-form__label {
+  div.pf-v6-c-form__group .pf-v6-c-form__label {
     cursor: default;
   }
 }
 
 .access-control-add {
-  margin-top: var(--pf-v5-global--spacer--lg);
+  margin-top: var(--pf-t--global--spacer--lg);
 }
 
-.radio-button.pf-v5-c-radio {
-  margin-bottom: var(--pf-v5-global--spacer--lg);
+.radio-button.pf-v6-c-radio {
+  margin-bottom: var(--pf-t--global--spacer--lg);
 
   label > .radio-helptext {
-    font-size: var(--pf-v5-global--FontSize--sm);
+    font-size: var(--pf-t--global--font--size--sm);
   }
 }
 
-.pf-v5-c-button.pf-m-link.access-control-tables-copy {
+.pf-v6-c-button.pf-m-link.access-control-tables-copy {
   padding: 0;
-  font-size: var(--pf-v5-c-table--cell--FontSize);
+  font-size: var(--pf-v6-c-table--cell--FontSize);
 }
 
-.ins-c-empty-state__unavailable .pf-v5-c-empty-state__icon {
-  color: var(--pf-v5-global--danger-color--100);
+.ins-c-empty-state__unavailable .pf-v6-c-empty-state__icon {
+  color: var(--pf-t--global--icon--color--status--danger--default);
 }
 
 .ocm-secondary-text {
-  color: var(--pf-v5-global--Color--200);
+  color: var(--pf-t--global--text--color--subtle);
 }
 
 $ocm-l-autofit--breakpoint-map: build-breakpoint-map();
 $ocm-c-width-limiter--breakpoint-map: build-breakpoint-map();
 
-.pf-v5-c-page__main-section {
-  &.pf-m-dark-1000 {
-    --pf-v5-c-page__main-section--BackgroundColor: var(--pf-v5-global--palette--black-1000);
-  }
-}
-
 // TODO: remove once chroming has newer version of PF that includes this fix
 // https://github.com/patternfly/patternfly/pull/5788/files
-.pf-v5-c-radio {
+.pf-v6-c-radio {
   display: grid;
   width: auto;
+}
+
+// Fix selectable card border issue due to a style override in chroming
+:is(.ocm-fix-selectable-card-border .pf-v6-c-card, .ocm-fix-selectable-card-border.pf-v6-c-card):is(.pf-m-clickable, .pf-m-selectable)::before {
+  border: revert !important;
+}
+
+// Fix expandable table issue until PF issue is resolved https://github.com/patternfly/patternfly-react/issues/11812
+.pf-v6-c-table tbody:where(.pf-v6-c-table__tbody).pf-m-expanded>:first-child:not(.pf-v6-c-table__control-row) {
+  border-block-end-width: 0;
 }

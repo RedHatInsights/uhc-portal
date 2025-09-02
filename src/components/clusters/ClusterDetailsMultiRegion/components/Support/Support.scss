@@ -1,17 +1,17 @@
 .ocm-c-support-notification-contacts__card,
 .ocm-c-support-support-cases__card {
   &--header {
-    .pf-v5-c-title {
-      margin-bottom: var(--pf-v5-global--spacer--md);
+    .pf-v6-c-title {
+      margin-bottom: var(--pf-t--global--spacer--md);
     }
     .support-subtitle {
-      font-size: var(--pf-v5-global--FontSize--md);
-      font-weight: var(--pf-v5-global--FontWeight--normal);
+      font-size: var(--pf-t--global--font--size--md);
+      font-weight: var(--pf-t--global--font--weight--body--default);
     }
   }
   &--body {
-    .pf-v5-c-button {
-      margin-top: var(--pf-v5-global--spacer--md);
+    .pf-v6-c-button {
+      margin-top: var(--pf-t--global--spacer--md);
     }
   }
 }

@@ -5,12 +5,12 @@ import { useDispatch } from 'react-redux';
 
 import {
   Button,
-  Card,
-  CardBody,
   Icon,
   Popover,
   PopoverPosition,
   Skeleton,
+  Stack,
+  StackItem,
   Title,
 } from '@patternfly/react-core';
 import { HelpIcon } from '@patternfly/react-icons/dist/esm/icons/help-icon';
@@ -252,11 +252,15 @@ function OCMRolesSection({
           <p>The username is the Red Hat login that is used to access the Red Hat account.</p>
         }
       >
-        <Button variant="plain" isInline>
-          <Icon size="md">
-            <HelpIcon />
-          </Icon>
-        </Button>
+        <Button
+          icon={
+            <Icon size="md">
+              <HelpIcon />
+            </Icon>
+          }
+          variant="plain"
+          isInline
+        />
       </Popover>
     </>
   );
@@ -271,11 +275,15 @@ function OCMRolesSection({
         id="ocm-roles-section-role"
         bodyContent={<p>The OpenShift Cluster Manager role that is granted to this user.</p>}
       >
-        <Button variant="plain" isInline>
-          <Icon size="md">
-            <HelpIcon />
-          </Icon>
-        </Button>
+        <Button
+          icon={
+            <Icon size="md">
+              <HelpIcon />
+            </Icon>
+          }
+          variant="plain"
+          isInline
+        />
       </Popover>
     </>
   );
@@ -340,8 +348,8 @@ function OCMRolesSection({
   return pageLoading ? (
     <LoadingSkeletonCard />
   ) : (
-    <Card>
-      <CardBody>
+    <Stack>
+      <StackItem>
         <Title className="card-title" headingLevel="h3" size="lg">
           OCM Roles and Access
         </Title>
@@ -358,9 +366,9 @@ function OCMRolesSection({
         >
           Grant role
         </ButtonWithTooltip>
-      </CardBody>
-      <CardBody>
         {errorBox}
+      </StackItem>
+      <StackItem>
         <Table aria-label="OCM Roles and Access" variant={TableVariant.compact}>
           <Thead>
             <Tr>
@@ -381,8 +389,8 @@ function OCMRolesSection({
           isGrantOcmRoleSuccess={isGrantOcmRoleSuccess}
           resetGrantOcmRoleMutation={resetGrantOcmRoleMutation}
         />
-      </CardBody>
-    </Card>
+      </StackItem>
+    </Stack>
   );
 }
 

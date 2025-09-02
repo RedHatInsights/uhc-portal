@@ -9,16 +9,14 @@ function ViewOnlyMyClustersToggle(props) {
 
   return (
     <Switch
-      className="pf-v5-u-ml-lg pf-v5-u-align-items-center"
+      className="pf-v6-u-ml-lg pf-v6-u-align-items-center"
       id="view-only-my-clusters"
       aria-label="View only my clusters"
       label={
         <>
           <span>View only my clusters</span>
           <Popover bodyContent={bodyContent} enableFlip={false}>
-            <Button variant="plain">
-              <OutlinedQuestionCircleIcon />
-            </Button>
+            <Button icon={<OutlinedQuestionCircleIcon />} variant="plain" />
           </Popover>
         </>
       }

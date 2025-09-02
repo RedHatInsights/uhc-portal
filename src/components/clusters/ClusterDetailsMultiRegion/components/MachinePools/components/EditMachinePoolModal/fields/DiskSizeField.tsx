@@ -14,8 +14,6 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
 import WithTooltip from '~/components/common/WithTooltip';
 import useFormikOnChange from '~/hooks/useFormikOnChange';
-import { HCP_ROOT_DISK_SIZE } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { ClusterFromSubscription } from '~/types/types';
 
 import './DiskSizeField.scss';
@@ -28,12 +26,9 @@ type DiskSizeFieldProps = {
 };
 
 const DiskSizeField = ({ cluster, isEdit }: DiskSizeFieldProps) => {
-  const hasHcpRootDiskSizeFeature = useFeatureGate(HCP_ROOT_DISK_SIZE);
   const isHypershift = isHypershiftCluster(cluster);
 
-  const showDiskSize =
-    normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA &&
-    (!isHypershift || hasHcpRootDiskSizeFeature);
+  const showDiskSize = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
   const [field, { error, touched }] = useField<number>(fieldId);
   const onChange = useFormikOnChange(fieldId);
 
@@ -45,7 +40,7 @@ const DiskSizeField = ({ cluster, isEdit }: DiskSizeFieldProps) => {
       fieldId={fieldId}
       label="Root disk size"
       isRequired
-      labelIcon={
+      labelHelp={
         <PopoverHint
           hint={`Root disks are AWS EBS volumes attached as the primary disk for AWS EC2 instances. The root disk size for this machine pool group of nodes must be between ${minWorkerVolumeSizeGiB}GiB and ${maxWorkerVolumeSizeGiB}GiB.`}
         />

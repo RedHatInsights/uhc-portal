@@ -8,24 +8,21 @@ import { AnyAction } from 'redux';
 import promiseMiddleware from 'redux-promise-middleware';
 
 import * as useChromeHook from '@redhat-cloud-services/frontend-components/useChrome';
-import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { configureStore, Middleware } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, renderHook, RenderOptions } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 
 import * as featureGates from '~/queries/featureGates/useFetchFeatureGate';
 
 import promiseRejectionMiddleware from './redux/promiseRejectionMiddleware';
 import { reduxReducers } from './redux/reducers';
 import sentryMiddleware from './redux/sentryMiddleware';
-import { GlobalState, store as globalStore } from './redux/store';
+import { GlobalState } from './redux/stateTypes';
+import { store as globalStore } from './redux/store';
 import * as restrictedEnv from './restrictedEnv';
 
 import '@testing-library/jest-dom';
-
-// Type not exported in the library
-export type UserEventType = ReturnType<typeof userEvent.setup>;
 
 interface RenderOptionsWithRouter extends RenderOptions {
   withRouter: boolean;
@@ -54,7 +51,7 @@ interface TestState {
   render: (
     ui: React.ReactElement,
     options?: RenderOptionsWithRouter,
-  ) => ReturnType<typeof render> & { user: UserEventType };
+  ) => ReturnType<typeof render> & { user: UserEvent };
 }
 
 /** Construct a local redux store + test helpers for it.
@@ -79,10 +76,6 @@ const withState = (initialState?: any, mergeWithGlobalState?: boolean): TestStat
     newState = merge({ ...globalStore.getState() }, initialState);
   }
 
-  const defaultOptions = {
-    dispatchDefaultFailure: false, // automatic error notifications
-  };
-
   // NOTE: This should match what is set in src/redux/store.ts
   // BUT also includes an preloadedState key
   const store = initialState
@@ -96,7 +89,6 @@ const withState = (initialState?: any, mergeWithGlobalState?: boolean): TestStat
           })
             .concat(promiseRejectionMiddleware as Middleware)
             .concat(promiseMiddleware)
-            .concat(notificationsMiddleware({ ...defaultOptions }) as Middleware) // TODO: remove type convertion as soon as @redhat-cloud-services incorporates RTK
             .concat(sentryMiddleware as Middleware),
       })
     : globalStore;
@@ -172,7 +164,7 @@ const renderWithState = (
 ) => withState(initialState).render(ui, options);
 
 export * from '@testing-library/react';
-export { default as userEvent } from '@testing-library/user-event';
+export { default as userEvent, UserEvent } from '@testing-library/user-event';
 
 export { withState, renderWithState as render };
 
@@ -245,9 +237,8 @@ export const mockUseChrome = (mockImpl?: any) => {
 // Mocking Feature Gates
 export type MockedGate = [string, boolean];
 
-export const mockUseFeatureGate = (mockedGates: MockedGate[]) => {
+export const mockUseFeatureGate = (mockedGates: MockedGate[]) =>
   jest.spyOn(featureGates, 'useFeatureGate').mockImplementation((feature) => {
     const gateToMock = mockedGates.find((gate) => gate[0] === feature);
     return gateToMock ? gateToMock[1] : false;
   });
-};

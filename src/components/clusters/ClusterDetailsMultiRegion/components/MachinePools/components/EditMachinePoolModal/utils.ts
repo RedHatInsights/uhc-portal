@@ -49,10 +49,12 @@ export const buildMachinePoolRequest = (
     isEdit,
     isMultiZoneMachinePool,
     isROSACluster,
+    isSecureBootUpdated,
   }: {
     isEdit: boolean;
     isMultiZoneMachinePool: boolean;
     isROSACluster: boolean;
+    isSecureBootUpdated?: boolean;
   },
 ): MachinePool => {
   const machinePool: MachinePool = {
@@ -87,6 +89,12 @@ export const buildMachinePoolRequest = (
       };
     }
 
+    if (!isSecureBootUpdated) {
+      machinePool.gcp = {
+        secure_boot: values.secure_boot,
+      };
+    }
+
     if (Object.keys(awsConfig).length > 0) {
       machinePool.aws = awsConfig;
     }
@@ -99,11 +107,9 @@ export const buildNodePoolRequest = (
   {
     isEdit,
     isMultiZoneMachinePool,
-    hasHcpRootDiskSizeFeature,
   }: {
     isEdit: boolean;
     isMultiZoneMachinePool: boolean;
-    hasHcpRootDiskSizeFeature?: boolean;
   },
 ): NodePool => {
   const nodePool: NodePool = {
@@ -118,13 +124,12 @@ export const buildNodePoolRequest = (
     nodePool.subnet = values.privateSubnetId;
     nodePool.aws_node_pool = {
       instance_type: values.instanceType,
+      ec2_metadata_http_tokens: values.imds,
       additional_security_group_ids: values.securityGroupIds,
-    };
-    if (hasHcpRootDiskSizeFeature) {
-      nodePool.aws_node_pool.root_volume = {
+      root_volume: {
         size: values.diskSize,
-      };
-    }
+      },
+    };
   }
   return nodePool;
 };

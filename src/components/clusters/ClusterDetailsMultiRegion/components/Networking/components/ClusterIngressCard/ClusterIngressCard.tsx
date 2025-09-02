@@ -8,14 +8,13 @@ import {
   CardFooter,
   CardTitle,
   ClipboardCopy,
+  Content,
+  ContentVariants,
   Form,
   FormGroup,
   Label,
   LabelGroup,
-  Text,
-  TextContent,
   TextInput,
-  TextVariants,
 } from '@patternfly/react-core';
 
 import { isRestrictedEnv } from '~/restrictedEnv';
@@ -117,13 +116,13 @@ const ClusterIngressCard = ({
                   {consoleURL}
                 </ClipboardCopy>
                 {showConsoleLink && (
-                  <TextContent>
-                    <Text component={TextVariants.small}>
+                  <Content>
+                    <Content component={ContentVariants.small}>
                       <a href={consoleURL} target="_blank" rel="noopener noreferrer">
                         Open console
                       </a>
-                    </Text>
-                  </TextContent>
+                    </Content>
+                  </Content>
                 )}
               </>
             ) : (
@@ -136,13 +135,13 @@ const ClusterIngressCard = ({
             isStack
           >
             <ClipboardCopy name="control_plane_api_endpoint" isReadOnly>
-              {controlPlaneAPIEndpoint}
+              {controlPlaneAPIEndpoint as string}
             </ClipboardCopy>
-            <TextContent>
-              <Text component={TextVariants.small}>
+            <Content>
+              <Content component={ContentVariants.small}>
                 {`${isApiPrivate || isRestrictedEnv() ? 'Private' : 'Public'} API`}
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
           </FormGroup>
           {hasAdditionalRouter && (
             <>
@@ -152,13 +151,13 @@ const ClusterIngressCard = ({
                   value={`*.${additionalRouterAddress}`}
                   readOnlyVariant="default"
                 />
-                <TextContent>
-                  <Text component={TextVariants.small}>
+                <Content>
+                  <Content component={ContentVariants.small}>
                     {`${
                       isAdditionalRouterPrivate || isRestrictedEnv() ? 'Private' : 'Public'
                     } router`}
-                  </Text>
-                </TextContent>
+                  </Content>
+                </Content>
               </FormGroup>
               <FormGroup fieldId="labels_additional_router" label="Label match" isStack>
                 {Array.isArray(additionalRouterLabels) && (

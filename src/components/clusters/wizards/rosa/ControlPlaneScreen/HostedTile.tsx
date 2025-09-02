@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { Alert, Label, List, Text, TextVariants, Tile } from '@patternfly/react-core';
+import { Alert, Content, ContentVariants, Label, List } from '@patternfly/react-core';
+import { Tile } from '@patternfly/react-core/deprecated';
 import { StarIcon } from '@patternfly/react-icons/dist/esm/icons/star-icon';
 
 import links from '~/common/installLinks.mjs';
@@ -21,7 +22,7 @@ type HostedTileProps = {
 
 const HostedTile = ({ handleChange, isHostedDisabled, isSelected }: HostedTileProps) => (
   <Tile
-    title="Hosted"
+    title="ROSA hosted architecture"
     isDisplayLarge
     isStacked
     onClick={() => !isHostedDisabled && handleChange('true')}
@@ -53,10 +54,11 @@ const HostedTile = ({ handleChange, isHostedDisabled, isSelected }: HostedTilePr
       />
     )}
 
-    <Text component={TextVariants.p} className={defaultMarginBottomSpacing}>
-      Run an OpenShift cluster with a decoupled control plane as a multi-tenant workload and a data
+    <Content component={ContentVariants.p} className={defaultMarginBottomSpacing}>
+      The Red Hat OpenShift Service on AWS with a hosted control plane architecture (ROSA HCP) runs
+      an OpenShift cluster with a decoupled control plane as a multi-tenant workload and a data
       plane on a separate network for segmented management and workload traffic.
-    </Text>
+    </Content>
     <List isPlain className={defaultMarginBottomSpacing}>
       <ListItem>Control plane resources are hosted in a Red Hat-owned AWS account</ListItem>
       <ListItem>Better resource utilization with faster cluster creation</ListItem>
@@ -71,13 +73,13 @@ const HostedTile = ({ handleChange, isHostedDisabled, isSelected }: HostedTilePr
       title="A Virtual Private Cloud is required for ROSA clusters hosted by Red Hat"
       className={defaultMarginBottomSpacing}
     >
-      <Text component={TextVariants.p}>
+      <Content component={ContentVariants.p}>
         <ExternalLink href={links.VIRTUAL_PRIVATE_CLOUD_URL}>
           Learn more about Virtual Private Cloud
         </ExternalLink>
-      </Text>
+      </Content>
     </Alert>
   </Tile>
 );
 
-export default HostedTile;
+export { HostedTile };

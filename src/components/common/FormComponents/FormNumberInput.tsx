@@ -47,7 +47,7 @@ const FormNumberInput = ({ meta, input, ...restProps }: Props) => {
         />
       </StackItem>
       {meta.error && (
-        <StackItem className="pf-v5-u-danger-color-100 pf-v5-u-font-size-sm">
+        <StackItem className="pf-v6-u-danger-color-100 pf-v6-u-font-size-sm">
           {meta.error}
         </StackItem>
       )}

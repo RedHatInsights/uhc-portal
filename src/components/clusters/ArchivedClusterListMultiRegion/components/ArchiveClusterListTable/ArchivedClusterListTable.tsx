@@ -1,12 +1,6 @@
 import React from 'react';
 
-import {
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  Skeleton,
-} from '@patternfly/react-core';
+import { EmptyState, EmptyStateBody, Skeleton } from '@patternfly/react-core';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { SortByDirection, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { ThSortType } from '@patternfly/react-table/dist/esm/components/Table/base/types';
@@ -152,7 +146,7 @@ const ArchivedClusterListTable = ({
         key={index}
       >
         {columnOptions.screenReaderText ? (
-          <span className="pf-v5-screen-reader">{columnOptions.screenReaderText}</span>
+          <span className="pf-v6-screen-reader">{columnOptions.screenReaderText}</span>
         ) : null}
         {columnOptions.title}
       </Th>
@@ -161,12 +155,7 @@ const ArchivedClusterListTable = ({
 
   if (!isPending && (!clusters || clusters.length === 0)) {
     return (
-      <EmptyState>
-        <EmptyStateHeader
-          titleText="No archived clusters found."
-          icon={<EmptyStateIcon icon={SearchIcon} />}
-          headingLevel="h4"
-        />
+      <EmptyState headingLevel="h4" icon={SearchIcon} titleText="No archived clusters found.">
         <EmptyStateBody>
           This filter criteria matches no clusters.
           <br />

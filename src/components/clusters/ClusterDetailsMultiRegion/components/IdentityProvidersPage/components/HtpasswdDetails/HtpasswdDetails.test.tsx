@@ -1,4 +1,5 @@
 import React from 'react';
+import * as reactRedux from 'react-redux';
 
 import { useFetchHtpasswdUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchHtpasswdUsers';
 import { checkAccessibility, render, screen, within } from '~/testUtils';
@@ -12,6 +13,11 @@ jest.mock(
     useFetchHtpasswdUsers: jest.fn(),
   }),
 );
+
+jest.mock('react-redux', () => ({
+  __esModule: true,
+  ...jest.requireActual('react-redux'),
+}));
 
 const createUsers = (numberOfUsers: number) => {
   const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
@@ -36,12 +42,21 @@ const getDataRows = () => {
 };
 
 const defaultProps = {
+  idpName: 'myIdpName',
   idpId: 'myIdpId',
   clusterId: 'myClusterId',
+  idpActions: {
+    list: true,
+    update: true,
+    delete: true,
+  },
 };
 
 describe('<HtpasswdDetails />', () => {
   const useFetchHtpasswdUsersMocked = useFetchHtpasswdUsers as jest.Mock;
+  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
+  const mockedDispatch = jest.fn();
+  useDispatchMock.mockReturnValue(mockedDispatch);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -67,9 +82,8 @@ describe('<HtpasswdDetails />', () => {
       await checkAccessibility(container);
     });
 
-    it('in table', () => {
+    it('in table correctly when update is allowed', () => {
       // NOTE this assumes that the items are initially sorted by username asc
-
       const users = createUsers(20);
       const usersSorted = [...users].sort((a, b) =>
         (a.username as string).localeCompare(b.username as string),
@@ -88,9 +102,64 @@ describe('<HtpasswdDetails />', () => {
 
       expect(dataRows).toHaveLength(20);
       dataRows.forEach((row, index) => {
-        const firstCell = within(row).getAllByRole('cell')[0];
+        const userCell = within(row).getAllByRole('cell')[1];
         // @ts-ignore
-        expect(firstCell).toHaveTextContent(usersSorted[index].username);
+        expect(userCell).toHaveTextContent(usersSorted[index].username);
+      });
+    });
+
+    it('in table correctly when update is not allowed', () => {
+      // NOTE this assumes that the items are initially sorted by username asc
+      const users = createUsers(20);
+      const usersSorted = [...users].sort((a, b) =>
+        (a.username as string).localeCompare(b.username as string),
+      );
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const newProps = { ...defaultProps, idpActions: { update: false } };
+
+      render(<HtpasswdDetails {...newProps} />);
+
+      const dataRows = getDataRows();
+
+      expect(dataRows).toHaveLength(20);
+      dataRows.forEach((row, index) => {
+        const userCell = within(row).getAllByRole('cell')[0];
+        // @ts-ignore
+        expect(userCell).toHaveTextContent(usersSorted[index].username);
+      });
+    });
+
+    it('shows a change password action', async () => {
+      const users = createUsers(1);
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+      const { user } = render(<HtpasswdDetails {...defaultProps} />);
+      const dataRows = getDataRows();
+      const cells = within(dataRows[0]).getAllByRole('cell');
+      const actionCell = cells[cells.length - 1];
+
+      expect(screen.queryByRole('menuitem', { name: 'Change password' })).not.toBeInTheDocument();
+
+      await user.click(within(actionCell).getByRole('button', { name: 'Kebab toggle' }));
+
+      await user.click(screen.getByRole('menuitem', { name: 'Change password' }));
+
+      expect(mockedDispatch.mock.calls[0][0].type).toEqual('OPEN_MODAL');
+      expect(mockedDispatch.mock.calls[0][0].payload.name).toEqual('EDIT_HTPASSWD_USER');
+      expect(mockedDispatch.mock.calls[0][0].payload.data.user).toEqual({
+        username: 'a0-user',
+        id: 'a0-id',
       });
     });
 
@@ -256,9 +325,9 @@ describe('<HtpasswdDetails />', () => {
 
       expect(dataRows).toHaveLength(20);
       dataRows.forEach((row, index) => {
-        const firstCell = within(row).getAllByRole('cell')[0];
+        const userCell = within(row).getAllByRole('cell')[1];
 
-        expect(firstCell).toHaveTextContent(usersSorted[index].username || '');
+        expect(userCell).toHaveTextContent(usersSorted[index].username || '');
       });
 
       await user.click(screen.getByRole('button', { name: 'Username' }));
@@ -267,9 +336,9 @@ describe('<HtpasswdDetails />', () => {
 
       const dataRows2 = getDataRows();
       dataRows2.forEach((row, index) => {
-        const firstCell = within(row).getAllByRole('cell')[0];
+        const userCell = within(row).getAllByRole('cell')[1];
 
-        expect(firstCell).toHaveTextContent(usersSorted[index].username || '');
+        expect(userCell).toHaveTextContent(usersSorted[index].username || '');
       });
     });
 
@@ -289,12 +358,12 @@ describe('<HtpasswdDetails />', () => {
       const { user } = render(<HtpasswdDetails {...defaultProps} />);
 
       const dataRows = getDataRows();
-      const firstUser = usersSorted[0].username;
+      const firstUser = usersSorted[1].username;
       const lastUser = usersSorted[usersSorted.length - 1].username;
 
-      const firstCellInFirstRow = within(dataRows[0]).getAllByRole('cell')[0];
+      const userCellInFirstRow = within(dataRows[1]).getAllByRole('cell')[1];
       // @ts-ignore
-      expect(firstCellInFirstRow).toHaveTextContent(firstUser);
+      expect(userCellInFirstRow).toHaveTextContent(firstUser);
       // @ts-ignore
       expect(screen.queryByText(lastUser)).not.toBeInTheDocument();
 
@@ -302,9 +371,9 @@ describe('<HtpasswdDetails />', () => {
       await user.click(screen.getByRole('button', { name: 'Username' }));
 
       const dataRows2 = getDataRows();
-      const firstCellInFirstRow2 = within(dataRows2[0]).getAllByRole('cell')[0];
+      const userCellInFirstRow2 = within(dataRows2[0]).getAllByRole('cell')[1];
       // @ts-ignore
-      expect(firstCellInFirstRow2).toHaveTextContent(lastUser);
+      expect(userCellInFirstRow2).toHaveTextContent(lastUser);
       // @ts-ignore
       expect(screen.queryByText(firstUser)).not.toBeInTheDocument();
     });
@@ -405,5 +474,178 @@ describe('<HtpasswdDetails />', () => {
       });
       expect(pageTextBox).toHaveValue(1);
     });
+
+    it('it goes to last existing page when current page no longer exists after filtering so results exactly fits a page', async () => {
+      // Create 21 users, go to second page
+      // Filter so only 20 user are returned
+      // Verify the app is only showing 1 page
+      const users = [];
+      while (users.length < 20) {
+        users.push({ username: `user-1-${users.length}`, id: `user-1-${users.length}` });
+      }
+
+      expect(users).toHaveLength(20);
+
+      users.push({ username: `odd-user}`, id: `odd-user` });
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const { user } = render(<HtpasswdDetails {...defaultProps} />);
+
+      await user.click(screen.getAllByRole('button', { name: 'Go to next page' })[0]);
+
+      let pageTextBox = screen.getByRole('spinbutton', {
+        name: 'Current page',
+      });
+      expect(pageTextBox).toHaveValue(2);
+
+      await user.type(screen.getByLabelText('Filter by username'), 'user-1');
+
+      pageTextBox = screen.getByRole('spinbutton', {
+        name: 'Current page',
+      });
+      expect(pageTextBox).toHaveValue(1);
+    });
+  });
+
+  describe('add user', () => {
+    it('button is not shown if user does not have update access', () => {
+      const users = createUsers(20);
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const newProps = { ...defaultProps, idpActions: { update: false } };
+
+      render(<HtpasswdDetails {...newProps} />);
+
+      expect(screen.queryByRole('button', { name: 'Add user' })).not.toBeInTheDocument();
+    });
+
+    it('modal is opened when user clicks on "add user" button', async () => {
+      const users = createUsers(20);
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const newProps = { ...defaultProps, idpActions: { update: true } };
+
+      const { user } = render(<HtpasswdDetails {...newProps} />);
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Add user' }));
+
+      expect(mockedDispatch.mock.calls[0][0].type).toEqual('OPEN_MODAL');
+      expect(mockedDispatch.mock.calls[0][0].payload.name).toEqual('ADD_HTPASSWD_USER');
+    }, 20000);
+  });
+
+  describe('single user htpasswd', () => {
+    it('add button is not shown when a single htpasswd', () => {
+      const users = createUsers(1);
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const newProps = {
+        ...defaultProps,
+        idpActions: { update: true },
+        isSingleUserHtpasswd: true,
+      };
+
+      render(<HtpasswdDetails {...newProps} />);
+
+      expect(screen.queryByRole('button', { name: 'Add user' })).not.toBeInTheDocument();
+    });
+
+    it('actions are not shown for user', () => {
+      const users = createUsers(1);
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const newProps = {
+        ...defaultProps,
+        idpActions: { update: true },
+        isSingleUserHtpasswd: true,
+      };
+
+      render(<HtpasswdDetails {...newProps} />);
+
+      const dataRows = getDataRows();
+
+      expect(dataRows).toHaveLength(1);
+      const cells = within(dataRows[0]).getAllByRole('cell');
+      const actionsCell = cells[cells.length - 1];
+      expect(actionsCell).toBeEmptyDOMElement();
+    });
+  });
+
+  describe('Delete', () => {
+    it('button is not shown if user does not have update access', () => {
+      const users = createUsers(20);
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const newProps = { ...defaultProps, idpActions: { update: false } };
+
+      render(<HtpasswdDetails {...newProps} />);
+
+      expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
+    it('modal is opened when users are select and user clicks on "Delete" button', async () => {
+      const users = createUsers(20);
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const newProps = { ...defaultProps, idpActions: { update: true } };
+
+      const { user } = render(<HtpasswdDetails {...newProps} />);
+      const deleteButton = screen.getByRole('button', { name: 'Delete' });
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(deleteButton).toBeDisabled();
+
+      const checkBox = screen.getByRole('checkbox', { name: /Select all rows/i });
+      await user.click(checkBox);
+
+      expect(deleteButton).not.toBeDisabled();
+
+      await user.click(deleteButton);
+      expect(mockedDispatch.mock.calls[0][0].type).toEqual('OPEN_MODAL');
+      expect(mockedDispatch.mock.calls[0][0].payload.name).toEqual('BULK_DELETE_HTPASSWD_USER');
+    }, 20000);
   });
 });

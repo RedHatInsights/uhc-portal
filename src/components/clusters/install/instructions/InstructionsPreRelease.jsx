@@ -7,10 +7,9 @@ import {
   CardBody,
   CardFooter,
   CardTitle,
+  Content,
   Stack,
   StackItem,
-  Text,
-  TextContent,
   Title,
 } from '@patternfly/react-core';
 import { CodeIcon } from '@patternfly/react-icons/dist/esm/icons/code-icon';
@@ -39,30 +38,30 @@ function InstructionsPreRelease({ token, installer }) {
             </CardTitle>
             <CardBody className="ocm-c-pre-release__card--body">
               {token.error && <TokenErrorAlert token={token} />}
-              <TextContent>
+              <Content>
                 <TelemetryDisclaimer />
-                <Text component="p">
+                <Content component="p">
                   As Red Hat OpenShift Container Platform (OCP) has moved to become a more agile and
                   rapidly deployable Kubernetes offering, we want to allow existing and evaluation
                   customers and partners access to the latest pre-release builds to see a real-time
                   view into the next version of OpenShift.
-                </Text>
+                </Content>
                 <DeveloperPreviewStatements />
-                <Text component="p">
+                <Content component="p">
                   These builds are useful for anyone who would like to stay up to date on features
                   being developed in the next release of OpenShift. Such builds are advantageous for
                   planning future deployments, ISV integrations, or other educational, test, and
                   explorational purposes.
-                </Text>
-                <Text component="h3">Feature Completion in Developer Preview Versions</Text>
-                <Text component="p">
+                </Content>
+                <Content component="h3">Feature Completion in Developer Preview Versions</Content>
+                <Content component="p">
                   Each OpenShift minor release will target initiatives or focus areas. Because
                   pre-release versions are published before all features have been implemented and
                   tested, some features may be absent, incomplete, or buggy. This is the beauty of
                   the development process, allowing early access, so customers and partners can
                   experiment and provide early feedback.
-                </Text>
-              </TextContent>
+                </Content>
+              </Content>
             </CardBody>
           </Card>
         </StackItem>
@@ -78,9 +77,9 @@ function InstructionsPreRelease({ token, installer }) {
               />
             </CardBody>
             <CardFooter className="ocm-c-pre-release-instructions__card--footer">
-              <TextContent>
-                <Text component="h3">Feedback and Support</Text>
-                <Text component="p">
+              <Content>
+                <Content component="h3">Feedback and Support</Content>
+                <Content component="p">
                   If you are a Red Hat customer or partner and have feedback about these developer
                   preview versions, file an issue via{' '}
                   <ExternalLink href={links.INSTALL_PRE_RELEASE_FEEDBACK}>
@@ -92,8 +91,8 @@ function InstructionsPreRelease({ token, installer }) {
                     knowledge article
                   </ExternalLink>
                   .
-                </Text>
-              </TextContent>
+                </Content>
+              </Content>
             </CardFooter>
           </Card>
         </StackItem>

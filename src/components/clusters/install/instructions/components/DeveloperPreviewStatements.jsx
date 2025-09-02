@@ -1,28 +1,28 @@
 import React from 'react';
 
-import { Text, TextList, TextListItem } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 
 import links from '../../../../../common/installLinks.mjs';
 import ExternalLink from '../../../../common/ExternalLink';
 
 const DeveloperPreviewStatements = () => (
   <>
-    <Text component="p">
+    <Content component="p">
       Because these are{' '}
       <ExternalLink href={links.INSTALL_PRE_RELEASE_SUPPORT_KCS} noIcon>
         developer preview
       </ExternalLink>{' '}
       builds:
-    </Text>
-    <TextList>
-      <TextListItem>Production use is not permitted.</TextListItem>
-      <TextListItem>
+    </Content>
+    <Content component="ul">
+      <Content component="li">Production use is not permitted.</Content>
+      <Content component="li">
         Installation and use is not eligible for Red Hat production support.
-      </TextListItem>
-      <TextListItem>
+      </Content>
+      <Content component="li">
         Upgrades to, from, or between developer preview versions are not supported.
-      </TextListItem>
-    </TextList>
+      </Content>
+    </Content>
   </>
 );
 

@@ -39,7 +39,7 @@ export const DebugClusterRequest = ({
 
   return (
     <GridItem>
-      <Banner variant="blue">
+      <Banner color="blue">
         <ExpandableSection toggleText="Debug: cluster request to be sent">
           <pre>{JSON.stringify(clusterRequest, null, 2)}</pre>
         </ExpandableSection>

@@ -863,7 +863,20 @@ export interface components {
       operator_conditions: components['schemas']['operator_condition'][];
     };
   };
-  responses: never;
+  responses: {
+    /** @description The requester is unauthorized. If using a service account, you may not belong to the right group with the right role. Please make sure you configured your user access on the console. */
+    unauthorized: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': {
+          /** @example Account does not have the required permissions */
+          status?: string;
+        };
+      };
+    };
+  };
   parameters: {
     /**
      * @description ID of the rule for which content is required.
@@ -897,6 +910,7 @@ export type SystemWideRuleDisable = components['schemas']['systemWideRuleDisable
 export type SystemWideRuleDisableList = components['schemas']['systemWideRuleDisableList'];
 export type UpgradeRisksPrediction = components['schemas']['upgradeRisksPrediction'];
 export type UpgradeRisksPredictors = components['schemas']['upgradeRisksPredictors'];
+export type ResponseUnauthorized = components['responses']['unauthorized'];
 export type ParameterRuleId = components['parameters']['ruleId'];
 export type $defs = Record<string, never>;
 export interface operations {
@@ -918,6 +932,7 @@ export interface operations {
           'application/json': components['schemas']['systemWideRuleDisableList'];
         };
       };
+      403: components['responses']['unauthorized'];
     };
   };
   ackRuleSystemWide: {
@@ -955,6 +970,7 @@ export interface operations {
           'application/json': components['schemas']['systemWideRuleDisable'];
         };
       };
+      403: components['responses']['unauthorized'];
     };
   };
   getAckRuleSystemWide: {
@@ -978,6 +994,7 @@ export interface operations {
           'application/json': components['schemas']['systemWideRuleDisable'];
         };
       };
+      403: components['responses']['unauthorized'];
       /** @description Rule has not been acked (disabled) previously */
       404: {
         headers: {
@@ -1015,6 +1032,7 @@ export interface operations {
           'application/json': components['schemas']['systemWideRuleDisable'];
         };
       };
+      403: components['responses']['unauthorized'];
       /** @description Rule has not been acked (disabled) previously */
       404: {
         headers: {
@@ -1043,6 +1061,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Rule has not been acked (disabled) previously */
       404: {
         headers: {
@@ -1100,6 +1119,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Cluster info was not returned from AMS API for given organization. */
       404: {
         headers: {
@@ -1140,6 +1160,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Cluster report is not available, probably not connected cluster. */
       404: {
         headers: {
@@ -1182,6 +1203,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Cluster or request ID not found */
       404: {
         headers: {
@@ -1224,6 +1246,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Request ID or cluster ID not found */
       404: {
         headers: {
@@ -1265,6 +1288,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Cluster not found */
       404: {
         headers: {
@@ -1310,6 +1334,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Cluster ID not found or no requests found in storage for provided IDs */
       404: {
         headers: {
@@ -1359,6 +1384,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Status NotFound: happens when the cluster cannot be found in the Observatorium data */
       404: {
         headers: {
@@ -1393,6 +1419,7 @@ export interface operations {
           'application/json': components['schemas']['clusterListResponse'];
         };
       };
+      403: components['responses']['unauthorized'];
       /** @description A dependent service such as AMS API or results aggregator is unavailable. Specified in status message. */
       503: {
         headers: {
@@ -1466,6 +1493,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
     };
   };
   getRuleGroups: {
@@ -1494,6 +1522,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
       /** @description Content service is unavailable */
       503: {
         headers: {
@@ -1606,6 +1635,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Cluster was not found in the AMS API. */
       404: {
         headers: {
@@ -1700,6 +1730,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Data for cluster and namespace were not found in the storage. */
       404: {
         headers: {
@@ -1778,6 +1809,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
     };
   };
   getRecommendations: {
@@ -1801,6 +1833,7 @@ export interface operations {
           'application/json': components['schemas']['recommendationListResponse'];
         };
       };
+      403: components['responses']['unauthorized'];
     };
   };
   getContentAndGroupsForRule: {
@@ -1884,6 +1917,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
       /** @description Rule ID is not available */
       404: {
         headers: {
@@ -1975,6 +2009,7 @@ export interface operations {
           };
         };
       };
+      403: components['responses']['unauthorized'];
       /** @description Rule ID is not available */
       404: {
         headers: {
@@ -2080,6 +2115,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
       /** @description Resource not found, usually caused when some rule selector, organization or user doesn't exist */
       404: {
         headers: {
@@ -2132,6 +2168,7 @@ export interface operations {
         };
         content?: never;
       };
+      403: components['responses']['unauthorized'];
     };
   };
 }

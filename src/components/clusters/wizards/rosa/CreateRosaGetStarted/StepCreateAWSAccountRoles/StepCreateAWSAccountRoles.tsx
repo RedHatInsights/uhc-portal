@@ -1,6 +1,14 @@
 import React from 'react';
 
-import { Alert, List, ListComponent, ListItem, OrderType, Title } from '@patternfly/react-core';
+import {
+  Alert,
+  Content,
+  List,
+  ListComponent,
+  ListItem,
+  OrderType,
+  Title,
+} from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 import { trackEvents } from '~/common/analytics';
@@ -11,9 +19,6 @@ import useOrganization from '~/components/CLILoginPage/useOrganization';
 import { RosaCliCommand } from '~/components/clusters/wizards/rosa/AccountsRolesScreen/constants/cliCommands';
 import ExternalLink from '~/components/common/ExternalLink';
 import InstructionCommand from '~/components/common/InstructionCommand';
-import OfflineTokensAlert from '~/components/common/OfflineTokensAlert';
-import { CLI_SSO_AUTHORIZATION } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { getRefreshToken, isRestrictedEnv } from '~/restrictedEnv';
 import { Error } from '~/types/accounts_mgmt.v1';
 import type { Chrome } from '~/types/types';
@@ -35,7 +40,6 @@ const StepCreateAWSAccountRoles = ({
   const [token, setToken] = React.useState<string>('');
   const [restrictTokens, setRestrictTokens] = React.useState<boolean | undefined>(undefined);
   const errorData = error as Error;
-  const showDeprecationMessage = useFeatureGate(CLI_SSO_AUTHORIZATION) && !restrictTokens;
 
   React.useEffect(() => {
     if (restrictedEnv) {
@@ -72,14 +76,12 @@ const StepCreateAWSAccountRoles = ({
   return (
     <>
       <Title headingLevel="h3" data-testid="rosa-cli-header">
-        Log in to the ROSA CLI with your Red Hat account token and create AWS account roles and
-        policies
+        Log in to the ROSA CLI with your Red Hat account and create AWS account roles and policies.
       </Title>
-      {!restrictedEnv && showDeprecationMessage ? <OfflineTokensAlert /> : null}
       <List component={ListComponent.ol} type={OrderType.number} data-testid="rosa-cli-definition">
-        <ListItem className="pf-v5-u-mb-lg" data-testid="rosa-cli-sub-definition-1">
-          To authenticate, run this command:
-          <div className="pf-v5-u-mt-md">
+        <ListItem className="pf-v6-u-mb-lg" data-testid="rosa-cli-sub-definition-1">
+          {`To authenticate, run this command ${!restrictedEnv ? 'and enter your Red Hat login credentials via SSO' : ''}: `}
+          <div className="pf-v6-u-mt-md">
             <ROSALoginCommand
               restrictTokens={restrictTokens}
               isLoading={isLoading}
@@ -88,6 +90,14 @@ const StepCreateAWSAccountRoles = ({
               defaultToOfflineTokens={defaultToOfflineTokens}
             />
           </div>
+          {!restrictedEnv ? (
+            <Content component="p">
+              Learn more about{' '}
+              <ExternalLink href={links.LEARN_MORE_SSO_ROSA}>
+                logging into OpenShift Cluster Manager ROSA CLI with Red Hat single sign-on{' '}
+              </ExternalLink>
+            </Content>
+          ) : null}
         </ListItem>
         <ListItem data-testid="rosa-cli-sub-definition-2">
           To create the necessary account-wide roles and policies quickly, use the default auto
@@ -95,7 +105,7 @@ const StepCreateAWSAccountRoles = ({
           <InstructionCommand
             trackEvent={trackEvents.CopyCreateAccountRoles}
             textAriaLabel="Copyable ROSA create account-roles command"
-            className="pf-v5-u-mt-md"
+            className="pf-v6-u-mt-md"
           >
             {RosaCliCommand.CreateAccountRoles}
           </InstructionCommand>

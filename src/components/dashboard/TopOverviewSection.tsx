@@ -7,7 +7,6 @@ import {
   CardTitle,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
   GridItem,
   Title,
 } from '@patternfly/react-core';
@@ -46,8 +45,7 @@ const TopOverviewSection = ({
 }: TopOverviewSectionProps) => {
   const errorBody = (
     <CardBody>
-      <EmptyState>
-        <EmptyStateHeader titleText="No data available" headingLevel="h2" />
+      <EmptyState headingLevel="h2" titleText="No data available">
         <EmptyStateBody>
           There was an error fetching the data. Try refreshing the page.
         </EmptyStateBody>
@@ -108,8 +106,7 @@ const TopOverviewSection = ({
     </CardBody>
   ) : (
     <CardBody>
-      <EmptyState>
-        <EmptyStateHeader titleText="No data available" headingLevel="h2" />
+      <EmptyState headingLevel="h2" titleText="No data available">
         <EmptyStateBody>
           Check individual clusters web console if you expect that they should be sending metrics.
           Note that data is not available for clusters that are installing.

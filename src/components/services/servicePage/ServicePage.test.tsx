@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { checkAccessibility, render, screen } from '~/testUtils';
+import { checkAccessibility, getByText, render, screen } from '~/testUtils';
 
 import { ServicePage } from './ServicePage';
 
@@ -11,10 +11,17 @@ describe('Service page unit tests', () => {
       await checkAccessibility(container);
     });
 
+    it('has the right breadcrumb text', () => {
+      render(<ServicePage serviceName="ROSA" />);
+
+      const breadcrumbsNav = screen.getByRole('navigation', { name: 'Breadcrumb' });
+      expect(getByText(breadcrumbsNav, 'Red Hat OpenShift Service on AWS')).toBeInTheDocument();
+    });
+
     it('has a link for "begin setup"', () => {
       render(<ServicePage serviceName="ROSA" />);
 
-      expect(screen.getByText('Begin setup', { selector: 'a' })).toHaveAttribute(
+      expect(screen.getByText('Begin setup', { selector: 'span' }).parentElement).toHaveAttribute(
         'href',
         '/openshift/create/rosa/getstarted',
       );
@@ -127,13 +134,19 @@ describe('Service page unit tests', () => {
       await checkAccessibility(container);
     });
 
+    it('has the right breadcrumb text', () => {
+      render(<ServicePage serviceName="OSD" />);
+
+      const breadcrumbsNav = screen.getByRole('navigation', { name: 'Breadcrumb' });
+      expect(getByText(breadcrumbsNav, 'Red Hat OpenShift Dedicated')).toBeInTheDocument();
+    });
+
     it('has a link for "create OSD cluster"', () => {
       render(<ServicePage serviceName="OSD" />);
 
-      expect(screen.getByText('Create cluster', { selector: 'a' })).toHaveAttribute(
-        'href',
-        '/openshift/create/osd',
-      );
+      expect(
+        screen.getByText('Create cluster', { selector: 'span' }).parentElement,
+      ).toHaveAttribute('href', '/openshift/create/osd');
     });
 
     it('has a link for "interactive walkthrough"', () => {

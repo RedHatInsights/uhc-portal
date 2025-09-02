@@ -1,11 +1,10 @@
 import React from 'react';
 
 import {
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListTerm,
-  Text,
-  TextContent,
 } from '@patternfly/react-core';
 
 import PopoverHint from '~/components/common/PopoverHint';
@@ -15,18 +14,18 @@ export const NamespaceOwnerPolicyPopover = () => (
     title="Namespace ownership policy"
     maxWidth="30rem"
     hint={
-      <TextContent>
-        <Text>
+      <Content>
+        <Content component="p">
           With <b>inter-namespace ownership allowed</b>, a single hostname can be used in routes of
           different namespaces. With <b>strict</b> option selected, a hostname can be used in routes
           of a single namespace only.
-        </Text>
-        <Text>
+        </Content>
+        <Content component="p">
           <b>Mind following example:</b>
           <br />
           hostname.dev/foo in namespace A<br />
           hostname.dev/bar in namespace B<br />
-        </Text>
+        </Content>
 
         <DescriptionList>
           <DescriptionListTerm>Inter-namespace ownership allowed</DescriptionListTerm>
@@ -35,7 +34,7 @@ export const NamespaceOwnerPolicyPopover = () => (
           <DescriptionListTerm>Strict</DescriptionListTerm>
           <DescriptionListDescription>forbidden</DescriptionListDescription>
         </DescriptionList>
-      </TextContent>
+      </Content>
     }
   />
 );

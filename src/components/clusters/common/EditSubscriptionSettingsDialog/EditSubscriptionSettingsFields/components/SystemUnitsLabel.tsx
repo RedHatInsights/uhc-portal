@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core';
 
 import PopoverHint from '~/components/common/PopoverHint';
 
@@ -13,9 +13,11 @@ const SystemUnitsLabel = () => (
       id="subscripiton-settings-system-units-hint"
       headerContent="Subscription units"
       hint={
-        <TextContent>
-          <Text component={TextVariants.p}>How usage is measured for your subscription.</Text>
-        </TextContent>
+        <Content>
+          <Content component={ContentVariants.p}>
+            How usage is measured for your subscription.
+          </Content>
+        </Content>
       }
       iconClassName={LABEL_ICON_CLASS}
     />

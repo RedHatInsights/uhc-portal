@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { ChartLegend, ChartPie } from '@patternfly/react-charts';
+import { ChartLegend, ChartPie } from '@patternfly/react-charts/victory';
 import { Flex, FlexItem, Title } from '@patternfly/react-core';
 
 import { advisorBaseName } from '~/common/routing';

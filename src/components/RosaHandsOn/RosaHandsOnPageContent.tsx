@@ -5,10 +5,11 @@ import {
   Alert,
   Card,
   CardBody,
+  Content,
+  Flex,
+  FlexItem,
   PageSection,
   Skeleton,
-  Text,
-  TextContent,
 } from '@patternfly/react-core';
 
 import ErrorBoundary from '../App/ErrorBoundary';
@@ -149,14 +150,22 @@ const RosaHandsOnPageContent = ({
   return (
     <ErrorBoundary>
       <RosaHandsOnPageHeader />
-      <StatusAlert demoExperience={demoExperience} />
-      {requestError ? (
-        <Alert title="Failed to request an experience" variant="danger" isInline>
-          {getErrorMessage(error)}
-        </Alert>
-      ) : null}
+      <PageSection hasBodyWrapper={false}>
+        <Flex direction={{ default: 'column' }} rowGap={{ default: 'rowGapMd' }}>
+          <FlexItem>
+            <StatusAlert demoExperience={demoExperience} />
+          </FlexItem>
+          {requestError ? (
+            <FlexItem>
+              <Alert title="Failed to request an experience" variant="danger" isInline>
+                {getErrorMessage(error)}
+              </Alert>
+            </FlexItem>
+          ) : null}
+        </Flex>
+      </PageSection>
       <>
-        <PageSection>
+        <PageSection hasBodyWrapper={false}>
           {loading ? (
             <Card>
               <CardBody style={{ height: '200px' }}>
@@ -170,10 +179,10 @@ const RosaHandsOnPageContent = ({
             />
           )}
         </PageSection>
-        <PageSection style={{ paddingTop: 'unset' }}>
-          <TextContent>
-            <Text component="h3">Recommended content</Text>
-          </TextContent>
+        <PageSection hasBodyWrapper={false} style={{ paddingTop: 'unset' }}>
+          <Content>
+            <Content component="h3">Recommended content</Content>
+          </Content>
         </PageSection>
 
         <RosaHandsOnRecommendedContentTable />

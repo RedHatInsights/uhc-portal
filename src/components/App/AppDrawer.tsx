@@ -24,10 +24,10 @@ export const AppDrawer: React.FC<PropsWithChildren<{}>> = ({ children }) => {
 
   const drawerTransitionDuration = useMemo(() => {
     if (drawerDiv) {
-      const drawerElements = drawerDiv.getElementsByClassName('pf-v5-c-drawer');
+      const drawerElements = drawerDiv.getElementsByClassName('pf-v6-c-drawer');
       if (drawerElements.length) {
         const transitionDurationString = getComputedStyle(drawerElements[0]).getPropertyValue(
-          '--pf-v5-c-drawer__panel--TransitionDuration',
+          '--pf-v6-c-drawer__panel--TransitionDuration',
         );
         try {
           const transitionDuration = parseInt(transitionDurationString, 10);

@@ -1,0 +1,30 @@
+---
+description: Basic rules when writing react code
+globs: src/**/*.tsx, src/**/*.jsx
+alwaysApply: false
+---
+
+- Use functional components with hooks instead of class components
+- Keep components small and focused on a single responsibility
+- Use PascalCase for component names and component files
+- Use descriptive component names that indicate the component's purpose
+- Avoid abbreviations in component names
+- Use camelCase for prop names
+- Boolean props should be prefixed with `is`, `has`, `can`, or `should`
+- Use optional props sparingly and provide defaults when needed
+- Keep props interface small and focused
+- Don't store derived data in state
+- Name custom hooks with `use` prefix
+- Keep useEffect effects focused and specific
+- Use `React.memo` for components that receive the same props frequently
+- Use `useMemo` for expensive calculations
+- Use `useCallback` for functions passed to child components
+- Avoid props drilling where props are only passed down to child components
+- Do not mutate props or state. Create a copy array or object if possible
+- Avoid using index as the key prop value.
+- Avoid using inline functions in jsx or tsx blocks
+- When possible use ternary operators for conditional display. Use this pattern `{shouldShow? <MyComponent />:null}` instead of `{shouldShow && <MyComponent />}`
+- Implement proper cleanup in useEffect hooks when needed
+- Use Redux hooks (`useSelector`, `useDispatch`) instead of connect HOC
+- Use `react-query` for server state management
+- Avoid using custom CSS. If possible, use PatternFly variables or utility classes

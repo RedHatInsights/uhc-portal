@@ -6,7 +6,7 @@ import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clust
 import { MAX_NODES } from '~/components/clusters/common/machinePools/constants';
 import { FieldId } from '~/components/clusters/wizards/common';
 import modals from '~/components/common/Modal/modals';
-import { checkAccessibility, screen, UserEventType, waitFor, within, withState } from '~/testUtils';
+import { checkAccessibility, screen, UserEvent, waitFor, within, withState } from '~/testUtils';
 import { ClusterAutoscaler } from '~/types/clusters_mgmt.v1';
 
 import ClusterAutoScaleSettingsDialog from './ClusterAutoScaleSettingsDialog';
@@ -22,7 +22,7 @@ const getTestInputField = () => document.getElementById(testInputFieldId) as HTM
 const getModalActionButton = (name: string) => screen.getByRole('button', { name });
 
 const updateTestInputValue = async (
-  user: UserEventType,
+  user: UserEvent,
   { typeValue, clearBefore }: { typeValue: string; clearBefore: boolean },
 ) => {
   const field = getTestInputField();

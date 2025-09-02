@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // import semver from 'semver';
-import { ClipboardCopy, TextContent } from '@patternfly/react-core';
+import { ClipboardCopy, Content } from '@patternfly/react-core';
 
 import { getAWSAccountID, getOIDCEndpointNoScheme, getOIDCProviderARN } from './rosaUtils';
 
@@ -79,7 +79,7 @@ ParameterKey=${policyARNKey},ParameterValue=${getRolePolicyARN(cluster, role)}`,
 
 function CloudFormationTab({ cluster }) {
   return (
-    <TextContent>
+    <Content>
       <p>Copy and run the following commands:</p>
       <div>
         <ClipboardCopy isReadOnly>
@@ -106,7 +106,7 @@ ParameterKey=IssuerURL,ParameterValue=${cluster.aws.sts.oidc_endpoint_url} \
 --region ${cluster.region.id}`}
         </ClipboardCopy>
       </div>
-    </TextContent>
+    </Content>
   );
 }
 

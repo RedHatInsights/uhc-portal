@@ -11,6 +11,8 @@ class ClusterDetails extends Page {
 
   editConsoleURLDialogInput = () => cy.get('input[id="edit-console-url-input"]');
 
+  clusterOwnerLink = () => cy.getByTestId('ownerTranswerOverviewLink');
+
   editConsoleURLDialogConfirm = () =>
     cy
       .get('div[aria-label="Add console URL"]')
@@ -37,6 +39,8 @@ class ClusterDetails extends Page {
 
   machinePoolsTab = () => cy.get('button[aria-controls="machinePoolsTabContent"]');
 
+  supportTab = () => cy.get('button[aria-controls="supportTabContent"]');
+
   networkingTab = () => cy.get('button[aria-controls="networkingTabContent"]');
 
   settingsTab = () => cy.get('button[aria-controls="upgradeSettingsTabContent"]');
@@ -53,7 +57,7 @@ class ClusterDetails extends Page {
   archiveClusterDialogConfirm = () =>
     cy.get('div[aria-label="Archive cluster"]').find('footer').find('button').first();
 
-  successNotification = () => cy.get('div.pf-v5-c-alert.pf-m-success.notification-item');
+  successNotification = () => cy.get('div.pf-v6-c-alert.pf-m-success.notification-item');
 
   unarchiveClusterButton = () =>
     cy.get('[id="cl-details-btns"]').contains('button', 'Unarchive', { timeout: 15000 });
@@ -165,6 +169,8 @@ class ClusterDetails extends Page {
 
   editButton = () => cy.get('button').contains('Edit');
 
+  clusterOwnerLink = () => cy.getByTestId('ownerTranswerOverviewLink');
+
   clusterInfrastructureBillingModelValue = () =>
     cy.getByTestId('infrastructure-billing-model').find('div');
 
@@ -221,7 +227,11 @@ class ClusterDetails extends Page {
   }
 
   clickAWSBillingAccountsDropDown() {
-    cy.get('button[aria-describedby="aws-infra-accounts"]').click();
+    cy.get('#edit-billing-aws-account-modal').within(() => {
+      cy.get('button[aria-label="Options menu"]')
+        .should('be.enabled', { timeout: 30000 })
+        .click({ force: true });
+    });
   }
 
   updateAWSBillingAccount() {
@@ -229,9 +239,8 @@ class ClusterDetails extends Page {
   }
 
   verifyBillingAccountDocLink(text) {
-    cy.get('a')
-      .contains(text)
-      .should('have.attr', 'href', 'https://console.aws.amazon.com/rosa/home');
+    // Find the link that contains the text (even if text is in a nested span)
+    cy.contains('a', text).should('have.attr', 'href', 'https://console.aws.amazon.com/rosa/home');
   }
 
   filterAWSBillingAccount(awsBillingAccount) {
@@ -241,10 +250,9 @@ class ClusterDetails extends Page {
   }
 
   selectAWSBillingAccount(awsBillingAccount) {
-    cy.get('div[label="AWS billing account"]')
-      .find('button')
-      .contains(awsBillingAccount)
-      .click({ force: true });
+    cy.get('div[aria-describedby="aws-infra-accounts"]').within(() => {
+      cy.contains('button', awsBillingAccount).click({ force: true });
+    });
   }
 
   showEditAWSBillingAccountModal() {
@@ -320,7 +328,7 @@ class ClusterDetails extends Page {
 
   checkInstallationStepStatus(step, status = '') {
     let installStep = cy
-      .get('div.pf-v5-c-progress-stepper__step-title', { timeout: 80000 })
+      .get('div.pf-v6-c-progress-stepper__step-title', { timeout: 80000 })
       .contains(step);
     if (status == '') {
       installStep.should('be.visible');
@@ -330,7 +338,7 @@ class ClusterDetails extends Page {
   }
 
   waitForInstallerScreenToLoad = () => {
-    cy.get('li.pf-v5-c-wizard__nav-item', { timeout: 30000 }).should('not.exist');
+    cy.get('li.pf-v6-c-wizard__nav-item', { timeout: 30000 }).should('not.exist');
     cy.get('div.cluster-loading-container', { timeout: 100000 }).should('not.exist');
   };
 

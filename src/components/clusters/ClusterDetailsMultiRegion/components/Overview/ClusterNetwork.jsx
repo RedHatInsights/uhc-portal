@@ -14,7 +14,7 @@ function ClusterNetwork({ cluster }) {
       <DescriptionListGroup>
         <DescriptionListTerm>Network</DescriptionListTerm>
         <DescriptionListDescription>
-          <dl className="pf-v5-l-stack">
+          <dl className="pf-v6-l-stack">
             {cluster.network.machine_cidr && (
               <Flex>
                 <dt>Machine CIDR: </dt>

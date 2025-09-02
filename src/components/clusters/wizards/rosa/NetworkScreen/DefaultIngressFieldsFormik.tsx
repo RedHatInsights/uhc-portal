@@ -88,7 +88,7 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
         <FormGroup
           className={className}
           label="Route selector"
-          labelIcon={<RouteSelectorsPopover />}
+          labelHelp={<RouteSelectorsPopover />}
         >
           <Field
             component={ReduxVerticalFormGroup}
@@ -108,7 +108,7 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
         <FormGroup
           className={className}
           label="Excluded namespaces"
-          labelIcon={<ExcludedNamespacesPopover />}
+          labelHelp={<ExcludedNamespacesPopover />}
         >
           <Field
             component={ReduxVerticalFormGroup}
@@ -162,7 +162,7 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
           className={className}
           fieldId="isDefaultRouterNamespaceOwnershipPolicyStrict"
           label="Namespace ownership policy"
-          labelIcon={<NamespaceOwnerPolicyPopover />}
+          labelHelp={<NamespaceOwnerPolicyPopover />}
         >
           <Field
             id="isDefaultRouterNamespaceOwnershipPolicyStrict"
@@ -183,7 +183,7 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
           className={className}
           fieldId="isDefaultRouterWildcardPolicyAllowed"
           label="Wildcard policy"
-          labelIcon={<WildcardPolicyPopover />}
+          labelHelp={<WildcardPolicyPopover />}
         >
           <Field
             id="isDefaultRouterWildcardPolicyAllowed"
@@ -203,8 +203,8 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
         <FormGroup
           fieldId="load_balancer_group"
           label="Load balancer type"
-          className={classNames('pf-v5-u-pb-md', className)}
-          labelIcon={<LoadBalancerPopover />}
+          className={classNames('pf-v6-u-pb-md', className)}
+          labelHelp={<LoadBalancerPopover />}
         >
           <Field
             id="load_balancer_group"

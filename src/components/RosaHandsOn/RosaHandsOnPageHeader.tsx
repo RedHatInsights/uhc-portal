@@ -1,15 +1,7 @@
 import React from 'react';
 
-import {
-  Divider,
-  Flex,
-  FlexItem,
-  Stack,
-  StackItem,
-  Text,
-  TextContent,
-} from '@patternfly/react-core';
-import { PageHeader } from '@redhat-cloud-services/frontend-components';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
+import { Content, Divider, Flex, FlexItem, Stack, StackItem } from '@patternfly/react-core';
 
 import Breadcrumbs from '../common/Breadcrumbs';
 import ExternalLink from '../common/ExternalLink';
@@ -18,17 +10,22 @@ import OpenshiftIcon from './RosaHandsOnIcons/OpenshiftIcon';
 import { rosaHandsOnLinks } from './constants';
 
 const RosaHandsOnPageHeader = () => (
-  <PageHeader>
-    <Breadcrumbs
-      path={[
-        { label: 'Overview', path: `/overview` },
-        {
-          label: 'Red Hat OpenShift Service on AWS (ROSA)',
-          path: '/overview/rosa',
-        },
-        { label: 'Hands-on Experience' },
-      ]}
-    />
+  <PageHeader
+    title=""
+    subtitle=""
+    breadcrumbs={
+      <Breadcrumbs
+        path={[
+          { label: 'Overview', path: `/overview` },
+          {
+            label: 'Red Hat OpenShift Service on AWS (ROSA)',
+            path: '/overview/rosa',
+          },
+          { label: 'Hands-on Experience' },
+        ]}
+      />
+    }
+  >
     <Flex direction={{ default: 'row' }} flexWrap={{ default: 'nowrap' }}>
       <FlexItem alignSelf={{ default: 'alignSelfFlexStart' }}>
         <OpenshiftIcon />
@@ -37,17 +34,17 @@ const RosaHandsOnPageHeader = () => (
       <FlexItem>
         <Stack hasGutter>
           <StackItem>
-            <TextContent>
-              <Text component="h2">Red Hat OpenShift Service on AWS Hands-on Experience</Text>
-            </TextContent>
+            <Content>
+              <Content component="h2">Red Hat OpenShift Service on AWS Hands-on Experience</Content>
+            </Content>
           </StackItem>
           <StackItem>
-            <Text>
+            <Content component="p">
               Red Hat OpenShift Service on AWS (ROSA) is a fully-managed turnkey application
               platform that allows organizations to quickly build, deploy, and scale applications in
               a native AWS environment. With one click, start your free 8-hour hands-on experience
               in a ROSA cluster.
-            </Text>
+            </Content>
           </StackItem>
           <StackItem>
             <ExternalLink href={rosaHandsOnLinks.slackChannel}>

@@ -66,15 +66,11 @@ const ROSALoginCommand = ({
     );
   }
 
-  if (restrictTokens) {
-    return (
-      <InstructionCommand className="ocm-c-api-token-limit-width" outerClassName="pf-v5-u-mt-md">
-        rosa login --use-auth-code
-      </InstructionCommand>
-    );
-  }
-
-  return ROSALoginWithToken;
+  return (
+    <InstructionCommand className="ocm-c-api-token-limit-width" outerClassName="pf-v6-u-mt-md">
+      rosa login --use-auth-code
+    </InstructionCommand>
+  );
 };
 
 export default ROSALoginCommand;

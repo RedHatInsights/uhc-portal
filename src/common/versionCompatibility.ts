@@ -30,6 +30,10 @@ const featureCompatibilityMap: Record<SupportedFeature, FeatureCompatibility> = 
       day2: '4.13.9',
     },
   },
+  [SupportedFeature.AUTO_CLUSTER_TRANSFER_OWNERSHIP]: {
+    label: 'auto cluster transfer ownership',
+    // Transfers will be based on product, not version
+  },
 };
 
 const incompatibilityReason = (

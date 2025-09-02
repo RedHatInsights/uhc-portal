@@ -2,8 +2,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import AddHtpasswdUserModal from '~/components/clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/components/HtpasswdDetails/AddUserModal';
+import EditHtpasswdUserModal from '~/components/clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/components/HtpasswdDetails/EditUserModal';
+
 import ConnectedModal from '../../common/Modal/ConnectedModal';
 import { ConnectedEditMachinePoolModal as ConnectedEditMachinePoolModalMR } from '../ClusterDetailsMultiRegion/components/MachinePools/components/EditMachinePoolModal/EditMachinePoolModal';
+import AutoTransferClusterOwnershipFormMR from '../ClusterTransfer/AutoTransferClusterOwnershipForm';
 
 import DeleteProtectionModalMR from './DeleteProtectionModal/DeleteProtectionModal';
 import EditSubscriptionSettingsDialogMR from './EditSubscriptionSettingsDialog/EditSubscriptionSettingsDialog';
@@ -33,11 +37,15 @@ function CommonClusterModals({ onClose, onClusterDeleted, clearMachinePools }) {
 
       <ConnectedModal ModalComponent={ArchiveClusterDialogMR} onClose={onClose} />
       <ConnectedModal ModalComponent={TransferClusterOwnershipDialogMR} onClose={onClose} />
+      <ConnectedModal ModalComponent={AutoTransferClusterOwnershipFormMR} onClose={onClose} />
       <ConnectedModal ModalComponent={HibernateClusterModalMR} onClose={onClose} />
       <ConnectedModal ModalComponent={ResumeClusterModalMR} onClose={onClose} />
       <ConnectedModal ModalComponent={UpgradeTrialClusterDialogMR} onClose={onClose} />
       <ConnectedModal ModalComponent={UnarchiveClusterDialogMR} onClose={onClose} />
       <ConnectedModal ModalComponent={UpgradeWizardMR} />
+
+      <ConnectedModal ModalComponent={AddHtpasswdUserModal} />
+      <ConnectedModal ModalComponent={EditHtpasswdUserModal} />
 
       <ConnectedModal ModalComponent={DeleteProtectionModalMR} onClose={onClose} />
 

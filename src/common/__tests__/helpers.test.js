@@ -4,6 +4,7 @@ import path from 'path';
 import helpers, {
   goZeroTime2Null,
   isSupportedMinorVersion,
+  parseCIDRSubnetLength,
   parseReduxFormKeyValueList,
   parseReduxFormTaints,
   scrollToFirstField,
@@ -231,5 +232,15 @@ describe('Test isSupportedMinorVersion', () => {
 
   it('should return false for unsupported major version', () => {
     expect(isSupportedMinorVersion('4.0', '3.12')).toBeFalsy();
+  });
+});
+
+describe('parseCIDRSubnetLength', () => {
+  it('should parse valid cidr value', () => {
+    expect(parseCIDRSubnetLength('21')).toBe(21);
+    expect(parseCIDRSubnetLength('/21')).toBe(21);
+  });
+  it('should not parse an empty value', () => {
+    expect(parseCIDRSubnetLength(null)).toBe(undefined);
   });
 });

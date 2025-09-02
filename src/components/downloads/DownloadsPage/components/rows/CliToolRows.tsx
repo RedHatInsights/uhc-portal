@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text, TextContent } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 
 import links, { channels, tools } from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -43,11 +43,11 @@ const CliToolRows = ({
           </>
         }
         description={
-          <Text>
+          <Content component="p">
             Create applications and manage OpenShift projects from the command line using the
             OpenShift client <code>oc</code>. {/* TODO: @beni <ExternalLink ExternalLink */}
             <ExternalLink href={links.CLI_TOOLS_OCP_GETTING_STARTED}>Get started</ExternalLink>
-          </Text>
+          </Content>
         }
       />
 
@@ -63,13 +63,13 @@ const CliToolRows = ({
             </>
           }
           description={
-            <TextContent>
-              <Text>
+            <Content>
+              <Content component="p">
                 Manage your OpenShift clusters from the command line using the OpenShift Cluster
                 Manager API client <code>ocm</code>.{' '}
                 <ExternalLink href={links.OCM_CLI_DOCS}>Get started</ExternalLink>
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
           }
         />
       )}
@@ -84,11 +84,11 @@ const CliToolRows = ({
           </>
         }
         description={
-          <Text>
+          <Content component="p">
             Manage your Red Hat OpenShift Service on AWS (ROSA) clusters from the command line using
             the ROSA client for OCM and AWS APIs.{' '}
             <ExternalLink href={links.ROSA_CLI_DOCS}>Get started</ExternalLink>
-          </Text>
+          </Content>
         }
       />
 
@@ -104,11 +104,11 @@ const CliToolRows = ({
               </>
             }
             description={
-              <Text>
+              <Content component="p">
                 Interact with Knative components on OpenShift Container Platform with the Knative
                 client for OpenShift Serverless <code>kn</code>.{' '}
                 <ExternalLink href={links.KN_DOCS}>Learn more</ExternalLink>
-              </Text>
+              </Content>
             }
           />
 
@@ -122,11 +122,11 @@ const CliToolRows = ({
               </>
             }
             description={
-              <Text>
+              <Content component="p">
                 Manage and interact with CI pipelines on OpenShift Container Platform with the
                 Tekton CLI for OpenShift Pipelines.{' '}
                 <ExternalLink href={links.TKN_DOCS}>Get started</ExternalLink>
-              </Text>
+              </Content>
             }
           />
 
@@ -141,10 +141,10 @@ const CliToolRows = ({
               </>
             }
             description={
-              <Text>
+              <Content component="p">
                 Manage applications on Argo CD from the command line using the Argo CD CLI for
                 OpenShift GitOps. <ExternalLink href={links.ARGO_CD_DOCS}>Get started</ExternalLink>
-              </Text>
+              </Content>
             }
           />
 
@@ -154,10 +154,10 @@ const CliToolRows = ({
             channel={channels.STABLE}
             name="Shipwright command-line interface for Builds for OpenShift (shp)"
             description={
-              <Text>
+              <Content component="p">
                 Manage and interact with Shipwright Builds on OpenShift using the Shipwright CLI.{' '}
                 <ExternalLink href={links.SHP_CLI_DOCS}>Get started</ExternalLink>
-              </Text>
+              </Content>
             }
           />
         </>

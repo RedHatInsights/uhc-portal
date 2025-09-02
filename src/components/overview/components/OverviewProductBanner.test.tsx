@@ -4,7 +4,6 @@ import { checkAccessibility, render, screen } from '~/testUtils';
 
 import {
   OVERVIEW_PRODUCT_BANNER_BASIC,
-  OVERVIEW_PRODUCT_BANNER_DESCRIPTION_IS_A_REACT_NODE,
   OVERVIEW_PRODUCT_BANNER_MISSING_OPTIONAL_PROPS,
 } from './fixtures';
 import { OverviewProductBanner } from './OverviewProductBanner';
@@ -27,24 +26,11 @@ describe('<OverviewProductBanner />', () => {
     expect(iconElement).toHaveAttribute('src', icon);
     expect(iconElement).toHaveAttribute('alt', altText);
 
-    const learnMoreLinkElement = screen.getByText('Learn more');
+    // eslint-disable-next-line testing-library/no-node-access
+    const learnMoreLinkElement = screen.getByText('Learn more').closest('a');
+
     expect(learnMoreLinkElement).toBeInTheDocument();
     expect(learnMoreLinkElement).toHaveAttribute('href', learnMoreLink);
-  });
-
-  it('renders elements when description is a ReactNode', async () => {
-    // Arrange
-    render(<OverviewProductBanner {...OVERVIEW_PRODUCT_BANNER_DESCRIPTION_IS_A_REACT_NODE} />);
-
-    const { title } = OVERVIEW_PRODUCT_BANNER_DESCRIPTION_IS_A_REACT_NODE;
-    const { description, altText } = OVERVIEW_PRODUCT_BANNER_BASIC;
-
-    // Assert
-    expect(screen.getByText(title)).toBeInTheDocument();
-    const descriptionElement = screen.getByRole('article');
-    expect(descriptionElement).toBeInTheDocument();
-    expect(descriptionElement).toHaveTextContent(description);
-    expect(descriptionElement).toHaveTextContent(altText);
   });
 
   it('renders only provided elements when missing optional properties', async () => {

@@ -69,6 +69,7 @@ describe('<InstallationLogView />', () => {
   it('should not fetch logs when pending', () => {
     const { rerender } = render(<InstallationLogView {...defaultProps} />);
     expect(getLogs).toHaveBeenCalledTimes(1);
+    jest.clearAllMocks();
     rerender(<InstallationLogView {...defaultProps} pending />);
     jest.runOnlyPendingTimers();
     expect(getLogs).toHaveBeenCalledTimes(1);

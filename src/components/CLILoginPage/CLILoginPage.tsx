@@ -1,6 +1,7 @@
 import React from 'react';
 import { To } from 'react-router-dom';
 
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import {
   Alert,
   Card,
@@ -10,7 +11,6 @@ import {
   Spinner,
   Title,
 } from '@patternfly/react-core';
-import PageHeader, { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 
 import { defaultToOfflineTokens, hasRestrictTokensCapability } from '~/common/restrictTokensHelper';
 import { isRestrictedEnv } from '~/restrictedEnv';
@@ -25,10 +25,8 @@ import useOrganization from './useOrganization';
 
 const ErrorOrLoadingWrapper = ({ children }: { children: React.ReactElement }) => (
   <AppPage title="OpenShift Cluster Manager">
-    <PageHeader className="pf-v5-u-mb-md">
-      <PageHeaderTitle title="OpenShift Cluster Manager" />
-    </PageHeader>
-    <PageSection>
+    <PageHeader title="OpenShift Cluster Manager" subtitle="" />
+    <PageSection hasBodyWrapper={false}>
       <Card>
         <CardTitle>
           <Title headingLevel="h2">OpenShift Cluster Manager CLI login</Title>
@@ -47,6 +45,8 @@ type CLILoginPageProps = {
 
 const CLILoginPage = ({ showToken = false, showPath, isRosa = false }: CLILoginPageProps) => {
   const { organization, isLoading, error } = useOrganization();
+
+  const [shouldShowTokens, setShouldShowTokens] = React.useState<boolean>(false);
 
   const restrictedEnv = isRestrictedEnv();
   let restrictTokens = false;
@@ -84,19 +84,28 @@ const CLILoginPage = ({ showToken = false, showPath, isRosa = false }: CLILoginP
       !!organization?.capabilities && hasRestrictTokensCapability(organization.capabilities);
   }
 
-  const pageTitle = `OpenShift Cluster Manager ${restrictTokens ? 'SSO login' : 'API Token'}`;
+  const pageTitle = isRosa
+    ? `Red Hat OpenShift Service on AWS (ROSA) ${!restrictedEnv && (restrictTokens || !shouldShowTokens) ? 'SSO login' : 'API Token'}`
+    : `OpenShift Cluster Manager ${!restrictedEnv && (restrictTokens || !shouldShowTokens) ? 'SSO login' : 'API Token'}`;
   const Instructions = isRosa ? InstructionsROSA : InstructionsOCM;
 
   return (
     <AppPage title={`${restrictTokens ? 'SSO Login' : 'API Token'} | OpenShift Cluster Manager`}>
-      <PageHeader className="pf-v5-u-mb-md">
-        {!restrictTokens && (
-          <Breadcrumbs path={[{ label: 'Downloads', path: '/downloads' }, { label: pageTitle }]} />
-        )}
-        <PageHeaderTitle title={pageTitle} />
-      </PageHeader>
-      <PageSection>
+      <PageHeader
+        title={pageTitle}
+        subtitle=""
+        breadcrumbs={
+          !restrictTokens && (
+            <Breadcrumbs
+              path={[{ label: 'Downloads', path: '/downloads' }, { label: pageTitle }]}
+            />
+          )
+        }
+      />
+      <PageSection hasBodyWrapper={false}>
         <Instructions
+          setShouldShowTokens={setShouldShowTokens}
+          shouldShowTokens={shouldShowTokens}
           show={showToken}
           showPath={showPath}
           SSOLogin={restrictTokens}

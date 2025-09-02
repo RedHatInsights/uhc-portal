@@ -1,3 +1,5 @@
+import semver from 'semver';
+
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
 import { Organization } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
@@ -36,12 +38,17 @@ const getVersionsData = (
   versions.forEach((version: Version) => {
     const { raw_id: versionRawId, id: versionId, channel_group: channelGroup } = version;
     if (versionRawId && versionId) {
-      // HACK: This relies on parseFloat of '4.11.3' to return 4.11 ignoring trailing '.3'.
-      // BUG(OCMUI-1736): We rely on converting float back to exactly '4.11'
-      //   for indexing `supportVersionMap`.  Float round-tripping is fragile.
-      //   Will break when parseFloat('4.20.0').toString() returns '4.2' not '4.20'!
       if (!unstableVersionsIncluded || channelGroup === channelGroups.STABLE) {
-        const majorMinorVersion = parseFloat(versionRawId);
+        const createMajorMinorVersion = (rawId: string) => {
+          const versionObject = semver.parse(rawId);
+
+          return versionObject
+            ? versionObject.major.toString().concat('.', versionObject.minor.toString())
+            : '';
+        };
+
+        const majorMinorVersion = createMajorMinorVersion(versionRawId);
+
         const hasFullSupport = supportVersionMap?.[majorMinorVersion] === supportStatuses.FULL;
 
         const versionEntry = {

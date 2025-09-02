@@ -1,29 +1,27 @@
 .ocm-c-overview-details__card,
 .ocm-c-overview-subscription-settings__card {
   &--body {
-    .pf-v5-c-description-list {
-      margin-top: var(--pf-v5-global--spacer--md);
-      --pf-v5-c-description-list__group--RowGap: var(--pf-v5-global--gutter--sm);
-      dl.pf-v5-l-stack dt,
+    .pf-v6-c-description-list {
+      margin-top: var(--pf-t--global--spacer--md);
+      --pf-v6-c-description-list__group--RowGap: var(--pf-v6-global--gutter--sm);
+      dl.pf-v6-l-stack dt,
       .autoscale-data-t {
-        color: var(--pf-v5-global--secondary-color--100);
-        font-size: var(--pf-v5-global--FontSize--sm);
-        font-weight: var(--pf-v5-global--FontWeight--bold);
-        margin-right: var(--pf-v5-global--spacer--sm);
+        font-size: var(--pf-t--global--font--size--sm);
+        margin-right: var(--pf-t--global--spacer--sm);
         text-transform: none;
       }
       .nodes-hint {
-        margin-left: var(--pf-v5-global--spacer--sm);
+        margin-left: var(--pf-t--global--spacer--sm);
       }
     }
   }
 }
 
-// TODO: refactor the global margin-top for pf-v5-c-card
+// TODO: refactor the global margin-top for pf-v6-c-card
 #overviewTabContent {
   padding-top: 24px;
 
-  .pf-v5-c-card {
+  .pf-v6-c-card {
     margin-top: 0 !important;
   }
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Alert, AlertVariant, Text, TextVariants, Title } from '@patternfly/react-core';
+import { Alert, AlertVariant, Content, ContentVariants, Title } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
 import links from '~/common/installLinks.mjs';
@@ -19,14 +19,14 @@ const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
   const { expandable } = props;
   return (
     <AssociateAWSAccountStep {...props}>
-      <Title headingLevel="h4" className="pf-v5-u-mb-md" size="md">
+      <Title headingLevel="h4" className="pf-v6-u-mb-md" size="md">
         First, check if a role exists and is linked with:
       </Title>
 
       <InstructionCommand
         data-testid="copy-rosa-list-ocm-role"
         textAriaLabel={`Copyable ROSA ${RosaCliCommand.ListOcmRole} command`}
-        className="pf-v5-u-mb-lg"
+        className="pf-v6-u-mb-lg"
       >
         {RosaCliCommand.ListOcmRole}
       </InstructionCommand>
@@ -38,7 +38,7 @@ const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
         title={`If there is an existing role and it's already linked to your Red Hat account, ${
           expandable ? 'you can continue to step 2' : 'no further action is needed'
         }.`}
-        className="pf-v5-u-mb-lg"
+        className="pf-v6-u-mb-lg"
       />
 
       <Title headingLevel="h3" size="md">
@@ -60,6 +60,7 @@ const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
         tabs={[
           {
             'data-testid': 'copy-ocm-role-tab-no',
+            id: 'copy-ocm-role-tab-no-id',
             title: 'No, create new role',
             body: (
               <>
@@ -71,7 +72,7 @@ const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
                 >
                   {RosaCliCommand.OcmRole}
                 </InstructionCommand>
-                <div className="pf-v5-u-mt-md pf-v5-u-mb-md">OR</div>
+                <div className="pf-v6-u-mt-md pf-v6-u-mb-md">OR</div>
                 <strong>Admin OCM role</strong>
                 <InstructionCommand
                   data-testid="copy-rosa-create-ocm-admin-role"
@@ -84,16 +85,16 @@ const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
                   title="Help me decide"
                   bodyContent={
                     <>
-                      <Text component={TextVariants.p} className="pf-v5-u-mb-md">
+                      <Content component={ContentVariants.p} className="pf-v6-u-mb-md">
                         The <strong>basic role</strong> enables OpenShift Cluster Manager to detect
                         the AWS IAM roles and policies required by ROSA.
-                      </Text>
-                      <Text component={TextVariants.p}>
+                      </Content>
+                      <Content component={ContentVariants.p}>
                         The <strong>admin role</strong> also enables the detection of the roles and
                         policies. In addition, the admin role enables automatic deployment of the
                         cluster-specific Operator roles and OpenID Connect (OIDC) provider by using
                         OpenShift Cluster Manager.
-                      </Text>
+                      </Content>
                     </>
                   }
                 />
@@ -102,6 +103,7 @@ const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
           },
           {
             'data-testid': 'copy-ocm-role-tab-yes',
+            id: 'copy-ocm-role-tab-yes-id',
             title: 'Yes, link existing role',
             body: (
               <>
@@ -117,7 +119,7 @@ const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
                   variant={AlertVariant.info}
                   isInline
                   isPlain
-                  className="ocm-instruction-block_alert pf-v5-u-mt-lg"
+                  className="ocm-instruction-block_alert pf-v6-u-mt-lg"
                   title="You must have organization administrator privileges in your Red Hat account to run this command. After you link the OCM role with your Red Hat organization, it is visible for all users in the organization."
                 />
               </>

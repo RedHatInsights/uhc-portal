@@ -39,7 +39,7 @@ export const CheckboxField = ({
               tooltip ? (
                 <Flex flexWrap={{ default: 'nowrap' }}>
                   {label}
-                  <div className="pf-v5-u-ml-md">{tooltip && <PopoverHint hint={tooltip} />}</div>
+                  <div className="pf-v6-u-ml-md">{tooltip && <PopoverHint hint={tooltip} />}</div>
                 </Flex>
               ) : (
                 label

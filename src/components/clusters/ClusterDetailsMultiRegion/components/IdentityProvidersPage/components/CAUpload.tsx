@@ -6,11 +6,14 @@ import {
   FormGroup,
   InputGroup,
   InputGroupItem,
+  Stack,
+  StackItem,
   TextArea,
   TextInput,
 } from '@patternfly/react-core';
 
 import { humanizeValueWithoutUnit } from '~/common/units';
+import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 
 import './CAUpload.scss';
@@ -24,6 +27,7 @@ export type CAUploadProps = {
   helpText?: string;
   isDisabled?: boolean;
   input: FieldInputProps<string>;
+  fieldName: string;
   isRequired?: boolean;
   certValue?: string;
   maxFileSize?: number;
@@ -37,9 +41,10 @@ const CAUpload = ({
   isRequired = false,
   certValue,
   maxFileSize = MAX_FILE_SIZE,
+  fieldName,
 }: CAUploadProps) => {
-  const baseButtonClass = 'pf-v5-c-button pf-m-tertiary co-btn-file';
-
+  const { setFieldValue } = useFormState();
+  const baseButtonClass = 'pf-v6-c-button pf-m-tertiary co-btn-file';
   const [fileName, setFileName] = React.useState('');
   const [errorMessage, setErrorMessage] = React.useState('');
   const [certValueState, setCertValueState] = React.useState<string | ArrayBuffer | null>('');
@@ -49,10 +54,12 @@ const CAUpload = ({
 
   React.useEffect(() => {
     if (certValue && certValue !== '') {
+      setFieldValue(fieldName, certValue);
       setCertValueState(certValue);
       setShowCAText(true);
     }
-  }, [certValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [certValue, fieldName, certValue]);
 
   React.useEffect(() => {
     setButtonClass(isDisabled ? `${baseButtonClass} pf-m-disabled` : baseButtonClass);
@@ -65,6 +72,7 @@ const CAUpload = ({
   const onClearClick = () => {
     setFileName('');
     setCertValueState('');
+    setFieldValue(fieldName, '');
   };
 
   const fileUpload = (event: React.FormEvent<HTMLInputElement>) => {
@@ -110,6 +118,7 @@ const CAUpload = ({
       label={label}
       isRequired={isRequired}
       data-testid="ca-upload-form"
+      isStack
     >
       <InputGroup>
         <InputGroupItem isFill>
@@ -133,33 +142,40 @@ const CAUpload = ({
             />
             Browse&hellip;
           </span>
-          <Button onClick={onClearClick}>Clear</Button>
+          <Button onClick={onClearClick} className="pf-v6-u-ml-md">
+            Clear
+          </Button>
         </InputGroupItem>
       </InputGroup>
 
       {shouldShowCAText ? (
-        <>
-          <Button variant="link" onClick={() => revealValue(false)}>
-            Hide
-          </Button>
-
-          <TextArea
-            value={certValueState as any}
-            id={`${input.name}_text`}
-            name={`${input.name}_text`}
-            onChange={(_event, value) => updateCertificateValue(value)}
-            className="ca-textarea"
-            readOnly
-          />
-        </>
+        <Stack hasGutter>
+          <StackItem>
+            <Button variant="link" onClick={() => revealValue(false)}>
+              Hide
+            </Button>
+          </StackItem>
+          <StackItem>
+            <TextArea
+              value={certValueState as any}
+              id={`${input.name}_text`}
+              name={`${input.name}_text`}
+              onChange={(_event, value) => updateCertificateValue(value)}
+              className="ca-textarea"
+              readOnly
+            />
+          </StackItem>
+        </Stack>
       ) : (
-        <Button
-          variant="link"
-          onClick={() => revealValue(true)}
-          isDisabled={certValueState === '' || isDisabled}
-        >
-          Reveal
-        </Button>
+        <div>
+          <Button
+            variant="link"
+            onClick={() => revealValue(true)}
+            isDisabled={certValueState === '' || isDisabled}
+          >
+            Reveal
+          </Button>
+        </div>
       )}
 
       <FormGroupHelperText touched error={errorMessage}>

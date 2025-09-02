@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ChartDonutThreshold, ChartDonutUtilization } from '@patternfly/react-charts';
+import { ChartDonutThreshold, ChartDonutUtilization } from '@patternfly/react-charts/victory';
 import { Title } from '@patternfly/react-core';
 
 import {

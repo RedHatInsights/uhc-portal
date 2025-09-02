@@ -88,7 +88,7 @@ export function BreakGlassCredentialNewModal(props: BreakGlassCredentialNewModal
               <StackItem>
                 <Button
                   onClick={formik.submitForm}
-                  className="pf-v5-u-mr-md"
+                  className="pf-v6-u-mr-md"
                   data-testid="submit-btn"
                   isDisabled={!formik.isValid || !formik.dirty || formik.isSubmitting || isPending}
                   isLoading={isPending}

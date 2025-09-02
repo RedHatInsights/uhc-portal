@@ -1,7 +1,15 @@
 import * as React from 'react';
 import { Field } from 'formik';
 
-import { Flex, Form, Grid, GridItem, Text, TextVariants, Title } from '@patternfly/react-core';
+import {
+  Content,
+  ContentVariants,
+  Flex,
+  Form,
+  Grid,
+  GridItem,
+  Title,
+} from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import PodDistruptionBudgetGraceSelect from '~/components/clusters/common/Upgrades/PodDistruptionBudgetGraceSelect';
@@ -62,7 +70,7 @@ export const ClusterUpdates = () => {
       <GridItem>
         <Title headingLevel="h3">Cluster update strategy</Title>
 
-        <Text component={TextVariants.p} className="pf-v5-u-mt-sm">
+        <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
           In the event of{' '}
           <ExternalLink href="https://access.redhat.com/security/updates/classification/#critical">
             Critical security concerns
@@ -70,7 +78,7 @@ export const ClusterUpdates = () => {
           (CVEs) that significantly impact the security or stability of the cluster, updates may be
           automatically scheduled by Red Hat SRE to the latest z-stream version not impacted by the
           CVE within 2 business days after customer notifications.
-        </Text>
+        </Content>
       </GridItem>
 
       <Grid hasGutter md={6}>
@@ -91,7 +99,7 @@ export const ClusterUpdates = () => {
                   onChange: (value: string) =>
                     setFieldValue(FieldId.AutomaticUpgradeSchedule, value),
                 }}
-                className="pf-v5-u-mt-md"
+                className="pf-v6-u-mt-md"
               />
             )}
           </GridItem>
@@ -102,15 +110,15 @@ export const ClusterUpdates = () => {
         <Title headingLevel="h4" className="ocm-c-upgrade-node-draining-title">
           Node draining
         </Title>
-        <Text component={TextVariants.p}>
+        <Content component={ContentVariants.p}>
           Note: You cannot change the node drain grace period after you start the upgrade process.
-        </Text>
-        <Text component={TextVariants.p}>
+        </Content>
+        <Content component={ContentVariants.p}>
           You may set a grace period for how long pod disruption budget-protected workloads will be
           respected during updates. After this grace period, any workloads protected by pod
           disruption budgets that have not been successfully drained from a node will be forcibly
           evicted.
-        </Text>
+        </Content>
 
         <Field
           name={FieldId.NodeDrainGracePeriod}

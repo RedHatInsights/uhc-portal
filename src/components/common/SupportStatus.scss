@@ -1,28 +1,14 @@
-.pf-v5-c-card__title .support-status-label {
-  font-size: var(--pf-v5-global--FontSize--xs);
-  font-weight: var(--pf-v5-global--FontWeight--normal);
+.pf-v6-c-card__title .support-status-label {
+  font-size: var(--pf-t--global--font--size--xs);
+  font-weight: var(--pf-t--global--font--weight--body--default);
 }
 
 .support-status-label--clickable {
   cursor: pointer;
 }
 
-// mock the a:hover styles from PatternFly since we're not using an a element
-.support-status-label--clickable .pf-v5-c-label__content:hover {
-  --pf-v5-c-label__content--before--BorderWidth: var(
-    --pf-v5-c-label__content--link--hover--before--BorderWidth
-  );
-}
-
-// mock the a:hover styles from PatternFly since we're not using an a element
-.support-status-label--clickable.pf-m-outline .pf-v5-c-label__content:hover {
-  --pf-v5-c-label__content--before--BorderWidth: var(
-    --pf-v5-c-label--m-outline__content--link--hover--before--BorderWidth
-  );
-}
-
 // override Insights link styling for <a> in <footer>
 .support-status-popover footer a {
-  color: var(--pf-v5-global--link--Color) !important;
+  color: var(--pf-t--global--text--color--link--default) !important;
   margin: 0 !important;
 }

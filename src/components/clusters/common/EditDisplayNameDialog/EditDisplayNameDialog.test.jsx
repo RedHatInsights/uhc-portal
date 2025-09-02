@@ -93,12 +93,12 @@ describe('<EditDisplayNameDialog />', () => {
 
     const { user } = render(<EditDisplayNameDialog {...defaultProps} />);
 
-    expect(screen.getByRole('button', { name: 'Edit' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Edit' })).not.toBeEnabled();
 
     await user.clear(screen.getByRole('textbox'));
     await user.type(screen.getByRole('textbox'), 'my-new-name');
 
-    expect(screen.getByRole('button', { name: 'Edit' })).toHaveAttribute('aria-disabled', 'false');
+    expect(screen.getByRole('button', { name: 'Edit' })).not.toHaveAttribute('aria-disabled');
     expect(mutate).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: 'Edit' }));
@@ -108,12 +108,12 @@ describe('<EditDisplayNameDialog />', () => {
   it('does not allow blank whitespace to be entered when field is empty', async () => {
     const { user } = render(<EditDisplayNameDialog {...defaultProps} />);
 
-    expect(screen.getByRole('button', { name: 'Edit' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Edit' })).not.toBeEnabled();
 
     await user.clear(screen.getByRole('textbox'));
     await user.type(screen.getByRole('textbox'), '    ');
 
-    expect(screen.getByRole('button', { name: 'Edit' })).toHaveAttribute('aria-disabled', 'false');
+    expect(screen.getByRole('button', { name: 'Edit' })).not.toHaveAttribute('aria-disabled');
     expect(mutate).not.toHaveBeenCalled();
 
     await user.type(screen.getByRole('textbox'), '   my-new-name');

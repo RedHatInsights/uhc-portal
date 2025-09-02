@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Text, TextContent } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 
 import PageTitle from '../../../common/PageTitle';
 
@@ -14,8 +14,8 @@ export const InstructionsChooserPageTitle = ({
   breadcrumbs,
 }: InstructionsChooserPageTitleProps) => (
   <PageTitle title={`Create an OpenShift Cluster: ${cloudName}`} breadcrumbs={breadcrumbs}>
-    <TextContent className="pf-v5-u-mt-sm">
-      <Text component="p">Select the installation type that best fits your needs.</Text>
-    </TextContent>
+    <Content className="pf-v6-u-mt-sm">
+      <Content component="p">Select the installation type that best fits your needs.</Content>
+    </Content>
   </PageTitle>
 );

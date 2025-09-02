@@ -2,9 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router-dom';
 
-import ConditionalFilter from '@redhat-cloud-services/frontend-components/ConditionalFilter';
-import { conditionalFilterType } from '@redhat-cloud-services/frontend-components/ConditionalFilter/conditionalFilterConstants';
-
+import { ConditionalFilter, conditionalFilterType } from '~/common/ConditionalFilter';
 import { useNavigate } from '~/common/routing';
 
 import { buildFilterURLParams } from '../../../../../../common/queryHelpers';

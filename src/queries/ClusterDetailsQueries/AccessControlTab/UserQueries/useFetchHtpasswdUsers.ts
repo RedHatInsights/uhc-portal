@@ -8,7 +8,7 @@ import { formatErrorData } from '../../../helpers';
 // NOTE - while the API docs say that results are pagination, they are not
 // all users are always returned regardless of the page param, perPage param, or number of results
 export const useFetchHtpasswdUsers = (clusterID: string, idpID: string, region?: string) => {
-  const { isLoading, data, isError, error, isSuccess } = useQuery({
+  const { isLoading, data, isError, error, isSuccess, isFetching, refetch } = useQuery({
     queryKey: [
       'clusterIdentityProviders',
       'clusterService',
@@ -39,5 +39,7 @@ export const useFetchHtpasswdUsers = (clusterID: string, idpID: string, region?:
     isError,
     error: formatErrorData(isLoading, isError, error)?.error,
     isSuccess,
+    isFetching,
+    refetch,
   };
 };

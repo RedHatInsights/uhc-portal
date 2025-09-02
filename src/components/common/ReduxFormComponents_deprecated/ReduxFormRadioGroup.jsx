@@ -3,38 +3,48 @@ import PropTypes from 'prop-types';
 
 import { FormGroup, Radio } from '@patternfly/react-core';
 
-class ReduxFormRadioGroup extends React.Component {
-  state = { value: null };
+const ReduxFormRadioGroup = ({
+  name,
+  items,
+  fieldId,
+  onChange,
+  label,
+  className,
+  isDisabled,
+  isRequired,
+  isInline,
+}) => {
+  const [value, setValue] = React.useState(null);
 
-  handleChange = (_, event) => {
+  const handleChange = (_, event) => {
     const { value } = event.currentTarget;
-    this.setState({ value });
-    const { name, onChange } = this.props;
+    setValue(value);
     onChange(name, value);
   };
 
-  render() {
-    const { name, items, onChange, isDisabled = false, ...formGroupProps } = this.props;
-    const { value } = this.state;
-
-    return (
-      <FormGroup {...formGroupProps}>
-        {items.map((item) => (
-          <Radio
-            isChecked={value === null ? item.isChecked === true : value === item.value}
-            onChange={(event, _) => this.handleChange(_, event)}
-            value={item.value}
-            label={item.label}
-            isDisabled={isDisabled}
-            name={`${name}:${item.value}`}
-            id={`${name}:${item.value}`}
-            key={`${name}:${item.value}`}
-          />
-        ))}
-      </FormGroup>
-    );
-  }
-}
+  return (
+    <FormGroup
+      fieldId={fieldId}
+      label={label}
+      className={className}
+      isRequired={isRequired}
+      isInline={isInline}
+    >
+      {items.map((item) => (
+        <Radio
+          isChecked={value === null ? item.isChecked === true : value === item.value}
+          onChange={(event, _) => handleChange(_, event)}
+          value={item.value}
+          label={item.label}
+          isDisabled={isDisabled}
+          name={`${name}:${item.value}`}
+          id={`${name}:${item.value}`}
+          key={`${name}:${item.value}`}
+        />
+      ))}
+    </FormGroup>
+  );
+};
 
 ReduxFormRadioGroup.propTypes = {
   name: PropTypes.oneOfType([PropTypes.string, PropTypes.node, PropTypes.element]).isRequired,
@@ -45,8 +55,13 @@ ReduxFormRadioGroup.propTypes = {
       isChecked: PropTypes.bool,
     }),
   ).isRequired,
-  isDisabled: PropTypes.bool,
+  fieldId: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  label: PropTypes.element,
+  className: PropTypes.string,
+  isDisabled: PropTypes.bool,
+  isRequired: PropTypes.bool,
+  isInline: PropTypes.bool,
 };
 
 export default ReduxFormRadioGroup;

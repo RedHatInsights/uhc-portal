@@ -52,7 +52,7 @@ describe('<Users />', () => {
 
     const { container } = render(<UsersSection {...props} />);
 
-    expect(container.querySelectorAll('.pf-v5-c-skeleton').length).toBeGreaterThan(0);
+    expect(container.querySelectorAll('.pf-v6-c-skeleton').length).toBeGreaterThan(0);
   });
   it('is accessible without users', async () => {
     useFetchUsersMock.mockReturnValue({

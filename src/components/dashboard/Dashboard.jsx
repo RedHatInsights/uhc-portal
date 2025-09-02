@@ -1,21 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import {
   Card,
   CardBody,
   CardTitle,
   EmptyState,
   EmptyStateBody,
+  Flex,
+  FlexItem,
   Grid,
   GridItem,
   PageSection,
   Spinner,
-  Split,
-  SplitItem,
-  Title,
 } from '@patternfly/react-core';
-import { PageHeader } from '@redhat-cloud-services/frontend-components/PageHeader';
 
 import { createOverviewQueryObject } from '../../common/queryHelpers';
 import { AppPage } from '../App/AppPage';
@@ -119,7 +118,7 @@ const Dashboard = (props) => {
       <AppPage title={PAGE_TITLE}>
         <EmptyState>
           <EmptyStateBody>
-            <div className="pf-v5-u-text-align-center">
+            <div className="pf-v6-u-text-align-center">
               <Spinner size="lg" aria-label="Loading..." />
             </div>
           </EmptyStateBody>
@@ -139,25 +138,16 @@ const Dashboard = (props) => {
 
   return (
     <AppPage title={PAGE_TITLE}>
-      <PageHeader>
-        <Split hasGutter>
-          <SplitItem>
-            <Title
-              headingLevel="h1"
-              size="2xl"
-              className="page-title"
-              widget-type="InsightsPageHeaderTitle"
-            >
-              Dashboard
-            </Title>
-          </SplitItem>
-          <SplitItem isFilled />
-          <SplitItem>
-            <ClusterListActions isDashboardView />
-          </SplitItem>
-        </Split>
-      </PageHeader>
-      <PageSection>
+      <Flex hasGutter className="pf-v6-u-mt-xl">
+        <FlexItem>
+          <PageHeader title="Dashboard" />
+        </FlexItem>
+        <FlexItem isFilled align={{ default: 'alignRight' }} />
+        <FlexItem>
+          <ClusterListActions isDashboardView />
+        </FlexItem>
+      </Flex>
+      <PageSection hasBodyWrapper={false}>
         <Grid hasGutter className="ocm-c-overview">
           <TopOverviewSection
             isError={summaryDashboard.error}

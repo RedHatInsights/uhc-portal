@@ -1,17 +1,14 @@
 .ocm-c-machine-pools__card {
-  .pf-v5-c-label--break-word {
+  .pf-v6-c-label--break-word {
     white-space: normal;
     word-break: break-word;
   }
-  .pf-v5-c-table__toggle {
-    padding-top: 0;
-  }
-  .pf-v5-c-table__expandable-row-content {
+  .pf-v6-c-table__expandable-row-content {
     .autoscale__lim {
-      color: var(--pf-v5-global--secondary-color--100);
+      color: var(--pf-t--global--text--color--subtle);
     }
     .auto_repair {
-      color: var(--pf-v5-global--secondary-color--100);
+      color: var(--pf-t--global--text--color--subtle);
     }
   }
   .nodes-count {

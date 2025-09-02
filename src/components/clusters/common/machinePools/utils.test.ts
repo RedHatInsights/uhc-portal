@@ -272,4 +272,32 @@ describe('machinePools utils', () => {
       });
     });
   });
+
+  describe('getWorkerNodeVolumeSizeMinGiB', () => {
+    it.each([
+      ['returns 75 for ROSA HCP', true, 75],
+      ['returns 128 for ROSA classic', false, 128],
+    ])('%s', (_title, isHypershift, expected) => {
+      const result = utils.getWorkerNodeVolumeSizeMinGiB(isHypershift);
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe('getWorkerNodeVolumeSizeMaxGiB', () => {
+    it.each([
+      ['returns 1024 by default, when version string is empty', '', 1024],
+      ['returns 1024 when major version is lower than 4', '3.0.0', 1024],
+      ['returns 1024 when major version is 4 and minor version is lower than 14', '4.13.0', 1024],
+      ['returns 16384 when major version is higher than 4', '5.0.0', 16384],
+      ['returns 16384 when major version is 4 and minor version is 14', '4.14.0', 16384],
+      [
+        'returns 16384 when major version is 4 and minor version is higher than 14',
+        '4.15.0',
+        16384,
+      ],
+    ])('%s', (_title, version, expected) => {
+      const result = utils.getWorkerNodeVolumeSizeMaxGiB(version);
+      expect(result).toEqual(expected);
+    });
+  });
 });

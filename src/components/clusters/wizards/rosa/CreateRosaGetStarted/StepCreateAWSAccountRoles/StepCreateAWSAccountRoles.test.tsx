@@ -11,7 +11,7 @@ jest.mock('~/services/accountsService');
 describe('<StepCreateAWSAccountRoles />', () => {
   mockUseChrome();
 
-  it('should display offline tokens deprecation message', () => {
+  it('should display ROSA CLI SSO login command', () => {
     (accountsService.getOrganization as jest.Mock).mockResolvedValue({
       data: {
         organization: {
@@ -32,8 +32,10 @@ describe('<StepCreateAWSAccountRoles />', () => {
     };
 
     render(<StepCreateAWSAccountRoles {...props} />);
-    const DeprecationAlert = screen.getByText('Logging in with offline tokens is deprecated');
-    expect(DeprecationAlert).toBeInTheDocument();
+    const ROSACLILoginCommand = screen.getByText(
+      'To authenticate, run this command and enter your Red Hat login credentials via SSO:',
+    );
+    expect(ROSACLILoginCommand).toBeInTheDocument();
   });
 
   it('should not display offline tokens deprecation message', () => {
@@ -44,7 +46,9 @@ describe('<StepCreateAWSAccountRoles />', () => {
     };
 
     render(<StepCreateAWSAccountRoles {...props} />);
-    const DeprecationAlert = screen.queryByText('Logging in with offline tokens is deprecated');
+    const DeprecationAlert = screen.queryByText(
+      'Logging in with offline tokens is being deprecated',
+    );
     expect(DeprecationAlert).not.toBeInTheDocument();
   });
 
@@ -83,6 +87,21 @@ describe('<StepCreateAWSAccountRoles />', () => {
 
       const DeprecationAlert = screen.queryByText('Logging in with offline tokens is deprecated');
       expect(DeprecationAlert).not.toBeInTheDocument();
+    });
+
+    it('should not display ROSA SSO link', () => {
+      const props = {
+        offlineToken: 'fake-token',
+        setOfflineToken: jest.fn(),
+      };
+
+      isRestrictedEnv.mockReturnValue(true);
+      render(<StepCreateAWSAccountRoles {...props} />);
+
+      const ROSACliLink = screen.queryByText(
+        'To authenticate, run this command and enter your Red Hat login credentials via SSO:',
+      );
+      expect(ROSACliLink).not.toBeInTheDocument();
     });
   });
 });

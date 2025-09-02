@@ -7,6 +7,8 @@ import { Alert, AlertProps, Button } from '@patternfly/react-core';
 import ExternalLink from '~/components/common/ExternalLink';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
+import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { Cluster } from '~/types/clusters_mgmt.v1';
 
 type ExpirationAlertProps = {
@@ -22,6 +24,8 @@ const ExpirationAlert = ({
   cluster,
   OSDRHMExpiration,
 }: ExpirationAlertProps) => {
+  const hideRHMarketplace = useFeatureGate(HIDE_RH_MARKETPLACE);
+
   const dispatch = useDispatch();
   const now = dayjs.utc();
   const expirationTime = dayjs.utc(expirationTimestamp);
@@ -43,7 +47,7 @@ const ExpirationAlert = ({
     return (
       <Alert
         id="expiration-alert"
-        className="pf-v5-u-mt-md"
+        className="pf-v6-u-mt-md"
         variant="warning"
         isInline
         title="Cluster failed to delete"
@@ -76,7 +80,9 @@ const ExpirationAlert = ({
   let contents: string | React.ReactElement =
     `This cluster is scheduled for deletion on ${expirationTimeString}`;
   if (OSDRHMExpiration) {
-    contents = (
+    contents = hideRHMarketplace ? (
+      <>Once expired, the cluster will be deleted permanently.</>
+    ) : (
       <>
         Your cluster subscription was purchased from Red Hat Marketplace and will expire on
         {` ${expirationTimeString}. `}
@@ -95,7 +101,7 @@ const ExpirationAlert = ({
   return (
     <Alert
       id="expiration-alert"
-      className="pf-v5-u-mt-md"
+      className="pf-v6-u-mt-md"
       variant={variant}
       isInline
       title={`This cluster will be deleted ${timeUntilExpiryString}.`}
@@ -106,7 +112,7 @@ const ExpirationAlert = ({
       {trialExpiration && (
         <Button
           variant="secondary"
-          className="pf-v5-u-mt-sm"
+          className="pf-v6-u-mt-sm"
           data-testid="trial-button"
           onClick={() => upgradeTrialClusterModal()}
         >

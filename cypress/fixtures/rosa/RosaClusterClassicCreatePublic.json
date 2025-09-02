@@ -4,7 +4,7 @@
       "Description": "rosa classic public cluster with base configuration",
 
       "ClusterName": "cyp-rosa-classic-default-sz-public-profile",
-      "ControlPlaneType": "Classic",
+      "ControlPlaneType": "Classic architecture",
       "Type": "ROSA",
       "Region": "us-west-2, US West, Oregon",
       "Availability": "Single zone",
@@ -50,6 +50,23 @@
           "PodCIDR": "10.128.0.0/14",
           "Hostprefix": "/23"
         }
+      },
+      "AccessControl": {
+        "TransferOwnership": {
+          "AccountDetails": {
+            "Username": "ocmui-orgmem",
+            "AccountID": "6344158",
+            "OrganizationID": "12832570"
+          },
+          "AccountValidations": {
+            "LongUserNameIDs": "longest-characterslimtgreaterthan60testingssssssssssssssssssssssssssssssssssssssssssssssssssss",
+            "LongCharacterLengthError": "Must be 64 characters or less",
+            "TransferYourselfError": "Username must be different from the current owner",
+            "InvalidAccountOrgID": "[{}]|invalidAccountOrOrg:';<,>'!@~1$%^&&*(-=)",
+            "InvalidAccountIDError": "Account ID must be an alpha numeric with no symbols",
+            "InvalidOrganizationIDError": "Organization ID must be an alpha numeric with no symbols"
+          }
+        }
       }
     }
   },
@@ -57,7 +74,7 @@
     "day1-profile": {
       "Description": "rosa classic public cluster with advanced configuration",
 
-      "ControlPlaneType": "Classic",
+      "ControlPlaneType": "Classic architecture",
       "Type": "ROSA",
       "ClusterName": "cyp-rosa-classic-advanced-mz-public-profile",
       "DomainPrefix": "rosamzoubaz",

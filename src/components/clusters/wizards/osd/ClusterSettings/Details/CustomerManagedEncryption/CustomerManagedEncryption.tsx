@@ -71,7 +71,7 @@ export const CustomerManagedEncryption = ({
           isRequired
           isInline
         >
-          <div className="pf-v5-u-font-size-sm pf-v5-u-pb-md">
+          <div className="pf-v6-u-font-size-sm pf-v6-u-pb-md">
             The cloud storage for your cluster is encrypted at rest.{' '}
             <ExternalLink href={cloudProviderLearnLink}>Learn more</ExternalLink>
           </div>
@@ -100,7 +100,7 @@ export const CustomerManagedEncryption = ({
               helperText={!kmsKeyArn ? 'Provide a custom key ARN' : ''}
               tooltip={
                 <>
-                  <p className="pf-v5-u-mb-sm">{constants.awsKeyARN}</p>
+                  <p className="pf-v6-u-mb-sm">{constants.awsKeyARN}</p>
                   <ExternalLink href={links.AWS_FINDING_KEY_ARN}>
                     Finding the key ID and ARN
                   </ExternalLink>
@@ -109,7 +109,7 @@ export const CustomerManagedEncryption = ({
             />
             <GridItem md={6}>
               <Alert
-                className="pf-v5-u-mt-sm"
+                className="pf-v6-u-mt-sm"
                 isInline
                 isLiveRegion
                 variant="info"

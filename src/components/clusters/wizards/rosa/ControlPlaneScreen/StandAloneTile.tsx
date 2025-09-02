@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { List, Text, TextVariants, Tile } from '@patternfly/react-core';
+import { Content, ContentVariants, List } from '@patternfly/react-core';
+import { Tile } from '@patternfly/react-core/deprecated';
 
 import { defaultMarginBottomSpacing, hypershiftValue, ListItem } from './ControlPlaneCommon';
 
@@ -11,7 +12,7 @@ type StandAloneTileProps = {
 
 const StandAloneTile = ({ handleChange, isSelected }: StandAloneTileProps) => (
   <Tile
-    title="Classic"
+    title="ROSA classic architecture"
     isDisplayLarge
     isStacked
     isSelected={isSelected}
@@ -19,10 +20,10 @@ const StandAloneTile = ({ handleChange, isSelected }: StandAloneTileProps) => (
     className="controlPlaneScreenTile"
     data-testid="standalone-control-planes"
   >
-    <Text component={TextVariants.p} className={defaultMarginBottomSpacing}>
-      Run an OpenShift cluster with a coupled control and data plane, hosted on dedicated nodes with
-      a shared network
-    </Text>
+    <Content component={ContentVariants.p} className={defaultMarginBottomSpacing}>
+      The Red Hat OpenShift Service on AWS (classic architecture) runs an OpenShift cluster with a
+      coupled control and data plane, hosted on dedicated nodes with a shared network.
+    </Content>
     <List isPlain className={defaultMarginBottomSpacing}>
       <ListItem>Control plane resources are hosted in your own AWS account</ListItem>
       <ListItem>Full compliance certifications</ListItem>
@@ -31,4 +32,4 @@ const StandAloneTile = ({ handleChange, isSelected }: StandAloneTileProps) => (
   </Tile>
 );
 
-export default StandAloneTile;
+export { StandAloneTile };

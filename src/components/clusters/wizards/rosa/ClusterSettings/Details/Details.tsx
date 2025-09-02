@@ -344,7 +344,7 @@ function Details() {
           label="Region"
           isRequired
           fieldId={FieldId.Region}
-          labelIcon={<PopoverHint hint={constants.regionHint} />}
+          labelHelp={<PopoverHint hint={constants.regionHint} />}
         >
           {isMultiRegionEnabled ? (
             <Field
@@ -416,7 +416,7 @@ function Details() {
         <GridItem md={6} />
 
         <GridItem>
-          <Split hasGutter className="pf-u-mb-0">
+          <Split hasGutter className="pf-v6-u-mb-0">
             <SplitItem>
               <CheckboxField name={FieldId.HasDomainPrefix} label="Create custom domain prefix" />
             </SplitItem>
@@ -487,7 +487,7 @@ function Details() {
             </GridItem>
 
             <GridItem>
-              <Split hasGutter className="pf-v5-u-mb-0">
+              <Split hasGutter className="pf-v6-u-mb-0">
                 <SplitItem>
                   <CheckboxField
                     name={FieldId.EnableUserWorkloadMonitoring}

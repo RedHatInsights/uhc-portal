@@ -35,7 +35,14 @@ const FEATURED_PRODUCTS_CARDS: FeaturedProductsCardsNode[] = [
     ...PRODUCT_CARD_LOGOS.openshiftVirtualization,
     description:
       'Streamline your operations and reduce complexity when you run and manage your VMs, containers, and serverless workloads in a single platform.',
+    labelText: 'Included',
     drawerPanelContent: DRAWER_PANEL_CONTENT.OpenshiftVirtualization,
+  },
+  {
+    ...PRODUCT_CARD_LOGOS.advancedClusterManagement,
+    description: 'Manage any Kubernetes cluster in your fleet.',
+    labelText: '60-day trial',
+    drawerPanelContent: DRAWER_PANEL_CONTENT.AdvancedClusterManagement,
   },
 ];
 
@@ -51,12 +58,12 @@ const FeaturedProductsCards = ({
   selectedCardTitle,
 }: FeaturedProductsCardsProps) => (
   <div className="featured-products-cards">
-    <Title size="xl" headingLevel="h2" className="pf-v5-u-mt-lg">
+    <Title size="xl" headingLevel="h2" className="pf-v6-u-mt-lg" id="featured-products">
       {TITLE}
     </Title>
-    <Flex className="pf-v5-u-mb-lg">
+    <Flex className="pf-v6-u-mb-lg">
       {FEATURED_PRODUCTS_CARDS.map((card) => (
-        <FlexItem className="pf-v5-u-pt-md" data-testid="product-overview-card-flex-item">
+        <FlexItem className="pf-v6-u-pt-md" data-testid="product-overview-card-flex-item">
           <ProductCard
             {...card}
             openLearnMore={openLearnMore}

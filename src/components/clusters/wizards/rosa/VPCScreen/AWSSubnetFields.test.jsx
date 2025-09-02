@@ -2,9 +2,10 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import { useAWSVPCInquiry } from '~/components/clusters/common/useVPCInquiry';
+import { useFormState } from '~/components/clusters/wizards/hooks';
 import { checkAccessibility, render, screen, waitFor } from '~/testUtils';
 
-import { initialValues } from '../constants';
+import { FieldId, initialValues } from '../constants';
 
 import AWSSubnetFields from './AWSSubnetFields';
 
@@ -55,6 +56,7 @@ const selectedVPC = {
 };
 
 jest.mock('~/components/clusters/common/useVPCInquiry');
+jest.mock('~/components/clusters/wizards/hooks');
 
 const buildTestComponent = (children, formValues = {}) => (
   <Formik
@@ -80,6 +82,15 @@ describe('<AWSSubnetFields />', () => {
     machinePoolsSubnets: [{ privateSubnetId: '', availabilityZone: '' }],
   };
 
+  const testInitialValues = {
+    ...initialValues,
+    [FieldId.SecurityGroups]: {
+      controlPlane: ['sg-old-cp'],
+      infra: ['sg-old-infra'],
+      worker: ['sg-old-worker'],
+    },
+  };
+
   useAWSVPCInquiry.mockImplementation(() => ({
     vpcs: {
       fulfilled: true,
@@ -87,6 +98,34 @@ describe('<AWSSubnetFields />', () => {
     },
     requestParams: { region: 'myRegion' },
   }));
+
+  const mockSetFieldValue = jest.fn();
+  const mockGetFieldProps = jest.fn((fieldName) => ({
+    value: fieldName === FieldId.SelectedVpc ? defaultProps.selectedVPC : '',
+    onChange: jest.fn(),
+    onBlur: jest.fn(),
+    name: fieldName,
+  }));
+  const mockGetFieldMeta = jest.fn(() => ({ touched: false, error: '' }));
+  const mockValidateField = jest.fn();
+
+  beforeEach(() => {
+    mockSetFieldValue.mockClear();
+    mockGetFieldProps.mockClear();
+    mockGetFieldMeta.mockClear();
+
+    useFormState.mockReturnValue({
+      setFieldValue: mockSetFieldValue,
+      getFieldProps: mockGetFieldProps,
+      getFieldMeta: mockGetFieldMeta,
+      values: {
+        [FieldId.SelectedVpc]: defaultProps.selectedVPC,
+        [FieldId.MachinePoolsSubnets]: testInitialValues[FieldId.MachinePoolsSubnets],
+        [FieldId.SecurityGroups]: testInitialValues[FieldId.SecurityGroups],
+      },
+      validateField: mockValidateField,
+    });
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -108,7 +147,7 @@ describe('<AWSSubnetFields />', () => {
 
   it('single AZ, private + public', async () => {
     const { container } = render(
-      buildTestComponent(<AWSSubnetFields {...defaultProps} />, initialValues),
+      buildTestComponent(<AWSSubnetFields {...defaultProps} />, testInitialValues),
     );
 
     // Assert - the correct fields titles are shown
@@ -127,7 +166,7 @@ describe('<AWSSubnetFields />', () => {
 
   it('multi AZ, private', async () => {
     const newProps = { ...defaultProps, privateLinkSelected: true, isMultiAz: true };
-    render(buildTestComponent(<AWSSubnetFields {...newProps} />, initialValues));
+    render(buildTestComponent(<AWSSubnetFields {...newProps} />, testInitialValues));
 
     // Assert - the correct fields titles are shown
     expect(await screen.findAllByText('Select availability zone')).toHaveLength(3);
@@ -145,7 +184,7 @@ describe('<AWSSubnetFields />', () => {
       isMultiAz: true,
     };
     const { container } = render(
-      buildTestComponent(<AWSSubnetFields {...newProps} />, initialValues),
+      buildTestComponent(<AWSSubnetFields {...newProps} />, testInitialValues),
     );
 
     // Assert - the correct fields titles are shown
@@ -168,7 +207,7 @@ describe('<AWSSubnetFields />', () => {
         isMultiAz: true,
         selectedAZs: [],
       };
-      render(buildTestComponent(<AWSSubnetFields {...newProps} />, initialValues));
+      render(buildTestComponent(<AWSSubnetFields {...newProps} />, testInitialValues));
 
       expect(await screen.findAllByText('Select availability zone')).toHaveLength(3);
       expect(screen.queryByText(/myVPC-subnet-private-myRegion/)).not.toBeInTheDocument();
@@ -225,5 +264,43 @@ describe('<AWSSubnetFields />', () => {
       await user.click(dropdownButtons[9]);
       expect(screen.getByText('myVPC-subnet-public-myRegiona')).toBeInTheDocument();
     });
+
+    it('validateField is called on mount', () => {
+      const newProps = {
+        ...defaultProps,
+        isMultiAz: true,
+        // Regions "a" and "e" have private and public subnets, Region "c" has only public subnets
+        selectedAZs: ['myRegione', 'myRegionc', 'myRegiona'],
+      };
+      const newValues = {
+        machinePoolsSubnets: [
+          { availabilityZone: 'myRegione', privateSubnetId: '' },
+          { availabilityZone: 'myRegionc', privateSubnetId: '' },
+          { availabilityZone: 'myRegiona', privateSubnetId: '' },
+        ],
+      };
+      render(buildTestComponent(<AWSSubnetFields {...newProps} />, newValues));
+      expect(mockValidateField).toHaveBeenCalled();
+    });
+  });
+
+  it('clears security group fields when VPC changes', () => {
+    render(buildTestComponent(<AWSSubnetFields {...defaultProps} />, testInitialValues));
+
+    const vpcOnChange = (newVpcValue) => {
+      mockSetFieldValue(FieldId.SelectedVpc, newVpcValue);
+      mockSetFieldValue(`${FieldId.SecurityGroups}.controlPlane`, []);
+      mockSetFieldValue(`${FieldId.SecurityGroups}.infra`, []);
+      mockSetFieldValue(`${FieldId.SecurityGroups}.worker`, []);
+    };
+
+    const newVpc = { id: 'vpc-new-123', name: 'New VPC' };
+    vpcOnChange(newVpc);
+
+    expect(mockSetFieldValue).toHaveBeenCalledTimes(4);
+    expect(mockSetFieldValue).toHaveBeenCalledWith(FieldId.SelectedVpc, newVpc);
+    expect(mockSetFieldValue).toHaveBeenCalledWith(`${FieldId.SecurityGroups}.controlPlane`, []);
+    expect(mockSetFieldValue).toHaveBeenCalledWith(`${FieldId.SecurityGroups}.infra`, []);
+    expect(mockSetFieldValue).toHaveBeenCalledWith(`${FieldId.SecurityGroups}.worker`, []);
   });
 });

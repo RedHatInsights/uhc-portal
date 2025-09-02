@@ -1,14 +1,12 @@
 import React from 'react';
 import get from 'lodash/get';
 import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
 
 import {
   Button,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
+  Icon,
   Label,
   Popover,
   PopoverPosition,
@@ -26,13 +24,16 @@ import {
   Thead,
   Tr,
 } from '@patternfly/react-table';
-import { global_warning_color_100 as warningColor } from '@patternfly/react-tokens/dist/esm/global_warning_color_100';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
 import { Link } from '~/common/routing';
-import AIClusterStatus from '~/components/common/AIClusterStatus';
+import AIClusterStatus from '~/components/AIComponents/AIClusterStatus';
 import { useToggleSubscriptionReleased } from '~/queries/ClusterActionsQueries/useToggleSubscriptionReleased';
+import { AUTO_CLUSTER_TRANSFER_OWNERSHIP } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { findRegionalInstance } from '~/queries/helpers';
 import { useFetchGetAvailableRegionalInstances } from '~/queries/RosaWizardQueries/useFetchGetAvailableRegionalInstances';
+import { useGlobalState } from '~/redux/hooks';
 
 import getClusterName, { UNNAMED_CLUSTER } from '../../../../common/getClusterName';
 import { isAISubscriptionWithoutMetrics } from '../../../../common/isAssistedInstallerCluster';
@@ -109,7 +110,7 @@ function ClusterListTable(props) {
     isClustersDataPending,
   } = props;
 
-  const dispatch = useDispatch();
+  const addNotification = useAddNotification();
   const canSubscribeOCPList = canSubscribeOCPListFromClusters(clusters);
   const canTransferClusterOwnershipList = canTransferClusterOwnershipListFromClusters(clusters);
   const canHibernateClusterList = useCanHibernateClusterListFromClusters(clusters);
@@ -117,6 +118,8 @@ function ClusterListTable(props) {
   const { mutate: toggleSubscriptionReleasedMultiRegion } = useToggleSubscriptionReleased();
 
   const { data: availableRegionalInstances } = useFetchGetAvailableRegionalInstances(true);
+  const isAutoClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
+  const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
 
   const getSortParams = (columnIndex) => ({
     sortBy: {
@@ -132,12 +135,7 @@ function ClusterListTable(props) {
 
   if (!isPending && (!clusters || clusters.length === 0)) {
     return (
-      <EmptyState>
-        <EmptyStateHeader
-          titleText="No clusters found."
-          icon={<EmptyStateIcon icon={SearchIcon} />}
-          headingLevel="h4"
-        />
+      <EmptyState headingLevel="h4" icon={SearchIcon} titleText="No clusters found.">
         <EmptyStateBody>
           This filter criteria matches no clusters.
           <br />
@@ -164,7 +162,7 @@ function ClusterListTable(props) {
         key={index}
       >
         {columnOptions.screenReaderText ? (
-          <span className="pf-v5-screen-reader">{columnOptions.screenReaderText}</span>
+          <span className="pf-v6-screen-reader">{columnOptions.screenReaderText}</span>
         ) : null}
         {columnOptions.title}
       </Th>
@@ -249,7 +247,11 @@ function ClusterListTable(props) {
         return (
           <ActionRequiredLink
             cluster={cluster}
-            icon={<ExclamationTriangleIcon color={warningColor.value} />}
+            icon={
+              <Icon status="warning">
+                <ExclamationTriangleIcon />
+              </Icon>
+            }
             regionalInstance={regionalInstance}
           />
         );
@@ -286,7 +288,7 @@ function ClusterListTable(props) {
           {hasLimitedSupport
             ? linkToClusterDetails(
                 cluster,
-                <Label color="red" className="pf-v5-u-ml-xs">
+                <Label color="red" className="pf-v6-u-ml-xs">
                   Limited support
                 </Label>,
               )
@@ -302,6 +304,7 @@ function ClusterListTable(props) {
         <ClusterUpdateLink cluster={cluster} openModal={openModal} hideOSDUpdates />
       </span>
     );
+    const isClusterOwner = cluster.subscription?.creator?.username === username;
 
     return (
       <Tr key={cluster.id}>
@@ -336,10 +339,12 @@ function ClusterListTable(props) {
                 canSubscribeOCPList[cluster.id] || false,
                 canHibernateClusterList[cluster.id] || false,
                 canTransferClusterOwnershipList[cluster.id] || false,
+                isAutoClusterTransferOwnershipEnabled,
+                isClusterOwner,
                 toggleSubscriptionReleasedMultiRegion,
                 refreshFunc,
                 true,
-                dispatch,
+                addNotification,
               )}
             />
           ) : null}

@@ -14,7 +14,16 @@ type AccessRequestStateIconProps = {
 
 const stateStyles: {
   [state in AccessRequestStatusState]: {
-    color?: 'blue' | 'cyan' | 'green' | 'orange' | 'purple' | 'red' | 'grey' | 'gold';
+    color?:
+      | 'blue'
+      | 'teal'
+      | 'green'
+      | 'orange'
+      | 'purple'
+      | 'red'
+      | 'orangered'
+      | 'grey'
+      | 'yellow';
     icon?: React.ReactNode;
   };
 } = {

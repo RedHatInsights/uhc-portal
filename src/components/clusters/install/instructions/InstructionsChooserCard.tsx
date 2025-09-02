@@ -1,11 +1,14 @@
 import React from 'react';
 
 import {
+  Button,
   Card,
   CardBody,
   CardFooter,
+  CardHeader,
   CardTitle,
   Flex,
+  FlexItem,
   Icon,
   List,
   ListItem,
@@ -41,30 +44,33 @@ export const InstructionsChooserCard = ({
   const handleClick = () => {
     navigate(href);
   };
-  const handleEnterKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter') {
-      navigate(href);
-    }
-  };
 
   return (
     <Card
       id={id}
       className="infra-card"
-      isSelectableRaised
-      role="link"
       aria-labelledby={`${id}-title`}
       aria-describedby={`${id}-description`}
-      onClick={handleClick}
-      onKeyUp={handleEnterKeyPress}
     >
-      <CardTitle id={`${id}-title`}>
-        <Title headingLevel="h2">{title}</Title>
-        <Flex spaceItems={{ default: 'spaceItemsSm' }}>{labels}</Flex>
-      </CardTitle>
+      <CardHeader>
+        <CardTitle id={`${id}-title`}>
+          <Flex direction={{ default: 'column' }}>
+            <FlexItem>
+              <Title headingLevel="h2">
+                <Button variant="link" isInline onClick={handleClick}>
+                  {title}
+                </Button>
+              </Title>
+            </FlexItem>
+            <FlexItem>
+              <Flex spaceItems={{ default: 'spaceItemsSm' }}>{labels}</Flex>
+            </FlexItem>
+          </Flex>
+        </CardTitle>
+      </CardHeader>
       <CardBody id={`${id}-description`}>
         {body}
-        <List isPlain className="pf-v5-u-mt-lg pf-v5-u-ml-0 pf-v5-u-pl-0">
+        <List isPlain className="pf-v6-u-mt-lg pf-v6-u-ml-0 pf-v6-u-pl-0">
           {featureListItems.map((item, index) => (
             <ListItem
               // These can be arbitrary JSX (no easy string key to use) and they will never change order once the page is rendered, so it is safe to use the array index as the key
@@ -72,7 +78,7 @@ export const InstructionsChooserCard = ({
               key={index}
               icon={
                 <Icon size="md">
-                  <CheckIcon color="var(--pf-v5-global--palette--green-400)" />
+                  <CheckIcon color="var(--pf-t--global--icon--color--status--success--default)" />
                 </Icon>
               }
             >

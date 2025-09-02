@@ -6,14 +6,13 @@ import {
   Button,
   ClipboardCopy,
   ClipboardCopyVariant,
+  Content,
+  ContentVariants,
   Flex,
   FlexItem,
   FormGroup,
   Popover,
   Skeleton,
-  Text,
-  TextContent,
-  TextVariants,
 } from '@patternfly/react-core';
 
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -43,9 +42,9 @@ function CreateOIDCProviderInstructions({ isMultiRegionEnabled, regionLoginComma
       aria-label="oidc-creation-instructions"
       position="top"
       maxWidth="25rem"
-      style={{ '--pf-v5-c-popover--c-button--sibling--PaddingRight': '2rem' }}
+      style={{ '--pf-v6-c-popover--c-button--sibling--PaddingRight': '2rem' }}
       bodyContent={
-        <TextContent>
+        <Content>
           <p>
             Create a new OIDC config ID by running the following command
             {isMultiRegionEnabled ? 's' : ''} in your CLI. Then, refresh and select the new config
@@ -53,7 +52,7 @@ function CreateOIDCProviderInstructions({ isMultiRegionEnabled, regionLoginComma
           </p>
           {isMultiRegionEnabled ? (
             <ClipboardCopy
-              className="pf-v5-u-pb-md"
+              className="pf-v6-u-pb-md"
               variant={ClipboardCopyVariant.expansion}
               isReadOnly
             >
@@ -61,7 +60,7 @@ function CreateOIDCProviderInstructions({ isMultiRegionEnabled, regionLoginComma
             </ClipboardCopy>
           ) : null}
           <ClipboardCopy isReadOnly>rosa create oidc-config</ClipboardCopy>
-        </TextContent>
+        </Content>
       }
     >
       <Button variant="link" isInline>
@@ -148,12 +147,12 @@ function CustomerOIDCConfiguration({
     [oidcConfigs],
   );
 
-  const rosaRegionLoginCommand = `rosa login --url ${regionalInstance?.url}`;
+  const rosaRegionLoginCommand = `rosa login --use-auth-code --url ${regionalInstance?.url}`;
 
   return (
     <Instructions wide>
       <Instruction simple>
-        <TextContent className="pf-v5-u-pb-md">
+        <Content className="pf-v6-u-pb-md">
           <div>
             Select your existing OIDC config id or{' '}
             <CreateOIDCProviderInstructions
@@ -162,11 +161,11 @@ function CustomerOIDCConfiguration({
             />
             .
           </div>
-        </TextContent>
+        </Content>
 
         <FormGroup
           label="Config ID"
-          labelIcon={
+          labelHelp={
             <PopoverHint
               hint={
                 <span>
@@ -202,7 +201,7 @@ function CustomerOIDCConfiguration({
             <FlexItem>
               <Button
                 variant="secondary"
-                className="pf-v5-u-mt-md"
+                className="pf-v6-u-mt-md"
                 onClick={refreshOidcConfigs}
                 isLoading={isOidcDataFetching || isRefreshLoading}
                 isDisabled={isOidcDataFetching || isRefreshLoading}
@@ -217,9 +216,9 @@ function CustomerOIDCConfiguration({
       </Instruction>
 
       <Instruction simple>
-        <TextContent className="pf-v5-u-pb-md">
-          <Text component={TextVariants.p}>Enter an Operator role prefix.</Text>
-        </TextContent>
+        <Content className="pf-v6-u-pb-md">
+          <Content component={ContentVariants.p}>Enter an Operator role prefix.</Content>
+        </Content>
 
         <Field
           component={ReduxVerticalFormGroup}
@@ -231,16 +230,16 @@ function CustomerOIDCConfiguration({
           validate={validators.checkCustomOperatorRolesPrefix}
           helpText={`Maximum ${MAX_CUSTOM_OPERATOR_ROLES_PREFIX_LENGTH} characters.  Changing the cluster name will regenerate this value.`}
           extendedHelpText={
-            <TextContent>
-              <Text component={TextVariants.p}>
+            <Content>
+              <Content component={ContentVariants.p}>
                 You can specify a custom prefix for the cluster-specific Operator IAM roles to use.{' '}
                 <br />
                 See examples in{' '}
                 <ExternalLink href={links.ROSA_AWS_OPERATOR_ROLE_PREFIX}>
                   Defining a custom Operator IAM role prefix
                 </ExternalLink>
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
           }
           showHelpTextOnError={false}
           disabled={!byoOidcConfigID}
@@ -250,18 +249,18 @@ function CustomerOIDCConfiguration({
       </Instruction>
 
       <Instruction simple>
-        <TextContent className="pf-v5-u-pb-md">
-          <Text component={TextVariants.p}>
+        <Content className="pf-v6-u-pb-md">
+          <Content component={ContentVariants.p}>
             {isMultiRegionEnabled
               ? 'Run the commands in order to create new Operator Roles.'
               : 'Run the command to create new Operator Roles.'}
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
         {operatorRolesCliCommand ? (
           <>
             {isMultiRegionEnabled && (
               <ClipboardCopy
-                className="pf-v5-u-pb-md"
+                className="pf-v6-u-pb-md"
                 textAriaLabel="Copyable ROSA region login"
                 isReadOnly
               >
@@ -275,8 +274,8 @@ function CustomerOIDCConfiguration({
             >
               {operatorRolesCliCommand}
             </ClipboardCopy>
-            <div className="pf-v5-c-clipboard-copy">
-              <div className="pf-v5-c-clipboard-copy__expandable-content">
+            <div className="pf-v6-c-clipboard-copy">
+              <div className="pf-v6-c-clipboard-copy__expandable-content">
                 {operatorRolesCliCommand}
               </div>
             </div>

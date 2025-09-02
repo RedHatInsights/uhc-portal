@@ -10,8 +10,12 @@ import { ResourcesAlmostFullIcon } from '@patternfly/react-icons/dist/esm/icons/
 import { ResourcesFullIcon } from '@patternfly/react-icons/dist/esm/icons/resources-full-icon';
 
 import { Link } from '~/common/routing';
-import type { GlobalState } from '~/redux/store';
-import { RelatedResourceBilling_model as RelatedResourceBillingModel } from '~/types/accounts_mgmt.v1';
+import type { GlobalState } from '~/redux/stateTypes';
+import {
+  QuotaCost,
+  RelatedResource,
+  RelatedResourceBilling_model as RelatedResourceBillingModel,
+} from '~/types/accounts_mgmt.v1';
 
 import ExternalLink from '../../common/ExternalLink';
 import SubscriptionNotFulfilled from '../SubscriptionNotFulfilled';
@@ -77,9 +81,11 @@ const OSDSubscriptionCard = ({ quotaCost, marketplace, organizationID, fetchQuot
   let content: React.ReactNode;
   const rows: React.ReactNode[][] = [];
 
-  let subscriptionLink = <Link to="/quota/resource-limits">Dedicated (On-Demand Limits)</Link>;
+  let subscriptionLink = <Link to="/subscriptions/usage/openshift">OpenShift Usage</Link>;
+  let subscriptionSubtitle = 'Annual Subscriptions';
   let subscriptionsDescription =
-    'The summary of all annual subscriptions for OpenShift Dedicated purchased by your organization or granted by Red Hat. For On-Demand resources, see';
+    'The summary of all annual subscriptions for OpenShift Dedicated and select add-ons purchased by your organization or granted by Red Hat. For subscription information on OpenShift Container Platform or Red Hat OpenShift Service on AWS (ROSA), see';
+
   if (marketplace) {
     // add link
     subscriptionLink = (
@@ -87,12 +93,14 @@ const OSDSubscriptionCard = ({ quotaCost, marketplace, organizationID, fetchQuot
         Dedicated (On-Demand)
       </ExternalLink>
     );
+    subscriptionSubtitle = 'OpenShift Dedicated';
+
     subscriptionsDescription =
       'Active subscriptions allow your organization to use up to a certain number of OpenShift Dedicated clusters. Overall OSD subscription capacity and usage can be viewed in';
   }
 
   if (quotaCost.fulfilled) {
-    quotaCost.items?.forEach((quotaItem) => {
+    quotaCost.items?.forEach((quotaItem: QuotaCost) => {
       // filter out quota you neither have nor consume
       if (quotaItem.consumed === 0 && quotaItem.allowed === 0) {
         return;
@@ -100,7 +108,7 @@ const OSDSubscriptionCard = ({ quotaCost, marketplace, organizationID, fetchQuot
 
       // filter out zero cost related resources
       const relatedResources = get(quotaItem, 'related_resources', []).filter(
-        (resource) => resource.cost !== 0,
+        (resource: RelatedResource) => resource.cost !== 0,
       );
       if (relatedResources.length === 0) {
         return;
@@ -171,7 +179,7 @@ const OSDSubscriptionCard = ({ quotaCost, marketplace, organizationID, fetchQuot
 
   return (
     <Card>
-      <CardTitle>OpenShift Dedicated</CardTitle>
+      <CardTitle>{subscriptionSubtitle}</CardTitle>
       <CardBody>
         <Stack hasGutter>
           <StackItem>

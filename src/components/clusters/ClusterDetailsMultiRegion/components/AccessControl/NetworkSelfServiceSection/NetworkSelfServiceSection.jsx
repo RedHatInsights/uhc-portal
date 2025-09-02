@@ -27,7 +27,7 @@ import {
   Thead,
   Tr,
 } from '@patternfly/react-table';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux/actions/notifications';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 
 import { LoadingSkeletonCard } from '~/components/clusters/common/LoadingSkeletonCard/LoadingSkeletonCard';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -55,7 +55,7 @@ const NetworkSelfServiceSection = ({
   region,
 }) => {
   const dispatch = useDispatch();
-
+  const addNotification = useAddNotification();
   const [deletedRowIndex, setDeletedRowIndex] = React.useState(undefined);
   const [refetchInterval, setRefetchInterval] = React.useState(false);
 
@@ -107,25 +107,23 @@ const NetworkSelfServiceSection = ({
       if (addGrantsData && grant.user_arn === addGrantsData?.data?.user_arn) {
         switch (grant.state) {
           case 'failed':
-            dispatch(
-              addNotification({
-                variant: 'danger',
-                title: `Role creation failed for ${grant.user_arn}`,
-                description: grant.state_description,
-                dismissDelay: 8000,
-                dismissable: false,
-              }),
-            );
+            addNotification({
+              variant: 'danger',
+              title: `Role creation failed for ${grant.user_arn}`,
+              description: grant.state_description,
+              dismissDelay: 8000,
+              dismissable: false,
+            });
+
             break;
           case 'ready':
-            dispatch(
-              addNotification({
-                variant: 'success',
-                title: `${grant.roleName} role successfully created for ${grant.user_arn}`,
-                dismissDelay: 8000,
-                dismissable: false,
-              }),
-            );
+            addNotification({
+              variant: 'success',
+              title: `${grant.roleName} role successfully created for ${grant.user_arn}`,
+              dismissDelay: 8000,
+              dismissable: false,
+            });
+
             break;
           case 'deleting':
           case 'pending':
@@ -314,11 +312,15 @@ const NetworkSelfServiceSection = ({
                         <p>Amazon Resource Names (ARNs) uniquely identify AWS resources.</p>
                       }
                     >
-                      <Button variant="plain" isInline>
-                        <Icon size="md">
-                          <HelpIcon />
-                        </Icon>
-                      </Button>
+                      <Button
+                        icon={
+                          <Icon size="md">
+                            <HelpIcon />
+                          </Icon>
+                        }
+                        variant="plain"
+                        isInline
+                      />
                     </Popover>
                   </>
                 </Th>

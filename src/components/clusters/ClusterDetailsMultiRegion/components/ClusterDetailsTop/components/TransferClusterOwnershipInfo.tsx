@@ -49,7 +49,7 @@ const TransferClusterOwnershipInfo = ({ subscription }: TransferClusterOwnership
   return (
     <Alert
       id="transfer-cluster-ownership-alert"
-      className="pf-v5-u-mt-md"
+      className="pf-v6-u-mt-md"
       variant="info"
       isInline
       title="Cluster ownership transfer initiated"

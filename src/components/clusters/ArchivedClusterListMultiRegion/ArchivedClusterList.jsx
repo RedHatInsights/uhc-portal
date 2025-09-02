@@ -20,9 +20,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  Card,
   PageSection,
-  PageSectionVariants,
   Spinner,
   Split,
   SplitItem,
@@ -80,9 +78,9 @@ const breadCrumbs = (
 const ClusterListPageHeader = () => (
   <>
     <ReadOnlyBanner />
-    <PageSection variant={PageSectionVariants.light}>
+    <PageSection hasBodyWrapper={false}>
       <Split>
-        <SplitItem className="pf-v5-u-pb-md">{breadCrumbs}</SplitItem>
+        <SplitItem className="pf-v6-u-pb-md">{breadCrumbs}</SplitItem>
       </Split>
       <Split>
         <SplitItem>
@@ -243,135 +241,133 @@ const ClusterList = ({
         isPendingNoData={isPendingNoData}
         refresh={refetch}
       />
-      <PageSection>
-        <Card>
-          <div className="cluster-list">
-            <GlobalErrorBox />
-            {isError && clusters.length > 0 && (
-              <ErrorBox
-                variant="warning"
-                message="Some operations are unavailable, try again later"
-                response={{
-                  errorDetails: [{ items: errorDetails }],
-                }}
-                isExpandable
-                hideOperationID
-                forceAsAlert
-              />
-            )}
-
-            <Toolbar id="cluster-list-toolbar">
-              <ToolbarContent>
-                <ToolbarItem className="ocm-c-toolbar__item-cluster-filter-list">
-                  <ClusterListFilter
-                    isDisabled={isPendingNoData && hasNoFilters}
-                    view={ARCHIVED_CLUSTERS_VIEW}
-                  />
-                </ToolbarItem>
-                {isRestrictedEnv() ? null : (
-                  <ToolbarItem
-                    className="ocm-c-toolbar__item-cluster-list-filter-dropdown"
-                    data-testid="cluster-list-filter-dropdown"
-                  >
-                    {/* Cluster type */}
-                    <ClusterListFilterDropdown
-                      view={ARCHIVED_CLUSTERS_VIEW}
-                      isDisabled={isLoading || isFetching}
-                    />
-                  </ToolbarItem>
-                )}
-                {/* <ClusterListActions /> */}
-                <ViewOnlyMyClustersToggle
-                  view={ARCHIVED_CLUSTERS_VIEW}
-                  bodyContent="Show only the clusters you previously archived, or all archived clusters in your organization."
-                  localStorageKey={ONLY_MY_CLUSTERS_TOGGLE_CLUSTER_ARCHIVES_LIST}
-                />
-                <ToolbarItem className="pf-v5-l-split__item split-margin-left">
-                  <div className="show-active-clusters-link">
-                    <Link to="/cluster-list">Show active clusters</Link>
-                  </div>
-                </ToolbarItem>
-                <ToolbarItem>
-                  {showSpinner && (
-                    <Spinner
-                      size="lg"
-                      className="cluster-list-spinner"
-                      aria-label="Loading cluster list data"
-                    />
-                  )}
-                  {isError && <ErrorTriangle className="cluster-list-warning" item="clusters" />}
-                </ToolbarItem>
-
-                <ToolbarItem
-                  align={{ default: 'alignRight' }}
-                  variant="pagination"
-                  className="pf-m-hidden visible-on-lgplus"
-                >
-                  <PaginationRow
-                    currentPage={currentPage}
-                    pageSize={pageSize}
-                    itemCount={clustersTotal}
-                    variant="top"
-                    isDisabled={isPendingNoData}
-                    itemsStart={itemsStart}
-                    itemsEnd={itemsEnd}
-                    onPerPageSelect={onPerPageChange}
-                    onPageChange={onPageChange}
-                  />
-                </ToolbarItem>
-
-                <ToolbarItem spacer={{ default: 'spacerNone' }}>
-                  <RefreshButton isDisabled={showSpinner} refreshFunc={refetch} />
-                </ToolbarItem>
-              </ToolbarContent>
-            </Toolbar>
-            {isRestrictedEnv() ? null : <ClusterListFilterChipGroup archive />}
-            {isError && !size(clusters) && isFetched ? (
-              <Unavailable
-                message="Error retrieving clusters"
-                response={{
-                  errorMessage: '',
-                  operationID: '',
-                  errorCode: '',
-                  errorDetails,
-                }}
-              />
-            ) : (
-              <ArchivedClusterListTable
-                openModal={openModal}
-                clusters={clusters || []}
-                isPending={isPendingNoData}
-                activeSortIndex={activeSortIndex}
-                activeSortDirection={activeSortDirection}
-                setSort={(index, direction) => {
-                  const sorting = {
-                    isAscending: direction === SortByDirection.asc,
-                    sortField: index,
-                  };
-
-                  dispatch(viewActions.onListSortBy(sorting, viewType));
-                }}
-              />
-            )}
-            <PaginationRow
-              currentPage={currentPage}
-              pageSize={pageSize}
-              itemCount={clustersTotal}
-              variant="bottom"
-              isDisabled={isPendingNoData}
-              itemsStart={itemsStart}
-              itemsEnd={itemsEnd}
-              onPerPageSelect={onPerPageChange}
-              onPageChange={onPageChange}
+      <PageSection hasBodyWrapper={false}>
+        <div className="cluster-list">
+          <GlobalErrorBox />
+          {isError && clusters.length > 0 && (
+            <ErrorBox
+              variant="warning"
+              message="Some operations are unavailable, try again later"
+              response={{
+                errorDetails: [{ items: errorDetails }],
+              }}
+              isExpandable
+              hideOperationID
+              forceAsAlert
             />
-            <ConnectedModal
-              ModalComponent={UnarchiveClusterDialog}
-              onClose={() => {
-                refetch();
+          )}
+
+          <Toolbar id="cluster-list-toolbar">
+            <ToolbarContent>
+              <ToolbarItem className="ocm-c-toolbar__item-cluster-filter-list">
+                <ClusterListFilter
+                  isDisabled={isPendingNoData && hasNoFilters}
+                  view={ARCHIVED_CLUSTERS_VIEW}
+                />
+              </ToolbarItem>
+              {isRestrictedEnv() ? null : (
+                <ToolbarItem
+                  className="ocm-c-toolbar__item-cluster-list-filter-dropdown"
+                  data-testid="cluster-list-filter-dropdown"
+                >
+                  {/* Cluster type */}
+                  <ClusterListFilterDropdown
+                    view={ARCHIVED_CLUSTERS_VIEW}
+                    isDisabled={isLoading || isFetching}
+                  />
+                </ToolbarItem>
+              )}
+              {/* <ClusterListActions /> */}
+              <ViewOnlyMyClustersToggle
+                view={ARCHIVED_CLUSTERS_VIEW}
+                bodyContent="Show only the clusters you previously archived, or all archived clusters in your organization."
+                localStorageKey={ONLY_MY_CLUSTERS_TOGGLE_CLUSTER_ARCHIVES_LIST}
+              />
+              <ToolbarItem className="pf-v6-l-split__item split-margin-left">
+                <div className="show-active-clusters-link">
+                  <Link to="/cluster-list">Show active clusters</Link>
+                </div>
+              </ToolbarItem>
+              <ToolbarItem>
+                {showSpinner && (
+                  <Spinner
+                    size="lg"
+                    className="cluster-list-spinner"
+                    aria-label="Loading cluster list data"
+                  />
+                )}
+                {isError && <ErrorTriangle className="cluster-list-warning" item="clusters" />}
+              </ToolbarItem>
+
+              <ToolbarItem
+                align={{ default: 'alignEnd' }}
+                variant="pagination"
+                className="pf-m-hidden visible-on-lgplus"
+              >
+                <PaginationRow
+                  currentPage={currentPage}
+                  pageSize={pageSize}
+                  itemCount={clustersTotal}
+                  variant="top"
+                  isDisabled={isPendingNoData}
+                  itemsStart={itemsStart}
+                  itemsEnd={itemsEnd}
+                  onPerPageSelect={onPerPageChange}
+                  onPageChange={onPageChange}
+                />
+              </ToolbarItem>
+
+              <ToolbarItem gap={{ default: 'gapNone' }}>
+                <RefreshButton isDisabled={showSpinner} refreshFunc={refetch} />
+              </ToolbarItem>
+            </ToolbarContent>
+          </Toolbar>
+          {isRestrictedEnv() ? null : <ClusterListFilterChipGroup archive />}
+          {isError && !size(clusters) && isFetched ? (
+            <Unavailable
+              message="Error retrieving clusters"
+              response={{
+                errorMessage: '',
+                operationID: '',
+                errorCode: '',
+                errorDetails,
               }}
             />
-          </div>
-        </Card>
+          ) : (
+            <ArchivedClusterListTable
+              openModal={openModal}
+              clusters={clusters || []}
+              isPending={isPendingNoData}
+              activeSortIndex={activeSortIndex}
+              activeSortDirection={activeSortDirection}
+              setSort={(index, direction) => {
+                const sorting = {
+                  isAscending: direction === SortByDirection.asc,
+                  sortField: index,
+                };
+
+                dispatch(viewActions.onListSortBy(sorting, viewType));
+              }}
+            />
+          )}
+          <PaginationRow
+            currentPage={currentPage}
+            pageSize={pageSize}
+            itemCount={clustersTotal}
+            variant="bottom"
+            isDisabled={isPendingNoData}
+            itemsStart={itemsStart}
+            itemsEnd={itemsEnd}
+            onPerPageSelect={onPerPageChange}
+            onPageChange={onPageChange}
+          />
+          <ConnectedModal
+            ModalComponent={UnarchiveClusterDialog}
+            onClose={() => {
+              refetch();
+            }}
+          />
+        </div>
       </PageSection>
     </AppPage>
   );

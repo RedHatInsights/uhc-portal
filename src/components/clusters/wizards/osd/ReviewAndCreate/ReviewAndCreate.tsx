@@ -19,7 +19,7 @@ export const ReviewAndCreate = () => {
   }, [createClusterResponse.error, isErrorModalOpen]);
 
   return (
-    <div className="pf-v5-u-mb-md">
+    <div className="pf-v6-u-mb-md">
       <ReviewAndCreateContent isPending={createClusterResponse.pending} />
       {isErrorModalOpen && <CreateClusterErrorModal onRetry={submitForm} />}
     </div>

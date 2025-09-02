@@ -11,7 +11,7 @@ import { FieldId } from '../../constants';
 import CAUpload from '../CAUpload';
 
 function OpenIDForm({ isPending, isEditForm, idpEdited }) {
-  const { getFieldProps, getFieldMeta, setFieldValue } = useFormState();
+  const { getFieldProps, getFieldMeta, setFieldValue, setFieldTouched } = useFormState();
 
   return (
     <>
@@ -22,11 +22,16 @@ function OpenIDForm({ isPending, isEditForm, idpEdited }) {
           label="CA file"
           helpText="PEM encoded certificate bundle to use to validate server certificates for the configured URL"
           isDisabled={isPending}
+          W
           certValue={isEditForm ? idpEdited.open_id.ca : ''}
           input={{
             ...getFieldProps(FieldId.OPENID_CA),
-            onChange: (_, value) => setFieldValue(FieldId.OPENID_CA, value),
+            onChange: (value) => {
+              setFieldValue(FieldId.OPENID_CA, value);
+              setFieldTouched(FieldId.OPENID_CA, true);
+            },
           }}
+          fieldName="openid_ca"
           meta={getFieldMeta(FieldId.OPENID_CA)}
         />
       </GridItem>

@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
+import { refetchIdentityProvidersWithHTPUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchIDPsWithHTPUsers';
 import { useDeleteIdentityProvider } from '~/queries/ClusterDetailsQueries/IDPPage/useDeleteIdentityProvider';
-import { refetchClusterIdentityProviders } from '~/queries/ClusterDetailsQueries/useFetchClusterIdentityProviders';
 import { useGlobalState } from '~/redux/hooks';
 
 import ErrorBox from '../../../../common/ErrorBox';
@@ -60,7 +60,7 @@ const DeleteIDPDialog = (props) => {
         onPrimaryClick={() =>
           deleteIDPMutate(idpID, {
             onSuccess: () => {
-              refetchClusterIdentityProviders(clusterID, region);
+              refetchIdentityProvidersWithHTPUsers(clusterID, region);
               closeDialog(true);
             },
           })

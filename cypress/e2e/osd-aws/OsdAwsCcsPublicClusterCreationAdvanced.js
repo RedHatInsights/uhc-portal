@@ -17,7 +17,7 @@ const securityGroups = qeInfrastructure.SECURITY_GROUPS_NAME;
 
 describe(
   'OSD AWS CCS Cluster - Create public advanced AWS CCS cluster - OCP-21100, OCP-42745',
-  { tags: ['day1', 'aws', 'public', 'advanced'] },
+  { tags: ['day1', 'osd', 'aws', 'public', 'advanced'] },
   () => {
     before(() => {
       cy.visit('/create');

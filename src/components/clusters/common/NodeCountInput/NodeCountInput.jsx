@@ -14,6 +14,7 @@ import {
   getMaxNodesHCP,
 } from '~/components/clusters/common/machinePools/utils';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+import { usePreviousProps } from '~/hooks/usePreviousProps';
 
 import { noQuotaTooltip } from '../../../../common/helpers';
 import { normalizedProducts } from '../../../../common/subscriptionTypes';
@@ -22,80 +23,92 @@ import PopoverHint from '../../../common/PopoverHint';
 const incrementValue = ({ isHypershiftWizard, poolNumber, isMultiAz }) =>
   isHypershiftWizard ? getNodeIncrementHypershift(poolNumber) : getNodeIncrement(isMultiAz);
 
-class NodeCountInput extends React.Component {
-  componentDidMount() {
-    const {
-      input,
-      minNodes,
-      isEditingCluster,
-      currentNodeCount,
-      increment,
-      isHypershiftWizard,
-      poolNumber,
-      isMultiAz,
-      isMachinePool,
-      clusterVersion,
-      allow249NodesOSDCCSROSA,
-    } = this.props;
-    const included = getIncludedNodes({ isMultiAz, isHypershift: !isMachinePool });
-    const available = this.getAvailableQuota();
+const NodeCountInput = (props) => {
+  const {
+    quota,
+    input,
+    isEditingCluster,
+    currentNodeCount,
+    isMultiAz,
+    label,
+    helpText,
+    extendedHelpText,
+    machineType,
+    machineTypes,
+    isByoc,
+    isMachinePool,
+    minNodes,
+    increment,
+    isHypershiftWizard,
+    poolNumber = isMultiAz ? 3 : 1,
+    buttonAriaLabel,
+    clusterVersion,
+    allow249NodesOSDCCSROSA,
+    cloudProviderID,
+    product,
+    billingModel,
+  } = props;
+  const optionValueIncrement =
+    increment || incrementValue({ isHypershiftWizard, poolNumber, isMultiAz });
 
-    const optionValueIncrement =
-      increment || incrementValue({ isHypershiftWizard, poolNumber, isMultiAz });
+  const included = getIncludedNodes({ isMultiAz, isHypershift: !isMachinePool });
+  const available = React.useMemo(
+    () =>
+      getAvailableQuotaUtil({
+        quota,
+        isByoc,
+        billingModel,
+        cloudProviderID,
+        isMultiAz,
+        machineTypes,
+        machineTypeId: machineType,
+        product,
+      }),
+    [quota, isByoc, billingModel, cloudProviderID, isMultiAz, machineTypes, machineType, product],
+  );
 
-    const options = buildOptions({
+  const options = React.useMemo(
+    () =>
+      buildOptions({
+        included,
+        available,
+        isEditingCluster,
+        currentNodeCount,
+        minNodes,
+        increment: optionValueIncrement,
+        isHypershift: isHypershiftWizard,
+        clusterVersion,
+        allow249NodesOSDCCSROSA,
+      }),
+    [
       included,
       available,
       isEditingCluster,
       currentNodeCount,
       minNodes,
       optionValueIncrement,
-      isHypershift: isHypershiftWizard,
+      isHypershiftWizard,
       clusterVersion,
       allow249NodesOSDCCSROSA,
-    });
+    ],
+  );
 
+  const prevPoolNumber = usePreviousProps(poolNumber);
+  const prevInputValue = usePreviousProps(input.value);
+
+  React.useEffect(() => {
     if (!options.includes(Number(input.value))) {
       // if the value isn't an option, then just set to minNode (the value the user sees as the setting )
       input.onChange(minNodes);
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  componentDidUpdate(prevProps) {
-    const {
-      input,
-      isEditingCluster,
-      minNodes,
-      isHypershiftWizard,
-      poolNumber,
-      currentNodeCount,
-      isMultiAz,
-      increment,
-      isMachinePool,
-      clusterVersion,
-      allow249NodesOSDCCSROSA,
-    } = this.props;
-
-    const available = this.getAvailableQuota();
-    const included = getIncludedNodes({ isMultiAz, isHypershift: !isMachinePool });
-    const optionValueIncrement =
-      increment || incrementValue({ isHypershiftWizard, poolNumber, isMultiAz });
-    const options = buildOptions({
-      included,
-      available,
-      isEditingCluster,
-      currentNodeCount,
-      minNodes,
-      optionValueIncrement,
-      isHypershift: isHypershiftWizard,
-      clusterVersion,
-      allow249NodesOSDCCSROSA,
-    });
-
-    if (isHypershiftWizard && poolNumber !== prevProps.poolNumber) {
+  React.useEffect(() => {
+    if (isHypershiftWizard && poolNumber !== prevPoolNumber) {
       // Keep value the user sees (nodes per pool) unless the number of total nodes
       // is less than the minimum total nodes
-      const prevSelected = (prevProps.input?.value ?? 0) / prevProps.poolNumber || minNodes;
+      const prevSelected = (prevInputValue ?? 0) / prevPoolNumber || minNodes;
       const newValue = prevSelected * poolNumber;
       if (newValue > minNodes && newValue <= getMaxNodesHCP(clusterVersion)) {
         input.onChange(newValue);
@@ -113,152 +126,99 @@ class NodeCountInput extends React.Component {
       // if the value isn't an option, then just set to minNode (the value the user sees as the setting )
       input.onChange(minNodes);
     }
+  }, [
+    available,
+    clusterVersion,
+    input,
+    isEditingCluster,
+    isHypershiftWizard,
+    minNodes,
+    options,
+    poolNumber,
+    prevInputValue,
+    prevPoolNumber,
+  ]);
+
+  let notEnoughQuota = options.length < 1;
+
+  // for BYOC lacking node quota machineType will be undefined
+  if (isByoc && !isEditingCluster && !isMachinePool) {
+    notEnoughQuota = !machineType || options.length < 1;
   }
 
-  getAvailableQuota() {
-    const {
-      quota,
-      isByoc,
-      isMultiAz,
-      machineType,
-      machineTypes,
-      cloudProviderID,
-      product,
-      billingModel,
-    } = this.props;
-
-    return getAvailableQuotaUtil({
-      quota,
-      isByoc,
-      billingModel,
-      cloudProviderID,
-      isMultiAz,
-      machineTypes,
-      machineTypeId: machineType,
-      product,
-    });
-  }
-
-  render() {
-    const {
-      input,
-      isMultiAz,
-      isEditingCluster,
-      currentNodeCount,
-      label,
-      helpText,
-      extendedHelpText,
-      machineType,
-      isByoc,
-      isMachinePool,
-      minNodes,
-      increment,
-      isHypershiftWizard,
-      poolNumber = isMultiAz ? 3 : 1,
-      buttonAriaLabel,
-      clusterVersion,
-      allow249NodesOSDCCSROSA,
-    } = this.props;
-
-    const optionValueIncrement =
-      increment || incrementValue({ isHypershiftWizard, poolNumber, isMultiAz });
-
-    const included = getIncludedNodes({ isMultiAz, isHypershift: !isMachinePool });
-    const available = this.getAvailableQuota();
-
-    const options = buildOptions({
-      included,
-      available,
-      isEditingCluster,
-      currentNodeCount,
-      minNodes,
-      increment: optionValueIncrement,
-      isHypershift: isHypershiftWizard,
-      clusterVersion,
-      allow249NodesOSDCCSROSA,
-    });
-
-    let notEnoughQuota = options.length < 1;
-
-    // for BYOC lacking node quota machineType will be undefined
-    if (isByoc && !isEditingCluster && !isMachinePool) {
-      notEnoughQuota = !machineType || options.length < 1;
+  const optionLabel = (value) => {
+    let labelNumber = value;
+    if (isHypershiftWizard) {
+      labelNumber = value / optionValueIncrement;
+    } else if (isMultiAz) {
+      labelNumber = value / 3;
     }
+    return labelNumber.toString();
+  };
 
-    const optionLabel = (value) => {
-      let labelNumber = value;
-      if (isHypershiftWizard) {
-        labelNumber = value / optionValueIncrement;
-      } else if (isMultiAz) {
-        labelNumber = value / 3;
-      }
-      return labelNumber.toString();
-    };
+  // Set up options for nodes
+  const option = (value) => (
+    <FormSelectOption
+      key={value}
+      value={value}
+      // we want the value to be the actual value sent to the server,
+      // but for multiAz the user selects the amount of nodes per zone, instead of total
+      // so it needs to be divided by 3 for display
+      label={optionLabel(value)}
+    />
+  );
 
-    // Set up options for nodes
-    const option = (value) => (
-      <FormSelectOption
-        key={value}
-        value={value}
-        // we want the value to be the actual value sent to the server,
-        // but for multiAz the user selects the amount of nodes per zone, instead of total
-        // so it needs to be divided by 3 for display
-        label={optionLabel(value)}
-      />
-    );
+  const { onChange, ...restInput } = input;
 
-    const { onChange, ...restInput } = input;
+  const formSelect = (
+    <FormSelect
+      aria-label="Compute nodes"
+      isDisabled={notEnoughQuota}
+      className="quota-dropdown"
+      onChange={(_event, value) => onChange(value)}
+      {...restInput}
+    >
+      {options.map((value) => option(value))}
+    </FormSelect>
+  );
 
-    const formSelect = (
-      <FormSelect
-        aria-label="Compute nodes"
-        isDisabled={notEnoughQuota}
-        className="quota-dropdown"
-        onChange={(_event, value) => onChange(value)}
-        {...restInput}
-      >
-        {options.map((value) => option(value))}
-      </FormSelect>
-    );
-
-    const showTotalNodes = () => {
-      if (isHypershiftWizard) {
-        return (
-          <span data-testid="compute-node-hcp-multizone-details">
-            x {poolNumber} machine pools = {input.value} compute nodes
-          </span>
-        );
-      }
-      return isMultiAz ? (
-        <span data-testid="compute-node-multizone-details">
-          × 3 zones = {input.value} compute nodes
+  const showTotalNodes = () => {
+    if (isHypershiftWizard) {
+      return (
+        <span data-testid="compute-node-hcp-multizone-details">
+          x {poolNumber} machine pools = {input.value} compute nodes
         </span>
-      ) : null;
-    };
+      );
+    }
+    return isMultiAz ? (
+      <span data-testid="compute-node-multizone-details">
+        × 3 zones = {input.value} compute nodes
+      </span>
+    ) : null;
+  };
 
-    return (
-      <FormGroup
-        fieldId={input.name}
-        label={label}
-        labelIcon={
-          extendedHelpText && (
-            <PopoverHint hint={extendedHelpText} buttonAriaLabel={buttonAriaLabel} />
-          )
-        }
-      >
-        {notEnoughQuota ? (
-          <Tooltip content={noQuotaTooltip} position="right">
-            <div>{formSelect}</div>
-          </Tooltip>
-        ) : (
-          formSelect
-        )}
-        {showTotalNodes()}
-        <FormGroupHelperText>{helpText}</FormGroupHelperText>
-      </FormGroup>
-    );
-  }
-}
+  return (
+    <FormGroup
+      fieldId={input.name}
+      label={label}
+      labelHelp={
+        extendedHelpText && (
+          <PopoverHint hint={extendedHelpText} buttonAriaLabel={buttonAriaLabel} />
+        )
+      }
+    >
+      {notEnoughQuota ? (
+        <Tooltip content={noQuotaTooltip} position="right">
+          <div>{formSelect}</div>
+        </Tooltip>
+      ) : (
+        formSelect
+      )}
+      {showTotalNodes()}
+      <FormGroupHelperText>{helpText}</FormGroupHelperText>
+    </FormGroup>
+  );
+};
 
 const validateClusterVersion = (props, propName, componentName) => {
   const { isHypershiftWizard } = props;

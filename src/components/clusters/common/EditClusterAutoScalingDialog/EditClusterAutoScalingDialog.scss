@@ -1,16 +1,16 @@
 .cluster-autoscaling-form {
-    .pf-v5-c-form__group .custom-help-text,
-    .pf-v5-c-form__helper-text.pf-m-error .custom-help-text {
+    .pf-v6-c-form__group .custom-help-text,
+    .pf-v6-c-form__helper-text.pf-m-error .custom-help-text {
         /* Keep the grey color even when the value is invalid */
-        color: var(--pf-v5-global--Color--200);
+        color: var(--pf-t--global--text--color--subtle);
         font-size: small;
     }
 
     .autoscaler-inner-section {
-        &.pf-v5-c-form__section-title {
+        &.pf-v6-c-form__section-title {
             padding: 0;
         }
-        &.pf-v5-c-form__section {
+        &.pf-v6-c-form__section {
             padding-inline: 1.75rem;
         }
     }

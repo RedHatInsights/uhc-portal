@@ -39,6 +39,7 @@ export const Prerequisites = ({
       <ExpandableSection
         className="prerequisites-expandable-section"
         toggleText={toggleText}
+        isIndented
         isExpanded={isExpanded}
         onToggle={onToggle}
         {...expandSectionProps}
