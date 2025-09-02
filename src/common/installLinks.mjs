@@ -132,7 +132,6 @@ const links = {
   MANAGED_INGRESS_KNOWLEDGE_BASE: 'https://access.redhat.com/articles/7028653',
 
   OSD_DEDICATED_ADMIN_ROLE: `${OSD_DOCS_BASE}/authentication_and_authorization/osd-admin-roles`,
-  ROSA_ADMIN_ROLE: `${ROSA_DOCS_BASE}/introduction_to_rosa/rosa-sts-about-iam-resources#rosa-sts-operator-roles_rosa-sts-about-iam-resources`,
   OSD_CCS_AWS: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs`,
   OSD_CCS_AWS_LIMITS: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs#aws-limits_aws-ccs`,
   OSD_CCS_AWS_SCP: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs#ccs-aws-scp_aws-ccs`,
@@ -334,7 +333,7 @@ const links = {
   ROSA_AWS_LIMITS_SCALE: `${ROSA_DOCS_BASE}/prepare_your_environment/rosa-limits-scalability`,
   ROSA_AWS_IAM_RESOURCES: `${ROSA_CP_DOCS_BASE}/introduction_to_rosa/rosa-sts-about-iam-resources`,
   ROSA_AWS_IAM_ROLES: `${ROSA_DOCS_BASE}/introduction_to_rosa/rosa-sts-about-iam-resources`,
-  ROSA_AWS_OPERATOR_ROLE_PREFIX: `${ROSA_DOCS_BASE}/introduction_to_rosa/rosa-sts-about-iam-resources#rosa-sts-operator-roles_rosa-sts-about-iam-resources`,
+  ROSA_AWS_IAM_OPERATOR_ROLES: `${ROSA_DOCS_BASE}/introduction_to_rosa/rosa-sts-about-iam-resources#rosa-sts-operator-roles_rosa-sts-about-iam-resources`,
   ROSA_HCP_EXT_AUTH: `${ROSA_CP_DOCS_BASE}/install_rosa_with_hcp_clusters/rosa-hcp-sts-creating-a-cluster-ext-auth`,
   ROSA_HCP_BREAK_GLASS: `${ROSA_CP_DOCS_BASE}/install_rosa_with_hcp_clusters/rosa-hcp-sts-creating-a-cluster-ext-auth#rosa-hcp-sts-accessing-a-break-glass-cred-cli_rosa-hcp-sts-creating-a-cluster-ext-auth`,
 
