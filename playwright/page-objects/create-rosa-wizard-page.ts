@@ -682,11 +682,12 @@ export class CreateRosaWizardPage extends BasePage {
     await this.enableConfigureClusterWideProxyCheckbox().check();
   }
 
-  async isTextContainsInPage(text: string, shouldContain: boolean = true): Promise<void> {
-    if (shouldContain) {
-      await expect(this.page.locator('body')).toContainText(text);
+  async isTextContainsInPage(text: string, present: boolean = true): Promise<void> {
+    const locator = this.page.locator('body').filter({ hasText: text });
+    if (present) {
+      await expect(locator).toBeVisible();
     } else {
-      await expect(this.page.locator('body')).not.toContainText(text);
+      await expect(locator).not.toBeVisible();
     }
   }
 
@@ -828,6 +829,88 @@ export class CreateRosaWizardPage extends BasePage {
       .locator('button')
       .filter({ hasText: 'Edit' });
     await editButton.click();
+  }
+
+  // Cluster autoscaling settings selectors
+  editClusterAutoscalingSettingsButton(): Locator {
+    return this.page.getByTestId('set-cluster-autoscaling-btn');
+  }
+
+  clusterAutoscalingLogVerbosityInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.log_verbosity"]');
+  }
+
+  clusterAutoscalingMaxNodeProvisionTimeInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.max_node_provision_time"]');
+  }
+
+  clusterAutoscalingBalancingIgnoredLabelsInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.balancing_ignored_labels"]');
+  }
+
+  clusterAutoscalingCoresTotalMinInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.cores.min"]');
+  }
+
+  clusterAutoscalingCoresTotalMaxInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.cores.max"]');
+  }
+
+  clusterAutoscalingMemoryTotalMinInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.memory.min"]');
+  }
+
+  clusterAutoscalingMemoryTotalMaxInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.memory.max"]');
+  }
+
+  clusterAutoscalingMaxNodesTotalInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.max_nodes_total"]');
+  }
+
+  clusterAutoscalingGPUsInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.gpus"]');
+  }
+
+  clusterAutoscalingScaleDownUtilizationThresholdInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.scale_down.utilization_threshold"]');
+  }
+
+  clusterAutoscalingScaleDownUnneededTimeInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.scale_down.unneeded_time"]');
+  }
+
+  clusterAutoscalingScaleDownDelayAfterAddInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_add"]');
+  }
+
+  clusterAutoscalingScaleDownDelayAfterDeleteInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_delete"]');
+  }
+
+  clusterAutoscalingScaleDownDelayAfterFailureInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_failure"]');
+  }
+
+  clusterAutoscalingRevertAllToDefaultsButton(): Locator {
+    return this.page.getByRole('button', { name: 'Revert all to defaults' });
+  }
+
+  clusterAutoscalingCloseButton(): Locator {
+    return this.page.getByRole('button', { name: 'Close' });
+  }
+
+  // Application ingress selectors for networking validations
+  applicationIngressCustomSettingsRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Custom settings' });
+  }
+
+  applicationIngressRouterSelectorsInput(): Locator {
+    return this.page.locator('#defaultRouterSelectors');
+  }
+
+  applicationIngressExcludedNamespacesInput(): Locator {
+    return this.page.locator('#defaultRouterExcludedNamespacesFlag');
   }
 
   // Support role inputs for validation

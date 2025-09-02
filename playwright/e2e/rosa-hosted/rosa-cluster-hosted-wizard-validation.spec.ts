@@ -18,7 +18,7 @@ let overviewPage: OverviewPage;
 
 test.describe.serial(
   'Rosa hosted(Hypershift) cluster wizard validations',
-  { tag: ['@smoke', '@hcp'] },
+  { tag: ['@smoke', '@wizard-validation'] },
   () => {
     // Environment variables and test data setup
     const region = clusterFieldValidations.Region.split(',')[0];

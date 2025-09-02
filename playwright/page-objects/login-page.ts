@@ -29,7 +29,9 @@ export class LoginPage extends BasePage {
   }
 
   async isPasswordScreen(): Promise<void> {
-    await expect(this.page.getByRole('heading', { name: 'Log in to your Red Hat account' })).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: 'Log in to your Red Hat account' }),
+    ).toBeVisible();
   }
 
   async login(): Promise<void> {
@@ -46,35 +48,40 @@ export class LoginPage extends BasePage {
     } else {
       // Wait a bit for the page to load completely
       await this.page.waitForTimeout(2000);
-      
+
       console.log('🌐 Current URL:', this.page.url());
-      
+
       // Check if we're on a login page or already authenticated
-      if (this.page.url().includes('auth/realms/redhat-external') || this.page.url().includes('login')) {
+      if (
+        this.page.url().includes('auth/realms/redhat-external') ||
+        this.page.url().includes('login')
+      ) {
         console.log('🔐 Login page detected, proceeding with authentication...');
-        
+
         // Wait for username input to be visible
         await this.inputUsername.waitFor({ state: 'visible', timeout: 10000 });
         await this.inputUsername.fill(username, { force: true });
         console.log('✅ Username entered');
         await this.clickNextBtn();
-        
+
         // Wait for password screen
         await this.page.waitForTimeout(2000);
         await this.inputPassword.waitFor({ state: 'visible', timeout: 10000 });
         await this.inputPassword.fill(password, { force: true });
         console.log('✅ Password entered');
         await this.clickSubmitBtn();
-        
+
         // Wait for authentication to complete
         // Accommodate both standard console URLs and prod.foo.redhat.com:1337
         const urlPattern = /(console\..*\.redhat\.com|prod\.foo\.redhat\.com:1337)/;
         await this.page.waitForURL(urlPattern, { timeout: 30000 });
         console.log('✅ Authentication completed, redirected to console');
-        
+
         await this.closePendoIfShowing();
-      } else if ((this.page.url().includes('console') && this.page.url().includes('redhat.com')) || 
-                 this.page.url().includes('prod.foo.redhat.com:1337')) {
+      } else if (
+        (this.page.url().includes('console') && this.page.url().includes('redhat.com')) ||
+        this.page.url().includes('prod.foo.redhat.com:1337')
+      ) {
         console.log('✅ Already authenticated, on console page');
       } else {
         console.log('⚠️ Unexpected page, current URL:', this.page.url());
