@@ -372,8 +372,7 @@ const links = {
   CIDR_RANGE_DEFINITIONS_ROSA: `${ROSA_DOCS_BASE}/networking/cidr-range-definitions`,
   CIDR_RANGE_DEFINITIONS_OSD: `${OSD_DOCS_BASE}/networking/cidr-range-definitions`,
   CONFIGURE_PROXY_URL: `${OSD_DOCS_BASE}/networking`,
-  VIRTUAL_PRIVATE_CLOUD_URL:
-    'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/prepare_your_environment/prerequisites-checklist-for-deploying-rosa-using-sts#vpc-requirements-for-privatelink-clusters',
+  VIRTUAL_PRIVATE_CLOUD_URL: `${ROSA_DOCS_BASE}/prepare_your_environment/prerequisites-checklist-for-deploying-rosa-using-sts#vpc-requirements-for-privatelink-clusters`,
   AWS_CONTROL_PLANE_URL: `${DOCS_BASE}/architecture/control-plane#control-plane`,
 
   ROSA_AWS_FEDRAMP: 'https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-rosa.html',
