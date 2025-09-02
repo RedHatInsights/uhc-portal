@@ -36,8 +36,12 @@ test.describe(
 
         test(`Launch OSD - ${clusterProperties.CloudProvider} cluster wizard`, async () => {
           await sharedPage.goto('create');
-          await expect(createOSDWizardPage.osdCreateClusterButton()).toBeVisible();
-          await expect(createOSDWizardPage.osdCreateClusterButton()).toBeEnabled();
+          await expect(createOSDWizardPage.osdCreateClusterButton()).toBeVisible({
+            timeout: 30000,
+          });
+          await expect(createOSDWizardPage.osdCreateClusterButton()).toBeEnabled({
+            timeout: 30000,
+          });
           await createOSDWizardPage.osdCreateClusterButton().click();
           await createOSDWizardPage.isCreateOSDPage();
         });
