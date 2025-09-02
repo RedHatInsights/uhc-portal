@@ -307,25 +307,25 @@ export class CreateOSDWizardPage extends BasePage {
     return this.page.getByTestId('wizard-next-button');
   }
 
-  // CIDR screen
+  // CIDR selectors
   cidrDefaultValuesCheckBox(): Locator {
-    return this.page.locator('input[id="cidr_default_values_enabled"]');
+    return this.page.getByRole('checkbox', { name: 'Use default values' });
   }
 
   machineCIDRInput(): Locator {
-    return this.page.locator('input[id="network_machine_cidr"]');
+    return this.page.getByRole('textbox', { name: 'Machine CIDR' });
   }
 
   serviceCIDRInput(): Locator {
-    return this.page.locator('input[id="network_service_cidr"]');
+    return this.page.getByRole('textbox', { name: 'Service CIDR' });
   }
 
   podCIDRInput(): Locator {
-    return this.page.locator('input[id="network_pod_cidr"]');
+    return this.page.getByRole('textbox', { name: 'Pod CIDR' });
   }
 
   hostPrefixInput(): Locator {
-    return this.page.locator('input[id="network_host_prefix"]');
+    return this.page.getByRole('textbox', { name: 'Host prefix' });
   }
 
   // Updates screen
@@ -623,5 +623,168 @@ export class CreateOSDWizardPage extends BasePage {
     // Validation popup on cluster name field creates flaky situation on below version field.
     // To remove the validation popup a click action in cluster left tree is required.
     await this.clusterDetailsTree().click();
+  }
+
+  // Additional validation-specific methods
+  gcpWIFCommandInput(): Locator {
+    return this.page.getByTestId('gcp-wif-command').locator('input');
+  }
+
+  useCustomKMSKeyRadio(): Locator {
+    return this.page.locator('input[id="form-radiobutton-customer_managed_key-true-field"]');
+  }
+
+  useDefaultKMSKeyRadio(): Locator {
+    return this.page.locator('input[id="form-radiobutton-customer_managed_key-false-field"]');
+  }
+
+  keyArnInput(): Locator {
+    return this.page.locator('span input[id="kms_key_arn"]');
+  }
+
+  // Machine pool validation methods
+  minimumNodeInput(): Locator {
+    return this.page.locator('input[aria-label="Minimum nodes"]');
+  }
+
+  maximumNodeInput(): Locator {
+    return this.page.locator('input[aria-label="Maximum nodes"]');
+  }
+
+  minimumNodeCountMinusButton(): Locator {
+    return this.page.locator('button[aria-label="Minimum nodes minus"]');
+  }
+
+  minimumNodeCountPlusButton(): Locator {
+    return this.page.locator('button[aria-label="Minimum nodes plus"]');
+  }
+
+  maximumNodeCountMinusButton(): Locator {
+    return this.page.locator('button[aria-label="Maximum nodes minus"]');
+  }
+
+  maximumNodeCountPlusButton(): Locator {
+    return this.page.locator('button[aria-label="Maximum nodes plus"]');
+  }
+
+  editClusterAutoscalingSettingsButton(): Locator {
+    return this.page.getByTestId('set-cluster-autoscaling-btn');
+  }
+
+  // Cluster autoscaling selectors
+  clusterAutoscalingLogVerbosityInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.log_verbosity"]');
+  }
+
+  clusterAutoscalingMaxNodeProvisionTimeInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.max_node_provision_time"]');
+  }
+
+  clusterAutoscalingBalancingIgnoredLabelsInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.balancing_ignored_labels"]');
+  }
+
+  clusterAutoscalingCoresTotalMinInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.cores.min"]');
+  }
+
+  clusterAutoscalingCoresTotalMaxInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.cores.max"]');
+  }
+
+  clusterAutoscalingMemoryTotalMinInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.memory.min"]');
+  }
+
+  clusterAutoscalingMemoryTotalMaxInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.memory.max"]');
+  }
+
+  clusterAutoscalingMaxNodesTotalInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.max_nodes_total"]');
+  }
+
+  clusterAutoscalingGPUsInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.resource_limits.gpus"]');
+  }
+
+  clusterAutoscalingScaleDownUtilizationThresholdInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.scale_down.utilization_threshold"]');
+  }
+
+  clusterAutoscalingScaleDownUnneededTimeInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.scale_down.unneeded_time"]');
+  }
+
+  clusterAutoscalingScaleDownDelayAfterAddInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_add"]');
+  }
+
+  clusterAutoscalingScaleDownDelayAfterDeleteInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_delete"]');
+  }
+
+  clusterAutoscalingScaleDownDelayAfterFailureInput(): Locator {
+    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_failure"]');
+  }
+
+  clusterAutoscalingRevertAllToDefaultsButton(): Locator {
+    return this.page.getByRole('button', { name: 'Revert all to defaults' });
+  }
+
+  clusterAutoscalingCloseButton(): Locator {
+    return this.page.getByRole('button', { name: 'Close' });
+  }
+
+  // Networking validation selectors
+  applicationIngressCustomSettingsRadio(): Locator {
+    return this.page.locator('input[id="form-radiobutton-applicationIngress-custom-field"]');
+  }
+
+  applicationIngressRouterSelectorsInput(): Locator {
+    return this.page.locator('input[name="defaultRouterSelectors"]');
+  }
+
+  applicationIngressExcludedNamespacesInput(): Locator {
+    return this.page.locator('input[name="defaultRouterExcludedNamespacesFlag"]');
+  }
+
+  // Navigation buttons (if not already present)
+  wizardBackButton(): Locator {
+    return this.page.getByTestId('wizard-back-button');
+  }
+
+  // Validation helper methods
+  async enableAutoScaling(): Promise<void> {
+    await this.enableAutoscalingCheckbox().check();
+  }
+
+  async selectAutoScaling(autoScale: string): Promise<void> {
+    if (autoScale.toLowerCase() === 'disabled') {
+      await this.enableAutoscalingCheckbox().uncheck();
+    } else {
+      await this.enableAutoscalingCheckbox().check();
+    }
+  }
+
+  async setMinimumNodeCount(nodeCount: string): Promise<void> {
+    await this.minimumNodeInput().click();
+    await this.minimumNodeInput().press('Control+a');
+    await this.minimumNodeInput().fill(nodeCount);
+  }
+
+  async setMaximumNodeCount(nodeCount: string): Promise<void> {
+    await this.maximumNodeInput().click();
+    await this.maximumNodeInput().press('Control+a');
+    await this.maximumNodeInput().fill(nodeCount);
+  }
+
+  async isTextContainsInPage(text: string, present: boolean = true): Promise<void> {
+    const locator = this.page.locator('body').filter({ hasText: text });
+    if (present) {
+      await expect(locator).toBeVisible();
+    } else {
+      await expect(locator).not.toBeVisible();
+    }
   }
 }

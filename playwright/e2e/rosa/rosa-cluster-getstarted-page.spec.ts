@@ -86,12 +86,9 @@ test.describe.serial('ROSA cluster Get Started page (OCP-56363)', { tag: ['@smok
     await expect(rosaGetStartedPage.rosaPrerequisitesStep1Items()).toHaveCount(2);
 
     const step1Section = rosaGetStartedPage.rosaPrerequisitesStep1Section();
-    const step1Header = step1Section
-      .getByRole('heading', { level: 3 })
-      .filter({
-        hasText:
-          'Download and install the ROSA and AWS command line tools (CLI) and add it to your',
-      });
+    const step1Header = step1Section.getByRole('heading', { level: 3 }).filter({
+      hasText: 'Download and install the ROSA and AWS command line tools (CLI) and add it to your',
+    });
     await expect(step1Header).toBeVisible();
 
     const step11Content = rosaGetStartedPage.rosaPrerequisitesStep11Content();

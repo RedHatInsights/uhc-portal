@@ -45,9 +45,9 @@ export class BasePage {
 
   async getText(selector: string | Locator): Promise<string> {
     if (typeof selector === 'string') {
-      return await this.page.locator(selector).textContent() || '';
+      return (await this.page.locator(selector).textContent()) || '';
     } else {
-      return await selector.textContent() || '';
+      return (await selector.textContent()) || '';
     }
   }
 
@@ -59,7 +59,9 @@ export class BasePage {
     }
   }
 
-  async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle' = 'load'): Promise<void> {
+  async waitForLoadState(
+    state: 'load' | 'domcontentloaded' | 'networkidle' = 'load',
+  ): Promise<void> {
     await this.page.waitForLoadState(state);
   }
 }

@@ -14,6 +14,9 @@ export class CreateClusterPage extends BasePage {
   }
 
   async isCreateClusterPageHeaderVisible(): Promise<void> {
-    await expect(this.page.locator('h1')).toContainText('Select an OpenShift cluster type to create', { timeout: 30000 });
+    await expect(this.page.locator('h1')).toContainText(
+      'Select an OpenShift cluster type to create',
+      { timeout: 30000 },
+    );
   }
 }
