@@ -22,7 +22,10 @@ class Installers {
   getRhcosSection = () => cy.contains('h3', 'Red Hat Enterprise Linux CoreOS (RHCOS)').parent();
   getRhcosLearnMoreLink = () => this.getRhcosSection().contains('a', 'Learn more');
   getRhcosDownloadButtonByText = (buttonText) => {
-    return cy.getByTestId('download-btn-rhcos').contains(buttonText);
+    return cy.getByTestId('download-btn-rhcos')
+    .contains(buttonText)
+    .parent('a');
+    
   };
   getGetStartedButton = () => cy.contains('a', 'Get started');
 
