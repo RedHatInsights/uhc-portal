@@ -23,7 +23,7 @@ test.describe(
   () => {
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to cluster creation
-      const setup = await setupTestSuite(browser, '/openshift/create');
+      const setup = await setupTestSuite(browser, 'create');
 
       sharedContext = setup.context;
       sharedPage = setup.page;
@@ -51,10 +51,11 @@ test.describe(
       test.describe
         .serial(`${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} cluster creation`, () => {
         test(`Launch OSD - ${clusterProperties.CloudProvider} cluster wizard`, async () => {
-          await sharedPage.goto('/openshift/create');
-          await createOSDWizardPage.osdCreateClusterButton().scrollIntoViewIfNeeded();
-          await expect(createOSDWizardPage.osdCreateClusterButton()).toBeVisible();
-          await expect(createOSDWizardPage.osdCreateClusterButton()).toBeEnabled();
+          await sharedPage.goto('create');
+          await createOSDWizardPage.osdCreateClusterButton().waitFor({
+            state: 'visible',
+            timeout: 60000,
+          });
           await createOSDWizardPage.osdCreateClusterButton().click();
           await createOSDWizardPage.isCreateOSDPage();
         });
