@@ -1,16 +1,16 @@
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 import ClusterMachinePoolDetails from '../../pageobjects/ClusterMachinePoolDetails.page';
-import { Clusters } from '../../fixtures/rosa/RosaClusterClassicMachinePoolsValidation.json';
+import { Clusters } from '../../fixtures/osd-aws/OsdAwsMachinePoolsValidation.json';
 
 const workerName = `worker-` + (Math.random() + 1).toString(36).substring(4);
 
 describe(
-  'ROSA Cluster - Machine pools Public Single-zone and Multi-zone cluster(OCP-35970)',
-  { tags: ['day2', 'rosa', 'create', 'multi-zone', 'single-zone'] },
+  'OSD AWS Cluster - Machine pools Public Single-zone and Multi-zone cluster(OCP-35970, OCP-35974)',
+  { tags: ['day2', 'osd', 'aws', 'create', 'multi-zone', 'single-zone'] },
   () => {
     beforeEach(() => {
-      if (Cypress.currentTest.title.match(/Navigate to the ROSA .* Machine pools tab/)) {
+      if (Cypress.currentTest.title.match(/Navigate to the OSD .* Machine pools tab/)) {
         cy.visit('/cluster-list');
         ClusterListPage.waitForDataReady();
         ClusterListPage.isClusterListScreen();
@@ -19,7 +19,7 @@ describe(
     });
 
     Clusters.forEach((clusterPropertiesFile) => {
-      it(`Step - Navigate to the ROSA ${clusterPropertiesFile.Availability} Machine pools tab`, () => {
+      it(`Step - Navigate to the OSD ${clusterPropertiesFile.Availability} Machine pools tab`, () => {
         ClusterListPage.filterTxtField().clear().type(clusterPropertiesFile.ClusterName);
         ClusterListPage.waitForDataReady();
         ClusterListPage.openClusterDefinition(clusterPropertiesFile.ClusterName);
@@ -27,8 +27,7 @@ describe(
         ClusterDetailsPage.machinePoolsTab().click();
       });
 
-      it(`Step - Verify the elements of ROSA ${clusterPropertiesFile.Availability} Machine pools tab`, () => {
-        ClusterMachinePoolDetails.addMachinePoolDetailsButton().click({ force: true });
+      it(`Step - Verify the elements of OSD ${clusterPropertiesFile.Availability} Machine pools tab`, () => {
         ClusterMachinePoolDetails.verifyAllMachinePoolTableHeaders('Machine pool');
         ClusterMachinePoolDetails.verifyAllMachinePoolTableHeaders('Instance type');
         ClusterMachinePoolDetails.verifyAllMachinePoolTableHeaders('Availability zones');
@@ -63,8 +62,8 @@ describe(
         }
       });
 
-      it(`Step - Verify the subtabs are present for ROSA ${clusterPropertiesFile.Availability} Add machine pool modal window`, () => {
-        ClusterMachinePoolDetails.addMachinePoolDetailsButton().click({ force: true });
+      it(`Step - Verify the subtabs are present for OSD ${clusterPropertiesFile.Availability} Add machine pool modal window`, () => {
+        ClusterMachinePoolDetails.addMachinePoolDetailsButton().click();
         ClusterMachinePoolDetails.verifyMachinePoolModalIsOpen();
         ClusterMachinePoolDetails.verifyMachinePoolModalTitle('Add machine pool');
         ClusterMachinePoolDetails.verifySubTabExists('Overview');
@@ -77,20 +76,17 @@ describe(
         ClusterDetailsPage.machinePoolsTab().click();
         ClusterMachinePoolDetails.addMachinePoolDetailsButton().click();
 
-        // Test Overview tab
+        // Navigate back to Overview
+        ClusterMachinePoolDetails.selectMachinePoolSubTab('Overview');
         ClusterMachinePoolDetails.verifyOverviewTabContent();
 
         // Test Labels, AWS Tags, and Taints tab
         ClusterMachinePoolDetails.selectMachinePoolSubTab('Labels, AWS Tags, and Taints');
-        //ClusterMachinePoolDetails.verifySubTabIsActive('/Labels.*/i');
         ClusterMachinePoolDetails.verifyLabelsTagsTaintsTabContent();
 
         // Test Cost Savings tab
         ClusterMachinePoolDetails.selectMachinePoolSubTab('Cost savings');
         ClusterMachinePoolDetails.verifyCostSavingsTabContent();
-
-        // Navigate back to Overview
-        ClusterMachinePoolDetails.selectMachinePoolSubTab('Overview');
 
         ClusterMachinePoolDetails.cancelMachinePoolDetailsButton().click();
       });
@@ -99,7 +95,7 @@ describe(
         ClusterMachinePoolDetails.addMachinePoolDetailsButton().click({ force: true });
 
         // Ensure Overview tab is selected
-        ClusterDetailsPage.overviewTab().click({ force: true });
+        ClusterMachinePoolDetails.clickTab('Overview');
 
         // Test machine pool name input
         ClusterMachinePoolDetails.machinePoolNameInput().should('be.visible').type(workerName);
@@ -114,24 +110,6 @@ describe(
           clusterPropertiesFile.ComputeNodeCount,
         );
 
-        // Verify disk size field is present
-        ClusterMachinePoolDetails.inputMachineRootDiskSize().should('be.visible');
-
-        // Test invalid disk size (too large) - should show validation error
-        ClusterMachinePoolDetails.inputMachineRootDiskSize().clear().type('125000');
-        cy.get('div').contains(clusterPropertiesFile.RootDiskSize.LimitError).should('be.visible');
-
-        // Test another invalid disk size (still too large) - should show validation error
-        ClusterMachinePoolDetails.inputMachineRootDiskSize().clear().type('16385');
-        cy.get('div').contains(clusterPropertiesFile.RootDiskSize.LimitError).should('be.visible');
-
-        ClusterMachinePoolDetails.inputMachineRootDiskSize()
-          .should('be.visible')
-          .clear()
-          .type('300');
-
-        // Verify validation error is cleared
-        cy.get('div').contains(clusterPropertiesFile.RootDiskSize.LimitError).should('not.exist');
         // Test autoscaling toggle
         ClusterMachinePoolDetails.enableMachinePoolAutoscalingCheckbox().check();
         ClusterMachinePoolDetails.setMinimumNodeInputAutoScaling(
@@ -142,7 +120,26 @@ describe(
         );
       });
 
-      if (clusterPropertiesFile.ClusterName == 'cyp-rosa-classic-advanced-mz-public-profile') {
+      it(`Step - Verify Cost Savings tab functionality for ${clusterPropertiesFile.ClusterName}`, () => {
+        // Navigate to Cost Savings tab
+        ClusterMachinePoolDetails.clickTab('Cost savings');
+        // Test spot instances configuration
+        ClusterMachinePoolDetails.enableAmazonEC2SpotInstanceCheckbox().should('be.visible');
+
+        // Test on-demand pricing (default)
+        if (ClusterMachinePoolDetails.enableAmazonEC2SpotInstanceCheckbox().check()) {
+          ClusterMachinePoolDetails.useOnDemandInstancePriceRadio().should('be.checked');
+        }
+
+        // Test custom max price option
+        ClusterMachinePoolDetails.useSetMaxPriceRadio().check();
+        ClusterMachinePoolDetails.setMaxPriceInput()
+          .clear()
+          .type(clusterPropertiesFile.SetMaximumPrice);
+        ClusterMachinePoolDetails.closeMachinePoolDetailsButton().should('be.visible');
+      });
+
+      if (clusterPropertiesFile.ClusterName == 'cyp-osd-ccs-aws-public-advanced') {
         it(`Step - Verify Security Groups tab for AWS clusters with subnets`, () => {
           // This test only applies to AWS clusters with subnets
           ClusterMachinePoolDetails.addMachinePoolDetailsButton().click({ force: true });
@@ -154,6 +151,7 @@ describe(
       }
 
       it(`Step - Verify the Labels, AWS Tags, and Taints tab for ${clusterPropertiesFile.ClusterName}`, () => {
+        // Navigate to Labels, AWS Tags, and Taints tab
         ClusterMachinePoolDetails.clickTab('Labels');
 
         // Test adding a label
@@ -176,9 +174,6 @@ describe(
           clusterPropertiesFile.NodeLabel[1].Value,
           1,
         );
-
-        // Verify taints section is present
-        cy.contains('Taints').should('be.visible');
 
         // Test adding taints
         ClusterMachinePoolDetails.addMachinePoolTaintsKey(clusterPropertiesFile.Taints[0].Key, 0);
@@ -203,35 +198,13 @@ describe(
           1,
         );
 
-        ClusterMachinePoolDetails.submitMachinePoolDetailsButton().click({ force: true });
+        ClusterMachinePoolDetails.submitMachinePoolDetailsButton().click();
       });
 
-      it(`Step - Verify Cost Savings tab functionality for ${clusterPropertiesFile.ClusterName}`, () => {
-        // Navigate to Cost Savings tab
-        ClusterMachinePoolDetails.clickTab('Cost savings');
-
-        // Test spot instances configuration
-        ClusterMachinePoolDetails.enableAmazonEC2SpotInstanceCheckbox().should('be.visible');
-
-        // Test on-demand pricing (default)
-        if (ClusterMachinePoolDetails.enableAmazonEC2SpotInstanceCheckbox().check()) {
-          ClusterMachinePoolDetails.useOnDemandInstancePriceRadio().should('be.checked');
-        }
-
-        // Test custom max price option
-        ClusterMachinePoolDetails.useSetMaxPriceRadio().check();
-        ClusterMachinePoolDetails.setMaxPriceInput()
-          .clear()
-          .type(clusterPropertiesFile.SetMaximumPrice);
-        ClusterMachinePoolDetails.closeMachinePoolDetailsButton().should('be.visible');
-
-        ClusterMachinePoolDetails.submitMachinePoolDetailsButton().click({ force: true });
-      });
-
-      it(`Step - Expand and verify the ROSA ${clusterPropertiesFile.Availability} machine pool details created in the previous step`, () => {
+      it(`Step - Expand and verify the OSD ${clusterPropertiesFile.Availability} machine pool details created in the previous step`, () => {
         ClusterDetailsPage.machinePoolsTab().click({ force: true });
 
-        ClusterMachinePoolDetails.clickMachinePoolExpandableCollapsible(workerName);
+        ClusterMachinePoolDetails.clickAWSMachinePoolExpandableCollapsible(workerName);
 
         ClusterMachinePoolDetails.validateTextforCreatedLabels(
           clusterPropertiesFile.NodeLabel[0].Key,
@@ -254,7 +227,9 @@ describe(
           clusterPropertiesFile.Taints[1].Value,
           clusterPropertiesFile.Taints[1].Effect,
         );
-
+        ClusterMachinePoolDetails.validateTextforCreatedSpotInstances(
+          clusterPropertiesFile.SetMaximumPrice,
+        );
         if (clusterPropertiesFile.Availability == 'Multi-zone') {
           ClusterMachinePoolDetails.validateTextforMultiZoneAutoScaling(
             clusterPropertiesFile.MachinePools[0].MinimumNodeCount,
@@ -268,7 +243,7 @@ describe(
         }
       });
 
-      it(`Step - Verify the ROSA ${clusterPropertiesFile.Availability} details on the Overview page`, () => {
+      it(`Step - Verify the OSD ${clusterPropertiesFile.Availability} details on the Overview page`, () => {
         ClusterDetailsPage.overviewTab().click();
         ClusterMachinePoolDetails.isOverviewClusterPropertyMatchesValue(
           'Nodes',
@@ -313,7 +288,7 @@ describe(
         }
       });
 
-      it(`Step - Delete the ROSA ${clusterPropertiesFile.Availability} machine pool created in the above steps`, () => {
+      it(`Step - Delete the OSD ${clusterPropertiesFile.Availability} machine pool created in the above steps`, () => {
         ClusterDetailsPage.machinePoolsTab().click();
         ClusterMachinePoolDetails.deleteWorkerMachinePool(workerName);
       });
