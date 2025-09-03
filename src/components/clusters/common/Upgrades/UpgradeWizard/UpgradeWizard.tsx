@@ -190,7 +190,11 @@ const UpgradeWizard = () => {
           />
         </>
       ),
-      enableNext: !!selectedVersion && !isPostSchedulePending && !isUnmetAcknowledgementsError,
+      enableNext:
+        !!selectedVersion &&
+        !isPostSchedulePending &&
+        !isUnmetAcknowledgementsError &&
+        !isUnmetAcknowledgementsPending,
     },
     ...(selectedVersion && hasVersionGates
       ? [
