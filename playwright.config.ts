@@ -9,7 +9,7 @@ const envPath = path.resolve(__dirname, 'playwright.env.json');
 if (fs.existsSync(envPath)) {
   const envConfig = JSON.parse(fs.readFileSync(envPath, 'utf8'));
   // Set environment variables from the JSON file
-  Object.keys(envConfig).forEach(key => {
+  Object.keys(envConfig).forEach((key) => {
     if (typeof envConfig[key] === 'object') {
       process.env[key] = JSON.stringify(envConfig[key]);
     } else {
@@ -36,11 +36,9 @@ export default defineConfig({
   /* Global setup - authentication handled once for all tests */
   globalSetup: require.resolve('./playwright/support/global-setup.ts'),
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [
-    ['html'],
-    ['json', { outputFile: 'test-results/results.json' }],
-    ['junit', { outputFile: 'test-results/results.xml' }],
-  ],
+
+  reporter: [['html', { outputFolder: 'playwright-artifacts/reports', open: 'never' }]],
+  outputDir: 'playwright-artifacts/results', // For traces, videos, screenshots
   /* Increase default timeout for all expectations */
   expect: {
     timeout: 10000,
@@ -57,17 +55,17 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-    
+    trace: 'on',
+
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
-    
+
     /* Record video on failure */
     video: 'retain-on-failure',
-    
+
     /* Default timeout for each action */
     actionTimeout: 15000,
-    
+
     /* Default timeout for navigation */
     navigationTimeout: 60000,
   },
@@ -88,43 +86,23 @@ export default defineConfig({
         name: 'webkit',
         use: { ...devices['Desktop Safari'] },
       },
+      {
+        name: 'Microsoft Edge',
+        use: { ...devices['Desktop Edge'], channel: 'msedge' },
+      },
+      {
+        name: 'Google Chrome',
+        use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      },
     ];
 
     // If a specific browser is selected, return only that browser
     if (selectedBrowser !== 'all') {
-      const selectedProject = allProjects.find(project => project.name === selectedBrowser);
+      const selectedProject = allProjects.find((project) => project.name === selectedBrowser);
       return selectedProject ? [selectedProject] : [allProjects[0]]; // Default to chromium if invalid browser
     }
 
     // Return all browsers if 'all' or no specific browser selected
     return allProjects;
   })(),
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });
-
