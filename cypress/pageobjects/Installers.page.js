@@ -70,22 +70,6 @@ class Installers {
     });
   }
 
-  verifyDropdownsExist() {
-    this.getOSDropdown()
-      .should('exist')
-      .should('be.visible')
-      .find('option')
-      .should('have.length.at.least', 2);
-
-    this.getArchDropdown()
-      .should('exist')
-      .then(($select) => {
-        if (!$select.is(':disabled')) {
-          cy.wrap($select).find('option').should('have.length.at.least', 1);
-        }
-      });
-  }
-
   verifyDownloadButtonExists(installerType) {
     const downloadSelectors = {
       x86_64: '[data-testid="download-btn-x86_64-openshift-install"]',
