@@ -1,10 +1,10 @@
 {
   "kind": "Cluster",
-  "id": "21696acc0dbkvh0mh4lranlmvvqb11lg",
-  "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg",
+  "id": "21696abb0dbkvh0mh4lranlmvvqb11lg",
+  "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg",
   "name": "hyperuser",
-  "external_id": "124a44e7-28ed-4841-8ae4-0916adb936ea",
-  "display_name": "hypershift-ready",
+  "external_id": "124a55e7-28ed-4841-8ae4-0916adb936ea",
+  "display_name": "hypershift-ready-windows-license-included",
   "creation_timestamp": "2023-01-11T16:17:47.845367Z",
   "activity_timestamp": "2023-01-18T15:25:30Z",
   "cloud_provider": {
@@ -15,8 +15,8 @@
   "openshift_version": "4.12.0-rc.8",
   "subscription": {
     "kind": "SubscriptionLink",
-    "id": "2KBhQVMVQx0CEoXuYZUMBQrQG8y",
-    "href": "/api/accounts_mgmt/v1/subscriptions/2KBhQVMVQx0CEoXuYZUMBQrQG8y"
+    "id": "3QChQVMVQx0CEoXuYZUMBQrQG8y",
+    "href": "/api/accounts_mgmt/v1/subscriptions/3QChQVMVQx0CEoXuYZUMBQrQG8y"
   },
   "region": {
     "kind": "CloudRegionLink",
@@ -56,7 +56,7 @@
   },
   "groups": {
     "kind": "GroupListLink",
-    "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/groups"
+    "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/groups"
   },
   "properties": {
     "rosa_cli_version": "1.2.11",
@@ -72,7 +72,7 @@
       "enabled": true,
       "role_arn": "arn:aws:iam::000000012345:role/ManagedOpenShift-Installer-Role",
       "support_role_arn": "arn:aws:iam::000000012345:role/ManagedOpenShift-Support-Role",
-      "oidc_endpoint_url": "https://rh-oidc.s3.us-east-1.amazonaws.com/21696acc0dbkvh0mh4lranlmvvqb11lg",
+      "oidc_endpoint_url": "https://rh-oidc.s3.us-east-1.amazonaws.com/21696abb0dbkvh0mh4lranlmvvqb11lg",
       "operator_iam_roles": [
         {
           "id": "",
@@ -163,18 +163,18 @@
   },
   "external_configuration": {
     "kind": "ExternalConfiguration",
-    "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/external_configuration",
+    "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/external_configuration",
     "syncsets": {
       "kind": "SyncsetListLink",
-      "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/external_configuration/syncsets"
+      "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/external_configuration/syncsets"
     },
     "labels": {
       "kind": "LabelListLink",
-      "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/external_configuration/labels"
+      "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/external_configuration/labels"
     },
     "manifests": {
       "kind": "ManifestListLink",
-      "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/external_configuration/manifests"
+      "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/external_configuration/manifests"
     }
   },
   "multi_az": false,
@@ -195,28 +195,28 @@
   },
   "identity_providers": {
     "kind": "IdentityProviderListLink",
-    "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/identity_providers"
+    "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/identity_providers"
   },
   "aws_infrastructure_access_role_grants": {
     "kind": "AWSInfrastructureAccessRoleGrantLink",
-    "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/aws_infrastructure_access_role_grants"
+    "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/aws_infrastructure_access_role_grants"
   },
   "addons": {
     "kind": "AddOnInstallationListLink",
-    "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/addons"
+    "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/addons"
   },
   "ingresses": {
     "kind": "IngressListLink",
-    "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/ingresses",
-    "id": "21696acc0dbkvh0mh4lranlmvvqb11lg"
+    "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/ingresses",
+    "id": "21696abb0dbkvh0mh4lranlmvvqb11lg"
   },
   "node_pools": {
     "kind": "NodePoolListLink",
-    "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/node_pools"
+    "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/node_pools"
   },
   "inflight_checks": {
     "kind": "InflightCheckListLink",
-    "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/inflight_checks"
+    "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/inflight_checks"
   },
   "product": {
     "kind": "ProductLink",

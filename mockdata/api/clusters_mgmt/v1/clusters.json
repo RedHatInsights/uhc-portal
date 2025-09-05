@@ -1,8 +1,8 @@
 {
   "kind": "ClusterList",
   "page": 1,
-  "size": 22,
-  "total": 22,
+  "size": 23,
+  "total": 23,
   "items": [
     {
       "kind": "Cluster",
@@ -3234,9 +3234,257 @@
     },
     {
       "kind": "Cluster",
+      "id": "21696abb0dbkvh0mh4lranlmvvqb11lg",
+      "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg",
+      "name": "hyperuser",
+      "external_id": "124a55e7-28ed-4841-8ae4-0916adb936ea",
+      "display_name": "hypershift-ready-windows-license-included",
+      "creation_timestamp": "2023-01-11T16:17:47.845367Z",
+      "activity_timestamp": "2023-01-18T15:25:30Z",
+      "cloud_provider": {
+        "kind": "CloudProviderLink",
+        "id": "aws",
+        "href": "/api/clusters_mgmt/v1/cloud_providers/aws"
+      },
+      "openshift_version": "4.12.0-rc.8",
+      "subscription": {
+        "kind": "SubscriptionLink",
+        "id": "3QChQVMVQx0CEoXuYZUMBQrQG8y",
+        "href": "/api/accounts_mgmt/v1/subscriptions/3QChQVMVQx0CEoXuYZUMBQrQG8y"
+      },
+      "region": {
+        "kind": "CloudRegionLink",
+        "id": "us-east-1",
+        "href": "/api/clusters_mgmt/v1/cloud_providers/aws/regions/us-east-1"
+      },
+      "console": {
+        "url": "https://console-openshift-console.apps.hyperuser.rosa.hyperuser.s9af.p3.openshiftapps.com"
+      },
+      "api": {
+        "url": "https://api.hcp.hyperuser.s9af.p3.openshiftapps.com:443",
+        "listening": "external"
+      },
+      "nodes": {
+        "master": 3,
+        "infra": 2,
+        "compute": 2,
+        "availability_zones": [
+          "us-east-1d"
+        ],
+        "compute_machine_type": {
+          "kind": "MachineTypeLink",
+          "id": "m5.xlarge",
+          "href": "/api/clusters_mgmt/v1/machine_types/m5.xlarge"
+        },
+        "infra_machine_type": {
+          "kind": "MachineTypeLink",
+          "id": "r5.xlarge",
+          "href": "/api/clusters_mgmt/v1/machine_types/r5.xlarge"
+        }
+      },
+      "state": "ready",
+      "flavour": {
+        "kind": "FlavourLink",
+        "id": "osd-4",
+        "href": "/api/clusters_mgmt/v1/flavours/osd-4"
+      },
+      "groups": {
+        "kind": "GroupListLink",
+        "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/groups"
+      },
+      "properties": {
+        "rosa_cli_version": "1.2.11",
+        "rosa_creator_arn": "arn:aws:iam::000000012345:user/user"
+      },
+      "aws": {
+        "subnet_ids": [
+          "subnet-03ffa2ef863422df2",
+          "subnet-0da631ca7d1b2ef9c"
+        ],
+        "private_link": false,
+        "sts": {
+          "enabled": true,
+          "role_arn": "arn:aws:iam::000000012345:role/ManagedOpenShift-Installer-Role",
+          "support_role_arn": "arn:aws:iam::000000012345:role/ManagedOpenShift-Support-Role",
+          "oidc_endpoint_url": "https://rh-oidc.s3.us-east-1.amazonaws.com/21696abb0dbkvh0mh4lranlmvvqb11lg",
+          "operator_iam_roles": [
+            {
+              "id": "",
+              "name": "control-plane-operator",
+              "namespace": "kube-system",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-kube-system-control-plane-operator",
+              "service_account": ""
+            },
+            {
+              "id": "",
+              "name": "installer-cloud-credentials",
+              "namespace": "openshift-image-registry",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-image-registry-installer-cloud-cred",
+              "service_account": ""
+            },
+            {
+              "id": "",
+              "name": "kube-controller-manager",
+              "namespace": "kube-system",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-kube-system-kube-controller-manager",
+              "service_account": ""
+            },
+            {
+              "id": "",
+              "name": "cloud-credentials",
+              "namespace": "openshift-cloud-network-config-controller",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-cloud-network-config-controller-clo",
+              "service_account": ""
+            },
+            {
+              "id": "",
+              "name": "cloud-credentials",
+              "namespace": "openshift-ingress-operator",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-ingress-operator-cloud-credentials",
+              "service_account": ""
+            },
+            {
+              "id": "",
+              "name": "aws-cloud-credentials",
+              "namespace": "openshift-machine-api",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-machine-api-aws-cloud-credentials",
+              "service_account": ""
+            },
+            {
+              "id": "",
+              "name": "cloud-credential-operator-iam-ro-creds",
+              "namespace": "openshift-cloud-credential-operator",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-cloud-credential-operator-cloud-cre",
+              "service_account": ""
+            },
+            {
+              "id": "",
+              "name": "capa-controller-manager",
+              "namespace": "kube-system",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-kube-system-capa-controller-manager",
+              "service_account": ""
+            },
+            {
+              "id": "",
+              "name": "ebs-cloud-credentials",
+              "namespace": "openshift-cluster-csi-drivers",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-cluster-csi-drivers-ebs-cloud-crede",
+              "service_account": ""
+            }
+          ],
+          "instance_iam_roles": {
+            "master_role_arn": "arn:aws:iam::000000012345:role/ManagedOpenShift-ControlPlane-Role",
+            "worker_role_arn": "arn:aws:iam::000000012345:role/ManagedOpenShift-Worker-Role"
+          },
+          "auto_mode": false,
+          "operator_role_prefix": "hyperuser-v1i3"
+        },
+        "tags": {
+          "dns": "external",
+          "red-hat-clustertype": "rosa",
+          "red-hat-managed": "true"
+        }
+      },
+      "dns": {
+        "base_domain": "s9af.p3.openshiftapps.com"
+      },
+      "network": {
+        "type": "OVNKubernetes",
+        "machine_cidr": "10.0.0.0/16",
+        "service_cidr": "172.30.0.0/16",
+        "pod_cidr": "10.128.0.0/14",
+        "host_prefix": 23
+      },
+      "external_configuration": {
+        "kind": "ExternalConfiguration",
+        "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/external_configuration",
+        "syncsets": {
+          "kind": "SyncsetListLink",
+          "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/external_configuration/syncsets"
+        },
+        "labels": {
+          "kind": "LabelListLink",
+          "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/external_configuration/labels"
+        },
+        "manifests": {
+          "kind": "ManifestListLink",
+          "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/external_configuration/manifests"
+        }
+      },
+      "multi_az": false,
+      "managed": true,
+      "ccs": {
+        "enabled": true,
+        "disable_scp_checks": false
+      },
+      "version": {
+        "kind": "Version",
+        "id": "openshift-v4.12.0-rc.8-candidate",
+        "href": "/api/clusters_mgmt/v1/versions/openshift-v4.12.0-rc.8-candidate",
+        "raw_id": "4.12.0-rc.8",
+        "channel_group": "candidate",
+        "available_upgrades": [
+          "4.12.0"
+        ]
+      },
+      "identity_providers": {
+        "kind": "IdentityProviderListLink",
+        "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/identity_providers"
+      },
+      "aws_infrastructure_access_role_grants": {
+        "kind": "AWSInfrastructureAccessRoleGrantLink",
+        "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/aws_infrastructure_access_role_grants"
+      },
+      "addons": {
+        "kind": "AddOnInstallationListLink",
+        "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/addons"
+      },
+      "ingresses": {
+        "kind": "IngressListLink",
+        "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/ingresses",
+        "id": "21696abb0dbkvh0mh4lranlmvvqb11lg"
+      },
+      "node_pools": {
+        "kind": "NodePoolListLink",
+        "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/node_pools"
+      },
+      "inflight_checks": {
+        "kind": "InflightCheckListLink",
+        "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/inflight_checks"
+      },
+      "product": {
+        "kind": "ProductLink",
+        "id": "rosa",
+        "href": "/api/clusters_mgmt/v1/products/rosa"
+      },
+      "status": {
+        "state": "ready",
+        "dns_ready": true,
+        "oidc_ready": true,
+        "provision_error_message": "",
+        "provision_error_code": "",
+        "configuration_mode": "full",
+        "limited_support_reason_count": 0
+      },
+      "node_drain_grace_period": {
+        "value": 60,
+        "unit": "minutes"
+      },
+      "etcd_encryption": false,
+      "billing_model": "marketplace",
+      "disable_user_workload_monitoring": false,
+      "managed_service": {
+        "enabled": false
+      },
+      "hypershift": {
+        "enabled": true
+      }
+    },
+    {
+      "kind": "Cluster",
       "id": "21696acc0dbkvh0mh4lranlmvvqb11lg",
       "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg",
-      "name": "hypermaupadhy",
+      "name": "hyperuser",
       "external_id": "124a44e7-28ed-4841-8ae4-0916adb936ea",
       "display_name": "hypershift-ready",
       "creation_timestamp": "2023-01-11T16:17:47.845367Z",
@@ -3258,10 +3506,10 @@
         "href": "/api/clusters_mgmt/v1/cloud_providers/aws/regions/us-east-1"
       },
       "console": {
-        "url": "https://console-openshift-console.apps.hypermaupadhy.rosa.hypermaupadhy.s9af.p3.openshiftapps.com"
+        "url": "https://console-openshift-console.apps.hyperuser.rosa.hyperuser.s9af.p3.openshiftapps.com"
       },
       "api": {
-        "url": "https://api.hcp.hypermaupadhy.s9af.p3.openshiftapps.com:443",
+        "url": "https://api.hcp.hyperuser.s9af.p3.openshiftapps.com:443",
         "listening": "external"
       },
       "nodes": {
@@ -3294,7 +3542,7 @@
       },
       "properties": {
         "rosa_cli_version": "1.2.11",
-        "rosa_creator_arn": "arn:aws:iam::467305695994:user/maupadhy"
+        "rosa_creator_arn": "arn:aws:iam::000000012345:user/user"
       },
       "aws": {
         "subnet_ids": [
@@ -3304,80 +3552,80 @@
         "private_link": false,
         "sts": {
           "enabled": true,
-          "role_arn": "arn:aws:iam::467305695994:role/ManagedOpenShift-Installer-Role",
-          "support_role_arn": "arn:aws:iam::467305695994:role/ManagedOpenShift-Support-Role",
+          "role_arn": "arn:aws:iam::000000012345:role/ManagedOpenShift-Installer-Role",
+          "support_role_arn": "arn:aws:iam::000000012345:role/ManagedOpenShift-Support-Role",
           "oidc_endpoint_url": "https://rh-oidc.s3.us-east-1.amazonaws.com/21696acc0dbkvh0mh4lranlmvvqb11lg",
           "operator_iam_roles": [
             {
               "id": "",
               "name": "control-plane-operator",
               "namespace": "kube-system",
-              "role_arn": "arn:aws:iam::467305695994:role/hypermaupadhy-v1i3-kube-system-control-plane-operator",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-kube-system-control-plane-operator",
               "service_account": ""
             },
             {
               "id": "",
               "name": "installer-cloud-credentials",
               "namespace": "openshift-image-registry",
-              "role_arn": "arn:aws:iam::467305695994:role/hypermaupadhy-v1i3-openshift-image-registry-installer-cloud-cred",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-image-registry-installer-cloud-cred",
               "service_account": ""
             },
             {
               "id": "",
               "name": "kube-controller-manager",
               "namespace": "kube-system",
-              "role_arn": "arn:aws:iam::467305695994:role/hypermaupadhy-v1i3-kube-system-kube-controller-manager",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-kube-system-kube-controller-manager",
               "service_account": ""
             },
             {
               "id": "",
               "name": "cloud-credentials",
               "namespace": "openshift-cloud-network-config-controller",
-              "role_arn": "arn:aws:iam::467305695994:role/hypermaupadhy-v1i3-openshift-cloud-network-config-controller-clo",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-cloud-network-config-controller-clo",
               "service_account": ""
             },
             {
               "id": "",
               "name": "cloud-credentials",
               "namespace": "openshift-ingress-operator",
-              "role_arn": "arn:aws:iam::467305695994:role/hypermaupadhy-v1i3-openshift-ingress-operator-cloud-credentials",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-ingress-operator-cloud-credentials",
               "service_account": ""
             },
             {
               "id": "",
               "name": "aws-cloud-credentials",
               "namespace": "openshift-machine-api",
-              "role_arn": "arn:aws:iam::467305695994:role/hypermaupadhy-v1i3-openshift-machine-api-aws-cloud-credentials",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-machine-api-aws-cloud-credentials",
               "service_account": ""
             },
             {
               "id": "",
               "name": "cloud-credential-operator-iam-ro-creds",
               "namespace": "openshift-cloud-credential-operator",
-              "role_arn": "arn:aws:iam::467305695994:role/hypermaupadhy-v1i3-openshift-cloud-credential-operator-cloud-cre",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-cloud-credential-operator-cloud-cre",
               "service_account": ""
             },
             {
               "id": "",
               "name": "capa-controller-manager",
               "namespace": "kube-system",
-              "role_arn": "arn:aws:iam::467305695994:role/hypermaupadhy-v1i3-kube-system-capa-controller-manager",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-kube-system-capa-controller-manager",
               "service_account": ""
             },
             {
               "id": "",
               "name": "ebs-cloud-credentials",
               "namespace": "openshift-cluster-csi-drivers",
-              "role_arn": "arn:aws:iam::467305695994:role/hypermaupadhy-v1i3-openshift-cluster-csi-drivers-ebs-cloud-crede",
+              "role_arn": "arn:aws:iam::000000012345:role/hyperuser-v1i3-openshift-cluster-csi-drivers-ebs-cloud-crede",
               "service_account": ""
             }
           ],
           "instance_iam_roles": {
-            "master_role_arn": "arn:aws:iam::467305695994:role/ManagedOpenShift-ControlPlane-Role",
-            "worker_role_arn": "arn:aws:iam::467305695994:role/ManagedOpenShift-Worker-Role"
+            "master_role_arn": "arn:aws:iam::000000012345:role/ManagedOpenShift-ControlPlane-Role",
+            "worker_role_arn": "arn:aws:iam::000000012345:role/ManagedOpenShift-Worker-Role"
           },
           "auto_mode": false,
-          "operator_role_prefix": "hypermaupadhy-v1i3"
+          "operator_role_prefix": "hyperuser-v1i3"
         },
         "tags": {
           "dns": "external",
