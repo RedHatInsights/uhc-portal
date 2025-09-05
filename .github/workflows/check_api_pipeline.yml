@@ -42,6 +42,8 @@ jobs:
         run: make openapi
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
+        env:
+          HUSKY: '0'
         with:
           # limitation imposed by GitHub Actions that an action cannot trigger other workflows
           token: ${{ secrets.CHECK_API_TOKEN }}
