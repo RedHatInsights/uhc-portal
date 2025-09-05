@@ -43,7 +43,7 @@ const FinishedStep = ({
   if (isPostSchedulePending) {
     return (
       <div className="wizard-step-body pf-v6-u-text-align-center">
-        <Spinner size="lg" aria-label="Loading..." />
+        <EmptyState titleText="Loading" headingLevel="h4" icon={Spinner} />
       </div>
     );
   }
