@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux';
 
 import { Button, Flex, FlexItem, FormGroup, Tooltip } from '@patternfly/react-core';
 
-// import { SelectOptionObject as SelectOptionObjectDeprecated } from '@patternfly/react-core/deprecated';
 import { filterOutRedHatManagedVPCs, vpcHasRequiredSubnets } from '~/common/vpcHelpers';
 import { useAWSVPCInquiry } from '~/components/clusters/common/useVPCInquiry';
 import ErrorBox from '~/components/common/ErrorBox';
