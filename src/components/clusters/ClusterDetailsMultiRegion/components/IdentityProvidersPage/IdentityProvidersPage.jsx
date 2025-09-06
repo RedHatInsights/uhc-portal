@@ -156,7 +156,7 @@ const IdentityProvidersPage = (props) => {
 
   const errorState = () => (
     <AppPage title={PAGE_TITLE}>
-      <Unavailable message="Error retrieving IDP page" response={cluster} />
+      <Unavailable message="Error retrieving IDP page" response={clusterDetailsError} />
       {clusterPending && <Spinner size="lg" aria-label="Loading..." />}
     </AppPage>
   );
