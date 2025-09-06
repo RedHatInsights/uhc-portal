@@ -11,6 +11,7 @@ import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react
 
 import { HAD_INFLIGHT_ERROR_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
 import { emailRegex } from '~/common/regularExpressions';
+import supportLinks from '~/common/supportLinks.mjs';
 import clusterStates, {
   hasInflightEgressErrors,
   isOSDGCPWaitingForRolesOnHostProject,
@@ -279,7 +280,7 @@ const ClusterStatusMonitor = (props) => {
                     </FlexItem>
                   )}
                   <FlexItem>
-                    <ExternalLink noIcon href="https://access.redhat.com/support/cases/#/case/new">
+                    <ExternalLink noIcon href={supportLinks.SUPPORT_CASE_NEW}>
                       Contact support
                     </ExternalLink>
                   </FlexItem>

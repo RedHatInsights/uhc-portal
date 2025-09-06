@@ -12,6 +12,7 @@ import { SubscriptionCommonFieldsSupport_level as SubscriptionCommonFieldsSuppor
 
 import { getTrialEndDate, getTrialExpiresInDays } from '../../../../common/getTrialExpiresDates';
 import { normalizedProducts } from '../../../../common/subscriptionTypes';
+import supportLinks from '../../../../common/supportLinks.mjs';
 import ExternalLink from '../../../common/ExternalLink';
 
 function ClusterCreatedIndicator({ cluster }) {
@@ -108,10 +109,7 @@ function ClusterCreatedIndicator({ cluster }) {
           <DateFormat date={subscription.eval_expiration_date} type="onlyDate" />
         </strong>
         .&nbsp;Your cluster is not&nbsp;
-        <ExternalLink
-          href="https://access.redhat.com/support/policy/updates/openshift/policies"
-          noIcon
-        >
+        <ExternalLink href={supportLinks.OPENSHIFT_POLICY_UPDATES} noIcon>
           supported
         </ExternalLink>
         . To get Red Hat support for clusters, learn more about{' '}

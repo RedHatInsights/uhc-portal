@@ -16,7 +16,7 @@ import fs from 'fs';
 import fetch from 'node-fetch';
 import ProgressBar from 'progress';
 
-import { getFlatUrls } from '../src/common/installLinks.mjs';
+import { getAllExternalLinks } from '../src/common/urlUtils.mjs';
 
 // ======================================================================
 // CONFIGURATION
@@ -62,9 +62,10 @@ Options:
                  (By default, only error URLs are displayed)
   -r, --redirects Show ONLY redirected URLs with their redirect targets
 
-URL Source:
-  URLs are obtained automatically from the getFlatUrls() function in
-  '../src/common/installLinks.mjs' which extracts URLs from the project.
+  URL Source:
+  URLs are obtained automatically from getAllExternalLinks() in '../src/common/urlUtils.mjs' which combines:
+  - '../src/common/installLinks.mjs' (installation and binary URLs)
+  - '../src/common/supportLinks.mjs' (support cases and knowledge base URLs)
 
 Output:
   The script categorizes URLs by their HTTP status:
@@ -753,7 +754,7 @@ async function main() {
   console.log('Checking URLs...');
 
   // Get URLs to check
-  const urls = await getFlatUrls();
+  const urls = await getAllExternalLinks();
   console.log(`Found ${urls.length} URLs to check`);
 
   // Create a progress bar

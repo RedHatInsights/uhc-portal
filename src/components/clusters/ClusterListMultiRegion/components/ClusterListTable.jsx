@@ -27,6 +27,7 @@ import {
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
 import { Link } from '~/common/routing';
+import supportLinks from '~/common/supportLinks.mjs';
 import AIClusterStatus from '~/components/AIComponents/AIClusterStatus';
 import { useToggleSubscriptionReleased } from '~/queries/ClusterActionsQueries/useToggleSubscriptionReleased';
 import { AUTO_CLUSTER_TRANSFER_OWNERSHIP } from '~/queries/featureGates/featureConstants';
@@ -217,11 +218,7 @@ function ClusterListTable(props) {
               bodyContent={
                 <>
                   Your cluster is in error state.{' '}
-                  <a
-                    href="https://access.redhat.com/support/cases/#/case/new"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <a href={supportLinks.SUPPORT_CASE_NEW} target="_blank" rel="noopener noreferrer">
                     Contact Red Hat Support
                   </a>{' '}
                   for further assistance.

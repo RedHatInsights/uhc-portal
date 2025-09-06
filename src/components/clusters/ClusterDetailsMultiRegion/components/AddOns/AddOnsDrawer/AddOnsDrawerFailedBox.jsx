@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { Alert, Flex, FlexItem } from '@patternfly/react-core';
 
+import supportLinks from '../../../../../../common/supportLinks.mjs';
 import ExternalLink from '../../../../../common/ExternalLink';
 
 function AddOnsFailedBox(props) {
@@ -20,7 +21,7 @@ function AddOnsFailedBox(props) {
         <Flex direction={{ default: 'column' }}>
           <FlexItem>{installedAddOn?.state_description}</FlexItem>
           <FlexItem>
-            <ExternalLink noIcon href="https://access.redhat.com/support/cases/#/case/new">
+            <ExternalLink noIcon href={supportLinks.SUPPORT_CASE_NEW}>
               Contact support
             </ExternalLink>
           </FlexItem>

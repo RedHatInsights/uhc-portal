@@ -8,6 +8,7 @@ import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/esm/icons/exte
 import { NO_QUOTA } from '~/components/clusters/ClusterDetailsMultiRegion/components/AddOns/AddOnsDrawer/AddOnsTypes';
 
 import { noQuotaTooltip } from '../../../../../../common/helpers';
+import supportLinks from '../../../../../../common/supportLinks.mjs';
 import ButtonWithTooltip from '../../../../../common/ButtonWithTooltip';
 import { openModal } from '../../../../../common/Modal/ModalActions';
 import clusterStates, { isHibernating } from '../../../../common/clusterStates';
@@ -165,7 +166,7 @@ function AddOnsPrimaryButton(props) {
       // the installation and there is no state available yet
       return '';
     case AddOnsConstants.INSTALLATION_STATE.FAILED:
-      url = 'https://access.redhat.com/support/cases/#/case/new';
+      url = supportLinks.SUPPORT_CASE_NEW;
       return (
         <>
           <Button
