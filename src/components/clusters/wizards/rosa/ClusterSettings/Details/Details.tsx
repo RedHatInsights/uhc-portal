@@ -323,7 +323,10 @@ function Details() {
   const handleMultiAzChange = (_event: React.FormEvent<HTMLDivElement>, value: string) => {
     // when multiAz changes, reset node count
     const isValueMultiAz = value === 'true';
-    setFieldValue(FieldId.NodesCompute, getNodesCount(true, isValueMultiAz, true));
+    setFieldValue(
+      FieldId.NodesCompute,
+      getNodesCount(true, isValueMultiAz, true, isHypershiftSelected),
+    );
     const replicas = getMinReplicasCount(true, isValueMultiAz, true, isHypershiftSelected);
     setFieldValue(FieldId.MinReplicas, replicas);
     setFieldValue(FieldId.MaxReplicas, replicas);

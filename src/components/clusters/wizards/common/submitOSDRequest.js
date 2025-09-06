@@ -107,7 +107,12 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
       };
     }
   } else {
-    clusterRequest.nodes.compute = parseInt(formData.nodes_compute, 10);
+    const computeNodes = parseInt(formData.nodes_compute, 10);
+    if (isHypershiftSelected) {
+      clusterRequest.nodes.compute = computeNodes * formData.machinePoolsSubnets.length;
+    } else {
+      clusterRequest.nodes.compute = isMultiAz ? computeNodes * 3 : computeNodes;
+    }
   }
 
   const parsedLabels = parseReduxFormKeyValueList(formData.node_labels);
