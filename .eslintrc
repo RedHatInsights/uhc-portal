@@ -150,6 +150,22 @@
       }
     },
     {
+      // Additional overrides specifically for Storybook stories
+      "files": ["**/*.stories.ts*", "**/*.stories.js*"],
+      "rules": {
+        "react/no-unescaped-entities": "off",
+        "no-underscore-dangle": "off",
+        "react/no-unused-prop-types": "off",
+        "react/no-unstable-nested-components": "error",
+        "storybook/no-redundant-story-name": "off",
+        "no-nested-ternary": "off",
+        "no-promise-executor-return": "off",
+        "react-hooks/exhaustive-deps": "off",
+        "react/destructuring-assignment": "off",
+        "import/no-extraneous-dependencies": "off"
+      }
+    },
+    {
       "files": ["**/*.ts", "**/*.tsx"],
       "rules": {
         "no-unused-vars": 0,

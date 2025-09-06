@@ -5,7 +5,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { LoadingSkeletonCard } from './LoadingSkeletonCard';
 
 const meta: Meta<typeof LoadingSkeletonCard> = {
-  title: 'Shared/LoadingSkeletonCard',
+  title: 'Common/LoadingSkeletonCard',
   component: LoadingSkeletonCard,
   render: (props) => <LoadingSkeletonCard {...props} />,
   decorators: [
