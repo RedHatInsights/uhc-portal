@@ -1,6 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
 
+import supportLinks from '~/common/supportLinks.mjs';
 import { isRestrictedEnv, SUPPORT_CASE_URL } from '~/restrictedEnv';
 
 import { SupportCase } from './model/SupportCase';
@@ -12,14 +13,14 @@ const productMap: { [index: string]: string } = {
   OCP: 'OpenShift Container Platform',
 };
 
-const getSupportCaseURL = (product?: string, version?: string, clusterUUID?: string) => {
+export const getSupportCaseURL = (product?: string, version?: string, clusterUUID?: string) => {
   if (isRestrictedEnv()) {
     return SUPPORT_CASE_URL;
   }
 
   const productName = product ? productMap[product] : '';
 
-  return `https://access.redhat.com/support/cases/#/case/new/open-case/describe-issue?clusterId=${clusterUUID}&caseCreate=true&product=${encodeURIComponent(
+  return `${supportLinks.SUPPORT_CASE_NEW_WITH_ISSUE}?clusterId=${clusterUUID}&caseCreate=true&product=${encodeURIComponent(
     productName,
   )}&version=${product !== 'OCP' ? encodeURIComponent(productName) : version}`;
 };
@@ -27,7 +28,7 @@ const getSupportCaseURL = (product?: string, version?: string, clusterUUID?: str
 const supportCaseRow = (supportCase: SupportCase) => {
   const caseID = (
     <a
-      href={`https://access.redhat.com/support/cases/#/case/${supportCase.caseID}`}
+      href={`${supportLinks.SUPPORT_CASE_VIEW}/${supportCase.caseID}`}
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -57,4 +58,4 @@ const supportCaseRow = (supportCase: SupportCase) => {
   };
 };
 
-export { getSupportCaseURL, supportCaseRow };
+export { supportCaseRow };

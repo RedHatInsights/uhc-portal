@@ -2,6 +2,8 @@ import React from 'react';
 
 import { Label, Popover } from '@patternfly/react-core';
 
+import supportLinks from '~/common/supportLinks.mjs';
+
 import ExternalLink from './ExternalLink';
 
 import './SupportStatus.scss';
@@ -58,7 +60,7 @@ const SupportStatus = ({ status }: Props) => {
       footerContent={
         <>
           See{' '}
-          <ExternalLink href="https://access.redhat.com/support/policy/updates/openshift" noIcon>
+          <ExternalLink href={supportLinks.OPENSHIFT_SUPPORT_POLICY} noIcon>
             this resource
           </ExternalLink>{' '}
           to learn more about the support lifecycle.
