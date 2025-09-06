@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 
 import {
   Alert,
-  Button,
   Card,
   CardBody,
   CardFooter,
@@ -15,11 +14,6 @@ import {
   Form,
   Grid,
   GridItem,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  ModalVariant,
 } from '@patternfly/react-core';
 
 import { knownProducts } from '~/common/subscriptionTypes';
@@ -89,8 +83,6 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
     (policy: UpgradePolicy) => policy.schedule_type === 'automatic',
   );
 
-  const [confirmationModalOpen, setConfirmationModalOpen] = React.useState<boolean>(false);
-  const [isCurrentAutomatic, setIsCurrentAutomatic] = React.useState<boolean>(false);
   const isAROCluster = cluster?.subscription?.plan?.type === knownProducts.ARO;
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
   const clusterHibernating = isHibernating(cluster);
@@ -199,10 +191,6 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
     cluster.subscription?.id,
     schedules,
   ]);
-
-  const closeConfirmationModal = (): void => {
-    setConfirmationModalOpen(false);
-  };
 
   const scheduledManualUpgrade = schedules.find(
     (schedule: UpgradePolicy) =>
@@ -351,151 +339,108 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
         }}
         onSubmit={handleSubmit}
       >
-        {(formik) => {
-          if (formik.values.upgrade_policy === 'automatic' && formik.dirty && !isCurrentAutomatic) {
-            setConfirmationModalOpen(true);
-            setIsCurrentAutomatic(true);
-          }
-
-          return (
-            <>
-              {!isAROCluster && !isHypershift && (
-                <GridItem>
-                  <Card>
-                    <CardBody>
-                      <UserWorkloadMonitoringSection
-                        parent="details"
-                        disableUVM={disableUVM}
-                        planType={cluster.subscription?.plan?.type}
-                      />
-                    </CardBody>
-                  </Card>
-                </GridItem>
-              )}
-              <GridItem lg={9} md={12} className="ocm-c-upgrade-monitoring-top">
+        {(formik) => (
+          <>
+            {!isAROCluster && !isHypershift && (
+              <GridItem>
                 <Card>
-                  <CardTitle>Update strategy</CardTitle>
                   <CardBody>
-                    {confirmationModalOpen && scheduledManualUpgrade && (
-                      <Modal
-                        id="recurring-updates-confirm-modal"
-                        variant={ModalVariant.small}
-                        isOpen
-                        onClose={() => {
-                          closeConfirmationModal();
-                          formik.resetForm();
-                        }}
-                        aria-labelledby="recurring-updates-confirm-modal"
-                        aria-describedby="modal-box-recurring-updates-confirm"
-                      >
-                        <ModalHeader
-                          title="Recurring updates"
-                          labelId="recurring-updates-confirm-modal"
-                        />
-                        <ModalBody>
-                          By choosing recurring updates, any individually scheduled update will be
-                          cancelled. Are you sure you want to continue?
-                        </ModalBody>
-                        <ModalFooter>
-                          <Button key="confirm" variant="primary" onClick={closeConfirmationModal}>
-                            Yes, cancel scheduled update
-                          </Button>
-                          <Button
-                            key="cancel"
-                            variant="secondary"
-                            onClick={() => {
-                              closeConfirmationModal();
-                              formik.resetForm();
-                            }}
-                          >
-                            No, keep scheduled update
-                          </Button>
-                        </ModalFooter>
-                      </Modal>
-                    )}
-                    {clusterHibernating && hibernatingClusterInfo}
-                    {(isPostScheduleError || isReplaceScheduleError || isEditSchedulesError) && (
-                      <ErrorBox
-                        response={
-                          postScheduleError || replaceScheduleError || editSchedulesError || {}
-                        }
-                        message="Can't schedule upgrade"
-                      />
-                    )}
-                    {isDeleteScheduleError && (
-                      <ErrorBox response={deleteScheduleError} message="Can't unschedule upgrade" />
-                    )}
-
-                    <UpgradeAcknowledgeWarning
-                      isHypershift={isHypershift}
-                      schedules={schedules}
-                      cluster={cluster}
-                      unmetAcknowledgements={unmetAcknowledgements as VersionGate[]}
+                    <UserWorkloadMonitoringSection
+                      parent="details"
+                      disableUVM={disableUVM}
+                      planType={cluster.subscription?.plan?.type}
                     />
-                    <MinorVersionUpgradeAlert
-                      clusterId={cluster?.id || ''}
-                      schedules={schedules}
-                      cluster={cluster}
-                      isHypershift={isHypershift}
-                      hasUnmetAcknowledgements={hasVersionGates}
-                    />
-                    <UpdateAllMachinePools
-                      goToMachinePoolTab
-                      isHypershift={isHypershift}
-                      clusterId={clusterID}
-                      controlPlaneVersion={clusterVersion}
-                      controlPlaneRawVersion={cluster.version?.raw_id || ''}
-                      isMachinePoolError={isMachinePoolError}
-                      machinePoolData={machinePoolData}
-                      region={region}
-                    />
-
-                    <Form>
-                      <Grid hasGutter>
-                        <UpgradeSettingsFields
-                          isDisabled={!!formDisableReason}
-                          initialScheduleValue={formik.initialValues.automatic_upgrade_schedule}
-                          showDivider
-                          isHypershift={isHypershift}
-                          isRosa={isRosa}
-                        />
-                      </Grid>
-                    </Form>
                   </CardBody>
-                  <CardFooter>
-                    <Flex>
-                      <FlexItem>
-                        <ButtonWithTooltip
-                          disableReason={
-                            formDisableReason ||
-                            (!formik.dirty && 'No changes to save') ||
-                            notReadyReason
-                          }
-                          isAriaDisabled={isDisabled || upgradeStarted}
-                          variant="primary"
-                          onClick={formik.submitForm}
-                          isLoading={isPending}
-                        >
-                          Save
-                        </ButtonWithTooltip>
-                      </FlexItem>
-                      <FlexItem>
-                        <ButtonWithTooltip
-                          isDisabled={!formik.dirty}
-                          variant="link"
-                          onClick={() => formik.resetForm()}
-                          isInline={false}
-                        >
-                          Cancel
-                        </ButtonWithTooltip>
-                      </FlexItem>
-                    </Flex>
-                  </CardFooter>
                 </Card>
               </GridItem>
-            </>
-          );
-        }}
+            )}
+            <GridItem lg={9} md={12} className="ocm-c-upgrade-monitoring-top">
+              <Card>
+                <CardTitle>Update strategy</CardTitle>
+                <CardBody>
+                  {clusterHibernating && hibernatingClusterInfo}
+                  {(isPostScheduleError || isReplaceScheduleError || isEditSchedulesError) && (
+                    <ErrorBox
+                      response={
+                        postScheduleError || replaceScheduleError || editSchedulesError || {}
+                      }
+                      message="Can't schedule upgrade"
+                    />
+                  )}
+                  {isDeleteScheduleError && (
+                    <ErrorBox response={deleteScheduleError} message="Can't unschedule upgrade" />
+                  )}
+
+                  <UpgradeAcknowledgeWarning
+                    isHypershift={isHypershift}
+                    schedules={schedules}
+                    cluster={cluster}
+                    unmetAcknowledgements={unmetAcknowledgements as VersionGate[]}
+                  />
+                  <MinorVersionUpgradeAlert
+                    clusterId={cluster?.id || ''}
+                    schedules={schedules}
+                    cluster={cluster}
+                    isHypershift={isHypershift}
+                    hasUnmetAcknowledgements={hasVersionGates}
+                  />
+                  <UpdateAllMachinePools
+                    goToMachinePoolTab
+                    isHypershift={isHypershift}
+                    clusterId={clusterID}
+                    controlPlaneVersion={clusterVersion}
+                    controlPlaneRawVersion={cluster.version?.raw_id || ''}
+                    isMachinePoolError={isMachinePoolError}
+                    machinePoolData={machinePoolData}
+                    region={region}
+                  />
+
+                  <Form>
+                    <Grid hasGutter>
+                      <UpgradeSettingsFields
+                        isDisabled={!!formDisableReason}
+                        initialScheduleValue={formik.initialValues.automatic_upgrade_schedule}
+                        showDivider
+                        isHypershift={isHypershift}
+                        isRosa={isRosa}
+                        scheduledManualUpgrade={scheduledManualUpgrade}
+                      />
+                    </Grid>
+                  </Form>
+                </CardBody>
+                <CardFooter>
+                  <Flex>
+                    <FlexItem>
+                      <ButtonWithTooltip
+                        disableReason={
+                          formDisableReason ||
+                          (!formik.dirty && 'No changes to save') ||
+                          notReadyReason
+                        }
+                        isAriaDisabled={isDisabled || upgradeStarted}
+                        variant="primary"
+                        onClick={formik.submitForm}
+                        isLoading={isPending}
+                      >
+                        Save
+                      </ButtonWithTooltip>
+                    </FlexItem>
+                    <FlexItem>
+                      <ButtonWithTooltip
+                        isDisabled={!formik.dirty}
+                        variant="link"
+                        onClick={() => formik.resetForm()}
+                        isInline={false}
+                      >
+                        Cancel
+                      </ButtonWithTooltip>
+                    </FlexItem>
+                  </Flex>
+                </CardFooter>
+              </Card>
+            </GridItem>
+          </>
+        )}
       </Formik>
       <GridItem lg={3} md={12} className="ocm-c-upgrade-monitoring-top">
         <Card>
@@ -517,7 +462,6 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
               <ButtonWithTooltip
                 variant="secondary"
                 onClick={() => {
-                  setConfirmationModalOpen(false);
                   dispatch(
                     openModal(modals.UPGRADE_WIZARD, {
                       clusterName: getClusterName(cluster),
