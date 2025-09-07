@@ -70,7 +70,6 @@ const OCP_DOCS_BASE =
 const OSD_DOCS_BASE = 'https://docs.redhat.com/en/documentation/openshift_dedicated/4/html';
 const ROSA_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html';
-const ROSA_HCP_DOCS_BASE = `${ROSA_DOCS_BASE}/install_rosa_with_hcp_clusters`;
 const ROSA_CP_DOCS_BASE =
   'https://access.redhat.com/documentation/en-us/red_hat_openshift_service_on_aws/4/html';
 
@@ -378,10 +377,10 @@ const links = {
 
   ROSA_AWS_FEDRAMP: 'https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-rosa.html',
   FEDRAMP_ACCESS_REQUEST_FORM: 'https://console.redhat.com/openshift/create/rosa/govcloud',
-  TERRAFORM_ROSA_HCP_URL: `${ROSA_HCP_DOCS_BASE}/creating-a-rosa-cluster-using-terraform#rosa-hcp-creating-a-cluster-quickly-terraform`,
+  TERRAFORM_ROSA_HCP_URL: `${ROSA_DOCS_BASE}/install_rosa_with_hcp_clusters/creating-a-rosa-cluster-using-terraform#rosa-hcp-creating-a-cluster-quickly-terraform`,
   TERRAFORM_REGISTRY_ROSA_HCP:
     'https://registry.terraform.io/providers/terraform-redhat/rhcs/latest/docs/guides/hosted-control-planes',
-  ROSA_HCP_CLI_URL: `${ROSA_HCP_DOCS_BASE}/rosa-hcp-sts-creating-a-cluster-quickly`,
+  ROSA_HCP_CLI_URL: `${ROSA_DOCS_BASE}/install_rosa_with_hcp_clusters/rosa-hcp-sts-creating-a-cluster-quickly`,
   ROSA_CREATE_NETWORK: `https://access.redhat.com/articles/7096266`,
   CREATE_VPC_WAYS: `https://docs.aws.amazon.com/rosa/latest/userguide/getting-started-hcp.html#create-vpc-hcp`,
   LEARN_MORE_SSO:
