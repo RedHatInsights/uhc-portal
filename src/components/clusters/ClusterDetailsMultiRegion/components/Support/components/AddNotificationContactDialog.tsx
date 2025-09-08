@@ -4,13 +4,13 @@ import { useDispatch } from 'react-redux';
 import { Form, FormGroup, TextInput } from '@patternfly/react-core';
 
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+import Modal from '~/components/common/Modal/Modal';
 import shouldShowModal from '~/components/common/Modal/ModalSelectors';
 import { invalidateNotificationContacts } from '~/queries/ClusterDetailsQueries/ClusterSupportTab/useFetchNotificationContacts';
 import { useGlobalState } from '~/redux/hooks';
 import { AugmentedCluster } from '~/types/types';
 
 import { validateRHITUsername } from '../../../../../../common/validators';
-import Modal from '../../../../../common/Modal/Modal';
 import { closeModal } from '../../../../../common/Modal/ModalActions';
 
 type AddNotificationContactDialogProps = {

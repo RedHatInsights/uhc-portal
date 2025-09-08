@@ -5,13 +5,13 @@ import { useDispatch } from 'react-redux';
 import { Form, FormGroup, Radio, TextInput } from '@patternfly/react-core';
 
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+import Modal from '~/components/common/Modal/Modal';
 import { refetchUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchUsers';
 
 import links from '../../../../../../common/installLinks.mjs';
 import { checkUserID } from '../../../../../../common/validators';
 import ErrorBox from '../../../../../common/ErrorBox';
 import ExternalLink from '../../../../../common/ExternalLink';
-import Modal from '../../../../../common/Modal/Modal';
 import { modalActions } from '../../../../../common/Modal/ModalActions';
 
 const AddUserDialog = ({

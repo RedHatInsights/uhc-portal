@@ -6,6 +6,7 @@ import { Form, FormGroup, TextInput } from '@patternfly/react-core';
 
 import getClusterName from '~/common/getClusterName';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+import Modal from '~/components/common/Modal/Modal';
 import { useEditClusterName } from '~/queries/ClusterActionsQueries/useEditClusterName';
 import { useGlobalState } from '~/redux/hooks';
 import { Subscription } from '~/types/clusters_mgmt.v1';
@@ -13,7 +14,6 @@ import { ClusterFromSubscription } from '~/types/types';
 
 import { checkClusterDisplayName } from '../../../../common/validators';
 import ErrorBox from '../../../common/ErrorBox';
-import Modal from '../../../common/Modal/Modal';
 import { closeModal } from '../../../common/Modal/ModalActions';
 import modals from '../../../common/Modal/modals';
 

@@ -1,9 +1,8 @@
 import React, { ComponentProps } from 'react';
 
 import ErrorDetailsDisplay from '~/components/common/ErrorDetailsDisplay';
+import Modal from '~/components/common/Modal/Modal';
 import { ErrorState } from '~/types/types';
-
-import Modal from '../Modal/Modal';
 
 export type ErrorModalProps = {
   title: string;
