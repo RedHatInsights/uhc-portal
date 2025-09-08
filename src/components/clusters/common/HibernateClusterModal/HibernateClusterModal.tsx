@@ -5,13 +5,13 @@ import { Location } from 'react-router-dom';
 import { Form } from '@patternfly/react-core';
 
 import { NavigateFunction, ocmBaseName } from '~/common/routing';
+import Modal from '~/components/common/Modal/Modal';
 import { closeModal } from '~/components/common/Modal/ModalActions';
 import { useHibernateCluster } from '~/queries/ClusterActionsQueries/useHibernateCluster';
 import { useGetSchedules } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules';
 import { useGlobalState } from '~/redux/hooks';
 
 import ErrorBox from '../../../common/ErrorBox';
-import Modal from '../../../common/Modal/Modal';
 import modals from '../../../common/Modal/modals';
 import { isHypershiftCluster } from '../clusterStates';
 

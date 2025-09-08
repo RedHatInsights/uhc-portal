@@ -5,13 +5,13 @@ import { useDispatch } from 'react-redux';
 import { Form, FormGroup, Radio, TextInput } from '@patternfly/react-core';
 
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+import Modal from '~/components/common/Modal/Modal';
 import shouldShowModal from '~/components/common/Modal/ModalSelectors';
 import { refetchGrants } from '~/queries/ClusterDetailsQueries/AccessControlTab/NetworkSelfServiceQueries/useFetchGrants';
 import { useGlobalState } from '~/redux/hooks';
 
 import { validateUserOrGroupARN } from '../../../../../../../common/validators';
 import ErrorBox from '../../../../../../common/ErrorBox';
-import Modal from '../../../../../../common/Modal/Modal';
 import { modalActions } from '../../../../../../common/Modal/ModalActions';
 import PopoverHint from '../../../../../../common/PopoverHint';
 

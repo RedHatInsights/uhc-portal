@@ -16,12 +16,12 @@ import {
 } from '@patternfly/react-core';
 
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+import Modal from '~/components/common/Modal/Modal';
 import shouldShowModal from '~/components/common/Modal/ModalSelectors';
 import { MutationFormattedErrorType } from '~/queries/types';
 import { useGlobalState } from '~/redux/hooks';
 
 import { ocmRoles } from '../../../../../../common/subscriptionTypes';
-import Modal from '../../../../../common/Modal/Modal';
 import { closeModal } from '../../../../../common/Modal/ModalActions';
 import modals from '../../../../../common/Modal/modals';
 import PopoverHint from '../../../../../common/PopoverHint';

@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { Form } from '@patternfly/react-core';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
+import Modal from '~/components/common/Modal/Modal';
 import { useDeleteSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useDeleteSchedule';
 import { refetchSchedules } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
@@ -11,7 +12,6 @@ import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import type { UpgradePolicyWithState } from '~/types/types';
 
 import ErrorBox from '../../../../common/ErrorBox';
-import Modal from '../../../../common/Modal/Modal';
 import { closeModal } from '../../../../common/Modal/ModalActions';
 import shouldShowModal from '../../../../common/Modal/ModalSelectors';
 

@@ -5,6 +5,7 @@ import { Content, ContentVariants, Form } from '@patternfly/react-core';
 
 import getClusterName from '~/common/getClusterName';
 import ErrorBox from '~/components/common/ErrorBox';
+import Modal from '~/components/common/Modal/Modal';
 import { useEditSubscription } from '~/queries/common/useEditSubscription';
 import { useGlobalState } from '~/redux/hooks';
 import { SubscriptionPatchRequest } from '~/types/accounts_mgmt.v1';
@@ -13,7 +14,6 @@ import {
   hasCapability,
   subscriptionCapabilities,
 } from '../../../../common/subscriptionCapabilities';
-import Modal from '../../../common/Modal/Modal';
 import { closeModal } from '../../../common/Modal/ModalActions';
 import modals from '../../../common/Modal/modals';
 
