@@ -122,7 +122,7 @@ const ScaleClusterDialog = ({ handleSubmit, initialValues, pristine }: ScaleClus
           onSecondaryClick={cancelEdit}
           isPrimaryDisabled={pending || !dirty}
           isPending={pending}
-          isSmall
+          modalSize="small"
         >
           <>
             {error}

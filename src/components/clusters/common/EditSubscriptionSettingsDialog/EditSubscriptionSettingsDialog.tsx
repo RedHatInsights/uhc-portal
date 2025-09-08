@@ -74,8 +74,7 @@ const EditSubscriptionSettingsDialog = ({ onClose }: EditSubscriptionSettingsDia
     <Modal
       title="Subscription settings"
       secondaryTitle={shouldDisplayClusterName ? clusterDisplayName : undefined}
-      width={810}
-      variant="large"
+      modalSize="medium"
       onClose={handleCloseModal}
       primaryText="Save"
       secondaryText="Cancel"

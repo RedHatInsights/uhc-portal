@@ -48,7 +48,7 @@ const ResumeClusterModal = ({ onClose }: ResumeClusterModalProps) => {
   return (
     <Modal
       data-testid="resume-cluster-modal"
-      header={<HibernateClusterModalTitle title="Resume from hibernation" />}
+      title={<HibernateClusterModalTitle title="Resume from hibernation" />}
       secondaryTitle={shouldDisplayClusterName ? clusterName : undefined}
       onClose={closeResumeModal}
       primaryText="Resume cluster"
@@ -57,6 +57,7 @@ const ResumeClusterModal = ({ onClose }: ResumeClusterModalProps) => {
       isPending={resumeClusterIsPending}
       onSecondaryClick={closeResumeModal}
       aria-label="Resume from hibernation"
+      titleIconVariant="info"
     >
       <Form onSubmit={() => resumeCluster({ clusterID, region })}>
         {resumeClusterIsError ? (

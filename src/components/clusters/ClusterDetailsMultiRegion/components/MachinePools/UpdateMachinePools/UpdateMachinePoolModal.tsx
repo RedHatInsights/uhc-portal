@@ -179,7 +179,7 @@ export const UpdateMachinePoolModal = ({
 
   return (
     <Modal
-      variant="small"
+      modalSize="small"
       title="Update machine pool"
       onClose={() => cleanUp()}
       primaryText="Update machine pool"

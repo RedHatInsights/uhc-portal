@@ -135,8 +135,8 @@ const HibernateClusterModal = ({ onClose }: HibernateClusterModalProps) => {
   return (
     <Modal
       aria-label="hibernate-cluster-modal"
-      header={<HibernateClusterModalTitle title="Hibernate cluster" />}
-      titleIconVariant="danger"
+      title={<HibernateClusterModalTitle title="Hibernate cluster" />}
+      titleIconVariant="info"
       secondaryTitle={shouldDisplayClusterName ? clusterName : undefined}
       primaryText={isHibernateEnabled ? 'Hibernate cluster' : 'Close'}
       onPrimaryClick={onPrimaryClick}

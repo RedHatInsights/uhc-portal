@@ -30,6 +30,7 @@ const DeleteMachinePoolModal = () => {
     <Modal
       title="Permanently delete machine pool?"
       primaryText="Delete"
+      primaryVariant="danger"
       onPrimaryClick={handleConfirmDelete}
       secondaryText="Cancel"
       onSecondaryClick={() => dispatch(closeModal())}

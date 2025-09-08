@@ -165,7 +165,6 @@ function AutoTransferClusterOwnershipForm(props: AutoTransferClusterOwnershipFor
       aria-labelledby="transfer-in-progress-modal"
       onClose={handleClose}
       modalSize="medium"
-      isSmall={false}
       primaryText="Cancel transfer"
       isPrimaryDisabled={!canCancelTransfer}
       secondaryText="Close"
@@ -218,7 +217,6 @@ function AutoTransferClusterOwnershipForm(props: AutoTransferClusterOwnershipFor
           aria-labelledby="auto-transfer-cluster-ownership-modal"
           onClose={handleClose}
           modalSize="medium"
-          isSmall={false}
           primaryText="Initiate transfer"
           secondaryText="Cancel"
           onSecondaryClick={handleClose}

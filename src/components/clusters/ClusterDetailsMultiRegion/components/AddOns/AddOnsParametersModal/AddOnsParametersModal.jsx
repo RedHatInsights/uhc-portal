@@ -252,8 +252,7 @@ const AddOnsParametersModal = ({
       {(formik) => (
         <Modal
           title={`Configure ${addOn.name}`}
-          width={810}
-          variant="large"
+          modalSize="medium"
           onClose={() => handleClose(formik)}
           primaryText={isUpdateForm ? 'Update' : 'Install'}
           secondaryText="Cancel"
