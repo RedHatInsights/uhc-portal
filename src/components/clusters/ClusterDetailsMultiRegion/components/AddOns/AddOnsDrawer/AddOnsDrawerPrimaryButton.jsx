@@ -5,10 +5,10 @@ import { useDispatch } from 'react-redux';
 import { Button, ButtonSize } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
 
+import supportLinks from '~/common/supportLinks.mjs';
 import { NO_QUOTA } from '~/components/clusters/ClusterDetailsMultiRegion/components/AddOns/AddOnsDrawer/AddOnsTypes';
 
 import { noQuotaTooltip } from '../../../../../../common/helpers';
-import supportLinks from '../../../../../../common/supportLinks.mjs';
 import ButtonWithTooltip from '../../../../../common/ButtonWithTooltip';
 import { openModal } from '../../../../../common/Modal/ModalActions';
 import clusterStates, { isHibernating } from '../../../../common/clusterStates';

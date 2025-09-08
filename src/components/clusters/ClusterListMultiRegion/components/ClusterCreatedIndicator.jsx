@@ -8,11 +8,11 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/ex
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
+import supportLinks from '~/common/supportLinks.mjs';
 import { SubscriptionCommonFieldsSupport_level as SubscriptionCommonFieldsSupportLevel } from '~/types/accounts_mgmt.v1';
 
 import { getTrialEndDate, getTrialExpiresInDays } from '../../../../common/getTrialExpiresDates';
 import { normalizedProducts } from '../../../../common/subscriptionTypes';
-import supportLinks from '../../../../common/supportLinks.mjs';
 import ExternalLink from '../../../common/ExternalLink';
 
 function ClusterCreatedIndicator({ cluster }) {
