@@ -123,11 +123,12 @@ export const SubnetSelectField = ({
   const selectedSubnetId = input.value as string;
   const inputError = meta.touched && (meta.error || (isRequired && !selectedSubnetId));
 
-  const { subnetsByAZ, subnetList, hasOptions, hasUsedSubnets } = useMemo<{
+  const { subnetsByAZ, subnetList, hasOptions, hasUsedSubnets, hasUnusedOptions } = useMemo<{
     subnetsByAZ: FuzzyDataType;
     subnetList: Subnetwork[];
     hasOptions: boolean;
     hasUsedSubnets: boolean;
+    hasUnusedOptions: boolean;
   }>(() => {
     const allFilteredSubnets = filterSubnetsByPrivacyAndAZ(selectedVPC, privacy, allowedAZs);
     const { unusedSubnets, usedSubnets } = divideSubnetsUsedOrUnused(
@@ -140,7 +141,14 @@ export const SubnetSelectField = ({
 
     const hasOptions = orderedSubnetList.length > 0;
     const hasUsedSubnets = usedSubnets.length > 0;
-    return { subnetsByAZ, subnetList: orderedSubnetList, hasOptions, hasUsedSubnets };
+    const hasUnusedOptions = unusedSubnets.length > 0;
+    return {
+      subnetsByAZ,
+      subnetList: orderedSubnetList,
+      hasOptions,
+      hasUsedSubnets,
+      hasUnusedOptions,
+    };
   }, [selectedVPC, allowedAZs, privacy, usedSubnetIds]);
 
   useEffect(() => {
@@ -150,9 +158,13 @@ export const SubnetSelectField = ({
 
     let newSelectedSubnetId = null;
     if (withAutoSelect) {
-      // When "autoSelect" is enabled, we will set the first subnet as the selected one
-      if (!isValidCurrentSelection && hasOptions) {
-        newSelectedSubnetId = subnetList[0].subnet_id;
+      // When "autoSelect" is enabled, we will set the first UNUSED subnet as the selected one
+      // Only auto-select if there are unused subnets available
+      if (!isValidCurrentSelection && hasUnusedOptions) {
+        const unusedSubnets = subnetList.filter(
+          (subnet) => !usedSubnetIds.includes(subnet.subnet_id as string),
+        );
+        newSelectedSubnetId = unusedSubnets[0].subnet_id;
       }
     } else if (!isValidCurrentSelection) {
       // When "autoSelect" is disabled, we only need to update the selection when the current one is now invalid.
@@ -164,7 +176,7 @@ export const SubnetSelectField = ({
       input.onChange(newSelectedSubnetId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [withAutoSelect, hasOptions, subnetList, selectedSubnetId]);
+  }, [withAutoSelect, hasUnusedOptions, subnetList, selectedSubnetId, usedSubnetIds]);
 
   const onSelect: NonNullable<FuzzySelectProps['onSelect']> = useCallback(
     (_event, selectedSubnetId) => {
