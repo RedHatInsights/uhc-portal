@@ -11,11 +11,11 @@ import {
 } from '@patternfly/react-core';
 
 import { useNavigate } from '~/common/routing';
+import Modal from '~/components/common/Modal/Modal';
 import type { PromiseReducerState } from '~/redux/stateTypes';
 import type { TermsReviewResponse } from '~/types/accounts_mgmt.v1';
 
 import getTermsAppLink from '../../../common/getTermsAppLink';
-import Modal from '../Modal/Modal';
 import Unavailable from '../Unavailable';
 
 import { ViewTermsButton } from './ViewTermsButton';
