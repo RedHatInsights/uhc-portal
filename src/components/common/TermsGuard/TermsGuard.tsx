@@ -102,12 +102,6 @@ const TermsGuard = ({ selfTermsReview, selfTermsReviewResult, children, gobackPa
     </Content>
   );
   const tncAppURL = getTncAppURL(selfTermsReviewResult.redirect_url);
-  const actions = [
-    <ViewTermsButton href={tncAppURL} key="view-terms-and-conditions" />,
-    <Button variant="secondary" key="cancel-terms-and-conditions" onClick={handleCancel}>
-      Cancel
-    </Button>,
-  ];
 
   return (
     <>
@@ -115,7 +109,15 @@ const TermsGuard = ({ selfTermsReview, selfTermsReviewResult, children, gobackPa
         title={dialogTitle}
         className="terms-and-conditions-guard-modal"
         onClose={handleCancel}
-        actions={actions}
+        hideDefaultFooter
+        footer={
+          <>
+            <ViewTermsButton href={tncAppURL} key="view-terms-and-conditions" />
+            <Button variant="secondary" key="cancel-terms-and-conditions" onClick={handleCancel}>
+              Cancel
+            </Button>
+          </>
+        }
       >
         {dialogText}
       </Modal>

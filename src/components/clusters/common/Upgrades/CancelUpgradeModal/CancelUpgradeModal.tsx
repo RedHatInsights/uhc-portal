@@ -75,6 +75,7 @@ const CancelUpgradeModal: React.FC<CancelUpgradeModalProps> = ({ isHypershift })
         title="Cancel update"
         onClose={close}
         primaryText="Cancel this update"
+        primaryVariant="danger"
         secondaryText="Close"
         onPrimaryClick={deleteScheduleFunc}
         isPending={isDeleteSchedulePending}

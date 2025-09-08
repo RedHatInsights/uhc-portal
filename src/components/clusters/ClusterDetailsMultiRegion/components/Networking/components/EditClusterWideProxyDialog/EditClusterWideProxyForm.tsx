@@ -185,7 +185,6 @@ const EditClusterWideProxyForm = ({
       isPrimaryDisabled={isNotModified}
       onSecondaryClick={handleClose}
       isPending={isClusterEditPending}
-      width="max(30%, 600px)"
     >
       {clusterProxyError}
       <Form>
