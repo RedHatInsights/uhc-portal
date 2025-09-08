@@ -28,7 +28,7 @@ describe('<CreateClusterErrorModal />', () => {
     const { container } = render(<CreateClusterErrorModal />);
 
     // Assert
-    expect(screen.getByRole('heading', { name: 'Error creating cluster' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Error creating cluster' })).toBeInTheDocument();
     await checkAccessibility(container);
   });
 

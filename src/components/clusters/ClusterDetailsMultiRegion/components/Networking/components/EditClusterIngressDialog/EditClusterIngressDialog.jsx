@@ -122,7 +122,6 @@ const EditClusterIngressDialog = ({ provider, cluster, refreshCluster, clusterRo
 
         return (
           <Modal
-            width="max(35%, 550px)"
             primaryText="Save"
             secondaryText="Cancel"
             title="Edit cluster ingress"

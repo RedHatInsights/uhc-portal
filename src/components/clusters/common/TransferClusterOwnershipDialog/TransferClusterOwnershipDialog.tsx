@@ -96,8 +96,7 @@ const TransferClusterOwnershipDialog = ({ onClose }: TransferClusterOwnershipDia
     <Modal
       title="Transfer cluster ownership"
       secondaryTitle={shouldDisplayClusterName ? clusterDisplayName : undefined}
-      width={600}
-      variant="large"
+      modalSize="small"
       onClose={handleClose}
       primaryText="Initiate transfer"
       secondaryText="Cancel"

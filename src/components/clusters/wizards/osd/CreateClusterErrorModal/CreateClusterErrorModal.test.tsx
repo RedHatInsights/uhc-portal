@@ -28,7 +28,7 @@ describe('<CreateClusterErrorModal />', () => {
     const { container } = render(<CreateClusterErrorModal onRetry={jest.fn()} />);
 
     // Assert
-    expect(screen.getByRole('heading', { name: 'Error creating cluster' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Error creating cluster' })).toBeInTheDocument();
     await checkAccessibility(container);
   });
 
@@ -44,7 +44,7 @@ describe('<CreateClusterErrorModal />', () => {
     const { container } = render(<CreateClusterErrorModal onRetry={jest.fn()} />);
 
     // Assert
-    expect(screen.getByRole('heading', { name: 'Missing prerequisite' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Missing prerequisite' })).toBeInTheDocument();
     await checkAccessibility(container);
   });
 
