@@ -8,5 +8,7 @@
  */
 export const combineAndSortLinks = (...linkSources) => {
   const allLinks = linkSources.flat();
+  // Use Set to remove duplicates, then convert back to array for sorting
+  // This ensures no duplicate URLs exist when combining multiple link sources
   return [...new Set(allLinks)].sort();
 };
