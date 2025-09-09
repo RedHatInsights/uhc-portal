@@ -53,10 +53,14 @@ describe('<VersionCard>', () => {
     expect(screen.queryByRole('button', { name: 'more information' })).not.toBeInTheDocument();
   });
 
-  it('should render tooltip when has unmet cluster acknowledgements', () => {
-    const newProps = { ...defaultProps, isUnMetClusterAcknowledgements: true };
+  it('should render tooltip when has unmet cluster acknowledgements', async () => {
+    const newProps = { ...defaultProps, isUnMetClusterAcknowledgements: true, isSelected: true };
 
-    render(<VersionCard {...newProps} />);
+    const { user } = render(<VersionCard {...newProps} />);
+
+    const card = getCard(newProps.version);
+    await user.click(card!);
+
     expect(screen.getByRole('button', { name: 'more information' })).toBeInTheDocument();
   });
 });
