@@ -264,6 +264,10 @@ const getSubnetIds = (machinePoolOrNodePool: MachinePool | NodePool) => {
 const hasSubnets = (machinePoolOrNodePool: MachinePool | NodePool) =>
   getSubnetIds(machinePoolOrNodePool).length > 0;
 
+const hasAwsTags = (machinePoolOrNodePool: NodePool) =>
+  machinePoolOrNodePool.aws_node_pool?.tags &&
+  Object.keys(machinePoolOrNodePool.aws_node_pool?.tags).length > 0;
+
 const getClusterMinNodes = ({
   cluster,
   machineTypesResponse,
@@ -344,4 +348,5 @@ export {
   isEnforcedDefaultMachinePool,
   isMinimumCountWithoutTaints,
   normalizeNodePool,
+  hasAwsTags,
 };

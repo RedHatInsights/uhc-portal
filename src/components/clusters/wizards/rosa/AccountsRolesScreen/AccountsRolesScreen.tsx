@@ -16,6 +16,7 @@ import ErrorBox from '~/components/common/ErrorBox';
 import useAnalytics from '~/hooks/useAnalytics';
 import { clearMachineTypesByRegion } from '~/redux/actions/machineTypesActions';
 import { GlobalState } from '~/redux/stateTypes';
+import { isRestrictedEnv } from '~/restrictedEnv';
 
 import { FieldId } from '../constants';
 
@@ -77,6 +78,15 @@ function AccountsRolesScreen({
     () => getAWSAccountIDsResponse.pending || getAWSAccountRolesARNsResponse.pending,
     [getAWSAccountIDsResponse.pending, getAWSAccountRolesARNsResponse.pending],
   );
+
+  // TODO: Remove after billing issues resolved in FedRAMP
+  // FedRAMP Billing account bypass
+  React.useEffect(() => {
+    if (isRestrictedEnv()) {
+      setFieldValue(selectedAWSBillingAccountID, '');
+    }
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
+  }, []);
 
   const openDrawerButtonRef = useRef(null);
   const hasAWSAccounts = AWSAccountIDs.length > 0;
@@ -236,7 +246,7 @@ function AccountsRolesScreen({
           </Button>
         </GridItem>
         <GridItem span={7} />
-        {isHypershiftSelected && (
+        {isHypershiftSelected && !isRestrictedEnv() && (
           <AWSBillingAccount
             selectedAWSBillingAccountID={selectedAWSBillingAccountID || ''}
             selectedAWSAccountID={selectedAWSAccountID || ''}

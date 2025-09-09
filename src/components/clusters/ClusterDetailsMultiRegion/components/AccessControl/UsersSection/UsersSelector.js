@@ -1,5 +1,7 @@
 import get from 'lodash/get';
 
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+
 import { normalizedProducts } from '../../../../../../common/subscriptionTypes';
 import clusterStates from '../../../../common/clusterStates';
 
@@ -21,7 +23,7 @@ const canAllowAdminSelector = (state) => {
 
   const capabilites = get(state, 'clusters.details.cluster.subscription.capabilities', []);
   const manageClusterAdminCapability = capabilites.find(
-    (capability) => capability.name === 'capability.cluster.manage_cluster_admin',
+    (capability) => capability.name === subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
   );
 
   return !!(manageClusterAdminCapability && manageClusterAdminCapability.value === 'true');

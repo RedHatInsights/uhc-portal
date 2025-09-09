@@ -1,3 +1,4 @@
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { hasOrgLevelAutoscaleCapability } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsSelectors';
 import { useGlobalState } from '~/redux/hooks';
@@ -13,7 +14,7 @@ const useCanClusterAutoscale = (
   clusterLevelCapabilities?: Array<Capability>,
 ) => {
   const hasClusterLevelAutoscaleCapability = !!clusterLevelCapabilities?.find(
-    (capability) => capability.name === 'capability.cluster.autoscale_clusters',
+    (capability) => capability.name === subscriptionCapabilities.AUTOSCALE_CLUSTERS,
   );
 
   const hasAutoScaleCapability = useGlobalState(

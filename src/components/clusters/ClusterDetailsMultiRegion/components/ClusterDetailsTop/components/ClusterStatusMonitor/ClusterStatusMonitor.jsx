@@ -372,7 +372,7 @@ const ClusterStatusMonitor = (props) => {
           <Alert
             variant="danger"
             isInline
-            title={`${errorCode} Cluster installation failed`}
+            title={`${errorCode} An error occured during cluster install or uninstall process.`}
             className="pf-v6-u-mt-md"
           >
             <p>
