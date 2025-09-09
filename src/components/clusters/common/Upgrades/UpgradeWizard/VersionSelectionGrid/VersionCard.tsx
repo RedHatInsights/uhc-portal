@@ -88,7 +88,7 @@ const VersionCard = ({
       <CardTitle id={`card-title-${version}`}>
         <Split>
           <SplitItem>
-            {isPending && isSelected && <Spinner size="md" />} {version}{' '}
+            {isPending && isSelected && <Spinner size="lg" />} {version}{' '}
             {isUnMetClusterAcknowledgements ? VersionAcknowledgementPopover(version) : null}
           </SplitItem>
           <SplitItem isFilled />
