@@ -423,7 +423,7 @@ objects:
           description: View, Register, or Create an OpenShift Cluster.
       module:
         manifestLocation: "/apps/openshift/fed-mods.json"
-        moduleConfig:
+        config:
           ssoScopes:
             - rhfull
         modules:
