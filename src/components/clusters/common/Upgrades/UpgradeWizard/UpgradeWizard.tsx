@@ -94,7 +94,9 @@ const UpgradeWizard = () => {
   const gotAllDetails = !!(
     selectedVersion &&
     (upgradeTimestamp || scheduleType === 'now') &&
-    ((hasVersionGates && acknowledged) || !hasVersionGates)
+    ((hasVersionGates && acknowledged) || !hasVersionGates) &&
+    !isUnmetAcknowledgementsError &&
+    !isUnmetAcknowledgementsPending
   );
 
   const close = () => {
@@ -187,6 +189,7 @@ const UpgradeWizard = () => {
             selected={selectedVersion}
             onSelect={selectVersion}
             isUnMetClusterAcknowledgements={hasVersionGates}
+            isPending={isUnmetAcknowledgementsPending}
           />
         </>
       ),
@@ -227,7 +230,7 @@ const UpgradeWizard = () => {
           type={scheduleType}
         />
       ),
-      canJumpTo: !!selectedVersion && (!hasVersionGates || acknowledged),
+      canJumpTo: gotAllDetails,
       enableNext: gotAllDetails,
     },
     {
