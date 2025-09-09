@@ -89,7 +89,9 @@ const VersionCard = ({
         <Split>
           <SplitItem>
             {isPending && isSelected && <Spinner size="lg" />} {version}{' '}
-            {isUnMetClusterAcknowledgements ? VersionAcknowledgementPopover(version) : null}
+            {isUnMetClusterAcknowledgements && isSelected
+              ? VersionAcknowledgementPopover(version)
+              : null}
           </SplitItem>
           <SplitItem isFilled />
           {isRecommended && (
