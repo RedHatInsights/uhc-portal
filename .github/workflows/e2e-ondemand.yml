@@ -1,0 +1,532 @@
+name: e2e CI - On Demand
+
+on:
+  workflow_dispatch:
+    inputs:
+      cypress-tags:
+        description: 'Cypress tags to run (e.g., smoke, day1, day2, rosa, osd). For sequential execution, use day1+rosa,day2+rosa,day3+rosa,day1+osd,day2+osd,day3+osd'
+        required: true
+        default: 'smoke'
+        type: string
+      env-uat:
+        description: 'Environment to test against (staging for dev environment, production for default)'
+        required: false
+        default: 'local'
+        type: choice
+        options:
+          - local
+          - staging
+      browser:
+        description: 'Browser to run tests with'
+        required: false
+        default: 'chrome'
+        type: choice
+        options:
+          - chrome
+          - firefox
+          - edge
+
+
+
+jobs:
+  install:
+    name: "E2E OnDemand - Install - Tags: ${{ inputs.cypress-tags }}"
+    concurrency:
+      group: e2e-ondemand-install-${{ github.run_id }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - uses: actions/cache@v4
+        with:
+          path: './node_modules'
+          key: e2e-ondemand-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
+      - name: Install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - name: Check uncommitted changes
+        if: ${{ always() }}
+        # Check that Git working tree is clean after running `install` command.
+        # The `git` command exits with 1 and fails the build if there are any uncommitted changes.
+        run: git diff HEAD --exit-code
+
+  setup-environment:
+    name: Setup Test Environment
+    needs: [install]
+    runs-on: ubuntu-latest
+    outputs:
+      has-day-tags: ${{ steps.check.outputs.has-day-tags }}
+      has-day1: ${{ steps.check.outputs.has-day1 }}
+      has-day2: ${{ steps.check.outputs.has-day2 }}
+      has-day3: ${{ steps.check.outputs.has-day3 }}
+      day1-tags: ${{ steps.check.outputs.day1-tags }}
+      day2-tags: ${{ steps.check.outputs.day2-tags }}
+      day3-tags: ${{ steps.check.outputs.day3-tags }}
+      has-non-day-tags: ${{ steps.check.outputs.has-non-day-tags }}
+      non-day-tags: ${{ steps.check.outputs.non-day-tags }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - uses: actions/cache@v4
+        with:
+          path: './node_modules'
+          key: e2e-ondemand-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
+      - name: Install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - name: Add hosts
+        run: make dev-env-setup
+      - name: Check hosts
+        run: cat /etc/hosts
+      - name: Install cypress
+        run: npx cypress install
+      - name: Create cypress.env.json from secret
+        run: |
+          echo "Creating cypress.env.json from QE_CYPRESS_ENV secret..."
+          echo '${{ secrets.QE_CYPRESS_ENV }}' > cypress.env.json
+          
+          # Validate the JSON structure
+          echo "Validating cypress.env.json..."
+          if python3 -m json.tool cypress.env.json > /dev/null 2>&1; then
+            echo "cypress.env.json is valid JSON"
+            echo "cypress.env.json created successfully"
+          else
+            echo "ERROR: cypress.env.json is not valid JSON!"
+            echo "Invalid JSON structure detected (content not displayed for security)"
+            exit 1
+          fi
+          
+          echo "cypress.env.json creation completed!"
+      - name: Install jq
+        run: |
+          echo "Installing jq..."
+          sudo apt-get update && sudo apt-get install -y jq
+          
+          # Verify jq installation
+          echo "Verifying jq installation..."
+          jq --version
+          
+          # Verify cypress.env.json structure without displaying content
+          echo "cypress.env.json structure verified (content hidden for security)"
+          
+          echo "jq installation completed!"
+      - name: Install AWS CLI
+        run: |
+          echo "Installing AWS CLI..."
+          
+          # Update package list
+          sudo apt-get update
+          
+          # Install AWS CLI v2
+          echo "Downloading AWS CLI v2..."
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+          
+          # Clean up installation files
+          rm -rf awscliv2.zip aws/
+          
+          # Verify AWS CLI installation
+          echo "Verifying AWS CLI installation..."
+          aws --version
+          
+          echo "AWS CLI installation completed!"
+      - name: Install ROSA CLI and OpenShift CLI
+        run: |
+          echo "Setting up ROSA CLI with latest versions..."
+          
+          # Download and install latest ROSA CLI
+          echo "Downloading latest ROSA CLI..."
+          curl -Lo rosa https://github.com/openshift/rosa/releases/latest/download/rosa-linux-amd64
+          chmod +x rosa
+          sudo mv rosa /usr/local/bin/
+          
+          # Verify installation
+          echo "Verifying ROSA CLI installation..."
+          rosa version
+          echo "ROSA and OpenShift CLI setup completed!"
+      - name: Run cypress-qe-prerun script
+        run: |
+          echo "Running cypress-qe-prerun setup script..."
+          if [ -f "cypress-qe-prerun.sh" ]; then
+            echo "cypress-qe-prerun.sh found, executing..."
+            chmod +x cypress-qe-prerun.sh
+            ./cypress-qe-prerun.sh -c cypress.env.json
+            echo "cypress-qe-prerun.sh execution completed!"
+          else
+            echo "cypress-qe-prerun.sh not found, skipping..."
+          fi
+      - name: Run VPC infrastructure script
+        run: |
+          echo "Running VPC infrastructure creation script..."
+          if [ -f "create-vpc-infrastructure.sh" ]; then
+            echo "create-vpc-infrastructure.sh found, executing..."
+            chmod +x create-vpc-infrastructure.sh
+            ./create-vpc-infrastructure.sh
+          
+            # Verify the cypress.env.json was updated (if the script modifies it)
+            echo "Verifying cypress.env.json after VPC setup..."
+            if [ -f "cypress.env.json" ]; then
+                          echo "cypress.env.json updated successfully (content hidden for security)"
+            else
+              echo "WARNING: cypress.env.json not found!"
+            fi
+            
+            echo "create-vpc-infrastructure.sh execution completed!"
+          else
+            echo "create-vpc-infrastructure.sh not found, skipping..."
+          fi
+      - name: Analyze input tags
+        id: check
+        run: |
+          input_tags="${{ inputs.cypress-tags }}"
+          echo "Input tags: $input_tags"
+          
+          # Check if the input contains day patterns
+          if echo "$input_tags" | grep -qE "day[1-3]"; then
+            echo "has-day-tags=true" >> $GITHUB_OUTPUT
+            
+            # Parse tags - assuming input format like "day1+rosa,day2+rosa,day3+rosa,day1+osd,day2+osd,day3+osd"
+            IFS=',' read -ra tag_array <<< "$input_tags"
+            
+            # Initialize tag groups
+            day1_tags=""
+            day2_tags=""
+            day3_tags=""
+            non_day_tags=""
+            
+            # Process each tag combination
+            for tag_combo in "${tag_array[@]}"; do
+              tag_combo=$(echo "$tag_combo" | xargs)
+              
+              if echo "$tag_combo" | grep -q "day1"; then
+                if [ -n "$day1_tags" ]; then
+                  day1_tags="$day1_tags,$tag_combo"
+                else
+                  day1_tags="$tag_combo"
+                fi
+              elif echo "$tag_combo" | grep -q "day2"; then
+                if [ -n "$day2_tags" ]; then
+                  day2_tags="$day2_tags,$tag_combo"
+                else
+                  day2_tags="$tag_combo"
+                fi
+              elif echo "$tag_combo" | grep -q "day3"; then
+                if [ -n "$day3_tags" ]; then
+                  day3_tags="$day3_tags,$tag_combo"
+                else
+                  day3_tags="$tag_combo"
+                fi
+              else
+                # Collect non-day tags (like smoke, ci, etc.)
+                if [ -n "$non_day_tags" ]; then
+                  non_day_tags="$non_day_tags,$tag_combo"
+                else
+                  non_day_tags="$tag_combo"
+                fi
+              fi
+            done
+            
+            # Set outputs for day presence
+            if [ -n "$day1_tags" ]; then
+              echo "has-day1=true" >> $GITHUB_OUTPUT
+              echo "day1-tags=$day1_tags" >> $GITHUB_OUTPUT
+              echo "Day1 tags: $day1_tags"
+            else
+              echo "has-day1=false" >> $GITHUB_OUTPUT
+            fi
+            
+            if [ -n "$day2_tags" ]; then
+              echo "has-day2=true" >> $GITHUB_OUTPUT
+              echo "day2-tags=$day2_tags" >> $GITHUB_OUTPUT
+              echo "Day2 tags: $day2_tags"
+            else
+              echo "has-day2=false" >> $GITHUB_OUTPUT
+            fi
+            
+            if [ -n "$day3_tags" ]; then
+              echo "has-day3=true" >> $GITHUB_OUTPUT
+              echo "day3-tags=$day3_tags" >> $GITHUB_OUTPUT
+              echo "Day3 tags: $day3_tags"
+            else
+              echo "has-day3=false" >> $GITHUB_OUTPUT
+            fi
+            
+            # Set outputs for non-day tags
+            if [ -n "$non_day_tags" ]; then
+              echo "has-non-day-tags=true" >> $GITHUB_OUTPUT
+              echo "non-day-tags=$non_day_tags" >> $GITHUB_OUTPUT
+              echo "Non-day tags: $non_day_tags"
+            else
+              echo "has-non-day-tags=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "has-day-tags=false" >> $GITHUB_OUTPUT
+            echo "has-day1=false" >> $GITHUB_OUTPUT
+            echo "has-day2=false" >> $GITHUB_OUTPUT
+            echo "has-day3=false" >> $GITHUB_OUTPUT
+            echo "has-non-day-tags=true" >> $GITHUB_OUTPUT
+            echo "non-day-tags=$input_tags" >> $GITHUB_OUTPUT
+            echo "Non-day tags: $input_tags"
+          fi
+      - name: Upload workspace as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-workspace-${{ github.run_id }}
+          retention-days: 1
+          path: |
+            .
+            cypress.env.json
+            ~/.aws/
+            /usr/local/bin/rosa
+
+  e2e-test-day1:
+    name: "E2E OnDemand - Day 1 Tests - Env: ${{ inputs.env-uat }}"
+    if: needs.setup-environment.outputs.has-day1 == 'true'
+    concurrency:
+      group: e2e-ondemand-day1-${{ github.run_id }}
+      cancel-in-progress: true
+    needs: [setup-environment]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-workspace-${{ github.run_id }}
+      - name: Execute Day 1 Tests
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+          TERM: xterm
+          LC_ALL: C.UTF-8
+          LANG: C.UTF-8
+          TEST_TAGS: ${{ needs.setup-environment.outputs.day1-tags }}
+        run: |
+          echo "=== Executing Tests ==="
+          tags="$TEST_TAGS"
+          browser="${{ inputs.browser }}"
+          echo "Running tests with tags: $tags"
+          echo "Using browser: $browser"
+          
+          if [ "${{ inputs.env-uat }}" = "staging" ]; then
+            echo "Running tests against staging environment"
+            npx cypress run --browser "$browser" --env grepTags="$tags" --config baseUrl=https://console.dev.redhat.com/openshift/
+          else
+            echo "Running tests against local environment"
+            yarn start --env logging=quiet --no-client-overlay &
+            yarn wait-on -i 5000 https://prod.foo.redhat.com:1337/openshift/
+            npx cypress run --browser "$browser" --env grepTags="$tags"
+          fi
+      - name: Upload Day 1 test results
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: e2e-ondemand-day1-results-${{ inputs.env-uat }}-${{ github.run_id }}
+          retention-days: 7
+          path: |
+            cypress/screenshots/
+            cypress/videos/
+            cypress/reports/
+      - name: Upload Day 1 failure artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: e2e-ondemand-day1-failures-${{ github.run_id }}
+          retention-days: 7
+          path: |
+            cypress/screenshots/
+            cypress/videos/
+
+  delay-before-day2:
+    name: Wait 45 minutes before Day 2
+    if: needs.setup-environment.outputs.has-day2 == 'true' && needs.setup-environment.outputs.has-day1 == 'true'
+    needs: [setup-environment, e2e-test-day1]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait 45 minutes
+        run: |
+          echo "Waiting 45 minutes between Day 1 and Day 2 tests..."
+          sleep 2700  # 45 minutes = 2700 seconds
+          echo "Wait completed. Ready for Day 2 tests."
+
+  e2e-test-day2:
+    name: "E2E OnDemand - Day 2 Tests - Env: ${{ inputs.env-uat }}"
+    if: |
+      always() &&
+      needs.setup-environment.outputs.has-day2 == 'true' &&
+      (needs.setup-environment.outputs.has-day1 == 'false' || needs.delay-before-day2.result == 'success' || needs.e2e-test-day1.result == 'success' || needs.e2e-test-day1.result == 'skipped')
+    concurrency:
+      group: e2e-ondemand-day2-${{ github.run_id }}
+      cancel-in-progress: true
+    needs: [setup-environment, delay-before-day2, e2e-test-day1]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-workspace-${{ github.run_id }}
+      - name: Execute Day 2 Tests
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+          TERM: xterm
+          LC_ALL: C.UTF-8
+          LANG: C.UTF-8
+          TEST_TAGS: ${{ needs.setup-environment.outputs.day2-tags }}
+        run: |
+          echo "=== Executing Tests ==="
+          tags="$TEST_TAGS"
+          browser="${{ inputs.browser }}"
+          echo "Running tests with tags: $tags"
+          echo "Using browser: $browser"
+          
+          if [ "${{ inputs.env-uat }}" = "staging" ]; then
+            echo "Running tests against staging environment"
+            npx cypress run --browser "$browser" --env grepTags="$tags" --config baseUrl=https://console.dev.redhat.com/openshift/
+          else
+            echo "Running tests against local environment"
+            yarn start --env logging=quiet --no-client-overlay &
+            yarn wait-on -i 5000 https://prod.foo.redhat.com:1337/openshift/
+            npx cypress run --browser "$browser" --env grepTags="$tags"
+          fi
+      - name: Upload Day 2 test results
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: e2e-ondemand-day2-results-${{ inputs.env-uat }}-${{ github.run_id }}
+          retention-days: 7
+          path: |
+            cypress/screenshots/
+            cypress/videos/
+            cypress/reports/
+      - name: Upload Day 2 failure artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: e2e-ondemand-day2-failures-${{ github.run_id }}
+          retention-days: 7
+          path: |
+            cypress/screenshots/
+            cypress/videos/
+
+  e2e-test-day3:
+    name: "E2E OnDemand - Day 3 Tests - Env: ${{ inputs.env-uat }}"
+    if: |
+      always() &&
+      needs.setup-environment.outputs.has-day3 == 'true' &&
+      (needs.setup-environment.outputs.has-day2 == 'false' || needs.e2e-test-day2.result == 'success' || needs.e2e-test-day2.result == 'skipped')
+    concurrency:
+      group: e2e-ondemand-day3-${{ github.run_id }}
+      cancel-in-progress: true
+    needs: [setup-environment, e2e-test-day2]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-workspace-${{ github.run_id }}
+      - name: Execute Day 3 Tests
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+          TERM: xterm
+          LC_ALL: C.UTF-8
+          LANG: C.UTF-8
+          TEST_TAGS: ${{ needs.setup-environment.outputs.day3-tags }}
+        run: |
+          echo "=== Executing Tests ==="
+          tags="$TEST_TAGS"
+          browser="${{ inputs.browser }}"
+          echo "Running tests with tags: $tags"
+          echo "Using browser: $browser"
+          
+          if [ "${{ inputs.env-uat }}" = "staging" ]; then
+            echo "Running tests against staging environment"
+            npx cypress run --browser "$browser" --env grepTags="$tags" --config baseUrl=https://console.dev.redhat.com/openshift/
+          else
+            echo "Running tests against local environment"
+            yarn start --env logging=quiet --no-client-overlay &
+            yarn wait-on -i 5000 https://prod.foo.redhat.com:1337/openshift/
+            npx cypress run --browser "$browser" --env grepTags="$tags"
+          fi
+      - name: Upload Day 3 test results
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: e2e-ondemand-day3-results-${{ inputs.env-uat }}-${{ github.run_id }}
+          retention-days: 7
+          path: |
+            cypress/screenshots/
+            cypress/videos/
+            cypress/reports/
+      - name: Upload Day 3 failure artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: e2e-ondemand-day3-failures-${{ github.run_id }}
+          retention-days: 7
+          path: |
+            cypress/screenshots/
+            cypress/videos/
+
+  e2e-test-fallback:
+    name: "E2E OnDemand - Non-Day Tags - Env: ${{ inputs.env-uat }}"
+    if: needs.setup-environment.outputs.has-non-day-tags == 'true'
+    concurrency:
+      group: e2e-ondemand-test-${{ github.run_id }}
+      cancel-in-progress: true
+    needs: [setup-environment]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-workspace-${{ github.run_id }}
+      - name: Execute tests with tags
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+          TERM: xterm
+          LC_ALL: C.UTF-8
+          LANG: C.UTF-8
+          TEST_TAGS: ${{ needs.setup-environment.outputs.non-day-tags }}
+        run: |
+          echo "=== Executing Tests ==="
+          tags="$TEST_TAGS"
+          browser="${{ inputs.browser }}"
+          echo "Running tests with tags: $tags"
+          echo "Using browser: $browser"
+          
+          if [ "${{ inputs.env-uat }}" = "staging" ]; then
+            echo "Running tests against staging environment"
+            npx cypress run --browser "$browser" --env grepTags="$tags" --config baseUrl=https://console.dev.redhat.com/openshift/
+          else
+            echo "Running tests against local environment"
+            yarn start --env logging=quiet --no-client-overlay &
+            yarn wait-on -i 5000 https://prod.foo.redhat.com:1337/openshift/
+            npx cypress run --browser "$browser" --env grepTags="$tags"
+          fi
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: e2e-ondemand-results-${{ inputs.env-uat }}-${{ inputs.cypress-tags }}-${{ github.run_id }}
+          retention-days: 7
+          path: |
+            cypress/screenshots/
+            cypress/videos/
+            cypress/reports/
+      - name: Upload failure artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: e2e-ondemand-failures-${{ inputs.cypress-tags }}-${{ github.run_id }}
+          retention-days: 7
+          path: |
+            cypress/screenshots/
+            cypress/videos/ 
