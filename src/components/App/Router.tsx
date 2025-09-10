@@ -219,14 +219,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         <Route path="/quota" element={<Quota />} />
         <Route path="/archived" element={<ArchivedClusterListMultiRegion getMultiRegion />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route
-          path="/overview/rosa/hands-on"
-          element={
-            <TermsGuard gobackPath="/overview/rosa/hands-on">
-              <RosaHandsOnPage />
-            </TermsGuard>
-          }
-        />
+        <Route path="/overview/rosa/hands-on" element={<RosaHandsOnPage />} />
         <Route path="/overview/rosa" element={<ServicePage serviceName="ROSA" />} />
         <Route path="/overview/osd" element={<ServicePage serviceName="OSD" />} />
         <Route path="/overview" element={<Overview />} />
