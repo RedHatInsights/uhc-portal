@@ -62,7 +62,7 @@ export const ClusterProxy = () => {
 
   const validateHttpProxyUrl = (value: string) => validateUrl(value, 'http') || validateAtLeastOne;
   const validateHttpsProxyUrl = (value: string) =>
-    validateUrl(value, ['http', 'https']) || validateAtLeastOne;
+    validateUrl(value, 'https') || validateAtLeastOne;
   const validateAdditionalTrustBundle = (value: string) => validateCA(value) || validateAtLeastOne;
 
   React.useEffect(() => {

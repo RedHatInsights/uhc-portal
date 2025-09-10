@@ -29,6 +29,7 @@ const wizardPrimaryBtnTestId = 'wizard-next-button';
 
 describe('<CreateOsdWizardFooter />', () => {
   const mockedUseFormState = useFormState as jest.Mock;
+  const mockOnNext = jest.fn();
 
   const useFormStateReturnValue = {
     isValidating: false,
@@ -39,6 +40,7 @@ describe('<CreateOsdWizardFooter />', () => {
   };
 
   const props = {
+    onNext: mockOnNext,
     onWizardContextChange: jest.fn(),
     isLoadding: false,
   };
@@ -62,5 +64,31 @@ describe('<CreateOsdWizardFooter />', () => {
     });
     render(<CreateOsdWizardFooter {...props} />);
     expect(screen.getByTestId(wizardPrimaryBtnTestId)).not.toHaveAttribute('aria-disabled');
+  });
+
+  it("Doesn't proceed to the next step when validation fails", () => {
+    mockedUseFormState.mockReturnValue({
+      ...useFormStateReturnValue,
+      validateForm: jest.fn().mockResolvedValue({ mockError: 'Mock Error' }),
+    });
+
+    const { user } = render(<CreateOsdWizardFooter {...props} />);
+    const nextButton = screen.getByTestId(wizardPrimaryBtnTestId);
+
+    user.click(nextButton);
+    expect(mockOnNext).not.toHaveBeenCalled();
+  });
+
+  it('Proceeds to the next step when validation succeeds', async () => {
+    mockedUseFormState.mockReturnValue({
+      ...useFormStateReturnValue,
+      validateForm: jest.fn().mockResolvedValue({}),
+    });
+
+    const { user } = render(<CreateOsdWizardFooter {...props} />);
+    const nextButton = screen.getByTestId(wizardPrimaryBtnTestId);
+
+    await user.click(nextButton);
+    expect(mockOnNext).toHaveBeenCalled();
   });
 });

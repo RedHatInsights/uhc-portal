@@ -19,10 +19,12 @@ jest.mock('react-redux', () => ({
   }),
 }));
 
+const mockGoToNextStep = jest.fn();
+
 jest.mock('@patternfly/react-core', () => ({
   ...jest.requireActual('@patternfly/react-core'),
   useWizardContext: jest.fn(() => ({
-    goToNextStep: jest.fn(),
+    goToNextStep: mockGoToNextStep,
     goToPrevStep: jest.fn(),
     close: jest.fn(),
     activeStep: { id: 'mockStepId' },
@@ -42,10 +44,10 @@ describe('<CreateRosaWizardFooter />', () => {
   const mockedUseFormState = useFormState as jest.Mock;
 
   const useFormStateReturnValue = {
-    setFieldTouched: jest.fn(),
-    setFieldValue: jest.fn(),
-    getFieldProps: jest.fn(),
-    getFieldMeta: jest.fn().mockReturnValue({}),
+    isValidating: false,
+    submitForm: jest.fn(),
+    setTouched: jest.fn(),
+    validateForm: jest.fn(),
     values: {},
   };
 
@@ -76,5 +78,31 @@ describe('<CreateRosaWizardFooter />', () => {
     mockedUseFormState.mockReturnValue(useFormStateReturnValue);
     render(<CreateRosaWizardFooter {...props} />);
     expect(screen.getByTestId(wizardPrimaryBtnTestId)).not.toHaveAttribute('aria-disabled');
+  });
+
+  it("Doesn't proceed to the next step when validation fails", () => {
+    mockedUseFormState.mockReturnValue({
+      ...useFormStateReturnValue,
+      validateForm: jest.fn().mockResolvedValue({ mockError: 'Mock Error' }),
+    });
+
+    const { user } = render(<CreateRosaWizardFooter {...props} />);
+    const nextButton = screen.getByTestId(wizardPrimaryBtnTestId);
+
+    user.click(nextButton);
+    expect(mockGoToNextStep).not.toHaveBeenCalled();
+  });
+
+  it('Proceeds to the next step when validation succeeds', async () => {
+    mockedUseFormState.mockReturnValue({
+      ...useFormStateReturnValue,
+      validateForm: jest.fn().mockResolvedValue({}),
+    });
+
+    const { user } = render(<CreateRosaWizardFooter {...props} />);
+    const nextButton = screen.getByTestId(wizardPrimaryBtnTestId);
+
+    await user.click(nextButton);
+    expect(mockGoToNextStep).toHaveBeenCalled();
   });
 });
