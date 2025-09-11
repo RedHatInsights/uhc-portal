@@ -6,7 +6,7 @@ import { OverviewPage } from '../../page-objects/overview-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
 
 // Import cluster properties JSON
-const clusterProperties = require('../../fixtures/rosa-hosted/RosaClusterHostedCreation.json');
+const clusterProperties = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-creation.spec.json');
 
 // Shared context and page objects for serial test execution
 let sharedContext: BrowserContext;

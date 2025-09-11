@@ -74,11 +74,9 @@ test.describe(
       await clusterTypesPage.clickCloudProvider('Azure (ARM)');
       await clusterTypesPage.isClusterTypesUrl('/install/azure/arm/installer-provisioned');
       await expect(
-        sharedPage
-          .locator('h1')
-          .filter({
-            hasText: 'Install OpenShift on Azure with installer-provisioned ARM infrastructure',
-          }),
+        sharedPage.locator('h1').filter({
+          hasText: 'Install OpenShift on Azure with installer-provisioned ARM infrastructure',
+        }),
       ).toBeVisible();
     });
 
@@ -86,11 +84,9 @@ test.describe(
       await clusterTypesPage.clickCloudProvider('Azure (multi-architecture)');
       await clusterTypesPage.isClusterTypesUrl('/install/azure/multi/installer-provisioned');
       await expect(
-        sharedPage
-          .locator('h1')
-          .filter({
-            hasText: 'Install OpenShift on Azure with multi-architecture compute machines',
-          }),
+        sharedPage.locator('h1').filter({
+          hasText: 'Install OpenShift on Azure with multi-architecture compute machines',
+        }),
       ).toBeVisible();
     });
 
@@ -106,11 +102,9 @@ test.describe(
       await clusterTypesPage.clickCloudProvider('IBM Cloud');
       await clusterTypesPage.isClusterTypesUrl('/install/ibm-cloud');
       await expect(
-        sharedPage
-          .locator('h1')
-          .filter({
-            hasText: 'Install OpenShift on IBM Cloud with installer-provisioned infrastructure',
-          }),
+        sharedPage.locator('h1').filter({
+          hasText: 'Install OpenShift on IBM Cloud with installer-provisioned infrastructure',
+        }),
       ).toBeVisible();
     });
 
@@ -118,11 +112,9 @@ test.describe(
       await clusterTypesPage.clickCloudProvider('Baremetal (multi-architecture)');
       await clusterTypesPage.isClusterTypesUrl('/install/metal/multi');
       await expect(
-        sharedPage
-          .locator('h1')
-          .filter({
-            hasText: 'Install OpenShift on bare metal with multi-architecture compute machines',
-          }),
+        sharedPage.locator('h1').filter({
+          hasText: 'Install OpenShift on bare metal with multi-architecture compute machines',
+        }),
       ).toBeVisible();
     });
 
@@ -130,12 +122,10 @@ test.describe(
       await clusterTypesPage.clickCloudProvider('IBM PowerVS (ppc64le)');
       await clusterTypesPage.isClusterTypesUrl('/install/powervs/installer-provisioned');
       await expect(
-        sharedPage
-          .locator('h1')
-          .filter({
-            hasText:
-              'Install OpenShift on IBM Power Systems Virtual Server with installer-provisioned infrastructure',
-          }),
+        sharedPage.locator('h1').filter({
+          hasText:
+            'Install OpenShift on IBM Power Systems Virtual Server with installer-provisioned infrastructure',
+        }),
       ).toBeVisible();
     });
 

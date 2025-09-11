@@ -9,17 +9,16 @@ let clusterListPage: ClusterListPage;
 
 test.describe.serial('OCM Cluster archives page', { tag: ['@smoke'] }, () => {
   test.describe('Check all cluster archives page items presence and its actions (OCP-25329)', () => {
-    
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to cluster list
       const setup = await setupTestSuite(browser, '/openshift/cluster-list');
-      
+
       sharedContext = setup.context;
       sharedPage = setup.page;
-      
+
       // Initialize page objects for this test suite
       clusterListPage = new ClusterListPage(sharedPage);
-      
+
       // Wait for cluster list data to load
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
@@ -62,17 +61,17 @@ test.describe.serial('OCM Cluster archives page', { tag: ['@smoke'] }, () => {
       await clusterListPage.filterTxtField().click();
       await clusterListPage.clusterListRefresh();
       await clusterListPage.waitForArchiveDataReady();
-      
+
       // Only OCP cluster should be in filter rule display
       await clusterListPage.checkFilteredClusterTypes('OCP', true);
       await clusterListPage.checkFilteredClusterTypes('OSD', false);
       await clusterListPage.checkFilteredClusterTypes('ROSA', false);
-      
+
       // Only OCP clusters should be in cluster list - first page
       await clusterListPage.checkFilteredClustersFromClusterList('OCP', true);
       await clusterListPage.scrollClusterListPageTo('bottom');
       await clusterListPage.goToLastPage();
-      
+
       // Only OCP clusters should be in cluster list - last page
       await clusterListPage.checkFilteredClustersFromClusterList('OCP', true);
       await clusterListPage.scrollClusterListPageTo('top');
@@ -83,7 +82,7 @@ test.describe.serial('OCM Cluster archives page', { tag: ['@smoke'] }, () => {
       await clusterListPage.clickClusterTypes('ARO');
       await clusterListPage.clickClusterTypes('OCP');
       await clusterListPage.clearFilters();
-      
+
       await clusterListPage.filterTxtField().scrollIntoViewIfNeeded();
       await expect(clusterListPage.filterTxtField()).toBeVisible();
       await clusterListPage.filterTxtField().click({ force: true });
@@ -97,7 +96,7 @@ test.describe.serial('OCM Cluster archives page', { tag: ['@smoke'] }, () => {
       await clusterListPage.viewOnlyMyCluster().click({ force: true });
       await clusterListPage.viewOnlyMyClusterHelp().click();
       await expect(clusterListPage.tooltipviewOnlyMyCluster()).toContainText(
-        'Show only the clusters you previously archived, or all archived clusters in your organization.'
+        'Show only the clusters you previously archived, or all archived clusters in your organization.',
       );
       await clusterListPage.clusterListRefresh();
     });
