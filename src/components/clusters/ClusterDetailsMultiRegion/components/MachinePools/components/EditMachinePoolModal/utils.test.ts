@@ -13,6 +13,7 @@ const defaultValues: EditMachinePoolValues = {
   replicas: 0,
   labels: [],
   taints: [],
+  awsTags: [],
   useSpotInstances: true,
   spotInstanceType: 'maximum',
   maxPrice: 0.04,

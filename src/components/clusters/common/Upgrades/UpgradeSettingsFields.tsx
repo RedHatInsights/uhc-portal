@@ -4,7 +4,15 @@
 import React from 'react';
 import { Field } from 'formik';
 
-import { Content, ContentVariants, Divider, Grid, GridItem, Title } from '@patternfly/react-core';
+import {
+  Alert,
+  Content,
+  ContentVariants,
+  Divider,
+  Grid,
+  GridItem,
+  Title,
+} from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import PodDistruptionBudgetGraceSelect from '~/components/clusters/common/Upgrades/PodDistruptionBudgetGraceSelect';
@@ -13,6 +21,7 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import RadioButtons from '~/components/common/ReduxFormComponents_deprecated/RadioButtons';
+import { UpgradePolicy } from '~/types/clusters_mgmt.v1';
 
 import './UpgradeSettingsFields.scss';
 
@@ -22,6 +31,7 @@ interface UpgradeSettingsFieldsProps {
   showDivider?: boolean;
   isRosa?: boolean;
   initialScheduleValue?: string;
+  scheduledManualUpgrade?: UpgradePolicy;
 }
 
 interface RadioOption {
@@ -37,6 +47,7 @@ function UpgradeSettingsFields({
   showDivider,
   isRosa,
   initialScheduleValue,
+  scheduledManualUpgrade,
 }: UpgradeSettingsFieldsProps) {
   const {
     setFieldValue, // Set value of form field directly
@@ -74,6 +85,19 @@ function UpgradeSettingsFields({
     description: isHypershift ? recurringUpdateHypershift : recurringUpdateMessage,
     extraField: isAutomatic && (
       <Grid>
+        {scheduledManualUpgrade && (
+          <GridItem>
+            <Alert
+              variant="warning"
+              className="automatic-cluster-updates-alert inline-alert"
+              isInline
+              isPlain
+              title="Scheduled manual update will be cancelled"
+            >
+              By choosing recurring updates, any individually scheduled update will be cancelled.
+            </Alert>
+          </GridItem>
+        )}
         <GridItem md={6}>
           <Field
             component={UpgradeScheduleSelection}
