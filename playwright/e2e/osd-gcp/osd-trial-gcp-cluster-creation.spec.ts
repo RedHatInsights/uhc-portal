@@ -2,7 +2,7 @@ import { test, expect, Page, BrowserContext } from '@playwright/test';
 import { CreateOSDWizardPage } from '../../page-objects/create-osd-wizard-page';
 import { ClusterDetailsPage } from '../../page-objects/cluster-details-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
-const clusterProperties = require('../../fixtures/osd-gcp/osd-trial-gcp-cluster-creation.spec');
+const clusterProperties = require('../../fixtures/osd-gcp/osd-trial-gcp-cluster-creation.spec.json');
 
 // Environment variables
 const QE_GCP = process.env.QE_GCP_OSDCCSADMIN_JSON;

@@ -1,7 +1,7 @@
 import { test, expect, Page, BrowserContext } from '@playwright/test';
 import { SubscriptionsPage } from '../../page-objects/subscriptions-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
-const SubscriptionDedicatedAnnual = require('../../fixtures/subscription/SubscriptionDedicated.json');
+const SubscriptionDedicatedAnnual = require('../../fixtures/subscription/subscriptions.spec.json');
 
 const annualDescriptionText =
   'The summary of all annual subscriptions for OpenShift Dedicated and select add-ons purchased by your organization or granted by Red Hat. For subscription information on OpenShift Container Platform or Red Hat OpenShift Service on AWS (ROSA), see OpenShift Usage';
