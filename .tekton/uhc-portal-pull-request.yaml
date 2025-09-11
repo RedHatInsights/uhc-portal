@@ -47,6 +47,10 @@ spec:
     serviceAccountName: build-pipeline-uhc-portal
   # extend the unit-tests pipeline task to increase RAM
   taskRunSpecs:
+    - pipelineTaskName: build-container
+      env:
+      - name: YARN_BUILD_SCRIPT
+        value: build:saas
     - pipelineTaskName: run-unit-tests
       stepSpecs:
         - name: unit-tests
