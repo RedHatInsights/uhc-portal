@@ -1,0 +1,47 @@
+{
+  "ClusterName": "ocmui-playwright-smoke-osd-ccs-aws",
+  "ClusterDomainPrefix": "osd-domain-aws",
+  "Type": "OSD",
+  "CloudProvider": "AWS",
+  "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
+  "SubscriptionBillingModel": "Annual Red Hat subscriptions",
+  "InfrastructureType": "Customer cloud subscription",
+  "Region": "us-east-1, US East, N. Virginia",
+  "Availability": "Single zone",
+  "UserWorkloadMonitoring": "Enabled",
+  "FIPSCryptography": "Disabled",
+  "EncryptVolumesWithCustomerKeys": "Disabled",
+  "AdditionalEncryption": "Disabled",
+  "Nodes": {
+    "Control plane": "3/3",
+    "Infra": "2/2",
+    "Compute": "3/3"
+  },
+  "InstanceMetadataService": "IMDSv1 and IMDSv2",
+  "InstallIntoExistingVPC": "Disabled",
+  "ClusterPrivacy": "Public",
+  "MachineCIDR": "10.0.0.0/16",
+  "ServiceCIDR": "172.30.0.0/16",
+  "PodCIDR": "10.128.0.0/14",
+  "HostPrefix": "/23",
+  "ApplicationIngress": "Use default settings",
+  "UpdateStrategy": "Individual updates",
+  "NodeDraining": "1 hour",
+  "MachinePools": [
+    {
+      "Name": "worker",
+      "InstanceType": "m5.xlarge",
+      "AvailabilityZones": "us-east-1a",
+      "NodeCount": "2",
+      "Autoscaling": "Disabled"
+    }
+  ],
+  "networking": {
+    "CIDRRanges": {
+      "MachineCIDR": "10.0.0.0/16",
+      "ServiceCIDR": "172.30.0.0/16",
+      "PodCIDR": "10.128.0.0/14",
+      "Hostprefix": "/23"
+    }
+  }
+}

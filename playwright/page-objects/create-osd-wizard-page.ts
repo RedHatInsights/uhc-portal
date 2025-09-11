@@ -53,7 +53,9 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   async isClusterDetailsScreen(): Promise<void> {
-    await expect(this.page.getByText('Cluster details')).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Cluster details' })).toBeVisible({
+      timeout: 30000,
+    });
     // Wait for cluster version dropdown to be visible to avoid flaky behavior
     await this.page
       .getByRole('button', { name: 'Options menu' })
@@ -70,7 +72,9 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   async isMachinePoolScreen(): Promise<void> {
-    await expect(this.page.getByText('Machine pool')).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: /Machine pools|Default machine pool/ }),
+    ).toBeVisible();
   }
 
   async isNetworkingScreen(): Promise<void> {
