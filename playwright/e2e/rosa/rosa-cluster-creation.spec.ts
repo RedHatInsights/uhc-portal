@@ -6,7 +6,7 @@ import { OverviewPage } from '../../page-objects/overview-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
 
 // Import cluster properties JSON
-const clusterProfiles = require('../../fixtures/rosa/RosaClusterClassicCreation.json');
+const clusterProfiles = require('../../fixtures/rosa/rosa-cluster-classic-creation.spec.json');
 const clusterProperties = clusterProfiles['rosa-classic-smoke-default'];
 
 // Shared context and page objects for serial test execution

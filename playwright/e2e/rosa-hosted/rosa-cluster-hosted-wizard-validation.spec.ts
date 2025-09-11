@@ -6,7 +6,7 @@ import { OverviewPage } from '../../page-objects/overview-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
 
 // Import cluster field validations JSON
-const clusterFieldValidations = require('../../fixtures/rosa-hosted/RosaClusterHostedWizardValidation.json');
+const clusterFieldValidations = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-wizard-validation.spec.json');
 
 // Shared context and page objects for serial test execution
 let sharedContext: BrowserContext;

@@ -5,7 +5,7 @@ import { OverviewPage } from '../../page-objects/overview-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
 
 // Import cluster field validations JSON
-const clusterFieldValidations = require('../../fixtures/rosa/RosaClusterClassicWizardValidation.json');
+const clusterFieldValidations = require('../../fixtures/rosa/rosa-cluster-classic-wizard-validation.spec.json');
 
 // Shared context and page objects for serial test execution
 let sharedContext: BrowserContext;
@@ -452,13 +452,11 @@ test.describe.serial(
       await createRosaWizardPage.clusterAutoscalingGPUsInput().fill('test:10:12,test:1:5');
       await createRosaWizardPage.clusterAutoscalingGPUsInput().blur();
       await expect(
-        sharedPage
-          .locator('div')
-          .filter({
-            hasText:
-              clusterFieldValidations.ClusterSettings.Machinepool.ClusterAutoscaling
-                .InvalidGPUValueError,
-          }),
+        sharedPage.locator('div').filter({
+          hasText:
+            clusterFieldValidations.ClusterSettings.Machinepool.ClusterAutoscaling
+              .InvalidGPUValueError,
+        }),
       ).not.toBeVisible();
 
       await createRosaWizardPage
