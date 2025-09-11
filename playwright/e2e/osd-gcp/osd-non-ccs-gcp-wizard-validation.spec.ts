@@ -3,7 +3,7 @@ import { CreateOSDWizardPage } from '../../page-objects/create-osd-wizard-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
 
 // Test data - importing as modules since JSON imports need special config
-const testData = require('../../fixtures/osd/OsdNonCCSWizardValidation.json');
+const testData = require('../../fixtures/osd/osd-non-ccs-wizard-validation.spec.json');
 const { Clusters, ClustersValidation } = testData;
 const clusterProperties = Clusters.GCP; // Get only the 2nd item (nonCCS GCP configuration)
 

@@ -3,7 +3,7 @@ import { CreateOSDWizardPage } from '../../page-objects/create-osd-wizard-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
 
 // Test data - importing as modules since JSON imports need special config
-const testData = require('../../fixtures/osd-aws/OsdCCSAWSWizardValidation.json');
+const testData = require('../../fixtures/osd-aws/osd-ccs-aws-wizard-validation.spec.json');
 const clusterProperties = testData.Clusters;
 const ClustersValidation = testData.ClustersValidation;
 // Environment variables
