@@ -2,7 +2,7 @@ import { test, expect, Page, BrowserContext } from '@playwright/test';
 import { ClusterDetailsPage } from '../../page-objects/cluster-details-page';
 import { CreateOSDWizardPage } from '../../page-objects/create-osd-wizard-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
-const gcpClusterProperties = require('../../fixtures/osd/osd-ccs-gcp-psc-cluster-creation.spec.json');
+const gcpClusterProperties = require('../../fixtures/osd-gcp/osd-ccs-gcp-psc-cluster-creation.spec.json');
 
 const authType = `${gcpClusterProperties.AuthenticationType}`;
 const isPscEnabled =
@@ -41,11 +41,7 @@ test.describe.serial(
     });
 
     test(`Launch OSD - ${gcpClusterProperties.CloudProvider} cluster wizard`, async () => {
-      await createOSDWizardPage.osdCreateClusterButton().waitFor({
-        state: 'visible',
-        timeout: 60000,
-      });
-      await createOSDWizardPage.osdCreateClusterButton().click();
+      await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
       await createOSDWizardPage.isCreateOSDPage();
     });
 

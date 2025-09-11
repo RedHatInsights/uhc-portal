@@ -39,8 +39,7 @@ Clusters.forEach((clusterProperties, index) => {
       });
 
       test(`Launch OSD cluster wizard`, async () => {
-        await osdWizardPage.osdCreateClusterButton().waitFor({ state: 'visible', timeout: 30000 });
-        await osdWizardPage.osdCreateClusterButton().click();
+        await osdWizardPage.waitAndClick(osdWizardPage.osdCreateClusterButton());
         await osdWizardPage.isCreateOSDPage();
       });
 

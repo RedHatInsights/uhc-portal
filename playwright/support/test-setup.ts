@@ -12,13 +12,13 @@ export interface TestSuiteSetup {
 export async function setupTestSuite(browser: Browser, path: string): Promise<TestSuiteSetup> {
   // Create context with global authentication state
   const context = await browser.newContext({
-    storageState: 'playwright/fixtures/storageState.json'
+    storageState: 'playwright/fixtures/storageState.json',
   });
   const page = await context.newPage();
-  
+
   // Navigate to specified path
   await page.goto(path);
-  
+
   return { context, page };
 }
 

@@ -44,11 +44,7 @@ test.describe.serial(
     });
 
     test(`Launch OSD - ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled}-${clusterProperties.Marketplace} cluster wizard`, async () => {
-      await createOSDWizardPage.osdCreateClusterButton().waitFor({
-        state: 'visible',
-        timeout: 60000,
-      });
-      await createOSDWizardPage.osdCreateClusterButton().click();
+      await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
       await createOSDWizardPage.isCreateOSDPage();
     });
 

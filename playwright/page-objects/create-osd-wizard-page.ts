@@ -31,6 +31,10 @@ export class CreateOSDWizardPage extends BasePage {
     ).toBeVisible();
   }
 
+  async waitAndClick(buttonLocator: Locator, timeout: number = 60000): Promise<void> {
+    await buttonLocator.waitFor({ state: 'visible', timeout });
+    await buttonLocator.click();
+  }
   // Machine pool selectors
   computeNodeTypeButton(): Locator {
     return this.page.locator('button[aria-label="Machine type select toggle"]');

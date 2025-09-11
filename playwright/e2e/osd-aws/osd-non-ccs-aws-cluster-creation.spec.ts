@@ -32,13 +32,7 @@ test.describe(
     });
 
     test(`Launch OSD - ${clusterProperties.CloudProvider} cluster wizard`, async () => {
-      await expect(createOSDWizardPage.osdCreateClusterButton()).toBeVisible({
-        timeout: 30000,
-      });
-      await expect(createOSDWizardPage.osdCreateClusterButton()).toBeEnabled({
-        timeout: 30000,
-      });
-      await createOSDWizardPage.osdCreateClusterButton().click();
+      await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
       await createOSDWizardPage.isCreateOSDPage();
     });
 

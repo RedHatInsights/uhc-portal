@@ -41,11 +41,7 @@ test.describe.serial(
     });
 
     test(`Launch OSD - ${gcpClusterProperties.CloudProvider} cluster wizard`, async () => {
-      await createOSDWizardPage.osdCreateClusterButton().waitFor({
-        state: 'visible',
-        timeout: 60000,
-      });
-      await createOSDWizardPage.osdCreateClusterButton().click();
+      await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
       await createOSDWizardPage.isCreateOSDPage();
     });
 

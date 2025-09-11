@@ -2,7 +2,6 @@ import { test, expect, Page, BrowserContext } from '@playwright/test';
 import { ClusterDetailsPage } from '../../page-objects/cluster-details-page';
 import { CreateRosaWizardPage } from '../../page-objects/create-rosa-wizard-page';
 import { CreateClusterPage } from '../../page-objects/create-cluster-page';
-import { OverviewPage } from '../../page-objects/overview-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
 
 // Import cluster properties JSON
@@ -15,7 +14,6 @@ let sharedPage: Page;
 let clusterDetailsPage: ClusterDetailsPage;
 let createRosaWizardPage: CreateRosaWizardPage;
 let createClusterPage: CreateClusterPage;
-let overviewPage: OverviewPage;
 
 test.describe.serial(
   'Rosa cluster wizard advanced settings with cluster creation tests (OCP-36105)',
@@ -34,7 +32,7 @@ test.describe.serial(
 
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to overview
-      const setup = await setupTestSuite(browser, '/openshift/overview');
+      const setup = await setupTestSuite(browser, 'create');
 
       sharedContext = setup.context;
       sharedPage = setup.page;
@@ -43,11 +41,6 @@ test.describe.serial(
       clusterDetailsPage = new ClusterDetailsPage(sharedPage);
       createRosaWizardPage = new CreateRosaWizardPage(sharedPage);
       createClusterPage = new CreateClusterPage(sharedPage);
-      overviewPage = new OverviewPage(sharedPage);
-
-      // Navigate to create cluster page
-      await overviewPage.waitForViewAllOpenshiftClusterTypesLink();
-      await overviewPage.viewAllOpenshiftClusterTypesLink().click();
       await createClusterPage.isCreateClusterPageHeaderVisible();
     });
 
@@ -56,7 +49,7 @@ test.describe.serial(
     });
 
     test('Open Rosa cluster wizard with advanced settings', async () => {
-      await createRosaWizardPage.rosaCreateClusterButton().click();
+      await createRosaWizardPage.waitAndClick(createRosaWizardPage.rosaCreateClusterButton());
       await expect(createRosaWizardPage.rosaClusterWithWeb()).toBeVisible();
       await createRosaWizardPage.rosaClusterWithWeb().click();
       await createRosaWizardPage.isCreateRosaPage();
