@@ -3,7 +3,7 @@ import { CreateOSDWizardPage } from '../../page-objects/create-osd-wizard-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
 
 // Test data - importing as modules since JSON imports need special config
-const testData = require('../../fixtures/osd-gcp/OsdCCSGCPWizardValidation.json');
+const testData = require('../../fixtures/osd-gcp/osd-ccs-gcp-wizard-validation.spec.json');
 const { Clusters, ClustersValidation } = testData;
 
 // Environment variables
