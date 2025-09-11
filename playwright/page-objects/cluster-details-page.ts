@@ -60,7 +60,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   archiveClusterDropdownItem(): Locator {
-    return this.page.getByRole('button', { name: 'Archive cluster' });
+    return this.page.getByRole('menuitem', { name: 'Archive cluster' });
   }
 
   archiveClusterDialogConfirm(): Locator {
@@ -72,7 +72,9 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   successNotification(): Locator {
-    return this.page.locator('div.pf-v6-c-alert.pf-m-success.notification-item');
+    return this.page.getByRole('heading', {
+      name: /Success alert: Cluster .* has been archived$/,
+    });
   }
 
   unarchiveClusterButton(): Locator {
@@ -183,7 +185,7 @@ export class ClusterDetailsPage extends BasePage {
 
   async waitForUnarchiveClusterModalToLoad(): Promise<void> {
     await this.page
-      .getByTestId(' unarchive-cluster-dialog')
+      .locator('[aria-label="Unarchive cluster"]')
       .waitFor({ state: 'visible', timeout: 30000 });
     await expect(this.page.getByRole('button', { name: 'Unarchive cluster' })).toBeVisible();
   }

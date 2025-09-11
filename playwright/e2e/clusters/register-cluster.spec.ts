@@ -144,8 +144,7 @@ test.describe.serial('Register cluster flow', { tag: ['@ci', '@smoke'] }, () => 
     await expect(clusterDetailsPage.supportTypeValue()).toContainText('Red Hat support (L1-L3)');
   });
 
-  test.skip('successfully archives the newly created cluster', async () => {
-    // Skipping archive tests for registered clusters as they may not have this option
+  test('successfully archives the newly created cluster', async () => {
     await clusterDetailsPage.actionsDropdownToggle().click();
     await clusterDetailsPage.archiveClusterDropdownItem().click();
     await clusterDetailsPage.waitForArchiveClusterModalToLoad();
@@ -155,8 +154,7 @@ test.describe.serial('Register cluster flow', { tag: ['@ci', '@smoke'] }, () => 
     await expect(clusterDetailsPage.unarchiveClusterButton()).toBeVisible();
   });
 
-  test.skip('successfully unarchives the archived cluster', async () => {
-    // Skipping archive tests for registered clusters as they may not have this option
+  test('successfully unarchives the archived cluster', async () => {
     await clusterDetailsPage.unarchiveClusterButton().click();
     await clusterDetailsPage.waitForUnarchiveClusterModalToLoad();
     await clusterDetailsPage.unarchiveClusterDialogConfirm().click();
@@ -164,13 +162,11 @@ test.describe.serial('Register cluster flow', { tag: ['@ci', '@smoke'] }, () => 
     await clusterDetailsPage.waitForClusterDetailsLoad();
   });
 
-  test.skip('Finally, archive the cluster created', async () => {
-    // Skipping archive tests for registered clusters as they may not have this option
+  test('Finally, archive the cluster created', async () => {
     await clusterDetailsPage.actionsDropdownToggle().click();
     await clusterDetailsPage.archiveClusterDropdownItem().click();
     await clusterDetailsPage.waitForArchiveClusterModalToLoad();
     await clusterDetailsPage.archiveClusterDialogConfirm().click();
-    await expect(clusterDetailsPage.successNotification()).toBeVisible();
     await clusterDetailsPage.waitForClusterDetailsLoad();
     await expect(clusterDetailsPage.unarchiveClusterButton()).toBeVisible();
   });

@@ -25,6 +25,10 @@ export class OCMRolesAndAccessPage extends BasePage {
     return this.page.locator('table[aria-label="OCM Roles and Access"]');
   }
 
+  ocmRoleAndAccessDialog(): Locator {
+    return this.page.locator('#ocm-roles-access-dialog');
+  }
+
   grantRoleUserInput(): Locator {
     return this.page.locator('input[type="text"]:not([aria-label="Date picker"])').last();
   }
@@ -36,13 +40,14 @@ export class OCMRolesAndAccessPage extends BasePage {
   }
 
   submitButton(): Locator {
-    return this.page.getByRole('button', { name: 'Submit' });
+    return this.page.getByRole('button', { name: 'Grant role' });
   }
 
   async waitForGrantRoleModalToClear(): Promise<void> {
-    await this.page
-      .locator('[role="dialog"], [class*="modal"]')
-      .waitFor({ state: 'hidden', timeout: 10000 });
+    await this.page.locator('#ocm-roles-access-dialog').waitFor({
+      state: 'detached',
+      timeout: 30000,
+    });
   }
 
   usernameCell(): Locator {
@@ -52,13 +57,12 @@ export class OCMRolesAndAccessPage extends BasePage {
   }
 
   OCMRolesAndAccessTableActionButton(): Locator {
-    return this.page
-      .locator(
-        'button[aria-label*="Actions"], [class*="dropdown__toggle"], [data-testid*="action"]',
-      )
-      .first();
+    return this.page.getByRole('button', { name: 'Kebab toggle' });
   }
 
+  OCMRolesAndAccessTableActionButtonDelete(): Locator {
+    return this.page.getByRole('menuitem', { name: 'Delete' });
+  }
   OCMRolesAndAccessTableDeleteButton(): Locator {
     return this.page.getByRole('menuitem', { name: 'Delete' });
   }

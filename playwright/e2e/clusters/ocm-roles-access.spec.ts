@@ -15,7 +15,7 @@ let registerClusterPage: RegisterClusterPage;
 let clusterDetailsPage: ClusterDetailsPage;
 let ocmRolesAndAccessPage: OCMRolesAndAccessPage;
 
-test.describe.serial('OCM Roles And Access', { tag: ['@ci'] }, () => {
+test.describe.serial('OCM Roles And Access', { tag: ['@ci', '@smoke'] }, () => {
   const clusterID = v4();
   const displayName = `cypress-${clusterID}`;
   const { username } = getAuthConfig();
@@ -62,19 +62,20 @@ test.describe.serial('OCM Roles And Access', { tag: ['@ci'] }, () => {
     await expect(ocmRolesAndAccessPage.OCMRolesAndAccessTable()).toBeVisible();
   });
 
-  test.skip('successfully validate and grant the RBAC', async () => {
-    // Skipping this test due to complex input field selection issues
+  test('successfully validate and grant the RBAC', async () => {
     await ocmRolesAndAccessPage.grantRoleButton().click({ force: true });
     await expect(ocmRolesAndAccessPage.grantRoleUserInput()).toBeVisible();
     await ocmRolesAndAccessPage.grantRoleUserInput().fill(' ');
-    await expect(ocmRolesAndAccessPage.userInputError()).toContainText(
-      'Red Hat login cannot be empty.',
-    );
+    await expect(
+      ocmRolesAndAccessPage.ocmRoleAndAccessDialog().getByText('Red Hat login cannot be empty'),
+    ).toBeVisible();
     await ocmRolesAndAccessPage.grantRoleUserInput().fill(v4());
     await ocmRolesAndAccessPage.submitButton().click();
-    await expect(ocmRolesAndAccessPage.userInputError()).toContainText(
-      'The specified username does not exist',
-    );
+    await expect(
+      ocmRolesAndAccessPage
+        .ocmRoleAndAccessDialog()
+        .getByText('The specified username does not exist'),
+    ).toBeVisible();
     await ocmRolesAndAccessPage.grantRoleUserInput().clear();
     await ocmRolesAndAccessPage.grantRoleUserInput().fill(username);
     await ocmRolesAndAccessPage.grantRoleUserInput().blur();
@@ -82,23 +83,18 @@ test.describe.serial('OCM Roles And Access', { tag: ['@ci'] }, () => {
     await ocmRolesAndAccessPage.waitForGrantRoleModalToClear();
   });
 
-  test.skip('successfully displays the newly added user', async () => {
-    // Skipping since the previous test was skipped
+  test('successfully displays the newly added user', async () => {
     await expect(ocmRolesAndAccessPage.usernameCell()).toHaveText(username);
   });
 
-  test.skip('successfully deletes the user', async () => {
-    // Skipping since the previous test was skipped
-    await ocmRolesAndAccessPage.OCMRolesAndAccessTableActionButton().focus();
+  test('successfully deletes the user', async () => {
     await ocmRolesAndAccessPage.OCMRolesAndAccessTableActionButton().click({ force: true });
-    await ocmRolesAndAccessPage.OCMRolesAndAccessTableDeleteButton().focus();
     await ocmRolesAndAccessPage.OCMRolesAndAccessTableDeleteButton().click();
     await expect(ocmRolesAndAccessPage.usernameCell()).not.toBeVisible();
   });
 
-  test.skip('Finally, archive the cluster created', async () => {
-    // Skipping archive test for registered clusters as they may not have this option
-    await clusterDetailsPage.actionsDropdownToggle().click();
+  test('Finally, archive the cluster created', async () => {
+    await clusterDetailsPage.actionsDropdownToggle().click({ force: true });
     await clusterDetailsPage.archiveClusterDropdownItem().click();
     await clusterDetailsPage.archiveClusterDialogConfirm().click();
     await clusterDetailsPage.waitForClusterDetailsLoad();
