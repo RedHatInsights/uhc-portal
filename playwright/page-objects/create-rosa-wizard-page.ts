@@ -302,6 +302,11 @@ export class CreateRosaWizardPage extends BasePage {
     await expect(this.page).toHaveURL(/\/openshift\/create\/rosa\/wizard/);
   }
 
+  async waitAndClick(buttonLocator: Locator, timeout: number = 60000): Promise<void> {
+    await buttonLocator.waitFor({ state: 'visible', timeout });
+    await buttonLocator.click();
+  }
+
   async isControlPlaneTypeScreen(): Promise<void> {
     // Wait for h2 with specific text to load and be visible
     await this.page

@@ -1,7 +1,6 @@
 import { test, expect, Page, BrowserContext } from '@playwright/test';
 import { CreateRosaWizardPage } from '../../page-objects/create-rosa-wizard-page';
 import { CreateClusterPage } from '../../page-objects/create-cluster-page';
-import { OverviewPage } from '../../page-objects/overview-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
 
 // Import cluster field validations JSON
@@ -12,7 +11,6 @@ let sharedContext: BrowserContext;
 let sharedPage: Page;
 let createRosaWizardPage: CreateRosaWizardPage;
 let createClusterPage: CreateClusterPage;
-let overviewPage: OverviewPage;
 
 test.describe.serial(
   'Rosa Classic cluster wizard validations',
@@ -26,7 +24,7 @@ test.describe.serial(
 
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to overview
-      const setup = await setupTestSuite(browser, '/openshift/overview');
+      const setup = await setupTestSuite(browser, 'create');
 
       sharedContext = setup.context;
       sharedPage = setup.page;
@@ -34,12 +32,6 @@ test.describe.serial(
       // Initialize page objects for this test suite
       createRosaWizardPage = new CreateRosaWizardPage(sharedPage);
       createClusterPage = new CreateClusterPage(sharedPage);
-      overviewPage = new OverviewPage(sharedPage);
-
-      // Navigate to create cluster page
-      await overviewPage.waitForViewAllOpenshiftClusterTypesLink();
-      await overviewPage.viewAllOpenshiftClusterTypesLink().click();
-      await createClusterPage.isCreateClusterPageHeaderVisible();
     });
 
     test.afterAll(async () => {
@@ -47,7 +39,7 @@ test.describe.serial(
     });
 
     test('Open Rosa cluster wizard', async () => {
-      await createRosaWizardPage.rosaCreateClusterButton().click();
+      await createRosaWizardPage.waitAndClick(createRosaWizardPage.rosaCreateClusterButton());
       await createRosaWizardPage.rosaClusterWithWeb().click();
       await createRosaWizardPage.isCreateRosaPage();
       await expect(sharedPage.locator('.spinner-loading-text')).not.toBeVisible();

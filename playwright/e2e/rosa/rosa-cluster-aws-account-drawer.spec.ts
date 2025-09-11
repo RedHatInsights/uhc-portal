@@ -15,7 +15,7 @@ test.describe.serial(
   () => {
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to overview
-      const setup = await setupTestSuite(browser, '/openshift/create/rosa/wizard');
+      const setup = await setupTestSuite(browser, 'create/rosa/wizard');
 
       sharedContext = setup.context;
       sharedPage = setup.page;
@@ -31,7 +31,7 @@ test.describe.serial(
     clusterControlPlanes.forEach((controlPlane) => {
       test(`Step - Open ROSA wizard and Select control plane type - ${controlPlane}`, async () => {
         if (controlPlane === 'Classic') {
-          await sharedPage.goto('/openshift/create/rosa/wizard');
+          await sharedPage.goto('create/rosa/wizard');
         }
         await createRosaWizardPage.isControlPlaneTypeScreen();
         if (controlPlane === 'Hosted') {

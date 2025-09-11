@@ -14,7 +14,9 @@ export function getAuthConfig(username?: string, password?: string): AuthConfig 
   const envPassword = process.env.TEST_WITHQUOTA_PASSWORD || process.env.QE_ORGADMIN_PASSWORD || '';
 
   if (!envUsername || !envPassword) {
-    throw new Error('Test credentials not found. Please set TEST_WITHQUOTA_USER and TEST_WITHQUOTA_PASSWORD environment variables.');
+    throw new Error(
+      'Test credentials not found. Please set TEST_WITHQUOTA_USER and TEST_WITHQUOTA_PASSWORD environment variables.',
+    );
   }
 
   return {
