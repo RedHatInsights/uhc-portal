@@ -22,7 +22,7 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   async isCreateOSDTrialPage(): Promise<void> {
-    await this.assertUrlIncludes('/openshift/create/osdtrial');
+    await expect(this.page).toHaveURL(/\/openshift\/create\/osdtrial/);
   }
 
   async isBillingModelScreen(): Promise<void> {
@@ -95,6 +95,13 @@ export class CreateOSDWizardPage extends BasePage {
     await expect(this.page.locator('h3:has-text("Cluster update strategy")')).toBeVisible({
       timeout: 30000,
     });
+  }
+
+  async isTrailDefinitionScreen(): Promise<void> {
+    await expect(this.page.getByRole('radio', { name: 'Free trial (upgradeable)' })).toBeChecked();
+    await expect(
+      this.page.getByRole('radio', { name: 'Customer cloud subscription' }),
+    ).toBeChecked();
   }
 
   async isReviewScreen(): Promise<void> {
