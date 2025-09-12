@@ -183,6 +183,9 @@ export const defaultExpectedInitialValues = {
     },
   ],
   useSpotInstances: false,
+  maxSurge: 1,
+  maxUnavailable: 0,
+  nodeDrainTimeout: 0,
 };
 
 export const hyperShiftExpectedInitialValues = {
