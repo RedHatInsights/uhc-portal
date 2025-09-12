@@ -1,0 +1,15 @@
+.modal-wizard-header {
+  width: 100%;
+  background-color: var(--pf-t--global--background--color--secondary--default);
+  border-bottom: var(--pf-t--global--border--width--divider--default) solid
+    var(--pf-t--global--border--color--default);
+
+  .modal-wizard-header__title {
+    font-size: var(--pf-t--global--font--size--3xl);
+    font-weight: var(--pf-t--global--font--weight--heading--default);
+  }
+
+  .modal-wizard-header__description {
+    color: var(--pf-t--global--text--color--subtle);
+  }
+}
