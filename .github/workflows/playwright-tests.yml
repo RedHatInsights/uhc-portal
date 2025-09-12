@@ -145,13 +145,15 @@ jobs:
         run: |
           echo "=== Playwright Artifacts Summary ==="
           echo "Screenshots (failures only):"
-          find test-results -name "*.png" | wc -l
+          find playwright-artifacts/results -name "*.png" 2>/dev/null | wc -l
           echo "Videos (failures only):"
-          find test-results -name "*.webm" | wc -l
+          find playwright-artifacts/results -name "*.webm" 2>/dev/null | wc -l
           echo "Traces (if enabled):"
-          find test-results -name "trace.zip" | wc -l
+          find playwright-artifacts/results -name "trace.zip" 2>/dev/null | wc -l
+          echo "HTML Reports:"
+          find playwright-artifacts/reports -name "index.html" 2>/dev/null | wc -l
           echo "Total artifact size:"
-          du -sh test-results/ playwright-artifacts/ 2>/dev/null || echo "No artifacts found"
+          du -sh playwright-artifacts/ 2>/dev/null || echo "No artifacts found"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -159,9 +161,7 @@ jobs:
         with:
           name: playwright-results-${{ github.run_id }}
           retention-days: 7
-          path: |
-            playwright-artifacts/
-            test-results/
+          path: playwright-artifacts/
 
       - name: Upload failure artifacts
         uses: actions/upload-artifact@v4
@@ -169,7 +169,4 @@ jobs:
         with:
           name: playwright-failures-${{ github.run_id }}
           retention-days: 7
-          path: |
-            playwright-artifacts/
-            test-results/
-            playwright.env.json
+          path: playwright-artifacts/
