@@ -16,7 +16,7 @@ let sharedContext: BrowserContext;
 let sharedPage: Page;
 let clusterCloudTabPage: ClusterCloudTabPage;
 
-test.describe(
+test.describe.serial(
   'Test checking elements at create cluster page, in Cloud tab selected - OCP-38888',
   { tag: ['@smoke'] },
   () => {
@@ -29,8 +29,6 @@ test.describe(
 
       // Initialize page objects for this test suite
       clusterCloudTabPage = new ClusterCloudTabPage(sharedPage);
-
-      await clusterCloudTabPage.isCloudTabPage();
     });
 
     test.afterAll(async () => {

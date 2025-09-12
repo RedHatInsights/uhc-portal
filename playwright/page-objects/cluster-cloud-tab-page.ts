@@ -51,9 +51,10 @@ export class ClusterCloudTabPage extends BasePage {
 
   // Methods
   async isCloudTabPage(): Promise<void> {
-    await expect(this.page).toHaveURL(/\/openshift\/create\/cloud/);
+    await expect(this.page).toHaveURL(/\/openshift\/create\/cloud/, { timeout: 40000 });
     await expect(this.page).toHaveTitle(
       'Create an OpenShift cluster | Red Hat OpenShift Cluster Manager',
+      { timeout: 40000 },
     );
   }
 

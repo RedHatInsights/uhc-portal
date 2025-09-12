@@ -35,11 +35,11 @@
     {
       "Name": "worker",
       "InstanceType": "custom-4-16384",
-      "NodeCount": 1,
+      "NodeCount": "1",
       "Autoscaling": "Disabled",
       "Labels": [
         {
-          "Key": "ocmplaywright-tests",
+          "Key": "ocmplaywright-smoke-tests",
           "Value": "osd-trail-gcp"
         }
       ]
