@@ -46,7 +46,9 @@ const EditDetailsSection = ({
   ) : (
     <>
       <TextField fieldId="name" label="Machine pool name" isRequired />
-      {isHypershiftCluster(cluster) ? <SubnetField cluster={cluster} region={region} /> : null}
+      {isHypershiftCluster(cluster) ? (
+        <SubnetField cluster={cluster} region={region} machinePools={machinePools} />
+      ) : null}
       <InstanceTypeField cluster={cluster} machineTypesResponse={machineTypesResponse} />
     </>
   );
