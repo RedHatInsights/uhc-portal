@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Content, ContentVariants } from '@patternfly/react-core';
 
+import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 
@@ -20,7 +21,7 @@ const SupportLevelLabel = () => (
             ticket response times.
           </Content>
           <Content component={ContentVariants.p}>
-            <ExternalLink href="https://access.redhat.com/support/">
+            <ExternalLink href={supportLinks.SUPPORT_HOME}>
               Production Support Terms of Service
             </ExternalLink>
           </Content>

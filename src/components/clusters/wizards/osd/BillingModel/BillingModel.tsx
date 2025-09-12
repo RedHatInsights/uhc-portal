@@ -16,6 +16,7 @@ import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/o
 
 import { deleteQueryParam, getQueryParam } from '~/common/queryHelpers';
 import { normalizedProducts, STANDARD_TRIAL_BILLING_MODEL_TYPE } from '~/common/subscriptionTypes';
+import supportLinks from '~/common/supportLinks.mjs';
 import {
   getMinReplicasCount,
   getNodesCount,
@@ -67,7 +68,7 @@ export const BillingModel = () => {
 
   const trialDescription = (
     <p>
-      <ExternalLink href="https://access.redhat.com/articles/5990101" noIcon noTarget>
+      <ExternalLink href={supportLinks.BILLING_MODEL_KB} noIcon noTarget>
         Try OpenShift Dedicated
       </ExternalLink>{' '}
       for free for 60 days. Upgrade anytime

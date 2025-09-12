@@ -222,6 +222,7 @@
     "insights-proxy": "make insights-proxy-check && run/insights-proxy.sh",
     "stop-insights-proxy": "run/podman-or-docker.sh kill insightsproxy; run/podman-or-docker.sh rm --force insightsproxy; true",
     "lint": "eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx",
+    "lint:files": "eslint --ext mjs,js,jsx,ts,tsx",
     "lint-prettier": "yarn lint && yarn prettier",
     "lint-staged": "lint-staged",
     "prettier": "prettier --check '{src,cypress,scripts}/**/*.{js,ts,mjs,jsx,tsx}' 'run/*js'",
