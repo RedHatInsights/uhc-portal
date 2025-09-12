@@ -29,8 +29,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Always run tests in sequence with a single worker. */
-  workers: 1,
+  /* Run tests with 4 parallel workers in CI, 1 locally */
+  workers: process.env.CI ? 4 : 1,
   /* Global test timeout to prevent context closure */
   timeout: 300000, // 5 minutes per test
   /* Global setup - authentication handled once for all tests */
