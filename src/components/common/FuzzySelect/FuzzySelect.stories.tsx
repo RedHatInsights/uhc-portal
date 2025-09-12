@@ -75,7 +75,7 @@ const awsAccounts = [
 ];
 
 const meta: Meta<typeof FuzzySelect> = {
-  title: 'Shared/FuzzySelect',
+  title: 'Common/FuzzySelect',
   component: FuzzySelect,
   render: (props) => {
     const [isOpen, setIsOpen] = useState(false);
