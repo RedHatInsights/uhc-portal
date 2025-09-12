@@ -24,7 +24,7 @@ test.describe.serial(
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-Installer-Role`;
     const clusterName = `${clusterProperties.ClusterNamePrefix}-${Math.random().toString(36).substring(7)}`;
-    const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2)}`;
+    const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2, 13)}`;
 
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to overview
