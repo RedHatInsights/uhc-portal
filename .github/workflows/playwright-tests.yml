@@ -69,14 +69,9 @@ jobs:
         run: git diff HEAD --exit-code
 
   playwright-tests:
-    name: Playwright Tests (${{ inputs.grep_tags || '@smoke' }}) - Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+    name: Playwright Tests (${{ inputs.grep_tags || '@smoke' }})
     needs: [install]
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shardIndex: [1, 2, 3, 4]
-        shardTotal: [4]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -102,11 +97,11 @@ jobs:
 
       - name: Create playwright.env.json from secret
         run: |
-          echo "Creating playwright.env.json for shard ${{ matrix.shardIndex }}..."
+          echo "Creating playwright.env.json..."
           echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' > playwright.env.json
 
           # Add unique identifiers to avoid resource conflicts
-          BUILD_ID="${{ github.run_id }}-shard-${{ matrix.shardIndex }}"
+          BUILD_ID="${{ github.run_id }}"
 
           # Install jq if not available
           if ! command -v jq &> /dev/null; then
@@ -118,7 +113,7 @@ jobs:
 
           # Validate JSON using jq
           if jq empty playwright.env.json > /dev/null 2>&1; then
-            echo "playwright.env.json is valid JSON for shard ${{ matrix.shardIndex }}"
+            echo "playwright.env.json is valid JSON"
           else
             echo "ERROR: playwright.env.json is not valid JSON!"
             exit 1
@@ -136,13 +131,14 @@ jobs:
           # Optimize trace collection for CI
           PLAYWRIGHT_TRACE: ${{ inputs.trace_level || 'off' }}
         run: |
-          # Run tests with specified tags and sharding
+          # Run tests with specified tags and 4 workers
           GREP_PATTERN="${{ inputs.grep_tags || '@smoke' }}"
           echo "Running tests with pattern: $GREP_PATTERN"
           echo "Using browser: ${{ inputs.browser || 'chromium' }}"
           echo "Using base URL: ${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}"
+          echo "Using 4 parallel workers"
 
-          npx playwright test --grep "$GREP_PATTERN" --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=html
+          npx playwright test --grep "$GREP_PATTERN" --workers=4 --reporter=html
 
       - name: Display artifact summary
         if: ${{ always() }}
@@ -157,11 +153,11 @@ jobs:
           echo "Total artifact size:"
           du -sh test-results/ playwright-artifacts/ 2>/dev/null || echo "No artifacts found"
 
-      - name: Upload shard test results
+      - name: Upload test results
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: playwright-results-shard-${{ matrix.shardIndex }}-${{ github.run_id }}
+          name: playwright-results-${{ github.run_id }}
           retention-days: 7
           path: |
             playwright-artifacts/
@@ -171,186 +167,9 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: playwright-failures-shard-${{ matrix.shardIndex }}-${{ github.run_id }}
+          name: playwright-failures-${{ github.run_id }}
           retention-days: 7
           path: |
             playwright-artifacts/
             test-results/
             playwright.env.json
-
-  consolidate-reports:
-    name: Consolidate Test Reports
-    needs: [playwright-tests]
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref }}
-
-      - name: Use Node.js 22.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-
-      - uses: actions/cache@v4
-        with:
-          path: './node_modules'
-          key: playwright-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
-
-      - name: Install dependencies
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install
-
-      - name: Install Playwright
-        run: npx playwright install --with-deps
-
-      - name: Download all shard artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: playwright-results-shard-*-${{ github.run_id }}
-          path: ./all-shard-results
-          merge-multiple: false
-
-      - name: Merge HTML reports
-        run: |
-          # Create consolidated reports directory
-          mkdir -p playwright-artifacts/consolidated-reports
-
-          # Debug: List downloaded artifacts structure
-          echo "=== Downloaded Artifacts Structure ==="
-          find ./all-shard-results -type f -name "*.html" | head -10
-          ls -la ./all-shard-results/
-
-          # Find and process HTML reports from shards
-          shard_count=0
-          find ./all-shard-results -name "index.html" -path "*/playwright-artifacts/reports/*" | while read report; do
-            if [ -f "$report" ]; then
-              # Extract shard information from path
-              artifact_dir=$(echo "$report" | sed 's|/playwright-artifacts/reports/index.html||')
-              shard_name=$(basename "$artifact_dir")
-              shard_count=$((shard_count + 1))
-              
-              echo "Processing shard report: $shard_name"
-              echo "Report path: $report"
-              
-              # Copy entire reports directory with shard prefix
-              reports_dir=$(dirname "$report")
-              cp -r "$reports_dir" "playwright-artifacts/consolidated-reports/shard-$shard_count-report"
-              
-              # Rename the copied directory for clarity
-              if [ -d "playwright-artifacts/consolidated-reports/shard-$shard_count-report" ]; then
-                echo "Successfully copied shard $shard_count report"
-              else
-                echo "Failed to copy shard $shard_count report"
-              fi
-            fi
-          done
-
-          # Alternative approach: Find any HTML reports if the above doesn't work
-          if [ ! "$(ls -A playwright-artifacts/consolidated-reports/ 2>/dev/null)" ]; then
-            echo "=== Fallback: Looking for any HTML reports ==="
-            find ./all-shard-results -name "index.html" | while read report; do
-              if [ -f "$report" ]; then
-                shard_path=$(dirname "$report")
-                shard_name=$(basename $(dirname "$shard_path"))
-                echo "Found report at: $report"
-                echo "Shard name: $shard_name"
-                
-                # Copy the report directory
-                cp -r "$shard_path" "playwright-artifacts/consolidated-reports/$shard_name-report"
-              fi
-            done
-          fi
-
-          # Generate consolidated index page
-          echo "=== Generating consolidated index page ==="
-          cat > playwright-artifacts/consolidated-reports/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html>
-          <head>
-              <title>Consolidated Playwright Test Reports</title>
-              <style>
-                  body { font-family: Arial, sans-serif; margin: 20px; }
-                  .header { background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-                  .shard-report { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-                  .shard-title { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px; }
-                  .report-link { display: inline-block; padding: 8px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 3px; }
-                  .report-link:hover { background: #0056b3; }
-                  .no-reports { color: #dc3545; font-style: italic; }
-              </style>
-          </head>
-          <body>
-              <div class="header">
-                  <h1>🎭 Playwright Test Reports - All Shards</h1>
-                  <p><strong>Test execution:</strong> $(date)</p>
-                  <p><strong>GitHub Run ID:</strong> ${{ github.run_id }}</p>
-                  <p><strong>Branch:</strong> ${{ github.head_ref || github.ref_name }}</p>
-              </div>
-          EOF
-
-          # Add links to each shard report
-          report_found=false
-          for shard_report in playwright-artifacts/consolidated-reports/*/index.html; do
-            if [ -f "$shard_report" ]; then
-              shard_name=$(basename $(dirname "$shard_report"))
-              echo "Adding link for: $shard_name"
-              report_found=true
-              cat >> playwright-artifacts/consolidated-reports/index.html << EOF
-              <div class="shard-report">
-                  <div class="shard-title">📊 $shard_name</div>
-                  <a href="$shard_name/index.html" class="report-link">View Report</a>
-              </div>
-          EOF
-            fi
-          done
-
-          # Add message if no reports found
-          if [ "$report_found" = false ]; then
-            cat >> playwright-artifacts/consolidated-reports/index.html << 'EOF'
-              <div class="no-reports">
-                  ⚠️ No shard reports found. Check the artifact download and merge process.
-              </div>
-          EOF
-          fi
-
-          cat >> playwright-artifacts/consolidated-reports/index.html << 'EOF'
-          </body>
-          </html>
-          EOF
-
-          # Debug: Show final structure
-          echo "=== Final Consolidated Structure ==="
-          ls -la playwright-artifacts/consolidated-reports/
-          echo "=== Index page content preview ==="
-          head -20 playwright-artifacts/consolidated-reports/index.html
-
-      - name: Upload consolidated reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-consolidated-reports-${{ github.run_id }}
-          retention-days: 30
-          path: playwright-artifacts/consolidated-reports/
-
-      - name: Generate test summary
-        run: |
-          echo "## 🎭 Playwright Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** \`${{ github.head_ref || github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Run ID:** \`${{ github.run_id }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Browser:** \`${{ inputs.browser || 'chromium' }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Base URL:** \`${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Test Tags:** \`${{ inputs.grep_tags || '@smoke' }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Trace Level:** \`${{ inputs.trace_level || 'off' }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          # Count total artifacts and reports
-          total_shards=$(find ./all-shard-results -name "playwright-results-shard-*" | wc -l)
-          echo "**Shards executed:** $total_shards" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📊 **Consolidated reports have been generated and uploaded as artifacts.**" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔍 **To view detailed results:**" >> $GITHUB_STEP_SUMMARY
-          echo "1. Download the \`playwright-consolidated-reports-${{ github.run_id }}\` artifact" >> $GITHUB_STEP_SUMMARY
-          echo "2. Extract and open \`index.html\` in your browser" >> $GITHUB_STEP_SUMMARY
