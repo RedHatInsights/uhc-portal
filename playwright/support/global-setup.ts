@@ -31,16 +31,23 @@ async function globalSetup(config: FullConfig) {
       {
         name: 'notice_gdpr_prefs',
         value: '0,1,2:',
-        domain: new URL(baseURL || 'https://console.dev.redhat.com/openshift').hostname,
+        domain: '.redhat.com',
         path: '/',
+        secure: true,
+        httpOnly: false,
+        sameSite: 'Lax',
       },
       {
         name: 'notice_preferences',
         value: '2:',
-        domain: new URL(baseURL || 'https://console.dev.redhat.com/openshift').hostname,
+        domain: '.redhat.com',
         path: '/',
+        secure: true,
+        httpOnly: false,
+        sameSite: 'Lax',
       },
     ]);
+
     console.log('🍪 Set session cookies to disable cookie consent dialog');
 
     const page = await context.newPage();
