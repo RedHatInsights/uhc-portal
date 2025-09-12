@@ -4,13 +4,13 @@ import get from 'lodash/get';
 import { useDispatch } from 'react-redux';
 
 import getClusterName from '~/common/getClusterName';
+import Modal from '~/components/common/Modal/Modal';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { refreshQueries } from '~/queries/refreshEntireCache';
 import { useGlobalState } from '~/redux/hooks';
 import { Cluster } from '~/types/clusters_mgmt.v1';
 
 import ErrorBox from '../../../common/ErrorBox';
-import Modal from '../../../common/Modal/Modal';
 import { closeModal } from '../../../common/Modal/ModalActions';
 import modals from '../../../common/Modal/modals';
 
@@ -122,7 +122,7 @@ const ScaleClusterDialog = ({ handleSubmit, initialValues, pristine }: ScaleClus
           onSecondaryClick={cancelEdit}
           isPrimaryDisabled={pending || !dirty}
           isPending={pending}
-          isSmall
+          modalSize="small"
         >
           <>
             {error}

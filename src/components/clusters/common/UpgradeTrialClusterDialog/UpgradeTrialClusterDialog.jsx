@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { Alert, Button, Form } from '@patternfly/react-core';
 
 import { Link } from '~/common/routing';
+import Modal from '~/components/common/Modal/Modal';
 import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypes';
 import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -22,7 +23,6 @@ import { getOrganizationAndQuota } from '../../../../redux/actions/userActions';
 import MechTraining from '../../../../styles/images/RH_BRAND_7764_01_MECH_Training.svg';
 import ErrorBox from '../../../common/ErrorBox';
 import ExternalLink from '../../../common/ExternalLink';
-import Modal from '../../../common/Modal/Modal';
 import { closeModal } from '../../../common/Modal/ModalActions';
 import modals from '../../../common/Modal/modals';
 import { isHypershiftCluster } from '../clusterStates';

@@ -3,11 +3,11 @@ import { useDispatch } from 'react-redux';
 
 import { Flex } from '@patternfly/react-core';
 
+import Modal from '~/components/common/Modal/Modal';
 import { useUpdateDeleteProtections } from '~/queries/ClusterDetailsQueries/useUpdateDeleteProtection';
 import { useGlobalState } from '~/redux/hooks';
 
 import ErrorBox from '../../../common/ErrorBox';
-import Modal from '../../../common/Modal/Modal';
 import { closeModal } from '../../../common/Modal/ModalActions';
 import modals from '../../../common/Modal/modals';
 

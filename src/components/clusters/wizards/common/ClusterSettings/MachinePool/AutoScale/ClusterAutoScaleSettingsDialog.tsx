@@ -152,7 +152,7 @@ const ClusterAutoScaleSettingsDialog = ({
 
   return (
     <Modal
-      variant="large"
+      modalSize="large"
       isOpen={isOpen}
       title="Edit cluster autoscaling settings"
       data-testid="cluster-autoscaling-dialog"
@@ -161,7 +161,6 @@ const ClusterAutoScaleSettingsDialog = ({
       onPrimaryClick={handleSave}
       onSecondaryClick={handleReset}
       isPrimaryDisabled={hasAutoScalingErrors}
-      showClose={false}
     >
       <>
         <Content component="p">
