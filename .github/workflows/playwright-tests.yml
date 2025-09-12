@@ -1,0 +1,268 @@
+name: Playwright Tests - Feature Branch
+
+on:
+  push:
+    branches:
+      - 'playwright-hacks'
+  pull_request:
+    branches:
+      - 'playwright-hacks'
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Browser to run tests on'
+        required: false
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+          - all
+      base_url:
+        description: 'Base URL for tests (e.g., https://console.dev.redhat.com/openshift/)'
+        required: false
+        default: 'https://console.dev.redhat.com/openshift/'
+        type: string
+      grep_tags:
+        description: 'Test tags to run (e.g., @smoke, @ci, @smoke|@ci)'
+        required: false
+        default: '@smoke'
+        type: string
+
+jobs:
+  install:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - uses: actions/cache@v4
+        with:
+          path: './node_modules'
+          key: playwright-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+
+      - name: Check uncommitted changes
+        if: ${{ always() }}
+        run: git diff HEAD --exit-code
+
+  playwright-tests:
+    name: Playwright Tests (${{ inputs.grep_tags || '@smoke' }}) - Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+    needs: [install]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3, 4]
+        shardTotal: [4]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - uses: actions/cache@v4
+        with:
+          path: './node_modules'
+          key: playwright-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Create playwright.env.json from secret
+        run: |
+          echo "Creating playwright.env.json for shard ${{ matrix.shardIndex }}..."
+          echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' > playwright.env.json
+
+          # Add unique identifiers to avoid resource conflicts
+          BUILD_ID="${{ github.run_id }}-shard-${{ matrix.shardIndex }}"
+
+          # Install jq if not available
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y jq
+          fi
+
+          # Add build identifier to avoid conflicts
+          jq ". + {\"BUILD_IDENTIFIER\": \"${BUILD_ID}\"}" playwright.env.json > tmp.json && mv tmp.json playwright.env.json
+
+          # Validate JSON using jq
+          if jq empty playwright.env.json > /dev/null 2>&1; then
+            echo "playwright.env.json is valid JSON for shard ${{ matrix.shardIndex }}"
+          else
+            echo "ERROR: playwright.env.json is not valid JSON!"
+            exit 1
+          fi
+
+      - name: Add hosts configuration
+        run: make dev-env-setup
+
+      - name: Run Playwright tests
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+          BROWSER: ${{ inputs.browser || 'chromium' }}
+          BASE_URL: ${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}
+          CI: true
+        run: |
+          # Run tests with specified tags and sharding
+          GREP_PATTERN="${{ inputs.grep_tags || '@smoke' }}"
+          echo "Running tests with pattern: $GREP_PATTERN"
+          echo "Using browser: ${{ inputs.browser || 'chromium' }}"
+          echo "Using base URL: ${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}"
+
+          npx playwright test --grep "$GREP_PATTERN" --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=html
+
+      - name: Upload shard test results
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: playwright-results-shard-${{ matrix.shardIndex }}-${{ github.run_id }}
+          retention-days: 7
+          path: |
+            playwright-artifacts/
+            test-results/
+
+      - name: Upload failure artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: playwright-failures-shard-${{ matrix.shardIndex }}-${{ github.run_id }}
+          retention-days: 7
+          path: |
+            playwright-artifacts/
+            test-results/
+            playwright.env.json
+
+  consolidate-reports:
+    name: Consolidate Test Reports
+    needs: [playwright-tests]
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - uses: actions/cache@v4
+        with:
+          path: './node_modules'
+          key: playwright-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Download all shard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-results-shard-*-${{ github.run_id }}
+          path: ./all-shard-results
+          merge-multiple: false
+
+      - name: Merge HTML reports
+        run: |
+          # Create consolidated reports directory
+          mkdir -p playwright-artifacts/consolidated-reports
+
+          # Find all HTML reports from shards
+          find ./all-shard-results -name "index.html" -path "*/playwright-artifacts/reports/*" | while read report; do
+            shard_dir=$(dirname "$report")
+            shard_name=$(basename $(dirname $(dirname "$shard_dir")))
+            echo "Processing report from: $shard_name"
+            
+            # Copy shard report to consolidated directory with shard prefix
+            cp -r "$shard_dir" "playwright-artifacts/consolidated-reports/$shard_name-report"
+          done
+
+          # Generate a consolidated index page
+          cat > playwright-artifacts/consolidated-reports/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>Consolidated Playwright Test Reports</title>
+              <style>
+                  body { font-family: Arial, sans-serif; margin: 20px; }
+                  .shard-report { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+                  .shard-title { font-size: 18px; font-weight: bold; color: #333; }
+                  .report-link { display: inline-block; margin: 10px 0; padding: 8px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 3px; }
+                  .report-link:hover { background: #0056b3; }
+              </style>
+          </head>
+          <body>
+              <h1>Playwright Test Reports - All Shards</h1>
+              <p>Test execution date: $(date)</p>
+              <p>GitHub Run ID: ${{ github.run_id }}</p>
+          EOF
+
+          # Add links to each shard report
+          for shard_report in playwright-artifacts/consolidated-reports/*/index.html; do
+            if [ -f "$shard_report" ]; then
+              shard_name=$(basename $(dirname "$shard_report"))
+              echo "              <div class=\"shard-report\">" >> playwright-artifacts/consolidated-reports/index.html
+              echo "                  <div class=\"shard-title\">$shard_name</div>" >> playwright-artifacts/consolidated-reports/index.html
+              echo "                  <a href=\"$shard_name/index.html\" class=\"report-link\">View Report</a>" >> playwright-artifacts/consolidated-reports/index.html
+              echo "              </div>" >> playwright-artifacts/consolidated-reports/index.html
+            fi
+          done
+
+          cat >> playwright-artifacts/consolidated-reports/index.html << 'EOF'
+          </body>
+          </html>
+          EOF
+
+      - name: Upload consolidated reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-consolidated-reports-${{ github.run_id }}
+          retention-days: 30
+          path: playwright-artifacts/consolidated-reports/
+
+      - name: Generate test summary
+        run: |
+          echo "## 🎭 Playwright Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.head_ref || github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Run ID:** \`${{ github.run_id }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Browser:** \`${{ inputs.browser || 'chromium' }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Base URL:** \`${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Tags:** \`${{ inputs.grep_tags || '@smoke' }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Count total artifacts and reports
+          total_shards=$(find ./all-shard-results -name "playwright-results-shard-*" | wc -l)
+          echo "**Shards executed:** $total_shards" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 **Consolidated reports have been generated and uploaded as artifacts.**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔍 **To view detailed results:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download the \`playwright-consolidated-reports-${{ github.run_id }}\` artifact" >> $GITHUB_STEP_SUMMARY
+          echo "2. Extract and open \`index.html\` in your browser" >> $GITHUB_STEP_SUMMARY
