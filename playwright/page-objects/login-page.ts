@@ -11,7 +11,7 @@ export class LoginPage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.inputUsername = page.locator('#username-verification').first();
-    this.inputPassword = page.locator('#password');
+    this.inputPassword = page.locator('#password:visible');
     this.nextBtn = page.locator('button').filter({ hasText: 'Next' });
     this.submitBtn = page.locator('button[type="submit"]');
   }
@@ -66,7 +66,7 @@ export class LoginPage extends BasePage {
 
         // Wait for password screen
         await this.page.waitForTimeout(2000);
-        await this.inputPassword.waitFor({ state: 'visible', timeout: 10000 });
+        await this.inputPassword.waitFor({ state: 'visible', timeout: 60000 });
         await this.inputPassword.fill(password, { force: true });
         console.log('✅ Password entered');
         await this.clickSubmitBtn();
