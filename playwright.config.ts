@@ -55,7 +55,9 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on',
+    trace:
+      (process.env.PLAYWRIGHT_TRACE as 'on' | 'off' | 'on-first-retry' | 'retain-on-failure') ||
+      'off',
 
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
