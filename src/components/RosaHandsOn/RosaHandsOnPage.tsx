@@ -11,6 +11,7 @@ import { AppPage } from '../App/AppPage';
 import demoExperienceService from './demoExperienceService';
 import RosaHandsOnPageContent from './RosaHandsOnPageContent';
 import useDemoExperiencePolling from './useDemoExperiencePolling';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 const RosaHandsOnPage = () => {
   const track = useAnalytics();
@@ -18,7 +19,16 @@ const RosaHandsOnPage = () => {
     useDemoExperiencePolling();
   const [requestError, setRequestError] = React.useState<unknown>();
   const [requestingExperience, setRequestingExperience] = React.useState<boolean>(false);
-
+  const chrome = useChrome();
+  React.useEffect(() => {
+    // remove once OCM forces email verification on all /openshift
+    chrome.auth
+      .reAuthWithScopes('api.ocm', 'profile_level.name_and_address_and_ea_and_rhos')
+      .catch((err) => {
+        Sentry.captureException(err);
+        console.error('failed to reauth with scopes', err);
+      });
+  }, [chrome]);
   const requestCluster = async () => {
     try {
       setRequestingExperience(true);
