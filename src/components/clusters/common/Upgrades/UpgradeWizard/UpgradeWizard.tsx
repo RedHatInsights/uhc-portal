@@ -185,18 +185,16 @@ const UpgradeWizard = () => {
           />
         </ModalBody>
       ) : (
-        <Wizard
-          onClose={() => close()}
-          onSave={() => onSave()}
-          isVisitRequired
-          className="ocm-upgrade-wizard"
-        >
+        <Wizard onClose={() => close()} onSave={() => onSave()} className="ocm-upgrade-wizard">
           <WizardStep
             name="Select version"
             id="select-version"
             footer={{
               isNextDisabled:
-                !selectedVersion || isPostSchedulePending || isUnmetAcknowledgementsError,
+                !selectedVersion ||
+                isPostSchedulePending ||
+                isUnmetAcknowledgementsError ||
+                isUnmetAcknowledgementsPending,
             }}
           >
             {isPending ? (
@@ -226,6 +224,7 @@ const UpgradeWizard = () => {
                   selected={selectedVersion}
                   onSelect={selectVersion}
                   isUnMetClusterAcknowledgements={hasVersionGates}
+                  isPending={isUnmetAcknowledgementsPending}
                 />
               </>
             )}
