@@ -59,17 +59,39 @@ export class LoginPage extends BasePage {
         console.log('🔐 Login page detected, proceeding with authentication...');
 
         // Wait for username input to be visible
-        await this.inputUsername.waitFor({ state: 'visible', timeout: 10000 });
-        await this.inputUsername.fill(username, { force: true });
-        console.log('✅ Username entered');
-        await this.clickNextBtn();
+        try {
+          await this.inputUsername.waitFor({ state: 'visible', timeout: 10000 });
+          await this.inputUsername.fill(username, { force: true });
+          console.log('✅ Username entered');
+          await this.clickNextBtn();
 
-        // Wait for password screen
-        await this.page.waitForTimeout(2000);
-        await this.inputPassword.waitFor({ state: 'visible', timeout: 60000 });
-        await this.inputPassword.fill(password, { force: true });
-        console.log('✅ Password entered');
-        await this.clickSubmitBtn();
+          // Wait for password screen
+          await this.page.waitForTimeout(2000);
+          await this.inputPassword.waitFor({ state: 'visible', timeout: 60000 });
+          await this.inputPassword.fill(password, { force: true });
+          console.log('✅ Password entered');
+          await this.clickSubmitBtn();
+        } catch (error) {
+          // Capture screenshot on login failure
+          console.log('❌ Login failed, capturing screenshot...');
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+          const screenshotPath = `playwright-artifacts/results/login-failure-${timestamp}.png`;
+
+          await this.page.screenshot({
+            path: screenshotPath,
+            fullPage: true,
+          });
+
+          console.log(`📸 Screenshot saved to: ${screenshotPath}`);
+
+          // Optionally capture additional debug info
+          const currentUrl = this.page.url();
+          const pageTitle = await this.page.title();
+          console.log(`🔍 Debug info - URL: ${currentUrl}, Title: ${pageTitle}`);
+
+          // Re-throw the error to maintain test failure
+          throw error;
+        }
 
         // Wait for authentication to complete
         // Accommodate both standard console URLs and prod.foo.redhat.com:1337
