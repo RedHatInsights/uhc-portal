@@ -19,6 +19,7 @@ if (process.env.BUNDLE_ANALYZER) {
 module.exports = {
   appUrl: `/${name}`,
   appEntry: path.resolve(__dirname, 'src/bootstrap.ts'),
+  chromePort: process.env.FEC_CHROME_PORT ?? undefined,
   hotReload: process.env.HOT === 'true',
   debug: true,
   devtool: process.env.NODE_ENV !== 'production' ? 'cheap-module-source-map' : 'source-map',
