@@ -1,3 +1,4 @@
+import { ENABLE_AWS_TAGS_EDITING } from '~/queries/featureGates/featureConstants';
 import { AwsMachinePool, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 
 import { EditMachinePoolValues } from './hooks/useMachinePoolFormik';
@@ -6,6 +7,17 @@ const getLabels = (labels: EditMachinePoolValues['labels']) =>
   labels.length === 1 && !labels[0].key
     ? {}
     : labels.reduce(
+        (acc, { key, value }) => {
+          acc[key] = value;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+
+const getAWSTags = (awsTags: EditMachinePoolValues['awsTags']) =>
+  awsTags.length === 1 && !awsTags[0].key
+    ? {}
+    : awsTags.reduce(
         (acc, { key, value }) => {
           acc[key] = value;
           return acc;
@@ -99,6 +111,7 @@ export const buildMachinePoolRequest = (
       machinePool.aws = awsConfig;
     }
   }
+
   return machinePool;
 };
 
@@ -131,5 +144,19 @@ export const buildNodePoolRequest = (
       },
     };
   }
+
+  if (ENABLE_AWS_TAGS_EDITING || !isEdit) {
+    const awsTags = getAWSTags(values.awsTags);
+    if (Object.keys(awsTags).length > 0) {
+      if (nodePool.aws_node_pool) {
+        nodePool.aws_node_pool.tags = awsTags;
+      } else {
+        nodePool.aws_node_pool = {
+          tags: awsTags,
+        };
+      }
+    }
+  }
+
   return nodePool;
 };

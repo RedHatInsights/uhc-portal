@@ -41,6 +41,8 @@ export const ROSA_ARCHITECTURE_RENAMING_ALERT = 'ocmui-rosa-architecture-renamin
 export const GCP_WIF_DEFAULT = 'ocmui-gcp-wif-default';
 export const MP_ADDITIONAL_MAINTENANCE_VALUES = 'ocmui-mp-additional-maintenance-values';
 
+export const ENABLE_AWS_TAGS_EDITING = false;
+
 export default {
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
   HYPERSHIFT_WIZARD_FEATURE,

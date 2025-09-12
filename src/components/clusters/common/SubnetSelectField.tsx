@@ -7,6 +7,7 @@ import { isSubnetMatchingPrivacy } from '~/common/vpcHelpers';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyDataType } from '~/components/common/FuzzySelect/types';
+import { isRestrictedEnv } from '~/restrictedEnv';
 import { CloudVpc, Subnetwork } from '~/types/clusters_mgmt.v1';
 
 const TRUNCATE_THRESHOLD = 40;
@@ -23,6 +24,10 @@ const filterSubnetsByPrivacyAndAZ = (
       isSubnetMatchingPrivacy(subnet, privacy) &&
       (allowedAZs === undefined || allowedAZs.includes(subnetAZ))
     ) {
+      allFilteredSubnets.push(subnet);
+    }
+
+    if (isRestrictedEnv()) {
       allFilteredSubnets.push(subnet);
     }
   });
