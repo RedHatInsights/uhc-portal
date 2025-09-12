@@ -22,7 +22,6 @@ async function globalSetup(config: FullConfig) {
     baseURL: baseURL,
     ignoreHTTPSErrors: ignoreHTTPSErrors, // Use the same setting from main config
   });
-  const page = await context.newPage();
 
   try {
     console.log('🔐 Starting GLOBAL authentication setup (ONCE for all tests)...');
@@ -44,6 +43,7 @@ async function globalSetup(config: FullConfig) {
     ]);
     console.log('🍪 Set session cookies to disable cookie consent dialog');
 
+    const page = await context.newPage();
     // Handle uncaught exceptions (similar to Cypress)
     const loggedKnownErrors = new Set<string>();
     page.on('pageerror', (error) => {
