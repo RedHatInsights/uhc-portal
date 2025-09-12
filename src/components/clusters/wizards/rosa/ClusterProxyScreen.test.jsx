@@ -6,6 +6,8 @@ import { useWizardContext } from '@patternfly/react-core';
 import links from '~/common/installLinks.mjs';
 import {
   DISABLED_NO_PROXY_PLACEHOLDER,
+  HTTP_PROXY_PLACEHOLDER,
+  HTTPS_PROXY_PLACEHOLDER,
   NO_PROXY_PLACEHOLDER,
 } from '~/components/clusters/common/networkingConstants';
 import { checkAccessibility, render, screen } from '~/testUtils';
@@ -92,6 +94,30 @@ describe('<ClusterProxyScreen />', () => {
     await user.tab();
 
     expect(screen.getByText(/Complete at least 1 of the fields above\./i)).toBeInTheDocument();
+  });
+
+  it('https URL validation fails when entering http URL', async () => {
+    const { user } = render(buildTestComponent());
+
+    const textBox = screen.getByPlaceholderText(HTTPS_PROXY_PLACEHOLDER);
+    await user.type(textBox, 'http://example.com');
+    await user.click(screen.getByPlaceholderText(HTTP_PROXY_PLACEHOLDER));
+
+    expect(
+      screen.getByText(/The URL should include the scheme prefix \(https:\/\/\)/i),
+    ).toBeInTheDocument();
+  });
+
+  it('https URL validation succeeds when entering https URL', async () => {
+    const { user } = render(buildTestComponent());
+
+    const textBox = screen.getByPlaceholderText(HTTPS_PROXY_PLACEHOLDER);
+    await user.type(textBox, 'https://example.com');
+    await user.click(screen.getByPlaceholderText(HTTP_PROXY_PLACEHOLDER));
+
+    expect(
+      screen.queryByText(/The URL should include the scheme prefix \(https:\/\/\)/i),
+    ).not.toBeInTheDocument();
   });
 
   it('navigates to Networking > Configuration when clicking the alert action link', async () => {
