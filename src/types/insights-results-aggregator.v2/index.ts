@@ -630,7 +630,11 @@ export interface components {
       url: string;
     };
     ratingSchema: {
-      rating?: number;
+      /**
+       * @description User rating - value of user rating. -1 is dislike, 0 is no vote, 1 is like.
+       * @enum {integer}
+       */
+      rating?: RatingSchemaRating;
       rule?: string;
     };
     recommendationList: {
@@ -2208,9 +2212,9 @@ export enum PathsRuleRuleIdGetResponses200ContentApplicationJsonContentLikelihoo
   Value4 = 4,
 }
 export enum PathsRuleRuleIdGetResponses200ContentApplicationJsonContentRating {
-  ValueMinus1 = '-1',
-  Value0 = '0',
-  Value1 = '1',
+  ValueMinus1 = -1,
+  Value0 = 0,
+  Value1 = 1,
 }
 export enum PathsRuleRuleIdGetResponses200ContentApplicationJsonContentResolution_risk {
   Value0 = 0,
@@ -2246,6 +2250,11 @@ export enum PathsRuleRuleIdContentGetResponses200ContentApplicationJsonContentTo
   Value2 = 2,
   Value3 = 3,
   Value4 = 4,
+}
+export enum RatingSchemaRating {
+  ValueMinus1 = -1,
+  Value0 = 0,
+  Value1 = 1,
 }
 export enum RecommendationListImpact {
   Value0 = 0,
