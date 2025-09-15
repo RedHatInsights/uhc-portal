@@ -22,6 +22,8 @@ metadata:
   namespace: ocm-ui-tenant
 spec:
   params:
+  - name: additional-secret
+    value: 'wat'
   - name: git-url
     value: '{{source_url}}'
   - name: revision
