@@ -21,14 +21,12 @@ metadata:
   name: uhc-portal-on-pull-request
   namespace: ocm-ui-tenant
 spec:
-  env:
-  - name: ENABLE_SENTRY
-    value: 'true'
-  - name: SENTRY_AUTH_TOKEN
-    value: 'foo'
-  - name: SENTRY_RELEASE
-    value: 'bar'
   params:
+  - name: build-args
+    value:
+    - ENABLE_SENTRY=true
+    - SENTRY_AUTH_TOKEN=foo
+    - SENTRY_RELEASE=bar
   - name: git-url
     value: '{{source_url}}'
   - name: revision
