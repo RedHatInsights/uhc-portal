@@ -161,11 +161,7 @@ class ClusterList extends Page {
   }
 
   searchForClusterWithStatus(status) {
-    cy.contains('td[data-label="Status"]', status)
-      .siblings()
-      .get('td > div')
-      .first()
-      .click();
+    cy.contains('td[data-label="Status"]', status).siblings().get('td > div').first().click();
   }
 
   waitForDataReady() {

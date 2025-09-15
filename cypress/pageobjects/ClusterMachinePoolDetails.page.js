@@ -175,12 +175,7 @@ class ClusterMachinePoolDetails extends Page {
   }
 
   isOverviewClusterPropertyMatchesValue(property, value) {
-    cy.get('span')
-      .contains(property)
-      .parent()
-      .siblings()
-      .find('div')
-      .contains(value);
+    cy.get('span').contains(property).parent().siblings().find('div').contains(value);
   }
 }
 
