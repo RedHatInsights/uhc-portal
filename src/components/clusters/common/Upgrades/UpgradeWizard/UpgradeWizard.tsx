@@ -94,7 +94,9 @@ const UpgradeWizard = () => {
   const gotAllDetails = !!(
     selectedVersion &&
     (upgradeTimestamp || scheduleType === 'now') &&
-    ((hasVersionGates && acknowledged) || !hasVersionGates)
+    ((hasVersionGates && acknowledged) || !hasVersionGates) &&
+    !isUnmetAcknowledgementsError &&
+    !isUnmetAcknowledgementsPending
   );
 
   const close = () => {
@@ -108,13 +110,15 @@ const UpgradeWizard = () => {
   const MINUTES_IN_MS = 1000 * 60;
 
   const selectVersion = (version: string) => {
-    unmetAcknowledgementsMutate({
-      version,
-      schedule_type: 'manual',
-      upgrade_type: isHypershiftCluster(cluster) ? 'ControlPlane' : 'OSD',
-      next_run: new Date(new Date().getTime() + 6 * MINUTES_IN_MS).toISOString(),
-    } as UpgradePolicy);
-    setSelectedVersion(version);
+    if (version) {
+      unmetAcknowledgementsMutate({
+        version,
+        schedule_type: 'manual',
+        upgrade_type: isHypershiftCluster(cluster) ? 'ControlPlane' : 'OSD',
+        next_run: new Date(new Date().getTime() + 6 * MINUTES_IN_MS).toISOString(),
+      } as UpgradePolicy);
+      setSelectedVersion(version);
+    }
   };
 
   const setSchedule = ({ timestamp, type }: ScheduleData) => {
@@ -187,10 +191,15 @@ const UpgradeWizard = () => {
             selected={selectedVersion}
             onSelect={selectVersion}
             isUnMetClusterAcknowledgements={hasVersionGates}
+            isPending={isUnmetAcknowledgementsPending}
           />
         </>
       ),
-      enableNext: !!selectedVersion && !isPostSchedulePending && !isUnmetAcknowledgementsError,
+      enableNext:
+        !!selectedVersion &&
+        !isPostSchedulePending &&
+        !isUnmetAcknowledgementsError &&
+        !isUnmetAcknowledgementsPending,
     },
     ...(selectedVersion && hasVersionGates
       ? [
@@ -223,7 +232,7 @@ const UpgradeWizard = () => {
           type={scheduleType}
         />
       ),
-      canJumpTo: !!selectedVersion && (!hasVersionGates || acknowledged),
+      canJumpTo: gotAllDetails,
       enableNext: gotAllDetails,
     },
     {

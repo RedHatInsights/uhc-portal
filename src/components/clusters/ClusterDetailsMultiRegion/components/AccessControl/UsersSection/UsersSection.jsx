@@ -237,7 +237,9 @@ const UsersSection = (props) => {
         </StackItem>
         <StackItem>
           <p>
-            <ExternalLink href={isROSA ? links.ROSA_ADMIN_ROLE : links.OSD_DEDICATED_ADMIN_ROLE}>
+            <ExternalLink
+              href={isROSA ? links.ROSA_AWS_IAM_OPERATOR_ROLES : links.OSD_DEDICATED_ADMIN_ROLE}
+            >
               Learn more.
             </ExternalLink>
           </p>
