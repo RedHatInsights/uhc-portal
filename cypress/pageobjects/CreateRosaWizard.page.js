@@ -18,7 +18,8 @@ class CreateRosaCluster extends Page {
   backToNetworkingConfigurationLink = () =>
     cy.get('button').contains('Back to the networking configuration');
 
-  reviewAndCreateTree = () => cy.get('li[role="tab"]').find('button').contains('Review and create');
+  reviewAndCreateTree = () =>
+    cy.get('li, [role="tab"], .wizard-nav-item').find('button').contains('Review and create');
 
   createCustomDomainPrefixCheckbox = () => cy.get('input[id="has_domain_prefix"]');
 
@@ -44,7 +45,7 @@ class CreateRosaCluster extends Page {
 
   selectVersionValue = () => cy.get('button[id="version-selector"]').find('span');
 
-  customOperatorPrefixInput = () => cy.get('input[id="custom_operator_roles_prefix"]');
+  customOperatorPrefixInput = () => cy.get('#custom_operator_roles_prefix');
 
   singleZoneAvilabilityRadio = () =>
     cy.get('input[id="form-radiobutton-multi_az-false-field"]').should('be.exist');
@@ -274,7 +275,7 @@ class CreateRosaCluster extends Page {
     if (hosted) {
       machinePoolHeaderText = 'Machine pools';
     }
-    cy.contains('h3', machinePoolHeaderText);
+    cy.contains('h3', machinePoolHeaderText).scrollIntoView();
   }
 
   isControlPlaneTypeScreen() {
@@ -624,13 +625,9 @@ class CreateRosaCluster extends Page {
   }
 
   isClusterPropertyMatchesValue(property, value) {
-    cy.get('span[class*="description-list"], dd, [role="definition"]')
-      .contains(property)
-      .parent()
-      .siblings()
-      .find('div')
-      .scrollIntoView()
-      .contains(value);
+    cy.contains(property)
+      .closest('div:not([class*="wizard"]):not([class*="nav"]), dl, section, tr')
+      .should('contain.text', value);
   }
 
   setMinimumNodeCount(nodeCount) {

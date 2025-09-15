@@ -97,7 +97,7 @@ describe(
       CreateRosaWizardPage.customOperatorPrefixInput()
         .invoke('val')
         .should('include', clusterName.slice(0, 27));
-      CreateRosaWizardPage.rosaNextButton().click();
+      CreateRosaWizardPage.rosaNextButton().scrollIntoView().click();
     });
 
     it('Step - Cluster update - update statergies and its definitions', () => {

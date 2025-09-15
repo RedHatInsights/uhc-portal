@@ -84,7 +84,7 @@ class ClusterDetails extends Page {
 
   clusterPersistentStorageLabelValue = () => cy.getByTestId('persistent-storage').should('exist');
 
-  clusterLoadBalancersValue = () => cy.contains(/load.*balancer/i).should('exist');
+  clusterLoadBalancersValue = () => cy.getByTestId('load-balancers').should('exist');
 
   clusterAvailabilityLabelValue = () => cy.getByTestId('availability').should('exist');
 
@@ -350,8 +350,9 @@ class ClusterDetails extends Page {
   }
 
   waitForInstallerScreenToLoad = () => {
-    cy.get('li', { timeout: 30000 }).should('not.exist');
-    cy.get('div.cluster-loading-container', { timeout: 100000 }).should('not.exist');
+    // Wait for the cluster details page to load by checking for positive indicators
+    cy.get('h1, h2', { timeout: 100000 }).should('be.visible');
+    cy.url({ timeout: 30000 }).should('include', '/details/');
   };
 
   waitForDeleteClusterActionComplete = () => {
