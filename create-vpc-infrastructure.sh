@@ -621,7 +621,7 @@ output_summary() {
     AZS=($(get_availability_zones))
     
     # Define the cypress environment file
-    CYPRESS_ENV_FILE="playwright.env.json"
+    PLAYWRIGHT_ENV_FILE="playwright.env.json"
     
     # Create the new VPC infrastructure JSON structure
     NEW_VPC_DATA='{
@@ -660,28 +660,28 @@ output_summary() {
       }'
     
     # Check if playwright.env.json exists
-    if [[ -f "$CYPRESS_ENV_FILE" ]]; then
+    if [[ -f "$PLAYWRIGHT_ENV_FILE" ]]; then
         print_status "Updating existing playwright.env.json file..."
         
         # Create a backup
-        cp "$CYPRESS_ENV_FILE" "${CYPRESS_ENV_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
+        cp "$PLAYWRIGHT_ENV_FILE" "${PLAYWRIGHT_ENV_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
         
         # Check if the file has valid JSON structure
-        if ! jq empty "$CYPRESS_ENV_FILE" > /dev/null 2>&1; then
-            print_error "Invalid JSON in $CYPRESS_ENV_FILE. Please fix the file structure."
+        if ! jq empty "$PLAYWRIGHT_ENV_FILE" > /dev/null 2>&1; then
+            print_error "Invalid JSON in $PLAYWRIGHT_ENV_FILE. Please fix the file structure."
             exit 1
         fi
         
         # Always overwrite QE_INFRA_REGIONS with the new VPC infrastructure data
-        print_status "Overwriting QE_INFRA_REGIONS in $CYPRESS_ENV_FILE"
+        print_status "Overwriting QE_INFRA_REGIONS in $PLAYWRIGHT_ENV_FILE"
         jq --arg region "$REGION" --argjson vpc_data "$NEW_VPC_DATA" \
             '.QE_INFRA_REGIONS = {($region): [$vpc_data]}' \
-            "$CYPRESS_ENV_FILE" > "${CYPRESS_ENV_FILE}.tmp" && mv "${CYPRESS_ENV_FILE}.tmp" "$CYPRESS_ENV_FILE"
+            "$PLAYWRIGHT_ENV_FILE" > "${PLAYWRIGHT_ENV_FILE}.tmp" && mv "${PLAYWRIGHT_ENV_FILE}.tmp" "$PLAYWRIGHT_ENV_FILE"
         
         if [[ $? -eq 0 ]]; then
-            print_status "Successfully updated $CYPRESS_ENV_FILE"
+            print_status "Successfully updated $PLAYWRIGHT_ENV_FILE"
         else
-            print_error "Failed to update $CYPRESS_ENV_FILE"
+            print_error "Failed to update $PLAYWRIGHT_ENV_FILE"
             exit 1
         fi
         
@@ -689,7 +689,7 @@ output_summary() {
         print_status "Creating new playwright.env.json file..."
         
         # Create new playwright.env.json with just the VPC infrastructure data
-        cat > "$CYPRESS_ENV_FILE" << EOF
+        cat > "$PLAYWRIGHT_ENV_FILE" << EOF
 {
   "QE_INFRA_REGIONS": {
     "$REGION": [
@@ -698,11 +698,11 @@ output_summary() {
   }
 }
 EOF
-        print_status "Created new $CYPRESS_ENV_FILE"
+        print_status "Created new $PLAYWRIGHT_ENV_FILE"
     fi
     
     print_status "VPC infrastructure created successfully!"
-    print_status "Configuration updated in: $CYPRESS_ENV_FILE"
+    print_status "Configuration updated in: $PLAYWRIGHT_ENV_FILE"
 }
 
 # Main execution
@@ -1022,26 +1022,26 @@ cleanup_vpc() {
 }
 
 # Function to update playwright.env.json after cleanup
-cleanup_cypress_config() {
+cleanup_playwright_config() {
     print_status "Cleaning up playwright.env.json configuration..."
     
-    CYPRESS_ENV_FILE="playwright.env.json"
+    PLAYWRIGHT_ENV_FILE="playwright.env.json"
     
-    if [[ -f "$CYPRESS_ENV_FILE" ]]; then
+    if [[ -f "$PLAYWRIGHT_ENV_FILE" ]]; then
         # Create a backup
-        cp "$CYPRESS_ENV_FILE" "${CYPRESS_ENV_FILE}.cleanup-backup.$(date +%Y%m%d_%H%M%S)"
+        cp "$PLAYWRIGHT_ENV_FILE" "${PLAYWRIGHT_ENV_FILE}.cleanup-backup.$(date +%Y%m%d_%H%M%S)"
         
         # Remove the region entry from QE_INFRA_REGIONS
-        if jq empty "$CYPRESS_ENV_FILE" > /dev/null 2>&1; then
-            print_status "Removing $REGION from QE_INFRA_REGIONS in $CYPRESS_ENV_FILE"
+        if jq empty "$PLAYWRIGHT_ENV_FILE" > /dev/null 2>&1; then
+            print_status "Removing $REGION from QE_INFRA_REGIONS in $PLAYWRIGHT_ENV_FILE"
             jq --arg region "$REGION" 'del(.QE_INFRA_REGIONS[$region])' \
-                "$CYPRESS_ENV_FILE" > "${CYPRESS_ENV_FILE}.tmp" && mv "${CYPRESS_ENV_FILE}.tmp" "$CYPRESS_ENV_FILE"
+                "$PLAYWRIGHT_ENV_FILE" > "${PLAYWRIGHT_ENV_FILE}.tmp" && mv "${PLAYWRIGHT_ENV_FILE}.tmp" "$PLAYWRIGHT_ENV_FILE"
             
             # If QE_INFRA_REGIONS is now empty, you might want to keep the structure or remove it entirely
             # This keeps the empty object for now
-            print_status "Configuration cleaned up in $CYPRESS_ENV_FILE"
+            print_status "Configuration cleaned up in $PLAYWRIGHT_ENV_FILE"
         else
-            print_warning "Could not parse $CYPRESS_ENV_FILE as valid JSON. Manual cleanup may be required."
+            print_warning "Could not parse $PLAYWRIGHT_ENV_FILE as valid JSON. Manual cleanup may be required."
         fi
     else
         print_status "No playwright.env.json file found"
@@ -1087,7 +1087,7 @@ cleanup_infrastructure() {
     cleanup_subnets
     cleanup_internet_gateway
     cleanup_vpc
-    cleanup_cypress_config
+    cleanup_playwright_config
     
     print_status "=== Cleanup Completed Successfully ==="
     print_status "All AWS resources for VPC '$VPC_NAME' have been deleted."

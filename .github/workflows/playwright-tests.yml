@@ -119,6 +119,60 @@ jobs:
             exit 1
           fi
 
+      - name: Verify and setup AWS CLI
+        run: |
+          # Check if AWS CLI is available and install if needed
+          if ! command -v aws &> /dev/null; then
+            echo "AWS CLI not found, installing..."
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            rm -rf aws awscliv2.zip
+          else
+            echo "AWS CLI is available:"
+            aws --version
+          fi
+
+      - name: Configure AWS credentials
+        run: |
+          # Extract AWS credentials and region from playwright.env.json
+          AWS_ACCESS_KEY_ID=$(jq -r '.QE_AWS_ACCESS_KEY_ID // empty' playwright.env.json)
+          AWS_SECRET_ACCESS_KEY=$(jq -r '.QE_AWS_ACCESS_KEY_SECRET // empty' playwright.env.json)
+          AWS_REGION=$(jq -r '.QE_AWS_REGION // "us-east-1"' playwright.env.json)
+
+          echo "Using AWS region: $AWS_REGION"
+
+          # Set environment variables for AWS CLI
+          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
+          echo "AWS_REGION=$AWS_REGION" >> $GITHUB_ENV
+          echo "AWS_DEFAULT_REGION=$AWS_REGION" >> $GITHUB_ENV
+
+          # Verify AWS CLI can authenticate
+          aws sts get-caller-identity || echo "AWS authentication check failed, but continuing..."
+
+      - name: Setup AWS cloud resources
+        run: |
+          echo "Setting up AWS cloud resources..."
+          chmod +x ./create-vpc-infrastructure.sh
+          ./create-vpc-infrastructure.sh
+
+      - name: Configure ROSA CLI
+        run: |
+          echo "Configuring ROSA CLI..."
+
+          # Install ROSA CLI if not available
+          if ! command -v rosa &> /dev/null; then
+            echo "Installing ROSA CLI..."
+            curl -L https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz -o rosa-linux.tar.gz
+            tar -xzf rosa-linux.tar.gz
+            sudo mv rosa /usr/local/bin/
+            rm rosa-linux.tar.gz
+          else
+            echo "ROSA CLI is available:"
+            rosa version
+          fi
+
       - name: Add hosts configuration
         run: make dev-env-setup
 
@@ -170,3 +224,11 @@ jobs:
           name: playwright-failures-${{ github.run_id }}
           retention-days: 7
           path: playwright-artifacts/
+
+      - name: Cleanup AWS cloud resources
+        if: ${{ always() }}
+        continue-on-error: true
+        run: |
+          echo "Cleaning up AWS cloud resources..."
+          chmod +x ./create-vpc-infrastructure.sh
+          ./create-vpc-infrastructure.sh --cleanup || echo "Cleanup completed with some warnings/errors, but continuing..."
