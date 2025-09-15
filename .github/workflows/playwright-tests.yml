@@ -142,11 +142,11 @@ jobs:
 
           echo "Using AWS region: $AWS_REGION"
 
-          # Set environment variables for AWS CLI
-          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
-          echo "AWS_REGION=$AWS_REGION" >> $GITHUB_ENV
-          echo "AWS_DEFAULT_REGION=$AWS_REGION" >> $GITHUB_ENV
+          # Configure AWS CLI directly without exposing credentials in environment
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+          aws configure set region "$AWS_REGION"
+          aws configure set output json
 
           # Verify AWS CLI can authenticate
           aws sts get-caller-identity || echo "AWS authentication check failed, but continuing..."
@@ -192,7 +192,7 @@ jobs:
           echo "Using base URL: ${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}"
           echo "Using 4 parallel workers"
 
-          npx playwright test --grep "$GREP_PATTERN" --workers=4 --reporter=html
+          npx playwright test --grep "$GREP_PATTERN" --workers=4
 
       - name: Display artifact summary
         if: ${{ always() }}

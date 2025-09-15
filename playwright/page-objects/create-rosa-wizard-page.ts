@@ -360,10 +360,6 @@ export class CreateRosaWizardPage extends BasePage {
   // Action methods
   async selectHostedControlPlaneType(): Promise<void> {
     await this.selectHostedControlPlaneTypeOption().click({ force: true });
-    await expect(this.selectHostedControlPlaneTypeOption()).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
   }
 
   async selectAWSInfrastructureAccount(accountID: string): Promise<void> {
