@@ -104,21 +104,9 @@ describe(
 
     it('Step - Networking - VPC Settings', () => {
       CreateRosaWizardPage.isVPCSettingsScreen();
-      // Flexible VPC text validation for PatternFly v6 compatibility
-      cy.get('body').then(($body) => {
-        const bodyText = $body.text();
-        const specificText = `Select a VPC to install your cluster into your selected region: ${region}`;
-
-        if (bodyText.includes(specificText)) {
-          cy.contains(specificText).scrollIntoView().should('be.visible');
-        } else if (bodyText.includes('Select a VPC') && bodyText.includes(region)) {
-          cy.log(`✓ VPC selection text found with region: ${region}`);
-        } else if (bodyText.includes('VPC') && bodyText.includes('region')) {
-          cy.log('✓ VPC and region text found - may be different wording');
-        } else {
-          cy.log('⚠ VPC selection text not found - may be UI changes');
-        }
-      });
+      cy.contains(`Select a VPC to install your cluster into your selected region: ${region}`)
+        .scrollIntoView()
+        .should('be.visible');
       CreateRosaWizardPage.waitForVPCList();
       CreateRosaWizardPage.selectVPC(qeInfrastructure.VPC_NAME);
       let i = 0;
@@ -167,8 +155,7 @@ describe(
     });
 
     it('Step - Review and create step -its definitions', () => {
-      // Some situation the ARN spinner in progress and blocks cluster creation.
-      cy.get('.pf-v6-c-spinner', { timeout: 30000 }).should('not.exist');
+      CreateRosaWizardPage.waitForARNList();
 
       CreateRosaWizardPage.isClusterPropertyMatchesValue(
         'Control plane',
@@ -286,42 +273,9 @@ describe(
     it('Create cluster and check the installation progress', () => {
       CreateRosaWizardPage.createClusterButton().click();
       ClusterDetailsPage.waitForInstallerScreenToLoad();
-      // Flexible cluster name validation for PatternFly v6 compatibility
-      cy.get('body').then(($body) => {
-        const bodyText = $body.text();
-        if ($body.find('h1').length > 0) {
-          ClusterDetailsPage.clusterNameTitle().contains(clusterName);
-        } else if (bodyText.includes(clusterName)) {
-          cy.log(`✓ Cluster name "${clusterName}" found in page content`);
-        } else {
-          cy.log(`⚠ Cluster name "${clusterName}" not found - may be navigation issue`);
-        }
-      });
-      // Flexible installation status validation for PatternFly v6 compatibility
-      cy.get('body').then(($body) => {
-        const bodyText = $body.text();
-        if ($body.find('h2').filter(':contains("Installing")').length > 0) {
-          cy.get('h2').contains('Installing cluster').should('be.visible');
-        } else if ($body.find('h1, h3, h4').filter(':contains("Installing")').length > 0) {
-          cy.get('h1, h3, h4').contains('Installing').should('be.visible');
-        } else if (bodyText.includes('Installing') || bodyText.includes('installation')) {
-          cy.log('✓ Installation status found in page content');
-        } else {
-          cy.log('⚠ Installation status not found - may be UI layout changes');
-        }
-      });
-      // Flexible OC CLI download link validation
-      cy.get('body').then(($body) => {
-        if ($body.find('a').filter(':contains("Download OC CLI")').length > 0) {
-          cy.get('a').contains('Download OC CLI').should('be.visible');
-        } else if ($body.find('a').filter(':contains("CLI")').length > 0) {
-          cy.get('a').contains('CLI').should('be.visible');
-        } else if ($body.text().includes('CLI') || $body.text().includes('download')) {
-          cy.log('✓ CLI download option found in page content');
-        } else {
-          cy.log('⚠ CLI download link not found - may be UI layout changes');
-        }
-      });
+      ClusterDetailsPage.clusterNameTitle().contains(clusterName);
+      cy.get('h2').contains('Installing cluster').should('be.visible');
+      cy.get('a').contains('Download OC CLI').should('be.visible');
       ClusterDetailsPage.clusterDetailsPageRefresh();
       ClusterDetailsPage.checkInstallationStepStatus('Account setup');
       ClusterDetailsPage.checkInstallationStepStatus('OIDC and operator roles');

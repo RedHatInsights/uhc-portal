@@ -67,50 +67,25 @@ describe(
 
     it('Step OSD - AWS CCS wizard - Networking configuration - Select cluster privacy definitions', () => {
       CreateOSDWizardPage.isNetworkingScreen();
-      // Use flexible cluster privacy selection
       CreateOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
-
       CreateOSDWizardPage.wizardNextButton().click();
     });
 
     it('Step OSD - AWS CCS wizard CIDR Ranges - Select CIDR default values', () => {
-      // Use flexible CIDR handling
-      cy.get('body').then(($body) => {
-        if ($body.find('input[id="cidr_default_values_enabled"]').length > 0) {
-          CreateOSDWizardPage.cidrDefaultValuesCheckBox().should('be.checked');
-          CreateOSDWizardPage.useCIDRDefaultValues(false);
-          CreateOSDWizardPage.useCIDRDefaultValues(true);
-          CreateOSDWizardPage.machineCIDRInput().should(
-            'have.value',
-            clusterProperties.MachineCIDR,
-          );
-          CreateOSDWizardPage.serviceCIDRInput().should(
-            'have.value',
-            clusterProperties.ServiceCIDR,
-          );
-          CreateOSDWizardPage.podCIDRInput().should('have.value', clusterProperties.PodCIDR);
-          CreateOSDWizardPage.hostPrefixInput().should('have.value', clusterProperties.HostPrefix);
-        } else {
-          // Skip CIDR validation if elements not found - just proceed
-          cy.log('CIDR elements not found, skipping validation');
-        }
-      });
+      CreateOSDWizardPage.cidrDefaultValuesCheckBox().should('be.checked');
+      CreateOSDWizardPage.useCIDRDefaultValues(false);
+      CreateOSDWizardPage.useCIDRDefaultValues(true);
+      CreateOSDWizardPage.machineCIDRInput().should('have.value', clusterProperties.MachineCIDR);
+      CreateOSDWizardPage.serviceCIDRInput().should('have.value', clusterProperties.ServiceCIDR);
+      CreateOSDWizardPage.podCIDRInput().should('have.value', clusterProperties.PodCIDR);
+      CreateOSDWizardPage.hostPrefixInput().should('have.value', clusterProperties.HostPrefix);
       CreateOSDWizardPage.wizardNextButton().click();
     });
 
     it('Step OSD - AWS CCS wizard Cluster update - Select update strategies and its definitions', () => {
       CreateOSDWizardPage.isUpdatesScreen();
-      // Use flexible update strategy handling
-      cy.get('body').then(($body) => {
-        if ($body.find('input[value="manual"][name="upgrade_policy"]').length > 0) {
-          CreateOSDWizardPage.updateStrategyIndividualRadio().should('be.checked');
-          CreateOSDWizardPage.selectNodeDraining(clusterProperties.NodeDraining);
-        } else {
-          // Skip update strategy validation if elements not found - just proceed
-          cy.log('Update strategy elements not found, skipping validation');
-        }
-      });
-
+      CreateOSDWizardPage.updateStrategyIndividualRadio().should('be.checked');
+      CreateOSDWizardPage.selectNodeDraining(clusterProperties.NodeDraining);
       CreateOSDWizardPage.wizardNextButton().click();
     });
 

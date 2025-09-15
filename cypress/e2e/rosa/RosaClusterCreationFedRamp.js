@@ -53,11 +53,6 @@ describe('Create ROSA Cluster in FedRamp (OCP-TBD)', { tags: ['fedramp'] }, () =
   afterEach(function () {
     if (this.currentTest.state === 'failed') {
       if (workflowValidationTestTitles.includes(this.currentTest.title)) {
-        cy.log(
-          `Writing file - ${Cypress.env('validationsResultFile')} with Contents - ${
-            this.currentTest.state
-          } - ${this.currentTest.title}`,
-        );
         cy.writeFile(
           Cypress.env('validationsResultFile'),
           `${this.currentTest.state}: ${this.currentTest.title}\n`,

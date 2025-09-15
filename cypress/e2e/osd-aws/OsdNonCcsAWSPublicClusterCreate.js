@@ -77,38 +77,20 @@ describe(
     if (!clusterProperties.CloudProvider.includes('GCP')) {
       it(`OSD(nonccs) ${clusterProperties.CloudProvider} -${clusterProperties.ClusterPrivacy} Networking configuration - cluster privacy`, () => {
         CreateOSDWizardPage.isNetworkingScreen();
-        // Use flexible selectors for cluster privacy
-        cy.get('body').then(($body) => {
-          if (
-            $body.find('input[id="form-radiobutton-cluster_privacy-external-field"]').length > 0
-          ) {
-            CreateOSDWizardPage.clusterPrivacyPublicRadio().should('be.checked');
-            CreateOSDWizardPage.clusterPrivacyPrivateRadio().should('not.be.checked');
-          } else {
-            // Alternative selectors if the IDs are different
-            cy.get('input[type="radio"]').should('have.length.greaterThan', 0);
-          }
-        });
+        CreateOSDWizardPage.clusterPrivacyPublicRadio().should('be.checked');
+        CreateOSDWizardPage.clusterPrivacyPrivateRadio().should('not.be.checked');
         CreateOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
         CreateOSDWizardPage.wizardNextButton().click();
       });
     }
 
     it(`OSD(nonccs) ${clusterProperties.CloudProvider}-${clusterProperties.ClusterPrivacy} - Networking configuration - CIDR `, () => {
-      // Try to find and interact with any checkbox on the page, skip if none found
-      cy.get('body').then(($body) => {
-        if ($body.find('input[type="checkbox"]').length > 0) {
-          cy.get('input[type="checkbox"]')
-            .first()
-            .then(($checkbox) => {
-              if ($checkbox.is(':checked')) {
-                cy.get('input[type="checkbox"]').first().uncheck({ force: true });
-              }
-            });
-        }
-      });
-
-      // Continue with next button regardless
+      CreateOSDWizardPage.isCIDRScreen();
+      CreateOSDWizardPage.cidrDefaultValuesCheckBox().should('be.checked');
+      CreateOSDWizardPage.machineCIDRInput().should('have.value', clusterProperties.MachineCIDR);
+      CreateOSDWizardPage.serviceCIDRInput().should('have.value', clusterProperties.ServiceCIDR);
+      CreateOSDWizardPage.podCIDRInput().should('have.value', clusterProperties.PodCIDR);
+      CreateOSDWizardPage.hostPrefixInput().should('have.value', clusterProperties.HostPrefix);
       CreateOSDWizardPage.wizardNextButton().click();
     });
 
@@ -118,26 +100,19 @@ describe(
     });
 
     it(`OSD(nonccs) ${clusterProperties.CloudProvider} - ${clusterProperties.ClusterPrivacy}  - Review and create page`, () => {
-      // Skip review screen validation - just verify we're on a page
-      cy.get('body').should('be.visible');
-      // Skip all validation checks
+      CreateOSDWizardPage.isReviewScreen();
+      CreateOSDWizardPage.subscriptionTypeValue().contains(clusterProperties.SubscriptionType);
+      CreateOSDWizardPage.infrastructureTypeValue().contains(clusterProperties.InfrastructureType);
+      CreateOSDWizardPage.cloudProviderValue().contains(clusterProperties.CloudProvider);
     });
 
     it(`OSD(nonccs) ${clusterProperties.CloudProvider} - ${clusterProperties.ClusterPrivacy} - Cluster submissions`, () => {
-      // Try to find any button to click for submission
-      cy.get('body').then(($body) => {
-        if ($body.find('button:contains("Create")').length > 0) {
-          cy.get('button:contains("Create")').first().click();
-        } else if ($body.find('button:contains("Submit")').length > 0) {
-          cy.get('button:contains("Submit")').first().click();
-        } else if ($body.find('button[type="submit"]').length > 0) {
-          cy.get('button[type="submit"]').first().click();
-        } else {
-          cy.get('button').last().click(); // Last resort
-        }
-      });
-      // Just verify we reach some page after clicking create
-      cy.get('body').should('be.visible');
+      CreateOSDWizardPage.createClusterButton().click();
+      ClusterDetailsPage.waitForInstallerScreenToLoad();
+      ClusterDetailsPage.clusterNameTitle().contains(clusterProperties.ClusterName);
+      ClusterDetailsPage.clusterInstallationHeader()
+        .contains('Installing cluster')
+        .should('be.visible');
     });
   },
 );

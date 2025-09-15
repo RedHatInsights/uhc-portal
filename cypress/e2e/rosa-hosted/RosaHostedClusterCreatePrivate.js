@@ -130,73 +130,24 @@ describe(
       });
     }
     it(`Step - Cluster Settings - CIDR Ranges - CIDR default valuesfor ${clusterName}`, () => {
-      // Flexible CIDR checkbox validation for PatternFly v6 compatibility
-      cy.get('body').then(($body) => {
-        CreateRosaWizardPage.cidrDefaultValuesCheckBox().then(($checkbox) => {
-          if ($checkbox.is(':checked')) {
-            cy.log('✓ CIDR checkbox is checked by default');
-          } else {
-            cy.log('⚠ CIDR checkbox not checked by default - PatternFly v6 behavior');
-          }
-        });
-      });
+      CreateRosaWizardPage.cidrDefaultValuesCheckBox().should('be.checked');
       CreateRosaWizardPage.useCIDRDefaultValues(false);
       CreateRosaWizardPage.useCIDRDefaultValues(true);
-      // Flexible CIDR input validation for PatternFly v6 compatibility
-      cy.get('body').then(($body) => {
-        if (
-          $body.find('input[id*="machine"]').length > 0 ||
-          $body.find('input[placeholder*="Machine"]').length > 0
-        ) {
-          CreateRosaWizardPage.machineCIDRInput().should(
-            'have.value',
-            clusterProperties.MachineCIDR,
-          );
-        } else {
-          cy.log('⚠ Machine CIDR input not found - may be UI layout changes');
-        }
-        if (
-          $body.find('input[id*="service"]').length > 0 ||
-          $body.find('input[placeholder*="Service"]').length > 0
-        ) {
-          CreateRosaWizardPage.serviceCIDRInput().should(
-            'have.value',
-            clusterProperties.ServiceCIDR,
-          );
-        } else {
-          cy.log('⚠ Service CIDR input not found - may be UI layout changes');
-        }
-        if (
-          $body.find('input[id*="pod"]').length > 0 ||
-          $body.find('input[placeholder*="Pod"]').length > 0
-        ) {
-          CreateRosaWizardPage.podCIDRInput().should('have.value', clusterProperties.PodCIDR);
-        } else {
-          cy.log('⚠ Pod CIDR input not found - may be UI layout changes');
-        }
-        if (
-          $body.find('input[id*="host"]').length > 0 ||
-          $body.find('input[placeholder*="Host"]').length > 0
-        ) {
-          CreateRosaWizardPage.hostPrefixInput().should('have.value', clusterProperties.HostPrefix);
-        } else {
-          cy.log('⚠ Host prefix input not found - may be UI layout changes');
-        }
-      });
+      CreateRosaWizardPage.machineCIDRInput().should('have.value', clusterProperties.MachineCIDR);
+      CreateRosaWizardPage.serviceCIDRInput().should('have.value', clusterProperties.ServiceCIDR);
+      CreateRosaWizardPage.podCIDRInput().should('have.value', clusterProperties.PodCIDR);
+      CreateRosaWizardPage.hostPrefixInput().should('have.value', clusterProperties.HostPrefix);
       CreateRosaWizardPage.rosaNextButton().click();
     });
 
     it('Step - Cluster roles and policies - role provider mode and its definitions', () => {
       CreateRosaWizardPage.selectOidcConfigId(clusterProperties.OidcConfigId);
-      // Enhanced operator role command execution for PatternFly v6 compatibility
       CreateRosaWizardPage.operatorRoleCommandInput()
         .invoke('val')
         .then((sometext) => {
           if (sometext && sometext.trim().length > 0) {
             cy.executeRosaCmd(`${sometext} --mode auto`);
           } else {
-            cy.log('⚠ Operator role command input is empty - skipping command execution');
-            // Fallback command if input is empty
             cy.executeRosaCmd(`rosa create operator-roles --cluster ${clusterName} --mode auto -y`);
           }
         });
@@ -208,7 +159,6 @@ describe(
 
     it('Step - Cluster update - update statergies and its definitions', () => {
       CreateRosaWizardPage.isUpdatesScreen();
-      // Enhanced update strategy selection for PatternFly v6 compatibility
       if (clusterProperties.UpdateStrategy.includes('Recurring')) {
         CreateRosaWizardPage.selectUpdateStratergy('recurring');
       } else {
@@ -283,33 +233,10 @@ describe(
       );
       let i = 1;
       for (; i <= clusterProperties.MachinePools.MachinePoolCount; i++) {
-        // Flexible availability zone validation for PatternFly v6 compatibility
-        cy.get('body').then(($body) => {
-          const azName = clusterProperties.MachinePools.AvailabilityZones?.[i - 1];
-
-          if (!azName) {
-            cy.log(`⚠ Availability zone ${i} not defined - skipping validation`);
-            return;
-          }
-
-          // Safe access to subnet data
-          const subnetData = qeInfrastructure.SUBNETS?.ZONES?.[azName];
-          const subnetName = subnetData?.PRIVATE_SUBNET_NAME;
-
-          if ($body.text().includes(azName)) {
-            if (subnetName) {
-              CreateRosaWizardPage.machinePoolLabelValue()
-                .contains(azName)
-                .next()
-                .contains(subnetName);
-            } else {
-              cy.log(`⚠ Subnet data not found for AZ ${azName} - skipping subnet validation`);
-              CreateRosaWizardPage.machinePoolLabelValue().contains(azName);
-            }
-          } else {
-            cy.log(`⚠ Availability zone ${azName} not found in review - may be UI layout changes`);
-          }
-        });
+        const azName = clusterProperties.MachinePools.AvailabilityZones[i - 1];
+        const subnetName = qeInfrastructure.SUBNETS.ZONES[azName].PRIVATE_SUBNET_NAME;
+        CreateRosaWizardPage.machinePoolLabelValue().contains(azName);
+        CreateRosaWizardPage.machinePoolLabelValue().contains(subnetName);
       }
     });
 
@@ -373,7 +300,8 @@ describe(
     it('Create cluster and check the installation progress', () => {
       CreateRosaWizardPage.createClusterButton().click();
       ClusterDetailsPage.waitForInstallerScreenToLoad();
-      ClusterDetailsPage.clusterNameTitle().contains(clusterName);
+      cy.url().should('include', '/cluster/');
+      cy.get('h1, h2').should('contain.text', clusterName);
       cy.get('h2').contains('Installing cluster').should('be.visible');
       cy.get('a').contains('Download OC CLI').should('be.visible');
       cy.contains('Cluster creation usually takes 10 minutes to complete')

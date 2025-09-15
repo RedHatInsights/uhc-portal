@@ -52,6 +52,7 @@ class CreateOSDCluster extends Page {
       } else if ($body.find('h3:contains("Network")').length > 0) {
         cy.contains('h3', 'Network');
       } else {
+        cy.log('VPC/Subnet screen heading not found - continuing anyway');
         cy.get('body').should('be.visible');
       }
     });
@@ -87,6 +88,7 @@ class CreateOSDCluster extends Page {
       } else if ($body.find('h3:contains("Network")').length > 0) {
         cy.contains('h3', 'Network');
       } else {
+        cy.log('CIDR screen heading not found - continuing anyway');
         cy.get('body').should('be.visible');
       }
     });
@@ -180,6 +182,7 @@ class CreateOSDCluster extends Page {
         return cy.get('input[name*="autoscal"]').first();
       } else {
         // Fallback - look for any checkbox that might be autoscaling related
+        cy.log('Autoscaling checkbox not found with standard selectors, trying generic checkbox');
         return cy.get('input[type="checkbox"]').first();
       }
     });
@@ -199,6 +202,7 @@ class CreateOSDCluster extends Page {
       } else if ($body.find('input[type="number"]').length > 0) {
         return cy.get('input[type="number"]').first();
       } else {
+        cy.log('Node count selector not found - may be auto-configured');
         return cy.get('body'); // Return something that exists
       }
     });
@@ -368,16 +372,21 @@ class CreateOSDCluster extends Page {
 
   createClusterButton = () => {
     // Wait for page to load and try to find any button that might be the submit button
-    cy.get("[data-testid]").should("exist"); // Give page time to load
+    cy.wait(2000); // Give page time to load
 
     // First, let's debug what's actually on the page
     cy.get('body').then(($body) => {
+      cy.log(`Page title: ${$body.find('title').text()}`);
+      cy.log(
         `Page headings: ${$body
           .find('h1, h2, h3')
           .map((i, el) => el.textContent)
           .get()
           .join(', ')}`,
       );
+      cy.log(`Found ${$body.find('button').length} buttons on page`);
+      cy.log(`Found ${$body.find('input[type="submit"]').length} submit inputs`);
+      cy.log(`Found ${$body.find('a').length} links on page`);
 
       // Log button texts if any exist
       if ($body.find('button').length > 0) {
@@ -385,33 +394,43 @@ class CreateOSDCluster extends Page {
           .find('button')
           .map((i, el) => el.textContent.trim())
           .get();
+        cy.log(`Button texts: ${buttonTexts.join(', ')}`);
       }
     });
 
     return cy.get('body').then(($body) => {
       if ($body.find('button:contains("Create")').length > 0) {
+        cy.log('Found Create button');
         return cy.get('button:contains("Create")').first();
       } else if ($body.find('button:contains("Submit")').length > 0) {
+        cy.log('Found Submit button');
         return cy.get('button:contains("Submit")').first();
       } else if ($body.find('button[type="submit"]').length > 0) {
+        cy.log('Found submit type button');
         return cy.get('button[type="submit"]').first();
       } else if ($body.find('input[type="submit"]').length > 0) {
+        cy.log('Found submit input');
         return cy.get('input[type="submit"]').first();
       } else if (
         $body.find('button[data-testid*="create"], button[data-testid*="submit"]').length > 0
       ) {
+        cy.log('Found button with create/submit testid');
         return cy.get('button[data-testid*="create"], button[data-testid*="submit"]').first();
       } else if ($body.find('button').length > 0) {
+        cy.log('Found generic buttons, using last one');
         return cy.get('button').last();
       } else if ($body.find('a[href*="create"], a[href*="submit"]').length > 0) {
+        cy.log('Found create/submit link');
         return cy.get('a[href*="create"], a[href*="submit"]').first();
       } else {
+        cy.log('No buttons or submit elements found - trying to continue anyway');
         // Maybe the page hasn't loaded yet, try to wait and find any clickable element
-        cy.get("[data-testid]").should("exist");
+        cy.wait(3000);
         cy.get('body').then(($body2) => {
           if ($body2.find('button').length > 0) {
             return cy.get('button').first();
           } else {
+            cy.log('Still no buttons found - test may need manual intervention');
             // Return a dummy element that will fail gracefully
             return cy.get('body').first();
           }
@@ -529,6 +548,7 @@ class CreateOSDCluster extends Page {
         // Find any checkbox that might be related to VPC installation
         return cy.get('input[type="checkbox"]').filter(':visible').first();
       } else {
+        cy.log('VPC installation checkbox not found - skipping');
         return cy.get('body'); // Return something that exists
       }
     });
@@ -571,11 +591,11 @@ class CreateOSDCluster extends Page {
   }
 
   get clusterNameInputError() {
-    return 'ul#rich-input-popover-name li[role="alert"]';
+    return 'ul#rich-input-popover-name li.pf-v6-c-helper-text__item.pf-m-error';
   }
 
   get primaryButton() {
-    return '#osd-wizard button.pf-m-primary';
+    return '#osd-wizard button.pf-v6-c-button.pf-m-primary';
   }
 
   get CCSSelected() {
@@ -592,7 +612,7 @@ class CreateOSDCluster extends Page {
 
   waitForVPCRefresh() {
     cy.getByTestId('refresh-vpcs').should('be.disabled');
-    cy.get('span[role="progressbar"], .spinner', { timeout: 80000 }).should('not.exist');
+    cy.get('span.pf-v6-c-button__progress', { timeout: 80000 }).should('not.exist');
   }
 
   selectVersion(version) {
@@ -659,7 +679,7 @@ class CreateOSDCluster extends Page {
   }
   selectSubnetAvailabilityZone(subnetAvailability) {
     cy.contains('Select availability zone').first().click();
-    cy.get('').within(() => {
+    cy.get('.pf-v6-c-menu__list').within(() => {
       cy.contains('li button', subnetAvailability).click({ force: true });
     });
   }
@@ -675,6 +695,7 @@ class CreateOSDCluster extends Page {
         }
         return true;
       } else {
+        cy.log('Security groups checkbox not found - might not be available in this VPC');
         return false;
       }
     });
@@ -777,6 +798,7 @@ class CreateOSDCluster extends Page {
             // Just check the first radio button (usually public is default)
             cy.get('input[type="radio"]').first().check({ force: true });
           } else {
+            cy.log('No suitable public cluster privacy selector found');
           }
         }
       });
@@ -881,11 +903,12 @@ class CreateOSDCluster extends Page {
           .first()
           .click();
       } else {
+        cy.log('No machine type dropdown found, trying to continue');
       }
     });
 
     // Wait for dropdown to open and options to load
-    cy.get("[data-testid]").should("exist");
+    cy.wait(1000);
 
     // Search for the machine type
     cy.get('body').then(($body) => {
@@ -906,7 +929,7 @@ class CreateOSDCluster extends Page {
           cy.contains(machineTypeShort).click();
         } else {
           // Wait a bit more for options to load, then try again
-          cy.get("[data-testid]").should("exist");
+          cy.wait(500);
           cy.get('body').then(($body2) => {
             // Try various fallback selectors for machine type options
             if ($body2.find('button[role="option"]').length > 0) {
@@ -917,8 +940,8 @@ class CreateOSDCluster extends Page {
               cy.get('li[role="option"]').first().click();
             } else if ($body2.find('[role="option"]').length > 0) {
               cy.get('[role="option"]').first().click();
-            } else if ($body2.find('[role="menuitem"]').length > 0) {
-              cy.get('[role="menuitem"]').first().click();
+            } else if ($body2.find('.pf-v6-c-menu__item').length > 0) {
+              cy.get('.pf-v6-c-menu__item').first().click();
             } else if ($body2.find('.pf-c-select__menu-item').length > 0) {
               cy.get('.pf-c-select__menu-item').first().click();
             } else if (
@@ -934,12 +957,14 @@ class CreateOSDCluster extends Page {
                 .click();
             } else {
               // Last resort - try to find any clickable element in dropdown areas
+              cy.log('Could not find specific machine type, trying generic selectors');
               cy.get('body').then(($body3) => {
                 if ($body3.find('ul[role="listbox"] li').length > 0) {
                   cy.get('ul[role="listbox"] li').first().click();
                 } else if ($body3.find('[class*="menu"] [class*="item"]').length > 0) {
                   cy.get('[class*="menu"] [class*="item"]').first().click();
                 } else {
+                  cy.log('No machine type options found - test may fail');
                 }
               });
             }
@@ -965,6 +990,7 @@ class CreateOSDCluster extends Page {
       } else if ($body.find('input[type="number"]').length > 0) {
         this.computeNodeCountSelect().clear().type(nodeCount.toString());
       } else {
+        cy.log(`Node count selector not found - skipping node count selection of ${nodeCount}`);
       }
     });
   }

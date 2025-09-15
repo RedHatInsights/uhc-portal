@@ -175,7 +175,7 @@ class ClusterMachinePoolDetails extends Page {
   }
 
   isOverviewClusterPropertyMatchesValue(property, value) {
-    cy.get('span.pf-v6-c-description-list__text')
+    cy.get('span')
       .contains(property)
       .parent()
       .siblings()
