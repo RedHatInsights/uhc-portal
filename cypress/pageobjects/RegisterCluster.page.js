@@ -7,7 +7,7 @@ class RegisterCluster extends Page {
 
   clusterURLInput = () => cy.get('input[name="web_console_url"]');
 
-  clusterIDError = () => cy.get('');
+  clusterIDError = () => cy.get('span[class*="helper-text"]');
 
   displayNameError = () => cy.get('div[id="display_name-helper"]');
 
