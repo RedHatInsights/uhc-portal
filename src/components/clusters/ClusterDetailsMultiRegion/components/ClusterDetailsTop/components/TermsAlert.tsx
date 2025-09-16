@@ -11,9 +11,10 @@ import { Subscription, SubscriptionCommonFieldsStatus } from '~/types/accounts_m
 
 type TermsAlertProps = {
   subscription: Subscription;
+  setHasTermsAlert?: (isTrue: boolean) => void;
 };
 
-const TermsAlert = ({ subscription }: TermsAlertProps) => {
+const TermsAlert = ({ subscription, setHasTermsAlert }: TermsAlertProps) => {
   const dispatch = useDispatch();
 
   const selfTermsReviewResult = useGlobalState((state) => state.userProfile.selfTermsReviewResult);
@@ -37,6 +38,15 @@ const TermsAlert = ({ subscription }: TermsAlertProps) => {
     }
     setPrevSubscription(subscription);
   }, [subscription, prevSubscription, dispatch]);
+
+  const hasTermsAlert =
+    isTermsReviewRequired(subscription) &&
+    selfTermsReviewResult.fulfilled &&
+    selfTermsReviewResult.terms_required;
+
+  if (hasTermsAlert && setHasTermsAlert) {
+    setHasTermsAlert(true);
+  }
 
   return isTermsReviewRequired(subscription) &&
     selfTermsReviewResult.fulfilled &&

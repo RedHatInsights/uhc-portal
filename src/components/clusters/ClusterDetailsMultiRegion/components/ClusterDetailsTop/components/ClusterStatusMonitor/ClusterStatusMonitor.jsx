@@ -33,7 +33,7 @@ import { InflightCheckState } from '~/types/clusters_mgmt.v1/enums';
 
 // TODO: Part of the installation story
 const ClusterStatusMonitor = (props) => {
-  const { cluster, refresh, region } = props;
+  const { cluster, refresh, region, setHasStatusMonitorAlert } = props;
 
   const [refetchInterval, setRefetchInterval] = React.useState(false);
 
@@ -420,6 +420,9 @@ const ClusterStatusMonitor = (props) => {
           </Alert>,
         );
       }
+      if (alerts.length > 0 && setHasStatusMonitorAlert) {
+        setHasStatusMonitorAlert(true);
+      }
       return <>{alerts.filter((n) => n)}</>;
     }
   }
@@ -444,6 +447,7 @@ ClusterStatusMonitor.propTypes = {
     }),
   }),
   refresh: PropTypes.func,
+  setHasStatusMonitorAlert: PropTypes.func,
 };
 
 export default ClusterStatusMonitor;

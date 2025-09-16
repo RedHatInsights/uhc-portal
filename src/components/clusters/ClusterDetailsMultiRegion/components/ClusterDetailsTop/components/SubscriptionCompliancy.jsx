@@ -26,6 +26,7 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
   }
 
   const supportLevel = get(subscription, 'support_level');
+
   if (
     supportLevel !== SubscriptionCommonFieldsSupportLevel.Eval &&
     supportLevel !== SubscriptionCommonFieldsSupportLevel.None
@@ -34,6 +35,7 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
   }
 
   const status = get(subscription, 'status');
+
   if (
     status === SubscriptionCommonFieldsStatus.Archived ||
     status === SubscriptionCommonFieldsStatus.Deprovisioned
