@@ -153,7 +153,7 @@ class CreateOSDCluster extends Page {
 
   hostPrefixInput = () => cy.get('input[id="network_host_prefix"]');
 
-  ccidrDefaultValuesCheckBox = () => cy.get('input[id="cidr_default_values_enabled"]');
+  cidrDefaultValuesCheckBox = () => cy.get('input[id="cidr_default_values_enabled"]');
 
   subscriptionTypeValue = () => cy.getByTestId('Subscription-type').find('div');
 
@@ -356,7 +356,7 @@ class CreateOSDCluster extends Page {
   }
 
   get clusterNameInputError() {
-    return 'ul#rich-input-popover-name li[role="alert"]';
+    return '[role="list"] li[class*="error"]';
   }
 
   get primaryButton() {
