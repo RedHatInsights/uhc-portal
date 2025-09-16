@@ -14,14 +14,22 @@ import {
 
 type TransferClusterOwnershipInfoProps = {
   subscription?: Subscription;
+  setHasTransferClusterOwnershipAlert?: (isTrue: boolean) => void;
 };
 
-const TransferClusterOwnershipInfo = ({ subscription }: TransferClusterOwnershipInfoProps) => {
+const TransferClusterOwnershipInfo = ({
+  subscription,
+  setHasTransferClusterOwnershipAlert,
+}: TransferClusterOwnershipInfoProps) => {
   const isAllowedProducts = [normalizedProducts.OCP, normalizedProducts.ARO].includes(
     get(subscription, 'plan.type', '') as ClusterAuthorizationRequestProductId,
   );
   if (!isAllowedProducts || !subscription?.released) {
     return null;
+  }
+
+  if (setHasTransferClusterOwnershipAlert) {
+    setHasTransferClusterOwnershipAlert(true);
   }
 
   const alertText =
