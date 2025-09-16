@@ -102,24 +102,9 @@ objects:
                   title: Advanced Cluster Management
                   href: https://catalog.redhat.com/software/container-stacks/detail/5ec54aa3535cb70ab8c02996
                   isExternal: true
-                # TODO: Replace acs-section with navigationSegment from https://github.com/RedHatInsights/acs-ui/blob/main/deploy/frontend.yaml
-                - id: acs-section
-                  title: Advanced Cluster Security
-                  expandable: true
-                  routes:
-                    - id: clusterOverview
-                      title: Overview
-                      href: /openshift/acs/overview
-                    - id: acs-getting-started
-                      title: Getting Started
-                      href: /openshift/acs/getting-started 
-                    - id: acs-instances
-                      title: ACS Instances
-                      href: /openshift/acs/instances
-                    - id: clusters-documentation
-                      title: Documentation
-                      href: https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_security_for_kubernetes
-                      isExternal: true
+                - segmentRef:
+                    segmentId: acs
+                    frontendName: acs
                 # TODO: Replace openshift-ai with navigationSegment from https://github.com/RedHatInsights/developer-sandbox-ui/blob/master/deploy/frontend.yaml
                 - id: openshift-ai
                   title: OpenShift AI
