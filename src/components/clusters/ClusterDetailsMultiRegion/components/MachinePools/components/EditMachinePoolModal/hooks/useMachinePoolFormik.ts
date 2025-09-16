@@ -2,6 +2,8 @@ import * as React from 'react';
 import * as Yup from 'yup';
 
 import {
+  checkAwsTagKey,
+  checkAwsTagValue,
   checkLabelKey,
   checkLabelValue,
   checkMachinePoolName,
@@ -25,7 +27,7 @@ import { CloudProviderType, IMDSType } from '~/components/clusters/wizards/commo
 import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
-import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
+import { MachinePool, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { getClusterMinNodes } from '../../../machinePoolsHelper';
@@ -41,12 +43,14 @@ export type EditMachinePoolValues = {
   autoscaleMax: number;
   replicas: number;
   labels: { key: string; value: string }[];
+  awsTags: { key: string; value: string }[];
   taints: { key: string; value: string; effect: TaintEffect }[];
   useSpotInstances: boolean;
   spotInstanceType: 'onDemand' | 'maximum';
   maxPrice: number;
   diskSize: number;
-  instanceType: string | undefined;
+  instanceType: MachineType | undefined;
+  isWindowsLicenseIncluded?: boolean;
   privateSubnetId: string | undefined;
   securityGroupIds: string[];
   secure_boot?: boolean;
@@ -84,6 +88,7 @@ const useMachinePoolFormik = ({
   );
   const rosa = isROSA(cluster);
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
+  const isHypershift = isHypershiftCluster(cluster);
 
   const minNodesRequired = getClusterMinNodes({
     cluster,
@@ -103,7 +108,11 @@ const useMachinePoolFormik = ({
 
     autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas || minNodesRequired;
     autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas || minNodesRequired;
-    const instanceType = (machinePool as MachinePool)?.instance_type;
+
+    const instanceTypeId = (machinePool as MachinePool)?.instance_type;
+    const instanceType = (
+      instanceTypeId ? machineTypes.typesByID?.[instanceTypeId] : undefined
+    ) as MachineType;
 
     if (isMachinePool(machinePool)) {
       useSpotInstances = !!machinePool.aws?.spot_market_options;
@@ -135,6 +144,14 @@ const useMachinePoolFormik = ({
             value: machinePool.labels?.[key]!!,
           }))
         : [{ key: '', value: '' }],
+
+      awsTags:
+        isNodePool(machinePool) && machinePool.aws_node_pool?.tags
+          ? Object.keys(machinePool.aws_node_pool.tags).map((key) => ({
+              key,
+              value: machinePool.aws_node_pool!.tags?.[key]!!,
+            }))
+          : [{ key: '', value: '' }],
       taints: machinePool?.taints?.map((taint) => ({
         key: taint.key || '',
         value: taint.value || '',
@@ -157,10 +174,22 @@ const useMachinePoolFormik = ({
       machinePoolData.secure_boot = shieldedVmSecureBoot(machinePool as MachinePool, cluster);
     }
 
-    return machinePoolData;
-  }, [machinePool, isMachinePoolMz, minNodesRequired, cluster, isGCP]);
+    if (isHypershift) {
+      // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+      machinePoolData.isWindowsLicenseIncluded = false; // This involves extra costs, let's keep it false by default
+      // (machinePool as MachinePool)?.aws?.windows_license_included || false;
+    }
 
-  const isHypershift = isHypershiftCluster(cluster);
+    return machinePoolData;
+  }, [
+    machinePool,
+    isMachinePoolMz,
+    minNodesRequired,
+    cluster,
+    isGCP,
+    machineTypes.typesByID,
+    isHypershift,
+  ]);
 
   const minDiskSize = getWorkerNodeVolumeSizeMinGiB(isHypershift);
   const maxDiskSize = getWorkerNodeVolumeSizeMaxGiB(cluster.version?.raw_id || '');
@@ -183,7 +212,7 @@ const useMachinePoolFormik = ({
           machineTypes,
           quota: organization.quotaList,
           minNodes: minNodesRequired,
-          machineTypeId: values.instanceType,
+          machineTypeId: values.instanceType?.id,
           editMachinePoolId: values.name,
           allow249NodesOSDCCSROSA,
         });
@@ -230,6 +259,40 @@ const useMachinePoolFormik = ({
                 const labelKey = this.parent.key;
                 if (value && !labelKey) {
                   return new Yup.ValidationError('Label key has to be defined', value, this.path);
+                }
+                return true;
+              }),
+            }),
+          ),
+          awsTags: Yup.array().of(
+            Yup.object().shape({
+              key: Yup.string().test('awsTag-key', '', function test(value) {
+                if (values.awsTags.length === 1 && (!value || value.length === 0)) {
+                  return true;
+                }
+                const err = checkAwsTagKey(value);
+                if (err) {
+                  return new Yup.ValidationError(err, value, this.path);
+                }
+
+                if (values.awsTags.filter(({ key }: { key: any }) => key === value).length > 1) {
+                  return new Yup.ValidationError(
+                    'Each AWS Tag must have a different key.',
+                    value,
+                    this.path,
+                  );
+                }
+                return true;
+              }),
+              value: Yup.string().test('awsTag-value', '', function test(value) {
+                const err = checkAwsTagValue(value);
+                if (err) {
+                  return new Yup.ValidationError(err, value, this.path);
+                }
+
+                const awsTagKey = this.parent.key;
+                if (value && !awsTagKey) {
+                  return new Yup.ValidationError('AWS Tag key has to be defined', value, this.path);
                 }
                 return true;
               }),
@@ -311,8 +374,13 @@ const useMachinePoolFormik = ({
               ? Yup.number().min(SPOT_MIN_PRICE, `Price has to be at least ${SPOT_MIN_PRICE}`)
               : Yup.number(),
           instanceType: !hasMachinePool
-            ? Yup.string().required('Compute node instance type is a required field.')
-            : Yup.string(),
+            ? Yup.object()
+                .shape({
+                  id: Yup.string().required('Compute node instance type is a required field.'),
+                })
+                .required('Compute node instance type is a required field.')
+            : Yup.object(),
+          isWindowsLicenseIncluded: Yup.boolean(),
           replicas: Yup.number(),
           useSpotInstances: Yup.boolean(),
           privateSubnetId:

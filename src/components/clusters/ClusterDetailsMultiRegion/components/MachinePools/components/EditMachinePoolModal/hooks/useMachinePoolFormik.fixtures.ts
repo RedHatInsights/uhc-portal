@@ -1,5 +1,5 @@
 import { IMDSType } from '~/components/clusters/wizards/common';
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/stateTypes';
 import type { OneMetric, Subscription } from '~/types/accounts_mgmt.v1';
 import type { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import type { ClusterFromSubscription } from '~/types/types';
@@ -163,6 +163,12 @@ export const defaultExpectedInitialValues = {
       value: '',
     },
   ],
+  awsTags: [
+    {
+      key: '',
+      value: '',
+    },
+  ],
   maxPrice: 0.01,
   name: '',
   privateSubnetId: undefined,
@@ -184,6 +190,7 @@ export const hyperShiftExpectedInitialValues = {
   autoscaleMax: 2,
   autoscaleMin: 2,
   replicas: 2,
+  isWindowsLicenseIncluded: false,
 };
 
 export const gcpSecureBootExpectedInitialValues = {

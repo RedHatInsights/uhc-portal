@@ -90,7 +90,6 @@ import AccessControl from './components/AccessControl/AccessControl';
 import usersActions from './components/AccessControl/UsersSection/UsersActions';
 import AccessRequest from './components/AccessRequest';
 import AddOns from './components/AddOns';
-import { getAddOns, getClusterAddOns } from './components/AddOns/AddOnsActions';
 import ClusterDetailsTop from './components/ClusterDetailsTop/ClusterDetailsTop';
 import ClusterLogs from './components/ClusterLogs/ClusterLogs';
 import { ClusterTabsId } from './components/common/ClusterTabIds';
@@ -296,8 +295,6 @@ const ClusterDetails = (props) => {
 
     if (isManaged) {
       // All managed-cluster-specific requests
-      dispatch(getAddOns(clusterID));
-      dispatch(getClusterAddOns(clusterID));
       dispatch(usersActions.getUsers(clusterID));
       dispatch(getClusterRouters(clusterID));
       refreshIDP();

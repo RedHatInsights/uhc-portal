@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
   Label,
+  Spinner,
   Split,
   SplitItem,
   Tooltip,
@@ -26,6 +27,7 @@ interface VersionCardProps {
   onClick: (event: React.MouseEvent<HTMLInputElement>) => void;
   children?: React.ReactNode;
   isUnMetClusterAcknowledgements?: boolean;
+  isPending?: boolean;
 }
 
 const getReleaseNotesLink = (version: string): React.ReactElement | null => {
@@ -63,6 +65,7 @@ const VersionCard = ({
   onClick,
   children,
   isUnMetClusterAcknowledgements,
+  isPending = false,
 }: VersionCardProps) => (
   <Card
     className="version-card"
@@ -85,8 +88,10 @@ const VersionCard = ({
       <CardTitle id={`card-title-${version}`}>
         <Split>
           <SplitItem>
-            {version}{' '}
-            {isUnMetClusterAcknowledgements ? VersionAcknowledgementPopover(version) : null}
+            {isPending && isSelected && <Spinner size="lg" />} {version}{' '}
+            {isUnMetClusterAcknowledgements && isSelected
+              ? VersionAcknowledgementPopover(version)
+              : null}
           </SplitItem>
           <SplitItem isFilled />
           {isRecommended && (

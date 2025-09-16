@@ -1,21 +1,22 @@
 import { hasRestrictTokensCapability } from '../restrictTokensHelper';
+import { subscriptionCapabilities } from '../subscriptionCapabilities';
 
 describe('restrict tokens capability', () => {
   it('should return true if org has restrict offline tokens capability', () => {
     const capabilities = [
       {
         inherited: false,
-        name: 'capability.organization.enable_data_sovereign_regions',
+        name: subscriptionCapabilities.ENABLE_DATA_SOVEREIGN_REGIONS,
         value: 'true',
       },
       {
         inherited: false,
-        name: 'capability.organization.restrict_offline_tokens',
+        name: subscriptionCapabilities.RESTRICT_OFFLINE_TOKENS,
         value: 'true',
       },
       {
         inherited: false,
-        name: 'capability.cluster.subscribed_ocp',
+        name: subscriptionCapabilities.SUBSCRIBED_OCP,
         value: 'true',
       },
     ];
@@ -26,12 +27,12 @@ describe('restrict tokens capability', () => {
     const capabilities = [
       {
         inherited: false,
-        name: 'capability.organization.enable_data_sovereign_regions',
+        name: subscriptionCapabilities.ENABLE_DATA_SOVEREIGN_REGIONS,
         value: 'true',
       },
       {
         inherited: false,
-        name: 'capability.cluster.subscribed_ocp',
+        name: subscriptionCapabilities.SUBSCRIBED_OCP,
         value: 'true',
       },
     ];

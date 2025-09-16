@@ -27,7 +27,7 @@ const RefreshClusterVPCAlert = ({
       onClick={refreshVPC}
       isLoading={isLoading}
     >
-      Refretch Cluster&apos;s VPC
+      Refetch Cluster&apos;s VPC
     </Button>
   </Alert>
 );

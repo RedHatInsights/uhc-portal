@@ -1,8 +1,8 @@
 import React, { ReactElement, useState } from 'react';
 
 import {
-  Flex,
-  FlexItem,
+  Stack,
+  StackItem,
   ToggleGroup,
   ToggleGroupItem,
   ToggleGroupItemProps,
@@ -27,8 +27,8 @@ const ToggleGroupTabs = ({ tabs }: ToggleGroupTabsProps) => {
   };
 
   return (
-    <Flex>
-      <FlexItem>
+    <Stack hasGutter>
+      <StackItem>
         <ToggleGroup>
           {tabs.map((tab) => (
             <ToggleGroupItem
@@ -40,9 +40,9 @@ const ToggleGroupTabs = ({ tabs }: ToggleGroupTabsProps) => {
             />
           ))}
         </ToggleGroup>
-      </FlexItem>
-      <FlexItem className="ocm-instruction-block">{activeTab.body}</FlexItem>
-    </Flex>
+      </StackItem>
+      <StackItem className="ocm-instruction-block">{activeTab.body}</StackItem>
+    </Stack>
   );
 };
 
