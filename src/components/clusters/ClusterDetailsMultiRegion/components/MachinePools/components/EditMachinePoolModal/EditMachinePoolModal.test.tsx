@@ -65,6 +65,17 @@ const machineTypesResponse = {
       },
     ],
   },
+  typesByID: {
+    'm5.xlarge': {
+      id: 'm5.xlarge',
+      cpu: {
+        value: 4,
+      },
+      memory: {
+        value: 4,
+      },
+    },
+  },
 };
 
 const commonProps = {
@@ -417,7 +428,7 @@ describe('<EditMachinePoolModal />', () => {
             machinePoolsResponse={[
               {
                 availability_zones: ['us-east-1a'],
-                href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/daznauro-mp',
+                href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/some-user-mp',
                 id: 'fooId',
                 instance_type: 'm5.xlarge',
                 kind: 'MachinePool',
@@ -442,7 +453,7 @@ describe('<EditMachinePoolModal />', () => {
             machinePoolsResponse={[
               {
                 availability_zones: ['us-east-1a', 'us-east-1b', 'us-east-1c'],
-                href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/daznauro-mp',
+                href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/some-user-mp',
                 id: 'fooId',
                 instance_type: 'm5.xlarge',
                 kind: 'MachinePool',
@@ -478,7 +489,7 @@ describe('<EditMachinePoolModal />', () => {
           machinePoolsResponse={[
             {
               availability_zones: ['us-east-1a'],
-              href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/daznauro-mp',
+              href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/some-user-mp',
               id: 'fooId',
               instance_type: 'm5.xlarge',
               kind: 'MachinePool',
@@ -487,7 +498,7 @@ describe('<EditMachinePoolModal />', () => {
             },
             {
               availability_zones: ['us-east-1a'],
-              href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/daznauro-mp',
+              href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/some-user-mp',
               id: 'fooId2',
               instance_type: 'm5.xlarge',
               kind: 'MachinePool',

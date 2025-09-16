@@ -19,9 +19,7 @@ describe('<StandAloneTile />', () => {
     const { user } = render(<StandAloneTile {...defaultProps} handleChange={handleChange} />);
 
     // Act
-    const tile = screen.getByText('ROSA classic architecture');
-    expect(tile).toBeInTheDocument();
-    await user.click(tile);
+    await user.click(screen.getByLabelText('ROSA classic architecture'));
 
     // Assert
     expect(handleChange).toHaveBeenCalledWith('false');
@@ -29,11 +27,7 @@ describe('<StandAloneTile />', () => {
 
   it('is accessible', async () => {
     // Arrange & Act
-    const { container } = render(
-      <div role="listbox" aria-label="dummy-just-for-accessibility-requirements-of-PF">
-        <StandAloneTile {...defaultProps} />
-      </div>,
-    );
+    const { container } = render(<StandAloneTile {...defaultProps} />);
 
     // Assert
     expect(screen.getByText('ROSA classic architecture')).toBeInTheDocument();

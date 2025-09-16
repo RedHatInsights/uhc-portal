@@ -50,7 +50,7 @@ describe('EditSecurityGroupsField', () => {
     expect(refreshVPCMock).toHaveBeenCalledTimes(0);
     await user.click(
       screen.getByRole('button', {
-        name: /refretch Cluster's VPC/i,
+        name: /refetch Cluster's VPC/i,
       }),
     );
     expect(refreshVPCMock).toHaveBeenCalledTimes(1);

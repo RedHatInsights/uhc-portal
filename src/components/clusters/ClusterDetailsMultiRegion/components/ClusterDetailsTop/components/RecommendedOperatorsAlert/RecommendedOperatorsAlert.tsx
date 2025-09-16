@@ -48,7 +48,7 @@ const STATIC_ALERT_MESSAGES = {
     description: 'Please wake the cluster before considering recommended operators.',
   },
   error: {
-    title: 'Your cluster encountered an error during creation.',
+    title: 'Your cluster encountered an error.',
     description: 'Please address the issue before considering recommended operators.',
   },
 };
