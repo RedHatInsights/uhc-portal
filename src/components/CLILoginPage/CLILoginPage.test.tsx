@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import { CLI_SSO_AUTHORIZATION } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
@@ -41,7 +42,7 @@ describe('CLILoginPage tests', () => {
         capabilities: [
           {
             inherited: false,
-            name: 'capability.organization.restrict_offline_tokens',
+            name: subscriptionCapabilities.RESTRICT_OFFLINE_TOKENS,
             value: 'false',
           },
         ],
@@ -62,7 +63,7 @@ describe('CLILoginPage tests', () => {
       organization: {
         capabilities: [
           {
-            name: 'capability.organization.restrict_offline_tokens',
+            name: subscriptionCapabilities.RESTRICT_OFFLINE_TOKENS,
             value: 'true',
           },
         ],
