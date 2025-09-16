@@ -89,7 +89,7 @@ jobs:
 
     # Use the Docker container directly
     container:
-      image: quay.io/openshifttest/ocmui-custom-playwright:latest
+      image: quay.io/openshifttest/ocmui-custom-playwright:1.54.2
       options: --shm-size=2g
 
     steps:
