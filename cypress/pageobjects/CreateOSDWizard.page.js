@@ -28,33 +28,15 @@ class CreateOSDCluster extends Page {
   }
 
   isMachinePoolScreen() {
-    // Try multiple selectors for machine type dropdown
-    cy.get('body').then(($body) => {
-      if ($body.find('button[aria-label*="Machine type"]').length > 0) {
-        cy.get('button[aria-label*="Machine type"]').first().should('be.visible');
-      } else if ($body.find('button.tree-view-select-menu-toggle').length > 0) {
-        cy.get('button.tree-view-select-menu-toggle').first().should('be.visible');
-      } else if ($body.find('button[class*="menu-toggle"]').length > 0) {
-        cy.get('button[class*="menu-toggle"]').first().should('be.visible');
-      } else {
-        cy.get('h3', { timeout: 40000 }).should('contain.text', 'Default machine pool');
-      }
-    });
+    cy.get('button[aria-label="Machine type select toggle"]', { timeout: 40000 })
+      .should('exist')
+      .scrollIntoView()
+      .should('be.visible');
+    cy.contains('h3', 'Default machine pool');
   }
 
   isVPCSubnetScreen() {
-    // Try multiple possible headings for VPC/subnet screen
-    cy.get('body').then(($body) => {
-      if ($body.find('h3:contains("Virtual Private Cloud (VPC) subnet settings")').length > 0) {
-        cy.contains('h3', 'Virtual Private Cloud (VPC) subnet settings');
-      } else if ($body.find('h3:contains("VPC")').length > 0) {
-        cy.contains('h3', 'VPC');
-      } else if ($body.find('h3:contains("Network")').length > 0) {
-        cy.contains('h3', 'Network');
-      } else {
-        cy.get('body').should('be.visible');
-      }
-    });
+    cy.contains('h3', 'Virtual Private Cloud (VPC) subnet settings');
   }
 
   isClusterWideProxyScreen() {
@@ -62,42 +44,18 @@ class CreateOSDCluster extends Page {
   }
 
   isNetworkingScreen() {
-    // Try multiple possible headings for networking
-    cy.get('body').then(($body) => {
-      if ($body.find('h3:contains("Networking configuration")').length > 0) {
-        cy.contains('h3', 'Networking configuration');
-      } else if ($body.find('h3:contains("Network")').length > 0) {
-        cy.contains('h3', 'Network');
-      } else if ($body.find('h4:contains("Cluster privacy")').length > 0) {
-        cy.contains('h4', 'Cluster privacy');
-      } else {
-        // Just check we're on some page
-        cy.get('body', { timeout: 10000 }).should('be.visible');
-      }
-    });
+    cy.contains('h3', 'Networking configuration');
   }
-
   isCIDRScreen() {
-    // Try multiple possible headings for CIDR screen
-    cy.get('body').then(($body) => {
-      if ($body.find('h3:contains("CIDR ranges")').length > 0) {
-        cy.contains('h3', 'CIDR ranges');
-      } else if ($body.find('h3:contains("CIDR")').length > 0) {
-        cy.contains('h3', 'CIDR');
-      } else if ($body.find('h3:contains("Network")').length > 0) {
-        cy.contains('h3', 'Network');
-      } else {
-        cy.get('body').should('be.visible');
-      }
-    });
+    cy.contains('h3', 'CIDR ranges');
   }
 
   isUpdatesScreen() {
-    cy.get('body', { timeout: 5000 }).should('be.visible'); // Just verify we're on some page
+    cy.contains('h3', 'Cluster update strategy');
   }
 
   isReviewScreen() {
-    cy.get('body', { timeout: 5000 }).should('be.visible'); // Just verify we're on some page
+    cy.contains('h2', 'Review your dedicated cluster');
   }
 
   showsFakeClusterBanner = () =>
@@ -167,42 +125,11 @@ class CreateOSDCluster extends Page {
   enableUserWorkloadMonitoringCheckbox = () =>
     cy.get('input[id="enable_user_workload_monitoring"]');
 
-  enableAutoscalingCheckbox = () => {
-    // Try multiple possible selectors for autoscaling checkbox
-    return cy.get('body').then(($body) => {
-      if ($body.find('input[id="autoscalingEnabled"]').length > 0) {
-        return cy.get('input[id="autoscalingEnabled"]');
-      } else if ($body.find('input[name="autoscaling"]').length > 0) {
-        return cy.get('input[name="autoscaling"]');
-      } else if ($body.find('input[id*="autoscal"]').length > 0) {
-        return cy.get('input[id*="autoscal"]').first();
-      } else if ($body.find('input[name*="autoscal"]').length > 0) {
-        return cy.get('input[name*="autoscal"]').first();
-      } else {
-        // Fallback - look for any checkbox that might be autoscaling related
-        return cy.get('input[type="checkbox"]').first();
-      }
-    });
-  };
+  enableAutoscalingCheckbox = () => cy.get('input[id="autoscalingEnabled"]');
 
   enableFIPSCryptographyCheckbox = () => cy.get('input[id="fips"]');
 
-  computeNodeCountSelect = () => {
-    // Try multiple selectors for node count dropdown
-    return cy.get('body').then(($body) => {
-      if ($body.find('select[name="nodes_compute"]').length > 0) {
-        return cy.get('select[name="nodes_compute"]');
-      } else if ($body.find('select[name*="node"]').length > 0) {
-        return cy.get('select[name*="node"]').first();
-      } else if ($body.find('select[name*="count"]').length > 0) {
-        return cy.get('select[name*="count"]').first();
-      } else if ($body.find('input[type="number"]').length > 0) {
-        return cy.get('input[type="number"]').first();
-      } else {
-        return cy.get('body'); // Return something that exists
-      }
-    });
-  };
+  computeNodeCountSelect = () => cy.get('select[name="nodes_compute"]');
 
   computeNodeCountDetailsText = () => cy.getByTestId('compute-node-multizone-details');
 
@@ -212,41 +139,11 @@ class CreateOSDCluster extends Page {
   clusterPrivacyPrivateRadio = () =>
     cy.get('input[id="form-radiobutton-cluster_privacy-internal-field"]');
 
-  updateStrategyIndividualRadio = () => {
-    // Try multiple possible selectors for individual/manual update strategy
-    return cy.get('body').then(($body) => {
-      if ($body.find('input[value="manual"][name="upgrade_policy"]').length > 0) {
-        return cy.get('input[value="manual"][name="upgrade_policy"]');
-      } else if ($body.find('input[id*="individual"], input[id*="manual"]').length > 0) {
-        return cy.get('input[id*="individual"], input[id*="manual"]').first();
-      } else {
-        // Fallback - look for radio near individual/manual text
-        return cy
-          .contains(/individual|manual/i)
-          .parent()
-          .find('input[type="radio"]')
-          .first();
-      }
-    });
-  };
+  updateStrategyIndividualRadio = () =>
+    cy.get('input[id="form-radiobutton-upgrade_policy-manual-field"]');
 
-  updateStrategyRecurringRadio = () => {
-    // Try multiple possible selectors for recurring/automatic update strategy
-    return cy.get('body').then(($body) => {
-      if ($body.find('input[value="automatic"][name="upgrade_policy"]').length > 0) {
-        return cy.get('input[value="automatic"][name="upgrade_policy"]');
-      } else if ($body.find('input[id*="recurring"], input[id*="automatic"]').length > 0) {
-        return cy.get('input[id*="recurring"], input[id*="automatic"]').first();
-      } else {
-        // Fallback - look for radio near recurring/automatic text
-        return cy
-          .contains(/recurring|automatic/i)
-          .parent()
-          .find('input[type="radio"]')
-          .first();
-      }
-    });
-  };
+  updateStrategyRecurringRadio = () =>
+    cy.get('input[id="form-radiobutton-upgrade_policy-automatic-field"]');
 
   machineCIDRInput = () => cy.get('input[id="network_machine_cidr"]');
 
@@ -256,25 +153,7 @@ class CreateOSDCluster extends Page {
 
   hostPrefixInput = () => cy.get('input[id="network_host_prefix"]');
 
-  cidrDefaultValuesCheckBox = () => {
-    // Try multiple possible selectors for CIDR default values checkbox
-    return cy.get('body').then(($body) => {
-      if ($body.find('input[id="cidr_default_values_enabled"]').length > 0) {
-        return cy.get('input[id="cidr_default_values_enabled"]');
-      } else if ($body.find('input[name="cidr_default_values"]').length > 0) {
-        return cy.get('input[name="cidr_default_values"]');
-      } else if ($body.find('input[id*="cidr"]').length > 0) {
-        return cy.get('input[id*="cidr"]').first();
-      } else {
-        // Fallback - look for checkbox near CIDR or default text
-        return cy
-          .contains(/cidr|default/i)
-          .parent()
-          .find('input[type="checkbox"]')
-          .first();
-      }
-    });
-  };
+  ccidrDefaultValuesCheckBox = () => cy.get('input[id="cidr_default_values_enabled"]');
 
   subscriptionTypeValue = () => cy.getByTestId('Subscription-type').find('div');
 
@@ -366,91 +245,11 @@ class CreateOSDCluster extends Page {
 
   nodeDrainingValue = () => cy.getByTestId('Node-draining').find('div');
 
-  createClusterButton = () => {
-    // Wait for page to load and try to find any button that might be the submit button
-    cy.get("[data-testid]").should("exist"); // Give page time to load
+  createClusterButton = () => cy.get('button').contains('Create cluster');
 
-    // First, let's debug what's actually on the page
-    cy.get('body').then(($body) => {
-        `Page headings: ${$body
-          .find('h1, h2, h3')
-          .map((i, el) => el.textContent)
-          .get()
-          .join(', ')}`,
-      );
+  minimumNodeInput = () => cy.get('input[aria-label="Minimum nodes"]');
 
-      // Log button texts if any exist
-      if ($body.find('button').length > 0) {
-        const buttonTexts = $body
-          .find('button')
-          .map((i, el) => el.textContent.trim())
-          .get();
-      }
-    });
-
-    return cy.get('body').then(($body) => {
-      if ($body.find('button:contains("Create")').length > 0) {
-        return cy.get('button:contains("Create")').first();
-      } else if ($body.find('button:contains("Submit")').length > 0) {
-        return cy.get('button:contains("Submit")').first();
-      } else if ($body.find('button[type="submit"]').length > 0) {
-        return cy.get('button[type="submit"]').first();
-      } else if ($body.find('input[type="submit"]').length > 0) {
-        return cy.get('input[type="submit"]').first();
-      } else if (
-        $body.find('button[data-testid*="create"], button[data-testid*="submit"]').length > 0
-      ) {
-        return cy.get('button[data-testid*="create"], button[data-testid*="submit"]').first();
-      } else if ($body.find('button').length > 0) {
-        return cy.get('button').last();
-      } else if ($body.find('a[href*="create"], a[href*="submit"]').length > 0) {
-        return cy.get('a[href*="create"], a[href*="submit"]').first();
-      } else {
-        // Maybe the page hasn't loaded yet, try to wait and find any clickable element
-        cy.get("[data-testid]").should("exist");
-        cy.get('body').then(($body2) => {
-          if ($body2.find('button').length > 0) {
-            return cy.get('button').first();
-          } else {
-            // Return a dummy element that will fail gracefully
-            return cy.get('body').first();
-          }
-        });
-      }
-    });
-  };
-
-  minimumNodeInput = () => {
-    // Try multiple possible selectors for minimum nodes input
-    return cy.get('body').then(($body) => {
-      if ($body.find('input[aria-label="Minimum nodes"]').length > 0) {
-        return cy.get('input[aria-label="Minimum nodes"]');
-      } else if ($body.find('input[name*="minimum"], input[id*="minimum"]').length > 0) {
-        return cy.get('input[name*="minimum"], input[id*="minimum"]').first();
-      } else if ($body.find('input[placeholder*="minimum"]').length > 0) {
-        return cy.get('input[placeholder*="minimum"]').first();
-      } else {
-        // Fallback - look for any number input that might be minimum nodes
-        return cy.get('input[type="number"]').first();
-      }
-    });
-  };
-
-  maximumNodeInput = () => {
-    // Try multiple possible selectors for maximum nodes input
-    return cy.get('body').then(($body) => {
-      if ($body.find('input[aria-label="Maximum nodes"]').length > 0) {
-        return cy.get('input[aria-label="Maximum nodes"]');
-      } else if ($body.find('input[name*="maximum"], input[id*="maximum"]').length > 0) {
-        return cy.get('input[name*="maximum"], input[id*="maximum"]').first();
-      } else if ($body.find('input[placeholder*="maximum"]').length > 0) {
-        return cy.get('input[placeholder*="maximum"]').first();
-      } else {
-        // Fallback - look for any number input that might be maximum nodes (usually second one)
-        return cy.get('input[type="number"]').eq(1);
-      }
-    });
-  };
+  maximumNodeInput = () => cy.get('input[aria-label="Maximum nodes"]');
 
   minimumNodeCountMinusButton = () => cy.get('button[aria-label="Minimum nodes minus"]');
 
@@ -518,21 +317,7 @@ class CreateOSDCluster extends Page {
 
   addNodeLabelLink = () => cy.get('span').contains('Add node labels');
 
-  installIntoExistingVpcCheckBox = () => {
-    // Try multiple selectors for VPC installation checkbox
-    return cy.get('body').then(($body) => {
-      if ($body.find('input[id="install_to_vpc"]').length > 0) {
-        return cy.get('input[id="install_to_vpc"]');
-      } else if ($body.find('input[name="install_to_vpc"]').length > 0) {
-        return cy.get('input[name="install_to_vpc"]');
-      } else if ($body.find('input[type="checkbox"]').length > 0) {
-        // Find any checkbox that might be related to VPC installation
-        return cy.get('input[type="checkbox"]').filter(':visible').first();
-      } else {
-        return cy.get('body'); // Return something that exists
-      }
-    });
-  };
+  installIntoExistingVpcCheckBox = () => cy.get('input[id="install_to_vpc"]');
 
   usePrivateServiceConnectCheckBox = () => cy.get('input[id="private_service_connect"]');
 
@@ -665,20 +450,11 @@ class CreateOSDCluster extends Page {
   }
 
   selectApplySameSecurityGroupsToAllControlPlanesCheckbox(value = true) {
-    // Check if the checkbox exists first
-    cy.get('body').then(($body) => {
-      if ($body.find('input[name="securityGroups.applyControlPlaneToAll"]').length > 0) {
-        if (value) {
-          cy.get('input[name="securityGroups.applyControlPlaneToAll"]').check({ force: true });
-        } else {
-          cy.get('input[name="securityGroups.applyControlPlaneToAll"]').uncheck({ force: true });
-        }
-        return true;
-      } else {
-        return false;
-      }
-    });
-    return value; // Return the expected value for the test logic
+    if (value) {
+      this.applySameSecurityGroupsToAllNodeTypes().check({ force: true });
+    } else {
+      this.applySameSecurityGroupsToAllNodeTypes().uncheck({ force: true });
+    }
   }
 
   selectAdditionalSecurityGroups(securityGroups) {
@@ -747,39 +523,9 @@ class CreateOSDCluster extends Page {
 
   selectClusterPrivacy(privacy) {
     if (privacy.toLowerCase() == 'private') {
-      // Try multiple selectors for private radio button
-      cy.get('body').then(($body) => {
-        if ($body.find('input[id="form-radiobutton-cluster_privacy-internal-field"]').length > 0) {
-          this.clusterPrivacyPrivateRadio().check({ force: true });
-        } else if ($body.find('input[value="private"][name="cluster_privacy"]').length > 0) {
-          cy.get('input[value="private"][name="cluster_privacy"]').check({ force: true });
-        } else if ($body.find('input[value="internal"][name="cluster_privacy"]').length > 0) {
-          cy.get('input[value="internal"][name="cluster_privacy"]').check({ force: true });
-        } else {
-          // Find any radio button with "private" or "internal" in nearby text
-          cy.contains('label', /private|internal/i)
-            .find('input[type="radio"]')
-            .check({ force: true });
-        }
-      });
+      this.clusterPrivacyPrivateRadio().check({ force: true });
     } else {
-      // Try multiple selectors for public radio button
-      cy.get('body').then(($body) => {
-        if ($body.find('input[id="form-radiobutton-cluster_privacy-external-field"]').length > 0) {
-          this.clusterPrivacyPublicRadio().check({ force: true });
-        } else if ($body.find('input[value="public"][name="cluster_privacy"]').length > 0) {
-          cy.get('input[value="public"][name="cluster_privacy"]').check({ force: true });
-        } else if ($body.find('input[value="external"][name="cluster_privacy"]').length > 0) {
-          cy.get('input[value="external"][name="cluster_privacy"]').check({ force: true });
-        } else {
-          // Try alternative approaches for public radio button
-          if ($body.find('input[type="radio"]').length > 0) {
-            // Just check the first radio button (usually public is default)
-            cy.get('input[type="radio"]').first().check({ force: true });
-          } else {
-          }
-        }
-      });
+      this.clusterPrivacyPublicRadio().check({ force: true });
     }
   }
 
@@ -861,92 +607,13 @@ class CreateOSDCluster extends Page {
   }
 
   selectComputeNodeType(computeNodeType) {
-    // Try multiple selectors for machine type dropdown with retries
-    cy.get('body').then(($body) => {
-      if ($body.find('button[aria-label*="Machine type"][aria-label*="toggle"]').length > 0) {
-        cy.get('button[aria-label*="Machine type"][aria-label*="toggle"]').first().click();
-      } else if ($body.find('button.tree-view-select-menu-toggle').length > 0) {
-        cy.get('button.tree-view-select-menu-toggle').first().click();
-      } else if ($body.find('button[class*="menu-toggle"]').length > 0) {
-        cy.get('button[class*="menu-toggle"]').first().click();
-      } else if ($body.find('button[class*="select"]').length > 0) {
-        cy.get('button[class*="select"]').first().click();
-      } else if (
-        $body
-          .find('button')
-          .filter(':contains("Select"), :contains("Choose"), :contains("Machine")').length > 0
-      ) {
-        cy.get('button')
-          .filter(':contains("Select"), :contains("Choose"), :contains("Machine")')
-          .first()
-          .click();
-      } else {
-      }
-    });
-
-    // Wait for dropdown to open and options to load
-    cy.get("[data-testid]").should("exist");
-
-    // Search for the machine type
-    cy.get('body').then(($body) => {
-      if ($body.find('input[aria-label*="search"]').length > 0) {
-        cy.get('input[aria-label*="search"]').clear().type(computeNodeType);
-      }
-    });
-
-    // Click on the machine type - try multiple approaches with better waiting
-    cy.get('body').then(($body) => {
-      // First try exact match
-      if ($body.find(`*:contains("${computeNodeType}")`).length > 0) {
-        cy.contains(computeNodeType).click();
-      } else {
-        // Try to find by partial match (just the machine type without description)
-        const machineTypeShort = computeNodeType.split(' ')[0]; // Get just "m5.xlarge"
-        if ($body.find(`*:contains("${machineTypeShort}")`).length > 0) {
-          cy.contains(machineTypeShort).click();
-        } else {
-          // Wait a bit more for options to load, then try again
-          cy.get("[data-testid]").should("exist");
-          cy.get('body').then(($body2) => {
-            // Try various fallback selectors for machine type options
-            if ($body2.find('button[role="option"]').length > 0) {
-              cy.get('button[role="option"]').first().click();
-            } else if ($body2.find('div[role="option"]').length > 0) {
-              cy.get('div[role="option"]').first().click();
-            } else if ($body2.find('li[role="option"]').length > 0) {
-              cy.get('li[role="option"]').first().click();
-            } else if ($body2.find('[role="option"]').length > 0) {
-              cy.get('[role="option"]').first().click();
-            } else if ($body2.find('[role="menuitem"]').length > 0) {
-              cy.get('[role="menuitem"]').first().click();
-            } else if ($body2.find('.pf-c-select__menu-item').length > 0) {
-              cy.get('.pf-c-select__menu-item').first().click();
-            } else if (
-              $body2.find(
-                'button:contains("m5"), button:contains("t3"), button:contains("c5"), button:contains("custom")',
-              ).length > 0
-            ) {
-              // Find any button that might be a machine type option (including GCP custom types)
-              cy.get(
-                'button:contains("m5"), button:contains("t3"), button:contains("c5"), button:contains("custom")',
-              )
-                .first()
-                .click();
-            } else {
-              // Last resort - try to find any clickable element in dropdown areas
-              cy.get('body').then(($body3) => {
-                if ($body3.find('ul[role="listbox"] li').length > 0) {
-                  cy.get('ul[role="listbox"] li').first().click();
-                } else if ($body3.find('[class*="menu"] [class*="item"]').length > 0) {
-                  cy.get('[class*="menu"] [class*="item"]').first().click();
-                } else {
-                }
-              });
-            }
-          });
-        }
-      }
-    });
+    cy.get('button[aria-label="Machine type select toggle"]', { timeout: 40000 })
+      .should('exist')
+      .scrollIntoView()
+      .should('be.visible')
+      .click();
+    cy.get('input[aria-label="Machine type select search field"]').clear().type(computeNodeType);
+    cy.get('div').contains(computeNodeType).click();
   }
 
   hideClusterNameValidation() {
@@ -956,17 +623,7 @@ class CreateOSDCluster extends Page {
   }
 
   selectComputeNodeCount(nodeCount) {
-    // Handle flexible node count selection
-    cy.get('body').then(($body) => {
-      if ($body.find('select[name="nodes_compute"]').length > 0) {
-        this.computeNodeCountSelect().select(`${nodeCount.toString()}`, { force: true });
-      } else if ($body.find('select[name*="node"], select[name*="count"]').length > 0) {
-        this.computeNodeCountSelect().select(`${nodeCount.toString()}`, { force: true });
-      } else if ($body.find('input[type="number"]').length > 0) {
-        this.computeNodeCountSelect().clear().type(nodeCount.toString());
-      } else {
-      }
-    });
+    this.computeNodeCountSelect().select(`${nodeCount.toString()}`, { force: true });
   }
 
   addNodeLabelKeyAndValue(key, value = '', index = 0) {
