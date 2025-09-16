@@ -1,6 +1,9 @@
-name: Playwright Tests - Feature Branch
+name: Playwright Container Tests
 
 on:
+  push:
+    branches:
+      - 'playwright-hacks'
   pull_request:
     branches:
       - 'playwright-hacks'
@@ -36,102 +39,97 @@ on:
           - 'on-first-retry'
           - 'retain-on-failure'
           - 'on'
+      workers:
+        description: 'Number of parallel workers'
+        required: false
+        default: '4'
+        type: string
 
 jobs:
-  install:
-    name: Install Dependencies
+  setup-dependencies:
+    name: Setup Dependencies and Config
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref || github.ref }}
 
-      - name: Use Node.js 22.x
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
 
-      - uses: actions/cache@v4
+      - name: Cache node modules
+        uses: actions/cache@v4
         with:
           path: './node_modules'
-          key: playwright-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
+          key: playwright-container-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependencies
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install
-
-      - name: Check uncommitted changes
-        if: ${{ always() }}
-        run: git diff HEAD --exit-code
-
-  playwright-tests:
-    name: Playwright Tests (${{ inputs.grep_tags || '@smoke' }})
-    needs: [install]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref }}
-
-      - name: Use Node.js 22.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-
-      - uses: actions/cache@v4
-        with:
-          path: './node_modules'
-          key: playwright-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
-
-      - name: Install dependencies
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install
-
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-
-      - name: Create playwright.env.json from secret
         run: |
-          echo "Creating playwright.env.json..."
+          npm install -g yarn
+          yarn install
+
+      - name: Add hosts configuration
+        run: make dev-env-setup
+
+      - name: Cache setup artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./node_modules
+            /etc/hosts
+          key: playwright-setup-${{ github.run_id }}
+
+  playwright-container-tests:
+    name: Playwright Container Tests (${{ inputs.grep_tags || '@smoke' }})
+    needs: [setup-dependencies]
+    runs-on: ubuntu-latest
+
+    # Use the Docker container directly
+    container:
+      image: quay.io/openshifttest/ocmui-custom-playwright:latest
+      options: --shm-size=2g
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Restore cached dependencies and config
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./node_modules
+            /etc/hosts
+          key: playwright-setup-${{ github.run_id }}
+
+      - name: Recreate playwright.env.json from secret
+        run: |
+          echo "Recreating playwright.env.json in container job..."
           echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' > playwright.env.json
 
           # Add unique identifiers to avoid resource conflicts
           BUILD_ID="${{ github.run_id }}"
-
-          # Install jq if not available
-          if ! command -v jq &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y jq
-          fi
 
           # Add build identifier to avoid conflicts
           jq ". + {\"BUILD_IDENTIFIER\": \"${BUILD_ID}\"}" playwright.env.json > tmp.json && mv tmp.json playwright.env.json
 
           # Validate JSON using jq
           if jq empty playwright.env.json > /dev/null 2>&1; then
-            echo "playwright.env.json is valid JSON"
+            echo "playwright.env.json recreated and validated successfully"
           else
             echo "ERROR: playwright.env.json is not valid JSON!"
             exit 1
           fi
 
-      - name: Verify and setup AWS CLI
+      - name: Configure AWS CLI and setup cloud resources
         run: |
-          # Check if AWS CLI is available and install if needed
-          if ! command -v aws &> /dev/null; then
-            echo "AWS CLI not found, installing..."
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-            rm -rf aws awscliv2.zip
-          else
-            echo "AWS CLI is available:"
-            aws --version
-          fi
+          echo "=== AWS CLI Configuration ==="
+          echo "AWS CLI version: $(aws --version)"
 
-      - name: Configure AWS credentials
-        run: |
           # Extract AWS credentials and region from playwright.env.json
           AWS_ACCESS_KEY_ID=$(jq -r '.QE_AWS_ACCESS_KEY_ID // empty' playwright.env.json)
           AWS_SECRET_ACCESS_KEY=$(jq -r '.QE_AWS_ACCESS_KEY_SECRET // empty' playwright.env.json)
@@ -148,29 +146,12 @@ jobs:
           # Verify AWS CLI can authenticate
           aws sts get-caller-identity || echo "AWS authentication check failed, but continuing..."
 
-      - name: Setup AWS cloud resources
-        run: |
+          # Setup AWS cloud resources
           echo "Setting up AWS cloud resources..."
           chmod +x ./create-vpc-infrastructure.sh
           ./create-vpc-infrastructure.sh
 
-      - name: Configure ROSA CLI
-        run: |
-          echo "Configuring ROSA CLI..."
-
-          # Install ROSA CLI if not available
-          if ! command -v rosa &> /dev/null; then
-            echo "Installing ROSA CLI..."
-            curl -L https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz -o rosa-linux.tar.gz
-            tar -xzf rosa-linux.tar.gz
-            sudo mv rosa /usr/local/bin/
-            rm rosa-linux.tar.gz
-          else
-            echo "ROSA CLI is available:"
-            rosa version
-          fi
-
-      - name: Setup ROSA roles
+      - name: Configure ROSA CLI and setup roles
         run: |
           echo "=== ROSA CLI Configuration ==="
           echo "ROSA CLI version: $(rosa version)"
@@ -213,10 +194,36 @@ jobs:
             rosa create account-roles --prefix "${QE_ACCOUNT_ROLE_PREFIX}" --mode auto -y
           fi
 
-          echo "Completed ROSA setup commands!"
+          echo "Completed ROSA pre-config commands!"
 
-      - name: Add hosts configuration
-        run: make dev-env-setup
+      - name: Verify container environment
+        run: |
+          echo "=== Container Environment ==="
+          echo "Working directory: $(pwd)"
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          echo "Playwright version: $(npx playwright --version)"
+
+          echo "=== Pre-installed Browsers Check ==="
+          # Check if browsers are already installed in the container
+          if command -v chromium-browser >/dev/null 2>&1; then
+            echo "Chromium: $(chromium-browser --version)"
+          fi
+          if command -v firefox >/dev/null 2>&1; then
+            echo "Firefox: $(firefox --version)"
+          fi
+
+          echo "=== Mounted Files Check ==="
+          echo "Playwright config exists: $(test -f playwright.config.ts && echo 'YES' || echo 'NO')"
+          echo "Playwright directory exists: $(test -d playwright && echo 'YES' || echo 'NO')"
+          echo "Node modules exists: $(test -d node_modules && echo 'YES' || echo 'NO')"
+          echo "Package.json exists: $(test -f package.json && echo 'YES' || echo 'NO')"
+          echo "Playwright.env.json exists: $(test -f playwright.env.json && echo 'YES' || echo 'NO')"
+
+      - name: Create artifacts directory
+        run: |
+          mkdir -p playwright-artifacts/results
+          mkdir -p playwright-artifacts/reports
 
       - name: Run Playwright tests
         env:
@@ -224,51 +231,55 @@ jobs:
           BROWSER: ${{ inputs.browser || 'chromium' }}
           BASE_URL: ${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}
           CI: true
-          # Optimize trace collection for CI
           PLAYWRIGHT_TRACE: ${{ inputs.trace_level || 'off' }}
         run: |
-          # Run tests with specified tags and 4 workers
+          # Run tests with specified parameters
           GREP_PATTERN="${{ inputs.grep_tags || '@smoke' }}"
+          WORKERS="${{ inputs.workers || '4' }}"
+
+          echo "=== Test Execution Parameters ==="
           echo "Running tests with pattern: $GREP_PATTERN"
           echo "Using browser: ${{ inputs.browser || 'chromium' }}"
           echo "Using base URL: ${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}"
-          echo "Using 4 parallel workers"
+          echo "Using $WORKERS parallel workers"
+          echo "Trace level: ${{ inputs.trace_level || 'off' }}"
+          echo ""
 
-          npx playwright test --grep "$GREP_PATTERN" --workers=4
+          # Execute tests
+          npx playwright test --grep "$GREP_PATTERN" --workers="$WORKERS"
 
       - name: Display artifact summary
-        if: ${{ always() }}
+        if: always()
         run: |
-          echo "=== Playwright Artifacts Summary ==="
-          echo "Screenshots (failures only):"
-          find playwright-artifacts/results -name "*.png" 2>/dev/null | wc -l
-          echo "Videos (failures only):"
-          find playwright-artifacts/results -name "*.webm" 2>/dev/null | wc -l
-          echo "Traces (if enabled):"
-          find playwright-artifacts/results -name "trace.zip" 2>/dev/null | wc -l
-          echo "HTML Reports:"
-          find playwright-artifacts/reports -name "index.html" 2>/dev/null | wc -l
-          echo "Total artifact size:"
-          du -sh playwright-artifacts/ 2>/dev/null || echo "No artifacts found"
+          echo "=== Playwright Container Artifacts Summary ==="
+          echo "Screenshots (failures only): $(find playwright-artifacts/results -name "*.png" 2>/dev/null | wc -l || echo "0")"
+          echo "Videos (failures only): $(find playwright-artifacts/results -name "*.webm" 2>/dev/null | wc -l || echo "0")"
+          echo "Traces (if enabled): $(find playwright-artifacts/results -name "trace.zip" 2>/dev/null | wc -l || echo "0")"
+          echo "HTML Reports: $(find playwright-artifacts/reports -name "index.html" 2>/dev/null | wc -l || echo "0")"
+          echo "Total artifact size: $(du -sh playwright-artifacts/ 2>/dev/null | cut -f1 || echo "0")"
+
+          echo ""
+          echo "=== Artifact Directory Structure ==="
+          find playwright-artifacts -type f 2>/dev/null | head -20 || echo "No artifacts found"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
-        if: ${{ always() }}
+        if: always()
         with:
-          name: playwright-results-${{ github.run_id }}
+          name: playwright-container-results-${{ github.run_id }}
           retention-days: 7
           path: playwright-artifacts/
 
       - name: Upload failure artifacts
         uses: actions/upload-artifact@v4
-        if: ${{ failure() }}
+        if: failure()
         with:
-          name: playwright-failures-${{ github.run_id }}
+          name: playwright-container-failures-${{ github.run_id }}
           retention-days: 7
           path: playwright-artifacts/
 
       - name: Cleanup AWS cloud resources
-        if: ${{ always() }}
+        if: always()
         continue-on-error: true
         run: |
           echo "Cleaning up AWS cloud resources..."
