@@ -56,8 +56,10 @@ describe('OCM Roles And Access', { tags: ['ci'] }, () => {
   });
 
   it('successfully deletes the user', () => {
-    OCMRolesAndAccessPage.OCMRolesAndAccessTableActionButton().focus().click({ force: true });
-    OCMRolesAndAccessPage.OCMRolesAndAccessTableDeleteButton().focus().click();
+    OCMRolesAndAccessPage.OCMRolesAndAccessTableActionButton()
+      .scrollIntoView()
+      .click({ force: true });
+    OCMRolesAndAccessPage.OCMRolesAndAccessTableDeleteButton().click({ force: true });
     OCMRolesAndAccessPage.usernameCell().should('not.exist');
   });
 
