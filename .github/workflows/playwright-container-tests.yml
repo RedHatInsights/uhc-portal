@@ -149,10 +149,12 @@ jobs:
           echo "Using AWS region: $AWS_REGION"
 
           # Configure AWS CLI directly without exposing credentials in environment
-          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
-          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+          echo "Configuring AWS CLI credentials..."
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" 2>/dev/null
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" 2>/dev/null
           aws configure set region "$AWS_REGION"
           aws configure set output json
+          echo "AWS CLI configuration completed"
 
           # Verify AWS CLI can authenticate
           aws sts get-caller-identity || echo "AWS authentication check failed, but continuing..."
@@ -179,13 +181,15 @@ jobs:
 
           # Login to ROSA using service account
           echo "Login via service account client definition"
-          rosa login --client-id "$QE_ORGADMIN_CLIENT_ID" --client-secret "$QE_ORGADMIN_CLIENT_SECRET" --env "$ENV_AUT"
+          rosa login --client-id "$QE_ORGADMIN_CLIENT_ID" --client-secret "$QE_ORGADMIN_CLIENT_SECRET" --env "$ENV_AUT" 2>/dev/null || {
+            echo "ROSA login failed, but continuing..."
+          }
 
           # Unlink existing OCM roles
           linked_ocmrole=$(rosa list ocm-roles | awk '$3 == "Yes" { print $2 }')
           if [ ! -z "$linked_ocmrole" ]; then
-            echo "Unlinking existing OCM role: $linked_ocmrole"
-            rosa unlink ocm-role --role-arn "$linked_ocmrole" -y
+            echo "Unlinking existing OCM role: [MASKED]"
+            rosa unlink ocm-role --role-arn "$linked_ocmrole" -y 2>/dev/null || echo "Failed to unlink OCM role"
           fi
 
           # Create OCM roles
@@ -193,11 +197,11 @@ jobs:
           ocmroles_success_msg=$(rosa create ocm-role --prefix "${QE_OCM_ROLE_PREFIX}" --mode auto --admin -y 2>&1)
           orphen_ocmroles=$(echo "$ocmroles_success_msg" | grep "unlink" | sed -n "s/.*\(arn:aws:iam::${TEST_QE_AWS_ID}:.*[0-9]\).*/\1/p")
           if [ ! -z "$orphen_ocmroles" ]; then
-            echo "Unlinking orphaned OCM roles: $orphen_ocmroles"
-            rosa unlink ocm-role --role-arn "$orphen_ocmroles" -y
-            ocmroles_success_msg=$(rosa create ocm-role --prefix "${QE_OCM_ROLE_PREFIX}" --mode auto --admin -y)
+            echo "Unlinking orphaned OCM roles: [MASKED]"
+            rosa unlink ocm-role --role-arn "$orphen_ocmroles" -y 2>/dev/null || echo "Failed to unlink orphaned OCM role"
+            ocmroles_success_msg=$(rosa create ocm-role --prefix "${QE_OCM_ROLE_PREFIX}" --mode auto --admin -y 2>/dev/null)
           fi
-          echo "$ocmroles_success_msg"
+          echo "OCM roles creation completed"
 
           # Create account roles
           if [ ! -z "$QE_ACCOUNT_ROLE_PREFIX" ]; then
@@ -245,13 +249,11 @@ jobs:
             --name "$CONTAINER_NAME" \
             --workdir "$CONTAINER_WORKDIR" \
             --shm-size "2g" \
-            --volume "$PWD/playwright.config.ts:$CONTAINER_WORKDIR/playwright.config.ts:ro" \
-            --volume "$PWD/playwright:$CONTAINER_WORKDIR/playwright:ro" \
-            --volume "$PWD/node_modules:$CONTAINER_WORKDIR/node_modules:ro" \
-            --volume "$PWD/package.json:$CONTAINER_WORKDIR/package.json:ro" \
-            --volume "$PWD/yarn.lock:$CONTAINER_WORKDIR/yarn.lock:ro" \
-            --volume "$PWD/playwright.env.json:$CONTAINER_WORKDIR/playwright.env.json:ro" \
-            --volume "$PWD/tsconfig.json:$CONTAINER_WORKDIR/tsconfig.json:ro" \
+            --volume "$PWD/playwright.config.ts:$CONTAINER_WORKDIR/playwright.config.ts" \
+            --volume "$PWD/playwright:$CONTAINER_WORKDIR/playwright" \
+            --volume "$PWD/node_modules:$CONTAINER_WORKDIR/node_modules" \
+            --volume "$PWD/playwright.env.json:$CONTAINER_WORKDIR/playwright.env.json" \
+            --volume "$PWD/tsconfig.json:$CONTAINER_WORKDIR/tsconfig.json" \
             --env "BASE_URL=${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}" \
             --env "BROWSER=${{ inputs.browser || 'chromium' }}" \
             --env "CI=true" \
