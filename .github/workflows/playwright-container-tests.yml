@@ -98,6 +98,12 @@ jobs:
         with:
           ref: ${{ github.head_ref || github.ref }}
 
+      - name: Install jq
+        run: |
+          echo "Installing jq..."
+          apt-get update && apt-get install -y jq
+          echo "jq version: $(jq --version)"
+
       - name: Restore cached dependencies and config
         uses: actions/cache@v4
         with:
