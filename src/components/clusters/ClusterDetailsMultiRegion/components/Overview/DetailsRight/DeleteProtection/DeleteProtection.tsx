@@ -7,7 +7,7 @@ import {
   DescriptionListTerm,
 } from '@patternfly/react-core';
 
-import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
+import EditButton from '~/components/common/EditButton';
 import { openModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 
@@ -33,22 +33,21 @@ const DeleteProtection = ({
 
   return (
     <DescriptionListGroup>
-      <DescriptionListTerm>{`Delete Protection: ${protectionEnabled ? 'Enabled' : 'Disabled'}`}</DescriptionListTerm>
+      <DescriptionListTerm>Delete Protection</DescriptionListTerm>
       <DescriptionListDescription>
         {!isUninstalling ? (
-          <ButtonWithTooltip
-            variant="link"
-            isInline
+          <EditButton
+            disableReason={disableToggleReason}
+            isAriaDisabled={!!disableToggleReason || pending}
+            ariaLabel={`${protectionEnabled ? 'Disable' : 'Enable'}`}
             onClick={() =>
               dispatch(
                 openModal(modals.DELETE_PROTECTION, { clusterID, protectionEnabled, region }),
               )
             }
-            disableReason={disableToggleReason}
-            isAriaDisabled={!!disableToggleReason || pending}
           >
-            {`${protectionEnabled ? 'Disable' : 'Enable'}`}
-          </ButtonWithTooltip>
+            {protectionEnabled ? 'Enabled' : 'Disabled'}
+          </EditButton>
         ) : (
           <span>N/A</span>
         )}

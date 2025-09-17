@@ -71,7 +71,9 @@ describe('Overview BillingAccount Component', () => {
     });
 
     render(<OverviewBillingAccount />);
-    expect(await screen.findByRole('button', { name: /123456/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', { name: /Edit billing account/i }),
+    ).toBeInTheDocument();
   });
 
   it('Returns billing account value when cluster not set but subscription is', async () => {
