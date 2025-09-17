@@ -444,7 +444,7 @@ class CreateOSDCluster extends Page {
   }
   selectSubnetAvailabilityZone(subnetAvailability) {
     cy.contains('Select availability zone').first().click();
-    cy.get('').within(() => {
+    cy.get('ul[role="listbox"][aria-label').within(() => {
       cy.contains('li button', subnetAvailability).click({ force: true });
     });
   }

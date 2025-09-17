@@ -154,6 +154,60 @@ describe(
       CreateOSDWizardPage.subscriptionTypeValue().contains(clusterProperties.SubscriptionType);
       CreateOSDWizardPage.infrastructureTypeValue().contains(clusterProperties.InfrastructureType);
       CreateOSDWizardPage.cloudProviderValue().contains(clusterProperties.CloudProvider);
+      CreateOSDWizardPage.authenticationTypeValue().contains(clusterProperties.AuthenticationType);
+      CreateOSDWizardPage.clusterNameValue().contains(clusterProperties.ClusterName);
+      CreateOSDWizardPage.regionValue().contains(clusterProperties.Region.split(',')[0]);
+      CreateOSDWizardPage.availabilityValue().contains(clusterProperties.Availability);
+      CreateOSDWizardPage.securebootSupportForShieldedVMsValue().contains(
+        clusterProperties.SecureBootSupportForShieldedVMs,
+      );
+
+      CreateOSDWizardPage.userWorkloadMonitoringValue().contains(
+        clusterProperties.UserWorkloadMonitoring,
+      );
+      CreateOSDWizardPage.encryptVolumesWithCustomerkeysValue().contains(
+        clusterProperties.EncryptVolumesWithCustomKeys,
+      );
+      CreateOSDWizardPage.additionalEtcdEncryptionValue().contains(
+        clusterProperties.AdditionalEncryption,
+      );
+      CreateOSDWizardPage.fipsCryptographyValue().contains(clusterProperties.FIPSCryptography);
+
+      CreateOSDWizardPage.nodeInstanceTypeValue().contains(
+        clusterProperties.MachinePools.InstanceType,
+      );
+      CreateOSDWizardPage.autoscalingValue().contains(clusterProperties.MachinePools.Autoscaling);
+
+      CreateOSDWizardPage.computeNodeRangeValue().contains(
+        `Minimum nodes per zone: ${clusterProperties.MachinePools.MinimumNodeCount}`,
+      );
+      CreateOSDWizardPage.computeNodeRangeValue().contains(
+        `Maximum nodes per zone: ${clusterProperties.MachinePools.MaximumNodeCount}`,
+      );
+
+      CreateOSDWizardPage.clusterPrivacyValue().contains(clusterProperties.ClusterPrivacy);
+      CreateOSDWizardPage.installIntoExistingVpcValue().contains(
+        clusterProperties.InstallIntoExistingVPC,
+      );
+      CreateOSDWizardPage.applicationIngressValue().contains(clusterProperties.ApplicationIngress);
+      CreateOSDWizardPage.routeSelectorsValue().contains(clusterProperties.RouteSelector.KeyValue);
+      CreateOSDWizardPage.excludedNamespacesValue().contains(
+        clusterProperties.ExcludedNamespaces.Values,
+      );
+      CreateOSDWizardPage.wildcardPolicyValue().contains(clusterProperties.WildcardPolicy);
+      CreateOSDWizardPage.namespaceOwnershipValue().contains(
+        clusterProperties.NamespaceOwnershipPolicy,
+      );
+      CreateOSDWizardPage.machineCIDRValue().contains(clusterProperties.MachineCIDR);
+      CreateOSDWizardPage.serviceCIDRValue().contains(clusterProperties.ServiceCIDR);
+      CreateOSDWizardPage.podCIDRValue().contains(clusterProperties.PodCIDR);
+      CreateOSDWizardPage.hostPrefixValue().contains(clusterProperties.HostPrefix);
+      CreateOSDWizardPage.applicationIngressValue().contains(clusterProperties.ApplicationIngress);
+
+      CreateOSDWizardPage.updateStratergyValue().contains(clusterProperties.UpdateStrategy);
+      CreateOSDWizardPage.nodeDrainingValue(
+        `${clusterProperties.NodeDraining} × 60 = ${clusterProperties.NodeDraining} minutes`,
+      );
     });
 
     it(`OSD ${clusterProperties.CloudProvider}  wizard - Cluster submission & overview definitions`, () => {
@@ -163,6 +217,16 @@ describe(
       ClusterDetailsPage.clusterInstallationHeader()
         .contains('Installing cluster')
         .should('be.visible');
+      ClusterDetailsPage.clusterInstallationExpectedText()
+        .contains('Cluster creation usually takes 30 to 60 minutes to complete')
+        .should('be.visible');
+      ClusterDetailsPage.downloadOcCliLink().contains('Download OC CLI').should('be.visible');
+      ClusterDetailsPage.clusterDetailsPageRefresh();
+      ClusterDetailsPage.checkInstallationStepStatus('Account setup');
+      ClusterDetailsPage.checkInstallationStepStatus('Network settings');
+      ClusterDetailsPage.checkInstallationStepStatus('DNS setup');
+      ClusterDetailsPage.checkInstallationStepStatus('Cluster installation');
+      ClusterDetailsPage.clusterTypeLabelValue().contains(clusterProperties.Type);
     });
   },
 );
