@@ -46,9 +46,13 @@ on:
         type: string
 
 jobs:
-  setup-dependencies:
-    name: Setup Dependencies and Config
+  playwright-container-tests:
+    name: Playwright Container Tests (${{ inputs.grep_tags || '@smoke' }})
     runs-on: ubuntu-latest
+
+    env:
+      PLAYWRIGHT_IMAGE: quay.io/openshifttest/ocmui-custom-playwright:1.54.2
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -60,76 +64,59 @@ jobs:
         with:
           node-version: 22.x
 
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: './node_modules'
-          key: playwright-container-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
-
       - name: Install dependencies
         run: |
           npm install -g yarn
           yarn install
 
-      - name: Add hosts configuration
-        run: make dev-env-setup
-
-      - name: Cache setup artifacts
-        uses: actions/cache@v4
-        with:
-          path: |
-            ./node_modules
-            /etc/hosts
-          key: playwright-setup-${{ github.run_id }}
-
-  playwright-container-tests:
-    name: Playwright Container Tests (${{ inputs.grep_tags || '@smoke' }})
-    needs: [setup-dependencies]
-    runs-on: ubuntu-latest
-
-    # Use the Docker container directly
-    container:
-      image: quay.io/openshifttest/ocmui-custom-playwright:1.54.2
-      options: --shm-size=2g
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref }}
-
-      - name: Install jq
+      - name: Create playwright.env.json from secret
         run: |
-          echo "Installing jq..."
-          apt-get update && apt-get install -y jq
-          echo "jq version: $(jq --version)"
-
-      - name: Restore cached dependencies and config
-        uses: actions/cache@v4
-        with:
-          path: |
-            ./node_modules
-            /etc/hosts
-          key: playwright-setup-${{ github.run_id }}
-
-      - name: Recreate playwright.env.json from secret
-        run: |
-          echo "Recreating playwright.env.json in container job..."
+          echo "Creating playwright.env.json..."
           echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' > playwright.env.json
 
           # Add unique identifiers to avoid resource conflicts
           BUILD_ID="${{ github.run_id }}"
+
+          # Install jq if not available
+          if ! command -v jq &> /dev/null; then
+            apt-get update && apt-get install -y jq
+          fi
 
           # Add build identifier to avoid conflicts
           jq ". + {\"BUILD_IDENTIFIER\": \"${BUILD_ID}\"}" playwright.env.json > tmp.json && mv tmp.json playwright.env.json
 
           # Validate JSON using jq
           if jq empty playwright.env.json > /dev/null 2>&1; then
-            echo "playwright.env.json recreated and validated successfully"
+            echo "playwright.env.json is valid JSON"
           else
             echo "ERROR: playwright.env.json is not valid JSON!"
             exit 1
           fi
+
+      - name: Add hosts configuration
+        run: make dev-env-setup
+
+      - name: Install AWS CLI
+        run: |
+          echo "Installing AWS CLI..."
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+          aws --version
+
+      - name: Install ROSA CLI
+        run: |
+          echo "Installing ROSA CLI..."
+          curl -L https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz -o rosa-linux.tar.gz
+          tar -xzf rosa-linux.tar.gz
+          sudo mv rosa /usr/local/bin/rosa
+          sudo chmod +x /usr/local/bin/rosa
+          rosa version
+
+      - name: Pull Docker image
+        run: |
+          echo "Pulling Docker image: $PLAYWRIGHT_IMAGE"
+          docker pull $PLAYWRIGHT_IMAGE
 
       - name: Configure AWS CLI and setup cloud resources
         run: |
@@ -202,36 +189,12 @@ jobs:
 
           echo "Completed ROSA pre-config commands!"
 
-      - name: Verify container environment
-        run: |
-          echo "=== Container Environment ==="
-          echo "Working directory: $(pwd)"
-          echo "Node version: $(node --version)"
-          echo "NPM version: $(npm --version)"
-          echo "Playwright version: $(npx playwright --version)"
-
-          echo "=== Pre-installed Browsers Check ==="
-          # Check if browsers are already installed in the container
-          if command -v chromium-browser >/dev/null 2>&1; then
-            echo "Chromium: $(chromium-browser --version)"
-          fi
-          if command -v firefox >/dev/null 2>&1; then
-            echo "Firefox: $(firefox --version)"
-          fi
-
-          echo "=== Mounted Files Check ==="
-          echo "Playwright config exists: $(test -f playwright.config.ts && echo 'YES' || echo 'NO')"
-          echo "Playwright directory exists: $(test -d playwright && echo 'YES' || echo 'NO')"
-          echo "Node modules exists: $(test -d node_modules && echo 'YES' || echo 'NO')"
-          echo "Package.json exists: $(test -f package.json && echo 'YES' || echo 'NO')"
-          echo "Playwright.env.json exists: $(test -f playwright.env.json && echo 'YES' || echo 'NO')"
-
       - name: Create artifacts directory
         run: |
           mkdir -p playwright-artifacts/results
           mkdir -p playwright-artifacts/reports
 
-      - name: Run Playwright tests
+      - name: Run Playwright tests in Docker
         env:
           NODE_TLS_REJECT_UNAUTHORIZED: 0
           BROWSER: ${{ inputs.browser || 'chromium' }}
@@ -239,32 +202,99 @@ jobs:
           CI: true
           PLAYWRIGHT_TRACE: ${{ inputs.trace_level || 'off' }}
         run: |
+          # Set container name with unique identifier
+          CONTAINER_NAME="playwright-ocmui-${{ github.run_id }}"
+          CONTAINER_WORKDIR="/usr/src/app"
+
           # Run tests with specified parameters
           GREP_PATTERN="${{ inputs.grep_tags || '@smoke' }}"
           WORKERS="${{ inputs.workers || '4' }}"
 
-          echo "=== Test Execution Parameters ==="
           echo "Running tests with pattern: $GREP_PATTERN"
           echo "Using browser: ${{ inputs.browser || 'chromium' }}"
           echo "Using base URL: ${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}"
           echo "Using $WORKERS parallel workers"
-          echo "Trace level: ${{ inputs.trace_level || 'off' }}"
-          echo ""
+          echo "Container name: $CONTAINER_NAME"
 
-          # Execute tests
-          npx playwright test --grep "$GREP_PATTERN" --workers="$WORKERS"
+          # Remove existing container with the same name, if any
+          if docker container inspect "$CONTAINER_NAME" >/dev/null 2>&1; then
+            echo "Removing existing container: $CONTAINER_NAME"
+            docker rm -f "$CONTAINER_NAME"
+          fi
+
+          # Run the Docker container with all necessary mounts
+          docker run \
+            --name "$CONTAINER_NAME" \
+            --workdir "$CONTAINER_WORKDIR" \
+            --shm-size "2g" \
+            --volume "$PWD/playwright.config.ts:$CONTAINER_WORKDIR/playwright.config.ts:ro" \
+            --volume "$PWD/playwright:$CONTAINER_WORKDIR/playwright:ro" \
+            --volume "$PWD/node_modules:$CONTAINER_WORKDIR/node_modules:ro" \
+            --volume "$PWD/package.json:$CONTAINER_WORKDIR/package.json:ro" \
+            --volume "$PWD/yarn.lock:$CONTAINER_WORKDIR/yarn.lock:ro" \
+            --volume "$PWD/playwright.env.json:$CONTAINER_WORKDIR/playwright.env.json:ro" \
+            --volume "$PWD/tsconfig.json:$CONTAINER_WORKDIR/tsconfig.json:ro" \
+            --env "BASE_URL=${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}" \
+            --env "BROWSER=${{ inputs.browser || 'chromium' }}" \
+            --env "CI=true" \
+            --env "PLAYWRIGHT_TRACE=${{ inputs.trace_level || 'off' }}" \
+            --env "NODE_TLS_REJECT_UNAUTHORIZED=0" \
+            $PLAYWRIGHT_IMAGE \
+            npx playwright test --grep "$GREP_PATTERN" --workers="$WORKERS"
+
+      - name: Copy test results from Docker container
+        if: always()
+        run: |
+          CONTAINER_NAME="playwright-ocmui-${{ github.run_id }}"
+          CONTAINER_WORKDIR="/usr/src/app"
+
+          echo "Copying test results from Docker container..."
+
+          # Copy artifacts from container to host
+          # Results (screenshots, videos, traces)
+          if docker exec "$CONTAINER_NAME" test -d "$CONTAINER_WORKDIR/playwright-artifacts/results" 2>/dev/null; then
+            echo "Copying results directory..."
+            docker cp "$CONTAINER_NAME:$CONTAINER_WORKDIR/playwright-artifacts/results" "./playwright-artifacts/"
+          else
+            echo "Results directory not found in container, creating empty directory"
+            mkdir -p "./playwright-artifacts/results"
+          fi
+
+          # Reports (HTML reports)
+          if docker exec "$CONTAINER_NAME" test -d "$CONTAINER_WORKDIR/playwright-artifacts/reports" 2>/dev/null; then
+            echo "Copying reports directory..."
+            docker cp "$CONTAINER_NAME:$CONTAINER_WORKDIR/playwright-artifacts/reports" "./playwright-artifacts/"
+          else
+            echo "Reports directory not found in container, creating empty directory"
+            mkdir -p "./playwright-artifacts/reports"
+          fi
+
+          # Copy any additional artifacts that might be in the root playwright-artifacts directory
+          if docker exec "$CONTAINER_NAME" test -d "$CONTAINER_WORKDIR/playwright-artifacts" 2>/dev/null; then
+            echo "Copying any additional artifacts..."
+            # Copy individual files in the artifacts directory (not subdirectories to avoid conflicts)
+            docker exec "$CONTAINER_NAME" find "$CONTAINER_WORKDIR/playwright-artifacts" -maxdepth 1 -type f -exec basename {} \; | while read file; do
+              if [ -n "$file" ]; then
+                docker cp "$CONTAINER_NAME:$CONTAINER_WORKDIR/playwright-artifacts/$file" "./playwright-artifacts/"
+              fi
+            done
+          fi
 
       - name: Display artifact summary
         if: always()
         run: |
           echo "=== Playwright Container Artifacts Summary ==="
-          echo "Screenshots (failures only): $(find playwright-artifacts/results -name "*.png" 2>/dev/null | wc -l || echo "0")"
-          echo "Videos (failures only): $(find playwright-artifacts/results -name "*.webm" 2>/dev/null | wc -l || echo "0")"
-          echo "Traces (if enabled): $(find playwright-artifacts/results -name "trace.zip" 2>/dev/null | wc -l || echo "0")"
-          echo "HTML Reports: $(find playwright-artifacts/reports -name "index.html" 2>/dev/null | wc -l || echo "0")"
-          echo "Total artifact size: $(du -sh playwright-artifacts/ 2>/dev/null | cut -f1 || echo "0")"
+          echo "Screenshots (failures only):"
+          find playwright-artifacts/results -name "*.png" 2>/dev/null | wc -l || echo "0"
+          echo "Videos (failures only):"
+          find playwright-artifacts/results -name "*.webm" 2>/dev/null | wc -l || echo "0"
+          echo "Traces (if enabled):"
+          find playwright-artifacts/results -name "trace.zip" 2>/dev/null | wc -l || echo "0"
+          echo "HTML Reports:"
+          find playwright-artifacts/reports -name "index.html" 2>/dev/null | wc -l || echo "0"
+          echo "Total artifact size:"
+          du -sh playwright-artifacts/ 2>/dev/null || echo "No artifacts found"
 
-          echo ""
           echo "=== Artifact Directory Structure ==="
           find playwright-artifacts -type f 2>/dev/null | head -20 || echo "No artifacts found"
 
@@ -283,6 +313,13 @@ jobs:
           name: playwright-container-failures-${{ github.run_id }}
           retention-days: 7
           path: playwright-artifacts/
+
+      - name: Cleanup Docker container
+        if: always()
+        run: |
+          CONTAINER_NAME="playwright-ocmui-${{ github.run_id }}"
+          echo "Cleaning up Docker container: $CONTAINER_NAME"
+          docker rm -f "$CONTAINER_NAME" || echo "Container already removed or doesn't exist"
 
       - name: Cleanup AWS cloud resources
         if: always()
