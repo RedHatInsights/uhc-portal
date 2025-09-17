@@ -47,7 +47,7 @@ const componentText = {
     SELF: 'Self-managed',
     ID: 'ID:',
   },
-  DELETE_PROTECTION: { label: 'Delete Protection: Disabled' },
+  DELETE_PROTECTION: { label: 'Delete Protection' },
 };
 
 const checkForValue = (label, value, testId) => {

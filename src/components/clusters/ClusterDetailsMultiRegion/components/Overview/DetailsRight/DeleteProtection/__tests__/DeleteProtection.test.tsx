@@ -26,7 +26,8 @@ describe('<DeleteProtection />', () => {
       canToggle: true,
     };
     render(<DeleteProtection {...props} />);
-    expect(screen.getByText('Delete Protection: Enabled')).toBeInTheDocument();
+    expect(screen.getByText('Delete Protection')).toBeInTheDocument();
+    expect(screen.getByText('Enabled')).toBeInTheDocument();
   });
 
   it('Shows cluster delete protection is disabled', () => {
@@ -36,7 +37,8 @@ describe('<DeleteProtection />', () => {
       canToggle: true,
     };
     render(<DeleteProtection {...props} />);
-    expect(screen.getByText('Delete Protection: Disabled')).toBeInTheDocument();
+    expect(screen.getByText('Delete Protection')).toBeInTheDocument();
+    expect(screen.getByText('Disabled')).toBeInTheDocument();
   });
 
   it('Disables the "Enable" button if not enough permission', () => {
