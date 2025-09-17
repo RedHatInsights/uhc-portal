@@ -41,6 +41,7 @@ export const ROSA_ARCHITECTURE_RENAMING_ALERT = 'ocmui-rosa-architecture-renamin
 export const GCP_WIF_DEFAULT = 'ocmui-gcp-wif-default';
 export const MP_ADDITIONAL_MAINTENANCE_VALUES = 'ocmui-mp-additional-maintenance-values';
 export const WINDOWS_LICENSE_INCLUDED = 'ocmui-windows-license-included';
+export const ALLOW_EUS_CHANNEL = 'ocmui-allow-eus-channel';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -70,4 +71,5 @@ export default {
   GCP_WIF_DEFAULT,
   MP_ADDITIONAL_MAINTENANCE_VALUES,
   WINDOWS_LICENSE_INCLUDED,
+  ALLOW_EUS_CHANNEL,
 } as const;
