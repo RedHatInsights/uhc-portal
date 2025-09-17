@@ -6,7 +6,6 @@
   "InfrastructureType": "Customer cloud subscription",
   "Region": "us-west-2, US West, Oregon",
   "Availability": "Multi-zone",
-  "Version": "4.13.13",
   "SecureBootSupportForShieldedVMs": "Enabled",
   "UserWorkloadMonitoring": "Enabled",
   "FIPSCryptography": "Enabled",
