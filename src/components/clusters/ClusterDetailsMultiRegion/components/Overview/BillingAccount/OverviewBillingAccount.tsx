@@ -7,7 +7,6 @@ import {
   DescriptionListTerm,
   Flex,
   FlexItem,
-  Icon,
 } from '@patternfly/react-core';
 import PencilAltIcon from '@patternfly/react-icons/dist/esm/icons/pencil-alt-icon';
 
@@ -56,15 +55,14 @@ export function OverviewBillingAccount() {
                   data-testid="billingMarketplaceAccountLink"
                   isDisabled={!cluster?.canEdit} // This won't show disabled currently, but setting the tooltip anyway
                   variant="link"
+                  icon={<PencilAltIcon />}
+                  iconPosition="end"
                   isInline
                   onClick={() => setIsBillingModalOpen(true)}
                   disableReason={disableChangeReason}
                   isAriaDisabled={!!disableChangeReason}
                 >
                   {billingAccount}{' '}
-                  <Icon>
-                    <PencilAltIcon color="blue" />
-                  </Icon>
                 </ButtonWithTooltip>
               </FlexItem>
             </Flex>
