@@ -266,7 +266,7 @@ function OfferingCard(props: OfferingCardProps) {
   }
 
   return (
-    <Card className="offering-card">
+    <Card className="offering-card" isFullHeight>
       <CardHeader>
         <Split hasGutter style={{ width: '100%' }}>
           <SplitItem>{cardLogo}</SplitItem>
