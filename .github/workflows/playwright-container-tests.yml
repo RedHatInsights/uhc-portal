@@ -79,7 +79,10 @@ jobs:
 
           # Install jq if not available
           if ! command -v jq &> /dev/null; then
-            apt-get update && apt-get install -y jq
+            echo "Installing jq..."
+            sudo apt-get update && sudo apt-get install -y jq
+          else
+            echo "jq already installed"
           fi
 
           # Add build identifier to avoid conflicts
@@ -98,25 +101,40 @@ jobs:
 
       - name: Install AWS CLI
         run: |
-          echo "Installing AWS CLI..."
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
+          if ! command -v aws &> /dev/null; then
+            echo "Installing AWS CLI..."
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            rm -rf awscliv2.zip aws/
+          else
+            echo "AWS CLI already installed"
+          fi
           aws --version
 
       - name: Install ROSA CLI
         run: |
-          echo "Installing ROSA CLI..."
-          curl -L https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz -o rosa-linux.tar.gz
-          tar -xzf rosa-linux.tar.gz
-          sudo mv rosa /usr/local/bin/rosa
-          sudo chmod +x /usr/local/bin/rosa
+          if ! command -v rosa &> /dev/null; then
+            echo "Installing ROSA CLI..."
+            curl -L https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz -o rosa-linux.tar.gz
+            tar -xzf rosa-linux.tar.gz
+            sudo mv rosa /usr/local/bin/rosa
+            sudo chmod +x /usr/local/bin/rosa
+            rm -f rosa-linux.tar.gz
+          else
+            echo "ROSA CLI already installed"
+          fi
           rosa version
 
       - name: Pull Docker image
         run: |
-          echo "Pulling Docker image: $PLAYWRIGHT_IMAGE"
-          docker pull $PLAYWRIGHT_IMAGE
+          echo "Checking Docker image: $PLAYWRIGHT_IMAGE"
+          if ! docker image inspect $PLAYWRIGHT_IMAGE &> /dev/null; then
+            echo "Pulling Docker image: $PLAYWRIGHT_IMAGE"
+            docker pull $PLAYWRIGHT_IMAGE
+          else
+            echo "Docker image $PLAYWRIGHT_IMAGE already exists locally"
+          fi
 
       - name: Configure AWS CLI and setup cloud resources
         run: |
