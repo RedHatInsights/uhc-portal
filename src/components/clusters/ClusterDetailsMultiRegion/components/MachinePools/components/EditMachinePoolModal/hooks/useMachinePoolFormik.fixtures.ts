@@ -190,6 +190,7 @@ export const hyperShiftExpectedInitialValues = {
   autoscaleMax: 2,
   autoscaleMin: 2,
   replicas: 2,
+  isWindowsLicenseIncluded: false,
 };
 
 export const gcpSecureBootExpectedInitialValues = {

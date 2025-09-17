@@ -277,8 +277,8 @@ export const Configuration = () => {
                       label="Use a PrivateLink"
                       input={{
                         onChange: onPrivateLinkChange,
-                        description: constants.privateLinkHint,
                       }}
+                      helperText={constants.privateLinkHint}
                     />
                   )}
                   {isPrivateCluster && showPrivateServiceConnect && (
@@ -288,10 +288,9 @@ export const Configuration = () => {
                         label="Use Private Service Connect"
                         input={{
                           onChange: onPrivateServiceConnectChange,
-                          description: constants.privateServiceConnectHint,
                         }}
                         isDisabled={isWifAuth}
-                        tooltip={
+                        hint={
                           <p>
                             Red Hat recommends using Private Service Connect when deploying a
                             Private OpenShift Dedicated cluster on Google Cloud. Private Service
@@ -300,6 +299,7 @@ export const Configuration = () => {
                             clusters.
                           </p>
                         }
+                        helperText={constants.privateServiceConnectHint}
                       />
                     </div>
                   )}
@@ -310,8 +310,8 @@ export const Configuration = () => {
                         label="Configure a cluster-wide proxy"
                         input={{
                           onChange: onClusterProxyChange,
-                          description: constants.clusterProxyHint,
                         }}
+                        helperText={constants.clusterProxyHint}
                       />
                     </div>
                   )}
