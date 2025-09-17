@@ -6,7 +6,8 @@ import {
   useFetchRerunInflightChecks,
   useMutateRerunInflightChecks,
 } from '~/queries/ClusterDetailsQueries/useFetchInflightChecks';
-import { render, screen, within } from '~/testUtils';
+import { checkAccessibility, render, screen, within } from '~/testUtils';
+import { InflightCheckState } from '~/types/clusters_mgmt.v1/enums';
 
 import fixtures from '../../../../__tests__/ClusterDetails.fixtures';
 
@@ -384,6 +385,110 @@ describe('<ClusterStatusMonitor />', () => {
     expect(screen.getByText(/wut wut./)).toBeInTheDocument();
     expect(screen.getByText('https://access.redhat.com/solutions/7048553')).toHaveRole('link');
     expect(screen.getByText('https://access.redhat.com/solutions/7048553')).toHaveAttribute('href');
+  });
+
+  it('displays the subnets from the inflightError in a table', async () => {
+    // Mock inflight checks with failed check containing subnet egress errors
+    const mockInflightError = {
+      state: InflightCheckState.failed,
+      details: {
+        'subnet-12345': {
+          'egress_url_errors-0':
+            'egressURL error: https://registry.redhat.io:443 (Proxy CONNECT aborted)',
+          'egress_url_errors-1':
+            'egressURL error: https://api.openshift.com:443 (Connection timeout)',
+        },
+        'subnet-67890': {
+          'egress_url_errors-3':
+            'egressURL error: https://console.redhat.com:443 (DNS resolution failed)',
+          'egress_url_errors-4':
+            'egressURL error: https://access.redhat.com:443 (Connection refused)',
+        },
+        documentation_link: 'https://docs.openshift.com/rosa/egress-requirements',
+      },
+    };
+
+    // Create cluster with inflight_checks to satisfy hasInflightEgressErrors function
+    const clusterWithInflightChecks = {
+      ...defaultProps.cluster,
+      state: 'installing',
+      inflight_checks: [mockInflightError],
+    };
+
+    // Mock the cluster status - must match cluster ID for component to render
+    useFetchClusterStatusMock.mockReturnValue({
+      isLoading: false,
+      data: {
+        id: clusterWithInflightChecks.id,
+        state: 'installing',
+      },
+      isError: false,
+      error: null,
+    });
+
+    // Mock inflight checks query to return the failed check
+    useFetchInflightChecksMock.mockReturnValue({
+      isLoading: false,
+      data: {
+        data: {
+          items: [mockInflightError],
+        },
+      },
+    });
+
+    useMutateRerunInflightChecksMock.mockReturnValue({
+      isLoading: false,
+      data: null,
+      isError: false,
+      error: null,
+    });
+
+    useFetchRerunInflightChecksMock.mockReturnValue({
+      isLoading: false,
+      data: null,
+      isError: false,
+      error: null,
+    });
+
+    const { user, container } = render(
+      <ClusterStatusMonitor {...defaultProps} cluster={clusterWithInflightChecks} />,
+    );
+
+    // Wait for the component to process the data
+    await screen.findByText('User action required');
+
+    // Verify the warning alert is displayed
+    expect(screen.getByText('User action required')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'To allow this cluster to be fully-managed, add these URLs to the allowlist of these subnet firewalls. For more information review the egress requirements or contact Red Hat support.',
+      ),
+    ).toBeInTheDocument();
+
+    // Verify the table is displayed with correct headers
+    expect(screen.getByText('Subnet')).toBeInTheDocument();
+    expect(screen.getByText('URLs')).toBeInTheDocument();
+
+    // Verify first subnet is displayed
+    expect(screen.getByText('subnet-12345')).toBeInTheDocument();
+
+    // Verify URLs are displayed in the table
+    expect(screen.getByText(/https:\/\/registry\.redhat\.io:443/)).toBeInTheDocument();
+    expect(screen.getByText(/https:\/\/api\.openshift\.com:443/)).toBeInTheDocument();
+
+    // Verify documentation link is displayed
+    expect(screen.getByText('Review egress requirements')).toHaveAttribute(
+      'href',
+      'https://docs.openshift.com/rosa/egress-requirements',
+    );
+
+    // Expand and verify second subnet is shown
+    await user.click(screen.getByRole('button', { name: 'Show more' }));
+    expect(screen.getByText('subnet-67890')).toBeInTheDocument();
+    expect(screen.getByText(/https:\/\/console\.redhat\.com:443/)).toBeInTheDocument();
+    expect(screen.getByText(/https:\/\/access\.redhat\.com:443/)).toBeInTheDocument();
+
+    await checkAccessibility(container);
   });
 
   describe('GCP clusters shared VPC permissions alert', () => {

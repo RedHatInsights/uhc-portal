@@ -1,5 +1,7 @@
 import validators, {
   awsNumericAccountID,
+  checkAwsTagKey,
+  checkAwsTagValue,
   checkClusterConsoleURL,
   checkClusterUUID,
   checkCustomOperatorRolesPrefix,
@@ -1344,5 +1346,65 @@ describe('k8sGpuParameter', () => {
     ['key=a,key=b', 'Each label should have a unique key. "key" already exists.'],
   ])('checkRouteSelectors value %p to be %p', (value: string, expected: string | undefined) =>
     expect(checkRouteSelectors(value)).toBe(expected),
+  );
+});
+
+describe('AWS Tag Key Validation', () => {
+  const validationErrorMessage =
+    "A valid AWS Tag key must consist of alphanumeric characters or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'";
+  it.each([
+    [undefined, 'Required'],
+    ['', 'Required'],
+    ['valid-key', undefined],
+    ['valid_key', undefined],
+    ['valid.key', undefined],
+    ['valid:key', undefined],
+    ['valid/key', undefined],
+    ['valid=key', undefined],
+    ['valid+key', undefined],
+    ['valid-key@domain', undefined],
+    ['123valid', undefined],
+    ['UPPERCASE', undefined],
+    ['aws:something', 'AWS Tag keys cannot start with "aws"'],
+    ['AWS:something', 'AWS Tag keys cannot start with "aws"'],
+    ['aws-test', 'AWS Tag keys cannot start with "aws"'],
+    ['!invalid', validationErrorMessage],
+    ['invalid@#$', validationErrorMessage],
+    ['a'.repeat(129), 'A valid AWS Tag key must be 128 characters or less'],
+    ['a'.repeat(128), undefined],
+  ])(
+    'checkAwsTagKey value %p to be %p',
+    (value: string | undefined, expected: string | undefined) => {
+      expect(checkAwsTagKey(value)).toBe(expected);
+    },
+  );
+});
+
+describe('AWS Tag Value Validation', () => {
+  const validationErrorMessage =
+    "A valid AWS Tag value must consist of alphanumeric characters or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'";
+  it.each([
+    [undefined, undefined],
+    ['', undefined],
+    ['valid-value', undefined],
+    ['valid_value', undefined],
+    ['valid.value', undefined],
+    ['valid:value', undefined],
+    ['valid/value', undefined],
+    ['valid=value', undefined],
+    ['valid+value', undefined],
+    ['valid-value@domain', undefined],
+    ['123valid', undefined],
+    ['UPPERCASE', undefined],
+    ['value with spaces', validationErrorMessage],
+    ['!invalid', validationErrorMessage],
+    ['invalid@#$', validationErrorMessage],
+    ['a'.repeat(257), 'A valid AWS Tag key must be 256 characters or less'],
+    ['a'.repeat(256), undefined],
+  ])(
+    'checkAwsTagValue value %p to be %p',
+    (value: string | undefined, expected: string | undefined) => {
+      expect(checkAwsTagValue(value)).toBe(expected);
+    },
   );
 });

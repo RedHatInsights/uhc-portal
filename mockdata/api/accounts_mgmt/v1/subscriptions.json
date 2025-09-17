@@ -1,8 +1,8 @@
 {
   "kind": "SubscriptionList",
   "page": 1,
-  "size": 23,
-  "total": 23,
+  "size": 24,
+  "total": 24,
   "items": [
     {
       "id": "1KgB0WcVBZBdRGAreuve29yoxUB",
@@ -1047,7 +1047,7 @@
           "value": "true"
         }
       ],
-      "cloud_account_id": "467305695994",
+      "cloud_account_id": "000000012345",
       "cloud_provider_id": "aws",
       "cluster_billing_model": "marketplace",
       "cluster_id": "21696acc0dbkvh0mh4lranlmvvqb11lg",
@@ -1057,14 +1057,170 @@
         "href": "/api/accounts_mgmt/v1/accounts/2KBaiuIoEMEdjyfWwQrTMtU8C8O",
         "id": "2KBaiuIoEMEdjyfWwQrTMtU8C8O",
         "kind": "Account",
-        "name": "Madhusudan Upadhyay",
-        "username": "maupadhy-hypershift"
+        "name": "Some User",
+        "username": "some-user-hypershift"
       },
       "display_name": "hypershift-ready",
       "eval_expiration_date": "2023-03-12T16:17:47.696969Z",
       "external_cluster_id": "124a44e7-28ed-4841-8ae4-0916adb936ea",
       "href": "/api/accounts_mgmt/v1/subscriptions/2KBhQVMVQx0CEoXuYZUMBQrQG8y",
       "id": "2KBhQVMVQx0CEoXuYZUMBQrQG8y",
+      "kind": "Subscription",
+      "last_reconcile_date": "0001-01-01T00:00:00Z",
+      "last_released_at": "0001-01-01T00:00:00Z",
+      "last_telemetry_date": "2023-01-17T16:36:38.505798Z",
+      "managed": true,
+      "metrics": [
+        {
+          "cloud_provider": "aws",
+          "cluster_type": "",
+          "compute_nodes_cpu": {
+            "total": {
+              "unit": "",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "",
+              "value": 0
+            }
+          },
+          "compute_nodes_memory": {
+            "total": {
+              "unit": "B",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "B",
+              "value": 0
+            }
+          },
+          "compute_nodes_sockets": {
+            "total": {
+              "unit": "",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "",
+              "value": 0
+            }
+          },
+          "console_url": "",
+          "cpu": {
+            "total": {
+              "unit": "",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "",
+              "value": 0
+            }
+          },
+          "critical_alerts_firing": 0,
+          "health_state": "unhealthy",
+          "memory": {
+            "total": {
+              "unit": "B",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "B",
+              "value": 0
+            }
+          },
+          "nodes": {
+            "compute": 0,
+            "infra": 0,
+            "master": 0,
+            "total": 0
+          },
+          "non_virt_nodes": 0,
+          "openshift_version": "4.12.0-rc.8",
+          "operating_system": "",
+          "operators_condition_failing": 1,
+          "query_timestamp": "2023-01-18T15:35:49Z",
+          "region": "us-east-1",
+          "sockets": {
+            "total": {
+              "unit": "",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "",
+              "value": 0
+            }
+          },
+          "state": "ready",
+          "state_description": "",
+          "storage": {
+            "total": {
+              "unit": "B",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "B",
+              "value": 0
+            }
+          },
+          "subscription_cpu_total": 0,
+          "subscription_obligation_exists": 0,
+          "subscription_socket_total": 0,
+          "upgrade": {
+            "available": false,
+            "state": "failed",
+            "updated_timestamp": "2023-01-18T15:36:11.285Z",
+            "version": "4.12.0-rc.8"
+          }
+        }
+      ],
+      "organization_id": "2KBain48N90sMZ8zhjcHDcILVUw",
+      "plan": {
+        "category": "HostedControlPlane",
+        "href": "/api/accounts_mgmt/v1/plans/MOA-HostedControlPlane",
+        "id": "MOA-HostedControlPlane",
+        "kind": "Plan",
+        "type": "MOA"
+      },
+      "provenance": "Provisioning",
+      "region_id": "us-east-1",
+      "status": "Active",
+      "support_level": "Eval",
+      "trial_end_date": "0001-01-01T00:00:00Z",
+      "updated_at": "2023-01-17T16:36:38.50756Z"
+    },
+    {
+      "billing_expiration_date": "0001-01-01T00:00:00Z",
+      "capabilities": [
+        {
+          "inherited": false,
+          "name": "capability.cluster.manage_cluster_admin",
+          "value": "true"
+        }
+      ],
+      "cloud_account_id": "000000012345",
+      "cloud_provider_id": "aws",
+      "cluster_billing_model": "marketplace",
+      "cluster_id": "21696abb0dbkvh0mh4lranlmvvqb11lg",
+      "created_at": "2023-01-11T16:17:47.696969Z",
+      "creator": {
+        "email": "***REMOVED***",
+        "href": "/api/accounts_mgmt/v1/accounts/3QCaiuIoEMEdjyfWwQrTMtU8C8O",
+        "id": "3QCaiuIoEMEdjyfWwQrTMtU8C8O",
+        "kind": "Account",
+        "name": "Some User",
+        "username": "some-user-hypershift"
+      },
+      "display_name": "hypershift-ready-windows-license-included",
+      "eval_expiration_date": "2023-03-12T16:17:47.696969Z",
+      "external_cluster_id": "124a55e7-28ed-4841-8ae4-0916adb936ea",
+      "href": "/api/accounts_mgmt/v1/subscriptions/3QChQVMVQx0CEoXuYZUMBQrQG8y",
+      "id": "3QChQVMVQx0CEoXuYZUMBQrQG8y",
       "kind": "Subscription",
       "last_reconcile_date": "0001-01-01T00:00:00Z",
       "last_released_at": "0001-01-01T00:00:00Z",

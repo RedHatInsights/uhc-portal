@@ -163,6 +163,12 @@ export const defaultExpectedInitialValues = {
       value: '',
     },
   ],
+  awsTags: [
+    {
+      key: '',
+      value: '',
+    },
+  ],
   maxPrice: 0.01,
   name: '',
   privateSubnetId: undefined,
@@ -184,6 +190,7 @@ export const hyperShiftExpectedInitialValues = {
   autoscaleMax: 2,
   autoscaleMin: 2,
   replicas: 2,
+  isWindowsLicenseIncluded: false,
 };
 
 export const gcpSecureBootExpectedInitialValues = {

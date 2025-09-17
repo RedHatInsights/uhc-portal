@@ -7,6 +7,7 @@ import { isSubnetMatchingPrivacy } from '~/common/vpcHelpers';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyDataType, FuzzyEntryType } from '~/components/common/FuzzySelect/types';
+import { isRestrictedEnv } from '~/restrictedEnv';
 import { CloudVpc, Subnetwork } from '~/types/clusters_mgmt.v1';
 
 const TRUNCATE_THRESHOLD = 40;
@@ -61,19 +62,28 @@ export const SubnetSelectField = ({
   }>(() => {
     const subnetList: Subnetwork[] = [];
     const subnetsByAZ: FuzzyDataType = {};
-
     selectedVPC.aws_subnets?.forEach((subnet) => {
       const subnetAZ = subnet.availability_zone || '';
+      const subnetId = subnet.subnet_id as string;
+      const entry: FuzzyEntryType = {
+        groupId: subnetAZ,
+        entryId: subnetId,
+        label: subnet.name || subnetId,
+      };
+
       if (
         isSubnetMatchingPrivacy(subnet, privacy) &&
         (allowedAZs === undefined || allowedAZs.includes(subnetAZ))
       ) {
-        const subnetId = subnet.subnet_id as string;
-        const entry: FuzzyEntryType = {
-          groupId: subnetAZ,
-          entryId: subnetId,
-          label: subnet.name || subnetId,
-        };
+        if (subnetsByAZ[subnetAZ]) {
+          subnetsByAZ[subnetAZ].push(entry);
+        } else {
+          subnetsByAZ[subnetAZ] = [entry];
+        }
+        subnetList.push(subnet);
+      }
+
+      if (isRestrictedEnv()) {
         if (subnetsByAZ[subnetAZ]) {
           subnetsByAZ[subnetAZ].push(entry);
         } else {

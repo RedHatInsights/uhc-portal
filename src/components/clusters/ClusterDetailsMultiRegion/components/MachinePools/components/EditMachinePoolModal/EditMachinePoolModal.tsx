@@ -236,6 +236,8 @@ const EditMachinePoolModal = ({
     machineTypes: machineTypesResponse,
     tabKey: 3,
     initialTabContentShown: STARTING_TAB_KEY === 3,
+    isROSAHCP: isHypershift || false,
+    isNewMachinePool: !isEdit,
   });
 
   const [securityGroupsTab, securityGroupsContent] = useSecurityGroupsSubTab({

@@ -45,6 +45,8 @@ describe('LabelsTagsTaintsSubTab', () => {
     machineTypes: mockMachineTypes,
     tabKey: 3,
     initialTabContentShown: true,
+    isROSAHCP: true,
+    isNewMachinePool: true,
   };
 
   const checkForError = (show: boolean) => {
@@ -76,7 +78,7 @@ describe('LabelsTagsTaintsSubTab', () => {
       const [tabs] = result.current;
 
       render(tabs({}));
-      expect(screen.getByRole('tab')).toHaveTextContent('Labels, AWS Tags, and Taints');
+      expect(screen.getByRole('tab')).toHaveTextContent('Labels, Taints and AWS Tags');
       checkForError(false);
     });
 

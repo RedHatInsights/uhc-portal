@@ -13,12 +13,14 @@ const VersionSelectionGrid = ({
   onSelect,
   selected,
   isUnMetClusterAcknowledgements,
+  isPending = false,
 }: {
   clusterVersion: string;
   availableUpgrades?: string[];
   onSelect: (version: string) => void;
   selected?: string;
   isUnMetClusterAcknowledgements?: boolean;
+  isPending?: boolean;
 }) => {
   React.useEffect(
     () => {
@@ -59,6 +61,7 @@ const VersionSelectionGrid = ({
               onKeyDown={onKeyDown}
               onClick={onClick}
               isUnMetClusterAcknowledgements={isUnMetClusterAcknowledgements}
+              isPending={isPending}
             >
               The latest on your current minor version.
             </VersionCard>
@@ -73,6 +76,7 @@ const VersionSelectionGrid = ({
               onKeyDown={onKeyDown}
               onClick={onClick}
               isUnMetClusterAcknowledgements={isUnMetClusterAcknowledgements}
+              isPending={isPending}
             >
               Start taking advantage of the new features{' '}
               {`${latestVersionParts?.major}.${latestVersionParts?.minor}`} has to offer.

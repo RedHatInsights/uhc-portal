@@ -7,7 +7,7 @@
       "value": "true"
     }
   ],
-  "cloud_account_id": "467305695994",
+  "cloud_account_id": "000000012345",
   "cloud_provider_id": "aws",
   "cluster_billing_model": "marketplace",
   "cluster_id": "21696acc0dbkvh0mh4lranlmvvqb11lg",
@@ -17,8 +17,8 @@
     "href": "/api/accounts_mgmt/v1/accounts/2KBaiuIoEMEdjyfWwQrTMtU8C8O",
     "id": "2KBaiuIoEMEdjyfWwQrTMtU8C8O",
     "kind": "Account",
-    "name": "Madhusudan Upadhyay",
-    "username": "maupadhy-hypershift"
+    "name": "Some User",
+    "username": "some-user-hypershift"
   },
   "display_name": "hypershift-ready",
   "eval_expiration_date": "2023-03-12T16:17:47.696969Z",

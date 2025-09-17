@@ -13,13 +13,13 @@
       "auto_repair": true,
       "aws_node_pool": {
         "instance_type": "m5.xlarge",
-        "instance_profile": "production-21696acc0dbkvh0mh4lranlmvvqb11lg-hypermaupadhy-worker",
+        "instance_profile": "production-21696acc0dbkvh0mh4lranlmvvqb11lg-hyperuser-worker",
         "tags": {
           "api.openshift.com/environment": "production",
           "api.openshift.com/id": "21696acc0dbkvh0mh4lranlmvvqb11lg",
           "api.openshift.com/legal-entity-id": "2KBain48N90sMZ8zhjcHDcILVUw",
-          "api.openshift.com/name": "hypermaupadhy",
-          "api.openshift.com/nodepool": "hypermaupadhy-workers",
+          "api.openshift.com/name": "hyperuser",
+          "api.openshift.com/nodepool": "hyperuser-workers",
           "dns": "external",
           "red-hat-clustertype": "rosa",
           "red-hat-managed": "true"
@@ -36,13 +36,13 @@
       "auto_repair": false,
       "aws_node_pool": {
         "instance_type": "m5.xlarge",
-        "instance_profile": "production-21696acc0dbkvh0mh4lranlmvvqb11lg-hypermaupadhy-worker",
+        "instance_profile": "production-21696acc0dbkvh0mh4lranlmvvqb11lg-hyperuser-worker",
         "tags": {
           "api.openshift.com/environment": "production",
           "api.openshift.com/id": "21696acc0dbkvh0mh4lranlmvvqb11lg",
           "api.openshift.com/legal-entity-id": "2KBain48N90sMZ8zhjcHDcILVUw",
-          "api.openshift.com/name": "hypermaupadhy",
-          "api.openshift.com/nodepool": "hypermaupadhy-workers1",
+          "api.openshift.com/name": "hyperuser",
+          "api.openshift.com/nodepool": "hyperuser-workers1",
           "dns": "external",
           "red-hat-clustertype": "rosa",
           "red-hat-managed": "true"
