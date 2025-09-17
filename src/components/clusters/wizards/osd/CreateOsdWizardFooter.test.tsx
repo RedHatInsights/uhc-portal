@@ -66,7 +66,7 @@ describe('<CreateOsdWizardFooter />', () => {
     expect(screen.getByTestId(wizardPrimaryBtnTestId)).not.toHaveAttribute('aria-disabled');
   });
 
-  it("Doesn't proceed to the next step when validation fails", () => {
+  it("Doesn't proceed to the next step when validation fails", async () => {
     mockedUseFormState.mockReturnValue({
       ...useFormStateReturnValue,
       validateForm: jest.fn().mockResolvedValue({ mockError: 'Mock Error' }),
@@ -75,7 +75,7 @@ describe('<CreateOsdWizardFooter />', () => {
     const { user } = render(<CreateOsdWizardFooter {...props} />);
     const nextButton = screen.getByTestId(wizardPrimaryBtnTestId);
 
-    user.click(nextButton);
+    await user.click(nextButton);
     expect(mockOnNext).not.toHaveBeenCalled();
   });
 
