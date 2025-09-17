@@ -3,6 +3,7 @@ import { CreateOSDWizardPage } from '../../page-objects/create-osd-wizard-page';
 import { ClusterDetailsPage } from '../../page-objects/cluster-details-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
 const clusterProperties = require('../../fixtures/osd-gcp/osd-trial-gcp-cluster-creation.spec.json');
+const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 
 // Environment variables
 const QE_GCP = process.env.QE_GCP_OSDCCSADMIN_JSON;
@@ -55,11 +56,12 @@ test.describe(
 
     test(`OSD - ${clusterProperties.CloudProvider} wizard - Cluster Settings - Cluster details definitions`, async () => {
       await createOSDWizardPage.isClusterDetailsScreen();
-      await sharedPage
-        .locator(createOSDWizardPage.clusterNameInput)
-        .fill(clusterProperties.ClusterName);
+      await sharedPage.locator(createOSDWizardPage.clusterNameInput).fill(clusterName);
       await createOSDWizardPage.hideClusterNameValidation();
       await createOSDWizardPage.selectRegion(clusterProperties.Region);
+      await createOSDWizardPage.selectVersion(
+        clusterProperties.Version || process.env.VERSION || '',
+      );
       await createOSDWizardPage.singleZoneAvilabilityRadio().check();
       await createOSDWizardPage.multiZoneAvilabilityRadio().check();
       await createOSDWizardPage.selectAvailabilityZone(clusterProperties.Availability);
@@ -126,9 +128,7 @@ test.describe(
       await expect(createOSDWizardPage.cloudProviderValue()).toContainText(
         clusterProperties.CloudProvider,
       );
-      await expect(createOSDWizardPage.clusterNameValue()).toContainText(
-        clusterProperties.ClusterName,
-      );
+      await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
       await expect(createOSDWizardPage.regionValue()).toContainText(
         clusterProperties.Region.split(',')[0],
       );
@@ -198,9 +198,7 @@ test.describe(
       await createOSDWizardPage.createClusterButton().click();
       await clusterDetailsPage.waitForInstallerScreenToLoad();
 
-      await expect(clusterDetailsPage.clusterNameTitle()).toContainText(
-        clusterProperties.ClusterName,
-      );
+      await expect(clusterDetailsPage.clusterNameTitle()).toContainText(clusterName);
       await expect(clusterDetailsPage.clusterInstallationHeader()).toContainText(
         'Installing cluster',
       );
@@ -252,7 +250,7 @@ test.describe(
       await clusterDetailsPage.actionsDropdownToggle().click();
       await clusterDetailsPage.deleteClusterDropdownItem().click();
       await clusterDetailsPage.deleteClusterNameInput().clear();
-      await clusterDetailsPage.deleteClusterNameInput().fill(clusterProperties.ClusterName);
+      await clusterDetailsPage.deleteClusterNameInput().fill(clusterName);
       await clusterDetailsPage.deleteClusterConfirm().click();
       await clusterDetailsPage.waitForDeleteClusterActionComplete();
       await sharedPage.waitForTimeout(5000); // Small delay for UI stability

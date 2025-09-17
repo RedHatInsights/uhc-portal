@@ -32,7 +32,7 @@ test.describe.serial(
 
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
-    const clusterName = `smoke-cypress-rosa-hypershift-${Math.random().toString(36).substring(7)}`;
+    const clusterName = `smoke-playwright-rosa-hypershift-${Math.random().toString(36).substring(7)}`;
 
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to overview

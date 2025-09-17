@@ -20,7 +20,7 @@ test.describe.serial(
     const awsAccountID = process.env.QE_AWS_ID || '';
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-Installer-Role`;
-    const clusterName = `ocmui-cypress-smoke-rosa-${Math.random().toString(36).substring(7)}`;
+    const clusterName = `ocmui-playwright-smoke-rosa-${Math.random().toString(36).substring(7)}`;
 
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to overview

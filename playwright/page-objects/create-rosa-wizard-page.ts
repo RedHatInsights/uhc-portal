@@ -466,6 +466,13 @@ export class CreateRosaWizardPage extends BasePage {
     await this.page.locator('text=' + vpcName).click();
   }
 
+  async selectVersion(version: string): Promise<void> {
+    if (version !== '') {
+      await this.page.locator('button[id="version-selector"]').click();
+      await this.page.getByRole('option', { name: version }).click();
+    }
+  }
+
   async selectMachinePoolPrivateSubnet(
     privateSubnetNameOrId: string,
     machinePoolIndex: number = 1,

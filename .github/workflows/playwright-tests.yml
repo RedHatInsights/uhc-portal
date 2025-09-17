@@ -36,6 +36,11 @@ on:
           - 'on-first-retry'
           - 'retain-on-failure'
           - 'on'
+      ocp_version:
+        description: 'OCP version to use for tests'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   install:
@@ -226,6 +231,7 @@ jobs:
           CI: true
           # Optimize trace collection for CI
           PLAYWRIGHT_TRACE: ${{ inputs.trace_level || 'off' }}
+          VERSION: ${{ inputs.ocp_version || '' }}
         run: |
           # Run tests with specified tags and 4 workers
           GREP_PATTERN="${{ inputs.grep_tags || '@smoke' }}"

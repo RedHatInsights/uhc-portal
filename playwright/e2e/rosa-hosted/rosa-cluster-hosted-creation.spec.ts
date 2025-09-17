@@ -33,6 +33,7 @@ test.describe.serial(
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
     const clusterName = `smoke-playwright-rosa-hypershift-${Math.random().toString(36).substring(7)}`;
+    const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2, 13)}`;
 
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to overview
@@ -83,7 +84,10 @@ test.describe.serial(
       await createRosaWizardPage.setClusterName(clusterName);
       await createRosaWizardPage.closePopoverDialogs();
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().check();
-      await createRosaWizardPage.setDomainPrefix(clusterProperties.DomainPrefix);
+      await createRosaWizardPage.setDomainPrefix(clusterDomainPrefix);
+      await createRosaWizardPage.selectVersion(
+        clusterProperties.Version || process.env.VERSION || '',
+      );
       await createRosaWizardPage.closePopoverDialogs();
       await sharedPage.waitForTimeout(2000); // Small delay for UI stability
       await createRosaWizardPage.rosaNextButton().click();
@@ -182,7 +186,7 @@ test.describe.serial(
       await createRosaWizardPage.isClusterPropertyMatchesValue('Cluster name', clusterName);
       await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Domain prefix',
-        clusterProperties.DomainPrefix,
+        clusterDomainPrefix,
       );
       await createRosaWizardPage.isClusterPropertyMatchesValue('Region', region);
       await createRosaWizardPage.isClusterPropertyMatchesValue(
@@ -286,7 +290,7 @@ test.describe.serial(
         clusterProperties.Type,
       );
       await expect(clusterDetailsPage.clusterDomainPrefixLabelValue()).toContainText(
-        clusterProperties.DomainPrefix,
+        clusterDomainPrefix,
       );
       await expect(clusterDetailsPage.clusterControlPlaneTypeLabelValue()).toContainText(
         clusterProperties.ControlPlaneType,

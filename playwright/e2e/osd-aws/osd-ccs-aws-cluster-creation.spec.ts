@@ -7,6 +7,8 @@ const clusterProperties = require('../../fixtures/osd-aws/osd-ccs-aws-cluster-cr
 const awsAccountID = process.env.QE_AWS_ID;
 const awsAccessKey = process.env.QE_AWS_ACCESS_KEY_ID;
 const awsSecretKey = process.env.QE_AWS_ACCESS_KEY_SECRET;
+const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
+const clusterDomainPrefix = `osd${Math.random().toString(36).substring(2, 13)}`;
 
 // Shared context and page objects for serial test execution
 let sharedContext: BrowserContext;
@@ -64,11 +66,14 @@ test.describe.serial(
       await createOSDWizardPage.isClusterDetailsScreen();
       await createOSDWizardPage.createCustomDomainPrefixCheckbox().scrollIntoViewIfNeeded();
       await createOSDWizardPage.createCustomDomainPrefixCheckbox().check();
-      await createOSDWizardPage.setClusterName(clusterProperties.ClusterName);
+      await createOSDWizardPage.setClusterName(clusterName);
       await createOSDWizardPage.closePopoverDialogs();
-      await createOSDWizardPage.setDomainPrefix(clusterProperties.ClusterDomainPrefix);
+      await createOSDWizardPage.setDomainPrefix(clusterDomainPrefix);
       await createOSDWizardPage.closePopoverDialogs();
       await expect(createOSDWizardPage.singleZoneAvilabilityRadio()).toBeChecked();
+      await createOSDWizardPage.selectVersion(
+        clusterProperties.Version || process.env.VERSION || '',
+      );
       await createOSDWizardPage.selectRegion(clusterProperties.Region);
 
       await expect(createOSDWizardPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
@@ -139,11 +144,9 @@ test.describe.serial(
       );
 
       await expect(createOSDWizardPage.clusterDomainPrefixLabelValue()).toContainText(
-        clusterProperties.ClusterDomainPrefix,
+        clusterDomainPrefix,
       );
-      await expect(createOSDWizardPage.clusterNameValue()).toContainText(
-        clusterProperties.ClusterName,
-      );
+      await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
       await expect(createOSDWizardPage.regionValue()).toContainText(
         clusterProperties.Region.split(',')[0],
       );
@@ -206,9 +209,7 @@ test.describe.serial(
     test(`OSD ${clusterProperties.CloudProvider}  wizard - Cluster submission & overview definitions`, async () => {
       await createOSDWizardPage.createClusterButton().click();
       await clusterDetailsPage.waitForInstallerScreenToLoad();
-      await expect(clusterDetailsPage.clusterNameTitle()).toContainText(
-        clusterProperties.ClusterName,
-      );
+      await expect(clusterDetailsPage.clusterNameTitle()).toContainText(clusterName);
       await expect(clusterDetailsPage.clusterInstallationHeader()).toContainText(
         'Installing cluster',
       );
@@ -259,7 +260,7 @@ test.describe.serial(
       await clusterDetailsPage.actionsDropdownToggle().click();
       await clusterDetailsPage.deleteClusterDropdownItem().click();
       await clusterDetailsPage.deleteClusterNameInput().clear();
-      await clusterDetailsPage.deleteClusterNameInput().fill(clusterProperties.ClusterName);
+      await clusterDetailsPage.deleteClusterNameInput().fill(clusterName);
       await clusterDetailsPage.deleteClusterConfirm().click();
       await clusterDetailsPage.waitForDeleteClusterActionComplete();
       await sharedPage.waitForTimeout(2000); // Small delay for UI stability

@@ -534,11 +534,9 @@ export class CreateOSDWizardPage extends BasePage {
 
   // Cluster version selection
   async selectVersion(version: string): Promise<void> {
-    await this.page.locator('button[id="version-selector"]').click();
-    if (version === '') {
-      await this.page.locator('button[id^="openshift-"]').first().click();
-    } else {
-      await this.page.getByRole('button', { name: version }).click();
+    if (version !== '') {
+      await this.page.locator('button[id="version-selector"]').click();
+      await this.page.getByRole('option', { name: version }).click();
     }
   }
 

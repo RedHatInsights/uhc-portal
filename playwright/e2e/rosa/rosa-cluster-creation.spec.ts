@@ -81,6 +81,9 @@ test.describe.serial(
       await createRosaWizardPage.setDomainPrefix(clusterDomainPrefix);
       await createRosaWizardPage.closePopoverDialogs();
       await createRosaWizardPage.selectRegion(clusterProperties.Region);
+      await createRosaWizardPage.selectVersion(
+        clusterProperties.Version || process.env.VERSION || '',
+      );
       await createRosaWizardPage.rosaNextButton().click();
     });
 

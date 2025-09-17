@@ -3,6 +3,7 @@ import { ClusterDetailsPage } from '../../page-objects/cluster-details-page';
 import { CreateOSDWizardPage } from '../../page-objects/create-osd-wizard-page';
 import { setupTestSuite, cleanupTestSuite } from '../../support/test-setup';
 const clusterProperties = require('../../fixtures/osd-gcp/osd-non-ccs-gcp-cluster-creation.spec.json');
+const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 
 // Shared context and page objects for serial test execution
 let sharedContext: BrowserContext;
@@ -51,12 +52,13 @@ test.describe(
 
     test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster Settings - Cluster details definitions`, async () => {
       await createOSDWizardPage.isClusterDetailsScreen();
-      await sharedPage
-        .locator(createOSDWizardPage.clusterNameInput)
-        .fill(clusterProperties.ClusterName);
+      await sharedPage.locator(createOSDWizardPage.clusterNameInput).fill(clusterName);
       await createOSDWizardPage.hideClusterNameValidation();
       await expect(createOSDWizardPage.singleZoneAvilabilityRadio()).toBeChecked();
       await createOSDWizardPage.selectRegion(clusterProperties.Region);
+      await createOSDWizardPage.selectVersion(
+        clusterProperties.Version || process.env.VERSION || '',
+      );
       await createOSDWizardPage.selectPersistentStorage(clusterProperties.PersistentStorage);
       await createOSDWizardPage.selectLoadBalancers(clusterProperties.LoadBalancers);
       await expect(createOSDWizardPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
@@ -116,9 +118,7 @@ test.describe(
       await expect(createOSDWizardPage.cloudProviderValue()).toContainText(
         clusterProperties.CloudProvider,
       );
-      await expect(createOSDWizardPage.clusterNameValue()).toContainText(
-        clusterProperties.ClusterName,
-      );
+      await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
       await expect(createOSDWizardPage.regionValue()).toContainText(
         clusterProperties.Region.split(',')[0],
       );
@@ -171,9 +171,7 @@ test.describe(
     test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster submission & overview definitions`, async () => {
       await createOSDWizardPage.createClusterButton().click();
       await clusterDetailsPage.waitForInstallerScreenToLoad();
-      await expect(clusterDetailsPage.clusterNameTitle()).toContainText(
-        clusterProperties.ClusterName,
-      );
+      await expect(clusterDetailsPage.clusterNameTitle()).toContainText(clusterName);
       await expect(clusterDetailsPage.clusterInstallationHeader()).toContainText(
         'Installing cluster',
       );
@@ -233,7 +231,7 @@ test.describe(
       await clusterDetailsPage.actionsDropdownToggle().click();
       await clusterDetailsPage.deleteClusterDropdownItem().click();
       await clusterDetailsPage.deleteClusterNameInput().clear();
-      await clusterDetailsPage.deleteClusterNameInput().fill(clusterProperties.ClusterName);
+      await clusterDetailsPage.deleteClusterNameInput().fill(clusterName);
       await clusterDetailsPage.deleteClusterConfirm().click();
       await clusterDetailsPage.waitForDeleteClusterActionComplete();
       await sharedPage.waitForTimeout(5000); // Small delay for UI stability

@@ -29,6 +29,11 @@ on:
         required: false
         default: '@smoke'
         type: string
+      ocp_version:
+        description: 'OCP version to use for tests'
+        required: false
+        default: ''
+        type: string
       trace_level:
         description: 'Trace collection level'
         required: false
@@ -264,6 +269,7 @@ jobs:
             --env "CI=true" \
             --env "PLAYWRIGHT_TRACE=${{ inputs.trace_level || 'off' }}" \
             --env "NODE_TLS_REJECT_UNAUTHORIZED=0" \
+            --env "VERSION=${{ inputs.ocp_version || '' }}" \
             $PLAYWRIGHT_IMAGE \
             npx playwright test --grep "$GREP_PATTERN" --workers="$WORKERS"
 
