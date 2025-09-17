@@ -157,7 +157,11 @@ jobs:
           echo "AWS CLI configuration completed"
 
           # Verify AWS CLI can authenticate
-          aws sts get-caller-identity || echo "AWS authentication check failed, but continuing..."
+          if aws sts get-caller-identity >/dev/null 2>&1; then
+            echo "AWS authentication successful"
+          else
+            echo "AWS authentication check failed, but continuing..."
+          fi
 
           # Setup AWS cloud resources
           echo "Setting up AWS cloud resources..."
@@ -254,6 +258,7 @@ jobs:
             --volume "$PWD/node_modules:$CONTAINER_WORKDIR/node_modules" \
             --volume "$PWD/playwright.env.json:$CONTAINER_WORKDIR/playwright.env.json" \
             --volume "$PWD/tsconfig.json:$CONTAINER_WORKDIR/tsconfig.json" \
+            --volume "$PWD/playwright-artifacts:$CONTAINER_WORKDIR/playwright-artifacts" \
             --env "BASE_URL=${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}" \
             --env "BROWSER=${{ inputs.browser || 'chromium' }}" \
             --env "CI=true" \
