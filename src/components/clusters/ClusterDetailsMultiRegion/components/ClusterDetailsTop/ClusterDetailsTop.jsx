@@ -422,6 +422,7 @@ function ClusterDetailsTop(props) {
       </Split>
 
       {topCard}
+
       {pending ? (
         <Skeleton />
       ) : (
