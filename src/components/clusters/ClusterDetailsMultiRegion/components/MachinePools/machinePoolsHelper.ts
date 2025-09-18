@@ -146,16 +146,18 @@ const isMinimumCountWithoutTaints = ({
   currentMachinePoolId,
   machinePools,
   cluster,
+  includeCurrentMachinePool = false,
 }: {
   currentMachinePoolId?: string;
   machinePools: MachinePool[];
   cluster: ClusterFromSubscription;
+  includeCurrentMachinePool?: boolean;
 }) => {
   if (!isHypershiftCluster(cluster)) {
     return true; // This only applies to HCP clusters
   }
 
-  const numberReplicas = machinePools?.reduce((count, pool) => {
+  let numberReplicas = machinePools?.reduce((count, pool) => {
     if (pool.id !== currentMachinePoolId) {
       if (!pool.taints?.length) {
         return count + (pool.autoscaling?.min_replicas ?? pool.replicas ?? 0);
@@ -163,6 +165,15 @@ const isMinimumCountWithoutTaints = ({
     }
     return count;
   }, 0);
+
+  if (
+    includeCurrentMachinePool &&
+    currentMachinePoolId &&
+    !machinePools.find((pool) => pool.id === currentMachinePoolId)?.taints?.length
+  ) {
+    // The minimum the current machine pool can have is 1 so adding it if the method is using to count total nodes
+    numberReplicas += 1;
+  }
 
   return numberReplicas >= 2;
 };
@@ -284,6 +295,7 @@ const getClusterMinNodes = ({
       currentMachinePoolId: machinePool?.id,
       cluster,
       machinePools,
+      includeCurrentMachinePool: true,
     })
       ? 1
       : 2;
