@@ -69,6 +69,7 @@ import {
 } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
+import { ChannelGroupSelectField } from '../../../common/ClusterSettings/Details/ChannelGroupSelectField';
 import { ShieldedVM } from '../../../common/ShieldedVM';
 import { ClusterPrivacyType } from '../../Networking/constants';
 
@@ -89,6 +90,7 @@ function Details() {
       [FieldId.SecureBoot]: secureBoot,
       [FieldId.MachinePoolsSubnets]: machinePoolsSubnets,
       [FieldId.HasDomainPrefix]: hasDomainPrefix,
+      // [FieldId.ChannelGroup]: channelGroup,
     },
     errors,
     isValidating,
@@ -338,6 +340,21 @@ function Details() {
               />
             </GridItem>
           )}
+
+          <GridItem>
+            <FormGroup
+              label="Channel group"
+              isRequired
+              fieldId={FieldId.ChannelGroup}
+              labelHelp={<PopoverHint hint={constants.regionHint} />}
+            >
+              <Field
+                component={ChannelGroupSelectField}
+                name={FieldId.ChannelGroup}
+                handleCloudRegionChange={handleCloudRegionChange}
+              />
+            </FormGroup>
+          </GridItem>
 
           <GridItem>
             <VersionSelectField
