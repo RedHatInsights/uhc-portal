@@ -25,7 +25,7 @@ spec:
     - YARN_BUILD_SCRIPT=build:prod:sentry
     - ENABLE_SENTRY=true
     - SENTRY_AUTH_TOKEN=foo
-    - SENTRY_RELEASE=ocm-uhc-portal-{{revision}}
+    - SENTRY_RELEASE=ocm-uhc-portal-{{short_revision}}
   - name: build-container-additional-secret
     value: 'sentry-auth'
   - name: git-url
