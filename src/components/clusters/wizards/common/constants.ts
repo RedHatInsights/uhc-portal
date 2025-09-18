@@ -17,6 +17,7 @@ export enum FieldId {
   Byoc = 'byoc',
   ByoOidcConfigId = 'byo_oidc_config_id',
   ByoOidcConfigIdManaged = 'byo_oidc_config_id_managed',
+  ChannelGroup = 'channel-group',
   CidrDefaultValuesEnabled = 'cidr_default_values_enabled',
   CidrDefaultValuesToggle = 'cidr_default_values_toggle',
   CloudProvider = 'cloud_provider',
