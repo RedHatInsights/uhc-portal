@@ -1014,10 +1014,12 @@ const getLinks = async () => {
   const linkUrls = Object.values(links);
   // nestedUrls: 4-level structure (Tool → Channel → Architecture → OS → URL) for download binaries
   const nestedUrls = Object.values(urls)
-    .flatMap(Object.values)
-    .flatMap(Object.values)
-    .flatMap(Object.values);
-  // TODO: include latest github releases?
+    .map((level1) =>
+      Object.values(level1).map((level2) =>
+        Object.values(level2).map((level3) => Object.values(level3)),
+      ),
+    )
+    .flat(3);
 
   return combineAndSortLinks(linkUrls, nestedUrls);
 };

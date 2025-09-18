@@ -3,29 +3,32 @@
 
 import { combineAndSortLinks } from './linkUtils.mjs';
 
+const BASE_URL = 'https://access.redhat.com/';
+const SUPPORT_URL = `${BASE_URL}support/`;
+const ARTICLES_URL = `${BASE_URL}articles/`;
+const SOLUTIONS_URL = `${BASE_URL}solutions/`;
+const SECURITY_URL = `${BASE_URL}security/`;
+
 const supportLinks = {
   // Support Case Management
-  SUPPORT_CASE_NEW: 'https://access.redhat.com/support/cases/#/case/new',
-  SUPPORT_CASE_NEW_WITH_ISSUE:
-    'https://access.redhat.com/support/cases/#/case/new/open-case/describe-issue',
-  SUPPORT_CASE_VIEW: 'https://access.redhat.com/support/cases/#/case',
-  SUPPORT_HOME: 'https://access.redhat.com/support/',
+  SUPPORT_CASE_NEW: `${SUPPORT_URL}cases/#/case/new`,
+  SUPPORT_CASE_NEW_WITH_ISSUE: `${SUPPORT_URL}cases/#/case/new/open-case/describe-issue`,
+  SUPPORT_CASE_VIEW: `${SUPPORT_URL}cases/#/case`,
+  SUPPORT_HOME: SUPPORT_URL,
 
   // Knowledge Base Articles
-  EXPORT_CONTROL_KB: 'https://access.redhat.com/articles/1340183',
-  OFFLINE_TOKENS_KB: 'https://access.redhat.com/articles/7074172',
-  ARCHIVE_CLUSTER_KB: 'https://access.redhat.com/articles/4397891',
-  BILLING_MODEL_KB: 'https://access.redhat.com/articles/5990101',
-  PULL_SECRET_CHANGE_KB: 'https://access.redhat.com/solutions/4902871',
+  EXPORT_CONTROL_KB: `${ARTICLES_URL}1340183`,
+  OFFLINE_TOKENS_KB: `${ARTICLES_URL}7074172`,
+  ARCHIVE_CLUSTER_KB: `${ARTICLES_URL}4397891`,
+  BILLING_MODEL_KB: `${ARTICLES_URL}5990101`,
+  PULL_SECRET_CHANGE_KB: `${SOLUTIONS_URL}4902871`,
 
   // Support Policies and Classifications
-  OPENSHIFT_SUPPORT_POLICY: 'https://access.redhat.com/support/policy/updates/openshift',
-  OPENSHIFT_POLICY_UPDATES: 'https://access.redhat.com/support/policy/updates/openshift/policies',
-  SECURITY_CLASSIFICATION_CRITICAL:
-    'https://access.redhat.com/security/updates/classification/#critical',
+  OPENSHIFT_SUPPORT_POLICY: `${SUPPORT_URL}policy/updates/openshift`,
+  OPENSHIFT_POLICY_UPDATES: `${SUPPORT_URL}policy/updates/openshift/policies`,
+  SECURITY_CLASSIFICATION_CRITICAL: `${SECURITY_URL}updates/classification/#critical`,
 };
 
-/** Returns all support-related external links. */
 const getLinks = async () => combineAndSortLinks(Object.values(supportLinks));
 
 export { getLinks };

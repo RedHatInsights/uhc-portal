@@ -62,11 +62,6 @@ Options:
                  (By default, only error URLs are displayed)
   -r, --redirects Show ONLY redirected URLs with their redirect targets
 
-  URL Source:
-  URLs are obtained automatically from getAllExternalLinks() in '../src/common/urlUtils.mjs' which combines:
-  - '../src/common/installLinks.mjs' (installation and binary URLs)
-  - '../src/common/supportLinks.mjs' (support cases and knowledge base URLs)
-
 Output:
   The script categorizes URLs by their HTTP status:
   - Success (200 OK)
