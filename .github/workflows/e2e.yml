@@ -76,7 +76,7 @@ jobs:
         run: npx cypress install
       - name: Execute tests
         run: |
-          yarn start --env logging=quiet --no-client-overlay &
+          yarn start:ci --env logging=quiet --no-client-overlay &
           NODE_TLS_REJECT_UNAUTHORIZED=0 yarn wait-on -i 5000 https://prod.foo.redhat.com:1337/openshift/
           CYPRESS_TEST_WITHQUOTA_USER=${{ secrets.CYPRESS_TEST_WITHQUOTA_USER }} CYPRESS_TEST_WITHQUOTA_PASSWORD=${{ secrets.CYPRESS_TEST_WITHQUOTA_PASSWORD }} TERM=xterm LC_ALL=C.UTF-8 LANG=C.UTF-8 yarn e2e-test
       - uses: actions/upload-artifact@v4
