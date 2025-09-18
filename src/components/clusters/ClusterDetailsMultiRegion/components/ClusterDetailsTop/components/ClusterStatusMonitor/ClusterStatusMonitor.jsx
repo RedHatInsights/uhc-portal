@@ -420,7 +420,9 @@ const ClusterStatusMonitor = (props) => {
           </Alert>,
         );
       }
-      if (alerts.length > 0 && setHasStatusMonitorAlert) {
+
+      const filteredAlerts = alerts.filter((value) => value !== null);
+      if (filteredAlerts.length > 0 && setHasStatusMonitorAlert) {
         setHasStatusMonitorAlert(true);
       }
       return <>{alerts.filter((n) => n)}</>;
