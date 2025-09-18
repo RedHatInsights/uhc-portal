@@ -125,6 +125,7 @@ export const initialValues: FormikValues = {
   [FieldId.GcpWifConfig]: '',
   [FieldId.PrivateServiceConnect]: false,
   [FieldId.PSCSubnet]: '',
+  [FieldId.ChannelGroup]: 'stable',
 };
 
 export const initialTouched = {
