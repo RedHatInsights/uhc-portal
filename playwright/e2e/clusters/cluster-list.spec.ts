@@ -11,7 +11,7 @@ let createClusterPage: CreateClusterPage;
 
 test.describe.serial(
   'Check all cluster lists page items presence and its actions (OCP-21339)',
-  { tag: ['@smoke'] },
+  { tag: ['@smoke', '@ci'] },
   () => {
     /* WARNING! The "/cluster-list" route is used by catchpoint tests which determine
   website operation status on 'http:///status.redhat.com'.  If this route is changed, 
@@ -19,7 +19,7 @@ test.describe.serial(
 
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to cluster list
-      const setup = await setupTestSuite(browser, '/openshift/cluster-list');
+      const setup = await setupTestSuite(browser, 'cluster-list');
 
       sharedContext = setup.context;
       sharedPage = setup.page;

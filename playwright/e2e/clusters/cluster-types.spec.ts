@@ -9,7 +9,7 @@ let clusterTypesPage: ClusterTypesPage;
 
 test.describe(
   'OCP-56051-User interface layout checks for create cluster installation types',
-  { tag: ['@smoke'] },
+  { tag: ['@smoke', '@ci'] },
   () => {
     test.beforeEach(async ({ browser }) => {
       // Setup: auth + navigate to install page

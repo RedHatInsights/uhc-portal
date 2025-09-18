@@ -8,7 +8,7 @@ let sharedContext: BrowserContext;
 let sharedPage: Page;
 let overviewPage: OverviewPage;
 
-test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke'] }, () => {
+test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@ci'] }, () => {
   test.beforeAll(async ({ browser }) => {
     // Setup: auth + navigate to overview page
     const setup = await setupTestSuite(browser, 'overview');

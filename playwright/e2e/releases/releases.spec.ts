@@ -22,7 +22,7 @@ var currentVersion: string;
 test.describe.serial('Releases pages tests', { tag: ['@smoke'] }, () => {
   test.beforeAll(async ({ browser }) => {
     // Setup: auth + navigate to releases page
-    const setup = await setupTestSuite(browser, '/openshift/releases');
+    const setup = await setupTestSuite(browser, 'releases');
     sharedContext = setup.context;
     sharedPage = setup.page;
     releasesPage = new ReleasesPage(sharedPage);

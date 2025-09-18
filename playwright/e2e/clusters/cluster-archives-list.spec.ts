@@ -7,11 +7,11 @@ let sharedContext: BrowserContext;
 let sharedPage: Page;
 let clusterListPage: ClusterListPage;
 
-test.describe.serial('OCM Cluster archives page', { tag: ['@smoke'] }, () => {
+test.describe.serial('OCM Cluster archives page', { tag: ['@smoke', '@ci'] }, () => {
   test.describe('Check all cluster archives page items presence and its actions (OCP-25329)', () => {
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to cluster list
-      const setup = await setupTestSuite(browser, '/openshift/cluster-list');
+      const setup = await setupTestSuite(browser, 'cluster-list');
 
       sharedContext = setup.context;
       sharedPage = setup.page;

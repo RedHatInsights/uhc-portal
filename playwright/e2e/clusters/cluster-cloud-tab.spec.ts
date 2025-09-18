@@ -18,7 +18,7 @@ let clusterCloudTabPage: ClusterCloudTabPage;
 
 test.describe.serial(
   'Test checking elements at create cluster page, in Cloud tab selected - OCP-38888',
-  { tag: ['@smoke'] },
+  { tag: ['@smoke', '@ci'] },
   () => {
     test.beforeAll(async ({ browser }) => {
       // Setup: auth + navigate to cloud create page

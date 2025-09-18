@@ -22,7 +22,7 @@ test.describe.serial('OCM Roles And Access', { tag: ['@ci', '@smoke'] }, () => {
 
   test.beforeAll(async ({ browser }) => {
     // Setup: auth + navigate to cluster list
-    const setup = await setupTestSuite(browser, '/openshift/cluster-list');
+    const setup = await setupTestSuite(browser, 'cluster-list');
 
     sharedContext = setup.context;
     sharedPage = setup.page;
