@@ -380,21 +380,11 @@ class CreateRosaCluster extends Page {
   }
 
   selectStandaloneControlPlaneTypeOption() {
-    cy.getByTestId('standalone-control-planes').click({ force: true });
-    cy.getByTestId('standalone-control-planes')
-      .should('have.attr', 'aria-selected')
-      .then((isSelected) => {
-        expect(isSelected).to.eq('true');
-      });
+    cy.getByTestId('standalone-control-planes').find('input').check({ force: true });
   }
 
   selectHostedControlPlaneTypeOption() {
-    cy.getByTestId('hosted-control-planes').click({ force: true });
-    cy.getByTestId('hosted-control-planes')
-      .should('have.attr', 'aria-selected')
-      .then((isSelected) => {
-        expect(isSelected).to.eq('true');
-      });
+    cy.getByTestId('hosted-control-planes').find('input').check({ force: true });
   }
 
   selectAWSInfrastructureAccount(accountID) {

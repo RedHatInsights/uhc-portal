@@ -127,7 +127,9 @@ const AddUserDialog = ({
                     {isROSA ? 'Service on AWS' : 'Dedicated'}. Users can perform administrative
                     actions listed in the{' '}
                     <ExternalLink
-                      href={isROSA ? links.ROSA_ADMIN_ROLE : links.OSD_DEDICATED_ADMIN_ROLE}
+                      href={
+                        isROSA ? links.ROSA_AWS_IAM_OPERATOR_ROLES : links.OSD_DEDICATED_ADMIN_ROLE
+                      }
                     >
                       documentation
                     </ExternalLink>

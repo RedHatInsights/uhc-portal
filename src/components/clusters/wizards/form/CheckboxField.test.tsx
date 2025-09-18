@@ -6,12 +6,14 @@ import { waitFor } from '@testing-library/react';
 import { acknowledgePrerequisites } from '~/common/validators';
 import { checkAccessibility, render, screen } from '~/testUtils';
 
-import { CheckboxField } from './CheckboxField';
+import { CheckboxField, CheckboxFieldProps } from './CheckboxField';
+
+type CheckboxFieldOptionalProps = Omit<CheckboxFieldProps, 'name'>;
 
 const label =
   "I've read and completed all the prerequisites and am ready to continue creating my cluster.";
 const validationError = 'Acknowledge that you have read and completed all prerequisites.';
-const prepareComponent = () => (
+const prepareComponent = (additionalProps?: CheckboxFieldOptionalProps) => (
   <Formik
     initialValues={{
       fieldName: false,
@@ -24,7 +26,12 @@ const prepareComponent = () => (
   >
     {(props) => (
       <>
-        <CheckboxField name="fieldName" label={label} validate={acknowledgePrerequisites} />
+        <CheckboxField
+          name="fieldName"
+          label={label}
+          validate={acknowledgePrerequisites}
+          {...additionalProps}
+        />
         <button type="submit" onClick={() => props.handleSubmit()}>
           Submit
         </button>
@@ -128,6 +135,90 @@ describe('<CheckboxField />', () => {
 
       await waitFor(() => {
         expect(screen.queryByText(validationError)).not.toBeInTheDocument();
+      });
+    });
+
+    describe('With Tooltip', () => {
+      it('should present a tooltip when showTooltip is true', async () => {
+        // Arrange
+        const additionalProps = {
+          showTooltip: true,
+          tooltip: 'some tooltip content',
+        };
+
+        const { user } = render(prepareComponent(additionalProps));
+
+        // Act
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).toBeInTheDocument();
+
+        user.hover(checkbox);
+
+        // Assert
+        expect(await screen.findByText('some tooltip content')).toBeInTheDocument();
+      });
+
+      it('should not present a tooltip when showTooltip is false', async () => {
+        // Arrange
+        const additionalProps = {
+          showTooltip: false,
+          tooltip: 'some tooltip content',
+        };
+
+        const { user } = render(prepareComponent(additionalProps));
+
+        // Act
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).toBeInTheDocument();
+
+        user.hover(checkbox);
+
+        // Assert
+        expect(screen.queryByText('some tooltip content')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('With PopoverHint', () => {
+      it('should present a PopoverHint when receives a hint', async () => {
+        // Arrange
+        const additionalProps = {
+          hint: 'some hint content',
+        };
+
+        const { user } = render(prepareComponent(additionalProps));
+
+        // Act
+        const button = screen.getByLabelText('More information');
+        expect(button).toBeInTheDocument();
+
+        user.click(button);
+
+        // Assert
+        expect(await screen.findByText('some hint content')).toBeInTheDocument();
+      });
+
+      it('should not present a hint when hint is an empty string', async () => {
+        // Arrange
+        const additionalProps = {
+          hint: '',
+        };
+
+        render(prepareComponent(additionalProps));
+
+        // Assert
+        expect(screen.queryByLabelText('More information')).not.toBeInTheDocument();
+      });
+
+      it('should not present a hint when hint is undefined', async () => {
+        // Arrange
+        const additionalProps = {
+          hint: undefined,
+        };
+
+        render(prepareComponent(additionalProps));
+
+        // Assert
+        expect(screen.queryByLabelText('More information')).not.toBeInTheDocument();
       });
     });
   });
