@@ -82,7 +82,6 @@
     "urijs": "^1.19.11",
     "url": "^0.11.0",
     "uuid": "^11.0.0",
-    "yup": "^1.4.0",
     "victory-area": "^37.3.6 ",
     "victory-axis": "^37.3.6 ",
     "victory-bar": "^37.3.6 ",
@@ -99,7 +98,8 @@
     "victory-stack": "^37.3.6 ",
     "victory-tooltip": "^37.3.6 ",
     "victory-voronoi-container": "^37.3.6 ",
-    "victory-zoom-container": "^37.3.6 "
+    "victory-zoom-container": "^37.3.6 ",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.23.9",
@@ -110,6 +110,7 @@
     "@chromatic-com/storybook": "3.2.2",
     "@cypress/code-coverage": "^3.12.39",
     "@cypress/grep": "^4.0.1",
+    "@playwright/test": "^1.55.0",
     "@redhat-cloud-services/frontend-components-config": "^6.6.6",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.25",
     "@redhat-cloud-services/types": "1.0.11",
@@ -237,6 +238,10 @@
     "prepare": "husky",
     "cypress-ui": "cypress open",
     "cypress-headless": "cypress run --browser chrome",
+    "playwright-e2e-ci": "playwright test --grep @ci",
+    "playwright-e2e-smoke": "playwright test --grep @smoke",
+    "playwright-tests": "playwright test",
+    "playwright-ui": "playwright test --ui",
     "code-coverage": "nyc report --reporter=text-summary",
     "analyze": "rm -rf dist && env BUNDLE_ANALYZER=true yarn build:prod",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject ./dist/",
