@@ -94,7 +94,10 @@
         "href": "/api/clusters_mgmt/v1/cloud_providers/aws"
       },
       "ccs_only": false,
-      "generic_name": "highcpu-8"
+      "generic_name": "highcpu-8",
+      "features": {
+        "winLi": true
+      }
     },
     {
       "kind": "MachineType",
