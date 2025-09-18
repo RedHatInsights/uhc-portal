@@ -48,7 +48,8 @@ describe('<FinishedStep />', () => {
 
     render(<FinishedStep {...newProps} />);
 
-    expect(screen.getByRole('progressbar', { name: 'Loading...' })).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByText('Loading')).toBeInTheDocument();
   });
 
   it('displays error when error occurs', () => {
