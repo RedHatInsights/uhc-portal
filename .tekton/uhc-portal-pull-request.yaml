@@ -24,9 +24,10 @@ spec:
   params:
   - name: build-args
     value:
+    - YARN_BUILD_SCRIPT=build:prod:sentry
     - ENABLE_SENTRY=true
     - SENTRY_AUTH_TOKEN=foo
-    - SENTRY_RELEASE=bar
+    - SENTRY_RELEASE=ocm-uhc-portal-{{revision}}
   - name: git-url
     value: '{{source_url}}'
   - name: revision
