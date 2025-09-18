@@ -4,7 +4,7 @@
 # this script defines env' vars used by Sentry for building, injecting and publishing sourcemaps.
 #
 # it should be sourced rather than executed, e.g. within the shell:
-# . run/sentry-env.sh && yarn build:prod:sentry
+# . run/sentry-env.sh && yarn build:prod:monitored
 #
 # @see package.json#scripts.sentry:sourcemaps-release
 # @see https://glitchtip.devshift.net/ocm/issues?project=65 (production)
