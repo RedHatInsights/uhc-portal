@@ -65,7 +65,7 @@ function ClusterProxyScreen() {
   };
   const noValues = () => noUrlValues && !additionalTrustBundle;
   const validateUrlHttp = (value) => validateUrl(value, 'http');
-  const validateUrlHttps = (value) => validateUrl(value, ['http', 'https']);
+  const validateUrlHttps = (value) => validateUrl(value, 'https');
   const validateAtLeastOne = () => {
     if (!httpProxyUrl && !httpsProxyUrl && !additionalTrustBundle) {
       return 'Configure at least one of the cluster-wide proxy fields.';

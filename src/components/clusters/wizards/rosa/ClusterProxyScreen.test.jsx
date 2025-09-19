@@ -6,6 +6,8 @@ import { useWizardContext } from '@patternfly/react-core';
 import links from '~/common/installLinks.mjs';
 import {
   DISABLED_NO_PROXY_PLACEHOLDER,
+  HTTP_PROXY_PLACEHOLDER,
+  HTTPS_PROXY_PLACEHOLDER,
   NO_PROXY_PLACEHOLDER,
 } from '~/components/clusters/common/networkingConstants';
 import { checkAccessibility, render, screen } from '~/testUtils';
@@ -28,20 +30,21 @@ jest.mock('~/components/common/ReduxFormComponents_deprecated/ReduxFileUpload', 
 ));
 
 // Formik wrapper to provide context for useFormState
-const buildTestComponent = (formValues = {}) => (
-  <Formik
-    initialValues={{
-      [FieldId.HttpProxyUrl]: '',
-      [FieldId.HttpsProxyUrl]: '',
-      [FieldId.NoProxyDomains]: '',
-      [FieldId.AdditionalTrustBundle]: '',
-      ...formValues,
-    }}
-    onSubmit={jest.fn()}
-  >
-    <ClusterProxyScreen />
-  </Formik>
-);
+const renderTestComponent = (formValues = {}) =>
+  render(
+    <Formik
+      initialValues={{
+        [FieldId.HttpProxyUrl]: '',
+        [FieldId.HttpsProxyUrl]: '',
+        [FieldId.NoProxyDomains]: '',
+        [FieldId.AdditionalTrustBundle]: '',
+        ...formValues,
+      }}
+      onSubmit={jest.fn()}
+    >
+      <ClusterProxyScreen />
+    </Formik>,
+  );
 
 describe('<ClusterProxyScreen />', () => {
   afterEach(() => {
@@ -49,7 +52,7 @@ describe('<ClusterProxyScreen />', () => {
   });
 
   it('renders expected labels and help, including documentation link', async () => {
-    render(buildTestComponent());
+    renderTestComponent();
 
     expect(screen.getByText('Cluster-wide proxy')).toBeInTheDocument();
     expect(screen.getByText('Configure at least 1 of the following fields:')).toBeInTheDocument();
@@ -66,14 +69,14 @@ describe('<ClusterProxyScreen />', () => {
   });
 
   it('disables No Proxy domains when no HTTP/HTTPS URLs are set and shows disabled placeholder', async () => {
-    render(buildTestComponent());
+    renderTestComponent();
     const noProxy = screen.getByLabelText('No Proxy domains');
     expect(noProxy).toBeDisabled();
     expect(noProxy).toHaveAttribute('placeholder', DISABLED_NO_PROXY_PLACEHOLDER);
   });
 
   it('enables No Proxy domains and changes placeholder when HTTP proxy URL is provided', async () => {
-    const { user } = render(buildTestComponent());
+    const { user } = renderTestComponent();
     const httpInput = screen.getByLabelText('HTTP proxy URL');
     const noProxy = screen.getByLabelText('No Proxy domains');
 
@@ -84,7 +87,7 @@ describe('<ClusterProxyScreen />', () => {
   });
 
   it('shows warning prompting to complete at least one field after a field is blurred empty', async () => {
-    const { user } = render(buildTestComponent());
+    const { user } = renderTestComponent();
     const httpInput = screen.getByLabelText('HTTP proxy URL');
 
     // Focus then blur without entering a value to set anyTouched
@@ -94,11 +97,35 @@ describe('<ClusterProxyScreen />', () => {
     expect(screen.getByText(/Complete at least 1 of the fields above\./i)).toBeInTheDocument();
   });
 
+  it('https URL validation fails when entering http URL', async () => {
+    const { user } = renderTestComponent();
+
+    const textBox = screen.getByPlaceholderText(HTTPS_PROXY_PLACEHOLDER);
+    await user.type(textBox, 'http://example.com');
+    await user.click(screen.getByPlaceholderText(HTTP_PROXY_PLACEHOLDER));
+
+    expect(
+      screen.getByText('The URL should include the scheme prefix (https://)', { exact: false }),
+    ).toBeInTheDocument();
+  });
+
+  it('https URL validation succeeds when entering https URL', async () => {
+    const { user } = renderTestComponent();
+
+    const textBox = screen.getByPlaceholderText(HTTPS_PROXY_PLACEHOLDER);
+    await user.type(textBox, 'https://example.com');
+    await user.click(screen.getByPlaceholderText(HTTP_PROXY_PLACEHOLDER));
+
+    expect(
+      screen.queryByText('The URL should include the scheme prefix (https://)', { exact: false }),
+    ).not.toBeInTheDocument();
+  });
+
   it('navigates to Networking > Configuration when clicking the alert action link', async () => {
     const goToStepByName = jest.fn();
     useWizardContext.mockReturnValue({ goToStepByName });
 
-    const { user } = render(buildTestComponent());
+    const { user } = renderTestComponent();
     const httpInput = screen.getByLabelText('HTTP proxy URL');
     await user.click(httpInput);
     await user.tab();
@@ -111,9 +138,9 @@ describe('<ClusterProxyScreen />', () => {
   });
 
   it('hides the warning when Additional trust bundle has content', async () => {
-    const { user } = render(
-      buildTestComponent({ [FieldId.AdditionalTrustBundle]: 'I am a trust bundle' }),
-    );
+    const { user } = renderTestComponent({
+      [FieldId.AdditionalTrustBundle]: 'I am a trust bundle',
+    });
 
     // Touch a field to trigger anyTouched
     const httpInput = screen.getByLabelText('HTTP proxy URL');
@@ -127,7 +154,7 @@ describe('<ClusterProxyScreen />', () => {
   });
 
   it('is accessible', async () => {
-    const { container } = render(buildTestComponent());
+    const { container } = renderTestComponent();
     await checkAccessibility(container);
   });
 });
