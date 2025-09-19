@@ -1,0 +1,282 @@
+name: Playwright Tests - Feature Branch
+
+on:
+  pull_request:
+    branches:
+      - 'playwright-hacks'
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Browser to run tests on'
+        required: false
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+          - all
+      base_url:
+        description: 'Base URL for tests (e.g., https://console.dev.redhat.com/openshift/)'
+        required: false
+        default: 'https://console.dev.redhat.com/openshift/'
+        type: string
+      grep_tags:
+        description: 'Test tags to run (e.g., @smoke, @ci, @smoke|@ci)'
+        required: false
+        default: '@smoke'
+        type: string
+      trace_level:
+        description: 'Trace collection level'
+        required: false
+        default: 'off'
+        type: choice
+        options:
+          - 'off'
+          - 'on-first-retry'
+          - 'retain-on-failure'
+          - 'on'
+      ocp_version:
+        description: 'OCP version to use for tests'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  install:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - uses: actions/cache@v4
+        with:
+          path: './node_modules'
+          key: playwright-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+
+      - name: Check uncommitted changes
+        if: ${{ always() }}
+        run: git diff HEAD --exit-code
+
+  playwright-tests:
+    name: Playwright Tests (${{ inputs.grep_tags || '@smoke' }})
+    needs: [install]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - uses: actions/cache@v4
+        with:
+          path: './node_modules'
+          key: playwright-${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Create playwright.env.json from secret
+        run: |
+          echo "Creating playwright.env.json..."
+          echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' > playwright.env.json
+
+          # Add unique identifiers to avoid resource conflicts
+          BUILD_ID="${{ github.run_id }}"
+
+          # Install jq if not available
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y jq
+          fi
+
+          # Add build identifier to avoid conflicts
+          jq ". + {\"BUILD_IDENTIFIER\": \"${BUILD_ID}\"}" playwright.env.json > tmp.json && mv tmp.json playwright.env.json
+
+          # Validate JSON using jq
+          if jq empty playwright.env.json > /dev/null 2>&1; then
+            echo "playwright.env.json is valid JSON"
+          else
+            echo "ERROR: playwright.env.json is not valid JSON!"
+            exit 1
+          fi
+
+      - name: Verify and setup AWS CLI
+        run: |
+          # Check if AWS CLI is available and install if needed
+          if ! command -v aws &> /dev/null; then
+            echo "AWS CLI not found, installing..."
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            rm -rf aws awscliv2.zip
+          else
+            echo "AWS CLI is available:"
+            aws --version
+          fi
+
+      - name: Configure AWS credentials
+        run: |
+          # Extract AWS credentials and region from playwright.env.json
+          AWS_ACCESS_KEY_ID=$(jq -r '.QE_AWS_ACCESS_KEY_ID // empty' playwright.env.json)
+          AWS_SECRET_ACCESS_KEY=$(jq -r '.QE_AWS_ACCESS_KEY_SECRET // empty' playwright.env.json)
+          AWS_REGION=$(jq -r '.QE_AWS_REGION // "us-east-1"' playwright.env.json)
+
+          echo "Using AWS region: $AWS_REGION"
+
+          # Configure AWS CLI directly without exposing credentials in environment
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+          aws configure set region "$AWS_REGION"
+          aws configure set output json
+
+          # Verify AWS CLI can authenticate
+          aws sts get-caller-identity || echo "AWS authentication check failed, but continuing..."
+
+      - name: Setup AWS cloud resources
+        run: |
+          echo "Setting up AWS cloud resources..."
+          chmod +x ./create-vpc-infrastructure.sh
+          ./create-vpc-infrastructure.sh
+
+      - name: Configure ROSA CLI
+        run: |
+          echo "Configuring ROSA CLI..."
+
+          # Install ROSA CLI if not available
+          if ! command -v rosa &> /dev/null; then
+            echo "Installing ROSA CLI..."
+            curl -L https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz -o rosa-linux.tar.gz
+            tar -xzf rosa-linux.tar.gz
+            sudo mv rosa /usr/local/bin/
+            rm rosa-linux.tar.gz
+          else
+            echo "ROSA CLI is available:"
+            rosa version
+          fi
+
+      - name: Setup ROSA roles
+        run: |
+          echo "=== ROSA CLI Configuration ==="
+          echo "ROSA CLI version: $(rosa version)"
+
+          # Extract ROSA configuration from playwright.env.json
+          QE_ORGADMIN_CLIENT_ID=$(jq -r '.QE_ORGADMIN_CLIENT_ID // empty' playwright.env.json)
+          QE_ORGADMIN_CLIENT_SECRET=$(jq -r '.QE_ORGADMIN_CLIENT_SECRET // empty' playwright.env.json)
+          ENV_AUT=$(jq -r '.ENV_AUT // "staging"' playwright.env.json)
+          QE_OCM_ROLE_PREFIX=$(jq -r '.QE_OCM_ROLE_PREFIX // "ocm-role"' playwright.env.json)
+          QE_ACCOUNT_ROLE_PREFIX=$(jq -r '.QE_ACCOUNT_ROLE_PREFIX // empty' playwright.env.json)
+
+          echo "Environment: $ENV_AUT"
+          echo "Using service account authentication"
+
+          # Login to ROSA using service account
+          echo "Login via service account client definition"
+          rosa login --client-id "$QE_ORGADMIN_CLIENT_ID" --client-secret "$QE_ORGADMIN_CLIENT_SECRET" --env "$ENV_AUT"
+
+          # Unlink existing OCM roles
+          linked_ocmrole=$(rosa list ocm-roles | awk '$3 == "Yes" { print $2 }')
+          if [ ! -z "$linked_ocmrole" ]; then
+            echo "Unlinking existing OCM role: $linked_ocmrole"
+            rosa unlink ocm-role --role-arn "$linked_ocmrole" -y
+          fi
+
+          # Create OCM roles
+          echo "Creating OCM roles with prefix: $QE_OCM_ROLE_PREFIX"
+          ocmroles_success_msg=$(rosa create ocm-role --prefix "${QE_OCM_ROLE_PREFIX}" --mode auto --admin -y 2>&1)
+          orphen_ocmroles=$(echo "$ocmroles_success_msg" | grep "unlink" | sed -n "s/.*\(arn:aws:iam::${TEST_QE_AWS_ID}:.*[0-9]\).*/\1/p")
+          if [ ! -z "$orphen_ocmroles" ]; then
+            echo "Unlinking orphaned OCM roles: $orphen_ocmroles"
+            rosa unlink ocm-role --role-arn "$orphen_ocmroles" -y
+            ocmroles_success_msg=$(rosa create ocm-role --prefix "${QE_OCM_ROLE_PREFIX}" --mode auto --admin -y)
+          fi
+          echo "$ocmroles_success_msg"
+
+          # Create account roles
+          if [ ! -z "$QE_ACCOUNT_ROLE_PREFIX" ]; then
+            echo "Creating account roles with prefix: $QE_ACCOUNT_ROLE_PREFIX"
+            rosa create account-roles --prefix "${QE_ACCOUNT_ROLE_PREFIX}" --mode auto -y
+          fi
+
+          echo "Completed ROSA setup commands!"
+
+      - name: Add hosts configuration
+        run: make dev-env-setup
+
+      - name: Run Playwright tests
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+          BROWSER: ${{ inputs.browser || 'chromium' }}
+          BASE_URL: ${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}
+          CI: true
+          # Optimize trace collection for CI
+          PLAYWRIGHT_TRACE: ${{ inputs.trace_level || 'off' }}
+          VERSION: ${{ inputs.ocp_version || '' }}
+        run: |
+          # Run tests with specified tags and 4 workers
+          GREP_PATTERN="${{ inputs.grep_tags || '@smoke' }}"
+          echo "Running tests with pattern: $GREP_PATTERN"
+          echo "Using browser: ${{ inputs.browser || 'chromium' }}"
+          echo "Using base URL: ${{ inputs.base_url || 'https://console.dev.redhat.com/openshift/' }}"
+          echo "Using 4 parallel workers"
+
+          npx playwright test --grep "$GREP_PATTERN" --workers=4
+
+      - name: Display artifact summary
+        if: ${{ always() }}
+        run: |
+          echo "=== Playwright Artifacts Summary ==="
+          echo "Screenshots (failures only):"
+          find playwright-artifacts/results -name "*.png" 2>/dev/null | wc -l
+          echo "Videos (failures only):"
+          find playwright-artifacts/results -name "*.webm" 2>/dev/null | wc -l
+          echo "Traces (if enabled):"
+          find playwright-artifacts/results -name "trace.zip" 2>/dev/null | wc -l
+          echo "HTML Reports:"
+          find playwright-artifacts/reports -name "index.html" 2>/dev/null | wc -l
+          echo "Total artifact size:"
+          du -sh playwright-artifacts/ 2>/dev/null || echo "No artifacts found"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: playwright-results-${{ github.run_id }}
+          retention-days: 7
+          path: playwright-artifacts/
+
+      - name: Upload failure artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: playwright-failures-${{ github.run_id }}
+          retention-days: 7
+          path: playwright-artifacts/
+
+      - name: Cleanup AWS cloud resources
+        if: ${{ always() }}
+        continue-on-error: true
+        run: |
+          echo "Cleaning up AWS cloud resources..."
+          chmod +x ./create-vpc-infrastructure.sh
+          ./create-vpc-infrastructure.sh --cleanup || echo "Cleanup completed with some warnings/errors, but continuing..."
