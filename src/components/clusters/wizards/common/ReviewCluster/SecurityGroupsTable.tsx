@@ -13,6 +13,7 @@ type SecurityGroupsTableProps = {
     infra: string[];
     worker: string[];
   };
+  isHypershiftSelected: boolean;
 };
 
 export const buildSecurityGroups = (vpcGroups: SecurityGroup[], selectedGroupIds: string[]) =>
@@ -42,25 +43,37 @@ const SecurityGroupByNodeType = ({
   </Flex>
 );
 
-const SecurityGroupsTable = ({ vpcGroups, formGroups }: SecurityGroupsTableProps) => (
+const SecurityGroupsTable = ({
+  vpcGroups,
+  formGroups,
+  isHypershiftSelected,
+}: SecurityGroupsTableProps) => (
   <>
-    {formGroups.controlPlane.length > 0 && (
+    {isHypershiftSelected && formGroups?.worker?.length > 0 && (
+      <SecurityGroupByNodeType
+        nodeType="Worker"
+        vpcGroups={vpcGroups}
+        selectedGroupIds={formGroups.worker}
+      />
+    )}
+
+    {!isHypershiftSelected && formGroups?.controlPlane?.length > 0 && (
       <SecurityGroupByNodeType
         nodeType={formGroups.applyControlPlaneToAll ? 'All' : 'Control plane'}
         vpcGroups={vpcGroups}
         selectedGroupIds={formGroups.controlPlane}
       />
     )}
-    {!formGroups.applyControlPlaneToAll && (
+    {!isHypershiftSelected && !formGroups?.applyControlPlaneToAll && (
       <>
-        {formGroups.infra.length > 0 && (
+        {formGroups?.infra?.length > 0 && (
           <SecurityGroupByNodeType
             nodeType="Infrastructure"
             vpcGroups={vpcGroups}
             selectedGroupIds={formGroups.infra}
           />
         )}
-        {formGroups.worker.length > 0 && (
+        {formGroups?.worker?.length > 0 && (
           <SecurityGroupByNodeType
             nodeType="Worker"
             vpcGroups={vpcGroups}

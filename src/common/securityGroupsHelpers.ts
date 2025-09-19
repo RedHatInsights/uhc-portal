@@ -17,9 +17,16 @@ const getDefaultSecurityGroupsSettings = () => ({
   worker: [],
 });
 
-const hasSelectedSecurityGroups = (securityGroups?: SecurityGroupForm) => {
+const hasSelectedSecurityGroups = (
+  securityGroups?: SecurityGroupForm,
+  isHypershiftSelected?: boolean,
+) => {
   if (!securityGroups) {
     return false;
+  }
+
+  if (isHypershiftSelected) {
+    return securityGroups?.worker?.length > 0;
   }
 
   if (securityGroups.applyControlPlaneToAll) {
