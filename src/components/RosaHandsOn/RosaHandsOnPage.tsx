@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Page } from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+
 import * as Sentry from '@sentry/browser';
 
 import { trackEvents } from '~/common/analytics';
@@ -45,15 +45,13 @@ const RosaHandsOnPage = () => {
 
   return (
     <AppPage title="ROSA hands-on experience">
-      <Page>
-        <RosaHandsOnPageContent
-          requestError={requestError}
-          error={initializeError}
-          loading={initializing || requestingExperience}
-          demoExperience={demoExperience}
-          onRequestCluster={() => requestCluster()}
-        />
-      </Page>
+      <RosaHandsOnPageContent
+        requestError={requestError}
+        error={initializeError}
+        loading={initializing || requestingExperience}
+        demoExperience={demoExperience}
+        onRequestCluster={() => requestCluster()}
+      />
     </AppPage>
   );
 };
