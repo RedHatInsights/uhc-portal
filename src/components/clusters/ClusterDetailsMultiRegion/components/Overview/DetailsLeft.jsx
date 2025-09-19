@@ -23,11 +23,12 @@ import ClusterTypeLabel from '../../../common/ClusterTypeLabel';
 import InfrastructureModelLabel from '../../../common/InfrastructureModelLabel';
 
 import ClusterVersionInfo from './ClusterVersionInfo';
+import { ChannelGroupEdit } from './ChannelGroupEdit/ChannelGroupEdit';
 
 const getIdFields = (cluster, showAssistedId) => {
   let label = 'Cluster ID';
   let id = get(cluster, 'external_id', 'N/A');
-
+  console.log('CLUSTER', cluster);
   const assistedId = get(cluster, 'aiCluster.id', 'N/A');
   if (showAssistedId && assistedId) {
     label = `Assisted cluster ID / ${label}`;
@@ -36,8 +37,11 @@ const getIdFields = (cluster, showAssistedId) => {
   return { id, idLabel: label };
 };
 function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData }) {
+  const isEUSEditAvailable = true;
   const cloudProviderId = cluster.cloud_provider ? cluster.cloud_provider.id : null;
   const region = cluster?.region?.id;
+  const clusterID = cluster?.id;
+  console.log('DETAILS', cluster.id);
   const planType = get(cluster, 'subscription.plan.type');
   const isROSA = planType === normalizedProducts.ROSA;
   const isHypershift = isHypershiftCluster(cluster);
@@ -149,6 +153,13 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData })
             <span data-testid="availability">{availabilityLabel}</span>
           </DescriptionListDescription>
         </DescriptionListGroup>
+      )}
+      {isEUSEditAvailable && (
+        <ChannelGroupEdit
+          clusterID={clusterID}
+          channelGroup={cluster.version.channel_group}
+          cluster={cluster}
+        />
       )}
       <DescriptionListGroup>
         <DescriptionListTerm>
