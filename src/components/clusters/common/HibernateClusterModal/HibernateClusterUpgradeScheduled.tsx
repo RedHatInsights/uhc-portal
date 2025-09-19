@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { Alert } from '@patternfly/react-core';
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
+import { Alert, Timestamp, TimestampFormat } from '@patternfly/react-core';
 
 const HibernateClusterUpgradeScheduled = ({
   clusterName,
@@ -19,8 +18,15 @@ const HibernateClusterUpgradeScheduled = ({
       variant="warning"
       title={
         <p>
-          There is a scheduled update to <DateFormat type="exact" date={Date.parse(nextRun)} />. The
-          scheduled update cannot be executed if the cluster is hibernating.
+          There is a scheduled update at{' '}
+          <Timestamp
+            date={new Date(nextRun)}
+            shouldDisplayUTC
+            locale="eng-GB"
+            dateFormat={TimestampFormat.medium}
+            timeFormat={TimestampFormat.short}
+          />
+          . The scheduled update cannot be executed if the cluster is hibernating.
         </p>
       }
     />
