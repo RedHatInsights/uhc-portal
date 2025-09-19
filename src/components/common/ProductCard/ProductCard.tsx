@@ -45,6 +45,7 @@ export const ProductCard = ({
   <Card
     className={`product-overview-card ${isSelected ? 'pf-m-selectable-raised pf-m-selected-raised' : ''}`}
     data-testid="product-overview-card"
+    isFullHeight
   >
     <CardHeader>
       <Split hasGutter style={{ width: '100%' }}>

@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 
-import { Flex, FlexItem, PageSection, Title } from '@patternfly/react-core';
+import { Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core';
 
 import { useScrollToAnchor } from '~/common/helpers';
 import { Link } from '~/common/routing';
@@ -84,34 +84,42 @@ function OverviewEmptyState() {
           <Title size="xl" headingLevel="h2">
             Featured OpenShift cluster types
           </Title>
-          <Flex className="pf-v6-u-mb-lg">
-            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_RHOSD">
+          <Gallery
+            hasGutter
+            minWidths={{
+              default: '22em',
+            }}
+            maxWidths={{
+              default: '22em',
+            }}
+          >
+            <GalleryItem className="pf-v6-u-pt-md" data-testid="offering-card_RHOSD">
               <OfferingCard
                 offeringType="RHOSD"
                 canCreateManagedCluster={canCreateManagedCluster}
               />
-            </FlexItem>
-            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_AWS">
+            </GalleryItem>
+            <GalleryItem className="pf-v6-u-pt-md" data-testid="offering-card_AWS">
               <OfferingCard offeringType="AWS" canCreateManagedCluster={canCreateManagedCluster} />
-            </FlexItem>
-            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_Azure">
+            </GalleryItem>
+            <GalleryItem className="pf-v6-u-pt-md" data-testid="offering-card_Azure">
               <OfferingCard offeringType="Azure" />
-            </FlexItem>
-            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_RHOCP">
+            </GalleryItem>
+            <GalleryItem className="pf-v6-u-pt-md" data-testid="offering-card_RHOCP">
               <OfferingCard offeringType="RHOCP" />
-            </FlexItem>
-            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_RHOIBM">
+            </GalleryItem>
+            <GalleryItem className="pf-v6-u-pt-md" data-testid="offering-card_RHOIBM">
               <OfferingCard offeringType="RHOIBM" />
-            </FlexItem>
-            <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_DEVSNBX">
+            </GalleryItem>
+            <GalleryItem className="pf-v6-u-pt-md" data-testid="offering-card_DEVSNBX">
               <OfferingCard offeringType="DEVSNBX" />
-            </FlexItem>
+            </GalleryItem>
             {isAssistedMigrationEnabled && (
-              <FlexItem className="pf-v6-u-pt-md" data-testid="offering-card_MIGRATION">
+              <GalleryItem className="pf-v6-u-pt-md" data-testid="offering-card_MIGRATION">
                 <OfferingCard offeringType="MIGRATION" />
-              </FlexItem>
+              </GalleryItem>
             )}
-          </Flex>
+          </Gallery>
           <InternalTrackingLink
             to={createClusterURL}
             variant="link"
