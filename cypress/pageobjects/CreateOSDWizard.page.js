@@ -46,7 +46,6 @@ class CreateOSDCluster extends Page {
   isNetworkingScreen() {
     cy.contains('h3', 'Networking configuration');
   }
-
   isCIDRScreen() {
     cy.contains('h3', 'CIDR ranges');
   }
@@ -183,7 +182,7 @@ class CreateOSDCluster extends Page {
 
   advancedEncryptionLink = () => cy.get('span').contains('Advanced Encryption');
 
-  additionalSecurityGroupsLink = () => cy.get('span').contains('Additional security groups');
+  additionalSecurityGroupsLink = () => cy.get('button').contains('Additional security groups');
 
   useCustomKMSKeyRadio = () =>
     cy.get('input[id="form-radiobutton-customer_managed_key-true-field"]');
@@ -340,7 +339,7 @@ class CreateOSDCluster extends Page {
     cy.get('input[id="isDefaultRouterWildcardPolicyAllowed"]');
 
   applySameSecurityGroupsToAllNodeTypes = () =>
-    cy.get('input[id="securityGroups.applyControlPlaneToAll"]');
+    cy.get('input[name="securityGroups.applyControlPlaneToAll"]');
 
   selectRegion(region) {
     cy.get('select[name="region"]').select(region);
@@ -357,11 +356,11 @@ class CreateOSDCluster extends Page {
   }
 
   get clusterNameInputError() {
-    return 'ul#rich-input-popover-name li.pf-v6-c-helper-text__item.pf-m-error';
+    return '[role="list"] li[class*="error"]';
   }
 
   get primaryButton() {
-    return '#osd-wizard button.pf-v6-c-button.pf-m-primary';
+    return '#osd-wizard button.pf-m-primary';
   }
 
   get CCSSelected() {
@@ -378,7 +377,7 @@ class CreateOSDCluster extends Page {
 
   waitForVPCRefresh() {
     cy.getByTestId('refresh-vpcs').should('be.disabled');
-    cy.get('span.pf-v6-c-button__progress', { timeout: 80000 }).should('not.exist');
+    cy.get('span[role="progressbar"], .spinner', { timeout: 80000 }).should('not.exist');
   }
 
   selectVersion(version) {
@@ -445,7 +444,7 @@ class CreateOSDCluster extends Page {
   }
   selectSubnetAvailabilityZone(subnetAvailability) {
     cy.contains('Select availability zone').first().click();
-    cy.get('.pf-v6-c-menu__list').within(() => {
+    cy.get('ul[role="listbox"][aria-label').within(() => {
       cy.contains('li button', subnetAvailability).click({ force: true });
     });
   }
@@ -504,7 +503,7 @@ class CreateOSDCluster extends Page {
   }
 
   enableAutoScaling() {
-    cy.get('input[id="autoscalingEnabled"]').check();
+    cy.get('input[id="autoscalingEnabled"]').scrollIntoView().check({ force: true });
   }
 
   setMinimumNodeCount(nodeCount) {

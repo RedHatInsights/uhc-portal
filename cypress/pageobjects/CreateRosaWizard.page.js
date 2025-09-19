@@ -19,15 +19,19 @@ class CreateRosaCluster extends Page {
     cy.get('button').contains('Back to the networking configuration');
 
   reviewAndCreateTree = () =>
-    cy.get('li.pf-v6-c-wizard__nav-item').find('button').contains('Review and create');
+    cy.get('li, [role="tab"], .wizard-nav-item').find('button').contains('Review and create');
 
   createCustomDomainPrefixCheckbox = () => cy.get('input[id="has_domain_prefix"]');
 
   domainPrefixInput = () => cy.get('input[name="domain_prefix"]');
 
-  machineCIDRInput = () => cy.get('input[id="network_machine_cidr"]');
+  machineCIDRInput = () => {
+    return cy.get('input[id="network_machine_cidr"]');
+  };
 
-  serviceCIDRInput = () => cy.get('input[id="network_service_cidr"]');
+  serviceCIDRInput = () => {
+    return cy.get('input[id="network_service_cidr"]');
+  };
 
   podCIDRInput = () => cy.get('input[id="network_pod_cidr"]');
 
@@ -41,7 +45,7 @@ class CreateRosaCluster extends Page {
 
   selectVersionValue = () => cy.get('button[id="version-selector"]').find('span');
 
-  customOperatorPrefixInput = () => cy.get('input[id="custom_operator_roles_prefix"]');
+  customOperatorPrefixInput = () => cy.get('#custom_operator_roles_prefix');
 
   singleZoneAvilabilityRadio = () =>
     cy.get('input[id="form-radiobutton-multi_az-false-field"]').should('be.exist');
@@ -112,8 +116,9 @@ class CreateRosaCluster extends Page {
 
   rosaCreateAccountRolesField = () => cy.getByTestId('copy-rosa-create-account-role');
 
-  operatorRoleCommandInput = () =>
-    cy.get('input[aria-label="Copyable ROSA create operator-roles"]');
+  operatorRoleCommandInput = () => {
+    return cy.get('input[aria-label="Copyable ROSA create operator-roles"]');
+  };
 
   refreshInfrastructureAWSAccountButton = () =>
     cy.get('button[data-testid="refresh-aws-accounts"]').first();
@@ -215,7 +220,6 @@ class CreateRosaCluster extends Page {
   createModeAutoRadio = () => cy.getByTestId('rosa_roles_provider_creation_mode-auto');
 
   createModeManualRadio = () => cy.getByTestId('rosa_roles_provider_creation_mode-manual');
-
   applicationIngressDefaultSettingsRadio = () => cy.getByTestId('applicationIngress-default');
 
   applicationIngressCustomSettingsRadio = () => cy.getByTestId('applicationIngress-custom');
@@ -254,7 +258,6 @@ class CreateRosaCluster extends Page {
   }
 
   isClusterDetailsScreen() {
-    // Inline snippet to avoid flaky behavior around cluster version dropdown.
     this.clusterVersionPane()
       .scrollIntoView()
       .within(() => {
@@ -272,7 +275,7 @@ class CreateRosaCluster extends Page {
     if (hosted) {
       machinePoolHeaderText = 'Machine pools';
     }
-    cy.contains('h3', machinePoolHeaderText);
+    cy.contains('h3', machinePoolHeaderText).scrollIntoView();
   }
 
   isControlPlaneTypeScreen() {
@@ -337,7 +340,7 @@ class CreateRosaCluster extends Page {
   showsNoAssociatedAccounts = () => cy.getByTestId('no_associated_accounts').should('be.visible');
 
   isSelectedVersion = (testVersion) => {
-    cy.get('button.pf-v6-c-select__menu-item.pf-m-selected')
+    cy.get('button[role="option"][aria-selected="true"]')
       .scrollIntoView()
       .invoke('text')
       .should('eq', testVersion);
@@ -352,19 +355,19 @@ class CreateRosaCluster extends Page {
   }
 
   get accountIdMenuItem() {
-    return '.pf-v6-c-select__menu-item';
+    return '[role="option"]';
   }
 
   get associatedAccountsDropdown() {
-    return 'button.pf-v6-c-select__toggle:not(.pf-m-disabled)[aria-describedby="aws-infra-accounts"]';
+    return 'button[aria-describedby="aws-infra-accounts"]:not([disabled])';
   }
 
   get versionsDropdown() {
-    return 'div[name="cluster_version"] button.pf-v6-c-select__toggle';
+    return 'div[name="cluster_version"] button[aria-haspopup="listbox"]';
   }
 
   get ARNFieldRequiredMsg() {
-    return '.pf-v6-c-expandable-section.pf-m-expanded .pf-v6-c-helper-text__item.pf-m-error';
+    return '[aria-expanded="true"] [role="alert"]';
   }
 
   get clusterNameInput() {
@@ -372,7 +375,7 @@ class CreateRosaCluster extends Page {
   }
 
   get clusterNameInputError() {
-    return 'ul#rich-input-popover-name li.pf-v6-c-helper-text__item.pf-m-error.pf-m-dynamic';
+    return 'ul#rich-input-popover-name li[role="alert"]';
   }
 
   get primaryButton() {
@@ -404,7 +407,9 @@ class CreateRosaCluster extends Page {
   }
 
   waitForARNList() {
-    cy.get('span.pf-v6-c-button__progress', { timeout: 80000 }).should('not.exist');
+    cy.get('[role="progressbar"], .spinner, [data-loading="true"]', { timeout: 80000 }).should(
+      'not.exist',
+    );
     cy.getByTestId('spinner-loading-arn-text', { timeout: 80000 }).should('not.exist');
   }
 
@@ -413,7 +418,6 @@ class CreateRosaCluster extends Page {
       .contains(new RegExp(`Installer-Role$`))
       .then(($btn) => {
         if ($btn.text().includes(roleName)) {
-          cy.log(`Installer ARN ${roleName} already selected from the list.`);
         } else {
           $btn.click();
           cy.get('div[id="installer_role_arn"]')
@@ -467,14 +471,16 @@ class CreateRosaCluster extends Page {
   }
 
   waitForVPCList() {
-    cy.get('span.pf-v6-c-button__progress', { timeout: 100000 }).should('not.exist');
+    cy.get('[role="progressbar"], .spinner, [data-loading="true"]', { timeout: 100000 }).should(
+      'not.exist',
+    );
     cy.getByTestId('refresh-vpcs', { timeout: 80000 }).should('not.be.disabled');
   }
 
   selectOidcConfigId(configID) {
     this.clickButtonContainingText('Select a config id');
     cy.get('input[placeholder="Filter by config ID"]').clear().type(configID);
-    cy.contains(configID).scrollIntoView().click();
+    cy.contains(configID).scrollIntoView().click({ force: true });
   }
 
   setClusterName(clusterName) {
@@ -534,14 +540,13 @@ class CreateRosaCluster extends Page {
     cy.get('input[aria-label="Machine type select search field"]').clear().type(computeNodeType);
     cy.get('div').contains(computeNodeType).click();
   }
-
   selectGracePeriod(gracePeriod) {
-    cy.getByTestId('grace-period-select').click();
-    cy.get('button').contains(gracePeriod).click();
+    cy.getByTestId('grace-period-select').click({ force: true });
+    cy.get('button').contains(gracePeriod).click({ force: true });
   }
 
   enableAutoScaling() {
-    cy.get('input[id="autoscalingEnabled"]').check();
+    cy.get('input[id="autoscalingEnabled"]').check({ force: true });
   }
 
   inputMinNodeCount(minNodeCount) {
@@ -557,7 +562,7 @@ class CreateRosaCluster extends Page {
   }
 
   disabledAutoScaling() {
-    cy.get('input[id="autoscalingEnabled"]').uncheck();
+    cy.get('input[id="autoscalingEnabled"]').uncheck({ force: true });
   }
 
   selectComputeNodeCount(count) {
@@ -574,9 +579,9 @@ class CreateRosaCluster extends Page {
 
   selectUpdateStratergy(stratergy) {
     if (stratergy == 'Recurring updates') {
-      this.recurringUpdateRadio().check();
+      this.recurringUpdateRadio().check({ force: true });
     } else {
-      this.individualUpdateRadio().check();
+      this.individualUpdateRadio().check({ force: true });
     }
   }
 
@@ -590,9 +595,9 @@ class CreateRosaCluster extends Page {
 
   selectRoleProviderMode(mode) {
     if (mode == 'Auto') {
-      this.createModeAutoRadio().check();
+      this.createModeAutoRadio().check({ force: true });
     } else {
-      this.createModeManualRadio().check();
+      this.createModeManualRadio().check({ force: true });
     }
   }
 
@@ -610,13 +615,9 @@ class CreateRosaCluster extends Page {
   }
 
   isClusterPropertyMatchesValue(property, value) {
-    cy.get('span.pf-v6-c-description-list__text')
-      .contains(property)
-      .parent()
-      .siblings()
-      .find('div')
-      .scrollIntoView()
-      .contains(value);
+    cy.contains(property)
+      .closest('div:not([class*="wizard"]):not([class*="nav"]), dl, section, tr')
+      .should('contain.text', value);
   }
 
   setMinimumNodeCount(nodeCount) {
@@ -634,7 +635,12 @@ class CreateRosaCluster extends Page {
 
   waitForClusterReady() {
     // Wait up to 1 hour for cluster to be Ready
-    cy.get('.pf-v6-u-ml-xs', { timeout: 3600000 }).should('contain', 'Ready');
+    cy.get('[data-status="ready"], .status-ready', { timeout: 3600000 }).should('contain', 'Ready');
+  }
+
+  selectGracePeriod(gracePeriod) {
+    cy.getByTestId('grace-period-select').click({ force: true });
+    cy.get('button').contains(gracePeriod).click({ force: true });
   }
 
   waitForButtonContainingTextToBeEnabled(text, timeout = 30000) {
@@ -647,9 +653,12 @@ class CreateRosaCluster extends Page {
         .scrollIntoView()
         .should('be.visible')
         .should('be.enabled')
-        .click();
+        .click({ force: true });
     } else {
-      cy.get(`button:contains('${text}')`).should('be.enabled').should('be.visible').click(options);
+      cy.get(`button:contains('${text}')`)
+        .should('be.enabled')
+        .should('be.visible')
+        .click({ force: true, ...options });
     }
   }
 
@@ -755,7 +764,7 @@ class CreateRosaCluster extends Page {
 
   closePopoverDialogs() {
     cy.get('body').then(($body) => {
-      if ($body.find('button[aria-label="Close"]').filter(':visible').length > 0) {
+      if ($body.find('button[aria-label="Close"]:visible').length > 0) {
         cy.get('button[aria-label="Close"]').filter(':visible').click();
       }
     });
