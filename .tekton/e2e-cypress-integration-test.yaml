@@ -1,0 +1,98 @@
+kind: Pipeline
+apiVersion: tekton.dev/v1beta1
+metadata:
+  name: example-pipeline
+spec:
+  params:
+    - description: 'Snapshot of the application'
+      name: SNAPSHOT
+      default: '{"components": [{"name":"test-app", "containerImage": "quay.io/example/repo:latest"}]}'
+      type: string
+  tasks:
+    - name: task-1
+      description: Placeholder task that prints the Snapshot and outputs standard TEST_OUTPUT
+      params:
+        - name: SNAPSHOT
+          value: $(params.SNAPSHOT)
+      taskSpec:
+        params:
+        - name: SNAPSHOT
+        results:
+        - name: TEST_OUTPUT
+          description: Test output
+        steps:
+        - name: test-snapshot-component
+          image: registry.redhat.io/openshift4/ose-cli:latest
+          workingDir: /workspace
+          env:
+          - name: SNAPSHOT
+            value: $(params.SNAPSHOT)
+          script: |
+            #!/bin/bash
+            set -e
+            dnf -y install jq
+            snapshotComponents=$(jq -c '.components[]' <<< "${SNAPSHOT}")
+
+            echo -e "Example test task for the Snapshot:\n ${SNAPSHOT}"
+            # Run custom tests for the given Snapshot here
+            while read componentEntry
+            do
+              # Variables
+              componentName=$(echo "${componentEntry}" | jq -r '.name')
+              componentUrl=$(echo "${componentEntry}" | jq -r '.source.git.url')
+              componentUrlWithoutSuffix=$(echo $componentUrl | sed 's/\.git$//')
+              componentSha=$(echo "${componentEntry}" | jq -r '.source.git.revision')
+
+              echo "Print the infomation for component ${componentName} included in snapshot, more test can be added to inspect git source and containerImage in component:"
+              echo "${componentName}"
+              echo "${componentUrl}"
+              echo "${componentUrlWithoutSuffix}"
+              echo "${componentSha}"
+            done < <(echo "$snapshotComponents")
+
+
+
+            #
+            # pseudocode
+            # ----------
+            #
+            # # option 1: local execution
+            #
+            # podman run $containerImage
+            #
+            # dnf install node.js 22
+            #
+            # git checkout $revision
+            # cache use ./node_modules (optional)
+            # yarn install
+            # git diff HEAD --exit-code (check for clean working tree. maybe optional, might be replaced with yarn-install's --immutable)
+            # make dev-env-setup
+            # make check-hosts
+            # npx cypress install
+            # yarn start --env logging=quiet --no-client-overlay &
+            #      NODE_TLS_REJECT_UNAUTHORIZED=0 yarn wait-on -i 5000 https://prod.foo.redhat.com:1337/openshift/
+            #      CYPRESS_TEST_WITHQUOTA_USER=${{ secrets.CYPRESS_TEST_WITHQUOTA_USER }} CYPRESS_TEST_WITHQUOTA_PASSWORD=${{ secrets.CYPRESS_TEST_WITHQUOTA_PASSWORD }} TERM=xterm LC_ALL=C.UTF-8 LANG=C.UTF-8 yarn e2e-test
+            # upload-artifacts --retention 5d cypress/screenshots/ cypress/videos/
+            #
+            #
+            # # option 2: "remote" execution
+            #
+            # podman run $containerImage \
+            #   --init-script 'yarn start'
+            #   --expose-port <dev-server-port>
+            #
+            # etc. etc.
+            #
+            #
+            # based on GH-action https://github.com/RedHatInsights/uhc-portal/blob/main/.github/workflows/e2e.yml
+            #
+
+
+
+            # After the tests finish, record the overall result in the RESULT variable
+            RESULT="SUCCESS"
+
+            # Output the standardized TEST_OUTPUT result in JSON form
+            TEST_OUTPUT=$(jq -rc --arg date $(date -u --iso-8601=seconds) --arg RESULT "${RESULT}" --null-input \
+              '{result: $RESULT, timestamp: $date, failures: 0, successes: 1, warnings: 0}')
+            echo -n "${TEST_OUTPUT}" | tee $(results.TEST_OUTPUT.path)
