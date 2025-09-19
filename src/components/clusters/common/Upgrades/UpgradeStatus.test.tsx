@@ -120,7 +120,7 @@ describe('<UpgradeStatus />', () => {
       render(<UpgradeStatus {...manualUpgradeScheduled} />);
 
       expect(screen.getByText('Upgrade scheduled')).toBeInTheDocument();
-      expect(screen.getByText(/01 Dec 2020 00:00 UTC/)).toBeInTheDocument();
+      expect(screen.getByText(/1 Dec 2020, 00:00 UTC/)).toBeInTheDocument();
     });
 
     it('should not show cancel button when canEdit is false', () => {
@@ -156,7 +156,7 @@ describe('<UpgradeStatus />', () => {
     it('should show upgrade time when the schedule is "scheduled"', () => {
       render(<UpgradeStatus {...automaticUpdateScheduleProps} />);
       expect(screen.getByText('Upgrade scheduled')).toBeInTheDocument();
-      expect(screen.getByText(/01 Dec 2020 00:00 UTC/)).toBeInTheDocument();
+      expect(screen.getByText(/1 Dec 2020, 00:00 UTC/)).toBeInTheDocument();
     });
 
     it('should not show upgrade time when the schedule is "pending"', () => {
@@ -172,7 +172,7 @@ describe('<UpgradeStatus />', () => {
       render(<UpgradeStatus {...pendingProps} />);
 
       expect(screen.getByText(/Update available/)).toBeInTheDocument();
-      expect(screen.queryByText(/01 Dec 2020 00:00 UTC/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/1 Dec 2020, 00:00 UTC/)).not.toBeInTheDocument();
       expect(screen.queryByText('Upgrade scheduled')).not.toBeInTheDocument();
     });
   });
@@ -202,7 +202,7 @@ describe('<UpgradeStatus />', () => {
 
     it('should not show date', () => {
       render(<UpgradeStatus {...updateInProgressProps} />);
-      expect(screen.queryByText(/01 Dec 2020 00:00 UTC/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/1 Dec 2020, 00:00 UTC/)).not.toBeInTheDocument();
     });
   });
 });
