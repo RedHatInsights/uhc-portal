@@ -1,0 +1,129 @@
+{
+  "items": [
+    {
+      "allowed": 10,
+      "consumed": 10,
+      "href": "/api/accounts_mgmt/v1/organizations/1abcNa7kLQTshKKKjV2AVpY7efg/quota_cost",
+      "kind": "QuotaCost",
+      "organization_id": "1abcNa7kLQTshKKKjV2AVpY7efg",
+      "quota_id": "add-on|addon-cluster-logging-operator",
+      "related_resources": [
+        {
+          "availability_zone_type": "any",
+          "billing_model": "standard",
+          "byoc": "byoc",
+          "cloud_provider": "any",
+          "cost": 0,
+          "product": "ANY",
+          "resource_name": "addon-cluster-logging-operator",
+          "resource_type": "add-on"
+        },
+        {
+          "availability_zone_type": "any",
+          "billing_model": "standard",
+          "byoc": "rhinfra",
+          "cloud_provider": "any",
+          "cost": 1,
+          "product": "OSD",
+          "resource_name": "addon-cluster-logging-operator",
+          "resource_type": "add-on"
+        },
+        {
+          "availability_zone_type": "any",
+          "billing_model": "standard",
+          "byoc": "byoc",
+          "cloud_provider": "any",
+          "cost": 0,
+          "product": "ANY",
+          "resource_name": "addon-cluster-logging-operator",
+          "resource_type": "add-on"
+        }
+      ],
+      "version": "78f98e45-5261-46ff-8d17-065ea762dd51"
+    },
+    {
+      "allowed": 100,
+      "consumed": 50,
+      "href": "/api/accounts_mgmt/v1/organizations/1abcNa7kLQTshKKKjV2AVpY7efg/quota_cost",
+      "kind": "QuotaCost",
+      "organization_id": "1abcNa7kLQTshKKKjV2AVpY7efg",
+      "quota_id": "cluster|byoc|osd",
+      "related_resources": [
+        {
+          "availability_zone_type": "any",
+          "billing_model": "standard",
+          "byoc": "byoc",
+          "cloud_provider": "any",
+          "cost": 1,
+          "product": "OSD",
+          "resource_name": "any",
+          "resource_type": "cluster"
+        }
+      ],
+      "version": "78f98e45-5261-46ff-8d17-065ea762dd51"
+    },
+    {
+      "allowed": 280,
+      "consumed": 0,
+      "href": "/api/accounts_mgmt/v1/organizations/1abcNa7kLQTshKKKjV2AVpY7efg/quota_cost",
+      "kind": "QuotaCost",
+      "organization_id": "1abcNa7kLQTshKKKjV2AVpY7efg",
+      "quota_id": "compute.node|high-mem|any|rhinfra|osd|any",
+      "related_resources": [
+        {
+          "availability_zone_type": "any",
+          "billing_model": "standard",
+          "byoc": "rhinfra",
+          "cloud_provider": "any",
+          "cost": 1,
+          "product": "OSD",
+          "resource_name": "n2-highmem-4",
+          "resource_type": "compute.node"
+        }
+      ],
+      "version": "78f98e45-5261-46ff-8d17-065ea762dd51"
+    },
+    {
+      "allowed": 2020,
+      "consumed": 1,
+      "href": "/api/accounts_mgmt/v1/organizations/1abcNa7kLQTshKKKjV2AVpY7efg/quota_cost",
+      "kind": "QuotaCost",
+      "organization_id": "1abcNa7kLQTshKKKjV2AVpY7efg",
+      "quota_id": "cluster|byoc|moa|marketplace",
+      "related_resources": [
+        {
+          "availability_zone_type": "any",
+          "billing_model": "marketplace",
+          "byoc": "byoc",
+          "cloud_provider": "aws",
+          "cost": 1,
+          "product": "MOA",
+          "resource_name": "any",
+          "resource_type": "cluster"
+        }
+      ],
+      "version": "9c031a9f-0b7e-42bf-9702-dd295ebd9747"
+    },
+    {
+      "allowed": 204000,
+      "consumed": 48,
+      "href": "/api/accounts_mgmt/v1/organizations/1abcNa7kLQTshKKKjV2AVpY7efg/quota_cost",
+      "kind": "QuotaCost",
+      "organization_id": "1abcNa7kLQTshKKKjV2AVpY7efg",
+      "quota_id": "compute.node|cpu|byoc|moa|marketplace",
+      "related_resources": [
+        {
+          "availability_zone_type": "any",
+          "billing_model": "marketplace",
+          "byoc": "byoc",
+          "cloud_provider": "aws",
+          "cost": 8,
+          "product": "MOA",
+          "resource_name": "burst-8-t3",
+          "resource_type": "compute.node"
+        }
+      ],
+      "version": "9c031a9f-0b7e-42bf-9702-dd295ebd9747"
+    }
+  ]
+}

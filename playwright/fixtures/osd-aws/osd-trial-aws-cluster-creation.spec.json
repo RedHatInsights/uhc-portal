@@ -1,0 +1,54 @@
+{
+  "ClusterName": "ocmui-cypress-smoke-osd-trail-aws",
+  "Type": "OSD Trial",
+  "CloudProvider": "AWS",
+  "SubscriptionType": "Free trial (upgradeable)",
+  "InfrastructureType": "Customer cloud subscription",
+  "Region": "us-west-2, US West, Oregon",
+  "Availability": "Multi-zone",
+  "SecureBootSupportForShieldedVMs": "Enabled",
+  "UserWorkloadMonitoring": "Enabled",
+  "FIPSCryptography": "Enabled",
+  "EncryptionLevel": "FIPS Cryptography enabled",
+  "Owner": "",
+  "EncryptVolumesWithCustomerKeys": "Disabled",
+  "AdditionalEncryption": "Enabled",
+  "RoleProviderMode": "Auto",
+  "Nodes": {
+    "Control plane": "3/3",
+    "Infra": "2/2",
+    "Compute": "3/3"
+  },
+  "InstanceMetadataService": "IMDSv1 and IMDSv2",
+  "InstallIntoExistingVPC": "Disabled",
+  "ClusterPrivacy": "Public",
+  "MachineCIDR": "10.0.0.0/16",
+  "ServiceCIDR": "172.30.0.0/16",
+  "PodCIDR": "10.128.0.0/14",
+  "HostPrefix": "/23",
+  "ApplicationIngress": "Use default settings",
+  "UpdateStrategy": "Individual updates",
+  "NodeDraining": "60 minutes",
+  "MachinePools": [
+    {
+      "Name": "worker",
+      "InstanceType": "m6id.xlarge",
+      "AvailabilityZones": "us-west-2a",
+      "NodeCount": "1",
+      "Labels": [
+        {
+          "Key": "ocmcypress-smoke-tests",
+          "Value": "osd-trail-aws"
+        }
+      ]
+    }
+  ],
+  "networking": {
+    "CIDRRanges": {
+      "MachineCIDR": "10.0.0.0/16",
+      "ServiceCIDR": "172.30.0.0/16",
+      "PodCIDR": "10.128.0.0/14",
+      "Hostprefix": "/23"
+    }
+  }
+}
