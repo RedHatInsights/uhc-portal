@@ -6,22 +6,17 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  Flex,
-  FlexItem,
-  Icon,
 } from '@patternfly/react-core';
-import { AngleDoubleRightIcon } from '@patternfly/react-icons/dist/esm/icons/angle-double-right-icon';
 
 import { isCompatibleFeature, SupportedFeature } from '~/common/featureCompatibility';
 import clusterStates from '~/components/clusters/common/clusterStates';
+import EditButton from '~/components/common/EditButton';
 import { openModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { useFetchClusterDetails } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import { AUTO_CLUSTER_TRANSFER_OWNERSHIP } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
-
-import ButtonWithTooltip from '../../../../../common/ButtonWithTooltip';
 
 export function Owner() {
   const dispatch = useDispatch();
@@ -47,33 +42,24 @@ export function Owner() {
     <DescriptionListGroup>
       <DescriptionListTerm>Owner </DescriptionListTerm>
       <DescriptionListDescription>
-        {owner}
-        <Flex>
-          <FlexItem>
-            {showOwnershipTransfer ? (
-              <ButtonWithTooltip
-                data-testid="ownerTranswerOverviewLink"
-                isDisabled={!cluster?.canEdit}
-                variant="link"
-                isInline
-                onClick={() =>
-                  dispatch(
-                    openModal(modals.TRANSFER_CLUSTER_OWNERSHIP_AUTO, {
-                      subscription: cluster?.subscription,
-                    }),
-                  )
-                }
-                disableReason={disableChangeReason}
-                isAriaDisabled={!!disableChangeReason}
-              >
-                <span className="pf-v6-u-font-size-xs">Transfer ownership</span>{' '}
-                <Icon size="sm">
-                  <AngleDoubleRightIcon />
-                </Icon>
-              </ButtonWithTooltip>
-            ) : null}
-          </FlexItem>
-        </Flex>
+        {showOwnershipTransfer ? (
+          <EditButton
+            data-testid="ownerTranswerOverviewLink"
+            disableReason={disableChangeReason}
+            ariaLabel="Transfer ownership"
+            onClick={() =>
+              dispatch(
+                openModal(modals.TRANSFER_CLUSTER_OWNERSHIP_AUTO, {
+                  subscription: cluster?.subscription,
+                }),
+              )
+            }
+          >
+            {owner}
+          </EditButton>
+        ) : (
+          owner
+        )}
       </DescriptionListDescription>
     </DescriptionListGroup>
   );
