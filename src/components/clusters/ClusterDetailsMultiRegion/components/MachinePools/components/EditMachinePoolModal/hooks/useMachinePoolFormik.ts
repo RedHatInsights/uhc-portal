@@ -55,6 +55,9 @@ export type EditMachinePoolValues = {
   securityGroupIds: string[];
   secure_boot?: boolean;
   imds: IMDSType;
+  maxSurge?: number;
+  maxUnavailable?: number;
+  nodeDrainTimeout?: number;
 };
 
 type UseMachinePoolFormikArgs = {
@@ -105,6 +108,9 @@ const useMachinePoolFormik = ({
     let maxPrice;
     let diskSize;
     let autoRepair = true;
+    let maxSurge;
+    let maxUnavailable;
+    let nodeDrainTimeout;
 
     autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas || minNodesRequired;
     autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas || minNodesRequired;
@@ -124,6 +130,9 @@ const useMachinePoolFormik = ({
       diskSize = machinePool.aws_node_pool?.root_volume?.size;
       const autoRepairValue = (machinePool as NodePool)?.auto_repair;
       autoRepair = autoRepairValue ?? true;
+      maxSurge = machinePool.management_upgrade?.max_surge;
+      maxUnavailable = machinePool.management_upgrade?.max_unavailable;
+      nodeDrainTimeout = machinePool.node_drain_grace_period?.value;
     }
 
     if (isMachinePoolMz) {
@@ -168,6 +177,9 @@ const useMachinePoolFormik = ({
         (machinePool as MachinePool)?.aws?.additional_security_group_ids ||
         (machinePool as NodePool)?.aws_node_pool?.additional_security_group_ids ||
         [],
+      maxSurge: maxSurge ? parseInt(maxSurge, 10) : 1,
+      maxUnavailable: maxUnavailable ? parseInt(maxUnavailable, 10) : 0,
+      nodeDrainTimeout: nodeDrainTimeout || 0,
     };
 
     if (isGCP) {
@@ -382,6 +394,9 @@ const useMachinePoolFormik = ({
             : Yup.object(),
           isWindowsLicenseIncluded: Yup.boolean(),
           replicas: Yup.number(),
+          maxSurge: Yup.number().nullable().min(1, 'Input cannot be less than 1'),
+          maxUnavailable: Yup.number(),
+          nodeDrainTimeout: Yup.number().max(10080, 'Input cannot be greater than 10080'),
           useSpotInstances: Yup.boolean(),
           privateSubnetId:
             !hasMachinePool && isHypershift

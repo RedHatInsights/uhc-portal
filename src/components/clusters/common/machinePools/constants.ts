@@ -12,3 +12,5 @@ export const PIDS_LIMIT_MAX_OVERRIDE = 3_694_303;
 export const workerNodeVolumeSizeMinGiB = 128;
 export const workerNodeVolumeSizeMinGiBHcp = 75;
 export const defaultWorkerNodeVolumeSizeGiB = 300;
+
+export const MAINTENANCE_MIN_VALUE = 0;
