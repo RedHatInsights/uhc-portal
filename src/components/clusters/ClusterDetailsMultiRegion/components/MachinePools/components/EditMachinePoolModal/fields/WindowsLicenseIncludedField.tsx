@@ -14,8 +14,7 @@ const fieldId = 'windowsLicenseIncluded';
 
 type WindowsLicenseIncludedFieldProps = {
   isEdit?: boolean;
-  // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-  currentMP?: NodePool & { imageType?: string };
+  currentMP?: NodePool;
 };
 
 const {
@@ -29,9 +28,7 @@ const WindowsLicenseIncludedField = ({
 }: WindowsLicenseIncludedFieldProps) => {
   // Instance type field -> get isWinLiCompatible from the selected instance type:
   const [__field, { value: instanceType }] = useField(instanceTypeFieldId);
-  const isWinLiCompatible =
-    // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-    !!(instanceType as MachineType & { features: { winLi: boolean } })?.features?.winLi;
+  const isWinLiCompatible = !!(instanceType as MachineType)?.features?.winLi;
 
   const isCurrentMPWinLiEnabled = isEdit && currentMP?.imageType === 'Windows';
 
