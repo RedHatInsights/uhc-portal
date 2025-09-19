@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 
 import { Alert, AlertProps, Button } from '@patternfly/react-core';
 
+import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
@@ -56,9 +57,7 @@ const ExpirationAlert = ({
       >
         <>
           {`This cluster should have been deleted ${timeUntilExpiryString} but is still running.`}{' '}
-          <ExternalLink href="https://access.redhat.com/support/">
-            Contact our customer support
-          </ExternalLink>
+          <ExternalLink href={supportLinks.SUPPORT_HOME}>Contact our customer support</ExternalLink>
           .
         </>
       </Alert>
