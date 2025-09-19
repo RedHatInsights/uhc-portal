@@ -23,6 +23,11 @@ backend-config.yml
 /coverage/
 .nyc_output/out.json
 
+# Playwright
+/playwright-artifacts/
+playwright.env.json
+storageState.json
+
 .yalc
 yalc.lock
 
