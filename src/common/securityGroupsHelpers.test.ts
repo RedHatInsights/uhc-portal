@@ -60,6 +60,26 @@ describe('hasSelectedSecurityGroups', () => {
       expect(hasSelectedSecurityGroups(sgs)).toEqual(false);
     });
   });
+  describe('when hypershift is selected', () => {
+    it('returns true when there is at least one security group for worker nodes', () => {
+      const sgs = {
+        applyControlPlaneToAll: false,
+        controlPlane: [],
+        worker: ['sg-abc'],
+        infra: [],
+      };
+      expect(hasSelectedSecurityGroups(sgs, true)).toEqual(true);
+    });
+    it('returns false when there is no security group for worker nodes', () => {
+      const sgs = {
+        applyControlPlaneToAll: false,
+        controlPlane: [],
+        worker: [],
+        infra: [],
+      };
+      expect(hasSelectedSecurityGroups(sgs, true)).toEqual(false);
+    });
+  });
 });
 describe('hasSecurityGroupIds', () => {
   describe('when controlPlane security groupIds exist', () => {

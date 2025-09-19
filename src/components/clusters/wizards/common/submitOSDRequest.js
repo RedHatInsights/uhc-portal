@@ -223,8 +223,11 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
       }
 
       // Security groups
-      const sgParams = submitRequestHelpers.createSecurityGroupsParams(formData.securityGroups);
-      if (isInstallExistingVPC && !isHypershiftSelected && sgParams) {
+      const sgParams = submitRequestHelpers.createSecurityGroupsParams(
+        formData.securityGroups,
+        formData.hypershift === 'true',
+      );
+      if (isInstallExistingVPC && sgParams) {
         clusterRequest.aws = {
           ...clusterRequest.aws,
           ...sgParams,

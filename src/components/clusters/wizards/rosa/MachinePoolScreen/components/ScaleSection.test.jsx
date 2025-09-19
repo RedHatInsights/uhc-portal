@@ -13,30 +13,61 @@ import ScaleSection from './ScaleSection';
 const useFormStateMock = jest.spyOn(wizardHooks, 'useFormState');
 const useCanClusterAutoscaleMock = jest.spyOn(useCanClusterAutoscale, 'default');
 
-const formStateBaseMock = {
-  values: {
-    [FieldId.SelectedVpc]: null,
-    [FieldId.Hypershift]: false,
-    [FieldId.MultiAz]: false,
-    [FieldId.MachineType]: null,
-    [FieldId.CloudProviderId]: null,
-    [FieldId.Product]: null,
-    [FieldId.AutoscalingEnabled]: false,
-    [FieldId.NodeLabels]: [],
-    [FieldId.ClusterVersion]: {},
-    [FieldId.MachinePoolsSubnets]: [],
-    [FieldId.InstallerRoleArn]: null,
-    [FieldId.Region]: null,
-    [FieldId.BillingModel]: null,
-    [FieldId.IMDS]: IMDSType.V1AndV2,
+// Mock MachineTypeSelection to prevent Redux warnings
+jest.mock('~/components/clusters/common/ScaleSection-deprecated/MachineTypeSelection', () => ({
+  __esModule: true,
+  default: ({ machineType }) => {
+    // Simulate loading state when no machine type is selected
+    if (!machineType?.input?.value || !machineType.input.value.id) {
+      return <div data-testid="machine-type-selection">Loading node types...</div>;
+    }
+    return <div data-testid="machine-type-selection">Machine Type Selection</div>;
   },
+}));
+
+const mockValues = {
+  [FieldId.SelectedVpc]: { id: '', aws_security_groups: [] }, // Provide empty VPC object instead of null
+  [FieldId.Hypershift]: false,
+  [FieldId.MultiAz]: false,
+  [FieldId.MachineType]: null,
+  [FieldId.CloudProviderId]: 'test-cloud-provider-id',
+  [FieldId.Product]: 'rosa',
+  [FieldId.AutoscalingEnabled]: false,
+  [FieldId.NodeLabels]: [],
+  [FieldId.ClusterVersion]: { raw_id: '4.14.0' },
+  [FieldId.MachinePoolsSubnets]: [],
+  [FieldId.InstallerRoleArn]: 'arn:aws:iam::123456789:role/test-role',
+  [FieldId.Region]: 'us-east-1',
+  [FieldId.BillingModel]: 'standard',
+  [FieldId.IMDS]: IMDSType.V1AndV2,
+  [FieldId.NodesCompute]: 3,
+  [FieldId.SecurityGroups]: {
+    worker: [],
+  },
+};
+
+const formStateBaseMock = {
+  values: mockValues,
   errors: {},
   validateForm: jest.fn(),
-  getFieldProps: jest.fn(),
+  getFieldProps: jest.fn((fieldName) => {
+    // Handle nested field paths like 'securityGroups.worker'
+    let value = mockValues[fieldName];
+    if (fieldName.includes('.')) {
+      const [parent, child] = fieldName.split('.');
+      value = mockValues[parent]?.[child];
+    }
+    return {
+      name: fieldName,
+      value: value || (fieldName.includes('worker') ? [] : ''),
+      onChange: jest.fn(),
+      onBlur: jest.fn(),
+    };
+  }),
   setFieldValue: jest.fn(),
   setFieldTouched: jest.fn(),
-  getFieldMeta: jest.fn().mockReturnValue({}),
   validateField: jest.fn(),
+  getFieldMeta: jest.fn().mockReturnValue({ touched: false, error: undefined }),
 };
 
 describe('<ScaleSection />', () => {
@@ -200,6 +231,7 @@ describe('<ScaleSection />', () => {
     });
 
     it('is not rendered when "hypershift" form value is checked and "imds" form value is selected', () => {
+      // Feature gate is disabled, so IMDS should not render
       mockUseFeatureGate([[IMDS_SELECTION, false]]);
       useFormStateMock.mockReturnValue({
         ...formStateBaseMock,
@@ -219,6 +251,8 @@ describe('<ScaleSection />', () => {
     });
 
     it('is rendered when "hypershift" form value is not checked and "imds" form value is selected', () => {
+      // Feature gate doesn't matter when hypershift is not selected
+      mockUseFeatureGate([[IMDS_SELECTION, false]]);
       useFormStateMock.mockReturnValue({
         ...formStateBaseMock,
         values: {
@@ -267,7 +301,7 @@ describe('<ScaleSection />', () => {
         values: {
           ...formStateBaseMock.values,
           [FieldId.IMDS]: 'required',
-          // the lack of a compatible cluster version will render the imds field as 'disabled'
+          [FieldId.ClusterVersion]: {}, // No raw_id means incompatible version
         },
       };
       useFormStateMock.mockReturnValue(formStateMock);
@@ -349,6 +383,95 @@ describe('<ScaleSection />', () => {
       );
       const nodeLabels = screen.queryByText('Add node labels');
       expect(nodeLabels).not.toBeInTheDocument();
+    });
+  });
+
+  describe('SecurityGroupsSectionHCP component', () => {
+    it('renders "Additional security groups" section when VPC is selected', () => {
+      const formStateWithVpc = {
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.SelectedVpc]: {
+            id: 'vpc-12345',
+            name: 'Test VPC',
+            aws_security_groups: [
+              { id: 'sg-1', name: 'Security Group 1' },
+              { id: 'sg-2', name: 'Security Group 2' },
+            ],
+          },
+          [FieldId.Hypershift]: 'true',
+        },
+      };
+
+      useFormStateMock.mockReturnValue(formStateWithVpc);
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      const securityGroupsSection = screen.getByText('Additional security groups');
+      expect(securityGroupsSection).toBeInTheDocument();
+    });
+
+    it('does not render SecurityGroupsSectionHCP when no VPC is selected', () => {
+      const formStateWithoutVpc = {
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.SelectedVpc]: { id: '', aws_security_groups: [] }, // Empty VPC id means no VPC
+          [FieldId.Hypershift]: 'true',
+        },
+      };
+
+      useFormStateMock.mockReturnValue(formStateWithoutVpc);
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      const securityGroupsSection = screen.queryByText('Additional security groups');
+      expect(securityGroupsSection).not.toBeInTheDocument();
+    });
+
+    it('renders SecurityGroupsNoEditAlert content when expanded and conditions are met', async () => {
+      const user = userEvent.setup();
+
+      const formStateWithVpc = {
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.SelectedVpc]: {
+            id: 'vpc-12345',
+            name: 'Test VPC',
+            aws_security_groups: [{ id: 'sg-1', name: 'Security Group 1' }],
+          },
+          [FieldId.Hypershift]: 'true',
+          [FieldId.ClusterVersion]: { raw_id: '4.14.0' },
+        },
+      };
+
+      useFormStateMock.mockReturnValue(formStateWithVpc);
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      // Find and click the expandable section button
+      const expandableButton = screen.getByRole('button', { name: /Additional security groups/i });
+      await user.click(expandableButton);
+
+      // Check for SecurityGroupsNoEditAlert content (hypershift version)
+      const alertText = screen.getByText(
+        'You cannot add or edit security groups associated with machine pools that were created during cluster creation.',
+      );
+      expect(alertText).toBeInTheDocument();
     });
   });
 });

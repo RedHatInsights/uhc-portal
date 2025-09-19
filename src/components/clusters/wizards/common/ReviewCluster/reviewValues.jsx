@@ -356,6 +356,7 @@ const reviewValues = {
       <SecurityGroupsTable
         vpcGroups={allValues.selected_vpc?.aws_security_groups || []}
         formGroups={formGroups}
+        isHypershiftSelected={allValues.hypershift === 'true'}
       />
     ),
   },
