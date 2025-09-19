@@ -3,10 +3,10 @@ name: playwright e2e CI
 on:
   push:
     branches:
-      - 'playwright-hacks'
+      - 'playwright-migration'
   pull_request:
     branches:
-      - 'playwright-hacks'
+      - 'playwright-migration'
 jobs:
   install:
     name: Playwright E2E - ${{ matrix.os }} - Install - Node ${{ matrix.node-version }}

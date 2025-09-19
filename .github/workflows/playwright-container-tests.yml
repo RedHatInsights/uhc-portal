@@ -3,10 +3,10 @@ name: Playwright Container Tests
 on:
   push:
     branches:
-      - 'playwright-hacks'
+      - 'playwright-migration'
   pull_request:
     branches:
-      - 'playwright-hacks'
+      - 'playwright-migration'
   workflow_dispatch:
     inputs:
       browser:
