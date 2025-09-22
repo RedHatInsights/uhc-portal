@@ -191,7 +191,11 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
                 isStack
               >
                 <Switch
-                  label="Strict"
+                  label={
+                    isDefaultRouterNamespaceOwnershipPolicyStrict
+                      ? 'Strict'
+                      : 'Inter-namespace ownership allowed'
+                  }
                   isChecked={!!isDefaultRouterNamespaceOwnershipPolicyStrict}
                   isDisabled
                 />
@@ -199,7 +203,7 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
 
               <FormGroup label="Wildcard policy" labelHelp={<WildcardPolicyPopover />} isStack>
                 <Switch
-                  label="Allowed"
+                  label={isDefaultIngressWildcardPolicyAllowed ? 'Allowed' : 'Disallowed'}
                   isChecked={isDefaultIngressWildcardPolicyAllowed}
                   isDisabled
                 />
@@ -210,7 +214,11 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
           {canShowLoadBalancer && (
             <FormGroup label="Load balancer type" labelHelp={<LoadBalancerPopover />}>
               <Switch
-                label={LoadBalancerFlavorLabel[LoadBalancerFlavor.nlb]}
+                label={
+                  isNLB
+                    ? LoadBalancerFlavorLabel[LoadBalancerFlavor.nlb]
+                    : LoadBalancerFlavorLabel[LoadBalancerFlavor.classic]
+                }
                 isChecked={isNLB}
                 isDisabled
               />

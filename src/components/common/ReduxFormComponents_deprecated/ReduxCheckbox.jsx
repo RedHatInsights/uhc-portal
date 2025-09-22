@@ -26,6 +26,7 @@ import PopoverHint from '../PopoverHint';
 function ReduxCheckbox(props) {
   const {
     label,
+    labelOff,
     meta: { error, touched },
     input: { name, value, ...restInput },
     isSwitch = false,
@@ -36,6 +37,7 @@ function ReduxCheckbox(props) {
     ...extraProps // any extra props not specified above
   } = props;
   const InputComponent = isSwitch ? Switch : Checkbox;
+  const finalLabel = !value && labelOff ? labelOff : label;
   return (
     <FormGroup fieldId={name}>
       <Split hasGutter>
@@ -48,7 +50,7 @@ function ReduxCheckbox(props) {
             {...extraProps}
             label={
               <>
-                {label}
+                {finalLabel}
                 {isRequired ? (
                   <span
                     className="pf-v6-c-form__label-required redux-checkbox-required"
@@ -78,6 +80,7 @@ function ReduxCheckbox(props) {
 
 ReduxCheckbox.propTypes = {
   label: PropTypes.string.isRequired,
+  labelOff: PropTypes.string,
   input: PropTypes.object.isRequired,
   meta: PropTypes.object.isRequired,
   isSwitch: PropTypes.bool,
