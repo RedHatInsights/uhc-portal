@@ -122,4 +122,4 @@ export const canConfigureDayOnePrivateServiceConnect = (clusterVersionRawId: str
 export const DEFAULT_NODE_COUNT_CUSTOMER_SINGLE_AZ = 2;
 export const DEFAULT_NODE_COUNT_CUSTOMER_MULTI_AZ = 1;
 export const DEFAULT_NODE_COUNT_REDHAT_SINGLE_AZ = 4;
-export const DEFAULT_NODE_COUNT_REDHAT_MULTI_AZ = 9;
+export const DEFAULT_NODE_COUNT_REDHAT_MULTI_AZ = 3;
