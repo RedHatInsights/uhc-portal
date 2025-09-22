@@ -617,12 +617,6 @@ class CreateOSDCluster extends Page {
     cy.get('div').contains(computeNodeType).click();
   }
 
-  hideClusterNameValidation() {
-    // Validation popup on cluster name field create flaky situation on below version field.
-    // To remove the validation popup a click action in cluster left tree required.
-    this.clusterDetailsTree().click();
-  }
-
   selectComputeNodeCount(nodeCount) {
     this.computeNodeCountSelect().select(`${nodeCount.toString()}`, { force: true });
   }
