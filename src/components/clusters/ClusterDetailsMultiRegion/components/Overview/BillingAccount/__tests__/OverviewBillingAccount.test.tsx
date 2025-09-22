@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { EDIT_BILLING_ACCOUNT } from '~/queries/featureGates/featureConstants';
+import { ALLOW_EUS_CHANNEL, EDIT_BILLING_ACCOUNT } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen } from '~/testUtils';
 
 import fixtures from '../../../../__tests__/ClusterDetails.fixtures';
@@ -50,6 +50,10 @@ describe('Overview BillingAccount Component', () => {
   it('Returns modal link to edit billing account', async () => {
     const useParamsMock = jest.requireMock('react-router-dom').useParams;
     useParamsMock.mockReturnValue({ id: '1msoogsgTLQ4PePjrTOt3UqvMzX' });
+    mockUseFeatureGate([
+      [ALLOW_EUS_CHANNEL, true],
+      [EDIT_BILLING_ACCOUNT, true],
+    ]);
 
     const useFetchClusterDetailsMock = jest.requireMock(
       '~/queries/ClusterDetailsQueries/useFetchClusterDetails',

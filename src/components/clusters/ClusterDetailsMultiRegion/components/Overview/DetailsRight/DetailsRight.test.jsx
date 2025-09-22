@@ -1,6 +1,14 @@
 import React from 'react';
 
-import { checkAccessibility, mockRestrictedEnv, render, screen, within } from '~/testUtils';
+import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
+import {
+  checkAccessibility,
+  mockRestrictedEnv,
+  mockUseFeatureGate,
+  render,
+  screen,
+  within,
+} from '~/testUtils';
 
 import { useFetchMachineOrNodePools } from '../../../../../../queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { SubscriptionCommonFieldsStatus } from '../../../../../../types/accounts_mgmt.v1';
@@ -210,6 +218,7 @@ describe('<DetailsRight />', () => {
     });
 
     it('shows delete protection', () => {
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
       useFetchMachineOrNodePools.mockReturnValue({ data: [] });
       // Arrange
       render(<DetailsRight {...defaultProps} />);
