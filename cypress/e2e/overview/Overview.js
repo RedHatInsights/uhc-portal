@@ -90,7 +90,7 @@ describe('OCM Overview Page tests (OCP-65189)', { tags: ['smoke'] }, () => {
     card = Overview.centralSectionCard('offering-card_DEVSNBX');
     card.cyObj.contains('Developer Sandbox');
     card.shouldHaveLabel('Managed service');
-    card.checkLink('View details', '/openshift/sandbox').opensInRightTab();
+    card.checkLink('View details', 'https://sandbox.redhat.com').opensInRightTab();
 
     card = Overview.centralSectionCard('offering-card_MIGRATION');
     card.cyObj.contains('Evaluate VMware to Openshift Migration');

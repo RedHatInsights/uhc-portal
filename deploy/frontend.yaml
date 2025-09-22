@@ -123,7 +123,8 @@ objects:
                   routes:
                     - id: developer-sandbox-trial
                       title: Developer Sandbox | OpenShift AI
-                      href: /openshift/sandbox
+                      href: https://sandbox.redhat.com
+                      isExternal: true
                     - id: sixty-day-trial
                       title: 60-Day Product Trial | OpenShift AI
                       href: https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai/trial
@@ -144,7 +145,8 @@ objects:
                   href: /openshift/learning-resources
                 - id: developer-sandbox
                   title: Developer Sandbox
-                  href: /openshift/sandbox
+                  href: https://sandbox.redhat.com
+                  isExternal: true
                 - id: downloads
                   title: Downloads
                   href: /openshift/downloads
@@ -164,7 +166,8 @@ objects:
         - section: ai
           group: openshift
           id: developer-sandbox-trial
-          href: /openshift/sandbox
+          href: https://sandbox.redhat.com
+          isExternal: true
           title: Developer Sandbox | OpenShift AI
           description: Create, train, and service artificial intelligence and machine learning (AI/ML) models.
           icon: AITechnologyIcon
@@ -282,7 +285,8 @@ objects:
         - section: tryBuy
           group: openshift
           id: developer-sandbox
-          href: /openshift/sandbox
+          href: https://sandbox.redhat.com
+          isExternal: true
           title: Developer Sandbox
           description: Learn and try developing in a private, pre-configured OpenShift environment.
           icon: OpenShiftIcon 
