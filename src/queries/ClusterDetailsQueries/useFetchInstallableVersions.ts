@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
+
 import { clusterService } from '~/services';
+
 import { formatErrorData } from '../helpers';
 
 type InstallableVersionsProps = {

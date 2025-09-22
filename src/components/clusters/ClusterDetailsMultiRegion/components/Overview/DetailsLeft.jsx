@@ -22,13 +22,12 @@ import Timestamp from '../../../../common/Timestamp';
 import ClusterTypeLabel from '../../../common/ClusterTypeLabel';
 import InfrastructureModelLabel from '../../../common/InfrastructureModelLabel';
 
-import ClusterVersionInfo from './ClusterVersionInfo';
 import { ChannelGroupEdit } from './ChannelGroupEdit/ChannelGroupEdit';
+import ClusterVersionInfo from './ClusterVersionInfo';
 
 const getIdFields = (cluster, showAssistedId) => {
   let label = 'Cluster ID';
   let id = get(cluster, 'external_id', 'N/A');
-  console.log('CLUSTER', cluster);
   const assistedId = get(cluster, 'aiCluster.id', 'N/A');
   if (showAssistedId && assistedId) {
     label = `Assisted cluster ID / ${label}`;
@@ -41,7 +40,6 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData })
   const cloudProviderId = cluster.cloud_provider ? cluster.cloud_provider.id : null;
   const region = cluster?.region?.id;
   const clusterID = cluster?.id;
-  console.log('DETAILS', cluster.id);
   const planType = get(cluster, 'subscription.plan.type');
   const isROSA = planType === normalizedProducts.ROSA;
   const isHypershift = isHypershiftCluster(cluster);

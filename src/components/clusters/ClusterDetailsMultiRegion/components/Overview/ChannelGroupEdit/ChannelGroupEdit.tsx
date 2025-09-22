@@ -1,3 +1,6 @@
+import React from 'react';
+import { Field, Formik } from 'formik';
+
 import {
   Button,
   DescriptionListDescription,
@@ -11,20 +14,23 @@ import {
   Spinner,
   StackItem,
 } from '@patternfly/react-core';
-import { Field, Formik } from 'formik';
-import React from 'react';
-import { ChannelGroupSelect } from './ChannelGroupSelect';
-import { useMutateChannelGroup } from '~/queries/ChannelGroupEditQueries/useMutateChannelGroup';
+
 import ErrorBox from '~/components/common/ErrorBox';
-import { useGetChannelGroupsData } from './useGetChannelGroupsData';
+import { useMutateChannelGroup } from '~/queries/ChannelGroupEditQueries/useMutateChannelGroup';
 import { Cluster } from '~/types/clusters_mgmt.v1';
+
+import { ChannelGroupSelect } from './ChannelGroupSelect';
+import { useGetChannelGroupsData } from './useGetChannelGroupsData';
 
 type ChannelGroupEditModalProps = {
   clusterID: string;
   isOpen: boolean;
   onClose: () => void;
   channelGroup: string;
-  optionsDropdownData: any;
+  optionsDropdownData: {
+    value: string;
+    label: string;
+  }[];
 };
 
 type ChannelGroupEditProps = {
@@ -51,64 +57,62 @@ const ChannelGroupEditModal = ({
   };
   return isOpen ? (
     <Formik
-      initialValues={{ channelGroup: channelGroup }}
+      initialValues={{ channelGroup }}
       onSubmit={(values: any) => {
-        const channelGroup = values.channelGroup;
+        const { channelGroup } = values;
         mutate({ clusterID, channelGroup });
       }}
     >
-      {(formik) => {
-        return (
-          <Modal
-            id="edit-channel-group-modal"
-            title="Edit channel group"
-            variant={ModalVariant.small}
-            onClose={handleClose}
-            isOpen={isOpen}
-            aria-labelledby="edit-channel-group-modal"
-            aria-describedby="modal-box-edit-channel-group"
-          >
-            <ModalHeader>Edit channel group</ModalHeader>
-            <ModalBody>
-              {isError && (
-                <StackItem>
-                  <ErrorBox
-                    message={error.error.errorMessage ? error.error.errorMessage : ''}
-                    response={{
-                      operationID: error.error.operationID,
-                    }}
-                  />
-                </StackItem>
-              )}
-              <Field
-                fieldId="channelGroup"
-                label="channelGroup"
-                name="channelGroup"
-                formSelectValue={formik.values.channel_group}
-                component={ChannelGroupSelect}
-                optionsDropdownData={optionsDropdownData}
-                input={{
-                  ...formik.getFieldProps('channelGroup'),
-                  onChange: (value: string) => formik.setFieldValue('channelGroup', value),
-                }}
-              />
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                key="confirm"
-                variant="primary"
-                onClick={formik.submitForm}
-                isDisabled={formik.isSubmitting}
-              >
-                Save
-              </Button>
-              <Button key="cancel" variant="link" onClick={handleClose}>
-                Cancel
-              </Button>
-            </ModalFooter>
-          </Modal>
-        );
-      }}
+      {(formik) => (
+        <Modal
+          id="edit-channel-group-modal"
+          title="Edit channel group"
+          variant={ModalVariant.small}
+          onClose={handleClose}
+          isOpen={isOpen}
+          aria-labelledby="edit-channel-group-modal"
+          aria-describedby="modal-box-edit-channel-group"
+        >
+          <ModalHeader>Edit channel group</ModalHeader>
+          <ModalBody>
+            {isError && (
+              <StackItem>
+                <ErrorBox
+                  message={error.error.errorMessage ? error.error.errorMessage : ''}
+                  response={{
+                    operationID: error.error.operationID,
+                  }}
+                />
+              </StackItem>
+            )}
+            <Field
+              fieldId="channelGroup"
+              label="channelGroup"
+              name="channelGroup"
+              formSelectValue={formik.values.channel_group}
+              component={ChannelGroupSelect}
+              optionsDropdownData={optionsDropdownData}
+              input={{
+                ...formik.getFieldProps('channelGroup'),
+                onChange: (value: string) => formik.setFieldValue('channelGroup', value),
+              }}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              key="confirm"
+              variant="primary"
+              onClick={formik.submitForm}
+              isDisabled={formik.isSubmitting || !formik.dirty}
+            >
+              Save
+            </Button>
+            <Button key="cancel" variant="link" onClick={handleClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+      )}
     </Formik>
   ) : null;
 };

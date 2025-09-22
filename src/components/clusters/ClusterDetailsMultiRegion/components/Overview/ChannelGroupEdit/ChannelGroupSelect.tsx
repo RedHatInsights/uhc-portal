@@ -1,9 +1,13 @@
-import { FormSelect, FormSelectOption } from '@patternfly/react-core';
 import React from 'react';
+
+import { FormSelect, FormSelectOption } from '@patternfly/react-core';
 
 export type ChannelGroupSelectProps = {
   input: any;
-  optionsDropdownData: any;
+  optionsDropdownData: {
+    value: string;
+    label: string;
+  }[];
 };
 
 export const ChannelGroupSelect = ({ optionsDropdownData, input }: ChannelGroupSelectProps) => {
@@ -13,8 +17,8 @@ export const ChannelGroupSelect = ({ optionsDropdownData, input }: ChannelGroupS
     <FormSelect
       {...restInput}
       onChange={(_, value) => onChange(value)}
-      aria-label="FormSelect Input"
-      ouiaId="BasicFormSelect"
+      aria-label="Channel group select input"
+      ouiaId="ChannelGroupSelectInput"
     >
       {optionsDropdownData?.map((option: any) => (
         <FormSelectOption key={option.value} value={option.value} label={option.label} />

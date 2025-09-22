@@ -209,7 +209,7 @@
   },
   "scripts": {
     "start:ci": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'yarn dev-server --env noproxy {@}' 'mockdata/mockserver.py' --",
-    "start": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'yarn dev-server --env noproxy {@}' 'mockdata/mockserver.py' --",
+    "start": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'HOT=true yarn dev:fec --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
     "build": "webpack $(run/progress-flag-if-tty.sh)",
     "build:prod": "MODE=prod yarn build:fec",
     "build:saas": ". run/sentry-env.sh && yarn build:prod",

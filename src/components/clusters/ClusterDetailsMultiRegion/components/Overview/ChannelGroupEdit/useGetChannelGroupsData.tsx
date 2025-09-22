@@ -31,12 +31,10 @@ export const useGetChannelGroupsData = (cluster: Cluster, canEdit: boolean) => {
   const availableChannelGroups = (data: any, clusterRawId?: string) => {
     const filteredClusterVersions = data?.items.filter((el: any) => el.raw_id === clusterRawId);
     const availableChannelGroups = filteredClusterVersions?.map((el: any) => el.channel_group);
-    const buildChannelGroupDropdownOptions = availableChannelGroups?.map((el: string) => {
-      return {
-        value: el,
-        label: el.charAt(0).toUpperCase() + el.slice(1),
-      };
-    });
+    const buildChannelGroupDropdownOptions = availableChannelGroups?.map((el: string) => ({
+      value: el,
+      label: el.charAt(0).toUpperCase() + el.slice(1),
+    }));
     return buildChannelGroupDropdownOptions;
   };
 
