@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { Formik } from 'formik';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
 import { arrayToString } from '~/common/helpers';
@@ -16,7 +15,7 @@ import EditClusterWideProxyForm from './EditClusterWideProxyForm';
 
 type EditClusterWideProxyDialogProps = {
   cluster: ClusterFromSubscription;
-  region: string;
+  region?: string;
 };
 
 const OnlyReturnValueIfChanged = (newValue: string | undefined, oldValue: string | undefined) =>
@@ -102,11 +101,6 @@ const EditClusterWideProxyDialog = ({ cluster, region }: EditClusterWideProxyDia
       )}
     </Formik>
   ) : null;
-};
-
-EditClusterWideProxyDialog.propTypes = {
-  cluster: PropTypes.object,
-  region: PropTypes.string,
 };
 
 export default EditClusterWideProxyDialog;
