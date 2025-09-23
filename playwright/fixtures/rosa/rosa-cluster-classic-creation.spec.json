@@ -1,0 +1,76 @@
+{
+  "rosa-classic-smoke-default": {
+    "ClusterNamePrefix": "smoke-playwright-rosa-classic",
+    "ControlPlaneType": "Classic architecture",
+    "Type": "ROSA",
+    "Region": "us-west-2",
+    "Availability": "Single zone",
+    "MachinePools": [
+      {
+        "Name": "worker",
+        "InstanceType": "m6id.xlarge",
+        "Autoscaling": "Disabled",
+        "ComputeNodeCount": "4"
+      }
+    ],
+    "ClusterPrivacy": "Public",
+    "InstallIntoExistingVPC": "Disabled",
+    "EncryptVolumesWithCustomerKeys": "Disabled",
+    "AdditionalEncryption": "Disabled",
+    "FIPSCryptography": "Disabled",
+    "UserWorkloadMonitoring": "Enabled",
+    "InstanceMetadataService": "IMDSv1 and IMDSv2",
+    "RootDiskSize": "300",
+    "ApplicationIngress": "Use default settings",
+    "OidcProviderMode": "auto",
+    "MachineCIDR": "10.0.0.0/16",
+    "ServiceCIDR": "172.30.0.0/16",
+    "PodCIDR": "10.128.0.0/14",
+    "HostPrefix": "23",
+    "UpdateStrategy": "Recurring updates",
+    "NodeDrainingGracePeriod": "60 minutes"
+  },
+  "rosa-classic-smoke-advanced": {
+    "ClusterNamePrefix": "smoke-playwright-rosa-adv",
+    "ControlPlaneType": "Classic architecture",
+    "Type": "ROSA",
+    "Region": "us-west-2",
+    "Availability": "Multi-zone",
+    "MachinePools": [
+      {
+        "Name": "worker",
+        "InstanceType": "m6id.xlarge",
+        "Autoscaling": "Enabled",
+        "MinimumNodeCount": "2",
+        "MaximumNodeCount": "3",
+        "AvailabilityZones": ["us-west-2a", "us-west-2b", "us-west-2c"],
+        "NodeLabels": [
+          {
+            "Key": "name",
+            "Value": "play-rosa-advanced-smoke-public-custom-profile"
+          },
+          {
+            "Key": "type",
+            "Value": "smoke"
+          }
+        ]
+      }
+    ],
+    "ClusterPrivacy": "Public",
+    "InstallIntoExistingVPC": "Enabled",
+    "EncryptVolumesWithCustomerKeys": "Disabled",
+    "AdditionalEncryption": "Enabled",
+    "FIPSCryptography": "Enabled",
+    "UserWorkloadMonitoring": "Enabled",
+    "InstanceMetadataService": "IMDSv2 only",
+    "RootDiskSize": "400",
+    "ApplicationIngress": "Use default settings",
+    "OidcProviderMode": "auto",
+    "MachineCIDR": "10.0.0.0/16",
+    "ServiceCIDR": "172.30.0.0/16",
+    "PodCIDR": "10.128.0.0/14",
+    "HostPrefix": "23",
+    "UpdateStrategy": "Recurring updates",
+    "NodeDrainingGracePeriod": "30 minutes"
+  }
+}
