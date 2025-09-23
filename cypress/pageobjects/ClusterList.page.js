@@ -14,7 +14,7 @@ class ClusterList extends Page {
 
   viewOnlyMyClusterHelp = () => cy.get('label[for="view-only-my-clusters"]').find('button').first();
 
-  tooltipviewOnlyMyCluster = () => cy.get('div');
+  tooltipviewOnlyMyCluster = () => cy.get('div[role="dialog"][aria-modal="true"]');
 
   viewClusterArchives = () => cy.contains('a', 'View cluster archives');
 

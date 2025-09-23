@@ -20,8 +20,8 @@ class GlobalNav extends Page {
   navigateTo(text) {
     cy.get('body').then(($body) => {
       this.closeSideBar($body);
-      cy.get('').should('not.exist');
-      cy.contains('a', text).click();
+      cy.get('[data-loading], [role="progressbar"], .skeleton').should('not.exist');
+      cy.get('nav a, [role="navigation"] a').contains(text).click();
     });
   }
 
