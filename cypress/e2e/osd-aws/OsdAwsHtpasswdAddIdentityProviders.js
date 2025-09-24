@@ -15,7 +15,7 @@ describe(
   () => {
     beforeEach(() => {
       if (Cypress.currentTest.title.match(/Navigate to the Access Control tab for .* cluster/)) {
-        cy.visit('/cluster-list', { failOnStatusCode: false });
+        cy.visit('/cluster-list');
         ClusterListPage.waitForDataReady();
         ClusterListPage.isClusterListScreen();
         ClusterListPage.filterTxtField().should('be.visible').click();

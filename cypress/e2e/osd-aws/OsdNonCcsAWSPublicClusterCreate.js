@@ -9,7 +9,7 @@ describe(
   { tags: ['day1', 'aws', 'public', 'multizone', 'osd', 'nonccs'] },
   () => {
     before(() => {
-      cy.visit('/create', { failOnStatusCode: false });
+      cy.visit('/create');
     });
 
     it(`Launch OSD(nonccs) - ${clusterProperties.CloudProvider} - ${clusterProperties.ClusterPrivacy} cluster wizard`, () => {

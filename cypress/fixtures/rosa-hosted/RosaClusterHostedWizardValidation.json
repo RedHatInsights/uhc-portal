@@ -102,7 +102,7 @@
       "HostPrefix": [
         {
           "Value": "hello",
-          "Error": "The value 'hello' isn't a valid subnet mask. It must follow the RFC-4632 format: '/16'"
+          "Error": "The value '/hello' isn't a valid subnet mask. It must follow the RFC-4632 format: '/16'"
         },
         {
           "Value": "28",

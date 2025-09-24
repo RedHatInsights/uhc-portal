@@ -9,7 +9,7 @@ describe(
   () => {
     beforeEach(() => {
       if (Cypress.currentTest.title.match(/Open.*cluster/g)) {
-        cy.visit('/cluster-list', { failOnStatusCode: false });
+        cy.visit('/cluster-list');
         ClusterListPage.waitForDataReady();
       }
     });
