@@ -1,8 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { Form } from '@patternfly/react-core';
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
+import { Form, Timestamp, TimestampFormat } from '@patternfly/react-core';
 
 import Modal from '~/components/common/Modal/Modal';
 import { useDeleteSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useDeleteSchedule';
@@ -86,9 +85,12 @@ const CancelUpgradeModal: React.FC<CancelUpgradeModalProps> = ({ isHypershift })
           <Form onSubmit={deleteScheduleFunc}>
             <p>
               This update to version {schedule?.version} is scheduled for{' '}
-              <DateFormat
-                type="exact"
-                date={schedule?.next_run ? Date.parse(schedule.next_run) : new Date()}
+              <Timestamp
+                date={schedule.next_run ? new Date(schedule.next_run) : undefined}
+                shouldDisplayUTC
+                locale="eng-GB"
+                dateFormat={TimestampFormat.medium}
+                timeFormat={TimestampFormat.short}
               />
               .{' '}
             </p>
