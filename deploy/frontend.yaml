@@ -46,6 +46,7 @@ objects:
                   title: Cluster List
                   href: /openshift/cluster-list
                   product: Red Hat OpenShift Cluster Manager
+                # TODO: Replace advisor with navigationSegment from https://github.com/RedHatInsights/ocp-advisor-frontend/blob/master/deploy/frontend.yml
                 - id: advisor
                   title: Advisor
                   expandable: true
@@ -67,6 +68,7 @@ objects:
                           args: ["ocp-advisor-ui-workloads", true]
                         - method: featureFlag
                           args: ["ocp-advisor-workloads-release", true]
+                # TODO: Replace vulnerability-dashboard with navigationSegment from https://github.com/RedHatInsights/vuln4shift-frontend/blob/master/deploy/frontend.yml
                 - id: vulnerability-dashboard
                   title: Vulnerability Dashboard
                   expandable: true
@@ -100,23 +102,10 @@ objects:
                   title: Advanced Cluster Management
                   href: https://catalog.redhat.com/software/container-stacks/detail/5ec54aa3535cb70ab8c02996
                   isExternal: true
-                - id: acs-section
-                  title: Advanced Cluster Security
-                  expandable: true
-                  routes:
-                    - id: clusterOverview
-                      title: Overview
-                      href: /openshift/acs/overview
-                    - id: acs-getting-started
-                      title: Getting Started
-                      href: /openshift/acs/getting-started 
-                    - id: acs-instances
-                      title: ACS Instances
-                      href: /openshift/acs/instances
-                    - id: clusters-documentation
-                      title: Documentation
-                      href: https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_security_for_kubernetes
-                      isExternal: true
+                - segmentRef:
+                    segmentId: acs
+                    frontendName: acs
+                # TODO: Replace openshift-ai with navigationSegment from https://github.com/RedHatInsights/developer-sandbox-ui/blob/master/deploy/frontend.yaml
                 - id: openshift-ai
                   title: OpenShift AI
                   expandable: true
@@ -139,9 +128,11 @@ objects:
               groupId: resources
               title: Resources
               navItems:
+                # TODO: Replace learning-resources with navigationSegment from https://github.com/RedHatInsights/learning-resources/blob/master/deploy/frontend.yml
                 - id: learning-resources
                   title: Learning Resources
                   href: /openshift/learning-resources
+                # TODO: Replace developer-sandbox with navigationSegment from https://github.com/RedHatInsights/developer-sandbox-ui/blob/master/deploy/frontend.yaml
                 - id: developer-sandbox
                   title: Developer Sandbox
                   href: /openshift/sandbox
@@ -153,21 +144,6 @@ objects:
                   title: Releases
                   href: /openshift/releases
       serviceTiles:
-        - section: ai
-          group: openshift
-          id: sixty-day-trial
-          href: https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai/trial
-          title: 60-Day Product Trial | OpenShift AI
-          description: Create, train, and service artificial intelligence and machine learning (AI/ML) models.
-          icon: AITechnologyIcon
-          isExternal: true
-        - section: ai
-          group: openshift
-          id: developer-sandbox-trial
-          href: /openshift/sandbox
-          title: Developer Sandbox | OpenShift AI
-          description: Create, train, and service artificial intelligence and machine learning (AI/ML) models.
-          icon: AITechnologyIcon
         - section: containers
           group: openshift
           id: overview
@@ -188,20 +164,6 @@ objects:
           href: /openshift/cluster-list
           title: Cluster List
           description: View, Register, or Create an OpenShift Cluster.
-          icon: OpenShiftIcon
-        - section: observe
-          group: openshift
-          id: advisor
-          href: /openshift/insights/advisor/recommendations
-          title: Advisor
-          description: See targeted recommendations to optimize your OpenShift clusters’ availability, performance, and security.
-          icon: OpenShiftIcon
-        - section: observe
-          group: openshift
-          id: vulnerability
-          href: /openshift/insights/vulnerability/cves
-          title: Vulnerability
-          description: Identify and prioritize security vulnerabilities within your OpenShift clusters based on severity and frequency.
           icon: OpenShiftIcon
         - section: operators
           group: openshift
@@ -251,27 +213,6 @@ objects:
           description: Monitor and manage microservices with a unified service mesh.
           icon: OpenShiftIcon
           isExternal: true
-        - section: security
-          group: openshift
-          id: vulnerability
-          href: /openshift/insights/vulnerability/cves
-          title: Vulnerability
-          description: Identify and prioritize security vulnerabilities within your OpenShift clusters based on severity and frequency.
-          icon: OpenShiftIcon
-        - section: security
-          group: openshift
-          id: acs
-          href: /openshift/acs/overview
-          title: Advanced Cluster Security
-          description: Securely build, deploy, and run your cloud applications using Kubernetes-native architecture.
-          icon: OpenShiftIcon
-        - section: subscriptions
-          group: openshift
-          id: subscriptions-usage
-          href: /subscriptions/usage/openshift
-          title: Subscriptions Usage
-          description: Monitor your OpenShift usage for both Annual and On-Demand subscriptions.
-          icon: OpenShiftIcon
         - section: tryBuy
           group: openshift
           id: rosa-hands-on-experience
@@ -279,55 +220,11 @@ objects:
           title: ROSA Hands-on Experience
           description: Access a production-ready ROSA cluster for a limited time in a demo environment.
           icon: OpenShiftIcon 
-        - section: tryBuy
-          group: openshift
-          id: developer-sandbox
-          href: /openshift/sandbox
-          title: Developer Sandbox
-          description: Learn and try developing in a private, pre-configured OpenShift environment.
-          icon: OpenShiftIcon 
-        - section: tryBuy
-          group: openshift
-          id: sixty-day-trial
-          href: https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai/trial
-          title: 60-Day Product Trial | OpenShift AI
-          description: Create, train, and service artificial intelligence and machine learning (AI/ML) models.
-          icon: AITechnologyIcon
-          isExternal: true
       searchEntries:
-        - id: openshift-advisor
-          title: Clusters - Advisor
-          href: /openshift/insights/advisor/clusters
-          description: See targeted recommendations to optimize your OpenShift clusters’ availability, performance, and security.
-          alt_title:
-            - Insights Advisor
-            - OpenShift Advisor
-            - Advisor
-            - Recommendations
-            - Proactive support
-            - risk
-            - support
-            - update
-            - update risk
-            - issues
-            - remediation
-            - cluster state
-            - recommendation
-            - cluster health
-            - remote health
-            - proactive
-            - support
-            - fix
-            - problem
-            - issue
         - id: rosa
           title: Red Hat OpenShift Service for AWS
           href: /openshift/create/rosa/getstarted
           description: ROSA allows you to deploy fully operational and managed Red Hat OpenShift clusters while leveraging the full breadth and depth of AWS.
-        - id: acs-custom
-          title: Advanced Cluster Security
-          href: /openshift/acs/overview
-          description: Securely build, deploy, and run your cloud applications using Kubernetes-native architecture.
         - id: create-clusters-aws
           title: Red Hat OpenShift on AWS
           href: /openshift/create
@@ -363,60 +260,6 @@ objects:
             - ROKS
             - IBM Cloud
             - OpenShift on IBM Cloud
-        - id: vulnerability-cves
-          title: CVEs - Vulnerability
-          href: /openshift/insights/vulnerability/cves
-          description: Identify and prioritize security vulnerabilities within your OpenShift clusters based on severity and frequency.
-          alt_title:
-            - CVEs
-            - CVE
-            - security
-            - Vulnerability
-            - Vulnerability Management
-            - insights
-            - vulnerable
-            - exposure
-            - Weakness
-            - compliance
-            - security gap
-            - breach
-            - patch
-            - security
-            - vulnerabilities
-            - cve
-            - common vulnerability exposure
-            - cvss
-            - risk
-            - critical
-            - errata
-            - Errata
-        - id: vulnerability-clusters
-          title: Clusters - Vulnerability
-          href: /openshift/insights/vulnerability/clusters
-          description: View and manage vulnerabilities across your OpenShift clusters.
-          alt_title:
-            - CVEs
-            - CVE
-            - security
-            - Vulnerability
-            - Vulnerability Management
-            - insights
-            - vulnerable
-            - exposure
-            - Weakness
-            - compliance
-            - security gap
-            - breach
-            - patch
-            - security
-            - vulnerabilities
-            - cve
-            - common vulnerability exposure
-            - cvss
-            - risk
-            - critical
-            - errata
-            - Errata
         - id: cluster-manager
           title: Cluster Manager
           href: /openshift

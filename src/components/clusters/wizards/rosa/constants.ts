@@ -39,6 +39,7 @@ export enum RosaFieldId {
   SupportRoleArn = 'support_role_arn',
   WorkerRoleArn = 'worker_role_arn',
   WorkerVolumeSizeGib = 'worker_volume_size_gib',
+  MachineTypeAvailability = 'machine_type_availability',
 }
 
 export const FieldId = { ...CommonFieldId, ...RosaFieldId };
