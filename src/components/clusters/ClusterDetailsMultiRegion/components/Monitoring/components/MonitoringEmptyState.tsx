@@ -2,14 +2,15 @@ import React from 'react';
 
 import { EmptyState, EmptyStateBody } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
+
+import LiveDateFormat from '~/components/common/LiveDateFormat/LiveDateFormat';
 
 type MonitoringEmptyStateProps = {
   children?: React.ReactNode | null;
   hideLastCheckIn?: boolean;
   hideIcon?: boolean;
   title?: string;
-  lastCheckIn?: Date | number | string;
+  lastCheckIn?: Date;
 };
 
 const MonitoringEmptyState = ({
@@ -28,8 +29,7 @@ const MonitoringEmptyState = ({
       {children}
       {!hideLastCheckIn && (
         <p>
-          {/* @ts-ignore */}
-          Last Check-in: <DateFormat date={lastCheckIn} type="relative" />
+          Last Check-in: <LiveDateFormat date={lastCheckIn} />
         </p>
       )}
     </EmptyStateBody>
