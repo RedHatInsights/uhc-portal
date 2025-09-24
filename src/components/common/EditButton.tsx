@@ -25,12 +25,14 @@ const PencilButton = ({
   ariaLabel?: string;
 }) => (
   <Button
-    variant="plain"
+    variant="link"
+    isInline
     isAriaDisabled={isAriaDisabled}
     icon={<PencilAltIcon />}
     onClick={onClick}
     data-testid={dataTestId}
     aria-label={ariaLabel}
+    className="pf-v6-u-p-sm" // Padding is needed to ensure the button has enough click area
   />
 );
 
