@@ -187,7 +187,7 @@ const MachinePoolExpandedRow = ({
         </GridItem>
       )}
       {machinePool.taints && (
-        <GridItem md={6}>
+        <GridItem md={6} data-testid="taints-id">
           <MachinePoolItemList title="Taints" items={taintsRenderer(machinePool.taints)} />
         </GridItem>
       )}
