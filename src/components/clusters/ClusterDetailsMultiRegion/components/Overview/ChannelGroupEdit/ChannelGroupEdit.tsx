@@ -39,7 +39,7 @@ type ChannelGroupEditProps = {
   cluster: CanEditCluster;
 };
 
-interface CanEditCluster extends Cluster {
+export interface CanEditCluster extends Cluster {
   canEdit: boolean;
 }
 
