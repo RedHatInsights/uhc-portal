@@ -1,19 +1,21 @@
 import { Capability } from '~/types/accounts_mgmt.v1';
 
+import { subscriptionCapabilities } from '../subscriptionCapabilities';
+
 const capabilitiesWithExternalAuthentication: Capability[] = [
   {
     inherited: false,
-    name: 'capability.organization.hcp_allow_external_authentication',
+    name: subscriptionCapabilities.HCP_ALLOW_EXTERNAL_AUTHENTICATION,
     value: 'true',
   },
   {
     inherited: false,
-    name: 'capability.organization.restrict_offline_tokens',
+    name: subscriptionCapabilities.RESTRICT_OFFLINE_TOKENS,
     value: 'true',
   },
   {
     inherited: false,
-    name: 'capability.cluster.subscribed_ocp',
+    name: subscriptionCapabilities.SUBSCRIBED_OCP,
     value: 'true',
   },
 ];
@@ -21,12 +23,12 @@ const capabilitiesWithExternalAuthentication: Capability[] = [
 const capabilitiesWithoutExternalAuthentication: Capability[] = [
   {
     inherited: false,
-    name: 'capability.organization.enable_data_sovereign_regions',
+    name: subscriptionCapabilities.ENABLE_DATA_SOVEREIGN_REGIONS,
     value: 'true',
   },
   {
     inherited: false,
-    name: 'capability.cluster.subscribed_ocp',
+    name: subscriptionCapabilities.SUBSCRIBED_OCP,
     value: 'true',
   },
 ];

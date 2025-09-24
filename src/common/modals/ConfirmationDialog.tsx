@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react';
 
-import { Button } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from '@patternfly/react-core';
 
 type ConfirmationDialogProps = {
   title: string;
@@ -43,21 +42,22 @@ const ConfirmationDialog = ({
   // otherwise keypress event could collide with parent modal in case of modal opening modal
   return isOpen ? (
     <Modal
-      id="confirmation-dialog"
-      title={title}
       onClose={closeCallback}
       variant={variant}
       isOpen
-      actions={[
+      aria-labelledby="confirmation-dialog-modal"
+      aria-describedby="modal-box-confirmation-dialog"
+    >
+      <ModalHeader title={title} labelId="confirmation-dialog" />
+      <ModalBody>{content}</ModalBody>
+      <ModalFooter>
         <Button key="confirm" variant="primary" onClick={handlePrimaryAction}>
           {primaryActionLabel}
-        </Button>,
+        </Button>
         <Button key="cancel" variant="link" onClick={handleSecondaryAction}>
           {secondaryActionLabel}
-        </Button>,
-      ]}
-    >
-      {content}
+        </Button>
+      </ModalFooter>
     </Modal>
   ) : null;
 };

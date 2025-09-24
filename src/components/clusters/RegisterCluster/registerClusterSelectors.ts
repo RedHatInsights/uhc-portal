@@ -1,6 +1,7 @@
 import get from 'lodash/get';
 
-import { GlobalState } from '~/redux/store';
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { GlobalState } from '~/redux/stateTypes';
 import { Capability } from '~/types/accounts_mgmt.v1';
 
 const hasOrgLevelsubscribeOCPCapability = (state: GlobalState): boolean => {
@@ -10,7 +11,7 @@ const hasOrgLevelsubscribeOCPCapability = (state: GlobalState): boolean => {
     [],
   );
   const subscribeOCP = capabilites.find(
-    (capability) => capability.name === 'capability.cluster.subscribed_ocp',
+    (capability) => capability.name === subscriptionCapabilities.SUBSCRIBED_OCP,
   );
 
   return !!(subscribeOCP && subscribeOCP.value === 'true');

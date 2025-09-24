@@ -1,3 +1,5 @@
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+
 import { normalizedProducts } from '../../../../../../../common/subscriptionTypes';
 import clusterStates from '../../../../../common/clusterStates';
 import canAllowAdminSelector from '../UsersSelector';
@@ -15,9 +17,9 @@ describe('canAllowAdminSelector', () => {
             subscription: {
               plan: { id: normalizedProducts.OSD },
               capabilities: [
-                { name: 'capability.cluster.subscribed_ocp', value: 'true', inherited: true },
+                { name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'true', inherited: true },
                 {
-                  name: 'capability.cluster.manage_cluster_admin',
+                  name: subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
                   value: 'false',
                   inherited: false,
                 },
@@ -66,9 +68,9 @@ describe('canAllowAdminSelector', () => {
             subscription: {
               plan: { id: normalizedProducts.RHMI },
               capabilities: [
-                { name: 'capability.cluster.subscribed_ocp', value: 'true', inherited: true },
+                { name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'true', inherited: true },
                 {
-                  name: 'capability.cluster.manage_cluster_admin',
+                  name: subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
                   value: 'false',
                   inherited: false,
                 },
@@ -96,9 +98,9 @@ describe('canAllowAdminSelector', () => {
             subscription: {
               plan: { id: normalizedProducts.OSD },
               capabilities: [
-                { name: 'capability.cluster.subscribed_ocp', value: 'true', inherited: true },
+                { name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'true', inherited: true },
                 {
-                  name: 'capability.cluster.manage_cluster_admin',
+                  name: subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
                   value: 'true',
                   inherited: false,
                 },
@@ -126,9 +128,9 @@ describe('canAllowAdminSelector', () => {
             subscription: {
               plan: { id: normalizedProducts.OSD },
               capabilities: [
-                { name: 'capability.cluster.subscribed_ocp', value: 'true', inherited: true },
+                { name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'true', inherited: true },
                 {
-                  name: 'capability.cluster.manage_cluster_admin',
+                  name: subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
                   value: 'true',
                   inherited: false,
                 },

@@ -13,6 +13,8 @@ type TextFieldProps = {
   isDisabled?: boolean;
   helpText?: string;
   placeHolderText?: string;
+  isReadOnly?: boolean;
+  ariaLabelledBy?: string;
 };
 
 const TextField = ({
@@ -22,6 +24,8 @@ const TextField = ({
   isDisabled,
   helpText,
   placeHolderText,
+  isReadOnly,
+  ariaLabelledBy,
 }: TextFieldProps) => {
   const [field, { error, touched }] = useField(fieldId);
 
@@ -49,6 +53,8 @@ const TextField = ({
         }}
         isDisabled={isDisabled}
         placeholder={placeHolderText}
+        readOnlyVariant={isReadOnly ? 'default' : undefined}
+        aria-labelledby={ariaLabelledBy}
       />
 
       <FormGroupHelperText touched={touched} error={error}>

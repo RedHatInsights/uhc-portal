@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Page } from '@patternfly/react-core';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import * as Sentry from '@sentry/browser';
 
 import { trackEvents } from '~/common/analytics';
@@ -18,7 +18,15 @@ const RosaHandsOnPage = () => {
     useDemoExperiencePolling();
   const [requestError, setRequestError] = React.useState<unknown>();
   const [requestingExperience, setRequestingExperience] = React.useState<boolean>(false);
-
+  const chrome = useChrome();
+  React.useEffect(() => {
+    // remove once OCM forces email verification on all /openshift
+    chrome.auth
+      .reAuthWithScopes('api.ocm', 'profile_level.name_and_address_and_ea_and_rhos')
+      .catch((err) => {
+        Sentry.captureException(err);
+      });
+  }, [chrome]);
   const requestCluster = async () => {
     try {
       setRequestingExperience(true);
@@ -36,15 +44,13 @@ const RosaHandsOnPage = () => {
 
   return (
     <AppPage title="ROSA hands-on experience">
-      <Page>
-        <RosaHandsOnPageContent
-          requestError={requestError}
-          error={initializeError}
-          loading={initializing || requestingExperience}
-          demoExperience={demoExperience}
-          onRequestCluster={() => requestCluster()}
-        />
-      </Page>
+      <RosaHandsOnPageContent
+        requestError={requestError}
+        error={initializeError}
+        loading={initializing || requestingExperience}
+        demoExperience={demoExperience}
+        onRequestCluster={() => requestCluster()}
+      />
     </AppPage>
   );
 };

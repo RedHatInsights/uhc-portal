@@ -51,6 +51,7 @@ describe(
 
         if (clusterProperties.CloudProvider.includes('GCP')) {
           if (clusterProperties.AuthenticationType.includes('Service Account')) {
+            CreateOSDWizardPage.serviceAccountButton().click();
             CreateOSDWizardPage.uploadGCPServiceAccountJSON(JSON.stringify(QE_GCP));
           } else {
             CreateOSDWizardPage.workloadIdentityFederationButton().click();

@@ -39,10 +39,17 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
 
         if (clusterProperties.CloudProvider.includes('GCP')) {
           if (clusterProperties.AuthenticationType.includes('Service Account')) {
+            CreateOSDWizardPage.serviceAccountButton().click();
+
             CreateOSDWizardPage.wizardNextButton().click();
             CreateOSDWizardPage.isTextContainsInPage(
               ClustersValidation.ClusterSettings.CloudProvider.GCP.EmptyGCPServiceJSONFieldError,
             );
+            CreateOSDWizardPage.isTextContainsInPage(
+              ClustersValidation.ClusterSettings.CloudProvider.Common.AcknowledgementUncheckedError,
+            );
+            CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+
             CreateOSDWizardPage.uploadGCPServiceAccountJSON(
               ClustersValidation.ClusterSettings.CloudProvider.GCP
                 .InvalidFormatGCPServiceJSONValues,
@@ -61,19 +68,14 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
             );
             CreateOSDWizardPage.uploadGCPServiceAccountJSON(JSON.stringify(QE_GCP));
           } else {
-            CreateOSDWizardPage.workloadIdentityFederationButton().click();
             CreateOSDWizardPage.wizardNextButton().click();
             CreateOSDWizardPage.isTextContainsInPage(
               ClustersValidation.ClusterSettings.CloudProvider.GCP.NoWIFConfigSelectionError,
-            );
-            CreateOSDWizardPage.isTextContainsInPage(
-              ClustersValidation.ClusterSettings.CloudProvider.Common.AcknowledgementUncheckedError,
             );
             CreateOSDWizardPage.gcpWIFCommandInput().should(
               'have.value',
               ClustersValidation.ClusterSettings.CloudProvider.GCP.WIFCommandValue,
             );
-            CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
             CreateOSDWizardPage.selectWorkloadIdentityConfiguration(
               Cypress.env('QE_GCP_WIF_CONFIG'),
             );

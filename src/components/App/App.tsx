@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, { ReactNode, useState } from 'react';
+import React, { useState } from 'react';
 
 import useResizeObserver from '@react-hook/resize-observer';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -24,12 +24,6 @@ import { queryClient } from './queryClient';
 import Router from './Router';
 
 import './App.scss';
-// import patternfly styles until hcc is on PF v6
-// import '@patternfly/patternfly/patternfly.css';
-
-type Props = {
-  children?: ReactNode | undefined;
-};
 
 function getHeightUpdater(
   currentHeight: number,
@@ -44,24 +38,23 @@ function getHeightUpdater(
   };
 }
 
-const App = ({ children }: Props) => {
-  const header = document.getElementsByTagName('header')?.[0];
-  const switcher = document.getElementsByClassName('chr-c-beta-switcher')?.[0];
-  const [headerHeight, setHeaderHeight] = useState(
-    header ? header.getBoundingClientRect().height : 0,
+const App = () => {
+  const mainPage = document.querySelector('main.pf-v6-c-page__main');
+  const breadcrumb = document.querySelector('.chr-c-breadcrumbs__group');
+  const [mainPageHeight, setMainPageHeaderHeight] = useState(
+    mainPage ? mainPage.getBoundingClientRect().height : 0,
   );
-  const [switcherHeight, setSwitcherHeight] = useState(
-    switcher ? switcher.getBoundingClientRect().height : 0,
+  const [breadcrumbHeight, setBreadcrumbHeight] = useState(
+    breadcrumb ? breadcrumb.getBoundingClientRect().height : 0,
   );
 
-  useResizeObserver(header, getHeightUpdater(headerHeight, setHeaderHeight));
-  useResizeObserver(switcher, getHeightUpdater(switcherHeight, setSwitcherHeight));
+  useResizeObserver(mainPage, getHeightUpdater(mainPageHeight, setMainPageHeaderHeight));
+  useResizeObserver(breadcrumb, getHeightUpdater(breadcrumbHeight, setBreadcrumbHeight));
+
+  const containerHeight = mainPageHeight - breadcrumbHeight;
 
   return (
-    <div
-      id="app-outer-div"
-      style={{ height: `calc(100vh - ${headerHeight}px - ${switcherHeight}px` }}
-    >
+    <div id="app-outer-div" style={{ height: containerHeight > 0 ? containerHeight : 'auto' }}>
       <QueryClientProvider client={queryClient}>
         <Router />
         <ReactQueryDevtools initialIsOpen={false} position="bottom" buttonPosition="bottom-right" />

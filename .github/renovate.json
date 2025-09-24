@@ -23,5 +23,8 @@
   "ignoreDeps": ["monaco-editor", "react-monaco-editor", "@types/react"],
   "prConcurrentLimit": 10,
   "prHourlyLimit": 0,
-  "reviewersFromCodeOwners": true
+  "reviewersFromCodeOwners": true,
+  "tekton": {
+    "schedule": ["at any time"]
+  }
 }

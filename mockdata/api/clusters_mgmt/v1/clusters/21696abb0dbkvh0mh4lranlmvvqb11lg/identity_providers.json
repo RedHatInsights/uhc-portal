@@ -1,0 +1,23 @@
+{
+  "kind": "IdentityProviderList",
+  "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/identity_providers",
+  "page": 1,
+  "size": 1,
+  "total": 1,
+  "items": [
+    {
+      "kind": "IdentityProvider",
+      "type": "HTPasswdIdentityProvider",
+      "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/identity_providers/2169bhp8do9onjmu6lbghh54v5n6am4h",
+      "id": "2169bhp8do9onjmu6lbghh54v5n6am4h",
+      "name": "htpasswd",
+      "mapping_method": "claim",
+      "htpasswd": {
+        "users": {
+          "kind": "HTPasswdUserListLink",
+          "href": "/api/clusters_mgmt/v1/clusters/21696abb0dbkvh0mh4lranlmvvqb11lg/identity_providers/2169bhp8do9onjmu6lbghh54v5n6am4h/htpasswd_users"
+        }
+      }
+    }
+  ]
+}

@@ -371,6 +371,8 @@ In order to achieve this, it is important to ensure that actions taken in one te
 
 See [Avoid Nesting when you’re Testing](https://kentcdodds.com/blog/avoid-nesting-when-youre-testing)
 
+In addition, jest will automatically clear mocks after each test to ensure that mocks aren't bleed between tests.  See [jest documentation](https://jestjs.io/docs/configuration#clearmocks-boolean) for more information.  While manually calling `jest.clearAllMocks()` in a beforeEach or afterEach block is not necessary, it causes no harm and can be added to remind future coders of a given unit test file that clearing mocks is important between tests.
+
 ## Use `user` helper object
 
 When testing user interactions like typing or clicking, use the user helper method that is returned on render. This object has a configuration that works best with the code base. Do not directly use `userEvent` or `fireEvent`.

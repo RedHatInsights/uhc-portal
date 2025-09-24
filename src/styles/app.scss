@@ -607,3 +607,10 @@ $ocm-c-width-limiter--breakpoint-map: build-breakpoint-map();
 .pf-v6-c-table tbody:where(.pf-v6-c-table__tbody).pf-m-expanded>:first-child:not(.pf-v6-c-table__control-row) {
   border-block-end-width: 0;
 }
+
+// Fix AWS tags being truncated when text is too long
+.pf-v6-c-label__text-awstag .pf-v6-c-label__text {
+  word-break: 'break-all' !important;
+  white-space: normal !important;
+  padding: 0.2rem;
+}

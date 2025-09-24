@@ -1,5 +1,6 @@
 import semver from 'semver';
 
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
 import { Organization } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
@@ -107,7 +108,7 @@ const getVersionsData = (
 const hasUnstableVersionsCapability = (organization?: Organization) =>
   (organization?.capabilities ?? []).some(
     (capability) =>
-      capability.name === 'capability.organization.non_stable_channel_group' &&
+      capability.name === subscriptionCapabilities.NON_STABLE_CHANNEL_GROUP &&
       capability.value === 'true',
   );
 

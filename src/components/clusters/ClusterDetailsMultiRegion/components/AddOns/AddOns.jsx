@@ -36,18 +36,17 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
   const dispatch = useDispatch();
   const organization = useGlobalState((state) => state.userProfile.organization);
   const quota = useGlobalState((state) => state.userProfile.organization.quotaList);
-
   const {
     data: addOnsData,
     isError: isFetchAddOnsError,
     error: addOnsError,
-  } = useFetchAddOns(clusterID, region);
+  } = useFetchAddOns(clusterID, region, isHypershift);
   const {
     data: clusterAddOnsData,
     isLoading: isFetchClusterAddOnsLoading,
     isError: isFetchClusterAddOnsError,
     error: clusterAddOnsError,
-  } = useFetchClusterAddOns(clusterID, region);
+  } = useFetchClusterAddOns(clusterID, region, isHypershift);
   const {
     isPending: isAddClusterAddOnPending,
     isError: isAddClusterAddOnError,
@@ -72,7 +71,7 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
   } = useDeleteClusterAddOn(region);
 
   React.useEffect(() => {
-    if (!isFetchClusterAddOnsLoading) {
+    if (!isFetchClusterAddOnsLoading && !isHypershift) {
       refetchAddOns();
       refetchClusterAddOns();
     }

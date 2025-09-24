@@ -1,3 +1,5 @@
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+
 import { hasOrgLevelsubscribeOCPCapability } from '../registerClusterSelectors'; // Replace 'yourModule' with the actual module name
 
 describe('hasOrgLevelsubscribeOCPCapability', () => {
@@ -6,7 +8,7 @@ describe('hasOrgLevelsubscribeOCPCapability', () => {
       userProfile: {
         organization: {
           details: {
-            capabilities: [{ name: 'capability.cluster.subscribed_ocp', value: 'true' }],
+            capabilities: [{ name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'true' }],
           },
         },
       },
@@ -24,7 +26,7 @@ describe('hasOrgLevelsubscribeOCPCapability', () => {
         userProfile: {
           organization: {
             details: {
-              capabilities: [{ name: 'capability.cluster.subscribed_ocp', value: 'false' }],
+              capabilities: [{ name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'false' }],
             },
           },
         },

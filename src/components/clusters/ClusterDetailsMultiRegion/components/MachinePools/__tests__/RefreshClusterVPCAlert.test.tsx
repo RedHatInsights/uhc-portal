@@ -39,7 +39,7 @@ describe('RefreshClusterVPCAlert', () => {
       ).toBeInTheDocument();
       expect(
         screen.getByRole('button', {
-          name: /refretch cluster's vpc/i,
+          name: /refetch cluster's vpc/i,
         }),
       ).toBeInTheDocument();
     },
@@ -51,7 +51,7 @@ describe('RefreshClusterVPCAlert', () => {
       <RefreshClusterVPCAlert isLoading={false} refreshVPC={refreshVPCMock} />,
     );
     const button = screen.getByRole('button', {
-      name: /refretch cluster's vpc/i,
+      name: /refetch cluster's vpc/i,
     });
     expect(refreshVPCMock).toHaveBeenCalledTimes(0);
 
@@ -69,7 +69,7 @@ describe('RefreshClusterVPCAlert', () => {
     // Assert
     expect(
       screen.getByRole('button', {
-        name: /loading\.\.\. refretch cluster's vpc/i,
+        name: /loading\.\.\. refetch cluster's vpc/i,
       }),
     ).toBeInTheDocument();
   });

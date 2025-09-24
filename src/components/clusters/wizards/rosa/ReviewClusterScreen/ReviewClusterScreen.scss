@@ -34,4 +34,11 @@
   .review-screen-expandable-section__toggle-wrapper {
     margin-top: 1rem;
   }
+
+  // Fix a weird spacing issue on Safari where the grid items did not expand to
+  // contain the content.
+  .ocm-aws-vpc-table  .pf-v6-l-grid__item {
+    min-height: auto;
+    padding:3px
+  }
 }

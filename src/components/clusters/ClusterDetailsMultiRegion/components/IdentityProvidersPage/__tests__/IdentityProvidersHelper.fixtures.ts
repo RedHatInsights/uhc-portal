@@ -113,6 +113,10 @@ export const openIdFormData = {
     { openid_preferred_username: 'openid_preferred_usernameA' },
     { openid_preferred_username: 'openid_preferred_usernameB' },
   ],
+  openid_claim_groups: [
+    { openid_claim_groups: 'openid_claim_groupsA' },
+    { openid_claim_groups: 'openid_claim_groupsB' },
+  ],
   openid_extra_scopes: 'openid_extra_scopes',
   issuer: 'issuer',
   hostname: 'hostname',
@@ -133,6 +137,10 @@ export const openIdFormDataExpected = {
         { openid_preferred_username: 'openid_preferred_usernameA' },
         { openid_preferred_username: 'openid_preferred_usernameB' },
       ],
+      groups: [
+        { openid_claim_groups: 'openid_claim_groupsA' },
+        { openid_claim_groups: 'openid_claim_groupsB' },
+      ],
     },
     client_id: 'client_id',
     client_secret: 'client_secret',
@@ -150,6 +158,10 @@ export const openIdTrimFormData = {
   openid_preferred_username: [
     { openid_preferred_username: 'openid_preferred_usernameA' },
     { openid_preferred_username: 'openid_preferred_usernameB' },
+  ],
+  openid_claim_groups: [
+    { openid_claim_groups: 'openid_claim_groupsA' },
+    { openid_claim_groups: 'openid_claim_groupsB' },
   ],
   openid_extra_scopes: 'openid_extra_scopes',
   issuer: 'issuer',
@@ -170,6 +182,10 @@ export const openIdTrimFormDataExpected = {
       preferred_username: [
         { openid_preferred_username: 'openid_preferred_usernameA' },
         { openid_preferred_username: 'openid_preferred_usernameB' },
+      ],
+      groups: [
+        { openid_claim_groups: 'openid_claim_groupsA' },
+        { openid_claim_groups: 'openid_claim_groupsB' },
       ],
     },
     client_id: 'client_id',
@@ -487,6 +503,7 @@ export const providersFixtures: IdentityProvider[] = [
         email: ['email1'],
         name: ['name 1'],
         preferred_username: ['test122'],
+        groups: ['group1'],
       },
       client_id: 'test',
       issuer: 'https://example.com',
@@ -565,6 +582,7 @@ export const providersExpectedFormData = [
     openid_extra_scopes: '',
     openid_name: ['name 1'],
     openid_preferred_username: ['test122'],
+    openid_claim_groups: ['group1'],
     selectedIDP: 'OpenIDIdentityProvider',
     type: 'OpenIDIdentityProvider',
   },

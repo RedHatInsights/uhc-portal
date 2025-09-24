@@ -492,7 +492,7 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
           product: isHCP ? 'hcp' : undefined,
           // Internal users can test other channels via `ocm` CLI, no UI needed.
           // For external users, make sure we only offer stable channel.
-          search: `enabled='t' AND (channel_group='stable'${includeUnstableVersions ? " OR channel_group='candidate' OR channel_group='fast' OR channel_group='nightly'" : ''})${isRosa ? " AND rosa_enabled='t'" : ''}${
+          search: `enabled='t' AND (channel_group='stable' OR channel_group='eus'${includeUnstableVersions ? " OR channel_group='candidate' OR channel_group='fast' OR channel_group='nightly'" : ''})${isRosa ? " AND rosa_enabled='t'" : ''}${
             isMarketplaceGcp ? " AND gcp_marketplace_enabled='t'" : ''
           }${isWIF ? " AND wif_enabled='t'" : ''}`,
           size: -1,
@@ -597,15 +597,21 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         `/api/clusters_mgmt/v1/clusters/${clusterID}/ingresses/${routerID}`,
       ),
 
-    postUpgradeSchedule: (clusterID: string, schedule: UpgradePolicy) =>
+    postUpgradeSchedule: (clusterID: string, schedule: UpgradePolicy, dryRun?: boolean) =>
       apiRequest.post<UpgradePolicy>(
         `/api/clusters_mgmt/v1/clusters/${clusterID}/upgrade_policies`,
         schedule,
+        dryRun ? { params: { dryRun: true } } : undefined,
       ),
-    postControlPlaneUpgradeSchedule: (clusterID: string, schedule: UpgradePolicy) =>
+    postControlPlaneUpgradeSchedule: (
+      clusterID: string,
+      schedule: UpgradePolicy,
+      dryRun?: boolean,
+    ) =>
       apiRequest.post<UpgradePolicy>(
         `/api/clusters_mgmt/v1/clusters/${clusterID}/control_plane/upgrade_policies`,
         schedule,
+        dryRun ? { params: { dryRun: true } } : undefined,
       ),
 
     postNodePoolUpgradeSchedule: (
@@ -776,7 +782,8 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         data,
       ),
 
-    addNodePool: (clusterID: string, data: NodePool) =>
+    // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+    addNodePool: (clusterID: string, data: NodePool & { imageType?: string }) =>
       apiRequest.post<MachinePool>(`/api/clusters_mgmt/v1/clusters/${clusterID}/node_pools`, data),
 
     deleteMachinePool: (clusterID: string, machinePoolID: string) =>

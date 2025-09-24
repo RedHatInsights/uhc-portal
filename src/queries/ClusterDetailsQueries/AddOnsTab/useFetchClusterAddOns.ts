@@ -14,7 +14,11 @@ export const refetchClusterAddOns = () => {
   });
 };
 
-export const useFetchClusterAddOns = (clusterID: string, region?: string) => {
+export const useFetchClusterAddOns = (
+  clusterID: string,
+  region?: string,
+  isHypershift?: boolean,
+) => {
   const { data, isError, error, isLoading } = useQuery({
     queryKey: [queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY, 'clusterAddOns', clusterID],
     queryFn: async () => {
@@ -39,7 +43,7 @@ export const useFetchClusterAddOns = (clusterID: string, region?: string) => {
       });
       return response;
     },
-    enabled: !!clusterID,
+    enabled: !!clusterID && !isHypershift,
   });
 
   if (isError) {

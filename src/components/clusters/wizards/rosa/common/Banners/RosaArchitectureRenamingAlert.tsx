@@ -15,6 +15,7 @@ const RosaArchitectureRenamingAlert = ({ className }: { className?: string }) =>
   return allowAlert ? (
     <Alert
       variant="info"
+      isInline
       title="Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed"
       actionLinks={<ExternalLink href={learnMoreLink}>Learn more</ExternalLink>}
       className={className}

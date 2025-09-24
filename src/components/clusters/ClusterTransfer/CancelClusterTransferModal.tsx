@@ -1,7 +1,14 @@
 import React from 'react';
 
-import { Button, Flex } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  Flex,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+} from '@patternfly/react-core';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
 import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
@@ -48,11 +55,30 @@ export const CancelClusterTransferModal = (props: CancelClusterTransferModalProp
       </ButtonWithTooltip>
 
       <Modal
-        title="Cancel cluster transfer"
+        id="cancel-cluster-transfer-modal"
         onClose={handleClose}
         isOpen={isOpen}
-        variant="small"
-        actions={[
+        variant={ModalVariant.small}
+        aria-labelledby="cancel-cluster-transfer-modal"
+        aria-describedby="modal-box-cancel-cluster-transfer"
+      >
+        <ModalHeader title="Cancel cluster transfer" labelId="cancel-cluster-transfer-modal" />
+        <ModalBody>
+          {isError ? (
+            <ErrorBox
+              message="A problem occurred while canceling the transfer."
+              response={error?.error as ErrorState}
+            />
+          ) : (
+            <Flex direction={{ default: 'column' }}>
+              <p>
+                This action cannot be undone. It will cancel the impending transfer for cluster{' '}
+                {displayName}.
+              </p>
+            </Flex>
+          )}
+        </ModalBody>
+        <ModalFooter>
           <Button
             key="rescind-transfer"
             variant="primary"
@@ -79,7 +105,7 @@ export const CancelClusterTransferModal = (props: CancelClusterTransferModalProp
             }}
           >
             Cancel Transfer
-          </Button>,
+          </Button>
           <Button
             key="close-cancel"
             variant="secondary"
@@ -87,22 +113,8 @@ export const CancelClusterTransferModal = (props: CancelClusterTransferModalProp
             aria-label="Close Cancel Button"
           >
             Close
-          </Button>,
-        ]}
-      >
-        {isError ? (
-          <ErrorBox
-            message="A problem occurred while canceling the transfer."
-            response={error?.error as ErrorState}
-          />
-        ) : (
-          <Flex direction={{ default: 'column' }}>
-            <p>
-              This action cannot be undone. It will cancel the impending transfer for cluster{' '}
-              {displayName}.
-            </p>
-          </Flex>
-        )}
+          </Button>
+        </ModalFooter>
       </Modal>
     </>
   );

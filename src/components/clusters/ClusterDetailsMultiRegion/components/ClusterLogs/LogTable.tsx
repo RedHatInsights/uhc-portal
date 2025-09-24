@@ -219,7 +219,7 @@ const LogTable = ({ logs, setSorting, pending, refreshEvent }: LogTableParams) =
         <Table aria-label="Expandable table" variant={TableVariant.compact}>
           <Thead>
             <Tr>
-              <Th />
+              <Th screenReaderText="Row expansion" />
               {columns.map((column, index) => (
                 <Th sort={getSortParams(index + 1)} key={column.title}>
                   {column.title}

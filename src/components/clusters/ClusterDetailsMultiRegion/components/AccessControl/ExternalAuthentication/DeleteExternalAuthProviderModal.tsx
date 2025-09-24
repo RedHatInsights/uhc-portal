@@ -1,7 +1,17 @@
 import React from 'react';
 
-import { Button, Flex, Form, Stack, StackItem, TextInput } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  Flex,
+  Form,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Stack,
+  StackItem,
+  TextInput,
+} from '@patternfly/react-core';
 
 import ErrorBox from '~/components/common/ErrorBox';
 import { useDeleteExternalAuth } from '~/queries/ClusterDetailsQueries/AccessControlTab/ExternalAuthenticationQueries/useDeleteExternalAuth';
@@ -44,11 +54,49 @@ export const DeleteExternalAuthProviderModal = (props: DeleteExternalAuthProvide
 
   return (
     <Modal
-      title={`Delete provider: ${externalAuthProvider?.id}`}
       onClose={closeDialog}
       isOpen={isOpen}
-      variant="medium"
-      actions={[
+      ouiaId="DeleteExternalAuthProviderModal"
+      aria-labelledby="delete-external-auth-provider"
+    >
+      <ModalHeader
+        title={`Delete provider: ${externalAuthProvider?.id}`}
+        labelId="delete-external-auth-provider-title"
+      />
+      <ModalBody>
+        <Flex direction={{ default: 'column' }}>
+          <p>
+            This action cannot be undone. It will permanently remove the external authentication
+            provider {externalAuthProvider?.id}.
+          </p>
+          <p>
+            Confirm deletion by typing <strong>{externalAuthProvider?.id}</strong> below:
+          </p>
+          <Form onSubmit={submitForm}>
+            <TextInput
+              type="text"
+              value={providerNameInput}
+              placeholder="Enter name"
+              onChange={(_event, newInput) => setProviderNameInput(newInput)}
+              aria-label="provider name to delete"
+            />
+          </Form>
+        </Flex>
+        {isError && (
+          <Stack hasGutter>
+            <StackItem>
+              <ErrorBox
+                message={`Failed to delete external auth provider: ${externalAuthProvider?.id}`}
+                response={{
+                  errorMessage: error.error.errorMessage,
+                  operationID: error.error.operationID,
+                }}
+              />
+            </StackItem>
+          </Stack>
+        )}
+      </ModalBody>
+      <ModalFooter>
         <Button
           key="delete"
           variant="primary"
@@ -64,43 +112,11 @@ export const DeleteExternalAuthProviderModal = (props: DeleteExternalAuthProvide
           }}
         >
           Delete
-        </Button>,
+        </Button>
         <Button key="cancel" variant="secondary" onClick={closeDialog}>
           Cancel
-        </Button>,
-      ]}
-    >
-      <Flex direction={{ default: 'column' }}>
-        <p>
-          This action cannot be undone. It will permanently remove the external authentication
-          provider {externalAuthProvider?.id}.
-        </p>
-        <p>
-          Confirm deletion by typing <strong>{externalAuthProvider?.id}</strong> below:
-        </p>
-        <Form onSubmit={submitForm}>
-          <TextInput
-            type="text"
-            value={providerNameInput}
-            placeholder="Enter name"
-            onChange={(_event, newInput) => setProviderNameInput(newInput)}
-            aria-label="provider name to delete"
-          />
-        </Form>
-      </Flex>
-      {isError && (
-        <Stack hasGutter>
-          <StackItem>
-            <ErrorBox
-              message={`Failed to delete external auth provider: ${externalAuthProvider?.id}`}
-              response={{
-                errorMessage: error.error.errorMessage,
-                operationID: error.error.operationID,
-              }}
-            />
-          </StackItem>
-        </Stack>
-      )}
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

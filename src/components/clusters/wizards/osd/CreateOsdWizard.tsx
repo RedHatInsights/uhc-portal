@@ -33,6 +33,8 @@ import Unavailable from '~/components/common/Unavailable';
 import config from '~/config';
 import useAnalytics from '~/hooks/useAnalytics';
 import usePreventBrowserNav from '~/hooks/usePreventBrowserNav';
+import { GCP_WIF_DEFAULT, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { resetCreatedClusterResponse } from '~/redux/actions/clustersActions';
 import getLoadBalancerValues from '~/redux/actions/loadBalancerActions';
 import getPersistentStorageValues from '~/redux/actions/persistentStorageActions';
@@ -44,7 +46,7 @@ import { ErrorState } from '~/types/types';
 import { QuotaTypes } from '../../common/quotaModel';
 import { useClusterWizardResetStepsHook } from '../hooks/useClusterWizardResetStepsHook';
 
-import { CloudProviderType } from './ClusterSettings/CloudProvider/types';
+import { CloudProviderType, GCPAuthType } from './ClusterSettings/CloudProvider/types';
 import { BillingModel } from './BillingModel';
 import {
   CloudProviderStepFooter,
@@ -326,10 +328,24 @@ export const CreateOsdWizard = ({ product }: CreateOsdWizardProps) => {
     dispatch((() => submitOSDRequest(dispatch, { isWizard: true })(submitValues)) as any);
   };
 
+  const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
+  const isWifDefaultEnabled = useFeatureGate(GCP_WIF_DEFAULT);
+
+  const defaultAuthType =
+    isWifEnabled && isWifDefaultEnabled
+      ? GCPAuthType.WorkloadIdentityFederation
+      : GCPAuthType.ServiceAccounts;
+
+  const defaultInitialValues = {
+    ...initialValues,
+    ...(product && { product }),
+    [FieldId.GcpAuthType]: defaultAuthType,
+  };
+
   return (
     <AppPage title={documentTitle}>
       <Formik
-        initialValues={{ ...initialValues, ...(product && { product }) }}
+        initialValues={defaultInitialValues}
         initialTouched={initialTouched}
         validate={osdWizardFormValidator}
         validateOnChange={false}

@@ -1,3 +1,4 @@
+import { ENABLE_AWS_TAGS_EDITING } from '~/queries/featureGates/featureConstants';
 import { AwsMachinePool, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 
 import { EditMachinePoolValues } from './hooks/useMachinePoolFormik';
@@ -6,6 +7,17 @@ const getLabels = (labels: EditMachinePoolValues['labels']) =>
   labels.length === 1 && !labels[0].key
     ? {}
     : labels.reduce(
+        (acc, { key, value }) => {
+          acc[key] = value;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+
+const getAWSTags = (awsTags: EditMachinePoolValues['awsTags']) =>
+  awsTags.length === 1 && !awsTags[0].key
+    ? {}
+    : awsTags.reduce(
         (acc, { key, value }) => {
           acc[key] = value;
           return acc;
@@ -67,7 +79,7 @@ export const buildMachinePoolRequest = (
   if (!isEdit) {
     const awsConfig: AwsMachinePool = {};
 
-    machinePool.instance_type = values.instanceType;
+    machinePool.instance_type = values.instanceType?.id;
 
     if (values.useSpotInstances) {
       awsConfig.spot_market_options =
@@ -99,6 +111,7 @@ export const buildMachinePoolRequest = (
       machinePool.aws = awsConfig;
     }
   }
+
   return machinePool;
 };
 
@@ -111,8 +124,10 @@ export const buildNodePoolRequest = (
     isEdit: boolean;
     isMultiZoneMachinePool: boolean;
   },
-): NodePool => {
-  const nodePool: NodePool = {
+  // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+): NodePool & { imageType?: string } => {
+  // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+  const nodePool: NodePool & { imageType?: string } = {
     id: values.name,
     labels: getLabels(values.labels),
     taints: getTaints(values.taints),
@@ -123,7 +138,7 @@ export const buildNodePoolRequest = (
   if (!isEdit) {
     nodePool.subnet = values.privateSubnetId;
     nodePool.aws_node_pool = {
-      instance_type: values.instanceType,
+      instance_type: values.instanceType?.id,
       ec2_metadata_http_tokens: values.imds,
       additional_security_group_ids: values.securityGroupIds,
       root_volume: {
@@ -131,5 +146,23 @@ export const buildNodePoolRequest = (
       },
     };
   }
+
+  if (ENABLE_AWS_TAGS_EDITING || !isEdit) {
+    const awsTags = getAWSTags(values.awsTags);
+    if (Object.keys(awsTags).length > 0) {
+      if (nodePool.aws_node_pool) {
+        nodePool.aws_node_pool.tags = awsTags;
+      } else {
+        nodePool.aws_node_pool = {
+          tags: awsTags,
+        };
+      }
+    }
+  }
+
+  if (values.isWindowsLicenseIncluded) {
+    nodePool.imageType = 'Windows';
+  }
+
   return nodePool;
 };

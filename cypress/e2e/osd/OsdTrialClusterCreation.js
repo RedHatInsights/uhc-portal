@@ -30,20 +30,20 @@ describe(`OSDTrial cluster creation tests(OCP-39415)`, { tags: ['smoke'] }, () =
     it(`OSD - ${clusterProperties.CloudProvider} wizard - Cluster Settings - Cloud provider definitions`, () => {
       CreateOSDWizardPage.isCloudProviderSelectionScreen();
       CreateOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
-      CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       if (clusterProperties.CloudProvider.includes('GCP')) {
+        CreateOSDWizardPage.serviceAccountButton().click();
         CreateOSDWizardPage.uploadGCPServiceAccountJSON(JSON.stringify(QE_GCP));
       } else {
         CreateOSDWizardPage.awsAccountIDInput().type(awsAccountID);
         CreateOSDWizardPage.awsAccessKeyInput().type(awsAccessKey);
         CreateOSDWizardPage.awsSecretKeyInput().type(awsSecretKey);
       }
+      CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       cy.get(CreateOSDWizardPage.primaryButton).click();
     });
     it(`OSD - ${clusterProperties.CloudProvider} wizard - Cluster Settings - Cluster details definitions`, () => {
       CreateOSDWizardPage.isClusterDetailsScreen();
-      cy.get(CreateOSDWizardPage.clusterNameInput).type(clusterProperties.ClusterName);
-      CreateOSDWizardPage.hideClusterNameValidation();
+      cy.get(CreateOSDWizardPage.clusterNameInput).type(clusterProperties.ClusterName).blur();
       CreateOSDWizardPage.selectRegion(clusterProperties.Region);
       CreateOSDWizardPage.singleZoneAvilabilityRadio().check();
       CreateOSDWizardPage.multiZoneAvilabilityRadio().check();

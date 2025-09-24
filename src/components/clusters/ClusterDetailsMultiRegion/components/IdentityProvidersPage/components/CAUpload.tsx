@@ -6,6 +6,8 @@ import {
   FormGroup,
   InputGroup,
   InputGroupItem,
+  Stack,
+  StackItem,
   TextArea,
   TextInput,
 } from '@patternfly/react-core';
@@ -147,20 +149,23 @@ const CAUpload = ({
       </InputGroup>
 
       {shouldShowCAText ? (
-        <>
-          <Button variant="link" onClick={() => revealValue(false)}>
-            Hide
-          </Button>
-
-          <TextArea
-            value={certValueState as any}
-            id={`${input.name}_text`}
-            name={`${input.name}_text`}
-            onChange={(_event, value) => updateCertificateValue(value)}
-            className="ca-textarea"
-            readOnly
-          />
-        </>
+        <Stack hasGutter>
+          <StackItem>
+            <Button variant="link" onClick={() => revealValue(false)}>
+              Hide
+            </Button>
+          </StackItem>
+          <StackItem>
+            <TextArea
+              value={certValueState as any}
+              id={`${input.name}_text`}
+              name={`${input.name}_text`}
+              onChange={(_event, value) => updateCertificateValue(value)}
+              className="ca-textarea"
+              readOnly
+            />
+          </StackItem>
+        </Stack>
       ) : (
         <div>
           <Button

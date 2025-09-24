@@ -1,3 +1,4 @@
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import { AugmentedCluster } from '~/types/types';
 
 import { normalizedProducts } from '../../../../../../common/subscriptionTypes';
@@ -17,7 +18,7 @@ const canAllowAdminHelper = (cluster: AugmentedCluster) => {
 
   const capabilites = cluster.subscription?.capabilities || [];
   const manageClusterAdminCapability = capabilites.find(
-    (capability) => capability.name === 'capability.cluster.manage_cluster_admin',
+    (capability) => capability.name === subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
   );
 
   return !!(manageClusterAdminCapability && manageClusterAdminCapability.value === 'true');

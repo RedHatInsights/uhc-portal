@@ -171,4 +171,37 @@ describe('<IdentityProvidersPage />', () => {
       screen.getByText('Redirected to "/openshift/details/s/mySubscriptionId#accessControl"'),
     ).toBeInTheDocument();
   });
+
+  it('displays "Unavailable" if cluster cannot be fetched when `getClusterDetails` returns a status code of 401 with no cluster available', async () => {
+    // Arrange
+    useFetchClusterDetailsMock.useFetchClusterDetails.mockReturnValue({
+      cluster: undefined,
+      isLoading: false,
+      isError: true,
+      error: { errorCode: 401, errorMessage: 'Cluster is not available', operationID: 'op123' },
+    });
+
+    // Act
+    render(<IdentityProvidersPage isEditForm />);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    // Assert
+    // General Unavailable message
+    expect(screen.getByText('This page is temporarily unavailable')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Try refreshing the page. If the problem persists, contact your organization administrator or visit our status page for known outages.',
+      ),
+    ).toBeInTheDocument();
+
+    // Error Details
+    expect(screen.getByText('Error details')).toBeInTheDocument();
+    expect(screen.getByText('Error retrieving IDP page')).toBeInTheDocument();
+    expect(screen.getByText('Error code: 401')).toBeInTheDocument();
+    expect(screen.getByText('Cluster is not available')).toBeInTheDocument();
+    expect(screen.getByText('Operation ID: op123')).toBeInTheDocument();
+  });
 });

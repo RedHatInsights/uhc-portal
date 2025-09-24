@@ -34,7 +34,7 @@ import { WorkloadIdentityFederationPrerequisites } from '~/components/clusters/w
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import ExternalLink from '~/components/common/ExternalLink';
-import { OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import { GCP_WIF_DEFAULT, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
@@ -47,6 +47,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
   } = useFormState();
 
   const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
+  const isWifDefaultEnabled = useFeatureGate(GCP_WIF_DEFAULT);
 
   const gcpTitle = 'Have you prepared your Google account?';
   const gcpText = `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
@@ -60,6 +61,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
 
   const handleAuthChange: ToggleGroupItemProps['onChange'] = (event) => {
     const { id } = event.currentTarget;
+
     const selection =
       id === GCPAuthType.WorkloadIdentityFederation
         ? GCPAuthType.WorkloadIdentityFederation
@@ -69,6 +71,46 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
     // when auth type changes, prerequisites change too, so resetting the acknowledgment state
     setFieldValue(FieldId.AcknowledgePrereq, false);
   };
+
+  const authButtons = (
+    <ToggleGroup aria-label="Authentication type">
+      {isWifDefaultEnabled ? (
+        <>
+          <ToggleGroupItem
+            text="Workload Identity Federation"
+            key={0}
+            buttonId={GCPAuthType.WorkloadIdentityFederation}
+            isSelected={authType === GCPAuthType.WorkloadIdentityFederation}
+            onChange={handleAuthChange}
+          />
+          <ToggleGroupItem
+            text="Service Account"
+            key={1}
+            buttonId={GCPAuthType.ServiceAccounts}
+            isSelected={authType === GCPAuthType.ServiceAccounts}
+            onChange={handleAuthChange}
+          />
+        </>
+      ) : (
+        <>
+          <ToggleGroupItem
+            text="Service Account"
+            key={0}
+            buttonId={GCPAuthType.ServiceAccounts}
+            isSelected={authType === GCPAuthType.ServiceAccounts}
+            onChange={handleAuthChange}
+          />
+          <ToggleGroupItem
+            text="Workload Identity Federation"
+            key={1}
+            buttonId={GCPAuthType.WorkloadIdentityFederation}
+            isSelected={authType === GCPAuthType.WorkloadIdentityFederation}
+            onChange={handleAuthChange}
+          />
+        </>
+      )}
+    </ToggleGroup>
+  );
 
   return (
     <Form isWidthLimited onSubmit={(e) => e.preventDefault()}>
@@ -95,14 +137,12 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
                   bodyContent={
                     <div>
                       <div>
-                        Workload Identity Federation (WIF) uses short-lived credentials which is
+                        Workload Identity Federation (WIF) uses short-lived credentials which are
                         more secure. Use of WIF requires an OSD cluster running OpenShift{' '}
                         <span className="pf-v6-u-font-family-monospace">4.17</span> or later.
                       </div>
                       <br />
-                      <div>
-                        Service Account uses longer-lived credentials, which are less secure.
-                      </div>
+                      <div>Service Account uses long-lived credentials, which are less secure.</div>
                     </div>
                   }
                 >
@@ -116,22 +156,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
                 </Popover>
               }
             >
-              <ToggleGroup aria-label="Authentication type">
-                <ToggleGroupItem
-                  text="Service Account"
-                  key={0}
-                  buttonId={GCPAuthType.ServiceAccounts}
-                  isSelected={authType === GCPAuthType.ServiceAccounts}
-                  onChange={handleAuthChange}
-                />
-                <ToggleGroupItem
-                  text="Workload Identity Federation"
-                  key={1}
-                  buttonId={GCPAuthType.WorkloadIdentityFederation}
-                  isSelected={authType === GCPAuthType.WorkloadIdentityFederation}
-                  onChange={handleAuthChange}
-                />
-              </ToggleGroup>
+              {authButtons}
             </FormGroup>
           </FlexItem>
         )}

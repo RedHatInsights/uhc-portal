@@ -1,11 +1,12 @@
 import get from 'lodash/get';
 
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import { useGlobalState } from '~/redux/hooks';
 
 const userCanHibernateClustersSelector = (state) => {
   const capabilities = get(state, 'userProfile.organization.details.capabilities', []);
   const canHibernateCluster = capabilities.find(
-    (capability) => capability.name === 'capability.organization.hibernate_cluster',
+    (capability) => capability.name === subscriptionCapabilities.HIBERNATE_CLUSTER,
   );
   return canHibernateCluster?.value === 'true';
 };

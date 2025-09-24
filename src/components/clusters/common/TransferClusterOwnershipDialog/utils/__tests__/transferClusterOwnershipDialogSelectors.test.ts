@@ -3,7 +3,7 @@ import {
   defaultClusterFromSubscription,
   defaultSubscription,
 } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
-import { GlobalState } from '~/redux/store';
+import { GlobalState } from '~/redux/stateTypes';
 import { ClusterFromSubscription } from '~/types/types';
 
 import {
@@ -84,7 +84,7 @@ describe('Utility functions', () => {
       const result = canTransferClusterOwnershipMultiRegion(cluster);
       expect(result).toBe(true);
       expect(hasCapability).toHaveBeenCalledWith(
-        { capabilities: [subscriptionCapabilities.RELEASE_OCP_CLUSTERS] },
+        cluster.subscription,
         subscriptionCapabilities.RELEASE_OCP_CLUSTERS,
       );
     });
@@ -102,7 +102,7 @@ describe('Utility functions', () => {
       const result = canTransferClusterOwnershipMultiRegion(cluster);
       expect(result).toBe(false);
       expect(hasCapability).toHaveBeenCalledWith(
-        { capabilities: [] },
+        { capabilities: [], managed: false },
         subscriptionCapabilities.RELEASE_OCP_CLUSTERS,
       );
     });

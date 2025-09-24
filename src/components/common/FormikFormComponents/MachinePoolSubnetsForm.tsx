@@ -127,8 +127,9 @@ const MachinePoolSubnetsForm = ({ selectedVPC, warning }: MachinePoolSubnetsForm
                 isNewCluster
                 input={{
                   ...getFieldProps(fieldNameSubnetId),
-                  onChange: (subnetId: string) => {
-                    setFieldValue(fieldNameSubnetId, subnetId, false);
+                  onChange: async (subnetId: string) => {
+                    await setFieldValue(fieldNameSubnetId, subnetId, false);
+                    validateForm();
                   },
                 }}
                 meta={getFieldMeta(fieldNameSubnetId)}

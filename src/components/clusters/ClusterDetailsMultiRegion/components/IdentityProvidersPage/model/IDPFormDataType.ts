@@ -16,6 +16,7 @@ export type IDPFormDataType = {
   openid_name?: any;
   openid_email?: any;
   openid_preferred_username?: any;
+  openid_claim_groups?: any;
   openid_extra_scopes?: any; // idpEdited[editedType].extra_scopes
   openid_ca?: any;
   // google

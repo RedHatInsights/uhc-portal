@@ -26,9 +26,7 @@ describe('<HostedTile />', () => {
       const { user } = render(<HostedTile {...defaultProps} />);
 
       // Act
-      const tile = screen.getByText('ROSA hosted architecture');
-      expect(tile).toBeInTheDocument();
-      await user.click(tile);
+      await user.click(screen.getByLabelText('ROSA hosted architecture'));
 
       // Assert
       expect(defaultProps.handleChange).toHaveBeenCalledWith('true');
@@ -53,9 +51,7 @@ describe('<HostedTile />', () => {
       const { user } = render(<HostedTile {...defaultDisabledProps} />);
 
       // Act
-      const tile = screen.getByText('ROSA hosted architecture');
-      expect(tile).toBeInTheDocument();
-      await user.click(tile);
+      await user.click(screen.getByLabelText('ROSA hosted architecture'));
 
       // Assert
       expect(defaultProps.handleChange).not.toHaveBeenCalled();
@@ -73,13 +69,9 @@ describe('<HostedTile />', () => {
   // TODO: Skipping accessibility test for now as it is failing and requires PF intervention.
   // "Element has focusable descendants"
   // We have an External Link inside the Tile component which is causing this issue entitled: "Learn more about Virtual Private Cloud"
-  it.skip('is accessible', async () => {
+  it('is accessible', async () => {
     // Arrange & Act
-    const { container } = render(
-      <div role="listbox" aria-label="dummy-just-for-accessibility-requirements-of-PF">
-        <HostedTile {...defaultProps} />
-      </div>,
-    );
+    const { container } = render(<HostedTile {...defaultProps} />);
 
     // Assert
     expect(screen.getByText('ROSA hosted architecture')).toBeInTheDocument();

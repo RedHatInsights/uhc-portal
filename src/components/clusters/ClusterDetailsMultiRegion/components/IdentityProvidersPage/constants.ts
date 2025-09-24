@@ -9,6 +9,7 @@ export enum FieldId {
   OPENID_EMAIL = 'openid_email',
   OPENID_NAME = 'openid_name',
   OPENID_PREFFERED_USERNAME = 'openid_preferred_username',
+  OPENID_CLAIM_GROUPS = 'openid_claim_groups',
   ISSUER = 'issuer',
   LDAP_CA = 'ldap_ca',
   LDAP_INSECURE = 'ldap_insecure',

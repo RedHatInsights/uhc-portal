@@ -12,7 +12,7 @@ export const refetchAddOns = () => {
   queryClient.invalidateQueries({ queryKey: ['addOns'] });
 };
 
-export const useFetchAddOns = (clusterID: string, region?: string) => {
+export const useFetchAddOns = (clusterID: string, region?: string, isHypershift?: boolean) => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY, 'addOns'],
     queryFn: async () => {
@@ -39,7 +39,7 @@ export const useFetchAddOns = (clusterID: string, region?: string) => {
 
       return response;
     },
-    enabled: !!clusterID,
+    enabled: !!clusterID && !isHypershift,
   });
 
   if (isError) {

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Button, Flex, Popover } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
-import clusterStates, {
+import {
   isClusterUpgrading,
   isHypershiftCluster,
 } from '~/components/clusters/common/clusterStates';
@@ -14,14 +14,12 @@ import { useGetSchedules } from '~/queries/ClusterDetailsQueries/ClusterSettings
 import { useFetchUpgradeGatesFromApi } from '~/queries/ClusterDetailsQueries/useFetchUpgadeGatesFromApi';
 
 import ClusterUpdateLink from '../../../../common/ClusterUpdateLink';
-import UpgradeAcknowledgeLink from '../../../../common/Upgrades/UpgradeAcknowledge/UpgradeAcknowledgeLink';
 import UpgradeStatus from '../../../../common/Upgrades/UpgradeStatus';
 import SupportStatusLabel from '../SupportStatusLabel';
 
 // TODO: Part of the upgrade tab
 const ClusterVersionInfo = ({ cluster }) => {
   const isUpgrading = isClusterUpgrading(cluster);
-  const isClusterReady = cluster?.state === clusterStates.ready;
 
   const clusterVersion = getClusterVersion(cluster);
   const channel = get(cluster, 'metrics.channel');
@@ -47,18 +45,6 @@ const ClusterVersionInfo = ({ cluster }) => {
           <dd>
             {clusterVersion}
             <ClusterUpdateLink cluster={cluster} hideOSDUpdates={!!scheduledUpdate} />
-            {scheduledUpdate &&
-            scheduledUpdate.schedule_type === 'automatic' &&
-            !isUpgrading &&
-            isClusterReady ? (
-              <UpgradeAcknowledgeLink
-                clusterId={cluster.id}
-                isHypershift={isHypershift}
-                cluster={cluster}
-                schedules={schedules}
-                upgradeGates={upgradeGates}
-              />
-            ) : null}
           </dd>
         </Flex>
         {scheduledUpdate && scheduledUpdate.schedule_type === 'manual' && (
@@ -73,7 +59,7 @@ const ClusterVersionInfo = ({ cluster }) => {
                   shouldClose={() => setPopoverOpen(false)}
                   bodyContent={
                     <UpgradeStatus
-                      schedules={schedules}
+                      schedules={schedules?.items}
                       upgradeGates={upgradeGates}
                       cluster={cluster}
                       clusterID={cluster.id}

@@ -1,3 +1,5 @@
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+
 const transfers = [
   {
     cluster_uuid: '19a65d3e-0603-406b-9cc8-6fe9541bbe46',
@@ -16,22 +18,22 @@ const transfers = [
       capabilities: [
         {
           inherited: false,
-          name: 'capability.cluster.manage_cluster_admin',
+          name: subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
           value: 'true',
         },
         {
           inherited: true,
-          name: 'capability.cluster.enable_access_protection',
+          name: subscriptionCapabilities.ENABLE_ACCESS_PROTECTION,
           value: 'true',
         },
         {
           inherited: true,
-          name: 'capability.cluster.subscribed_ocp',
+          name: subscriptionCapabilities.SUBSCRIBED_OCP,
           value: 'true',
         },
         {
           inherited: true,
-          name: 'capability.cluster.autoscale_clusters',
+          name: subscriptionCapabilities.AUTOSCALE_CLUSTERS,
           value: 'true',
         },
       ],
@@ -42,13 +44,13 @@ const transfers = [
       created_at: '2024-07-17T18:52:49.260038Z',
       creator: {
         email: '***REMOVED***',
-        first_name: 'David',
+        first_name: 'Some',
         href: '/api/accounts_mgmt/v1/accounts/2ajdy5ULzU7GONuLqevjxoSrcGx',
         id: '2ajdy5ULzU7GONuLqevjxoSrcGx',
         kind: 'Account',
-        last_name: 'Aznaurov',
-        name: 'David Aznaurov',
-        username: 'daznauro-ocm',
+        last_name: 'User',
+        name: 'Some User',
+        username: 'some-user-ocm',
       },
       display_name: 'daz-hcp3',
       eval_expiration_date: '0001-01-01T00:00:00Z',

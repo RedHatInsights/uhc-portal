@@ -37,8 +37,6 @@ import { hypershiftValue } from './ControlPlaneCommon';
 import { HostedTile } from './HostedTile';
 import { StandAloneTile } from './StandAloneTile';
 
-import './controlPlaneScreen.scss';
-
 type ControlPlaneFieldProps = {
   input: {
     value: hypershiftValue;
@@ -109,6 +107,13 @@ const ControlPlaneField = ({
       </GridItem>
       <GridItem span={6}>
         <StandAloneTile handleChange={handleChange} isSelected={value === 'false'} />
+      </GridItem>
+      <GridItem span={6}>
+        <Content component={ContentVariants.p}>
+          <ExternalLink href={links.VIRTUAL_PRIVATE_CLOUD_URL}>
+            Learn more about Virtual Private Cloud
+          </ExternalLink>
+        </Content>
       </GridItem>
     </Grid>
   );

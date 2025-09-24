@@ -1,0 +1,38 @@
+name: Check Links and Send Failures to Slack
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "45 11 * * MON"
+jobs:
+  check-links-and-send-failures-to-slack:
+    name: Check Links and Send Failures to Slack
+    runs-on: ubuntu-latest
+   
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Find and list broken links
+        id: check-links
+        run: node run/check-links.mjs
+
+      - name: Send message to Slack
+        if: steps.check-links.outputs.has404 == 'true'
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            has404: "${{ steps.check-links.outputs.has404 }}"
+            404_length: "${{ steps.check-links.outputs.notFoundLength }}"
+            message: "Broken links found"
+            run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"

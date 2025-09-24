@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  Icon,
   Label,
   List,
   ListComponent,
@@ -11,7 +12,6 @@ import {
   Title,
 } from '@patternfly/react-core';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
-import { t_global_icon_color_status_warning_default as warningColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_warning_default';
 
 import { trackEvents } from '~/common/analytics';
 import links from '~/common/installLinks.mjs';
@@ -33,7 +33,11 @@ const StepCreateNetwork = () => (
           data-testid="create-vpc-networking-hcp-label"
           variant="outline"
           color="red"
-          icon={<ExclamationTriangleIcon color={warningColor.value} />}
+          icon={
+            <Icon status="warning">
+              <ExclamationTriangleIcon />
+            </Icon>
+          }
         >
           Only for ROSA HCP clusters
         </Label>

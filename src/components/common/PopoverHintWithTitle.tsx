@@ -45,6 +45,7 @@ const PopoverHintWithTitle = ({
           className="popover-with-title-button"
           aria-label={`More information on ${title}`}
           variant="plain"
+          hasNoPadding
         />
       </Popover>
     </Content>

@@ -196,7 +196,7 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
       RosaGetstartedPage.checkAnchorProperties(
         cy.get('a'),
         'deploy ROSA clusters with the ROSA CLI',
-        'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_rosa_with_hcp_clusters/rosa-hcp-sts-creating-a-cluster-quickly',
+        'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_clusters/rosa-hcp-sts-creating-a-cluster-quickly',
         true,
       );
     });
@@ -224,7 +224,7 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
       RosaGetstartedPage.checkAnchorProperties(
         cy.get('a'),
         'deploy a ROSA HCP cluster',
-        'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_rosa_with_hcp_clusters/creating-a-rosa-cluster-using-terraform#rosa-hcp-creating-a-cluster-quickly-terraform',
+        'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_clusters/creating-a-rosa-cluster-using-terraform',
         true,
       );
       RosaGetstartedPage.checkAnchorProperties(

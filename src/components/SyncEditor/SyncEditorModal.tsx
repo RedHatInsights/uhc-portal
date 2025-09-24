@@ -7,6 +7,11 @@ import {
   Button,
   Flex,
   FlexItem,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
   Panel,
   PanelMain,
   PanelMainBody,
@@ -19,7 +24,6 @@ import {
   Title,
   Tooltip,
 } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { DownloadIcon } from '@patternfly/react-icons/dist/esm/icons/download-icon';
 
 import { ConfirmationDialog } from '~/common/modals/ConfirmationDialog';
@@ -116,14 +120,82 @@ const SyncEditorModal = ({
 
   return (
     <Modal
-      title="Edit YAML"
       isOpen={isOpen}
       variant={ModalVariant.large}
       onClose={handleClose}
-      id="sync-editor-modal"
-      showClose={!isRequestPending}
       onEscapePress={onEscapePress}
-      footer={
+      aria-labelledby="sync-editor-modal"
+      aria-describedby="modal-sync-yaml-editor"
+    >
+      <ModalHeader title="Edit YAML" />
+      <ModalBody>
+        <>
+          <Sidebar hasBorder isPanelRight>
+            <SidebarContent>
+              <SyncEditorToolbar
+                {...{
+                  isRequestPending,
+                  requestPendingMessage,
+                  requestErrorMessage,
+                  isContentValid,
+                }}
+                isSideBarVisible={isSideBarVisible}
+                toggleSideBar={toggleSideBar}
+              />
+            </SidebarContent>
+
+            {isSideBarVisible ? (
+              <SidebarPanel width={{ default: 'width_25' }} variant="sticky">
+                <Title headingLevel="h2" className="pf-v6-u-pl-sm">
+                  ROSA cluster creation
+                </Title>
+              </SidebarPanel>
+            ) : null}
+          </Sidebar>
+          <Sidebar style={{ overflow: 'auto' }} tabIndex={0} hasBorder isPanelRight>
+            <SidebarContent style={{ height: '600px' }}>
+              <SyncEditor
+                content={editorContent}
+                onChange={setEditorContent}
+                isReadOnly={isRequestPending}
+                readOnlyMessage={{ value: readOnlyMessage }}
+                schemas={[schema]}
+                isSideBarVisible={isSideBarVisible}
+                isDarkTheme
+                language={Language.yaml}
+                setValidationErrors={(validationErrors) =>
+                  setIsContentValid(validationErrors.length === 0)
+                }
+              />
+            </SidebarContent>
+            {isSideBarVisible ? (
+              <SidebarPanel width={{ default: 'width_25' }} variant="sticky">
+                <Tabs activeKey={0}>
+                  <Tab eventKey={0} title={<TabTitleText>Schema</TabTitleText>}>
+                    <Panel>
+                      <PanelMain>
+                        <PanelMainBody>
+                          <SyncEditorSchema schema={JSON.stringify(schema)} />
+                        </PanelMainBody>
+                      </PanelMain>
+                    </Panel>
+                  </Tab>
+                </Tabs>
+              </SidebarPanel>
+            ) : null}
+          </Sidebar>
+          <ConfirmationDialog
+            title="Close editor without saving?"
+            content="All changes will be lost."
+            primaryActionLabel="Close"
+            primaryAction={closeCallback}
+            secondaryActionLabel="Cancel"
+            isOpen={isConfirmationDialogOpen}
+            closeCallback={() => setIsConfirmationDialogOpen(false)}
+          />
+        </>
+      </ModalBody>
+      <ModalFooter>
         <Flex>
           <FlexItem>
             <Tooltip
@@ -141,10 +213,11 @@ const SyncEditorModal = ({
                 {submitButtonLabel}
               </Button>
             </Tooltip>
-
-            <Button variant="secondary" onClick={handleClose} isDisabled={isRequestPending}>
-              Cancel
-            </Button>
+            {!isRequestPending && (
+              <Button variant="secondary" onClick={handleClose} isDisabled={isRequestPending}>
+                Cancel
+              </Button>
+            )}
           </FlexItem>
           <FlexItem align={{ default: 'alignRight' }}>
             {closeWarningMessage ? (
@@ -162,68 +235,7 @@ const SyncEditorModal = ({
             </Button>
           </FlexItem>
         </Flex>
-      }
-    >
-      <>
-        <Sidebar hasBorder isPanelRight>
-          <SidebarContent>
-            <SyncEditorToolbar
-              {...{ isRequestPending, requestPendingMessage, requestErrorMessage, isContentValid }}
-              isSideBarVisible={isSideBarVisible}
-              toggleSideBar={toggleSideBar}
-            />
-          </SidebarContent>
-
-          {isSideBarVisible ? (
-            <SidebarPanel width={{ default: 'width_25' }} variant="sticky">
-              <Title headingLevel="h2" className="pf-v6-u-pl-sm">
-                ROSA cluster creation
-              </Title>
-            </SidebarPanel>
-          ) : null}
-        </Sidebar>
-        <Sidebar style={{ overflow: 'auto' }} tabIndex={0} hasBorder isPanelRight>
-          <SidebarContent style={{ height: '600px' }}>
-            <SyncEditor
-              content={editorContent}
-              onChange={setEditorContent}
-              isReadOnly={isRequestPending}
-              readOnlyMessage={{ value: readOnlyMessage }}
-              schemas={[schema]}
-              isSideBarVisible={isSideBarVisible}
-              isDarkTheme
-              language={Language.yaml}
-              setValidationErrors={(validationErrors) =>
-                setIsContentValid(validationErrors.length === 0)
-              }
-            />
-          </SidebarContent>
-          {isSideBarVisible ? (
-            <SidebarPanel width={{ default: 'width_25' }} variant="sticky">
-              <Tabs activeKey={0}>
-                <Tab eventKey={0} title={<TabTitleText>Schema</TabTitleText>}>
-                  <Panel>
-                    <PanelMain>
-                      <PanelMainBody>
-                        <SyncEditorSchema schema={JSON.stringify(schema)} />
-                      </PanelMainBody>
-                    </PanelMain>
-                  </Panel>
-                </Tab>
-              </Tabs>
-            </SidebarPanel>
-          ) : null}
-        </Sidebar>
-        <ConfirmationDialog
-          title="Close editor without saving?"
-          content="All changes will be lost."
-          primaryActionLabel="Close"
-          primaryAction={closeCallback}
-          secondaryActionLabel="Cancel"
-          isOpen={isConfirmationDialogOpen}
-          closeCallback={() => setIsConfirmationDialogOpen(false)}
-        />
-      </>
+      </ModalFooter>
     </Modal>
   );
 };

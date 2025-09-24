@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { render, screen, userEvent } from '~/testUtils';
+import { checkAccessibility, render, screen, userEvent } from '~/testUtils';
 
 import { FieldId } from '../../../clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/constants';
 
@@ -33,19 +33,27 @@ const buildTestComponent = (children: React.ReactNode, formValues = {}) => (
 );
 
 describe('Formik array fields', () => {
-  it('shows enabled Add more while fields are populated and error free', async () => {
+  it('shows enabled Add link while fields are populated and error free', async () => {
     render(buildTestComponent(<FormikFieldArray {...defaultProps} />));
 
-    expect(screen.getByText('Add more').parentElement).toBeDisabled();
+    expect(screen.getByText('Add').parentElement).toBeDisabled();
   });
 
   it('Adds more fields in field array', async () => {
     render(buildTestComponent(<FormikFieldArray {...defaultProps} />));
 
     await userEvent.type(screen.getByRole('textbox'), 'Red Hat Team 1');
-    expect(screen.getByText('Add more').getAttribute('disabled')).toBe(null);
+    expect(screen.getByText('Add').getAttribute('disabled')).toBe(null);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Add more' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add Teams' }));
     expect(screen.getAllByRole('textbox')).toHaveLength(2);
+  });
+
+  it('is accessible', async () => {
+    // Arrange
+    const { container } = render(buildTestComponent(<FormikFieldArray {...defaultProps} />));
+
+    // Act & Assert
+    await checkAccessibility(container);
   });
 });
