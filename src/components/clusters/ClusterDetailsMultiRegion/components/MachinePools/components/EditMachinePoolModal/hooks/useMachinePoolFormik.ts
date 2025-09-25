@@ -50,6 +50,7 @@ export type EditMachinePoolValues = {
   maxPrice: number;
   diskSize: number;
   instanceType: MachineType | undefined;
+  // New property which should be sent to the backend when creating a NodePool (should be sent only when enabled)
   isWindowsLicenseIncluded?: boolean;
   privateSubnetId: string | undefined;
   securityGroupIds: string[];
@@ -175,9 +176,8 @@ const useMachinePoolFormik = ({
     }
 
     if (isHypershift) {
-      // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-      machinePoolData.isWindowsLicenseIncluded = false; // This involves extra costs, let's keep it false by default
-      // (machinePool as MachinePool)?.aws?.windows_license_included || false;
+      machinePoolData.isWindowsLicenseIncluded =
+        (machinePool as NodePool)?.aws?.windows_license_included || false; // This involves extra costs, let's keep it false by default
     }
 
     return machinePoolData;
