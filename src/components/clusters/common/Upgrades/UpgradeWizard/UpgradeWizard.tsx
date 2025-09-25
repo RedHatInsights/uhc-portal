@@ -8,11 +8,12 @@ import {
   ModalBody,
   ModalVariant,
   Spinner,
+  Timestamp,
+  TimestampFormat,
   Title,
   Wizard,
   WizardStep,
 } from '@patternfly/react-core';
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import { ModalWizardHeader } from '~/components/clusters/wizards/common/ModalWizardHeader/ModalWizardHeader';
 import ErrorBox from '~/components/common/ErrorBox';
@@ -294,11 +295,24 @@ const UpgradeWizard = () => {
                     <dl>
                       <dt>UTC</dt>
                       <dd>
-                        <DateFormat type="exact" date={new Date(upgradeTimestamp!)} />
+                        <Timestamp
+                          date={new Date(upgradeTimestamp!)}
+                          shouldDisplayUTC
+                          locale="eng-GB"
+                          dateFormat={TimestampFormat.medium}
+                          timeFormat={TimestampFormat.short}
+                        />
                       </dd>
                       <div>
                         <dt>Local time</dt>
-                        <dd>{new Date(upgradeTimestamp!).toString()}</dd>
+                        <dd>
+                          <Timestamp
+                            date={new Date(upgradeTimestamp!)}
+                            locale="eng-GB"
+                            dateFormat={TimestampFormat.long}
+                            timeFormat={TimestampFormat.short}
+                          />
+                        </dd>
                       </div>
                     </dl>
                   )}
