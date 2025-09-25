@@ -229,7 +229,7 @@ export function TreeViewSelect(props: TreeViewSelectProps) {
   );
 
   const menu = (
-    <Panel ref={menuRef} isScrollable variant="raised" className="tree-view-select-panel">
+    <Panel ref={menuRef} isScrollable variant="raised" className="openshift tree-view-select-panel">
       <PanelMain>
         <section>
           <PanelMainBody>

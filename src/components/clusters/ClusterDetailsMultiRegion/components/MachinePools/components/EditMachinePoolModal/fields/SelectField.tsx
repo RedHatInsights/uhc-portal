@@ -51,6 +51,7 @@ const SelectField = ({ value, fieldId, onSelect, isDisabled, children }: SelectF
       onOpenChange={(isOpen) => setIsOpen(isOpen)}
       id={fieldId}
       isScrollable
+      className="openshift"
     >
       <SelectList>{children}</SelectList>
     </Select>

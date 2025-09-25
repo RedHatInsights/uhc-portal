@@ -397,7 +397,7 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
       shouldFocusToggleOnSelect
       shouldFocusFirstItemOnOpen={false}
       onOpenChangeKeys={['Escape']}
-      className={`${className ?? ''}${scrollableClass}`}
+      className={`openshift ${className ?? ''}${scrollableClass}`}
       isScrollable={isScrollable}
       {...rest}
     >

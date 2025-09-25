@@ -287,6 +287,7 @@ const EditMachinePoolModal = ({
           onClose={isSubmitting ? undefined : onClose}
           variant={ModalVariant.medium}
           isOpen
+          className="openshift"
         >
           <ModalHeader description={!isEdit && modalDescription}>
             <Title headingLevel="h1">{isEdit ? 'Edit machine pool' : 'Add machine pool'}</Title>
