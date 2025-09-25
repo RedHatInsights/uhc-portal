@@ -59,7 +59,7 @@ const CreateRHOCPCluterLink = (props: any) => (
 );
 
 const DEVSNBXOfferingCardDocLinkComponent = () => (
-  <ExternalLink noTarget noIcon href="/openshift/sandbox">
+  <ExternalLink noTarget noIcon href="https://sandbox.redhat.com">
     View details
   </ExternalLink>
 );
