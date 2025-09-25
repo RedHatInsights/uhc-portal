@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Alert } from '@patternfly/react-core';
 import * as Sentry from '@sentry/browser';
 
+import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
 import { BANNED_USER_CODE } from '../../../../../common/errors';
@@ -29,10 +30,7 @@ const TokenErrorAlert = ({ token }) => {
         <br />
         <br />
         Try again by refreshing the page. If the problem persists{' '}
-        <ExternalLink href="https://access.redhat.com/support/">
-          contact our customer support
-        </ExternalLink>
-        .
+        <ExternalLink href={supportLinks.SUPPORT_HOME}>contact our customer support</ExternalLink>.
       </>
     );
 
