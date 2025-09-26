@@ -15,8 +15,10 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
+import EditButton from '~/components/common/EditButton';
 import ErrorBox from '~/components/common/ErrorBox';
 import { useMutateChannelGroup } from '~/queries/ChannelGroupEditQueries/useMutateChannelGroup';
+import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import { Cluster } from '~/types/clusters_mgmt.v1';
 
 import { ChannelGroupSelect } from './ChannelGroupSelect';
@@ -60,7 +62,15 @@ const ChannelGroupEditModal = ({
       initialValues={{ channelGroup }}
       onSubmit={(values: any) => {
         const { channelGroup } = values;
-        mutate({ clusterID, channelGroup });
+        mutate(
+          { clusterID, channelGroup },
+          {
+            onSuccess: () => {
+              handleClose();
+              invalidateClusterDetailsQueries();
+            },
+          },
+        );
       }}
     >
       {(formik) => (
@@ -139,9 +149,12 @@ export const ChannelGroupEdit = ({ clusterID, channelGroup, cluster }: ChannelGr
         <DescriptionListDescription>
           {channelGroup ? channelGroup.charAt(0).toUpperCase() + channelGroup.slice(1) : 'N/A'}
           {!isLoading ? (
-            <Button onClick={() => setIsModalOpen(true)} isDisabled={!canEdit}>
-              Open modal
-            </Button>
+            <EditButton
+              data-testid="channelGroupModal"
+              ariaLabel="editChannelGroupBtn"
+              onClick={() => setIsModalOpen(true)}
+              disableReason={!canEdit}
+            />
           ) : (
             <Spinner size="sm" aria-label="Loading..." />
           )}

@@ -79,7 +79,7 @@ describe('<ChannelGroupEdit />', () => {
     );
 
     expect(screen.getByLabelText('Loading...')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /open modal/i })).not.toBeInTheDocument();
+    expect(screen.queryByTestId('channelGroupModal')).not.toBeInTheDocument();
   });
 
   it('should render the channel group and an enabled edit button when not loading and editable', () => {
@@ -98,7 +98,7 @@ describe('<ChannelGroupEdit />', () => {
 
     expect(screen.getByText('Channel group')).toBeInTheDocument();
     expect(screen.getByText('Stable')).toBeInTheDocument();
-    const openModalButton = screen.getByRole('button', { name: /open modal/i });
+    const openModalButton = screen.getByTestId('channelGroupModal');
     expect(openModalButton).toBeInTheDocument();
     expect(openModalButton).toBeEnabled();
   });
@@ -135,9 +135,9 @@ describe('<ChannelGroupEdit />', () => {
       />,
     );
 
-    const openModalButton = screen.getByRole('button', { name: /open modal/i });
+    const openModalButton = screen.getByTestId('channelGroupModal');
     expect(openModalButton).toBeInTheDocument();
-    expect(openModalButton).toBeDisabled();
+    expect(openModalButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('should open the modal when the edit button is clicked', async () => {
@@ -154,7 +154,7 @@ describe('<ChannelGroupEdit />', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: /open modal/i }));
+    await user.click(screen.getByTestId('channelGroupModal'));
 
     expect(screen.getByRole('dialog', { name: /edit channel group/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
@@ -175,7 +175,7 @@ describe('<ChannelGroupEdit />', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: /open modal/i }));
+    await user.click(screen.getByTestId('channelGroupModal'));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /cancel/i }));
@@ -199,7 +199,7 @@ describe('<ChannelGroupEdit />', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: /open modal/i }));
+    await user.click(screen.getByTestId('channelGroupModal'));
 
     expect(screen.getByRole('button', { name: /save/i })).toBeDisabled();
   });
@@ -218,7 +218,7 @@ describe('<ChannelGroupEdit />', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: /open modal/i }));
+    await user.click(screen.getByTestId('channelGroupModal'));
 
     const saveButton = screen.getByRole('button', { name: /save/i });
     const select = screen.getByTestId('channel-group-select');
@@ -234,10 +234,15 @@ describe('<ChannelGroupEdit />', () => {
     await user.click(saveButton);
 
     await waitFor(() => {
-      expect(mutateMock).toHaveBeenCalledWith({
-        clusterID: 'cluster-123',
-        channelGroup: 'fast',
-      });
+      expect(mutateMock).toHaveBeenCalledWith(
+        {
+          clusterID: 'cluster-123',
+          channelGroup: 'fast',
+        },
+        expect.objectContaining({
+          onSuccess: expect.any(Function),
+        }),
+      );
     });
   });
 
@@ -261,7 +266,7 @@ describe('<ChannelGroupEdit />', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: /open modal/i }));
+    await user.click(screen.getByTestId('channelGroupModal'));
 
     expect(screen.getByTestId('error-box')).toBeInTheDocument();
     expect(screen.getByText('Changing channel group resulted in error')).toBeInTheDocument();
