@@ -29,6 +29,7 @@ export const useMutateChannelGroup = () => {
     isError,
     error: formatErrorData(isPending, isError, error),
     isSuccess,
+    isPending,
     mutate,
     mutateAsync,
     status,

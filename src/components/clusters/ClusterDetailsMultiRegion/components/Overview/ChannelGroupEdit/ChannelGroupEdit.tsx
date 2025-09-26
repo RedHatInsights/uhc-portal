@@ -52,7 +52,7 @@ const ChannelGroupEditModal = ({
   channelGroup,
   optionsDropdownData,
 }: ChannelGroupEditModalProps) => {
-  const { mutate, isError, error } = useMutateChannelGroup();
+  const { mutate, isError, error, isPending } = useMutateChannelGroup();
 
   const handleClose = () => {
     onClose();
@@ -113,7 +113,7 @@ const ChannelGroupEditModal = ({
               key="confirm"
               variant="primary"
               onClick={formik.submitForm}
-              isDisabled={formik.isSubmitting || !formik.dirty}
+              isDisabled={isPending || !formik.dirty}
             >
               Save
             </Button>
