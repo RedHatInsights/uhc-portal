@@ -4,12 +4,12 @@ import { useDispatch } from 'react-redux';
 
 import { Form, TextInput } from '@patternfly/react-core';
 
+import Modal from '~/components/common/Modal/Modal';
 import { refetchClusterAddOns } from '~/queries/ClusterDetailsQueries/AddOnsTab/useFetchClusterAddOns';
 import { getOrganizationAndQuota } from '~/redux/actions/userActions';
 import { useGlobalState } from '~/redux/hooks';
 
 import ErroBox from '../../../../../common/ErrorBox';
-import Modal from '../../../../../common/Modal/Modal';
 import { closeModal } from '../../../../../common/Modal/ModalActions';
 import shouldShowModal from '../../../../../common/Modal/ModalSelectors';
 import { setAddonsDrawer } from '../AddOnsActions';

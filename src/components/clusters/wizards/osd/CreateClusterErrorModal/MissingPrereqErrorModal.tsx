@@ -1,8 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { Button, Icon, Title, useWizardContext } from '@patternfly/react-core';
-import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
+import { useWizardContext } from '@patternfly/react-core';
 
 import Modal from '~/components/common/Modal/Modal';
 import { closeModal } from '~/components/common/Modal/ModalActions';
@@ -35,29 +34,17 @@ const MissingPrereqErrorModal = ({
 
   return (
     <Modal
-      header={
-        <Title headingLevel="h2" size="2xl">
-          <Icon className="pf-v6-u-mr-sm" status="danger">
-            <ExclamationCircleIcon />
-          </Icon>
-          {title}
-        </Title>
-      }
+      title={title}
+      titleIconVariant="danger"
       modalSize="medium"
       aria-label={title}
-      onPrimaryClick={close}
-      onClose={close}
-      actions={[
-        <Button key="retry" variant="primary" onClick={onRetry} type="submit">
-          Retry creating cluster
-        </Button>,
-        <Button key="prereq-guide" variant="secondary" onClick={goToClusterProviderStep}>
-          Go back to prerequisites guide
-        </Button>,
-        <Button key="secondary" variant="secondary" onClick={close}>
-          Cancel
-        </Button>,
-      ]}
+      primaryText="Retry creating cluster"
+      onPrimaryClick={onRetry}
+      secondaryText="Go back to prerequisites guide"
+      onSecondaryClick={goToClusterProviderStep}
+      showTertiary
+      tertiaryText="Cancel"
+      onTertiaryClick={close}
     >
       <p>
         {/* eslint-disable-next-line max-len */}

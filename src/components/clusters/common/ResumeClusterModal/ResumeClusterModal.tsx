@@ -3,12 +3,12 @@ import { useDispatch } from 'react-redux';
 
 import { Form } from '@patternfly/react-core';
 
+import Modal from '~/components/common/Modal/Modal';
 import { closeModal } from '~/components/common/Modal/ModalActions';
 import { useResumeCluster } from '~/queries/ClusterActionsQueries/useResumeCluster';
 import { useGlobalState } from '~/redux/hooks';
 
 import ErrorBox from '../../../common/ErrorBox';
-import Modal from '../../../common/Modal/Modal';
 import modals from '../../../common/Modal/modals';
 import HibernateClusterContent from '../HibernateClusterModal/HibernateClusterContent';
 import HibernateClusterModalTitle from '../HibernateClusterModal/HibernateClusterModalTitle';
@@ -48,7 +48,7 @@ const ResumeClusterModal = ({ onClose }: ResumeClusterModalProps) => {
   return (
     <Modal
       data-testid="resume-cluster-modal"
-      header={<HibernateClusterModalTitle title="Resume from hibernation" />}
+      title={<HibernateClusterModalTitle title="Resume from hibernation" />}
       secondaryTitle={shouldDisplayClusterName ? clusterName : undefined}
       onClose={closeResumeModal}
       primaryText="Resume cluster"
@@ -57,6 +57,7 @@ const ResumeClusterModal = ({ onClose }: ResumeClusterModalProps) => {
       isPending={resumeClusterIsPending}
       onSecondaryClick={closeResumeModal}
       aria-label="Resume from hibernation"
+      titleIconVariant="info"
     >
       <Form onSubmit={() => resumeCluster({ clusterID, region })}>
         {resumeClusterIsError ? (

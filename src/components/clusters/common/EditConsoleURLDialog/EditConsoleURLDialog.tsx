@@ -5,6 +5,7 @@ import { Form, FormGroup, TextInput } from '@patternfly/react-core';
 
 import getClusterName from '~/common/getClusterName';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+import Modal from '~/components/common/Modal/Modal';
 import modals from '~/components/common/Modal/modals';
 import { useEditConsoleURL } from '~/queries/ClusterActionsQueries/useEditConsoleURL';
 import { useGlobalState } from '~/redux/hooks';
@@ -12,7 +13,6 @@ import { ClusterWithPermissions } from '~/types/types';
 
 import { checkClusterConsoleURL } from '../../../../common/validators';
 import ErrorBox from '../../../common/ErrorBox';
-import Modal from '../../../common/Modal/Modal';
 import { closeModal } from '../../../common/Modal/ModalActions';
 
 type EditConsoleURLDialogProps = {
