@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Field } from 'formik';
 
-import { Alert, AlertActionLink, ExpandableSection } from '@patternfly/react-core';
+import { ExpandableSection } from '@patternfly/react-core';
 
 import { SupportedFeature } from '~/common/featureCompatibility';
-import links from '~/common/installLinks.mjs';
 import { validateSecurityGroups } from '~/common/validators';
 import { getIncompatibleVersionReason } from '~/common/versionCompatibility';
 import EditSecurityGroups from '~/components/clusters/ClusterDetailsMultiRegion/components/SecurityGroups/EditSecurityGroups';
 import SecurityGroupsEmptyAlert from '~/components/clusters/ClusterDetailsMultiRegion/components/SecurityGroups/SecurityGroupsEmptyAlert';
+import SecurityGroupsNoEditAlert from '~/components/clusters/ClusterDetailsMultiRegion/components/SecurityGroups/SecurityGroupsNoEditAlert';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import ReduxCheckbox from '~/components/common/ReduxFormComponents_deprecated/ReduxCheckbox';
 import { CloudVpc } from '~/types/clusters_mgmt.v1';
@@ -22,7 +22,7 @@ type SecurityGroupFieldProps = {
   isHypershift: boolean;
 };
 
-const SecurityGroupField = ({
+export const SecurityGroupField = ({
   input: { onChange, value: selectedGroupIds },
   label,
   selectedVPC,
@@ -90,25 +90,7 @@ const SecurityGroupsSection = ({
       {showEmptyAlert && <SecurityGroupsEmptyAlert />}
       {!incompatibleReason && !showEmptyAlert && (
         <>
-          <Alert
-            variant="info"
-            isInline
-            title="You cannot add or edit security groups associated with the control plane nodes, infrastructure nodes, or machine pools that were created by default during cluster creation."
-            actionLinks={
-              <>
-                <AlertActionLink component="a" href={links.ROSA_SECURITY_GROUPS} target="_blank">
-                  View more information
-                </AlertActionLink>
-                <AlertActionLink
-                  component="a"
-                  href={links.AWS_CONSOLE_SECURITY_GROUPS}
-                  target="_blank"
-                >
-                  AWS security groups console
-                </AlertActionLink>
-              </>
-            }
-          />
+          <SecurityGroupsNoEditAlert isHypershift={isHypershiftSelected} />
           <br />
           <Field
             component={ReduxCheckbox}
