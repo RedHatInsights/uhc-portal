@@ -133,6 +133,11 @@ export const buildNodePoolRequest = (
     taints: getTaints(values.taints),
     ...getAutoscalingParams(values, isMultiZoneMachinePool, true),
     auto_repair: values.auto_repair,
+    management_upgrade: {
+      max_surge: values.maxSurge?.toString(),
+      max_unavailable: values.maxUnavailable?.toString(),
+    },
+    node_drain_grace_period: { value: values.nodeDrainTimeout },
   };
 
   if (!isEdit) {
