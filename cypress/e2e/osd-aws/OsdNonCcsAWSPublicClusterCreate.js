@@ -56,7 +56,7 @@ describe(
       CreateOSDWizardPage.isMachinePoolScreen();
       CreateOSDWizardPage.selectComputeNodeType(clusterProperties.MachinePools.InstanceType);
       if (clusterProperties.MachinePools.Autoscaling.includes('Enabled')) {
-        CreateOSDWizardPage.enableAutoscalingCheckbox().check();
+        CreateOSDWizardPage.enableAutoscalingCheckbox().check({ force: true });
         CreateOSDWizardPage.setMinimumNodeCount(clusterProperties.MachinePools.MinimumNodeCount);
         CreateOSDWizardPage.setMaximumNodeCount(clusterProperties.MachinePools.MaximumNodeCount);
       } else {
@@ -87,7 +87,6 @@ describe(
     it(`OSD(nonccs) ${clusterProperties.CloudProvider}-${clusterProperties.ClusterPrivacy} - Networking configuration - CIDR `, () => {
       CreateOSDWizardPage.isCIDRScreen();
       CreateOSDWizardPage.cidrDefaultValuesCheckBox().should('be.checked');
-      CreateOSDWizardPage.cidrDefaultValuesCheckBox().uncheck();
       CreateOSDWizardPage.machineCIDRInput().should('have.value', clusterProperties.MachineCIDR);
       CreateOSDWizardPage.serviceCIDRInput().should('have.value', clusterProperties.ServiceCIDR);
       CreateOSDWizardPage.podCIDRInput().should('have.value', clusterProperties.PodCIDR);

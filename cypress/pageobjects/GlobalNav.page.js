@@ -20,8 +20,8 @@ class GlobalNav extends Page {
   navigateTo(text) {
     cy.get('body').then(($body) => {
       this.closeSideBar($body);
-      cy.get('.pf-v6-c-skeleton').should('not.exist');
-      cy.contains('a.pf-v6-c-nav__link', text).click();
+      cy.get('[data-loading], [role="progressbar"], .skeleton').should('not.exist');
+      cy.get('nav a, [role="navigation"] a').contains(text).click();
     });
   }
 
@@ -31,7 +31,7 @@ class GlobalNav extends Page {
     });
   }
 
-  breadcrumbItem = (item) => cy.get('ol.pf-v6-c-breadcrumb__list > li').contains(item);
+  breadcrumbItem = (item) => cy.get('ol > li').contains(item);
 }
 
 export default new GlobalNav();

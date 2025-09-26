@@ -97,7 +97,7 @@ describe('Register cluster flow', { tags: ['ci', 'smoke'] }, () => {
   });
 
   it('successfully edit Subscription settings', () => {
-    ClusterDetailsPage.editSubscriptionSettingsLink().click();
+    ClusterDetailsPage.editSubscriptionSettingsLink().scrollIntoView().click({ force: true });
     ClusterDetailsPage.serviceLevelAgreementPremiumRadio().click();
     ClusterDetailsPage.clusterUsageProductionRadio().click();
     ClusterDetailsPage.subscriptionUnitsSocketsRadio().click();

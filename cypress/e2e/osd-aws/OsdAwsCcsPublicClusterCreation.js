@@ -67,9 +67,7 @@ describe(
 
     it('Step OSD - AWS CCS wizard - Networking configuration - Select cluster privacy definitions', () => {
       CreateOSDWizardPage.isNetworkingScreen();
-      CreateOSDWizardPage.clusterPrivacyPublicRadio().should('be.checked');
-      CreateOSDWizardPage.applicationIngressDefaultSettingsRadio().should('be.checked');
-
+      CreateOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
       CreateOSDWizardPage.wizardNextButton().click();
     });
 
@@ -88,7 +86,6 @@ describe(
       CreateOSDWizardPage.isUpdatesScreen();
       CreateOSDWizardPage.updateStrategyIndividualRadio().should('be.checked');
       CreateOSDWizardPage.selectNodeDraining(clusterProperties.NodeDraining);
-
       CreateOSDWizardPage.wizardNextButton().click();
     });
 

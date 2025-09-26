@@ -51,7 +51,7 @@ class ClusterAddIdentityProviderDetails extends Page {
 
   removeUserList = () =>
     //cy.get('div[data-testid="remove-users"]').first(); // for executing in dev env
-    cy.get('.pf-v6-l-grid__item.pf-m-1-col.field-grid-item.minus-button').first(); // for executing in current staging env
+    cy.get('.pf-m-1-col.field-grid-item.minus-button').first(); // for executing in current staging env
 
   clickPerPageItem(count) {
     cy.get('button[role="menuitem"]').contains(count).scrollIntoView().click();

@@ -101,7 +101,7 @@ class OsdProductPage extends Page {
       .and('contain.text', 'Create cluster')
       .scrollIntoView();
 
-    cy.wait(1000);
+    cy.get('[data-testid]').should('exist');
 
     cy.getByTestId('register-cluster').click();
 
