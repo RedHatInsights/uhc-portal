@@ -34,7 +34,7 @@
     "@types/file-saver": "^2.0.5",
     "@types/humanize-duration": "^3.27.1",
     "@types/react-dom": "^18.3.0",
-    "axios": "^1.7.4",
+    "axios": "^1.12.2",
     "cidr-tools": "^11.0.0",
     "classnames": "^2.2.6",
     "dayjs": "^1.11.10",
@@ -204,7 +204,7 @@
   },
   "resolutions": {
     "@cypress/webpack-preprocessor": "6.0.2",
-    "@redhat-cloud-services/**/axios": "^1.7.4",
+    "@redhat-cloud-services/**/axios": "^1.12.2",
     "form-data": "^4.0.4"
   },
   "scripts": {
