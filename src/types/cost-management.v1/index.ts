@@ -275,67 +275,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/forecasts/oci/costs/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          /**
-           * @description The filter to apply to the report as a URL encoded dictionary. The syntax is filter[parameter]=value except for tags, which use filter[tag:key]=value.
-           * @example {
-           *       "enabled": false
-           *     }
-           */
-          filter?: components['parameters']['QueryFilter'];
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description An object describing the cost forecast. */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['Forecast'];
-          };
-        };
-        /** @description Request Error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['Error'];
-          };
-        };
-        /** @description Unexpected Error */
-        500: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['Error'];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/forecasts/openshift/costs/': {
     parameters: {
       query?: never;
@@ -792,23 +731,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/reports/oci/costs/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Query to obtain cost reports */
-    get: operations['getOciCostReports'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/reports/aws/instance-types/': {
     parameters: {
       query?: never;
@@ -860,23 +782,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/reports/oci/instance-types/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Query to obtain OCI instance type data */
-    get: operations['getOciInstanceReports'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/reports/aws/storage/': {
     parameters: {
       query?: never;
@@ -920,23 +825,6 @@ export interface paths {
     };
     /** Query to obtain GCP storage data */
     get: operations['getGCPStorageReports'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/reports/oci/storage/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Query to obtain OCI storage data */
-    get: operations['getOciStorageReports'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1524,57 +1412,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/resource-types/oci-payer-tenant-ids/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** List OCI Subscription Guids For RBAC */
-    get: operations['listResourcesOciTenantids'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/resource-types/oci-services/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** List OCI Services For RBAC */
-    get: operations['listResourcesOciServices'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/resource-types/oci-regions/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** List OCI Regions For RBAC */
-    get: operations['listResourcesOciRegions'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/resource-types/openshift-clusters/': {
     parameters: {
       query?: never;
@@ -1874,40 +1711,6 @@ export interface paths {
     };
     /** Query to obtain GCP tags */
     get: operations['getGCPTagKeyData'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/tags/oci/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Query to obtain OCI tags */
-    get: operations['getOciTagData'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/tags/oci/{key}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Query to obtain OCI tags */
-    get: operations['getOciTagKeyData'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2368,7 +2171,7 @@ export interface paths {
     };
     /**
      * Get all recommendations
-     * @description This feature is in limited preview for select customers
+     * @description This feature is in limited preview for select customers. Refer to [this link](https://github.com/RedHatInsights/ros-ocp-backend/blob/main/openapi.json) if you want checkout the OpenAPI spec file.
      */
     get: operations['getRecommendationList'];
     put?: never;
@@ -3706,8 +3509,6 @@ export interface components {
         | components['schemas']['MemoryRequestOptimisedNotification']
         | components['schemas']['MemoryLimitOptimisedNotification']
         | components['schemas']['NilNotification'];
-      /** @example 1 */
-      pods_count?: number;
       variation?: {
         limits?: {
           cpu?: {
@@ -3788,8 +3589,6 @@ export interface components {
         | components['schemas']['MemoryRequestOptimisedNotification']
         | components['schemas']['MemoryLimitOptimisedNotification']
         | components['schemas']['NilNotification'];
-      /** @example 1 */
-      pods_count?: number;
       variation?: {
         limits?: {
           cpu?: {
@@ -5021,76 +4820,6 @@ export interface operations {
       };
     };
   };
-  getOciCostReports: {
-    parameters: {
-      query?: {
-        /** @description Option to include delta values in the report. This shows the increase/decrease of cost or usage metrics between current and last month */
-        delta?: components['parameters']['QueryDelta'];
-        /**
-         * @description The filter to apply to the report as a URL encoded dictionary. The syntax is filter[parameter]=value except for tags, which use filter[tag:key]=value.
-         * @example {
-         *       "enabled": false
-         *     }
-         */
-        filter?: components['parameters']['QueryFilter'];
-        /**
-         * @description The grouping to apply to the report as a URL encoded dictionary. The syntax is group_by[parameter]=value except for tags, which use group_by[tag:key]=value.
-         * @example {
-         *       "tag:my_tag": "*"
-         *     }
-         */
-        group_by?: components['parameters']['QueryGroupBy'];
-        /**
-         * @description The ordering to apply to the report as a URL encoded dictionary. The syntax is order_by[field]=order. Use 'asc' for ascending and 'desc' for descending.
-         * @example {
-         *       "usage": "desc"
-         *     }
-         */
-        order_by?: components['parameters']['QueryOrderBy'];
-        /** @description Parameter for selecting the offset of data. */
-        offset?: components['parameters']['QueryOffset'];
-        /** @description Parameter for selecting the amount of data in a returned. Limit of 0 will return all data. */
-        limit?: components['parameters']['ReportQueryLimit'];
-        /** @description String to indicate start date of date range. */
-        start_date?: components['parameters']['QueryStartDate'];
-        /** @description String to indicate end date of date range. */
-        end_date?: components['parameters']['QueryEndDate'];
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description A paginated report object */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ReportCost'];
-          'text/csv': components['schemas']['ReportCost'];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Unexpected Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Error'];
-          'text/csv': components['schemas']['Error'];
-        };
-      };
-    };
-  };
   getAWSInstanceReports: {
     parameters: {
       query?: {
@@ -5295,74 +5024,6 @@ export interface operations {
       };
     };
   };
-  getOciInstanceReports: {
-    parameters: {
-      query?: {
-        /**
-         * @description The filter to apply to the report as a URL encoded dictionary. The syntax is filter[parameter]=value except for tags, which use filter[tag:key]=value.
-         * @example {
-         *       "enabled": false
-         *     }
-         */
-        filter?: components['parameters']['QueryFilter'];
-        /**
-         * @description The grouping to apply to the report as a URL encoded dictionary. The syntax is group_by[parameter]=value except for tags, which use group_by[tag:key]=value.
-         * @example {
-         *       "tag:my_tag": "*"
-         *     }
-         */
-        group_by?: components['parameters']['QueryGroupBy'];
-        /**
-         * @description The ordering to apply to the report as a URL encoded dictionary. The syntax is order_by[field]=order. Use 'asc' for ascending and 'desc' for descending.
-         * @example {
-         *       "usage": "desc"
-         *     }
-         */
-        order_by?: components['parameters']['QueryOrderBy'];
-        /** @description Parameter for selecting the offset of data. */
-        offset?: components['parameters']['QueryOffset'];
-        /** @description Parameter for selecting the amount of data in a returned. Limit of 0 will return all data. */
-        limit?: components['parameters']['ReportQueryLimit'];
-        /** @description String to indicate start date of date range. */
-        start_date?: components['parameters']['QueryStartDate'];
-        /** @description String to indicate end date of date range. */
-        end_date?: components['parameters']['QueryEndDate'];
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description A paginated report object */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ReportInstanceInventory'];
-          'text/csv': components['schemas']['ReportInstanceInventory'];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Unexpected Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Error'];
-          'text/csv': components['schemas']['Error'];
-        };
-      };
-    };
-  };
   getAWSStorageReports: {
     parameters: {
       query?: {
@@ -5500,74 +5161,6 @@ export interface operations {
     };
   };
   getGCPStorageReports: {
-    parameters: {
-      query?: {
-        /**
-         * @description The filter to apply to the report as a URL encoded dictionary. The syntax is filter[parameter]=value except for tags, which use filter[tag:key]=value.
-         * @example {
-         *       "enabled": false
-         *     }
-         */
-        filter?: components['parameters']['QueryFilter'];
-        /**
-         * @description The grouping to apply to the report as a URL encoded dictionary. The syntax is group_by[parameter]=value except for tags, which use group_by[tag:key]=value.
-         * @example {
-         *       "tag:my_tag": "*"
-         *     }
-         */
-        group_by?: components['parameters']['QueryGroupBy'];
-        /**
-         * @description The ordering to apply to the report as a URL encoded dictionary. The syntax is order_by[field]=order. Use 'asc' for ascending and 'desc' for descending.
-         * @example {
-         *       "usage": "desc"
-         *     }
-         */
-        order_by?: components['parameters']['QueryOrderBy'];
-        /** @description Parameter for selecting the offset of data. */
-        offset?: components['parameters']['QueryOffset'];
-        /** @description Parameter for selecting the amount of data in a returned. Limit of 0 will return all data. */
-        limit?: components['parameters']['ReportQueryLimit'];
-        /** @description String to indicate start date of date range. */
-        start_date?: components['parameters']['QueryStartDate'];
-        /** @description String to indicate end date of date range. */
-        end_date?: components['parameters']['QueryEndDate'];
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description A paginated report object */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ReportStorageInventory'];
-          'text/csv': components['schemas']['ReportStorageInventory'];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Unexpected Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Error'];
-          'text/csv': components['schemas']['Error'];
-        };
-      };
-    };
-  };
-  getOciStorageReports: {
     parameters: {
       query?: {
         /**
@@ -7367,93 +6960,6 @@ export interface operations {
       };
     };
   };
-  listResourcesOciTenantids: {
-    parameters: {
-      query?: {
-        /** @description Parameter for selecting the offset of data. */
-        offset?: components['parameters']['QueryOffset'];
-        /** @description Parameter for selecting the amount of data in a returned. */
-        limit?: components['parameters']['QueryLimit'];
-        /** @description Parameter for matching the value data using a contains. */
-        value?: components['parameters']['QueryValue'];
-        /** @description Parameter for ordering the value data. */
-        ordering?: components['parameters']['QueryOrder'];
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description | - 200 response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ResourceTypePagination'];
-        };
-      };
-    };
-  };
-  listResourcesOciServices: {
-    parameters: {
-      query?: {
-        /** @description Parameter for selecting the offset of data. */
-        offset?: components['parameters']['QueryOffset'];
-        /** @description Parameter for selecting the amount of data in a returned. */
-        limit?: components['parameters']['QueryLimit'];
-        /** @description Parameter for matching the value data using a contains. */
-        value?: components['parameters']['QueryValue'];
-        /** @description Parameter for ordering the value data. */
-        ordering?: components['parameters']['QueryOrder'];
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description | - 200 response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ResourceTypePagination'];
-        };
-      };
-    };
-  };
-  listResourcesOciRegions: {
-    parameters: {
-      query?: {
-        /** @description Parameter for selecting the offset of data. */
-        offset?: components['parameters']['QueryOffset'];
-        /** @description Parameter for selecting the amount of data in a returned. */
-        limit?: components['parameters']['QueryLimit'];
-        /** @description Parameter for matching the value data using a contains. */
-        value?: components['parameters']['QueryValue'];
-        /** @description Parameter for ordering the value data. */
-        ordering?: components['parameters']['QueryOrder'];
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description | - 200 response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ResourceTypePagination'];
-        };
-      };
-    };
-  };
   listResourcesOpenShiftClusters: {
     parameters: {
       query?: {
@@ -8173,125 +7679,6 @@ export interface operations {
     };
   };
   getGCPTagKeyData: {
-    parameters: {
-      query?: {
-        /**
-         * @description The filter to apply to the report as a URL encoded dictionary. The syntax is filter[parameter]=value except for tags, which use filter[tag:key]=value.
-         * @example {
-         *       "enabled": false
-         *     }
-         */
-        filter?: components['parameters']['QueryFilter'];
-        /** @description Parameter for selecting the offset of data. */
-        offset?: components['parameters']['QueryOffset'];
-        /** @description Parameter for selecting the amount of data in a returned. Limit of 0 will return all data. */
-        limit?: components['parameters']['ReportQueryLimit'];
-      };
-      header?: never;
-      path: {
-        /** @description The tag key to get */
-        key: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description A paginated report object */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Tags'];
-        };
-      };
-      /** @description Invalid query parameter */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Error'];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Not Found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Error'];
-        };
-      };
-      /** @description Unexpected Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Error'];
-        };
-      };
-    };
-  };
-  getOciTagData: {
-    parameters: {
-      query?: {
-        /**
-         * @description The filter to apply to the report as a URL encoded dictionary. The syntax is filter[parameter]=value except for tags, which use filter[tag:key]=value.
-         * @example {
-         *       "enabled": false
-         *     }
-         */
-        filter?: components['parameters']['QueryFilter'];
-        /** @description Flag to indicate whether or not only the tag key values will be returned. */
-        key_only?: components['parameters']['QueryKeyOnly'];
-        /** @description Parameter for selecting the offset of data. */
-        offset?: components['parameters']['QueryOffset'];
-        /** @description Parameter for selecting the amount of data in a returned. Limit of 0 will return all data. */
-        limit?: components['parameters']['ReportQueryLimit'];
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description A paginated report object */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Tags'];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Unexpected Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Error'];
-        };
-      };
-    };
-  };
-  getOciTagKeyData: {
     parameters: {
       query?: {
         /**
@@ -9691,6 +9078,10 @@ export interface operations {
   getRecommendationList: {
     parameters: {
       query?: {
+        /** @description Used as a fallback when the 'Accept' header is missing or specifies an unsupported media type.
+         *     Maximum number of records is 1000 i.e. 6000 rows for CSV downloads.
+         *     The 'offset' parameter can be used for pagination with both formats. */
+        format?: PathsRecommendationsOpenshiftGetParametersQueryFormat;
         /** @description Cluster alias or UUID */
         cluster?: string;
         /** @description Options are daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
@@ -9799,6 +9190,10 @@ export enum PathsCostModelsGetParametersQueryOrdering {
   ValueMinussource_type = '-source_type',
   updated_timestamp = 'updated_timestamp',
   ValueMinusupdated_timestamp = '-updated_timestamp',
+}
+export enum PathsRecommendationsOpenshiftGetParametersQueryFormat {
+  json = 'json',
+  csv = 'csv',
 }
 export enum PathsRecommendationsOpenshiftGetParametersQueryMemoryUnit {
   bytes = 'bytes',
