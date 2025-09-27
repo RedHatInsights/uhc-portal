@@ -8,7 +8,7 @@ import ExternalLink from '../../common/ExternalLink';
 
 const InfoPopover = () => (
   <Popover
-    className="ocm-insights--info-popover"
+    className="openshift ocm-insights--info-popover"
     aria-label="What is Insights?"
     position="left"
     maxWidth="25rem"

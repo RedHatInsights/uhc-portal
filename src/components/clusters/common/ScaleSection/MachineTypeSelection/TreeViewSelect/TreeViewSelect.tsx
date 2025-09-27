@@ -229,8 +229,8 @@ export function TreeViewSelect(props: TreeViewSelectProps) {
   );
 
   const menu = (
-    <Panel ref={menuRef} isScrollable variant="raised" className="tree-view-select-panel">
-      <PanelMain>
+    <Panel ref={menuRef} isScrollable variant="raised" className="openshift tree-view-select-panel">
+      <PanelMain className="openshift tree-view-select-panel">
         <section>
           <PanelMainBody>
             <TreeView
@@ -267,6 +267,9 @@ export function TreeViewSelect(props: TreeViewSelectProps) {
         menuRef={menuRef}
         toggle={toggle}
         toggleRef={toggleRef}
+        popperProps={{
+          width: 'trigger',
+        }}
       />
       {helperText}
     </>

@@ -31,6 +31,7 @@ const PopoverHint = ({
     footerContent={footer}
     aria-label="help"
     bodyContent={bodyContent ?? hint}
+    className="openshift"
     {...popoverProps}
   >
     <Button

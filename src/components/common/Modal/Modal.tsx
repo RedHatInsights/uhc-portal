@@ -84,7 +84,7 @@ const Modal = ({
     <PfModal
       // For a medium size modal use variant="large".
       // For a full screen modal use isSmall=false.
-      className={isPending ? 'pending-modal' : undefined}
+      className={isPending ? 'openshift pending-modal' : 'openshift'}
       aria-label={typeof title === 'string' ? title : ''}
       variant={isSmall ? ModalVariant.small : modalSize}
       title={title}

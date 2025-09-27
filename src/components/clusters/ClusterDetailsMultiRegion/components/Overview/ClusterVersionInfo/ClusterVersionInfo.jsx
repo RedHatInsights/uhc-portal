@@ -53,6 +53,7 @@ const ClusterVersionInfo = ({ cluster }) => {
               <dt>Update scheduled: </dt>
               <dd>
                 <Popover
+                  className="openshift"
                   headerContent="Update status"
                   isVisible={popoverOpen}
                   shouldOpen={() => setPopoverOpen(true)}

@@ -22,7 +22,13 @@ const PopoverHintWithTitle = ({
 }: PopoverHintProps) => (
   <div className="popover-with-title-div">
     <Content component={ContentVariants.p}>
-      <Popover bodyContent={bodyContent} footerContent={footer} aria-label="help" {...popoverProps}>
+      <Popover
+        bodyContent={bodyContent}
+        footerContent={footer}
+        aria-label="help"
+        className="openshift"
+        {...popoverProps}
+      >
         <Button
           icon={
             <span className="popover-with-title-span">

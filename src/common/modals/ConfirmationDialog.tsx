@@ -47,6 +47,7 @@ const ConfirmationDialog = ({
       isOpen
       aria-labelledby="confirmation-dialog-modal"
       aria-describedby="modal-box-confirmation-dialog"
+      className="openshift"
     >
       <ModalHeader title={title} labelId="confirmation-dialog" />
       <ModalBody>{content}</ModalBody>

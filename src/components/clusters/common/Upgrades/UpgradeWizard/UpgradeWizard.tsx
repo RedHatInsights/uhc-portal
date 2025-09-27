@@ -168,7 +168,7 @@ const UpgradeWizard = () => {
       onEscapePress={() => close()}
       onClose={() => close()}
       variant={ModalVariant.large}
-      className="ocm-upgrade-wizard__modal"
+      className="openshift ocm-upgrade-wizard__modal"
     >
       <ModalWizardHeader title="Update cluster" description={clusterName} />
 
