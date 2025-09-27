@@ -3697,6 +3697,88 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/clusters_mgmt/v1/clusters/{cluster_id}/control_plane': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the details of the control plane */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ControlPlane'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** @description Updates the control plane */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['ControlPlane'];
+        };
+      };
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ControlPlane'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
   '/api/clusters_mgmt/v1/clusters/{cluster_id}/control_plane/upgrade_policies': {
     parameters: {
       query?: never;
@@ -6092,6 +6174,234 @@ export interface paths {
           };
           content: {
             'application/json': components['schemas']['HTPasswdUser'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  '/api/clusters_mgmt/v1/clusters/{cluster_id}/image_mirrors': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the list of image mirrors for the cluster. */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Order criteria for sorting results. */
+          order?: string;
+          /** @description Index of the requested page, where one corresponds to the first page. */
+          page?: number;
+          /** @description Search criteria for filtering results.
+           *     Searchable fields: id, name, cluster_id, source, type
+           *     All searchable fields can be ordered with asc/desc direction, default order by id */
+          search?: string;
+          /** @description Number of items contained in the returned page. */
+          size?: number;
+        };
+        header?: never;
+        path: {
+          cluster_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @description Retrieved list of image mirrors. */
+              items?: components['schemas']['ImageMirror'][];
+              /**
+               * Format: int32
+               * @description Index of the requested page, where one corresponds to the first page.
+               */
+              page?: number;
+              /**
+               * Format: int32
+               * @description Number of items contained in the returned page.
+               */
+              size?: number;
+              /**
+               * Format: int32
+               * @description Total number of items of the collection.
+               */
+              total?: number;
+            };
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    /** @description Creates a new image mirror configuration for the cluster.
+     *     Cluster must be in ready state for this operation to succeed. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['ImageMirror'];
+        };
+      };
+      responses: {
+        /** @description Success. */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImageMirror'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/clusters_mgmt/v1/clusters/{cluster_id}/image_mirrors/{image_mirror_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the details of the image mirror. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+          image_mirror_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImageMirror'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    /** @description Deletes the image mirror configuration. */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+          image_mirror_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    /** @description Updates the image mirror configuration.
+     *     Note: Id and Source fields are immutable and cannot be updated.
+     *     The mirrors array is completely replaced, not merged. */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+          image_mirror_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['ImageMirror'];
+        };
+      };
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImageMirror'];
           };
         };
         /** @description Error. */
@@ -12725,6 +13035,8 @@ export interface components {
       additional_infra_security_group_ids?: string[];
       /** @description Audit log forwarding configuration */
       audit_log?: components['schemas']['AuditLog'];
+      /** @description AWS specific configuration for AutoNode */
+      auto_node?: components['schemas']['AwsAutoNode'];
       /** @description BillingAccountID is the account used for billing subscriptions purchased via the marketplace */
       billing_account_id?: string;
       /** @description Which Ec2MetadataHttpTokens to use for metadata service interaction options for EC2 instances */
@@ -12751,6 +13063,29 @@ export interface components {
       };
       /** @description Role ARN for VPC Endpoint Service cross account role. */
       vpc_endpoint_role_arn?: string;
+    };
+    /** @description Backup configuration for AWS clusters */
+    AWSBackupConfig: {
+      /** @description Name of the S3 bucket used to save the backup */
+      s3_bucket?: string;
+      /** @description ID of the AWS Disaster Recovery (DR) account */
+      account_id?: string;
+      /** @description ARN of the identity provider created in the Disaster Recovery (DR) account for the Management Cluster */
+      identity_provider_arn?: string;
+      /** @description Name of the management cluster the backup config refers to */
+      management_cluster?: string;
+      /** @description ARN of the role used by the CS Trusted Account to gain access to the Disaster Recovery (DR) account */
+      role_arn?: string;
+    };
+    /** @description AWS Capacity Reservation specification. */
+    AWSCapacityReservation: {
+      /** @description Specify the target Capacity Reservation in which the EC2 instances will be launched. */
+      id?: string;
+      /** @description marketType specifies the market type of the CapacityReservation for the EC2
+       *     instances. Valid values are OnDemand, CapacityBlocks.
+       *     "OnDemand": EC2 instances run as standard On-Demand instances.
+       *     "CapacityBlocks": scheduled pre-purchased compute capacity. */
+      market_type?: components['schemas']['MarketType'];
     };
     /** @description Specification for different classes of nodes inside a flavour. */
     AWSFlavour: {
@@ -12861,6 +13196,8 @@ export interface components {
       availability_zone_types?: {
         [key: string]: string;
       };
+      /** @description If present it defines the AWS Capacity Reservation used for this NodePool */
+      capacity_reservation?: components['schemas']['AWSCapacityReservation'];
       /** @description Which Ec2MetadataHttpTokens to use for metadata service interaction options for EC2 instances */
       ec2_metadata_http_tokens?: components['schemas']['Ec2MetadataHttpTokens'];
       /** @description InstanceProfile is the AWS EC2 instance profile, which is a container for an IAM role that the EC2 instance uses. */
@@ -12889,6 +13226,8 @@ export interface components {
     AWSShard: {
       /** @description ECR repository URLs of the provision shard */
       ecr_repository_urls?: string[];
+      /** @description Backup configurations for the provision shard */
+      backup_configs?: components['schemas']['AWSBackupConfig'][];
     };
     /** @description Spot market options for AWS machine pool. */
     AWSSpotMarketOptions: {
@@ -12963,6 +13302,22 @@ export interface components {
       disable_scp_checks?: boolean;
       /** @description Indicates if Customer Cloud Subscription is enabled on the cluster. */
       enabled?: boolean;
+    };
+    /** @description Describes the CIDR Block access policy to the Kubernetes API server.
+     *     Currently, only supported for ARO-HCP based clusters.
+     *     The default policy mode is "allow_all" that is, all access is allowed. */
+    CIDRBlockAccess: {
+      allow?: components['schemas']['CIDRBlockAllowAccess'];
+    };
+    CIDRBlockAllowAccess: {
+      /** @description There are two modes: "allow_all" and "allow_list"; if "allow_list" is provided than a non-empty 'values' list must be provided.
+       *     Otherwise, if "allow_all" is provided then 'values' list should be omitted. */
+      mode?: string;
+      /** @description The 'values' list should contain a CIDR block list (An IPV4 address range in the format `<ipv4_address>/<network_mask>`).
+       *     The maximum number of CIDR blocks supported is 500. The CIDR blocks should be non-overlapping and valid.
+       *     The value "0.0.0.0/0" is not considered a valid value, as the user can use "allow_all" mode to indicate this behavior.
+       *     The values should not contain the set of Private IP address ranges. */
+      values?: string[];
     };
     /** @description Representation of information from telemetry about a the CPU capacity by node role and OS. */
     CPUTotalNodeRoleOSMetricNode: {
@@ -13669,6 +14024,13 @@ export interface components {
       /** @description Node utilization level, defined as sum of requested resources divided by capacity, below which a node can be considered for scale down. */
       utilization_threshold?: string;
     };
+    /** @description AWS provider configuration settings when using AutoNode on a ROSA HCP Cluster */
+    AwsAutoNode: {
+      /** @description The AWS ARN of the IAM Role that has the permissions required for the AutoNode
+       *     controller.
+       *     The role must exist prior to enabling AutoNode on the cluster. */
+      role_arn?: string;
+    };
     /** @description Contains the necessary attributes to support etcd encryption for AWS based clusters. */
     AwsEtcdEncryption: {
       /** @description ARN of the KMS to be used for the etcd encryption */
@@ -13676,6 +14038,11 @@ export interface components {
     };
     /** @description Microsoft Azure settings of a cluster. */
     Azure: {
+      /** @description Etcd encryption configuration.
+       *     If not specified, etcd data is encrypted with platform managed keys.
+       *     Currently etcd data encryption is only supported with customer managed keys.
+       *     Creating a cluster with platform managed keys will result in a failure creating the cluster. */
+      etcd_encryption?: components['schemas']['AzureEtcdEncryption'];
       /** @description The desired name of the Azure Resource Group where the Azure Resources related
        *     to the cluster are created. It must not previously exist. The Azure Resource
        *     Group is created with the given value, within the Azure Subscription
@@ -13803,34 +14170,68 @@ export interface components {
        *     Immutable. */
       resource_id?: string;
     };
+    /** @description Contains the necessary attributes to support data encryption for Azure based clusters. */
+    AzureEtcdDataEncryption: {
+      /** @description Customer Managed encryption keys configuration.
+       *     Required when key_management_mode is "customer_managed". */
+      customer_managed?: components['schemas']['AzureEtcdDataEncryptionCustomerManaged'];
+      /** @description The key management strategy used for the encryption key that encrypts the etcd data.
+       *     Accepted values are: "customer_managed", "platform_managed".
+       *     By default, "platform_managed" is used.
+       *     Currently only "customer_managed" mode is supported. */
+      key_management_mode?: string;
+    };
+    /** @description Contains the necessary attributes to support etcd data encryption with customer managed keys
+     *     for Azure based clusters. */
+    AzureEtcdDataEncryptionCustomerManaged: {
+      /** @description The encryption type used.
+       *     Accepted values are: "kms".
+       *     By default, "kms" is used. */
+      encryption_type?: string;
+      /** @description The KMS encryption configuration.
+       *     Required when encryption_type is "kms". */
+      kms?: components['schemas']['AzureKmsEncryption'];
+    };
+    /** @description Contains the necessary attributes to support etcd encryption for Azure based clusters. */
+    AzureEtcdEncryption: {
+      /** @description etcd data encryption settings.
+       *     If not specified, etcd data is encrypted with platform managed keys. */
+      data_encryption?: components['schemas']['AzureEtcdDataEncryption'];
+    };
+    /** @description Contains the necessary attributes to support KMS encryption for Azure based clusters. */
+    AzureKmsEncryption: {
+      /** @description The details of the active key
+       *     Required during creation. */
+      active_key?: components['schemas']['AzureKmsKey'];
+    };
+    /** @description Contains the necessary attributes to support KMS encryption key for Azure based clusters */
+    AzureKmsKey: {
+      /** @description key_name is the name of the Azure Key Vault Key
+       *     Required during creation. */
+      key_name?: string;
+      /** @description key_vault_name is the name of the Azure Key Vault that contains the encryption key
+       *     Required during creation. */
+      key_vault_name?: string;
+      /** @description key_version is the version of the Azure Key Vault key
+       *     Required during creation. */
+      key_version?: string;
+    };
     /** @description Representation of azure node pool specific parameters. */
     AzureNodePool: {
-      /**
-       * Format: int32
-       * @description The size in GiB to assign to the OS disks of the
-       *     Nodes in the Node Pool. The property
-       *     is the number of bytes x 1024^3.
-       *     If not specified, OS disk size is 30 GiB.
-       */
-      os_disk_size_gibibytes?: number;
-      /** @description The disk storage account type to use for the OS disks of the Nodes in the
-       *     Node Pool. Valid values are:
-       *     * Standard_LRS: HDD
-       *     * StandardSSD_LRS: Standard SSD
-       *     * Premium_LRS: Premium SDD
-       *     * UltraSSD_LRS: Ultra SDD
-       *
-       *     If not specified, `Premium_LRS` is used. */
-      os_disk_storage_account_type?: string;
       /** @description The Azure Virtual Machine size identifier used for the
        *     Nodes of the Node Pool.
        *     Availability of VM sizes are dependent on the Azure Location
        *     of the parent Cluster.
        *     Required during creation. */
       vm_size?: string;
-      /** @description Enables Ephemeral OS Disks for the Nodes in the Node Pool.
-       *     If not specified, no Ephemeral OS Disks are used. */
-      ephemeral_os_disk_enabled?: boolean;
+      /** @description EncryptionAtHost contains Encryption At Host disk encryption configuration.
+       *     When enabled, it enhances Azure Disk Storage Server-Side Encryption to ensure that all temporary disks
+       *     and disk caches are encrypted at rest and flow encrypted to the Storage clusters.
+       *     If not specified, Encryption at Host is not enabled.
+       *     Immutable. */
+      encryption_at_host?: components['schemas']['AzureNodePoolEncryptionAtHost'];
+      /** @description The configuration for the OS disk used by the nodes in the Node Pool. */
+      os_disk?: components['schemas']['AzureNodePoolOsDisk'];
       /** @description ResourceName is the Azure Resource Name of the NodePool.
        *     ResourceName must be within the Azure Resource Group Name of the parent
        *     Cluster it belongs to.
@@ -13843,6 +14244,55 @@ export interface components {
        *     Required during creation.
        *     Immutable. */
       resource_name?: string;
+    };
+    /** @description AzureNodePoolEncryptionAtHost defines the encryption setting for Encryption At Host.
+     *     If not specified, Encryption at Host is not enabled. */
+    AzureNodePoolEncryptionAtHost: {
+      /** @description State indicates whether Encryption At Host is enabled.
+       *     When enabled, it enhances Azure Disk Storage Server-Side Encryption to ensure that all temporary disks
+       *     and disk caches are encrypted at rest and flow encrypted to the Storage clusters.
+       *     Accepted values are: "disabled" or "enabled".
+       *     If not specified, its value is "disabled", which indicates Encryption At Host is disabled.
+       *     Immutable. */
+      state?: string;
+    };
+    /** @description Defines the configuration of a Node Pool's OS disk. */
+    AzureNodePoolOsDisk: {
+      /** @description Specifies the OS Disk persistence for the OS Disks of the Nodes in the Node Pool.
+       *     Valid values are:
+       *     * persistent
+       *     * ephemeral
+       *     If not specified, Persistent OS Disks are used. */
+      persistence?: string;
+      /**
+       * Format: int32
+       * @description The size in GiB to assign to the OS disks of the
+       *     Nodes in the Node Pool. The property
+       *     is the number of bytes x 1024^3.
+       *     If not specified, OS disk size is 64 GiB.
+       */
+      size_gibibytes?: number;
+      /** @description The Azure Resource ID of a pre-existing Azure Disk Encryption Set (DES).
+       *     When provided, Server-Side Encryption (SSE) on the OS Disks of the Nodes of the Node Pool
+       *     is performed using the provided Disk Encryption Set.
+       *     It must be located in the same Azure location as the parent Cluster.
+       *     It must be located in the same Azure Subscription as the parent Cluster.
+       *     The Azure Resource Group Name specified as part of it must be a different resource group name
+       *     than the one specified in the parent Cluster's `managed_resource_group_name`.
+       *     The Azure Resource Group Name specified as part of it can be the same, or a different one
+       *     than the one specified in the parent Cluster's `resource_group_name`.
+       *     If not specified, Server-Side Encryption (SSE) on the OS Disks of the Nodes of the Node Pool
+       *     is performed with platform managed keys. */
+      sse_encryption_set_resource_id?: string;
+      /** @description The disk storage account type to use for the OS disks of the Nodes in the
+       *     Node Pool. Valid values are:
+       *     * Standard_LRS: HDD
+       *     * StandardSSD_LRS: Standard SSD
+       *     * Premium_LRS: Premium SDD
+       *     * UltraSSD_LRS: Ultra SDD
+       *
+       *     If not specified, `Premium_LRS` is used. */
+      storage_account_type?: string;
     };
     /** @description The configuration of the node outbound connectivity */
     AzureNodesOutboundConnectivity: {
@@ -13918,6 +14368,12 @@ export interface components {
        *     Required during creation.
        *     Immutable. */
       resource_id?: string;
+    };
+    /** @description Representation of a Backup. */
+    Backup: {
+      /** @description Indicates the state of the backup.
+       *     Accepted values are: "enabled", "disabled". */
+      state?: string;
     };
     /**
      * @description Billing model for cluster resources.
@@ -14141,6 +14597,9 @@ export interface components {
       additional_trust_bundle?: string;
       /** @description List of add-ons on this cluster. */
       addons?: components['schemas']['AddOnInstallation'][];
+      /** @description The AutoNode settings for this cluster.
+       *     This is currently only supported for ROSA HCP */
+      auto_node?: components['schemas']['ClusterAutoNode'];
       /** @description Link to an optional _ClusterAutoscaler_ that is coupled with the cluster. */
       autoscaler?: components['schemas']['ClusterAutoscaler'];
       /** @description Microsoft Azure settings of the cluster. */
@@ -14149,8 +14608,6 @@ export interface components {
       billing_model?: components['schemas']['BillingModel'];
       /** @description Contains information about BYO OIDC. */
       byo_oidc?: components['schemas']['ByoOidc'];
-      /** @description OpenShift Cluster Capabilities configuration */
-      capabilities?: components['schemas']['ClusterCapabilities'];
       /** @description Link to the cloud provider where the cluster is installed. */
       cloud_provider?: components['schemas']['CloudProvider'];
       /** @description Information about the console of the cluster. */
@@ -14170,7 +14627,8 @@ export interface components {
        *     cluster is created. It will appear in the Cluster's domain when the cluster is provisioned. */
       domain_prefix?: string;
       /** @description Indicates whether that etcd is encrypted or not.
-       *     This is set only during cluster creation. */
+       *     This is set only during cluster creation.
+       *     For ARO-HCP Clusters, this is a readonly attribute, always set to true. */
       etcd_encryption?: boolean;
       /**
        * Format: date-time
@@ -14183,7 +14641,10 @@ export interface components {
       expiration_timestamp?: string;
       /** @description External identifier of the cluster, generated by the installer. */
       external_id?: string;
-      /** @description External authentication configuration */
+      /** @description External authentication configuration.
+       *
+       *     For ROSA HCP, if this is not specified, external authentication configuration will be disabled by default
+       *     For ARO HCP, if this is not specified, external authentication configuration will be enabled by default */
       external_auth_config?: components['schemas']['ExternalAuthConfig'];
       /** @description ExternalConfiguration shows external configuration on the cluster. */
       external_configuration?: components['schemas']['ExternalConfiguration'];
@@ -14199,6 +14660,10 @@ export interface components {
       hypershift?: components['schemas']['Hypershift'];
       /** @description Link to the collection of identity providers of the cluster. */
       identity_providers?: components['schemas']['IdentityProvider'][];
+      /** @description The OpenShift Image Registry configuration
+       *     It provides an internal, integrated container image registry to locally manage images.
+       *     For non ARO-HCP clusters, it is readonly and always enabled */
+      image_registry?: components['schemas']['ClusterImageRegistry'];
       /** @description List of inflight checks on this cluster. */
       inflight_checks?: components['schemas']['InflightCheck'][];
       /** @description InfraID is used for example to name the VPCs. */
@@ -14221,7 +14686,10 @@ export interface components {
       managed_service?: components['schemas']['ManagedService'];
       /** @description Flag indicating if the cluster should be created with nodes in
        *     different availability zones or all the nodes in a single one
-       *     randomly selected. */
+       *     randomly selected.
+       *     For ARO-HCP Clusters, this attribute is unused, and the control plane
+       *     is deployed in multiple availability zones when the Azure region where
+       *     it is deployed supports multiple availability zones. */
       multi_az?: boolean;
       /** @description Indicate whether the cluster is enabled for multi arch workers */
       multi_arch_enabled?: boolean;
@@ -14256,7 +14724,7 @@ export interface components {
       proxy?: components['schemas']['Proxy'];
       /** @description Link to the cloud provider region where the cluster is installed. */
       region?: components['schemas']['CloudRegion'];
-      /** @description Registry configuration for the cluster */
+      /** @description External registry configuration for the cluster */
       registry_config?: components['schemas']['ClusterRegistryConfig'];
       /** @description Overall state of the cluster. */
       state?: components['schemas']['ClusterState'];
@@ -14272,6 +14740,8 @@ export interface components {
     };
     /** @description Information about the API of a cluster. */
     ClusterAPI: {
+      /** @description Describes the CIDR Block access policy to the Kubernetes API server. */
+      cidr_block_access?: components['schemas']['CIDRBlockAccess'];
       /** @description The URL of the API server of the cluster. */
       url?: string;
       /** @description The listening method of the API server. */
@@ -14282,6 +14752,18 @@ export interface components {
      * @enum {string}
      */
     ClusterArchitecture: ClusterArchitecture;
+    /** @description The AutoNode configuration for the Cluster. */
+    ClusterAutoNode: {
+      /** @description Mode indicates the current state of AutoNode on this cluster.
+       *     Valid values: "enabled", "disabled". */
+      mode?: string;
+      status?: components['schemas']['ClusterAutoNodeStatus'];
+    };
+    /** @description Additional status information on the AutoNode configuration on this Cluster */
+    ClusterAutoNodeStatus: {
+      /** @description Messages relating to the status of the AutoNode installation on this Cluster */
+      message?: string;
+    };
     /** @description Cluster-wide autoscaling configuration. */
     ClusterAutoscaler: {
       /** @description Indicates the type of this object. Will be 'ClusterAutoscaler' if this is a complete object or 'ClusterAutoscalerLink' if it is just a link. */
@@ -14329,12 +14811,6 @@ export interface components {
       /** @description Enables/Disables `--skip-nodes-with-local-storage` CA feature flag. If true cluster autoscaler will never delete nodes with pods with local storage, e.g. EmptyDir or HostPath. true by default at autoscaler. */
       skip_nodes_with_local_storage?: boolean;
     };
-    ClusterCapabilities: {
-      /** @description Immutable list of disabled capabilities. May only contain "ImageRegistry" at
-       *     this time. Additional capabilities may be available in the future. Clients
-       *     should expect to handle additional values. */
-      disabled?: string[];
-    };
     /**
      * @description Configuration mode of a cluster.
      * @enum {string}
@@ -14372,6 +14848,14 @@ export interface components {
      * @enum {string}
      */
     ClusterHealthState: ClusterHealthState;
+    /** @description ClusterImageRegistry represents the configuration for the cluster's internal image registry. */
+    ClusterImageRegistry: {
+      /** @description State indicates whether the image registry is enabled.
+       *     Unless explicitly set, the image registry is enabled by default.
+       *     This setting is immutable and cannot be changed after the cluster is created.
+       *     Valid values: "enabled", "disabled". */
+      state?: string;
+    };
     /** @description Definition of a cluster link. */
     ClusterLink: {
       /** @description HREF for the cluster, filled in response. */
@@ -14639,6 +15123,11 @@ export interface components {
      * @enum {string}
      */
     ComponentRouteType: ComponentRouteType;
+    /** @description Representation of a Control Plane */
+    ControlPlane: {
+      /** @description Information about the backup of the control plane */
+      backup?: components['schemas']['Backup'];
+    };
     /** @description Representation of an upgrade policy that can be set for a cluster. */
     ControlPlaneUpgradePolicy: {
       /** @description Indicates the type of this object. Will be 'ControlPlaneUpgradePolicy' if this is a complete object or 'ControlPlaneUpgradePolicyLink' if it is just a link. */
@@ -14757,6 +15246,9 @@ export interface components {
       clients?: components['schemas']['ExternalAuthClientConfig'][];
       /** @description The issuer describes the attributes of the OIDC token issuer. */
       issuer?: components['schemas']['TokenIssuer'];
+      /** @description The status describes the current state of the external authentication provider.
+       *     This is read-only. */
+      status?: components['schemas']['ExternalAuthStatus'];
     };
     /** @description The claims and validation rules used in the configuration of the external authentication. */
     ExternalAuthClaim: {
@@ -14768,25 +15260,84 @@ export interface components {
     /** @description ExternalAuthClientConfig contains configuration for the platform's clients that
      *     need to request tokens from the issuer. */
     ExternalAuthClientConfig: {
-      /** @description The identifier of the OIDC client from the OIDC provider. */
+      /** @description The identifier of the OIDC client from the OIDC provider.
+       *     This is required.
+       *     Must be at least one character length. */
       id?: string;
       /** @description The component that is supposed to consume this client configuration. */
       component?: components['schemas']['ClientComponent'];
       /** @description ExtraScopes is an optional set of scopes to request tokens with. */
       extra_scopes?: string[];
-      /** @description The secret of the OIDC client from the OIDC provider. */
+      /** @description The secret of the OIDC client from the OIDC provider.
+       *     The client is considered 'public' if no secret is specified. Otherwise, it is considered
+       *     as a 'confidential' client.
+       *     This can only be used for an external authentication provider belonging to a ROSA HCP cluster. */
       secret?: string;
+      /** @description Determines the OIDC provider client type.
+       *
+       *     This is required to be defined for clients of an external authentication provider belonging to an ARO-HCP cluster.
+       *
+       *     For clients belonging to a ROSA HCP cluster, this is read-only. The value of this property will be determined by the
+       *     'secret' property in the client configuration.
+       *        - If the 'secret' property is set, the type of the client is 'confidential.
+       *        - If the 'secret' property is not set, the type of the client is 'public. */
+      type?: components['schemas']['ExternalAuthClientType'];
     };
-    /** @description ExternalAuthConfig configuration */
+    /**
+     * @description Representation of the possible values of an external authentication client's type
+     * @enum {string}
+     */
+    ExternalAuthClientType: ExternalAuthClientType;
+    /** @description Represents an external authentication configuration */
     ExternalAuthConfig: {
-      /** @description Boolean flag indicating if the cluster should use an external authentication configuration.
+      /** @description Indicates the type of this object. Will be 'ExternalAuthConfig' if this is a complete object or 'ExternalAuthConfigLink' if it is just a link. */
+      kind?: string;
+      /** @description Unique identifier of the object. */
+      id?: string;
+      /** @description Self link. */
+      href?: string;
+      /** @description Boolean flag indicating if the cluster should use an external authentication configuration for ROSA HCP clusters.
        *
        *     By default this is false.
        *
        *     To enable it the cluster needs to be ROSA HCP cluster and the organization of the user needs
-       *     to have the `external-authentication` feature toggle enabled. */
+       *     to have the `external-authentication` feature toggle enabled.
+       *
+       *     For ARO HCP clusters, use the "State" property to enable/disable this feature instead. */
       enabled?: boolean;
+      /** @description A list of external authentication providers configured for the cluster.
+       *
+       *     Only one external authentication provider can be configured. */
       external_auths?: components['schemas']['ExternalAuth'][];
+      /** @description Controls whether the cluster uses an external authentication configuration for ARO HCP clusters.
+       *
+       *     For ARO HCP clusters, this will be "enabled" by default and cannot be set to "disabled".
+       *
+       *     FOR ROSA HCP clusters, use the "Enabled" boolean flag to enable/disable this feature instead. */
+      state?: components['schemas']['ExternalAuthConfigState'];
+    };
+    /**
+     * @description Representation of the possible values for the state field of an external authentication configuration
+     * @enum {string}
+     */
+    ExternalAuthConfigState: ExternalAuthConfigState;
+    /** @description Representation of the state of an external authentication provider. */
+    ExternalAuthState: {
+      /**
+       * Format: date-time
+       * @description The date and time when the external authentication provider state was last updated.
+       */
+      last_updated_timestamp?: string;
+      /** @description A string value representing the external authentication provider's current state. */
+      value?: string;
+    };
+    /** @description Representation of the status of an external authentication provider. */
+    ExternalAuthStatus: {
+      /** @description A descriptive message providing additional context about the current
+       *     state of the external authentication provider. */
+      message?: string;
+      /** @description The current state of the external authentication provider. */
+      state?: components['schemas']['ExternalAuthState'];
     };
     /** @description Representation of cluster external configuration. */
     ExternalConfiguration: {
@@ -14980,6 +15531,37 @@ export interface components {
      * @enum {string}
      */
     IdentityProviderType: IdentityProviderType;
+    /** @description ImageMirror represents a container image mirror configuration for a cluster.
+     *     This enables Day 2 image mirroring configuration for ROSA HCP clusters using
+     *     HyperShift's native imageContentSources mechanism. */
+    ImageMirror: {
+      /** @description Indicates the type of this object. Will be 'ImageMirror' if this is a complete object or 'ImageMirrorLink' if it is just a link. */
+      kind?: string;
+      /** @description Unique identifier of the object. */
+      id?: string;
+      /** @description Self link. */
+      href?: string;
+      /**
+       * Format: date-time
+       * @description CreationTimestamp indicates when the image mirror was created.
+       */
+      creation_timestamp?: string;
+      /**
+       * Format: date-time
+       * @description LastUpdateTimestamp indicates when the image mirror was last updated.
+       */
+      last_update_timestamp?: string;
+      /** @description Mirrors is the list of mirror registries that will serve content for the source.
+       *     Mirrors array cannot be empty (must contain at least one mirror registry).
+       *     Each mirror registry URL must conform to OpenShift's ImageDigestMirrorSet format specifications. */
+      mirrors?: string[];
+      /** @description Source is the source registry that will be mirrored.
+       *     Source registry must be unique per cluster and is immutable after creation.
+       *     Source is used to identify mirror entries in HostedCluster imageContentSources. */
+      source?: string;
+      /** @description Type specifies the mirror type, currently only "digest" is supported. */
+      type?: string;
+    };
     /** @description ImageOverrides holds the lists of available images per cloud provider. */
     ImageOverrides: {
       /** @description Indicates the type of this object. Will be 'ImageOverrides' if this is a complete object or 'ImageOverridesLink' if it is just a link. */
@@ -15316,6 +15898,11 @@ export interface components {
       /** @description List of k8s objects to deploy on a hosted cluster. */
       workloads?: Record<string, never>[];
     };
+    /**
+     * @description Market type for AWS Capacity Reservations.
+     * @enum {string}
+     */
+    MarketType: MarketType;
     /**
      * @description Type of Namespace Ownership Policy.
      * @enum {string}
@@ -16046,12 +16633,15 @@ export interface components {
     TokenIssuer: {
       /** @description Certificate bundle to use to validate server certificates for the configured URL. */
       ca?: string;
-      /** @description URL is the serving URL of the token issuer. */
+      /** @description URL is the serving URL of the token issuer.
+       *     It must be a valid url and use the 'https' scheme.
+       *     This is required. */
       url?: string;
       /** @description Audiences is an array of audiences that the token was issued for.
        *     Valid tokens must include at least one of these values in their
        *     "aud" claim.
-       *     Must be set to exactly one value. */
+       *     Must have at least one audience and a maximum of ten.
+       *     Any clients defined for this external authentication must have their id included here. */
       audiences?: string[];
     };
     /** @description Representation of a trusted ip address in clusterdeployment. */
@@ -16148,7 +16738,9 @@ export interface components {
        *     By default, claims other than `email` will be prefixed with the issuer URL to
        *     prevent naming clashes with other plugins.
        *
-       *     Set to "NoPrefix" to disable prefixing. */
+       *     Set to "NoPrefix" to disable prefixing.
+       *
+       *     If a prefix is defined, this will be set to 'Prefix' by default. */
       prefix_policy?: string;
     };
     /** @description Numeric value and the unit used to measure it.
@@ -16307,6 +16899,12 @@ export interface components {
       service_account_names?: string[];
     };
     WifGcp: {
+      /** @description This represents the GCP project ID in which, when specified,
+       *     the wif workload WorkloadIdentityPool resources will be configured. */
+      federated_project_id?: string;
+      /** @description This represents the GCP project number in which, when specified,
+       *     the wif workload WorkloadIdentityPool resources will be configured. */
+      federated_project_number?: string;
       /** @description This is the service account email that OCM will use to access other SAs.  */
       impersonator_email?: string;
       /** @description This represents the GCP project ID in which the wif resources will be configured. */
@@ -16339,9 +16937,14 @@ export interface components {
       /** @description The display name of the workload identity pool. */
       pool_name?: string;
     };
+    WifResourceBinding: {
+      name?: string;
+      type?: string;
+    };
     WifRole: {
       permissions?: string[];
       predefined?: boolean;
+      resource_bindings?: components['schemas']['WifResourceBinding'][];
       role_id?: string;
     };
     WifSecretRef: {
@@ -16393,6 +16996,8 @@ export interface components {
 export type SchemaMetadata = components['schemas']['Metadata'];
 export type SchemaAmiOverride = components['schemas']['AMIOverride'];
 export type SchemaAws = components['schemas']['AWS'];
+export type SchemaAwsBackupConfig = components['schemas']['AWSBackupConfig'];
+export type SchemaAwsCapacityReservation = components['schemas']['AWSCapacityReservation'];
 export type SchemaAwsFlavour = components['schemas']['AWSFlavour'];
 export type SchemaAwsInfrastructureAccessRole =
   components['schemas']['AWSInfrastructureAccessRole'];
@@ -16411,6 +17016,8 @@ export type SchemaAwsstsAccountRole = components['schemas']['AWSSTSAccountRole']
 export type SchemaAwsstsPolicy = components['schemas']['AWSSTSPolicy'];
 export type SchemaAwsstsRole = components['schemas']['AWSSTSRole'];
 export type SchemaCcs = components['schemas']['CCS'];
+export type SchemaCidrBlockAccess = components['schemas']['CIDRBlockAccess'];
+export type SchemaCidrBlockAllowAccess = components['schemas']['CIDRBlockAllowAccess'];
 export type SchemaCpuTotalNodeRoleOsMetricNode =
   components['schemas']['CPUTotalNodeRoleOSMetricNode'];
 export type SchemaCpuTotalsNodeRoleOsMetricNode =
@@ -16459,13 +17066,23 @@ export type SchemaAutoscalerResourceLimits = components['schemas']['AutoscalerRe
 export type SchemaAutoscalerResourceLimitsGpuLimit =
   components['schemas']['AutoscalerResourceLimitsGPULimit'];
 export type SchemaAutoscalerScaleDownConfig = components['schemas']['AutoscalerScaleDownConfig'];
+export type SchemaAwsAutoNode = components['schemas']['AwsAutoNode'];
 export type SchemaAwsEtcdEncryption = components['schemas']['AwsEtcdEncryption'];
 export type SchemaAzure = components['schemas']['Azure'];
 export type SchemaAzureControlPlaneManagedIdentity =
   components['schemas']['AzureControlPlaneManagedIdentity'];
 export type SchemaAzureDataPlaneManagedIdentity =
   components['schemas']['AzureDataPlaneManagedIdentity'];
+export type SchemaAzureEtcdDataEncryption = components['schemas']['AzureEtcdDataEncryption'];
+export type SchemaAzureEtcdDataEncryptionCustomerManaged =
+  components['schemas']['AzureEtcdDataEncryptionCustomerManaged'];
+export type SchemaAzureEtcdEncryption = components['schemas']['AzureEtcdEncryption'];
+export type SchemaAzureKmsEncryption = components['schemas']['AzureKmsEncryption'];
+export type SchemaAzureKmsKey = components['schemas']['AzureKmsKey'];
 export type SchemaAzureNodePool = components['schemas']['AzureNodePool'];
+export type SchemaAzureNodePoolEncryptionAtHost =
+  components['schemas']['AzureNodePoolEncryptionAtHost'];
+export type SchemaAzureNodePoolOsDisk = components['schemas']['AzureNodePoolOsDisk'];
 export type SchemaAzureNodesOutboundConnectivity =
   components['schemas']['AzureNodesOutboundConnectivity'];
 export type SchemaAzureOperatorsAuthentication =
@@ -16474,6 +17091,7 @@ export type SchemaAzureOperatorsAuthenticationManagedIdentities =
   components['schemas']['AzureOperatorsAuthenticationManagedIdentities'];
 export type SchemaAzureServiceManagedIdentity =
   components['schemas']['AzureServiceManagedIdentity'];
+export type SchemaBackup = components['schemas']['Backup'];
 export type SchemaBillingModel = components['schemas']['BillingModel'];
 export type SchemaBillingModelItem = components['schemas']['BillingModelItem'];
 export type SchemaBreakGlassCredential = components['schemas']['BreakGlassCredential'];
@@ -16487,13 +17105,15 @@ export type SchemaCloudRegion = components['schemas']['CloudRegion'];
 export type SchemaCluster = components['schemas']['Cluster'];
 export type SchemaClusterApi = components['schemas']['ClusterAPI'];
 export type SchemaClusterArchitecture = components['schemas']['ClusterArchitecture'];
+export type SchemaClusterAutoNode = components['schemas']['ClusterAutoNode'];
+export type SchemaClusterAutoNodeStatus = components['schemas']['ClusterAutoNodeStatus'];
 export type SchemaClusterAutoscaler = components['schemas']['ClusterAutoscaler'];
-export type SchemaClusterCapabilities = components['schemas']['ClusterCapabilities'];
 export type SchemaClusterConfigurationMode = components['schemas']['ClusterConfigurationMode'];
 export type SchemaClusterConsole = components['schemas']['ClusterConsole'];
 export type SchemaClusterCredentials = components['schemas']['ClusterCredentials'];
 export type SchemaClusterDeployment = components['schemas']['ClusterDeployment'];
 export type SchemaClusterHealthState = components['schemas']['ClusterHealthState'];
+export type SchemaClusterImageRegistry = components['schemas']['ClusterImageRegistry'];
 export type SchemaClusterLink = components['schemas']['ClusterLink'];
 export type SchemaClusterMigration = components['schemas']['ClusterMigration'];
 export type SchemaClusterMigrationState = components['schemas']['ClusterMigrationState'];
@@ -16510,6 +17130,7 @@ export type SchemaClusterState = components['schemas']['ClusterState'];
 export type SchemaClusterStatus = components['schemas']['ClusterStatus'];
 export type SchemaComponentRoute = components['schemas']['ComponentRoute'];
 export type SchemaComponentRouteType = components['schemas']['ComponentRouteType'];
+export type SchemaControlPlane = components['schemas']['ControlPlane'];
 export type SchemaControlPlaneUpgradePolicy = components['schemas']['ControlPlaneUpgradePolicy'];
 export type SchemaCredentialRequest = components['schemas']['CredentialRequest'];
 export type SchemaDeleteProtection = components['schemas']['DeleteProtection'];
@@ -16521,7 +17142,11 @@ export type SchemaEvent = components['schemas']['Event'];
 export type SchemaExternalAuth = components['schemas']['ExternalAuth'];
 export type SchemaExternalAuthClaim = components['schemas']['ExternalAuthClaim'];
 export type SchemaExternalAuthClientConfig = components['schemas']['ExternalAuthClientConfig'];
+export type SchemaExternalAuthClientType = components['schemas']['ExternalAuthClientType'];
 export type SchemaExternalAuthConfig = components['schemas']['ExternalAuthConfig'];
+export type SchemaExternalAuthConfigState = components['schemas']['ExternalAuthConfigState'];
+export type SchemaExternalAuthState = components['schemas']['ExternalAuthState'];
+export type SchemaExternalAuthStatus = components['schemas']['ExternalAuthStatus'];
 export type SchemaExternalConfiguration = components['schemas']['ExternalConfiguration'];
 export type SchemaFlavour = components['schemas']['Flavour'];
 export type SchemaFlavourNodes = components['schemas']['FlavourNodes'];
@@ -16539,6 +17164,7 @@ export type SchemaIdentityProvider = components['schemas']['IdentityProvider'];
 export type SchemaIdentityProviderMappingMethod =
   components['schemas']['IdentityProviderMappingMethod'];
 export type SchemaIdentityProviderType = components['schemas']['IdentityProviderType'];
+export type SchemaImageMirror = components['schemas']['ImageMirror'];
 export type SchemaImageOverrides = components['schemas']['ImageOverrides'];
 export type SchemaInflightCheck = components['schemas']['InflightCheck'];
 export type SchemaInflightCheckState = components['schemas']['InflightCheckState'];
@@ -16564,6 +17190,7 @@ export type SchemaMachineTypeCategory = components['schemas']['MachineTypeCatego
 export type SchemaMachineTypeSize = components['schemas']['MachineTypeSize'];
 export type SchemaManagedService = components['schemas']['ManagedService'];
 export type SchemaManifest = components['schemas']['Manifest'];
+export type SchemaMarketType = components['schemas']['MarketType'];
 export type SchemaNamespaceOwnershipPolicy = components['schemas']['NamespaceOwnershipPolicy'];
 export type SchemaNetwork = components['schemas']['Network'];
 export type SchemaNetworkVerification = components['schemas']['NetworkVerification'];
@@ -16644,6 +17271,7 @@ export type SchemaWifCredentialRequest = components['schemas']['WifCredentialReq
 export type SchemaWifGcp = components['schemas']['WifGcp'];
 export type SchemaWifIdentityProvider = components['schemas']['WifIdentityProvider'];
 export type SchemaWifPool = components['schemas']['WifPool'];
+export type SchemaWifResourceBinding = components['schemas']['WifResourceBinding'];
 export type SchemaWifRole = components['schemas']['WifRole'];
 export type SchemaWifSecretRef = components['schemas']['WifSecretRef'];
 export type SchemaWifServiceAccount = components['schemas']['WifServiceAccount'];
@@ -16732,6 +17360,7 @@ export enum ClusterState {
   resuming = 'resuming',
   uninstalling = 'uninstalling',
   unknown = 'unknown',
+  updating = 'updating',
   validating = 'validating',
   waiting = 'waiting',
 }
@@ -16747,6 +17376,14 @@ export enum DetectionType {
 export enum Ec2MetadataHttpTokens {
   optional = 'optional',
   required = 'required',
+}
+export enum ExternalAuthClientType {
+  confidential = 'confidential',
+  public = 'public',
+}
+export enum ExternalAuthConfigState {
+  disabled = 'disabled',
+  enabled = 'enabled',
 }
 export enum IdentityProviderMappingMethod {
   add = 'add',
@@ -16786,6 +17423,10 @@ export enum MachineTypeSize {
   large = 'large',
   medium = 'medium',
   small = 'small',
+}
+export enum MarketType {
+  CapacityBlocks = 'CapacityBlocks',
+  OnDemand = 'OnDemand',
 }
 export enum NamespaceOwnershipPolicy {
   InterNamespaceAllowed = 'InterNamespaceAllowed',
@@ -16827,6 +17468,7 @@ export enum UpgradeType {
   OSD = 'OSD',
   ADDON = 'ADDON',
   ControlPlane = 'ControlPlane',
+  ControlPlaneCVE = 'ControlPlaneCVE',
   NodePool = 'NodePool',
 }
 export enum WifAccessMethod {

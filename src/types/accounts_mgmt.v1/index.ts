@@ -2394,6 +2394,15 @@ export interface paths {
           };
           content?: never;
         };
+        /** @description Request is invalid */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
         /** @description Auth token is invalid */
         401: {
           headers: {
@@ -13207,6 +13216,7 @@ export interface components {
     };
     FeatureReview: {
       account_username?: string;
+      cluster_id?: string;
       feature: string;
       organization_id?: string;
     };
@@ -14328,6 +14338,9 @@ export enum AccessReviewResource_type {
   ClusterSelfManagedAddon = 'ClusterSelfManagedAddon',
   ClusterSelfManagedLabel = 'ClusterSelfManagedLabel',
   ClusterSelfManagedStatus = 'ClusterSelfManagedStatus',
+  OsdTrialProtectedCluster = 'OsdTrialProtectedCluster',
+  ManifestWorkSync = 'ManifestWorkSync',
+  ClusterForcedUpgrade = 'ClusterForcedUpgrade',
 }
 export enum AccessReviewResponseAction {
   get = 'get',
@@ -14381,6 +14394,9 @@ export enum AccessReviewResponseResource_type {
   ClusterSelfManagedAddon = 'ClusterSelfManagedAddon',
   ClusterSelfManagedLabel = 'ClusterSelfManagedLabel',
   ClusterSelfManagedStatus = 'ClusterSelfManagedStatus',
+  OsdTrialProtectedCluster = 'OsdTrialProtectedCluster',
+  ManifestWorkSync = 'ManifestWorkSync',
+  ClusterForcedUpgrade = 'ClusterForcedUpgrade',
 }
 export enum AccountGroupManaged_by {
   SSO = 'SSO',
@@ -14504,7 +14520,6 @@ export enum NotifyDetailsRequestLog_type {
   Cluster_Access = 'Cluster Access',
   Cluster_Scaling = 'Cluster Scaling',
   Capacity_Management = 'Capacity Management',
-  Capacity_management = 'Capacity management',
   Cluster_Configuration = 'Cluster Configuration',
   Cluster_Security = 'Cluster Security',
   Cluster_Add_ons = 'Cluster Add-ons',
@@ -14670,6 +14685,9 @@ export enum SelfAccessReviewResource_type {
   Idp = 'Idp',
   ClusterAutoscaler = 'ClusterAutoscaler',
   MachinePool = 'MachinePool',
+  OsdTrialProtectedCluster = 'OsdTrialProtectedCluster',
+  ManifestWorkSync = 'ManifestWorkSync',
+  ClusterForcedUpgrade = 'ClusterForcedUpgrade',
 }
 export enum SelfResourceReviewAction {
   get = 'get',
