@@ -29,7 +29,8 @@ const AvailabilityZoneSelection = ({
     if (prevVpc.current !== newVpcId && input.value) {
       input.onChange('');
     }
-  }, [input, newVpcId, prevVpc]);
+    prevVpc.current = newVpcId;
+  }, [input, newVpcId]);
 
   const onToggle = (isOpen) => {
     setIsOpen(isOpen);
@@ -112,7 +113,7 @@ AvailabilityZoneSelection.propTypes = {
   }),
   meta: PropTypes.shape({
     touched: PropTypes.bool,
-    error: PropTypes.string,
+    error: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   }),
 };
 
