@@ -207,7 +207,7 @@ describe(
     });
 
     it(`Step - Click on the ROSA ${clusterDetails.ClusterName} Add user button for httpasswd IDP created in the above steps`, () => {
-      ClusterIdentityProviderDetails.addUserButton().click();
+      ClusterIdentityProviderDetails.editModalAddUserButton().click();
       ClusterIdentityProviderDetails.inputHtpasswdUserNameField()
         .clear()
         .type(selectIdpDefinitions.Definitions.AddNewUserName);

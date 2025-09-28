@@ -1,9 +1,15 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Alert, AlertVariant, Button, ButtonVariant } from '@patternfly/react-core';
+import {
+  Alert,
+  AlertVariant,
+  Button,
+  ButtonVariant,
+  Timestamp,
+  TimestampFormat,
+} from '@patternfly/react-core';
 import { OutlinedArrowAltCircleUpIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-arrow-alt-circle-up-icon';
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import Modal from '~/components/common/Modal/Modal';
 import { modalActions } from '~/components/common/Modal/ModalActions';
@@ -96,12 +102,20 @@ export const UpdatePoolButton = ({
     const schedule = machinePool.upgradePolicies?.items?.[0];
 
     if (schedule?.next_run && schedule?.version) {
+      const currentDate = new Date(schedule.next_run);
       return (
         <PopoverHint
           iconClassName="pf-v6-u-ml-sm"
           hint={
             <>
-              {scheduledMessage} at <DateFormat type="exact" date={Date.parse(schedule.next_run)} />{' '}
+              {scheduledMessage} at{' '}
+              <Timestamp
+                date={currentDate}
+                shouldDisplayUTC
+                dateFormat={TimestampFormat.medium}
+                timeFormat={TimestampFormat.medium}
+                locale="en-GB"
+              />{' '}
               to version {schedule.version}
             </>
           }

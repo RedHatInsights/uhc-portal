@@ -357,6 +357,17 @@ describe('isMinimumCountWithoutTaints ', () => {
       ).toBeFalsy();
     });
 
+    it('returns true if less than 2 nodes without taints - include current machine pool', () => {
+      expect(
+        isMinimumCountWithoutTaints({
+          cluster,
+          machinePools,
+          currentMachinePoolId: 'mp-no-taints',
+          includeCurrentMachinePool: true,
+        }),
+      ).toBeTruthy();
+    });
+
     it('returns false if less than 2 autoscaled nodes without taints - no scaling', () => {
       expect(
         isMinimumCountWithoutTaints({
