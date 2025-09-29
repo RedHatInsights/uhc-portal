@@ -21,6 +21,7 @@ module.exports = {
   appEntry: path.resolve(__dirname, 'src/bootstrap.ts'),
   chromePort: process.env.FEC_CHROME_PORT ?? undefined,
   hotReload: process.env.HOT === 'true',
+  stripAllPfStyles: process.env.NODE_ENV !== 'production',
   debug: true,
   devtool: process.env.NODE_ENV !== 'production' ? 'cheap-module-source-map' : 'source-map',
   useProxy: process.env.MODE !== 'prod',
