@@ -362,6 +362,12 @@ const ReviewClusterScreen = ({
             canSelectImds(clusterVersionRawId) &&
             ReviewItem(FieldId.IMDS)}
           {workerVolumeSizeGib && ReviewItem(FieldId.WorkerVolumeSizeGib)}
+          {installToVPCSelected &&
+            isHypershiftSelected &&
+            hasSecurityGroups &&
+            ReviewItem(FieldId.SecurityGroups, {
+              [FieldId.SelectedVpc]: selectedVpc,
+            })}
         </ReviewSection>
         <ReviewSection
           title={getStepName('NETWORKING')}
@@ -384,6 +390,7 @@ const ReviewClusterScreen = ({
               [FieldId.UsePrivateLink]: usePrivateLink,
             })}
           {installToVPCSelected &&
+            !isHypershiftSelected &&
             hasSecurityGroups &&
             ReviewItem(FieldId.SecurityGroups, {
               [FieldId.SelectedVpc]: selectedVpc,
