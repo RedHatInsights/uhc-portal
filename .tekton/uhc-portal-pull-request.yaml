@@ -24,7 +24,7 @@ spec:
     value:
     - YARN_BUILD_SCRIPT=build:prod:monitored
   - name: build-container-additional-secret
-    value: 'sentry-auth'
+    value: 'glitchtip.token'
   - name: git-url
     value: '{{source_url}}'
   - name: revision
