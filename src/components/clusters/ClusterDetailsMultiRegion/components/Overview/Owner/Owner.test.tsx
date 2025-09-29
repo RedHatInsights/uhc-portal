@@ -4,7 +4,7 @@ import {
   ALLOW_EUS_CHANNEL,
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
 } from '~/queries/featureGates/featureConstants';
-import { mockUseFeatureGate, screen, withState } from '~/testUtils';
+import { mockUseFeatureGate, screen, waitFor, withState } from '~/testUtils';
 
 import fixtures from '../../../__tests__/ClusterDetails.fixtures';
 
@@ -54,6 +54,9 @@ describe('Owner Component', () => {
     withState(initialState).render(<Owner />);
     expect(await screen.findByText('N/A')).toBeInTheDocument();
     expect(screen.queryByText(/Transfer ownership/i)).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /Transfer ownership/i })).not.toBeInTheDocument();
+    });
   });
   it('Returns static owner value when HCP ROSA', async () => {
     mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
@@ -86,7 +89,9 @@ describe('Owner Component', () => {
 
     withState(initialState).render(<Owner />);
     expect(await screen.findByText(testOwner)).toBeInTheDocument();
-    expect(screen.queryByText(/Transfer ownership/i)).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /Transfer ownership/i })).not.toBeInTheDocument();
+    });
   });
 
   it('Returns static owner value when OSD', async () => {
@@ -120,12 +125,16 @@ describe('Owner Component', () => {
 
     withState(initialState).render(<Owner />);
     expect(await screen.findByText(testOwner)).toBeInTheDocument();
-    expect(screen.queryByText(/Transfer ownership/i)).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /Transfer ownership/i })).not.toBeInTheDocument();
+    });
   });
 
-  // reworking this with UXD - test is currently invalid
   it('Returns modal link to transfer owner', async () => {
-    mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+    mockUseFeatureGate([
+      [ALLOW_EUS_CHANNEL, true],
+      [AUTO_CLUSTER_TRANSFER_OWNERSHIP, true],
+    ]);
     const useParamsMock = jest.requireMock('react-router-dom').useParams;
     useParamsMock.mockReturnValue({ id: '1msoogsgTLQ4PePjrTOt3UqvMzX' });
 
