@@ -24,7 +24,7 @@ spec:
     value:
     - YARN_BUILD_SCRIPT=build:prod:monitored
   - name: build-container-additional-secret
-    value: 'glitchtip.token'
+    value: 'glitchtip'
   - name: git-url
     value: '{{source_url}}'
   - name: revision
