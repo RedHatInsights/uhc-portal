@@ -327,26 +327,15 @@ class ClusterDetails extends Page {
   }
 
   checkInstallationStepStatus(step, status = '') {
-    // Enhanced installation step status check for PatternFly v6 compatibility
-    cy.get('body').then(($body) => {
-      const bodyText = $body.text();
-
-      if ($body.find('div').length > 0) {
-        // Original PatternFly v6 structure
-        let installStep = cy.get('div', { timeout: 80000 }).contains(step);
-        if (status == '') {
-          installStep.should('be.visible');
-        } else {
-          installStep.siblings().find('div').contains(status);
-        }
-      } else if ($body.find('').length > 0) {
-        // Alternative PatternFly v6 structure
-        cy.get('').contains(step).should('be.visible');
-      } else if (bodyText.includes(step)) {
-        // Fallback: just verify step name exists in page
-      } else {
-      }
-    });
+    // Enhanced installation step status check without specific PF class dependencies
+    let installStep = cy.contains('div', step, { timeout: 80000 }).filter('[id$="-title"]');
+    if (status == '') {
+      installStep.should('be.visible');
+    } else {
+      installStep.parent().within(() => {
+        cy.contains('div', status).should('be.visible');
+      });
+    }
   }
 
   waitForInstallerScreenToLoad = () => {
