@@ -12,6 +12,7 @@ import {
   GET_USER_ROLE,
   LIST_ASSOCIATED_AWS_IDS,
   LIST_USER_OIDC_CONFIGURATIONS,
+  SET_OCM_ROLE_STATUS,
   SET_OFFLINE_TOKEN,
 } from '../../components/clusters/wizards/rosa/rosaConstants';
 import { accountsService, clusterService } from '../../services';
@@ -140,6 +141,11 @@ export const getOCMRole = (awsAccountID) => (dispatch) => {
     payload: accountsService.getOCMRole(awsAccountID).then((response) => response?.data),
   });
 };
+
+export const setOCMRoleStatus = (OCMRoleStatus) => ({
+  type: SET_OCM_ROLE_STATUS,
+  payload: OCMRoleStatus,
+});
 
 const fetchUserRolesByOCMAccountID = async () => {
   const ocmAccount = await accountsService.getCurrentAccount();
