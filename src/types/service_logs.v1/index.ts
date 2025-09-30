@@ -940,7 +940,6 @@ export enum ClusterLogLog_type {
   Cluster_Access = 'Cluster Access',
   Cluster_Scaling = 'Cluster Scaling',
   Capacity_Management = 'Capacity Management',
-  Capacity_management = 'Capacity management',
   Cluster_Configuration = 'Cluster Configuration',
   Cluster_Security = 'Cluster Security',
   Cluster_Add_ons = 'Cluster Add-ons',
