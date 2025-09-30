@@ -13,6 +13,7 @@ import {
   ModalVariant,
   Spinner,
   StackItem,
+  Title,
 } from '@patternfly/react-core';
 
 import EditButton from '~/components/common/EditButton';
@@ -20,6 +21,8 @@ import ErrorBox from '~/components/common/ErrorBox';
 import { useMutateChannelGroup } from '~/queries/ChannelGroupEditQueries/useMutateChannelGroup';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import { Cluster } from '~/types/clusters_mgmt.v1';
+
+import { formatChannelGroupName } from '../../../clusterDetailsHelper';
 
 import { ChannelGroupSelect } from './ChannelGroupSelect';
 import { useGetChannelGroupsData } from './useGetChannelGroupsData';
@@ -83,7 +86,9 @@ const ChannelGroupEditModal = ({
           aria-labelledby="edit-channel-group-modal"
           aria-describedby="modal-box-edit-channel-group"
         >
-          <ModalHeader>Edit channel group</ModalHeader>
+          <ModalHeader>
+            <Title headingLevel="h1">Edit channel group</Title>
+          </ModalHeader>
           <ModalBody>
             {isError && (
               <StackItem>
@@ -147,7 +152,7 @@ export const ChannelGroupEdit = ({ clusterID, channelGroup, cluster }: ChannelGr
       <DescriptionListGroup>
         <DescriptionListTerm>Channel group</DescriptionListTerm>
         <DescriptionListDescription>
-          {channelGroup ? channelGroup.charAt(0).toUpperCase() + channelGroup.slice(1) : 'N/A'}
+          {formatChannelGroupName(channelGroup)}
           {!isLoading ? (
             <EditButton
               data-testid="channelGroupModal"

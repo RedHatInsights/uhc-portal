@@ -152,7 +152,7 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData })
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
-      {useEusChannel && isHypershift && (
+      {useEusChannel && (
         <ChannelGroupEdit
           clusterID={clusterID}
           channelGroup={cluster.version.channel_group}

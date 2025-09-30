@@ -33,7 +33,7 @@ export const useGetChannelGroupsData = (cluster: Cluster, canEdit: boolean) => {
     const availableChannelGroups = filteredClusterVersions?.map((el: any) => el.channel_group);
     const buildChannelGroupDropdownOptions = availableChannelGroups?.map((el: string) => ({
       value: el,
-      label: el.charAt(0).toUpperCase() + el.slice(1),
+      label: el === 'eus' ? el.toUpperCase() : el.charAt(0).toUpperCase() + el.slice(1),
     }));
     return buildChannelGroupDropdownOptions;
   };
