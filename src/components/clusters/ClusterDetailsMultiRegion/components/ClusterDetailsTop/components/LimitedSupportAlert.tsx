@@ -21,19 +21,27 @@ type LimitedSupportAlertProps = {
   }[];
   isROSA?: boolean;
   isOSD?: boolean;
+  setHasLimitedSupportAlert?: (isTrue: boolean) => void;
 };
 
 const LimitedSupportAlert = ({
   limitedSupportReasons,
   isROSA,
   isOSD,
+  setHasLimitedSupportAlert,
 }: LimitedSupportAlertProps) => {
   const legitReasons = React.useMemo(
     () => limitedSupportReasons?.filter((r) => !r.override?.enabled) || [],
     [limitedSupportReasons],
   );
 
-  return !legitReasons.length ? null : (
+  const hasLegitReasons = legitReasons.length > 0;
+
+  if (hasLegitReasons && setHasLimitedSupportAlert) {
+    setHasLimitedSupportAlert(true);
+  }
+
+  return !hasLegitReasons ? null : (
     <Alert
       id="limited-support-alert"
       variant="danger"

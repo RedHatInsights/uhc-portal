@@ -65,6 +65,7 @@ const CreateClusterDropDown = ({ toggleId, isDisabled }: CreateClusterDropDownPr
           onSelect={onSelect}
           onOpenChange={(isOpen) => setIsDropDownOpen(isOpen)}
           popperProps={{ appendTo: () => document.body }}
+          className="openshift"
           toggle={{
             toggleRef: menuToggleRef,
             toggleNode: (

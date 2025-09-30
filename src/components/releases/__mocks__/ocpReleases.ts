@@ -676,6 +676,8 @@ const ocpReleases: { data: Graph } = {
       [12, 18],
       [28, 21],
     ],
+    version: 1,
+    conditionalEdges: [],
   },
 };
 
