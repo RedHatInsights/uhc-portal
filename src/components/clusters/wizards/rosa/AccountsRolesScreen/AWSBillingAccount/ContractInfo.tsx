@@ -5,8 +5,9 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Timestamp,
+  TimestampFormat,
 } from '@patternfly/react-core';
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import { BillingContract, getDimensionValue } from './awsBillingAccountHelper';
 
@@ -16,7 +17,11 @@ const ContractInfo = ({ contract }: { contract: BillingContract }) => (
       <DescriptionListTerm>Start date:</DescriptionListTerm>
       <DescriptionListDescription>
         {contract.start_date ? (
-          <DateFormat type="onlyDate" date={new Date(contract.start_date)} />
+          <Timestamp
+            date={new Date(contract.start_date)}
+            locale="en-GB"
+            dateFormat={TimestampFormat.medium}
+          />
         ) : (
           'N/A'
         )}
@@ -26,7 +31,11 @@ const ContractInfo = ({ contract }: { contract: BillingContract }) => (
       <DescriptionListTerm>End date:</DescriptionListTerm>
       <DescriptionListDescription>
         {contract.end_date ? (
-          <DateFormat type="onlyDate" date={new Date(contract.end_date)} />
+          <Timestamp
+            date={new Date(contract.end_date)}
+            locale="en-GB"
+            dateFormat={TimestampFormat.medium}
+          />
         ) : (
           'N/A'
         )}
