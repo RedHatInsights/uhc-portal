@@ -12,9 +12,10 @@ import {
   SelectOption,
   Split,
   SplitItem,
+  Timestamp,
+  TimestampFormat,
   Title,
 } from '@patternfly/react-core';
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import './UpgradeWizard.scss';
 
@@ -219,7 +220,13 @@ const UpgradeTimeSelection = ({
             <dl className="cluster-upgrade-dl">
               <dt>UTC </dt>
               <dd>
-                <DateFormat type="exact" date={new Date(timestamp)} />
+                <Timestamp
+                  date={new Date(timestamp)}
+                  shouldDisplayUTC
+                  locale="eng-GB"
+                  dateFormat={TimestampFormat.medium}
+                  timeFormat={TimestampFormat.short}
+                />
               </dd>
             </dl>
           </>
