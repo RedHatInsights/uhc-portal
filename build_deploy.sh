@@ -34,7 +34,7 @@ export APP_ROOT=$(pwd)
 export WORKSPACE=${WORKSPACE:-$APP_ROOT}
 export NODE_BUILD_VERSION=20
 
-export YARN_BUILD_SCRIPT="build:saas"
+export YARN_BUILD_SCRIPT="build:prod:monitored"
 
 
 COMMON_BUILDER=https://raw.githubusercontent.com/RedHatInsights/insights-frontend-builder-common/master
