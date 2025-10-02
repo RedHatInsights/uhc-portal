@@ -1,5 +1,7 @@
 // This module has .mjs extension to simplify importing from NodeJS scripts.
 
+import { combineAndSortLinks } from './linkUtils.mjs';
+
 const MIRROR_BUTANE_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest';
 const MIRROR_CLIENTS_STABLE_X86 =
   'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/';
@@ -1007,14 +1009,19 @@ const urlsSelector = (githubReleases) => {
   return result;
 };
 
-/** Useful for scripted checking of "all" external links. */
-const getFlatUrls = async () => {
-  const urlSet = new Set([
-    ...Object.values(links),
-    ...Object.values(urls).flatMap(Object.values).flatMap(Object.values).flatMap(Object.values),
-    // TODO: include latest github releases?
-  ]);
-  return [...urlSet].sort();
+/** Returns all installation and binary external links. */
+const getLinks = async () => {
+  const linkUrls = Object.values(links);
+  // nestedUrls: 4-level structure (Tool → Channel → Architecture → OS → URL) for download binaries
+  const nestedUrls = Object.values(urls)
+    .map((level1) =>
+      Object.values(level1).map((level2) =>
+        Object.values(level2).map((level3) => Object.values(level3)),
+      ),
+    )
+    .flat(3);
+
+  return combineAndSortLinks(linkUrls, nestedUrls);
 };
 
 export {
@@ -1027,6 +1034,6 @@ export {
   urls,
   githubReleasesToFetch,
   urlsSelector,
-  getFlatUrls,
+  getLinks,
 };
 export default links;

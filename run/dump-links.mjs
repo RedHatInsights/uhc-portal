@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { getFlatUrls } from '../src/common/installLinks.mjs';
+import { getAllExternalLinks } from '../src/common/urlUtils.mjs';
 
-const flatUrls = await getFlatUrls();
-flatUrls.forEach((url) => console.log(url));
+const allUrls = await getAllExternalLinks();
+allUrls.forEach((url) => console.log(url));

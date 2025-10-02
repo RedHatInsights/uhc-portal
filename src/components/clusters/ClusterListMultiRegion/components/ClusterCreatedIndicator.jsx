@@ -8,6 +8,7 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/ex
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
+import supportLinks from '~/common/supportLinks.mjs';
 import { SubscriptionCommonFieldsSupport_level as SubscriptionCommonFieldsSupportLevel } from '~/types/accounts_mgmt.v1';
 
 import { getTrialEndDate, getTrialExpiresInDays } from '../../../../common/getTrialExpiresDates';
@@ -108,10 +109,7 @@ function ClusterCreatedIndicator({ cluster }) {
           <DateFormat date={subscription.eval_expiration_date} type="onlyDate" />
         </strong>
         .&nbsp;Your cluster is not&nbsp;
-        <ExternalLink
-          href="https://access.redhat.com/support/policy/updates/openshift/policies"
-          noIcon
-        >
+        <ExternalLink href={supportLinks.OPENSHIFT_POLICY_UPDATES} noIcon>
           supported
         </ExternalLink>
         . To get Red Hat support for clusters, learn more about{' '}

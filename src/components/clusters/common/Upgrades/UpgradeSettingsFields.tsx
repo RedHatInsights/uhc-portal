@@ -15,6 +15,7 @@ import {
 } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
+import supportLinks from '~/common/supportLinks.mjs';
 import PodDistruptionBudgetGraceSelect from '~/components/clusters/common/Upgrades/PodDistruptionBudgetGraceSelect';
 import UpgradeScheduleSelection from '~/components/clusters/common/Upgrades/UpgradeScheduleSelection';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -137,7 +138,7 @@ function UpgradeSettingsFields({
       <GridItem>
         <Content component="p">
           Note: In the event of{' '}
-          <ExternalLink href="https://access.redhat.com/security/updates/classification/#critical">
+          <ExternalLink href={supportLinks.SECURITY_CLASSIFICATION_CRITICAL}>
             Critical security concerns
           </ExternalLink>{' '}
           (CVEs) that significantly impact the security or stability of the cluster, updates may be{' '}
