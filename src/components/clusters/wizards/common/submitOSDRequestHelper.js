@@ -49,13 +49,20 @@ const createClusterAwsSubnetIds = ({ formData, isInstallExistingVPC }) => {
   return subnetIds.filter((sn) => !!sn);
 };
 
-const createSecurityGroupsParams = (securityGroups) => {
+const createSecurityGroupsParams = (securityGroups, isHypershift) => {
   if (!securityGroups) {
     return undefined;
   }
+  if (isHypershift) {
+    return securityGroups?.worker?.length > 0
+      ? {
+          additional_compute_security_group_ids: securityGroups.worker,
+        }
+      : undefined;
+  }
   const { applyControlPlaneToAll, controlPlane, infra, worker } = securityGroups;
 
-  if (applyControlPlaneToAll && controlPlane.length > 0) {
+  if (applyControlPlaneToAll && controlPlane?.length > 0) {
     return {
       additional_control_plane_security_group_ids: controlPlane,
       additional_infra_security_group_ids: controlPlane,
@@ -73,6 +80,7 @@ const createSecurityGroupsParams = (securityGroups) => {
   if (securityGroups.worker.length > 0) {
     params.additional_compute_security_group_ids = worker;
   }
+
   return Object.keys(params).length === 0 ? undefined : params;
 };
 
