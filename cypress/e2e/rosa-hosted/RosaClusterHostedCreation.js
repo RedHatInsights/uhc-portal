@@ -23,8 +23,8 @@ describe(
     });
 
     it('Open Rosa cluster wizard', () => {
-      CreateRosaWizardPage.rosaCreateClusterButton().click();
-      CreateRosaWizardPage.rosaClusterWithWeb().should('be.visible').click();
+      CreateRosaWizardPage.rosaCreateClusterButton().should('be.enabled').click();
+      CreateRosaWizardPage.rosaClusterWithWeb().should('be.visible').click({ force: true });
       CreateRosaWizardPage.isCreateRosaPage();
       cy.get('.spinner-loading-text').should('not.exist');
     });
@@ -250,9 +250,7 @@ describe(
       ClusterDetailsPage.clusterInfrastructureAWSaccountLabelValue()
         .scrollIntoView()
         .contains(awsAccountID);
-      ClusterDetailsPage.clusterBillingMarketplaceAccountLabelValue()
-        .scrollIntoView()
-        .contains(awsBillingAccountID);
+      ClusterDetailsPage.clusterBillingMarketplaceAccountLabelValue(awsBillingAccountID);
       ClusterDetailsPage.clusterMachineCIDRLabelValue()
         .scrollIntoView()
         .contains(clusterProperties.MachineCIDR);

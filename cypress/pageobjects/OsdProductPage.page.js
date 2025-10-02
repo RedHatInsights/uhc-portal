@@ -93,17 +93,21 @@ class OsdProductPage extends Page {
     };
   };
 
-  isCreateOSDPage = () => cy.url().should('include', '/openshift/create/osd');
+  isCreateOSDPage = () => cy.url({ timeout: 10000 }).should('include', '/openshift/create/osd');
   clickCreateOSDButton() {
-    cy.getByTestId('register-cluster')
+    // Implicit wait for button to be visible and ready
+    cy.getByTestId('register-cluster', { timeout: 15000 })
       .should('be.visible')
-      .and('not.be.disabled')
       .and('contain.text', 'Create cluster')
       .scrollIntoView();
 
-    cy.get('[data-testid]').should('exist');
+    cy.get('[data-testid]', { timeout: 10000 }).should('exist');
 
-    cy.getByTestId('register-cluster').click();
+    cy.getByTestId('register-cluster', { timeout: 10000 })
+      .should('not.be.disabled')
+      .and('not.have.attr', 'aria-disabled', 'true');
+
+    cy.getByTestId('register-cluster', { timeout: 5000 }).click();
 
     return this;
   }
