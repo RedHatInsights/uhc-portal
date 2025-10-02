@@ -6,8 +6,8 @@ import { useAddNotification } from '@redhat-cloud-services/frontend-components-n
 
 import getClusterName from '~/common/getClusterName';
 import { ocmBaseName } from '~/common/routing';
-import Modal from '~/components/common/Modal/Modal';
 import supportLinks from '~/common/supportLinks.mjs';
+import Modal from '~/components/common/Modal/Modal';
 import { useToggleSubscriptionReleased } from '~/queries/ClusterActionsQueries/useToggleSubscriptionReleased';
 import { useGlobalState } from '~/redux/hooks';
 import { Subscription, SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';

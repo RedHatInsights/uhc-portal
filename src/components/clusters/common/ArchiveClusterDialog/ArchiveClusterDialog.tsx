@@ -3,8 +3,8 @@ import { useDispatch } from 'react-redux';
 
 import { Form } from '@patternfly/react-core';
 
-import Modal from '~/components/common/Modal/Modal';
 import supportLinks from '~/common/supportLinks.mjs';
+import Modal from '~/components/common/Modal/Modal';
 import { useArchiveCluster } from '~/queries/ClusterActionsQueries/useArchiveCluster';
 import { useGlobalState } from '~/redux/hooks';
 
