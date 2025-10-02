@@ -68,7 +68,7 @@ export const BillingModel = () => {
 
   const trialDescription = (
     <p>
-      <ExternalLink href={supportLinks.BILLING_MODEL_KB} noIcon noTarget>
+      <ExternalLink href={supportLinks.BILLING_MODEL_KB} noIcon>
         Try OpenShift Dedicated
       </ExternalLink>{' '}
       for free for 60 days. Upgrade anytime
