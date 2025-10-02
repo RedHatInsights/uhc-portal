@@ -13,37 +13,51 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
 import { useOCPLifeCycleStatusData } from '~/components/releases/hooks';
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+// import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
+// import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
-import { useGlobalState } from '~/redux/hooks';
+// import { useGlobalState } from '~/redux/hooks';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
-import { getVersionsData, hasUnstableVersionsCapability } from './versionSelectHelper';
+import {
+  // channelGroups,
+  GetInstallableVersionsResponse,
+  getVersionsData,
+  // hasUnstableVersionsCapability,
+  // supportStatuses,
+} from './versionSelectHelper';
 
 const sortFn = (a: FuzzyEntryType, b: FuzzyEntryType) => versionComparator(b.label, a.label);
 interface VersionSelectFieldProps {
   label: string;
   name: string;
-  isDisabled?: boolean;
+  getInstallableVersionsResponse: GetInstallableVersionsResponse;
+  channelGroup: string;
   onChange: (version: Version) => void;
+  setAvailableVersions: (version: Version[]) => void;
+  unstableOCPVersionsEnabled: boolean;
+  isDisabled?: boolean;
+  isOSD?: boolean;
 }
 
 export const VersionSelectField = ({
   name,
   label,
+  getInstallableVersionsResponse,
+  channelGroup,
   isDisabled,
+  unstableOCPVersionsEnabled,
   onChange,
+  isOSD,
+  setAvailableVersions,
 }: VersionSelectFieldProps) => {
   const dispatch = useDispatch();
-  const organization = useGlobalState((state) => state.userProfile.organization.details);
-  const unstableOCPVersionsEnabled =
-    useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
+  // const organization = useGlobalState((state) => state.userProfile.organization.details);
+  // const unstableOCPVersionsEnabled =
+  //   useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
   const [input, { touched, error }] = useField(name);
-  const { clusterVersions: getInstallableVersionsResponse } = useGlobalState(
-    (state) => state.clusters,
-  );
+
   const {
     values: {
       [FieldId.ClusterVersion]: selectedClusterVersion,
@@ -133,10 +147,23 @@ export const VersionSelectField = ({
       onChange(selectedVersion);
     }
   };
+
   const versionsData = React.useMemo(
-    () => getVersionsData(versions, unstableOCPVersionsEnabled, supportVersionMap),
-    [supportVersionMap, versions, unstableOCPVersionsEnabled],
+    () =>
+      getVersionsData(versions, unstableOCPVersionsEnabled, supportVersionMap, channelGroup, isOSD),
+    [supportVersionMap, versions, unstableOCPVersionsEnabled, channelGroup, isOSD],
   );
+
+  // useEffect(() => {
+  //   // setAvailableVersions(versionsData as Version[]);
+  //   setAvailableVersions(versions.filter((version) => version.channel_group === channelGroup));
+
+  //   // setAllVersions(versions as Version[]); ???? or move const [versions, setVersions] = useState<Version[]>([]); up to Details.tsx
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [channelGroup]);
+
+  // console.log('versionsData', versionsData);
+  // console.log('versions', versions);
 
   return (
     <FormGroup {...input} label={label} fieldId={name} isRequired>
