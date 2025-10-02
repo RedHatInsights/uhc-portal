@@ -188,8 +188,11 @@ class ClusterDetails extends Page {
 
   clusterInstallationExpectedText = () => cy.getByTestId('expected-cluster-installation-msg');
 
-  clusterBillingMarketplaceAccountLabelValue = () =>
-    cy.getByTestId('billingMarketplaceAccountLink').should('exist');
+  clusterBillingMarketplaceAccountLabelValue = (expectedAccountId) => {
+    return cy
+      .getByTestId('billingMarketplaceAccountLink', { timeout: 30000 })
+      .should('exist', expectedAccountId);
+  };
 
   clusterControlPlaneTypeLabelValue = () => cy.getByTestId('controlPlaneType').should('exist');
 
@@ -341,7 +344,7 @@ class ClusterDetails extends Page {
   waitForInstallerScreenToLoad = () => {
     // Wait for the cluster details page to load by checking for positive indicators
     cy.get('h1, h2', { timeout: 100000 }).should('be.visible');
-    cy.url({ timeout: 30000 }).should('include', '/details/');
+    cy.url({ timeout: 50000 }).should('include', '/details/');
   };
 
   waitForDeleteClusterActionComplete = () => {

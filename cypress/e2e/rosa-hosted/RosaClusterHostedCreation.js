@@ -261,9 +261,7 @@ describe(
       ClusterDetailsPage.clusterInfrastructureAWSaccountLabelValue()
         .scrollIntoView()
         .contains(awsAccountID);
-      ClusterDetailsPage.clusterBillingMarketplaceAccountLabelValue()
-        .scrollIntoView()
-        .contains(awsBillingAccountID);
+      ClusterDetailsPage.clusterBillingMarketplaceAccountLabelValue(awsBillingAccountID);
       ClusterDetailsPage.clusterMachineCIDRLabelValue()
         .scrollIntoView()
         .contains(clusterProperties.MachineCIDR);

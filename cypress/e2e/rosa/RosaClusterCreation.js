@@ -93,7 +93,7 @@ describe(
       CreateRosaWizardPage.createModeManualRadio().should('not.be.checked');
       CreateRosaWizardPage.selectRoleProviderMode('Manual');
       CreateRosaWizardPage.selectRoleProviderMode('Auto');
-      CreateRosaWizardPage.customOperatorPrefixInput().should('be.visible');
+      CreateRosaWizardPage.customOperatorPrefixInput().scrollIntoView().should('be.visible');
       CreateRosaWizardPage.customOperatorPrefixInput()
         .invoke('val')
         .should('include', clusterName.slice(0, 27));
