@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Field } from 'formik';
+import { useDispatch } from 'react-redux';
 
 import {
   Alert,
@@ -30,6 +31,7 @@ import {
   refetchGetOCMRole,
   useFetchGetOCMRole,
 } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { setOCMRoleStatus } from '~/redux/actions/rosaActions';
 
 import links from '../../../../../common/installLinks.mjs';
 import { required } from '../../../../../common/validators';
@@ -65,6 +67,9 @@ const ClusterRolesScreen = () => {
       [FieldId.RegionalInstance]: regionalInstance,
     },
   } = useFormState();
+
+  const dispatch = useDispatch();
+
   const isHypershift = hypershiftValue === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershift;
 
@@ -131,6 +136,18 @@ const ClusterRolesScreen = () => {
       getOCMRoleData.data?.isAdmin ? roleModes.AUTO : roleModes.MANUAL,
     );
   }
+
+  useEffect(() => {
+    const OCMRoleStatus = {
+      pending: isGetOCMRolePending,
+      fulfilled: isGetOCMRoleSuccess,
+      error: getOCMRoleError,
+      data: getOCMRoleData,
+    };
+
+    dispatch(setOCMRoleStatus(OCMRoleStatus));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGetOCMRolePending, isGetOCMRoleSuccess, getOCMRoleError, getOCMRoleData]);
 
   useEffect(() => {
     if (isGetOCMRolePending) {
