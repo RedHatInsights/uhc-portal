@@ -1,75 +1,69 @@
 import React from 'react';
 import { FieldInputProps } from 'formik';
 
-import {
-  FormSelect,
-  FormSelectOption,
-  // Spinner
-} from '@patternfly/react-core';
+import { FormSelect, FormSelectOption, Spinner } from '@patternfly/react-core';
 
 import { useFormState } from '~/components/clusters/wizards/hooks';
-// import ErrorBox from '~/components/common/ErrorBox';
-// import { GlobalState } from '~/redux/stateTypes';
+import ErrorBox from '~/components/common/ErrorBox';
+
+import { GetInstallableVersionsResponse } from './versionSelectHelper';
 
 interface ChannelGroupSelectFieldProps {
   field: FieldInputProps<string>;
+  getInstallableVersionsResponse: GetInstallableVersionsResponse;
   isDisabled?: boolean;
-  handleCloudRegionChange?(): void;
+  handleChannelGroupChange?(): void;
 }
 export const ChannelGroupSelectField = ({
   field,
+  getInstallableVersionsResponse,
   isDisabled,
-  handleCloudRegionChange,
+  handleChannelGroupChange,
 }: ChannelGroupSelectFieldProps) => {
   const { setFieldValue } = useFormState();
-  // React.useEffect(() => {
-  //   const selectedRegionData = regions.find((r) => r.id === field.value);
-  //   if (!selectedRegionData || selectedRegionData.disableReason) {
-  //     const resetRegion = defaultRegionID(regions, cloudProviderID);
-  //     if (resetRegion) {
-  //       setFieldValue(field.name, resetRegion);
-  //       handleCloudRegionChange?.();
-  //     }
-  //   }
-  // }, [regions, cloudProviderID, field.value, field.name, setFieldValue, handleCloudRegionChange]);
-  // if (cloudProviders.fulfilled) {
-  return (
-    <FormSelect
-      name={field.name}
-      // className="cloud-region-combo-box"
-      aria-label="Channel group"
-      isDisabled={isDisabled}
-      value={field.value}
-      onChange={(_event, value) => {
-        setFieldValue(field.name, value);
-        handleCloudRegionChange?.();
-      }}
-    >
-      {/* {regions
-          // Never hide current selection.  If current region is invalid we'll
-          // normally force a different selection — but that affects next render.
-          .filter((region) => !region.hide || region.id === field.value)
-          .map((region) => (
-            <FormSelectOption
-              key={region.id}
-              value={region.id}
-              label={`${region.id}, ${region.display_name}`}
-              isDisabled={!!region.disableReason}
-            />
-          ))} */}
-      <FormSelectOption key="key1" value="stable" label="Stable" />
-      <FormSelectOption key="key2" value="eus" label="EUS" />
-    </FormSelect>
+
+  const channelGroups = [
+    ...new Set(getInstallableVersionsResponse?.versions?.map((version) => version.channel_group)),
+  ];
+
+  const capitalizeChannelGroup = (channelGroup: string) => {
+    if (channelGroup === 'eus') {
+      return channelGroup.toUpperCase();
+    }
+    return channelGroup.charAt(0).toUpperCase() + channelGroup.slice(1);
+  };
+
+  if (getInstallableVersionsResponse.fulfilled) {
+    return (
+      <FormSelect
+        name={field.name}
+        aria-label="Channel group"
+        isDisabled={isDisabled}
+        value={field.value}
+        onChange={(_event, value) => {
+          setFieldValue(field.name, value);
+          handleChannelGroupChange?.();
+        }}
+      >
+        {channelGroups.map((channelGroup: any) => (
+          <FormSelectOption
+            key={channelGroup}
+            value={channelGroup}
+            label={capitalizeChannelGroup(channelGroup)}
+          />
+        ))}
+      </FormSelect>
+    );
+  }
+
+  return getInstallableVersionsResponse.error ? (
+    <ErrorBox message="Error getting channel groups" response={getInstallableVersionsResponse} />
+  ) : (
+    <>
+      <div className="spinner-fit-container">
+        <Spinner size="lg" aria-label="Loading..." />
+      </div>
+      <div className="spinner-loading-text">Loading...</div>
+    </>
   );
-  // }
-  // return cloudProviders.error ? (
-  //   <ErrorBox message="Error loading region list" response={cloudProviders} />
-  // ) : (
-  //   <>
-  //     <div className="spinner-fit-container">
-  //       <Spinner size="lg" aria-label="Loading..." />
-  //     </div>
-  //     <div className="spinner-loading-text">Loading region list...</div>
-  //   </>
-  // );
 };

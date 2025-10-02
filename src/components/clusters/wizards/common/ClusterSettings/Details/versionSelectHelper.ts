@@ -10,6 +10,7 @@ export const channelGroups = {
   CANDIDATE: 'candidate',
   FAST: 'fast',
   NIGHTLY: 'nightly',
+  EUS: 'eus',
 };
 
 const supportStatuses = {
@@ -24,10 +25,26 @@ type SupportMap = {
   [version: string]: SupportStatus;
 };
 
+type GetInstallableVersionsResponse = {
+  error: boolean;
+  fulfilled: boolean;
+  pending: boolean;
+  valid: boolean;
+  versions: Version[];
+  meta: {
+    includeUnstableVersions: boolean;
+    isMarketplaceGcp: boolean;
+    isWIF: boolean;
+  };
+  errorMessage: string;
+};
+
 const getVersionsData = (
   versions: Version[],
   unstableVersionsIncluded: boolean,
   supportVersionMap?: SupportMap,
+  channelGroupSelected?: string,
+  isOSD?: boolean,
 ) => {
   const fullSupport: FuzzyEntryType[] = [];
   const maintenanceSupport: FuzzyEntryType[] = [];
@@ -35,6 +52,7 @@ const getVersionsData = (
   const candidate: FuzzyEntryType[] = [];
   const nightly: FuzzyEntryType[] = [];
   const fast: FuzzyEntryType[] = [];
+  const eus: FuzzyEntryType[] = [];
 
   versions.forEach((version: Version) => {
     const { raw_id: versionRawId, id: versionId, channel_group: channelGroup } = version;
@@ -56,6 +74,7 @@ const getVersionsData = (
           entryId: versionId,
           label: versionRawId,
           groupKey: hasFullSupport ? supportStatuses.FULL : supportStatuses.MAINTENANCE,
+          raw_id: versionRawId,
         };
 
         if (hasFullSupport) {
@@ -71,6 +90,7 @@ const getVersionsData = (
           entryId: versionId,
           label: `${versionRawId} (${channelGroup})`,
           groupKey: channelGroup,
+          raw_id: versionRawId,
         };
 
         switch (channelGroup) {
@@ -82,6 +102,9 @@ const getVersionsData = (
             break;
           case channelGroups.FAST:
             fast.push(versionEntry);
+            break;
+          case channelGroups.EUS:
+            eus.push(versionEntry);
             break;
           default:
             break;
@@ -95,6 +118,35 @@ const getVersionsData = (
     'Maintenance support': maintenanceSupport,
   };
 
+  // const allVersions = {
+  //   ...stableVersions,
+  //   Candidate: candidate,
+  //   Nightly: nightly,
+  //   Fast: fast,
+  //   EUS: eus,
+  // };
+
+  // if(channelGroupSelected === 'candidate')
+  // {return}
+  if (isOSD && unstableVersionsIncluded) {
+    switch (channelGroupSelected) {
+      case channelGroups.CANDIDATE:
+        return candidate;
+
+      case channelGroups.NIGHTLY:
+        return nightly;
+
+      case channelGroups.FAST:
+        return fast;
+
+      case channelGroups.EUS:
+        return eus;
+
+      default:
+        return stableVersions;
+    }
+  }
+
   return unstableVersionsIncluded
     ? {
         ...stableVersions,
@@ -103,6 +155,16 @@ const getVersionsData = (
         Fast: fast,
       }
     : stableVersions;
+
+  // return unstableVersionsIncluded
+  //   ? {
+  //       ...stableVersions,
+  //       Candidate: candidate,
+  //       Nightly: nightly,
+  //       Fast: fast,
+  //       EUS: eus,
+  //     }
+  //   : stableVersions;
 };
 
 const hasUnstableVersionsCapability = (organization?: Organization) =>
@@ -120,4 +182,5 @@ export {
   supportStatuses,
   hasUnstableVersionsCapability,
   getVersionNameWithChannel,
+  GetInstallableVersionsResponse,
 };
