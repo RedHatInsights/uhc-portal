@@ -6,11 +6,81 @@ import { Flex, FlexItem, FormGroup, FormSelectProps } from '@patternfly/react-co
 import { isSubnetMatchingPrivacy } from '~/common/vpcHelpers';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
-import { FuzzyDataType, FuzzyEntryType } from '~/components/common/FuzzySelect/types';
+import { FuzzyDataType } from '~/components/common/FuzzySelect/types';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { CloudVpc, Subnetwork } from '~/types/clusters_mgmt.v1';
 
 const TRUNCATE_THRESHOLD = 40;
+
+const filterSubnetsByPrivacyAndAZ = (
+  selectedVPC: CloudVpc,
+  privacy?: 'public' | 'private',
+  allowedAZs?: string[],
+): Subnetwork[] => {
+  const allFilteredSubnets: Subnetwork[] = [];
+  selectedVPC.aws_subnets?.forEach((subnet) => {
+    const subnetAZ = subnet.availability_zone || '';
+    if (
+      isSubnetMatchingPrivacy(subnet, privacy) &&
+      (allowedAZs === undefined || allowedAZs.includes(subnetAZ))
+    ) {
+      allFilteredSubnets.push(subnet);
+    }
+
+    if (isRestrictedEnv()) {
+      allFilteredSubnets.push(subnet);
+    }
+  });
+  return allFilteredSubnets;
+};
+
+const divideSubnetsUsedOrUnused = (
+  subnets: Subnetwork[],
+  usedSubnetIds: string[],
+): { unusedSubnets: Subnetwork[]; usedSubnets: Subnetwork[] } => {
+  const unusedSubnets: Subnetwork[] = [];
+  const usedSubnets: Subnetwork[] = [];
+
+  subnets.forEach((subnet) => {
+    if (usedSubnetIds.includes(subnet.subnet_id as string)) {
+      usedSubnets.push(subnet);
+    } else {
+      unusedSubnets.push(subnet);
+    }
+  });
+
+  return { unusedSubnets, usedSubnets };
+};
+
+const subnetsByAvailabilityZone = (subnets: Subnetwork[]): FuzzyDataType => {
+  if (subnets.length === 0) {
+    return {};
+  }
+
+  const subnetsByAZ: Record<string, Subnetwork[]> = {};
+
+  subnets.forEach((subnet) => {
+    const subnetAZ = subnet.availability_zone || '';
+    if (!subnetsByAZ[subnetAZ]) {
+      subnetsByAZ[subnetAZ] = [];
+    }
+    subnetsByAZ[subnetAZ].push(subnet);
+  });
+
+  const result: FuzzyDataType = {};
+
+  Object.entries(subnetsByAZ)
+    .sort(([azA], [azB]) => azA.localeCompare(azB))
+    .forEach(([az, azSubnets]) => {
+      result[az] = azSubnets.map((subnet) => ({
+        groupId: az,
+        entryId: subnet.subnet_id as string,
+        label: subnet.name || (subnet.subnet_id as string),
+      }));
+    });
+
+  return result;
+};
 
 // TODO: This should be cleaned up, but it mimics what was used
 // when this component was used for both Redux forms and Formik
@@ -36,6 +106,7 @@ export interface SubnetSelectFieldProps {
   selectedVPC: CloudVpc;
   withAutoSelect?: boolean;
   allowedAZs?: string[];
+  usedSubnetIds?: string[];
 }
 
 export const SubnetSelectField = ({
@@ -49,52 +120,41 @@ export const SubnetSelectField = ({
   withAutoSelect = true,
   selectedVPC,
   allowedAZs,
+  usedSubnetIds = [],
 }: SubnetSelectFieldProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showUsedSubnets, setShowUsedSubnets] = useState(false);
 
   const selectedSubnetId = input.value as string;
   const inputError = meta.touched && (meta.error || (isRequired && !selectedSubnetId));
 
-  const { subnetsByAZ, subnetList, hasOptions } = useMemo<{
+  const { subnetsByAZ, subnetList, hasOptions, hasUsedSubnets, hasUnusedOptions } = useMemo<{
     subnetsByAZ: FuzzyDataType;
     subnetList: Subnetwork[];
     hasOptions: boolean;
+    hasUsedSubnets: boolean;
+    hasUnusedOptions: boolean;
   }>(() => {
-    const subnetList: Subnetwork[] = [];
-    const subnetsByAZ: FuzzyDataType = {};
-    selectedVPC.aws_subnets?.forEach((subnet) => {
-      const subnetAZ = subnet.availability_zone || '';
-      const subnetId = subnet.subnet_id as string;
-      const entry: FuzzyEntryType = {
-        groupId: subnetAZ,
-        entryId: subnetId,
-        label: subnet.name || subnetId,
-      };
+    const allFilteredSubnets = filterSubnetsByPrivacyAndAZ(selectedVPC, privacy, allowedAZs);
+    const { unusedSubnets, usedSubnets } = divideSubnetsUsedOrUnused(
+      allFilteredSubnets,
+      usedSubnetIds,
+    );
 
-      if (
-        isSubnetMatchingPrivacy(subnet, privacy) &&
-        (allowedAZs === undefined || allowedAZs.includes(subnetAZ))
-      ) {
-        if (subnetsByAZ[subnetAZ]) {
-          subnetsByAZ[subnetAZ].push(entry);
-        } else {
-          subnetsByAZ[subnetAZ] = [entry];
-        }
-        subnetList.push(subnet);
-      }
+    const orderedSubnetList = [...unusedSubnets, ...usedSubnets];
+    const subnetsByAZ = subnetsByAvailabilityZone(unusedSubnets);
 
-      if (isRestrictedEnv()) {
-        if (subnetsByAZ[subnetAZ]) {
-          subnetsByAZ[subnetAZ].push(entry);
-        } else {
-          subnetsByAZ[subnetAZ] = [entry];
-        }
-        subnetList.push(subnet);
-      }
-    });
-    const hasOptions = subnetList.length > 0;
-    return { subnetsByAZ, subnetList, hasOptions };
-  }, [selectedVPC, allowedAZs, privacy]);
+    const hasOptions = orderedSubnetList.length > 0;
+    const hasUsedSubnets = usedSubnets.length > 0;
+    const hasUnusedOptions = unusedSubnets.length > 0;
+    return {
+      subnetsByAZ,
+      subnetList: orderedSubnetList,
+      hasOptions,
+      hasUsedSubnets,
+      hasUnusedOptions,
+    };
+  }, [selectedVPC, allowedAZs, privacy, usedSubnetIds]);
 
   useEffect(() => {
     const isValidCurrentSelection = subnetList.some(
@@ -103,9 +163,13 @@ export const SubnetSelectField = ({
 
     let newSelectedSubnetId = null;
     if (withAutoSelect) {
-      // When "autoSelect" is enabled, we will set the first subnet as the selected one
-      if (!isValidCurrentSelection && hasOptions) {
-        newSelectedSubnetId = subnetList[0].subnet_id;
+      // When "autoSelect" is enabled, we will set the first UNUSED subnet as the selected one
+      // Only auto-select if there are unused subnets available
+      if (!isValidCurrentSelection && hasUnusedOptions) {
+        const unusedSubnets = subnetList.filter(
+          (subnet) => !usedSubnetIds.includes(subnet.subnet_id as string),
+        );
+        newSelectedSubnetId = unusedSubnets[0].subnet_id;
       }
     } else if (!isValidCurrentSelection) {
       // When "autoSelect" is disabled, we only need to update the selection when the current one is now invalid.
@@ -117,7 +181,7 @@ export const SubnetSelectField = ({
       input.onChange(newSelectedSubnetId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [withAutoSelect, hasOptions, subnetList, selectedSubnetId]);
+  }, [withAutoSelect, hasUnusedOptions, subnetList, selectedSubnetId, usedSubnetIds]);
 
   const onSelect: NonNullable<FuzzySelectProps['onSelect']> = useCallback(
     (_event, selectedSubnetId) => {
@@ -126,6 +190,10 @@ export const SubnetSelectField = ({
     },
     [input],
   );
+
+  const toggleUsedSubnets = useCallback(() => {
+    setShowUsedSubnets((prev) => !prev);
+  }, []);
 
   let placeholderText = `Select ${privacy} subnet`;
   if (selectedVPC?.id && !hasOptions && (allowedAZs === undefined || allowedAZs.length > 0)) {
@@ -156,6 +224,13 @@ export const SubnetSelectField = ({
             validated={inputError ? 'danger' : undefined}
             isPopover
             toggleId={name || input.name}
+            showUsedSubnets={showUsedSubnets}
+            onToggleUsedSubnets={toggleUsedSubnets}
+            hasUsedSubnets={hasUsedSubnets}
+            usedSubnetIds={usedSubnetIds}
+            allSubnets={selectedVPC.aws_subnets}
+            privacy={privacy}
+            allowedAZs={allowedAZs}
           />
         </FlexItem>
       </Flex>
