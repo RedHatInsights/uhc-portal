@@ -35,10 +35,11 @@ interface VersionSelectFieldProps {
   getInstallableVersionsResponse: GetInstallableVersionsResponse;
   channelGroup: string;
   onChange: (version: Version) => void;
-  setAvailableVersions: (version: Version[]) => void;
   unstableOCPVersionsEnabled: boolean;
+  key?: string;
   isDisabled?: boolean;
-  isOSD?: boolean;
+  isEUSChannelEnabled?: boolean;
+  isPending?: boolean;
 }
 
 export const VersionSelectField = ({
@@ -49,13 +50,11 @@ export const VersionSelectField = ({
   isDisabled,
   unstableOCPVersionsEnabled,
   onChange,
-  isOSD,
-  setAvailableVersions,
+  key,
+  isEUSChannelEnabled,
+  isPending,
 }: VersionSelectFieldProps) => {
   const dispatch = useDispatch();
-  // const organization = useGlobalState((state) => state.userProfile.organization.details);
-  // const unstableOCPVersionsEnabled =
-  //   useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
   const [input, { touched, error }] = useField(name);
 
   const {
@@ -150,23 +149,18 @@ export const VersionSelectField = ({
 
   const versionsData = React.useMemo(
     () =>
-      getVersionsData(versions, unstableOCPVersionsEnabled, supportVersionMap, channelGroup, isOSD),
-    [supportVersionMap, versions, unstableOCPVersionsEnabled, channelGroup, isOSD],
+      getVersionsData(
+        versions,
+        unstableOCPVersionsEnabled,
+        supportVersionMap,
+        channelGroup,
+        isEUSChannelEnabled,
+      ),
+    [supportVersionMap, versions, unstableOCPVersionsEnabled, channelGroup, isEUSChannelEnabled],
   );
 
-  // useEffect(() => {
-  //   // setAvailableVersions(versionsData as Version[]);
-  //   setAvailableVersions(versions.filter((version) => version.channel_group === channelGroup));
-
-  //   // setAllVersions(versions as Version[]); ???? or move const [versions, setVersions] = useState<Version[]>([]); up to Details.tsx
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [channelGroup]);
-
-  // console.log('versionsData', versionsData);
-  // console.log('versions', versions);
-
   return (
-    <FormGroup {...input} label={label} fieldId={name} isRequired>
+    <FormGroup {...input} label={label} fieldId={name} key={key} isRequired>
       {getInstallableVersionsResponse.error && (
         <ErrorBox
           message="Error getting cluster versions"
