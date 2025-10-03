@@ -74,7 +74,6 @@ const getVersionsData = (
           entryId: versionId,
           label: versionRawId,
           groupKey: hasFullSupport ? supportStatuses.FULL : supportStatuses.MAINTENANCE,
-          raw_id: versionRawId,
         };
 
         if (hasFullSupport) {
@@ -90,7 +89,6 @@ const getVersionsData = (
           entryId: versionId,
           label: `${versionRawId} (${channelGroup})`,
           groupKey: channelGroup,
-          raw_id: versionRawId,
         };
 
         switch (channelGroup) {
