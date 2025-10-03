@@ -4,20 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { Content, ExpandableSection, Form, Grid, GridItem, Title } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { required } from '~/common/validators';
-import { getMinNodesRequired } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
-import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
-import NodeCountInput from '~/components/clusters/common/NodeCountInput';
 import { getNodesCount } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import MachineTypeSelection from '~/components/clusters/common/ScaleSection-deprecated/MachineTypeSelection';
 import { CloudProviderType, FieldId } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
-import ExternalLink from '~/components/common/ExternalLink';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
-import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import {
   clearMachineTypesByRegion,
   getMachineTypes,
@@ -29,6 +22,7 @@ import { AWSCredentials } from '~/types/types';
 import { getAwsCcsCredentials } from '../../utils/ccsCredentials';
 
 import { AutoScale } from './AutoScale/AutoScale';
+import ComputeNodeCount from './ComputeNodeCount/ComputeNodeCount';
 import { ImdsSectionField } from './ImdsSectionField/ImdsSectionField';
 import { NodeLabelsFieldArray } from './NodeLabelsFieldArray';
 
@@ -39,14 +33,12 @@ export const MachinePool = () => {
       [FieldId.BillingModel]: billingModel,
       [FieldId.Product]: product,
       [FieldId.CloudProvider]: cloudProvider,
-      [FieldId.MachineType]: machineType,
       [FieldId.AutoscalingEnabled]: autoscalingEnabled,
       [FieldId.MultiAz]: multiAz,
       [FieldId.Byoc]: byoc,
       [FieldId.NodesCompute]: nodesCompute,
       [FieldId.NodeLabels]: nodeLabels,
       [FieldId.Region]: region,
-      [FieldId.ClusterVersion]: version,
     },
     values,
     errors,
@@ -55,7 +47,6 @@ export const MachinePool = () => {
     getFieldMeta,
     setFieldTouched,
   } = useFormState();
-  const allow249Nodes = useFeatureGate(MAX_NODES_TOTAL_249);
   const isMultiAz = multiAz === 'true';
   const isByoc = byoc === 'true';
   const isRosa = product === normalizedProducts.ROSA;
@@ -225,47 +216,10 @@ export const MachinePool = () => {
             {autoscalingEnabled && nodeLabelsExpandableSection}
           </>
         )}
-
         {!autoscalingEnabled && (
           <>
             <GridItem md={6}>
-              <Field
-                component={NodeCountInput}
-                name={FieldId.NodesCompute}
-                label={isMultiAz ? 'Compute node count (per zone)' : 'Compute node count'}
-                isMultiAz={isMultiAz}
-                isByoc={isByoc}
-                machineType={machineType}
-                extendedHelpText={
-                  <>
-                    {constants.computeNodeCountHint}{' '}
-                    <ExternalLink
-                      href={
-                        isRosa
-                          ? links.ROSA_SERVICE_DEFINITION_COMPUTE
-                          : links.OSD_SERVICE_DEFINITION_COMPUTE
-                      }
-                    >
-                      Learn more about compute node count
-                    </ExternalLink>
-                  </>
-                }
-                cloudProviderID={cloudProvider}
-                product={product}
-                isMachinePool={false}
-                billingModel={billingModel}
-                input={{
-                  ...getFieldProps(FieldId.NodesCompute),
-                  onChange: (value: string) => setFieldValue(FieldId.NodesCompute, value),
-                }}
-                minNodes={getMinNodesRequired(
-                  false,
-                  {},
-                  { isDefaultMachinePool: true, isByoc, isMultiAz },
-                )}
-                clusterVersion={version?.raw_id}
-                allow249NodesOSDCCSROSA={allow249Nodes}
-              />
+              <ComputeNodeCount />
             </GridItem>
             {imdsSection}
             {nodeLabelsExpandableSection}
