@@ -68,7 +68,12 @@ function ClusterListFilterChipGroup({ archive }) {
                       });
                     };
                     return (
-                      <Label variant="outline" key={key} onClose={deleteItem}>
+                      <Label
+                        variant="outline"
+                        key={key}
+                        onClose={deleteItem}
+                        data-testid="cluster-type-filter-chip"
+                      >
                         {label}
                       </Label>
                     );
