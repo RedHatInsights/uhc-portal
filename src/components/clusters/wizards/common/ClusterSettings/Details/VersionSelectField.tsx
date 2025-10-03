@@ -13,20 +13,11 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
 import { useOCPLifeCycleStatusData } from '~/components/releases/hooks';
-// import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
-// import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
-// import { useGlobalState } from '~/redux/hooks';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
-import {
-  // channelGroups,
-  GetInstallableVersionsResponse,
-  getVersionsData,
-  // hasUnstableVersionsCapability,
-  // supportStatuses,
-} from './versionSelectHelper';
+import { GetInstallableVersionsResponse, getVersionsData } from './versionSelectHelper';
 
 const sortFn = (a: FuzzyEntryType, b: FuzzyEntryType) => versionComparator(b.label, a.label);
 interface VersionSelectFieldProps {
@@ -52,7 +43,6 @@ export const VersionSelectField = ({
   onChange,
   key,
   isEUSChannelEnabled,
-  isPending,
 }: VersionSelectFieldProps) => {
   const dispatch = useDispatch();
   const [input, { touched, error }] = useField(name);

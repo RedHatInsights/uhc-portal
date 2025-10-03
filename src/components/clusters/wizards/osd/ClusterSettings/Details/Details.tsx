@@ -254,7 +254,7 @@ function Details() {
       const foundVersion =
         availableVersions.length > 0
           ? availableVersions?.find(
-              (version: any) =>
+              (version: Version) =>
                 parseVersion(version?.raw_id) === parseVersion(selectedVersion?.raw_id),
             )
           : null;
