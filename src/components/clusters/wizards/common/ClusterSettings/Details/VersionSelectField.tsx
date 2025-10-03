@@ -13,11 +13,18 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
 import { useOCPLifeCycleStatusData } from '~/components/releases/hooks';
+import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
+import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
-import { GetInstallableVersionsResponse, getVersionsData } from './versionSelectHelper';
+import {
+  GetInstallableVersionsResponse,
+  getVersionsData,
+  hasUnstableVersionsCapability,
+} from './versionSelectHelper';
 
 const sortFn = (a: FuzzyEntryType, b: FuzzyEntryType) => versionComparator(b.label, a.label);
 interface VersionSelectFieldProps {
@@ -26,7 +33,6 @@ interface VersionSelectFieldProps {
   getInstallableVersionsResponse: GetInstallableVersionsResponse;
   channelGroup: string;
   onChange: (version: Version) => void;
-  unstableOCPVersionsEnabled: boolean;
   key?: string;
   isDisabled?: boolean;
   isEUSChannelEnabled?: boolean;
@@ -39,12 +45,15 @@ export const VersionSelectField = ({
   getInstallableVersionsResponse,
   channelGroup,
   isDisabled,
-  unstableOCPVersionsEnabled,
   onChange,
   key,
   isEUSChannelEnabled,
 }: VersionSelectFieldProps) => {
   const dispatch = useDispatch();
+  const organization = useGlobalState((state) => state.userProfile.organization.details);
+
+  const unstableOCPVersionsEnabled =
+    useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
   const [input, { touched, error }] = useField(name);
 
   const {
