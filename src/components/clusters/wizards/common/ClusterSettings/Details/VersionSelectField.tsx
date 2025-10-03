@@ -16,34 +16,46 @@ import { useOCPLifeCycleStatusData } from '~/components/releases/hooks';
 import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
-import { useGlobalState } from '~/redux/hooks';
+import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
-import { getVersionsData, hasUnstableVersionsCapability } from './versionSelectHelper';
+import {
+  GetInstallableVersionsResponse,
+  getVersionsData,
+  hasUnstableVersionsCapability,
+} from './versionSelectHelper';
 
 const sortFn = (a: FuzzyEntryType, b: FuzzyEntryType) => versionComparator(b.label, a.label);
 interface VersionSelectFieldProps {
   label: string;
   name: string;
-  isDisabled?: boolean;
+  getInstallableVersionsResponse: GetInstallableVersionsResponse;
+  channelGroup: string;
   onChange: (version: Version) => void;
+  key?: string;
+  isDisabled?: boolean;
+  isEUSChannelEnabled?: boolean;
+  isPending?: boolean;
 }
 
 export const VersionSelectField = ({
   name,
   label,
+  getInstallableVersionsResponse,
+  channelGroup,
   isDisabled,
   onChange,
+  key,
+  isEUSChannelEnabled,
 }: VersionSelectFieldProps) => {
   const dispatch = useDispatch();
   const organization = useGlobalState((state) => state.userProfile.organization.details);
+
   const unstableOCPVersionsEnabled =
     useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
   const [input, { touched, error }] = useField(name);
-  const { clusterVersions: getInstallableVersionsResponse } = useGlobalState(
-    (state) => state.clusters,
-  );
+
   const {
     values: {
       [FieldId.ClusterVersion]: selectedClusterVersion,
@@ -133,13 +145,21 @@ export const VersionSelectField = ({
       onChange(selectedVersion);
     }
   };
+
   const versionsData = React.useMemo(
-    () => getVersionsData(versions, unstableOCPVersionsEnabled, supportVersionMap),
-    [supportVersionMap, versions, unstableOCPVersionsEnabled],
+    () =>
+      getVersionsData(
+        versions,
+        unstableOCPVersionsEnabled,
+        supportVersionMap,
+        channelGroup,
+        isEUSChannelEnabled,
+      ),
+    [supportVersionMap, versions, unstableOCPVersionsEnabled, channelGroup, isEUSChannelEnabled],
   );
 
   return (
-    <FormGroup {...input} label={label} fieldId={name} isRequired>
+    <FormGroup {...input} label={label} fieldId={name} key={key} isRequired>
       {getInstallableVersionsResponse.error && (
         <ErrorBox
           message="Error getting cluster versions"
