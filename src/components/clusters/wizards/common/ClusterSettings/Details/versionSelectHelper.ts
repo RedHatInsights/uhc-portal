@@ -44,7 +44,7 @@ const getVersionsData = (
   unstableVersionsIncluded: boolean,
   supportVersionMap?: SupportMap,
   channelGroupSelected?: string,
-  isOSD?: boolean,
+  isEUSChannelEnabled?: boolean,
 ) => {
   const fullSupport: FuzzyEntryType[] = [];
   const maintenanceSupport: FuzzyEntryType[] = [];
@@ -118,17 +118,7 @@ const getVersionsData = (
     'Maintenance support': maintenanceSupport,
   };
 
-  // const allVersions = {
-  //   ...stableVersions,
-  //   Candidate: candidate,
-  //   Nightly: nightly,
-  //   Fast: fast,
-  //   EUS: eus,
-  // };
-
-  // if(channelGroupSelected === 'candidate')
-  // {return}
-  if (isOSD && unstableVersionsIncluded) {
+  if (isEUSChannelEnabled && unstableVersionsIncluded) {
     switch (channelGroupSelected) {
       case channelGroups.CANDIDATE:
         return candidate;
@@ -155,16 +145,6 @@ const getVersionsData = (
         Fast: fast,
       }
     : stableVersions;
-
-  // return unstableVersionsIncluded
-  //   ? {
-  //       ...stableVersions,
-  //       Candidate: candidate,
-  //       Nightly: nightly,
-  //       Fast: fast,
-  //       EUS: eus,
-  //     }
-  //   : stableVersions;
 };
 
 const hasUnstableVersionsCapability = (organization?: Organization) =>

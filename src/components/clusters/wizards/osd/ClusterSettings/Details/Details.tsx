@@ -1,7 +1,4 @@
-import React, {
-  useCallback,
-  // useMemo
-} from 'react';
+import React, { useCallback } from 'react';
 import { Field } from 'formik';
 import { useDispatch } from 'react-redux';
 import semver from 'semver';
@@ -65,7 +62,10 @@ import { FieldId, MIN_SECURE_BOOT_VERSION } from '~/components/clusters/wizards/
 import { CheckboxDescription } from '~/components/common/CheckboxDescription';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
+import {
+  ALLOW_EUS_CHANNEL,
+  UNSTABLE_CLUSTER_VERSIONS,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { getCloudProviders } from '~/redux/actions/cloudProviderActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
@@ -106,14 +106,15 @@ function Details() {
   } = useFormState();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [showSecureBootAlert, setShowSecureBootAlert] = React.useState(false);
+
   const { clusterVersions: getInstallableVersionsResponse } = useGlobalState(
     (state) => state.clusters,
   );
   const organization = useGlobalState((state) => state.userProfile.organization.details);
-  const [availableVersions, setAvailableVersions] = React.useState<Version[]>([]);
 
   const unstableOCPVersionsEnabled =
     useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
+  const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
 
   const isByoc = byoc === 'true';
   const isMultiAz = multiAz === 'true';
@@ -242,89 +243,30 @@ function Details() {
     }
   };
 
-  console.log('selectedVersion', selectedVersion);
-
-  // React.useEffect(() => {
-  //   const parseVersion = (version: string | undefined) => semver.valid(semver.coerce(version));
-  //   const foundVersion =
-  //     availableVersions.length > 0
-  //       ? availableVersions?.find(
-  //           (version) => parseVersion(version.raw_id) === parseVersion(selectedVersion.raw_id),
-  //         )
-  //       : null;
-
-  //   console.log('foundVersion', foundVersion);
-
-  //   if (foundVersion) {
-  //     setFieldValue(FieldId.ClusterVersion, foundVersion);
-  //   } else {
-  //     setFieldValue(FieldId.ClusterVersion, availableVersions[0]);
-  //   }
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [channelGroup]);
-
   React.useEffect(() => {
-    setAvailableVersions(
-      getInstallableVersionsResponse.versions.filter(
-        (version: Version) => version.channel_group === channelGroup,
-      ),
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelGroup]);
-
-  // setAvailableVersions(
-  //   getInstallableVersionsResponse.versions.filter(
-  //     (version: Version) => version.channel_group === channelGroup,
-  //   ),
-  // );
-
-  const handleChannelGroupChange = useCallback(
-    () => {
+    if (isEUSChannelEnabled) {
       const parseVersion = (version: string | undefined) => semver.valid(semver.coerce(version));
-      console.log('availableVersions', availableVersions);
+
+      const availableVersions = getInstallableVersionsResponse.versions.filter(
+        (version: Version) => version.channel_group === channelGroup,
+      );
+
       const foundVersion =
         availableVersions.length > 0
           ? availableVersions?.find(
-              (version) => parseVersion(version?.raw_id) === parseVersion(selectedVersion?.raw_id),
+              (version: any) =>
+                parseVersion(version?.raw_id) === parseVersion(selectedVersion?.raw_id),
             )
           : null;
-
-      console.log('foundVersion', foundVersion);
 
       if (foundVersion) {
         setFieldValue(FieldId.ClusterVersion, foundVersion);
       } else {
         setFieldValue(FieldId.ClusterVersion, availableVersions[0]);
       }
-    },
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [channelGroup],
-  );
-
-  // const handleChannelGroupChange = () => {
-  //   console.log('channelGroup handleChannelGroup', channelGroup);
-  //   setAvailableVersions(
-  //     getInstallableVersionsResponse.versions.filter(
-  //       (version: Version) => version.channel_group === channelGroup,
-  //     ),
-  //   );
-  //   const parseVersion = (version: string | undefined) => semver.valid(semver.coerce(version));
-  //   const foundVersion =
-  //     availableVersions.length > 0
-  //       ? availableVersions?.find(
-  //           (version) => parseVersion(version.raw_id) === parseVersion(selectedVersion.raw_id),
-  //         )
-  //       : null;
-
-  //   console.log('foundVersion', foundVersion);
-
-  //   if (foundVersion) {
-  //     setFieldValue(FieldId.ClusterVersion, foundVersion);
-  //   } else {
-  //     setFieldValue(FieldId.ClusterVersion, availableVersions[0]);
-  //   }
-  // };
+  }, [channelGroup]);
 
   const availabilityZoneOptions: RadioGroupOption[] = [
     {
@@ -393,9 +335,6 @@ function Details() {
     </div>
   );
 
-  // console.log('selectedVersion', selectedVersion);
-  // console.log('availableVersions Details.tsx', availableVersions);
-
   return (
     <Form>
       <Grid hasGutter md={6}>
@@ -443,14 +382,13 @@ function Details() {
             </GridItem>
           )}
 
-          {unstableOCPVersionsEnabled ? (
+          {isEUSChannelEnabled ? (
             <GridItem>
               <FormGroup label="Channel group" isRequired fieldId={FieldId.ChannelGroup}>
                 <Field
                   component={ChannelGroupSelectField}
                   name={FieldId.ChannelGroup}
                   getInstallableVersionsResponse={getInstallableVersionsResponse}
-                  handleChannelGroupChange={handleChannelGroupChange}
                 />
               </FormGroup>
             </GridItem>
@@ -468,8 +406,8 @@ function Details() {
               }
               onChange={handleVersionChange}
               unstableOCPVersionsEnabled={unstableOCPVersionsEnabled}
-              isOSD
-              setAvailableVersions={setAvailableVersions}
+              key={selectedVersion?.id}
+              isEUSChannelEnabled={isEUSChannelEnabled}
             />
           </GridItem>
 

@@ -12,13 +12,11 @@ interface ChannelGroupSelectFieldProps {
   field: FieldInputProps<string>;
   getInstallableVersionsResponse: GetInstallableVersionsResponse;
   isDisabled?: boolean;
-  handleChannelGroupChange?(): void;
 }
 export const ChannelGroupSelectField = ({
   field,
   getInstallableVersionsResponse,
   isDisabled,
-  handleChannelGroupChange,
 }: ChannelGroupSelectFieldProps) => {
   const { setFieldValue } = useFormState();
 
@@ -42,7 +40,6 @@ export const ChannelGroupSelectField = ({
         value={field.value}
         onChange={(_event, value) => {
           setFieldValue(field.name, value);
-          handleChannelGroupChange?.();
         }}
       >
         {channelGroups.map((channelGroup: any) => (
