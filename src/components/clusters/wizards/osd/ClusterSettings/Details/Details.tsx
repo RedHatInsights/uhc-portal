@@ -62,10 +62,7 @@ import { FieldId, MIN_SECURE_BOOT_VERSION } from '~/components/clusters/wizards/
 import { CheckboxDescription } from '~/components/common/CheckboxDescription';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import {
-  ALLOW_EUS_CHANNEL,
-  UNSTABLE_CLUSTER_VERSIONS,
-} from '~/queries/featureGates/featureConstants';
+import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { getCloudProviders } from '~/redux/actions/cloudProviderActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
@@ -76,7 +73,6 @@ import {
 import { Version } from '~/types/clusters_mgmt.v1';
 
 import { ChannelGroupSelectField } from '../../../common/ClusterSettings/Details/ChannelGroupSelectField';
-import { hasUnstableVersionsCapability } from '../../../common/ClusterSettings/Details/versionSelectHelper';
 import { ShieldedVM } from '../../../common/ShieldedVM';
 import { ClusterPrivacyType } from '../../Networking/constants';
 
@@ -110,10 +106,7 @@ function Details() {
   const { clusterVersions: getInstallableVersionsResponse } = useGlobalState(
     (state) => state.clusters,
   );
-  const organization = useGlobalState((state) => state.userProfile.organization.details);
 
-  const unstableOCPVersionsEnabled =
-    useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
 
   const isByoc = byoc === 'true';
@@ -405,7 +398,6 @@ function Details() {
                   : 'Version'
               }
               onChange={handleVersionChange}
-              unstableOCPVersionsEnabled={unstableOCPVersionsEnabled}
               key={selectedVersion?.id}
               isEUSChannelEnabled={isEUSChannelEnabled}
             />
