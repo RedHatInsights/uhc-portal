@@ -46,7 +46,7 @@ describe('<ExpirationAlert />', () => {
       const expirationTimeString = dayjs
         .utc(expirationTimestamp)
         .local()
-        .format('dddd, MMMM Do YYYY, h:mm a');
+        .format('dddd, MMMM D, YYYY [at] h:mm A');
 
       // Act
       render(<ExpirationAlert expirationTimestamp={expirationTimestamp} />);
@@ -121,7 +121,7 @@ describe('<ExpirationAlert />', () => {
         const expirationTimeString = dayjs
           .utc(expirationTimestamp)
           .local()
-          .format('dddd, MMMM Do YYYY, h:mm a');
+          .format('dddd, MMMM D, YYYY [at] h:mm A');
 
         // Act
         render(<ExpirationAlert expirationTimestamp={expirationTimestamp} OSDRHMExpiration />);
