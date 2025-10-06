@@ -8,6 +8,7 @@ import { validateSecurityGroups } from '~/common/validators';
 import { getIncompatibleVersionReason } from '~/common/versionCompatibility';
 import SecurityGroupsEmptyAlert from '~/components/clusters/ClusterDetailsMultiRegion/components/SecurityGroups/SecurityGroupsEmptyAlert';
 import SecurityGroupsNoEditAlert from '~/components/clusters/ClusterDetailsMultiRegion/components/SecurityGroups/SecurityGroupsNoEditAlert';
+import { useAWSVPCInquiry } from '~/components/clusters/common/useVPCInquiry';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { CloudVpc } from '~/types/clusters_mgmt.v1';
 
@@ -27,12 +28,12 @@ export const SecurityGroupsSectionHCP = ({
   const fieldNameSecurityGroups = `${FieldId.SecurityGroups}.worker`;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
-
+  const { refreshVPCs } = useAWSVPCInquiry(false) as { refreshVPCs: () => void };
   const onExpandToggle = () => {
     setIsExpanded(!isExpanded);
   };
 
-  if (!selectedVPC.id) {
+  if (!selectedVPC?.id) {
     return null;
   }
 
@@ -43,7 +44,7 @@ export const SecurityGroupsSectionHCP = ({
   );
 
   const showEmptyAlert =
-    !incompatibleReason && (selectedVPC.aws_security_groups || []).length === 0;
+    !incompatibleReason && (selectedVPC?.aws_security_groups || []).length === 0;
 
   return (
     <ExpandableSection
@@ -53,7 +54,7 @@ export const SecurityGroupsSectionHCP = ({
       onToggle={onExpandToggle}
     >
       {incompatibleReason && <div>{incompatibleReason}</div>}
-      {showEmptyAlert && <SecurityGroupsEmptyAlert />}
+      {showEmptyAlert && <SecurityGroupsEmptyAlert refreshVPCCallback={refreshVPCs} />}
       {!incompatibleReason && !showEmptyAlert && (
         <>
           <SecurityGroupsNoEditAlert isHypershift={isHypershiftSelected} />

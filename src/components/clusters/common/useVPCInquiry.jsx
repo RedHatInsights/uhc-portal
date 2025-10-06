@@ -91,5 +91,16 @@ export const useAWSVPCInquiry = (isOSD) => {
     // Adding "credentials" will trigger more than 1 request when the component first receives its data
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cloudProviderID, region, hasLatestVpcs]);
-  return { vpcs, requestParams };
+  const refreshVPCs = () => {
+    if (requestParams.cloudProviderID === 'aws') {
+      dispatch(
+        getAWSCloudProviderVPCs({
+          region,
+          awsCredentials: credentials,
+          options: { includeSecurityGroups: true },
+        }),
+      );
+    }
+  };
+  return { vpcs, requestParams, refreshVPCs };
 };
