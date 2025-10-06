@@ -66,7 +66,7 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
                 // timeFormat={TimestampFormat.long}
                 is12Hour={false}
                 locale="en-CA"
-                shouldDisplayUTC
+                // shouldDisplayUTC
                 tooltip={{
                   variant: TimestampTooltipVariant.custom,
                   tooltipProps: {
@@ -81,7 +81,7 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
                         // timeFormat={TimestampFormat.long}
                         is12Hour={false}
                         locale="en-CA"
-                        shouldDisplayUTC
+                        // shouldDisplayUTC
                       />
                     </>
                   ),
@@ -106,7 +106,7 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
                 dateFormat={TimestampFormat.short}
                 // timeFormat={TimestampFormat.long}
                 is12Hour={false}
-                shouldDisplayUTC
+                // shouldDisplayUTC
                 locale="en-CA"
               >
                 {!accessRequest.deadline_at && 'N/A'}
