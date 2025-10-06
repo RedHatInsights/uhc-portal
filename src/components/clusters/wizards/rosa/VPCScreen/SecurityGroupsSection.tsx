@@ -9,6 +9,7 @@ import { getIncompatibleVersionReason } from '~/common/versionCompatibility';
 import EditSecurityGroups from '~/components/clusters/ClusterDetailsMultiRegion/components/SecurityGroups/EditSecurityGroups';
 import SecurityGroupsEmptyAlert from '~/components/clusters/ClusterDetailsMultiRegion/components/SecurityGroups/SecurityGroupsEmptyAlert';
 import SecurityGroupsNoEditAlert from '~/components/clusters/ClusterDetailsMultiRegion/components/SecurityGroups/SecurityGroupsNoEditAlert';
+import { useAWSVPCInquiry } from '~/components/clusters/common/useVPCInquiry';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import ReduxCheckbox from '~/components/common/ReduxFormComponents_deprecated/ReduxCheckbox';
 import { CloudVpc } from '~/types/clusters_mgmt.v1';
@@ -57,6 +58,7 @@ const SecurityGroupsSection = ({
   const controlPlaneFieldName = `${FieldId.SecurityGroups}.controlPlane`;
   const infraFieldName = `${FieldId.SecurityGroups}.infra`;
   const workerFieldName = `${FieldId.SecurityGroups}.worker`;
+  const { refreshVPCs } = useAWSVPCInquiry(false) as { refreshVPCs: () => void };
 
   const selectedGroups = securityGroups.applyControlPlaneToAll
     ? securityGroups.controlPlane
@@ -87,7 +89,7 @@ const SecurityGroupsSection = ({
       onToggle={onExpandToggle}
     >
       {incompatibleReason && <div>{incompatibleReason}</div>}
-      {showEmptyAlert && <SecurityGroupsEmptyAlert />}
+      {showEmptyAlert && <SecurityGroupsEmptyAlert refreshVPCCallback={refreshVPCs} />}
       {!incompatibleReason && !showEmptyAlert && (
         <>
           <SecurityGroupsNoEditAlert isHypershift={isHypershiftSelected} />
