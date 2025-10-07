@@ -150,7 +150,7 @@ export const MachinePoolsTable = ({
   );
 
   const onClickUpdateAction = React.useCallback(
-    (_, __, machinePool) =>
+    (machinePool) =>
       dispatch(
         openModal(modals.UPDATE_MACHINE_POOL_VERSION, {
           machinePool,
