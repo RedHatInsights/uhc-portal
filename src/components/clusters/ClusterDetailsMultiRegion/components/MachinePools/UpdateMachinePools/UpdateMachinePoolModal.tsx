@@ -205,7 +205,7 @@ export const UpdateMachinePoolModal = ({
     >
       {!pending && !!error ? (
         <Alert
-          title={`Machine pool ${machinePool.id} could not be updated`}
+          title={`Machine pool ${machinePool?.id} could not be updated`}
           variant={AlertVariant.danger}
           isExpandable
           isInline
@@ -216,7 +216,7 @@ export const UpdateMachinePoolModal = ({
         </Alert>
       ) : (
         <p>
-          Update machine pool {machinePool.id} to version{' '}
+          Update machine pool {machinePool?.id} to version{' '}
           {displayControlPlaneVersion(controlPlaneVersion)}?
         </p>
       )}
