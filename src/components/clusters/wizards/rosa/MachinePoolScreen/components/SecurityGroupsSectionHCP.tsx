@@ -74,6 +74,7 @@ export const SecurityGroupsSectionHCP = ({
             }}
             meta={getFieldMeta(fieldNameSecurityGroups)}
             isHypershift={isHypershiftSelected}
+            refreshVPCCallback={refreshVPCs}
           />
         </>
       )}

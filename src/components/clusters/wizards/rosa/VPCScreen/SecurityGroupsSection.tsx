@@ -21,6 +21,7 @@ type SecurityGroupFieldProps = {
   label?: string;
   input: { onChange: (selectedGroupIds: string[]) => void; value: string[] };
   isHypershift: boolean;
+  refreshVPCCallback?: () => void;
 };
 
 export const SecurityGroupField = ({
@@ -28,6 +29,7 @@ export const SecurityGroupField = ({
   label,
   selectedVPC,
   isHypershift,
+  refreshVPCCallback,
 }: SecurityGroupFieldProps) => (
   <EditSecurityGroups
     label={label}
@@ -36,6 +38,7 @@ export const SecurityGroupField = ({
     isReadOnly={false}
     onChange={onChange}
     isHypershift={isHypershift}
+    refreshVPCCallback={refreshVPCCallback}
   />
 );
 
@@ -120,6 +123,7 @@ const SecurityGroupsSection = ({
             }}
             meta={getFieldMeta(controlPlaneFieldName)}
             isHypershift={isHypershiftSelected}
+            refreshVPCCallback={refreshVPCs}
           />
           {!securityGroups.applyControlPlaneToAll && (
             <>
@@ -137,6 +141,7 @@ const SecurityGroupsSection = ({
                 }}
                 meta={getFieldMeta(infraFieldName)}
                 isHypershift={isHypershiftSelected}
+                refreshVPCCallback={refreshVPCs}
               />
               <Field
                 component={SecurityGroupField}
@@ -152,6 +157,7 @@ const SecurityGroupsSection = ({
                 }}
                 meta={getFieldMeta(workerFieldName)}
                 isHypershift={isHypershiftSelected}
+                refreshVPCCallback={refreshVPCs}
               />
             </>
           )}
