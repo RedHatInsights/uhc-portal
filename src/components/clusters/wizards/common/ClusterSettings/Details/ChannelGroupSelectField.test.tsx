@@ -33,7 +33,7 @@ describe('<ChannelGroupSelectField />', () => {
   };
 
   const defaultProps = {
-    field: { name: 'channel-group' } as FieldInputProps<string>,
+    field: { name: 'channel_group' } as FieldInputProps<string>,
     getInstallableVersionsResponse: defaultInstallableVersionsResponse,
   };
 
