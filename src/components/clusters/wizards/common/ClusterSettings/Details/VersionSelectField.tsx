@@ -20,17 +20,12 @@ import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
-import {
-  GetInstallableVersionsResponse,
-  getVersionsData,
-  hasUnstableVersionsCapability,
-} from './versionSelectHelper';
+import { getVersionsData, hasUnstableVersionsCapability } from './versionSelectHelper';
 
 const sortFn = (a: FuzzyEntryType, b: FuzzyEntryType) => versionComparator(b.label, a.label);
 interface VersionSelectFieldProps {
   label: string;
   name: string;
-  getInstallableVersionsResponse: GetInstallableVersionsResponse;
   channelGroup: string;
   onChange: (version: Version) => void;
   key?: string;
@@ -42,7 +37,6 @@ interface VersionSelectFieldProps {
 export const VersionSelectField = ({
   name,
   label,
-  getInstallableVersionsResponse,
   channelGroup,
   isDisabled,
   onChange,
@@ -54,7 +48,11 @@ export const VersionSelectField = ({
 
   const unstableOCPVersionsEnabled =
     useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
+
   const [input, { touched, error }] = useField(name);
+  const { clusterVersions: getInstallableVersionsResponse } = useGlobalState(
+    (state) => state.clusters,
+  );
 
   const {
     values: {

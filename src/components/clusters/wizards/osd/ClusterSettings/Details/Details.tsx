@@ -390,7 +390,6 @@ function Details() {
           <GridItem>
             <VersionSelectField
               name={FieldId.ClusterVersion}
-              getInstallableVersionsResponse={getInstallableVersionsResponse}
               channelGroup={channelGroup}
               label={
                 billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
@@ -398,7 +397,7 @@ function Details() {
                   : 'Version'
               }
               onChange={handleVersionChange}
-              key={selectedVersion?.id}
+              key={channelGroup}
               isEUSChannelEnabled={isEUSChannelEnabled}
             />
           </GridItem>

@@ -116,7 +116,7 @@ const getVersionsData = (
     'Maintenance support': maintenanceSupport,
   };
 
-  if (isEUSChannelEnabled && unstableVersionsIncluded) {
+  if (isEUSChannelEnabled) {
     switch (channelGroupSelected) {
       case channelGroups.CANDIDATE:
         return candidate;
