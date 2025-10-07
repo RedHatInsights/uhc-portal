@@ -74,10 +74,10 @@ describe('hasSelectedSecurityGroups', () => {
       const sgs = {
         applyControlPlaneToAll: false,
         controlPlane: [],
-        worker: ['sg-abc'],
+        worker: [],
         infra: [],
       };
-      expect(hasSelectedSecurityGroups(sgs, true)).toEqual(true);
+      expect(hasSelectedSecurityGroups(sgs, true)).toEqual(false);
     });
   });
 });
