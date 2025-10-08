@@ -261,6 +261,13 @@ function Details() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelGroup]);
 
+  React.useEffect(() => {
+    if (isEUSChannelEnabled) {
+      setFieldValue(FieldId.ClusterVersion, selectedVersion);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const availabilityZoneOptions: RadioGroupOption[] = [
     {
       value: 'false',
