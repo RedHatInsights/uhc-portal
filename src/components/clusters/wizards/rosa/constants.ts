@@ -116,6 +116,7 @@ export const initialValues: (hypershiftDefault?: boolean) => FormikValues = (
   // other fields
   [FieldId.ApplicationIngress]: ApplicationIngressType.Default,
   [FieldId.AutomaticUpgradeSchedule]: '0 0 * * 0',
+  [FieldId.ChannelGroup]: 'stable',
   [FieldId.CidrDefaultValuesToggle]: true,
   [FieldId.ClusterName]: '',
   [FieldId.ClusterPrivacy]: ClusterPrivacyType.External,

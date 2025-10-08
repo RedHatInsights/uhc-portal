@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Field } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
+import semver from 'semver';
 
 import {
   Alert,
@@ -38,6 +39,7 @@ import {
   getNodesCount,
 } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
+import { ChannelGroupSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelGroupSelectField';
 import { ClassicEtcdFipsSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdFipsSection';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
 import { emptyAWSSubnet } from '~/components/clusters/wizards/common/constants';
@@ -51,7 +53,10 @@ import VersionSelection from '~/components/clusters/wizards/rosa/ClusterSettings
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConstants';
+import {
+  ALLOW_EUS_CHANNEL,
+  MULTIREGION_PREVIEW_ENABLED,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { findRegionalInstance } from '~/queries/helpers';
 import { useFetchGetAvailableRegionalInstances } from '~/queries/RosaWizardQueries/useFetchGetAvailableRegionalInstances';
@@ -80,6 +85,8 @@ function Details() {
       [FieldId.HasDomainPrefix]: hasDomainPrefix,
       [FieldId.ClusterName]: clusterName,
       [FieldId.DomainPrefix]: domainPrefix,
+      [FieldId.ChannelGroup]: channelGroup,
+      [FieldId.ClusterVersion]: selectedVersion,
     },
     errors,
     getFieldProps,
@@ -105,6 +112,34 @@ function Details() {
   const isHypershiftSelected = hypershiftValue === 'true';
   const isMultiAz = multiAz === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
+  const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
+
+  const getInstallableVersionsResponse = useGlobalState((state) => state.clusters.clusterVersions);
+
+  React.useEffect(() => {
+    if (isEUSChannelEnabled) {
+      const parseVersion = (version: string | undefined) => semver.valid(semver.coerce(version));
+
+      const availableVersions = getInstallableVersionsResponse.versions.filter(
+        (version: Version) => version.channel_group === channelGroup,
+      );
+
+      const foundVersion =
+        availableVersions.length > 0
+          ? availableVersions?.find(
+              (version: Version) =>
+                parseVersion(version?.raw_id) === parseVersion(selectedVersion?.raw_id),
+            )
+          : null;
+
+      if (foundVersion) {
+        setFieldValue(FieldId.ClusterVersion, foundVersion);
+      } else {
+        setFieldValue(FieldId.ClusterVersion, availableVersions[0]);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channelGroup]);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const onToggle = () => {
@@ -430,8 +465,27 @@ function Details() {
           </>
         )}
 
+        {isEUSChannelEnabled ? (
+          <GridItem md={6}>
+            <FormGroup label="Channel group" isRequired fieldId={FieldId.ChannelGroup}>
+              <Field
+                component={ChannelGroupSelectField}
+                name={FieldId.ChannelGroup}
+                getInstallableVersionsResponse={getInstallableVersionsResponse}
+              />
+            </FormGroup>
+          </GridItem>
+        ) : null}
+        {isEUSChannelEnabled ? <GridItem md={6} /> : null}
+
         <GridItem md={6}>
-          <VersionSelection label="Version" onChange={handleVersionChange} />
+          <VersionSelection
+            label="Version"
+            onChange={handleVersionChange}
+            channelGroup={channelGroup}
+            isEUSChannelEnabled={isEUSChannelEnabled}
+            key={selectedVersion?.id}
+          />
         </GridItem>
         <GridItem md={6} />
 
