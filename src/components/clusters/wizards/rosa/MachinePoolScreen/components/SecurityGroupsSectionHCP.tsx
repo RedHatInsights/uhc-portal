@@ -33,7 +33,7 @@ export const SecurityGroupsSectionHCP = ({
     setIsExpanded(!isExpanded);
   };
 
-  if (!selectedVPC?.id) {
+  if (!selectedVPC?.id || !isHypershiftSelected) {
     return null;
   }
 
