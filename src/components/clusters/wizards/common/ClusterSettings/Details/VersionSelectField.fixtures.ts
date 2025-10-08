@@ -51,8 +51,8 @@ const versionsData: Version[] = [
   },
   {
     kind: 'Version',
-    raw_id: '4.18.1',
-    id: '4.18.1 (eus)',
+    raw_id: '4.18.0',
+    id: '4.18.0 (eus)',
     enabled: true,
     default: false,
     channel_group: 'eus',
@@ -63,8 +63,8 @@ const versionsData: Version[] = [
   },
   {
     kind: 'Version',
-    raw_id: '4.18.1',
-    id: '4.18.1 (fast)',
+    raw_id: '4.17.9',
+    id: '4.17.9 (fast)',
     enabled: true,
     default: false,
     channel_group: 'fast',

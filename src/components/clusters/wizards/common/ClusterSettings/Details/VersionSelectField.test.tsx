@@ -243,7 +243,7 @@ describe('<VersionSelectField />', () => {
     await user.click(options);
     expect(screen.queryByText('4.13.1')).not.toBeInTheDocument();
     expect(screen.queryByText('4.12.13')).not.toBeInTheDocument();
-    expect(screen.queryByText('4.18.3 (fast)')).not.toBeInTheDocument();
-    expect(await screen.findByText('4.18.3 (eus)')).toBeInTheDocument();
+    expect(screen.queryByText('4.17.9 (fast)')).not.toBeInTheDocument();
+    expect(await screen.findByText('4.18.0 (eus)')).toBeInTheDocument();
   });
 });
