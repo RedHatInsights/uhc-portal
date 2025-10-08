@@ -31,6 +31,7 @@ const GetStarted = ({ docURL, pendoID, cloudProviderID, customizations, prerequi
       </StackItem>
       <StackItem>
         <Button
+          data-testid="get-started-button"
           component="a"
           href={docURL}
           rel="noreferrer noopener"
