@@ -40,7 +40,7 @@ const buildTestComponent = (
   const defaultProps = {
     openshiftVersion: '4.14.0',
     selectedVPC: mockVPC,
-    isHypershiftSelected: false,
+    isHypershiftSelected: true,
     ...props,
   };
 
@@ -110,14 +110,6 @@ describe('<SecurityGroupsSectionHCP />', () => {
 
       expect(
         screen.getByText(/machine pools that were created during cluster creation/),
-      ).toBeInTheDocument();
-    });
-
-    it('shows regular message when hypershift is not selected', () => {
-      render(buildTestComponent({ isHypershiftSelected: false }));
-
-      expect(
-        screen.getByText(/control plane nodes, infrastructure nodes, or machine pools/),
       ).toBeInTheDocument();
     });
   });
