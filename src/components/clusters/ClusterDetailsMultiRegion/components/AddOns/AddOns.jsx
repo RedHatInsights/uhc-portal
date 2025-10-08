@@ -24,6 +24,7 @@ import {
   useFetchClusterAddOns,
 } from '~/queries/ClusterDetailsQueries/AddOnsTab/useFetchClusterAddOns';
 import { useUpdateClusterAddOn } from '~/queries/ClusterDetailsQueries/AddOnsTab/useUpdateClusterAddOn';
+import { useFetchOrganizationQuota } from '~/queries/ClusterDetailsQueries/useFetchOrganizationQuota';
 import { useGlobalState } from '~/redux/hooks';
 
 import { getOrganizationAndQuota } from '../../../../../redux/actions/userActions';
@@ -35,7 +36,6 @@ import { availableAddOns } from './AddOnsHelper';
 const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
   const dispatch = useDispatch();
   const organization = useGlobalState((state) => state.userProfile.organization);
-  const quota = useGlobalState((state) => state.userProfile.organization.quotaList);
   const {
     data: addOnsData,
     isError: isFetchAddOnsError,
@@ -69,6 +69,7 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
     isSuccess: isDeleteClusterAddOnSuccess,
     mutate: deleteClusterAddOn,
   } = useDeleteClusterAddOn(region);
+  const { data: quotaData } = useFetchOrganizationQuota(organization.details?.id);
 
   React.useEffect(() => {
     if (!isFetchClusterAddOnsLoading && !isHypershift) {
@@ -114,7 +115,13 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
     );
   }
 
-  const addOnsList = availableAddOns(addOnsData, cluster, clusterAddOnsData, organization, quota);
+  const addOnsList = availableAddOns(
+    addOnsData,
+    cluster,
+    clusterAddOnsData,
+    organization,
+    quotaData?.organizationQuota,
+  );
   const hasAddOns = addOnsList.length > 0;
 
   if (!hasAddOns) {
@@ -154,7 +161,7 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
         clusterAddOns={clusterAddOnsData}
         cluster={cluster}
         organization={organization}
-        quota={quota}
+        quota={quotaData?.organizationQuota}
         addClusterAddOn={addClusterAddOn}
         isAddClusterAddOnError={isAddClusterAddOnError}
         addClusterAddOnError={addClusterAddOnError}
