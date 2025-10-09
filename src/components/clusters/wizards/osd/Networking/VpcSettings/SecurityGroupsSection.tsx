@@ -1,43 +1,21 @@
 import React, { useState } from 'react';
 import { Field } from 'formik';
 
-import { Alert, AlertActionLink, ExpandableSection } from '@patternfly/react-core';
+import { ExpandableSection } from '@patternfly/react-core';
 
 import { SupportedFeature } from '~/common/featureCompatibility';
-import links from '~/common/installLinks.mjs';
 import { validateSecurityGroups } from '~/common/validators';
 import { getIncompatibleVersionReason } from '~/common/versionCompatibility';
-import EditSecurityGroups from '~/components/clusters/ClusterDetailsMultiRegion/components/SecurityGroups/EditSecurityGroups';
 import SecurityGroupsEmptyAlert from '~/components/clusters/ClusterDetailsMultiRegion/components/SecurityGroups/SecurityGroupsEmptyAlert';
+import SecurityGroupsNoEditAlert from '~/components/clusters/ClusterDetailsMultiRegion/components/SecurityGroups/SecurityGroupsNoEditAlert';
+import { useAWSVPCInquiry } from '~/components/clusters/common/useVPCInquiry';
 import { CheckboxField } from '~/components/clusters/wizards/form';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import { CloudVpc } from '~/types/clusters_mgmt.v1';
 
-type SecurityGroupFieldProps = {
-  selectedVPC: CloudVpc;
-  label?: string;
-  input: { onChange: (selectedGroupIds: string[]) => void; value: string[] };
-  isHypershift: boolean;
-};
+import { SecurityGroupField } from '../../../rosa/VPCScreen/SecurityGroupsSection';
 
 const fieldId = 'securityGroups';
-
-const SecurityGroupField = ({
-  input: { onChange, value: selectedGroupIds },
-  label,
-  selectedVPC,
-  isHypershift,
-}: SecurityGroupFieldProps) => (
-  <EditSecurityGroups
-    label={label}
-    selectedVPC={selectedVPC}
-    selectedGroupIds={selectedGroupIds}
-    isReadOnly={false}
-    onChange={onChange}
-    isHypershift={isHypershift}
-  />
-);
 
 const SecurityGroupsSection = () => {
   const {
@@ -56,6 +34,7 @@ const SecurityGroupsSection = () => {
     : securityGroups.controlPlane.concat(securityGroups.infra).concat(securityGroups.worker);
   const [isExpanded, setIsExpanded] = useState<boolean>(selectedGroups.length > 0);
 
+  const { refreshVPCs } = useAWSVPCInquiry(true) as { refreshVPCs: () => void };
   if (!selectedVPC.id) {
     return null;
   }
@@ -80,28 +59,10 @@ const SecurityGroupsSection = () => {
       onToggle={onExpandToggle}
     >
       {incompatibleReason && <div>{incompatibleReason}</div>}
-      {showEmptyAlert && <SecurityGroupsEmptyAlert />}
+      {showEmptyAlert && <SecurityGroupsEmptyAlert refreshVPCCallback={refreshVPCs} />}
       {!incompatibleReason && !showEmptyAlert && (
         <>
-          <Alert
-            variant="info"
-            isInline
-            title="You cannot add or edit security groups associated with the control plane nodes, infrastructure nodes, or machine pools that were created by default during cluster creation."
-            actionLinks={
-              <>
-                <AlertActionLink component="a" href={links.OSD_SECURITY_GROUPS} target="_blank">
-                  View more information
-                </AlertActionLink>
-                <AlertActionLink
-                  component="a"
-                  href={links.AWS_CONSOLE_SECURITY_GROUPS}
-                  target="_blank"
-                >
-                  AWS security groups console
-                </AlertActionLink>
-              </>
-            }
-          />
+          <SecurityGroupsNoEditAlert isHypershift={false} />
           <br />
           <Field
             component={CheckboxField}
@@ -125,6 +86,7 @@ const SecurityGroupsSection = () => {
               ...getFieldProps(`${fieldId}.controlPlane`),
               onChange: setValue(`${fieldId}.controlPlane`),
             }}
+            refreshVPCCallback={refreshVPCs}
           />
           {!applyControlPlaneToAll && (
             <>
@@ -140,6 +102,7 @@ const SecurityGroupsSection = () => {
                   ...getFieldProps(`${fieldId}.infra`),
                   onChange: setValue(`${fieldId}.infra`),
                 }}
+                refreshVPCCallback={refreshVPCs}
               />
               <Field
                 component={SecurityGroupField}
@@ -153,6 +116,7 @@ const SecurityGroupsSection = () => {
                   ...getFieldProps(`${fieldId}.worker`),
                   onChange: setValue(`${fieldId}.worker`),
                 }}
+                refreshVPCCallback={refreshVPCs}
               />
             </>
           )}
