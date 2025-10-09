@@ -153,16 +153,17 @@ export const ChannelGroupEdit = ({ clusterID, channelGroup, cluster }: ChannelGr
         <DescriptionListTerm>Channel group</DescriptionListTerm>
         <DescriptionListDescription>
           {formatChannelGroupName(channelGroup)}
-          {!isLoading ? (
-            <EditButton
-              data-testid="channelGroupModal"
-              ariaLabel="editChannelGroupBtn"
-              onClick={() => setIsModalOpen(true)}
-              disableReason={!canEdit}
-            />
-          ) : (
-            <Spinner size="sm" aria-label="Loading..." />
-          )}
+          {canEdit &&
+            (isLoading ? (
+              <Spinner size="sm" aria-label="Loading..." />
+            ) : (
+              <EditButton
+                data-testid="channelGroupModal"
+                ariaLabel="editChannelGroupBtn"
+                onClick={() => setIsModalOpen(true)}
+                isAriaDisabled={!canEdit || isLoading}
+              />
+            ))}
         </DescriptionListDescription>
       </DescriptionListGroup>
     </>

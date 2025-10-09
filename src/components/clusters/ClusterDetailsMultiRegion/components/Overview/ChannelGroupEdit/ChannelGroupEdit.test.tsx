@@ -120,7 +120,7 @@ describe('<ChannelGroupEdit />', () => {
     expect(screen.getByText('N/A')).toBeInTheDocument();
   });
 
-  it('should render a disabled edit button if cluster is not editable', () => {
+  it('should not render an edit button if cluster is not editable', () => {
     mockUseGetChannelGroupsData.mockReturnValue({
       availableDropdownChannelGroups: mockOptions,
       isLoading: false,
@@ -135,9 +135,8 @@ describe('<ChannelGroupEdit />', () => {
       />,
     );
 
-    const openModalButton = screen.getByTestId('channelGroupModal');
-    expect(openModalButton).toBeInTheDocument();
-    expect(openModalButton).toHaveAttribute('aria-disabled', 'true');
+    const openModalButton = screen.queryByTestId('channelGroupModal');
+    expect(openModalButton).not.toBeInTheDocument();
   });
 
   it('should open the modal when the edit button is clicked', async () => {
