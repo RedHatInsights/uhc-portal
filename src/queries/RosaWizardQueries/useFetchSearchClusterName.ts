@@ -14,11 +14,7 @@ export const refetchSearchClusterName = (search: string, region?: string | undef
   });
 };
 
-export const useFetchSearchClusterName = (
-  search: string,
-  region?: string | undefined,
-  isMultiRegionEnabled?: boolean,
-) => {
+export const useFetchSearchClusterName = (search: string, region?: string | undefined) => {
   const { data, isError, error, isFetching } = useQuery({
     queryKey: [queryConstants.FETCH_SEARCH_CLUSTER_NAME, search, region],
     queryFn: async () => {

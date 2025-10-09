@@ -7,10 +7,7 @@ import { get, indexOf, inRange } from 'lodash';
 import { parseCIDRSubnetLength, Subnet } from '~/common/helpers';
 import { FormSubnet } from '~/components/clusters/wizards/common/FormSubnet';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import { clusterService } from '~/services';
 import type { Gcp, Taint } from '~/types/clusters_mgmt.v1';
-
-import { sqlString } from './queryHelpers';
 
 type Networks = Parameters<typeof overlapCidr>[0];
 
@@ -244,7 +241,6 @@ const checkObjectNameAsyncValidation = (
         return !isExistingRegionalClusterName;
       }
 
-      // For non-multi-region, use the query data directly
       return isExistingRegionalClusterName !== undefined ? !isExistingRegionalClusterName : true;
     },
   },
@@ -264,16 +260,10 @@ const checkObjectNameDomainPrefixAsyncValidation = (
       }
 
       if (isMultiRegionEnabled) {
-        if (isExistingRegionalDomainPrefix) {
-          return false;
-        }
-      } else {
-        const search = `domain_prefix = ${sqlString(value)}`;
-        const { data } = await clusterService.searchClusters(search, 1);
-
-        return !data?.items?.some((cluster) => cluster.domain_prefix === value);
+        return !isExistingRegionalDomainPrefix;
       }
-      return true;
+
+      return isExistingRegionalDomainPrefix !== undefined ? !isExistingRegionalDomainPrefix : true;
     },
   },
 ];

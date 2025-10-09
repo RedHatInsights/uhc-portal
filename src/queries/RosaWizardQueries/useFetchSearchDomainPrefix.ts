@@ -14,11 +14,7 @@ export const refetchSearchDomainPrefix = () => {
   });
 };
 
-export const useFetchSearchDomainPrefix = (
-  search: string,
-  region?: string | undefined,
-  isMultiRegionEnabled?: boolean,
-) => {
+export const useFetchSearchDomainPrefix = (search: string, region?: string | undefined) => {
   const { data, isError, error, isFetching } = useQuery({
     queryKey: [queryConstants.FETCH_SEARCH_DOMAIN_PREFIX],
     queryFn: async () => {
@@ -37,7 +33,7 @@ export const useFetchSearchDomainPrefix = (
       return isExisting;
     },
     retry: false,
-    enabled: isMultiRegionEnabled,
+    enabled: !!search,
   });
   return {
     data,
