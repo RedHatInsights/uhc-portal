@@ -55,14 +55,8 @@ import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConst
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { findRegionalInstance } from '~/queries/helpers';
 import { useFetchGetAvailableRegionalInstances } from '~/queries/RosaWizardQueries/useFetchGetAvailableRegionalInstances';
-import {
-  refetchSearchClusterName,
-  useFetchSearchClusterName,
-} from '~/queries/RosaWizardQueries/useFetchSearchClusterName';
-import {
-  refetchSearchDomainPrefix,
-  useFetchSearchDomainPrefix,
-} from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
+import { useFetchSearchClusterName } from '~/queries/RosaWizardQueries/useFetchSearchClusterName';
+import { useFetchSearchDomainPrefix } from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
 import { getMachineTypesByRegionARN } from '~/redux/actions/machineTypesActions';
 import { useGlobalState } from '~/redux/hooks';
 import { QuotaCostList } from '~/types/accounts_mgmt.v1';
@@ -153,18 +147,10 @@ function Details() {
   const regionSearch = regionalInstance?.id;
 
   const { data: hasExistingRegionalClusterName, isFetching: isSearchClusterNameFetching } =
-    useFetchSearchClusterName(clusterName, regionSearch, isMultiRegionEnabled);
+    useFetchSearchClusterName(clusterName, regionSearch);
 
   const { data: hasExistingRegionalDomainPrefix, isFetching: isSearchDomainPrefixFetching } =
-    useFetchSearchDomainPrefix(domainPrefix, regionSearch, isMultiRegionEnabled);
-
-  React.useEffect(() => {
-    refetchSearchClusterName();
-  }, [clusterName, regionalInstance]);
-
-  React.useEffect(() => {
-    refetchSearchDomainPrefix();
-  }, [domainPrefix, regionalInstance]);
+    useFetchSearchDomainPrefix(domainPrefix, regionSearch);
 
   React.useEffect(() => {
     if (isMultiRegionEnabled) {
@@ -236,7 +222,6 @@ function Details() {
     const domainPrefixAsyncError = await asyncValidateDomainPrefix(
       value,
       isMultiRegionEnabled,
-      undefined,
       hasExistingRegionalDomainPrefix,
     );
     if (domainPrefixAsyncError) {
@@ -439,7 +424,6 @@ function Details() {
                   domainPrefixAsyncValidation(
                     value,
                     isMultiRegionEnabled,
-                    undefined,
                     hasExistingRegionalDomainPrefix,
                   )
                 }

@@ -7,10 +7,7 @@ import { get, indexOf, inRange } from 'lodash';
 import { parseCIDRSubnetLength, Subnet } from '~/common/helpers';
 import { FormSubnet } from '~/components/clusters/wizards/common/FormSubnet';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import { clusterService } from '~/services';
 import type { Gcp, Taint } from '~/types/clusters_mgmt.v1';
-
-import { sqlString } from './queryHelpers';
 
 type Networks = Parameters<typeof overlapCidr>[0];
 
@@ -241,18 +238,10 @@ const checkObjectNameAsyncValidation = (
       }
 
       if (isMultiRegionEnabled) {
-        if (isExistingRegionalClusterName) {
-          return false;
-        }
-      } else {
-        const search = `name = ${sqlString(value)}`;
-        const { data } = await clusterService.searchClusters(search, 1);
-        // Normally, we get 0 or 1 items, 1 meaning a cluster of that name already exists.
-        // But dumb mockserver ignores `search` and `size`, always returns full static list;
-        // checking the returned name(s) allows this validation to work in ?env=mockdata UI.
-        return !data?.items?.some((cluster) => cluster.name === value);
+        return !isExistingRegionalClusterName;
       }
-      return true;
+
+      return isExistingRegionalClusterName !== undefined ? !isExistingRegionalClusterName : true;
     },
   },
 ];
@@ -260,7 +249,6 @@ const checkObjectNameAsyncValidation = (
 const checkObjectNameDomainPrefixAsyncValidation = (
   value?: string,
   isMultiRegionEnabled?: boolean,
-  isExistingRegionalClusterName?: boolean,
   isExistingRegionalDomainPrefix?: boolean,
 ) => [
   {
@@ -271,16 +259,10 @@ const checkObjectNameDomainPrefixAsyncValidation = (
       }
 
       if (isMultiRegionEnabled) {
-        if (isExistingRegionalDomainPrefix) {
-          return false;
-        }
-      } else {
-        const search = `domain_prefix = ${sqlString(value)}`;
-        const { data } = await clusterService.searchClusters(search, 1);
-
-        return !data?.items?.some((cluster) => cluster.domain_prefix === value);
+        return !isExistingRegionalDomainPrefix;
       }
-      return true;
+
+      return isExistingRegionalDomainPrefix !== undefined ? !isExistingRegionalDomainPrefix : true;
     },
   },
 ];
@@ -306,13 +288,11 @@ const domainPrefixValidation = (value?: string) =>
 const domainPrefixAsyncValidation = (
   value?: string,
   isMultiRegionEnabled?: boolean,
-  isExistingRegionalClusterName?: boolean,
   isExistingRegionalDomainPrefix?: boolean,
 ) =>
   checkObjectNameDomainPrefixAsyncValidation(
     value,
     isMultiRegionEnabled,
-    isExistingRegionalClusterName,
     isExistingRegionalDomainPrefix,
   );
 
@@ -384,13 +364,11 @@ const asyncValidateClusterName = async (
 const asyncValidateDomainPrefix = async (
   value: string,
   isMultiRegionEnabled?: boolean,
-  isExistingRegionalClusterName?: boolean,
   isExistingRegionalDomainPrefix?: boolean,
 ) => {
   const evaluatedAsyncValidation = await evaluateDomainPrefixAsyncValidation(
     value,
     isMultiRegionEnabled,
-    isExistingRegionalClusterName,
     isExistingRegionalDomainPrefix,
   );
   return findFirstFailureMessage(evaluatedAsyncValidation);

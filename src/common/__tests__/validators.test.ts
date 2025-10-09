@@ -146,7 +146,7 @@ describe('domainPrefixAsyncValidation', () => {
     const apSoutheastPrefix = 'pre1SE';
     const usEastPrefix = 'pre1US';
 
-    const result = (value: string) => domainPrefixAsyncValidation(value, true, undefined, true);
+    const result = (value: string) => domainPrefixAsyncValidation(value, true, true);
 
     expect(result(apSoutheastPrefix)[0].text).toEqual(uniqueErrorMessage);
     expect(result(usEastPrefix)[0].text).toEqual(uniqueErrorMessage);
