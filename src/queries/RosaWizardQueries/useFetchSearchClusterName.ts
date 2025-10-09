@@ -22,7 +22,7 @@ export const useFetchSearchClusterName = (search: string, region?: string | unde
       const searchValue = `name = ${sqlString(search)}`;
       const response = await service.searchClusters(searchValue, 1);
 
-      return !!response?.data?.items?.length || false;
+      return !!response?.data?.items?.length;
     },
     retry: false,
     enabled: !!search,
