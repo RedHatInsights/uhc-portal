@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { FieldInputProps, Formik } from 'formik';
 
-import { waitFor } from '@testing-library/react';
-
-import { render, screen } from '~/testUtils';
+import { render, screen, waitFor } from '~/testUtils';
 
 import { initialValues } from '../../../osd/constants';
 
