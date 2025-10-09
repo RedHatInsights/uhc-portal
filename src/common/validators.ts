@@ -241,18 +241,11 @@ const checkObjectNameAsyncValidation = (
       }
 
       if (isMultiRegionEnabled) {
-        if (isExistingRegionalClusterName) {
-          return false;
-        }
-      } else {
-        const search = `name = ${sqlString(value)}`;
-        const { data } = await clusterService.searchClusters(search, 1);
-        // Normally, we get 0 or 1 items, 1 meaning a cluster of that name already exists.
-        // But dumb mockserver ignores `search` and `size`, always returns full static list;
-        // checking the returned name(s) allows this validation to work in ?env=mockdata UI.
-        return !data?.items?.some((cluster) => cluster.name === value);
+        return !isExistingRegionalClusterName;
       }
-      return true;
+
+      // For non-multi-region, use the query data directly
+      return isExistingRegionalClusterName !== undefined ? !isExistingRegionalClusterName : true;
     },
   },
 ];

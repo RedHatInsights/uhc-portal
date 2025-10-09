@@ -23,7 +23,6 @@ import { normalizedProducts } from '~/common/subscriptionTypes';
 import {
   asyncValidateClusterName,
   asyncValidateDomainPrefix,
-  clusterNameAsyncValidation,
   clusterNameValidation,
   createPessimisticValidator,
   domainPrefixAsyncValidation,
@@ -159,8 +158,8 @@ function Details() {
     useFetchSearchDomainPrefix(domainPrefix, regionSearch, isMultiRegionEnabled);
 
   React.useEffect(() => {
-    refetchSearchClusterName();
-  }, [clusterName, regionalInstance]);
+    refetchSearchClusterName(clusterName, regionSearch);
+  }, [clusterName, regionSearch]);
 
   React.useEffect(() => {
     refetchSearchDomainPrefix();
@@ -392,13 +391,6 @@ function Details() {
             type="text"
             validate={validateClusterName}
             validation={(value: string) => clusterNameValidation(value, clusterNameMaxLength)}
-            asyncValidation={(value: string) =>
-              clusterNameAsyncValidation(
-                value,
-                isMultiRegionEnabled,
-                hasExistingRegionalClusterName,
-              )
-            }
             isRequired
             extendedHelpText={constants.clusterNameHint}
             input={{
