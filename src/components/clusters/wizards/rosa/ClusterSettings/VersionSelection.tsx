@@ -240,7 +240,7 @@ function VersionSelection({ label, onChange }: VersionSelectionProps) {
     const processedGroups = Object.entries(groupedVersions).reduce<
       Record<string, FuzzyEntryType[]>
     >((groups, [groupName, groupVersions]) => {
-      const processedVersions = groupVersions.map((version) => {
+      const processedVersions = groupVersions.map((version: FuzzyEntryType) => {
         const originalVersion = versions.find((v) => v.id === version.entryId)!;
         const incompatibilityReason = incompatibleVersionReason(originalVersion);
         return {
