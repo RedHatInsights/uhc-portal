@@ -53,7 +53,7 @@ export const getNodesCount = (isBYOC, isMultiAz, asString) => {
 
 export const getMinReplicasCount = (isBYOC, isMultiAz, asString, isHypershiftSelected = false) => {
   const nodesCount = getNodesCount(isBYOC, isMultiAz, false);
-  const minReplicas = isMultiAz && !isHypershiftSelected ? nodesCount / 3 : nodesCount;
+  const minReplicas = isMultiAz && !isBYOC && !isHypershiftSelected ? nodesCount / 3 : nodesCount;
   return asString ? `${minReplicas}` : minReplicas;
 };
 
