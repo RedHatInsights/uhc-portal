@@ -48,7 +48,7 @@ describe('<UpgradeTimeSelection />', () => {
 
     const radioButton = screen.getByRole('radio', { name: /Schedule a different time/i });
     expect(radioButton).toBeChecked();
-    expect(screen.getByText('06 Jun 2025 22:00 UTC')).toBeInTheDocument();
+    expect(screen.getByText('6 Jun 2025, 22:00 UTC')).toBeInTheDocument();
     await user.click(radioButton);
 
     expect(
