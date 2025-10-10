@@ -25,7 +25,7 @@ module.exports = {
   debug: true,
   devtool: process.env.NODE_ENV !== 'production' ? 'cheap-module-source-map' : 'source-map',
   useProxy: process.env.MODE !== 'prod',
-  proxyVerbose: true,
+  proxyVerbose: process.env.LOGGING !== 'quiet',
   interceptChromeConfig: false,
   customProxy: [
     {
