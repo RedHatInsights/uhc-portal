@@ -3,8 +3,7 @@ import get from 'lodash/get';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
-import { Alert, Button } from '@patternfly/react-core';
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
+import { Alert, Button, Timestamp, TimestampFormat } from '@patternfly/react-core';
 
 import getClusterName from '~/common/getClusterName';
 import { normalizedProducts } from '~/common/subscriptionTypes';
@@ -124,9 +123,12 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
     >
       {lastChecked}
       <p>
-        Your OpenShift evaluation will expire at&nbsp;
-        <DateFormat date={subscription.eval_expiration_date} type="onlyDate" />
-        .&nbsp;
+        Your OpenShift evaluation will expire at{' '}
+        <Timestamp
+          date={subscription.eval_expiration_date}
+          dateFormat={TimestampFormat.medium}
+          locale="eng-GB"
+        />{' '}
         {cluster.canEdit ? textForUsersCanEdit : textForUsersCanNotEdit}
       </p>
     </Alert>
