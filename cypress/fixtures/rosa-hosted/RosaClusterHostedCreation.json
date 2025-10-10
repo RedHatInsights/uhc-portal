@@ -29,7 +29,8 @@
       "AvailabilityZones": "us-west-2a",
       "NodeCount": "4",
       "Autoscaling": "Disabled",
-      "RootDiskSize": "555"
+      "RootDiskSize": "555",
+      "SecurityGroupsInfoNote": "You cannot add or edit security groups associated with machine pools that were created during cluster creation"
     }
   ],
   "networking": {
