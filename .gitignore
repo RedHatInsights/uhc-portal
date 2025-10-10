@@ -17,9 +17,17 @@
 /run/output
 /vendor/
 backend-config.yml
+
+# Cypress test artifacts
 /cypress/screenshots/
 /cypress/downloads/
 /cypress/videos/
+
+# Playwright test artifacts
+/playwright-artifacts/
+/playwright/fixtures/storageState.json
+playwright.env.json
+
 /coverage/
 .nyc_output/out.json
 
