@@ -153,18 +153,18 @@ function Details() {
   const regionSearch = regionalInstance?.id;
 
   const { data: hasExistingRegionalClusterName, isFetching: isSearchClusterNameFetching } =
-    useFetchSearchClusterName(clusterName, regionSearch, isMultiRegionEnabled);
+    useFetchSearchClusterName(clusterName, regionSearch);
 
   const { data: hasExistingRegionalDomainPrefix, isFetching: isSearchDomainPrefixFetching } =
-    useFetchSearchDomainPrefix(domainPrefix, regionSearch, isMultiRegionEnabled);
+    useFetchSearchDomainPrefix(domainPrefix, regionSearch);
 
   React.useEffect(() => {
-    refetchSearchClusterName();
-  }, [clusterName, regionalInstance]);
+    refetchSearchClusterName(clusterName, regionSearch);
+  }, [clusterName, regionSearch]);
 
   React.useEffect(() => {
-    refetchSearchDomainPrefix();
-  }, [domainPrefix, regionalInstance]);
+    refetchSearchDomainPrefix(domainPrefix, regionSearch);
+  }, [domainPrefix, regionSearch]);
 
   React.useEffect(() => {
     if (isMultiRegionEnabled) {

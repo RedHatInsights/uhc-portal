@@ -2,42 +2,30 @@ import { useQuery } from '@tanstack/react-query';
 
 import { sqlString } from '~/common/queryHelpers';
 import { queryClient } from '~/components/App/queryClient';
-import { getClusterServiceForRegion } from '~/services/clusterService';
+import clusterService, { getClusterServiceForRegion } from '~/services/clusterService';
 
-import { clusterService } from '../../services';
 import { queryConstants } from '../queriesConstants';
 
-export const refetchSearchDomainPrefix = () => {
+export const refetchSearchDomainPrefix = (search: string, region?: string | undefined) => {
   queryClient.invalidateQueries({
-    queryKey: [queryConstants.FETCH_SEARCH_DOMAIN_PREFIX],
+    queryKey: [queryConstants.FETCH_SEARCH_DOMAIN_PREFIX, search, region],
     exact: true,
   });
 };
 
-export const useFetchSearchDomainPrefix = (
-  search: string,
-  region?: string | undefined,
-  isMultiRegionEnabled?: boolean,
-) => {
+export const useFetchSearchDomainPrefix = (search: string, region?: string | undefined) => {
   const { data, isError, error, isFetching } = useQuery({
-    queryKey: [queryConstants.FETCH_SEARCH_DOMAIN_PREFIX],
+    queryKey: [queryConstants.FETCH_SEARCH_DOMAIN_PREFIX, search, region],
     queryFn: async () => {
-      if (region) {
-        const service = getClusterServiceForRegion(region);
-        const searchValue = `domain_prefix = ${sqlString(search)}`;
-        const response = await service.searchClusters(searchValue, 1);
+      const service = region ? getClusterServiceForRegion(region) : clusterService;
 
-        const isExisting = !!response?.data?.items?.length;
-        return isExisting;
-      }
       const searchValue = `domain_prefix = ${sqlString(search)}`;
-      const response = await clusterService.searchClusters(searchValue, 1);
+      const response = await service.searchClusters(searchValue, 1);
 
-      const isExisting = !!response?.data?.items?.length;
-      return isExisting;
+      return !!response?.data?.items?.length;
     },
     retry: false,
-    enabled: isMultiRegionEnabled,
+    enabled: !!search,
   });
   return {
     data,
