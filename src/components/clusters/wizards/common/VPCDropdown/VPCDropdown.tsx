@@ -1,5 +1,4 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { Button, Flex, FlexItem, FormGroup, Tooltip } from '@patternfly/react-core';
 
@@ -8,7 +7,6 @@ import { useAWSVPCInquiry } from '~/components/clusters/common/useVPCInquiry';
 import ErrorBox from '~/components/common/ErrorBox';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
-import { getAWSCloudProviderVPCs } from '~/redux/actions/ccsInquiriesActions';
 import { VPCResponse } from '~/redux/reducers/ccsInquiriesReducer';
 import { CloudVpc } from '~/types/clusters_mgmt.v1';
 import { AWSCredentials, ErrorState } from '~/types/types';
@@ -34,6 +32,7 @@ interface VCPDropdownProps {
 interface UseAWSVPCInquiry {
   vpcs: VPCResponse & { pending: boolean; fulfilled: boolean; error: boolean };
   requestParams: { region: string; cloudProviderID: string; credentials: AWSCredentials };
+  refreshVPCs: () => void;
 }
 
 const sortVPCOptions = (vpcA: FuzzyEntryType, vpcB: FuzzyEntryType) => {
@@ -62,10 +61,13 @@ const VPCDropdown = ({
 
   usePrivateLink,
 }: VCPDropdownProps) => {
-  const dispatch = useDispatch();
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
 
-  const { vpcs: vpcResponse, requestParams } = useAWSVPCInquiry(isOSD) as UseAWSVPCInquiry;
+  const {
+    vpcs: vpcResponse,
+    requestParams,
+    refreshVPCs,
+  } = useAWSVPCInquiry(isOSD) as UseAWSVPCInquiry;
   const originalVPCs = React.useMemo<CloudVpc[]>(
     () => filterOutRedHatManagedVPCs(vpcResponse.data?.items || []),
     [vpcResponse.data?.items],
@@ -83,6 +85,20 @@ const VPCDropdown = ({
       setIsOpen(false);
     }
   };
+
+  React.useEffect(() => {
+    if (
+      originalVPCs.length > 0 &&
+      selectedVPC.id &&
+      originalVPCs.some((item) => item.id === selectedVPC.id)
+    ) {
+      const selectedItem = originalVPCs.find((vpc) => vpc.id === selectedVPC.id);
+      if (selectedItem) {
+        inputProps.onChange(selectedItem);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [originalVPCs, selectedVPC.id]);
 
   const selectData = React.useMemo(() => {
     let placeholder = 'Select a VPC';
@@ -120,19 +136,6 @@ const VPCDropdown = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVPC, originalVPCs]);
-
-  const refreshVPCs = () => {
-    if (requestParams.cloudProviderID === 'aws') {
-      inputProps.onChange({ id: '', name: '' });
-      dispatch(
-        getAWSCloudProviderVPCs({
-          region: requestParams.region,
-          awsCredentials: requestParams.credentials,
-          options: isHypershift ? undefined : { includeSecurityGroups: true },
-        }),
-      );
-    }
-  };
 
   return (
     <FormGroup

@@ -35,6 +35,7 @@ import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import WorkerNodeVolumeSizeSection from './WorkerNodeVolumeSizeSection/WorkerNodeVolumeSizeSection';
 import ImdsSection from './ImdsSection';
+import { SecurityGroupsSectionHCP } from './SecurityGroupsSectionHCP';
 
 function ScaleSection() {
   const {
@@ -261,6 +262,11 @@ function ScaleSection() {
       <WorkerNodeVolumeSizeSectionComponent />
       {/* Labels */}
       <LabelsSectionComponent />
+      <SecurityGroupsSectionHCP
+        openshiftVersion={clusterVersionRawId}
+        selectedVPC={selectedVpc}
+        isHypershiftSelected={isHypershiftSelected}
+      />
     </>
   );
 }

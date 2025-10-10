@@ -297,7 +297,7 @@ describe('<AWSSubnetFields />', () => {
     const newVpc = { id: 'vpc-new-123', name: 'New VPC' };
     vpcOnChange(newVpc);
 
-    expect(mockSetFieldValue).toHaveBeenCalledTimes(4);
+    expect(mockSetFieldValue).toHaveBeenCalledTimes(5);
     expect(mockSetFieldValue).toHaveBeenCalledWith(FieldId.SelectedVpc, newVpc);
     expect(mockSetFieldValue).toHaveBeenCalledWith(`${FieldId.SecurityGroups}.controlPlane`, []);
     expect(mockSetFieldValue).toHaveBeenCalledWith(`${FieldId.SecurityGroups}.infra`, []);

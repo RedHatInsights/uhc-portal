@@ -49,7 +49,7 @@ const getDisplayName = (securityGroupName: string) => {
 const EditSecurityGroups = ({
   label = 'Security groups',
   selectedVPC,
-  selectedGroupIds,
+  selectedGroupIds = [],
   onChange,
   isReadOnly,
   isHypershift,
@@ -59,10 +59,10 @@ const EditSecurityGroups = ({
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
 
   const vpcSecurityGroups = React.useMemo(
-    () => selectedVPC.aws_security_groups || [],
-    [selectedVPC.aws_security_groups],
+    () => selectedVPC?.aws_security_groups || [],
+    [selectedVPC?.aws_security_groups],
   );
-  const selectedOptions = vpcSecurityGroups.filter((sg) => selectedGroupIds.includes(sg.id || ''));
+  const selectedOptions = vpcSecurityGroups.filter((sg) => selectedGroupIds?.includes(sg.id || ''));
   selectedOptions.sort(securityGroupsSort);
 
   React.useEffect(() => {
@@ -168,7 +168,7 @@ const EditSecurityGroups = ({
             </Select>
           </GridItem>
           {refreshVPCCallback && (
-            <GridItem span={2} style={{ textAlign: 'right' }}>
+            <GridItem span={2} style={{ textAlign: 'left' }}>
               <Tooltip content="Refetch Security Groups list">
                 <Button
                   id="refreshSecurityGroupsButton"

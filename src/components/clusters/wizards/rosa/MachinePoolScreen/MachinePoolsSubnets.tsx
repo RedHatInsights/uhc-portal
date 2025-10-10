@@ -74,7 +74,12 @@ const MachinePoolsSubnets = () => {
           isHypershift
           input={{
             ...getFieldProps(FieldId.SelectedVpc),
-            onChange: (value: CloudVpc) => setFieldValue(FieldId.SelectedVpc, value),
+            onChange: (value: CloudVpc) => {
+              setFieldValue(FieldId.SelectedVpc, value);
+              if (value?.id !== selectedVPC?.id) {
+                setFieldValue(FieldId.SecurityGroups, { worker: [] });
+              }
+            },
           }}
           meta={getFieldMeta(FieldId.SelectedVpc)}
         />
