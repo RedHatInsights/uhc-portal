@@ -8,6 +8,8 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   Flex,
+  Timestamp,
+  TimestampFormat,
 } from '@patternfly/react-core';
 
 import { getQueryParam } from '~/common/queryHelpers';
@@ -32,7 +34,6 @@ import { isAISubscriptionWithoutMetrics } from '../../../../../../common/isAssis
 import { humanizeValueWithUnit, humanizeValueWithUnitGiB } from '../../../../../../common/units';
 import ExternalLink from '../../../../../common/ExternalLink';
 import PopoverHint from '../../../../../common/PopoverHint';
-import Timestamp from '../../../../../common/Timestamp';
 import { constants } from '../../../../common/CreateOSDFormConstants';
 import totalNodesDataSelector from '../../../../common/totalNodesDataSelector';
 import { isArchivedSubscription } from '../../../clusterDetailsHelper';
@@ -336,7 +337,13 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
           <DescriptionListGroup>
             <DescriptionListTerm>Created at</DescriptionListTerm>
             <DescriptionListDescription>
-              <Timestamp value={get(cluster, 'creation_timestamp', 'N/A')} />
+              <Timestamp
+                date={new Date(cluster.creation_timestamp)}
+                dateFormat={TimestampFormat.short}
+                timeFormat={TimestampFormat.medium}
+              >
+                {!cluster.creation_timestamp && 'N/A'}
+              </Timestamp>
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
