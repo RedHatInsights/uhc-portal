@@ -346,6 +346,7 @@ const ReviewClusterScreen = ({
             : ReviewItem(FieldId.NodesCompute, {
                 [FieldId.MultiAz]: multiAz,
                 [FieldId.Hypershift]: hypershiftValue,
+                [FieldId.MachinePoolsSubnets]: machinePoolsSubnets,
               })}
           {ReviewItem(isHypershiftSelected ? FieldId.SelectedVpc : FieldId.InstallToVpc)}
           {installToVPCSelected &&

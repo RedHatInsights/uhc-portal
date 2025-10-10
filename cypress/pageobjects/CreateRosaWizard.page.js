@@ -584,7 +584,7 @@ class CreateRosaCluster extends Page {
   }
 
   selectComputeNodeCount(count) {
-    cy.get('select[name="nodes_compute"]').select(count);
+    cy.get('input[aria-label="Compute nodes"]').focus().type('{selectall}').type(count.toString());
   }
 
   selectClusterPrivacy(privacy) {

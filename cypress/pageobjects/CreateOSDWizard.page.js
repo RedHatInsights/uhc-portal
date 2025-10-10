@@ -129,7 +129,7 @@ class CreateOSDCluster extends Page {
 
   enableFIPSCryptographyCheckbox = () => cy.get('input[id="fips"]');
 
-  computeNodeCountSelect = () => cy.get('select[name="nodes_compute"]');
+  computeNodeCountSelect = () => cy.get('input[aria-label="Compute nodes"]');
 
   computeNodeCountDetailsText = () => cy.getByTestId('compute-node-multizone-details');
 
@@ -617,7 +617,7 @@ class CreateOSDCluster extends Page {
   }
 
   selectComputeNodeCount(nodeCount) {
-    this.computeNodeCountSelect().select(`${nodeCount.toString()}`, { force: true });
+    this.computeNodeCountSelect().should('have.value', nodeCount.toString());
   }
 
   addNodeLabelKeyAndValue(key, value = '', index = 0) {
