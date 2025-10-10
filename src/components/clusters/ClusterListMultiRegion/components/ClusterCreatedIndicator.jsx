@@ -3,10 +3,16 @@ import dayjs from 'dayjs';
 import get from 'lodash/get';
 import PropTypes from 'prop-types';
 
-import { Button, Icon, Popover, PopoverPosition } from '@patternfly/react-core';
+import {
+  Button,
+  Icon,
+  Popover,
+  PopoverPosition,
+  Timestamp,
+  TimestampFormat,
+} from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import supportLinks from '~/common/supportLinks.mjs';
 import { SubscriptionCommonFieldsSupport_level as SubscriptionCommonFieldsSupportLevel } from '~/types/accounts_mgmt.v1';
@@ -106,7 +112,11 @@ function ClusterCreatedIndicator({ cluster }) {
         {OCPTrialExpiresStr}
         &nbsp;on&nbsp;
         <strong>
-          <DateFormat date={subscription.eval_expiration_date} type="onlyDate" />
+          <Timestamp
+            date={new Date(subscription.eval_expiration_date)}
+            dateFormat={TimestampFormat.medium}
+            locale="en-GB"
+          />
         </strong>
         .&nbsp;Your cluster is not&nbsp;
         <ExternalLink href={supportLinks.OPENSHIFT_POLICY_UPDATES} noIcon>
