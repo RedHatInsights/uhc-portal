@@ -168,7 +168,7 @@ const EditSecurityGroups = ({
             </Select>
           </GridItem>
           {refreshVPCCallback && (
-            <GridItem span={2} style={{ textAlign: 'right' }}>
+            <GridItem span={2} style={{ textAlign: 'left' }}>
               <Tooltip content="Refetch Security Groups list">
                 <Button
                   id="refreshSecurityGroupsButton"
