@@ -34,11 +34,11 @@ describe('architecturesForToolOS', () => {
     expect(values).toEqual([x86]);
   });
 
-  it('has only x86 for crc macOS', () => {
+  it('includes x86 and arm for crc macOS', () => {
     const values = architecturesForToolOS(urls, tools.CRC, channels.STABLE, mac).map(
       (o) => o.value,
     );
-    expect(values).toEqual([x86]);
+    expect(values).toEqual([x86, arm]);
   });
 });
 
