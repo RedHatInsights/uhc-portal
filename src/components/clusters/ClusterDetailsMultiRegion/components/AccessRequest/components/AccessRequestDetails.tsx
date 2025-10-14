@@ -8,11 +8,15 @@ import {
   DescriptionListTerm,
   Grid,
   GridItem,
-  Tooltip,
+  Timestamp,
+  TimestampFormat,
+  TimestampTooltipVariant,
 } from '@patternfly/react-core';
 
 import PopoverHint from '~/components/common/PopoverHint';
 import { AccessRequest } from '~/types/access_transparency.v1';
+
+import '../AccessRequest.scss';
 
 type AccessRequestDetailsProps = {
   accessRequest?: AccessRequest;
@@ -56,22 +60,35 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
           <DescriptionListGroup>
             <DescriptionListTerm>Created Time</DescriptionListTerm>
             <DescriptionListDescription>
-              <Tooltip
-                content={
-                  <span>
-                    Last updated on{' '}
-                    {accessRequest.updated_at
-                      ? new Date(accessRequest.updated_at).toLocaleDateString()
-                      : 'N/A'}
-                  </span>
-                }
+              <Timestamp
+                date={new Date(accessRequest?.created_at || '')}
+                dateFormat={TimestampFormat.short}
+                // timeFormat={TimestampFormat.long}
+                is12Hour={false}
+                locale="en-CA"
+                // shouldDisplayUTC
+                tooltip={{
+                  variant: TimestampTooltipVariant.custom,
+                  tooltipProps: {
+                    className: 'openshift',
+                  },
+                  content: (
+                    <>
+                      Last updated on{' '}
+                      <Timestamp
+                        date={new Date(accessRequest?.updated_at || '')}
+                        dateFormat={TimestampFormat.short}
+                        // timeFormat={TimestampFormat.long}
+                        is12Hour={false}
+                        locale="en-CA"
+                        // shouldDisplayUTC
+                      />
+                    </>
+                  ),
+                }}
               >
-                <Content component="p">
-                  {accessRequest.created_at
-                    ? new Date(accessRequest.created_at).toLocaleDateString()
-                    : 'N/A'}
-                </Content>
-              </Tooltip>
+                {!accessRequest?.created_at && 'N/A'}
+              </Timestamp>
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
@@ -84,9 +101,16 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
               />
             </DescriptionListTerm>
             <DescriptionListDescription>
-              {accessRequest.deadline_at
-                ? new Date(accessRequest.deadline_at).toLocaleDateString()
-                : 'N/A'}
+              <Timestamp
+                date={new Date(accessRequest.deadline_at || '')}
+                dateFormat={TimestampFormat.short}
+                // timeFormat={TimestampFormat.long}
+                is12Hour={false}
+                // shouldDisplayUTC
+                locale="en-CA"
+              >
+                {!accessRequest.deadline_at && 'N/A'}
+              </Timestamp>
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>

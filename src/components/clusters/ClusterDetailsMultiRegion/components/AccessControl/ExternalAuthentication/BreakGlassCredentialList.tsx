@@ -1,6 +1,14 @@
 import React from 'react';
 
-import { Button, Flex, FlexItem, Icon, Tooltip } from '@patternfly/react-core';
+import {
+  Button,
+  Flex,
+  FlexItem,
+  Icon,
+  Timestamp,
+  TimestampFormat,
+  Tooltip,
+} from '@patternfly/react-core';
 import RedoIcon from '@patternfly/react-icons/dist/esm/icons/redo-icon';
 import { Caption, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
@@ -196,7 +204,14 @@ export const BreakGlassCredentialList = ({
               <Tr key={cred.id}>
                 <Td>{cred.id}</Td>
                 <Td>{cred.username}</Td>
-                <Td>{new Date(cred.expiration_timestamp as string).toLocaleString('en-CA')}</Td>
+                <Td>
+                  <Timestamp
+                    date={new Date(cred.expiration_timestamp as string)}
+                    dateFormat={TimestampFormat.short}
+                    timeFormat={TimestampFormat.medium}
+                    locale="en-CA"
+                  />
+                </Td>
                 <Td>
                   {cred.status === BreakGlassCredentialStatus.issued ? (
                     <Tooltip content="Download credentials to access cluster as admin.">
