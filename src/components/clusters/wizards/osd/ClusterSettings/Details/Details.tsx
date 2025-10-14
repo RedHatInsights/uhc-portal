@@ -236,13 +236,13 @@ function Details() {
     }
   };
 
+  const availableVersions = getInstallableVersionsResponse.versions.filter(
+    (version: Version) => version.channel_group === channelGroup,
+  );
+
   React.useEffect(() => {
     if (isEUSChannelEnabled) {
       const parseVersion = (version: string | undefined) => semver.valid(semver.coerce(version));
-
-      const availableVersions = getInstallableVersionsResponse.versions.filter(
-        (version: Version) => version.channel_group === channelGroup,
-      );
 
       const foundVersion =
         availableVersions.length > 0
@@ -259,7 +259,7 @@ function Details() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelGroup]);
+  }, [channelGroup, cloudProvider]);
 
   React.useEffect(() => {
     if (isEUSChannelEnabled) {
@@ -267,6 +267,13 @@ function Details() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    if (isEUSChannelEnabled) {
+      setFieldValue(FieldId.ClusterVersion, availableVersions[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cloudProvider]);
 
   const availabilityZoneOptions: RadioGroupOption[] = [
     {

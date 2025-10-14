@@ -155,10 +155,18 @@ const hasUnstableVersionsCapability = (organization?: Organization) =>
 const getVersionNameWithChannel = (version: Version): string =>
   `${version?.raw_id} ${version?.channel_group !== channelGroups.STABLE ? `(${version?.channel_group})` : ''}`;
 
+const capitalizeChannelGroup = (channelGroup: string) => {
+  if (channelGroup === 'eus') {
+    return channelGroup.toUpperCase();
+  }
+  return channelGroup.charAt(0).toUpperCase() + channelGroup.slice(1);
+};
+
 export {
   getVersionsData,
   supportStatuses,
   hasUnstableVersionsCapability,
   getVersionNameWithChannel,
+  capitalizeChannelGroup,
   GetInstallableVersionsResponse,
 };

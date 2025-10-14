@@ -101,6 +101,7 @@ export enum IMDSType {
 
 export const AWS_DEFAULT_REGION = 'us-east-1';
 export const GCP_DEFAULT_REGION = 'us-east1';
+export const CHANNEL_GROUP_DEFAULT = 'stable';
 
 export const emptyAWSSubnet: () => FormSubnet = () => ({
   availabilityZone: '',
