@@ -25,7 +25,6 @@ describe('Datacenter Installer Subpage Component Tests', { tags: ['smoke'] }, ()
 
         cy.visit(testData.url);
         InstallersPage.verifyPageTitle(testData.expectedTitle);
-
       });
 
       it('should verify installer and OC CLI dropdowns exist', () => {
