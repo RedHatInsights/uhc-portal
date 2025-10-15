@@ -19,15 +19,13 @@ describe('Datacenter Installer Subpage Component Tests', { tags: ['smoke'] }, ()
           cy.window().then((win) => {
             win.location.href = 'about:blank';
           });
-          cy.wait(2000);
           cy.clearCookies();
           cy.clearLocalStorage();
         }
-      });
 
-      before(() => {
         cy.visit(testData.url);
         InstallersPage.verifyPageTitle(testData.expectedTitle);
+
       });
 
       it('should verify installer and OC CLI dropdowns exist', () => {
