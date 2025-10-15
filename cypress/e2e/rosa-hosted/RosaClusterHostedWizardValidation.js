@@ -155,10 +155,18 @@ describe('Rosa hosted(Hypershift) cluster wizard validations', { tags: ['smoke',
     CreateRosaWizardPage.isTextContainsInPage(
       clusterFieldValidations.ClusterSettings.Machinepool.SubnetRequiredError,
     );
+    CreateRosaWizardPage.checkVieworHideUsedSubnetsPresence(
+      qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[0].AvailabilityZones]
+        .PRIVATE_SUBNET_NAME,
+      2,
+    );
+    CreateRosaWizardPage.removeMachinePool(2);
+    CreateRosaWizardPage.addMachinePoolLink().click();
     CreateRosaWizardPage.selectMachinePoolPrivateSubnet(
       qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[0].AvailabilityZones]
         .PRIVATE_SUBNET_NAME,
       2,
+      true,
     );
     CreateRosaWizardPage.isTextContainsInPage(
       clusterFieldValidations.ClusterSettings.Machinepool.DuplicateSubnetsError,

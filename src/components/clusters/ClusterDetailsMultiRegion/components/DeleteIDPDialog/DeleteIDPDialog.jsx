@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
+import Modal from '~/components/common/Modal/Modal';
 import { refetchIdentityProvidersWithHTPUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchIDPsWithHTPUsers';
 import { useDeleteIdentityProvider } from '~/queries/ClusterDetailsQueries/IDPPage/useDeleteIdentityProvider';
 import { useGlobalState } from '~/redux/hooks';
 
 import ErrorBox from '../../../../common/ErrorBox';
-import Modal from '../../../../common/Modal/Modal';
 import { modalActions } from '../../../../common/Modal/ModalActions';
 import shouldShowModal from '../../../../common/Modal/ModalSelectors';
 

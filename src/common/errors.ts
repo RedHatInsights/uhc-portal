@@ -6,6 +6,8 @@ import { ErrorDetail, ErrorState } from '~/types/types';
 
 import { clustersConstants } from '../redux/constants';
 
+import supportLinks from './supportLinks.mjs';
+
 const BANNED_USER_CODE = 'ACCT-MGMT-22';
 const TERMS_REQUIRED_CODE = 'CLUSTERS-MGMT-451';
 
@@ -48,7 +50,7 @@ const overrideErrorMessage = (
       message = `Your account has been placed on Export Hold based on export control screening.
 The Export Compliance Team has been notified that your account is on hold, and must conduct additional due diligence to resolve the Export Hold.
 Try again in 24-48 hours.
-Learn more: https://access.redhat.com/articles/1340183`;
+Learn more: ${supportLinks.EXPORT_CONTROL_KB}`;
       break;
     default:
   }

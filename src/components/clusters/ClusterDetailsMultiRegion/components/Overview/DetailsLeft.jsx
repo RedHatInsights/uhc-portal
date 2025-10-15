@@ -8,6 +8,8 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   Skeleton,
+  Timestamp,
+  TimestampFormat,
 } from '@patternfly/react-core';
 
 import { Owner } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/Owner/Owner';
@@ -18,7 +20,6 @@ import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { normalizedProducts } from '../../../../../common/subscriptionTypes';
 import PopoverHint from '../../../../common/PopoverHint';
-import Timestamp from '../../../../common/Timestamp';
 import ClusterTypeLabel from '../../../common/ClusterTypeLabel';
 import InfrastructureModelLabel from '../../../common/InfrastructureModelLabel';
 
@@ -197,7 +198,13 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData })
       <DescriptionListGroup>
         <DescriptionListTerm>Created at</DescriptionListTerm>
         <DescriptionListDescription>
-          <Timestamp value={get(cluster, 'creation_timestamp', 'N/A')} />
+          <Timestamp
+            date={new Date(cluster.creation_timestamp)}
+            dateFormat={TimestampFormat.short}
+            timeFormat={TimestampFormat.medium}
+          >
+            {!cluster.creation_timestamp && 'N/A'}
+          </Timestamp>
         </DescriptionListDescription>
       </DescriptionListGroup>
       <Owner />

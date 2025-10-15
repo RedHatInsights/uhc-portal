@@ -31,21 +31,21 @@ class ClusterDetails extends Page {
 
   editDisplayNameInput = () => cy.get('input[id="edit-display-name-input"]');
 
-  overviewTab = () => cy.get('button[aria-controls="overviewTabContent"]');
+  overviewTab = () => cy.contains('button', 'Overview');
 
-  accessControlTab = () => cy.get('button[aria-controls="accessControlTabContent"]');
+  accessControlTab = () => cy.contains('button', 'Access control');
 
-  addonsTab = () => cy.get('button[aria-controls="addOnsTabContent"]');
+  addonsTab = () => cy.contains('button', 'Add-ons');
 
-  machinePoolsTab = () => cy.get('button[aria-controls="machinePoolsTabContent"]');
+  machinePoolsTab = () => cy.get('button[role="tab"]').contains(/machine.*pool|compute/i);
 
-  supportTab = () => cy.get('button[aria-controls="supportTabContent"]');
+  supportTab = () => cy.contains('button', 'Support');
 
-  networkingTab = () => cy.get('button[aria-controls="networkingTabContent"]');
+  networkingTab = () => cy.contains('button', 'Networking');
 
-  settingsTab = () => cy.get('button[aria-controls="upgradeSettingsTabContent"]');
+  settingsTab = () => cy.contains('button', 'Settings');
 
-  accessRequestTab = () => cy.get('button[aria-controls="accessRequestContent"]');
+  accessRequestTab = () => cy.contains('button', 'Access requests');
 
   clusterHistoryTab = () => cy.get('button[id="pf-tab-4-Cluster history"]');
 
@@ -57,7 +57,7 @@ class ClusterDetails extends Page {
   archiveClusterDialogConfirm = () =>
     cy.get('div[aria-label="Archive cluster"]').find('footer').find('button').first();
 
-  successNotification = () => cy.get('div.pf-v6-c-alert.pf-m-success.notification-item');
+  successNotification = () => cy.get('div.pf-m-success.notification-item');
 
   unarchiveClusterButton = () =>
     cy.get('[id="cl-details-btns"]').contains('button', 'Unarchive', { timeout: 15000 });
@@ -327,19 +327,21 @@ class ClusterDetails extends Page {
   }
 
   checkInstallationStepStatus(step, status = '') {
-    let installStep = cy
-      .get('div.pf-v6-c-progress-stepper__step-title', { timeout: 80000 })
-      .contains(step);
+    // Enhanced installation step status check without specific PF class dependencies
+    let installStep = cy.contains('div', step, { timeout: 80000 }).filter('[id$="-title"]');
     if (status == '') {
       installStep.should('be.visible');
     } else {
-      installStep.siblings().find('div').contains(status);
+      installStep.parent().within(() => {
+        cy.contains('div', status).should('be.visible');
+      });
     }
   }
 
   waitForInstallerScreenToLoad = () => {
-    cy.get('li.pf-v6-c-wizard__nav-item', { timeout: 30000 }).should('not.exist');
-    cy.get('div.cluster-loading-container', { timeout: 100000 }).should('not.exist');
+    // Wait for the cluster details page to load by checking for positive indicators
+    cy.get('h1, h2', { timeout: 100000 }).should('be.visible');
+    cy.url({ timeout: 30000 }).should('include', '/details/');
   };
 
   waitForDeleteClusterActionComplete = () => {

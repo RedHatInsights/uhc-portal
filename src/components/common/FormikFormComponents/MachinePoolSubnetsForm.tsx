@@ -20,11 +20,15 @@ import './MachinePoolSubnetsForm.scss';
 type MachinePoolSubnetsFormProps = {
   selectedVPC?: CloudVpc;
   warning?: string;
+  allMachinePoolSubnets: FormSubnet[];
 };
 
-const MachinePoolSubnetsForm = ({ selectedVPC, warning }: MachinePoolSubnetsFormProps) => {
+const MachinePoolSubnetsForm = ({
+  selectedVPC,
+  warning,
+  allMachinePoolSubnets,
+}: MachinePoolSubnetsFormProps) => {
   const {
-    values: { [FieldId.MachinePoolsSubnets]: machinePoolsSubnets },
     values,
     getFieldProps,
     setFieldValue,
@@ -33,6 +37,8 @@ const MachinePoolSubnetsForm = ({ selectedVPC, warning }: MachinePoolSubnetsForm
     validateForm,
     setTouched,
   } = useFormState();
+
+  const machinePoolsSubnetsFromProps = allMachinePoolSubnets;
 
   useEffect(
     () => {
@@ -44,12 +50,12 @@ const MachinePoolSubnetsForm = ({ selectedVPC, warning }: MachinePoolSubnetsForm
         }
       };
 
-      if (machinePoolsSubnets?.length) {
+      if (machinePoolsSubnetsFromProps?.length) {
         updateFormErrors();
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [machinePoolsSubnets, setTouched, validateForm],
+    [machinePoolsSubnetsFromProps, setTouched, validateForm],
   );
 
   // Helper to infer region if not present
@@ -73,22 +79,28 @@ const MachinePoolSubnetsForm = ({ selectedVPC, warning }: MachinePoolSubnetsForm
     region && selectedVPC ? getMatchingAvailabilityZones(region, selectedVPC, ['private']) : [];
 
   const addMachinePool = (machinePoolSubnet: FormSubnet) =>
-    setFieldValue(FieldId.MachinePoolsSubnets, [...machinePoolsSubnets, machinePoolSubnet], false);
+    setFieldValue(
+      FieldId.MachinePoolsSubnets,
+      [...machinePoolsSubnetsFromProps, machinePoolSubnet],
+      false,
+    );
 
   const removeMachinePool = (machinePoolsSubnetsIndex: number) => {
     setFieldValue(
       FieldId.MachinePoolsSubnets,
-      (machinePoolsSubnets as FormSubnet[]).filter((e, i) => i !== machinePoolsSubnetsIndex),
+      (machinePoolsSubnetsFromProps as FormSubnet[]).filter(
+        (e, i) => i !== machinePoolsSubnetsIndex,
+      ),
     );
     const fieldNameSubnetId = `${FieldId.MachinePoolsSubnets}[${machinePoolsSubnetsIndex}].privateSubnetId`;
     setFieldTouched(fieldNameSubnetId, false, false);
   };
 
   useEffect(() => {
-    if (machinePoolsSubnets === undefined) {
+    if (machinePoolsSubnetsFromProps === undefined || machinePoolsSubnetsFromProps.length === 0) {
       setFieldValue(FieldId.MachinePoolsSubnets, [emptyAWSSubnet()]);
     }
-  }, [machinePoolsSubnets, setFieldValue]);
+  }, [machinePoolsSubnetsFromProps, setFieldValue]);
 
   return (
     <Grid hasGutter>
@@ -105,9 +117,10 @@ const MachinePoolSubnetsForm = ({ selectedVPC, warning }: MachinePoolSubnetsForm
       </GridItem>
       <GridItem span={6} />
 
-      {(machinePoolsSubnets as FormSubnet[])?.map((subnet, index) => {
-        const isRemoveDisabled = machinePoolsSubnets.length === 1;
+      {(machinePoolsSubnetsFromProps as FormSubnet[])?.map((subnet, index) => {
+        const isRemoveDisabled = machinePoolsSubnetsFromProps.length === 1;
         const fieldNameSubnetId = `${FieldId.MachinePoolsSubnets}[${index}].privateSubnetId`;
+
         return selectedVPC ? (
           // eslint-disable-next-line react/no-array-index-key
           <React.Fragment key={`${subnet.privateSubnetId}_${index}`}>
@@ -117,14 +130,18 @@ const MachinePoolSubnetsForm = ({ selectedVPC, warning }: MachinePoolSubnetsForm
                 component={SubnetSelectField}
                 name={fieldNameSubnetId}
                 validate={(subnetId: string) =>
-                  validateMultipleMachinePoolsSubnets(subnetId, { machinePoolsSubnets })
+                  validateMultipleMachinePoolsSubnets(subnetId, {
+                    machinePoolsSubnets: machinePoolsSubnetsFromProps,
+                  })
                 }
                 isRequired
                 privacy="private"
                 selectedVPC={selectedVPC}
                 allowedAZs={allowedAZs}
                 withAutoSelect={false}
-                isNewCluster
+                usedSubnetIds={machinePoolsSubnetsFromProps
+                  .map((mp) => mp.privateSubnetId)
+                  .filter((id) => id && id !== subnet.privateSubnetId)}
                 input={{
                   ...getFieldProps(fieldNameSubnetId),
                   onChange: async (subnetId: string) => {

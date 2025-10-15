@@ -156,9 +156,11 @@ const AWSSubnetFields = ({
           ...getFieldProps(FieldId.SelectedVpc),
           onChange: (newVpcValue) => {
             setFieldValue(FieldId.SelectedVpc, newVpcValue);
-            setFieldValue(controlPlaneFieldName, []);
-            setFieldValue(infraFieldName, []);
-            setFieldValue(workerFieldName, []);
+            if (newVpcValue?.id !== selectedVPC?.id) {
+              setFieldValue(controlPlaneFieldName, []);
+              setFieldValue(infraFieldName, []);
+              setFieldValue(workerFieldName, []);
+            }
           },
         }}
         meta={getFieldMeta(FieldId.SelectedVpc)}

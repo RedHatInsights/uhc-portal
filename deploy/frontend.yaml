@@ -112,7 +112,8 @@ objects:
                   routes:
                     - id: developer-sandbox-trial
                       title: Developer Sandbox | OpenShift AI
-                      href: /openshift/sandbox
+                      href: https://sandbox.redhat.com
+                      isExternal: true
                     - id: sixty-day-trial
                       title: 60-Day Product Trial | OpenShift AI
                       href: https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai/trial
@@ -135,7 +136,8 @@ objects:
                 # TODO: Replace developer-sandbox with navigationSegment from https://github.com/RedHatInsights/developer-sandbox-ui/blob/master/deploy/frontend.yaml
                 - id: developer-sandbox
                   title: Developer Sandbox
-                  href: /openshift/sandbox
+                  href: https://sandbox.redhat.com
+                  isExternal: true
                 - id: downloads
                   title: Downloads
                   href: /openshift/downloads

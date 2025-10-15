@@ -34,11 +34,13 @@ const AwsSubnetFields = () => {
             name={FieldId.SelectedVpc}
             input={{
               ...getFieldProps(FieldId.SelectedVpc),
-              onChange: (newVpcValue: string) => {
+              onChange: (newVpcValue: CloudVpc) => {
                 setFieldValue(FieldId.SelectedVpc, newVpcValue);
-                setFieldValue(controlPlaneFieldName, []);
-                setFieldValue(infraFieldName, []);
-                setFieldValue(workerFieldName, []);
+                if (newVpcValue?.id !== selectedVPC?.id) {
+                  setFieldValue(controlPlaneFieldName, []);
+                  setFieldValue(infraFieldName, []);
+                  setFieldValue(workerFieldName, []);
+                }
               },
             }}
             isOSD

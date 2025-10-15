@@ -112,7 +112,7 @@ const ReviewClusterScreen = ({
   const hasEtcdEncryption = isHypershiftSelected && !!etcdKeyArn;
   const clusterVersionRawId = clusterVersion?.raw_id;
   const showKMSKey = customerManagedKey === 'true' && !!hasCustomKeyARN;
-  const hasSecurityGroups = hasSelectedSecurityGroups(securityGroups);
+  const hasSecurityGroups = hasSelectedSecurityGroups(securityGroups, isHypershiftSelected);
   const { organization } = useOrganization();
   const hasExternalAuth = hasExternalAuthenticationCapability(organization?.capabilities);
 
@@ -346,6 +346,7 @@ const ReviewClusterScreen = ({
             : ReviewItem(FieldId.NodesCompute, {
                 [FieldId.MultiAz]: multiAz,
                 [FieldId.Hypershift]: hypershiftValue,
+                [FieldId.MachinePoolsSubnets]: machinePoolsSubnets,
               })}
           {ReviewItem(isHypershiftSelected ? FieldId.SelectedVpc : FieldId.InstallToVpc)}
           {installToVPCSelected &&
@@ -362,6 +363,12 @@ const ReviewClusterScreen = ({
             canSelectImds(clusterVersionRawId) &&
             ReviewItem(FieldId.IMDS)}
           {workerVolumeSizeGib && ReviewItem(FieldId.WorkerVolumeSizeGib)}
+          {installToVPCSelected &&
+            isHypershiftSelected &&
+            hasSecurityGroups &&
+            ReviewItem(FieldId.SecurityGroups, {
+              [FieldId.SelectedVpc]: selectedVpc,
+            })}
         </ReviewSection>
         <ReviewSection
           title={getStepName('NETWORKING')}

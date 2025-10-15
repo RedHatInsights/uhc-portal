@@ -6,6 +6,8 @@ import { useAddNotification } from '@redhat-cloud-services/frontend-components-n
 
 import getClusterName from '~/common/getClusterName';
 import { ocmBaseName } from '~/common/routing';
+import supportLinks from '~/common/supportLinks.mjs';
+import Modal from '~/components/common/Modal/Modal';
 import { useToggleSubscriptionReleased } from '~/queries/ClusterActionsQueries/useToggleSubscriptionReleased';
 import { useGlobalState } from '~/redux/hooks';
 import { Subscription, SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
@@ -13,11 +15,8 @@ import { ClusterFromSubscription, ErrorState } from '~/types/types';
 
 import ErrorBox from '../../../common/ErrorBox';
 import ExternalLink from '../../../common/ExternalLink';
-import Modal from '../../../common/Modal/Modal';
 import { closeModal } from '../../../common/Modal/ModalActions';
 import modals from '../../../common/Modal/modals';
-
-const CHANGE_PULL_SECRET_URL = 'https://access.redhat.com/solutions/4902871';
 
 type TransferClusterOwnershipDialogProps = {
   onClose: () => void;
@@ -96,8 +95,7 @@ const TransferClusterOwnershipDialog = ({ onClose }: TransferClusterOwnershipDia
     <Modal
       title="Transfer cluster ownership"
       secondaryTitle={shouldDisplayClusterName ? clusterDisplayName : undefined}
-      width={600}
-      variant="large"
+      modalSize="small"
       onClose={handleClose}
       primaryText="Initiate transfer"
       secondaryText="Cancel"
@@ -129,7 +127,7 @@ const TransferClusterOwnershipDialog = ({ onClose }: TransferClusterOwnershipDia
             <Content component={ContentVariants.ol}>
               <Content component="li">Initiate transfer</Content>
               <Content component="li">
-                <ExternalLink href={CHANGE_PULL_SECRET_URL}>
+                <ExternalLink href={supportLinks.PULL_SECRET_CHANGE_KB}>
                   Change the cluster&apos;s pull secret
                 </ExternalLink>{' '}
                 within 5 days

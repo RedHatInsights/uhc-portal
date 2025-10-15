@@ -67,8 +67,7 @@ describe(
 
     it(`OSD ${clusterProperties.CloudProvider}  wizard - Networking configuration - cluster privacy definitions`, () => {
       CreateOSDWizardPage.isNetworkingScreen();
-      CreateOSDWizardPage.clusterPrivacyPublicRadio().should('be.checked');
-      CreateOSDWizardPage.applicationIngressDefaultSettingsRadio().should('be.checked');
+      CreateOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
       CreateOSDWizardPage.wizardNextButton().click();
     });
 

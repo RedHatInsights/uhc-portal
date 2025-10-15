@@ -71,6 +71,7 @@ export function BreakGlassCredentialNewModal(props: BreakGlassCredentialNewModal
           onClose={handleClose}
           modalSize="small"
           description="Add a break glass credential to access the cluster."
+          hideDefaultFooter
           footer={
             <Stack hasGutter>
               {isError && (

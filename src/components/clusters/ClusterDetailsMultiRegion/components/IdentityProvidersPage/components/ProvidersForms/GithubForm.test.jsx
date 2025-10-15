@@ -54,39 +54,39 @@ describe('GithubFormRequired', () => {
     render(buildTestComponent({}));
 
     expect(screen.getByLabelText('Use organizations')).toBeChecked();
-    await screen.findByText('Organizations (1)');
-    expect(screen.queryByText('Teams (1)')).not.toBeInTheDocument();
+    await screen.findByText('Organizations (0)');
+    expect(screen.queryByText('Teams (0)')).not.toBeInTheDocument();
   });
 
   test('organizations radio button selected by default if edit form and git.orgs is known', async () => {
     render(buildTestComponent({ isEditForm: true, idpEdited: { github: { organizations: [] } } }));
 
     expect(screen.getByLabelText('Use organizations')).toBeChecked();
-    await screen.findByText('Organizations (1)');
-    expect(screen.queryByText('Teams (1)')).not.toBeInTheDocument();
+    await screen.findByText('Organizations (0)');
+    expect(screen.queryByText('Teams (0)')).not.toBeInTheDocument();
   });
 
   test('teams radio button selected by default if edit form and git.orgs is not known', async () => {
     render(buildTestComponent({ isEditForm: true, idpEdited: { github: {} } }));
 
     expect(screen.getByLabelText('Use organizations')).toBeChecked();
-    await screen.findByText('Teams (1)');
-    expect(screen.queryByText('Organizations (1)')).not.toBeInTheDocument();
+    await screen.findByText('Teams (0)');
+    expect(screen.queryByText('Organizations (0)')).not.toBeInTheDocument();
   });
 
   test('clicking on radio buttons switches between teams and organizations', async () => {
     const { user } = render(buildTestComponent({}));
 
     expect(screen.getByLabelText('Use organizations')).toBeChecked();
-    expect(await screen.findByText('Organizations (1)')).toBeInTheDocument();
-    expect(screen.queryByText('Teams (1)')).not.toBeInTheDocument();
+    expect(await screen.findByText('Organizations (0)')).toBeInTheDocument();
+    expect(screen.queryByText('Teams (0)')).not.toBeInTheDocument();
 
     await user.click(screen.getByLabelText('Use teams'));
-    expect(await screen.findByText('Teams (1)')).toBeInTheDocument();
-    expect(screen.queryByText('Organizations (1)')).not.toBeInTheDocument();
+    expect(await screen.findByText('Teams (0)')).toBeInTheDocument();
+    expect(screen.queryByText('Organizations (0)')).not.toBeInTheDocument();
 
     await user.click(screen.getByLabelText('Use organizations'));
-    expect(await screen.findByText('Organizations (1)')).toBeInTheDocument();
-    expect(screen.queryByText('Teams (1)')).not.toBeInTheDocument();
+    expect(await screen.findByText('Organizations (0)')).toBeInTheDocument();
+    expect(screen.queryByText('Teams (0)')).not.toBeInTheDocument();
   });
 });

@@ -1,5 +1,7 @@
 // This module has .mjs extension to simplify importing from NodeJS scripts.
 
+import { combineAndSortLinks } from './linkUtils.mjs';
+
 const MIRROR_BUTANE_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest';
 const MIRROR_CLIENTS_STABLE_X86 =
   'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/';
@@ -201,12 +203,11 @@ const links = {
   INSTALL_BAREMETAL_IPI_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_bare_metal/installer-provisioned-infrastructure#ipi-install-overview`,
   INSTALL_BAREMETAL_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_bare_metal/user-provisioned-infrastructure#creating-machines-bare-metal`,
   INSTALL_BAREMETAL_CUSTOMIZATIONS: `${OCP_DOCS_BASE}/installing_on_bare_metal/user-provisioned-infrastructure#installing-bare-metal-network-customizations`,
-  RHCOS_BAREMETAL_ISO_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live.x86_64.iso`,
+  RHCOS_BAREMETAL_ISO_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-iso.x86_64.iso`,
   RHCOS_BAREMETAL_RAW_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-metal.x86_64.raw.gz`,
   INSTALL_BAREMETAL_MULTI_ARCH: `${OCP_DOCS_BASE}/postinstallation_configuration/configuring-multi-architecture-compute-machines-on-an-openshift-cluster#creating-multi-arch-compute-nodes-bare-metal`,
 
-  OPENSHIFT_LOCAL_SUPPORT_AND_COMMUNITY_DOCS:
-    'https://source.redhat.com/groups/public/cooperative_community_support/cooperative_community_support_wiki/codeready_containers_case_response_template',
+  OPENSHIFT_LOCAL_SUPPORT_AND_COMMUNITY_DOCS: 'https://crc.dev/docs/using/',
 
   INSTALL_GCPIPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-account`,
   INSTALL_GCPIPI_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-default`,
@@ -240,17 +241,17 @@ const links = {
   INSTALL_IBMZ_AGENTS_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_an_on-premise_cluster_with_the_agent-based_installer/prepare-pxe-assets-agent#installing-ocp-agent-ibm-z_prepare-pxe-assets-agent`,
   INSTALL_IBMPOWERVS_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_ibm_power_virtual_server/preparing-to-install-on-ibm-power-vs`,
   INSTALL_IBMPOWERVS_PREREQUISITES: `${OCP_DOCS_BASE}/installing_on_ibm_power_virtual_server/preparing-to-install-on-ibm-power-vs`,
-  RHCOS_IBMZ_ISO: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live.s390x.iso`,
+  RHCOS_IBMZ_ISO: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-iso.s390x.iso`,
   RHCOS_IBMZ_INITRAMFS: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-initramfs.s390x.img`,
-  RHCOS_IBMZ_KERNEL: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-kernel-s390x`,
+  RHCOS_IBMZ_KERNEL: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-kernel.s390x`,
   RHCOS_IBMZ_ROOTFS: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-rootfs.s390x.img`,
   RHCOS_IBMZ_QCOW: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-qemu.s390x.qcow2.gz`,
 
   INSTALL_GENERIC_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_any_platform/installing-platform-agnostic`,
   INSTALL_GENERIC_NON_TESTED_PLATFORMS: 'https://access.redhat.com/articles/4207611',
   INSTALL_GENERIC_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_any_platform/installing-platform-agnostic`,
-  RHCOS_GENERIC_ISO_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live.x86_64.iso`,
-  RHCOS_GENERIC_KERNEL_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-kernel-x86_64`,
+  RHCOS_GENERIC_ISO_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-iso.x86_64.iso`,
+  RHCOS_GENERIC_KERNEL_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-kernel.x86_64`,
   RHCOS_GENERIC_INITRAMFS_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-initramfs.x86_64.img`,
   RHCOS_GENERIC_ROOTFS_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-rootfs.x86_64.img`,
 
@@ -263,14 +264,14 @@ const links = {
   INSTALL_POWER_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_ibm_power/installing-ibm-power`,
   INSTALL_POWER_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_ibm_power/installing-ibm-power`,
   INSTALL_POWER_UPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_ibm_power/installing-ibm-power`,
-  RHCOS_POWER_ISO: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live.ppc64le.iso`,
+  RHCOS_POWER_ISO: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live-iso.ppc64le.iso`,
   RHCOS_POWER_INITRAMFS: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live-initramfs.ppc64le.img`,
-  RHCOS_POWER_KERNEL: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live-kernel-ppc64le`,
+  RHCOS_POWER_KERNEL: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live-kernel.ppc64le`,
   RHCOS_POWER_ROOTFS: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live-rootfs.ppc64le.img`,
 
-  RHCOS_ARM_ISO: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live.aarch64.iso`,
+  RHCOS_ARM_ISO: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-iso.aarch64.iso`,
   RHCOS_ARM_INITRAMFS: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-initramfs.aarch64.img`,
-  RHCOS_ARM_KERNEL: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-kernel-aarch64`,
+  RHCOS_ARM_KERNEL: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-kernel.aarch64`,
   RHCOS_ARM_ROOTFS: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-rootfs.aarch64.img`,
   RHCOS_ARM_RAW: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-metal.aarch64.raw.gz`,
 
@@ -1008,14 +1009,19 @@ const urlsSelector = (githubReleases) => {
   return result;
 };
 
-/** Useful for scripted checking of "all" external links. */
-const getFlatUrls = async () => {
-  const urlSet = new Set([
-    ...Object.values(links),
-    ...Object.values(urls).flatMap(Object.values).flatMap(Object.values).flatMap(Object.values),
-    // TODO: include latest github releases?
-  ]);
-  return [...urlSet].sort();
+/** Returns all installation and binary external links. */
+const getLinks = async () => {
+  const linkUrls = Object.values(links);
+  // nestedUrls: 4-level structure (Tool → Channel → Architecture → OS → URL) for download binaries
+  const nestedUrls = Object.values(urls)
+    .map((level1) =>
+      Object.values(level1).map((level2) =>
+        Object.values(level2).map((level3) => Object.values(level3)),
+      ),
+    )
+    .flat(3);
+
+  return combineAndSortLinks(linkUrls, nestedUrls);
 };
 
 export {
@@ -1028,6 +1034,6 @@ export {
   urls,
   githubReleasesToFetch,
   urlsSelector,
-  getFlatUrls,
+  getLinks,
 };
 export default links;

@@ -170,7 +170,7 @@ describe('<NetworkSelfServiceSection />', () => {
     jest.runAllTimers();
     expect(
       await screen.findByRole('dialog', {
-        name: 'Grant AWS infrastructure role Grant AWS infrastructure role',
+        name: 'Grant AWS infrastructure role',
       }),
     ).toBeInTheDocument();
   });

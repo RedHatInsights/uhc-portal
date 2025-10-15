@@ -6,19 +6,35 @@ import { Spinner } from '@patternfly/react-core';
 import { RefreshClusterVPCAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/common/RefreshClusterVPCAlert';
 import { SubnetSelectField } from '~/components/clusters/common/SubnetSelectField';
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
+import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 const fieldId = 'privateSubnetId';
 
+const getSubnetIds = (machinePoolOrNodePool: MachinePool | NodePool): string[] => {
+  const { subnet, subnets } = machinePoolOrNodePool as any;
+  const subnetArray = subnet ? [subnet] : subnets || [];
+  return Array.isArray(subnetArray) ? subnetArray : [subnetArray];
+};
+
 const SubnetField = ({
   cluster,
   region,
+  machinePools = [],
 }: {
   cluster: ClusterFromSubscription;
   region?: string;
+  machinePools?: MachinePool[];
 }) => {
   const [inputField, metaField, { setValue }] = useField<string | undefined>(fieldId);
   const { clusterVpc, isLoading, hasError, refreshVPC } = useAWSVPCFromCluster(cluster, region);
+
+  const usedSubnetIds = React.useMemo(
+    () =>
+      machinePools.flatMap((nodePool) => getSubnetIds(nodePool)).filter((subnetId) => !!subnetId),
+    [machinePools],
+  );
+
   const fieldProps = React.useMemo(
     () => ({
       input: {
@@ -51,6 +67,7 @@ const SubnetField = ({
       label="Private subnet name"
       isRequired
       selectedVPC={clusterVpc}
+      usedSubnetIds={usedSubnetIds}
       {...fieldProps}
     />
   );

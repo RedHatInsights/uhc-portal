@@ -55,6 +55,9 @@ export type EditMachinePoolValues = {
   securityGroupIds: string[];
   secure_boot?: boolean;
   imds: IMDSType;
+  maxSurge?: number;
+  maxUnavailable?: number;
+  nodeDrainTimeout?: number;
 };
 
 type UseMachinePoolFormikArgs = {
@@ -105,6 +108,9 @@ const useMachinePoolFormik = ({
     let maxPrice;
     let diskSize;
     let autoRepair = true;
+    let maxSurge;
+    let maxUnavailable;
+    let nodeDrainTimeout;
 
     autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas || minNodesRequired;
     autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas || minNodesRequired;
@@ -124,6 +130,9 @@ const useMachinePoolFormik = ({
       diskSize = machinePool.aws_node_pool?.root_volume?.size;
       const autoRepairValue = (machinePool as NodePool)?.auto_repair;
       autoRepair = autoRepairValue ?? true;
+      maxSurge = machinePool.management_upgrade?.max_surge;
+      maxUnavailable = machinePool.management_upgrade?.max_unavailable;
+      nodeDrainTimeout = machinePool.node_drain_grace_period?.value;
     }
 
     if (isMachinePoolMz) {
@@ -168,6 +177,9 @@ const useMachinePoolFormik = ({
         (machinePool as MachinePool)?.aws?.additional_security_group_ids ||
         (machinePool as NodePool)?.aws_node_pool?.additional_security_group_ids ||
         [],
+      maxSurge: maxSurge ? parseInt(maxSurge, 10) : 1,
+      maxUnavailable: maxUnavailable ? parseInt(maxUnavailable, 10) : 0,
+      nodeDrainTimeout: nodeDrainTimeout || 0,
     };
 
     if (isGCP) {
@@ -382,6 +394,35 @@ const useMachinePoolFormik = ({
             : Yup.object(),
           isWindowsLicenseIncluded: Yup.boolean(),
           replicas: Yup.number(),
+          maxSurge: Yup.number()
+            .typeError('Max surge must be a number. Please provide a valid numeric value.')
+            .nullable()
+            .min(0, 'Input cannot be less than 0')
+            .test(
+              'not-both-zero-surge',
+              'Cannot be 0 if Max Unavailable is also 0.',
+              function testZeroValues(value) {
+                const { maxUnavailable } = this.parent;
+                return !(value === 0 && maxUnavailable === 0);
+              },
+            ),
+          maxUnavailable: Yup.number()
+            .typeError('Max unavailable must be a number. Please provide a valid numeric value.')
+            .nullable()
+            .min(0, 'Input cannot be less than 0')
+            .test(
+              'not-both-zero-unavailable',
+              'Cannot be 0 if Max Surge is also 0.',
+              function testZeroValues(value) {
+                const { maxSurge } = this.parent;
+                return !(value === 0 && maxSurge === 0);
+              },
+            ),
+          nodeDrainTimeout: Yup.number()
+            .typeError('Node drain timeout must be a number. Please provide a valid numeric value.')
+            .nullable()
+            .min(0, 'Input cannot be less than 0')
+            .max(10080, 'Input cannot be greater than 10080'),
           useSpotInstances: Yup.boolean(),
           privateSubnetId:
             !hasMachinePool && isHypershift

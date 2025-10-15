@@ -52,9 +52,14 @@ const MachinePoolsSubnets = () => {
 
   const MachinePoolSubnetsFormComponent = useCallback(
     (props: any) => (
-      <MachinePoolSubnetsForm selectedVPC={selectedVPC} {...props} warning={subnetWarnings} />
+      <MachinePoolSubnetsForm
+        selectedVPC={selectedVPC}
+        allMachinePoolSubnets={machinePoolsSubnets as FormSubnet[]}
+        {...props}
+        warning={subnetWarnings}
+      />
     ),
-    [selectedVPC, subnetWarnings],
+    [selectedVPC, subnetWarnings, machinePoolsSubnets],
   );
 
   return (
@@ -69,7 +74,12 @@ const MachinePoolsSubnets = () => {
           isHypershift
           input={{
             ...getFieldProps(FieldId.SelectedVpc),
-            onChange: (value: CloudVpc) => setFieldValue(FieldId.SelectedVpc, value),
+            onChange: (value: CloudVpc) => {
+              setFieldValue(FieldId.SelectedVpc, value);
+              if (value?.id !== selectedVPC?.id) {
+                setFieldValue(FieldId.SecurityGroups, { worker: [] });
+              }
+            },
           }}
           meta={getFieldMeta(FieldId.SelectedVpc)}
         />

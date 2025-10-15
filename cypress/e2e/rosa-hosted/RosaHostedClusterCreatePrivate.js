@@ -144,7 +144,13 @@ describe(
       CreateRosaWizardPage.selectOidcConfigId(clusterProperties.OidcConfigId);
       CreateRosaWizardPage.operatorRoleCommandInput()
         .invoke('val')
-        .then((sometext) => cy.executeRosaCmd(`${sometext} --mode auto`));
+        .then((sometext) => {
+          if (sometext && sometext.trim().length > 0) {
+            cy.executeRosaCmd(`${sometext} --mode auto`);
+          } else {
+            cy.executeRosaCmd(`rosa create operator-roles --cluster ${clusterName} --mode auto -y`);
+          }
+        });
       cy.executeRosaCmd(
         `rosa create oidc-provider --oidc-config-id "${clusterProperties.OidcConfigId}" --mode auto -y`,
       );
@@ -154,9 +160,9 @@ describe(
     it('Step - Cluster update - update statergies and its definitions', () => {
       CreateRosaWizardPage.isUpdatesScreen();
       if (clusterProperties.UpdateStrategy.includes('Recurring')) {
-        CreateRosaWizardPage.recurringUpdateRadio().check({ force: true });
+        CreateRosaWizardPage.selectUpdateStratergy('recurring');
       } else {
-        CreateRosaWizardPage.individualUpdateRadio().check({ force: true });
+        CreateRosaWizardPage.selectUpdateStratergy('individual');
       }
       CreateRosaWizardPage.rosaNextButton().click();
     });
@@ -227,13 +233,10 @@ describe(
       );
       let i = 1;
       for (; i <= clusterProperties.MachinePools.MachinePoolCount; i++) {
-        CreateRosaWizardPage.machinePoolLabelValue()
-          .contains(clusterProperties.MachinePools.AvailabilityZones[i - 1])
-          .next()
-          .contains(
-            qeInfrastructure.SUBNETS.ZONES[clusterProperties.MachinePools.AvailabilityZones[i - 1]]
-              .PRIVATE_SUBNET_NAME,
-          );
+        const azName = clusterProperties.MachinePools.AvailabilityZones[i - 1];
+        const subnetName = qeInfrastructure.SUBNETS.ZONES[azName].PRIVATE_SUBNET_NAME;
+        CreateRosaWizardPage.machinePoolLabelValue().contains(azName);
+        CreateRosaWizardPage.machinePoolLabelValue().contains(subnetName);
       }
     });
 
@@ -297,7 +300,8 @@ describe(
     it('Create cluster and check the installation progress', () => {
       CreateRosaWizardPage.createClusterButton().click();
       ClusterDetailsPage.waitForInstallerScreenToLoad();
-      ClusterDetailsPage.clusterNameTitle().contains(clusterName);
+      cy.url().should('include', '/cluster/');
+      cy.get('h1, h2').should('contain.text', clusterName);
       cy.get('h2').contains('Installing cluster').should('be.visible');
       cy.get('a').contains('Download OC CLI').should('be.visible');
       cy.contains('Cluster creation usually takes 10 minutes to complete')

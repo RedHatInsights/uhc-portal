@@ -345,7 +345,8 @@ function ClusterDetailsTop(props) {
   const hasGCPOrgPolicyAlert = !!showGcpOrgPolicyWarning;
   const hasSubscriptionCompliancyAlert =
     isOCP &&
-    (!isArchived || !isDeprovisioned) &&
+    !isArchived &&
+    !isDeprovisioned &&
     (supportLevel === SubscriptionCommonFieldsSupportLevel.Eval ||
       supportLevel === SubscriptionCommonFieldsSupportLevel.None);
   const hasClusterNonEditableAlert = !cluster.canEdit && isAvailableAssistedInstallCluster(cluster);

@@ -61,16 +61,18 @@ describe(
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
       if (clusterProperties.AdditionalEncryption.includes('Enabled')) {
         CreateOSDWizardPage.advancedEncryptionLink().click();
-        CreateOSDWizardPage.enableAdditionalEtcdEncryptionCheckbox().check();
+        CreateOSDWizardPage.enableAdditionalEtcdEncryptionCheckbox().check({ force: true });
         if (clusterProperties.FIPSCryptography.includes('Enabled')) {
-          CreateOSDWizardPage.enableFIPSCryptographyCheckbox().check();
+          CreateOSDWizardPage.enableFIPSCryptographyCheckbox().check({ force: true });
         }
         if (clusterProperties.EncryptVolumesWithCustomKeys.includes('Enabled')) {
-          CreateOSDWizardPage.useCustomKMSKeyRadio().check();
-          CreateOSDWizardPage.selectKeylocation(gcpKeyRingLocation);
-          CreateOSDWizardPage.selectKeyRing(gcpKeyRing);
-          CreateOSDWizardPage.selectKeyName(gcpKeyName);
-          CreateOSDWizardPage.kmsServiceAccountInput().type(gcpKMSServiceAccount);
+          if (gcpKeyRingLocation && gcpKeyRing && gcpKeyName && gcpKMSServiceAccount) {
+            CreateOSDWizardPage.useCustomKMSKeyRadio().check({ force: true });
+            CreateOSDWizardPage.selectKeylocation(gcpKeyRingLocation);
+            CreateOSDWizardPage.selectKeyRing(gcpKeyRing);
+            CreateOSDWizardPage.selectKeyName(gcpKeyName);
+            CreateOSDWizardPage.kmsServiceAccountInput().type(gcpKMSServiceAccount);
+          }
         }
       }
       CreateOSDWizardPage.wizardNextButton().click();
@@ -100,10 +102,10 @@ describe(
 
     it(`OSD ${clusterProperties.CloudProvider}  wizard - Networking configuration - cluster privacy definitions`, () => {
       CreateOSDWizardPage.isNetworkingScreen();
-      // CreateOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
-      CreateOSDWizardPage.installIntoExistingVpcCheckBox().check();
+      CreateOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
+      CreateOSDWizardPage.installIntoExistingVpcCheckBox().check({ force: true });
       if (clusterProperties.ApplicationIngress.includes('Custom settings')) {
-        CreateOSDWizardPage.applicationIngressCustomSettingsRadio().check();
+        CreateOSDWizardPage.applicationIngressCustomSettingsRadio().check({ force: true });
         CreateOSDWizardPage.applicationIngressRouterSelectorsInput().type(
           clusterProperties.RouteSelector.KeyValue,
         );

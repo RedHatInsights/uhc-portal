@@ -75,6 +75,7 @@ export function OverviewBillingAccountModal(props: OverviewBillingAccountModalPr
     >
       {(formik) => (
         <Modal
+          className="openshift"
           id="edit-billing-aws-account-modal"
           onClose={handleClose}
           variant={ModalVariant.small}

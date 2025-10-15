@@ -14,7 +14,7 @@ class ClusterList extends Page {
 
   viewOnlyMyClusterHelp = () => cy.get('label[for="view-only-my-clusters"]').find('button').first();
 
-  tooltipviewOnlyMyCluster = () => cy.get('div.pf-v6-c-popover__body');
+  tooltipviewOnlyMyCluster = () => cy.get('div[role="dialog"][aria-modal="true"]');
 
   viewClusterArchives = () => cy.contains('a', 'View cluster archives');
 
@@ -38,7 +38,7 @@ class ClusterList extends Page {
 
   typeColumnsInClusterList = () => cy.get('td[data-label="Type"] span');
 
-  filterdClusterTypesValues = () => cy.get('span.pf-v6-c-label__text');
+  filterdClusterTypesValues = () => cy.get('span');
 
   createClusterButton = () => cy.getByTestId('create_cluster_btn');
 
@@ -131,7 +131,7 @@ class ClusterList extends Page {
   }
 
   clickClusterListExtraActions() {
-    cy.get('button.pf-v6-c-dropdown__toggle').should('be.visible').click();
+    cy.get('button').should('be.visible').click();
   }
 
   clickClusterListTableHeader(header) {
@@ -161,11 +161,7 @@ class ClusterList extends Page {
   }
 
   searchForClusterWithStatus(status) {
-    cy.contains('td[data-label="Status"]', status)
-      .siblings()
-      .get('td.pf-v6-c-table__action > div')
-      .first()
-      .click();
+    cy.contains('td[data-label="Status"]', status).siblings().get('td > div').first().click();
   }
 
   waitForDataReady() {
@@ -217,7 +213,7 @@ class ClusterList extends Page {
   }
 
   checkForDetailsInAnchor() {
-    cy.get('tr.pf-v6-c-table__tr')
+    cy.get('tr')
       .find('td[data-label="Name"] a')
       .should('have.length.greaterThan', 0)
       .each((anchor) => {
@@ -226,7 +222,7 @@ class ClusterList extends Page {
   }
 
   checkIfFirstAnchorNavigatesToCorrectRoute() {
-    cy.get('tr.pf-v6-c-table__tr')
+    cy.get('tr')
       .find('td[data-label="Name"] a')
       .first()
       .then((anchor) => {

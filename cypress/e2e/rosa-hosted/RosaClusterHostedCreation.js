@@ -9,6 +9,7 @@ const region = clusterProperties.Region.split(',')[0];
 const awsAccountID = Cypress.env('QE_AWS_ID');
 const awsBillingAccountID = Cypress.env('QE_AWS_BILLING_ID');
 const qeInfrastructure = Cypress.env('QE_INFRA_REGIONS')[region][0];
+const securityGroups = qeInfrastructure.SECURITY_GROUPS_NAME;
 const rolePrefix = Cypress.env('QE_ACCOUNT_ROLE_PREFIX');
 const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
 const clusterName = `smoke-cypress-rosa-hypershift-${(Math.random() + 1).toString(36).substring(7)}`;
@@ -83,6 +84,13 @@ describe(
         .clear()
         .type('{selectAll}')
         .type(clusterProperties.MachinePools[0].RootDiskSize);
+      CreateRosaWizardPage.additionalSecurityGroupsLink().click();
+      cy.contains('h4', clusterProperties.MachinePools[0].SecurityGroupsInfoNote).should(
+        'be.visible',
+      );
+      securityGroups.forEach((value) => {
+        CreateRosaWizardPage.selectAdditionalSecurityGroups(value);
+      });
       CreateRosaWizardPage.rosaNextButton().click();
     });
 
@@ -182,6 +190,9 @@ describe(
         'Instance Metadata Service (IMDS)',
         clusterProperties.InstanceMetadataService,
       );
+      securityGroups.forEach((value) => {
+        cy.contains(value).scrollIntoView().should('be.visible').should('be.exist');
+      });
     });
 
     it('Step - Review and create : Networking definitions', () => {

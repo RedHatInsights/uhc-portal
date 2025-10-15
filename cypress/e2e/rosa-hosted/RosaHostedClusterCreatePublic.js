@@ -160,9 +160,9 @@ describe(
     it('Step - Cluster update - update statergies and its definitions', () => {
       CreateRosaWizardPage.isUpdatesScreen();
       if (clusterProperties.UpdateStrategy.includes('Recurring')) {
-        CreateRosaWizardPage.recurringUpdateRadio().check({ force: true });
+        CreateRosaWizardPage.selectUpdateStratergy('recurring');
       } else {
-        CreateRosaWizardPage.individualUpdateRadio().check({ force: true });
+        CreateRosaWizardPage.selectUpdateStratergy('individual');
       }
       CreateRosaWizardPage.rosaNextButton().click();
     });

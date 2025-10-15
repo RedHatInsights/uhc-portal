@@ -7,6 +7,12 @@ export interface paths {
   '/api/upgrades_info/graph': {
     parameters: {
       query: {
+        /** @description The architecture identifier for the currently installed cluster, or "multi" for payloads that support heterogeneous clusters. The returned update graph contains the updates only for the provided architecture. The allowed values of an architecture identifier are listed in the Go Language document for $GOARCH. See https://go.dev/doc/install/source#environment. */
+        arch?: string;
+        /** @description The current version of the cluster. */
+        version?: components['schemas']['Version'];
+        /** @description The unique identifier of the cluster. */
+        id?: string;
         channel: string;
       };
       header?: never;
@@ -25,7 +31,14 @@ export interface paths {
   };
   '/api/upgrades_info/v1/graph': {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description The architecture identifier for the currently installed cluster, or "multi" for payloads that support heterogeneous clusters. The returned update graph contains the updates only for the provided architecture. The allowed values of an architecture identifier are listed in the Go Language document for $GOARCH. See https://go.dev/doc/install/source#environment. */
+        arch?: string;
+        /** @description The current version of the cluster. */
+        version?: components['schemas']['Version'];
+        /** @description The unique identifier of the cluster. */
+        id?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -44,9 +57,25 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /**
+     * @description The version of an OpenShift release
+     * @example 4.16.3
+     */
+    Version: string;
+    /** @description A directed acyclic graph to represent the valid updates.
+     *     * Each node in the graph is a release payload.
+     *     * Each edge is a valid transition to a release payload without risks.
+     *     * Each conditional edge is a valid transition to a release payload with risks.
+     *      */
     Graph: {
-      nodes?: components['schemas']['Node'][];
-      edges?: components['schemas']['Edge'][];
+      /**
+       * Format: int32
+       * @example 1
+       */
+      version: number;
+      nodes: components['schemas']['Node'][];
+      edges: components['schemas']['Edge'][];
+      conditionalEdges: components['schemas']['ConditionalEdges'][];
     };
     Node: {
       version: string;
@@ -56,6 +85,73 @@ export interface components {
       };
     };
     Edge: number[];
+    /** @description the conditional edges of the graph. */
+    ConditionalEdges: {
+      /** @example [
+       *       {
+       *         "from": "4.17.18",
+       *         "to": "4.17.19"
+       *       }
+       *     ] */
+      edges: {
+        from: components['schemas']['Version'];
+        to: components['schemas']['Version'];
+      }[];
+      /**
+       * @description a set of risks for the associated conditional update path
+       * @example [
+       *       {
+       *         "matchingRules": [
+       *           {
+       *             "type": "Always"
+       *           }
+       *         ],
+       *         "message": "This is a prerelease version, and you should update to 4.18.1 or later releases, even if that\nmeans updating to a newer 4.17 first.\n",
+       *         "name": "PreRelease",
+       *         "url": "https://docs.openshift.com/container-platform/4.18/release_notes/ocp-4-18-release-notes.html"
+       *       }
+       *     ]
+       */
+      risks: {
+        /** @description the URI documenting the risk */
+        url?: string;
+        /** @description the name of the risk */
+        name?: string;
+        /** @description a human-oriented message describing the risk */
+        message?: string;
+        /**
+         * @description It defines the conditions for deciding which clusters have the update recommended
+         *     and which do not.
+         *     The array is ordered by decreasing precedence. Consumers should walk the array in order.
+         *     For a given entry, if a condition type is unrecognized, or fails to evaluate, consumers
+         *     should proceed to the next entry.
+         *     If a condition successfully evaluates (either as a match or as an explicit does-not-match),
+         *     that result is used, and no further entries should be attempted.
+         *     If no condition can be successfully evaluated, the update should not be recommended.
+         *
+         * @example [
+         *       {
+         *         "type": "Always"
+         *       }
+         *     ]
+         */
+        matchingRules: {
+          /**
+           * @description the type of the matching rule
+           * @enum {string}
+           */
+          type: ConditionalEdgesRisksMatchingRulesType;
+          /** @description the matching rule of type PromQL. */
+          promql?: {
+            /** @example group(cluster_operator_conditions{_id="",name="aro"})
+             *     or
+             *     0 * group(cluster_operator_conditions{_id=""})
+             *      */
+            promql: string;
+          };
+        }[];
+      }[];
+    };
     GraphError: {
       kind: string;
       value: string;
@@ -67,15 +163,23 @@ export interface components {
   headers: never;
   pathItems: never;
 }
+export type Version = components['schemas']['Version'];
 export type Graph = components['schemas']['Graph'];
 export type Node = components['schemas']['Node'];
 export type Edge = components['schemas']['Edge'];
+export type ConditionalEdges = components['schemas']['ConditionalEdges'];
 export type GraphError = components['schemas']['GraphError'];
 export type $defs = Record<string, never>;
 export interface operations {
   getGraph: {
     parameters: {
       query: {
+        /** @description The architecture identifier for the currently installed cluster, or "multi" for payloads that support heterogeneous clusters. The returned update graph contains the updates only for the provided architecture. The allowed values of an architecture identifier are listed in the Go Language document for $GOARCH. See https://go.dev/doc/install/source#environment. */
+        arch?: string;
+        /** @description The current version of the cluster. */
+        version?: components['schemas']['Version'];
+        /** @description The unique identifier of the cluster. */
+        id?: string;
         channel: string;
       };
       header?: never;
@@ -91,6 +195,7 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['Graph'];
+          'application/vnd.redhat.cincinnati.v1+json': components['schemas']['Graph'];
         };
       };
       /** @description Bad client request */
@@ -133,7 +238,14 @@ export interface operations {
   };
   getV1Graph: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description The architecture identifier for the currently installed cluster, or "multi" for payloads that support heterogeneous clusters. The returned update graph contains the updates only for the provided architecture. The allowed values of an architecture identifier are listed in the Go Language document for $GOARCH. See https://go.dev/doc/install/source#environment. */
+        arch?: string;
+        /** @description The current version of the cluster. */
+        version?: components['schemas']['Version'];
+        /** @description The unique identifier of the cluster. */
+        id?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -147,6 +259,7 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['Graph'];
+          'application/vnd.redhat.cincinnati.v1+json': components['schemas']['Graph'];
         };
       };
       /** @description Bad client request */
@@ -187,4 +300,8 @@ export interface operations {
       };
     };
   };
+}
+export enum ConditionalEdgesRisksMatchingRulesType {
+  Always = 'Always',
+  PromQL = 'PromQL',
 }

@@ -1,4 +1,5 @@
-import { render, renderHook, screen } from '~/testUtils';
+import { MP_ADDITIONAL_MAINTENANCE_VALUES } from '~/queries/featureGates/featureConstants';
+import { mockUseFeatureGate, render, renderHook, screen } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { useMaintenanceSubTab } from './MaintenanceSubTab';
@@ -9,6 +10,26 @@ jest.mock('formik', () => ({
     {
       name: 'auto_repair',
       value: false,
+    },
+    {
+      name: 'maxSurge',
+      value: 1,
+      onChange: jest.fn(),
+    },
+    {
+      name: 'maxUnavailable',
+      value: 0,
+      onChange: jest.fn(),
+    },
+    {
+      name: 'nodeDrainTimeout',
+      value: 0,
+      onChange: jest.fn(),
+    },
+    {
+      setValue: jest.fn(),
+      setTouched: jest.fn(),
+      setError: jest.fn(),
     },
   ]),
 }));
@@ -76,6 +97,15 @@ describe('MaintenanceSubTab', () => {
       checkForError(true);
     });
 
+    it('shows error when a validation error is on max surge field', () => {
+      const { result } = renderHook(() => useMaintenanceSubTab(defaultProps));
+      const [tabs] = result.current;
+
+      render(tabs({ maxSurge: 'error present' }));
+      expect(screen.getByRole('tab')).toBeInTheDocument();
+      checkForError(true);
+    });
+
     it('does not show error when validation error is on field outside of tab', () => {
       const { result } = renderHook(() => useMaintenanceSubTab(defaultProps));
       const [tabs] = result.current;
@@ -90,10 +120,21 @@ describe('MaintenanceSubTab', () => {
     it('displays the correct content when cluster is hypershift', () => {
       const { result } = renderHook(() => useMaintenanceSubTab(defaultProps));
       const [_tab, content] = result.current;
-
       render(content());
       expect(screen.getByRole('tabpanel')).toBeInTheDocument();
       expect(screen.getByText('AutoRepair')).toBeInTheDocument();
+    });
+
+    it('displays the correct content when maintenance fields are enabled', () => {
+      mockUseFeatureGate([[MP_ADDITIONAL_MAINTENANCE_VALUES, true]]);
+      const { result } = renderHook(() => useMaintenanceSubTab(defaultProps));
+      const [_tab, content] = result.current;
+
+      render(content());
+      expect(screen.getByRole('tabpanel')).toBeInTheDocument();
+      expect(screen.getByText('Max surge')).toBeInTheDocument();
+      expect(screen.getByText('Max unavailable')).toBeInTheDocument();
+      expect(screen.getByText('Node drain timeout')).toBeInTheDocument();
     });
 
     it('does not display content when cluster is not hypershift', () => {

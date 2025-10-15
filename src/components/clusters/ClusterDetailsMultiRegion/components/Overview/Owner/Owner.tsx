@@ -87,7 +87,7 @@ export function Owner() {
     <DescriptionListGroup>
       <DescriptionListTerm>Owner </DescriptionListTerm>
       <DescriptionListDescription>
-        {!showOwnershipTransfer ? OwnerTransferButton : owner}
+        {showOwnershipTransfer ? OwnerTransferButton : owner}
       </DescriptionListDescription>
     </DescriptionListGroup>
   );

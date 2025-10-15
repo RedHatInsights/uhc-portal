@@ -1,11 +1,15 @@
-.modal-secondary-title {
-  .pf-v6-l-split__item {
+.custom-modal {
+  .custom-modal__secondary-title {
     margin-top: var(--pf-t--global--spacer--xs);
     font-size: var(--pf-t--global--font--size--md);
-    &:first-child {
+    .custom-modal__secondary-title__label {
       color: var(--pf-t--global--text--color--subtle);
       font-weight: var(--pf-t--global--font--weight--heading--bold);
       margin-right: var(--pf-t--global--spacer--sm);
     }
   }
+
+  .pf-v6-c-modal-box__title-text {
+    line-height: calc(var(--pf-t--global--font--line-height--heading) * 1.3rem);
+}
 }

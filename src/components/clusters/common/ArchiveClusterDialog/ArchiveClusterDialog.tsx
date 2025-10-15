@@ -3,11 +3,12 @@ import { useDispatch } from 'react-redux';
 
 import { Form } from '@patternfly/react-core';
 
+import supportLinks from '~/common/supportLinks.mjs';
+import Modal from '~/components/common/Modal/Modal';
 import { useArchiveCluster } from '~/queries/ClusterActionsQueries/useArchiveCluster';
 import { useGlobalState } from '~/redux/hooks';
 
 import ErrorBox from '../../../common/ErrorBox';
-import Modal from '../../../common/Modal/Modal';
 import { closeModal } from '../../../common/Modal/ModalActions';
 import modals from '../../../common/Modal/modals';
 
@@ -72,11 +73,7 @@ const ArchiveClusterDialog = ({ onClose }: { onClose: () => void }) => {
           <p>
             This action will not delete the cluster, only remove it from OpenShift Cluster
             Manager.&nbsp;
-            <a
-              href="https://access.redhat.com/articles/4397891"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
+            <a href={supportLinks.ARCHIVE_CLUSTER_KB} target="_blank" rel="noreferrer noopener">
               Instructions
             </a>
             &nbsp;for deleting a cluster may be found in the knowledge base.
