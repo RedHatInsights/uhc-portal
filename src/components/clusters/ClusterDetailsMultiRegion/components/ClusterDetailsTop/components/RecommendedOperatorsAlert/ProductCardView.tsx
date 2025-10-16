@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Flex, FlexItem, Title } from '@patternfly/react-core';
+import { Gallery, GalleryItem, Title } from '@patternfly/react-core';
 
 import ExternalLink from '~/components/common/ExternalLink';
 
@@ -31,18 +31,18 @@ const ProductCardView = ({
         {title}
       </Title>
     ) : null}
-    <Flex className="pf-v6-u-mb-lg">
+    <Gallery hasGutter className="pf-v6-u-mb-lg">
       {cards.map((card: ProductCardNode) => (
-        <FlexItem data-testid="product-overview-card-flex-item">
+        <GalleryItem key={card.title} data-testid="product-overview-card-flex-item">
           <ProductCard
             {...card}
             openLearnMore={openLearnMore}
             isSelected={card.title === selectedCardTitle}
             dataTestId={title ?? 'product-card-view'}
           />
-        </FlexItem>
+        </GalleryItem>
       ))}
-    </Flex>
+    </Gallery>
     {learnMoreLink ? (
       <ExternalLink href={learnMoreLink.link}>{learnMoreLink.name}</ExternalLink>
     ) : null}
