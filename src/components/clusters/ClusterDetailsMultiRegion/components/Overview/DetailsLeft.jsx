@@ -35,7 +35,14 @@ const getIdFields = (cluster, showAssistedId) => {
   }
   return { id, idLabel: label };
 };
-function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData }) {
+function DetailsLeft({
+  cluster,
+  cloudProviders,
+  showAssistedId,
+  wifConfigData,
+  isArchived,
+  isDeprovisioned,
+}) {
   const useEusChannel = useFeatureGate(ALLOW_EUS_CHANNEL);
   const cloudProviderId = cluster.cloud_provider ? cluster.cloud_provider.id : null;
   const region = cluster?.region?.id;
@@ -152,10 +159,10 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData })
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
-      {useEusChannel && (
+      {useEusChannel && !isArchived && !isDeprovisioned && (
         <ChannelGroupEdit
           clusterID={clusterID}
-          channelGroup={cluster.version.channel_group}
+          channelGroup={cluster?.version.channel_group}
           cluster={cluster}
         />
       )}
@@ -232,6 +239,8 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData })
 
 DetailsLeft.propTypes = {
   cluster: PropTypes.any,
+  isArchived: PropTypes.boolean,
+  isDeprovisioned: PropTypes.boolean,
   cloudProviders: PropTypes.object.isRequired,
   showAssistedId: PropTypes.bool.isRequired,
   wifConfigData: PropTypes.shape({
