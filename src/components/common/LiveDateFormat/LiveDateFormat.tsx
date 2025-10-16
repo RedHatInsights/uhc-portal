@@ -1,12 +1,16 @@
 import React from 'react';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
+import { Timestamp, TimestampFormat, TimestampTooltipVariant } from '@patternfly/react-core';
+
+dayjs.extend(relativeTime);
 
 type Props = {
-  timestamp: number;
+  date?: Date | undefined;
 };
 
-const LiveDateFormat = ({ timestamp }: Props) => {
+const LiveDateFormat = ({ date }: Props) => {
   // use state to trigger an update on a set interval
   const [, triggerUpdate] = React.useState(0);
   React.useEffect(() => {
@@ -15,7 +19,22 @@ const LiveDateFormat = ({ timestamp }: Props) => {
     return () => clearInterval(timer);
   }, []);
 
-  return <DateFormat type="relative" date={timestamp} />;
+  if (!date) {
+    return 'N/A';
+  }
+
+  return (
+    <Timestamp
+      date={date}
+      dateFormat={TimestampFormat.medium}
+      timeFormat={TimestampFormat.medium}
+      shouldDisplayUTC
+      locale="eng-GB"
+      tooltip={{ variant: TimestampTooltipVariant.default }}
+    >
+      {dayjs().to(dayjs(date))}
+    </Timestamp>
+  );
 };
 
 export default LiveDateFormat;
