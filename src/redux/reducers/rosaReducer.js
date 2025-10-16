@@ -11,7 +11,6 @@ import {
   GET_OCM_ROLE,
   GET_USER_ROLE,
   LIST_ASSOCIATED_AWS_IDS,
-  SET_OCM_ROLE_STATUS,
   SET_OFFLINE_TOKEN,
 } from '../../components/clusters/wizards/rosa/rosaConstants';
 import {
@@ -179,13 +178,6 @@ function rosaReducer(state = initialState, action) {
 
       case SET_OFFLINE_TOKEN:
         draft.offlineToken = action.payload;
-        break;
-
-      case SET_OCM_ROLE_STATUS:
-        draft.getOCMRoleResponse = {
-          ...baseRequestState,
-          ...action.payload,
-        };
         break;
     }
   });

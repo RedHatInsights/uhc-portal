@@ -60,11 +60,12 @@ const CreateRosaWizardFooter = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [steps, setStep]);
 
+  const oCMRoleLoading = values[FieldId.IsGetOCMRolePending] || false;
+
   const awsRequests = useSelector((state) => ({
     accountIDsLoading: state.rosaReducer.getAWSAccountIDsResponse.pending || false,
     accountARNsLoading: state.rosaReducer.getAWSAccountRolesARNsResponse.pending || false,
     userRoleLoading: state.rosaReducer.getUserRoleResponse.pending || false,
-    oCMRoleLoading: state.rosaReducer.getOCMRoleResponse.pending || false,
     vpcsLoading: state.ccsInquiries.vpcs.pending || false,
   }));
 
@@ -75,7 +76,7 @@ const CreateRosaWizardFooter = ({
     awsRequests.accountIDsLoading ||
     awsRequests.accountARNsLoading ||
     awsRequests.userRoleLoading ||
-    awsRequests.oCMRoleLoading ||
+    oCMRoleLoading ||
     isRefreshingVPCs;
 
   const isButtonLoading = isValidating || areAwsResourcesLoading;
