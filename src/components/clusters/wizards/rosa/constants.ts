@@ -34,6 +34,7 @@ export enum RosaFieldId {
   DetectedOcmAndUserRoles = 'detected_ocm_and_user_roles',
   EtcdKeyArn = 'etcd_key_arn',
   Hypershift = 'hypershift',
+  IsGetOCMRolePending = 'is_get_ocm_role_pending',
   RosaMaxOsVersion = 'rosa_max_os_version',
   SharedVpc = 'shared_vpc',
   SupportRoleArn = 'support_role_arn',
