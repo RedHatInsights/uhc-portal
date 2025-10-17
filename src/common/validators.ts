@@ -227,7 +227,6 @@ const checkObjectNameValidation = (
 
 const checkObjectNameAsyncValidation = (
   value?: string,
-  isMultiRegionEnabled?: boolean,
   isExistingRegionalClusterName?: boolean,
 ) => [
   {
@@ -235,10 +234,6 @@ const checkObjectNameAsyncValidation = (
     validator: async () => {
       if (!value?.length) {
         return false;
-      }
-
-      if (isMultiRegionEnabled) {
-        return !isExistingRegionalClusterName;
       }
 
       return isExistingRegionalClusterName !== undefined ? !isExistingRegionalClusterName : true;
@@ -270,11 +265,8 @@ const checkObjectNameDomainPrefixAsyncValidation = (
 const clusterNameValidation = (value?: string, maxLen?: number) =>
   checkObjectNameValidation(value, 'Cluster', maxLen || MAX_CLUSTER_NAME_LENGTH);
 
-const clusterNameAsyncValidation = (
-  value?: string,
-  isMultiRegionEnabled?: boolean,
-  isExistingRegionalClusterName?: boolean,
-) => checkObjectNameAsyncValidation(value, isMultiRegionEnabled, isExistingRegionalClusterName);
+const clusterNameAsyncValidation = (value?: string, isExistingRegionalClusterName?: boolean) =>
+  checkObjectNameAsyncValidation(value, isExistingRegionalClusterName);
 
 const checkMachinePoolName = (value: string | undefined) =>
   checkObjectName(value, 'Machine pool', MAX_MACHINE_POOL_NAME_LENGTH);
@@ -348,14 +340,9 @@ const findFirstFailureMessage = (populatedValidation: Validations | undefined) =
  * @param value the value to be validated
  * @returns {Promise<void>} a promise which resolves quietly, or rejects with a form errors map.
  */
-const asyncValidateClusterName = async (
-  value: string,
-  isMultiRegionEnabled?: boolean,
-  isExistingRegionalClusterName?: boolean,
-) => {
+const asyncValidateClusterName = async (value: string, isExistingRegionalClusterName?: boolean) => {
   const evaluatedAsyncValidation = await evaluateClusterNameAsyncValidation(
     value,
-    isMultiRegionEnabled,
     isExistingRegionalClusterName,
   );
   return findFirstFailureMessage(evaluatedAsyncValidation);

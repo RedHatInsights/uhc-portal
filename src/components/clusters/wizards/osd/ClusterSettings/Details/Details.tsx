@@ -271,7 +271,6 @@ function Details() {
 
     const clusterNameAsyncError = await asyncValidateClusterName(
       value,
-      undefined,
       hasExistingRegionalClusterName,
     );
     if (clusterNameAsyncError) {
@@ -328,7 +327,7 @@ function Details() {
               validate={validateClusterName}
               validation={(value: string) => clusterNameValidation(value, clusterNameMaxLength)}
               asyncValidation={(value: string) =>
-                clusterNameAsyncValidation(value, undefined, hasExistingRegionalClusterName)
+                clusterNameAsyncValidation(value, hasExistingRegionalClusterName)
               }
               isRequired
               extendedHelpText={constants.clusterNameHint}
