@@ -6,14 +6,18 @@ import { Tab, Tabs, TabTitleText } from '@patternfly/react-core';
 import { ListTab } from '~/components/clusters/ClusterListMultiRegion';
 
 import { ClustersPageHeader } from './ClustersPageHeader';
+import { refetchClusterTransferDetail } from '~/queries/ClusterDetailsQueries/ClusterTransferOwnership/useFetchClusterTransferDetails';
+import { useFetchClusters } from '~/queries/ClusterListQueries/useFetchClusters';
 
 const DEFAULT_TAB = 'list';
 
 export const Clusters = () => {
-  const someReadOnly = false;
-  const showSpinner = false;
-  const error = false;
-  const refresh = () => {};
+  const { refetch } = useFetchClusters(false, true);
+
+  const refresh = () => {
+    refetch();
+    refetchClusterTransferDetail();
+  };
   const location = useLocation();
 
   // Get tab key from hash, or use default
@@ -42,12 +46,7 @@ export const Clusters = () => {
 
   return (
     <>
-      <ClustersPageHeader
-        someReadOnly={someReadOnly}
-        showSpinner={showSpinner}
-        error={error}
-        refresh={refresh}
-      />
+      <ClustersPageHeader refresh={refresh} />
       <Tabs activeKey={activeTabKey} onSelect={handleTabClick} role="region" aria-label="Clusters">
         <Tab
           eventKey="list"
