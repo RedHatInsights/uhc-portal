@@ -42,6 +42,7 @@ import {
   useFetchClusterIdentityProviders,
 } from '~/queries/ClusterDetailsQueries/useFetchClusterIdentityProviders';
 import { useFetchGCPWifConfig } from '~/queries/ClusterDetailsQueries/useFetchGCPWifConfig';
+import { refetchOrganizationQuota } from '~/queries/ClusterDetailsQueries/useFetchOrganizationQuota';
 import { refetchClusterLogsQueries } from '~/queries/ClusterLogsQueries/useFetchClusterLogs';
 import {
   invalidateCloudProviders,
@@ -317,6 +318,7 @@ const ClusterDetails = (props) => {
     if (isValid(clusterID) && subscriptionStatus !== SubscriptionCommonFieldsStatus.Deprovisioned) {
       refreshRelatedResources(clicked);
     }
+    refetchOrganizationQuota(organization?.details?.id);
   };
 
   React.useEffect(() => {
