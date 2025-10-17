@@ -33,6 +33,7 @@ import { SyncEditorModal } from '~/components/SyncEditor/SyncEditorModal';
 import config from '~/config';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import {
+  ALLOW_EUS_CHANNEL,
   CREATE_CLUSTER_YAML_EDITOR,
   HYPERSHIFT_WIZARD_FEATURE,
   IMDS_SELECTION,
@@ -116,9 +117,12 @@ const ReviewClusterScreen = ({
   const { organization } = useOrganization();
   const hasExternalAuth = hasExternalAuthenticationCapability(organization?.capabilities);
 
+  const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
+
   const clusterSettingsFields = [
     FieldId.ClusterName,
     ...(hasDomainPrefix ? [FieldId.DomainPrefix] : []),
+    ...(isEUSChannelEnabled ? [FieldId.ChannelGroup] : []),
     FieldId.ClusterVersion,
     FieldId.Region,
     FieldId.MultiAz,

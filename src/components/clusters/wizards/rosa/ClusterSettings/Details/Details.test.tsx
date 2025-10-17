@@ -9,7 +9,10 @@ import { waitFor } from '@testing-library/react';
 import { fulfilledProviders, multiRegions, noProviders } from '~/common/__tests__/regions.fixtures';
 import { FieldId, initialValues } from '~/components/clusters/wizards/rosa/constants';
 import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleStatuses';
-import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConstants';
+import {
+  ALLOW_EUS_CHANNEL,
+  MULTIREGION_PREVIEW_ENABLED,
+} from '~/queries/featureGates/featureConstants';
 import { useFetchGetMultiRegionAvailableRegions } from '~/queries/RosaWizardQueries/useFetchGetMultiRegionAvailableRegions';
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
@@ -158,6 +161,174 @@ describe('<Details />', () => {
       );
 
       expect(screen.queryByText('Domain prefix')).toBe(null);
+    });
+  });
+
+  describe('Channel group dropdown', () => {
+    const versionsWithMultipleChannels = [
+      {
+        id: 'openshift-v4.12.1',
+        raw_id: '4.12.1',
+        channel_group: 'stable',
+        rosa_enabled: true,
+        hosted_control_plane_enabled: true,
+      },
+      {
+        id: 'openshift-v4.12.0-eus',
+        raw_id: '4.12.0',
+        channel_group: 'eus',
+        rosa_enabled: true,
+        hosted_control_plane_enabled: true,
+      },
+      {
+        id: 'openshift-v4.11.5-nightly',
+        raw_id: '4.11.5',
+        channel_group: 'nightly',
+        rosa_enabled: true,
+        hosted_control_plane_enabled: true,
+      },
+    ];
+
+    beforeEach(() => {
+      jest.resetAllMocks();
+      (clusterService.getInstallableVersions as jest.Mock).mockResolvedValue({
+        data: { items: versionsWithMultipleChannels },
+      });
+      (clusterService.getMachineTypesByRegionARN as jest.Mock).mockResolvedValue({
+        data: { items: [] },
+      });
+      (getOCPLifeCycleStatus as jest.Mock).mockResolvedValue(ocpLifeCycleStatuses);
+    });
+
+    it('displays channel group dropdown when ALLOW_EUS_CHANNEL feature gate is enabled', async () => {
+      // Arrange
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+      const loadedState = {
+        cloudProviders: fulfilledProviders,
+        clusters: {
+          clusterVersions: {
+            fulfilled: true,
+            versions: versionsWithMultipleChannels,
+            error: false,
+            pending: false,
+          },
+        },
+      };
+
+      // Act
+      withState(loadedState).render(
+        <Formik initialValues={defaultValues} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      // Assert
+      expect(await screen.findByText('Channel group')).toBeInTheDocument();
+    });
+
+    it('hides channel group dropdown when ALLOW_EUS_CHANNEL feature gate is disabled', async () => {
+      // Arrange
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, false]]);
+      const loadedState = {
+        cloudProviders: fulfilledProviders,
+        clusters: {
+          clusterVersions: {
+            fulfilled: true,
+            versions: versionsWithMultipleChannels,
+            error: false,
+            pending: false,
+          },
+        },
+      };
+
+      // Act
+      withState(loadedState).render(
+        <Formik initialValues={defaultValues} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.queryByText('Channel group')).not.toBeInTheDocument();
+      });
+    });
+
+    it('displays channel group with EUS and stable versions', async () => {
+      // Arrange
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+      const stableVersion = versionsWithMultipleChannels[0];
+      const eusVersion = {
+        ...versionsWithMultipleChannels[1],
+        raw_id: '4.12.1', // Same version number as stable
+      };
+      const versionsWithSameRawId = [stableVersion, eusVersion];
+
+      const loadedState = {
+        cloudProviders: fulfilledProviders,
+        clusters: {
+          clusterVersions: {
+            fulfilled: true,
+            versions: versionsWithSameRawId,
+            error: false,
+            pending: false,
+          },
+        },
+      };
+
+      const initialVals = {
+        ...defaultValues,
+        [FieldId.ChannelGroup]: 'stable',
+        [FieldId.ClusterVersion]: stableVersion,
+      };
+
+      // Act
+      withState(loadedState).render(
+        <Formik initialValues={initialVals} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Channel group')).toBeInTheDocument();
+      });
+    });
+
+    it('displays channel group with nightly versions', async () => {
+      // Arrange
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+      const stableVersion = versionsWithMultipleChannels[0];
+
+      const loadedState = {
+        cloudProviders: fulfilledProviders,
+        clusters: {
+          clusterVersions: {
+            fulfilled: true,
+            versions: versionsWithMultipleChannels,
+            error: false,
+            pending: false,
+          },
+        },
+      };
+
+      const initialVals = {
+        ...defaultValues,
+        [FieldId.ChannelGroup]: 'nightly',
+        [FieldId.ClusterVersion]: stableVersion,
+      };
+
+      // Act
+      withState(loadedState).render(
+        <Formik initialValues={initialVals} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      // Assert - the channel group dropdown should be visible
+      await waitFor(() => {
+        expect(screen.getByText('Channel group')).toBeInTheDocument();
+      });
     });
   });
 });
