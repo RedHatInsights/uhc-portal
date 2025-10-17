@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom';
 
 import { Tab, Tabs, TabTitleText } from '@patternfly/react-core';
 
+import { ListTab } from '~/components/clusters/ClusterListMultiRegion';
+
 import { ClustersPageHeader } from './ClustersPageHeader';
 
 const DEFAULT_TAB = 'list';
@@ -52,7 +54,7 @@ export const Clusters = () => {
           title={<TabTitleText>Cluster List</TabTitleText>}
           aria-label="Default content - Cluster List"
         >
-          List of clusters
+          <ListTab getMultiRegion />
         </Tab>
         <Tab
           eventKey="requests"
