@@ -8,6 +8,7 @@ import { ListTab } from '~/components/clusters/ClusterListMultiRegion';
 import { ClustersPageHeader } from './ClustersPageHeader';
 import { refetchClusterTransferDetail } from '~/queries/ClusterDetailsQueries/ClusterTransferOwnership/useFetchClusterTransferDetails';
 import { useFetchClusters } from '~/queries/ClusterListQueries/useFetchClusters';
+import ClusterTransferList from '../ClusterTransfer/ClusterTransferList';
 
 const DEFAULT_TAB = 'list';
 
@@ -51,16 +52,16 @@ export const Clusters = () => {
         <Tab
           eventKey="list"
           title={<TabTitleText>Cluster List</TabTitleText>}
-          aria-label="Default content - Cluster List"
+          aria-label="Cluster List"
         >
           <ListTab getMultiRegion />
         </Tab>
         <Tab
           eventKey="requests"
           title={<TabTitleText>Cluster Requests</TabTitleText>}
-          aria-label="Default content - Cluster Requests"
+          aria-label="Cluster Requests"
         >
-          Cluster requests
+          <ClusterTransferList />
         </Tab>
       </Tabs>
     </>
