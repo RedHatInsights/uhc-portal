@@ -4,11 +4,12 @@ import { useLocation } from 'react-router-dom';
 import { Tab, Tabs, TabTitleText } from '@patternfly/react-core';
 
 import { ListTab } from '~/components/clusters/ClusterListMultiRegion';
-
-import { ClustersPageHeader } from './ClustersPageHeader';
 import { refetchClusterTransferDetail } from '~/queries/ClusterDetailsQueries/ClusterTransferOwnership/useFetchClusterTransferDetails';
 import { useFetchClusters } from '~/queries/ClusterListQueries/useFetchClusters';
+
 import ClusterTransferList from '../ClusterTransfer/ClusterTransferList';
+
+import { ClustersPageHeader } from './ClustersPageHeader';
 
 const DEFAULT_TAB = 'list';
 
