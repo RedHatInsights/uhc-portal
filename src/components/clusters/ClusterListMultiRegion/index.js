@@ -7,6 +7,7 @@ import { userActions } from '../../../redux/actions/userActions';
 import { modalActions } from '../../common/Modal/ModalActions';
 
 import ClusterList from './ClusterList';
+import ClusterListTab from './ClusterListTab';
 
 const mapDispatchToProps = {
   getCloudProviders: cloudProviderActions.getCloudProviders,
@@ -24,3 +25,4 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ClusterList);
+export const ListTab = connect(mapStateToProps, mapDispatchToProps)(ClusterListTab);
