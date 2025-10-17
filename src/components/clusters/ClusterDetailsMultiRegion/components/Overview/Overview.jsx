@@ -198,6 +198,8 @@ const Overview = (props) => {
                       cloudProviders={cloudProviders}
                       showAssistedId={showAssistedInstallerDetailCard}
                       wifConfigData={wifConfigData}
+                      isArchived={isArchived}
+                      isDeprovisioned={isDeprovisioned}
                     />
                   </GridItem>
                   <GridItem sm={6}>
