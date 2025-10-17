@@ -18,7 +18,15 @@ const mapDispatchToProps = {
   clearGlobalError,
 };
 
-const mapStateToProps = (state) => ({
+type RootState = {
+  cloudProviders: any;
+  machineTypes: any;
+  userProfile: {
+    organization: any;
+  };
+};
+
+const mapStateToProps = (state: RootState) => ({
   cloudProviders: state.cloudProviders,
   machineTypes: state.machineTypes,
   organization: state.userProfile.organization,
