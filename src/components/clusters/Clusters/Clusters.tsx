@@ -3,18 +3,19 @@ import { useLocation } from 'react-router-dom';
 
 import { Tab, Tabs, TabTitleText } from '@patternfly/react-core';
 
+import { useNavigate } from '~/common/routing';
+import { AppPage } from '~/components/App/AppPage';
 import { ListTab } from '~/components/clusters/ClusterListMultiRegion';
+
+import ClusterTransferList from '../ClusterTransfer/ClusterTransferList';
 
 import { ClustersPageHeader } from './ClustersPageHeader';
 
 const DEFAULT_TAB = 'list';
 
 export const Clusters = () => {
-  const someReadOnly = false;
-  const showSpinner = false;
-  const error = false;
-  const refresh = () => {};
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Get tab key from hash, or use default
   const getTabFromHash = (): string => {
@@ -37,33 +38,28 @@ export const Clusters = () => {
   ) => {
     const tabKeyStr = String(tabKey);
     setActiveTabKey(tabKeyStr);
-    window.location.hash = tabKeyStr;
+    navigate(`${location.pathname}#${tabKeyStr}`);
   };
 
   return (
-    <>
-      <ClustersPageHeader
-        someReadOnly={someReadOnly}
-        showSpinner={showSpinner}
-        error={error}
-        refresh={refresh}
-      />
+    <AppPage>
+      <ClustersPageHeader />
       <Tabs activeKey={activeTabKey} onSelect={handleTabClick} role="region" aria-label="Clusters">
         <Tab
           eventKey="list"
           title={<TabTitleText>Cluster List</TabTitleText>}
-          aria-label="Default content - Cluster List"
+          aria-label="Cluster List"
         >
           <ListTab getMultiRegion />
         </Tab>
         <Tab
           eventKey="requests"
           title={<TabTitleText>Cluster Requests</TabTitleText>}
-          aria-label="Default content - Cluster Requests"
+          aria-label="Cluster Requests"
         >
-          Cluster requests
+          <ClusterTransferList />
         </Tab>
       </Tabs>
-    </>
+    </AppPage>
   );
 };

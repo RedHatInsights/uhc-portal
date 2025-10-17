@@ -3,7 +3,6 @@ import React from 'react';
 import {
   Flex,
   FlexItem,
-  Icon,
   PageSection,
   Spinner,
   Title,
@@ -12,25 +11,42 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
+
+import {
+  refetchClusterTransferDetail,
+  useFetchClusterTransferDetail,
+} from '~/queries/ClusterDetailsQueries/ClusterTransferOwnership/useFetchClusterTransferDetails';
+import { useFetchClusters } from '~/queries/ClusterListQueries/useFetchClusters';
+import { useGlobalState } from '~/redux/hooks';
 
 import { RefreshButton } from '../ClusterListMultiRegion/components/RefreshButton';
-import ReadOnlyBanner from '../common/ReadOnlyBanner';
+import ErrorTriangle from '../common/ErrorTriangle';
 
-type ClustersPageHeaderProps = {
-  someReadOnly: boolean;
-  showSpinner: boolean;
-  error: boolean;
-  refresh: () => void;
-};
-export const ClustersPageHeader = ({
-  someReadOnly,
-  showSpinner,
-  error,
-  refresh,
-}: ClustersPageHeaderProps) => (
-  <>
-    <ReadOnlyBanner someReadOnly={someReadOnly} />
+export const ClustersPageHeader = () => {
+  const {
+    isLoading: isClustersLoading,
+    refetch,
+    isFetching: isClustersFetching,
+    isError: isClustersError,
+    errors: clustersError,
+  } = useFetchClusters(false, true);
+  const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
+
+  const { isLoading: isTransferLoading, isError: isTransferError } = useFetchClusterTransferDetail({
+    username,
+  });
+
+  // Leaving these varaibles for when we add access request data
+  const isError = isClustersError || isTransferError;
+  const showSpinner = isClustersFetching || isClustersLoading || isTransferLoading;
+  const errorMessage = clustersError?.[0]?.reason;
+
+  const refresh = () => {
+    refetch();
+    refetchClusterTransferDetail();
+  };
+
+  return (
     <PageSection hasBodyWrapper={false}>
       <Flex>
         <FlexItem grow={{ default: 'grow' }}>
@@ -52,20 +68,18 @@ export const ClustersPageHeader = ({
                   />
                 </ToolbarItem>
               )}
-              {error && (
+              {isError && (
                 <ToolbarItem>
-                  <Icon status="warning">
-                    <ExclamationTriangleIcon />
-                  </Icon>
+                  <ErrorTriangle errorMessage={errorMessage} item="clusters" />
                 </ToolbarItem>
               )}
               <ToolbarItem gap={{ default: 'gapNone' }}>
-                <RefreshButton isDisabled={showSpinner} refreshFunc={refresh} />
+                <RefreshButton refreshFunc={refresh} />
               </ToolbarItem>
             </ToolbarGroup>
           </ToolbarContent>
         </Toolbar>
       </Flex>
     </PageSection>
-  </>
-);
+  );
+};

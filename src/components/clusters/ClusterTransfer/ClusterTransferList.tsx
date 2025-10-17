@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  Button,
   Card,
   EmptyState,
   EmptyStateBody,
@@ -8,8 +9,8 @@ import {
   FlexItem,
   Icon,
   PageSection,
+  Popover,
   Spinner,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -21,6 +22,7 @@ import CheckCircleIcon from '@patternfly/react-icons/dist/esm/icons/check-circle
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 import { InfoCircleIcon } from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
+import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
@@ -40,7 +42,7 @@ import { AcceptDeclineClusterTransferModal } from './AcceptDeclineTransferModal'
 import { CancelClusterTransferModal } from './CancelClusterTransferModal';
 import TransferOwnerStatus from './TransferOwnerStatus';
 
-const ClusterListPageHeader = ({
+const ClusterTransferPageHeader = ({
   showSpinner,
   isError,
   error,
@@ -50,25 +52,37 @@ const ClusterListPageHeader = ({
   isError?: boolean;
   error?: Error;
   refresh: () => void;
-}) => (
-  <>
+}) => {
+  const bodyContent = (
     <Flex>
-      <FlexItem grow={{ default: 'grow' }}>
-        <Title headingLevel="h2">Transfer Ownership Request</Title>
-      </FlexItem>
-    </Flex>
-    <Flex rowGap={{ default: 'rowGapXl' }}>
       <FlexItem>
         <p>
           Transfer cluster ownership so that another user in your organization or another
           organization can manage this cluster.
         </p>
       </FlexItem>
+    </Flex>
+  );
+  const footerContent = (
+    <Flex>
       <FlexItem>
         <p>
+          {' '}
           Cluster transfers from outside your organization will show numerous ‘Unknown’ fields, as
           access to external cluster data is restricted.
         </p>
+      </FlexItem>
+    </Flex>
+  );
+  return (
+    <Flex>
+      <FlexItem grow={{ default: 'grow' }}>
+        <>
+          <span>Cluster transfer ownership request</span>
+          <Popover bodyContent={bodyContent} footerContent={footerContent} enableFlip={false}>
+            <Button icon={<OutlinedQuestionCircleIcon />} variant="plain" />
+          </Popover>
+        </>
       </FlexItem>
       <FlexItem align={{ default: 'alignRight' }}>
         <Toolbar id="cluster-list-refresh-toolbar" isFullHeight inset={{ default: 'insetNone' }}>
@@ -100,8 +114,8 @@ const ClusterListPageHeader = ({
         </Toolbar>
       </FlexItem>
     </Flex>
-  </>
-);
+  );
+};
 
 const ClusterTransferList = () => {
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
@@ -261,8 +275,8 @@ const ClusterTransferList = () => {
   );
   return (
     <PageSection hasBodyWrapper={false}>
-      <PageSection hasBodyWrapper={false}>
-        <ClusterListPageHeader
+      <PageSection hasBodyWrapper={false} hasShadowBottom hasShadowTop>
+        <ClusterTransferPageHeader
           showSpinner={isLoading}
           isError={isError}
           error={error instanceof Error ? error : undefined}
