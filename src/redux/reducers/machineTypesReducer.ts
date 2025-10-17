@@ -28,7 +28,7 @@ import {
 import { PromiseReducerState } from '../stateTypes';
 import { PromiseActionType } from '../types';
 
-type State = PromiseReducerState<{
+export type State = PromiseReducerState<{
   types: {
     [key: string]: MachineType[];
   };

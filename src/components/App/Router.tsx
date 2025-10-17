@@ -39,6 +39,7 @@ import ClusterDetailsSubscriptionIdMultiRegion from '../clusters/ClusterDetailsM
 import AccessRequestNavigate from '../clusters/ClusterDetailsMultiRegion/components/AccessRequest/components/AccessRequestNavigate';
 import IdentityProviderPageMultiregion from '../clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/index';
 import ClusterListMultiRegion from '../clusters/ClusterListMultiRegion';
+import { Clusters } from '../clusters/Clusters/Clusters';
 import ClusterRequestList from '../clusters/ClusterTransfer/ClusterRequest';
 import CreateClusterPage from '../clusters/CreateClusterPage';
 import GovCloudPage from '../clusters/GovCloud/GovCloudPage';
@@ -243,6 +244,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         'http:///status.redhat.com' site. If this route is changed, then the related catchpoint
         tests must be updated. For more info. see: https://issues.redhat.com/browse/OCMUI-2398 */}
         <Route path="/cluster-list" element={<ClusterListMultiRegion getMultiRegion />} />
+        <Route path="/clusters/*" element={<Clusters />} />
         {isClusterTransferOwnershipEnabled ? (
           <Route path="/cluster-request" element={<ClusterRequestList />} />
         ) : null}
