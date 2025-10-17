@@ -77,7 +77,7 @@ describe('clusterNameAsyncValidation', () => {
     const apSoutheastClusterName = 'testname1-ap-southeast-1';
     const usEastClusterName = 'testname1-us-east-1';
 
-    const result = (value: string) => clusterNameAsyncValidation(value, true, true);
+    const result = (value: string) => clusterNameAsyncValidation(value, true);
 
     expect(result(apSoutheastClusterName)[0].text).toEqual(uniqueErrorMessage);
     expect(result(usEastClusterName)[0].text).toEqual(uniqueErrorMessage);
@@ -146,7 +146,7 @@ describe('domainPrefixAsyncValidation', () => {
     const apSoutheastPrefix = 'pre1SE';
     const usEastPrefix = 'pre1US';
 
-    const result = (value: string) => domainPrefixAsyncValidation(value, true, undefined, true);
+    const result = (value: string) => domainPrefixAsyncValidation(value, true, true);
 
     expect(result(apSoutheastPrefix)[0].text).toEqual(uniqueErrorMessage);
     expect(result(usEastPrefix)[0].text).toEqual(uniqueErrorMessage);

@@ -24,7 +24,7 @@ describe('useFetchSearchClusterName hook', () => {
     // Mock the network request using axios
     apiRequestMock.get.mockResolvedValueOnce(mockedExistingSearchedCluster);
 
-    const { result } = renderHook(() => useFetchSearchClusterName(search, undefined, true));
+    const { result } = renderHook(() => useFetchSearchClusterName(search, undefined));
 
     // Initial fetching state
     expect(result.current.isFetching).toBe(true);

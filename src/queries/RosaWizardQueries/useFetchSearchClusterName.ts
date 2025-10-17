@@ -7,37 +7,25 @@ import { getClusterServiceForRegion } from '~/services/clusterService';
 import { clusterService } from '../../services';
 import { queryConstants } from '../queriesConstants';
 
-export const refetchSearchClusterName = () => {
+export const refetchSearchClusterName = (search: string, region?: string | undefined) => {
   queryClient.invalidateQueries({
-    queryKey: [queryConstants.FETCH_SEARCH_CLUSTER_NAME],
+    queryKey: [queryConstants.FETCH_SEARCH_CLUSTER_NAME, search, region],
     exact: true,
   });
 };
 
-export const useFetchSearchClusterName = (
-  search: string,
-  region?: string | undefined,
-  isMultiRegionEnabled?: boolean,
-) => {
+export const useFetchSearchClusterName = (search: string, region?: string | undefined) => {
   const { data, isError, error, isFetching } = useQuery({
-    queryKey: [queryConstants.FETCH_SEARCH_CLUSTER_NAME],
+    queryKey: [queryConstants.FETCH_SEARCH_CLUSTER_NAME, search, region],
     queryFn: async () => {
-      if (region) {
-        const service = getClusterServiceForRegion(region);
-        const searchValue = `name = ${sqlString(search)}`;
-        const response = await service.searchClusters(searchValue, 1);
-
-        const isExisting = !!response?.data?.items?.length;
-        return isExisting;
-      }
+      const service = region ? getClusterServiceForRegion(region) : clusterService;
       const searchValue = `name = ${sqlString(search)}`;
-      const response = await clusterService.searchClusters(searchValue, 1);
+      const response = await service.searchClusters(searchValue, 1);
 
-      const isExisting = !!response?.data?.items?.length;
-      return isExisting;
+      return !!response?.data?.items?.length;
     },
     retry: false,
-    enabled: isMultiRegionEnabled,
+    enabled: !!search,
   });
 
   return {
