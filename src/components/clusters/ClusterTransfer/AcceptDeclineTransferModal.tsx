@@ -19,12 +19,14 @@ import { ErrorState } from '~/types/types';
 type AcceptDeclineClusterTransferModalProps = {
   transferId: string;
   displayName?: string;
+  buttonText?: string;
+  icon?: React.ReactNode;
 };
 
 export const AcceptDeclineClusterTransferModal = (
   props: AcceptDeclineClusterTransferModalProps,
 ) => {
-  const { transferId, displayName } = props;
+  const { transferId, displayName, buttonText = 'Accept/Decline', icon } = props;
   const [isOpen, setIsOpen] = React.useState(false);
   const {
     isPending,
@@ -74,8 +76,8 @@ export const AcceptDeclineClusterTransferModal = (
 
   return (
     <>
-      <Button variant="secondary" onClick={() => setIsOpen(true)}>
-        Accept/Decline
+      <Button variant="secondary" icon={icon} onClick={() => setIsOpen(true)}>
+        {buttonText}
       </Button>
       <Modal
         id="complete-cluster-transfer-modal"

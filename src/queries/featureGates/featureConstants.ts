@@ -44,6 +44,7 @@ export const WINDOWS_LICENSE_INCLUDED = 'ocmui-windows-license-included';
 export const ALLOW_EUS_CHANNEL = 'ocmui-allow-eus-channel';
 export const PLATFORM_LIGHTSPEED_REBRAND = 'platform.lightspeed-rebrand';
 export const CAPACITY_RESERVATION_ID_FIELD = 'ocmui-capacity-reservation-id-field';
+export const TABBED_CLUSTERS = 'ocmui-tabbed-clusters';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -76,4 +77,5 @@ export default {
   ALLOW_EUS_CHANNEL,
   PLATFORM_LIGHTSPEED_REBRAND,
   CAPACITY_RESERVATION_ID_FIELD,
+  TABBED_CLUSTERS,
 } as const;
