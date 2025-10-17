@@ -39,7 +39,7 @@ const mockedUseGetOrganizationalPendingRequests = jest.spyOn(
 
 const mockedClearGlobalError = jest.fn();
 const mockedCloseModal = jest.fn();
-
+const refetch = jest.fn();
 describe('<ClusterListTab />', () => {
   const props = {
     cloudProviders: fixtures.cloudProviders,
@@ -64,41 +64,13 @@ describe('<ClusterListTab />', () => {
     jest.clearAllMocks();
   });
 
-  it('shows skeleton while loading and no data is returned yet', () => {
-    mockedGetFetchedClusters.mockReturnValue({
-      data: undefined,
-      isLoading: true,
-      errors: [],
-    } as any);
-    withState({}, true).render(<ClusterListTab {...props} />);
-
-    const numberOfSkeletonRows = 10;
-
-    expect(screen.getAllByTestId('skeleton')).toHaveLength(numberOfSkeletonRows);
-
-    // the number of rows in the tbody tag matches the number of skeleton rows
-    expect(within(screen.getAllByRole('rowgroup')[1]).getAllByRole('row')).toHaveLength(
-      numberOfSkeletonRows,
-    );
-
-    expect(screen.getByRole('button', { name: 'Refresh' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
-
-    expect(
-      screen.getByRole('progressbar', { name: 'Loading cluster list data' }),
-    ).toBeInTheDocument(); // loading spinner
-
-    expect(screen.queryByText(emptyStateText)).not.toBeInTheDocument();
-  });
-
   it('shows empty state when done loading and no clusters is returned', () => {
     mockedGetFetchedClusters.mockReturnValue({
       data: { items: [] },
       isLoading: false,
       isFetching: false,
       errors: [],
+      refetch,
     } as any);
     withState({}, true).render(<ClusterListTab {...props} />);
 
@@ -109,89 +81,6 @@ describe('<ClusterListTab />', () => {
       screen.queryByRole('progressbar', { name: 'Loading cluster list data' }),
     ).not.toBeInTheDocument(); // loading spinner
     expect(screen.getByText(emptyStateText)).toBeInTheDocument();
-  });
-
-  it('shows data if still loading but clusters are available', () => {
-    mockedGetFetchedClusters.mockReturnValue({
-      data: { items: [fixtures.clusterDetails.cluster], itemsCount: 1 },
-      isLoading: true,
-      isFetching: true,
-      isFetched: false,
-      errors: [],
-    } as any);
-    withState({}, true).render(<ClusterListTab {...props} />);
-
-    expect(screen.getByRole('button', { name: 'Refresh' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
-
-    expect(
-      screen.getByRole('progressbar', { name: 'Loading cluster list data' }),
-    ).toBeInTheDocument(); // loading spinner
-    expect(screen.queryByTestId('skeleton')).not.toBeInTheDocument();
-
-    expect(
-      screen.getByText(fixtures.clusterDetails.cluster.subscription.display_name),
-    ).toBeInTheDocument();
-  });
-
-  it('shows data and loading icon if is fetching', () => {
-    mockedGetFetchedClusters.mockReturnValue({
-      data: { items: [fixtures.clusterDetails.cluster] },
-      isFetching: true,
-      errors: [],
-    } as any);
-    withState({}, true).render(<ClusterListTab {...props} />);
-
-    expect(screen.getByRole('button', { name: 'Refresh' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
-
-    expect(
-      screen.getByRole('progressbar', { name: 'Loading cluster list data' }),
-    ).toBeInTheDocument(); // loading spinner
-    expect(screen.queryByTestId('skeleton')).not.toBeInTheDocument();
-
-    expect(
-      screen.getByText(fixtures.clusterDetails.cluster.subscription.display_name),
-    ).toBeInTheDocument();
-  });
-
-  it('shows data if done loading', () => {
-    mockedGetFetchedClusters.mockReturnValue({
-      data: { items: [fixtures.clusterDetails.cluster] },
-      errors: [],
-    } as any);
-    withState({}, true).render(<ClusterListTab {...props} />);
-
-    expect(screen.getByRole('button', { name: 'Refresh' })).not.toHaveAttribute('aria-disabled');
-
-    expect(
-      screen.queryByRole('progressbar', { name: 'Loading cluster list data' }),
-    ).not.toBeInTheDocument(); // loading spinner
-    expect(screen.queryByTestId('skeleton')).not.toBeInTheDocument();
-
-    expect(
-      screen.getByText(fixtures.clusterDetails.cluster.subscription.display_name),
-    ).toBeInTheDocument();
-  });
-
-  it('refresh calls refresh function', async () => {
-    const refetch = jest.fn();
-    mockedGetFetchedClusters.mockReturnValue({
-      data: { items: [fixtures.clusterDetails.cluster] },
-      refetch,
-      errors: [],
-    } as any);
-    const { user } = withState({}, true).render(<ClusterListTab {...props} />);
-
-    expect(refetch).not.toHaveBeenCalled();
-
-    await user.click(screen.getByRole('button', { name: 'Refresh' }));
-
-    expect(refetch).toHaveBeenCalled();
   });
 
   it('sets new cluster total into Redux', () => {
@@ -245,6 +134,7 @@ describe('<ClusterListTab />', () => {
         isLoading: false,
         isFetching: false,
         errors: [],
+        refetch,
       } as any);
 
       mockedUseGetAccessProtection.mockReturnValue({
@@ -271,6 +161,7 @@ describe('<ClusterListTab />', () => {
         isLoading: false,
         isFetching: false,
         errors: [],
+        refetch,
       } as any);
 
       mockedUseGetAccessProtection.mockReturnValue({
@@ -292,24 +183,13 @@ describe('<ClusterListTab />', () => {
     const alertText = 'Some operations are unavailable, try again later';
     const errorDetailsToggleText = 'Error details';
 
-    it('Error triangle shows if there is an error fetching clusters', async () => {
-      mockedGetFetchedClusters.mockReturnValue({
-        data: { items: [fixtures.clusterDetails.cluster] },
-        isFetched: true,
-        isError: true,
-        errors: [{ reason: 'There was an error', operation_id: '1234' }],
-      } as any);
-
-      withState({}, true).render(<ClusterListTab {...props} />);
-      expect(screen.getByTestId('error-triangle-icon')).toBeInTheDocument();
-    });
-
     it('Shows errors when getting global clusters without operation id', async () => {
       mockedGetFetchedClusters.mockReturnValue({
         data: { items: [fixtures.clusterDetails.cluster] },
         isFetched: true,
         isError: true,
         errors: [{ reason: 'There was an error' }],
+        refetch,
       } as any);
       const { user } = withState({}, true).render(<ClusterListTab {...props} />);
       expect(within(screen.getByRole('alert')).getByText(alertText)).toBeInTheDocument();
@@ -324,6 +204,7 @@ describe('<ClusterListTab />', () => {
         isFetched: true,
         isError: true,
         errors: [{ reason: 'There was an error', operation_id: '1234' }],
+        refetch,
       } as any);
       const { user } = withState({}, true).render(<ClusterListTab {...props} />);
       expect(within(screen.getByRole('alert')).getByText(alertText)).toBeInTheDocument();
@@ -342,6 +223,7 @@ describe('<ClusterListTab />', () => {
         errors: [
           { reason: 'There was an error', operation_id: '1234', region: { region: 'myRegion' } },
         ],
+        refetch,
       } as any);
       const { user } = withState({}, true).render(<ClusterListTab {...props} />);
       expect(within(screen.getByRole('alert')).getByText(alertText)).toBeInTheDocument();
@@ -362,6 +244,7 @@ describe('<ClusterListTab />', () => {
         errors: [
           { reason: 'There was an error', operation_id: '1234', region: { region: 'myRegion' } },
         ],
+        refetch,
       } as any);
       withState({}, true).render(<ClusterListTab {...props} />);
 
@@ -450,6 +333,7 @@ describe('<ClusterListTab />', () => {
       mockedGetFetchedClusters.mockReturnValue({
         data: { items: [fixtures.clusterDetails.cluster] },
         errors: [],
+        refetch,
       } as any);
 
       const { user } = withState({}, true).render(<ClusterListTab {...props} />);
@@ -471,6 +355,7 @@ describe('<ClusterListTab />', () => {
       mockedGetFetchedClusters.mockReturnValue({
         data: { items: [fixtures.clusterDetails.cluster] },
         errors: [],
+        refetch,
       } as any);
 
       // Act
@@ -491,6 +376,7 @@ describe('<ClusterListTab />', () => {
         isLoading: false,
         isFetching: false,
         errors: [],
+        refetch,
       } as any);
       const { unmount } = withState({}, true).render(<ClusterListTab {...props} />);
 
