@@ -76,7 +76,20 @@ jobs:
         run: npx cypress install
       - name: Execute tests
         run: |
-          yarn start:ci --env logging=quiet --no-client-overlay &
+          LOGGING=quiet yarn start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' | tee /tmp/server.log &
+    
+          if timeout 120 bash -c 'until grep -E "webpack.*compiled" /tmp/server.log; do sleep 2; done'; then
+            echo "Build completed"
+          else
+            echo "Build timed out after 120 seconds"
+            exit 1
+          fi
+          
+          if grep -q "Failed to compile" /tmp/server.log; then
+            echo "Build failed"
+            exit 1
+          fi
+
           NODE_TLS_REJECT_UNAUTHORIZED=0 yarn wait-on -i 5000 https://prod.foo.redhat.com:1337/openshift/
           CYPRESS_TEST_WITHQUOTA_USER=${{ secrets.CYPRESS_TEST_WITHQUOTA_USER }} CYPRESS_TEST_WITHQUOTA_PASSWORD=${{ secrets.CYPRESS_TEST_WITHQUOTA_PASSWORD }} TERM=xterm LC_ALL=C.UTF-8 LANG=C.UTF-8 yarn e2e-test
       - uses: actions/upload-artifact@v4
