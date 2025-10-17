@@ -65,6 +65,7 @@ const ClusterRolesScreen = () => {
       [FieldId.RegionalInstance]: regionalInstance,
     },
   } = useFormState();
+
   const isHypershift = hypershiftValue === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershift;
 
@@ -131,6 +132,11 @@ const ClusterRolesScreen = () => {
       getOCMRoleData.data?.isAdmin ? roleModes.AUTO : roleModes.MANUAL,
     );
   }
+
+  useEffect(() => {
+    setFieldValue(FieldId.IsGetOCMRolePending, isGetOCMRolePending, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGetOCMRolePending]);
 
   useEffect(() => {
     if (isGetOCMRolePending) {
