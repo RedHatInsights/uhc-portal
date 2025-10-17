@@ -62,6 +62,14 @@ import { viewConstants } from '../../../redux/constants';
 import ErrorBox from '../../common/ErrorBox';
 import Unavailable from '../../common/Unavailable';
 import AccessRequestPendingAlert from '../ClusterDetailsMultiRegion/components/AccessRequest/components/AccessRequestPendingAlert';
+import ClusterListActions from '../ClusterListMultiRegion/components/ClusterListActions';
+import ClusterListEmptyState from '../ClusterListMultiRegion/components/ClusterListEmptyState';
+import ClusterListFilterChipGroup from '../ClusterListMultiRegion/components/ClusterListFilterChipGroup/ClusterListFilterChipGroup';
+import ClusterListFilterDropdown from '../ClusterListMultiRegion/components/ClusterListFilterDropdown';
+import ClusterListTable from '../ClusterListMultiRegion/components/ClusterListTable';
+import { PaginationRow } from '../ClusterListMultiRegion/components/PaginationRow';
+import { RefreshButton } from '../ClusterListMultiRegion/components/RefreshButton';
+import ViewOnlyMyClustersToggle from '../ClusterListMultiRegion/components/ViewOnlyMyClustersToggle';
 import ClusterListFilter from '../common/ClusterListFilter';
 import { ClusterListFilterHook } from '../common/ClusterListFilterHook';
 import CommonClusterModals from '../common/CommonClusterModals';
@@ -69,16 +77,7 @@ import ErrorTriangle from '../common/ErrorTriangle';
 import GlobalErrorBox from '../common/GlobalErrorBox/GlobalErrorBox';
 import ReadOnlyBanner from '../common/ReadOnlyBanner';
 
-import ClusterListActions from './components/ClusterListActions';
-import ClusterListEmptyState from './components/ClusterListEmptyState';
-import ClusterListFilterChipGroup from './components/ClusterListFilterChipGroup/ClusterListFilterChipGroup';
-import ClusterListFilterDropdown from './components/ClusterListFilterDropdown';
-import ClusterListTable from './components/ClusterListTable';
-import { PaginationRow } from './components/PaginationRow';
-import { RefreshButton } from './components/RefreshButton';
-import ViewOnlyMyClustersToggle from './components/ViewOnlyMyClustersToggle';
-
-import './ClusterList.scss';
+import '../ClusterListMultiRegion/ClusterList.scss';
 
 const PAGE_TITLE = 'Cluster List | Red Hat OpenShift Cluster Manager';
 

@@ -5,9 +5,9 @@ import { clearGlobalError } from '../../../redux/actions/globalErrorActions';
 import { machineTypesActions } from '../../../redux/actions/machineTypesActions';
 import { userActions } from '../../../redux/actions/userActions';
 import { modalActions } from '../../common/Modal/ModalActions';
+import ClusterListTab from '../Clusters/ClusterListTab';
 
 import ClusterList from './ClusterList';
-import ClusterListTab from './ClusterListTab';
 
 const mapDispatchToProps = {
   getCloudProviders: cloudProviderActions.getCloudProviders,
