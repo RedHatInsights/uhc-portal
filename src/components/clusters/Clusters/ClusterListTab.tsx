@@ -37,14 +37,19 @@ import {
 } from '~/redux/actions/viewOptionsActions';
 import { CLUSTERS_VIEW } from '~/redux/constants/viewConstants';
 import { useGlobalState } from '~/redux/hooks';
+import type { State as CloudProvidersReduxState } from '~/redux/reducers/cloudProvidersReducer';
+import type { PromiseReducerState } from '~/redux/stateTypes';
+import { ComponentPromiseState } from '~/redux/types';
 import { isRestrictedEnv } from '~/restrictedEnv';
-import { ClusterTransferStatus, Organization } from '~/types/accounts_mgmt.v1';
+import { ClusterTransferStatus } from '~/types/accounts_mgmt.v1';
+import type { MachineType } from '~/types/clusters_mgmt.v1';
 import { ErrorState, ViewSorting } from '~/types/types';
 
 import helpers from '../../../common/helpers';
 import { getQueryParam } from '../../../common/queryHelpers';
 import { normalizedProducts, productFilterOptions } from '../../../common/subscriptionTypes';
 import { viewConstants } from '../../../redux/constants';
+import type { OrganizationState } from '../../../redux/reducers/userReducer';
 import ErrorBox from '../../common/ErrorBox';
 import Unavailable from '../../common/Unavailable';
 import AccessRequestPendingAlert from '../ClusterDetailsMultiRegion/components/AccessRequest/components/AccessRequestPendingAlert';
@@ -63,20 +68,24 @@ import ReadOnlyBanner from '../common/ReadOnlyBanner';
 
 import '../ClusterListMultiRegion/ClusterList.scss';
 
-type ReduxAsyncState<T> = {
-  fulfilled: boolean;
-  pending: boolean;
-  data?: T;
-  details?: T;
-};
+type CloudProvidersState = ComponentPromiseState<CloudProvidersReduxState>;
+type MachineTypesState = ComponentPromiseState<
+  PromiseReducerState<{
+    types: {
+      [key: string]: MachineType[];
+    };
+    typesByID: { [id: string]: any };
+  }>
+>;
+type OrganizationComponentState = ComponentPromiseState<PromiseReducerState<OrganizationState>>;
 
 type ClusterListTabProps = {
   getCloudProviders: () => void;
-  cloudProviders: ReduxAsyncState<unknown>;
+  cloudProviders: CloudProvidersState;
   getOrganizationAndQuota: () => void;
-  organization: ReduxAsyncState<Organization>;
+  organization: OrganizationComponentState;
   getMachineTypes: () => void;
-  machineTypes: ReduxAsyncState<unknown>;
+  machineTypes: MachineTypesState;
   closeModal: () => void;
   clearGlobalError: (key: string) => void;
   openModal: (modalType: string, modalProps?: Record<string, unknown>) => void;

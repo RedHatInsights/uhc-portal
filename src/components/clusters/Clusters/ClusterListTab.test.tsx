@@ -46,6 +46,7 @@ describe('<ClusterListTab />', () => {
     machineTypes: {
       fulfilled: true,
       pending: false,
+      error: false,
     },
     organization: fixtures.organization,
     pendingOrganizationAccessRequests: {},
@@ -261,6 +262,7 @@ describe('<ClusterListTab />', () => {
       machineTypes: {
         fulfilled: true,
         pending: false,
+        error: false,
       },
       organization: fixtures.organization,
       fetchClusters: jest.fn(),
