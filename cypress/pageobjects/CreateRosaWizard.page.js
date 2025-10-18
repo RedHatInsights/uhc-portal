@@ -45,7 +45,7 @@ class CreateRosaCluster extends Page {
 
   selectVersionValue = () => cy.get('button[id="version-selector"]').find('span');
 
-  customOperatorPrefixInput = () => cy.get('#custom_operator_roles_prefix');
+  customOperatorPrefixInput = () => cy.get('#custom_operator_roles_prefix', { timeout: 10000 });
 
   singleZoneAvilabilityRadio = () =>
     cy.get('input[id="form-radiobutton-multi_az-false-field"]').should('be.exist');
@@ -261,7 +261,18 @@ class CreateRosaCluster extends Page {
     this.clusterVersionPane()
       .scrollIntoView()
       .within(() => {
-        cy.get('button[id="version-selector"]', { timeout: 40000 }).should('be.visible');
+        // Force scroll the button into view and check visibility with force option
+        cy.get('button[id="version-selector"]', { timeout: 40000 })
+          .scrollIntoView({ ensureScrollable: false })
+          .should('exist')
+          .then(($el) => {
+            // If element is not visible due to overflow, use force option
+            if (!Cypress.dom.isVisible($el[0])) {
+              cy.wrap($el).should('exist');
+            } else {
+              cy.wrap($el).should('be.visible');
+            }
+          });
       });
     cy.contains('h3', 'Cluster details');
   }

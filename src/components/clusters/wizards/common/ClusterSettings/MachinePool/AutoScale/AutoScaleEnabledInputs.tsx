@@ -125,7 +125,7 @@ export const AutoScaleEnabledInputs = () => {
 
   const maxNodes = useMemo(() => {
     const maxWorkerNodes = allow249NodesOSDCCSROSA
-      ? getMaxWorkerNodes(clusterVersion.raw_id)
+      ? getMaxWorkerNodes(clusterVersion?.raw_id)
       : MAX_NODES_180;
     if (isHypershiftSelected) {
       return Math.floor(getMaxNodesHCP(clusterVersion?.raw_id) / poolsLength);

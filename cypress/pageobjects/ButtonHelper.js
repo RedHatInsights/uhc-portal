@@ -33,7 +33,8 @@ class ButtonHelper {
       .contains(this.#title)
       .as(`btn-${this.#btnNumber}`)
       .closest('a')
-      .should('have.attr', 'href', this.#href);
+      .should('have.attr', 'href', this.#href)
+      .should('not.have.class', 'pf-m-aria-disabled');
     const href = this.#href;
     const btnNumber = this.#btnNumber;
     return {
@@ -56,6 +57,7 @@ class ButtonHelper {
         });
         return this;
       },
+
       get cyObj() {
         return cy.get(`@btn-${btnNumber}`);
       },
