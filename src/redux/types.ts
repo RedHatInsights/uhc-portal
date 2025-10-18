@@ -40,3 +40,31 @@ export type PromiseActionType<T> = T extends {
       | PromiseAction<T, PActionType.Pending>
       | PromiseAction<T, PActionType.Rejected>
   : T;
+
+/**
+ * Converts a PromiseReducerState (which uses literal types like fulfilled: true | false)
+ * into a component-friendly prop type (which uses boolean types).
+ *
+ * This is needed because:
+ * - PromiseReducerState is a discriminated union optimized for reducers with literal types
+ * - Component props and test fixtures need boolean types for flexibility
+ *
+ * The data field will be:
+ * - undefined/partial during pending/error states
+ * - fully populated when fulfilled
+ *
+ * @example
+ * type CloudProvidersState = ComponentPromiseState<CloudProvidersReduxState>;
+ */
+export type ComponentPromiseState<TReduxState extends Record<string, any>> = {
+  fulfilled: boolean;
+  pending: boolean;
+  error: boolean;
+  errorMessage?: string;
+  reason?: string;
+  errorCode?: number;
+} & {
+  [K in Exclude<keyof TReduxState, 'fulfilled' | 'pending' | 'error'>]?: NonNullable<
+    TReduxState[K]
+  >;
+};
