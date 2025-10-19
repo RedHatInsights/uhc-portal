@@ -241,7 +241,7 @@
     "analyze": "rm -rf dist && env BUNDLE_ANALYZER=true yarn build:prod",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject ./dist/",
     "sentry:release": "sentry-cli --url https://glitchtip.devshift.net/ releases --org ocm",
-    "sentry:sourcemaps-release": "yarn sentry:sourcemaps && . run/sentry-env.sh && yarn sentry:release --auth-token $GLITCHTIP_TOKEN --project= $SENTRY_PROJECT files $SENTRY_VERSION upload-sourcemaps dist/ --url-prefix '/apps'",
+    "sentry:sourcemaps-release": "yarn sentry:sourcemaps && . run/sentry-env.sh && yarn sentry:release --auth-token $GLITCHTIP_TOKEN --project=$SENTRY_PROJECT files $SENTRY_VERSION upload-sourcemaps dist/ --url-prefix '/apps'",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "postinstall": "ts-patch install",
