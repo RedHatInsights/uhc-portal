@@ -16,6 +16,8 @@ if [[ ${BETA} == 'true' ]]; then
   return 0
 fi
 
+# todo - testing: git ownership hack.  maybe find a better way to do that
+git config --global --add safe.directory /opt/app-root/src
 
 VERSION="${VERSION:-$(git rev-parse --short HEAD)}"
 
