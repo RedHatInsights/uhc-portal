@@ -69,7 +69,7 @@ export const ClustersPageHeader = () => {
                 </ToolbarItem>
               )}
               {isError && (
-                <ToolbarItem>
+                <ToolbarItem alignSelf="baseline" style={{ display: 'flex', alignItems: 'center' }}>
                   <ErrorTriangle errorMessage={errorMessage} item="clusters" />
                 </ToolbarItem>
               )}
