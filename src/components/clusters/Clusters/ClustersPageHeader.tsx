@@ -74,7 +74,7 @@ export const ClustersPageHeader = () => {
                 </ToolbarItem>
               )}
               <ToolbarItem gap={{ default: 'gapNone' }}>
-                <RefreshButton refreshFunc={refresh} />
+                <RefreshButton isDisabled={showSpinner} refreshFunc={refresh} />
               </ToolbarItem>
             </ToolbarGroup>
           </ToolbarContent>
