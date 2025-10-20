@@ -10,9 +10,9 @@ describe('<LiveDateFormat />', () => {
     jest.setSystemTime(new Date('1 Jan 2021 00:00:00 GMT').getTime());
   });
 
-  it('displays "just now" on initial render', () => {
-    render(<LiveDateFormat timestamp={Date.now()} />);
-    expect(screen.getByText('Just now')).toBeInTheDocument();
+  it('displays "a few seconds ago" on initial render', () => {
+    render(<LiveDateFormat date={new Date()} />);
+    expect(screen.getByText('a few seconds ago')).toBeInTheDocument();
   });
 
   afterAll(() => {
