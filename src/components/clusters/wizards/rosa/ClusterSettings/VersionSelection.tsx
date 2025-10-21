@@ -334,9 +334,12 @@ function VersionSelection({
         <RosaVersionErrorAlert isHypershiftSelected={isHypershiftSelected} />
       ) : null}
       {getInstallableVersionsResponse.pending && (
-        <div className="spinner-fit-container">
-          <Spinner size="lg" aria-label="Loading..." />
-        </div>
+        <>
+          <div className="spinner-fit-container">
+            <Spinner size="lg" aria-label="Loading..." />
+          </div>
+          <div className="spinner-loading-text">Loading...</div>
+        </>
       )}
       {getInstallableVersionsResponse.fulfilled && !rosaVersionError && (
         <FuzzySelect
