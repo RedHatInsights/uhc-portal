@@ -5,8 +5,8 @@ import { Tab, Tabs, TabTitleText } from '@patternfly/react-core';
 
 import { useNavigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
-import { ListTab } from '~/components/clusters/ClusterListMultiRegion';
 
+import ClusterList from '../ClusterListMultiRegion';
 import ClusterTransferList from '../ClusterTransfer/ClusterTransferList';
 
 import { ClustersPageHeader } from './ClustersPageHeader';
@@ -50,7 +50,7 @@ export const Clusters = () => {
           title={<TabTitleText>Cluster List</TabTitleText>}
           aria-label="Cluster List"
         >
-          <ListTab getMultiRegion />
+          <ClusterList getMultiRegion showTabbedView />
         </Tab>
         <Tab
           eventKey="requests"
