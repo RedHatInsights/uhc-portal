@@ -6,7 +6,8 @@ import { Clusters } from './Clusters';
 
 // Mock child components to simplify testing
 jest.mock('~/components/clusters/ClusterListMultiRegion', () => ({
-  ListTab: () => <div data-testid="list-tab">Cluster List Content</div>,
+  __esModule: true,
+  default: () => <div data-testid="list-tab">Cluster List Content</div>,
 }));
 
 jest.mock('../ClusterTransfer/ClusterTransferList', () => ({
