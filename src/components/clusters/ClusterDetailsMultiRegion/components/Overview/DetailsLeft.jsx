@@ -239,8 +239,8 @@ function DetailsLeft({
 
 DetailsLeft.propTypes = {
   cluster: PropTypes.any,
-  isArchived: PropTypes.boolean,
-  isDeprovisioned: PropTypes.boolean,
+  isArchived: PropTypes.bool,
+  isDeprovisioned: PropTypes.bool,
   cloudProviders: PropTypes.object.isRequired,
   showAssistedId: PropTypes.bool.isRequired,
   wifConfigData: PropTypes.shape({
