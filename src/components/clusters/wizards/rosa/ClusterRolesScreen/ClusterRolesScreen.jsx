@@ -134,11 +134,6 @@ const ClusterRolesScreen = () => {
   }
 
   useEffect(() => {
-    setFieldValue(FieldId.IsGetOCMRolePending, isGetOCMRolePending, false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isGetOCMRolePending]);
-
-  useEffect(() => {
     if (isGetOCMRolePending) {
       setGetOCMRoleErrorBox(null);
     } else if (isGetOCMRoleSuccess) {
