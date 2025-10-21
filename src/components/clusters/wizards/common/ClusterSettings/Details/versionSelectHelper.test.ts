@@ -171,6 +171,13 @@ describe('VersionSelectHelper', () => {
     const expected = {
       ...stableExpected,
       Fast: [{ entryId: 'openshift-v4.15.28-fast', label: '4.15.28 (fast)', groupKey: 'fast' }],
+      EUS: [
+        {
+          entryId: 'openshift-v4.15.24-eus',
+          groupKey: 'eus',
+          label: '4.15.24 (eus)',
+        },
+      ],
       Candidate: [
         {
           entryId: 'openshift-v4.14.34-candidate',

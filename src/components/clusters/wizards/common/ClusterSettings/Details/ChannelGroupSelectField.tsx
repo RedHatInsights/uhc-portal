@@ -5,16 +5,8 @@ import { FormSelect, FormSelectOption, Spinner } from '@patternfly/react-core';
 
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import ErrorBox from '~/components/common/ErrorBox';
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import { useGlobalState } from '~/redux/hooks/useGlobalState';
 
-import {
-  capitalizeChannelGroup,
-  channelGroups as availableChannelGroups,
-  GetInstallableVersionsResponse,
-  hasUnstableVersionsCapability,
-} from './versionSelectHelper';
+import { createChannelGroupLabel, GetInstallableVersionsResponse } from './versionSelectHelper';
 
 interface ChannelGroupSelectFieldProps {
   field: FieldInputProps<string>;
@@ -28,18 +20,9 @@ export const ChannelGroupSelectField = ({
 }: ChannelGroupSelectFieldProps) => {
   const { setFieldValue } = useFormState();
 
-  const organization = useGlobalState((state) => state.userProfile.organization.details);
-  const unstableOCPVersionsEnabled =
-    useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
-
-  const channelGroups = unstableOCPVersionsEnabled
-    ? [
-        ...new Set(
-          getInstallableVersionsResponse?.versions?.map((version) => version.channel_group),
-        ),
-      ]
-    : [availableChannelGroups.STABLE];
-
+  const channelGroups = [
+    ...new Set(getInstallableVersionsResponse?.versions?.map((version) => version.channel_group)),
+  ];
   if (getInstallableVersionsResponse.fulfilled) {
     return (
       <FormSelect
@@ -55,7 +38,7 @@ export const ChannelGroupSelectField = ({
           <FormSelectOption
             key={channelGroup}
             value={channelGroup}
-            label={capitalizeChannelGroup(channelGroup)}
+            label={createChannelGroupLabel(channelGroup)}
           />
         ))}
       </FormSelect>

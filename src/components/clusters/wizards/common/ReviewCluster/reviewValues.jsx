@@ -9,7 +9,7 @@ import { routeSelectorsAsString } from '~/components/clusters/ClusterDetailsMult
 import parseUpdateSchedule from '~/components/clusters/common/Upgrades/parseUpdateSchedule';
 import { IMDSType } from '~/components/clusters/wizards/common';
 import {
-  capitalizeChannelGroup,
+  createChannelGroupLabel,
   getVersionNameWithChannel,
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/versionSelectHelper';
 import { ClusterPrivacyType } from '~/components/clusters/wizards/osd//Networking/constants';
@@ -103,7 +103,7 @@ const reviewValues = {
   },
   channel_group: {
     title: 'Channel group',
-    valueTransform: (value) => capitalizeChannelGroup(value),
+    valueTransform: (value) => createChannelGroupLabel(value),
   },
   cluster_version: {
     title: 'Version',

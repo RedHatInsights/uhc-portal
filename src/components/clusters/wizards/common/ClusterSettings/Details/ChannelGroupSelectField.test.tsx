@@ -1,14 +1,12 @@
 import * as React from 'react';
 import { FieldInputProps, Formik } from 'formik';
 
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
-import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
+import { render, screen, waitFor } from '~/testUtils';
 
 import { initialValues } from '../../../osd/constants';
 
 import { ChannelGroupSelectField } from './ChannelGroupSelectField';
 import { versionsData } from './VersionSelectField.fixtures';
-import * as versionsSelectHelper from './versionSelectHelper';
 
 describe('<ChannelGroupSelectField />', () => {
   beforeEach(() => {
@@ -75,8 +73,6 @@ describe('<ChannelGroupSelectField />', () => {
   });
 
   it('displays the available channel groups when feature gate enabled', async () => {
-    mockUseFeatureGate([[UNSTABLE_CLUSTER_VERSIONS, true]]);
-    jest.spyOn(versionsSelectHelper, 'hasUnstableVersionsCapability').mockReturnValue(true);
     render(
       <Formik initialValues={defaultValues} onSubmit={() => {}}>
         <ChannelGroupSelectField {...defaultProps} />
@@ -88,25 +84,7 @@ describe('<ChannelGroupSelectField />', () => {
     });
 
     expect(await screen.findByText('Stable')).toBeInTheDocument();
-    expect(await screen.findByText('EUS')).toBeInTheDocument();
+    expect(await screen.findByText('Extended update support (EUS)')).toBeInTheDocument();
     expect(await screen.findByText('Fast')).toBeInTheDocument();
-  });
-
-  it('displays only Stable when feature gate is not enabledƒ', async () => {
-    mockUseFeatureGate([[UNSTABLE_CLUSTER_VERSIONS, false]]);
-    jest.spyOn(versionsSelectHelper, 'hasUnstableVersionsCapability').mockReturnValue(false);
-    render(
-      <Formik initialValues={defaultValues} onSubmit={() => {}}>
-        <ChannelGroupSelectField {...defaultProps} />
-      </Formik>,
-    );
-
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    });
-
-    expect(await screen.findByText('Stable')).toBeInTheDocument();
-    expect(screen.queryByText('EUS')).not.toBeInTheDocument();
-    expect(screen.queryByText('Fast')).not.toBeInTheDocument();
   });
 });

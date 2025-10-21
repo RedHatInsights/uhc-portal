@@ -57,7 +57,10 @@ const getVersionsData = (
   versions.forEach((version: Version) => {
     const { raw_id: versionRawId, id: versionId, channel_group: channelGroup } = version;
     if (versionRawId && versionId) {
-      if (!unstableVersionsIncluded || channelGroup === channelGroups.STABLE) {
+      if (
+        (!unstableVersionsIncluded && channelGroup !== channelGroups.EUS) ||
+        channelGroup === channelGroups.STABLE
+      ) {
         const createMajorMinorVersion = (rawId: string) => {
           const versionObject = semver.parse(rawId);
 
@@ -107,6 +110,20 @@ const getVersionsData = (
           default:
             break;
         }
+      } else {
+        const versionEntry = {
+          entryId: versionId,
+          label: `${versionRawId} (${channelGroup})`,
+          groupKey: channelGroup,
+        };
+
+        switch (channelGroup) {
+          case channelGroups.EUS:
+            eus.push(versionEntry);
+            break;
+          default:
+            break;
+        }
       }
     }
   });
@@ -141,6 +158,7 @@ const getVersionsData = (
         Candidate: candidate,
         Nightly: nightly,
         Fast: fast,
+        EUS: eus,
       }
     : stableVersions;
 };
@@ -155,9 +173,10 @@ const hasUnstableVersionsCapability = (organization?: Organization) =>
 const getVersionNameWithChannel = (version: Version): string =>
   `${version?.raw_id} ${version?.channel_group !== channelGroups.STABLE ? `(${version?.channel_group})` : ''}`;
 
-const capitalizeChannelGroup = (channelGroup: string) => {
+const createChannelGroupLabel = (channelGroup: string) => {
   if (channelGroup === 'eus') {
-    return channelGroup.toUpperCase();
+    // return channelGroup.toUpperCase();
+    return 'Extended update support (EUS)';
   }
   return channelGroup.charAt(0).toUpperCase() + channelGroup.slice(1);
 };
@@ -167,6 +186,6 @@ export {
   supportStatuses,
   hasUnstableVersionsCapability,
   getVersionNameWithChannel,
-  capitalizeChannelGroup,
+  createChannelGroupLabel,
   GetInstallableVersionsResponse,
 };
