@@ -5,7 +5,7 @@ import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ReviewAndCreate } from '~/components/clusters/wizards/osd/ReviewAndCreate/ReviewAndCreate';
-import { OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import { OSD_GCP_WIF, PRIVATE_SERVICE_CONNECT } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
 const formValues = {
@@ -240,6 +240,66 @@ describe('<ReviewAndCreate />', () => {
       );
 
       expect(screen.queryByText('Authentication type')).not.toBeInTheDocument();
+    });
+
+    describe('Private Service Connect field - when "Billing model": Subscription type is On-Demand Flexible usage billed through Google Cloud Marketplace, Infrastructure type: Customer cloud subscription & "Cluster Settings": Cloud provider is Google Cloud Platform (GCP), authentication type is Workload Identity Federation & "Network Configuration": cluster privacy is set to Private (internal)', () => {
+      const privateServiceConnectFormValues = {
+        ...formValues,
+        cluster_privacy: 'internal',
+        billing_model: 'marketplace-gcp',
+        gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+        [FieldId.InstallToVpc]: true,
+      };
+
+      beforeEach(() => {
+        mockUseFeatureGate([[PRIVATE_SERVICE_CONNECT, true]]);
+      });
+
+      it('shows Private Service Connect as "Disabled" by default', () => {
+        render(
+          <Formik initialValues={privateServiceConnectFormValues} onSubmit={() => {}}>
+            <ReviewAndCreate />
+          </Formik>,
+        );
+
+        expect(screen.getByText('Private service connect')).toBeInTheDocument();
+        const value = screen.getByTestId('Private-service-connect');
+        expect(value).toBeInTheDocument();
+        expect(value.textContent).toBe('Disabled');
+      });
+
+      it('shows Private Service Connect as "Enabled" when form value is set to true', () => {
+        render(
+          <Formik
+            initialValues={{
+              ...privateServiceConnectFormValues,
+              [FieldId.PrivateServiceConnect]: true,
+            }}
+            onSubmit={() => {}}
+          >
+            <ReviewAndCreate />
+          </Formik>,
+        );
+
+        expect(screen.getByText('Private service connect')).toBeInTheDocument();
+        const value = screen.getByTestId('Private-service-connect');
+        expect(value).toBeInTheDocument();
+        expect(value.textContent).toBe('Enabled');
+      });
+
+      it('does not show Private Service Connect when feature gate is disabled', () => {
+        mockUseFeatureGate([[PRIVATE_SERVICE_CONNECT, false]]);
+
+        render(
+          <Formik initialValues={privateServiceConnectFormValues} onSubmit={() => {}}>
+            <ReviewAndCreate />
+          </Formik>,
+        );
+
+        expect(screen.queryByText('Private service connect')).not.toBeInTheDocument();
+        const value = screen.queryByTestId('Private-service-connect');
+        expect(value).not.toBeInTheDocument();
+      });
     });
   });
 });
