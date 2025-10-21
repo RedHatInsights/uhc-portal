@@ -57,7 +57,7 @@ export const Clusters = () => {
           title={<TabTitleText>Cluster Requests</TabTitleText>}
           aria-label="Cluster Requests"
         >
-          <ClusterTransferList />
+          <ClusterTransferList hideRefreshButton />
         </Tab>
       </Tabs>
     </AppPage>

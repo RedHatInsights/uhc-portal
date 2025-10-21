@@ -47,11 +47,13 @@ const ClusterTransferPageHeader = ({
   isError,
   error,
   refresh,
+  hideRefreshButton,
 }: {
   showSpinner: boolean;
   isError?: boolean;
   error?: Error;
   refresh: () => void;
+  hideRefreshButton?: boolean;
 }) => {
   const bodyContent = (
     <Flex>
@@ -84,40 +86,42 @@ const ClusterTransferPageHeader = ({
           </Popover>
         </>
       </FlexItem>
-      <FlexItem align={{ default: 'alignRight' }}>
-        <Toolbar id="cluster-list-refresh-toolbar" isFullHeight inset={{ default: 'insetNone' }}>
-          <ToolbarContent>
-            <ToolbarGroup
-              variant="action-group-plain"
-              align={{ default: 'alignEnd' }}
-              gap={{ default: 'gapNone', md: 'gapNone' }}
-            >
-              {showSpinner && (
-                <ToolbarItem>
-                  <Spinner
-                    size="lg"
-                    className="cluster-list-spinner"
-                    aria-label="Loading cluster transfer list data"
-                  />
+      {!hideRefreshButton && (
+        <FlexItem align={{ default: 'alignRight' }}>
+          <Toolbar id="cluster-list-refresh-toolbar" isFullHeight inset={{ default: 'insetNone' }}>
+            <ToolbarContent>
+              <ToolbarGroup
+                variant="action-group-plain"
+                align={{ default: 'alignEnd' }}
+                gap={{ default: 'gapNone', md: 'gapNone' }}
+              >
+                {showSpinner && (
+                  <ToolbarItem>
+                    <Spinner
+                      size="lg"
+                      className="cluster-list-spinner"
+                      aria-label="Loading cluster transfer list data"
+                    />
+                  </ToolbarItem>
+                )}
+                {isError && (
+                  <ToolbarItem>
+                    <ErrorTriangle errorMessage={error} item="clusters" />
+                  </ToolbarItem>
+                )}
+                <ToolbarItem gap={{ default: 'gapNone' }}>
+                  <RefreshButton isDisabled={showSpinner} refreshFunc={refresh} />
                 </ToolbarItem>
-              )}
-              {isError && (
-                <ToolbarItem>
-                  <ErrorTriangle errorMessage={error} item="clusters" />
-                </ToolbarItem>
-              )}
-              <ToolbarItem gap={{ default: 'gapNone' }}>
-                <RefreshButton isDisabled={showSpinner} refreshFunc={refresh} />
-              </ToolbarItem>
-            </ToolbarGroup>
-          </ToolbarContent>
-        </Toolbar>
-      </FlexItem>
+              </ToolbarGroup>
+            </ToolbarContent>
+          </Toolbar>
+        </FlexItem>
+      )}
     </Flex>
   );
 };
 
-const ClusterTransferList = () => {
+const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolean }) => {
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
 
   const { data, isLoading, isError, error } = useFetchClusterTransferDetail({
@@ -281,6 +285,7 @@ const ClusterTransferList = () => {
           isError={isError}
           error={error instanceof Error ? error : undefined}
           refresh={refetchClusterTransferDetail}
+          hideRefreshButton={hideRefreshButton}
         />
         {!isLoading && (!data || data?.items?.length === 0) ? (
           emptyPage
