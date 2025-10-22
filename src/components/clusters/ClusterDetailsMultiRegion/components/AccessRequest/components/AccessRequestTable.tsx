@@ -1,6 +1,13 @@
 import React, { useCallback } from 'react';
 
-import { Button, EmptyState, PageSection, Skeleton } from '@patternfly/react-core';
+import {
+  Button,
+  EmptyState,
+  PageSection,
+  Skeleton,
+  Timestamp,
+  TimestampFormat,
+} from '@patternfly/react-core';
 import { EyeIcon } from '@patternfly/react-icons/dist/esm/icons/eye-icon';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { ISortBy, SortByDirection, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
@@ -54,7 +61,17 @@ const AccessRequestTable = ({
         <AccessRequestStateIcon accessRequest={accessRequestItem} />
       </Td>
       <Td dataLabel={columnsNames.id.title}>{accessRequestItem.id}</Td>
-      <Td dataLabel={columnsNames.created_at.title}>{accessRequestItem.created_at}</Td>
+      {/* <Td dataLabel={columnsNames.created_at.title}>{accessRequestItem.created_at}</Td> */}
+      <Td dataLabel={columnsNames.created_at.title}>
+        <Timestamp
+          date={new Date(accessRequestItem.created_at || '')}
+          dateFormat={TimestampFormat.short}
+          timeFormat={TimestampFormat.long}
+          shouldDisplayUTC
+          is12Hour={false}
+          locale="en-CA"
+        />
+      </Td>
       <Td dataLabel={columnsNames.actions.title} isActionCell>
         <Button
           variant="secondary"
