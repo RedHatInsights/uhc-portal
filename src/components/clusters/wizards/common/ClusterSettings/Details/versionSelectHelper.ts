@@ -175,7 +175,7 @@ const getVersionNameWithChannel = (version: Version): string =>
 
 const createChannelGroupLabel = (channelGroup: string) => {
   if (channelGroup === 'eus') {
-    return 'Extended update support (EUS)';
+    return 'Extended Update Support (EUS)';
   }
   return channelGroup.charAt(0).toUpperCase() + channelGroup.slice(1);
 };
