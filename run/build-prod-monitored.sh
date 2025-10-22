@@ -15,10 +15,6 @@ set -e
 # don't set up sentry env' vars on preview builds;
 # sourcemaps are only relevant to stable environments.
 if [[ ${BETA} != 'true' ]]; then
-  # fixme - this bypasses a git ownership issue in konflux builds, to allow getting the git revision.
-  # fixme - we should probably look for a less hackish way to do that
-  git config --global --add safe.directory /opt/app-root/src
-
   VERSION="${VERSION:-$(git rev-parse --short HEAD)}"
 
   export SENTRY_PROJECT="ocm-uhc-portal"
