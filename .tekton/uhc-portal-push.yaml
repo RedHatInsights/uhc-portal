@@ -19,6 +19,9 @@ metadata:
   namespace: ocm-ui-tenant
 spec:
   params:
+  - name: build-args
+    value:
+    - YARN_BUILD_SCRIPT=build:prod:monitored
   - name: git-url
     value: '{{source_url}}'
   - name: revision
