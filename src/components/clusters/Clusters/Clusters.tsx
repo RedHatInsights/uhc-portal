@@ -12,32 +12,30 @@ import ClusterTransferList from '../ClusterTransfer/ClusterTransferList';
 import { ClustersPageHeader } from './ClustersPageHeader';
 
 const DEFAULT_TAB = 'list';
+const VALID_TABS = ['list', 'requests'] as const;
 
 export const Clusters = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   // Get tab key from hash, or use default
-  const getTabFromHash = (): string => {
+  const getTabFromHash = React.useCallback((): string => {
     const hash = location.hash.replace('#', '');
-    return hash || DEFAULT_TAB;
-  };
+    return VALID_TABS.includes(hash as (typeof VALID_TABS)[number]) ? hash : DEFAULT_TAB;
+  }, [location.hash]);
 
   const [activeTabKey, setActiveTabKey] = React.useState<string>(getTabFromHash());
 
   // Update active tab when hash changes
   React.useEffect(() => {
-    const hash = location.hash.replace('#', '');
-    const tabKey = hash || DEFAULT_TAB;
-    setActiveTabKey(tabKey);
-  }, [location.hash]);
+    setActiveTabKey(getTabFromHash());
+  }, [location.hash, getTabFromHash]);
 
   const handleTabClick = (
     event: React.MouseEvent<HTMLElement, MouseEvent> | undefined,
     tabKey: number | string,
   ) => {
     const tabKeyStr = String(tabKey);
-    setActiveTabKey(tabKeyStr);
     navigate(`${location.pathname}#${tabKeyStr}`);
   };
 

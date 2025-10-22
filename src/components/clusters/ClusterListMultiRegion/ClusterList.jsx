@@ -138,7 +138,7 @@ const ClusterList = ({
   closeModal,
   clearGlobalError,
   openModal,
-  getMultiRegion,
+  getMultiRegion = true,
   showTabbedView = false,
 }) => {
   const dispatch = useDispatch();
@@ -529,9 +529,6 @@ ClusterList.propTypes = {
   clearGlobalError: PropTypes.func.isRequired,
   getMultiRegion: PropTypes.bool,
   showTabbedView: PropTypes.bool,
-};
-ClusterList.defaultProps = {
-  getMultiRegion: true,
 };
 
 export default ClusterList;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen, withState } from '~/testUtils';
+import { checkAccessibility, screen, withState } from '~/testUtils';
 
 import { Clusters } from './Clusters';
 
@@ -40,14 +40,19 @@ jest.mock('react-router-dom', () => ({
 describe('<Clusters />', () => {
   afterEach(() => {
     jest.clearAllMocks();
-    mockLocation.hash = '';
+  });
+  describe('Accessibility', () => {
+    it('is accessible', async () => {
+      const { container } = withState({}, true).render(<Clusters />);
+
+      await checkAccessibility(container);
+    });
   });
 
   describe('Initial Rendering', () => {
     it('renders the clusters page with header and tabs', () => {
       withState({}, true).render(<Clusters />);
 
-      expect(screen.getByTestId('clusters-page-header')).toBeInTheDocument();
       expect(screen.getByRole('region', { name: 'Clusters' })).toBeInTheDocument();
     });
 
@@ -59,7 +64,6 @@ describe('<Clusters />', () => {
     });
 
     it('defaults to the "list" tab when no hash is present', () => {
-      mockLocation.hash = '';
       withState({}, true).render(<Clusters />);
 
       const listTab = screen.getByRole('tab', { name: 'Cluster List' });
@@ -68,7 +72,6 @@ describe('<Clusters />', () => {
     });
 
     it('shows the "list" tab content by default', () => {
-      mockLocation.hash = '';
       withState({}, true).render(<Clusters />);
 
       expect(screen.getByTestId('list-tab')).toBeInTheDocument();
@@ -100,32 +103,36 @@ describe('<Clusters />', () => {
       withState({}, true).render(<Clusters />);
 
       // Should default to list tab since 'unknown-tab' is not a valid tab key
-      // Component uses the hash as-is, so it will try to show 'unknown-tab'
-      // but since no tab matches, none should be selected
-      expect(screen.getByRole('tab', { name: 'Cluster List' })).toBeInTheDocument();
+      const listTab = screen.getByRole('tab', { name: 'Cluster List' });
+      expect(listTab).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByTestId('list-tab')).toBeInTheDocument();
     });
   });
 
   describe('Tab Clicking', () => {
-    it('navigates to #list when clicking the Cluster List tab', async () => {
-      mockLocation.hash = '#requests';
-      const { user } = withState({}, true).render(<Clusters />);
+    it.each([
+      {
+        tabName: 'Cluster List',
+        expectedHash: 'list',
+        initialHash: '#requests',
+      },
+      {
+        tabName: 'Cluster Requests',
+        expectedHash: 'requests',
+        initialHash: '',
+      },
+    ])(
+      'navigates to #$expectedHash when clicking the $tabName tab',
+      async ({ tabName, expectedHash, initialHash }) => {
+        mockLocation.hash = initialHash;
+        const { user } = withState({}, true).render(<Clusters />);
 
-      const listTab = screen.getByRole('tab', { name: 'Cluster List' });
-      await user.click(listTab);
+        const tab = screen.getByRole('tab', { name: tabName });
+        await user.click(tab);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/clusters#list');
-    });
-
-    it('navigates to #requests when clicking the Cluster Requests tab', async () => {
-      mockLocation.hash = '';
-      const { user } = withState({}, true).render(<Clusters />);
-
-      const requestsTab = screen.getByRole('tab', { name: 'Cluster Requests' });
-      await user.click(requestsTab);
-
-      expect(mockNavigate).toHaveBeenCalledWith('/clusters#requests');
-    });
+        expect(mockNavigate).toHaveBeenCalledWith(`/clusters#${expectedHash}`);
+      },
+    );
 
     it('updates navigation when switching between tabs', async () => {
       const { user } = withState({}, true).render(<Clusters />);
@@ -212,52 +219,13 @@ describe('<Clusters />', () => {
     });
   });
 
-  describe('Accessibility', () => {
-    it('has proper ARIA labels for tabs', () => {
-      withState({}, true).render(<Clusters />);
-
-      expect(screen.getByRole('tab', { name: 'Cluster List' })).toHaveAttribute(
-        'aria-label',
-        'Cluster List',
-      );
-      expect(screen.getByRole('tab', { name: 'Cluster Requests' })).toHaveAttribute(
-        'aria-label',
-        'Cluster Requests',
-      );
-    });
-
-    it('has proper ARIA region label for tabs container', () => {
-      withState({}, true).render(<Clusters />);
-
-      const tabsRegion = screen.getByRole('region', { name: 'Clusters' });
-      expect(tabsRegion).toBeInTheDocument();
-    });
-
-    it('marks the active tab with aria-selected', () => {
-      mockLocation.hash = '#list';
-      withState({}, true).render(<Clusters />);
-
-      const listTab = screen.getByRole('tab', { name: 'Cluster List' });
-      const requestsTab = screen.getByRole('tab', { name: 'Cluster Requests' });
-
-      expect(listTab).toHaveAttribute('aria-selected', 'true');
-      expect(requestsTab).toHaveAttribute('aria-selected', 'false');
-    });
-  });
-
   describe('Component Structure', () => {
-    it('renders within AppPage wrapper', () => {
+    it('renders within AppPage wrapper and shows header', () => {
       withState({}, true).render(<Clusters />);
 
       // AppPage should provide the page structure
       expect(screen.getByTestId('clusters-page-header')).toBeInTheDocument();
       expect(screen.getByRole('region', { name: 'Clusters' })).toBeInTheDocument();
-    });
-
-    it('renders ClustersPageHeader component', () => {
-      withState({}, true).render(<Clusters />);
-
-      expect(screen.getByTestId('clusters-page-header')).toBeInTheDocument();
       expect(screen.getByText('Clusters Header')).toBeInTheDocument();
     });
   });

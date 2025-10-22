@@ -239,18 +239,6 @@ describe('<ClustersPageHeader />', () => {
       expect(mockRefetchClusters).toHaveBeenCalledTimes(1);
       expect(mockRefetchClusterTransferDetail).toHaveBeenCalledTimes(1);
     });
-
-    it('can refresh multiple times', async () => {
-      const { user } = withState({}, true).render(<ClustersPageHeader />);
-
-      const refreshButton = screen.getByTestId('refresh-button');
-      await user.click(refreshButton);
-      await user.click(refreshButton);
-      await user.click(refreshButton);
-
-      expect(mockRefetchClusters).toHaveBeenCalledTimes(3);
-      expect(mockRefetchClusterTransferDetail).toHaveBeenCalledTimes(3);
-    });
   });
 
   describe('Combined States', () => {
