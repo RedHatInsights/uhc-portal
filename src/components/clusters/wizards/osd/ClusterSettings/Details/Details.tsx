@@ -64,6 +64,8 @@ import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { useFetchSearchClusterName } from '~/queries/RosaWizardQueries/useFetchSearchClusterName';
+import { useFetchSearchDomainPrefix } from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
 import { getCloudProviders } from '~/redux/actions/cloudProviderActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import {
@@ -81,6 +83,8 @@ function Details() {
   const {
     values: {
       [FieldId.Byoc]: byoc,
+      [FieldId.ClusterName]: clusterName,
+      [FieldId.DomainPrefix]: domainPrefix,
       [FieldId.MultiAz]: multiAz,
       [FieldId.Product]: product,
       [FieldId.BillingModel]: billingModel,
@@ -133,6 +137,15 @@ function Details() {
     isGCP && versionComparator(selectedVersion?.raw_id, MIN_SECURE_BOOT_VERSION) === -1;
 
   const clusterNameMaxLength = 54; // After removing feature flag, the max length is always 54
+  const { data: hasExistingRegionalClusterName } = useFetchSearchClusterName(
+    clusterName,
+    undefined,
+  );
+
+  const { data: hasExistingRegionalDomainPrefix } = useFetchSearchDomainPrefix(
+    domainPrefix,
+    undefined,
+  );
 
   React.useEffect(() => {
     dispatch(getCloudProviders());
@@ -306,7 +319,10 @@ function Details() {
       return syncError;
     }
 
-    const clusterNameAsyncError = await asyncValidateClusterName(value);
+    const clusterNameAsyncError = await asyncValidateClusterName(
+      value,
+      hasExistingRegionalClusterName,
+    );
     if (clusterNameAsyncError) {
       return clusterNameAsyncError;
     }
@@ -320,7 +336,11 @@ function Details() {
       return syncError;
     }
 
-    const domainPrefixAsyncError = await asyncValidateDomainPrefix(value);
+    const domainPrefixAsyncError = await asyncValidateDomainPrefix(
+      value,
+      undefined,
+      hasExistingRegionalDomainPrefix,
+    );
     if (domainPrefixAsyncError) {
       return domainPrefixAsyncError;
     }
@@ -356,7 +376,9 @@ function Details() {
               type="text"
               validate={validateClusterName}
               validation={(value: string) => clusterNameValidation(value, clusterNameMaxLength)}
-              asyncValidation={clusterNameAsyncValidation}
+              asyncValidation={(value: string) =>
+                clusterNameAsyncValidation(value, hasExistingRegionalClusterName)
+              }
               isRequired
               extendedHelpText={constants.clusterNameHint}
               input={getFieldProps(FieldId.ClusterName)}
@@ -382,7 +404,9 @@ function Details() {
                 type="text"
                 validate={validateDomainPrefix}
                 validation={domainPrefixValidation}
-                asyncValidation={domainPrefixAsyncValidation}
+                asyncValidation={(value: string) =>
+                  domainPrefixAsyncValidation(value, undefined, hasExistingRegionalDomainPrefix)
+                }
                 isRequired
                 input={getFieldProps(FieldId.DomainPrefix)}
               />
