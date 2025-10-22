@@ -84,7 +84,7 @@ describe('<ChannelGroupSelectField />', () => {
     });
 
     expect(await screen.findByText('Stable')).toBeInTheDocument();
-    expect(await screen.findByText('Extended update support (EUS)')).toBeInTheDocument();
+    expect(await screen.findByText('Extended Update Support (EUS)')).toBeInTheDocument();
     expect(await screen.findByText('Fast')).toBeInTheDocument();
   });
 });
