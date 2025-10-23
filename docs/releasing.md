@@ -1,4 +1,4 @@
-# :cookie: Release to Production
+# :cookie: Deploy to Production
 
 1. #### Pick the latest commit hash that can be released to Prod from 'main'
 
@@ -78,4 +78,3 @@ For more details on self-service, see [User Content Approval Process][25] and [G
 
 
 [footnotes]: #pencil2-footnotes
-[troubleshooting]: #dart-troubleshooting
