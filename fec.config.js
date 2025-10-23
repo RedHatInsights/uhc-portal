@@ -19,13 +19,13 @@ if (process.env.BUNDLE_ANALYZER) {
 module.exports = {
   appUrl: `/${name}`,
   appEntry: path.resolve(__dirname, 'src/bootstrap.ts'),
-  chromePort: process.env.FEC_CHROME_PORT ?? undefined,
+  chromePort: process.env.FEC_CHROME_PORT ?? 9990,
   hotReload: process.env.HOT === 'true',
   stripAllPfStyles: process.env.NODE_ENV !== 'production',
   debug: true,
   devtool: process.env.NODE_ENV !== 'production' ? 'cheap-module-source-map' : 'source-map',
   useProxy: process.env.MODE !== 'prod',
-  proxyVerbose: true,
+  proxyVerbose: process.env.LOGGING !== 'quiet',
   interceptChromeConfig: false,
   customProxy: [
     {
@@ -34,6 +34,11 @@ module.exports = {
       target: 'http://[::1]:8010',
     },
   ],
+  routes: {
+    '/mockdata': {
+      host: 'http://localhost:8010',
+    },
+  },
   plugins: [
     new ForkTsCheckerWebpackPlugin(),
     new webpack.DefinePlugin({
