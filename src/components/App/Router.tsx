@@ -38,7 +38,7 @@ import ArchivedClusterListMultiRegion from '../clusters/ArchivedClusterListMulti
 import ClusterDetailsSubscriptionIdMultiRegion from '../clusters/ClusterDetailsMultiRegion/ClusterDetailsSubscriptionIdMultiRegion';
 import AccessRequestNavigate from '../clusters/ClusterDetailsMultiRegion/components/AccessRequest/components/AccessRequestNavigate';
 import IdentityProviderPageMultiregion from '../clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/index';
-import ClusterListMultiRegion from '../clusters/ClusterListMultiRegion';
+import { ClustersNew } from '../clusters/ClustersNew/ClustersNew';
 import ClusterRequestList from '../clusters/ClusterTransfer/ClusterRequest';
 import CreateClusterPage from '../clusters/CreateClusterPage';
 import GovCloudPage from '../clusters/GovCloud/GovCloudPage';
@@ -242,7 +242,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         'Operational' or 'Major Outage' status for "OpenShift Cluster Manager" on the
         'http:///status.redhat.com' site. If this route is changed, then the related catchpoint
         tests must be updated. For more info. see: https://issues.redhat.com/browse/OCMUI-2398 */}
-        <Route path="/cluster-list" element={<ClusterListMultiRegion getMultiRegion />} />
+        <Route path="/cluster-list/*" element={<ClustersNew />} />
         {isClusterTransferOwnershipEnabled ? (
           <Route path="/cluster-request" element={<ClusterRequestList />} />
         ) : null}
