@@ -14621,7 +14621,8 @@ export interface components {
       /** @description Delete protection */
       delete_protection?: components['schemas']['DeleteProtection'];
       /** @description Indicates whether the User workload monitoring is enabled or not
-       *     It is enabled by default */
+       *     It is enabled by default
+       *     This field is deprecated for ROSA Hosted Control Plane clusters and will be removed */
       disable_user_workload_monitoring?: boolean;
       /** @description DomainPrefix of the cluster. This prefix is optionally assigned by the user when the
        *     cluster is created. It will appear in the Cluster's domain when the cluster is provisioned. */
