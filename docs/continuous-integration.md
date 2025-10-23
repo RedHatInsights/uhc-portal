@@ -13,7 +13,7 @@ Konflux will take care to take [snapshots][5] and create [releases][6], which ar
 
 ## Persisted configuration
 
-Most of our Konflux configuration (e.g. our Konflux app, component, integration-test scenario, release-admission plans, user access) is persisted as yaml files in the [konflux-release-data][10] repository, and then parsed and displayed by Konflux UI.  
+Most of our Konflux configuration (e.g. our Konflux app, component, integration-test scenario, release plans, user access) is persisted as yaml files in the [konflux-release-data][10] repository, and then parsed and displayed by Konflux UI.  
 See there for more info on how to generate or update these configs.
 
 
