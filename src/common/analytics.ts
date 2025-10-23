@@ -54,6 +54,7 @@ const eventNames = {
   MISSING_INFORMATION: 'Missing Information',
   SECTION_EXPANDED: 'Section Expanded',
   ALERT_INTERACTION: 'Alert Interaction',
+  TAB_VIEWED: 'Tab Viewed',
 };
 
 /**
@@ -366,6 +367,10 @@ const trackEvents: { [key: string]: TrackEvent } = {
   AlertInteraction: {
     event: eventNames.ALERT_INTERACTION,
     link_name: 'alert-interaction',
+  },
+  ClusterTabs: {
+    event: eventNames.TAB_VIEWED,
+    link_name: 'cluster-detail-tab',
   },
 };
 

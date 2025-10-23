@@ -31,6 +31,7 @@ import { useGlobalState } from '~/redux/hooks';
 
 import { getOrganizationAndQuota } from '../../../../../redux/actions/userActions';
 import ErrorBox from '../../../../common/ErrorBox';
+import { ClusterTabsId } from '../common/ClusterTabIds';
 
 import AddOnsDrawer from './AddOnsDrawer';
 import { availableAddOns } from './AddOnsHelper';
@@ -98,7 +99,7 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
             <Button
               variant="link"
               onClick={() => {
-                document.location.hash = 'overview';
+                document.location.hash = ClusterTabsId.OVERVIEW;
               }}
             >
               Go back to overview
