@@ -1,19 +1,19 @@
 
 # Continuous integration
 
-We use [Konflux][1] for CI, and own the 'ocm-ui-tenant' namespace which hosts the ['ocm-ui'][8] application.
+We use [Konflux][1] for CI, and own the 'ocm-ui-tenant' namespace.  This namespace hosts the ['ocm-ui' application][8], which in turn holds the ['uhc-portal' build component][12] pointing at this code repo.
             
 
 ## Build pipelines
 
-The FE app is built onto container images, which are pushed into the quay.io registry; PR changes are built via the ['pull-request' pipeline][3] and long-lived branches (e.g. 'main') – via the ['push' pipeline][4] (see ['pipeline runs' in Konflux UI][9]).  Both are stored in a [quay repo under the redhat-user-workloads][2] org'.
+The FE app is built onto container images, which are pushed into the quay.io registry; PR changes are built via the ['pull-request' pipeline][3] and long-lived branches (e.g. 'main') – via the ['push' pipeline][4] (see ['pipeline runs'][9] in Konflux UI).  Both are stored in an [image repo under the redhat-user-workloads org][2].
 
-Konflux will take care to take [snapshots][5] and create [releases][6], which are stored in [our quay repo under the redhat-services-prod][7] org'.  Releases are just images that have been signed as suitable for deployment.
+Konflux will take care to take [snapshots][5] and create [releases][6], which are stored in [our image repo under the redhat-services-prod org][7].  Konflux releases are just images that have been signed as suitable for deployment.
         
 
 ## Persisted configuration
 
-Most of our Konflux configuration (e.g. our Konflux app, component, integration-test scenario, release plans, user access) is persisted as yaml files in the [konflux-release-data][10] repository, and then parsed and displayed by Konflux UI.  
+Most of our Konflux configuration (e.g. our app, component, integration-test scenario, release plans, user access) is persisted as yaml files in the [konflux-release-data][10] repository, and then parsed and displayed by Konflux UI.  
 See there for more info on how to generate or update these configs.
 
 
@@ -42,3 +42,4 @@ To get assistance with Konflux CI, post an ask in the #konflux-users Slack chann
 [9]: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/ocm-ui-tenant/applications/ocm-ui/activity/pipelineruns
 [10]: https://gitlab.cee.redhat.com/releng/konflux-release-data
 [11]: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-unit-tests.yaml
+[12]: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/ocm-ui-tenant/applications/ocm-ui/components/uhc-portal
