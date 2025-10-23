@@ -23,6 +23,7 @@ import { ClusterFromSubscription } from '~/types/types';
 import { isHypershiftCluster, isMPoolAz } from '../../../clusterDetailsHelper';
 import MachinePoolAutoRepairDetail from '../MachinePoolAutoRepairDetail';
 import MachinePoolAutoScalingDetail from '../MachinePoolAutoscalingDetail';
+import MachinePoolCapacityReservationDetail from '../MachinePoolCapacityReservationDetail';
 import { getSubnetIds, hasAwsTags, hasSubnets } from '../machinePoolsHelper';
 
 const LABEL_MAX_LENGTH = 50;
@@ -103,7 +104,7 @@ const MachinePoolExpandedRow = ({
   const isMultiZoneMachinePool = isMPoolAz(cluster, machinePool.availability_zones?.length);
   const isHypershift = isHypershiftCluster(cluster);
   const isAutoRepairEnabled = (machinePool as NodePool)?.auto_repair;
-
+  const capacityReservationId = (machinePool as NodePool)?.aws_node_pool?.capacity_reservation?.id;
   const awsTagsAvailable = hasAwsTags(machinePool);
   const labelsAvailable = !isEmpty(machinePool.labels);
   const nodePoolTags = (machinePool as NodePool).aws_node_pool?.tags;
@@ -216,6 +217,11 @@ const MachinePoolExpandedRow = ({
       {isHypershift && (
         <GridItem md={6}>
           <MachinePoolAutoRepairDetail isAutoRepairEnabled={isAutoRepairEnabled} />
+        </GridItem>
+      )}
+      {isHypershift && (
+        <GridItem md={6}>
+          <MachinePoolCapacityReservationDetail capacityReservationId={capacityReservationId} />
         </GridItem>
       )}
       {spotMarketOptions && (
