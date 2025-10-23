@@ -225,6 +225,22 @@ describe('MachinePoolExpandedRow', () => {
     });
   });
 
+  describe('Capacity reservation settings', () => {
+    it('shows N/A when no reservation id exists', () => {
+      render(<MachinePoolExpandedRow {...getNodePoolProps({})} />);
+      expect(screen.getByText('Reservation Id: N/A')).toBeInTheDocument();
+    });
+
+    it('shows the id when it exists', () => {
+      render(
+        <MachinePoolExpandedRow
+          {...getNodePoolProps({ aws_node_pool: { capacity_reservation: { id: 'capId1' } } })}
+        />,
+      );
+      expect(screen.getByText('Reservation Id: capId1')).toBeInTheDocument();
+    });
+  });
+
   describe('Spot price settings', () => {
     it('are displayed correctly', () => {
       render(<MachinePoolExpandedRow {...getDefaultProps({})} />);

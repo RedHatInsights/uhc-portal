@@ -358,6 +358,8 @@ const links = {
   AWS_LOAD_BALANCER_FEATURES:
     'https://aws.amazon.com/elasticloadbalancing/features/#Product_comparisons',
   AWS_SHARED_VPC: 'https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html',
+  AWS_CAPACITY_RESERVATION:
+    'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/capacity-reservation-overview.html',
 
   GCP_CONSOLE_OSD_HOME:
     'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
