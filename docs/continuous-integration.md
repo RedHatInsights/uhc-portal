@@ -19,7 +19,7 @@ See there for more info on how to generate or update these configs.
 
 ## Our custom setup
 
-Our repo declares a non-default pipeline-run config, which extends a remote pipeline config commonly used in HCC tenant-apps.  This config is equipped with an additional custom task for running additional verification (e.g. unit-tests, linter) during build.
+Our repo declares a non-default pipeline-run config, which extends a remote pipeline config commonly used in HCC tenant-apps.  This config is equipped with an additional custom task for running source-code verification (e.g. unit-tests, linter) during build.
 
 See [docker-build-run-unit-tests][11] at the _RedHatInsights/konflux-pipelines_ repo.
 
