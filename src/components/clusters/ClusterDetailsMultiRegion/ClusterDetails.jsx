@@ -88,7 +88,7 @@ import { getSchedules } from '../common/Upgrades/clusterUpgradeActions';
 
 import AccessControl from './components/AccessControl/AccessControl';
 import usersActions from './components/AccessControl/UsersSection/UsersActions';
-import AccessRequest from './components/AccessRequest';
+import { AccessRequest } from './components/AccessRequest/AccessRequest';
 import AddOns from './components/AddOns';
 import ClusterDetailsTop from './components/ClusterDetailsTop/ClusterDetailsTop';
 import ClusterLogs from './components/ClusterLogs/ClusterLogs';
@@ -777,7 +777,11 @@ const ClusterDetails = (props) => {
               hidden
             >
               <ErrorBoundary>
-                <AccessRequest subscriptionId={subscriptionID} />
+                <AccessRequest
+                  variant="card"
+                  subscriptionId={subscriptionID}
+                  showClusterName={false}
+                />
               </ErrorBoundary>
             </TabContent>
           ) : null}
