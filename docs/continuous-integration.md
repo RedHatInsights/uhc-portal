@@ -6,9 +6,9 @@ We use [Konflux][1] for CI, and own the 'ocm-ui-tenant' namespace which hosts th
 
 ## Build pipelines
 
-The FE app is built onto container images, which are pushed into the quay.io registry; PR changes are built via the ['pull-request' pipeline][3] and long-lived branches (e.g. 'main') – via the ['push' pipeline][4] (see ['pipeline runs' in Konflux UI][9]).  Both are stored in a quay repo under the [redhat-user-workloads][2] org'.
+The FE app is built onto container images, which are pushed into the quay.io registry; PR changes are built via the ['pull-request' pipeline][3] and long-lived branches (e.g. 'main') – via the ['push' pipeline][4] (see ['pipeline runs' in Konflux UI][9]).  Both are stored in a [quay repo under the redhat-user-workloads][2] org'.
 
-Konflux will take care to take [snapshots][5] and create [releases][6], which are stored under the [redhat-services-prod][7] quay org'.
+Konflux will take care to take [snapshots][5] and create [releases][6], which are stored in [our quay repo under the redhat-services-prod][7] org'.  Releases are just images that have been signed as suitable for deployment.
         
 
 ## Persisted configuration
