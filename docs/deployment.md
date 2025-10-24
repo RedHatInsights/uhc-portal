@@ -1,6 +1,6 @@
 # :cookie: Deploy to Production
 
-1. #### Pick the latest commit hash that can be released to Prod from 'main'
+1. #### Pick the latest safe commit from 'main'
 
    Go to https://github.com/RedHatInsights/uhc-portal/commits/main/
 
@@ -14,7 +14,7 @@
    
    Under the section `# Production Deployment`, update `ref` to the new full-hash from step 2.
 
-   Commit and push changes, and create an MR against the upstream repo' ([example MR][9])
+   Commit and push changes, and create an MR against the upstream repo' ([example MR][9]).
       
    Note this MR will get merged automatically <sup>[2][footnotes]</sup>, once approvers post a `/lgtm` comment.  Also note, that **you** are on the approvers list, which means you can self-approve.
     
@@ -33,7 +33,7 @@
 
    For the 'Release title', enter the release date in full, human-readable form, e.g. _March 5, 2025_.
 
-   - In the 'Choose a tag' dropdown, enter a tag name as date using the yyyy-mm-dd format (e.g. 2025-03-05-release), and click on '_+ Create new tag on publish_' at the bottom of the dropdown.  
+   - In the 'Choose a tag' dropdown, enter a tag name as date using the yyyy-mm-dd format (e.g. 2025-03-05), and click on '_+ Create new tag on publish_' at the bottom of the dropdown.  
    - In the 'Target: Master' dropdown, select 'Previous commits' tab and paste the commit SHA from step 2 into the filter, then select the SHA from the dropdown.
    - You can leave the _Previous tag_, as `auto`.
 
