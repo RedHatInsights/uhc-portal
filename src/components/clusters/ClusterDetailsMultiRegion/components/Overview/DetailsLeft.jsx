@@ -42,6 +42,7 @@ function DetailsLeft({
   wifConfigData,
   isArchived,
   isDeprovisioned,
+  isDisconnected,
 }) {
   const useEusChannel = useFeatureGate(ALLOW_EUS_CHANNEL);
   const cloudProviderId = cluster.cloud_provider ? cluster.cloud_provider.id : null;
@@ -159,7 +160,7 @@ function DetailsLeft({
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
-      {useEusChannel && !isArchived && !isDeprovisioned && (
+      {useEusChannel && !isArchived && !isDeprovisioned && !isDisconnected && (
         <ChannelGroupEdit
           clusterID={clusterID}
           channelGroup={cluster?.version.channel_group}
@@ -240,6 +241,7 @@ function DetailsLeft({
 DetailsLeft.propTypes = {
   cluster: PropTypes.any,
   isArchived: PropTypes.bool,
+  isDisconnected: PropTypes.bool,
   isDeprovisioned: PropTypes.bool,
   cloudProviders: PropTypes.object.isRequired,
   showAssistedId: PropTypes.bool.isRequired,
