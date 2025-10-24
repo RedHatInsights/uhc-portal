@@ -30,10 +30,14 @@ import {
 import { viewActions } from '~/redux/actions/viewOptionsActions';
 import { viewConstants } from '~/redux/constants';
 import { useGlobalState } from '~/redux/hooks';
-import { AccessRequest as AccessRequestModel } from '~/types/access_transparency.v1';
+import {
+  AccessRequest as AccessRequestModel,
+  AccessRequestStatusState,
+} from '~/types/access_transparency.v1';
 import { ViewSorting } from '~/types/types';
 
 import AccessRequestModalForm from './components/AccessRequestModalForm';
+import { AccessRequestNewModal } from './components/AccessRequestNewModal';
 import AccessRequestTable from './components/AccessRequestTable';
 import AccessRequestTablePagination from './components/AccessRequestTablePagination';
 
@@ -59,6 +63,7 @@ export const AccessRequest = ({
   const viewType = viewConstants.ACCESS_REQUESTS_VIEW;
   const viewOptions = useGlobalState((state) => state.viewOptions[viewType], shallowEqual);
   const { organization } = useOrganization();
+  const [isNewModalOpen, setIsNewModalOpen] = React.useState(false);
 
   const { data: accessRequests, isLoading: isAccessRequestsLoading } = useFetchAccessRequests({
     subscriptionId,
@@ -71,6 +76,14 @@ export const AccessRequest = ({
   const isPendingNoData = useMemo(
     () => isAccessRequestsLoading || !accessRequests?.length,
     [isAccessRequestsLoading, accessRequests],
+  );
+
+  const isAccessRequestPending = useMemo(
+    () =>
+      accessRequests?.some(
+        (accessRequest) => accessRequest.status?.state === AccessRequestStatusState.Pending,
+      ) ?? false,
+    [accessRequests],
   );
 
   // Update total count after filtering
@@ -102,6 +115,10 @@ export const AccessRequest = ({
     [dispatch],
   );
 
+  const handleClose = () => {
+    setIsNewModalOpen(false);
+  };
+
   const readMoreLink = (
     <ExternalLink href={installLinks.ACCESS_REQUEST_DOC_LINK}>
       Read more about Access Requests functionality
@@ -126,6 +143,16 @@ export const AccessRequest = ({
       variant={paginationVariant}
       isDisabled={isPendingNoData}
     />
+  );
+
+  const accessRequestButton = (
+    <Flex>
+      <FlexItem align={{ default: 'alignLeft' }}>
+        <Button variant="secondary" onClick={() => setIsNewModalOpen(true)}>
+          Create access request
+        </Button>
+      </FlexItem>
+    </Flex>
   );
 
   return (
@@ -181,13 +208,22 @@ export const AccessRequest = ({
               {readMoreLink}
             </CardBody>
           </Card>
+
           <Card>
             <CardBody>
+              {!isAccessRequestPending && <Flex>{accessRequestButton}</Flex>}
               {pagination('top')}
               {tableContent}
               {pagination('bottom')}
             </CardBody>
           </Card>
+          {subscriptionId && (
+            <AccessRequestNewModal
+              subscriptionId={subscriptionId}
+              isModalOpen={isNewModalOpen}
+              onClose={handleClose}
+            />
+          )}
         </>
       )}
 
