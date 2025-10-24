@@ -42,7 +42,7 @@ export const GCP_WIF_DEFAULT = 'ocmui-gcp-wif-default';
 export const MP_ADDITIONAL_MAINTENANCE_VALUES = 'ocmui-mp-additional-maintenance-values';
 export const WINDOWS_LICENSE_INCLUDED = 'ocmui-windows-license-included';
 export const ALLOW_EUS_CHANNEL = 'ocmui-allow-eus-channel';
-export const CAPACITY_RESERVATION_ENABLED = 'ocmui-capacity-reservation';
+export const CAPACITY_RESERVATION_ID_FIELD = 'ocmui-capacity-reservation-id-field';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -73,5 +73,5 @@ export default {
   MP_ADDITIONAL_MAINTENANCE_VALUES,
   WINDOWS_LICENSE_INCLUDED,
   ALLOW_EUS_CHANNEL,
-  CAPACITY_RESERVATION_ENABLED,
+  CAPACITY_RESERVATION_ID_FIELD,
 } as const;

@@ -17,7 +17,7 @@ import { truncateTextWithEllipsis } from '~/common/helpers';
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
 import {
   AWS_TAGS_NEW_MP,
-  CAPACITY_RESERVATION_ENABLED,
+  CAPACITY_RESERVATION_ID_FIELD,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachinePool, NodePool, SecurityGroup } from '~/types/clusters_mgmt.v1';
@@ -98,7 +98,7 @@ const MachinePoolExpandedRow = ({
   region?: string;
 }) => {
   const awsTagsNewMP = useFeatureGate(AWS_TAGS_NEW_MP);
-  const isCapacityReservationEnabled = useFeatureGate(CAPACITY_RESERVATION_ENABLED);
+  const isCapacityReservationIdFieldEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
   const { clusterVpc } = useAWSVPCFromCluster(cluster, region);
   const spotMarketOptions = machinePool?.aws?.spot_market_options;
   const securityGroupIds =
@@ -223,7 +223,7 @@ const MachinePoolExpandedRow = ({
           <MachinePoolAutoRepairDetail isAutoRepairEnabled={isAutoRepairEnabled} />
         </GridItem>
       )}
-      {isHypershift && isCapacityReservationEnabled && (
+      {isHypershift && isCapacityReservationIdFieldEnabled && (
         <GridItem md={6}>
           <MachinePoolCapacityReservationDetail capacityReservationId={capacityReservationId} />
         </GridItem>
