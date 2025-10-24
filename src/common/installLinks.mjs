@@ -604,6 +604,10 @@ const urls = {
         [operatingSystems.mac]: `${MIRROR_CRC_LATEST}/crc-macos-installer.pkg`,
         [operatingSystems.linux]: `${MIRROR_CRC_LATEST}/crc-linux-amd64.tar.xz`,
       },
+      [architectures.arm]: {
+        [operatingSystems.mac]: `${MIRROR_CRC_LATEST}/crc-macos-installer.pkg`,
+        [operatingSystems.linux]: `${MIRROR_CRC_LATEST}/crc-linux-arm64.tar.xz`,
+      },
     },
   },
 

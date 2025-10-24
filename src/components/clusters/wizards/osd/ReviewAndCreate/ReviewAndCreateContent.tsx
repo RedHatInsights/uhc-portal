@@ -93,7 +93,6 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
     ...(isByoc && isAWS ? [FieldId.DisableScpChecks] : []),
     FieldId.EtcdEncryption,
     FieldId.FipsCryptography,
-    ...(isGCPPrivateClusterInstalltoVPC ? [FieldId.PrivateServiceConnect] : []),
   ];
 
   if (isPending) {
