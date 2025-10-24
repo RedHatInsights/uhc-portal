@@ -10,6 +10,7 @@ export const channelGroups = {
   CANDIDATE: 'candidate',
   FAST: 'fast',
   NIGHTLY: 'nightly',
+  EUS: 'eus',
 };
 
 const supportStatuses = {
@@ -39,7 +40,10 @@ const getVersionsData = (
   versions.forEach((version: Version) => {
     const { raw_id: versionRawId, id: versionId, channel_group: channelGroup } = version;
     if (versionRawId && versionId) {
-      if (!unstableVersionsIncluded || channelGroup === channelGroups.STABLE) {
+      if (
+        (!unstableVersionsIncluded && channelGroup !== channelGroups.EUS) ||
+        channelGroup === channelGroups.STABLE
+      ) {
         const createMajorMinorVersion = (rawId: string) => {
           const versionObject = semver.parse(rawId);
 
