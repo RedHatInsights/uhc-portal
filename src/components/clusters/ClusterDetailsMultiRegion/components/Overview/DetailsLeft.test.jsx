@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import React from 'react';
 
-import { OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import { ALLOW_EUS_CHANNEL, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen, within } from '~/testUtils';
 
 import fixtures from '../../__tests__/ClusterDetails.fixtures';
@@ -35,6 +35,7 @@ const componentText = {
     label: 'Domain prefix',
   },
   VERSION: { label: 'Version' },
+  CHANNEL_GROUP: { label: 'Channel group', stable: 'Stable', unavailable: 'N/A' },
   OWNER: { label: 'Owner', NA: 'N/A' },
   SUBSCRIPTION: { label: 'Subscription billing model' },
   INFRASTRUCTURE: { label: 'Infrastructure billing model' },
@@ -778,6 +779,39 @@ describe('<DetailsLeft />', () => {
       // Assert
       checkForValueAbsence(componentText.SUBSCRIPTION.label);
       checkForValueAbsence(componentText.INFRASTRUCTURE.label);
+    });
+  });
+
+  describe('Channel group HCP cluster', () => {
+    it('Shows channel group if available', async () => {
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+      const ROSAHypershiftClusterFixture = fixtures.ROSAHypershiftClusterDetails.cluster;
+      expect(ROSAHypershiftClusterFixture.hypershift.enabled).toBeTruthy();
+
+      const props = { ...defaultProps, cluster: ROSAHypershiftClusterFixture };
+      render(<DetailsLeft {...props} />);
+      await checkIfRendered();
+
+      // Assert
+      checkForValue(componentText.CHANNEL_GROUP.label, componentText.CHANNEL_GROUP.stable);
+    });
+
+    it('Shows N/A if channel group is unavailable', async () => {
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+      const ROSAHypershiftClusterFixture = {
+        ...fixtures.ROSAHypershiftClusterDetails.cluster,
+        version: {
+          channel_group: 'N/A',
+        },
+      };
+      expect(ROSAHypershiftClusterFixture.hypershift.enabled).toBeTruthy();
+
+      const props = { ...defaultProps, cluster: ROSAHypershiftClusterFixture };
+      render(<DetailsLeft {...props} />);
+      await checkIfRendered();
+
+      // Assert
+      checkForValue(componentText.CHANNEL_GROUP.label, componentText.CHANNEL_GROUP.unavailable);
     });
   });
 });

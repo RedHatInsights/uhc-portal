@@ -15,7 +15,7 @@ import {
 import { Owner } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/Owner/Owner';
 import { isCCS, isGCP, isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import getBillingModelLabel from '~/components/clusters/common/getBillingModelLabel';
-import { OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import { ALLOW_EUS_CHANNEL, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { normalizedProducts } from '../../../../../common/subscriptionTypes';
@@ -23,12 +23,12 @@ import PopoverHint from '../../../../common/PopoverHint';
 import ClusterTypeLabel from '../../../common/ClusterTypeLabel';
 import InfrastructureModelLabel from '../../../common/InfrastructureModelLabel';
 
+import { ChannelGroupEdit } from './ChannelGroupEdit/ChannelGroupEdit';
 import ClusterVersionInfo from './ClusterVersionInfo';
 
 const getIdFields = (cluster, showAssistedId) => {
   let label = 'Cluster ID';
   let id = get(cluster, 'external_id', 'N/A');
-
   const assistedId = get(cluster, 'aiCluster.id', 'N/A');
   if (showAssistedId && assistedId) {
     label = `Assisted cluster ID / ${label}`;
@@ -36,9 +36,19 @@ const getIdFields = (cluster, showAssistedId) => {
   }
   return { id, idLabel: label };
 };
-function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData }) {
+function DetailsLeft({
+  cluster,
+  cloudProviders,
+  showAssistedId,
+  wifConfigData,
+  isArchived,
+  isDeprovisioned,
+  isDisconnected,
+}) {
+  const useEusChannel = useFeatureGate(ALLOW_EUS_CHANNEL);
   const cloudProviderId = cluster.cloud_provider ? cluster.cloud_provider.id : null;
   const region = cluster?.region?.id;
+  const clusterID = cluster?.id;
   const planType = get(cluster, 'subscription.plan.type');
   const isROSA = planType === normalizedProducts.ROSA;
   const isHypershift = isHypershiftCluster(cluster);
@@ -151,6 +161,13 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData })
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
+      {useEusChannel && !isArchived && !isDeprovisioned && !isDisconnected && (
+        <ChannelGroupEdit
+          clusterID={clusterID}
+          channelGroup={cluster?.version.channel_group}
+          cluster={cluster}
+        />
+      )}
       <DescriptionListGroup>
         <DescriptionListTerm>
           Version
@@ -230,6 +247,9 @@ function DetailsLeft({ cluster, cloudProviders, showAssistedId, wifConfigData })
 
 DetailsLeft.propTypes = {
   cluster: PropTypes.any,
+  isArchived: PropTypes.bool,
+  isDisconnected: PropTypes.bool,
+  isDeprovisioned: PropTypes.bool,
   cloudProviders: PropTypes.object.isRequired,
   showAssistedId: PropTypes.bool.isRequired,
   wifConfigData: PropTypes.shape({
