@@ -9,6 +9,7 @@ import {
   SERVICE_CIDR_DEFAULT,
 } from '~/components/clusters/common/networkingConstants';
 import {
+  CHANNEL_GROUP_DEFAULT,
   CloudProviderType,
   emptyAWSSubnet,
   FieldId as CommonFieldId,
@@ -125,6 +126,7 @@ export const initialValues: FormikValues = {
   [FieldId.GcpWifConfig]: '',
   [FieldId.PrivateServiceConnect]: false,
   [FieldId.PSCSubnet]: '',
+  [FieldId.ChannelGroup]: CHANNEL_GROUP_DEFAULT,
 };
 
 export const initialTouched = {

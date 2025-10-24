@@ -6,6 +6,7 @@ import { Bullseye, Card, CardBody, CardHeader, Gallery, Tooltip } from '@pattern
 import { noQuotaTooltip } from '~/common/helpers';
 import {
   AWS_DEFAULT_REGION,
+  CHANNEL_GROUP_DEFAULT,
   CloudProviderType,
   GCP_DEFAULT_REGION,
 } from '~/components/clusters/wizards/common/constants';
@@ -56,6 +57,7 @@ export const CloudProviderTileField = () => {
     setFieldValue(FieldId.AcknowledgePrereq, false);
     setFieldValue(FieldId.FipsCryptography, false);
     setFieldValue(FieldId.CloudProvider, value);
+    setFieldValue(FieldId.ChannelGroup, CHANNEL_GROUP_DEFAULT);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {

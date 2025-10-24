@@ -3,7 +3,8 @@ import { Formik } from 'formik';
 
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
-import { render, screen, waitFor } from '~/testUtils';
+import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { initialValues } from '../constants';
 
@@ -429,6 +430,35 @@ describe('<ReviewClusterScreen />', () => {
         render(buildTestComponent(<ReviewClusterScreen {...newProps} />));
 
         expect(screen.getByText('External Authentication')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Channel group', () => {
+    it('is shown when ALLOW_EUS_CHANNEL feature gate is enabled', async () => {
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+
+      render(
+        buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
+          channel_group: 'stable',
+        }),
+      );
+
+      expect(await screen.findByText('Channel group')).toBeInTheDocument();
+      expect(screen.getByText('Stable')).toBeInTheDocument();
+    });
+
+    it('is not shown when ALLOW_EUS_CHANNEL feature gate is disabled', async () => {
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, false]]);
+
+      render(
+        buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
+          channel_group: 'stable',
+        }),
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Channel group')).not.toBeInTheDocument();
       });
     });
   });

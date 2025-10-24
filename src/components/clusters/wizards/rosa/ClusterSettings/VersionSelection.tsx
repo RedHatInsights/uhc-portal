@@ -34,9 +34,16 @@ type VersionSelectionProps = {
   label: string;
   onChange: (version?: Version) => void;
   isOpen?: boolean;
+  channelGroup?: string;
+  isEUSChannelEnabled?: boolean;
 };
 
-function VersionSelection({ label, onChange }: VersionSelectionProps) {
+function VersionSelection({
+  label,
+  onChange,
+  channelGroup,
+  isEUSChannelEnabled,
+}: VersionSelectionProps) {
   const [input, { touched, error }, { setValue }] = useField(FieldId.ClusterVersion);
   const {
     values: {
@@ -177,17 +184,20 @@ function VersionSelection({ label, onChange }: VersionSelectionProps) {
 
   useEffect(() => {
     if (versions.length && !selectedClusterVersion?.id) {
+      const targetChannelGroup =
+        isEUSChannelEnabled && channelGroup ? channelGroup : channelGroups.STABLE;
+
       const defaultVersion = versions.find((version) => version.default === true);
 
       const defaultRosaVersion = versions.find(
-        (version) => isValidRosaVersion(version) && version.channel_group === channelGroups.STABLE,
+        (version) => isValidRosaVersion(version) && version.channel_group === targetChannelGroup,
       );
 
       const defaultHypershiftVersion =
         isHypershiftSelected &&
         versions.find(
           (version) =>
-            version.hosted_control_plane_enabled && version.channel_group === channelGroups.STABLE,
+            version.hosted_control_plane_enabled && version.channel_group === targetChannelGroup,
         );
 
       if (!defaultRosaVersion || (isHypershiftSelected && !defaultHypershiftVersion)) {
@@ -210,6 +220,8 @@ function VersionSelection({ label, onChange }: VersionSelectionProps) {
     onChange,
     isHypershiftSelected,
     isValidRosaVersion,
+    isEUSChannelEnabled,
+    channelGroup,
   ]);
 
   const onSelect: SelectProps['onSelect'] = (_event, selection) => {
@@ -235,12 +247,19 @@ function VersionSelection({ label, onChange }: VersionSelectionProps) {
       filteredVersions,
       unstableOCPVersionsEnabled,
       supportVersionMap,
+      channelGroup,
+      isEUSChannelEnabled,
     );
 
-    const processedGroups = Object.entries(groupedVersions).reduce<
+    // If getVersionsData returns an array (specific channel selected), wrap it in an object
+    const normalizedVersions = Array.isArray(groupedVersions)
+      ? { Versions: groupedVersions }
+      : groupedVersions;
+
+    const processedGroups = Object.entries(normalizedVersions).reduce<
       Record<string, FuzzyEntryType[]>
     >((groups, [groupName, groupVersions]) => {
-      const processedVersions = groupVersions.map((version) => {
+      const processedVersions = groupVersions.map((version: FuzzyEntryType) => {
         const originalVersion = versions.find((v) => v.id === version.entryId)!;
         const incompatibilityReason = incompatibleVersionReason(originalVersion);
         return {
@@ -266,6 +285,8 @@ function VersionSelection({ label, onChange }: VersionSelectionProps) {
     incompatibleVersionReason,
     unstableOCPVersionsEnabled,
     supportVersionMap,
+    channelGroup,
+    isEUSChannelEnabled,
   ]);
 
   const sortFn = (a: FuzzyEntryType, b: FuzzyEntryType) => versionComparator(b.label, a.label);
@@ -313,9 +334,12 @@ function VersionSelection({ label, onChange }: VersionSelectionProps) {
         <RosaVersionErrorAlert isHypershiftSelected={isHypershiftSelected} />
       ) : null}
       {getInstallableVersionsResponse.pending && (
-        <div className="spinner-fit-container">
-          <Spinner size="lg" aria-label="Loading..." />
-        </div>
+        <>
+          <div className="spinner-fit-container">
+            <Spinner size="lg" aria-label="Loading..." />
+          </div>
+          <div className="spinner-loading-text">Loading...</div>
+        </>
       )}
       {getInstallableVersionsResponse.fulfilled && !rosaVersionError && (
         <FuzzySelect
