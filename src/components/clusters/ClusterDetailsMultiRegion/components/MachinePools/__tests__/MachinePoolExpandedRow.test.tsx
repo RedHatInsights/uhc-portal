@@ -1,6 +1,9 @@
 import React from 'react';
 
-import { AWS_TAGS_NEW_MP } from '~/queries/featureGates/featureConstants';
+import {
+  AWS_TAGS_NEW_MP,
+  CAPACITY_RESERVATION_ID_FIELD,
+} from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen } from '~/testUtils';
 import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
@@ -222,6 +225,24 @@ describe('MachinePoolExpandedRow', () => {
     it('shows Disabled when false', () => {
       render(<MachinePoolExpandedRow {...getNodePoolProps({ auto_repair: false })} />);
       expect(screen.getByText('Disabled')).toBeInTheDocument();
+    });
+  });
+
+  describe('Capacity reservation settings', () => {
+    it('shows N/A when no reservation id exists', () => {
+      mockUseFeatureGate([[CAPACITY_RESERVATION_ID_FIELD, true]]);
+      render(<MachinePoolExpandedRow {...getNodePoolProps({})} />);
+      expect(screen.getByText('Reservation Id: N/A')).toBeInTheDocument();
+    });
+
+    it('shows the id when it exists', () => {
+      mockUseFeatureGate([[CAPACITY_RESERVATION_ID_FIELD, true]]);
+      render(
+        <MachinePoolExpandedRow
+          {...getNodePoolProps({ aws_node_pool: { capacity_reservation: { id: 'capId1' } } })}
+        />,
+      );
+      expect(screen.getByText('Reservation Id: capId1')).toBeInTheDocument();
     });
   });
 
