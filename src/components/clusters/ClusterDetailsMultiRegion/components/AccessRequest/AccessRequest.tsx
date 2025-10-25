@@ -18,6 +18,7 @@ import { SortByDirection } from '@patternfly/react-table';
 
 import installLinks from '~/common/installLinks.mjs';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
+import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import ExternalLink from '~/components/common/ExternalLink';
 import ConnectedModal from '~/components/common/Modal/ConnectedModal';
 import { modalActions } from '~/components/common/Modal/ModalActions';
@@ -27,6 +28,8 @@ import {
   refetchAccessRequests,
   useFetchAccessRequests,
 } from '~/queries/ClusterDetailsQueries/AccessRequestTab/useFetchAccessRequests';
+import { useFetchActionsPermissions } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
+import { queryConstants } from '~/queries/queriesConstants';
 import { viewActions } from '~/redux/actions/viewOptionsActions';
 import { viewConstants } from '~/redux/constants';
 import { useGlobalState } from '~/redux/hooks';
@@ -72,6 +75,11 @@ export const AccessRequest = ({
     isAccessProtectionLoading: false,
     accessProtection: { enabled: true },
   });
+
+  const { canEdit } = useFetchActionsPermissions(
+    subscriptionId || '',
+    queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
+  );
 
   const isPendingNoData = useMemo(
     () => isAccessRequestsLoading || !accessRequests?.length,
@@ -144,13 +152,18 @@ export const AccessRequest = ({
       isDisabled={isPendingNoData}
     />
   );
-
+  const disableNewRequestReason =
+    !canEdit && 'You do not have permission to create new access requests for this cluster.';
   const accessRequestButton = (
     <Flex>
       <FlexItem align={{ default: 'alignLeft' }}>
-        <Button variant="secondary" onClick={() => setIsNewModalOpen(true)}>
+        <ButtonWithTooltip
+          variant="secondary"
+          onClick={() => setIsNewModalOpen(true)}
+          disableReason={disableNewRequestReason}
+        >
           Create access request
-        </Button>
+        </ButtonWithTooltip>
       </FlexItem>
     </Flex>
   );
