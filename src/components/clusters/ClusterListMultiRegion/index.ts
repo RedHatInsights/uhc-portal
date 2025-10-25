@@ -1,5 +1,11 @@
 import { connect } from 'react-redux';
 
+import type {
+  CloudProvidersState,
+  MachineTypesState,
+  UserProfileState,
+} from '~/redux/reducerProviderStateTypes';
+
 import { cloudProviderActions } from '../../../redux/actions/cloudProviderActions';
 import { clearGlobalError } from '../../../redux/actions/globalErrorActions';
 import { machineTypesActions } from '../../../redux/actions/machineTypesActions';
@@ -17,7 +23,13 @@ const mapDispatchToProps = {
   clearGlobalError,
 };
 
-const mapStateToProps = (state) => ({
+type RootState = {
+  cloudProviders: CloudProvidersState;
+  machineTypes: MachineTypesState;
+  userProfile: UserProfileState;
+};
+
+const mapStateToProps = (state: RootState) => ({
   cloudProviders: state.cloudProviders,
   machineTypes: state.machineTypes,
   organization: state.userProfile.organization,

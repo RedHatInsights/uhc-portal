@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  Button,
   Card,
   EmptyState,
   EmptyStateBody,
@@ -8,8 +9,8 @@ import {
   FlexItem,
   Icon,
   PageSection,
+  Popover,
   Spinner,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -21,6 +22,7 @@ import CheckCircleIcon from '@patternfly/react-icons/dist/esm/icons/check-circle
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 import { InfoCircleIcon } from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
+import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
@@ -40,70 +42,86 @@ import { AcceptDeclineClusterTransferModal } from './AcceptDeclineTransferModal'
 import { CancelClusterTransferModal } from './CancelClusterTransferModal';
 import TransferOwnerStatus from './TransferOwnerStatus';
 
-const ClusterListPageHeader = ({
+const ClusterTransferPageHeader = ({
   showSpinner,
   isError,
   error,
   refresh,
+  hideRefreshButton,
 }: {
   showSpinner: boolean;
   isError?: boolean;
   error?: Error;
   refresh: () => void;
-}) => (
-  <>
+  hideRefreshButton?: boolean;
+}) => {
+  const bodyContent = (
     <Flex>
-      <FlexItem grow={{ default: 'grow' }}>
-        <Title headingLevel="h2">Transfer Ownership Request</Title>
-      </FlexItem>
-    </Flex>
-    <Flex rowGap={{ default: 'rowGapXl' }}>
       <FlexItem>
         <p>
           Transfer cluster ownership so that another user in your organization or another
           organization can manage this cluster.
         </p>
       </FlexItem>
+    </Flex>
+  );
+  const footerContent = (
+    <Flex>
       <FlexItem>
         <p>
+          {' '}
           Cluster transfers from outside your organization will show numerous ‘Unknown’ fields, as
           access to external cluster data is restricted.
         </p>
       </FlexItem>
-      <FlexItem align={{ default: 'alignRight' }}>
-        <Toolbar id="cluster-list-refresh-toolbar" isFullHeight inset={{ default: 'insetNone' }}>
-          <ToolbarContent>
-            <ToolbarGroup
-              variant="action-group-plain"
-              align={{ default: 'alignEnd' }}
-              gap={{ default: 'gapNone', md: 'gapNone' }}
-            >
-              {showSpinner && (
-                <ToolbarItem>
-                  <Spinner
-                    size="lg"
-                    className="cluster-list-spinner"
-                    aria-label="Loading cluster transfer list data"
-                  />
-                </ToolbarItem>
-              )}
-              {isError && (
-                <ToolbarItem>
-                  <ErrorTriangle errorMessage={error} item="clusters" />
-                </ToolbarItem>
-              )}
-              <ToolbarItem gap={{ default: 'gapNone' }}>
-                <RefreshButton isDisabled={showSpinner} refreshFunc={refresh} />
-              </ToolbarItem>
-            </ToolbarGroup>
-          </ToolbarContent>
-        </Toolbar>
-      </FlexItem>
     </Flex>
-  </>
-);
+  );
+  return (
+    <Flex>
+      <FlexItem grow={{ default: 'grow' }}>
+        <>
+          <span>Cluster transfer ownership request</span>
+          <Popover bodyContent={bodyContent} footerContent={footerContent} enableFlip={false}>
+            <Button icon={<OutlinedQuestionCircleIcon />} variant="plain" />
+          </Popover>
+        </>
+      </FlexItem>
+      {!hideRefreshButton && (
+        <FlexItem align={{ default: 'alignRight' }}>
+          <Toolbar id="cluster-list-refresh-toolbar" isFullHeight inset={{ default: 'insetNone' }}>
+            <ToolbarContent>
+              <ToolbarGroup
+                variant="action-group-plain"
+                align={{ default: 'alignEnd' }}
+                gap={{ default: 'gapNone', md: 'gapNone' }}
+              >
+                {showSpinner && (
+                  <ToolbarItem>
+                    <Spinner
+                      size="lg"
+                      className="cluster-list-spinner"
+                      aria-label="Loading cluster transfer list data"
+                    />
+                  </ToolbarItem>
+                )}
+                {isError && (
+                  <ToolbarItem>
+                    <ErrorTriangle errorMessage={error} item="clusters" />
+                  </ToolbarItem>
+                )}
+                <ToolbarItem gap={{ default: 'gapNone' }}>
+                  <RefreshButton isDisabled={showSpinner} refreshFunc={refresh} />
+                </ToolbarItem>
+              </ToolbarGroup>
+            </ToolbarContent>
+          </Toolbar>
+        </FlexItem>
+      )}
+    </Flex>
+  );
+};
 
-const ClusterTransferList = () => {
+const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolean }) => {
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
 
   const { data, isLoading, isError, error } = useFetchClusterTransferDetail({
@@ -261,12 +279,13 @@ const ClusterTransferList = () => {
   );
   return (
     <PageSection hasBodyWrapper={false}>
-      <PageSection hasBodyWrapper={false}>
-        <ClusterListPageHeader
+      <PageSection hasBodyWrapper={false} hasShadowBottom hasShadowTop>
+        <ClusterTransferPageHeader
           showSpinner={isLoading}
           isError={isError}
           error={error instanceof Error ? error : undefined}
           refresh={refetchClusterTransferDetail}
+          hideRefreshButton={hideRefreshButton}
         />
         {!isLoading && (!data || data?.items?.length === 0) ? (
           emptyPage
