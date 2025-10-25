@@ -1,9 +1,9 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
 
-import { Tab, Tabs, TabTitleText } from '@patternfly/react-core';
+import { Button, Tab, Tabs, TabTitleText } from '@patternfly/react-core';
 
-import { useNavigate } from '~/common/routing';
+import { Link, Navigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
 
 import ClusterList from '../ClusterListMultiRegion';
@@ -11,53 +11,47 @@ import ClusterTransferList from '../ClusterTransfer/ClusterTransferList';
 
 import { ClustersPageHeader } from './ClustersPageHeader';
 
-const DEFAULT_TAB = 'list';
-const VALID_TABS = ['list', 'requests'] as const;
-
 export const Clusters = () => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const activeTabKey = useMemo(() => {
+    const path = location.pathname;
 
-  // Get tab key from hash, or use default
-  const getTabFromHash = React.useCallback((): string => {
-    const hash = location.hash.replace('#', '');
-    return VALID_TABS.includes(hash as (typeof VALID_TABS)[number]) ? hash : DEFAULT_TAB;
-  }, [location.hash]);
+    if (path.endsWith('/list') || path.endsWith('/list/')) return 'list';
+    if (path.endsWith('/requests') || path.endsWith('/requests/')) return 'requests';
 
-  const [activeTabKey, setActiveTabKey] = React.useState<string>(getTabFromHash());
-
-  // Update active tab when hash changes
-  React.useEffect(() => {
-    setActiveTabKey(getTabFromHash());
-  }, [location.hash, getTabFromHash]);
-
-  const handleTabClick = (
-    event: React.MouseEvent<HTMLElement, MouseEvent> | undefined,
-    tabKey: number | string,
-  ) => {
-    const tabKeyStr = String(tabKey);
-    navigate(`${location.pathname}#${tabKeyStr}`);
-  };
+    return 'list';
+  }, [location.pathname]);
 
   return (
     <AppPage>
       <ClustersPageHeader />
-      <Tabs activeKey={activeTabKey} onSelect={handleTabClick} role="region" aria-label="Clusters">
+      <Tabs activeKey={activeTabKey} role="region" aria-label="Clusters">
         <Tab
           eventKey="list"
-          title={<TabTitleText>Cluster List</TabTitleText>}
+          title={
+            <Link to="/clusters/list">
+              <TabTitleText>
+                <Button variant="plain">Cluster List</Button>
+              </TabTitleText>
+            </Link>
+          }
           aria-label="Cluster List"
-        >
-          <ClusterList getMultiRegion showTabbedView />
-        </Tab>
+        />
         <Tab
           eventKey="requests"
-          title={<TabTitleText>Cluster Requests</TabTitleText>}
+          title={
+            <Link to="/clusters/requests">
+              <Button variant="plain">Cluster Requests</Button>
+            </Link>
+          }
           aria-label="Cluster Requests"
-        >
-          <ClusterTransferList hideRefreshButton />
-        </Tab>
+        />
       </Tabs>
+      <Routes>
+        <Route index element={<Navigate to="/clusters/list" replace />} />
+        <Route path="list" element={<ClusterList getMultiRegion showTabbedView />} />
+        <Route path="requests" element={<ClusterTransferList hideRefreshButton />} />
+      </Routes>
     </AppPage>
   );
 };

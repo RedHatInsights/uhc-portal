@@ -244,7 +244,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         'http:///status.redhat.com' site. If this route is changed, then the related catchpoint
         tests must be updated. For more info. see: https://issues.redhat.com/browse/OCMUI-2398 */}
         <Route path="/cluster-list" element={<ClusterListMultiRegion getMultiRegion />} />
-        <Route path="/clusters" element={<Clusters />} />
+        <Route path="/clusters/*" element={<Clusters />} />
         {isClusterTransferOwnershipEnabled ? (
           <Route path="/cluster-request" element={<ClusterRequestList />} />
         ) : null}
