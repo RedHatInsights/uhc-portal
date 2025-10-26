@@ -452,9 +452,13 @@ const ClusterList = ({
                   onPageChange={onPageChange}
                 />
               </ToolbarItem>
+              {isRestrictedEnv() ? null : (
+                <ToolbarItem>
+                  <ClusterListFilterChipGroup />
+                </ToolbarItem>
+              )}
             </ToolbarContent>
           </Toolbar>
-          {isRestrictedEnv() ? null : <ClusterListFilterChipGroup />}
           {isError && !size(clusters) && isFetched ? (
             <Unavailable
               message="Error retrieving clusters"

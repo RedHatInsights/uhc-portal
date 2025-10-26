@@ -58,11 +58,7 @@ function ClusterListFilterChipGroup({ archive }) {
                 return null;
               }
               return (
-                <LabelGroup
-                  key={`chipgroup-${group.key}`}
-                  className="pf-v6-u-font-size-sm"
-                  categoryName={group.label}
-                >
+                <LabelGroup key={`chipgroup-${group.key}`} categoryName={group.label}>
                   {currentFilter.map((key) => {
                     const { label } = group.options.find((opt) => opt.key === key);
                     const deleteItem = () => {
