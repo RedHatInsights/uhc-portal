@@ -16,134 +16,85 @@ describe('MachineTypeSelection - typesByID undefined handling', () => {
     const isMachineTypeIncludedInFilteredSet = (machineTypeID, filteredMachineTypes) =>
       !!filteredMachineTypes?.typesByID?.[machineTypeID];
 
-    it('should return false when filteredMachineTypes.typesByID is undefined', () => {
-      // Arrange
-      const machineTypeID = 'm5.xlarge';
-      const filteredMachineTypes = {
-        error: false,
-        fulfilled: false,
-        // typesByID is intentionally undefined
-      };
-
-      // Act
-      const result = isMachineTypeIncludedInFilteredSet(machineTypeID, filteredMachineTypes);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    it('should return false when filteredMachineTypes.typesByID is null', () => {
-      // Arrange
-      const machineTypeID = 'm5.xlarge';
-      const filteredMachineTypes = {
-        error: false,
-        fulfilled: false,
-        typesByID: null,
-      };
-
-      // Act
-      const result = isMachineTypeIncludedInFilteredSet(machineTypeID, filteredMachineTypes);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    it('should return false when filteredMachineTypes itself is undefined', () => {
-      // Arrange
-      const machineTypeID = 'm5.xlarge';
-      const filteredMachineTypes = undefined;
-
-      // Act
-      const result = isMachineTypeIncludedInFilteredSet(machineTypeID, filteredMachineTypes);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    it('should return false when filteredMachineTypes itself is null', () => {
-      // Arrange
-      const machineTypeID = 'm5.xlarge';
-      const filteredMachineTypes = null;
-
-      // Act
-      const result = isMachineTypeIncludedInFilteredSet(machineTypeID, filteredMachineTypes);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    it('should return false when machineTypeID is not found in typesByID', () => {
-      // Arrange
-      const machineTypeID = 'm5.xlarge';
-      const filteredMachineTypes = {
-        error: false,
-        fulfilled: true,
-        typesByID: {
-          'm5.2xlarge': { id: 'm5.2xlarge', name: 'm5.2xlarge' },
+    const cases = [
+      {
+        name: 'typesByID is undefined',
+        machineTypeID: 'm5.xlarge',
+        filteredMachineTypes: {
+          error: false,
+          fulfilled: false,
+          // typesByID is intentionally undefined
         },
-      };
-
-      // Act
-      const result = isMachineTypeIncludedInFilteredSet(machineTypeID, filteredMachineTypes);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    it('should return true when machineTypeID exists in typesByID', () => {
-      // Arrange
-      const machineTypeID = 'm5.xlarge';
-      const filteredMachineTypes = {
-        error: false,
-        fulfilled: true,
-        typesByID: {
-          'm5.xlarge': { id: 'm5.xlarge', name: 'm5.xlarge - General Purpose' },
-          'm5.2xlarge': { id: 'm5.2xlarge', name: 'm5.2xlarge' },
+        expected: false,
+      },
+      {
+        name: 'typesByID is null',
+        machineTypeID: 'm5.xlarge',
+        filteredMachineTypes: {
+          error: false,
+          fulfilled: false,
+          typesByID: null,
         },
-      };
+        expected: false,
+      },
+      {
+        name: 'filteredMachineTypes is undefined',
+        machineTypeID: 'm5.xlarge',
+        filteredMachineTypes: undefined,
+        expected: false,
+      },
+      {
+        name: 'filteredMachineTypes is null',
+        machineTypeID: 'm5.xlarge',
+        filteredMachineTypes: null,
+        expected: false,
+      },
+      {
+        name: 'machineTypeID not found in typesByID',
+        machineTypeID: 'm5.xlarge',
+        filteredMachineTypes: {
+          error: false,
+          fulfilled: true,
+          typesByID: {
+            'm5.2xlarge': { id: 'm5.2xlarge', name: 'm5.2xlarge' },
+          },
+        },
+        expected: false,
+      },
+      {
+        name: 'machineTypeID exists in typesByID',
+        machineTypeID: 'm5.xlarge',
+        filteredMachineTypes: {
+          error: false,
+          fulfilled: true,
+          typesByID: {
+            'm5.xlarge': { id: 'm5.xlarge', name: 'm5.xlarge - General Purpose' },
+            'm5.2xlarge': { id: 'm5.2xlarge', name: 'm5.2xlarge' },
+          },
+        },
+        expected: true,
+      },
+      {
+        name: 'empty typesByID object',
+        machineTypeID: 'm5.xlarge',
+        filteredMachineTypes: {
+          error: false,
+          fulfilled: true,
+          typesByID: {},
+        },
+        expected: false,
+      },
+    ];
 
-      // Act
-      const result = isMachineTypeIncludedInFilteredSet(machineTypeID, filteredMachineTypes);
+    it.each(cases)(
+      'should return $expected when $name',
+      ({ machineTypeID, filteredMachineTypes, expected }) => {
+        // Act
+        const result = isMachineTypeIncludedInFilteredSet(machineTypeID, filteredMachineTypes);
 
-      // Assert
-      expect(result).toBe(true);
-    });
-
-    it('should handle empty typesByID object', () => {
-      // Arrange
-      const machineTypeID = 'm5.xlarge';
-      const filteredMachineTypes = {
-        error: false,
-        fulfilled: true,
-        typesByID: {},
-      };
-
-      // Act
-      const result = isMachineTypeIncludedInFilteredSet(machineTypeID, filteredMachineTypes);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    it('should not throw error for any edge case inputs', () => {
-      // Arrange - Various edge cases
-      const testCases = [
-        { machineTypeID: 'm5.xlarge', filteredMachineTypes: undefined },
-        { machineTypeID: 'm5.xlarge', filteredMachineTypes: null },
-        { machineTypeID: 'm5.xlarge', filteredMachineTypes: {} },
-        { machineTypeID: 'm5.xlarge', filteredMachineTypes: { typesByID: undefined } },
-        { machineTypeID: 'm5.xlarge', filteredMachineTypes: { typesByID: null } },
-        { machineTypeID: 'm5.xlarge', filteredMachineTypes: { typesByID: {} } },
-        { machineTypeID: '', filteredMachineTypes: { typesByID: { 'm5.xlarge': {} } } },
-        { machineTypeID: null, filteredMachineTypes: { typesByID: { 'm5.xlarge': {} } } },
-      ];
-
-      // Act & Assert - None should throw
-      testCases.forEach((testCase) => {
-        expect(() => {
-          isMachineTypeIncludedInFilteredSet(testCase.machineTypeID, testCase.filteredMachineTypes);
-        }).not.toThrow();
-      });
-    });
+        // Assert
+        expect(result).toBe(expected);
+      },
+    );
   });
 });
