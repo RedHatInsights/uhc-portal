@@ -52,6 +52,8 @@ const eventNames = {
   CHECKBOX_CLICKED: 'Checkbox Clicked',
   RADIOBUTTON_CLICKED: 'Radiobutton Clicked',
   MISSING_INFORMATION: 'Missing Information',
+  SECTION_EXPANDED: 'Section Expanded',
+  ALERT_INTERACTION: 'Alert Interaction',
 };
 
 /**
@@ -356,6 +358,14 @@ const trackEvents: { [key: string]: TrackEvent } = {
   GlobalSideNav: {
     event: eventNames.LINK_CLICKED,
     link_name: 'global-nav-link',
+  },
+  ClusterAlerts: {
+    event: eventNames.SECTION_EXPANDED,
+    link_name: 'cluster-detail-alerts-expand',
+  },
+  AlertInteraction: {
+    event: eventNames.ALERT_INTERACTION,
+    link_name: 'alert-interaction',
   },
 };
 

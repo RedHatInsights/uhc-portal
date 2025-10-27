@@ -13,8 +13,11 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import { getOCMResourceType, trackEvents } from '~/common/analytics';
 import { HAD_INFLIGHT_ERROR_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
+import { normalizedProducts } from '~/common/subscriptionTypes';
 import AIDetailCard from '~/components/AIComponents/AIDetailCard';
+import useAnalytics from '~/hooks/useAnalytics';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
@@ -56,6 +59,7 @@ const Overview = (props) => {
 
   const [showInstallSuccessAlert, setShowInstallSuccessAlert] = useState(false);
   const prevProps = useRef();
+  const track = useAnalytics();
 
   useEffect(() => {
     if (
@@ -176,6 +180,22 @@ const Overview = (props) => {
               actionClose={
                 <AlertActionCloseButton
                   onClose={() => {
+                    const planType = get(
+                      cluster,
+                      'subscription.plan.id',
+                      normalizedProducts.UNKNOWN,
+                    );
+                    const resourceType = getOCMResourceType(planType);
+
+                    track(trackEvents.AlertInteraction, {
+                      resourceType,
+                      customProperties: {
+                        type: 'fully-managed-success',
+                        action: 'dismiss',
+                        severity: 'success',
+                      },
+                    });
+
                     localStorage.removeItem(hadInflightErrorKey);
                     refresh();
                   }}
