@@ -115,7 +115,7 @@ AddOnsDeleteModal.propTypes = {
   isDeleteClusterAddOnError: PropTypes.bool.isRequired,
   isDeleteClusterAddOnPending: PropTypes.bool.isRequired,
   deleteClusterAddOn: PropTypes.func.isRequired,
-  deleteClusterAddOnError: PropTypes.object.isRequired,
+  deleteClusterAddOnError: PropTypes.object,
 };
 
 export default AddOnsDeleteModal;

@@ -82,6 +82,8 @@ const Overview = (props) => {
     get(cluster, 'subscription.status', false) === SubscriptionCommonFieldsStatus.Archived;
   const isDeprovisioned =
     get(cluster, 'subscription.status', false) === SubscriptionCommonFieldsStatus.Deprovisioned;
+  const isDisconnected =
+    get(cluster, 'subscription.status', false) === SubscriptionCommonFieldsStatus.Disconnected;
   const metricsAvailable =
     hasResourceUsageMetrics(cluster) &&
     (cluster.canEdit ||
@@ -198,6 +200,9 @@ const Overview = (props) => {
                       cloudProviders={cloudProviders}
                       showAssistedId={showAssistedInstallerDetailCard}
                       wifConfigData={wifConfigData}
+                      isArchived={isArchived}
+                      isDeprovisioned={isDeprovisioned}
+                      isDisconnected={isDisconnected}
                     />
                   </GridItem>
                   <GridItem sm={6}>

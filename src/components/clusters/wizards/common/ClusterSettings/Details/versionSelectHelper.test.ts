@@ -118,6 +118,18 @@ const stableAndUnstableVersions = [
     gcp_marketplace_enabled: true,
     end_of_life_timestamp: '2024-09-17T00:00:00Z',
   },
+  {
+    kind: 'Version',
+    raw_id: '4.15.24',
+    id: 'openshift-v4.15.24-eus',
+    enabled: true,
+    default: false,
+    channel_group: 'eus',
+    rosa_enabled: true,
+    hosted_control_plane_enabled: false,
+    gcp_marketplace_enabled: true,
+    end_of_life_timestamp: '2024-09-17T00:00:00Z',
+  },
 ];
 
 const stableExpected = {
@@ -159,6 +171,13 @@ describe('VersionSelectHelper', () => {
     const expected = {
       ...stableExpected,
       Fast: [{ entryId: 'openshift-v4.15.28-fast', label: '4.15.28 (fast)', groupKey: 'fast' }],
+      EUS: [
+        {
+          entryId: 'openshift-v4.15.24-eus',
+          groupKey: 'eus',
+          label: '4.15.24 (eus)',
+        },
+      ],
       Candidate: [
         {
           entryId: 'openshift-v4.14.34-candidate',
@@ -175,6 +194,24 @@ describe('VersionSelectHelper', () => {
       ],
     };
     expect(getVersionsData(stableAndUnstableVersions, true, supportMap)).toEqual(expected);
+  });
+
+  it('returns filtered fast versions by channel group when isEUSEnabled', () => {
+    const expected = [
+      { entryId: 'openshift-v4.15.28-fast', label: '4.15.28 (fast)', groupKey: 'fast' },
+    ];
+    expect(getVersionsData(stableAndUnstableVersions, true, supportMap, 'fast', true)).toEqual(
+      expected,
+    );
+  });
+
+  it('returns filtered eus versions by channel group when isEUSEnabled', () => {
+    const expected = [
+      { entryId: 'openshift-v4.15.24-eus', label: '4.15.24 (eus)', groupKey: 'eus' },
+    ];
+    expect(getVersionsData(stableAndUnstableVersions, true, supportMap, 'eus', true)).toEqual(
+      expected,
+    );
   });
 });
 

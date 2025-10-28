@@ -97,6 +97,14 @@ const eventTypes = {
   NONE: '',
 };
 
+const formatChannelGroupName = (channelGroup: string) => {
+  if (channelGroup === 'eus') {
+    return channelGroup.toUpperCase();
+  }
+
+  return channelGroup ? channelGroup.charAt(0).toUpperCase() + channelGroup.slice(1) : 'N/A';
+};
+
 export {
   eventTypes,
   getSubscriptionLastReconciledDate,
@@ -110,4 +118,5 @@ export {
   isReadyForExternalActions,
   isReadyForIdpActions,
   isReadyForRoleAccessActions,
+  formatChannelGroupName,
 };

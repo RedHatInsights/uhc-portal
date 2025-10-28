@@ -11,8 +11,10 @@ import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/C
 import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
-import { checkAccessibility, screen, withState } from '~/testUtils';
+import { checkAccessibility, mockUseFeatureGate, screen, withState } from '~/testUtils';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
+
+import * as versionsSelectHelper from './versionSelectHelper';
 
 jest.mock('~/services/productLifeCycleService');
 jest.mock('~/services/clusterService');
@@ -75,11 +77,14 @@ describe('<VersionSelectField />', () => {
       },
     },
   };
+
   const defaultProps = {
     name: FieldId.ClusterVersion,
     label: 'Version',
+    channelGroup: 'stable',
     isDisabled: false,
     onChange: jest.fn(),
+    isEUSChannelEnabled: false,
   };
 
   beforeEach(() => {
@@ -210,5 +215,35 @@ describe('<VersionSelectField />', () => {
       }),
     );
     expect(screen.getByText('Full support')).toBeInTheDocument();
+  });
+
+  it('shows only filtered version by channel group when isEUSEnabled', async () => {
+    mockUseFeatureGate([[UNSTABLE_CLUSTER_VERSIONS, true]]);
+    jest.spyOn(versionsSelectHelper, 'hasUnstableVersionsCapability').mockReturnValue(true);
+
+    const newProps = {
+      ...defaultProps,
+      channelGroup: 'eus',
+      isEUSChannelEnabled: true,
+    };
+
+    const { user } = withState(loadedState).render(
+      <Formik initialValues={standardValues} onSubmit={() => {}}>
+        <VersionSelectField {...newProps} />
+      </Formik>,
+    );
+
+    const options = screen.getByRole('button', {
+      name: /options menu/i,
+    });
+
+    expect(clusterService.getInstallableVersions).not.toHaveBeenCalled();
+    expect(await screen.findByText('Version')).toBeInTheDocument();
+    expect(options).toBeInTheDocument();
+    await user.click(options);
+    expect(screen.queryByText('4.13.1')).not.toBeInTheDocument();
+    expect(screen.queryByText('4.12.13')).not.toBeInTheDocument();
+    expect(screen.queryByText('4.17.9 (fast)')).not.toBeInTheDocument();
+    expect(await screen.findByText('4.18.0 (eus)')).toBeInTheDocument();
   });
 });
