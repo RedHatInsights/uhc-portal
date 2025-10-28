@@ -44,7 +44,7 @@ yarn build
 
 ## Running locally
 
-> If you're on macOS and have Podman fully setup, then verify that the initialized virtual machine is currently running. If it's not, then start the machine with `podman machine start`.
+> If you're on macOS and have Podman fully set up, then verify that the initialized virtual machine is currently running. If it's not, then start the machine with `podman machine start`.
 
 Run `yarn install && yarn start`.
 
