@@ -61,6 +61,10 @@ By default, UI run Assisted Installer without standalone mode. To run with Assis
 - Inside assisted-installer-app run `npm install && npm run start:federated`
 - In uhc-portal run `yarn start --env ai_standalone`
 
+## Continuous integration
+
+See [Continuous integration doc](docs/continuous-integration.md).
+
 ## Environments and Deployments
 
 | uhc-portal branch            | deployed env                                            | insights-chrome | default backend |
