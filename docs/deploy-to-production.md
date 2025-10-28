@@ -25,7 +25,7 @@
    Wait for a notification on [#ocm-ui-deploys][16].  It'd look like this:
 
    > **saas notifier**  
-   > 🟢 SaaS file uhc-portal deployment to environment insights-production: Success (Open). Reason: https://gitlab.cee.redhat.com/service/app-interface/commit/c69b541ba3e23e0e9787b7e780a937a9151212cf triggered by _openshift-saas-deploy-trigger-configs_
+   > 🟢 SaaS file uhc-portal deployment to environment *insights-production*: Success (Open). Reason: https://gitlab.cee.redhat.com/service/app-interface/commit/d131c0ad282323f50b75ec6a452e9601285819be triggered by _openshift-saas-deploy-trigger-configs_
 
 1. #### Create a GitHub-release & release notes
 
