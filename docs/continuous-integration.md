@@ -13,8 +13,11 @@ Konflux will take care to take [snapshots][5] that can be used for testing, and 
 
 ## Persisted configuration
 
-Most of our Konflux configuration (e.g. our app, component, integration-test scenario, release plans, user access) is persisted as yaml files in the [konflux-release-data][10] repository, and then parsed and displayed by Konflux UI.  
-See there for more info on how to generate or update these configs.
+Most of our Konflux configuration (e.g. component, release plans, user access) is persisted as yaml files in the [konflux-release-data][10] repository, and then parsed and displayed by Konflux UI.  
+
+They are mainly found under _/tenants-config/.../ocm-ui-tenant/_ and _/config/.../ReleasePlanAdmission/ocm-ui/_.
+
+To generate or update those files, use the scripts provided by konflux-release-data - see the [repo readme][10] for more info.
 
 
 ## Our custom setup
@@ -26,7 +29,9 @@ See [docker-build-run-unit-tests][11] at the _RedHatInsights/konflux-pipelines_ 
  
 ## Getting help
 
-To get assistance with Konflux CI, post an ask in the #konflux-users Slack channel.
+Check out the [FAQ page][13] on the official docs.
+
+To get further assistance, post an ask in the #konflux-users Slack channel.
    
       
 
@@ -43,3 +48,4 @@ To get assistance with Konflux CI, post an ask in the #konflux-users Slack chann
 [10]: https://gitlab.cee.redhat.com/releng/konflux-release-data
 [11]: https://github.com/RedHatInsights/konflux-pipelines/blob/main/pipelines/platform-ui/docker-build-run-unit-tests.yaml
 [12]: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/ocm-ui-tenant/applications/ocm-ui/components/uhc-portal
+[13]: https://konflux.pages.redhat.com/docs/users/faq/general-questions.html
