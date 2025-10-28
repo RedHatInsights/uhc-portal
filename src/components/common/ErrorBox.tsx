@@ -35,27 +35,27 @@ const ErrorBox = ({
   analyticsResourceType,
 }: Props) => {
   const track = useAnalytics();
+
+  const handleClose = React.useCallback(() => {
+    if (onCloseAlert) {
+      onCloseAlert();
+    }
+    if (analyticsType) {
+      track(trackEvents.AlertInteraction, {
+        resourceType: analyticsResourceType,
+        customProperties: {
+          type: analyticsType || 'all',
+          action: 'dismiss',
+          severity: variant,
+        },
+      });
+    }
+  }, [onCloseAlert, analyticsType, track, analyticsResourceType, variant]);
+
   const closeAlertProp = {
-    actionClose: (
-      <AlertActionCloseButton
-        onClose={() => {
-          if (onCloseAlert) {
-            onCloseAlert();
-          }
-          if (analyticsType) {
-            track(trackEvents.AlertInteraction, {
-              resourceType: analyticsResourceType,
-              customProperties: {
-                type: analyticsType || 'all',
-                action: 'dismiss',
-                severity: variant,
-              },
-            });
-          }
-        }}
-      />
-    ),
+    actionClose: <AlertActionCloseButton onClose={handleClose} />,
   };
+
   return (
     <Alert
       variant={variant}
