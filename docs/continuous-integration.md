@@ -17,7 +17,7 @@ Most of our Konflux configuration (e.g. component, release plans, user access) i
 
 They are mainly found under _/tenants-config/.../ocm-ui-tenant/_ and _/config/.../ReleasePlanAdmission/ocm-ui/_.
 
-To generate or update those files, use the scripts provided by konflux-release-data - see the [repo readme][10] for more info.
+To generate or update those files, use the scripts provided by konflux-release-data – see the [tenants-config readme][14] on the repo docs for more info.
 
 
 ## Our custom setup
@@ -49,3 +49,4 @@ To get further assistance, post an ask in the #konflux-users Slack channel.
 [11]: https://github.com/RedHatInsights/konflux-pipelines/blob/main/pipelines/platform-ui/docker-build-run-unit-tests.yaml
 [12]: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/ocm-ui-tenant/applications/ocm-ui/components/uhc-portal
 [13]: https://konflux.pages.redhat.com/docs/users/faq/general-questions.html
+[14]: https://gitlab.cee.redhat.com/releng/konflux-release-data/-/blob/main/tenants-config/README.md?ref_type=heads#add-or-update-a-tenant-namespace-with-the-helper-script
