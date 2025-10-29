@@ -164,7 +164,7 @@ function DetailsLeft({
       {useEusChannel && !isArchived && !isDeprovisioned && !isDisconnected && (
         <ChannelGroupEdit
           clusterID={clusterID}
-          channelGroup={cluster?.version.channel_group}
+          channelGroup={cluster?.version?.channel_group}
           cluster={cluster}
         />
       )}

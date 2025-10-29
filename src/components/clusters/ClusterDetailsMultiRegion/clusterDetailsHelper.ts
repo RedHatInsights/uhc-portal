@@ -99,7 +99,7 @@ const eventTypes = {
 
 const formatChannelGroupName = (channelGroup: string) => {
   if (channelGroup === 'eus') {
-    return channelGroup.toUpperCase();
+    return 'Extended Update Support (EUS)';
   }
 
   return channelGroup ? channelGroup.charAt(0).toUpperCase() + channelGroup.slice(1) : 'N/A';
