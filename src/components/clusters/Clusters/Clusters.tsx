@@ -47,6 +47,7 @@ export const Clusters = () => {
         <Tabs
           activeKey={activeTabKey}
           onSelect={handleTabSelect}
+          usePageInsets
           role="region"
           aria-label="Clusters"
         >
