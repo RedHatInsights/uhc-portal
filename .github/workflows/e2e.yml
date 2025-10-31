@@ -76,8 +76,8 @@ jobs:
         run: npx cypress install
       - name: Execute tests
         run: |
-          yarn start:ci --env logging=quiet --no-client-overlay &
-          NODE_TLS_REJECT_UNAUTHORIZED=0 yarn wait-on -i 5000 https://prod.foo.redhat.com:1337/openshift/
+          LOGGING=quiet yarn start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
+          NODE_TLS_REJECT_UNAUTHORIZED=0 yarn wait-on -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
           CYPRESS_TEST_WITHQUOTA_USER=${{ secrets.CYPRESS_TEST_WITHQUOTA_USER }} CYPRESS_TEST_WITHQUOTA_PASSWORD=${{ secrets.CYPRESS_TEST_WITHQUOTA_PASSWORD }} TERM=xterm LC_ALL=C.UTF-8 LANG=C.UTF-8 yarn e2e-test
       - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
