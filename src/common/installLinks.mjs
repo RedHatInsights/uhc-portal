@@ -68,7 +68,7 @@ const SHP_CLI_LATEST =
   'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-builds/latest/';
 
 const OCP_DOCS_BASE =
-  'https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html';
+  'https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html';
 const OSD_DOCS_BASE = 'https://docs.redhat.com/en/documentation/openshift_dedicated/4/html';
 const ROSA_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html';
@@ -293,7 +293,7 @@ const links = {
 
   OPM_DOCS: `${OCP_DOCS_BASE}/cli_tools/opm-cli#olm-about-opm_cli-opm-install`,
 
-  OSDK_REMOVAL_DOCS: `${OCP_DOCS_BASE}/release_notes/ocp-4-19-release-notes#ocp-4-19-removed-osdk_release-notes`,
+  OSDK_REMOVAL_DOCS: `https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/release_notes/ocp-4-19-release-notes#ocp-4-19-removed-osdk_release-notes`,
 
   BUTANE_DOCS: `${OCP_DOCS_BASE}/installation_configuration/installing-customizing`,
 
