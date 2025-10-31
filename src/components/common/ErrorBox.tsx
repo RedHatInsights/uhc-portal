@@ -2,7 +2,9 @@ import React from 'react';
 
 import { Alert, AlertActionCloseButton, ExpandableSection } from '@patternfly/react-core';
 
+import { trackEvents } from '~/common/analytics';
 import ErrorDetailsDisplay from '~/components/common/ErrorDetailsDisplay';
+import useAnalytics from '~/hooks/useAnalytics';
 import { ErrorState } from '~/types/types';
 
 type Props = {
@@ -15,6 +17,8 @@ type Props = {
   onCloseAlert?: () => void;
   hideOperationID?: boolean;
   forceAsAlert?: boolean;
+  analyticsType?: string;
+  analyticsResourceType?: string;
 };
 
 const ErrorBox = ({
@@ -27,10 +31,31 @@ const ErrorBox = ({
   onCloseAlert,
   hideOperationID,
   forceAsAlert,
+  analyticsType,
+  analyticsResourceType,
 }: Props) => {
+  const track = useAnalytics();
+
+  const handleClose = React.useCallback(() => {
+    if (onCloseAlert) {
+      onCloseAlert();
+    }
+    if (analyticsType) {
+      track(trackEvents.AlertInteraction, {
+        resourceType: analyticsResourceType,
+        customProperties: {
+          type: analyticsType || 'all',
+          action: 'dismiss',
+          severity: variant,
+        },
+      });
+    }
+  }, [onCloseAlert, analyticsType, track, analyticsResourceType, variant]);
+
   const closeAlertProp = {
-    actionClose: <AlertActionCloseButton onClose={onCloseAlert} />,
+    actionClose: <AlertActionCloseButton onClose={handleClose} />,
   };
+
   return (
     <Alert
       variant={variant}
