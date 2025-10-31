@@ -47,7 +47,11 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
   const lastChecked = lastReconcileDate ? (
     <p>
       Last checked:&nbsp;
-      {lastReconcileDate}
+      <Timestamp
+        date={new Date(subscription.last_reconcile_date || '')}
+        timeFormat={TimestampFormat.medium}
+        dateFormat={TimestampFormat.short}
+      />
     </p>
   ) : (
     ''
