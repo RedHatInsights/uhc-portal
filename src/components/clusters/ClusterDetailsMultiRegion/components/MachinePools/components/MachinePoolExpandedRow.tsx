@@ -15,7 +15,10 @@ import {
 
 import { truncateTextWithEllipsis } from '~/common/helpers';
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
-import { AWS_TAGS_NEW_MP } from '~/queries/featureGates/featureConstants';
+import {
+  AWS_TAGS_NEW_MP,
+  CAPACITY_RESERVATION_ID_FIELD,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachinePool, NodePool, SecurityGroup } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
@@ -23,6 +26,7 @@ import { ClusterFromSubscription } from '~/types/types';
 import { isHypershiftCluster, isMPoolAz } from '../../../clusterDetailsHelper';
 import MachinePoolAutoRepairDetail from '../MachinePoolAutoRepairDetail';
 import MachinePoolAutoScalingDetail from '../MachinePoolAutoscalingDetail';
+import MachinePoolCapacityReservationDetail from '../MachinePoolCapacityReservationDetail';
 import { getSubnetIds, hasAwsTags, hasSubnets } from '../machinePoolsHelper';
 
 const LABEL_MAX_LENGTH = 50;
@@ -94,6 +98,7 @@ const MachinePoolExpandedRow = ({
   region?: string;
 }) => {
   const awsTagsNewMP = useFeatureGate(AWS_TAGS_NEW_MP);
+  const isCapacityReservationIdFieldEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
   const { clusterVpc } = useAWSVPCFromCluster(cluster, region);
   const spotMarketOptions = machinePool?.aws?.spot_market_options;
   const securityGroupIds =
@@ -103,7 +108,7 @@ const MachinePoolExpandedRow = ({
   const isMultiZoneMachinePool = isMPoolAz(cluster, machinePool.availability_zones?.length);
   const isHypershift = isHypershiftCluster(cluster);
   const isAutoRepairEnabled = (machinePool as NodePool)?.auto_repair;
-
+  const capacityReservationId = (machinePool as NodePool)?.aws_node_pool?.capacity_reservation?.id;
   const awsTagsAvailable = hasAwsTags(machinePool);
   const labelsAvailable = !isEmpty(machinePool.labels);
   const nodePoolTags = (machinePool as NodePool).aws_node_pool?.tags;
@@ -216,6 +221,11 @@ const MachinePoolExpandedRow = ({
       {isHypershift && (
         <GridItem md={6}>
           <MachinePoolAutoRepairDetail isAutoRepairEnabled={isAutoRepairEnabled} />
+        </GridItem>
+      )}
+      {isHypershift && isCapacityReservationIdFieldEnabled && (
+        <GridItem md={6}>
+          <MachinePoolCapacityReservationDetail capacityReservationId={capacityReservationId} />
         </GridItem>
       )}
       {spotMarketOptions && (
