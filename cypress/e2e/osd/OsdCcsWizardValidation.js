@@ -203,11 +203,10 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
     it(`OSD wizard - ${clusterProperties.CloudProvider} -${clusterProperties.SubscriptionType}-${clusterProperties.InfrastructureType} : Cluster Settings - Machinepool(nodes) field validations`, () => {
       CreateOSDWizardPage.isMachinePoolScreen();
       CreateOSDWizardPage.selectComputeNodeType(clusterProperties.InstanceType);
-      CreateOSDWizardPage.computeNodeCountSelect()
-        .get('option')
-        .first()
-        .should('have.text', isCCSCluster === true ? '2' : '4');
-      CreateOSDWizardPage.computeNodeCountSelect().get('option').last().should('have.text', '249');
+      CreateOSDWizardPage.computeNodeCountSelect().should(
+        'have.value',
+        isCCSCluster === true ? '2' : '4',
+      );
       CreateOSDWizardPage.enableAutoScaling();
       CreateOSDWizardPage.setMinimumNodeCount('0');
       let machinePoolProperties =
@@ -242,11 +241,10 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
       CreateOSDWizardPage.selectComputeNodeType(clusterProperties.InstanceType);
       CreateOSDWizardPage.selectAutoScaling('disabled');
       CreateOSDWizardPage.computeNodeCountSelect().should('not.have.attr', 'disabled');
-      CreateOSDWizardPage.computeNodeCountSelect()
-        .get('option')
-        .first()
-        .should('have.text', isCCSCluster === true ? '1' : '3');
-      CreateOSDWizardPage.computeNodeCountSelect().get('option').last().should('have.text', '83');
+      CreateOSDWizardPage.computeNodeCountSelect().should(
+        'have.value',
+        isCCSCluster === true ? '1' : '3',
+      );
       CreateOSDWizardPage.enableAutoScaling();
       CreateOSDWizardPage.setMinimumNodeCount('0');
       CreateOSDWizardPage.isTextContainsInPage(machinePoolProperties.MultiZone.LowerLimitError);

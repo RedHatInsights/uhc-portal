@@ -258,22 +258,24 @@ class CreateRosaCluster extends Page {
   }
 
   isClusterDetailsScreen() {
-    this.clusterVersionPane()
-      .scrollIntoView()
-      .within(() => {
-        // Force scroll the button into view and check visibility with force option
-        cy.get('button[id="version-selector"]', { timeout: 40000 })
-          .scrollIntoView({ ensureScrollable: false })
-          .should('exist')
-          .then(($el) => {
-            // If element is not visible due to overflow, use force option
-            if (!Cypress.dom.isVisible($el[0])) {
-              cy.wrap($el).should('exist');
-            } else {
-              cy.wrap($el).should('be.visible');
-            }
-          });
-      });
+    // Break up the chain to avoid DOM detachment issues
+    this.clusterVersionPane().scrollIntoView();
+
+    // Re-query the element after scroll to avoid detachment
+    this.clusterVersionPane().within(() => {
+      // Force scroll the button into view and check visibility with force option
+      cy.get('button[id="version-selector"]', { timeout: 40000 })
+        .scrollIntoView({ ensureScrollable: false })
+        .should('exist')
+        .then(($el) => {
+          // If element is not visible due to overflow, use force option
+          if (!Cypress.dom.isVisible($el[0])) {
+            cy.wrap($el).should('exist');
+          } else {
+            cy.wrap($el).should('be.visible');
+          }
+        });
+    });
     cy.contains('h3', 'Cluster details');
   }
 

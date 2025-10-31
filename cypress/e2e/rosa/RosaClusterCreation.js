@@ -215,6 +215,7 @@ describe(
     });
 
     it('Create cluster and check the installation progress', () => {
+      cy.waitForLoadingToFinish();
       CreateRosaWizardPage.createClusterButton().click();
       ClusterDetailsPage.waitForInstallerScreenToLoad();
       ClusterDetailsPage.clusterNameTitle().contains(clusterName);

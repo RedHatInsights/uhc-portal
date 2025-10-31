@@ -52,3 +52,7 @@ Cypress.Commands.add('executeCustomCmd', (cmd, ...args) => {
     cy.writeFile(fileName, '\n------------------', { flag: 'a+' });
   });
 });
+
+Cypress.Commands.add('waitForLoadingToFinish', (timeout = 20000) => {
+  cy.get('[role="progressbar"]', { timeout }).should('not.exist');
+});
