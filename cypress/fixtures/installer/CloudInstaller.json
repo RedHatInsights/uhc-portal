@@ -1,0 +1,235 @@
+{
+  "installerSubpages": [
+    {
+      "name": "Platform Agnostic Agent-based",
+      "url": "/install/platform-agnostic/agent-based",
+      "expectedTitle": "Install OpenShift on any x86_64 platform locally with Agent",
+      "installerType": "x86_64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "Platform agnostic (x86_64)",
+      "clusterType": "agent-based",
+      "isDatacenter": false,
+      "getStartedLink": "installing_an_on-premise_cluster_with_the_agent-based_installer/preparing-to-install-with-agent-based-installer"
+    },
+    {
+      "name": "Platform Agnostic User-provisioned",
+      "url": "/install/platform-agnostic/user-provisioned",
+      "expectedTitle": "Install OpenShift on any x86_64 platform with user-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "Platform agnostic (x86_64)",
+      "clusterType": "full-control",
+      "isDatacenter": false,
+      "rhcosData": {
+        "learnMoreLinkPartial": "/installing_on_any_platform/installing-platform-agnostic",
+        "downloadButtons": [
+          {
+            "text": "Download RHCOS ISO",
+            "hrefPartial": "/rhcos/latest/rhcos-live.x86_64.iso"
+          },
+          {
+            "text": "Download RHCOS kernel",
+            "hrefPartial": "/rhcos/latest/rhcos-live-kernel-x86_64"
+          },
+          {
+            "text": "Download RHCOS initramfs",
+            "hrefPartial": "/rhcos/latest/rhcos-live-initramfs.x86_64.img"
+          },
+          {
+            "text": "Download RHCOS rootfs",
+            "hrefPartial": "/rhcos/latest/rhcos-live-rootfs.x86_64.img"
+          }
+        ]
+      },
+      "getStartedLink": "installing_on_any_platform/installing-platform-agnostic"
+    },
+    {
+      "name": "AWS x86_64 Automated",
+      "url": "/install/aws/installer-provisioned",
+      "expectedTitle": "Install OpenShift on AWS with installer-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": true,
+      "commandText": "./openshift-install create cluster",
+      "customizeLink": "/installing_on_aws/installer-provisioned-infrastructure#installing-aws-customizations",
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "AWS (x86_64)",
+      "clusterType": "automated",
+      "isDatacenter": false,
+      "getStartedLink": "installing_on_aws/installing-aws-account"
+    },
+    {
+      "name": "AWS x86_64 Full Control",
+      "url": "/install/aws/user-provisioned",
+      "expectedTitle": "Install OpenShift on AWS with user-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": false,
+      "hasPreReleaseLink": true,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "AWS (x86_64)",
+      "clusterType": "full-control",
+      "isDatacenter": false,
+      "getStartedLink": "nstalling_on_aws/user-provisioned-infrastructure#installing-aws-user-infra"
+    },
+    {
+      "name": "AWS ARM Automated",
+      "url": "/install/aws/arm/installer-provisioned",
+      "expectedTitle": "Install OpenShift on AWS with installer-provisioned ARM infrastructure",
+      "installerType": "aarch64",
+      "hasCommandSnippet": true,
+      "hasPreReleaseLink": true,
+      "customizeLink": "/installing_on_aws/installer-provisioned-infrastructure#installing-aws-customizations",
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "AWS (ARM)",
+      "clusterType": "automated",
+      "isDatacenter": false,
+      "getStartedLink": "installing_on_aws/installing-aws-account"
+    },
+    {
+      "name": "AWS ARM Full Control",
+      "url": "/install/aws/arm/user-provisioned",
+      "expectedTitle": "Install OpenShift on AWS with user-provisioned ARM infrastructure",
+      "installerType": "aarch64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "AWS (ARM)",
+      "clusterType": "full-control",
+      "isDatacenter": false,
+      "getStartedLink": "installing_on_aws/user-provisioned-infrastructure#installing-aws-user-infra"
+    },
+    {
+      "name": "AWS Multi-architecture",
+      "url": "/install/aws/multi/installer-provisioned",
+      "expectedTitle": "Install OpenShift on AWS with multi-architecture compute machines",
+      "installerType": "multi",
+      "hasCommandSnippet": true,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "AWS (multi-architecture)",
+      "directNavigation": true,
+      "isDatacenter": false,
+      "getStartedLink": "postinstallation_configuration/configuring-multi-architecture-compute-machines-on-an-openshift-cluster#creating-multi-arch-compute-nodes-aws"
+    },
+    {
+      "name": "Azure x86_64 Automated",
+      "url": "/install/azure/installer-provisioned",
+      "expectedTitle": "Install OpenShift on Azure with installer-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": true,
+      "customizeLink": "/installing_on_azure/installer-provisioned-infrastructure#installing-azure-customizations",
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "Azure (x86_64)",
+      "clusterType": "automated",
+      "isDatacenter": false,
+      "getStartedLink": "installing_on_azure/installer-provisioned-infrastructure#installation-launching-installer_installing-azure-default"
+    },
+    {
+      "name": "Azure x86_64 Full Control",
+      "url": "/install/azure/user-provisioned",
+      "expectedTitle": "Install OpenShift on Azure with user-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "hasPreReleaseLink": true,
+      "provider": "Azure (x86_64)",
+      "clusterType": "full-control",
+      "isDatacenter": false,
+      "getStartedLink": "installing_on_azure/user-provisioned-infrastructure#installing-azure-user-infra"
+    },
+    {
+      "name": "Azure ARM",
+      "url": "/install/azure/arm/installer-provisioned",
+      "expectedTitle": "Install OpenShift on Azure with installer-provisioned ARM infrastructure",
+      "installerType": "aarch64",
+      "hasCommandSnippet": true,
+      "customizeLink": "/installing_on_azure/installer-provisioned-infrastructure#installing-azure-customizations",
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "Azure (ARM)",
+      "directNavigation": true,
+      "isDatacenter": false,
+      "getStartedLink": "installing_on_azure/installer-provisioned-infrastructure#installation-launching-installer_installing-azure-default"
+    },
+    {
+      "name": "Azure Multi-architecture",
+      "url": "/install/azure/multi/installer-provisioned",
+      "expectedTitle": "Install OpenShift on Azure with multi-architecture compute machines",
+      "installerType": "multi",
+      "hasCommandSnippet": true,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "Azure (multi-architecture)",
+      "directNavigation": true,
+      "isDatacenter": false,
+      "getStartedLink": "postinstallation_configuration/configuring-multi-architecture-compute-machines-on-an-openshift-cluster#creating-multi-arch-compute-nodes-azure"
+    },
+    {
+      "name": "GCP Automated",
+      "url": "/install/gcp/installer-provisioned",
+      "expectedTitle": "Install OpenShift on GCP with installer-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": true,
+      "customizeLink": "/installing_on_gcp/installing-gcp-customizations",
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "Google Cloud",
+      "clusterType": "automated",
+      "isDatacenter": false,
+      "getStartedLink": "installing_on_gcp/installing-gcp-account"
+    },
+    {
+      "name": "GCP Full Control",
+      "url": "/install/gcp/user-provisioned",
+      "expectedTitle": "Install OpenShift on GCP with user-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "provider": "Google Cloud",
+      "clusterType": "full-control",
+      "isDatacenter": false,
+      "getStartedLink": "installing_on_gcp/installing-gcp-user-infra"
+    },
+    {
+      "name": "IBM Cloud",
+      "url": "/install/ibm-cloud",
+      "expectedTitle": "Install OpenShift on IBM Cloud with installer-provisioned infrastructure",
+      "installerType": "x86_64",
+      "hasCommandSnippet": true,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "IBM Cloud",
+      "directNavigation": true,
+      "isDatacenter": false,
+      "getStartedLink": "installing_on_ibm_cloud/preparing-to-install-on-ibm-cloud"
+    },
+    {
+      "name": "Bare Metal Multi-architecture",
+      "url": "/install/metal/multi",
+      "expectedTitle": "Install OpenShift on bare metal with multi-architecture compute machines",
+      "installerType": "multi",
+      "hasCommandSnippet": false,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "Baremetal (multi-architecture)",
+      "directNavigation": true,
+      "isDatacenter": false,
+      "getStartedLink": "postinstallation_configuration/configuring-multi-architecture-compute-machines-on-an-openshift-cluster#creating-multi-arch-compute-nodes-bare-metal"
+    },
+    {
+      "name": "IBM PowerVS",
+      "url": "/install/powervs/installer-provisioned",
+      "expectedTitle": "Install OpenShift on IBM Power Systems Virtual Server with installer-provisioned infrastructure",
+      "installerType": "ppc64le",
+      "hasCommandSnippet": true,
+      "telemetryLink": "/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring",
+      "commandText": "./openshift-install create cluster",
+      "provider": "IBM PowerVS (ppc64le)",
+      "directNavigation": true,
+      "isDatacenter": false,
+      "getStartedLink": "installing_on_ibm_power_virtual_server/preparing-to-install-on-ibm-power-vs"
+    }
+  ]
+}
