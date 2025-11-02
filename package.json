@@ -184,7 +184,7 @@
     "progress": "^2.0.3",
     "redux-mock-store": "^1.5.4",
     "sass": "^1.77.2",
-    "sass-loader": "^14.0.1",
+    "sass-loader": "^16.0.0",
     "simple-git": "3.25.0",
     "sol-sc-explorer": "^1.1.1",
     "sprintf-js": "^1.1.2",
