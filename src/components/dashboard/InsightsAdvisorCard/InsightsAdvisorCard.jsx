@@ -23,7 +23,7 @@ const InsightsAdvisorCard = ({ overview }) => (
           <ChartByRisks riskHits={overview.hit_by_risk} />
           <ChartByGroups tagHits={overview.hit_by_tag} groups={INSIGHTS_RULE_CATEGORIES} />
           <a href={advisorBaseName} style={{ marginTop: '1rem' }}>
-            View more in Insights Advisor
+            View more in Red Hat Lightspeed advisor
           </a>
         </>
       )}

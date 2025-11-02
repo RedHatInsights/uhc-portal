@@ -85,10 +85,9 @@ describe('<InsightsAdvisorCard />', () => {
     it('renders single "View more" link to OCP Advisor', () => {
       render(<InsightsAdvisorCard overview={overview} groups={groups} />);
 
-      expect(screen.getByRole('link', { name: 'View more in Insights Advisor' })).toHaveAttribute(
-        'href',
-        '/openshift/insights/advisor',
-      );
+      expect(
+        screen.getByRole('link', { name: 'View more in Red Hat Lightspeed advisor' }),
+      ).toHaveAttribute('href', '/openshift/insights/advisor');
     });
 
     it('chart by risks has links to Advisor', () => {

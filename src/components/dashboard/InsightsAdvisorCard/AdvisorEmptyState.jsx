@@ -16,7 +16,7 @@ const AdvisorEmptyState = () => (
   >
     <EmptyStateBody>
       This feature uses the Remote Health functionality of OpenShift Container Platform. For further
-      details about Insights, see the{' '}
+      details about Red Hat Lightspeed, see the{' '}
       <ExternalLink href={links.REMOTE_HEALTH_INSIGHTS}>OpenShift documentation</ExternalLink>.
     </EmptyStateBody>
   </EmptyState>

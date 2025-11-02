@@ -68,9 +68,10 @@ const GovCloudForm = ({
           <StackItem>
             <Content>
               <Content component={ContentVariants.p}>
-                Red Hat OpenShift Service on AWS (ROSA) and Red Hat Insights in the GovCloud Region
-                have been authorized (agency) under the Federal Risk Assessment and Management
-                Program (FedRAMP) High and DoD Cloud Computing Security Requirements Guide (SRG).
+                Red Hat OpenShift Service on AWS (ROSA) and Red Hat Lightspeed in the GovCloud
+                Region have been authorized (agency) under the Federal Risk Assessment and
+                Management Program (FedRAMP) High and DoD Cloud Computing Security Requirements
+                Guide (SRG).
               </Content>
               <Content component={ContentVariants.p}>
                 Federal and government agencies can be granted access to the FedRAMP environment
