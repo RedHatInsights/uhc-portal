@@ -1,5 +1,8 @@
 import { isHypershiftCluster, isROSA } from '~/components/clusters/common/clusterStates';
-import { hasUnstableVersionsCapability } from '~/components/clusters/wizards/common/ClusterSettings/Details/versionSelectHelper';
+import {
+  createChannelGroupLabel,
+  hasUnstableVersionsCapability,
+} from '~/components/clusters/wizards/common/ClusterSettings/Details/versionSelectHelper';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { useFetchInstallableVersions } from '~/queries/ClusterDetailsQueries/useFetchInstallableVersions';
 import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
@@ -33,7 +36,7 @@ export const useGetChannelGroupsData = (cluster: Cluster, canEdit: boolean) => {
     const availableChannelGroups = filteredClusterVersions?.map((el: any) => el.channel_group);
     const buildChannelGroupDropdownOptions = availableChannelGroups?.map((el: string) => ({
       value: el,
-      label: el === 'eus' ? el.toUpperCase() : el.charAt(0).toUpperCase() + el.slice(1),
+      label: createChannelGroupLabel(el),
     }));
     return buildChannelGroupDropdownOptions;
   };
