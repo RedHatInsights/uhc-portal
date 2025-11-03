@@ -28,8 +28,6 @@ import Instruction from '~/components/common/Instruction';
 import Instructions from '~/components/common/Instructions';
 import PageTitle from '~/components/common/PageTitle';
 
-import { RosaArchitectureRenamingAlert } from '../common/Banners/RosaArchitectureRenamingAlert';
-
 import StepCreateNetwork from './StepCreateAWSAccountRoles/StepCreateNetwork';
 import StepCreateAWSAccountRoles from './StepCreateAWSAccountRoles';
 import StepDownloadROSACli from './StepDownloadROSACli';
@@ -55,7 +53,7 @@ const breadcrumbs = (
 const CreateRosaGetStarted = () => (
   <AppPage>
     <PageTitle breadcrumbs={breadcrumbs} title={title(productName)}>
-      <Content>
+      <Content className="pf-v6-u-mt-md pf-v6-u-mb-md">
         <Content component={ContentVariants.p}>
           Deploy fully operational and managed Red Hat OpenShift clusters while leveraging the full
           breadth and depth of AWS using ROSA.
@@ -65,7 +63,6 @@ const CreateRosaGetStarted = () => (
           <ExternalLink href={links.ROSA_COMMUNITY_SLACK}>Slack us</ExternalLink>
         </Content>
       </Content>
-      <RosaArchitectureRenamingAlert />
       <Alert
         variant={AlertVariant.info}
         isInline

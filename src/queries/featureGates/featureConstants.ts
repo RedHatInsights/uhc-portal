@@ -37,7 +37,6 @@ export const HIDE_RH_MARKETPLACE = 'OCMUI-hide-rh-marketplace';
 export const IMDS_SELECTION = 'ocmui-imds-selection';
 export const AWS_TAGS_NEW_MP = 'ocmui-aws-tags-new-mp';
 export const TABBED_MACHINE_POOL_MODAL = 'ocmui-tabbed-machine-pool-modal';
-export const ROSA_ARCHITECTURE_RENAMING_ALERT = 'ocmui-rosa-architecture-renaming-alert';
 export const GCP_WIF_DEFAULT = 'ocmui-gcp-wif-default';
 export const MP_ADDITIONAL_MAINTENANCE_VALUES = 'ocmui-mp-additional-maintenance-values';
 export const WINDOWS_LICENSE_INCLUDED = 'ocmui-windows-license-included';
@@ -70,7 +69,6 @@ export default {
   IMDS_SELECTION,
   AWS_TAGS_NEW_MP,
   TABBED_MACHINE_POOL_MODAL,
-  ROSA_ARCHITECTURE_RENAMING_ALERT,
   GCP_WIF_DEFAULT,
   MP_ADDITIONAL_MAINTENANCE_VALUES,
   WINDOWS_LICENSE_INCLUDED,

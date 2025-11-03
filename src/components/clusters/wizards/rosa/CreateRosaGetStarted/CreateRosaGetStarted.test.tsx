@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { ROSA_ARCHITECTURE_RENAMING_ALERT } from '~/queries/featureGates/featureConstants';
-import { checkAccessibility, mockUseChrome, mockUseFeatureGate, render, screen } from '~/testUtils';
+import { checkAccessibility, mockUseChrome, render, screen } from '~/testUtils';
 
 import CreateRosaGetStarted from './CreateRosaGetStarted';
 
@@ -42,39 +41,5 @@ describe('<CreateRosaGetStarted />', () => {
   it('Terraform card is present', () => {
     render(<CreateRosaGetStarted />);
     expect(screen.getByText('Deploy with Terraform')).toBeInTheDocument();
-  });
-
-  describe('<RosaArchitectureRenamingAlert />', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
-    it('is visible when feature gate is enabled', () => {
-      // Arrange
-      mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, true]]);
-
-      // Act
-      render(<CreateRosaGetStarted />);
-
-      // Assert
-      expect(
-        screen.getByText('Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed'),
-      ).toBeInTheDocument();
-    });
-
-    it('is not visible when feature gate is disabled', () => {
-      // Arrange
-      mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, false]]);
-
-      // Act
-      render(<CreateRosaGetStarted />);
-
-      // Assert
-      expect(
-        screen.queryByText(
-          'Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed',
-        ),
-      ).not.toBeInTheDocument();
-    });
   });
 });
