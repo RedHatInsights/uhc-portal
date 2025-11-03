@@ -143,11 +143,11 @@ const links = {
   OSD_CCS_GCP: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs`,
   OSD_CCS_GCP_LIMITS: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs#gcp-limits_gcp-ccs`,
   OSD_CCS_GCP_SCP: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs#ccs-gcp-customer-procedure_gcp-ccs`,
-  OSD_CCS_GCP_SHEILDED_VM: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_gcp/osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
+  OSD_CCS_GCP_SHEILDED_VM: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_google_cloud/osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
   OSD_CCS_GCP_WIF_GCLOUD_CLI: 'https://cloud.google.com/sdk/docs/install',
   OSD_CCS_GCP_WIF_GCLOUD_CREDENTIALS:
     'https://cloud.google.com/docs/authentication/provide-credentials-adc',
-  OSD_CCS_GCP_WIF_CREATION_LEARN_MORE: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_gcp/osd-creating-a-cluster-on-gcp-with-workload-identity-federation#workload-identity-federation-overview_osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
+  OSD_CCS_GCP_WIF_CREATION_LEARN_MORE: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_google_cloud/osd-creating-a-cluster-on-gcp-with-workload-identity-federation#workload-identity-federation-overview_osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
   OSD_LIFE_CYCLE: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#osd-life-cycle`,
   OSD_Z_STREAM: `${OSD_DOCS_BASE}/upgrading/osd-upgrades#upgrade-auto_osd-upgrades`,
   OSD_SERVICE_DEFINITION_COMPUTE: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#instance-types_osd-service-definition`,
