@@ -209,13 +209,13 @@ const links = {
 
   OPENSHIFT_LOCAL_SUPPORT_AND_COMMUNITY_DOCS: 'https://crc.dev/docs/using/',
 
-  INSTALL_GCPIPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-account`,
-  INSTALL_GCPIPI_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-default`,
-  INSTALL_GCPUPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-user-infra`,
-  INSTALL_GCPUPI_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-user-infra#installation-gcp-project_installing-gcp-user-infra`,
-  INSTALL_GCP_CUSTOMIZATIONS: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-customizations`,
-  INSTALL_GCP_VPC: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-vpc`,
-  INSTALL_GCP_SHARED_VPC: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-shared-vpc`,
+  INSTALL_GCPIPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-account`,
+  INSTALL_GCPIPI_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-default`,
+  INSTALL_GCPUPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-user-infra`,
+  INSTALL_GCPUPI_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-user-infra#installation-gcp-project_installing-gcp-user-infra`,
+  INSTALL_GCP_CUSTOMIZATIONS: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-customizations`,
+  INSTALL_GCP_VPC: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-vpc`,
+  INSTALL_GCP_SHARED_VPC: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-shared-vpc`,
   RHCOS_GCPUPI_TAR_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-gcp.x86_64.tar.gz`,
 
   INSTALL_NUTANIXIPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_nutanix/preparing-to-install-on-nutanix`,
