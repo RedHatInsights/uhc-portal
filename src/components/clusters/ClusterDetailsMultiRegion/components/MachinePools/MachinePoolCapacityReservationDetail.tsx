@@ -18,7 +18,8 @@ const MachinePoolCapacityReservationDetail = ({
         buttonAriaLabel="Capacity reservation information"
         hint={
           <>
-            ID of Capacity Reservation or Capacity Blocks for ML. Learn more about{' '}
+            ID of Capacity Reservation or Capacity Blocks for ML. Requires control plane version
+            4.19.0 or above. Learn more about{' '}
             <ExternalLink href={links.AWS_CAPACITY_RESERVATION}>Capacity Reservations</ExternalLink>
           </>
         }
