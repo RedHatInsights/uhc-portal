@@ -58,7 +58,7 @@ const PipelinesDrawerPanelBody = (
         </Content>
         <Content component="ul">
           {['Kubernetes', 'Serverless', 'Virtual machines'].map((item) => (
-            <Content component="li" data-testid="platforms-list-item">
+            <Content component="li" data-testid="platforms-list-item" key={item}>
               {item}
             </Content>
           ))}
