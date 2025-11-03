@@ -1,21 +1,16 @@
 import React from 'react';
 
 import { PLATFORM_LIGHTSPEED_REBRAND } from '~/queries/featureGates/featureConstants';
-import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
+import { mockUseFeatureGate, render, screen } from '~/testUtils';
 
-import links from '../../../common/installLinks.mjs';
+import GovCloudForm from './GovCloudForm';
 
-import AdvisorEmptyState from './AdvisorEmptyState';
-
-describe('<AdvisorEmptyState />', () => {
-  it('Displays link with correct href', () => {
-    render(<AdvisorEmptyState />);
-
-    expect(screen.getByText('OpenShift documentation')).toHaveAttribute(
-      'href',
-      links.REMOTE_HEALTH_INSIGHTS,
-    );
-  });
+describe('<GovCloudForm />', () => {
+  const props = {
+    title: 'Test GovCloud Form',
+    onSubmitSuccess: jest.fn(),
+    hasGovEmail: false,
+  };
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -26,7 +21,7 @@ describe('<AdvisorEmptyState />', () => {
       // Arrange
       mockUseFeatureGate([[PLATFORM_LIGHTSPEED_REBRAND, true]]);
 
-      render(<AdvisorEmptyState />);
+      render(<GovCloudForm {...props} />);
 
       // Act
       // Assert
@@ -37,16 +32,11 @@ describe('<AdvisorEmptyState />', () => {
       // Arrange
       mockUseFeatureGate([[PLATFORM_LIGHTSPEED_REBRAND, false]]);
 
-      render(<AdvisorEmptyState />);
+      render(<GovCloudForm {...props} />);
 
       // Act
       // Assert
       expect(screen.getByText(/Red Hat Insights/)).toBeInTheDocument();
     });
-  });
-
-  it('Passes accessibility check', async () => {
-    const { container } = render(<AdvisorEmptyState />);
-    await checkAccessibility(container);
   });
 });
