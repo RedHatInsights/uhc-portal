@@ -69,7 +69,11 @@ const RecommendedOperatorsCards = ({
       }}
     >
       {RECOMMENDED_OPERATORS_CARDS.map((card) => (
-        <GalleryItem className="pf-v6-u-pt-md " data-testid="product-overview-card-flex-item">
+        <GalleryItem
+          key={card.title}
+          className="pf-v6-u-pt-md "
+          data-testid="product-overview-card-flex-item"
+        >
           <ProductCard
             {...card}
             openLearnMore={openLearnMore}
