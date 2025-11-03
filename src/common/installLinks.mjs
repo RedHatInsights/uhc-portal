@@ -303,10 +303,8 @@ const links = {
 
   SHP_CLI_DOCS: `https://docs.redhat.com/en/documentation/builds_for_red_hat_openshift/1.1/html-single/work_with_builds/index`,
 
-  // fixme - broken link
-  INSTALL_MIRROR_REGISTRY_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/mirroring-in-disconnected-environments#installation-about-mirror-registry_installing-mirroring-installation-images`,
-  // fixme - broken link
-  INSTALL_OC_MIRROR_PLUGIN_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/mirroring-in-disconnected-environments#installing-mirroring-installation-images`,
+  INSTALL_MIRROR_REGISTRY_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/installing-mirroring-installation-images#installation-about-mirror-registry_installing-mirroring-installation-images`,
+  INSTALL_OC_MIRROR_PLUGIN_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/installing-mirroring-installation-images`,
 
   OPENSHIFT_DEDICATED_LEARN_MORE:
     'https://www.redhat.com/en/technologies/cloud-computing/openshift/dedicated',
