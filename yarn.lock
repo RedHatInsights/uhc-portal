@@ -2789,6 +2789,21 @@
     p-map "^7.0.2"
     react-content-loader "^6.2.0"
 
+"@redhat-cloud-services/frontend-components-utilities@^7.0.0":
+  version "7.0.9"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components-utilities/-/frontend-components-utilities-7.0.9.tgz#c0ace5416e163014ede3ba501ad25dd7c16224d7"
+  integrity sha512-GE2Ab2z74UBWIy5pmCxymISe0aRj3ajfjEDfDaavYXBFDDROMWg3DieFMMtMGM5iaQDXwCetLth3v2+iMgxyPw==
+  dependencies:
+    "@redhat-cloud-services/rbac-client" "^4.2.3"
+    "@redhat-cloud-services/types" "^3.0.0"
+    "@sentry/browser" "^7.119.1"
+    awesome-debounce-promise "^2.1.0"
+    axios "^1.12.2"
+    commander "^2.20.3"
+    mkdirp "^1.0.4"
+    p-map "^7.0.2"
+    react-content-loader "^6.2.0"
+
 "@redhat-cloud-services/frontend-components@^6.0.0":
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components/-/frontend-components-6.0.4.tgz#cd6c1d5c65224559ed68f8056db1896983b19d04"
@@ -2802,16 +2817,16 @@
     classnames "^2.2.5"
     sanitize-html "^2.13.1"
 
-"@redhat-cloud-services/frontend-components@^6.0.7":
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components/-/frontend-components-6.1.1.tgz#8427444f3b6d9988066aa96bf4d1385b21ff6f57"
-  integrity sha512-p6nqk6pLL8nnxxIzfyQd5K6yW4EBqNZlAlgWmgSttwuuPAzHTDHFtutTvtCMK/hzlyfTnyGgjRMe2TL+wXrEcQ==
+"@redhat-cloud-services/frontend-components@^7.0.0":
+  version "7.0.12"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components/-/frontend-components-7.0.12.tgz#096c991c4f14b59e75cc65a73dd01885a529a526"
+  integrity sha512-PEQw/aGnAOmZmp9KBJXHabjeb81g3qf/2OO/iL3yFe0HrrqUGMjfvW6yigNski7hwAXqJniv4EinfCbgUX76gg==
   dependencies:
     "@patternfly/react-component-groups" "^6.0.0"
-    "@redhat-cloud-services/frontend-components-utilities" "^6.0.0"
-    "@redhat-cloud-services/types" "^2.0.0"
+    "@redhat-cloud-services/frontend-components-utilities" "^7.0.0"
+    "@redhat-cloud-services/types" "^3.0.0"
     "@scalprum/core" "^0.8.1"
-    "@scalprum/react-core" "^0.9.1"
+    "@scalprum/react-core" "^0.10.0"
     classnames "^2.2.5"
     sanitize-html "^2.13.1"
 
@@ -2823,6 +2838,14 @@
     axios "^1.7.2"
     tslib "^2.6.2"
 
+"@redhat-cloud-services/javascript-clients-shared@^2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/javascript-clients-shared/-/javascript-clients-shared-2.0.5.tgz#f75984b8a6a14973d49356439f02ddbb86af51dd"
+  integrity sha512-b0Pcmg4uf89cEh3GDeEXqwn2lTMSKMnRp1tP7vLdrUruarqEVFEeB7h4VyU5RmDM1lUfRlqq7tM5UEvkbdgk/w==
+  dependencies:
+    axios "^1.12.2"
+    tslib "^2.6.2"
+
 "@redhat-cloud-services/rbac-client@^1.0.111 || 2.x":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@redhat-cloud-services/rbac-client/-/rbac-client-2.0.3.tgz#b4b76b723071ad30cb683c60d4b1b6b6bcd52918"
@@ -2830,6 +2853,14 @@
   dependencies:
     "@redhat-cloud-services/javascript-clients-shared" "^1.2.2"
     axios "^1.7.2"
+    tslib "^2.6.2"
+
+"@redhat-cloud-services/rbac-client@^4.2.3":
+  version "4.2.5"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/rbac-client/-/rbac-client-4.2.5.tgz#70a8c059660ba4a8662d7f43100863c92ce7e633"
+  integrity sha512-JPRrre06xRYIh91w6ec9meEulQowfTVGyQafgM8awu/jtyrGr7WeXNztdnoN+uyhNhQUgGnvCYzKts4KL2KgIQ==
+  dependencies:
+    "@redhat-cloud-services/javascript-clients-shared" "^2.0.5"
     tslib "^2.6.2"
 
 "@redhat-cloud-services/tsc-transform-imports@^1.0.21":
@@ -2855,6 +2886,11 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@redhat-cloud-services/types/-/types-2.0.0.tgz#b192811cef0f04a132706e371d1eccf3213ce51b"
   integrity sha512-T9KvjntxMtRkNcyYCKB9OktIy7hhy24Y4n1nDZgGsysSnfWOrnmsrLUI7pyrwqsRVzjIjI3oYf7qH7DE5LcFag==
+
+"@redhat-cloud-services/types@^3.0.0":
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/types/-/types-3.3.1.tgz#9b0ebec8f48d035bd82eab3c07e8f3fb01fcfc52"
+  integrity sha512-yzfFazgzUHVB46dEzX+AIGCg8HAqpSdFnwkMxXlWMR3z5nCtc6adFkwr/9OQ1tJRwqj9Ydy65LTG7PJ1mCbYnw==
 
 "@redocly/ajv@^8.11.2":
   version "8.11.2"
@@ -2923,6 +2959,14 @@
     "@openshift/dynamic-plugin-sdk" "^5.0.1"
     tslib "^2.6.2"
 
+"@scalprum/core@^0.8.3":
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/@scalprum/core/-/core-0.8.3.tgz#09393983d8b43a3b6163612d301f015b9b53bd83"
+  integrity sha512-rg5ssFkJzFASPalVTzsKoLQ/H+WGGvQif1b7Ce/s1KVhFKWhqzdviUQCQ+yL5T4nRNi7ipnAuDAL4HfDKkyMGw==
+  dependencies:
+    "@openshift/dynamic-plugin-sdk" "^5.0.1"
+    tslib "^2.6.2"
+
 "@scalprum/react-core@0.8.0":
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/@scalprum/react-core/-/react-core-0.8.0.tgz#34bdec81af62fa4f87741169b2721729b3dd69ee"
@@ -2930,6 +2974,15 @@
   dependencies:
     "@openshift/dynamic-plugin-sdk" "^5.0.1"
     "@scalprum/core" "^0.7.0"
+    lodash "^4.17.0"
+
+"@scalprum/react-core@^0.10.0":
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/@scalprum/react-core/-/react-core-0.10.2.tgz#2fc4f68354d85fe36588f00ad420a3da4da51346"
+  integrity sha512-EBWOXn8kgYAAhVuoKQ3fx6YXGnCm48l5ScBdbdZM+3xeNoptvckETg/I8pv1MtMwDm7O8rYNsbHnqbwb95Y86w==
+  dependencies:
+    "@openshift/dynamic-plugin-sdk" "^5.0.1"
+    "@scalprum/core" "^0.8.3"
     lodash "^4.17.0"
 
 "@scalprum/react-core@^0.9.1":
@@ -15100,7 +15153,16 @@ string-natural-compare@^3.0.1:
   resolved "https://registry.npmjs.org/string-natural-compare/-/string-natural-compare-3.0.1.tgz"
   integrity sha512-n3sPwynL1nwKi3WJ6AIsClwBMa0zTi54fn2oLU6ndfTSIO05xaznjSf15PcBZU6FNWbmN5Q6cxT4V5hGvB4taw==
 
-"string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
+"string-width-cjs@npm:string-width@^4.2.0":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
+  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
+  dependencies:
+    emoji-regex "^8.0.0"
+    is-fullwidth-code-point "^3.0.0"
+    strip-ansi "^6.0.1"
+
+string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -15212,7 +15274,7 @@ stringify-object@^3.2.1:
     is-obj "^1.0.1"
     is-regexp "^1.0.0"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
@@ -15225,6 +15287,13 @@ strip-ansi@^3.0.0:
   integrity sha512-VhumSSbBqDTP8p2ZLKj40UjBCV4+v8bUSEpUb4KjRgWk9pbqGF4REFj6KEagidb2f/M6AzC0EmFyDNGaw9OCzg==
   dependencies:
     ansi-regex "^2.0.0"
+
+strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
+  integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
+  dependencies:
+    ansi-regex "^5.0.1"
 
 strip-ansi@^7.0.1, strip-ansi@^7.1.0:
   version "7.1.0"
@@ -16909,7 +16978,7 @@ word-wrap@^1.2.5:
   resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.5.tgz#d2c45c6dd4fbce621a66f136cbe328afd0410b34"
   integrity sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==
 
-"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
@@ -16922,6 +16991,15 @@ wrap-ansi@^6.0.1, wrap-ansi@^6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-6.2.0.tgz#e9393ba07102e6c91a3b221478f0257cd2856e53"
   integrity sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==
+  dependencies:
+    ansi-styles "^4.0.0"
+    string-width "^4.1.0"
+    strip-ansi "^6.0.0"
+
+wrap-ansi@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
+  integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
   dependencies:
     ansi-styles "^4.0.0"
     string-width "^4.1.0"

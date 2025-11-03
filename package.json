@@ -21,7 +21,7 @@
     "@patternfly/react-table": "6.2.1",
     "@patternfly/react-tokens": "6.2.1",
     "@react-hook/resize-observer": "^2.0.0",
-    "@redhat-cloud-services/frontend-components": "^6.0.7",
+    "@redhat-cloud-services/frontend-components": "^7.0.0",
     "@redhat-cloud-services/frontend-components-config-utilities": "^4.4.0",
     "@redhat-cloud-services/frontend-components-notifications": "^6.0.0",
     "@reduxjs/toolkit": "^2.2.2",
