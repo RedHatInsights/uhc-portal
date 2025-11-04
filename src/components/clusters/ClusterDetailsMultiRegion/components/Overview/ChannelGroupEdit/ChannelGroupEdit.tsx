@@ -16,6 +16,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import clusterStates from '~/components/clusters/common/clusterStates';
 import EditButton from '~/components/common/EditButton';
 import ErrorBox from '~/components/common/ErrorBox';
 import { useMutateChannelGroup } from '~/queries/ChannelGroupEditQueries/useMutateChannelGroup';
@@ -135,7 +136,7 @@ const ChannelGroupEditModal = ({
 export const ChannelGroupEdit = ({ clusterID, channelGroup, cluster }: ChannelGroupEditProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const { canEdit } = cluster;
-
+  const isClusterReady = cluster.state === clusterStates.ready;
   const { availableDropdownChannelGroups, isLoading } = useGetChannelGroupsData(cluster, canEdit);
 
   return (
@@ -161,7 +162,7 @@ export const ChannelGroupEdit = ({ clusterID, channelGroup, cluster }: ChannelGr
                 data-testid="channelGroupModal"
                 ariaLabel="editChannelGroupBtn"
                 onClick={() => setIsModalOpen(true)}
-                isAriaDisabled={!canEdit || isLoading}
+                isAriaDisabled={!canEdit || isLoading || !isClusterReady}
               />
             ))}
         </DescriptionListDescription>
