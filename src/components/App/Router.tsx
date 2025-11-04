@@ -168,6 +168,14 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
             </TermsGuard>
           }
         />
+        <Route
+          path="/create/osdgcp"
+          element={
+            <TermsGuard gobackPath="/create">
+              <CreateOsdWizard />
+            </TermsGuard>
+          }
+        />
         <Route path="/create/cloud" element={<CreateClusterPage activeTab="cloud" />} />
         <Route path="/create/datacenter" element={<CreateClusterPage activeTab="datacenter" />} />
         <Route path="/create/local" element={<CreateClusterPage activeTab="local" />} />

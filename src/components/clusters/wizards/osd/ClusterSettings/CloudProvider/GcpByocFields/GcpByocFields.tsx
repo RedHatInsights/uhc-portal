@@ -34,6 +34,7 @@ import { WorkloadIdentityFederationPrerequisites } from '~/components/clusters/w
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import ExternalLink from '~/components/common/ExternalLink';
+import { useIsOsdGcp } from '~/hooks/useIsOsdGcp';
 import { GCP_WIF_DEFAULT, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
@@ -48,9 +49,14 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
 
   const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
   const isWifDefaultEnabled = useFeatureGate(GCP_WIF_DEFAULT);
+  const isOsdGcp = useIsOsdGcp();
 
-  const gcpTitle = 'Have you prepared your Google account?';
-  const gcpText = `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
+  const gcpTitle = isOsdGcp
+    ? 'Did you complete your prerequisites?'
+    : 'Have you prepared your Google account?';
+  const gcpText = isOsdGcp
+    ? `To create a Red Hat OpenShift Dedicated (OSD) cluster via the web interface, you must complete the prerequisites steps on the OSD Get Started page in Google Cloud.`
+    : `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
 
   const {
     setFieldValue,
@@ -74,7 +80,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
 
   const authButtons = (
     <ToggleGroup aria-label="Authentication type">
-      {isWifDefaultEnabled ? (
+      {isWifDefaultEnabled || isOsdGcp ? (
         <>
           <ToggleGroupItem
             text="Workload Identity Federation"
@@ -173,26 +179,28 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
             </Title>
           )}
 
-          <Prerequisites acknowledgementRequired initiallyExpanded>
-            {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
-              <Hint className="pf-v6-u-mb-md pf-v6-u-mt-sm">
-                <HintTitle>
-                  <strong>{gcpTitle}</strong>
-                </HintTitle>
-                <HintBody>{gcpText}</HintBody>
-                <HintFooter>
-                  <ExternalLink href={links.GCP_CONSOLE_OSD_HOME}>
-                    Review Google terms and agreements.
-                  </ExternalLink>
-                </HintFooter>
-              </Hint>
-            )}
-            {authType === GCPAuthType.WorkloadIdentityFederation ? (
-              <WorkloadIdentityFederationPrerequisites />
-            ) : (
-              <ServiceAccountPrerequisites />
-            )}
-          </Prerequisites>
+          {!isOsdGcp ? (
+            <Prerequisites acknowledgementRequired initiallyExpanded>
+              {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
+                <Hint className="pf-v6-u-mb-md pf-v6-u-mt-sm">
+                  <HintTitle>
+                    <strong>{gcpTitle}</strong>
+                  </HintTitle>
+                  <HintBody>{gcpText}</HintBody>
+                  <HintFooter>
+                    <ExternalLink href={links.GCP_CONSOLE_OSD_HOME}>
+                      Google Cloud OSD Get Started page
+                    </ExternalLink>
+                  </HintFooter>
+                </Hint>
+              )}
+              {authType === GCPAuthType.WorkloadIdentityFederation ? (
+                <WorkloadIdentityFederationPrerequisites />
+              ) : (
+                <ServiceAccountPrerequisites />
+              )}
+            </Prerequisites>
+          ) : null}
         </FlexItem>
         <FlexItem>
           {authType === GCPAuthType.WorkloadIdentityFederation ? (
