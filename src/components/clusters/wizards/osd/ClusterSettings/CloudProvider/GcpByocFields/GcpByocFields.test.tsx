@@ -9,6 +9,7 @@ import {
   GCPAuthType,
   WifConfigList,
 } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
+import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import { OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
@@ -16,6 +17,11 @@ import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFiel
 import { FieldId, initialValues } from '../../../constants';
 
 import { GcpByocFields, GcpByocFieldsProps } from './GcpByocFields';
+
+// Mock hooks
+jest.mock('~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud');
+
+const mockUseIsOSDFromGoogleCloud = useIsOSDFromGoogleCloud as jest.Mock;
 
 const serviceAccountLabel = /service account/i;
 const workloadIdentityFederationLabel = 'Workload Identity Federation';
@@ -53,6 +59,11 @@ const prepareComponent = (
 );
 
 describe('<GcpByocFields />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseIsOSDFromGoogleCloud.mockReturnValue(false);
+  });
+
   it('is accessible', async () => {
     const { container } = render(prepareComponent());
 
@@ -131,7 +142,7 @@ describe('<GcpByocFields />', () => {
         screen.getByRole('button', { name: serviceAccountLabel, pressed: true }),
       ).toBeInTheDocument();
 
-      expect(screen.getByRole('heading', { name: serviceAccountLabel })).toBeInTheDocument();
+      expect(screen.getAllByRole('heading', { name: serviceAccountLabel })[0]).toBeInTheDocument();
       expect(
         screen.queryByRole('heading', { name: workloadIdentityFederationLabel }),
       ).not.toBeInTheDocument();
@@ -146,7 +157,7 @@ describe('<GcpByocFields />', () => {
       ).toBeInTheDocument();
 
       expect(
-        screen.getByRole('heading', { name: workloadIdentityFederationLabel }),
+        screen.getAllByRole('heading', { name: workloadIdentityFederationLabel })[0],
       ).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: serviceAccountLabel })).not.toBeInTheDocument();
     });
@@ -337,6 +348,47 @@ describe('<GcpByocFields />', () => {
       expect(screen.getByRole('button', { name: 'Options menu' })).toBeInTheDocument();
       expect(screen.queryByText(`${deletedWifConfig.display_name}`)).not.toBeInTheDocument();
       expect(await screen.findByText('Select a configuration')).toBeInTheDocument();
+    });
+  });
+
+  describe('when a user comes from the Google Cloud console', () => {
+    beforeEach(() => {
+      mockUseIsOSDFromGoogleCloud.mockReturnValue(true);
+      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
+    });
+
+    it('switches between showing and hiding Prerequisites based on auth type', async () => {
+      const { user } = render(
+        prepareComponent({
+          [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+        }),
+      );
+
+      expect(
+        screen.queryByRole('checkbox', {
+          name: "I've read and completed all the prerequisites and am ready to continue creating my cluster.",
+        }),
+      ).toBeInTheDocument();
+
+      // Switch to Service Account
+      await user.click(screen.getByRole('button', { name: serviceAccountLabel }));
+
+      expect(
+        await screen.findByRole('checkbox', {
+          name: "I've read and completed all the prerequisites and am ready to continue creating my cluster.",
+        }),
+      ).toBeInTheDocument();
+
+      // Switch back to WIF
+      await user.click(screen.getByRole('button', { name: workloadIdentityFederationLabel }));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(
+            'Check your cluster resource requirements to make sure your Google Cloud account has the necessary resource quotas and limits to support the size cluster you want.',
+          ),
+        ).not.toBeInTheDocument();
+      });
     });
   });
 });

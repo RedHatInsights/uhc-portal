@@ -26,6 +26,7 @@ import ClusterDetailsClusterOrExternalIdMR from '~/components/clusters/ClusterDe
 import {
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
   HYPERSHIFT_WIZARD_FEATURE,
+  OSD_FOR_GOOGLE_CLOUD,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
@@ -81,6 +82,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
 
   const isHypershiftWizardEnabled = useFeatureGate(HYPERSHIFT_WIZARD_FEATURE);
   const isClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
+  const isOsdFromGoogleCloudEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
 
   // For testing purposes, show which major features are enabled/disabled
   React.useEffect(() => {
@@ -168,6 +170,16 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
             </TermsGuard>
           }
         />
+        {isOsdFromGoogleCloudEnabled ? (
+          <Route
+            path="/create/osdgcp"
+            element={
+              <TermsGuard gobackPath="/create">
+                <CreateOsdWizard isOSDFromGoogleCloud />
+              </TermsGuard>
+            }
+          />
+        ) : null}
         <Route path="/create/cloud" element={<CreateClusterPage activeTab="cloud" />} />
         <Route path="/create/datacenter" element={<CreateClusterPage activeTab="datacenter" />} />
         <Route path="/create/local" element={<CreateClusterPage activeTab="local" />} />

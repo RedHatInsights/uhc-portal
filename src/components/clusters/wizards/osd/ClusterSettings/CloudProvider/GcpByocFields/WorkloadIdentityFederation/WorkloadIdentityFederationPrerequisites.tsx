@@ -6,7 +6,11 @@ import links from '~/common/installLinks.mjs';
 import { Link } from '~/common/routing';
 import ExternalLink from '~/components/common/ExternalLink';
 
-const WorkloadIdentityFederationPrerequisites = () => (
+const WorkloadIdentityFederationPrerequisites = ({
+  hideResourceRequirements,
+}: {
+  hideResourceRequirements: boolean;
+}) => (
   <div>
     <Content>
       <Content component={ContentVariants.p} className="ocm-secondary-text">
@@ -35,16 +39,18 @@ const WorkloadIdentityFederationPrerequisites = () => (
             to authenticate.
           </Content>
         </li>
-        <li>
-          <Content component={ContentVariants.p} className="ocm-secondary-text">
-            Check your{' '}
-            <ExternalLink noIcon href={links.OSD_CCS_GCP_LIMITS}>
-              cluster resource requirements
-            </ExternalLink>{' '}
-            to make sure your Google Cloud account has the necessary resource quotas and limits to
-            support the size cluster you want.
-          </Content>
-        </li>
+        {!hideResourceRequirements && (
+          <li>
+            <Content component={ContentVariants.p} className="ocm-secondary-text">
+              Check your{' '}
+              <ExternalLink noIcon href={links.OSD_CCS_GCP_LIMITS}>
+                cluster resource requirements
+              </ExternalLink>{' '}
+              to make sure your Google Cloud account has the necessary resource quotas and limits to
+              support the size cluster you want.
+            </Content>
+          </li>
+        )}
         <li>
           <Content component={ContentVariants.p} className="ocm-secondary-text">
             Optional: You have Enhanced Support from GCP. To prevent conflicts, make sure your
