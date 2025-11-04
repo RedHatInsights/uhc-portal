@@ -155,10 +155,11 @@ export const BillingModel = () => {
     // Also, if the selected default billing model is disabled
     // Default to marketplace
     if (
-      (!showOsdTrial || billingModel === SubscriptionCommonFieldsClusterBillingModel.standard) &&
-      quotas.marketplace &&
-      !quotas.standardOsd &&
-      !billingModel.startsWith(SubscriptionCommonFieldsClusterBillingModel.marketplace)
+      ((!showOsdTrial || billingModel === SubscriptionCommonFieldsClusterBillingModel.standard) &&
+        quotas.marketplace &&
+        !quotas.standardOsd &&
+        !billingModel.startsWith(SubscriptionCommonFieldsClusterBillingModel.marketplace)) ||
+      isOSDFromGoogleCloud
     ) {
       setFieldValue(FieldId.BillingModel, SubscriptionCommonFieldsClusterBillingModel.marketplace);
     }
