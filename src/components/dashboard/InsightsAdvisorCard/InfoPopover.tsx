@@ -35,11 +35,10 @@ const InfoPopover = () => {
         </>
       }
     >
-      {/* <Icon className="ocm-insights--info-popover__icon" data-testId="recommendations-card-info-popover-icon"> */}
       <Icon
         className="ocm-insights--info-popover__icon"
-        role="img"
-        aria-label="recommendations-card-info-popover-icon"
+        role="button"
+        aria-label={`Learn more about ${productName}`}
       >
         <HelpIcon />
       </Icon>

@@ -15,7 +15,7 @@ describe('<InfoPopover />', () => {
     const { user } = render(<InfoPopover />);
 
     // Act
-    const infoButton = screen.getByLabelText('recommendations-card-info-popover-icon');
+    const infoButton = screen.getByLabelText('Learn more about Red Hat Lightspeed');
     await user.click(infoButton);
 
     // Assert
@@ -37,7 +37,7 @@ describe('<InfoPopover />', () => {
       const { user } = render(<InfoPopover />);
 
       // Act
-      const infoButton = screen.getByLabelText('recommendations-card-info-popover-icon');
+      const infoButton = screen.getByLabelText('Learn more about Red Hat Lightspeed');
       await user.click(infoButton);
 
       // Assert
@@ -58,7 +58,7 @@ describe('<InfoPopover />', () => {
       const { user } = render(<InfoPopover />);
 
       // Act
-      const infoButton = screen.getByLabelText('recommendations-card-info-popover-icon');
+      const infoButton = screen.getByLabelText('Learn more about Insights');
       await user.click(infoButton);
 
       // Assert
