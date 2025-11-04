@@ -20,11 +20,14 @@ backend-config.yml
 /cypress/screenshots/
 /cypress/downloads/
 /cypress/videos/
+/cypress/downloads/
 /coverage/
 .nyc_output/out.json
 
 .yalc
 yalc.lock
+
+cypress.env.json
 
 
 *.patch

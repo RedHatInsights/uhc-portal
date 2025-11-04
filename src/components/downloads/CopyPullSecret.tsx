@@ -50,6 +50,7 @@ const CopyPullSecret = ({
   const button = (
     <CopyToClipboard text={isDisabled ? '' : tokenView} onCopy={onCopy}>
       <Button
+        data-testid="copy-pull-secret-button"
         variant="link"
         type="button"
         tabIndex={0}
