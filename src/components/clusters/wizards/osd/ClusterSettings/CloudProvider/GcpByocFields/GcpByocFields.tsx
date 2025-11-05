@@ -8,10 +8,6 @@ import {
   Form,
   FormAlert,
   FormGroup,
-  Hint,
-  HintBody,
-  HintFooter,
-  HintTitle,
   Popover,
   Title,
   ToggleGroup,
@@ -24,6 +20,7 @@ import styles from '@patternfly/react-styles/css/components/Form/form';
 import links from '~/common/installLinks.mjs';
 import { Prerequisites } from '~/components/clusters/wizards/common/Prerequisites/Prerequisites';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { PrepareGCPHint } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/PrepareGCPHint';
 import { ServiceAccount } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/ServiceAccountAuth/ServiceAccount';
 import { ServiceAccountPrerequisites } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/ServiceAccountAuth/ServiceAccountPrerequisites';
 import {
@@ -33,9 +30,12 @@ import {
 import { WorkloadIdentityFederationPrerequisites } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/WorkloadIdentityFederation/WorkloadIdentityFederationPrerequisites';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import ExternalLink from '~/components/common/ExternalLink';
 import { useIsOsdGcp } from '~/hooks/useIsOsdGcp';
-import { GCP_WIF_DEFAULT, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import {
+  GCP_WIF_DEFAULT,
+  OSD_FOR_GOOGLE_CLOUD,
+  OSD_GCP_WIF,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
@@ -49,12 +49,13 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
 
   const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
   const isWifDefaultEnabled = useFeatureGate(GCP_WIF_DEFAULT);
+  const isOsdGcpFeatureFlagEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
   const isOsdGcp = useIsOsdGcp();
 
-  const gcpTitle = isOsdGcp
+  const gcpTitle = isOsdGcpFeatureFlagEnabled
     ? 'Did you complete your prerequisites?'
     : 'Have you prepared your Google account?';
-  const gcpText = isOsdGcp
+  const gcpText = isOsdGcpFeatureFlagEnabled
     ? `To create a Red Hat OpenShift Dedicated (OSD) cluster via the web interface, you must complete the prerequisites steps on the OSD Get Started page in Google Cloud.`
     : `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
 
@@ -182,17 +183,16 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
           {!isOsdGcp ? (
             <Prerequisites acknowledgementRequired initiallyExpanded>
               {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
-                <Hint className="pf-v6-u-mb-md pf-v6-u-mt-sm">
-                  <HintTitle>
-                    <strong>{gcpTitle}</strong>
-                  </HintTitle>
-                  <HintBody>{gcpText}</HintBody>
-                  <HintFooter>
-                    <ExternalLink href={links.GCP_CONSOLE_OSD_HOME}>
-                      Google Cloud OSD Get Started page
-                    </ExternalLink>
-                  </HintFooter>
-                </Hint>
+                <PrepareGCPHint
+                  title={gcpTitle}
+                  text={gcpText}
+                  linkHref={links.GCP_CONSOLE_OSD_HOME}
+                  linkText={
+                    isOsdGcpFeatureFlagEnabled
+                      ? 'Google Cloud OSD Get Started page'
+                      : 'Google Cloud Terms and Agreements'
+                  }
+                />
               )}
               {authType === GCPAuthType.WorkloadIdentityFederation ? (
                 <WorkloadIdentityFederationPrerequisites />
