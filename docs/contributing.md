@@ -38,7 +38,7 @@ It is responsible for rendering the header & menu around the main content, and p
 
 It’s not a regular build dependency but is injected by CDN using [EdgeSide Includes](https://en.wikipedia.org/wiki/Edge_Side_Includes) tags.
 
-In development, `yarn start` uses the Frontend Components Config (FEC) dev server, which automatically handles Chrome setup by running a containerized Chrome server (requires Podman/Docker). FEC manages the development environment including the Chrome container, webpack dev server, and proxying to backend services.
+In development, `yarn start` uses the Frontend Components Config (FEC) dev server, which automatically handles Chrome setup by running a containerized Chrome server (requires Podman). FEC manages the development environment including the Chrome container, webpack dev server, and proxying to backend services.
 
 ## Code Style
 

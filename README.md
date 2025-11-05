@@ -29,7 +29,7 @@ For a first time setup, it's required to run `yarn fec patch-etc-hosts`.
 This may ask for your `sudo` password to add some entries to `/etc/hosts`.
 
 If you're on macOS, then you will need to initialize a new podman virtual machine with `podman machine init`.
->  If your macOS is running on an M (ARM) processor, then it's recommended to initialize with this image `podman machine init --image docker://quay.io/podman/machine-os:5.5`. Higher image versions may not be supported.
+>  If your macOS is running on an M (ARM) processor, then it's recommended to initialize with this image `--image docker://quay.io/podman/machine-os:5.5`. Higher image versions may not be supported.
  
 If you intend to contribute code, also refer to the [Setup section of the Contributing guide](docs/contributing.md#setup).
 
@@ -44,7 +44,7 @@ yarn build
 
 ## Running locally
 
-> If you're on macOS and have Podman fully setup, then verify that the initialized virtual machine is currently running. If it's not, then start the machine with `podman machine start`.
+> If you're on macOS and have Podman fully set up, then verify that the initialized virtual machine is currently running. If it's not, then start the machine with `podman machine start`.
 
 Run `yarn install && yarn start`.
 
