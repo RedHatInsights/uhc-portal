@@ -243,6 +243,7 @@
     "playwright-headed": "playwright test --headed",
     "playwright-debug": "playwright test --debug",
     "playwright-report": "playwright show-report",
+    "playwright-e2e-ci": "playwright test --grep @ci",
     "code-coverage": "nyc report --reporter=text-summary",
     "analyze": "rm -rf dist && env BUNDLE_ANALYZER=true yarn build:prod",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject ./dist/",

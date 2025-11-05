@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, request, expect } from '@playwright/test';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { writeFile } from 'fs/promises';
@@ -159,5 +159,12 @@ export class CustomCommands {
 
       throw error;
     }
+  }
+
+  async assertUrlReturns200(url: string): Promise<void> {
+    const apiContext = await request.newContext();
+    const response = await apiContext.get(url);
+    expect(response.status(), `Expected HTTP 200 when requesting ${url}`).toBe(200);
+    await apiContext.dispose();
   }
 }
