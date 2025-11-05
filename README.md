@@ -84,4 +84,4 @@ See [Contributing guide](docs/contributing.md).
 
 ### Release
 
-A detailed explanation of how to make a release can be found on the [Release to Production page](docs/releasing.md)
+A detailed explanation of how to make a release can be found on the [Release to Production page](docs/deploy-to-production.md)
