@@ -1,8 +1,12 @@
 import { test as base, BrowserContext, Page } from '@playwright/test';
 import { ClusterDetailsPage } from '../page-objects/cluster-details-page';
 import { ClusterListPage } from '../page-objects/cluster-list-page';
+import { ClusterRequestsPage } from '../page-objects/cluster-requests-page';
+import { CreateOSDWizardPage } from '../page-objects/create-osd-wizard-page';
+import { CreateClusterPage } from '../page-objects/create-cluster-page';
 import { DownloadsPage } from '../page-objects/downloads-page';
 import { OCMRolesAndAccessPage } from '../page-objects/ocm-roles-access-page';
+import { OverviewPage } from '../page-objects/overview-page';
 import { RegisterClusterPage } from '../page-objects/register-cluster-page';
 import { TokensPage } from '../page-objects/tokens-page';
 import { STORAGE_STATE_PATH } from '../support/playwright-constants';
@@ -19,8 +23,12 @@ type WorkerFixtures = {
   authenticatedPage: Page;
   clusterDetailsPage: ClusterDetailsPage;
   clusterListPage: ClusterListPage;
+  clusterRequestsPage: ClusterRequestsPage;
+  createOSDWizardPage: CreateOSDWizardPage;
+  createClusterPage: CreateClusterPage;
   downloadsPage: DownloadsPage;
   ocmRolesAndAccessPage: OCMRolesAndAccessPage;
+  overviewPage: OverviewPage;
   registerClusterPage: RegisterClusterPage;
   tokensPage: TokensPage;
 };
@@ -116,6 +124,33 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     { scope: 'worker' },
   ],
 
+  // Worker-scoped: ClusterRequestsPage instance - created once, reused across all tests in suite
+  clusterRequestsPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new ClusterRequestsPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: CreateOSDWizardPage instance - created once, reused across all tests in suite
+  createOSDWizardPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new CreateOSDWizardPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: CreateClusterPage instance - created once, reused across all tests in suite
+  createClusterPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new CreateClusterPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
   // Worker-scoped: DownloadsPage instance - created once, reused across all tests in suite
   downloadsPage: [
     async ({ authenticatedPage }, use) => {
@@ -129,6 +164,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   ocmRolesAndAccessPage: [
     async ({ authenticatedPage }, use) => {
       const pageObject = new OCMRolesAndAccessPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: OverviewPage instance - created once, reused across all tests in suite
+  overviewPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new OverviewPage(authenticatedPage);
       await use(pageObject);
     },
     { scope: 'worker' },
