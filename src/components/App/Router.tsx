@@ -82,7 +82,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
 
   const isHypershiftWizardEnabled = useFeatureGate(HYPERSHIFT_WIZARD_FEATURE);
   const isClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
-  const isOsdGcpEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
+  const isOsdFromGoogleCloudEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
 
   // For testing purposes, show which major features are enabled/disabled
   React.useEffect(() => {
@@ -170,12 +170,12 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
             </TermsGuard>
           }
         />
-        {isOsdGcpEnabled ? (
+        {isOsdFromGoogleCloudEnabled ? (
           <Route
             path="/create/osdgcp"
             element={
               <TermsGuard gobackPath="/create">
-                <CreateOsdWizard />
+                <CreateOsdWizard isOSDFromGoogleCloud />
               </TermsGuard>
             }
           />

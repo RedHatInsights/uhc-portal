@@ -6,7 +6,7 @@ import { Alert, Form, Title } from '@patternfly/react-core';
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import { useIsOsdGcp } from '~/hooks/useIsOsdGcp';
+import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import { clearCcsCredientialsInquiry } from '~/redux/actions/ccsInquiriesActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { clusterService } from '~/services';
@@ -30,7 +30,7 @@ export const CloudProvider = () => {
   } = useFormState();
   const { ccsCredentialsValidity } = useGlobalState((state) => state.ccsInquiries);
   const isByoc = byoc === 'true';
-  const isOsdGcp = useIsOsdGcp();
+  const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
   React.useEffect(() => {
     dispatch(clearCcsCredientialsInquiry());
   }, [
@@ -45,7 +45,7 @@ export const CloudProvider = () => {
 
   return (
     <Form>
-      {!isOsdGcp && <Title headingLevel="h3">Select a cloud provider</Title>}
+      {!isOSDFromGoogleCloud && <Title headingLevel="h3">Select a cloud provider</Title>}
       <CloudProviderTileField />
       {isByoc && (
         <>

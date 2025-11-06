@@ -21,9 +21,9 @@ import {
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
+import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import ExternalLink from '~/components/common/ExternalLink';
 import useAnalytics from '~/hooks/useAnalytics';
-import { useIsOsdGcp } from '~/hooks/useIsOsdGcp';
 import { PRIVATE_SERVICE_CONNECT } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
@@ -72,7 +72,7 @@ export const Configuration = () => {
     isGCP && isPrivateCluster && isWifAuth && hasPSCFeatureGate
       ? 'Private clusters deployed using Workload Identity Federation must be deployed into an existing VPC.'
       : '';
-  const isOsdGcp = useIsOsdGcp();
+  const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
   const trackOcmResourceType =
     product === normalizedProducts.ROSA ? ocmResourceType.MOA : ocmResourceType.OSD;
 
@@ -87,12 +87,6 @@ export const Configuration = () => {
       setFieldValue(FieldId.PrivateServiceConnect, true);
     }
   }, [isWifAuth, showPrivateServiceConnect, isPrivateCluster, setFieldValue]);
-
-  React.useEffect(() => {
-    if (isOsdGcp) {
-      setFieldValue(FieldId.InstallToVpc, true);
-    }
-  }, [isOsdGcp, setFieldValue, clusterPrivacy]);
 
   const trackCheckedState = (trackEvent: TrackEvent, checked: boolean) =>
     track(trackEvent, {
@@ -118,7 +112,9 @@ export const Configuration = () => {
       );
 
       if (!hasFilledMachinePoolsSubnets) {
-        setFieldValue(FieldId.InstallToVpc, false);
+        if (!isOSDFromGoogleCloud) {
+          setFieldValue(FieldId.InstallToVpc, false);
+        }
         clearSecurityGroups();
 
         // Also unset "Configure a cluster-wide proxy" if enabled
@@ -274,7 +270,7 @@ export const Configuration = () => {
                     usePrivateLink ||
                     configureProxy ||
                     (isPrivateCluster && isWifAuth && hasPSCFeatureGate) ||
-                    isOsdGcp
+                    isOSDFromGoogleCloud
                   }
                 />
 

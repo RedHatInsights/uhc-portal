@@ -9,6 +9,8 @@ import {
   FormAlert,
   FormGroup,
   Popover,
+  Stack,
+  StackItem,
   Title,
   ToggleGroup,
   ToggleGroupItem,
@@ -30,7 +32,7 @@ import {
 import { WorkloadIdentityFederationPrerequisites } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/WorkloadIdentityFederation/WorkloadIdentityFederationPrerequisites';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import { useIsOsdGcp } from '~/hooks/useIsOsdGcp';
+import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import {
   GCP_WIF_DEFAULT,
   OSD_FOR_GOOGLE_CLOUD,
@@ -38,6 +40,8 @@ import {
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
+
+import { ServiceAccountNotRecommendedAlert } from '../ServiceAccountNotRecommendedAlert';
 
 export interface GcpByocFieldsProps extends WorkloadIdentityFederationProps {}
 
@@ -50,7 +54,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
   const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
   const isWifDefaultEnabled = useFeatureGate(GCP_WIF_DEFAULT);
   const isOsdGcpFeatureFlagEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
-  const isOsdGcp = useIsOsdGcp();
+  const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
 
   const gcpTitle = isOsdGcpFeatureFlagEnabled
     ? 'Did you complete your prerequisites?'
@@ -81,7 +85,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
 
   const authButtons = (
     <ToggleGroup aria-label="Authentication type">
-      {isWifDefaultEnabled || isOsdGcp ? (
+      {isWifDefaultEnabled || isOSDFromGoogleCloud ? (
         <>
           <ToggleGroupItem
             text="Workload Identity Federation"
@@ -179,28 +183,38 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
               GCP Service account
             </Title>
           )}
-
-          {!isOsdGcp ? (
-            <Prerequisites acknowledgementRequired initiallyExpanded>
-              {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
-                <PrepareGCPHint
-                  title={gcpTitle}
-                  text={gcpText}
-                  linkHref={links.GCP_CONSOLE_OSD_HOME}
-                  linkText={
-                    isOsdGcpFeatureFlagEnabled
-                      ? 'Google Cloud OSD Get Started page'
-                      : 'Google Cloud Terms and Agreements'
-                  }
-                />
-              )}
-              {authType === GCPAuthType.WorkloadIdentityFederation ? (
-                <WorkloadIdentityFederationPrerequisites />
-              ) : (
-                <ServiceAccountPrerequisites />
-              )}
-            </Prerequisites>
-          ) : null}
+        </FlexItem>
+        <FlexItem>
+          <Stack hasGutter>
+            {authType === GCPAuthType.ServiceAccounts && (
+              <StackItem>
+                <ServiceAccountNotRecommendedAlert />
+              </StackItem>
+            )}
+            {!isOSDFromGoogleCloud || authType === GCPAuthType.ServiceAccounts ? (
+              <StackItem>
+                <Prerequisites acknowledgementRequired initiallyExpanded>
+                  {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
+                    <PrepareGCPHint
+                      title={gcpTitle}
+                      text={gcpText}
+                      linkHref={links.GCP_CONSOLE_OSD_HOME}
+                      linkText={
+                        isOsdGcpFeatureFlagEnabled
+                          ? 'Google Cloud OSD Get Started page'
+                          : 'Google Cloud Terms and Agreements'
+                      }
+                    />
+                  )}
+                  {authType === GCPAuthType.WorkloadIdentityFederation ? (
+                    <WorkloadIdentityFederationPrerequisites />
+                  ) : (
+                    <ServiceAccountPrerequisites />
+                  )}
+                </Prerequisites>
+              </StackItem>
+            ) : null}
+          </Stack>
         </FlexItem>
         <FlexItem>
           {authType === GCPAuthType.WorkloadIdentityFederation ? (

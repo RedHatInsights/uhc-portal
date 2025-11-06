@@ -25,8 +25,8 @@ import { CloudProviderType } from '~/components/clusters/wizards/common/constant
 import { RadioGroupField, RadioGroupOption } from '~/components/clusters/wizards/form';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
+import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import ExternalLink from '~/components/common/ExternalLink';
-import { useIsOsdGcp } from '~/hooks/useIsOsdGcp';
 import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
@@ -41,7 +41,7 @@ import './BillingModel.scss';
 
 export const BillingModel = () => {
   const hideRHMarketplace = useFeatureGate(HIDE_RH_MARKETPLACE);
-  const isOsdGcp = useIsOsdGcp();
+  const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
   const sourceIsGCP = getQueryParam('source') === 'gcp';
   const {
     values: {
@@ -135,7 +135,7 @@ export const BillingModel = () => {
   );
 
   const subOptions = [
-    ...(showOsdTrial && !isOsdGcp
+    ...(showOsdTrial && !isOSDFromGoogleCloud
       ? [
           {
             value: STANDARD_TRIAL_BILLING_MODEL_TYPE,
@@ -146,7 +146,7 @@ export const BillingModel = () => {
           },
         ]
       : []),
-    ...(!isOsdGcp
+    ...(!isOSDFromGoogleCloud
       ? [
           {
             disabled: !quotas.standardOsd,
@@ -199,9 +199,14 @@ export const BillingModel = () => {
         quotas.marketplace &&
         !quotas.standardOsd &&
         !billingModel.startsWith(SubscriptionCommonFieldsClusterBillingModel.marketplace)) ||
-      isOsdGcp
+      isOSDFromGoogleCloud
     ) {
-      setFieldValue(FieldId.BillingModel, SubscriptionCommonFieldsClusterBillingModel.marketplace);
+      setFieldValue(
+        FieldId.BillingModel,
+        isOSDFromGoogleCloud
+          ? SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
+          : SubscriptionCommonFieldsClusterBillingModel.marketplace,
+      );
     }
 
     clearPreviousVersionsReponse();
@@ -259,7 +264,7 @@ export const BillingModel = () => {
         ? 'No available quota for Customer cloud subscription in your organization.'
         : null,
     },
-    ...(!isOsdGcp
+    ...(!isOSDFromGoogleCloud
       ? [
           {
             label: 'Red Hat cloud account',
