@@ -155,6 +155,50 @@ describe('<BillingModel />', () => {
       expect(byocRadioCCSOption).toBeInTheDocument();
       expect(byocRadioCCSOption).toBeChecked();
     });
+
+    it('hides trial option when quotas.osdTrial is false', () => {
+      mockUseGetBillingQuotas.mockReturnValue({
+        ...defaultQuotas,
+        osdTrial: false,
+      });
+
+      render(buildTestComponent());
+
+      expect(screen.queryByText('Free trial (upgradeable)')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('when useIsOSDFromGoogleCloud returns true', () => {
+    beforeEach(() => {
+      mockUseIsOSDFromGoogleCloud.mockReturnValue(true);
+    });
+
+    it('does not display free trial option', () => {
+      render(buildTestComponent());
+
+      expect(screen.queryByText('Free trial (upgradeable)')).not.toBeInTheDocument();
+    });
+
+    it('does not display annual subscription option', () => {
+      render(buildTestComponent());
+
+      expect(
+        screen.queryByText('Annual: Fixed capacity subscription from Red Hat'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('displays only on-demand marketplace option', () => {
+      render(buildTestComponent());
+
+      expect(screen.getByText(/On-Demand: Flexible usage billed through/i)).toBeInTheDocument();
+    });
+
+    it('displays only customer cloud subscription infrastructure option', () => {
+      render(buildTestComponent());
+
+      expect(screen.getByText('Customer cloud subscription')).toBeInTheDocument();
+      expect(screen.queryByText('Red Hat cloud account')).not.toBeInTheDocument();
+    });
   });
   describe('Google Cloud Marketplace', () => {
     it('Google Cloud Marketplace option is enabled when there is gcp quota', async () => {

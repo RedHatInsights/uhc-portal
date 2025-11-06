@@ -161,7 +161,12 @@ export const BillingModel = () => {
         !billingModel.startsWith(SubscriptionCommonFieldsClusterBillingModel.marketplace)) ||
       isOSDFromGoogleCloud
     ) {
-      setFieldValue(FieldId.BillingModel, SubscriptionCommonFieldsClusterBillingModel.marketplace);
+      setFieldValue(
+        FieldId.BillingModel,
+        isOSDFromGoogleCloud
+          ? SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
+          : SubscriptionCommonFieldsClusterBillingModel.marketplace,
+      );
     }
 
     clearPreviousVersionsReponse();

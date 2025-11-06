@@ -13,7 +13,6 @@ import {
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { useGetBillingQuotas } from '~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import { useIsOsdGcp } from '~/hooks/useIsOsdGcp';
 import AWSLogo from '~/styles/images/AWSLogo';
 import GCPLogo from '~/styles/images/GCPLogo';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
@@ -21,7 +20,6 @@ import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFiel
 import './cloudProviderTileField.scss';
 
 export const CloudProviderTileField = () => {
-  const isOsdGcp = useIsOsdGcp();
   const {
     values: {
       [FieldId.CloudProvider]: cloudProvider,
@@ -37,8 +35,9 @@ export const CloudProviderTileField = () => {
     isBYOC,
   });
   const hasGcpResources = quotas.gcpResources;
-  const shouldShowAwsTile =
-    !(billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp) && !isOsdGcp;
+  const shouldShowAwsTile = !(
+    billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
+  );
   const hasAwsResources = shouldShowAwsTile ? quotas.awsResources : false;
   const notAvailableTooltip =
     billingModel === shouldShowAwsTile
