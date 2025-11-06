@@ -65,6 +65,7 @@ const ClusterRolesScreen = () => {
       [FieldId.RegionalInstance]: regionalInstance,
     },
   } = useFormState();
+
   const isHypershift = hypershiftValue === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershift;
 

@@ -17,6 +17,7 @@ import { getScrollErrorIds } from '~/components/clusters/wizards/form/utils';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
+import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 
 import { isUserRoleForSelectedAWSAccount } from './AccountsRolesScreen/AccountsRolesScreen';
 import { FieldId } from './constants';
@@ -64,18 +65,19 @@ const CreateRosaWizardFooter = ({
     accountIDsLoading: state.rosaReducer.getAWSAccountIDsResponse.pending || false,
     accountARNsLoading: state.rosaReducer.getAWSAccountRolesARNsResponse.pending || false,
     userRoleLoading: state.rosaReducer.getUserRoleResponse.pending || false,
-    oCMRoleLoading: state.rosaReducer.getOCMRoleResponse.pending || false,
     vpcsLoading: state.ccsInquiries.vpcs.pending || false,
   }));
 
   const isRefreshingVPCs =
     awsRequests.vpcsLoading && currentStepId === getVpcLoadingStep(isHypershiftSelected);
 
+  const { isPending: isGetOCMRolePending } = useFetchGetOCMRole(values[FieldId.AssociatedAwsId]);
+
   const areAwsResourcesLoading =
     awsRequests.accountIDsLoading ||
     awsRequests.accountARNsLoading ||
     awsRequests.userRoleLoading ||
-    awsRequests.oCMRoleLoading ||
+    isGetOCMRolePending ||
     isRefreshingVPCs;
 
   const isButtonLoading = isValidating || areAwsResourcesLoading;

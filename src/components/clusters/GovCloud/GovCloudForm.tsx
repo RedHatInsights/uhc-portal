@@ -22,6 +22,8 @@ import {
 } from '@patternfly/react-core';
 
 import config from '~/config';
+import { PLATFORM_LIGHTSPEED_REBRAND } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import fedrampService from '~/services/fedrampService';
 
 import redhatLogoImg from '../../../styles/images/Logo-RedHat-Hat-Color-RGB.png';
@@ -44,6 +46,9 @@ const GovCloudForm = ({
   const [submitError, setSubmitError] = React.useState<string>();
 
   const formReady = isUSPerson && govContract && authPerson && rulesOfBehavior;
+
+  const allowPlatformLightspeedRebrand = useFeatureGate(PLATFORM_LIGHTSPEED_REBRAND);
+
   return (
     <Card style={{ maxWidth: '80rem', borderTopColor: '#e00', borderTopStyle: 'solid' }}>
       <CardTitle>
@@ -68,7 +73,8 @@ const GovCloudForm = ({
           <StackItem>
             <Content>
               <Content component={ContentVariants.p}>
-                Red Hat OpenShift Service on AWS (ROSA) and Red Hat Insights in the GovCloud Region
+                Red Hat OpenShift Service on AWS (ROSA) and Red Hat{' '}
+                {allowPlatformLightspeedRebrand ? 'Lightspeed' : 'Insights'} in the GovCloud Region
                 have been authorized (agency) under the Federal Risk Assessment and Management
                 Program (FedRAMP) High and DoD Cloud Computing Security Requirements Guide (SRG).
               </Content>
