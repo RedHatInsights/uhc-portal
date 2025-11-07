@@ -17,6 +17,8 @@ import { AppPage } from '~/components/App/AppPage';
 import Breadcrumbs from '~/components/common/Breadcrumbs';
 import { refetchAccessRequests } from '~/queries/ClusterDetailsQueries/AccessRequestTab/useFetchAccessRequests';
 import { refetchClusterTransferDetail } from '~/queries/ClusterDetailsQueries/ClusterTransferOwnership/useFetchClusterTransferDetails';
+import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { AccessRequest } from '../ClusterDetailsMultiRegion/components/AccessRequest/AccessRequest';
 import { RefreshButton } from '../ClusterListMultiRegion/components/RefreshButton';
@@ -32,6 +34,7 @@ const ClusterRequestList = () => {
     refetchAccessRequests();
     refetchClusterTransferDetail();
   };
+  const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
   return (
     <AppPage title={PAGE_TITLE}>
       <PageSection hasBodyWrapper={false}>
@@ -54,14 +57,16 @@ const ClusterRequestList = () => {
                 gap={{ default: 'gapNone', md: 'gapNone' }}
               >
                 <ToolbarItem gap={{ default: 'gapNone' }}>
-                  <RefreshButton isDisabled={false} refreshFunc={refresh} />
+                  {isTabbedClustersEnabled && (
+                    <RefreshButton isDisabled={false} refreshFunc={refresh} />
+                  )}
                 </ToolbarItem>
               </ToolbarGroup>
             </ToolbarContent>
           </Toolbar>
         </Flex>
       </PageSection>
-      <AccessRequest variant="page" showClusterName />
+      {isTabbedClustersEnabled && <AccessRequest variant="page" showClusterName />}
       <ClusterTransferList />
     </AppPage>
   );
