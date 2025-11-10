@@ -364,17 +364,15 @@ describe('<GcpByocFields />', () => {
         }),
       );
 
-      // Initially with WIF, no prerequisites
       expect(
         screen.queryByRole('checkbox', {
           name: "I've read and completed all the prerequisites and am ready to continue creating my cluster.",
         }),
-      ).not.toBeInTheDocument();
+      ).toBeInTheDocument();
 
       // Switch to Service Account
       await user.click(screen.getByRole('button', { name: serviceAccountLabel }));
 
-      // Now prerequisites should be visible
       expect(
         await screen.findByRole('checkbox', {
           name: "I've read and completed all the prerequisites and am ready to continue creating my cluster.",
@@ -384,12 +382,11 @@ describe('<GcpByocFields />', () => {
       // Switch back to WIF
       await user.click(screen.getByRole('button', { name: workloadIdentityFederationLabel }));
 
-      // Prerequisites should be hidden again
       await waitFor(() => {
         expect(
-          screen.queryByRole('checkbox', {
-            name: "I've read and completed all the prerequisites and am ready to continue creating my cluster.",
-          }),
+          screen.queryByText(
+            'Check your cluster resource requirements to make sure your Google Cloud account has the necessary resource quotas and limits to support the size cluster you want.',
+          ),
         ).not.toBeInTheDocument();
       });
     });
