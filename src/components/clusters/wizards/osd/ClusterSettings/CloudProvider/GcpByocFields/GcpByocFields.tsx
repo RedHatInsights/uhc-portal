@@ -191,29 +191,27 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
                 <ServiceAccountNotRecommendedAlert />
               </StackItem>
             )}
-            {!isOSDFromGoogleCloud || authType === GCPAuthType.ServiceAccounts ? (
-              <StackItem>
-                <Prerequisites acknowledgementRequired initiallyExpanded>
-                  {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
-                    <PrepareGCPHint
-                      title={gcpTitle}
-                      text={gcpText}
-                      linkHref={links.GCP_CONSOLE_OSD_HOME}
-                      linkText={
-                        isOsdGcpFeatureFlagEnabled
-                          ? 'Google Cloud OSD Get Started page'
-                          : 'Google Cloud Terms and Agreements'
-                      }
-                    />
-                  )}
-                  {authType === GCPAuthType.WorkloadIdentityFederation ? (
-                    <WorkloadIdentityFederationPrerequisites />
-                  ) : (
-                    <ServiceAccountPrerequisites />
-                  )}
-                </Prerequisites>
-              </StackItem>
-            ) : null}
+            <StackItem>
+              <Prerequisites acknowledgementRequired initiallyExpanded>
+                {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
+                  <PrepareGCPHint
+                    title={gcpTitle}
+                    text={gcpText}
+                    linkHref={links.GCP_CONSOLE_OSD_HOME}
+                    linkText={
+                      isOsdGcpFeatureFlagEnabled
+                        ? 'Google Cloud OSD Get Started page'
+                        : 'Google Cloud Terms and Agreements'
+                    }
+                  />
+                )}
+                {authType === GCPAuthType.WorkloadIdentityFederation ? (
+                  <WorkloadIdentityFederationPrerequisites />
+                ) : (
+                  <ServiceAccountPrerequisites />
+                )}
+              </Prerequisites>
+            </StackItem>
           </Stack>
         </FlexItem>
         <FlexItem>
