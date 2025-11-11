@@ -154,19 +154,19 @@ export const BillingModel = () => {
     // Select marketplace billing if user only has marketplace quota
     // Also, if the selected default billing model is disabled
     // Default to marketplace
+    const targetBillingModel = isOSDFromGoogleCloud
+      ? SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
+      : SubscriptionCommonFieldsClusterBillingModel.marketplace;
+
     if (
-      ((!showOsdTrial || billingModel === SubscriptionCommonFieldsClusterBillingModel.standard) &&
+      (((!showOsdTrial || billingModel === SubscriptionCommonFieldsClusterBillingModel.standard) &&
         quotas.marketplace &&
         !quotas.standardOsd &&
         !billingModel.startsWith(SubscriptionCommonFieldsClusterBillingModel.marketplace)) ||
-      isOSDFromGoogleCloud
+        isOSDFromGoogleCloud) &&
+      billingModel !== targetBillingModel
     ) {
-      setFieldValue(
-        FieldId.BillingModel,
-        isOSDFromGoogleCloud
-          ? SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
-          : SubscriptionCommonFieldsClusterBillingModel.marketplace,
-      );
+      setFieldValue(FieldId.BillingModel, targetBillingModel);
     }
 
     clearPreviousVersionsReponse();
