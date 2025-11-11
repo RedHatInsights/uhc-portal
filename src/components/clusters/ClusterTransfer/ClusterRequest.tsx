@@ -6,6 +6,8 @@ import {
   PageSection,
   Split,
   SplitItem,
+  Stack,
+  StackItem,
   Title,
   Toolbar,
   ToolbarContent,
@@ -66,8 +68,16 @@ const ClusterRequestList = () => {
           </Toolbar>
         </Flex>
       </PageSection>
-      {isTabbedClustersEnabled && <AccessRequest variant="page" showClusterName />}
-      <ClusterTransferList />
+      <PageSection>
+        <Stack hasGutter>
+          <StackItem>
+            {isTabbedClustersEnabled && <AccessRequest variant="page" showClusterName />}
+          </StackItem>
+          <StackItem>
+            <ClusterTransferList hideRefreshButton />
+          </StackItem>
+        </Stack>
+      </PageSection>
     </AppPage>
   );
 };

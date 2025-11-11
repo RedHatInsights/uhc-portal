@@ -10,7 +10,6 @@ import {
   CardTitle,
   Flex,
   FlexItem,
-  PageSection,
   Popover,
 } from '@patternfly/react-core';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
@@ -131,8 +130,8 @@ export const AccessRequest = ({
   return (
     <>
       {variant === 'page' && (
-        <PageSection hasBodyWrapper={false}>
-          <PageSection hasBodyWrapper={false} hasShadowBottom hasShadowTop>
+        <Card>
+          <CardHeader>
             <Flex>
               <FlexItem grow={{ default: 'grow' }}>
                 <span>Cluster access requests</span>
@@ -156,20 +155,14 @@ export const AccessRequest = ({
                   <Button icon={<OutlinedQuestionCircleIcon />} variant="plain" />
                 </Popover>
               </FlexItem>
+              <FlexItem align={{ default: 'alignRight' }}>{pagination('top')}</FlexItem>
             </Flex>
-            <Card>
-              <CardHeader>
-                <Flex>
-                  <FlexItem align={{ default: 'alignRight' }}>{pagination('top')}</FlexItem>
-                </Flex>
-              </CardHeader>
-              <CardBody>
-                {tableContent}
-                <CardFooter>{pagination('bottom')}</CardFooter>
-              </CardBody>
-            </Card>
-          </PageSection>
-        </PageSection>
+          </CardHeader>
+          <CardBody>
+            {tableContent}
+            <CardFooter>{pagination('bottom')}</CardFooter>
+          </CardBody>
+        </Card>
       )}
 
       {variant === 'card' && (
