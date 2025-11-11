@@ -2,6 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { TagAcmHubDialog } from '~/components/clusters/AcmHubClusters';
 import AddHtpasswdUserModal from '~/components/clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/components/HtpasswdDetails/AddUserModal';
 import EditHtpasswdUserModal from '~/components/clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/components/HtpasswdDetails/EditUserModal';
 
@@ -46,6 +47,8 @@ function CommonClusterModals({ onClose, onClusterDeleted, clearMachinePools }) {
 
       <ConnectedModal ModalComponent={AddHtpasswdUserModal} />
       <ConnectedModal ModalComponent={EditHtpasswdUserModal} />
+
+      <ConnectedModal ModalComponent={TagAcmHubDialog} onClose={onClose} />
 
       <ConnectedModal ModalComponent={DeleteProtectionModalMR} onClose={onClose} />
 
