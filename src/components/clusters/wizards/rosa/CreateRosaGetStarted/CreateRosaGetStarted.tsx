@@ -53,7 +53,7 @@ const breadcrumbs = (
 const CreateRosaGetStarted = () => (
   <AppPage>
     <PageTitle breadcrumbs={breadcrumbs} title={title(productName)}>
-      <Content className="pf-v6-u-mt-md pf-v6-u-mb-md">
+      <Content>
         <Content component={ContentVariants.p}>
           Deploy fully operational and managed Red Hat OpenShift clusters while leveraging the full
           breadth and depth of AWS using ROSA.
