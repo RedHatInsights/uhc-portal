@@ -11,6 +11,7 @@ import Router from './Router';
 
 const routes = [
   { path: CLUSTER_LIST_PATH, metadata: { ocm_resource_type: 'all' } },
+  { path: '/acm-hub-clusters', metadata: { ocm_resource_type: 'all' } },
   { path: '/token/rosa', metadata: { ocm_resource_type: 'moa' } },
   { path: '/token/rosa/show', metadata: { ocm_resource_type: 'moa' } },
   { path: '/details/:id', metadata: { ocm_resource_type: 'all' } },
