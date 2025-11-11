@@ -170,7 +170,7 @@ export const ChannelGroupEdit = ({
                 <ExternalLink
                   href={isROSA ? links.ROSA_LIFE_CYCLE_DATES : links.OSD_LIFE_CYCLE_DATES}
                 >
-                  Learn more
+                  Learn more about the support lifecycle
                 </ExternalLink>
               </>
             }
