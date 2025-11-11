@@ -351,7 +351,7 @@ describe('<GcpByocFields />', () => {
     });
   });
 
-  describe('when useIsOSDFromGoogleCloud returns true', () => {
+  describe('when a user comes from the Google Cloud console', () => {
     beforeEach(() => {
       mockUseIsOSDFromGoogleCloud.mockReturnValue(true);
       mockUseFeatureGate([[OSD_GCP_WIF, true]]);

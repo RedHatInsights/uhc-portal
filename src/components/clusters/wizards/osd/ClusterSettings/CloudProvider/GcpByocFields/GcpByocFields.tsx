@@ -206,7 +206,9 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
                   />
                 )}
                 {authType === GCPAuthType.WorkloadIdentityFederation ? (
-                  <WorkloadIdentityFederationPrerequisites />
+                  <WorkloadIdentityFederationPrerequisites
+                    hideResourceRequirements={isOSDFromGoogleCloud}
+                  />
                 ) : (
                   <ServiceAccountPrerequisites />
                 )}
