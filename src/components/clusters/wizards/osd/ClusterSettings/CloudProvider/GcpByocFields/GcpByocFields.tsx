@@ -9,8 +9,6 @@ import {
   FormAlert,
   FormGroup,
   Popover,
-  Stack,
-  StackItem,
   Title,
   ToggleGroup,
   ToggleGroupItem,
@@ -185,36 +183,28 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
           )}
         </FlexItem>
         <FlexItem>
-          <Stack hasGutter>
-            {authType === GCPAuthType.ServiceAccounts && (
-              <StackItem>
-                <ServiceAccountNotRecommendedAlert />
-              </StackItem>
+          {authType === GCPAuthType.ServiceAccounts && <ServiceAccountNotRecommendedAlert />}
+          <Prerequisites acknowledgementRequired initiallyExpanded>
+            {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
+              <PrepareGCPHint
+                title={gcpTitle}
+                text={gcpText}
+                linkHref={links.GCP_CONSOLE_OSD_HOME}
+                linkText={
+                  isOsdGcpFeatureFlagEnabled
+                    ? 'Google Cloud OSD Get Started page'
+                    : 'Google Cloud Terms and Agreements'
+                }
+              />
             )}
-            <StackItem>
-              <Prerequisites acknowledgementRequired initiallyExpanded>
-                {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
-                  <PrepareGCPHint
-                    title={gcpTitle}
-                    text={gcpText}
-                    linkHref={links.GCP_CONSOLE_OSD_HOME}
-                    linkText={
-                      isOsdGcpFeatureFlagEnabled
-                        ? 'Google Cloud OSD Get Started page'
-                        : 'Google Cloud Terms and Agreements'
-                    }
-                  />
-                )}
-                {authType === GCPAuthType.WorkloadIdentityFederation ? (
-                  <WorkloadIdentityFederationPrerequisites
-                    hideResourceRequirements={isOSDFromGoogleCloud}
-                  />
-                ) : (
-                  <ServiceAccountPrerequisites />
-                )}
-              </Prerequisites>
-            </StackItem>
-          </Stack>
+            {authType === GCPAuthType.WorkloadIdentityFederation ? (
+              <WorkloadIdentityFederationPrerequisites
+                hideResourceRequirements={isOSDFromGoogleCloud}
+              />
+            ) : (
+              <ServiceAccountPrerequisites />
+            )}
+          </Prerequisites>
         </FlexItem>
         <FlexItem>
           {authType === GCPAuthType.WorkloadIdentityFederation ? (
