@@ -1,15 +1,15 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { Alert, Form, Title } from '@patternfly/react-core';
+import { Alert, Title } from '@patternfly/react-core';
 
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import { clearCcsCredientialsInquiry } from '~/redux/actions/ccsInquiriesActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { clusterService } from '~/services';
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { GcpByocFields } from './GcpByocFields/GcpByocFields';
 import { AwsByocFields } from './AwsByocFields';
@@ -26,11 +26,11 @@ export const CloudProvider = () => {
       [FieldId.SecretAccessKey]: secretAccessKey,
       [FieldId.GcpServiceAccount]: gcpServiceAccount,
       [FieldId.GcpAuthType]: gcpAuthType,
+      [FieldId.BillingModel]: billingModel,
     },
   } = useFormState();
   const { ccsCredentialsValidity } = useGlobalState((state) => state.ccsInquiries);
   const isByoc = byoc === 'true';
-  const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
   React.useEffect(() => {
     dispatch(clearCcsCredientialsInquiry());
   }, [
@@ -44,8 +44,10 @@ export const CloudProvider = () => {
   ]);
 
   return (
-    <Form>
-      {!isOSDFromGoogleCloud && <Title headingLevel="h3">Select a cloud provider</Title>}
+    <>
+      {billingModel !== SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
+        <Title headingLevel="h3">Select a cloud provider</Title>
+      )}
       <CloudProviderTileField />
       {isByoc && (
         <>
@@ -69,6 +71,6 @@ export const CloudProvider = () => {
           )}
         </>
       )}
-    </Form>
+    </>
   );
 };
