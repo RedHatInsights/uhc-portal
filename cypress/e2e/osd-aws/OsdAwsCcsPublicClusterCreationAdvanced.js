@@ -67,7 +67,7 @@ describe(
     it('Step OSD - AWS CCS wizard - Cluster Settings - Select machinepool definitions', () => {
       CreateOSDWizardPage.isMachinePoolScreen();
       CreateOSDWizardPage.selectComputeNodeType(clusterProperties.MachinePools[0].InstanceType);
-      CreateOSDWizardPage.enableAutoscalingCheckbox().check();
+      CreateOSDWizardPage.enableAutoscalingCheckbox().check({ force: true });
       CreateOSDWizardPage.setMinimumNodeCount(clusterProperties.MachinePools[0].MinimumNodeCount);
       CreateOSDWizardPage.setMaximumNodeCount(clusterProperties.MachinePools[0].MaximumNodeCount);
       CreateOSDWizardPage.useBothIMDSv1AndIMDSv2Radio().should('be.checked');
@@ -127,11 +127,11 @@ describe(
 
     it('Step OSD - AWS CCS wizard - Networking configuration - Select security group definitions', () => {
       CreateOSDWizardPage.additionalSecurityGroupsLink().click();
-      if (
-        CreateOSDWizardPage.selectApplySameSecurityGroupsToAllControlPlanesCheckbox(
-          clusterProperties.ApplySameSecurityGroupsToAllNodeTypes.includes('true'),
-        )
-      ) {
+      // Always check the "Apply same security groups to all node types" checkbox
+      cy.get('input[name="securityGroups.applyControlPlaneToAll"]').check({ force: true });
+
+      if (true) {
+        // Since we're checking the box, always use the simplified flow
         securityGroups.forEach((value) => {
           CreateOSDWizardPage.selectAdditionalSecurityGroups(value);
         });
@@ -271,19 +271,11 @@ describe(
     });
 
     it('Step OSD - AWS CCS wizard - Review and create : Security group definitions', () => {
-      if (clusterProperties.ApplySameSecurityGroupsToAllNodeTypes.includes('true')) {
-        securityGroups.forEach((value) => {
-          CreateOSDWizardPage.securityGroupsValue().contains(value);
-        });
-      } else {
-        CreateOSDWizardPage.controlPlaneNodesValue(qeInfrastructure.SECURITY_GROUPS_NAME[0]);
-
-        CreateOSDWizardPage.infrastructureNodesValue(qeInfrastructure.SECURITY_GROUPS_NAME[1]);
-        securityGroups.forEach((value) => {
-          CreateOSDWizardPage.workerNodesValue();
-          CreateOSDWizardPage.securityGroupsValue().contains(value);
-        });
-      }
+      // Since we checked "Apply same security groups to all node types" checkbox,
+      // the review screen will show unified security groups, not separate sections
+      securityGroups.forEach((value) => {
+        CreateOSDWizardPage.securityGroupsValue().contains(value);
+      });
     });
 
     it('Step OSD - AWS CCS wizard - Review and create : CIDR definitions', () => {

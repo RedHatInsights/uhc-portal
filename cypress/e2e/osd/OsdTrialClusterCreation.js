@@ -43,8 +43,7 @@ describe(`OSDTrial cluster creation tests(OCP-39415)`, { tags: ['smoke'] }, () =
     });
     it(`OSD - ${clusterProperties.CloudProvider} wizard - Cluster Settings - Cluster details definitions`, () => {
       CreateOSDWizardPage.isClusterDetailsScreen();
-      cy.get(CreateOSDWizardPage.clusterNameInput).type(clusterProperties.ClusterName);
-      CreateOSDWizardPage.hideClusterNameValidation();
+      cy.get(CreateOSDWizardPage.clusterNameInput).type(clusterProperties.ClusterName).blur();
       CreateOSDWizardPage.selectRegion(clusterProperties.Region);
       CreateOSDWizardPage.singleZoneAvilabilityRadio().check();
       CreateOSDWizardPage.multiZoneAvilabilityRadio().check();

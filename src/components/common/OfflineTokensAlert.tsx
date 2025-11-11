@@ -3,6 +3,7 @@ import React from 'react';
 import { Alert } from '@patternfly/react-core';
 
 import { Link } from '~/common/routing';
+import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
 type OfflineTokensAlertProps = {
@@ -23,9 +24,9 @@ const OfflineTokensAlert = ({ isRosa, setShouldShowTokens }: OfflineTokensAlertP
     </Link>
     {'. '}
     <br />
-    <ExternalLink href="https://access.redhat.com/articles/7074172" noIcon>
-      Learn more about how to log in using your Red Hat SSO credentials and why we’re deprecating
-      tokens.
+    <ExternalLink href={supportLinks.OFFLINE_TOKENS_KB} noIcon>
+      Learn more about how to log in using your Red Hat SSO credentials and why we&apos;re
+      deprecating tokens.
     </ExternalLink>
   </Alert>
 );

@@ -8,7 +8,10 @@ import { humanizeValueWithUnitGiB } from '~/common/units';
 import { routeSelectorsAsString } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/NetworkingSelector';
 import parseUpdateSchedule from '~/components/clusters/common/Upgrades/parseUpdateSchedule';
 import { IMDSType } from '~/components/clusters/wizards/common';
-import { getVersionNameWithChannel } from '~/components/clusters/wizards/common/ClusterSettings/Details/versionSelectHelper';
+import {
+  createChannelGroupLabel,
+  getVersionNameWithChannel,
+} from '~/components/clusters/wizards/common/ClusterSettings/Details/versionSelectHelper';
 import { ClusterPrivacyType } from '~/components/clusters/wizards/osd//Networking/constants';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
@@ -97,6 +100,10 @@ const reviewValues = {
   },
   custom_operator_roles_prefix: {
     title: 'Operator roles prefix',
+  },
+  channel_group: {
+    title: 'Channel group',
+    valueTransform: (value) => createChannelGroupLabel(value),
   },
   cluster_version: {
     title: 'Version',
@@ -220,8 +227,11 @@ const reviewValues = {
   nodes_compute: {
     title: 'Compute node count',
     valueTransform: (value, allValues) => {
-      if (allValues.multi_az === 'true' && allValues.hypershift !== 'true') {
-        return `${value / 3} (× 3 zones = ${value} compute nodes)`;
+      if (allValues.hypershift === 'true') {
+        return String(Number(value) * allValues.machinePoolsSubnets.length);
+      }
+      if (allValues.multi_az === 'true') {
+        return `${value} (× 3 zones = ${Number(value) * 3} compute nodes)`;
       }
       return value;
     },
@@ -353,6 +363,7 @@ const reviewValues = {
       <SecurityGroupsTable
         vpcGroups={allValues.selected_vpc?.aws_security_groups || []}
         formGroups={formGroups}
+        isHypershiftSelected={allValues.hypershift === 'true'}
       />
     ),
   },

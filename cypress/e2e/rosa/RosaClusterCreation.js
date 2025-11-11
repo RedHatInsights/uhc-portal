@@ -93,11 +93,11 @@ describe(
       CreateRosaWizardPage.createModeManualRadio().should('not.be.checked');
       CreateRosaWizardPage.selectRoleProviderMode('Manual');
       CreateRosaWizardPage.selectRoleProviderMode('Auto');
-      CreateRosaWizardPage.customOperatorPrefixInput().should('be.visible');
+      CreateRosaWizardPage.customOperatorPrefixInput().scrollIntoView().should('be.visible');
       CreateRosaWizardPage.customOperatorPrefixInput()
         .invoke('val')
         .should('include', clusterName.slice(0, 27));
-      CreateRosaWizardPage.rosaNextButton().click();
+      CreateRosaWizardPage.rosaNextButton().scrollIntoView().click();
     });
 
     it('Step - Cluster update - update statergies and its definitions', () => {
@@ -215,6 +215,7 @@ describe(
     });
 
     it('Create cluster and check the installation progress', () => {
+      cy.waitForLoadingToFinish();
       CreateRosaWizardPage.createClusterButton().click();
       ClusterDetailsPage.waitForInstallerScreenToLoad();
       ClusterDetailsPage.clusterNameTitle().contains(clusterName);

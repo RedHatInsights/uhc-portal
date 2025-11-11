@@ -11,6 +11,7 @@ import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react
 
 import { HAD_INFLIGHT_ERROR_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
 import { emailRegex } from '~/common/regularExpressions';
+import supportLinks from '~/common/supportLinks.mjs';
 import clusterStates, {
   hasInflightEgressErrors,
   isOSDGCPWaitingForRolesOnHostProject,
@@ -33,7 +34,7 @@ import { InflightCheckState } from '~/types/clusters_mgmt.v1/enums';
 
 // TODO: Part of the installation story
 const ClusterStatusMonitor = (props) => {
-  const { cluster, refresh, region } = props;
+  const { cluster, refresh, region, setHasStatusMonitorAlert } = props;
 
   const [refetchInterval, setRefetchInterval] = React.useState(false);
 
@@ -279,7 +280,7 @@ const ClusterStatusMonitor = (props) => {
                     </FlexItem>
                   )}
                   <FlexItem>
-                    <ExternalLink noIcon href="https://access.redhat.com/support/cases/#/case/new">
+                    <ExternalLink noIcon href={supportLinks.SUPPORT_CASE_NEW}>
                       Contact support
                     </ExternalLink>
                   </FlexItem>
@@ -420,6 +421,11 @@ const ClusterStatusMonitor = (props) => {
           </Alert>,
         );
       }
+
+      const filteredAlerts = alerts.filter((value) => value !== null);
+      if (filteredAlerts.length > 0 && setHasStatusMonitorAlert) {
+        setHasStatusMonitorAlert(true);
+      }
       return <>{alerts.filter((n) => n)}</>;
     }
   }
@@ -444,6 +450,7 @@ ClusterStatusMonitor.propTypes = {
     }),
   }),
   refresh: PropTypes.func,
+  setHasStatusMonitorAlert: PropTypes.func,
 };
 
 export default ClusterStatusMonitor;

@@ -206,7 +206,7 @@ export const ClusterAutoscalerModal = ({
 
   return (
     <Modal
-      variant="large"
+      modalSize="large"
       isOpen={isOpen}
       title="Edit cluster autoscaling settings"
       data-testid="cluster-autoscaling-dialog"
@@ -217,7 +217,6 @@ export const ClusterAutoscalerModal = ({
       tertiaryText="Cancel"
       onSecondaryClick={handleReset}
       isPrimaryDisabled={hasAutoScalingErrors || primaryButtonProps.isDisabled}
-      showClose
       showTertiary={!isWizard}
       onClose={closeScalerModal}
     >

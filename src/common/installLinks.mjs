@@ -1,5 +1,7 @@
 // This module has .mjs extension to simplify importing from NodeJS scripts.
 
+import { combineAndSortLinks } from './linkUtils.mjs';
+
 const MIRROR_BUTANE_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest';
 const MIRROR_CLIENTS_STABLE_X86 =
   'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/';
@@ -66,7 +68,7 @@ const SHP_CLI_LATEST =
   'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-builds/latest/';
 
 const OCP_DOCS_BASE =
-  'https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html';
+  'https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html';
 const OSD_DOCS_BASE = 'https://docs.redhat.com/en/documentation/openshift_dedicated/4/html';
 const ROSA_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html';
@@ -201,20 +203,19 @@ const links = {
   INSTALL_BAREMETAL_IPI_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_bare_metal/installer-provisioned-infrastructure#ipi-install-overview`,
   INSTALL_BAREMETAL_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_bare_metal/user-provisioned-infrastructure#creating-machines-bare-metal`,
   INSTALL_BAREMETAL_CUSTOMIZATIONS: `${OCP_DOCS_BASE}/installing_on_bare_metal/user-provisioned-infrastructure#installing-bare-metal-network-customizations`,
-  RHCOS_BAREMETAL_ISO_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live.x86_64.iso`,
+  RHCOS_BAREMETAL_ISO_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-iso.x86_64.iso`,
   RHCOS_BAREMETAL_RAW_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-metal.x86_64.raw.gz`,
   INSTALL_BAREMETAL_MULTI_ARCH: `${OCP_DOCS_BASE}/postinstallation_configuration/configuring-multi-architecture-compute-machines-on-an-openshift-cluster#creating-multi-arch-compute-nodes-bare-metal`,
 
-  OPENSHIFT_LOCAL_SUPPORT_AND_COMMUNITY_DOCS:
-    'https://source.redhat.com/groups/public/cooperative_community_support/cooperative_community_support_wiki/codeready_containers_case_response_template',
+  OPENSHIFT_LOCAL_SUPPORT_AND_COMMUNITY_DOCS: 'https://crc.dev/docs/using/',
 
-  INSTALL_GCPIPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-account`,
-  INSTALL_GCPIPI_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-default`,
-  INSTALL_GCPUPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-user-infra`,
-  INSTALL_GCPUPI_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-user-infra#installation-gcp-project_installing-gcp-user-infra`,
-  INSTALL_GCP_CUSTOMIZATIONS: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-customizations`,
-  INSTALL_GCP_VPC: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-vpc`,
-  INSTALL_GCP_SHARED_VPC: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-shared-vpc`,
+  INSTALL_GCPIPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-account`,
+  INSTALL_GCPIPI_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-default`,
+  INSTALL_GCPUPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-user-infra`,
+  INSTALL_GCPUPI_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-user-infra#installation-gcp-project_installing-gcp-user-infra`,
+  INSTALL_GCP_CUSTOMIZATIONS: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-customizations`,
+  INSTALL_GCP_VPC: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-vpc`,
+  INSTALL_GCP_SHARED_VPC: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-shared-vpc`,
   RHCOS_GCPUPI_TAR_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-gcp.x86_64.tar.gz`,
 
   INSTALL_NUTANIXIPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_nutanix/preparing-to-install-on-nutanix`,
@@ -240,17 +241,17 @@ const links = {
   INSTALL_IBMZ_AGENTS_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_an_on-premise_cluster_with_the_agent-based_installer/prepare-pxe-assets-agent#installing-ocp-agent-ibm-z_prepare-pxe-assets-agent`,
   INSTALL_IBMPOWERVS_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_ibm_power_virtual_server/preparing-to-install-on-ibm-power-vs`,
   INSTALL_IBMPOWERVS_PREREQUISITES: `${OCP_DOCS_BASE}/installing_on_ibm_power_virtual_server/preparing-to-install-on-ibm-power-vs`,
-  RHCOS_IBMZ_ISO: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live.s390x.iso`,
+  RHCOS_IBMZ_ISO: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-iso.s390x.iso`,
   RHCOS_IBMZ_INITRAMFS: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-initramfs.s390x.img`,
-  RHCOS_IBMZ_KERNEL: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-kernel-s390x`,
+  RHCOS_IBMZ_KERNEL: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-kernel.s390x`,
   RHCOS_IBMZ_ROOTFS: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-rootfs.s390x.img`,
   RHCOS_IBMZ_QCOW: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-qemu.s390x.qcow2.gz`,
 
   INSTALL_GENERIC_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_any_platform/installing-platform-agnostic`,
   INSTALL_GENERIC_NON_TESTED_PLATFORMS: 'https://access.redhat.com/articles/4207611',
   INSTALL_GENERIC_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_any_platform/installing-platform-agnostic`,
-  RHCOS_GENERIC_ISO_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live.x86_64.iso`,
-  RHCOS_GENERIC_KERNEL_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-kernel-x86_64`,
+  RHCOS_GENERIC_ISO_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-iso.x86_64.iso`,
+  RHCOS_GENERIC_KERNEL_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-kernel.x86_64`,
   RHCOS_GENERIC_INITRAMFS_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-initramfs.x86_64.img`,
   RHCOS_GENERIC_ROOTFS_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-rootfs.x86_64.img`,
 
@@ -263,14 +264,14 @@ const links = {
   INSTALL_POWER_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_ibm_power/installing-ibm-power`,
   INSTALL_POWER_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_ibm_power/installing-ibm-power`,
   INSTALL_POWER_UPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_ibm_power/installing-ibm-power`,
-  RHCOS_POWER_ISO: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live.ppc64le.iso`,
+  RHCOS_POWER_ISO: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live-iso.ppc64le.iso`,
   RHCOS_POWER_INITRAMFS: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live-initramfs.ppc64le.img`,
-  RHCOS_POWER_KERNEL: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live-kernel-ppc64le`,
+  RHCOS_POWER_KERNEL: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live-kernel.ppc64le`,
   RHCOS_POWER_ROOTFS: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-live-rootfs.ppc64le.img`,
 
-  RHCOS_ARM_ISO: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live.aarch64.iso`,
+  RHCOS_ARM_ISO: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-iso.aarch64.iso`,
   RHCOS_ARM_INITRAMFS: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-initramfs.aarch64.img`,
-  RHCOS_ARM_KERNEL: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-kernel-aarch64`,
+  RHCOS_ARM_KERNEL: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-kernel.aarch64`,
   RHCOS_ARM_ROOTFS: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-rootfs.aarch64.img`,
   RHCOS_ARM_RAW: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-metal.aarch64.raw.gz`,
 
@@ -292,7 +293,7 @@ const links = {
 
   OPM_DOCS: `${OCP_DOCS_BASE}/cli_tools/opm-cli#olm-about-opm_cli-opm-install`,
 
-  OSDK_REMOVAL_DOCS: `${OCP_DOCS_BASE}/release_notes/ocp-4-19-release-notes#ocp-4-19-removed-osdk_release-notes`,
+  OSDK_REMOVAL_DOCS_4_19: `https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/release_notes/ocp-4-19-release-notes#ocp-4-19-removed-osdk_release-notes`,
 
   BUTANE_DOCS: `${OCP_DOCS_BASE}/installation_configuration/installing-customizing`,
 
@@ -357,6 +358,8 @@ const links = {
   AWS_LOAD_BALANCER_FEATURES:
     'https://aws.amazon.com/elasticloadbalancing/features/#Product_comparisons',
   AWS_SHARED_VPC: 'https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html',
+  AWS_CAPACITY_RESERVATION:
+    'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/capacity-reservation-overview.html',
 
   GCP_CONSOLE_OSD_HOME:
     'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
@@ -392,6 +395,9 @@ const links = {
     'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html-single/managing_clusters/index#transferring-cluster-ownership_downloading-and-updating-pull-secrets',
 
   ROSA_ARCHITECTURE_RENAMING_KNOWLEDGE_BASE_ARTICLE: 'https://access.redhat.com/articles/7123990',
+
+  WINDOWS_LICENSE_INCLUDED_AWS_DOCS: 'https://aws.amazon.com/windows/resources/licensing/',
+  WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: 'https://access.redhat.com/articles/7096903',
 };
 
 // Tool identifiers are public — e.g. for linking to specific tool in DownloadsPage.
@@ -599,6 +605,10 @@ const urls = {
         [operatingSystems.windows]: `${MIRROR_CRC_LATEST}/crc-windows-installer.zip`,
         [operatingSystems.mac]: `${MIRROR_CRC_LATEST}/crc-macos-installer.pkg`,
         [operatingSystems.linux]: `${MIRROR_CRC_LATEST}/crc-linux-amd64.tar.xz`,
+      },
+      [architectures.arm]: {
+        [operatingSystems.mac]: `${MIRROR_CRC_LATEST}/crc-macos-installer.pkg`,
+        [operatingSystems.linux]: `${MIRROR_CRC_LATEST}/crc-linux-arm64.tar.xz`,
       },
     },
   },
@@ -1005,14 +1015,19 @@ const urlsSelector = (githubReleases) => {
   return result;
 };
 
-/** Useful for scripted checking of "all" external links. */
-const getFlatUrls = async () => {
-  const urlSet = new Set([
-    ...Object.values(links),
-    ...Object.values(urls).flatMap(Object.values).flatMap(Object.values).flatMap(Object.values),
-    // TODO: include latest github releases?
-  ]);
-  return [...urlSet].sort();
+/** Returns all installation and binary external links. */
+const getLinks = async () => {
+  const linkUrls = Object.values(links);
+  // nestedUrls: 4-level structure (Tool → Channel → Architecture → OS → URL) for download binaries
+  const nestedUrls = Object.values(urls)
+    .map((level1) =>
+      Object.values(level1).map((level2) =>
+        Object.values(level2).map((level3) => Object.values(level3)),
+      ),
+    )
+    .flat(3);
+
+  return combineAndSortLinks(linkUrls, nestedUrls);
 };
 
 export {
@@ -1025,6 +1040,6 @@ export {
   urls,
   githubReleasesToFetch,
   urlsSelector,
-  getFlatUrls,
+  getLinks,
 };
 export default links;

@@ -11,11 +11,11 @@ import {
 } from '@patternfly/react-core';
 
 import { useNavigate } from '~/common/routing';
+import Modal from '~/components/common/Modal/Modal';
 import type { PromiseReducerState } from '~/redux/stateTypes';
 import type { TermsReviewResponse } from '~/types/accounts_mgmt.v1';
 
 import getTermsAppLink from '../../../common/getTermsAppLink';
-import Modal from '../Modal/Modal';
 import Unavailable from '../Unavailable';
 
 import { ViewTermsButton } from './ViewTermsButton';
@@ -102,12 +102,6 @@ const TermsGuard = ({ selfTermsReview, selfTermsReviewResult, children, gobackPa
     </Content>
   );
   const tncAppURL = getTncAppURL(selfTermsReviewResult.redirect_url);
-  const actions = [
-    <ViewTermsButton href={tncAppURL} key="view-terms-and-conditions" />,
-    <Button variant="secondary" key="cancel-terms-and-conditions" onClick={handleCancel}>
-      Cancel
-    </Button>,
-  ];
 
   return (
     <>
@@ -115,7 +109,15 @@ const TermsGuard = ({ selfTermsReview, selfTermsReviewResult, children, gobackPa
         title={dialogTitle}
         className="terms-and-conditions-guard-modal"
         onClose={handleCancel}
-        actions={actions}
+        hideDefaultFooter
+        footer={
+          <>
+            <ViewTermsButton href={tncAppURL} key="view-terms-and-conditions" />
+            <Button variant="secondary" key="cancel-terms-and-conditions" onClick={handleCancel}>
+              Cancel
+            </Button>
+          </>
+        }
       >
         {dialogText}
       </Modal>

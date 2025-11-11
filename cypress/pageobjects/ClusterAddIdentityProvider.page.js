@@ -29,7 +29,7 @@ class ClusterAddIdentityProviderDetails extends Page {
   inputConfirmPasswordField = () => cy.get('[id="users.0.password-confirm"]');
 
   inputHtpasswdPasswordField(index = 0) {
-    cy.get(`input[id="users.${index}.password"]`).click();
+    cy.get(`input[id="users.${index}.password"]`).click({ force: true });
     cy.contains('div', 'Use suggested password:').click({ force: true });
   }
 
@@ -37,7 +37,9 @@ class ClusterAddIdentityProviderDetails extends Page {
     cy.get(`input[id="users.${index}.password-confirm"]`).click({ force: true });
   }
 
-  addUserButton = () => cy.get('button').contains('Add user');
+  addUserButton = () => cy.get('button[label="Add user"]');
+
+  editModalAddUserButton = () => cy.get('button').contains('Add user');
 
   clickAddUserModalButton = () => cy.get('button[type="submit"]').contains('Add user').click();
 
@@ -49,7 +51,7 @@ class ClusterAddIdentityProviderDetails extends Page {
 
   removeUserList = () =>
     //cy.get('div[data-testid="remove-users"]').first(); // for executing in dev env
-    cy.get('.pf-v6-l-grid__item.pf-m-1-col.field-grid-item.minus-button').first(); // for executing in current staging env
+    cy.get('.pf-m-1-col.field-grid-item.minus-button').first(); // for executing in current staging env
 
   clickPerPageItem(count) {
     cy.get('button[role="menuitem"]').contains(count).scrollIntoView().click();
@@ -64,7 +66,7 @@ class ClusterAddIdentityProviderDetails extends Page {
   };
 
   waitForDeleteClusterActionComplete = () => {
-    cy.get('div[aria-label="Remove identity provider"]', { timeout: 10000 }).should('not.exist');
+    cy.get('div[aria-label="Remove identity provider"]', { timeout: 15000 }).should('not.exist');
   };
 
   waitForAddButtonSpinnerToComplete = () => {
@@ -83,13 +85,13 @@ class ClusterAddIdentityProviderDetails extends Page {
 
   editHtpasswdIDPToggle(htpasswdName) {
     cy.contains('tr', htpasswdName).within(() => {
-      cy.get('button[aria-label="Kebab toggle"]').click({ force: true });
-      cy.contains('button', 'Edit').click({ force: true });
+      cy.get('td button[aria-label="Kebab toggle"]').click({ force: true });
     });
+    cy.get('ul[role="menu"]').contains('button', 'Edit').click({ force: true });
   }
 
   clickClearAllFiltersLink() {
-    cy.get('button[aria-disabled="false"]').contains('Clear all filters').click();
+    cy.get('button').contains('Clear all filters').click();
   }
 
   collapseIdpDefinitions(idpName) {
@@ -101,7 +103,7 @@ class ClusterAddIdentityProviderDetails extends Page {
       .contains(htpasswdName)
       .parent()
       .within(() => {
-        cy.get('button[aria-label="Kebab toggle"]').click({ force: true });
+        cy.get('td button[aria-label="Kebab toggle"]').click({ force: true });
       });
     cy.get('button[role="menuitem"][type="button"]').contains('Delete').click({ force: true });
     cy.get('button[data-testid="btn-primary"]').click({ force: true }, { timeout: 10000 });

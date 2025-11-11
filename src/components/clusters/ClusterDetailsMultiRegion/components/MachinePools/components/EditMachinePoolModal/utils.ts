@@ -79,7 +79,7 @@ export const buildMachinePoolRequest = (
   if (!isEdit) {
     const awsConfig: AwsMachinePool = {};
 
-    machinePool.instance_type = values.instanceType;
+    machinePool.instance_type = values.instanceType?.id;
 
     if (values.useSpotInstances) {
       awsConfig.spot_market_options =
@@ -124,19 +124,26 @@ export const buildNodePoolRequest = (
     isEdit: boolean;
     isMultiZoneMachinePool: boolean;
   },
-): NodePool => {
-  const nodePool: NodePool = {
+  // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+): NodePool & { imageType?: string } => {
+  // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+  const nodePool: NodePool & { imageType?: string } = {
     id: values.name,
     labels: getLabels(values.labels),
     taints: getTaints(values.taints),
     ...getAutoscalingParams(values, isMultiZoneMachinePool, true),
     auto_repair: values.auto_repair,
+    management_upgrade: {
+      max_surge: values.maxSurge?.toString(),
+      max_unavailable: values.maxUnavailable?.toString(),
+    },
+    node_drain_grace_period: { value: values.nodeDrainTimeout },
   };
 
   if (!isEdit) {
     nodePool.subnet = values.privateSubnetId;
     nodePool.aws_node_pool = {
-      instance_type: values.instanceType,
+      instance_type: values.instanceType?.id,
       ec2_metadata_http_tokens: values.imds,
       additional_security_group_ids: values.securityGroupIds,
       root_volume: {
@@ -156,6 +163,10 @@ export const buildNodePoolRequest = (
         };
       }
     }
+  }
+
+  if (values.isWindowsLicenseIncluded) {
+    nodePool.imageType = 'Windows';
   }
 
   return nodePool;

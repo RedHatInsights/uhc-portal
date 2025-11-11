@@ -252,8 +252,7 @@ const AddOnsParametersModal = ({
       {(formik) => (
         <Modal
           title={`Configure ${addOn.name}`}
-          width={810}
-          variant="large"
+          modalSize="medium"
           onClose={() => handleClose(formik)}
           primaryText={isUpdateForm ? 'Update' : 'Install'}
           secondaryText="Cancel"
@@ -308,8 +307,8 @@ AddOnsParametersModal.propTypes = {
   addClusterAddOn: PropTypes.func.isRequired,
   isAddClusterAddOnError: PropTypes.bool.isRequired,
   isAddClusterAddOnPending: PropTypes.bool.isRequired,
-  updateClusterAddOnError: PropTypes.object.isRequired,
-  addClusterAddOnError: PropTypes.object.isRequired,
+  updateClusterAddOnError: PropTypes.object,
+  addClusterAddOnError: PropTypes.object,
 
   addOn: PropTypes.object,
   addOnInstallation: PropTypes.object,

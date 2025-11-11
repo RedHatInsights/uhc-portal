@@ -8,9 +8,10 @@ import {
   EmptyStateBody,
   EmptyStateFooter,
   Spinner,
+  Timestamp,
+  TimestampFormat,
 } from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import ErrorBox from '../../../../common/ErrorBox';
 
@@ -43,7 +44,7 @@ const FinishedStep = ({
   if (isPostSchedulePending) {
     return (
       <div className="wizard-step-body pf-v6-u-text-align-center">
-        <Spinner size="lg" aria-label="Loading..." />
+        <EmptyState titleText="Loading" headingLevel="h4" icon={Spinner} />
       </div>
     );
   }
@@ -62,7 +63,15 @@ const FinishedStep = ({
             'the next hour'
           ) : (
             <>
-              one hour of <DateFormat type="exact" date={new Date(upgradeTimestamp!)} />
+              one hour of
+              <Timestamp
+                style={{ fontSize: '1rem' }}
+                date={new Date(upgradeTimestamp!)}
+                shouldDisplayUTC
+                locale="eng-GB"
+                dateFormat={TimestampFormat.medium}
+                timeFormat={TimestampFormat.short}
+              />
             </>
           )}
           .

@@ -15,7 +15,7 @@ import {
 const isAvailable = (addOn, cluster, organization, quotaList) => {
   // We get quota together with organization.
   // TODO: have action/reducer set quota.fulfilled, drop organization arg.
-  if (!addOn.enabled || !organization.fulfilled) {
+  if (!addOn?.enabled || !organization.fulfilled) {
     return false;
   }
 
@@ -156,7 +156,7 @@ const hasQuota = (addOn, cluster, organization, quotaList) => {
 const getAddOnBillingQuota = (addOn, quotaList) =>
   addOnBillingQuota(quotaList, {
     resourceType: QuotaTypes.ADD_ON,
-    resourceName: addOn.resource_name,
+    resourceName: addOn?.resource_name,
   });
 
 const quotaCostOptions = (resourceName, cluster, quotaList, allOptions, currentValue = 0) => {

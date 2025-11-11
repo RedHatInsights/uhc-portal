@@ -40,6 +40,10 @@ export const TABBED_MACHINE_POOL_MODAL = 'ocmui-tabbed-machine-pool-modal';
 export const ROSA_ARCHITECTURE_RENAMING_ALERT = 'ocmui-rosa-architecture-renaming-alert';
 export const GCP_WIF_DEFAULT = 'ocmui-gcp-wif-default';
 export const MP_ADDITIONAL_MAINTENANCE_VALUES = 'ocmui-mp-additional-maintenance-values';
+export const WINDOWS_LICENSE_INCLUDED = 'ocmui-windows-license-included';
+export const ALLOW_EUS_CHANNEL = 'ocmui-allow-eus-channel';
+export const PLATFORM_LIGHTSPEED_REBRAND = 'platform.lightspeed-rebrand';
+export const CAPACITY_RESERVATION_ID_FIELD = 'ocmui-capacity-reservation-id-field';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -68,4 +72,8 @@ export default {
   ROSA_ARCHITECTURE_RENAMING_ALERT,
   GCP_WIF_DEFAULT,
   MP_ADDITIONAL_MAINTENANCE_VALUES,
+  WINDOWS_LICENSE_INCLUDED,
+  ALLOW_EUS_CHANNEL,
+  PLATFORM_LIGHTSPEED_REBRAND,
+  CAPACITY_RESERVATION_ID_FIELD,
 } as const;

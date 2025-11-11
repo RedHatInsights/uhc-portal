@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { Field } from 'formik';
 import { useDispatch } from 'react-redux';
+import semver from 'semver';
 
 import {
   Alert,
@@ -61,6 +62,10 @@ import { FieldId, MIN_SECURE_BOOT_VERSION } from '~/components/clusters/wizards/
 import { CheckboxDescription } from '~/components/common/CheckboxDescription';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
+import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { useFetchSearchClusterName } from '~/queries/RosaWizardQueries/useFetchSearchClusterName';
+import { useFetchSearchDomainPrefix } from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
 import { getCloudProviders } from '~/redux/actions/cloudProviderActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import {
@@ -69,6 +74,7 @@ import {
 } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
+import { ChannelGroupSelectField } from '../../../common/ClusterSettings/Details/ChannelGroupSelectField';
 import { ShieldedVM } from '../../../common/ShieldedVM';
 import { ClusterPrivacyType } from '../../Networking/constants';
 
@@ -77,6 +83,8 @@ function Details() {
   const {
     values: {
       [FieldId.Byoc]: byoc,
+      [FieldId.ClusterName]: clusterName,
+      [FieldId.DomainPrefix]: domainPrefix,
       [FieldId.MultiAz]: multiAz,
       [FieldId.Product]: product,
       [FieldId.BillingModel]: billingModel,
@@ -89,6 +97,7 @@ function Details() {
       [FieldId.SecureBoot]: secureBoot,
       [FieldId.MachinePoolsSubnets]: machinePoolsSubnets,
       [FieldId.HasDomainPrefix]: hasDomainPrefix,
+      [FieldId.ChannelGroup]: channelGroup,
     },
     errors,
     isValidating,
@@ -97,6 +106,12 @@ function Details() {
   } = useFormState();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [showSecureBootAlert, setShowSecureBootAlert] = React.useState(false);
+
+  const { clusterVersions: getInstallableVersionsResponse } = useGlobalState(
+    (state) => state.clusters,
+  );
+
+  const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
 
   const isByoc = byoc === 'true';
   const isMultiAz = multiAz === 'true';
@@ -122,6 +137,15 @@ function Details() {
     isGCP && versionComparator(selectedVersion?.raw_id, MIN_SECURE_BOOT_VERSION) === -1;
 
   const clusterNameMaxLength = 54; // After removing feature flag, the max length is always 54
+  const { data: hasExistingRegionalClusterName } = useFetchSearchClusterName(
+    clusterName,
+    undefined,
+  );
+
+  const { data: hasExistingRegionalDomainPrefix } = useFetchSearchDomainPrefix(
+    domainPrefix,
+    undefined,
+  );
 
   React.useEffect(() => {
     dispatch(getCloudProviders());
@@ -225,6 +249,45 @@ function Details() {
     }
   };
 
+  const availableVersions = getInstallableVersionsResponse.versions.filter(
+    (version: Version) => version.channel_group === channelGroup,
+  );
+
+  React.useEffect(() => {
+    if (isEUSChannelEnabled) {
+      const parseVersion = (version: string | undefined) => semver.valid(semver.coerce(version));
+
+      const foundVersion =
+        availableVersions.length > 0
+          ? availableVersions?.find(
+              (version: Version) =>
+                parseVersion(version?.raw_id) === parseVersion(selectedVersion?.raw_id),
+            )
+          : null;
+
+      if (foundVersion) {
+        setFieldValue(FieldId.ClusterVersion, foundVersion);
+      } else {
+        setFieldValue(FieldId.ClusterVersion, availableVersions[0]);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channelGroup, cloudProvider]);
+
+  React.useEffect(() => {
+    if (isEUSChannelEnabled) {
+      setFieldValue(FieldId.ClusterVersion, selectedVersion);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    if (isEUSChannelEnabled) {
+      setFieldValue(FieldId.ClusterVersion, availableVersions[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cloudProvider]);
+
   const availabilityZoneOptions: RadioGroupOption[] = [
     {
       value: 'false',
@@ -256,7 +319,10 @@ function Details() {
       return syncError;
     }
 
-    const clusterNameAsyncError = await asyncValidateClusterName(value);
+    const clusterNameAsyncError = await asyncValidateClusterName(
+      value,
+      hasExistingRegionalClusterName,
+    );
     if (clusterNameAsyncError) {
       return clusterNameAsyncError;
     }
@@ -270,7 +336,11 @@ function Details() {
       return syncError;
     }
 
-    const domainPrefixAsyncError = await asyncValidateDomainPrefix(value);
+    const domainPrefixAsyncError = await asyncValidateDomainPrefix(
+      value,
+      undefined,
+      hasExistingRegionalDomainPrefix,
+    );
     if (domainPrefixAsyncError) {
       return domainPrefixAsyncError;
     }
@@ -306,7 +376,9 @@ function Details() {
               type="text"
               validate={validateClusterName}
               validation={(value: string) => clusterNameValidation(value, clusterNameMaxLength)}
-              asyncValidation={clusterNameAsyncValidation}
+              asyncValidation={(value: string) =>
+                clusterNameAsyncValidation(value, hasExistingRegionalClusterName)
+              }
               isRequired
               extendedHelpText={constants.clusterNameHint}
               input={getFieldProps(FieldId.ClusterName)}
@@ -332,22 +404,39 @@ function Details() {
                 type="text"
                 validate={validateDomainPrefix}
                 validation={domainPrefixValidation}
-                asyncValidation={domainPrefixAsyncValidation}
+                asyncValidation={(value: string) =>
+                  domainPrefixAsyncValidation(value, undefined, hasExistingRegionalDomainPrefix)
+                }
                 isRequired
                 input={getFieldProps(FieldId.DomainPrefix)}
               />
             </GridItem>
           )}
 
+          {isEUSChannelEnabled ? (
+            <GridItem>
+              <FormGroup label="Channel group" isRequired fieldId={FieldId.ChannelGroup}>
+                <Field
+                  component={ChannelGroupSelectField}
+                  name={FieldId.ChannelGroup}
+                  getInstallableVersionsResponse={getInstallableVersionsResponse}
+                />
+              </FormGroup>
+            </GridItem>
+          ) : null}
+
           <GridItem>
             <VersionSelectField
               name={FieldId.ClusterVersion}
+              channelGroup={channelGroup}
               label={
                 billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
                   ? 'Version (Google Cloud Marketplace enabled)'
                   : 'Version'
               }
               onChange={handleVersionChange}
+              key={channelGroup}
+              isEUSChannelEnabled={isEUSChannelEnabled}
             />
           </GridItem>
 

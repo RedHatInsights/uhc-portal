@@ -263,8 +263,7 @@ describe(
     });
 
     it('Step - Review and create step -its definitions', () => {
-      // Some situation the ARN spinner in progress and blocks cluster creation.
-      cy.get('.pf-v6-c-spinner', { timeout: 30000 }).should('not.exist');
+      CreateRosaWizardPage.waitForARNList();
       CreateRosaWizardPage.isClusterPropertyMatchesValue(
         'Control plane',
         clusterProperties.ControlPlaneType,
@@ -357,11 +356,11 @@ describe(
         'Node draining',
         clusterProperties.NodeDrainingGracePeriod,
       );
-      CreateRosaWizardPage.reviewAndCreateTree().click();
     });
 
     it('Create Rosa advanced cluster and check the installation progress', () => {
-      CreateRosaWizardPage.createClusterButton().click();
+      cy.waitForLoadingToFinish();
+      CreateRosaWizardPage.createClusterButton().scrollIntoView().click();
       ClusterDetailsPage.waitForInstallerScreenToLoad();
       ClusterDetailsPage.clusterNameTitle().contains(clusterName);
       cy.get('h2').contains('Installing cluster').should('be.visible');

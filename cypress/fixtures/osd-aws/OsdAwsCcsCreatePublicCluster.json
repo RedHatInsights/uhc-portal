@@ -73,9 +73,9 @@
         "HtPasswd": {
           "Definitions": {
             "ValidHtPasswdName": [
-              "OsdRosaHtpasswdName1",
-              "OsdRosaHtpasswdName2",
-              "OsdRosaHtpasswdName3"
+              "OsdAwsHtpasswdName1",
+              "OsdAwsHtpasswdName2",
+              "OsdAwsHtpasswdName3"
             ],
             "ValidUserNames": [
               "ocmcypress1",
@@ -107,7 +107,7 @@
             },
             "Usernames": {
               "EmptyUserNameError": "Username is required",
-              "InvalidUserNameInput": ["Osd%Rosa:asd", "1234567890"],
+              "InvalidUserNameInput": ["Osd%aws:asd", "1234567890"],
               "InValidUserNameError": "Username must not contain /, :, %, or empty spaces.",
               "DefaultUsernameInformation": "Unique name of the user within the cluster.",
 
@@ -202,6 +202,11 @@
       "ServiceCIDR": "172.30.0.0/16",
       "PodCIDR": "10.128.0.0/14",
       "HostPrefix": "/23"
+    },
+    "day2-profile": {
+      "SetMaximumPrice": "0.05",
+      "Autoscaling": "Enabled",
+      "SecondaryAWSBillingAccountId": "463992265265"
     }
   }
 }

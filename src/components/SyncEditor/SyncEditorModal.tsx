@@ -126,6 +126,7 @@ const SyncEditorModal = ({
       onEscapePress={onEscapePress}
       aria-labelledby="sync-editor-modal"
       aria-describedby="modal-sync-yaml-editor"
+      className="openshift"
     >
       <ModalHeader title="Edit YAML" />
       <ModalBody>

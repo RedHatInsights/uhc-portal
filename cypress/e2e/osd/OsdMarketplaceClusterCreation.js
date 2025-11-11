@@ -51,8 +51,7 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
 
     it(`OSD wizard - ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled}-${clusterProperties.Marketplace} : Cluster Settings - Cluster details definitions`, () => {
       CreateOSDWizardPage.isClusterDetailsScreen();
-      cy.get(CreateOSDWizardPage.clusterNameInput).type(clusterProperties.ClusterName);
-      CreateOSDWizardPage.hideClusterNameValidation();
+      cy.get(CreateOSDWizardPage.clusterNameInput).type(clusterProperties.ClusterName).blur();
       CreateOSDWizardPage.selectRegion(clusterProperties.Region);
       if (clusterProperties.hasOwnProperty('Version')) {
         CreateOSDWizardPage.selectVersion(clusterProperties.Version);

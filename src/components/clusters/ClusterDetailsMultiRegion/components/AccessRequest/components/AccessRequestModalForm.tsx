@@ -119,7 +119,11 @@ const AccessRequestModalForm = () => {
     >
       {(formik) => (
         <Modal
-          title="Access Request Details"
+          title={
+            <>
+              Access Request Details <AccessRequestStateIcon accessRequest={accessRequest} />
+            </>
+          }
           onClose={handleClose}
           primaryText="Save"
           showPrimary={isEditMode}
@@ -135,7 +139,6 @@ const AccessRequestModalForm = () => {
           }
           id="access-request-modal"
           isPending={isLoading}
-          help={<AccessRequestStateIcon accessRequest={accessRequest} />}
           footer={
             !isPostAccessRequestDecisionError && !isCanMakeDecisionError ? null : (
               <>

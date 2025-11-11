@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Flex, FlexItem, Title } from '@patternfly/react-core';
+import { Gallery, GalleryItem, Title } from '@patternfly/react-core';
 
 import ExternalLink from '~/components/common/ExternalLink';
 
@@ -58,18 +58,27 @@ const RecommendedOperatorsCards = ({
     <Title size="xl" headingLevel="h2" className="pf-v6-u-mt-lg" id="recommended-operators">
       {TITLE}
     </Title>
-    <Flex className="pf-v6-u-mb-lg">
+    <Gallery
+      className="pf-v6-u-mb-lg"
+      hasGutter
+      minWidths={{
+        default: '22em',
+      }}
+      maxWidths={{
+        default: '22em',
+      }}
+    >
       {RECOMMENDED_OPERATORS_CARDS.map((card) => (
-        <FlexItem className="pf-v6-u-pt-md" data-testid="product-overview-card-flex-item">
+        <GalleryItem className="pf-v6-u-pt-md " data-testid="product-overview-card-flex-item">
           <ProductCard
             {...card}
             openLearnMore={openLearnMore}
             isSelected={card.title === selectedCardTitle}
             dataTestId={TITLE}
           />
-        </FlexItem>
+        </GalleryItem>
       ))}
-    </Flex>
+    </Gallery>
     <ExternalLink href="https://catalog.redhat.com/search?searchType=software&deployed_as=Operator">
       View all in Ecosystem Catalog
     </ExternalLink>

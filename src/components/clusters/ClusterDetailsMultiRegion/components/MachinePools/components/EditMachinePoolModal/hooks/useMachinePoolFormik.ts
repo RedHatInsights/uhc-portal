@@ -27,7 +27,7 @@ import { CloudProviderType, IMDSType } from '~/components/clusters/wizards/commo
 import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
-import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
+import { MachinePool, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { getClusterMinNodes } from '../../../machinePoolsHelper';
@@ -49,11 +49,15 @@ export type EditMachinePoolValues = {
   spotInstanceType: 'onDemand' | 'maximum';
   maxPrice: number;
   diskSize: number;
-  instanceType: string | undefined;
+  instanceType: MachineType | undefined;
+  isWindowsLicenseIncluded?: boolean;
   privateSubnetId: string | undefined;
   securityGroupIds: string[];
   secure_boot?: boolean;
   imds: IMDSType;
+  maxSurge?: number;
+  maxUnavailable?: number;
+  nodeDrainTimeout?: number;
 };
 
 type UseMachinePoolFormikArgs = {
@@ -87,6 +91,7 @@ const useMachinePoolFormik = ({
   );
   const rosa = isROSA(cluster);
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
+  const isHypershift = isHypershiftCluster(cluster);
 
   const minNodesRequired = getClusterMinNodes({
     cluster,
@@ -103,10 +108,17 @@ const useMachinePoolFormik = ({
     let maxPrice;
     let diskSize;
     let autoRepair = true;
+    let maxSurge;
+    let maxUnavailable;
+    let nodeDrainTimeout;
 
     autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas || minNodesRequired;
     autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas || minNodesRequired;
-    const instanceType = (machinePool as MachinePool)?.instance_type;
+
+    const instanceTypeId = (machinePool as MachinePool)?.instance_type;
+    const instanceType = (
+      instanceTypeId ? machineTypes.typesByID?.[instanceTypeId] : undefined
+    ) as MachineType;
 
     if (isMachinePool(machinePool)) {
       useSpotInstances = !!machinePool.aws?.spot_market_options;
@@ -118,6 +130,9 @@ const useMachinePoolFormik = ({
       diskSize = machinePool.aws_node_pool?.root_volume?.size;
       const autoRepairValue = (machinePool as NodePool)?.auto_repair;
       autoRepair = autoRepairValue ?? true;
+      maxSurge = machinePool.management_upgrade?.max_surge;
+      maxUnavailable = machinePool.management_upgrade?.max_unavailable;
+      nodeDrainTimeout = machinePool.node_drain_grace_period?.value;
     }
 
     if (isMachinePoolMz) {
@@ -162,16 +177,31 @@ const useMachinePoolFormik = ({
         (machinePool as MachinePool)?.aws?.additional_security_group_ids ||
         (machinePool as NodePool)?.aws_node_pool?.additional_security_group_ids ||
         [],
+      maxSurge: maxSurge ? parseInt(maxSurge, 10) : 1,
+      maxUnavailable: maxUnavailable ? parseInt(maxUnavailable, 10) : 0,
+      nodeDrainTimeout: nodeDrainTimeout || 0,
     };
 
     if (isGCP) {
       machinePoolData.secure_boot = shieldedVmSecureBoot(machinePool as MachinePool, cluster);
     }
 
-    return machinePoolData;
-  }, [machinePool, isMachinePoolMz, minNodesRequired, cluster, isGCP]);
+    if (isHypershift) {
+      // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
+      machinePoolData.isWindowsLicenseIncluded = false; // This involves extra costs, let's keep it false by default
+      // (machinePool as MachinePool)?.aws?.windows_license_included || false;
+    }
 
-  const isHypershift = isHypershiftCluster(cluster);
+    return machinePoolData;
+  }, [
+    machinePool,
+    isMachinePoolMz,
+    minNodesRequired,
+    cluster,
+    isGCP,
+    machineTypes.typesByID,
+    isHypershift,
+  ]);
 
   const minDiskSize = getWorkerNodeVolumeSizeMinGiB(isHypershift);
   const maxDiskSize = getWorkerNodeVolumeSizeMaxGiB(cluster.version?.raw_id || '');
@@ -194,7 +224,7 @@ const useMachinePoolFormik = ({
           machineTypes,
           quota: organization.quotaList,
           minNodes: minNodesRequired,
-          machineTypeId: values.instanceType,
+          machineTypeId: values.instanceType?.id,
           editMachinePoolId: values.name,
           allow249NodesOSDCCSROSA,
         });
@@ -356,9 +386,43 @@ const useMachinePoolFormik = ({
               ? Yup.number().min(SPOT_MIN_PRICE, `Price has to be at least ${SPOT_MIN_PRICE}`)
               : Yup.number(),
           instanceType: !hasMachinePool
-            ? Yup.string().required('Compute node instance type is a required field.')
-            : Yup.string(),
+            ? Yup.object()
+                .shape({
+                  id: Yup.string().required('Compute node instance type is a required field.'),
+                })
+                .required('Compute node instance type is a required field.')
+            : Yup.object(),
+          isWindowsLicenseIncluded: Yup.boolean(),
           replicas: Yup.number(),
+          maxSurge: Yup.number()
+            .typeError('Max surge must be a number. Please provide a valid numeric value.')
+            .nullable()
+            .min(0, 'Input cannot be less than 0')
+            .test(
+              'not-both-zero-surge',
+              'Cannot be 0 if Max Unavailable is also 0.',
+              function testZeroValues(value) {
+                const { maxUnavailable } = this.parent;
+                return !(value === 0 && maxUnavailable === 0);
+              },
+            ),
+          maxUnavailable: Yup.number()
+            .typeError('Max unavailable must be a number. Please provide a valid numeric value.')
+            .nullable()
+            .min(0, 'Input cannot be less than 0')
+            .test(
+              'not-both-zero-unavailable',
+              'Cannot be 0 if Max Surge is also 0.',
+              function testZeroValues(value) {
+                const { maxSurge } = this.parent;
+                return !(value === 0 && maxSurge === 0);
+              },
+            ),
+          nodeDrainTimeout: Yup.number()
+            .typeError('Node drain timeout must be a number. Please provide a valid numeric value.')
+            .nullable()
+            .min(0, 'Input cannot be less than 0')
+            .max(10080, 'Input cannot be greater than 10080'),
           useSpotInstances: Yup.boolean(),
           privateSubnetId:
             !hasMachinePool && isHypershift

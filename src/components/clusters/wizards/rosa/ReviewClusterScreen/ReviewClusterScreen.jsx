@@ -7,12 +7,15 @@ import {
   Button,
   Flex,
   FlexItem,
+  Icon,
   Spinner,
   Stack,
   StackItem,
   Title,
+  Tooltip,
   useWizardContext,
 } from '@patternfly/react-core';
+import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
 import { hasExternalAuthenticationCapability } from '~/common/externalAuthHelper';
 import { hasSelectedSecurityGroups } from '~/common/securityGroupsHelpers';
@@ -30,6 +33,7 @@ import { SyncEditorModal } from '~/components/SyncEditor/SyncEditorModal';
 import config from '~/config';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import {
+  ALLOW_EUS_CHANNEL,
   CREATE_CLUSTER_YAML_EDITOR,
   HYPERSHIFT_WIZARD_FEATURE,
   IMDS_SELECTION,
@@ -92,10 +96,13 @@ const ReviewClusterScreen = ({
       [FieldId.BillingModel]: billingModel,
       [FieldId.CustomerManagedKey]: customerManagedKey,
       [FieldId.ClusterName]: clusterName,
+      [FieldId.MachineTypeAvailability]: machineTypeAvailability,
     },
     values: formValues,
     setFieldValue,
   } = useFormState();
+  const machineTypeUnavailableWarning =
+    'OCM does not have access to all AWS account details. Machine node type cannot be verified to be accessible for this AWS user.';
 
   const { goToStepByIndex, getStep } = useWizardContext();
   const canAutoScale = useCanClusterAutoscale(product, billingModel);
@@ -106,13 +113,16 @@ const ReviewClusterScreen = ({
   const hasEtcdEncryption = isHypershiftSelected && !!etcdKeyArn;
   const clusterVersionRawId = clusterVersion?.raw_id;
   const showKMSKey = customerManagedKey === 'true' && !!hasCustomKeyARN;
-  const hasSecurityGroups = hasSelectedSecurityGroups(securityGroups);
+  const hasSecurityGroups = hasSelectedSecurityGroups(securityGroups, isHypershiftSelected);
   const { organization } = useOrganization();
   const hasExternalAuth = hasExternalAuthenticationCapability(organization?.capabilities);
+
+  const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
 
   const clusterSettingsFields = [
     FieldId.ClusterName,
     ...(hasDomainPrefix ? [FieldId.DomainPrefix] : []),
+    ...(isEUSChannelEnabled ? [FieldId.ChannelGroup] : []),
     FieldId.ClusterVersion,
     FieldId.Region,
     FieldId.MultiAz,
@@ -315,7 +325,21 @@ const ReviewClusterScreen = ({
           title="Default machine pool"
           onGoToStep={() => goToStepByIndex(getStepIndex('CLUSTER_SETTINGS__MACHINE_POOL'))}
         >
-          {ReviewItem(FieldId.MachineType)}
+          <Flex spaceItems={{ default: 'spaceItemsNone' }}>
+            <FlexItem>{ReviewItem(FieldId.MachineType)}</FlexItem>
+            {machineTypeAvailability && (
+              <FlexItem>
+                <Tooltip
+                  aria-label="Possibly unavailable machine type"
+                  content={machineTypeUnavailableWarning}
+                >
+                  <Icon status="warning" size="md">
+                    <ExclamationTriangleIcon />
+                  </Icon>
+                </Tooltip>
+              </FlexItem>
+            )}
+          </Flex>
           {canAutoScale && ReviewItem(FieldId.AutoscalingEnabled)}
           {autoscalingEnabled
             ? ReviewItem(FieldId.MinReplicas, {
@@ -326,6 +350,7 @@ const ReviewClusterScreen = ({
             : ReviewItem(FieldId.NodesCompute, {
                 [FieldId.MultiAz]: multiAz,
                 [FieldId.Hypershift]: hypershiftValue,
+                [FieldId.MachinePoolsSubnets]: machinePoolsSubnets,
               })}
           {ReviewItem(isHypershiftSelected ? FieldId.SelectedVpc : FieldId.InstallToVpc)}
           {installToVPCSelected &&
@@ -342,6 +367,12 @@ const ReviewClusterScreen = ({
             canSelectImds(clusterVersionRawId) &&
             ReviewItem(FieldId.IMDS)}
           {workerVolumeSizeGib && ReviewItem(FieldId.WorkerVolumeSizeGib)}
+          {installToVPCSelected &&
+            isHypershiftSelected &&
+            hasSecurityGroups &&
+            ReviewItem(FieldId.SecurityGroups, {
+              [FieldId.SelectedVpc]: selectedVpc,
+            })}
         </ReviewSection>
         <ReviewSection
           title={getStepName('NETWORKING')}

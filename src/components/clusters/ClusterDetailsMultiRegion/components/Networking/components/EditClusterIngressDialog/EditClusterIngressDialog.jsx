@@ -15,6 +15,7 @@ import {
 
 import { isExactMajorMinor } from '~/common/versionHelpers';
 import { CheckboxField } from '~/components/clusters/wizards/form/CheckboxField';
+import Modal from '~/components/common/Modal/Modal';
 import { useEditClusterIngressMutation } from '~/queries/ClusterDetailsQueries/NetworkingTab/useEditClusterIngress';
 import { refetchGetClusterRouters } from '~/queries/ClusterDetailsQueries/NetworkingTab/useGetClusterRouters';
 import { useGlobalState } from '~/redux/hooks';
@@ -24,7 +25,6 @@ import { knownProducts } from '../../../../../../../common/subscriptionTypes';
 import { checkLabelsAdditionalRouter } from '../../../../../../../common/validators';
 import ErrorBox from '../../../../../../common/ErrorBox';
 import ExternalLink from '../../../../../../common/ExternalLink';
-import Modal from '../../../../../../common/Modal/Modal';
 import { modalActions } from '../../../../../../common/Modal/ModalActions';
 import modals from '../../../../../../common/Modal/modals';
 import shouldShowModal from '../../../../../../common/Modal/ModalSelectors';
@@ -122,7 +122,6 @@ const EditClusterIngressDialog = ({ provider, cluster, refreshCluster, clusterRo
 
         return (
           <Modal
-            width="max(35%, 550px)"
             primaryText="Save"
             secondaryText="Cancel"
             title="Edit cluster ingress"

@@ -25,18 +25,10 @@ class Downloads extends Page {
   copyPullSecretButton = () => this.pullSecretSection().find('button').contains('Copy');
 
   isVisibleRowContaining = (substring) =>
-    cy
-      .contains(substring)
-      .parents('tr.pf-v6-c-table__expandable-row')
-      .invoke('attr', 'hidden')
-      .should('not.exist');
+    cy.contains(substring).parents('tr').invoke('attr', 'hidden').should('not.exist');
 
   isHiddenRowContaining = (substring) =>
-    cy
-      .contains(substring)
-      .parents('tr.pf-v6-c-table__expandable-row')
-      .invoke('attr', 'hidden')
-      .should('exist');
+    cy.contains(substring).parents('tr').invoke('attr', 'hidden').should('exist');
 
   rowDoesNotExist = (rowDataTestId) => cy.getByTestId(rowDataTestId).should('not.exist');
 

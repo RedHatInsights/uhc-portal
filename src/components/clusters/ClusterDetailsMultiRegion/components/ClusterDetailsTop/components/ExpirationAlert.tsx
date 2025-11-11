@@ -2,8 +2,9 @@ import React from 'react';
 import dayjs from 'dayjs';
 import { useDispatch } from 'react-redux';
 
-import { Alert, AlertProps, Button } from '@patternfly/react-core';
+import { Alert, AlertProps, Button, Timestamp, TimestampFormat } from '@patternfly/react-core';
 
+import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
@@ -31,7 +32,13 @@ const ExpirationAlert = ({
   const expirationTime = dayjs.utc(expirationTimestamp);
   const hours = expirationTime.diff(now, 'hour');
   const timeUntilExpiryString = now.to(expirationTime);
-  const expirationTimeString = expirationTime.local().format('dddd, MMMM Do YYYY, h:mm a');
+  const expirationTimedate = (
+    <Timestamp
+      date={new Date(expirationTimestamp)}
+      dateFormat={TimestampFormat.full}
+      timeFormat={TimestampFormat.short}
+    />
+  );
 
   const upgradeTrialClusterModal = () => {
     dispatch(
@@ -56,9 +63,7 @@ const ExpirationAlert = ({
       >
         <>
           {`This cluster should have been deleted ${timeUntilExpiryString} but is still running.`}{' '}
-          <ExternalLink href="https://access.redhat.com/support/">
-            Contact our customer support
-          </ExternalLink>
+          <ExternalLink href={supportLinks.SUPPORT_HOME}>Contact our customer support</ExternalLink>
           .
         </>
       </Alert>
@@ -77,17 +82,17 @@ const ExpirationAlert = ({
       variant = 'info';
   }
 
-  let contents: string | React.ReactElement =
-    `This cluster is scheduled for deletion on ${expirationTimeString}`;
+  let contents: string | React.ReactElement = (
+    <>This cluster is scheduled for deletion on {expirationTimedate}</>
+  );
   if (OSDRHMExpiration) {
     contents = hideRHMarketplace ? (
       <>Once expired, the cluster will be deleted permanently.</>
     ) : (
       <>
-        Your cluster subscription was purchased from Red Hat Marketplace and will expire on
-        {` ${expirationTimeString}. `}
-        Once expired, the cluster will be deleted permanently. To avoid deletion, please purchase a
-        new subscription from the{' '}
+        Your cluster subscription was purchased from Red Hat Marketplace and will expire on{' '}
+        {expirationTimedate}. Once expired, the cluster will be deleted permanently. To avoid
+        deletion, please purchase a new subscription from the{' '}
         <ExternalLink href="https://marketplace.redhat.com/en-us/products/red-hat-openshift-dedicated">
           Red Hat Marketplace
         </ExternalLink>{' '}
@@ -95,7 +100,12 @@ const ExpirationAlert = ({
       </>
     );
   } else if (trialExpiration) {
-    contents = `Your free trial cluster will automatically be deleted on ${expirationTimeString}. Upgrade your cluster at any time to prevent deletion.`;
+    contents = (
+      <>
+        Your free trial cluster will automatically be deleted on {expirationTimedate}. Upgrade your
+        cluster at any time to prevent deletion.
+      </>
+    );
   }
 
   return (

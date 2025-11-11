@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { checkAccessibility, render, screen, within } from '~/testUtils';
+import { PLATFORM_LIGHTSPEED_REBRAND } from '~/queries/featureGates/featureConstants';
+import { checkAccessibility, mockUseFeatureGate, render, screen, within } from '~/testUtils';
 
 import { categoryMapping } from './ChartByGroups';
 import InsightsAdvisorCard from './InsightsAdvisorCard';
@@ -82,13 +83,35 @@ describe('<InsightsAdvisorCard />', () => {
       expect(screen.getByText('Recommendations by category')).toBeInTheDocument();
     });
 
-    it('renders single "View more" link to OCP Advisor', () => {
-      render(<InsightsAdvisorCard overview={overview} groups={groups} />);
+    describe('renders single "View more" link to OCP Advisor', () => {
+      describe('"platform.lightspeed-rebrand" feature flag', () => {
+        afterEach(() => {
+          jest.clearAllMocks();
+        });
 
-      expect(screen.getByRole('link', { name: 'View more in Insights Advisor' })).toHaveAttribute(
-        'href',
-        '/openshift/insights/advisor',
-      );
+        it('Should show "Red Hat Lightspeed" when feature flag is enabled', () => {
+          // Arrange
+          mockUseFeatureGate([[PLATFORM_LIGHTSPEED_REBRAND, true]]);
+          render(<InsightsAdvisorCard overview={overview} groups={groups} />);
+
+          expect(
+            screen.getByRole('link', { name: 'View more in Red Hat Lightspeed advisor' }),
+          ).toHaveAttribute('href', '/openshift/insights/advisor');
+        });
+
+        it('Should show "Red Hat Insights" when feature flag is disabled', () => {
+          // Arrange
+          mockUseFeatureGate([[PLATFORM_LIGHTSPEED_REBRAND, false]]);
+
+          render(<InsightsAdvisorCard overview={overview} groups={groups} />);
+
+          // Act
+          // Assert
+          expect(
+            screen.getByRole('link', { name: 'View more in Red Hat Insights advisor' }),
+          ).toHaveAttribute('href', '/openshift/insights/advisor');
+        });
+      });
     });
 
     it('chart by risks has links to Advisor', () => {

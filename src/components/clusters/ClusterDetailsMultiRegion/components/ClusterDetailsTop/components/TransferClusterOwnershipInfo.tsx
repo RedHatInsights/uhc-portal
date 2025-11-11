@@ -5,6 +5,7 @@ import { Alert } from '@patternfly/react-core';
 
 import { Link } from '~/common/routing';
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import {
   ClusterAuthorizationRequestProduct_id as ClusterAuthorizationRequestProductId,
@@ -14,14 +15,22 @@ import {
 
 type TransferClusterOwnershipInfoProps = {
   subscription?: Subscription;
+  setHasTransferClusterOwnershipAlert?: (isTrue: boolean) => void;
 };
 
-const TransferClusterOwnershipInfo = ({ subscription }: TransferClusterOwnershipInfoProps) => {
+const TransferClusterOwnershipInfo = ({
+  subscription,
+  setHasTransferClusterOwnershipAlert,
+}: TransferClusterOwnershipInfoProps) => {
   const isAllowedProducts = [normalizedProducts.OCP, normalizedProducts.ARO].includes(
     get(subscription, 'plan.type', '') as ClusterAuthorizationRequestProductId,
   );
   if (!isAllowedProducts || !subscription?.released) {
     return null;
+  }
+
+  if (setHasTransferClusterOwnershipAlert) {
+    setHasTransferClusterOwnershipAlert(true);
   }
 
   const alertText =
@@ -36,10 +45,7 @@ const TransferClusterOwnershipInfo = ({ subscription }: TransferClusterOwnership
     ) : (
       <>
         The transfer process will complete once the pull secret has been changed in the cluster. See{' '}
-        <ExternalLink
-          href="https://access.redhat.com/solutions/4902871"
-          data-testid="external-link"
-        >
+        <ExternalLink href={supportLinks.PULL_SECRET_CHANGE_KB} data-testid="external-link">
           this knowledgebase article
         </ExternalLink>{' '}
         for instructions on how to change the pull secret.

@@ -39,6 +39,7 @@ export enum RosaFieldId {
   SupportRoleArn = 'support_role_arn',
   WorkerRoleArn = 'worker_role_arn',
   WorkerVolumeSizeGib = 'worker_volume_size_gib',
+  MachineTypeAvailability = 'machine_type_availability',
 }
 
 export const FieldId = { ...CommonFieldId, ...RosaFieldId };
@@ -115,6 +116,7 @@ export const initialValues: (hypershiftDefault?: boolean) => FormikValues = (
   // other fields
   [FieldId.ApplicationIngress]: ApplicationIngressType.Default,
   [FieldId.AutomaticUpgradeSchedule]: '0 0 * * 0',
+  [FieldId.ChannelGroup]: 'stable',
   [FieldId.CidrDefaultValuesToggle]: true,
   [FieldId.ClusterName]: '',
   [FieldId.ClusterPrivacy]: ClusterPrivacyType.External,

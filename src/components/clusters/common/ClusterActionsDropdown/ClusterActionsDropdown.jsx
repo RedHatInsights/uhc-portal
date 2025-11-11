@@ -83,6 +83,7 @@ const ClusterActionsDropdown = (props) => {
       }}
       isOpen={isOpen}
       data-testid="cluster-actions-dropdown"
+      className="openshift"
     >
       {menuItems}
     </Dropdown>

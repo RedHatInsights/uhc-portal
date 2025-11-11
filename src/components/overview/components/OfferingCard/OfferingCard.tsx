@@ -59,7 +59,7 @@ const CreateRHOCPCluterLink = (props: any) => (
 );
 
 const DEVSNBXOfferingCardDocLinkComponent = () => (
-  <ExternalLink noTarget noIcon href="/openshift/sandbox">
+  <ExternalLink noTarget noIcon href="https://sandbox.redhat.com">
     View details
   </ExternalLink>
 );
@@ -266,7 +266,7 @@ function OfferingCard(props: OfferingCardProps) {
   }
 
   return (
-    <Card className="offering-card">
+    <Card className="offering-card" isFullHeight>
       <CardHeader>
         <Split hasGutter style={{ width: '100%' }}>
           <SplitItem>{cardLogo}</SplitItem>

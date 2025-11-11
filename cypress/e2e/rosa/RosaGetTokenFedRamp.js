@@ -19,7 +19,6 @@ describe('Write ROSA Login cmd to file', { tags: ['fedramp'] }, () => {
   it('prints ROSA Login cmd', () => {
     const newArr = Cypress.env('TOKEN').split('--token=');
     Cypress.env('TOKEN', newArr[1]);
-    cy.log(Cypress.env('TOKEN'));
     cy.writeFile(`${Cypress.config('projectRoot')}/rosa-login-token.sh`, Cypress.env('TOKEN'));
   });
 });

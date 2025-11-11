@@ -1,11 +1,17 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { Button, EmptyState, EmptyStateBody, EmptyStateVariant } from '@patternfly/react-core';
+import {
+  Button,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateVariant,
+  Timestamp,
+  TimestampFormat,
+} from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
 import { InProgressIcon } from '@patternfly/react-icons/dist/esm/icons/in-progress-icon';
 import { OutlinedArrowAltCircleUpIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-arrow-alt-circle-up-icon';
-import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import { VersionGate } from '~/types/clusters_mgmt.v1';
 import type { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
@@ -121,7 +127,13 @@ const UpgradeStatus = ({
         {scheduledUpgrade && upgradeState !== 'started' && upgradeState !== 'pending' && (
           <>
             <div className="ocm-upgrade-status-scheduled-title">Upgrade scheduled</div>
-            <DateFormat type="exact" date={Date.parse(scheduledUpgrade.next_run || '')} />
+            <Timestamp
+              date={scheduledUpgrade.next_run ? new Date(scheduledUpgrade.next_run) : undefined}
+              shouldDisplayUTC
+              locale="eng-GB"
+              dateFormat={TimestampFormat.medium}
+              timeFormat={TimestampFormat.short}
+            />
           </>
         )}
       </div>

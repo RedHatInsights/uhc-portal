@@ -1,10 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { queryClient } from '~/components/App/queryClient';
 import { accountsService } from '~/services';
 
 import { formatErrorData } from '../helpers';
 import { queryConstants } from '../queriesConstants';
 
+export const refetchOrganizationQuota = (organizationID: string) => {
+  queryClient.invalidateQueries({
+    queryKey: [
+      queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
+      'accountsService',
+      'getOrganizationQuota',
+      organizationID,
+    ],
+  });
+};
 /**
  * Query for fetching organization quota
  * @param organizationID this ID comes from user profile in redux
