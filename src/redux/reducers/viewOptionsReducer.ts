@@ -111,6 +111,7 @@ initialState[viewConstants.ACCESS_REQUESTS_VIEW] = Object.assign(
 );
 initialState[viewConstants.CLUSTERS_VIEW] = Object.assign(INITIAL_CLUSTER_LIST_VIEW_STATE);
 initialState[viewConstants.ARCHIVED_CLUSTERS_VIEW] = Object.assign(INITIAL_ARCHIVED_VIEW_STATE);
+initialState[viewConstants.ACM_HUB_CLUSTERS_VIEW] = Object.assign(INITIAL_CLUSTER_LIST_VIEW_STATE);
 initialState[viewConstants.CLUSTER_LOGS_VIEW] = Object.assign(INITIAL_OSL_VIEW_STATE);
 initialState[viewConstants.OVERVIEW_VIEW] = Object.assign(INITIAL_OVERVIEW_VIEW_STATE);
 initialState[viewConstants.OVERVIEW_EXPIRED_TRIALS] = Object.assign(INITIAL_OVERVIEW_VIEW_STATE);
