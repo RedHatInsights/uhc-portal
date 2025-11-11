@@ -34,6 +34,7 @@ import apiRequest from '~/services/apiRequest';
 import { normalizedProducts } from '../../common/subscriptionTypes';
 import AIRootApp from '../AIComponents/AIRootApp';
 import CLILoginPage from '../CLILoginPage/CLILoginPage';
+import { AcmHubClusterList } from '../clusters/AcmHubClusters';
 import ArchivedClusterListMultiRegion from '../clusters/ArchivedClusterListMultiRegion';
 import ClusterDetailsSubscriptionIdMultiRegion from '../clusters/ClusterDetailsMultiRegion/ClusterDetailsSubscriptionIdMultiRegion';
 import AccessRequestNavigate from '../clusters/ClusterDetailsMultiRegion/components/AccessRequest/components/AccessRequestNavigate';
@@ -245,6 +246,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         tests must be updated. For more info. see: https://issues.redhat.com/browse/OCMUI-2398 */}
         <Route path="/cluster-list" element={<ClusterListMultiRegion getMultiRegion />} />
         <Route path="/clusters/*" element={<Clusters />} />
+        <Route path="/acm-hub-clusters" element={<AcmHubClusterList />} />
         {isClusterTransferOwnershipEnabled ? (
           <Route path="/cluster-request" element={<ClusterRequestList />} />
         ) : null}
