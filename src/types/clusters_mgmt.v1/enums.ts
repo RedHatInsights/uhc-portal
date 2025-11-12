@@ -13086,6 +13086,13 @@ export interface components {
        *     "OnDemand": EC2 instances run as standard On-Demand instances.
        *     "CapacityBlocks": scheduled pre-purchased compute capacity. */
       market_type?: components['schemas']['MarketType'];
+      /** @description preference specifies how capacity reservations should be used with this NodePool
+       *     "none": EC2 instances in this NodePool should never make use of capacity reservations. Note that this value cannot
+       *     be specified if a capacity reservation Id is also specified
+       *     "capacity-reservations-only": EC2 instances in this NodePool should only run in a capacity reservation
+       *     "open": EC2 instances in this NodePool should run in an Open capacity reservation if available, otherwise run on demand.
+       *     Note that this value cannot be specified if a capacity reservation Id is also specified */
+      preference?: components['schemas']['CapacityReservationPreference'];
     };
     /** @description Specification for different classes of nodes inside a flavour. */
     AWSFlavour: {
@@ -14437,6 +14444,11 @@ export interface components {
        *     to have the `byo-oidc` feature toggle enabled. */
       enabled?: boolean;
     };
+    /**
+     * @description Market type for AWS Capacity Reservations.
+     * @enum {string}
+     */
+    CapacityReservationPreference: CapacityReservationPreference;
     /** @description The reference of a component that will consume the client configuration. */
     ClientComponent: {
       /** @description The name of the component. */
@@ -15574,6 +15586,11 @@ export interface components {
       aws?: components['schemas']['AMIOverride'][];
       gcp?: components['schemas']['GCPImageOverride'][];
     };
+    /**
+     * @description Image Type (AMI) to use for running the associated NodePool
+     * @enum {string}
+     */
+    ImageType: ImageType;
     /** @description Representation of check running before the cluster is provisioned. */
     InflightCheck: {
       /** @description Indicates the type of this object. Will be 'InflightCheck' if this is a complete object or 'InflightCheckLink' if it is just a link. */
@@ -15844,6 +15861,8 @@ export interface components {
       category?: components['schemas']['MachineTypeCategory'];
       /** @description Link to the cloud provider that the machine type belongs to. */
       cloud_provider?: components['schemas']['CloudProvider'];
+      /** @description Features available to the particular MachineType */
+      features?: components['schemas']['MachineTypeFeatures'];
       /** @description Generic name for quota purposes, for example `highmem-4`.
        *     Cloud provider agnostic - many values are shared between "similar"
        *     machine types on different providers.
@@ -15861,6 +15880,10 @@ export interface components {
      * @enum {string}
      */
     MachineTypeCategory: MachineTypeCategory;
+    /** @description Defines the features enabled or disabled on a particular machine type */
+    MachineTypeFeatures: {
+      win_li?: boolean;
+    };
     /**
      * @description Machine type size.
      * @enum {string}
@@ -15969,6 +15992,8 @@ export interface components {
       availability_zone?: string;
       /** @description Azure specific parameters. */
       azure_node_pool?: components['schemas']['AzureNodePool'];
+      /** @description Type of Image used to run the nodes (i.e. Windows or Default/Linux) */
+      image_type?: components['schemas']['ImageType'];
       /** @description The names of the KubeletConfigs for this node pool. */
       kubelet_configs?: string[];
       /** @description The labels set on the Nodes created. */
@@ -17098,6 +17123,8 @@ export type SchemaBillingModelItem = components['schemas']['BillingModelItem'];
 export type SchemaBreakGlassCredential = components['schemas']['BreakGlassCredential'];
 export type SchemaBreakGlassCredentialStatus = components['schemas']['BreakGlassCredentialStatus'];
 export type SchemaByoOidc = components['schemas']['ByoOidc'];
+export type SchemaCapacityReservationPreference =
+  components['schemas']['CapacityReservationPreference'];
 export type SchemaClientComponent = components['schemas']['ClientComponent'];
 export type SchemaCloudVpc = components['schemas']['CloudVPC'];
 export type SchemaCloudProvider = components['schemas']['CloudProvider'];
@@ -17167,6 +17194,7 @@ export type SchemaIdentityProviderMappingMethod =
 export type SchemaIdentityProviderType = components['schemas']['IdentityProviderType'];
 export type SchemaImageMirror = components['schemas']['ImageMirror'];
 export type SchemaImageOverrides = components['schemas']['ImageOverrides'];
+export type SchemaImageType = components['schemas']['ImageType'];
 export type SchemaInflightCheck = components['schemas']['InflightCheck'];
 export type SchemaInflightCheckState = components['schemas']['InflightCheckState'];
 export type SchemaIngress = components['schemas']['Ingress'];
@@ -17188,6 +17216,7 @@ export type SchemaMachinePoolSecurityGroupFilter =
   components['schemas']['MachinePoolSecurityGroupFilter'];
 export type SchemaMachineType = components['schemas']['MachineType'];
 export type SchemaMachineTypeCategory = components['schemas']['MachineTypeCategory'];
+export type SchemaMachineTypeFeatures = components['schemas']['MachineTypeFeatures'];
 export type SchemaMachineTypeSize = components['schemas']['MachineTypeSize'];
 export type SchemaManagedService = components['schemas']['ManagedService'];
 export type SchemaManifest = components['schemas']['Manifest'];
@@ -17324,6 +17353,11 @@ export enum BreakGlassCredentialStatus {
   issued = 'issued',
   revoked = 'revoked',
 }
+export enum CapacityReservationPreference {
+  capacity_reservations_only = 'capacity-reservations-only',
+  none = 'none',
+  open = 'open',
+}
 export enum ClusterArchitecture {
   classic = 'classic',
   hcp = 'hcp',
@@ -17399,6 +17433,10 @@ export enum IdentityProviderType {
   GoogleIdentityProvider = 'GoogleIdentityProvider',
   HTPasswdIdentityProvider = 'HTPasswdIdentityProvider',
   OpenIDIdentityProvider = 'OpenIDIdentityProvider',
+}
+export enum ImageType {
+  Default = 'Default',
+  Windows = 'Windows',
 }
 export enum InflightCheckState {
   failed = 'failed',

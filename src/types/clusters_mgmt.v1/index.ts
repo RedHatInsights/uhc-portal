@@ -13086,6 +13086,13 @@ export interface components {
        *     "OnDemand": EC2 instances run as standard On-Demand instances.
        *     "CapacityBlocks": scheduled pre-purchased compute capacity. */
       market_type?: components['schemas']['MarketType'];
+      /** @description preference specifies how capacity reservations should be used with this NodePool
+       *     "none": EC2 instances in this NodePool should never make use of capacity reservations. Note that this value cannot
+       *     be specified if a capacity reservation Id is also specified
+       *     "capacity-reservations-only": EC2 instances in this NodePool should only run in a capacity reservation
+       *     "open": EC2 instances in this NodePool should run in an Open capacity reservation if available, otherwise run on demand.
+       *     Note that this value cannot be specified if a capacity reservation Id is also specified */
+      preference?: components['schemas']['CapacityReservationPreference'];
     };
     /** @description Specification for different classes of nodes inside a flavour. */
     AWSFlavour: {
@@ -14449,6 +14456,11 @@ export interface components {
        *     to have the `byo-oidc` feature toggle enabled. */
       enabled?: boolean;
     };
+    /**
+     * @description Market type for AWS Capacity Reservations.
+     * @enum {string}
+     */
+    CapacityReservationPreference: 'capacity-reservations-only' | 'none' | 'open';
     /** @description The reference of a component that will consume the client configuration. */
     ClientComponent: {
       /** @description The name of the component. */
@@ -15604,6 +15616,11 @@ export interface components {
       aws?: components['schemas']['AMIOverride'][];
       gcp?: components['schemas']['GCPImageOverride'][];
     };
+    /**
+     * @description Image Type (AMI) to use for running the associated NodePool
+     * @enum {string}
+     */
+    ImageType: 'Default' | 'Windows';
     /** @description Representation of check running before the cluster is provisioned. */
     InflightCheck: {
       /** @description Indicates the type of this object. Will be 'InflightCheck' if this is a complete object or 'InflightCheckLink' if it is just a link. */
@@ -15874,6 +15891,8 @@ export interface components {
       category?: components['schemas']['MachineTypeCategory'];
       /** @description Link to the cloud provider that the machine type belongs to. */
       cloud_provider?: components['schemas']['CloudProvider'];
+      /** @description Features available to the particular MachineType */
+      features?: components['schemas']['MachineTypeFeatures'];
       /** @description Generic name for quota purposes, for example `highmem-4`.
        *     Cloud provider agnostic - many values are shared between "similar"
        *     machine types on different providers.
@@ -15895,6 +15914,10 @@ export interface components {
       | 'compute_optimized'
       | 'general_purpose'
       | 'memory_optimized';
+    /** @description Defines the features enabled or disabled on a particular machine type */
+    MachineTypeFeatures: {
+      win_li?: boolean;
+    };
     /**
      * @description Machine type size.
      * @enum {string}
@@ -16003,6 +16026,8 @@ export interface components {
       availability_zone?: string;
       /** @description Azure specific parameters. */
       azure_node_pool?: components['schemas']['AzureNodePool'];
+      /** @description Type of Image used to run the nodes (i.e. Windows or Default/Linux) */
+      image_type?: components['schemas']['ImageType'];
       /** @description The names of the KubeletConfigs for this node pool. */
       kubelet_configs?: string[];
       /** @description The labels set on the Nodes created. */
@@ -17132,6 +17157,7 @@ export type BillingModelItem = components['schemas']['BillingModelItem'];
 export type BreakGlassCredential = components['schemas']['BreakGlassCredential'];
 export type BreakGlassCredentialStatus = components['schemas']['BreakGlassCredentialStatus'];
 export type ByoOidc = components['schemas']['ByoOidc'];
+export type CapacityReservationPreference = components['schemas']['CapacityReservationPreference'];
 export type ClientComponent = components['schemas']['ClientComponent'];
 export type CloudVpc = components['schemas']['CloudVPC'];
 export type CloudProvider = components['schemas']['CloudProvider'];
@@ -17200,6 +17226,7 @@ export type IdentityProviderMappingMethod = components['schemas']['IdentityProvi
 export type IdentityProviderType = components['schemas']['IdentityProviderType'];
 export type ImageMirror = components['schemas']['ImageMirror'];
 export type ImageOverrides = components['schemas']['ImageOverrides'];
+export type ImageType = components['schemas']['ImageType'];
 export type InflightCheck = components['schemas']['InflightCheck'];
 export type InflightCheckState = components['schemas']['InflightCheckState'];
 export type Ingress = components['schemas']['Ingress'];
@@ -17219,6 +17246,7 @@ export type MachinePoolSecurityGroupFilter =
   components['schemas']['MachinePoolSecurityGroupFilter'];
 export type MachineType = components['schemas']['MachineType'];
 export type MachineTypeCategory = components['schemas']['MachineTypeCategory'];
+export type MachineTypeFeatures = components['schemas']['MachineTypeFeatures'];
 export type MachineTypeSize = components['schemas']['MachineTypeSize'];
 export type ManagedService = components['schemas']['ManagedService'];
 export type Manifest = components['schemas']['Manifest'];
