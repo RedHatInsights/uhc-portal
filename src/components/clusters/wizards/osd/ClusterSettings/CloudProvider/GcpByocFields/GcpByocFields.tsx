@@ -5,7 +5,6 @@ import {
   Button,
   Flex,
   FlexItem,
-  Form,
   FormAlert,
   FormGroup,
   Popover,
@@ -122,7 +121,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
   );
 
   return (
-    <Form isWidthLimited onSubmit={(e) => e.preventDefault()}>
+    <>
       {billingModel !== SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
         <FormAlert>
           <Alert variant="info" isInline isPlain title="Customer cloud subscription">
@@ -214,6 +213,6 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
           )}
         </FlexItem>
       </Flex>
-    </Form>
+    </>
   );
 };

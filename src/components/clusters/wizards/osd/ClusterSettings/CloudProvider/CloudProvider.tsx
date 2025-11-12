@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { Alert, Title } from '@patternfly/react-core';
+import { Alert, Form, Title } from '@patternfly/react-core';
 
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -44,7 +44,7 @@ export const CloudProvider = () => {
   ]);
 
   return (
-    <>
+    <Form isWidthLimited onSubmit={(e) => e.preventDefault()}>
       {billingModel !== SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
         <Title headingLevel="h3">Select a cloud provider</Title>
       )}
@@ -71,6 +71,6 @@ export const CloudProvider = () => {
           )}
         </>
       )}
-    </>
+    </Form>
   );
 };
