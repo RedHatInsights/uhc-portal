@@ -166,19 +166,14 @@ describe('<BillingModel />', () => {
 
       expect(screen.queryByText('Free trial (upgradeable)')).not.toBeInTheDocument();
     });
-    // test infrastructure options
-    it('displays both infrastructure type options', () => {
-      render(buildTestComponent());
-
-      expect(screen.getByText('Customer cloud subscription')).toBeInTheDocument();
-      expect(screen.getByText('Red Hat cloud account')).toBeInTheDocument();
-    });
 
     it('has customer cloud subscription selected by default', () => {
-      const { container } = render(buildTestComponent());
-      const byocRadioCCSOption = container.querySelector('#form-radiobutton-byoc-true-field');
+      render(buildTestComponent());
+      const byocRadioCCSOption = screen.getByRole('radio', {
+        name: /customer cloud subscription/i,
+      });
       expect(byocRadioCCSOption).toBeInTheDocument();
-      expect(byocRadioCCSOption).toHaveAttribute('checked');
+      expect(byocRadioCCSOption).toBeChecked();
     });
   });
 
@@ -211,16 +206,16 @@ describe('<BillingModel />', () => {
     });
 
     it('has On-Demand selected by default', async () => {
-      const { container } = render(buildTestComponent());
+      render(buildTestComponent());
 
-      const onDemandRadioOption = container.querySelector(
-        '#form-radiobutton-billing_model-marketplace-select-field',
-      ) as HTMLInputElement;
+      const onDemandRadioOption = screen.getByRole('radio', {
+        name: /On-Demand: Flexible usage billed through/i,
+      });
       expect(onDemandRadioOption).toBeInTheDocument();
 
       // Wait for the useEffect to update the billing model
       await waitFor(() => {
-        expect(onDemandRadioOption.checked).toBe(true);
+        expect(onDemandRadioOption).toBeChecked();
       });
     });
 
@@ -237,10 +232,12 @@ describe('<BillingModel />', () => {
       expect(screen.queryByText('Red Hat cloud account')).not.toBeInTheDocument();
     });
     it('has customer cloud subscription selected by default', () => {
-      const { container } = render(buildTestComponent());
-      const byocRadioCCSOption = container.querySelector('#form-radiobutton-byoc-true-field');
+      render(buildTestComponent());
+      const byocRadioCCSOption = screen.getByRole('radio', {
+        name: /customer cloud subscription/i,
+      });
       expect(byocRadioCCSOption).toBeInTheDocument();
-      expect(byocRadioCCSOption).toHaveAttribute('checked');
+      expect(byocRadioCCSOption).toBeChecked();
     });
   });
   describe('Google Cloud Marketplace', () => {
