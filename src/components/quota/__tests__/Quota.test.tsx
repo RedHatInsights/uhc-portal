@@ -16,12 +16,10 @@ describe('<Quota />', () => {
       jest.clearAllMocks();
     });
 
-    it.skip('is accessible', async () => {
+    it('is accessible', async () => {
       const newProps = { ...props, marketplace: true };
       const { container } = render(<Quota {...Fixtures} {...newProps} />);
       expect(await screen.findByText('OpenShift Dedicated')).toBeInTheDocument();
-
-      // Throws a "Heading levels should only increase by one (heading-order)" error
       await checkAccessibility(container);
     });
 
