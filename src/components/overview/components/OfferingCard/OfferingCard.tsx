@@ -274,13 +274,23 @@ function OfferingCard(props: OfferingCardProps) {
         <Split hasGutter style={{ width: '100%' }}>
           <SplitItem>{cardLogo}</SplitItem>
           <SplitItem isFilled />
-          <SplitItem className="offering-card-badges">
-            <Label data-testtag="label" color="blue">
-              {offeringCardLabel}
-            </Label>
-            {offeringCardShowSupportLevelBadge && (
-              <SupportLevelBadge {...DEV_PREVIEW} className="pf-v6-u-mt-sm" />
-            )}
+          <SplitItem>
+            <Flex
+              direction={{ default: 'column' }}
+              alignItems={{ default: 'alignItemsFlexEnd' }}
+              spaceItems={{ default: 'spaceItemsXs' }}
+            >
+              <FlexItem>
+                <Label data-testtag="label" color="blue">
+                  {offeringCardLabel}
+                </Label>
+              </FlexItem>
+              {offeringCardShowSupportLevelBadge && (
+                <FlexItem>
+                  <SupportLevelBadge {...DEV_PREVIEW} />
+                </FlexItem>
+              )}
+            </Flex>
           </SplitItem>
         </Split>
       </CardHeader>
