@@ -13,3 +13,9 @@
   height: 3em;
   width: 3em;
 }
+
+.offering-card .offering-card-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
