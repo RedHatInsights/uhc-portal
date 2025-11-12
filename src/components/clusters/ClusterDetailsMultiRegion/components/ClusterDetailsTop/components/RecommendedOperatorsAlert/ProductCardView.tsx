@@ -16,6 +16,8 @@ type ProductCardViewProps = {
     name: string;
     link: string;
   };
+  // Optional prop to control visibility
+  isHidden?: boolean;
 };
 
 const ProductCardView = ({
@@ -24,8 +26,13 @@ const ProductCardView = ({
   title,
   selectedCardTitle,
   learnMoreLink,
+  isHidden = false,
 }: ProductCardViewProps) => (
-  <div className={`${title ? `${title}-` : ''}product-card-view`}>
+  <div
+    className={`${title ? `${title}-` : ''}product-card-view`}
+    data-testid={`${title ? `${title}-` : ''}product-card-view`}
+    hidden={isHidden}
+  >
     {title ? (
       <Title size="xl" headingLevel="h2" className="pf-v6-u-mt-lg">
         {title}
