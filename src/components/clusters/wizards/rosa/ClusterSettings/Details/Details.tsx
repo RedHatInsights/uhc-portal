@@ -288,12 +288,14 @@ function Details() {
     }
 
     // reset max-nodes-total to default
-    const { value: MultiAz } = getFieldProps(FieldId.MultiAz);
-    const maxNodesTotalDefault = allow249Nodes
-      ? getMaxNodesTotalDefaultAutoscaler(clusterVersion.raw_id, MultiAz === 'true')
-      : MAX_NODES_180;
+    if (!isHypershiftSelected) {
+      const { value: MultiAz } = getFieldProps(FieldId.MultiAz);
+      const maxNodesTotalDefault = allow249Nodes
+        ? getMaxNodesTotalDefaultAutoscaler(clusterVersion.raw_id, MultiAz === 'true')
+        : MAX_NODES_180;
 
-    setFieldValue('cluster_autoscaling.resource_limits.max_nodes_total', maxNodesTotalDefault);
+      setFieldValue('cluster_autoscaling.resource_limits.max_nodes_total', maxNodesTotalDefault);
+    }
   };
 
   const handleCloudRegionChange = () => {
@@ -368,12 +370,14 @@ function Details() {
     setFieldValue(FieldId.MachinePoolsSubnets, mpSubnetsReset);
 
     // reset max-nodes-total to default
-    const { value: clusterVersion } = getFieldProps(FieldId.ClusterVersion);
-    const maxNodesTotalDefault = allow249Nodes
-      ? getMaxNodesTotalDefaultAutoscaler(clusterVersion?.raw_id, isValueMultiAz)
-      : MAX_NODES_180;
+    if (!isHypershiftSelected) {
+      const { value: clusterVersion } = getFieldProps(FieldId.ClusterVersion);
+      const maxNodesTotalDefault = allow249Nodes
+        ? getMaxNodesTotalDefaultAutoscaler(clusterVersion?.raw_id, isValueMultiAz)
+        : MAX_NODES_180;
 
-    setFieldValue('cluster_autoscaling.resource_limits.max_nodes_total', maxNodesTotalDefault);
+      setFieldValue('cluster_autoscaling.resource_limits.max_nodes_total', maxNodesTotalDefault);
+    }
   };
 
   const RegionField = (
