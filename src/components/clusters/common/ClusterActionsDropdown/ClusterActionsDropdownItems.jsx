@@ -342,20 +342,20 @@ function actionResolver(
     const isCurrentlyTagged = properties?.[ACM_HUB_PROPERTY_KEY] === ACM_HUB_PROPERTY_VALUE;
     const title = isCurrentlyTagged ? 'Remove ACM Hub tag' : 'Tag as ACM Hub';
 
-    const tagAcmHubProps = {
-      ...baseProps,
-      title,
-      key: getKey('tagacmhub'),
-      onClick: () =>
-        openModal(modals.TAG_ACM_HUB, {
-          clusterID: cluster.id,
-          clusterName,
-          region: cluster?.subscription?.rh_region_id,
-          properties,
-          shouldDisplayClusterName: inClusterList,
-        }),
-    };
-    return tagAcmHubProps;
+    return {
+          ...baseProps,
+          title,
+          key: getKey('tagacmhub'),
+          onClick: () =>
+            openModal(modals.TAG_ACM_HUB, {
+              clusterID: cluster.id,
+              clusterName,
+              region: cluster?.subscription?.rh_region_id,
+              properties,
+              shouldDisplayClusterName: inClusterList,
+            }),
+        };
+
   };
 
   const showDelete = cluster.canDelete && cluster.managed;
