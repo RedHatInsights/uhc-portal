@@ -28,7 +28,6 @@ import { HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT } from '~/common/localSt
 import { useNavigate } from '~/common/routing';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { PreviewLabel } from '~/components/clusters/common/PreviewLabel';
-import { RosaArchitectureRenamingAlert } from '~/components/clusters/wizards/rosa/common/Banners/RosaArchitectureRenamingAlert';
 import Breadcrumbs from '~/components/common/Breadcrumbs';
 import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import { modalActions } from '~/components/common/Modal/ModalActions';
@@ -335,7 +334,6 @@ function ClusterDetailsTop(props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const updateIsExpanded = () => setIsExpanded(!isExpanded);
 
-  const hasRosaRenamingAlert = isROSA;
   const [hasLimitedSupportAlert, setHasLimitedSupportAlert] = React.useState(false);
   const [hasStatusMonitorAlert, setHasStatusMonitorAlert] = React.useState(false);
   const hasIDPAlert = showIDPMessage;
@@ -356,7 +354,6 @@ function ClusterDetailsTop(props) {
     React.useState(false);
 
   const alerts = [
-    hasRosaRenamingAlert,
     hasLimitedSupportAlert,
     hasStatusMonitorAlert,
     hasIDPAlert,
@@ -443,8 +440,6 @@ function ClusterDetailsTop(props) {
               </Flex>
             }
           >
-            {isROSA ? <RosaArchitectureRenamingAlert className="pf-v6-u-mt-md" /> : null}
-
             <LimitedSupportAlert
               limitedSupportReasons={cluster.limitedSupportReasons}
               isOSD={isOSD}

@@ -16,9 +16,13 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import links from '~/common/installLinks.mjs';
 import clusterStates from '~/components/clusters/common/clusterStates';
+import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import EditButton from '~/components/common/EditButton';
 import ErrorBox from '~/components/common/ErrorBox';
+import ExternalLink from '~/components/common/ExternalLink';
+import PopoverHint from '~/components/common/PopoverHint';
 import { useMutateChannelGroup } from '~/queries/ChannelGroupEditQueries/useMutateChannelGroup';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import { Cluster } from '~/types/clusters_mgmt.v1';
@@ -43,6 +47,7 @@ type ChannelGroupEditProps = {
   clusterID: string;
   channelGroup: string;
   cluster: CanEditCluster;
+  isROSA?: boolean;
 };
 
 export interface CanEditCluster extends Cluster {
@@ -133,7 +138,12 @@ const ChannelGroupEditModal = ({
   ) : null;
 };
 
-export const ChannelGroupEdit = ({ clusterID, channelGroup, cluster }: ChannelGroupEditProps) => {
+export const ChannelGroupEdit = ({
+  clusterID,
+  channelGroup,
+  cluster,
+  isROSA,
+}: ChannelGroupEditProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const { canEdit } = cluster;
   const isClusterReady = cluster.state === clusterStates.ready;
@@ -151,7 +161,22 @@ export const ChannelGroupEdit = ({ clusterID, channelGroup, cluster }: ChannelGr
         />
       )}
       <DescriptionListGroup>
-        <DescriptionListTerm>Channel group</DescriptionListTerm>
+        <DescriptionListTerm>
+          Channel group
+          <PopoverHint
+            iconClassName="pf-v6-u-ml-sm"
+            hint={
+              <>
+                {constants.channelGroupHint}{' '}
+                <ExternalLink
+                  href={isROSA ? links.ROSA_LIFE_CYCLE_DATES : links.OSD_LIFE_CYCLE_DATES}
+                >
+                  Learn more about the support lifecycle
+                </ExternalLink>
+              </>
+            }
+          />
+        </DescriptionListTerm>
         <DescriptionListDescription>
           {formatChannelGroupName(channelGroup)}
           {canEdit &&

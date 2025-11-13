@@ -138,7 +138,8 @@ const ClusterList = ({
   closeModal,
   clearGlobalError,
   openModal,
-  getMultiRegion,
+  getMultiRegion = true,
+  showTabbedView = false,
 }) => {
   const dispatch = useDispatch();
   const viewType = viewConstants.CLUSTERS_VIEW;
@@ -381,17 +382,19 @@ const ClusterList = ({
 
   return (
     <AppPage title={PAGE_TITLE}>
-      <ClusterListPageHeader
-        someReadOnly={someReadOnly}
-        showSpinner={showSpinner}
-        error={isError}
-        errorDetails={errorDetails}
-        isPendingNoData={isPendingNoData}
-        refresh={() => {
-          refetch();
-          refetchClusterTransferDetail();
-        }}
-      />
+      {showTabbedView ? null : (
+        <ClusterListPageHeader
+          someReadOnly={someReadOnly}
+          showSpinner={showSpinner}
+          error={isError}
+          errorDetails={errorDetails}
+          isPendingNoData={isPendingNoData}
+          refresh={() => {
+            refetch();
+            refetchClusterTransferDetail();
+          }}
+        />
+      )}
       <PageSection hasBodyWrapper={false}>
         <div className="cluster-list" data-ready={dataReady}>
           <GlobalErrorBox />
@@ -529,9 +532,7 @@ ClusterList.propTypes = {
 
   clearGlobalError: PropTypes.func.isRequired,
   getMultiRegion: PropTypes.bool,
-};
-ClusterList.defaultProps = {
-  getMultiRegion: true,
+  showTabbedView: PropTypes.bool,
 };
 
 export default ClusterList;

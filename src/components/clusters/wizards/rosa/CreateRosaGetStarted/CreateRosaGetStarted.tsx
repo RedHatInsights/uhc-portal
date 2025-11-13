@@ -28,8 +28,6 @@ import Instruction from '~/components/common/Instruction';
 import Instructions from '~/components/common/Instructions';
 import PageTitle from '~/components/common/PageTitle';
 
-import { RosaArchitectureRenamingAlert } from '../common/Banners/RosaArchitectureRenamingAlert';
-
 import StepCreateNetwork from './StepCreateAWSAccountRoles/StepCreateNetwork';
 import StepCreateAWSAccountRoles from './StepCreateAWSAccountRoles';
 import StepDownloadROSACli from './StepDownloadROSACli';
@@ -65,7 +63,6 @@ const CreateRosaGetStarted = () => (
           <ExternalLink href={links.ROSA_COMMUNITY_SLACK}>Slack us</ExternalLink>
         </Content>
       </Content>
-      <RosaArchitectureRenamingAlert />
       <Alert
         variant={AlertVariant.info}
         isInline

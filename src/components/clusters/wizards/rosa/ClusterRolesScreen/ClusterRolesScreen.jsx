@@ -65,6 +65,7 @@ const ClusterRolesScreen = () => {
       [FieldId.RegionalInstance]: regionalInstance,
     },
   } = useFormState();
+
   const isHypershift = hypershiftValue === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershift;
 
@@ -303,7 +304,7 @@ const ClusterRolesScreen = () => {
             <GridItem>
               <Content component={ContentVariants.p}>
                 Choose the preferred mode for creating the operator roles and OIDC provider.{' '}
-                <ExternalLink href={links.ROSA_AWS_IAM_ROLES}>
+                <ExternalLink href={links.ROSA_AWS_IAM_RESOURCES}>
                   Learn more about ROSA roles
                 </ExternalLink>
               </Content>

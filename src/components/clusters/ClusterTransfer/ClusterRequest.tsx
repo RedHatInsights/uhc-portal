@@ -25,7 +25,9 @@ const ClusterRequestList = () => {
           </FlexItem>
         </Flex>
       </PageSection>
-      <ClusterTransferList />
+      <PageSection>
+        <ClusterTransferList />
+      </PageSection>
       {/* TODO: Add Access request list here */}
     </AppPage>
   );

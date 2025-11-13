@@ -467,7 +467,23 @@ function Details() {
 
         {isEUSChannelEnabled ? (
           <GridItem md={6}>
-            <FormGroup label="Channel group" isRequired fieldId={FieldId.ChannelGroup}>
+            <FormGroup
+              label="Channel group"
+              isRequired
+              fieldId={FieldId.ChannelGroup}
+              labelHelp={
+                <PopoverHint
+                  hint={
+                    <>
+                      {constants.channelGroupHint}{' '}
+                      <ExternalLink href={links.ROSA_LIFE_CYCLE_DATES}>
+                        Learn more about the support lifecycle
+                      </ExternalLink>
+                    </>
+                  }
+                />
+              }
+            >
               <Field
                 component={ChannelGroupSelectField}
                 name={FieldId.ChannelGroup}

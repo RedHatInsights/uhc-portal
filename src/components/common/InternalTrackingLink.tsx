@@ -30,7 +30,17 @@ enum servicePageLinks {
 }
 
 const InternalLink = (props: InternalTrackingLinkProps) => {
-  const { to, children, stopClickPropagation, isButton, component } = props;
+  const {
+    to,
+    children,
+    stopClickPropagation,
+    isButton,
+    component,
+    variant,
+    className,
+    'data-testid': dataTestId,
+    isAriaDisabled,
+  } = props;
   const track = useAnalytics();
 
   const trackInternalLink = () => {
@@ -66,12 +76,25 @@ const InternalLink = (props: InternalTrackingLinkProps) => {
     }
   };
 
+  // Props that are safe to pass to DOM elements (Link)
+  const linkProps = {
+    to,
+    className,
+    'data-testid': dataTestId,
+  };
+
+  // Props for Button component (PatternFly-specific props are allowed)
+  const buttonProps = {
+    ...linkProps,
+    isAriaDisabled,
+  };
+
   return isButton ? (
-    <Button component={component || 'a'} {...props} onClick={handleClick}>
+    <Button component={component || 'a'} variant={variant} onClick={handleClick} {...buttonProps}>
       {children}
     </Button>
   ) : (
-    <Link {...props} onClick={handleClick}>
+    <Link onClick={handleClick} {...linkProps}>
       {children}
     </Link>
   );
