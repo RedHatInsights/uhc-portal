@@ -53,6 +53,9 @@ describe('<ChannelGroupEdit />', () => {
   const mockedROSAHyperShiftCluster = fixtures.ROSAHypershiftClusterDetails
     .cluster as unknown as CanEditCluster;
 
+  const mockedROSAHyperShiftWaitingCluster = fixtures.ROSAHypershiftWaitingClusterDetails
+    .cluster as unknown as CanEditCluster;
+
   beforeEach(() => {
     mutateMock = jest.fn();
     mockUseGetChannelGroupsData.mockClear();
@@ -101,6 +104,27 @@ describe('<ChannelGroupEdit />', () => {
     const openModalButton = screen.getByTestId('channelGroupModal');
     expect(openModalButton).toBeInTheDocument();
     expect(openModalButton).toBeEnabled();
+  });
+
+  it('should render a disabled edit button when cluster is not ready', () => {
+    mockUseGetChannelGroupsData.mockReturnValue({
+      availableDropdownChannelGroups: mockOptions,
+      isLoading: false,
+    });
+
+    render(
+      <ChannelGroupEdit
+        clusterID="cluster-123"
+        channelGroup="stable"
+        cluster={mockedROSAHyperShiftWaitingCluster}
+      />,
+    );
+
+    expect(screen.getByText('Channel group')).toBeInTheDocument();
+    expect(screen.getByText('Stable')).toBeInTheDocument();
+    const openModalButton = screen.getByTestId('channelGroupModal');
+    expect(openModalButton).toBeInTheDocument();
+    expect(openModalButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('should render N/A when channel group is not provided', () => {

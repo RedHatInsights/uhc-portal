@@ -17,6 +17,7 @@ import {
 } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
+import clusterStates from '~/components/clusters/common/clusterStates';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import EditButton from '~/components/common/EditButton';
 import ErrorBox from '~/components/common/ErrorBox';
@@ -145,7 +146,7 @@ export const ChannelGroupEdit = ({
 }: ChannelGroupEditProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const { canEdit } = cluster;
-
+  const isClusterReady = cluster.state === clusterStates.ready;
   const { availableDropdownChannelGroups, isLoading } = useGetChannelGroupsData(cluster, canEdit);
 
   return (
@@ -186,7 +187,7 @@ export const ChannelGroupEdit = ({
                 data-testid="channelGroupModal"
                 ariaLabel="editChannelGroupBtn"
                 onClick={() => setIsModalOpen(true)}
-                isAriaDisabled={!canEdit || isLoading}
+                isAriaDisabled={!canEdit || isLoading || !isClusterReady}
               />
             ))}
         </DescriptionListDescription>
