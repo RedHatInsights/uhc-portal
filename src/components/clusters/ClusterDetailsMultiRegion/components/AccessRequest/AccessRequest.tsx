@@ -167,10 +167,10 @@ export const AccessRequest = ({
 
       {variant === 'card' && (
         <>
-          <Card className="ocm-c-access-request__card">
-            <CardTitle className="ocm-c-access-request__card--header">Access Requests</CardTitle>
-            <CardBody className="ocm-c-access-request__card--body">
-              <div className="access-request-subtitle">{DESCRIPTION_TEXT}</div>
+          <Card>
+            <CardTitle>Access Requests</CardTitle>
+            <CardBody>
+              <div>{DESCRIPTION_TEXT}</div>
               {readMoreLink}
             </CardBody>
           </Card>
