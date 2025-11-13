@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import get from 'lodash/get';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
@@ -13,7 +14,9 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 
+import { getOCMResourceType } from '~/common/analytics';
 import { noQuotaTooltip } from '~/common/helpers';
+import { normalizedProducts } from '~/common/subscriptionTypes';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
 import { LoadingSkeletonCard } from '~/components/clusters/common/LoadingSkeletonCard/LoadingSkeletonCard';
 import { MachineConfiguration } from '~/components/clusters/common/MachineConfiguration';
@@ -81,6 +84,10 @@ const MachinePools = ({ cluster }) => {
   const isHypershift = isHypershiftCluster(cluster);
   const region = cluster?.subscription?.rh_region_id;
   const clusterID = cluster?.id;
+
+  // Calculate analytics resource type for tracking
+  const planType = get(cluster, 'subscription.plan.id', normalizedProducts.UNKNOWN);
+  const analyticsResourceType = getOCMResourceType(planType);
   const clusterVersionID = cluster?.version?.id;
   const clusterRawVersionID = cluster?.version?.raw_id;
   // Initial state
@@ -309,6 +316,8 @@ const MachinePools = ({ cluster }) => {
                   response={deleteMachinePoolError?.error}
                   showCloseBtn
                   onCloseAlert={() => setHideDeleteMachinePoolError(true)}
+                  analyticsType="error-delete-machine-pool"
+                  analyticsResourceType={analyticsResourceType}
                 />
               )}
               {machinePoolsActions.list && (
