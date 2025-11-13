@@ -53,8 +53,16 @@ describe('<Overview />', () => {
     };
 
     it.skip('is accessible', async () => {
+      /*
+      This is skipped due to an issue within PatternFly Charts ChartLegend component.
+      The basis of the problem is that the legend has links 
+     
+      The fix is in src/components/dashboard/InsightsAdvisorCard/ChartByGroups.jsx
+      change the legendComponent prop to the ChartPie to  a custom component
+      - aka do not use the ChartLegend component.
+    
+      */
       const { container } = render(<Overview {...props} />);
-
       expect(
         await screen.findByText(
           'The cluster currently does not have any metrics data. Try again later.',
@@ -113,7 +121,7 @@ describe('<Overview />', () => {
       userAccess: fixtures.userAccess,
     };
 
-    it.skip('is accessible', async () => {
+    it('is accessible', async () => {
       const { container } = render(<Overview {...props} />);
 
       expect(
@@ -122,7 +130,6 @@ describe('<Overview />', () => {
         ),
       ).toBeInTheDocument();
 
-      // This fails due to numerous accessibility issues
       await checkAccessibility(container);
     });
   });
@@ -184,7 +191,7 @@ describe('<Overview />', () => {
       userAccess: fixtures.userAccess,
     };
 
-    it.skip('is accessible', async () => {
+    it('is accessible', async () => {
       const { container } = render(<Overview {...props} />);
 
       expect(await screen.findByText('Assisted cluster ID / Cluster ID')).toBeInTheDocument();
