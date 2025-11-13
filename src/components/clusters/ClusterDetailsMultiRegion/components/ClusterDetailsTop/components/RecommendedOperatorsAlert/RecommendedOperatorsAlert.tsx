@@ -141,6 +141,7 @@ const RecommendedOperatorsAlert = ({
           cards={OPERATORS_CARDS}
           openLearnMore={openLearnMore}
           selectedCardTitle={selectedCardTitle}
+          isHidden={!isExpanded}
         />
       </ExpandableSection>
     </Alert>
