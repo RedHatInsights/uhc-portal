@@ -87,6 +87,7 @@ function ClusterUtilizationChart({
     (extraProps: any) => (
       <ChartDonutUtilization
         id={donutId}
+        ariaTitle={donutCenter.primary}
         title={donutCenter.primary}
         subTitle={donutCenter.secondary}
         data={{ x: `${formattedUsed?.value} ${formattedUsed?.unit}`, y: usedPercentage }}
