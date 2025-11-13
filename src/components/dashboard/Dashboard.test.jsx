@@ -154,9 +154,8 @@ describe('<Dashboard />', () => {
     jest.clearAllMocks();
   });
 
-  it.skip('is accessible', async () => {
+  it('is accessible', async () => {
     const { container } = render(<Dashboard {...defaultProps} />);
-    // The fails due to numerous accessibility issues
     await checkAccessibility(container);
   });
 
