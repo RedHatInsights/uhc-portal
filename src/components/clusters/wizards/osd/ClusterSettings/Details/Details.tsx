@@ -34,6 +34,8 @@ import { versionComparator } from '~/common/versionComparator';
 import { getIncompatibleVersionReason } from '~/common/versionCompatibility';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import LoadBalancersDropdown from '~/components/clusters/common/LoadBalancersDropdown';
+import { MAX_NODES_INSUFFICIEN_VERSION as MAX_NODES_180 } from '~/components/clusters/common/machinePools/constants';
+import { getMaxNodesTotalDefaultAutoscaler } from '~/components/clusters/common/machinePools/utils';
 import PersistentStorageDropdown from '~/components/clusters/common/PersistentStorageDropdown';
 import { QuotaParams } from '~/components/clusters/common/quotaModel';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
@@ -62,7 +64,7 @@ import { FieldId, MIN_SECURE_BOOT_VERSION } from '~/components/clusters/wizards/
 import { CheckboxDescription } from '~/components/common/CheckboxDescription';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { ALLOW_EUS_CHANNEL, MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useFetchSearchClusterName } from '~/queries/RosaWizardQueries/useFetchSearchClusterName';
 import { useFetchSearchDomainPrefix } from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
@@ -112,6 +114,7 @@ function Details() {
   );
 
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
+  const allow249Nodes = useFeatureGate(MAX_NODES_TOTAL_249);
 
   const isByoc = byoc === 'true';
   const isMultiAz = multiAz === 'true';
@@ -224,6 +227,14 @@ function Details() {
       mpSubnetsReset.push(emptyAWSSubnet());
     }
     setFieldValue(FieldId.MachinePoolsSubnets, mpSubnetsReset);
+
+    // reset max-nodes-total to default
+    const { value: clusterVersion } = getFieldProps(FieldId.ClusterVersion);
+    const maxNodesTotalDefault = allow249Nodes
+      ? getMaxNodesTotalDefaultAutoscaler(clusterVersion?.raw_id, isMultiAz)
+      : MAX_NODES_180;
+
+    setFieldValue('cluster_autoscaling.resource_limits.max_nodes_total', maxNodesTotalDefault);
   };
 
   const handleVersionChange = (clusterVersion?: Version) => {
@@ -247,6 +258,14 @@ function Details() {
       setFieldValue(FieldId.PrivateServiceConnect, true);
       setFieldValue(FieldId.InstallToVpc, true);
     }
+
+    // reset max-nodes-total to default
+    const { value: MultiAz } = getFieldProps(FieldId.MultiAz);
+    const maxNodesTotalDefault = allow249Nodes
+      ? getMaxNodesTotalDefaultAutoscaler(clusterVersion?.raw_id, MultiAz === 'true')
+      : MAX_NODES_180;
+
+    setFieldValue('cluster_autoscaling.resource_limits.max_nodes_total', maxNodesTotalDefault);
   };
 
   const availableVersions = getInstallableVersionsResponse.versions.filter(
