@@ -64,6 +64,7 @@ const SmallClusterChart = ({
         {formattedUnused && formattedUsed && formattedUsed ? (
           <ChartDonut
             name={donutId}
+            ariaTitle={donutId}
             labels={({ datum }) => `${datum.x}`}
             data={[
               { x: `${formattedUsed?.value} ${formattedUsed?.unit}`, y: usedPercentage },
