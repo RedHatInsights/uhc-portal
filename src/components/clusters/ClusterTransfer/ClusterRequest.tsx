@@ -70,9 +70,7 @@ const ClusterRequestList = () => {
       </PageSection>
       <PageSection>
         <Stack hasGutter>
-          <StackItem>
-            {isTabbedClustersEnabled && <AccessRequest variant="page" showClusterName />}
-          </StackItem>
+          <StackItem>{isTabbedClustersEnabled && <AccessRequest showClusterName />}</StackItem>
           <StackItem>
             <ClusterTransferList hideRefreshButton />
           </StackItem>

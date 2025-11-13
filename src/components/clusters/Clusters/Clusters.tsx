@@ -92,7 +92,7 @@ export const Clusters = () => {
               <TabContentBody hasPadding>
                 <Stack hasGutter>
                   <StackItem>
-                    {isTabbedClustersEnabled && <AccessRequest variant="page" showClusterName />}
+                    {isTabbedClustersEnabled && <AccessRequest showClusterName />}
                   </StackItem>
                   <StackItem>
                     <ClusterTransferList hideRefreshButton />

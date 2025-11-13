@@ -779,11 +779,7 @@ const ClusterDetails = (props) => {
               hidden
             >
               <ErrorBoundary>
-                <AccessRequest
-                  variant="card"
-                  subscriptionId={subscriptionID}
-                  showClusterName={false}
-                />
+                <AccessRequest subscriptionId={subscriptionID} showClusterName={false} />
               </ErrorBoundary>
             </TabContent>
           ) : null}

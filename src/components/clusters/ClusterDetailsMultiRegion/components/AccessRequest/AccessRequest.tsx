@@ -26,6 +26,8 @@ import {
   refetchAccessRequests,
   useFetchAccessRequests,
 } from '~/queries/ClusterDetailsQueries/AccessRequestTab/useFetchAccessRequests';
+import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { viewActions } from '~/redux/actions/viewOptionsActions';
 import { viewConstants } from '~/redux/constants';
 import { useGlobalState } from '~/redux/hooks';
@@ -38,10 +40,7 @@ import AccessRequestTablePagination from './components/AccessRequestTablePaginat
 
 import './AccessRequest.scss';
 
-type AccessRequestVariant = 'page' | 'card';
-
 type AccessRequestProps = {
-  variant?: AccessRequestVariant;
   subscriptionId?: string;
   showClusterName?: boolean;
 };
@@ -49,16 +48,12 @@ type AccessRequestProps = {
 const DESCRIPTION_TEXT =
   'Access requests to customer data on Red Hat OpenShift Service on AWS clusters and the corresponding cloud accounts can be created by SRE either in response to a customer-initiated support ticket or in response to alerts received by SRE, as part of the standard incident response process.';
 
-export const AccessRequest = ({
-  variant = 'card',
-  subscriptionId,
-  showClusterName = false,
-}: AccessRequestProps) => {
+export const AccessRequest = ({ subscriptionId, showClusterName = false }: AccessRequestProps) => {
   const dispatch = useDispatch();
   const viewType = viewConstants.ACCESS_REQUESTS_VIEW;
   const viewOptions = useGlobalState((state) => state.viewOptions[viewType], shallowEqual);
   const { organization } = useOrganization();
-
+  const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
   const { data: accessRequests, isLoading: isAccessRequestsLoading } = useFetchAccessRequests({
     subscriptionId,
     organizationId: !subscriptionId ? organization?.id : undefined,
@@ -129,7 +124,7 @@ export const AccessRequest = ({
 
   return (
     <>
-      {variant === 'page' && (
+      {isTabbedClustersEnabled ? (
         <Card>
           <CardHeader>
             <Flex>
@@ -163,9 +158,7 @@ export const AccessRequest = ({
             <CardFooter>{pagination('bottom')}</CardFooter>
           </CardBody>
         </Card>
-      )}
-
-      {variant === 'card' && (
+      ) : (
         <>
           <Card>
             <CardTitle>Access Requests</CardTitle>
