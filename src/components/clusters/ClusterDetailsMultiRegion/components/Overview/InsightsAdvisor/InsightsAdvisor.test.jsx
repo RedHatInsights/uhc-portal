@@ -22,17 +22,20 @@ describe('<InsightsAdvisor />', () => {
     externalId: 'foo-bar',
   };
 
-  // This fails due to accessibility issues inside PatternFly chart component
   it.skip('widget is accessible', async () => {
+    /*
+      This is skipped due to an issue within PatternFly Charts ChartLegend component.
+      The basis of the problem is that the legend has links 
+     
+      The fix is in src/components/dashboard/InsightsAdvisorCard/ChartByGroups.jsx
+      change the legendComponent prop to the ChartPie to  a custom component
+      - aka do not use the ChartLegend component.
+    
+      */
+
     const { container } = render(
       <InsightsAdvisor insightsData={fixtures.insightsData} externalId="foo-bar" />,
     );
-    await checkAccessibility(container);
-  });
-
-  // This fails due to accessibility issues inside PatternFly chart component
-  it.skip('chart is accessible', async () => {
-    const { container } = render(<Chart {...props} />);
     await checkAccessibility(container);
   });
 
