@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { checkAccessibility, render, screen } from '~/testUtils';
+import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
+import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
 import { AccessRequest } from '../AccessRequest';
 
@@ -16,16 +17,22 @@ jest.mock('../components/AccessRequestTablePagination', () => () => (
 
 describe('AccessRequest', () => {
   it('is accessible empty content with card variant', async () => {
+    // Arrange
+    mockUseFeatureGate([[TABBED_CLUSTERS, false]]);
+
     // Act
-    const { container } = render(<AccessRequest variant="card" showClusterName={false} />);
+    const { container } = render(<AccessRequest showClusterName={false} />);
 
     // Assert
     await checkAccessibility(container);
   });
 
   it('properly renders card variant', () => {
+    // Arrange
+    mockUseFeatureGate([[TABBED_CLUSTERS, false]]);
+
     // Act
-    render(<AccessRequest variant="card" subscriptionId="sub-123" showClusterName={false} />);
+    render(<AccessRequest subscriptionId="sub-123" showClusterName={false} />);
 
     // Assert
     expect(screen.queryAllByText(/access request table pagination/i)).toHaveLength(2);
@@ -36,9 +43,12 @@ describe('AccessRequest', () => {
     ).toBeInTheDocument();
   });
 
-  it('properly renders page variant', () => {
+  it('properly renders with tabbed clusters enabled', () => {
+    // Arrange
+    mockUseFeatureGate([[TABBED_CLUSTERS, true]]);
+
     // Act
-    render(<AccessRequest variant="page" showClusterName />);
+    render(<AccessRequest showClusterName />);
 
     // Assert
     expect(screen.queryAllByText(/access request table pagination/i)).toHaveLength(2);
