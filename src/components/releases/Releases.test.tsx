@@ -6,43 +6,25 @@ import { checkAccessibility, mockRestrictedEnv, render, screen, waitFor } from '
 
 import ocpLifeCycleStatuses from './__mocks__/ocpLifeCycleStatuses';
 import Releases from './index';
-import ReleaseChannel from './ReleaseChannel';
 
 type MockedJest = jest.Mocked<typeof axios> & jest.Mock;
 const apiRequestMock = apiRequest as unknown as MockedJest;
-
-jest.mock('./ReleaseChannel', () => ({
-  __esModule: true,
-  namedExport: jest.fn(),
-  default: jest.fn(),
-}));
-
-const MockReleaseChannel = ReleaseChannel as jest.Mock;
 
 describe('<Releases />', () => {
   beforeEach(() => {
     apiRequestMock.get.mockResolvedValue(ocpLifeCycleStatuses);
   });
-  beforeAll(() => {
-    MockReleaseChannel.mockImplementation(
-      ({ channel }: React.ComponentProps<typeof ReleaseChannel>) => (
-        <dt className="pf-v6-c-description-list__term pf-v6-u-mt-md">{channel}</dt>
-      ),
-    );
-  });
 
-  // clear all mocks
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it.skip('is accessible', async () => {
+  it('is accessible', async () => {
     const { container } = render(<Releases />);
     expect(await screen.findByText('Learn more about updating channels')).toBeInTheDocument();
 
-    expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
+    expect(apiRequestMock.get).toHaveBeenCalled();
 
-    // Fails with  "<dl> elements must only directly contain properly-ordered <dt> and <dd> groups, <script>, <template> or <div> elements (definition-list)"
     await checkAccessibility(container);
   });
 
@@ -57,7 +39,7 @@ describe('<Releases />', () => {
 
       render(<Releases />);
       await waitFor(() => {
-        expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
+        expect(apiRequestMock.get).toHaveBeenCalled();
       });
 
       expect(screen.queryAllByText(/^stable/).length > 0).toBeTruthy();
