@@ -42,6 +42,8 @@ import {
   useFetchClusterTransferDetail,
 } from '~/queries/ClusterDetailsQueries/ClusterTransferOwnership/useFetchClusterTransferDetails';
 import { useFetchClusters } from '~/queries/ClusterListQueries/useFetchClusters';
+import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
 import {
   onListFlagsSet,
@@ -143,7 +145,7 @@ const ClusterList = ({
 }) => {
   const dispatch = useDispatch();
   const viewType = viewConstants.CLUSTERS_VIEW;
-
+  const isTabbedClusters = useFeatureGate(TABBED_CLUSTERS);
   /* Get Access Request / Protection Data */
   const { enabled: isOrganizationAccessProtectionEnabled } = useGetAccessProtection(
     {
@@ -474,10 +476,12 @@ const ClusterList = ({
             />
           ) : (
             <>
-              <AccessRequestPendingAlert
-                total={pendingRequestsTotal}
-                accessRequests={pendingRequestsItems}
-              />
+              {!isTabbedClusters && (
+                <AccessRequestPendingAlert
+                  total={pendingRequestsTotal}
+                  accessRequests={pendingRequestsItems}
+                />
+              )}
               <TransferOwnerPendingAlert total={totalPendingTransfers} />
               <ClusterListTable
                 openModal={openModal}
