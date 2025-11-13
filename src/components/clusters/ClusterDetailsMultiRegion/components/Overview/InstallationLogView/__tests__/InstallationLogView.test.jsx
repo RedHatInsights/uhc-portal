@@ -32,12 +32,16 @@ describe('<InstallationLogView />', () => {
     jest.clearAllMocks();
   });
 
-  // Skipping because it fails with Async callback was not invoked within the 5000 ms timeout specified by jest.setTimeout.
-  // for unknown reason
-  it.skip('is accessible with logs', async () => {
+  it('is accessible with logs', async () => {
     const { container } = render(<InstallationLogView {...defaultProps} />);
     jest.runOnlyPendingTimers();
+    // Use real timers for accessibility testing since axe-core requires real timers
+    jest.useRealTimers();
     await checkAccessibility(container);
+    // Restore fake timers for other tests
+    jest.useFakeTimers({
+      legacyFakeTimers: true,
+    });
   });
 
   it('should fetch logs on mount', () => {
