@@ -48,11 +48,17 @@ describe('<TabsRow />', () => {
   });
 
   describe('display mechanism', () => {
-    it.skip('is accessible', async () => {
-      // This throws an error because the tabs are not tied to the content in this component.
-      // Arrange
+    it('is accessible', async () => {
+      // Adding the tab content container as they are added outside this component
       const tabProps = { ...props, displayAccessControlTab: true, displayAddOnsTab: true };
-      const { container } = render(<TabsRow {...tabProps} />);
+      const { container } = render(
+        <>
+          <TabsRow {...tabProps} />
+
+          <div id="overviewTabContent" />
+          <div id="accessControlTabContent" />
+        </>,
+      );
 
       // Assert
       await checkAccessibility(container);
