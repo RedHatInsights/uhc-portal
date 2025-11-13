@@ -119,13 +119,27 @@ describe('<NetworkSelfServiceSection />', () => {
     jest.clearAllMocks();
   });
 
-  it.skip('is accessible with no data', async () => {
-    // This test throws an Async callback was not invoked within the 5000 ms timeout specified by jest.setTimeout.Timeout
-    // error when trying to check accessibility
-    // This is most likely an issue with the internal timers
-
+  it('is accessible with no data', async () => {
+    useFetchGrantsMock.mockReturnValue({
+      data: [],
+      isLoading: true,
+      isError: false,
+      error: null,
+    });
+    useFetchRolesMock.mockReturnValue({
+      data: [],
+      isLoading: true,
+      isError: false,
+      error: null,
+    });
     const { container } = render(<NetworkSelfServiceSection {...props} />);
+    // Use real timers for accessibility testing since axe-core requires real timers
+    jest.useRealTimers();
     await checkAccessibility(container);
+    // Restore fake timers for other tests
+    jest.useFakeTimers({
+      legacyFakeTimers: true,
+    });
   });
 
   it('should call getGrants and getRoles on mount', () => {
