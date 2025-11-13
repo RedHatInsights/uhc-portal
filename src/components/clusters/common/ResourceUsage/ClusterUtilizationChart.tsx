@@ -114,6 +114,7 @@ function ClusterUtilizationChart({
         <div className="metrics-chart">
           <ChartDonutThreshold
             ariaDesc={title}
+            ariaTitle={title}
             data={[
               { x: '', y: 80 },
               { x: 'Warning at 80%', y: 95 },
