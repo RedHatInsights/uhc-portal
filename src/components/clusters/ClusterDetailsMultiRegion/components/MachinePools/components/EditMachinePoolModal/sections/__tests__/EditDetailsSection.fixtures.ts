@@ -100,8 +100,7 @@ const mockHypershiftCluster: ClusterFromSubscription = {
   hypershift: { enabled: true },
 };
 
-// Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-const mockMachinePools: (MachinePool & { imageType?: string })[] = [
+const mockMachinePools: MachinePool[] = [
   {
     kind: 'MachinePool',
     id: 'workers-1',
