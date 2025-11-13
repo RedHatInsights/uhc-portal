@@ -22,6 +22,7 @@ import ConnectedModal from '~/components/common/Modal/ConnectedModal';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { useSetFilteredTotal } from '~/hooks/useSetFilteredTotal';
+import { useGetAccessProtection } from '~/queries/AccessRequest/useGetAccessProtection';
 import {
   refetchAccessRequests,
   useFetchAccessRequests,
@@ -31,6 +32,7 @@ import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { viewActions } from '~/redux/actions/viewOptionsActions';
 import { viewConstants } from '~/redux/constants';
 import { useGlobalState } from '~/redux/hooks';
+import { isRestrictedEnv } from '~/restrictedEnv';
 import { AccessRequest as AccessRequestModel } from '~/types/access_transparency.v1';
 import { ViewSorting } from '~/types/types';
 
@@ -54,12 +56,23 @@ export const AccessRequest = ({ subscriptionId, showClusterName = false }: Acces
   const viewOptions = useGlobalState((state) => state.viewOptions[viewType], shallowEqual);
   const { organization } = useOrganization();
   const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
+
+  const {
+    enabled: isOrganizationAccessProtectionEnabled,
+    isLoading: isOrganizationAccessProtectionLoading,
+  } = useGetAccessProtection(
+    {
+      organizationId: organization?.id,
+    },
+    isRestrictedEnv(),
+  );
+
   const { data: accessRequests, isLoading: isAccessRequestsLoading } = useFetchAccessRequests({
     subscriptionId,
     organizationId: !subscriptionId ? organization?.id : undefined,
     params: viewOptions,
-    isAccessProtectionLoading: false,
-    accessProtection: { enabled: true },
+    isAccessProtectionLoading: isOrganizationAccessProtectionLoading,
+    accessProtection: { enabled: isOrganizationAccessProtectionEnabled || false },
   });
 
   const isPendingNoData = useMemo(
