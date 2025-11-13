@@ -40,6 +40,7 @@ const TokenErrorAlert = ({ token }) => {
       isInline
       className="token-error-alert"
       title="Failed to obtain pull secret"
+      component="div" // changing to div because we don't know the exact heading level
     >
       {message}
     </Alert>
