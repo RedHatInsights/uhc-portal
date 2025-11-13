@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 import {
+  Badge,
   PageSection,
   Tab,
   TabContent,
@@ -17,6 +18,7 @@ import ClusterList from '../ClusterListMultiRegion';
 import ClusterTransferList from '../ClusterTransfer/ClusterTransferList';
 
 import { ClustersPageHeader } from './ClustersPageHeader';
+import { useCountPendingRequest } from './useCountPendingRequest';
 
 const CLUSTERS_ROUTES = {
   BASE: '/clusters',
@@ -39,7 +41,7 @@ export const Clusters = () => {
     },
     [navigate],
   );
-
+  const total = useCountPendingRequest();
   return (
     <AppPage title="Clusters | Red Hat OpenShift Cluster Manager">
       <ClustersPageHeader />
@@ -59,7 +61,9 @@ export const Clusters = () => {
           />
           <Tab
             eventKey="requests"
-            title={<TabTitleText>Cluster Requests</TabTitleText>}
+            title={
+              <TabTitleText>Cluster Request {total ? <Badge>{total}</Badge> : null}</TabTitleText>
+            }
             aria-label="Cluster Requests"
             tabContentId="requests"
           />
