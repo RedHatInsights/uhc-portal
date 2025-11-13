@@ -32,8 +32,6 @@ import {
 } from '~/common/validators';
 import { getIncompatibleVersionReason } from '~/common/versionCompatibility';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
-import { MAX_NODES_INSUFFICIEN_VERSION as MAX_NODES_180 } from '~/components/clusters/common/machinePools/constants';
-import { getMaxNodesTotalDefaultAutoscaler } from '~/components/clusters/common/machinePools/utils';
 import { QuotaTypes } from '~/components/clusters/common/quotaModel';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
 import {
@@ -57,7 +55,6 @@ import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import {
   ALLOW_EUS_CHANNEL,
-  MAX_NODES_TOTAL_249,
   MULTIREGION_PREVIEW_ENABLED,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -116,7 +113,6 @@ function Details() {
   const isMultiAz = multiAz === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
-  const allow249Nodes = useFeatureGate(MAX_NODES_TOTAL_249);
 
   const getInstallableVersionsResponse = useGlobalState((state) => state.clusters.clusterVersions);
 
@@ -286,14 +282,6 @@ function Details() {
     if (!canDefineSecurityGroups) {
       setFieldValue(FieldId.SecurityGroups, getDefaultSecurityGroupsSettings());
     }
-
-    // reset max-nodes-total to default
-    const { value: MultiAz } = getFieldProps(FieldId.MultiAz);
-    const maxNodesTotalDefault = allow249Nodes
-      ? getMaxNodesTotalDefaultAutoscaler(clusterVersion.raw_id, MultiAz === 'true')
-      : MAX_NODES_180;
-
-    setFieldValue('cluster_autoscaling.resource_limits.max_nodes_total', maxNodesTotalDefault);
   };
 
   const handleCloudRegionChange = () => {
@@ -366,14 +354,6 @@ function Details() {
       mpSubnetsReset.push(emptyAWSSubnet());
     }
     setFieldValue(FieldId.MachinePoolsSubnets, mpSubnetsReset);
-
-    // reset max-nodes-total to default
-    const { value: clusterVersion } = getFieldProps(FieldId.ClusterVersion);
-    const maxNodesTotalDefault = allow249Nodes
-      ? getMaxNodesTotalDefaultAutoscaler(clusterVersion?.raw_id, isValueMultiAz)
-      : MAX_NODES_180;
-
-    setFieldValue('cluster_autoscaling.resource_limits.max_nodes_total', maxNodesTotalDefault);
   };
 
   const RegionField = (
