@@ -225,12 +225,6 @@ describe('<BillingModel />', () => {
       expect(screen.getByText('Customer cloud subscription')).toBeInTheDocument();
       expect(screen.queryByText('Red Hat cloud account')).not.toBeInTheDocument();
     });
-    it('displays only customer cloud subscription infrastructure option', () => {
-      render(buildTestComponent());
-
-      expect(screen.getByText('Customer cloud subscription')).toBeInTheDocument();
-      expect(screen.queryByText('Red Hat cloud account')).not.toBeInTheDocument();
-    });
     it('has customer cloud subscription selected by default', () => {
       render(buildTestComponent());
       const byocRadioCCSOption = screen.getByRole('radio', {
