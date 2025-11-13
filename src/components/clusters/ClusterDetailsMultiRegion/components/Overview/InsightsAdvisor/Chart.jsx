@@ -20,6 +20,7 @@ const Chart = ({ entries, issueCount, externalId }) => (
       y: v,
     }))}
     title={`${issueCount}`}
+    ariaTitle={`Chart number of issues: ${issueCount}`}
     titleComponent={<InsightsTitleComponent style={{}} />}
     subTitle={`Total ${issueCount === 1 ? 'issue' : 'issues'}`}
     subTitleComponent={<InsightsSubtitleComponent externalId={externalId} style={{}} />}
