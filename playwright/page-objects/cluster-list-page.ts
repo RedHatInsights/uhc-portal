@@ -18,7 +18,7 @@ export class ClusterListPage extends BasePage {
   }
 
   viewOnlyMyCluster(): Locator {
-    return this.page.locator('label > input[id="view-only-my-clusters"]');
+    return this.page.getByText('View only my clusters');
   }
 
   viewOnlyMyClusterHelp(): Locator {
@@ -80,7 +80,7 @@ export class ClusterListPage extends BasePage {
   }
 
   async clusterListRefresh(): Promise<void> {
-    await this.page.locator('button[aria-label="Refresh"]').click({ force: true });
+    await this.page.locator('button[aria-label="Refresh"]').click();
   }
 
   async clickClusterTypeFilters(): Promise<void> {
@@ -96,10 +96,10 @@ export class ClusterListPage extends BasePage {
   }
 
   async checkForDetailsInAnchor(): Promise<void> {
-    const anchors = this.page.locator('tr.pf-v6-c-table__tr').locator('td[data-label="Name"] a');
-    await expect(anchors.first()).toBeVisible();
-
+    await this.waitForDataReady();
+    const anchors = this.page.locator('tr td[data-label="Name"] a');
     const count = await anchors.count();
+    expect(count).toBeGreaterThan(0);
     for (let i = 0; i < count; i++) {
       const href = await anchors.nth(i).getAttribute('href');
       expect(href).toContain('/openshift/details/');
@@ -107,10 +107,7 @@ export class ClusterListPage extends BasePage {
   }
 
   async checkIfFirstAnchorNavigatesToCorrectRoute(): Promise<void> {
-    const anchor = this.page
-      .locator('tr.pf-v6-c-table__tr')
-      .locator('td[data-label="Name"] a')
-      .first();
+    const anchor = this.page.locator('tr').locator('td[data-label="Name"] a').first();
     const href = await anchor.getAttribute('href');
     await anchor.click();
     await expect(this.page).toHaveURL(new RegExp('/openshift/details/'));
@@ -152,7 +149,7 @@ export class ClusterListPage extends BasePage {
   }
 
   async checkFilteredClusterTypes(type: string, isContains: boolean): Promise<void> {
-    const elements = this.page.locator('span.pf-v6-c-label__text');
+    const elements = this.page.getByTestId('cluster-type-filter-chip');
     const count = await elements.count();
 
     for (let i = 0; i < count; i++) {
@@ -187,6 +184,6 @@ export class ClusterListPage extends BasePage {
   }
 
   async clearFilters(): Promise<void> {
-    await this.page.locator('button').filter({ hasText: 'Clear filters' }).click({ force: true });
+    await this.page.locator('button').filter({ hasText: 'Clear filters' }).click();
   }
 }
