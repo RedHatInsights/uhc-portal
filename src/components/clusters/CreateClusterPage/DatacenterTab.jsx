@@ -23,54 +23,63 @@ const ocpTableRows = [
       <Link to="/install/metal">Bare Metal (x86_64)</Link>
     </>,
     'Full stack automation and pre-existing infrastructure',
+    'bareMetalx86',
   ],
   [
     <>
       <Link to="/install/arm">Bare Metal (ARM)</Link>
     </>,
     'Full stack automation and pre-existing infrastructure',
+    'bareMetalArm',
   ],
   [
     <>
       <Link to="/install/azure-stack-hub">Azure Stack Hub</Link>
     </>,
     'Full stack automation and pre-existing infrastructure',
+    'azureStackHub',
   ],
   [
     <>
       <Link to="/install/ibmz">IBM Z (s390x)</Link>
     </>,
     'Full stack automation and pre-existing infrastructure',
+    'ibmZ',
   ],
   [
     <>
       <Link to="/install/power">IBM Power (ppc64le)</Link>
     </>,
     'Full stack automation and pre-existing infrastructure',
+    'ibmPower',
   ],
   [
     <>
       <Link to="/install/nutanix">Nutanix AOS</Link>
     </>,
     'Full stack automation and pre-existing infrastructure',
+    'nutanixAOS',
   ],
   [
     <>
       <Link to="/install/openstack">Red Hat OpenStack</Link>
     </>,
     'Full stack automation and pre-existing infrastructure',
+    'rhOpenStack',
   ],
   [
     <>
       <Link to="/install/vsphere">vSphere</Link>
     </>,
     'Full stack automation and pre-existing infrastructure',
+    'vSphere',
   ],
   [
     <>
       <Link to="/install/platform-agnostic">Platform agnostic (x86_64)</Link>
     </>,
     'Pre-existing infrastructure',
+    'platformAgnostic',
   ],
 ];
 
@@ -121,13 +130,15 @@ const DatacenterTab = () => (
         <StackItem>
           <Table className="install-options-table" aria-label="Installation options table">
             <Thead>
-              {ocpTableColumns.map((column) => (
-                <Th>{column}</Th>
-              ))}
+              <Tr>
+                {ocpTableColumns.map((column) => (
+                  <Th key={column}>{column}</Th>
+                ))}
+              </Tr>
             </Thead>
             <Tbody>
               {ocpTableRows.map((row) => (
-                <Tr>
+                <Tr key={row[2]}>
                   <Td>{row[0]}</Td>
                   <Td>{row[1]}</Td>
                 </Tr>
