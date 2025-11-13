@@ -12,6 +12,7 @@ type Props = {
   variant: 'top' | 'bottom';
   isDisabled: boolean;
   onPageChange: (_event: any, page: number) => void;
+  ariaLabel?: string;
 };
 
 export const PaginationRow = ({
@@ -24,6 +25,7 @@ export const PaginationRow = ({
   onPerPageSelect,
   variant,
   isDisabled,
+  ariaLabel,
 }: Props) => (
   <Pagination
     data-testid="page_drop_down"
@@ -42,5 +44,6 @@ export const PaginationRow = ({
     isDisabled={isDisabled}
     onFirstClick={onPageChange}
     onLastClick={onPageChange}
+    titles={{ paginationAriaLabel: ariaLabel || 'Pagination' }}
   />
 );

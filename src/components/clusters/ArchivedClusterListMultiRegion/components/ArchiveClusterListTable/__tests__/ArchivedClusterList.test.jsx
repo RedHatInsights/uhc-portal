@@ -1,31 +1,45 @@
 import React from 'react';
 
-import { checkAccessibility, render, screen } from '~/testUtils';
+import * as useFetchClusters from '~/queries/ClusterListQueries/useFetchClusters';
+import { checkAccessibility, screen, withState } from '~/testUtils';
 
 import ArchivedClusterList from '../../../ArchivedClusterList';
 
 import * as Fixtures from './ArchivedClusterList.fixtures';
 
+jest.mock('react-redux', () => {
+  const config = {
+    __esModule: true,
+    ...jest.requireActual('react-redux'),
+  };
+  return config;
+});
+
+const mockedGetFetchedClusters = jest.spyOn(useFetchClusters, 'useFetchClusters');
+
 describe('<ArchivedClusterList />', () => {
   describe('ArchivedClusterList', () => {
-    it.skip('is accessible', async () => {
-      // This fails because there are two pagination area with role
-      // that do not have unique accessible labels
-      const { container } = render(
-        <ArchivedClusterList
-          viewOptions={{
-            flags: {},
-            fields: {},
-            sorting: {
-              sortIndex: 0,
-              isAscending: true,
-              sortField: 'name',
-            },
-          }}
-          {...Fixtures}
-        />,
-      );
+    it('is accessible', async () => {
+      mockedGetFetchedClusters.mockReturnValue({
+        data: { items: Fixtures.clusters },
+        isLoading: false,
+        isFetching: false,
+        isFetched: true,
+        errors: [],
+      });
+
+      const props = {
+        getCloudProviders: jest.fn(),
+        cloudProviders: Fixtures.cloudProviders,
+        closeModal: jest.fn(),
+        clearGlobalError: jest.fn(),
+        openModal: jest.fn(),
+        getMultiRegion: false,
+      };
+      const { container } = withState({}, true).render(<ArchivedClusterList {...props} />);
+
       expect(await screen.findByRole('grid')).toBeInTheDocument();
+
       await checkAccessibility(container);
     });
   });
