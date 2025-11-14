@@ -180,8 +180,6 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
               GCP Service account
             </Title>
           )}
-        </FlexItem>
-        <FlexItem>
           {authType === GCPAuthType.ServiceAccounts && <ServiceAccountNotRecommendedAlert />}
           <Prerequisites acknowledgementRequired initiallyExpanded>
             {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
