@@ -71,11 +71,7 @@ export const useFetchAccessRequests = ({
 
   // Check if we're in a loading state
   const combinedIsLoading =
-    isLoading ||
-    isAccessProtectionLoading ||
-    isClusterDataLoading ||
-    isClusterDataFetching ||
-    needsClusterData;
+    isLoading || isClusterDataLoading || isClusterDataFetching || needsClusterData;
 
   // Only build the joined data if we have cluster data or if there are no cluster IDs to fetch
   let accessRequestsWithClusterData: (AccessRequest & { name: string })[] | undefined;
