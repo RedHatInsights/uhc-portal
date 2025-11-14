@@ -9,6 +9,7 @@ import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { clearCcsCredientialsInquiry } from '~/redux/actions/ccsInquiriesActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { clusterService } from '~/services';
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { GcpByocFields } from './GcpByocFields/GcpByocFields';
 import { AwsByocFields } from './AwsByocFields';
@@ -25,11 +26,11 @@ export const CloudProvider = () => {
       [FieldId.SecretAccessKey]: secretAccessKey,
       [FieldId.GcpServiceAccount]: gcpServiceAccount,
       [FieldId.GcpAuthType]: gcpAuthType,
+      [FieldId.BillingModel]: billingModel,
     },
   } = useFormState();
   const { ccsCredentialsValidity } = useGlobalState((state) => state.ccsInquiries);
   const isByoc = byoc === 'true';
-
   React.useEffect(() => {
     dispatch(clearCcsCredientialsInquiry());
   }, [
@@ -43,8 +44,10 @@ export const CloudProvider = () => {
   ]);
 
   return (
-    <Form>
-      <Title headingLevel="h3">Select a cloud provider</Title>
+    <Form isWidthLimited onSubmit={(e) => e.preventDefault()}>
+      {billingModel !== SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
+        <Title headingLevel="h3">Select a cloud provider</Title>
+      )}
       <CloudProviderTileField />
       {isByoc && (
         <>

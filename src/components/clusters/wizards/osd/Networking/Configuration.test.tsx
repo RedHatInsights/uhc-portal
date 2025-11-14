@@ -1,6 +1,8 @@
 import React from 'react';
 import { Formik, FormikValues } from 'formik';
 
+import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
+import useAnalytics from '~/hooks/useAnalytics';
 import { PRIVATE_SERVICE_CONNECT } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
@@ -9,6 +11,13 @@ import { FieldId, initialValues } from '../constants';
 
 import { Configuration } from './Configuration';
 import { ClusterPrivacyType } from './constants';
+
+// Mock hooks
+jest.mock('~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud');
+jest.mock('~/hooks/useAnalytics');
+
+const mockUseIsOSDFromGoogleCloud = useIsOSDFromGoogleCloud as jest.Mock;
+const mockUseAnalytics = useAnalytics as jest.Mock;
 
 const prepareComponent = (customValues?: FormikValues) => (
   <Formik
@@ -31,6 +40,12 @@ const prepareComponent = (customValues?: FormikValues) => (
 );
 
 describe('<Configuration /> using Serivce Account', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseIsOSDFromGoogleCloud.mockReturnValue(false);
+    mockUseAnalytics.mockReturnValue(jest.fn());
+  });
+
   describe('<Configuration /> with Public selected', () => {
     it('renders correctly with default fields', () => {
       render(
@@ -112,6 +127,12 @@ describe('<Configuration /> using Serivce Account', () => {
 });
 
 describe('<Configuration /> using WIF', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseIsOSDFromGoogleCloud.mockReturnValue(false);
+    mockUseAnalytics.mockReturnValue(jest.fn());
+  });
+
   describe('<Configuration /> using WIF with Public selected', () => {
     it('renders correctly with default fields', () => {
       render(
@@ -197,5 +218,81 @@ describe('<Configuration /> using WIF', () => {
         }),
       ).toBeDisabled();
     });
+  });
+});
+
+describe('when useIsOSDFromGoogleCloud returns true', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseIsOSDFromGoogleCloud.mockReturnValue(true);
+    mockUseAnalytics.mockReturnValue(jest.fn());
+  });
+
+  it('Install to VPC checkbox remains checked and disabled when using Service Account', async () => {
+    render(
+      prepareComponent({
+        [FieldId.ClusterPrivacy]: ClusterPrivacyType.External,
+        [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
+        [FieldId.Byoc]: 'true',
+        [FieldId.CloudProvider]: 'gcp',
+        [FieldId.InstallToVpc]: true,
+      }),
+    );
+
+    const installToVpcCheckbox = screen.getByRole('checkbox', {
+      name: 'Install into an existing VPC',
+    });
+
+    expect(installToVpcCheckbox).toBeInTheDocument();
+    expect(installToVpcCheckbox).toBeChecked();
+    expect(installToVpcCheckbox).toBeDisabled();
+  });
+
+  it('switches between Private and Public cluster privacy multiple times and checkbox stays checked and disabled', async () => {
+    const { user } = render(
+      prepareComponent({
+        [FieldId.ClusterPrivacy]: ClusterPrivacyType.External,
+        [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+        [FieldId.Byoc]: 'true',
+        [FieldId.CloudProvider]: 'gcp',
+        [FieldId.InstallToVpc]: true,
+      }),
+    );
+
+    const installToVpcCheckbox = screen.getByRole('checkbox', {
+      name: 'Install into an existing VPC',
+    });
+
+    // Initial state - Public
+    expect(installToVpcCheckbox).toBeChecked();
+    expect(installToVpcCheckbox).toBeDisabled();
+
+    // Click Private
+    await user.click(screen.getByRole('radio', { name: /Private/i }));
+    await waitFor(() => {
+      expect(installToVpcCheckbox).toBeChecked();
+    });
+    expect(installToVpcCheckbox).toBeDisabled();
+
+    // Click Public
+    await user.click(screen.getByRole('radio', { name: /Public/i }));
+    await waitFor(() => {
+      expect(installToVpcCheckbox).toBeChecked();
+    });
+    expect(installToVpcCheckbox).toBeDisabled();
+
+    // Click Private again
+    await user.click(screen.getByRole('radio', { name: /Private/i }));
+    await waitFor(() => {
+      expect(installToVpcCheckbox).toBeChecked();
+    });
+    expect(installToVpcCheckbox).toBeDisabled();
+
+    // Click Public again
+    await user.click(screen.getByRole('radio', { name: /Public/i }));
+    await waitFor(() => {
+      expect(installToVpcCheckbox).toBeChecked();
+    });
+    expect(installToVpcCheckbox).toBeDisabled();
   });
 });

@@ -37,10 +37,12 @@ const featureGateQueryObj = (feature: (typeof Features)[keyof typeof Features]) 
   };
 };
 
-export const preFetchAllFeatureGates = () => {
-  Object.values(Features).forEach((feature) => {
-    queryClient.prefetchQuery(featureGateQueryObj(feature));
-  });
+export const preFetchAllFeatureGates = async () => {
+  await Promise.all(
+    Object.values(Features).map((feature) =>
+      queryClient.prefetchQuery(featureGateQueryObj(feature)),
+    ),
+  );
 };
 
 // Because stale time is set to infinity

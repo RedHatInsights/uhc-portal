@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Formik, FormikValues } from 'formik';
 import omit from 'lodash/omit';
 import { useDispatch } from 'react-redux';
@@ -27,6 +27,7 @@ import {
 import submitOSDRequest from '~/components/clusters/wizards/common/submitOSDRequest';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { osdWizardFormValidator } from '~/components/clusters/wizards/osd/formValidators';
+import { OsdWizardContext } from '~/components/clusters/wizards/osd/OsdWizardContext';
 import Breadcrumbs from '~/components/common/Breadcrumbs';
 import PageTitle from '~/components/common/PageTitle';
 import Unavailable from '~/components/common/Unavailable';
@@ -40,7 +41,10 @@ import getLoadBalancerValues from '~/redux/actions/loadBalancerActions';
 import getPersistentStorageValues from '~/redux/actions/persistentStorageActions';
 import { getOrganizationAndQuota } from '~/redux/actions/userActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
-import { QuotaCostList } from '~/types/accounts_mgmt.v1';
+import {
+  QuotaCostList,
+  SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel,
+} from '~/types/accounts_mgmt.v1';
 import { ErrorState } from '~/types/types';
 
 import { QuotaTypes } from '../../common/quotaModel';
@@ -75,6 +79,7 @@ import { ReviewAndCreate } from './ReviewAndCreate';
 
 interface CreateOsdWizardProps {
   product?: string;
+  isOSDFromGoogleCloud?: boolean;
 }
 
 const CreateOsdWizardInternal = () => {
@@ -282,7 +287,10 @@ const CreateOsdWizardInternal = () => {
   );
 };
 
-export const CreateOsdWizard = ({ product }: CreateOsdWizardProps) => {
+export const CreateOsdWizard = ({
+  product,
+  isOSDFromGoogleCloud = false,
+}: CreateOsdWizardProps) => {
   const dispatch = useDispatch();
   const persistentStorageValues = useGlobalState((state) => state.persistentStorageValues);
   const loadBalancerValues = useGlobalState((state) => state.loadBalancerValues);
@@ -332,7 +340,7 @@ export const CreateOsdWizard = ({ product }: CreateOsdWizardProps) => {
   const isWifDefaultEnabled = useFeatureGate(GCP_WIF_DEFAULT);
 
   const defaultAuthType =
-    isWifEnabled && isWifDefaultEnabled
+    (isWifEnabled && isWifDefaultEnabled) || isOSDFromGoogleCloud
       ? GCPAuthType.WorkloadIdentityFederation
       : GCPAuthType.ServiceAccounts;
 
@@ -340,30 +348,37 @@ export const CreateOsdWizard = ({ product }: CreateOsdWizardProps) => {
     ...initialValues,
     ...(product && { product }),
     [FieldId.GcpAuthType]: defaultAuthType,
+    ...(isOSDFromGoogleCloud && {
+      [FieldId.InstallToVpc]: true,
+      [FieldId.BillingModel]: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
+      [FieldId.Byoc]: 'true',
+    }),
   };
-
+  const contextValue = useMemo(() => ({ isOSDFromGoogleCloud }), [isOSDFromGoogleCloud]);
   return (
     <AppPage title={documentTitle}>
-      <Formik
-        initialValues={defaultInitialValues}
-        initialTouched={initialTouched}
-        validate={osdWizardFormValidator}
-        validateOnChange={false}
-        onSubmit={onSubmit}
-      >
-        <>
-          <PageTitle
-            title="Create an OpenShift Dedicated Cluster"
-            breadcrumbs={<Breadcrumbs path={breadcrumbs} />}
-          />
-          <PageSection hasBodyWrapper={false}>
-            {config.fakeOSD && (
-              <Banner color="yellow">On submit, a fake OSD cluster will be created.</Banner>
-            )}
-            <CreateOsdWizardInternal />
-          </PageSection>
-        </>
-      </Formik>
+      <OsdWizardContext.Provider value={contextValue}>
+        <Formik
+          initialValues={defaultInitialValues}
+          initialTouched={initialTouched}
+          validate={osdWizardFormValidator}
+          validateOnChange={false}
+          onSubmit={onSubmit}
+        >
+          <>
+            <PageTitle
+              title="Create an OpenShift Dedicated Cluster"
+              breadcrumbs={<Breadcrumbs path={breadcrumbs} />}
+            />
+            <PageSection hasBodyWrapper={false}>
+              {config.fakeOSD && (
+                <Banner color="yellow">On submit, a fake OSD cluster will be created.</Banner>
+              )}
+              <CreateOsdWizardInternal />
+            </PageSection>
+          </>
+        </Formik>
+      </OsdWizardContext.Provider>
     </AppPage>
   );
 };

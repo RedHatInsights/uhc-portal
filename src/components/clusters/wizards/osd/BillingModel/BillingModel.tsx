@@ -25,6 +25,7 @@ import { CloudProviderType } from '~/components/clusters/wizards/common/constant
 import { RadioGroupField, RadioGroupOption } from '~/components/clusters/wizards/form';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
+import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import ExternalLink from '~/components/common/ExternalLink';
 import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -40,6 +41,7 @@ import './BillingModel.scss';
 
 export const BillingModel = () => {
   const hideRHMarketplace = useFeatureGate(HIDE_RH_MARKETPLACE);
+  const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
   const sourceIsGCP = getQueryParam('source') === 'gcp';
   const {
     values: {
@@ -133,7 +135,7 @@ export const BillingModel = () => {
   );
 
   const subOptions = [
-    ...(showOsdTrial
+    ...(showOsdTrial && !isOSDFromGoogleCloud
       ? [
           {
             value: STANDARD_TRIAL_BILLING_MODEL_TYPE,
@@ -144,12 +146,16 @@ export const BillingModel = () => {
           },
         ]
       : []),
-    {
-      disabled: !quotas.standardOsd,
-      value: SubscriptionCommonFieldsClusterBillingModel.standard,
-      label: 'Annual: Fixed capacity subscription from Red Hat',
-      description: 'Use the quota pre-purchased by your organization',
-    },
+    ...(!isOSDFromGoogleCloud
+      ? [
+          {
+            disabled: !quotas.standardOsd,
+            value: SubscriptionCommonFieldsClusterBillingModel.standard,
+            label: 'Annual: Fixed capacity subscription from Red Hat',
+            description: 'Use the quota pre-purchased by your organization',
+          },
+        ]
+      : []),
     {
       disabled: (!quotas.marketplace || hideRHMarketplace) && !quotas.gcpResources,
       value: 'marketplace-select',
@@ -252,15 +258,19 @@ export const BillingModel = () => {
         ? 'No available quota for Customer cloud subscription in your organization.'
         : null,
     },
-    {
-      label: 'Red Hat cloud account',
-      description: 'Deploy in cloud provider accounts owned by Red Hat',
-      value: 'false',
-      disabled: isRhInfraQuotaDisabled,
-      tooltip: isRhInfraQuotaDisabled
-        ? 'No available quota for Red Hat cloud account in your organization.'
-        : null,
-    },
+    ...(!isOSDFromGoogleCloud
+      ? [
+          {
+            label: 'Red Hat cloud account',
+            description: 'Deploy in cloud provider accounts owned by Red Hat',
+            value: 'false',
+            disabled: isRhInfraQuotaDisabled,
+            tooltip: isRhInfraQuotaDisabled
+              ? 'No available quota for Red Hat cloud account in your organization.'
+              : null,
+          },
+        ]
+      : []),
   ];
 
   const onBillingModelChange = (_event: React.FormEvent<HTMLDivElement>, value: string) => {

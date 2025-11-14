@@ -44,6 +44,7 @@ export const ALLOW_EUS_CHANNEL = 'ocmui-allow-eus-channel';
 export const PLATFORM_LIGHTSPEED_REBRAND = 'platform.lightspeed-rebrand';
 export const CAPACITY_RESERVATION_ID_FIELD = 'ocmui-capacity-reservation-id-field';
 export const TABBED_CLUSTERS = 'ocmui-tabbed-clusters';
+export const OSD_FOR_GOOGLE_CLOUD = 'ocmui-osd-wizard-for-google-cloud';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -76,4 +77,5 @@ export default {
   PLATFORM_LIGHTSPEED_REBRAND,
   CAPACITY_RESERVATION_ID_FIELD,
   TABBED_CLUSTERS,
+  OSD_FOR_GOOGLE_CLOUD,
 } as const;
