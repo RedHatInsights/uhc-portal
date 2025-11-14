@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 
 import { queryClient } from '~/components/App/queryClient';
@@ -33,8 +35,6 @@ export const useFetchAccessRequests = ({
       queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
       'fetchAccessRequests',
       params,
-      isAccessProtectionLoading,
-      accessProtection,
       subscriptionId || organizationId,
     ],
     queryFn: async () => {
@@ -54,13 +54,22 @@ export const useFetchAccessRequests = ({
     enabled: !isAccessProtectionLoading && accessProtection?.enabled,
   });
   const accessRequestItems = data?.data?.items;
-  const clusterIds =
-    accessRequestItems?.map((request) => `'${request.cluster_id}'`).join(',') || '';
+
+  const clusterIds = useMemo(
+    () => accessRequestItems?.map((request) => `'${request.cluster_id}'`).join(',') || '',
+    [accessRequestItems],
+  );
+
   const {
     data: clusterData,
     isLoading: isClusterDataLoading,
     isFetching: isClusterDataFetching,
   } = useFetchClusterById(clusterIds);
+
+  const clusterMap = useMemo(
+    () => new Map(clusterData?.items?.map((cluster) => [cluster.id, cluster]) || []),
+    [clusterData?.items],
+  );
 
   const hasAccessRequests = !!accessRequestItems?.length;
   const hasClusterIds = !!clusterIds;
@@ -74,30 +83,36 @@ export const useFetchAccessRequests = ({
     isLoading || isClusterDataLoading || isClusterDataFetching || needsClusterData;
 
   // Only build the joined data if we have cluster data or if there are no cluster IDs to fetch
-  let accessRequestsWithClusterData: (AccessRequest & { name: string })[] | undefined;
+  const accessRequestsWithClusterData = useMemo(() => {
+    if (!hasAccessRequests || combinedIsLoading) {
+      // Return undefined while loading or if there are no access requests
+      return undefined;
+    }
 
-  if (!hasAccessRequests || combinedIsLoading) {
-    // Return undefined while loading or if there are no access requests
-    accessRequestsWithClusterData = undefined;
-  } else if (hasClusterIds && hasClusterData) {
-    // We have both access requests and cluster data, join them
-    accessRequestsWithClusterData = accessRequestItems.flatMap(
-      (request): (AccessRequest & { name: string })[] => {
-        const cluster = clusterData.items?.find((cluster) => cluster.id === request.cluster_id);
-        return cluster
-          ? [
-              {
-                ...request,
-                name: cluster.name,
-              } as AccessRequest & { name: string },
-            ]
-          : [];
-      },
-    );
-  } else if (!hasClusterIds) {
-    // No cluster IDs needed, return access requests as-is (this shouldn't happen in normal flow)
-    accessRequestsWithClusterData = accessRequestItems as (AccessRequest & { name: string })[];
-  }
+    if (hasClusterIds && hasClusterData) {
+      // We have both access requests and cluster data, join them
+      return accessRequestItems
+        .map((request) => {
+          const cluster = clusterMap.get(request.cluster_id);
+          return cluster ? { ...request, name: cluster.name } : null;
+        })
+        .filter((item): item is AccessRequest & { name: string } => item !== null);
+    }
+
+    if (!hasClusterIds) {
+      // No cluster IDs needed, return access requests as-is (this shouldn't happen in normal flow)
+      return accessRequestItems as (AccessRequest & { name: string })[];
+    }
+
+    return undefined;
+  }, [
+    hasAccessRequests,
+    combinedIsLoading,
+    hasClusterIds,
+    hasClusterData,
+    accessRequestItems,
+    clusterMap,
+  ]);
 
   return {
     data: accessRequestsWithClusterData,
