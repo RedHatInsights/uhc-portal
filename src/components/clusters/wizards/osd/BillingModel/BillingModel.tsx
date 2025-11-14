@@ -154,7 +154,6 @@ export const BillingModel = () => {
     // Select marketplace billing if user only has marketplace quota
     // Also, if the selected default billing model is disabled
     // Default to marketplace
-
     if (
       (!showOsdTrial || billingModel === SubscriptionCommonFieldsClusterBillingModel.standard) &&
       quotas.marketplace &&
