@@ -16,13 +16,10 @@ describe('<TopOverviewSection />', () => {
     isError: false,
   };
 
-  it.skip('is accessible', async () => {
+  it('is accessible', async () => {
     const { container } = render(<TopOverviewSection {...defaultProps} />);
 
-    expect(screen.getByText('Cluster List')).toBeInTheDocument();
     expect(screen.getByText('CPU and Memory utilization')).toBeInTheDocument();
-
-    // This fails due to multiple accessibility issues
     await checkAccessibility(container);
   });
 });
