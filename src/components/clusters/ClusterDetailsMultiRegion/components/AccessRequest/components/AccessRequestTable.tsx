@@ -78,7 +78,16 @@ const AccessRequestTable = ({
           <AccessRequestStateIcon accessRequest={accessRequestItem} />
         </Td>
         <Td dataLabel={columnsNames.id.title}>{accessRequestItem.id}</Td>
-        <Td dataLabel={columnsNames.created_at.title}>{accessRequestItem.created_at}</Td>
+        <Td dataLabel={columnsNames.created_at.title}>
+          <Timestamp
+            date={new Date(accessRequestItem.created_at || '')}
+            dateFormat={TimestampFormat.short}
+            timeFormat={TimestampFormat.long}
+            shouldDisplayUTC
+            is12Hour={false}
+            locale="en-CA"
+          />
+        </Td>
         <Td dataLabel={columnsNames.actions.title} isActionCell>
           <Button
             variant="secondary"
