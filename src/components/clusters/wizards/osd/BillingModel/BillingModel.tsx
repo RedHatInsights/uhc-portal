@@ -159,11 +159,10 @@ export const BillingModel = () => {
       : SubscriptionCommonFieldsClusterBillingModel.marketplace;
 
     if (
-      (((!showOsdTrial || billingModel === SubscriptionCommonFieldsClusterBillingModel.standard) &&
-        quotas.marketplace &&
-        !quotas.standardOsd &&
-        !billingModel.startsWith(SubscriptionCommonFieldsClusterBillingModel.marketplace)) ||
-        isOSDFromGoogleCloud) &&
+      (!showOsdTrial || billingModel === SubscriptionCommonFieldsClusterBillingModel.standard) &&
+      quotas.marketplace &&
+      !quotas.standardOsd &&
+      !billingModel.startsWith(SubscriptionCommonFieldsClusterBillingModel.marketplace) &&
       billingModel !== targetBillingModel
     ) {
       setFieldValue(FieldId.BillingModel, targetBillingModel);
