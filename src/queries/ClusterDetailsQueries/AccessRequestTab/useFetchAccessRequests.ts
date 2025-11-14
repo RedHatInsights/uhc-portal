@@ -19,7 +19,7 @@ export const useFetchAccessRequests = ({
   subscriptionId,
   organizationId,
   params,
-  isAccessProtectionLoading,
+  isAccessProtectionLoading = false,
   accessProtection,
 }: {
   subscriptionId?: string;
@@ -53,25 +53,59 @@ export const useFetchAccessRequests = ({
     },
     enabled: !isAccessProtectionLoading && accessProtection?.enabled,
   });
-  const clusterIds = data?.data?.items?.map((request) => `'${request.cluster_id}'`).join(',') || '';
-  const { data: clusterData } = useFetchClusterById(clusterIds);
+  const accessRequestItems = data?.data?.items;
+  const clusterIds =
+    accessRequestItems?.map((request) => `'${request.cluster_id}'`).join(',') || '';
+  const {
+    data: clusterData,
+    isLoading: isClusterDataLoading,
+    isFetching: isClusterDataFetching,
+  } = useFetchClusterById(clusterIds);
 
-  const accessRequestsWithClusterData: (AccessRequest & { name: string })[] | undefined =
-    data?.data?.items?.flatMap((request): (AccessRequest & { name: string })[] => {
-      const cluster = clusterData?.items?.find((cluster) => cluster.id === request.cluster_id);
-      return cluster
-        ? [
-            {
-              ...request,
-              name: cluster.name,
-            } as AccessRequest & { name: string },
-          ]
-        : [];
-    });
+  const hasAccessRequests = !!accessRequestItems?.length;
+  const hasClusterIds = !!clusterIds;
+  const hasClusterData = !!clusterData?.items;
+
+  // We need cluster data if we have access requests with cluster IDs
+  const needsClusterData = hasAccessRequests && hasClusterIds && !hasClusterData;
+
+  // Check if we're in a loading state
+  const combinedIsLoading =
+    isLoading ||
+    isAccessProtectionLoading ||
+    isClusterDataLoading ||
+    isClusterDataFetching ||
+    needsClusterData;
+
+  // Only build the joined data if we have cluster data or if there are no cluster IDs to fetch
+  let accessRequestsWithClusterData: (AccessRequest & { name: string })[] | undefined;
+
+  if (!hasAccessRequests || combinedIsLoading) {
+    // Return undefined while loading or if there are no access requests
+    accessRequestsWithClusterData = undefined;
+  } else if (hasClusterIds && hasClusterData) {
+    // We have both access requests and cluster data, join them
+    accessRequestsWithClusterData = accessRequestItems.flatMap(
+      (request): (AccessRequest & { name: string })[] => {
+        const cluster = clusterData.items?.find((cluster) => cluster.id === request.cluster_id);
+        return cluster
+          ? [
+              {
+                ...request,
+                name: cluster.name,
+              } as AccessRequest & { name: string },
+            ]
+          : [];
+      },
+    );
+  } else if (!hasClusterIds) {
+    // No cluster IDs needed, return access requests as-is (this shouldn't happen in normal flow)
+    accessRequestsWithClusterData = accessRequestItems as (AccessRequest & { name: string })[];
+  }
 
   return {
     data: accessRequestsWithClusterData,
-    isLoading,
+    isLoading: combinedIsLoading,
     isError,
     error: isError ? formatErrorData(isLoading, isError, error) : error,
     isSuccess,
