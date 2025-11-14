@@ -95,6 +95,10 @@ describe('<BillingModel />', () => {
   describe('When creating a cluster coming from google cloud console', () => {
     beforeEach(() => {
       mockUseIsOSDFromGoogleCloud.mockReturnValue(true);
+      mockUseGetBillingQuotas.mockReturnValue({
+        ...defaultQuotas,
+        standardOsd: false,
+      });
     });
     it('is accessible', async () => {
       const { container } = render(buildTestComponent());
