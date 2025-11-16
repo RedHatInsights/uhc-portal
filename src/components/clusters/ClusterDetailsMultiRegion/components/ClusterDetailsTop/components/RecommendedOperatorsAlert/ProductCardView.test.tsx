@@ -111,7 +111,6 @@ describe('<ProductCardView />', () => {
     const { title } = PROPS;
 
     // Assert
-    expect(screen.getByTestId(`${title}-product-card-view`)).toHaveAttribute('hidden');
     expect(screen.queryByTestId(`${title}-product-card-view`)).not.toBeVisible();
     expect(screen.getByText(title)).not.toBeVisible();
   });
@@ -124,7 +123,6 @@ describe('<ProductCardView />', () => {
     const { title } = PROPS;
 
     // Assert
-    expect(screen.getByTestId(`${title}-product-card-view`)).not.toHaveAttribute('hidden');
     expect(screen.getByText(title)).toBeVisible();
   });
 

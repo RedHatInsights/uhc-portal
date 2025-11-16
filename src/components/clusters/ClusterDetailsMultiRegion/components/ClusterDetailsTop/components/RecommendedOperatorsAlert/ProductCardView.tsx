@@ -16,7 +16,7 @@ type ProductCardViewProps = {
     name: string;
     link: string;
   };
-  // Optional prop to control visibility
+  // Using isHidden is a temporary workaround until PF address the issue: https://github.com/patternfly/patternfly/issues/7990
   isHidden?: boolean;
 };
 
@@ -28,11 +28,7 @@ const ProductCardView = ({
   learnMoreLink,
   isHidden = false,
 }: ProductCardViewProps) => (
-  <div
-    className={`${title ? `${title}-` : ''}product-card-view`}
-    data-testid={`${title ? `${title}-` : ''}product-card-view`}
-    hidden={isHidden}
-  >
+  <div data-testid={`${title ? `${title}-` : ''}product-card-view`} hidden={isHidden}>
     {title ? (
       <Title size="xl" headingLevel="h2" className="pf-v6-u-mt-lg">
         {title}
