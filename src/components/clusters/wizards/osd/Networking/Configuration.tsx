@@ -254,10 +254,12 @@ export const Configuration = () => {
               <Title headingLevel="h4" size="xl" className="privacy-heading">
                 Virtual Private Cloud (VPC)
               </Title>
-              <Content component="p" className="pf-v6-u-mt-sm">
-                By default, a new VPC will be created for your cluster. Alternatively, you may opt
-                to install to an existing VPC below.
-              </Content>
+              {!isOSDFromGoogleCloud && (
+                <Content component="p" className="pf-v6-u-mt-sm">
+                  By default, a new VPC will be created for your cluster. Alternatively, you may opt
+                  to install to an existing VPC below.
+                </Content>
+              )}
             </GridItem>
 
             <GridItem span={6}>
