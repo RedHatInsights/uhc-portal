@@ -66,8 +66,7 @@ const reviewValues = {
   },
   cloud_provider: {
     title: 'Cloud provider',
-    valueTransform: (value) =>
-      value === 'gcp' ? 'Google Cloud Platform (GCP)' : value?.toUpperCase(),
+    valueTransform: (value) => (value === 'gcp' ? 'Google Cloud' : value?.toUpperCase()),
   },
   [FieldId.GcpAuthType]: {
     title: 'Authentication type',
