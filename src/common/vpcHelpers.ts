@@ -109,6 +109,25 @@ const getAllSubnetFieldNames = (isMultiAz: boolean): string[] => {
   }, allFieldNames);
 };
 
+// Helper to infer region if not present
+const inferRegionFromSubnets = (vpc: CloudVpc) => {
+  const availabilityZone = vpc.aws_subnets?.find(
+    (subnet) => subnet.availability_zone,
+  )?.availability_zone;
+
+  if (!availabilityZone) {
+    return undefined;
+  }
+
+  // Match AWS region patterns:
+  // - Standard: us-west-2, eu-central-1, ap-southeast-1
+  // - GovCloud: us-gov-west-1, us-gov-east-1
+  // - Local zones: us-west-2-den-1a -> us-west-2, us-gov-west-1-lax-1b -> us-gov-west-1
+  const regionMatch = availabilityZone.match(/^([a-z]+-(?:gov-)?[a-z]+-\d+)/);
+
+  return regionMatch ? regionMatch[1] : undefined;
+};
+
 export {
   vpcHasRequiredSubnets,
   filterOutRedHatManagedVPCs,
@@ -116,4 +135,5 @@ export {
   getSelectedAvailabilityZones,
   isSubnetMatchingPrivacy,
   getAllSubnetFieldNames,
+  inferRegionFromSubnets,
 };
