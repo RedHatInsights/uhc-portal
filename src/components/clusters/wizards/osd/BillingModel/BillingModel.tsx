@@ -6,12 +6,14 @@ import {
   Content,
   Flex,
   FlexItem,
+  Icon,
   Popover,
   PopoverPosition,
   Stack,
   StackItem,
   Title,
 } from '@patternfly/react-core';
+import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
 import { deleteQueryParam, getQueryParam } from '~/common/queryHelpers';
@@ -27,20 +29,16 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import ExternalLink from '~/components/common/ExternalLink';
-import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
 import { useGlobalState } from '~/redux/hooks';
 import CreateOSDWizardIntro from '~/styles/images/CreateOSDWizard-intro.png';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
-import { MarketplaceSelectField } from './MarketplaceSelectField';
 import { useGetBillingQuotas } from './useGetBillingQuotas';
 
 import './BillingModel.scss';
 
 export const BillingModel = () => {
-  const hideRHMarketplace = useFeatureGate(HIDE_RH_MARKETPLACE);
   const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
   const sourceIsGCP = getQueryParam('source') === 'gcp';
   const {
@@ -56,7 +54,6 @@ export const BillingModel = () => {
   const { clusterVersions: getInstallableVersionsResponse } = useGlobalState(
     (state) => state.clusters,
   );
-
   const clearPreviousVersionsReponse = () => {
     // clears versions from redux if it was loaded before, since different billingModels
     // can get different versions
@@ -77,61 +74,39 @@ export const BillingModel = () => {
     </p>
   );
 
-  const marketplaceQuotaDescription = (
-    <>
-      {selectedMarketplace === SubscriptionCommonFieldsClusterBillingModel.marketplace && (
-        <p>Use Red Hat Marketplace to subscribe and pay based on the services you use</p>
-      )}
-      {selectedMarketplace === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
-        <p>Use Google Cloud Marketplace to subscribe and pay based on the services you use</p>
-      )}
-      {!(selectedMarketplace === SubscriptionCommonFieldsClusterBillingModel.marketplace) &&
-        !(selectedMarketplace === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp) && (
-          <p>Use your cloud marketplace to subscribe and pay based on the services you use</p>
-        )}
-    </>
-  );
-
-  const rhmLink = (
-    <ExternalLink
-      href="https://marketplace.redhat.com/en-us/products/red-hat-openshift-dedicated"
-      noIcon
-    >
-      Red Hat Marketplace
-    </ExternalLink>
-  );
-
   const gcpLink = (
     <ExternalLink
       href="https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated"
       noIcon
     >
-      Google Cloud
+      Google Cloud Marketplace
     </ExternalLink>
   );
 
   const marketplaceDisabledDescription = (
-    <>
-      {marketplaceQuotaDescription}
-      <div>
+    <Stack>
+      <StackItem className="pf-v6-u-mb-sm">
+        <Icon status="warning">
+          <ExclamationTriangleIcon />
+        </Icon>{' '}
+        You do not currently have a Google Cloud Platform subscription
+      </StackItem>
+
+      <StackItem>
         <Popover
           position={PopoverPosition.right}
           headerContent="On-Demand subscription"
           bodyContent={
-            <p>
-              Billing based on cluster consumption. Purchase a subscription via{' '}
-              {!hideRHMarketplace ? `${rhmLink} or  ` : ''}
-              {gcpLink}
-            </p>
+            <p>Billing based on cluster consumption. Purchase a subscription via {gcpLink}</p>
           }
           aria-label="help"
         >
-          <Button icon={<OutlinedQuestionCircleIcon />} variant="link">
+          <Button icon={<OutlinedQuestionCircleIcon />} isInline variant="link">
             How can I purchase a subscription?
           </Button>
         </Popover>
-      </div>
-    </>
+      </StackItem>
+    </Stack>
   );
 
   const subOptions = [
@@ -157,27 +132,12 @@ export const BillingModel = () => {
         ]
       : []),
     {
-      disabled: (!quotas.marketplace || hideRHMarketplace) && !quotas.gcpResources,
-      value: 'marketplace-select',
-      // check the radio button if billingModel starts with 'marketplace'
-      shouldCheck: (fieldValue: string, radioValue: React.ReactText) =>
-        fieldValue.startsWith('marketplace') && `${radioValue}` === 'marketplace-select',
-      label: (
-        <>
-          <div>
-            On-Demand: Flexible usage billed through {gcpLink}{' '}
-            {!hideRHMarketplace ? <>or {rhmLink}</> : ''}
-          </div>
-          <MarketplaceSelectField
-            hasGcpQuota={quotas.gcpResources}
-            hasRhmQuota={quotas.marketplace}
-          />
-        </>
-      ),
-      description:
-        (!quotas.marketplace || hideRHMarketplace) && !quotas.gcpResources
-          ? marketplaceDisabledDescription
-          : marketplaceQuotaDescription,
+      disabled: !quotas.gcpResources,
+      value: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
+      label: <div>On-Demand: Flexible usage billed through {gcpLink}</div>,
+      description: !quotas.gcpResources
+        ? marketplaceDisabledDescription
+        : 'Use Google Cloud Marketplace to subscribe and pay based on the services you use',
     },
   ];
 
@@ -282,6 +242,11 @@ export const BillingModel = () => {
 
     if (value === STANDARD_TRIAL_BILLING_MODEL_TYPE) {
       selectedProduct = normalizedProducts.OSDTrial;
+    }
+
+    if (value === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp) {
+      setFieldValue(FieldId.MarketplaceSelection, value, false);
+      setFieldValue(FieldId.CloudProvider, CloudProviderType.Gcp, false);
     }
 
     setFieldValue(FieldId.Product, selectedProduct);
