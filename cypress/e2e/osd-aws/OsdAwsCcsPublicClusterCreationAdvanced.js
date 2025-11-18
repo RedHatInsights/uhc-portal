@@ -38,7 +38,7 @@ describe(
     it('Step OSD - AWS CCS wizard - Cluster Settings - Select cloud provider definitions', () => {
       CreateOSDWizardPage.isCloudProviderSelectionScreen();
       CreateOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
-      CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+      CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
 
       CreateOSDWizardPage.awsAccountIDInput().type(awsAccountID);
       CreateOSDWizardPage.awsAccessKeyInput().type(awsAccessKey);

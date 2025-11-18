@@ -10,11 +10,43 @@ class CreateOSDCluster extends Page {
   }
 
   isBillingModelScreen() {
-    cy.contains('h2', 'Welcome to Red Hat OpenShift Dedicated');
+    cy.contains('h2', 'Welcome to Red Hat OpenShift Dedicated', { timeout: 40000 });
   }
 
   isCloudProviderSelectionScreen() {
     cy.contains('h3', 'Select a cloud provider');
+  }
+
+  isOnlyGCPCloudProviderSelectionScreen() {
+    cy.contains('h3', 'GCP account details').scrollIntoView().should('exist').should('be.visible');
+    cy.contains('h3', 'Select a cloud provider').should('not.exist');
+  }
+
+  isPrerequisitesHintPresent() {
+    cy.contains('strong', 'Did you complete your prerequisites?')
+      .scrollIntoView()
+      .should('exist')
+      .should('be.visible');
+    cy.contains('To create a Red Hat OpenShift Dedicated (OSD) cluster via the web interface')
+      .scrollIntoView()
+      .should('exist')
+      .should('be.visible');
+    cy.contains('a', 'Google Cloud OSD Get Started page')
+      .scrollIntoView()
+      .should('exist')
+      .should('be.visible')
+      .should(
+        'have.attr',
+        'href',
+        'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
+      );
+  }
+
+  isWIFRecommendationAlertPresent() {
+    cy.get('h4')
+      .contains('Red Hat recommends using WIF as the authentication type')
+      .should('exist')
+      .should('be.visible');
   }
 
   isClusterDetailsScreen() {
@@ -104,7 +136,7 @@ class CreateOSDCluster extends Page {
 
   clusterDetailsTree = () => cy.get('button[id="cluster-settings-details"]').contains('Details');
 
-  acknowlegePrerequisitesCheckbox = () => cy.get('input[id="acknowledge_prerequisites"]');
+  acknowledgePrerequisitesCheckbox = () => cy.get('input[id="acknowledge_prerequisites"]');
 
   createCustomDomainPrefixCheckbox = () => cy.get('input[id="has_domain_prefix"]');
 
@@ -112,11 +144,11 @@ class CreateOSDCluster extends Page {
 
   clusterVersionPane = () => cy.get('div[name="cluster_version"]');
 
-  singleZoneAvilabilityRadio = () => cy.get('input[id="form-radiobutton-multi_az-false-field"]');
+  singleZoneAvailabilityRadio = () => cy.get('input[id="form-radiobutton-multi_az-false-field"]');
 
   multiZoneAvilabilityRadio = () => cy.get('input[id="form-radiobutton-multi_az-true-field"]');
 
-  enableSecureBootSupportForSchieldedVMsCheckbox = () => cy.get('input[id="secure_boot"]');
+  enableSecureBootSupportForShieldedVMsCheckbox = () => cy.get('input[id="secure_boot"]');
 
   advancedEncryptionLink = () => cy.contains('Advanced Encryption');
 
@@ -547,6 +579,14 @@ class CreateOSDCluster extends Page {
     }
   }
 
+  isCuratedBillingModelEnabledAndSelected() {
+    this.subscriptionTypeOnDemandFlexibleRadio().should('be.checked');
+    this.infrastructureTypeClusterCloudSubscriptionRadio().should('be.checked');
+    this.infrastructureTypeRedHatCloudAccountRadio().should('not.exist');
+    this.subscriptionTypeAnnualFixedCapacityRadio().should('not.exist');
+    this.subscriptionTypeFreeTrialRadio().should('not.exist');
+  }
+
   selectInfrastructureType(infrastructureType) {
     if (infrastructureType.toLowerCase().includes('customer cloud')) {
       this.infrastructureTypeClusterCloudSubscriptionRadio().check({ force: true });
@@ -561,6 +601,14 @@ class CreateOSDCluster extends Page {
     cy.get('button').contains(marketplace).click();
   }
 
+  isGoogleCloudMarketplaceSelectedByDefault() {
+    cy.get('div[name="marketplace_selection"]')
+      .find('button')
+      .should('exist')
+      .should('be.visible')
+      .should('contain.text', 'Google Cloud Marketplace');
+  }
+
   selectCloudProvider(cloudProvider) {
     if (cloudProvider.toLowerCase() == 'aws') {
       this.awsCloudProviderCard().click();
@@ -571,17 +619,17 @@ class CreateOSDCluster extends Page {
 
   selectAvailabilityZone(az) {
     if (az.toLowerCase() == 'single zone' || az.toLowerCase() == 'single-zone') {
-      this.singleZoneAvilabilityRadio().check();
+      this.singleZoneAvailabilityRadio().check();
     } else {
       this.multiZoneAvilabilityRadio().check();
     }
   }
 
-  enableSecureBootSupportForSchieldedVMs(enable) {
+  enableSecureBootSupportForShieldedVMs(enable) {
     if (enable) {
-      this.enableSecureBootSupportForSchieldedVMsCheckbox().check();
+      this.enableSecureBootSupportForShieldedVMsCheckbox().check();
     } else {
-      this.enableSecureBootSupportForSchieldedVMsCheckbox().uncheck();
+      this.enableSecureBootSupportForShieldedVMsCheckbox().uncheck();
     }
   }
 

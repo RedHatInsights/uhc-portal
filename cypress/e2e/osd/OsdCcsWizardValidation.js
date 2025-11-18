@@ -35,7 +35,7 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
         CreateOSDWizardPage.isTextContainsInPage(
           ClustersValidation.ClusterSettings.CloudProvider.Common.AcknowledgementUncheckedError,
         );
-        CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+        CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
 
         if (clusterProperties.CloudProvider.includes('GCP')) {
           if (clusterProperties.AuthenticationType.includes('Service Account')) {
@@ -48,7 +48,7 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
             CreateOSDWizardPage.isTextContainsInPage(
               ClustersValidation.ClusterSettings.CloudProvider.Common.AcknowledgementUncheckedError,
             );
-            CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+            CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
 
             CreateOSDWizardPage.uploadGCPServiceAccountJSON(
               ClustersValidation.ClusterSettings.CloudProvider.GCP
@@ -172,7 +172,7 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
       CreateOSDWizardPage.createCustomDomainPrefixCheckbox().uncheck();
       CreateOSDWizardPage.selectAvailabilityZone('Single Zone');
       if (clusterProperties.CloudProvider.includes('GCP')) {
-        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       } else {
         if (isCCSCluster) {
           CreateOSDWizardPage.advancedEncryptionLink().click();

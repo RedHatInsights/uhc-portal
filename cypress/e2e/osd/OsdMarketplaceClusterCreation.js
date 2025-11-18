@@ -33,8 +33,7 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
     });
 
     it(`OSD wizard - ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled}-${clusterProperties.Marketplace} : Cluster Settings - Cloud provider definitions`, () => {
-      CreateOSDWizardPage.isCloudProviderSelectionScreen();
-
+      CreateOSDWizardPage.isOnlyGCPCloudProviderSelectionScreen();
       CreateOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
 
       if (clusterProperties.AuthenticationType.includes('Service Account')) {
@@ -45,7 +44,7 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
         CreateOSDWizardPage.selectWorkloadIdentityConfiguration(Cypress.env('QE_GCP_WIF_CONFIG'));
       }
 
-      CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+      CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
       cy.get(CreateOSDWizardPage.primaryButton).click();
     });
 
@@ -56,10 +55,10 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
       if (clusterProperties.hasOwnProperty('Version')) {
         CreateOSDWizardPage.selectVersion(clusterProperties.Version);
       }
-      CreateOSDWizardPage.singleZoneAvilabilityRadio().check();
+      CreateOSDWizardPage.singleZoneAvailabilityRadio().check();
       CreateOSDWizardPage.selectAvailabilityZone(clusterProperties.Availability);
       CreateOSDWizardPage.enableAdditionalEtcdEncryption(true, true);
-      CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+      CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       cy.get(CreateOSDWizardPage.primaryButton).click();
     });
     it(`OSD wizard - ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} -${clusterProperties.Marketplace} : Cluster Settings - Default machinepool definitions`, () => {
