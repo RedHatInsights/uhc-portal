@@ -143,7 +143,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
         {isWifEnabled && (
           <FlexItem>
             <Title headingLevel="h3" className="pf-v6-u-mb-sm">
-              GCP account details
+              Google Cloud account details
             </Title>
             <FormGroup
               label="Authentication type"

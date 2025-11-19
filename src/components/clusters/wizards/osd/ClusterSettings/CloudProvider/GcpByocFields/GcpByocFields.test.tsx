@@ -102,7 +102,7 @@ describe('<GcpByocFields />', () => {
       render(prepareComponent());
 
       expect(await screen.findByText('GCP Service account')).toBeInTheDocument();
-      expect(screen.queryByText('GCP account details')).not.toBeInTheDocument();
+      expect(screen.queryByText('Google Cloud account details')).not.toBeInTheDocument();
       expect(screen.queryByText('Authentication type')).not.toBeInTheDocument();
       expect(
         screen.queryByRole('button', { name: workloadIdentityFederationLabel }),
