@@ -5,7 +5,11 @@ import { Button, Popover, Switch } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
 function ViewOnlyMyClustersToggle(props) {
-  const { isChecked, onChange, bodyContent } = props;
+  const {
+    isChecked = false,
+    onChange,
+    bodyContent = 'Show only the clusters you previously created, or all clusters in your organization.',
+  } = props;
 
   return (
     <Switch
@@ -31,12 +35,6 @@ ViewOnlyMyClustersToggle.propTypes = {
   isChecked: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
   bodyContent: PropTypes.string,
-};
-
-ViewOnlyMyClustersToggle.defaultProps = {
-  isChecked: false,
-  bodyContent:
-    'Show only the clusters you previously created, or all clusters in your organization.',
 };
 
 export default ViewOnlyMyClustersToggle;

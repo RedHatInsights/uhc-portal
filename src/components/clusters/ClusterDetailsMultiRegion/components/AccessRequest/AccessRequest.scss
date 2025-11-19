@@ -16,3 +16,9 @@
     }
   }
 }
+
+// Fixes a PF bug where timestamp displays as back on a tooltip
+.pf-v6-c-tooltip__content .pf-v6-c-timestamp{
+color:inherit !important;
+
+}

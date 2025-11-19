@@ -67,6 +67,8 @@ const constants = {
   enableSecureBootHint: `Secure Boot enables the use of Shielded VMs in the Google Cloud Platform. Shielded VMs help protect enterprise workloads from threats like remote attacks, privilege escalation, and malicious insiders. Secure Boot support requires OpenShift version ${MIN_SECURE_BOOT_VERSION} or above.`,
   domainPrefixHint:
     "A domain prefix will be used for the subdomain and limited to 15 characters. If you do not create a custom domain prefix, we'll generate one for you.",
+  channelGroupHint:
+    'A channel group determines the versions and updates available for your cluster. For a longer support life cycle, change the channel group to an Extended Update Support (EUS) version.',
 };
 
 const billingModelConstants = {

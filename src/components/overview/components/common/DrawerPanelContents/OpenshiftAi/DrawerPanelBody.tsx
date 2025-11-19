@@ -115,7 +115,7 @@ const OpenShiftAiDrawerPanelBody = (
             'Amazon Web Services (AWS)',
             'IBM Cloud Platform',
           ].map((item) => (
-            <Content component="li" data-testid="major-public-cloud-list-item">
+            <Content component="li" data-testid="major-public-cloud-list-item" key={item}>
               {item}
             </Content>
           ))}
