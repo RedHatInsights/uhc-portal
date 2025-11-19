@@ -16,6 +16,7 @@ describe(
       ClusterRequestPage.isClusterRequestsUrl();
       ClusterRequestPage.isClusterRequestsScreen();
       ClusterRequestPage.isClusterTranferRequestHeaderPage();
+      ClusterRequestPage.clusterTransferRequestHelpIcon().click();
       ClusterRequestPage.isClusterTranferRequestContentPage(
         'Transfer cluster ownership so that another user in your organization or another organization can manage this cluster',
       );

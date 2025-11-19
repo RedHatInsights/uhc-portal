@@ -5,12 +5,15 @@ class ClusterRequests extends Page {
     super.assertUrlIncludes('/openshift/cluster-request');
   }
 
+  clusterTransferRequestHelpIcon = () =>
+    cy.contains('Cluster transfer ownership request').parent().find('button');
+
   isClusterRequestsScreen() {
     cy.contains('h1', 'Cluster Requests');
   }
 
-  isClusterTranferRequestHeaderPage(headerName = 'Transfer Ownership Request') {
-    cy.contains('h2', headerName).should('be.visible');
+  isClusterTranferRequestHeaderPage(headerName = 'Cluster transfer ownership request') {
+    cy.contains(headerName).should('be.visible');
   }
 
   isClusterTranferRequestContentPage(content) {
