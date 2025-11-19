@@ -13480,11 +13480,11 @@ export interface components {
       href?: string;
       /** @description Link to the billing model. */
       billing_model?: components['schemas']['BillingModelItem'];
-      /** @description ImageID is the id of the Google Cloud image. */
+      /** @description ImageID is the id of the Google Cloud Platform image. */
       image_id?: string;
       /** @description Link to the product type. */
       product?: components['schemas']['Product'];
-      /** @description ProjectID is the id of the Google Cloud project that hosts the image. */
+      /** @description ProjectID is the id of the Google Cloud Platform project that hosts the image. */
       project_id?: string;
     };
     /** @description Representation of gcp machine pool specific parameters. */
@@ -15396,7 +15396,7 @@ export interface components {
       href?: string;
       /** @description Default _Amazon Web Services_ settings of the cluster. */
       aws?: components['schemas']['AWSFlavour'];
-      /** @description Default _Google Cloud_ settings of the cluster. */
+      /** @description Default _Google Cloud Platform_ settings of the cluster. */
       gcp?: components['schemas']['GCPFlavour'];
       /** @description Human friendly identifier of the cluster, for example `4`.
        *
