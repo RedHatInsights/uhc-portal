@@ -16,7 +16,7 @@ export const GCPProps = {
   breadCrumbsPaths: [
     { label: 'Cluster List' },
     { label: 'Cluster Type', path: '/create' },
-    { label: 'Google Cloud Platform' },
+    { label: 'Google Cloud' },
   ],
 };
 
@@ -30,7 +30,7 @@ export const GCPIPIProps = {
   breadCrumbsPaths: [
     { label: 'Cluster List' },
     { label: 'Cluster Type', path: '/create' },
-    { label: 'Google Cloud Platform', path: '/install/gcp' },
+    { label: 'Google Cloud', path: '/install/gcp' },
     { label: 'Installer-provisioned infrastructure' },
   ],
 };
@@ -45,7 +45,7 @@ export const GCPUPIProps = {
   breadCrumbsPaths: [
     { label: 'Cluster List' },
     { label: 'Cluster Type', path: '/create' },
-    { label: 'Google Cloud Platform', path: '/install/gcp' },
+    { label: 'Google Cloud', path: '/install/gcp' },
     { label: 'User-provisioned infrastructure' },
   ],
 };
