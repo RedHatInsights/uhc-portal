@@ -61,6 +61,7 @@ test.describe.serial('OCM Cluster archives page', { tag: ['@ci', '@smoke'] }, ()
       await clusterListPage.clickClusterTypes('ROSA');
       await clusterListPage.clickClusterTypes('ARO');
       await clusterListPage.clickClusterTypes('OCP');
+      await clusterListPage.clickClusterTypeFilters();
       await clusterListPage.clearFilters();
 
       await clusterListPage.filterTxtField().scrollIntoViewIfNeeded();
