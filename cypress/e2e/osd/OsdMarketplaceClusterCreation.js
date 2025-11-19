@@ -11,7 +11,7 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
     }
   });
   Clusters.forEach((clusterProperties) => {
-    let authType = clusterProperties.CloudProvider.includes('Google Cloud Platform')
+    let authType = clusterProperties.CloudProvider.includes('Google Cloud')
       ? `-${clusterProperties.AuthenticationType}`
       : '';
     let isPscEnabled =

@@ -138,7 +138,7 @@ describe(
       });
 
       OsdProductPage.validateRecommendationsCard({
-        title: 'Cloud provider: Google Cloud Platform',
+        title: 'Cloud provider: Google Cloud',
         cardText: 'Looking for an AWS option?',
       });
     });
