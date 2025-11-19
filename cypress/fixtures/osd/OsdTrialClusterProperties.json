@@ -58,7 +58,7 @@
     {
       "ClusterName": "ocmui-cypress-smoke-osd-trail-gcp",
       "Type": "OSD",
-      "CloudProvider": "Google Cloud Platform (GCP)",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "Free trial (upgradeable)",
       "InfrastructureType": "Customer cloud subscription",
       "Region": "us-east1, Moncks Corner, South Carolina, USA",

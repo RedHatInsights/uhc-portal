@@ -72,7 +72,7 @@ export const MarketplaceSelectField = ({
   const gcmLabel = 'Google Cloud Marketplace';
   const rhmLabel = 'Red Hat Marketplace';
   const phError = 'A selection is required.';
-  const gcmError = 'You do not currently have a Google Cloud Platform subscription.';
+  const gcmError = 'You do not currently have a Google Cloud subscription.';
   const rhmError = 'You do not currently have a Red Hat Marketplace subscription.';
 
   const marketplaceOptions = [

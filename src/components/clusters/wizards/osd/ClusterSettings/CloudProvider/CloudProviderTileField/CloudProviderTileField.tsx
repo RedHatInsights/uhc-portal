@@ -91,7 +91,7 @@ export const CloudProviderTileField = () => {
           <GCPLogo />
         </Bullseye>
       </CardHeader>
-      <CardBody>Run on Google Cloud Platform</CardBody>
+      <CardBody>Run on Google Cloud</CardBody>
     </Card>
   );
 

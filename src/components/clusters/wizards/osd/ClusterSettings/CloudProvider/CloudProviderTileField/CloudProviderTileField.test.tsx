@@ -30,7 +30,7 @@ const expectCloudProviderToBe = (submitFn: jest.Mock, value: string) => {
 
 describe('<CloudProviderTileField />', () => {
   const awsLabel = 'Amazon Web Service logo Run on Amazon Web Services';
-  const gcpLabel = 'Run on Google Cloud Platform';
+  const gcpLabel = 'Run on Google Cloud';
 
   it('is accessible', async () => {
     const { container } = render(

@@ -3,7 +3,7 @@
     "day1-profile": {
       "Description": "osd ccs gcp public cluster(service account) with single zone and custom configuration",
       "Type": "OSD",
-      "CloudProvider": "Google Cloud Platform (GCP)",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
       "SubscriptionBillingModel": "Annual Red Hat subscriptions",
       "InfrastructureType": "Customer cloud subscription",
@@ -43,7 +43,7 @@
     "day1-profile": {
       "Description": "osd ccs gcp public (service account) cluster with custom configuration",
       "Type": "OSD",
-      "CloudProvider": "Google Cloud Platform (GCP)",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
       "SubscriptionBillingModel": "Annual Red Hat subscriptions",
       "InfrastructureType": "Customer cloud subscription",
@@ -96,7 +96,7 @@
     "day1-profile": {
       "Description": "osd ccs gcp private (service account) cluster with custom configuration",
       "Type": "OSD",
-      "CloudProvider": "Google Cloud Platform (GCP)",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
       "SubscriptionBillingModel": "Annual Red Hat subscriptions",
       "InfrastructureType": "Customer cloud subscription",
@@ -150,7 +150,7 @@
     "day1-profile": {
       "Description": "osd ccs gcp public (WIF) cluster with custom configuration",
       "Type": "OSD",
-      "CloudProvider": "Google Cloud Platform (GCP)",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
       "SubscriptionBillingModel": "Annual Red Hat subscriptions",
       "InfrastructureType": "Customer cloud subscription",
@@ -203,7 +203,7 @@
     "day1-profile": {
       "Description": "osd ccs gcp private PSC (WIF) cluster with custom configuration",
       "Type": "OSD",
-      "CloudProvider": "Google Cloud Platform (GCP)",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
       "SubscriptionBillingModel": "Annual Red Hat subscriptions",
       "InfrastructureType": "Customer cloud subscription",
