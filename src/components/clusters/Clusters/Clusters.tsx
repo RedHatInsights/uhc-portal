@@ -3,6 +3,8 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import {
   PageSection,
+  Stack,
+  StackItem,
   Tab,
   TabContent,
   TabContentBody,
@@ -12,7 +14,10 @@ import {
 
 import { Navigate, useNavigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
+import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
+import { AccessRequest } from '../ClusterDetailsMultiRegion/components/AccessRequest/AccessRequest';
 import ClusterList from '../ClusterListMultiRegion';
 import ClusterTransferList from '../ClusterTransfer/ClusterTransferList';
 
@@ -27,7 +32,7 @@ const CLUSTERS_ROUTES = {
 export const Clusters = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
   const activeTabKey = location.pathname.includes(CLUSTERS_ROUTES.REQUESTS) ? 'requests' : 'list';
   const handleTabSelect = useCallback(
     (_event: React.MouseEvent<HTMLElement>, tabKey: string | number) => {
@@ -85,7 +90,14 @@ export const Clusters = () => {
           element={
             <TabContent id="requests" activeKey={activeTabKey}>
               <TabContentBody hasPadding>
-                <ClusterTransferList hideRefreshButton />
+                <Stack hasGutter>
+                  <StackItem>
+                    {isTabbedClustersEnabled && <AccessRequest showClusterName />}
+                  </StackItem>
+                  <StackItem>
+                    <ClusterTransferList hideRefreshButton />
+                  </StackItem>
+                </Stack>
               </TabContentBody>
             </TabContent>
           }

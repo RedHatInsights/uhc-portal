@@ -55,6 +55,8 @@ describe('AccessRequestTable', () => {
             sortBy={{} as ISortBy}
             setSorting={jest.fn()}
             openDetailsAction={jest.fn()}
+            isPending={false}
+            accessRequestItems={[]}
           />,
         );
 
