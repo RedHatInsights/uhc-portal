@@ -36,7 +36,7 @@ describe(
       CreateOSDWizardPage.workloadIdentityFederationButton().click();
       CreateOSDWizardPage.selectWorkloadIdentityConfiguration(Cypress.env('QE_GCP_WIF_CONFIG'));
 
-      CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+      CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
       CreateOSDWizardPage.wizardNextButton().click();
     });
 
@@ -53,7 +53,7 @@ describe(
         CreateOSDWizardPage.selectVersion(clusterProperties.Version);
       }
       if (clusterProperties.CloudProvider.includes('GCP')) {
-        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       }
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
       if (clusterProperties.AdditionalEncryption.includes('Enabled')) {

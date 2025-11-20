@@ -43,9 +43,9 @@ describe(
       CreateOSDWizardPage.selectLoadBalancers(clusterProperties.LoadBalancers);
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
       if (clusterProperties.EnableSecureBootSupportForSchieldedVMs.includes('Enabled')) {
-        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       } else {
-        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(false);
+        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(false);
       }
       if (clusterProperties.AdditionalEncryption.includes('Enabled')) {
         CreateOSDWizardPage.advancedEncryptionLink().click();

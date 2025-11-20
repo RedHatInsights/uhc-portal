@@ -64,7 +64,7 @@ describe(
           CreateOSDWizardPage.awsAccessKeyInput().type(awsAccessKey);
           CreateOSDWizardPage.awsSecretKeyInput().type(awsSecretKey);
         }
-        CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+        CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
         cy.get(CreateOSDWizardPage.primaryButton).click();
       });
 
@@ -75,10 +75,10 @@ describe(
         CreateOSDWizardPage.closePopoverDialogs();
         CreateOSDWizardPage.setDomainPrefix(clusterProperties.ClusterDomainPrefix);
         CreateOSDWizardPage.closePopoverDialogs();
-        CreateOSDWizardPage.singleZoneAvilabilityRadio().should('be.checked');
+        CreateOSDWizardPage.singleZoneAvailabilityRadio().should('be.checked');
         CreateOSDWizardPage.selectRegion(clusterProperties.Region);
         if (clusterProperties.CloudProvider.includes('GCP')) {
-          CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+          CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
         }
         CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
         cy.get(CreateOSDWizardPage.primaryButton).click();
