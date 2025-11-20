@@ -113,7 +113,6 @@ describe('<TermsAlert />', () => {
 
     it('should contain link to terms app', () => {
       // Arrange
-      window.history.pushState({}, '', '/details/123');
       useGlobalStateMock.mockReturnValue(Fixtures.selfTermsReviewResult);
 
       // Act
