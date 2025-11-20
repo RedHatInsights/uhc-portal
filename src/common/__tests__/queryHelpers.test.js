@@ -199,43 +199,85 @@ describe('createViewQueryObject()', () => {
 });
 
 describe('getQueryParam', () => {
-  beforeEach(() => {
-    delete global.window.location;
-    global.window = Object.create(window);
-    global.window.location = {};
+  it('search ?severityTypes=Info to be severityTypes', () => {
+    const search = '?severityTypes=Info';
+    const queryParam = 'severityTypes';
+    const expected = 'Info';
+    window.history.pushState({}, '', search);
+
+    const result = getQueryParam(queryParam);
+    expect(result).toBe(expected);
   });
 
-  it.each([
-    ['?severityTypes=Info', 'severityTypes', 'Info'],
-    ['?severityTypes=Info,Warning,Error', 'severityTypes', 'Info,Warning,Error'],
-    [
-      '?logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
-      'logTypes',
-      'Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
-    ],
-    ['?severityTypes=Info&logTypes=clusterremove-high-level', 'severityTypes', 'Info'],
-    [
-      '?severityTypes=Info&logTypes=clusterremove-high-level',
-      'logTypes',
-      'clusterremove-high-level',
-    ],
-    [
-      '?severityTypes=Info,Warning,Error&logTypes=clusterremove-high-level',
-      'severityTypes',
-      'Info,Warning,Error',
-    ],
-    [
-      '?severityTypes=Info&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
-      'logTypes',
-      'Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
-    ],
-    [
-      '?severityTypes=Info,Warning,Error&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
-      'severityTypes',
-      'Info,Warning,Error',
-    ],
-  ])('search %p to be %p', (search, queryParam, expected) => {
-    global.window.location.search = search;
+  it('search ?severityTypes=Info,Warning,Error" to be "severityTypes', () => {
+    const search = '?severityTypes=Info,Warning,Error';
+    const queryParam = 'severityTypes';
+    const expected = 'Info,Warning,Error';
+    window.history.pushState({}, '', search);
+
+    const result = getQueryParam(queryParam);
+    expect(result).toBe(expected);
+  });
+
+  it('search ?logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure to be logTypes', () => {
+    const search =
+      '?logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure';
+    const queryParam = 'logTypes';
+    const expected = 'Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure';
+    window.history.pushState({}, '', search);
+
+    const result = getQueryParam(queryParam);
+    expect(result).toBe(expected);
+  });
+
+  it('search ?severityTypes=Info&logTypes=clusterremove-high-level to be severityTypes', () => {
+    const search = '?severityTypes=Info&logTypes=clusterremove-high-level';
+    const queryParam = 'severityTypes';
+    const expected = 'Info';
+    window.history.pushState({}, '', search);
+
+    const result = getQueryParam(queryParam);
+    expect(result).toBe(expected);
+  });
+
+  it('search ?severityTypes=Info&logTypes=clusterremove-high-level to be "logTypes', () => {
+    const search = '?severityTypes=Info&logTypes=clusterremove-high-level';
+    const queryParam = 'logTypes';
+    const expected = 'clusterremove-high-level';
+    window.history.pushState({}, '', search);
+
+    const result = getQueryParam(queryParam);
+    expect(result).toBe(expected);
+  });
+
+  it('search ?severityTypes=Info,Warning,Error&logTypes=clusterremove-high-level to be severityTypes', () => {
+    const search = '?severityTypes=Info,Warning,Error&logTypes=clusterremove-high-level';
+    const queryParam = 'severityTypes';
+    const expected = 'Info,Warning,Error';
+    window.history.pushState({}, '', search);
+
+    const result = getQueryParam(queryParam);
+    expect(result).toBe(expected);
+  });
+
+  it('search ?severityTypes=Info&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure to be logTypes', () => {
+    const search =
+      '?severityTypes=Info&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure';
+    const queryParam = 'logTypes';
+    const expected = 'Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure';
+    window.history.pushState({}, '', search);
+
+    const result = getQueryParam(queryParam);
+    expect(result).toBe(expected);
+  });
+
+  it('search ?severityTypes=Info,Warning,Error&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure to be severityTypes', () => {
+    const search =
+      '?severityTypes=Info,Warning,Error&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure';
+    const queryParam = 'severityTypes';
+    const expected = 'Info,Warning,Error';
+    window.history.pushState({}, '', search);
+
     const result = getQueryParam(queryParam);
     expect(result).toBe(expected);
   });

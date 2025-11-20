@@ -185,22 +185,11 @@ describe('<ExternalLink />', () => {
   });
 
   describe('useAnalytics', () => {
-    const mockPathname = jest.fn();
-    Object.defineProperty(window, 'location', {
-      value: {
-        get pathname() {
-          return mockPathname();
-        },
-      },
-    });
-    beforeEach(() => {
-      useAnalyticsMock.mockClear();
-      mockPathname.mockClear();
-    });
-
     it('is called for unknown pathname', async () => {
+      window.history.pushState({}, '', '/foo');
+
+      expect(window.location.pathname).toBe('/foo');
       // Arrange
-      mockPathname.mockReturnValue('/foo');
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -222,7 +211,10 @@ describe('<ExternalLink />', () => {
 
     it('is called for rosa pathname', async () => {
       // Arrange
-      mockPathname.mockReturnValue('/rosa');
+      window.history.pushState({}, '', '/rosa');
+
+      expect(window.location.pathname).toBe('/rosa');
+
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -244,7 +236,10 @@ describe('<ExternalLink />', () => {
 
     it('is called for osd trial pathname', async () => {
       // Arrange
-      mockPathname.mockReturnValue('/osdtrial');
+      window.history.pushState({}, '', '/osdtrial');
+
+      expect(window.location.pathname).toBe('/osdtrial');
+
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -266,7 +261,10 @@ describe('<ExternalLink />', () => {
 
     it('is called for osd pathname', async () => {
       // Arrange
-      mockPathname.mockReturnValue('/osd');
+      window.history.pushState({}, '', '/osd');
+
+      expect(window.location.pathname).toBe('/osd');
+
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -288,7 +286,10 @@ describe('<ExternalLink />', () => {
 
     it('is called for crc pathname', async () => {
       // Arrange
-      mockPathname.mockReturnValue('/crc');
+      window.history.pushState({}, '', '/crc');
+
+      expect(window.location.pathname).toBe('/crc');
+
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -307,9 +308,9 @@ describe('<ExternalLink />', () => {
         },
       );
     });
+
     it('is called with custom tracking properties', async () => {
       // Arrange
-      mockPathname.mockReturnValue('/crc');
       const customProps = {
         current_path: '/openshift/details/s',
         tab_title: 'Add-ons',
