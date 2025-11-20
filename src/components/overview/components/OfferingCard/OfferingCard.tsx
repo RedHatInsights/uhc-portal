@@ -25,6 +25,7 @@ import { Link } from '~/common/routing';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import ExternalLink from '~/components/common/ExternalLink';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
+import SupportLevelBadge, { DEV_PREVIEW } from '~/components/common/SupportLevelBadge';
 import AWSLogo from '~/styles/images/AWSLogo';
 import IBMLogo from '~/styles/images/ibm_cloud-icon.svg';
 import microsoftLogo from '~/styles/images/Microsoft_logo.svg';
@@ -75,6 +76,7 @@ function OfferingCard(props: OfferingCardProps) {
 
   let offeringCardTitle: string | undefined;
   let offeringCardLabel: string = 'Managed service';
+  let offeringCardShowSupportLevelBadge: boolean = false;
   let offeringCardDescriptionList:
     | { descriptionListTerm: string; descriptionListDescription: string }[]
     | undefined;
@@ -245,6 +247,7 @@ function OfferingCard(props: OfferingCardProps) {
     case 'MIGRATION':
       offeringCardTitle = 'Evaluate VMware to Openshift Migration';
       offeringCardLabel = 'Self-managed service';
+      offeringCardShowSupportLevelBadge = true;
       offeringCardTextBody =
         'Discover your VMware environment, select a target cluster and create a migration plan.';
       offeringCardCreationLink = (
@@ -272,9 +275,22 @@ function OfferingCard(props: OfferingCardProps) {
           <SplitItem>{cardLogo}</SplitItem>
           <SplitItem isFilled />
           <SplitItem>
-            <Label data-testtag="label" color="blue">
-              {offeringCardLabel}
-            </Label>
+            <Flex
+              direction={{ default: 'column' }}
+              alignItems={{ default: 'alignItemsFlexEnd' }}
+              spaceItems={{ default: 'spaceItemsXs' }}
+            >
+              <FlexItem>
+                <Label data-testtag="label" color="blue">
+                  {offeringCardLabel}
+                </Label>
+              </FlexItem>
+              {offeringCardShowSupportLevelBadge && (
+                <FlexItem>
+                  <SupportLevelBadge {...DEV_PREVIEW} />
+                </FlexItem>
+              )}
+            </Flex>
           </SplitItem>
         </Split>
       </CardHeader>
