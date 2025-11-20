@@ -68,7 +68,7 @@ const SHP_CLI_LATEST =
   'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-builds/latest/';
 
 const OCP_DOCS_BASE =
-  'https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html';
+  'https://docs.redhat.com/en/documentation/openshift_container_platform/latest/html';
 const OSD_DOCS_BASE = 'https://docs.redhat.com/en/documentation/openshift_dedicated/4/html';
 const ROSA_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html';
