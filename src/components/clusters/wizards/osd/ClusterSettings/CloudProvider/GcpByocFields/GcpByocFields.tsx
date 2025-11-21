@@ -64,11 +64,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
   let gcpText = `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
   let linkHref = links.GCP_CONSOLE_OSD_HOME;
   let linkText = 'Review Google terms and agreements';
-  if (
-    isOsdGcpFeatureFlagEnabled &&
-    isOSDFromGoogleCloud &&
-    authType === GCPAuthType.WorkloadIdentityFederation
-  ) {
+  if (isOsdGcpFeatureFlagEnabled && authType === GCPAuthType.WorkloadIdentityFederation) {
     gcpTitle = 'Did you complete your prerequisites?';
     gcpText = `To create a Red Hat OpenShift Dedicated (OSD) cluster via the web interface, you must complete the prerequisites steps on the OSD Get Started page in Google Cloud.`;
     linkHref = links.GCP_CONSOLE_OSD_HOME; // TODO: add the correct link
