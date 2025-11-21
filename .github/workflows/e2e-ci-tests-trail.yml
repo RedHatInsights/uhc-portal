@@ -29,10 +29,12 @@ on:
           - '3'
           - '4'
 jobs:
-  install:
-    name: playwright e2e CI - ${{ matrix.os }} - Install - Node ${{ matrix.node-version }}
+  playwright-e2e-test:
+    name: Playwright E2E - ${{ matrix.os }} - e2e Tests - Node ${{ matrix.node-version }}
+    # Allow workflow to pass even if tests fail (non-blocking for PR merge)
+    continue-on-error: true
     concurrency:
-      group: playwright-e2e-install-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
+      group: playwright-e2e-test-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
       cancel-in-progress: true
     strategy:
       matrix:
@@ -51,7 +53,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: './node_modules'
-          key: playwright-e2e-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install
         uses: borales/actions-yarn@v4
         with:
@@ -61,37 +63,11 @@ jobs:
         # Check that Git working tree is clean after running `install` command.
         # The `git` command exits with 1 and fails the build if there are any uncommitted changes.
         run: git diff HEAD --exit-code
-
-  playwright-e2e-test:
-    name: Playwright E2E - ${{ matrix.os }} - e2e Tests - Node ${{ matrix.node-version }}
-    # Allow workflow to pass even if tests fail (non-blocking for PR merge)
-    continue-on-error: true
-    concurrency:
-      group: playwright-e2e-test-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
-      cancel-in-progress: true
-    needs: [install]
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [22.x]
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: '${{ github.event.pull_request.merge_commit_sha }}'
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-      - uses: actions/cache@v4
-        with:
-          path: './node_modules'
-          key: playwright-e2e-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Install
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install
+      - name: Install jq
+        run: |
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y jq
+          fi
       - name: Install Playwright Browsers
         # Explicitly specify all browsers including chrome since Playwright 1.44+ no longer installs Chrome by default
         run: npx playwright install chromium chrome firefox webkit --with-deps
@@ -132,11 +108,6 @@ jobs:
           # Add unique identifiers to avoid resource conflicts
           BUILD_ID="${{ github.run_id }}"
 
-          # Install jq if not available
-          if ! command -v jq &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y jq
-          fi
-
           # Add build identifier to avoid conflicts
           jq ". + {\"BUILD_IDENTIFIER\": \"${BUILD_ID}\"}" playwright.env.json > tmp.json && mv tmp.json playwright.env.json
 
@@ -165,11 +136,6 @@ jobs:
           TEST_RESULTS_FILE="playwright-artifacts/results/test-results.json"
 
           if [ -f "$TEST_RESULTS_FILE" ]; then
-            # Install jq if not available
-            if ! command -v jq &> /dev/null; then
-              sudo apt-get update && sudo apt-get install -y jq
-            fi
-            
             # Extract test counts from JSON reporter (handle nested suites structure)
             TOTAL=$(jq '[.. | .specs? // empty | .[]] | length' "$TEST_RESULTS_FILE")
             PASSED=$(jq '[.. | .specs? // empty | .[] | .tests[]? | select(.status == "expected")] | length' "$TEST_RESULTS_FILE")
