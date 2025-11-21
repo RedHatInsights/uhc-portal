@@ -23,11 +23,16 @@ describe('<RefreshButton />', () => {
     jest.clearAllMocks();
   });
 
-  it.skip('is accessible', async () => {
-    const { container } = render(<RefreshButton refreshFunc={onClickFunc} />);
-
-    // For unknown reasons, checkAccessibility is causing jest to timeout
+  it('is accessible', async () => {
+    // Use real timers for accessibility testing since axe-core requires real timers
+    jest.useRealTimers();
+    // Disable autoRefresh to prevent interval from running during accessibility check
+    const { container } = render(<RefreshButton refreshFunc={onClickFunc} autoRefresh={false} />);
     await checkAccessibility(container);
+    // Restore fake timers for other tests
+    jest.useFakeTimers({
+      legacyFakeTimers: true,
+    });
   });
 
   it('displays an active refresh button', () => {

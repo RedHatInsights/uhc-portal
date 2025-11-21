@@ -15,13 +15,13 @@ describe('Install generic component', () => {
   });
 
   describe('Installer wrapper', () => {
-    // html violations in Patternfly component
-    it.skip('is accessible', async () => {
+    it('is accessible', async () => {
       const { container } = render(
         <InstallComponentWrapper propsData={ArmAWSIPIProps} componentChooser="ocpInstructions" />,
       );
 
       expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument();
+
       await checkAccessibility(container);
     });
 

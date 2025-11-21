@@ -1,19 +1,5 @@
 import { normalizedProducts } from '../../../../../../common/subscriptionTypes';
 
-const invalidateClusters = jest.fn();
-const fetchClusters = jest.fn();
-const clearGlobalError = jest.fn();
-const setSorting = jest.fn();
-const getCloudProviders = jest.fn();
-const openModal = jest.fn();
-const closeModal = jest.fn();
-const setListFlag = jest.fn();
-const valid = true;
-const error = false;
-const errorMessage = '';
-const pending = false;
-const operationID = '';
-
 const clusters = [
   {
     id: '1HAtguRKqqlQYCSFk14uwMl6g6p',
@@ -230,20 +216,4 @@ const cloudProviders = {
   },
 };
 
-export {
-  invalidateClusters,
-  fetchClusters,
-  valid,
-  clusters,
-  error,
-  errorMessage,
-  pending,
-  setSorting,
-  getCloudProviders,
-  openModal,
-  closeModal,
-  setListFlag,
-  operationID,
-  cloudProviders,
-  clearGlobalError,
-};
+export { clusters, cloudProviders };

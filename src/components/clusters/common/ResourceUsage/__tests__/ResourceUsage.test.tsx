@@ -42,10 +42,9 @@ describe('<ResourceUsage />', () => {
     metricsStatusMessage: metricsStatusMessages.default,
   };
 
-  it.skip('is accessible', async () => {
+  it('is accessible', async () => {
     const { container } = render(<ResourceUsage {...defaultProps} />);
 
-    // This fails due to numerous accessibility issues
     await checkAccessibility(container);
   });
 

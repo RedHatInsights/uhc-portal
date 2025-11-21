@@ -296,9 +296,9 @@ const DownloadsPage = () => {
             <Table aria-label="Tokens table">
               <Thead>
                 <Tr>
-                  <Th width={10} aria-label="Expand for more information" />
-                  <Th width={90} aria-label="Token type" />
-                  <Th width={10} aria-label="Download or view token" />
+                  <Th width={10} screenReaderText="Expand for more information" />
+                  <Th width={90} screenReaderText="Token type" />
+                  <Th width={10} screenReaderText="Download or view token" />
                 </Tr>
               </Thead>
 

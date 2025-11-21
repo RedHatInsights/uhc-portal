@@ -28,10 +28,14 @@ const CostSummary = ({ report }: CostSummaryProps) =>
       <GridItem lg={7} md={12}>
         <div className="ocm--cost-clusters">
           <Content>
+            <Content
+              component={ContentVariants.p}
+              key="top-clusters"
+              className="ocm--cost-card__title"
+            >
+              Top clusters
+            </Content>
             <Content component={ContentVariants.dl}>
-              <Content component={ContentVariants.dt} key="top-clusters">
-                Top clusters
-              </Content>
               <CostSummaryClusters report={report as Report} />
             </Content>
           </Content>

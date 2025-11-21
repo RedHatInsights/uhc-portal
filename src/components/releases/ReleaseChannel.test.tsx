@@ -15,14 +15,17 @@ describe('<ReleaseChannel />', () => {
     jest.clearAllMocks();
   });
 
-  it.skip('is accessible', async () => {
+  it('is accessible', async () => {
     apiRequestMock.get.mockResolvedValue(ocpReleases);
-
-    const { container } = render(<ReleaseChannel channel="stable-4.6" />);
+    // Adding dl because the ReleaseChannel component would normally be wrapped in a dl element
+    const { container } = render(
+      <dl>
+        <ReleaseChannel channel="stable-4.6" />
+      </dl>,
+    );
 
     expect(await screen.findByText('stable-4.6')).toBeInTheDocument();
 
-    // fails with   "<dt> and <dd> elements must be contained by a <dl> (dlitem)" error
     await checkAccessibility(container);
   });
 

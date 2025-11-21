@@ -66,9 +66,6 @@ describe('<HostedTile />', () => {
     });
   });
 
-  // TODO: Skipping accessibility test for now as it is failing and requires PF intervention.
-  // "Element has focusable descendants"
-  // We have an External Link inside the Tile component which is causing this issue entitled: "Learn more about Virtual Private Cloud"
   it('is accessible', async () => {
     // Arrange & Act
     const { container } = render(<HostedTile {...defaultProps} />);
