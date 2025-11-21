@@ -101,7 +101,7 @@ describe('<GcpByocFields />', () => {
       mockUseFeatureGate([[OSD_GCP_WIF, false]]);
       render(prepareComponent());
 
-      expect(await screen.findByText('GCP Service account')).toBeInTheDocument();
+      expect(await screen.findByText('Google Cloud Service account')).toBeInTheDocument();
       expect(screen.queryByText('Google Cloud account details')).not.toBeInTheDocument();
       expect(screen.queryByText('Authentication type')).not.toBeInTheDocument();
       expect(

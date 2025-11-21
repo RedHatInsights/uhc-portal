@@ -491,7 +491,7 @@ const reviewValues = {
     title: 'AWS infrastructure account ID',
   },
   shared_host_project_id: {
-    title: 'GCP shared host project ID',
+    title: 'Google Cloud shared host project ID',
   },
   billing_account_id: {
     title: 'AWS billing account ID',

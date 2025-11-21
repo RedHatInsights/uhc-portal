@@ -93,17 +93,19 @@ export const GcpVpcSettings = () => {
     <>
       <GridItem span={8}>
         <Title headingLevel="h4" size="md">
-          GCP shared VPC
+          Google Cloud shared VPC
         </Title>
         <div className="pf-v6-u-mt-md  pf-v6-u-mb-lg">
           <CheckboxField
             name={FieldId.InstallToSharedVpc}
-            label="Install into GCP Shared VPC"
+            label="Install into Google Cloud Shared VPC"
             hint={
               <>
-                <p>Install into a VPC shared by another account in your GCP organization.</p>
+                <p>
+                  Install into a VPC shared by another account in your Google Cloud organization.
+                </p>
                 <ExternalLink href={links.INSTALL_GCP_SHARED_VPC}>
-                  Learn more about GCP shared VPC.
+                  Learn more about Google Cloud shared VPC.
                 </ExternalLink>
               </>
             }

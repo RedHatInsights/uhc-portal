@@ -128,7 +128,7 @@ export const GcpVpcNameSelectField = ({
         <Alert
           variant="danger"
           isInline
-          title="Failed to list existing VPCs using your GCP credentials"
+          title="Failed to list existing VPCs using your Google Cloud credentials"
         >
           Verify that your entered service account details are correct
         </Alert>

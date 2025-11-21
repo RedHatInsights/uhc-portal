@@ -50,7 +50,7 @@ export const GcpEncryption = ({ region }: GcpEncryptionProps) => {
           label="KMS Service Account"
           tooltip={constants.kmsserviceAccount}
           validate={validateGCPKMSServiceAccount}
-          helperText="GCP Service account will be used for compute scaling."
+          helperText="Google Cloud Service account will be used for compute scaling."
         />
       </GridItem>
     </>

@@ -70,13 +70,13 @@ const instructionsMapping = {
     publicCloud: true,
     customizations: links.INSTALL_GCP_CUSTOMIZATIONS,
     ipi: {
-      title: 'Install OpenShift on GCP with installer-provisioned infrastructure',
+      title: 'Install OpenShift on Google Cloud with installer-provisioned infrastructure',
       docURL: links.INSTALL_GCPIPI_GETTING_STARTED,
       installer: tools.X86INSTALLER,
       channel: channels.STABLE,
     },
     upi: {
-      title: 'Install OpenShift on GCP with user-provisioned infrastructure',
+      title: 'Install OpenShift on Google Cloud with user-provisioned infrastructure',
       docURL: links.INSTALL_GCPUPI_GETTING_STARTED,
       rhcos: {
         learnMoreURL: links.INSTALL_GCPUPI_RHCOS_LEARN_MORE,
@@ -92,7 +92,7 @@ const instructionsMapping = {
       channel: channels.STABLE,
     },
     getStartedAdditional:
-      'The installer will ask you for the domain or subdomain you wish to use (this can be purchased through GCP but it will take some time for the DNS to propagate).',
+      'The installer will ask you for the domain or subdomain you wish to use (this can be purchased through Google Cloud but it will take some time for the DNS to propagate).',
   },
   azure: {
     cloudProvider: 'Azure',
