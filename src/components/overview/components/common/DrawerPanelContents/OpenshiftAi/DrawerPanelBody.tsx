@@ -111,7 +111,7 @@ const OpenShiftAiDrawerPanelBody = (
         <Content component="ul">
           {[
             'Microsoft Azure Kubernetes Service (AKS)',
-            'Google Cloud Platform (GCP)',
+            'Google Cloud',
             'Amazon Web Services (AWS)',
             'IBM Cloud Platform',
           ].map((item) => (

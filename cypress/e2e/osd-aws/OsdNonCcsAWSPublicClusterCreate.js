@@ -74,7 +74,7 @@ describe(
       CreateOSDWizardPage.wizardNextButton().click();
     });
 
-    if (!clusterProperties.CloudProvider.includes('GCP')) {
+    if (!clusterProperties.CloudProvider.includes('Google Cloud')) {
       it(`OSD(nonccs) ${clusterProperties.CloudProvider} -${clusterProperties.ClusterPrivacy} Networking configuration - cluster privacy`, () => {
         CreateOSDWizardPage.isNetworkingScreen();
         CreateOSDWizardPage.clusterPrivacyPublicRadio().should('be.checked');

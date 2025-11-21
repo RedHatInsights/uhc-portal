@@ -44,7 +44,7 @@ export const KmsKeySelect = () => {
         labelIcon={<PopoverHint hint={constants.keyName} />}
         helperText="Name of the key in the keyring."
         placeholder="Select key"
-        requestErrorTitle="Error listing keys using your GCP credentials"
+        requestErrorTitle="Error listing keys using your Google Cloud credentials"
         emptyAlertTitle="No keys found for this location and key ring"
         emptyAlertBody={
           <>

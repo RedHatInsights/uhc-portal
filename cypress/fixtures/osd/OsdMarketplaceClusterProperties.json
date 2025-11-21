@@ -3,7 +3,7 @@
     {
       "ClusterName": "ocmui-cypress-smoke-osd-marketplace-gcp",
       "Type": "OSD",
-      "CloudProvider": "Google Cloud Platform (GCP)",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "On-Demand: Flexible usage billed through Google Cloud Marketplace",
       "Marketplace": "Google Cloud Marketplace",
       "InfrastructureType": "Customer cloud subscription",
@@ -58,7 +58,7 @@
     {
       "ClusterName": "ocmui-cypress-smoke-osd-marketplace-wif-gcp",
       "Type": "OSD",
-      "CloudProvider": "Google Cloud Platform (GCP)",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "On-Demand: Flexible usage billed through Google Cloud Marketplace",
       "Marketplace": "Google Cloud Marketplace",
       "InfrastructureType": "Customer cloud subscription",
@@ -113,7 +113,7 @@
     {
       "ClusterName": "ocmui-cypress-smoke-osd-psc-marketplace-wif-gcp",
       "Type": "OSD",
-      "CloudProvider": "Google Cloud Platform (GCP)",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "On-Demand: Flexible usage billed through Google Cloud Marketplace",
       "Marketplace": "Google Cloud Marketplace",
       "InfrastructureType": "Customer cloud subscription",

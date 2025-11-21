@@ -102,7 +102,7 @@ describe('<OpenShiftAiDrawerPanelBody />', () => {
     const majorPublicCloudListItems = screen.getAllByTestId('major-public-cloud-list-item');
     const majorPublicCloudExpectedItems = [
       'Microsoft Azure Kubernetes Service (AKS)',
-      'Google Cloud Platform (GCP)',
+      'Google Cloud',
       'Amazon Web Services (AWS)',
       'IBM Cloud Platform',
     ];
