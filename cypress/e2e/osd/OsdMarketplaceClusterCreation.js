@@ -76,7 +76,7 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
       CreateOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
       if (
         clusterProperties.ClusterPrivacy.includes('Private') &&
-        clusterProperties.CloudProvider.includes('GCP')
+        clusterProperties.CloudProvider.includes('Google Cloud')
       ) {
         CreateOSDWizardPage.installIntoExistingVpcCheckBox().should('be.checked');
         CreateOSDWizardPage.usePrivateServiceConnectCheckBox().should('be.checked');

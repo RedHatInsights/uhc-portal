@@ -52,8 +52,8 @@ describe(
       if (clusterProperties.hasOwnProperty('Version')) {
         CreateOSDWizardPage.selectVersion(clusterProperties.Version);
       }
-      if (clusterProperties.CloudProvider.includes('GCP')) {
-        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
+      if (clusterProperties.CloudProvider.includes('Google Cloud')) {
+        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
       }
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
       if (clusterProperties.AdditionalEncryption.includes('Enabled')) {

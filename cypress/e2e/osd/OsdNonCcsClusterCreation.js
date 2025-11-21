@@ -49,7 +49,7 @@ describe('OSD Non CCS cluster creation tests(OCP-42746,OCP-21086)', { tags: ['sm
       CreateOSDWizardPage.wizardNextButton().click();
     });
 
-    if (!clusterPropertiesFile.CloudProvider.includes('GCP')) {
+    if (!clusterPropertiesFile.CloudProvider.includes('Google Cloud')) {
       it(`OSD ${clusterPropertiesFile.CloudProvider} wizard - Networking configuration - cluster privacy definitions`, () => {
         CreateOSDWizardPage.isNetworkingScreen();
         CreateOSDWizardPage.clusterPrivacyPublicRadio().should('be.checked');
