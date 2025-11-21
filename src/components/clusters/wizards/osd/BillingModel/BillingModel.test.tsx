@@ -2,9 +2,11 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
+import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
-import { initialValues } from '../constants';
+import { FieldId, initialValues } from '../constants';
 
 import { BillingModel } from './BillingModel';
 import { useGetBillingQuotas } from './useGetBillingQuotas';
@@ -27,10 +29,13 @@ const defaultQuotas = {
   marketplaceByoc: true,
 };
 
-const buildTestComponent = () => (
+const buildTestComponent = (isOSDFromGoogleCloud = false) => (
   <Formik
     initialValues={{
       ...initialValues,
+      ...(isOSDFromGoogleCloud && {
+        [FieldId.BillingModel]: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
+      }),
     }}
     initialTouched={{}}
     onSubmit={() => {}}
@@ -42,7 +47,7 @@ const buildTestComponent = () => (
 describe('<BillingModel />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseFeatureGate([]);
+    mockUseFeatureGate([[HIDE_RH_MARKETPLACE, true]]);
     mockUseGetBillingQuotas.mockReturnValue(defaultQuotas);
   });
   describe('Default path for osd creation', () => {
@@ -101,17 +106,17 @@ describe('<BillingModel />', () => {
       });
     });
     it('is accessible', async () => {
-      const { container } = render(buildTestComponent());
+      const { container } = render(buildTestComponent(true));
       await checkAccessibility(container);
     });
     it('does not display free trial option', () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
 
       expect(screen.queryByText('Free trial (upgradeable)')).not.toBeInTheDocument();
     });
 
     it('does not display annual subscription option', () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
 
       expect(
         screen.queryByText('Annual: Fixed capacity subscription from Red Hat'),
@@ -119,13 +124,13 @@ describe('<BillingModel />', () => {
     });
 
     it('displays only on-demand marketplace option', () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
 
       expect(screen.getByText(/On-Demand: Flexible usage billed through/i)).toBeInTheDocument();
     });
 
     it('has On-Demand selected by default', async () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
 
       const onDemandRadioOption = screen.getByRole('radio', {
         name: /On-Demand: Flexible usage billed through/i,
@@ -139,13 +144,13 @@ describe('<BillingModel />', () => {
     });
 
     it('displays only customer cloud subscription infrastructure option', () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
 
       expect(screen.getByText('Customer cloud subscription')).toBeInTheDocument();
       expect(screen.queryByText('Red Hat cloud account')).not.toBeInTheDocument();
     });
     it('has customer cloud subscription selected by default', () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
       const byocRadioCCSOption = screen.getByRole('radio', {
         name: /customer cloud subscription/i,
       });
@@ -159,13 +164,13 @@ describe('<BillingModel />', () => {
         osdTrial: false,
       });
 
-      render(buildTestComponent());
+      render(buildTestComponent(true));
 
       expect(screen.queryByText('Free trial (upgradeable)')).not.toBeInTheDocument();
     });
 
     it('has customer cloud subscription selected by default', () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
       const byocRadioCCSOption = screen.getByRole('radio', {
         name: /customer cloud subscription/i,
       });
@@ -179,17 +184,17 @@ describe('<BillingModel />', () => {
       mockUseIsOSDFromGoogleCloud.mockReturnValue(true);
     });
     it('is accessible', async () => {
-      const { container } = render(buildTestComponent());
+      const { container } = render(buildTestComponent(true));
       await checkAccessibility(container);
     });
     it('does not display free trial option', () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
 
       expect(screen.queryByText('Free trial (upgradeable)')).not.toBeInTheDocument();
     });
 
     it('does not display annual subscription option', () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
 
       expect(
         screen.queryByText('Annual: Fixed capacity subscription from Red Hat'),
@@ -197,13 +202,13 @@ describe('<BillingModel />', () => {
     });
 
     it('displays only on-demand marketplace option', () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
 
       expect(screen.getByText(/On-Demand: Flexible usage billed through/i)).toBeInTheDocument();
     });
 
     it('has On-Demand selected by default', async () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
 
       const onDemandRadioOption = screen.getByRole('radio', {
         name: /On-Demand: Flexible usage billed through/i,
@@ -217,13 +222,13 @@ describe('<BillingModel />', () => {
     });
 
     it('displays only customer cloud subscription infrastructure option', () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
 
       expect(screen.getByText('Customer cloud subscription')).toBeInTheDocument();
       expect(screen.queryByText('Red Hat cloud account')).not.toBeInTheDocument();
     });
     it('has customer cloud subscription selected by default', () => {
-      render(buildTestComponent());
+      render(buildTestComponent(true));
       const byocRadioCCSOption = screen.getByRole('radio', {
         name: /customer cloud subscription/i,
       });
