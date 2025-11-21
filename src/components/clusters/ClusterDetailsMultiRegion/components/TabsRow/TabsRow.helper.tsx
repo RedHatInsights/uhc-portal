@@ -27,19 +27,17 @@ const AccessRequestIcon = ({
 
 export const getTabs = (tabsInfo: TabsRowInfoType): TabsRowTabType[] => [
   {
-    key: 0,
     title: 'Overview',
     contentId: 'overviewTabContent',
     id: ClusterTabsId.OVERVIEW,
     show: true,
-    ref: tabsInfo.overview.ref,
+    ref: tabsInfo[ClusterTabsId.OVERVIEW].ref,
   },
   {
-    key: 1,
     title: (
       <>
         <TabTitleText>Monitoring</TabTitleText>
-        {tabsInfo.monitoring.hasIssues ? (
+        {tabsInfo[ClusterTabsId.MONITORING].hasIssues ? (
           <TabTitleIcon id="monitoring-issues-icon">
             <ExclamationCircleIcon className="danger" />
           </TabTitleIcon>
@@ -48,84 +46,79 @@ export const getTabs = (tabsInfo: TabsRowInfoType): TabsRowTabType[] => [
     ),
     contentId: 'monitoringTabContent',
     id: ClusterTabsId.MONITORING,
-    show: tabsInfo.monitoring.show === undefined ? true : tabsInfo.monitoring.show,
-    ref: tabsInfo.monitoring.ref,
+    show:
+      tabsInfo[ClusterTabsId.MONITORING].show === undefined
+        ? true
+        : tabsInfo[ClusterTabsId.MONITORING].show,
+    ref: tabsInfo[ClusterTabsId.MONITORING].ref,
   },
   {
-    key: 2,
     title: 'Access control',
     id: ClusterTabsId.ACCESS_CONTROL,
     contentId: 'accessControlTabContent',
-    show: tabsInfo.accessControl.show,
-    ref: tabsInfo.accessControl.ref,
+    show: tabsInfo[ClusterTabsId.ACCESS_CONTROL].show,
+    ref: tabsInfo[ClusterTabsId.ACCESS_CONTROL].ref,
   },
   {
-    key: 3,
     title: 'Add-ons',
     contentId: 'addOnsTabContent',
     id: ClusterTabsId.ADD_ONS,
-    show: tabsInfo.addOns.show,
-    ref: tabsInfo.addOns.ref,
+    show: tabsInfo[ClusterTabsId.ADD_ONS].show,
+    ref: tabsInfo[ClusterTabsId.ADD_ONS].ref,
   },
   {
-    key: 4,
     title: 'Cluster history',
     contentId: 'clusterHistoryTabContent',
     id: ClusterTabsId.CLUSTER_HISTORY,
-    show: tabsInfo.clusterHistory.show,
-    ref: tabsInfo.clusterHistory.ref,
+    show: tabsInfo[ClusterTabsId.CLUSTER_HISTORY].show,
+    ref: tabsInfo[ClusterTabsId.CLUSTER_HISTORY].ref,
   },
   {
-    key: 5,
     title: 'Networking',
     contentId: 'networkingTabContent',
     id: ClusterTabsId.NETWORKING,
-    show: tabsInfo.networking.show,
-    ref: tabsInfo.networking.ref,
+    show: tabsInfo[ClusterTabsId.NETWORKING].show,
+    ref: tabsInfo[ClusterTabsId.NETWORKING].ref,
   },
   {
-    key: 6,
     title: 'Machine pools',
     contentId: 'machinePoolsTabContent',
     id: ClusterTabsId.MACHINE_POOLS,
-    show: tabsInfo.machinePools.show,
-    ref: tabsInfo.machinePools.ref,
+    show: tabsInfo[ClusterTabsId.MACHINE_POOLS].show,
+    ref: tabsInfo[ClusterTabsId.MACHINE_POOLS].ref,
   },
   {
-    key: 7,
     title: 'Support',
     contentId: 'supportTabContent',
     id: ClusterTabsId.SUPPORT,
-    show: tabsInfo.support.show,
-    ref: tabsInfo.support.ref,
+    show: tabsInfo[ClusterTabsId.SUPPORT].show,
+    ref: tabsInfo[ClusterTabsId.SUPPORT].ref,
   },
   {
-    key: 8,
     title: 'Settings',
     contentId: 'upgradeSettingsTabContent',
     id: ClusterTabsId.UPDATE_SETTINGS,
-    show: tabsInfo.upgradeSettings.show,
-    ref: tabsInfo.upgradeSettings.ref,
+    show: tabsInfo[ClusterTabsId.UPDATE_SETTINGS].show,
+    ref: tabsInfo[ClusterTabsId.UPDATE_SETTINGS].ref,
   },
   {
-    key: 9,
     title: 'Add Hosts',
     contentId: 'addHostsContent',
     id: ClusterTabsId.ADD_ASSISTED_HOSTS,
-    show: tabsInfo.addAssisted.show,
-    ref: tabsInfo.addAssisted.ref,
-    isDisabled: tabsInfo.addAssisted.isDisabled,
-    tooltip: tabsInfo.addAssisted.tooltip,
+    show: tabsInfo[ClusterTabsId.ADD_ASSISTED_HOSTS].show,
+    ref: tabsInfo[ClusterTabsId.ADD_ASSISTED_HOSTS].ref,
+    isDisabled: tabsInfo[ClusterTabsId.ADD_ASSISTED_HOSTS].isDisabled,
+    tooltip: tabsInfo[ClusterTabsId.ADD_ASSISTED_HOSTS].tooltip,
   },
   {
-    key: 10,
     title:
-      tabsInfo.accessRequest.isLoading || tabsInfo.accessRequest.numberOfIssues !== undefined ? (
+      tabsInfo[ClusterTabsId.ACCESS_REQUEST].isLoading ||
+      tabsInfo[ClusterTabsId.ACCESS_REQUEST].numberOfIssues !== undefined ? (
         <>
           <TabTitleIcon style={{ paddingRight: '10px' }}>
             <AccessRequestIcon
-              numberOfIssues={tabsInfo.accessRequest.numberOfIssues}
-              isLoading={tabsInfo.accessRequest.isLoading}
+              numberOfIssues={tabsInfo[ClusterTabsId.ACCESS_REQUEST].numberOfIssues}
+              isLoading={tabsInfo[ClusterTabsId.ACCESS_REQUEST].isLoading}
             />
           </TabTitleIcon>
           <TabTitleText>Access Requests</TabTitleText>
@@ -135,10 +128,10 @@ export const getTabs = (tabsInfo: TabsRowInfoType): TabsRowTabType[] => [
       ),
     contentId: 'accessRequestContent',
     id: ClusterTabsId.ACCESS_REQUEST,
-    show: tabsInfo.accessRequest.show,
-    ref: tabsInfo.accessRequest.ref,
-    isDisabled: tabsInfo.accessRequest.isDisabled,
-    tooltip: tabsInfo.accessRequest.tooltip,
+    show: tabsInfo[ClusterTabsId.ACCESS_REQUEST].show,
+    ref: tabsInfo[ClusterTabsId.ACCESS_REQUEST].ref,
+    isDisabled: tabsInfo[ClusterTabsId.ACCESS_REQUEST].isDisabled,
+    tooltip: tabsInfo[ClusterTabsId.ACCESS_REQUEST].tooltip,
   },
 ];
 

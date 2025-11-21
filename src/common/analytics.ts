@@ -52,6 +52,7 @@ const eventNames = {
   CHECKBOX_CLICKED: 'Checkbox Clicked',
   RADIOBUTTON_CLICKED: 'Radiobutton Clicked',
   MISSING_INFORMATION: 'Missing Information',
+  TAB_VIEWED: 'Tab Viewed',
 };
 
 /**
@@ -356,6 +357,10 @@ const trackEvents: { [key: string]: TrackEvent } = {
   GlobalSideNav: {
     event: eventNames.LINK_CLICKED,
     link_name: 'global-nav-link',
+  },
+  ClusterTabs: {
+    event: eventNames.TAB_VIEWED,
+    link_name: 'cluster-detail-tab',
   },
 };
 
