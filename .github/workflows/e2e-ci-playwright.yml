@@ -1,0 +1,237 @@
+name: E2e CI Playwright Tests
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Browser to run tests on'
+        required: false
+        default: 'chromium'
+        type: choice
+        options:
+          - chrome
+          - chromium
+          - firefox
+          - webkit
+      workers:
+        description: 'Number of parallel workers'
+        required: false
+        default: '4'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+jobs:
+  playwright-e2e-test:
+    name: Playwright E2E - ${{ matrix.os }} - e2e Tests - Node ${{ matrix.node-version }}
+    # Allow workflow to pass even if tests fail (non-blocking for PR merge)
+    continue-on-error: true
+    concurrency:
+      group: playwright-e2e-test-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [22.x]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: '${{ github.event.pull_request.merge_commit_sha }}'
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache@v4
+        with:
+          path: './node_modules'
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - name: Check uncommitted changes
+        if: ${{ always() }}
+        # Check that Git working tree is clean after running `install` command.
+        # The `git` command exits with 1 and fails the build if there are any uncommitted changes.
+        run: git diff HEAD --exit-code
+      - name: Install jq
+        run: |
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y jq
+          fi
+      - name: Install Playwright Browsers
+        # Explicitly specify all browsers including chrome since Playwright 1.44+ no longer installs Chrome by default
+        run: npx playwright install chromium chrome firefox webkit --with-deps
+      - name: Get browser version
+        id: browser-version
+        env:
+          BROWSER: ${{ github.event.inputs.browser || 'chromium' }}
+        run: |
+          case "$BROWSER" in
+            chrome)
+              VERSION=$(google-chrome --version | sed 's/Google Chrome //')
+              ;;
+            chromium)
+              VERSION=$(chromium --version 2>/dev/null || chromium-browser --version 2>/dev/null || echo "Unknown")
+              VERSION=$(echo "$VERSION" | sed 's/Chromium //')
+              ;;
+            firefox)
+              VERSION=$(firefox --version | sed 's/Mozilla Firefox //')
+              ;;
+            webkit)
+              VERSION="Playwright WebKit"
+              ;;
+            *)
+              VERSION="Unknown"
+              ;;
+          esac
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Browser version: ${VERSION}"
+      - name: Add hosts
+        run: make dev-env-setup
+      - name: Check hosts
+        run: cat /etc/hosts
+      - name: Create playwright.env.json from secret
+        run: |
+          echo "Creating playwright.env.json..."
+          echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' > playwright.env.json
+
+          # Add unique identifiers to avoid resource conflicts
+          BUILD_ID="${{ github.run_id }}"
+
+          # Add build identifier to avoid conflicts
+          jq ". + {\"BUILD_IDENTIFIER\": \"${BUILD_ID}\"}" playwright.env.json > tmp.json && mv tmp.json playwright.env.json
+
+          # Validate JSON using jq
+          if jq empty playwright.env.json > /dev/null 2>&1; then
+            echo "playwright.env.json is valid JSON"
+          else
+            echo "ERROR: playwright.env.json is not valid JSON!"
+            exit 1
+          fi
+      - name: Execute tests
+        id: playwright-tests
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+          BROWSER: ${{ github.event.inputs.browser || 'chromium' }}
+          WORKERS: ${{ github.event.inputs.workers || '4' }}
+          BASE_URL: https://prod.foo.redhat.com:1337/openshift/
+        run: |
+          LOGGING=quiet yarn start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
+          NODE_TLS_REJECT_UNAUTHORIZED=0 yarn wait-on -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
+          NODE_TLS_REJECT_UNAUTHORIZED=0 yarn playwright-headless --grep "ci" --workers=$WORKERS
+      - name: Extract test results
+        id: test-results
+        if: always()
+        run: |
+          TEST_RESULTS_FILE="playwright-artifacts/results/test-results.json"
+
+          if [ -f "$TEST_RESULTS_FILE" ]; then
+            # Extract test counts from JSON reporter (handle nested suites structure)
+            TOTAL=$(jq '[.. | .specs? // empty | .[]] | length' "$TEST_RESULTS_FILE")
+            PASSED=$(jq '[.. | .specs? // empty | .[] | .tests[]? | select(.status == "expected")] | length' "$TEST_RESULTS_FILE")
+            FAILED=$(jq '[.. | .specs? // empty | .[] | .tests[]? | select(.status == "unexpected")] | length' "$TEST_RESULTS_FILE")
+            SKIPPED=$(jq '[.. | .specs? // empty | .[] | .tests[]? | select(.status == "skipped")] | length' "$TEST_RESULTS_FILE")
+            
+            echo "total=${TOTAL}" >> $GITHUB_OUTPUT
+            echo "passed=${PASSED}" >> $GITHUB_OUTPUT
+            echo "failed=${FAILED}" >> $GITHUB_OUTPUT
+            echo "skipped=${SKIPPED}" >> $GITHUB_OUTPUT
+          else
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "passed=0" >> $GITHUB_OUTPUT
+            echo "failed=0" >> $GITHUB_OUTPUT
+            echo "skipped=0" >> $GITHUB_OUTPUT
+          fi
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: playwright-e2e-facts
+          retention-days: 5
+          path: |
+            playwright-artifacts/
+      - name: Get current timestamp
+        id: timestamp
+        if: always()
+        run: echo "now=$(date +%s)" >> $GITHUB_OUTPUT
+      - name: Publish results to Slack
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_PLAYWRIGHT_TESTS_PUBLISHER_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "${{ job.status == 'success' && 'good' || 'danger' }}",
+                  "title": "Playwright E2E Tests - ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }}",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "value": "${{ job.status }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Browser",
+                      "value": "${{ github.event.inputs.browser || 'chromium' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Browser Version",
+                      "value": "${{ steps.browser-version.outputs.version }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Workers",
+                      "value": "${{ github.event.inputs.workers || '4' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Total Tests",
+                      "value": "${{ steps.test-results.outputs.total }}",
+                      "short": true
+                    },
+                    {
+                      "title": "✅ Passed",
+                      "value": "${{ steps.test-results.outputs.passed }}",
+                      "short": true
+                    },
+                    {
+                      "title": "❌ Failed",
+                      "value": "${{ steps.test-results.outputs.failed }}",
+                      "short": true
+                    },
+                    {
+                      "title": "⏭️ Skipped",
+                      "value": "${{ steps.test-results.outputs.skipped }}",
+                      "short": true
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "type": "button",
+                      "text": "View Results",
+                      "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ],
+                  "footer": "GitHub Actions",
+                  "footer_icon": "https://github.githubassets.com/favicon.ico",
+                  "ts": ${{ steps.timestamp.outputs.now }}
+                }
+              ]
+            }
