@@ -55,31 +55,14 @@ test.describe.serial('OSD cluster tests', { tag: ['@ci'] }, () => {
     );
   });
 
-  test('View Create OSD Trial cluster page - navigates to create OSD Trial cluster and CCS is selected', async ({
-    navigateTo,
-    createOSDWizardPage,
-  }) => {
-    await navigateTo('create');
-    await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdTrialCreateClusterButton());
-    await createOSDWizardPage.isCreateOSDTrialPage();
-    await createOSDWizardPage.isTrailDefinitionScreen();
-  });
-
-  test.skip('fills OSD wizard but does not really create an OSD cluster', async ({
+  test('fills OSD wizard but does not really create an OSD cluster', async ({
     page,
     createOSDWizardPage,
   }) => {
-    // TODO: This test fails because the page state is not preserved between serial tests
-    // The test ends up back on the cluster list page instead of continuing from the OSD wizard
-    // This needs investigation into why the page navigation is not maintained in Playwright serial tests
-    console.log('Third test URL:', page.url());
-    // Ensure we're on the cluster details screen
     await createOSDWizardPage.isClusterDetailsScreen();
-    await page.locator(createOSDWizardPage.clusterNameInput).clear();
-    await page.locator(createOSDWizardPage.clusterNameInput).fill(clusterName);
+    await createOSDWizardPage.setClusterName(clusterName);
     await expect(page.locator(createOSDWizardPage.clusterNameInputError)).toHaveCount(0);
 
-    // click "next" until the cluster is created :)
     await page.locator(createOSDWizardPage.primaryButton).click();
     await createOSDWizardPage.isMachinePoolScreen();
     await expect(page.locator('.spinner-loading-text')).not.toBeVisible();
@@ -91,5 +74,15 @@ test.describe.serial('OSD cluster tests', { tag: ['@ci'] }, () => {
     await createOSDWizardPage.isClusterUpdatesScreen();
     await page.locator(createOSDWizardPage.primaryButton).click();
     await createOSDWizardPage.isReviewScreen();
+  });
+
+  test('View Create OSD Trial cluster page - navigates to create OSD Trial cluster and CCS is selected', async ({
+    navigateTo,
+    createOSDWizardPage,
+  }) => {
+    await navigateTo('create');
+    await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdTrialCreateClusterButton());
+    await createOSDWizardPage.isCreateOSDTrialPage();
+    await createOSDWizardPage.isTrailDefinitionScreen();
   });
 });
