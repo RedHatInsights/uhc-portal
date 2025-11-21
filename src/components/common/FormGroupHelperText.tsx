@@ -52,7 +52,11 @@ export const FormGroupHelperText = ({
     <FormHelperText>
       {(touched && error && isValidError) || (validateOnSubmit && error) ? (
         <HelperText id={id}>
-          <HelperTextItem variant="error" icon={<ExclamationCircleIcon />}>
+          <HelperTextItem
+            variant="error"
+            icon={<ExclamationCircleIcon />}
+            data-testid="form-helper-error"
+          >
             {error}
           </HelperTextItem>
         </HelperText>
