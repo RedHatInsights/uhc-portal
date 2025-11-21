@@ -184,7 +184,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
             </Title>
           ) : (
             <Title headingLevel="h3" className="pf-v6-u-mb-sm">
-              GCP Service account
+              Google Cloud Service account
             </Title>
           )}
           {authType === GCPAuthType.ServiceAccounts && <ServiceAccountNotRecommendedAlert />}
