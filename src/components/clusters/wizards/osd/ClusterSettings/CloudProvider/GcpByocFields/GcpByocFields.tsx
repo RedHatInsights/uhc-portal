@@ -123,7 +123,10 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
       )}
     </ToggleGroup>
   );
-
+  const shouldShowPrepareGCPHint =
+    (billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp &&
+      !isOSDFromGoogleCloud) ||
+    (isOSDFromGoogleCloud && authType === GCPAuthType.ServiceAccounts);
   return (
     <>
       {billingModel !== SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
@@ -186,15 +189,14 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
           )}
           {authType === GCPAuthType.ServiceAccounts && <ServiceAccountNotRecommendedAlert />}
           <Prerequisites acknowledgementRequired initiallyExpanded>
-            {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp &&
-              (!isOSDFromGoogleCloud || authType === GCPAuthType.ServiceAccounts) && (
-                <PrepareGCPHint
-                  title={gcpTitle}
-                  text={gcpText}
-                  linkHref={linkHref}
-                  linkText={linkText}
-                />
-              )}
+            {shouldShowPrepareGCPHint && (
+              <PrepareGCPHint
+                title={gcpTitle}
+                text={gcpText}
+                linkHref={linkHref}
+                linkText={linkText}
+              />
+            )}
             {authType === GCPAuthType.WorkloadIdentityFederation ? (
               <WorkloadIdentityFederationPrerequisites
                 hideResourceRequirements={isOSDFromGoogleCloud}
