@@ -12,8 +12,6 @@ describe('<Monitoring />', () => {
     cluster: mockOCPActiveClusterDetails,
   };
 
-  // Skipping these tests because the Monitoring component
-  // has accessibility issues
   it.each(Object.keys(monitoringStatuses))('is accessible with health status %s', async () => {
     const { container } = render(<Monitoring {...defaultProps} />);
     await checkAccessibility(container);
