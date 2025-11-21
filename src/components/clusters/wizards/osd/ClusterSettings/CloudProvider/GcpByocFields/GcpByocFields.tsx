@@ -53,19 +53,23 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
   const isOsdGcpFeatureFlagEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
   const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
 
-  const gcpTitle = isOsdGcpFeatureFlagEnabled
-    ? 'Did you complete your prerequisites?'
-    : 'Have you prepared your Google account?';
-  const gcpText = isOsdGcpFeatureFlagEnabled
-    ? `To create a Red Hat OpenShift Dedicated (OSD) cluster via the web interface, you must complete the prerequisites steps on the OSD Get Started page in Google Cloud.`
-    : `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
-
   const {
     setFieldValue,
     values: { [FieldId.GcpAuthType]: authTypeFormValue },
   } = useFormState();
 
   const authType = isWifEnabled ? authTypeFormValue : GCPAuthType.ServiceAccounts;
+
+  let gcpTitle = 'Have you prepared your Google account?';
+  let gcpText = `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
+  let linkHref = links.GCP_CONSOLE_OSD_HOME;
+  let linkText = 'Review Google terms and agreements';
+  if (isOsdGcpFeatureFlagEnabled && authType === GCPAuthType.WorkloadIdentityFederation) {
+    gcpTitle = 'Did you complete your prerequisites?';
+    gcpText = `To create a Red Hat OpenShift Dedicated (OSD) cluster via the web interface, you must complete the prerequisites steps on the OSD Get Started page in Google Cloud.`;
+    linkHref = links.GCP_CONSOLE_OSD_HOME; // TODO: add the correct link
+    linkText = 'Google Cloud OSD Get Started page';
+  }
 
   const handleAuthChange: ToggleGroupItemProps['onChange'] = (event) => {
     const { id } = event.currentTarget;
@@ -119,7 +123,10 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
       )}
     </ToggleGroup>
   );
-
+  const shouldShowPrepareGCPHint =
+    (billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp &&
+      !isOSDFromGoogleCloud) ||
+    (isOSDFromGoogleCloud && authType === GCPAuthType.ServiceAccounts);
   return (
     <>
       {billingModel !== SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
@@ -182,16 +189,12 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
           )}
           {authType === GCPAuthType.ServiceAccounts && <ServiceAccountNotRecommendedAlert />}
           <Prerequisites acknowledgementRequired initiallyExpanded>
-            {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
+            {shouldShowPrepareGCPHint && (
               <PrepareGCPHint
                 title={gcpTitle}
                 text={gcpText}
-                linkHref={links.GCP_CONSOLE_OSD_HOME}
-                linkText={
-                  isOsdGcpFeatureFlagEnabled
-                    ? 'Google Cloud OSD Get Started page'
-                    : 'Google Cloud Terms and Agreements'
-                }
+                linkHref={linkHref}
+                linkText={linkText}
               />
             )}
             {authType === GCPAuthType.WorkloadIdentityFederation ? (
