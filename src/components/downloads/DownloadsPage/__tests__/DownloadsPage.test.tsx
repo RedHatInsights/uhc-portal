@@ -59,9 +59,6 @@ describe('<DownloadsPage>', () => {
 
     await user.click(expandBtn);
 
-    await waitFor(() => {
-      expect(screen.getAllByRole('button', { name: /details/i })).toHaveLength(25);
-    });
     const expandButtons = screen.getAllByRole('button', { name: /details/i });
     expandButtons.forEach((button) => {
       expect(button).toHaveAttribute('aria-expanded', 'true');

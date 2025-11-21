@@ -116,7 +116,7 @@ const TopOverviewSection = ({
 
   return (
     <>
-      <GridItem md={3} data-testid="kim-look-here">
+      <GridItem md={3}>
         <Link to="/cluster-list" className="overview-clusters-link">
           <Card className="ocm-overview-clusters__card">
             <CardTitle>Clusters</CardTitle>
