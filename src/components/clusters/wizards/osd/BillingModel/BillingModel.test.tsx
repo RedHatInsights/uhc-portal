@@ -1,8 +1,9 @@
 import React from 'react';
 import { Formik } from 'formik';
 
+import { getQueryParam } from '~/common/queryHelpers';
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
-import { checkAccessibility, mockUseFeatureGate, render, screen ,waitFor } from '~/testUtils';
+import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { initialValues } from '../constants';
 
@@ -12,7 +13,9 @@ import { useGetBillingQuotas } from './useGetBillingQuotas';
 // Mock hooks
 jest.mock('~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud');
 jest.mock('~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas');
+jest.mock('~/common/queryHelpers');
 
+const mockGetQueryParam = getQueryParam as jest.Mock;
 const mockUseIsOSDFromGoogleCloud = useIsOSDFromGoogleCloud as jest.Mock;
 const mockUseGetBillingQuotas = useGetBillingQuotas as jest.Mock;
 
@@ -26,14 +29,6 @@ const defaultQuotas = {
   marketplaceRhInfra: true,
   marketplaceByoc: true,
 };
-
-jest.mock('~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas', () => ({
-  useGetBillingQuotas: jest.fn(),
-}));
-
-(useGetBillingQuotas as jest.Mock).mockReturnValue({
-  OsdTrial: true,
-});
 
 const buildTestComponent = () => (
   <Formik
@@ -103,6 +98,7 @@ describe('<BillingModel />', () => {
   describe('When creating a cluster coming from google cloud console', () => {
     beforeEach(() => {
       mockUseIsOSDFromGoogleCloud.mockReturnValue(true);
+      mockGetQueryParam.mockReturnValue('gcp');
       mockUseGetBillingQuotas.mockReturnValue({
         ...defaultQuotas,
         standardOsd: false,
@@ -134,7 +130,6 @@ describe('<BillingModel />', () => {
 
     it('has On-Demand selected by default', async () => {
       render(buildTestComponent());
-
       const onDemandRadioOption = screen.getByRole('radio', {
         name: /On-Demand: Flexible usage billed through/i,
       });
@@ -159,57 +154,6 @@ describe('<BillingModel />', () => {
       });
       expect(byocRadioCCSOption).toBeInTheDocument();
       expect(byocRadioCCSOption).toBeChecked();
-    });
-  });
-  describe('Google Cloud Marketplace', () => {
-    it('Google Cloud Marketplace option is enabled when there is gcp quota', async () => {
-      mockUseGetBillingQuotas.mockReturnValue({
-        gcpResources: true,
-      });
-
-      render(buildTestComponent());
-
-      expect(
-        screen.queryByRole('radio', { name: /On-Demand: Flexible usage billed through/i }),
-      ).toBeEnabled();
-    });
-
-    it('Google Cloud Marketplace option is disabled when there is no gcp quota', async () => {
-      mockUseGetBillingQuotas.mockReturnValue({
-        gcpResources: false,
-      });
-
-      render(buildTestComponent());
-
-      expect(
-        screen.queryByRole('radio', { name: /On-Demand: Flexible usage billed through/i }),
-      ).toBeDisabled();
-    });
-
-    it('Shows enabled description when there is gcp quota', async () => {
-      mockUseGetBillingQuotas.mockReturnValue({
-        gcpResources: true,
-      });
-
-      render(buildTestComponent());
-
-      expect(
-        screen.getByText(
-          'Use Google Cloud Marketplace to subscribe and pay based on the services you use',
-        ),
-      ).toBeInTheDocument();
-    });
-
-    it('Shows disabled description when there is no gcp quota', async () => {
-      mockUseGetBillingQuotas.mockReturnValue({
-        gcpResources: false,
-      });
-      render(buildTestComponent());
-
-      expect(
-        screen.getByText('You do not currently have a Google Cloud Platform subscription'),
-      ).toBeInTheDocument();
-      expect(screen.getByText('How can I purchase a subscription?')).toBeInTheDocument();
     });
   });
   describe('Google Cloud Marketplace', () => {
