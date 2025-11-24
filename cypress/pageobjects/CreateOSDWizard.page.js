@@ -110,7 +110,7 @@ class CreateOSDCluster extends Page {
     cy.get('input[name="billing_model"][value="standard"]');
 
   subscriptionTypeOnDemandFlexibleRadio = () =>
-    cy.get('input[name="billing_model"][value="marketplace-select"]');
+    cy.get('input[name="billing_model"][value="marketplace-gcp"]');
 
   infrastructureTypeRedHatCloudAccountRadio = () =>
     cy.get('input[id="form-radiobutton-byoc-false-field"]');
@@ -593,20 +593,6 @@ class CreateOSDCluster extends Page {
     } else {
       this.infrastructureTypeRedHatCloudAccountRadio().check({ force: true });
     }
-  }
-
-  selectMarketplaceSubscription(marketplace) {
-    cy.get('div[name="marketplace_selection"]').find('button').click();
-    cy.contains('button', 'Red Hat Marketplace').should('not.exist');
-    cy.get('button').contains(marketplace).click();
-  }
-
-  isGoogleCloudMarketplaceSelectedByDefault() {
-    cy.get('div[name="marketplace_selection"]')
-      .find('button')
-      .should('exist')
-      .should('be.visible')
-      .should('contain.text', 'Google Cloud Marketplace');
   }
 
   selectCloudProvider(cloudProvider) {

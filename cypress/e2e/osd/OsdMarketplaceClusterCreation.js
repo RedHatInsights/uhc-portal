@@ -27,7 +27,6 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
     it(`OSD wizard - ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled}-${clusterProperties.Marketplace} : Billing model and its definitions`, () => {
       CreateOSDWizardPage.isBillingModelScreen();
       CreateOSDWizardPage.selectSubscriptionType(clusterProperties.SubscriptionType);
-      CreateOSDWizardPage.selectMarketplaceSubscription(clusterProperties.Marketplace);
       CreateOSDWizardPage.selectInfrastructureType(clusterProperties.InfrastructureType);
       cy.get(CreateOSDWizardPage.primaryButton).click();
     });

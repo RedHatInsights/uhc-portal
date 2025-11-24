@@ -22,7 +22,6 @@ describe(
       it(`OSD curated wizard - ${clusterProperties.CloudProvider} ${isPscEnabled} : Billing model`, () => {
         CreateOSDWizardPage.isBillingModelScreen();
         CreateOSDWizardPage.isCuratedBillingModelEnabledAndSelected();
-        CreateOSDWizardPage.isGoogleCloudMarketplaceSelectedByDefault();
         cy.get(CreateOSDWizardPage.primaryButton).click();
       });
 
