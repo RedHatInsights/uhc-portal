@@ -14,14 +14,11 @@ export class OverviewPage extends BasePage {
   }
 
   async isOverviewPage(): Promise<void> {
+    await this.isOverviewUrl();
     await expect(this.page.getByText('Get started with OpenShift')).toBeVisible({ timeout: 60000 });
   }
 
   async isOverviewUrl(): Promise<void> {
-    await this.assertUrlIncludes('/openshift/overview');
-  }
-
-  async assertToBeOverviewUrl(): Promise<void> {
     await this.assertUrlIncludes('/openshift/overview');
   }
 

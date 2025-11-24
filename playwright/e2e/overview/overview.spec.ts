@@ -9,9 +9,6 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
     // Verify we're on the overview page
     await overviewPage.isOverviewPage();
 
-    // Check header
-    await expect(overviewPage.headerTitle()).toHaveText('Get started with OpenShift');
-
     // Check Learn more link
     await overviewPage.expectLinkOpensInNewTab(
       overviewPage.headerLearnMoreLink(),
