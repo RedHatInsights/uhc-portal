@@ -32,8 +32,6 @@ import {
 } from '~/common/validators';
 import { getIncompatibleVersionReason } from '~/common/versionCompatibility';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
-import { MAX_NODES_INSUFFICIEN_VERSION as MAX_NODES_180 } from '~/components/clusters/common/machinePools/constants';
-import { getMaxNodesTotalDefaultAutoscaler } from '~/components/clusters/common/machinePools/utils';
 import { QuotaTypes } from '~/components/clusters/common/quotaModel';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
 import {
@@ -44,6 +42,7 @@ import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { ChannelGroupSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelGroupSelectField';
 import { ClassicEtcdFipsSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdFipsSection';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
+import { useResetMaxNodesTotal } from '~/components/clusters/wizards/common/ClusterSettings/Details/useResetMaxNodesTotal/useResetMaxNodesTotal';
 import { emptyAWSSubnet } from '~/components/clusters/wizards/common/constants';
 import { RadioGroupField, RichInputField } from '~/components/clusters/wizards/form';
 import { CheckboxField } from '~/components/clusters/wizards/form/CheckboxField';
@@ -57,7 +56,6 @@ import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import {
   ALLOW_EUS_CHANNEL,
-  MAX_NODES_TOTAL_249,
   MULTIREGION_PREVIEW_ENABLED,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -116,7 +114,6 @@ function Details() {
   const isMultiAz = multiAz === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
-  const allow249Nodes = useFeatureGate(MAX_NODES_TOTAL_249);
 
   const getInstallableVersionsResponse = useGlobalState((state) => state.clusters.clusterVersions);
 
@@ -227,6 +224,8 @@ function Details() {
 
   const clusterNameMaxLength = 54; // After removing feature flag, the max length is always 54
 
+  const { resetMaxNodesTotal } = useResetMaxNodesTotal();
+
   const validateClusterName = async (value: string) => {
     const syncError = createPessimisticValidator(clusterNameValidation)(
       value,
@@ -288,13 +287,7 @@ function Details() {
     }
 
     if (!isHypershiftSelected) {
-      // reset max-nodes-total to default
-      const { value: MultiAz } = getFieldProps(FieldId.MultiAz);
-      const maxNodesTotalDefault = allow249Nodes
-        ? getMaxNodesTotalDefaultAutoscaler(clusterVersion.raw_id, MultiAz === 'true')
-        : MAX_NODES_180;
-
-      setFieldValue('cluster_autoscaling.resource_limits.max_nodes_total', maxNodesTotalDefault);
+      resetMaxNodesTotal({ clusterVersion });
     }
   };
 
@@ -370,13 +363,7 @@ function Details() {
     setFieldValue(FieldId.MachinePoolsSubnets, mpSubnetsReset);
 
     if (!isHypershiftSelected) {
-      // reset max-nodes-total to default
-      const { value: clusterVersion } = getFieldProps(FieldId.ClusterVersion);
-      const maxNodesTotalDefault = allow249Nodes
-        ? getMaxNodesTotalDefaultAutoscaler(clusterVersion?.raw_id, isValueMultiAz)
-        : MAX_NODES_180;
-
-      setFieldValue('cluster_autoscaling.resource_limits.max_nodes_total', maxNodesTotalDefault);
+      resetMaxNodesTotal({ isMultiAz: isValueMultiAz });
     }
   };
 
