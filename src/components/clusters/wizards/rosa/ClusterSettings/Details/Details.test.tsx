@@ -449,7 +449,7 @@ describe('<Details />', () => {
       expect(submittedValues.cluster_autoscaling?.resource_limits?.max_nodes_total).toBe(186);
     });
 
-    it('should reset max-nodes-total to default when changing a version', async () => {
+    it('resets max-nodes-total to default when changing a version', async () => {
       // Arrange
       const handleSubmit = jest.fn();
 

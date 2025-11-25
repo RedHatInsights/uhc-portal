@@ -317,7 +317,7 @@ describe('<Details />', () => {
       },
     );
 
-    it('should reset max-nodes-total to default when changing a version', async () => {
+    it('resets max-nodes-total to default when changing a version', async () => {
       // Arrange
       mockUseFeatureGate([[MAX_NODES_TOTAL_249, true]]);
 
