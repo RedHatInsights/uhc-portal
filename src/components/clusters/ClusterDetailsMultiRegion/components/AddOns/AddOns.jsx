@@ -1,5 +1,4 @@
 import React from 'react';
-import get from 'lodash/get';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
@@ -41,7 +40,7 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
   const organization = useGlobalState((state) => state.userProfile.organization);
 
   // Calculate analytics resource type for tracking
-  const planType = get(cluster, 'subscription.plan.id', normalizedProducts.UNKNOWN);
+  const planType = cluster?.subscription?.plan?.id ?? normalizedProducts.UNKNOWN;
   const analyticsResourceType = getOCMResourceType(planType);
   const {
     data: addOnsData,

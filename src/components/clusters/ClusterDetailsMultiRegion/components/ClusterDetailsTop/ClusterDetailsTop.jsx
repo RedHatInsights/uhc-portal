@@ -515,6 +515,7 @@ function ClusterDetailsTop(props) {
                 clusterState={cluster.state}
                 consoleURL={consoleURL}
                 cluster={cluster}
+                planType={cluster?.subscription?.plan?.id ?? normalizedProducts.UNKNOWN}
               />
             ) : null}
           </ExpandableSection>

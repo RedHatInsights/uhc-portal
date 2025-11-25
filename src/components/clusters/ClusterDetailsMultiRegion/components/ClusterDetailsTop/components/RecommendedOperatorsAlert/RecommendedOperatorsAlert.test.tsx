@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { checkAccessibility, mockUseChrome, render, screen, userEvent, waitFor } from '~/testUtils';
-import { ClusterWithPermissions } from '~/types/types';
 
 import clusterStates from '../../../../../common/clusterStates';
 
@@ -35,7 +34,7 @@ describe('<RecommendedOperatorsAlert />', () => {
           openLearnMore={openLearnMore}
           closeDrawer={closeDrawer}
           onDismissAlertCallback={onDismissAlertCallback}
-          cluster={{ subscription: { plan: { id: '123' } } } as ClusterWithPermissions}
+          planType="123"
         />,
       );
 
@@ -56,7 +55,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
         consoleURL="someLink"
-        cluster={{ subscription: { plan: { id: '123' } } } as ClusterWithPermissions}
+        planType="123"
       />,
     );
 
@@ -84,7 +83,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         openLearnMore={openLearnMore}
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
-        cluster={{ subscription: { plan: { id: '123' } } } as ClusterWithPermissions}
+        planType="123"
       />,
     );
 
@@ -103,7 +102,7 @@ describe('<RecommendedOperatorsAlert />', () => {
           closeDrawer={closeDrawer}
           onDismissAlertCallback={onDismissAlertCallback}
           consoleURL="someLink"
-          cluster={{ subscription: { plan: { id: '123' } } } as ClusterWithPermissions}
+          planType="123"
         />,
       );
 
@@ -138,7 +137,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
         consoleURL="someLink"
-        cluster={{ subscription: { plan: { id: '123' } } } as ClusterWithPermissions}
+        planType="123"
       />,
     );
 
@@ -162,7 +161,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         openLearnMore={openLearnMore}
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
-        cluster={{ subscription: { plan: { id: '123' } } } as ClusterWithPermissions}
+        planType="123"
       />,
     );
 
@@ -183,7 +182,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         openLearnMore={openLearnMore}
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
-        cluster={{ subscription: { plan: { id: '123' } } } as ClusterWithPermissions}
+        planType="123"
       />,
     );
 
@@ -215,7 +214,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
         consoleURL="someLink"
-        cluster={{ subscription: { plan: { id: '123' } } } as ClusterWithPermissions}
+        planType="123"
       />,
     );
 

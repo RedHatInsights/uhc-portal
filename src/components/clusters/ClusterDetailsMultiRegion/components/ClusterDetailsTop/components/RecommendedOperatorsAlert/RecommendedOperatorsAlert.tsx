@@ -1,15 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import get from 'lodash/get';
 
 import { Alert, AlertActionCloseButton, Content, ExpandableSection } from '@patternfly/react-core';
 
 import { getOCMResourceType, trackEvents } from '~/common/analytics';
 import { HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT } from '~/common/localStorageConstants';
-import { normalizedProducts } from '~/common/subscriptionTypes';
 import ExternalLink from '~/components/common/ExternalLink';
 import useAnalytics from '~/hooks/useAnalytics';
 import { ClusterState } from '~/types/clusters_mgmt.v1/enums';
-import { ClusterWithPermissions } from '~/types/types';
 
 import { ProductCardNode } from '../../../../../../common/ProductCard/ProductCard';
 import { DrawerPanelContentNode } from '../../../../../../overview/components/common/DrawerPanelContent';
@@ -31,7 +28,7 @@ type RecommendedOperatorsAlertProps = {
   closeDrawer: () => void;
   onDismissAlertCallback: () => void;
   consoleURL?: string;
-  cluster: ClusterWithPermissions;
+  planType: string;
 };
 
 const STATIC_ALERT_MESSAGES = {
@@ -66,7 +63,7 @@ const RecommendedOperatorsAlert = ({
   closeDrawer,
   onDismissAlertCallback,
   consoleURL,
-  cluster,
+  planType,
 }: RecommendedOperatorsAlertProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const track = useAnalytics();
@@ -83,7 +80,6 @@ const RecommendedOperatorsAlert = ({
     }
     setIsExpanded(false);
 
-    const planType = get(cluster, 'subscription.plan.id', normalizedProducts.UNKNOWN);
     const resourceType = getOCMResourceType(planType);
 
     // When the user dismisses the Alert, the value is saved in the user's LocalStorage
