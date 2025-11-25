@@ -1,0 +1,45 @@
+{
+  "ClusterName": "ocmui-playwright-smoke-osd-nonccs-gcp",
+  "Type": "OSD",
+  "CloudProvider": "Google Cloud",
+  "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
+  "SubscriptionBillingModel": "Annual Red Hat subscriptions",
+  "InfrastructureType": "Red Hat cloud account",
+  "Region": "us-east1, Moncks Corner, South Carolina, USA",
+  "Availability": "Single zone",
+  "PersistentStorage": "100 GiB",
+  "LoadBalancers": "0",
+  "UserWorkloadMonitoring": "Enabled",
+  "FIPSCryptography": "Disabled",
+  "AdditionalEncryption": "Disabled",
+  "Nodes": {
+    "Control plane": "3/3",
+    "Infra": "2/2",
+    "Compute": "3/3"
+  },
+  "ClusterAutoscaling": "Disabled",
+  "ClusterPrivacy": "Public",
+  "MachineCIDR": "10.0.0.0/16",
+  "ServiceCIDR": "172.30.0.0/16",
+  "PodCIDR": "10.128.0.0/14",
+  "HostPrefix": "/23",
+  "UpdateStrategy": "Individual updates",
+  "NodeDraining": "1 hour",
+  "MachinePools": [
+    {
+      "Name": "worker",
+      "InstanceType": "custom-4-16384",
+      "AvailabilityZones": "us-east-1a, us-east-1b, us-east-1c",
+      "NodeCount": 4,
+      "Autoscaling": "Disabled"
+    }
+  ],
+  "networking": {
+    "CIDRRanges": {
+      "MachineCIDR": "10.0.0.0/16",
+      "ServiceCIDR": "172.30.0.0/16",
+      "PodCIDR": "10.128.0.0/14",
+      "Hostprefix": "/23"
+    }
+  }
+}
