@@ -5,11 +5,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import * as machinePoolsHelperModule from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
 import * as machinePoolsUtilsModule from '~/components/clusters/common/machinePools/utils';
-import * as useFormStateModule from '~/components/clusters/wizards/hooks';
+import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import * as usePreviousPropsModule from '~/hooks/usePreviousProps';
-import * as useFeatureGateModule from '~/queries/featureGates/useFetchFeatureGate';
 import * as useGlobalStateModule from '~/redux/hooks';
+import { mockUseFeatureGate } from '~/testUtils';
 
 import ComputeNodeCount, { TotalNodesDescription } from './ComputeNodeCount';
 
@@ -17,7 +17,6 @@ import '@testing-library/jest-dom';
 
 jest.mock('~/components/clusters/wizards/hooks');
 jest.mock('~/redux/hooks');
-jest.mock('~/queries/featureGates/useFetchFeatureGate');
 jest.mock('~/hooks/usePreviousProps');
 jest.mock(
   '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper',
@@ -56,6 +55,8 @@ const renderWithFormik = (props = {}) =>
     </Formik>,
   );
 
+const mockedUseFormState = useFormState as jest.MockedFunction<typeof useFormState>;
+
 describe('ComputeNodeCount', () => {
   const mockSetFieldValue = jest.fn();
   const mockValidateField = jest.fn();
@@ -92,7 +93,7 @@ describe('ComputeNodeCount', () => {
     mockSetFieldValue.mockClear();
     mockValidateField.mockClear();
 
-    (useFormStateModule.useFormState as jest.Mock).mockReturnValue(createMockFormState());
+    mockedUseFormState.mockReturnValue(createMockFormState() as any);
 
     (useGlobalStateModule.useGlobalState as jest.Mock).mockImplementation((selector: any) => {
       const mockState = {
@@ -102,7 +103,7 @@ describe('ComputeNodeCount', () => {
       return selector(mockState);
     });
 
-    (useFeatureGateModule.useFeatureGate as jest.Mock).mockReturnValue(false);
+    mockUseFeatureGate([]);
 
     (machinePoolsUtilsModule.getIncludedNodes as jest.Mock).mockReturnValue([]);
     (machinePoolsUtilsModule.getAvailableQuota as jest.Mock).mockReturnValue(1000);
@@ -116,11 +117,11 @@ describe('ComputeNodeCount', () => {
   });
 
   it('shows hypershift label when isHypershift is true', () => {
-    (useFormStateModule.useFormState as jest.Mock).mockReturnValue({
-      ...useFormStateModule.useFormState(),
-      values: { [FieldId.Hypershift]: 'true' },
-      getFieldProps: () => ({ value: 2, onChange: jest.fn() }),
-    });
+    mockedUseFormState.mockReturnValue(
+      createMockFormState({
+        [FieldId.Hypershift]: 'true',
+      }) as any,
+    );
 
     renderWithFormik();
 
@@ -128,10 +129,7 @@ describe('ComputeNodeCount', () => {
   });
 
   it('sets value when user changes input', async () => {
-    (useFormStateModule.useFormState as jest.Mock).mockReturnValue({
-      ...useFormStateModule.useFormState(),
-      setFieldValue: mockSetFieldValue,
-    });
+    mockedUseFormState.mockReturnValue(createMockFormState() as any);
 
     renderWithFormik();
 
@@ -156,11 +154,11 @@ describe('ComputeNodeCount', () => {
     (machinePoolsHelperModule.getMinNodesRequired as jest.Mock).mockReturnValue(3);
     (machinePoolsHelperModule.getNodeIncrementHypershift as jest.Mock).mockReturnValue(3);
     (usePreviousPropsModule.usePreviousProps as jest.Mock).mockReturnValue(undefined);
-    (useFormStateModule.useFormState as jest.Mock).mockReturnValue(
+    mockedUseFormState.mockReturnValue(
       createMockFormState({
         [FieldId.MachinePoolsSubnets]: threePools,
         [FieldId.NodesCompute]: 1,
-      }),
+      }) as any,
     );
 
     const { rerender } = renderWithFormik();
@@ -169,11 +167,11 @@ describe('ComputeNodeCount', () => {
     (machinePoolsHelperModule.getMinNodesRequired as jest.Mock).mockReturnValue(2);
     (machinePoolsHelperModule.getNodeIncrementHypershift as jest.Mock).mockReturnValue(1);
     (usePreviousPropsModule.usePreviousProps as jest.Mock).mockReturnValue(threePools);
-    (useFormStateModule.useFormState as jest.Mock).mockReturnValue(
+    mockedUseFormState.mockReturnValue(
       createMockFormState({
         [FieldId.MachinePoolsSubnets]: onePool,
         [FieldId.NodesCompute]: 1,
-      }),
+      }) as any,
     );
 
     rerender(
