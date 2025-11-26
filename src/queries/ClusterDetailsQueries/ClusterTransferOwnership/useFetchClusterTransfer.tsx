@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useQuery } from '@tanstack/react-query';
@@ -39,13 +38,14 @@ export const useFetchClusterTransfer = ({
       queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
       'fetchClusterTransfer',
       filter || clusterExternalID || transferID,
+      viewOptions,
     ],
     queryFn: async () => {
       if (clusterExternalID) {
         return accountsService.getClusterTransferByExternalID(clusterExternalID);
       }
 
-      return accountsService.searchClusterTransfers({
+      const response = await accountsService.searchClusterTransfers({
         filter: filter || `id='${transferID}'`,
         page: viewOptions.currentPage || 1,
         size: viewOptions.pageSize || 20,
@@ -53,24 +53,16 @@ export const useFetchClusterTransfer = ({
           ? `${viewOptions.sorting.sortField} ${viewOptions.sorting.isAscending ? 'asc' : 'desc'}`
           : 'updated_at desc',
       });
+
+      if (response?.data?.total !== viewOptions.totalCount) {
+        dispatch(onSetTotal(response.data.total, viewType));
+      }
+
+      return response;
     },
     enabled: !!clusterExternalID || !!transferID || !!filter,
     refetchInterval: queryConstants.STALE_TIME_60_SEC,
   });
-
-  // Update Redux state with total count when data changes
-  useEffect(() => {
-    if (!data?.data || !data.data.total) return;
-    dispatch(onSetTotal(data.data.total, viewType));
-  }, [
-    data?.data,
-    dispatch,
-    viewOptions?.totalCount,
-    viewOptions?.pageSize,
-    viewOptions?.currentPage,
-    viewOptions?.totalPages,
-    viewType,
-  ]);
 
   if (isError) {
     const formattedError = formatErrorData(isLoading, isError, error);
