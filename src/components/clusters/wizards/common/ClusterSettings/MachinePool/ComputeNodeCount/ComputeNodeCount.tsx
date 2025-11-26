@@ -197,8 +197,14 @@ const ComputeNodeCount = ({
         validateField(FieldId.NodesCompute);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [machinePoolsSubnets, prevMachinePoolsSubnets, minUserInputNodes, nodes, setFieldValue]);
+  }, [
+    machinePoolsSubnets,
+    prevMachinePoolsSubnets,
+    minUserInputNodes,
+    nodes,
+    setFieldValue,
+    validateField,
+  ]);
 
   let notEnoughQuota = !totalMaxNodes;
 
