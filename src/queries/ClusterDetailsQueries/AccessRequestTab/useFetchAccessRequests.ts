@@ -64,27 +64,12 @@ export const useFetchAccessRequests = ({
   });
   const accessRequestItems = data?.data?.items;
 
-  // Update Redux state with total count when data changes
+  // Recalculate totalPages when pageSize changes
   useEffect(() => {
-    if (!data?.data) return;
-
-    const apiTotal = data.data.total;
-
-    // Always update total count to force totalPages recalculation
-    // This is important when pageSize changes but totalCount stays the same
-    // The reducer's updatePageCounts will recalculate totalPages using the current pageSize
-    if (apiTotal !== undefined) {
-      dispatch(onSetTotal(apiTotal, viewType));
+    if (data?.data?.total !== undefined) {
+      dispatch(onSetTotal(data.data.total, viewType));
     }
-  }, [
-    data?.data,
-    viewOptions.totalCount,
-    viewOptions.pageSize,
-    viewOptions.currentPage,
-    viewOptions.totalPages,
-    dispatch,
-    viewType,
-  ]);
+  }, [viewOptions.pageSize, data?.data?.total, dispatch, viewType]);
 
   const clusterIds = useMemo(() => {
     if (!accessRequestItems || subscriptionId) return '';
