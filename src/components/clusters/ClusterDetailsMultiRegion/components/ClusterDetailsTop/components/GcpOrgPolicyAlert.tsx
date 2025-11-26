@@ -23,18 +23,19 @@ const GcpOrgPolicyAlert = ({ summary }: GcpOrgPolicyAlertProps) => {
             <>
               Your installation might be affected by the{' '}
               <ExternalLink href="https://cloud.google.com/resource-manager/docs/organization-policy/overview">
-                GCP Organization Policy Service
+                Google Cloud Organization Policy Service
               </ExternalLink>
             </>
           }
         >
           <>
-            OCM is unable to determine whether the GCP organization contains any policies that would
-            affect the installation without the GCP Org Policy API enabled. Enable the{' '}
+            OCM is unable to determine whether the Google Cloud organization contains any policies
+            that would affect the installation without the Google Cloud Org Policy API enabled.
+            Enable the{' '}
             <ExternalLink href="https://cloud.google.com/resource-manager/docs/reference/orgpolicy/rest">
               Organization Policy API
             </ExternalLink>{' '}
-            for the GCP project &apos;{projectName}&apos;
+            for the Google Cloud project &apos;{projectName}&apos;
           </>
         </Alert>
       </SplitItem>
