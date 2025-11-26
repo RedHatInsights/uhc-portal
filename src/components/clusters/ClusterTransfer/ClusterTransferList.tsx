@@ -51,21 +51,6 @@ import { CancelClusterTransferModal } from './CancelClusterTransferModal';
 import ClusterTransferListTablePagination from './ClusterTransferListTablePagination';
 import TransferOwnerStatus from './TransferOwnerStatus';
 
-type PaginationProps = {
-  paginationVariant: 'top' | 'bottom';
-  isLoading: boolean;
-  viewOptions: ViewOptions;
-};
-
-const Pagination = ({ paginationVariant, isLoading, viewOptions }: PaginationProps) => (
-  <ClusterTransferListTablePagination
-    viewType={viewConstants.CLUSTER_TRANSFER_VIEW}
-    viewOptions={viewOptions}
-    variant={paginationVariant}
-    isDisabled={isLoading || !viewOptions.totalCount}
-  />
-);
-
 const ClusterTransferPageHeader = ({
   showSpinner,
   isError,
@@ -144,7 +129,12 @@ const ClusterTransferPageHeader = ({
         </FlexItem>
       )}
       <FlexItem align={{ default: 'alignRight' }}>
-        <Pagination paginationVariant="top" isLoading={showSpinner} viewOptions={viewOptions} />
+        <ClusterTransferListTablePagination
+          viewType={viewConstants.CLUSTER_TRANSFER_VIEW}
+          viewOptions={viewOptions}
+          variant="top"
+          isDisabled={showSpinner || !viewOptions.totalCount}
+        />
       </FlexItem>
     </Flex>
   );
@@ -340,7 +330,12 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
         </CardBody>
       )}
       <CardFooter>
-        <Pagination paginationVariant="bottom" isLoading={isLoading} viewOptions={viewOptions} />
+        <ClusterTransferListTablePagination
+          viewType={viewConstants.CLUSTER_TRANSFER_VIEW}
+          viewOptions={viewOptions}
+          variant="bottom"
+          isDisabled={isLoading || !viewOptions.totalCount}
+        />
       </CardFooter>
     </Card>
   );
