@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useQuery } from '@tanstack/react-query';
@@ -54,15 +55,18 @@ export const useFetchClusterTransfer = ({
           : 'updated_at desc',
       });
 
-      if (response?.data?.total !== viewOptions.totalCount) {
-        dispatch(onSetTotal(response.data.total, viewType));
-      }
-
       return response;
     },
     enabled: !!clusterExternalID || !!transferID || !!filter,
     refetchInterval: queryConstants.STALE_TIME_60_SEC,
   });
+
+  // Recalculate totalPages when pageSize changes or new data arrives
+  useEffect(() => {
+    if (data?.data?.total !== undefined) {
+      dispatch(onSetTotal(data.data.total, viewType));
+    }
+  }, [viewOptions.pageSize, data?.data?.total, dispatch, viewType]);
 
   if (isError) {
     const formattedError = formatErrorData(isLoading, isError, error);
