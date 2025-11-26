@@ -42,7 +42,7 @@ describe(
       CreateOSDWizardPage.selectPersistentStorage(clusterProperties.PersistentStorage);
       CreateOSDWizardPage.selectLoadBalancers(clusterProperties.LoadBalancers);
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
-      if (clusterProperties.enableSecureBootSupportForShieldedVMs.includes('Enabled')) {
+      if (clusterProperties.EnableSecureBootSupportForSchieldedVMs.includes('Enabled')) {
         CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       } else {
         CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(false);

@@ -11,7 +11,7 @@
       "ClusterName": "cyp-osd-nonccs-gcp-multizone-custom-profile",
       "Region": "us-west1, The Dalles, Oregon, USA",
       "Availability": "Multi-zone",
-      "enableSecureBootSupportForShieldedVMs": "Enabled",
+      "EnableSecureBootSupportForSchieldedVMs": "Enabled",
       "AdditionalEncryption": "Enabled",
       "FIPSCryptography": "Enabled",
       "UserWorkloadMonitoring": "Enabled",
@@ -57,7 +57,7 @@
       "AdditionalEncryption": "Disabled",
       "FIPSCryptography": "Disabled",
       "UserWorkloadMonitoring": "Enabled",
-      "enableSecureBootSupportForShieldedVMs": "Disabled",
+      "EnableSecureBootSupportForSchieldedVMs": "Disabled",
       "PersistentStorage": "100 GiB",
       "LoadBalancers": "0",
       "MachinePools": {

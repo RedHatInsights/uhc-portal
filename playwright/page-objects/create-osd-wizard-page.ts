@@ -225,15 +225,15 @@ export class CreateOSDWizardPage extends BasePage {
     await this.page.locator('select[name="region"]').selectOption(regionValue);
   }
 
-  enableSecureBootSupportForShieldedVMsCheckbox(): Locator {
+  enableSecureBootSupportForSchieldedVMsCheckbox(): Locator {
     return this.page.locator('input[id="secure_boot"]');
   }
 
-  async enableSecureBootSupportForShieldedVMs(enable: boolean): Promise<void> {
+  async enableSecureBootSupportForSchieldedVMs(enable: boolean): Promise<void> {
     if (enable) {
-      await this.enableSecureBootSupportForShieldedVMsCheckbox().check();
+      await this.enableSecureBootSupportForSchieldedVMsCheckbox().check();
     } else {
-      await this.enableSecureBootSupportForShieldedVMsCheckbox().uncheck();
+      await this.enableSecureBootSupportForSchieldedVMsCheckbox().uncheck();
     }
   }
 
