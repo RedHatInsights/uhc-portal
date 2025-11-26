@@ -124,7 +124,7 @@ export const GcpVpcSettings = () => {
               <>
                 <Content component={ContentVariants.p}>
                   Install into a user-defined subnet within a custom VPC network that is provisioned
-                  and fully managed within the same GCP project.
+                  and fully managed within the same Google Cloud project.
                 </Content>
                 <ExternalLink href={links.INSTALL_GCP_VPC}>
                   Learn more about installing into an existing VPC
