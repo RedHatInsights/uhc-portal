@@ -24,3 +24,30 @@ alwaysApply: false
 - Test custom hooks with `renderHook` when isolated testing is needed
 - Use descriptive assertion messages when the test failure might be unclear
 - Avoid try/catch blocks in unit tests
+
+## CRITICAL: Always Use Existing Test Utilities Before Creating New Mocks
+
+**Before creating new mocks, check `~/testUtils` for existing utilities:**
+
+- **Feature Gates**: ALWAYS use `mockUseFeatureGate([[FEATURE_NAME, true/false]])` from `~/testUtils`. NEVER manually mock `useFetchFeatureGate` or `useFeatureGate`.
+  - Example: `mockUseFeatureGate([[MULTIREGION_PREVIEW_ENABLED, true]])`
+  - Import: `import { mockUseFeatureGate } from '~/testUtils'`
+
+- **Chrome/Red Hat Services**: Use `mockUseChrome(mockImpl?)` from `~/testUtils` instead of manually mocking `@redhat-cloud-services/frontend-components/useChrome`
+
+- **Restricted Environment**: Use `mockRestrictedEnv(mockValue)` from `~/testUtils` instead of manually mocking restricted environment utilities
+
+- **Redux State**: Use `withState(initialState)` from `~/testUtils` for Redux testing instead of manually creating stores
+
+- **Formik/useFormState**: When mocking `useFormState` from `~/components/clusters/wizards/hooks`:
+  1. Mock at module level: `jest.mock('~/components/clusters/wizards/hooks')`
+  2. Import the hook: `import { useFormState } from '~/components/clusters/wizards/hooks'`
+  3. Create typed mock at top of test suite: `const mockedUseFormState = useFormState as jest.MockedFunction<typeof useFormState>`
+  4. Use `mockedUseFormState.mockReturnValue({ ... })` per test, NOT `(useFormStateModule.useFormState as jest.Mock)`
+  5. See `src/components/clusters/common/Upgrades/UpgradeSettingsFieds.test.tsx` for reference pattern
+
+**When writing tests:**
+1. FIRST: Search `~/testUtils.tsx` for existing mocking utilities
+2. SECOND: Check similar test files in the same directory for established patterns
+3. THIRD: Only create new mocks if no existing utility exists
+4. NEVER: Create manual mocks for hooks/utilities that have existing test utilities in `~/testUtils`
