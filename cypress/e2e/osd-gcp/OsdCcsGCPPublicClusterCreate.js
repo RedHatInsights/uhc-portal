@@ -50,7 +50,7 @@ describe(
       CreateOSDWizardPage.singleZoneAvailabilityRadio().should('be.checked');
       CreateOSDWizardPage.selectRegion(clusterProperties.Region);
       if (clusterProperties.CloudProvider.includes('Google Cloud')) {
-        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       }
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
       CreateOSDWizardPage.wizardNextButton().click();

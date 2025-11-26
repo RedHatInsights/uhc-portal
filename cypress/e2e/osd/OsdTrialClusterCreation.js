@@ -49,7 +49,7 @@ describe(`OSDTrial cluster creation tests(OCP-39415)`, { tags: ['smoke'] }, () =
       CreateOSDWizardPage.multiZoneAvilabilityRadio().check();
       CreateOSDWizardPage.selectAvailabilityZone(clusterProperties.Availability);
       if (clusterProperties.CloudProvider.includes('Google Cloud')) {
-        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       }
       CreateOSDWizardPage.enableAdditionalEtcdEncryption(true, true);
       cy.get(CreateOSDWizardPage.primaryButton).click();

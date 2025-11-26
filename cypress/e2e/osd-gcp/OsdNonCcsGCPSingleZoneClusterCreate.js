@@ -38,7 +38,7 @@ describe(
       CreateOSDWizardPage.setDomainPrefix(clusterProperties.DomainPrefix);
       CreateOSDWizardPage.closePopoverDialogs();
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
-      if (clusterProperties.EnableSecureBootSupportForSchieldedVMs.includes('Enabled')) {
+      if (clusterProperties.enableSecureBootSupportForShieldedVMs.includes('Enabled')) {
         CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       } else {
         CreateOSDWizardPage.enableSecureBootSupportForShieldedVMsCheckbox().should(

@@ -172,7 +172,7 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
       CreateOSDWizardPage.createCustomDomainPrefixCheckbox().uncheck();
       CreateOSDWizardPage.selectAvailabilityZone('Single Zone');
       if (clusterProperties.CloudProvider.includes('Google Cloud')) {
-        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       } else {
         if (isCCSCluster) {
           CreateOSDWizardPage.advancedEncryptionLink().click();
