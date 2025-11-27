@@ -363,7 +363,7 @@ const ClusterList = ({
         <PageSection hasBodyWrapper={false}>
           <GlobalErrorBox />
           <div data-ready>
-            <ClusterListEmptyState />
+            <ClusterListEmptyState showTabbedView={showTabbedView} />
           </div>
         </PageSection>
       </AppPage>
@@ -421,7 +421,7 @@ const ClusterList = ({
                   />
                 </ToolbarItem>
               )}
-              <ClusterListActions />
+              <ClusterListActions showTabbedView={showTabbedView} />
               <ViewOnlyMyClustersToggle
                 view={CLUSTERS_VIEW}
                 bodyContent="Show only the clusters you previously created, or all clusters in your organization."
