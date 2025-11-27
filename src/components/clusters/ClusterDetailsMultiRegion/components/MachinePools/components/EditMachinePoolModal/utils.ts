@@ -164,7 +164,7 @@ export const buildNodePoolRequest = (
   }
 
   if (values.isWindowsLicenseIncluded) {
-    nodePool.imageType = 'Windows';
+    nodePool.image_type = 'Windows';
   }
 
   return nodePool;

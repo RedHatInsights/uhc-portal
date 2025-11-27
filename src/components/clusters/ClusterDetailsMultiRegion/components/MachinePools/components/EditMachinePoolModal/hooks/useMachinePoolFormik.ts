@@ -50,7 +50,6 @@ export type EditMachinePoolValues = {
   maxPrice: number;
   diskSize: number;
   instanceType: MachineType | undefined;
-  // New property which should be sent to the backend when creating a NodePool (should be sent only when enabled)
   isWindowsLicenseIncluded?: boolean;
   privateSubnetId: string | undefined;
   securityGroupIds: string[];
@@ -189,7 +188,7 @@ const useMachinePoolFormik = ({
 
     if (isHypershift) {
       machinePoolData.isWindowsLicenseIncluded =
-        (machinePool as NodePool)?.aws?.windows_license_included || false; // This involves extra costs, let's keep it false by default
+        (machinePool as NodePool)?.image_type === 'Windows' || false; // This involves extra costs, let's keep it false by default
     }
 
     return machinePoolData;

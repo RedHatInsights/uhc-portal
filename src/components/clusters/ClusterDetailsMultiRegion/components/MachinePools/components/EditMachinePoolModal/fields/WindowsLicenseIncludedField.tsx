@@ -28,9 +28,9 @@ const WindowsLicenseIncludedField = ({
 }: WindowsLicenseIncludedFieldProps) => {
   // Instance type field -> get isWinLiCompatible from the selected instance type:
   const [__field, { value: instanceType }] = useField(instanceTypeFieldId);
-  const isWinLiCompatible = !!(instanceType as MachineType)?.features?.winLi;
+  const isWinLiCompatible = !!(instanceType as MachineType)?.features?.win_li;
 
-  const isCurrentMPWinLiEnabled = isEdit && currentMP?.imageType === 'Windows';
+  const isCurrentMPWinLiEnabled = isEdit && currentMP?.image_type === 'Windows';
 
   const hint = (
     <>
