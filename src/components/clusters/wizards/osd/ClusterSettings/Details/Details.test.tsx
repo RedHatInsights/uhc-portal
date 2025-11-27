@@ -16,7 +16,10 @@ import {
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/VersionSelectField.fixtures';
 import { FieldId, initialValues } from '~/components/clusters/wizards/osd/constants';
 import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleStatuses';
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
+import {
+  MAX_NODES_TOTAL_249,
+  UNSTABLE_CLUSTER_VERSIONS,
+} from '~/queries/featureGates/featureConstants';
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
 import { mockUseFeatureGate, render, screen, withState } from '~/testUtils';
@@ -164,6 +167,52 @@ describe('<Details />', () => {
       const multiAzInput = screen.getByRole('radio', { name: /Multi-zone/i });
       expect(multiAzInput).toBeChecked();
     });
+
+    it('resets max-nodes-total to default when changing availability zone', async () => {
+      // Arrange
+      mockUseFeatureGate([[MAX_NODES_TOTAL_249, true]]);
+
+      const formValues = {
+        ...initialValues,
+        // Change max-nodes-total to a non-default value
+        'cluster_autoscaling.resource_limits.max_nodes_total': 33,
+      };
+      const handleSubmit = jest.fn();
+
+      const { user } = render(
+        <Formik initialValues={formValues} onSubmit={() => {}}>
+          {({ values }) => (
+            <div>
+              <Details />
+              <button type="button" onClick={() => handleSubmit(values)}>
+                submit
+              </button>
+            </div>
+          )}
+        </Formik>,
+      );
+
+      // Act
+      // Switch availability zone
+      const multiAzInput = screen.getByRole('radio', { name: /Single zone/i });
+      expect(multiAzInput).toBeChecked();
+      await user.click(screen.getByRole('radio', { name: /Multi-zone/i }));
+
+      // Submit form
+      await user.click(screen.getByRole('button', { name: 'submit' }));
+
+      // Assert max-nodes-total has been reset
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cluster_autoscaling: expect.objectContaining({
+            resource_limits: expect.objectContaining({
+              max_nodes_total: 249,
+            }),
+          }),
+        }),
+      );
+    });
   });
 
   describe('Version Change', () => {
@@ -267,5 +316,50 @@ describe('<Details />', () => {
         );
       },
     );
+
+    it('resets max-nodes-total to default when changing a version', async () => {
+      // Arrange
+      mockUseFeatureGate([[MAX_NODES_TOTAL_249, true]]);
+
+      const formValues = {
+        ...initialValues,
+        // Change max-nodes-total to a non-default value
+        'cluster_autoscaling.resource_limits.max_nodes_total': 33,
+      };
+      const handleSubmit = jest.fn();
+
+      const { user } = withState(loadedState).render(
+        <Formik initialValues={formValues} onSubmit={() => {}}>
+          {({ values }) => (
+            <div>
+              <Details />
+              <button type="button" onClick={() => handleSubmit(values)}>
+                submit
+              </button>
+            </div>
+          )}
+        </Formik>,
+      );
+
+      // Act
+      // Switch version
+      await user.click(screen.getByRole('button', { name: 'Options menu' }));
+      await user.click(screen.getByText('4.18.1'));
+
+      // Submit form
+      await user.click(screen.getByRole('button', { name: 'submit' }));
+
+      // Assert max-nodes-total has been reset
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cluster_autoscaling: expect.objectContaining({
+            resource_limits: expect.objectContaining({
+              max_nodes_total: 254,
+            }),
+          }),
+        }),
+      );
+    });
   });
 });

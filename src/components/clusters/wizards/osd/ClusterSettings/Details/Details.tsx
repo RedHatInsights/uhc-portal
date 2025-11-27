@@ -43,6 +43,7 @@ import {
 } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import { ClassicEtcdFipsSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdFipsSection';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
+import { useResetMaxNodesTotal } from '~/components/clusters/wizards/common/ClusterSettings/Details/useResetMaxNodesTotal/useResetMaxNodesTotal';
 import { VersionSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/VersionSelectField';
 import {
   canConfigureDayOnePrivateServiceConnect,
@@ -147,6 +148,8 @@ function Details() {
     undefined,
   );
 
+  const { resetMaxNodesTotal } = useResetMaxNodesTotal();
+
   React.useEffect(() => {
     dispatch(getCloudProviders());
   }, [dispatch]);
@@ -224,6 +227,8 @@ function Details() {
       mpSubnetsReset.push(emptyAWSSubnet());
     }
     setFieldValue(FieldId.MachinePoolsSubnets, mpSubnetsReset);
+
+    resetMaxNodesTotal({ isMultiAz });
   };
 
   const handleVersionChange = (clusterVersion?: Version) => {
@@ -247,6 +252,8 @@ function Details() {
       setFieldValue(FieldId.PrivateServiceConnect, true);
       setFieldValue(FieldId.InstallToVpc, true);
     }
+
+    resetMaxNodesTotal({ clusterVersion });
   };
 
   const availableVersions = getInstallableVersionsResponse.versions.filter(
