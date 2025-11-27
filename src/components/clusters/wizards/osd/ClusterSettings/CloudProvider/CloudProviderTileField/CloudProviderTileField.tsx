@@ -42,7 +42,7 @@ export const CloudProviderTileField = () => {
   const notAvailableTooltip =
     billingModel === shouldShowAwsTile
       ? noQuotaTooltip
-      : 'OpenShift Dedicated purchased through the Google Cloud marketplace can only be provisioned on GCP.';
+      : 'OpenShift Dedicated purchased through the Google Cloud marketplace can only be provisioned on Google Cloud.';
 
   const handleChange = (value: string) => {
     // Silently reset some user choices that are now meaningless.

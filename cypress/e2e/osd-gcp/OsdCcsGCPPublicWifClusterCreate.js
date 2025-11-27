@@ -52,7 +52,7 @@ describe(
       if (clusterProperties.hasOwnProperty('Version')) {
         CreateOSDWizardPage.selectVersion(clusterProperties.Version);
       }
-      if (clusterProperties.CloudProvider.includes('GCP')) {
+      if (clusterProperties.CloudProvider.includes('Google Cloud')) {
         CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       }
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');

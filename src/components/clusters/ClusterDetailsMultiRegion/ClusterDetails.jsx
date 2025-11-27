@@ -483,8 +483,8 @@ const ClusterDetails = (props) => {
     let log = '';
     log = logs?.find(
       (obj) =>
-        obj.summary?.includes('Please enable the Org Policy API for the GCP project') ||
-        obj.summary?.includes('GCP Organization Policy Service'),
+        obj.summary?.includes('Please enable the Org Policy API for the Google Cloud project') ||
+        obj.summary?.includes('Google Cloud Organization Policy Service'),
     );
     setGcpOrgPolicyWarning(log?.summary);
   };

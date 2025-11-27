@@ -414,7 +414,7 @@ describe('<DetailsRight />', () => {
       render(<DetailsRight {...newProps} />);
 
       // Assert
-      expect(screen.getByText('Infrastructure GCP account')).toBeInTheDocument();
+      expect(screen.getByText('Infrastructure Google Cloud account')).toBeInTheDocument();
     });
   });
 

@@ -1284,7 +1284,7 @@ const validateGCPHostProjectId = (value: string) => {
     return 'Field is required.';
   }
   if (!GCP_PROJECT_ID_REGEX.test(value)) {
-    return 'Not a valid hosted project ID. This must be an existing GCP project ID within which all networks are defined.';
+    return 'Not a valid hosted project ID. This must be an existing Google Cloud project ID within which all networks are defined.';
   }
   return undefined;
 };

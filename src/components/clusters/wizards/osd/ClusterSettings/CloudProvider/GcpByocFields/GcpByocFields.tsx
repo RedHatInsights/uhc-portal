@@ -132,9 +132,9 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
       {billingModel !== SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
         <FormAlert>
           <Alert variant="info" isInline isPlain title="Customer cloud subscription">
-            Provision your cluster in a Google Cloud Platform account owned by you or your company
-            to leverage your existing relationship and pay Google Cloud Platform directly for public
-            cloud costs.
+            Provision your cluster in a Google Cloud account owned by you or your company to
+            leverage your existing relationship and pay Google Cloud directly for public cloud
+            costs.
           </Alert>
         </FormAlert>
       )}
@@ -143,7 +143,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
         {isWifEnabled && (
           <FlexItem>
             <Title headingLevel="h3" className="pf-v6-u-mb-sm">
-              GCP account details
+              Google Cloud account details
             </Title>
             <FormGroup
               label="Authentication type"
@@ -184,7 +184,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
             </Title>
           ) : (
             <Title headingLevel="h3" className="pf-v6-u-mb-sm">
-              GCP Service account
+              Google Cloud Service account
             </Title>
           )}
           {authType === GCPAuthType.ServiceAccounts && <ServiceAccountNotRecommendedAlert />}

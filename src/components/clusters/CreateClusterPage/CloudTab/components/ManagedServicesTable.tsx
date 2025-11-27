@@ -58,7 +58,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
       </ExternalLink>
     ),
     purchasedThrough: 'Red Hat',
-    details: 'Available on GCP',
+    details: 'Available on Google Cloud',
     action: (
       <CreateManagedClusterButtonWithTooltip
         childComponent={Button}
@@ -125,7 +125,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
       </ExternalLink>
     ),
     purchasedThrough: 'Red Hat',
-    details: 'Available on GCP',
+    details: 'Available on Google Cloud',
     action: osdRowaction,
     expandedSection: {
       content: (

@@ -93,17 +93,19 @@ export const GcpVpcSettings = () => {
     <>
       <GridItem span={8}>
         <Title headingLevel="h4" size="md">
-          GCP shared VPC
+          Google Cloud shared VPC
         </Title>
         <div className="pf-v6-u-mt-md  pf-v6-u-mb-lg">
           <CheckboxField
             name={FieldId.InstallToSharedVpc}
-            label="Install into GCP Shared VPC"
+            label="Install into Google Cloud Shared VPC"
             hint={
               <>
-                <p>Install into a VPC shared by another account in your GCP organization.</p>
+                <p>
+                  Install into a VPC shared by another account in your Google Cloud organization.
+                </p>
                 <ExternalLink href={links.INSTALL_GCP_SHARED_VPC}>
-                  Learn more about GCP shared VPC.
+                  Learn more about Google Cloud shared VPC.
                 </ExternalLink>
               </>
             }
@@ -122,7 +124,7 @@ export const GcpVpcSettings = () => {
               <>
                 <Content component={ContentVariants.p}>
                   Install into a user-defined subnet within a custom VPC network that is provisioned
-                  and fully managed within the same GCP project.
+                  and fully managed within the same Google Cloud project.
                 </Content>
                 <ExternalLink href={links.INSTALL_GCP_VPC}>
                   Learn more about installing into an existing VPC

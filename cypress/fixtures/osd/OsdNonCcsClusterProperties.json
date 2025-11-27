@@ -3,7 +3,7 @@
     {
       "ClusterName": "ocmui-cypress-smoke-osd-nonccs-gcp",
       "Type": "OSD",
-      "CloudProvider": "Google Cloud Platform (GCP)",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
       "SubscriptionBillingModel": "Annual Red Hat subscriptions",
       "InfrastructureType": "Red Hat cloud account",

@@ -37,7 +37,7 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
         );
         CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
 
-        if (clusterProperties.CloudProvider.includes('GCP')) {
+        if (clusterProperties.CloudProvider.includes('Google Cloud')) {
           if (clusterProperties.AuthenticationType.includes('Service Account')) {
             CreateOSDWizardPage.serviceAccountButton().click();
 
@@ -171,7 +171,7 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
       );
       CreateOSDWizardPage.createCustomDomainPrefixCheckbox().uncheck();
       CreateOSDWizardPage.selectAvailabilityZone('Single Zone');
-      if (clusterProperties.CloudProvider.includes('GCP')) {
+      if (clusterProperties.CloudProvider.includes('Google Cloud')) {
         CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       } else {
         if (isCCSCluster) {
@@ -436,7 +436,7 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
         );
         if (
           clusterProperties.CloudProvider.includes('AWS') ||
-          clusterProperties.CloudProvider.includes('GCP')
+          clusterProperties.CloudProvider.includes('Google Cloud')
         ) {
           CreateOSDWizardPage.clusterAutoscalingRevertAllToDefaultsButton().click();
           CreateOSDWizardPage.clusterAutoscalingCloseButton().click();
@@ -666,7 +666,7 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
       CreateOSDWizardPage.wizardNextButton().click();
     });
     it(`OSD wizard - ${clusterProperties.CloudProvider} -${clusterProperties.SubscriptionType}-${clusterProperties.InfrastructureType}  : Networking configuration - field validations`, () => {
-      if (clusterProperties.CloudProvider.includes('GCP') && !isCCSCluster) {
+      if (clusterProperties.CloudProvider.includes('Google Cloud') && !isCCSCluster) {
         cy.log(
           `Cloud provider : ${clusterProperties.CloudProvider} -${clusterProperties.SubscriptionType}-${clusterProperties.InfrastructureType} with CCS cluster=${isCCSCluster} not supported Networking configuration > Cluster privacy`,
         );

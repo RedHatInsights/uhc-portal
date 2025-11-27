@@ -50,7 +50,7 @@ const recommendationsData = [
     third: 'Auto-scaling is enabled for your clusters.',
   },
   {
-    title: 'Cloud provider: Google Cloud Platform',
+    title: 'Cloud provider: Google Cloud',
     first: 'Looking for an AWS option? Red Hat OpenShift on AWS is your best fit.',
   },
 ];

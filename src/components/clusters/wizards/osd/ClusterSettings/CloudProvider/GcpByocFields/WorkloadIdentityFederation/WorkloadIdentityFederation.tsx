@@ -78,8 +78,8 @@ const WorkloadIdentityFederation = (props: WorkloadIdentityFederationProps) => {
           </Content>
           <Content component={ContentVariants.p}>
             Run the following <code>ocm</code> CLI command to create a Workload Identity Federation
-            configuration (automatic mode). Make sure to replace the WIF name and GCP Project ID
-            with your own values.
+            configuration (automatic mode). Make sure to replace the WIF name and Google Cloud
+            Project ID with your own values.
           </Content>
         </Content>
       </StackItem>
@@ -98,8 +98,8 @@ const WorkloadIdentityFederation = (props: WorkloadIdentityFederationProps) => {
       <StackItem>
         <Content>
           <Content component={ContentVariants.small}>
-            This command creates all the necessary resources for deploying OSD on GCP using only
-            temporary credentials. You can also run the command in manual mode.{' '}
+            This command creates all the necessary resources for deploying OSD on Google Cloud using
+            only temporary credentials. You can also run the command in manual mode.{' '}
             <ExternalLink noIcon href={links.OSD_CCS_GCP_WIF_CREATION_LEARN_MORE}>
               Learn more
             </ExternalLink>
