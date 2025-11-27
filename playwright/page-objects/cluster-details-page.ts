@@ -231,7 +231,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   async waitForDeleteClusterActionComplete(): Promise<void> {
-    await this.page.waitForSelector('[data-testid="delete-cluster-dialog"] div.ins-c-spinner', {
+    await this.page.waitForSelector('[data-testid="delete-cluster-dialog"]', {
       state: 'detached',
       timeout: 100000,
     });

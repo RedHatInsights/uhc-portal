@@ -4,10 +4,14 @@ import { ClusterListPage } from '../page-objects/cluster-list-page';
 import { ClusterRequestsPage } from '../page-objects/cluster-requests-page';
 import { CreateOSDWizardPage } from '../page-objects/create-osd-wizard-page';
 import { CreateClusterPage } from '../page-objects/create-cluster-page';
+import { CreateRosaWizardPage } from '../page-objects/create-rosa-wizard-page';
 import { DownloadsPage } from '../page-objects/downloads-page';
 import { OCMRolesAndAccessPage } from '../page-objects/ocm-roles-access-page';
 import { OverviewPage } from '../page-objects/overview-page';
 import { RegisterClusterPage } from '../page-objects/register-cluster-page';
+import { ReleasesPage } from '../page-objects/releases-page';
+import { RosaGetStartedPage } from '../page-objects/rosa-getstarted-page';
+import { SubscriptionsPage } from '../page-objects/subscriptions-page';
 import { TokensPage } from '../page-objects/tokens-page';
 import { STORAGE_STATE_PATH } from '../support/playwright-constants';
 
@@ -26,10 +30,14 @@ type WorkerFixtures = {
   clusterRequestsPage: ClusterRequestsPage;
   createOSDWizardPage: CreateOSDWizardPage;
   createClusterPage: CreateClusterPage;
+  createRosaWizardPage: CreateRosaWizardPage;
   downloadsPage: DownloadsPage;
   ocmRolesAndAccessPage: OCMRolesAndAccessPage;
   overviewPage: OverviewPage;
   registerClusterPage: RegisterClusterPage;
+  releasesPage: ReleasesPage;
+  rosaGetStartedPage: RosaGetStartedPage;
+  subscriptionsPage: SubscriptionsPage;
   tokensPage: TokensPage;
 };
 
@@ -151,6 +159,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     { scope: 'worker' },
   ],
 
+  // Worker-scoped: CreateRosaWizardPage instance - created once, reused across all tests in suite
+  createRosaWizardPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new CreateRosaWizardPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
   // Worker-scoped: DownloadsPage instance - created once, reused across all tests in suite
   downloadsPage: [
     async ({ authenticatedPage }, use) => {
@@ -182,6 +199,33 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   registerClusterPage: [
     async ({ authenticatedPage }, use) => {
       const pageObject = new RegisterClusterPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: ReleasesPage instance - created once, reused across all tests in suite
+  releasesPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new ReleasesPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: RosaGetStartedPage instance - created once, reused across all tests in suite
+  rosaGetStartedPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new RosaGetStartedPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: SubscriptionsPage instance - created once, reused across all tests in suite
+  subscriptionsPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new SubscriptionsPage(authenticatedPage);
       await use(pageObject);
     },
     { scope: 'worker' },
