@@ -80,8 +80,6 @@ import ViewOnlyMyClustersToggle from './components/ViewOnlyMyClustersToggle';
 
 import './ClusterList.scss';
 
-const PAGE_TITLE = 'Cluster List | Red Hat OpenShift Cluster Manager';
-
 const ClusterListPageHeader = ({ someReadOnly, showSpinner, error, refresh }) => (
   <>
     <ReadOnlyBanner someReadOnly={someReadOnly} />
@@ -143,6 +141,9 @@ const ClusterList = ({
 }) => {
   const dispatch = useDispatch();
   const viewType = viewConstants.CLUSTERS_VIEW;
+  const PAGE_TITLE = showTabbedView
+    ? 'Clusters | Red Hat OpenShift Cluster Manager'
+    : 'Cluster List | Red Hat OpenShift Cluster Manager';
 
   /* Get Access Request / Protection Data */
   const { enabled: isOrganizationAccessProtectionEnabled } = useGetAccessProtection(
@@ -373,7 +374,7 @@ const ClusterList = ({
         <PageSection hasBodyWrapper={false}>
           <GlobalErrorBox />
           <div data-ready>
-            <ClusterListEmptyState />
+            <ClusterListEmptyState showTabbedView={showTabbedView} />
           </div>
         </PageSection>
       </AppPage>
@@ -431,7 +432,7 @@ const ClusterList = ({
                   />
                 </ToolbarItem>
               )}
-              <ClusterListActions />
+              <ClusterListActions showTabbedView={showTabbedView} />
               <ViewOnlyMyClustersToggle
                 view={CLUSTERS_VIEW}
                 bodyContent="Show only the clusters you previously created, or all clusters in your organization."

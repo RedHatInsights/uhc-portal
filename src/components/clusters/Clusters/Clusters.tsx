@@ -47,7 +47,7 @@ export const Clusters = () => {
 
   return (
     <AppPage title="Clusters | Red Hat OpenShift Cluster Manager">
-      <ClustersPageHeader />
+      <ClustersPageHeader activeTabKey={activeTabKey} />
       <PageSection type="tabs">
         <Tabs
           activeKey={activeTabKey}
