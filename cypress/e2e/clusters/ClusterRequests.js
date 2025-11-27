@@ -30,7 +30,7 @@ describe(
       cy.wait('@clusterTransfers', { timeout: 20000 }).then((responseData) => {
         const statusCode = responseData.response.statusCode;
         if (statusCode === 204) {
-          cy.contains('No cluster transfers found').should('be.visible');
+          cy.contains('No cluster transfers found').scrollIntoView().should('be.visible');
           cy.contains(
             'There are no clusters for your user that are actively being transferred',
           ).should('be.visible');
@@ -53,7 +53,7 @@ describe(
         });
       }).as('clusterRequests');
       cy.wait('@clusterRequests', { timeout: 20000 });
-      cy.contains('No cluster transfers found').should('be.visible');
+      cy.contains('No cluster transfers found').scrollIntoView().should('be.visible');
       cy.contains('There are no clusters for your user that are actively being transferred').should(
         'be.visible',
       );
