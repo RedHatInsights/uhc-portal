@@ -42,11 +42,12 @@ The tests support multiple authentication methods and cloud provider configurati
 #### Authentication Methods
 
 The tests support:
+
 - **Username/Password Authentication**: Standard Red Hat SSO login
 
 1. **Username/Password Authentication (Primary)**:
-   - `TEST_WITHQUOTA_USER`  - Username for test authentication
-   - `TEST_WITHQUOTA_PASSWORD`  - Password for test authentication
+   - `TEST_WITHQUOTA_USER` - Username for test authentication
+   - `TEST_WITHQUOTA_PASSWORD` - Password for test authentication
 
 #### Configuration Files
 
@@ -59,16 +60,79 @@ The test configuration uses `playwright.env.json` for environment-specific setti
   "TEST_WITHQUOTA_USER": "your-username@example.com",
   "TEST_WITHQUOTA_PASSWORD": "your-password",
   "GOV_CLOUD": "false",
-  "BROWSER": "firefox",
-  "BASE_URL": "https://console.dev.redhat.com/openshift/"
-  .....
+  "BROWSER": "chromium",
+  "BASE_URL": "ex: https://console.dev.redhat.com/openshift/",
+  "QE_GCP_OSDCCSADMIN_JSON": {<service account json value>},
+  "QE_AWS_ACCESS_KEY_ID": "AWS access key",
+  "QE_AWS_ACCESS_KEY_SECRET": "AWS secret key",
+  "QE_AWS_REGION": "default region value ex: us-west-2",
+  "QE_AWS_ID": "AWS account ID",
+  "QE_ENV_AUT": "staging",
+  "QE_AWS_BILLING_ID": "AWS billing account ID",
+  "QE_GCP_KEY_RING_LOCATION": "Google cloud key ring location",
+  "QE_GCP_KEY_RING": "Google cloud key ring",
+  "QE_GCP_KEY_NAME": "Google cloud key ring name",
+  "QE_GCP_KMS_SERVICE_ACCOUNT": "<Google cloud KMS service account>",
+  "QE_ACCOUNT_ROLE_PREFIX": "cypress-account-roles",
+  "QE_OCM_ROLE_PREFIX": "cypress-ocm-role",
+  "QE_USER_ROLE_PREFIX": "cypress-user-role",
+  "ROSACLI_LOGS": "cli-logs.txt",
+  "QE_GCP_WIF_CONFIG": "Google cloud WIF config name",
+  "QE_USE_OFFLINE_TOKEN": false,
+  "QE_OIDC_CONFIG_ID" : "Oidc config id for ROSA hosted clusters",
+  "QE_INFRA_GCP": {
+    "VPC_NAME": "Google cloud VPC name",
+    "CONTROLPLANE_SUBNET": "Google cloud control plane subnet",
+    "COMPUTE_SUBNET": "Google cloud compute subnet",
+    "PSC_INFRA": {
+      "VPC_NAME": "Google cloud Private service connect VPC",
+      "CONTROLPLANE_SUBNET": "Google cloud control plane subnet",
+      "COMPUTE_SUBNET": "Google cloud compute subnet",
+      "PRIVATE_SERVICE_CONNECT_SUBNET": "Google cloud psc subnet"
+    }
+  },
+  "QE_INFRA_REGIONS": {
+    "us-west-2": [
+      {
+        "VPC-ID": "vpc-id",
+        "VPC_NAME": "vpc name",
+        "SECURITY_GROUPS": [
+          "security group id 1",
+          "security group id 2"
+        ],
+        "SECURITY_GROUPS_NAME": [
+          "security group name 1",
+          "security group name 2"
+        ],
+        "SUBNETS": {
+          "ZONES": {
+            "<region az ex : us-west-2a>": {
+              "PUBLIC_SUBNET_NAME": "public subnet name",
+              "PUBLIC_SUBNET_ID": "public subnet id",
+              "PRIVATE_SUBNET_NAME": "private subnet name",
+              "PRIVATE_SUBNET_ID": "private subnet id"
+            },
+            "< region az ex: us-west-2b>": {
+              "PUBLIC_SUBNET_NAME": "public subnet name",
+              "PUBLIC_SUBNET_ID": "public subnet id",
+              "PRIVATE_SUBNET_NAME": "private subnet name",
+              "PRIVATE_SUBNET_ID": "private subnet id"
+            },
+            "<region az ex: us-west-2c>": {
+              "PUBLIC_SUBNET_NAME": "public subnet name",
+              "PUBLIC_SUBNET_ID": "public subnet id",
+              "PRIVATE_SUBNET_NAME": "private subnet name",
+              "PRIVATE_SUBNET_ID": "private subnet id"
+            }
+          }
+        }
+      }
+    ]
+  }
 }
 ```
 
 **Note**: Create your own `playwright.env.json` file based on this structure. This file is not part of the repository and should not be committed to version control as it contains sensitive credentials.
-
-
-
 
 ### Running Tests
 
@@ -124,6 +188,7 @@ yarn playwright codegen
 ### Authentication
 
 The tests use a global setup that:
+
 1. Loads environment variables from `playwright.env.json`
 2. Performs authentication once before all tests run
 3. Saves authentication state to `playwright/fixtures/storageState.json`
@@ -133,6 +198,7 @@ The tests use a global setup that:
 #### Authentication Flow
 
 1. **Global Setup** (`playwright/support/global-setup.ts`):
+
    - Creates a browser context with proper viewport settings
    - Sets GDPR consent cookies to bypass consent dialogs
    - Handles different authentication methods based on environment
@@ -140,7 +206,6 @@ The tests use a global setup that:
 2. **Login Process** (`playwright/page-objects/login-page.ts`):
    - **Standard Flow**: Username → Next → Password → Submit
    - **FedRAMP Flow**: Direct username/password entry for GOV_CLOUD environments
-
 
 #### Session Management
 
@@ -184,6 +249,7 @@ This project uses **Playwright fixtures** for dependency injection of page objec
 #### Fixture Scope: Worker-Scoped
 
 All page object fixtures are **worker-scoped**, meaning:
+
 - Created **once per worker** (suite-level)
 - **Shared across all tests** within that worker
 - Perfect for **serial test flows** where tests build on each other
@@ -220,7 +286,7 @@ test.describe.serial('Register cluster flow', () => {
 ✅ **Worker-Scoped Reuse** - Created once, shared across suite tests  
 ✅ **Type-Safe** - Full TypeScript support with IntelliSense  
 ✅ **Automatic Cleanup** - Resources properly disposed  
-✅ **State Persistence** - Perfect for serial user flows  
+✅ **State Persistence** - Perfect for serial user flows
 
 #### Available Page Object Fixtures
 
@@ -232,7 +298,6 @@ test.describe.serial('Register cluster flow', () => {
 - `downloadsPage` - Downloads and CLI tools
 - `globalNavPage` - Global navigation menu
 
-
 ### Configuration Files
 
 - `playwright.config.ts` - Main Playwright configuration
@@ -241,27 +306,29 @@ test.describe.serial('Register cluster flow', () => {
 ### Troubleshooting
 
 #### Authentication Issues
+
 1. **Invalid Credentials**: Verify environment variables in `playwright.env.json`
 
 #### Environment Issues
+
 1. **Wrong Base URL**: Check `baseURL` in `playwright.config.ts` matches target environment
 2. **Network Connectivity**: Verify access to target environment (staging/production)
 3. **GOV_CLOUD Settings**: Ensure `GOV_CLOUD=true` for FedRAMP environments
 
 #### Test Execution Issues
+
 1. **Timeout Errors**: Tests include extended timeouts (5 minutes per test, 60s navigation)
 2. **Loading Issues**: Tests wait for skeleton loaders and spinners to disappear
 3. **Browser Issues**: Try different browsers using `BROWSER` environment variable
 
-
 ### Common Issues
 
 #### Authentication Problems
+
 - **Solution**: Delete `playwright/fixtures/storageState.json` to force re-authentication (only required for local runs)
 - **Root Cause**: Expired or corrupted authentication state
 
-
 #### Environment Variable Issues
+
 - **Solution**: Verify all required variables are set in `playwright.env.json`
 - **Check**: Run `yarn playwright test --list` to verify configuration loading
-
