@@ -133,7 +133,7 @@ const ClusterTransferPageHeader = ({
           viewType={viewConstants.CLUSTER_TRANSFER_VIEW}
           viewOptions={viewOptions}
           variant="top"
-          isDisabled={showSpinner || !viewOptions.totalCount}
+          isDisabled={showSpinner}
         />
       </FlexItem>
     </Flex>
@@ -334,7 +334,7 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
           viewType={viewConstants.CLUSTER_TRANSFER_VIEW}
           viewOptions={viewOptions}
           variant="bottom"
-          isDisabled={isLoading || !viewOptions.totalCount}
+          isDisabled={isLoading}
         />
       </CardFooter>
     </Card>
