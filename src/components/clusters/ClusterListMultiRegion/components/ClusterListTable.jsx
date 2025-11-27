@@ -30,7 +30,10 @@ import { Link } from '~/common/routing';
 import supportLinks from '~/common/supportLinks.mjs';
 import AIClusterStatus from '~/components/AIComponents/AIClusterStatus';
 import { useToggleSubscriptionReleased } from '~/queries/ClusterActionsQueries/useToggleSubscriptionReleased';
-import { AUTO_CLUSTER_TRANSFER_OWNERSHIP } from '~/queries/featureGates/featureConstants';
+import {
+  ACM_CLUSTER_TAGGING,
+  AUTO_CLUSTER_TRANSFER_OWNERSHIP,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { findRegionalInstance } from '~/queries/helpers';
 import { useFetchGetAvailableRegionalInstances } from '~/queries/RosaWizardQueries/useFetchGetAvailableRegionalInstances';
@@ -121,7 +124,7 @@ function ClusterListTable(props) {
   const { data: availableRegionalInstances } = useFetchGetAvailableRegionalInstances(true);
   const isAutoClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
-
+  const isACMClusterTaggingEnabled = useFeatureGate(ACM_CLUSTER_TAGGING);
   const getSortParams = (columnIndex) => ({
     sortBy: {
       index: activeSortIndex,
@@ -342,6 +345,7 @@ function ClusterListTable(props) {
                 refreshFunc,
                 true,
                 addNotification,
+                isACMClusterTaggingEnabled,
               )}
             />
           ) : null}
