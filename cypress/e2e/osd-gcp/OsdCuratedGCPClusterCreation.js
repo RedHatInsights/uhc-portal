@@ -30,12 +30,12 @@ describe(
         if (clusterProperties.AuthenticationType.includes('Service Account')) {
           CreateOSDWizardPage.serviceAccountButton().click();
           CreateOSDWizardPage.isWIFRecommendationAlertPresent();
+          CreateOSDWizardPage.isPrerequisitesHintPresent();
           CreateOSDWizardPage.uploadGCPServiceAccountJSON(JSON.stringify(QE_GCP));
         } else {
           CreateOSDWizardPage.workloadIdentityFederationButton().click();
           CreateOSDWizardPage.selectWorkloadIdentityConfiguration(Cypress.env('QE_GCP_WIF_CONFIG'));
         }
-        CreateOSDWizardPage.isPrerequisitesHintPresent();
         CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
         cy.get(CreateOSDWizardPage.primaryButton).click();
       });

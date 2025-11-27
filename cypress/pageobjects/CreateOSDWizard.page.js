@@ -23,15 +23,17 @@ class CreateOSDCluster extends Page {
   }
 
   isPrerequisitesHintPresent() {
-    cy.contains('strong', 'Did you complete your prerequisites?')
+    cy.contains('strong', 'Have you prepared your Google account?')
       .scrollIntoView()
       .should('exist')
       .should('be.visible');
-    cy.contains('To create a Red Hat OpenShift Dedicated (OSD) cluster via the web interface')
+    cy.contains(
+      "To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.",
+    )
       .scrollIntoView()
       .should('exist')
       .should('be.visible');
-    cy.contains('a', 'Google Cloud OSD Get Started page')
+    cy.contains('a', 'Review Google terms and agreements')
       .scrollIntoView()
       .should('exist')
       .should('be.visible')
