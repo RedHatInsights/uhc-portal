@@ -46,6 +46,7 @@ export const CAPACITY_RESERVATION_ID_FIELD = 'ocmui-capacity-reservation-id-fiel
 export const TABBED_CLUSTERS = 'ocmui-tabbed-clusters';
 export const OSD_FOR_GOOGLE_CLOUD = 'ocmui-osd-wizard-for-google-cloud';
 export const FIPS_FOR_HYPERSHIFT = 'ocmui-fips-for-hypershift';
+export const ACM_CLUSTER_TAGGING = 'ocmui-acm-cluster-tagging';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -80,4 +81,5 @@ export default {
   TABBED_CLUSTERS,
   OSD_FOR_GOOGLE_CLOUD,
   FIPS_FOR_HYPERSHIFT,
+  ACM_CLUSTER_TAGGING,
 } as const;

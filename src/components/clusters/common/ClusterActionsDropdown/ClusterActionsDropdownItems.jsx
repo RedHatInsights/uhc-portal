@@ -49,6 +49,7 @@ function actionResolver(
   refreshFunc,
   inClusterList,
   addNotification,
+  isACMClusterTaggingEnabled,
   // dispatch,
 ) {
   const baseProps = {};
@@ -398,7 +399,7 @@ function actionResolver(
       (allowAutoTransferClusterOwnership && isClusterOwner && isClusterReady)) &&
     get(cluster, 'subscription.status') !== SubscriptionCommonFieldsStatus.Archived;
   const showUpgradeTrialCluster = isClusterReady && cluster.canEdit && isProductOSDTrial;
-  const showTagAcmHub = cluster.canEdit && !isArchived;
+  const showTagAcmHub = isACMClusterTaggingEnabled && cluster.canEdit && !isArchived;
 
   return [
     showConsoleButton && getAdminConsoleProps(),
