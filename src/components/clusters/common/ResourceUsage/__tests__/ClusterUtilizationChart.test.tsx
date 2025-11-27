@@ -28,10 +28,8 @@ describe('<ClusterUtilizationChart />', () => {
     type: 'legend',
   };
 
-  it.skip('is accessible', async () => {
+  it('is accessible', async () => {
     const { container } = render(<ClusterUtilizationChart {...defaultProps} />);
-
-    // This fails due to numerous accessibility issues
     await checkAccessibility(container);
   });
 

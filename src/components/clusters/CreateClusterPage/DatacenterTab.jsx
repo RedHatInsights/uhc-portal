@@ -18,60 +18,83 @@ import { Link } from '~/common/routing';
 
 const ocpTableColumns = ['Infrastructure provider', 'Installation options'];
 const ocpTableRows = [
-  [
-    <>
-      <Link to="/install/metal">Bare Metal (x86_64)</Link>
-    </>,
-    'Full stack automation and pre-existing infrastructure',
-  ],
-  [
-    <>
-      <Link to="/install/arm">Bare Metal (ARM)</Link>
-    </>,
-    'Full stack automation and pre-existing infrastructure',
-  ],
-  [
-    <>
-      <Link to="/install/azure-stack-hub">Azure Stack Hub</Link>
-    </>,
-    'Full stack automation and pre-existing infrastructure',
-  ],
-  [
-    <>
-      <Link to="/install/ibmz">IBM Z (s390x)</Link>
-    </>,
-    'Full stack automation and pre-existing infrastructure',
-  ],
-  [
-    <>
-      <Link to="/install/power">IBM Power (ppc64le)</Link>
-    </>,
-    'Full stack automation and pre-existing infrastructure',
-  ],
-  [
-    <>
-      <Link to="/install/nutanix">Nutanix AOS</Link>
-    </>,
-    'Full stack automation and pre-existing infrastructure',
-  ],
-  [
-    <>
-      <Link to="/install/openstack">Red Hat OpenStack</Link>
-    </>,
-    'Full stack automation and pre-existing infrastructure',
-  ],
-  [
-    <>
-      <Link to="/install/vsphere">vSphere</Link>
-    </>,
-    'Full stack automation and pre-existing infrastructure',
-  ],
-  [
-    <>
-      <Link to="/install/platform-agnostic">Platform agnostic (x86_64)</Link>
-    </>,
-    'Pre-existing infrastructure',
-  ],
+  {
+    link: <Link to="/install/metal">Bare Metal (x86_64)</Link>,
+    description: 'Full stack automation and pre-existing infrastructure',
+    id: 'bareMetalx86',
+  },
+  {
+    link: (
+      <>
+        <Link to="/install/arm">Bare Metal (ARM)</Link>
+      </>
+    ),
+    description: 'Full stack automation and pre-existing infrastructure',
+    id: 'bareMetalArm',
+  },
+  {
+    link: (
+      <>
+        <Link to="/install/azure-stack-hub">Azure Stack Hub</Link>
+      </>
+    ),
+    description: 'Full stack automation and pre-existing infrastructure',
+    id: 'azureStackHub',
+  },
+  {
+    link: (
+      <>
+        <Link to="/install/ibmz">IBM Z (s390x)</Link>
+      </>
+    ),
+    description: 'Full stack automation and pre-existing infrastructure',
+    id: 'ibmZ',
+  },
+  {
+    link: (
+      <>
+        <Link to="/install/power">IBM Power (ppc64le)</Link>
+      </>
+    ),
+    description: 'Full stack automation and pre-existing infrastructure',
+    id: 'ibmPower',
+  },
+  {
+    link: (
+      <>
+        <Link to="/install/nutanix">Nutanix AOS</Link>
+      </>
+    ),
+    description: 'Full stack automation and pre-existing infrastructure',
+    id: 'nutanixAOS',
+  },
+  {
+    link: (
+      <>
+        <Link to="/install/openstack">Red Hat OpenStack</Link>
+      </>
+    ),
+    description: 'Full stack automation and pre-existing infrastructure',
+    id: 'rhOpenStack',
+  },
+  {
+    link: (
+      <>
+        <Link to="/install/vsphere">vSphere</Link>
+      </>
+    ),
+    description: 'Full stack automation and pre-existing infrastructure',
+    id: 'vSphere',
+  },
+  {
+    link: (
+      <>
+        <Link to="/install/platform-agnostic">Platform agnostic (x86_64)</Link>
+      </>
+    ),
+    description: 'Pre-existing infrastructure',
+    id: 'platformAgnostic',
+  },
 ];
 
 const DatacenterTab = () => (
@@ -121,15 +144,17 @@ const DatacenterTab = () => (
         <StackItem>
           <Table className="install-options-table" aria-label="Installation options table">
             <Thead>
-              {ocpTableColumns.map((column) => (
-                <Th>{column}</Th>
-              ))}
+              <Tr>
+                {ocpTableColumns.map((column) => (
+                  <Th key={column}>{column}</Th>
+                ))}
+              </Tr>
             </Thead>
             <Tbody>
               {ocpTableRows.map((row) => (
-                <Tr>
-                  <Td>{row[0]}</Td>
-                  <Td>{row[1]}</Td>
+                <Tr key={row.id}>
+                  <Td>{row.link}</Td>
+                  <Td>{row.description}</Td>
                 </Tr>
               ))}
             </Tbody>

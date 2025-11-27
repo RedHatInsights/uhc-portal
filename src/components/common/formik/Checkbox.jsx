@@ -7,13 +7,13 @@ import { Checkbox as PfCheckbox, FormGroup, Split, SplitItem } from '@patternfly
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 
 // To be used inside formik Field component.
-function Checkbox({ fieldId }) {
+function Checkbox({ fieldId, label }) {
   const [field, { error, touched }] = useField(fieldId);
   return (
     <FormGroup fieldId={fieldId}>
       <Split hasGutter>
         <SplitItem>
-          <PfCheckbox {...field} isChecked={!!field.value} id={fieldId} />
+          <PfCheckbox {...field} isChecked={!!field.value} id={fieldId} label={label} />
         </SplitItem>
       </Split>
 
@@ -24,6 +24,7 @@ function Checkbox({ fieldId }) {
 
 Checkbox.propTypes = {
   fieldId: PropTypes.string.isRequired,
+  label: PropTypes.string,
 };
 
 export default Checkbox;
