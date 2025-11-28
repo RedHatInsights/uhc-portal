@@ -1,0 +1,133 @@
+{
+  "Region": "us-west-2, US West, Oregon",
+  "ClusterPrivacy": "public",
+  "OidcConfigId": "22rif2kh7jagoe7u2ak1caoi74hjrjvj",
+  "MachinePools": [
+    {
+      "InstanceType": "m6id.xlarge",
+      "AvailabilityZones": "us-west-2a"
+    },
+    {
+      "InstanceType": "m6id.xlarge",
+      "AvailabilityZones": "us-west-2b"
+    },
+    {
+      "InstanceType": "m6id.xlarge",
+      "AvailabilityZones": "us-west-2c"
+    }
+  ],
+  "ClusterSettings": {
+    "Details": {
+      "InvalidClusterNamesValues": [
+        "rosalongclusternamesexceeds54characterstestingnamesssssssss",
+        "rosaclusterNAMES",
+        "32423432ddrosa"
+      ],
+      "InvalidClusterNamesErrors": [
+        "1 - 54 characters",
+        "Consist of lower-case alphanumeric characters, or hyphen (-)",
+        "Start with a lower-case alphabetic character"
+      ],
+      "InvalidDomainPrefixValues": ["domainprefixrosalonger", "domainPREFix", "32423432domain"],
+      "InvalidDomainPrefixErrors": [
+        "1 - 15 characters",
+        "Consist of lower-case alphanumeric characters, or hyphen (-)",
+        "Start with a lower-case alphabetic character"
+      ],
+      "KeyARNs": [
+        {
+          "WrongFormatValue": "wrongformat",
+          "WrongFormatError": "Key provided is not a valid ARN. It should be in the format \"arn:aws:kms:<region>:<accountid>:key/<keyid>\""
+        },
+        {
+          "WrongFormatWithWhitespace": "wrong format with whitespace",
+          "WrongFormatWithWhitespaceError": "Value must not contain whitespaces"
+        }
+      ]
+    },
+    "Machinepool": {
+      "DuplicateSubnetsError": "Every machine pool must be associated to a different subnet",
+      "SubnetRequiredError": "Subnet is required",
+      "NodeCount": {
+        "MultiZone": {
+          "LowerLimitError": "Input cannot be less than 2",
+          "UpperLimitError": "Input cannot be more than 500",
+          "LowerLimitErrorWithMultipleMachinePools": "Input cannot be less than 1",
+          "UpperLimitErrorWithMultipleMachinePools": "Input cannot be more than 250",
+          "MinAndMaxLimitDependencyError": "Max nodes cannot be less than min nodes"
+        }
+      },
+      "RootDiskSize": {
+        "LimitError": "The worker root disk size must be between 75 GiB and 16384 GiB.",
+        "NonSupportedValue": "Decimals are not allowed for the worker root disk size"
+      }
+    }
+  },
+  "Networking": {
+    "Configuration": {
+      "Private": {
+        "Warning": "You will not be able to access your cluster until you edit network settings in your cloud provider"
+      }
+    },
+    "ClusterProxy": {
+      "EmptyProxyError": "Configure at least one of the cluster-wide proxy fields",
+      "InvalidHttpProxyValue": "https://test",
+      "InvalidHttpProxyError": "The URL should include the scheme prefix (http://)",
+      "InvalidHttpProxyUrlValue": "http://",
+      "InvalidHttpProxyUrlError": "Invalid URL",
+      "InvalidHttpsProxyValue": "https",
+      "InvalidHttpsProxyError": "The URL should include the scheme prefix (http://, https://)",
+      "InvalidHttpsProxyUrlValue": "https://",
+      "InvalidHttpsProxyUrlError": "Invalid URL",
+      "InvalidNoProxyDomainValue": "test",
+      "InvalidNoProxyDomainError": "The domain 'test' isn't valid, must contain at least two valid lower-case DNS labels separated by dots, for example 'domain.com' or 'sub.domain.com'",
+      "ValidNoProxyDomainValue": "test.com,test.co.in",
+      "ValidHttpProxyValue": "http://test.com",
+      "ValidHttpsProxyValue": "https://test.com",
+      "EmptyProxyValuesInformationText": "Complete at least 1 of the fields above. If you don't want to set a cluster-wide proxy, disable this option in the Networking > Configuration step"
+    },
+    "CIDRRanges": {
+      "Common": [
+        {
+          "Value": "10.0.0.0",
+          "Error": "IP address range '10.0.0.0' isn't valid CIDR notation. It must follow the RFC-4632 format: '192.168.0.0/16"
+        },
+        {
+          "Value": "hello",
+          "Error": "IP address range 'hello' isn't valid CIDR notation. It must follow the RFC-4632 format: '192.168.0.0/16"
+        },
+        {
+          "Value": "12.30.0.120/16",
+          "Error": "This is not a subnet address. The subnet prefix is inconsistent with the subnet mask."
+        }
+      ],
+      "HostPrefix": [
+        {
+          "Value": "hello",
+          "Error": "The value '/hello' isn't a valid subnet mask. It must follow the RFC-4632 format: '/16'"
+        },
+        {
+          "Value": "28",
+          "Error": "The subnet mask can't be smaller than '/26', which provides up to 62 Pod IP addresses."
+        },
+        {
+          "Value": "11",
+          "Error": "The subnet mask can't be larger than '/23', which provides up to 510 Pod IP addresses."
+        }
+      ]
+    }
+  },
+  "ClusterRolesAndPolicies": {
+    "ConfigIdRequiredError": "Field is required",
+    "OperatorRoles": [
+      {
+        "UpperCharacterLimitValue": "characterslimtgreaterthan60testingssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+        "Error": "Custom operator roles prefix may not exceed 32 characters."
+      },
+      {
+        "InvalidValue": "CustomRoles-123",
+        "Error": "Custom operator roles prefix 'CustomRoles-123' isn't valid, must consist of lower-case alphanumeric characters or '-', start with an alphabetic character, and end with an alphanumeric character. For example, 'my-name', or 'abc-123'"
+      }
+    ]
+  }
+}
