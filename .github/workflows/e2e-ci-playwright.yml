@@ -128,7 +128,7 @@ jobs:
         run: |
           LOGGING=quiet yarn start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
           NODE_TLS_REJECT_UNAUTHORIZED=0 yarn wait-on -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
-          NODE_TLS_REJECT_UNAUTHORIZED=0 yarn playwright-headless --grep "ci" --workers=$WORKERS
+          NODE_TLS_REJECT_UNAUTHORIZED=0 yarn playwright-e2e-ci --workers=$WORKERS
       - name: Extract test results
         id: test-results
         if: always()
