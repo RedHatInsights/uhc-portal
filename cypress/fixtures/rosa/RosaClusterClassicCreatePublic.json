@@ -2,7 +2,6 @@
   "rosa-classic-public": {
     "day1-profile": {
       "Description": "rosa classic public cluster with base configuration",
-
       "ClusterName": "cyp-rosa-classic-default-sz-public-profile",
       "ControlPlaneType": "Classic architecture",
       "Type": "ROSA",
@@ -67,13 +66,49 @@
             "InvalidOrganizationIDError": "Organization ID must be an alpha numeric with no symbols"
           }
         }
+      },
+      "RolesAndAccess": {
+        "dedicated-admin-user": {
+          "UserID": "ocmcypress1",
+          "Group": "dedicated-admins"
+        },
+        "cluster-admin-user": {
+          "UserID": "ocmcypress2",
+          "Group": "cluster-admins"
+        },
+        "email-user": {
+          "UserID": "ocm-test-user@redhat.com",
+          "Group": "cluster-admins"
+        },
+        "Validations": {
+          "UserID": {
+            "EmptyError": "User ID cannot be empty.",
+            "InvalidScenarios": [
+              {
+                "input": " ",
+                "error": "User ID cannot contain leading and trailing spaces"
+              },
+              {
+                "input": "user/with/slashes",
+                "error": "User ID cannot contain '/'."
+              },
+              {
+                "input": "OsdR%%",
+                "error": "User ID cannot contain '%'."
+              },
+              {
+                "input": "Osd%Rosa:asd",
+                "error": "User ID cannot contain ':'."
+              }
+            ]
+          }
+        }
       }
     }
   },
   "rosa-classic-public-advanced": {
     "day1-profile": {
       "Description": "rosa classic public cluster with advanced configuration",
-
       "ControlPlaneType": "Classic architecture",
       "Type": "ROSA",
       "ClusterName": "cyp-rosa-classic-advanced-mz-public-profile",
