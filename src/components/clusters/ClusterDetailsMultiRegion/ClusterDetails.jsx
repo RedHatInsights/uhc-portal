@@ -526,44 +526,44 @@ const ClusterDetails = (props) => {
           >
             <TabsRow
               tabsInfo={{
-                overview: { ref: overviewTabRef, hasIssues: false },
-                monitoring: {
+                [ClusterTabsId.OVERVIEW]: { ref: overviewTabRef, hasIssues: false },
+                [ClusterTabsId.MONITORING]: {
                   ref: monitoringTabRef,
                   show: displayMonitoringTab,
                   hasIssues: cluster.state !== clusterStates.installing && hasIssues,
                 },
-                accessControl: {
+                [ClusterTabsId.ACCESS_CONTROL]: {
                   ref: accessControlTabRef,
                   show: displayAccessControlTab,
                 },
-                addOns: { ref: addOnsTabRef, show: displayAddOnsTab },
-                clusterHistory: {
+                [ClusterTabsId.ADD_ONS]: { ref: addOnsTabRef, show: displayAddOnsTab },
+                [ClusterTabsId.CLUSTER_HISTORY]: {
                   ref: clusterHistoryTabRef,
                   show: displayClusterLogs,
                 },
-                networking: {
+                [ClusterTabsId.NETWORKING]: {
                   ref: networkingTabRef,
                   show: displayNetworkingTab,
                 },
-                machinePools: {
+                [ClusterTabsId.MACHINE_POOLS]: {
                   ref: machinePoolsTabRef,
                   show: canViewMachinePoolTab(cluster),
                 },
-                support: {
+                [ClusterTabsId.SUPPORT]: {
                   ref: supportTabRef,
                   show: displaySupportTab,
                 },
-                upgradeSettings: {
+                [ClusterTabsId.UPDATE_SETTINGS]: {
                   ref: upgradeSettingsTabRef,
                   show: displayUpgradeSettingsTab,
                 },
-                addAssisted: {
+                [ClusterTabsId.ADD_ASSISTED_HOSTS]: {
                   ref: addAssistedTabRef,
                   show: addHostsTabState.showTab,
                   isDisabled: addHostsTabState.isDisabled,
                   tooltip: addHostsTabState.tabTooltip,
                 },
-                accessRequest: {
+                [ClusterTabsId.ACCESS_REQUEST]: {
                   ref: accessRequestsTabRef,
                   show: accessRequestsTabVisible,
                   tooltip: (
@@ -585,7 +585,7 @@ const ClusterDetails = (props) => {
             />
           </ClusterDetailsTop>
           <TabContent
-            eventKey={0}
+            eventKey={ClusterTabsId.OVERVIEW}
             id="overviewTabContent"
             ref={overviewTabRef}
             aria-label="Overview"
@@ -615,7 +615,7 @@ const ClusterDetails = (props) => {
 
           {displayMonitoringTab && (
             <TabContent
-              eventKey={1}
+              eventKey={ClusterTabsId.MONITORING}
               id="monitoringTabContent"
               ref={monitoringTabRef}
               aria-label="Monitoring"
@@ -628,7 +628,7 @@ const ClusterDetails = (props) => {
           )}
           {displayAccessControlTab && (
             <TabContent
-              eventKey={2}
+              eventKey={ClusterTabsId.ACCESS_CONTROL}
               id="accessControlTabContent"
               ref={accessControlTabRef}
               aria-label="Access Control"
@@ -647,7 +647,7 @@ const ClusterDetails = (props) => {
           )}
           {isManaged && (
             <TabContent
-              eventKey={3}
+              eventKey={ClusterTabsId.ADD_ONS}
               id="addOnsTabContent"
               ref={addOnsTabRef}
               aria-label="Add-ons"
@@ -665,7 +665,7 @@ const ClusterDetails = (props) => {
           )}
           {displayClusterLogs && (
             <TabContent
-              eventKey={4}
+              eventKey={ClusterTabsId.CLUSTER_HISTORY}
               id="clusterHistoryTabContent"
               ref={clusterHistoryTabRef}
               aria-label="Cluster history"
@@ -691,7 +691,7 @@ const ClusterDetails = (props) => {
           )}
           {displayNetworkingTab && (
             <TabContent
-              eventKey={5}
+              eventKey={ClusterTabsId.NETWORKING}
               id="networkingTabContent"
               ref={networkingTabRef}
               aria-label="Networking"
@@ -710,7 +710,7 @@ const ClusterDetails = (props) => {
           )}
           {canViewMachinePoolTab(cluster) && (
             <TabContent
-              eventKey={6}
+              eventKey={ClusterTabsId.MACHINE_POOLS}
               id="machinePoolsContent"
               ref={machinePoolsTabRef}
               aria-label="Machine pools"
@@ -722,7 +722,7 @@ const ClusterDetails = (props) => {
             </TabContent>
           )}
           <TabContent
-            eventKey={7}
+            eventKey={ClusterTabsId.SUPPORT}
             id="supportTabContent"
             ref={supportTabRef}
             aria-label="Support"
@@ -742,7 +742,7 @@ const ClusterDetails = (props) => {
           </TabContent>
           {displayUpgradeSettingsTab && (
             <TabContent
-              eventKey={8}
+              eventKey={ClusterTabsId.UPDATE_SETTINGS}
               id="upgradeSettingsContent"
               ref={upgradeSettingsTabRef}
               aria-label="Upgrade settings"
@@ -756,7 +756,7 @@ const ClusterDetails = (props) => {
           {/* If the tab is shown and disabled, it will have a tooltip and no content */}
           {addHostsTabState.showTab && !addHostsTabState.isDisabled && (
             <TabContent
-              eventKey={9}
+              eventKey={ClusterTabsId.ADD_ASSISTED_HOSTS}
               id="addHostsContent"
               ref={addAssistedTabRef}
               aria-label="Add Hosts"
@@ -772,7 +772,7 @@ const ClusterDetails = (props) => {
           )}
           {accessRequestsTabVisible ? (
             <TabContent
-              eventKey={10}
+              eventKey={ClusterTabsId.ACCESS_REQUEST}
               id="accessRequestsContent"
               ref={accessRequestsTabRef}
               aria-label="Access Requests"
