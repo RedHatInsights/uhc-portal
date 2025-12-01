@@ -1,0 +1,477 @@
+name: E2e Smoke Playwright
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # Runs every day at 7:00 AM UTC
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Browser to run tests on'
+        required: false
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+      EUT:
+        description: 'Environment Under Test'
+        required: false
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+          - local
+      grep_tags:
+        description: 'Test tags to run (e.g., @smoke, @ci, @smoke|@ci)'
+        required: false
+        default: '@smoke'
+        type: string
+      ocp_version:
+        description: 'OCP version to use for tests (leave empty to use latest release version)'
+        required: false
+        default: ''
+        type: string
+      trace_level:
+        description: 'Trace collection level'
+        required: false
+        default: 'off'
+        type: choice
+        options:
+          - 'off'
+          - 'on-first-retry'
+          - 'retain-on-failure'
+          - 'on'
+      workers:
+        description: 'Number of parallel workers'
+        required: false
+        default: '4'
+        type: string
+
+jobs:
+  playwright-tests:
+    name: Playwright Tests (${{ inputs.grep_tags || '@smoke' }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: './node_modules'
+          key: ${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+
+      - name: Check uncommitted changes
+        # Check that Git working tree is clean after running `install` command.
+        # The `git` command exits with 1 and fails the build if there are any uncommitted changes.
+        run: git diff HEAD --exit-code
+
+      - name: Install jq
+        run: |
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y jq
+          fi
+
+      - name: Create playwright.env.json from secret
+        run: |
+          echo "Creating playwright.env.json..."
+          echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' > playwright.env.json
+
+          # Restrict file permissions for security
+          chmod 600 playwright.env.json
+
+          # Add unique identifiers to avoid resource conflicts
+          BUILD_ID="${{ github.run_id }}"
+
+          # Add build identifier to avoid conflicts
+          jq ". + {\"BUILD_IDENTIFIER\": \"${BUILD_ID}\"}" playwright.env.json > tmp.json && mv tmp.json playwright.env.json
+          chmod 600 playwright.env.json
+
+          # Validate JSON using jq
+          if jq empty playwright.env.json > /dev/null 2>&1; then
+            echo "playwright.env.json is valid JSON"
+          else
+            echo "ERROR: playwright.env.json is not valid JSON!"
+            exit 1
+          fi
+
+      - name: Add hosts
+        run: make dev-env-setup
+
+      - name: Install AWS CLI
+        run: |
+          if ! command -v aws &> /dev/null; then
+            echo "Installing AWS CLI..."
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            rm -rf awscliv2.zip aws/
+          else
+            echo "AWS CLI already installed"
+          fi
+          aws --version
+
+      - name: Install ROSA CLI
+        run: |
+          if ! command -v rosa &> /dev/null; then
+            echo "Installing ROSA CLI..."
+            curl -L https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz -o rosa-linux.tar.gz
+            tar -xzf rosa-linux.tar.gz
+            sudo mv rosa /usr/local/bin/rosa
+            sudo chmod +x /usr/local/bin/rosa
+            rm -f rosa-linux.tar.gz
+          else
+            echo "ROSA CLI already installed"
+          fi
+          rosa version
+
+      - name: Install Playwright Browsers
+        # Explicitly specify all browsers including chrome since Playwright 1.44+ no longer installs Chrome by default
+        run: npx playwright install chromium chrome firefox webkit --with-deps
+
+      - name: Get browser version
+        id: browser-version
+        env:
+          BROWSER: ${{ inputs.browser || 'chromium' }}
+        run: |
+          case "$BROWSER" in
+            chrome)
+              VERSION=$(google-chrome --version | sed 's/Google Chrome //')
+              ;;
+            chromium)
+              VERSION=$(chromium --version 2>/dev/null || chromium-browser --version 2>/dev/null || echo "Unknown")
+              VERSION=$(echo "$VERSION" | sed 's/Chromium //')
+              ;;
+            firefox)
+              VERSION=$(firefox --version | sed 's/Mozilla Firefox //')
+              ;;
+            webkit)
+              VERSION="Playwright WebKit"
+              ;;
+            *)
+              VERSION="Unknown"
+              ;;
+          esac
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Browser version: ${VERSION}"
+
+      - name: Configure AWS CLI and setup cloud resources
+        run: |
+          echo "=== AWS CLI Configuration ==="
+          echo "AWS CLI version: $(aws --version)"
+
+          # Extract AWS credentials and region from playwright.env.json
+          AWS_ACCESS_KEY_ID=$(jq -r '.QE_AWS_ACCESS_KEY_ID // empty' playwright.env.json)
+          AWS_SECRET_ACCESS_KEY=$(jq -r '.QE_AWS_ACCESS_KEY_SECRET // empty' playwright.env.json)
+          AWS_REGION=$(jq -r '.QE_AWS_REGION // "us-east-1"' playwright.env.json)
+
+          echo "Using AWS region: $AWS_REGION"
+
+          # Configure AWS CLI directly without exposing credentials in environment
+          echo "Configuring AWS CLI credentials..."
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" 2>/dev/null
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" 2>/dev/null
+          aws configure set region "$AWS_REGION"
+          aws configure set output json
+          echo "AWS CLI configuration completed"
+
+          # Verify AWS CLI can authenticate
+          if aws sts get-caller-identity >/dev/null 2>&1; then
+            echo "AWS authentication successful"
+          else
+            echo "AWS authentication check failed, but continuing..."
+          fi
+
+          # Setup AWS cloud resources
+          echo "Setting up AWS cloud resources..."
+          chmod +x ./qe-helper-scripts/create-vpc-infrastructure.sh
+          ./qe-helper-scripts/create-vpc-infrastructure.sh
+
+      - name: Configure ROSA CLI and setup roles
+        run: |
+          echo "=== ROSA CLI Configuration ==="
+          echo "ROSA CLI version: $(rosa version)"
+
+          # Map EUT for ROSA CLI: local and staging -> staging, production -> production
+          INPUT_EUT="${{ inputs.EUT || 'staging' }}"
+          if [ "$INPUT_EUT" = "production" ]; then
+            ROSA_EUT="production"
+          else
+            ROSA_EUT="staging"
+          fi
+
+          # Extract ROSA configuration from playwright.env.json
+          QE_ORGADMIN_CLIENT_ID=$(jq -r '.QE_ORGADMIN_CLIENT_ID // empty' playwright.env.json)
+          QE_ORGADMIN_CLIENT_SECRET=$(jq -r '.QE_ORGADMIN_CLIENT_SECRET // empty' playwright.env.json)
+          QE_OCM_ROLE_PREFIX=$(jq -r '.QE_OCM_ROLE_PREFIX // "ocm-role"' playwright.env.json)
+          QE_ACCOUNT_ROLE_PREFIX=$(jq -r '.QE_ACCOUNT_ROLE_PREFIX // empty' playwright.env.json)
+
+          echo "Environment Under Test: $INPUT_EUT"
+          echo "ROSA Environment: $ROSA_EUT"
+          echo "Using service account authentication"
+
+          # Login to ROSA using service account
+          echo "Login via service account client definition"
+          rosa login --client-id "$QE_ORGADMIN_CLIENT_ID" --client-secret "$QE_ORGADMIN_CLIENT_SECRET" --env "$ROSA_EUT" 2>/dev/null || {
+            echo "ROSA login failed, but continuing..."
+          }
+
+          # Unlink existing OCM roles
+          linked_ocmrole=$(rosa list ocm-roles | awk '$3 == "Yes" { print $2 }')
+          if [ ! -z "$linked_ocmrole" ]; then
+            echo "Unlinking existing OCM role: [MASKED]"
+            rosa unlink ocm-role --role-arn "$linked_ocmrole" -y 2>/dev/null || echo "Failed to unlink OCM role"
+          fi
+
+          # Create OCM roles
+          echo "Creating OCM roles with prefix: $QE_OCM_ROLE_PREFIX"
+          if rosa create ocm-role --prefix "${QE_OCM_ROLE_PREFIX}" --mode auto --admin -y 2>&1 | tee /tmp/ocm_role_output.log; then
+            echo "OCM roles creation completed successfully"
+          else
+            echo "OCM role creation encountered issues, checking for orphaned roles..."
+            # Check output for unlink suggestions
+            if grep -q "unlink" /tmp/ocm_role_output.log; then
+              echo "Found orphaned OCM roles, attempting cleanup..."
+              # Retry after potential conflicts
+              rosa create ocm-role --prefix "${QE_OCM_ROLE_PREFIX}" --mode auto --admin -y 2>/dev/null || echo "OCM role creation completed with warnings"
+            fi
+          fi
+          rm -f /tmp/ocm_role_output.log
+
+          # Create account roles
+          if [ ! -z "$QE_ACCOUNT_ROLE_PREFIX" ]; then
+            echo "Creating account roles with prefix: $QE_ACCOUNT_ROLE_PREFIX"
+            rosa create account-roles --prefix "${QE_ACCOUNT_ROLE_PREFIX}" --mode auto -y
+          fi
+
+          echo "Completed ROSA pre-config commands!"
+
+      - name: Create artifacts directory
+        run: |
+          mkdir -p playwright-artifacts/results
+          mkdir -p playwright-artifacts/reports
+
+      - name: Set BASE_URL based on EUT
+        run: |
+          EUT="${{ inputs.EUT || 'staging' }}"
+          case "$EUT" in
+            staging)
+              BASE_URL="https://console.dev.redhat.com/openshift/"
+              ;;
+            production)
+              BASE_URL="https://console.redhat.com/openshift/"
+              ;;
+            local)
+              BASE_URL="https://prod.foo.redhat.com:1337/openshift/"
+              ;;
+            *)
+              BASE_URL="https://console.dev.redhat.com/openshift/"
+              ;;
+          esac
+          echo "BASE_URL=$BASE_URL" >> $GITHUB_ENV
+          echo "Environment Under Test: $EUT"
+          echo "Base URL set to: $BASE_URL"
+
+      - name: Run Playwright tests
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+          BROWSER: ${{ inputs.browser || 'chromium' }}
+          BASE_URL: ${{ env.BASE_URL }}
+          CI: true
+          PLAYWRIGHT_TRACE: ${{ inputs.trace_level || 'off' }}
+          VERSION: ${{ inputs.ocp_version || '' }}
+        run: |
+          # Extract credentials from playwright.env.json
+          export TEST_WITHQUOTA_USER=$(jq -r '.QE_ORGADMIN_USER // empty' playwright.env.json)
+          export TEST_WITHQUOTA_PASSWORD=$(jq -r '.QE_ORGADMIN_PASSWORD // empty' playwright.env.json)
+
+          GREP_PATTERN="${{ inputs.grep_tags || '@smoke' }}"
+          WORKERS="${{ inputs.workers || '4' }}"
+          EUT="${{ inputs.EUT || 'staging' }}"
+
+          echo "Running tests with pattern: $GREP_PATTERN"
+          echo "Using browser: ${{ inputs.browser || 'chromium' }}"
+          echo "Using base URL: $BASE_URL"
+          echo "Using $WORKERS parallel workers"
+
+          # If environment is local, start the dev server first
+          if [ "$EUT" = "local" ]; then
+            echo "Starting local dev server..."
+            LOGGING=quiet yarn start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
+            NODE_TLS_REJECT_UNAUTHORIZED=0 yarn wait-on -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
+            echo "Local dev server is ready"
+          fi
+          yarn playwright-headless --grep "$GREP_PATTERN" --workers="$WORKERS"
+
+      - name: Display artifact summary
+        if: always()
+        run: |
+          echo "=== Playwright Artifacts Summary ==="
+          echo "Screenshots (failures only):"
+          find playwright-artifacts/results -name "*.png" 2>/dev/null | wc -l || echo "0"
+          echo "Videos (failures only):"
+          find playwright-artifacts/results -name "*.webm" 2>/dev/null | wc -l || echo "0"
+          echo "Traces (if enabled):"
+          find playwright-artifacts/results -name "trace.zip" 2>/dev/null | wc -l || echo "0"
+          echo "HTML Reports:"
+          find playwright-artifacts/reports -name "index.html" 2>/dev/null | wc -l || echo "0"
+          echo "Total artifact size:"
+          du -sh playwright-artifacts/ 2>/dev/null || echo "No artifacts found"
+
+          echo "=== Artifact Directory Structure ==="
+          find playwright-artifacts -type f 2>/dev/null | head -20 || echo "No artifacts found"
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: failure() || cancelled()
+        with:
+          name: playwright-test-results-${{ github.run_id }}
+          retention-days: 14
+          path: playwright-artifacts/
+
+      - name: Extract test results
+        id: test-results
+        if: always()
+        run: |
+          TEST_RESULTS_FILE="playwright-artifacts/results/test-results.json"
+          if [ -f "$TEST_RESULTS_FILE" ]; then
+            # Extract test counts from JSON reporter (handle nested suites structure)
+            TOTAL=$(jq '[.. | .specs? // empty | .[]] | length' "$TEST_RESULTS_FILE")
+            PASSED=$(jq '[.. | .specs? // empty | .[] | .tests[]? | select(.status == "expected")] | length' "$TEST_RESULTS_FILE")
+            FAILED=$(jq '[.. | .specs? // empty | .[] | .tests[]? | select(.status == "unexpected")] | length' "$TEST_RESULTS_FILE")
+            SKIPPED=$(jq '[.. | .specs? // empty | .[] | .tests[]? | select(.status == "skipped")] | length' "$TEST_RESULTS_FILE")
+
+            echo "total=${TOTAL}" >> $GITHUB_OUTPUT
+            echo "passed=${PASSED}" >> $GITHUB_OUTPUT
+            echo "failed=${FAILED}" >> $GITHUB_OUTPUT
+            echo "skipped=${SKIPPED}" >> $GITHUB_OUTPUT
+          else
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "passed=0" >> $GITHUB_OUTPUT
+            echo "failed=0" >> $GITHUB_OUTPUT
+            echo "skipped=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get current timestamp
+        id: timestamp
+        if: always()
+        run: echo "now=$(date +%s)" >> $GITHUB_OUTPUT
+      - name: Publish results to Slack
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_PLAYWRIGHT_TESTS_PUBLISHER_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "${{ job.status == 'success' && 'good' || 'danger' }}",
+                  "title": "Playwright E2E Tests [${{ inputs.grep_tags || '@smoke' }}] [${{ inputs.EUT || 'staging' }}] - ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }}",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "value": "${{ job.status }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Environment",
+                      "value": "${{ inputs.EUT || 'staging' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Browser",
+                      "value": "${{ inputs.browser || 'chromium' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Browser Version",
+                      "value": "${{ steps.browser-version.outputs.version }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Test Tags",
+                      "value": "${{ inputs.grep_tags || '@smoke' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "OCP Version",
+                      "value": "${{ inputs.ocp_version || 'latest' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Workers",
+                      "value": "${{ inputs.workers || '4' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Trace Level",
+                      "value": "${{ inputs.trace_level || 'off' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Workflow",
+                      "value": "${{ github.event_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Total Tests",
+                      "value": "${{ steps.test-results.outputs.total }}",
+                      "short": true
+                    },
+                    {
+                      "title": "✅ Passed",
+                      "value": "${{ steps.test-results.outputs.passed }}",
+                      "short": true
+                    },
+                    {
+                      "title": "❌ Failed",
+                      "value": "${{ steps.test-results.outputs.failed }}",
+                      "short": true
+                    },
+                    {
+                      "title": "⏭️ Skipped",
+                      "value": "${{ steps.test-results.outputs.skipped }}",
+                      "short": true
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "type": "button",
+                      "text": "View Results",
+                      "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ],
+                  "footer": "GitHub Actions • Playwright E2E CI",
+                  "footer_icon": "https://github.githubassets.com/favicon.ico",
+                  "ts": ${{ steps.timestamp.outputs.now }}
+                }
+              ]
+            }
+      - name: Cleanup AWS cloud resources
+        if: always()
+        continue-on-error: true
+        run: |
+          echo "Cleaning up AWS cloud resources..."
+          chmod +x ./qe-helper-scripts/create-vpc-infrastructure.sh
+          ./qe-helper-scripts/create-vpc-infrastructure.sh --cleanup || echo "Cleanup completed with some warnings/errors, but continuing..."
