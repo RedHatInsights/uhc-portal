@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # AWS VPC Infrastructure Setup Script
-# Creates: VPC, 3 public subnets, 3 private subnets, configurable security groups (no rules)
+# Creates: VPC, 2-3 public subnets, 2-3 private subnets (based on available AZs), configurable security groups (no rules)
+# Requires: At least 2 availability zones in the target region
 
 set -e  # Exit on any error
 
@@ -18,15 +19,6 @@ VPC_NAME="${VPC_NAME:-cypress-test-ci}"
 VPC_CIDR="${VPC_CIDR:-10.0.0.0/16}"
 REGION="${REGION:-us-west-2}"
 NUM_SECURITY_GROUPS="${NUM_SECURITY_GROUPS:-2}"  # Number of security groups to create
-
-# Subnet CIDR blocks
-PUBLIC_SUBNET_1_CIDR="10.0.1.0/24"
-PUBLIC_SUBNET_2_CIDR="10.0.2.0/24"
-PUBLIC_SUBNET_3_CIDR="10.0.3.0/24"
-
-PRIVATE_SUBNET_1_CIDR="10.0.10.0/24"
-PRIVATE_SUBNET_2_CIDR="10.0.20.0/24"
-PRIVATE_SUBNET_3_CIDR="10.0.30.0/24"
 
 # Colors for output
 RED='\033[0;31m'
@@ -203,8 +195,27 @@ check_nat_gateway_exists() {
 get_availability_zones() {
     aws ec2 describe-availability-zones \
         --region $REGION \
+        --filters "Name=state,Values=available" \
         --query 'AvailabilityZones[0:3].ZoneName' \
         --output text
+}
+
+# Function to validate availability zones
+validate_availability_zones() {
+    print_status "Validating availability zones in region $REGION..."
+    
+    local azs=($(get_availability_zones))
+    local num_azs=${#azs[@]}
+    
+    if [ $num_azs -lt 2 ]; then
+        print_error "Insufficient availability zones in region $REGION"
+        print_error "Found: $num_azs AZ(s), Required: at least 2 AZs"
+        print_error "Available AZs: ${azs[*]}"
+        exit 1
+    fi
+    
+    print_status "Found $num_azs available AZ(s): ${azs[*]}"
+    echo $num_azs
 }
 
 # Function to create VPC
@@ -262,55 +273,52 @@ create_public_subnets() {
     
     # Get availability zones
     AZS=($(get_availability_zones))
+    local num_azs=${#AZS[@]}
     
-    # Check and create public subnet 1
-    if ! check_subnet_exists "$VPC_NAME-public-subnet-1" "PUBLIC_SUBNET_1_ID"; then
-        PUBLIC_SUBNET_1_ID=$(aws ec2 create-subnet \
-            --vpc-id $VPC_ID \
-            --cidr-block $PUBLIC_SUBNET_1_CIDR \
-            --availability-zone ${AZS[0]} \
-            --region $REGION \
-            --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$VPC_NAME-public-subnet-1}]" \
-            --query 'Subnet.SubnetId' \
-            --output text)
-        print_status "Created Public Subnet 1: $PUBLIC_SUBNET_1_ID (${AZS[0]})"
-    fi
+    # Define CIDR blocks for public subnets
+    local public_cidrs=("10.0.1.0/24" "10.0.2.0/24" "10.0.3.0/24")
     
-    # Check and create public subnet 2
-    if ! check_subnet_exists "$VPC_NAME-public-subnet-2" "PUBLIC_SUBNET_2_ID"; then
-        PUBLIC_SUBNET_2_ID=$(aws ec2 create-subnet \
-            --vpc-id $VPC_ID \
-            --cidr-block $PUBLIC_SUBNET_2_CIDR \
-            --availability-zone ${AZS[1]} \
-            --region $REGION \
-            --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$VPC_NAME-public-subnet-2}]" \
-            --query 'Subnet.SubnetId' \
-            --output text)
-        print_status "Created Public Subnet 2: $PUBLIC_SUBNET_2_ID (${AZS[1]})"
-    fi
+    # Arrays to store subnet IDs (global scope)
+    PUBLIC_SUBNET_IDS=()
     
-    # Check and create public subnet 3
-    if ! check_subnet_exists "$VPC_NAME-public-subnet-3" "PUBLIC_SUBNET_3_ID"; then
-        PUBLIC_SUBNET_3_ID=$(aws ec2 create-subnet \
-            --vpc-id $VPC_ID \
-            --cidr-block $PUBLIC_SUBNET_3_CIDR \
-            --availability-zone ${AZS[2]} \
-            --region $REGION \
-            --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$VPC_NAME-public-subnet-3}]" \
-            --query 'Subnet.SubnetId' \
-            --output text)
-        print_status "Created Public Subnet 3: $PUBLIC_SUBNET_3_ID (${AZS[2]})"
-    fi
-    
-    # Enable auto-assign public IP for public subnets
-    aws ec2 modify-subnet-attribute --subnet-id $PUBLIC_SUBNET_1_ID --map-public-ip-on-launch
-    aws ec2 modify-subnet-attribute --subnet-id $PUBLIC_SUBNET_2_ID --map-public-ip-on-launch
-    aws ec2 modify-subnet-attribute --subnet-id $PUBLIC_SUBNET_3_ID --map-public-ip-on-launch
+    # Create subnets dynamically based on available AZs
+    for i in $(seq 0 $((num_azs - 1))); do
+        local subnet_num=$((i + 1))
+        local subnet_name="$VPC_NAME-public-subnet-$subnet_num"
+        local subnet_var="PUBLIC_SUBNET_${subnet_num}_ID"
+        local subnet_cidr="${public_cidrs[$i]}"
+        local az="${AZS[$i]}"
+        
+        # Check and create public subnet
+        if ! check_subnet_exists "$subnet_name" "$subnet_var"; then
+            local subnet_id=$(aws ec2 create-subnet \
+                --vpc-id $VPC_ID \
+                --cidr-block $subnet_cidr \
+                --availability-zone $az \
+                --region $REGION \
+                --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$subnet_name}]" \
+                --query 'Subnet.SubnetId' \
+                --output text)
+            eval "$subnet_var=$subnet_id"
+            print_status "Created Public Subnet $subnet_num: $subnet_id ($az)"
+        else
+            local subnet_id=$(eval echo \$$subnet_var)
+            print_status "Using existing Public Subnet $subnet_num: $subnet_id ($az)"
+        fi
+        
+        # Store subnet ID
+        PUBLIC_SUBNET_IDS+=("$(eval echo \$$subnet_var)")
+        
+        # Enable auto-assign public IP for public subnet
+        aws ec2 modify-subnet-attribute --subnet-id $(eval echo \$$subnet_var) --map-public-ip-on-launch --region $REGION
+    done
     
     print_status "Public subnets configured:"
-    print_status "  Public Subnet 1: $PUBLIC_SUBNET_1_ID (${AZS[0]})"
-    print_status "  Public Subnet 2: $PUBLIC_SUBNET_2_ID (${AZS[1]})"
-    print_status "  Public Subnet 3: $PUBLIC_SUBNET_3_ID (${AZS[2]})"
+    for i in $(seq 0 $((num_azs - 1))); do
+        local subnet_num=$((i + 1))
+        local subnet_var="PUBLIC_SUBNET_${subnet_num}_ID"
+        print_status "  Public Subnet $subnet_num: $(eval echo \$$subnet_var) (${AZS[$i]})"
+    done
 }
 
 # Function to create private subnets
@@ -319,50 +327,49 @@ create_private_subnets() {
     
     # Get availability zones
     AZS=($(get_availability_zones))
+    local num_azs=${#AZS[@]}
     
-    # Check and create private subnet 1
-    if ! check_subnet_exists "$VPC_NAME-private-subnet-1" "PRIVATE_SUBNET_1_ID"; then
-        PRIVATE_SUBNET_1_ID=$(aws ec2 create-subnet \
-            --vpc-id $VPC_ID \
-            --cidr-block $PRIVATE_SUBNET_1_CIDR \
-            --availability-zone ${AZS[0]} \
-            --region $REGION \
-            --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$VPC_NAME-private-subnet-1}]" \
-            --query 'Subnet.SubnetId' \
-            --output text)
-        print_status "Created Private Subnet 1: $PRIVATE_SUBNET_1_ID (${AZS[0]})"
-    fi
+    # Define CIDR blocks for private subnets
+    local private_cidrs=("10.0.10.0/24" "10.0.20.0/24" "10.0.30.0/24")
     
-    # Check and create private subnet 2
-    if ! check_subnet_exists "$VPC_NAME-private-subnet-2" "PRIVATE_SUBNET_2_ID"; then
-        PRIVATE_SUBNET_2_ID=$(aws ec2 create-subnet \
-            --vpc-id $VPC_ID \
-            --cidr-block $PRIVATE_SUBNET_2_CIDR \
-            --availability-zone ${AZS[1]} \
-            --region $REGION \
-            --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$VPC_NAME-private-subnet-2}]" \
-            --query 'Subnet.SubnetId' \
-            --output text)
-        print_status "Created Private Subnet 2: $PRIVATE_SUBNET_2_ID (${AZS[1]})"
-    fi
+    # Arrays to store subnet IDs (global scope)
+    PRIVATE_SUBNET_IDS=()
     
-    # Check and create private subnet 3
-    if ! check_subnet_exists "$VPC_NAME-private-subnet-3" "PRIVATE_SUBNET_3_ID"; then
-        PRIVATE_SUBNET_3_ID=$(aws ec2 create-subnet \
-            --vpc-id $VPC_ID \
-            --cidr-block $PRIVATE_SUBNET_3_CIDR \
-            --availability-zone ${AZS[2]} \
-            --region $REGION \
-            --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$VPC_NAME-private-subnet-3}]" \
-            --query 'Subnet.SubnetId' \
-            --output text)
-        print_status "Created Private Subnet 3: $PRIVATE_SUBNET_3_ID (${AZS[2]})"
-    fi
+    # Create subnets dynamically based on available AZs
+    for i in $(seq 0 $((num_azs - 1))); do
+        local subnet_num=$((i + 1))
+        local subnet_name="$VPC_NAME-private-subnet-$subnet_num"
+        local subnet_var="PRIVATE_SUBNET_${subnet_num}_ID"
+        local subnet_cidr="${private_cidrs[$i]}"
+        local az="${AZS[$i]}"
+        
+        # Check and create private subnet
+        if ! check_subnet_exists "$subnet_name" "$subnet_var"; then
+            local subnet_id=$(aws ec2 create-subnet \
+                --vpc-id $VPC_ID \
+                --cidr-block $subnet_cidr \
+                --availability-zone $az \
+                --region $REGION \
+                --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$subnet_name}]" \
+                --query 'Subnet.SubnetId' \
+                --output text)
+            eval "$subnet_var=$subnet_id"
+            print_status "Created Private Subnet $subnet_num: $subnet_id ($az)"
+        else
+            local subnet_id=$(eval echo \$$subnet_var)
+            print_status "Using existing Private Subnet $subnet_num: $subnet_id ($az)"
+        fi
+        
+        # Store subnet ID
+        PRIVATE_SUBNET_IDS+=("$(eval echo \$$subnet_var)")
+    done
     
     print_status "Private subnets configured:"
-    print_status "  Private Subnet 1: $PRIVATE_SUBNET_1_ID (${AZS[0]})"
-    print_status "  Private Subnet 2: $PRIVATE_SUBNET_2_ID (${AZS[1]})"
-    print_status "  Private Subnet 3: $PRIVATE_SUBNET_3_ID (${AZS[2]})"
+    for i in $(seq 0 $((num_azs - 1))); do
+        local subnet_num=$((i + 1))
+        local subnet_var="PRIVATE_SUBNET_${subnet_num}_ID"
+        print_status "  Private Subnet $subnet_num: $(eval echo \$$subnet_var) (${AZS[$i]})"
+    done
 }
 
 # Function to create route tables
@@ -410,14 +417,14 @@ create_route_tables() {
     fi
     
     # Associate public subnets with public route table
-    associate_subnet_with_route_table $PUBLIC_SUBNET_1_ID $PUBLIC_RT_ID
-    associate_subnet_with_route_table $PUBLIC_SUBNET_2_ID $PUBLIC_RT_ID
-    associate_subnet_with_route_table $PUBLIC_SUBNET_3_ID $PUBLIC_RT_ID
+    for subnet_id in "${PUBLIC_SUBNET_IDS[@]}"; do
+        associate_subnet_with_route_table $subnet_id $PUBLIC_RT_ID
+    done
     
     # Associate private subnets with private route table
-    associate_subnet_with_route_table $PRIVATE_SUBNET_1_ID $PRIVATE_RT_ID
-    associate_subnet_with_route_table $PRIVATE_SUBNET_2_ID $PRIVATE_RT_ID
-    associate_subnet_with_route_table $PRIVATE_SUBNET_3_ID $PRIVATE_RT_ID
+    for subnet_id in "${PRIVATE_SUBNET_IDS[@]}"; do
+        associate_subnet_with_route_table $subnet_id $PRIVATE_RT_ID
+    done
     
     print_status "Route tables configured:"
     print_status "  Public Route Table: $PUBLIC_RT_ID"
@@ -566,36 +573,21 @@ validate_resources() {
         validation_failed=true
     fi
     
-    # Validate subnets
-    if ! check_subnet_exists "$VPC_NAME-public-subnet-1" "PUBLIC_SUBNET_1_ID"; then
-        print_error "Public Subnet 1 validation failed"
-        validation_failed=true
-    fi
+    # Validate subnets - dynamically based on available AZs
+    AZS=($(get_availability_zones))
+    local num_azs=${#AZS[@]}
     
-    if ! check_subnet_exists "$VPC_NAME-public-subnet-2" "PUBLIC_SUBNET_2_ID"; then
-        print_error "Public Subnet 2 validation failed"
-        validation_failed=true
-    fi
-    
-    if ! check_subnet_exists "$VPC_NAME-public-subnet-3" "PUBLIC_SUBNET_3_ID"; then
-        print_error "Public Subnet 3 validation failed"
-        validation_failed=true
-    fi
-    
-    if ! check_subnet_exists "$VPC_NAME-private-subnet-1" "PRIVATE_SUBNET_1_ID"; then
-        print_error "Private Subnet 1 validation failed"
-        validation_failed=true
-    fi
-    
-    if ! check_subnet_exists "$VPC_NAME-private-subnet-2" "PRIVATE_SUBNET_2_ID"; then
-        print_error "Private Subnet 2 validation failed"
-        validation_failed=true
-    fi
-    
-    if ! check_subnet_exists "$VPC_NAME-private-subnet-3" "PRIVATE_SUBNET_3_ID"; then
-        print_error "Private Subnet 3 validation failed"
-        validation_failed=true
-    fi
+    for i in $(seq 1 $num_azs); do
+        if ! check_subnet_exists "$VPC_NAME-public-subnet-$i" "PUBLIC_SUBNET_${i}_ID"; then
+            print_error "Public Subnet $i validation failed"
+            validation_failed=true
+        fi
+        
+        if ! check_subnet_exists "$VPC_NAME-private-subnet-$i" "PRIVATE_SUBNET_${i}_ID"; then
+            print_error "Private Subnet $i validation failed"
+            validation_failed=true
+        fi
+    done
     
     # Validate security groups
     for i in $(seq 1 $NUM_SECURITY_GROUPS); do
@@ -633,6 +625,7 @@ output_summary() {
     
     # Get availability zones
     AZS=($(get_availability_zones))
+    local num_azs=${#AZS[@]}
     
     # Build security groups arrays dynamically
     SG_IDS_JSON=""
@@ -651,6 +644,30 @@ output_summary() {
         SG_NAMES_JSON+="\"$SG_NAME\""
     done
     
+    # Build zones JSON dynamically based on available AZs
+    ZONES_JSON=""
+    for i in $(seq 0 $((num_azs - 1))); do
+        local subnet_num=$((i + 1))
+        local az="${AZS[$i]}"
+        local public_subnet_var="PUBLIC_SUBNET_${subnet_num}_ID"
+        local private_subnet_var="PRIVATE_SUBNET_${subnet_num}_ID"
+        local public_subnet_id=$(eval echo \$$public_subnet_var)
+        local private_subnet_id=$(eval echo \$$private_subnet_var)
+        
+        # Add comma if not first zone
+        if [ $i -gt 0 ]; then
+            ZONES_JSON+=","
+        fi
+        
+        ZONES_JSON+='
+            "'$az'": {
+              "PUBLIC_SUBNET_NAME": "'$VPC_NAME'-public-subnet-'$subnet_num'",
+              "PUBLIC_SUBNET_ID": "'$public_subnet_id'",
+              "PRIVATE_SUBNET_NAME": "'$VPC_NAME'-private-subnet-'$subnet_num'",
+              "PRIVATE_SUBNET_ID": "'$private_subnet_id'"
+            }'
+    done
+    
     # Create the new VPC infrastructure JSON structure
     NEW_VPC_DATA='{
         "VPC-ID": "'$VPC_ID'",
@@ -662,25 +679,7 @@ output_summary() {
           '$SG_NAMES_JSON'
         ],
         "SUBNETS": {
-          "ZONES": {
-            "'${AZS[0]}'": {
-              "PUBLIC_SUBNET_NAME": "'$VPC_NAME'-public-subnet-1",
-              "PUBLIC_SUBNET_ID": "'$PUBLIC_SUBNET_1_ID'",
-              "PRIVATE_SUBNET_NAME": "'$VPC_NAME'-private-subnet-1",
-              "PRIVATE_SUBNET_ID": "'$PRIVATE_SUBNET_1_ID'"
-            },
-            "'${AZS[1]}'": {
-              "PUBLIC_SUBNET_NAME": "'$VPC_NAME'-public-subnet-2",
-              "PUBLIC_SUBNET_ID": "'$PUBLIC_SUBNET_2_ID'",
-              "PRIVATE_SUBNET_NAME": "'$VPC_NAME'-private-subnet-2",
-              "PRIVATE_SUBNET_ID": "'$PRIVATE_SUBNET_2_ID'"
-            },
-            "'${AZS[2]}'": {
-              "PUBLIC_SUBNET_NAME": "'$VPC_NAME'-public-subnet-3",
-              "PUBLIC_SUBNET_ID": "'$PUBLIC_SUBNET_3_ID'",
-              "PRIVATE_SUBNET_NAME": "'$VPC_NAME'-private-subnet-3",
-              "PRIVATE_SUBNET_ID": "'$PRIVATE_SUBNET_3_ID'"
-            }
+          "ZONES": {'$ZONES_JSON'
           }
         }
       }'
@@ -741,6 +740,9 @@ main() {
     check_aws_credentials
     check_jq
     
+    # Validate availability zones before proceeding
+    validate_availability_zones
+    
     create_vpc
     create_internet_gateway
     create_public_subnets
@@ -768,6 +770,9 @@ validate_only() {
     check_aws_cli
     check_aws_credentials
     check_jq
+    
+    # Validate availability zones
+    validate_availability_zones
     
     if validate_resources; then
         output_summary
