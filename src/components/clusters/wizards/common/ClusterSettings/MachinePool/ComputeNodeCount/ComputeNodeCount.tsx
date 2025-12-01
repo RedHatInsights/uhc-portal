@@ -21,7 +21,6 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
-import { usePreviousProps } from '~/hooks/usePreviousProps';
 import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
@@ -97,8 +96,6 @@ const ComputeNodeCount = ({
   React.useEffect(() => {
     validateField(FieldId.NodesCompute);
   }, [machineType, validateField]);
-
-  const prevMachinePoolsSubnets = usePreviousProps(machinePoolsSubnets);
 
   const machineTypes = useGlobalState((state) => state.machineTypes);
   const quota = useGlobalState((state) => state.userProfile.organization.quotaList);
@@ -185,26 +182,6 @@ const ComputeNodeCount = ({
 
   const maxUserInputNodes = totalMaxNodes / increment;
   const minUserInputNodes = minNodesRequired / increment;
-
-  // Adjust compute nodes value when machine pools change and current value is below new minimum
-  React.useEffect(() => {
-    if (prevMachinePoolsSubnets !== undefined && machinePoolsSubnets !== prevMachinePoolsSubnets) {
-      // If value exists and is below new minimum, adjust it
-      if (nodes !== undefined && Number(nodes) < minUserInputNodes) {
-        setFieldValue(FieldId.NodesCompute, minUserInputNodes, true);
-      } else {
-        // Re-validate when pools change (constraints may have changed)
-        validateField(FieldId.NodesCompute);
-      }
-    }
-  }, [
-    machinePoolsSubnets,
-    prevMachinePoolsSubnets,
-    minUserInputNodes,
-    nodes,
-    setFieldValue,
-    validateField,
-  ]);
 
   let notEnoughQuota = !totalMaxNodes;
 

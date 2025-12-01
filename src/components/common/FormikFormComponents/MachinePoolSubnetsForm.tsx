@@ -8,11 +8,16 @@ import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circ
 import { scrollToFirstField } from '~/common/helpers';
 import { validateMultipleMachinePoolsSubnets } from '~/common/validators';
 import { getMatchingAvailabilityZones, inferRegionFromSubnets } from '~/common/vpcHelpers';
+import {
+  getMinNodesRequired,
+  getNodeIncrementHypershift,
+} from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
 import { SubnetSelectField } from '~/components/clusters/common/SubnetSelectField';
-import { emptyAWSSubnet, FieldId } from '~/components/clusters/wizards/common/constants';
+import { emptyAWSSubnet } from '~/components/clusters/wizards/common/constants';
 import { FormSubnet } from '~/components/clusters/wizards/common/FormSubnet';
 import { getScrollErrorIds } from '~/components/clusters/wizards/form/utils';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { CloudVpc } from '~/types/clusters_mgmt.v1';
 
 import './MachinePoolSubnetsForm.scss';
@@ -70,14 +75,40 @@ const MachinePoolSubnetsForm = ({
     );
 
   const removeMachinePool = (machinePoolsSubnetsIndex: number) => {
-    setFieldValue(
-      FieldId.MachinePoolsSubnets,
-      (machinePoolsSubnetsFromProps as FormSubnet[]).filter(
-        (e, i) => i !== machinePoolsSubnetsIndex,
-      ),
+    const newMachinePoolsSubnets = (machinePoolsSubnetsFromProps as FormSubnet[]).filter(
+      (e, i) => i !== machinePoolsSubnetsIndex,
     );
+    const newPoolsLength = newMachinePoolsSubnets.length;
+
+    setFieldValue(FieldId.MachinePoolsSubnets, newMachinePoolsSubnets);
     const fieldNameSubnetId = `${FieldId.MachinePoolsSubnets}[${machinePoolsSubnetsIndex}].privateSubnetId`;
     setFieldTouched(fieldNameSubnetId, false, false);
+
+    // Adjust compute nodes if below new minimum after pool removal
+    const {
+      [FieldId.Hypershift]: isHypershift,
+      [FieldId.Byoc]: byoc,
+      [FieldId.MultiAz]: multiAz,
+      [FieldId.NodesCompute]: nodes,
+    } = values;
+
+    const isHypershiftSelected = isHypershift === 'true';
+    const isByoc = byoc === 'true';
+    const isMultiAzSelected = multiAz === 'true';
+
+    if (isHypershiftSelected && nodes !== undefined) {
+      const minNodesRequired = getMinNodesRequired(
+        isHypershiftSelected,
+        { numMachinePools: newPoolsLength },
+        { isDefaultMachinePool: true, isByoc, isMultiAz: isMultiAzSelected },
+      );
+      const increment = getNodeIncrementHypershift(newPoolsLength);
+      const minUserInputNodes = minNodesRequired / increment;
+
+      if (Number(nodes) < minUserInputNodes) {
+        setFieldValue(FieldId.NodesCompute, minUserInputNodes, true);
+      }
+    }
   };
 
   useEffect(() => {
