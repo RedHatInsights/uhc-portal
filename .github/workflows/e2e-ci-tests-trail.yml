@@ -349,6 +349,130 @@ jobs:
           retention-days: 7
           path: playwright-artifacts/
 
+      - name: Extract test results
+        id: test-results
+        if: always()
+        run: |
+          TEST_RESULTS_FILE="playwright-artifacts/results/test-results.json"
+          if [ -f "$TEST_RESULTS_FILE" ]; then
+            # Extract test counts from JSON reporter (handle nested suites structure)
+            TOTAL=$(jq '[.. | .specs? // empty | .[]] | length' "$TEST_RESULTS_FILE")
+            PASSED=$(jq '[.. | .specs? // empty | .[] | .tests[]? | select(.status == "expected")] | length' "$TEST_RESULTS_FILE")
+            FAILED=$(jq '[.. | .specs? // empty | .[] | .tests[]? | select(.status == "unexpected")] | length' "$TEST_RESULTS_FILE")
+            SKIPPED=$(jq '[.. | .specs? // empty | .[] | .tests[]? | select(.status == "skipped")] | length' "$TEST_RESULTS_FILE")
+            
+            echo "total=${TOTAL}" >> $GITHUB_OUTPUT
+            echo "passed=${PASSED}" >> $GITHUB_OUTPUT
+            echo "failed=${FAILED}" >> $GITHUB_OUTPUT
+            echo "skipped=${SKIPPED}" >> $GITHUB_OUTPUT
+          else
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "passed=0" >> $GITHUB_OUTPUT
+            echo "failed=0" >> $GITHUB_OUTPUT
+            echo "skipped=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get current timestamp
+        id: timestamp
+        if: always()
+        run: echo "now=$(date +%s)" >> $GITHUB_OUTPUT
+      - name: Publish results to Slack
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_PLAYWRIGHT_TESTS_PUBLISHER_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "${{ job.status == 'success' && 'good' || 'danger' }}",
+                  "title": "Playwright E2E Tests [${{ inputs.grep_tags || '@smoke' }}] [${{ inputs.EUT || 'staging' }}] - ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }}",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "value": "${{ job.status }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Environment",
+                      "value": "${{ inputs.EUT || 'staging' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Browser",
+                      "value": "${{ inputs.browser || 'chromium' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Browser Version",
+                      "value": "${{ steps.browser-version.outputs.version }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Test Tags",
+                      "value": "${{ inputs.grep_tags || '@smoke' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "OCP Version",
+                      "value": "${{ inputs.ocp_version || 'latest' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Workers",
+                      "value": "${{ inputs.workers || '4' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Trace Level",
+                      "value": "${{ inputs.trace_level || 'off' }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Workflow",
+                      "value": "${{ github.event_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Total Tests",
+                      "value": "${{ steps.test-results.outputs.total }}",
+                      "short": true
+                    },
+                    {
+                      "title": "✅ Passed",
+                      "value": "${{ steps.test-results.outputs.passed }}",
+                      "short": true
+                    },
+                    {
+                      "title": "❌ Failed",
+                      "value": "${{ steps.test-results.outputs.failed }}",
+                      "short": true
+                    },
+                    {
+                      "title": "⏭️ Skipped",
+                      "value": "${{ steps.test-results.outputs.skipped }}",
+                      "short": true
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "type": "button",
+                      "text": "View Results",
+                      "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ],
+                  "footer": "GitHub Actions • Playwright E2E CI",
+                  "footer_icon": "https://github.githubassets.com/favicon.ico",
+                  "ts": ${{ steps.timestamp.outputs.now }}
+                }
+              ]
+            }
       - name: Cleanup AWS cloud resources
         if: always()
         continue-on-error: true
