@@ -369,7 +369,7 @@ const ClusterList = ({
   }
 
   return (
-    <AppPage title={PAGE_TITLE}>
+    <AppPage title={PAGE_TITLE} showTabbedView={showTabbedView}>
       {showTabbedView ? null : (
         <ClusterListPageHeader
           someReadOnly={someReadOnly}
