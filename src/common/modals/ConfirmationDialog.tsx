@@ -45,7 +45,7 @@ const ConfirmationDialog = ({
       onClose={closeCallback}
       variant={variant}
       isOpen
-      aria-labelledby="confirmation-dialog-modal"
+      aria-labelledby="confirmation-dialog"
       aria-describedby="modal-box-confirmation-dialog"
       className="openshift"
     >
