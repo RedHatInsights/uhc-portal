@@ -10,7 +10,7 @@ export const GCPProps = {
   upiPageLink: '/install/gcp/user-provisioned',
   upiLearnMoreLink: links.INSTALL_GCPUPI_GETTING_STARTED,
   providerSpecificFeatures: {
-    ipi: ['Hosts controlled with Google Cloud Provider'],
+    ipi: ['Hosts controlled with Google Cloud'],
   },
   name: 'gcp',
   breadCrumbsPaths: [
