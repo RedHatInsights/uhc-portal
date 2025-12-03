@@ -89,7 +89,7 @@ export const BillingModel = () => {
         <Icon status="warning">
           <ExclamationTriangleIcon />
         </Icon>{' '}
-        You do not currently have a Google Cloud Platform subscription
+        You do not currently have a Google Cloud subscription
       </StackItem>
 
       <StackItem>

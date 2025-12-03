@@ -286,7 +286,7 @@ describe('<BillingModel />', () => {
       render(buildTestComponent());
 
       expect(
-        screen.getByText('You do not currently have a Google Cloud Platform subscription'),
+        screen.getByText('You do not currently have a Google Cloud subscription'),
       ).toBeInTheDocument();
       expect(screen.getByText('How can I purchase a subscription?')).toBeInTheDocument();
     });
