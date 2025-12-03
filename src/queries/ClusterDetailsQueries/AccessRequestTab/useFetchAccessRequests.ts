@@ -107,9 +107,12 @@ export const useFetchAccessRequests = ({
 
   // Only build the joined data if we have cluster data or if there are no cluster IDs to fetch
   const accessRequestsWithClusterData = useMemo(() => {
-    if (!hasAccessRequests || combinedIsLoading) {
-      // Return undefined while loading or if there are no access requests
+    if (combinedIsLoading) {
+      // Return undefined while loading so we don't show empty state
       return undefined;
+    }
+    if (!hasAccessRequests) {
+      return [];
     }
 
     if (hasClusterIds && hasClusterData) {
