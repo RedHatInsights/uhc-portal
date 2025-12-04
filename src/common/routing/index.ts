@@ -1,7 +1,7 @@
 import { advisorBaseName, ocmBaseName } from './getBaseName';
 import { Link } from './Link';
 import { Navigate } from './Navigate';
-import { CLUSTER_LIST_PATH } from './routePaths';
+import { CLUSTER_LIST_PATH, TABBED_CLUSTER_LIST_PATH, useClusterListPath } from './routePaths';
 import type { NavigateFunction } from './useNavigate';
 import useNavigate from './useNavigate';
 
@@ -13,4 +13,6 @@ export {
   useNavigate,
   NavigateFunction,
   CLUSTER_LIST_PATH,
+  TABBED_CLUSTER_LIST_PATH,
+  useClusterListPath,
 };

@@ -21,7 +21,7 @@ import {
   TooltipPosition,
 } from '@patternfly/react-core';
 
-import { CLUSTER_LIST_PATH, Link, Navigate } from '~/common/routing';
+import { Link, Navigate, useClusterListPath } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
 import { openModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
@@ -55,6 +55,7 @@ import validateSubscriptionSettings from './validateSubscriptionSettings';
 
 const RegisterCluster = () => {
   const dispatch = useDispatch();
+  const clusterListPath = useClusterListPath();
   const [settings, setSettings] = useState({});
 
   const { quotaResponse, registerClusterResponse, isOpen, canSubscribeOCP } = useGlobalState(
@@ -249,7 +250,7 @@ const RegisterCluster = () => {
                 >
                   Register cluster
                 </Button>
-                <Link to={CLUSTER_LIST_PATH}>
+                <Link to={clusterListPath}>
                   <Button variant="secondary" isDisabled={registerClusterResponse.pending}>
                     Cancel
                   </Button>

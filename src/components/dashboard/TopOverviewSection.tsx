@@ -10,7 +10,7 @@ import {
   GridItem,
 } from '@patternfly/react-core';
 
-import { CLUSTER_LIST_PATH, Link } from '~/common/routing';
+import { Link, useClusterListPath } from '~/common/routing';
 
 import ResourceUsage from '../clusters/common/ResourceUsage/ResourceUsage';
 
@@ -42,6 +42,8 @@ const TopOverviewSection = ({
   usedMem,
   isError,
 }: TopOverviewSectionProps) => {
+  const clusterListPath = useClusterListPath();
+
   const errorBody = (
     <CardBody>
       <EmptyState headingLevel="h2" titleText="No data available">
@@ -117,7 +119,7 @@ const TopOverviewSection = ({
   return (
     <>
       <GridItem md={3}>
-        <Link to={CLUSTER_LIST_PATH} className="overview-clusters-link">
+        <Link to={clusterListPath} className="overview-clusters-link">
           <Card className="ocm-overview-clusters__card">
             <CardTitle>Clusters</CardTitle>
             <CardBody>

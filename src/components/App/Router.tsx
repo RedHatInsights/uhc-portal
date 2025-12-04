@@ -21,7 +21,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
-import { CLUSTER_LIST_PATH, Navigate, ocmBaseName } from '~/common/routing';
+import { CLUSTER_LIST_PATH, Navigate, ocmBaseName, useClusterListPath } from '~/common/routing';
 import ClusterDetailsClusterOrExternalIdMR from '~/components/clusters/ClusterDetailsMultiRegion/ClusterDetailsClusterOrExternalId';
 import {
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
@@ -76,6 +76,7 @@ interface RouterProps {
 
 const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId }) => {
   const { pathname, search } = useLocation();
+  const clusterListPath = useClusterListPath();
 
   const {
     segment: { setPageMetadata },
@@ -269,7 +270,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         ) : null}
         <Route
           path="/"
-          element={<Navigate replace to={isRestrictedEnv() ? CLUSTER_LIST_PATH : '/overview'} />}
+          element={<Navigate replace to={isRestrictedEnv() ? clusterListPath : '/overview'} />}
         />
         {/* catch all */}
         <Route path="*" element={<NotFoundError />} />
