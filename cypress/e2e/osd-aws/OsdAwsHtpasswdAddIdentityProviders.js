@@ -1,6 +1,7 @@
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import ClusterDetails from '../../pageobjects/ClusterDetails.page';
 import ClusterIdentityProviderDetails from '../../pageobjects/ClusterAddIdentityProvider.page';
+import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 const clusterProfiles = require('../../fixtures/osd-aws/OsdAwsCcsCreatePublicCluster.json');
 const clusterProperties = clusterProfiles['osdccs-aws-public']['day2-profile'];
@@ -15,7 +16,7 @@ describe(
   () => {
     beforeEach(() => {
       if (Cypress.currentTest.title.match(/Navigate to the Access Control tab for .* cluster/)) {
-        cy.visit('/cluster-list');
+        cy.visit(CLUSTER_LIST_PATH);
         ClusterListPage.waitForDataReady();
         ClusterListPage.isClusterListScreen();
         ClusterListPage.filterTxtField().should('be.visible').click();
