@@ -20,7 +20,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { getAddHostsTabState } from '@openshift-assisted/ui-lib/ocm';
 import { PageSection, Spinner, TabContent, Tooltip } from '@patternfly/react-core';
 
-import { Navigate, useNavigate } from '~/common/routing';
+import { CLUSTER_LIST_PATH, Navigate, useNavigate } from '~/common/routing';
 import { knownProducts, normalizedProducts } from '~/common/subscriptionTypes';
 import AIHostsClusterDetailTab from '~/components/AIComponents/AIHostsClusterDetailTab';
 import { AppPage } from '~/components/App/AppPage';
@@ -405,7 +405,7 @@ const ClusterDetails = (props) => {
           `${error?.errorMessage}`,
         ),
       );
-      return <Navigate to="/cluster-list" />;
+      return <Navigate to={CLUSTER_LIST_PATH} />;
     }
     return errorState();
   }
@@ -788,7 +788,7 @@ const ClusterDetails = (props) => {
             onClose={onDialogClose}
             onClusterDeleted={() => {
               invalidateClusterDetailsQueries();
-              navigate('/cluster-list');
+              navigate(CLUSTER_LIST_PATH);
             }}
           />
           <DeleteIDPDialog refreshParent={refreshIDP} />

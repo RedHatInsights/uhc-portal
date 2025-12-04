@@ -21,7 +21,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
-import { Navigate, ocmBaseName } from '~/common/routing';
+import { CLUSTER_LIST_PATH, Navigate, ocmBaseName } from '~/common/routing';
 import ClusterDetailsClusterOrExternalIdMR from '~/components/clusters/ClusterDetailsMultiRegion/ClusterDetailsClusterOrExternalId';
 import {
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
@@ -257,7 +257,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         'Operational' or 'Major Outage' status for "OpenShift Cluster Manager" on the
         'http:///status.redhat.com' site. If this route is changed, then the related catchpoint
         tests must be updated. For more info. see: https://issues.redhat.com/browse/OCMUI-2398 */}
-        <Route path="/cluster-list" element={<ClusterListMultiRegion getMultiRegion />} />
+        <Route path={CLUSTER_LIST_PATH} element={<ClusterListMultiRegion getMultiRegion />} />
         <Route
           path="/clusters/*"
           element={
@@ -269,7 +269,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         ) : null}
         <Route
           path="/"
-          element={<Navigate replace to={isRestrictedEnv() ? '/cluster-list' : '/overview'} />}
+          element={<Navigate replace to={isRestrictedEnv() ? CLUSTER_LIST_PATH : '/overview'} />}
         />
         {/* catch all */}
         <Route path="*" element={<NotFoundError />} />

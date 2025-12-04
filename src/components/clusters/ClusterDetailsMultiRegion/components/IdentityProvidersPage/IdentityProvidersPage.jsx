@@ -21,7 +21,7 @@ import {
   SplitItem,
 } from '@patternfly/react-core';
 
-import { Link, Navigate } from '~/common/routing';
+import { CLUSTER_LIST_PATH, Link, Navigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { usePostIDPForm } from '~/queries/ClusterDetailsQueries/IDPPage/usePostIDPForm';
@@ -173,7 +173,7 @@ const IdentityProvidersPage = (props) => {
           clusterDetailsError.errorMessage,
         ),
       );
-      return <Navigate replace to="/cluster-list" />;
+      return <Navigate replace to={CLUSTER_LIST_PATH} />;
     }
     return errorState();
   }
@@ -188,7 +188,7 @@ const IdentityProvidersPage = (props) => {
         "Go to the cluster's console to see and edit identity providers.",
       ),
     );
-    return <Navigate replace to="/cluster-list" />;
+    return <Navigate replace to={CLUSTER_LIST_PATH} />;
   }
 
   if (

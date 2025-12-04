@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 
-import { Link } from '~/common/routing';
+import { CLUSTER_LIST_PATH, Link } from '~/common/routing';
 
 export type BreadcrumbPath = { label: string; path?: string };
 
@@ -18,7 +18,7 @@ const Breadcrumbs = ({ path }: Props) => (
       if (i < path.length - 1) {
         let itemPath = item.path;
         if (itemLabel === 'Cluster List' && !itemPath) {
-          itemPath = '/cluster-list';
+          itemPath = CLUSTER_LIST_PATH;
         }
 
         return (
