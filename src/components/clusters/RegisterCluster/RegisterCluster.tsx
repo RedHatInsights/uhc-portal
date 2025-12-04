@@ -21,7 +21,7 @@ import {
   TooltipPosition,
 } from '@patternfly/react-core';
 
-import { Link, Navigate } from '~/common/routing';
+import { CLUSTER_LIST_PATH, Link, Navigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
 import { openModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
@@ -249,7 +249,7 @@ const RegisterCluster = () => {
                 >
                   Register cluster
                 </Button>
-                <Link to="/cluster-list">
+                <Link to={CLUSTER_LIST_PATH}>
                   <Button variant="secondary" isDisabled={registerClusterResponse.pending}>
                     Cancel
                   </Button>

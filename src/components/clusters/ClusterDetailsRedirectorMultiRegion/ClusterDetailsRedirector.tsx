@@ -4,7 +4,7 @@ import { useLocation, useParams } from 'react-router-dom';
 
 import { Spinner } from '@patternfly/react-core';
 
-import { Navigate } from '~/common/routing';
+import { CLUSTER_LIST_PATH, Navigate } from '~/common/routing';
 import { useFetchSubscriptionIdForCluster } from '~/queries/ClusterDetailsQueries/useFetchSubscriptionIdForCluster';
 import { setGlobalError } from '~/redux/actions/globalErrorActions';
 import { ErrorState } from '~/types/types';
@@ -42,7 +42,7 @@ const ClusterDetailsRedirector = () => {
         '',
       ),
     );
-    return <Navigate replace to="/cluster-list" />;
+    return <Navigate replace to={CLUSTER_LIST_PATH} />;
   }
 
   return <Navigate replace to={`/details/s/${subscriptionID}${location.hash}`} />;

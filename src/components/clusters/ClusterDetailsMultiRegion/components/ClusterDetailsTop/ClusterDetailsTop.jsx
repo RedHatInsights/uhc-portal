@@ -25,7 +25,7 @@ import isAssistedInstallSubscription, {
   isUninstalledAICluster,
 } from '~/common/isAssistedInstallerCluster';
 import { HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT } from '~/common/localStorageConstants';
-import { useNavigate } from '~/common/routing';
+import { CLUSTER_LIST_PATH, useNavigate } from '~/common/routing';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { PreviewLabel } from '~/components/clusters/common/PreviewLabel';
 import Breadcrumbs from '~/components/common/Breadcrumbs';
@@ -318,7 +318,7 @@ function ClusterDetailsTop(props) {
         variant: 'success',
       });
 
-      navigate('/cluster-list');
+      navigate(CLUSTER_LIST_PATH);
     }
   }, [
     addNotification,

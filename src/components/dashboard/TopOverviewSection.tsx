@@ -10,7 +10,7 @@ import {
   GridItem,
 } from '@patternfly/react-core';
 
-import { Link } from '~/common/routing';
+import { CLUSTER_LIST_PATH, Link } from '~/common/routing';
 
 import ResourceUsage from '../clusters/common/ResourceUsage/ResourceUsage';
 
@@ -117,7 +117,7 @@ const TopOverviewSection = ({
   return (
     <>
       <GridItem md={3}>
-        <Link to="/cluster-list" className="overview-clusters-link">
+        <Link to={CLUSTER_LIST_PATH} className="overview-clusters-link">
           <Card className="ocm-overview-clusters__card">
             <CardTitle>Clusters</CardTitle>
             <CardBody>
