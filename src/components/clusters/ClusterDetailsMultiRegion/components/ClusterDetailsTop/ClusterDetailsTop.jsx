@@ -25,7 +25,7 @@ import isAssistedInstallSubscription, {
   isUninstalledAICluster,
 } from '~/common/isAssistedInstallerCluster';
 import { HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT } from '~/common/localStorageConstants';
-import { CLUSTER_LIST_PATH, useNavigate } from '~/common/routing';
+import { useClusterListPath, useNavigate } from '~/common/routing';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { PreviewLabel } from '~/components/clusters/common/PreviewLabel';
 import Breadcrumbs from '~/components/common/Breadcrumbs';
@@ -118,6 +118,7 @@ function ClusterDetailsTop(props) {
     region,
   } = props;
 
+  const clusterListPath = useClusterListPath();
   const hasAlertBeenDismissed = localStorage.getItem(
     HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT,
   );
@@ -318,12 +319,13 @@ function ClusterDetailsTop(props) {
         variant: 'success',
       });
 
-      navigate(CLUSTER_LIST_PATH);
+      navigate(clusterListPath);
     }
   }, [
     addNotification,
     cluster,
     cluster.state,
+    clusterListPath,
     dispatch,
     navigate,
     prevClusterState,
