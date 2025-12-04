@@ -2,6 +2,7 @@ import ClusterListPage from '../../pageobjects/ClusterList.page';
 import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 import ClusterMachinePoolDetails from '../../pageobjects/ClusterMachinePoolDetails.page';
 import { Clusters } from '../../fixtures/rosa/RosaClusterClassicMachinePoolsValidation.json';
+import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 const workerName = `worker-` + (Math.random() + 1).toString(36).substring(4);
 
@@ -11,7 +12,7 @@ describe(
   () => {
     beforeEach(() => {
       if (Cypress.currentTest.title.match(/Navigate to the ROSA .* Machine pools tab/)) {
-        cy.visit('/cluster-list');
+        cy.visit(CLUSTER_LIST_PATH);
         ClusterListPage.waitForDataReady();
         ClusterListPage.isClusterListScreen();
         ClusterListPage.filterTxtField().should('be.visible').click();
