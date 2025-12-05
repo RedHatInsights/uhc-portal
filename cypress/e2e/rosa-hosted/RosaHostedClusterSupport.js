@@ -1,6 +1,7 @@
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 import ClusterSupportPage from '../../pageobjects/ClusterSupportTab.page';
+import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 const clusterDetails = require('../../fixtures/rosa-hosted/RosaHostedClusterCreatePublic.json');
 const clusterName = clusterDetails['rosa-hosted-public']['day1-profile']['ClusterName'];
 
@@ -9,7 +10,7 @@ describe(
   { tags: ['day2', 'hosted', 'rosa', 'hcp'] },
   () => {
     before(() => {
-      cy.visit('/cluster-list');
+      cy.visit(CLUSTER_LIST_PATH);
       ClusterListPage.waitForDataReady();
     });
 

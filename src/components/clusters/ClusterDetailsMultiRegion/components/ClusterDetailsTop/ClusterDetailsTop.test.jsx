@@ -3,6 +3,7 @@ import * as reactRedux from 'react-redux';
 
 import * as notifications from '@redhat-cloud-services/frontend-components-notifications';
 
+import { CLUSTER_LIST_PATH, ocmBaseName } from '~/common/routing';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import * as clusterService from '~/services/clusterService';
 import { checkAccessibility, render, screen, within } from '~/testUtils';
@@ -198,7 +199,7 @@ describe('<ClusterDetailsTop />', () => {
     const endProps = { ...props, endCluster };
 
     rerender(<ClusterDetailsTop {...endProps} />);
-    expect(mockNavigate).toHaveBeenCalledWith('/openshift/cluster-list', undefined);
+    expect(mockNavigate).toHaveBeenCalledWith(`${ocmBaseName}${CLUSTER_LIST_PATH}`, undefined);
 
     expect(mockedAddNotification).toHaveBeenCalledWith({
       title: 'Successfully uninstalled cluster Unnamed Cluster',
