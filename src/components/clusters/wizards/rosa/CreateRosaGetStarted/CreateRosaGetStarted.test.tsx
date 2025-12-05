@@ -18,7 +18,7 @@ describe('<CreateRosaGetStarted />', () => {
 
     expect(
       screen.getByRole('link', {
-        name: 'Learn more about ROSA in AWS GovCloud (US) with FedRAMP (new window or tab)',
+        name: 'Learn more about ROSA with hosted control planes in AWS GovCloud (new window or tab)',
       }),
     ).toHaveAttribute(
       'href',
