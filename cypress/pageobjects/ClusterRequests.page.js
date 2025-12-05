@@ -13,7 +13,7 @@ class ClusterRequests extends Page {
   }
 
   isClusterTranferRequestHeaderPage(headerName = 'Cluster transfer ownership request') {
-    cy.contains(headerName).should('be.visible');
+    cy.contains(headerName).scrollIntoView().should('be.visible');
   }
 
   isClusterTranferRequestContentPage(content) {

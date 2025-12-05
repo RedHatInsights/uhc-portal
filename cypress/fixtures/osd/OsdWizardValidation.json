@@ -7,7 +7,7 @@
       "InstanceType": "m5.xlarge"
     },
     {
-      "CloudProvider": "GCP",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
       "InfrastructureType": "Red Hat cloud account",
       "InstanceType": "custom-4-16384"
@@ -19,14 +19,14 @@
       "InstanceType": "m5.xlarge"
     },
     {
-      "CloudProvider": "GCP",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
       "InfrastructureType": "Customer cloud subscription",
       "AuthenticationType": "Service Account",
       "InstanceType": "custom-4-16384"
     },
     {
-      "CloudProvider": "GCP",
+      "CloudProvider": "Google Cloud",
       "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
       "InfrastructureType": "Customer cloud subscription",
       "AuthenticationType": "Workload Identity Federation",

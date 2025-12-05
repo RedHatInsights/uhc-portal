@@ -12,7 +12,7 @@ describe(
     });
 
     it('Cluster requests links and page definitions', () => {
-      ClusterListPage.viewClusterRequests().click();
+      ClusterListPage.viewClusterRequests().scrollIntoView().click();
       ClusterRequestPage.isClusterRequestsUrl();
       ClusterRequestPage.isClusterRequestsScreen();
       ClusterRequestPage.isClusterTranferRequestHeaderPage();

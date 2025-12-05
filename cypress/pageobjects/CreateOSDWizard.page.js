@@ -18,7 +18,10 @@ class CreateOSDCluster extends Page {
   }
 
   isOnlyGCPCloudProviderSelectionScreen() {
-    cy.contains('h3', 'GCP account details').scrollIntoView().should('exist').should('be.visible');
+    cy.contains('h3', 'Google Cloud account details')
+      .scrollIntoView()
+      .should('exist')
+      .should('be.visible');
     cy.contains('h3', 'Select a cloud provider').should('not.exist');
   }
 

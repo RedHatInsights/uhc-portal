@@ -68,9 +68,9 @@ describe(
     it('Checks cluster installation types for cloud provider Google Cloud', () => {
       ClusterTypesPage.clickCloudProvider('Google Cloud');
       ClusterTypesPage.isClusterTypesUrl('/install/gcp');
-      ClusterTypesPage.isClusterTypesHeader('GCP');
-      ClusterTypesPage.isAutomated('gcp', 'gcp', '');
-      ClusterTypesPage.isFullControl('gcp', 'gcp', '');
+      ClusterTypesPage.isClusterTypesHeader('Google Cloud');
+      ClusterTypesPage.isAutomated('gcp', 'Google Cloud', '');
+      ClusterTypesPage.isFullControl('gcp', 'Google Cloud', '');
     });
 
     it('Checks cluster installation types for cloud provider IBM Cloud', () => {
