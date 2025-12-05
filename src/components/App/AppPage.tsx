@@ -9,7 +9,11 @@ import EnvOverrideMessage from './EnvOverrideMessage';
 import ErrorBoundary from './ErrorBoundary';
 import RestrictedEnvOverrideMessage from './RestrictedEnvOverrideMessage';
 
-export const AppPage: React.FC<PropsWithChildren<{ title?: string }>> = ({ children, title }) => {
+export const AppPage: React.FC<PropsWithChildren<{ title?: string; showTabbedView?: boolean }>> = ({
+  children,
+  title,
+  showTabbedView,
+}) => {
   useEffect(() => {
     if (title) {
       document.title = title;
@@ -20,8 +24,8 @@ export const AppPage: React.FC<PropsWithChildren<{ title?: string }>> = ({ child
   return (
     <AppDrawer>
       <div className="pf-v6-u-display-flex pf-v6-u-flex-direction-row">
-        {restrictedEnvOverride && <RestrictedEnvOverrideMessage />}
-        {config.envOverride && <EnvOverrideMessage env={config.envOverride} />}
+        {restrictedEnvOverride && !showTabbedView && <RestrictedEnvOverrideMessage />}
+        {config.envOverride && !showTabbedView && <EnvOverrideMessage env={config.envOverride} />}
       </div>
       <ErrorBoundary>{children}</ErrorBoundary>
     </AppDrawer>

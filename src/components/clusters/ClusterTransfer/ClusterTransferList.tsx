@@ -196,7 +196,7 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
         key={transferId}
         transferId={transferId || ''}
         displayName={displayName}
-        buttonText={isTabbedClusters ? 'Open' : undefined}
+        buttonText={isTabbedClusters ? 'Retract' : undefined}
         icon={isTabbedClusters ? <EyeIcon /> : undefined}
       />
     ) : (
