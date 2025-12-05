@@ -37,6 +37,7 @@ const DeleteProtection = ({
 
   const DeleteProtectionButton = useEusChannel ? (
     <EditButton
+      data-testid="delete-protection-toggle"
       disableReason={disableToggleReason}
       isAriaDisabled={!!disableToggleReason || pending}
       ariaLabel={`${protectionEnabled ? 'Disable' : 'Enable'}`}
@@ -48,6 +49,7 @@ const DeleteProtection = ({
     </EditButton>
   ) : (
     <ButtonWithTooltip
+      data-testid="delete-protection-toggle"
       variant="link"
       isInline
       onClick={() =>

@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import Page from './page';
+import { notAutoScalingAdditionalMachinePool } from '~/components/clusters/common/__tests__/totalNodesDataSelector.fixtures';
 
 class ClusterDetails extends Page {
   isClusterDetailsPage = (displayName) =>
@@ -155,13 +156,63 @@ class ClusterDetails extends Page {
 
   subscriptionUnitsSocketsRadio = () => cy.get('input[value="Sockets"]');
 
+  deleteProtectionToggleButton = () => {
+    return cy.getByTestId('delete-protection-toggle');
+  };
+
+  deleteProtectionStatus = () => {
+    return cy.contains('dt', 'Delete Protection').next('dd');
+  };
+
+  deleteProtectionModal = () => cy.get('div[role="dialog"]');
+
+  modalConfirmButton = () => {
+    return this.deleteProtectionModal().find('button[data-testid="btn-primary"]');
+  };
+
+  modalCancelButton = () => {
+    return this.deleteProtectionModal().find('button[data-testid="btn-secondary"]');
+  };
+
+  enableDeletionProtection() {
+    cy.wait(10000);
+    this.deleteProtectionToggleButton().scrollIntoView().click({ force: true });
+    this.modalConfirmButton().should('contain.text', 'Enable').click();
+    this.deleteProtectionModal().should('not.exist');
+    this.deleteProtectionStatus().should('contain.text', 'Enabled');
+  }
+
+  disableDeletionProtection() {
+    cy.wait(10000);
+    this.deleteProtectionToggleButton().scrollIntoView().click({ force: true });
+    this.modalConfirmButton().should('contain.text', 'Disable').click();
+    this.deleteProtectionModal().should('not.exist');
+    this.deleteProtectionStatus().should('contain.text', 'Disabled');
+  }
+
+  deleteClusterMenuItem = () => {
+    return cy.contains('span', 'Delete cluster').closest('button[role="menuitem"]');
+  };
+
+  verifyDeleteOptionIsEnabled(shouldBeEnabled = true) {
+    this.actionButton().click();
+
+    if (shouldBeEnabled) {
+      this.deleteClusterMenuItem().should('not.have.attr', 'aria-disabled');
+    } else {
+      this.deleteClusterMenuItem().should('have.attr', 'aria-disabled');
+    }
+
+    this.actionButton().click();
+  }
+
   numberOfSocketsInput = () => cy.get('input[name="socket_total"]');
 
   numberOfCPUsInput = () => cy.get('input[name="cpu_total"]');
 
   saveSubscriptionButton = () => cy.getByTestId('btn-primary');
 
-  actionButton = () => cy.getByTestId('cluster-actions-dropdown');
+  actionButton = () => cy.getByTestId('cluster-actions-dropdown').first();
 
   editDisplayNameButton = () => cy.get('button').contains('Edit display name');
 
