@@ -2,8 +2,10 @@ import React, { useMemo, useState } from 'react';
 
 import { Alert, AlertActionCloseButton, Content, ExpandableSection } from '@patternfly/react-core';
 
+import { getOCMResourceType, trackEvents } from '~/common/analytics';
 import { HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT } from '~/common/localStorageConstants';
 import ExternalLink from '~/components/common/ExternalLink';
+import useAnalytics from '~/hooks/useAnalytics';
 import { ClusterState } from '~/types/clusters_mgmt.v1/enums';
 
 import { ProductCardNode } from '../../../../../../common/ProductCard/ProductCard';
@@ -26,6 +28,7 @@ type RecommendedOperatorsAlertProps = {
   closeDrawer: () => void;
   onDismissAlertCallback: () => void;
   consoleURL?: string;
+  planType: string;
 };
 
 const STATIC_ALERT_MESSAGES = {
@@ -60,8 +63,10 @@ const RecommendedOperatorsAlert = ({
   closeDrawer,
   onDismissAlertCallback,
   consoleURL,
+  planType,
 }: RecommendedOperatorsAlertProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const track = useAnalytics();
   const onToggle = (_event: React.MouseEvent, isExpanded: boolean) => {
     // collapsing the Alert component also closes the Drawer
     if (!isExpanded) {
@@ -75,10 +80,21 @@ const RecommendedOperatorsAlert = ({
     }
     setIsExpanded(false);
 
+    const resourceType = getOCMResourceType(planType);
+
     // When the user dismisses the Alert, the value is saved in the user's LocalStorage
     localStorage.setItem(HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT, 'true');
 
     onDismissAlertCallback();
+
+    track(trackEvents.AlertInteraction, {
+      resourceType,
+      customProperties: {
+        type: 'recommended-operators',
+        action: 'dismiss',
+        severity: 'info',
+      },
+    });
   };
 
   // if consoleURL is not provided, present a static "console" without a link
