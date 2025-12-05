@@ -149,6 +149,10 @@ export const buildNodePoolRequest = (
       root_volume: {
         size: values.diskSize,
       },
+      capacity_reservation: {
+        id: values.capacityReservationId,
+        preference: values.capacityPreference,
+      },
     };
   }
 

@@ -53,6 +53,7 @@ import { ClusterFromSubscription, ErrorState } from '~/types/types';
 import { canUseSpotInstances } from '../../machinePoolsHelper';
 
 import AutoRepairField from './fields/AutoRepairField';
+import CapacityReservationField from './fields/CapacityReservationField';
 import DiskSizeField from './fields/DiskSizeField';
 import useMachinePoolFormik, { EditMachinePoolValues } from './hooks/useMachinePoolFormik';
 import EditDetailsSection from './sections/EditDetailsSection';
@@ -259,7 +260,6 @@ const EditMachinePoolModal = ({
     (!machinePoolsError && machinePoolsLoading) ||
     (!machineTypesError && machineTypesLoading) ||
     (isEdit && machineTypesResponse && machinePoolsResponse && !currentMachinePool);
-
   return (
     <Formik<EditMachinePoolValues>
       onSubmit={async (values) => {
@@ -373,6 +373,7 @@ const EditMachinePoolModal = ({
                       />
                     ) : null}
                     <DiskSizeField cluster={cluster} isEdit={isEdit} />
+                    <CapacityReservationField cluster={cluster} isEdit={isEdit} />
                     <ExpandableSection toggleText="Edit node labels and taints">
                       <EditLabelsSection />
                       <EditTaintsSection

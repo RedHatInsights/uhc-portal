@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Split, SplitItem, Title } from '@patternfly/react-core';
+import { GridItem, Title } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -8,8 +8,10 @@ import PopoverHint from '~/components/common/PopoverHint';
 
 const MachinePoolCapacityReservationDetail = ({
   capacityReservationId,
+  capacityReservationPreference,
 }: {
   capacityReservationId: string | undefined;
+  capacityReservationPreference: string | undefined;
 }) => (
   <>
     <Title headingLevel="h4" className="pf-v6-u-mb-sm pf-v6-u-mt-lg">
@@ -25,11 +27,12 @@ const MachinePoolCapacityReservationDetail = ({
         }
       />
     </Title>
-    <Split hasGutter>
-      <SplitItem className="capacity_reservation">
-        Reservation Id: {capacityReservationId || 'N/A'}
-      </SplitItem>
-    </Split>
+    <GridItem className="capacity_reservation">
+      Reservation Preference: {capacityReservationPreference || 'N/A'}
+    </GridItem>
+    <GridItem className="capacity_reservation">
+      Reservation Id: {capacityReservationId || 'N/A'}
+    </GridItem>
   </>
 );
 
