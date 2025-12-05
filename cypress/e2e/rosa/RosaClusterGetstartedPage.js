@@ -12,7 +12,7 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
     RosaGetstartedPage.isRosaFedRAMPInfoAlertShown();
     RosaGetstartedPage.checkAnchorProperties(
       RosaGetstartedPage.rosaFedRampDoclink(),
-      'Learn more about ROSA in AWS GovCloud (US) with FedRAMP',
+      'Learn more about ROSA with hosted control planes in AWS GovCloud',
       'https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-rosa.html',
       true,
     );

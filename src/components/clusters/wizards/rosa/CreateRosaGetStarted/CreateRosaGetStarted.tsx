@@ -68,10 +68,15 @@ const CreateRosaGetStarted = () => (
         isInline
         id="env-override-message"
         component="h2"
-        title={<>ROSA in AWS GovCloud (US) with FedRAMP</>}
+        title={
+          <>
+            Red Hat OpenShift Service on AWS (ROSA) with hosted control planes in AWS GovCloud
+            achieves FedRAMP High Authorization
+          </>
+        }
       >
         <ExternalLink data-testid="rosa-aws-fedramp" href={links.ROSA_AWS_FEDRAMP}>
-          Learn more about ROSA in AWS GovCloud (US) with FedRAMP
+          Learn more about ROSA with hosted control planes in AWS GovCloud
         </ExternalLink>
         or start the onboarding process with the{' '}
         <ExternalLink
