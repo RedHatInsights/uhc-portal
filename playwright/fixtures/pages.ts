@@ -2,10 +2,12 @@ import { test as base, BrowserContext, Page } from '@playwright/test';
 import { ClusterDetailsPage } from '../page-objects/cluster-details-page';
 import { ClusterListPage } from '../page-objects/cluster-list-page';
 import { ClusterRequestsPage } from '../page-objects/cluster-requests-page';
+import { ClusterTypesPage } from '../page-objects/cluster-types-page';
 import { CreateOSDWizardPage } from '../page-objects/create-osd-wizard-page';
 import { CreateClusterPage } from '../page-objects/create-cluster-page';
 import { DownloadsPage } from '../page-objects/downloads-page';
 import { OCMRolesAndAccessPage } from '../page-objects/ocm-roles-access-page';
+import { OsdProductPage } from '../page-objects/osd-product-page';
 import { OverviewPage } from '../page-objects/overview-page';
 import { RegisterClusterPage } from '../page-objects/register-cluster-page';
 import { TokensPage } from '../page-objects/tokens-page';
@@ -24,10 +26,12 @@ type WorkerFixtures = {
   clusterDetailsPage: ClusterDetailsPage;
   clusterListPage: ClusterListPage;
   clusterRequestsPage: ClusterRequestsPage;
+  clusterTypesPage: ClusterTypesPage;
   createOSDWizardPage: CreateOSDWizardPage;
   createClusterPage: CreateClusterPage;
   downloadsPage: DownloadsPage;
   ocmRolesAndAccessPage: OCMRolesAndAccessPage;
+  osdProductPage: OsdProductPage;
   overviewPage: OverviewPage;
   registerClusterPage: RegisterClusterPage;
   tokensPage: TokensPage;
@@ -133,6 +137,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     { scope: 'worker' },
   ],
 
+  // Worker-scoped: ClusterTypesPage instance - created once, reused across all tests in suite
+  clusterTypesPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new ClusterTypesPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
   // Worker-scoped: CreateOSDWizardPage instance - created once, reused across all tests in suite
   createOSDWizardPage: [
     async ({ authenticatedPage }, use) => {
@@ -164,6 +177,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   ocmRolesAndAccessPage: [
     async ({ authenticatedPage }, use) => {
       const pageObject = new OCMRolesAndAccessPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: OsdProductPage instance - created once, reused across all tests in suite
+  osdProductPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new OsdProductPage(authenticatedPage);
       await use(pageObject);
     },
     { scope: 'worker' },
