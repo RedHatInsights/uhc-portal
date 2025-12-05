@@ -1,0 +1,39 @@
+{
+  "ClusterName": "ocmui-playwright-smoke-osd-ccs-wif-gcp",
+  "Type": "OSD",
+  "CloudProvider": "Google Cloud",
+  "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
+  "SubscriptionBillingModel": "Annual Red Hat subscriptions",
+  "InfrastructureType": "Customer cloud subscription",
+  "AuthenticationType": "Workload Identity Federation",
+  "Region": "us-east1, Moncks Corner, South Carolina, USA",
+  "Availability": "Single zone",
+  "SecureBootSupportForShieldedVMs": "Enabled",
+  "UserWorkloadMonitoring": "Enabled",
+  "EncryptVolumesWithCustomerKeys": "Disabled",
+  "FIPSCryptography": "Disabled",
+  "AdditionalEncryption": "Disabled",
+  "Nodes": {
+    "Control plane": "3/3",
+    "Infra": "2/2",
+    "Compute": "3/3"
+  },
+  "ClusterAutoscaling": "Disabled",
+  "InstallIntoExistingVPC": "Disabled",
+  "ClusterPrivacy": "Public",
+  "MachineCIDR": "10.0.0.0/16",
+  "ServiceCIDR": "172.30.0.0/16",
+  "PodCIDR": "10.128.0.0/14",
+  "HostPrefix": "/23",
+  "ApplicationIngress": "Use default settings",
+  "UpdateStrategy": "Individual updates",
+  "NodeDraining": "1 hour",
+  "MachinePools": [
+    {
+      "Name": "worker",
+      "InstanceType": "custom-4-16384",
+      "NodeCount": 2,
+      "Autoscaling": "Disabled"
+    }
+  ]
+}

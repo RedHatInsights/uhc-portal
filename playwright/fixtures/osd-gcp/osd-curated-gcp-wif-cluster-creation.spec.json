@@ -1,0 +1,55 @@
+{
+  "ClusterName": "ocmui-smoke-osd-curated-gcp-wif",
+  "Type": "OSD",
+  "CloudProvider": "Google Cloud",
+  "SubscriptionType": "On-Demand: Flexible usage billed through Google Cloud Marketplace",
+  "Marketplace": "Google Cloud Marketplace",
+  "InfrastructureType": "Customer cloud subscription",
+  "AuthenticationType": "Workload Identity Federation",
+  "Region": "us-central1, Council Bluffs, Iowa, USA",
+  "Availability": "Multi-zone",
+  "SecureBootSupportForShieldedVMs": "Enabled",
+  "UserWorkloadMonitoring": "Enabled",
+  "FIPSCryptography": "Enabled",
+  "EncryptionLevel": "FIPS Cryptography enabled",
+  "EncryptVolumesWithCustomerKeys": "Disabled",
+  "AdditionalEncryption": "Enabled",
+  "Nodes": {
+    "Control plane": "3/3",
+    "Infra": "2/2",
+    "Compute": "3/3"
+  },
+  "ClusterAutoscaling": "Disabled",
+  "InstallIntoExistingVPC": "Enabled",
+  "ClusterPrivacy": "Public",
+  "MachineCIDR": "10.0.0.0/16",
+  "ServiceCIDR": "172.30.0.0/16",
+  "PodCIDR": "10.128.0.0/14",
+  "HostPrefix": "/23",
+  "ApplicationIngress": "Use default settings",
+  "UpdateStrategy": "Individual updates",
+  "NodeDraining": "60 minutes",
+  "MachinePools": [
+    {
+      "Name": "worker",
+      "InstanceType": "custom-4-16384",
+      "AvailabilityZones": "us-west-2a, us-west-2b, us-west-2c",
+      "NodeCount": 1,
+      "Autoscaling": "Disabled",
+      "Labels": [
+        {
+          "Key": "ocmplaywright-tests",
+          "Value": "osd-gcp-curated-marketplace"
+        }
+      ]
+    }
+  ],
+  "networking": {
+    "CIDRRanges": {
+      "MachineCIDR": "10.0.0.0/16",
+      "ServiceCIDR": "172.30.0.0/16",
+      "PodCIDR": "10.128.0.0/14",
+      "Hostprefix": "/23"
+    }
+  }
+}

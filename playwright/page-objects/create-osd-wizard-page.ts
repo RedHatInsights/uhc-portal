@@ -28,10 +28,54 @@ export class CreateOSDWizardPage extends BasePage {
   async isBillingModelScreen(): Promise<void> {
     await expect(
       this.page.getByRole('heading', { name: 'Welcome to Red Hat OpenShift Dedicated' }),
+    ).toBeVisible({ timeout: 60000 });
+  }
+
+  async isCuratedBillingModelEnabledAndSelected(): Promise<void> {
+    await expect(this.subscriptionTypeOnDemandFlexibleRadio()).toBeChecked();
+    await expect(this.infrastructureTypeClusterCloudSubscriptionRadio()).toBeChecked();
+    await expect(this.infrastructureTypeRedHatCloudAccountRadio()).not.toBeVisible();
+    await expect(this.subscriptionTypeAnnualFixedCapacityRadio()).not.toBeVisible();
+    await expect(this.subscriptionTypeFreeTrialRadio()).not.toBeVisible();
+  }
+
+  async isOnlyGCPCloudProviderSelectionScreen(): Promise<void> {
+    await expect(
+      this.page.getByRole('heading', { name: 'Google Cloud account details' }),
+    ).toBeVisible({
+      timeout: 30000,
+    });
+    await expect(
+      this.page.getByRole('heading', { name: 'Select a cloud provider' }),
+    ).not.toBeVisible();
+  }
+
+  async isWIFRecommendationAlertPresent(): Promise<void> {
+    await expect(
+      this.page
+        .locator('h4')
+        .filter({ hasText: 'Red Hat recommends using WIF as the authentication type' }),
     ).toBeVisible();
   }
 
-  async waitAndClick(buttonLocator: Locator, timeout: number = 60000): Promise<void> {
+  async isPrerequisitesHintPresent(): Promise<void> {
+    await expect(
+      this.page.locator('strong').filter({ hasText: 'Have you prepared your Google account?' }),
+    ).toBeVisible();
+    await expect(
+      this.page.getByText(
+        "To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.",
+      ),
+    ).toBeVisible();
+    await expect(
+      this.page.getByRole('link', { name: 'Review Google terms and agreements' }),
+    ).toHaveAttribute(
+      'href',
+      'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
+    );
+  }
+
+  async waitAndClick(buttonLocator: Locator, timeout: number = 160000): Promise<void> {
     await buttonLocator.waitFor({ state: 'visible', timeout });
     await buttonLocator.click();
   }
@@ -44,8 +88,15 @@ export class CreateOSDWizardPage extends BasePage {
     return this.page.locator('input[aria-label="Machine type select search field"]');
   }
 
-  computeNodeCountSelect(): Locator {
-    return this.page.locator('select[name="nodes_compute"]');
+  computeNodeCountInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'Compute nodes' });
+  }
+
+  computeNodeCountIncrementButton(): Locator {
+    return this.page.getByRole('button', { name: 'Increment compute nodes' });
+  }
+  computeNodeCountDecrementButton(): Locator {
+    return this.page.getByRole('button', { name: 'Decrement compute nodes' });
   }
 
   get billingModelRedHatCloudAccountOption(): string {
@@ -498,7 +549,7 @@ export class CreateOSDWizardPage extends BasePage {
 
   // Additional billing model options
   subscriptionTypeOnDemandFlexibleRadio(): Locator {
-    return this.page.locator('input[name="billing_model"][value="marketplace-select"]');
+    return this.page.locator('input[name="billing_model"][value="marketplace-gcp"]');
   }
 
   infrastructureTypeRedHatCloudAccountRadio(): Locator {
@@ -514,11 +565,6 @@ export class CreateOSDWizardPage extends BasePage {
     } else if (subscriptionType.toLowerCase().includes('trial')) {
       await this.subscriptionTypeFreeTrialRadio().check();
     }
-  }
-
-  async selectMarketplaceSubscription(marketplace: string): Promise<void> {
-    await this.page.locator('div[name="marketplace_selection"]').locator('button').click();
-    await this.page.getByRole('button', { name: marketplace }).click();
   }
 
   async selectInfrastructureType(infrastructureType: string): Promise<void> {
