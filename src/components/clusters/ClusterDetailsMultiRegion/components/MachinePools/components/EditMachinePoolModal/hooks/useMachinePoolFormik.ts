@@ -31,6 +31,7 @@ import { MachinePool, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { getClusterMinNodes } from '../../../machinePoolsHelper';
+import { CapacityPreference } from '../fields/CapacityReservationField';
 import { TaintEffect } from '../fields/TaintEffectField';
 
 import useOrganization from './useOrganization';
@@ -58,6 +59,8 @@ export type EditMachinePoolValues = {
   maxSurge?: number;
   maxUnavailable?: number;
   nodeDrainTimeout?: number;
+  capacityReservationId?: string;
+  capacityPreference?: CapacityPreference;
 };
 
 type UseMachinePoolFormikArgs = {
@@ -111,6 +114,8 @@ const useMachinePoolFormik = ({
     let maxSurge;
     let maxUnavailable;
     let nodeDrainTimeout;
+    let capacityReservationId;
+    let capacityReservationPreference;
 
     autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas || minNodesRequired;
     autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas || minNodesRequired;
@@ -128,6 +133,8 @@ const useMachinePoolFormik = ({
       diskSize = machinePool.root_volume?.aws?.size || machinePool.root_volume?.gcp?.size;
     } else if (isNodePool(machinePool)) {
       diskSize = machinePool.aws_node_pool?.root_volume?.size;
+      capacityReservationId = machinePool.aws_node_pool?.capacity_reservation?.id;
+      capacityReservationPreference = machinePool.aws_node_pool?.capacity_reservation?.preference;
       const autoRepairValue = (machinePool as NodePool)?.auto_repair;
       autoRepair = autoRepairValue ?? true;
       maxSurge = machinePool.management_upgrade?.max_surge;
@@ -180,6 +187,8 @@ const useMachinePoolFormik = ({
       maxSurge: maxSurge ? parseInt(maxSurge, 10) : 1,
       maxUnavailable: maxUnavailable ? parseInt(maxUnavailable, 10) : 0,
       nodeDrainTimeout: nodeDrainTimeout || 0,
+      capacityReservationId: capacityReservationId || '',
+      capacityPreference: capacityReservationPreference || 'none',
     };
 
     if (isGCP) {
