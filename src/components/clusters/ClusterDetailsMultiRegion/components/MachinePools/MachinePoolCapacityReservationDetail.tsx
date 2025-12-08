@@ -6,6 +6,8 @@ import links from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 
+import { getCapacityPreferenceLabel } from './machinePoolsHelper';
+
 const MachinePoolCapacityReservationDetail = ({
   capacityReservationId,
   capacityReservationPreference,
@@ -28,12 +30,11 @@ const MachinePoolCapacityReservationDetail = ({
       />
     </Title>
     <GridItem className="capacity_reservation">
-      Reservation Preference: {capacityReservationPreference || 'N/A'}
+      Reservation Preference: {getCapacityPreferenceLabel(capacityReservationPreference)}
     </GridItem>
     <GridItem className="capacity_reservation">
       Reservation Id: {capacityReservationId || 'N/A'}
     </GridItem>
   </>
 );
-
 export default MachinePoolCapacityReservationDetail;

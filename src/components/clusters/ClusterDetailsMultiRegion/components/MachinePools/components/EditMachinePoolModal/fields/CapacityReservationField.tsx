@@ -1,11 +1,19 @@
 import React from 'react';
 import { useField } from 'formik';
+import semver from 'semver';
 
-// import semver  from 'semver';
-import { Flex, FlexItem, FormGroup, SelectOption } from '@patternfly/react-core';
+import {
+  Flex,
+  FlexItem,
+  FormGroup,
+  HelperText,
+  HelperTextItem,
+  SelectOption,
+} from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
+import getClusterVersion from '~/components/clusters/common/getClusterVersion';
 import ExternalLink from '~/components/common/ExternalLink';
 import TextField from '~/components/common/formik/TextField';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -34,11 +42,12 @@ const options = [
 
 const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldProps) => {
   const isCapacityReservationEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
-  const capacityReservationIdField = useField(crIdFieldId)[0];
   const capacityPreferenceField = useField(crPreferenceFieldId)[0];
 
-  console.log('capacityReservationIdField', capacityReservationIdField);
-  console.log('capacityPreferenceField', capacityPreferenceField);
+  const clusterVersion = getClusterVersion(cluster);
+  const requiredVersion = '4.19.0';
+  const isValidVersion = semver.gte(clusterVersion, requiredVersion);
+
   const canUseCapacityReservation =
     isHypershiftCluster(cluster) && isCapacityReservationEnabled && !isEdit;
 
@@ -64,7 +73,7 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
         />
       }
     >
-      <Flex>
+      <Flex className="pf-v6-u-ml-sm">
         <FlexItem>Reservation Preference: </FlexItem>
         <FlexItem>
           <SelectField
@@ -72,6 +81,7 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
             fieldId={crPreferenceFieldId}
             label={selectedOption.label}
             onSelect={onChange}
+            isDisabled={!isValidVersion}
           >
             {options.map((option) => (
               <SelectOption value={option.value}>{option.label}</SelectOption>
@@ -79,13 +89,21 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
           </SelectField>
         </FlexItem>
       </Flex>
-      {capacityPreferenceField.value === 'capacity-reservations-only' ? (
-        <Flex>
-          <FlexItem>Reservation Id: </FlexItem>
-          <FlexItem>
-            <TextField fieldId={crIdFieldId} isDisabled={isEdit} />
-          </FlexItem>
-        </Flex>
+      <Flex className="pf-v6-u-ml-sm pf-v6-u-mt-sm">
+        <FlexItem>Reservation Id: </FlexItem>
+        <FlexItem>
+          <TextField
+            fieldId={crIdFieldId}
+            isDisabled={capacityPreferenceField.value !== 'capacity-reservations-only'}
+          />
+        </FlexItem>
+      </Flex>
+      {!isValidVersion ? (
+        <HelperText>
+          <HelperTextItem>
+            Capacity Reservation requires control plane version {requiredVersion} or above
+          </HelperTextItem>
+        </HelperText>
       ) : null}
     </FormGroup>
   ) : null;

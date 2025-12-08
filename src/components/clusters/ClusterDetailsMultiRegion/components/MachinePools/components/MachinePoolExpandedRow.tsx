@@ -120,7 +120,7 @@ const MachinePoolExpandedRow = ({
     () => labelsTagsRenderer(machinePool.labels || {}),
     [machinePool.labels],
   );
-  console.log('machinePool', machinePool);
+
   return (
     <Grid hasGutter>
       {(labelsAvailable || (awsTagsNewMP && awsTagsAvailable)) && (
