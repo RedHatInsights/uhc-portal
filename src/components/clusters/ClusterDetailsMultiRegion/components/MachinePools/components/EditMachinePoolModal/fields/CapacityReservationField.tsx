@@ -13,7 +13,6 @@ import {
 
 import links from '~/common/installLinks.mjs';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
-import getClusterVersion from '~/components/clusters/common/getClusterVersion';
 import ExternalLink from '~/components/common/ExternalLink';
 import TextField from '~/components/common/formik/TextField';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -44,9 +43,11 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
   const isCapacityReservationEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
   const capacityPreferenceField = useField(crPreferenceFieldId)[0];
 
-  const clusterVersion = getClusterVersion(cluster);
+  const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
   const requiredVersion = '4.19.0';
-  const isValidVersion = semver.gte(clusterVersion, requiredVersion);
+  const isValidVersion = semver.valid(clusterVersion)
+    ? semver.gte(clusterVersion, requiredVersion)
+    : false;
 
   const canUseCapacityReservation =
     isHypershiftCluster(cluster) && isCapacityReservationEnabled && !isEdit;
