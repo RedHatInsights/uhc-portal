@@ -187,8 +187,6 @@ const useMachinePoolFormik = ({
       maxSurge: maxSurge ? parseInt(maxSurge, 10) : 1,
       maxUnavailable: maxUnavailable ? parseInt(maxUnavailable, 10) : 0,
       nodeDrainTimeout: nodeDrainTimeout || 0,
-      capacityReservationId: capacityReservationId || '',
-      capacityPreference: capacityReservationPreference || 'none',
     };
 
     if (isGCP) {
@@ -199,6 +197,8 @@ const useMachinePoolFormik = ({
       // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
       machinePoolData.isWindowsLicenseIncluded = false; // This involves extra costs, let's keep it false by default
       // (machinePool as MachinePool)?.aws?.windows_license_included || false;
+      machinePoolData.capacityPreference = capacityReservationPreference || 'none';
+      machinePoolData.capacityReservationId = capacityReservationId || '';
     }
 
     return machinePoolData;
