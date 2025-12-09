@@ -304,7 +304,13 @@ const ClusterRolesScreen = () => {
             <GridItem>
               <Content component={ContentVariants.p}>
                 Choose the preferred mode for creating the operator roles and OIDC provider.{' '}
-                <ExternalLink href={links.ROSA_AWS_IAM_RESOURCES}>
+                <ExternalLink
+                  href={
+                    isHypershift
+                      ? links.ROSA_AWS_IAM_RESOURCES
+                      : links.ROSA_AWS_CLASSIC_IAM_RESOURCES
+                  }
+                >
                   Learn more about ROSA roles
                 </ExternalLink>
               </Content>

@@ -45,7 +45,7 @@ import AddUserDialog from './AddUserDialog';
 import canAllowAdminHelper from './UsersHelper';
 
 const UsersSection = (props) => {
-  const { cluster, clusterHibernating, isReadOnly, region, isROSA } = props;
+  const { cluster, clusterHibernating, isReadOnly, region, isROSA, isHypershift } = props;
 
   const dispatch = useDispatch();
 
@@ -72,6 +72,9 @@ const UsersSection = (props) => {
   } = useDeleteUser(cluster.id, region);
 
   const isAddUserModalOpen = useGlobalState((state) => shouldShowModal(state, 'add-user'));
+  const iamOperatorRolesLink = isHypershift
+    ? links.ROSA_AWS_IAM_OPERATOR_ROLES
+    : links.ROSA_AWS_CLASSIC_IAM_OPERATOR_ROLES;
 
   const canAddClusterAdmin = canAllowAdminHelper(cluster);
   const clusterGroupUsers = users;
@@ -237,9 +240,7 @@ const UsersSection = (props) => {
         </StackItem>
         <StackItem>
           <p>
-            <ExternalLink
-              href={isROSA ? links.ROSA_AWS_IAM_OPERATOR_ROLES : links.OSD_DEDICATED_ADMIN_ROLE}
-            >
+            <ExternalLink href={isROSA ? iamOperatorRolesLink : links.OSD_DEDICATED_ADMIN_ROLE}>
               Learn more.
             </ExternalLink>
           </p>
@@ -276,6 +277,7 @@ const UsersSection = (props) => {
         clusterID={cluster.id}
         canAddClusterAdmin={canAddClusterAdmin}
         isROSA={isROSA}
+        isHypershift={isHypershift}
       />
     </>
   );
@@ -287,6 +289,7 @@ UsersSection.propTypes = {
   clusterHibernating: PropTypes.bool.isRequired,
   isReadOnly: PropTypes.bool.isRequired,
   isROSA: PropTypes.bool.isRequired,
+  isHypershift: PropTypes.bool.isRequired,
 };
 
 export default UsersSection;

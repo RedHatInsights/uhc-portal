@@ -42,7 +42,7 @@ function CustomOperatorRoleNames() {
                 You can specify a custom prefix for the cluster-specific Operator IAM roles to use.{' '}
                 <br />
                 See examples in{' '}
-                <ExternalLink href={links.ROSA_AWS_IAM_OPERATOR_ROLES}>
+                <ExternalLink href={links.ROSA_AWS_CLASSIC_IAM_OPERATOR_ROLES}>
                   Defining a custom Operator IAM role prefix
                 </ExternalLink>
               </Content>

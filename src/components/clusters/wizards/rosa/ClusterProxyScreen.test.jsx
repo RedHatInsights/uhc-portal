@@ -28,7 +28,7 @@ jest.mock('~/components/common/ReduxFormComponents_deprecated/ReduxFileUpload', 
 ));
 
 // Formik wrapper to provide context for useFormState
-const buildTestComponent = (formValues = {}) => (
+const buildTestComponent = (children, formValues = {}) => (
   <Formik
     initialValues={{
       [FieldId.HttpProxyUrl]: '',
@@ -39,7 +39,7 @@ const buildTestComponent = (formValues = {}) => (
     }}
     onSubmit={jest.fn()}
   >
-    <ClusterProxyScreen />
+    {children}
   </Formik>
 );
 
@@ -48,15 +48,11 @@ describe('<ClusterProxyScreen />', () => {
     jest.clearAllMocks();
   });
 
-  it('renders expected labels and help, including documentation link', async () => {
-    render(buildTestComponent());
+  it('renders expected labels and help', async () => {
+    render(buildTestComponent(<ClusterProxyScreen isHypershiftSelected />));
 
     expect(screen.getByText('Cluster-wide proxy')).toBeInTheDocument();
     expect(screen.getByText('Configure at least 1 of the following fields:')).toBeInTheDocument();
-
-    const learnMoreLink = screen.getByText('Learn more about configuring a cluster-wide proxy');
-    expect(learnMoreLink).toBeInTheDocument();
-    expect(learnMoreLink).toHaveAttribute('href', links.ROSA_CLUSTER_WIDE_PROXY);
 
     // Labels exist
     expect(screen.getByLabelText('HTTP proxy URL')).toBeInTheDocument();
@@ -65,15 +61,31 @@ describe('<ClusterProxyScreen />', () => {
     expect(screen.getByText('MOCKED UPLOAD')).toBeInTheDocument();
   });
 
+  it('renders rosa HCP documentation link when hypershift is selected', async () => {
+    render(buildTestComponent(<ClusterProxyScreen isHypershiftSelected />));
+
+    const learnMoreLink = screen.getByText('Learn more about configuring a cluster-wide proxy');
+    expect(learnMoreLink).toBeInTheDocument();
+    expect(learnMoreLink).toHaveAttribute('href', links.ROSA_CLUSTER_WIDE_PROXY);
+  });
+
+  it('renders rosa classic documentation link when classic is selected', async () => {
+    render(buildTestComponent(<ClusterProxyScreen isHypershiftSelected={false} />));
+
+    const learnMoreLink = screen.getByText('Learn more about configuring a cluster-wide proxy');
+    expect(learnMoreLink).toBeInTheDocument();
+    expect(learnMoreLink).toHaveAttribute('href', links.ROSA_CLASSIC_CLUSTER_WIDE_PROXY);
+  });
+
   it('disables No Proxy domains when no HTTP/HTTPS URLs are set and shows disabled placeholder', async () => {
-    render(buildTestComponent());
+    render(buildTestComponent(<ClusterProxyScreen isHypershiftSelected />));
     const noProxy = screen.getByLabelText('No Proxy domains');
     expect(noProxy).toBeDisabled();
     expect(noProxy).toHaveAttribute('placeholder', DISABLED_NO_PROXY_PLACEHOLDER);
   });
 
   it('enables No Proxy domains and changes placeholder when HTTP proxy URL is provided', async () => {
-    const { user } = render(buildTestComponent());
+    const { user } = render(buildTestComponent(<ClusterProxyScreen isHypershiftSelected />));
     const httpInput = screen.getByLabelText('HTTP proxy URL');
     const noProxy = screen.getByLabelText('No Proxy domains');
 
@@ -84,7 +96,7 @@ describe('<ClusterProxyScreen />', () => {
   });
 
   it('shows warning prompting to complete at least one field after a field is blurred empty', async () => {
-    const { user } = render(buildTestComponent());
+    const { user } = render(buildTestComponent(<ClusterProxyScreen isHypershiftSelected />));
     const httpInput = screen.getByLabelText('HTTP proxy URL');
 
     // Focus then blur without entering a value to set anyTouched
@@ -98,7 +110,7 @@ describe('<ClusterProxyScreen />', () => {
     const goToStepByName = jest.fn();
     useWizardContext.mockReturnValue({ goToStepByName });
 
-    const { user } = render(buildTestComponent());
+    const { user } = render(buildTestComponent(<ClusterProxyScreen isHypershiftSelected />));
     const httpInput = screen.getByLabelText('HTTP proxy URL');
     await user.click(httpInput);
     await user.tab();
@@ -112,7 +124,9 @@ describe('<ClusterProxyScreen />', () => {
 
   it('hides the warning when Additional trust bundle has content', async () => {
     const { user } = render(
-      buildTestComponent({ [FieldId.AdditionalTrustBundle]: 'I am a trust bundle' }),
+      buildTestComponent(<ClusterProxyScreen isHypershiftSelected />, {
+        [FieldId.AdditionalTrustBundle]: 'I am a trust bundle',
+      }),
     );
 
     // Touch a field to trigger anyTouched
@@ -127,7 +141,7 @@ describe('<ClusterProxyScreen />', () => {
   });
 
   it('is accessible', async () => {
-    const { container } = render(buildTestComponent());
+    const { container } = render(buildTestComponent(<ClusterProxyScreen isHypershiftSelected />));
     await checkAccessibility(container);
   });
 });

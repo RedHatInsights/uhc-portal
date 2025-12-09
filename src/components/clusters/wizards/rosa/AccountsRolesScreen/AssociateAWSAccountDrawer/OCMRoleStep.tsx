@@ -4,6 +4,8 @@ import { Alert, AlertVariant, Content, ContentVariants, Title } from '@patternfl
 
 import { trackEvents } from '~/common/analytics';
 import links from '~/common/installLinks.mjs';
+import { useFormState } from '~/components/clusters/wizards/hooks';
+import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import InstructionCommand from '~/components/common/InstructionCommand';
 import PopoverHintWithTitle from '~/components/common/PopoverHintWithTitle';
@@ -17,6 +19,12 @@ import ToggleGroupTabs from './common/ToggleGroupTabs';
 
 const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
   const { expandable } = props;
+
+  const {
+    values: { [FieldId.Hypershift]: hypershiftValue },
+  } = useFormState();
+  const isHypershiftSelected = hypershiftValue === 'true';
+
   return (
     <AssociateAWSAccountStep {...props}>
       <Title headingLevel="h4" className="pf-v6-u-mb-md" size="md">
@@ -50,7 +58,14 @@ const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
         bodyContent={
           <>
             The link creates a trust policy between the role and the link cluster installer.{' '}
-            <ExternalLink href={links.ROSA_AWS_ACCOUNT_ASSOCIATION} noIcon>
+            <ExternalLink
+              href={
+                isHypershiftSelected
+                  ? links.ROSA_AWS_ACCOUNT_ASSOCIATION
+                  : links.ROSA_AWS_CLASSIC_ACCOUNT_ASSOCIATION
+              }
+              noIcon
+            >
               Review the AWS policy permissions for the basic and admin OCM roles.
             </ExternalLink>
           </>

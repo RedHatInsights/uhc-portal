@@ -82,11 +82,13 @@ function CustomerOIDCConfiguration({
   const {
     getFieldProps,
     getFieldMeta,
-    values: { [FieldId.RegionalInstance]: regionalInstance },
+    values: { [FieldId.RegionalInstance]: regionalInstance, [FieldId.Hypershift]: hypershiftValue },
   } = useFormState();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isRefreshLoading, setIsRefreshLoading] = useState(false);
   const [oidcConfigs, setOidcConfigs] = useState([]);
+
+  const isHypershift = hypershiftValue === 'true';
 
   const {
     data: oidcData,
@@ -235,7 +237,13 @@ function CustomerOIDCConfiguration({
                 You can specify a custom prefix for the cluster-specific Operator IAM roles to use.{' '}
                 <br />
                 See examples in{' '}
-                <ExternalLink href={links.ROSA_AWS_IAM_OPERATOR_ROLES}>
+                <ExternalLink
+                  href={
+                    isHypershift
+                      ? links.ROSA_AWS_IAM_OPERATOR_ROLES
+                      : links.ROSA_AWS_CLASSIC_IAM_OPERATOR_ROLES
+                  }
+                >
                   Defining a custom Operator IAM role prefix
                 </ExternalLink>
               </Content>
