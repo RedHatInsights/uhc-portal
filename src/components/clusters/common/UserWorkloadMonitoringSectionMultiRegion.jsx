@@ -36,7 +36,9 @@ function UserWorkloadMonitoringSection({ parent, disableUVM, planType }) {
           <>
             {constants.enableUserWorkloadMonitoringHelp}{' '}
             {isROSA || isOSD ? (
-              <ExternalLink href={isROSA ? links.ROSA_MONITORING : links.OSD_MONITORING_STACK}>
+              <ExternalLink
+                href={isROSA ? links.ROSA_CLASSIC_MONITORING : links.OSD_MONITORING_STACK}
+              >
                 Learn more
               </ExternalLink>
             ) : null}

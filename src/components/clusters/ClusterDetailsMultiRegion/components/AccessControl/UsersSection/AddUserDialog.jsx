@@ -24,12 +24,17 @@ const AddUserDialog = ({
   isAddUserSuccess,
   resetAddUserMutate,
   isROSA,
+  isHypershift,
 }) => {
   const dispatch = useDispatch();
 
   const [selectedGroup, setSelectedGroup] = React.useState('dedicated-admins');
   const [userId, setUserId] = React.useState('');
   const [userIdTouched, setUserIdTouched] = React.useState(false);
+
+  const iamOperatorRolesLink = isHypershift
+    ? links.ROSA_AWS_IAM_OPERATOR_ROLES
+    : links.ROSA_AWS_CLASSIC_IAM_OPERATOR_ROLES;
 
   const resetInitialState = () => {
     setSelectedGroup('dedicated-admins');
@@ -127,9 +132,7 @@ const AddUserDialog = ({
                     {isROSA ? 'Service on AWS' : 'Dedicated'}. Users can perform administrative
                     actions listed in the{' '}
                     <ExternalLink
-                      href={
-                        isROSA ? links.ROSA_AWS_IAM_OPERATOR_ROLES : links.OSD_DEDICATED_ADMIN_ROLE
-                      }
+                      href={isROSA ? iamOperatorRolesLink : links.OSD_DEDICATED_ADMIN_ROLE}
                     >
                       documentation
                     </ExternalLink>
@@ -180,6 +183,7 @@ AddUserDialog.propTypes = {
   addUserError: PropTypes.object,
   isAddUserSuccess: PropTypes.bool.isRequired,
   isROSA: PropTypes.bool.isRequired,
+  isHypershift: PropTypes.bool.isRequired,
 };
 
 AddUserDialog.defaultProps = {
