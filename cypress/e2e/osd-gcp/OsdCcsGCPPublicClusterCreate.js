@@ -52,6 +52,14 @@ describe(
       if (clusterProperties.CloudProvider.includes('Google Cloud')) {
         CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       }
+      CreateOSDWizardPage.selectChannelGroup(clusterProperties.EUSChannelGroup);
+      CreateOSDWizardPage.getChannelGroupSelector()
+      .should('have.value', 'eus');
+      cy.log(`✅ EUS channel group selected`);
+
+      CreateOSDWizardPage.selectVersion(clusterProperties.EUSVersion);
+      cy.log(`✅ EUS version selected: ${clusterProperties.EUSVersion}`);
+      
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
       CreateOSDWizardPage.wizardNextButton().click();
     });

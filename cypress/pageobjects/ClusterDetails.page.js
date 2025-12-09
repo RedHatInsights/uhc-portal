@@ -12,6 +12,139 @@ class ClusterDetails extends Page {
   editConsoleURLDialogInput = () => cy.get('input[id="edit-console-url-input"]');
 
   clusterOwnerLink = () => cy.getByTestId('ownerTranswerOverviewLink');
+  channelGroupSelector = () => cy.getByTestId('channelGroupModal').scrollIntoView().should('exist');
+
+  channelGroupModal = () =>
+    cy.get('[role="dialog"][aria-labelledby="edit-channel-group-modal"]', { timeout: 10000 });
+
+  channelGroupModalHeader = () => cy.get('header').contains('Edit channel group');
+
+  channelGroupModalSelect = () => cy.get('select[name="channelGroup"]');
+
+  channelGroupModalOptions = () => cy.get('select[name="channelGroup"]').find('option');
+
+  channelGroupModalSaveButton = () => cy.contains('button', 'Save');
+
+  channelGroupModalCancelButton = () => cy.contains('button', 'Cancel');
+
+  /**
+   * Verifies that an error alert is displayed in the channel group modal.
+   * Accepts errors containing 'Changing a channel group', 'CLUSTERS-MGMT', or 'upgrade policy'.
+   * @param {number} timeout - Optional timeout in ms (default: 10000)
+   */
+  verifyChannelGroupModalError(timeout = 10000) {
+    cy.get('[role="dialog"]', { timeout }).within(() => {
+      cy.get('[class*="alert"], [role="alert"]')
+        .should('exist')
+        .then(($alert) => {
+          const alertText = $alert.text();
+          const hasExpectedError =
+            alertText.includes('Changing a channel group') ||
+            alertText.includes('CLUSTERS-MGMT') ||
+            alertText.includes('upgrade policy');
+          expect(hasExpectedError, `Expected error message but got: ${alertText}`).to.be.true;
+          cy.log(`✅ Error message verified: ${alertText}`);
+        });
+    });
+  }
+
+  versionUpdateButton = () => cy.contains('button', 'Update');
+  // Upgrade Wizard elements
+  upgradeWizardModal = () => cy.get('[role="dialog"][aria-label="Wizard modal"]');
+
+  upgradeWizardRecommendedVersionRadio = () =>
+    cy.contains('Recommended').parents('[class*="card"]').find('input[type="radio"]');
+
+  upgradeWizardFirstVersionRadio = () =>
+    cy.get('[role="dialog"]').find('input[type="radio"]').first();
+
+  upgradeWizardNextButton = () => cy.contains('button', 'Next');
+
+  upgradeWizardBackButton = () => cy.contains('button', 'Back');
+
+  upgradeWizardCancelButton = () => cy.get('[role="dialog"]').contains('button', 'Cancel');
+
+  upgradeWizardScheduleUpdateTitle = () => cy.contains('h3', 'Schedule update');
+
+  upgradeWizardUpdateNowRadio = () => cy.get('input[id="upgrade-schedule-now"]');
+
+  upgradeWizardScheduleDifferentTimeRadio = () =>
+    cy.contains('label', 'Schedule a different time').find('input[type="radio"]');
+
+  upgradeWizardConfirmationTitle = () => cy.contains('h3', 'Confirmation of your update');
+
+  upgradeWizardConfirmButton = () => cy.contains('button', 'Confirm update');
+
+  upgradeSuccessModal = () => cy.get('[role="dialog"][class*="modal"]');
+
+  upgradeSuccessTitle = () => cy.contains('h4', 'Scheduled cluster update');
+
+  upgradeSuccessMessage = () =>
+    cy.contains('Your update was successfully scheduled to start within the next hour');
+
+  upgradeSuccessCloseButton = () => cy.contains('button', 'Close');
+
+  // Update scheduled section elements
+  updateScheduledSection = () => cy.contains('dt', 'Update scheduled:').parent();
+
+  updateStatusSection = () => cy.contains('Update status').parent();
+
+  viewScheduledUpdateDetailsLink = () =>
+    cy.get('button.cluster-inline-link').contains('View details');
+
+  cancelUpdateLink = () => cy.contains('button', 'Cancel this update');
+
+  // Popover selector - works across PF versions
+  popoverSelector = () =>
+    cy.get('[class*="popover"][data-popper-placement], [role="dialog"][class*="popover"]');
+
+  // Shared helper: Get cancel button scoped to popover (prevents flaky behavior with multiple elements)
+  getCancelScheduledUpdateButton() {
+    return this.popoverSelector()
+      .should('be.visible')
+      .find('button#ocm-upgrade-status-cancel')
+      .should('be.visible');
+  }
+
+  // Open update status popover by clicking View details
+  openUpdateStatusPopover() {
+    cy.log('📋 Opening update status popover');
+    this.viewScheduledUpdateDetailsLink().should('be.visible').click({ force: true });
+    this.popoverSelector().should('be.visible');
+    cy.log('✅ Update status popover opened');
+  }
+
+  // Cancel scheduled update from the popover (assumes popover is already open)
+  cancelScheduledUpdateFromPopover() {
+    cy.log('🔍 Canceling scheduled update from popover');
+
+    // Click "Cancel this update" button using shared scoped helper
+    this.getCancelScheduledUpdateButton().click({ force: true });
+    cy.log('✅ Clicked Cancel this update');
+
+    // Confirm cancellation in the modal
+    cy.getByTestId('btn-primary').should('be.visible').click();
+    cy.log('✅ Scheduled update cancelled successfully');
+  }
+
+  // Full flow: Open popover and cancel the scheduled update
+  cancelScheduledUpdate() {
+    cy.log('🚫 Canceling scheduled update');
+
+    // Open the popover
+    this.openUpdateStatusPopover();
+
+    // Cancel using the shared scoped helper
+    this.cancelScheduledUpdateFromPopover();
+
+    cy.log('✅ Update cancelled successfully');
+  }
+
+  // Close update status popover
+  closeUpdateStatusPopover() {
+    cy.log('❌ Closing update status popover');
+    this.popoverSelector().find('button[aria-label="Close"]').click({ force: true });
+  }
 
   editConsoleURLDialogConfirm = () =>
     cy

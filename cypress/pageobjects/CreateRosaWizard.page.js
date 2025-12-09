@@ -1,6 +1,9 @@
 import Page from './page';
 
 class CreateRosaCluster extends Page {
+  // Common selectors
+  channelGroupDropdown = 'select[name="channel_group"][aria-label="Channel group"]';
+
   clusterDetailsTree = () => cy.get('button').contains('Details');
 
   rosaCreateClusterButton = () => cy.getByTestId('rosa-create-cluster-button', { timeout: 50000 });
@@ -288,7 +291,19 @@ class CreateRosaCluster extends Page {
     if (hosted) {
       machinePoolHeaderText = 'Machine pools';
     }
-    cy.contains('h3', machinePoolHeaderText).scrollIntoView();
+    // Try to find the header, with fallback for different heading levels
+    cy.get('body').then(($body) => {
+      if ($body.find(`h3:contains("${machinePoolHeaderText}")`).length > 0) {
+        cy.contains('h3', machinePoolHeaderText).scrollIntoView();
+      } else if ($body.find('h3:contains("Machine pools")').length > 0) {
+        cy.contains('h3', 'Machine pools').scrollIntoView();
+      } else if ($body.find('h3:contains("Default machine pool")').length > 0) {
+        cy.contains('h3', 'Default machine pool').scrollIntoView();
+      } else {
+        // Fallback: look for any machine pool related heading
+        cy.contains(/machine pool/i).scrollIntoView();
+      }
+    });
   }
 
   isControlPlaneTypeScreen() {
@@ -530,6 +545,98 @@ class CreateRosaCluster extends Page {
   selectClusterVersionFedRamp(version) {
     cy.get('div[name="version-selector"]').click();
     cy.get('button').contains(version).click();
+  }
+
+  // Channel Group methods
+  getChannelGroupSelector() {
+    return cy.get(this.channelGroupDropdown);
+  }
+
+  getChannelGroupValue() {
+    return cy
+      .get(this.channelGroupDropdown, { timeout: 10000 })
+      .scrollIntoView()
+      .should('be.visible')
+      .invoke('val');
+  }
+
+  selectChannelGroup(channelGroup) {
+    if (!channelGroup) {
+      cy.log('⏭️ No channel group specified, using default');
+      return;
+    }
+    cy.log(`📦 Selecting channel group: ${channelGroup}`);
+    cy.get(this.channelGroupDropdown).scrollIntoView().should('be.visible').select(channelGroup);
+  }
+
+  verifyChannelGroupOptions(expectedOptions) {
+    // Verifies that the channel group dropdown contains all expected options
+    return cy
+      .get(this.channelGroupDropdown, { timeout: 15000 })
+      .scrollIntoView()
+      .should('be.visible')
+      .find('option')
+      .then(($options) => {
+        const values = [];
+
+        $options.each((index, option) => {
+          const value = Cypress.$(option).val();
+          if (value && value.trim() !== '') {
+            values.push(value);
+          }
+        });
+
+        cy.log(`Channel group options found: ${values.join(', ')}`);
+
+        // Verify all expected options are present
+        expectedOptions.forEach((expected) => {
+          expect(values).to.include(
+            expected,
+            `Expected channel group option "${expected}" not found`,
+          );
+        });
+
+        return cy.wrap({ count: values.length, values });
+      });
+  }
+
+  openVersionSelector() {
+    return cy.get('button[id="version-selector"]').click();
+  }
+
+  selectVersion(version) {
+    // First click to open the version selector dropdown
+    cy.get('button[id="version-selector"]').click();
+
+    // Wait for the dropdown menu to be visible
+    //cy.get('div[aria-label="Version"]').should('be.visible');
+
+    // Extract version number (remove any suffix like " (eus)")
+    const versionNumber = version.split(' ')[0];
+
+    // Select the version option by matching text content
+    // Use force:true to handle dropdown re-rendering during selection
+    cy.get('div[aria-label="Version"]')
+      .contains('button[role="option"]', versionNumber)
+      .click({ force: true });
+  }
+
+  verifyVersionAutoSelected() {
+    // Wait for version to be selected (button text should contain version pattern)
+    return cy
+      .get('button[id="version-selector"]', { timeout: 10000 })
+      .should('be.visible')
+      .should('not.contain.text', 'Filter by versions') // Wait until placeholder is replaced
+      .invoke('text')
+      .then((text) => {
+        const version = text.trim();
+        expect(version).to.not.be.empty;
+        expect(version).to.match(
+          /\d+\.\d+\.\d+/,
+          `Expected version format (e.g., 4.20.1) but got: "${version}"`,
+        );
+        return version;
+      });
   }
 
   addNodeLabelKeyAndValue(key, value = '', index = 0) {

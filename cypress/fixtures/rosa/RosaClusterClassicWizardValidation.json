@@ -1,4 +1,6 @@
 {
+  "DefaultChannelGroup": "stable",
+  "ChannelGroupOptions": ["stable", "fast", "candidate", "eus"],
   "ClusterSettings": {
     "Details": {
       "InvalidClusterNamesValues": [

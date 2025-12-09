@@ -52,7 +52,13 @@ describe(
         CreateOSDWizardPage.multiZoneAvilabilityRadio().check();
       }
       CreateOSDWizardPage.selectRegion(clusterProperties.Region);
+      CreateOSDWizardPage.selectChannelGroup(clusterProperties.EUSChannelGroup);
+      CreateOSDWizardPage.getChannelGroupSelector()
+      .should('have.value', 'eus');
+      cy.log(`✅ EUS channel group selected`);
 
+      CreateOSDWizardPage.selectVersion(clusterProperties.EUSVersion);
+      cy.log(`✅ EUS version selected: ${clusterProperties.EUSVersion}`);
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
 
       CreateOSDWizardPage.wizardNextButton().click();

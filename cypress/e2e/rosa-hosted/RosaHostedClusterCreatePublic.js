@@ -66,6 +66,14 @@ describe(
       CreateRosaWizardPage.isClusterDetailsScreen();
       CreateRosaWizardPage.setClusterName(clusterName);
       CreateRosaWizardPage.closePopoverDialogs();
+      CreateRosaWizardPage.selectChannelGroup(clusterProperties.EUSChannelGroup);
+      CreateRosaWizardPage.getChannelGroupSelector()
+      .should('have.value', 'eus');
+      cy.log(`✅ EUS channel group selected`);
+
+      CreateRosaWizardPage.selectVersion(clusterProperties.EUSVersion);
+      cy.log(`✅ EUS version selected: ${clusterProperties.EUSVersion}`);
+    
       CreateRosaWizardPage.createCustomDomainPrefixCheckbox().check();
       CreateRosaWizardPage.setDomainPrefix(clusterProperties.DomainPrefix);
       CreateRosaWizardPage.closePopoverDialogs();

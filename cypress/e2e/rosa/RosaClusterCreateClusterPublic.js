@@ -47,6 +47,14 @@ describe(
       CreateRosaWizardPage.setClusterName(clusterName);
       CreateRosaWizardPage.closePopoverDialogs();
       CreateRosaWizardPage.selectRegion(clusterProperties.Region);
+      CreateRosaWizardPage.selectChannelGroup(clusterProperties.EUSChannelGroup);
+      CreateRosaWizardPage.getChannelGroupSelector()
+        .should('have.value', 'eus');
+      cy.log(`✅ EUS channel group selected`);
+
+      CreateRosaWizardPage.selectVersion(clusterProperties.EUSVersion);
+      cy.log(`✅ EUS version selected: ${clusterProperties.EUSVersion}`);
+      
       CreateRosaWizardPage.selectAvailabilityZone(clusterProperties.Availability);
       CreateRosaWizardPage.rosaNextButton().click();
     });

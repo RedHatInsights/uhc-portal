@@ -12,6 +12,8 @@
       "UserWorkloadMonitoring": "Enabled",
       "Availability": "Single zone",
       "AdditionalEncryption": "Disabled",
+      "EUSVersion": "4.18.24 (eus)",
+      "EUSChannelGroup": "Extended Update Support (EUS)",
       "FIPSCryptography": "Disabled",
       "EncryptVolumesWithCustomerKeys": "Disabled",
       "InstallIntoExistingVPC": "Disabled",
@@ -63,11 +65,76 @@
             }
           ]
         }
-      ]
+      ],
+      "AvailableChannelGroups": ["Stable", "Fast", "Candidate", "Extended Update Support"],
+      "MinimumSupportedVersion": "4.17",
+      "clusterState": "Ready"
     },
     "day2-profile": {
       "SetMaximumPrice": "0.03",
       "Autoscaling": "Enabled",
+      "ChannelGroupDefinitions": {
+        "stable": {
+          "name": "Stable",
+          "value": "stable",
+          "description": "Production-ready releases with extended testing"
+        },
+        "fast": {
+          "name": "Fast",
+          "value": "fast",
+          "description": "Latest features with shorter release cycle"
+        },
+        "candidate": {
+          "name": "candidate",
+          "value": "candidate",
+          "description": "Pre-release versions for testing upcoming features"
+        },
+        "eus": {
+          "name": "Extended Update Support",
+          "value": "eus",
+          "description": "Extended support for even-numbered minor versions",
+          "eligibleVersions": ["4.14", "4.16", "4.18"]
+        }
+      },
+      "UpgradeScheduleStrategies": {
+        "individualUpdates": {
+          "name": "Individual updates",
+          "description": "Manually schedule updates one at a time",
+          "allowedChannelGroups": ["stable", "fast", "candidate", "eus"]
+        },
+        "recurringUpdates": {
+          "name": "Recurring updates",
+          "description": "Automatically apply updates within maintenance window",
+          "allowedChannelGroups": "None"
+        }
+      },
+      "errorCluster": {
+        "name": "cyp-channel-group-error-cluster-advanced",
+        "type": "OSD",
+        "cloudProvider": "AWS",
+        "currentVersion": "4.14.46",
+        "currentChannelGroup": "Stable",
+        "clusterState": "Error",
+        "updateStrategy": "Individual updates"
+      },
+      "installingCluster": {
+        "name": "cyp-channel-group-installing-cluster-advanced",
+        "type": "OSD",
+        "cloudProvider": "AWS",
+        "currentVersion": "4.14.46",
+        "currentChannelGroup": "Stable",
+        "clusterState": "Installing",
+        "updateStrategy": "Individual updates"
+      },
+      "hibernatingCluster": {
+        "name": "cyp-channel-group-hibernating-cluster-advanced",
+        "type": "OSD",
+        "cloudProvider": "AWS",
+        "currentVersion": "4.14.46",
+        "currentChannelGroup": "Stable",
+        "clusterState": "Hibernating",
+        "updateStrategy": "Recurring updates"
+      },
       "SecondaryAWSBillingAccountId": "463992265265",
       "IDPs": {
         "HtPasswd": {
