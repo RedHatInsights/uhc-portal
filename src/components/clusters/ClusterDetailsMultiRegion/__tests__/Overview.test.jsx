@@ -90,14 +90,19 @@ describe('<Overview />', () => {
       expect(screen.getByText('Cost breakdown')).toBeInTheDocument();
     });
 
-    it.skip('displays subscription settings', async () => {
-      // To function correctly this test needs a lot of redux setup
-
-      // Recommend testing SubscriptionSettings directly
+    it('displays subscription settings', async () => {
+      const testProps = {
+        ...props,
+        cluster: {
+          ...props.cluster,
+          subscription: subscriptionFixture.subscription,
+        },
+        subscription: subscriptionFixture.subscription,
+      };
 
       withState({
         clusters: { details: { cluster: { subscription: subscriptionFixture } } },
-      }).render(<Overview {...props} />);
+      }).render(<Overview {...testProps} />);
 
       expect(
         await screen.findByText(
