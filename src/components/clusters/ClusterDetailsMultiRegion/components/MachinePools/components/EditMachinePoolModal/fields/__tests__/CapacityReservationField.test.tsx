@@ -11,7 +11,7 @@ const MockFormikWrapper = ({
   children,
   initialValues = {
     capacityReservationId: '',
-    capacityPreference: 'none',
+    capacityReservationPreference: 'none',
   },
 }: {
   children: React.ReactNode;

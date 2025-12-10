@@ -194,7 +194,7 @@ export const hyperShiftExpectedInitialValues = {
   autoscaleMin: 2,
   replicas: 2,
   isWindowsLicenseIncluded: false,
-  capacityPreference: 'none',
+  capacityReservationPreference: 'none',
   capacityReservationId: '',
 };
 
