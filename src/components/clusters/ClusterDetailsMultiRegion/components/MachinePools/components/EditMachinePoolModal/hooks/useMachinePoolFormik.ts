@@ -31,7 +31,7 @@ import { MachinePool, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { getClusterMinNodes } from '../../../machinePoolsHelper';
-import { CapacityPreference } from '../fields/CapacityReservationField';
+import { CapacityReservationPreference } from '../fields/CapacityReservationField';
 import { TaintEffect } from '../fields/TaintEffectField';
 
 import useOrganization from './useOrganization';
@@ -60,7 +60,7 @@ export type EditMachinePoolValues = {
   maxUnavailable?: number;
   nodeDrainTimeout?: number;
   capacityReservationId?: string;
-  capacityPreference?: CapacityPreference;
+  capacityReservationPreference?: CapacityReservationPreference;
 };
 
 type UseMachinePoolFormikArgs = {
@@ -197,7 +197,7 @@ const useMachinePoolFormik = ({
       // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
       machinePoolData.isWindowsLicenseIncluded = false; // This involves extra costs, let's keep it false by default
       // (machinePool as MachinePool)?.aws?.windows_license_included || false;
-      machinePoolData.capacityPreference = capacityReservationPreference || 'none';
+      machinePoolData.capacityReservationPreference = capacityReservationPreference || 'none';
       machinePoolData.capacityReservationId = capacityReservationId || '';
     }
 
@@ -379,6 +379,10 @@ const useMachinePoolFormik = ({
             : Yup.number(),
           autoscaling: Yup.boolean(),
           auto_repair: Yup.boolean(),
+          capacityReservationId:
+            values.capacityReservationPreference === 'capacity-reservations-only'
+              ? Yup.string().required('Capacity reservation Id is required')
+              : Yup.string(),
           diskSize: rosa
             ? Yup.number()
                 .min(minDiskSize, `Disk size must be at least ${minDiskSize} GiB`)

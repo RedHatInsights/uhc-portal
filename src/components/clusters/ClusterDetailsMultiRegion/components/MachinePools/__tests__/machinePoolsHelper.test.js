@@ -896,7 +896,7 @@ describe('isEnforcedDefaultMachinePool', () => {
   describe('getCapacityPreferenceLabel', () => {
     it.each([
       ['', 'N/A'],
-      ['capacity-reservations-only', 'CR Only'],
+      ['capacity-reservations-only', 'CR only'],
       ['none', 'None'],
       ['open', 'Open'],
     ])('%p', (value, expected) =>

@@ -348,7 +348,7 @@ const canUseSpotInstances = (cluster: ClusterFromSubscription) => {
 
 const getCapacityPreferenceLabel = (preference: string | undefined) => {
   if (preference === 'capacity-reservations-only') {
-    return 'CR Only';
+    return 'CR only';
   }
   if (preference === 'none') {
     return 'None';
