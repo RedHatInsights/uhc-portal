@@ -82,7 +82,7 @@ function CIDRFields({
     undefined;
 
   const awsMachineCIDRMax =
-    isMultiAz || isHypershift === 'true'
+    isMultiAz || isHypershift
       ? validators.AWS_MACHINE_CIDR_MAX_MULTI_AZ
       : validators.AWS_MACHINE_CIDR_MAX_SINGLE_AZ;
 
