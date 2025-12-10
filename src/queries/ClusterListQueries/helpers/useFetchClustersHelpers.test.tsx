@@ -1,5 +1,7 @@
 import { queryClient } from '~/components/App/queryClient';
 import { queryConstants } from '~/queries/queriesConstants';
+import * as useGlobalState from '~/redux/hooks/useGlobalState';
+import { renderHook, waitFor } from '~/testUtils';
 import { ClusterWithPermissions, ViewOptions } from '~/types/types';
 
 import {
@@ -7,6 +9,7 @@ import {
   combineClusterQueries,
   createQueryKey,
   isExistingQuery,
+  useRefetchClusterList,
 } from './useFetchClustersHelpers';
 
 describe('useFetchClustersHelpers', () => {
@@ -117,9 +120,123 @@ describe('useFetchClustersHelpers', () => {
   });
 
   describe('useRefetchClusterList', () => {
-    it.skip('provides functions that set the refresh schedule', () => {});
+    let mockInvalidateQueries: jest.SpyInstance;
+    const mockedUseGlobalState = jest.spyOn(useGlobalState, 'useGlobalState');
 
-    it.skip('does not auto reload data when modal is open', () => {});
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.clearAllMocks();
+
+      jest.spyOn(global, 'setInterval');
+      jest.spyOn(global, 'clearInterval');
+
+      // Mock queryClient.invalidateQueries
+      mockInvalidateQueries = jest
+        .spyOn(queryClient, 'invalidateQueries')
+        .mockResolvedValue(undefined);
+
+      // Mock document.visibilityState
+      Object.defineProperty(document, 'visibilityState', {
+        writable: true,
+        value: 'visible',
+      });
+
+      // Mock navigator.onLine
+      Object.defineProperty(navigator, 'onLine', {
+        writable: true,
+        value: true,
+      });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+      mockInvalidateQueries.mockRestore();
+    });
+
+    it('provides functions that set the refresh schedule', async () => {
+      mockedUseGlobalState.mockImplementation((callback) =>
+        callback({ modal: { modalName: null } } as any),
+      );
+
+      const { result } = renderHook(() => useRefetchClusterList(false));
+
+      // Verify functions are returned
+      expect(result.current.refetch).toBeDefined();
+      expect(result.current.setRefetchSchedule).toBeDefined();
+      expect(result.current.clearRefetch).toBeDefined();
+
+      // Call setRefetchSchedule and verify interval is set
+      result.current.setRefetchSchedule();
+      expect(setInterval).toHaveBeenCalled();
+
+      // Advance time enough to trigger the interval (60 seconds)
+      jest.advanceTimersByTime(60000);
+
+      // Verify invalidateQueries was called
+      await waitFor(() => {
+        expect(mockInvalidateQueries).toHaveBeenCalled();
+      });
+
+      // Verify clearRefetch clears the interval
+      result.current.clearRefetch();
+      expect(clearInterval).toHaveBeenCalled();
+    });
+
+    it('does not auto reload data when modal is open', async () => {
+      // Start with modal closed
+      mockedUseGlobalState.mockImplementation((callback) =>
+        callback({ modal: { modalName: null } } as any),
+      );
+
+      const { result, rerender } = renderHook(() => useRefetchClusterList(false));
+
+      // Set up the refetch schedule
+      result.current.setRefetchSchedule();
+
+      // Open modal
+      mockedUseGlobalState.mockImplementation((callback) =>
+        callback({ modal: { modalName: 'someModal' } } as any),
+      );
+      rerender();
+
+      // Wait for the effect to update savedIsModalOpen
+      await waitFor(() => {
+        // The ref should be updated by the useEffect
+      });
+
+      // Clear previous calls
+      mockInvalidateQueries.mockClear();
+
+      // Advance time to trigger the interval
+      jest.advanceTimersByTime(60000);
+
+      // Verify invalidateQueries was NOT called because modal is open
+      await waitFor(() => {
+        expect(mockInvalidateQueries).not.toHaveBeenCalled();
+      });
+
+      // Close modal
+      mockedUseGlobalState.mockImplementation((callback) =>
+        callback({ modal: { modalName: null } } as any),
+      );
+      rerender();
+
+      // Wait for the effect to update
+      await waitFor(() => {
+        // The ref should be updated by the useEffect
+      });
+
+      // Clear previous calls
+      mockInvalidateQueries.mockClear();
+
+      // Advance time to trigger the interval again
+      jest.advanceTimersByTime(60000);
+
+      // Now verify invalidateQueries WAS called because modal is closed
+      await waitFor(() => {
+        expect(mockInvalidateQueries).toHaveBeenCalled();
+      });
+    });
   });
 
   describe('clearQueries', () => {

@@ -5,7 +5,7 @@ import apiRequest from '~/services/apiRequest';
 import { renderHook, waitFor } from '~/testUtils';
 
 import featureConstants, { HYPERSHIFT_WIZARD_FEATURE } from './featureConstants';
-import { getFeatureGate, preFetchAllFeatureGates, useFeatureGate } from './useFetchFeatureGate';
+import { preFetchAllFeatureGates, useFeatureGate } from './useFetchFeatureGate';
 
 type MockedJest = jest.Mocked<typeof axios> & jest.Mock;
 const apiRequestMock = apiRequest as unknown as MockedJest;
@@ -116,61 +116,6 @@ describe('useFetchFeatureGate', () => {
       expect(apiRequestMock.post).toHaveBeenCalled();
       await waitFor(() => {
         expect(result.current).toBeTruthy();
-      });
-    });
-  });
-
-  // Normally not used
-  // All of these tests are skipped because the function
-  // is looking at global queryClient and not the one set up in testUtils
-  // This causes bleeding across tests
-
-  describe('getFeatureGate', () => {
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
-
-    it.skip('returns false and does not make an API call if no feature is passed', async () => {
-      apiRequestMock.post.mockResolvedValueOnce({ data: { enabled: true } });
-      expect(apiRequestMock.post).not.toHaveBeenCalled();
-      // @ts-ignore
-      const result = await getFeatureGate(undefined);
-      await waitFor(() => {
-        expect(apiRequestMock.post).not.toHaveBeenCalled();
-      });
-      expect(result).toBeFalsy();
-    });
-
-    it.skip('returns true if enabled value of an API call is true', async () => {
-      apiRequestMock.post.mockResolvedValueOnce({ data: { enabled: true } });
-      expect(apiRequestMock.post).not.toHaveBeenCalled();
-      const result = await getFeatureGate(sampleFeature);
-
-      expect(apiRequestMock.post).toHaveBeenCalled();
-      await waitFor(() => {
-        expect(result).toBeTruthy();
-      });
-    });
-
-    it.skip('returns false if enabled value of an API call is false', async () => {
-      apiRequestMock.post.mockResolvedValueOnce({ data: { enabled: false } });
-      expect(apiRequestMock.post).not.toHaveBeenCalled();
-      const result = await getFeatureGate(sampleFeature);
-
-      expect(apiRequestMock.post).toHaveBeenCalled();
-      await waitFor(() => {
-        expect(result).toBeFalsy();
-      });
-    });
-
-    it.skip('returns false if data returned is not in expected value', async () => {
-      apiRequestMock.post.mockResolvedValueOnce({ data: { should_be_enabled: true } });
-      expect(apiRequestMock.post).not.toHaveBeenCalled();
-      const result = await getFeatureGate(sampleFeature);
-
-      expect(apiRequestMock.post).toHaveBeenCalled();
-      await waitFor(() => {
-        expect(result).toBeFalsy();
       });
     });
   });

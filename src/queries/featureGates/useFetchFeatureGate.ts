@@ -59,10 +59,3 @@ export const useFeatureGate = (feature: (typeof Features)[keyof typeof Features]
   const { data } = useQuery(featureGateQueryObj(feature));
   return data?.data ? data.data.enabled : false; // default to false while fetching value
 };
-
-// This should not normally be used
-// It is included to accommodate code that cannot use hooks
-export const getFeatureGate = async (feature: (typeof Features)[keyof typeof Features]) => {
-  const { data } = await queryClient.fetchQuery(featureGateQueryObj(feature));
-  return data?.enabled ? data.enabled : false; // default to false while fetching value
-};

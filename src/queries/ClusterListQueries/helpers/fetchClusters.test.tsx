@@ -84,8 +84,21 @@ describe('fetchGlobalClusters', () => {
       expect(result).toEqual({ managedClusters: [] });
     });
 
-    it.skip('returns an error if API call fails', () => {
-      // now mock down at the API level and have it throw an error
+    it('returns an error if API call fails', async () => {
+      const errorMessage = 'API call failed';
+      const mockError = new Error(errorMessage);
+
+      mockedSearchClusters.mockRejectedValueOnce(mockError);
+
+      const mockedSubscriptions = [{ ...mockedSubscription, cluster_id: 'my_cluster_id_1' }];
+
+      // @ts-ignore
+      mockGetClusterServiceForRegion.mockReturnValue({ searchClusters: mockedSearchClusters });
+
+      await expect(fetchManagedClusters(mockedSubscriptions, 'global')).rejects.toThrow(
+        errorMessage,
+      );
+      expect(mockedSearchClusters).toHaveBeenCalled();
     });
   });
 

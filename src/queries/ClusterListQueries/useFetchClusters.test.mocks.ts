@@ -96,6 +96,9 @@ export const managedClustersValueGlobal = {
     {
       id: 'myClusterId-managed-1',
       external_id: 'myClusterId-managed-external-id-1',
+      product: {
+        id: 'ROSA',
+      },
     },
   ],
 };
@@ -106,6 +109,9 @@ export const managedClustersValueRegional = {
       id: 'myClusterId-managed-2',
       external_id: 'myClusterId-managed-external-id-2',
       region: 'myRegion',
+      product: {
+        id: 'ROSA',
+      },
     },
   ],
 };
