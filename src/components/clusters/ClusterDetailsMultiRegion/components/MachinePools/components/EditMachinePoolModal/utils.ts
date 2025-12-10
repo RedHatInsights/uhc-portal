@@ -151,7 +151,7 @@ export const buildNodePoolRequest = (
       },
       capacity_reservation: {
         id: values.capacityReservationId,
-        preference: values.capacityPreference,
+        preference: values.capacityReservationPreference,
       },
     };
   }

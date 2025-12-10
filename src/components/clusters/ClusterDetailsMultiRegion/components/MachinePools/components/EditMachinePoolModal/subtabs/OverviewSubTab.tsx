@@ -38,7 +38,7 @@ const fieldsInTab = [
   FieldId.IMDS,
   'diskSize',
   'secure_boot',
-  'capacityPreference',
+  'capacityReservationPreference',
   'capacityReservationId',
 ];
 

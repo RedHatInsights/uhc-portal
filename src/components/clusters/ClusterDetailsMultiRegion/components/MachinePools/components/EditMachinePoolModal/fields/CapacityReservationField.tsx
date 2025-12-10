@@ -24,9 +24,9 @@ import { ClusterFromSubscription } from '~/types/types';
 import SelectField from './SelectField';
 
 const crIdFieldId = 'capacityReservationId';
-const crPreferenceFieldId = 'capacityPreference';
+const crPreferenceFieldId = 'capacityReservationPreference';
 
-export type CapacityPreference = 'none' | 'open' | 'capacity-reservations-only';
+export type CapacityReservationPreference = 'none' | 'open' | 'capacity-reservations-only';
 
 type CapacityReservationFieldProps = {
   cluster: ClusterFromSubscription;
@@ -42,7 +42,9 @@ const options = [
 const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldProps) => {
   const isCapacityReservationEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
   const capacityPreferenceField = useField(crPreferenceFieldId)[0];
-
+  const [, , helpers] = useField(crIdFieldId);
+  const { setValue } = helpers;
+  const isCROnly = capacityPreferenceField.value === 'capacity-reservations-only';
   const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
   const requiredVersion = '4.19.0';
   const isValidVersion = semver.valid(clusterVersion)
@@ -52,7 +54,14 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
   const canUseCapacityReservation =
     isHypershiftCluster(cluster) && isCapacityReservationEnabled && !isEdit;
 
-  const onChange = useFormikOnChange(crPreferenceFieldId);
+  const OnChange = useFormikOnChange(crPreferenceFieldId);
+
+  React.useEffect(() => {
+    if (!isCROnly) {
+      setValue('');
+    }
+  }, [isCROnly, setValue]);
+
   const selectedOption =
     options.find((option) => option.value === capacityPreferenceField.value) || options[0];
 
@@ -81,22 +90,23 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
             value={capacityPreferenceField.value}
             fieldId={crPreferenceFieldId}
             label={selectedOption.label}
-            onSelect={onChange}
+            onSelect={OnChange}
             isDisabled={!isValidVersion}
           >
             {options.map((option) => (
-              <SelectOption value={option.value}>{option.label}</SelectOption>
+              <SelectOption key={option.value} value={option.value}>
+                {option.label}
+              </SelectOption>
             ))}
           </SelectField>
         </FlexItem>
       </Flex>
       <Flex className="pf-v6-u-ml-sm pf-v6-u-mt-sm">
-        <FlexItem>Reservation Id: </FlexItem>
         <FlexItem>
-          <TextField
-            fieldId={crIdFieldId}
-            isDisabled={capacityPreferenceField.value !== 'capacity-reservations-only'}
-          />
+          Reservation Id: {isCROnly ? <span style={{ color: '#B1380B' }}>*</span> : null}
+        </FlexItem>
+        <FlexItem>
+          <TextField fieldId={crIdFieldId} isDisabled={!isCROnly} isRequired={isCROnly} />
         </FlexItem>
       </Flex>
       {!isValidVersion ? (
