@@ -256,7 +256,7 @@ describe('MachinePoolExpandedRow', () => {
           })}
         />,
       );
-      expect(screen.getByText('Reservation Preference: CR Only')).toBeInTheDocument();
+      expect(screen.getByText('Reservation Preference: CR only')).toBeInTheDocument();
       expect(screen.getByText('Reservation Id: capId1')).toBeInTheDocument();
     });
   });
