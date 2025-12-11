@@ -15,7 +15,11 @@ const config = {
   transformIgnorePatterns: [
     '<rootDir>/node_modules/(?!(@patternfly|react-monaco-editor|monaco-.*|lodash-es|screenfull|uuid|@openshift/dynamic-plugin-sdk|cidr-tools|ip-bigint)/)',
   ],
-  testPathIgnorePatterns: ['<rootDir>/cache/Cypress/', '^.+\\.(fixtures?)\\.[jt]sx?$'],
+  testPathIgnorePatterns: [
+    '<rootDir>/cache/Cypress/',
+    '^.+\\.(fixtures?)\\.[jt]sx?$',
+    '.*(TestUtils|Utils|Helper)(?!.*\\.(test|spec))\\.[jt]sx?$',
+  ],
   moduleNameMapper: {
     /* Map Assisted UI lib to a mock that defines the same API but won't import the actual code */
     '@openshift-assisted/ui-lib/ocm': '<rootDir>/__mocks__/assistedUiMock.ts',
