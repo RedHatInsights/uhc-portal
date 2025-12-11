@@ -13,6 +13,8 @@ import {
 import { CubesIcon } from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 
+import { getOCMResourceType } from '~/common/analytics';
+import { normalizedProducts } from '~/common/subscriptionTypes';
 import { useAddClusterAddOn } from '~/queries/ClusterDetailsQueries/AddOnsTab/useAddClusterAddOn';
 import { useDeleteClusterAddOn } from '~/queries/ClusterDetailsQueries/AddOnsTab/useDeleteClusterAddOn';
 import {
@@ -36,6 +38,10 @@ import { availableAddOns } from './AddOnsHelper';
 const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
   const dispatch = useDispatch();
   const organization = useGlobalState((state) => state.userProfile.organization);
+
+  // Calculate analytics resource type for tracking
+  const planType = cluster?.subscription?.plan?.id ?? normalizedProducts.UNKNOWN;
+  const analyticsResourceType = getOCMResourceType(planType);
   const {
     data: addOnsData,
     isError: isFetchAddOnsError,
@@ -154,6 +160,8 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
           response={addClusterAddOnError}
           showCloseBtn
           onCloseAlert={resetAddClusterAddon}
+          analyticsType="error-adding-add-on"
+          analyticsResourceType={analyticsResourceType}
         />
       )}
       <AddOnsDrawer

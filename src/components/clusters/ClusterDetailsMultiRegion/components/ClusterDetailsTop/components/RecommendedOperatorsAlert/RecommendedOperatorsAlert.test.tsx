@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { checkAccessibility, render, screen, userEvent, waitFor } from '~/testUtils';
+import { checkAccessibility, mockUseChrome, render, screen, userEvent, waitFor } from '~/testUtils';
 
 import clusterStates from '../../../../../common/clusterStates';
 
@@ -8,6 +8,8 @@ import { ALERT_MESSAGES, CARDS, TEST_CASES } from './fixtures';
 import { RecommendedOperatorsAlert, STATIC_ALERT_MESSAGES } from './RecommendedOperatorsAlert';
 
 import '@testing-library/jest-dom';
+
+mockUseChrome({ analytics: { track: () => {} } });
 
 describe('<RecommendedOperatorsAlert />', () => {
   const openLearnMore = jest.fn();
@@ -32,6 +34,7 @@ describe('<RecommendedOperatorsAlert />', () => {
           openLearnMore={openLearnMore}
           closeDrawer={closeDrawer}
           onDismissAlertCallback={onDismissAlertCallback}
+          planType="123"
         />,
       );
 
@@ -52,6 +55,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
         consoleURL="someLink"
+        planType="123"
       />,
     );
 
@@ -79,6 +83,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         openLearnMore={openLearnMore}
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
+        planType="123"
       />,
     );
 
@@ -97,6 +102,7 @@ describe('<RecommendedOperatorsAlert />', () => {
           closeDrawer={closeDrawer}
           onDismissAlertCallback={onDismissAlertCallback}
           consoleURL="someLink"
+          planType="123"
         />,
       );
 
@@ -131,6 +137,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
         consoleURL="someLink"
+        planType="123"
       />,
     );
 
@@ -154,6 +161,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         openLearnMore={openLearnMore}
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
+        planType="123"
       />,
     );
 
@@ -174,6 +182,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         openLearnMore={openLearnMore}
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
+        planType="123"
       />,
     );
 
@@ -205,6 +214,7 @@ describe('<RecommendedOperatorsAlert />', () => {
         closeDrawer={closeDrawer}
         onDismissAlertCallback={onDismissAlertCallback}
         consoleURL="someLink"
+        planType="123"
       />,
     );
 
