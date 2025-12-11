@@ -381,7 +381,7 @@ const links = {
   VIRTUAL_PRIVATE_CLOUD_URL: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-quickstart-guide#rosa-hcp-quickstart-creating-vpc`,
   AWS_CONTROL_PLANE_URL: `${OCP_DOCS_BASE}/architecture/control-plane#control-plane`,
 
-  ROSA_AWS_FEDRAMP: 'https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-rosa.html',
+  ROSA_AWS_FEDRAMP: `${ROSA_DOCS_BASE}/getting_started_with_rosa_govcloud/index`,
   FEDRAMP_ACCESS_REQUEST_FORM: 'https://console.redhat.com/openshift/create/rosa/govcloud',
   TERRAFORM_ROSA_HCP_URL: `${ROSA_DOCS_BASE}/install_clusters/creating-a-rosa-cluster-using-terraform`,
   TERRAFORM_REGISTRY_ROSA_HCP:

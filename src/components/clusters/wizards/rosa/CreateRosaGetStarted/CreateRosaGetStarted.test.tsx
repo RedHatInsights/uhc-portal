@@ -22,7 +22,7 @@ describe('<CreateRosaGetStarted />', () => {
       }),
     ).toHaveAttribute(
       'href',
-      'https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-rosa.html',
+      'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/getting_started_with_rosa_govcloud/index',
     );
     expect(
       screen.getByRole('link', { name: 'FedRAMP access request form (new window or tab)' }),
