@@ -138,7 +138,7 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
       </Flex>
       <Flex className="pf-v6-u-ml-sm pf-v6-u-mt-sm">
         <FlexItem>
-          Reservation Id: {isCROnly ? <span className="reservation-id-span">*</span> : null}
+          Reservation Id: {isCROnly ? <span style={{ color: '#B1380B' }}>*</span> : null}
         </FlexItem>
         <FlexItem>
           <TextField fieldId={crIdFieldId} isDisabled={!isCROnly} isRequired={isCROnly} />
