@@ -13,6 +13,7 @@ import {
 
 import links from '~/common/installLinks.mjs';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
+import { CAPACITY_RESERVATION_MIN_VERSION as requiredVersion } from '~/components/clusters/common/machinePools/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import TextField from '~/components/common/formik/TextField';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -22,6 +23,8 @@ import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { ClusterFromSubscription } from '~/types/types';
 
 import SelectField from './SelectField';
+
+import './CapacityReservationField.scss';
 
 const crIdFieldId = 'capacityReservationId';
 const crPreferenceFieldId = 'capacityReservationPreference';
@@ -39,6 +42,46 @@ const options = [
   { label: 'CR only', value: 'capacity-reservations-only' },
 ];
 
+export const capacityReservationHint = (showList: boolean, showPreferenceLink: boolean) => (
+  <Flex>
+    <FlexItem>
+      Capacity Reservations allow you to reserve compute capacity for Amazon EC2 instances. Requires
+      control plane version {requiredVersion} or above.
+    </FlexItem>
+    {showList ? (
+      <>
+        <FlexItem>Available options are:</FlexItem>
+        <FlexItem className="pf-v6-u-pl-sm">
+          <ul className="preference-list">
+            <li>
+              <strong>None</strong> to ensure these instances won’t use a reservation at all
+            </li>
+            <li>
+              <strong>Open</strong> to make use of an open reservation if applicable
+            </li>
+            <li>
+              <strong>CR only</strong> and a capacity reservation ID to target a specific
+              reservation
+            </li>
+          </ul>
+        </FlexItem>
+      </>
+    ) : null}
+    <FlexItem>
+      Learn more about{' '}
+      <ExternalLink href={links.AWS_CAPACITY_RESERVATION}>Capacity Reservations</ExternalLink>
+    </FlexItem>
+    {showPreferenceLink ? (
+      <FlexItem>
+        Learn more about{' '}
+        <ExternalLink href={links.AWS_CAPACITY_RESERVATION_PREFERENCE}>
+          Capacity Reservation Preferences
+        </ExternalLink>
+      </FlexItem>
+    ) : null}
+  </Flex>
+);
+
 const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldProps) => {
   const isCapacityReservationEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
   const capacityPreferenceField = useField(crPreferenceFieldId)[0];
@@ -46,7 +89,7 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
   const { setValue } = helpers;
   const isCROnly = capacityPreferenceField.value === 'capacity-reservations-only';
   const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
-  const requiredVersion = '4.19.0';
+
   const isValidVersion = semver.valid(clusterVersion)
     ? semver.gte(clusterVersion, requiredVersion)
     : false;
@@ -71,15 +114,7 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
       labelHelp={
         <PopoverHint
           buttonAriaLabel="Capacity reservation information"
-          hint={
-            <>
-              ID of Capacity Reservation or Capacity Blocks for ML. Requires control plane version
-              4.19.0 or above. Learn more about{' '}
-              <ExternalLink href={links.AWS_CAPACITY_RESERVATION}>
-                Capacity Reservations
-              </ExternalLink>
-            </>
-          }
+          hint={capacityReservationHint(true, true)}
         />
       }
     >
@@ -103,7 +138,7 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
       </Flex>
       <Flex className="pf-v6-u-ml-sm pf-v6-u-mt-sm">
         <FlexItem>
-          Reservation Id: {isCROnly ? <span style={{ color: '#B1380B' }}>*</span> : null}
+          Reservation Id: {isCROnly ? <span className="reservation-id-span">*</span> : null}
         </FlexItem>
         <FlexItem>
           <TextField fieldId={crIdFieldId} isDisabled={!isCROnly} isRequired={isCROnly} />

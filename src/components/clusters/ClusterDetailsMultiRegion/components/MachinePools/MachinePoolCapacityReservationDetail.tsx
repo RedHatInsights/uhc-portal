@@ -2,10 +2,9 @@ import React from 'react';
 
 import { GridItem, Title } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
-import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 
+import { capacityReservationHint } from './components/EditMachinePoolModal/fields/CapacityReservationField';
 import { getCapacityPreferenceLabel } from './machinePoolsHelper';
 
 const MachinePoolCapacityReservationDetail = ({
@@ -20,13 +19,7 @@ const MachinePoolCapacityReservationDetail = ({
       Capacity Reservation{' '}
       <PopoverHint
         buttonAriaLabel="Capacity reservation information"
-        hint={
-          <>
-            ID of Capacity Reservation or Capacity Blocks for ML. Requires control plane version
-            4.19.0 or above. Learn more about{' '}
-            <ExternalLink href={links.AWS_CAPACITY_RESERVATION}>Capacity Reservations</ExternalLink>
-          </>
-        }
+        hint={capacityReservationHint(false, false)}
       />
     </Title>
     <GridItem className="capacity_reservation">

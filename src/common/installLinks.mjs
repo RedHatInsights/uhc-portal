@@ -361,6 +361,8 @@ const links = {
   AWS_SHARED_VPC: 'https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html',
   AWS_CAPACITY_RESERVATION:
     'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/capacity-reservation-overview.html',
+  AWS_CAPACITY_RESERVATION_PREFERENCE:
+    'https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CapacityReservationSpecification.html',
 
   GCP_CONSOLE_OSD_HOME:
     'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
