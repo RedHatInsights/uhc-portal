@@ -1,6 +1,9 @@
 import Page from './page';
 
 class CreateOSDCluster extends Page {
+  // Common selectors
+  channelGroupDropdown = 'select[name="channel_group"][aria-label="Channel group"]';
+
   isCreateOSDPage() {
     super.assertUrlIncludes('/openshift/create/osd');
   }
@@ -45,6 +48,221 @@ class CreateOSDCluster extends Page {
         'href',
         'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
       );
+  }
+
+  getChannelGroupValue() {
+    // Returns the current selected channel group value
+    return cy
+      .get(this.channelGroupDropdown, { timeout: 10000 })
+      .scrollIntoView()
+      .should('be.visible')
+      .invoke('val');
+  }
+
+  getChannelGroupSelector() {
+    // Returns the channel group select element
+    return cy.get(this.channelGroupDropdown);
+  }
+
+  selectChannelGroup(channelGroup) {
+    if (!channelGroup) {
+      cy.log('⏭️ No channel group specified, using default');
+      return;
+    }
+    cy.log(`📦 Selecting channel group: ${channelGroup}`);
+    cy.get(this.channelGroupDropdown).scrollIntoView().should('be.visible').select(channelGroup);
+  }
+
+  verifyChannelGroupOptions(expectedOptions) {
+    // Verifies that the channel group dropdown contains all expected options
+    return cy
+      .get(this.channelGroupDropdown, { timeout: 15000 })
+      .scrollIntoView()
+      .should('be.visible')
+      .find('option')
+      .then(($options) => {
+        const values = [];
+
+        $options.each((index, option) => {
+          const value = Cypress.$(option).val();
+          if (value && value.trim() !== '') {
+            values.push(value);
+          }
+        });
+
+        cy.log(`Channel group options found: ${values.join(', ')}`);
+
+        // Verify all expected options are present
+        expectedOptions.forEach((expected) => {
+          expect(values).to.include(
+            expected,
+            `Expected channel group option "${expected}" not found`,
+          );
+        });
+
+        return cy.wrap({ count: values.length, values });
+      });
+  }
+
+  verifyChannelGroupDefault(expectedValue) {
+    // Verify that the channel group dropdown has the expected default value
+    return cy
+      .get(this.channelGroupDropdown, { timeout: 10000 })
+      .scrollIntoView()
+      .should('be.visible')
+      .should('have.value', expectedValue);
+  }
+
+  verifySupportHeaders() {
+    // Open version dropdown and verify support headers are present
+    cy.get('button[id="version-selector"]').should('be.visible').click();
+
+    // Assert support headers exist in the version dropdown
+    cy.get('[class*="menu__list"], [role="listbox"]')
+      .first()
+      .then(($menu) => {
+        const menuText = $menu.text();
+
+        // Assert Full support header is present
+        expect(menuText).to.include(
+          'Full support',
+          'Expected "Full support" header in version dropdown',
+        );
+        cy.log('✅ Full support header found');
+
+        // Assert Maintenance support header is present
+        expect(menuText).to.include(
+          'Maintenance support',
+          'Expected "Maintenance support" header in version dropdown',
+        );
+        cy.log('✅ Maintenance support header found');
+      });
+
+    // Close the dropdown
+    return cy.get('button[id="version-selector"]').click();
+  }
+
+  verifyVersionAutoSelected() {
+    // Wait for version to be selected (button text should contain version pattern)
+    return cy
+      .get('button[id="version-selector"]', { timeout: 10000 })
+      .should('be.visible')
+      .should('not.contain.text', 'Filter by versions') // Wait until placeholder is replaced
+      .invoke('text')
+      .then((text) => {
+        const version = text.trim();
+        expect(version).to.not.be.empty;
+        expect(version).to.match(
+          /\d+\.\d+\.\d+/,
+          `Expected version format (e.g., 4.20.1) but got: "${version}"`,
+        );
+        return version;
+      });
+  }
+
+  getAllAvailableVersions() {
+    return this.openVersionDropdown()
+      .then(() => cy.get('button[id^="openshift-"]'))
+      .then(($buttons) => {
+        const versions = [];
+        $buttons.each((index, button) => {
+          versions.push(Cypress.$(button).text().trim());
+        });
+        return cy.wrap(versions);
+      })
+      .then((versions) => {
+        return this.closeVersionDropdown().then(() => versions);
+      });
+  }
+
+  checkVersionAvailability(versionNumber) {
+    return this.openVersionDropdown()
+      .then(() => cy.get('button[id^="openshift-"]'))
+      .then(($buttons) => {
+        let isAvailable = false;
+        $buttons.each((index, button) => {
+          const buttonText = Cypress.$(button).text().trim();
+          if (buttonText.includes(versionNumber)) {
+            isAvailable = true;
+          }
+        });
+        return cy.wrap(isAvailable);
+      })
+      .then((isAvailable) => {
+        return this.closeVersionDropdown().then(() => isAvailable);
+      });
+  }
+
+  selectVersion(version) {
+    // Click version dropdown toggle button
+
+    cy.get('button[id="version-selector"]').click();
+    cy.get('button').contains(version).click();
+  }
+
+  toggleShowOnlyCompatibleVersions() {
+    // Open the version dropdown first
+    return this.openVersionDropdown().then(() => {
+      // Look for the switch to toggle compatible versions
+      return cy.get('body').then(($body) => {
+        if ($body.find('input[type="checkbox"][id*="compatible"]').length > 0) {
+          return cy.get('input[type="checkbox"][id*="compatible"]').click({ force: true });
+        } else if ($body.find('.pf-c-switch__input').length > 0) {
+          return cy.get('.pf-c-switch__input').first().click({ force: true });
+        }
+      });
+    });
+  }
+
+  verifyVersionIsVisible(versionNumber) {
+    return this.openVersionDropdown()
+      .then(() => {
+        return cy
+          .get('button[id^="openshift-"]')
+          .should('be.visible')
+          .filter(`:contains("${versionNumber}")`)
+          .should('exist');
+      })
+      .then(() => this.closeVersionDropdown());
+  }
+
+  verifyVersionIsNotVisible(versionNumber) {
+    return this.openVersionDropdown()
+      .then(() => {
+        return cy
+          .get('button[id^="openshift-"]')
+          .filter(`:contains("${versionNumber}")`)
+          .should('not.exist');
+      })
+      .then(() => this.closeVersionDropdown());
+  }
+
+  getVersionsGreaterThanOrEqual(minVersion) {
+    return this.getAllAvailableVersions().then((versions) => {
+      return versions.filter((version) => {
+        const match = version.match(/(\d+)\.(\d+)\.(\d+)/);
+        if (match) {
+          const [, major, minor, patch] = match;
+          const versionNum = parseFloat(`${major}.${minor}`);
+          return versionNum >= parseFloat(minVersion);
+        }
+        return false;
+      });
+    });
+  }
+
+  getVersionsLessThan(maxVersion) {
+    return this.getAllAvailableVersions().then((versions) => {
+      return versions.filter((version) => {
+        const match = version.match(/(\d+)\.(\d+)\.(\d+)/);
+        if (match) {
+          const [, major, minor, patch] = match;
+          const versionNum = parseFloat(`${major}.${minor}`);
+          return versionNum < parseFloat(maxVersion);
+        }
+        return false;
+      });
+    });
   }
 
   isWIFRecommendationAlertPresent() {
@@ -415,15 +633,6 @@ class CreateOSDCluster extends Page {
   waitForVPCRefresh() {
     cy.getByTestId('refresh-vpcs').should('be.disabled');
     cy.get('span[role="progressbar"], .spinner', { timeout: 80000 }).should('not.exist');
-  }
-
-  selectVersion(version) {
-    cy.get('button[id="version-selector"]').click();
-    if (version === '') {
-      cy.get('button[id^="openshift-"]').first().click();
-    } else {
-      cy.get('button').contains(version).click();
-    }
   }
 
   selectVPC(vpcName) {
