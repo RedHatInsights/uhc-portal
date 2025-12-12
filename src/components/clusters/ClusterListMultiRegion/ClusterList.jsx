@@ -426,6 +426,11 @@ const ClusterList = ({
                 localStorageKey={ONLY_MY_CLUSTERS_TOGGLE_CLUSTERS_LIST}
               />
 
+              {isRestrictedEnv() ? null : (
+                <ToolbarItem>
+                  <ClusterListFilterChipGroup />
+                </ToolbarItem>
+              )}
               <ToolbarItem
                 align={{ default: 'alignEnd' }}
                 variant="pagination"
@@ -443,11 +448,6 @@ const ClusterList = ({
                   onPageChange={onPageChange}
                 />
               </ToolbarItem>
-              {isRestrictedEnv() ? null : (
-                <ToolbarItem>
-                  <ClusterListFilterChipGroup />
-                </ToolbarItem>
-              )}
             </ToolbarContent>
           </Toolbar>
           {isError && !size(clusters) && isFetched ? (
