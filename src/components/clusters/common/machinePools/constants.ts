@@ -14,3 +14,5 @@ export const workerNodeVolumeSizeMinGiBHcp = 75;
 export const defaultWorkerNodeVolumeSizeGiB = 300;
 
 export const MAINTENANCE_MIN_VALUE = 0;
+
+export const CAPACITY_RESERVATION_MIN_VERSION = '4.19.0';
