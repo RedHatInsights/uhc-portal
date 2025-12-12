@@ -42,7 +42,7 @@ const options = [
   { label: 'CR only', value: 'capacity-reservations-only' },
 ];
 
-export const capacityReservationHint = (showList: boolean, showPreferenceLink: boolean) => (
+export const capacityReservationHint = (showList: boolean, showRosaLink: boolean) => (
   <Flex>
     <FlexItem>
       Capacity Reservations allow you to reserve compute capacity for Amazon EC2 instances. Requires
@@ -68,14 +68,14 @@ export const capacityReservationHint = (showList: boolean, showPreferenceLink: b
       </>
     ) : null}
     <FlexItem>
-      Learn more about{' '}
-      <ExternalLink href={links.AWS_CAPACITY_RESERVATION}>Capacity Reservations</ExternalLink>
+      To learn more about Capacity Reservations, visit{' '}
+      <ExternalLink href={links.AWS_CAPACITY_RESERVATION}>AWS Documentation</ExternalLink>
     </FlexItem>
-    {showPreferenceLink ? (
+    {showRosaLink ? (
       <FlexItem>
-        Learn more about{' '}
-        <ExternalLink href={links.AWS_CAPACITY_RESERVATION_PREFERENCE}>
-          Capacity Reservation Preferences
+        To learn more about configuring capacity reservations, visit{' '}
+        <ExternalLink href={links.ROSA_CAPACITY_RESERVATION_OVERVIEW}>
+          ROSA Documentation
         </ExternalLink>
       </FlexItem>
     ) : null}
