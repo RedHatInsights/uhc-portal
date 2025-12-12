@@ -901,6 +901,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/reports/openshift/gpu/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Query to obtain OpenShift GPU usage information */
+    get: operations['getOpenShiftGpuReports'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/reports/openshift/resources/virtual-machines/': {
     parameters: {
       query?: never;
@@ -1472,6 +1489,40 @@ export interface paths {
     };
     /** List OpenShift Virtual Machines For RBAC */
     get: operations['listResourcesOpenShiftVirtualMachines'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/resource-types/openshift-gpu-models/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Openshift GPU Models For RBAC */
+    get: operations['listResourcesOpenShiftGpuModels'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/resource-types/openshift-gpu-vendors/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Openshift GPU Vendors For RBAC */
+    get: operations['listResourcesOpenShiftGpuVendors'];
     put?: never;
     post?: never;
     delete?: never;
@@ -3267,6 +3318,9 @@ export interface components {
     ReportOpenShiftVolume: components['schemas']['Report'] & {
       data: Record<string, never>[];
     };
+    ReportOpenShiftGpu: components['schemas']['Report'] & {
+      data: Record<string, never>[];
+    };
     ReportOpenShiftVirtualMachine: components['schemas']['Report'] & {
       data: Record<string, never>[];
     };
@@ -4106,6 +4160,7 @@ export type SchemaReportOpenShiftAzureInstanceInventory =
 export type SchemaReportOpenShiftCpu = components['schemas']['ReportOpenShiftCpu'];
 export type SchemaReportOpenShiftMemory = components['schemas']['ReportOpenShiftMemory'];
 export type SchemaReportOpenShiftVolume = components['schemas']['ReportOpenShiftVolume'];
+export type SchemaReportOpenShiftGpu = components['schemas']['ReportOpenShiftGpu'];
 export type SchemaReportOpenShiftVirtualMachine =
   components['schemas']['ReportOpenShiftVirtualMachine'];
 export type SchemaSettingIn = components['schemas']['SettingIn'];
@@ -5477,6 +5532,74 @@ export interface operations {
         content: {
           'application/json': components['schemas']['ReportOpenShiftVolume'];
           'text/csv': components['schemas']['ReportOpenShiftVolume'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+          'text/csv': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  getOpenShiftGpuReports: {
+    parameters: {
+      query?: {
+        /**
+         * @description The filter to apply to the report as a URL encoded dictionary. The syntax is filter[parameter]=value except for tags, which use filter[tag:key]=value.
+         * @example {
+         *       "enabled": false
+         *     }
+         */
+        filter?: components['parameters']['QueryFilter'];
+        /**
+         * @description The grouping to apply to the report as a URL encoded dictionary. The syntax is group_by[parameter]=value except for tags, which use group_by[tag:key]=value.
+         * @example {
+         *       "tag:my_tag": "*"
+         *     }
+         */
+        group_by?: components['parameters']['QueryGroupBy'];
+        /**
+         * @description The ordering to apply to the report as a URL encoded dictionary. The syntax is order_by[field]=order. Use 'asc' for ascending and 'desc' for descending.
+         * @example {
+         *       "usage": "desc"
+         *     }
+         */
+        order_by?: components['parameters']['QueryOrderBy'];
+        /** @description Parameter for selecting the offset of data. */
+        offset?: components['parameters']['QueryOffset'];
+        /** @description Parameter for selecting the amount of data in a returned. Limit of 0 will return all data. */
+        limit?: components['parameters']['ReportQueryLimit'];
+        /** @description String to indicate start date of date range. */
+        start_date?: components['parameters']['QueryStartDate'];
+        /** @description String to indicate end date of date range. */
+        end_date?: components['parameters']['QueryEndDate'];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description A paginated report object */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReportOpenShiftGpu'];
+          'text/csv': components['schemas']['ReportOpenShiftGpu'];
         };
       };
       /** @description Unauthorized */
@@ -7048,6 +7171,64 @@ export interface operations {
     };
   };
   listResourcesOpenShiftVirtualMachines: {
+    parameters: {
+      query?: {
+        /** @description Parameter for selecting the offset of data. */
+        offset?: components['parameters']['QueryOffset'];
+        /** @description Parameter for selecting the amount of data in a returned. */
+        limit?: components['parameters']['QueryLimit'];
+        /** @description Parameter for matching the value data using a contains. */
+        value?: components['parameters']['QueryValue'];
+        /** @description Parameter for ordering the value data. */
+        ordering?: components['parameters']['QueryOrder'];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description | - 200 response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ResourceTypePagination'];
+        };
+      };
+    };
+  };
+  listResourcesOpenShiftGpuModels: {
+    parameters: {
+      query?: {
+        /** @description Parameter for selecting the offset of data. */
+        offset?: components['parameters']['QueryOffset'];
+        /** @description Parameter for selecting the amount of data in a returned. */
+        limit?: components['parameters']['QueryLimit'];
+        /** @description Parameter for matching the value data using a contains. */
+        value?: components['parameters']['QueryValue'];
+        /** @description Parameter for ordering the value data. */
+        ordering?: components['parameters']['QueryOrder'];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description | - 200 response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ResourceTypePagination'];
+        };
+      };
+    };
+  };
+  listResourcesOpenShiftGpuVendors: {
     parameters: {
       query?: {
         /** @description Parameter for selecting the offset of data. */
