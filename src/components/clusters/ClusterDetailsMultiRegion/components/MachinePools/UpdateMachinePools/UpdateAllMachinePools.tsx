@@ -136,7 +136,9 @@ const UpdateAllMachinePools = ({
           You can update all worker nodes to the current control plane version (
           {semver.coerce(controlPlaneVersion)?.version}
           ), or use the CLI to update a specific version.{' '}
-          <ExternalLink href={links.ROSA_UPGRADES}>Learn more about updates</ExternalLink>
+          <ExternalLink href={isHypershift ? links.ROSA_UPGRADES : links.ROSA_CLASSIC_UPGRADES}>
+            Learn more about updates
+          </ExternalLink>
         </p>
       </Alert>
     </>

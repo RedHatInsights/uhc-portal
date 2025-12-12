@@ -559,7 +559,7 @@ function Details() {
                     hint={
                       <>
                         {constants.enableUserWorkloadMonitoringHelp}
-                        <ExternalLink href={links.ROSA_MONITORING}>Learn more</ExternalLink>
+                        <ExternalLink href={links.ROSA_CLASSIC_MONITORING}>Learn more</ExternalLink>
                       </>
                     }
                   />

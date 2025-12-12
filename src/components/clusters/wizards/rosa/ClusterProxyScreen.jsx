@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Field } from 'formik';
+import PropTypes from 'prop-types';
 
 import {
   Alert,
@@ -40,7 +41,7 @@ import ExternalLink from '~/components/common/ExternalLink';
 import ReduxFileUpload from '~/components/common/ReduxFormComponents_deprecated/ReduxFileUpload';
 import ReduxVerticalFormGroup from '~/components/common/ReduxFormComponents_deprecated/ReduxVerticalFormGroup';
 
-function ClusterProxyScreen() {
+function ClusterProxyScreen({ isHypershiftSelected }) {
   const {
     setFieldTouched,
     setFieldValue, // Set value of form field directly
@@ -127,7 +128,13 @@ function ClusterProxyScreen() {
         <GridItem>
           <Content component="p">{constants.clusterProxyHint}</Content>
           <Content component="p" className="pf-v6-u-mt-sm">
-            <ExternalLink href={links.ROSA_CLUSTER_WIDE_PROXY}>
+            <ExternalLink
+              href={
+                isHypershiftSelected
+                  ? links.ROSA_CLUSTER_WIDE_PROXY
+                  : links.ROSA_CLASSIC_CLUSTER_WIDE_PROXY
+              }
+            >
               Learn more about configuring a cluster-wide proxy
             </ExternalLink>
           </Content>
@@ -251,6 +258,8 @@ function ClusterProxyScreen() {
   );
 }
 
-ClusterProxyScreen.propTypes = {};
+ClusterProxyScreen.propTypes = {
+  isHypershiftSelected: PropTypes.bool.isRequired,
+};
 
 export default ClusterProxyScreen;
