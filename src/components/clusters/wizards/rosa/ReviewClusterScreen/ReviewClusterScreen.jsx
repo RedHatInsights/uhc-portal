@@ -130,7 +130,7 @@ const ReviewClusterScreen = ({
     FieldId.CustomerManagedKey,
     ...(showKMSKey ? [FieldId.KmsKeyArn] : []),
     FieldId.EtcdEncryption,
-    ...(!isHypershiftSelected ? [FieldId.FipsCryptography] : []),
+    FieldId.FipsCryptography,
     ...(hasEtcdEncryption ? [FieldId.EtcdKeyArn] : []),
     ...(isHypershiftSelected && hasExternalAuth ? [FieldId.EnableExteranlAuthentication] : []),
   ];

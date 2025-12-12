@@ -191,7 +191,7 @@ function DetailsLeft({
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
-      {!isHypershift && cluster.fips && (
+      {cluster.fips && (
         <DescriptionListGroup>
           <DescriptionListTerm>Encryption level</DescriptionListTerm>
           <DescriptionListDescription>

@@ -41,8 +41,9 @@ import {
   getMinReplicasCount,
   getNodesCount,
 } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
-import { ClassicEtcdFipsSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdFipsSection';
+import { ClassicEtcdEncryptionSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdEncryptionSection';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
+import { FipsCryptographySection } from '~/components/clusters/wizards/common/ClusterSettings/Details/FipsCryptographySection';
 import { useResetMaxNodesTotal } from '~/components/clusters/wizards/common/ClusterSettings/Details/useResetMaxNodesTotal/useResetMaxNodesTotal';
 import { VersionSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/VersionSelectField';
 import {
@@ -587,7 +588,8 @@ function Details() {
                 />
               )}
 
-              <ClassicEtcdFipsSection isRosa={false} />
+              <FipsCryptographySection />
+              <ClassicEtcdEncryptionSection learnMoreLink={links.OSD_ETCD_ENCRYPTION} />
             </Grid>
           </ExpandableSection>
         </Flex>

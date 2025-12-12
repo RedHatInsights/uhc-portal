@@ -362,4 +362,56 @@ describe('<Details />', () => {
       );
     });
   });
+
+  describe('Advanced Encryption', () => {
+    it('toggles state of dependent checkboxes correctly', async () => {
+      const defaultValues = {
+        ...initialValues,
+      };
+      const { user } = render(
+        <Formik initialValues={defaultValues} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      const advancedEncryptionExpand = screen.getByRole('button', { name: /Advanced encryption/i });
+      await user.click(advancedEncryptionExpand);
+
+      const fipsCheckbox = screen.getByRole('checkbox', { name: /Enable FIPS cryptography/i });
+      const etcdCheckbox = screen.getByRole('checkbox', {
+        name: /Enable additional etcd encryption/i,
+      });
+
+      // FIPS and etcd should be initially unchecked
+      expect(fipsCheckbox).not.toBeChecked();
+      expect(etcdCheckbox).not.toBeChecked();
+
+      // Check FIPS
+      await user.click(fipsCheckbox!);
+      // Etcd should also be automatically checked and disabled
+      expect(fipsCheckbox).toBeChecked();
+      expect(etcdCheckbox).toBeChecked();
+      expect(etcdCheckbox).toBeDisabled();
+
+      // Uncheck FIPS
+      await user.click(fipsCheckbox!);
+      // Etcd should still be checked but no longer disabled
+      expect(fipsCheckbox).not.toBeChecked();
+      expect(etcdCheckbox).toBeChecked();
+      expect(etcdCheckbox).not.toBeDisabled();
+
+      // Can independently uncheck/check etcd without affecting FIPS
+      // Check etcd
+      await user.click(etcdCheckbox!);
+      expect(fipsCheckbox).not.toBeChecked();
+      expect(etcdCheckbox).not.toBeChecked();
+
+      // Check FIPS once more
+      await user.click(fipsCheckbox!);
+      // Etcd should also be automatically checked and disabled
+      expect(fipsCheckbox).toBeChecked();
+      expect(etcdCheckbox).toBeChecked();
+      expect(etcdCheckbox).toBeDisabled();
+    });
+  });
 });

@@ -40,8 +40,9 @@ import {
 } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { ChannelGroupSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelGroupSelectField';
-import { ClassicEtcdFipsSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdFipsSection';
+import { ClassicEtcdEncryptionSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdEncryptionSection';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
+import { FipsCryptographySection } from '~/components/clusters/wizards/common/ClusterSettings/Details/FipsCryptographySection';
 import { useResetMaxNodesTotal } from '~/components/clusters/wizards/common/ClusterSettings/Details/useResetMaxNodesTotal/useResetMaxNodesTotal';
 import { emptyAWSSubnet } from '~/components/clusters/wizards/common/constants';
 import { RadioGroupField, RichInputField } from '~/components/clusters/wizards/form';
@@ -579,12 +580,8 @@ function Details() {
         >
           <Grid hasGutter>
             <AWSCustomerManagedEncryption />
-
-            {isHypershiftSelected ? (
-              <HCPEtcdEncryptionSection />
-            ) : (
-              <ClassicEtcdFipsSection isRosa />
-            )}
+            <FipsCryptographySection />
+            {isHypershiftSelected ? <HCPEtcdEncryptionSection /> : <ClassicEtcdEncryptionSection />}
           </Grid>
         </ExpandableSection>
         {isHypershiftSelected &&

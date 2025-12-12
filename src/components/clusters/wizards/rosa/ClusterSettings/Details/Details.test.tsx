@@ -8,7 +8,11 @@ import { waitFor } from '@testing-library/react';
 
 import { fulfilledProviders, multiRegions, noProviders } from '~/common/__tests__/regions.fixtures';
 import { mockQuotaList } from '~/components/clusters/common/__tests__/quota.fixtures';
-import { FieldId, initialValues } from '~/components/clusters/wizards/rosa/constants';
+import {
+  FieldId,
+  initialValues,
+  initialValuesRestrictedEnv,
+} from '~/components/clusters/wizards/rosa/constants';
 import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleStatuses';
 import {
   ALLOW_EUS_CHANNEL,
@@ -18,7 +22,7 @@ import {
 import { useFetchGetMultiRegionAvailableRegions } from '~/queries/RosaWizardQueries/useFetchGetMultiRegionAvailableRegions';
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
-import { mockUseFeatureGate, render, screen, withState } from '~/testUtils';
+import { mockRestrictedEnv, mockUseFeatureGate, render, screen, withState } from '~/testUtils';
 
 import Details from './Details';
 
@@ -491,6 +495,96 @@ describe('<Details />', () => {
       const submittedValues = handleSubmit.mock.calls[0][0];
       // Verify max-nodes-total has been reset to default
       expect(submittedValues.cluster_autoscaling?.resource_limits?.max_nodes_total).toBe(254);
+    });
+  });
+
+  describe('Advanced Encryption', () => {
+    it.each([
+      ['ROSA classic', defaultValues, 'Enable additional etcd encryption'],
+      [
+        'ROSA HCP',
+        {
+          ...defaultValues,
+          [FieldId.Hypershift]: 'true',
+        },
+        'Encrypt etcd with a custom KMS key',
+      ],
+    ])(
+      'toggles state of dependent checkboxes correctly for %s',
+      async (msg, formValues, etcdEncryptionLabel) => {
+        const { user } = render(
+          <Formik initialValues={formValues} onSubmit={() => {}}>
+            <Details />
+          </Formik>,
+        );
+
+        const advancedEncryptionExpand = screen.getByRole('button', {
+          name: /Advanced encryption/i,
+        });
+        await user.click(advancedEncryptionExpand);
+
+        const fipsCheckbox = screen.getByRole('checkbox', { name: /Enable FIPS cryptography/i });
+        const etcdCheckbox = screen.getByRole('checkbox', { name: etcdEncryptionLabel });
+
+        // FIPS and etcd should be initially unchecked
+        expect(fipsCheckbox).not.toBeChecked();
+        expect(etcdCheckbox).not.toBeChecked();
+
+        // Check FIPS
+        await user.click(fipsCheckbox!);
+        // Etcd should also be automatically checked and disabled
+        expect(fipsCheckbox).toBeChecked();
+        expect(etcdCheckbox).toBeChecked();
+        expect(etcdCheckbox).toBeDisabled();
+
+        // Uncheck FIPS
+        await user.click(fipsCheckbox!);
+        // Etcd should still be checked but no longer disabled
+        expect(fipsCheckbox).not.toBeChecked();
+        expect(etcdCheckbox).toBeChecked();
+        expect(etcdCheckbox).not.toBeDisabled();
+
+        // Can independently uncheck/check etcd without affecting FIPS
+        // Check etcd
+        await user.click(etcdCheckbox!);
+        expect(fipsCheckbox).not.toBeChecked();
+        expect(etcdCheckbox).not.toBeChecked();
+
+        // Check FIPS once more
+        await user.click(fipsCheckbox!);
+        // Etcd should also be automatically checked and disabled
+        expect(fipsCheckbox).toBeChecked();
+        expect(etcdCheckbox).toBeChecked();
+        expect(etcdCheckbox).toBeDisabled();
+      },
+    );
+
+    it('toggles state of dependent checkboxes correctly in restricted env', async () => {
+      // simulate restricted env
+      mockRestrictedEnv(true);
+
+      const defaultValues = {
+        ...initialValuesRestrictedEnv,
+      };
+      const { user } = render(
+        <Formik initialValues={defaultValues} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      const advancedEncryptionExpand = screen.getByRole('button', { name: /Advanced encryption/i });
+      await user.click(advancedEncryptionExpand);
+
+      const fipsCheckbox = screen.getByRole('checkbox', { name: /Enable FIPS cryptography/i });
+      const etcdCheckbox = screen.getByRole('checkbox', {
+        name: /Enable additional etcd encryption/i,
+      });
+
+      // FIPS and etcd should be initially checked and disabled
+      expect(fipsCheckbox).toBeChecked();
+      expect(fipsCheckbox).toBeDisabled();
+      expect(etcdCheckbox).toBeChecked();
+      expect(etcdCheckbox).toBeDisabled();
     });
   });
 });
