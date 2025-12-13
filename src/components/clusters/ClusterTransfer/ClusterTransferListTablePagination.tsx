@@ -22,7 +22,7 @@ const ClusterTransferListTablePagination = ({
     totalCount={viewOptions.totalCount}
     totalPages={viewOptions.totalPages}
     variant={variant}
-    isDisabled={isDisabled}
+    isDisabled={isDisabled || viewOptions.totalCount === 0}
   />
 );
 
