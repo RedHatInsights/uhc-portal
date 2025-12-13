@@ -1,6 +1,7 @@
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import ClusterDetails from '../../pageobjects/ClusterDetails.page';
 import ClusterMachinePoolDetails from '../../pageobjects/ClusterMachinePoolDetails.page';
+import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 const workerName = `worker-` + (Math.random() + 1).toString(36).substring(4);
 
@@ -13,7 +14,7 @@ describe(
   () => {
     beforeEach(() => {
       if (Cypress.currentTest.title.match(/Navigate to the OSD Machine pools tab for .* cluster/)) {
-        cy.visit('/cluster-list');
+        cy.visit(CLUSTER_LIST_PATH);
         ClusterListPage.waitForDataReady();
         ClusterListPage.isClusterListScreen();
         ClusterListPage.filterTxtField().should('be.visible').click();

@@ -5,10 +5,11 @@ import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import OCMRolesAndAccessPage from '../../pageobjects/OCMRolesAndAccess.page';
 import RegisterClusterPage from '../../pageobjects/RegisterCluster.page';
+import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 describe('OCM Roles And Access', { tags: ['ci'] }, () => {
   before(() => {
-    cy.visit('/cluster-list');
+    cy.visit(CLUSTER_LIST_PATH);
     ClusterListPage.waitForDataReady();
     ClusterListPage.isClusterListScreen();
   });

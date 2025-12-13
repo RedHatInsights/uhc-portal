@@ -1,5 +1,6 @@
 import Releases from '../../pageobjects/Releases.page';
 import Docs from '../../pageobjects/Docs.page';
+import { CLUSTER_LIST_FULL_PATH } from '../../support/routePaths';
 
 var current_version;
 describe('Releases pages tests', () => {
@@ -39,7 +40,7 @@ describe('Releases pages tests', () => {
     cy.get('button')
       .contains("I don't see these versions as upgrade options for my cluster")
       .click();
-    cy.get(`a[href="/openshift/cluster-list"]`)
+    cy.get(`a[href="${CLUSTER_LIST_FULL_PATH}"]`)
       .should('exist')
       .and('contain.text', 'clusters list');
     cy.get('button[aria-label="Close"]').filter(':visible').click();
