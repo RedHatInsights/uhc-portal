@@ -61,14 +61,8 @@ export const useFetchClusterTransferDetail = ({
       transferDetails.subscription = cluster?.subscription;
       transferDetails.product = cluster?.product || { id: 'Unknown' };
       transferDetails.version = cluster?.version || { raw_id: 'Unknown' };
-
-      clusterTransferDetails.push(transferDetails);
-    } else if (transfer.recipient_external_org_id && username !== transfer.owner) {
-      // This logic is to temporarily reduce the amount of deleted clusters shown on the list
-      // We will not have to deal with this after OCM-14646 is fixed
-      // but we will have to handle interOrg transfers
-      clusterTransferDetails.push(transferDetails);
     }
+    clusterTransferDetails.push(transferDetails);
   });
 
   if (isErrorTransfers || isErrorClusterData) {

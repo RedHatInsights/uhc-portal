@@ -49,7 +49,7 @@ export const Clusters = () => {
   const total = useCountPendingRequest();
   return (
     <AppPage title="Clusters | Red Hat OpenShift Cluster Manager">
-      <ClustersPageHeader />
+      <ClustersPageHeader activeTabKey={activeTabKey} />
       <PageSection type="tabs">
         <Tabs
           activeKey={activeTabKey}

@@ -281,11 +281,21 @@ const getClusterTransferByExternalID = (clusterExternalID: string) =>
       search: `cluster_uuid='${clusterExternalID}'`,
     },
   });
-const searchClusterTransfers = (filter: string) =>
+
+export type SearchClusterTransfersParams = {
+  filter: string;
+  page?: number;
+  size?: number;
+  orderBy?: string;
+};
+
+const searchClusterTransfers = (params: SearchClusterTransfersParams) =>
   apiRequest.get<ClusterTransferList>('/api/accounts_mgmt/v1/cluster_transfers', {
     params: {
-      search: filter,
-      orderBy: 'updated_at desc',
+      search: params.filter,
+      orderBy: params.orderBy || 'updated_at desc',
+      page: params.page || 1,
+      size: params.size || 20,
     },
   });
 const editClusterTransfer = (transferID: string, data: ClusterTransferPatchRequest) =>
