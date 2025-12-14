@@ -259,7 +259,7 @@ function ClusterProxyScreen({ isHypershiftSelected }) {
 }
 
 ClusterProxyScreen.propTypes = {
-  isHypershiftSelected: PropTypes.bool.isRequired,
+  isHypershiftSelected: PropTypes.bool,
 };
 
 export default ClusterProxyScreen;

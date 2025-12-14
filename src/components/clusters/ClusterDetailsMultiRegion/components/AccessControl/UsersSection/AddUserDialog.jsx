@@ -34,7 +34,7 @@ const AddUserDialog = ({
 
   const iamOperatorRolesLink = isHypershift
     ? links.ROSA_AWS_IAM_OPERATOR_ROLES
-    : links.ROSA_AWS_CLASSIC_IAM_OPERATOR_ROLES;
+    : links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES;
 
   const resetInitialState = () => {
     setSelectedGroup('dedicated-admins');

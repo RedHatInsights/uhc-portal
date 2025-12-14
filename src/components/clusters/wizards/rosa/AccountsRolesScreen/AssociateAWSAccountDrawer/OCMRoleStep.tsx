@@ -62,7 +62,7 @@ const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
               href={
                 isHypershiftSelected
                   ? links.ROSA_AWS_ACCOUNT_ASSOCIATION
-                  : links.ROSA_AWS_CLASSIC_ACCOUNT_ASSOCIATION
+                  : links.ROSA_CLASSIC_AWS_ACCOUNT_ASSOCIATION
               }
               noIcon
             >

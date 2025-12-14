@@ -14,9 +14,12 @@ function CIDRScreen() {
       [FieldId.MultiAz]: multiAz,
       [FieldId.InstallToVpc]: installToVPC,
       [FieldId.CidrDefaultValuesToggle]: cidrDefaultValuesToggle,
+      [FieldId.Hypershift]: hypershift,
     },
     values,
   } = useFormState();
+
+  const isHypershiftSelected = hypershift === 'true';
 
   const isMultiAz = multiAz === true;
 
@@ -37,6 +40,7 @@ function CIDRScreen() {
           isMultiAz={isMultiAz}
           installToVpcSelected={installToVPC}
           isDefaultValuesChecked={cidrDefaultValuesToggle}
+          isHypershiftSelected={isHypershiftSelected}
           formValues={values}
         />
       </Grid>

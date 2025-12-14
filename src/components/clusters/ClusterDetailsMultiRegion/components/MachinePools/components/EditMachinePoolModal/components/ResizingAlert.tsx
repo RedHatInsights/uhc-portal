@@ -46,7 +46,7 @@ const ResizingAlert = ({
       <p>
         Node scaling is automatic and will be performed immediately. Scaling node count beyond Red
         Hat&apos;s{' '}
-        <ExternalLink href={links.ROSA_AWS_CLASSIC_LIMITS_SCALE} noIcon>
+        <ExternalLink href={links.ROSA_CLASSIC_AWS_LIMITS_SCALE} noIcon>
           documented thresholds
         </ExternalLink>{' '}
         may trigger manual Red Hat SRE intervention to vertically scale your Infrastructure and

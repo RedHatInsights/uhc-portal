@@ -88,7 +88,7 @@ function CustomerOIDCConfiguration({
   const [isRefreshLoading, setIsRefreshLoading] = useState(false);
   const [oidcConfigs, setOidcConfigs] = useState([]);
 
-  const isHypershift = hypershiftValue === 'true';
+  const isHypershiftSelected = hypershiftValue === 'true';
 
   const {
     data: oidcData,
@@ -239,9 +239,9 @@ function CustomerOIDCConfiguration({
                 See examples in{' '}
                 <ExternalLink
                   href={
-                    isHypershift
+                    isHypershiftSelected
                       ? links.ROSA_AWS_IAM_OPERATOR_ROLES
-                      : links.ROSA_AWS_CLASSIC_IAM_OPERATOR_ROLES
+                      : links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES
                   }
                 >
                   Defining a custom Operator IAM role prefix

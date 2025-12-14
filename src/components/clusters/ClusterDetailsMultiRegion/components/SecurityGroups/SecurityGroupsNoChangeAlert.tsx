@@ -9,7 +9,7 @@ const SecurityGroupsNoChangeAlert = ({
   isHypershift,
 }: {
   isRosa?: boolean;
-  isHypershift: boolean;
+  isHypershift?: boolean;
 }) => {
   const rosaSecurityGroupsLink = isHypershift
     ? links.ROSA_SECURITY_GROUPS

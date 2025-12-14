@@ -13,7 +13,7 @@ import validators, {
 import ExternalLink from '../../../../common/ExternalLink';
 import ReduxVerticalFormGroup from '../../../../common/ReduxFormComponents_deprecated/ReduxVerticalFormGroup';
 
-function CustomOperatorRoleNames() {
+function CustomOperatorRoleNames(isHypershiftSelected) {
   const { getFieldProps, getFieldMeta } = useFormState();
   return (
     <>
@@ -42,7 +42,13 @@ function CustomOperatorRoleNames() {
                 You can specify a custom prefix for the cluster-specific Operator IAM roles to use.{' '}
                 <br />
                 See examples in{' '}
-                <ExternalLink href={links.ROSA_AWS_CLASSIC_IAM_OPERATOR_ROLES}>
+                <ExternalLink
+                  href={
+                    isHypershiftSelected
+                      ? links.ROSA_AWS_IAM_OPERATOR_ROLES
+                      : links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES
+                  }
+                >
                   Defining a custom Operator IAM role prefix
                 </ExternalLink>
               </Content>

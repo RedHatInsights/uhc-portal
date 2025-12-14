@@ -66,11 +66,13 @@ const ClusterRolesScreen = () => {
     },
   } = useFormState();
 
-  const isHypershift = hypershiftValue === 'true';
-  const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershift;
+  const isHypershiftSelected = hypershiftValue === 'true';
+  const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
 
   const [isAutoModeAvailable, setIsAutoModeAvailable] = useState(false);
-  const [hasByoOidcConfig, setHasByoOidcConfig] = useState(!!(isHypershift || byoOidcConfigID));
+  const [hasByoOidcConfig, setHasByoOidcConfig] = useState(
+    !!(isHypershiftSelected || byoOidcConfigID),
+  );
 
   const [getOCMRoleErrorBox, setGetOCMRoleErrorBox] = useState(null);
   const track = useAnalytics();
@@ -245,7 +247,7 @@ const ClusterRolesScreen = () => {
   ];
 
   const operatorRolesCliCommand = getOperatorRolesCommand({
-    isHypershift,
+    isHypershiftSelected,
     byoOidcConfigID,
     customOperatorRolesPrefix,
     installerRoleArn,
@@ -257,7 +259,7 @@ const ClusterRolesScreen = () => {
         <GridItem>
           <Title headingLevel="h3">Cluster roles and policies</Title>
         </GridItem>
-        {isHypershift ? (
+        {isHypershiftSelected ? (
           <Alert
             isInline
             id="rosa-require-byo-oidc"
@@ -306,9 +308,9 @@ const ClusterRolesScreen = () => {
                 Choose the preferred mode for creating the operator roles and OIDC provider.{' '}
                 <ExternalLink
                   href={
-                    isHypershift
+                    isHypershiftSelected
                       ? links.ROSA_AWS_IAM_RESOURCES
-                      : links.ROSA_AWS_CLASSIC_IAM_RESOURCES
+                      : links.ROSA_CLASSIC_AWS_IAM_RESOURCES
                   }
                 >
                   Learn more about ROSA roles
@@ -352,7 +354,7 @@ const ClusterRolesScreen = () => {
             meta={getFieldMeta(FieldId.ByoOidcConfigId)}
           />
         ) : (
-          <CustomOperatorRoleNames />
+          <CustomOperatorRoleNames isHypershiftSelected={isHypershiftSelected} />
         )}
       </Grid>
     </Form>
