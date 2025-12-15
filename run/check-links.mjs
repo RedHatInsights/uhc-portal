@@ -326,9 +326,9 @@ async function testRedirectUrls(statusByUrl) {
   await Promise.all(
     redirectItems.map(async (item) => {
       try {
-        const { status } = await fetchWithFallback(item.redirectUrl);
+        const { status: finalStatus } = await fetchWithFallback(item.redirectUrl);
         // If we got 200 with GET after 405 with HEAD, treat it as success
-        const newItem = { ...item, status };
+        const newItem = { ...item, finalStatus };
         // Use Object.assign to update the original item for progress tracking
         Object.assign(item, newItem);
       } catch (e) {
