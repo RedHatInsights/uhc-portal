@@ -51,7 +51,9 @@ const TagAcmHubDialog: React.FC<TagAcmHubDialogProps> = ({ onClose }) => {
     dispatch(closeModal());
   };
 
-  const actionText = isCurrentlyTagged ? 'Remove ACM Hub tag' : 'Tag as ACM Hub';
+  const actionText = isCurrentlyTagged
+    ? 'Remove hub cluster tag'
+    : 'Tag as Red Hat Advanced Cluster Management for Kubernetes (RHACM) hub cluster';
   const actionVerb = isCurrentlyTagged ? 'remove' : 'add';
 
   return (
@@ -60,7 +62,7 @@ const TagAcmHubDialog: React.FC<TagAcmHubDialogProps> = ({ onClose }) => {
       secondaryTitle={modalData.shouldDisplayClusterName ? clusterName : undefined}
       data-testid="tag-acm-hub-modal"
       onClose={handleCancel}
-      primaryText="Confirm"
+      primaryText={isCurrentlyTagged ? 'Remove tag' : 'Tag'}
       secondaryText="Cancel"
       onPrimaryClick={handleConfirm}
       onSecondaryClick={handleCancel}
@@ -78,16 +80,12 @@ const TagAcmHubDialog: React.FC<TagAcmHubDialogProps> = ({ onClose }) => {
 
         <p>
           {isCurrentlyTagged
-            ? `Are you sure you want to remove the ACM Hub tag from cluster "${clusterName}"? This will remove it from the ACM Hub Clusters list.`
-            : `Are you sure you want to tag cluster "${clusterName}" as an ACM Hub? This will add it to the ACM Hub Clusters list for easier fleet management.`}
+            ? 'This cluster will no longer be in the hub cluster list.'
+            : 'Tagging this cluster adds it to the hub cluster list.'}
         </p>
-
-        {!isCurrentlyTagged ? (
-          <p className="pf-v6-u-mt-md pf-v6-u-color-200">
-            <strong>Note:</strong> This tag is for organizational purposes only and does not
-            automatically install or configure Advanced Cluster Management on the cluster.
-          </p>
-        ) : null}
+        <p>
+          {`This tag is for organizational purposes only and does not automatically ${isCurrentlyTagged ? 'uninstall or remove' : 'install'} RHACM ${isCurrentlyTagged ? 'from' : 'on'} the cluster.`}
+        </p>
       </>
     </Modal>
   );

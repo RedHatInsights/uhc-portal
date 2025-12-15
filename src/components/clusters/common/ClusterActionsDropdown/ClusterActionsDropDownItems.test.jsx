@@ -15,7 +15,7 @@ const menuItemsText = [
   'Edit load balancers and persistent storage',
   'Hibernate cluster',
   'Edit machine pool',
-  'Tag as ACM Hub',
+  'Tag as hub cluster',
   'Delete cluster',
 ];
 
