@@ -112,6 +112,9 @@ function ClusterListTable(props) {
     setSort,
     refreshFunc,
     isClustersDataPending,
+    showCheckboxes = false,
+    selectedClusters = [],
+    onSelectionChange,
   } = props;
 
   const addNotification = useAddNotification();
@@ -136,6 +139,27 @@ function ClusterListTable(props) {
     },
     columnIndex,
   });
+
+  // Checkbox selection helpers
+  const isClusterSelected = (cluster) =>
+    selectedClusters.some((selected) => selected.id === cluster.id);
+
+  const areAllClustersSelected = clusters.length > 0 && selectedClusters.length === clusters.length;
+
+  const selectAllClusters = (_event, isSelecting) => {
+    if (onSelectionChange) {
+      onSelectionChange(isSelecting ? [...clusters] : []);
+    }
+  };
+
+  const onSelectCluster = (cluster, _event, isSelecting) => {
+    if (onSelectionChange) {
+      const newSelection = isSelecting
+        ? [...selectedClusters, cluster]
+        : selectedClusters.filter((selected) => selected.id !== cluster.id);
+      onSelectionChange(newSelection);
+    }
+  };
 
   if (!isPending && (!clusters || clusters.length === 0)) {
     return (
@@ -308,6 +332,15 @@ function ClusterListTable(props) {
 
     return (
       <Tr key={cluster.id}>
+        {showCheckboxes ? (
+          <Td
+            select={{
+              rowIndex: cluster.id,
+              onSelect: (_event, isSelecting) => onSelectCluster(cluster, _event, isSelecting),
+              isSelected: isClusterSelected(cluster),
+            }}
+          />
+        ) : null}
         <Td dataLabel={columns.name.title} visibility={columns.name.visibility}>
           {clusterName}
         </Td>
@@ -357,7 +390,18 @@ function ClusterListTable(props) {
   return (
     <Table aria-label="Cluster List">
       <Thead>
-        <Tr>{columnCells}</Tr>
+        <Tr>
+          {showCheckboxes ? (
+            <Th
+              select={{
+                onSelect: selectAllClusters,
+                isSelected: areAllClustersSelected,
+              }}
+              aria-label="Select all clusters"
+            />
+          ) : null}
+          {columnCells}
+        </Tr>
       </Thead>
       <Tbody data-testid="clusterListTableBody">
         {isPending ? skeletonRows() : clusters.map((cluster) => clusterRow(cluster))}
@@ -375,6 +419,9 @@ ClusterListTable.propTypes = {
   isPending: PropTypes.bool,
   refreshFunc: PropTypes.func.isRequired,
   isClustersDataPending: PropTypes.bool,
+  showCheckboxes: PropTypes.bool,
+  selectedClusters: PropTypes.array,
+  onSelectionChange: PropTypes.func,
 };
 
 export default ClusterListTable;
