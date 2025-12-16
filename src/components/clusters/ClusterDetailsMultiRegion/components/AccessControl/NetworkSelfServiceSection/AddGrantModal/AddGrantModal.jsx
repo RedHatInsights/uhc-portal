@@ -10,10 +10,11 @@ import shouldShowModal from '~/components/common/Modal/ModalSelectors';
 import { refetchGrants } from '~/queries/ClusterDetailsQueries/AccessControlTab/NetworkSelfServiceQueries/useFetchGrants';
 import { useGlobalState } from '~/redux/hooks';
 
-import { validateUserOrGroupARN } from '../../../../../../../common/validators';
-import ErrorBox from '../../../../../../common/ErrorBox';
-import { modalActions } from '../../../../../../common/Modal/ModalActions';
-import PopoverHint from '../../../../../../common/PopoverHint';
+import installLinks from '~/common/installLinks.mjs';
+import { validateUserOrGroupARN } from '~/common/validators';
+import ErrorBox from '~/components/common/ErrorBox';
+import { modalActions } from '~/components/common/Modal/ModalActions';
+import PopoverHint from '~/components/common/PopoverHint';
 
 import './AddGrantModal.scss';
 
@@ -132,7 +133,7 @@ const AddGrantModal = ({
                     <div>
                       <p>Need help configuring ARNs?</p>
                       <a
-                        href="https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html"
+                        href={installLinks.AWS_ARN_CONFIG}
                         target="_blank"
                         rel="noreferrer noopener"
                       >
