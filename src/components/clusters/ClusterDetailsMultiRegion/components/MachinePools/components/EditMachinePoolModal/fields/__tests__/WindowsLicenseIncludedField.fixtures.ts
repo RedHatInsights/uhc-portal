@@ -1,4 +1,5 @@
 import { fieldId as instanceTypeFieldId } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
+import { ImageType } from '~/types/clusters_mgmt.v1';
 
 const defaultMachinePool = {
   id: 'fooId',
@@ -12,7 +13,7 @@ const defaultMachinePool = {
 
 const WindowsLIEnabledMachinePool = {
   ...defaultMachinePool,
-  image_type: 'Windows',
+  image_type: 'Windows' as ImageType,
 };
 
 const WindowsLIDisabledMachinePool = {
