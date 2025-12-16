@@ -187,9 +187,8 @@ const useMachinePoolFormik = ({
     }
 
     if (isHypershift) {
-      // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-      machinePoolData.isWindowsLicenseIncluded = false; // This involves extra costs, let's keep it false by default
-      // (machinePool as MachinePool)?.aws?.windows_license_included || false;
+      machinePoolData.isWindowsLicenseIncluded =
+        (machinePool as NodePool)?.image_type === 'Windows' || false; // This involves extra costs, let's keep it false by default
     }
 
     return machinePoolData;
