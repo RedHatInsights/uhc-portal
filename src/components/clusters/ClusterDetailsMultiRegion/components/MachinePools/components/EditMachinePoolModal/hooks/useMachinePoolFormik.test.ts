@@ -62,4 +62,72 @@ describe('useMachinePoolFormik', () => {
 
     expect(initialValues).toEqual(expected);
   });
+
+  describe('validationSchema', () => {
+    describe('capacityReservationId', () => {
+      it('should fail validation when capacityReservationId contains only whitespace', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          capacityReservationPreference: 'capacity-reservations-only',
+          capacityReservationId: '   ',
+        };
+
+        await expect(validationSchema.validate(values)).rejects.toThrow(
+          'Capacity Reservation ID cannot be empty or contain only whitespace.',
+        );
+      });
+
+      it('should fail validation when capacityReservationId is empty and preference is capacity-reservations-only', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          capacityReservationPreference: 'capacity-reservations-only',
+          capacityReservationId: '',
+        };
+
+        await expect(validationSchema.validate(values)).rejects.toThrow(
+          'Capacity Reservation ID cannot be empty or contain only whitespace.',
+        );
+      });
+
+      it('should not require capacityReservationId when preference is open', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          capacityReservationPreference: 'open',
+          capacityReservationId: '',
+        };
+
+        // Use validateAt to check only the capacityReservationId field
+        await expect(validationSchema.validateAt('capacityReservationId', values)).resolves.toBe(
+          '',
+        );
+      });
+    });
+  });
 });

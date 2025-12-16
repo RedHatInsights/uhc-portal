@@ -48,6 +48,7 @@ const TextField = ({
       <TextInput
         {...field}
         id={fieldId}
+        validated={touched && error ? 'error' : 'default'}
         onChange={(event, value) => {
           field.onChange(event);
         }}
