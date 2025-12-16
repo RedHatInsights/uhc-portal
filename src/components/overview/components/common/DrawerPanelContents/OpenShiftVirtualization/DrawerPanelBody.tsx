@@ -92,7 +92,7 @@ const OpenShiftVirtualizationPanelBody = (
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink
         data-testid="learn-more-about-redhat-acm-drawer-panel-content-link"
-        href="https://www.redhat.com/en/technologies/management/advanced-cluster-management?sc_cid=7013a000003ScmnAAC&gad_source=1"
+        href={installLinks.RH_ACM}
       >
         Learn more about Red Hat Advanced Cluster Management for Kubernetes
       </ExternalLink>

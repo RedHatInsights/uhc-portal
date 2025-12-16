@@ -21,6 +21,9 @@ import {
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
+import installLinks from '~/common/installLinks.mjs';
+import { normalizedProducts, subscriptionSettings } from '~/common/subscriptionTypes';
+import ExternalLink from '~/components/common/ExternalLink';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import {
@@ -30,12 +33,6 @@ import {
   SubscriptionCommonFieldsSupport_level as SubscriptionCommonFieldsSupportLevel,
   SubscriptionCommonFieldsSystem_units as SubscriptionCommonFieldsSystemUnits,
 } from '~/types/accounts_mgmt.v1';
-
-import {
-  normalizedProducts,
-  subscriptionSettings,
-} from '../../../../../../common/subscriptionTypes';
-import ExternalLink from '../../../../../common/ExternalLink';
 
 function SubscriptionSettings({
   subscription,
@@ -122,8 +119,6 @@ function SubscriptionSettings({
   const obligationStr =
     systemUnits === SubscriptionCommonFieldsSystemUnits.Sockets ? socketTotalStr : cpuTotalStr;
 
-  const SALES_URL = 'https://www.redhat.com/en/contact';
-
   return (
     <Card className="ocm-c-overview-subscription-settings__card">
       <CardTitle className="ocm-c-overview-subscription-settings__card--header">
@@ -140,7 +135,7 @@ function SubscriptionSettings({
             isInline
             title="Your organization doesn't have an active subscription. Purchase an OpenShift subscription by contacting sales."
           >
-            <ExternalLink href={SALES_URL}>Contact sales</ExternalLink>
+            <ExternalLink href={installLinks.RH_CONTACT}>Contact sales</ExternalLink>
           </Alert>
         </CardBody>
       )}

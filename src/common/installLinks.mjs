@@ -88,6 +88,8 @@ const OCP_DOC_BASE =
 const MTV_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/migration_toolkit_for_virtualization/2.0/html';
 
+const RH_BASE = 'https://www.redhat.com/en';
+
 const links = {
   ROSA_CP_DOCS: 'https://access.redhat.com/documentation/en-us/red_hat_openshift_service_on_aws/4',
   OSD_GOOGLE_MARKETPLACE:
@@ -404,6 +406,20 @@ const links = {
   MTV_RESOURCES: `${MTV_DOCS_BASE}/installing_and_using_the_migration_toolkit_for_virtualization/about-mtv_mtv#mtv-resources-and-services_mtv`,
 
   RH_DEV_TOOLS: 'https://developers.redhat.com/topics/developer-tools',
+
+  RH_CONTACT: `${RH_BASE}/contact`,
+  RH_ISTIO: `${RH_BASE}/topics/microservices/what-is-istio`,
+  RH_ARGO_CD: `${RH_BASE}/blog/argocd-and-gitops-whats-next`,
+  RH_OCP_SUBSCRIPTIONS: `${RH_BASE}/resources/self-managed-openshift-sizing-subscription-guide`,
+  RH_ACS_TRIAL: `${RH_BASE}/technologies/cloud-computing/openshift/advanced-cluster-security-kubernetes/trial`,
+  RH_OPENSHIFT_AI_TRIAL: `${RH_BASE}/technologies/cloud-computing/openshift/openshift-ai/trial`,
+  RH_ACM_TRIAL: `${RH_BASE}/technologies/management/advanced-cluster-management/trial`,
+  RH_ACM: `${RH_BASE}/technologies/management/advanced-cluster-management`,
+  RH_OPENSHIFT_OBSERVABILITY: `${RH_BASE}/technologies/cloud-computing/openshift/observability`,
+  RH_ROSA: `${RH_BASE}/technologies/cloud-computing/openshift/aws`,
+  RH_ROSA_LEARN: `${RH_BASE}/technologies/cloud-computing/openshift/aws/learn`,
+  RH_ROSA_INSTALL: `${RH_BASE}/products/interactive-walkthrough/install-rosa`,
+  RH_ROSA_LIGHTBOARD: `${RH_BASE}/about/videos/rosa-lightboard`,
 };
 
 // Tool identifiers are public — e.g. for linking to specific tool in DownloadsPage.
