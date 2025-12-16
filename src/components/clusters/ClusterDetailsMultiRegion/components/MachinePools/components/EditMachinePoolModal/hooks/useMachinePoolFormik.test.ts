@@ -107,27 +107,30 @@ describe('useMachinePoolFormik', () => {
         );
       });
 
-      it('should not require capacityReservationId when preference is open', async () => {
-        const { validationSchema } = renderHook(() =>
-          useMachinePoolFormik({
-            cluster: hyperShiftCluster,
-            machinePool: defaultMachinePool,
-            machineTypes: defaultMachineTypes,
-            machinePools: defaultMachinePools,
-          }),
-        ).result.current;
+      it.each(['open', 'none'])(
+        'should not require capacityReservationId when preference is %s',
+        async (preference) => {
+          const { validationSchema } = renderHook(() =>
+            useMachinePoolFormik({
+              cluster: hyperShiftCluster,
+              machinePool: defaultMachinePool,
+              machineTypes: defaultMachineTypes,
+              machinePools: defaultMachinePools,
+            }),
+          ).result.current;
 
-        const values = {
-          ...hyperShiftExpectedInitialValues,
-          capacityReservationPreference: 'open',
-          capacityReservationId: '',
-        };
+          const values = {
+            ...hyperShiftExpectedInitialValues,
+            capacityReservationPreference: preference,
+            capacityReservationId: '',
+          };
 
-        // Use validateAt to check only the capacityReservationId field
-        await expect(validationSchema.validateAt('capacityReservationId', values)).resolves.toBe(
-          '',
-        );
-      });
+          // Use validateAt to check only the capacityReservationId field
+          await expect(validationSchema.validateAt('capacityReservationId', values)).resolves.toBe(
+            '',
+          );
+        },
+      );
 
       it('should auto-trim leading and trailing whitespace from capacityReservationId', async () => {
         const { validationSchema } = renderHook(() =>

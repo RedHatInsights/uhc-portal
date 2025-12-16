@@ -39,7 +39,7 @@ type CapacityReservationFieldProps = {
 const options = [
   { label: 'None', value: 'none' },
   { label: 'Open', value: 'open' },
-  { label: 'CR only', value: 'capacity-reservations-only' },
+  { label: 'By Id (CR only)', value: 'capacity-reservations-only' },
 ];
 
 export const capacityReservationHint = (showList: boolean, showRosaLink: boolean) => (
@@ -60,8 +60,8 @@ export const capacityReservationHint = (showList: boolean, showRosaLink: boolean
               <strong>Open</strong> to make use of an open reservation if applicable
             </li>
             <li>
-              <strong>CR only</strong> and a capacity reservation ID to target a specific
-              reservation
+              <strong>By Id (CR only)</strong> to target a specific reservation by providing a
+              capacity reservation ID
             </li>
           </ul>
         </FlexItem>
@@ -110,6 +110,7 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
 
   return canUseCapacityReservation ? (
     <FormGroup
+      className="pf-v6-u-pb-2xl"
       label="Capacity Reservation"
       labelHelp={
         <PopoverHint
@@ -136,19 +137,16 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
           </SelectField>
         </FlexItem>
       </Flex>
-      <Flex className="pf-v6-u-ml-sm pf-v6-u-mt-sm">
-        <FlexItem>
-          Reservation Id: {isCROnly ? <span style={{ color: '#B1380B' }}>*</span> : null}
-        </FlexItem>
-        <FlexItem>
-          <TextField
-            fieldId={crIdFieldId}
-            isDisabled={!isCROnly}
-            isRequired={isCROnly}
-            trimOnBlur
-          />
-        </FlexItem>
-      </Flex>
+      {isCROnly ? (
+        <Flex className="pf-v6-u-ml-sm pf-v6-u-mt-sm">
+          <FlexItem>
+            Reservation Id: <span style={{ color: '#B1380B' }}>*</span>
+          </FlexItem>
+          <FlexItem>
+            <TextField fieldId={crIdFieldId} isRequired trimOnBlur />
+          </FlexItem>
+        </Flex>
+      ) : null}
       {!isValidVersion ? (
         <HelperText>
           <HelperTextItem>
