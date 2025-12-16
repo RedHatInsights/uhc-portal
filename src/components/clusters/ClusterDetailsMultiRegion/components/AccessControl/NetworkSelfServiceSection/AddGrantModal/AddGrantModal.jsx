@@ -4,17 +4,16 @@ import { useDispatch } from 'react-redux';
 
 import { Form, FormGroup, Radio, TextInput } from '@patternfly/react-core';
 
-import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
-import Modal from '~/components/common/Modal/Modal';
-import shouldShowModal from '~/components/common/Modal/ModalSelectors';
-import { refetchGrants } from '~/queries/ClusterDetailsQueries/AccessControlTab/NetworkSelfServiceQueries/useFetchGrants';
-import { useGlobalState } from '~/redux/hooks';
-
 import installLinks from '~/common/installLinks.mjs';
 import { validateUserOrGroupARN } from '~/common/validators';
 import ErrorBox from '~/components/common/ErrorBox';
+import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+import Modal from '~/components/common/Modal/Modal';
 import { modalActions } from '~/components/common/Modal/ModalActions';
+import shouldShowModal from '~/components/common/Modal/ModalSelectors';
 import PopoverHint from '~/components/common/PopoverHint';
+import { refetchGrants } from '~/queries/ClusterDetailsQueries/AccessControlTab/NetworkSelfServiceQueries/useFetchGrants';
+import { useGlobalState } from '~/redux/hooks';
 
 import './AddGrantModal.scss';
 
