@@ -783,7 +783,7 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
       ),
 
     addNodePool: (clusterID: string, data: NodePool) =>
-      apiRequest.post<MachinePool>(`/api/clusters_mgmt/v1/clusters/${clusterID}/node_pools`, data),
+      apiRequest.post<NodePool>(`/api/clusters_mgmt/v1/clusters/${clusterID}/node_pools`, data),
 
     deleteMachinePool: (clusterID: string, machinePoolID: string) =>
       apiRequest.delete<unknown>(

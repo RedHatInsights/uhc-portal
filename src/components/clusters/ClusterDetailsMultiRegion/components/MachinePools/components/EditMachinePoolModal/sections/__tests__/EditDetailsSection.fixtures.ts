@@ -102,7 +102,7 @@ const mockHypershiftCluster: ClusterFromSubscription = {
 
 const mockMachinePools: NodePool[] = [
   {
-    kind: 'MachinePool',
+    kind: 'NodePool',
     id: 'workers-1',
     href: '/api/clusters_mgmt/v1/clusters/test/machine_pools/workers-1',
     aws_node_pool: {
@@ -111,7 +111,7 @@ const mockMachinePools: NodePool[] = [
     replicas: 3,
   },
   {
-    kind: 'MachinePool',
+    kind: 'NodePool',
     id: 'windows-li-enabled-machine-pool',
     href: '/api/clusters_mgmt/v1/clusters/test/machine_pools/windows-li-enabled-machine-pool',
     aws_node_pool: {
