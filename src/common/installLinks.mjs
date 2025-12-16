@@ -93,7 +93,7 @@ const RH_BASE = 'https://www.redhat.com/en';
 const links = {
   ROSA_CP_DOCS: 'https://access.redhat.com/documentation/en-us/red_hat_openshift_service_on_aws/4',
   OSD_GOOGLE_MARKETPLACE:
-    'https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated?inv=1&invt=Abh7pg',
+    'https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated',
   ACCESS_REQUEST_DOC_LINK: `${ROSA_CP_DOCS_BASE}/support/approved-access#approved-access`,
   DOCS_ENTRY: `${OCP_DOCS_BASE}/overview/welcome-index`,
   ROSA_TROUBLESHOOTING_INSTALLATIONS: `${ROSA_CP_DOCS_BASE}/support/troubleshooting#rosa-troubleshooting-installations`,
@@ -371,6 +371,7 @@ const links = {
 
   GCP_CONSOLE_OSD_HOME:
     'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
+  GCP_CONSOLE_KMS: 'https://console.cloud.google.com/security/kms',
 
   OCM_DOCS_MANAGING_CLUSTERS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-managing-clusters`,
   OCM_DOCS_PULL_SECRETS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-managing-clusters#downloading_and_updating_pull_secrets`,
