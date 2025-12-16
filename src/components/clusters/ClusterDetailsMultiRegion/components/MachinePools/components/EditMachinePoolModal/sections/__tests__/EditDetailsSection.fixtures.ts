@@ -1,4 +1,4 @@
-import { MachineType, NodePool } from '~/types/clusters_mgmt.v1';
+import { ImageType, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 const mockMachineType: MachineType = {
@@ -118,7 +118,7 @@ const mockMachinePools: NodePool[] = [
       instance_type: 'm5.2xlarge',
     },
     replicas: 2,
-    image_type: 'Windows',
+    image_type: 'Windows' as ImageType,
   },
 ];
 
