@@ -402,6 +402,8 @@ const links = {
   WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: 'https://access.redhat.com/articles/7096903',
 
   MTV_RESOURCES: `${MTV_DOCS_BASE}/installing_and_using_the_migration_toolkit_for_virtualization/about-mtv_mtv#mtv-resources-and-services_mtv`,
+
+  RH_DEV_TOOLS: 'https://developers.redhat.com/topics/developer-tools',
 };
 
 // Tool identifiers are public — e.g. for linking to specific tool in DownloadsPage.
