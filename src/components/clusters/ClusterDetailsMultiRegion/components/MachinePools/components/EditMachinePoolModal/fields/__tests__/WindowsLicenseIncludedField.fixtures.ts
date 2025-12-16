@@ -5,7 +5,7 @@ const defaultMachinePool = {
   availability_zones: ['us-east-1a'],
   href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/some-user-mp',
   instance_type: 'm5.xlarge',
-  kind: 'MachinePool',
+  kind: 'NodePool',
   replicas: 21,
   root_volume: { aws: { size: 300 } },
 };
