@@ -85,6 +85,9 @@ const OCM_DOCS_BASE =
 const OCP_DOC_BASE =
   'https://access.redhat.com/documentation/en-us/openshift_container_platform/4.13';
 
+const MTV_DOCS_BASE =
+  'https://docs.redhat.com/en/documentation/migration_toolkit_for_virtualization/2.0/html';
+
 const links = {
   ROSA_CP_DOCS: 'https://access.redhat.com/documentation/en-us/red_hat_openshift_service_on_aws/4',
   OSD_GOOGLE_MARKETPLACE:
@@ -397,6 +400,8 @@ const links = {
 
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: 'https://aws.amazon.com/windows/resources/licensing/',
   WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: 'https://access.redhat.com/articles/7096903',
+
+  MTV_RESOURCES: `${MTV_DOCS_BASE}/installing_and_using_the_migration_toolkit_for_virtualization/about-mtv_mtv#mtv-resources-and-services_mtv`,
 };
 
 // Tool identifiers are public — e.g. for linking to specific tool in DownloadsPage.
