@@ -369,6 +369,14 @@ const links = {
   AWS_ARN_CONFIG: 'https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html',
   AWS_DATA_PROTECTION: 'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html',
 
+  GCP_VPC_PROVISIONING:
+    'https://cloud.google.com/vpc/docs/provisioning-shared-vpc#migs-service-accounts',
+  GCP_ORG_POLICY: 'https://cloud.google.com/resource-manager/docs/organization-policy/overview',
+  GCP_ORG_POLICY_API: 'https://cloud.google.com/resource-manager/docs/reference/orgpolicy/rest',
+  GCP_SERVICE_ACCOUNT_KEYS:
+    'https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys',
+  GCP_ENCRYPTION_KEYS: 'https://cloud.google.com/storage/docs/encryption/default-keys',
+
   GCP_CONSOLE_OSD_HOME:
     'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
   GCP_CONSOLE_KMS: 'https://console.cloud.google.com/security/kms',
