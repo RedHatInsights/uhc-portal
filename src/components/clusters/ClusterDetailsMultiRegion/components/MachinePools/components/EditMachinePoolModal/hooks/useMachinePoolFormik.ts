@@ -381,11 +381,13 @@ const useMachinePoolFormik = ({
           auto_repair: Yup.boolean(),
           capacityReservationId:
             values.capacityReservationPreference === 'capacity-reservations-only'
-              ? Yup.string().test(
-                  'capacity-reservation-id',
-                  'Capacity Reservation ID cannot be empty or contain only whitespace.',
-                  (value) => !!value && value.trim().length > 0,
-                )
+              ? Yup.string()
+                  .trim()
+                  .test(
+                    'capacity-reservation-id',
+                    'Capacity Reservation ID cannot be empty or contain only whitespace.',
+                    (value) => !!value && value.trim().length > 0,
+                  )
               : Yup.string(),
           diskSize: rosa
             ? Yup.number()

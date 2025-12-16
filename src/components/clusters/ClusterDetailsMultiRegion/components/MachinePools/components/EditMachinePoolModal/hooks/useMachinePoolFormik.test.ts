@@ -128,6 +128,27 @@ describe('useMachinePoolFormik', () => {
           '',
         );
       });
+
+      it('should auto-trim leading and trailing whitespace from capacityReservationId', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          capacityReservationPreference: 'capacity-reservations-only',
+          capacityReservationId: '  cr-12345678901234567  ',
+        };
+
+        // Yup's .trim() transform should return the trimmed value
+        const result = await validationSchema.validateAt('capacityReservationId', values);
+        expect(result).toBe('cr-12345678901234567');
+      });
     });
   });
 });

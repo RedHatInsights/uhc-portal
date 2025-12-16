@@ -141,7 +141,12 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
           Reservation Id: {isCROnly ? <span style={{ color: '#B1380B' }}>*</span> : null}
         </FlexItem>
         <FlexItem>
-          <TextField fieldId={crIdFieldId} isDisabled={!isCROnly} isRequired={isCROnly} />
+          <TextField
+            fieldId={crIdFieldId}
+            isDisabled={!isCROnly}
+            isRequired={isCROnly}
+            trimOnBlur
+          />
         </FlexItem>
       </Flex>
       {!isValidVersion ? (
