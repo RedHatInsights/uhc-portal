@@ -57,7 +57,7 @@ describe('<CapacityReservationField>', () => {
         <CapacityReservationField cluster={mockHypershiftCluster} isEdit={false} />
       </MockFormikWrapper>,
     );
-    expect(screen.queryByText('Reservation Id:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Reservation Id')).not.toBeInTheDocument();
   });
 
   it('shows Reservation Id field when preference is "By Id (CR only)"', () => {
@@ -72,7 +72,7 @@ describe('<CapacityReservationField>', () => {
         <CapacityReservationField cluster={mockHypershiftCluster} isEdit={false} />
       </MockFormikWrapper>,
     );
-    expect(screen.getByText('Reservation Id:')).toBeInTheDocument();
+    expect(screen.getByText('Reservation Id')).toBeInTheDocument();
   });
 
   it('shows helper text for invalid cluster version', () => {

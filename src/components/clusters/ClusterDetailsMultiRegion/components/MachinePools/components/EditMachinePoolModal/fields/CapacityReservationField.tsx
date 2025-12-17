@@ -6,6 +6,8 @@ import {
   Flex,
   FlexItem,
   FormGroup,
+  Grid,
+  GridItem,
   HelperText,
   HelperTextItem,
   SelectOption,
@@ -138,14 +140,11 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
         </FlexItem>
       </Flex>
       {isCROnly ? (
-        <Flex className="pf-v6-u-ml-sm pf-v6-u-mt-sm">
-          <FlexItem>
-            Reservation Id: <span style={{ color: '#B1380B' }}>*</span>
-          </FlexItem>
-          <FlexItem>
-            <TextField fieldId={crIdFieldId} isRequired trimOnBlur />
-          </FlexItem>
-        </Flex>
+        <Grid className="pf-v6-u-ml-sm pf-v6-u-mt-sm">
+          <GridItem span={4}>
+            <TextField fieldId={crIdFieldId} label="Reservation Id" isRequired trimOnBlur />
+          </GridItem>
+        </Grid>
       ) : null}
       {!isValidVersion ? (
         <HelperText>
