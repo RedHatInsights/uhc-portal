@@ -161,7 +161,7 @@ const MachineTypeSelection = ({
     !inModal;
 
   const isMachineTypeIncludedInFilteredSet = (machineTypeID, filteredMachineTypes) =>
-    !!filteredMachineTypes?.typesByID[machineTypeID];
+    !!filteredMachineTypes?.typesByID?.[machineTypeID];
 
   const [isMachineTypeFilteredByRegion, setIsMachineTypeFilteredByRegion] = React.useState(
     !previousSelectionFromUnfilteredSet,
