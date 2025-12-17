@@ -10,12 +10,10 @@
  * filteredMachineTypes?.typesByID?.[machineTypeID]
  */
 
+import { isMachineTypeIncludedInFilteredSet } from './MachineTypeSelection';
+
 describe('MachineTypeSelection - typesByID undefined handling', () => {
   describe('isMachineTypeIncludedInFilteredSet helper function', () => {
-    // Simulate the fixed function from the component
-    const isMachineTypeIncludedInFilteredSet = (machineTypeID, filteredMachineTypes) =>
-      !!filteredMachineTypes?.typesByID?.[machineTypeID];
-
     const cases = [
       {
         name: 'typesByID is undefined',
