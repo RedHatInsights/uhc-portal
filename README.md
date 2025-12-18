@@ -44,11 +44,35 @@ yarn build
 
 ## Running locally
 
-> If you're on macOS and have Podman fully set up, then verify that the initialized virtual machine is currently running. If it's not, then start the machine with `podman machine start`.
+> **Prerequisite:** Podman must be running. On macOS, verify the virtual machine is started with `podman machine start`.
 
-Run `yarn install && yarn start`.
+There are two development scripts available:
 
-> By default, the [Chrome server (Red Hat Console shell)](docs/contributing.md#insights-chrome-architecture) runs on port `:9990`. To use a different port, run `FEC_CHROME_PORT=<PORT> yarn start`.
+### `yarn dev` (Hot Module Reloading)
+
+```bash
+yarn install && yarn dev
+```
+
+Uses `fec dev` with Hot Module Reloading enabled for instant feedback on code changes. This is ideal for active UI development where you want to see changes without full page reloads.
+
+> **Note:** Requires Red Hat VPN connection to access the UI.
+
+### `yarn start` (Proxy mode)
+
+```bash
+yarn install && yarn start
+```
+
+Uses `fec dev-proxy`, which runs webpack in watch mode with proxy capabilities for backend routing. Changes are recompiled automatically, but require a manual browser refresh to see updates (no Hot Module Reloading).
+
+> By default, the [Chrome server (Red Hat Console shell)](docs/contributing.md#insights-chrome-architecture) runs on port `:9990`. To use a different port, run `FEC_CHROME_PORT=<PORT> yarn dev` (or `yarn start`).
+
+### Shared Features
+
+Both scripts provide:
+- **Mock server** (`mockdata/mockserver.py`) running concurrently for local API mocking
+- **Passthrough arguments** - additional flags can be passed to the underlying `fec` command (e.g., `yarn dev --clouddotEnv staging`)
 
 The UI will be available at https://prod.foo.redhat.com:1337/openshift/
 
