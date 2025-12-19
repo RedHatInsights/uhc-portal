@@ -700,7 +700,7 @@ describe('<ClusterDetailsMultiRegion />', () => {
       const tabsRowCall = mockTabsRowProps.mock.calls[mockTabsRowProps.mock.calls.length - 1][0];
       // ARO clusters should hide Monitoring and Settings (Upgrade Settings) tabs
       expect(tabsRowCall.tabsInfo.monitoring.show).toBe(false);
-      expect(tabsRowCall.tabsInfo.upgradeSettings.show).toBe(false);
+      expect(tabsRowCall.tabsInfo.updateSettings.show).toBe(false);
     });
   });
 
@@ -977,7 +977,7 @@ describe('<ClusterDetailsMultiRegion />', () => {
       expect(tabsRowCall.tabsInfo.monitoring.show).toBe(false);
       expect(tabsRowCall.tabsInfo.addOns.show).toBe(false);
       expect(tabsRowCall.tabsInfo.networking.show).toBe(false);
-      expect(tabsRowCall.tabsInfo.upgradeSettings.show).toBe(false);
+      expect(tabsRowCall.tabsInfo.updateSettings.show).toBe(false);
 
       // Access Control should be hidden for Deprovisioned (treated as archived)
       // displayAccessControlTab = !isArchived, and Deprovisioned is treated as Archived
@@ -1082,7 +1082,7 @@ describe('<ClusterDetailsMultiRegion />', () => {
       expect(tabsRowCall.tabsInfo.monitoring.show).toBe(false);
       expect(tabsRowCall.tabsInfo.addOns.show).toBe(false);
       expect(tabsRowCall.tabsInfo.networking.show).toBe(false);
-      expect(tabsRowCall.tabsInfo.upgradeSettings.show).toBe(false);
+      expect(tabsRowCall.tabsInfo.updateSettings.show).toBe(false);
       expect(tabsRowCall.tabsInfo.accessControl.show).toBe(false);
 
       // Support tab should be shown for Archived clusters
