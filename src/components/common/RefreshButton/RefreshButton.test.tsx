@@ -1,11 +1,13 @@
 import React from 'react';
 
-import { act, checkAccessibility, render, screen } from '~/testUtils';
+import { act, checkAccessibility, render, screen, waitFor } from '~/testUtils';
 
 import RefreshButton from './RefreshButton';
 
+// Modern fake timers don't work well with setInterval in jsdom environment
+// We need to use legacy fake timers for this test file
 jest.useFakeTimers({
-  legacyFakeTimers: true, // TODO 'modern'
+  legacyFakeTimers: true,
 });
 jest.spyOn(global, 'clearInterval');
 jest.spyOn(global, 'setInterval');
@@ -13,13 +15,15 @@ jest.spyOn(global, 'setInterval');
 // Times set for refresh, change here if the corresponding var are changed within the component file
 const shortTimerSeconds = 10;
 const longTimerSeconds = 60;
-const numberOfShortTries = 3;
 
 describe('<RefreshButton />', () => {
   const onClickFunc = jest.fn();
   const refreshFunc = jest.fn();
 
   afterEach(() => {
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
     jest.clearAllMocks();
   });
 
@@ -44,16 +48,20 @@ describe('<RefreshButton />', () => {
 
   it('calls refreshFunc when clicked', async () => {
     const { user } = render(<RefreshButton refreshFunc={onClickFunc} />);
-    expect(onClickFunc).not.toBeCalled();
+    expect(onClickFunc).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button'));
-    expect(onClickFunc).toBeCalled();
+    expect(onClickFunc).toHaveBeenCalled();
   });
 
-  it("doesn't call onClickFunc when autoRefresh is disabled", () => {
+  it("doesn't call onClickFunc when autoRefresh is disabled", async () => {
     render(<RefreshButton refreshFunc={onClickFunc} autoRefresh={false} />);
-    jest.advanceTimersByTime(longTimerSeconds * 1000);
-    expect(onClickFunc).not.toBeCalled();
+    act(() => {
+      jest.advanceTimersByTime(longTimerSeconds * 1000);
+    });
+    await waitFor(() => {
+      expect(onClickFunc).not.toHaveBeenCalled();
+    });
   });
 
   describe('with a refreshFunc and clickRefreshFunc', () => {
@@ -61,17 +69,22 @@ describe('<RefreshButton />', () => {
       const { user } = render(
         <RefreshButton refreshFunc={refreshFunc} clickRefreshFunc={onClickFunc} />,
       );
-      expect(onClickFunc).not.toBeCalled();
+      expect(onClickFunc).not.toHaveBeenCalled();
 
       await user.click(screen.getByRole('button'));
-      expect(refreshFunc).not.toBeCalled();
-      expect(onClickFunc).toBeCalled();
+      expect(refreshFunc).not.toHaveBeenCalled();
+      expect(onClickFunc).toHaveBeenCalled();
     });
   });
 });
 
 describe('<RefreshButton autoRefresh />', () => {
-  const onClickFunc = jest.fn();
+  let onClickFunc: jest.Mock;
+
+  beforeEach(() => {
+    onClickFunc = jest.fn();
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -85,85 +98,152 @@ describe('<RefreshButton autoRefresh />', () => {
 
   it('calls refreshFunc when clicked', async () => {
     const { user } = render(<RefreshButton refreshFunc={onClickFunc} autoRefresh />);
-    expect(onClickFunc).not.toBeCalled();
+    expect(onClickFunc).not.toHaveBeenCalled();
     await user.click(screen.getByRole('button'));
 
-    expect(onClickFunc).toBeCalled();
+    expect(onClickFunc).toHaveBeenCalled();
   });
 
-  it('refreshes after a minute', () => {
+  it('refreshes after a minute', async () => {
     render(<RefreshButton refreshFunc={onClickFunc} autoRefresh />);
-    expect(onClickFunc).not.toBeCalled();
-    jest.advanceTimersByTime(longTimerSeconds * 1000);
-    expect(onClickFunc).toBeCalled();
+    expect(onClickFunc).not.toHaveBeenCalled();
+    act(() => {
+      jest.advanceTimersByTime(longTimerSeconds * 1000);
+    });
+    await waitFor(() => {
+      expect(onClickFunc).toHaveBeenCalled();
+    });
   });
 
-  it('does not refresh if autoRefresh has been turned off', () => {
+  it('does not refresh if autoRefresh has been turned off', async () => {
     render(<RefreshButton refreshFunc={onClickFunc} autoRefresh={false} />);
-    expect(onClickFunc).not.toBeCalled();
-    jest.advanceTimersByTime(longTimerSeconds * 1000);
-    expect(onClickFunc).not.toBeCalled();
+    expect(onClickFunc).not.toHaveBeenCalled();
+    act(() => {
+      jest.advanceTimersByTime(longTimerSeconds * 1000);
+    });
+    await waitFor(() => {
+      expect(onClickFunc).not.toHaveBeenCalled();
+    });
   });
 
-  it('clears timer on umount', () => {
+  it('clears timer on umount', async () => {
     const { unmount } = render(<RefreshButton refreshFunc={onClickFunc} autoRefresh />);
     unmount();
-    expect(clearInterval).toBeCalled();
-    jest.runOnlyPendingTimers();
-    expect(onClickFunc).not.toBeCalled();
+    expect(clearInterval).toHaveBeenCalled();
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+    await waitFor(() => {
+      expect(onClickFunc).not.toHaveBeenCalled();
+    });
   });
 
   describe('Short timer', () => {
-    it('refreshes on shorter cycle if useShortTimer is set', () => {
+    it('refreshes on shorter cycle if useShortTimer is set', async () => {
       // checking to see if we have valid data
       expect(shortTimerSeconds * 2).toBeLessThan(longTimerSeconds);
-      render(<RefreshButton refreshFunc={onClickFunc} autoRefresh useShortTimer />);
+      const { unmount } = render(
+        <RefreshButton refreshFunc={onClickFunc} autoRefresh useShortTimer />,
+      );
 
-      // act is required because there are state changes (without UI changes) as timer advances
       act(() => {
-        jest.advanceTimersByTime(shortTimerSeconds * 2 * 1000);
-        expect(onClickFunc).toBeCalledTimes(2);
+        jest.advanceTimersByTime(shortTimerSeconds * 1000);
       });
+      await waitFor(() => {
+        expect(onClickFunc).toHaveBeenCalledTimes(1);
+      });
+
+      act(() => {
+        jest.advanceTimersByTime(shortTimerSeconds * 1000);
+      });
+      await waitFor(() => {
+        expect(onClickFunc).toHaveBeenCalledTimes(2);
+      });
+
+      unmount();
     });
 
-    it('refreshes on long cycle if useShortTimer is not set', () => {
+    it('refreshes on long cycle if useShortTimer is not set', async () => {
       // checking to see if we have valid data
       expect(shortTimerSeconds * 2).toBeLessThan(longTimerSeconds);
       render(<RefreshButton refreshFunc={onClickFunc} autoRefresh />);
-      jest.advanceTimersByTime(longTimerSeconds * 1000);
-      expect(onClickFunc).toBeCalledTimes(1);
-    });
-
-    it.skip('goes back to long cycle if useShortTimer is set for n attempts', () => {
-      // Time for n short cycles and 1 long cycle
-      const expectedTime = (shortTimerSeconds * numberOfShortTries + longTimerSeconds) * 1000;
-      expect(onClickFunc).not.toBeCalled();
-
-      render(<RefreshButton refreshFunc={onClickFunc} autoRefresh useShortTimer />);
-
-      // act is required because there are state changes (without UI changes) as timer advances
       act(() => {
-        jest.advanceTimersByTime(expectedTime);
-        // This fails because the testing setup doesn't allow the state to change
-        // So the app doesn't know to switch to the long timer
-        expect(onClickFunc).toBeCalledTimes(numberOfShortTries + 1);
+        jest.advanceTimersByTime(longTimerSeconds * 1000);
+      });
+      await waitFor(() => {
+        expect(onClickFunc).toHaveBeenCalledTimes(1);
       });
     });
 
-    it('switches from short timer to long timer if useShortTimer is switched from true to false', () => {
+    it('goes back to long cycle if useShortTimer is set for n attempts', async () => {
+      expect(onClickFunc).not.toHaveBeenCalled();
+
+      render(<RefreshButton refreshFunc={onClickFunc} autoRefresh useShortTimer />);
+
+      // The component logic:
+      // - Starts with shortTimerSeconds (10s) interval, shortTimerTries = 0
+      // - After 1st tick: shortTimerTries: 0 -> 1, refreshFunc called
+      // - After 2nd tick: shortTimerTries: 1 -> 2, refreshFunc called
+      // - After 3rd tick: shortTimerTries: 2, switches to longTimerSeconds (60s), refreshFunc called
+      // - After 4th tick: uses long timer, refreshFunc called
+      // Total: 4 calls
+
+      // With legacy fake timers, jest.advanceTimersByTime() executes all timers scheduled within that time.
+      // We use act() to wrap timer advances and waitFor() to wait for state updates to complete.
+
+      // First short cycle (10s) - shortTimerTries: 0 -> 1
+      act(() => {
+        jest.advanceTimersByTime(shortTimerSeconds * 1000);
+      });
+      await waitFor(() => {
+        expect(onClickFunc).toHaveBeenCalledTimes(1);
+      });
+
+      // Second short cycle (10s) - shortTimerTries: 1 -> 2
+      act(() => {
+        jest.advanceTimersByTime(shortTimerSeconds * 1000);
+      });
+      await waitFor(() => {
+        expect(onClickFunc).toHaveBeenCalledTimes(2);
+      });
+
+      // Third short cycle (10s) - shortTimerTries: 2, switches to long timer
+      act(() => {
+        jest.advanceTimersByTime(shortTimerSeconds * 1000);
+      });
+      await waitFor(() => {
+        expect(onClickFunc).toHaveBeenCalledTimes(3);
+      });
+
+      // Long cycle (60s) - should use long timer now
+      act(() => {
+        jest.advanceTimersByTime(longTimerSeconds * 1000);
+      });
+      await waitFor(() => {
+        expect(onClickFunc).toHaveBeenCalledTimes(4);
+      });
+    });
+
+    it('switches from short timer to long timer if useShortTimer is switched from true to false', async () => {
       const { rerender } = render(
         <RefreshButton refreshFunc={onClickFunc} autoRefresh useShortTimer />,
       );
 
-      // act is required because there are state changes (without UI changes) as timer advances
       act(() => {
         jest.advanceTimersByTime(shortTimerSeconds * 1000);
+      });
+      await waitFor(() => {
+        expect(onClickFunc).toHaveBeenCalledTimes(1);
       });
 
       rerender(<RefreshButton refreshFunc={onClickFunc} autoRefresh useShortTimer={false} />);
 
-      jest.advanceTimersByTime(longTimerSeconds * 1000);
-      expect(onClickFunc).toBeCalledTimes(2);
+      act(() => {
+        jest.advanceTimersByTime(longTimerSeconds * 1000);
+      });
+      await waitFor(() => {
+        expect(onClickFunc).toHaveBeenCalledTimes(2);
+      });
     });
   });
 });

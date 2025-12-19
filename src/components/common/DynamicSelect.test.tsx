@@ -101,7 +101,7 @@ describe('<DynamicSelect>', () => {
     expect(within(screen.getByRole('alert')).getByText('No foos', { exact: false }));
   });
 
-  it.skip('displays a single option when there is an error but untouched', () => {
+  it('displays a single option when there is an error but untouched', () => {
     const untouchedProps = {
       ...baseProps,
       meta: { invalid: true, error: 'Bad!', touched: false },
