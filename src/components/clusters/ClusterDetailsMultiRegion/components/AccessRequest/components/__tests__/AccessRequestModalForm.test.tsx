@@ -7,7 +7,7 @@ import {
   usePostAccessRequestDecision,
 } from '~/queries/ClusterDetailsQueries/AccessRequestTab/usePostAccessRequestDecision';
 import { useGlobalState } from '~/redux/hooks';
-import { act, render, screen, within } from '~/testUtils';
+import { act, render, screen, waitFor, within } from '~/testUtils';
 import { AccessRequestStatusState } from '~/types/access_transparency.v1';
 
 import AccessRequestModalForm from '../AccessRequestModalForm';
@@ -23,7 +23,16 @@ jest.mock('~/queries/ClusterDetailsQueries/AccessRequestTab/usePostAccessRequest
 
 jest.mock('../AccessRequestStateIcon', () => () => <div>access request state icon mock</div>);
 jest.mock('../AccessRequestDetails', () => () => <div>access request details mock</div>);
-jest.mock('~/components/common/ErrorBox', () => () => <div>error-box</div>);
+jest.mock(
+  '~/components/common/ErrorBox',
+  () =>
+    ({ response }: { response?: { errorDetails?: string } }) => (
+      <div data-testid="error-box">
+        error-box
+        {response?.errorDetails && <div>{response.errorDetails}</div>}
+      </div>
+    ),
+);
 
 jest.mock('~/components/common/Modal/ModalActions', () => ({
   closeModal: jest.fn(),
@@ -342,10 +351,18 @@ describe('AccessRequestModalForm', () => {
       rerender(<AccessRequestModalForm />);
 
       // Assert
-      expect(mutateMock).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(mutateMock).toHaveBeenCalledTimes(1);
+      });
+
+      // The error box should be shown
+      const errorBox = screen.getByTestId('error-box');
+      expect(errorBox).toBeInTheDocument();
+
+      // And it should surface the detailed error from the API, not just a generic message
+      expect(screen.getByText(/ERROR DETAILS/i)).toBeInTheDocument();
       expect(onCloseMock).toHaveBeenCalledTimes(0);
       expect(dispatchMock).toHaveBeenCalledTimes(0);
-      expect(screen.getByText(/error-box/i)).toBeInTheDocument();
     });
   });
 

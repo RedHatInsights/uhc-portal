@@ -5,9 +5,8 @@ import { checkAccessibility, render, screen, waitFor, withState } from '~/testUt
 import { addonsQuotaList } from '../../../../../common/__tests__/quota.fixtures';
 import fixtures from '../../../../__tests__/ClusterDetails.fixtures';
 import { mockAddOns, mockClusterAddOns } from '../../__tests__/AddOns.fixtures';
+import * as AddOnsActions from '../../AddOnsActions';
 import AddOnsDrawer from '../AddOnsDrawer';
-
-import { billingQuota as mockBillingQuota } from './AddOns.fixtures';
 
 jest.mock('react-redux', () => {
   const config = {
@@ -98,6 +97,13 @@ describe('<AddOnsDrawer />', () => {
       },
     };
 
+    // Save the original implementation before spying to avoid circular reference
+    const originalSetAddonsDrawer = AddOnsActions.setAddonsDrawer;
+    // Spy on setAddonsDrawer to verify it's called with correct arguments
+    const setAddonsDrawerSpy = jest.spyOn(AddOnsActions, 'setAddonsDrawer');
+    // Make the spy call through to the actual implementation so the action is dispatched
+    setAddonsDrawerSpy.mockImplementation(originalSetAddonsDrawer);
+
     const testState = withState(initialState, true);
     const { user } = testState.render(<AddOnsDrawer {...props} />);
 
@@ -113,17 +119,13 @@ describe('<AddOnsDrawer />', () => {
     expect(radioInput).toBeInTheDocument();
     await user.click(radioInput);
 
-    // Update Redux state to simulate the drawer opening after card click
+    // Verify that setAddonsDrawer was called with the correct arguments
     // The component dispatches setAddonsDrawer when a card is clicked
-    const { setAddonsDrawer } = await import('../../AddOnsActions');
-    testState.dispatch(
-      setAddonsDrawer({
+    expect(setAddonsDrawerSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
         open: true,
         activeCard: firstAddOn,
-        activeCardRequirementsFulfilled: true,
-        activeCardRequirements: null,
-        installedAddOn: null,
-        billingQuota: mockBillingQuota, // Use fixture billingQuota to match expected structure
+        activeCardRequirementsFulfilled: expect.any(Boolean),
         activeTabKey: 0,
       }),
     );
@@ -139,5 +141,8 @@ describe('<AddOnsDrawer />', () => {
 
     // Also verify the add-on name appears in the drawer panel (as h2 heading)
     expect(screen.getByRole('heading', { name: firstAddOn.name, level: 2 })).toBeInTheDocument();
+
+    // Clean up spy
+    setAddonsDrawerSpy.mockRestore();
   });
 });
