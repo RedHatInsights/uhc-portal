@@ -250,8 +250,23 @@ describe('<ScaleClusterDialog />', () => {
     // Submit the form
     await user.click(screen.getByRole('button', { name: 'Apply' }));
 
-    // Verify mutate was called
+    // Verify mutate was called with the correct payload
     expect(mockMutate).toHaveBeenCalled();
+    expect(mockMutate).toHaveBeenCalledWith(
+      {
+        clusterID: defaultState.modal.data.id,
+        cluster: {
+          load_balancer_quota: 0,
+          storage_quota: {
+            unit: 'B',
+            value: defaultState.modal.data.storage_quota.value,
+          },
+        },
+      },
+      expect.objectContaining({
+        onSuccess: expect.any(Function),
+      }),
+    );
 
     // Manually trigger the onSuccess callback
     expect(onSuccessCallback).toBeDefined();
