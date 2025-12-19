@@ -260,10 +260,12 @@ describe('AccessRequestModalForm', () => {
       expect(screen.queryByText(/No rights for making a decision/i)).not.toBeInTheDocument();
     });
 
-    it.skip('shows error after submit error', async () => {
+    it('shows error after submit error', async () => {
       // Arrange
       const onCloseMock = jest.fn();
+      const mutateMock = jest.fn();
 
+      // Initial render - form should be editable (no error)
       for (let i = 0; i <= REFRESH_TIMES; i += 1) {
         useGlobalStateMock.mockReturnValueOnce({
           accessRequest: {
@@ -274,9 +276,9 @@ describe('AccessRequestModalForm', () => {
         });
         useGlobalStateMock.mockReturnValueOnce('organizationId');
         usePostAccessRequestDecisionMock.mockReturnValueOnce({
-          mutate: jest.fn(),
+          mutate: mutateMock,
           isPending: false,
-          isError: true,
+          isError: false, // Start with no error so form is editable
           error: null,
           isSuccess: false,
         });
@@ -289,19 +291,28 @@ describe('AccessRequestModalForm', () => {
       }
 
       const { user, rerender } = render(<AccessRequestModalForm />);
+
+      // Click approve radio button
       await user.click(
         screen.getByRole('radio', {
           name: /approve/i,
         }),
       );
+
+      // Click save button
       await user.click(
         within(screen.getByRole('contentinfo')).getByRole('button', {
           name: /save/i,
         }),
       );
 
-      // Act
-      useGlobalStateMock.mockReturnValue({
+      // Act - Rerender with error state after submit
+      // Set up mocks for rerender - component calls hooks in this order:
+      // 1. useGlobalState (accessRequest/onClose)
+      // 2. useGlobalState (organizationId)
+      // 3. usePostAccessRequestDecision
+      // 4. useCanMakeDecision
+      useGlobalStateMock.mockReturnValueOnce({
         accessRequest: {
           id: 'accessRequestId',
           status: { state: AccessRequestStatusState.Pending },
@@ -310,9 +321,9 @@ describe('AccessRequestModalForm', () => {
       });
       useGlobalStateMock.mockReturnValueOnce('organizationId');
       usePostAccessRequestDecisionMock.mockReturnValueOnce({
-        mutate: jest.fn(),
+        mutate: mutateMock,
         isPending: false,
-        isError: true,
+        isError: true, // Now show error after submit
         error: {
           error: {
             errorDetails: 'ERROR DETAILS',
@@ -331,6 +342,7 @@ describe('AccessRequestModalForm', () => {
       rerender(<AccessRequestModalForm />);
 
       // Assert
+      expect(mutateMock).toHaveBeenCalledTimes(1);
       expect(onCloseMock).toHaveBeenCalledTimes(0);
       expect(dispatchMock).toHaveBeenCalledTimes(0);
       expect(screen.getByText(/error-box/i)).toBeInTheDocument();
