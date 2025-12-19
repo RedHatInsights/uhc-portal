@@ -1,11 +1,21 @@
 import React from 'react';
 
-import { checkAccessibility, render, screen } from '~/testUtils';
+import { checkAccessibility, render, screen, waitFor, withState } from '~/testUtils';
 
 import { addonsQuotaList } from '../../../../../common/__tests__/quota.fixtures';
 import fixtures from '../../../../__tests__/ClusterDetails.fixtures';
 import { mockAddOns, mockClusterAddOns } from '../../__tests__/AddOns.fixtures';
 import AddOnsDrawer from '../AddOnsDrawer';
+
+import { billingQuota as mockBillingQuota } from './AddOns.fixtures';
+
+jest.mock('react-redux', () => {
+  const config = {
+    __esModule: true,
+    ...jest.requireActual('react-redux'),
+  };
+  return config;
+});
 
 describe('<AddOnsDrawer />', () => {
   const openModal = jest.fn();
@@ -71,5 +81,63 @@ describe('<AddOnsDrawer />', () => {
     expect(screen.getAllByTestId('addOnCard')).toHaveLength(7);
   });
 
-  it.skip('ensure  drawer is expanded when card clicked', () => {});
+  it('ensure drawer is expanded when card clicked', async () => {
+    const firstAddOn = mockAddOns.items[0];
+    const initialState = {
+      addOns: {
+        drawer: {
+          open: false,
+          activeCard: null,
+          activeCardRequirementsFulfilled: true,
+          activeCardRequirements: null,
+          installedAddOn: null,
+          billingQuota: null,
+          activeTabKey: 0,
+          subscriptionModels: {},
+        },
+      },
+    };
+
+    const testState = withState(initialState, true);
+    const { user } = testState.render(<AddOnsDrawer {...props} />);
+
+    // Verify drawer is initially closed - "Details" tab should not be visible (only appears in drawer panel)
+    expect(screen.queryByRole('tab', { name: 'Details' })).not.toBeInTheDocument();
+
+    // Get the first card
+    const cards = screen.getAllByTestId('addOnCard');
+    const firstCard = cards[0];
+
+    // Click the radio button input to trigger the onChange handler
+    const radioInput = firstCard.querySelector('input[type="radio"]');
+    expect(radioInput).toBeInTheDocument();
+    await user.click(radioInput);
+
+    // Update Redux state to simulate the drawer opening after card click
+    // The component dispatches setAddonsDrawer when a card is clicked
+    const { setAddonsDrawer } = await import('../../AddOnsActions');
+    testState.dispatch(
+      setAddonsDrawer({
+        open: true,
+        activeCard: firstAddOn,
+        activeCardRequirementsFulfilled: true,
+        activeCardRequirements: null,
+        installedAddOn: null,
+        billingQuota: mockBillingQuota, // Use fixture billingQuota to match expected structure
+        activeTabKey: 0,
+      }),
+    );
+
+    // Wait for the drawer to expand - verify the "Details" tab appears (only in drawer panel)
+    // The component should re-render automatically when Redux state changes
+    await waitFor(
+      () => {
+        expect(screen.getByRole('tab', { name: 'Details' })).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    // Also verify the add-on name appears in the drawer panel (as h2 heading)
+    expect(screen.getByRole('heading', { name: firstAddOn.name, level: 2 })).toBeInTheDocument();
+  });
 });
