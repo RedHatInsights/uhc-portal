@@ -81,14 +81,15 @@ describe('Cluster Actions Dropdown Items', () => {
       });
     });
 
-    it.skip('should open delete modal', async () => {
+    it('should open delete modal', async () => {
       const { user } = render(<DropDownItemsRenderHelper {...Fixtures.managedReadyProps} />);
       expect(Fixtures.managedReadyProps.openModal).toBeCalledTimes(0);
       await user.click(screen.getByRole('menuitem', { name: 'Delete cluster' }));
-      expect(Fixtures.managedReadyProps.openModal).toBeCalledWith(
-        'delete-cluster',
-        Fixtures.deleteModalData,
-      );
+      expect(Fixtures.managedReadyProps.openModal).toBeCalledWith('delete-cluster', {
+        ...Fixtures.deleteModalData,
+        region: undefined,
+        shouldDisplayClusterName: false,
+      });
     });
 
     it.each(menuItemsText)('menu button %p is enabled', (menuItem) => {
@@ -105,7 +106,7 @@ describe('Cluster Actions Dropdown Items', () => {
         await checkAccessibility(container);
       });
 
-      it.skip('has Upgrade cluster from Trial option ', () => {
+      it('has Upgrade cluster from Trial option ', () => {
         render(<DropDownItemsRenderHelper {...Fixtures.managedReadyOsdTrialProps} />);
         expect(
           screen.getByRole('menuitem', { name: 'Upgrade cluster from Trial' }),
