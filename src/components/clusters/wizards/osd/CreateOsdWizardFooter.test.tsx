@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { useFormState } from '~/components/clusters/wizards/hooks';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
-import { render, screen } from '~/testUtils';
+import { mockUseFormState, render, screen } from '~/testUtils';
 
 import { CreateOsdWizardFooter } from './CreateOsdWizardFooter';
 
@@ -28,20 +27,19 @@ jest.mock('~/queries/ClusterDetailsQueries/useFetchActionsPermissions', () => ({
 const wizardPrimaryBtnTestId = 'wizard-next-button';
 
 describe('<CreateOsdWizardFooter />', () => {
-  const mockedUseFormState = useFormState as jest.Mock;
-
-  const useFormStateReturnValue = {
-    isValidating: false,
-    submitForm: jest.fn(),
-    setTouched: jest.fn(),
-    validateForm: jest.fn(),
-    values: {},
-  };
-
   const props = {
     onWizardContextChange: jest.fn(),
     isLoadding: false,
   };
+
+  beforeEach(() => {
+    mockUseFormState({
+      isValidating: false,
+      submitForm: jest.fn(),
+      setTouched: jest.fn(),
+      validateForm: jest.fn(),
+    });
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -51,7 +49,6 @@ describe('<CreateOsdWizardFooter />', () => {
     (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
       canCreateManagedCluster: false,
     });
-    mockedUseFormState.mockReturnValue(useFormStateReturnValue);
     render(<CreateOsdWizardFooter {...props} />);
     expect(screen.getByTestId(wizardPrimaryBtnTestId)).toHaveAttribute('disabled');
   });
