@@ -49,32 +49,26 @@ yarn build
 There are two development scripts available:
 
 ### `yarn dev` (Hot Module Reloading)
+> **Note:** This script requires Red Hat VPN connection to access the UI.
 
 ```bash
 yarn install && yarn dev
 ```
 
-Uses `fec dev` with Hot Module Reloading enabled for instant feedback on code changes. This is ideal for active UI development where you want to see changes without full page reloads.
 
-> **Note:** Requires Red Hat VPN connection to access the UI.
 
-### `yarn start` (Proxy mode)
+
+### `yarn start`
 
 ```bash
 yarn install && yarn start
 ```
 
-Uses `fec dev-proxy`, which runs webpack in watch mode with proxy capabilities for backend routing. Changes are recompiled automatically, but require a manual browser refresh to see updates (no Hot Module Reloading).
 
-> By default, the [Chrome server (Red Hat Console shell)](docs/contributing.md#insights-chrome-architecture) runs on port `:9990`. To use a different port, run `FEC_CHROME_PORT=<PORT> yarn dev` (or `yarn start`).
-
-### Shared Features
-
-Both scripts provide:
-- **Mock server** (`mockdata/mockserver.py`) running concurrently for local API mocking
-- **Passthrough arguments** - additional flags can be passed to the underlying `fec` command (e.g., `yarn dev --clouddotEnv staging`)
 
 The UI will be available at https://prod.foo.redhat.com:1337/openshift/
+
+> For more details on how the dev environment works (FEC, Chrome container, custom ports), see the [FEC Development Environment section](docs/contributing.md#fec-development-environment) in the contributing guide.
 
 By default, UI will use a real staging backend.
 You can switch between real backends and mockserver (see below) at any time by
