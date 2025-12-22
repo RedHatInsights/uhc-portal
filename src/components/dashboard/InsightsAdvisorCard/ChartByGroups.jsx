@@ -16,8 +16,14 @@ export const categoryMapping = {
 };
 
 /* PF's ChartLabel doesn't allow to create a link from the part of the label,
-   thus, the custom title component is used */
-const TitleComponent = ({ data, index, x, y, style }) => {
+   thus, the custom title component is used 
+
+   TODO: This needs to be fixed!  The reason that PF won't allow links in the legend is that is an accessibility issues
+   There are two approaches:
+     1.  Render the legend outside of the ChartPie as a separate component
+     2.  Work with the PatternFly team to allow for role="figure" to be passed as a prop in ChartPie (figures allow for nested links)
+*/
+export const TitleComponent = ({ data, index, x, y, style }) => {
   const entity = data[index];
   const { name, count, tags } = entity;
 
@@ -59,6 +65,7 @@ const ChartByGroups = ({ tagHits, groups }) => {
       </FlexItem>
       <FlexItem>
         <ChartPie
+          role="figure" // This does't work - it is ignored by PatternFly but would fix accessibility issues.
           labelRadius={25}
           ariaTitle="Categories statistics"
           constrainToVisibleArea
