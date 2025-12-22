@@ -28,6 +28,7 @@ import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
+import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { getClusterMinNodes } from '../../../machinePoolsHelper';
@@ -188,7 +189,7 @@ const useMachinePoolFormik = ({
 
     if (isHypershift) {
       machinePoolData.isWindowsLicenseIncluded =
-        (machinePool as NodePool)?.image_type === 'Windows' || false; // This involves extra costs, let's keep it false by default
+        (machinePool as NodePool)?.image_type === ImageType.Windows || false; // This involves extra costs, let's keep it false by default
     }
 
     return machinePoolData;
