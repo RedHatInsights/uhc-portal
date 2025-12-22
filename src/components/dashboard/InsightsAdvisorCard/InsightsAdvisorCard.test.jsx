@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { PLATFORM_LIGHTSPEED_REBRAND } from '~/queries/featureGates/featureConstants';
-import { checkAccessibility, mockUseFeatureGate, render, screen, within } from '~/testUtils';
+import { mockUseFeatureGate, render, screen, within } from '~/testUtils';
 
 import { categoryMapping } from './ChartByGroups';
 import InsightsAdvisorCard from './InsightsAdvisorCard';
@@ -65,20 +65,6 @@ describe('<InsightsAdvisorCard />', () => {
         tags: ['service_availability'],
       },
     ];
-
-    it.skip('is accessible', async () => {
-      /*
-      This is skipped due to an issue within PatternFly Charts ChartLegend component.
-      The basis of the problem is that the legend has links 
-     
-      The fix is in src/components/dashboard/InsightsAdvisorCard/ChartByGroups.jsx
-      change the legendComponent prop to the ChartPie to  a custom component
-      - aka do not use the ChartLegend component.
-    
-      */
-      const { container } = render(<InsightsAdvisorCard overview={overview} groups={groups} />);
-      await checkAccessibility(container);
-    });
 
     it('renders two charts', () => {
       render(<InsightsAdvisorCard overview={overview} groups={groups} />);
