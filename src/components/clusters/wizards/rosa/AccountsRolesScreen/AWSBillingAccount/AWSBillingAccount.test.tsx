@@ -3,8 +3,15 @@ import { Formik } from 'formik';
 import * as reactRedux from 'react-redux';
 
 import * as helpers from '~/common/helpers';
-import { useFormState } from '~/components/clusters/wizards/hooks';
-import { checkAccessibility, render, screen, waitFor, within, withState } from '~/testUtils';
+import {
+  checkAccessibility,
+  mockUseFormState,
+  render,
+  screen,
+  waitFor,
+  within,
+  withState,
+} from '~/testUtils';
 import { CloudAccount } from '~/types/accounts_mgmt.v1';
 
 import { FieldId, initialValues } from '../../constants';
@@ -94,24 +101,16 @@ const buildTestComponent = (children: React.ReactNode, formValues = {}) => (
 describe('<AWSBillingAccount />', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
   const shouldRefreshQuotaMock = jest.spyOn(helpers, 'shouldRefetchQuota');
-  const mockUseFormState = useFormState as jest.MockedFunction<typeof useFormState>;
 
   beforeEach(() => {
-    mockUseFormState.mockReturnValue({
-      setFieldValue: jest.fn(),
-      setFieldTouched: jest.fn(),
+    mockUseFormState({
       getFieldProps: jest.fn().mockReturnValue({
         name: FieldId.BillingAccountId,
         value: '',
         onBlur: jest.fn(),
         onChange: jest.fn(),
       }),
-      getFieldMeta: jest.fn().mockReturnValue({
-        error: undefined,
-        touched: false,
-      }),
-      values: {},
-    } as any);
+    });
   });
 
   afterEach(() => {
@@ -183,7 +182,7 @@ describe('<AWSBillingAccount />', () => {
     // Arrange
     const setFieldValueMock = jest.fn();
     const setFieldTouchedMock = jest.fn();
-    mockUseFormState.mockReturnValue({
+    mockUseFormState({
       setFieldValue: setFieldValueMock,
       setFieldTouched: setFieldTouchedMock,
       getFieldProps: jest.fn().mockReturnValue({
@@ -192,12 +191,7 @@ describe('<AWSBillingAccount />', () => {
         onBlur: jest.fn(),
         onChange: jest.fn(),
       }),
-      getFieldMeta: jest.fn().mockReturnValue({
-        error: undefined,
-        touched: false,
-      }),
-      values: {},
-    } as any);
+    });
 
     shouldRefreshQuotaMock.mockReturnValue(false);
     const newProps = {
@@ -243,21 +237,15 @@ describe('<AWSBillingAccount />', () => {
       },
     };
 
-    mockUseFormState.mockReturnValue({
+    mockUseFormState({
       setFieldValue: setFieldValueMock,
-      setFieldTouched: jest.fn(),
       getFieldProps: jest.fn().mockReturnValue({
         name: FieldId.BillingAccountId,
         value: '',
         onBlur: jest.fn(),
         onChange: jest.fn(),
       }),
-      getFieldMeta: jest.fn().mockReturnValue({
-        error: undefined,
-        touched: false,
-      }),
-      values: {},
-    } as any);
+    });
 
     withState(newState).render(buildTestComponent(<AWSBillingAccount {...newProps} />));
 

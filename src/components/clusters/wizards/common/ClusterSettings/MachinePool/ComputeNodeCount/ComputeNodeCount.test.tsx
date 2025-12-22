@@ -3,8 +3,8 @@ import { Formik } from 'formik';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import * as useFormStateModule from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import { mockUseFormState } from '~/testUtils';
 
 import ComputeNodeCount, { TotalNodesDescription } from './ComputeNodeCount';
 
@@ -40,12 +40,10 @@ const renderWithFormik = (props = {}) =>
 describe('ComputeNodeCount', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useFormStateModule.useFormState as jest.Mock).mockReturnValue({
+    mockUseFormState({
       values: {},
-      getFieldProps: () => ({ value: 2, onChange: jest.fn() }),
-      getFieldMeta: () => ({ touched: true, error: undefined }),
-      setFieldValue: jest.fn(),
-      validateField: jest.fn(),
+      getFieldProps: jest.fn().mockReturnValue({ value: 2, onChange: jest.fn() }),
+      getFieldMeta: jest.fn().mockReturnValue({ touched: true, error: undefined }),
     });
   });
 
@@ -56,10 +54,9 @@ describe('ComputeNodeCount', () => {
   });
 
   it('shows hypershift label when isHypershift is true', () => {
-    (useFormStateModule.useFormState as jest.Mock).mockReturnValue({
-      ...useFormStateModule.useFormState(),
+    mockUseFormState({
       values: { [FieldId.Hypershift]: 'true' },
-      getFieldProps: () => ({ value: 2, onChange: jest.fn() }),
+      getFieldProps: jest.fn().mockReturnValue({ value: 2, onChange: jest.fn() }),
     });
 
     renderWithFormik();
@@ -70,9 +67,7 @@ describe('ComputeNodeCount', () => {
   it('sets value when user changes input', async () => {
     const mockSetFieldValue = jest.fn();
 
-    (useFormStateModule.useFormState as jest.Mock).mockReturnValue({
-      ...useFormStateModule.useFormState(),
-
+    mockUseFormState({
       setFieldValue: mockSetFieldValue,
     });
 
