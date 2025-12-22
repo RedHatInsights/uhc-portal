@@ -36,7 +36,7 @@ const SubscriptionNotFulfilled = ({ data, refresh, marketplace }: Props) => {
     button?: React.ReactNode,
   ) => (
     <PageSection hasBodyWrapper={false}>
-      <EmptyState headingLevel="h4" titleText={title}>
+      <EmptyState headingLevel="h2" titleText={title}>
         <EmptyStateBody>{text}</EmptyStateBody>
         <EmptyStateFooter>{button}</EmptyStateFooter>
       </EmptyState>
@@ -107,7 +107,7 @@ const SubscriptionNotFulfilled = ({ data, refresh, marketplace }: Props) => {
       emptyTitle: 'Marketplace On-Demand subscriptions not detected',
       errorTitle: 'Unable to retrieve quota information',
       text: (
-        <p>
+        <div>
           <p>
             No marketplace subscriptions for OpenShift Dedicated or add-ons were found in your
             account
@@ -126,7 +126,7 @@ const SubscriptionNotFulfilled = ({ data, refresh, marketplace }: Props) => {
           </p>
           <br />
           <ExternalLink href={links.OCM_DOCS_SUBSCRIPTIONS}>Learn more</ExternalLink>
-        </p>
+        </div>
       ),
       emptyButton: undefined,
     },
@@ -135,7 +135,6 @@ const SubscriptionNotFulfilled = ({ data, refresh, marketplace }: Props) => {
   if (marketplace && data.type === 'osd') {
     configType = config.osdmarketplace;
   }
-
   let content = null;
   if (data.error) {
     const errorText = getErrorText();

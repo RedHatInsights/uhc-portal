@@ -22,10 +22,11 @@ type CancelClusterTransferModalProps = {
   displayName?: string;
   disableCancelReason?: string;
   buttonText?: string;
+  icon?: React.ReactNode;
 };
 
 export const CancelClusterTransferModal = (props: CancelClusterTransferModalProps) => {
-  const { transferId, displayName, disableCancelReason, buttonText = 'Cancel' } = props;
+  const { transferId, displayName, disableCancelReason, buttonText = 'Cancel', icon } = props;
   const [isOpen, setIsOpen] = React.useState(false);
 
   const {
@@ -47,6 +48,7 @@ export const CancelClusterTransferModal = (props: CancelClusterTransferModalProp
     <>
       <ButtonWithTooltip
         variant="secondary"
+        icon={icon}
         onClick={() => setIsOpen(true)}
         disableReason={disableCancelReason}
         isAriaDisabled={!!disableCancelReason}

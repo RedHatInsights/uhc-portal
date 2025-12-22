@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { ROSA_ARCHITECTURE_RENAMING_ALERT } from '~/queries/featureGates/featureConstants';
-import { checkAccessibility, mockUseChrome, mockUseFeatureGate, render, screen } from '~/testUtils';
+import links from '~/common/installLinks.mjs';
+import { checkAccessibility, mockUseChrome, render, screen } from '~/testUtils';
 
 import CreateRosaGetStarted from './CreateRosaGetStarted';
 
@@ -19,12 +19,9 @@ describe('<CreateRosaGetStarted />', () => {
 
     expect(
       screen.getByRole('link', {
-        name: 'Learn more about ROSA in AWS GovCloud (US) with FedRAMP (new window or tab)',
+        name: 'Learn more about ROSA with hosted control planes in AWS GovCloud (new window or tab)',
       }),
-    ).toHaveAttribute(
-      'href',
-      'https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-rosa.html',
-    );
+    ).toHaveAttribute('href', links.ROSA_AWS_FEDRAMP);
     expect(
       screen.getByRole('link', { name: 'FedRAMP access request form (new window or tab)' }),
     ).toHaveAttribute('href', 'https://console.redhat.com/openshift/create/rosa/govcloud');
@@ -42,39 +39,5 @@ describe('<CreateRosaGetStarted />', () => {
   it('Terraform card is present', () => {
     render(<CreateRosaGetStarted />);
     expect(screen.getByText('Deploy with Terraform')).toBeInTheDocument();
-  });
-
-  describe('<RosaArchitectureRenamingAlert />', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
-    it('is visible when feature gate is enabled', () => {
-      // Arrange
-      mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, true]]);
-
-      // Act
-      render(<CreateRosaGetStarted />);
-
-      // Assert
-      expect(
-        screen.getByText('Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed'),
-      ).toBeInTheDocument();
-    });
-
-    it('is not visible when feature gate is disabled', () => {
-      // Arrange
-      mockUseFeatureGate([[ROSA_ARCHITECTURE_RENAMING_ALERT, false]]);
-
-      // Act
-      render(<CreateRosaGetStarted />);
-
-      // Assert
-      expect(
-        screen.queryByText(
-          'Red Hat OpenShift Service on AWS (ROSA) architectures are being renamed',
-        ),
-      ).not.toBeInTheDocument();
-    });
   });
 });

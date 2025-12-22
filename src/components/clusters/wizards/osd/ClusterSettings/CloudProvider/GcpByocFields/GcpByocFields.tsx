@@ -5,13 +5,8 @@ import {
   Button,
   Flex,
   FlexItem,
-  Form,
   FormAlert,
   FormGroup,
-  Hint,
-  HintBody,
-  HintFooter,
-  HintTitle,
   Popover,
   Title,
   ToggleGroup,
@@ -24,6 +19,7 @@ import styles from '@patternfly/react-styles/css/components/Form/form';
 import links from '~/common/installLinks.mjs';
 import { Prerequisites } from '~/components/clusters/wizards/common/Prerequisites/Prerequisites';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { PrepareGCPHint } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/PrepareGCPHint';
 import { ServiceAccount } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/ServiceAccountAuth/ServiceAccount';
 import { ServiceAccountPrerequisites } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/ServiceAccountAuth/ServiceAccountPrerequisites';
 import {
@@ -33,10 +29,16 @@ import {
 import { WorkloadIdentityFederationPrerequisites } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/WorkloadIdentityFederation/WorkloadIdentityFederationPrerequisites';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import ExternalLink from '~/components/common/ExternalLink';
-import { GCP_WIF_DEFAULT, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
+import {
+  GCP_WIF_DEFAULT,
+  OSD_FOR_GOOGLE_CLOUD,
+  OSD_GCP_WIF,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
+
+import { ServiceAccountNotRecommendedAlert } from '../ServiceAccountNotRecommendedAlert';
 
 export interface GcpByocFieldsProps extends WorkloadIdentityFederationProps {}
 
@@ -48,9 +50,8 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
 
   const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
   const isWifDefaultEnabled = useFeatureGate(GCP_WIF_DEFAULT);
-
-  const gcpTitle = 'Have you prepared your Google account?';
-  const gcpText = `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
+  const isOsdGcpFeatureFlagEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
+  const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
 
   const {
     setFieldValue,
@@ -58,6 +59,17 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
   } = useFormState();
 
   const authType = isWifEnabled ? authTypeFormValue : GCPAuthType.ServiceAccounts;
+
+  let gcpTitle = 'Have you prepared your Google account?';
+  let gcpText = `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
+  let linkHref = links.GCP_CONSOLE_OSD_HOME;
+  let linkText = 'Review Google terms and agreements';
+  if (isOsdGcpFeatureFlagEnabled && authType === GCPAuthType.WorkloadIdentityFederation) {
+    gcpTitle = 'Did you complete your prerequisites?';
+    gcpText = `To create a Red Hat OpenShift Dedicated (OSD) cluster via the web interface, you must complete the prerequisites steps on the OSD Get Started page in Google Cloud.`;
+    linkHref = links.GCP_CONSOLE_OSD_HOME; // TODO: add the correct link
+    linkText = 'Google Cloud OSD Get Started page';
+  }
 
   const handleAuthChange: ToggleGroupItemProps['onChange'] = (event) => {
     const { id } = event.currentTarget;
@@ -74,7 +86,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
 
   const authButtons = (
     <ToggleGroup aria-label="Authentication type">
-      {isWifDefaultEnabled ? (
+      {isWifDefaultEnabled || isOSDFromGoogleCloud ? (
         <>
           <ToggleGroupItem
             text="Workload Identity Federation"
@@ -111,15 +123,18 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
       )}
     </ToggleGroup>
   );
-
+  const shouldShowPrepareGCPHint =
+    (billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp &&
+      !isOSDFromGoogleCloud) ||
+    (isOSDFromGoogleCloud && authType === GCPAuthType.ServiceAccounts);
   return (
-    <Form isWidthLimited onSubmit={(e) => e.preventDefault()}>
+    <>
       {billingModel !== SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
         <FormAlert>
           <Alert variant="info" isInline isPlain title="Customer cloud subscription">
-            Provision your cluster in a Google Cloud Platform account owned by you or your company
-            to leverage your existing relationship and pay Google Cloud Platform directly for public
-            cloud costs.
+            Provision your cluster in a Google Cloud account owned by you or your company to
+            leverage your existing relationship and pay Google Cloud directly for public cloud
+            costs.
           </Alert>
         </FormAlert>
       )}
@@ -128,7 +143,7 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
         {isWifEnabled && (
           <FlexItem>
             <Title headingLevel="h3" className="pf-v6-u-mb-sm">
-              GCP account details
+              Google Cloud account details
             </Title>
             <FormGroup
               label="Authentication type"
@@ -169,26 +184,23 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
             </Title>
           ) : (
             <Title headingLevel="h3" className="pf-v6-u-mb-sm">
-              GCP Service account
+              Google Cloud Service account
             </Title>
           )}
-
+          {authType === GCPAuthType.ServiceAccounts && <ServiceAccountNotRecommendedAlert />}
           <Prerequisites acknowledgementRequired initiallyExpanded>
-            {billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
-              <Hint className="pf-v6-u-mb-md pf-v6-u-mt-sm">
-                <HintTitle>
-                  <strong>{gcpTitle}</strong>
-                </HintTitle>
-                <HintBody>{gcpText}</HintBody>
-                <HintFooter>
-                  <ExternalLink href={links.GCP_CONSOLE_OSD_HOME}>
-                    Review Google terms and agreements.
-                  </ExternalLink>
-                </HintFooter>
-              </Hint>
+            {shouldShowPrepareGCPHint && (
+              <PrepareGCPHint
+                title={gcpTitle}
+                text={gcpText}
+                linkHref={linkHref}
+                linkText={linkText}
+              />
             )}
             {authType === GCPAuthType.WorkloadIdentityFederation ? (
-              <WorkloadIdentityFederationPrerequisites />
+              <WorkloadIdentityFederationPrerequisites
+                hideResourceRequirements={isOSDFromGoogleCloud}
+              />
             ) : (
               <ServiceAccountPrerequisites />
             )}
@@ -202,6 +214,6 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
           )}
         </FlexItem>
       </Flex>
-    </Form>
+    </>
   );
 };

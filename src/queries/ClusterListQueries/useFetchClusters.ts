@@ -1,4 +1,5 @@
 import React from 'react';
+import { shallowEqual } from 'react-redux';
 
 import { useQueries, UseQueryOptions } from '@tanstack/react-query';
 
@@ -38,11 +39,14 @@ export const useFetchClusters = (isArchived = false, useManagedEndpoints = true)
 
   /* ***** Reset refresh timer on Filtering / Sorting / Pagination Change  **** */
   const userName = useGlobalState((state) => state.userProfile.keycloakProfile.username);
-  const viewOptions = useGlobalState((state) => ({
-    ...state.viewOptions[viewOptionsType],
-    // total is required by the type but isn't used in this code
-    totalCount: 0, // Set to 0 in order to prevent a reload when that total is returned with the subscription api call
-  }));
+  const viewOptions = useGlobalState(
+    (state) => ({
+      ...state.viewOptions[viewOptionsType],
+      // total is required by the type but isn't used in this code
+      totalCount: 0, // Set to 0 in order to prevent a reload when that total is returned with the subscription api call
+    }),
+    shallowEqual,
+  );
 
   const plans = viewOptions.flags?.subscriptionFilter?.plan_id?.toString();
   React.useEffect(() => {

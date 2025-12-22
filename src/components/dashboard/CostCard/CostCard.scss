@@ -11,8 +11,11 @@ $widget-min-height: 250px;
       display: flex;
       flex-direction: row-reverse;
 
-      .pf-v6-c-content dt:not(:first-child) {
+      .pf-v6-c-content dt {
         font-weight: normal;
+      }
+      .ocm--cost-card__title{
+        font-weight: bold;
       }
     }
 

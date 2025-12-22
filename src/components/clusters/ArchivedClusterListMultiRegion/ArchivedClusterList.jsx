@@ -314,6 +314,7 @@ const ClusterList = ({
                   itemsEnd={itemsEnd}
                   onPerPageSelect={onPerPageChange}
                   onPageChange={onPageChange}
+                  ariaLabel="Pagination compact"
                 />
               </ToolbarItem>
 
@@ -360,6 +361,7 @@ const ClusterList = ({
             itemsEnd={itemsEnd}
             onPerPageSelect={onPerPageChange}
             onPageChange={onPageChange}
+            ariaLabel="Pagination full"
           />
           <ConnectedModal
             ModalComponent={UnarchiveClusterDialog}

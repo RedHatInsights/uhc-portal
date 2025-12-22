@@ -86,14 +86,12 @@ const ClusterVersionInfo = ({ cluster }) => {
           </div>
         )}
         {!cluster.managed && !isUpgrading && (
-          <div>
-            <Flex>
-              <dt>Life cycle state: </dt>
-              <dd>
-                <SupportStatusLabel clusterVersion={clusterVersion} />
-              </dd>
-            </Flex>
-          </div>
+          <Flex>
+            <dt>Life cycle state: </dt>
+            <dd>
+              <SupportStatusLabel clusterVersion={clusterVersion} />
+            </dd>
+          </Flex>
         )}
         {channel && (
           <div>

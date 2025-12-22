@@ -43,7 +43,10 @@ class RosaGetstarted extends Page {
       .should('be.visible');
   }
   isRosaFedRAMPInfoAlertShown() {
-    cy.contains('h2', 'ROSA in AWS GovCloud (US) with FedRAMP')
+    cy.contains(
+      'h2',
+      'Red Hat OpenShift Service on AWS (ROSA) with hosted control planes in AWS GovCloud achieves FedRAMP High Authorization',
+    )
       .should('be.exist')
       .should('be.visible');
   }

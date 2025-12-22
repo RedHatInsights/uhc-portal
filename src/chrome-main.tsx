@@ -76,8 +76,8 @@ class AppEntry extends React.Component<Props> {
       if (data?.identity?.user) {
         store.dispatch(userInfoResponse(data.identity.user));
       }
-      config.fetchConfig(chrome).then(() => {
-        preFetchAllFeatureGates();
+      config.fetchConfig(chrome).then(async () => {
+        await preFetchAllFeatureGates();
 
         this.setState({ ready: true });
         if (!APP_DEV_SERVER && !config.envOverride && config.configData.sentryDSN) {

@@ -104,6 +104,28 @@ describe('<ProductCardView />', () => {
     expect(learnMore).not.toBeInTheDocument();
   });
 
+  it('should be hidden when isHidden is true', () => {
+    // Arrange
+    render(<ProductCardView {...PROPS} isHidden />);
+
+    const { title } = PROPS;
+
+    // Assert
+    expect(screen.queryByTestId(`${title}-product-card-view`)).not.toBeVisible();
+    expect(screen.getByText(title)).not.toBeVisible();
+  });
+
+  it('should be visible when isHidden is false', () => {
+    // Arrange
+    // isHidden defaults to false
+    render(<ProductCardView {...PROPS} />);
+
+    const { title } = PROPS;
+
+    // Assert
+    expect(screen.getByText(title)).toBeVisible();
+  });
+
   it(`should pass accessibility check`, async () => {
     // Arrange
     const { container } = render(<ProductCardView {...PROPS} />);

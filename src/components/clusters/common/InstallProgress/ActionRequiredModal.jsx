@@ -225,7 +225,7 @@ function ActionRequiredModal({ cluster, isOpen, onClose, regionalInstance }) {
 
 ActionRequiredModal.propTypes = {
   cluster: PropTypes.object.isRequired,
-  isOpen: PropTypes.bool.isRequired,
+  isOpen: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
   regionalInstance: PropTypes.shape({
     environment: PropTypes.string,

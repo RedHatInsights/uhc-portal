@@ -37,11 +37,10 @@ import { AppPage } from '~/components/App/AppPage';
 import { TransferOwnerPendingAlert } from '~/components/clusters/ClusterTransfer/TransferOwnerPendingAlert';
 import { useGetAccessProtection } from '~/queries/AccessRequest/useGetAccessProtection';
 import { useGetOrganizationalPendingRequests } from '~/queries/AccessRequest/useGetOrganizationalPendingRequests';
-import {
-  refetchClusterTransferDetail,
-  useFetchClusterTransferDetail,
-} from '~/queries/ClusterDetailsQueries/ClusterTransferOwnership/useFetchClusterTransferDetails';
+import { refetchClusterTransferDetail } from '~/queries/ClusterDetailsQueries/ClusterTransferOwnership/useFetchClusterTransferDetails';
 import { useFetchClusters } from '~/queries/ClusterListQueries/useFetchClusters';
+import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
 import {
   onListFlagsSet,
@@ -51,9 +50,7 @@ import {
   viewActions,
 } from '~/redux/actions/viewOptionsActions';
 import { CLUSTERS_VIEW } from '~/redux/constants/viewConstants';
-import { useGlobalState } from '~/redux/hooks';
 import { isRestrictedEnv } from '~/restrictedEnv';
-import { ClusterTransferStatus } from '~/types/accounts_mgmt.v1';
 
 import helpers from '../../../common/helpers';
 import { getQueryParam } from '../../../common/queryHelpers';
@@ -79,8 +76,6 @@ import { RefreshButton } from './components/RefreshButton';
 import ViewOnlyMyClustersToggle from './components/ViewOnlyMyClustersToggle';
 
 import './ClusterList.scss';
-
-const PAGE_TITLE = 'Cluster List | Red Hat OpenShift Cluster Manager';
 
 const ClusterListPageHeader = ({ someReadOnly, showSpinner, error, refresh }) => (
   <>
@@ -138,10 +133,15 @@ const ClusterList = ({
   closeModal,
   clearGlobalError,
   openModal,
-  getMultiRegion,
+  getMultiRegion = true,
+  showTabbedView = false,
 }) => {
   const dispatch = useDispatch();
   const viewType = viewConstants.CLUSTERS_VIEW;
+  const isTabbedClusters = useFeatureGate(TABBED_CLUSTERS);
+  const PAGE_TITLE = showTabbedView
+    ? 'Clusters | Red Hat OpenShift Cluster Manager'
+    : 'Cluster List | Red Hat OpenShift Cluster Manager';
 
   /* Get Access Request / Protection Data */
   const { enabled: isOrganizationAccessProtectionEnabled } = useGetAccessProtection(
@@ -158,16 +158,7 @@ const ClusterList = ({
       organization?.details?.id,
       isOrganizationAccessProtectionEnabled,
     );
-  const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
-  const { data: transferData } = useFetchClusterTransferDetail({ username });
-  const totalPendingTransfers = React.useMemo(
-    () =>
-      transferData?.items?.filter(
-        (transfer) =>
-          transfer.status?.toLowerCase() === ClusterTransferStatus.Pending.toLowerCase(),
-      ).length || 0,
-    [transferData],
-  );
+
   /* Get Cluster Data */
   const isArchived = false;
   const {
@@ -372,7 +363,7 @@ const ClusterList = ({
         <PageSection hasBodyWrapper={false}>
           <GlobalErrorBox />
           <div data-ready>
-            <ClusterListEmptyState />
+            <ClusterListEmptyState showTabbedView={showTabbedView} />
           </div>
         </PageSection>
       </AppPage>
@@ -380,18 +371,20 @@ const ClusterList = ({
   }
 
   return (
-    <AppPage title={PAGE_TITLE}>
-      <ClusterListPageHeader
-        someReadOnly={someReadOnly}
-        showSpinner={showSpinner}
-        error={isError}
-        errorDetails={errorDetails}
-        isPendingNoData={isPendingNoData}
-        refresh={() => {
-          refetch();
-          refetchClusterTransferDetail();
-        }}
-      />
+    <AppPage title={PAGE_TITLE} showTabbedView={showTabbedView}>
+      {showTabbedView ? null : (
+        <ClusterListPageHeader
+          someReadOnly={someReadOnly}
+          showSpinner={showSpinner}
+          error={isError}
+          errorDetails={errorDetails}
+          isPendingNoData={isPendingNoData}
+          refresh={() => {
+            refetch();
+            refetchClusterTransferDetail();
+          }}
+        />
+      )}
       <PageSection hasBodyWrapper={false}>
         <div className="cluster-list" data-ready={dataReady}>
           <GlobalErrorBox />
@@ -428,7 +421,7 @@ const ClusterList = ({
                   />
                 </ToolbarItem>
               )}
-              <ClusterListActions />
+              <ClusterListActions showTabbedView={showTabbedView} />
               <ViewOnlyMyClustersToggle
                 view={CLUSTERS_VIEW}
                 bodyContent="Show only the clusters you previously created, or all clusters in your organization."
@@ -471,11 +464,15 @@ const ClusterList = ({
             />
           ) : (
             <>
-              <AccessRequestPendingAlert
-                total={pendingRequestsTotal}
-                accessRequests={pendingRequestsItems}
-              />
-              <TransferOwnerPendingAlert total={totalPendingTransfers} />
+              {!isTabbedClusters && (
+                <>
+                  <AccessRequestPendingAlert
+                    total={pendingRequestsTotal}
+                    accessRequests={pendingRequestsItems}
+                  />
+                  <TransferOwnerPendingAlert />
+                </>
+              )}
               <ClusterListTable
                 openModal={openModal}
                 clusters={clusters || []}
@@ -529,9 +526,7 @@ ClusterList.propTypes = {
 
   clearGlobalError: PropTypes.func.isRequired,
   getMultiRegion: PropTypes.bool,
-};
-ClusterList.defaultProps = {
-  getMultiRegion: true,
+  showTabbedView: PropTypes.bool,
 };
 
 export default ClusterList;

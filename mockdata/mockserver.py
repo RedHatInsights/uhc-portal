@@ -14,6 +14,11 @@ def output_line_buffering():
 
 class Handler(http.server.SimpleHTTPRequestHandler):
   def translate_path(self, path):
+    # Check if we have a path override (for conditional routing)
+    if hasattr(self, 'path_override'):
+      path = self.path_override
+      delattr(self, 'path_override')  # Clear it after using
+    
     # http.server deliberately preserves trailing '/' (https://bugs.python.org/issue17324).
     # But our APIs generally treat 'foos/?...' same as 'foos?...',
     # and we prefer 'foos.json' files to ugly 'foos/.json', so strip it.
@@ -66,6 +71,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b'{"content": ""}')
         return
+
+    # Check if this is a clusters API call with a search parameter for cluster IDs
+    # If so, use the clustersForAccessRequest.json file instead
+    if '/api/clusters_mgmt/v1/clusters' in parts.path and 'search' in params:
+        search_param = params['search'][0].lower()
+        # Check if the search contains "id in" pattern (for cluster ID filtering)
+        if 'id in' in search_param or 'id=' in search_param:
+            # Override the path to use clustersForAccessRequest.json
+            self.path_override = '/api/clusters_mgmt/v1/clustersForAccessRequest'
+            return self.handle_request()
 
     return self.handle_request()
 

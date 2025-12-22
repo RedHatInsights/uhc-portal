@@ -47,11 +47,10 @@ describe('<DownloadsPage>', () => {
     jest.clearAllMocks();
   });
 
-  it.skip('is accessible', async () => {
+  it('is accessible', async () => {
     const { container } = render(<DownloadsPage />);
-    // This fails with a   "IDs used in ARIA and labels must be unique (duplicate-id-aria)" error
     await checkAccessibility(container);
-  });
+  }, 15000);
 
   it('expand all', async () => {
     const { user } = render(<DownloadsPage />);

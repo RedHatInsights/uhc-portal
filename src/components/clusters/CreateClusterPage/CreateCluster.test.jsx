@@ -30,8 +30,9 @@ describe('<CreateClusterPage />', () => {
     token: {},
   };
 
-  it.skip('is accessible', async () => {
+  it('is accessible', async () => {
     const { container } = render(<CreateClusterPage {...props} activeTab="" />);
+
     await checkAccessibility(container);
   });
 

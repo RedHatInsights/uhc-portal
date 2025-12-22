@@ -7,12 +7,9 @@ import CostSummary from '../CostSummary';
 import { availableState, initialState } from './CostCard.fixtures';
 
 describe('<CostSummary />', () => {
-  it.skip('is accessible', async () => {
-    // Act
+  it('is accessible', async () => {
     const { container } = render(<CostSummary report={initialState.report as any} />);
 
-    // Assert
-    // Fails due to "When not empty, element does not have at least one <dt> element followed by at least one <dd> element"
     await checkAccessibility(container);
   });
 

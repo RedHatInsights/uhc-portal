@@ -198,7 +198,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
       )}
       {infraAccount && (
         <DescriptionListGroup>
-          <DescriptionListTerm>{`Infrastructure ${cloudProviderId.toUpperCase()} account`}</DescriptionListTerm>
+          <DescriptionListTerm>{`Infrastructure ${cloudProviderId.toUpperCase() === 'GCP' ? 'Google Cloud' : cloudProviderId.toUpperCase()} account`}</DescriptionListTerm>
           <DescriptionListDescription>
             <span data-testid={`infrastructure${cloudProviderId.toUpperCase()}Account`}>
               {infraAccount}

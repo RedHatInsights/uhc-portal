@@ -31,10 +31,9 @@ describe('<SmallClusterChart />', () => {
     usedTitle: 'Used',
   };
 
-  it.skip('is accessible', async () => {
+  it('is accessible', async () => {
     const { container } = render(<SmallClusterChart {...defaultProps} />);
 
-    // This fails due to numerous accessibility issues
     await checkAccessibility(container);
   });
 

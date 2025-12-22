@@ -119,7 +119,7 @@ const CreateCluster = ({
           <PageSection hasBodyWrapper={false} className="cluster-create-page">
             <Tabs isFilled activeKey={activeTabIndex} onSelect={handleTabClick}>
               {[
-                <Tab eventKey={0} title={tabTitle(0)}>
+                <Tab eventKey={0} title={tabTitle(0)} key="cloudTab">
                   <CloudTab
                     hasOSDQuota={hasOSDQuota}
                     rosaCreationWizardFeature={rosaCreationWizardFeature}
@@ -129,10 +129,10 @@ const CreateCluster = ({
                 ...(isRestrictedEnv()
                   ? []
                   : [
-                      <Tab eventKey={1} title={tabTitle(1)}>
+                      <Tab eventKey={1} title={tabTitle(1)} key="datacenterTab">
                         <DatacenterTab />
                       </Tab>,
-                      <Tab eventKey={2} title={tabTitle(2)}>
+                      <Tab eventKey={2} title={tabTitle(2)} key="localTab">
                         <LocalTab token={token} />
                       </Tab>,
                     ]),

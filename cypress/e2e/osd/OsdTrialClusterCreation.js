@@ -30,7 +30,7 @@ describe(`OSDTrial cluster creation tests(OCP-39415)`, { tags: ['smoke'] }, () =
     it(`OSD - ${clusterProperties.CloudProvider} wizard - Cluster Settings - Cloud provider definitions`, () => {
       CreateOSDWizardPage.isCloudProviderSelectionScreen();
       CreateOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
-      if (clusterProperties.CloudProvider.includes('GCP')) {
+      if (clusterProperties.CloudProvider.includes('Google Cloud')) {
         CreateOSDWizardPage.serviceAccountButton().click();
         CreateOSDWizardPage.uploadGCPServiceAccountJSON(JSON.stringify(QE_GCP));
       } else {
@@ -38,18 +38,18 @@ describe(`OSDTrial cluster creation tests(OCP-39415)`, { tags: ['smoke'] }, () =
         CreateOSDWizardPage.awsAccessKeyInput().type(awsAccessKey);
         CreateOSDWizardPage.awsSecretKeyInput().type(awsSecretKey);
       }
-      CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+      CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
       cy.get(CreateOSDWizardPage.primaryButton).click();
     });
     it(`OSD - ${clusterProperties.CloudProvider} wizard - Cluster Settings - Cluster details definitions`, () => {
       CreateOSDWizardPage.isClusterDetailsScreen();
       cy.get(CreateOSDWizardPage.clusterNameInput).type(clusterProperties.ClusterName).blur();
       CreateOSDWizardPage.selectRegion(clusterProperties.Region);
-      CreateOSDWizardPage.singleZoneAvilabilityRadio().check();
+      CreateOSDWizardPage.singleZoneAvailabilityRadio().check();
       CreateOSDWizardPage.multiZoneAvilabilityRadio().check();
       CreateOSDWizardPage.selectAvailabilityZone(clusterProperties.Availability);
-      if (clusterProperties.CloudProvider.includes('GCP')) {
-        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+      if (clusterProperties.CloudProvider.includes('Google Cloud')) {
+        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       }
       CreateOSDWizardPage.enableAdditionalEtcdEncryption(true, true);
       cy.get(CreateOSDWizardPage.primaryButton).click();
@@ -93,7 +93,7 @@ describe(`OSDTrial cluster creation tests(OCP-39415)`, { tags: ['smoke'] }, () =
       CreateOSDWizardPage.clusterNameValue().contains(clusterProperties.ClusterName);
       CreateOSDWizardPage.regionValue().contains(clusterProperties.Region.split(',')[0]);
       CreateOSDWizardPage.availabilityValue().contains(clusterProperties.Availability);
-      if (clusterProperties.CloudProvider.includes('GCP')) {
+      if (clusterProperties.CloudProvider.includes('Google Cloud')) {
         CreateOSDWizardPage.securebootSupportForShieldedVMsValue().contains(
           clusterProperties.SecureBootSupportForShieldedVMs,
         );
@@ -164,7 +164,7 @@ describe(`OSDTrial cluster creation tests(OCP-39415)`, { tags: ['smoke'] }, () =
       ClusterDetailsPage.clusterSubscriptionBillingModelValue().contains(
         clusterProperties.SubscriptionType.replace(/.$/, '').replace(' (', ', '),
       );
-      if (clusterProperties.CloudProvider.includes('GCP')) {
+      if (clusterProperties.CloudProvider.includes('Google Cloud')) {
         ClusterDetailsPage.clusterSecureBootSupportForShieldedVMsValue().contains(
           clusterProperties.SecureBootSupportForShieldedVMs,
         );

@@ -74,7 +74,7 @@ export const FileUploadField = ({
           <FormGroup
             fieldId={field.name}
             label={label}
-            {...(tooltip && { labelIcon: <PopoverHint hint={tooltip} /> })}
+            {...(tooltip && { labelHelp: <PopoverHint hint={tooltip} /> })}
             {...(validate && { isRequired: true })}
             {...formGroup}
           >

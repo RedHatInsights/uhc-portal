@@ -140,7 +140,6 @@
         "**/*.stories.js*",
         "src/testUtils.tsx",
         "cypress.config.js",
-        "webpack.config.js",
         "fec.config.js",
         "*.mjs",
         "run/**/*",

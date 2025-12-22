@@ -58,7 +58,7 @@ const AdvancedClusterSecurityDrawerPanelBody = (
               'Privilege escalation',
               'Lateral movement',
             ].map((item) => (
-              <Content component="li" data-testid="threat-example-list-item">
+              <Content component="li" data-testid="threat-example-list-item" key={item}>
                 {item}
               </Content>
             ))}

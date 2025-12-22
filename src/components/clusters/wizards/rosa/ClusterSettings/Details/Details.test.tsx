@@ -7,10 +7,12 @@ import { Formik } from 'formik';
 import { waitFor } from '@testing-library/react';
 
 import { fulfilledProviders, multiRegions, noProviders } from '~/common/__tests__/regions.fixtures';
+import { mockQuotaList } from '~/components/clusters/common/__tests__/quota.fixtures';
 import { FieldId, initialValues } from '~/components/clusters/wizards/rosa/constants';
 import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleStatuses';
 import {
   ALLOW_EUS_CHANNEL,
+  MAX_NODES_TOTAL_249,
   MULTIREGION_PREVIEW_ENABLED,
 } from '~/queries/featureGates/featureConstants';
 import { useFetchGetMultiRegionAvailableRegions } from '~/queries/RosaWizardQueries/useFetchGetMultiRegionAvailableRegions';
@@ -329,6 +331,166 @@ describe('<Details />', () => {
       await waitFor(() => {
         expect(screen.getByText('Channel group')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Max nodes total reset behavior', () => {
+    const versions = [
+      {
+        id: 'openshift-v4.12.1',
+        raw_id: '4.12.1',
+        rosa_enabled: true,
+      },
+      {
+        id: 'openshift-v4.18.1',
+        raw_id: '4.18.1',
+        rosa_enabled: true,
+      },
+    ];
+
+    const stableVersion = versions[0];
+
+    const loadedState = {
+      cloudProviders: fulfilledProviders,
+      clusters: {
+        clusterVersions: {
+          fulfilled: true,
+          versions,
+          error: false,
+          pending: false,
+        },
+      },
+      userProfile: {
+        organization: {
+          fulfilled: true,
+          quotaList: mockQuotaList,
+        },
+      },
+    };
+
+    const formValues = {
+      ...defaultValues,
+      [FieldId.ClusterVersion]: stableVersion,
+      [FieldId.RosaMaxOsVersion]: '4.99', // Set a high max version to allow all test versions
+      // Change max-nodes-total to a non-default value
+      'cluster_autoscaling.resource_limits.max_nodes_total': 33,
+    };
+
+    beforeEach(() => {
+      jest.resetAllMocks();
+      mockUseFeatureGate([[MAX_NODES_TOTAL_249, true]]);
+      (clusterService.getInstallableVersions as jest.Mock).mockResolvedValue({
+        data: { items: [] },
+      });
+      (clusterService.getMachineTypesByRegionARN as jest.Mock).mockResolvedValue({
+        data: { items: [] },
+      });
+      (getOCPLifeCycleStatus as jest.Mock).mockResolvedValue(ocpLifeCycleStatuses);
+    });
+
+    it('resets max-nodes-total to default when changing availability zone', async () => {
+      // Arrange
+      const handleSubmit = jest.fn();
+
+      (clusterService.getMachineTypesByRegionARN as jest.Mock).mockResolvedValue({
+        data: {
+          items: [
+            {
+              instance_type: 'm5.large',
+              availability_zones: ['us-east-1a', 'us-east-1b', 'us-east-1c'],
+            },
+            {
+              instance_type: 'm5.xlarge',
+              availability_zones: ['us-east-1a'],
+            },
+          ],
+        },
+      });
+
+      const { user } = withState(loadedState).render(
+        <Formik initialValues={formValues} onSubmit={() => {}}>
+          {({ values }) => (
+            <div>
+              <Details />
+              <button type="button" onClick={() => handleSubmit(values)}>
+                submit
+              </button>
+            </div>
+          )}
+        </Formik>,
+      );
+
+      // Wait for the component to be fully rendered
+      await waitFor(() => {
+        expect(screen.getByRole('radio', { name: /Multi-zone/i })).toBeInTheDocument();
+      });
+
+      // Act
+      // Switch availability zone
+      const multiAzInput = screen.getByRole('radio', { name: /Multi-zone/i });
+      await user.click(multiAzInput);
+
+      // Wait for form state to update after the radio button change
+      await waitFor(
+        () => {
+          expect(multiAzInput).toBeChecked();
+        },
+        { timeout: 1000 },
+      );
+
+      // Submit form
+      await user.click(screen.getByRole('button', { name: 'submit' }));
+
+      // Assert
+      // For version 4.12.1 with multi-az: 180 (max worker nodes) + 3 (master) + 3 (infra) = 186
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      const submittedValues = handleSubmit.mock.calls[0][0];
+      // Verify max-nodes-total has been reset to default
+      expect(submittedValues.cluster_autoscaling?.resource_limits?.max_nodes_total).toBe(186);
+    });
+
+    it('resets max-nodes-total to default when changing a version', async () => {
+      // Arrange
+      const handleSubmit = jest.fn();
+
+      const { user } = withState(loadedState).render(
+        <Formik initialValues={formValues} onSubmit={() => {}}>
+          {({ values }) => (
+            <div>
+              <Details />
+              <button type="button" onClick={() => handleSubmit(values)}>
+                submit
+              </button>
+            </div>
+          )}
+        </Formik>,
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByRole('button', { name: 'Options menu' })).toBeInTheDocument();
+      });
+
+      // Act
+      // Switch version
+      const versionButton = screen.getByRole('button', { name: 'Options menu' });
+      await user.click(versionButton);
+
+      // Wait for the dropdown to open and find the option
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: '4.18.1' })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('option', { name: '4.18.1' }));
+
+      // Submit form
+      await user.click(screen.getByRole('button', { name: 'submit' }));
+
+      // Assert
+      // For version 4.18.1 with single-az (default): 249 (max worker nodes) + 3 (master) + 2 (infra) = 254
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      const submittedValues = handleSubmit.mock.calls[0][0];
+      // Verify max-nodes-total has been reset to default
+      expect(submittedValues.cluster_autoscaling?.resource_limits?.max_nodes_total).toBe(254);
     });
   });
 });

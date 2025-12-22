@@ -166,6 +166,7 @@ function DetailsLeft({
           clusterID={clusterID}
           channelGroup={cluster?.version?.channel_group}
           cluster={cluster}
+          isROSA={isROSA}
         />
       )}
       <DescriptionListGroup>

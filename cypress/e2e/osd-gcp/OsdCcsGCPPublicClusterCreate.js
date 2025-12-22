@@ -39,7 +39,7 @@ describe(
         CreateOSDWizardPage.workloadIdentityFederationButton().click();
         CreateOSDWizardPage.selectWorkloadIdentityConfiguration(Cypress.env('QE_GCP_WIF_CONFIG'));
       }
-      CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+      CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
       CreateOSDWizardPage.wizardNextButton().click();
     });
 
@@ -47,10 +47,10 @@ describe(
       CreateOSDWizardPage.isClusterDetailsScreen();
       CreateOSDWizardPage.setClusterName(clusterProperties.ClusterName);
       CreateOSDWizardPage.closePopoverDialogs();
-      CreateOSDWizardPage.singleZoneAvilabilityRadio().should('be.checked');
+      CreateOSDWizardPage.singleZoneAvailabilityRadio().should('be.checked');
       CreateOSDWizardPage.selectRegion(clusterProperties.Region);
-      if (clusterProperties.CloudProvider.includes('GCP')) {
-        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+      if (clusterProperties.CloudProvider.includes('Google Cloud')) {
+        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       }
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
       CreateOSDWizardPage.wizardNextButton().click();

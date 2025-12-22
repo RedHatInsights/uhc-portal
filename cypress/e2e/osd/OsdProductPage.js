@@ -91,7 +91,7 @@ describe(
 
       OsdProductPage.expandFeature('Streamlined billing and procurement');
       OsdProductPage.verifyFeatureContent(
-        'Receive a single bill for both the Red Hat OpenShift service and Google CloudPlatform infrastructure consumption.',
+        'Receive a single bill for both the Red Hat OpenShift service and Google Cloud infrastructure consumption.',
       );
       OsdProductPage.collapseFeature('Streamlined billing and procurement');
 
@@ -138,7 +138,7 @@ describe(
       });
 
       OsdProductPage.validateRecommendationsCard({
-        title: 'Cloud provider: Google Cloud Platform',
+        title: 'Cloud provider: Google Cloud',
         cardText: 'Looking for an AWS option?',
       });
     });

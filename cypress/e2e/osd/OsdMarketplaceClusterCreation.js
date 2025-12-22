@@ -11,7 +11,7 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
     }
   });
   Clusters.forEach((clusterProperties) => {
-    let authType = clusterProperties.CloudProvider.includes('Google Cloud Platform')
+    let authType = clusterProperties.CloudProvider.includes('Google Cloud')
       ? `-${clusterProperties.AuthenticationType}`
       : '';
     let isPscEnabled =
@@ -27,14 +27,12 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
     it(`OSD wizard - ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled}-${clusterProperties.Marketplace} : Billing model and its definitions`, () => {
       CreateOSDWizardPage.isBillingModelScreen();
       CreateOSDWizardPage.selectSubscriptionType(clusterProperties.SubscriptionType);
-      CreateOSDWizardPage.selectMarketplaceSubscription(clusterProperties.Marketplace);
       CreateOSDWizardPage.selectInfrastructureType(clusterProperties.InfrastructureType);
       cy.get(CreateOSDWizardPage.primaryButton).click();
     });
 
     it(`OSD wizard - ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled}-${clusterProperties.Marketplace} : Cluster Settings - Cloud provider definitions`, () => {
-      CreateOSDWizardPage.isCloudProviderSelectionScreen();
-
+      CreateOSDWizardPage.isOnlyGCPCloudProviderSelectionScreen();
       CreateOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
 
       if (clusterProperties.AuthenticationType.includes('Service Account')) {
@@ -45,7 +43,7 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
         CreateOSDWizardPage.selectWorkloadIdentityConfiguration(Cypress.env('QE_GCP_WIF_CONFIG'));
       }
 
-      CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+      CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
       cy.get(CreateOSDWizardPage.primaryButton).click();
     });
 
@@ -56,10 +54,10 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
       if (clusterProperties.hasOwnProperty('Version')) {
         CreateOSDWizardPage.selectVersion(clusterProperties.Version);
       }
-      CreateOSDWizardPage.singleZoneAvilabilityRadio().check();
+      CreateOSDWizardPage.singleZoneAvailabilityRadio().check();
       CreateOSDWizardPage.selectAvailabilityZone(clusterProperties.Availability);
       CreateOSDWizardPage.enableAdditionalEtcdEncryption(true, true);
-      CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+      CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       cy.get(CreateOSDWizardPage.primaryButton).click();
     });
     it(`OSD wizard - ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} -${clusterProperties.Marketplace} : Cluster Settings - Default machinepool definitions`, () => {
@@ -78,7 +76,7 @@ describe('OSD Marketplace cluster creation tests(OCP-67514)', { tags: ['smoke'] 
       CreateOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
       if (
         clusterProperties.ClusterPrivacy.includes('Private') &&
-        clusterProperties.CloudProvider.includes('GCP')
+        clusterProperties.CloudProvider.includes('Google Cloud')
       ) {
         CreateOSDWizardPage.installIntoExistingVpcCheckBox().should('be.checked');
         CreateOSDWizardPage.usePrivateServiceConnectCheckBox().should('be.checked');

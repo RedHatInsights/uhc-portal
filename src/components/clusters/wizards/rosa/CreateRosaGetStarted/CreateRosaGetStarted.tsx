@@ -28,8 +28,6 @@ import Instruction from '~/components/common/Instruction';
 import Instructions from '~/components/common/Instructions';
 import PageTitle from '~/components/common/PageTitle';
 
-import { RosaArchitectureRenamingAlert } from '../common/Banners/RosaArchitectureRenamingAlert';
-
 import StepCreateNetwork from './StepCreateAWSAccountRoles/StepCreateNetwork';
 import StepCreateAWSAccountRoles from './StepCreateAWSAccountRoles';
 import StepDownloadROSACli from './StepDownloadROSACli';
@@ -65,16 +63,20 @@ const CreateRosaGetStarted = () => (
           <ExternalLink href={links.ROSA_COMMUNITY_SLACK}>Slack us</ExternalLink>
         </Content>
       </Content>
-      <RosaArchitectureRenamingAlert />
       <Alert
         variant={AlertVariant.info}
         isInline
         id="env-override-message"
         component="h2"
-        title={<>ROSA in AWS GovCloud (US) with FedRAMP</>}
+        title={
+          <>
+            Red Hat OpenShift Service on AWS (ROSA) with hosted control planes in AWS GovCloud
+            achieves FedRAMP High Authorization
+          </>
+        }
       >
         <ExternalLink data-testid="rosa-aws-fedramp" href={links.ROSA_AWS_FEDRAMP}>
-          Learn more about ROSA in AWS GovCloud (US) with FedRAMP
+          Learn more about ROSA with hosted control planes in AWS GovCloud
         </ExternalLink>
         or start the onboarding process with the{' '}
         <ExternalLink

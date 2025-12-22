@@ -242,7 +242,7 @@ describe('<ReviewAndCreate />', () => {
       expect(screen.queryByText('Authentication type')).not.toBeInTheDocument();
     });
 
-    describe('Private Service Connect field - when "Billing model": Subscription type is On-Demand Flexible usage billed through Google Cloud Marketplace, Infrastructure type: Customer cloud subscription & "Cluster Settings": Cloud provider is Google Cloud Platform (GCP), authentication type is Workload Identity Federation & "Network Configuration": cluster privacy is set to Private (internal)', () => {
+    describe('Private Service Connect field - when "Billing model": Subscription type is On-Demand Flexible usage billed through Google Cloud Marketplace, Infrastructure type: Customer cloud subscription & "Cluster Settings": Cloud provider is Google Cloud, authentication type is Workload Identity Federation & "Network Configuration": cluster privacy is set to Private (internal)', () => {
       const privateServiceConnectFormValues = {
         ...formValues,
         cluster_privacy: 'internal',

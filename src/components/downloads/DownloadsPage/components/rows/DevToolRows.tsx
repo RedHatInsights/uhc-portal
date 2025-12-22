@@ -97,8 +97,9 @@ const DevToolRows = ({
         description={
           <Content component="p">
             Build, test, and deploy Operators with the Operator SDK CLI. <br />
-            As of OCP 4.19, the Operator SDK CLI is no longer released with OpenShift Container
-            Platform. <ExternalLink href={links.OSDK_REMOVAL_DOCS}>Learn more</ExternalLink>
+            The Operator SDK CLI is no longer released with OpenShift Container Platform, beginning
+            in version 4.19.{' '}
+            <ExternalLink href={links.OSDK_REMOVAL_DOCS_4_19}>Learn more</ExternalLink>
           </Content>
         }
       />

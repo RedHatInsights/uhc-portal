@@ -38,9 +38,7 @@ It is responsible for rendering the header & menu around the main content, and p
 
 It’s not a regular build dependency but is injected by CDN using [EdgeSide Includes](https://en.wikipedia.org/wiki/Edge_Side_Includes) tags.
 
-To mimic this, as well as resulting URL structure, in development you can run `yarn start`. It uses `noproxy` param to `webpack.config.js` which "cheats":
-it fetches the 2 ESI snippets once and inlines them in index.html at _build time_ (being a single-page app, we only need them in index.html).
-Such a build is OK for local dev but not for long-lived deploys.
+In development, `yarn start` uses the Frontend Components Config (FEC) dev server, which automatically handles Chrome setup by running a containerized Chrome server (requires Podman). FEC manages the development environment including the Chrome container, webpack dev server, and proxying to backend services.
 
 ## Code Style
 

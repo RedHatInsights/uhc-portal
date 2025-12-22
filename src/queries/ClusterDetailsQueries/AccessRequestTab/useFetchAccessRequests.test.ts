@@ -10,6 +10,17 @@ import { useFetchAccessRequests } from './useFetchAccessRequests';
 
 const apiResponse = {
   total: 15,
+  items: [
+    { id: 'request-1', cluster_id: 'cluster-1', status: 'pending' },
+    { id: 'request-2', cluster_id: 'cluster-2', status: 'approved' },
+  ],
+};
+
+const subscriptionResponse = {
+  items: [
+    { cluster_id: 'cluster-1', display_name: 'Cluster One' },
+    { cluster_id: 'cluster-2', display_name: 'Cluster Two' },
+  ],
 };
 
 type MockedJest = jest.Mocked<typeof axios> & jest.Mock;
@@ -24,12 +35,26 @@ jest.mock('~/redux/hooks', () => ({
   useGlobalState: jest.fn(),
 }));
 
+jest.mock('../useFetchSubscriptionsByClusterId', () => ({
+  useFetchSubscriptionsByClusterId: jest.fn(),
+}));
+
 const useGlobalStateMock = useGlobalState as jest.Mock;
+
+// Import after mocking
+const { useFetchSubscriptionsByClusterId } = jest.requireMock(
+  '../useFetchSubscriptionsByClusterId',
+);
+const useFetchSubscriptionsByClusterIdMock = useFetchSubscriptionsByClusterId as jest.Mock;
 
 describe('useFetchAccessRequests', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
   const mockedDispatch = jest.fn();
   useDispatchMock.mockReturnValue(mockedDispatch);
+
+  beforeEach(() => {
+    useFetchSubscriptionsByClusterIdMock.mockReturnValue({ data: subscriptionResponse });
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -52,12 +77,12 @@ describe('useFetchAccessRequests', () => {
 
     const newProps = { ...defaultProps, isAccessProtectionLoading: true };
     const { result } = renderHook(() =>
-      useFetchAccessRequests(
-        newProps.subscriptionId,
-        newProps.params as ViewOptions,
-        newProps.isAccessProtectionLoading,
-        newProps.accessProtection,
-      ),
+      useFetchAccessRequests({
+        subscriptionId: newProps.subscriptionId,
+        params: newProps.params as ViewOptions,
+        isAccessProtectionLoading: newProps.isAccessProtectionLoading,
+        accessProtection: newProps.accessProtection,
+      }),
     );
 
     await waitFor(() => {
@@ -73,12 +98,12 @@ describe('useFetchAccessRequests', () => {
 
     const newProps = { ...defaultProps, accessProtection: { enabled: false } };
     const { result } = renderHook(() =>
-      useFetchAccessRequests(
-        newProps.subscriptionId,
-        newProps.params as ViewOptions,
-        newProps.isAccessProtectionLoading,
-        newProps.accessProtection,
-      ),
+      useFetchAccessRequests({
+        subscriptionId: newProps.subscriptionId,
+        params: newProps.params as ViewOptions,
+        isAccessProtectionLoading: newProps.isAccessProtectionLoading,
+        accessProtection: newProps.accessProtection,
+      }),
     );
 
     await waitFor(() => {
@@ -88,20 +113,17 @@ describe('useFetchAccessRequests', () => {
     expect(apiRequestMock).not.toHaveBeenCalled();
   });
 
-  it('makes expected api call and calls dispatch if count changes', async () => {
+  it('makes expected api call and returns filtered data', async () => {
     apiRequestMock.get.mockResolvedValueOnce({ data: apiResponse });
     useGlobalStateMock.mockReturnValue({ totalCount: 10 });
 
-    // Ensure that the counts are different
-    expect(apiResponse.total).not.toEqual(10);
-
     const { result } = renderHook(() =>
-      useFetchAccessRequests(
-        defaultProps.subscriptionId,
-        defaultProps.params as ViewOptions,
-        defaultProps.isAccessProtectionLoading,
-        defaultProps.accessProtection,
-      ),
+      useFetchAccessRequests({
+        subscriptionId: defaultProps.subscriptionId,
+        params: defaultProps.params as ViewOptions,
+        isAccessProtectionLoading: defaultProps.isAccessProtectionLoading,
+        accessProtection: defaultProps.accessProtection,
+      }),
     );
 
     await waitFor(() => {
@@ -109,7 +131,10 @@ describe('useFetchAccessRequests', () => {
     });
 
     expect(result.current).toEqual({
-      data: { total: apiResponse.total },
+      data: [
+        { id: 'request-1', cluster_id: 'cluster-1', status: 'pending' },
+        { id: 'request-2', cluster_id: 'cluster-2', status: 'approved' },
+      ],
       isLoading: false,
       isError: false,
       error: null,
@@ -129,27 +154,23 @@ describe('useFetchAccessRequests', () => {
         },
       },
     );
-    // Dispatch is called to set total in Redux
-    expect(mockedDispatch).toHaveBeenCalledTimes(1);
-    expect(mockedDispatch).toHaveBeenLastCalledWith({
+    expect(mockedDispatch).toHaveBeenCalledWith({
       type: 'SET_TOTAL_ITEMS',
-      payload: { viewType: 'ACCESS_REQUESTS_VIEW', totalCount: apiResponse.total },
-      meta: undefined,
-      error: undefined,
+      payload: { totalCount: 15, viewType: 'ACCESS_REQUESTS_VIEW' },
     });
   });
 
-  it('makes expected api call and does not call dispatch if count is the same', async () => {
+  it('returns filtered data with cluster names', async () => {
     apiRequestMock.get.mockResolvedValueOnce({ data: apiResponse });
     useGlobalStateMock.mockReturnValue({ totalCount: apiResponse.total });
 
     const { result } = renderHook(() =>
-      useFetchAccessRequests(
-        defaultProps.subscriptionId,
-        defaultProps.params as ViewOptions,
-        defaultProps.isAccessProtectionLoading,
-        defaultProps.accessProtection,
-      ),
+      useFetchAccessRequests({
+        organizationId: 'myOrganizationId',
+        params: defaultProps.params as ViewOptions,
+        isAccessProtectionLoading: defaultProps.isAccessProtectionLoading,
+        accessProtection: defaultProps.accessProtection,
+      }),
     );
 
     await waitFor(() => {
@@ -157,7 +178,10 @@ describe('useFetchAccessRequests', () => {
     });
 
     expect(result.current).toEqual({
-      data: { total: apiResponse.total },
+      data: [
+        { id: 'request-1', cluster_id: 'cluster-1', status: 'pending', name: 'Cluster One' },
+        { id: 'request-2', cluster_id: 'cluster-2', status: 'approved', name: 'Cluster Two' },
+      ],
       isLoading: false,
       isError: false,
       error: null,
@@ -172,12 +196,16 @@ describe('useFetchAccessRequests', () => {
         params: {
           page: 1,
           size: 20,
-          search: "subscription_id='mySubscriptionId'",
+          search:
+            "organization_id='myOrganizationId' and status.state in ('Denied', 'Pending', 'Approved')",
           orderBy: 'mySortField asc',
         },
       },
     );
 
-    expect(mockedDispatch).not.toHaveBeenCalled();
+    expect(mockedDispatch).toHaveBeenCalledWith({
+      type: 'SET_TOTAL_ITEMS',
+      payload: { totalCount: 15, viewType: 'ACCESS_REQUESTS_VIEW' },
+    });
   });
 });

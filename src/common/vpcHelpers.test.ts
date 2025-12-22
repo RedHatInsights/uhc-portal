@@ -5,6 +5,7 @@ import {
   filterOutRedHatManagedVPCs,
   getMatchingAvailabilityZones,
   getSelectedAvailabilityZones,
+  inferRegionFromSubnets,
   isSubnetMatchingPrivacy,
   SubnetPrivacy,
   vpcHasRequiredSubnets,
@@ -176,5 +177,134 @@ describe('getSelectedAvailabilityZones', () => {
       { privateSubnetId: 'subnet-04f5c843f1753f29d' },
     ];
     expect(getSelectedAvailabilityZones(vpc, formSubnets)).toHaveLength(0);
+  });
+});
+
+describe('inferRegionFromSubnets', () => {
+  it('correctly infers region from different availability zone formats', () => {
+    const testCases = [
+      { az: 'us-west-2b', expectedRegion: 'us-west-2' },
+      { az: 'eu-central-1c', expectedRegion: 'eu-central-1' },
+      { az: 'ap-southeast-1a', expectedRegion: 'ap-southeast-1' },
+      { az: 'ca-central-1d', expectedRegion: 'ca-central-1' },
+    ];
+
+    testCases.forEach(({ az, expectedRegion }) => {
+      const vpc = {
+        aws_subnets: [{ subnet_id: '1', availability_zone: az, public: true }],
+      } as CloudVpc;
+
+      expect(inferRegionFromSubnets(vpc)).toEqual(expectedRegion);
+    });
+  });
+
+  it('handles availability zone without letter suffix', () => {
+    const vpc = {
+      aws_subnets: [{ subnet_id: '1', availability_zone: 'us-east-1', public: true }],
+    } as CloudVpc;
+
+    expect(inferRegionFromSubnets(vpc)).toEqual('us-east-1');
+  });
+
+  it('uses first subnet with availability zone when multiple subnets exist', () => {
+    const vpc = {
+      aws_subnets: [
+        { subnet_id: '1', availability_zone: undefined, public: true },
+        { subnet_id: '2', availability_zone: 'eu-west-1a', public: false },
+        { subnet_id: '3', availability_zone: 'us-east-1b', public: true },
+      ],
+    } as CloudVpc;
+
+    expect(inferRegionFromSubnets(vpc)).toEqual('eu-west-1');
+  });
+
+  it('returns undefined when VPC has no subnets', () => {
+    const vpc = {
+      aws_subnets: undefined,
+    } as CloudVpc;
+
+    expect(inferRegionFromSubnets(vpc)).toBeUndefined();
+  });
+
+  it('returns undefined when VPC has empty subnets array', () => {
+    const vpc = {
+      aws_subnets: [],
+    } as CloudVpc;
+
+    expect(inferRegionFromSubnets(vpc)).toBeUndefined();
+  });
+
+  it('returns undefined when no subnet has availability zone', () => {
+    const vpc = {
+      aws_subnets: [
+        { subnet_id: '1', availability_zone: undefined, public: true },
+        { subnet_id: '2', availability_zone: undefined, public: false },
+      ],
+    } as CloudVpc;
+
+    expect(inferRegionFromSubnets(vpc)).toBeUndefined();
+  });
+
+  it('handles availability zone with empty string', () => {
+    const vpc = {
+      aws_subnets: [{ subnet_id: '1', availability_zone: '', public: true }],
+    } as CloudVpc;
+
+    expect(inferRegionFromSubnets(vpc)).toBeUndefined();
+  });
+
+  it('handles regions with more than 3 dash-separated parts', () => {
+    // Test with gov cloud regions that have 4 parts
+    const testCases = [
+      { az: 'us-gov-east-1a', expectedRegion: 'us-gov-east-1' },
+      { az: 'us-gov-west-1b', expectedRegion: 'us-gov-west-1' },
+    ];
+
+    testCases.forEach(({ az, expectedRegion }) => {
+      const vpc = {
+        aws_subnets: [{ subnet_id: '1', availability_zone: az, public: true }],
+      } as CloudVpc;
+
+      expect(inferRegionFromSubnets(vpc)).toEqual(expectedRegion);
+    });
+  });
+
+  it('returns undefined for non-AWS availability zone formats', () => {
+    // The regex is specifically designed for AWS patterns, so non-matching patterns return undefined
+    const testCases = ['custom-region-a', 'some-custom-region', 'invalid', '123-456'];
+
+    testCases.forEach((az) => {
+      const vpc = {
+        aws_subnets: [{ subnet_id: '1', availability_zone: az, public: true }],
+      } as CloudVpc;
+
+      expect(inferRegionFromSubnets(vpc)).toBeUndefined();
+    });
+  });
+
+  it('correctly handles AWS local zones for both standard and gov cloud regions', () => {
+    // Test various local zone formats
+    const testCases = [
+      // Standard region local zones
+      { az: 'us-west-2-den-1a', expectedRegion: 'us-west-2' },
+      { az: 'us-west-2-lax-1b', expectedRegion: 'us-west-2' },
+      { az: 'us-east-1-bos-1a', expectedRegion: 'us-east-1' },
+      { az: 'us-east-1-mia-1b', expectedRegion: 'us-east-1' },
+      // GovCloud local zones
+      { az: 'us-gov-west-1-lax-1a', expectedRegion: 'us-gov-west-1' },
+      { az: 'us-gov-west-1-phx-1b', expectedRegion: 'us-gov-west-1' },
+      { az: 'us-gov-east-1-atl-1a', expectedRegion: 'us-gov-east-1' },
+      // Local zones without AZ letter suffix (edge case)
+      { az: 'us-west-2-den-1', expectedRegion: 'us-west-2' },
+      { az: 'us-gov-west-1-lax-1', expectedRegion: 'us-gov-west-1' },
+    ];
+
+    testCases.forEach(({ az, expectedRegion }) => {
+      const vpc = {
+        aws_subnets: [{ subnet_id: '1', availability_zone: az, public: true }],
+      } as CloudVpc;
+
+      expect(inferRegionFromSubnets(vpc)).toEqual(expectedRegion);
+    });
   });
 });

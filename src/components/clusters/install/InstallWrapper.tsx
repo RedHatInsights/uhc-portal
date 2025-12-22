@@ -103,4 +103,6 @@ export const InstallComponentWrapper = (props: InstallComponentProps) => {
 
 // Loop through all Install component Routes and render required Install component
 export const InstallRouteMap = (routes: Routes[]) =>
-  routes.map((route: Routes) => <Route path={route.path} element={route.element} />);
+  routes.map((route: Routes) => (
+    <Route key={route.path} path={route.path} element={route.element} />
+  ));

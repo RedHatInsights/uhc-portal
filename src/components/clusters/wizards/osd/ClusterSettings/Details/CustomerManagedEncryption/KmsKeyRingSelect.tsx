@@ -41,7 +41,7 @@ export const KmsKeyRingSelect = () => {
         helperText="A key ring organizes keys in a specific Google Cloud location."
         noDependenciesPlaceholder="Enter GCP credentials first"
         placeholder="Select key ring"
-        requestErrorTitle="Error listing key rings using your GCP credentials"
+        requestErrorTitle="Error listing key rings using your Google Cloud credentials"
         emptyAlertTitle="No key rings found for this location"
         emptyAlertBody={
           <>

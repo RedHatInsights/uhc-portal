@@ -7,6 +7,7 @@ import { Button, Flex, FlexItem, FormGroup, Tooltip } from '@patternfly/react-co
 import { CopyIcon } from '@patternfly/react-icons/dist/esm/icons/copy-icon';
 import { TrashIcon } from '@patternfly/react-icons/dist/esm/icons/trash-icon';
 
+import { ocmResourceType } from '~/common/analytics';
 import ErrorBox from '~/components/common/ErrorBox';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
@@ -166,6 +167,8 @@ const SharedVPCDomainSelect = ({ label, input, meta }: SharedVPCDomainSelectProp
           onCloseAlert={() => {
             dispatch(dnsDomainsActions.clearLastCreatedBaseDnsDomain());
           }}
+          analyticsType={`error-dns-domain-${actionText === CREATE_LOADER_TEXT ? 'create' : 'delete'}`}
+          analyticsResourceType={ocmResourceType.MOA}
         />
       )}
 

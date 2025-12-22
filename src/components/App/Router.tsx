@@ -26,6 +26,7 @@ import ClusterDetailsClusterOrExternalIdMR from '~/components/clusters/ClusterDe
 import {
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
   HYPERSHIFT_WIZARD_FEATURE,
+  OSD_FOR_GOOGLE_CLOUD,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
@@ -39,6 +40,7 @@ import ClusterDetailsSubscriptionIdMultiRegion from '../clusters/ClusterDetailsM
 import AccessRequestNavigate from '../clusters/ClusterDetailsMultiRegion/components/AccessRequest/components/AccessRequestNavigate';
 import IdentityProviderPageMultiregion from '../clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/index';
 import ClusterListMultiRegion from '../clusters/ClusterListMultiRegion';
+import { Clusters } from '../clusters/Clusters/Clusters';
 import ClusterRequestList from '../clusters/ClusterTransfer/ClusterRequest';
 import CreateClusterPage from '../clusters/CreateClusterPage';
 import GovCloudPage from '../clusters/GovCloud/GovCloudPage';
@@ -80,6 +82,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
 
   const isHypershiftWizardEnabled = useFeatureGate(HYPERSHIFT_WIZARD_FEATURE);
   const isClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
+  const isOsdFromGoogleCloudEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
 
   // For testing purposes, show which major features are enabled/disabled
   React.useEffect(() => {
@@ -167,6 +170,16 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
             </TermsGuard>
           }
         />
+        {isOsdFromGoogleCloudEnabled ? (
+          <Route
+            path="/create/osdgcp"
+            element={
+              <TermsGuard gobackPath="/create">
+                <CreateOsdWizard isOSDFromGoogleCloud />
+              </TermsGuard>
+            }
+          />
+        ) : null}
         <Route path="/create/cloud" element={<CreateClusterPage activeTab="cloud" />} />
         <Route path="/create/datacenter" element={<CreateClusterPage activeTab="datacenter" />} />
         <Route path="/create/local" element={<CreateClusterPage activeTab="local" />} />
@@ -243,6 +256,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         'http:///status.redhat.com' site. If this route is changed, then the related catchpoint
         tests must be updated. For more info. see: https://issues.redhat.com/browse/OCMUI-2398 */}
         <Route path="/cluster-list" element={<ClusterListMultiRegion getMultiRegion />} />
+        <Route path="/clusters/*" element={<Clusters />} />
         {isClusterTransferOwnershipEnabled ? (
           <Route path="/cluster-request" element={<ClusterRequestList />} />
         ) : null}

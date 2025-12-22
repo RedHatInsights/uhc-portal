@@ -31,7 +31,7 @@ const OCPInstructions = (props) => {
   } = props;
   const pendoID = window.location.pathname;
   const getStartedTitleText = instructionsMapping[cloudProviderID]?.publicCloud
-    ? `Follow the documentation to configure your ${instructionsMapping[cloudProviderID].cloudProvider} account and run the installer`
+    ? `Follow the documentation to configure your ${instructionsMapping[cloudProviderID].cloudProvider === 'GCP' ? 'Google Cloud' : instructionsMapping[cloudProviderID].cloudProvider} account and run the installer`
     : 'Follow the instructions to configure your environment and install your cluster';
   return (
     <Card ouiaId={`${cloudProviderID}${installationTypeId ? '-'.concat(installationTypeId) : ''}`}>

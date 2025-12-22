@@ -68,7 +68,7 @@ const SHP_CLI_LATEST =
   'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-builds/latest/';
 
 const OCP_DOCS_BASE =
-  'https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html';
+  'https://docs.redhat.com/en/documentation/openshift_container_platform/latest/html';
 const OSD_DOCS_BASE = 'https://docs.redhat.com/en/documentation/openshift_dedicated/4/html';
 const ROSA_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html';
@@ -99,7 +99,7 @@ const links = {
   LEARN_MORE_OSD:
     'https://www.redhat.com/en/products/interactive-walkthrough/install-openshift-dedicated-google-cloud',
   ROSA_COMMUNITY_SLACK: 'https://red.ht/rosa-slack',
-  ROSA_QUICKSTART: `${ROSA_CP_DOCS_BASE}/getting_started/rosa-quickstart-guide-ui`,
+  ROSA_QUICKSTART: `${ROSA_CLASSIC_DOCS_BASE}/getting_started/rosa-quickstart-guide-ui`,
   OSD_QUICKSTART: 'https://www.youtube.com/watch?v=p9KBFvMDQJM&feature=youtu.be',
   OSD_INTERACTIVE_WALKTHROUGH:
     'https://www.redhat.com/en/products/interactive-walkthrough/install-openshift-dedicated-google-cloud',
@@ -143,32 +143,33 @@ const links = {
   OSD_CCS_GCP: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs`,
   OSD_CCS_GCP_LIMITS: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs#gcp-limits_gcp-ccs`,
   OSD_CCS_GCP_SCP: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs#ccs-gcp-customer-procedure_gcp-ccs`,
-  OSD_CCS_GCP_SHEILDED_VM: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_gcp/osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
+  OSD_CCS_GCP_SHEILDED_VM: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_google_cloud/osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
   OSD_CCS_GCP_WIF_GCLOUD_CLI: 'https://cloud.google.com/sdk/docs/install',
   OSD_CCS_GCP_WIF_GCLOUD_CREDENTIALS:
     'https://cloud.google.com/docs/authentication/provide-credentials-adc',
-  OSD_CCS_GCP_WIF_CREATION_LEARN_MORE: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_gcp/osd-creating-a-cluster-on-gcp-with-workload-identity-federation#workload-identity-federation-overview_osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
+  OSD_CCS_GCP_WIF_CREATION_LEARN_MORE: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_google_cloud/osd-creating-a-cluster-on-gcp-with-workload-identity-federation#workload-identity-federation-overview_osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
   OSD_LIFE_CYCLE: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#osd-life-cycle`,
+  OSD_LIFE_CYCLE_DATES: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#sd-life-cycle-dates_osd-life-cycle`,
   OSD_Z_STREAM: `${OSD_DOCS_BASE}/upgrading/osd-upgrades#upgrade-auto_osd-upgrades`,
   OSD_SERVICE_DEFINITION_COMPUTE: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#instance-types_osd-service-definition`,
   ROSA_SERVICE_DEFINITION_COMPUTE: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-sdpolicy-instance-types_rosa-service-definition`,
   OSD_ETCD_ENCRYPTION: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#etcd-encryption_osd-service-definition_dedicated/policies-and-service-definition#sdpolicy-account-management_osd-service-definition`,
   OSD_AWS_PRIVATE_CONNECTIONS: `${OSD_DOCS_BASE}/cluster_administration/configuring-private-connections#enable-aws-access`,
   OSD_PRIVATE_CLUSTER: `${OSD_DOCS_BASE}/cluster_administration/configuring-private-connections#private-cluster`,
-  OSD_CLUSTER_WIDE_PROXY: `${OSD_DOCS_BASE}/networking/configuring-a-cluster-wide-proxy`,
+  OSD_CLUSTER_WIDE_PROXY: `${OSD_DOCS_BASE}/ovn-kubernetes_network_plugin/configuring-a-cluster-wide-proxy`,
   OSD_UPGRADES: `${OSD_DOCS_BASE}/upgrading/osd-upgrades`,
   OSD_LIMITED_SUPPORT_DEFINITION: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#limited-support_osd-service-definition`,
-  OSD_MONITORING_STACK: `${OSD_DOCS_BASE}-single/monitoring/index#preparing-to-configure-the-monitoring-stack-uwm`,
-  OSD_CIDR_MACHINE: `${OSD_DOCS_BASE}/networking/cidr-range-definitions#machine-cidr-description`,
-  ROSA_CIDR_MACHINE: `${ROSA_CLASSIC_DOCS_BASE}/networking/cidr-range-definitions#machine-cidr-description`,
-  OSD_CIDR_SERVICE: `${OSD_DOCS_BASE}/networking/cidr-range-definitions#service-cidr-description`,
-  ROSA_CIDR_SERVICE: `${ROSA_CLASSIC_DOCS_BASE}/networking/cidr-range-definitions#service-cidr-description`,
-  OSD_CIDR_POD: `${OSD_DOCS_BASE}/networking/cidr-range-definitions#pod-cidr-description`,
-  ROSA_CIDR_POD: `${ROSA_CLASSIC_DOCS_BASE}/networking/cidr-range-definitions#pod-cidr-description`,
-  OSD_CIDR_HOST: `${OSD_DOCS_BASE}/networking/cidr-range-definitions#host-prefix-description`,
-  ROSA_CIDR_HOST: `${ROSA_CLASSIC_DOCS_BASE}/networking/cidr-range-definitions#host-prefix-description`,
+  OSD_MONITORING_STACK: `${OSD_DOCS_BASE}/monitoring/configuring-user-workload-monitoring#preparing-to-configure-the-monitoring-stack-uwm`,
+  OSD_CIDR_MACHINE: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions#machine-cidr-description`,
+  ROSA_CIDR_MACHINE: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#machine-cidr-description`,
+  OSD_CIDR_SERVICE: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions#service-cidr-description`,
+  ROSA_CIDR_SERVICE: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#service-cidr-description`,
+  OSD_CIDR_POD: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions#pod-cidr-description`,
+  ROSA_CIDR_POD: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#pod-cidr-description`,
+  OSD_CIDR_HOST: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions#host-prefix-description`,
+  ROSA_CIDR_HOST: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#host-prefix-description`,
   OSD_CLUSTER_AUTOSCALING: `${OSD_DOCS_BASE}/cluster_administration/osd-cluster-autoscaling`,
-  ROSA_CLUSTER_AUTOSCALING: `${ROSA_DOCS_BASE}/cluster_administration/rosa-cluster-autoscaling`,
+  ROSA_CLUSTER_AUTOSCALING: `${ROSA_DOCS_BASE}/cluster_administration/rosa-cluster-autoscaling-hcp`,
   OSD_SECURITY_GROUPS: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs#osd-security-groups-custom_aws-ccs `,
 
   CLI_TOOLS_OCP_GETTING_STARTED: `${OCP_DOCS_BASE}/cli_tools/openshift-cli-oc#cli-about-cli_cli-developer-commands`,
@@ -209,13 +210,13 @@ const links = {
 
   OPENSHIFT_LOCAL_SUPPORT_AND_COMMUNITY_DOCS: 'https://crc.dev/docs/using/',
 
-  INSTALL_GCPIPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-account`,
-  INSTALL_GCPIPI_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-default`,
-  INSTALL_GCPUPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-user-infra`,
-  INSTALL_GCPUPI_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-user-infra#installation-gcp-project_installing-gcp-user-infra`,
-  INSTALL_GCP_CUSTOMIZATIONS: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-customizations`,
-  INSTALL_GCP_VPC: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-vpc`,
-  INSTALL_GCP_SHARED_VPC: `${OCP_DOCS_BASE}/installing_on_gcp/installing-gcp-shared-vpc`,
+  INSTALL_GCPIPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-account`,
+  INSTALL_GCPIPI_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-default`,
+  INSTALL_GCPUPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-user-infra`,
+  INSTALL_GCPUPI_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-user-infra#installation-gcp-project_installing-gcp-user-infra`,
+  INSTALL_GCP_CUSTOMIZATIONS: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-customizations`,
+  INSTALL_GCP_VPC: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-vpc`,
+  INSTALL_GCP_SHARED_VPC: `${OCP_DOCS_BASE}/installing_on_google_cloud/installing-gcp-shared-vpc`,
   RHCOS_GCPUPI_TAR_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-gcp.x86_64.tar.gz`,
 
   INSTALL_NUTANIXIPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_nutanix/preparing-to-install-on-nutanix`,
@@ -293,7 +294,7 @@ const links = {
 
   OPM_DOCS: `${OCP_DOCS_BASE}/cli_tools/opm-cli#olm-about-opm_cli-opm-install`,
 
-  OSDK_REMOVAL_DOCS: `${OCP_DOCS_BASE}/release_notes/ocp-4-19-release-notes#ocp-4-19-removed-osdk_release-notes`,
+  OSDK_REMOVAL_DOCS_4_19: `https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/release_notes/ocp-4-19-release-notes#ocp-4-19-removed-osdk_release-notes`,
 
   BUTANE_DOCS: `${OCP_DOCS_BASE}/installation_configuration/installing-customizing`,
 
@@ -303,8 +304,8 @@ const links = {
 
   SHP_CLI_DOCS: `https://docs.redhat.com/en/documentation/builds_for_red_hat_openshift/1.1/html-single/work_with_builds/index`,
 
-  INSTALL_MIRROR_REGISTRY_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/mirroring-in-disconnected-environments#installation-about-mirror-registry_installing-mirroring-installation-images`,
-  INSTALL_OC_MIRROR_PLUGIN_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/mirroring-in-disconnected-environments#installing-mirroring-installation-images`,
+  INSTALL_MIRROR_REGISTRY_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/installing-mirroring-installation-images#installation-about-mirror-registry_installing-mirroring-installation-images`,
+  INSTALL_OC_MIRROR_PLUGIN_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/installing-mirroring-installation-images`,
 
   OPENSHIFT_DEDICATED_LEARN_MORE:
     'https://www.redhat.com/en/technologies/cloud-computing/openshift/dedicated',
@@ -320,12 +321,13 @@ const links = {
   ROSA_SECURITY_GROUPS: `${ROSA_DOCS_BASE}/prepare_your_environment/rosa-hcp-prereqs#rosa-security-groups_rosa-hcp-prereqs`,
   ROSA_CLI_DOCS: `${ROSA_CP_DOCS_BASE}/rosa_cli/rosa-get-started-cli`,
   ROSA_LIFE_CYCLE: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#life-cycle-overview_rosa-life-cycle`,
+  ROSA_LIFE_CYCLE_DATES: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#sd-life-cycle-dates_rosa-hcp-life-cycle`,
   ROSA_Z_STREAM: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-patch-versions_rosa-hcp-life-cycle`,
   ROSA_RESPONSIBILITY_MATRIX: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-policy-responsibility-matrix`,
   ROSA_SERVICE_DEFINITION: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-sdpolicy-account-management_rosa-service-definition`,
   ROSA_WORKER_NODE_COUNT: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-sdpolicy-compute_rosa-service-definition`,
   ROSA_SERVICE_ETCD_ENCRYPTION: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-sdpolicy-etcd-encryption_rosa-service-definition`,
-  ROSA_CLUSTER_WIDE_PROXY: `${ROSA_CLASSIC_DOCS_BASE}/networking/configuring-a-cluster-wide-proxy`,
+  ROSA_CLUSTER_WIDE_PROXY: `${ROSA_CLASSIC_DOCS_BASE}/ovn-kubernetes_network_plugin/configuring-a-cluster-wide-proxy`,
   ROSA_UPGRADES: `${ROSA_DOCS_BASE}/upgrading/rosa-hcp-upgrading`,
   ROSA_LIMITED_SUPPORT_DEFINITION: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-limited-support_rosa-service-definition`,
   ROSA_SHARED_VPC: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-shared-vpc-config`,
@@ -334,8 +336,7 @@ const links = {
   ROSA_AWS_ACCOUNT_ASSOCIATION: `${ROSA_DOCS_BASE}/prepare_your_environment/rosa-cloud-expert-prereq-checklist`,
   ROSA_AWS_SERVICE_QUOTAS: `${ROSA_CP_DOCS_BASE}/prepare_your_environment/rosa-sts-required-aws-service-quotas#rosa-required-aws-service-quotas_rosa-sts-required-aws-service-quotas`,
   ROSA_AWS_LIMITS_SCALE: `${ROSA_DOCS_BASE}/prepare_your_environment/rosa-planning-environment`,
-  ROSA_AWS_IAM_RESOURCES: `${ROSA_CP_DOCS_BASE}/introduction_to_rosa/rosa-sts-about-iam-resources`,
-  ROSA_AWS_IAM_ROLES: `${ROSA_DOCS_BASE}/introduction_to_rosa/rosa-hcp-about-iam-resources`,
+  ROSA_AWS_IAM_RESOURCES: `${ROSA_DOCS_BASE}/introduction_to_rosa/rosa-hcp-about-iam-resources`,
   ROSA_AWS_IAM_OPERATOR_ROLES: `${ROSA_DOCS_BASE}/introduction_to_rosa/rosa-hcp-about-iam-resources#rosa-sts-operator-roles_rosa-sts-about-iam-resources`,
   ROSA_HCP_EXT_AUTH: `${ROSA_CP_DOCS_BASE}/install_rosa_with_hcp_clusters/rosa-hcp-sts-creating-a-cluster-ext-auth`,
   ROSA_HCP_BREAK_GLASS: `${ROSA_CP_DOCS_BASE}/install_rosa_with_hcp_clusters/rosa-hcp-sts-creating-a-cluster-ext-auth#rosa-hcp-sts-accessing-a-break-glass-cred-cli_rosa-hcp-sts-creating-a-cluster-ext-auth`,
@@ -358,6 +359,8 @@ const links = {
   AWS_LOAD_BALANCER_FEATURES:
     'https://aws.amazon.com/elasticloadbalancing/features/#Product_comparisons',
   AWS_SHARED_VPC: 'https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html',
+  AWS_CAPACITY_RESERVATION:
+    'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/capacity-reservation-overview.html',
 
   GCP_CONSOLE_OSD_HOME:
     'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
@@ -372,13 +375,13 @@ const links = {
 
   FINDING_AWS_ACCOUNT_IDENTIFIERS:
     'https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-identifiers.html',
-  CIDR_RANGE_DEFINITIONS_ROSA: `${ROSA_CLASSIC_DOCS_BASE}/networking/cidr-range-definitions`,
-  CIDR_RANGE_DEFINITIONS_OSD: `${OSD_DOCS_BASE}/networking/cidr-range-definitions`,
-  CONFIGURE_PROXY_URL: `${OSD_DOCS_BASE}/networking`,
+  CIDR_RANGE_DEFINITIONS_ROSA: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions`,
+  CIDR_RANGE_DEFINITIONS_OSD: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions`,
+  CONFIGURE_PROXY_URL: `${OSD_DOCS_BASE}/networking_overview/index`,
   VIRTUAL_PRIVATE_CLOUD_URL: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-quickstart-guide#rosa-hcp-quickstart-creating-vpc`,
   AWS_CONTROL_PLANE_URL: `${OCP_DOCS_BASE}/architecture/control-plane#control-plane`,
 
-  ROSA_AWS_FEDRAMP: 'https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-rosa.html',
+  ROSA_AWS_FEDRAMP: `${ROSA_DOCS_BASE}/getting_started_with_rosa_govcloud/index`,
   FEDRAMP_ACCESS_REQUEST_FORM: 'https://console.redhat.com/openshift/create/rosa/govcloud',
   TERRAFORM_ROSA_HCP_URL: `${ROSA_DOCS_BASE}/install_clusters/creating-a-rosa-cluster-using-terraform`,
   TERRAFORM_REGISTRY_ROSA_HCP:
@@ -391,8 +394,6 @@ const links = {
   LEARN_MORE_SSO_ROSA: `${ROSA_DOCS_BASE}/cli_tools/rosa-cli#rosa-login-sso_rosa-getting-started-cli`,
   TRANSFER_CLUSTER_OWNERSHIP:
     'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html-single/managing_clusters/index#transferring-cluster-ownership_downloading-and-updating-pull-secrets',
-
-  ROSA_ARCHITECTURE_RENAMING_KNOWLEDGE_BASE_ARTICLE: 'https://access.redhat.com/articles/7123990',
 
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: 'https://aws.amazon.com/windows/resources/licensing/',
   WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: 'https://access.redhat.com/articles/7096903',
