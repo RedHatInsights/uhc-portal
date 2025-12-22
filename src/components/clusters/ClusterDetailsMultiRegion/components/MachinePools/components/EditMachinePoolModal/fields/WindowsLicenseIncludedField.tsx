@@ -1,15 +1,16 @@
 import React from 'react';
-import { useField } from 'formik';
+import { useFormikContext } from 'formik';
 
 import { Content, ContentVariants } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
-import { fieldId as instanceTypeFieldId } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
 import { CheckboxField } from '~/components/clusters/wizards/form';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import { MachineType, NodePool } from '~/types/clusters_mgmt.v1';
+import { NodePool } from '~/types/clusters_mgmt.v1';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
+
+import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
 
 const fieldId = 'isWindowsLicenseIncluded';
 
@@ -28,8 +29,8 @@ const WindowsLicenseIncludedField = ({
   currentMP,
 }: WindowsLicenseIncludedFieldProps) => {
   // Instance type field -> get isWinLiCompatible from the selected instance type:
-  const [__field, { value: instanceType }] = useField(instanceTypeFieldId);
-  const isWinLiCompatible = !!(instanceType as MachineType)?.features?.win_li;
+  const { values } = useFormikContext<EditMachinePoolValues>();
+  const isWinLiCompatible = !!values.instanceType?.features?.win_li;
 
   const isCurrentMPWinLiEnabled = isEdit && currentMP?.image_type === ImageType.Windows;
 
