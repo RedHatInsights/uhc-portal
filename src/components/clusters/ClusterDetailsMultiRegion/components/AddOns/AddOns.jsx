@@ -13,6 +13,8 @@ import {
 import { CubesIcon } from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 
+import { getOCMResourceType } from '~/common/analytics';
+import { normalizedProducts } from '~/common/subscriptionTypes';
 import { useAddClusterAddOn } from '~/queries/ClusterDetailsQueries/AddOnsTab/useAddClusterAddOn';
 import { useDeleteClusterAddOn } from '~/queries/ClusterDetailsQueries/AddOnsTab/useDeleteClusterAddOn';
 import {
@@ -29,6 +31,7 @@ import { useGlobalState } from '~/redux/hooks';
 
 import { getOrganizationAndQuota } from '../../../../../redux/actions/userActions';
 import ErrorBox from '../../../../common/ErrorBox';
+import { ClusterTabsId } from '../common/ClusterTabIds';
 
 import AddOnsDrawer from './AddOnsDrawer';
 import { availableAddOns } from './AddOnsHelper';
@@ -36,6 +39,10 @@ import { availableAddOns } from './AddOnsHelper';
 const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
   const dispatch = useDispatch();
   const organization = useGlobalState((state) => state.userProfile.organization);
+
+  // Calculate analytics resource type for tracking
+  const planType = cluster?.subscription?.plan?.id ?? normalizedProducts.UNKNOWN;
+  const analyticsResourceType = getOCMResourceType(planType);
   const {
     data: addOnsData,
     isError: isFetchAddOnsError,
@@ -92,7 +99,7 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
             <Button
               variant="link"
               onClick={() => {
-                document.location.hash = 'overview';
+                document.location.hash = ClusterTabsId.OVERVIEW;
               }}
             >
               Go back to overview
@@ -154,6 +161,8 @@ const AddOns = ({ clusterID, region, cluster, isHypershift }) => {
           response={addClusterAddOnError}
           showCloseBtn
           onCloseAlert={resetAddClusterAddon}
+          analyticsType="error-adding-add-on"
+          analyticsResourceType={analyticsResourceType}
         />
       )}
       <AddOnsDrawer
