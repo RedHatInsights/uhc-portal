@@ -189,7 +189,7 @@ const useMachinePoolFormik = ({
 
     if (isHypershift) {
       machinePoolData.isWindowsLicenseIncluded =
-        (machinePool as NodePool)?.image_type === ImageType.Windows || false; // This involves extra costs, let's keep it false by default
+        isNodePool(machinePool) && machinePool?.image_type === ImageType.Windows; // This involves extra costs, let's keep it false by default
     }
 
     return machinePoolData;
