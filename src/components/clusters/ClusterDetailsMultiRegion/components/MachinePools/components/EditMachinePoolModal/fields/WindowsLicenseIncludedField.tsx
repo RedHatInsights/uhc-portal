@@ -9,6 +9,7 @@ import { CheckboxField } from '~/components/clusters/wizards/form';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import { MachineType, NodePool } from '~/types/clusters_mgmt.v1';
+import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 
 const fieldId = 'isWindowsLicenseIncluded';
 
@@ -30,7 +31,7 @@ const WindowsLicenseIncludedField = ({
   const [__field, { value: instanceType }] = useField(instanceTypeFieldId);
   const isWinLiCompatible = !!(instanceType as MachineType)?.features?.win_li;
 
-  const isCurrentMPWinLiEnabled = isEdit && currentMP?.image_type === 'Windows';
+  const isCurrentMPWinLiEnabled = isEdit && currentMP?.image_type === ImageType.Windows;
 
   const hint = (
     <>

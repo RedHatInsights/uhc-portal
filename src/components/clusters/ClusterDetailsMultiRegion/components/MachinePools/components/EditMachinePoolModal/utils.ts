@@ -1,5 +1,6 @@
 import { ENABLE_AWS_TAGS_EDITING } from '~/queries/featureGates/featureConstants';
-import { AwsMachinePool, ImageType, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
+import { AwsMachinePool, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
+import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 
 import { EditMachinePoolValues } from './hooks/useMachinePoolFormik';
 
@@ -164,7 +165,7 @@ export const buildNodePoolRequest = (
   }
 
   if (values.isWindowsLicenseIncluded) {
-    nodePool.image_type = 'Windows' as ImageType;
+    nodePool.image_type = ImageType.Windows;
   }
 
   return nodePool;
