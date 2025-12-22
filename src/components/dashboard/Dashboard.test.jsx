@@ -255,12 +255,6 @@ describe('<Dashboard />', () => {
       const noData = screen.getByText('No data available');
       expect(noData).toBeVisible();
     });
-
-    it.skip('shows empty state in "telemetry" card when both `totalConnectedClusters` and `totalClusters` are falsy', () => {
-      // this was supposed to cover the card-body condition `!totalConnectedClusters && !totalClusters`.
-      // turns out it's an unreachable branch of the control-flow; when `totalClusters` is falsy,
-      // the entire page will show "empty" state, and "telemetry" card will never be rendered.
-    });
   });
 
   describe('page state', () => {
