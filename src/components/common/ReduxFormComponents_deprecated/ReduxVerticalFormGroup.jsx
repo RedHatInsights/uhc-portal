@@ -26,15 +26,16 @@ import PopoverHint from '../PopoverHint';
 
 const ReduxVerticalFormGroup = ({
   label,
-  helpText,
+  helpText = '',
   extendedHelpText,
-  isRequired,
+  isRequired = false,
   meta: { error, touched },
   input,
   disabled,
   isTextArea,
-  showHelpTextOnError,
-  inputPrefix,
+  // eslint-disable-next-line no-unused-vars
+  showHelpTextOnError = true, // this may be used to pass down to child components
+  inputPrefix = '',
   formGroupClass,
   hasOtherValidation = false,
   onAutocomplete,
@@ -139,12 +140,12 @@ const ReduxVerticalFormGroup = ({
       ) : null}
       <InputGroupItem isFill>
         <InputComponent
-          id={input.name}
           isRequired={isRequired}
           validated={isValid ? 'default' : 'error'}
           {...disabledProp}
           {...input}
           {...cleanedExtraProps}
+          id={input.name || input.id || 'text-input-fallback'}
           type={isPassword && !inputValueHidden ? 'text' : extraProps.type}
           onFocus={onFocus}
           onBlur={onBlur}
@@ -190,12 +191,6 @@ const ReduxVerticalFormGroup = ({
   );
 };
 
-ReduxVerticalFormGroup.defaultProps = {
-  helpText: '',
-  isRequired: false,
-  showHelpTextOnError: true,
-  inputPrefix: '',
-};
 ReduxVerticalFormGroup.propTypes = {
   label: PropTypes.string,
   helpText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
