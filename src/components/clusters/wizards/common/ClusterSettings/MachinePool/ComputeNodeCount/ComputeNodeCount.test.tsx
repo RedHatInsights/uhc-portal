@@ -10,7 +10,6 @@ import ComputeNodeCount, { TotalNodesDescription } from './ComputeNodeCount';
 
 import '@testing-library/jest-dom';
 
-jest.mock('~/components/clusters/wizards/hooks');
 jest.mock('~/redux/hooks');
 jest.mock('~/queries/featureGates/useFetchFeatureGate');
 

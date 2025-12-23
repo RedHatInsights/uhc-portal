@@ -8,7 +8,6 @@ import { InstallToVPC } from './InstallToVPC';
 import { VPCScreen } from './VPCScreen';
 
 jest.mock('./InstallToVPC');
-jest.mock('~/components/clusters/wizards/hooks');
 
 const mockInstallToVPC = InstallToVPC as jest.Mock;
 mockInstallToVPC.mockImplementation(() => <div>InstallToVPC</div>);
@@ -116,7 +115,8 @@ describe('<VPCScreen />', () => {
         ],
         [FieldId.MultiAz]: 'true',
       };
-      const mockSpy = mockUseFormState({
+
+      mockUseFormState({
         setFieldValue: setFieldValueMock,
         values: customFieldValues,
       });

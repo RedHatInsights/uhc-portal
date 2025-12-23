@@ -6,10 +6,6 @@ import { mockUseFormState, render, screen } from '~/testUtils';
 
 import UpgradeSettingsFields from './UpgradeSettingsFields';
 
-jest.mock('~/components/clusters/wizards/hooks', () => ({
-  useFormState: jest.fn(),
-}));
-
 describe('<UpgradeSettingsFields />', () => {
   const defaultProps = {
     isDisabled: false,

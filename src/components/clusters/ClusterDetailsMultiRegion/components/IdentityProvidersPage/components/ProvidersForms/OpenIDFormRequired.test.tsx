@@ -10,10 +10,6 @@ import { hasAtLeastOneOpenIdClaimField } from '../IdentityProvidersPageFormikHel
 import OpenIDFormRequired from './OpenIDFormRequired';
 
 // Mock external dependencies
-jest.mock('~/components/clusters/wizards/hooks', () => ({
-  useFormState: jest.fn(),
-}));
-
 jest.mock('~/common/validators', () => ({
   checkOpenIDIssuer: jest.fn(),
 }));
