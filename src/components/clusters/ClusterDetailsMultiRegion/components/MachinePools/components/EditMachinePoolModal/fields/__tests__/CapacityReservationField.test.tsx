@@ -42,9 +42,37 @@ describe('<CapacityReservationField>', () => {
     );
     expect(screen.getByText('Capacity Reservation')).toBeInTheDocument();
     expect(screen.getByText('Reservation Preference:')).toBeInTheDocument();
-    expect(screen.getByText('Reservation Id:')).toBeInTheDocument();
-
     expect(screen.getByText('None')).toBeInTheDocument();
+  });
+
+  it('hides Reservation Id field when preference is not "By Id (CR only)"', () => {
+    mockUseFeatureGate([[CAPACITY_RESERVATION_ID_FIELD, true]]);
+    render(
+      <MockFormikWrapper
+        initialValues={{
+          capacityReservationId: '',
+          capacityReservationPreference: 'none',
+        }}
+      >
+        <CapacityReservationField cluster={mockHypershiftCluster} isEdit={false} />
+      </MockFormikWrapper>,
+    );
+    expect(screen.queryByText('Reservation Id')).not.toBeInTheDocument();
+  });
+
+  it('shows Reservation Id field when preference is "By Id (CR only)"', () => {
+    mockUseFeatureGate([[CAPACITY_RESERVATION_ID_FIELD, true]]);
+    render(
+      <MockFormikWrapper
+        initialValues={{
+          capacityReservationId: '',
+          capacityReservationPreference: 'capacity-reservations-only',
+        }}
+      >
+        <CapacityReservationField cluster={mockHypershiftCluster} isEdit={false} />
+      </MockFormikWrapper>,
+    );
+    expect(screen.getByText('Reservation Id')).toBeInTheDocument();
   });
 
   it('shows helper text for invalid cluster version', () => {

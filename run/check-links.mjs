@@ -257,6 +257,31 @@ function categorizeResults(results) {
 }
 
 /**
+ * Fetches a URL with HEAD method, falling back to GET if HEAD returns 405
+ * @param {string} url - The URL to fetch
+ * @param {Object} options - Fetch options (e.g., redirect: 'manual')
+ * @returns {Promise<Response>} The fetch response
+ */
+async function fetchWithFallback(url, options = {}) {
+  try {
+    const headResponse = await fetch(url, { ...options, method: 'HEAD' });
+    // If HEAD returns 405 (Method Not Allowed), try GET instead
+    if (headResponse.status === 405) {
+      return await fetch(url, { ...options, method: 'GET' });
+    }
+    return headResponse;
+  } catch (e) {
+    // If HEAD fails with an error, try GET as fallback
+    try {
+      return await fetch(url, { ...options, method: 'GET' });
+    } catch (getError) {
+      // If both fail, throw the original error
+      throw e;
+    }
+  }
+}
+
+/**
  * Tests redirect URLs to check their final status
  * @param {Object} statusByUrl - Status results by URL
  * @returns {Promise<Array>} Results of redirect tests
@@ -301,8 +326,9 @@ async function testRedirectUrls(statusByUrl) {
   await Promise.all(
     redirectItems.map(async (item) => {
       try {
-        const response = await fetch(item.redirectUrl, { method: 'HEAD' });
-        const newItem = { ...item, finalStatus: response.status };
+        const { status: finalStatus } = await fetchWithFallback(item.redirectUrl);
+        // If we got 200 with GET after 405 with HEAD, treat it as success
+        const newItem = { ...item, finalStatus };
         // Use Object.assign to update the original item for progress tracking
         Object.assign(item, newItem);
       } catch (e) {
@@ -772,11 +798,16 @@ async function main() {
       } else {
         try {
           // For permanent redirects, you might want to update the link
-          const response = await fetch(url, { method: 'HEAD', redirect: 'manual' });
-          statusByUrl[url] = response.status;
-          if (response.status >= 300 && response.status < 400) {
-            const locationURL = new URL(response.headers.get('location'), response.url);
-            statusByUrl[url] = `${response.status} ->\t${locationURL}`;
+          const response = await fetchWithFallback(url, { redirect: 'manual' });
+          // If we got 200 with GET after 405 with HEAD, treat it as success
+          if (response.status === 200) {
+            statusByUrl[url] = 200;
+          } else {
+            statusByUrl[url] = response.status;
+            if (response.status >= 300 && response.status < 400) {
+              const locationURL = new URL(response.headers.get('location'), response.url);
+              statusByUrl[url] = `${response.status} ->\t${locationURL}`;
+            }
           }
         } catch (e) {
           // 3xx-5xx are NOT exceptions, but network errors, etc. are.
