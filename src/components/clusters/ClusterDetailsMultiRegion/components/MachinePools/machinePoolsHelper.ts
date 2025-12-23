@@ -353,8 +353,10 @@ const getCapacityPreferenceLabel = (preference: string | undefined) => {
   if (preference === 'open') {
     return 'Open';
   }
-  // Both undefined (CLI-created) and 'none' (UI-created) mean no capacity reservation
-  return 'None';
+  if (preference === 'none') {
+    return 'None';
+  }
+  return 'N/A';
 };
 
 export {
