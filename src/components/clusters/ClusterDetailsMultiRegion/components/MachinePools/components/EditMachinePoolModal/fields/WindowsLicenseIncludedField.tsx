@@ -49,6 +49,10 @@ const WindowsLicenseIncludedField = ({
 
   const isDisabled = !isWinLiCompatible;
 
+  if (!isWinLiCompatible) {
+    values.isWindowsLicenseIncluded = false;
+  }
+
   return isEdit ? (
     isCurrentMPWinLiEnabled && (
       <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
