@@ -82,10 +82,6 @@ jest.mock('react-redux', () => {
   return config;
 });
 
-jest.mock('~/components/clusters/wizards/hooks', () => ({
-  useFormState: jest.fn(),
-}));
-
 const buildTestComponent = (children: React.ReactNode, formValues = {}) => (
   <Formik
     initialValues={{
