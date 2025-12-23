@@ -3,7 +3,7 @@ import { test, expect } from '../../fixtures/pages';
 test.describe.serial('OCM Cluster archives page', { tag: ['@ci', '@smoke'] }, () => {
   test.describe('Check all cluster archives page items presence and its actions (OCP-25329)', () => {
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
-      // Navigate to cluster list and wait for data to load
+      // Navigate to cluster list and wait for data to load 
       await navigateTo('cluster-list');
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
