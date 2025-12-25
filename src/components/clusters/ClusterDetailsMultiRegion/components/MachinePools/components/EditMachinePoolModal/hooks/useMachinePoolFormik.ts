@@ -346,7 +346,7 @@ const useMachinePoolFormik = ({
           autoscaleMax: values.autoscaling
             ? Yup.number()
                 .test('autoscale-max', '', (value) => {
-                  if (!Number.isInteger) {
+                  if (!Number.isInteger(value)) {
                     return new Yup.ValidationError(
                       'Decimals are not allowed. Enter a whole number.',
                       value,
