@@ -15,7 +15,7 @@ import ExternalLink from '../../common/ExternalLink';
 
 import { constants } from './CreateOSDFormConstants';
 
-function UserWorkloadMonitoringSection({ parent, disableUVM, planType }) {
+function UserWorkloadMonitoringSection({ parent, disableUVM, planType, rosaMonitoringLink }) {
   const { getFieldProps, getFieldMeta } = useFormState();
 
   const title = <Title headingLevel="h4"> Monitoring </Title>;
@@ -36,9 +36,7 @@ function UserWorkloadMonitoringSection({ parent, disableUVM, planType }) {
           <>
             {constants.enableUserWorkloadMonitoringHelp}{' '}
             {isROSA || isOSD ? (
-              <ExternalLink
-                href={isROSA ? links.ROSA_CLASSIC_MONITORING : links.OSD_MONITORING_STACK}
-              >
+              <ExternalLink href={isROSA ? rosaMonitoringLink : links.OSD_MONITORING_STACK}>
                 Learn more
               </ExternalLink>
             ) : null}
@@ -54,6 +52,7 @@ UserWorkloadMonitoringSection.propTypes = {
   parent: PropTypes.string,
   disableUVM: PropTypes.bool,
   planType: PropTypes.string,
+  rosaMonitoringLink: PropTypes.string,
 };
 
 export default UserWorkloadMonitoringSection;

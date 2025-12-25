@@ -326,6 +326,7 @@ const links = {
   ROSA_GET_STARTED: `https://cloud.redhat.com/learn/getting-started-red-hat-openshift-service-aws-rosa`,
   ROSA_DOCS_ENTRY: `${ROSA_DOCS_BASE}/about/welcome-index`,
   ROSA_CLASSIC_MONITORING: `${ROSA_CLASSIC_DOCS_BASE}-single/monitoring/index#preparing-to-configure-the-monitoring-stack-uwm`,
+  ROSA_MONITORING: `${ROSA_DOCS_BASE}-single/monitoring/index#preparing-to-configure-the-monitoring-stack-uwm`,
   ROSA_AUTOSCALING: `${ROSA_DOCS_BASE}/cluster_administration/manage-nodes-using-machine-pools#rosa-nodes-about-autoscaling-nodes`,
   ROSA_SECURITY_GROUPS: `${ROSA_DOCS_BASE}/prepare_your_environment/rosa-hcp-prereqs#rosa-security-groups_rosa-hcp-prereqs`,
   ROSA_CLASSIC_SECURITY_GROUPS: `${ROSA_CLASSIC_DOCS_BASE}/prepare_your_environment/rosa-sts-aws-prereqs#rosa-security-groups_rosa-sts-aws-prereqs`,
