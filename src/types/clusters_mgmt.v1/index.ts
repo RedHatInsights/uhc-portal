@@ -3779,6 +3779,225 @@ export interface paths {
     };
     trace?: never;
   };
+  '/api/clusters_mgmt/v1/clusters/{cluster_id}/control_plane/log_forwarders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the list of log forwarders. */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Index of the requested page, where one corresponds to the first page. */
+          page?: number;
+          /** @description Number of items contained in the returned page. */
+          size?: number;
+        };
+        header?: never;
+        path: {
+          cluster_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @description Retrieved list of log forwarders. */
+              items?: components['schemas']['LogForwarder'][];
+              /**
+               * Format: int32
+               * @description Index of the requested page, where one corresponds to the first page.
+               */
+              page?: number;
+              /**
+               * Format: int32
+               * @description Number of items contained in the returned page.
+               */
+              size?: number;
+              /**
+               * Format: int32
+               * @description Total number of items of the collection.
+               */
+              total?: number;
+            };
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    /** @description Creates a new log forwarder. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['LogForwarder'];
+        };
+      };
+      responses: {
+        /** @description Success. */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['LogForwarder'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/clusters_mgmt/v1/clusters/{cluster_id}/control_plane/log_forwarders/{log_forwarder_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the details of the log forwarder. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+          log_forwarder_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['LogForwarder'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    /** @description Deletes the log forwarder. */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+          log_forwarder_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    /** @description Updates the log forwarder. */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+          log_forwarder_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['LogForwarder'];
+        };
+      };
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['LogForwarder'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
   '/api/clusters_mgmt/v1/clusters/{cluster_id}/control_plane/upgrade_policies': {
     parameters: {
       query?: never;
@@ -11002,6 +11221,200 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/clusters_mgmt/v1/log_forwarding/applications': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the list of available applications for log forwarding. */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Order criteria.
+           *
+           *     The syntax of this parameter is similar to the syntax of the _order by_ clause of
+           *     a SQL statement, but using the names of the attributes of the log forwarder application
+           *     instead of the names of the columns of a table. For example, in order to sort the
+           *     applications descending by id the value should be:
+           *
+           *     ```sql
+           *     id desc
+           *     ```
+           *
+           *     If the parameter isn't provided, or if the value is empty, then the order of the
+           *     results is undefined. */
+          order?: string;
+          /** @description Index of the requested page, where one corresponds to the first page. */
+          page?: number;
+          /** @description Search criteria.
+           *
+           *     The syntax of this parameter is similar to the syntax of the _where_ clause of an
+           *     SQL statement, but using the names of the attributes of the log forwarder application
+           *     instead of the names of the columns of a table. For example, in order to retrieve
+           *     all the applications with an id starting with `kube` the value should be:
+           *
+           *     ```sql
+           *     id like 'kube%'
+           *     ```
+           *
+           *     If the parameter isn't provided, or if the value is empty, then all the log forwarder
+           *     applications that the user has permission to see will be returned. */
+          search?: string;
+          /** @description Number of items contained in the returned page. */
+          size?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @description Retrieved list of log forwarder applications. */
+              items?: components['schemas']['LogForwarderApplication'][];
+              /**
+               * Format: int32
+               * @description Index of the requested page, where one corresponds to the first page.
+               */
+              page?: number;
+              /**
+               * Format: int32
+               * @description Number of items contained in the returned page.
+               */
+              size?: number;
+              /**
+               * Format: int32
+               * @description Total number of items of the collection that match the search criteria,
+               *     regardless of the size of the page.
+               */
+              total?: number;
+            };
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/clusters_mgmt/v1/log_forwarding/groups': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the list of available log forwarder group versions. */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Order criteria.
+           *
+           *     The syntax of this parameter is similar to the syntax of the _order by_ clause of
+           *     a SQL statement, but using the names of the attributes of the log forwarder group
+           *     instead of the names of the columns of a table. For example, in order to sort the
+           *     groups descending by id the value should be:
+           *
+           *     ```sql
+           *     id desc
+           *     ```
+           *
+           *     If the parameter isn't provided, or if the value is empty, then the order of the
+           *     results is undefined. */
+          order?: string;
+          /** @description Index of the requested page, where one corresponds to the first page. */
+          page?: number;
+          /** @description Search criteria.
+           *
+           *     The syntax of this parameter is similar to the syntax of the _where_ clause of an
+           *     SQL statement, but using the names of the attributes of the log forwarder group
+           *     instead of the names of the columns of a table. For example, in order to retrieve
+           *     all the groups with an id starting with `auth` the value should be:
+           *
+           *     ```sql
+           *     id like 'auth%'
+           *     ```
+           *
+           *     If the parameter isn't provided, or if the value is empty, then all the log forwarder
+           *     groups that the user has permission to see will be returned. */
+          search?: string;
+          /** @description Number of items contained in the returned page. */
+          size?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @description Retrieved list of log forwarder group versions. */
+              items?: components['schemas']['LogForwarderGroupVersions'][];
+              /**
+               * Format: int32
+               * @description Index of the requested page, where one corresponds to the first page.
+               */
+              page?: number;
+              /**
+               * Format: int32
+               * @description Number of items contained in the returned page.
+               */
+              size?: number;
+              /**
+               * Format: int32
+               * @description Total number of items of the collection that match the search criteria,
+               *     regardless of the size of the page.
+               */
+              total?: number;
+            };
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/clusters_mgmt/v1/machine_types': {
     parameters: {
       query?: never;
@@ -12840,7 +13253,42 @@ export interface paths {
     };
     options?: never;
     head?: never;
-    patch?: never;
+    /** @description Updates the version gate. */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          version_gate_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['VersionGate'];
+        };
+      };
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['VersionGate'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
     trace?: never;
   };
   '/api/clusters_mgmt/v1/versions': {
@@ -14636,6 +15084,9 @@ export interface components {
       cloud_provider?: components['schemas']['CloudProvider'];
       /** @description Information about the console of the cluster. */
       console?: components['schemas']['ClusterConsole'];
+      /** @description Control plane configuration for the cluster.
+       *     This can be set during cluster creation to configure the control plane. */
+      control_plane?: components['schemas']['ControlPlane'];
       /**
        * Format: date-time
        * @description Date and time when the cluster was initially created, using the
@@ -15164,6 +15615,9 @@ export interface components {
     ControlPlane: {
       /** @description Information about the backup of the control plane */
       backup?: components['schemas']['Backup'];
+      /** @description Control plane log forwarders configuration.
+       *     This can be set during cluster creation to configure control plane log forwarders. */
+      log_forwarders?: components['schemas']['LogForwarder'][];
     };
     /** @description Representation of an upgrade policy that can be set for a cluster. */
     ControlPlaneUpgradePolicy: {
@@ -15247,9 +15701,24 @@ export interface components {
       backplane_url?: string;
       /**
        * Format: date-time
+       * @description last time that the cluster imageset sync worker checked for version updates
+       */
+      last_cluster_imageset_sync?: string;
+      /**
+       * Format: date-time
+       * @description last time that the hibernation worker checked for hibernating clusters
+       */
+      last_hibernation_check?: string;
+      /**
+       * Format: date-time
        * @description last time that the worker checked for limited support clusters
        */
       last_limited_support_check?: string;
+      /**
+       * Format: date-time
+       * @description last time that the limited support override worker checked for clusters
+       */
+      last_limited_support_override_check?: string;
       /**
        * Format: date-time
        * @description last time that the worker checked for available upgrades
@@ -15810,6 +16279,82 @@ export interface components {
       href?: string;
       /** @description Content of the log. */
       content?: string;
+    };
+    /** @description Representation of a log forwarder configuration for a cluster. */
+    LogForwarder: {
+      /** @description Indicates the type of this object. Will be 'LogForwarder' if this is a complete object or 'LogForwarderLink' if it is just a link. */
+      kind?: string;
+      /** @description Unique identifier of the object. */
+      id?: string;
+      /** @description Self link. */
+      href?: string;
+      /** @description S3 configuration for log forwarding destination. */
+      s3?: components['schemas']['LogForwarderS3Config'];
+      /** @description List of additional applications to forward logs for. */
+      applications?: string[];
+      /** @description CloudWatch configuration for log forwarding destination. */
+      cloud_watch?: components['schemas']['LogForwarderCloudWatchConfig'];
+      /** @description Identifier of the cluster. */
+      cluster_id?: string;
+      /** @description List of log forwarder groups. */
+      groups?: components['schemas']['LogForwarderGroup'][];
+      /** @description Status of the log forwarder. */
+      status?: components['schemas']['LogForwarderStatus'];
+    };
+    /** @description S3 configuration for log forwarding. */
+    LogForwarderS3Config: {
+      /** @description The name of the S3 bucket. */
+      bucket_name?: string;
+      /** @description The prefix to use for objects stored in the S3 bucket. */
+      bucket_prefix?: string;
+    };
+    /** @description Represents an application that can be configured for log forwarding. */
+    LogForwarderApplication: {
+      /** @description The identifier of the application. */
+      id?: string;
+      /** @description Indicates whether this application is available for use for log forwarding. */
+      state?: string;
+    };
+    /** @description CloudWatch configuration for log forwarding. */
+    LogForwarderCloudWatchConfig: {
+      /** @description The ARN of the IAM role for log distribution. */
+      log_distribution_role_arn?: string;
+      /** @description The name of the CloudWatch log group. */
+      log_group_name?: string;
+    };
+    /** @description Represents a log forwarder group. */
+    LogForwarderGroup: {
+      /** @description The identifier of the log forwarder group. */
+      id?: string;
+      /** @description The version of the log forwarder group. */
+      version?: string;
+    };
+    /** @description Represents a version of a log forwarder group. */
+    LogForwarderGroupVersion: {
+      /** @description The version identifier. */
+      id?: string;
+      /** @description List of applications included in this version of the group. */
+      applications?: string[];
+    };
+    /** @description Represents a log forwarder group versions configuration. */
+    LogForwarderGroupVersions: {
+      /** @description The identifier of the log forwarder group. */
+      id?: string;
+      /** @description Indicates whether this group is available for use for log forwarding. */
+      state?: string;
+      /** @description List of available versions for this group. */
+      versions?: components['schemas']['LogForwarderGroupVersion'][];
+    };
+    /** @description Represents the status of a log forwarder. */
+    LogForwarderStatus: {
+      /** @description A descriptive message providing additional context about the current
+       *     state of the log forwarder. */
+      message?: string;
+      /** @description The list of applications that are resolved for log forwarding,
+       *     including the explicitly specified applications and any default applications. */
+      resolved_applications?: string[];
+      /** @description The current state of the log forwarder. */
+      state?: string;
     };
     /** @description Representation of a machine pool in a cluster. */
     MachinePool: {
@@ -17240,6 +17785,14 @@ export type LimitedSupportReasonTemplate = components['schemas']['LimitedSupport
 export type ListeningMethod = components['schemas']['ListeningMethod'];
 export type LoadBalancerFlavor = components['schemas']['LoadBalancerFlavor'];
 export type Log = components['schemas']['Log'];
+export type LogForwarder = components['schemas']['LogForwarder'];
+export type LogForwarderS3Config = components['schemas']['LogForwarderS3Config'];
+export type LogForwarderApplication = components['schemas']['LogForwarderApplication'];
+export type LogForwarderCloudWatchConfig = components['schemas']['LogForwarderCloudWatchConfig'];
+export type LogForwarderGroup = components['schemas']['LogForwarderGroup'];
+export type LogForwarderGroupVersion = components['schemas']['LogForwarderGroupVersion'];
+export type LogForwarderGroupVersions = components['schemas']['LogForwarderGroupVersions'];
+export type LogForwarderStatus = components['schemas']['LogForwarderStatus'];
 export type MachinePool = components['schemas']['MachinePool'];
 export type MachinePoolAutoscaling = components['schemas']['MachinePoolAutoscaling'];
 export type MachinePoolSecurityGroupFilter =
