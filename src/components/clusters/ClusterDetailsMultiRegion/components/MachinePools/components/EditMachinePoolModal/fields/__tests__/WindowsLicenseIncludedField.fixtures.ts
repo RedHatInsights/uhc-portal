@@ -1,23 +1,24 @@
 import { fieldId as instanceTypeFieldId } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
+import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 
 const defaultMachinePool = {
   id: 'fooId',
   availability_zones: ['us-east-1a'],
   href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/some-user-mp',
   instance_type: 'm5.xlarge',
-  kind: 'MachinePool',
+  kind: 'NodePool',
   replicas: 21,
   root_volume: { aws: { size: 300 } },
 };
 
 const WindowsLIEnabledMachinePool = {
   ...defaultMachinePool,
-  imageType: 'Windows',
+  image_type: ImageType.Windows,
 };
 
 const WindowsLIDisabledMachinePool = {
   ...defaultMachinePool,
-  imageType: undefined,
+  image_type: undefined,
 };
 
 const defaultMachineType = {
@@ -47,7 +48,7 @@ const defaultMachineType = {
 const WindowsLIEnabledMachineType = {
   ...defaultMachineType,
   features: {
-    winLi: true,
+    win_li: true,
   },
 };
 
