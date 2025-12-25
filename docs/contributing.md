@@ -4,6 +4,7 @@
 
 - [Setup](#setup)
 - [Insights "Chrome" Architecture](#insights-chrome-architecture)
+- [FEC Development Environment](#fec-development-environment)
 - [Code Style](#code-style)
   - [Linting](#linting)
   - [Formatting](#formatting)
@@ -36,9 +37,39 @@ As all apps under console.redhat.com, our app uses [insights-chrome](https://git
 
 It is responsible for rendering the header & menu around the main content, and providing common services, like authentication or analytics.
 
-It’s not a regular build dependency but is injected by CDN using [EdgeSide Includes](https://en.wikipedia.org/wiki/Edge_Side_Includes) tags.
+It's not a regular build dependency but is injected by CDN using [EdgeSide Includes](https://en.wikipedia.org/wiki/Edge_Side_Includes) tags.
 
-In development, `yarn start` uses the Frontend Components Config (FEC) dev server, which automatically handles Chrome setup by running a containerized Chrome server (requires Podman). FEC manages the development environment including the Chrome container, webpack dev server, and proxying to backend services.
+## FEC Development Environment
+
+The local development environment is powered by [Frontend Components (FEC)](https://github.com/RedHatInsights/frontend-components), which manages:
+
+- A containerized Chrome server (requires Podman)
+- Webpack dev server
+- Proxying to backend services
+
+### Development Modes
+
+**`yarn dev`** uses `fec dev` with Hot Module Reloading (HMR) enabled. This provides instant feedback on code changes without requiring full page reloads—ideal for active UI development.
+
+**`yarn start`** uses `fec dev-proxy`, which runs webpack in watch mode with proxy capabilities for backend routing. Changes are recompiled automatically, but require a manual browser refresh to see updates (no HMR).
+
+### Custom Chrome Port
+
+By default, the Chrome server runs on port `:9990`. To use a different port:
+
+```bash
+FEC_CHROME_PORT=<PORT> yarn dev
+# or
+FEC_CHROME_PORT=<PORT> yarn start
+```
+
+### Passthrough Arguments
+
+Both `yarn dev` and `yarn start` support passing additional flags directly to the underlying `fec` command:
+
+```bash
+yarn dev --clouddotEnv staging
+```
 
 ## Code Style
 
