@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
 const GitopsDrawerPanelBody = (
@@ -14,7 +15,7 @@ const GitopsDrawerPanelBody = (
         </Content>
         <Content component={ContentVariants.p}>
           Red Hat OpenShift GitOps uses the open source project{' '}
-          <ExternalLink href="https://www.redhat.com/en/blog/argocd-and-gitops-whats-next" noIcon>
+          <ExternalLink href={installLinks.RH_ARGO_CD} noIcon>
             Argo CD{' '}
           </ExternalLink>
           as the declarative GitOps engine.

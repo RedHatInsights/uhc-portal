@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import { YoutubePlayer } from '~/components/common/YoutubePlayer/YoutubePlayer';
 
@@ -69,7 +70,7 @@ const AdvancedClusterManagementDrawerPanelBody = (
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink
         data-testid="learn-more-about-advanced-cluster-management-drawer-panel-content-link"
-        href="https://www.redhat.com/en/technologies/management/advanced-cluster-management"
+        href={installLinks.RH_ACM}
       >
         Learn more about Advanced Cluster Management for Kubernetes
       </ExternalLink>

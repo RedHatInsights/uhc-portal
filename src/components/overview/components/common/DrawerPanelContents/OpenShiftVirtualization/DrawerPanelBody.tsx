@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import { YoutubePlayer } from '~/components/common/YoutubePlayer/YoutubePlayer';
 
@@ -67,7 +68,7 @@ const OpenShiftVirtualizationPanelBody = (
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink
         data-testid="learn-more-about-redhat-openshift-virtualization-drawer-panel-content-link"
-        href="https://docs.redhat.com/en/documentation/migration_toolkit_for_virtualization/2.0/html/installing_and_using_the_migration_toolkit_for_virtualization/about-mtv_mtv#mtv-resources-and-services_mtv"
+        href={installLinks.MTV_RESOURCES}
       >
         Learn more about Migration Toolkit for Virtualization
       </ExternalLink>
@@ -91,7 +92,7 @@ const OpenShiftVirtualizationPanelBody = (
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink
         data-testid="learn-more-about-redhat-acm-drawer-panel-content-link"
-        href="https://www.redhat.com/en/technologies/management/advanced-cluster-management?sc_cid=7013a000003ScmnAAC&gad_source=1"
+        href={installLinks.RH_ACM}
       >
         Learn more about Red Hat Advanced Cluster Management for Kubernetes
       </ExternalLink>

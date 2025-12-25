@@ -85,10 +85,15 @@ const OCM_DOCS_BASE =
 const OCP_DOC_BASE =
   'https://access.redhat.com/documentation/en-us/openshift_container_platform/4.13';
 
+const MTV_DOCS_BASE =
+  'https://docs.redhat.com/en/documentation/migration_toolkit_for_virtualization/2.0/html';
+
+const RH_BASE = 'https://www.redhat.com/en';
+
 const links = {
   ROSA_CP_DOCS: 'https://access.redhat.com/documentation/en-us/red_hat_openshift_service_on_aws/4',
   OSD_GOOGLE_MARKETPLACE:
-    'https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated?inv=1&invt=Abh7pg',
+    'https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated',
   ACCESS_REQUEST_DOC_LINK: `${ROSA_CP_DOCS_BASE}/support/approved-access#approved-access`,
   DOCS_ENTRY: `${OCP_DOCS_BASE}/overview/welcome-index`,
   ROSA_TROUBLESHOOTING_INSTALLATIONS: `${ROSA_CP_DOCS_BASE}/support/troubleshooting#rosa-troubleshooting-installations`,
@@ -361,9 +366,20 @@ const links = {
   AWS_SHARED_VPC: 'https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html',
   AWS_CAPACITY_RESERVATION:
     'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/capacity-reservation-overview.html',
+  AWS_ARN_CONFIG: 'https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html',
+  AWS_DATA_PROTECTION: 'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html',
+
+  GCP_VPC_PROVISIONING:
+    'https://cloud.google.com/vpc/docs/provisioning-shared-vpc#migs-service-accounts',
+  GCP_ORG_POLICY: 'https://cloud.google.com/resource-manager/docs/organization-policy/overview',
+  GCP_ORG_POLICY_API: 'https://cloud.google.com/resource-manager/docs/reference/orgpolicy/rest',
+  GCP_SERVICE_ACCOUNT_KEYS:
+    'https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys',
+  GCP_ENCRYPTION_KEYS: 'https://cloud.google.com/storage/docs/encryption/default-keys',
 
   GCP_CONSOLE_OSD_HOME:
     'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
+  GCP_CONSOLE_KMS: 'https://console.cloud.google.com/security/kms',
 
   OCM_DOCS_MANAGING_CLUSTERS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-managing-clusters`,
   OCM_DOCS_PULL_SECRETS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-managing-clusters#downloading_and_updating_pull_secrets`,
@@ -397,6 +413,24 @@ const links = {
 
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: 'https://aws.amazon.com/windows/resources/licensing/',
   WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: 'https://access.redhat.com/articles/7096903',
+
+  MTV_RESOURCES: `${MTV_DOCS_BASE}/installing_and_using_the_migration_toolkit_for_virtualization/about-mtv_mtv#mtv-resources-and-services_mtv`,
+
+  RH_DEV_TOOLS: 'https://developers.redhat.com/topics/developer-tools',
+
+  RH_CONTACT: `${RH_BASE}/contact`,
+  RH_ISTIO: `${RH_BASE}/topics/microservices/what-is-istio`,
+  RH_ARGO_CD: `${RH_BASE}/blog/argocd-and-gitops-whats-next`,
+  RH_OCP_SUBSCRIPTIONS: `${RH_BASE}/resources/self-managed-openshift-sizing-subscription-guide`,
+  RH_ACS_TRIAL: `${RH_BASE}/technologies/cloud-computing/openshift/advanced-cluster-security-kubernetes/trial`,
+  RH_OPENSHIFT_AI_TRIAL: `${RH_BASE}/technologies/cloud-computing/openshift/openshift-ai/trial`,
+  RH_ACM_TRIAL: `${RH_BASE}/technologies/management/advanced-cluster-management/trial`,
+  RH_ACM: `${RH_BASE}/technologies/management/advanced-cluster-management`,
+  RH_OPENSHIFT_OBSERVABILITY: `${RH_BASE}/technologies/cloud-computing/openshift/observability`,
+  RH_ROSA: `${RH_BASE}/technologies/cloud-computing/openshift/aws`,
+  RH_ROSA_LEARN: `${RH_BASE}/technologies/cloud-computing/openshift/aws/learn`,
+  RH_ROSA_INSTALL: `${RH_BASE}/products/interactive-walkthrough/install-rosa`,
+  RH_ROSA_LIGHTBOARD: `${RH_BASE}/about/videos/rosa-lightboard`,
 };
 
 // Tool identifiers are public — e.g. for linking to specific tool in DownloadsPage.

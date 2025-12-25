@@ -9,6 +9,7 @@ import MinusCircleIcon from '@patternfly/react-icons/dist/esm/icons/minus-circle
 import PlusCircleIcon from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
+import installLinks from '~/common/installLinks.mjs';
 import { HAD_INFLIGHT_ERROR_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
 import { emailRegex } from '~/common/regularExpressions';
 import supportLinks from '~/common/supportLinks.mjs';
@@ -363,7 +364,7 @@ const ClusterStatusMonitor = (props) => {
           <Flex direction={{ default: 'column' }}>
             <FlexItem>{reason}</FlexItem>
             <FlexItem>
-              <ExternalLink href="https://cloud.google.com/vpc/docs/provisioning-shared-vpc#migs-service-accounts">
+              <ExternalLink href={installLinks.GCP_VPC_PROVISIONING}>
                 Learn more about permissions
               </ExternalLink>
             </FlexItem>

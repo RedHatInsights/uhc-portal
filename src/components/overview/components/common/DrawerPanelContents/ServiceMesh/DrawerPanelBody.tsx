@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import { YoutubePlayer } from '~/components/common/YoutubePlayer/YoutubePlayer';
 
@@ -14,7 +15,7 @@ const ServiceMeshDrawerPanelBody = (
         </Content>
         <Content component={ContentVariants.p}>
           Red Hat OpenShift Service Mesh is based on the open source{' '}
-          <ExternalLink href="https://www.redhat.com/en/topics/microservices/what-is-istio" noIcon>
+          <ExternalLink href={installLinks.RH_ISTIO} noIcon>
             Istio{' '}
           </ExternalLink>
           project and is pre-validated and fully supported to work on Red Hat OpenShift. It can be
@@ -23,10 +24,7 @@ const ServiceMeshDrawerPanelBody = (
             Kiali{' '}
           </ExternalLink>
           dashboard for managing service mesh, while integrating with{' '}
-          <ExternalLink
-            href="https://www.redhat.com/en/technologies/cloud-computing/openshift/observability"
-            noIcon
-          >
+          <ExternalLink href={installLinks.RH_OPENSHIFT_OBSERVABILITY} noIcon>
             Red Hat OpenShift Observability{' '}
           </ExternalLink>
           for managing logging, metrics, and distributed tracing.

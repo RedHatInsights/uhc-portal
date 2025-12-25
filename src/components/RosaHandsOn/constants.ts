@@ -1,6 +1,8 @@
+import installLinks from '~/common/installLinks.mjs';
+
 export const rosaHandsOnLinks = {
   slackChannel: 'https://red.ht/rosa-slack',
-  learnMore: 'https://www.redhat.com/en/technologies/cloud-computing/openshift/aws',
+  learnMore: installLinks.RH_ROSA,
   getStarted: '/create/rosa/getstarted',
 };
 

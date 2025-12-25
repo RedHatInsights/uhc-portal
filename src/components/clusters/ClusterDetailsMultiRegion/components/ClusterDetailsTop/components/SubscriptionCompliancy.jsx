@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { Alert, Button, Timestamp, TimestampFormat } from '@patternfly/react-core';
 
 import getClusterName from '~/common/getClusterName';
+import installLinks from '~/common/installLinks.mjs';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import modals from '~/components/common/Modal/modals';
 import {
@@ -40,7 +41,6 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
     return null;
   }
 
-  const SALES_URL = 'https://www.redhat.com/en/contact';
   const lastReconcileDate = getSubscriptionLastReconciledDate(subscription);
   const clusterName = getClusterName(cluster);
 
@@ -78,7 +78,7 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
     </>
   ) : (
     <>
-      <a href={SALES_URL} target="_blank" rel="noreferrer noopener">
+      <a href={installLinks.RH_CONTACT} target="_blank" rel="noreferrer noopener">
         Contact sales
       </a>
       {' to purchase an OpenShift subscription.'}

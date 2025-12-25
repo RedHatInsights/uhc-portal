@@ -20,7 +20,10 @@ import { githubActions, tollboothActions } from '~/redux/actions';
 import { useGlobalState } from '~/redux/hooks';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
-import { githubReleasesToFetch, urlsSelector } from '../../../common/installLinks.mjs';
+import installLinks, {
+  githubReleasesToFetch,
+  urlsSelector,
+} from '../../../common/installLinks.mjs';
 import useOrganization from '../../CLILoginPage/useOrganization';
 import ExternalLink from '../../common/ExternalLink';
 import DownloadsCategoryDropdown from '../DownloadsCategoryDropdown';
@@ -230,9 +233,7 @@ const DownloadsPage = () => {
                   <Content component="p">
                     Access all the powers of Kubernetes through a simplified workflow with Red Hat’s
                     developer tools.{' '}
-                    <ExternalLink href="https://developers.redhat.com/topics/developer-tools">
-                      Learn more
-                    </ExternalLink>
+                    <ExternalLink href={installLinks.RH_DEV_TOOLS}>Learn more</ExternalLink>
                   </Content>
                 }
               >
