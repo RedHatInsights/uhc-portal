@@ -264,7 +264,9 @@ LogWindow.propTypes = {
   cluster: PropTypes.shape({
     id: PropTypes.string,
     state: PropTypes.string,
-    subscription: { rh_region_id: PropTypes.string },
+    subscription: PropTypes.shape({
+      rh_region_id: PropTypes.string,
+    }),
   }),
   errorCode: PropTypes.number,
 };

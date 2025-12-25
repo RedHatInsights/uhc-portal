@@ -147,7 +147,11 @@ const RecommendedOperatorsAlert = ({
       className="pf-v6-u-mt-md"
       component="h2"
     >
-      <Content component="p">{description}</Content>
+      {typeof description === 'string' ? (
+        <Content component="p">{description}</Content>
+      ) : (
+        description
+      )}
       <ExpandableSection
         toggleText={`${isExpanded ? 'Hide' : 'Show'} recommended operators`}
         onToggle={onToggle}
