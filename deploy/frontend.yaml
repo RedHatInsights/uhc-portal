@@ -270,7 +270,7 @@ objects:
         manifestLocation: "/apps/openshift/fed-mods.json"
         moduleConfig:
           ssoScopes:
-            - rhfull
+            - profile_level.name_and_address_and_ea_and_rhos
         modules:
           - id: "openshift"
             module: "./RootApp"
