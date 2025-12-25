@@ -1,11 +1,14 @@
 {
   "Clusters": [
     {
-      "ClusterName": "cyp-rosa-classic-default-sz-public-profile",
-      "ControlPlaneType": "Classic architecture",
-      "Type": "ROSA",
-      "Region": "us-west-2, US West, Oregon",
+      "ClusterName": "cyp-osd-ccs-aws-public",
+      "Type": "OSD",
+      "Region": "us-east-1, US East, N. Virginia",
+      "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
+      "SubscriptionBillingModel": "Annual Red Hat subscriptions",
+      "InfrastructureType": "Customer cloud subscription",
       "Availability": "Single-zone",
+      "UserWorkloadMonitoring": "Enabled",
       "SetMaximumPrice": "0.03",
       "ComputeNodeCount": "4",
       "Nodes": {
@@ -15,8 +18,8 @@
       },
       "NodeLabel": [
         {
-          "Key": "cypress-testskey",
-          "Value": "cyp-rosa-classic-default-profile"
+          "Key": "ocmcypress-tests-key",
+          "Value": "cyp-aws-public"
         },
         {
           "Key": "Available-zone",
@@ -25,12 +28,12 @@
       ],
       "Taints": [
         {
-          "Key": "controlplane",
-          "Value": "classic",
+          "Key": "ocmcypress-tests-taints",
+          "Value": "ccs-default",
           "Effect": "NoSchedule"
         },
         {
-          "Key": "ocmcypress-tests-taints",
+          "Key": "ocmcypress-tests-key",
           "Value": "single-zone",
           "Effect": "NoExecute"
         }
@@ -44,7 +47,7 @@
         {
           "Name": "worker2",
           "InstanceType": "m5.xlarge",
-          "AvailabilityZones": "us-west-2a",
+          "AvailabilityZones": "us-east-1a",
           "NodeCount": "1",
           "MinimumNodeCount": "3",
           "MaximumNodeCount": "4",
@@ -53,9 +56,11 @@
       ]
     },
     {
-      "ClusterName": "cyp-rosa-classic-advanced-mz-public-profile",
-      "ControlPlaneType": "Classic architecture",
-      "Type": "ROSA",
+      "ClusterName": "cyp-osd-ccs-aws-public-advanced",
+      "Type": "OSD",
+      "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
+      "SubscriptionBillingModel": "Annual Red Hat subscriptions",
+      "InfrastructureType": "Customer cloud subscription",
       "Region": "us-west-2, US West, Oregon",
       "Availability": "Multi-zone",
       "ComputeNodeCount": "4",
@@ -67,8 +72,8 @@
       },
       "NodeLabel": [
         {
-          "Key": "ocmcypress-tests",
-          "Value": "rosa-classic-advanced-profile"
+          "Key": "ocmcypress-tests-key",
+          "Value": "cyp-osd-ccs-aws-pub-adv"
         },
         {
           "Key": "Available-zone",
@@ -77,13 +82,13 @@
       ],
       "Taints": [
         {
-          "Key": "controlplane",
-          "Value": "classic",
-          "Effect": "NoSchedule"
+          "Key": "ocmcypress-tests-key",
+          "Value": "ccs-advanced",
+          "Effect": "NoExecute"
         },
         {
           "Key": "ocm-tests-taints",
-          "Value": "cyprosa-def-12",
+          "Value": "multi-zone",
           "Effect": "PreferNoSchedule"
         }
       ],
