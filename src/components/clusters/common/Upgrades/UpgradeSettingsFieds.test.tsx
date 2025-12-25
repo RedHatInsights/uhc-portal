@@ -1,17 +1,10 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
-import { render, screen } from '~/testUtils';
+import { mockUseFormState, render, screen } from '~/testUtils';
 
 import UpgradeSettingsFields from './UpgradeSettingsFields';
-
-jest.mock('~/components/clusters/wizards/hooks', () => ({
-  useFormState: jest.fn(),
-}));
-
-const mockUseFormState = useFormState as jest.MockedFunction<typeof useFormState>;
 
 describe('<UpgradeSettingsFields />', () => {
   const defaultProps = {
@@ -22,19 +15,11 @@ describe('<UpgradeSettingsFields />', () => {
   };
 
   beforeEach(() => {
-    mockUseFormState.mockReturnValue({
-      setFieldValue: jest.fn(),
-      setFieldTouched: jest.fn(),
-      getFieldProps: jest.fn().mockReturnValue({
-        name: 'test-field',
-        value: '', // Provide default values or mock data here
-        onBlur: jest.fn(),
-        onChange: jest.fn(),
-      }),
+    mockUseFormState({
       values: {
-        [FieldId.UpgradePolicy]: 'manual', // Mock the UpgradePolicy value as needed
+        [FieldId.UpgradePolicy]: 'manual',
       },
-    } as any);
+    });
   });
 
   describe('Node draining grace period', () => {
