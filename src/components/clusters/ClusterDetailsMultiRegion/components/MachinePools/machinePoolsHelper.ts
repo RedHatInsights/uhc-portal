@@ -346,6 +346,19 @@ const canUseSpotInstances = (cluster: ClusterFromSubscription) => {
   );
 };
 
+const getCapacityPreferenceLabel = (preference: string | undefined) => {
+  if (preference === 'capacity-reservations-only') {
+    return 'CR only';
+  }
+  if (preference === 'open') {
+    return 'Open';
+  }
+  if (preference === 'none') {
+    return 'None';
+  }
+  return 'N/A';
+};
+
 export {
   actionResolver,
   canUseSpotInstances,
@@ -361,4 +374,5 @@ export {
   isMinimumCountWithoutTaints,
   normalizeNodePool,
   hasAwsTags,
+  getCapacityPreferenceLabel,
 };

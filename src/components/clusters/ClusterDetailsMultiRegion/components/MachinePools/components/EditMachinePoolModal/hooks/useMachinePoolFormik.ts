@@ -31,6 +31,7 @@ import { MachinePool, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { getClusterMinNodes } from '../../../machinePoolsHelper';
+import { CapacityReservationPreference } from '../fields/CapacityReservationField';
 import { TaintEffect } from '../fields/TaintEffectField';
 
 import useOrganization from './useOrganization';
@@ -58,6 +59,8 @@ export type EditMachinePoolValues = {
   maxSurge?: number;
   maxUnavailable?: number;
   nodeDrainTimeout?: number;
+  capacityReservationId?: string;
+  capacityReservationPreference?: CapacityReservationPreference;
 };
 
 type UseMachinePoolFormikArgs = {
@@ -111,6 +114,8 @@ const useMachinePoolFormik = ({
     let maxSurge;
     let maxUnavailable;
     let nodeDrainTimeout;
+    let capacityReservationId;
+    let capacityReservationPreference;
 
     autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas || minNodesRequired;
     autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas || minNodesRequired;
@@ -128,6 +133,8 @@ const useMachinePoolFormik = ({
       diskSize = machinePool.root_volume?.aws?.size || machinePool.root_volume?.gcp?.size;
     } else if (isNodePool(machinePool)) {
       diskSize = machinePool.aws_node_pool?.root_volume?.size;
+      capacityReservationId = machinePool.aws_node_pool?.capacity_reservation?.id;
+      capacityReservationPreference = machinePool.aws_node_pool?.capacity_reservation?.preference;
       const autoRepairValue = (machinePool as NodePool)?.auto_repair;
       autoRepair = autoRepairValue ?? true;
       maxSurge = machinePool.management_upgrade?.max_surge;
@@ -190,6 +197,8 @@ const useMachinePoolFormik = ({
       // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
       machinePoolData.isWindowsLicenseIncluded = false; // This involves extra costs, let's keep it false by default
       // (machinePool as MachinePool)?.aws?.windows_license_included || false;
+      machinePoolData.capacityReservationPreference = capacityReservationPreference || 'none';
+      machinePoolData.capacityReservationId = capacityReservationId || '';
     }
 
     return machinePoolData;
@@ -370,6 +379,16 @@ const useMachinePoolFormik = ({
             : Yup.number(),
           autoscaling: Yup.boolean(),
           auto_repair: Yup.boolean(),
+          capacityReservationId:
+            values.capacityReservationPreference === 'capacity-reservations-only'
+              ? Yup.string()
+                  .trim()
+                  .test(
+                    'capacity-reservation-id',
+                    'Capacity Reservation ID cannot be empty or contain only whitespace.',
+                    (value) => !!value && value.trim().length > 0,
+                  )
+              : Yup.string(),
           diskSize: rosa
             ? Yup.number()
                 .min(minDiskSize, `Disk size must be at least ${minDiskSize} GiB`)
