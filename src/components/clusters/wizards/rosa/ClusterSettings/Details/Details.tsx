@@ -40,8 +40,9 @@ import {
 } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { ChannelGroupSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelGroupSelectField';
-import { ClassicEtcdFipsSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdFipsSection';
+import { ClassicEtcdEncryptionSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdEncryptionSection';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
+import { FipsCryptographySection } from '~/components/clusters/wizards/common/ClusterSettings/Details/FipsCryptographySection';
 import { useResetMaxNodesTotal } from '~/components/clusters/wizards/common/ClusterSettings/Details/useResetMaxNodesTotal/useResetMaxNodesTotal';
 import { emptyAWSSubnet } from '~/components/clusters/wizards/common/constants';
 import { RadioGroupField, RichInputField } from '~/components/clusters/wizards/form';
@@ -56,6 +57,7 @@ import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import {
   ALLOW_EUS_CHANNEL,
+  FIPS_FOR_HYPERSHIFT,
   MULTIREGION_PREVIEW_ENABLED,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -114,6 +116,7 @@ function Details() {
   const isMultiAz = multiAz === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
+  const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
 
   const getInstallableVersionsResponse = useGlobalState((state) => state.clusters.clusterVersions);
 
@@ -579,12 +582,10 @@ function Details() {
         >
           <Grid hasGutter>
             <AWSCustomerManagedEncryption />
-
-            {isHypershiftSelected ? (
-              <HCPEtcdEncryptionSection />
-            ) : (
-              <ClassicEtcdFipsSection isRosa />
-            )}
+            {!isHypershiftSelected || isFipsForHypershiftEnabled ? (
+              <FipsCryptographySection />
+            ) : null}
+            {isHypershiftSelected ? <HCPEtcdEncryptionSection /> : <ClassicEtcdEncryptionSection />}
           </Grid>
         </ExpandableSection>
         {isHypershiftSelected &&

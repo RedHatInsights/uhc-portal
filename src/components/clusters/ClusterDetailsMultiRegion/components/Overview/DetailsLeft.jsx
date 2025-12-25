@@ -15,7 +15,11 @@ import {
 import { Owner } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/Owner/Owner';
 import { isCCS, isGCP, isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import getBillingModelLabel from '~/components/clusters/common/getBillingModelLabel';
-import { ALLOW_EUS_CHANNEL, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import {
+  ALLOW_EUS_CHANNEL,
+  FIPS_FOR_HYPERSHIFT,
+  OSD_GCP_WIF,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { normalizedProducts } from '../../../../../common/subscriptionTypes';
@@ -46,6 +50,7 @@ function DetailsLeft({
   isDisconnected,
 }) {
   const useEusChannel = useFeatureGate(ALLOW_EUS_CHANNEL);
+  const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
   const cloudProviderId = cluster.cloud_provider ? cluster.cloud_provider.id : null;
   const region = cluster?.region?.id;
   const clusterID = cluster?.id;
@@ -191,7 +196,7 @@ function DetailsLeft({
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
-      {!isHypershift && cluster.fips && (
+      {(!isHypershift || isFipsForHypershiftEnabled) && cluster.fips ? (
         <DescriptionListGroup>
           <DescriptionListTerm>Encryption level</DescriptionListTerm>
           <DescriptionListDescription>
@@ -200,7 +205,7 @@ function DetailsLeft({
             </dl>
           </DescriptionListDescription>
         </DescriptionListGroup>
-      )}
+      ) : null}
       {cluster?.aws?.kms_key_arn ? (
         <>
           <DescriptionListGroup>
