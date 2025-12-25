@@ -26,6 +26,7 @@ import {
   Tr,
 } from '@patternfly/react-table';
 
+import { ConfirmationDialog } from '~/common/modals/ConfirmationDialog';
 import { LoadingSkeletonCard } from '~/components/clusters/common/LoadingSkeletonCard/LoadingSkeletonCard';
 import { useDeleteOCMRole } from '~/queries/ClusterDetailsQueries/AccessControlTab/OCMRolesQueries/useDeleteOCMRole';
 import {
@@ -52,6 +53,11 @@ type OCMRolesSectionProps = {
   refreshEvent?: object;
 };
 
+type PendingDeletion = {
+  role: OCMRolesRow;
+  rowIndex: number;
+} | null;
+
 function OCMRolesSection({
   subscription,
   canEditOCMRoles,
@@ -64,6 +70,7 @@ function OCMRolesSection({
   const [pageLoading, setPageLoading] = useState(false);
   const [disableReason, setDisableReason] = useState('');
   const { data: modalData } = useGlobalState((state) => state.modal);
+  const [pendingDeletion, setPendingDeletion] = useState<PendingDeletion>(null);
 
   const subscriptionID = subscription.id;
 
@@ -287,6 +294,21 @@ function OCMRolesSection({
       </Popover>
     </>
   );
+  const handleDeleteConfirm = () => {
+    if (pendingDeletion) {
+      const { role, rowIndex } = pendingDeletion;
+      clearPendingRow();
+      if (subscription.id && role.id) {
+        showPendingRow(rowIndex);
+        deleteOcmRoleMutate(role.id, {
+          onSuccess: () => {
+            refetchOcmRoles();
+          },
+        });
+      }
+      setPendingDeletion(null);
+    }
+  };
 
   const actions = (role: OCMRolesRow, rowIndex: number) => [
     // TODO OCM RBAC phase 2: may require an Edit to change between editor or viewer
@@ -302,15 +324,7 @@ function OCMRolesSection({
     {
       title: 'Delete',
       onClick: () => {
-        clearPendingRow();
-        if (subscription.id && role.id) {
-          showPendingRow(rowIndex);
-          deleteOcmRoleMutate(role.id, {
-            onSuccess: () => {
-              refetchOcmRoles();
-            },
-          });
-        }
+        setPendingDeletion({ role, rowIndex });
       },
     },
   ];
@@ -388,6 +402,15 @@ function OCMRolesSection({
           grantOcmRoleError={grantOcmRoleError}
           isGrantOcmRoleSuccess={isGrantOcmRoleSuccess}
           resetGrantOcmRoleMutation={resetGrantOcmRoleMutation}
+        />
+        <ConfirmationDialog
+          title="Are you sure you want to delete this role?"
+          content="The role will be permanently removed for this user."
+          primaryActionLabel="Delete"
+          primaryAction={handleDeleteConfirm}
+          secondaryActionLabel="Cancel"
+          isOpen={pendingDeletion !== null}
+          closeCallback={() => setPendingDeletion(null)}
         />
       </StackItem>
     </Stack>
