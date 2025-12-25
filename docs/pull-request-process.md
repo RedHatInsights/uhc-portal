@@ -4,6 +4,8 @@ Here is the process to move a PR from draft to merged:
 
 1. :pencil2: Author creates a draft PR
 
+1. If the PR is too big, the author breaks it down into smaller PRs. A PR affecting more than 1,000 lines of code or more than 30 files is considered too large and must be split up. Exceptions can be made (e.g. file renames, linting fixes, auto-generated code) but they need to be discussed before the PR is marked as ready for review.
+
 1. :pencil2: Author reviews code and ensures it:
 
    - has the Jira item(s) in the PR title
