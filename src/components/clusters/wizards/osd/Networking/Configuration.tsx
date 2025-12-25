@@ -68,10 +68,11 @@ export const Configuration = () => {
     canConfigureDayOnePrivateServiceConnect(clusterVersionRawId) &&
     hasPSCFeatureGate;
   const isWifAuth = authTypeFormValue === GCPAuthType.WorkloadIdentityFederation;
-  const PSCPrivateWifWarning =
-    isGCP && isPrivateCluster && isWifAuth && hasPSCFeatureGate
-      ? 'Private clusters deployed using Workload Identity Federation must be deployed into an existing VPC.'
-      : '';
+
+  const showPSCPrivateWifWarning = isGCP && isPrivateCluster && isWifAuth && hasPSCFeatureGate;
+  const PSCPrivateWifWarning = showPSCPrivateWifWarning
+    ? 'Private clusters deployed using Workload Identity Federation must be deployed into an existing VPC.'
+    : '';
   const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
   const trackOcmResourceType =
     product === normalizedProducts.ROSA ? ocmResourceType.MOA : ocmResourceType.OSD;
@@ -254,7 +255,7 @@ export const Configuration = () => {
               <Title headingLevel="h4" size="xl" className="privacy-heading">
                 Virtual Private Cloud (VPC)
               </Title>
-              {!isOSDFromGoogleCloud && (
+              {!isOSDFromGoogleCloud && !showPSCPrivateWifWarning && (
                 <Content component="p" className="pf-v6-u-mt-sm">
                   By default, a new VPC will be created for your cluster. Alternatively, you may opt
                   to install to an existing VPC below.
