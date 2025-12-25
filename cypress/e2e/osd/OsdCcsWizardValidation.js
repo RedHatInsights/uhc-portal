@@ -1,6 +1,9 @@
 import CreateOSDWizardPage from '../../pageobjects/CreateOSDWizard.page';
-import { Clusters } from '../../fixtures/osd/OsdWizardValidation.json';
-import { ClustersValidation } from '../../fixtures/osd/OsdWizardValidation.json';
+import { Clusters, ClustersValidation } from '../../fixtures/osd/OsdWizardValidation.json';
+
+const OsdWizardValidation = require('../../fixtures/osd/OsdWizardValidation.json');
+const DefaultChannelGroup = OsdWizardValidation.DefaultChannelGroup;
+const ChannelGroupOptions = OsdWizardValidation.ChannelGroupOptions;
 
 const QE_GCP = Cypress.env('QE_GCP_OSDCCSADMIN_JSON');
 const awsAccountID = Cypress.env('QE_AWS_ID');
@@ -198,6 +201,20 @@ describe('OSD Wizard validation tests(OCP-54134,OCP-73204)', { tags: ['smoke'] }
           CreateOSDWizardPage.useDefaultKMSKeyRadio().check();
         }
       }
+      // Channel group validation - verify dropdown exists and has expected options
+      cy.log('🔍 Verifying channel group dropdown');
+      CreateOSDWizardPage.getChannelGroupSelector().should('exist');
+      CreateOSDWizardPage.getChannelGroupValue().then((value) => {
+        expect(value).to.equal(DefaultChannelGroup);
+        cy.log(`✅ Default channel group: ${value}`);
+      });
+      CreateOSDWizardPage.verifyChannelGroupOptions(ChannelGroupOptions).then((result) => {
+        ChannelGroupOptions.forEach((expectedOption) => {
+          expect(result.values).to.include(expectedOption);
+        });
+        cy.log('✅ All channel group options verified');
+      });
+
       CreateOSDWizardPage.wizardNextButton().click();
     });
     it(`OSD wizard - ${clusterProperties.CloudProvider} -${clusterProperties.SubscriptionType}-${clusterProperties.InfrastructureType} : Cluster Settings - Machinepool(nodes) field validations`, () => {
