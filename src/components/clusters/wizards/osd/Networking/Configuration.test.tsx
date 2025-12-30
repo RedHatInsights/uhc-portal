@@ -160,7 +160,7 @@ describe('<Configuration /> using WIF', () => {
       expect(screen.queryByText('Use Private Service Connect')).not.toBeInTheDocument();
     });
 
-    it('renders the text of the default functionality related to installing onto a new VPC when authType=WIF and cluster privacy=public', async () => {
+    it('Shows the text of the default functionality related to installing onto a new VPC when authType=WIF and cluster privacy=public', async () => {
       render(
         prepareComponent({
           [FieldId.ClusterPrivacy]: ClusterPrivacyType.External, // public
@@ -259,7 +259,7 @@ describe('<Configuration /> using WIF', () => {
   });
 
   describe('<Configuration /> using ServiceAccounts as the auth type', () => {
-    it('Does not show the text of the default functionality related to installing onto a new VPC', async () => {
+    it('Shows the text of the default functionality related to installing onto a new VPC', async () => {
       render(
         prepareComponent({
           [FieldId.ClusterPrivacy]: ClusterPrivacyType.Internal, // private
