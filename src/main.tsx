@@ -19,9 +19,7 @@ import { createRoot } from 'react-dom/client';
 
 import AppEntry from './chrome-main';
 
-console.log('code 1');
-
-console.log('code 2');
+console.log('code 3');
 
 if (!Object.fromEntries) {
   fromEntries.shim();
