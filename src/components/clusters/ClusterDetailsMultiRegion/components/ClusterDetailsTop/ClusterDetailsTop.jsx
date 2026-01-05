@@ -18,6 +18,7 @@ import {
 } from '@patternfly/react-core';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
+import { getOCMResourceType, trackEvents } from '~/common/analytics';
 import getClusterName from '~/common/getClusterName';
 import { goZeroTime2Null } from '~/common/helpers';
 import isAssistedInstallSubscription, {
@@ -33,6 +34,7 @@ import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import RefreshButton from '~/components/common/RefreshButton/RefreshButton';
+import useAnalytics from '~/hooks/useAnalytics';
 import { usePreviousProps } from '~/hooks/usePreviousProps';
 import { refreshClusterDetails } from '~/queries/refreshEntireCache';
 import {
@@ -117,6 +119,8 @@ function ClusterDetailsTop(props) {
     refreshFunc,
     region,
   } = props;
+
+  const track = useAnalytics();
 
   const hasAlertBeenDismissed = localStorage.getItem(
     HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT,
@@ -332,7 +336,6 @@ function ClusterDetailsTop(props) {
 
   // Alerts
   const [isExpanded, setIsExpanded] = useState(false);
-  const updateIsExpanded = () => setIsExpanded(!isExpanded);
 
   const [hasLimitedSupportAlert, setHasLimitedSupportAlert] = React.useState(false);
   const [hasStatusMonitorAlert, setHasStatusMonitorAlert] = React.useState(false);
@@ -369,6 +372,19 @@ function ClusterDetailsTop(props) {
   ];
 
   const alertsCount = alerts.filter((alert) => alert === true).length || null;
+
+  const updateIsExpanded = () => {
+    if (!isExpanded) {
+      const clusterProductType = get(cluster, 'subscription.plan.type', '');
+      const resourceType = getOCMResourceType(clusterProductType);
+
+      track(trackEvents.ClusterAlerts, {
+        resourceType,
+        customProperties: { numberAlerts: alertsCount },
+      });
+    }
+    setIsExpanded(!isExpanded);
+  };
 
   return (
     <div id="cl-details-top" className="top-row">
@@ -498,6 +514,8 @@ function ClusterDetailsTop(props) {
                 onDismissAlertCallback={() => setShowRecommendedOperatorsAlert(false)}
                 clusterState={cluster.state}
                 consoleURL={consoleURL}
+                cluster={cluster}
+                planType={cluster?.subscription?.plan?.id ?? normalizedProducts.UNKNOWN}
               />
             ) : null}
           </ExpandableSection>

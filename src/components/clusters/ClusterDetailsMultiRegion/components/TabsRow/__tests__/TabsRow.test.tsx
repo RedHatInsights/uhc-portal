@@ -3,7 +3,7 @@
 /* eslint-disable testing-library/await-async-queries */
 import React, { RefObject } from 'react';
 
-import { checkAccessibility, render, screen, waitFor } from '~/testUtils';
+import { checkAccessibility, mockUseChrome, render, screen, waitFor } from '~/testUtils';
 
 import { ClusterTabsId } from '../../common/ClusterTabIds';
 import TabsRow, { TabsRowProps } from '../TabsRow';
@@ -22,6 +22,8 @@ const tabNames = {
   accessRequest: 'Access Requests',
 };
 
+mockUseChrome({ analytics: { track: () => {} } });
+
 describe('<TabsRow />', () => {
   const mockRef: RefObject<any> = { current: { hidden: true } };
   const onTabSelectedMock = jest.fn();
@@ -36,8 +38,8 @@ describe('<TabsRow />', () => {
       networking: { ref: mockRef },
       machinePools: { ref: mockRef },
       support: { ref: mockRef },
-      upgradeSettings: { ref: mockRef },
-      addAssisted: { ref: mockRef },
+      updateSettings: { ref: mockRef },
+      addAssistedHosts: { ref: mockRef },
       accessRequest: { ref: mockRef },
     },
     onTabSelected: onTabSelectedMock,
@@ -69,17 +71,35 @@ describe('<TabsRow />', () => {
       const tabProps: TabsRowProps = {
         ...props,
         tabsInfo: {
-          overview: { ...props.tabsInfo.overview, show: true },
-          monitoring: { ...props.tabsInfo.monitoring, show: true },
-          accessControl: { ...props.tabsInfo.accessControl, show: true },
-          addOns: { ...props.tabsInfo.addOns, show: true },
-          clusterHistory: { ...props.tabsInfo.clusterHistory, show: true },
-          networking: { ...props.tabsInfo.networking, show: true },
-          machinePools: { ...props.tabsInfo.machinePools, show: true },
-          support: { ...props.tabsInfo.support, show: true },
-          upgradeSettings: { ...props.tabsInfo.upgradeSettings, show: true },
-          addAssisted: { ...props.tabsInfo.addAssisted, show: true },
-          accessRequest: { ...props.tabsInfo.accessRequest, show: true },
+          [ClusterTabsId.OVERVIEW]: { ...props.tabsInfo[ClusterTabsId.OVERVIEW], show: true },
+          [ClusterTabsId.MONITORING]: { ...props.tabsInfo[ClusterTabsId.MONITORING], show: true },
+          [ClusterTabsId.ACCESS_CONTROL]: {
+            ...props.tabsInfo[ClusterTabsId.ACCESS_CONTROL],
+            show: true,
+          },
+          [ClusterTabsId.ADD_ONS]: { ...props.tabsInfo[ClusterTabsId.ADD_ONS], show: true },
+          [ClusterTabsId.CLUSTER_HISTORY]: {
+            ...props.tabsInfo[ClusterTabsId.CLUSTER_HISTORY],
+            show: true,
+          },
+          [ClusterTabsId.NETWORKING]: { ...props.tabsInfo[ClusterTabsId.NETWORKING], show: true },
+          [ClusterTabsId.MACHINE_POOLS]: {
+            ...props.tabsInfo[ClusterTabsId.MACHINE_POOLS],
+            show: true,
+          },
+          [ClusterTabsId.SUPPORT]: { ...props.tabsInfo[ClusterTabsId.SUPPORT], show: true },
+          [ClusterTabsId.UPDATE_SETTINGS]: {
+            ...props.tabsInfo[ClusterTabsId.UPDATE_SETTINGS],
+            show: true,
+          },
+          [ClusterTabsId.ADD_ASSISTED_HOSTS]: {
+            ...props.tabsInfo[ClusterTabsId.ADD_ASSISTED_HOSTS],
+            show: true,
+          },
+          [ClusterTabsId.ACCESS_REQUEST]: {
+            ...props.tabsInfo[ClusterTabsId.ACCESS_REQUEST],
+            show: true,
+          },
         },
       };
 
@@ -105,17 +125,37 @@ describe('<TabsRow />', () => {
       const tabProps: TabsRowProps = {
         ...props,
         tabsInfo: {
-          overview: { ...props.tabsInfo.overview, show: true },
-          monitoring: { ...props.tabsInfo.monitoring, show: true },
-          accessControl: { ...props.tabsInfo.accessControl, show: true },
-          addOns: { ...props.tabsInfo.addOns, show: true },
-          clusterHistory: { ...props.tabsInfo.clusterHistory, show: true },
-          networking: { ...props.tabsInfo.networking, show: true },
-          machinePools: { ...props.tabsInfo.machinePools, show: true },
-          support: { ...props.tabsInfo.support, show: true },
-          upgradeSettings: { ...props.tabsInfo.upgradeSettings, show: true },
-          addAssisted: { ...props.tabsInfo.addAssisted, show: true, isDisabled: true },
-          accessRequest: { ...props.tabsInfo.accessRequest, show: true, isDisabled: true },
+          [ClusterTabsId.OVERVIEW]: { ...props.tabsInfo[ClusterTabsId.OVERVIEW], show: true },
+          [ClusterTabsId.MONITORING]: { ...props.tabsInfo[ClusterTabsId.MONITORING], show: true },
+          [ClusterTabsId.ACCESS_CONTROL]: {
+            ...props.tabsInfo[ClusterTabsId.ACCESS_CONTROL],
+            show: true,
+          },
+          [ClusterTabsId.ADD_ONS]: { ...props.tabsInfo[ClusterTabsId.ADD_ONS], show: true },
+          [ClusterTabsId.CLUSTER_HISTORY]: {
+            ...props.tabsInfo[ClusterTabsId.CLUSTER_HISTORY],
+            show: true,
+          },
+          [ClusterTabsId.NETWORKING]: { ...props.tabsInfo[ClusterTabsId.NETWORKING], show: true },
+          [ClusterTabsId.MACHINE_POOLS]: {
+            ...props.tabsInfo[ClusterTabsId.MACHINE_POOLS],
+            show: true,
+          },
+          [ClusterTabsId.SUPPORT]: { ...props.tabsInfo[ClusterTabsId.SUPPORT], show: true },
+          [ClusterTabsId.UPDATE_SETTINGS]: {
+            ...props.tabsInfo[ClusterTabsId.UPDATE_SETTINGS],
+            show: true,
+          },
+          [ClusterTabsId.ADD_ASSISTED_HOSTS]: {
+            ...props.tabsInfo[ClusterTabsId.ADD_ASSISTED_HOSTS],
+            show: true,
+            isDisabled: true,
+          },
+          [ClusterTabsId.ACCESS_REQUEST]: {
+            ...props.tabsInfo[ClusterTabsId.ACCESS_REQUEST],
+            show: true,
+            isDisabled: true,
+          },
         },
       };
 
@@ -170,8 +210,8 @@ describe('<TabsRow />', () => {
         ...props,
         tabsInfo: {
           ...props.tabsInfo,
-          overview: { ...props.tabsInfo.overview, show: true },
-          monitoring: { ...props.tabsInfo.monitoring, show: false },
+          [ClusterTabsId.OVERVIEW]: { ...props.tabsInfo[ClusterTabsId.OVERVIEW], show: true },
+          [ClusterTabsId.MONITORING]: { ...props.tabsInfo[ClusterTabsId.MONITORING], show: false },
         },
       };
 
@@ -198,8 +238,11 @@ describe('<TabsRow />', () => {
         ...props,
         tabsInfo: {
           ...props.tabsInfo,
-          overview: { ...props.tabsInfo.overview, show: true },
-          monitoring: { ...props.tabsInfo.monitoring, hasIssues: true },
+          [ClusterTabsId.OVERVIEW]: { ...props.tabsInfo[ClusterTabsId.OVERVIEW], show: true },
+          [ClusterTabsId.MONITORING]: {
+            ...props.tabsInfo[ClusterTabsId.MONITORING],
+            hasIssues: true,
+          },
         },
       };
 
@@ -226,8 +269,11 @@ describe('<TabsRow />', () => {
         ...props,
         tabsInfo: {
           ...props.tabsInfo,
-          overview: { ...props.tabsInfo.overview, show: true },
-          clusterHistory: { ...props.tabsInfo.clusterHistory, show: true },
+          [ClusterTabsId.OVERVIEW]: { ...props.tabsInfo[ClusterTabsId.OVERVIEW], show: true },
+          [ClusterTabsId.CLUSTER_HISTORY]: {
+            ...props.tabsInfo[ClusterTabsId.CLUSTER_HISTORY],
+            show: true,
+          },
         },
         initTabOpen: ClusterTabsId.CLUSTER_HISTORY,
       };
@@ -267,7 +313,11 @@ describe('<TabsRow />', () => {
         ...props,
         tabsInfo: {
           ...props.tabsInfo,
-          addAssisted: { ...props.tabsInfo.addAssisted, show: true, isDisabled: true },
+          [ClusterTabsId.ADD_ASSISTED_HOSTS]: {
+            ...props.tabsInfo[ClusterTabsId.ADD_ASSISTED_HOSTS],
+            show: true,
+            isDisabled: true,
+          },
         },
         initTabOpen: ClusterTabsId.ADD_ASSISTED_HOSTS,
       };
@@ -288,8 +338,11 @@ describe('<TabsRow />', () => {
         ...props,
         tabsInfo: {
           ...props.tabsInfo,
-          overview: { ...props.tabsInfo.overview, show: true },
-          clusterHistory: { ...props.tabsInfo.clusterHistory, show: true },
+          [ClusterTabsId.OVERVIEW]: { ...props.tabsInfo[ClusterTabsId.OVERVIEW], show: true },
+          [ClusterTabsId.CLUSTER_HISTORY]: {
+            ...props.tabsInfo[ClusterTabsId.CLUSTER_HISTORY],
+            show: true,
+          },
         },
       };
 
@@ -309,8 +362,11 @@ describe('<TabsRow />', () => {
         ...props,
         tabsInfo: {
           ...props.tabsInfo,
-          overview: { ...props.tabsInfo.overview, show: true },
-          clusterHistory: { ...props.tabsInfo.clusterHistory, show: false },
+          [ClusterTabsId.OVERVIEW]: { ...props.tabsInfo[ClusterTabsId.OVERVIEW], show: true },
+          [ClusterTabsId.CLUSTER_HISTORY]: {
+            ...props.tabsInfo[ClusterTabsId.CLUSTER_HISTORY],
+            show: false,
+          },
         },
         initTabOpen: ClusterTabsId.CLUSTER_HISTORY,
       };
@@ -336,8 +392,12 @@ describe('<TabsRow />', () => {
         ...props,
         tabsInfo: {
           ...props.tabsInfo,
-          overview: { ...props.tabsInfo.overview, show: true },
-          addAssisted: { ...props.tabsInfo.addAssisted, show: true, isDisabled: true },
+          [ClusterTabsId.OVERVIEW]: { ...props.tabsInfo[ClusterTabsId.OVERVIEW], show: true },
+          [ClusterTabsId.ADD_ASSISTED_HOSTS]: {
+            ...props.tabsInfo[ClusterTabsId.ADD_ASSISTED_HOSTS],
+            show: true,
+            isDisabled: true,
+          },
         },
         initTabOpen: ClusterTabsId.OVERVIEW,
       };

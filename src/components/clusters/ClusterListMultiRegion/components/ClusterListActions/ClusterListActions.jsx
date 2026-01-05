@@ -140,10 +140,13 @@ const useItems = (isDashboardView, showClusterRequest) => {
   return [dropdownItems, toolbarItems];
 };
 
-const ClusterListActions = ({ className, isDashboardView }) => {
+const ClusterListActions = ({ className, isDashboardView, showTabbedView }) => {
   const showClusterRequest = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownItems, toolbarItems] = useItems(isDashboardView, showClusterRequest);
+  const [dropdownItems, toolbarItems] = useItems(
+    isDashboardView,
+    showClusterRequest && !showTabbedView,
+  );
   const toggleRef = useRef();
 
   if (isDashboardView) {
@@ -231,6 +234,7 @@ const ClusterListActions = ({ className, isDashboardView }) => {
 ClusterListActions.propTypes = {
   className: PropTypes.string,
   isDashboardView: PropTypes.bool,
+  showTabbedView: PropTypes.bool,
 };
 
 export default ClusterListActions;
