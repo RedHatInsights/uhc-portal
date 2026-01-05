@@ -48,10 +48,10 @@ describe('AccessRequestStateIcon', () => {
 
   describe('renders proper state for different states', () => {
     it.each([
-      [AccessRequestStatusState.Approved, 'green', 'check-circle-icon'],
-      [AccessRequestStatusState.Denied, 'red', 'times-circle-icon'],
-      [AccessRequestStatusState.Expired, 'undefined', 'outlined-clock-icon'],
-      [AccessRequestStatusState.Pending, 'orange', 'exclamation-triangle-icon'],
+      [AccessRequestStatusState.Approved, 'rgb(0, 128, 0)', 'check-circle-icon'],
+      [AccessRequestStatusState.Denied, 'rgb(255, 0, 0)', 'times-circle-icon'],
+      [AccessRequestStatusState.Expired, 'canvastext', 'outlined-clock-icon'],
+      [AccessRequestStatusState.Pending, 'rgb(255, 165, 0)', 'exclamation-triangle-icon'],
     ])(
       '"%s" state',
       (state: AccessRequestStatusState, expectedColor: string, expectedIconName: string) => {
