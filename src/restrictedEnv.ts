@@ -2,6 +2,8 @@ import type { ChromeAPI } from '@redhat-cloud-services/types';
 
 import type { Config } from '~/config';
 
+import { getLocation } from './common/location';
+
 /**
  * determines whether the UI runs within a restricted env'.
  *
@@ -22,7 +24,7 @@ export const resolveIsRestrictedEnv = (chrome: ChromeAPI) =>
 export const resolveRestrictedEnvDomain = (subdomain?: string) =>
   // restricted-env domain names must not be exposed publicly.
   // infer the root domain from current location, to avoid hard-coding.
-  window.location.origin.replace('console.', subdomain ?? '');
+  getLocation().origin.replace('console.', subdomain ?? '');
 
 /**
  * to be used internally, exported for unit-testing purposes.
