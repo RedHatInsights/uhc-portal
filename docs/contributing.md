@@ -39,7 +39,7 @@ It is responsible for rendering the header & menu around the main content, and p
 
 It's not a regular build dependency but is injected by CDN using [EdgeSide Includes](https://en.wikipedia.org/wiki/Edge_Side_Includes) tags.
 
-## FEC Development Environment
+## Development Environment
 
 The local development environment is powered by [Frontend Components (FEC)](https://github.com/RedHatInsights/frontend-components), which manages:
 
@@ -61,14 +61,6 @@ By default, the Chrome server runs on port `:9990`. To use a different port:
 FEC_CHROME_PORT=<PORT> yarn dev
 # or
 FEC_CHROME_PORT=<PORT> yarn start
-```
-
-### Passthrough Arguments
-
-Both `yarn dev` and `yarn start` support passing additional flags directly to the underlying `fec` command:
-
-```bash
-yarn dev --clouddotEnv staging
 ```
 
 ## Code Style
