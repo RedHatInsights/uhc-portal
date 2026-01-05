@@ -895,13 +895,14 @@ describe('isEnforcedDefaultMachinePool', () => {
 
   describe('getCapacityPreferenceLabel', () => {
     it.each([
-      [undefined, 'N/A'],
-      ['', 'N/A'],
-      ['capacity-reservations-only', 'CR only'],
-      ['none', 'None'],
-      ['open', 'Open'],
-    ])('%p', (value, expected) =>
-      expect(getCapacityPreferenceLabel(value)).toStrictEqual(expected),
+      [undefined, '', 'N/A'],
+      ['', '', 'N/A'],
+      ['capacity-reservations-only', 'capId1', 'CR only'],
+      ['none', undefined, 'None'],
+      ['open', '', 'Open'],
+      [undefined, 'capId1', 'CR only'],
+    ])('%p', (preference, id, expected) =>
+      expect(getCapacityPreferenceLabel(preference, id)).toStrictEqual(expected),
     );
   });
 });

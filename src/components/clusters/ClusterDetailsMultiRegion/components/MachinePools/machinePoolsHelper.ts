@@ -346,8 +346,11 @@ const canUseSpotInstances = (cluster: ClusterFromSubscription) => {
   );
 };
 
-const getCapacityPreferenceLabel = (preference: string | undefined) => {
-  if (preference === 'capacity-reservations-only') {
+const getCapacityPreferenceLabel = (
+  preference: string | undefined,
+  reservationId: string | undefined,
+) => {
+  if (preference === 'capacity-reservations-only' || reservationId) {
     return 'CR only';
   }
   if (preference === 'open') {

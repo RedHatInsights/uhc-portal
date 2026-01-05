@@ -23,7 +23,8 @@ const MachinePoolCapacityReservationDetail = ({
       />
     </Title>
     <GridItem className="capacity_reservation">
-      Reservation Preference: {getCapacityPreferenceLabel(capacityReservationPreference)}
+      Reservation Preference:{' '}
+      {getCapacityPreferenceLabel(capacityReservationPreference, capacityReservationId)}
     </GridItem>
     <GridItem className="capacity_reservation">
       Reservation Id: {capacityReservationId || 'N/A'}
