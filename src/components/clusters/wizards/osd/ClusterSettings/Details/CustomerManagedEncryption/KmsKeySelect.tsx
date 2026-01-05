@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 
 import { Content, GridItem } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
 import { required } from '~/common/validators';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { getGcpCcsCredentials } from '~/components/clusters/wizards/common/utils/ccsCredentials';
@@ -50,9 +51,7 @@ export const KmsKeySelect = () => {
           <>
             <Content component="p">
               If available, change the Key ring location / Key ring. Or go to your{' '}
-              <ExternalLink href="https://console.cloud.google.com/security/kms">
-                Google Cloud Console
-              </ExternalLink>{' '}
+              <ExternalLink href={installLinks.GCP_CONSOLE_KMS}>Google Cloud Console</ExternalLink>{' '}
               and create the key.
             </Content>
             <Content component="p">

@@ -1,5 +1,6 @@
 // ClusterListEmptyState is the empty state (no clusters) for ClusterList
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import {
   Button,
@@ -13,7 +14,7 @@ import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circ
 
 import { Link } from '~/common/routing';
 
-function ClusterListEmptyState() {
+function ClusterListEmptyState({ showTabbedView }) {
   return (
     <EmptyState
       headingLevel="h4"
@@ -41,9 +42,11 @@ function ClusterListEmptyState() {
           <Link to="/archived">
             <Button variant="link">View cluster archives</Button>
           </Link>
-          <Link to="/cluster-request">
-            <Button variant="link">View cluster requests</Button>
-          </Link>
+          {!showTabbedView && (
+            <Link to="/cluster-request">
+              <Button variant="link">View cluster requests</Button>
+            </Link>
+          )}
           <Link to="/assisted-installer">
             <Button variant="link">Assisted Installer clusters</Button>
           </Link>
@@ -52,5 +55,9 @@ function ClusterListEmptyState() {
     </EmptyState>
   );
 }
+
+ClusterListEmptyState.propTypes = {
+  showTabbedView: PropTypes.bool,
+};
 
 export default ClusterListEmptyState;

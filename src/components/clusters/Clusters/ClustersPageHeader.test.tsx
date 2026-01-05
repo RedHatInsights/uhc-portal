@@ -67,20 +67,20 @@ describe('<ClustersPageHeader />', () => {
 
   describe('Initial Rendering', () => {
     it('renders the page header with title', () => {
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.getByRole('heading', { name: 'Clusters', level: 1 })).toBeInTheDocument();
     });
 
     it('renders the refresh button', () => {
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.getByTestId('refresh-button')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Refresh' })).toBeInTheDocument();
     });
 
     it('does not show spinner when not loading', () => {
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(
         screen.queryByRole('progressbar', { name: 'Loading cluster data' }),
@@ -88,7 +88,7 @@ describe('<ClustersPageHeader />', () => {
     });
 
     it('does not show error triangle when no errors', () => {
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.queryByTestId('error-triangle')).not.toBeInTheDocument();
     });
@@ -101,7 +101,7 @@ describe('<ClustersPageHeader />', () => {
         isLoading: true,
       } as any);
 
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.getByRole('progressbar', { name: 'Loading cluster data' })).toBeInTheDocument();
     });
@@ -112,7 +112,7 @@ describe('<ClustersPageHeader />', () => {
         isFetching: true,
       } as any);
 
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.getByRole('progressbar', { name: 'Loading cluster data' })).toBeInTheDocument();
     });
@@ -123,7 +123,7 @@ describe('<ClustersPageHeader />', () => {
         isError: false,
       });
 
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.getByRole('progressbar', { name: 'Loading cluster data' })).toBeInTheDocument();
     });
@@ -135,7 +135,7 @@ describe('<ClustersPageHeader />', () => {
         isFetching: false,
       } as any);
 
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(
         screen.queryByRole('progressbar', { name: 'Loading cluster data' }),
@@ -151,7 +151,7 @@ describe('<ClustersPageHeader />', () => {
         errors: [{ reason: 'Failed to load clusters' }],
       } as any);
 
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.getByTestId('error-triangle')).toBeInTheDocument();
       expect(screen.getByText(/Error for clusters: Failed to load clusters/)).toBeInTheDocument();
@@ -163,7 +163,7 @@ describe('<ClustersPageHeader />', () => {
         isError: true,
       });
 
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.getByTestId('error-triangle')).toBeInTheDocument();
     });
@@ -175,7 +175,7 @@ describe('<ClustersPageHeader />', () => {
         errors: [{ reason: 'Network timeout' }],
       } as any);
 
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.getByText(/Network timeout/)).toBeInTheDocument();
     });
@@ -187,7 +187,7 @@ describe('<ClustersPageHeader />', () => {
         errors: [],
       } as any);
 
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.getByTestId('error-triangle')).toBeInTheDocument();
       expect(screen.getByText(/Unknown error/)).toBeInTheDocument();
@@ -199,20 +199,30 @@ describe('<ClustersPageHeader />', () => {
         isError: false,
       } as any);
 
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.queryByTestId('error-triangle')).not.toBeInTheDocument();
     });
   });
 
   describe('Refresh Functionality', () => {
-    it('calls both refetch functions when refresh button is clicked', async () => {
-      const { user } = withState({}, true).render(<ClustersPageHeader />);
+    it('calls both refetch functions when refresh button is clicked on list tab', async () => {
+      const { user } = withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       const refreshButton = screen.getByTestId('refresh-button');
       await user.click(refreshButton);
 
       expect(mockRefetchClusters).toHaveBeenCalledTimes(1);
+      expect(mockRefetchClusterTransferDetail).toHaveBeenCalledTimes(1);
+    });
+
+    it('only calls cluster transfer refetch when refresh button is clicked on transfers tab', async () => {
+      const { user } = withState({}, true).render(<ClustersPageHeader activeTabKey="transfers" />);
+
+      const refreshButton = screen.getByTestId('refresh-button');
+      await user.click(refreshButton);
+
+      expect(mockRefetchClusters).not.toHaveBeenCalled();
       expect(mockRefetchClusterTransferDetail).toHaveBeenCalledTimes(1);
     });
   });
@@ -226,7 +236,7 @@ describe('<ClustersPageHeader />', () => {
         errors: [{ reason: 'Previous error' }],
       } as any);
 
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(screen.getByRole('progressbar', { name: 'Loading cluster data' })).toBeInTheDocument();
       expect(screen.getByTestId('error-triangle')).toBeInTheDocument();
@@ -235,7 +245,7 @@ describe('<ClustersPageHeader />', () => {
 
   describe('Hook Integration', () => {
     it('calls useFetchClusters with correct parameters', () => {
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(mockedUseFetchClusters).toHaveBeenCalledWith(false, true);
     });
@@ -249,7 +259,7 @@ describe('<ClustersPageHeader />', () => {
         },
       };
 
-      withState(state, true).render(<ClustersPageHeader />);
+      withState(state, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       expect(mockUseFetchClusterTransferDetail).toHaveBeenCalledWith({
         username: 'test-user',
@@ -259,11 +269,11 @@ describe('<ClustersPageHeader />', () => {
 
   describe('Accessibility', () => {
     it('is accessible', async () => {
-      const { container } = withState({}, true).render(<ClustersPageHeader />);
+      const { container } = withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
       await checkAccessibility(container);
     });
     it('has proper heading level for title', () => {
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       const heading = screen.getByRole('heading', { name: 'Clusters' });
       expect(heading.tagName).toBe('H1');
@@ -275,7 +285,7 @@ describe('<ClustersPageHeader />', () => {
         isLoading: true,
       } as any);
 
-      withState({}, true).render(<ClustersPageHeader />);
+      withState({}, true).render(<ClustersPageHeader activeTabKey="list" />);
 
       const spinner = screen.getByRole('progressbar', { name: 'Loading cluster data' });
       expect(spinner).toHaveAttribute('aria-label', 'Loading cluster data');

@@ -114,6 +114,9 @@ initialState[viewConstants.ARCHIVED_CLUSTERS_VIEW] = Object.assign(INITIAL_ARCHI
 initialState[viewConstants.CLUSTER_LOGS_VIEW] = Object.assign(INITIAL_OSL_VIEW_STATE);
 initialState[viewConstants.OVERVIEW_VIEW] = Object.assign(INITIAL_OVERVIEW_VIEW_STATE);
 initialState[viewConstants.OVERVIEW_EXPIRED_TRIALS] = Object.assign(INITIAL_OVERVIEW_VIEW_STATE);
+initialState[viewConstants.CLUSTER_TRANSFER_VIEW] = Object.assign(
+  INITIAL_ACCESS_REQUESTS_VIEW_STATE,
+);
 
 const viewOptionsReducer = (
   state = initialState,
