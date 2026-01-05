@@ -1,3 +1,5 @@
+import * as locationUtils from '~/common/location';
+
 import {
   buildFilterURLParams,
   buildUrlParams,
@@ -199,10 +201,14 @@ describe('createViewQueryObject()', () => {
 });
 
 describe('getQueryParam', () => {
+  let locationSpy;
+
   beforeEach(() => {
-    delete global.window.location;
-    global.window = Object.create(window);
-    global.window.location = {};
+    locationSpy = jest.spyOn(locationUtils, 'getLocation');
+  });
+
+  afterEach(() => {
+    locationSpy.mockRestore();
   });
 
   it.each([
@@ -235,7 +241,9 @@ describe('getQueryParam', () => {
       'Info,Warning,Error',
     ],
   ])('search %p to be %p', (search, queryParam, expected) => {
-    global.window.location.search = search;
+    locationSpy.mockReturnValue({
+      search,
+    });
     const result = getQueryParam(queryParam);
     expect(result).toBe(expected);
   });
