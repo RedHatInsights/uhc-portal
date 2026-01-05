@@ -1,5 +1,6 @@
 import React from 'react';
 import { Field } from 'formik';
+import PropTypes from 'prop-types';
 
 import { Content, ContentVariants, GridItem, Title } from '@patternfly/react-core';
 
@@ -13,7 +14,7 @@ import validators, {
 import ExternalLink from '../../../../common/ExternalLink';
 import ReduxVerticalFormGroup from '../../../../common/ReduxFormComponents_deprecated/ReduxVerticalFormGroup';
 
-function CustomOperatorRoleNames(isHypershiftSelected) {
+function CustomOperatorRoleNames({ isHypershiftSelected }) {
   const { getFieldProps, getFieldMeta } = useFormState();
   return (
     <>
@@ -62,5 +63,9 @@ function CustomOperatorRoleNames(isHypershiftSelected) {
     </>
   );
 }
+
+CustomOperatorRoleNames.propTypes = {
+  isHypershiftSelected: PropTypes.bool,
+};
 
 export default CustomOperatorRoleNames;
