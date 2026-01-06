@@ -14,6 +14,8 @@ import { PrerequisitesInfoBox } from '~/components/clusters/wizards/rosa/common/
 import { WelcomeMessage } from '~/components/clusters/wizards/rosa/common/WelcomeMessage';
 import ErrorBox from '~/components/common/ErrorBox';
 import useAnalytics from '~/hooks/useAnalytics';
+import { AWS_BILLING_IN_BOUNDARY } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clearMachineTypesByRegion } from '~/redux/actions/machineTypesActions';
 import { GlobalState } from '~/redux/stateTypes';
 import { isRestrictedEnv } from '~/restrictedEnv';
@@ -79,14 +81,10 @@ function AccountsRolesScreen({
     [getAWSAccountIDsResponse.pending, getAWSAccountRolesARNsResponse.pending],
   );
 
-  // TODO: Remove after billing issues resolved in FedRAMP
-  // FedRAMP Billing account bypass
-  React.useEffect(() => {
-    if (isRestrictedEnv()) {
-      setFieldValue(selectedAWSBillingAccountID, '');
-    }
-    // eslint-disable-next-line  react-hooks/exhaustive-deps
-  }, []);
+  // Feature flag to enable AWS Billing Account in FedRAMP/boundary environments
+  const shouldShowBillingInBoundary = useFeatureGate(AWS_BILLING_IN_BOUNDARY);
+  const showBillingAccount =
+    isHypershiftSelected && (!isRestrictedEnv() || shouldShowBillingInBoundary);
 
   const openDrawerButtonRef = useRef(null);
   const hasAWSAccounts = AWSAccountIDs.length > 0;
@@ -246,7 +244,7 @@ function AccountsRolesScreen({
           </Button>
         </GridItem>
         <GridItem span={7} />
-        {isHypershiftSelected && !isRestrictedEnv() && (
+        {showBillingAccount && (
           <AWSBillingAccount
             selectedAWSBillingAccountID={selectedAWSBillingAccountID || ''}
             selectedAWSAccountID={selectedAWSAccountID || ''}
