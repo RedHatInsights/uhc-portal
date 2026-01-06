@@ -350,7 +350,7 @@ const getCapacityPreferenceLabel = (
   preference: string | undefined,
   reservationId: string | undefined,
 ) => {
-  if (preference === 'capacity-reservations-only' || reservationId) {
+  if (preference === 'capacity-reservations-only' || (reservationId && preference !== 'open')) {
     return 'CR only';
   }
   if (preference === 'open') {
