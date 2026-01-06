@@ -16,6 +16,7 @@ import {
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
+import installLinks from '~/common/installLinks.mjs';
 import { deleteQueryParam, getQueryParam } from '~/common/queryHelpers';
 import { normalizedProducts, STANDARD_TRIAL_BILLING_MODEL_TYPE } from '~/common/subscriptionTypes';
 import supportLinks from '~/common/supportLinks.mjs';
@@ -75,10 +76,7 @@ export const BillingModel = () => {
   );
 
   const gcpLink = (
-    <ExternalLink
-      href="https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated"
-      noIcon
-    >
+    <ExternalLink href={installLinks.OSD_GOOGLE_MARKETPLACE} noIcon>
       Google Cloud Marketplace
     </ExternalLink>
   );

@@ -26,8 +26,7 @@ export const AWSCustomerManagedEncryption = () => {
 
   const hasCustomerManagedKey = customerManagedKey === 'true';
 
-  const cloudProviderLearnLink =
-    'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html';
+  const cloudProviderLearnLink = links.AWS_DATA_PROTECTION;
 
   const helpText =
     'Use a custom AWS KMS key for AWS EBS volume encryption instead of your default AWS KMS key.';
