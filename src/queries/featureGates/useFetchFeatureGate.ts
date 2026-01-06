@@ -4,7 +4,11 @@ import { RESTRICTED_ENV_OVERRIDE_LOCALSTORAGE_KEY } from '~/common/localStorageC
 import { queryClient } from '~/components/App/queryClient';
 import authorizationsService from '~/services/authorizationsService';
 
-import Features, { AWS_BILLING_IN_BOUNDARY, HYPERSHIFT_WIZARD_FEATURE } from './featureConstants';
+import Features, {
+  AWS_BILLING_IN_BOUNDARY,
+  EDIT_BILLING_ACCOUNT,
+  HYPERSHIFT_WIZARD_FEATURE,
+} from './featureConstants';
 
 const queryKey = 'featureGate';
 
@@ -17,6 +21,7 @@ const featureGateQueryObj = (feature: (typeof Features)[keyof typeof Features]) 
   const featureGatesAllowedWhenMockingRestrictedEnvironment: string[] = [
     HYPERSHIFT_WIZARD_FEATURE,
     AWS_BILLING_IN_BOUNDARY,
+    EDIT_BILLING_ACCOUNT,
   ];
 
   const getData =
