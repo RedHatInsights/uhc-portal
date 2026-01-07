@@ -1,4 +1,5 @@
 import * as React from 'react';
+import semver from 'semver';
 import * as Yup from 'yup';
 
 import {
@@ -15,6 +16,7 @@ import {
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { isHypershiftCluster, isROSA } from '~/components/clusters/common/clusterStates';
 import {
+  CAPACITY_RESERVATION_MIN_VERSION as requiredCRVersion,
   defaultWorkerNodeVolumeSizeGiB,
   SPOT_MIN_PRICE,
 } from '~/components/clusters/common/machinePools/constants';
@@ -96,6 +98,10 @@ const useMachinePoolFormik = ({
   const rosa = isROSA(cluster);
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
   const isHypershift = isHypershiftCluster(cluster);
+  const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
+  const isValidCRVersion = semver.valid(clusterVersion)
+    ? semver.gte(clusterVersion, requiredCRVersion)
+    : false;
 
   const minNodesRequired = getClusterMinNodes({
     cluster,
@@ -197,7 +203,9 @@ const useMachinePoolFormik = ({
     if (isHypershift) {
       machinePoolData.isWindowsLicenseIncluded =
         isNodePool(machinePool) && machinePool?.image_type === ImageType.Windows; // This involves extra costs, let's keep it false by default
-      machinePoolData.capacityReservationPreference = capacityReservationPreference || 'none';
+      machinePoolData.capacityReservationPreference = isValidCRVersion
+        ? capacityReservationPreference || 'none'
+        : undefined;
       machinePoolData.capacityReservationId = capacityReservationId || '';
     }
 
@@ -210,6 +218,7 @@ const useMachinePoolFormik = ({
     isGCP,
     machineTypes.typesByID,
     isHypershift,
+    isValidCRVersion,
   ]);
 
   const minDiskSize = getWorkerNodeVolumeSizeMinGiB(isHypershift);
@@ -379,16 +388,7 @@ const useMachinePoolFormik = ({
             : Yup.number(),
           autoscaling: Yup.boolean(),
           auto_repair: Yup.boolean(),
-          capacityReservationId:
-            values.capacityReservationPreference === 'capacity-reservations-only'
-              ? Yup.string()
-                  .trim()
-                  .test(
-                    'capacity-reservation-id',
-                    'Capacity Reservation ID cannot be empty or contain only whitespace.',
-                    (value) => !!value && value.trim().length > 0,
-                  )
-              : Yup.string(),
+          capacityReservationId: Yup.string().trim(),
           diskSize: rosa
             ? Yup.number()
                 .min(minDiskSize, `Disk size must be at least ${minDiskSize} GiB`)

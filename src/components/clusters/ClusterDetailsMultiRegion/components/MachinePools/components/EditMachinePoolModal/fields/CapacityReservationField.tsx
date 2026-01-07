@@ -31,7 +31,11 @@ import './CapacityReservationField.scss';
 const crIdFieldId = 'capacityReservationId';
 const crPreferenceFieldId = 'capacityReservationPreference';
 
-export type CapacityReservationPreference = 'none' | 'open' | 'capacity-reservations-only';
+export type CapacityReservationPreference =
+  | 'none'
+  | 'open'
+  | 'capacity-reservations-only'
+  | undefined;
 
 type CapacityReservationFieldProps = {
   cluster: ClusterFromSubscription;
@@ -41,8 +45,10 @@ type CapacityReservationFieldProps = {
 const options = [
   { label: 'None', value: 'none' },
   { label: 'Open', value: 'open' },
-  { label: 'By Id (CR only)', value: 'capacity-reservations-only' },
+  { label: 'CR only', value: 'capacity-reservations-only' },
 ];
+
+const invalidVersionOption = { label: '', value: '' };
 
 export const capacityReservationHint = (showList: boolean, showRosaLink: boolean) => (
   <Flex>
@@ -56,14 +62,18 @@ export const capacityReservationHint = (showList: boolean, showRosaLink: boolean
         <FlexItem className="pf-v6-u-pl-sm">
           <ul className="preference-list">
             <li>
-              <strong>None</strong> to ensure these instances won’t use a reservation at all
+              <strong>None</strong> to ensure these instances won’t use a reservation at all and
+              will run as an On-Demand Instance
             </li>
             <li>
-              <strong>Open</strong> to make use of an open reservation if applicable
+              <strong>Open</strong> to make use of an open reservation that has matching attributes.
+              If capacity isn’t available, the instance runs as an On-Demand Instance
             </li>
             <li>
-              <strong>By Id (CR only)</strong> to target a specific reservation by providing a
-              capacity reservation ID
+              <strong>CR only</strong> to run in a Capacity Reservation. A specific reservation can
+              be targeted by providing a capacity reservation ID or make use of an open reservation
+              if an ID is not specified. If capacity isn’t available, the instance will fail to
+              launch.
             </li>
           </ul>
         </FlexItem>
@@ -107,8 +117,9 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
     }
   }, [isCROnly, setValue]);
 
-  const selectedOption =
-    options.find((option) => option.value === capacityPreferenceField.value) || options[0];
+  const selectedOption = isValidVersion
+    ? options.find((option) => option.value === capacityPreferenceField.value) || options[0]
+    : invalidVersionOption;
 
   return canUseCapacityReservation ? (
     <FormGroup
@@ -142,7 +153,7 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
       {isCROnly ? (
         <Grid className="pf-v6-u-ml-sm pf-v6-u-mt-sm">
           <GridItem span={4}>
-            <TextField fieldId={crIdFieldId} label="Reservation Id" isRequired trimOnBlur />
+            <TextField fieldId={crIdFieldId} label="Reservation Id" trimOnBlur />
           </GridItem>
         </Grid>
       ) : null}

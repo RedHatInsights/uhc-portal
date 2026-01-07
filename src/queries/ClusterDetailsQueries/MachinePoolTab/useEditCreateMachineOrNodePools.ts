@@ -1,3 +1,5 @@
+import semver from 'semver';
+
 import { useMutation } from '@tanstack/react-query';
 
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
@@ -7,6 +9,7 @@ import {
   buildNodePoolRequest,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/components/EditMachinePoolModal/utils';
 import { isROSA } from '~/components/clusters/common/clusterStates';
+import { CAPACITY_RESERVATION_MIN_VERSION as requiredCRVersion } from '~/components/clusters/common/machinePools/constants';
 import { getClusterService, getClusterServiceForRegion } from '~/services/clusterService';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
@@ -33,10 +36,16 @@ export const useEditCreateMachineOrNodePools = (
         cluster,
         currentMachinePool?.availability_zones?.length,
       );
+      const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
+      const isValidCRVersion = semver.valid(clusterVersion)
+        ? semver.gte(clusterVersion, requiredCRVersion)
+        : false;
+
       const pool = isHypershift
         ? buildNodePoolRequest(values, {
             isEdit: !!currentMPId,
             isMultiZoneMachinePool,
+            isValidCRVersion,
           })
         : buildMachinePoolRequest(values, {
             isEdit: !!currentMPId,

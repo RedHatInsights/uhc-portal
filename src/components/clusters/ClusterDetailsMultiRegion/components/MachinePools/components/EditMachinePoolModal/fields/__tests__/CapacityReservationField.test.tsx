@@ -45,7 +45,7 @@ describe('<CapacityReservationField>', () => {
     expect(screen.getByText('None')).toBeInTheDocument();
   });
 
-  it('hides Reservation Id field when preference is not "By Id (CR only)"', () => {
+  it('hides Reservation Id field when preference is not "CR only"', () => {
     mockUseFeatureGate([[CAPACITY_RESERVATION_ID_FIELD, true]]);
     render(
       <MockFormikWrapper
@@ -60,7 +60,7 @@ describe('<CapacityReservationField>', () => {
     expect(screen.queryByText('Reservation Id')).not.toBeInTheDocument();
   });
 
-  it('shows Reservation Id field when preference is "By Id (CR only)"', () => {
+  it('shows Reservation Id field when preference is "CR only"', () => {
     mockUseFeatureGate([[CAPACITY_RESERVATION_ID_FIELD, true]]);
     render(
       <MockFormikWrapper
@@ -90,7 +90,7 @@ describe('<CapacityReservationField>', () => {
     expect(
       screen.getByText('Capacity Reservation requires control plane version 4.19.0 or above'),
     ).toBeInTheDocument();
-    expect(screen.getByText('None')).toBeInTheDocument();
+    expect(screen.getByText('Reservation Preference:')).toBeInTheDocument();
   });
 
   it('is not displayed when editing machine pool', () => {

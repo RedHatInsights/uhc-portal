@@ -65,49 +65,7 @@ describe('useMachinePoolFormik', () => {
 
   describe('validationSchema', () => {
     describe('capacityReservationId', () => {
-      it('should fail validation when capacityReservationId contains only whitespace', async () => {
-        const { validationSchema } = renderHook(() =>
-          useMachinePoolFormik({
-            cluster: hyperShiftCluster,
-            machinePool: defaultMachinePool,
-            machineTypes: defaultMachineTypes,
-            machinePools: defaultMachinePools,
-          }),
-        ).result.current;
-
-        const values = {
-          ...hyperShiftExpectedInitialValues,
-          capacityReservationPreference: 'capacity-reservations-only',
-          capacityReservationId: '   ',
-        };
-
-        await expect(validationSchema.validate(values)).rejects.toThrow(
-          'Capacity Reservation ID cannot be empty or contain only whitespace.',
-        );
-      });
-
-      it('should fail validation when capacityReservationId is empty and preference is capacity-reservations-only', async () => {
-        const { validationSchema } = renderHook(() =>
-          useMachinePoolFormik({
-            cluster: hyperShiftCluster,
-            machinePool: defaultMachinePool,
-            machineTypes: defaultMachineTypes,
-            machinePools: defaultMachinePools,
-          }),
-        ).result.current;
-
-        const values = {
-          ...hyperShiftExpectedInitialValues,
-          capacityReservationPreference: 'capacity-reservations-only',
-          capacityReservationId: '',
-        };
-
-        await expect(validationSchema.validate(values)).rejects.toThrow(
-          'Capacity Reservation ID cannot be empty or contain only whitespace.',
-        );
-      });
-
-      it.each(['open', 'none'])(
+      it.each(['open', 'none', 'capacity-reservations-only'])(
         'should not require capacityReservationId when preference is %s',
         async (preference) => {
           const { validationSchema } = renderHook(() =>
