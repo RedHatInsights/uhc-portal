@@ -26,7 +26,7 @@ backend-config.yml
 # Playwright test artifacts
 /playwright-artifacts/
 /playwright/fixtures/storageState.json
-playwright.env.json
+*playwright.env.json*
 
 /coverage/
 .nyc_output/out.json

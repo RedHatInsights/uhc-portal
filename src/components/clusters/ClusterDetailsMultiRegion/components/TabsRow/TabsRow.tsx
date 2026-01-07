@@ -3,7 +3,11 @@ import { useLocation } from 'react-router-dom';
 
 import { Tab, Tabs, TabTitleText } from '@patternfly/react-core';
 
+import { trackEvents } from '~/common/analytics';
 import { useNavigate } from '~/common/routing';
+import useAnalytics from '~/hooks/useAnalytics';
+
+import { ClusterTabsId } from '../common/ClusterTabIds';
 
 import { getInitTab, getTabs } from './TabsRow.helper';
 import { TabsRowInfoType, TabsRowTabType } from './TabsRow.model';
@@ -17,32 +21,38 @@ export type TabsRowProps = {
 const TabsRow = ({ tabsInfo, onTabSelected, initTabOpen }: TabsRowProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const track = useAnalytics();
 
   const [tabs, setTabs] = React.useState<TabsRowTabType[]>();
   const [activeTab, setActiveTab] = React.useState<TabsRowTabType>();
   const [previousTab, setPreviousTab] = React.useState<TabsRowTabType>();
   const [initialTab, setInitialTab] = React.useState<TabsRowTabType | null>();
   const [historyPush, setHistoryPush] = React.useState<boolean>(false);
+  const [redirectedToOverview, setRedirectedToOverview] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     const newTabs = getTabs(tabsInfo);
     setTabs(newTabs);
-  }, [tabsInfo]);
 
-  const handleTabClick = React.useCallback(
-    (
-      _: React.MouseEvent<HTMLElement, MouseEvent> | undefined,
-      tabIndex: number | string,
-      historyPush = true,
-    ) => {
+    // Check if user came to page with invalid hash
+    if (location.hash !== '') {
+      const targetTab = newTabs.find((tab) => `#${tab.id}` === location.hash);
+      if (!targetTab) {
+        setRedirectedToOverview(true);
+      }
+    }
+  }, [tabsInfo, location.hash]);
+
+  const handleTabChange = React.useCallback(
+    (tabIndex: number | string, historyPush = true) => {
       if (tabs) {
         setPreviousTab(activeTab);
-        setActiveTab(tabs?.find((tab) => tab.key === tabIndex));
-        setInitialTab(initialTab?.key === tabIndex ? null : initialTab);
+        setActiveTab(tabs?.find((tab) => tab.id === tabIndex));
+        setInitialTab(initialTab?.id === tabIndex ? null : initialTab);
         setHistoryPush(historyPush);
         tabs.forEach((tab) => {
           if (tab.ref && tab.ref.current) {
-            if (tab.key !== tabIndex) {
+            if (tab.id !== tabIndex) {
               // eslint-disable-next-line no-param-reassign
               tab.ref.current.hidden = true;
             } else {
@@ -57,6 +67,13 @@ const TabsRow = ({ tabsInfo, onTabSelected, initTabOpen }: TabsRowProps) => {
     [tabs, activeTab, initialTab, onTabSelected],
   );
 
+  const handleTabClick = React.useCallback(
+    (_: React.MouseEvent<HTMLElement, MouseEvent> | undefined, tabKey: number | string) => {
+      handleTabChange(tabKey);
+    },
+    [handleTabChange],
+  );
+
   React.useEffect(() => {
     const newTabs = getTabs(tabsInfo);
     setTabs(newTabs);
@@ -67,11 +84,11 @@ const TabsRow = ({ tabsInfo, onTabSelected, initTabOpen }: TabsRowProps) => {
   React.useEffect(() => {
     if (tabs?.length) {
       if (initialTab !== null && (initialTab?.isDisabled || !initialTab?.show)) {
-        setInitialTab(tabs[0]);
-        handleTabClick(undefined, 0);
+        setInitialTab(tabs.find((tab) => tab.id === ClusterTabsId.OVERVIEW) || tabs[0]);
+        handleTabChange(ClusterTabsId.OVERVIEW);
       }
     }
-  }, [tabs, initialTab, handleTabClick]);
+  }, [tabs, initialTab, handleTabChange]);
 
   React.useEffect(() => {
     if (tabs?.length) {
@@ -85,18 +102,17 @@ const TabsRow = ({ tabsInfo, onTabSelected, initTabOpen }: TabsRowProps) => {
         if (location.hash === '') {
           navigate('/cluster-list', { replace: true });
         } else {
-          setInitialTab(tabs[0]);
+          setInitialTab(tabs.find((tab) => tab.id === ClusterTabsId.OVERVIEW) || tabs[0]);
           navigate(
             {
-              hash: `#${tabs[0].id}`,
+              hash: `#${ClusterTabsId.OVERVIEW}`,
             },
             { replace: true },
           );
         }
       }
-      handleTabClick(
-        undefined,
-        targetTab?.isDisabled || !targetTab?.show ? 0 : targetTab.key,
+      handleTabChange(
+        targetTab?.isDisabled || !targetTab?.show ? ClusterTabsId.OVERVIEW : targetTab.id,
         false,
       );
     }
@@ -106,33 +122,50 @@ const TabsRow = ({ tabsInfo, onTabSelected, initTabOpen }: TabsRowProps) => {
   React.useEffect(() => {
     if (activeTab && !activeTab.show) {
       // TODO: this can only be true in case hidden tab is selected, it is not testeable, so I recommend to remove it
-      handleTabClick(undefined, 0);
+      handleTabChange(ClusterTabsId.OVERVIEW);
       // eslint-disable-next-line no-param-reassign
-      tabsInfo.overview.ref.current.hidden = false;
+      tabsInfo[ClusterTabsId.OVERVIEW].ref.current.hidden = false;
     } else if (initialTab?.show && !initialTab?.isDisabled) {
-      handleTabClick(undefined, initialTab.key);
+      if (!initTabOpen && initialTab.id === ClusterTabsId.OVERVIEW) {
+        setRedirectedToOverview(true);
+      }
+      handleTabChange(initialTab.id);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, initialTab, handleTabClick]); // TODO: tabsInfo should be added as soon as ClusterDetails is refactored
+  }, [activeTab, initialTab, handleTabChange]); // TODO: tabsInfo should be added as soon as ClusterDetails is refactored
 
   React.useEffect(() => {
     if (initialTab === null && historyPush) {
-      if (previousTab?.key !== activeTab?.key) {
+      if (previousTab?.id !== activeTab?.id) {
+        const trackingProperties = {
+          tab_name: activeTab?.id,
+          initial_load: false,
+          redirected_to_default_tab: false,
+        };
+
+        if (!previousTab?.id) {
+          trackingProperties.initial_load = true;
+          trackingProperties.redirected_to_default_tab = redirectedToOverview;
+        }
+        track(trackEvents.ClusterTabs, {
+          customProperties: trackingProperties,
+        });
         navigate({
           hash: `#${activeTab?.id}`,
         });
       }
     }
-  }, [activeTab, initialTab, historyPush, previousTab, navigate]);
+  }, [activeTab, initialTab, historyPush, previousTab, navigate, redirectedToOverview, track]);
 
   return tabs && activeTab ? (
-    <Tabs activeKey={activeTab.key} onSelect={handleTabClick}>
+    <Tabs activeKey={activeTab.id} onSelect={handleTabClick}>
       {tabs
         .filter((tab) => tab.show)
         .map((tab) => (
           <Tab
-            key={tab.key}
-            eventKey={tab.key}
+            key={tab.id}
+            eventKey={tab.id}
             title={<TabTitleText>{tab.title}</TabTitleText>}
             tabContentId={tab.contentId}
             id={`${tab.title}`}

@@ -1,4 +1,5 @@
-import { MachinePool, MachineType } from '~/types/clusters_mgmt.v1';
+import { MachineType, NodePool } from '~/types/clusters_mgmt.v1';
+import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 import { ClusterFromSubscription } from '~/types/types';
 
 const mockMachineType: MachineType = {
@@ -100,24 +101,25 @@ const mockHypershiftCluster: ClusterFromSubscription = {
   hypershift: { enabled: true },
 };
 
-// Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-const mockMachinePools: (MachinePool & { imageType?: string })[] = [
+const mockMachinePools: NodePool[] = [
   {
-    kind: 'MachinePool',
+    kind: 'NodePool',
     id: 'workers-1',
     href: '/api/clusters_mgmt/v1/clusters/test/machine_pools/workers-1',
-    instance_type: 'm5.xlarge',
+    aws_node_pool: {
+      instance_type: 'm5.xlarge',
+    },
     replicas: 3,
-    availability_zones: ['us-east-1a', 'us-east-1b', 'us-east-1c'],
   },
   {
-    kind: 'MachinePool',
+    kind: 'NodePool',
     id: 'windows-li-enabled-machine-pool',
     href: '/api/clusters_mgmt/v1/clusters/test/machine_pools/windows-li-enabled-machine-pool',
-    instance_type: 'm5.2xlarge',
+    aws_node_pool: {
+      instance_type: 'm5.2xlarge',
+    },
     replicas: 2,
-    availability_zones: ['us-east-1a', 'us-east-1b'],
-    imageType: 'Windows',
+    image_type: ImageType.Windows,
   },
 ];
 

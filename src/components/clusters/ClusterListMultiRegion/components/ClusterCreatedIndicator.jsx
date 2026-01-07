@@ -14,12 +14,12 @@ import {
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
+import { getTrialEndDate, getTrialExpiresInDays } from '~/common/getTrialExpiresDates';
+import installLinks from '~/common/installLinks.mjs';
+import { normalizedProducts } from '~/common/subscriptionTypes';
 import supportLinks from '~/common/supportLinks.mjs';
+import ExternalLink from '~/components/common/ExternalLink';
 import { SubscriptionCommonFieldsSupport_level as SubscriptionCommonFieldsSupportLevel } from '~/types/accounts_mgmt.v1';
-
-import { getTrialEndDate, getTrialExpiresInDays } from '../../../../common/getTrialExpiresDates';
-import { normalizedProducts } from '../../../../common/subscriptionTypes';
-import ExternalLink from '../../../common/ExternalLink';
 
 function ClusterCreatedIndicator({ cluster }) {
   const osdtrial = get(cluster, 'product.id') === normalizedProducts.OSDTrial;
@@ -123,10 +123,7 @@ function ClusterCreatedIndicator({ cluster }) {
           supported
         </ExternalLink>
         . To get Red Hat support for clusters, learn more about{' '}
-        <ExternalLink
-          href="https://www.redhat.com/en/resources/self-managed-openshift-sizing-subscription-guide"
-          noIcon
-        >
+        <ExternalLink href={installLinks.RH_OCP_SUBSCRIPTIONS} noIcon>
           OCP subscriptions
         </ExternalLink>
         . Though your cluster will be functional.

@@ -9,7 +9,14 @@ import { useFetchClusterIdentityProviders } from '../../../../queries/ClusterDet
 import { useFetchCloudProviders } from '../../../../queries/common/useFetchCloudProviders';
 import { clearGlobalError, setGlobalError } from '../../../../redux/actions/globalErrorActions';
 import * as userActions from '../../../../redux/actions/userActions';
-import { mockUseFeatureGate, render, screen, waitFor, withState } from '../../../../testUtils';
+import {
+  mockUseChrome,
+  mockUseFeatureGate,
+  render,
+  screen,
+  waitFor,
+  withState,
+} from '../../../../testUtils';
 import { SubscriptionCommonFieldsStatus } from '../../../../types/accounts_mgmt.v1';
 import clusterStates from '../../common/clusterStates';
 import ClusterDetails from '../ClusterDetails';
@@ -48,6 +55,7 @@ jest.mock('../../../../queries/ClusterDetailsQueries/useFetchClusterIdentityProv
   useFetchClusterIdentityProviders: jest.fn(),
   refetchClusterIdentityProviders: jest.fn(),
 }));
+mockUseChrome({ analytics: { track: () => {} } });
 
 const initialState = {
   clusterLogs: {

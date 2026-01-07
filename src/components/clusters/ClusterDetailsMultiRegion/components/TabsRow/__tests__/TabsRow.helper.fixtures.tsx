@@ -7,14 +7,12 @@ import { TabsRowInfoType, TabsRowTabType } from '../TabsRow.model';
 
 export const mocksTabsRowTab: TabsRowTabType[] = [
   {
-    key: 0,
     title: 'title 0',
     contentId: 'contentId 0',
     id: ClusterTabsId.OVERVIEW,
     ref: { current: { hidden: false } },
   },
   {
-    key: 1,
     title: 'title 1',
     contentId: 'contentId 1',
     id: ClusterTabsId.ACCESS_CONTROL,
@@ -31,8 +29,8 @@ export const regularTabsInfoAllShow: TabsRowInfoType = {
   networking: { ref: { current: 'networkingRef' }, hasIssues: false, show: true },
   machinePools: { ref: { current: 'machinePoolsRef' }, hasIssues: false, show: true },
   support: { ref: { current: 'supportRef' }, hasIssues: false, show: true },
-  upgradeSettings: { ref: { current: 'upgradeSettingsRef' }, hasIssues: false, show: true },
-  addAssisted: {
+  updateSettings: { ref: { current: 'upgradeSettingsRef' }, hasIssues: false, show: true },
+  addAssistedHosts: {
     ref: { current: 'addAssistedRef' },
     hasIssues: false,
     show: true,
@@ -50,8 +48,8 @@ export const regularTabsInfoAllHidden: TabsRowInfoType = {
   networking: { ref: { current: 'networkingRef' }, hasIssues: false, show: false },
   machinePools: { ref: { current: 'machinePoolsRef' }, hasIssues: false, show: false },
   support: { ref: { current: 'supportRef' }, hasIssues: false, show: false },
-  upgradeSettings: { ref: { current: 'upgradeSettingsRef' }, hasIssues: false, show: false },
-  addAssisted: { ref: { current: 'addAssistedRef' }, hasIssues: false, show: false },
+  updateSettings: { ref: { current: 'upgradeSettingsRef' }, hasIssues: false, show: false },
+  addAssistedHosts: { ref: { current: 'addAssistedRef' }, hasIssues: false, show: false },
   accessRequest: { ref: { current: 'accessRequestRef' }, hasIssues: false, show: false },
 };
 
@@ -64,8 +62,8 @@ export const regularTabsInfoMonitoringUndefined: TabsRowInfoType = {
   networking: { ref: { current: 'networkingRef' }, hasIssues: false, show: false },
   machinePools: { ref: { current: 'machinePoolsRef' }, hasIssues: false, show: false },
   support: { ref: { current: 'supportRef' }, hasIssues: false, show: false },
-  upgradeSettings: { ref: { current: 'upgradeSettingsRef' }, hasIssues: false, show: false },
-  addAssisted: { ref: { current: 'addAssistedRef' }, hasIssues: false, show: false },
+  updateSettings: { ref: { current: 'upgradeSettingsRef' }, hasIssues: false, show: false },
+  addAssistedHosts: { ref: { current: 'addAssistedRef' }, hasIssues: false, show: false },
   accessRequest: { ref: { current: 'accessRequestRef' }, hasIssues: false, show: false },
 };
 
@@ -78,7 +76,7 @@ export const regularTabsInfoMonitoringHasIssues: TabsRowInfoType = {
   networking: { ref: { current: 'networkingRef' }, hasIssues: false, show: false },
   machinePools: { ref: { current: 'machinePoolsRef' }, hasIssues: false, show: false },
   support: { ref: { current: 'supportRef' }, hasIssues: false, show: false },
-  upgradeSettings: { ref: { current: 'upgradeSettingsRef' }, hasIssues: false, show: false },
-  addAssisted: { ref: { current: 'addAssistedRef' }, hasIssues: false, show: false },
+  updateSettings: { ref: { current: 'upgradeSettingsRef' }, hasIssues: false, show: false },
+  addAssistedHosts: { ref: { current: 'addAssistedRef' }, hasIssues: false, show: false },
   accessRequest: { ref: { current: 'accessRequestRef' }, hasIssues: false, show: false },
 };
