@@ -106,4 +106,34 @@ describe('Overview BillingAccount Component', () => {
     render(<OverviewBillingAccount />);
     expect(await screen.findByText('123456')).toBeInTheDocument();
   });
+
+  it('hides edit button when EDIT_BILLING_ACCOUNT feature flag is disabled (FedRAMP)', async () => {
+    const useParamsMock = jest.requireMock('react-router-dom').useParams;
+    useParamsMock.mockReturnValue({ id: '1msoogsgTLQ4PePjrTOt3UqvMzX' });
+    mockUseFeatureGate([[EDIT_BILLING_ACCOUNT, false]]);
+
+    const useFetchClusterDetailsMock = jest.requireMock(
+      '~/queries/ClusterDetailsQueries/useFetchClusterDetails',
+    );
+    useFetchClusterDetailsMock.useFetchClusterDetails.mockReturnValue({
+      cluster: {
+        ...fixtures.clusterDetails.cluster,
+        canEdit: true,
+        aws: {
+          billing_account_id: '123456',
+        },
+        hypershift: {
+          enabled: true,
+        },
+      },
+      isLoading: false,
+      isError: false,
+      error: null,
+      isFetching: false,
+    });
+
+    render(<OverviewBillingAccount />);
+    expect(await screen.findByText('123456')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Edit billing account/i })).not.toBeInTheDocument();
+  });
 });
