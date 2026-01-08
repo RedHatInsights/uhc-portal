@@ -1,21 +1,22 @@
 import React from 'react';
-import { useField } from 'formik';
+import { useFormikContext } from 'formik';
 
 import { Content, ContentVariants } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
-import { fieldId as instanceTypeFieldId } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
 import { CheckboxField } from '~/components/clusters/wizards/form';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import { MachineType, NodePool } from '~/types/clusters_mgmt.v1';
+import { NodePool } from '~/types/clusters_mgmt.v1';
+import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 
-const fieldId = 'windowsLicenseIncluded';
+import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
+
+const fieldId = 'isWindowsLicenseIncluded';
 
 type WindowsLicenseIncludedFieldProps = {
   isEdit?: boolean;
-  // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-  currentMP?: NodePool & { imageType?: string };
+  currentMP?: NodePool;
 };
 
 const {
@@ -28,12 +29,10 @@ const WindowsLicenseIncludedField = ({
   currentMP,
 }: WindowsLicenseIncludedFieldProps) => {
   // Instance type field -> get isWinLiCompatible from the selected instance type:
-  const [__field, { value: instanceType }] = useField(instanceTypeFieldId);
-  const isWinLiCompatible =
-    // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-    !!(instanceType as MachineType & { features: { winLi: boolean } })?.features?.winLi;
+  const { values } = useFormikContext<EditMachinePoolValues>();
+  const isWinLiCompatible = !!values.instanceType?.features?.win_li;
 
-  const isCurrentMPWinLiEnabled = isEdit && currentMP?.imageType === 'Windows';
+  const isCurrentMPWinLiEnabled = isEdit && currentMP?.image_type === ImageType.Windows;
 
   const hint = (
     <>
@@ -49,6 +48,10 @@ const WindowsLicenseIncludedField = ({
   );
 
   const isDisabled = !isWinLiCompatible;
+
+  if (!isWinLiCompatible) {
+    values.isWindowsLicenseIncluded = false;
+  }
 
   return isEdit ? (
     isCurrentMPWinLiEnabled && (

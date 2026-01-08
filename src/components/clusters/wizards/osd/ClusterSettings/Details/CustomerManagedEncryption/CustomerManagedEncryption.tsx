@@ -35,9 +35,7 @@ export const CustomerManagedEncryption = ({
 
   const isGCP = cloudProvider === CloudProviderType.Gcp;
 
-  const cloudProviderLearnLink = isGCP
-    ? 'https://cloud.google.com/storage/docs/encryption/default-keys'
-    : 'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html';
+  const cloudProviderLearnLink = isGCP ? links.GCP_ENCRYPTION_KEYS : links.AWS_DATA_PROTECTION;
 
   const helpText = isGCP
     ? 'Managed via Google Cloud Key Management Service. Used to store and generate encryption keys and encrypt your data.'

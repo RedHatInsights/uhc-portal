@@ -159,6 +159,25 @@ describe('<Configuration /> using WIF', () => {
       expect(screen.queryByText('Configure a cluster-wide proxy')).toBeInTheDocument();
       expect(screen.queryByText('Use Private Service Connect')).not.toBeInTheDocument();
     });
+
+    it('Shows default text for VPC install', async () => {
+      render(
+        prepareComponent({
+          [FieldId.ClusterPrivacy]: ClusterPrivacyType.External, // public
+          [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+          [FieldId.CloudProvider]: 'gcp',
+        }),
+      );
+      await waitFor(() => {
+        expect(screen.queryByText('Install into an existing VPC')).toBeInTheDocument();
+      });
+
+      expect(
+        screen.getByText(
+          'By default, a new VPC will be created for your cluster. Alternatively, you may opt to install to an existing VPC below.',
+        ),
+      ).toBeInTheDocument();
+    });
   });
   describe('<Configuration /> using WIF with Private selected', () => {
     it('does render Private service connect checkbox option for private', async () => {
@@ -217,6 +236,66 @@ describe('<Configuration /> using WIF', () => {
           name: 'Use Private Service Connect',
         }),
       ).toBeDisabled();
+    });
+
+    it('Does not show the text of the default functionality related to installing onto a new VPC', async () => {
+      render(
+        prepareComponent({
+          [FieldId.ClusterPrivacy]: ClusterPrivacyType.Internal, // private
+          [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+          [FieldId.CloudProvider]: 'gcp',
+        }),
+      );
+      await waitFor(() => {
+        expect(screen.queryByText('Install into an existing VPC')).toBeInTheDocument();
+      });
+
+      expect(
+        screen.queryByText(
+          'By default, a new VPC will be created for your cluster. Alternatively, you may opt to install to an existing VPC below.',
+        ),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('<Configuration /> using ServiceAccounts as the auth type', () => {
+    it('Shows the text of the default functionality related to installing onto a new VPC', async () => {
+      render(
+        prepareComponent({
+          [FieldId.ClusterPrivacy]: ClusterPrivacyType.Internal, // private
+          [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
+          [FieldId.CloudProvider]: 'gcp',
+        }),
+      );
+      await waitFor(() => {
+        expect(screen.queryByText('Install into an existing VPC')).toBeInTheDocument();
+      });
+
+      expect(
+        screen.getByText(
+          'By default, a new VPC will be created for your cluster. Alternatively, you may opt to install to an existing VPC below.',
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('<Configuration /> when AWS is chosen as the cloud provider', () => {
+    it('Shows the text of the default functionality related to installing onto a new VPC', async () => {
+      render(
+        prepareComponent({
+          [FieldId.ClusterPrivacy]: ClusterPrivacyType.Internal, // private
+          [FieldId.CloudProvider]: 'aws',
+        }),
+      );
+      await waitFor(() => {
+        expect(screen.queryByText('Install into an existing VPC')).toBeInTheDocument();
+      });
+
+      expect(
+        screen.getByText(
+          'By default, a new VPC will be created for your cluster. Alternatively, you may opt to install to an existing VPC below.',
+        ),
+      ).toBeInTheDocument();
     });
   });
 });

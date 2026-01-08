@@ -96,7 +96,7 @@
       "ccs_only": false,
       "generic_name": "highcpu-8",
       "features": {
-        "winLi": true
+        "win_li": true
       }
     },
     {
