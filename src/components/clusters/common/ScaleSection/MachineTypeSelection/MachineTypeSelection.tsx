@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useField } from 'formik';
-import { useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch } from 'react-redux';
 
 import {
   Alert,
@@ -92,12 +92,15 @@ const MachineTypeSelection = ({
     { setValue: setFieldValue },
   ] = useField(fieldId);
 
-  const { flavours, machineTypesByRegion, organization, quota } = useGlobalState((state) => ({
-    flavours: state.flavours,
-    machineTypesByRegion: state.machineTypesByRegion,
-    organization: state.userProfile.organization,
-    quota: state.userProfile.organization.quotaList,
-  }));
+  const { flavours, machineTypesByRegion, organization, quota } = useGlobalState(
+    (state) => ({
+      flavours: state.flavours,
+      machineTypesByRegion: state.machineTypesByRegion,
+      organization: state.userProfile.organization,
+      quota: state.userProfile.organization.quotaList,
+    }),
+    shallowEqual,
+  );
 
   // checks if previous selection was from unfiltered machine set. Will flip filter value.
   const previousSelectionFromUnfilteredSet =

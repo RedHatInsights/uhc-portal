@@ -2,6 +2,7 @@ import React from 'react';
 import * as reactRedux from 'react-redux';
 
 import * as notifications from '@redhat-cloud-services/frontend-components-notifications';
+import { act, waitFor } from '@testing-library/react';
 
 import { checkAccessibility, render, screen } from '~/testUtils';
 
@@ -181,7 +182,9 @@ describe('<NetworkSelfServiceSection />', () => {
     expect(openAddGrantModal).not.toHaveBeenCalled();
     await user.click(screen.getByRole('button', { name: 'Grant role' }));
 
-    jest.runAllTimers();
+    await act(async () => {
+      jest.runAllTimers();
+    });
     expect(
       await screen.findByRole('dialog', {
         name: 'Grant AWS infrastructure role',
@@ -268,6 +271,7 @@ describe('<NetworkSelfServiceSection />', () => {
 
     const { container } = render(<NetworkSelfServiceSection {...props} />);
     // There isn't an easy besides class to find skeletons
+    // eslint-disable-next-line testing-library/no-node-access
     expect(container.querySelectorAll('.pf-v6-c-skeleton').length).toBeGreaterThan(0);
   });
 
@@ -322,8 +326,42 @@ describe('<NetworkSelfServiceSection />', () => {
     });
   });
 
-  it.skip('should notify when a grant succeeds', () => {
+  it('should notify when a grant succeeds', async () => {
     useDispatchMock.mockReturnValue(dispatchMock);
+    useAddGrantMock.mockReturnValue({
+      data: {
+        data: {
+          user_arn: 'fake-arn2',
+          state: 'pending',
+          role: {
+            id: 'read-only',
+          },
+          id: 'fake-id-2',
+          roleName: 'Read Only',
+          console_url: 'http://example.com',
+        },
+      },
+      isPending: false,
+      isError: false,
+      error: null,
+      mutateAsync: jest.fn(),
+      reset: jest.fn(),
+    });
+    useFetchRolesMock.mockReturnValue({
+      data: [
+        {
+          id: 'read-only',
+          displayName: 'Read Only',
+        },
+        {
+          id: 'network-mgmt',
+          displayName: 'Network Management',
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
     useFetchGrantsMock.mockReturnValue({
       data: fakeGrants,
       isLoading: true,
@@ -349,11 +387,13 @@ describe('<NetworkSelfServiceSection />', () => {
     });
 
     rerender(<NetworkSelfServiceSection {...props} />);
-    expect(mockedAddNotification).toHaveBeenCalledWith({
-      variant: 'success',
-      title: 'Read Only role successfully created for fake-arn2',
-      dismissDelay: 8000,
-      dismissable: false,
+    await waitFor(() => {
+      expect(mockedAddNotification).toHaveBeenCalledWith({
+        variant: 'success',
+        title: 'Read Only role successfully created for fake-arn2',
+        dismissDelay: 8000,
+        dismissable: false,
+      });
     });
   });
 
