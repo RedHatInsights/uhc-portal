@@ -18,6 +18,7 @@ export const useEditCreateMachineOrNodePools = (
   isHypershift: boolean | undefined,
   cluster: ClusterFromSubscription,
   currentMachinePool?: MachinePool,
+  isCapacityReservationEnabled?: boolean,
 ) => {
   const { data, isPending, isError, isSuccess, mutate, mutateAsync } = useMutation({
     mutationKey: ['createOrEditMachineOrNodePool', 'clusterService'],
@@ -41,11 +42,13 @@ export const useEditCreateMachineOrNodePools = (
         ? semver.gte(clusterVersion, requiredCRVersion)
         : false;
 
+      const canUseCapacityReservation = isValidCRVersion && isCapacityReservationEnabled;
+
       const pool = isHypershift
         ? buildNodePoolRequest(values, {
             isEdit: !!currentMPId,
             isMultiZoneMachinePool,
-            isValidCRVersion,
+            canUseCapacityReservation,
           })
         : buildMachinePoolRequest(values, {
             isEdit: !!currentMPId,

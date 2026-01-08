@@ -39,6 +39,7 @@ import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoo
 import { useEditCreateMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useEditCreateMachineOrNodePools';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import {
+  CAPACITY_RESERVATION_ID_FIELD,
   GCP_SECURE_BOOT,
   IMDS_SELECTION,
   MAX_NODES_TOTAL_249,
@@ -172,6 +173,7 @@ const EditMachinePoolModal = ({
   const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
   const isSecureBootEnabled = useFeatureGate(GCP_SECURE_BOOT);
   const imdsSectionFeature = useFeatureGate(IMDS_SELECTION);
+  const isCapacityReservationEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
 
   const setCurrentMPId = React.useCallback(
     (id: string) => setCurrentMachinePool(machinePoolsResponse?.find((mp) => mp.id === id)),
@@ -209,6 +211,7 @@ const EditMachinePoolModal = ({
     isHypershift,
     cluster,
     currentMachinePool,
+    isCapacityReservationEnabled,
   );
 
   const [overviewTab, overviewContent] = useOverviewSubTab({

@@ -132,7 +132,7 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: false,
         isMultiZoneMachinePool: false,
-        isValidCRVersion: true,
+        canUseCapacityReservation: true,
       });
 
       expect(nodePool.id).toEqual('my-mp');
@@ -148,7 +148,7 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: false,
         isMultiZoneMachinePool: false,
-        isValidCRVersion: true,
+        canUseCapacityReservation: true,
       });
 
       expect(nodePool.aws_node_pool?.root_volume?.size).toEqual(333);
@@ -158,7 +158,7 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: false,
         isMultiZoneMachinePool: false,
-        isValidCRVersion: true,
+        canUseCapacityReservation: true,
       });
 
       expect(nodePool.aws_node_pool?.capacity_reservation?.id).toEqual('cr-111');
@@ -171,7 +171,7 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: false,
         isMultiZoneMachinePool: false,
-        isValidCRVersion: false,
+        canUseCapacityReservation: false,
       });
 
       expect(nodePool.aws_node_pool?.capacity_reservation?.id).toBeUndefined();
@@ -182,7 +182,7 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: false,
         isMultiZoneMachinePool: false,
-        isValidCRVersion: true,
+        canUseCapacityReservation: true,
       });
 
       const badPool = nodePool as MachinePool;
@@ -195,7 +195,7 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: true,
         isMultiZoneMachinePool: false,
-        isValidCRVersion: true,
+        canUseCapacityReservation: true,
       });
 
       expect(nodePool.id).toEqual('my-mp');
@@ -209,7 +209,7 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: true,
         isMultiZoneMachinePool: false,
-        isValidCRVersion: true,
+        canUseCapacityReservation: true,
       });
 
       expect(nodePool.subnet).toBeUndefined();
@@ -222,7 +222,7 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: true,
         isMultiZoneMachinePool: false,
-        isValidCRVersion: true,
+        canUseCapacityReservation: true,
       });
 
       const badPool = nodePool as MachinePool;
