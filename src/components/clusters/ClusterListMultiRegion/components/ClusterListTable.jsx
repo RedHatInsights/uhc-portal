@@ -30,7 +30,10 @@ import { Link } from '~/common/routing';
 import supportLinks from '~/common/supportLinks.mjs';
 import AIClusterStatus from '~/components/AIComponents/AIClusterStatus';
 import { useToggleSubscriptionReleased } from '~/queries/ClusterActionsQueries/useToggleSubscriptionReleased';
-import { AUTO_CLUSTER_TRANSFER_OWNERSHIP } from '~/queries/featureGates/featureConstants';
+import {
+  ACM_CLUSTER_TAGGING,
+  AUTO_CLUSTER_TRANSFER_OWNERSHIP,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { findRegionalInstance } from '~/queries/helpers';
 import { useFetchGetAvailableRegionalInstances } from '~/queries/RosaWizardQueries/useFetchGetAvailableRegionalInstances';
@@ -109,6 +112,9 @@ function ClusterListTable(props) {
     setSort,
     refreshFunc,
     isClustersDataPending,
+    showCheckboxes = false,
+    selectedClusters = [],
+    onSelectionChange,
   } = props;
 
   const addNotification = useAddNotification();
@@ -121,7 +127,7 @@ function ClusterListTable(props) {
   const { data: availableRegionalInstances } = useFetchGetAvailableRegionalInstances(true);
   const isAutoClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
-
+  const isACMClusterTaggingEnabled = useFeatureGate(ACM_CLUSTER_TAGGING);
   const getSortParams = (columnIndex) => ({
     sortBy: {
       index: activeSortIndex,
@@ -133,6 +139,27 @@ function ClusterListTable(props) {
     },
     columnIndex,
   });
+
+  // Checkbox selection helpers
+  const isClusterSelected = (cluster) =>
+    selectedClusters.some((selected) => selected.id === cluster.id);
+
+  const areAllClustersSelected = clusters.length > 0 && selectedClusters.length === clusters.length;
+
+  const selectAllClusters = (_event, isSelecting) => {
+    if (onSelectionChange) {
+      onSelectionChange(isSelecting ? [...clusters] : []);
+    }
+  };
+
+  const onSelectCluster = (cluster, _event, isSelecting) => {
+    if (onSelectionChange) {
+      const newSelection = isSelecting
+        ? [...selectedClusters, cluster]
+        : selectedClusters.filter((selected) => selected.id !== cluster.id);
+      onSelectionChange(newSelection);
+    }
+  };
 
   if (!isPending && (!clusters || clusters.length === 0)) {
     return (
@@ -305,6 +332,15 @@ function ClusterListTable(props) {
 
     return (
       <Tr key={cluster.id}>
+        {showCheckboxes ? (
+          <Td
+            select={{
+              rowIndex: cluster.id,
+              onSelect: (_event, isSelecting) => onSelectCluster(cluster, _event, isSelecting),
+              isSelected: isClusterSelected(cluster),
+            }}
+          />
+        ) : null}
         <Td dataLabel={columns.name.title} visibility={columns.name.visibility}>
           {clusterName}
         </Td>
@@ -342,6 +378,7 @@ function ClusterListTable(props) {
                 refreshFunc,
                 true,
                 addNotification,
+                isACMClusterTaggingEnabled,
               )}
             />
           ) : null}
@@ -353,7 +390,18 @@ function ClusterListTable(props) {
   return (
     <Table aria-label="Cluster List">
       <Thead>
-        <Tr>{columnCells}</Tr>
+        <Tr>
+          {showCheckboxes ? (
+            <Th
+              select={{
+                onSelect: selectAllClusters,
+                isSelected: areAllClustersSelected,
+              }}
+              aria-label="Select all clusters"
+            />
+          ) : null}
+          {columnCells}
+        </Tr>
       </Thead>
       <Tbody data-testid="clusterListTableBody">
         {isPending ? skeletonRows() : clusters.map((cluster) => clusterRow(cluster))}
@@ -371,6 +419,9 @@ ClusterListTable.propTypes = {
   isPending: PropTypes.bool,
   refreshFunc: PropTypes.func.isRequired,
   isClustersDataPending: PropTypes.bool,
+  showCheckboxes: PropTypes.bool,
+  selectedClusters: PropTypes.array,
+  onSelectionChange: PropTypes.func,
 };
 
 export default ClusterListTable;
