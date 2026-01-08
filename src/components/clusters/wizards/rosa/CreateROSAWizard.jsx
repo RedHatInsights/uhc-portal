@@ -346,7 +346,7 @@ const CreateROSAWizardInternal = ({
                   isHidden={!configureProxySelected}
                 >
                   <ErrorBoundary>
-                    <ClusterProxyScreen />
+                    <ClusterProxyScreen isHypershiftSelected={isHypershiftSelected} />
                   </ErrorBoundary>
                 </WizardStep>,
 

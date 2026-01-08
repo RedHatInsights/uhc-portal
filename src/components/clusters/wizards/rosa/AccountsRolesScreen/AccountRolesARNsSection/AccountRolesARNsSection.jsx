@@ -381,7 +381,13 @@ function AccountRolesARNsSection({
           >
             <Content component={ContentVariants.p}>
               The following roles were detected in your AWS account.{' '}
-              <ExternalLink href={links.ROSA_AWS_IAM_RESOURCES}>
+              <ExternalLink
+                href={
+                  isHypershiftSelected
+                    ? links.ROSA_AWS_IAM_RESOURCES
+                    : links.ROSA_CLASSIC_AWS_IAM_RESOURCES
+                }
+              >
                 Learn more about account roles
               </ExternalLink>
               .

@@ -58,6 +58,8 @@ function AccessControl({
   const [externalAuthenicationIsHidden, setExternalAuthenicationIsHidden] = useState(false);
   const [transferOwnershipIsHidden, setTransferOwnershipIsHidden] = useState(false);
 
+  const isHypershift = isHypershiftCluster(cluster);
+
   // dynamically adjust the tab to be vertical (wider screen) or on the top
   useEffect(() => {
     const minWidthQuery = window.matchMedia ? window.matchMedia('(min-width: 768px)') : null;
@@ -126,7 +128,7 @@ function AccessControl({
           >
             <IDPSection
               clusterID={clusterID}
-              isHypershift={isHypershiftCluster(cluster)}
+              isHypershift={isHypershift}
               clusterUrls={clusterUrls}
               idpActions={cluster.idpActions}
               clusterHibernating={isHibernating(cluster)}
@@ -148,6 +150,7 @@ function AccessControl({
               isReadOnly={isReadOnly}
               region={region}
               isROSA={isROSA}
+              isHypershift={isHypershift}
             />
           </Tab>
           <Tab

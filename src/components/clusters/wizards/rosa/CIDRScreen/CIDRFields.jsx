@@ -34,6 +34,7 @@ function CIDRFields({
   isMultiAz,
   installToVpcSelected,
   isDefaultValuesChecked,
+  isHypershiftSelected,
   formValues,
 }) {
   const { getFieldProps, getFieldMeta, setFieldValue, validateForm } = useFormState();
@@ -81,7 +82,7 @@ function CIDRFields({
     undefined;
 
   const awsMachineCIDRMax =
-    isMultiAz || formValues.hypershift === 'true'
+    isMultiAz || isHypershiftSelected
       ? validators.AWS_MACHINE_CIDR_MAX_MULTI_AZ
       : validators.AWS_MACHINE_CIDR_MAX_SINGLE_AZ;
 
@@ -115,7 +116,13 @@ function CIDRFields({
             correspond to the first IP address in their subnet.
           </p>
 
-          <ExternalLink href={links.CIDR_RANGE_DEFINITIONS_ROSA}>
+          <ExternalLink
+            href={
+              isHypershiftSelected
+                ? links.CIDR_RANGE_DEFINITIONS_ROSA
+                : links.CIDR_RANGE_DEFINITIONS_ROSA_CLASSIC
+            }
+          >
             Learn more to avoid conflicts
           </ExternalLink>
         </Alert>
@@ -162,7 +169,13 @@ function CIDRFields({
               {constants.machineCIDRHint}
 
               <Content component={ContentVariants.p}>
-                <ExternalLink href={links.ROSA_CIDR_MACHINE}>Learn more</ExternalLink>
+                <ExternalLink
+                  href={
+                    isHypershiftSelected ? links.ROSA_CIDR_MACHINE : links.ROSA_CLASSIC_CIDR_MACHINE
+                  }
+                >
+                  Learn more
+                </ExternalLink>
               </Content>
             </>
           }
@@ -191,7 +204,13 @@ function CIDRFields({
               {constants.serviceCIDRHint}
 
               <Content component={ContentVariants.p}>
-                <ExternalLink href={links.ROSA_CIDR_SERVICE}>Learn more</ExternalLink>
+                <ExternalLink
+                  href={
+                    isHypershiftSelected ? links.ROSA_CIDR_SERVICE : links.ROSA_CLASSIC_CIDR_SERVICE
+                  }
+                >
+                  Learn more
+                </ExternalLink>
               </Content>
             </>
           }
@@ -220,7 +239,11 @@ function CIDRFields({
               {constants.podCIDRHint}
 
               <Content component={ContentVariants.p}>
-                <ExternalLink href={links.ROSA_CIDR_POD}>Learn more</ExternalLink>
+                <ExternalLink
+                  href={isHypershiftSelected ? links.ROSA_CIDR_POD : links.ROSA_CLASSIC_CIDR_POD}
+                >
+                  Learn more
+                </ExternalLink>
               </Content>
             </>
           }
@@ -248,7 +271,11 @@ function CIDRFields({
               {constants.hostPrefixHint}
 
               <Content component={ContentVariants.p}>
-                <ExternalLink href={links.ROSA_CIDR_HOST}>Learn more</ExternalLink>
+                <ExternalLink
+                  href={isHypershiftSelected ? links.ROSA_CIDR_HOST : links.ROSA_CLASSIC_CIDR_HOST}
+                >
+                  Learn more
+                </ExternalLink>
               </Content>
             </>
           }
@@ -265,6 +292,7 @@ CIDRFields.propTypes = {
   isMultiAz: PropTypes.bool,
   installToVpcSelected: PropTypes.bool,
   isDefaultValuesChecked: PropTypes.bool,
+  isHypershiftSelected: PropTypes.bool,
   formValues: PropTypes.object,
 };
 

@@ -115,6 +115,9 @@ function Details() {
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
 
+  const monitoringLink = isHypershiftSelected
+    ? links.ROSA_MONITORING
+    : links.ROSA_CLASSIC_MONITORING;
   const getInstallableVersionsResponse = useGlobalState((state) => state.clusters.clusterVersions);
 
   React.useEffect(() => {
@@ -559,7 +562,7 @@ function Details() {
                     hint={
                       <>
                         {constants.enableUserWorkloadMonitoringHelp}
-                        <ExternalLink href={links.ROSA_MONITORING}>Learn more</ExternalLink>
+                        <ExternalLink href={monitoringLink}>Learn more</ExternalLink>
                       </>
                     }
                   />
