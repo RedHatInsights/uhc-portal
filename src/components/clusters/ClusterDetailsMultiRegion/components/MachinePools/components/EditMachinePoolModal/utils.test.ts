@@ -154,7 +154,7 @@ describe('buildNodePoolRequest', () => {
       expect(nodePool.aws_node_pool?.root_volume?.size).toEqual(333);
     });
 
-    it('adds capacity preference ans reservation ROSA Hypershift clusters', () => {
+    it('adds capacity preference and reservation ROSA Hypershift clusters', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: false,
         isMultiZoneMachinePool: false,
