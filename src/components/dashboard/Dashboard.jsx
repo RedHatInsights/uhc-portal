@@ -176,20 +176,14 @@ const Dashboard = (props) => {
             <Card className="ocm-overview-clusters__card">
               <CardTitle>Telemetry</CardTitle>
               <CardBody>
-                {!totalConnectedClusters && !totalClusters ? (
-                  <EmptyState>
-                    <EmptyStateBody>No data available</EmptyStateBody>
-                  </EmptyState>
-                ) : (
-                  <SmallClusterChart
-                    donutId="connected_clusters_donut"
-                    used={totalConnectedClusters}
-                    total={totalClusters}
-                    availableTitle="Not checking in"
-                    usedTitle="Connected"
-                    unit="clusters"
-                  />
-                )}
+                <SmallClusterChart
+                  donutId="connected_clusters_donut"
+                  used={totalConnectedClusters}
+                  total={totalClusters}
+                  availableTitle="Not checking in"
+                  usedTitle="Connected"
+                  unit="clusters"
+                />
               </CardBody>
             </Card>
           </GridItem>
