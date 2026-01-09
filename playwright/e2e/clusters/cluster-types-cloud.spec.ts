@@ -15,7 +15,7 @@ test.describe(
       await clusterTypesPage.clickCloudProvider('Alibaba Cloud', true);
       await clusterTypesPage.isClusterTypesUrl('/install/alibaba');
       await clusterTypesPage.isClusterTypesHeader('Alibaba Cloud');
-      await clusterTypesPage.isInteractive(true, true);
+      await clusterTypesPage.isInteractive(true, true, 'install/alibaba');
       await clusterTypesPage.isLocalAgentBased('any x86_64 platform', '', true);
     });
 
@@ -144,7 +144,7 @@ test.describe(
       await clusterTypesPage.clickCloudProvider('Platform agnostic (x86_64)');
       await clusterTypesPage.isClusterTypesUrl('/install/platform-agnostic');
       await clusterTypesPage.isClusterTypesHeader('Platform agnostic (x86_64)');
-      await clusterTypesPage.isInteractive(true, true);
+      await clusterTypesPage.isInteractive(true, true, 'install/platform-agnostic');
       await clusterTypesPage.isLocalAgentBased('any x86_64 platform', '', true);
       await clusterTypesPage.isFullControl('platform-agnostic', 'any x86_64 platform', '', true);
     });
@@ -155,7 +155,7 @@ test.describe(
       await clusterTypesPage.clickCloudProvider('Oracle Cloud Infrastructure');
       await clusterTypesPage.isClusterTypesUrl('/install/oracle-cloud');
       await clusterTypesPage.isClusterTypesHeader('Oracle Cloud Infrastructure');
-      await clusterTypesPage.isInteractive(true, true);
+      await clusterTypesPage.isInteractive(true, true, 'install/oracle-cloud');
       await clusterTypesPage.isLocalAgentBased('any x86_64 platform', '', true);
     });
   },
