@@ -4,8 +4,16 @@ import * as reactRedux from 'react-redux';
 import * as notifications from '@redhat-cloud-services/frontend-components-notifications';
 
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
 import * as clusterService from '~/services/clusterService';
-import { checkAccessibility, mockUseChrome, render, screen, within } from '~/testUtils';
+import {
+  checkAccessibility,
+  mockUseChrome,
+  mockUseFeatureGate,
+  render,
+  screen,
+  within,
+} from '~/testUtils';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
 import clusterStates from '../../../common/clusterStates';
@@ -41,6 +49,16 @@ jest.mock('@redhat-cloud-services/frontend-components-notifications', () => {
   return config;
 });
 
+jest.mock('~/services/authorizationsService', () => ({
+  __esModule: true,
+  default: {
+    selfResourceReview: jest.fn().mockResolvedValue({}),
+    selfAccessReview: jest.fn().mockResolvedValue({}),
+    selfFeatureReview: jest.fn().mockResolvedValue({ data: { enabled: false } }),
+    selfTermsReview: jest.fn().mockResolvedValue({ data: { terms_required: false } }),
+  },
+}));
+
 describe('<ClusterDetailsTop />', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
   const mockedDispatch = jest.fn();
@@ -75,6 +93,7 @@ describe('<ClusterDetailsTop />', () => {
     canSubscribeOCP: true,
     canTransferClusterOwnership: true,
     canHibernateCluster: true,
+    isAutoClusterTransferOwnershipEnabled: false,
     autoRefreshEnabled: true,
     toggleSubscriptionReleased: jest.fn(),
     showPreviewLabel: false,
@@ -266,7 +285,9 @@ describe('<ClusterDetailsTop />', () => {
       ).toBeInTheDocument();
     });
 
-    it.skip('should show expiration alert for OSD RHM', async () => {
+    it('should show expiration alert for OSD RHM', async () => {
+      mockUseFeatureGate([[HIDE_RH_MARKETPLACE, false]]);
+
       const { cluster } = fixtures.OSDRHMClusterDetails;
 
       const expDate = new Date();
