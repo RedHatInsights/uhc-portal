@@ -67,7 +67,9 @@ test.describe.serial('OCM Roles And Access', { tag: ['@ci', '@smoke'] }, () => {
 
   test('successfully deletes the user', async ({ ocmRolesAndAccessPage }) => {
     await ocmRolesAndAccessPage.ocmRolesAndAccessTableActionButton().click();
+    await ocmRolesAndAccessPage.deleteRoleConfirm().click();
     await ocmRolesAndAccessPage.ocmRolesAndAccessTableDeleteButton().click();
+    await ocmRolesAndAccessPage.deleteRoleConfirm().click();
     await expect(ocmRolesAndAccessPage.usernameCell()).not.toBeVisible();
   });
 

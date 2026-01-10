@@ -57,4 +57,12 @@ export class OCMRolesAndAccessPage extends BasePage {
   ocmRolesAndAccessTableDeleteButton(): Locator {
     return this.page.getByRole('menuitem', { name: 'Delete' });
   }
+
+  deleteRoleConfirm(): Locator {
+    return this.page
+      .locator('div[aria-label="Are you sure you want to delete this role?"]')
+      .locator('footer')
+      .locator('button')
+      .first();
+  }
 }
