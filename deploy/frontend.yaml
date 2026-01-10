@@ -29,7 +29,7 @@ objects:
         - segmentId: openshift
           bundleId: openshift
           position: 100
-          navItems: 
+          navItems:
             - id: overview
               title: Overview
               href: /openshift/overview
@@ -43,8 +43,8 @@ objects:
                   href: /openshift/dashboard
                   product: Red Hat OpenShift Cluster Manager
                 - id: clusters
-                  title: Cluster List
-                  href: /openshift/cluster-list
+                  title: Clusters
+                  href: /openshift/clusters/list
                   product: Red Hat OpenShift Cluster Manager
                 # TODO: Replace advisor with navigationSegment from https://github.com/RedHatInsights/ocp-advisor-frontend/blob/master/deploy/frontend.yml
                 - id: advisor
@@ -65,9 +65,9 @@ objects:
                       product: Red Hat OpenShift Cluster Manager
                       permissions:
                         - method: featureFlag
-                          args: ["ocp-advisor-ui-workloads", true]
+                          args: ['ocp-advisor-ui-workloads', true]
                         - method: featureFlag
-                          args: ["ocp-advisor-workloads-release", true]
+                          args: ['ocp-advisor-workloads-release', true]
                 # TODO: Replace vulnerability-dashboard with navigationSegment from https://github.com/RedHatInsights/vuln4shift-frontend/blob/master/deploy/frontend.yml
                 - id: vulnerability-dashboard
                   title: Vulnerability Dashboard
@@ -156,14 +156,14 @@ objects:
         - section: containers
           group: openshift
           id: clusters
-          href: /openshift/cluster-list
+          href: /openshift/clusters/list
           title: Clusters
           description: View, Register, or Create an OpenShift Cluster.
           icon: OpenShiftIcon
         - section: inventories
           group: openshift
           id: cluster-list
-          href: /openshift/cluster-list
+          href: /openshift/clusters/list
           title: Cluster List
           description: View, Register, or Create an OpenShift Cluster.
           icon: OpenShiftIcon
@@ -221,7 +221,7 @@ objects:
           href: /openshift/services/rosa/demo/
           title: ROSA Hands-on Experience
           description: Access a production-ready ROSA cluster for a limited time in a demo environment.
-          icon: OpenShiftIcon 
+          icon: OpenShiftIcon
       searchEntries:
         - id: rosa
           title: Red Hat OpenShift Service for AWS
@@ -267,13 +267,13 @@ objects:
           href: /openshift
           description: View, Register, or Create an OpenShift Cluster.
       module:
-        manifestLocation: "/apps/openshift/fed-mods.json"
+        manifestLocation: '/apps/openshift/fed-mods.json'
         moduleConfig:
           ssoScopes:
             - profile_level.name_and_address_and_ea_and_rhos
         modules:
-          - id: "openshift"
-            module: "./RootApp"
+          - id: 'openshift'
+            module: './RootApp'
             routes:
               - pathname: /openshift
 parameters:
