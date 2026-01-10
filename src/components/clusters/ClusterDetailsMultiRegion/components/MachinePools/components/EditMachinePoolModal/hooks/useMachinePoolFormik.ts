@@ -1,4 +1,5 @@
 import * as React from 'react';
+import semver from 'semver';
 import * as Yup from 'yup';
 
 import {
@@ -15,6 +16,7 @@ import {
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { isHypershiftCluster, isROSA } from '~/components/clusters/common/clusterStates';
 import {
+  CAPACITY_RESERVATION_MIN_VERSION as requiredCRVersion,
   defaultWorkerNodeVolumeSizeGiB,
   SPOT_MIN_PRICE,
 } from '~/components/clusters/common/machinePools/constants';
@@ -32,6 +34,7 @@ import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { getClusterMinNodes } from '../../../machinePoolsHelper';
+import { CapacityReservationPreference } from '../fields/CapacityReservationField';
 import { TaintEffect } from '../fields/TaintEffectField';
 
 import useOrganization from './useOrganization';
@@ -59,6 +62,8 @@ export type EditMachinePoolValues = {
   maxSurge?: number;
   maxUnavailable?: number;
   nodeDrainTimeout?: number;
+  capacityReservationId?: string;
+  capacityReservationPreference?: CapacityReservationPreference;
 };
 
 type UseMachinePoolFormikArgs = {
@@ -93,6 +98,10 @@ const useMachinePoolFormik = ({
   const rosa = isROSA(cluster);
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
   const isHypershift = isHypershiftCluster(cluster);
+  const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
+  const isValidCRVersion = semver.valid(clusterVersion)
+    ? semver.gte(clusterVersion, requiredCRVersion)
+    : false;
 
   const minNodesRequired = getClusterMinNodes({
     cluster,
@@ -112,6 +121,8 @@ const useMachinePoolFormik = ({
     let maxSurge;
     let maxUnavailable;
     let nodeDrainTimeout;
+    let capacityReservationId;
+    let capacityReservationPreference;
 
     autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas || minNodesRequired;
     autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas || minNodesRequired;
@@ -129,6 +140,8 @@ const useMachinePoolFormik = ({
       diskSize = machinePool.root_volume?.aws?.size || machinePool.root_volume?.gcp?.size;
     } else if (isNodePool(machinePool)) {
       diskSize = machinePool.aws_node_pool?.root_volume?.size;
+      capacityReservationId = machinePool.aws_node_pool?.capacity_reservation?.id;
+      capacityReservationPreference = machinePool.aws_node_pool?.capacity_reservation?.preference;
       const autoRepairValue = (machinePool as NodePool)?.auto_repair;
       autoRepair = autoRepairValue ?? true;
       maxSurge = machinePool.management_upgrade?.max_surge;
@@ -190,6 +203,10 @@ const useMachinePoolFormik = ({
     if (isHypershift) {
       machinePoolData.isWindowsLicenseIncluded =
         isNodePool(machinePool) && machinePool?.image_type === ImageType.Windows; // This involves extra costs, let's keep it false by default
+      machinePoolData.capacityReservationPreference = isValidCRVersion
+        ? capacityReservationPreference || 'none'
+        : undefined;
+      machinePoolData.capacityReservationId = capacityReservationId || '';
     }
 
     return machinePoolData;
@@ -201,6 +218,7 @@ const useMachinePoolFormik = ({
     isGCP,
     machineTypes.typesByID,
     isHypershift,
+    isValidCRVersion,
   ]);
 
   const minDiskSize = getWorkerNodeVolumeSizeMinGiB(isHypershift);
@@ -370,6 +388,7 @@ const useMachinePoolFormik = ({
             : Yup.number(),
           autoscaling: Yup.boolean(),
           auto_repair: Yup.boolean(),
+          capacityReservationId: Yup.string().trim(),
           diskSize: rosa
             ? Yup.number()
                 .min(minDiskSize, `Disk size must be at least ${minDiskSize} GiB`)

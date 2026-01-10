@@ -16,9 +16,17 @@ type SelectFieldProps = {
   onSelect: (value: string) => void;
   isDisabled?: boolean;
   children: SelectProps['children'];
+  label?: string;
 };
 
-const SelectField = ({ value, fieldId, onSelect, isDisabled, children }: SelectFieldProps) => {
+const SelectField = ({
+  value,
+  fieldId,
+  onSelect,
+  isDisabled,
+  children,
+  label,
+}: SelectFieldProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const onToggle = () => {
@@ -35,7 +43,7 @@ const SelectField = ({ value, fieldId, onSelect, isDisabled, children }: SelectF
       aria-label="select menu"
       className="select-field-menu-toggle"
     >
-      {value}
+      {label || value}
     </MenuToggle>
   );
 

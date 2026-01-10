@@ -366,6 +366,7 @@ const links = {
   AWS_SHARED_VPC: 'https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html',
   AWS_CAPACITY_RESERVATION:
     'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/capacity-reservation-overview.html',
+  ROSA_CAPACITY_RESERVATION_OVERVIEW: `${ROSA_DOCS_BASE}/cluster_administration/managing-compute-nodes-using-machine-pools#rosa-managing-worker-nodes`,
   AWS_ARN_CONFIG: 'https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html',
   AWS_DATA_PROTECTION: 'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html',
 

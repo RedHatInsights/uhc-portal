@@ -22,6 +22,8 @@ const defaultValues: EditMachinePoolValues = {
   privateSubnetId: 'subnet-id',
   securityGroupIds: ['sg-1'],
   imds: IMDSType.V1AndV2,
+  capacityReservationPreference: 'capacity-reservations-only',
+  capacityReservationId: 'cr-111',
 };
 
 describe('buildMachinePoolRequest', () => {
@@ -130,6 +132,7 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: false,
         isMultiZoneMachinePool: false,
+        canUseCapacityReservation: true,
       });
 
       expect(nodePool.id).toEqual('my-mp');
@@ -145,15 +148,41 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: false,
         isMultiZoneMachinePool: false,
+        canUseCapacityReservation: true,
       });
 
       expect(nodePool.aws_node_pool?.root_volume?.size).toEqual(333);
+    });
+
+    it('adds capacity preference and reservation ROSA Hypershift clusters', () => {
+      const nodePool = buildNodePoolRequest(defaultValues, {
+        isEdit: false,
+        isMultiZoneMachinePool: false,
+        canUseCapacityReservation: true,
+      });
+
+      expect(nodePool.aws_node_pool?.capacity_reservation?.id).toEqual('cr-111');
+      expect(nodePool.aws_node_pool?.capacity_reservation?.preference).toEqual(
+        'capacity-reservations-only',
+      );
+    });
+
+    it('does not add capacity preference and reservation for invalid version clusters', () => {
+      const nodePool = buildNodePoolRequest(defaultValues, {
+        isEdit: false,
+        isMultiZoneMachinePool: false,
+        canUseCapacityReservation: false,
+      });
+
+      expect(nodePool.aws_node_pool?.capacity_reservation?.id).toBeUndefined();
+      expect(nodePool.aws_node_pool?.capacity_reservation?.preference).toBeUndefined();
     });
 
     it('does not add specific ROSA classic fields', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: false,
         isMultiZoneMachinePool: false,
+        canUseCapacityReservation: true,
       });
 
       const badPool = nodePool as MachinePool;
@@ -166,6 +195,7 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: true,
         isMultiZoneMachinePool: false,
+        canUseCapacityReservation: true,
       });
 
       expect(nodePool.id).toEqual('my-mp');
@@ -179,16 +209,20 @@ describe('buildNodePoolRequest', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: true,
         isMultiZoneMachinePool: false,
+        canUseCapacityReservation: true,
       });
 
       expect(nodePool.subnet).toBeUndefined();
       expect(nodePool.aws_node_pool?.instance_type).toBeUndefined();
+      expect(nodePool.aws_node_pool?.capacity_reservation?.id).toBeUndefined();
+      expect(nodePool.aws_node_pool?.capacity_reservation?.preference).toBeUndefined();
     });
 
     it('does not add specific ROSA classic fields', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: true,
         isMultiZoneMachinePool: false,
+        canUseCapacityReservation: true,
       });
 
       const badPool = nodePool as MachinePool;

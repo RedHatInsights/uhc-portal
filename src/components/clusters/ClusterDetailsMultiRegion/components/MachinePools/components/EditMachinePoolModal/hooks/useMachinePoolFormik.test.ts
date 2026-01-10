@@ -62,4 +62,54 @@ describe('useMachinePoolFormik', () => {
 
     expect(initialValues).toEqual(expected);
   });
+
+  describe('validationSchema', () => {
+    describe('capacityReservationId', () => {
+      it.each(['open', 'none', 'capacity-reservations-only'])(
+        'should not require capacityReservationId when preference is %s',
+        async (preference) => {
+          const { validationSchema } = renderHook(() =>
+            useMachinePoolFormik({
+              cluster: hyperShiftCluster,
+              machinePool: defaultMachinePool,
+              machineTypes: defaultMachineTypes,
+              machinePools: defaultMachinePools,
+            }),
+          ).result.current;
+
+          const values = {
+            ...hyperShiftExpectedInitialValues,
+            capacityReservationPreference: preference,
+            capacityReservationId: '',
+          };
+
+          // Use validateAt to check only the capacityReservationId field
+          await expect(validationSchema.validateAt('capacityReservationId', values)).resolves.toBe(
+            '',
+          );
+        },
+      );
+
+      it('should auto-trim leading and trailing whitespace from capacityReservationId', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          capacityReservationPreference: 'capacity-reservations-only',
+          capacityReservationId: '  cr-12345678901234567  ',
+        };
+
+        // Yup's .trim() transform should return the trimmed value
+        const result = await validationSchema.validateAt('capacityReservationId', values);
+        expect(result).toBe('cr-12345678901234567');
+      });
+    });
+  });
 });

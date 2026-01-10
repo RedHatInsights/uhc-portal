@@ -244,6 +244,21 @@ describe('MachinePoolExpandedRow', () => {
       );
       expect(screen.getByText('Reservation Id: capId1')).toBeInTheDocument();
     });
+
+    it('shows the correct preference values', () => {
+      mockUseFeatureGate([[CAPACITY_RESERVATION_ID_FIELD, true]]);
+      render(
+        <MachinePoolExpandedRow
+          {...getNodePoolProps({
+            aws_node_pool: {
+              capacity_reservation: { id: 'capId1', preference: 'capacity-reservations-only' },
+            },
+          })}
+        />,
+      );
+      expect(screen.getByText('Reservation Preference: CR only')).toBeInTheDocument();
+      expect(screen.getByText('Reservation Id: capId1')).toBeInTheDocument();
+    });
   });
 
   describe('Spot price settings', () => {
