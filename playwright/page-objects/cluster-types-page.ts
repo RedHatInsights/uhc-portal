@@ -189,7 +189,11 @@ export class ClusterTypesPage extends BasePage {
     await this.page.goBack();
   }
 
-  async isInteractive(nonTested?: boolean, recommended?: boolean): Promise<void> {
+  async isInteractive(
+    nonTested?: boolean,
+    recommended?: boolean,
+    previousPage?: string,
+  ): Promise<void> {
     await this.interactiveSection.scrollIntoViewIfNeeded();
 
     // Check section elements
@@ -229,7 +233,11 @@ export class ClusterTypesPage extends BasePage {
       this.page.locator('h1').filter({ hasText: 'Install OpenShift with the Assisted Installer' }),
     ).toBeVisible({ timeout: 30000 });
 
-    await this.page.goBack();
+    if (previousPage) {
+      await this.page.goto(previousPage);
+    } else {
+      await this.page.goBack();
+    }
   }
 
   async isLocalAgentBased(

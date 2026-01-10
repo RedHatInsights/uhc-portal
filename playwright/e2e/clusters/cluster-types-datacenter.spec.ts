@@ -17,7 +17,7 @@ test.describe(
       await clusterTypesPage.clickInfrastructureProvider('Bare Metal (x86_64)');
       await clusterTypesPage.isClusterTypesUrl('/install/metal');
       await clusterTypesPage.isClusterTypesHeader('Bare Metal');
-      await clusterTypesPage.isInteractive(false, true);
+      await clusterTypesPage.isInteractive(false, true, 'install/metal');
       await clusterTypesPage.isLocalAgentBased('Bare Metal', '');
       await clusterTypesPage.isAutomated('bare_metal', 'Bare Metal', '');
       await clusterTypesPage.isFullControl('bare-metal', 'Bare Metal', '');
@@ -30,7 +30,7 @@ test.describe(
       await clusterTypesPage.clickInfrastructureProvider('Bare Metal (ARM)');
       await clusterTypesPage.isClusterTypesUrl('/install/arm');
       await clusterTypesPage.isClusterTypesHeader('ARM Bare Metal');
-      await clusterTypesPage.isInteractive(false, true);
+      await clusterTypesPage.isInteractive(false, true, 'install/arm');
       await clusterTypesPage.isLocalAgentBased('ARM Bare Metal');
       await clusterTypesPage.isAutomated('bare_metal', 'ARM Bare Metal');
       await clusterTypesPage.isFullControl('bare-metal', 'ARM Bare Metal');
@@ -54,7 +54,7 @@ test.describe(
       await clusterTypesPage.clickInfrastructureProvider('IBM Z (s390x)');
       await clusterTypesPage.isClusterTypesUrl('/install/ibmz');
       await clusterTypesPage.isClusterTypesHeader('IBM Z (s390x)');
-      await clusterTypesPage.isInteractive(false, true);
+      await clusterTypesPage.isInteractive(false, true, 'install/ibmz');
       await clusterTypesPage.isLocalAgentBased('IBM Z (s390x)');
       await clusterTypesPage.isFullControl('ibm-z', 'IBM Z (s390x)');
     });
@@ -66,7 +66,7 @@ test.describe(
       await clusterTypesPage.clickInfrastructureProvider('IBM Power (ppc64le)');
       await clusterTypesPage.isClusterTypesUrl('/install/power');
       await clusterTypesPage.isClusterTypesHeader('IBM Power (ppc64le)');
-      await clusterTypesPage.isInteractive(false, true);
+      await clusterTypesPage.isInteractive(false, true, 'install/power');
       await clusterTypesPage.isLocalAgentBased('IBM Power (ppc64le)');
       await clusterTypesPage.isFullControl('ibm-power', 'IBM Power (ppc64le)');
     });
@@ -78,7 +78,7 @@ test.describe(
       await clusterTypesPage.clickInfrastructureProvider('Nutanix AOS');
       await clusterTypesPage.isClusterTypesUrl('/install/nutanix');
       await clusterTypesPage.isClusterTypesHeader('Nutanix AOS');
-      await clusterTypesPage.isInteractive();
+      await clusterTypesPage.isInteractive(false, false, 'install/nutanix');
       await clusterTypesPage.isAutomated('nutanix', 'Nutanix AOS', '', true);
     });
 
@@ -103,7 +103,7 @@ test.describe(
       await clusterTypesPage.clickInfrastructureProvider('vSphere');
       await clusterTypesPage.isClusterTypesUrl('/install/vsphere');
       await clusterTypesPage.isClusterTypesHeader('VMware vSphere');
-      await clusterTypesPage.isInteractive(false, true);
+      await clusterTypesPage.isInteractive(false, true, 'install/vsphere');
       await clusterTypesPage.isLocalAgentBased('vSphere');
       await clusterTypesPage.isAutomated('vsphere-installer-provisioned', 'vSphere');
       await clusterTypesPage.isFullControl('vsphere', 'vSphere');
@@ -116,7 +116,7 @@ test.describe(
       await clusterTypesPage.clickInfrastructureProvider('Platform agnostic (x86_64)');
       await clusterTypesPage.isClusterTypesUrl('/install/platform-agnostic');
       await clusterTypesPage.isClusterTypesHeader('Platform agnostic (x86_64)');
-      await clusterTypesPage.isInteractive(true, true);
+      await clusterTypesPage.isInteractive(true, true, 'install/platform-agnostic');
       await clusterTypesPage.isLocalAgentBased('any x86_64 platform', '', true);
       await clusterTypesPage.isFullControl('platform-agnostic', 'any x86_64 platform', '', true);
     });
