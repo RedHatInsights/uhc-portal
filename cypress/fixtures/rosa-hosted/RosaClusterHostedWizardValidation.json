@@ -1,6 +1,8 @@
 {
   "Region": "us-west-2, US West, Oregon",
   "ClusterPrivacy": "public",
+  "DefaultChannelGroup": "stable",
+  "ChannelGroupOptions": ["stable", "fast", "candidate", "eus"],
   "OidcConfigId": "22rif2kh7jagoe7u2ak1caoi74hjrjvj",
   "MachinePools": [
     {
