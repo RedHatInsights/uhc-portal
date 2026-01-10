@@ -4,7 +4,11 @@ import { RESTRICTED_ENV_OVERRIDE_LOCALSTORAGE_KEY } from '~/common/localStorageC
 import { queryClient } from '~/components/App/queryClient';
 import authorizationsService from '~/services/authorizationsService';
 
-import Features, { HYPERSHIFT_WIZARD_FEATURE } from './featureConstants';
+import Features, {
+  AWS_BILLING_IN_BOUNDARY,
+  EDIT_BILLING_ACCOUNT,
+  HYPERSHIFT_WIZARD_FEATURE,
+} from './featureConstants';
 
 const queryKey = 'featureGate';
 
@@ -14,7 +18,11 @@ const featureGateQueryObj = (feature: (typeof Features)[keyof typeof Features]) 
   // When mocking a restricted environment by using the url flag
   // All feature gates in the array will use the value from the
   // api call.  All others will not be fetched and useFeatureGate will return false
-  const featureGatesAllowedWhenMockingRestrictedEnvironment: string[] = [HYPERSHIFT_WIZARD_FEATURE];
+  const featureGatesAllowedWhenMockingRestrictedEnvironment: string[] = [
+    HYPERSHIFT_WIZARD_FEATURE,
+    AWS_BILLING_IN_BOUNDARY,
+    EDIT_BILLING_ACCOUNT,
+  ];
 
   const getData =
     !simulatedRestrictedEnv ||
