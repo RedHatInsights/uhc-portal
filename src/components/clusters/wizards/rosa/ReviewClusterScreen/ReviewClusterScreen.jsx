@@ -35,6 +35,7 @@ import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import {
   ALLOW_EUS_CHANNEL,
   CREATE_CLUSTER_YAML_EDITOR,
+  FIPS_FOR_HYPERSHIFT,
   HYPERSHIFT_WIZARD_FEATURE,
   IMDS_SELECTION,
   MULTIREGION_PREVIEW_ENABLED,
@@ -118,6 +119,7 @@ const ReviewClusterScreen = ({
   const hasExternalAuth = hasExternalAuthenticationCapability(organization?.capabilities);
 
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
+  const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
 
   const clusterSettingsFields = [
     FieldId.ClusterName,
@@ -130,7 +132,7 @@ const ReviewClusterScreen = ({
     FieldId.CustomerManagedKey,
     ...(showKMSKey ? [FieldId.KmsKeyArn] : []),
     FieldId.EtcdEncryption,
-    ...(!isHypershiftSelected ? [FieldId.FipsCryptography] : []),
+    ...(!isHypershiftSelected || isFipsForHypershiftEnabled ? [FieldId.FipsCryptography] : []),
     ...(hasEtcdEncryption ? [FieldId.EtcdKeyArn] : []),
     ...(isHypershiftSelected && hasExternalAuth ? [FieldId.EnableExteranlAuthentication] : []),
   ];
