@@ -4,6 +4,7 @@
 
 - [Setup](#setup)
 - [Insights "Chrome" Architecture](#insights-chrome-architecture)
+- [FEC Development Environment](#fec-development-environment)
 - [Code Style](#code-style)
   - [Linting](#linting)
   - [Formatting](#formatting)
@@ -13,7 +14,7 @@
 - [Code assistants](#code-assistants)
 - [OpenAPI types definitions](#openapi-types-definitions)
 - [Storybook](#storybook)
-- [Merge request review](#merge-request-review)
+- [Pull requests](#pull-requests)
 - [Information security](#information-security)
 
 ## Setup
@@ -36,9 +37,35 @@ As all apps under console.redhat.com, our app uses [insights-chrome](https://git
 
 It is responsible for rendering the header & menu around the main content, and providing common services, like authentication or analytics.
 
-It’s not a regular build dependency but is injected by CDN using [EdgeSide Includes](https://en.wikipedia.org/wiki/Edge_Side_Includes) tags.
+It's not a regular build dependency but is injected by CDN using [EdgeSide Includes](https://en.wikipedia.org/wiki/Edge_Side_Includes) tags.
 
-In development, `yarn start` uses the Frontend Components Config (FEC) dev server, which automatically handles Chrome setup by running a containerized Chrome server (requires Podman). FEC manages the development environment including the Chrome container, webpack dev server, and proxying to backend services.
+## Development Environment
+
+The local development environment is powered by [Frontend Components (FEC)](https://github.com/RedHatInsights/frontend-components), which manages:
+
+- A containerized Chrome server (requires Podman)
+- Webpack dev server
+- Proxying to backend services
+
+### Development Modes
+
+**`yarn dev`** uses `fec dev` with Hot Module Reloading (HMR) enabled. This provides instant feedback on code changes without requiring full page reloads—ideal for active UI development.
+
+**`yarn start`** uses `fec dev-proxy`, which runs webpack in watch mode with proxy capabilities for backend routing. Changes are recompiled automatically, but require a manual browser refresh to see updates (no HMR).
+
+### Custom Chrome Port
+
+By default, the Chrome server runs on port `:9990`. To use a different port:
+
+```bash
+FEC_CHROME_PORT=<PORT> yarn dev
+# or
+FEC_CHROME_PORT=<PORT> yarn start
+```
+
+## Code guidelines
+
+Code guidelines are listed [in a separate document](code-guide.md). Make sure to carefully read and understand them before contributing.
 
 ## Code Style
 
@@ -160,13 +187,11 @@ When adding a component to storybook, please create stories in separate files us
 
 You can have a look at storybook docs for more info about [how to write stories](https://storybook.js.org/docs/writing-stories).
 
-## Merge Request review
+## Pull requests
 
-- For external contributors: If you need a merge request review, please message the OCM UI team at the `#ocm-osd-ui` slack channel.
-- Code that changes behavior requires a test
-- When you touch a component without tests add one
-- Large merge requests should be resubmitted in smaller chunks
-- Test broad changes locally
+Please follow the guidelines described in the [Pull Request Process document](./pull-request-process.md) when opening new PRs.
+
+For external contributors: If you need a pull request review, please message the OCM UI team at the `#ocm-osd-ui` Slack channel.
                                                               
 ## Information security
 
