@@ -81,10 +81,9 @@ function AccountsRolesScreen({
     [getAWSAccountIDsResponse.pending, getAWSAccountRolesARNsResponse.pending],
   );
 
-  // Feature flag to enable AWS Billing Account in FedRAMP/boundary environments
-  const shouldShowBillingInBoundary = useFeatureGate(AWS_BILLING_IN_BOUNDARY);
+  const hasBillingInBoundaryFlag = useFeatureGate(AWS_BILLING_IN_BOUNDARY);
   const showBillingAccount =
-    isHypershiftSelected && (!isRestrictedEnv() || shouldShowBillingInBoundary);
+    isHypershiftSelected && (!isRestrictedEnv() || hasBillingInBoundaryFlag);
 
   const openDrawerButtonRef = useRef(null);
   const hasAWSAccounts = AWSAccountIDs.length > 0;

@@ -7,6 +7,7 @@ import {
   checkAccessibility,
   mockRestrictedEnv,
   mockUseFeatureGate,
+  render,
   screen,
   waitFor,
   withState,
@@ -91,9 +92,7 @@ describe('<AccountsRolesScreen />', () => {
       isRestrictedEnv.mockReturnValue(false);
       mockUseFeatureGate([[AWS_BILLING_IN_BOUNDARY, false]]);
 
-      withState({}).render(
-        buildTestComponent(<AccountsRolesScreen {...hypershiftSelectedProps} />),
-      );
+      render(buildTestComponent(<AccountsRolesScreen {...hypershiftSelectedProps} />));
 
       expect(
         await screen.findByRole('heading', { name: 'AWS billing account', level: 3 }),
@@ -104,24 +103,20 @@ describe('<AccountsRolesScreen />', () => {
       isRestrictedEnv.mockReturnValue(true);
       mockUseFeatureGate([[AWS_BILLING_IN_BOUNDARY, false]]);
 
-      withState({}).render(
-        buildTestComponent(<AccountsRolesScreen {...hypershiftSelectedProps} />),
-      );
+      render(buildTestComponent(<AccountsRolesScreen {...hypershiftSelectedProps} />));
 
-      await waitFor(() => {
-        expect(
-          screen.queryByRole('heading', { name: 'AWS billing account', level: 3 }),
-        ).not.toBeInTheDocument();
-      });
+      // Wait for component to render by finding an element that IS expected to show
+      await screen.findByRole('heading', { name: 'AWS infrastructure account', level: 3 });
+      expect(
+        screen.queryByRole('heading', { name: 'AWS billing account', level: 3 }),
+      ).not.toBeInTheDocument();
     });
 
     it('shows AWS Billing Account in restricted environment when feature flag is ON', async () => {
       isRestrictedEnv.mockReturnValue(true);
       mockUseFeatureGate([[AWS_BILLING_IN_BOUNDARY, true]]);
 
-      withState({}).render(
-        buildTestComponent(<AccountsRolesScreen {...hypershiftSelectedProps} />),
-      );
+      render(buildTestComponent(<AccountsRolesScreen {...hypershiftSelectedProps} />));
 
       expect(
         await screen.findByRole('heading', { name: 'AWS billing account', level: 3 }),
@@ -133,13 +128,13 @@ describe('<AccountsRolesScreen />', () => {
       mockUseFeatureGate([[AWS_BILLING_IN_BOUNDARY, true]]);
       const classicProps = { ...accountRolesScreenProps, isHypershiftSelected: false };
 
-      withState({}).render(buildTestComponent(<AccountsRolesScreen {...classicProps} />));
+      render(buildTestComponent(<AccountsRolesScreen {...classicProps} />));
 
-      await waitFor(() => {
-        expect(
-          screen.queryByRole('heading', { name: 'AWS billing account', level: 3 }),
-        ).not.toBeInTheDocument();
-      });
+      // Wait for component to render by finding an element that IS expected to show
+      await screen.findByRole('heading', { name: 'AWS infrastructure account', level: 3 });
+      expect(
+        screen.queryByRole('heading', { name: 'AWS billing account', level: 3 }),
+      ).not.toBeInTheDocument();
     });
   });
 });
