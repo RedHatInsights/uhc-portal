@@ -3,6 +3,7 @@ import * as React from 'react';
 import { FormGroup, SelectOption } from '@patternfly/react-core';
 
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
+import getClusterVersion from '~/components/clusters/common/getClusterVersion';
 import TextField from '~/components/common/formik/TextField';
 import { WINDOWS_LICENSE_INCLUDED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -38,6 +39,7 @@ const EditDetailsSection = ({
 }: EditDetailsSectionProps) => {
   const isHypershift = isHypershiftCluster(cluster);
   const allowWindowsLicenseIncluded = useFeatureGate(WINDOWS_LICENSE_INCLUDED) && isHypershift;
+  const clusterVersion = getClusterVersion(cluster);
 
   return isEdit ? (
     <FormGroup fieldId="machine-pool" label="Machine pool">
@@ -52,6 +54,7 @@ const EditDetailsSection = ({
         <WindowsLicenseIncludedField
           isEdit
           currentMP={machinePools.find((mp) => mp.id === currentMPId)}
+          clusterVersion={clusterVersion}
         />
       ) : null}
     </FormGroup>
@@ -62,7 +65,9 @@ const EditDetailsSection = ({
         <SubnetField cluster={cluster} region={region} machinePools={machinePools} />
       ) : null}
       <InstanceTypeField cluster={cluster} machineTypesResponse={machineTypesResponse} />
-      {allowWindowsLicenseIncluded ? <WindowsLicenseIncludedField /> : null}
+      {allowWindowsLicenseIncluded ? (
+        <WindowsLicenseIncludedField clusterVersion={clusterVersion} />
+      ) : null}
     </>
   );
 };
