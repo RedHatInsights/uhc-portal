@@ -28,6 +28,7 @@ import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
+import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { getClusterMinNodes } from '../../../machinePoolsHelper';
@@ -187,9 +188,8 @@ const useMachinePoolFormik = ({
     }
 
     if (isHypershift) {
-      // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-      machinePoolData.isWindowsLicenseIncluded = false; // This involves extra costs, let's keep it false by default
-      // (machinePool as MachinePool)?.aws?.windows_license_included || false;
+      machinePoolData.isWindowsLicenseIncluded =
+        isNodePool(machinePool) && machinePool?.image_type === ImageType.Windows; // This involves extra costs, let's keep it false by default
     }
 
     return machinePoolData;
@@ -346,7 +346,7 @@ const useMachinePoolFormik = ({
           autoscaleMax: values.autoscaling
             ? Yup.number()
                 .test('autoscale-max', '', (value) => {
-                  if (!Number.isInteger) {
+                  if (!Number.isInteger(value)) {
                     return new Yup.ValidationError(
                       'Decimals are not allowed. Enter a whole number.',
                       value,

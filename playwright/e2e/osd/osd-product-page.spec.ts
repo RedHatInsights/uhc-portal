@@ -5,7 +5,7 @@ const rows = [
     label: 'Red Hat OpenShift Dedicated on Google Cloud Marketplace',
     badge: 'Documentation',
     linkUrl:
-      'https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated?inv=1&invt=Abh7pg',
+      'https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated',
   },
   {
     label: 'Red Hat OpenShift Dedicated Interactive Walkthrough',
