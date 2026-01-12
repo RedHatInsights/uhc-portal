@@ -60,9 +60,7 @@ export class OCMRolesAndAccessPage extends BasePage {
 
   deleteRoleConfirm(): Locator {
     return this.page
-      .locator('div[aria-label="Are you sure you want to delete this role?"]')
-      .locator('footer')
-      .locator('button')
-      .first();
+      .getByRole('dialog', { name: 'Are you sure you want to delete this role?' })
+      .getByRole('button', { name: 'Delete' })
   }
 }
