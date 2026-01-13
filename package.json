@@ -202,13 +202,11 @@
     "form-data": "^4.0.4"
   },
   "scripts": {
-    "start": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'HOT=true yarn fec:dev-proxy --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
+    "dev": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'HOT=true fec dev --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
+    "start": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'fec dev-proxy --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
     "build": "fec build",
     "build:prod": "MODE=prod yarn build",
     "build:prod:monitored": "run/build-prod-monitored.sh",
-    "fec:static": "fec static",
-    "fec:dev-server": "fec dev",
-    "fec:dev-proxy": "fec dev-proxy",
     "verify": "concurrently --group --names=BUILD,LINT,TEST 'yarn build:prod' 'NODE_OPTIONS=--max-old-space-size=4096 yarn lint-prettier' 'yarn test'",
     "insights-proxy": "make insights-proxy-check && run/insights-proxy.sh",
     "stop-insights-proxy": "run/podman-or-docker.sh kill insightsproxy; run/podman-or-docker.sh rm --force insightsproxy; true",

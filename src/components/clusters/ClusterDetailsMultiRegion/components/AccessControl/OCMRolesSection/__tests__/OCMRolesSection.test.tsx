@@ -76,6 +76,28 @@ describe('<OCMRolesSection />', () => {
     within(row4).getByRole('cell', { name: 'Identity provider editor' });
   });
 
+  it('should show confirmation dialog when deleting a role', async () => {
+    useFetchOCMRolesMock.mockReturnValue({
+      data: OCMRoles.data,
+      isLoading: false,
+      isError: false,
+      error: null,
+      isSuccess: true,
+    });
+    const { user } = render(<OCMRolesSection {...props} />);
+    const row1 = screen.getByRole('row', { name: /Doris Hudson/ });
+    await user.click(within(row1).getByRole('button', { name: 'Kebab toggle' }));
+    expect(await screen.findByRole('menuitem', { name: 'Delete' })).toBeEnabled();
+    await user.click(await screen.findByRole('menuitem', { name: 'Delete' }));
+    expect(
+      await screen.findByRole('dialog', { name: 'Are you sure you want to delete this role?' }),
+    ).toBeVisible();
+    expect(await screen.findByRole('button', { name: 'Delete' })).toBeEnabled();
+    expect(await screen.findByRole('button', { name: 'Cancel' })).toBeEnabled();
+    await user.click(await screen.findByRole('button', { name: 'Cancel' }));
+    expect(screen.getAllByRole('row')).toHaveLength(5);
+  });
+
   it('should disable buttons if no edit access', async () => {
     useFetchOCMRolesMock.mockReturnValue({
       data: OCMRoles.data,

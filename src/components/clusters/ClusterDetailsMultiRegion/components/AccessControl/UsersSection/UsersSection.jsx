@@ -25,6 +25,7 @@ import {
   Tr,
 } from '@patternfly/react-table';
 
+import { ConfirmationDialog } from '~/common/modals/ConfirmationDialog';
 import { LoadingSkeletonCard } from '~/components/clusters/common/LoadingSkeletonCard/LoadingSkeletonCard';
 import shouldShowModal from '~/components/common/Modal/ModalSelectors';
 import { useAddUser } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useAddUser';
@@ -77,6 +78,7 @@ const UsersSection = (props) => {
   const clusterGroupUsers = users;
   const hasUsers = users?.users?.length > 0;
   const [deletedRowIndex, setDeletedRowIndex] = React.useState(null);
+  const [pendingDeletion, setPendingDeletion] = React.useState(null);
 
   React.useEffect(() => {
     if (clusterGroupUsers.clusterID !== cluster.id || !isUsersLoading) {
@@ -179,6 +181,22 @@ const UsersSection = (props) => {
     </>
   );
 
+  const handleDeleteConfirm = () => {
+    if (pendingDeletion) {
+      const { user, index } = pendingDeletion;
+      setDeletedRowIndex(index);
+      deleteUserMutate(
+        { groupID: user.group, userID: user.id },
+        {
+          onSuccess: () => {
+            refetchUsers();
+          },
+        },
+      );
+      setPendingDeletion(null);
+    }
+  };
+
   const userRow = (user, index) =>
     deletedRowIndex === index ? (
       <Tr key={user.id}>
@@ -202,15 +220,7 @@ const UsersSection = (props) => {
               {
                 title: 'Delete',
                 onClick: () => {
-                  setDeletedRowIndex(index);
-                  deleteUserMutate(
-                    { groupID: user.group, userID: user.id },
-                    {
-                      onSuccess: () => {
-                        refetchUsers();
-                      },
-                    },
-                  );
+                  setPendingDeletion({ user, index });
                 },
               },
             ]}
@@ -276,6 +286,15 @@ const UsersSection = (props) => {
         clusterID={cluster.id}
         canAddClusterAdmin={canAddClusterAdmin}
         isROSA={isROSA}
+      />
+      <ConfirmationDialog
+        title="Are you sure you want to delete this user?"
+        content="The user will be permanently removed from the cluster."
+        primaryActionLabel="Delete"
+        primaryAction={handleDeleteConfirm}
+        secondaryActionLabel="Cancel"
+        isOpen={pendingDeletion !== null}
+        closeCallback={() => setPendingDeletion(null)}
       />
     </>
   );
