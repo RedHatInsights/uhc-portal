@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import installLinks from '../../../src/common/installLinks.mjs';
 
 const clusterProperties = require('../../fixtures/osd-gcp/osd-curated-gcp-wif-cluster-creation.spec.json');
 
@@ -35,7 +36,10 @@ test.describe.serial(
     }) => {
       await createOSDWizardPage.isOnlyGCPCloudProviderSelectionScreen();
       await createOSDWizardPage.isOnlyWifAuthenticationTypeScreen();
-      await createOSDWizardPage.isPrerequisitesHintPresent(clusterProperties.PrerequisitesHint);
+      await createOSDWizardPage.isPrerequisitesHintPresent(
+        clusterProperties.PrerequisitesHint,
+        installLinks.GCP_CONSOLE_OSD_PREREQ_CHECK,
+      );
       await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG);
       await createOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       await page.locator(createOSDWizardPage.primaryButton).click();
