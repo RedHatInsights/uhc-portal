@@ -1,6 +1,8 @@
 import { fieldId as instanceTypeFieldId } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 
+import { minimumCompatibleVersion } from '../WindowsLicenseIncludedField';
+
 const defaultMachinePool = {
   id: 'fooId',
   availability_zones: ['us-east-1a'],
@@ -64,6 +66,9 @@ const initialValuesEmptyMachineType = {
   [instanceTypeFieldId]: undefined,
 };
 
+const compatibleClusterVersion = minimumCompatibleVersion;
+const nonCompatibleClusterVersion = '4.18.0';
+
 export {
   defaultMachinePool,
   WindowsLIEnabledMachinePool,
@@ -73,4 +78,6 @@ export {
   initialValues,
   initialValuesWithWindowsLIEnabledMachineTypeSelected,
   initialValuesEmptyMachineType,
+  compatibleClusterVersion,
+  nonCompatibleClusterVersion,
 };
