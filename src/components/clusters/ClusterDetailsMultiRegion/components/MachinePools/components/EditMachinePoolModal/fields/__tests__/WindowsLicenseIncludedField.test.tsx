@@ -4,7 +4,10 @@ import { Formik, FormikValues } from 'formik';
 import links from '~/common/installLinks.mjs';
 import { render, screen } from '~/testUtils';
 
-import { WindowsLicenseIncludedField } from '../WindowsLicenseIncludedField';
+import {
+  minimumCompatibleVersion,
+  WindowsLicenseIncludedField,
+} from '../WindowsLicenseIncludedField';
 
 import {
   compatibleClusterVersion,
@@ -133,6 +136,89 @@ describe('<WindowsLicenseIncludedField />', () => {
         expect(
           screen.getByText('This instance type is not Windows License Included compatible.'),
         ).toBeInTheDocument();
+      });
+    });
+
+    describe('When using a non-compatible version cluster', () => {
+      it('Shows a disabled checkbox with a related tooltip', async () => {
+        // Arrange
+        const { user } = render(
+          buildTestComponent(
+            { initialValuesWithWindowsLIEnabledMachineTypeSelected },
+            <WindowsLicenseIncludedField clusterVersion={nonCompatibleClusterVersion} />,
+          ),
+        );
+
+        // Act
+        // Assert
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).toBeInTheDocument();
+        expect(checkbox).toBeDisabled();
+
+        await user.hover(checkbox);
+        expect(
+          screen.getByText(
+            `Windows License Included enabled machine pools can be created only for clusters running version ${minimumCompatibleVersion} and above.`,
+          ),
+        ).toBeInTheDocument();
+
+        // instance type tooltip does not override it when both incompatibilities apply
+        expect(
+          screen.queryByText('This instance type is not Windows License Included compatible.'),
+        ).not.toBeInTheDocument();
+      });
+
+      it('Shows a disabled checkbox with a tooltip related to version non-compatibility even if the selected Machine Type is NOT Windows LI compatible', async () => {
+        // Arrange
+        const { user } = render(
+          buildTestComponent(
+            { initialValues },
+            <WindowsLicenseIncludedField clusterVersion={nonCompatibleClusterVersion} />,
+          ),
+        );
+
+        // Act
+        // Assert
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).toBeInTheDocument();
+        expect(checkbox).toBeDisabled();
+        await user.hover(checkbox);
+        expect(
+          screen.getByText(
+            `Windows License Included enabled machine pools can be created only for clusters running version ${minimumCompatibleVersion} and above.`,
+          ),
+        ).toBeInTheDocument();
+      });
+    });
+
+    // This case is not feasible in real life since we are talking about a ready cluster, so it must have a defined version
+    describe('When cluster version is not available', () => {
+      it('disables the checkbox and shows the version incompatibility tooltip even if the instance type is incompatible', async () => {
+        // Arrange
+        const { user } = render(
+          buildTestComponent(
+            { initialValues },
+            <WindowsLicenseIncludedField clusterVersion="N/A" />,
+          ),
+        );
+
+        // Assert
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).toBeInTheDocument();
+        expect(checkbox).toBeDisabled();
+
+        await user.hover(checkbox);
+
+        expect(
+          screen.getByText(
+            `Windows License Included enabled machine pools can be created only for clusters running version ${minimumCompatibleVersion} and above.`,
+          ),
+        ).toBeInTheDocument();
+
+        // instance type tooltip does not override it when both incompatibilities apply
+        expect(
+          screen.queryByText('This instance type is not Windows License Included compatible.'),
+        ).not.toBeInTheDocument();
       });
     });
   });
