@@ -1,12 +1,10 @@
 name: e2e CI
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review]
+  # note:  don't use 'pull_request_target' event!  see OCMUI-4089
   push:
     branches:
       - 'main'
-
 jobs:
   install:
     name: E2E - ${{ matrix.os }} - Install - Node ${{ matrix.node-version }}

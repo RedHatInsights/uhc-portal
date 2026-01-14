@@ -1,8 +1,7 @@
 name: E2e CI Playwright Tests
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review]
+  # note:  don't use 'pull_request_target' event!  see OCMUI-4089
   push:
     branches:
       - 'main'
