@@ -25,7 +25,7 @@
     },
     {
       "id": "2",
-      "cluster_id": "clusterID XXXXX2",
+      "cluster_id": "clusterID2",
       "duration": "8h",
       "kind": "AccessRequest",
       "href": "https://whatever",
@@ -52,7 +52,7 @@
     },
     {
       "id": "3",
-      "cluster_id": "clusterID XXXXX3",
+      "cluster_id": "clusterID2",
       "duration": "8h",
       "kind": "AccessRequest",
       "href": "https://whatever",
@@ -75,7 +75,7 @@
     },
     {
       "id": "4",
-      "cluster_id": "clusterID XXXXX4",
+      "cluster_id": "clusterID2",
       "duration": "8h",
       "kind": "AccessRequest",
       "href": "https://whatever",
@@ -104,7 +104,7 @@
     },
     {
       "id": "5",
-      "cluster_id": "clusterID XXXXX5",
+      "cluster_id": "clusterID2",
       "duration": "8h",
       "kind": "AccessRequest",
       "href": "https://whatever",
@@ -128,13 +128,12 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Approved",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "6",
-      "cluster_id": "clusterID XXXXX6",
+      "cluster_id": "clusterID2",
       "duration": "8h",
       "kind": "AccessRequest",
       "href": "https://whatever",
@@ -148,13 +147,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "7",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-22T09:28:44.121Z",
@@ -166,13 +165,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "8",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-23T09:28:44.121Z",
@@ -184,13 +183,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "9",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-23T09:28:44.121Z",
@@ -202,13 +201,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "10",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-24T09:28:44.121Z",
@@ -220,13 +219,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "11",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-25T09:28:44.121Z",
@@ -238,13 +237,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "12",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-17T09:28:44.121Z",
@@ -256,13 +255,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "13",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-18T09:28:44.121Z",
@@ -274,13 +273,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "14",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-19T09:28:44.121Z",
@@ -292,13 +291,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "15",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-20T09:28:44.121Z",
@@ -310,13 +309,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "16",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-21T09:28:44.121Z",
@@ -328,13 +327,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "17",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-22T09:28:44.121Z",
@@ -346,13 +345,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "18",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-23T09:28:44.121Z",
@@ -364,13 +363,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "19",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-23T09:28:44.121Z",
@@ -382,13 +381,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "20",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-24T09:28:44.121Z",
@@ -400,13 +399,13 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     },
     {
       "id": "21",
       "duration": "8h",
+      "cluster_id": "clusterID2",
       "kind": "AccessRequest",
       "href": "https://whatever",
       "created_at": "2024-05-25T09:28:44.121Z",
@@ -418,8 +417,7 @@
       "organization_id": "organization_idy",
       "subscription_id": "subscription_idy",
       "status": {
-        "state": "Pending",
-        "expires_at": "2024-05-16T09:28:44.121Z"
+        "state": "Denied"
       }
     }
   ]

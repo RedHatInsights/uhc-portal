@@ -66,8 +66,7 @@ const reviewValues = {
   },
   cloud_provider: {
     title: 'Cloud provider',
-    valueTransform: (value) =>
-      value === 'gcp' ? 'Google Cloud Platform (GCP)' : value?.toUpperCase(),
+    valueTransform: (value) => (value === 'gcp' ? 'Google Cloud' : value?.toUpperCase()),
   },
   [FieldId.GcpAuthType]: {
     title: 'Authentication type',
@@ -492,7 +491,7 @@ const reviewValues = {
     title: 'AWS infrastructure account ID',
   },
   shared_host_project_id: {
-    title: 'GCP shared host project ID',
+    title: 'Google Cloud shared host project ID',
   },
   billing_account_id: {
     title: 'AWS billing account ID',

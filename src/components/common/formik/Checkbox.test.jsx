@@ -6,12 +6,10 @@ import { checkAccessibility, render, screen, userEvent } from '~/testUtils';
 import Checkbox from './Checkbox';
 
 describe('Checkbox', () => {
-  // `Checkbox` is not accessible due to the lack of associated label.
-  // skipped until `Checkbox` accepts a `label` and passes it down to `FormGroup`
-  it.skip('is accessible', async () => {
+  it('is accessible', async () => {
     const { container } = render(
       <Formik initialValues={{}} onSubmit={() => {}}>
-        <Checkbox fieldId="wat" />
+        <Checkbox fieldId="wat" label="my label" />
       </Formik>,
     );
     await checkAccessibility(container);

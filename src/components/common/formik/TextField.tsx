@@ -15,6 +15,7 @@ type TextFieldProps = {
   placeHolderText?: string;
   isReadOnly?: boolean;
   ariaLabelledBy?: string;
+  trimOnBlur?: boolean;
 };
 
 const TextField = ({
@@ -26,8 +27,9 @@ const TextField = ({
   placeHolderText,
   isReadOnly,
   ariaLabelledBy,
+  trimOnBlur,
 }: TextFieldProps) => {
-  const [field, { error, touched }] = useField(fieldId);
+  const [field, { error, touched }, { setValue }] = useField(fieldId);
 
   const labelIcon = helpText ? (
     <Popover bodyContent={<p>{helpText}</p>}>
@@ -48,8 +50,15 @@ const TextField = ({
       <TextInput
         {...field}
         id={fieldId}
+        validated={touched && error ? 'error' : 'default'}
         onChange={(event, value) => {
           field.onChange(event);
+        }}
+        onBlur={(e) => {
+          if (trimOnBlur && typeof field.value === 'string') {
+            setValue(field.value.trim());
+          }
+          field.onBlur(e);
         }}
         isDisabled={isDisabled}
         placeholder={placeHolderText}

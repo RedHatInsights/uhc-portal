@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CardBody,
+  CardFooter,
   CardHeader,
   EmptyState,
   EmptyStateBody,
@@ -38,13 +39,16 @@ import {
 // import the CLUSTER_TABBED_VIEW feature gate
 import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { viewConstants } from '~/redux/constants';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { ClusterTransferStatus } from '~/types/accounts_mgmt.v1';
+import { ViewOptions } from '~/types/types';
 
 import ErrorTriangle from '../common/ErrorTriangle';
 
 import { AcceptDeclineClusterTransferModal } from './AcceptDeclineTransferModal';
 import { CancelClusterTransferModal } from './CancelClusterTransferModal';
+import ClusterTransferListTablePagination from './ClusterTransferListTablePagination';
 import TransferOwnerStatus from './TransferOwnerStatus';
 
 const ClusterTransferPageHeader = ({
@@ -53,12 +57,14 @@ const ClusterTransferPageHeader = ({
   error,
   refresh,
   hideRefreshButton,
+  viewOptions,
 }: {
   showSpinner: boolean;
   isError?: boolean;
   error?: Error;
   refresh: () => void;
   hideRefreshButton?: boolean;
+  viewOptions: ViewOptions;
 }) => {
   const bodyContent = (
     <Flex>
@@ -122,13 +128,23 @@ const ClusterTransferPageHeader = ({
           </Toolbar>
         </FlexItem>
       )}
+      <FlexItem align={{ default: 'alignRight' }}>
+        <ClusterTransferListTablePagination
+          viewType={viewConstants.CLUSTER_TRANSFER_VIEW}
+          viewOptions={viewOptions}
+          variant="top"
+          isDisabled={showSpinner}
+        />
+      </FlexItem>
     </Flex>
   );
 };
 
 const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolean }) => {
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
-
+  const viewOptions = useGlobalState(
+    (state) => state.viewOptions[viewConstants.CLUSTER_TRANSFER_VIEW],
+  );
   const { data, isLoading, isError, error } = useFetchClusterTransferDetail({
     username,
   });
@@ -196,7 +212,7 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
         key={transferId}
         transferId={transferId || ''}
         displayName={displayName}
-        buttonText={isTabbedClusters ? 'Open' : undefined}
+        buttonText={isTabbedClusters ? 'Retract' : undefined}
         icon={isTabbedClusters ? <EyeIcon /> : undefined}
       />
     ) : (
@@ -298,6 +314,7 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
           error={error instanceof Error ? error : undefined}
           refresh={refetchClusterTransferDetail}
           hideRefreshButton={hideRefreshButton}
+          viewOptions={viewOptions}
         />
       </CardHeader>
       {!isLoading && (!data || data?.items?.length === 0) ? (
@@ -312,6 +329,14 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
           ) : null}
         </CardBody>
       )}
+      <CardFooter>
+        <ClusterTransferListTablePagination
+          viewType={viewConstants.CLUSTER_TRANSFER_VIEW}
+          viewOptions={viewOptions}
+          variant="bottom"
+          isDisabled={isLoading}
+        />
+      </CardFooter>
     </Card>
   );
 };

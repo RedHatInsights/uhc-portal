@@ -209,7 +209,7 @@ describe('Service page unit tests', () => {
       await user.click(billingAndProcurementButton);
       expect(
         screen.getByText(
-          'Receive a single bill for both the Red Hat OpenShift service and Google CloudPlatform infrastructure consumption.',
+          'Receive a single bill for both the Red Hat OpenShift service and Google Cloud infrastructure consumption.',
         ),
       );
 

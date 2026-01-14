@@ -21,16 +21,16 @@ const MonitoringEmptyState = ({
   title = 'Monitoring data is not available',
 }: MonitoringEmptyStateProps) => (
   <EmptyState
-    headingLevel="h5"
+    headingLevel="h2"
     titleText={title}
     {...(!hideIcon && { icon: ExclamationTriangleIcon })}
   >
     <EmptyStateBody>
       {children}
       {!hideLastCheckIn && (
-        <p>
+        <div>
           Last Check-in: <LiveDateFormat date={lastCheckIn} />
-        </p>
+        </div>
       )}
     </EmptyStateBody>
   </EmptyState>

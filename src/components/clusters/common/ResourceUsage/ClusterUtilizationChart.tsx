@@ -87,6 +87,7 @@ function ClusterUtilizationChart({
     (extraProps: any) => (
       <ChartDonutUtilization
         id={donutId}
+        ariaTitle={donutCenter.primary}
         title={donutCenter.primary}
         subTitle={donutCenter.secondary}
         data={{ x: `${formattedUsed?.value} ${formattedUsed?.unit}`, y: usedPercentage }}
@@ -113,6 +114,7 @@ function ClusterUtilizationChart({
         <div className="metrics-chart">
           <ChartDonutThreshold
             ariaDesc={title}
+            ariaTitle={title}
             data={[
               { x: '', y: 80 },
               { x: 'Warning at 80%', y: 95 },

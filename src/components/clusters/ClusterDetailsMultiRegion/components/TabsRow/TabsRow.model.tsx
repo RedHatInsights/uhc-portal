@@ -3,7 +3,6 @@ import React, { RefObject } from 'react';
 import { ClusterTabsId } from '../common/ClusterTabIds';
 
 export type TabsRowTabType = {
-  key: number;
   title: string | React.ReactNode;
   contentId: string;
   id: ClusterTabsId;
@@ -20,15 +19,15 @@ export type TabsRowTabProperties = {
 };
 
 export type TabsRowInfoType = {
-  overview: TabsRowTabProperties;
-  monitoring: TabsRowTabProperties;
-  accessControl: TabsRowTabProperties;
-  addOns: TabsRowTabProperties;
-  clusterHistory: TabsRowTabProperties;
-  networking: TabsRowTabProperties;
-  machinePools: TabsRowTabProperties;
-  support: TabsRowTabProperties;
-  upgradeSettings: TabsRowTabProperties;
-  addAssisted: TabsRowTabProperties;
-  accessRequest: TabsRowTabProperties;
+  [ClusterTabsId.OVERVIEW]: TabsRowTabProperties;
+  [ClusterTabsId.MONITORING]: TabsRowTabProperties;
+  [ClusterTabsId.ACCESS_CONTROL]: TabsRowTabProperties;
+  [ClusterTabsId.ADD_ONS]: TabsRowTabProperties;
+  [ClusterTabsId.CLUSTER_HISTORY]: TabsRowTabProperties;
+  [ClusterTabsId.NETWORKING]: TabsRowTabProperties;
+  [ClusterTabsId.MACHINE_POOLS]: TabsRowTabProperties;
+  [ClusterTabsId.SUPPORT]: TabsRowTabProperties;
+  [ClusterTabsId.UPDATE_SETTINGS]: TabsRowTabProperties;
+  [ClusterTabsId.ADD_ASSISTED_HOSTS]: TabsRowTabProperties;
+  [ClusterTabsId.ACCESS_REQUEST]: TabsRowTabProperties;
 };

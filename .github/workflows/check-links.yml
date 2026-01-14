@@ -25,7 +25,7 @@ jobs:
         id: check-links
         run: node run/check-links.mjs
 
-      - name: Send message to Slack
+      - name: Send message to Slack (404 found)
         if: steps.check-links.outputs.has404 == 'true'
         uses: slackapi/slack-github-action@v2.1.1
         with:
@@ -35,4 +35,15 @@ jobs:
             has404: "${{ steps.check-links.outputs.has404 }}"
             404_length: "${{ steps.check-links.outputs.notFoundLength }}"
             message: "Broken links found"
+            run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Send message to Slack (no 404 found)
+        if: steps.check-links.outputs.has404 == 'false'
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            has404: "${{ steps.check-links.outputs.has404 }}"
+            message: "No broken links found :)"
             run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"

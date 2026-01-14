@@ -32,7 +32,7 @@ describe('OSD Non CCS cluster creation tests(OCP-42746,OCP-21086)', { tags: ['sm
     it(`OSD ${clusterPropertiesFile.CloudProvider} wizard - Cluster Settings - Cluster details definitions`, () => {
       CreateOSDWizardPage.isClusterDetailsScreen();
       cy.get(CreateOSDWizardPage.clusterNameInput).type(clusterPropertiesFile.ClusterName).blur();
-      CreateOSDWizardPage.singleZoneAvilabilityRadio().should('be.checked');
+      CreateOSDWizardPage.singleZoneAvailabilityRadio().should('be.checked');
       CreateOSDWizardPage.selectRegion(clusterPropertiesFile.Region);
       CreateOSDWizardPage.selectPersistentStorage(clusterPropertiesFile.PersistentStorage);
       CreateOSDWizardPage.selectLoadBalancers(clusterPropertiesFile.LoadBalancers);
@@ -49,7 +49,7 @@ describe('OSD Non CCS cluster creation tests(OCP-42746,OCP-21086)', { tags: ['sm
       CreateOSDWizardPage.wizardNextButton().click();
     });
 
-    if (!clusterPropertiesFile.CloudProvider.includes('GCP')) {
+    if (!clusterPropertiesFile.CloudProvider.includes('Google Cloud')) {
       it(`OSD ${clusterPropertiesFile.CloudProvider} wizard - Networking configuration - cluster privacy definitions`, () => {
         CreateOSDWizardPage.isNetworkingScreen();
         CreateOSDWizardPage.clusterPrivacyPublicRadio().should('be.checked');

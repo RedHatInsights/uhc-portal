@@ -39,9 +39,9 @@ describe(
       CreateOSDWizardPage.closePopoverDialogs();
       CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
       if (clusterProperties.EnableSecureBootSupportForSchieldedVMs.includes('Enabled')) {
-        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
       } else {
-        CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMsCheckbox().should(
+        CreateOSDWizardPage.enableSecureBootSupportForShieldedVMsCheckbox().should(
           'not.be.checked',
         );
       }

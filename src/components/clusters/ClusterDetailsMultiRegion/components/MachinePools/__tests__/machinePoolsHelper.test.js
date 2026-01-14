@@ -5,6 +5,7 @@ import { normalizedProducts } from '../../../../../../common/subscriptionTypes';
 import {
   actionResolver,
   canUseSpotInstances,
+  getCapacityPreferenceLabel,
   getClusterMinNodes,
   getMinNodesRequired,
   getNodeIncrementHypershift,
@@ -890,5 +891,18 @@ describe('isEnforcedDefaultMachinePool', () => {
       isHypershiftClusterMock.mockReturnValue(isHypershiftClusterResult);
       expect(canUseSpotInstances(cluster)).toBe(expected);
     });
+  });
+
+  describe('getCapacityPreferenceLabel', () => {
+    it.each([
+      [undefined, '', 'N/A'],
+      ['', '', 'N/A'],
+      ['capacity-reservations-only', 'capId1', 'CR only'],
+      ['none', undefined, 'None'],
+      ['open', '', 'Open'],
+      [undefined, 'capId1', 'CR only'],
+    ])('%p', (preference, id, expected) =>
+      expect(getCapacityPreferenceLabel(preference, id)).toStrictEqual(expected),
+    );
   });
 });

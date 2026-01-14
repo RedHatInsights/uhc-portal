@@ -21,6 +21,7 @@ import {
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
+import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import ExternalLink from '~/components/common/ExternalLink';
 import useAnalytics from '~/hooks/useAnalytics';
 import { PRIVATE_SERVICE_CONNECT } from '~/queries/featureGates/featureConstants';
@@ -67,11 +68,13 @@ export const Configuration = () => {
     canConfigureDayOnePrivateServiceConnect(clusterVersionRawId) &&
     hasPSCFeatureGate;
   const isWifAuth = authTypeFormValue === GCPAuthType.WorkloadIdentityFederation;
+
+  const showExistingVpcInstallText = !(isGCP && isPrivateCluster && isWifAuth);
   const PSCPrivateWifWarning =
     isGCP && isPrivateCluster && isWifAuth && hasPSCFeatureGate
       ? 'Private clusters deployed using Workload Identity Federation must be deployed into an existing VPC.'
       : '';
-
+  const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
   const trackOcmResourceType =
     product === normalizedProducts.ROSA ? ocmResourceType.MOA : ocmResourceType.OSD;
 
@@ -111,7 +114,9 @@ export const Configuration = () => {
       );
 
       if (!hasFilledMachinePoolsSubnets) {
-        setFieldValue(FieldId.InstallToVpc, false);
+        if (!isOSDFromGoogleCloud) {
+          setFieldValue(FieldId.InstallToVpc, false);
+        }
         clearSecurityGroups();
 
         // Also unset "Configure a cluster-wide proxy" if enabled
@@ -251,10 +256,12 @@ export const Configuration = () => {
               <Title headingLevel="h4" size="xl" className="privacy-heading">
                 Virtual Private Cloud (VPC)
               </Title>
-              <Content component="p" className="pf-v6-u-mt-sm">
-                By default, a new VPC will be created for your cluster. Alternatively, you may opt
-                to install to an existing VPC below.
-              </Content>
+              {!isOSDFromGoogleCloud && showExistingVpcInstallText ? (
+                <Content component="p" className="pf-v6-u-mt-sm">
+                  By default, a new VPC will be created for your cluster. Alternatively, you may opt
+                  to install to an existing VPC below.
+                </Content>
+              ) : null}
             </GridItem>
 
             <GridItem span={6}>
@@ -266,7 +273,8 @@ export const Configuration = () => {
                   isDisabled={
                     usePrivateLink ||
                     configureProxy ||
-                    (isPrivateCluster && isWifAuth && hasPSCFeatureGate)
+                    (isPrivateCluster && isWifAuth && hasPSCFeatureGate) ||
+                    isOSDFromGoogleCloud
                   }
                 />
 

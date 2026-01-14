@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 
 import { Content, GridItem } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
 import { required } from '~/common/validators';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
@@ -41,15 +42,13 @@ export const KmsKeyRingSelect = () => {
         helperText="A key ring organizes keys in a specific Google Cloud location."
         noDependenciesPlaceholder="Enter GCP credentials first"
         placeholder="Select key ring"
-        requestErrorTitle="Error listing key rings using your GCP credentials"
+        requestErrorTitle="Error listing key rings using your Google Cloud credentials"
         emptyAlertTitle="No key rings found for this location"
         emptyAlertBody={
           <>
             <Content component="p">
               If available, change the Key ring location. Or go to your{' '}
-              <ExternalLink href="https://console.cloud.google.com/security/kms">
-                Google Cloud Console
-              </ExternalLink>{' '}
+              <ExternalLink href={installLinks.GCP_CONSOLE_KMS}>Google Cloud Console</ExternalLink>{' '}
               and create the key ring.
             </Content>
             <Content component="p">

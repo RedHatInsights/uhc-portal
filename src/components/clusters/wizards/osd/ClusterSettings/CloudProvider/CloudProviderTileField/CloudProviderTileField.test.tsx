@@ -30,7 +30,7 @@ const expectCloudProviderToBe = (submitFn: jest.Mock, value: string) => {
 
 describe('<CloudProviderTileField />', () => {
   const awsLabel = 'Amazon Web Service logo Run on Amazon Web Services';
-  const gcpLabel = 'Run on Google Cloud Platform';
+  const gcpLabel = 'Run on Google Cloud';
 
   it('is accessible', async () => {
     const { container } = render(
@@ -96,7 +96,7 @@ describe('CloudProviderTileField visibility logic based on billing model and GCP
       </Formik>,
     );
 
-    expect(screen.getByText(/run on google cloud platform/i)).toBeInTheDocument();
+    expect(screen.getByText(/run on Google Cloud/i)).toBeInTheDocument();
   });
 
   it('shows both AWS and GCP tiles when billing model is "Annual: Fixed capacity subscription from Red Hat" and "GCP auth is Service Accounts"', () => {
@@ -114,6 +114,6 @@ describe('CloudProviderTileField visibility logic based on billing model and GCP
     );
 
     expect(screen.getByText(/run on amazon web services/i)).toBeInTheDocument();
-    expect(screen.getByText(/run on google cloud platform/i)).toBeInTheDocument();
+    expect(screen.getByText(/run on Google Cloud/i)).toBeInTheDocument();
   });
 });

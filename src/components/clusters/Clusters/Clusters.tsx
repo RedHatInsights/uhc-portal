@@ -2,7 +2,10 @@ import React, { useCallback } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 import {
+  Badge,
   PageSection,
+  Stack,
+  StackItem,
   Tab,
   TabContent,
   TabContentBody,
@@ -12,11 +15,15 @@ import {
 
 import { Navigate, useNavigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
+import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
+import { AccessRequest } from '../ClusterDetailsMultiRegion/components/AccessRequest/AccessRequest';
 import ClusterList from '../ClusterListMultiRegion';
 import ClusterTransferList from '../ClusterTransfer/ClusterTransferList';
 
 import { ClustersPageHeader } from './ClustersPageHeader';
+import { useCountPendingRequest } from './useCountPendingRequest';
 
 const CLUSTERS_ROUTES = {
   BASE: '/clusters',
@@ -27,7 +34,7 @@ const CLUSTERS_ROUTES = {
 export const Clusters = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
   const activeTabKey = location.pathname.includes(CLUSTERS_ROUTES.REQUESTS) ? 'requests' : 'list';
   const handleTabSelect = useCallback(
     (_event: React.MouseEvent<HTMLElement>, tabKey: string | number) => {
@@ -39,10 +46,10 @@ export const Clusters = () => {
     },
     [navigate],
   );
-
+  const total = useCountPendingRequest();
   return (
     <AppPage title="Clusters | Red Hat OpenShift Cluster Manager">
-      <ClustersPageHeader />
+      <ClustersPageHeader activeTabKey={activeTabKey} />
       <PageSection type="tabs">
         <Tabs
           activeKey={activeTabKey}
@@ -59,7 +66,9 @@ export const Clusters = () => {
           />
           <Tab
             eventKey="requests"
-            title={<TabTitleText>Cluster Requests</TabTitleText>}
+            title={
+              <TabTitleText>Cluster Request {total ? <Badge>{total}</Badge> : null}</TabTitleText>
+            }
             aria-label="Cluster Requests"
             tabContentId="requests"
           />
@@ -85,7 +94,14 @@ export const Clusters = () => {
           element={
             <TabContent id="requests" activeKey={activeTabKey}>
               <TabContentBody hasPadding>
-                <ClusterTransferList hideRefreshButton />
+                <Stack hasGutter>
+                  <StackItem>
+                    {isTabbedClustersEnabled && <AccessRequest showClusterName />}
+                  </StackItem>
+                  <StackItem>
+                    <ClusterTransferList hideRefreshButton />
+                  </StackItem>
+                </Stack>
               </TabContentBody>
             </TabContent>
           }

@@ -10,11 +10,48 @@ class CreateOSDCluster extends Page {
   }
 
   isBillingModelScreen() {
-    cy.contains('h2', 'Welcome to Red Hat OpenShift Dedicated');
+    cy.contains('h2', 'Welcome to Red Hat OpenShift Dedicated', { timeout: 40000 });
   }
 
   isCloudProviderSelectionScreen() {
     cy.contains('h3', 'Select a cloud provider');
+  }
+
+  isOnlyGCPCloudProviderSelectionScreen() {
+    cy.contains('h3', 'Google Cloud account details')
+      .scrollIntoView()
+      .should('exist')
+      .should('be.visible');
+    cy.contains('h3', 'Select a cloud provider').should('not.exist');
+  }
+
+  isPrerequisitesHintPresent() {
+    cy.contains('strong', 'Have you prepared your Google account?')
+      .scrollIntoView()
+      .should('exist')
+      .should('be.visible');
+    cy.contains(
+      "To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.",
+    )
+      .scrollIntoView()
+      .should('exist')
+      .should('be.visible');
+    cy.contains('a', 'Review Google terms and agreements')
+      .scrollIntoView()
+      .should('exist')
+      .should('be.visible')
+      .should(
+        'have.attr',
+        'href',
+        'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
+      );
+  }
+
+  isWIFRecommendationAlertPresent() {
+    cy.get('h4')
+      .contains('Red Hat recommends using WIF as the authentication type')
+      .should('exist')
+      .should('be.visible');
   }
 
   isClusterDetailsScreen() {
@@ -78,7 +115,7 @@ class CreateOSDCluster extends Page {
     cy.get('input[name="billing_model"][value="standard"]');
 
   subscriptionTypeOnDemandFlexibleRadio = () =>
-    cy.get('input[name="billing_model"][value="marketplace-select"]');
+    cy.get('input[name="billing_model"][value="marketplace-gcp"]');
 
   infrastructureTypeRedHatCloudAccountRadio = () =>
     cy.get('input[id="form-radiobutton-byoc-false-field"]');
@@ -104,7 +141,7 @@ class CreateOSDCluster extends Page {
 
   clusterDetailsTree = () => cy.get('button[id="cluster-settings-details"]').contains('Details');
 
-  acknowlegePrerequisitesCheckbox = () => cy.get('input[id="acknowledge_prerequisites"]');
+  acknowledgePrerequisitesCheckbox = () => cy.get('input[id="acknowledge_prerequisites"]');
 
   createCustomDomainPrefixCheckbox = () => cy.get('input[id="has_domain_prefix"]');
 
@@ -112,11 +149,11 @@ class CreateOSDCluster extends Page {
 
   clusterVersionPane = () => cy.get('div[name="cluster_version"]');
 
-  singleZoneAvilabilityRadio = () => cy.get('input[id="form-radiobutton-multi_az-false-field"]');
+  singleZoneAvailabilityRadio = () => cy.get('input[id="form-radiobutton-multi_az-false-field"]');
 
   multiZoneAvilabilityRadio = () => cy.get('input[id="form-radiobutton-multi_az-true-field"]');
 
-  enableSecureBootSupportForSchieldedVMsCheckbox = () => cy.get('input[id="secure_boot"]');
+  enableSecureBootSupportForShieldedVMsCheckbox = () => cy.get('input[id="secure_boot"]');
 
   advancedEncryptionLink = () => cy.contains('Advanced Encryption');
 
@@ -547,18 +584,20 @@ class CreateOSDCluster extends Page {
     }
   }
 
+  isCuratedBillingModelEnabledAndSelected() {
+    this.subscriptionTypeOnDemandFlexibleRadio().should('be.checked');
+    this.infrastructureTypeClusterCloudSubscriptionRadio().should('be.checked');
+    this.infrastructureTypeRedHatCloudAccountRadio().should('not.exist');
+    this.subscriptionTypeAnnualFixedCapacityRadio().should('not.exist');
+    this.subscriptionTypeFreeTrialRadio().should('not.exist');
+  }
+
   selectInfrastructureType(infrastructureType) {
     if (infrastructureType.toLowerCase().includes('customer cloud')) {
       this.infrastructureTypeClusterCloudSubscriptionRadio().check({ force: true });
     } else {
       this.infrastructureTypeRedHatCloudAccountRadio().check({ force: true });
     }
-  }
-
-  selectMarketplaceSubscription(marketplace) {
-    cy.get('div[name="marketplace_selection"]').find('button').click();
-    cy.contains('button', 'Red Hat Marketplace').should('not.exist');
-    cy.get('button').contains(marketplace).click();
   }
 
   selectCloudProvider(cloudProvider) {
@@ -571,17 +610,17 @@ class CreateOSDCluster extends Page {
 
   selectAvailabilityZone(az) {
     if (az.toLowerCase() == 'single zone' || az.toLowerCase() == 'single-zone') {
-      this.singleZoneAvilabilityRadio().check();
+      this.singleZoneAvailabilityRadio().check();
     } else {
       this.multiZoneAvilabilityRadio().check();
     }
   }
 
-  enableSecureBootSupportForSchieldedVMs(enable) {
+  enableSecureBootSupportForShieldedVMs(enable) {
     if (enable) {
-      this.enableSecureBootSupportForSchieldedVMsCheckbox().check();
+      this.enableSecureBootSupportForShieldedVMsCheckbox().check();
     } else {
-      this.enableSecureBootSupportForSchieldedVMsCheckbox().uncheck();
+      this.enableSecureBootSupportForShieldedVMsCheckbox().uncheck();
     }
   }
 

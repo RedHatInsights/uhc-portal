@@ -18,7 +18,7 @@ describe(
     });
 
     Clusters.forEach((clusterProperties) => {
-      let authType = clusterProperties.CloudProvider.includes('Google Cloud Platform')
+      let authType = clusterProperties.CloudProvider.includes('Google Cloud')
         ? `-${clusterProperties.AuthenticationType} `
         : '';
       let isPscEnabled =
@@ -49,7 +49,7 @@ describe(
         CreateOSDWizardPage.isCloudProviderSelectionScreen();
         CreateOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
 
-        if (clusterProperties.CloudProvider.includes('GCP')) {
+        if (clusterProperties.CloudProvider.includes('Google Cloud')) {
           if (clusterProperties.AuthenticationType.includes('Service Account')) {
             CreateOSDWizardPage.serviceAccountButton().click();
             CreateOSDWizardPage.uploadGCPServiceAccountJSON(JSON.stringify(QE_GCP));
@@ -64,7 +64,7 @@ describe(
           CreateOSDWizardPage.awsAccessKeyInput().type(awsAccessKey);
           CreateOSDWizardPage.awsSecretKeyInput().type(awsSecretKey);
         }
-        CreateOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+        CreateOSDWizardPage.acknowledgePrerequisitesCheckbox().check();
         cy.get(CreateOSDWizardPage.primaryButton).click();
       });
 
@@ -75,10 +75,10 @@ describe(
         CreateOSDWizardPage.closePopoverDialogs();
         CreateOSDWizardPage.setDomainPrefix(clusterProperties.ClusterDomainPrefix);
         CreateOSDWizardPage.closePopoverDialogs();
-        CreateOSDWizardPage.singleZoneAvilabilityRadio().should('be.checked');
+        CreateOSDWizardPage.singleZoneAvailabilityRadio().should('be.checked');
         CreateOSDWizardPage.selectRegion(clusterProperties.Region);
-        if (clusterProperties.CloudProvider.includes('GCP')) {
-          CreateOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+        if (clusterProperties.CloudProvider.includes('Google Cloud')) {
+          CreateOSDWizardPage.enableSecureBootSupportForShieldedVMs(true);
         }
         CreateOSDWizardPage.enableUserWorkloadMonitoringCheckbox().should('be.checked');
         cy.get(CreateOSDWizardPage.primaryButton).click();
@@ -103,7 +103,7 @@ describe(
         CreateOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
         if (
           clusterProperties.ClusterPrivacy.includes('Private') &&
-          clusterProperties.CloudProvider.includes('GCP')
+          clusterProperties.CloudProvider.includes('Google Cloud')
         ) {
           CreateOSDWizardPage.installIntoExistingVpcCheckBox().should('be.checked');
           CreateOSDWizardPage.usePrivateServiceConnectCheckBox().should('be.checked');
@@ -155,7 +155,7 @@ describe(
           clusterProperties.InfrastructureType,
         );
         CreateOSDWizardPage.cloudProviderValue().contains(clusterProperties.CloudProvider);
-        if (clusterProperties.CloudProvider.includes('GCP')) {
+        if (clusterProperties.CloudProvider.includes('Google Cloud')) {
           CreateOSDWizardPage.authenticationTypeValue().contains(
             clusterProperties.AuthenticationType,
           );
@@ -169,7 +169,7 @@ describe(
         CreateOSDWizardPage.clusterNameValue().contains(clusterProperties.ClusterName);
         CreateOSDWizardPage.regionValue().contains(clusterProperties.Region.split(',')[0]);
         CreateOSDWizardPage.availabilityValue().contains(clusterProperties.Availability);
-        if (clusterProperties.CloudProvider.includes('GCP')) {
+        if (clusterProperties.CloudProvider.includes('Google Cloud')) {
           CreateOSDWizardPage.securebootSupportForShieldedVMsValue().contains(
             clusterProperties.SecureBootSupportForShieldedVMs,
           );
@@ -254,7 +254,7 @@ describe(
         ClusterDetailsPage.clusterInfrastructureBillingModelValue().contains(
           clusterProperties.InfrastructureType,
         );
-        if (clusterProperties.CloudProvider.includes('GCP')) {
+        if (clusterProperties.CloudProvider.includes('Google Cloud')) {
           ClusterDetailsPage.clusterSecureBootSupportForShieldedVMsValue().contains(
             clusterProperties.SecureBootSupportForShieldedVMs,
           );

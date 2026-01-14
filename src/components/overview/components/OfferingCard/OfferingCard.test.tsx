@@ -27,4 +27,12 @@ describe('<OfferingCard />', () => {
     render(<OfferingCard offeringType="AWS" canCreateManagedCluster />);
     expect(screen.getByTestId('create-cluster')).not.toHaveAttribute('aria-disabled');
   });
+  it('Shows Developer Preview support level badge for MIGRATION offering', () => {
+    render(<OfferingCard offeringType="MIGRATION" canCreateManagedCluster />);
+    expect(screen.getByText('Developer Preview')).toBeInTheDocument();
+  });
+  it('Does not show support level badge for non-migration offerings', () => {
+    render(<OfferingCard offeringType="AWS" canCreateManagedCluster />);
+    expect(screen.queryByText('Developer Preview')).not.toBeInTheDocument();
+  });
 });

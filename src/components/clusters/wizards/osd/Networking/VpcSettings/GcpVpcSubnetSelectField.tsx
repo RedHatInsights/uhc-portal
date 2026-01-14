@@ -111,7 +111,7 @@ export const GcpVpcSubnetSelectField = ({
         <Alert
           variant="danger"
           isInline
-          title="Failed to list existing VPC subnets using your GCP credentials"
+          title="Failed to list existing VPC subnets using your Google Cloud credentials"
         >
           Verify that your entered service account details are correct
         </Alert>

@@ -1,5 +1,7 @@
 import React, { ReactNode } from 'react';
 
+import installLinks from '~/common/installLinks.mjs';
+
 import { AdvancedClusterManagementDrawerPanelBody } from './DrawerPanelContents/AdvancedClusterManagement/DrawerPanelBody';
 import { AdvancedClusterSecurityDrawerPanelBody } from './DrawerPanelContents/AdvancedClusterSecurity/DrawerPanelBody';
 import { GeneralDrawerPanelHead } from './DrawerPanelContents/GeneralDrawerPanelHead';
@@ -34,7 +36,7 @@ const DRAWER_PANEL_CONTENT = {
     head: (
       <GeneralDrawerPanelHead
         {...PRODUCT_CARD_LOGOS.advancedClusterSecurity}
-        trialButtonLink="https://www.redhat.com/en/technologies/cloud-computing/openshift/advanced-cluster-security-kubernetes/trial"
+        trialButtonLink={installLinks.RH_ACS_TRIAL}
       />
     ),
     body: AdvancedClusterSecurityDrawerPanelBody,
@@ -43,7 +45,7 @@ const DRAWER_PANEL_CONTENT = {
     head: (
       <GeneralDrawerPanelHead
         {...PRODUCT_CARD_LOGOS.openshiftAi}
-        trialButtonLink="https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai/trial"
+        trialButtonLink={installLinks.RH_OPENSHIFT_AI_TRIAL}
       />
     ),
     body: OpenShiftAiDrawerPanelBody,
@@ -56,7 +58,7 @@ const DRAWER_PANEL_CONTENT = {
     head: (
       <GeneralDrawerPanelHead
         {...PRODUCT_CARD_LOGOS.advancedClusterManagement}
-        trialButtonLink="https://www.redhat.com/en/technologies/management/advanced-cluster-management/trial"
+        trialButtonLink={installLinks.RH_ACM_TRIAL}
       />
     ),
     body: AdvancedClusterManagementDrawerPanelBody,

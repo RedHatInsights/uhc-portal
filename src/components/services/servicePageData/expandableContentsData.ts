@@ -71,7 +71,7 @@ export const osdFeaturesExpandableContents: ExpandalbeContents[] = [
   {
     title: 'Streamlined billing and procurement',
     contents:
-      'Receive a single bill for both the Red Hat OpenShift service and Google CloudPlatform infrastructure consumption.',
+      'Receive a single bill for both the Red Hat OpenShift service and Google Cloud infrastructure consumption.',
   },
   {
     title: 'High availability architecture',

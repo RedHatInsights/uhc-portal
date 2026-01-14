@@ -7,9 +7,13 @@ import ClusterNetwork from '../components/Overview/ClusterNetwork';
 import fixtures from './ClusterDetails.fixtures';
 
 describe('<ClusterNetwork />', () => {
-  it.skip('is accessible', async () => {
-    // This test fails because there are dd elements that are not in a dt
-    const { container } = render(<ClusterNetwork cluster={fixtures.clusterDetails.cluster} />);
+  it('is accessible', async () => {
+    //  <dl> is added because this is displayed inside dl in the parent component.
+    const { container } = render(
+      <dl>
+        <ClusterNetwork cluster={fixtures.clusterDetails.cluster} />
+      </dl>,
+    );
     await checkAccessibility(container);
   });
 });

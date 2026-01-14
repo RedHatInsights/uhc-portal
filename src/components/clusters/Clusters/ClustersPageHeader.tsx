@@ -12,6 +12,7 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 
+import { refetchAccessRequests } from '~/queries/ClusterDetailsQueries/AccessRequestTab/useFetchAccessRequests';
 import {
   refetchClusterTransferDetail,
   useFetchClusterTransferDetail,
@@ -22,7 +23,7 @@ import { useGlobalState } from '~/redux/hooks';
 import { RefreshButton } from '../ClusterListMultiRegion/components/RefreshButton';
 import ErrorTriangle from '../common/ErrorTriangle';
 
-export const ClustersPageHeader = () => {
+export const ClustersPageHeader = ({ activeTabKey }: { activeTabKey: string }) => {
   const {
     isLoading: isClustersLoading,
     refetch,
@@ -42,8 +43,11 @@ export const ClustersPageHeader = () => {
   const errorMessage = clustersError?.[0]?.reason;
 
   const refresh = () => {
-    refetch();
+    if (activeTabKey === 'list') {
+      refetch();
+    }
     refetchClusterTransferDetail();
+    refetchAccessRequests();
   };
 
   return (

@@ -26,6 +26,7 @@ export const OSD_GCP_WIF = 'gcp-workload-identity-federation';
 export const CREATE_CLUSTER_YAML_EDITOR = 'enable-create-cluster-yaml-editor';
 export const UNSTABLE_CLUSTER_VERSIONS = 'ocmui-unstable-cluster-versions';
 export const EDIT_BILLING_ACCOUNT = 'ocmui-edit-billing-account';
+export const AWS_BILLING_IN_BOUNDARY = 'ocmui-require-aws-billing-in-boundary';
 export const PRIVATE_SERVICE_CONNECT = 'ocmui-gcp-private-service-connect';
 export const BYPASS_COMPUTE_NODE_COUNT_LIMIT_CLASSIC_OSD_GCP =
   'bypass-compute-node-count-limit-classic-osd-gcp';
@@ -44,6 +45,7 @@ export const ALLOW_EUS_CHANNEL = 'ocmui-allow-eus-channel';
 export const PLATFORM_LIGHTSPEED_REBRAND = 'platform.lightspeed-rebrand';
 export const CAPACITY_RESERVATION_ID_FIELD = 'ocmui-capacity-reservation-id-field';
 export const TABBED_CLUSTERS = 'ocmui-tabbed-clusters';
+export const OSD_FOR_GOOGLE_CLOUD = 'ocmui-osd-wizard-for-google-cloud';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -59,6 +61,7 @@ export default {
   CREATE_CLUSTER_YAML_EDITOR,
   UNSTABLE_CLUSTER_VERSIONS,
   EDIT_BILLING_ACCOUNT,
+  AWS_BILLING_IN_BOUNDARY,
   PRIVATE_SERVICE_CONNECT,
   BYPASS_COMPUTE_NODE_COUNT_LIMIT_CLASSIC_OSD_GCP,
   MAX_NODES_TOTAL_249,
@@ -76,4 +79,5 @@ export default {
   PLATFORM_LIGHTSPEED_REBRAND,
   CAPACITY_RESERVATION_ID_FIELD,
   TABBED_CLUSTERS,
+  OSD_FOR_GOOGLE_CLOUD,
 } as const;

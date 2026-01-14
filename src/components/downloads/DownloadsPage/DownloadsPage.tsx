@@ -20,7 +20,10 @@ import { githubActions, tollboothActions } from '~/redux/actions';
 import { useGlobalState } from '~/redux/hooks';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
-import { githubReleasesToFetch, urlsSelector } from '../../../common/installLinks.mjs';
+import installLinks, {
+  githubReleasesToFetch,
+  urlsSelector,
+} from '../../../common/installLinks.mjs';
 import useOrganization from '../../CLILoginPage/useOrganization';
 import ExternalLink from '../../common/ExternalLink';
 import DownloadsCategoryDropdown from '../DownloadsCategoryDropdown';
@@ -230,9 +233,7 @@ const DownloadsPage = () => {
                   <Content component="p">
                     Access all the powers of Kubernetes through a simplified workflow with Red Hat’s
                     developer tools.{' '}
-                    <ExternalLink href="https://developers.redhat.com/topics/developer-tools">
-                      Learn more
-                    </ExternalLink>
+                    <ExternalLink href={installLinks.RH_DEV_TOOLS}>Learn more</ExternalLink>
                   </Content>
                 }
               >
@@ -296,9 +297,9 @@ const DownloadsPage = () => {
             <Table aria-label="Tokens table">
               <Thead>
                 <Tr>
-                  <Th width={10} aria-label="Expand for more information" />
-                  <Th width={90} aria-label="Token type" />
-                  <Th width={10} aria-label="Download or view token" />
+                  <Th width={10} screenReaderText="Expand for more information" />
+                  <Th width={90} screenReaderText="Token type" />
+                  <Th width={10} screenReaderText="Download or view token" />
                 </Tr>
               </Thead>
 

@@ -5,7 +5,7 @@ import * as notifications from '@redhat-cloud-services/frontend-components-notif
 
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import * as clusterService from '~/services/clusterService';
-import { checkAccessibility, render, screen, within } from '~/testUtils';
+import { checkAccessibility, mockUseChrome, render, screen, within } from '~/testUtils';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
 import clusterStates from '../../../common/clusterStates';
@@ -17,6 +17,8 @@ const mockGetClusterServiceForRegion = jest.spyOn(clusterService, 'getClusterSer
 const mockedGetLogs = jest.fn();
 
 const mockNavigate = jest.fn();
+
+mockUseChrome({ analytics: { track: () => {} } });
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

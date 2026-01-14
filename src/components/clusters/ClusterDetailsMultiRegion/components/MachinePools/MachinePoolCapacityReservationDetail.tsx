@@ -1,36 +1,34 @@
 import React from 'react';
 
-import { Split, SplitItem, Title } from '@patternfly/react-core';
+import { GridItem, Title } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
-import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
+
+import { capacityReservationHint } from './components/EditMachinePoolModal/fields/CapacityReservationField';
+import { getCapacityPreferenceLabel } from './machinePoolsHelper';
 
 const MachinePoolCapacityReservationDetail = ({
   capacityReservationId,
+  capacityReservationPreference,
 }: {
   capacityReservationId: string | undefined;
+  capacityReservationPreference: string | undefined;
 }) => (
   <>
     <Title headingLevel="h4" className="pf-v6-u-mb-sm pf-v6-u-mt-lg">
       Capacity Reservation{' '}
       <PopoverHint
         buttonAriaLabel="Capacity reservation information"
-        hint={
-          <>
-            ID of Capacity Reservation or Capacity Blocks for ML. Requires control plane version
-            4.19.0 or above. Learn more about{' '}
-            <ExternalLink href={links.AWS_CAPACITY_RESERVATION}>Capacity Reservations</ExternalLink>
-          </>
-        }
+        hint={capacityReservationHint(false, false)}
       />
     </Title>
-    <Split hasGutter>
-      <SplitItem className="capacity_reservation">
-        Reservation Id: {capacityReservationId || 'N/A'}
-      </SplitItem>
-    </Split>
+    <GridItem className="capacity_reservation">
+      Reservation Preference:{' '}
+      {getCapacityPreferenceLabel(capacityReservationPreference, capacityReservationId)}
+    </GridItem>
+    <GridItem className="capacity_reservation">
+      Reservation Id: {capacityReservationId || 'N/A'}
+    </GridItem>
   </>
 );
-
 export default MachinePoolCapacityReservationDetail;

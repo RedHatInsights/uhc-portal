@@ -8,7 +8,6 @@ import {
   EmptyState,
   EmptyStateBody,
   GridItem,
-  Title,
 } from '@patternfly/react-core';
 
 import { Link } from '~/common/routing';
@@ -123,9 +122,7 @@ const TopOverviewSection = ({
             <CardTitle>Clusters</CardTitle>
             <CardBody>
               <Bullseye>
-                <Title headingLevel="h1" size="3xl">
-                  {totalClusters}
-                </Title>
+                <div className="pf-v6-u-font-size-3xl">{totalClusters}</div>
               </Bullseye>
             </CardBody>
           </Card>

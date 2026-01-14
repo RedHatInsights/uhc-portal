@@ -109,6 +109,8 @@ const MachinePoolExpandedRow = ({
   const isHypershift = isHypershiftCluster(cluster);
   const isAutoRepairEnabled = (machinePool as NodePool)?.auto_repair;
   const capacityReservationId = (machinePool as NodePool)?.aws_node_pool?.capacity_reservation?.id;
+  const capacityReservationPreference = (machinePool as NodePool)?.aws_node_pool
+    ?.capacity_reservation?.preference;
   const awsTagsAvailable = hasAwsTags(machinePool);
   const labelsAvailable = !isEmpty(machinePool.labels);
   const nodePoolTags = (machinePool as NodePool).aws_node_pool?.tags;
@@ -225,7 +227,10 @@ const MachinePoolExpandedRow = ({
       )}
       {isHypershift && isCapacityReservationIdFieldEnabled && (
         <GridItem md={6}>
-          <MachinePoolCapacityReservationDetail capacityReservationId={capacityReservationId} />
+          <MachinePoolCapacityReservationDetail
+            capacityReservationId={capacityReservationId}
+            capacityReservationPreference={capacityReservationPreference}
+          />
         </GridItem>
       )}
       {spotMarketOptions && (

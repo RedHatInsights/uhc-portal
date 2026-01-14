@@ -1,8 +1,17 @@
 import React from 'react';
 import { Formik } from 'formik';
 
+import { AWS_BILLING_IN_BOUNDARY } from '~/queries/featureGates/featureConstants';
 import { normalizeSTSUsersByAWSAccounts } from '~/redux/actions/rosaActions';
-import { checkAccessibility, screen, waitFor, withState } from '~/testUtils';
+import {
+  checkAccessibility,
+  mockRestrictedEnv,
+  mockUseFeatureGate,
+  render,
+  screen,
+  waitFor,
+  withState,
+} from '~/testUtils';
 
 import { initialValues } from '../../constants';
 import AccountsRolesScreen, {
@@ -69,6 +78,64 @@ describe('<AccountsRolesScreen />', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Did you complete your prerequisites?')).toBeInTheDocument();
     expect(screen.queryByText(/Make sure you are using ROSA CLI version/)).not.toBeInTheDocument();
+  });
+
+  describe('AWS Billing Account visibility', () => {
+    const isRestrictedEnv = mockRestrictedEnv();
+    const hypershiftSelectedProps = { ...accountRolesScreenProps, isHypershiftSelected: true };
+
+    afterEach(() => {
+      isRestrictedEnv.mockReturnValue(false);
+    });
+
+    it('shows AWS Billing Account in Commercial environment regardless of feature flag', async () => {
+      isRestrictedEnv.mockReturnValue(false);
+      mockUseFeatureGate([[AWS_BILLING_IN_BOUNDARY, false]]);
+
+      render(buildTestComponent(<AccountsRolesScreen {...hypershiftSelectedProps} />));
+
+      expect(
+        await screen.findByRole('heading', { name: 'AWS billing account', level: 3 }),
+      ).toBeInTheDocument();
+    });
+
+    it('hides AWS Billing Account in restricted environment when feature flag is OFF', async () => {
+      isRestrictedEnv.mockReturnValue(true);
+      mockUseFeatureGate([[AWS_BILLING_IN_BOUNDARY, false]]);
+
+      render(buildTestComponent(<AccountsRolesScreen {...hypershiftSelectedProps} />));
+
+      // Wait for component to render by finding an element that IS expected to show
+      await screen.findByRole('heading', { name: 'AWS infrastructure account', level: 3 });
+      expect(
+        screen.queryByRole('heading', { name: 'AWS billing account', level: 3 }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows AWS Billing Account in restricted environment when feature flag is ON', async () => {
+      isRestrictedEnv.mockReturnValue(true);
+      mockUseFeatureGate([[AWS_BILLING_IN_BOUNDARY, true]]);
+
+      render(buildTestComponent(<AccountsRolesScreen {...hypershiftSelectedProps} />));
+
+      expect(
+        await screen.findByRole('heading', { name: 'AWS billing account', level: 3 }),
+      ).toBeInTheDocument();
+    });
+
+    it('hides AWS Billing Account when HyperShift is not selected', async () => {
+      isRestrictedEnv.mockReturnValue(false);
+      mockUseFeatureGate([[AWS_BILLING_IN_BOUNDARY, true]]);
+      const classicProps = { ...accountRolesScreenProps, isHypershiftSelected: false };
+
+      render(buildTestComponent(<AccountsRolesScreen {...classicProps} />));
+
+      // Wait for component to render by finding an element that IS expected to show
+      await screen.findByRole('heading', { name: 'AWS infrastructure account', level: 3 });
+      expect(
+        screen.queryByRole('heading', { name: 'AWS billing account', level: 3 }),
+      ).not.toBeInTheDocument();
+    });
   });
 });
 

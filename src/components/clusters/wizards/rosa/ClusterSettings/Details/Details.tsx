@@ -42,6 +42,7 @@ import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { ChannelGroupSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelGroupSelectField';
 import { ClassicEtcdFipsSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdFipsSection';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
+import { useResetMaxNodesTotal } from '~/components/clusters/wizards/common/ClusterSettings/Details/useResetMaxNodesTotal/useResetMaxNodesTotal';
 import { emptyAWSSubnet } from '~/components/clusters/wizards/common/constants';
 import { RadioGroupField, RichInputField } from '~/components/clusters/wizards/form';
 import { CheckboxField } from '~/components/clusters/wizards/form/CheckboxField';
@@ -223,6 +224,8 @@ function Details() {
 
   const clusterNameMaxLength = 54; // After removing feature flag, the max length is always 54
 
+  const { resetMaxNodesTotal } = useResetMaxNodesTotal();
+
   const validateClusterName = async (value: string) => {
     const syncError = createPessimisticValidator(clusterNameValidation)(
       value,
@@ -281,6 +284,10 @@ function Details() {
     );
     if (!canDefineSecurityGroups) {
       setFieldValue(FieldId.SecurityGroups, getDefaultSecurityGroupsSettings());
+    }
+
+    if (!isHypershiftSelected) {
+      resetMaxNodesTotal({ clusterVersion });
     }
   };
 
@@ -354,6 +361,10 @@ function Details() {
       mpSubnetsReset.push(emptyAWSSubnet());
     }
     setFieldValue(FieldId.MachinePoolsSubnets, mpSubnetsReset);
+
+    if (!isHypershiftSelected) {
+      resetMaxNodesTotal({ isMultiAz: isValueMultiAz });
+    }
   };
 
   const RegionField = (

@@ -1,5 +1,6 @@
 import { ENABLE_AWS_TAGS_EDITING } from '~/queries/featureGates/featureConstants';
 import { AwsMachinePool, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
+import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 
 import { EditMachinePoolValues } from './hooks/useMachinePoolFormik';
 
@@ -120,14 +121,14 @@ export const buildNodePoolRequest = (
   {
     isEdit,
     isMultiZoneMachinePool,
+    canUseCapacityReservation,
   }: {
     isEdit: boolean;
     isMultiZoneMachinePool: boolean;
+    canUseCapacityReservation?: boolean;
   },
-  // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-): NodePool & { imageType?: string } => {
-  // Manually adding this field until backend api adds support to it -> https://issues.redhat.com/browse/OCMUI-2905
-  const nodePool: NodePool & { imageType?: string } = {
+): NodePool => {
+  const nodePool: NodePool = {
     id: values.name,
     labels: getLabels(values.labels),
     taints: getTaints(values.taints),
@@ -149,6 +150,12 @@ export const buildNodePoolRequest = (
       root_volume: {
         size: values.diskSize,
       },
+      ...(canUseCapacityReservation && {
+        capacity_reservation: {
+          id: values.capacityReservationId,
+          preference: values.capacityReservationPreference,
+        },
+      }),
     };
   }
 
@@ -166,7 +173,7 @@ export const buildNodePoolRequest = (
   }
 
   if (values.isWindowsLicenseIncluded) {
-    nodePool.imageType = 'Windows';
+    nodePool.image_type = ImageType.Windows;
   }
 
   return nodePool;

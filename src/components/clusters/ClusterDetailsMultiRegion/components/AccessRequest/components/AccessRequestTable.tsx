@@ -13,6 +13,7 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { ISortBy, SortByDirection, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { ThSortType } from '@patternfly/react-table/dist/esm/components/Table/base/types';
 
+import { Link } from '~/common/routing';
 import { AccessRequest } from '~/types/access_transparency.v1';
 import { ViewSorting } from '~/types/types';
 
@@ -31,21 +32,25 @@ export const sortColumns = {
   state: 'status.state',
   id: 'id',
   created_at: 'created_at',
+  name: 'name',
 };
 
 export const columnsNames = {
-  state: { title: 'State', sortIndex: sortColumns.state },
-  id: { title: 'ID', sortIndex: sortColumns.id },
+  state: { title: 'Status', sortIndex: sortColumns.state },
+  id: { title: 'Request ID', sortIndex: sortColumns.id },
   created_at: { title: 'Created at', sortIndex: sortColumns.created_at },
   actions: { title: 'Actions', screenReaderText: 'access request actions' },
 };
-
+const columnWithClusterName = {
+  name: { title: 'Cluster Name', sortIndex: sortColumns.name },
+};
 type AccessRequestTableProps = {
-  accessRequestItems?: Array<AccessRequest>;
+  accessRequestItems?: Array<AccessRequest & { name?: string }>;
   sortBy: ISortBy;
   setSorting: (sort: ViewSorting) => void;
   openDetailsAction: (accessRequestElement?: AccessRequest) => void;
   isPending?: boolean;
+  showClusterName?: boolean;
 };
 
 const AccessRequestTable = ({
@@ -54,36 +59,48 @@ const AccessRequestTable = ({
   openDetailsAction,
   sortBy,
   isPending,
+  showClusterName = false,
 }: AccessRequestTableProps) => {
-  const accessRequestItemRow = (accessRequestItem: AccessRequest) => (
-    <Tr key={accessRequestItem.id}>
-      <Td dataLabel={columnsNames.state.title}>
-        <AccessRequestStateIcon accessRequest={accessRequestItem} />
-      </Td>
-      <Td dataLabel={columnsNames.id.title}>{accessRequestItem.id}</Td>
-      {/* <Td dataLabel={columnsNames.created_at.title}>{accessRequestItem.created_at}</Td> */}
-      <Td dataLabel={columnsNames.created_at.title}>
-        <Timestamp
-          date={new Date(accessRequestItem.created_at || '')}
-          dateFormat={TimestampFormat.short}
-          timeFormat={TimestampFormat.long}
-          shouldDisplayUTC
-          is12Hour={false}
-          locale="en-CA"
-        />
-      </Td>
-      <Td dataLabel={columnsNames.actions.title} isActionCell>
-        <Button
-          variant="secondary"
-          icon={<EyeIcon />}
-          aria-label="openDetailsAction"
-          onClick={() => openDetailsAction(accessRequestItem)}
-        >
-          Open
-        </Button>
-      </Td>
-    </Tr>
-  );
+  const accessRequestItemRow = (accessRequestItem: AccessRequest & { name?: string }) => {
+    const clusterName = accessRequestItem?.name ?? '';
+    const clusterNameLink = accessRequestItem.subscription_id ? (
+      <Link to={`/details/s/${accessRequestItem.subscription_id}#accessRequest`}>
+        {clusterName}
+      </Link>
+    ) : (
+      clusterName
+    );
+
+    return (
+      <Tr key={accessRequestItem.id}>
+        {showClusterName && <Td dataLabel={columnWithClusterName.name.title}>{clusterNameLink}</Td>}
+        <Td dataLabel={columnsNames.state.title}>
+          <AccessRequestStateIcon accessRequest={accessRequestItem} />
+        </Td>
+        <Td dataLabel={columnsNames.id.title}>{accessRequestItem.id}</Td>
+        <Td dataLabel={columnsNames.created_at.title}>
+          <Timestamp
+            date={new Date(accessRequestItem.created_at || '')}
+            dateFormat={TimestampFormat.short}
+            timeFormat={TimestampFormat.long}
+            shouldDisplayUTC
+            is12Hour={false}
+            locale="en-CA"
+          />
+        </Td>
+        <Td dataLabel={columnsNames.actions.title} isActionCell>
+          <Button
+            variant="secondary"
+            icon={<EyeIcon />}
+            aria-label="openDetailsAction"
+            onClick={() => openDetailsAction(accessRequestItem)}
+          >
+            Open
+          </Button>
+        </Td>
+      </Tr>
+    );
+  };
 
   const onSortToggle = useCallback(
     (_event: object, index: number, direction: string) =>
@@ -124,7 +141,7 @@ const AccessRequestTable = ({
     );
   });
 
-  if (!isPending && (!accessRequestItems || accessRequestItems.length === 0)) {
+  if (!isPending && accessRequestItems?.length === 0) {
     return (
       <PageSection>
         <EmptyState
@@ -139,7 +156,12 @@ const AccessRequestTable = ({
   return (
     <Table>
       <Thead>
-        <Tr>{columnCells}</Tr>
+        <Tr>
+          {showClusterName && (
+            <Th dataLabel={columnWithClusterName.name.title}>{columnWithClusterName.name.title}</Th>
+          )}
+          {columnCells}
+        </Tr>
       </Thead>
       <Tbody>
         {isPending

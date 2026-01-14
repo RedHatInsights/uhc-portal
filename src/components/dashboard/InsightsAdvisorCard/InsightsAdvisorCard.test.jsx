@@ -67,9 +67,16 @@ describe('<InsightsAdvisorCard />', () => {
     ];
 
     it.skip('is accessible', async () => {
+      /*
+      This is skipped due to an issue within PatternFly Charts ChartLegend component.
+      The basis of the problem is that the legend has links 
+     
+      The fix is in src/components/dashboard/InsightsAdvisorCard/ChartByGroups.jsx
+      change the legendComponent prop to the ChartPie to  a custom component
+      - aka do not use the ChartLegend component.
+    
+      */
       const { container } = render(<InsightsAdvisorCard overview={overview} groups={groups} />);
-
-      // Fails with   "Interactive controls must not be nested (nested-interactive)" error
       await checkAccessibility(container);
     });
 

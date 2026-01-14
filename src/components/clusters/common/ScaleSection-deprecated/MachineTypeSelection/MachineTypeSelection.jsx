@@ -96,6 +96,9 @@ const groupedMachineTypes = (machines) => {
   return machineGroups;
 };
 
+export const isMachineTypeIncludedInFilteredSet = (machineTypeID, filteredMachineTypes) =>
+  !!filteredMachineTypes?.typesByID?.[machineTypeID];
+
 // Default selection scenarios:
 // - First time, default is available => select it.
 // - First time, default is not listed (due to quota or ccs_only) => leave placeholder ''.
@@ -159,9 +162,6 @@ const MachineTypeSelection = ({
     (isBYOC || product === normalizedProducts.ROSA) &&
     cloudProviderID === CloudProviderType.Aws &&
     !inModal;
-
-  const isMachineTypeIncludedInFilteredSet = (machineTypeID, filteredMachineTypes) =>
-    !!filteredMachineTypes?.typesByID[machineTypeID];
 
   const [isMachineTypeFilteredByRegion, setIsMachineTypeFilteredByRegion] = React.useState(
     !previousSelectionFromUnfilteredSet,

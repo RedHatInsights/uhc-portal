@@ -1,0 +1,184 @@
+{
+  "Clusters": {
+    "CloudProvider": "AWS",
+    "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
+    "InfrastructureType": "Customer cloud subscription",
+    "InstanceType": "m5.xlarge"
+  },
+  "ClustersValidation": {
+    "ClusterSettings": {
+      "CloudProvider": {
+        "Common": {
+          "AcknowledgementUncheckedError": "Acknowledge that you have read and completed all prerequisites"
+        },
+        "AWS": {
+          "EmptyAWSAccountIdError": "AWS account ID is required",
+          "InValidAWSAccountIdValues": ["1234567899993499292", "3424324testing"],
+          "InValidAWSAccountIdError": "AWS account ID must be a 12 digits positive number",
+          "EmptyAWSAccessKeyError": "Field is required",
+          "EmptyAWSSecretKeyError": "Field is required"
+        },
+        "GCP": {
+          "InvalidFormatGCPServiceJSONValues": "testing",
+          "InvalidFormatGCPServiceJSONFieldError": "Invalid JSON format",
+          "InvalidGCPServiceJSONValues": "{\"testing\":\"samples\"}",
+          "InvalidGCPServiceJSONFieldError": "The provided JSON does not meet the requirements: requires property \"type\"",
+          "EmptyGCPServiceJSONFieldError": "Field is required",
+          "NoWIFConfigSelectionError": "Wif configuration is required",
+          "NoMatchingWIFConfigValue": "nomatchingwif",
+          "NoMatchingWIFConfigError": "No results found",
+          "WIFCommandValue": "ocm gcp create wif-config --name <wif_name> --project <gcp_project_id>"
+        }
+      },
+      "Details": {
+        "Common": {
+          "InvalidClusterNamesValues": [
+            "longclusternamesexceeds54characterstestingnamesssssssss",
+            "clusterNAMES",
+            "32423432dddddd"
+          ],
+          "InvalidClusterNamesErrors": [
+            "1 - 54 characters",
+            "Consist of lower-case alphanumeric characters, or hyphen (-)",
+            "Start with a lower-case alphabetic character"
+          ],
+          "InvalidDomainPrefixValues": ["domainprefixlonger", "domainPREFix", "32423432domain"],
+          "InvalidDomainPrefixErrors": [
+            "1 - 15 characters",
+            "Consist of lower-case alphanumeric characters, or hyphen (-)",
+            "Start with a lower-case alphabetic character"
+          ]
+        },
+        "AWS": {
+          "KeyARNs": {
+            "EmptyValueError": "Field is required",
+            "WrongFormatValue": "wrongformat",
+            "WrongFormatError": "Key provided is not a valid ARN. It should be in the format \"arn:aws:kms:<region>:<accountid>:key/<keyid>\"",
+            "WrongFormatWithWhitespace": "wrong format with whitespace",
+            "WrongFormatWithWhitespaceError": "Value must not contain whitespaces"
+          }
+        }
+      },
+      "Machinepool": {
+        "NodeCount": {
+          "CCS": {
+            "SingleZone": {
+              "LowerLimitError": "Input cannot be less than 2",
+              "UpperLimitError": "Input cannot be more than 249",
+              "MinAndMaxLimitDependencyError": "Max nodes cannot be less than min nodes"
+            },
+            "MultiZone": {
+              "LowerLimitError": "Input cannot be less than 1",
+              "UpperLimitError": "Input cannot be more than 83",
+              "MinAndMaxLimitDependencyError": "Max nodes cannot be less than min nodes"
+            }
+          }
+        },
+        "Common": {
+          "ClusterAutoscaling": {
+            "LogVerbosityLimitError": "Value must be between 1 and 6",
+            "ThreasholdLimitError": "Value must be between 0 and 1",
+            "InvalidTimeValueError": "Not a valid time value",
+            "WhitespaceLabelValueError": "Labels must not contain whitespaces",
+            "EmptyLabelValueError": "Empty labels are not allowed",
+            "MinMaxLimitError": "The minimum cannot be above the maximum value",
+            "InvalidGPUValueError": "Invalid params",
+            "RequiredFieldError": "Field is required",
+            "MaxNodesValueMultizoneLimitError": "Value must not be greater than 255",
+            "MaxNodesValueSinglezoneLimitError": "Value must not be greater than 254",
+            "MaxNodesValueOcpLower41414MultizoneLimitError": "Value must not be greater than 186",
+            "MaxNodesValueOcpLower41414SinglezoneLimitError": "Value must not be greater than 185",
+            "NegativeValueError": "Value cannot be a negative number"
+          },
+          "NodeLabel": [
+            {
+              "UpperCharacterLimitValue": "characterslimtgreaterthan60testingssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+              "KeyError": "A valid key name must be 63 characters or less",
+              "LabelError": "A valid value must be 63 characters or less"
+            },
+            {
+              "InvalidValue": "~testing",
+              "KeyError": "A valid key name must consist of alphanumeric characters, '-', '.' , '_' or '/' and must start and end with an alphanumeric character",
+              "LabelError": "A valid value must consist of alphanumeric characters, '-', '.' or '_' and must start and end with an alphanumeric character"
+            },
+            {
+              "InvalidValue": "example.com/MyName/",
+              "KeyError": "A qualified name must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character with an optional DNS subdomain prefix and '/' (e.g. 'example.com/MyName')",
+              "LabelError": "A valid value must consist of alphanumeric characters, '-', '.' or '_' and must start and end with an alphanumeric character"
+            }
+          ]
+        }
+      }
+    },
+    "Networking": {
+      "Configuration": {
+        "Common": {
+          "IngressSettings": {
+            "CustomSettings": {
+              "RouteSelector": [
+                {
+                  "UpperCharacterLimitValue": "characterslimtgreaterthan60testingssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+                  "Error": "A valid key name must be 63 characters or less"
+                },
+                {
+                  "InvalidValue": "Invalid-",
+                  "Error": "A valid key name must consist of alphanumeric characters, '-', '.' , '_' or '/' and must start and end with an alphanumeric character"
+                },
+                {
+                  "InvalidValue": "valid_123-k.com/Hello_world2",
+                  "Error": "A valid key prefix part of a lowercase RFC 1123 subdomain must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character"
+                },
+                {
+                  "InvalidValue": "Hello.com/Hello",
+                  "Error": "A valid key prefix part of a lowercase RFC 1123 subdomain must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character"
+                }
+              ],
+              "ExcludedNamespaces": [
+                {
+                  "UpperCharacterLimitValue": "characterslimtgreaterthan60testingssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+                  "Error": "Namespace names may not exceed 63 characters"
+                },
+                {
+                  "InvalidValue": "Invalid-",
+                  "Error": "Namespace name 'Invalid-' isn't valid, must consist of lower-case alphanumeric characters or '-', start with an alphabetic character, and end with an alphanumeric character. For example, 'my-name', or 'abc-123'."
+                }
+              ]
+            }
+          }
+        }
+      },
+      "CIDRRanges": {
+        "Common": {
+          "CIDR": [
+            {
+              "Value": "10.0.0.0",
+              "Error": "IP address range '10.0.0.0' isn't valid CIDR notation. It must follow the RFC-4632 format: '192.168.0.0/16"
+            },
+            {
+              "Value": "hello",
+              "Error": "IP address range 'hello' isn't valid CIDR notation. It must follow the RFC-4632 format: '192.168.0.0/16"
+            },
+            {
+              "Value": "12.30.0.120/16",
+              "Error": "This is not a subnet address. The subnet prefix is inconsistent with the subnet mask."
+            }
+          ],
+          "HostPrefix": [
+            {
+              "Value": "hello",
+              "Error": "The value '/hello' isn't a valid subnet mask. It must follow the RFC-4632 format: '/16'"
+            },
+            {
+              "Value": "28",
+              "Error": "The subnet mask can't be smaller than '/26', which provides up to 62 Pod IP addresses."
+            },
+            {
+              "Value": "11",
+              "Error": "The subnet mask can't be larger than '/23', which provides up to 510 Pod IP addresses."
+            }
+          ]
+        }
+      }
+    }
+  }
+}
