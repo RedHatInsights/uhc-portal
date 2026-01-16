@@ -27,6 +27,7 @@ import {
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
   HYPERSHIFT_WIZARD_FEATURE,
   OSD_FOR_GOOGLE_CLOUD,
+  TABBED_CLUSTERS,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
@@ -83,6 +84,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
   const isHypershiftWizardEnabled = useFeatureGate(HYPERSHIFT_WIZARD_FEATURE);
   const isClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
   const isOsdFromGoogleCloudEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
+  const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
 
   // For testing purposes, show which major features are enabled/disabled
   React.useEffect(() => {
@@ -256,7 +258,12 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         'http:///status.redhat.com' site. If this route is changed, then the related catchpoint
         tests must be updated. For more info. see: https://issues.redhat.com/browse/OCMUI-2398 */}
         <Route path="/cluster-list" element={<ClusterListMultiRegion getMultiRegion />} />
-        <Route path="/clusters/*" element={<Clusters />} />
+        <Route
+          path="/clusters/*"
+          element={
+            isTabbedClustersEnabled ? <Clusters /> : <ClusterListMultiRegion getMultiRegion />
+          }
+        />
         {isClusterTransferOwnershipEnabled ? (
           <Route path="/cluster-request" element={<ClusterRequestList />} />
         ) : null}
