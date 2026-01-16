@@ -167,10 +167,10 @@ const HtpasswdDetails = ({
   const endIndex = page * perPage;
 
   const currentPageUsers = filteredUsers.slice(startIndex, endIndex);
-  const deleteableUsers =
-    !isSearching && areAllUsersSelected
-      ? selectedUsers
-      : currentPageUsers.filter((user) => selectedUserIds.includes(user.id));
+
+  const deleteableUsers = !isSearching
+    ? selectedUsers
+    : currentPageUsers.filter((user) => selectedUserIds.includes(user.id));
 
   const deleteableUserIds = deleteableUsers.map((user) => user.id);
 
