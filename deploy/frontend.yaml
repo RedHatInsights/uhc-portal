@@ -46,28 +46,9 @@ objects:
                   title: Clusters
                   href: /openshift/clusters/list
                   product: Red Hat OpenShift Cluster Manager
-                # TODO: Replace advisor with navigationSegment from https://github.com/RedHatInsights/ocp-advisor-frontend/blob/master/deploy/frontend.yml
-                - id: advisor
-                  title: Advisor
-                  expandable: true
-                  routes:
-                    - id: recommendations
-                      title: Recommendations
-                      href: /openshift/insights/advisor/recommendations
-                      product: Red Hat OpenShift Cluster Manager
-                    - id: advisor-clusters
-                      title: Clusters
-                      href: /openshift/insights/advisor/clusters
-                      product: Red Hat OpenShift Cluster Manager
-                    - id: workloads
-                      title: Workloads
-                      href: /openshift/insights/advisor/workloads
-                      product: Red Hat OpenShift Cluster Manager
-                      permissions:
-                        - method: featureFlag
-                          args: ['ocp-advisor-ui-workloads', true]
-                        - method: featureFlag
-                          args: ['ocp-advisor-workloads-release', true]
+                - segmentRef:
+                    frontendName: ocp-advisor
+                    segmentId: openshift-ocp-advisor
                 # TODO: Replace vulnerability-dashboard with navigationSegment from https://github.com/RedHatInsights/vuln4shift-frontend/blob/master/deploy/frontend.yml
                 - id: vulnerability-dashboard
                   title: Vulnerability Dashboard
@@ -129,10 +110,9 @@ objects:
               groupId: resources
               title: Resources
               navItems:
-                # TODO: Replace learning-resources with navigationSegment from https://github.com/RedHatInsights/learning-resources/blob/master/deploy/frontend.yml
-                - id: learning-resources
-                  title: Learning Resources
-                  href: /openshift/learning-resources
+                - segmentRef:
+                    frontendName: learning-resources
+                    segmentId: openshift-learning-resources
                 # TODO: Replace developer-sandbox with navigationSegment from https://github.com/RedHatInsights/developer-sandbox-ui/blob/master/deploy/frontend.yaml
                 - id: developer-sandbox
                   title: Developer Sandbox
