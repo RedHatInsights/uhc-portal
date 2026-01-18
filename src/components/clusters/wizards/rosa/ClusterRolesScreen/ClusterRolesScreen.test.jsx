@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
+import links from '../../../../../common/installLinks.mjs';
 import { FieldId } from '../constants';
 
 import ClusterRolesScreen from './ClusterRolesScreen';
@@ -123,5 +124,19 @@ describe('<ClusterRolesScreen />', () => {
   it('is accessible', async () => {
     const { container } = renderWithFormik();
     await checkAccessibility(container);
+  });
+
+  it('renders correct documentation link when hypershift is not selected', async () => {
+    useFetchGetOCMRole.mockReturnValue({
+      data: { data: { isAdmin: false, arn: 'arn:aws:iam::123456789012:role/BasicOCMRole' } },
+      error: undefined,
+      isPending: false,
+      isSuccess: true,
+      status: 'success',
+    });
+    renderWithFormik({ [FieldId.Hypershift]: 'false' });
+
+    const link = screen.getByText('Learn more about ROSA roles');
+    expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_RESOURCES);
   });
 });

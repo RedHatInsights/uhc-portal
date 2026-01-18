@@ -1,5 +1,6 @@
 import React from 'react';
 
+import links from '~/common/installLinks.mjs';
 import { useDeleteSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useDeleteSchedule';
 import { useEditSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useEditSchedule';
 import { useFetchUnmetAcknowledgements } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useFetchUnmetAcknowledgements';
@@ -374,6 +375,24 @@ describe('<UpgradeSettingsTab>', () => {
 
       // Should render the component without errors with automatic schedule
       expect(screen.getByText('Select a day and start time')).toBeInTheDocument();
+    });
+  });
+
+  describe('Documentation links', () => {
+    it('renders correct monitoring link when classic', async () => {
+      const rosaCluster = createMockCluster({
+        subscription: {
+          ...createMockCluster().subscription,
+          plan: { type: 'ROSA' },
+        },
+      });
+
+      const { user } = renderComponent(rosaCluster);
+      const moreInfoBtn = await screen.findByLabelText('More information');
+      await user.click(moreInfoBtn);
+
+      const link = screen.getByText('Learn more');
+      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_MONITORING);
     });
   });
 });

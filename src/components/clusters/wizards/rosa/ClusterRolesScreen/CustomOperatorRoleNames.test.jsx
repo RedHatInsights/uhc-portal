@@ -29,7 +29,7 @@ describe('<CustomOperatorRoleNames />', () => {
   it('renders component with all expected text', async () => {
     // Arrange
     // Act
-    const { user } = render(buildTestComponent({}, <CustomOperatorRoleNames />));
+    render(buildTestComponent({}, <CustomOperatorRoleNames isHypershiftSelected />));
 
     // Assert
     expect(screen.getByText('Name operator roles')).toBeInTheDocument();
@@ -44,14 +44,6 @@ describe('<CustomOperatorRoleNames />', () => {
         `Maximum 32 characters. Changing the cluster name will regenerate this value.`,
       ),
     ).toBeInTheDocument();
-
-    const moreInfoBtn = await screen.findByLabelText('More information');
-    expect(moreInfoBtn).toBeInTheDocument();
-    await user.click(moreInfoBtn);
-
-    const link = screen.getByText('Defining a custom Operator IAM role prefix');
-    expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
   });
 
   it('is accessible', async () => {
@@ -60,5 +52,29 @@ describe('<CustomOperatorRoleNames />', () => {
     const { container } = render(buildTestComponent({}, <CustomOperatorRoleNames />));
     // Assert
     await checkAccessibility(container);
+  });
+
+  it('renders HCP IAM operator roles link when hypershift is selected', async () => {
+    const { user } = render(
+      buildTestComponent({}, <CustomOperatorRoleNames isHypershiftSelected />),
+    );
+
+    const moreInfoBtn = await screen.findByLabelText('More information');
+    await user.click(moreInfoBtn);
+
+    const link = screen.getByText('Defining a custom Operator IAM role prefix');
+    expect(link).toHaveAttribute('href', links.ROSA_AWS_IAM_OPERATOR_ROLES);
+  });
+
+  it('renders classic IAM operator roles link when classic is selected', async () => {
+    const { user } = render(
+      buildTestComponent({}, <CustomOperatorRoleNames isHypershiftSelected={false} />),
+    );
+
+    const moreInfoBtn = await screen.findByLabelText('More information');
+    await user.click(moreInfoBtn);
+
+    const link = screen.getByText('Defining a custom Operator IAM role prefix');
+    expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
   });
 });
