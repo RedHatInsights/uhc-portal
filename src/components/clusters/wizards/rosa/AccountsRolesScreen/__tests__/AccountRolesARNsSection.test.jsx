@@ -1,6 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
+import links from '~/common/installLinks.mjs';
 import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import { HCP_USE_UNMANAGED } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
@@ -362,6 +363,26 @@ describe('<AccountRolesARNsSection />', () => {
       expect(screen.queryByText(rosaCLIMessage)).not.toBeInTheDocument();
       expect(screen.getByText('Cannot detect an OCM role')).toBeInTheDocument();
       expect(screen.getByText('create the required role')).toBeInTheDocument();
+    });
+  });
+
+  describe('Documentation link', () => {
+    it('is rendered correctly for hypershift clusters', async () => {
+      render(buildTestComponent(<AccountRolesARNsSection {...props} />));
+
+      const link = screen.getByText('Learn more about account roles');
+
+      expect(link).toHaveAttribute('href', links.ROSA_AWS_IAM_RESOURCES);
+    });
+
+    it('is rendered correctly for hypershift clusters', async () => {
+      render(
+        buildTestComponent(<AccountRolesARNsSection {...props} isHypershiftSelected={false} />),
+      );
+
+      const link = screen.getByText('Learn more about account roles');
+
+      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_RESOURCES);
     });
   });
 });
