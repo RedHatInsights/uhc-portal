@@ -44,7 +44,7 @@ const renderWithFormik = (props = {}) =>
     </Formik>,
   );
 
-const mockedUseFormState = useFormState as jest.MockedFunction<typeof useFormState>;
+const mockedUseFormState = useFormState as jest.Mock;
 
 describe('ComputeNodeCount', () => {
   const mockSetFieldValue = jest.fn();
@@ -82,7 +82,7 @@ describe('ComputeNodeCount', () => {
     mockSetFieldValue.mockClear();
     mockValidateField.mockClear();
 
-    mockedUseFormState.mockReturnValue(createMockFormState() as any);
+    mockedUseFormState.mockReturnValue(createMockFormState());
 
     (useGlobalStateModule.useGlobalState as jest.Mock).mockImplementation((selector: any) => {
       const mockState = {
@@ -109,7 +109,7 @@ describe('ComputeNodeCount', () => {
     mockedUseFormState.mockReturnValue(
       createMockFormState({
         [FieldId.Hypershift]: 'true',
-      }) as any,
+      }),
     );
 
     renderWithFormik();
@@ -118,7 +118,7 @@ describe('ComputeNodeCount', () => {
   });
 
   it('sets value when user changes input', async () => {
-    mockedUseFormState.mockReturnValue(createMockFormState() as any);
+    mockedUseFormState.mockReturnValue(createMockFormState());
 
     renderWithFormik();
 
