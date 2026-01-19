@@ -75,7 +75,7 @@ const MachinePoolSubnetsForm = ({
     );
 
   const removeMachinePool = (machinePoolsSubnetsIndex: number) => {
-    const newMachinePoolsSubnets = (machinePoolsSubnetsFromProps as FormSubnet[]).filter(
+    const newMachinePoolsSubnets = machinePoolsSubnetsFromProps.filter(
       (e, i) => i !== machinePoolsSubnetsIndex,
     );
     const newPoolsLength = newMachinePoolsSubnets.length;
@@ -132,7 +132,7 @@ const MachinePoolSubnetsForm = ({
       </GridItem>
       <GridItem span={6} />
 
-      {(machinePoolsSubnetsFromProps as FormSubnet[])?.map((subnet, index) => {
+      {machinePoolsSubnetsFromProps?.map((subnet, index) => {
         const isRemoveDisabled = machinePoolsSubnetsFromProps.length === 1;
         const fieldNameSubnetId = `${FieldId.MachinePoolsSubnets}[${index}].privateSubnetId`;
 
