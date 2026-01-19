@@ -413,7 +413,7 @@ const links = {
     'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html-single/managing_clusters/index#transferring-cluster-ownership_downloading-and-updating-pull-secrets',
 
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: 'https://aws.amazon.com/windows/resources/licensing/',
-  WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: 'https://access.redhat.com/articles/7096903',
+  WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: `${ROSA_DOCS_BASE}/cluster_administration/managing-compute-nodes-using-machine-pools#creating_machine_pools_ocm_rosa-managing-worker-nodes`,
 
   MTV_RESOURCES: `${MTV_DOCS_BASE}/installing_and_using_the_migration_toolkit_for_virtualization/about-mtv_mtv#mtv-resources-and-services_mtv`,
 

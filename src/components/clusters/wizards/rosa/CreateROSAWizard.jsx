@@ -12,6 +12,7 @@ import {
 } from '@patternfly/react-core';
 
 import { ocmResourceType, trackEvents } from '~/common/analytics';
+import { BREADCRUMB_PATHS, buildBreadcrumbs } from '~/common/breadcrumbPaths';
 import { shouldRefetchQuota } from '~/common/helpers';
 import { Navigate, useNavigate } from '~/common/routing';
 import { AppDrawerContext } from '~/components/App/AppDrawer';
@@ -55,12 +56,12 @@ import { ValuesPanel } from './ValuesPanel';
 
 import './createROSAWizard.scss';
 
-const breadcrumbs = [
-  { label: 'Cluster List' },
-  { label: 'Cluster Type', path: '/create' },
-  { label: 'Set up ROSA', path: '/create/rosa/getstarted' },
+const breadcrumbs = buildBreadcrumbs(
+  BREADCRUMB_PATHS.CLUSTER_LIST,
+  BREADCRUMB_PATHS.CLUSTER_TYPE,
+  BREADCRUMB_PATHS.ROSA_SETUP,
   { label: 'Create a ROSA Cluster' },
-];
+);
 
 const title = (
   <PageTitle title="Create a ROSA Cluster" breadcrumbs={<Breadcrumbs path={breadcrumbs} />} />

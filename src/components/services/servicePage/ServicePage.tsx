@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 
 import { PageSection, Title } from '@patternfly/react-core';
 
+import { BREADCRUMB_PATHS, buildBreadcrumbs } from '~/common/breadcrumbPaths';
 import { AppPage } from '~/components/App/AppPage';
 import Breadcrumbs from '~/components/common/Breadcrumbs';
 
@@ -70,12 +71,9 @@ export const ServicePage = ({ serviceName }: ServicePageProps) => {
         linkHref={data.bannerContent.linkHref}
         breadcrumbs={
           <Breadcrumbs
-            path={[
-              { label: 'Overview', path: `/overview` },
-              {
-                label: data.breadcrumbsLabel,
-              },
-            ]}
+            path={buildBreadcrumbs(BREADCRUMB_PATHS.OVERVIEW, {
+              label: data.breadcrumbsLabel,
+            })}
           />
         }
       />
