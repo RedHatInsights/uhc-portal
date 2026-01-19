@@ -1,4 +1,4 @@
-name: E2e CI Playwright Tests
+name: e2e CI Playwright Tests
 
 on:
   # note:  don't use 'pull_request_target' event!  see OCMUI-4089
