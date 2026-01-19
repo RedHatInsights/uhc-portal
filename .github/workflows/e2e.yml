@@ -1,7 +1,6 @@
 name: e2e CI
 
 on:
-  # note:  don't use 'pull_request_target' event!  see OCMUI-4089
   push:
     branches:
       - 'main'
