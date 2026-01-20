@@ -23,6 +23,8 @@ if (!Object.fromEntries) {
   fromEntries.shim();
 }
 
+console.log('test');
+
 const renderDevEnvError = () => {
   const body = createRoot(document.body as HTMLElement);
   body.render(
