@@ -55,15 +55,13 @@ test.describe.serial(
     }) => {
       await createRosaWizardPage.isClusterDetailsScreen();
       await createRosaWizardPage.setClusterName(clusterName);
-      await createRosaWizardPage.closePopoverDialogs();
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().check();
       await createRosaWizardPage.setDomainPrefix(clusterDomainPrefix);
-      await createRosaWizardPage.closePopoverDialogs();
       await createRosaWizardPage.selectRegion(clusterProperties.Region);
       await createRosaWizardPage.selectVersion(
         clusterProperties.Version || process.env.VERSION || '',
       );
-      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.closePopoverAndNavigateNext();
     });
 
     test('Step - Cluster Settings - Select machine pool node type and node count', async ({
@@ -257,7 +255,8 @@ test.describe.serial(
       createRosaWizardPage,
       clusterDetailsPage,
     }) => {
-      await page.waitForTimeout(2000); // Small delay for UI stability
+      // Wait for the review screen to be fully loaded (role API calls to complete)
+      await createRosaWizardPage.waitForReviewScreenReady();
       await createRosaWizardPage.createClusterButton().click();
       await clusterDetailsPage.waitForInstallerScreenToLoad();
       await expect(clusterDetailsPage.clusterNameTitle()).toContainText(clusterName);

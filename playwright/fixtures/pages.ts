@@ -1,5 +1,6 @@
 import { test as base, BrowserContext, Page } from '@playwright/test';
 import { ClusterDetailsPage } from '../page-objects/cluster-details-page';
+import { MachinePoolsPage } from '../page-objects/machine-pools-page';
 import { ClusterListPage } from '../page-objects/cluster-list-page';
 import { ClusterRequestsPage } from '../page-objects/cluster-requests-page';
 import { ClusterTypesPage } from '../page-objects/cluster-types-page';
@@ -15,6 +16,7 @@ import { ReleasesPage } from '../page-objects/releases-page';
 import { RosaGetStartedPage } from '../page-objects/rosa-getstarted-page';
 import { SubscriptionsPage } from '../page-objects/subscriptions-page';
 import { TokensPage } from '../page-objects/tokens-page';
+import { CustomCommands } from '../support/custom-commands';
 import { STORAGE_STATE_PATH } from '../support/playwright-constants';
 
 /**
@@ -28,6 +30,7 @@ type WorkerFixtures = {
   authenticatedContext: BrowserContext;
   authenticatedPage: Page;
   clusterDetailsPage: ClusterDetailsPage;
+  machinePoolsPage: MachinePoolsPage;
   clusterListPage: ClusterListPage;
   clusterRequestsPage: ClusterRequestsPage;
   clusterTypesPage: ClusterTypesPage;
@@ -43,6 +46,7 @@ type WorkerFixtures = {
   rosaGetStartedPage: RosaGetStartedPage;
   subscriptionsPage: SubscriptionsPage;
   tokensPage: TokensPage;
+  customCommands: CustomCommands;
 };
 
 /**
@@ -122,6 +126,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   clusterDetailsPage: [
     async ({ authenticatedPage }, use) => {
       const pageObject = new ClusterDetailsPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: MachinePoolsPage instance - created once, reused across all tests in suite
+  machinePoolsPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new MachinePoolsPage(authenticatedPage);
       await use(pageObject);
     },
     { scope: 'worker' },
@@ -258,6 +271,13 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     async ({ authenticatedPage }, use) => {
       const pageObject = new TokensPage(authenticatedPage);
       await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+  customCommands: [
+    async ({ authenticatedPage }, use) => {
+      const customCommands = new CustomCommands(authenticatedPage);
+      await use(customCommands);
     },
     { scope: 'worker' },
   ],

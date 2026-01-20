@@ -410,6 +410,28 @@ export class CreateRosaWizardPage extends BasePage {
     });
   }
 
+  /**
+   * Waits for the Review screen to be fully loaded and ready for interaction.
+   * This is a special case for the Review screen where we need to wait for the spinners to disappear.
+   * This waits for:
+   * 1. The review screen title to be visible
+   * 2. All loading spinners to disappear (getUserRole and getOCMRole API calls)
+   */
+  async waitForReviewScreenReady(): Promise<void> {
+    // Wait for the review screen title to be visible
+    await expect(this.page.getByRole('heading', { name: 'Review your ROSA cluster' })).toBeVisible({
+      timeout: 30000,
+    });
+    // Wait for all spinners to disappear using role-based selector (PatternFly Spinner has role="progressbar")
+    await this.page
+      .getByRole('progressbar')
+      .first()
+      .waitFor({ state: 'detached', timeout: 60000 })
+      .catch(() => {
+        // Spinner may have already disappeared or never appeared
+      });
+  }
+
   async selectInstallerRole(roleName: string): Promise<void> {
     const installerButton = this.page.locator('button').filter({ hasText: /Installer-Role$/ });
     const buttonText = await installerButton.textContent();
@@ -447,6 +469,22 @@ export class CreateRosaWizardPage extends BasePage {
     await this.domainPrefixInput().selectText();
     await this.domainPrefixInput().fill(domainPrefix);
     await this.domainPrefixInput().blur();
+  }
+
+  async closePopoverAndNavigateNext(): Promise<void> {
+    // Popover dialogs keep showing multiple times during next button click
+    // We need to close them all until none are found
+    const maxAttempts = 10;
+    await this.rosaNextButton().click();
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const closeButtons = this.page.locator('button[aria-label="Close"]');
+      const count = await closeButtons.count();
+      if (count === 0) {
+        return;
+      }
+      await this.closePopoverDialogs();
+      await this.rosaNextButton().click();
+    }
   }
 
   async closePopoverDialogs(): Promise<void> {
@@ -1004,8 +1042,30 @@ export class CreateRosaWizardPage extends BasePage {
     return this.page.locator('input[name="control_plane_role_arn"]');
   }
 
+  async isUpdatesScreen(): Promise<void> {
+    await expect(this.page.locator('h3:has-text("Cluster update strategy")')).toBeVisible({
+      timeout: 30000,
+    });
+  }
+
   // Additional validation method for compute node range
   computeNodeRangeValue(): Locator {
+    return this.page.getByTestId('Compute-node-range').locator('div');
+  }
+
+  computeNodeRangeLabelValue(): Locator {
     return this.page.getByTestId('Compute-node-range');
+  }
+
+  noProxyDomainsLabelValue(): Locator {
+    return this.page.getByTestId('No-Proxy-domains');
+  }
+
+  machinePoolLabelValue(): Locator {
+    return this.page.getByTestId('Machine-pools');
+  }
+
+  operatorRoleCommandInput(): Locator {
+    return this.page.getByLabel('Copyable ROSA create operator-roles');
   }
 }

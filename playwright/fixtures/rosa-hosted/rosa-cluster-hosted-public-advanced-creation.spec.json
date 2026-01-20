@@ -1,0 +1,53 @@
+{
+  "rosa-hosted-public-advanced": {
+    "day1-profile": {
+      "Description": "rosa hosted public cluster with autoscaling",
+      "ControlPlaneType": "Hosted architecture",
+      "Type": "ROSA",
+      "DomainPrefix": "rosahcpad",
+      "ClusterName": "ply-rosa-hosted-public-advanced",
+      "Region": "us-west-2, US West, Oregon",
+      "Availability": "Multi-zone",
+      "AdditionalEncryption": "Disabled",
+      "EncryptVolumesWithCustomerKeys": "Disabled",
+      "Nodes": {
+        "Control plane": "3/3",
+        "Infra": "2/2",
+        "Compute": "3/3"
+      },
+      "InstanceMetadataService": "IMDSv2",
+      "ClusterAutoscaling": "Enabled",
+      "ClusterPrivacy": "Public",
+      "ClusterWideProxy": "Disabled",
+      "MachineCIDR": "10.0.0.0/16",
+      "ServiceCIDR": "172.30.0.0/16",
+      "PodCIDR": "10.128.0.0/14",
+      "HostPrefix": "/23",
+      "OidcConfigType": "Red Hat managed",
+      "UpdateStrategy": "Individual updates",
+      "MachinePools": {
+        "MachinePoolCount": 3,
+        "AvailabilityZones": ["us-west-2a", "us-west-2b", "us-west-2c"],
+        "InstanceType": "m6id.xlarge",
+        "Autoscaling": "Enabled",
+        "MiniNodeCount": "2",
+        "MaxNodeCount": "4",
+        "PublicSubnetZone": "us-west-2a"
+      },
+      "ClusterProxy": {
+        "HttpProxy": "http://test.com",
+        "HttpsProxy": "https://test.com",
+        "NoProxyDomains": "test.com,test.co.in"
+      },
+      "networking": {
+        "CIDRRanges": {
+          "MachineCIDR": "10.0.0.0/16",
+          "ServiceCIDR": "172.30.0.0/16",
+          "PodCIDR": "10.128.0.0/14",
+          "Hostprefix": "/23"
+        }
+      }
+    },
+    "day2-profile": {}
+  }
+}

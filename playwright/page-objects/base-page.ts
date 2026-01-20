@@ -41,6 +41,13 @@ export class BasePage {
     return this.page.getByTestId(testId);
   }
 
+  /**
+   * Returns a Locator for the given text
+   */
+  getByText(text: string | RegExp, options?: { exact?: boolean }): Locator {
+    return this.page.getByText(text, options);
+  }
+
   async click(selector: string | Locator): Promise<void> {
     await this.getLocator(selector).click();
   }
@@ -61,6 +68,14 @@ export class BasePage {
     state: 'load' | 'domcontentloaded' | 'networkidle' = 'load',
   ): Promise<void> {
     await this.page.waitForLoadState(state);
+  }
+
+  /**
+   * Presses a key on the keyboard
+   * @param key - The key to press (e.g., 'Escape', 'Enter', etc.)
+   */
+  async pressKey(key: string): Promise<void> {
+    await this.page.keyboard.press(key);
   }
 
   /**

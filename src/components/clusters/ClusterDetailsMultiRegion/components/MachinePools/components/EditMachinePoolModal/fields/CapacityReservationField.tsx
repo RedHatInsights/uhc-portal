@@ -141,6 +141,7 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
             label={selectedOption.label}
             onSelect={OnChange}
             isDisabled={!isValidVersion}
+            ariaLabel="Reservation Preference"
           >
             {options.map((option) => (
               <SelectOption key={option.value} value={option.value}>
