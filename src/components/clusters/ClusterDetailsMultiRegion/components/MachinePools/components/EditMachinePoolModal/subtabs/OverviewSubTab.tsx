@@ -18,6 +18,7 @@ import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
+import CapacityReservationField from '../fields/CapacityReservationField';
 import DiskSizeField from '../fields/DiskSizeField';
 import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
 import EditDetailsSection from '../sections/EditDetailsSection';
@@ -37,6 +38,8 @@ const fieldsInTab = [
   FieldId.IMDS,
   'diskSize',
   'secure_boot',
+  'capacityReservationPreference',
+  'capacityReservationId',
 ];
 
 type Props = {
@@ -130,6 +133,7 @@ export const useOverviewSubTab = ({
           />
         ) : null}
         <DiskSizeField cluster={cluster} isEdit={isEdit} />
+        <CapacityReservationField cluster={cluster} isEdit={isEdit} />
         {isGCP && isSecureBootEnabled ? <ShieldedVM isEditModal={!!isEdit} /> : null}
       </Form>
     </TabContent>

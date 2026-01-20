@@ -1,6 +1,15 @@
 import React from 'react';
 
-import { Alert, FormGroup, GridItem, Split, SplitItem } from '@patternfly/react-core';
+import {
+  Alert,
+  FormGroup,
+  FormHelperText,
+  GridItem,
+  HelperText,
+  HelperTextItem,
+  Split,
+  SplitItem,
+} from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
 import { validateAWSKMSKeyARN } from '~/common/validators';
@@ -9,8 +18,11 @@ import { TextInputField } from '~/components/clusters/wizards/form';
 import { CheckboxField } from '~/components/clusters/wizards/form/CheckboxField';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import { CheckboxDescription } from '~/components/common/CheckboxDescription';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
+import { FIPS_FOR_HYPERSHIFT } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 export function HCPEtcdEncryptionSection() {
   const {
@@ -18,9 +30,11 @@ export function HCPEtcdEncryptionSection() {
       [FieldId.EtcdEncryption]: etcdEncryption,
       [FieldId.EtcdKeyArn]: etcdKeyArn,
       [FieldId.Region]: region,
+      [FieldId.FipsCryptography]: fipsCryptography,
     },
     setFieldValue,
   } = useFormState();
+  const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
 
   React.useEffect(() => {
     if (!etcdEncryption && !!etcdKeyArn) {
@@ -37,6 +51,7 @@ export function HCPEtcdEncryptionSection() {
               <CheckboxField
                 name={FieldId.EtcdEncryption}
                 label="Encrypt etcd with a custom KMS key"
+                isDisabled={fipsCryptography}
               />
             </SplitItem>
             <SplitItem>
@@ -52,9 +67,16 @@ export function HCPEtcdEncryptionSection() {
               />
             </SplitItem>
           </Split>
-          <div className="ocm-c--reduxcheckbox-description">
+          <CheckboxDescription>
             Etcd is always encrypted, but you can specify a custom KMS key if desired.
-          </div>
+          </CheckboxDescription>
+          {isFipsForHypershiftEnabled && fipsCryptography && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem>Required when FIPS cryptography is enabled</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
         </FormGroup>
       </GridItem>
 

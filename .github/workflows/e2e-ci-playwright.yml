@@ -1,8 +1,6 @@
-name: E2e CI Playwright Tests
+name: e2e CI Playwright Tests
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches:
       - 'main'

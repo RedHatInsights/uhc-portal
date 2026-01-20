@@ -28,7 +28,7 @@ jest.mock('~/components/common/ReduxFormComponents_deprecated/ReduxFileUpload', 
 ));
 
 // Formik wrapper to provide context for useFormState
-const buildTestComponent = (formValues = {}) => (
+const buildTestComponent = (isHypershiftSelected, formValues = {}) => (
   <Formik
     initialValues={{
       [FieldId.HttpProxyUrl]: '',
@@ -39,7 +39,7 @@ const buildTestComponent = (formValues = {}) => (
     }}
     onSubmit={jest.fn()}
   >
-    <ClusterProxyScreen />
+    <ClusterProxyScreen isHypershiftSelected={isHypershiftSelected} />
   </Formik>
 );
 
@@ -48,21 +48,31 @@ describe('<ClusterProxyScreen />', () => {
     jest.clearAllMocks();
   });
 
-  it('renders expected labels and help, including documentation link', async () => {
+  it('renders expected labels and help', async () => {
     render(buildTestComponent());
 
     expect(screen.getByText('Cluster-wide proxy')).toBeInTheDocument();
     expect(screen.getByText('Configure at least 1 of the following fields:')).toBeInTheDocument();
-
-    const learnMoreLink = screen.getByText('Learn more about configuring a cluster-wide proxy');
-    expect(learnMoreLink).toBeInTheDocument();
-    expect(learnMoreLink).toHaveAttribute('href', links.ROSA_CLUSTER_WIDE_PROXY);
 
     // Labels exist
     expect(screen.getByLabelText('HTTP proxy URL')).toBeInTheDocument();
     expect(screen.getByLabelText('HTTPS proxy URL')).toBeInTheDocument();
     expect(screen.getByLabelText('No Proxy domains')).toBeInTheDocument();
     expect(screen.getByText('MOCKED UPLOAD')).toBeInTheDocument();
+  });
+
+  it('renders rosa HCP documentation link when hypershift is selected', async () => {
+    render(buildTestComponent(true));
+
+    const learnMoreLink = screen.getByText('Learn more about configuring a cluster-wide proxy');
+    expect(learnMoreLink).toHaveAttribute('href', links.ROSA_CLUSTER_WIDE_PROXY);
+  });
+
+  it('renders rosa classic documentation link when classic is selected', async () => {
+    render(buildTestComponent());
+
+    const learnMoreLink = screen.getByText('Learn more about configuring a cluster-wide proxy');
+    expect(learnMoreLink).toHaveAttribute('href', links.ROSA_CLASSIC_CLUSTER_WIDE_PROXY);
   });
 
   it('disables No Proxy domains when no HTTP/HTTPS URLs are set and shows disabled placeholder', async () => {
@@ -112,7 +122,9 @@ describe('<ClusterProxyScreen />', () => {
 
   it('hides the warning when Additional trust bundle has content', async () => {
     const { user } = render(
-      buildTestComponent({ [FieldId.AdditionalTrustBundle]: 'I am a trust bundle' }),
+      buildTestComponent(false, {
+        [FieldId.AdditionalTrustBundle]: 'I am a trust bundle',
+      }),
     );
 
     // Touch a field to trigger anyTouched

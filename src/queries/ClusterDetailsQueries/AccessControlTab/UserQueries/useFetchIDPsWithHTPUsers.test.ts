@@ -1,5 +1,5 @@
 import { queryClient } from '~/components/App/queryClient';
-import { formatErrorData } from '~/queries/helpers';
+import * as queryHelpers from '~/queries/helpers';
 import { renderHook, waitFor } from '~/testUtils';
 
 import clusterService, { getClusterServiceForRegion } from '../../../../services/clusterService';
@@ -31,6 +31,11 @@ jest.mock('~/components/App/queryClient', () => ({
   queryClient: {
     invalidateQueries: jest.fn(),
   },
+}));
+
+jest.mock('~/queries/helpers', () => ({
+  formatErrorData: jest.fn(),
+  getHtpasswdIds: jest.fn(),
 }));
 
 const clusterIDP = {
@@ -91,6 +96,8 @@ describe('useFetchIDPsWithHTPUsers', () => {
   const mockGetHtpasswdUsers = jest.fn();
   const mockedIDPsWithHTPUsers = jest.fn();
   const mockGetClusterServiceForRegion = getClusterServiceForRegion as jest.Mock;
+  const mockFormatErrorData = queryHelpers.formatErrorData as jest.Mock;
+  const mockGetHtpasswdIds = queryHelpers.getHtpasswdIds as jest.Mock;
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -104,11 +111,13 @@ describe('useFetchIDPsWithHTPUsers', () => {
       getIdentityProviders: mockGetIdentityProviders,
       getHtpasswdUsers: mockGetHtpasswdUsers,
     });
+    mockGetHtpasswdIds.mockReturnValue(['idpId1']);
   });
 
   it('returns idps and users from apis', async () => {
     mockGetIdentityProviders.mockResolvedValueOnce({ data: clusterIDP });
     mockGetHtpasswdUsers.mockResolvedValueOnce({ data: htpUsers });
+    mockGetHtpasswdIds.mockReturnValue(['idpId1']);
 
     mockedIDPsWithHTPUsers.mockResolvedValue({ data: idpsWithHTPasswdUsers });
 
@@ -123,16 +132,13 @@ describe('useFetchIDPsWithHTPUsers', () => {
     expect(isError).toBeFalsy();
   });
 
-  it.skip('displays error correctly', async () => {
+  it('displays error correctly', async () => {
     const clusterID = 'test-cluster';
     const mockError = new Error('test error');
-    const mockFormattedError = formatErrorData as jest.Mock;
+    const mockFormattedErrorResult = { message: 'formatted error' };
 
-    mockGetIdentityProviders.mockResolvedValueOnce({ data: clusterIDP });
-
-    mockGetHtpasswdUsers.mockRejectedValueOnce(mockError);
-    mockedIDPsWithHTPUsers.mockResolvedValue(mockError);
-    mockFormattedError.mockReturnValueOnce({ message: 'formatted error' });
+    mockGetIdentityProviders.mockRejectedValueOnce(mockError);
+    mockFormatErrorData.mockReturnValue(mockFormattedErrorResult);
 
     const { result } = renderHook(() => useFetchIDPsWithHTPUsers(clusterID));
 
@@ -140,12 +146,11 @@ describe('useFetchIDPsWithHTPUsers', () => {
       expect(result.current.isError).toBe(true);
     });
 
-    expect(result.current.error).toEqual({ message: 'formatted error' });
-
-    expect(mockFormattedError).toHaveBeenCalledWith(
-      result.current.isPending,
-      result.current.isError,
-      mockError,
+    expect(result.current.error).toEqual(mockFormattedErrorResult);
+    expect(mockFormatErrorData).toHaveBeenCalledWith(
+      expect.any(Boolean), // isLoading
+      true, // isError
+      mockError, // error
     );
   });
 

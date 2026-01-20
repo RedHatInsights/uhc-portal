@@ -121,9 +121,11 @@ export const buildNodePoolRequest = (
   {
     isEdit,
     isMultiZoneMachinePool,
+    canUseCapacityReservation,
   }: {
     isEdit: boolean;
     isMultiZoneMachinePool: boolean;
+    canUseCapacityReservation?: boolean;
   },
 ): NodePool => {
   const nodePool: NodePool = {
@@ -148,6 +150,12 @@ export const buildNodePoolRequest = (
       root_volume: {
         size: values.diskSize,
       },
+      ...(canUseCapacityReservation && {
+        capacity_reservation: {
+          id: values.capacityReservationId,
+          preference: values.capacityReservationPreference,
+        },
+      }),
     };
   }
 

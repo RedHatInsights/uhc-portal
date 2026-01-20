@@ -60,7 +60,7 @@ const EditSecurityGroupsField = ({ cluster, isReadOnly }: EditSecurityGroupsFiel
   ) : (
     <Flex direction={{ default: 'column' }}>
       <FlexItem>
-        <SecurityGroupsNoChangeAlert isRosa={isROSA(cluster)} />
+        <SecurityGroupsNoChangeAlert isRosa={isROSA(cluster)} isHypershift={isHypershift} />
       </FlexItem>
       <FlexItem>
         <Field

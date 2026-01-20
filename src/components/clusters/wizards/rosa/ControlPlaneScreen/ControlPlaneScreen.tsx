@@ -13,9 +13,13 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import { PrerequisitesInfoBox } from '~/components/clusters/wizards/rosa/common/PrerequisitesInfoBox';
 import { WelcomeMessage } from '~/components/clusters/wizards/rosa/common/WelcomeMessage';
 import ExternalLink from '~/components/common/ExternalLink';
-import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConstants';
+import {
+  FIPS_FOR_HYPERSHIFT,
+  MULTIREGION_PREVIEW_ENABLED,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
+import { isRestrictedEnv } from '~/restrictedEnv';
 import AWSLogo from '~/styles/images/AWS.png';
 import RedHat from '~/styles/images/Logo-Red_Hat-B-Standard-RGB.png';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
@@ -42,6 +46,7 @@ const ControlPlaneField = ({
   const { values: formValues, setValues, setFieldValue } = useFormState();
   const isHostedDisabled = !hasHostedProductQuota;
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED);
+  const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
 
   React.useEffect(() => {
     if (isHostedDisabled) {
@@ -76,8 +81,8 @@ const ControlPlaneField = ({
       [FieldId.ConfigureProxy]: false,
       // Reset VPC settings in case they were configured and then came back to the Control plane step
       [FieldId.MachinePoolsSubnets]: [emptyAWSSubnet()],
-      // Uncheck fips selection checkbox when switching Control plane selection
-      [FieldId.FipsCryptography]: false,
+      // Update fips selection checkbox when switching Control plane selection
+      [FieldId.FipsCryptography]: isFipsForHypershiftEnabled && isRestrictedEnv(),
       // Accounts and roles
       [FieldId.InstallerRoleArn]: NO_ROLE_DETECTED,
       [FieldId.SupportRoleArn]: NO_ROLE_DETECTED,

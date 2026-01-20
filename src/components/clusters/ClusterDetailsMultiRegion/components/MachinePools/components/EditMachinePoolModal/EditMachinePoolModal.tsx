@@ -39,6 +39,7 @@ import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoo
 import { useEditCreateMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useEditCreateMachineOrNodePools';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import {
+  CAPACITY_RESERVATION_ID_FIELD,
   GCP_SECURE_BOOT,
   IMDS_SELECTION,
   MAX_NODES_TOTAL_249,
@@ -53,6 +54,7 @@ import { ClusterFromSubscription, ErrorState } from '~/types/types';
 import { canUseSpotInstances } from '../../machinePoolsHelper';
 
 import AutoRepairField from './fields/AutoRepairField';
+import CapacityReservationField from './fields/CapacityReservationField';
 import DiskSizeField from './fields/DiskSizeField';
 import useMachinePoolFormik, { EditMachinePoolValues } from './hooks/useMachinePoolFormik';
 import EditDetailsSection from './sections/EditDetailsSection';
@@ -171,6 +173,7 @@ const EditMachinePoolModal = ({
   const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
   const isSecureBootEnabled = useFeatureGate(GCP_SECURE_BOOT);
   const imdsSectionFeature = useFeatureGate(IMDS_SELECTION);
+  const isCapacityReservationEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
 
   const setCurrentMPId = React.useCallback(
     (id: string) => setCurrentMachinePool(machinePoolsResponse?.find((mp) => mp.id === id)),
@@ -208,6 +211,7 @@ const EditMachinePoolModal = ({
     isHypershift,
     cluster,
     currentMachinePool,
+    isCapacityReservationEnabled,
   );
 
   const [overviewTab, overviewContent] = useOverviewSubTab({
@@ -259,7 +263,6 @@ const EditMachinePoolModal = ({
     (!machinePoolsError && machinePoolsLoading) ||
     (!machineTypesError && machineTypesLoading) ||
     (isEdit && machineTypesResponse && machinePoolsResponse && !currentMachinePool);
-
   return (
     <Formik<EditMachinePoolValues>
       onSubmit={async (values) => {
@@ -373,6 +376,7 @@ const EditMachinePoolModal = ({
                       />
                     ) : null}
                     <DiskSizeField cluster={cluster} isEdit={isEdit} />
+                    <CapacityReservationField cluster={cluster} isEdit={isEdit} />
                     <ExpandableSection toggleText="Edit node labels and taints">
                       <EditLabelsSection />
                       <EditTaintsSection

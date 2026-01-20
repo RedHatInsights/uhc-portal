@@ -56,7 +56,7 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
     billing_model: SubscriptionCommonFieldsClusterBillingModel.standard,
     disable_user_workload_monitoring:
       isHypershiftSelected || !formData.enable_user_workload_monitoring,
-    ...(!isHypershiftSelected && { fips: !!formData.fips }),
+    fips: !!formData.fips,
   };
 
   if (formData.has_domain_prefix) {
