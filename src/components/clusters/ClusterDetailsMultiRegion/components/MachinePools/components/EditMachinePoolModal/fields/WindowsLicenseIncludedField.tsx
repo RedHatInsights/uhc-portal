@@ -1,10 +1,10 @@
 import React from 'react';
 import { useFormikContext } from 'formik';
+import semver from 'semver';
 
 import { Content, ContentVariants } from '@patternfly/react-core';
 
 import links from '~/common/installLinks.mjs';
-import { versionComparator } from '~/common/versionComparator';
 import { CheckboxField } from '~/components/clusters/wizards/form';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -36,8 +36,9 @@ const WindowsLicenseIncludedField = ({
   const { values } = useFormikContext<EditMachinePoolValues>();
   const isWinLiCompatible = !!values.instanceType?.features?.win_li;
 
-  const isVersionCompatible =
-    clusterVersion !== 'N/A' && versionComparator(clusterVersion, minimumCompatibleVersion) >= 0;
+  const isVersionCompatible = semver.valid(clusterVersion)
+    ? semver.gte(clusterVersion, minimumCompatibleVersion)
+    : false;
 
   const isCurrentMPWinLiEnabled = isEdit && currentMP?.image_type === ImageType.Windows;
 
