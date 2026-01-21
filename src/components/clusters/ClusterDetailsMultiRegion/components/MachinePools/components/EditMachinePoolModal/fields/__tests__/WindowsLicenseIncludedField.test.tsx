@@ -227,11 +227,7 @@ describe('<WindowsLicenseIncludedField />', () => {
         render(
           buildTestComponent(
             {},
-            <WindowsLicenseIncludedField
-              isEdit
-              currentMP={WindowsLIEnabledMachinePool}
-              clusterVersion={compatibleClusterVersion}
-            />,
+            <WindowsLicenseIncludedField isEdit currentMP={WindowsLIEnabledMachinePool} />,
           ),
         );
 
@@ -244,11 +240,7 @@ describe('<WindowsLicenseIncludedField />', () => {
         const { user } = render(
           buildTestComponent(
             {},
-            <WindowsLicenseIncludedField
-              isEdit
-              currentMP={WindowsLIEnabledMachinePool}
-              clusterVersion={compatibleClusterVersion}
-            />,
+            <WindowsLicenseIncludedField isEdit currentMP={WindowsLIEnabledMachinePool} />,
           ),
         );
 
@@ -279,11 +271,7 @@ describe('<WindowsLicenseIncludedField />', () => {
       render(
         buildTestComponent(
           {},
-          <WindowsLicenseIncludedField
-            isEdit
-            currentMP={WindowsLIDisabledMachinePool}
-            clusterVersion={compatibleClusterVersion}
-          />,
+          <WindowsLicenseIncludedField isEdit currentMP={WindowsLIDisabledMachinePool} />,
         ),
       );
 

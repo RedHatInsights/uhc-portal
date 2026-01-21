@@ -7,7 +7,7 @@ import TextField from '~/components/common/formik/TextField';
 import { WINDOWS_LICENSE_INCLUDED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
-import { MachinePool } from '~/types/clusters_mgmt.v1';
+import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 import InstanceTypeField from '../fields/InstanceTypeField';
@@ -18,7 +18,7 @@ import { WindowsLicenseIncludedField } from '../fields/WindowsLicenseIncludedFie
 type EditDetailsSectionProps = {
   cluster: ClusterFromSubscription;
   isEdit: boolean;
-  machinePools: MachinePool[];
+  machinePools: MachinePool[] | NodePool[];
   currentMPId: string | undefined;
   setCurrentMPId: (currentMPId: string) => void;
   machineTypesResponse: MachineTypesResponse;
@@ -52,8 +52,7 @@ const EditDetailsSection = ({
       {allowWindowsLicenseIncluded ? (
         <WindowsLicenseIncludedField
           isEdit
-          currentMP={machinePools.find((mp) => mp.id === currentMPId)}
-          clusterVersion={clusterVersion}
+          currentMP={machinePools.find((mp) => mp.id === currentMPId) as NodePool}
         />
       ) : null}
     </FormGroup>
