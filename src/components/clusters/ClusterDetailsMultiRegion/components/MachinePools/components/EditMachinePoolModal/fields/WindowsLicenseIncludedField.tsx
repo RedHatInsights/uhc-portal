@@ -58,7 +58,7 @@ const WindowsLicenseIncludedField = ({
   let tooltip;
   if (isDisabled)
     tooltip = !isVersionCompatible
-      ? `Windows License Included enabled machine pools can be created only for clusters running version ${minimumCompatibleVersion} and above.`
+      ? `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`
       : 'This instance type is not Windows License Included compatible.';
 
   if (!isWinLiCompatible) {
