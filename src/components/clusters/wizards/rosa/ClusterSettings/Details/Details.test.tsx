@@ -508,7 +508,7 @@ describe('<Details />', () => {
         </Formik>,
       );
 
-      const moreInfoBtn = screen.getByLabelText('monitoring-more-information');
+      const moreInfoBtn = screen.getByLabelText('More information about monitoring');
       await user.click(moreInfoBtn);
 
       const link = screen.getByRole('link', { name: /Learn more/i });
