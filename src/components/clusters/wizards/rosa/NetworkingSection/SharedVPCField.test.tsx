@@ -1,7 +1,6 @@
 import React from 'react';
 import { Form, Formik } from 'formik';
 
-import getClusterVersion from '~/components/clusters/common/getClusterVersion';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import SharedVPCField from '~/components/clusters/wizards/rosa/NetworkingSection/SharedVPCField';
 import { clusterService } from '~/services';
@@ -81,10 +80,6 @@ jest.mock('~/services/clusterService');
 clusterService.getDnsDomains = jest.fn();
 clusterService.createNewDnsDomain = jest.fn();
 clusterService.deleteDnsDomain = jest.fn();
-
-jest.mock('~/components/clusters/common/getClusterVersion');
-const mockedGetClusterVersion = getClusterVersion as jest.MockedFunction<typeof getClusterVersion>;
-mockedGetClusterVersion.mockReturnValue('4.19.0');
 
 describe('<SharedVPCField />', () => {
   afterEach(() => {
