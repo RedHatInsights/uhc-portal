@@ -199,7 +199,7 @@ describe('<ExternalLink />', () => {
 
     it('is called for unknown pathname', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/foo' } as Location);
+      locationSpy.mockReturnValue({ pathname: '/foo' });
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -221,7 +221,7 @@ describe('<ExternalLink />', () => {
 
     it('is called for rosa pathname', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/rosa' } as Location);
+      locationSpy.mockReturnValue({ pathname: '/rosa' });
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -243,7 +243,7 @@ describe('<ExternalLink />', () => {
 
     it('is called for osd trial pathname', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/osdtrial' } as Location);
+      locationSpy.mockReturnValue({ pathname: '/osdtrial' });
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -265,7 +265,7 @@ describe('<ExternalLink />', () => {
 
     it('is called for osd pathname', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/osd' } as Location);
+      locationSpy.mockReturnValue({ pathname: '/osd' });
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -287,7 +287,7 @@ describe('<ExternalLink />', () => {
 
     it('is called for crc pathname', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/crc' } as Location);
+      locationSpy.mockReturnValue({ pathname: '/crc' });
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -308,7 +308,7 @@ describe('<ExternalLink />', () => {
     });
     it('is called with custom tracking properties', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/crc' } as Location);
+      locationSpy.mockReturnValue({ pathname: '/crc' });
       const customProps = {
         current_path: '/openshift/details/s',
         tab_title: 'Add-ons',
