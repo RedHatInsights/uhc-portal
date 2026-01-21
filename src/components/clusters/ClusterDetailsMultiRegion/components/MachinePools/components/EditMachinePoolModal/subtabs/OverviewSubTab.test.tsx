@@ -1,7 +1,6 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import getClusterVersion from '~/components/clusters/common/getClusterVersion';
 import {
   GCP_SECURE_BOOT,
   IMDS_SELECTION,
@@ -29,10 +28,6 @@ jest.mock('formik', () => ({
   setFieldValue: jest.fn(),
   setValue: jest.fn(),
 }));
-
-jest.mock('~/components/clusters/common/getClusterVersion');
-const mockedGetClusterVersion = getClusterVersion as jest.MockedFunction<typeof getClusterVersion>;
-mockedGetClusterVersion.mockReturnValue('4.19.0');
 
 describe('OverviewSubTab', () => {
   const mockCluster: ClusterFromSubscription = {

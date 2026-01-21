@@ -196,10 +196,7 @@ describe('<WindowsLicenseIncludedField />', () => {
       it('disables the checkbox and shows the version incompatibility tooltip even if the instance type is incompatible', async () => {
         // Arrange
         const { user } = render(
-          buildTestComponent(
-            { initialValues },
-            <WindowsLicenseIncludedField clusterVersion="N/A" />,
-          ),
+          buildTestComponent({ initialValues }, <WindowsLicenseIncludedField clusterVersion="" />),
         );
 
         // Assert

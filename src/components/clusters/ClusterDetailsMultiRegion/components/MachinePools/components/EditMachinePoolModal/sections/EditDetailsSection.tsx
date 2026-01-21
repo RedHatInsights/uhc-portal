@@ -3,7 +3,6 @@ import * as React from 'react';
 import { FormGroup, SelectOption } from '@patternfly/react-core';
 
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
-import getClusterVersion from '~/components/clusters/common/getClusterVersion';
 import TextField from '~/components/common/formik/TextField';
 import { WINDOWS_LICENSE_INCLUDED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -39,7 +38,7 @@ const EditDetailsSection = ({
 }: EditDetailsSectionProps) => {
   const isHypershift = isHypershiftCluster(cluster);
   const allowWindowsLicenseIncluded = useFeatureGate(WINDOWS_LICENSE_INCLUDED) && isHypershift;
-  const clusterVersion = getClusterVersion(cluster);
+  const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
 
   return isEdit ? (
     <FormGroup fieldId="machine-pool" label="Machine pool">
