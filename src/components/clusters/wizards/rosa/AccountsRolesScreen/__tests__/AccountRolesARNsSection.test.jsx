@@ -375,7 +375,7 @@ describe('<AccountRolesARNsSection />', () => {
       expect(link).toHaveAttribute('href', links.ROSA_AWS_IAM_RESOURCES);
     });
 
-    it('is rendered correctly for hypershift clusters', async () => {
+    it('is rendered correctly for classic clusters', async () => {
       render(
         buildTestComponent(<AccountRolesARNsSection {...props} isHypershiftSelected={false} />),
       );
