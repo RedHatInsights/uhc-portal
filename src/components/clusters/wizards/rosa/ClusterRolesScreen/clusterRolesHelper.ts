@@ -5,13 +5,13 @@ import {
 } from '~/common/validators';
 
 const getOperatorRolesCommand = ({
-  isHypershift,
+  isHypershiftSelected,
   byoOidcConfigID,
   customOperatorRolesPrefix,
   installerRoleArn,
   sharedVpcRoleArn,
 }: {
-  isHypershift: boolean;
+  isHypershiftSelected: boolean;
   byoOidcConfigID: string;
   customOperatorRolesPrefix: string;
   installerRoleArn?: string;
@@ -28,7 +28,7 @@ const getOperatorRolesCommand = ({
   const rosaBaseCommand = `rosa create operator-roles --prefix "${customOperatorRolesPrefix}" --oidc-config-id "${byoOidcConfigID}"`;
   const installerRoleArnOption = installerRoleArn ? `--installer-role-arn ${installerRoleArn}` : '';
 
-  if (isHypershift) {
+  if (isHypershiftSelected) {
     return `${rosaBaseCommand} --hosted-cp ${installerRoleArnOption}`;
   }
   return `${rosaBaseCommand} ${installerRoleArnOption}`;
