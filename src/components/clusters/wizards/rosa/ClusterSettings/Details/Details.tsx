@@ -562,7 +562,7 @@ function Details() {
                 </SplitItem>
                 <SplitItem>
                   <PopoverHint
-                    buttonAriaLabel="monitoring-more-information"
+                    buttonAriaLabel="More information about monitoring"
                     hint={
                       <>
                         {constants.enableUserWorkloadMonitoringHelp}
