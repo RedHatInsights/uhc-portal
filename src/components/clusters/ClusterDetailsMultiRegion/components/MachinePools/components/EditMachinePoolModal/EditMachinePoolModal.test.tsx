@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import fixtures from '~/components/clusters/ClusterDetailsMultiRegion/__tests__/ClusterDetails.fixtures';
-import getClusterVersion from '~/components/clusters/common/getClusterVersion';
 import { MAX_NODES_HCP } from '~/components/clusters/common/machinePools/constants';
 import {
   AWS_TAGS_NEW_MP,
@@ -97,10 +96,6 @@ const testCluster = {
     display_name: 'test-cluster-display-name',
   },
 };
-
-jest.mock('~/components/clusters/common/getClusterVersion');
-const mockedGetClusterVersion = getClusterVersion as jest.MockedFunction<typeof getClusterVersion>;
-mockedGetClusterVersion.mockReturnValue('4.19.0');
 
 describe('<EditMachinePoolModal />', () => {
   describe('error state', () => {
