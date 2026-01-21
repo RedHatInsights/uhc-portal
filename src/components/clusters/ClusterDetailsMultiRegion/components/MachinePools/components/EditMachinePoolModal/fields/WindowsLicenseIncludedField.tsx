@@ -16,11 +16,17 @@ import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
 const fieldId = 'isWindowsLicenseIncluded';
 const minimumCompatibleVersion = '4.19.0';
 
-type WindowsLicenseIncludedFieldProps = {
-  isEdit?: boolean;
-  currentMP?: NodePool;
-  clusterVersion: string;
-};
+type WindowsLicenseIncludedFieldProps =
+  | {
+      isEdit?: false;
+      currentMP?: NodePool;
+      clusterVersion: string;
+    }
+  | {
+      isEdit: true;
+      currentMP: NodePool;
+      clusterVersion?: string;
+    };
 
 const {
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: AWS_DOCS_LINK,
@@ -36,9 +42,10 @@ const WindowsLicenseIncludedField = ({
   const { values } = useFormikContext<EditMachinePoolValues>();
   const isWinLiCompatible = !!values.instanceType?.features?.win_li;
 
-  const isVersionCompatible = semver.valid(clusterVersion)
-    ? semver.gte(clusterVersion, minimumCompatibleVersion)
-    : false;
+  const isVersionCompatible =
+    clusterVersion && semver.valid(clusterVersion)
+      ? semver.gte(clusterVersion, minimumCompatibleVersion)
+      : false;
 
   const isCurrentMPWinLiEnabled = isEdit && currentMP?.image_type === ImageType.Windows;
 
