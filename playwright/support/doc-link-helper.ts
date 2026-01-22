@@ -38,6 +38,7 @@ const archMap: Record<Arch, string> = {
 /**
  * Get download URL for a CLI tool
  * @example getDownloadUrl('rosa', 'linux', 'x86') // Returns ROSA Linux x86 download URL
+ * @throws Error if URL mapping is not found (fail fast on misconfiguration)
  */
 export function getDownloadUrl(tool: Tool, os: OS, arch: Arch = 'x86'): string {
   const toolMap: Record<Tool, string> = {
@@ -52,7 +53,16 @@ export function getDownloadUrl(tool: Tool, os: OS, arch: Arch = 'x86'): string {
   const osKey = osMap[os];
   const archKey = archMap[arch];
 
-  return urls[toolKey]?.[channels.STABLE]?.[archKey]?.[osKey] ?? '';
+  const url = urls[toolKey]?.[channels.STABLE]?.[archKey]?.[osKey];
+
+  if (!url) {
+    throw new Error(
+      `Download URL not found for tool="${tool}", os="${os}", arch="${arch}". ` +
+        `Check installLinks.mjs configuration for missing mapping.`,
+    );
+  }
+
+  return url;
 }
 
 // Commonly used link groups for tests
