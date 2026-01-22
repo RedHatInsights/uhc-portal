@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
+
 import { BasePage } from './base-page';
 
 /**
@@ -243,6 +244,7 @@ export class CreateRosaWizardPage extends BasePage {
   computeNodeCountIncrementButton(): Locator {
     return this.page.getByRole('button', { name: 'Increment compute nodes' });
   }
+
   // Node label selectors
   editNodeLabelLink(): Locator {
     return this.page.getByRole('button', { name: 'Add node labels' });
@@ -663,6 +665,7 @@ export class CreateRosaWizardPage extends BasePage {
   maximumNodeCountPlusButton(): Locator {
     return this.page.getByRole('button', { name: 'Maximum nodes plus' });
   }
+
   maximumNodeCountMinusButton(): Locator {
     return this.page.getByRole('button', { name: 'Maximum nodes minus' });
   }
@@ -689,6 +692,10 @@ export class CreateRosaWizardPage extends BasePage {
 
   customOperatorPrefixInput(): Locator {
     return this.page.getByRole('textbox', { name: 'Operator roles prefix' });
+  }
+
+  operatorRolesCommandField(): Locator {
+    return this.page.getByRole('textbox', { name: 'Copyable ROSA create operator-roles' });
   }
 
   // Screen validation methods for additional screens
