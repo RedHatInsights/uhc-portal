@@ -20,6 +20,7 @@ test.describe.serial(
     }
 
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
+    const awsKMSKey = process.env.QE_AWS_KMS_KEY;
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
     const clusterName = `smoke-playwright-rosa-hypershift-${Math.random().toString(36).substring(7)}`;
@@ -70,6 +71,10 @@ test.describe.serial(
       );
       await createRosaWizardPage.closePopoverDialogs();
       await page.waitForTimeout(2000); // Small delay for UI stability
+      await createRosaWizardPage.advancedEncryptionLink().click();
+      await createRosaWizardPage.enableFIPSCryptographyCheckbox().check();
+      await expect(createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox()).toBeChecked();
+      await createRosaWizardPage.inputEncryptEtcdKeyARN(awsKMSKey);
       await createRosaWizardPage.rosaNextButton().click();
     });
 
@@ -193,8 +198,16 @@ test.describe.serial(
         clusterProperties.EncryptVolumesWithCustomerKeys,
       );
       await createRosaWizardPage.isClusterPropertyMatchesValue(
+        'FIPS cryptography',
+        clusterProperties.FIPSCryptography,
+      );
+      await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Additional etcd encryption',
         clusterProperties.AdditionalEncryption,
+      );
+      await createRosaWizardPage.isClusterPropertyMatchesValue(
+        'Etcd encryption key ARN',
+        awsKMSKey,
       );
     });
 
@@ -304,6 +317,10 @@ test.describe.serial(
       );
       await expect(clusterDetailsPage.clusterInfrastructureAWSaccountLabelValue()).toContainText(
         awsAccountID,
+      );
+
+      await expect(clusterDetailsPage.clusterFipsCryptographyStatus()).toContainText(
+        'FIPS Cryptography enabled',
       );
 
       await expect(clusterDetailsPage.clusterMachineCIDRLabelValue()).toContainText(
