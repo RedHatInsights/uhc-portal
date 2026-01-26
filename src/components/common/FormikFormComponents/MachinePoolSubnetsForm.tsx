@@ -91,14 +91,14 @@ const MachinePoolSubnetsForm = ({
     } = values;
 
     const isHypershiftSelected = isHypershift === 'true';
-    const isByoc = byoc === 'true';
+    const isByocSelected = byoc === 'true';
     const isMultiAzSelected = multiAz === 'true';
 
     if (isHypershiftSelected && nodes !== undefined) {
       const minNodesRequired = getMinNodesRequired(
         isHypershiftSelected,
         { numMachinePools: newPoolsLength },
-        { isDefaultMachinePool: true, isByoc, isMultiAz: isMultiAzSelected },
+        { isDefaultMachinePool: true, isByoc: isByocSelected, isMultiAz: isMultiAzSelected },
       );
       const increment = getNodeIncrementHypershift(newPoolsLength);
       const minUserInputNodes = minNodesRequired / increment;
