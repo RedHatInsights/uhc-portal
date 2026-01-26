@@ -22,6 +22,40 @@ import { CloudVpc } from '~/types/clusters_mgmt.v1';
 
 import './MachinePoolSubnetsForm.scss';
 
+type AdjustComputeNodeCountParams = {
+  isHypershift: boolean;
+  isByoc: boolean;
+  isMultiAz: boolean;
+  currentNodes: number | string | undefined;
+  newPoolsLength: number;
+};
+
+export const getMinComputeNodeCountAfterPoolRemoval = ({
+  isHypershift,
+  isByoc,
+  isMultiAz,
+  currentNodes,
+  newPoolsLength,
+}: AdjustComputeNodeCountParams): number | undefined => {
+  if (!isHypershift || currentNodes === undefined) {
+    return undefined;
+  }
+
+  const minNodesRequired = getMinNodesRequired(
+    isHypershift,
+    { numMachinePools: newPoolsLength },
+    { isDefaultMachinePool: true, isByoc, isMultiAz },
+  );
+  const increment = getNodeIncrementHypershift(newPoolsLength);
+  const minUserInputNodes = minNodesRequired / increment;
+
+  if (Number(currentNodes) < minUserInputNodes) {
+    return minUserInputNodes;
+  }
+
+  return undefined;
+};
+
 type MachinePoolSubnetsFormProps = {
   selectedVPC?: CloudVpc;
   warning?: string;
@@ -82,30 +116,16 @@ const MachinePoolSubnetsForm = ({
     const fieldNameSubnetId = `${FieldId.MachinePoolsSubnets}[${machinePoolsSubnetsIndex}].privateSubnetId`;
     setFieldTouched(fieldNameSubnetId, false, false);
 
-    // Adjust compute nodes if below new minimum after pool removal
-    const {
-      [FieldId.Hypershift]: isHypershift,
-      [FieldId.Byoc]: byoc,
-      [FieldId.MultiAz]: multiAz,
-      [FieldId.NodesCompute]: nodes,
-    } = values;
+    const adjustedNodeCount = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: values[FieldId.Hypershift] === 'true',
+      isByoc: values[FieldId.Byoc] === 'true',
+      isMultiAz: values[FieldId.MultiAz] === 'true',
+      currentNodes: values[FieldId.NodesCompute],
+      newPoolsLength,
+    });
 
-    const isHypershiftSelected = isHypershift === 'true';
-    const isByocSelected = byoc === 'true';
-    const isMultiAzSelected = multiAz === 'true';
-
-    if (isHypershiftSelected && nodes !== undefined) {
-      const minNodesRequired = getMinNodesRequired(
-        isHypershiftSelected,
-        { numMachinePools: newPoolsLength },
-        { isDefaultMachinePool: true, isByoc: isByocSelected, isMultiAz: isMultiAzSelected },
-      );
-      const increment = getNodeIncrementHypershift(newPoolsLength);
-      const minUserInputNodes = minNodesRequired / increment;
-
-      if (Number(nodes) < minUserInputNodes) {
-        setFieldValue(FieldId.NodesCompute, minUserInputNodes, true);
-      }
+    if (adjustedNodeCount !== undefined) {
+      setFieldValue(FieldId.NodesCompute, adjustedNodeCount, true);
     }
   };
 
