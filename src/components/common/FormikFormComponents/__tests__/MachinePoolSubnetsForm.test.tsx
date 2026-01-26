@@ -7,9 +7,90 @@ import * as utils from '~/components/clusters/wizards/form/utils';
 import { FieldId as RosaFieldId } from '~/components/clusters/wizards/rosa/constants';
 import { checkAccessibility, render, screen, waitFor, withState } from '~/testUtils';
 
-import MachinePoolSubnetsForm from '../MachinePoolSubnetsForm';
+import MachinePoolSubnetsForm, {
+  getMinComputeNodeCountAfterPoolRemoval,
+} from '../MachinePoolSubnetsForm';
 
 import { repeatedSubnets } from './MachinePoolSubnetsForm.fixtures';
+
+describe('getMinComputeNodeCountAfterPoolRemoval', () => {
+  it('returns undefined when isHypershift is false', () => {
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: false,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: 1,
+      newPoolsLength: 1,
+    });
+
+    expect(result).toBeUndefined();
+  });
+
+  it('returns undefined when currentNodes is undefined', () => {
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: true,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: undefined,
+      newPoolsLength: 1,
+    });
+
+    expect(result).toBeUndefined();
+  });
+
+  it('returns undefined when current nodes are above minimum', () => {
+    // For 1 pool: min=2, increment=1 → minUserInputNodes = 2
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: true,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: 5,
+      newPoolsLength: 1,
+    });
+
+    expect(result).toBeUndefined();
+  });
+
+  it('returns adjusted value when current nodes are below minimum for 1 pool', () => {
+    // For 1 pool: min=2, increment=1 → minUserInputNodes = 2
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: true,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: 1,
+      newPoolsLength: 1,
+    });
+
+    expect(result).toBe(2);
+  });
+
+  it('returns undefined when current nodes equal the minimum for 2 pools', () => {
+    // For 2 pools: min=2, increment=2 → minUserInputNodes = 1
+    // So currentNodes=1 is valid and no adjustment needed
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: true,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: 1,
+      newPoolsLength: 2,
+    });
+
+    expect(result).toBeUndefined();
+  });
+
+  it('handles string currentNodes value', () => {
+    // For 1 pool: min=2, increment=1 → minUserInputNodes = 2
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: true,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: '1',
+      newPoolsLength: 1,
+    });
+
+    expect(result).toBe(2);
+  });
+});
 
 const machinePoolSubnetsFormProps = {
   selectedVPC: {
