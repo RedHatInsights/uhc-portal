@@ -5,7 +5,7 @@ import { Formik, useFormikContext } from 'formik';
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 import * as utils from '~/components/clusters/wizards/form/utils';
 import { FieldId as RosaFieldId } from '~/components/clusters/wizards/rosa/constants';
-import { checkAccessibility, screen, waitFor, withState } from '~/testUtils';
+import { checkAccessibility, render, screen, waitFor, withState } from '~/testUtils';
 
 import MachinePoolSubnetsForm from '../MachinePoolSubnetsForm';
 
@@ -293,7 +293,7 @@ describe('subnet ordering and grouping functionality', () => {
       [RosaFieldId.NodesCompute]: 1, // Valid for 3 pools (min=3/3=1), but invalid for 1 pool (min=2/1=2)
     };
 
-    const { user, rerender } = withState({}).render(
+    const { user, rerender } = render(
       <Formik initialValues={initialValues} onSubmit={() => {}} enableReinitialize>
         <>
           <ValuesReader onValuesChange={handleValuesChange} />
@@ -306,7 +306,7 @@ describe('subnet ordering and grouping functionality', () => {
     );
 
     // Remove two machine pools (from 3 to 1)
-    const removeButtons = screen.getAllByTestId(/remove-machine-pool-/);
+    const removeButtons = screen.getAllByLabelText('Remove machine pool');
     expect(removeButtons).toHaveLength(3);
 
     // Remove pool at index 1 (second pool) - should result in 2 pools
@@ -327,7 +327,7 @@ describe('subnet ordering and grouping functionality', () => {
     );
 
     // Remove pool at index 0 (first pool) - should result in 1 pool and trigger adjustment
-    const remainingRemoveButtons = screen.getAllByTestId(/remove-machine-pool-/);
+    const remainingRemoveButtons = screen.getAllByLabelText('Remove machine pool');
     await user.click(remainingRemoveButtons[0]);
 
     await waitFor(() => {
