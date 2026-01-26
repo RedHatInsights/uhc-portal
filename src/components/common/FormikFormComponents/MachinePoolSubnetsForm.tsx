@@ -43,8 +43,6 @@ const MachinePoolSubnetsForm = ({
     setTouched,
   } = useFormState();
 
-  const machinePoolsSubnetsFromProps = allMachinePoolSubnets;
-
   useEffect(
     () => {
       const updateFormErrors = async () => {
@@ -55,12 +53,12 @@ const MachinePoolSubnetsForm = ({
         }
       };
 
-      if (machinePoolsSubnetsFromProps?.length) {
+      if (allMachinePoolSubnets?.length) {
         updateFormErrors();
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [machinePoolsSubnetsFromProps, setTouched, validateForm],
+    [allMachinePoolSubnets, setTouched, validateForm],
   );
 
   const region = selectedVPC ? inferRegionFromSubnets(selectedVPC) : undefined;
@@ -70,12 +68,12 @@ const MachinePoolSubnetsForm = ({
   const addMachinePool = (machinePoolSubnet: FormSubnet) =>
     setFieldValue(
       FieldId.MachinePoolsSubnets,
-      [...machinePoolsSubnetsFromProps, machinePoolSubnet],
+      [...allMachinePoolSubnets, machinePoolSubnet],
       false,
     );
 
   const removeMachinePool = (machinePoolsSubnetsIndex: number) => {
-    const newMachinePoolsSubnets = machinePoolsSubnetsFromProps.filter(
+    const newMachinePoolsSubnets = allMachinePoolSubnets.filter(
       (e, i) => i !== machinePoolsSubnetsIndex,
     );
     const newPoolsLength = newMachinePoolsSubnets.length;
@@ -112,10 +110,10 @@ const MachinePoolSubnetsForm = ({
   };
 
   useEffect(() => {
-    if (machinePoolsSubnetsFromProps === undefined || machinePoolsSubnetsFromProps.length === 0) {
+    if (allMachinePoolSubnets === undefined || allMachinePoolSubnets.length === 0) {
       setFieldValue(FieldId.MachinePoolsSubnets, [emptyAWSSubnet()]);
     }
-  }, [machinePoolsSubnetsFromProps, setFieldValue]);
+  }, [allMachinePoolSubnets, setFieldValue]);
 
   return (
     <Grid hasGutter>
@@ -132,8 +130,8 @@ const MachinePoolSubnetsForm = ({
       </GridItem>
       <GridItem span={6} />
 
-      {machinePoolsSubnetsFromProps?.map((subnet, index) => {
-        const isRemoveDisabled = machinePoolsSubnetsFromProps.length === 1;
+      {allMachinePoolSubnets?.map((subnet, index) => {
+        const isRemoveDisabled = allMachinePoolSubnets.length === 1;
         const fieldNameSubnetId = `${FieldId.MachinePoolsSubnets}[${index}].privateSubnetId`;
 
         return selectedVPC ? (
@@ -146,7 +144,7 @@ const MachinePoolSubnetsForm = ({
                 name={fieldNameSubnetId}
                 validate={(subnetId: string) =>
                   validateMultipleMachinePoolsSubnets(subnetId, {
-                    machinePoolsSubnets: machinePoolsSubnetsFromProps,
+                    machinePoolsSubnets: allMachinePoolSubnets,
                   })
                 }
                 isRequired
@@ -154,7 +152,7 @@ const MachinePoolSubnetsForm = ({
                 selectedVPC={selectedVPC}
                 allowedAZs={allowedAZs}
                 withAutoSelect={false}
-                usedSubnetIds={machinePoolsSubnetsFromProps
+                usedSubnetIds={allMachinePoolSubnets
                   .map((mp) => mp.privateSubnetId)
                   .filter((id) => id && id !== subnet.privateSubnetId)}
                 input={{
