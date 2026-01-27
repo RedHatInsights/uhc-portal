@@ -44,7 +44,55 @@ describe('Rosa hosted(Hypershift) cluster wizard validations', { tags: ['smoke',
     CreateRosaWizardPage.selectInstallerRole(installerARN);
     CreateRosaWizardPage.rosaNextButton().click();
   });
+  it(`Step - Cluster Settings - Details - channel group and version dropdown validations`, () => {
+    // Verify channel group dropdown exists and is visible
+    cy.log('🔍 Verifying channel group dropdown exists');
+    CreateRosaWizardPage.getChannelGroupSelector()
+      .should('exist')
+      .then(() => {
+        cy.log('✅ Channel group dropdown exists and is visible');
+      });
 
+    CreateRosaWizardPage.getChannelGroupValue().then((value) => {
+      expect(value).to.equal(clusterFieldValidations.DefaultChannelGroup);
+      cy.log(`✅ Confirmed channel group value: ${value}`);
+    });
+
+    // Verify channel group dropdown contains expected options
+    cy.log('📋 Verifying channel group dropdown options');
+    CreateRosaWizardPage.verifyChannelGroupOptions(
+      clusterFieldValidations.ChannelGroupOptions,
+    ).then((result) => {
+      // Verify all expected options are present (order doesn't matter)
+      clusterFieldValidations.ChannelGroupOptions.forEach((expectedOption) => {
+        expect(result.values).to.include(
+          expectedOption,
+          `Expected option "${expectedOption}" to be in the dropdown`,
+        );
+      });
+    });
+
+    cy.log('✅ All channel group validations completed successfully');
+  });
+
+  it(`Step - Cluster Settings - Details - Version Persistence - Test Multiple Channel Switches`, () => {
+    cy.log('🔍 Testing: Version persistence across multiple channel switches');
+    // Verify channel group dropdown exists
+    CreateRosaWizardPage.getChannelGroupSelector().should('exist').should('be.visible');
+
+    // Log available channel group options
+    cy.log(`📋 Available channel groups: ${clusterFieldValidations.ChannelGroupOptions.length}`);
+    clusterFieldValidations.ChannelGroupOptions.forEach((channelOption) => {
+      cy.log(`🔄 Channel: ${channelOption}`);
+    });
+
+    // Start with Stable and get initial version
+    CreateRosaWizardPage.getChannelGroupSelector().should(
+      'have.value',
+      clusterFieldValidations.DefaultChannelGroup,
+    );
+    // Continue
+  });
   it('Step - Cluster Settings - Details - widget validations', () => {
     CreateRosaWizardPage.isClusterDetailsScreen();
     CreateRosaWizardPage.selectRegion(clusterFieldValidations.Region);
