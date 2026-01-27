@@ -45,5 +45,6 @@ jobs:
           webhook-type: webhook-trigger
           payload: |
             has404: "${{ steps.check-links.outputs.has404 }}"
+            404_length: "${{ steps.check-links.outputs.notFoundLength }}"
             message: "No broken links found :)"
             run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"

@@ -19,8 +19,12 @@ import {
 const envPath = path.resolve(__dirname, ENV_CONFIG_PATH);
 if (fs.existsSync(envPath)) {
   const envConfig = JSON.parse(fs.readFileSync(envPath, 'utf8'));
-  // Set environment variables from the JSON file
+  // Set environment variables from the JSON file (only if not already set by shell)
   Object.keys(envConfig).forEach((key) => {
+    // Skip if already set in environment (allows shell exports to take precedence)
+    if (process.env[key] !== undefined) {
+      return;
+    }
     if (typeof envConfig[key] === 'object') {
       process.env[key] = JSON.stringify(envConfig[key]);
     } else {
