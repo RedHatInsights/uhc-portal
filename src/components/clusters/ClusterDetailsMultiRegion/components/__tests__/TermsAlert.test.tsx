@@ -90,7 +90,7 @@ describe('<TermsAlert />', () => {
       locationSpy.mockReturnValue({
         href: currentUrl,
         pathname: '/',
-      } as Location);
+      });
     });
 
     afterEach(() => {
