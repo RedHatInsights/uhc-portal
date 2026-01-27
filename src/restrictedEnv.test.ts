@@ -14,7 +14,7 @@ describe('restrictedEnv', () => {
 
       locationSpy.mockReturnValue({
         origin: `https://console.${envSubdomain}example.com`,
-      } as Location);
+      });
     });
 
     afterEach(() => {
