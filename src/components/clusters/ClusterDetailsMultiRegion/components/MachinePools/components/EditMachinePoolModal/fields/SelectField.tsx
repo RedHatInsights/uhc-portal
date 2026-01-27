@@ -40,6 +40,7 @@ const SelectField = ({
       onClick={onToggle}
       isExpanded={isOpen}
       isFullWidth
+      data-testid="select-effect"
       aria-label="select menu"
       className="select-field-menu-toggle"
     >
