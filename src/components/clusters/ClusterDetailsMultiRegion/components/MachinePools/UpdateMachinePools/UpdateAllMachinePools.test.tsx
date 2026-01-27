@@ -3,6 +3,7 @@ import type axios from 'axios';
 import * as reactRedux from 'react-redux';
 import semver from 'semver';
 
+import links from '~/common/installLinks.mjs';
 import { refetchMachineOrNodePoolsQuery } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import apiRequest from '~/services/apiRequest';
 import { checkAccessibility, screen, within, withState } from '~/testUtils';
@@ -783,6 +784,31 @@ describe('<UpdateAllMachinePools />', () => {
           name: goToMachinePoolText,
         }),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('learn more link', () => {
+    it('is the correct link when hypershift', async () => {
+      const newState = {
+        ...defaultStore,
+      };
+      const { user } = withState(newState).render(
+        <UpdateAllMachinePools
+          goToMachinePoolTab
+          isMachinePoolError={false}
+          isHypershift
+          controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
+          clusterId={clusterId}
+          machinePoolData={[machinePoolUpToDate1, machinePoolBehind1]}
+        />,
+      );
+
+      const toggle = screen.getByLabelText('Warning alert details');
+      await user.click(toggle);
+
+      const link = screen.getByText('Learn more about updates');
+      expect(link).toHaveAttribute('href', links.ROSA_UPGRADES);
     });
   });
 });
