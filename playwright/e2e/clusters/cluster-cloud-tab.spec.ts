@@ -1,4 +1,5 @@
 import { test } from '../../fixtures/pages';
+import { rosaLinks } from '../../support/doc-link-helper';
 
 // Description text constants
 const OSDDescriptionText = 'A complete OpenShift cluster provided as a fully-managed cloud service';
@@ -107,7 +108,7 @@ test.describe.serial(
     test('Check ROSA section contents', async ({ createClusterPage }) => {
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Service on AWS (ROSA)',
-        'https://cloud.redhat.com/products/amazon-openshift',
+        rosaLinks.learnMore,
       );
 
       await createClusterPage.clickCreateRosaButton();
@@ -120,7 +121,7 @@ test.describe.serial(
 
       await createClusterPage.checkManagedServiceLink(
         'Learn more about Red Hat OpenShift Service on AWS',
-        'https://cloud.redhat.com/products/amazon-openshift',
+        rosaLinks.learnMore,
       );
     });
 
