@@ -26,10 +26,10 @@ describe('<CustomOperatorRoleNames />', () => {
     jest.clearAllMocks();
   });
 
-  it('renders component with all expected text', async () => {
+  it('renders component with the initial expected text', async () => {
     // Arrange
     // Act
-    render(buildTestComponent({}, <CustomOperatorRoleNames isHypershiftSelected />));
+    render(buildTestComponent({}, <CustomOperatorRoleNames />));
 
     // Assert
     expect(screen.getByText('Name operator roles')).toBeInTheDocument();
@@ -67,9 +67,7 @@ describe('<CustomOperatorRoleNames />', () => {
   });
 
   it('renders classic IAM operator roles link when classic is selected', async () => {
-    const { user } = render(
-      buildTestComponent({}, <CustomOperatorRoleNames isHypershiftSelected={false} />),
-    );
+    const { user } = render(buildTestComponent({}, <CustomOperatorRoleNames />));
 
     const moreInfoBtn = await screen.findByLabelText('More information');
     await user.click(moreInfoBtn);
