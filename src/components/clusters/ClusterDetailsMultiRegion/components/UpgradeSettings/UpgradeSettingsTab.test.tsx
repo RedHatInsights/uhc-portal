@@ -153,6 +153,22 @@ describe('<UpgradeSettingsTab>', () => {
 
       expect(screen.queryByTestId('Monitoring')).not.toBeInTheDocument();
     });
+
+    it('should not render User Workload Monitoring section for HCP clusters', async () => {
+      const rosaCluster = createMockCluster({
+        subscription: {
+          ...createMockCluster().subscription,
+          plan: { type: 'ROSA' },
+        },
+        hypershift: {
+          enabled: true,
+        },
+      });
+
+      renderComponent(rosaCluster);
+
+      expect(screen.queryByLabelText('Monitoring')).not.toBeInTheDocument();
+    });
   });
 
   describe('Update button functionality', () => {

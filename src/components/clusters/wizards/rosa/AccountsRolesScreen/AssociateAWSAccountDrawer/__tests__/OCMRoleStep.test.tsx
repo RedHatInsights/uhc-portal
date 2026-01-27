@@ -7,10 +7,6 @@ import { render, screen } from '~/testUtils';
 import { FieldId } from '../../../constants';
 import OCMRoleStep from '../OCMRoleStep';
 
-const defaultProps = {
-  title: 'Step 1: OCM role',
-};
-
 const buildTestComponent = (formValues = {}) => (
   <Formik
     initialValues={{
@@ -19,7 +15,7 @@ const buildTestComponent = (formValues = {}) => (
     }}
     onSubmit={jest.fn()}
   >
-    <OCMRoleStep {...defaultProps} />
+    <OCMRoleStep title="" />
   </Formik>
 );
 

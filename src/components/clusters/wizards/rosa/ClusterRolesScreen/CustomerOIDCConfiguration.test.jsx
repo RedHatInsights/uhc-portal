@@ -1,10 +1,10 @@
 import React from 'react';
 import { Formik } from 'formik';
 
+import links from '~/common/installLinks.mjs';
 import { FieldId, initialValues } from '~/components/clusters/wizards/rosa/constants';
 import { render, screen, waitFor } from '~/testUtils';
 
-import links from '../../../../../common/installLinks.mjs';
 import { useFetchGetUserOidcConfigurations } from '../../../../../queries/RosaWizardQueries/useFetchGetUserOidcConfigurations';
 
 import CustomerOIDCConfiguration from './CustomerOIDCConfiguration';

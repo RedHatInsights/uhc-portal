@@ -1,8 +1,8 @@
 import React from 'react';
 
+import links from '~/common/installLinks.mjs';
 import { checkAccessibility, render, screen, within } from '~/testUtils';
 
-import links from '../../../../../../../common/installLinks.mjs';
 import { useFetchUsers } from '../../../../../../../queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchUsers';
 import fixtures from '../../../../__tests__/ClusterDetails.fixtures';
 import { initialState } from '../UsersReducer';

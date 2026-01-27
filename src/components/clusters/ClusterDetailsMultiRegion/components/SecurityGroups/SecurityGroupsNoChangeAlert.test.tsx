@@ -5,9 +5,6 @@ import { render, screen } from '~/testUtils';
 
 import SecurityGroupsNoChangeAlert from './SecurityGroupsNoChangeAlert';
 
-const renderComponent = (props: { isRosa: boolean; isHypershift: boolean }) =>
-  render(<SecurityGroupsNoChangeAlert {...props} />);
-
 describe('<SecurityGroupsNoChangeAlert />', () => {
   describe('Alert action link', () => {
     it.each([
@@ -17,7 +14,7 @@ describe('<SecurityGroupsNoChangeAlert />', () => {
     ])(
       'renders the correct security groups link for %s cluster',
       (fieldLabel, isRosa, isHypershift, expectedLink) => {
-        renderComponent({ isRosa, isHypershift });
+        render(<SecurityGroupsNoChangeAlert isRosa={isRosa} isHypershift={isHypershift} />);
 
         const link = screen.getByRole('link', { name: /View more information/i });
 
