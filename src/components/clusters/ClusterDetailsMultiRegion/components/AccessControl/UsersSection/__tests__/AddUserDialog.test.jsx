@@ -1,8 +1,8 @@
 import React from 'react';
 
+import links from '~/common/installLinks.mjs';
 import { render, screen } from '~/testUtils';
 
-import links from '../../../../../../../common/installLinks.mjs';
 import AddUserDialog from '../AddUserDialog';
 
 describe('<AddUserDialog />', () => {
