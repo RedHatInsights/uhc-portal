@@ -30,7 +30,7 @@ jobs:
   playwright-e2e-test:
     name: Playwright E2E - ${{ matrix.os }} - e2e Tests - Node ${{ matrix.node-version }}
     concurrency:
-      group: playwright-e2e-test-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
+      group: playwright-e2e-test-${{ github.event_name }}-${{ github.head_ref || github.ref_name }}-${{ matrix.os }}-${{ matrix.node-version }}
       cancel-in-progress: true
     strategy:
       matrix:
