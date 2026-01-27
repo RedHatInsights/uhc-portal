@@ -14,7 +14,7 @@ import { hasAtLeastOneOpenIdClaimField } from '../IdentityProvidersPageFormikHel
 
 import IDPBasicFields from './IDPBasicFields';
 
-const OpenIDFormRequired = ({ isPending }) => {
+const OpenIDFormRequired = ({ isPending = false }) => {
   const { getFieldProps, getFieldMeta, setFieldValue, values } = useFormState();
 
   return (
@@ -82,10 +82,6 @@ const OpenIDFormRequired = ({ isPending }) => {
 
 OpenIDFormRequired.propTypes = {
   isPending: PropTypes.bool,
-};
-
-OpenIDFormRequired.defaultProps = {
-  isPending: false,
 };
 
 export default OpenIDFormRequired;
