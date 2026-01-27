@@ -186,4 +186,15 @@ export class ClusterListPage extends BasePage {
   async clearFilters(): Promise<void> {
     await this.page.locator('button').filter({ hasText: 'Clear filters' }).click();
   }
+
+  async openClusterDefinition(clusterName: string): Promise<void> {
+    const clusterLink = this.page
+      .locator('tr')
+      .locator('td[data-label="Name"] a')
+      .filter({ hasText: clusterName })
+      .first();
+    await expect(clusterLink).toBeVisible({ timeout: 30000 });
+    await clusterLink.click();
+    await expect(this.page).toHaveURL(new RegExp('/openshift/details/'));
+  }
 }

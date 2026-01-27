@@ -1000,8 +1000,30 @@ export class CreateRosaWizardPage extends BasePage {
     return this.page.locator('input[name="control_plane_role_arn"]');
   }
 
+  async isUpdatesScreen(): Promise<void> {
+    await expect(this.page.locator('h3:has-text("Cluster update strategy")')).toBeVisible({
+      timeout: 30000,
+    });
+  }
+
   // Additional validation method for compute node range
   computeNodeRangeValue(): Locator {
+    return this.page.getByTestId('Compute-node-range').locator('div');
+  }
+
+  computeNodeRangeLabelValue(): Locator {
     return this.page.getByTestId('Compute-node-range');
+  }
+
+  noProxyDomainsLabelValue(): Locator {
+    return this.page.getByTestId('No-Proxy-domains');
+  }
+
+  machinePoolLabelValue(): Locator {
+    return this.page.getByTestId('Machine-pools');
+  }
+
+  operatorRoleCommandInput(): Locator {
+    return this.page.getByLabel('Copyable ROSA create operator-roles');
   }
 }
