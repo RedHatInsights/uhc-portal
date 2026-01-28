@@ -192,8 +192,8 @@ describe('<MachinePools />', () => {
     hasOrgLevelBypassPIDsLimitCapabilityMock.mockReturnValue(true);
     it('should call getMachinePools on mount', () => {
       render(<MachinePools {...defaultProps} />);
-      expect(useFetchMachineOrNodePoolsMock).toBeCalled();
-      expect(useFetchMachineTypesMock).toBeCalled();
+      expect(useFetchMachineOrNodePoolsMock).toHaveBeenCalled();
+      expect(useFetchMachineTypesMock).toHaveBeenCalled();
     });
 
     it('the machine pool ID', () => {

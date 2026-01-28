@@ -30,7 +30,7 @@ describe('clustersActions', () => {
     it('dispatches successfully', () => {
       const fakeParams = { fake: 'params' };
       clustersActions.createCluster(fakeParams)(mockDispatch);
-      expect(mockDispatch).toBeCalledWith({
+      expect(mockDispatch).toHaveBeenCalledWith({
         payload: expect.anything(),
         type: clustersConstants.CREATE_CLUSTER,
       });
@@ -39,7 +39,7 @@ describe('clustersActions', () => {
     it('calls clusterService.postNewCluster', () => {
       const fakeParams = { fake: 'params' };
       clustersActions.createCluster(fakeParams)(mockDispatch);
-      expect(clusterService.postNewCluster).toBeCalledWith(fakeParams);
+      expect(clusterService.postNewCluster).toHaveBeenCalledWith(fakeParams);
     });
 
     // skipping as test suites have issues with getClusterServiceForRegion()
@@ -65,7 +65,7 @@ describe('clustersActions', () => {
     it('calls clusterService.getClusterDetails', () => {
       const fakeParams = { fake: 'params' };
       clustersActions.fetchClusterDetails(fakeParams);
-      expect(accountsService.getSubscription).toBeCalledWith(fakeParams);
+      expect(accountsService.getSubscription).toHaveBeenCalledWith(fakeParams);
     });
   });
 
@@ -84,7 +84,7 @@ describe('clustersActions', () => {
       const isMarketplaceGcp = true;
       const isHCP = true;
       clustersActions.getInstallableVersions({ isRosa, isMarketplaceGcp, isHCP });
-      expect(clusterService.getInstallableVersions).toBeCalledWith({
+      expect(clusterService.getInstallableVersions).toHaveBeenCalledWith({
         isRosa,
         isMarketplaceGcp,
         isHCP,
