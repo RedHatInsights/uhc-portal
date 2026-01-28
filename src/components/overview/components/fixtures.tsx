@@ -67,7 +67,7 @@ const BASIC_DRAWER_PANEL_PROPS = {
     body: <div data-testid="test-body-div">example drawer panel content body</div>,
   },
   isOpen: true,
-  onClose: jest.fn(),
+  toggleDrawer: jest.fn(),
 };
 
 const DRAWER_PANEL_TEST_CASES = {

@@ -17,19 +17,19 @@ type DrawerPanelProps = {
   title?: string;
   content?: DrawerPanelContentNode;
   isOpen: boolean;
-  onClose: () => void;
+  toggleDrawer: () => void;
   children: ReactNode;
 };
 
-const DrawerPanel = ({ children, title, content, isOpen, onClose }: DrawerPanelProps) => (
-  <Drawer isExpanded={isOpen} isInline>
+const DrawerPanel = ({ children, title, content, isOpen, toggleDrawer }: DrawerPanelProps) => (
+  <Drawer isExpanded isInline>
     <DrawerContent
       panelContent={
         <DrawerPanelContent isResizable defaultSize="461px" minSize="417px">
           <DrawerHead>
             {content?.head}
             <DrawerActions>
-              <DrawerCloseButton onClick={onClose} data-testid="drawer-close-button" />
+              <DrawerCloseButton onClick={toggleDrawer} data-testid="drawer-close-button" />
             </DrawerActions>
           </DrawerHead>
           <Divider component="div" data-testid="drawer-panel-divider" />
