@@ -49,27 +49,6 @@ objects:
                 - segmentRef:
                     segmentId: ocp-advisor
                     frontendName: openshift-ocp-advisor
-                - id: advisor
-                  title: Advisor
-                  expandable: true
-                  routes:
-                    - id: recommendations
-                      title: Recommendations
-                      href: /openshift/insights/advisor/recommendations
-                      product: Red Hat OpenShift Cluster Manager
-                    - id: advisor-clusters
-                      title: Clusters
-                      href: /openshift/insights/advisor/clusters
-                      product: Red Hat OpenShift Cluster Manager
-                    - id: workloads
-                      title: Workloads
-                      href: /openshift/insights/advisor/workloads
-                      product: Red Hat OpenShift Cluster Manager
-                      permissions:
-                        - method: featureFlag
-                          args: ['ocp-advisor-ui-workloads', true]
-                        - method: featureFlag
-                          args: ["ocp-advisor-workloads-release", true]
                 - id: vulnerability-dashboard
                   title: Vulnerability Dashboard
                   expandable: true
@@ -119,8 +98,8 @@ objects:
               expandable: true
               routes:
                 - segmentRef:
-                    frontendName: learningResources
-                    segmentId: learningResourcesOpenShift
+                    frontendName: learning-resources
+                    segmentId: openshift-learning-resources
                 # TODO: Replace developer-sandbox with navigationSegment from https://github.com/RedHatInsights/developer-sandbox-ui/blob/master/deploy/frontend.yaml
                 - id: developer-sandbox
                   title: Developer Sandbox
