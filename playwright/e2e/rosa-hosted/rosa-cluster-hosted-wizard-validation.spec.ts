@@ -138,8 +138,26 @@ test.describe.serial(
       await createRosaWizardPage.isTextContainsInPage(
         clusterFieldValidations.ClusterSettings.Details.KeyARNs[1].WrongFormatWithWhitespaceError,
       );
-
       await createRosaWizardPage.useDefaultKMSKeyRadio().check();
+      // default fips cryptography and etcd encryption checkbox status
+      await expect(createRosaWizardPage.enableFIPSCryptographyCheckbox()).not.toBeChecked();
+      await expect(
+        createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox(),
+      ).not.toBeChecked();
+      // check fips cryptography checkbox and status of etcd encryption checkbox
+      await createRosaWizardPage.enableFIPSCryptographyCheckbox().check();
+      await expect(createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox()).toBeChecked();
+      await expect(createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox()).toBeDisabled();
+      await expect(createRosaWizardPage.fipsRequiredHelperText()).toBeVisible();
+      await expect(createRosaWizardPage.encryptEtcdKeyARNInput()).toBeVisible();
+      // uncheck fips cryptography checkbox and status of etcd encryption checkbox
+      await createRosaWizardPage.enableFIPSCryptographyCheckbox().uncheck();
+      await expect(createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox()).toBeChecked();
+      await expect(createRosaWizardPage.fipsRequiredHelperText()).not.toBeVisible();
+      await expect(createRosaWizardPage.encryptEtcdKeyARNInput()).toBeVisible();
+      await createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox().uncheck();
+      await expect(createRosaWizardPage.encryptEtcdKeyARNInput()).not.toBeVisible();
+
       await createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox().check();
       await createRosaWizardPage.rosaNextButton().click();
       await createRosaWizardPage.isTextContainsInPage('Field is required.');
@@ -159,6 +177,7 @@ test.describe.serial(
       );
 
       await createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox().uncheck();
+
       await expect(createRosaWizardPage.rosaNextButton()).not.toBeDisabled();
       await expect(createRosaWizardPage.rosaBackButton()).not.toBeDisabled();
       await expect(createRosaWizardPage.rosaCancelButton()).not.toBeDisabled();
