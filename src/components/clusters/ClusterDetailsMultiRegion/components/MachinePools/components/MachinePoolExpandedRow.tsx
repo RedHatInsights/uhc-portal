@@ -123,6 +123,7 @@ const MachinePoolExpandedRow = ({
 
   return (
     <Grid hasGutter>
+<<<<<<< HEAD
       {(labelsAvailable || (awsTagsNewMP && awsTagsAvailable)) && (
         <GridItem md={8}>
           <Stack hasGutter>
@@ -191,10 +192,15 @@ const MachinePoolExpandedRow = ({
               </StackItem>
             )}
           </Stack>
+=======
+      {!isEmpty(machinePool.labels) && (
+        <GridItem md={6} data-testid="labels-id">
+          <MachinePoolItemList title="Labels" items={labelsRenderer(machinePool.labels || {})} />
+>>>>>>> 11ce97505 (New automation testcase for  machinepools OSD-AWS & ROSA Classic clusters)
         </GridItem>
       )}
       {machinePool.taints && (
-        <GridItem md={6}>
+        <GridItem md={6} data-testid="taints-id">
           <MachinePoolItemList title="Taints" items={taintsRenderer(machinePool.taints)} />
         </GridItem>
       )}
