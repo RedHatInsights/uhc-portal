@@ -1,14 +1,96 @@
 import React from 'react';
 import * as formik from 'formik';
-import { Formik } from 'formik';
+import { Formik, useFormikContext } from 'formik';
 
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 import * as utils from '~/components/clusters/wizards/form/utils';
-import { checkAccessibility, screen, waitFor, withState } from '~/testUtils';
+import { FieldId as RosaFieldId } from '~/components/clusters/wizards/rosa/constants';
+import { checkAccessibility, render, screen, waitFor, withState } from '~/testUtils';
 
-import MachinePoolSubnetsForm from '../MachinePoolSubnetsForm';
+import MachinePoolSubnetsForm, {
+  getMinComputeNodeCountAfterPoolRemoval,
+} from '../MachinePoolSubnetsForm';
 
 import { repeatedSubnets } from './MachinePoolSubnetsForm.fixtures';
+
+describe('getMinComputeNodeCountAfterPoolRemoval', () => {
+  it('returns undefined when isHypershift is false', () => {
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: false,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: 1,
+      newPoolsLength: 1,
+    });
+
+    expect(result).toBeUndefined();
+  });
+
+  it('returns undefined when currentNodes is undefined', () => {
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: true,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: undefined,
+      newPoolsLength: 1,
+    });
+
+    expect(result).toBeUndefined();
+  });
+
+  it('returns undefined when current nodes are above minimum', () => {
+    // For 1 pool: min=2, increment=1 → minUserInputNodes = 2
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: true,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: 5,
+      newPoolsLength: 1,
+    });
+
+    expect(result).toBeUndefined();
+  });
+
+  it('returns adjusted value when current nodes are below minimum for 1 pool', () => {
+    // For 1 pool: min=2, increment=1 → minUserInputNodes = 2
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: true,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: 1,
+      newPoolsLength: 1,
+    });
+
+    expect(result).toBe(2);
+  });
+
+  it('returns undefined when current nodes equal the minimum for 2 pools', () => {
+    // For 2 pools: min=2, increment=2 → minUserInputNodes = 1
+    // So currentNodes=1 is valid and no adjustment needed
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: true,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: 1,
+      newPoolsLength: 2,
+    });
+
+    expect(result).toBeUndefined();
+  });
+
+  it('handles string currentNodes value', () => {
+    // For 1 pool: min=2, increment=1 → minUserInputNodes = 2
+    const result = getMinComputeNodeCountAfterPoolRemoval({
+      isHypershift: true,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: '1',
+      newPoolsLength: 1,
+    });
+
+    expect(result).toBe(2);
+  });
+});
 
 const machinePoolSubnetsFormProps = {
   selectedVPC: {
@@ -257,5 +339,80 @@ describe('subnet ordering and grouping functionality', () => {
 
     expect(screen.getByRole('option', { name: 'subnet-0b6h8g574bcdc20kp' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'subnet-0cv67g3h4w859v0t1' })).toBeInTheDocument();
+  });
+
+  it('adjusts compute nodes to minimum when machine pools are removed and current value is below new minimum', async () => {
+    const threePools = [
+      { availabilityZone: '', privateSubnetId: 'subnet-03df6fb9d7677c84c', publicSubnetId: '' },
+      { availabilityZone: '', privateSubnetId: 'subnet-0b6h8g574bcdc20kp', publicSubnetId: '' },
+      { availabilityZone: '', privateSubnetId: 'subnet-0cv67g3h4w859v0t1', publicSubnetId: '' },
+    ];
+
+    // Real helper functions behavior:
+    // 3 pools: min=3, increment=3 → minUserInputNodes = 3/3 = 1
+    // 1 pool: min=2, increment=1 → minUserInputNodes = 2/1 = 2
+
+    // Component to read form values for verification
+    const ValuesReader = ({ onValuesChange }: { onValuesChange: (values: any) => void }) => {
+      const { values } = useFormikContext();
+      React.useEffect(() => {
+        onValuesChange(values);
+      }, [values, onValuesChange]);
+      return null;
+    };
+
+    let formValues: any = {};
+    const handleValuesChange = (values: any) => {
+      formValues = values;
+    };
+
+    const initialValues = {
+      [FieldId.MachinePoolsSubnets]: threePools,
+      [RosaFieldId.Hypershift]: 'true',
+      [RosaFieldId.Byoc]: 'true',
+      [FieldId.MultiAz]: 'false',
+      [RosaFieldId.NodesCompute]: 1, // Valid for 3 pools (min=3/3=1), but invalid for 1 pool (min=2/1=2)
+    };
+
+    const { user, rerender } = render(
+      <Formik initialValues={initialValues} onSubmit={() => {}} enableReinitialize>
+        <>
+          <ValuesReader onValuesChange={handleValuesChange} />
+          <MachinePoolSubnetsForm
+            {...machinePoolSubnetsFormProps}
+            allMachinePoolSubnets={threePools}
+          />
+        </>
+      </Formik>,
+    );
+
+    // Remove two machine pools (from 3 to 1)
+    const removeButtons = screen.getAllByLabelText('Remove machine pool');
+    expect(removeButtons).toHaveLength(3);
+
+    // Remove pool at index 1 (second pool) - should result in 2 pools
+    await user.click(removeButtons[1]);
+
+    // Update allMachinePoolSubnets prop to reflect removal
+    const twoPools = [threePools[0], threePools[2]];
+    rerender(
+      <Formik initialValues={formValues || initialValues} onSubmit={() => {}} enableReinitialize>
+        <>
+          <ValuesReader onValuesChange={handleValuesChange} />
+          <MachinePoolSubnetsForm
+            {...machinePoolSubnetsFormProps}
+            allMachinePoolSubnets={twoPools}
+          />
+        </>
+      </Formik>,
+    );
+
+    // Remove pool at index 0 (first pool) - should result in 1 pool and trigger adjustment
+    const remainingRemoveButtons = screen.getAllByLabelText('Remove machine pool');
+    await user.click(remainingRemoveButtons[0]);
+
+    await waitFor(() => {
+      expect(formValues[RosaFieldId.NodesCompute]).toBe(2);
+    });
   });
 });
