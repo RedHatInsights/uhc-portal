@@ -634,6 +634,10 @@ export class CreateRosaWizardPage extends BasePage {
     return this.page.getByRole('textbox', { name: 'Key ARN' });
   }
 
+  fipsRequiredHelperText(): Locator {
+    return this.page.getByText('Required when FIPS cryptography is enabled');
+  }
+
   addMachinePoolLink(): Locator {
     return this.page.getByRole('button', { name: 'Add machine pool' });
   }
