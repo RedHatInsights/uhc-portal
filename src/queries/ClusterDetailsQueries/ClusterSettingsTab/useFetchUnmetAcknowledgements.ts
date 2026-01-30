@@ -38,16 +38,39 @@ export const useFetchUnmetAcknowledgements = (
   });
   if (isError) {
     const formattedError = formatErrorData(isPending, isError, error);
-    if (formattedError?.error?.errorDetails?.[0]?.kind === 'VersionGate') {
+    if (formattedError?.error?.errorDetails?.some((detail) => detail?.kind === 'VersionGate')) {
       hasVersionGates = true;
     }
+
+    if (hasVersionGates) {
+      const versionGateItems =
+        formattedError?.error?.errorDetails?.filter((detail) => detail?.kind === 'VersionGate') ||
+        [];
+      const remainingItems =
+        formattedError?.error?.errorDetails?.filter((detail) => detail?.kind !== 'VersionGate') ||
+        [];
+
+      return {
+        data: versionGateItems,
+        hasVersionGates,
+        isPending,
+        isSuccess: true,
+        isError: false,
+        error:
+          remainingItems.length > 0
+            ? { ...formattedError.error, errorDetails: remainingItems }
+            : null,
+        mutate,
+      };
+    }
+
     return {
-      data: hasVersionGates ? formattedError?.error?.errorDetails : [],
+      data: [],
       hasVersionGates,
       isPending,
-      isSuccess: hasVersionGates ? true : isSuccess,
-      isError: hasVersionGates ? false : isError,
-      error: hasVersionGates ? null : formattedError.error,
+      isSuccess,
+      isError,
+      error: formattedError.error,
       mutate,
     };
   }
