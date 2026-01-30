@@ -1,5 +1,6 @@
 import React from 'react';
 
+import links from '~/common/installLinks.mjs';
 import { checkAccessibility, render, screen } from '~/testUtils';
 
 import SecurityGroupsNoEditAlert from './SecurityGroupsNoEditAlert';
@@ -51,6 +52,24 @@ describe('<SecurityGroupsNoEditAlert />', () => {
           'You cannot add or edit security groups associated with machine pools that were created during cluster creation.',
         ),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('Alert action link', () => {
+    it('renders the correct security groups link for non-hypershift clusters', () => {
+      renderComponent({ isHypershift: false });
+
+      const link = screen.getByRole('link', { name: /View more information/i });
+
+      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_SECURITY_GROUPS);
+    });
+
+    it('renders the correct security groups link for hypershift clusters', () => {
+      renderComponent({ isHypershift: true });
+
+      const link = screen.getByRole('link', { name: /View more information/i });
+
+      expect(link).toHaveAttribute('href', links.ROSA_SECURITY_GROUPS);
     });
   });
 
