@@ -49,34 +49,30 @@ function OverviewEmptyState() {
     [],
   );
 
-  // const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
-  // const [drawerInfo, setDrawerInfo] = useState<{
-  //   title: string;
-  //   content?: DrawerPanelContentNode;
-  // }>();
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [selectedCardTitle, setSelectedCardTitle] = useState<string>('');
 
-  const openDrawer = (title: string, content?: DrawerPanelContentNode) => {
-    // setDrawerInfo({ title, content });
-    // setIsDrawerOpen(true);
+  const closeDrawer = () => {
+    setIsDrawerOpen(false);
+    setSelectedCardTitle('');
+  };
 
+  const openDrawer = (title: string, content?: DrawerPanelContentNode) => {
     setSelectedCardTitle(title);
 
-    // Use Chrome's drawer API to open the drawer
-    drawerActions?.toggleDrawerContent({
+    drawerActions?.setDrawerPanelContent({
       scope: 'openshift',
       module: './DrawerPanel',
       title,
       content,
+      onClose: closeDrawer,
     });
+
+    if(!isDrawerOpen) {
+      drawerActions?.toggleDrawerPanel();
+      setIsDrawerOpen(true);
+    }
   };
-
-  // const closeDrawer = () => {
-  //   setDrawerInfo(undefined);
-  //   setIsDrawerOpen(false);
-
-  //   setSelectedCardTitle('');
-  // };
 
   const isAssistedMigrationEnabled = useFeatureGate(ASSISTED_MIGRATION_ENABLED);
 

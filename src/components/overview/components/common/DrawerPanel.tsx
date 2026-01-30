@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 
 import {
   Divider,
@@ -16,30 +16,37 @@ import { DrawerPanelContentNode } from './DrawerPanelContent';
 type DrawerPanelProps = {
   title?: string;
   content?: DrawerPanelContentNode;
-  isOpen: boolean;
   toggleDrawer: () => void;
-  children: ReactNode;
+  onClose?: () => void;
 };
 
-const DrawerPanel = ({ children, title, content, isOpen, toggleDrawer }: DrawerPanelProps) => (
-  <Drawer isExpanded isInline>
-    <DrawerContent
-      panelContent={
-        <DrawerPanelContent isResizable defaultSize="461px" minSize="417px">
-          <DrawerHead>
-            {content?.head}
-            <DrawerActions>
-              <DrawerCloseButton onClick={toggleDrawer} data-testid="drawer-close-button" />
-            </DrawerActions>
-          </DrawerHead>
-          <Divider component="div" data-testid="drawer-panel-divider" />
-          <DrawerContentBody>{content?.body}</DrawerContentBody>
-        </DrawerPanelContent>
-      }
-    >
-      <DrawerContentBody>{children}</DrawerContentBody>
-    </DrawerContent>
-  </Drawer>
-);
+const DrawerPanel = ({ title, content, toggleDrawer, onClose }: DrawerPanelProps) => {
+  const handleClose = () => {
+    onClose?.();
+    // Close Chrome's drawer
+    toggleDrawer();
+  };
+
+  return (
+    <Drawer isExpanded isInline>
+      <DrawerContent
+        panelContent={
+          <DrawerPanelContent defaultSize="100%" minSize="100%">
+            <DrawerHead>
+              {content?.head}
+              <DrawerActions>
+                <DrawerCloseButton onClick={handleClose} data-testid="drawer-close-button" />
+              </DrawerActions>
+            </DrawerHead>
+            <Divider component="div" data-testid="drawer-panel-divider" />
+            <DrawerContentBody>{content?.body}</DrawerContentBody>
+          </DrawerPanelContent>
+        }
+      >
+        <DrawerContentBody />
+      </DrawerContent>
+    </Drawer>
+  )
+};
 
 export default DrawerPanel;
