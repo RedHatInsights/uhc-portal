@@ -33,7 +33,7 @@
   "MachinePools": [
     {
       "Name": "worker",
-      "InstanceType": "custom-4-16384",
+      "InstanceType": "e2-standard-4",
       "NodeCount": "1",
       "Autoscaling": "Disabled",
       "Labels": [
