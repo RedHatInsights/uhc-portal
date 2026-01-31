@@ -1,11 +1,74 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { checkAccessibility, render, screen, userEvent } from '~/testUtils';
+import * as useChromeHook from '@redhat-cloud-services/frontend-components/useChrome';
 
+import { checkAccessibility, render, screen, stubbedChrome, userEvent } from '~/testUtils';
+
+import DrawerPanel from '../components/common/DrawerPanel';
 import { FEATURED_PRODUCTS_CARDS, RECOMMENDED_OPERATORS_CARDS_DATA } from '../components/fixtures';
 import Overview from '../Overview';
 
 import '@testing-library/jest-dom';
+
+// Store for drawer state setters that persist across re-renders
+let drawerStateSetter = null;
+
+// Wrapper component that renders Overview and DrawerPanel together
+// This simulates Chrome's drawer behavior in tests
+const OverviewWithDrawer = () => {
+  const [drawerContent, setDrawerContent] = useState(null);
+
+  // Store setter in the global variable so mock can access it
+  drawerStateSetter = setDrawerContent;
+
+  const handleCloseDrawer = () => {
+    setDrawerContent(null);
+  };
+
+  return (
+    <>
+      <Overview />
+      {drawerContent && (
+        <DrawerPanel
+          title={drawerContent.title}
+          content={drawerContent.content}
+          toggleDrawer={handleCloseDrawer}
+          onClose={handleCloseDrawer}
+        />
+      )}
+    </>
+  );
+};
+
+// Mock drawerActions that update the shared state
+const mockDrawerActions = {
+  setDrawerPanelContent: (data) => {
+    if (drawerStateSetter) {
+      drawerStateSetter(data);
+    }
+  },
+  toggleDrawerPanel: () => {
+    // When Overview calls toggleDrawerPanel after setDrawerPanelContent,
+    // the drawer is already shown (because drawerContent is set)
+    // This is only called to open, and we handle close via onClose callback
+  },
+  toggleDrawerContent: (data) => {
+    if (drawerStateSetter) {
+      drawerStateSetter(data);
+    }
+  },
+};
+
+// Set up mock before tests
+jest.spyOn(useChromeHook, 'default').mockImplementation(() => ({
+  ...stubbedChrome,
+  drawerActions: mockDrawerActions,
+}));
+
+const renderOverview = () => {
+  drawerStateSetter = null;
+  return render(<OverviewWithDrawer />);
+};
 
 describe('<Overview />', () => {
   const advancedClusterSecurityCardData = { ...FEATURED_PRODUCTS_CARDS[0] };
@@ -19,7 +82,7 @@ describe('<Overview />', () => {
 
   it('contains a few elements of the page', async () => {
     // Arrange
-    const { container } = render(<Overview />);
+    const { container } = renderOverview();
 
     // Assert
     // Featured OpenShift cluster types:
@@ -77,7 +140,7 @@ describe('<Overview />', () => {
     'verifies Recommended Operators Card "$title" content (basic functionality verification of each Card separately)',
     async ({ title, description, index, someDrawerContent, learnMoreLinkDestination }) => {
       // Arrange
-      render(<Overview />);
+      renderOverview();
 
       // Assert
       // ensure Cards's description is shown:
@@ -164,7 +227,7 @@ describe('<Overview />', () => {
       learnMoreLinkTextContent,
     }) => {
       // Arrange
-      render(<Overview />);
+      renderOverview();
 
       // Assert
       // ensure Cards's description is shown:
@@ -206,7 +269,7 @@ describe('<Overview />', () => {
 
   it('tests Featured Products Cards Functionality -> Click on the learnMore of each card and verify that the content of the Drawer switches to the appropriate card that was clicked', async () => {
     // Arrange
-    render(<Overview />);
+    renderOverview();
 
     // Assert
     const learnMoreBtns = screen.getAllByTestId(
@@ -288,7 +351,7 @@ describe('<Overview />', () => {
 
   it('tests Recommended Operators Cards Functionality -> Click on the learnMore of each card and verify that the content of the Drawer switches to the appropriate card that was clicked', async () => {
     // Arrange
-    render(<Overview />);
+    renderOverview();
 
     // Assert
     const learnMoreBtns = screen.getAllByTestId(
@@ -350,7 +413,7 @@ describe('<Overview />', () => {
 
   it('tests all Product Cards Learn more Functionality -> Click on the learnMore of each card and verify that the content of the Drawer switches to the appropriate card that was clicked', async () => {
     // Arrange
-    render(<Overview />);
+    renderOverview();
 
     // Assert
     const recommendedOperatorsLearnMoreBtns = screen.getAllByTestId(

@@ -211,6 +211,11 @@ export const stubbedChrome = {
   segment: {
     setPageMetadata: () => {},
   },
+  drawerActions: {
+    setDrawerPanelContent: jest.fn(),
+    toggleDrawerPanel: jest.fn(),
+    toggleDrawerContent: jest.fn(),
+  },
 };
 
 export const mockRestrictedEnv = (mockValue = false) => {

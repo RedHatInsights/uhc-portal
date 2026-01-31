@@ -61,13 +61,12 @@ const PRODUCT_CARD_TEST_CASES = {
 };
 
 const BASIC_DRAWER_PANEL_PROPS = {
-  children: <div data-testid="children-of-drawer-panel">some children</div>,
   content: {
     head: <div data-testid="test-head-div">example drawer panel content head</div>,
     body: <div data-testid="test-body-div">example drawer panel content body</div>,
   },
-  isOpen: true,
   toggleDrawer: jest.fn(),
+  onClose: jest.fn(),
 };
 
 const DRAWER_PANEL_TEST_CASES = {
