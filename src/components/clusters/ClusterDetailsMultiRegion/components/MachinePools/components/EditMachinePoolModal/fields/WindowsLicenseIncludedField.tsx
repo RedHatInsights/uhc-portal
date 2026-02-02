@@ -62,16 +62,20 @@ const WindowsLicenseIncludedField = ({
     </>
   );
 
-  const isDisabled = !isVersionCompatible || !isWinLiCompatible;
+  let isDisabled = false;
   let tooltip;
-  if (isDisabled) {
-    tooltip = !isVersionCompatible
-      ? `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`
-      : 'This instance type is not Windows License Included compatible.';
-  }
 
   if (!isWinLiCompatible) {
+    tooltip = 'This instance type is not Windows License Included compatible.';
     values.isWindowsLicenseIncluded = false;
+  }
+
+  if (!isVersionCompatible) {
+    tooltip = `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`;
+  }
+
+  if (tooltip) {
+    isDisabled = true;
   }
 
   return isEdit ? (
