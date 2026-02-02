@@ -45,25 +45,23 @@ const buildTestComponent = (
 describe('<WindowsLicenseIncludedField />', () => {
   describe('When creating a new Machine Pool', () => {
     describe('When using a compatible version cluster', () => {
-      describe('When selected Machine Type is Windows LI compatible', () => {
-        it('Shows the checkbox text', () => {
-          // Arrange
-          render(
-            buildTestComponent(
-              { initialValuesWithWindowsLIEnabledMachineTypeSelected },
-              <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
-            ),
-          );
+      it('Shows the checkbox text when selected Machine Type is Windows LI compatible', () => {
+        // Arrange
+        render(
+          buildTestComponent(
+            { initialValuesWithWindowsLIEnabledMachineTypeSelected },
+            <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
+          ),
+        );
 
-          // Act
-          // Assert
-          expect(
-            screen.getByText('Enable machine pool for Windows License Included'),
-          ).toBeInTheDocument();
+        // Act
+        // Assert
+        expect(
+          screen.getByText('Enable machine pool for Windows License Included'),
+        ).toBeInTheDocument();
 
-          const checkbox = screen.getByRole('checkbox');
-          expect(checkbox).toBeInTheDocument();
-        });
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).toBeInTheDocument();
       });
 
       it('Shows a PopoverHint for Machine Pools which are Windows LI enabled and verifies its functionality', async () => {
