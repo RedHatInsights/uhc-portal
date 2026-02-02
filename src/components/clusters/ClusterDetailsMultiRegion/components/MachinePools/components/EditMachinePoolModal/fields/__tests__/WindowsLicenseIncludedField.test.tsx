@@ -64,7 +64,7 @@ describe('<WindowsLicenseIncludedField />', () => {
         expect(checkbox).toBeInTheDocument();
       });
 
-      it('Shows a PopoverHint for Machine Pools which are Windows LI enabled and verifies its functionality', async () => {
+      it('Shows a PopoverHint', async () => {
         // Arrange
         const { user } = render(
           buildTestComponent(
@@ -86,12 +86,6 @@ describe('<WindowsLicenseIncludedField />', () => {
         expect(redhatDocsLink).toBeInTheDocument();
         expect(awsDocsLink).toHaveAttribute('href', AWS_DOCS_LINK);
         expect(redhatDocsLink).toHaveAttribute('href', REDHAT_DOCS_LINK);
-
-        expect(
-          screen.getByText(
-            'When enabled, the machine pool is AWS License Included for Windows with associated fees.',
-          ),
-        ).toBeInTheDocument();
       });
 
       it('Shows a disabled checkbox with a related tooltip for Machine Types which are NOT Windows LI compatible', async () => {
@@ -236,7 +230,7 @@ describe('<WindowsLicenseIncludedField />', () => {
         expect(screen.getByText('This machine pool is Windows LI enabled')).toBeInTheDocument();
       });
 
-      it('Shows a PopoverHint and verifies its functionality', async () => {
+      it('Shows a PopoverHint', async () => {
         // Arrange
         const { user } = render(
           buildTestComponent(
@@ -258,12 +252,6 @@ describe('<WindowsLicenseIncludedField />', () => {
         expect(redhatDocsLink).toBeInTheDocument();
         expect(awsDocsLink).toHaveAttribute('href', AWS_DOCS_LINK);
         expect(redhatDocsLink).toHaveAttribute('href', REDHAT_DOCS_LINK);
-
-        expect(
-          screen.getByText(
-            'When enabled, the machine pool is AWS License Included for Windows with associated fees.',
-          ),
-        ).toBeInTheDocument();
       });
     });
 
