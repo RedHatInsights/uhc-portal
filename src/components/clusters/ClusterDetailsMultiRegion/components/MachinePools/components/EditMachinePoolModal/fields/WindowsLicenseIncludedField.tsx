@@ -36,7 +36,7 @@ const {
 const WindowsLicenseIncludedField = ({
   isEdit = false,
   currentMP,
-  clusterVersion,
+  clusterVersion = '',
 }: WindowsLicenseIncludedFieldProps) => {
   // Instance type field -> get isWinLiCompatible from the selected instance type:
   const { values } = useFormikContext<EditMachinePoolValues>();
