@@ -49,7 +49,7 @@ describe('<WindowsLicenseIncludedField />', () => {
         // Arrange
         render(
           buildTestComponent(
-            { initialValuesWithWindowsLIEnabledMachineTypeSelected },
+            { ...initialValuesWithWindowsLIEnabledMachineTypeSelected },
             <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
           ),
         );
@@ -68,7 +68,7 @@ describe('<WindowsLicenseIncludedField />', () => {
         // Arrange
         const { user } = render(
           buildTestComponent(
-            { initialValuesWithWindowsLIEnabledMachineTypeSelected },
+            { ...initialValuesWithWindowsLIEnabledMachineTypeSelected },
             <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
           ),
         );
@@ -98,7 +98,7 @@ describe('<WindowsLicenseIncludedField />', () => {
         // Arrange
         const { user } = render(
           buildTestComponent(
-            { initialValues },
+            { ...initialValues },
             <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
           ),
         );
@@ -119,7 +119,7 @@ describe('<WindowsLicenseIncludedField />', () => {
         // Arrange
         const { user } = render(
           buildTestComponent(
-            { initialValuesEmptyMachineType },
+            { ...initialValuesEmptyMachineType },
             <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
           ),
         );
@@ -142,7 +142,7 @@ describe('<WindowsLicenseIncludedField />', () => {
         // Arrange
         const { user } = render(
           buildTestComponent(
-            { initialValuesWithWindowsLIEnabledMachineTypeSelected },
+            { ...initialValuesWithWindowsLIEnabledMachineTypeSelected },
             <WindowsLicenseIncludedField clusterVersion={nonCompatibleClusterVersion} />,
           ),
         );
@@ -170,7 +170,7 @@ describe('<WindowsLicenseIncludedField />', () => {
         // Arrange
         const { user } = render(
           buildTestComponent(
-            { initialValues },
+            { ...initialValues },
             <WindowsLicenseIncludedField clusterVersion={nonCompatibleClusterVersion} />,
           ),
         );
@@ -194,7 +194,10 @@ describe('<WindowsLicenseIncludedField />', () => {
       it('disables the checkbox and shows the version incompatibility tooltip even if the instance type is incompatible', async () => {
         // Arrange
         const { user } = render(
-          buildTestComponent({ initialValues }, <WindowsLicenseIncludedField clusterVersion="" />),
+          buildTestComponent(
+            { ...initialValues },
+            <WindowsLicenseIncludedField clusterVersion="" />,
+          ),
         );
 
         // Assert
