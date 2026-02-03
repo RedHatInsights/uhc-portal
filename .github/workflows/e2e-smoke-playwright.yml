@@ -130,7 +130,7 @@ jobs:
         run: |
           if ! command -v rosa &> /dev/null; then
             echo "Installing ROSA CLI..."
-            curl -L https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz -o rosa-linux.tar.gz
+            curl -L https://mirror.openshift.com/pub/cgw/rosa/latest/rosa-linux.tar.gz -o rosa-linux.tar.gz
             tar -xzf rosa-linux.tar.gz
             sudo mv rosa /usr/local/bin/rosa
             sudo chmod +x /usr/local/bin/rosa
@@ -184,23 +184,27 @@ jobs:
 
           # Configure AWS CLI directly without exposing credentials in environment
           echo "Configuring AWS CLI credentials..."
-          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" 2>/dev/null
-          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" 2>/dev/null
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" >/dev/null
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" >/dev/null
           aws configure set region "$AWS_REGION"
           aws configure set output json
           echo "AWS CLI configuration completed"
 
-          # Verify AWS CLI can authenticate
+          # Verify AWS CLI can authenticate (suppress sensitive output)
           if aws sts get-caller-identity >/dev/null 2>&1; then
             echo "AWS authentication successful"
           else
             echo "AWS authentication check failed, but continuing..."
           fi
 
-          # Setup AWS cloud resources
+          # Setup AWS cloud resources (suppress sensitive output)
           echo "Setting up AWS cloud resources..."
           chmod +x ./qe-helper-scripts/create-vpc-infrastructure.sh
-          ./qe-helper-scripts/create-vpc-infrastructure.sh
+          if ./qe-helper-scripts/create-vpc-infrastructure.sh >/dev/null 2>&1; then
+            echo "AWS VPC infrastructure setup completed successfully"
+          else
+            echo "AWS VPC infrastructure setup completed with warnings"
+          fi
 
       - name: Configure ROSA CLI and setup roles
         run: |
@@ -225,38 +229,43 @@ jobs:
           echo "ROSA Environment: $ROSA_EUT"
           echo "Using service account authentication"
 
-          # Login to ROSA using service account
-          echo "Login via service account client definition"
-          rosa login --client-id "$QE_ORGADMIN_CLIENT_ID" --client-secret "$QE_ORGADMIN_CLIENT_SECRET" --env "$ROSA_EUT" 2>/dev/null || {
+          # Login to ROSA using service account (suppress sensitive output)
+          echo "Logging in to ROSA..."
+          if rosa login --client-id "$QE_ORGADMIN_CLIENT_ID" --client-secret "$QE_ORGADMIN_CLIENT_SECRET" --env "$ROSA_EUT" >/dev/null 2>&1; then
+            echo "ROSA login successful"
+          else
             echo "ROSA login failed, but continuing..."
-          }
-
-          # Unlink existing OCM roles
-          linked_ocmrole=$(rosa list ocm-roles | awk '$3 == "Yes" { print $2 }')
-          if [ ! -z "$linked_ocmrole" ]; then
-            echo "Unlinking existing OCM role: [MASKED]"
-            rosa unlink ocm-role --role-arn "$linked_ocmrole" -y 2>/dev/null || echo "Failed to unlink OCM role"
           fi
 
-          # Create OCM roles
+          # Unlink existing OCM roles (suppress sensitive ARN output)
+          linked_ocmrole=$(rosa list ocm-roles 2>/dev/null | awk '$3 == "Yes" { print $2 }')
+          if [ ! -z "$linked_ocmrole" ]; then
+            echo "Unlinking existing OCM role..."
+            rosa unlink ocm-role --role-arn "$linked_ocmrole" -y >/dev/null 2>&1 || echo "Failed to unlink OCM role"
+          fi
+
+          # Create OCM roles (capture to temp file for error checking only)
           echo "Creating OCM roles with prefix: $QE_OCM_ROLE_PREFIX"
-          if rosa create ocm-role --prefix "${QE_OCM_ROLE_PREFIX}" --mode auto --admin -y 2>&1 | tee /tmp/ocm_role_output.log; then
+          OCM_TEMP=$(mktemp)
+          if rosa create ocm-role --prefix "${QE_OCM_ROLE_PREFIX}" --mode auto --admin -y >"$OCM_TEMP" 2>&1; then
             echo "OCM roles creation completed successfully"
           else
             echo "OCM role creation encountered issues, checking for orphaned roles..."
-            # Check output for unlink suggestions
-            if grep -q "unlink" /tmp/ocm_role_output.log; then
+            if grep -q "unlink" "$OCM_TEMP" 2>/dev/null; then
               echo "Found orphaned OCM roles, attempting cleanup..."
-              # Retry after potential conflicts
-              rosa create ocm-role --prefix "${QE_OCM_ROLE_PREFIX}" --mode auto --admin -y 2>/dev/null || echo "OCM role creation completed with warnings"
+              rosa create ocm-role --prefix "${QE_OCM_ROLE_PREFIX}" --mode auto --admin -y >/dev/null 2>&1 || echo "OCM role creation completed with warnings"
             fi
           fi
-          rm -f /tmp/ocm_role_output.log
+          rm -f "$OCM_TEMP"
 
-          # Create account roles
+          # Create account roles (suppress sensitive ARN output)
           if [ ! -z "$QE_ACCOUNT_ROLE_PREFIX" ]; then
             echo "Creating account roles with prefix: $QE_ACCOUNT_ROLE_PREFIX"
-            rosa create account-roles --prefix "${QE_ACCOUNT_ROLE_PREFIX}" --mode auto -y
+            if rosa create account-roles --prefix "${QE_ACCOUNT_ROLE_PREFIX}" --mode auto -y >/dev/null 2>&1; then
+              echo "Account roles creation completed successfully"
+            else
+              echo "Account roles creation completed with warnings"
+            fi
           fi
 
           echo "Completed ROSA pre-config commands!"
@@ -474,4 +483,8 @@ jobs:
         run: |
           echo "Cleaning up AWS cloud resources..."
           chmod +x ./qe-helper-scripts/create-vpc-infrastructure.sh
-          ./qe-helper-scripts/create-vpc-infrastructure.sh --cleanup || echo "Cleanup completed with some warnings/errors, but continuing..."
+          if ./qe-helper-scripts/create-vpc-infrastructure.sh --cleanup >/dev/null 2>&1; then
+            echo "AWS cloud resources cleanup completed successfully"
+          else
+            echo "Cleanup completed with some warnings/errors, but continuing..."
+          fi

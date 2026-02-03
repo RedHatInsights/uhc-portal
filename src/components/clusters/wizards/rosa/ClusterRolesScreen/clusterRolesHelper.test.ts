@@ -6,7 +6,7 @@ import {
 import { createOperatorRolesPrefix, getOperatorRolesCommand } from './clusterRolesHelper';
 
 const defaultOptions = {
-  isHypershift: true,
+  isHypershiftSelected: true,
   byoOidcConfigID: '22phvja6kkki8f7h8mmk46a7j2h26uk1',
   customOperatorRolesPrefix: 'operator-prefix',
   installerRoleArn: 'arn:aws:iam::000000000006',
@@ -24,7 +24,7 @@ describe('getOperatorRolesCommand', () => {
   });
 
   test('should return the proper operator roles command for classic clusters with shared vpc', () => {
-    const options = { ...defaultOptions, isHypershift: false };
+    const options = { ...defaultOptions, isHypershiftSelected: false };
     const command = getOperatorRolesCommand(options);
 
     expect(command).toBe(
@@ -33,7 +33,7 @@ describe('getOperatorRolesCommand', () => {
   });
 
   test('should return the proper operator roles command for classic clusters without shared vpc', () => {
-    const options = { ...defaultOptions, isHypershift: true };
+    const options = { ...defaultOptions, isHypershiftSelected: true };
     const command = getOperatorRolesCommand(options);
 
     expect(command).toBe(

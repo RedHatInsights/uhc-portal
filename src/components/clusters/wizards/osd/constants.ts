@@ -1,5 +1,6 @@
 import { FormikValues } from 'formik';
 
+import { BREADCRUMB_PATHS, buildBreadcrumbs } from '~/common/breadcrumbPaths';
 import { getDefaultSecurityGroupsSettings } from '~/common/securityGroupsHelpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
@@ -82,11 +83,11 @@ export enum UrlPath {
   CreateCloud = '/create/cloud',
 }
 
-export const breadcrumbs: BreadcrumbPath[] = [
-  { label: 'Cluster List' },
-  { label: 'Cluster Type', path: UrlPath.Create },
-  { label: 'OpenShift Dedicated', path: UrlPath.CreateOsd },
-];
+export const breadcrumbs: BreadcrumbPath[] = buildBreadcrumbs(
+  BREADCRUMB_PATHS.CLUSTER_LIST,
+  BREADCRUMB_PATHS.CLUSTER_TYPE,
+  BREADCRUMB_PATHS.OSD,
+);
 
 export const initialValues: FormikValues = {
   [FieldId.Product]: normalizedProducts.OSD,

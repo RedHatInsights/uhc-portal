@@ -734,6 +734,13 @@ test.describe.serial(
       );
       await createRosaWizardPage.selectOidcConfigId(oidcConfigId);
 
+      // Verify the order of theoperator-roles command contains --hosted-cp for HCP clusters
+      const operatorRolesCommand = await createRosaWizardPage
+        .operatorRolesCommandField()
+        .inputValue();
+      expect(operatorRolesCommand).toMatch(
+        /^rosa create operator-roles.*--prefix.*--oidc-config-id.*--hosted-cp.*--installer-role-arn/,
+      );
       await createRosaWizardPage.customOperatorPrefixInput().scrollIntoViewIfNeeded();
       await createRosaWizardPage.customOperatorPrefixInput().selectText();
       await createRosaWizardPage

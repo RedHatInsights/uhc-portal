@@ -82,9 +82,6 @@ const COSTMGMT_DOCS_BASE =
 const OCM_DOCS_BASE =
   'https://access.redhat.com/documentation/en-us/openshift_cluster_manager/2023';
 
-const OCP_DOC_BASE =
-  'https://access.redhat.com/documentation/en-us/openshift_container_platform/4.13';
-
 const MTV_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/migration_toolkit_for_virtualization/2.0/html';
 
@@ -95,7 +92,6 @@ const links = {
   OSD_GOOGLE_MARKETPLACE:
     'https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated',
   ACCESS_REQUEST_DOC_LINK: `${ROSA_CP_DOCS_BASE}/support/approved-access#approved-access`,
-  DOCS_ENTRY: `${OCP_DOCS_BASE}/overview/welcome-index`,
   ROSA_TROUBLESHOOTING_INSTALLATIONS: `${ROSA_CP_DOCS_BASE}/support/troubleshooting#rosa-troubleshooting-installations`,
   ROSA_DEFINITION_DOC: `${ROSA_CP_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-service-definition`,
   WHAT_IS_OPENSHIFT: 'https://www.redhat.com/en/technologies/cloud-computing/openshift',
@@ -106,8 +102,6 @@ const links = {
   ROSA_COMMUNITY_SLACK: 'https://red.ht/rosa-slack',
   ROSA_QUICKSTART: `${ROSA_CLASSIC_DOCS_BASE}/getting_started/rosa-quickstart-guide-ui`,
   OSD_QUICKSTART: 'https://www.youtube.com/watch?v=p9KBFvMDQJM&feature=youtu.be',
-  OSD_INTERACTIVE_WALKTHROUGH:
-    'https://www.redhat.com/en/products/interactive-walkthrough/install-openshift-dedicated-google-cloud',
   ROSA_PRICING: 'https://aws.amazon.com/rosa/pricing',
   OSD_PRICING:
     'https://www.redhat.com/en/technologies/cloud-computing/openshift/dedicated?intcmp=7013a000003DQeVAAW#pricing',
@@ -124,30 +118,20 @@ const links = {
   APPLYING_AUTOSCALING: `${OCP_DOCS_BASE}//machine_management/applying-autoscaling`,
   APPLYING_AUTOSCALING_API_DETAIL: `${OCP_DOCS_BASE}/autoscale_apis/clusterautoscaler-autoscaling-openshift-io-v1`,
   AWS_SPOT_INSTANCES: `${OCP_DOCS_BASE}/machine_management/managing-compute-machines-with-the-machine-api#machineset-non-guaranteed-instance_creating-machineset-aws`,
-  ENCRYPTING_ETCD: `${OCP_DOCS_BASE}-single/etcd/index#enabling-etcd-encryption`,
-  GETTING_SUPPORT: `${OCP_DOCS_BASE}/support/getting-support`,
   TELEMETRY_INFORMATION: `${OCP_DOCS_BASE}/support/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring`,
   REMOTE_HEALTH_INSIGHTS: `${OCP_DOCS_BASE}/support/remote-health-monitoring-with-connected-clusters#insights-operator-advisor-overview_using-insights-to-identify-issues-with-your-cluster`,
   UPDATING_CLUSTER: `${OCP_DOCS_BASE}/updating_clusters/performing-a-cluster-update#updating-cluster-web-console`,
   // TODO https://issues.redhat.com/browse/HAC-5192 to change the link to a public document, not a KB article
   HIBERNATING_CLUSTER: 'https://access.redhat.com/articles/7012966',
-  MIGRATING_FROM_3_TO_4: `${OCP_DOCS_BASE}/migrating_from_version_3_to_4/about-migrating-from-3-to-4`,
-  SERVERLESS_ABOUT: `${OCP_DOCS_BASE}/serverless/about-serverless`,
-  SERVICE_MESH_ABOUT: `${OCP_DOCS_BASE}/service_mesh/service-mesh-2-x#ossm-architecture`,
-  SERVICE_MESH_OCP_DOC: `${OCP_DOC_BASE}/html/service_mesh/index`,
-  VIRT_ABOUT: `${OCP_DOCS_BASE}/virtualization/about#virt-what-you-can-do-with-virt_about-virt`,
 
   SUBSCRIPTION_EVAL_INFORMATION: 'https://access.redhat.com/articles/4389911',
   MANAGED_INGRESS_KNOWLEDGE_BASE: 'https://access.redhat.com/articles/7028653',
 
   OSD_DEDICATED_ADMIN_ROLE: `${OSD_DOCS_BASE}/authentication_and_authorization/osd-admin-roles`,
-  OSD_CCS_AWS: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs`,
   OSD_CCS_AWS_LIMITS: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs#aws-limits_aws-ccs`,
-  OSD_CCS_AWS_SCP: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs#ccs-aws-scp_aws-ccs`,
   OSD_CCS_AWS_CUSTOMER_REQ: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs#ccs-aws-customer-requirements_aws-ccs`,
   OSD_CCS_GCP: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs`,
   OSD_CCS_GCP_LIMITS: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs#gcp-limits_gcp-ccs`,
-  OSD_CCS_GCP_SCP: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs#ccs-gcp-customer-procedure_gcp-ccs`,
   OSD_CCS_GCP_SHEILDED_VM: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_google_cloud/osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
   OSD_CCS_GCP_WIF_GCLOUD_CLI: 'https://cloud.google.com/sdk/docs/install',
   OSD_CCS_GCP_WIF_GCLOUD_CREDENTIALS:
@@ -156,7 +140,6 @@ const links = {
   OSD_LIFE_CYCLE: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#osd-life-cycle`,
   OSD_LIFE_CYCLE_DATES: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#sd-life-cycle-dates_osd-life-cycle`,
   OSD_Z_STREAM: `${OSD_DOCS_BASE}/upgrading/osd-upgrades#upgrade-auto_osd-upgrades`,
-  OSD_SERVICE_DEFINITION_COMPUTE: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#instance-types_osd-service-definition`,
   ROSA_SERVICE_DEFINITION_COMPUTE: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-sdpolicy-instance-types_rosa-service-definition`,
   OSD_ETCD_ENCRYPTION: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#etcd-encryption_osd-service-definition_dedicated/policies-and-service-definition#sdpolicy-account-management_osd-service-definition`,
   OSD_AWS_PRIVATE_CONNECTIONS: `${OSD_DOCS_BASE}/cluster_administration/configuring-private-connections#enable-aws-access`,
@@ -166,13 +149,17 @@ const links = {
   OSD_LIMITED_SUPPORT_DEFINITION: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#limited-support_osd-service-definition`,
   OSD_MONITORING_STACK: `${OSD_DOCS_BASE}/monitoring/configuring-user-workload-monitoring#preparing-to-configure-the-monitoring-stack-uwm`,
   OSD_CIDR_MACHINE: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions#machine-cidr-description`,
-  ROSA_CIDR_MACHINE: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#machine-cidr-description`,
+  ROSA_CLASSIC_CIDR_MACHINE: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#machine-cidr-description`,
+  ROSA_CIDR_MACHINE: `${ROSA_DOCS_BASE}/networking_overview/cidr-range-definitions#machine-cidr-description`,
   OSD_CIDR_SERVICE: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions#service-cidr-description`,
-  ROSA_CIDR_SERVICE: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#service-cidr-description`,
+  ROSA_CLASSIC_CIDR_SERVICE: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#service-cidr-description`,
+  ROSA_CIDR_SERVICE: `${ROSA_DOCS_BASE}/networking_overview/cidr-range-definitions#service-cidr-description`,
   OSD_CIDR_POD: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions#pod-cidr-description`,
-  ROSA_CIDR_POD: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#pod-cidr-description`,
+  ROSA_CLASSIC_CIDR_POD: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#pod-cidr-description`,
+  ROSA_CIDR_POD: `${ROSA_DOCS_BASE}/networking_overview/cidr-range-definitions#pod-cidr-description`,
   OSD_CIDR_HOST: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions#host-prefix-description`,
-  ROSA_CIDR_HOST: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#host-prefix-description`,
+  ROSA_CLASSIC_CIDR_HOST: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions#host-prefix-description`,
+  ROSA_CIDR_HOST: `${ROSA_DOCS_BASE}/networking_overview/cidr-range-definitions#host-prefix-description`,
   OSD_CLUSTER_AUTOSCALING: `${OSD_DOCS_BASE}/cluster_administration/osd-cluster-autoscaling`,
   ROSA_CLUSTER_AUTOSCALING: `${ROSA_DOCS_BASE}/cluster_administration/rosa-cluster-autoscaling-hcp`,
   OSD_SECURITY_GROUPS: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs#osd-security-groups-custom_aws-ccs `,
@@ -185,7 +172,6 @@ const links = {
   INSTALL_AGENT_LEARN_MORE: `${OCP_DOCS_BASE}/installing_an_on-premise_cluster_with_the_agent-based_installer/preparing-to-install-with-agent-based-installer`,
 
   INSTALL_AWSIPI_DOCS_LANDING: `${OCP_DOCS_BASE}/installing_on_aws/installing-aws-account`,
-  INSTALL_AWSIPI_DOCS_ENTRY: `${OCP_DOCS_BASE}/overview/welcome-index`,
   INSTALL_AWSIPI_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_aws/installer-provisioned-infrastructure#prerequisites`,
   INSTALL_AWSUPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_aws/user-provisioned-infrastructure#installing-aws-user-infra`,
   INSTALL_AWS_CUSTOMIZATIONS: `${OCP_DOCS_BASE}/installing_on_aws/installer-provisioned-infrastructure#installing-aws-customizations`,
@@ -209,8 +195,6 @@ const links = {
   INSTALL_BAREMETAL_IPI_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_bare_metal/installer-provisioned-infrastructure#ipi-install-overview`,
   INSTALL_BAREMETAL_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_bare_metal/user-provisioned-infrastructure#creating-machines-bare-metal`,
   INSTALL_BAREMETAL_CUSTOMIZATIONS: `${OCP_DOCS_BASE}/installing_on_bare_metal/user-provisioned-infrastructure#installing-bare-metal-network-customizations`,
-  RHCOS_BAREMETAL_ISO_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-live-iso.x86_64.iso`,
-  RHCOS_BAREMETAL_RAW_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-metal.x86_64.raw.gz`,
   INSTALL_BAREMETAL_MULTI_ARCH: `${OCP_DOCS_BASE}/postinstallation_configuration/configuring-multi-architecture-compute-machines-on-an-openshift-cluster#creating-multi-arch-compute-nodes-bare-metal`,
 
   OPENSHIFT_LOCAL_SUPPORT_AND_COMMUNITY_DOCS: 'https://crc.dev/docs/using/',
@@ -231,7 +215,6 @@ const links = {
   INSTALL_OSPUPI_RHCOS_LEARN_MORE: `${OCP_DOCS_BASE}/installing_on_openstack/installing-openstack-user#installation-osp-creating-image_installing-openstack-user`,
   INSTALL_OSP_CUSTOMIZATIONS: `${OCP_DOCS_BASE}/installing_on_openstack/installing-openstack-installer-custom`,
   RHCOS_OSPUPI_QCOW_X86: `${MIRROR_RHCOS_LATEST_X86}/rhcos-openstack.x86_64.qcow2.gz`,
-  RHCOS_OSPUPI_QCOW_PPC: `${MIRROR_RHCOS_LATEST_PPC}/rhcos-openstack.ppc64le.qcow2.gz`,
 
   INSTALL_VSPHEREUPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_vmware_vsphere/user-provisioned-infrastructure#installing-vsphere`,
   INSTALL_VSPHEREIPI_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_vmware_vsphere/installer-provisioned-infrastructure#installing-vsphere-installer-provisioned`,
@@ -247,7 +230,7 @@ const links = {
   INSTALL_IBMZ_AGENTS_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_an_on-premise_cluster_with_the_agent-based_installer/prepare-pxe-assets-agent#installing-ocp-agent-ibm-z_prepare-pxe-assets-agent`,
   INSTALL_IBMPOWERVS_GETTING_STARTED: `${OCP_DOCS_BASE}/installing_on_ibm_power_virtual_server/preparing-to-install-on-ibm-power-vs`,
   INSTALL_IBMPOWERVS_PREREQUISITES: `${OCP_DOCS_BASE}/installing_on_ibm_power_virtual_server/preparing-to-install-on-ibm-power-vs`,
-  RHCOS_IBMZ_ISO: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-iso.s390x.iso`,
+
   RHCOS_IBMZ_INITRAMFS: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-initramfs.s390x.img`,
   RHCOS_IBMZ_KERNEL: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-kernel.s390x`,
   RHCOS_IBMZ_ROOTFS: `${MIRROR_RHCOS_LATEST_IBMZ}/rhcos-live-rootfs.s390x.img`,
@@ -279,7 +262,6 @@ const links = {
   RHCOS_ARM_INITRAMFS: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-initramfs.aarch64.img`,
   RHCOS_ARM_KERNEL: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-kernel.aarch64`,
   RHCOS_ARM_ROOTFS: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-live-rootfs.aarch64.img`,
-  RHCOS_ARM_RAW: `${MIRROR_RHCOS_LATEST_ARM}/rhcos-metal.aarch64.raw.gz`,
 
   OCM_CLI_DOCS: 'https://access.redhat.com/articles/6114701',
   OCM_CLI_RELEASES_LATEST:
@@ -312,36 +294,33 @@ const links = {
   INSTALL_MIRROR_REGISTRY_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/installing-mirroring-installation-images#installation-about-mirror-registry_installing-mirroring-installation-images`,
   INSTALL_OC_MIRROR_PLUGIN_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/installing-mirroring-installation-images`,
 
-  OPENSHIFT_DEDICATED_LEARN_MORE:
-    'https://www.redhat.com/en/technologies/cloud-computing/openshift/dedicated',
-
-  AWS_OPENSHIFT_LEARN_MORE: 'https://cloud.redhat.com/products/amazon-openshift',
-
   AZURE_OPENSHIFT_GET_STARTED: 'https://azure.microsoft.com/en-us/products/openshift/',
 
-  ROSA_GET_STARTED: `https://cloud.redhat.com/learn/getting-started-red-hat-openshift-service-aws-rosa`,
-  ROSA_DOCS_ENTRY: `${ROSA_DOCS_BASE}/about/welcome-index`,
+  ROSA_CLASSIC_MONITORING: `${ROSA_CLASSIC_DOCS_BASE}-single/monitoring/index#preparing-to-configure-the-monitoring-stack-uwm`,
   ROSA_MONITORING: `${ROSA_DOCS_BASE}-single/monitoring/index#preparing-to-configure-the-monitoring-stack-uwm`,
   ROSA_AUTOSCALING: `${ROSA_DOCS_BASE}/cluster_administration/manage-nodes-using-machine-pools#rosa-nodes-about-autoscaling-nodes`,
   ROSA_SECURITY_GROUPS: `${ROSA_DOCS_BASE}/prepare_your_environment/rosa-hcp-prereqs#rosa-security-groups_rosa-hcp-prereqs`,
+  ROSA_CLASSIC_SECURITY_GROUPS: `${ROSA_CLASSIC_DOCS_BASE}/prepare_your_environment/rosa-sts-aws-prereqs#rosa-security-groups_rosa-sts-aws-prereqs`,
   ROSA_CLI_DOCS: `${ROSA_CP_DOCS_BASE}/rosa_cli/rosa-get-started-cli`,
   ROSA_LIFE_CYCLE: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#life-cycle-overview_rosa-life-cycle`,
   ROSA_LIFE_CYCLE_DATES: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#sd-life-cycle-dates_rosa-hcp-life-cycle`,
   ROSA_Z_STREAM: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-patch-versions_rosa-hcp-life-cycle`,
-  ROSA_RESPONSIBILITY_MATRIX: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-policy-responsibility-matrix`,
-  ROSA_SERVICE_DEFINITION: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-sdpolicy-account-management_rosa-service-definition`,
   ROSA_WORKER_NODE_COUNT: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-sdpolicy-compute_rosa-service-definition`,
   ROSA_SERVICE_ETCD_ENCRYPTION: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-sdpolicy-etcd-encryption_rosa-service-definition`,
-  ROSA_CLUSTER_WIDE_PROXY: `${ROSA_CLASSIC_DOCS_BASE}/ovn-kubernetes_network_plugin/configuring-a-cluster-wide-proxy`,
+  ROSA_CLASSIC_CLUSTER_WIDE_PROXY: `${ROSA_CLASSIC_DOCS_BASE}/ovn-kubernetes_network_plugin/configuring-a-cluster-wide-proxy`,
+  ROSA_CLUSTER_WIDE_PROXY: `${ROSA_DOCS_BASE}/ovn-kubernetes_network_plugin/configuring-a-cluster-wide-proxy`,
+  ROSA_CLASSIC_UPGRADES: `${ROSA_CLASSIC_DOCS_BASE}/upgrading/rosa-upgrading-sts`,
   ROSA_UPGRADES: `${ROSA_DOCS_BASE}/upgrading/rosa-hcp-upgrading`,
   ROSA_LIMITED_SUPPORT_DEFINITION: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-limited-support_rosa-service-definition`,
   ROSA_SHARED_VPC: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-shared-vpc-config`,
   ROSA_PRIVATE_CONNECTIONS: `${ROSA_DOCS_BASE}/cluster_administration/configuring-private-connections#rosa-configuring-private-connections`,
 
+  ROSA_CLASSIC_AWS_ACCOUNT_ASSOCIATION: `${ROSA_CLASSIC_DOCS_BASE}/prepare_your_environment/rosa-cloud-expert-prereq-checklist`,
   ROSA_AWS_ACCOUNT_ASSOCIATION: `${ROSA_DOCS_BASE}/prepare_your_environment/rosa-cloud-expert-prereq-checklist`,
-  ROSA_AWS_SERVICE_QUOTAS: `${ROSA_CP_DOCS_BASE}/prepare_your_environment/rosa-sts-required-aws-service-quotas#rosa-required-aws-service-quotas_rosa-sts-required-aws-service-quotas`,
-  ROSA_AWS_LIMITS_SCALE: `${ROSA_DOCS_BASE}/prepare_your_environment/rosa-planning-environment`,
+  ROSA_CLASSIC_AWS_LIMITS_SCALE: `${ROSA_CLASSIC_DOCS_BASE}/prepare_your_environment/rosa-planning-environment`,
+  ROSA_CLASSIC_AWS_IAM_RESOURCES: `${ROSA_CLASSIC_DOCS_BASE}/introduction_to_rosa/rosa-sts-about-iam-resources`,
   ROSA_AWS_IAM_RESOURCES: `${ROSA_DOCS_BASE}/introduction_to_rosa/rosa-hcp-about-iam-resources`,
+  ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES: `${ROSA_CLASSIC_DOCS_BASE}/introduction_to_rosa/rosa-sts-about-iam-resources#rosa-sts-operator-roles_rosa-sts-about-iam-resources`,
   ROSA_AWS_IAM_OPERATOR_ROLES: `${ROSA_DOCS_BASE}/introduction_to_rosa/rosa-hcp-about-iam-resources#rosa-sts-operator-roles_rosa-sts-about-iam-resources`,
   ROSA_HCP_EXT_AUTH: `${ROSA_CP_DOCS_BASE}/install_rosa_with_hcp_clusters/rosa-hcp-sts-creating-a-cluster-ext-auth`,
   ROSA_HCP_BREAK_GLASS: `${ROSA_CP_DOCS_BASE}/install_rosa_with_hcp_clusters/rosa-hcp-sts-creating-a-cluster-ext-auth#rosa-hcp-sts-accessing-a-break-glass-cred-cli_rosa-hcp-sts-creating-a-cluster-ext-auth`,
@@ -382,7 +361,6 @@ const links = {
     'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
   GCP_CONSOLE_KMS: 'https://console.cloud.google.com/security/kms',
 
-  OCM_DOCS_MANAGING_CLUSTERS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-managing-clusters`,
   OCM_DOCS_PULL_SECRETS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-managing-clusters#downloading_and_updating_pull_secrets`,
   OCM_DOCS_ROLES_AND_ACCESS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-user-management-ocm`,
   OCM_DOCS_SUBSCRIPTIONS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-cluster-subscriptions`,
@@ -392,7 +370,8 @@ const links = {
 
   FINDING_AWS_ACCOUNT_IDENTIFIERS:
     'https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-identifiers.html',
-  CIDR_RANGE_DEFINITIONS_ROSA: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions`,
+  CIDR_RANGE_DEFINITIONS_ROSA_CLASSIC: `${ROSA_CLASSIC_DOCS_BASE}/networking_overview/cidr-range-definitions`,
+  CIDR_RANGE_DEFINITIONS_ROSA: `${ROSA_DOCS_BASE}/networking_overview/cidr-range-definitions`,
   CIDR_RANGE_DEFINITIONS_OSD: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions`,
   CONFIGURE_PROXY_URL: `${OSD_DOCS_BASE}/networking_overview/index`,
   VIRTUAL_PRIVATE_CLOUD_URL: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-quickstart-guide#rosa-hcp-quickstart-creating-vpc`,
@@ -413,7 +392,7 @@ const links = {
     'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html-single/managing_clusters/index#transferring-cluster-ownership_downloading-and-updating-pull-secrets',
 
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: 'https://aws.amazon.com/windows/resources/licensing/',
-  WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: 'https://access.redhat.com/articles/7096903',
+  WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: `${ROSA_DOCS_BASE}/cluster_administration/managing-compute-nodes-using-machine-pools#creating_machine_pools_ocm_rosa-managing-worker-nodes`,
 
   MTV_RESOURCES: `${MTV_DOCS_BASE}/installing_and_using_the_migration_toolkit_for_virtualization/about-mtv_mtv#mtv-resources-and-services_mtv`,
 

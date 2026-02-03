@@ -54,9 +54,7 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
     multi_az: isMultiAz,
     etcd_encryption: formData.etcd_encryption,
     billing_model: SubscriptionCommonFieldsClusterBillingModel.standard,
-    disable_user_workload_monitoring:
-      isHypershiftSelected || !formData.enable_user_workload_monitoring,
-    ...(!isHypershiftSelected && { fips: !!formData.fips }),
+    fips: !!formData.fips,
   };
 
   if (formData.has_domain_prefix) {
@@ -68,6 +66,7 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
       value: formData.node_drain_grace_period,
       unit: 'minutes',
     };
+    clusterRequest.disable_user_workload_monitoring = !formData.enable_user_workload_monitoring;
   }
   if (isHypershiftSelected) {
     clusterRequest.billing_model = SubscriptionCommonFieldsClusterBillingModel.marketplace_aws;

@@ -51,7 +51,7 @@ describe('<CustomOperatorRoleNames />', () => {
 
     const link = screen.getByText('Defining a custom Operator IAM role prefix');
     expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute('href', links.ROSA_AWS_IAM_OPERATOR_ROLES);
+    expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
   });
 
   it('is accessible', async () => {

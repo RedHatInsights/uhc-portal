@@ -6,7 +6,7 @@
 
    Look at commits and pick the last commit that has all pipelines passed. Click on the "copy full SHA" for the commit you chose, and save it for later use.
 
-   Check that the [daily QE smoke-test runs][32] have passed. If failures, ensure that QE is aware of the failure and a fix is already planned/in progress.
+   Check that the [daily Playwright smoke-test runs][32] have passed. If failures, ensure that QE is aware of the failure and a fix is already planned/in progress.
 
 1. #### Update [_deploy.yml_ in app-interface][17] to bump the Production deployment-target <sup>[1][footnotes]</sup>
 
@@ -72,7 +72,7 @@ For more details on self-service, see [User Content Approval Process][25] and [G
 [24]: https://console.redhat.com/openshift
 [25]: https://gitlab.cee.redhat.com/service/app-interface/-/blob/master/docs/app-sre/continuous-delivery-in-app-interface.md?#user-content-approval-process
 [26]: https://gitlab.cee.redhat.com/service/app-interface/-/blob/master/docs/app-sre/change-types.md#granular-permission-model.md
-[32]: https://ci.int.devshift.net/job/RedHatInsights-uhc-portal-qe-gh-cypress-smoke/
+[32]: https://github.com/RedHatInsights/uhc-portal/actions/workflows/e2e-smoke-playwright.yml
 [35]: https://github.com/RedHatInsights/uhc-portal/releases
 
 

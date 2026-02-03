@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { BREADCRUMB_PATHS, buildBreadcrumbs } from '~/common/breadcrumbPaths';
 import links, { tools } from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
@@ -17,11 +18,9 @@ export const AlibabaProps = {
   appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Alibaba Cloud',
   providerTitle: 'Alibaba Cloud',
   name: 'alibaba-cloud',
-  breadCrumbsPaths: [
-    { label: 'Cluster List' },
-    { label: 'Cluster Type', path: '/create' },
-    { label: 'Alibaba Cloud' },
-  ],
+  breadCrumbsPaths: buildBreadcrumbs(BREADCRUMB_PATHS.CLUSTER_LIST, BREADCRUMB_PATHS.CLUSTER_TYPE, {
+    label: 'Alibaba Cloud',
+  }),
   aiPageLink: '/assisted-installer/clusters/~new',
   aiLearnMoreLink: links.INSTALL_ASSISTED_LEARN_MORE,
   hideIPI: true,
@@ -40,18 +39,16 @@ export const AlibabaProps = {
 export const PullSecretProps = {
   appPageTitle: 'Install OpenShift 4 | Pull Secret',
   providerTitle: 'Install OpenShift Container Platform 4',
-  breadCrumbsPaths: [{ label: 'Downloads', path: '/downloads' }, { label: 'Pull secret' }],
+  breadCrumbsPaths: buildBreadcrumbs(BREADCRUMB_PATHS.DOWNLOADS, { label: 'Pull secret' }),
 };
 
 export const PreReleaseProps = {
   appPageTitle: 'Install OpenShift 4 | Experimental Developer Preview Builds',
   providerTitle: 'Install OpenShift Container Platform 4',
   installer: tools.X86INSTALLER,
-  breadCrumbsPaths: [
-    { label: 'Cluster List' },
-    { label: 'Cluster Type', path: '/create' },
-    { label: 'Pre-Release Builds' },
-  ],
+  breadCrumbsPaths: buildBreadcrumbs(BREADCRUMB_PATHS.CLUSTER_LIST, BREADCRUMB_PATHS.CLUSTER_TYPE, {
+    label: 'Pre-Release Builds',
+  }),
 };
 
 export const OracleCloudProps = {
@@ -72,9 +69,7 @@ export const OracleCloudProps = {
     upi: [nonTestedPlatformsLink],
   },
   name: 'oracle-cloud',
-  breadCrumbsPaths: [
-    { label: 'Cluster List' },
-    { label: 'Cluster Type', path: '/create' },
-    { label: 'Oracle Cloud Infrastructure' },
-  ],
+  breadCrumbsPaths: buildBreadcrumbs(BREADCRUMB_PATHS.CLUSTER_LIST, BREADCRUMB_PATHS.CLUSTER_TYPE, {
+    label: 'Oracle Cloud Infrastructure',
+  }),
 };

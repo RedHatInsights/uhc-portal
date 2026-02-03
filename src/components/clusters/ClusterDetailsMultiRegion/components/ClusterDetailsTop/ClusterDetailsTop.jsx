@@ -19,6 +19,7 @@ import {
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
 import { getOCMResourceType, trackEvents } from '~/common/analytics';
+import { BREADCRUMB_PATHS, buildBreadcrumbs } from '~/common/breadcrumbPaths';
 import getClusterName from '~/common/getClusterName';
 import { goZeroTime2Null } from '~/common/helpers';
 import isAssistedInstallSubscription, {
@@ -255,11 +256,11 @@ function ClusterDetailsTop(props) {
 
   const breadcrumbs = (
     <Breadcrumbs
-      path={[
-        { label: 'Cluster List' },
-        (isArchived || isDeprovisioned) && { label: 'Cluster Archives', path: '/archived' },
+      path={buildBreadcrumbs(
+        BREADCRUMB_PATHS.CLUSTER_LIST,
+        (isArchived || isDeprovisioned) && BREADCRUMB_PATHS.CLUSTER_ARCHIVES,
         { label: clusterName },
-      ].filter(Boolean)}
+      )}
     />
   );
 

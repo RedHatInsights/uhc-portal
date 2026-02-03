@@ -18,7 +18,11 @@ const SecurityGroupsNoEditAlert = ({ isHypershift = false }: SecurityGroupsNoEdi
     }
     actionLinks={
       <>
-        <AlertActionLink component="a" href={links.ROSA_SECURITY_GROUPS} target="_blank">
+        <AlertActionLink
+          component="a"
+          href={isHypershift ? links.ROSA_SECURITY_GROUPS : links.ROSA_CLASSIC_SECURITY_GROUPS}
+          target="_blank"
+        >
           View more information
         </AlertActionLink>
         <AlertActionLink component="a" href={links.AWS_CONSOLE_SECURITY_GROUPS} target="_blank">
