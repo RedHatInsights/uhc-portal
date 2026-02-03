@@ -8,53 +8,16 @@ import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circ
 import { scrollToFirstField } from '~/common/helpers';
 import { validateMultipleMachinePoolsSubnets } from '~/common/validators';
 import { getMatchingAvailabilityZones, inferRegionFromSubnets } from '~/common/vpcHelpers';
-import {
-  getMinNodesRequired,
-  getNodeIncrementHypershift,
-} from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
 import { SubnetSelectField } from '~/components/clusters/common/SubnetSelectField';
 import { emptyAWSSubnet } from '~/components/clusters/wizards/common/constants';
 import { FormSubnet } from '~/components/clusters/wizards/common/FormSubnet';
 import { getScrollErrorIds } from '~/components/clusters/wizards/form/utils';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import { useUpdateMinComputeNodeCount } from '~/hooks/useUpdateMinComputeNodeCount';
 import { CloudVpc } from '~/types/clusters_mgmt.v1';
 
 import './MachinePoolSubnetsForm.scss';
-
-type AdjustComputeNodeCountParams = {
-  isHypershift: boolean;
-  isByoc: boolean;
-  isMultiAz: boolean;
-  currentNodes: number | string | undefined;
-  newPoolsLength: number;
-};
-
-export const getMinComputeNodeCountAfterPoolRemoval = ({
-  isHypershift,
-  isByoc,
-  isMultiAz,
-  currentNodes,
-  newPoolsLength,
-}: AdjustComputeNodeCountParams): number | undefined => {
-  if (!isHypershift || currentNodes === undefined) {
-    return undefined;
-  }
-
-  const minNodesRequired = getMinNodesRequired(
-    isHypershift,
-    { numMachinePools: newPoolsLength },
-    { isDefaultMachinePool: true, isByoc, isMultiAz },
-  );
-  const increment = getNodeIncrementHypershift(newPoolsLength);
-  const minUserInputNodes = minNodesRequired / increment;
-
-  if (Number(currentNodes) < minUserInputNodes) {
-    return minUserInputNodes;
-  }
-
-  return undefined;
-};
 
 type MachinePoolSubnetsFormProps = {
   selectedVPC?: CloudVpc;
@@ -76,6 +39,7 @@ const MachinePoolSubnetsForm = ({
     validateForm,
     setTouched,
   } = useFormState();
+  const { updateMinComputeNodeCount } = useUpdateMinComputeNodeCount();
 
   useEffect(
     () => {
@@ -116,17 +80,7 @@ const MachinePoolSubnetsForm = ({
     const fieldNameSubnetId = `${FieldId.MachinePoolsSubnets}[${machinePoolsSubnetsIndex}].privateSubnetId`;
     setFieldTouched(fieldNameSubnetId, false, false);
 
-    const adjustedNodeCount = getMinComputeNodeCountAfterPoolRemoval({
-      isHypershift: values[FieldId.Hypershift] === 'true',
-      isByoc: values[FieldId.Byoc] === 'true',
-      isMultiAz: values[FieldId.MultiAz] === 'true',
-      currentNodes: values[FieldId.NodesCompute],
-      newPoolsLength,
-    });
-
-    if (adjustedNodeCount !== undefined) {
-      setFieldValue(FieldId.NodesCompute, adjustedNodeCount, true);
-    }
+    updateMinComputeNodeCount({ newPoolsLength });
   };
 
   useEffect(() => {
