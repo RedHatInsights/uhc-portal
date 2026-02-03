@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
@@ -49,11 +49,11 @@ function OverviewEmptyState() {
     [],
   );
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const isDrawerOpenRef = useRef<boolean>(false);
   const [selectedCardTitle, setSelectedCardTitle] = useState<string>('');
 
   const closeDrawer = () => {
-    setIsDrawerOpen(false);
+    isDrawerOpenRef.current = false;
     setSelectedCardTitle('');
   };
 
@@ -68,11 +68,18 @@ function OverviewEmptyState() {
       onClose: closeDrawer,
     });
 
-    if(!isDrawerOpen) {
+    if(!isDrawerOpenRef.current) {
       drawerActions?.toggleDrawerPanel();
-      setIsDrawerOpen(true);
+      isDrawerOpenRef.current = true;
     }
   };
+
+  // Cleanup on unmount
+  useEffect(() => () => {
+    if (isDrawerOpenRef.current) {
+      drawerActions?.toggleDrawerPanel();
+    }
+  }, [drawerActions]);
 
   const isAssistedMigrationEnabled = useFeatureGate(ASSISTED_MIGRATION_ENABLED);
 

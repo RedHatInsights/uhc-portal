@@ -249,16 +249,16 @@ const ClusterDetails = (props) => {
     }
   };
 
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const isDrawerOpenRef = React.useRef(false);
   const [selectedCardTitle, setSelectedCardTitle] = React.useState('');
 
   const closeDrawer = () => {
-    setIsDrawerOpen(false);
+    isDrawerOpenRef.current = false;
     setSelectedCardTitle('');
   };
 
   const closeDrawerPanel = () => {
-    if(isDrawerOpen) {
+    if(isDrawerOpenRef.current) {
       drawerActions?.toggleDrawerPanel();
     }
     closeDrawer();
@@ -275,11 +275,18 @@ const ClusterDetails = (props) => {
       onClose: closeDrawer,
     });
 
-    if(!isDrawerOpen) {
+    if(!isDrawerOpenRef.current) {
       drawerActions?.toggleDrawerPanel();
-      setIsDrawerOpen(true);
+      isDrawerOpenRef.current = true;
     }
   };  
+
+  // Cleanup on unmount
+  React.useEffect(() => () => {
+    if (isDrawerOpenRef.current) {
+      drawerActions?.toggleDrawerPanel();
+    }
+  }, [drawerActions]);
 
   /**
    * Refresh the cluster's related resources.
