@@ -25,7 +25,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/ocm-ui-tenant/uhc-portal:on-pr-{{revision}}
+    value: quay.io/redhat-user-workloads/ocm-ui-tenant/ocm-ui/uhc-portal:on-pr-{{revision}}
   - name: image-expires-after
     value: 5d
   - name: dockerfile
