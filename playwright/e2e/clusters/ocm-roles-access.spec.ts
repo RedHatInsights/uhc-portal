@@ -9,7 +9,7 @@ test.describe.serial('OCM Roles And Access', { tag: ['@ci', '@smoke'] }, () => {
 
   test.beforeAll(async ({ navigateTo }) => {
     // Navigate to cluster list with clean state
-    await navigateTo('cluster-list');
+    await navigateTo('clusters/list');
   });
 
   test('successfully registers a new cluster and redirects to its details page', async ({

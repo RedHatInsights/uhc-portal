@@ -32,16 +32,15 @@ export class ClusterListPage extends BasePage {
     return this.page.locator('div[class*="popover__body"]');
   }
 
+
   viewClusterArchives(): Locator {
     return this.page.locator('a').filter({ hasText: 'View cluster archives' });
   }
 
   viewClusterRequests(): Locator {
-    return this.page.locator('a').filter({ hasText: 'View cluster requests' });
-  }
-
-  viewClusterRequestsButton(): Locator {
-    return this.page.locator('button').filter({ hasText: 'View cluster requests' });
+    return this.page
+      .getByRole('tab', { name: 'Cluster Request' })
+      .or(this.page.getByRole('link', { name: /cluster requests/i }));
   }
 
   assistedInstallerClusters(): Locator {
@@ -61,9 +60,15 @@ export class ClusterListPage extends BasePage {
   }
 
   async isClusterListScreen(): Promise<void> {
-    await expect(this.page.locator('h1, h4')).toContainText(
-      /Cluster List|Let's create your first cluster/,
-    );
+    // Wait for cluster list page to be ready by checking URL and key elements
+    // Use multiple indicators to handle different UI states (new tabbed view vs legacy)
+    const clusterListIndicator = this.page
+      .getByRole('heading', { name: /Clusters/i })
+      .or(this.page.getByRole('tab', { name: 'Cluster List' }))
+      .or(this.page.locator('h4:has-text("Let\'s create your first cluster")'))
+      .or(this.page.getByText('Cluster List').first());
+
+    await clusterListIndicator.first().waitFor({ state: 'visible', timeout: 30000 });
   }
 
   async isRegisterClusterUrl(): Promise<void> {
@@ -180,14 +185,14 @@ export class ClusterListPage extends BasePage {
   }
 
   async goToLastPage(): Promise<void> {
-    const btn = this.page.locator('button[aria-label="Go to last page"]').last();
+    const btn = this.page.getByRole('button', { name: 'Go to last page' }).last();
     if (await btn.isEnabled()) {
       await btn.click();
     }
   }
 
   async clearFilters(): Promise<void> {
-    await this.page.locator('button').filter({ hasText: 'Clear filters' }).click();
+    await this.page.getByRole('button', { name: 'Clear filters' }).click();
   }
 
   async openClusterDefinition(clusterName: string): Promise<void> {

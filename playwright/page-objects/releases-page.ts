@@ -132,7 +132,7 @@ export class ReleasesPage extends BasePage {
 
     // Verify clusters list link
     const clustersLink = this.page.getByRole('link', { name: 'clusters list' });
-    await expect(clustersLink).toHaveAttribute('href', '/openshift/cluster-list');
+    await expect(clustersLink).toHaveAttribute('href', '/openshift/clusters/list');
 
     // Close modal
     await this.page.getByRole('button', { name: 'Close' }).first().click();

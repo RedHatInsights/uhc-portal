@@ -37,13 +37,17 @@ export class ClusterRequestsPage extends BasePage {
   }
 
   async isClusterRequestsUrl(): Promise<void> {
-    await this.assertUrlIncludes('/openshift/cluster-request');
+    await expect(this.page).toHaveURL(/\/openshift\/(clusters\/requests)/);
   }
 
+
   async isClusterRequestsScreen(): Promise<void> {
-    await expect(this.page.locator('h1:has-text("Cluster Requests")')).toBeVisible({
-      timeout: 30000,
-    });
+    // Verify "Clusters" heading is visible and "Cluster Request" tab is selected
+    await expect(this.page.getByRole('heading', { name: 'Clusters', level: 1 })).toBeVisible();
+    await expect(this.page.getByRole('tab', { name: 'Cluster Request' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
   }
 
   async isClusterTranferRequestHeaderPage(
@@ -61,10 +65,6 @@ export class ClusterRequestsPage extends BasePage {
 
   async isClusterTranferRequestContentPage(content: string): Promise<void> {
     await expect(this.page.getByText(content)).toBeVisible();
-  }
-
-  clusterRequestsRefreshButton(): Locator {
-    return this.page.locator('button[aria-label="Refresh"]');
   }
 
   cancelTransferButton(): Locator {
@@ -126,7 +126,9 @@ export class ClusterRequestsPage extends BasePage {
     const row = this.clusterRow(name);
     await row.getByRole('button', { name: 'Cancel' }).click();
 
-    await expect(this.page.locator('h1')).toContainText('Cancel cluster transfer');
+    await expect(
+      this.page.getByRole('heading', { name: /Cancel cluster transfer/i }),
+    ).toBeVisible();
     await expect(
       this.page.getByText(
         `This action cannot be undone. It will cancel the impending transfer for cluster ${name}`,

@@ -10,9 +10,17 @@ test.describe.serial(
   () => {
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
       // Navigate to cluster list and wait for data to load
-      await navigateTo('cluster-list');
+      await navigateTo('clusters/list');
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
+    });
+
+    test.afterAll(async ({ page }) => {
+      // Clean up any route mocks to prevent interference with subsequent tests
+      await page.unroute('**/subscriptions*');
+      await page.unroute('**/cluster_transfers*');
+      await page.unroute('**/cluster_transfers?search*');
+
     });
     test('Cluster requests links and page definitions', async ({
       clusterListPage,
@@ -32,7 +40,7 @@ test.describe.serial(
       page,
       clusterRequestsPage,
     }) => {
-      await navigateTo('cluster-request');
+      await navigateTo('clusters/requests');
       await page.route('**/cluster_transfers?search*', async (route, request) => {
         // Let the request continue and capture the response
         const response = await route.fetch();
@@ -63,7 +71,7 @@ test.describe.serial(
       page,
       clusterRequestsPage,
     }) => {
-      await navigateTo('cluster-request');
+      await navigateTo('clusters/requests');
       await clusterRequestsPage.mockEmptyClusterTransfers();
       await page.waitForLoadState('networkidle');
       // Verify empty state messages are displayed
@@ -73,22 +81,19 @@ test.describe.serial(
 
     test('Verifies cluster requests navigation from empty cluster list', async ({
       navigateTo,
-      page,
       clusterListPage,
       clusterRequestsPage,
     }) => {
-      await navigateTo('cluster-list');
-      // Intercept and mock empty subscriptions response
+      // Set up mock BEFORE navigation so it intercepts the request
       await clusterRequestsPage.mockEmptySubscriptions();
+      await navigateTo('clusters/list');
 
-      const response = await page.waitForResponse('**/subscriptions*', { timeout: 20000 });
-      expect(response.status()).toBe(200);
       // Wait for data to load and verify screen
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
-      // Verify cluster requests button is visible and clickable
-      await expect(clusterListPage.viewClusterRequestsButton()).toBeVisible();
-      await clusterListPage.viewClusterRequestsButton().click();
+      // Verify cluster requests tab is visible and clickable
+      await expect(clusterListPage.viewClusterRequests()).toBeVisible();
+      await clusterListPage.viewClusterRequests().click();
       // Verify navigation to cluster requests page
       await clusterRequestsPage.isClusterRequestsUrl();
       await clusterRequestsPage.isClusterRequestsScreen();
