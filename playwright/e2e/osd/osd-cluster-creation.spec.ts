@@ -5,7 +5,7 @@ const clusterName = `test-${Math.random().toString(36).substr(2, 10)}`;
 test.describe.serial('OSD cluster tests', { tag: ['@ci'] }, () => {
   test.beforeAll(async ({ navigateTo, clusterListPage }) => {
     // Navigate to cluster-list and wait for data to load
-    await navigateTo('cluster-list');
+    await navigateTo('clusters/list');
     await clusterListPage.waitForDataReady();
     await clusterListPage.isClusterListScreen();
   });

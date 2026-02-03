@@ -4,7 +4,7 @@ test.describe.serial('OCM Cluster archives page', { tag: ['@ci', '@smoke'] }, ()
   test.describe('Check all cluster archives page items presence and its actions (OCP-25329)', () => {
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
       // Navigate to cluster list and wait for data to load
-      await navigateTo('cluster-list');
+      await navigateTo('clusters/list');
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
     });
@@ -29,6 +29,7 @@ test.describe.serial('OCM Cluster archives page', { tag: ['@ci', '@smoke'] }, ()
 
     test('Cluster archives page : navigations', async ({ clusterListPage }) => {
       await clusterListPage.showActiveClusters().click();
+      await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
       await clusterListPage.viewClusterArchives().click();
     });
