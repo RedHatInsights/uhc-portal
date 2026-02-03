@@ -109,8 +109,7 @@ describe('<HtpasswdDetails />', () => {
       expect(dataRows).toHaveLength(20);
       dataRows.forEach((row, index) => {
         const userCell = within(row).getAllByRole('cell')[1];
-        // @ts-ignore
-        expect(userCell).toHaveTextContent(usersSorted[index].username);
+        expect(userCell).toHaveTextContent(usersSorted[index].username || '');
       });
     });
 
@@ -137,8 +136,7 @@ describe('<HtpasswdDetails />', () => {
       expect(dataRows).toHaveLength(20);
       dataRows.forEach((row, index) => {
         const userCell = within(row).getAllByRole('cell')[0];
-        // @ts-ignore
-        expect(userCell).toHaveTextContent(usersSorted[index].username);
+        expect(userCell).toHaveTextContent(usersSorted[index].username || '');
       });
     });
 
@@ -252,7 +250,6 @@ describe('<HtpasswdDetails />', () => {
       });
 
       const { user, container } = render(<HtpasswdDetails {...defaultProps} />);
-      // @ts-ignore
       await user.click(getPaginationToggle(container));
 
       await user.click(screen.getByText('10 per page'));
@@ -360,13 +357,11 @@ describe('<HtpasswdDetails />', () => {
       const { user } = render(<HtpasswdDetails {...defaultProps} />);
 
       const dataRows = getDataRows();
-      const firstUser = usersSorted[1].username;
-      const lastUser = usersSorted[usersSorted.length - 1].username;
+      const firstUser = usersSorted[1].username || '';
+      const lastUser = usersSorted[usersSorted.length - 1].username || '';
 
       const userCellInFirstRow = within(dataRows[1]).getAllByRole('cell')[1];
-      // @ts-ignore
       expect(userCellInFirstRow).toHaveTextContent(firstUser);
-      // @ts-ignore
       expect(screen.queryByText(lastUser)).not.toBeInTheDocument();
 
       // Sort
@@ -374,9 +369,7 @@ describe('<HtpasswdDetails />', () => {
 
       const dataRows2 = getDataRows();
       const userCellInFirstRow2 = within(dataRows2[0]).getAllByRole('cell')[1];
-      // @ts-ignore
       expect(userCellInFirstRow2).toHaveTextContent(lastUser);
-      // @ts-ignore
       expect(screen.queryByText(firstUser)).not.toBeInTheDocument();
     });
   });
