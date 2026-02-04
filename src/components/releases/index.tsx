@@ -35,8 +35,10 @@ const Releases = () => {
   const [statusData] = useOCPLifeCycleStatusData();
 
   const allVersions = statusData?.[0]?.versions;
-  const filteredVersions = allVersions?.filter((version) => !version.name.includes('EUS'));
-  const versionsToDisplay = filteredVersions?.splice(0, 6);
+  const filteredVersions = allVersions?.filter(
+    (version) => !version.name.includes('EUS') && version.type.toLowerCase() !== 'end of life',
+  );
+  const versionsToDisplay = filteredVersions?.slice(0, 12);
   const hasEUSChannel = (versionName: string) => {
     const parsed = semver.coerce(versionName);
     if (!parsed) {
