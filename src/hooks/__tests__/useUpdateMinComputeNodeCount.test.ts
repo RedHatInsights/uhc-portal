@@ -77,4 +77,18 @@ describe('getMinComputeNodeCount', () => {
 
     expect(result).toBe(2);
   });
+
+  it('returns null when current nodes exactly equal the minimum (no adjustment needed)', () => {
+    // For 1 pool: min=2, increment=1 → minUserInputNodes = 2
+    // currentNodes=2 equals minimum, so no adjustment needed
+    const result = getMinComputeNodeCount({
+      isHypershift: true,
+      isByoc: true,
+      isMultiAz: false,
+      currentNodes: 2,
+      newPoolsLength: 1,
+    });
+
+    expect(result).toBeNull();
+  });
 });
