@@ -274,9 +274,7 @@ describe('subnet ordering and grouping functionality', () => {
     // Component to read form values for verification
     const ValuesReader = ({ onValuesChange }: { onValuesChange: (values: any) => void }) => {
       const { values } = useFormikContext();
-      React.useEffect(() => {
-        onValuesChange(values);
-      }, [values, onValuesChange]);
+      onValuesChange(values);
       return null;
     };
 
