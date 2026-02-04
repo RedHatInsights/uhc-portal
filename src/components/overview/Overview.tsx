@@ -68,18 +68,21 @@ function OverviewEmptyState() {
       onClose: closeDrawer,
     });
 
-    if(!isDrawerOpenRef.current) {
+    if (!isDrawerOpenRef.current) {
       drawerActions?.toggleDrawerPanel();
       isDrawerOpenRef.current = true;
     }
   };
 
   // Cleanup on unmount
-  useEffect(() => () => {
-    if (isDrawerOpenRef.current) {
-      drawerActions?.toggleDrawerPanel();
-    }
-  }, [drawerActions]);
+  useEffect(
+    () => () => {
+      if (isDrawerOpenRef.current) {
+        drawerActions?.toggleDrawerPanel();
+      }
+    },
+    [drawerActions],
+  );
 
   const isAssistedMigrationEnabled = useFeatureGate(ASSISTED_MIGRATION_ENABLED);
 

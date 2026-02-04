@@ -258,7 +258,7 @@ const ClusterDetails = (props) => {
   };
 
   const closeDrawerPanel = () => {
-    if(isDrawerOpenRef.current) {
+    if (isDrawerOpenRef.current) {
       drawerActions?.toggleDrawerPanel();
     }
     closeDrawer();
@@ -275,18 +275,21 @@ const ClusterDetails = (props) => {
       onClose: closeDrawer,
     });
 
-    if(!isDrawerOpenRef.current) {
+    if (!isDrawerOpenRef.current) {
       drawerActions?.toggleDrawerPanel();
       isDrawerOpenRef.current = true;
     }
-  };  
+  };
 
   // Cleanup on unmount
-  React.useEffect(() => () => {
-    if (isDrawerOpenRef.current) {
-      drawerActions?.toggleDrawerPanel();
-    }
-  }, [drawerActions]);
+  React.useEffect(
+    () => () => {
+      if (isDrawerOpenRef.current) {
+        drawerActions?.toggleDrawerPanel();
+      }
+    },
+    [drawerActions],
+  );
 
   /**
    * Refresh the cluster's related resources.

@@ -46,7 +46,7 @@ const DrawerPanel = ({ title, content, toggleDrawer, onClose }: DrawerPanelProps
         <DrawerContentBody />
       </DrawerContent>
     </Drawer>
-  )
+  );
 };
 
 export default DrawerPanel;
