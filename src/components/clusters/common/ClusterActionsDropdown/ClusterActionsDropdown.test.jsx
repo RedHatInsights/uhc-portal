@@ -110,7 +110,7 @@ describe('<ClusterActionsDropdown />', () => {
   });
 
   describe('rhoic cluster', () => {
-    it.skip('shows expected options (rhoic)', async () => {
+    it('shows expected options (rhoic)', async () => {
       const { user } = render(
         <ClusterActionsDropdown {...Fixtures.rhoicCluster} canTransferClusterOwnership />,
       );

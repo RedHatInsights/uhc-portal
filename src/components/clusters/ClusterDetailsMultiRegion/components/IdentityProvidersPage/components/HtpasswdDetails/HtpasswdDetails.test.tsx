@@ -2,7 +2,7 @@ import React from 'react';
 import * as reactRedux from 'react-redux';
 
 import { useFetchHtpasswdUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchHtpasswdUsers';
-import { checkAccessibility, render, screen, within } from '~/testUtils';
+import { checkAccessibility, render, screen, waitFor, within } from '~/testUtils';
 import { HtPasswdUser } from '~/types/clusters_mgmt.v1';
 
 import HtpasswdDetails from './HtpasswdDetails';
@@ -39,6 +39,12 @@ const getDataRows = () => {
   const tbody = within(table).getAllByRole('rowgroup')[1];
   const dataRows = within(tbody).getAllByRole('row');
   return dataRows;
+};
+
+const getPaginationToggle = (container: HTMLElement): HTMLElement => {
+  const toggle = container.querySelector('#options-menu-bottom-toggle') as HTMLElement;
+  expect(toggle).toBeInTheDocument();
+  return toggle;
 };
 
 const defaultProps = {
@@ -103,8 +109,7 @@ describe('<HtpasswdDetails />', () => {
       expect(dataRows).toHaveLength(20);
       dataRows.forEach((row, index) => {
         const userCell = within(row).getAllByRole('cell')[1];
-        // @ts-ignore
-        expect(userCell).toHaveTextContent(usersSorted[index].username);
+        expect(userCell).toHaveTextContent(usersSorted[index].username || '');
       });
     });
 
@@ -131,8 +136,7 @@ describe('<HtpasswdDetails />', () => {
       expect(dataRows).toHaveLength(20);
       dataRows.forEach((row, index) => {
         const userCell = within(row).getAllByRole('cell')[0];
-        // @ts-ignore
-        expect(userCell).toHaveTextContent(usersSorted[index].username);
+        expect(userCell).toHaveTextContent(usersSorted[index].username || '');
       });
     });
 
@@ -226,9 +230,7 @@ describe('<HtpasswdDetails />', () => {
 
       const { container } = render(<HtpasswdDetails {...defaultProps} />);
 
-      expect(container.querySelector('#options-menu-bottom-toggle')).toHaveTextContent(
-        '1 - 20 of 60',
-      );
+      expect(getPaginationToggle(container)).toHaveTextContent('1 - 20 of 60');
 
       const pageTextBox = screen.getByRole('spinbutton', {
         name: 'Current page',
@@ -248,13 +250,10 @@ describe('<HtpasswdDetails />', () => {
       });
 
       const { user, container } = render(<HtpasswdDetails {...defaultProps} />);
-      // @ts-ignore
-      await user.click(container.querySelector('#options-menu-bottom-toggle'));
+      await user.click(getPaginationToggle(container));
 
       await user.click(screen.getByText('10 per page'));
-      expect(container.querySelector('#options-menu-bottom-toggle')).toHaveTextContent(
-        '1 - 10 of 60',
-      );
+      expect(getPaginationToggle(container)).toHaveTextContent('1 - 10 of 60');
 
       const pageTextBox = screen.getByRole('spinbutton', {
         name: 'Current page',
@@ -358,13 +357,11 @@ describe('<HtpasswdDetails />', () => {
       const { user } = render(<HtpasswdDetails {...defaultProps} />);
 
       const dataRows = getDataRows();
-      const firstUser = usersSorted[1].username;
-      const lastUser = usersSorted[usersSorted.length - 1].username;
+      const firstUser = usersSorted[1].username || '';
+      const lastUser = usersSorted[usersSorted.length - 1].username || '';
 
       const userCellInFirstRow = within(dataRows[1]).getAllByRole('cell')[1];
-      // @ts-ignore
       expect(userCellInFirstRow).toHaveTextContent(firstUser);
-      // @ts-ignore
       expect(screen.queryByText(lastUser)).not.toBeInTheDocument();
 
       // Sort
@@ -372,9 +369,7 @@ describe('<HtpasswdDetails />', () => {
 
       const dataRows2 = getDataRows();
       const userCellInFirstRow2 = within(dataRows2[0]).getAllByRole('cell')[1];
-      // @ts-ignore
       expect(userCellInFirstRow2).toHaveTextContent(lastUser);
-      // @ts-ignore
       expect(screen.queryByText(firstUser)).not.toBeInTheDocument();
     });
   });
@@ -647,5 +642,194 @@ describe('<HtpasswdDetails />', () => {
       expect(mockedDispatch.mock.calls[0][0].type).toEqual('OPEN_MODAL');
       expect(mockedDispatch.mock.calls[0][0].payload.name).toEqual('BULK_DELETE_HTPASSWD_USER');
     }, 20000);
+  });
+
+  describe('Bulk delete', () => {
+    const createNumberedUsers = (numberOfUsers: number) => {
+      const users: HtPasswdUser[] = [];
+      for (let i = 1; i <= numberOfUsers; i += 1) {
+        users.push({ username: `user${i}`, id: `user${i}-id` });
+      }
+      return users;
+    };
+
+    it('includes all users when select all is checked without filter (not just current page)', async () => {
+      // Arrange: Create 15 users (user1 through user15)
+      const users = createNumberedUsers(15);
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const newProps = { ...defaultProps, idpActions: { update: true } };
+      const { user, container } = render(<HtpasswdDetails {...newProps} />);
+
+      // Act: Change pagination to 10 per page
+      await user.click(getPaginationToggle(container));
+      await user.click(screen.getByText('10 per page'));
+
+      // Verify only 10 users are visible on the current page
+      await waitFor(() => {
+        expect(getDataRows()).toHaveLength(10);
+      });
+
+      // Select all users using the checkbox
+      const selectAllCheckbox = screen.getByRole('checkbox', { name: /Select all rows/i });
+      await user.click(selectAllCheckbox);
+
+      // Click Delete button
+      const deleteButton = screen.getByRole('button', { name: 'Delete' });
+      await user.click(deleteButton);
+
+      // Assert: Verify the modal is opened with ALL 15 users (not just the 10 on current page)
+      expect(mockedDispatch.mock.calls[0][0].type).toEqual('OPEN_MODAL');
+      expect(mockedDispatch.mock.calls[0][0].payload.name).toEqual('BULK_DELETE_HTPASSWD_USER');
+      expect(mockedDispatch.mock.calls[0][0].payload.data.selectedUsers).toHaveLength(15);
+
+      // Verify all 15 users are included
+      const selectedUsernames = mockedDispatch.mock.calls[0][0].payload.data.selectedUsers.map(
+        (u: HtPasswdUser) => u.username,
+      );
+      for (let i = 1; i <= 15; i += 1) {
+        expect(selectedUsernames).toContain(`user${i}`);
+      }
+    });
+
+    it('includes only filtered users when filter is active and select all is checked', async () => {
+      // Arrange: Create 15 users (user1 through user15)
+      const users = createNumberedUsers(15);
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const newProps = { ...defaultProps, idpActions: { update: true } };
+      const { user, container } = render(<HtpasswdDetails {...newProps} />);
+
+      // Act: Change pagination to 10 per page
+      await user.click(getPaginationToggle(container));
+      await user.click(screen.getByText('10 per page'));
+
+      // Select all users first
+      const selectAllCheckbox = screen.getByRole('checkbox', { name: /Select all rows/i });
+      await user.click(selectAllCheckbox);
+
+      // Apply filter for "3" - should match user3 and user13
+      await user.type(screen.getByLabelText('Filter by username'), '3');
+
+      // Verify only user3 and user13 are visible in the table
+      await waitFor(() => {
+        expect(getDataRows()).toHaveLength(2);
+      });
+
+      expect(screen.getByText('user3')).toBeInTheDocument();
+      expect(screen.getByText('user13')).toBeInTheDocument();
+
+      // Click Delete button
+      const deleteButton = screen.getByRole('button', { name: 'Delete' });
+      await user.click(deleteButton);
+
+      // Assert: Verify the modal is opened with only the 2 filtered users
+      expect(mockedDispatch.mock.calls[0][0].type).toEqual('OPEN_MODAL');
+      expect(mockedDispatch.mock.calls[0][0].payload.name).toEqual('BULK_DELETE_HTPASSWD_USER');
+      expect(mockedDispatch.mock.calls[0][0].payload.data.selectedUsers).toHaveLength(2);
+
+      // Verify only user3 and user13 are included
+      const selectedUsernames = mockedDispatch.mock.calls[0][0].payload.data.selectedUsers.map(
+        (u: HtPasswdUser) => u.username,
+      );
+      expect(selectedUsernames).toContain('user3');
+      expect(selectedUsernames).toContain('user13');
+      expect(selectedUsernames).not.toContain('user1');
+      expect(selectedUsernames).not.toContain('user15');
+    });
+
+    it('includes only individually selected filtered users when filter is active', async () => {
+      // Arrange: Create 15 users (user1 through user15)
+      const users = createNumberedUsers(15);
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const newProps = { ...defaultProps, idpActions: { update: true } };
+      const { user, container } = render(<HtpasswdDetails {...newProps} />);
+
+      // Act: Change pagination to 10 per page
+      await user.click(getPaginationToggle(container));
+      await user.click(screen.getByText('10 per page'));
+
+      // Apply filter for "3" - should match user3 and user13
+      await user.type(screen.getByLabelText('Filter by username'), '3');
+
+      // Verify only user3 and user13 are visible in the table
+      const dataRows = getDataRows();
+      await waitFor(() => {
+        expect(dataRows).toHaveLength(2);
+      });
+
+      // Select only user3 (first row)
+      const firstRowCheckbox = within(dataRows[0]).getByRole('checkbox');
+      await user.click(firstRowCheckbox);
+
+      // Click Delete button
+      const deleteButton = screen.getByRole('button', { name: 'Delete' });
+      await user.click(deleteButton);
+
+      // Assert: Verify the modal is opened with only user3
+      expect(mockedDispatch.mock.calls[0][0].type).toEqual('OPEN_MODAL');
+      expect(mockedDispatch.mock.calls[0][0].payload.name).toEqual('BULK_DELETE_HTPASSWD_USER');
+      expect(mockedDispatch.mock.calls[0][0].payload.data.selectedUsers).toHaveLength(1);
+
+      // Verify only user13 is included (sorted alphabetically, user13 comes before user3)
+      const selectedUsernames = mockedDispatch.mock.calls[0][0].payload.data.selectedUsers.map(
+        (u: HtPasswdUser) => u.username,
+      );
+      expect(selectedUsernames).toContain('user13');
+    });
+
+    it('retains all selected users across pages when not filtering', async () => {
+      // Arrange: Create 15 users (user1 through user15)
+      const users = createNumberedUsers(15);
+
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      const newProps = { ...defaultProps, idpActions: { update: true } };
+      const { user, container } = render(<HtpasswdDetails {...newProps} />);
+
+      // Act: Change pagination to 10 per page
+      await user.click(getPaginationToggle(container));
+      await user.click(screen.getByText('10 per page'));
+
+      // Select all users on page 1
+      const selectAllCheckbox = screen.getByRole('checkbox', { name: /Select all rows/i });
+      await user.click(selectAllCheckbox);
+
+      // Navigate to page 2
+      await user.click(screen.getAllByRole('button', { name: 'Go to next page' })[0]);
+
+      // Click Delete button on page 2
+      const deleteButton = screen.getByRole('button', { name: 'Delete' });
+      await user.click(deleteButton);
+
+      // Assert: Verify the modal is opened with ALL 15 selected users (not just page 2 users)
+      expect(mockedDispatch.mock.calls[0][0].type).toEqual('OPEN_MODAL');
+      expect(mockedDispatch.mock.calls[0][0].payload.name).toEqual('BULK_DELETE_HTPASSWD_USER');
+      expect(mockedDispatch.mock.calls[0][0].payload.data.selectedUsers).toHaveLength(15);
+    });
   });
 });

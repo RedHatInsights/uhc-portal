@@ -57,29 +57,39 @@ The test configuration uses `playwright.env.json` for environment-specific setti
 
 ```json
 {
+  // Base definition required for running any playwright tests
   "TEST_WITHQUOTA_USER": "your-username@example.com",
   "TEST_WITHQUOTA_PASSWORD": "your-password",
-  "GOV_CLOUD": "false",
   "BROWSER": "chromium",
   "BASE_URL": "ex: https://console.dev.redhat.com/openshift/",
-  "QE_GCP_OSDCCSADMIN_JSON": {<service account json value>},
+  // AWS credentials required for ROSA Classic/Hosted and OSD AWS cluster creation & wizard validation tests
   "QE_AWS_ACCESS_KEY_ID": "AWS access key",
   "QE_AWS_ACCESS_KEY_SECRET": "AWS secret key",
   "QE_AWS_REGION": "default region value ex: us-west-2",
   "QE_AWS_ID": "AWS account ID",
-  "QE_ENV_AUT": "staging",
   "QE_AWS_BILLING_ID": "AWS billing account ID",
-  "QE_GCP_KEY_RING_LOCATION": "Google cloud key ring location",
-  "QE_GCP_KEY_RING": "Google cloud key ring",
-  "QE_GCP_KEY_NAME": "Google cloud key ring name",
-  "QE_GCP_KMS_SERVICE_ACCOUNT": "<Google cloud KMS service account>",
+  "QE_AWS_KMS_KEY" : "AWS KMS key ARN",
   "QE_ACCOUNT_ROLE_PREFIX": "cypress-account-roles",
   "QE_OCM_ROLE_PREFIX": "cypress-ocm-role",
   "QE_USER_ROLE_PREFIX": "cypress-user-role",
-  "ROSACLI_LOGS": "cli-logs.txt",
-  "QE_GCP_WIF_CONFIG": "Google cloud WIF config name",
-  "QE_USE_OFFLINE_TOKEN": false,
   "QE_OIDC_CONFIG_ID" : "Oidc config id for ROSA hosted clusters",
+  // Optional definitions for special day2 test runs
+  "QE_ORGADMIN_USER": "org admin username",
+  "QE_ORGADMIN_PASSWORD": "org admin password",
+  "QE_ORGADMIN_OFFLINE_TOKEN": "OCM offline token",
+  "QE_ORGADMIN_CLIENT_ID": "client ids",
+  "QE_ORGADMIN_CLIENT_SECRET": "client secrets",
+  "ROSACLI_LOGS": "cli-logs.txt",
+  "QE_USE_OFFLINE_TOKEN": false,
+  "QE_ENV_AUT": "staging",
+  "GOV_CLOUD": "false",
+  // GCP credentials required for OSD GCP cluster creation & wizard validation tests
+  "QE_GCP_KEY_RING_LOCATION": "Google cloud key ring location",
+  "QE_GCP_KEY_RING": "Google cloud key ring",
+  "QE_GCP_KEY_NAME": "Google cloud key ring name",
+  "QE_GCP_KMS_SERVICE_ACCOUNT": "Google cloud KMS service account",
+  "QE_GCP_OSDCCSADMIN_JSON": {<service account json value>},
+  "QE_GCP_WIF_CONFIG": "Google cloud WIF config name",
   "QE_INFRA_GCP": {
     "VPC_NAME": "Google cloud VPC name",
     "CONTROLPLANE_SUBNET": "Google cloud control plane subnet",
@@ -91,6 +101,7 @@ The test configuration uses `playwright.env.json` for environment-specific setti
       "PRIVATE_SERVICE_CONNECT_SUBNET": "Google cloud psc subnet"
     }
   },
+  // AWS VPC definition required for ROSA hosted, rosa classic clusters with custom VPCs
   "QE_INFRA_REGIONS": {
     "us-west-2": [
       {
