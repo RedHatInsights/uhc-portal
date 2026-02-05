@@ -2,9 +2,9 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import links from '~/common/installLinks.mjs';
+import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { render, screen } from '~/testUtils';
 
-import { FieldId } from '../../../constants';
 import OCMRoleStep from '../OCMRoleStep';
 
 const buildTestComponent = (formValues = {}) => (
