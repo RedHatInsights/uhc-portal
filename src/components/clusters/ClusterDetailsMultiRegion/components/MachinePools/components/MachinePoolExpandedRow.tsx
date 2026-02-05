@@ -226,7 +226,7 @@ const MachinePoolExpandedRow = ({
       )}
       {isHypershift && isCapacityReservationIdFieldEnabled && (
         <GridItem key="capacity-reservation" md={6}>
-         <MachinePoolCapacityReservationDetail
+          <MachinePoolCapacityReservationDetail
             capacityReservationId={capacityReservationId}
             capacityReservationPreference={capacityReservationPreference}
           />
