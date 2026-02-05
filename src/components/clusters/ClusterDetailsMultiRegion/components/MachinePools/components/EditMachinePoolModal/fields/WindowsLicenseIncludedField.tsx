@@ -97,4 +97,4 @@ const WindowsLicenseIncludedField = ({
   );
 };
 
-export { WindowsLicenseIncludedField, minimumCompatibleVersion };
+export { WindowsLicenseIncludedField };

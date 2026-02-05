@@ -4,20 +4,19 @@ import { Formik, FormikValues } from 'formik';
 import links from '~/common/installLinks.mjs';
 import { render, screen } from '~/testUtils';
 
-import {
-  minimumCompatibleVersion,
-  WindowsLicenseIncludedField,
-} from '../WindowsLicenseIncludedField';
+import { WindowsLicenseIncludedField } from '../WindowsLicenseIncludedField';
 
 import {
-  compatibleClusterVersion,
   initialValues,
   initialValuesEmptyMachineType,
   initialValuesWithWindowsLIEnabledMachineTypeSelected,
-  nonCompatibleClusterVersion,
   WindowsLIDisabledMachinePool,
   WindowsLIEnabledMachinePool,
 } from './WindowsLicenseIncludedField.fixtures';
+
+const minimumCompatibleVersion = '4.19.0';
+const compatibleClusterVersion = minimumCompatibleVersion;
+const nonCompatibleClusterVersion = '4.18.0';
 
 const {
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: AWS_DOCS_LINK,
