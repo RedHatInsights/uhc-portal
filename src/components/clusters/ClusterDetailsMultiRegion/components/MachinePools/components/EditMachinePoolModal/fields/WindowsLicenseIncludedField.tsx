@@ -62,7 +62,7 @@ const WindowsLicenseIncludedField = ({
     </>
   );
 
-  let isDisabled = false;
+  const isDisabled = !isVersionCompatible || !isWinLiCompatible;
   let tooltip;
 
   if (!isWinLiCompatible) {
@@ -72,10 +72,6 @@ const WindowsLicenseIncludedField = ({
 
   if (!isVersionCompatible) {
     tooltip = `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`;
-  }
-
-  if (tooltip) {
-    isDisabled = true;
   }
 
   return isEdit ? (
