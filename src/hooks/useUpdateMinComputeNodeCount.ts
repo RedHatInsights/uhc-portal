@@ -68,7 +68,7 @@ function useUpdateMinComputeNodeCount() {
     }
   };
 
-  return { updateMinComputeNodeCount };
+  return { updateMinComputeNodeCount, getMinComputeNodeCount };
 }
 
 export { useUpdateMinComputeNodeCount };
