@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 
 import links from '~/common/installLinks.mjs';
 import { FieldId, initialValues } from '~/components/clusters/wizards/rosa/constants';
-import { render, screen, waitFor } from '~/testUtils';
+import { render, screen, waitFor, within } from '~/testUtils';
 
 import { useFetchGetUserOidcConfigurations } from '../../../../../queries/RosaWizardQueries/useFetchGetUserOidcConfigurations';
 
@@ -172,10 +172,10 @@ describe('<CustomerOIDCConfiguration />', () => {
           [FieldId.Hypershift]: 'true',
         }),
       );
+      const formGroup = screen.getByText('Operator roles prefix').closest('.pf-v6-c-form__group');
+      const moreInfoBtn = within(formGroup).getByLabelText('More information');
 
-      const moreInfoBtn = await screen.findAllByLabelText('More information');
-      await user.click(moreInfoBtn[1]);
-
+      await user.click(moreInfoBtn);
       const link = screen.getByText('Defining a custom Operator IAM role prefix');
       expect(link).toHaveAttribute('href', links.ROSA_AWS_IAM_OPERATOR_ROLES);
     });
@@ -186,10 +186,10 @@ describe('<CustomerOIDCConfiguration />', () => {
           [FieldId.Hypershift]: 'false',
         }),
       );
+      const formGroup = screen.getByText('Operator roles prefix').closest('.pf-v6-c-form__group');
+      const moreInfoBtn = within(formGroup).getByLabelText('More information');
 
-      const moreInfoBtn = await screen.findAllByLabelText('More information');
-      await user.click(moreInfoBtn[1]);
-
+      await user.click(moreInfoBtn);
       const link = screen.getByText('Defining a custom Operator IAM role prefix');
       expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
     });

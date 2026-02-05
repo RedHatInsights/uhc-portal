@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import links from '~/common/installLinks.mjs';
-import { checkAccessibility, render, screen } from '~/testUtils';
+import { checkAccessibility, render, screen, within } from '~/testUtils';
 
 import { FieldId } from '../constants';
 
@@ -80,26 +80,26 @@ describe('<CIDRScreen />', () => {
     });
 
     it.each([
-      ['Machine CIDR', 'true', 0, links.ROSA_CIDR_MACHINE],
-      ['Machine CIDR', 'false', 0, links.ROSA_CLASSIC_CIDR_MACHINE],
-      ['Service CIDR', 'true', 1, links.ROSA_CIDR_SERVICE],
-      ['Service CIDR', 'false', 1, links.ROSA_CLASSIC_CIDR_SERVICE],
-      ['Pod CIDR', 'true', 2, links.ROSA_CIDR_POD],
-      ['Pod CIDR', 'false', 2, links.ROSA_CLASSIC_CIDR_POD],
-      ['Host CIDR', 'true', 3, links.ROSA_CIDR_HOST],
-      ['Host CIDR', 'false', 3, links.ROSA_CLASSIC_CIDR_HOST],
+      ['Machine CIDR', 'true', links.ROSA_CIDR_MACHINE],
+      ['Machine CIDR', 'false', links.ROSA_CLASSIC_CIDR_MACHINE],
+      ['Service CIDR', 'true', links.ROSA_CIDR_SERVICE],
+      ['Service CIDR', 'false', links.ROSA_CLASSIC_CIDR_SERVICE],
+      ['Pod CIDR', 'true', links.ROSA_CIDR_POD],
+      ['Pod CIDR', 'false', links.ROSA_CLASSIC_CIDR_POD],
+      ['Host prefix', 'true', links.ROSA_CIDR_HOST],
+      ['Host prefix', 'false', links.ROSA_CLASSIC_CIDR_HOST],
     ])(
       'renders %s link when isHypershiftSelected %s',
-      async (fieldLabel, isHypershiftSelected, buttonIndex, expectedLink) => {
+      async (fieldLabel, isHypershiftSelected, expectedLink) => {
         const { user } = render(
           build({
             [FieldId.Hypershift]: isHypershiftSelected,
           }),
         );
+        const formGroup = screen.getByLabelText(fieldLabel).closest('.pf-v6-c-form__group');
+        const moreInfoBtn = within(formGroup).getByLabelText('More information');
 
-        const moreInfoBtn = await screen.findAllByLabelText('More information');
-        await user.click(moreInfoBtn[buttonIndex]);
-
+        await user.click(moreInfoBtn);
         const link = screen.getByText('Learn more');
         expect(link).toHaveAttribute('href', expectedLink);
       },
