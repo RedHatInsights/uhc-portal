@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { commonLinks } from '../../support/doc-link-helper';
 
 test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@ci'] }, () => {
   test.beforeAll(async ({ navigateTo }) => {
@@ -12,7 +13,7 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
     // Check Learn more link
     await overviewPage.expectLinkOpensInNewTab(
       overviewPage.headerLearnMoreLink(),
-      'https://www.redhat.com/en/technologies/cloud-computing/openshift',
+      commonLinks.whatIsOpenshift,
     );
 
     // Verify central section has expected number of cards
@@ -76,7 +77,7 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
 
     await overviewPage.expectLinkOpensInNewTab(
       overviewPage.cardLearnMoreLink('offering-card_Azure', 'Learn more on Azure'),
-      'https://azure.microsoft.com/en-us/products/openshift/',
+      commonLinks.azureGetStarted,
     );
 
     // Red Hat OpenShift Container Platform card

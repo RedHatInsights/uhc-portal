@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base-page';
+import { commonLinks } from '../support/doc-link-helper';
 
 /**
  * Page object for Cluster Types page functionality
@@ -162,10 +163,7 @@ export class ClusterTypesPage extends BasePage {
         .locator('a')
         .filter({ hasText: 'non-tested platforms' });
       await expect(nonTestedLink).toBeVisible({ timeout: 30000 });
-      await expect(nonTestedLink).toHaveAttribute(
-        'href',
-        'https://access.redhat.com/articles/4207611',
-      );
+      await expect(nonTestedLink).toHaveAttribute('href', commonLinks.nonTestedPlatforms);
     }
 
     const learnMoreLink = this.fullControlSection
@@ -213,10 +211,7 @@ export class ClusterTypesPage extends BasePage {
         .locator('a')
         .filter({ hasText: 'non-tested platforms' });
       await expect(nonTestedLink).toBeVisible({ timeout: 30000 });
-      await expect(nonTestedLink).toHaveAttribute(
-        'href',
-        'https://access.redhat.com/articles/4207611',
-      );
+      await expect(nonTestedLink).toHaveAttribute('href', commonLinks.nonTestedPlatforms);
     }
 
     const learnMoreLink = this.interactiveSection
@@ -262,10 +257,7 @@ export class ClusterTypesPage extends BasePage {
         .locator('a')
         .filter({ hasText: 'non-tested platforms' });
       await expect(nonTestedLink).toBeVisible({ timeout: 30000 });
-      await expect(nonTestedLink).toHaveAttribute(
-        'href',
-        'https://access.redhat.com/articles/4207611',
-      );
+      await expect(nonTestedLink).toHaveAttribute('href', commonLinks.nonTestedPlatforms);
     }
 
     const learnMoreLink = this.agentBasedSection
