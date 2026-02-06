@@ -4,20 +4,20 @@ import { useCallback, useEffect, useRef } from 'react';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 type DrawerPanelOptions = {
-    scope: string;
-    module: string;
-    onClose?: () => void;
-}
+  scope: string;
+  module: string;
+  onClose?: () => void;
+};
 
 type DrawerContent<T = unknown> = {
   title: string;
   content?: T;
 };
 
-export const useChromeDrawerPanel = <T = unknown> ({
-    scope,
-    module,
-    onClose: onCloseCallback,
+export const useChromeDrawerPanel = <T = unknown>({
+  scope,
+  module,
+  onClose: onCloseCallback,
 }: DrawerPanelOptions) => {
   const { drawerActions } = useChrome();
   const isOpenRef = useRef<boolean>(false);
@@ -48,11 +48,14 @@ export const useChromeDrawerPanel = <T = unknown> ({
     [drawerActions, scope, module, close],
   );
 
-  useEffect(() => () => {
+  useEffect(
+    () => () => {
       if (isOpenRef.current) {
         drawerActions?.toggleDrawerPanel();
       }
-    }, [drawerActions]);
+    },
+    [drawerActions],
+  );
 
   return { open, close };
 };

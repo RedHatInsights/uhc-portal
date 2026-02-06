@@ -250,7 +250,7 @@ const ClusterDetails = (props) => {
 
   const [selectedCardTitle, setSelectedCardTitle] = React.useState('');
 
-  const { open, close } = useChromeDrawerPanel({ 
+  const { open, close } = useChromeDrawerPanel({
     scope: 'openshift',
     module: './DrawerPanel',
     onClose: () => setSelectedCardTitle(''),

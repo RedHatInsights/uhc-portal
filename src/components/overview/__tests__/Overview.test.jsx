@@ -28,12 +28,7 @@ const OverviewWithDrawer = () => {
   return (
     <>
       <Overview />
-      {drawerContent && (
-        <DrawerPanel
-          content={drawerContent.content}
-          onClose={handleCloseDrawer}
-        />
-      )}
+      {drawerContent && <DrawerPanel content={drawerContent.content} onClose={handleCloseDrawer} />}
     </>
   );
 };

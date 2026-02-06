@@ -50,7 +50,7 @@ function OverviewEmptyState() {
 
   const [selectedCardTitle, setSelectedCardTitle] = useState<string>('');
 
-  const { open } = useChromeDrawerPanel({ 
+  const { open } = useChromeDrawerPanel({
     scope: 'openshift',
     module: './DrawerPanel',
     onClose: () => setSelectedCardTitle(''),
