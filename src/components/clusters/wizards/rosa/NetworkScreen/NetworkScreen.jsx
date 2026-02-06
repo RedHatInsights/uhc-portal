@@ -61,7 +61,6 @@ function NetworkScreen(props) {
       [FieldId.SelectedVpc]: selectedVPC,
     },
   } = useFormState();
-
   const privateClusterSelected = clusterPrivacy === 'internal';
   const isHypershiftSelected = hypershiftValue === 'true';
   const clusterVersionRawId = clusterVersionValue?.raw_id;
@@ -297,12 +296,14 @@ function NetworkScreen(props) {
                 Virtual Private Cloud (VPC)
               </Title>
             </GridItem>
-            <GridItem>
-              <Content component="p">
-                By default, a new VPC will be created for your cluster. Alternatively, you may opt
-                to install to an existing VPC below.
-              </Content>
-            </GridItem>
+            {!privateClusterSelected && (
+              <GridItem>
+                <Content component="p">
+                  By default, a new VPC will be created for your cluster. Alternatively, you may opt
+                  to install to an existing VPC below.
+                </Content>
+              </GridItem>
+            )}
             <GridItem>
               <FormGroup fieldId="install-to-vpc">
                 {privateClusterSelected ? (
