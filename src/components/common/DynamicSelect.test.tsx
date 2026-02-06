@@ -48,13 +48,13 @@ describe('<DynamicSelect>', () => {
 
     // TODO - Having information information (like "loading" or directions) should not be an option
     expect(screen.getByRole('option')).toHaveTextContent('Must select bar first');
-    expect(loadData).not.toBeCalled();
+    expect(loadData).not.toHaveBeenCalled();
     await checkAccessibility(container);
   });
 
   it('loading icon is shown during loading and disappears when loading is complete', () => {
     const { rerender } = render(<DynamicSelect {...baseProps} matchesDependencies={false} />);
-    expect(loadData).toBeCalledTimes(1);
+    expect(loadData).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('option', { name: 'Loading...' })).not.toBeInTheDocument();
 
     // loading has started
@@ -79,7 +79,7 @@ describe('<DynamicSelect>', () => {
 
     expect(screen.getAllByRole('option')).toHaveLength(3);
     expect(screen.getAllByRole('option')[0]).toHaveTextContent('Select foo');
-    expect(loadData).toBeCalledTimes(1); // AKA loadData has not been called again since initial render
+    expect(loadData).toHaveBeenCalledTimes(1); // AKA loadData has not been called again since initial render
 
     expect(screen.queryByRole('option', { name: 'Loading...' })).not.toBeInTheDocument();
   });
@@ -92,7 +92,7 @@ describe('<DynamicSelect>', () => {
     } as DynamicSelectProps;
 
     render(<DynamicSelect {...emptyDataProps} />);
-    expect(loadData).not.toBeCalled();
+    expect(loadData).not.toHaveBeenCalled();
 
     // TODO having an empty option without a label is not accessible
     expect(screen.getByRole('option')).toHaveTextContent('');
@@ -134,8 +134,8 @@ describe('<DynamicSelect>', () => {
     } as DynamicSelectProps;
 
     const { rerender } = render(<DynamicSelect {...newProps} />);
-    expect(loadData).not.toBeCalled();
-    expect(onChange).not.toBeCalled();
+    expect(loadData).not.toHaveBeenCalled();
+    expect(onChange).not.toHaveBeenCalled();
 
     const changedProps = {
       ...newProps,
@@ -143,7 +143,7 @@ describe('<DynamicSelect>', () => {
     };
 
     rerender(<DynamicSelect {...changedProps} />);
-    expect(onChange).toBeCalledWith('');
+    expect(onChange).toHaveBeenCalledWith('');
 
     const setInputProps = {
       ...changedProps,
@@ -168,8 +168,8 @@ describe('<DynamicSelect>', () => {
     } as DynamicSelectProps;
 
     const { rerender } = render(<DynamicSelect {...fulfilledProps} />);
-    expect(loadData).not.toBeCalled();
-    expect(onChange).not.toBeCalled();
+    expect(loadData).not.toHaveBeenCalled();
+    expect(onChange).not.toHaveBeenCalled();
 
     const noDependenciesProps = {
       ...fulfilledProps,
@@ -177,7 +177,7 @@ describe('<DynamicSelect>', () => {
       matchesDependencies: false,
     };
     rerender(<DynamicSelect {...noDependenciesProps} />);
-    expect(onChange).toBeCalledWith('');
+    expect(onChange).toHaveBeenCalledWith('');
 
     const setInputProps = {
       ...noDependenciesProps,

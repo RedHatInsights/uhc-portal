@@ -198,8 +198,8 @@ describe('<MachinePools />', () => {
       render(<MachinePools {...defaultProps} />);
       // Wait for the component to fully render and all async updates to complete
       await screen.findByText('test-mp');
-      expect(useFetchMachineOrNodePoolsMock).toBeCalled();
-      expect(useFetchMachineTypesMock).toBeCalled();
+      expect(useFetchMachineOrNodePoolsMock).toHaveBeenCalled();
+      expect(useFetchMachineTypesMock).toHaveBeenCalled();
     });
 
     it('the machine pool ID', async () => {

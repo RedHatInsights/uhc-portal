@@ -40,7 +40,7 @@ describe('<DeleteMachinePoolModal />', () => {
     const { user } = render(<DeleteMachinePoolModal />);
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
-    expect(closeModal).toBeCalled();
+    expect(closeModal).toHaveBeenCalled();
   });
 
   it('calls delete function on confirm', async () => {
@@ -53,7 +53,7 @@ describe('<DeleteMachinePoolModal />', () => {
     const { user } = render(<DeleteMachinePoolModal />);
 
     await user.click(screen.getByRole('button', { name: 'Delete' }));
-    expect(closeModal).toBeCalled();
-    expect(mockModalData.performDeleteAction).toBeCalled();
+    expect(closeModal).toHaveBeenCalled();
+    expect(mockModalData.performDeleteAction).toHaveBeenCalled();
   });
 });

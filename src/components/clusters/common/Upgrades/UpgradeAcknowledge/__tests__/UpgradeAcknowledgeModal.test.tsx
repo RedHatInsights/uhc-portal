@@ -137,7 +137,7 @@ describe('<UpgradeAcknowledgeModal> ', () => {
 
     await clickSubmitButton(user);
 
-    expect(apiRequest.patch).toBeCalledTimes(1);
+    expect(apiRequest.patch).toHaveBeenCalledTimes(1);
     expect(apiRequest.patch).toHaveBeenNthCalledWith(
       1,
       '/api/clusters_mgmt/v1/clusters/myClusterId/upgrade_policies/myUpgradePolicyId',
@@ -188,8 +188,8 @@ describe('<UpgradeAcknowledgeModal> ', () => {
     await clickSubmitButton(user);
 
     // API calls made
-    expect(apiRequest.patch).toBeCalledTimes(1);
-    expect(apiRequest.post).toBeCalledTimes(2);
+    expect(apiRequest.patch).toHaveBeenCalledTimes(1);
+    expect(apiRequest.post).toHaveBeenCalledTimes(2);
     expect(apiRequest.patch).toHaveBeenNthCalledWith(
       1,
       '/api/clusters_mgmt/v1/clusters/myClusterId/upgrade_policies/myUpgradePolicyId',
@@ -363,7 +363,7 @@ describe('<UpgradeAcknowledgeModal>  with hosted control plane(hypershift)', () 
 
     await clickSubmitButton(user);
 
-    expect(apiRequest.patch).toBeCalledTimes(1);
+    expect(apiRequest.patch).toHaveBeenCalledTimes(1);
     expect(apiRequest.patch).toHaveBeenNthCalledWith(
       1,
       '/api/clusters_mgmt/v1/clusters/myClusterId/control_plane/upgrade_policies/myUpgradePolicyId',
@@ -413,8 +413,8 @@ describe('<UpgradeAcknowledgeModal>  with hosted control plane(hypershift)', () 
     await clickSubmitButton(user);
 
     // API calls made
-    expect(apiRequest.patch).toBeCalledTimes(1);
-    expect(apiRequest.post).toBeCalledTimes(2);
+    expect(apiRequest.patch).toHaveBeenCalledTimes(1);
+    expect(apiRequest.post).toHaveBeenCalledTimes(2);
     expect(apiRequest.patch).toHaveBeenNthCalledWith(
       1,
       '/api/clusters_mgmt/v1/clusters/myClusterId/control_plane/upgrade_policies/myUpgradePolicyId',

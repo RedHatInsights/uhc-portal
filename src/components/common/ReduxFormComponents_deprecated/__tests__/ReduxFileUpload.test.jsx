@@ -92,13 +92,13 @@ describe('ReduxFileUpload', () => {
     it('calls input on-change upon text updates', async () => {
       render(<ReduxFileUpload {...baseProps} />);
       const fileTextbox = screen.getByRole('textbox', { name: 'File upload' });
-      expect(baseProps.input.onChange).toBeCalledTimes(0);
+      expect(baseProps.input.onChange).toHaveBeenCalledTimes(0);
       await user.type(fileTextbox, 'abc');
-      expect(baseProps.input.onChange).toBeCalledTimes(3);
+      expect(baseProps.input.onChange).toHaveBeenCalledTimes(3);
       await user.paste('my-trusted-ca-cert');
-      expect(baseProps.input.onChange).toBeCalledTimes(4);
+      expect(baseProps.input.onChange).toHaveBeenCalledTimes(4);
       await user.paste('some-more-text-i-forgot-to-paste-earlier');
-      expect(baseProps.input.onChange).toBeCalledTimes(5);
+      expect(baseProps.input.onChange).toHaveBeenCalledTimes(5);
     });
 
     it('calls input on-change upon clicking "clear"', async () => {
@@ -133,9 +133,9 @@ describe('ReduxFileUpload', () => {
       render(<ReduxFileUpload {...baseProps} />);
       const fileTextbox = screen.getByRole('textbox', { name: 'File upload' });
       await user.click(fileTextbox);
-      expect(baseProps.input.onBlur).toBeCalledTimes(0);
+      expect(baseProps.input.onBlur).toHaveBeenCalledTimes(0);
       await user.tab();
-      expect(baseProps.input.onBlur).toBeCalledTimes(1);
+      expect(baseProps.input.onBlur).toHaveBeenCalledTimes(1);
     });
   });
 });
