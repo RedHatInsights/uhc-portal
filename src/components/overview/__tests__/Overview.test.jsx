@@ -30,9 +30,7 @@ const OverviewWithDrawer = () => {
       <Overview />
       {drawerContent && (
         <DrawerPanel
-          title={drawerContent.title}
           content={drawerContent.content}
-          toggleDrawer={handleCloseDrawer}
           onClose={handleCloseDrawer}
         />
       )}
@@ -40,23 +38,19 @@ const OverviewWithDrawer = () => {
   );
 };
 
-// Mock drawerActions that update the shared state
+// Mock drawerActions that update the shared state and allow spying
 const mockDrawerActions = {
-  setDrawerPanelContent: (data) => {
+  setDrawerPanelContent: jest.fn((data) => {
     if (drawerStateSetter) {
       drawerStateSetter(data);
     }
-  },
-  toggleDrawerPanel: () => {
-    // When Overview calls toggleDrawerPanel after setDrawerPanelContent,
-    // the drawer is already shown (because drawerContent is set)
-    // This is only called to open, and we handle close via onClose callback
-  },
-  toggleDrawerContent: (data) => {
+  }),
+  toggleDrawerPanel: jest.fn(),
+  toggleDrawerContent: jest.fn((data) => {
     if (drawerStateSetter) {
       drawerStateSetter(data);
     }
-  },
+  }),
 };
 
 // Set up mock before tests
@@ -71,6 +65,11 @@ const renderOverview = () => {
 };
 
 describe('<Overview />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    drawerStateSetter = null;
+  });
+
   const advancedClusterSecurityCardData = { ...FEATURED_PRODUCTS_CARDS[0] };
   const openshiftAiCardData = { ...FEATURED_PRODUCTS_CARDS[1] };
   const openshiftVirtualizationData = { ...FEATURED_PRODUCTS_CARDS[2] };
@@ -159,6 +158,18 @@ describe('<Overview />', () => {
       // click on Card's Learn more button
       await userEvent.click(learnMoreBtns[index]);
 
+      // Verify Chrome drawer API was called correctly
+      expect(mockDrawerActions.setDrawerPanelContent).toHaveBeenCalledTimes(1);
+      expect(mockDrawerActions.setDrawerPanelContent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          scope: 'openshift',
+          module: './DrawerPanel',
+          title,
+          content: expect.anything(),
+        }),
+      );
+      expect(mockDrawerActions.toggleDrawerPanel).toHaveBeenCalledTimes(1);
+
       // ensure the title and some content is shown
       expect(screen.getByTestId('drawer-panel-content__title')).toHaveTextContent(title);
       expect(screen.getByText('by Red Hat')).toBeInTheDocument();
@@ -245,6 +256,18 @@ describe('<Overview />', () => {
 
       // click on Card's Learn more button
       await userEvent.click(learnMoreBtns[index]);
+
+      // Verify Chrome drawer API was called correctly
+      expect(mockDrawerActions.setDrawerPanelContent).toHaveBeenCalledTimes(1);
+      expect(mockDrawerActions.setDrawerPanelContent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          scope: 'openshift',
+          module: './DrawerPanel',
+          title,
+          content: expect.anything(),
+        }),
+      );
+      expect(mockDrawerActions.toggleDrawerPanel).toHaveBeenCalledTimes(1);
 
       // ensure the title and some content is shown
       expect(screen.getByTestId('drawer-panel-content__title')).toHaveTextContent(title);
