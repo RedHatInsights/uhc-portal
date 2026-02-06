@@ -1,4 +1,7 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
+
+import { CLUSTER_LIST_FULL_PATH } from '../support/playwright-constants';
+
 import { BasePage } from './base-page';
 
 /**
@@ -10,7 +13,7 @@ export class ClusterListPage extends BasePage {
   }
 
   async isClusterListUrl(): Promise<void> {
-    await this.assertUrlIncludes('/openshift/cluster-list');
+    await this.assertUrlIncludes(CLUSTER_LIST_FULL_PATH);
   }
 
   filterTxtField(): Locator {
