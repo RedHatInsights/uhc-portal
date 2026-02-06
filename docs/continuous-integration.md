@@ -1,39 +1,86 @@
+# Continuous Integration
 
-# Continuous integration
-
-We use [Konflux][1] for CI, and own the 'ocm-ui-tenant' namespace.  This namespace hosts the ['ocm-ui' application][8], which in turn holds the ['uhc-portal' build component][12] pointing at this code repo.
-            
-
-## Build pipelines
-
-The FE app is built onto container images, which are pushed into the quay.io registry; PR changes are built via the ['pull-request' pipeline][3] and long-lived branches (e.g. 'main') – via the ['push' pipeline][4] (see ['pipeline runs'][9] in Konflux UI).  Both are stored in an [image repo under the redhat-user-workloads org][2].
-
-Konflux will take care to take [snapshots][5] that can be used for testing, and to create [releases][6] which will be stored in an [image repo under the redhat-services-prod org][7].  Konflux releases are just images that have been signed as suitable for deployment.
-        
-
-## Persisted configuration
-
-Most of our Konflux configuration (e.g. component, release plans, user access) is persisted as yaml files in the [konflux-release-data][10] repository, and then parsed and displayed by Konflux UI.  
-
-They are mainly found under _/tenants-config/.../ocm-ui-tenant/_ and _/config/.../ReleasePlanAdmission/ocm-ui/_.
-
-To generate or update those files, use the scripts provided by konflux-release-data – see the [tenants-config readme][14] on the repo docs for more info.
+We use [Konflux][1] for CI, and own the `ocm-ui-tenant` namespace. This namespace hosts the [`ocm-ui` application][8], which in turn holds the [`uhc-portal` build component][12] pointing at this code repo.
 
 
-## Our custom setup
+## Build Pipelines
 
-Our repo declares a non-default pipeline-run config, which extends a remote pipeline config commonly used in HCC tenant-apps.  This config is equipped with an additional custom task for running source-code verification during build (e.g. unit-tests, linter).
+The app is built into container images pushed to quay.io. There are three pipeline actions:
 
-See [docker-build-run-unit-tests][11] at the _RedHatInsights/konflux-pipelines_ repo.
+1. **PR opened/updated** → [`pull-request` pipeline][3] → temporary image (expires in 5 days)
+2. **PR merged** → [`push` pipeline][4] → permanent image → [snapshot][5] created
+3. **Deployment** → release pipeline → signed image in [quay.io/redhat-services-prod][7] → App-Interface/GitOps
 
- 
-## Getting help
+See [pipeline runs][9], [snapshots][5], and [releases][6] in Konflux UI. Build images stored in [quay.io/redhat-user-workloads][2].
 
-Check out the [FAQ page][13] on the official docs.
+### Workflow
 
-To get further assistance, post an ask in the #konflux-users Slack channel.
-   
-      
+#### 1. PR opened/updated (validation)
+
+```
+PR opened/updated
+    → clone repo → build container → run unit tests → security scans
+    → temporary image pushed to quay.io (expires in 5 days)
+    → GitHub check status updated
+```
+
+#### 2. PR merged (build release candidate)
+
+```
+PR merged
+    → clone repo → build container (production) → run unit tests → security scans
+    → permanent image pushed to quay.io
+    → Snapshot created automatically
+```
+
+#### 3. Deployment
+
+```
+Snapshot created
+    → Release pipeline validates and signs the image
+    → Signed image pushed to quay.io/redhat-services-prod
+    → App-Interface/GitOps deploys to staging and/or production
+```
+
+> **Note:** Staging vs production deployment is controlled by App-Interface/GitOps, not Konflux.
+
+### Troubleshooting PR Failures
+
+When a PR's Konflux check fails, click through to the [pipeline run][9] to see which task failed.
+
+| Symptom | Likely Cause | Action |
+|---------|--------------|--------|
+| `clone-repository-oci-ta` fails | Registry auth or network issue | Retry; if persistent, check #konflux-users |
+| `build-container` fails | Dockerfile error or clone failed | Check logs; fix clone first if it failed |
+| `run-unit-tests` fails | Test/lint failure or OOM | Check test output; may need more memory |
+| `401 Unauthorized` pushing to quay.io | Expired or missing credentials | Contact #konflux-users |
+
+**To retry a failed pipeline:**
+- Push a new commit, or
+- Add `/retest` comment on the PR, or
+- Click "Re-run" in [Konflux UI][9]
+
+**Getting help:**
+- [Konflux FAQ][13]
+- **#konflux-users** Slack channel
+
+
+## Persisted Configuration
+
+Most Konflux configuration (component, release plans, user access) is persisted as YAML in the [konflux-release-data][10] repository:
+
+- `/tenants-config/.../ocm-ui-tenant/` — tenant and component config
+- `/config/.../ReleasePlanAdmission/ocm-ui/` — release configuration
+
+To update, use scripts in konflux-release-data — see the [tenants-config readme][14].
+
+
+## Our Custom Setup
+
+Our pipelines extend a shared pipeline config commonly used in HCC tenant-apps, equipped with an additional task for running unit tests and linting during build. See [docker-build-run-unit-tests][11] at the `RedHatInsights/konflux-pipelines` repo.
+
+The test script and memory limits are configured in our [`.tekton/`][3] files.
+
 
 
 [1]: https://konflux.pages.redhat.com/docs/users/index.html
