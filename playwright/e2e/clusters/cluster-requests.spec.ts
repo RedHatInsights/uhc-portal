@@ -10,7 +10,7 @@ test.describe.serial(
   () => {
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
       // Navigate to cluster list and wait for data to load
-      await navigateTo('cluster-list');
+      await navigateTo('clusters/list');
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
     });
@@ -32,7 +32,7 @@ test.describe.serial(
       page,
       clusterRequestsPage,
     }) => {
-      await navigateTo('cluster-request');
+      await navigateTo('clusters/requests');
       await page.route('**/cluster_transfers?search*', async (route, request) => {
         // Let the request continue and capture the response
         const response = await route.fetch();
@@ -63,7 +63,7 @@ test.describe.serial(
       page,
       clusterRequestsPage,
     }) => {
-      await navigateTo('cluster-request');
+      await navigateTo('clusters/requests');
       await clusterRequestsPage.mockEmptyClusterTransfers();
       await page.waitForLoadState('networkidle');
       // Verify empty state messages are displayed
@@ -77,7 +77,7 @@ test.describe.serial(
       clusterListPage,
       clusterRequestsPage,
     }) => {
-      await navigateTo('cluster-list');
+      await navigateTo('clusters/list');
       // Intercept and mock empty subscriptions response
       await clusterRequestsPage.mockEmptySubscriptions();
 
@@ -86,9 +86,9 @@ test.describe.serial(
       // Wait for data to load and verify screen
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
-      // Verify cluster requests button is visible and clickable
-      await expect(clusterListPage.viewClusterRequestsButton()).toBeVisible();
-      await clusterListPage.viewClusterRequestsButton().click();
+      // Verify cluster requests tab is visible and clickable (UI changed from button to tab)
+      await expect(clusterListPage.viewClusterRequests()).toBeVisible();
+      await clusterListPage.viewClusterRequests().click();
       // Verify navigation to cluster requests page
       await clusterRequestsPage.isClusterRequestsUrl();
       await clusterRequestsPage.isClusterRequestsScreen();
