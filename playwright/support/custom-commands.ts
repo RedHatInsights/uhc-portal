@@ -20,8 +20,19 @@ function validateRosaCommand(cmd: string): string[] {
     'whoami',
   ];
 
-  // Parse the command string into parts
-  const parts = cmd.trim().split(/\s+/);
+  // Parse the command string into parts, respecting quoted arguments
+  const parts: string[] = [];
+  const regex = /[^\s"']+|"([^"]*)"|'([^']*)'/g;
+  let match;
+  while ((match = regex.exec(cmd.trim())) !== null) {
+    if (match[1] !== undefined) {
+      parts.push(match[1]); // Double quoted
+    } else if (match[2] !== undefined) {
+      parts.push(match[2]); // Single quoted
+    } else {
+      parts.push(match[0]); // Unquoted
+    }
+  }
 
   if (parts.length === 0) {
     throw new Error('Empty command not allowed');
