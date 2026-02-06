@@ -5,7 +5,7 @@ import { validate as isUuid } from 'uuid';
 
 import { Bullseye, Spinner } from '@patternfly/react-core';
 
-import { advisorBaseName, Navigate, ocmBaseName } from '~/common/routing';
+import { advisorBaseName, Navigate, ocmBaseName, useClusterListPath } from '~/common/routing';
 
 import ExternalRedirect from './ExternalRedirect';
 
@@ -20,6 +20,7 @@ export const composeRuleId = (pluginName, errorKey) =>
 const InsightsAdvisorRedirector = (props) => {
   const params = useParams();
   const location = useLocation();
+  const clusterListPath = useClusterListPath();
   const { clusterDetails, fetchClusterDetails, setGlobalError } = props;
   React.useEffect(() => {
     if (!clusterDetails.fulfilled && params.id && !isUuid(params.id)) {
@@ -65,7 +66,7 @@ const InsightsAdvisorRedirector = (props) => {
       'clusterDetails',
       clusterDetails?.errorMessage,
     );
-    return <Navigate replace to="/cluster-list" />;
+    return <Navigate replace to={clusterListPath} />;
   }
 
   if (clusterDetails.fulfilled && !externalId) {
@@ -77,7 +78,7 @@ const InsightsAdvisorRedirector = (props) => {
       'clusterDetails',
       clusterDetails?.errorMessage,
     );
-    return <Navigate replace to="/cluster-list" />;
+    return <Navigate replace to={clusterListPath} />;
   }
 
   return (

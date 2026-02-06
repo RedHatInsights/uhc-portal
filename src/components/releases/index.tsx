@@ -17,7 +17,7 @@ import {
 } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
-import { Link } from '~/common/routing';
+import { Link, useClusterListPath } from '~/common/routing';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
 import { AppPage } from '../App/AppPage';
@@ -32,6 +32,7 @@ import ReleaseChannelName from './ReleaseChannelName';
 import './Releases.scss';
 
 const Releases = () => {
+  const clusterListPath = useClusterListPath();
   const [statusData] = useOCPLifeCycleStatusData();
 
   const allVersions = statusData?.[0]?.versions;
@@ -71,7 +72,8 @@ const Releases = () => {
                           <p className="pf-v6-u-mb-md">
                             The most recent versions aren&apos;t always available for every cluster.
                             To keep your cluster up to date with the recommended version, run
-                            regular updates from the <Link to="/cluster-list">clusters list</Link>.
+                            regular updates from the <Link to={clusterListPath}>clusters list</Link>
+                            .
                           </p>
                           <p>
                             <em>Note:</em> Disconnected clusters won&apos;t show available
