@@ -31,17 +31,14 @@ import ReleaseChannelName from './ReleaseChannelName';
 
 import './Releases.scss';
 
-// Maximum number of supported OCP versions to display on the Releases page
-const MAX_SUPPORTED_VERSIONS = 12;
-
 const Releases = () => {
   const [statusData] = useOCPLifeCycleStatusData();
 
   const allVersions = statusData?.[0]?.versions;
-  const filteredVersions = allVersions?.filter(
-    (version) => !version.name.includes('EUS') && version.type?.toLowerCase() !== 'end of life',
+  // Filter out EOL versions - show all currently supported versions
+  const versionsToDisplay = allVersions?.filter(
+    (version) => version.type?.toLowerCase() !== 'end of life',
   );
-  const versionsToDisplay = filteredVersions?.slice(0, MAX_SUPPORTED_VERSIONS);
   const hasEUSChannel = (versionName: string) => {
     const parsed = semver.coerce(versionName);
     if (!parsed) {
