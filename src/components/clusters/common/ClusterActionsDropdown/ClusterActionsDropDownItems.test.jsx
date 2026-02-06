@@ -83,9 +83,9 @@ describe('Cluster Actions Dropdown Items', () => {
 
     it('should open delete modal', async () => {
       const { user } = render(<DropDownItemsRenderHelper {...Fixtures.managedReadyProps} />);
-      expect(Fixtures.managedReadyProps.openModal).toBeCalledTimes(0);
+      expect(Fixtures.managedReadyProps.openModal).toHaveBeenCalledTimes(0);
       await user.click(screen.getByRole('menuitem', { name: 'Delete cluster' }));
-      expect(Fixtures.managedReadyProps.openModal).toBeCalledWith('delete-cluster', {
+      expect(Fixtures.managedReadyProps.openModal).toHaveBeenCalledWith('delete-cluster', {
         ...Fixtures.deleteModalData,
         region: undefined,
         shouldDisplayClusterName: false,
