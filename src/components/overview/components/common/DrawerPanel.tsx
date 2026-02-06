@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 
 import {
   Divider,
@@ -14,32 +14,35 @@ import {
 import { DrawerPanelContentNode } from './DrawerPanelContent';
 
 type DrawerPanelProps = {
-  title?: string;
   content?: DrawerPanelContentNode;
-  isOpen: boolean;
-  onClose: () => void;
-  children: ReactNode;
+  onClose?: () => void;
 };
 
-const DrawerPanel = ({ children, title, content, isOpen, onClose }: DrawerPanelProps) => (
-  <Drawer isExpanded={isOpen} isInline>
-    <DrawerContent
-      panelContent={
-        <DrawerPanelContent isResizable defaultSize="461px" minSize="417px">
-          <DrawerHead>
-            {content?.head}
-            <DrawerActions>
-              <DrawerCloseButton onClick={onClose} data-testid="drawer-close-button" />
-            </DrawerActions>
-          </DrawerHead>
-          <Divider component="div" data-testid="drawer-panel-divider" />
-          <DrawerContentBody>{content?.body}</DrawerContentBody>
-        </DrawerPanelContent>
-      }
-    >
-      <DrawerContentBody>{children}</DrawerContentBody>
-    </DrawerContent>
-  </Drawer>
-);
+const DrawerPanel = ({ content, onClose }: DrawerPanelProps) => {
+  const handleClose = () => {
+    onClose?.();
+  };
+
+  return (
+    <Drawer isExpanded isInline>
+      <DrawerContent
+        panelContent={
+          <DrawerPanelContent defaultSize="100%" minSize="100%">
+            <DrawerHead>
+              {content?.head}
+              <DrawerActions>
+                <DrawerCloseButton onClick={handleClose} data-testid="drawer-close-button" />
+              </DrawerActions>
+            </DrawerHead>
+            <Divider component="div" data-testid="drawer-panel-divider" />
+            <DrawerContentBody>{content?.body}</DrawerContentBody>
+          </DrawerPanelContent>
+        }
+      >
+        <DrawerContentBody />
+      </DrawerContent>
+    </Drawer>
+  );
+};
 
 export default DrawerPanel;
