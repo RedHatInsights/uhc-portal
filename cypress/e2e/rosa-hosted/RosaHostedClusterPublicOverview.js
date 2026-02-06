@@ -1,5 +1,6 @@
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
+import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 const clusterDetails = require('../../fixtures/rosa-hosted/RosaHostedClusterCreatePublic.json');
 const clusterProfiles = ['rosa-hosted-public', 'rosa-hosted-public-advanced'];
 const awsAccountID = Cypress.env('QE_AWS_ID');
@@ -11,7 +12,7 @@ describe(
   () => {
     beforeEach(() => {
       if (Cypress.currentTest.title.match(/Open.*cluster/g)) {
-        cy.visit('/cluster-list');
+        cy.visit(CLUSTER_LIST_PATH);
         ClusterListPage.waitForDataReady();
       }
     });

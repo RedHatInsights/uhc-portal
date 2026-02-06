@@ -1,15 +1,13 @@
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import CreateClusterPage from '../../pageobjects/CreateCluster.page';
+import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 describe(
   'Check all cluster lists page items presence and its actions (OCP-21339)',
   { tags: ['smoke'] },
   () => {
-    /* WARNING! The "/cluster-list" route is used by catchpoint tests which determine
-    website operation status on 'http:///status.redhat.com'.  If this route is changed, 
-    then the related catchpoint tests must be updated. For more info. see: https://issues.redhat.com/browse/OCMUI-2398 */
     before(() => {
-      cy.visit('/cluster-list');
+      cy.visit(CLUSTER_LIST_PATH);
       ClusterListPage.waitForDataReady();
       ClusterListPage.isClusterListScreen();
     });
