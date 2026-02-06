@@ -99,7 +99,7 @@ export const OCM_BASE_PATH = '/openshift';
 /**
  * Cluster list path (relative)
  */
-export const CLUSTER_LIST_PATH = '/cluster-list';
+export const CLUSTER_LIST_PATH = '/clusters/list';
 
 /**
  * Full cluster list path including base path
