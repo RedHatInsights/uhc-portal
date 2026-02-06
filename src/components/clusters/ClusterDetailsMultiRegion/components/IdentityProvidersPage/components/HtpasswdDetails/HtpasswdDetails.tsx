@@ -64,6 +64,8 @@ const HtpasswdDetails = ({
   const [filteredUsers, setFilteredUsers] = React.useState<HtPasswdUser[]>(users);
   const [userToBeDeletedId, setUserToBeDeletedId] = React.useState<string | undefined>('');
 
+  const isSearching = !!searchValue.length;
+
   const refreshHtpasswdUsers = () => {
     if (!isLoading && !isError) {
       refetch();
@@ -165,7 +167,11 @@ const HtpasswdDetails = ({
   const endIndex = page * perPage;
 
   const currentPageUsers = filteredUsers.slice(startIndex, endIndex);
-  const deleteableUsers = currentPageUsers.filter((user) => selectedUserIds.includes(user.id));
+
+  const deleteableUsers = !isSearching
+    ? selectedUsers
+    : currentPageUsers.filter((user) => selectedUserIds.includes(user.id));
+
   const deleteableUserIds = deleteableUsers.map((user) => user.id);
 
   const headers = [{ name: 'Username', sortable: true }];

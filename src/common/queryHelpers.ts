@@ -5,6 +5,7 @@ import { GetClusterHistoryParams } from '~/services/serviceLogService';
 
 import { ViewOptions } from '../types/types';
 
+import { getLocation } from './location';
 import { allowedProducts, productFilterOptions } from './subscriptionTypes';
 
 type QueryObject = { [key: string]: string | number | boolean };
@@ -230,7 +231,7 @@ const buildFilterURLParams = (params: { [key: string]: (string | number | boolea
   );
 
 const getQueryParam = (param: string): string | undefined => {
-  const searchParams = new URLSearchParams(window.location.search);
+  const searchParams = new URLSearchParams(getLocation().search);
   return searchParams.get(param) ?? undefined;
 };
 

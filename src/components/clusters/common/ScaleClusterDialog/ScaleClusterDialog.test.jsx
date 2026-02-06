@@ -5,6 +5,7 @@ import * as useFetchLoadBalancerQuotaValues from '~/queries/ClusterActionsQuerie
 import * as useFetchStorageQuotaValues from '~/queries/ClusterActionsQueries/useFetchStorageQuotaValues';
 import * as useEditCluster from '~/queries/ClusterDetailsQueries/useEditCluster';
 import * as useFetchOrganizationAndQuota from '~/queries/common/useFetchOrganizationAndQuota';
+import * as refreshQueriesModule from '~/queries/refreshEntireCache';
 import { checkAccessibility, screen, withState } from '~/testUtils';
 
 import ScaleClusterDialog from './ScaleClusterDialog';
@@ -18,6 +19,7 @@ jest.mock('react-redux', () => {
 });
 
 const mockedUseEditCluster = jest.spyOn(useEditCluster, 'useEditCluster');
+const mockedRefreshQueries = jest.spyOn(refreshQueriesModule, 'refreshQueries');
 
 const mockedUseFetchLoadBalancerQuotaValues = jest.spyOn(
   useFetchLoadBalancerQuotaValues,
@@ -227,9 +229,54 @@ describe('<ScaleClusterDialog />', () => {
     expect(mockMutate).toHaveBeenCalled();
   });
 
-  it.skip('when fulfilled, closes dialog', async () => {
-    // This is hard to test because both handleSubmit and the internal method it calls "onSubmit"
-    // are both mocked.  The close modal happens inside the internal "onSubmit"
+  it('when fulfilled, closes dialog', async () => {
+    setMockingValues();
+    mockedRefreshQueries.mockImplementation(() => {});
+
+    // Capture the onSuccess callback that will be passed to mutate
+    let onSuccessCallback;
+    mockMutate.mockImplementation((data, options) => {
+      onSuccessCallback = options?.onSuccess;
+    });
+
+    const { user } = withState(defaultState, true).render(<ScaleClusterDialog />);
+
+    // Change a value to enable the Apply button
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Load Balancers' }),
+      screen.getByRole('option', { name: '0' }),
+    );
+
+    // Submit the form
+    await user.click(screen.getByRole('button', { name: 'Apply' }));
+
+    // Verify mutate was called with the correct payload
+    expect(mockMutate).toHaveBeenCalled();
+    expect(mockMutate).toHaveBeenCalledWith(
+      {
+        clusterID: defaultState.modal.data.id,
+        cluster: {
+          load_balancer_quota: 0,
+          storage_quota: {
+            unit: 'B',
+            value: defaultState.modal.data.storage_quota.value,
+          },
+        },
+      },
+      expect.objectContaining({
+        onSuccess: expect.any(Function),
+      }),
+    );
+
+    // Manually trigger the onSuccess callback
+    expect(onSuccessCallback).toBeDefined();
+    onSuccessCallback();
+
+    // Verify that closeModal was dispatched
+    expect(mockedDispatch).toHaveBeenCalled();
+    expect(mockedDispatch.mock.calls[0][0].type).toEqual('CLOSE_MODAL');
+    // Verify that refreshQueries was called
+    expect(mockedRefreshQueries).toHaveBeenCalled();
   });
 
   it('renders correctly when an error occurs', async () => {
