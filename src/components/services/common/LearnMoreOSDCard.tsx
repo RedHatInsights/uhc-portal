@@ -4,7 +4,7 @@ import { Card, CardBody, CardFooter, CardHeader, CardTitle, Title } from '@patte
 
 import ExternalLink from '~/components/common/ExternalLink';
 
-import docLinks from '../../../common/installLinks.mjs';
+import docLinks from '../../../common/docLinks.mjs';
 
 export const LearnMoreOSDCard = () => (
   <Card style={{ height: '100%' }} data-testid="learn-more-osdcard">

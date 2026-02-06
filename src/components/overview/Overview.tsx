@@ -9,7 +9,7 @@ import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useF
 import { ASSISTED_MIGRATION_ENABLED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
-import docLinks from '../../common/installLinks.mjs';
+import docLinks from '../../common/docLinks.mjs';
 import OpenShiftProductIcon from '../../styles/images/OpenShiftProductIcon.svg';
 import { AppPage } from '../App/AppPage';
 
