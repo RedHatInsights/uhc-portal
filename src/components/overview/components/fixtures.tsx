@@ -65,7 +65,6 @@ const BASIC_DRAWER_PANEL_PROPS = {
     head: <div data-testid="test-head-div">example drawer panel content head</div>,
     body: <div data-testid="test-body-div">example drawer panel content body</div>,
   },
-  toggleDrawer: jest.fn(),
   onClose: jest.fn(),
 };
 

@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 import { useScrollToAnchor } from '~/common/helpers';
 import { Link } from '~/common/routing';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
+import { useChromeDrawerPanel } from '~/hooks/useChromeDrawerPanel';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 import { ASSISTED_MIGRATION_ENABLED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -41,7 +41,6 @@ function OverviewEmptyState() {
   useScrollToAnchor();
 
   const { canCreateManagedCluster } = useCanCreateManagedCluster();
-  const { drawerActions } = useChrome();
 
   const createClusterURL = '/create';
   const CreateClusterLink = useCallback(
@@ -49,40 +48,18 @@ function OverviewEmptyState() {
     [],
   );
 
-  const isDrawerOpenRef = useRef<boolean>(false);
   const [selectedCardTitle, setSelectedCardTitle] = useState<string>('');
 
-  const closeDrawer = () => {
-    isDrawerOpenRef.current = false;
-    setSelectedCardTitle('');
-  };
+  const { open } = useChromeDrawerPanel({ 
+    scope: 'openshift',
+    module: './DrawerPanel',
+    onClose: () => setSelectedCardTitle(''),
+  });
 
   const openDrawer = (title: string, content?: DrawerPanelContentNode) => {
     setSelectedCardTitle(title);
-
-    drawerActions?.setDrawerPanelContent({
-      scope: 'openshift',
-      module: './DrawerPanel',
-      title,
-      content,
-      onClose: closeDrawer,
-    });
-
-    if (!isDrawerOpenRef.current) {
-      drawerActions?.toggleDrawerPanel();
-      isDrawerOpenRef.current = true;
-    }
+    open({ title, content });
   };
-
-  // Cleanup on unmount
-  useEffect(
-    () => () => {
-      if (isDrawerOpenRef.current) {
-        drawerActions?.toggleDrawerPanel();
-      }
-    },
-    [drawerActions],
-  );
 
   const isAssistedMigrationEnabled = useFeatureGate(ASSISTED_MIGRATION_ENABLED);
 

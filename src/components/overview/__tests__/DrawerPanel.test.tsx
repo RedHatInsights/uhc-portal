@@ -11,7 +11,7 @@ describe('DrawerPanel', () => {
   it('renders an opened DrawerPanel + checks functionality', async () => {
     render(<DrawerPanel {...DRAWER_PANEL_TEST_CASES.OPENED} />);
 
-    const { toggleDrawer, onClose } = DRAWER_PANEL_TEST_CASES.OPENED;
+    const { onClose } = DRAWER_PANEL_TEST_CASES.OPENED;
 
     expect(screen.getByText(/example drawer panel content head/i)).toBeInTheDocument();
     expect(screen.getByText(/example drawer panel content body/i)).toBeInTheDocument();
@@ -22,6 +22,5 @@ describe('DrawerPanel', () => {
     expect(closeBtn).toBeInTheDocument();
     await userEvent.click(closeBtn);
     expect(onClose).toHaveBeenCalled();
-    expect(toggleDrawer).toHaveBeenCalled();
   });
 });

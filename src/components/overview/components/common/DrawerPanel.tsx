@@ -14,17 +14,13 @@ import {
 import { DrawerPanelContentNode } from './DrawerPanelContent';
 
 type DrawerPanelProps = {
-  title?: string;
   content?: DrawerPanelContentNode;
-  toggleDrawer: () => void;
   onClose?: () => void;
 };
 
-const DrawerPanel = ({ title, content, toggleDrawer, onClose }: DrawerPanelProps) => {
+const DrawerPanel = ({ content, onClose }: DrawerPanelProps) => {
   const handleClose = () => {
     onClose?.();
-    // Close Chrome's drawer
-    toggleDrawer();
   };
 
   return (

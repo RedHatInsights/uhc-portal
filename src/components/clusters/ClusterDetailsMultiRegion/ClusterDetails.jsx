@@ -19,13 +19,13 @@ import { useLocation, useParams } from 'react-router-dom';
 
 import { getAddHostsTabState } from '@openshift-assisted/ui-lib/ocm';
 import { PageSection, Spinner, TabContent, Tooltip } from '@patternfly/react-core';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 import { Navigate, useNavigate } from '~/common/routing';
 import { knownProducts, normalizedProducts } from '~/common/subscriptionTypes';
 import AIHostsClusterDetailTab from '~/components/AIComponents/AIHostsClusterDetailTab';
 import { AppPage } from '~/components/App/AppPage';
 import { modalActions } from '~/components/common/Modal/ModalActions';
+import { useChromeDrawerPanel } from '~/hooks/useChromeDrawerPanel';
 import {
   refetchAccessProtection,
   useFetchAccessProtection,
@@ -129,7 +129,6 @@ const ClusterDetails = (props) => {
     },
   } = useGlobalState((state) => state.clusterSupport);
   const { clusterRouters } = useGlobalState((state) => state.clusterRouters);
-  const { drawerActions } = useChrome();
 
   const isSubscriptionSettingsRequestPending = useGlobalState((state) =>
     get(state, 'subscriptionSettings.requestState.pending', false),
@@ -249,47 +248,18 @@ const ClusterDetails = (props) => {
     }
   };
 
-  const isDrawerOpenRef = React.useRef(false);
   const [selectedCardTitle, setSelectedCardTitle] = React.useState('');
 
-  const closeDrawer = () => {
-    isDrawerOpenRef.current = false;
-    setSelectedCardTitle('');
-  };
-
-  const closeDrawerPanel = () => {
-    if (isDrawerOpenRef.current) {
-      drawerActions?.toggleDrawerPanel();
-    }
-    closeDrawer();
-  };
+  const { open, close } = useChromeDrawerPanel({ 
+    scope: 'openshift',
+    module: './DrawerPanel',
+    onClose: () => setSelectedCardTitle(''),
+  });
 
   const openDrawer = (title, content) => {
     setSelectedCardTitle(title);
-
-    drawerActions?.setDrawerPanelContent({
-      scope: 'openshift',
-      module: './DrawerPanel',
-      title,
-      content,
-      onClose: closeDrawer,
-    });
-
-    if (!isDrawerOpenRef.current) {
-      drawerActions?.toggleDrawerPanel();
-      isDrawerOpenRef.current = true;
-    }
+    open({ title, content });
   };
-
-  // Cleanup on unmount
-  React.useEffect(
-    () => () => {
-      if (isDrawerOpenRef.current) {
-        drawerActions?.toggleDrawerPanel();
-      }
-    },
-    [drawerActions],
-  );
 
   /**
    * Refresh the cluster's related resources.
@@ -540,7 +510,7 @@ const ClusterDetails = (props) => {
           gcpOrgPolicyWarning={gcpOrgPolicyWarning}
           regionalInstance={regionalInstance}
           openDrawer={openDrawer}
-          closeDrawer={closeDrawerPanel}
+          closeDrawer={close}
           selectedCardTitle={selectedCardTitle}
         >
           <TabsRow
