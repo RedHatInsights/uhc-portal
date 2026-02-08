@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Formik, FormikValues } from 'formik';
 
 import links from '~/common/installLinks.mjs';
-import { render, screen } from '~/testUtils';
+import { render, screen, waitFor } from '~/testUtils';
 
 import { WindowsLicenseIncludedField } from '../WindowsLicenseIncludedField';
 
@@ -189,11 +189,13 @@ describe('<WindowsLicenseIncludedField />', () => {
         await user.hover(checkbox);
 
         // Assert
-        expect(
-          screen.getByText(
-            `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`,
-          ),
-        ).toBeInTheDocument();
+        await waitFor(() => {
+          expect(
+            screen.getByText(
+              `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`,
+            ),
+          ).toBeVisible();
+        });
 
         // instance type tooltip does not override it when both incompatibilities apply
         expect(
@@ -231,11 +233,13 @@ describe('<WindowsLicenseIncludedField />', () => {
         await user.hover(checkbox);
 
         // Assert
-        expect(
-          screen.getByText(
-            `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`,
-          ),
-        ).toBeInTheDocument();
+        await waitFor(() => {
+          expect(
+            screen.getByText(
+              `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`,
+            ),
+          ).toBeVisible();
+        });
       });
     });
 
@@ -271,11 +275,13 @@ describe('<WindowsLicenseIncludedField />', () => {
         await user.hover(checkbox);
 
         // Assert
-        expect(
-          screen.getByText(
-            `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`,
-          ),
-        ).toBeInTheDocument();
+        await waitFor(() => {
+          expect(
+            screen.getByText(
+              `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`,
+            ),
+          ).toBeVisible();
+        });
 
         // instance type tooltip does not override it when both incompatibilities apply
         expect(
