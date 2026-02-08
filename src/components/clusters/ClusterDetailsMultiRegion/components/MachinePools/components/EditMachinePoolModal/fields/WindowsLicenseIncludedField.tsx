@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFormikContext } from 'formik';
+import semver from 'semver';
 
 import { Content, ContentVariants } from '@patternfly/react-core';
 
@@ -13,11 +14,19 @@ import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
 
 const fieldId = 'isWindowsLicenseIncluded';
+const minimumCompatibleVersion = '4.19.0';
 
-type WindowsLicenseIncludedFieldProps = {
-  isEdit?: boolean;
-  currentMP?: NodePool;
-};
+type WindowsLicenseIncludedFieldProps =
+  | {
+      isEdit?: false;
+      currentMP?: NodePool;
+      clusterVersion: string;
+    }
+  | {
+      isEdit: true;
+      currentMP: NodePool;
+      clusterVersion?: string;
+    };
 
 const {
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: AWS_DOCS_LINK,
@@ -27,10 +36,16 @@ const {
 const WindowsLicenseIncludedField = ({
   isEdit = false,
   currentMP,
+  clusterVersion = '',
 }: WindowsLicenseIncludedFieldProps) => {
   // Instance type field -> get isWinLiCompatible from the selected instance type:
   const { values } = useFormikContext<EditMachinePoolValues>();
   const isWinLiCompatible = !!values.instanceType?.features?.win_li;
+
+  const isVersionCompatible =
+    clusterVersion && semver.valid(clusterVersion)
+      ? semver.gte(clusterVersion, minimumCompatibleVersion)
+      : false;
 
   const isCurrentMPWinLiEnabled = isEdit && currentMP?.image_type === ImageType.Windows;
 
@@ -47,10 +62,16 @@ const WindowsLicenseIncludedField = ({
     </>
   );
 
-  const isDisabled = !isWinLiCompatible;
+  const isDisabled = !isVersionCompatible || !isWinLiCompatible;
+  let tooltip;
 
   if (!isWinLiCompatible) {
+    tooltip = 'This instance type is not Windows License Included compatible.';
     values.isWindowsLicenseIncluded = false;
+  }
+
+  if (!isVersionCompatible) {
+    tooltip = `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`;
   }
 
   return isEdit ? (
@@ -66,7 +87,7 @@ const WindowsLicenseIncludedField = ({
       isDisabled={isDisabled}
       hint={hint}
       showTooltip={isDisabled}
-      tooltip="This instance type is not Windows License Included compatible."
+      tooltip={tooltip}
       input={isDisabled ? { isChecked: false } : undefined}
     />
   );
