@@ -26,10 +26,12 @@ test.describe.serial('Releases pages tests', { tag: ['@smoke'] }, () => {
 
     await releasesPage.isReleasesPage();
 
-    // Parse and filter versions
+    // Parse and filter versions - exclude EOL versions (matching component logic)
     const data = await response.json();
     const allVersions: VersionData[] = data.data[0].versions;
-    const targetVersions = allVersions.slice(0, 6);
+    const targetVersions = allVersions.filter(
+      (version) => version.type?.toLowerCase() !== 'end of life',
+    );
     currentVersion = targetVersions[0].name;
 
     // Check each version's details
