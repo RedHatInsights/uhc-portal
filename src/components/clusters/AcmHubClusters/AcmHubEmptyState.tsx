@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import {
   Button,
@@ -13,10 +13,11 @@ import { ClusterIcon } from '@patternfly/react-icons/dist/esm/icons';
 import { ACM_HUB_DOCUMENTATION_LINKS } from '~/common/acmHubConstants';
 import ExternalLink from '~/components/common/ExternalLink';
 
-import { ClusterTagModal } from './ClusterTagModal';
+type AcmHubEmptyStateProps = {
+  onStartTagging: () => void;
+};
 
-const AcmHubEmptyState = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const AcmHubEmptyState = ({ onStartTagging }: AcmHubEmptyStateProps) => {
   return (
     <EmptyState
       headingLevel="h4"
@@ -32,10 +33,9 @@ const AcmHubEmptyState = () => {
           in RHACM and serves only to help you organize clusters. Start tagging from the All
           clusters page.
         </p>
-        {isOpen ? <ClusterTagModal closeModal={() => setIsOpen(false)} /> : null}
       </EmptyStateBody>
       <EmptyStateFooter>
-        <Button variant="primary" onClick={() => setIsOpen(true)}>
+        <Button variant="primary" onClick={onStartTagging}>
           Start tagging
         </Button>
         <EmptyStateActions>

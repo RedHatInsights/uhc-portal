@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import size from 'lodash/size';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -20,6 +20,7 @@ import * as viewActions from '~/redux/actions/viewOptionsActions';
 import { onPageInput, onPerPageSelect } from '~/redux/actions/viewOptionsActions';
 
 import AcmHubEmptyState from './AcmHubEmptyState';
+import { ClusterTagModal } from './ClusterTagModal';
 
 import './AcmHubClusterList.scss';
 
@@ -28,6 +29,7 @@ const viewType = ACM_HUB_CLUSTERS_VIEW;
 
 const AcmHubClusterList: React.FC = () => {
   const dispatch = useDispatch();
+  const [isTagModalOpen, setIsTagModalOpen] = useState(false);
 
   const {
     isLoading,
@@ -99,6 +101,7 @@ const AcmHubClusterList: React.FC = () => {
 
   return (
     <AppPage title={PAGE_TITLE}>
+      {isTagModalOpen ? <ClusterTagModal closeModal={() => setIsTagModalOpen(false)} /> : null}
       <PageSection hasBodyWrapper={false}>
         <div className="acm-hub-cluster-list" data-ready={dataReady}>
           <GlobalErrorBox />
@@ -116,7 +119,7 @@ const AcmHubClusterList: React.FC = () => {
           ) : null}
 
           {showEmptyState ? (
-            <AcmHubEmptyState />
+            <AcmHubEmptyState onStartTagging={() => setIsTagModalOpen(true)} />
           ) : (
             <>
               <Toolbar id="acm-hub-cluster-list-toolbar">

@@ -277,9 +277,6 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
             isTabbedClustersEnabled ? <Clusters /> : <ClusterListMultiRegion getMultiRegion />
           }
         />
-        {isACMClusterTaggingEnabled ? (
-          <Route path="/acm-hub-clusters" element={<AcmHubClusterList />} />
-        ) : null}
         {isClusterTransferOwnershipEnabled ? (
           <Route
             path="/cluster-request"
