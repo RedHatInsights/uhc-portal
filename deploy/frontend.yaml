@@ -107,6 +107,9 @@ objects:
                 - id: releases
                   title: Releases
                   href: /openshift/releases
+                - id: assisted-installer
+                  title: Assisted installer
+                  href: /openshift/assisted-installer/clusters
       serviceTiles:
         - section: containers
           group: openshift
