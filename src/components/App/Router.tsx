@@ -24,7 +24,6 @@ import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { Navigate, ocmBaseName } from '~/common/routing';
 import ClusterDetailsClusterOrExternalIdMR from '~/components/clusters/ClusterDetailsMultiRegion/ClusterDetailsClusterOrExternalId';
 import {
-  ACM_CLUSTER_TAGGING,
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
   HYPERSHIFT_WIZARD_FEATURE,
   OSD_FOR_GOOGLE_CLOUD,
@@ -68,7 +67,6 @@ import ApiError from './ApiError';
 import { AppPage } from './AppPage';
 import NotFoundError from './NotFoundError';
 import { is404, metadataByRoute } from './routeMetadata';
-import { AcmHubClusterList } from '../clusters/AcmHubClusters';
 
 interface RouterProps {
   planType: string;
@@ -87,7 +85,6 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
   const isClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
   const isOsdFromGoogleCloudEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
   const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
-  const isACMClusterTaggingEnabled = useFeatureGate(ACM_CLUSTER_TAGGING);
 
   // For testing purposes, show which major features are enabled/disabled
   React.useEffect(() => {
@@ -267,9 +264,6 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
             isTabbedClustersEnabled ? <Clusters /> : <ClusterListMultiRegion getMultiRegion />
           }
         />
-        {isACMClusterTaggingEnabled ? (
-          <Route path="/acm-hub-clusters" element={<AcmHubClusterList />} />
-        ) : null}
         {isClusterTransferOwnershipEnabled ? (
           <Route path="/cluster-request" element={<ClusterRequestList />} />
         ) : null}

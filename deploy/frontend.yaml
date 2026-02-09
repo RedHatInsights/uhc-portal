@@ -46,13 +46,6 @@ objects:
                   title: Clusters
                   href: /openshift/clusters/list
                   product: Red Hat OpenShift Cluster Manager
-                - id: acm-hub-clusters
-                  title: ACM Hub Clusters
-                  href: /openshift/acm-hub-clusters
-                  product: Red Hat OpenShift Cluster Manager
-                  permissions:
-                    - method: featureFlag
-                      args: ["ocmui-acm-cluster-tagging", true]
                 # TODO: Replace advisor with navigationSegment from https://github.com/RedHatInsights/ocp-advisor-frontend/blob/master/deploy/frontend.yml
                 - id: advisor
                   title: Advisor
