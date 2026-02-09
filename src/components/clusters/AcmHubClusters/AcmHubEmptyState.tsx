@@ -27,8 +27,10 @@ const AcmHubEmptyState = () => {
     >
       <EmptyStateBody>
         <p>
-          Tag hub clusters to reflect your Red Hat Cluster Management for Kubernetes (RHACM) cluster
-          structure. Tagging does not affect behavior and serves only to help you organize clusters.
+          Tag Hub clusters to reflect your Red Hat Advanced Cluster Management for Kubernetes
+          (RHACM) cluster structure in OpenShift Cluster Manager. Tagging does not affect behavior
+          in RHACM and serves only to help you organize clusters. Start tagging from the All
+          clusters page.
         </p>
         {isOpen ? <ClusterTagModal closeModal={() => setIsOpen(false)} /> : null}
       </EmptyStateBody>

@@ -53,6 +53,32 @@ objects:
                 - segmentRef:
                     segmentId: openshift-ocp-advisor
                     frontendName: ocp-advisor
+                  permissions:
+                    - method: featureFlag
+                      args: ["ocmui-acm-cluster-tagging", true]
+                # TODO: Replace advisor with navigationSegment from https://github.com/RedHatInsights/ocp-advisor-frontend/blob/master/deploy/frontend.yml
+                - id: advisor
+                  title: Advisor
+                  expandable: true
+                  routes:
+                    - id: recommendations
+                      title: Recommendations
+                      href: /openshift/insights/advisor/recommendations
+                      product: Red Hat OpenShift Cluster Manager
+                    - id: advisor-clusters
+                      title: Clusters
+                      href: /openshift/insights/advisor/clusters
+                      product: Red Hat OpenShift Cluster Manager
+                    - id: workloads
+                      title: Workloads
+                      href: /openshift/insights/advisor/workloads
+                      product: Red Hat OpenShift Cluster Manager
+                      permissions:
+                        - method: featureFlag
+                          args: ['ocp-advisor-ui-workloads', true]
+                        - method: featureFlag
+                          args: ['ocp-advisor-workloads-release', true]
+                # TODO: Replace vulnerability-dashboard with navigationSegment from https://github.com/RedHatInsights/vuln4shift-frontend/blob/master/deploy/frontend.yml
                 - id: vulnerability-dashboard
                   title: Vulnerability dashboard
                   expandable: true
