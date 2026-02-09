@@ -14,7 +14,7 @@ type UpdateMinComputeNodeCountParams = {
  * Returns null if no adjustment is needed, or the new minimum value if current nodes
  * are below the required minimum.
  */
-export const getMinComputeNodeCount = ({
+const getMinComputeNodeCount = ({
   isHypershift,
   isByoc,
   isMultiAz,
@@ -71,4 +71,4 @@ function useUpdateMinComputeNodeCount() {
   return { updateMinComputeNodeCount, getMinComputeNodeCount };
 }
 
-export { useUpdateMinComputeNodeCount };
+export { useUpdateMinComputeNodeCount, getMinComputeNodeCount };
