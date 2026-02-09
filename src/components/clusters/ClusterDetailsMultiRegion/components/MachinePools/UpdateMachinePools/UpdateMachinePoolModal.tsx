@@ -200,7 +200,7 @@ export const UpdateMachinePoolModal = ({
       secondaryText="Cancel"
       onPrimaryClick={updateNodePool}
       onSecondaryClick={() => cleanUp()}
-      isPrimaryDisabled={pending || !!error}
+      isPrimaryDisabled={!!error}
       isPending={pending}
     >
       {!pending && !!error ? (

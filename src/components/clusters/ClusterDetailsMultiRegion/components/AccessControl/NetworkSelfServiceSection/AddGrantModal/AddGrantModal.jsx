@@ -110,7 +110,7 @@ const AddGrantModal = ({
         secondaryText="Cancel"
         onPrimaryClick={handleSubmit}
         onSecondaryClick={cancelAddGrant}
-        isPrimaryDisabled={!!validationMessage || isAddGrantsPending}
+        isPrimaryDisabled={!!validationMessage}
         isPending={isAddGrantsPending}
       >
         <>
