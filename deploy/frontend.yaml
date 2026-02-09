@@ -35,7 +35,7 @@ objects:
               href: /openshift/overview
               product: Red Hat OpenShift Cluster Manager
             - id: fleet-management
-              title: Fleet Management
+              title: Fleet management
               expandable: true
               routes:
                 - id: dashboard
@@ -50,7 +50,7 @@ objects:
                     segmentId: ocp-advisor
                     frontendName: openshift-ocp-advisor
                 - id: vulnerability-dashboard
-                  title: Vulnerability Dashboard
+                  title: Vulnerability dashboard
                   expandable: true
                   routes:
                     - id: cves
@@ -69,7 +69,7 @@ objects:
               expandable: true
               routes:
                 - id: user-access
-                  title: User Access
+                  title: User access
                   href: /iam/user-access/overview
                 - id: notifications
                   title: Notifications
@@ -100,11 +100,6 @@ objects:
                 - segmentRef:
                     frontendName: learning-resources
                     segmentId: openshift-learning-resources
-                # TODO: Replace developer-sandbox with navigationSegment from https://github.com/RedHatInsights/developer-sandbox-ui/blob/master/deploy/frontend.yaml
-                - id: developer-sandbox
-                  title: Developer Sandbox
-                  href: https://sandbox.redhat.com
-                  isExternal: true
                 - id: downloads
                   title: Downloads
                   href: /openshift/downloads
