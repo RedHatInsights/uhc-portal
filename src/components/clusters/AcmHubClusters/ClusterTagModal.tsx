@@ -32,7 +32,7 @@ type ClusterTagModalProps = {
 
 export const ClusterTagModal = ({ closeModal }: ClusterTagModalProps) => {
   const addNotification = useAddNotification();
-  const { mutate: tagAcmHub } = useTagAcmHub();
+  const { mutateAsync: tagAcmHubAsync } = useTagAcmHub();
 
   const { isLoading, data, refetch, isFetched, isClustersDataPending } = useFetchClusters(
     false,
@@ -85,36 +85,27 @@ export const ClusterTagModal = ({ closeModal }: ClusterTagModalProps) => {
     setIsProcessing(true);
     setTaggingErrors([]);
 
-    const tagPromises = selectedClusters.map((cluster) => {
-      const properties = cluster.managed
-        ? cluster.cluster?.properties
-        : cluster.cluster_id_properties;
+    const tagPromises = selectedClusters.map(async (cluster) => {
+      const properties = cluster.managed ? cluster.properties : cluster.cluster_id_properties;
 
       const isCurrentlyTagged = properties?.[ACM_HUB_PROPERTY_KEY] === ACM_HUB_PROPERTY_VALUE;
 
       // Only tag if not already tagged
       if (!isCurrentlyTagged) {
-        return new Promise<{ success: boolean; cluster: any; error?: any }>((resolve) => {
-          tagAcmHub(
-            {
-              clusterID: cluster.id,
-              region: cluster?.subscription?.rh_region_id,
-              tag: true,
-            },
-            {
-              onSuccess: () => {
-                resolve({ success: true, cluster });
-              },
-              onError: (error: any) => {
-                resolve({ success: false, cluster, error });
-              },
-            },
-          );
-        });
+        try {
+          await tagAcmHubAsync({
+            clusterID: cluster.id,
+            region: cluster?.subscription?.rh_region_id,
+            tag: true,
+          });
+          return { success: true, cluster };
+        } catch (error: any) {
+          return { success: false, cluster, error };
+        }
       }
 
       // Already tagged, count as success
-      return Promise.resolve({ success: true, cluster });
+      return { success: true, cluster };
     });
 
     const results = await Promise.all(tagPromises);
