@@ -1,5 +1,6 @@
 import React from 'react';
 
+import links from '~/common/installLinks.mjs';
 import { checkAccessibility, render, screen, within } from '~/testUtils';
 
 import { useFetchUsers } from '../../../../../../../queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchUsers';
@@ -36,6 +37,8 @@ describe('<Users />', () => {
     canAddClusterAdmin: false,
     clusterHibernating: false,
     isReadOnly: false,
+    isHypershift: false,
+    isROSA: true,
   };
   afterEach(() => {
     getUsers.mockClear();
@@ -108,6 +111,40 @@ describe('<Users />', () => {
       expect(await screen.findByRole('button', { name: 'Delete' })).toBeEnabled();
       expect(await screen.findByRole('button', { name: 'Cancel' })).toBeEnabled();
       await user.click(await screen.findByRole('button', { name: 'Cancel' }));
+    });
+  });
+
+  describe('Documentation link', () => {
+    it('renders classic link when cluster is rosa classic', async () => {
+      useFetchUsersMock.mockReturnValue({
+        data: {
+          users,
+        },
+        isLoading: false,
+        osError: false,
+        error: null,
+      });
+
+      render(<UsersSection {...props} isROSA />);
+
+      const link = screen.getByText('Learn more.');
+      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
+    });
+
+    it('renders HCP link when cluster is HCP', async () => {
+      useFetchUsersMock.mockReturnValue({
+        data: {
+          users,
+        },
+        isLoading: false,
+        osError: false,
+        error: null,
+      });
+
+      render(<UsersSection {...props} isROSA isHypershift />);
+
+      const link = screen.getByText('Learn more.');
+      expect(link).toHaveAttribute('href', links.ROSA_AWS_IAM_OPERATOR_ROLES);
     });
   });
 });

@@ -1,10 +1,11 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { render, screen, waitFor } from '~/testUtils';
+import links from '~/common/installLinks.mjs';
+import { FieldId, initialValues } from '~/components/clusters/wizards/rosa/constants';
+import { render, screen, waitFor, within } from '~/testUtils';
 
 import { useFetchGetUserOidcConfigurations } from '../../../../../queries/RosaWizardQueries/useFetchGetUserOidcConfigurations';
-import { initialValues } from '../constants';
 
 import CustomerOIDCConfiguration from './CustomerOIDCConfiguration';
 
@@ -153,6 +154,44 @@ describe('<CustomerOIDCConfiguration />', () => {
       const selectDropdown = screen.getByRole('button', { name: 'Options menu' });
       await user.click(selectDropdown);
       expect(await screen.findByPlaceholderText('Filter by config ID')).toBeInTheDocument();
+    });
+  });
+
+  describe('Operator roles prefix', () => {
+    beforeEach(() => {
+      mockedUseFetchGetUserOidcConfigurations.mockReturnValue({
+        data: oidcData,
+        isFetching: false,
+        isSuccess: true,
+      });
+    });
+
+    it('renders correct description link when hypershift', async () => {
+      const { user } = render(
+        buildTestComponent(<CustomerOIDCConfiguration {...defaultProps} />, {
+          [FieldId.Hypershift]: 'true',
+        }),
+      );
+      const formGroup = screen.getByText('Operator roles prefix').closest('.pf-v6-c-form__group');
+      const moreInfoBtn = within(formGroup).getByLabelText('More information');
+
+      await user.click(moreInfoBtn);
+      const link = screen.getByText('Defining a custom Operator IAM role prefix');
+      expect(link).toHaveAttribute('href', links.ROSA_AWS_IAM_OPERATOR_ROLES);
+    });
+
+    it('renders correct description link when classic', async () => {
+      const { user } = render(
+        buildTestComponent(<CustomerOIDCConfiguration {...defaultProps} />, {
+          [FieldId.Hypershift]: 'false',
+        }),
+      );
+      const formGroup = screen.getByText('Operator roles prefix').closest('.pf-v6-c-form__group');
+      const moreInfoBtn = within(formGroup).getByLabelText('More information');
+
+      await user.click(moreInfoBtn);
+      const link = screen.getByText('Defining a custom Operator IAM role prefix');
+      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
     });
   });
 
