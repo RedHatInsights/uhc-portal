@@ -1,7 +1,9 @@
 import { test as base, BrowserContext, Page } from '@playwright/test';
 import { ClusterDetailsPage } from '../page-objects/cluster-details-page';
+import { ClusterIdentityProviderPage } from '../page-objects/cluster-identity-provider-page';
 import { MachinePoolsPage } from '../page-objects/machine-pools-page';
 import { ClusterListPage } from '../page-objects/cluster-list-page';
+import { ClusterSupportPage } from '../page-objects/cluster-support-page';
 import { ClusterRequestsPage } from '../page-objects/cluster-requests-page';
 import { ClusterTypesPage } from '../page-objects/cluster-types-page';
 import { CreateOSDWizardPage } from '../page-objects/create-osd-wizard-page';
@@ -30,9 +32,11 @@ type WorkerFixtures = {
   authenticatedContext: BrowserContext;
   authenticatedPage: Page;
   clusterDetailsPage: ClusterDetailsPage;
+  clusterIdentityProviderPage: ClusterIdentityProviderPage;
   machinePoolsPage: MachinePoolsPage;
   clusterListPage: ClusterListPage;
   clusterRequestsPage: ClusterRequestsPage;
+  clusterSupportPage: ClusterSupportPage;
   clusterTypesPage: ClusterTypesPage;
   createOSDWizardPage: CreateOSDWizardPage;
   createClusterPage: CreateClusterPage;
@@ -131,6 +135,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     { scope: 'worker' },
   ],
 
+  // Worker-scoped: ClusterIdentityProviderPage instance - created once, reused across all tests in suite
+  clusterIdentityProviderPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new ClusterIdentityProviderPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
   // Worker-scoped: MachinePoolsPage instance - created once, reused across all tests in suite
   machinePoolsPage: [
     async ({ authenticatedPage }, use) => {
@@ -153,6 +166,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   clusterRequestsPage: [
     async ({ authenticatedPage }, use) => {
       const pageObject = new ClusterRequestsPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: ClusterSupportPage instance - created once, reused across all tests in suite
+  clusterSupportPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new ClusterSupportPage(authenticatedPage);
       await use(pageObject);
     },
     { scope: 'worker' },

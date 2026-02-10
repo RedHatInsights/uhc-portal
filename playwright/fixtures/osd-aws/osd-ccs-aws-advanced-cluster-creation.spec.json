@@ -1,0 +1,89 @@
+{
+  "ClusterName": "cyp-osd-ccs-aws-public-advanced",
+  "Type": "OSD",
+  "CloudProvider": "AWS",
+  "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
+  "SubscriptionBillingModel": "Annual Red Hat subscriptions",
+  "InfrastructureType": "Customer cloud subscription",
+  "Region": "us-west-2, US West, Oregon",
+  "Availability": "Multi-zone",
+  "UserWorkloadMonitoring": "Enabled",
+  "AdditionalEncryption": "Enabled",
+  "FIPSCryptography": "Enabled",
+  "AWSServiceControlPolicy": "Enabled",
+  "EncryptVolumesWithCustomerKeys": "Disabled",
+  "Nodes": {
+    "Control plane": "3",
+    "Infra": "3",
+    "Compute": "9"
+  },
+  "InstanceMetadataService": "IMDSv1 and IMDSv2",
+  "UpdateStrategy": "Individual updates",
+  "NodeDraining": "1 hour",
+  "MachinePools": [
+    {
+      "Name": "worker",
+      "AvailabilityZonesCount": 3,
+      "AvailabilityZones": ["us-west-2a", "us-west-2b", "us-west-2c"],
+      "InstanceType": "m5.xlarge",
+      "Autoscaling": "Enabled",
+      "NodeCount": "2",
+      "ComputeNodeCount": "4",
+      "MinimumNodeCount": "3",
+      "MaximumNodeCount": "4",
+      "NodeLabel": [
+        {
+          "Key": "playwright-tests-key",
+          "Value": "cyp-osd-ccs-aws-pub-adv"
+        },
+        {
+          "Key": "Available-zone",
+          "Value": "Multi-zone"
+        }
+      ],
+      "Taints": [
+        {
+          "Key": "playwright-tests-key",
+          "Value": "ccs-advanced",
+          "Effect": "NoExecute"
+        },
+        {
+          "Key": "playwright-tests-taints",
+          "Value": "multi-zone",
+          "Effect": "NoSchedule"
+        }
+      ]
+    }
+  ],
+  "CustomApplicationIngress": "Custom settings",
+  "ApplySameSecurityGroupsToAllNodeTypes": "true",
+  "RouteSelector": {
+    "KeyValue": "playwright-tests-routerkey=cyp-osd-ccs-aws-public"
+  },
+  "ExcludedNamespaces": {
+    "Values": "availability,multi-zone,namespaces"
+  },
+  "WildcardPolicy": "Disallowed",
+  "NamespaceOwnershipPolicy": "Strict namespace ownership",
+  "ClusterPrivacy": "Public",
+  "InstallIntoExistingVPC": "Enabled",
+  "MachineCIDR": "10.0.0.0/16",
+  "ServiceCIDR": "172.30.0.0/16",
+  "PodCIDR": "10.128.0.0/14",
+  "HostPrefix": "/23",
+  "day2-profile": {
+    "Support": {
+      "notificationContact": {
+        "username": "ocmui-orgadmin",
+        "firstName": "ocmui",
+        "lastName": "admin"
+      },
+      "validations": {
+        "invalidUsername": "admin$test",
+        "invalidUsernameError": "Username includes illegal symbols",
+        "nonExistentUsername": "admintest",
+        "nonExistentUsernameError": "Could not find any account identified by admintest"
+      }
+    }
+  }
+}
