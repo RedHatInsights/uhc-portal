@@ -33,9 +33,7 @@ export const useFetchAcmHubClusters = () => {
     }
 
     const acmHubClusters = data.items.filter((cluster: any) => {
-      const properties = cluster?.managed
-        ? cluster.cluster?.properties
-        : cluster.cluster_id_properties;
+      const properties = cluster?.managed ? cluster.properties : cluster.cluster_id_properties;
 
       return properties?.[ACM_HUB_PROPERTY_KEY] === ACM_HUB_PROPERTY_VALUE;
     });
