@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import size from 'lodash/size';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { PageSection, Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/react-core';
 import { SortByDirection } from '@patternfly/react-table';
 
+import helpers from '~/common/helpers';
+import { ONLY_MY_CLUSTERS_TOGGLE_CLUSTERS_LIST } from '~/common/localStorageConstants';
 import { AppPage } from '~/components/App/AppPage';
+import ClusterListActions from '~/components/clusters/ClusterListMultiRegion/components/ClusterListActions';
+import ClusterListFilterChipGroup from '~/components/clusters/ClusterListMultiRegion/components/ClusterListFilterChipGroup/ClusterListFilterChipGroup';
+import ClusterListFilterDropdown from '~/components/clusters/ClusterListMultiRegion/components/ClusterListFilterDropdown';
 import ClusterListTable from '~/components/clusters/ClusterListMultiRegion/components/ClusterListTable';
 import { PaginationRow } from '~/components/clusters/ClusterListMultiRegion/components/PaginationRow';
+import ViewOnlyMyClustersToggle from '~/components/clusters/ClusterListMultiRegion/components/ViewOnlyMyClustersToggle';
 import ClusterListFilter from '~/components/clusters/common/ClusterListFilter';
 import GlobalErrorBox from '~/components/clusters/common/GlobalErrorBox/GlobalErrorBox';
+import { modalActions } from '~/components/common/Modal/ModalActions';
 import ErrorBox from '~/components/common/ErrorBox';
 import Unavailable from '~/components/common/Unavailable';
 import {
@@ -18,6 +25,10 @@ import {
 } from '~/queries/AcmHubQueries/useFetchAcmHubClusters';
 import * as viewActions from '~/redux/actions/viewOptionsActions';
 import { onPageInput, onPerPageSelect } from '~/redux/actions/viewOptionsActions';
+import { CLUSTERS_VIEW } from '~/redux/constants/viewConstants';
+import { isRestrictedEnv } from '~/restrictedEnv';
+
+import CommonClusterModals from '../common/CommonClusterModals';
 
 import AcmHubEmptyState from './AcmHubEmptyState';
 import { ClusterTagModal } from './ClusterTagModal';
@@ -30,6 +41,13 @@ const viewType = ACM_HUB_CLUSTERS_VIEW;
 const AcmHubClusterList: React.FC = () => {
   const dispatch = useDispatch();
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+
+  const openModal = useCallback(
+    (modalName: string, data: unknown) => {
+      dispatch(modalActions.openModal(modalName, data));
+    },
+    [dispatch],
+  );
 
   const {
     isLoading,
@@ -72,20 +90,21 @@ const AcmHubClusterList: React.FC = () => {
   };
 
   const sortOptions = useSelector((state: any) => state.viewOptions[viewType]?.sorting) || {
-    sortField: 'created_at',
+    sortField: 'display_name',
     isAscending: true,
-    sortIndex: 0,
   };
 
-  const activeSortIndex = sortOptions.sortIndex;
+  const activeSortIndex = sortOptions.sortField;
   const activeSortDirection = sortOptions.isAscending ? SortByDirection.asc : SortByDirection.desc;
 
-  const viewOptions = useSelector((state: any) => state.viewOptions[viewType]) || {};
-  const hasNoFilters = !viewOptions.filter;
+  const clusterViewOptions = useSelector((state: any) => state.viewOptions[CLUSTERS_VIEW]) || {};
+  const { showMyClustersOnly, subscriptionFilter } = clusterViewOptions.flags || {};
+  const hasNoFilters =
+    helpers.nestedIsEmpty(subscriptionFilter) && !showMyClustersOnly && !clusterViewOptions.filter;
 
-  const isPendingNoData = !size(clusters) && (isLoading || !isFetched);
-  const showSpinner = isFetching || isLoading;
-  const showEmptyState = !showSpinner && !isError && !size(clusters) && hasNoFilters;
+  const isPendingNoData = !size(clusters) && (isLoading || !isFetched || isClustersDataPending);
+  const showSpinner = isFetching || isLoading || isClustersDataPending;
+  const showEmptyState = !showSpinner && !isError && !size(clusters) && hasNoFilters && isFetched;
 
   const errorDetails = (errors || []).reduce((errorArray: string[], error: any) => {
     if (!error.reason) {
@@ -127,10 +146,31 @@ const AcmHubClusterList: React.FC = () => {
                   <ToolbarItem className="ocm-c-toolbar__item-cluster-filter-list">
                     <ClusterListFilter
                       isDisabled={isPendingNoData && hasNoFilters}
-                      view={viewType}
+                      view={CLUSTERS_VIEW}
                     />
                   </ToolbarItem>
-
+                  {isRestrictedEnv() ? null : (
+                    <ToolbarItem
+                      className="ocm-c-toolbar__item-cluster-list-filter-dropdown"
+                      data-testid="cluster-list-filter-dropdown"
+                    >
+                      <ClusterListFilterDropdown
+                        view={CLUSTERS_VIEW}
+                        isDisabled={isLoading || isFetching}
+                      />
+                    </ToolbarItem>
+                  )}
+                  <ClusterListActions showTabbedView />
+                  <ViewOnlyMyClustersToggle
+                    view={CLUSTERS_VIEW}
+                    bodyContent="Show only the clusters you previously created, or all clusters in your organization."
+                    localStorageKey={ONLY_MY_CLUSTERS_TOGGLE_CLUSTERS_LIST}
+                  />
+                  {isRestrictedEnv() ? null : (
+                    <ToolbarItem>
+                      <ClusterListFilterChipGroup />
+                    </ToolbarItem>
+                  )}
                   <ToolbarItem
                     align={{ default: 'alignEnd' }}
                     variant="pagination"
@@ -168,17 +208,17 @@ const AcmHubClusterList: React.FC = () => {
                 />
               ) : (
                 <ClusterListTable
-                  openModal={() => {}}
+                  openModal={openModal}
                   clusters={clusters || []}
                   isPending={isPendingNoData}
                   isClustersDataPending={isClustersDataPending}
                   activeSortIndex={activeSortIndex}
                   activeSortDirection={activeSortDirection}
-                  setSort={(index: number, direction: 'asc' | 'desc') => {
+                  setSort={(index: string, direction: 'asc' | 'desc') => {
                     const sorting = {
                       isAscending: direction === SortByDirection.asc,
-                      sortField: String(index),
-                      sortIndex: index,
+                      sortField: index,
+                      sortIndex: 0,
                     };
                     dispatch(viewActions.onListSortBy(sorting, viewType));
                   }}
@@ -199,6 +239,7 @@ const AcmHubClusterList: React.FC = () => {
               />
             </>
           )}
+          <CommonClusterModals onClose={() => refetch()} />
         </div>
       </PageSection>
     </AppPage>

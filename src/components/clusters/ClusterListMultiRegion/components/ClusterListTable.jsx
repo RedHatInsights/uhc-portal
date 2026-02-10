@@ -1,6 +1,7 @@
 import React from 'react';
 import get from 'lodash/get';
 import PropTypes from 'prop-types';
+import { ACM_HUB_PROPERTY_KEY, ACM_HUB_PROPERTY_VALUE } from '~/common/acmHubConstants';
 
 import {
   Button,
@@ -14,6 +15,7 @@ import {
 } from '@patternfly/react-core';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
+import MulticlusterIcon from '@patternfly/react-icons/dist/esm/icons/multicluster-icon';
 import {
   ActionsColumn,
   SortByDirection,
@@ -205,11 +207,25 @@ function ClusterListTable(props) {
     const provider = get(cluster, 'cloud_provider.id', 'N/A');
 
     const clusterNameText = getClusterName(cluster);
+    // Check if cluster is tagged as ACM Hub
+    const properties = cluster.managed ? cluster.properties : cluster.cluster_id_properties;
+    const isAcmHub = properties?.[ACM_HUB_PROPERTY_KEY] === ACM_HUB_PROPERTY_VALUE;
+
     const clusterName =
       isClustersDataPending && clusterNameText === UNNAMED_CLUSTER ? (
         <Skeleton screenreaderText="loading cluster name" />
       ) : (
-        linkToClusterDetails(cluster, clusterNameText)
+        <>
+          {linkToClusterDetails(cluster, clusterNameText)}
+          {isAcmHub && (
+            <>
+              <br />
+              <Label color="teal" isCompact icon={<MulticlusterIcon />}>
+                RHACM hub cluster
+              </Label>
+            </>
+          )}
+        </>
       );
 
     const clusterStatus = () => {

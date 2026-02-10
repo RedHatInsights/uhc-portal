@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { ACM_HUB_PROPERTY_KEY, ACM_HUB_PROPERTY_VALUE } from '~/common/acmHubConstants';
 import { getClusterServiceForRegion } from '~/services/clusterService';
-
+import { queryConstants } from '../queriesConstants';
 import { formatErrorData } from '../helpers';
 
 type TagAcmHubParams = {
@@ -14,7 +14,7 @@ type TagAcmHubParams = {
 export const useTagAcmHub = () => {
   const queryClient = useQueryClient();
 
-  const { isSuccess, error, isError, isPending, mutate, reset } = useMutation({
+  const { isSuccess, error, isError, isPending, mutate, mutateAsync, reset } = useMutation({
     mutationKey: ['clusterService', 'tagAcmHub'],
     mutationFn: ({ clusterID, region, tag }: TagAcmHubParams) => {
       const clusterService = getClusterServiceForRegion(region);
@@ -31,7 +31,7 @@ export const useTagAcmHub = () => {
     },
     onSuccess: () => {
       // Invalidate cluster queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['FETCH_CLUSTERS_QUERY_KEY'] });
+      queryClient.invalidateQueries({ queryKey: [queryConstants.FETCH_CLUSTERS_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: ['clusterDetails'] });
     },
   });
@@ -42,6 +42,7 @@ export const useTagAcmHub = () => {
     isError,
     isPending,
     mutate,
+    mutateAsync,
     reset,
   };
 };

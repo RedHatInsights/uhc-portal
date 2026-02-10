@@ -337,9 +337,7 @@ function actionResolver(
   };
 
   const getTagAcmHubProps = () => {
-    const properties = cluster.managed
-      ? cluster.cluster?.properties
-      : cluster.cluster_id_properties;
+    const properties = cluster.managed ? cluster.properties : cluster.cluster_id_properties;
     const isCurrentlyTagged = properties?.[ACM_HUB_PROPERTY_KEY] === ACM_HUB_PROPERTY_VALUE;
     const title = isCurrentlyTagged ? 'Remove hub cluster tag' : 'Tag as hub cluster';
 
