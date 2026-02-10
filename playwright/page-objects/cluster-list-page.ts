@@ -186,4 +186,19 @@ export class ClusterListPage extends BasePage {
   async clearFilters(): Promise<void> {
     await this.page.locator('button').filter({ hasText: 'Clear filters' }).click();
   }
+
+  async openClusterDefinition(clusterName: string): Promise<void> {
+    await this.page
+      .locator('a')
+      .filter({ hasText: new RegExp(`^${clusterName}$`) })
+      .click();
+  }
+
+  async searchAndOpenClusterDetailsPage(clusterName: string): Promise<void> {
+    await this.filterTxtField().click();
+    await this.filterTxtField().clear();
+    await this.filterTxtField().fill(clusterName);
+    await this.waitForDataReady();
+    await this.openClusterDefinition(clusterName);
+  }
 }
