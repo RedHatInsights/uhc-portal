@@ -7,11 +7,26 @@ import { BasePage } from './base-page';
 export class ReleasesPage extends BasePage {
   private static readonly CONTAINER_PLATFORM_DOC_PATH =
     'https://docs.redhat.com/en/documentation/openshift_container_platform/';
-  private static readonly UPDATE_CHANNELS_PATH =
-    'html/updating_clusters/understanding-openshift-updates-1#understanding-update-channels-releases';
 
   constructor(page: Page) {
     super(page);
+  }
+
+  /**
+   * Get the update channels documentation path for a specific version.
+   * Matches the logic in src/components/releases/getCandidateChannelLink.ts
+   */
+  private static getUpdateChannelsPath(version: string): string {
+    const [, minorStr] = version.split('.');
+    const minor = parseInt(minorStr, 10);
+
+    if (minor < 6) {
+      return `html/updating_clusters/index#candidate-4-${minor}-channel`;
+    }
+    if (minor < 14) {
+      return 'html/updating_clusters/understanding-upgrade-channels-releases#candidate-version-channel_understanding-upgrade-channels-releases';
+    }
+    return 'html/updating_clusters/understanding-openshift-updates-1#understanding-update-channels-releases';
   }
 
   /**
@@ -55,10 +70,10 @@ export class ReleasesPage extends BasePage {
       .getByRole('button', { name: 'More information' })
       .click();
 
-    // Verify candidate channels link
+    // Verify candidate channels link (URL varies by version)
     const candidateChannelLink = this.getContainerPlatformDocLink(
       version,
-      ReleasesPage.UPDATE_CHANNELS_PATH,
+      ReleasesPage.getUpdateChannelsPath(version),
     ).last();
     await expect(candidateChannelLink).toContainText('Learn more about candidate channels');
 
@@ -81,7 +96,7 @@ export class ReleasesPage extends BasePage {
     // Verify updating channels link
     const updatingChannelsLink = this.getContainerPlatformDocLink(
       currentVersion,
-      ReleasesPage.UPDATE_CHANNELS_PATH,
+      ReleasesPage.getUpdateChannelsPath(currentVersion),
     ).first();
     await expect(updatingChannelsLink).toContainText('Learn more about updating channels');
 
