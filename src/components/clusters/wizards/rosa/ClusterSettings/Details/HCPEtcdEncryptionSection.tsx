@@ -11,7 +11,7 @@ import {
   SplitItem,
 } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { validateAWSKMSKeyARN } from '~/common/validators';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { TextInputField } from '~/components/clusters/wizards/form';
@@ -59,7 +59,7 @@ export function HCPEtcdEncryptionSection() {
                 hint={
                   <>
                     {constants.enableAdditionalEtcdHypershiftHint}{' '}
-                    <ExternalLink href={links.ROSA_SERVICE_ETCD_ENCRYPTION}>
+                    <ExternalLink href={docLinks.ROSA_SERVICE_ETCD_ENCRYPTION}>
                       Learn more about etcd encryption
                     </ExternalLink>
                   </>
@@ -91,7 +91,7 @@ export function HCPEtcdEncryptionSection() {
               tooltip={
                 <>
                   <p className="pf-v6-u-mb-sm">{constants.awsKeyARN}</p>
-                  <ExternalLink href={links.AWS_FINDING_KEY_ARN}>
+                  <ExternalLink href={docLinks.AWS_FINDING_KEY_ARN}>
                     Finding the key ID and ARN
                   </ExternalLink>
                 </>

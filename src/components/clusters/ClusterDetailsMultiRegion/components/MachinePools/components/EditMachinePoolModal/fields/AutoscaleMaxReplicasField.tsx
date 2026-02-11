@@ -3,7 +3,7 @@ import { useField } from 'formik';
 
 import { FormGroup, NumberInput } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { normalizeProductID } from '~/common/normalize';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
@@ -54,7 +54,7 @@ const AutoscaleMaxReplicasField = ({
               {isRosa && (
                 <>
                   <br />
-                  <ExternalLink href={links.ROSA_WORKER_NODE_COUNT}>
+                  <ExternalLink href={docLinks.ROSA_WORKER_NODE_COUNT}>
                     Learn more about worker/compute node count
                   </ExternalLink>
                 </>

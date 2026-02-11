@@ -180,18 +180,6 @@ const links = {
     'https://github.com/redhat-developer/app-services-guides/blob/main/docs/kafka/rhoas-cli-getting-started-kafka/README.adoc',
   RHOAS_CLI_RELEASES_LATEST: 'https://github.com/redhat-developer/app-services-cli/releases/latest',
 
-  HELM_DOCS: `${OCP_DOCS_BASE}/building_applications/working-with-helm-charts#understanding-helm`,
-
-  KN_DOCS: `${OCP_DOCS_BASE}/cli_tools/kn-cli-tools`,
-
-  TKN_DOCS: `${OCP_DOCS_BASE}/cli_tools/pipelines-cli-tkn#installing-tkn`,
-
-  ODO_DOCS: 'https://odo.dev/docs/introduction',
-
-  OPM_DOCS: `${OCP_DOCS_BASE}/cli_tools/opm-cli#olm-about-opm_cli-opm-install`,
-
-  OSDK_REMOVAL_DOCS_4_19: `https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/release_notes/ocp-4-19-release-notes#ocp-4-19-removed-osdk_release-notes`,
-
   BUTANE_DOCS: `${OCP_DOCS_BASE}/installation_configuration/installing-customizing`,
 
   COREOS_INSTALLER_DOCS: `${OCP_DOCS_BASE}/installing_on_any_platform/installing-platform-agnostic`,
@@ -199,6 +187,8 @@ const links = {
   ARGO_CD_DOCS: `https://docs.redhat.com/en/documentation/red_hat_openshift_gitops/1.13/html/installing_gitops/installing-argocd-gitops-cli`,
 
   SHP_CLI_DOCS: `https://docs.redhat.com/en/documentation/builds_for_red_hat_openshift/1.1/html-single/work_with_builds/index`,
+
+  OSD_CCS_GCP_WIF_GCLOUD_CLI: 'https://cloud.google.com/sdk/docs/install',
 
   INSTALL_MIRROR_REGISTRY_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/installing-mirroring-installation-images#installation-about-mirror-registry_installing-mirroring-installation-images`,
   INSTALL_OC_MIRROR_PLUGIN_LEARN_MORE: `${OCP_DOCS_BASE}/disconnected_environments/installing-mirroring-installation-images`,

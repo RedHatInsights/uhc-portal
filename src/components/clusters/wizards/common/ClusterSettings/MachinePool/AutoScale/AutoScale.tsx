@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import { Button, FormGroup, GridItem } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
@@ -39,7 +39,7 @@ export const AutoScale = () => {
   const openAutoScalingModal = () => dispatch(openModal(modals.EDIT_CLUSTER_AUTOSCALING_V2));
 
   const isRosa = product === normalizedProducts.ROSA;
-  const autoScalingUrl = isRosa ? links.ROSA_AUTOSCALING : links.APPLYING_AUTOSCALING;
+  const autoScalingUrl = isRosa ? docLinks.ROSA_AUTOSCALING : docLinks.APPLYING_AUTOSCALING;
   const isHypershiftSelected = isHypershift === 'true';
   const isByoc = byoc === 'true';
   const isRosaClassicOrOsdCcs = !isHypershiftSelected && isByoc;

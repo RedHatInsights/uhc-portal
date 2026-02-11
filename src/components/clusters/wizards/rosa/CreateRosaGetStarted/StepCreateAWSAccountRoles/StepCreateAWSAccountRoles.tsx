@@ -12,7 +12,7 @@ import {
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 import { trackEvents } from '~/common/analytics';
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { defaultToOfflineTokens, hasRestrictTokensCapability } from '~/common/restrictTokensHelper';
 import { loadOfflineToken } from '~/components/CLILoginPage/TokenUtils';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
@@ -93,7 +93,7 @@ const StepCreateAWSAccountRoles = ({
           {!restrictedEnv ? (
             <Content component="p">
               Learn more about{' '}
-              <ExternalLink href={links.LEARN_MORE_SSO_ROSA}>
+              <ExternalLink href={docLinks.LEARN_MORE_SSO_ROSA}>
                 logging into OpenShift Cluster Manager ROSA CLI with Red Hat single sign-on{' '}
               </ExternalLink>
             </Content>
@@ -118,7 +118,7 @@ const StepCreateAWSAccountRoles = ({
               <>
                 If you would prefer to manually create the required roles and policies within your
                 AWS account, follow{' '}
-                <ExternalLink href={links.AWS_CLI_GETTING_STARTED_MANUAL} noIcon>
+                <ExternalLink href={docLinks.AWS_CLI_GETTING_STARTED_MANUAL} noIcon>
                   these instructions
                 </ExternalLink>
                 .

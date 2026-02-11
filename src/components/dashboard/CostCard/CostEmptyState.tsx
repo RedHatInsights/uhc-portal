@@ -8,7 +8,7 @@ import {
   EmptyStateVariant,
 } from '@patternfly/react-core';
 
-import links from '../../../common/installLinks.mjs';
+import docLinks from '../../../common/docLinks.mjs';
 import ExternalLink from '../../common/ExternalLink';
 
 import CostIcon from './CostIcon';
@@ -27,7 +27,7 @@ const CostEmptyState = () => (
     </EmptyStateBody>
     <EmptyStateFooter>
       <EmptyStateActions>
-        <ExternalLink href={links.COSTMGMT_ADDING_OCP}>
+        <ExternalLink href={docLinks.COSTMGMT_ADDING_OCP}>
           Add an OpenShift cluster to Cost Management
         </ExternalLink>
       </EmptyStateActions>

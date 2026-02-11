@@ -3,9 +3,10 @@ import React from 'react';
 import { Alert, Content, Form, FormGroup, Grid, GridItem, Title } from '@patternfly/react-core';
 
 import { ocmResourceType, TrackEvent, trackEvents } from '~/common/analytics';
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { getDefaultSecurityGroupsSettings } from '~/common/securityGroupsHelpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import supportLinks from '~/common/supportLinks.mjs';
 import { isExactMajorMinor } from '~/common/versionHelpers';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import {
@@ -240,7 +241,7 @@ export const Configuration = () => {
                   title={`${PSCPrivateWifWarning} You will not be able to access your cluster until you properly configure private network connectivity to your cloud provider.`}
                 >
                   {cloudProvider === CloudProviderType.Aws && (
-                    <ExternalLink href={links.OSD_AWS_PRIVATE_CONNECTIONS}>
+                    <ExternalLink href={docLinks.OSD_AWS_PRIVATE_CONNECTIONS}>
                       Learn more about configuring network settings
                     </ExternalLink>
                   )}
@@ -344,7 +345,7 @@ export const Configuration = () => {
                   <>
                     {' '}
                     For 4.13 clusters, refer to{' '}
-                    <ExternalLink href={links.MANAGED_INGRESS_KNOWLEDGE_BASE}>
+                    <ExternalLink href={supportLinks.MANAGED_INGRESS_KNOWLEDGE_BASE}>
                       this knowledge base article
                     </ExternalLink>
                     .

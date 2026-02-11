@@ -11,7 +11,7 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { useGetWifConfigs } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/WorkloadIdentityFederation/useWifConfigs';
@@ -100,7 +100,7 @@ const WorkloadIdentityFederation = (props: WorkloadIdentityFederationProps) => {
           <Content component={ContentVariants.small}>
             This command creates all the necessary resources for deploying OSD on Google Cloud using
             only temporary credentials. You can also run the command in manual mode.{' '}
-            <ExternalLink noIcon href={links.OSD_CCS_GCP_WIF_CREATION_LEARN_MORE}>
+            <ExternalLink noIcon href={docLinks.OSD_CCS_GCP_WIF_CREATION_LEARN_MORE}>
               Learn more
             </ExternalLink>
             .

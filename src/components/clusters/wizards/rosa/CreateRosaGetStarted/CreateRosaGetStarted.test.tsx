@@ -1,6 +1,6 @@
 import React from 'react';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { checkAccessibility, mockUseChrome, render, screen } from '~/testUtils';
 
 import CreateRosaGetStarted from './CreateRosaGetStarted';
@@ -21,7 +21,7 @@ describe('<CreateRosaGetStarted />', () => {
       screen.getByRole('link', {
         name: 'Learn more about ROSA with hosted control planes in AWS GovCloud (new window or tab)',
       }),
-    ).toHaveAttribute('href', links.ROSA_AWS_FEDRAMP);
+    ).toHaveAttribute('href', docLinks.ROSA_AWS_FEDRAMP);
     expect(
       screen.getByRole('link', { name: 'FedRAMP access request form (new window or tab)' }),
     ).toHaveAttribute('href', 'https://console.redhat.com/openshift/create/rosa/govcloud');

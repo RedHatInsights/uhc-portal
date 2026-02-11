@@ -13,7 +13,7 @@ import {
   SelectOption,
 } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { CAPACITY_RESERVATION_MIN_VERSION as requiredVersion } from '~/components/clusters/common/machinePools/constants';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -81,12 +81,12 @@ export const capacityReservationHint = (showList: boolean, showRosaLink: boolean
     ) : null}
     <FlexItem>
       To learn more about Capacity Reservations, visit{' '}
-      <ExternalLink href={links.AWS_CAPACITY_RESERVATION}>AWS Documentation</ExternalLink>
+      <ExternalLink href={docLinks.AWS_CAPACITY_RESERVATION}>AWS Documentation</ExternalLink>
     </FlexItem>
     {showRosaLink ? (
       <FlexItem>
         To learn more about configuring capacity reservations, visit{' '}
-        <ExternalLink href={links.ROSA_CAPACITY_RESERVATION_OVERVIEW}>
+        <ExternalLink href={docLinks.ROSA_CAPACITY_RESERVATION_OVERVIEW}>
           ROSA Documentation
         </ExternalLink>
       </FlexItem>

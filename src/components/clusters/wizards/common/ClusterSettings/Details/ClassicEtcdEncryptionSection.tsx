@@ -10,7 +10,7 @@ import {
   SplitItem,
 } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 import { CheckboxField } from '~/components/clusters/wizards/form/CheckboxField';
@@ -24,7 +24,7 @@ type ClassicEtcdEncryptionSectionProps = {
 };
 
 export function ClassicEtcdEncryptionSection({
-  learnMoreLink = links.ROSA_SERVICE_ETCD_ENCRYPTION,
+  learnMoreLink = docLinks.ROSA_SERVICE_ETCD_ENCRYPTION,
 }: ClassicEtcdEncryptionSectionProps) {
   const {
     values: { [FieldId.FipsCryptography]: fipsCryptography },

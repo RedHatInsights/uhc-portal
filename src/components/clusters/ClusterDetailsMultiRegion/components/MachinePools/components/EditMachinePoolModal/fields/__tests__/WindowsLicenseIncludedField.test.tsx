@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Formik, FormikValues } from 'formik';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { render, screen } from '~/testUtils';
 
 import { WindowsLicenseIncludedField } from '../WindowsLicenseIncludedField';
@@ -17,7 +17,7 @@ import {
 const {
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: AWS_DOCS_LINK,
   WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: REDHAT_DOCS_LINK,
-} = links;
+} = docLinks;
 
 // Formik Wrapper:
 const buildTestComponent = (

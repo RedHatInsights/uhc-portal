@@ -3,7 +3,7 @@ import { useFormikContext } from 'formik';
 
 import { Content, ContentVariants } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { CheckboxField } from '~/components/clusters/wizards/form';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -22,7 +22,7 @@ type WindowsLicenseIncludedFieldProps = {
 const {
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: AWS_DOCS_LINK,
   WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: REDHAT_DOCS_LINK,
-} = links;
+} = docLinks;
 
 const WindowsLicenseIncludedField = ({
   isEdit = false,

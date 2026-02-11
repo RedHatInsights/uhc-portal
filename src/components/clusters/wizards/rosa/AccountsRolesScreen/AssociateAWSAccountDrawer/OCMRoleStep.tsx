@@ -3,7 +3,7 @@ import React from 'react';
 import { Alert, AlertVariant, Content, ContentVariants, Title } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -61,8 +61,8 @@ const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
             <ExternalLink
               href={
                 isHypershiftSelected
-                  ? links.ROSA_AWS_ACCOUNT_ASSOCIATION
-                  : links.ROSA_CLASSIC_AWS_ACCOUNT_ASSOCIATION
+                  ? docLinks.ROSA_AWS_ACCOUNT_ASSOCIATION
+                  : docLinks.ROSA_CLASSIC_AWS_ACCOUNT_ASSOCIATION
               }
               noIcon
             >

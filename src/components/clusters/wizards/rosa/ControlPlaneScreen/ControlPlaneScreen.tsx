@@ -3,7 +3,7 @@ import { Field } from 'formik';
 
 import { Content, ContentVariants, Form, Grid, GridItem, Title } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { clusterBillingModelToRelatedResource } from '~/components/clusters/common/billingModelMapper';
 import { QuotaTypes } from '~/components/clusters/common/quotaModel';
@@ -105,7 +105,7 @@ const ControlPlaneField = ({
       </GridItem>
       <GridItem span={6}>
         <Content component={ContentVariants.p}>
-          <ExternalLink href={links.VIRTUAL_PRIVATE_CLOUD_URL}>
+          <ExternalLink href={docLinks.VIRTUAL_PRIVATE_CLOUD_URL}>
             Learn more about Virtual Private Cloud
           </ExternalLink>
         </Content>
@@ -157,7 +157,7 @@ const ControlPlaneScreen = () => {
           </Title>
           <Content component={ContentVariants.p}>
             Not sure what to choose?{' '}
-            <ExternalLink href={links.AWS_CONTROL_PLANE_URL}>
+            <ExternalLink href={docLinks.AWS_CONTROL_PLANE_URL}>
               Learn more about AWS control plane types
             </ExternalLink>
           </Content>

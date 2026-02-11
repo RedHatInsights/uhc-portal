@@ -102,7 +102,20 @@ const docLinks = {
 
   // OCP
   AWS_CONTROL_PLANE_URL: `${OCP_DOCS_BASE}/architecture/control-plane#control-plane`,
+  IDP_HTPASSWD: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#configuring-htpasswd-identity-provider`,
+  IDP_LDAP: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-ldap-identity-provider`,
+  IDP_GITHUB: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#configuring-github-identity-provider`,
+  IDP_GITLAB: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-gitlab-identity-provider`,
+  IDP_GOOGLE: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-google-identity-provider`,
+  IDP_OPENID: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-oidc-identity-provider`,
+  CCO_MANUAL_MODE: `${OCP_DOCS_BASE}/authentication_and_authorization/managing-cloud-provider-credentials#cco-mode-manual`,
+  UNDERSTANDING_AUTHENTICATION: `${OCP_DOCS_BASE}/authentication_and_authorization/understanding-authentication`,
+  UNDERSTANDING_IDENTITY_PROVIDER: `${OCP_DOCS_BASE}/authentication_and_authorization/understanding-identity-provider`,
+  APPLYING_AUTOSCALING: `${OCP_DOCS_BASE}/machine_management/applying-autoscaling`,
+  APPLYING_AUTOSCALING_API_DETAIL: `${OCP_DOCS_BASE}/autoscale_apis/clusterautoscaler-autoscaling-openshift-io-v1`,
+  AWS_SPOT_INSTANCES: `${OCP_DOCS_BASE}/machine_management/managing-compute-machines-with-the-machine-api#machineset-non-guaranteed-instance_creating-machineset-aws`,
   COSTMGMT_ADDING_OCP: `${COSTMGMT_DOCS_BASE}/integrating_openshift_container_platform_data_into_cost_management/index`,
+  UPDATING_CLUSTER: `${OCP_DOCS_BASE}/updating_clusters/performing-a-cluster-update#updating-cluster-web-console`,
 
   // AWS
   AWS_CLI: 'https://aws.amazon.com/cli/',
@@ -137,7 +150,6 @@ const docLinks = {
   GCP_SERVICE_ACCOUNT_KEYS:
     'https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys',
   GCP_ENCRYPTION_KEYS: 'https://cloud.google.com/storage/docs/encryption/default-keys',
-  OSD_CCS_GCP_WIF_GCLOUD_CLI: 'https://cloud.google.com/sdk/docs/install',
   OSD_CCS_GCP_WIF_GCLOUD_CREDENTIALS:
     'https://cloud.google.com/docs/authentication/provide-credentials-adc',
 
@@ -161,12 +173,20 @@ const docLinks = {
   RH_ROSA_INSTALL: `${RH_BASE}/products/interactive-walkthrough/install-rosa`,
   RH_ROSA_LIGHTBOARD: `${RH_BASE}/about/videos/rosa-lightboard`,
 
+  // Cli docs
+  KN_DOCS: `${OCP_DOCS_BASE}/cli_tools/kn-cli-tools`,
+  TKN_DOCS: `${OCP_DOCS_BASE}/cli_tools/pipelines-cli-tkn#installing-tkn`,
+  CLI_TOOLS_OCP_GETTING_STARTED: `${OCP_DOCS_BASE}/cli_tools/openshift-cli-oc#cli-about-cli_cli-developer-commands`,
+  OPM_DOCS: `${OCP_DOCS_BASE}/cli_tools/opm-cli#olm-about-opm_cli-opm-install`,
+  ODO_DOCS: 'https://odo.dev/docs/introduction',
+
   // Misc
   LEARN_MORE_SSO:
     'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html-single/managing_clusters/index#con-ocm-with-rhsso_downloading-and-updating-pull-secrets',
   TRANSFER_CLUSTER_OWNERSHIP:
     'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html-single/managing_clusters/index#transferring-cluster-ownership_downloading-and-updating-pull-secrets',
-  CLI_TOOLS_OCP_GETTING_STARTED: `${OCP_DOCS_BASE}/cli_tools/openshift-cli-oc#cli-about-cli_cli-developer-commands`,
+  OSDK_REMOVAL_DOCS_4_19: `https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/release_notes/ocp-4-19-release-notes#ocp-4-19-removed-osdk_release-notes`,
+  HELM_DOCS: `${OCP_DOCS_BASE}/building_applications/working-with-helm-charts#understanding-helm`,
 };
 
 export default docLinks;
