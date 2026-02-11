@@ -187,7 +187,7 @@
     "storybook": "8.4.4",
     "style-loader": "4.0.0",
     "transform-class-properties": "^1.0.0-beta",
-    "ts-jest": "^29.1.2",
+    "ts-jest": "^29.4.0",
     "ts-loader": "^9.5.1",
     "ts-patch": "^3.3.0",
     "tsconfig-paths-webpack-plugin": "4.1.0",
