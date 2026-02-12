@@ -34,6 +34,7 @@ const TransferClusterOwnershipDialog = ({ onClose }: TransferClusterOwnershipDia
   const modalData: ModaData = useGlobalState((state) => state.modal.data) as ModaData;
 
   const {
+    isPending: isToggleSubscriptionReleasedPending,
     isError: isToggleSubscriptionReleasedError,
     error: toggleSubscriptionReleasedError,
     mutate: toggleSubscriptionReleased,
@@ -100,6 +101,7 @@ const TransferClusterOwnershipDialog = ({ onClose }: TransferClusterOwnershipDia
       secondaryText="Cancel"
       onPrimaryClick={handleSubmit}
       onSecondaryClick={handleClose}
+      isPending={isToggleSubscriptionReleasedPending}
     >
       {isToggleSubscriptionReleasedError ? (
         <ErrorBox
