@@ -24,10 +24,10 @@ const DrawerPanel = ({ content, onClose }: DrawerPanelProps) => {
   };
 
   return (
-    <Drawer isExpanded isInline>
+    <Drawer isExpanded>
       <DrawerContent
         panelContent={
-          <DrawerPanelContent defaultSize="100%" minSize="100%">
+          <DrawerPanelContent>
             <DrawerHead>
               {content?.head}
               <DrawerActions>
