@@ -14,8 +14,8 @@ import {
 import { DrawerPanelContentNode } from './DrawerPanelContent';
 
 type DrawerPanelProps = {
-  content?: DrawerPanelContentNode;
-  onClose?: () => void;
+  content: DrawerPanelContentNode;
+  onClose: () => void;
 };
 
 const DrawerPanel = ({ content, onClose }: DrawerPanelProps) => {
