@@ -1,9 +1,9 @@
-import React, { MouseEventHandler, useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 
 import { Alert, AlertProps, Button, Content, ContentVariants } from '@patternfly/react-core';
 
-import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/AssociateAWSAccountDrawer';
 import { AWSAccountRole } from './AssociateAWSAccountDrawer/common/AssociateAWSAccountStep';
+import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
 
 type AwsRoleErrorAlertProps = Pick<AlertProps, 'title'> & {
   targetRole?: AWSAccountRole;
@@ -11,18 +11,23 @@ type AwsRoleErrorAlertProps = Pick<AlertProps, 'title'> & {
 
 export const AwsRoleErrorAlert = ({ title, targetRole }: AwsRoleErrorAlertProps) => {
   const { openDrawer } = useAssociateAWSAccountDrawer();
-  const onClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
-    (event) => {
-      openDrawer({ focusOnClose: event.target as HTMLElement, targetRole });
-    },
-    [openDrawer, targetRole],
-  );
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const onClick = useCallback(() => {
+    openDrawer({
+      targetRole,
+      onClose: () => {
+        buttonRef.current?.focus();
+      },
+    });
+  }, [openDrawer, targetRole]);
+
   return (
     <Alert variant="danger" isInline title={title}>
       <Content className="pf-v6-u-font-size-sm">
         <Content component={ContentVariants.p}>
           To continue,{' '}
-          <Button variant="link" isInline onClick={onClick}>
+          <Button ref={buttonRef} variant="link" isInline onClick={onClick}>
             create the required role
           </Button>{' '}
           with the ROSA CLI.

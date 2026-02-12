@@ -22,7 +22,7 @@ import { CloudAccount } from '~/types/accounts_mgmt.v1';
 import { FuzzySelect } from '../../../../common/FuzzySelect/FuzzySelect';
 import PopoverHint from '../../../../common/PopoverHint';
 
-import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/AssociateAWSAccountDrawer';
+import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
 import { getContract } from './AWSBillingAccount/awsBillingAccountHelper';
 
 import './AccountsRolesScreen.scss';

@@ -4,8 +4,6 @@ import { Alert, AlertVariant, Content, ContentVariants, Title } from '@patternfl
 
 import { trackEvents } from '~/common/analytics';
 import links from '~/common/installLinks.mjs';
-import { useFormState } from '~/components/clusters/wizards/hooks';
-import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import InstructionCommand from '~/components/common/InstructionCommand';
 import PopoverHintWithTitle from '~/components/common/PopoverHintWithTitle';
@@ -17,13 +15,12 @@ import AssociateAWSAccountStep, {
 } from './common/AssociateAWSAccountStep';
 import ToggleGroupTabs from './common/ToggleGroupTabs';
 
-const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
-  const { expandable } = props;
+type OCMRoleStepProps = AssociateAWSAccountStepProps & {
+  isHypershiftSelected: boolean;
+};
 
-  const {
-    values: { [FieldId.Hypershift]: hypershiftValue },
-  } = useFormState();
-  const isHypershiftSelected = hypershiftValue === 'true';
+const OCMRoleStep = ({ isHypershiftSelected, ...props }: OCMRoleStepProps) => {
+  const { expandable } = props;
 
   return (
     <AssociateAWSAccountStep {...props}>

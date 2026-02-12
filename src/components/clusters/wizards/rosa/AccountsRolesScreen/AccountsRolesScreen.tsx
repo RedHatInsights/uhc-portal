@@ -23,7 +23,7 @@ import { isRestrictedEnv } from '~/restrictedEnv';
 import { FieldId } from '../constants';
 
 import AccountRolesARNsSection from './AccountRolesARNsSection/AccountRolesARNsSection';
-import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/AssociateAWSAccountDrawer';
+import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
 import AWSBillingAccount from './AWSBillingAccount/AWSBillingAccount';
 import AWSAccountSelection from './AWSAccountSelection';
 import { AwsRoleErrorAlert } from './AwsRoleErrorAlert';
@@ -85,7 +85,7 @@ function AccountsRolesScreen({
   const showBillingAccount =
     isHypershiftSelected && (!isRestrictedEnv() || hasBillingInBoundaryFlag);
 
-  const openDrawerButtonRef = useRef(null);
+  const openDrawerButtonRef = useRef<HTMLButtonElement>(null);
   const hasAWSAccounts = AWSAccountIDs.length > 0;
   const track = useAnalytics();
   const { openDrawer } = useAssociateAWSAccountDrawer(isHypershiftSelected);
@@ -165,12 +165,14 @@ function AccountsRolesScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getUserRoleResponse?.error, noUserForSelectedAWSAcct]);
 
-  const onClick = useCallback(
-    (event: any) => {
-      openDrawer({ focusOnClose: event.target, onClose: clearGetAWSAccountIDsResponse });
-    },
-    [clearGetAWSAccountIDsResponse, openDrawer],
-  );
+  const onClick = useCallback(() => {
+    openDrawer({
+      onClose: () => {
+        openDrawerButtonRef.current?.focus();
+        clearGetAWSAccountIDsResponse();
+      },
+    });
+  }, [clearGetAWSAccountIDsResponse, openDrawer]);
 
   return (
     <Form onSubmit={() => false}>
