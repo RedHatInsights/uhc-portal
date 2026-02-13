@@ -13,7 +13,7 @@ describe('ClusterDetails UserActions', () => {
   describe('getUsers', () => {
     it('dispatches successfully', () => {
       UsersActions.getUsers('fake id')(mockDispatch);
-      expect(mockDispatch).toBeCalledWith({
+      expect(mockDispatch).toHaveBeenCalledWith({
         payload: expect.anything(),
         type: UsersConstants.GET_USERS,
       });
@@ -21,14 +21,14 @@ describe('ClusterDetails UserActions', () => {
 
     it('calls clusterService.getUsers', () => {
       UsersActions.getUsers('fake id')(mockDispatch);
-      expect(clusterService.getClusterGroupUsers).toBeCalledWith('fake id');
+      expect(clusterService.getClusterGroupUsers).toHaveBeenCalledWith('fake id');
     });
   });
 
   describe('addUser', () => {
     it('dispatches successfully', () => {
       UsersActions.addUser('fake id', 'fake-group', 'fake-user')(mockDispatch);
-      expect(mockDispatch).toBeCalledWith({
+      expect(mockDispatch).toHaveBeenCalledWith({
         payload: expect.anything(),
         type: UsersConstants.ADD_USER,
       });
@@ -36,7 +36,7 @@ describe('ClusterDetails UserActions', () => {
 
     it('calls clusterService.addClusterGroupUser', () => {
       UsersActions.addUser('fake id', 'fake-group', 'fake-user')(mockDispatch);
-      expect(clusterService.addClusterGroupUser).toBeCalledWith(
+      expect(clusterService.addClusterGroupUser).toHaveBeenCalledWith(
         'fake id',
         'fake-group',
         'fake-user',
@@ -47,7 +47,7 @@ describe('ClusterDetails UserActions', () => {
   describe('deleteUser', () => {
     it('dispatches successfully', () => {
       UsersActions.deleteUser('fake id', 'fake-group', 'fake-user')(mockDispatch);
-      expect(mockDispatch).toBeCalledWith({
+      expect(mockDispatch).toHaveBeenCalledWith({
         payload: expect.anything(),
         type: UsersConstants.DELETE_USER,
       });
@@ -55,7 +55,7 @@ describe('ClusterDetails UserActions', () => {
 
     it('calls clusterService.getClusterGroupUsers', () => {
       UsersActions.deleteUser('fake id', 'fake-group', 'fake-user')(mockDispatch);
-      expect(clusterService.deleteClusterGroupUser).toBeCalledWith(
+      expect(clusterService.deleteClusterGroupUser).toHaveBeenCalledWith(
         'fake id',
         'fake-group',
         'fake-user',

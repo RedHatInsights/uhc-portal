@@ -5,7 +5,7 @@ import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ReviewAndCreate } from '~/components/clusters/wizards/osd/ReviewAndCreate/ReviewAndCreate';
-import { OSD_GCP_WIF, PRIVATE_SERVICE_CONNECT } from '~/queries/featureGates/featureConstants';
+import { OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
 const formValues = {
@@ -251,10 +251,6 @@ describe('<ReviewAndCreate />', () => {
         [FieldId.InstallToVpc]: true,
       };
 
-      beforeEach(() => {
-        mockUseFeatureGate([[PRIVATE_SERVICE_CONNECT, true]]);
-      });
-
       it('shows Private Service Connect as "Disabled" by default', () => {
         render(
           <Formik initialValues={privateServiceConnectFormValues} onSubmit={() => {}}>
@@ -285,20 +281,6 @@ describe('<ReviewAndCreate />', () => {
         const value = screen.getByTestId('Private-service-connect');
         expect(value).toBeInTheDocument();
         expect(value.textContent).toBe('Enabled');
-      });
-
-      it('does not show Private Service Connect when feature gate is disabled', () => {
-        mockUseFeatureGate([[PRIVATE_SERVICE_CONNECT, false]]);
-
-        render(
-          <Formik initialValues={privateServiceConnectFormValues} onSubmit={() => {}}>
-            <ReviewAndCreate />
-          </Formik>,
-        );
-
-        expect(screen.queryByText('Private service connect')).not.toBeInTheDocument();
-        const value = screen.queryByTestId('Private-service-connect');
-        expect(value).not.toBeInTheDocument();
       });
     });
   });

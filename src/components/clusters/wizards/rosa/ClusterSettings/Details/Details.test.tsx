@@ -7,6 +7,7 @@ import { Formik } from 'formik';
 import { waitFor } from '@testing-library/react';
 
 import { fulfilledProviders, multiRegions, noProviders } from '~/common/__tests__/regions.fixtures';
+import links from '~/common/installLinks.mjs';
 import { mockQuotaList } from '~/components/clusters/common/__tests__/quota.fixtures';
 import {
   FieldId,
@@ -496,6 +497,22 @@ describe('<Details />', () => {
       const submittedValues = handleSubmit.mock.calls[0][0];
       // Verify max-nodes-total has been reset to default
       expect(submittedValues.cluster_autoscaling?.resource_limits?.max_nodes_total).toBe(254);
+    });
+  });
+
+  describe('Monitoring', () => {
+    it('renders correct monitoring link when hypershift is not selected', async () => {
+      const { user } = render(
+        <Formik initialValues={defaultValues} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      const moreInfoBtn = screen.getByLabelText('More information about monitoring');
+      await user.click(moreInfoBtn);
+
+      const link = screen.getByRole('link', { name: /Learn more/i });
+      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_MONITORING);
     });
   });
 

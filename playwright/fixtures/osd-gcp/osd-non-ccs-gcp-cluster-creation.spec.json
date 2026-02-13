@@ -28,7 +28,7 @@
   "MachinePools": [
     {
       "Name": "worker",
-      "InstanceType": "custom-4-16384",
+      "InstanceType": "n2-standard-4",
       "AvailabilityZones": "us-east-1a, us-east-1b, us-east-1c",
       "NodeCount": 4,
       "Autoscaling": "Disabled"
