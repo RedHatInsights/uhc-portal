@@ -47,6 +47,8 @@ const EditNodeCountSection = ({
     machinePools,
   });
 
+  const mpAvailZones = machinePool?.availability_zones?.length;
+
   const maxNodes = React.useMemo(
     () =>
       getMaxNodeCountForMachinePool({
@@ -59,6 +61,7 @@ const EditNodeCountSection = ({
         minNodes: minNodesRequired,
         editMachinePoolId: machinePool?.id,
         allow249NodesOSDCCSROSA,
+        mpAvailZones,
       }),
     [
       cluster,
@@ -69,6 +72,7 @@ const EditNodeCountSection = ({
       organization.quotaList,
       minNodesRequired,
       allow249NodesOSDCCSROSA,
+      mpAvailZones,
     ],
   );
 

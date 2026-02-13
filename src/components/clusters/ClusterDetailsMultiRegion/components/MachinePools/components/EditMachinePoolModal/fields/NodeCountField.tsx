@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useField, useFormikContext } from 'formik';
+import { useField } from 'formik';
 
 import { FormGroup, NumberInput, Tooltip } from '@patternfly/react-core';
 
@@ -24,51 +24,46 @@ type NodeCountFieldProps = {
   cluster: ClusterFromSubscription;
 };
 
+const validateNodeCount = (value: number, min: number, max: number): string | undefined => {
+  if (Number.isNaN(value)) {
+    return 'Please enter a valid number.';
+  }
+  return validateNumericInput(value.toString(), { min, max });
+};
+
 const NodeCountField = ({
   minNodesRequired,
   maxNodes,
   cluster,
   mpAvailZones,
 }: NodeCountFieldProps) => {
-  const [field, meta] = useField<number>(fieldId);
-  const { setFieldValue, setFieldTouched } = useFormikContext();
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
 
   // For multizone, we display and input per-zone values
   const minNodesDisplay = isMultizoneMachinePool ? minNodesRequired / 3 : minNodesRequired;
   const maxNodesDisplay = isMultizoneMachinePool ? maxNodes / 3 : maxNodes;
+
+  const [field, meta, helpers] = useField<number>({
+    name: fieldId,
+    validate: (value) => {
+      // Validate the per-zone value for display
+      const displayValue = isMultizoneMachinePool ? value / 3 : value;
+      return validateNodeCount(displayValue, minNodesDisplay, maxNodesDisplay);
+    },
+  });
+
   const displayValue = isMultizoneMachinePool ? field.value / 3 : field.value;
-
   const notEnoughQuota = maxNodes < minNodesRequired;
-
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
 
-  // Local validation error state for immediate feedback
-  const [localError, setLocalError] = React.useState<string | undefined>();
-
-  const validateValue = (value: number): string | undefined => {
-    if (Number.isNaN(value)) {
-      return 'Please enter a valid number.';
-    }
-    return validateNumericInput(value.toString(), {
-      min: minNodesDisplay,
-      max: maxNodesDisplay,
-    });
-  };
-
   const handleChange = (newValue: number) => {
-    // Validate and set local error for immediate feedback
-    const validationError = validateValue(newValue);
-    setLocalError(validationError);
-
     // Convert per-zone value back to total for multizone
     const valueToStore = isMultizoneMachinePool ? newValue * 3 : newValue;
-    setFieldValue(fieldId, valueToStore, true);
-    setFieldTouched(fieldId, true, false);
+    helpers.setValue(valueToStore, true);
+    helpers.setTouched(true, false);
   };
 
-  // Display either local validation error or Formik error
-  const displayError = localError || (meta.touched ? meta.error : undefined);
+  const displayError = meta.touched ? meta.error : undefined;
 
   const numberInput = (
     <NumberInput

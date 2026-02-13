@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useField, useFormikContext } from 'formik';
+import { useField } from 'formik';
 
 import { FormGroup, NumberInput } from '@patternfly/react-core';
 
@@ -24,42 +24,36 @@ type AutoscaleMaxReplicasFieldProps = {
 
 const fieldId = 'autoscaleMax';
 
+const validateAutoscaleMax = (value: number, min: number, max: number): string | undefined => {
+  if (Number.isNaN(value)) {
+    return 'Please enter a valid number.';
+  }
+  return validateNumericInput(value.toString(), { min, max });
+};
+
 const AutoscaleMaxReplicasField = ({
   minNodes: initMinNodes,
   cluster,
   maxNodes: initMaxNodes,
   mpAvailZones,
 }: AutoscaleMaxReplicasFieldProps) => {
-  const [field, meta] = useField<number>(fieldId);
-  const { setFieldValue, setFieldTouched } = useFormikContext();
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
 
   const minNodes = isMultizoneMachinePool ? initMinNodes / 3 : initMinNodes;
   const maxNodes = isMultizoneMachinePool ? initMaxNodes / 3 : initMaxNodes;
 
-  // Local validation error state for immediate feedback
-  const [localError, setLocalError] = React.useState<string | undefined>();
-
-  const validateValue = (value: number): string | undefined => {
-    if (Number.isNaN(value)) {
-      return 'Please enter a valid number.';
-    }
-    return validateNumericInput(value.toString(), {
-      min: minNodes || 1,
-      max: maxNodes,
-    });
-  };
+  const [field, meta, helpers] = useField<number>({
+    name: fieldId,
+    validate: (value) => validateAutoscaleMax(value, minNodes || 1, maxNodes),
+  });
 
   const handleChange = (newValue: number) => {
-    const validationError = validateValue(newValue);
-    setLocalError(validationError);
-    setFieldValue(fieldId, newValue, true);
-    setFieldTouched(fieldId, true, false);
+    helpers.setValue(newValue, true);
+    helpers.setTouched(true, false);
   };
 
-  // Display either local validation error or Formik error
-  const displayError = localError || (meta.touched ? meta.error : undefined);
+  const displayError = meta.touched ? meta.error : undefined;
 
   return (
     <FormGroup

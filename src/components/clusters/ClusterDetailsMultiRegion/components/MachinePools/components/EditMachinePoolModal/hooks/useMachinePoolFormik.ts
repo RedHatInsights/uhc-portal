@@ -235,6 +235,7 @@ const useMachinePoolFormik = ({
       Yup.lazy((values) => {
         const minNodes = isMachinePoolMz ? minNodesRequired / 3 : minNodesRequired;
         const secGroupValidation = validateSecurityGroups(values.securityGroupIds, isHypershift);
+        const mpAvailZones = (machinePool as MachinePool)?.availability_zones?.length;
         const maxNodes = getMaxNodeCountForMachinePool({
           cluster,
           machinePools: machinePools || [],
@@ -245,6 +246,7 @@ const useMachinePoolFormik = ({
           machineTypeId: values.instanceType?.id,
           editMachinePoolId: values.name,
           allow249NodesOSDCCSROSA,
+          mpAvailZones,
         });
 
         return Yup.object({
