@@ -1,10 +1,5 @@
-import range from 'lodash/range';
-
 import { splitVersion } from '~/common/versionHelpers';
-import {
-  isMPoolAz,
-  isMultiAZ,
-} from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
+import { isMultiAZ } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
 import { MachineTypesResponse } from '~/queries/types';
@@ -93,13 +88,17 @@ export const getIncludedNodes = ({
   return isMultiAz ? 9 : 4;
 };
 
-export const buildOptions = ({
+/**
+ * Calculates the maximum node count based on quota, cluster type, and version.
+ * Previously named `buildOptions` and returned an array of options for a dropdown.
+ * Now returns just the max value for use with numerical input.
+ */
+export const getMaxNodeCount = ({
   included,
   available,
   isEditingCluster,
   currentNodeCount,
   minNodes,
-  increment,
   isHypershift,
   clusterVersion,
   allow249NodesOSDCCSROSA,
@@ -108,12 +107,11 @@ export const buildOptions = ({
   isEditingCluster: boolean;
   currentNodeCount: number;
   minNodes: number;
-  increment: number;
   included: number;
   isHypershift?: boolean;
   clusterVersion: string | undefined;
   allow249NodesOSDCCSROSA?: boolean;
-}) => {
+}): number => {
   const maxNodesHCP = getMaxNodesHCP(clusterVersion);
   // no extra node quota = only base cluster size is available
   const optionsAvailable = available > 0 || isEditingCluster;
@@ -132,7 +130,7 @@ export const buildOptions = ({
   if (isHypershift && isEditingCluster && maxValue > maxNodesHCP - currentNodeCount) {
     maxValue = maxNodesHCP - currentNodeCount;
   }
-  return optionsAvailable ? range(minNodes, maxValue + 1, increment) : [minNodes];
+  return optionsAvailable ? maxValue : minNodes;
 };
 
 export const getAvailableQuota = ({
@@ -204,7 +202,7 @@ export const getNodeCount = (
     return totalCount;
   }, 0);
 
-export type getNodeOptionsType = {
+export type GetMaxNodeCountForMachinePoolParams = {
   cluster: ClusterFromSubscription;
   quota: GlobalState['userProfile']['organization']['quotaList'];
   machineTypes: MachineTypesResponse;
@@ -216,7 +214,16 @@ export type getNodeOptionsType = {
   allow249NodesOSDCCSROSA?: boolean;
 };
 
-export const getNodeOptions = ({
+/**
+ * @deprecated Use getMaxNodeCountForMachinePool instead
+ */
+export type getNodeOptionsType = GetMaxNodeCountForMachinePoolParams;
+
+/**
+ * Gets the maximum node count for a machine pool based on cluster configuration and quota.
+ * Used in Day 2 operations (editing existing clusters).
+ */
+export const getMaxNodeCountForMachinePool = ({
   cluster,
   quota,
   machineTypes,
@@ -226,10 +233,8 @@ export const getNodeOptions = ({
   minNodes,
   editMachinePoolId,
   allow249NodesOSDCCSROSA,
-}: getNodeOptionsType) => {
+}: GetMaxNodeCountForMachinePoolParams): number => {
   const isMultiAz = isMultiAZ(cluster);
-
-  const isMPoolAZ = isMPoolAz(cluster, machinePool?.availability_zones?.length);
 
   const available = getAvailableQuota({
     quota,
@@ -259,18 +264,22 @@ export const getNodeOptions = ({
     machineTypeId,
   );
 
-  return buildOptions({
+  return getMaxNodeCount({
     available,
     isEditingCluster: true,
     included,
     currentNodeCount,
     minNodes,
-    increment: isMPoolAZ ? 3 : 1,
     isHypershift: isHypershiftCluster(cluster),
     clusterVersion: cluster.version?.raw_id,
     allow249NodesOSDCCSROSA,
   });
 };
+
+/**
+ * @deprecated Use getMaxNodeCountForMachinePool instead
+ */
+export const getNodeOptions = getMaxNodeCountForMachinePool;
 
 export const getWorkerNodeVolumeSizeMinGiB = (isHypershift: boolean): number =>
   isHypershift ? workerNodeVolumeSizeMinGiBHcp : workerNodeVolumeSizeMinGiB;

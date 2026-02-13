@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 
 import { FormGroup, NumberInput } from '@patternfly/react-core';
 
@@ -12,13 +12,12 @@ import { computeNodeHintText } from '~/components/clusters/common/ScaleSection/A
 import ExternalLink from '~/components/common/ExternalLink';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
-import useFormikOnChange from '~/hooks/useFormikOnChange';
 import { ClusterFromSubscription } from '~/types/types';
 
 type AutoscaleMaxReplicasFieldProps = {
   minNodes: number;
   cluster: ClusterFromSubscription;
-  options: number[];
+  maxNodes: number;
   mpAvailZones?: number;
 };
 
@@ -27,18 +26,42 @@ const fieldId = 'autoscaleMax';
 const AutoscaleMaxReplicasField = ({
   minNodes: initMinNodes,
   cluster,
-  options,
+  maxNodes: initMaxNodes,
   mpAvailZones,
 }: AutoscaleMaxReplicasFieldProps) => {
-  const [field, { error, touched }] = useField<number>(fieldId);
-  const onChange = useFormikOnChange(fieldId);
+  const [field, meta] = useField<number>(fieldId);
+  const { setFieldValue, setFieldTouched } = useFormikContext();
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
 
-  const maxValue = options.length ? options[options.length - 1] : 0;
-
   const minNodes = isMultizoneMachinePool ? initMinNodes / 3 : initMinNodes;
-  const maxNodes = isMultizoneMachinePool ? maxValue / 3 : maxValue;
+  const maxNodes = isMultizoneMachinePool ? initMaxNodes / 3 : initMaxNodes;
+
+  // Local validation error state for immediate feedback
+  const [localError, setLocalError] = React.useState<string | undefined>();
+
+  const validateValue = (value: number): string | undefined => {
+    if (Number.isNaN(value)) {
+      return 'Please enter a valid number.';
+    }
+    if (value < (minNodes || 1)) {
+      return `Input cannot be less than ${minNodes || 1}.`;
+    }
+    if (value > maxNodes) {
+      return `Input cannot be more than ${maxNodes}.`;
+    }
+    return undefined;
+  };
+
+  const handleChange = (newValue: number) => {
+    const validationError = validateValue(newValue);
+    setLocalError(validationError);
+    setFieldValue(fieldId, newValue, true);
+    setFieldTouched(fieldId, true, false);
+  };
+
+  // Display either local validation error or Formik error
+  const displayError = localError || (meta.touched ? meta.error : undefined);
 
   return (
     <FormGroup
@@ -66,19 +89,19 @@ const AutoscaleMaxReplicasField = ({
     >
       <NumberInput
         {...field}
-        onPlus={() => onChange(field.value + 1)}
-        onMinus={() => onChange(field.value - 1)}
+        onPlus={() => handleChange(field.value + 1)}
+        onMinus={() => handleChange(field.value - 1)}
         onChange={(e) => {
-          const newValue = (e.target as any).value;
-          onChange(Number(newValue));
+          const newValue = Number((e.target as HTMLInputElement).value);
+          handleChange(newValue);
         }}
         id={fieldId}
         min={minNodes || 1}
         max={maxNodes}
       />
 
-      <FormGroupHelperText touched={touched} error={error}>
-        {isMultizoneMachinePool && `x 3 zones = ${field.value * 3}`}
+      <FormGroupHelperText touched={!!displayError} error={displayError}>
+        {isMultizoneMachinePool && !displayError && `x 3 zones = ${field.value * 3}`}
       </FormGroupHelperText>
     </FormGroup>
   );

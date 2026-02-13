@@ -1,7 +1,7 @@
 import * as utils from './utils';
 
 describe('machinePools utils', () => {
-  describe('getNodeOptions', () => {
+  describe('getMaxNodeCountForMachinePool', () => {
     const selectedMPNodes = 1;
     const existingNodes = 4; // total from below)
 
@@ -35,7 +35,7 @@ describe('machinePools utils', () => {
       ],
       minNodes: 1,
       editMachinePoolId: 'workers-1',
-    } as unknown as utils.getNodeOptionsType;
+    } as unknown as utils.GetMaxNodeCountForMachinePoolParams;
 
     const maxNodesHCP = utils.getMaxNodesHCP(defaultArgs.cluster.version?.raw_id);
 
@@ -49,15 +49,14 @@ describe('machinePools utils', () => {
         ...defaultArgs,
         editMachinePoolId: undefined,
       };
-      it('returns expected options if hypershift and all same machine type', () => {
-        const options = utils.getNodeOptions(newMachinePoolArgs);
+      it('returns expected max node count if hypershift and all same machine type', () => {
+        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgs);
 
-        const expectedLargestOption = maxNodesHCP - existingNodes;
-        expect(options).toHaveLength(expectedLargestOption);
-        expect(options[options.length - 1]).toBe(expectedLargestOption);
+        const expectedMaxNodes = maxNodesHCP - existingNodes;
+        expect(maxNodeCount).toBe(expectedMaxNodes);
       });
 
-      it('returns expected options if hypershift and different machine types', () => {
+      it('returns expected max node count if hypershift and different machine types', () => {
         const newMachinePoolArgsPlus = {
           ...newMachinePoolArgs,
           machinePools: [
@@ -69,14 +68,13 @@ describe('machinePools utils', () => {
             },
           ],
         };
-        const options = utils.getNodeOptions(newMachinePoolArgsPlus);
+        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsPlus);
 
-        const expectedLargestOption = maxNodesHCP - existingNodes - 3; // "3" is from machine pool added in this test
-        expect(options).toHaveLength(expectedLargestOption);
-        expect(options[options.length - 1]).toBe(expectedLargestOption);
+        const expectedMaxNodes = maxNodesHCP - existingNodes - 3; // "3" is from machine pool added in this test
+        expect(maxNodeCount).toBe(expectedMaxNodes);
       });
 
-      it('returns expected options if not hypershift and all same machine type', () => {
+      it('returns expected max node count if not hypershift and all same machine type', () => {
         const newMachinePoolArgsNotHCP = {
           ...newMachinePoolArgs,
           cluster: {
@@ -86,14 +84,13 @@ describe('machinePools utils', () => {
           allow249NodesOSDCCSROSA: true,
         };
 
-        const options = utils.getNodeOptions(newMachinePoolArgsNotHCP);
+        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
 
-        const expectedLargestOption = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
-        expect(options).toHaveLength(expectedLargestOption);
-        expect(options[options.length - 1]).toBe(expectedLargestOption);
+        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
+        expect(maxNodeCount).toBe(expectedMaxNodes);
       });
 
-      it('returns expected options if not hypershift and different machine types', () => {
+      it('returns expected max node count if not hypershift and different machine types', () => {
         const newMachinePoolArgsNotHCP = {
           ...newMachinePoolArgs,
           cluster: {
@@ -111,24 +108,22 @@ describe('machinePools utils', () => {
           allow249NodesOSDCCSROSA: true,
         };
 
-        const options = utils.getNodeOptions(newMachinePoolArgsNotHCP);
+        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
 
-        const expectedLargestOption = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
-        expect(options).toHaveLength(expectedLargestOption);
-        expect(options[options.length - 1]).toBe(expectedLargestOption);
+        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
+        expect(maxNodeCount).toBe(expectedMaxNodes);
       });
     });
 
     describe('Editing an existing machine pool', () => {
-      it('returns expected options if hypershift and all same machine type', () => {
-        const options = utils.getNodeOptions(defaultArgs);
+      it('returns expected max node count if hypershift and all same machine type', () => {
+        const maxNodeCount = utils.getMaxNodeCountForMachinePool(defaultArgs);
 
-        const expectedLargestOption = maxNodesHCP - existingNodes + selectedMPNodes;
-        expect(options).toHaveLength(expectedLargestOption);
-        expect(options[options.length - 1]).toBe(expectedLargestOption);
+        const expectedMaxNodes = maxNodesHCP - existingNodes + selectedMPNodes;
+        expect(maxNodeCount).toBe(expectedMaxNodes);
       });
 
-      it('returns expected options if hypershift and different machine types', () => {
+      it('returns expected max node count if hypershift and different machine types', () => {
         const newMachinePoolReplicas = 3;
 
         const newMachinePoolArgsPlus = {
@@ -142,15 +137,14 @@ describe('machinePools utils', () => {
             },
           ],
         };
-        const options = utils.getNodeOptions(newMachinePoolArgsPlus);
+        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsPlus);
 
         const existingNodesWithNewMP = existingNodes + newMachinePoolReplicas;
-        const expectedLargestOption = maxNodesHCP - existingNodesWithNewMP + selectedMPNodes;
-        expect(options).toHaveLength(expectedLargestOption);
-        expect(options[options.length - 1]).toBe(expectedLargestOption);
+        const expectedMaxNodes = maxNodesHCP - existingNodesWithNewMP + selectedMPNodes;
+        expect(maxNodeCount).toBe(expectedMaxNodes);
       });
 
-      it('returns expected options if not hypershift and all same machine type', () => {
+      it('returns expected max node count if not hypershift and all same machine type', () => {
         const newMachinePoolArgsNotHCP = {
           ...defaultArgs,
           cluster: {
@@ -160,14 +154,13 @@ describe('machinePools utils', () => {
           allow249NodesOSDCCSROSA: true,
         };
 
-        const options = utils.getNodeOptions(newMachinePoolArgsNotHCP);
+        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
 
-        const expectedLargestOption = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
-        expect(options).toHaveLength(expectedLargestOption);
-        expect(options[options.length - 1]).toBe(expectedLargestOption);
+        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
+        expect(maxNodeCount).toBe(expectedMaxNodes);
       });
 
-      it('returns expected options if not hypershift and different machine types', () => {
+      it('returns expected max node count if not hypershift and different machine types', () => {
         const newMachinePoolArgsNotHCP = {
           ...defaultArgs,
           cluster: {
@@ -185,11 +178,10 @@ describe('machinePools utils', () => {
           allow249NodesOSDCCSROSA: true,
         };
 
-        const options = utils.getNodeOptions(newMachinePoolArgsNotHCP);
+        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
 
-        const expectedLargestOption = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
-        expect(options).toHaveLength(expectedLargestOption);
-        expect(options[options.length - 1]).toBe(expectedLargestOption);
+        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
+        expect(maxNodeCount).toBe(expectedMaxNodes);
       });
     });
 

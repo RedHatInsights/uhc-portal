@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 
-import { FormGroup, SelectOption, Tooltip } from '@patternfly/react-core';
+import { FormGroup, NumberInput, Tooltip } from '@patternfly/react-core';
 
 import { noQuotaTooltip } from '~/common/helpers';
 import links from '~/common/installLinks.mjs';
@@ -12,55 +12,83 @@ import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import ExternalLink from '~/components/common/ExternalLink';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
-import useFormikOnChange from '~/hooks/useFormikOnChange';
 import { ClusterFromSubscription } from '~/types/types';
-
-import SelectField from './SelectField';
 
 const fieldId = 'replicas';
 
 type NodeCountFieldProps = {
   mpAvailZones: number | undefined;
   minNodesRequired: number;
-  options: number[];
+  maxNodes: number;
   cluster: ClusterFromSubscription;
 };
 
 const NodeCountField = ({
   minNodesRequired,
-  options,
+  maxNodes,
   cluster,
   mpAvailZones,
 }: NodeCountFieldProps) => {
-  const [field] = useField<number>(fieldId);
-  const onChange = useFormikOnChange(fieldId);
+  const [field, meta] = useField<number>(fieldId);
+  const { setFieldValue, setFieldTouched } = useFormikContext();
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
-  const optionExists = options.includes(field.value);
 
-  React.useEffect(() => {
-    // options could not be ready yet when NodeCountField renders for the first time
-    if (options.length > 0 && !optionExists) {
-      onChange(minNodesRequired);
-    }
-  }, [optionExists, minNodesRequired, onChange, options.length]);
+  // For multizone, we display and input per-zone values
+  const minNodesDisplay = isMultizoneMachinePool ? minNodesRequired / 3 : minNodesRequired;
+  const maxNodesDisplay = isMultizoneMachinePool ? maxNodes / 3 : maxNodes;
+  const displayValue = isMultizoneMachinePool ? field.value / 3 : field.value;
 
-  const notEnoughQuota = options.length < 1;
+  const notEnoughQuota = maxNodes < minNodesRequired;
 
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
 
-  const selectField = (
-    <SelectField
-      value={`${isMultizoneMachinePool ? field.value / 3 : field.value}`}
-      fieldId={fieldId}
-      onSelect={(newValue) => onChange(parseInt(newValue as string, 10))}
+  // Local validation error state for immediate feedback
+  const [localError, setLocalError] = React.useState<string | undefined>();
+
+  const validateValue = (value: number): string | undefined => {
+    if (Number.isNaN(value)) {
+      return 'Please enter a valid number.';
+    }
+    if (value < minNodesDisplay) {
+      return `Input cannot be less than ${minNodesDisplay}.`;
+    }
+    if (value > maxNodesDisplay) {
+      return `Input cannot be more than ${maxNodesDisplay}.`;
+    }
+    return undefined;
+  };
+
+  const handleChange = (newValue: number) => {
+    // Validate and set local error for immediate feedback
+    const validationError = validateValue(newValue);
+    setLocalError(validationError);
+
+    // Convert per-zone value back to total for multizone
+    const valueToStore = isMultizoneMachinePool ? newValue * 3 : newValue;
+    setFieldValue(fieldId, valueToStore, true);
+    setFieldTouched(fieldId, true, false);
+  };
+
+  // Display either local validation error or Formik error
+  const displayError = localError || (meta.touched ? meta.error : undefined);
+
+  const numberInput = (
+    <NumberInput
+      value={displayValue}
+      min={minNodesDisplay}
+      max={maxNodesDisplay}
+      onMinus={() => handleChange(displayValue - 1)}
+      onChange={(event) => {
+        const newValue = Number((event.target as HTMLInputElement).value);
+        handleChange(newValue);
+      }}
+      onPlus={() => handleChange(displayValue + 1)}
+      inputAriaLabel="Compute nodes"
+      minusBtnAriaLabel="Decrement compute nodes"
+      plusBtnAriaLabel="Increment compute nodes"
+      widthChars={4}
       isDisabled={notEnoughQuota}
-    >
-      {options.map((option) => (
-        <SelectOption key={option} value={`${option}`}>
-          {`${isMultizoneMachinePool ? option / 3 : option}`}
-        </SelectOption>
-      ))}
-    </SelectField>
+    />
   );
 
   return (
@@ -88,14 +116,14 @@ const NodeCountField = ({
     >
       {notEnoughQuota ? (
         <Tooltip content={noQuotaTooltip} position="right">
-          {selectField}
+          {numberInput}
         </Tooltip>
       ) : (
-        selectField
+        numberInput
       )}
 
-      <FormGroupHelperText>
-        {isMultizoneMachinePool && `x 3 zones = ${field.value}`}
+      <FormGroupHelperText touched={!!displayError} error={displayError}>
+        {isMultizoneMachinePool && !displayError && `x 3 zones = ${field.value}`}
       </FormGroupHelperText>
     </FormGroup>
   );

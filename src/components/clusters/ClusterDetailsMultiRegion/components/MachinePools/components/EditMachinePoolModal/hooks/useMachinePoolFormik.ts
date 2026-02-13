@@ -21,7 +21,7 @@ import {
   SPOT_MIN_PRICE,
 } from '~/components/clusters/common/machinePools/constants';
 import {
-  getNodeOptions,
+  getMaxNodeCountForMachinePool,
   getWorkerNodeVolumeSizeMaxGiB,
   getWorkerNodeVolumeSizeMinGiB,
 } from '~/components/clusters/common/machinePools/utils';
@@ -235,7 +235,7 @@ const useMachinePoolFormik = ({
       Yup.lazy((values) => {
         const minNodes = isMachinePoolMz ? minNodesRequired / 3 : minNodesRequired;
         const secGroupValidation = validateSecurityGroups(values.securityGroupIds, isHypershift);
-        const nodeOptions = getNodeOptions({
+        const maxNodes = getMaxNodeCountForMachinePool({
           cluster,
           machinePools: machinePools || [],
           machinePool,
@@ -246,7 +246,6 @@ const useMachinePoolFormik = ({
           editMachinePoolId: values.name,
           allow249NodesOSDCCSROSA,
         });
-        const maxNodes = nodeOptions.length ? nodeOptions[nodeOptions.length - 1] : 0;
 
         return Yup.object({
           name: Yup.string().test('mp-name', '', (value) => {
