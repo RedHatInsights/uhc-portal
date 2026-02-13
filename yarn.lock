@@ -2848,12 +2848,7 @@
   dependencies:
     glob "10.3.3"
 
-"@redhat-cloud-services/types@1.0.11":
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/types/-/types-1.0.11.tgz#e13e621c57432cfd0debcb02bd7b1cea113dda03"
-  integrity sha512-Ml1OsVEa8lUq3t2xUC6CJzD8p/E446HOk36D8aDMJ1c8gum7nndweLXz2Vdq+zewCF2RE+Dbe9E0QNJSfJcRHA==
-
-"@redhat-cloud-services/types@^2.0.0":
+"@redhat-cloud-services/types@2.0.0", "@redhat-cloud-services/types@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@redhat-cloud-services/types/-/types-2.0.0.tgz#b192811cef0f04a132706e371d1eccf3213ce51b"
   integrity sha512-T9KvjntxMtRkNcyYCKB9OktIy7hhy24Y4n1nDZgGsysSnfWOrnmsrLUI7pyrwqsRVzjIjI3oYf7qH7DE5LcFag==
