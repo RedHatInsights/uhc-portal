@@ -48,7 +48,7 @@ import { ErrorState } from '~/types/types';
 import { QuotaTypes } from '../../common/quotaModel';
 import { useClusterWizardResetStepsHook } from '../hooks/useClusterWizardResetStepsHook';
 
-import { CloudProviderType, GCPAuthType } from './ClusterSettings/CloudProvider/types';
+import { CloudProviderType } from './ClusterSettings/CloudProvider/types';
 import { BillingModel } from './BillingModel';
 import {
   CloudProviderStepFooter,
