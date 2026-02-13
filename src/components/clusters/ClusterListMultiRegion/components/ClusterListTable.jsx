@@ -1,7 +1,6 @@
 import React from 'react';
 import get from 'lodash/get';
 import PropTypes from 'prop-types';
-import { ACM_HUB_PROPERTY_KEY, ACM_HUB_PROPERTY_VALUE } from '~/common/acmHubConstants';
 
 import {
   Button,
@@ -14,8 +13,8 @@ import {
   Skeleton,
 } from '@patternfly/react-core';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
-import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import MulticlusterIcon from '@patternfly/react-icons/dist/esm/icons/multicluster-icon';
+import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {
   ActionsColumn,
   SortByDirection,
@@ -28,6 +27,7 @@ import {
 } from '@patternfly/react-table';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
+import { ACM_HUB_PROPERTY_KEY, ACM_HUB_PROPERTY_VALUE } from '~/common/acmHubConstants';
 import { Link } from '~/common/routing';
 import supportLinks from '~/common/supportLinks.mjs';
 import AIClusterStatus from '~/components/AIComponents/AIClusterStatus';

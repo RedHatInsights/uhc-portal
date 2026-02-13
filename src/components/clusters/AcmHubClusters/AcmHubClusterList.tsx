@@ -16,8 +16,8 @@ import { PaginationRow } from '~/components/clusters/ClusterListMultiRegion/comp
 import ViewOnlyMyClustersToggle from '~/components/clusters/ClusterListMultiRegion/components/ViewOnlyMyClustersToggle';
 import ClusterListFilter from '~/components/clusters/common/ClusterListFilter';
 import GlobalErrorBox from '~/components/clusters/common/GlobalErrorBox/GlobalErrorBox';
-import { modalActions } from '~/components/common/Modal/ModalActions';
 import ErrorBox from '~/components/common/ErrorBox';
+import { modalActions } from '~/components/common/Modal/ModalActions';
 import Unavailable from '~/components/common/Unavailable';
 import {
   ACM_HUB_CLUSTERS_VIEW,
