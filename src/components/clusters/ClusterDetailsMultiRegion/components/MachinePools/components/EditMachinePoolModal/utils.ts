@@ -34,9 +34,13 @@ const getAutoscalingParams = (
   isMultiAz: boolean,
   isHypershift: boolean,
 ) => {
+  // All values (autoscaleMin, autoscaleMax, replicas) are stored as per-zone for multi-AZ
+  // Convert back to total for the API request
+  const multiplier = isMultiAz ? 3 : 1;
+
   if (values.autoscaling) {
-    const maxReplica = values.autoscaleMax * (isMultiAz ? 3 : 1);
-    const minReplica = values.autoscaleMin * (isMultiAz ? 3 : 1);
+    const maxReplica = values.autoscaleMax * multiplier;
+    const minReplica = values.autoscaleMin * multiplier;
 
     const autoscaling = isHypershift
       ? {
@@ -52,7 +56,7 @@ const getAutoscalingParams = (
     };
   }
   return {
-    replicas: values.replicas,
+    replicas: values.replicas * multiplier,
   };
 };
 

@@ -149,9 +149,12 @@ const useMachinePoolFormik = ({
       nodeDrainTimeout = machinePool.node_drain_grace_period?.value;
     }
 
+    // For multi-zone machine pools, store per-zone values (divide by 3)
+    let replicas = machinePool?.replicas || minNodesRequired;
     if (isMachinePoolMz) {
       autoscaleMin /= 3;
       autoscaleMax /= 3;
+      replicas /= 3;
     }
 
     const machinePoolData: EditMachinePoolValues = {
@@ -160,7 +163,7 @@ const useMachinePoolFormik = ({
       auto_repair: autoRepair,
       autoscaleMin,
       autoscaleMax: autoscaleMax || 1,
-      replicas: machinePool?.replicas || minNodesRequired,
+      replicas,
       labels: machinePool?.labels
         ? Object.keys(machinePool.labels).map((key) => ({
             key,

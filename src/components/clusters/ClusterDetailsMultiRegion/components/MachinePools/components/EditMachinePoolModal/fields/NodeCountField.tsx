@@ -39,27 +39,20 @@ const NodeCountField = ({
 }: NodeCountFieldProps) => {
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
 
-  // For multizone, we display and input per-zone values
-  const minNodesDisplay = isMultizoneMachinePool ? minNodesRequired / 3 : minNodesRequired;
-  const maxNodesDisplay = isMultizoneMachinePool ? maxNodes / 3 : maxNodes;
+  // For multizone, min/max are per-zone values (maxNodes is already adjusted by getMaxNodeCountForMachinePool)
+  const minNodes = isMultizoneMachinePool ? minNodesRequired / 3 : minNodesRequired;
+  const maxNodesPerZone = isMultizoneMachinePool ? maxNodes / 3 : maxNodes;
 
   const [field, meta, helpers] = useField<number>({
     name: fieldId,
-    validate: (value) => {
-      // Validate the per-zone value for display
-      const displayValue = isMultizoneMachinePool ? value / 3 : value;
-      return validateNodeCount(displayValue, minNodesDisplay, maxNodesDisplay);
-    },
+    validate: (value) => validateNodeCount(value, minNodes, maxNodesPerZone),
   });
 
-  const displayValue = isMultizoneMachinePool ? field.value / 3 : field.value;
   const notEnoughQuota = maxNodes < minNodesRequired;
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
 
   const handleChange = (newValue: number) => {
-    // Convert per-zone value back to total for multizone
-    const valueToStore = isMultizoneMachinePool ? newValue * 3 : newValue;
-    helpers.setValue(valueToStore, true);
+    helpers.setValue(newValue, true);
     helpers.setTouched(true, false);
   };
 
@@ -67,15 +60,15 @@ const NodeCountField = ({
 
   const numberInput = (
     <NumberInput
-      value={displayValue}
-      min={minNodesDisplay}
-      max={maxNodesDisplay}
-      onMinus={() => handleChange(displayValue - 1)}
+      value={field.value}
+      min={minNodes}
+      max={maxNodesPerZone}
+      onMinus={() => handleChange(field.value - 1)}
       onChange={(event) => {
         const newValue = Number((event.target as HTMLInputElement).value);
         handleChange(newValue);
       }}
-      onPlus={() => handleChange(displayValue + 1)}
+      onPlus={() => handleChange(field.value + 1)}
       inputAriaLabel="Compute nodes"
       minusBtnAriaLabel="Decrement compute nodes"
       plusBtnAriaLabel="Increment compute nodes"
@@ -116,7 +109,7 @@ const NodeCountField = ({
       )}
 
       <FormGroupHelperText touched={!!displayError} error={displayError}>
-        {isMultizoneMachinePool && !displayError && `x 3 zones = ${field.value}`}
+        {isMultizoneMachinePool && !displayError && `x 3 zones = ${field.value * 3}`}
       </FormGroupHelperText>
     </FormGroup>
   );
