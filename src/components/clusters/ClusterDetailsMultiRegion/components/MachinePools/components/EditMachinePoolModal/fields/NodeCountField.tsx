@@ -7,6 +7,7 @@ import { noQuotaTooltip } from '~/common/helpers';
 import links from '~/common/installLinks.mjs';
 import { normalizeProductID } from '~/common/normalize';
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import { validateNumericInput } from '~/common/validators';
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -49,13 +50,10 @@ const NodeCountField = ({
     if (Number.isNaN(value)) {
       return 'Please enter a valid number.';
     }
-    if (value < minNodesDisplay) {
-      return `Input cannot be less than ${minNodesDisplay}.`;
-    }
-    if (value > maxNodesDisplay) {
-      return `Input cannot be more than ${maxNodesDisplay}.`;
-    }
-    return undefined;
+    return validateNumericInput(value.toString(), {
+      min: minNodesDisplay,
+      max: maxNodesDisplay,
+    });
   };
 
   const handleChange = (newValue: number) => {

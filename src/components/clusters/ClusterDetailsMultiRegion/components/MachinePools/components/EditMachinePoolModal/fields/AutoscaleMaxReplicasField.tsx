@@ -6,6 +6,7 @@ import { FormGroup, NumberInput } from '@patternfly/react-core';
 import links from '~/common/installLinks.mjs';
 import { normalizeProductID } from '~/common/normalize';
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import { validateNumericInput } from '~/common/validators';
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { computeNodeHintText } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
@@ -44,13 +45,10 @@ const AutoscaleMaxReplicasField = ({
     if (Number.isNaN(value)) {
       return 'Please enter a valid number.';
     }
-    if (value < (minNodes || 1)) {
-      return `Input cannot be less than ${minNodes || 1}.`;
-    }
-    if (value > maxNodes) {
-      return `Input cannot be more than ${maxNodes}.`;
-    }
-    return undefined;
+    return validateNumericInput(value.toString(), {
+      min: minNodes || 1,
+      max: maxNodes,
+    });
   };
 
   const handleChange = (newValue: number) => {
