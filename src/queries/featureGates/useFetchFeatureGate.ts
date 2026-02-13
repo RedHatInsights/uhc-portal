@@ -19,15 +19,13 @@ const getFeatureGateOverride = (feature: string): boolean | null => {
   if (process.env.NODE_ENV !== 'development') {
     return null;
   }
-  try {
-    const overrides = localStorage.getItem(FEATURE_GATE_OVERRIDES_KEY);
-    if (overrides) {
-      const parsed = JSON.parse(overrides) as Record<string, boolean>;
-      if (feature in parsed) {
-        return parsed[feature];
-      }
+  const overrides = localStorage.getItem(FEATURE_GATE_OVERRIDES_KEY);
+  if (overrides) {
+    const parsed = JSON.parse(overrides) as Record<string, boolean>;
+    if (feature in parsed) {
+      return parsed[feature];
     }
-  } catch {}
+  }
   return null;
 };
 

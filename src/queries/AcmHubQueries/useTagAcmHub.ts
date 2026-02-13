@@ -2,8 +2,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { ACM_HUB_PROPERTY_KEY, ACM_HUB_PROPERTY_VALUE } from '~/common/acmHubConstants';
 import { getClusterServiceForRegion } from '~/services/clusterService';
-import { queryConstants } from '../queriesConstants';
+
 import { formatErrorData } from '../helpers';
+import { queryConstants } from '../queriesConstants';
 
 type TagAcmHubParams = {
   clusterID: string;
