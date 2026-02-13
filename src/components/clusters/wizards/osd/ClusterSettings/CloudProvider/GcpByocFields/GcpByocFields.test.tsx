@@ -115,7 +115,7 @@ describe('<GcpByocFields />', () => {
     beforeEach(() => {
       mockUseFeatureGate([[OSD_GCP_WIF, true]]);
     });
-    it('shows "service account" as default auth type', async () => {
+    it('shows "Workload Identity Federation" as default auth type', async () => {
       render(prepareComponent());
 
       expect(
@@ -124,16 +124,30 @@ describe('<GcpByocFields />', () => {
       expect(screen.getByRole('button', { name: serviceAccountLabel })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: workloadIdentityFederationLabel })).toHaveAttribute(
         'aria-pressed',
-        'false',
+        'true',
       );
       expect(screen.getByRole('button', { name: serviceAccountLabel })).toHaveAttribute(
         'aria-pressed',
-        'true',
+        'false',
       );
     });
 
     it('allows switching to "service account" auth type', async () => {
       const { user } = render(prepareComponent());
+
+      expect(
+        screen.getByRole('button', { name: workloadIdentityFederationLabel, pressed: true }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: serviceAccountLabel, pressed: false }),
+      ).toBeInTheDocument();
+
+      expect(
+        screen.getAllByRole('heading', { name: workloadIdentityFederationLabel })[0],
+      ).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: serviceAccountLabel })).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: serviceAccountLabel }));
 
       expect(
         screen.getByRole('button', { name: workloadIdentityFederationLabel, pressed: false }),
@@ -146,20 +160,6 @@ describe('<GcpByocFields />', () => {
       expect(
         screen.queryByRole('heading', { name: workloadIdentityFederationLabel }),
       ).not.toBeInTheDocument();
-
-      await user.click(screen.getByRole('button', { name: workloadIdentityFederationLabel }));
-
-      expect(
-        screen.getByRole('button', { name: serviceAccountLabel, pressed: false }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: workloadIdentityFederationLabel, pressed: true }),
-      ).toBeInTheDocument();
-
-      expect(
-        screen.getAllByRole('heading', { name: workloadIdentityFederationLabel })[0],
-      ).toBeInTheDocument();
-      expect(screen.queryByRole('heading', { name: serviceAccountLabel })).not.toBeInTheDocument();
     });
   });
 

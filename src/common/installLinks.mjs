@@ -359,6 +359,7 @@ const links = {
 
   GCP_CONSOLE_OSD_HOME:
     'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
+  GCP_CONSOLE_OSD_PREREQ_CHECK: 'https://console.cloud.google.com/redhat-openshift/verify',
   GCP_CONSOLE_KMS: 'https://console.cloud.google.com/security/kms',
 
   OCM_DOCS_PULL_SECRETS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-managing-clusters#downloading_and_updating_pull_secrets`,
