@@ -1,10 +1,12 @@
-// useChromeDrawerPanel.ts
 import { useCallback, useEffect, useRef } from 'react';
 
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
+import { insights } from '../../package.json';
+
+const SCOPE = insights.appname;
+
 type DrawerPanelOptions = {
-  scope: string;
   module: string;
   onClose?: () => void;
 };
@@ -15,7 +17,6 @@ type DrawerContent<T = unknown> = {
 };
 
 export const useChromeDrawerPanel = <T = unknown>({
-  scope,
   module,
   onClose: onCloseCallback,
 }: DrawerPanelOptions) => {
@@ -33,7 +34,7 @@ export const useChromeDrawerPanel = <T = unknown>({
   const open = useCallback(
     ({ title, content }: DrawerContent) => {
       drawerActions?.setDrawerPanelContent({
-        scope,
+        scope: SCOPE,
         module,
         title,
         content,
@@ -45,7 +46,7 @@ export const useChromeDrawerPanel = <T = unknown>({
         isOpenRef.current = true;
       }
     },
-    [drawerActions, scope, module, close],
+    [drawerActions, module, close],
   );
 
   useEffect(
