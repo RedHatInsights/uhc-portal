@@ -70,7 +70,7 @@ const ARGO_CD_CLI_LATEST =
   'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-gitops/latest/';
 
 const SHP_CLI_LATEST =
-  'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-builds/latest/';
+  'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/openshift-builds/latest/';
 
 const OCP_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/openshift_container_platform/latest/html';
@@ -781,9 +781,19 @@ const urls = {
   [tools.SHP_CLI]: {
     [channels.STABLE]: {
       [architectures.x86]: {
-        [operatingSystems.linux]: `${SHP_CLI_LATEST}openshift-builds-client-1-5-linux-amd64.tar.gz`,
-        [operatingSystems.windows]: `${SHP_CLI_LATEST}openshift-builds-client-1-5-windows-amd64.zip`,
-        [operatingSystems.mac]: `${SHP_CLI_LATEST}openshift-builds-client-1-5-darwin-amd64.tar.gz`,
+        [operatingSystems.linux]: `${SHP_CLI_LATEST}openshift-builds-client-linux-amd64.tar.gz`,
+        [operatingSystems.windows]: `${SHP_CLI_LATEST}openshift-builds-client-windows-amd64.zip`,
+        [operatingSystems.mac]: `${SHP_CLI_LATEST}openshift-builds-client-darwin-amd64.tar.gz`,
+      },
+      [architectures.arm]: {
+        [operatingSystems.linux]: `${SHP_CLI_LATEST}openshift-builds-client-linux-arm64.tar.gz`,
+        [operatingSystems.mac]: `${SHP_CLI_LATEST}openshift-builds-client-darwin-arm64.tar.gz`,
+      },
+      [architectures.ppc]: {
+        [operatingSystems.linux]: `${SHP_CLI_LATEST}openshift-builds-client-linux-ppc64le.tar.gz`,
+      },
+      [architectures.s390x]: {
+        [operatingSystems.linux]: `${SHP_CLI_LATEST}openshift-builds-client-linux-s390x.tar.gz`,
       },
     },
   },
