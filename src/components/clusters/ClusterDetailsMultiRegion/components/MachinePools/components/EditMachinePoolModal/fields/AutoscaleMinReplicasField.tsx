@@ -37,7 +37,7 @@ const AutoscaleMinReplicasField = ({
 
   const [field, meta, helpers] = useField<number>({
     name: fieldId,
-    validate: (value) => validateAutoscaleMin(value, minNodes, maxNodes),
+    validate: (value) => validateAutoscaleMin(value, minNodes || 1, maxNodes),
   });
 
   const displayError = meta.touched ? meta.error : undefined;
@@ -55,7 +55,7 @@ const AutoscaleMinReplicasField = ({
         onMinus={onButtonPress(false)}
         onChange={(e) => helpers.setValue(Number((e.target as HTMLInputElement).value))}
         id={fieldId}
-        min={minNodes}
+        min={minNodes || 1}
         max={maxNodes}
         inputProps={{
           onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
