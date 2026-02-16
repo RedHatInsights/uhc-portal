@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base-page';
+import { osdLinks } from '../support/doc-link-helper';
 
 /**
  * Create OSD Wizard page object for Playwright tests
@@ -69,10 +70,7 @@ export class CreateOSDWizardPage extends BasePage {
     ).toBeVisible();
     await expect(
       this.page.getByRole('link', { name: 'Review Google terms and agreements' }),
-    ).toHaveAttribute(
-      'href',
-      'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
-    );
+    ).toHaveAttribute('href', osdLinks.googleMarketplace);
   }
 
   async waitAndClick(buttonLocator: Locator, timeout: number = 160000): Promise<void> {

@@ -1,8 +1,8 @@
 import { test, expect } from '../../fixtures/pages';
+import { rosaLinks } from '../../support/doc-link-helper';
 
 const clusterControlPlanes = ['Hosted', 'Classic'];
-const instructionsLink =
-  'https://docs.aws.amazon.com/ROSA/latest/userguide/getting-started-sts-manual.html';
+const instructionsLink = rosaLinks.awsStsManual;
 
 test.describe.serial(
   'Rosa cluster AWS account drawer check (OCP-48396)',
