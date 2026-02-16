@@ -606,6 +606,42 @@ describe('createClusterRequest', () => {
         expect(request.node_drain_grace_period).toEqual({ unit: 'minutes', value: 60 });
       });
 
+      it('leaves out disable_user_workload_monitoring if Hypershift', () => {
+        const data = {
+          ...rosaFormData,
+          hypershift: 'true',
+          machinePoolsSubnets: [
+            {
+              availabilityZone: '',
+              privateSubnetId: 'subnet-00b3753ab2dd892ac',
+              publicSubnetId: '',
+            },
+          ],
+        };
+        const request = createClusterRequest({}, data);
+        expect(request.disable_user_workload_monitoring).toBeUndefined();
+      });
+
+      it('includes disable_user_workload_monitoring if rosa classic', () => {
+        const data = {
+          ...rosaFormData,
+          hypershift: 'false',
+          enable_user_workload_monitoring: true,
+        };
+        const request = createClusterRequest({}, data);
+        expect(request.disable_user_workload_monitoring).toBe(false);
+      });
+
+      it('sets disable_user_workload_monitoring to true when monitoring is disabled for rosa classic', () => {
+        const data = {
+          ...rosaFormData,
+          hypershift: 'false',
+          enable_user_workload_monitoring: false,
+        };
+        const request = createClusterRequest({}, data);
+        expect(request.disable_user_workload_monitoring).toBe(true);
+      });
+
       it('leaves out auto_mode if Hypershift', () => {
         const data = {
           ...rosaFormData,

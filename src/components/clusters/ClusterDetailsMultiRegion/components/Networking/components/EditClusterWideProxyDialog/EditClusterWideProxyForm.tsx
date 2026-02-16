@@ -148,17 +148,14 @@ const EditClusterWideProxyForm = ({
 
   const replaceTrustBundle = (
     <>
-      <Content
-        component="p"
-        className="ocm-c-networking-vpc-details__card pf-v6-c-form__label-text pf-v6-c-form__group-label"
-      >
+      <div className="ocm-c-networking-vpc-details__card pf-v6-c-form__label-text pf-v6-c-form__group-label">
         Additional Trust Bundle{' '}
         <PopoverHint
           headerContent="Additional trust bundle"
           bodyContent={TRUST_BUNDLE_HELPER_TEXT}
         />
-      </Content>
-      <Content component="p">
+      </div>
+      <div>
         File Uploaded Successfully{' '}
         <Button
           // opens field to replace addition trust bundle
@@ -172,7 +169,7 @@ const EditClusterWideProxyForm = ({
         >
           Replace file
         </Button>
-      </Content>
+      </div>
     </>
   );
 

@@ -80,7 +80,7 @@ describe('<CAUpload />', () => {
         <CAUpload label="label" {...inputProp} fieldName="ldap_ca" />
       </Formik>,
     );
-    expect(onChangeMock).toBeCalledTimes(0);
+    expect(onChangeMock).toHaveBeenCalledTimes(0);
 
     // Act
     await waitFor(() =>
@@ -97,8 +97,8 @@ describe('<CAUpload />', () => {
       expect(screen.getByRole('button', { name: 'Hide' })).toBeInTheDocument();
     });
 
-    expect(onChangeMock).toBeCalledTimes(1);
-    expect(onChangeMock).toBeCalledWith(expect.any(String));
+    expect(onChangeMock).toHaveBeenCalledTimes(1);
+    expect(onChangeMock).toHaveBeenCalledWith(expect.any(String));
 
     expect(screen.queryByRole('button', { name: 'Reveal' })).not.toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: '' })).toBeInTheDocument();
@@ -117,7 +117,7 @@ describe('<CAUpload />', () => {
         <CAUpload {...inputProp} label="label" maxFileSize={2000} fieldName="ldap_ca" />
       </Formik>,
     );
-    expect(onChangeMock).toBeCalledTimes(0);
+    expect(onChangeMock).toHaveBeenCalledTimes(0);
 
     // Act
     await waitFor(() =>
@@ -134,8 +134,8 @@ describe('<CAUpload />', () => {
       expect(screen.getByRole('button', { name: 'Hide' })).toBeInTheDocument();
     });
 
-    expect(onChangeMock).toBeCalledTimes(1);
-    expect(onChangeMock).toBeCalledWith(expect.any(String));
+    expect(onChangeMock).toHaveBeenCalledTimes(1);
+    expect(onChangeMock).toHaveBeenCalledWith(expect.any(String));
 
     expect(screen.queryByRole('button', { name: 'Reveal' })).not.toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: '' })).toBeInTheDocument();
@@ -268,8 +268,8 @@ describe('<CAUpload />', () => {
     });
 
     // Assert
-    expect(onChangeMock).toBeCalledTimes(1);
-    expect(onChangeMock).toBeCalledWith('whatever');
+    expect(onChangeMock).toHaveBeenCalledTimes(1);
+    expect(onChangeMock).toHaveBeenCalledWith('whatever');
     expect(screen.getByRole('textbox', { name: 'label' }).getAttribute('value')).toBe('');
   });
 });

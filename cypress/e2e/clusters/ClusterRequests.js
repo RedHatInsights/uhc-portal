@@ -1,12 +1,13 @@
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import ClusterRequestPage from '../../pageobjects/ClusterRequests.page';
+import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 describe(
   'Check  cluster requests page items presence and its actions(OCP-80154)',
   { tags: ['smoke'] },
   () => {
     before(() => {
-      cy.visit('/cluster-list');
+      cy.visit(CLUSTER_LIST_PATH);
       ClusterListPage.waitForDataReady();
       ClusterListPage.isClusterListScreen();
     });
@@ -60,7 +61,7 @@ describe(
     });
 
     it('Cluster requests link presence when empty clusters', () => {
-      cy.visit('/cluster-list');
+      cy.visit(CLUSTER_LIST_PATH);
       cy.intercept('**/subscriptions*', (req) => {
         req.continue((res) => {
           res.body = '{"items":[],"kind":"SubscriptionList","page":1,"size":0,"total":0}';

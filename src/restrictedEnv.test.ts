@@ -1,27 +1,24 @@
+import * as locationUtils from '~/common/location';
 import {
   resolveRestrictedEnvApi,
   resolveRestrictedEnvDomain,
   resolveRestrictedEnvSso,
 } from '~/restrictedEnv';
 
-let location: Location;
-
-function mockOrigin(origin: string) {
-  jest.spyOn(window, 'location', 'get').mockReturnValue({
-    ...location,
-    origin,
-  });
-}
-
 describe('restrictedEnv', () => {
+  let locationSpy: jest.SpyInstance;
+
   describe.each([[''], ['int.'], ['stage.']])('environment subdomain: "%s"', (envSubdomain) => {
     beforeEach(() => {
-      location = window.location;
-      mockOrigin(`https://console.${envSubdomain}example.com`);
+      locationSpy = jest.spyOn(locationUtils, 'getLocation');
+
+      locationSpy.mockReturnValue({
+        origin: `https://console.${envSubdomain}example.com`,
+      });
     });
 
     afterEach(() => {
-      jest.spyOn(window, 'location', 'get').mockRestore();
+      locationSpy.mockRestore();
     });
 
     describe('resolveRestrictedEnvApi()', () => {
