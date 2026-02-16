@@ -57,9 +57,12 @@ const WindowsLicenseIncludedField = ({
   const isDisabled = !isVersionCompatible || !isWinLiCompatible;
   let tooltip;
 
+  if (isDisabled) {
+    values.isWindowsLicenseIncluded = false;
+  }
+
   if (!isWinLiCompatible) {
     tooltip = 'This instance type is not Windows License Included compatible.';
-    values.isWindowsLicenseIncluded = false;
   }
 
   if (!isVersionCompatible) {
