@@ -5,6 +5,7 @@ import { getClusterServiceForRegion } from '~/services/clusterService';
 
 import { formatErrorData } from '../helpers';
 import { queryConstants } from '../queriesConstants';
+import { refreshClusterDetails } from '../refreshEntireCache';
 
 type TagAcmHubParams = {
   clusterID: string;
@@ -31,9 +32,8 @@ export const useTagAcmHub = () => {
       return clusterService.editCluster(clusterID, { properties });
     },
     onSuccess: () => {
-      // Invalidate cluster queries to refresh the data
       queryClient.invalidateQueries({ queryKey: [queryConstants.FETCH_CLUSTERS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY] });
+      refreshClusterDetails();
     },
   });
 
