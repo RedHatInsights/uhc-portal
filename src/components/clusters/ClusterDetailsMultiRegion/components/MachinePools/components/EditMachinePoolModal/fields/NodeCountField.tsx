@@ -43,37 +43,41 @@ const NodeCountField = ({
   const minNodes = isMultizoneMachinePool ? minNodesRequired / 3 : minNodesRequired;
   const maxNodesPerZone = isMultizoneMachinePool ? maxNodes / 3 : maxNodes;
 
-  const [field, meta, helpers] = useField<number>({
+  const [field, meta] = useField<number>({
     name: fieldId,
     validate: (value) => validateNodeCount(value, minNodes, maxNodesPerZone),
   });
 
   const notEnoughQuota = maxNodes < minNodesRequired;
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
-
-  const handleChange = (newValue: number) => {
-    helpers.setValue(newValue, true);
-    helpers.setTouched(true, false);
-  };
-
   const displayError = meta.touched ? meta.error : undefined;
+
+  const onButtonPress = (plus: boolean) => () => {
+    const newValue = plus ? field.value + 1 : field.value - 1;
+    field.onChange({ target: { name: fieldId, value: newValue } });
+  };
 
   const numberInput = (
     <NumberInput
       value={field.value}
       min={minNodes}
       max={maxNodesPerZone}
-      onMinus={() => handleChange(field.value - 1)}
-      onChange={(event) => {
-        const newValue = Number((event.target as HTMLInputElement).value);
-        handleChange(newValue);
-      }}
-      onPlus={() => handleChange(field.value + 1)}
+      onMinus={onButtonPress(false)}
+      onChange={(event) => field.onChange((event.target as HTMLInputElement).value)}
+      onPlus={onButtonPress(true)}
       inputAriaLabel="Compute nodes"
       minusBtnAriaLabel="Decrement compute nodes"
       plusBtnAriaLabel="Increment compute nodes"
       widthChars={4}
       isDisabled={notEnoughQuota}
+      inputProps={{
+        onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+          // strips unnecessary leading zeros
+          // eslint-disable-next-line no-param-reassign
+          event.target.value = Number(event.target.value).toString();
+          field.onBlur(event);
+        },
+      }}
     />
   );
 

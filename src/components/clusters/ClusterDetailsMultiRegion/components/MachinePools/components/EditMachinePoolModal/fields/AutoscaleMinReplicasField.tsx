@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { useField } from 'formik';
 
 import { FormGroup, NumberInput } from '@patternfly/react-core';
@@ -35,31 +35,36 @@ const AutoscaleMinReplicasField = ({
   const minNodes = isMultizoneMachinePool ? initMinNodes / 3 : initMinNodes;
   const maxNodes = isMultizoneMachinePool ? initMaxNodes / 3 : initMaxNodes;
 
-  const [field, meta, helpers] = useField<number>({
+  const [field, meta] = useField<number>({
     name: fieldId,
     validate: (value) => validateAutoscaleMin(value, minNodes, maxNodes),
   });
 
-  const handleChange = (newValue: number) => {
-    helpers.setValue(newValue, true);
-    helpers.setTouched(true, false);
-  };
-
   const displayError = meta.touched ? meta.error : undefined;
+
+  const onButtonPress = (plus: boolean) => () => {
+    const newValue = plus ? field.value + 1 : field.value - 1;
+    field.onChange({ target: { name: fieldId, value: newValue } });
+  };
 
   return (
     <FormGroup fieldId={fieldId} label="Minimum nodes count" isRequired>
       <NumberInput
-        {...field}
-        onPlus={() => handleChange(field.value + 1)}
-        onMinus={() => handleChange(field.value - 1)}
-        onChange={(e) => {
-          const newValue = Number((e.target as HTMLInputElement).value);
-          handleChange(newValue);
-        }}
+        value={field.value}
+        onPlus={onButtonPress(true)}
+        onMinus={onButtonPress(false)}
+        onChange={(e) => field.onChange((e.target as HTMLInputElement).value)}
         id={fieldId}
         min={minNodes}
         max={maxNodes}
+        inputProps={{
+          onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+            // strips unnecessary leading zeros
+            // eslint-disable-next-line no-param-reassign
+            event.target.value = Number(event.target.value).toString();
+            field.onBlur(event);
+          },
+        }}
       />
 
       <FormGroupHelperText touched={!!displayError} error={displayError}>
