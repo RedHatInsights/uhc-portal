@@ -43,7 +43,7 @@ const NodeCountField = ({
   const minNodes = isMultizoneMachinePool ? minNodesRequired / 3 : minNodesRequired;
   const maxNodesPerZone = isMultizoneMachinePool ? maxNodes / 3 : maxNodes;
 
-  const [field, meta] = useField<number>({
+  const [field, meta, helpers] = useField<number>({
     name: fieldId,
     validate: (value) => validateNodeCount(value, minNodes, maxNodesPerZone),
   });
@@ -54,7 +54,7 @@ const NodeCountField = ({
 
   const onButtonPress = (plus: boolean) => () => {
     const newValue = plus ? field.value + 1 : field.value - 1;
-    field.onChange({ target: { name: fieldId, value: newValue } });
+    helpers.setValue(newValue);
   };
 
   const numberInput = (
@@ -63,7 +63,7 @@ const NodeCountField = ({
       min={minNodes}
       max={maxNodesPerZone}
       onMinus={onButtonPress(false)}
-      onChange={(event) => field.onChange((event.target as HTMLInputElement).value)}
+      onChange={(event) => helpers.setValue(Number((event.target as HTMLInputElement).value))}
       onPlus={onButtonPress(true)}
       inputAriaLabel="Compute nodes"
       minusBtnAriaLabel="Decrement compute nodes"

@@ -35,7 +35,7 @@ const AutoscaleMinReplicasField = ({
   const minNodes = isMultizoneMachinePool ? initMinNodes / 3 : initMinNodes;
   const maxNodes = isMultizoneMachinePool ? initMaxNodes / 3 : initMaxNodes;
 
-  const [field, meta] = useField<number>({
+  const [field, meta, helpers] = useField<number>({
     name: fieldId,
     validate: (value) => validateAutoscaleMin(value, minNodes, maxNodes),
   });
@@ -44,7 +44,7 @@ const AutoscaleMinReplicasField = ({
 
   const onButtonPress = (plus: boolean) => () => {
     const newValue = plus ? field.value + 1 : field.value - 1;
-    field.onChange({ target: { name: fieldId, value: newValue } });
+    helpers.setValue(newValue);
   };
 
   return (
@@ -53,7 +53,7 @@ const AutoscaleMinReplicasField = ({
         value={field.value}
         onPlus={onButtonPress(true)}
         onMinus={onButtonPress(false)}
-        onChange={(e) => field.onChange((e.target as HTMLInputElement).value)}
+        onChange={(e) => helpers.setValue(Number((e.target as HTMLInputElement).value))}
         id={fieldId}
         min={minNodes}
         max={maxNodes}
