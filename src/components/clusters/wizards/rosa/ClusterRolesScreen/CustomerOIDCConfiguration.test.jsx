@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { FieldId, initialValues } from '~/components/clusters/wizards/rosa/constants';
 import { render, screen, waitFor, within } from '~/testUtils';
 
@@ -177,7 +177,7 @@ describe('<CustomerOIDCConfiguration />', () => {
 
       await user.click(moreInfoBtn);
       const link = screen.getByText('Defining a custom Operator IAM role prefix');
-      expect(link).toHaveAttribute('href', links.ROSA_AWS_IAM_OPERATOR_ROLES);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_AWS_IAM_OPERATOR_ROLES);
     });
 
     it('renders correct description link when classic', async () => {
@@ -191,7 +191,7 @@ describe('<CustomerOIDCConfiguration />', () => {
 
       await user.click(moreInfoBtn);
       const link = screen.getByText('Defining a custom Operator IAM role prefix');
-      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
     });
   });
 

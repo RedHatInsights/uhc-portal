@@ -13,8 +13,8 @@ import {
   useWizardContext,
 } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import { stringToArray } from '~/common/helpers';
-import links from '~/common/installLinks.mjs';
 import {
   checkNoProxyDomains,
   composeValidators,
@@ -131,8 +131,8 @@ function ClusterProxyScreen({ isHypershiftSelected }) {
             <ExternalLink
               href={
                 isHypershiftSelected
-                  ? links.ROSA_CLUSTER_WIDE_PROXY
-                  : links.ROSA_CLASSIC_CLUSTER_WIDE_PROXY
+                  ? docLinks.ROSA_CLUSTER_WIDE_PROXY
+                  : docLinks.ROSA_CLASSIC_CLUSTER_WIDE_PROXY
               }
             >
               Learn more about configuring a cluster-wide proxy
