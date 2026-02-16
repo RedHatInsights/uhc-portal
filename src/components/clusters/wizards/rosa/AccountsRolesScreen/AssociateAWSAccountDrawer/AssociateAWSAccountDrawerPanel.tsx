@@ -37,7 +37,6 @@ const AssociateAWSAccountDrawerPanel = ({
   showRosaCliRequirement = false,
   onClose,
 }: AssociateAWSAccountDrawerPanelProps) => {
-
   let title;
   let footer;
   switch (targetRole) {
