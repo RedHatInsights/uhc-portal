@@ -26,7 +26,7 @@ const TagAcmHubDialog: React.FC<TagAcmHubDialogProps> = ({ onClose }) => {
   const { isSuccess, error, isError, isPending, mutate, reset: resetResponse } = useTagAcmHub();
 
   const modalData = useGlobalState((state) => state.modal.data) as ModalData;
-  const { clusterID, clusterName, region, properties } = modalData || {};
+  const { clusterID, clusterName, region, properties, shouldDisplayClusterName } = modalData || {};
 
   const isCurrentlyTagged = properties?.[ACM_HUB_PROPERTY_KEY] === ACM_HUB_PROPERTY_VALUE;
 
@@ -59,7 +59,7 @@ const TagAcmHubDialog: React.FC<TagAcmHubDialogProps> = ({ onClose }) => {
   return (
     <Modal
       title={actionText}
-      secondaryTitle={modalData.shouldDisplayClusterName ? clusterName : undefined}
+      secondaryTitle={shouldDisplayClusterName ? clusterName : undefined}
       data-testid="tag-acm-hub-modal"
       onClose={handleCancel}
       primaryText={isCurrentlyTagged ? 'Remove tag' : 'Tag'}
