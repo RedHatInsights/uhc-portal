@@ -1,6 +1,6 @@
 import React from 'react';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { checkAccessibility, render, screen } from '~/testUtils';
 
 import SecurityGroupsNoEditAlert from './SecurityGroupsNoEditAlert';
@@ -61,7 +61,7 @@ describe('<SecurityGroupsNoEditAlert />', () => {
 
       const link = screen.getByRole('link', { name: /View more information/i });
 
-      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_SECURITY_GROUPS);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_SECURITY_GROUPS);
     });
 
     it('renders the correct security groups link for hypershift clusters', () => {
@@ -69,7 +69,7 @@ describe('<SecurityGroupsNoEditAlert />', () => {
 
       const link = screen.getByRole('link', { name: /View more information/i });
 
-      expect(link).toHaveAttribute('href', links.ROSA_SECURITY_GROUPS);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_SECURITY_GROUPS);
     });
   });
 

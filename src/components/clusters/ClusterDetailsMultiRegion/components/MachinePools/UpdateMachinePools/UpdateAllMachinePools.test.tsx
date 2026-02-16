@@ -3,7 +3,7 @@ import type axios from 'axios';
 import * as reactRedux from 'react-redux';
 import semver from 'semver';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { refetchMachineOrNodePoolsQuery } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import apiRequest from '~/services/apiRequest';
 import { checkAccessibility, screen, within, withState } from '~/testUtils';
@@ -808,7 +808,7 @@ describe('<UpdateAllMachinePools />', () => {
       await user.click(toggle);
 
       const link = screen.getByText('Learn more about updates');
-      expect(link).toHaveAttribute('href', links.ROSA_UPGRADES);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_UPGRADES);
     });
   });
 });

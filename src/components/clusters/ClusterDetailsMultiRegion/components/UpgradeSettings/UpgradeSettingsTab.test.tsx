@@ -1,6 +1,6 @@
 import React from 'react';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { useDeleteSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useDeleteSchedule';
 import { useEditSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useEditSchedule';
 import { useFetchUnmetAcknowledgements } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useFetchUnmetAcknowledgements';
@@ -408,7 +408,7 @@ describe('<UpgradeSettingsTab>', () => {
       await user.click(moreInfoBtn);
 
       const link = screen.getByText('Learn more');
-      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_MONITORING);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_MONITORING);
     });
   });
 });
