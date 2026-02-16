@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { TagAcmHubDialog } from '~/components/clusters/AcmHubClusters';
+import TagAcmHubDialog from '~/components/clusters/AcmHubClusters/TagAcmHubDialog';
 import AddHtpasswdUserModal from '~/components/clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/components/HtpasswdDetails/AddUserModal';
 import EditHtpasswdUserModal from '~/components/clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/components/HtpasswdDetails/EditUserModal';
 
