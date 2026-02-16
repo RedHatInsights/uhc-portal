@@ -299,15 +299,6 @@ test.describe.serial('Register cluster flow', () => {
 ✅ **Automatic Cleanup** - Resources properly disposed  
 ✅ **State Persistence** - Perfect for serial user flows
 
-#### Available Page Object Fixtures
-
-- `clusterListPage` - Cluster list operations
-- `registerClusterPage` - Register cluster form
-- `clusterDetailsPage` - Cluster details and actions
-- `ocmRolesAndAccessPage` - OCM roles management
-- `tokensPage` - Token management
-- `downloadsPage` - Downloads and CLI tools
-- `globalNavPage` - Global navigation menu
 
 ### Configuration Files
 
@@ -343,3 +334,92 @@ test.describe.serial('Register cluster flow', () => {
 
 - **Solution**: Verify all required variables are set in `playwright.env.json`
 - **Check**: Run `yarn playwright test --list` to verify configuration loading
+
+## GitHub Actions Workflows
+
+The project includes two GitHub Actions workflows for running Playwright tests in CI/CD pipelines.
+
+### E2E CI Playwright (`e2e-ci-playwright.yml`)
+
+This workflow runs on pushes to the main branch and manual dispatch, executing tests against a local dev server.
+
+#### Triggers
+
+- **Push to Main**: Runs when code is pushed to the `main` branch
+- **Manual Dispatch**: Can be triggered manually from the Actions tab
+
+#### Key Features
+
+- **Local Dev Server**: Spins up a local development server (`https://prod.foo.redhat.com:1337/openshift/`)
+- **Parallel Execution**: Defaults to 4 parallel workers
+- **Secret-Based Config**: Creates `playwright.env.json` from `PLAYWRIGHT_ENV_JSON` secret
+- **Artifact Upload**: Uploads test artifacts on failure (5-day retention)
+
+#### Manual Dispatch Options
+
+| Input | Description | Default | Options |
+|-------|-------------|---------|---------|
+| `browser` | Browser to run tests on | `chromium` | chrome, chromium, firefox, webkit |
+| `workers` | Number of parallel workers | `4` | 1, 2, 3, 4 |
+
+#### Required Secrets
+
+| Secret | Description |
+|--------|-------------|
+| `PLAYWRIGHT_ENV_JSON` | JSON containing test credentials and configuration |
+
+
+### E2E Smoke Playwright (`e2e-smoke-playwright.yml`)
+
+This workflow runs daily smoke tests against staging/production environments with full cloud resource setup.
+
+#### Triggers
+
+- **Scheduled**: Runs daily at 7:00 AM UTC (`0 7 * * *`)
+- **Manual Dispatch**: Can be triggered manually with custom parameters
+
+#### Key Features
+
+- **Multi-Environment Support**: Can target staging, production, or local environments
+- **Cloud Resource Setup**: Automatically configures AWS CLI, ROSA CLI, and creates necessary IAM roles
+- **Tag-Based Filtering**: Run specific test suites using Playwright's grep pattern (e.g., `@smoke`, `@ci`)
+- **OCP Version Control**: Optionally specify a specific OpenShift version for tests
+- **Trace Collection**: Configurable trace levels for debugging
+- **Slack Notifications**: Detailed test result notifications with environment info
+- **Automatic Cleanup**: Cleans up AWS resources after test execution
+
+#### Manual Dispatch Options
+
+| Input | Description | Default | Options |
+|-------|-------------|---------|---------|
+| `browser` | Browser to run tests on | `chromium` | chromium, firefox, webkit |
+| `EUT` | Environment Under Test | `staging` | staging, production, local |
+| `grep_tags` | Test tags to filter | `@smoke` | Any valid grep pattern (e.g., `@smoke`, `@ci`, `@smoke\|@ci`) |
+| `ocp_version` | OCP version for tests | (latest) | Any valid OCP version string |
+| `trace_level` | Trace collection level | `off` | off, on-first-retry, retain-on-failure, on |
+| `workers` | Number of parallel workers | `4` | Any positive integer |
+
+#### Environment URLs
+
+| Environment | Base URL |
+|-------------|----------|
+| `staging` | `https://console.dev.redhat.com/openshift/` |
+| `production` | `https://console.redhat.com/openshift/` |
+| `local` | `https://prod.foo.redhat.com:1337/openshift/` |
+
+#### Cloud Setup (Automatic)
+
+The smoke workflow automatically:
+
+1. **AWS CLI Configuration**: Extracts credentials from `playwright.env.json` and configures AWS CLI
+2. **VPC Infrastructure**: Creates required VPC infrastructure using `create-vpc-infrastructure.sh`
+3. **ROSA CLI Login**: Authenticates using service account credentials
+4. **OCM/Account Roles**: Creates OCM roles and account roles with configured prefixes
+5. **Resource Cleanup**: Tears down created resources after test completion
+
+### Viewing Test Results
+
+1. Navigate to the repository's **Actions** tab
+2. Select the workflow run to view
+3. Check the **Slack channel** for automated notifications
+4. Download **test artifacts** for failed runs (screenshots, videos, traces)
