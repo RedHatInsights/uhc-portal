@@ -33,7 +33,7 @@ export const useTagAcmHub = () => {
     onSuccess: () => {
       // Invalidate cluster queries to refresh the data
       queryClient.invalidateQueries({ queryKey: [queryConstants.FETCH_CLUSTERS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: ['clusterDetails'] });
+      queryClient.invalidateQueries({ queryKey: [queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY] });
     },
   });
 
