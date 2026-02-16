@@ -65,7 +65,7 @@ const ARGO_CD_CLI_LATEST =
   'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-gitops/latest/';
 
 const SHP_CLI_LATEST =
-  'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-builds/latest/';
+  'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/openshift-builds/latest/';
 
 const OCP_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/openshift_container_platform/latest/html';
