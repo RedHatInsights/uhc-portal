@@ -233,6 +233,7 @@ function AccountsRolesScreen({
             isLoading={refreshButtonClicked && isAWSDataPending}
             isDisabled={isAWSDataPending}
             clearGetAWSAccountIDsResponse={clearGetAWSAccountIDsResponse}
+            isHypershiftSelected={isHypershiftSelected}
           />
           <Button
             variant="secondary"
@@ -266,7 +267,11 @@ function AccountsRolesScreen({
 
         {(getUserRoleResponse?.error || noUserForSelectedAWSAcct) && (
           <GridItem span={8} className="pf-v6-u-mt-sm">
-            <AwsRoleErrorAlert title="A user-role could not be detected" targetRole="user" />
+            <AwsRoleErrorAlert
+              title="A user-role could not be detected"
+              targetRole="user"
+              isHypershiftSelected={isHypershiftSelected}
+            />
           </GridItem>
         )}
       </Grid>

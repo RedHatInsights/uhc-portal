@@ -7,10 +7,15 @@ import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/useAss
 
 type AwsRoleErrorAlertProps = Pick<AlertProps, 'title'> & {
   targetRole?: AWSAccountRole;
+  isHypershiftSelected?: boolean;
 };
 
-export const AwsRoleErrorAlert = ({ title, targetRole }: AwsRoleErrorAlertProps) => {
-  const { openDrawer } = useAssociateAWSAccountDrawer();
+export const AwsRoleErrorAlert = ({
+  title,
+  targetRole,
+  isHypershiftSelected = false,
+}: AwsRoleErrorAlertProps) => {
+  const { openDrawer } = useAssociateAWSAccountDrawer(isHypershiftSelected);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const onClick = useCallback(() => {
