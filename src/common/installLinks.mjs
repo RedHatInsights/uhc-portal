@@ -1,4 +1,9 @@
-// This module has .mjs extension to simplify importing from NodeJS scripts.
+/**
+ * Contains urls related directly to downloads and installation binaries.
+ * Contains https://console. urls (console.cloud.goole, console.aws.amazon, console.redhat).
+ * Contains urls related to pricing information.
+ * This module has .mjs extension to simplify importing from NodeJS scripts.
+ */
 
 import { combineAndSortLinks } from './linkUtils.mjs';
 
@@ -200,7 +205,18 @@ const links = {
 
   FEDRAMP_ACCESS_REQUEST_FORM: 'https://console.redhat.com/openshift/create/rosa/govcloud',
 
+  KN_DOCS: `${OCP_DOCS_BASE}/cli_tools/kn-cli-tools`,
+  TKN_DOCS: `${OCP_DOCS_BASE}/cli_tools/pipelines-cli-tkn#installing-tkn`,
+  CLI_TOOLS_OCP_GETTING_STARTED: `${OCP_DOCS_BASE}/cli_tools/openshift-cli-oc#cli-about-cli_cli-developer-commands`,
+  OPM_DOCS: `${OCP_DOCS_BASE}/cli_tools/opm-cli#olm-about-opm_cli-opm-install`,
+  ODO_DOCS: 'https://odo.dev/docs/introduction',
+  HELM_DOCS: `${OCP_DOCS_BASE}/building_applications/working-with-helm-charts#understanding-helm`,
+  OSDK_REMOVAL_DOCS_4_19: `https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/release_notes/ocp-4-19-release-notes#ocp-4-19-removed-osdk_release-notes`,
+
   MTV_RESOURCES: `${MTV_DOCS_BASE}/installing_and_using_the_migration_toolkit_for_virtualization/about-mtv_mtv#mtv-resources-and-services_mtv`,
+
+  OCM_CLI_RELEASES_LATEST:
+    'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/ocm/latest',
 };
 
 // Tool identifiers are public — e.g. for linking to specific tool in DownloadsPage.

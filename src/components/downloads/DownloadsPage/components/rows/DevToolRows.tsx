@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Content } from '@patternfly/react-core';
 
-import docLinks from '~/common/docLinks.mjs';
 import installLinks, { channels, tools } from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import SupportLevelBadge, {
@@ -47,7 +46,7 @@ const DevToolRows = ({
           <Content component="p">
             Write, build, and deploy applications on OpenShift with <code>odo</code>, a fast,
             iterative, and straightforward CLI tool for developers.{' '}
-            <ExternalLink href={docLinks.ODO_DOCS}>Learn more</ExternalLink>
+            <ExternalLink href={installLinks.ODO_DOCS}>Learn more</ExternalLink>
           </Content>
         }
       />
@@ -65,7 +64,7 @@ const DevToolRows = ({
           <Content component="p">
             Define, install, and upgrade application packages as Helm charts using Helm 3, a package
             manager for Kubernetes.{' '}
-            <ExternalLink href={docLinks.HELM_DOCS}>Learn more</ExternalLink>
+            <ExternalLink href={installLinks.HELM_DOCS}>Learn more</ExternalLink>
           </Content>
         }
       />
@@ -82,7 +81,7 @@ const DevToolRows = ({
         description={
           <Content component="p">
             Create and maintain catalogs of Operators from a list of bundles with the Operator
-            Package Manager. <ExternalLink href={docLinks.OPM_DOCS}>Learn more</ExternalLink>
+            Package Manager. <ExternalLink href={installLinks.OPM_DOCS}>Learn more</ExternalLink>
           </Content>
         }
       />
@@ -101,7 +100,7 @@ const DevToolRows = ({
             Build, test, and deploy Operators with the Operator SDK CLI. <br />
             The Operator SDK CLI is no longer released with OpenShift Container Platform, beginning
             in version 4.19.{' '}
-            <ExternalLink href={docLinks.OSDK_REMOVAL_DOCS_4_19}>Learn more</ExternalLink>
+            <ExternalLink href={installLinks.OSDK_REMOVAL_DOCS_4_19}>Learn more</ExternalLink>
           </Content>
         }
       />

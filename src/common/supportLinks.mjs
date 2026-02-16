@@ -1,5 +1,8 @@
-// This module has .mjs extension to simplify importing from NodeJS scripts.
-// Support-related URLs for Red Hat Customer Portal, Knowledge Base articles and Support/Troubleshooting documentation
+/**
+ * Support-related urls for Red Hat Customer Portal, Knowledge Base articles and Support/Troubleshooting documentation
+ * Contains access.redhat.com/ documentation
+ * This module has .mjs extension to simplify importing from NodeJS scripts.
+ */
 
 import { combineAndSortLinks } from './linkUtils.mjs';
 

@@ -1,4 +1,9 @@
-// import { combineAndSortLinks } from './linkUtils.mjs';
+/**
+ * Contains urls to documentation (docs.redhat.com/..), links to tutorials, and educational content.
+ * This module has .mjs extension to simplify importing from NodeJS scripts.
+ */
+
+import { combineAndSortLinks } from './linkUtils.mjs';
 
 const ROSA_CLASSIC_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws_classic_architecture/4/html';
@@ -153,11 +158,6 @@ const docLinks = {
   OSD_CCS_GCP_WIF_GCLOUD_CREDENTIALS:
     'https://cloud.google.com/docs/authentication/provide-credentials-adc',
 
-  // RH Developers
-  RH_DEV_TOOLS: 'https://developers.redhat.com/topics/developer-tools',
-  OCM_CLI_RELEASES_LATEST:
-    'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/ocm/latest',
-
   // RH Base docs
   RH_CONTACT: `${RH_BASE}/contact`,
   RH_ISTIO: `${RH_BASE}/topics/microservices/what-is-istio`,
@@ -173,20 +173,16 @@ const docLinks = {
   RH_ROSA_INSTALL: `${RH_BASE}/products/interactive-walkthrough/install-rosa`,
   RH_ROSA_LIGHTBOARD: `${RH_BASE}/about/videos/rosa-lightboard`,
 
-  // Cli docs
-  KN_DOCS: `${OCP_DOCS_BASE}/cli_tools/kn-cli-tools`,
-  TKN_DOCS: `${OCP_DOCS_BASE}/cli_tools/pipelines-cli-tkn#installing-tkn`,
-  CLI_TOOLS_OCP_GETTING_STARTED: `${OCP_DOCS_BASE}/cli_tools/openshift-cli-oc#cli-about-cli_cli-developer-commands`,
-  OPM_DOCS: `${OCP_DOCS_BASE}/cli_tools/opm-cli#olm-about-opm_cli-opm-install`,
-  ODO_DOCS: 'https://odo.dev/docs/introduction',
-
   // Misc
   LEARN_MORE_SSO:
     'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html-single/managing_clusters/index#con-ocm-with-rhsso_downloading-and-updating-pull-secrets',
   TRANSFER_CLUSTER_OWNERSHIP:
     'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html-single/managing_clusters/index#transferring-cluster-ownership_downloading-and-updating-pull-secrets',
-  OSDK_REMOVAL_DOCS_4_19: `https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/release_notes/ocp-4-19-release-notes#ocp-4-19-removed-osdk_release-notes`,
-  HELM_DOCS: `${OCP_DOCS_BASE}/building_applications/working-with-helm-charts#understanding-helm`,
+
+  RH_DEV_TOOLS: 'https://developers.redhat.com/topics/developer-tools',
 };
 
+const getLinks = async () => combineAndSortLinks(Object.values(docLinks));
+
+export { getLinks };
 export default docLinks;

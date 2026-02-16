@@ -11,9 +11,11 @@ import { combineAndSortLinks } from './linkUtils.mjs';
 export const getAllExternalLinks = async () => {
   const { getLinks: getInstallLinks } = await import('./installLinks.mjs');
   const { getLinks: getSupportLinks } = await import('./supportLinks.mjs');
+  const { getLinks: getDocLinks } = await import('./docLinks.mjs');
 
   const installLinks = await getInstallLinks();
   const supportLinks = await getSupportLinks();
+  const docLinks = await getDocLinks();
 
-  return combineAndSortLinks(installLinks, supportLinks);
+  return combineAndSortLinks(installLinks, supportLinks, docLinks);
 };

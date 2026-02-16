@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Content } from '@patternfly/react-core';
 
-import docLinks from '~/common/docLinks.mjs';
 import installLinks, { channels, tools } from '~/common/installLinks.mjs';
 import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -48,7 +47,9 @@ const CliToolRows = ({
           <Content component="p">
             Create applications and manage OpenShift projects from the command line using the
             OpenShift client <code>oc</code>. {/* TODO: @beni <ExternalLink ExternalLink */}
-            <ExternalLink href={docLinks.CLI_TOOLS_OCP_GETTING_STARTED}>Get started</ExternalLink>
+            <ExternalLink href={installLinks.CLI_TOOLS_OCP_GETTING_STARTED}>
+              Get started
+            </ExternalLink>
           </Content>
         }
       />
@@ -109,7 +110,7 @@ const CliToolRows = ({
               <Content component="p">
                 Interact with Knative components on OpenShift Container Platform with the Knative
                 client for OpenShift Serverless <code>kn</code>.{' '}
-                <ExternalLink href={docLinks.KN_DOCS}>Learn more</ExternalLink>
+                <ExternalLink href={installLinks.KN_DOCS}>Learn more</ExternalLink>
               </Content>
             }
           />
@@ -127,7 +128,7 @@ const CliToolRows = ({
               <Content component="p">
                 Manage and interact with CI pipelines on OpenShift Container Platform with the
                 Tekton CLI for OpenShift Pipelines.{' '}
-                <ExternalLink href={docLinks.TKN_DOCS}>Get started</ExternalLink>
+                <ExternalLink href={installLinks.TKN_DOCS}>Get started</ExternalLink>
               </Content>
             }
           />
