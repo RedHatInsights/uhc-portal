@@ -4,7 +4,7 @@
 import { combineAndSortLinks } from './linkUtils.mjs';
 
 /**
- * Gets all external link URLs from both installLinks and supportLinks
+ * Gets all external link URLs from installLinks, supportLinks and docLinks
  * This is the centralized function that scripts should use
  * @returns {Promise<Array<string>>} - Sorted array of all unique external link URLs
  */

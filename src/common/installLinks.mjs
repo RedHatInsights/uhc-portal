@@ -1,6 +1,6 @@
 /**
  * Contains urls related directly to downloads and installation binaries.
- * Contains https://console. urls (console.cloud.goole, console.aws.amazon, console.redhat).
+ * Contains https://console.* urls (console.cloud.google, console.aws.amazon, console.redhat).
  * Contains urls related to pricing information.
  * This module has .mjs extension to simplify importing from NodeJS scripts.
  */

@@ -84,7 +84,7 @@ const docLinks = {
   OSD_CCS_AWS_CUSTOMER_REQ: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs#ccs-aws-customer-requirements_aws-ccs`,
   OSD_CCS_GCP: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs`,
   OSD_CCS_GCP_LIMITS: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs#gcp-limits_gcp-ccs`,
-  OSD_CCS_GCP_SHEILDED_VM: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_google_cloud/osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
+  OSD_CCS_GCP_SHIELDED_VM: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_google_cloud/osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
   OSD_CCS_GCP_WIF_CREATION_LEARN_MORE: `${OSD_DOCS_BASE}/openshift_dedicated_clusters_on_google_cloud/osd-creating-a-cluster-on-gcp-with-workload-identity-federation#workload-identity-federation-overview_osd-creating-a-cluster-on-gcp-with-workload-identity-federation`,
   OSD_LIFE_CYCLE: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#osd-life-cycle`,
   OSD_LIFE_CYCLE_DATES: `${OSD_DOCS_BASE}/introduction_to_openshift_dedicated/policies-and-service-definition#sd-life-cycle-dates_osd-life-cycle`,

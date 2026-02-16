@@ -112,6 +112,6 @@ A detailed explanation of how to make a release can be found on the [Release to 
 ### Link architecture
 
 Link URLs are separated into three different categories found in files supportLinks.mjs, installLinks.mjs and docLinks.mjs.
-supportLinks.mjs contains support related urls, knowledge base articles and troubleshooting documentation.
-installLinks.mjs contains download/installation binaries, console. prefixed urls and pricing information.
+supportLinks.mjs contains support-related links, knowledge base articles and troubleshooting documentation.
+installLinks.mjs contains download/installation binaries, console.\* prefixed urls and pricing information.
 docLinks.mjs contains documentation, tutorials and educational content.
