@@ -1,8 +1,7 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { ACM_HUB_PROPERTY_KEY, ACM_HUB_PROPERTY_VALUE } from '~/common/acmHubConstants';
-import { onSetTotalClusters } from '~/redux/actions/viewOptionsActions';
+import type { PaginationOptions } from '~/types/types';
 
 import { useFetchClusters } from '../ClusterListQueries/useFetchClusters';
 
@@ -11,9 +10,7 @@ const ACM_HUB_CLUSTERS_VIEW = 'ACM_HUB_CLUSTERS_VIEW';
 /**
  * Fetch ACM Hub Clusters by filtering for clusters with the ACM Hub property
  */
-export const useFetchAcmHubClusters = () => {
-  const dispatch = useDispatch();
-
+export const useFetchAcmHubClusters = (paginationOptions?: PaginationOptions) => {
   // Use the standard cluster fetching hook but we'll filter the results
   const {
     isLoading,
@@ -24,7 +21,11 @@ export const useFetchAcmHubClusters = () => {
     isFetching,
     isFetched,
     isClustersDataPending,
-  } = useFetchClusters(false, true);
+  } = useFetchClusters(
+    paginationOptions
+      ? { isArchived: false, useManagedEndpoints: true, paginationOptions }
+      : { isArchived: false, useManagedEndpoints: true },
+  );
 
   // Filter clusters to only include those with ACM Hub property
   const filteredData = React.useMemo(() => {
@@ -44,20 +45,6 @@ export const useFetchAcmHubClusters = () => {
     };
   }, [data]);
 
-  const clustersTotal = useSelector(
-    (state: any) => state.viewOptions[ACM_HUB_CLUSTERS_VIEW]?.totalCount,
-  );
-
-  React.useEffect(() => {
-    if (
-      !isLoading &&
-      filteredData?.itemsCount !== undefined &&
-      filteredData.itemsCount !== clustersTotal
-    ) {
-      dispatch(onSetTotalClusters(filteredData?.itemsCount, ACM_HUB_CLUSTERS_VIEW));
-    }
-  }, [clustersTotal, filteredData?.itemsCount, dispatch, isLoading]);
-
   return {
     isLoading,
     data: filteredData,
@@ -67,6 +54,7 @@ export const useFetchAcmHubClusters = () => {
     isFetching,
     isFetched,
     isClustersDataPending,
+    totalCount: filteredData.itemsCount,
   };
 };
 

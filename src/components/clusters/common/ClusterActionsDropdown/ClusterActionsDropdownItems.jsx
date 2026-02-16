@@ -345,19 +345,16 @@ function actionResolver(
       ...baseProps,
       title,
       key: getKey('tagacmhub'),
-      ...disableIfTooltip(
-        uninstallingMessage || readOnlyMessage || hibernatingMessage || deleteProtectionMessage,
-        {
-          onClick: () =>
-            openModal(modals.TAG_ACM_HUB, {
-              clusterID: cluster.id,
-              clusterName,
-              region: cluster?.subscription?.rh_region_id,
-              properties,
-              shouldDisplayClusterName: inClusterList,
-            }),
-        },
-      ),
+      ...disableIfTooltip(uninstallingMessage || readOnlyMessage || hibernatingMessage, {
+        onClick: () =>
+          openModal(modals.TAG_ACM_HUB, {
+            clusterID: cluster.id,
+            clusterName,
+            region: cluster?.subscription?.rh_region_id,
+            properties,
+            shouldDisplayClusterName: inClusterList,
+          }),
+      }),
     };
     return tagAcmHubProps;
   };

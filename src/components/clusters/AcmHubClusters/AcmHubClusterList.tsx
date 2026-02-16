@@ -19,12 +19,7 @@ import GlobalErrorBox from '~/components/clusters/common/GlobalErrorBox/GlobalEr
 import ErrorBox from '~/components/common/ErrorBox';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import Unavailable from '~/components/common/Unavailable';
-import {
-  ACM_HUB_CLUSTERS_VIEW,
-  useFetchAcmHubClusters,
-} from '~/queries/AcmHubQueries/useFetchAcmHubClusters';
-import * as viewActions from '~/redux/actions/viewOptionsActions';
-import { onPageInput, onPerPageSelect } from '~/redux/actions/viewOptionsActions';
+import { useFetchAcmHubClusters } from '~/queries/AcmHubQueries/useFetchAcmHubClusters';
 import { CLUSTERS_VIEW } from '~/redux/constants/viewConstants';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
@@ -36,11 +31,16 @@ import { ClusterTagModal } from './ClusterTagModal';
 import './AcmHubClusterList.scss';
 
 const PAGE_TITLE = 'ACM Hub Clusters';
-const viewType = ACM_HUB_CLUSTERS_VIEW;
 
 const AcmHubClusterList: React.FC = () => {
   const dispatch = useDispatch();
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [sorting, setSorting] = useState({
+    sortField: 'display_name',
+    isAscending: true,
+  });
 
   const openModal = useCallback(
     (modalName: string, data: unknown) => {
@@ -48,6 +48,9 @@ const AcmHubClusterList: React.FC = () => {
     },
     [dispatch],
   );
+
+  const clusterViewOptions = useSelector((state: any) => state.viewOptions[CLUSTERS_VIEW]) || {};
+  const { showMyClustersOnly, subscriptionFilter } = clusterViewOptions.flags || {};
 
   const {
     isLoading,
@@ -58,47 +61,40 @@ const AcmHubClusterList: React.FC = () => {
     isFetching,
     isFetched,
     isClustersDataPending,
-  } = useFetchAcmHubClusters();
+    totalCount: clustersTotal,
+  } = useFetchAcmHubClusters({
+    currentPage,
+    pageSize,
+    sorting,
+    filter: clusterViewOptions.filter,
+    flags: { showMyClustersOnly, subscriptionFilter },
+  });
 
   const clusters = data?.items;
-  const clustersTotal = useSelector((state: any) => state.viewOptions[viewType]?.totalCount) || 0;
-
-  const currentPage = useSelector((state: any) => state.viewOptions[viewType]?.currentPage) || 1;
-  const pageSize = useSelector((state: any) => state.viewOptions[viewType]?.pageSize) || 10;
 
   const itemsStart =
     currentPage && pageSize && clustersTotal > 0 ? (currentPage - 1) * pageSize + 1 : 0;
   const itemsEnd = currentPage && pageSize ? Math.min(currentPage * pageSize, clustersTotal) : 0;
 
-  const onPageChange = React.useCallback(
-    (_event: any, page: number) => {
-      dispatch(onPageInput(page, viewType));
-    },
-    [dispatch],
-  );
+  const onPageChange = useCallback((_event: any, page: number) => {
+    setCurrentPage(page);
+  }, []);
 
   React.useEffect(() => {
     if (clusters && clustersTotal < itemsStart && !isLoading) {
       const newPage = Math.ceil(clustersTotal / pageSize);
-      onPageChange(undefined, newPage);
+      setCurrentPage(newPage);
     }
-  }, [clusters, itemsStart, currentPage, pageSize, onPageChange, clustersTotal, isLoading]);
+  }, [clusters, itemsStart, pageSize, clustersTotal, isLoading]);
 
-  const onPerPageChange = (_event: any, newPerPage: number, newPage: number) => {
-    dispatch(onPageInput(newPage, viewType));
-    dispatch(onPerPageSelect(newPerPage, viewType, true));
-  };
+  const onPerPageChange = useCallback((_event: any, newPerPage: number, newPage: number) => {
+    setCurrentPage(newPage);
+    setPageSize(newPerPage);
+  }, []);
 
-  const sortOptions = useSelector((state: any) => state.viewOptions[viewType]?.sorting) || {
-    sortField: 'display_name',
-    isAscending: true,
-  };
+  const activeSortIndex = sorting.sortField;
+  const activeSortDirection = sorting.isAscending ? SortByDirection.asc : SortByDirection.desc;
 
-  const activeSortIndex = sortOptions.sortField;
-  const activeSortDirection = sortOptions.isAscending ? SortByDirection.asc : SortByDirection.desc;
-
-  const clusterViewOptions = useSelector((state: any) => state.viewOptions[CLUSTERS_VIEW]) || {};
-  const { showMyClustersOnly, subscriptionFilter } = clusterViewOptions.flags || {};
   const hasNoFilters =
     helpers.nestedIsEmpty(subscriptionFilter) && !showMyClustersOnly && !clusterViewOptions.filter;
 
@@ -215,12 +211,10 @@ const AcmHubClusterList: React.FC = () => {
                   activeSortIndex={activeSortIndex}
                   activeSortDirection={activeSortDirection}
                   setSort={(index: string, direction: 'asc' | 'desc') => {
-                    const sorting = {
+                    setSorting({
                       isAscending: direction === SortByDirection.asc,
                       sortField: index,
-                      sortIndex: 0,
-                    };
-                    dispatch(viewActions.onListSortBy(sorting, viewType));
+                    });
                   }}
                   refreshFunc={refetch}
                 />

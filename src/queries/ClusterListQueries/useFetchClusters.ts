@@ -7,7 +7,7 @@ import { ARCHIVED_CLUSTERS_VIEW, CLUSTERS_VIEW } from '~/redux/constants/viewCon
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { type Subscription } from '~/types/accounts_mgmt.v1';
 import { Cluster } from '~/types/clusters_mgmt.v1';
-import { ClusterWithPermissions } from '~/types/types';
+import type { ClusterWithPermissions, PaginationOptions, ViewOptions } from '~/types/types';
 
 import {
   createResponseForFetchClusters,
@@ -29,7 +29,25 @@ import { useFetchSubscriptions } from './helpers/useFetchSubscriptions';
 
 const REGION_ID = 'rh_region_id';
 
-export const useFetchClusters = (isArchived = false, useManagedEndpoints = true) => {
+interface UseFetchClustersOptions {
+  isArchived?: boolean;
+  useManagedEndpoints?: boolean;
+  paginationOptions?: PaginationOptions;
+}
+
+export const useFetchClusters = (
+  isArchivedOrOptions: boolean | UseFetchClustersOptions = false,
+  useManagedEndpointsParam = true,
+) => {
+  const isOptionsObject = typeof isArchivedOrOptions === 'object';
+  const isArchived = isOptionsObject
+    ? isArchivedOrOptions.isArchived ?? false
+    : isArchivedOrOptions;
+  const useManagedEndpoints = isOptionsObject
+    ? isArchivedOrOptions.useManagedEndpoints ?? true
+    : useManagedEndpointsParam;
+  const paginationOptions = isOptionsObject ? isArchivedOrOptions.paginationOptions : undefined;
+
   const viewOptionsType = isArchived ? ARCHIVED_CLUSTERS_VIEW : CLUSTERS_VIEW;
 
   const [queries, setQueries] = React.useState<UseQueryOptions[]>([]);
@@ -39,14 +57,32 @@ export const useFetchClusters = (isArchived = false, useManagedEndpoints = true)
 
   /* ***** Reset refresh timer on Filtering / Sorting / Pagination Change  **** */
   const userName = useGlobalState((state) => state.userProfile.keycloakProfile.username);
-  const viewOptions = useGlobalState(
+  const reduxViewOptions = useGlobalState(
     (state) => ({
       ...state.viewOptions[viewOptionsType],
-      // total is required by the type but isn't used in this code
-      totalCount: 0, // Set to 0 in order to prevent a reload when that total is returned with the subscription api call
+      totalCount: 0,
     }),
     shallowEqual,
   );
+
+  const viewOptions: ViewOptions = React.useMemo(() => {
+    if (paginationOptions) {
+      return {
+        currentPage: paginationOptions.currentPage,
+        pageSize: paginationOptions.pageSize,
+        totalCount: 0,
+        totalPages: 0,
+        filter: paginationOptions.filter ?? '',
+        sorting: {
+          sortField: paginationOptions.sorting.sortField,
+          isAscending: paginationOptions.sorting.isAscending,
+          sortIndex: 0,
+        },
+        flags: paginationOptions.flags ?? {},
+      };
+    }
+    return reduxViewOptions;
+  }, [paginationOptions, reduxViewOptions]);
 
   const plans = viewOptions.flags?.subscriptionFilter?.plan_id?.toString();
   React.useEffect(() => {

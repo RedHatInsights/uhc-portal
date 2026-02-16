@@ -44,6 +44,20 @@ export type ViewOptions = {
   };
 };
 
+export type PaginationOptions = {
+  currentPage: number;
+  pageSize: number;
+  sorting: {
+    sortField: string;
+    isAscending: boolean;
+  };
+  filter?: ViewOptionsFilter;
+  flags?: {
+    showMyClustersOnly?: boolean;
+    subscriptionFilter?: Record<string, unknown>;
+  };
+};
+
 // picking specific Cluster properties to satisfy requirements for
 export type FakeCluster = // AICluster &
   Pick<
