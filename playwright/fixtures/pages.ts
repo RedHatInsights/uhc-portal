@@ -1,4 +1,10 @@
-import { test as base, BrowserContext, Page } from '@playwright/test';
+import {
+  test as base,
+  expect as baseExpect,
+  BrowserContext,
+  Locator,
+  Page,
+} from '@playwright/test';
 import { ClusterDetailsPage } from '../page-objects/cluster-details-page';
 import { ClusterListPage } from '../page-objects/cluster-list-page';
 import { ClusterRequestsPage } from '../page-objects/cluster-requests-page';
@@ -263,4 +269,20 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   ],
 });
 
-export { expect } from '@playwright/test';
+export const expect = baseExpect.extend({
+  async toBePressed(locator: Locator) {
+    const assertionName = 'toBePressed';
+    let pass: boolean;
+    try {
+      await baseExpect(locator).toHaveAttribute('aria-pressed', 'true');
+      pass = true;
+    } catch {
+      pass = false;
+    }
+    const actual = await locator.getAttribute('aria-pressed');
+    const message = pass
+      ? () => `expected locator not to be pressed (aria-pressed="true"), got ${actual}`
+      : () => `expected locator to be pressed (aria-pressed="true"), got ${actual}`;
+    return { pass, message, name: assertionName };
+  },
+});

@@ -1,11 +1,11 @@
 import { test, expect } from '../../fixtures/pages';
 const clusterProperties = require('../../fixtures/osd-gcp/osd-marketplace-gcp-wif-cluster-creation.spec.json');
 const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
-const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG;
+const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG || '';
 
 test.describe.serial(
   'OSD Marketplace GCP WIF cluster creation tests (OCP-67514)',
-  { tag: ['@smoke', '@osd'] },
+  { tag: ['@smoke', '@osd', '@wif'] },
   () => {
     test.beforeAll(async ({ navigateTo }) => {
       // Navigate to create
@@ -35,9 +35,12 @@ test.describe.serial(
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
+      await expect(createOSDWizardPage.workloadIdentityFederationButton()).toBePressed();
+      await expect(createOSDWizardPage.serviceAccountButton()).not.toBePressed();
       await createOSDWizardPage.workloadIdentityFederationButton().click();
       await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG);
       await createOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
+      await createOSDWizardPage.isPrerequisitesHintPresent(clusterProperties.PrerequisitesHint);
       await page.locator(createOSDWizardPage.primaryButton).click();
     });
 
