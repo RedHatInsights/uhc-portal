@@ -428,6 +428,7 @@ function dropDownItems({
   inClusterList,
   toggleSubscriptionReleased,
   addNotification,
+  isACMClusterTaggingEnabled,
 }) {
   const actions = actionResolver(
     cluster,
@@ -442,6 +443,7 @@ function dropDownItems({
     refreshFunc,
     inClusterList,
     addNotification,
+    isACMClusterTaggingEnabled,
   );
 
   const renderMenuItem = ({ title, ...restOfProps }) => (
