@@ -18,7 +18,7 @@ Slack channels: `#forum-cluster-management` for OCM in general, `#ocm-osd-ui` fo
 
 ## Requirements
 
-- [NodeJS](https://nodejs.org/) `>= 18.12.0`
+- [NodeJS](https://nodejs.org/) `>=18.12.0 <19.0.0 || >=20.0.0 <21.0.0 || >=22.0.0`
 - [Yarn](https://classic.yarnpkg.com/lang/en/) `1.22.19` - (higher versions are not supported)
 - [Podman](https://podman.io/docs/installation) `>= v5.5.2`
 
@@ -79,7 +79,7 @@ to the [_OCM Web Portal_ development source on Segment](https://app.segment.com/
 If you see them in the [production source](https://app.segment.com/redhat-devtools/sources/ocm_web_portal/overview) instead, reload the page once
 (this will stick until local storage is cleared).
 
-By default, UI run Assisted Installer without standalone mode. To run with Assisted Installer in standalone mode you need to follow these steps:
+By default, the UI runs Assisted Installer without standalone mode. To run with Assisted Installer in standalone mode you need to follow these steps:
 
 - Download https://github.com/openshift-assisted/assisted-installer-app project
 - Inside assisted-installer-app run `npm install && npm run start:federated`
