@@ -102,7 +102,7 @@ const ServiceAccountPrerequisites = () => (
         OpenShift Dedicated.
         <br />
         <ExternalLink noIcon href={links.OSD_CCS_GCP}>
-          For more guidance, see theCustomer Cloud Subscription requirements
+          For more guidance, see the Customer Cloud Subscription requirements
         </ExternalLink>
         .
       </Content>
