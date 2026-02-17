@@ -99,9 +99,10 @@ const ServiceAccountPrerequisites = () => (
       <Content component={ContentVariants.p} className="ocm-secondary-text">
         Enhanced Support from Google Cloud is also recommended. To prevent potential conflicts, we
         recommend that you have no other resources provisioned in the project prior to provisioning
-        OpenShift Dedicated. For more guidance, see the{' '}
+        OpenShift Dedicated.
+        <br />
         <ExternalLink noIcon href={links.OSD_CCS_GCP}>
-          Customer Cloud Subscription requirements
+          For more guidance, see theCustomer Cloud Subscription requirements
         </ExternalLink>
         .
       </Content>
