@@ -38,9 +38,7 @@ const DrawerPanel = ({ content, onClose }: DrawerPanelProps) => {
             <DrawerContentBody>{content?.body}</DrawerContentBody>
           </DrawerPanelContent>
         }
-      >
-        <DrawerContentBody />
-      </DrawerContent>
+      />
     </Drawer>
   );
 };
