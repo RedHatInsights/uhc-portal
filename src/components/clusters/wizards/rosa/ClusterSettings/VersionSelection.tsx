@@ -98,8 +98,10 @@ function VersionSelection({
   const isValidRosaVersion = React.useCallback(
     (version: Version) =>
       version.rosa_enabled &&
-      (isHypershiftSelected || isSupportedMinorVersion(version?.raw_id || '', rosaMaxOSVersion)),
-    [rosaMaxOSVersion, isHypershiftSelected], // rosaMaxOSVersion is actually the max version allowed by the chosen AccountRoles,
+      (isHypershiftSelected ||
+        !rosaMaxOSVersion ||
+        isSupportedMinorVersion(version?.raw_id || '', rosaMaxOSVersion)),
+    [rosaMaxOSVersion, isHypershiftSelected],
   );
 
   const toggleCompatibleVersions = (
