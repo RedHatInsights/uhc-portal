@@ -3,7 +3,9 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import {
   Badge,
+  Button,
   PageSection,
+  Popover,
   Stack,
   StackItem,
   Tab,
@@ -12,12 +14,16 @@ import {
   Tabs,
   TabTitleText,
 } from '@patternfly/react-core';
+import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
+import { ACM_HUB_DOCUMENTATION_LINKS } from '~/common/acmHubConstants';
 import { Navigate, useNavigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
-import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
+import ExternalLink from '~/components/common/ExternalLink';
+import { ACM_CLUSTER_TAGGING, TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
+import { AcmHubClusterList } from '../AcmHubClusters';
 import { AccessRequest } from '../ClusterDetailsMultiRegion/components/AccessRequest/AccessRequest';
 import ClusterList from '../ClusterListMultiRegion';
 import ClusterTransferList from '../ClusterTransfer/ClusterTransferList';
@@ -29,19 +35,33 @@ const CLUSTERS_ROUTES = {
   BASE: '/clusters',
   LIST: '/list',
   REQUESTS: '/requests',
+  HUB_CLUSTERS: '/hub-clusters',
+};
+
+const getActiveTabKey = (pathname: string): string => {
+  if (pathname.includes(CLUSTERS_ROUTES.REQUESTS)) {
+    return 'requests';
+  }
+  if (pathname.includes(CLUSTERS_ROUTES.HUB_CLUSTERS)) {
+    return 'hub-clusters';
+  }
+  return 'list';
 };
 
 export const Clusters = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
-  const activeTabKey = location.pathname.includes(CLUSTERS_ROUTES.REQUESTS) ? 'requests' : 'list';
+  const isACMClusterTaggingEnabled = useFeatureGate(ACM_CLUSTER_TAGGING);
+  const activeTabKey = getActiveTabKey(location.pathname);
   const handleTabSelect = useCallback(
     (_event: React.MouseEvent<HTMLElement>, tabKey: string | number) => {
-      const targetPath =
-        tabKey === 'requests'
-          ? `${CLUSTERS_ROUTES.BASE}${CLUSTERS_ROUTES.REQUESTS}`
-          : `${CLUSTERS_ROUTES.BASE}${CLUSTERS_ROUTES.LIST}`;
+      let targetPath = `${CLUSTERS_ROUTES.BASE}${CLUSTERS_ROUTES.LIST}`;
+      if (tabKey === 'requests') {
+        targetPath = `${CLUSTERS_ROUTES.BASE}${CLUSTERS_ROUTES.REQUESTS}`;
+      } else if (tabKey === 'hub-clusters') {
+        targetPath = `${CLUSTERS_ROUTES.BASE}${CLUSTERS_ROUTES.HUB_CLUSTERS}`;
+      }
       navigate(targetPath);
     },
     [navigate],
@@ -64,6 +84,34 @@ export const Clusters = () => {
             aria-label="Cluster List"
             tabContentId="list"
           />
+          {isACMClusterTaggingEnabled ? (
+            <Tab
+              eventKey="hub-clusters"
+              title={
+                <TabTitleText>
+                  Hub Clusters
+                  <Popover
+                    bodyContent="View clusters you tagged as Red Hat Advanced Cluster Management for Kubernetes (ACM) Hub clusters."
+                    footerContent={
+                      <ExternalLink href={ACM_HUB_DOCUMENTATION_LINKS.CLUSTER_HUB_DOCUMENTATION}>
+                        Learn more
+                      </ExternalLink>
+                    }
+                    position="top"
+                  >
+                    <Button
+                      icon={<OutlinedQuestionCircleIcon />}
+                      variant="plain"
+                      aria-label="More info about Hub Clusters"
+                      className="pf-v6-u-p-0 pf-v6-u-ml-xs"
+                    />
+                  </Popover>
+                </TabTitleText>
+              }
+              aria-label="Hub Clusters"
+              tabContentId="hub-clusters"
+            />
+          ) : null}
           <Tab
             eventKey="requests"
             title={
@@ -106,6 +154,18 @@ export const Clusters = () => {
             </TabContent>
           }
         />
+        {isACMClusterTaggingEnabled ? (
+          <Route
+            path={CLUSTERS_ROUTES.HUB_CLUSTERS}
+            element={
+              <TabContent id="hub-clusters" activeKey={activeTabKey}>
+                <TabContentBody>
+                  <AcmHubClusterList />
+                </TabContentBody>
+              </TabContent>
+            }
+          />
+        ) : null}
       </Routes>
     </AppPage>
   );

@@ -10,6 +10,7 @@ import Router from './Router';
 
 const routes = [
   { path: '/cluster-list', metadata: { ocm_resource_type: 'all' } },
+  { path: '/clusters/hub-clusters', metadata: { ocm_resource_type: 'all' } },
   { path: '/token/rosa', metadata: { ocm_resource_type: 'moa' } },
   { path: '/token/rosa/show', metadata: { ocm_resource_type: 'moa' } },
   { path: '/details/:id', metadata: { ocm_resource_type: 'all' } },

@@ -43,6 +43,7 @@ const props = {
   toggleSubscriptionReleased: jest.fn(),
   refreshFunc: jest.fn(),
   inClusterList: false,
+  isACMClusterTaggingEnabled: true,
 };
 
 const managedReadyProps = {

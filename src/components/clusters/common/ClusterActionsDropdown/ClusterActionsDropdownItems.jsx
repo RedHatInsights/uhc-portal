@@ -3,6 +3,7 @@ import get from 'lodash/get';
 
 import { DropdownItem, DropdownList } from '@patternfly/react-core';
 
+import { ACM_HUB_PROPERTY_KEY, ACM_HUB_PROPERTY_VALUE } from '~/common/acmHubConstants';
 import { isCompatibleFeature, SupportedFeature } from '~/common/featureCompatibility';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
@@ -48,6 +49,7 @@ function actionResolver(
   refreshFunc,
   inClusterList,
   addNotification,
+  isACMClusterTaggingEnabled,
   // dispatch,
 ) {
   const baseProps = {};
@@ -334,6 +336,29 @@ function actionResolver(
     };
   };
 
+  const getTagAcmHubProps = () => {
+    const properties = cluster.managed ? cluster.properties : cluster.cluster_id_properties;
+    const isCurrentlyTagged = properties?.[ACM_HUB_PROPERTY_KEY] === ACM_HUB_PROPERTY_VALUE;
+    const title = isCurrentlyTagged ? 'Remove hub cluster tag' : 'Tag as hub cluster';
+
+    const tagAcmHubProps = {
+      ...baseProps,
+      title,
+      key: getKey('tagacmhub'),
+      ...disableIfTooltip(uninstallingMessage || readOnlyMessage || hibernatingMessage, {
+        onClick: () =>
+          openModal(modals.TAG_ACM_HUB, {
+            clusterID: cluster.id,
+            clusterName,
+            region: cluster?.subscription?.rh_region_id,
+            properties,
+            shouldDisplayClusterName: inClusterList,
+          }),
+      }),
+    };
+    return tagAcmHubProps;
+  };
+
   const showDelete = cluster.canDelete && cluster.managed;
   const showScale = cluster.canEdit && cluster.managed && !cluster.ccs?.enabled;
   const showHibernateCluster =
@@ -369,6 +394,7 @@ function actionResolver(
       (allowAutoTransferClusterOwnership && isClusterOwner && isClusterReady)) &&
     get(cluster, 'subscription.status') !== SubscriptionCommonFieldsStatus.Archived;
   const showUpgradeTrialCluster = isClusterReady && cluster.canEdit && isProductOSDTrial;
+  const showTagAcmHub = isACMClusterTaggingEnabled && cluster.canEdit && !isArchived;
 
   return [
     showConsoleButton && getAdminConsoleProps(),
@@ -377,6 +403,7 @@ function actionResolver(
     showScale && getScaleClusterProps(),
     showHibernateCluster && getHibernateClusterProps(),
     showEditMachinePool && getEditMachinePoolProps(),
+    showTagAcmHub && getTagAcmHubProps(),
     showUpgradeTrialCluster && getUpgradeTrialClusterProps(),
     showDelete && getDeleteItemProps(),
     showArchive && getArchiveClusterProps(),
@@ -399,6 +426,7 @@ function dropDownItems({
   inClusterList,
   toggleSubscriptionReleased,
   addNotification,
+  isACMClusterTaggingEnabled,
 }) {
   const actions = actionResolver(
     cluster,
@@ -413,6 +441,7 @@ function dropDownItems({
     refreshFunc,
     inClusterList,
     addNotification,
+    isACMClusterTaggingEnabled,
   );
 
   const renderMenuItem = ({ title, ...restOfProps }) => (
