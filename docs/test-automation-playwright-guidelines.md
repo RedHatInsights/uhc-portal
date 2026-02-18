@@ -11,6 +11,8 @@
 7. [Test Organization](#test-organization)
 8. [Test Data Management](#test-data-management)
 9. [Tagging Strategy](#tagging-strategy)
+   - [Test Execution Tiers](#test-execution-tiers)
+   - [Choosing the Right Tier for New Tests](#choosing-the-right-tier-for-new-tests)
 10. [Best Practices](#best-practices)
 11. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
 12. [Debugging Tests](#debugging-tests)
@@ -20,28 +22,19 @@
 
 ## Project Structure
 
-```
+```text
 playwright/
 ├── e2e/                          # Test specification files
 │   ├── clusters/                 # Cluster management tests
-│   ├── downloads/                # Downloads page tests
-│   ├── osd/                      # OpenShift Dedicated tests
-│   ├── osd-aws/                  # OSD AWS-specific tests
-│   ├── osd-gcp/                  # OSD GCP-specific tests
-│   ├── overview/                 # Overview page tests
-│   ├── releases/                 # Releases page tests
 │   ├── rosa/                     # ROSA Classic tests
-│   ├── rosa-hosted/              # ROSA Hosted Control Plane tests
-│   └── subscriptions/            # Subscription tests
+│   ├── osd-aws/                  # OSD on AWS tests
+│   └── ...                       # Other feature folders
 ├── fixtures/                     # Test fixtures and data
 │   ├── pages.ts                  # Page object fixtures (DI)
 │   ├── storageState.json         # Authentication state
-│   ├── osd/                      # OSD test data
+│   ├── rosa/                     # ROSA Classic test data
 │   ├── osd-aws/                  # OSD AWS test data
-│   ├── osd-gcp/                  # OSD GCP test data
-│   ├── rosa/                     # ROSA test data
-│   ├── rosa-hosted/              # ROSA Hosted test data
-│   └── subscription/             # Subscription test data
+│   └── ...                       # Other fixture folders
 ├── page-objects/                 # Page Object Models
 │   ├── base-page.ts              # Base page with common methods
 │   └── *-page.ts                 # Feature-specific page objects
@@ -59,12 +52,12 @@ playwright/
 
 ### Test Files
 
-| Convention        | Pattern                               | Example                                          |
-| ----------------- | ------------------------------------- | ------------------------------------------------ |
-| Feature tests     | `<feature>.spec.ts`                   | `downloads.spec.ts`                              |
-| Creation tests    | `<product>-<type>-creation.spec.ts`   | `osd-ccs-aws-cluster-creation.spec.ts`           |
-| Validation tests  | `<product>-wizard-validation.spec.ts` | `rosa-cluster-classic-wizard-validation.spec.ts` |
-| Compound features | `<feature>-<subfeature>.spec.ts`      | `cluster-list.spec.ts`                           |
+| Convention        | Pattern                               | Example                                           |
+| ----------------- | ------------------------------------- | ------------------------------------------------- |
+| Feature tests     | `<feature>.spec.ts`                   | `downloads.spec.ts`                               |
+| Creation tests    | `<product>-<type>-creation.spec.ts`   | `osd-ccs-aws-creation.spec.ts`                    |
+| Validation tests  | `<product>-wizard-validation.spec.ts` | `rosa-classic-wizard-validation.spec.ts`          |
+| Compound features | `<feature>-<subfeature>.spec.ts`      | `subscription-list.spec.ts, cluster-list.spec.ts` |
 
 ### Page Objects
 
@@ -76,10 +69,10 @@ playwright/
 
 ### Test Data Files
 
-| Convention      | Pattern                 | Example                                            |
-| --------------- | ----------------------- | -------------------------------------------------- |
-| Validation data | `<spec-name>.spec.json` | `rosa-cluster-classic-wizard-validation.spec.json` |
-| Creation data   | `<spec-name>.spec.json` | `osd-ccs-aws-cluster-creation.spec.json`           |
+| Convention      | Pattern                 | Example                                    |
+| --------------- | ----------------------- | ------------------------------------------ |
+| Validation data | `<spec-name>.spec.json` | `rosa-classic-wizard-validation.spec.json` |
+| Creation data   | `<spec-name>.spec.json` | `osd-ccs-aws-creation.spec.json`           |
 
 ### Test Titles
 
@@ -134,7 +127,7 @@ import { test, expect } from '../../fixtures/pages';
 test.describe.serial('Feature name', { tag: ['@ci', '@smoke'] }, () => {
   test.beforeAll(async ({ navigateTo, yourFeatureNewPage }) => {
     await navigateTo('feature-url');
-    await yourFeatureNewPage.isyourFeatureNewPage();
+    await yourFeatureNewPage.isYourFeatureNewPage();
   });
 
   test('first test case', async ({ page, yourFeatureNewPage }) => {
@@ -405,13 +398,13 @@ test('my test', async ({ navigateTo }) => {
    this.page.getByTestId('submit-button');
    ```
 
-5. **CSS selectors** (Last resort)
+5. **CSS selectors** — Avoid
    ```typescript
    this.page.locator('button.submit-btn');
    this.page.locator('#cluster-name-input');
    this.page.locator('[aria-label="Close"]');
    ```
-   > ⚠️ **Note:** PatternFly class selectors (e.g., `.pf-c-button`, `.pf-m-primary`, `.pf-v5-c-*`) are **not recommended** as they are framework-specific and may change between versions.
+   > ⚠️ **Note:** CSS selectors are brittle and tightly coupled to implementation details. PatternFly class selectors (e.g., `.pf-c-button`, `.pf-m-primary`, `.pf-v5-c-*`) are especially problematic as they may change between framework versions. Some existing tests use CSS selectors due to unavoidable circumstances (e.g., elements lacking accessible roles or test IDs). When you encounter these, the recommendation is to update the application source to add proper accessible attributes and then migrate the selector to a higher-priority strategy above.
 
 ### Selector Examples
 
@@ -592,11 +585,11 @@ test('validates cluster name', async ({ createRosaWizardPage }) => {
 });
 ```
 
-> **Note:** The project uses ES modules (`"module": "esnext"` in tsconfig) with `"resolveJsonModule": true`. Always use `import` syntax for JSON fixtures rather than `require()`.
+> **Note:** Both `import` and `require()` are acceptable for loading JSON fixtures. The `import` syntax provides type inference on JSON keys, while `require()` is widely used across the existing test suite and works reliably at runtime. Choose either approach consistently within a file.
 
 ### Environment Variables
 
-Access environment variables from `playwright.env.json`:
+Access environment variables from `playwright.env.json`. Refer to the [Playwright README — Configuration Files](../playwright/README.md#configuration-files) for the expected structure and configuration details.
 
 ```typescript
 test.describe.serial('AWS cluster tests', () => {
@@ -622,20 +615,112 @@ const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
 ## Tagging Strategy
 
+### Test Execution Tiers
+
+Every test belongs to one or more execution tiers. Understanding these tiers is essential when writing new tests, as they determine **when** and **where** a test runs.
+
+#### CI Tests (`@ci`)
+
+CI tests are the first line of defense. They run **on every pull request** to catch regressions before code is merged.
+
+- **Purpose:** Validate basic functionality and catch obvious breakages at PR level.
+- **Scope:** Lightweight read-only or low-impact actions — page loads, element visibility, navigation, form validation, list rendering, and UI component behavior.
+- **Execution environment:** CI pipeline, triggered automatically on every PR.
+- **Expectations:** Fast execution (each spec should complete within a few minutes), no infrastructure side-effects, no cluster creation or deletion.
+- **Examples:** Verifying the cluster list page renders, downloads page content is visible, wizard field validation errors appear correctly.
+
+```typescript
+test.describe.serial('Downloads page', { tag: ['@ci'] }, () => {
+  test('page loads and shows pull secret section', async ({ downloadsPage }) => {
+    await expect(downloadsPage.pullSecretRow()).toBeVisible();
+  });
+});
+```
+
+#### Smoke Tests (`@smoke`)
+
+Smoke tests verify that **all critical functional paths are working** end-to-end. They act as a system stability gate.
+
+- **Purpose:** Confirm that core Day 0 (pre-creation) and Day 1 (creation and initial setup) workflows function correctly after a deployment.
+- **Scope:** Critical user journeys only — cluster creation wizards, key Day 1 operations. These are the paths that, if broken, would block users from performing essential tasks.
+- **Execution environment:** Runs **daily** against the **staging** environment.
+- **Expectations:** Tests may create real resources (clusters, subscriptions). Each test should be robust and reliable — flaky tests undermine the value of the smoke suite. Keep the suite focused; not every feature needs a smoke test, only the ones critical to system usability.
+- **Examples:** ROSA Classic cluster creation, ROSA HCP cluster creation, OSD cluster creation.
+
+```typescript
+test.describe.serial(
+  'ROSA Classic cluster creation',
+  { tag: ['@smoke', '@rosa', '@rosa-classic', '@day1', '@cluster-creation'] },
+  () => {
+    test('Step 1: Configure accounts and roles', async ({ createRosaWizardPage }) => {
+      // Critical path: account selection and role configuration
+    });
+
+    test('Step 2: Set cluster details and create', async ({ createRosaWizardPage }) => {
+      // Critical path: cluster provisioning
+    });
+  },
+);
+```
+
+#### Advanced Tests (`@advanced`, `@day1`, `@day2`)
+
+Advanced tests provide **comprehensive coverage** across all feature combinations, configurations, and edge cases. Use the `@day1` and `@day2` tags alongside `@advanced` to indicate which lifecycle phase the test covers.
+
+- **Purpose:** Exercise the full breadth of functionality, including Day 1 (cluster creation and initial setup), Day 2 (post-creation management such as scaling, upgrades, and configuration changes), and Day 0 operations across different product flavors and configuration permutations.
+- **Scope:** Multi-flavored cluster creation (different regions, network configurations, encryption options, machine types), Day 2 operations (machine pool management, scaling, upgrades, identity provider configuration, networking changes), and cross-feature interactions.
+- **Execution environment:** Currently executed on-demand against staging or dedicated test environments. A daily scheduled run is planned once the remaining tests are ported/created.
+- **Expectations:** Longer execution time is acceptable. Tests can cover complex, multi-step workflows and edge cases that are too slow or resource-intensive for CI or smoke runs.
+- **Examples:** Creating a ROSA cluster with private link + KMS encryption + custom machine pools, then performing Day 2 operations like adding an IDP, scaling machine pools, and triggering an upgrade.
+
+```typescript
+test.describe.serial(
+  'ROSA Classic private cluster with custom networking',
+  { tag: ['@advanced', '@rosa', '@rosa-classic', '@day1', '@cluster-creation'] },
+  () => {
+    test('Create cluster with PrivateLink and KMS encryption', async ({ createRosaWizardPage }) => {
+      // Advanced: specific network + encryption combination
+    });
+  },
+);
+```
+
+### Choosing the Right Tier for New Tests
+
+Use the following decision guide when adding a new test:
+
+| Question                                                                                        | If Yes                                                      | If No          |
+| ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | -------------- |
+| Does it verify basic page rendering, navigation, or form validation without creating resources? | Tag `@ci`                                                   | Continue below |
+| Does it cover a critical Day 0 or Day 1 workflow that, if broken, would block users?            | Tag `@smoke`                                                | Continue below |
+| Does it involve cluster creation or initial setup?                                              | Also tag `@day1`                                            | Continue below |
+| Does it involve post-creation operations (scaling, upgrades, IDP, networking, etc.)?            | Also tag `@day2`                                            | Continue below |
+| Does it test a specific configuration variant, Day 2 operation, or edge case?                   | Tag `@advanced` (with `@day1` and/or `@day2` as applicable) | Revisit scope  |
+
+**A test can belong to multiple tiers.** For example, a basic wizard validation test might be tagged `@ci` (runs on every PR) and also `@smoke` (validates a critical path). However, be intentional — adding a slow cluster-creation test to `@ci` will degrade PR feedback time for all contributors.
+
+**Rule of thumb:**
+
+- If in doubt, start with `@advanced` and promote to `@smoke` or `@ci` only when the test is fast, stable, and covers a critical path.
+- Always pair with `@day1` (creation/initial setup) or `@day2` (post-creation management) to indicate the lifecycle phase.
+- `@ci` tests must be **fast and side-effect-free**.
+- `@smoke` tests should be **reliable and focused on critical paths** (typically `@day1`).
+- `@advanced` tests can be **thorough and resource-intensive** (use `@day1`, `@day2`, or both).
+
 ### Available Tags
 
-| Tag                  | Description             | When to Use                        |
-| -------------------- | ----------------------- | ---------------------------------- |
-| `@ci`                | CI pipeline tests       | Tests for every PR                 |
-| `@smoke`             | Smoke tests             | Critical path validation           |
-| `@wizard-validation` | Wizard validation tests | Form validation tests              |
-| `@rosa`              | ROSA tests              | All ROSA-related tests             |
-| `@rosa-classic`      | ROSA Classic tests      | Classic control plane tests        |
-| `@rosa-hosted`       | ROSA HCP tests          | Hosted control plane tests         |
-| `@osd`               | OSD tests               | OpenShift Dedicated tests          |
-| `@cluster-creation`  | Cluster creation tests  | Full creation flows                |
-| `@day1`              | Day 1 operations        | Cluster creation and initial setup |
-| `@day2`              | Day 2 operations        | Post-creation cluster management   |
+| Tag                  | Description             | When to Use                                                   |
+| -------------------- | ----------------------- | ------------------------------------------------------------- |
+| `@ci`                | CI pipeline tests       | Fast, side-effect-free tests that run on every PR             |
+| `@smoke`             | Smoke tests             | Critical Day 0/Day 1 paths; runs against staging              |
+| `@advanced`          | Advanced tests          | Comprehensive coverage, multi-flavor and Day 2 ops; scheduled |
+| `@wizard-validation` | Wizard validation tests | Form validation tests                                         |
+| `@rosa`              | ROSA tests              | All ROSA-related tests                                        |
+| `@rosa-classic`      | ROSA Classic tests      | Classic control plane tests                                   |
+| `@rosa-hosted`       | ROSA HCP tests          | Hosted control plane tests                                    |
+| `@osd`               | OSD tests               | OpenShift Dedicated tests                                     |
+| `@day1`              | Day 1 operations        | Cluster creation and initial setup                            |
+| `@day2`              | Day 2 operations        | Post-creation cluster management                              |
 
 ### Day 1 and Day 2 Test Dependencies
 
@@ -1050,334 +1135,7 @@ yourFeaturePage: [
 
 ## Frequently Asked Questions (FAQ)
 
-### Q: Why do we have single navigation in serial tests?
-
-Because all tests in a `test.describe.serial` block share the same **worker-scoped page instance**, we navigate once in `test.beforeAll` to set the starting page and then let individual tests continue from where the previous test left off. This avoids redundant page loads and keeps the suite fast. Each test can still navigate if needed, but the initial navigation only happens once.
-
-```typescript
-test.describe.serial('Downloads feature', { tag: ['@ci', '@smoke'] }, () => {
-  // ✅ Navigate once — all tests below share this starting point
-  test.beforeAll(async ({ navigateTo, downloadsPage }) => {
-    await navigateTo('/openshift/downloads');
-    await downloadsPage.isDownloadsPage();
-  });
-
-  test('can view pull secret', async ({ downloadsPage }) => {
-    // Already on the downloads page — no navigation needed
-    await expect(downloadsPage.pullSecretRow()).toBeVisible();
-  });
-
-  test('can download CLI tools', async ({ downloadsPage }) => {
-    // Still on the same page from the previous test
-    await expect(downloadsPage.cliToolsSection()).toBeVisible();
-  });
-});
-```
-
-If a test navigates away (e.g., clicks a link to another page), subsequent tests should either navigate back explicitly using `navigateTo` or be designed to work from the new location. Avoid `page.goBack()` — use direct navigation instead.
-
-### Q: When should I use the `page` fixture directly vs. a page object fixture?
-
-Use **page object fixtures** (e.g., `clusterListPage`, `downloadsPage`) for all interactions with page elements -- they provide readable, reusable methods and encapsulate selectors. Use the raw `page` fixture only when you need low-level access that page objects don't cover, such as taking screenshots, checking the URL, or interacting with browser-level APIs.
-
-```typescript
-test('example', async ({ page, clusterListPage }) => {
-  // Page object for element interactions
-  await expect(clusterListPage.filterInput()).toBeVisible();
-
-  // Raw page for low-level operations
-  console.log('URL:', page.url());
-  await page.screenshot({ path: 'debug.png' });
-});
-```
-
-### Q: Why do we import `test` and `expect` from `../../fixtures/pages` instead of `@playwright/test`?
-
-Our custom `fixtures/pages.ts` extends Playwright's base `test` object with project-specific fixtures like `navigateTo`, `clusterListPage`, and other page objects. Importing from `@playwright/test` directly would give you a `test` function that doesn't know about these fixtures, and you'd get TypeScript errors when trying to destructure them. Always import from the fixtures file:
-
-```typescript
-// ✅ Correct
-import { test, expect } from '../../fixtures/pages';
-
-// ❌ Wrong — custom fixtures won't be available
-import { test, expect } from '@playwright/test';
-```
-
-### Q: Why is `networkidle` discouraged even though Playwright supports it?
-
-`networkidle` waits until there are no network connections for 500ms. In modern web apps that use polling, WebSockets, or long-lived API connections (like our portal), the network never truly goes "idle," causing tests to hang until they time out. Instead, wait for a **specific, visible element** that signals the page is ready:
-
-```typescript
-// ❌ May hang indefinitely on pages with background polling
-await page.waitForLoadState('networkidle');
-
-// ✅ Wait for the actual content you need
-await expect(page.getByRole('heading', { name: 'Clusters' })).toBeVisible();
-await clusterListPage.waitForDataReady();
-```
-
-### Q: How do I fix "Auth failure" or "storageState not found" errors?
-
-The authentication storage state (`storageState.json`) is created during the global setup and reused across workers. If it becomes stale or corrupted:
-
-1. **Delete the file:** Remove `storageState.json` from the project root and re-run tests. Global setup will re-authenticate.
-2. **Check credentials:** Ensure your environment variables (login URL, username, password) are correctly set in `playwright.env.json`.
-
-### Q: How do I run just one specific test or test file?
-
-```bash
-# Run a specific test file
-yarn playwright test playwright/e2e/downloads/downloads.spec.ts
-
-# Run a specific test by title (grep)
-yarn playwright test -g "can view pull secret"
-
-# Run tests matching a tag
-yarn playwright test --grep="@smoke"
-
-# Run in headed mode to watch the browser
-yarn playwright test playwright/e2e/downloads/downloads.spec.ts --headed
-
-# Run in UI mode for interactive debugging
-yarn playwright-ui
-```
-
-### Q: My test passes locally but fails in CI. How do I debug it?
-
-1. **Check the trace:** CI runs generate traces automatically. Download the trace artifact and open it:
-   ```bash
-   yarn playwright show-trace test-results/trace.zip
-   ```
-2. **Look at screenshots/videos:** Test artifacts (screenshots on failure, videos if configured) are uploaded as CI artifacts.
-3. **Reproduce headless locally:** CI runs headless by default. Test locally in headless mode to rule out headed-vs-headless differences:
-   ```bash
-   yarn playwright test playwright/e2e/your-test.spec.ts
-   ```
-4. **Check timing:** CI environments are typically slower. If your test relies on tight timing, add proper waits for element visibility rather than hard-coded timeouts.
-
-### Q: How do I debug a failing test locally?
-
-Playwright offers several modes to help you understand what a test is doing step by step:
-
-1. **UI Mode (recommended first step):** Opens an interactive interface where you can watch test execution, inspect DOM snapshots at each step, and re-run individual tests:
-
-   ```bash
-   yarn playwright-ui
-   ```
-
-2. **Debug Mode:** Launches the browser with Playwright Inspector, letting you step through each action one at a time:
-
-   ```bash
-   yarn playwright-debug
-   # Or for a specific file:
-   PWDEBUG=1 yarn playwright test playwright/e2e/your-test.spec.ts
-   ```
-
-3. **Headed Mode:** Runs the test with a visible browser so you can see what's happening, but without the step-by-step debugger:
-
-   ```bash
-   yarn playwright test playwright/e2e/your-test.spec.ts --headed
-   ```
-
-4. **Add `page.pause()` to your test:** Drops you into the Playwright Inspector at a specific point in your test. Remove before committing:
-
-   ```typescript
-   test('debug this step', async ({ page, clusterListPage }) => {
-     await clusterListPage.filterInput().fill('my-cluster');
-     await page.pause(); // Execution stops here — inspect the page
-     await clusterListPage.searchButton().click();
-   });
-   ```
-
-5. **Trace Viewer:** Run with tracing enabled to capture a detailed timeline of every action, network request, and DOM snapshot:
-   ```bash
-   yarn playwright test --trace on
-   yarn playwright show-trace test-results/trace.zip
-   ```
-
-Start with **UI Mode** for most debugging — it gives you the fastest feedback loop without modifying your test code.
-
-### Q: Should locator methods in page objects be `async` or synchronous?
-
-**Locator methods should be synchronous** (no `async`, no `await`). Playwright locators are lazy -- they don't query the DOM until an action or assertion is performed on them. Making them `async` adds unnecessary overhead and breaks chaining.
-
-```typescript
-// ✅ Good: Synchronous locator method
-submitButton(): Locator {
-  return this.page.getByRole('button', { name: 'Submit' });
-}
-
-// ❌ Bad: Unnecessary async
-async submitButton(): Promise<Locator> {
-  return this.page.getByRole('button', { name: 'Submit' });
-}
-```
-
-**Action methods** (those that perform clicks, fills, navigation) _should_ be `async` since they interact with the browser.
-
-### Q: When should I create a new page object vs. adding to an existing one?
-
-Use this decision guide:
-
-| Scenario                                                 | Action                                           | Example                                                             |
-| -------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------- |
-| Testing a **new page** with its own URL and distinct UI  | Create a **new** page object                     | A new "Billing" page at `/billing`                                  |
-| Adding tests for elements on an **already-modeled page** | **Add methods** to the existing page object      | Adding `filterByStatus()` to `ClusterListPage`                      |
-| A page has grown very large with many unrelated sections | Consider **splitting** into focused page objects | Separate `ClusterDetailsOverviewPage` and `ClusterDetailsNodesPage` |
-
-**Creating a new page object** requires three steps:
-
-1. Create the class in `page-objects/` extending `BasePage`
-2. Register it as a fixture in `fixtures/pages.ts`
-3. Use it in your spec file
-
-**Adding to an existing page object** only requires adding the method:
-
-```typescript
-// Adding a new method to an existing page object
-export class ClusterListPage extends BasePage {
-  // ... existing methods ...
-
-  // New method — no fixture changes needed
-  filterByStatus(status: string): Locator {
-    return this.page.getByRole('option', { name: status });
-  }
-}
-```
-
-Before creating a new page object, always check `page-objects/` to see if one already covers your page. Duplicate page objects for the same page cause confusion and maintenance burden.
-
-### Q: How do I handle test data like cluster names or configuration values?
-
-Use **JSON fixture files** stored in `playwright/fixtures/<feature>/`. These keep test data separate from test logic and make it easy to update values without modifying specs:
-
-```typescript
-// Load fixture data
-const testData = require('../../fixtures/rosa/rosa-cluster.spec.json');
-
-test('create cluster', async ({ createRosaWizardPage }) => {
-  await createRosaWizardPage.clusterNameInput().fill(testData.clusterName);
-});
-```
-
-Avoid hard-coding test data directly in spec files, especially values that may change across environments.
-
-### Q: How do I handle tests that need data that might not exist?
-
-It depends on whether the data is a **hard requirement** or **environment-dependent**. The two cases should be handled differently:
-
-**1. Hard requirements — Fail fast with a clear error**
-
-If the entire test suite depends on a specific env variable or resource (e.g., `QE_TEST_CLUSTER_NAME`), a missing value means the environment is misconfigured. The test should **fail immediately** with an explicit error, not skip silently — otherwise broken CI setups go unnoticed.
-
-```typescript
-test.describe.serial('Cluster details', { tag: ['@ci'] }, () => {
-  const clusterName = process.env.QE_TEST_CLUSTER_NAME;
-
-  // ✅ Fail fast — this env var is required for the suite to be meaningful
-  test.beforeAll(async () => {
-    if (!clusterName) {
-      throw new Error(
-        'QE_TEST_CLUSTER_NAME env var must be set — test environment is misconfigured',
-      );
-    }
-  });
-
-  test('shows cluster overview', async ({ clusterDetailsPage }) => {
-    await expect(clusterDetailsPage.clusterNameHeading()).toContainText(clusterName!);
-  });
-});
-```
-
-**2. Optional / environment-dependent data — Skip with a reason**
-
-If the data is legitimately optional (e.g., the test can only run when clusters happen to exist in the environment), use `test.skip` so the report clearly shows why the tests didn't run.
-
-```typescript
-test.describe.serial('Subscription management', { tag: ['@ci'] }, () => {
-  test.beforeAll(async ({ navigateTo, clusterListPage }) => {
-    await navigateTo('cluster-list');
-    const clusterCount = await clusterListPage.clusterRows().count();
-    // ✅ Skip — clusters may not exist in every test environment
-    test.skip(clusterCount === 0, 'No clusters available in this environment');
-  });
-
-  test('view subscription details', async ({ clusterListPage }) => {
-    await clusterListPage.firstClusterRow().click();
-    // ...
-  });
-});
-```
-
-**3. Self-contained suites — Create the data as part of setup**
-
-When possible, make the test self-sufficient by creating and cleaning up its own data, so it doesn't depend on external state at all.
-
-```typescript
-test.describe.serial('Cluster lifecycle', { tag: ['@cluster-creation'] }, () => {
-  const clusterName = `test-cluster-${Math.random().toString(36).substring(7)}`;
-
-  test('create cluster', async ({ createRosaWizardPage }) => {
-    await createRosaWizardPage.clusterNameInput().fill(clusterName);
-    await createRosaWizardPage.submitButton().click();
-    // Wait for creation to complete...
-  });
-
-  test('verify cluster appears in list', async ({ navigateTo, clusterListPage }) => {
-    await navigateTo('cluster-list');
-    await expect(clusterListPage.clusterRowByName(clusterName)).toBeVisible();
-  });
-
-  test.afterAll(
-    async (
-      {
-        /* cleanup fixture */
-      },
-    ) => {
-      // Clean up the created resource
-    },
-  );
-});
-```
-
-**How to decide:**
-
-| Scenario                                              | Action                                       | Example                                      |
-| ----------------------------------------------------- | -------------------------------------------- | -------------------------------------------- |
-| Env var the suite **cannot run without**              | **Fail** with `throw new Error(...)`         | `QE_TEST_CLUSTER_NAME`, `QE_AWS_ID`          |
-| Data that **may or may not** exist in the environment | **Skip** with `test.skip(condition, reason)` | Clusters, subscriptions in a shared env      |
-| Data that the test **can create itself**              | **Set up** in `beforeAll` or first test      | Dynamically created clusters, temp resources |
-
-The key principle: **never let a test produce a cryptic, misleading error because of missing preconditions.** Hard requirements should fail loudly and immediately so misconfigured environments are caught. Optional preconditions should skip with a clear reason. In neither case should a test silently pass without verifying anything.
-
-### Q: What tags should I use for my tests?
-
-| Tag                 | When to Use                                |
-| ------------------- | ------------------------------------------ |
-| `@ci`               | Tests that should run on every CI pipeline |
-| `@smoke`            | Critical path tests for quick validation   |
-| `@rosa`             | ROSA-specific functionality                |
-| `@osd`              | OpenShift Dedicated tests                  |
-| `@cluster-creation` | Long-running cluster creation tests        |
-
-Apply tags at the `test.describe` level for the whole suite, or on individual `test()` calls for granular control. Every test should have at least one tag.
-
-### Q: Can I use `test.only` or `test.skip` during development?
-
-- **`test.only`:** Fine during local development to focus on a specific test, but never commit it -- it will silently skip all other tests in CI.
-- **`test.skip`:** Acceptable only with a tracking reference (e.g., JIRA ticket) explaining why. Permanent skips without tracking are an anti-pattern:
-
-```typescript
-// ✅ Acceptable: Skip with tracking
-test.skip('broken feature - JIRA-1234', async () => {
-  /* ... */
-});
-
-// ❌ Bad: Permanent skip with no context
-test.skip('this test', async () => {
-  /* ... */
-});
-```
+For common questions about writing and debugging Playwright tests, see the dedicated **[Playwright FAQ](test-automation-playwright-faq.md)**.
 
 ---
 
