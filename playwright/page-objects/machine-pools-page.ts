@@ -125,19 +125,13 @@ export class MachinePoolsPage extends BasePage {
     expectedPreference: string,
     expectedReservationId: string,
   ): Promise<void> {
-    const row = this.page.getByRole('row').filter({ hasText: machinePoolId });
-    const detailsButton = row.getByRole('button', {
+    const rowGroup = this.page.getByRole('rowgroup').filter({ hasText: machinePoolId });
+    const detailsButton = rowGroup.getByRole('button', {
       name: 'Details',
     });
     await detailsButton.click();
-    const expandedRow = row.locator(
-      'xpath=following-sibling::tr[@data-testid="expandable-row"][1]',
-    );
-    await expect(
-      expandedRow.getByText(`Reservation Preference: ${expectedPreference}`),
-    ).toBeVisible();
-    // Verify Reservation Id
-    await expect(expandedRow.getByText(`Reservation Id: ${expectedReservationId}`)).toBeVisible();
+    await expect(rowGroup.getByText(`Reservation Preference: ${expectedPreference}`)).toBeVisible();
+    await expect(rowGroup.getByText(`Reservation Id: ${expectedReservationId}`)).toBeVisible();
     await detailsButton.click();
   }
 }
