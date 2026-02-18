@@ -205,6 +205,8 @@ function VersionSelection({
         return;
       }
 
+      setRosaVersionError(false);
+
       // default to max: hypershift version supported (if hypershift), rosa version supported, version.default, or first version in list
       const version =
         defaultHypershiftVersion || defaultRosaVersion || defaultVersion || versions[0];
