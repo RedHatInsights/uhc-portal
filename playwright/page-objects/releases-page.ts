@@ -1,4 +1,7 @@
-import { Page, Locator, expect } from '@playwright/test';
+import semver from 'semver';
+
+import { expect, Locator, Page } from '@playwright/test';
+
 import { BasePage } from './base-page';
 
 /**
@@ -16,12 +19,17 @@ export class ReleasesPage extends BasePage {
    * Get the update channels documentation path for a specific version.
    * Matches the logic in src/components/releases/getCandidateChannelLink.ts
    */
-  private static getUpdateChannelsPath(version: string): string {
-    const [, minorStr] = version.split('.');
-    const minor = parseInt(minorStr, 10);
+  private static getUpdateChannelsPath(version: string): string | null {
+    const parsed = semver.coerce(version);
+
+    if (!parsed) {
+      return null;
+    }
+
+    const { major, minor } = parsed;
 
     if (minor < 6) {
-      return `html/updating_clusters/index#candidate-4-${minor}-channel`;
+      return `html/updating_clusters/index#candidate-${major}-${minor}-channel`;
     }
     if (minor < 14) {
       return 'html/updating_clusters/understanding-upgrade-channels-releases#candidate-version-channel_understanding-upgrade-channels-releases';
@@ -40,9 +48,11 @@ export class ReleasesPage extends BasePage {
    * Check if the release version link is visible
    */
   async checkIndividualReleaseVersionLink(version: string): Promise<void> {
-    const [majorVersion, minorVersion] = version.split('.');
+    const parsed = semver.coerce(version);
+    expect(parsed, `Failed to parse version: ${version}`).not.toBeNull();
+    const { major, minor } = parsed!;
     const versionLink = this.page.locator(
-      `a[href="${ReleasesPage.CONTAINER_PLATFORM_DOC_PATH}${version}/html/release_notes/ocp-${majorVersion}-${minorVersion}-release-notes"]`,
+      `a[href="${ReleasesPage.CONTAINER_PLATFORM_DOC_PATH}${major}.${minor}/html/release_notes/ocp-${major}-${minor}-release-notes"]`,
     );
     await expect(versionLink).toBeVisible();
   }
@@ -64,6 +74,11 @@ export class ReleasesPage extends BasePage {
    * Check more information modal for a version
    */
   async checkIndividualReleaseVersionMoreInfo(version: string): Promise<void> {
+    const parsed = semver.coerce(version);
+    expect(parsed, `Failed to parse version: ${version}`).not.toBeNull();
+    const { major, minor } = parsed!;
+    const normalizedVersion = `${major}.${minor}`;
+
     // Open more information modal
     await this.page
       .getByTestId(`version-${version}`)
@@ -71,9 +86,11 @@ export class ReleasesPage extends BasePage {
       .click();
 
     // Verify candidate channels link (URL varies by version)
+    const updateChannelsPath = ReleasesPage.getUpdateChannelsPath(version);
+    expect(updateChannelsPath, `Failed to parse version: ${version}`).not.toBeNull();
     const candidateChannelLink = this.getContainerPlatformDocLink(
-      version,
-      ReleasesPage.getUpdateChannelsPath(version),
+      normalizedVersion,
+      updateChannelsPath!,
     ).last();
     await expect(candidateChannelLink).toContainText('Learn more about candidate channels');
 
@@ -93,10 +110,17 @@ export class ReleasesPage extends BasePage {
    * Check for cluster list link and documentation link
    */
   async checkLatestReleasePageLinks(currentVersion: string): Promise<void> {
+    const parsed = semver.coerce(currentVersion);
+    expect(parsed, `Failed to parse version: ${currentVersion}`).not.toBeNull();
+    const { major, minor } = parsed!;
+    const normalizedVersion = `${major}.${minor}`;
+
     // Verify updating channels link
+    const updateChannelsPath = ReleasesPage.getUpdateChannelsPath(currentVersion);
+    expect(updateChannelsPath, `Failed to parse version: ${currentVersion}`).not.toBeNull();
     const updatingChannelsLink = this.getContainerPlatformDocLink(
-      currentVersion,
-      ReleasesPage.getUpdateChannelsPath(currentVersion),
+      normalizedVersion,
+      updateChannelsPath!,
     ).first();
     await expect(updatingChannelsLink).toContainText('Learn more about updating channels');
 
