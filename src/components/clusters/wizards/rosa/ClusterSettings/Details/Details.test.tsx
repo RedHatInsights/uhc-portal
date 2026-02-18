@@ -303,6 +303,130 @@ describe('<Details />', () => {
       });
     });
 
+    it('shows version error alert when no rosa-enabled version exists in the selected channel group', async () => {
+      // Arrange: only stable has a rosa_enabled version; EUS does not
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+
+      const versionsNoEusRosa = [
+        {
+          id: 'openshift-v4.12.1',
+          raw_id: '4.12.1',
+          channel_group: 'stable',
+          rosa_enabled: true,
+          hosted_control_plane_enabled: true,
+        },
+        {
+          id: 'openshift-v4.12.0-eus',
+          raw_id: '4.12.0',
+          channel_group: 'eus',
+          rosa_enabled: false,
+          hosted_control_plane_enabled: false,
+        },
+      ];
+
+      const loadedState = {
+        cloudProviders: fulfilledProviders,
+        clusters: {
+          clusterVersions: {
+            fulfilled: true,
+            versions: versionsNoEusRosa,
+            error: false,
+            pending: false,
+          },
+        },
+      };
+
+      const initialVals = {
+        ...defaultValues,
+        [FieldId.ChannelGroup]: 'eus',
+        [FieldId.ClusterVersion]: undefined,
+        [FieldId.RosaMaxOsVersion]: '4.12',
+      };
+
+      // Act
+      withState(loadedState).render(
+        <Formik initialValues={initialVals} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      // Assert
+      expect(
+        await screen.findByText(
+          /There is no version compatible with the selected ARNs in previous step/,
+        ),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Options menu' })).not.toBeInTheDocument();
+    });
+
+    it('clears version error alert when channel group changes to one with valid versions', async () => {
+      // Arrange: EUS has no rosa_enabled version, but stable does
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+
+      const versionsNoEusRosa = [
+        {
+          id: 'openshift-v4.12.1',
+          raw_id: '4.12.1',
+          channel_group: 'stable',
+          rosa_enabled: true,
+          hosted_control_plane_enabled: true,
+        },
+        {
+          id: 'openshift-v4.12.0-eus',
+          raw_id: '4.12.0',
+          channel_group: 'eus',
+          rosa_enabled: false,
+          hosted_control_plane_enabled: false,
+        },
+      ];
+
+      const loadedState = {
+        cloudProviders: fulfilledProviders,
+        clusters: {
+          clusterVersions: {
+            fulfilled: true,
+            versions: versionsNoEusRosa,
+            error: false,
+            pending: false,
+          },
+        },
+      };
+
+      const initialVals = {
+        ...defaultValues,
+        [FieldId.ChannelGroup]: 'eus',
+        [FieldId.ClusterVersion]: undefined,
+        [FieldId.RosaMaxOsVersion]: '4.12',
+      };
+
+      // Act - render with EUS (which has no valid versions)
+      const { user } = withState(loadedState).render(
+        <Formik initialValues={initialVals} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      // Assert - error alert is shown
+      expect(
+        await screen.findByText(
+          /There is no version compatible with the selected ARNs in previous step/,
+        ),
+      ).toBeInTheDocument();
+
+      // Act - switch channel group to stable
+      const channelGroupSelect = screen.getByLabelText('Channel group');
+      await user.selectOptions(channelGroupSelect, 'stable');
+
+      // Assert - error alert is cleared and version dropdown appears
+      await waitFor(() => {
+        expect(
+          screen.queryByText(
+            /There is no version compatible with the selected ARNs in previous step/,
+          ),
+        ).not.toBeInTheDocument();
+      });
+    });
+
     it('displays channel group with nightly versions', async () => {
       // Arrange
       mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
