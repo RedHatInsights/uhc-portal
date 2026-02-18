@@ -89,10 +89,7 @@ describe('<CostBreakdownCard />', () => {
   });
 
   describe('When cost report is available', () => {
-    // This test fails due to an accessibility issue within PF PieCart
-    // PF takes the ariaDesc prop and incorrectly uses it to set
-    // aria-described by vs using aria-labelledby
-    it.skip('is accessible with cluster costs', async () => {
+    it('is accessible with cluster costs', async () => {
       // Arrange
       useGlobalStateMock.mockReturnValueOnce(availableState);
 

@@ -70,8 +70,12 @@ describe('<ClusterStatusMonitor />', () => {
     });
 
     render(<ClusterStatusMonitor {...defaultProps} />);
-    expect(useFetchClusterStatusMock).toBeCalledWith(clusterDetails.cluster.id, undefined, false);
-    expect(useFetchInflightChecksMock).toBeCalledWith(
+    expect(useFetchClusterStatusMock).toHaveBeenCalledWith(
+      clusterDetails.cluster.id,
+      undefined,
+      false,
+    );
+    expect(useFetchInflightChecksMock).toHaveBeenCalledWith(
       clusterDetails.cluster.id,
       clusterDetails.cluster.subscription,
       undefined,
@@ -105,12 +109,12 @@ describe('<ClusterStatusMonitor />', () => {
     });
 
     render(<ClusterStatusMonitor {...defaultProps} region="aws.ap-southeast-1.stage" />);
-    expect(useFetchClusterStatusMock).toBeCalledWith(
+    expect(useFetchClusterStatusMock).toHaveBeenCalledWith(
       clusterDetails.cluster.id,
       'aws.ap-southeast-1.stage',
       false,
     );
-    expect(useFetchInflightChecksMock).toBeCalledWith(
+    expect(useFetchInflightChecksMock).toHaveBeenCalledWith(
       clusterDetails.cluster.id,
       clusterDetails.cluster.subscription,
       'aws.ap-southeast-1.stage',
@@ -280,7 +284,7 @@ describe('<ClusterStatusMonitor />', () => {
 
     rerender(<ClusterStatusMonitor {...defaultProps} />);
 
-    expect(refresh).toBeCalled();
+    expect(refresh).toHaveBeenCalled();
   });
 
   it('renders an alert when cluster is errored', () => {

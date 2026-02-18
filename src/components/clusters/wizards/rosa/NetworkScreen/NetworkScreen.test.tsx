@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Formik } from 'formik';
 
-import { initialValues } from '~/components/clusters/wizards/rosa/constants';
+import { FieldId, initialValues } from '~/components/clusters/wizards/rosa/constants';
 import NetworkScreen from '~/components/clusters/wizards/rosa/NetworkScreen/NetworkScreen';
 import { mockRestrictedEnv, render, screen } from '~/testUtils';
 
@@ -104,6 +104,37 @@ describe('<NetworkScreen />', () => {
       expect(screen.queryByTestId('cluster_privacy-external')).toBeNull();
       expect(screen.getByTestId('cluster_privacy-internal')).toBeChecked();
       expect(screen.getByTestId('cluster_privacy-internal')).toBeDisabled();
+    });
+  });
+  describe('Virtual private Cloud (VPC) section', () => {
+    it('renders the info text when cluster is classic and cluster privacy is public', async () => {
+      render(
+        buildTestComponent(<NetworkScreen showVPCCheckbox />, {
+          [FieldId.ClusterPrivacy]: 'external',
+          [FieldId.Hypershift]: 'false',
+        }),
+      );
+
+      expect(
+        await screen.findByText(
+          /By default, a new VPC will be created for your cluster. Alternatively, you may opt to install to an existing VPC below./,
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('does not render the info text when cluster is classic and cluster privacy is private', async () => {
+      render(
+        buildTestComponent(<NetworkScreen showVPCCheckbox />, {
+          [FieldId.ClusterPrivacy]: 'internal',
+          [FieldId.Hypershift]: 'false',
+        }),
+      );
+
+      expect(
+        screen.queryByText(
+          /By default, a new VPC will be created for your cluster. Alternatively, you may opt to install to an existing VPC below./,
+        ),
+      ).not.toBeInTheDocument();
     });
   });
 });

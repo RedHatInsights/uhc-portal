@@ -1,9 +1,10 @@
-import ClusterListPage from '../../pageobjects/ClusterList.page';
-import ClusterDetails from '../../pageobjects/ClusterDetails.page';
-import TransferOwnershipPage from '../../pageobjects/ClusterTransferOwnership.page';
 import ClusterActions from '../../pageobjects/ClusterActions.page';
-import CommonPopups from '../../pageobjects/CommonPopups.page';
+import ClusterDetails from '../../pageobjects/ClusterDetails.page';
+import ClusterListPage from '../../pageobjects/ClusterList.page';
 import ClusterRequestPage from '../../pageobjects/ClusterRequests.page';
+import TransferOwnershipPage from '../../pageobjects/ClusterTransferOwnership.page';
+import CommonPopups from '../../pageobjects/CommonPopups.page';
+import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 const clusterDetails = require('../../fixtures/rosa/RosaClusterClassicCreatePublic.json');
 const clusterProfiles = ['rosa-classic-public'];
@@ -14,7 +15,7 @@ describe(
   () => {
     beforeEach(() => {
       if (Cypress.currentTest.title.match(/Open.*cluster/g)) {
-        cy.visit('/cluster-list');
+        cy.visit(CLUSTER_LIST_PATH);
         ClusterListPage.waitForDataReady();
       }
     });
@@ -145,7 +146,7 @@ describe(
       });
 
       it('Cluster transfer Ownerhip from cluster list page', () => {
-        cy.visit('/cluster-list');
+        cy.visit(CLUSTER_LIST_PATH);
         ClusterListPage.waitForDataReady();
         ClusterListPage.filterTxtField().should('be.visible').click();
         ClusterListPage.filterTxtField().clear().type(clusterName);
@@ -232,7 +233,7 @@ describe(
       });
 
       it('Cluster transfer Ownerhip transfer vs cluster transfer requests page', () => {
-        cy.visit('/cluster-list');
+        cy.visit(CLUSTER_LIST_PATH);
         ClusterListPage.waitForDataReady();
         ClusterListPage.filterTxtField().should('be.visible').click();
         ClusterListPage.filterTxtField().clear().type(clusterName);

@@ -19,9 +19,9 @@ describe('useFetchGetOCMRole hook', () => {
 
   const awsAccountID = 'mockedAccountId';
 
-  it.skip('Get useFetchGetOCMRole valid response', async () => {
+  it('Get useFetchGetOCMRole valid response', async () => {
     // Mock the network request using axios
-    apiRequestMock.get.mockResolvedValueOnce(mockedGetOCMRole);
+    apiRequestMock.post.mockResolvedValueOnce(mockedGetOCMRole);
 
     const { result } = renderHook(() => useFetchGetOCMRole(awsAccountID));
 
@@ -38,7 +38,7 @@ describe('useFetchGetOCMRole hook', () => {
     const awsAccountID = 'mockedAccountId';
 
     // Mock the network request using axios
-    apiRequestMock.get.mockRejectedValueOnce({
+    apiRequestMock.post.mockRejectedValueOnce({
       name: 403,
       message: 'No data',
     });
