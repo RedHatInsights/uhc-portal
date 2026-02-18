@@ -18,15 +18,16 @@ export class ReleasesPage extends BasePage {
   /**
    * Get the update channels documentation path for a specific version.
    * Matches the logic in src/components/releases/getCandidateChannelLink.ts
+   *
+   * @param major - Major version number (must be 4 for OCP)
+   * @param minor - Minor version number
+   * @returns Documentation path or null if not OCP 4.x
    */
-  private static getUpdateChannelsPath(version: string): string | null {
-    const parsed = semver.coerce(version);
-
-    if (!parsed) {
+  private static getUpdateChannelsPath(major: number, minor: number): string | null {
+    // Only OCP 4.x is supported (matches source behavior)
+    if (major !== 4) {
       return null;
     }
-
-    const { major, minor } = parsed;
 
     if (minor < 6) {
       return `html/updating_clusters/index#candidate-${major}-${minor}-channel`;
@@ -86,8 +87,8 @@ export class ReleasesPage extends BasePage {
       .click();
 
     // Verify candidate channels link (URL varies by version)
-    const updateChannelsPath = ReleasesPage.getUpdateChannelsPath(version);
-    expect(updateChannelsPath, `Failed to parse version: ${version}`).not.toBeNull();
+    const updateChannelsPath = ReleasesPage.getUpdateChannelsPath(major, minor);
+    expect(updateChannelsPath, `Unsupported OCP version: ${version}`).not.toBeNull();
     const candidateChannelLink = this.getContainerPlatformDocLink(
       normalizedVersion,
       updateChannelsPath!,
@@ -116,8 +117,8 @@ export class ReleasesPage extends BasePage {
     const normalizedVersion = `${major}.${minor}`;
 
     // Verify updating channels link
-    const updateChannelsPath = ReleasesPage.getUpdateChannelsPath(currentVersion);
-    expect(updateChannelsPath, `Failed to parse version: ${currentVersion}`).not.toBeNull();
+    const updateChannelsPath = ReleasesPage.getUpdateChannelsPath(major, minor);
+    expect(updateChannelsPath, `Unsupported OCP version: ${currentVersion}`).not.toBeNull();
     const updatingChannelsLink = this.getContainerPlatformDocLink(
       normalizedVersion,
       updateChannelsPath!,
