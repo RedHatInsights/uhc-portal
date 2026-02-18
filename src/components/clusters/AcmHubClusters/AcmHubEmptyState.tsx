@@ -18,7 +18,7 @@ import {
 } from '@patternfly/react-core';
 import { ClusterIcon } from '@patternfly/react-icons/dist/esm/icons';
 
-import { ACM_HUB_DOCUMENTATION_LINKS } from '~/common/acmHubConstants';
+import links from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
 type AcmHubEmptyStateProps = {
@@ -84,17 +84,15 @@ const AcmHubEmptyState = ({ onStartTagging }: AcmHubEmptyStateProps) => {
                       style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}
                     >
                       <FlexItem>
-                        <ExternalLink href={ACM_HUB_DOCUMENTATION_LINKS.CLUSTER_HUB_DOCUMENTATION}>
-                          Learn more about RHACM
-                        </ExternalLink>
+                        <ExternalLink href={links.RHACM_DOCS}>Learn more about RHACM</ExternalLink>
                       </FlexItem>
                       <FlexItem>
-                        <ExternalLink href={ACM_HUB_DOCUMENTATION_LINKS.CLUSTER_HUB_DOCUMENTATION}>
+                        <ExternalLink href={links.RHACM_HUB_CLUSTERS_DOCS}>
                           Learn more about hub clusters
                         </ExternalLink>
                       </FlexItem>
                       <FlexItem>
-                        <ExternalLink href={ACM_HUB_DOCUMENTATION_LINKS.CLUSTER_HUB_DOCUMENTATION}>
+                        <ExternalLink href={links.RHACM_INSTALLATION_DOCS}>
                           Installation guide
                         </ExternalLink>
                       </FlexItem>
@@ -118,9 +116,7 @@ const AcmHubEmptyState = ({ onStartTagging }: AcmHubEmptyStateProps) => {
                       Manually tag hub clusters on the All clusters page to match your RHACM cluster
                       structure.
                     </p>
-                    <ExternalLink
-                      href={ACM_HUB_DOCUMENTATION_LINKS.ALREADY_HAVE_CLUSTER_HUB_IN_RHACM}
-                    >
+                    <ExternalLink href={links.RHACM_DOCS}>
                       Learn more about tagging hub clusters
                     </ExternalLink>
                   </CardBody>
