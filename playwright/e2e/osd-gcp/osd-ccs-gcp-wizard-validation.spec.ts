@@ -38,7 +38,8 @@ Clusters.forEach((clusterProperties, index) => {
       test(`Cloud provider field validations`, async ({ createOSDWizardPage }) => {
         await createOSDWizardPage.isCloudProviderSelectionScreen();
         await createOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
-
+        await expect(createOSDWizardPage.workloadIdentityFederationButton()).toBePressed();
+        await expect(createOSDWizardPage.serviceAccountButton()).not.toBePressed();
         if (isCCSCluster) {
           await createOSDWizardPage.wizardNextButton().click();
           await createOSDWizardPage.isTextContainsInPage(

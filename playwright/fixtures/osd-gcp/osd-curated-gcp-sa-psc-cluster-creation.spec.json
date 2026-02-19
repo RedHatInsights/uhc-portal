@@ -6,6 +6,12 @@
   "Marketplace": "Google Cloud Marketplace",
   "InfrastructureType": "Customer cloud subscription",
   "AuthenticationType": "Service Account",
+  "PrerequisitesHint": {
+    "Header": "Have you prepared your Google account?",
+    "Description": "To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.",
+    "LinkName": "Review Google terms and agreements",
+    "LinkHref": "https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated"
+  },
   "Region": "us-central1, Council Bluffs, Iowa, USA",
   "Availability": "Multi-zone",
   "SecureBootSupportForShieldedVMs": "Enabled",

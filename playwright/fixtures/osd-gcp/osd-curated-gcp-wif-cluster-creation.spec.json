@@ -6,6 +6,12 @@
   "Marketplace": "Google Cloud Marketplace",
   "InfrastructureType": "Customer cloud subscription",
   "AuthenticationType": "Workload Identity Federation",
+  "PrerequisitesHint": {
+    "Header": "Did you complete your prerequisites?",
+    "Description": "To create a Red Hat OpenShift Dedicated (OSD) cluster, you must first complete the prerequisite steps on the OSD Prerequisite Check page in Google Cloud. If you have already completed these steps, continue with the remainder of the cluster setup.",
+    "LinkName": "OSD Prerequisite Check in Google Cloud",
+    "LinkHref": "https://console.cloud.google.com/redhat-openshift/verify"
+  },
   "Region": "us-central1, Council Bluffs, Iowa, USA",
   "Availability": "Multi-zone",
   "SecureBootSupportForShieldedVMs": "Enabled",
