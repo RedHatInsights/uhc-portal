@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Alert, FormGroup, Grid, GridItem } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { validateAWSKMSKeyARN } from '~/common/validators';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
@@ -35,7 +35,9 @@ export const CustomerManagedEncryption = ({
 
   const isGCP = cloudProvider === CloudProviderType.Gcp;
 
-  const cloudProviderLearnLink = isGCP ? links.GCP_ENCRYPTION_KEYS : links.AWS_DATA_PROTECTION;
+  const cloudProviderLearnLink = isGCP
+    ? docLinks.GCP_ENCRYPTION_KEYS
+    : docLinks.AWS_DATA_PROTECTION;
 
   const helpText = isGCP
     ? 'Managed via Google Cloud Key Management Service. Used to store and generate encryption keys and encrypt your data.'
@@ -99,7 +101,7 @@ export const CustomerManagedEncryption = ({
               tooltip={
                 <>
                   <p className="pf-v6-u-mb-sm">{constants.awsKeyARN}</p>
-                  <ExternalLink href={links.AWS_FINDING_KEY_ARN}>
+                  <ExternalLink href={docLinks.AWS_FINDING_KEY_ARN}>
                     Finding the key ID and ARN
                   </ExternalLink>
                 </>

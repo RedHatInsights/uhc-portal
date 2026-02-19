@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Formik, FormikValues } from 'formik';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { render, screen, waitFor } from '~/testUtils';
 
 import { WindowsLicenseIncludedField } from '../WindowsLicenseIncludedField';
@@ -21,7 +21,7 @@ const nonCompatibleClusterVersion = '4.18.0';
 const {
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: AWS_DOCS_LINK,
   WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: REDHAT_DOCS_LINK,
-} = links;
+} = docLinks;
 
 // Formik Wrapper:
 const buildTestComponent = (

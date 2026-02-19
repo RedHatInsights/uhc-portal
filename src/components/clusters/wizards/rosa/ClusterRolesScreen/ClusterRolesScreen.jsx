@@ -31,7 +31,7 @@ import {
   useFetchGetOCMRole,
 } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 
-import links from '../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../common/docLinks.mjs';
 import { required } from '../../../../../common/validators';
 import ErrorBox from '../../../../common/ErrorBox';
 import ExternalLink from '../../../../common/ExternalLink';
@@ -309,8 +309,8 @@ const ClusterRolesScreen = () => {
                 <ExternalLink
                   href={
                     isHypershiftSelected
-                      ? links.ROSA_AWS_IAM_RESOURCES
-                      : links.ROSA_CLASSIC_AWS_IAM_RESOURCES
+                      ? docLinks.ROSA_AWS_IAM_RESOURCES
+                      : docLinks.ROSA_CLASSIC_AWS_IAM_RESOURCES
                   }
                 >
                   Learn more about ROSA roles

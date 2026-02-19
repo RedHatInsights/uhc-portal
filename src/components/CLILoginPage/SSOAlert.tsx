@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Alert } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { Link } from '~/common/routing';
 
 import ExternalLink from '../common/ExternalLink';
@@ -30,7 +30,7 @@ export const SSOAlert = ({
       use API tokens to authenticate
     </Link>{' '}
     against Red Hat OpenShift Cluster Manager account.{' '}
-    <ExternalLink href={isRosa ? links.LEARN_MORE_SSO_ROSA : links.LEARN_MORE_SSO} noIcon>
+    <ExternalLink href={isRosa ? docLinks.LEARN_MORE_SSO_ROSA : docLinks.LEARN_MORE_SSO} noIcon>
       Learn more about logging into OpenShift Cluster Manager CLI with Red Hat single sign-on.
     </ExternalLink>
   </Alert>

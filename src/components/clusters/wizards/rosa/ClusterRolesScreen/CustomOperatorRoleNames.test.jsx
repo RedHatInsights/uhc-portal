@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 
 import { checkAccessibility, render, screen } from '~/testUtils';
 
-import links from '../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../common/docLinks.mjs';
 
 import CustomOperatorRoleNames from './CustomOperatorRoleNames';
 
@@ -63,7 +63,7 @@ describe('<CustomOperatorRoleNames />', () => {
     await user.click(moreInfoBtn);
 
     const link = screen.getByText('Defining a custom Operator IAM role prefix');
-    expect(link).toHaveAttribute('href', links.ROSA_AWS_IAM_OPERATOR_ROLES);
+    expect(link).toHaveAttribute('href', docLinks.ROSA_AWS_IAM_OPERATOR_ROLES);
   });
 
   it('renders classic IAM operator roles link when classic is selected', async () => {
@@ -73,6 +73,6 @@ describe('<CustomOperatorRoleNames />', () => {
     await user.click(moreInfoBtn);
 
     const link = screen.getByText('Defining a custom Operator IAM role prefix');
-    expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
+    expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
   });
 });

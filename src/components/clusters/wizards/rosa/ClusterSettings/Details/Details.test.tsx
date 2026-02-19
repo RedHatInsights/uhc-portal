@@ -7,7 +7,7 @@ import { Formik } from 'formik';
 import { waitFor } from '@testing-library/react';
 
 import { fulfilledProviders, multiRegions, noProviders } from '~/common/__tests__/regions.fixtures';
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { mockQuotaList } from '~/components/clusters/common/__tests__/quota.fixtures';
 import {
   FieldId,
@@ -512,7 +512,7 @@ describe('<Details />', () => {
       await user.click(moreInfoBtn);
 
       const link = screen.getByRole('link', { name: /Learn more/i });
-      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_MONITORING);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_MONITORING);
     });
   });
 

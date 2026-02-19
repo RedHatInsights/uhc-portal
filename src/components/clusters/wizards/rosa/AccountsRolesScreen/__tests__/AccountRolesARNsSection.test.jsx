@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import { HCP_USE_UNMANAGED } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
@@ -372,7 +372,7 @@ describe('<AccountRolesARNsSection />', () => {
 
       const link = screen.getByText('Learn more about account roles');
 
-      expect(link).toHaveAttribute('href', links.ROSA_AWS_IAM_RESOURCES);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_AWS_IAM_RESOURCES);
     });
 
     it('is rendered correctly for classic clusters', async () => {
@@ -382,7 +382,7 @@ describe('<AccountRolesARNsSection />', () => {
 
       const link = screen.getByText('Learn more about account roles');
 
-      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_RESOURCES);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_AWS_IAM_RESOURCES);
     });
   });
 });

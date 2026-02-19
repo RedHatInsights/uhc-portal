@@ -9,8 +9,8 @@ import { OutlinedArrowAltCircleUpIcon } from '@patternfly/react-icons/dist/esm/i
 import getClusterVersion from '~/components/clusters/common/getClusterVersion';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
+import docLinks from '../../../common/docLinks.mjs';
 import getClusterName from '../../../common/getClusterName';
-import links from '../../../common/installLinks.mjs';
 import { openModal } from '../../common/Modal/ModalActions';
 import modals from '../../common/Modal/modals';
 
@@ -96,7 +96,7 @@ const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
         <div>
           An update is available for this cluster. Navigate to the Cluster settings page in the
           cluster&apos;s web console to update.{' '}
-          <a href={links.UPDATING_CLUSTER} target="_blank" rel="noreferrer noopener">
+          <a href={docLinks.UPDATING_CLUSTER} target="_blank" rel="noreferrer noopener">
             Learn more
           </a>
         </div>

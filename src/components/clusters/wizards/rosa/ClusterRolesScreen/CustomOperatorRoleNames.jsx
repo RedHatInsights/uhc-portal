@@ -7,7 +7,7 @@ import { Content, ContentVariants, GridItem, Title } from '@patternfly/react-cor
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 
-import links from '../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../common/docLinks.mjs';
 import validators, {
   MAX_CUSTOM_OPERATOR_ROLES_PREFIX_LENGTH,
 } from '../../../../../common/validators';
@@ -46,8 +46,8 @@ function CustomOperatorRoleNames({ isHypershiftSelected }) {
                 <ExternalLink
                   href={
                     isHypershiftSelected
-                      ? links.ROSA_AWS_IAM_OPERATOR_ROLES
-                      : links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES
+                      ? docLinks.ROSA_AWS_IAM_OPERATOR_ROLES
+                      : docLinks.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES
                   }
                 >
                   Defining a custom Operator IAM role prefix

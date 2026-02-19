@@ -17,8 +17,8 @@ import {
 } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
+import docLinks from '~/common/docLinks.mjs';
 import { formatMinorVersion, isSupportedMinorVersion } from '~/common/helpers';
-import links from '~/common/installLinks.mjs';
 import { Link } from '~/common/routing';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { MIN_MANAGED_POLICY_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
@@ -384,8 +384,8 @@ function AccountRolesARNsSection({
               <ExternalLink
                 href={
                   isHypershiftSelected
-                    ? links.ROSA_AWS_IAM_RESOURCES
-                    : links.ROSA_CLASSIC_AWS_IAM_RESOURCES
+                    ? docLinks.ROSA_AWS_IAM_RESOURCES
+                    : docLinks.ROSA_CLASSIC_AWS_IAM_RESOURCES
                 }
               >
                 Learn more about account roles

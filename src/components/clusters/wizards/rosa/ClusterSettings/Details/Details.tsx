@@ -15,10 +15,10 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import { hasExternalAuthenticationCapability } from '~/common/externalAuthHelper';
 import { SupportedFeature } from '~/common/featureCompatibility';
 import { noQuotaTooltip } from '~/common/helpers';
-import links from '~/common/installLinks.mjs';
 import { getDefaultSecurityGroupsSettings } from '~/common/securityGroupsHelpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import {
@@ -119,8 +119,8 @@ function Details() {
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
 
   const monitoringLink = isHypershiftSelected
-    ? links.ROSA_MONITORING
-    : links.ROSA_CLASSIC_MONITORING;
+    ? docLinks.ROSA_MONITORING
+    : docLinks.ROSA_CLASSIC_MONITORING;
   const getInstallableVersionsResponse = useGlobalState((state) => state.clusters.clusterVersions);
 
   React.useEffect(() => {
@@ -493,7 +493,7 @@ function Details() {
                   hint={
                     <>
                       {constants.channelGroupHint}{' '}
-                      <ExternalLink href={links.ROSA_LIFE_CYCLE_DATES}>
+                      <ExternalLink href={docLinks.ROSA_LIFE_CYCLE_DATES}>
                         Learn more about the support lifecycle
                       </ExternalLink>
                     </>

@@ -28,7 +28,7 @@ import {
   useFetchGetUserOidcConfigurations,
 } from '~/queries/RosaWizardQueries/useFetchGetUserOidcConfigurations';
 
-import links from '../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../common/docLinks.mjs';
 import validators, {
   MAX_CUSTOM_OPERATOR_ROLES_PREFIX_LENGTH,
 } from '../../../../../common/validators';
@@ -240,8 +240,8 @@ function CustomerOIDCConfiguration({
                 <ExternalLink
                   href={
                     isHypershiftSelected
-                      ? links.ROSA_AWS_IAM_OPERATOR_ROLES
-                      : links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES
+                      ? docLinks.ROSA_AWS_IAM_OPERATOR_ROLES
+                      : docLinks.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES
                   }
                 >
                   Defining a custom Operator IAM role prefix
