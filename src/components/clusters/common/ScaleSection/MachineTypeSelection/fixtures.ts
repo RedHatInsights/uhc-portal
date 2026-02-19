@@ -1,3 +1,4 @@
+import { MachineTypesResponse } from '~/queries/types';
 import { mapMachineTypesById } from '~/redux/reducers/machineTypesReducer';
 import { MachineType } from '~/types/clusters_mgmt.v1';
 
@@ -38,13 +39,17 @@ const errorFlavoursState = {
   fulfilled: false,
 };
 
+const emptyMachineTypesResponse = {
+  types: {},
+  typesByID: {},
+};
+
 const baseState = {
   error: false,
   errorMessage: '',
   pending: false,
   fulfilled: false,
-  types: {},
-  typesByID: {},
+  ...emptyMachineTypesResponse,
 };
 
 const pendingState = {
@@ -53,10 +58,14 @@ const pendingState = {
   fulfilled: false,
 };
 
-const errorState = {
-  ...baseState,
+const errorData = {
   error: true,
   errorMessage: 'This is an error message',
+};
+
+const errorState = {
+  ...baseState,
+  ...errorData,
 };
 
 const organizationState = {
@@ -64,7 +73,7 @@ const organizationState = {
   pending: false,
 };
 
-const machineTypes = {
+const machineTypes: MachineTypesResponse['types'] = {
   aws: [
     {
       kind: 'MachineType',
@@ -116,7 +125,7 @@ const machineTypes = {
       kind: 'MachineType',
       name: 'm5.12xlarge - General purpose',
       category: 'general_purpose',
-      size: 'xxlarge',
+      size: 'large',
       id: 'm5.12xlarge',
       href: '/api/clusters_mgmt/v1/machine_types/m5.12xlarge',
       memory: {
@@ -161,7 +170,7 @@ const machineTypes = {
   ],
 };
 
-const machineTypesByRegion = {
+const machineTypesByRegion: MachineTypesResponse['types'] = {
   aws: [
     {
       kind: 'MachineType',
@@ -235,26 +244,27 @@ const machineTypesByRegion = {
   ],
 };
 
-const fulfilledMachineState = {
-  ...baseState,
-  fulfilled: true,
+const machineTypesResponse = {
   types: machineTypes,
-  typesByID: mapMachineTypesById(machineTypes as { [id: string]: MachineType[] }),
+  typesByID: mapMachineTypesById(machineTypes),
 };
 
-const newMachineTypes = machineTypes.aws;
+const machineTypesByRegionResponse = {
+  types: machineTypes,
+  typesByID: mapMachineTypesById(machineTypesByRegion),
+};
 
 const fulfilledMachineByRegionState = {
   ...baseState,
+  ...machineTypesByRegionResponse,
   fulfilled: true,
-  types: machineTypes,
-  typesByID: mapMachineTypesById(machineTypesByRegion as { [id: string]: MachineType[] }),
 };
 
-const unknownCategoryMachineTypes = [
+const unknownCategoryMachineTypes: MachineType[] = [
   {
     kind: 'MachineType',
     name: 'foo.2xbar - Quantum Computing (1 QPU)',
+    // @ts-ignore
     category: 'foobar_computing',
     size: 'medium',
     id: 'foo.2xbar',
@@ -278,6 +288,7 @@ const unknownCategoryMachineTypes = [
   {
     kind: 'MachineType',
     name: 'foo.4xbar - Quantum Computing (2 QPU)',
+    // @ts-ignore
     category: 'foobar_computing',
     size: 'medium',
     id: 'foo.4xbar',
@@ -309,10 +320,12 @@ export {
   pendingState,
   errorState,
   organizationState,
+  errorData,
+  emptyMachineTypesResponse,
   machineTypes,
   machineTypesByRegion,
-  fulfilledMachineState,
+  machineTypesResponse,
+  machineTypesByRegionResponse,
   fulfilledMachineByRegionState,
   unknownCategoryMachineTypes,
-  newMachineTypes,
 };

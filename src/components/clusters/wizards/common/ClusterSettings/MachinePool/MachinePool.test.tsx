@@ -13,7 +13,6 @@ describe('<MachinePool />', () => {
         initialValues={{
           [FieldId.NodeLabels]: [{ key: 'test-key', value: 'test-value' }],
           [FieldId.MachineType]: 'test',
-          [FieldId.MachineTypeForceChoice]: 'test',
           [FieldId.BillingModel]: 'marketplace-aws',
           [FieldId.Product]: 'ROSA',
           [FieldId.CloudProvider]: 'aws',
@@ -37,7 +36,6 @@ describe('<MachinePool />', () => {
         initialValues={{
           [FieldId.NodeLabels]: [{ key: 'test-key', value: 'test-value' }],
           [FieldId.MachineType]: 'test',
-          [FieldId.MachineTypeForceChoice]: 'test',
           [FieldId.BillingModel]: 'marketplace-gcp',
           [FieldId.Product]: 'OSD',
           [FieldId.CloudProvider]: 'GCP',

@@ -1,4 +1,3 @@
-import { fieldId as instanceTypeFieldId } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 
 const defaultMachinePool = {
@@ -53,15 +52,15 @@ const WindowsLIEnabledMachineType = {
 };
 
 const initialValues = {
-  [instanceTypeFieldId]: defaultMachineType,
+  instanceType: defaultMachineType,
 };
 
 const initialValuesWithWindowsLIEnabledMachineTypeSelected = {
-  [instanceTypeFieldId]: WindowsLIEnabledMachineType,
+  instanceType: WindowsLIEnabledMachineType,
 };
 
 const initialValuesEmptyMachineType = {
-  [instanceTypeFieldId]: undefined,
+  instanceType: undefined,
 };
 
 export {

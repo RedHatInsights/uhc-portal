@@ -1,5 +1,4 @@
 import React from 'react';
-import { Dictionary } from 'lodash';
 
 import { ClusterAutoScalingForm } from '~/components/clusters/common/clusterAutoScalingValues';
 import { Subscription } from '~/types/accounts_mgmt.v1';
@@ -34,7 +33,9 @@ export type MachineTypesResponse = {
   types?: {
     [id: string]: MachineType[];
   };
-  typesByID?: Dictionary<MachineType>;
+  typesByID?: {
+    [id: string]: MachineType;
+  };
 };
 
 export type ClusterAutoscalerResponseType = {
