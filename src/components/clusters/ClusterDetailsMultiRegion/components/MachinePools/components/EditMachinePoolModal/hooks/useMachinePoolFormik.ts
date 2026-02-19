@@ -21,7 +21,7 @@ import {
   SPOT_MIN_PRICE,
 } from '~/components/clusters/common/machinePools/constants';
 import {
-  getNodeOptions,
+  getMaxNodeCountForMachinePool,
   getWorkerNodeVolumeSizeMaxGiB,
   getWorkerNodeVolumeSizeMinGiB,
 } from '~/components/clusters/common/machinePools/utils';
@@ -149,9 +149,12 @@ const useMachinePoolFormik = ({
       nodeDrainTimeout = machinePool.node_drain_grace_period?.value;
     }
 
+    // For multi-zone machine pools, store per-zone values (divide by 3)
+    let replicas = machinePool?.replicas || minNodesRequired;
     if (isMachinePoolMz) {
       autoscaleMin /= 3;
       autoscaleMax /= 3;
+      replicas /= 3;
     }
 
     const machinePoolData: EditMachinePoolValues = {
@@ -160,7 +163,7 @@ const useMachinePoolFormik = ({
       auto_repair: autoRepair,
       autoscaleMin,
       autoscaleMax: autoscaleMax || 1,
-      replicas: machinePool?.replicas || minNodesRequired,
+      replicas,
       labels: machinePool?.labels
         ? Object.keys(machinePool.labels).map((key) => ({
             key,
@@ -235,7 +238,8 @@ const useMachinePoolFormik = ({
       Yup.lazy((values) => {
         const minNodes = isMachinePoolMz ? minNodesRequired / 3 : minNodesRequired;
         const secGroupValidation = validateSecurityGroups(values.securityGroupIds, isHypershift);
-        const nodeOptions = getNodeOptions({
+        const mpAvailZones = (machinePool as MachinePool)?.availability_zones?.length;
+        const maxNodes = getMaxNodeCountForMachinePool({
           cluster,
           machinePools: machinePools || [],
           machinePool,
@@ -245,8 +249,8 @@ const useMachinePoolFormik = ({
           machineTypeId: values.instanceType?.id,
           editMachinePoolId: values.name,
           allow249NodesOSDCCSROSA,
+          mpAvailZones,
         });
-        const maxNodes = nodeOptions.length ? nodeOptions[nodeOptions.length - 1] : 0;
 
         return Yup.object({
           name: Yup.string().test('mp-name', '', (value) => {

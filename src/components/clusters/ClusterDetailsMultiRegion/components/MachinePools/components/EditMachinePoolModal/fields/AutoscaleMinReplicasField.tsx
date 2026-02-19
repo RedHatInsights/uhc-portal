@@ -1,53 +1,74 @@
-import * as React from 'react';
+import React from 'react';
 import { useField } from 'formik';
 
 import { FormGroup, NumberInput } from '@patternfly/react-core';
 
+import { validateNumericInput } from '~/common/validators';
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
-import useFormikOnChange from '~/hooks/useFormikOnChange';
 import { ClusterFromSubscription } from '~/types/types';
 
 type AutoscaleMinReplicasFieldProps = {
   cluster: ClusterFromSubscription;
   minNodes: number;
   mpAvailZones?: number;
-  options: number[];
+  maxNodes: number;
 };
 
 const fieldId = 'autoscaleMin';
+
+const validateAutoscaleMin = (value: number, min: number, max: number): string | undefined => {
+  if (Number.isNaN(value)) {
+    return 'Please enter a valid number.';
+  }
+  return validateNumericInput(value.toString(), { min, max });
+};
 
 const AutoscaleMinReplicasField = ({
   cluster,
   minNodes: initMinNodes,
   mpAvailZones,
-  options,
+  maxNodes: initMaxNodes,
 }: AutoscaleMinReplicasFieldProps) => {
-  const [field, { error, touched }] = useField<number>(fieldId);
-  const onChange = useFormikOnChange(fieldId);
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
-  const defaultMaxNodes = options.length ? options[options.length - 1] : 0;
 
   const minNodes = isMultizoneMachinePool ? initMinNodes / 3 : initMinNodes;
-  const maxNodes = isMultizoneMachinePool ? defaultMaxNodes / 3 : defaultMaxNodes;
+  const maxNodes = isMultizoneMachinePool ? initMaxNodes / 3 : initMaxNodes;
+
+  const [field, meta, helpers] = useField<number>({
+    name: fieldId,
+    validate: (value) => validateAutoscaleMin(value, minNodes || 1, maxNodes),
+  });
+
+  const displayError = meta.touched ? meta.error : undefined;
+
+  const onButtonPress = (plus: boolean) => () => {
+    const newValue = plus ? field.value + 1 : field.value - 1;
+    helpers.setValue(newValue);
+  };
 
   return (
     <FormGroup fieldId={fieldId} label="Minimum nodes count" isRequired>
       <NumberInput
-        {...field}
-        onPlus={() => onChange(field.value + 1)}
-        onMinus={() => onChange(field.value - 1)}
-        onChange={(e) => {
-          const newValue = (e.target as any).value;
-          onChange(Number(newValue));
-        }}
+        value={field.value}
+        onPlus={onButtonPress(true)}
+        onMinus={onButtonPress(false)}
+        onChange={(e) => helpers.setValue(Number((e.target as HTMLInputElement).value))}
         id={fieldId}
-        min={minNodes}
+        min={minNodes || 1}
         max={maxNodes}
+        inputProps={{
+          onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+            // strips unnecessary leading zeros
+            // eslint-disable-next-line no-param-reassign
+            event.target.value = Number(event.target.value).toString();
+            field.onBlur(event);
+          },
+        }}
       />
 
-      <FormGroupHelperText touched={touched} error={error}>
-        {isMultizoneMachinePool && `x 3 zones = ${field.value * 3}`}
+      <FormGroupHelperText touched={!!displayError} error={displayError}>
+        {isMultizoneMachinePool && !displayError && `x 3 zones = ${field.value * 3}`}
       </FormGroupHelperText>
     </FormGroup>
   );

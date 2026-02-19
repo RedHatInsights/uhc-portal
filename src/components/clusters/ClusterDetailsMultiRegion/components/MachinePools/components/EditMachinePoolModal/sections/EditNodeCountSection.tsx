@@ -4,7 +4,7 @@ import { useFormikContext } from 'formik';
 import { Flex, FlexItem, Spinner } from '@patternfly/react-core';
 
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
-import { getNodeOptions } from '~/components/clusters/common/machinePools/utils';
+import { getMaxNodeCountForMachinePool } from '~/components/clusters/common/machinePools/utils';
 import { MachineTypesResponse } from '~/queries/types';
 import { useGlobalState } from '~/redux/hooks';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
@@ -47,9 +47,11 @@ const EditNodeCountSection = ({
     machinePools,
   });
 
-  const options = React.useMemo(
+  const mpAvailZones = machinePool?.availability_zones?.length;
+
+  const maxNodes = React.useMemo(
     () =>
-      getNodeOptions({
+      getMaxNodeCountForMachinePool({
         cluster,
         machinePool,
         machinePools,
@@ -59,6 +61,7 @@ const EditNodeCountSection = ({
         minNodes: minNodesRequired,
         editMachinePoolId: machinePool?.id,
         allow249NodesOSDCCSROSA,
+        mpAvailZones,
       }),
     [
       cluster,
@@ -69,6 +72,7 @@ const EditNodeCountSection = ({
       organization.quotaList,
       minNodesRequired,
       allow249NodesOSDCCSROSA,
+      mpAvailZones,
     ],
   );
 
@@ -89,7 +93,7 @@ const EditNodeCountSection = ({
                   minNodes={minNodesRequired}
                   cluster={cluster}
                   mpAvailZones={machinePool?.availability_zones?.length}
-                  options={options}
+                  maxNodes={maxNodes}
                 />
               </FlexItem>
               <FlexItem>
@@ -97,7 +101,7 @@ const EditNodeCountSection = ({
                   mpAvailZones={machinePool?.availability_zones?.length}
                   minNodes={minNodesRequired}
                   cluster={cluster}
-                  options={options}
+                  maxNodes={maxNodes}
                 />
               </FlexItem>
             </Flex>
@@ -106,7 +110,7 @@ const EditNodeCountSection = ({
               mpAvailZones={machinePool?.availability_zones?.length}
               minNodesRequired={minNodesRequired}
               cluster={cluster}
-              options={options}
+              maxNodes={maxNodes}
             />
           )}
           {!isHcpCluster && (

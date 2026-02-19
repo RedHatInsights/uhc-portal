@@ -1,10 +1,5 @@
-import range from 'lodash/range';
-
 import { splitVersion } from '~/common/versionHelpers';
-import {
-  isMPoolAz,
-  isMultiAZ,
-} from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
+import { isMultiAZ } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
 import { MachineTypesResponse } from '~/queries/types';
@@ -93,27 +88,35 @@ export const getIncludedNodes = ({
   return isMultiAz ? 9 : 4;
 };
 
-export const buildOptions = ({
+/**
+ * Calculates the maximum node count based on quota, cluster type, and version.
+ * Previously named `buildOptions` and returned an array of options for a dropdown.
+ * Now returns just the max value for use with numerical input.
+ *
+ * @param increment - Optional increment for multi-AZ pools (e.g., 3). When provided,
+ *                    the returned max will be rounded down to the nearest multiple.
+ */
+export const getMaxNodeCount = ({
   included,
   available,
   isEditingCluster,
   currentNodeCount,
   minNodes,
-  increment,
   isHypershift,
   clusterVersion,
   allow249NodesOSDCCSROSA,
+  increment,
 }: {
   available: number;
   isEditingCluster: boolean;
   currentNodeCount: number;
   minNodes: number;
-  increment: number;
   included: number;
   isHypershift?: boolean;
   clusterVersion: string | undefined;
   allow249NodesOSDCCSROSA?: boolean;
-}) => {
+  increment?: number;
+}): number => {
   const maxNodesHCP = getMaxNodesHCP(clusterVersion);
   // no extra node quota = only base cluster size is available
   const optionsAvailable = available > 0 || isEditingCluster;
@@ -132,7 +135,14 @@ export const buildOptions = ({
   if (isHypershift && isEditingCluster && maxValue > maxNodesHCP - currentNodeCount) {
     maxValue = maxNodesHCP - currentNodeCount;
   }
-  return optionsAvailable ? range(minNodes, maxValue + 1, increment) : [minNodes];
+
+  const result = optionsAvailable ? maxValue : minNodes;
+
+  // Round down to nearest multiple of increment for multi-AZ pools
+  if (increment && increment > 1) {
+    return Math.floor(result / increment) * increment;
+  }
+  return result;
 };
 
 export const getAvailableQuota = ({
@@ -204,7 +214,7 @@ export const getNodeCount = (
     return totalCount;
   }, 0);
 
-export type getNodeOptionsType = {
+export type GetMaxNodeCountForMachinePoolParams = {
   cluster: ClusterFromSubscription;
   quota: GlobalState['userProfile']['organization']['quotaList'];
   machineTypes: MachineTypesResponse;
@@ -214,9 +224,23 @@ export type getNodeOptionsType = {
   minNodes: number;
   editMachinePoolId?: string;
   allow249NodesOSDCCSROSA?: boolean;
+  /** Number of availability zones for the machine pool. Used to calculate increment for multi-AZ pools. */
+  mpAvailZones?: number;
 };
 
-export const getNodeOptions = ({
+/**
+ * @deprecated Use getMaxNodeCountForMachinePool instead
+ */
+export type getNodeOptionsType = GetMaxNodeCountForMachinePoolParams;
+
+/**
+ * Gets the maximum node count for a machine pool based on cluster configuration and quota.
+ * Used in Day 2 operations (editing existing clusters).
+ *
+ * For multi-AZ machine pools, the returned max is rounded down to the nearest multiple
+ * of 3 to ensure per-zone values are integers.
+ */
+export const getMaxNodeCountForMachinePool = ({
   cluster,
   quota,
   machineTypes,
@@ -226,16 +250,15 @@ export const getNodeOptions = ({
   minNodes,
   editMachinePoolId,
   allow249NodesOSDCCSROSA,
-}: getNodeOptionsType) => {
-  const isMultiAz = isMultiAZ(cluster);
-
-  const isMPoolAZ = isMPoolAz(cluster, machinePool?.availability_zones?.length);
+  mpAvailZones,
+}: GetMaxNodeCountForMachinePoolParams): number => {
+  const clusterIsMultiAz = isMultiAZ(cluster);
 
   const available = getAvailableQuota({
     quota,
     machineTypes,
     machineTypeId,
-    isMultiAz,
+    isMultiAz: clusterIsMultiAz,
     isByoc: !!cluster.ccs?.enabled,
     cloudProviderID: cluster.cloud_provider?.id,
     billingModel:
@@ -249,7 +272,7 @@ export const getNodeOptions = ({
 
   const included = getIncludedNodes({
     isHypershift,
-    isMultiAz,
+    isMultiAz: clusterIsMultiAz,
   });
 
   const currentNodeCount = getNodeCount(
@@ -259,18 +282,29 @@ export const getNodeOptions = ({
     machineTypeId,
   );
 
-  return buildOptions({
+  // Determine if this is a multi-zone machine pool (same logic as isMPoolAz)
+  // Multi-zone if: cluster is multi-AZ AND (mpAvailZones > 1 OR mpAvailZones is undefined)
+  const isMultizoneMachinePool =
+    clusterIsMultiAz && (mpAvailZones === undefined || mpAvailZones > 1);
+  const increment = isMultizoneMachinePool ? 3 : undefined;
+
+  return getMaxNodeCount({
     available,
     isEditingCluster: true,
     included,
     currentNodeCount,
     minNodes,
-    increment: isMPoolAZ ? 3 : 1,
     isHypershift: isHypershiftCluster(cluster),
     clusterVersion: cluster.version?.raw_id,
     allow249NodesOSDCCSROSA,
+    increment,
   });
 };
+
+/**
+ * @deprecated Use getMaxNodeCountForMachinePool instead
+ */
+export const getNodeOptions = getMaxNodeCountForMachinePool;
 
 export const getWorkerNodeVolumeSizeMinGiB = (isHypershift: boolean): number =>
   isHypershift ? workerNodeVolumeSizeMinGiBHcp : workerNodeVolumeSizeMinGiB;

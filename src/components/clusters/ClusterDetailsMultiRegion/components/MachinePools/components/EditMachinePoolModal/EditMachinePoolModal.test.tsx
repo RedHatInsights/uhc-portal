@@ -441,7 +441,8 @@ describe('<EditMachinePoolModal />', () => {
         );
 
         expect(await screen.findByText('Compute node count')).toBeInTheDocument();
-        expect(await screen.findByText('21')).toBeInTheDocument();
+        // With NumberInput, the value is displayed in an input field
+        expect(await screen.findByDisplayValue('21')).toBeInTheDocument();
       });
 
       it('Loaded state with multi zone machinepool', async () => {
@@ -466,7 +467,8 @@ describe('<EditMachinePoolModal />', () => {
         );
 
         expect(await screen.findByText('Compute node count (per zone)')).toBeInTheDocument();
-        expect(await screen.findByText('7')).toBeInTheDocument();
+        // With NumberInput, the value is displayed in an input field (21 / 3 zones = 7)
+        expect(await screen.findByDisplayValue('7')).toBeInTheDocument();
       });
     });
   });
