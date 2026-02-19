@@ -427,6 +427,65 @@ describe('<Details />', () => {
       });
     });
 
+    it('auto-corrects channel group when current value has no available versions', async () => {
+      // Arrange: only EUS versions exist (simulates stable versions being
+      // filtered out by the reducer due to expired end_of_life_timestamp)
+      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+
+      const eusOnlyVersions = [
+        {
+          id: 'openshift-v4.16.22-eus',
+          raw_id: '4.16.22',
+          channel_group: 'eus',
+          rosa_enabled: true,
+          hosted_control_plane_enabled: true,
+        },
+        {
+          id: 'openshift-v4.16.21-eus',
+          raw_id: '4.16.21',
+          channel_group: 'eus',
+          rosa_enabled: true,
+          hosted_control_plane_enabled: true,
+        },
+      ];
+
+      const loadedState = {
+        cloudProviders: fulfilledProviders,
+        clusters: {
+          clusterVersions: {
+            fulfilled: true,
+            versions: eusOnlyVersions,
+            error: false,
+            pending: false,
+          },
+        },
+      };
+
+      const initialVals = {
+        ...defaultValues,
+        [FieldId.ChannelGroup]: 'stable',
+        [FieldId.ClusterVersion]: undefined,
+        [FieldId.RosaMaxOsVersion]: '4.19',
+      };
+
+      // Act
+      withState(loadedState).render(
+        <Formik initialValues={initialVals} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      // Assert - channel group should auto-correct to EUS and version dropdown should appear
+      await waitFor(() => {
+        expect(
+          screen.queryByText(
+            /There is no version compatible with the selected ARNs in previous step/,
+          ),
+        ).not.toBeInTheDocument();
+      });
+      expect(screen.getByLabelText('Channel group')).toHaveValue('eus');
+    });
+
     it('displays channel group with nightly versions', async () => {
       // Arrange
       mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
