@@ -298,7 +298,7 @@ const EditMachinePoolModal = ({
             {shouldDisplayClusterName ? (
               <StackItem className="modal-secondary-title">
                 <Split>
-                  <SplitItem>Cluster</SplitItem>
+                  <SplitItem>Cluster&nbsp;</SplitItem>
                   <SplitItem>{clusterName}</SplitItem>
                 </Split>
               </StackItem>
