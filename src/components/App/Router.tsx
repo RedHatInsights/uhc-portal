@@ -254,7 +254,12 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
           path="/access-request/:id"
           element={!isRestrictedEnv() ? <AccessRequestNavigate /> : <NotFoundError />}
         />
-        <Route path={CLUSTER_LIST_PATH} element={<ClusterListMultiRegion getMultiRegion />} />
+        <Route
+          path={CLUSTER_LIST_PATH}
+          element={
+            isTabbedClustersEnabled ? <Clusters /> : <ClusterListMultiRegion getMultiRegion />
+          }
+        />
         <Route
           path="/clusters/*"
           element={
@@ -262,7 +267,10 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
           }
         />
         {isClusterTransferOwnershipEnabled ? (
-          <Route path="/cluster-request" element={<ClusterRequestList />} />
+          <Route
+            path="/cluster-request"
+            element={isTabbedClustersEnabled ? <Clusters /> : <ClusterRequestList />}
+          />
         ) : null}
         <Route
           path="/"
