@@ -63,6 +63,55 @@ export class MachinePoolsPage extends BasePage {
     return this.page.getByTestId('submit-btn');
   }
 
+  instanceTypeSelectButton(): Locator {
+    return this.page.locator('button[aria-label="Machine type select toggle"]');
+  }
+
+  instanceTypeSearchInput(): Locator {
+    return this.page.locator('input[aria-label="Machine type select search field"]');
+  }
+
+  machinePoolTable(): Locator {
+    return this.page.locator('table').filter({ hasText: 'Machine pool' });
+  }
+
+  // Windows License Included locators
+  windowsLicenseIncludedCheckbox(): Locator {
+    return this.page.getByRole('checkbox', {
+      name: 'Enable machine pool for Windows License Included',
+    });
+  }
+
+  windowsLicenseIncludedLabel(): Locator {
+    return this.page.getByText('Enable machine pool for Windows License Included');
+  }
+
+  windowsLicenseDisabledTooltip(): Locator {
+    return this.page.getByText('This instance type is not Windows License Included compatible.');
+  }
+
+  windowsLicenseEnabledText(): Locator {
+    return this.page.getByText('This machine pool is Windows LI enabled');
+  }
+
+  windowsLicensePopoverHintButton(): Locator {
+    return this.page.getByLabel('More information').first();
+  }
+
+  windowsLicensePopoverAWSDocsLink(): Locator {
+    return this.page.getByRole('link', { name: 'Microsoft licensing on AWS' });
+  }
+
+  windowsLicensePopoverRedHatDocsLink(): Locator {
+    return this.page.getByRole('link', { name: 'how to work with AWS-Windows-LI hosts' });
+  }
+
+  windowsLicensePopoverDescription(): Locator {
+    return this.page.getByText(
+      'When enabled, the machine pool is AWS License Included for Windows with associated fees.',
+    );
+  }
+
   async clickAddMachinePoolSubmitButton(): Promise<void> {
     await expect(this.addMachinePoolSubmitButton()).toBeEnabled();
     await this.addMachinePoolSubmitButton().click();
@@ -102,8 +151,33 @@ export class MachinePoolsPage extends BasePage {
     await this.pressKey('Escape');
   }
 
+  async selectInstanceType(instanceType: string): Promise<void> {
+    await this.instanceTypeSelectButton().click();
+    await this.instanceTypeSearchInput().clear();
+    await this.instanceTypeSearchInput().fill(instanceType);
+    await this.page.locator(`li[id="${instanceType}"]`).click();
+  }
+
+  async waitForMachinePoolsTabLoad(): Promise<void> {
+    await this.page.getByRole('progressbar', { name: 'Loading...' }).waitFor({
+      state: 'detached',
+      timeout: 80000,
+    });
+  }
+
+  async hoverWindowsLicenseCheckbox(): Promise<void> {
+    await this.windowsLicenseIncludedCheckbox().hover();
+  }
+
   getMachinePoolRow(id: string): Locator {
     return this.page.locator('tr').filter({ has: this.page.locator(`td:has-text("${id}")`) });
+  }
+
+  async editMachinePool(id: string): Promise<void> {
+    const row = this.page.getByRole('row').filter({ hasText: id });
+    await row.locator('button[aria-label="Kebab toggle"]').click();
+    await this.page.getByRole('menuitem', { name: 'Edit' }).click();
+    await expect(this.machinePoolModal()).toBeVisible({ timeout: 30000 });
   }
 
   async deleteMachinePool(id: string): Promise<void> {
@@ -115,9 +189,20 @@ export class MachinePoolsPage extends BasePage {
       name: 'Permanently delete machine pool?',
     });
     await expect(dialog.getByText(`"${id}" will be lost`)).toBeVisible();
-    await dialog.getByTestId('btn-primary').click();
-    // Wait for row to disappear
-    await expect(row).toBeHidden({ timeout: 60000 });
+    // Click Delete and wait for the API call to complete
+    await Promise.all([
+      this.page.waitForResponse(
+        (response) =>
+          response.request().method() === 'DELETE' &&
+          response.url().includes(`/node_pools/${id}`),
+        { timeout: 30000 },
+      ),
+      dialog.getByRole('button', { name: 'Delete' }).click(),
+    ]);
+    // Wait for dialog to close
+    await expect(dialog).toBeHidden({ timeout: 30000 });
+    // Then wait for the row to be removed from the DOM
+    await expect(row).toHaveCount(0, { timeout: 60000 });
   }
 
   async verifyCapacityReservationDetail(

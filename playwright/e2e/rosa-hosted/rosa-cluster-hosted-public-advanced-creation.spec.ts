@@ -8,15 +8,16 @@ test.describe.serial(
   'Rosa hosted cluster (hypershift) - create public advanced cluster with properties',
   { tag: ['@day1', '@hcp', '@rosa-hosted', '@public', '@hosted', '@advanced'] },
   () => {
-    const region = clusterProperties.Region.split(',')[0];
-    const awsAccountID = process.env.QE_AWS_ID || '';
-    const awsBillingAccountID = process.env.QE_AWS_BILLING_ID || '';
-    let qeInfrastructure: any = {};
+    let infraRegions: any = {};
     try {
-      qeInfrastructure = JSON.parse(process.env.QE_INFRA_REGIONS || '{}')[region]?.[0] || {};
+      infraRegions = JSON.parse(process.env.QE_INFRA_REGIONS || '{}');
     } catch (error) {
       console.warn('Failed to parse QE_INFRA_REGIONS environment variable:', error);
     }
+    const region = Object.keys(infraRegions)[0] || clusterProperties.Region.split(',')[0];
+    const awsAccountID = process.env.QE_AWS_ID || '';
+    const awsBillingAccountID = process.env.QE_AWS_BILLING_ID || '';
+    const qeInfrastructure: any = infraRegions[region]?.[0] || {};
 
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
@@ -63,7 +64,7 @@ test.describe.serial(
       page,
     }) => {
       await createRosaWizardPage.isClusterDetailsScreen();
-      await createRosaWizardPage.selectRegion(clusterProperties.Region);
+      await createRosaWizardPage.selectRegion(region);
       await createRosaWizardPage.setClusterName(clusterName);
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().check();
       await createRosaWizardPage.setDomainPrefix(clusterProperties.DomainPrefix);
@@ -81,13 +82,13 @@ test.describe.serial(
       await createRosaWizardPage.waitForVPCList();
       await createRosaWizardPage.selectVPC(qeInfrastructure.VPC_NAME);
 
-      for (let i = 1; i <= clusterProperties.MachinePools.MachinePoolCount; i++) {
+      const availabilityZones = Object.keys(qeInfrastructure.SUBNETS.ZONES);
+      for (let i = 1; i <= availabilityZones.length; i++) {
         await createRosaWizardPage.selectMachinePoolPrivateSubnet(
-          qeInfrastructure.SUBNETS.ZONES[clusterProperties.MachinePools.AvailabilityZones[i - 1]]
-            .PRIVATE_SUBNET_NAME,
+          qeInfrastructure.SUBNETS.ZONES[availabilityZones[i - 1]].PRIVATE_SUBNET_NAME,
           i,
         );
-        if (i < clusterProperties.MachinePools.MachinePoolCount) {
+        if (i < availabilityZones.length) {
           await createRosaWizardPage.addMachinePoolLink().click();
         }
       }
@@ -119,7 +120,7 @@ test.describe.serial(
       await createRosaWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
       if (clusterProperties.ClusterPrivacy.includes('Public')) {
         await createRosaWizardPage.selectMachinePoolPublicSubnet(
-          qeInfrastructure.SUBNETS.ZONES[clusterProperties.MachinePools.PublicSubnetZone]
+          qeInfrastructure.SUBNETS.ZONES[Object.keys(qeInfrastructure.SUBNETS.ZONES)[0]]
             .PUBLIC_SUBNET_NAME,
         );
       }
@@ -237,7 +238,7 @@ test.describe.serial(
           'Compute node count',
           (
             parseInt(clusterProperties.MachinePools.NodeCount) *
-            clusterProperties.MachinePools.MachinePoolCount
+            Object.keys(qeInfrastructure.SUBNETS.ZONES).length
           ).toString(),
         );
       }
@@ -246,8 +247,9 @@ test.describe.serial(
         qeInfrastructure.VPC_NAME,
       );
 
-      for (let i = 1; i <= clusterProperties.MachinePools.MachinePoolCount; i++) {
-        const zone = clusterProperties.MachinePools.AvailabilityZones[i - 1];
+      const availabilityZones = Object.keys(qeInfrastructure.SUBNETS.ZONES);
+      for (let i = 1; i <= availabilityZones.length; i++) {
+        const zone = availabilityZones[i - 1];
         const subnetName = qeInfrastructure.SUBNETS.ZONES[zone].PRIVATE_SUBNET_NAME;
         await expect(createRosaWizardPage.machinePoolLabelValue()).toContainText(zone);
         await expect(createRosaWizardPage.machinePoolLabelValue()).toContainText(subnetName);
@@ -267,7 +269,7 @@ test.describe.serial(
       if (clusterProperties.ClusterPrivacy.includes('Public')) {
         await createRosaWizardPage.isClusterPropertyMatchesValue(
           'Public subnet',
-          qeInfrastructure.SUBNETS.ZONES[clusterProperties.MachinePools.AvailabilityZones[0]]
+          qeInfrastructure.SUBNETS.ZONES[Object.keys(qeInfrastructure.SUBNETS.ZONES)[0]]
             .PUBLIC_SUBNET_NAME,
         );
       } else {
