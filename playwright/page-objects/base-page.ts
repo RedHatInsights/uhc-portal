@@ -20,8 +20,10 @@ export class BasePage {
     return typeof selector === 'string' ? this.page.locator(selector) : selector;
   }
 
-  async assertUrlIncludes(path: string): Promise<void> {
-    await expect(this.page).toHaveURL(new RegExp(path));
+  async assertUrlIncludes(urlPath: string): Promise<void> {
+    // Escape special regex characters in the path
+    const escapedPath = urlPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    await expect(this.page).toHaveURL(new RegExp(escapedPath));
   }
 
   async goto(path: string): Promise<void> {

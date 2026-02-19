@@ -32,11 +32,20 @@ export class ClusterListPage extends BasePage {
     return this.page.locator('div[class*="popover__body"]');
   }
 
+  async closePopover(): Promise<void> {
+    await this.page.locator('button[aria-label="Close"]').click();
+  }
+
   viewClusterArchives(): Locator {
     return this.page.locator('a').filter({ hasText: 'View cluster archives' });
   }
 
   viewClusterRequests(): Locator {
+    // Try tab first (new UI), fallback to link (old UI)
+    return this.page.getByRole('tab', { name: 'Cluster Request' });
+  }
+
+  viewClusterRequestsLink(): Locator {
     return this.page.locator('a').filter({ hasText: 'View cluster requests' });
   }
 
@@ -56,14 +65,87 @@ export class ClusterListPage extends BasePage {
     return this.page.getByTestId('create_cluster_btn');
   }
 
+  pageHeading(): Locator {
+    return this.page.locator('h1').filter({ hasText: 'Clusters' });
+  }
+
+  clusterListTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Cluster List' });
+  }
+
+  clusterTypeFilterButton(): Locator {
+    return this.page.locator('button').filter({ hasText: 'Cluster type' });
+  }
+
+  clusterRows(): Locator {
+    return this.page.locator('tbody tr');
+  }
+
+  clusterNameLinks(): Locator {
+    return this.page.locator('td[data-label="Name"] a');
+  }
+
+  typeCells(): Locator {
+    return this.page.locator('td[data-label="Type"] span');
+  }
+
+  providerCells(): Locator {
+    return this.page.locator('td[data-label="Provider (Region)"]');
+  }
+
+  paginationContainer(): Locator {
+    return this.page.locator('[class*="pagination"]');
+  }
+
+  paginationText(): Locator {
+    return this.page.locator('span').filter({ hasText: /\d+\s*[-–]\s*\d+\s*of\s*\d+/ });
+  }
+
+  prevPageButton(): Locator {
+    return this.page.locator('button[aria-label="Go to previous page"]');
+  }
+
+  nextPageButton(): Locator {
+    return this.page.locator('button[aria-label="Go to next page"]');
+  }
+
+  refreshButton(): Locator {
+    return this.page.locator('button[aria-label="Refresh"]');
+  }
+
+  kebabMenus(): Locator {
+    return this.page.locator('td').locator('button[aria-label="Kebab toggle"]');
+  }
+
+  clusterTypeFilterOption(type: string): Locator {
+    return this.page.getByTestId(`cluster-type-${type}`);
+  }
+
+  viewOnlyMyClusterToggle(): Locator {
+    return this.page.locator('input[id="view-only-my-clusters"]');
+  }
+
+  tableHeader(header: string): Locator {
+    return this.page.locator('th').filter({ hasText: header });
+  }
+
+  tableCell(label: string): Locator {
+    return this.page.locator(`td[data-label="${label}"]`);
+  }
+
   async waitForDataReady(): Promise<void> {
     await this.page.locator('div[data-ready="true"]').waitFor({ timeout: 120000 });
   }
 
   async isClusterListScreen(): Promise<void> {
-    await expect(this.page.locator('h1, h4')).toContainText(
-      /Cluster List|Let's create your first cluster/,
-    );
+    // Wait for any cluster list screen indicator
+    // Matches: h1 with "Clusters", h4 with cluster list text, or Cluster List tab
+    const clusterListIndicator = this.page.locator('h1:has-text("Clusters")')
+      .or(this.page.locator('h4:has-text("Cluster List")'))
+      .or(this.page.locator('h4:has-text("Let\'s create your first cluster")'))
+      .or(this.page.getByRole('tab', { name: 'Cluster List' }));
+
+    await clusterListIndicator.first().waitFor({ state: 'visible', timeout: 30000 });
   }
 
   async isRegisterClusterUrl(): Promise<void> {
@@ -120,7 +202,10 @@ export class ClusterListPage extends BasePage {
   }
 
   showActiveClusters(): Locator {
-    return this.page.locator('a').filter({ hasText: 'Show active clusters' });
+    // Try "Cluster List" tab first (new UI), fallback to link (old UI on archives page)
+    const tab = this.page.getByRole('tab', { name: 'Cluster List' });
+    const link = this.page.locator('a').filter({ hasText: 'Show active clusters' });
+    return tab.or(link);
   }
 
   itemPerPage(): Locator {

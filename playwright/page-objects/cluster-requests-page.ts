@@ -37,11 +37,18 @@ export class ClusterRequestsPage extends BasePage {
   }
 
   async isClusterRequestsUrl(): Promise<void> {
-    await this.assertUrlIncludes('/openshift/cluster-request');
+    // Support both old (/openshift/cluster-request) and new (/openshift/clusters/requests) URL patterns
+    await expect(this.page).toHaveURL(/\/openshift\/(clusters\/requests)/);
+  }
+
+  async waitForPageReady(): Promise<void> {
+    // Wait for the cluster access requests heading to be visible instead of using networkidle
+    await this.clusterAccessRequestsHeading().waitFor({ state: 'visible', timeout: 30000 });
   }
 
   async isClusterRequestsScreen(): Promise<void> {
-    await expect(this.page.locator('h1:has-text("Cluster Requests")')).toBeVisible({
+    // The page now shows "Clusters" heading with "Cluster Request" tab selected
+    await expect(this.page.locator('h1:has-text("Clusters")')).toBeVisible({
       timeout: 30000,
     });
   }
@@ -65,6 +72,38 @@ export class ClusterRequestsPage extends BasePage {
 
   clusterRequestsRefreshButton(): Locator {
     return this.page.locator('button[aria-label="Refresh"]');
+  }
+
+  accessRequestsTable(): Locator {
+    return this.page.locator('table').filter({ has: this.page.locator('th:has-text("Cluster Name")') });
+  }
+
+  accessRequestsTableHeader(header: string): Locator {
+    return this.accessRequestsTable().locator('th').filter({ hasText: header });
+  }
+
+  accessRequestsTableRows(): Locator {
+    return this.accessRequestsTable().locator('tbody tr');
+  }
+
+  accessRequestsFirstLink(): Locator {
+    return this.accessRequestsTable().locator('tbody tr td:first-child a').first();
+  }
+
+  accessRequestsOpenButton(): Locator {
+    return this.accessRequestsTableRows().first().getByRole('button', { name: 'Open' });
+  }
+
+  clusterAccessRequestsHeading(): Locator {
+    return this.page.getByText('Cluster access requests').first();
+  }
+
+  paginationContainer(): Locator {
+    return this.page.locator('[class*="pagination"]');
+  }
+
+  dialogModal(): Locator {
+    return this.page.locator('[role="dialog"]');
   }
 
   cancelTransferButton(): Locator {

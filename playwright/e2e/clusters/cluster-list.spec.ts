@@ -6,7 +6,7 @@ test.describe.serial(
   () => {
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
       // Navigate to cluster list and wait for data to load
-      await navigateTo('cluster-list');
+      await navigateTo('clusters/list');
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
     });
