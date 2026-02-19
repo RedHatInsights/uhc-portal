@@ -10,7 +10,7 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
       == "main"
-    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-unit-tests.yaml
+    pipelinesascode.tekton.dev/pipeline: https://raw.githubusercontent.com/RedHatInsights/konflux-pipelines/refs/heads/main/pipelines/platform-ui/docker-build-run-all-tests.yaml
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: ocm-ui
@@ -30,6 +30,10 @@ spec:
     value: 5d
   - name: dockerfile
     value: build-tools/Dockerfile
+  - name: test-app-name
+    value: uhc-portal
+  - name: test-app-port
+    value: "8000"
   - name: unit-tests-script
     value: |
       #!/bin/bash
@@ -41,11 +45,50 @@ spec:
       NODE_OPTIONS='--max-old-space-size=4096' yarn lint
       yarn prettier
       yarn test --run-in-band --no-cache
+  - name: run-app-script
+    value: |
+      #!/bin/sh
+      set -e
+      echo "Starting application with Caddy using ConfigMap Caddyfile..."
+      exec caddy run --config /etc/caddy/Caddyfile
+  - name: e2e-tests-script
+    value: |
+      #!/bin/bash
+      set -ex
+
+      # Wait for dev server to be ready
+      timeout 120s bash -c 'until curl -k https://stage.foo.redhat.com:1337 > /dev/null 2>&1; do
+        echo "Waiting for dev server to be ready"
+        sleep 5
+      done'
+      echo "Dev server ready!"
+
+      # Map Konflux secret keys to what Playwright expects
+      export TEST_WITHQUOTA_USER="$E2E_USER"
+      export TEST_WITHQUOTA_PASSWORD="$E2E_PASSWORD"
+
+      # Install Playwright browsers
+      echo "Installing Playwright browsers..."
+      npx playwright install --with-deps chromium
+
+      # Run CI-tagged tests
+      echo "Running Playwright tests..."
+      npx playwright test --grep @ci
+  - name: e2e-credentials-secret
+    value: ocm-ui-credentials-secret
+  - name: frontend-proxy-routes-configmap
+    value: ocm-ui-dev-proxy-caddyfile
   pipelineRef:
-    name: docker-build
+    resolver: git
+    params:
+    - name: url
+      value: https://github.com/RedHatInsights/konflux-pipelines
+    - name: revision
+      value: main
+    - name: pathInRepo
+      value: pipelines/platform-ui/docker-build-run-all-tests.yaml
   taskRunTemplate:
     serviceAccountName: build-pipeline-uhc-portal
-  # extend the unit-tests pipeline task to increase RAM
   taskRunSpecs:
     - pipelineTaskName: run-unit-tests
       stepSpecs:
@@ -55,6 +98,25 @@ spec:
               memory: "6Gi"
             limits:
               memory: "6Gi"
+    - pipelineTaskName: run-e2e-tests
+      serviceAccountName: build-pipeline-uhc-portal
+      podTemplate:
+        hostAliases:
+          - ip: "::1"
+            hostnames:
+              - "stage.foo.redhat.com"
+          - ip: "127.0.0.1"
+            hostnames:
+              - "stage.foo.redhat.com"
+        volumes:
+          - name: test-app-caddyfile
+            configMap:
+              name: ocm-ui-app-caddy-config
+      sidecarSpecs:
+        - name: run-application
+          volumeMounts:
+            - name: test-app-caddyfile
+              mountPath: /etc/caddy
   workspaces:
   - name: workspace
     volumeClaimTemplate:
@@ -65,7 +127,7 @@ spec:
         - ReadWriteOnce
         resources:
           requests:
-            storage: 1Gi
+            storage: 3Gi
       status: {}
   - name: git-auth
     secret:
