@@ -27,6 +27,7 @@ import {
 } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
+import { ErrorDetail, ErrorState } from '~/types/types';
 
 import { modalActions } from '../../../../common/Modal/ModalActions';
 import modals from '../../../../common/Modal/modals';
@@ -204,21 +205,6 @@ const UpgradeWizard = () => {
               </div>
             ) : (
               <>
-                {isUnmetAcknowledgementsError && (
-                  <Grid hasGutter>
-                    <GridItem span={1} />
-                    <GridItem span={10}>
-                      <ErrorBox
-                        response={{
-                          errorMessage: unmetAcknowledgementsError?.reason,
-                          operationID: unmetAcknowledgementsError?.operationID,
-                        }}
-                        message="A problem occurred with that selected version"
-                      />
-                    </GridItem>
-                    <GridItem span={1} />
-                  </Grid>
-                )}
                 <VersionSelectionGrid
                   availableUpgrades={cluster?.version?.available_upgrades}
                   clusterVersion={cluster?.openshift_version || cluster?.version?.id || ''}
@@ -227,6 +213,27 @@ const UpgradeWizard = () => {
                   isUnMetClusterAcknowledgements={hasVersionGates}
                   isPending={isUnmetAcknowledgementsPending}
                 />
+                {isUnmetAcknowledgementsError && unmetAcknowledgementsError?.errorDetails && (
+                  <Grid hasGutter>
+                    <GridItem span={1} />
+                    <GridItem span={10}>
+                      {unmetAcknowledgementsError.errorDetails.map(
+                        (errorDetail: ErrorDetail & Partial<ErrorState>, index) => (
+                          <GridItem key={errorDetail?.operationID}>
+                            <ErrorBox
+                              response={{
+                                errorMessage: errorDetail?.reason,
+                                operationID: errorDetail?.operationID,
+                              }}
+                              message="A problem occurred with that selected version"
+                            />
+                          </GridItem>
+                        ),
+                      )}
+                    </GridItem>
+                    <GridItem span={1} />
+                  </Grid>
+                )}
               </>
             )}
           </WizardStep>
