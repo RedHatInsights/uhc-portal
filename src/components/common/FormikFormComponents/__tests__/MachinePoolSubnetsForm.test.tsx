@@ -1,10 +1,11 @@
 import React from 'react';
 import * as formik from 'formik';
-import { Formik } from 'formik';
+import { Formik, useFormikContext } from 'formik';
 
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 import * as utils from '~/components/clusters/wizards/form/utils';
-import { checkAccessibility, screen, waitFor, withState } from '~/testUtils';
+import { FieldId as RosaFieldId } from '~/components/clusters/wizards/rosa/constants';
+import { checkAccessibility, render, screen, waitFor, withState } from '~/testUtils';
 
 import MachinePoolSubnetsForm from '../MachinePoolSubnetsForm';
 
@@ -257,5 +258,78 @@ describe('subnet ordering and grouping functionality', () => {
 
     expect(screen.getByRole('option', { name: 'subnet-0b6h8g574bcdc20kp' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'subnet-0cv67g3h4w859v0t1' })).toBeInTheDocument();
+  });
+
+  it('adjusts compute nodes to minimum when machine pools are removed and current value is below new minimum', async () => {
+    const threePools = [
+      { availabilityZone: '', privateSubnetId: 'subnet-03df6fb9d7677c84c', publicSubnetId: '' },
+      { availabilityZone: '', privateSubnetId: 'subnet-0b6h8g574bcdc20kp', publicSubnetId: '' },
+      { availabilityZone: '', privateSubnetId: 'subnet-0cv67g3h4w859v0t1', publicSubnetId: '' },
+    ];
+
+    // Real helper functions behavior:
+    // 3 pools: min=3, increment=3 → minUserInputNodes = 3/3 = 1
+    // 1 pool: min=2, increment=1 → minUserInputNodes = 2/1 = 2
+
+    // Component to read form values for verification
+    const ValuesReader = ({ onValuesChange }: { onValuesChange: (values: any) => void }) => {
+      const { values } = useFormikContext();
+      onValuesChange(values);
+      return null;
+    };
+
+    let formValues: any = {};
+    const handleValuesChange = (values: any) => {
+      formValues = values;
+    };
+
+    const initialValues = {
+      [FieldId.MachinePoolsSubnets]: threePools,
+      [RosaFieldId.Hypershift]: 'true',
+      [RosaFieldId.Byoc]: 'true',
+      [FieldId.MultiAz]: 'false',
+      [RosaFieldId.NodesCompute]: 1, // Valid for 3 pools (min=3/3=1), but invalid for 1 pool (min=2/1=2)
+    };
+
+    const { user, rerender } = render(
+      <Formik initialValues={initialValues} onSubmit={() => {}} enableReinitialize>
+        <>
+          <ValuesReader onValuesChange={handleValuesChange} />
+          <MachinePoolSubnetsForm
+            {...machinePoolSubnetsFormProps}
+            allMachinePoolSubnets={threePools}
+          />
+        </>
+      </Formik>,
+    );
+
+    // Remove two machine pools (from 3 to 1)
+    const removeButtons = screen.getAllByLabelText('Remove machine pool');
+    expect(removeButtons).toHaveLength(3);
+
+    // Remove pool at index 1 (second pool) - should result in 2 pools
+    await user.click(removeButtons[1]);
+
+    // Update allMachinePoolSubnets prop to reflect removal
+    const twoPools = [threePools[0], threePools[2]];
+    rerender(
+      <Formik initialValues={formValues || initialValues} onSubmit={() => {}} enableReinitialize>
+        <>
+          <ValuesReader onValuesChange={handleValuesChange} />
+          <MachinePoolSubnetsForm
+            {...machinePoolSubnetsFormProps}
+            allMachinePoolSubnets={twoPools}
+          />
+        </>
+      </Formik>,
+    );
+
+    // Remove pool at index 0 (first pool) - should result in 1 pool and trigger adjustment
+    const remainingRemoveButtons = screen.getAllByLabelText('Remove machine pool');
+    await user.click(remainingRemoveButtons[0]);
+
+    await waitFor(() => {
+      expect(formValues[RosaFieldId.NodesCompute]).toBe(2);
+    });
   });
 });
