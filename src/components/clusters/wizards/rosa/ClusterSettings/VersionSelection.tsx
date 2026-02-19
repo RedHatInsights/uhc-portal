@@ -101,7 +101,7 @@ function VersionSelection({
       (isHypershiftSelected ||
         !rosaMaxOSVersion ||
         isSupportedMinorVersion(version?.raw_id || '', rosaMaxOSVersion)),
-    [rosaMaxOSVersion, isHypershiftSelected],
+    [rosaMaxOSVersion, isHypershiftSelected], // rosaMaxOSVersion is actually the max version allowed by the chosen AccountRoles
   );
 
   const toggleCompatibleVersions = (
