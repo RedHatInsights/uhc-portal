@@ -21,7 +21,12 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
-import { CLUSTER_LIST_PATH, Navigate, ocmBaseName, useClusterListPath } from '~/common/routing';
+import {
+  CLUSTER_LIST_PATH,
+  Navigate,
+  ocmBaseName,
+  TABBED_CLUSTER_LIST_PATH,
+} from '~/common/routing';
 import ClusterDetailsClusterOrExternalIdMR from '~/components/clusters/ClusterDetailsMultiRegion/ClusterDetailsClusterOrExternalId';
 import {
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
@@ -76,8 +81,6 @@ interface RouterProps {
 
 const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId }) => {
   const { pathname, search } = useLocation();
-  const clusterListPath = useClusterListPath();
-
   const {
     segment: { setPageMetadata },
   } = useChrome();
@@ -86,6 +89,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
   const isClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
   const isOsdFromGoogleCloudEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
   const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
+  const clusterListPath = isTabbedClustersEnabled ? TABBED_CLUSTER_LIST_PATH : CLUSTER_LIST_PATH;
 
   // For testing purposes, show which major features are enabled/disabled
   React.useEffect(() => {
