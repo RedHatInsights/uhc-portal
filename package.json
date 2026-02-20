@@ -147,7 +147,7 @@
     "concurrently": "^9.0.0",
     "copy-webpack-plugin": "^12.0.0",
     "css-loader": "^7.0.0",
-    "cypress": "^13.6.2",
+    "cypress": "^15.0.0",
     "cypress-each": "^1.14.0",
     "eslint": "^8.56.0",
     "eslint-config-airbnb": "^19.0.4",
