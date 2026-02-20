@@ -119,6 +119,15 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: test
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./unitTestCoverage/lcov.info
+          flags: unittests
+          name: uhc-portal-coverage
+          fail_ci_if_error: false
+          verbose: true
   circular-dependencies:
     name: ${{ matrix.os }} - Circular Dependencies - Node ${{ matrix.node-version }}
     concurrency:
