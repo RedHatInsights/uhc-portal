@@ -1,6 +1,7 @@
 import React from 'react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 
+import { CLUSTER_LIST_PATH } from '~/common/routing';
 import { mockOCPLifeCycleStatusData } from '~/components/clusters/wizards/rosa/ClusterSettings/VersionSelection.fixtures';
 import * as ReleaseHooks from '~/components/releases/hooks';
 import { mockRestrictedEnv, mockUseChrome, screen, withState } from '~/testUtils';
@@ -9,7 +10,7 @@ import { ProductLifeCycle } from '~/types/product-life-cycles';
 import Router from './Router';
 
 const routes = [
-  { path: '/cluster-list', metadata: { ocm_resource_type: 'all' } },
+  { path: CLUSTER_LIST_PATH, metadata: { ocm_resource_type: 'all' } },
   { path: '/token/rosa', metadata: { ocm_resource_type: 'moa' } },
   { path: '/token/rosa/show', metadata: { ocm_resource_type: 'moa' } },
   { path: '/details/:id', metadata: { ocm_resource_type: 'all' } },

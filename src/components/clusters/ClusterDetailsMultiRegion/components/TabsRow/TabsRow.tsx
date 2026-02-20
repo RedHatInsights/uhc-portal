@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { Tab, Tabs, TabTitleText } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
-import { useNavigate } from '~/common/routing';
+import { useClusterListPath, useNavigate } from '~/common/routing';
 import useAnalytics from '~/hooks/useAnalytics';
 
 import { ClusterTabsId } from '../common/ClusterTabIds';
@@ -22,6 +22,7 @@ const TabsRow = ({ tabsInfo, onTabSelected, initTabOpen }: TabsRowProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const track = useAnalytics();
+  const clusterListPath = useClusterListPath();
 
   const [tabs, setTabs] = React.useState<TabsRowTabType[]>();
   const [activeTab, setActiveTab] = React.useState<TabsRowTabType>();
@@ -100,7 +101,7 @@ const TabsRow = ({ tabsInfo, onTabSelected, initTabOpen }: TabsRowProps) => {
           in that case we navigate to cluster list page */
       if (!targetTab?.show || targetTab.isDisabled) {
         if (location.hash === '') {
-          navigate('/cluster-list', { replace: true });
+          navigate(clusterListPath, { replace: true });
         } else {
           setInitialTab(tabs.find((tab) => tab.id === ClusterTabsId.OVERVIEW) || tabs[0]);
           navigate(

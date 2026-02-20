@@ -106,6 +106,10 @@ export const Clusters = () => {
             </TabContent>
           }
         />
+        <Route
+          path="*"
+          element={<Navigate to={`${CLUSTERS_ROUTES.BASE}${CLUSTERS_ROUTES.LIST}`} replace />}
+        />
       </Routes>
     </AppPage>
   );

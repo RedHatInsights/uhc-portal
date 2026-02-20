@@ -32,7 +32,7 @@ import {
 import { SortByDirection } from '@patternfly/react-table';
 
 import { ONLY_MY_CLUSTERS_TOGGLE_CLUSTER_ARCHIVES_LIST } from '~/common/localStorageConstants';
-import { Link } from '~/common/routing';
+import { Link, useClusterListPath } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
 import { useFetchClusters } from '~/queries/ClusterListQueries/useFetchClusters';
 import {
@@ -101,6 +101,7 @@ const ClusterList = ({
   getMultiRegion,
 }) => {
   const dispatch = useDispatch();
+  const clusterListPath = useClusterListPath();
 
   const viewType = viewConstants.ARCHIVED_CLUSTERS_VIEW;
   const isArchived = true;
@@ -285,7 +286,7 @@ const ClusterList = ({
               />
               <ToolbarItem className="pf-v6-l-split__item split-margin-left">
                 <div className="show-active-clusters-link">
-                  <Link to="/cluster-list">Show active clusters</Link>
+                  <Link to={clusterListPath}>Show active clusters</Link>
                 </div>
               </ToolbarItem>
               <ToolbarItem>

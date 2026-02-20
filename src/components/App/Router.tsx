@@ -21,7 +21,12 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
-import { Navigate, ocmBaseName } from '~/common/routing';
+import {
+  CLUSTER_LIST_PATH,
+  Navigate,
+  ocmBaseName,
+  TABBED_CLUSTER_LIST_PATH,
+} from '~/common/routing';
 import ClusterDetailsClusterOrExternalIdMR from '~/components/clusters/ClusterDetailsMultiRegion/ClusterDetailsClusterOrExternalId';
 import {
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
@@ -76,7 +81,6 @@ interface RouterProps {
 
 const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId }) => {
   const { pathname, search } = useLocation();
-
   const {
     segment: { setPageMetadata },
   } = useChrome();
@@ -85,6 +89,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
   const isClusterTransferOwnershipEnabled = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
   const isOsdFromGoogleCloudEnabled = useFeatureGate(OSD_FOR_GOOGLE_CLOUD);
   const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
+  const clusterListPath = isTabbedClustersEnabled ? TABBED_CLUSTER_LIST_PATH : CLUSTER_LIST_PATH;
 
   // For testing purposes, show which major features are enabled/disabled
   React.useEffect(() => {
@@ -253,11 +258,12 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
           path="/access-request/:id"
           element={!isRestrictedEnv() ? <AccessRequestNavigate /> : <NotFoundError />}
         />
-        {/* WARNING! The "/cluster-list" route is used by catchpoint tests which determine
-        'Operational' or 'Major Outage' status for "OpenShift Cluster Manager" on the
-        'http:///status.redhat.com' site. If this route is changed, then the related catchpoint
-        tests must be updated. For more info. see: https://issues.redhat.com/browse/OCMUI-2398 */}
-        <Route path="/cluster-list" element={<ClusterListMultiRegion getMultiRegion />} />
+        <Route
+          path={CLUSTER_LIST_PATH}
+          element={
+            isTabbedClustersEnabled ? <Clusters /> : <ClusterListMultiRegion getMultiRegion />
+          }
+        />
         <Route
           path="/clusters/*"
           element={
@@ -265,11 +271,14 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
           }
         />
         {isClusterTransferOwnershipEnabled ? (
-          <Route path="/cluster-request" element={<ClusterRequestList />} />
+          <Route
+            path="/cluster-request"
+            element={isTabbedClustersEnabled ? <Clusters /> : <ClusterRequestList />}
+          />
         ) : null}
         <Route
           path="/"
-          element={<Navigate replace to={isRestrictedEnv() ? '/cluster-list' : '/overview'} />}
+          element={<Navigate replace to={isRestrictedEnv() ? clusterListPath : '/overview'} />}
         />
         {/* catch all */}
         <Route path="*" element={<NotFoundError />} />
