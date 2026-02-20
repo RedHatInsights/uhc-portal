@@ -25,7 +25,7 @@ import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/C
 import { FieldId, StepId } from '~/components/clusters/wizards/osd/constants';
 import config from '~/config';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
-import { ALLOW_EUS_CHANNEL, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { MESSAGES } from '../../common/messages';
@@ -59,7 +59,6 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
   } = useFormState();
   const canAutoScale = useCanClusterAutoscale(product, billingModel);
   const autoscalingEnabled = canAutoScale && !!formValues[FieldId.AutoscalingEnabled];
-  const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
 
   const isByoc = byoc === 'true';
@@ -67,7 +66,7 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
   const isGCP = cloudProvider === CloudProviderType.Gcp;
 
   const hasSecurityGroups = isByoc && hasSelectedSecurityGroups(securityGroups);
-  const hasGcpAuthType = isWifEnabled && isGCP && isByoc;
+  const hasGcpAuthType = isGCP && isByoc;
   const hasWIFConfiguration =
     hasGcpAuthType && gcpAuthType === GCPAuthType.WorkloadIdentityFederation && wifConfig;
   const isGCPPrivateClusterInstalltoVPC =
