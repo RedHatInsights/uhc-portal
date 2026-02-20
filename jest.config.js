@@ -61,7 +61,7 @@ const config = {
     '<rootDir>/src/services/apiRequest.*',
   ],
   coverageDirectory: 'unitTestCoverage',
-  coverageReporters: ['html', 'json-summary', 'text-summary'],
+  coverageReporters: ['html', 'json-summary', 'text-summary', 'lcov'],
 };
 
 module.exports = config;
