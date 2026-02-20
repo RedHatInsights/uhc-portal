@@ -1,11 +1,7 @@
 /* eslint-disable camelcase */
 import React from 'react';
 
-import {
-  ALLOW_EUS_CHANNEL,
-  FIPS_FOR_HYPERSHIFT,
-  OSD_GCP_WIF,
-} from '~/queries/featureGates/featureConstants';
+import { ALLOW_EUS_CHANNEL, FIPS_FOR_HYPERSHIFT } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
   mockRestrictedEnv,
@@ -391,32 +387,8 @@ describe('<DetailsLeft />', () => {
   });
 
   describe('Authentication type', () => {
-    it('is not present when the WIF feature flag is off', async () => {
-      // Arrange
-      mockUseFeatureGate([[OSD_GCP_WIF, false]]);
-      const cluster = {
-        ...fixtures.clusterDetails.cluster,
-        cloud_provider: {
-          id: 'gcp',
-        },
-        ccs: { enabled: true },
-        gcp: {},
-      };
-
-      const props = {
-        ...defaultProps,
-        cluster,
-      };
-      render(<DetailsLeft {...props} />);
-      await checkIfRendered();
-
-      // Assert
-      checkForValueAbsence(componentText.AUTHENTICATION_TYPE.label);
-    });
-
     it('shows "Workload Identity Federation" for OSD GCP clusters with a WIF config', async () => {
       // Arrange
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
       const cluster = {
         ...fixtures.clusterDetails.cluster,
         cloud_provider: {
@@ -442,7 +414,6 @@ describe('<DetailsLeft />', () => {
 
     it('shows "Service Account" for OSD GCP clusters without a WIF config', async () => {
       // Arrange
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
       const cluster = {
         ...fixtures.clusterDetails.cluster,
         cloud_provider: {
@@ -482,7 +453,6 @@ describe('<DetailsLeft />', () => {
       ['ROSA cluster', fixtures.ROSAClusterDetails.cluster],
       ['ROSA HyperShift cluster', fixtures.ROSAHypershiftClusterDetails.cluster],
     ])('is not shown for a %s', async (_name, cluster) => {
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
       const props = { ...defaultProps, cluster };
       render(<DetailsLeft {...props} />);
       await checkIfRendered();
@@ -510,7 +480,6 @@ describe('<DetailsLeft />', () => {
 
     it('shows the WIF name when a WIF configuration is present', async () => {
       // Arrange
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
       const wifConfigName = 'some-wif-config';
       const wifConfigData = {
         isLoading: false,
@@ -528,7 +497,6 @@ describe('<DetailsLeft />', () => {
 
     it('does not show the WIF name when a WIF configuration is absent', async () => {
       // Arrange
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
       const cluster = {
         ...fixtures.clusterDetails.cluster,
         cloud_provider: {
@@ -548,8 +516,6 @@ describe('<DetailsLeft />', () => {
 
     it('shows N/A when a WIF config cannot be retrieved', async () => {
       // Arrange
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
-
       const wifConfigData = {
         isLoading: false,
         isSuccess: false,
@@ -565,8 +531,6 @@ describe('<DetailsLeft />', () => {
 
     it('shows a skeleton while fetching the WIF config info', async () => {
       // Arrange
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
-
       const wifConfigData = {
         isLoading: true,
         isSuccess: false,

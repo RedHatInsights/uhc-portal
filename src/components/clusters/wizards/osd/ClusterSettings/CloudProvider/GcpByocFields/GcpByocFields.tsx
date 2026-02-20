@@ -30,8 +30,6 @@ import { WorkloadIdentityFederationPrerequisites } from '~/components/clusters/w
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
-import { OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { ServiceAccountNotRecommendedAlert } from '../ServiceAccountNotRecommendedAlert';
@@ -44,15 +42,12 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
     values: { [FieldId.BillingModel]: billingModel },
   } = useFormState();
 
-  const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
   const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
 
   const {
     setFieldValue,
-    values: { [FieldId.GcpAuthType]: authTypeFormValue },
+    values: { [FieldId.GcpAuthType]: authType },
   } = useFormState();
-
-  const authType = isWifEnabled ? authTypeFormValue : GCPAuthType.ServiceAccounts;
 
   let gcpTitle = 'Have you prepared your Google account?';
   let gcpText = `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
@@ -113,53 +108,45 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
       )}
 
       <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsLg' }}>
-        {isWifEnabled && (
-          <FlexItem>
-            <Title headingLevel="h3" className="pf-v6-u-mb-sm">
-              Google Cloud account details
-            </Title>
-            <FormGroup
-              label="Authentication type"
-              labelHelp={
-                <Popover
-                  bodyContent={
-                    <div>
-                      <div>
-                        Workload Identity Federation (WIF) uses short-lived credentials which are
-                        more secure. Use of WIF requires an OSD cluster running OpenShift{' '}
-                        <span className="pf-v6-u-font-family-monospace">4.17</span> or later.
-                      </div>
-                      <br />
-                      <div>Service Account uses long-lived credentials, which are less secure.</div>
-                    </div>
-                  }
-                >
-                  <Button
-                    variant="plain"
-                    aria-label="More info for authentication types"
-                    onClick={(e: { preventDefault: () => any }) => e.preventDefault()}
-                    icon={<HelpIcon />}
-                    className={styles.formGroupLabelHelp}
-                  />
-                </Popover>
-              }
-            >
-              {authButtons}
-            </FormGroup>
-          </FlexItem>
-        )}
         <FlexItem>
-          {isWifEnabled ? (
-            <Title headingLevel="h4" className="pf-v6-u-mb-sm">
-              {authType === GCPAuthType.WorkloadIdentityFederation
-                ? 'Workload Identity Federation'
-                : 'Service Account'}
-            </Title>
-          ) : (
-            <Title headingLevel="h3" className="pf-v6-u-mb-sm">
-              Google Cloud Service account
-            </Title>
-          )}
+          <Title headingLevel="h3" className="pf-v6-u-mb-sm">
+            Google Cloud account details
+          </Title>
+          <FormGroup
+            label="Authentication type"
+            labelHelp={
+              <Popover
+                bodyContent={
+                  <div>
+                    <div>
+                      Workload Identity Federation (WIF) uses short-lived credentials which are more
+                      secure. Use of WIF requires an OSD cluster running OpenShift{' '}
+                      <span className="pf-v6-u-font-family-monospace">4.17</span> or later.
+                    </div>
+                    <br />
+                    <div>Service Account uses long-lived credentials, which are less secure.</div>
+                  </div>
+                }
+              >
+                <Button
+                  variant="plain"
+                  aria-label="More info for authentication types"
+                  onClick={(e: { preventDefault: () => any }) => e.preventDefault()}
+                  icon={<HelpIcon />}
+                  className={styles.formGroupLabelHelp}
+                />
+              </Popover>
+            }
+          >
+            {authButtons}
+          </FormGroup>
+        </FlexItem>
+        <FlexItem>
+          <Title headingLevel="h4" className="pf-v6-u-mb-sm">
+            {authType === GCPAuthType.WorkloadIdentityFederation
+              ? 'Workload Identity Federation'
+              : 'Service Account'}
+          </Title>
           {authType === GCPAuthType.ServiceAccounts && <ServiceAccountNotRecommendedAlert />}
           <Prerequisites acknowledgementRequired initiallyExpanded>
             {shouldShowPrepareGCPHint && (
