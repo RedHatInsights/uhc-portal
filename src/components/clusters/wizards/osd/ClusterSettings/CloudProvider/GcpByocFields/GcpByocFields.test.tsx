@@ -10,8 +10,7 @@ import {
   WifConfigList,
 } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
-import { OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
-import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
+import { checkAccessibility, render, screen } from '~/testUtils';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { FieldId, initialValues } from '../../../constants';
@@ -89,6 +88,7 @@ describe('<GcpByocFields />', () => {
       render(
         prepareComponent({
           [FieldId.BillingModel]: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
+          [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
         }),
       );
 
@@ -96,25 +96,7 @@ describe('<GcpByocFields />', () => {
     });
   });
 
-  describe('Test WIF feature flag', () => {
-    it('does not show the workload identity federation authentication if the WIF feature flag is off', async () => {
-      mockUseFeatureGate([[OSD_GCP_WIF, false]]);
-      render(prepareComponent());
-
-      expect(await screen.findByText('Google Cloud Service account')).toBeInTheDocument();
-      expect(screen.queryByText('Google Cloud account details')).not.toBeInTheDocument();
-      expect(screen.queryByText('Authentication type')).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole('button', { name: workloadIdentityFederationLabel }),
-      ).not.toBeInTheDocument();
-      expect(screen.getByText('Service account JSON')).toBeInTheDocument();
-    });
-  });
-
-  describe('Test authentication types switch (behind feature flag)', () => {
-    beforeEach(() => {
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
-    });
+  describe('Test authentication types switch', () => {
     it('shows "Workload Identity Federation" as default auth type', async () => {
       render(prepareComponent());
 
@@ -163,11 +145,7 @@ describe('<GcpByocFields />', () => {
     });
   });
 
-  describe('Test workload identity federation (behind feature flag)', () => {
-    beforeEach(() => {
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
-    });
-
+  describe('Test workload identity federation', () => {
     it('shows a loading while fetching wif configs', async () => {
       const { user } = render(
         prepareComponent({}, () => new Promise<AxiosResponse<WifConfigList>>((_resolve) => {})),
@@ -354,7 +332,6 @@ describe('<GcpByocFields />', () => {
   describe('when a user comes from the Google Cloud console', () => {
     beforeEach(() => {
       mockUseIsOSDFromGoogleCloud.mockReturnValue(true);
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
     });
 
     it('switches between showing and hiding Prerequisites based on auth type', async () => {

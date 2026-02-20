@@ -22,7 +22,6 @@ export const CLI_SSO_AUTHORIZATION = 'cli-sso-authorization';
 export const MULTIREGION_PREVIEW_ENABLED = 'multi-region-support';
 export const CLUSTER_OWNERSHIP_TRANSFER = 'cluster-ownership-transfer';
 export const AUTO_CLUSTER_TRANSFER_OWNERSHIP = 'ocmui-cluster-ownership-transfer';
-export const OSD_GCP_WIF = 'gcp-workload-identity-federation';
 export const CREATE_CLUSTER_YAML_EDITOR = 'enable-create-cluster-yaml-editor';
 export const UNSTABLE_CLUSTER_VERSIONS = 'ocmui-unstable-cluster-versions';
 export const EDIT_BILLING_ACCOUNT = 'ocmui-edit-billing-account';
@@ -56,7 +55,6 @@ export default {
   CLI_SSO_AUTHORIZATION,
   MULTIREGION_PREVIEW_ENABLED,
   CLUSTER_OWNERSHIP_TRANSFER,
-  OSD_GCP_WIF,
   CREATE_CLUSTER_YAML_EDITOR,
   UNSTABLE_CLUSTER_VERSIONS,
   EDIT_BILLING_ACCOUNT,
