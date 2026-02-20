@@ -492,6 +492,7 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
           product: isHCP ? 'hcp' : undefined,
           // Internal users can test other channels via `ocm` CLI, no UI needed.
           // For external users, make sure we only offer stable channel.
+          // todo - ask about this - do we need to update the fetch query?
           search: `enabled='t' AND (channel_group='stable' OR channel_group='eus'${includeUnstableVersions ? " OR channel_group='candidate' OR channel_group='fast' OR channel_group='nightly'" : ''})${isRosa ? " AND rosa_enabled='t'" : ''}${
             isMarketplaceGcp ? " AND gcp_marketplace_enabled='t'" : ''
           }${isWIF ? " AND wif_enabled='t'" : ''}`,

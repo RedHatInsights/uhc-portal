@@ -196,22 +196,18 @@ describe('VersionSelectHelper', () => {
     expect(getVersionsData(stableAndUnstableVersions, true, supportMap)).toEqual(expected);
   });
 
-  it('returns filtered fast versions by channel group when isEUSEnabled', () => {
+  it('returns filtered fast versions by channel group', () => {
     const expected = [
       { entryId: 'openshift-v4.15.28-fast', label: '4.15.28 (fast)', groupKey: 'fast' },
     ];
-    expect(getVersionsData(stableAndUnstableVersions, true, supportMap, 'fast', true)).toEqual(
-      expected,
-    );
+    expect(getVersionsData(stableAndUnstableVersions, true, supportMap, 'fast')).toEqual(expected);
   });
 
-  it('returns filtered eus versions by channel group when isEUSEnabled', () => {
+  it('returns filtered eus versions by channel group', () => {
     const expected = [
       { entryId: 'openshift-v4.15.24-eus', label: '4.15.24 (eus)', groupKey: 'eus' },
     ];
-    expect(getVersionsData(stableAndUnstableVersions, true, supportMap, 'eus', true)).toEqual(
-      expected,
-    );
+    expect(getVersionsData(stableAndUnstableVersions, true, supportMap, 'eus')).toEqual(expected);
   });
 });
 

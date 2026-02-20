@@ -85,6 +85,10 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
     clusterRequest.version = { id: formData.cluster_version.id };
   }
 
+  if (formData.version_channel) {
+    clusterRequest.channel = formData.version_channel;
+  }
+
   if (formData.autoscalingEnabled) {
     const minNodes = parseInt(formData.min_replicas, 10);
     const maxNodes = parseInt(formData.max_replicas, 10);

@@ -434,6 +434,8 @@ describe('<ReviewClusterScreen />', () => {
     });
   });
 
+  // todo - add tests (based on feature-gate permutations.  maybe do a test.each)
+
   describe('Channel group', () => {
     it('is shown when ALLOW_EUS_CHANNEL feature gate is enabled', async () => {
       mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);

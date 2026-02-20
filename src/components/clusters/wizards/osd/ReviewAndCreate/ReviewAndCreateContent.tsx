@@ -25,7 +25,11 @@ import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/C
 import { FieldId, StepId } from '~/components/clusters/wizards/osd/constants';
 import config from '~/config';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
-import { ALLOW_EUS_CHANNEL, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import {
+  ALLOW_EUS_CHANNEL,
+  OSD_GCP_WIF,
+  Y_STREAM_CHANNEL,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { MESSAGES } from '../../common/messages';
@@ -61,6 +65,7 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
   const autoscalingEnabled = canAutoScale && !!formValues[FieldId.AutoscalingEnabled];
   const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
+  const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
 
   const isByoc = byoc === 'true';
   const isAWS = cloudProvider === CloudProviderType.Aws;
@@ -78,8 +83,9 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
     ...(hasWIFConfiguration ? [FieldId.GcpWifConfig] : []),
     FieldId.ClusterName,
     ...(hasDomainPrefix ? [FieldId.DomainPrefix] : []),
-    ...(isEUSChannelEnabled ? [FieldId.ChannelGroup] : []),
+    ...(isEUSChannelEnabled && !isYStreamChannelEnabled ? [FieldId.ChannelGroup] : []),
     FieldId.ClusterVersion,
+    ...(isYStreamChannelEnabled ? [FieldId.VersionChannel] : []),
     FieldId.Region,
     FieldId.MultiAz,
     ...(isGCP ? [FieldId.SecureBoot] : []),

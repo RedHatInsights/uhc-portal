@@ -44,7 +44,6 @@ const getVersionsData = (
   unstableVersionsIncluded: boolean,
   supportVersionMap?: SupportMap,
   channelGroupSelected?: string,
-  isEUSChannelEnabled?: boolean,
 ) => {
   const fullSupport: FuzzyEntryType[] = [];
   const maintenanceSupport: FuzzyEntryType[] = [];
@@ -133,7 +132,7 @@ const getVersionsData = (
     'Maintenance support': maintenanceSupport,
   };
 
-  if (isEUSChannelEnabled) {
+  if (channelGroupSelected) {
     switch (channelGroupSelected) {
       case channelGroups.CANDIDATE:
         return candidate;

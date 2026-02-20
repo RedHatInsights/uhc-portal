@@ -33,9 +33,9 @@ import RosaVersionErrorAlert from './RosaVersionErrorAlert';
 type VersionSelectionProps = {
   label: string;
   onChange: (version?: Version) => void;
-  isOpen?: boolean;
   channelGroup?: string;
   isEUSChannelEnabled?: boolean;
+  isYStreamChannelEnabled?: boolean;
 };
 
 function VersionSelection({
@@ -43,6 +43,7 @@ function VersionSelection({
   onChange,
   channelGroup,
   isEUSChannelEnabled,
+  isYStreamChannelEnabled,
 }: VersionSelectionProps) {
   const [input, { touched, error }, { setValue }] = useField(FieldId.ClusterVersion);
   const {
@@ -190,14 +191,17 @@ function VersionSelection({
       const defaultVersion = versions.find((version) => version.default === true);
 
       const defaultRosaVersion = versions.find(
-        (version) => isValidRosaVersion(version) && version.channel_group === targetChannelGroup,
+        (version) =>
+          isValidRosaVersion(version) &&
+          (isYStreamChannelEnabled || version.channel_group === targetChannelGroup),
       );
 
       const defaultHypershiftVersion =
         isHypershiftSelected &&
         versions.find(
           (version) =>
-            version.hosted_control_plane_enabled && version.channel_group === targetChannelGroup,
+            version.hosted_control_plane_enabled &&
+            (isYStreamChannelEnabled || version.channel_group === targetChannelGroup),
         );
 
       if (!defaultRosaVersion || (isHypershiftSelected && !defaultHypershiftVersion)) {
@@ -221,6 +225,7 @@ function VersionSelection({
     isHypershiftSelected,
     isValidRosaVersion,
     isEUSChannelEnabled,
+    isYStreamChannelEnabled,
     channelGroup,
   ]);
 
@@ -247,8 +252,7 @@ function VersionSelection({
       filteredVersions,
       unstableOCPVersionsEnabled,
       supportVersionMap,
-      channelGroup,
-      isEUSChannelEnabled,
+      isEUSChannelEnabled && !isYStreamChannelEnabled ? channelGroup : undefined,
     );
 
     // If getVersionsData returns an array (specific channel selected), wrap it in an object
@@ -287,6 +291,7 @@ function VersionSelection({
     supportVersionMap,
     channelGroup,
     isEUSChannelEnabled,
+    isYStreamChannelEnabled,
   ]);
 
   const sortFn = (a: FuzzyEntryType, b: FuzzyEntryType) => versionComparator(b.label, a.label);

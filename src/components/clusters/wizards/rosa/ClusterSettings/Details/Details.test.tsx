@@ -28,6 +28,8 @@ import { mockRestrictedEnv, mockUseFeatureGate, render, screen, withState } from
 
 import Details from './Details';
 
+// todo - add tests
+
 jest.mock('~/services/clusterService');
 jest.mock('~/services/productLifeCycleService');
 

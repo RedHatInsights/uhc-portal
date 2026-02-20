@@ -1,6 +1,8 @@
 // Some components under Details have their own tests;
 // this file tries to take a more "black box integration" approach.
 
+// todo - add tests
+
 import * as React from 'react';
 import { Formik } from 'formik';
 

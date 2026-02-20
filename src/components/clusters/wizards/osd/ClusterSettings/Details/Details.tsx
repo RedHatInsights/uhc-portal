@@ -41,6 +41,7 @@ import {
   getMinReplicasCount,
   getNodesCount,
 } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
+import { ChannelSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelSelectField';
 import { ClassicEtcdEncryptionSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdEncryptionSection';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
 import { FipsCryptographySection } from '~/components/clusters/wizards/common/ClusterSettings/Details/FipsCryptographySection';
@@ -64,7 +65,7 @@ import { FieldId, MIN_SECURE_BOOT_VERSION } from '~/components/clusters/wizards/
 import { CheckboxDescription } from '~/components/common/CheckboxDescription';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { ALLOW_EUS_CHANNEL, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useFetchSearchClusterName } from '~/queries/RosaWizardQueries/useFetchSearchClusterName';
 import { useFetchSearchDomainPrefix } from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
@@ -114,6 +115,7 @@ function Details() {
   );
 
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
+  const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
 
   const isByoc = byoc === 'true';
   const isMultiAz = multiAz === 'true';
@@ -257,9 +259,11 @@ function Details() {
     resetMaxNodesTotal({ clusterVersion });
   };
 
-  const availableVersions = getInstallableVersionsResponse.versions.filter(
-    (version: Version) => version.channel_group === channelGroup,
-  );
+  const availableVersions = isYStreamChannelEnabled
+    ? getInstallableVersionsResponse.versions
+    : getInstallableVersionsResponse.versions.filter(
+        (version: Version) => version.channel_group === channelGroup,
+      );
 
   React.useEffect(() => {
     if (isEUSChannelEnabled) {
@@ -421,7 +425,7 @@ function Details() {
             </GridItem>
           )}
 
-          {isEUSChannelEnabled ? (
+          {isEUSChannelEnabled && !isYStreamChannelEnabled ? (
             <GridItem>
               <FormGroup
                 label="Channel group"
@@ -461,8 +465,15 @@ function Details() {
               onChange={handleVersionChange}
               key={channelGroup}
               isEUSChannelEnabled={isEUSChannelEnabled}
+              isYStreamChannelEnabled={isYStreamChannelEnabled}
             />
           </GridItem>
+
+          {isYStreamChannelEnabled ? (
+            <GridItem>
+              <ChannelSelectField clusterVersion={selectedVersion} />
+            </GridItem>
+          ) : null}
 
           <GridItem>
             <FormGroup

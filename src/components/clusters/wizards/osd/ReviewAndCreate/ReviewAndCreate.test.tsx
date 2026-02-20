@@ -8,6 +8,8 @@ import { ReviewAndCreate } from '~/components/clusters/wizards/osd/ReviewAndCrea
 import { OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
+// todo - add tests (take example from rosa review page tests)
+
 const formValues = {
   product: 'OSD',
   byoc: 'true',
