@@ -83,6 +83,7 @@ module.exports = {
     ],
     exposes: {
       './RootApp': path.resolve(__dirname, 'src/chrome-main.tsx'),
+      './AssociateAWSAccountDrawerPanel': path.resolve(__dirname, 'src/components/clusters/wizards/rosa/AccountsRolesScreen/AssociateAWSAccountDrawer/AssociateAWSAccountDrawerPanel.tsx'),
     },
   },
 };
