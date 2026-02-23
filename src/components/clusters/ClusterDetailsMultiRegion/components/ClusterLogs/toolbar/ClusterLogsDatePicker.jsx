@@ -246,6 +246,7 @@ const ClusterLogsDatePicker = ({ setFilter, currentFilter, createdAt }) => {
       value={startDateStr}
       dateParse={dateParse}
       validators={rangeFromValidators}
+      appendTo={() => document.body}
       {...commonProps}
     />
   );
@@ -257,6 +258,7 @@ const ClusterLogsDatePicker = ({ setFilter, currentFilter, createdAt }) => {
       value={endDateStr}
       dateParse={dateParse}
       validators={rangeToValidators}
+      appendTo={() => document.body}
       {...commonProps}
     />
   );
