@@ -16,7 +16,7 @@ import {
 } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
-import { ACM_HUB_DOCUMENTATION_LINKS } from '~/common/acmHubConstants';
+import links from '~/common/installLinks.mjs';
 import { Navigate, useNavigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
 import NotFoundError from '~/components/App/NotFoundError';
@@ -94,9 +94,7 @@ export const Clusters = () => {
                   <Popover
                     bodyContent="View clusters you tagged as Red Hat Advanced Cluster Management for Kubernetes (ACM) Hub clusters."
                     footerContent={
-                      <ExternalLink href={ACM_HUB_DOCUMENTATION_LINKS.CLUSTER_HUB_DOCUMENTATION}>
-                        Learn more
-                      </ExternalLink>
+                      <ExternalLink href={links.RHACM_HUB_CLUSTERS_DOCS}>Learn more</ExternalLink>
                     }
                     position="top"
                   >
