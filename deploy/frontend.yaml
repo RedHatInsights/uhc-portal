@@ -48,7 +48,7 @@ objects:
                   product: Red Hat OpenShift Cluster Manager
                 - segmentRef:
                     segmentId: openshift-ocp-advisor
-                    frontendName: ocp-advisor-frontend
+                    frontendName: ocp-advisor
                 - id: vulnerability-dashboard
                   title: Vulnerability dashboard
                   expandable: true
