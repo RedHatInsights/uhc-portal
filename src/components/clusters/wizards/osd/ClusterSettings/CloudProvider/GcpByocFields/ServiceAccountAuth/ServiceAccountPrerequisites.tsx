@@ -101,8 +101,9 @@ const ServiceAccountPrerequisites = () => (
         recommend that you have no other resources provisioned in the project prior to provisioning
         OpenShift Dedicated.
         <br />
+        For more guidance, see the{' '}
         <ExternalLink noIcon href={docLinks.OSD_CCS_GCP}>
-          For more guidance, see theCustomer Cloud Subscription requirements
+          Customer Cloud Subscription requirements
         </ExternalLink>
         .
       </Content>
