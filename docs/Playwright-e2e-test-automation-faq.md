@@ -1,6 +1,6 @@
 # Playwright Test Automation — Frequently Asked Questions (FAQ)
 
-> This FAQ is a companion to the [Test Automation Guidelines](test-automation-playwright-guidelines.md).
+> This FAQ is a companion to the [Test Automation Guidelines](Playwright-e2e-test-automation-guidelines.md).
 
 ## Q: Why do we have single navigation in serial tests?
 

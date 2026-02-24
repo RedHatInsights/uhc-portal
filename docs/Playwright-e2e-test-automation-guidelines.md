@@ -1135,7 +1135,7 @@ yourFeaturePage: [
 
 ## Frequently Asked Questions (FAQ)
 
-For common questions about writing and debugging Playwright tests, see the dedicated **[Playwright FAQ](test-automation-playwright-faq.md)**.
+For common questions about writing and debugging Playwright tests, see the dedicated **[Playwright FAQ](Playwright-e2e-test-automation-faq.md)**.
 
 ---
 

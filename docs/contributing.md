@@ -137,7 +137,7 @@ See the [unit test guidelines](./unit-testing.md) for in-depth guidance on writi
 
 End-to-end tests are written using [Playwright](https://playwright.dev/).
 
-You can read more in the [dedicated `README`](../playwright/README.md) inside the `/playwright` folder and the [Test Automation Guidelines](test-automation-playwright-guidelines.md).
+You can read more in the [dedicated `README`](../playwright/README.md) inside the `/playwright` folder and the [Test Automation Guidelines](Playwright-e2e-test-automation-guidelines.md).
 
 ## Code assistants
 
