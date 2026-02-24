@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { FormGroup, Spinner } from '@patternfly/react-core';
 
 import { versionComparator } from '~/common/versionComparator';
-import { FieldId } from '~/components/clusters/wizards/common/constants';
+import { CloudProviderType, FieldId } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import ErrorBox from '~/components/common/ErrorBox';
@@ -59,6 +59,7 @@ export const VersionSelectField = ({
       [FieldId.ClusterVersion]: selectedClusterVersion,
       [FieldId.BillingModel]: billingModel,
       [FieldId.GcpAuthType]: gcpAuthType,
+      [FieldId.CloudProvider]: cloudProvider,
     },
     setFieldValue,
   } = useFormState();
@@ -73,7 +74,9 @@ export const VersionSelectField = ({
 
   const isMarketplaceGcp =
     billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp;
-  const isWIF = gcpAuthType === GCPAuthType.WorkloadIdentityFederation;
+  const isWIF =
+    gcpAuthType === GCPAuthType.WorkloadIdentityFederation &&
+    cloudProvider === CloudProviderType.Gcp;
 
   const getInstallableVersions = useCallback(
     () =>
