@@ -61,7 +61,7 @@ export const CidrRanges = () => {
     ? validators.AWS_MACHINE_CIDR_MAX_MULTI_AZ
     : validators.AWS_MACHINE_CIDR_MAX_SINGLE_AZ;
 
-  const privateRangesHint =
+  const privateRangesHint = (isMachineCidr?: boolean) =>
     cloudProvider === CloudProviderType.Gcp ? (
       <>
         <br />
@@ -69,6 +69,12 @@ export const CidrRanges = () => {
           The address must be a private IPv4 address, belonging to one of the following ranges:
           <List>
             <ListItem>10.0.0.0 – 10.255.255.255</ListItem>
+            {isMachineCidr ? (
+              <>
+                <ListItem>100.65.0.0 – 100.87.255.255</ListItem>
+                <ListItem>100.89.0.0 – 100.127.255.255</ListItem>
+              </>
+            ) : null}
             <ListItem>172.16.0.0 – 172.31.255.255</ListItem>
             <ListItem>192.168.0.0 – 192.168.255.255</ListItem>
           </List>
@@ -158,7 +164,7 @@ export const CidrRanges = () => {
               tooltip={
                 <>
                   {constants.machineCIDRHint}
-                  {privateRangesHint}
+                  {privateRangesHint(true)}
 
                   <Content component={ContentVariants.p}>
                     <ExternalLink href={docLinks.OSD_CIDR_MACHINE}>Learn more</ExternalLink>
@@ -183,7 +189,7 @@ export const CidrRanges = () => {
               tooltip={
                 <>
                   {constants.serviceCIDRHint}
-                  {privateRangesHint}
+                  {privateRangesHint()}
 
                   <Content component={ContentVariants.p}>
                     <ExternalLink href={docLinks.OSD_CIDR_SERVICE}>Learn more</ExternalLink>
@@ -208,7 +214,7 @@ export const CidrRanges = () => {
               tooltip={
                 <>
                   {constants.podCIDRHint}
-                  {privateRangesHint}
+                  {privateRangesHint()}
 
                   <Content component={ContentVariants.p}>
                     <ExternalLink href={docLinks.OSD_CIDR_POD}>Learn more</ExternalLink>

@@ -12,12 +12,13 @@ const awsMachineSingleAZSubnetMask = validators.awsSubnetMask(FieldId.NetworkMac
 const awsMachineMultiAZSubnetMask = validators.awsSubnetMask(FieldId.NetworkMachineCidrMultiAz);
 const awsServiceSubnetMask = validators.awsSubnetMask(FieldId.NetworkServiceCidr);
 
-export const validateCidr = (value: string) => (cloudProvider: CloudProviderType) =>
-  required(value) ||
-  validators.cidr(value) ||
-  validators.validateRange(value) ||
-  (cloudProvider === CloudProviderType.Gcp && validators.privateAddress(value)) ||
-  undefined;
+export const validateCidr =
+  (value: string, isMachineCidr?: boolean) => (cloudProvider: CloudProviderType) =>
+    required(value) ||
+    validators.cidr(value) ||
+    validators.validateRange(value) ||
+    (cloudProvider === CloudProviderType.Gcp && validators.privateAddress(value, isMachineCidr)) ||
+    undefined;
 
 export const validateMachineCidr =
   (value: string) => (values: FormikValues, selectedSubnets?: Subnet[]) => {
@@ -25,7 +26,7 @@ export const validateMachineCidr =
     const isMultiAz = multiAz === 'true';
 
     return (
-      validateCidr(value)(cloudProvider) ||
+      validateCidr(value, true)(cloudProvider) ||
       (cloudProvider === CloudProviderType.Aws && validators.awsMachineCidr(value, values)) ||
       (cloudProvider === CloudProviderType.Gcp && validators.gcpMachineCidr(value, values)) ||
       validators.validateRange(value) ||
