@@ -3,7 +3,7 @@ import { test, expect } from '../../fixtures/pages';
 // External links constants
 const LINKS = {
   AWS_GOVCLOUD_ROSA:
-    'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/getting_started_with_rosa_govcloud/index',
+    'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/getting_started_with_red_hat_openshift_service_on_aws_in_aws_govcloud/index',
   FEDRAMP_REQUEST_FORM: 'https://console.redhat.com/openshift/create/rosa/govcloud',
   AWS_CONSOLE_GET_STARTED: 'https://console.aws.amazon.com/rosa/home#/get-started',
   AWS_ROSA_GETTING_STARTED:
@@ -25,7 +25,7 @@ const LINKS = {
   ROSA_HCP_CLI_DEPLOY:
     'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_clusters/rosa-hcp-sts-creating-a-cluster-quickly',
   ROSA_TERRAFORM:
-    'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_clusters/creating-a-rosa-cluster-using-terraform',
+    'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_clusters/creating-a-red-hat-openshift-service-on-aws-cluster-with-terraform',
   TERRAFORM_REGISTRY:
     'https://registry.terraform.io/providers/terraform-redhat/rhcs/latest/docs/guides/hosted-control-planes',
 } as const;
