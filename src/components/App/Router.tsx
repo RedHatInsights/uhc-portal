@@ -273,7 +273,13 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         {isClusterTransferOwnershipEnabled ? (
           <Route
             path="/cluster-request"
-            element={isTabbedClustersEnabled ? <Clusters /> : <ClusterRequestList />}
+            element={
+              isTabbedClustersEnabled ? (
+                <Navigate replace to="/clusters/requests" />
+              ) : (
+                <ClusterRequestList />
+              )
+            }
           />
         ) : null}
         <Route
