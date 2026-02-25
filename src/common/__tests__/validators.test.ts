@@ -377,6 +377,10 @@ describe('Field is a private IP address', () => {
     ['100.127.0.0/16', 'Range is not private.', undefined],
     ['100.88.0.0/16', 'Range is not private.', true],
     ['100.128.0.0/16', 'Range is not private.', true],
+    ['100.65.0.0/16', undefined, true],
+    ['100.64.255.255/16', 'Range is not private.', true],
+    ['100.89.0.0/16', undefined, true],
+    ['100.87.0.0/9', 'Range is not private.', true],
   ])(
     'value %p to be %p',
     (value: string | undefined, expected: string | undefined, isMachineCidr?: boolean) => {
