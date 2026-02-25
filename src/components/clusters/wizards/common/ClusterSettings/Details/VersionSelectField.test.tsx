@@ -6,7 +6,7 @@ import {
   lifecycleResponseData,
   versionsData,
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/VersionSelectField.fixtures';
-import { FieldId } from '~/components/clusters/wizards/common/constants';
+import { CloudProviderType, FieldId } from '~/components/clusters/wizards/common/constants';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
 import clusterService from '~/services/clusterService';
@@ -35,6 +35,7 @@ const marketplaceGcpValues = {
 const wifValues = {
   [FieldId.BillingModel]: SubscriptionCommonFieldsClusterBillingModel.standard,
   [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+  [FieldId.CloudProvider]: CloudProviderType.Gcp,
 };
 
 describe('<VersionSelectField />', () => {
