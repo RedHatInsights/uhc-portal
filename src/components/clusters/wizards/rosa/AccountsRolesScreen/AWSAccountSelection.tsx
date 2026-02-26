@@ -22,7 +22,7 @@ import { CloudAccount } from '~/types/accounts_mgmt.v1';
 import { FuzzySelect } from '../../../../common/FuzzySelect/FuzzySelect';
 import PopoverHint from '../../../../common/PopoverHint';
 
-import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/AssociateAWSAccountDrawer';
+import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
 import { getContract } from './AWSBillingAccount/awsBillingAccountHelper';
 
 import './AccountsRolesScreen.scss';
@@ -71,6 +71,7 @@ export interface AWSAccountSelectionProps {
   isBillingAccount?: boolean;
   clearGetAWSAccountIDsResponse: () => void;
   required?: boolean;
+  isHypershiftSelected?: boolean;
 }
 
 function AWSAccountSelection({
@@ -91,13 +92,14 @@ function AWSAccountSelection({
   refresh,
   clearGetAWSAccountIDsResponse,
   required = true,
+  isHypershiftSelected = false,
 }: AWSAccountSelectionProps) {
   const [isOpen, setIsOpen] = useState(false);
   const associateAWSAccountBtnRef = createRef<HTMLInputElement>();
   const hasAWSAccounts = accounts?.length > 0;
   const { onRefresh, text } = refresh;
   const { onChange } = inputProps;
-  const { openDrawer } = useAssociateAWSAccountDrawer();
+  const { openDrawer } = useAssociateAWSAccountDrawer(isHypershiftSelected);
 
   useEffect(() => {
     // only scroll to associateAWSAccountBtn when no AWS accounts

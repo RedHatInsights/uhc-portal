@@ -30,7 +30,13 @@ function AWSAccountRolesError({
       : 'Error getting AWS account ARNs';
 
     if (hasFailedToAssumeRoleError || isMissingOCMRole)
-      return <AwsRoleErrorAlert title={alertTitle} targetRole="ocm" />;
+      return (
+        <AwsRoleErrorAlert
+          title={alertTitle}
+          targetRole="ocm"
+          isHypershiftSelected={isHypershiftSelected}
+        />
+      );
 
     return <ErrorBox message={alertTitle} response={getAWSAccountRolesARNsResponse} />;
   }
@@ -53,7 +59,11 @@ function AWSAccountRolesError({
     );
 
   return (
-    <AwsRoleErrorAlert title="Some account roles ARNs were not detected" targetRole="account" />
+    <AwsRoleErrorAlert
+      title="Some account roles ARNs were not detected"
+      targetRole="account"
+      isHypershiftSelected={isHypershiftSelected}
+    />
   );
 }
 
