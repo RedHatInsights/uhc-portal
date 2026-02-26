@@ -13,7 +13,7 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
     RosaGetstartedPage.checkAnchorProperties(
       RosaGetstartedPage.rosaFedRampDoclink(),
       'Learn more about ROSA with hosted control planes in AWS GovCloud',
-      'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/getting_started_with_rosa_govcloud/index',
+      'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/getting_started_with_red_hat_openshift_service_on_aws_in_aws_govcloud/index',
       true,
     );
     RosaGetstartedPage.checkAnchorProperties(
@@ -224,7 +224,7 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
       RosaGetstartedPage.checkAnchorProperties(
         cy.get('a'),
         'deploy a ROSA HCP cluster',
-        'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_clusters/creating-a-rosa-cluster-using-terraform',
+        'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_clusters/creating-a-red-hat-openshift-service-on-aws-cluster-with-terraform',
         true,
       );
       RosaGetstartedPage.checkAnchorProperties(
