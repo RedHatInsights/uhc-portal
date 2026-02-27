@@ -217,11 +217,11 @@ installLinks.mjs
 supportLinks.mjs
 
 - access.redhat.com urls
-- support documentation (https://docs.redhat.com/en/documentation/openshift_container_platform/latest/html/support..)
+- support documentation (docs.redhat.com/en/documentation/openshift_container_platform/latest/html/support..)
 - knowledge base articles (access.redhat.com/articles/134..)
 
 docLinks.mjs
 
 - almost all docs.redhat.com/.. URLs
 - educational content, youtube tutorials
-- https://www.redhat.com/en/.. URLs
+- www.redhat.com/en/.. URLs
