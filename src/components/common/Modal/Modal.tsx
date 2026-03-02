@@ -29,7 +29,7 @@ const ModalDescription = ({ description, secondaryTitle }: ModalDescriptionProps
   if (secondaryTitle) {
     return (
       <div className="custom-modal__secondary-title">
-        <span className="custom-modal__secondary-title__label">Cluster</span> {secondaryTitle}
+        <span className="custom-modal__secondary-title__label">Cluster:</span> {secondaryTitle}
       </div>
     );
   }

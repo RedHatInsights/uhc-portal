@@ -16,8 +16,6 @@ import {
   ModalHeader,
   ModalVariant,
   Spinner,
-  Split,
-  SplitItem,
   StackItem,
   Tabs,
   Title,
@@ -296,11 +294,11 @@ const EditMachinePoolModal = ({
             <Title headingLevel="h1">{isEdit ? 'Edit machine pool' : 'Add machine pool'}</Title>
 
             {shouldDisplayClusterName ? (
-              <StackItem className="modal-secondary-title">
-                <Split>
-                  <SplitItem>Cluster&nbsp;</SplitItem>
-                  <SplitItem>{clusterName}</SplitItem>
-                </Split>
+              <StackItem>
+                <div className="pf-v6-u-font-size-sm pf-v6-u-mt-xs">
+                  <span className="pf-v6-u-color-200 pf-v6-u-mr-sm">Cluster:</span>
+                  {clusterName}
+                </div>
               </StackItem>
             ) : null}
             {!isEdit ? (
