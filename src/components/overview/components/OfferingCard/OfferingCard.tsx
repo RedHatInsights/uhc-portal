@@ -245,7 +245,7 @@ function OfferingCard(props: OfferingCardProps) {
       cardLogo = <RHLogo className="offering-logo" />;
       break;
     case 'MIGRATION':
-      offeringCardTitle = 'Evaluate VMware to Openshift Migration';
+      offeringCardTitle = 'Evaluate VMware to Openshift Migration Advisor';
       offeringCardLabel = 'Self-managed service';
       offeringCardShowSupportLevelBadge = true;
       offeringCardTextBody =

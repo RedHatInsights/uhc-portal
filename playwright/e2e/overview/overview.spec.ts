@@ -129,7 +129,7 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
     // Migration card
     await overviewPage.expectCardHasText(
       'offering-card_MIGRATION',
-      'Evaluate VMware to Openshift Migration',
+      'Evaluate VMware to Openshift Migration Advisor',
     );
     await overviewPage.expectCardHasLabel('offering-card_MIGRATION', 'Self-managed service');
 
