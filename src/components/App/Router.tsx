@@ -261,7 +261,11 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
         <Route
           path={CLUSTER_LIST_PATH}
           element={
-            isTabbedClustersEnabled ? <Clusters /> : <ClusterListMultiRegion getMultiRegion />
+            isTabbedClustersEnabled ? (
+              <Navigate replace to="/clusters/list" />
+            ) : (
+              <ClusterListMultiRegion getMultiRegion />
+            )
           }
         />
         <Route
