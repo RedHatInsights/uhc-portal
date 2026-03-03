@@ -46,16 +46,9 @@ objects:
                   title: Clusters
                   href: /openshift/clusters/list
                   product: Red Hat OpenShift Cluster Manager
-                - id: acm-hub-clusters
-                  title: ACM Hub Clusters
-                  href: /openshift/acm-hub-clusters
-                  product: Red Hat OpenShift Cluster Manager
                 - segmentRef:
                     segmentId: openshift-ocp-advisor
                     frontendName: ocp-advisor
-                  permissions:
-                    - method: featureFlag
-                      args: ["ocmui-acm-cluster-tagging", true] 
                 - id: vulnerability-dashboard
                   title: Vulnerability dashboard
                   expandable: true
