@@ -1,20 +1,27 @@
 // ClusterListEmptyState is the empty state (no clusters) for ClusterList
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
   Button,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
   EmptyState,
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
   EmptyStateVariant,
+  MenuToggle,
 } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 
 import { Link } from '~/common/routing';
 
 function ClusterListEmptyState({ showTabbedView }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleRef = useRef();
+
   return (
     <EmptyState
       headingLevel="h4"
@@ -28,17 +35,41 @@ function ClusterListEmptyState({ showTabbedView }) {
         OpenShift 4 cluster.
       </EmptyStateBody>
       <EmptyStateFooter>
-        <Link to="/create">
-          <Button data-testid="create_cluster_btn" className="pf-v6-u-mt-xl">
-            Create cluster
-          </Button>
-        </Link>
+        <Dropdown
+          isOpen={isOpen}
+          onSelect={() => setIsOpen(false)}
+          onOpenChange={setIsOpen}
+          className="pf-v6-u-mt-xl"
+          data-testid="add-cluster-dropdown"
+          toggle={{
+            toggleRef,
+            toggleNode: (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={() => setIsOpen(!isOpen)}
+                isExpanded={isOpen}
+                variant="primary"
+                data-testid="add-cluster-dropdown-toggle"
+              >
+                Add cluster
+              </MenuToggle>
+            ),
+          }}
+        >
+          <DropdownList>
+            <DropdownItem key="create-cluster" data-testid="create_cluster_btn">
+              <Link to="/create" className="pf-v6-c-dropdown__menu-item">
+                Create cluster
+              </Link>
+            </DropdownItem>
+            <DropdownItem key="register-cluster" data-testid="register-cluster-item">
+              <Link to="/register" className="pf-v6-c-dropdown__menu-item">
+                Register cluster
+              </Link>
+            </DropdownItem>
+          </DropdownList>
+        </Dropdown>
         <EmptyStateActions>
-          <Link to="/register">
-            <Button variant="link" data-testid="register-cluster-item">
-              Register cluster
-            </Button>
-          </Link>
           <Link to="/archived">
             <Button variant="link">View cluster archives</Button>
           </Link>
