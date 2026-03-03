@@ -3,7 +3,8 @@ import { useFormikContext } from 'formik';
 
 import { Content, ContentVariants } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
+import { isMajorMinorEqualOrGreater, splitVersion } from '~/common/versionHelpers';
 import { CheckboxField } from '~/components/clusters/wizards/form';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -13,24 +14,30 @@ import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
 
 const fieldId = 'isWindowsLicenseIncluded';
+const minimumCompatibleVersion = '4.19.0';
 
 type WindowsLicenseIncludedFieldProps = {
   isEdit?: boolean;
   currentMP?: NodePool;
+  clusterVersion?: string;
 };
 
 const {
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: AWS_DOCS_LINK,
   WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: REDHAT_DOCS_LINK,
-} = links;
+} = docLinks;
 
 const WindowsLicenseIncludedField = ({
   isEdit = false,
   currentMP,
+  clusterVersion = '',
 }: WindowsLicenseIncludedFieldProps) => {
   // Instance type field -> get isWinLiCompatible from the selected instance type:
   const { values } = useFormikContext<EditMachinePoolValues>();
   const isWinLiCompatible = !!values.instanceType?.features?.win_li;
+
+  const [major, minor] = splitVersion(minimumCompatibleVersion);
+  const isVersionCompatible = isMajorMinorEqualOrGreater(clusterVersion, major, minor);
 
   const isCurrentMPWinLiEnabled = isEdit && currentMP?.image_type === ImageType.Windows;
 
@@ -47,10 +54,19 @@ const WindowsLicenseIncludedField = ({
     </>
   );
 
-  const isDisabled = !isWinLiCompatible;
+  const isDisabled = !isVersionCompatible || !isWinLiCompatible;
+  let tooltip;
+
+  if (isDisabled) {
+    values.isWindowsLicenseIncluded = false;
+  }
 
   if (!isWinLiCompatible) {
-    values.isWindowsLicenseIncluded = false;
+    tooltip = 'This instance type is not Windows License Included compatible.';
+  }
+
+  if (!isVersionCompatible) {
+    tooltip = `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`;
   }
 
   return isEdit ? (
@@ -66,7 +82,7 @@ const WindowsLicenseIncludedField = ({
       isDisabled={isDisabled}
       hint={hint}
       showTooltip={isDisabled}
-      tooltip="This instance type is not Windows License Included compatible."
+      tooltip={tooltip}
       input={isDisabled ? { isChecked: false } : undefined}
     />
   );

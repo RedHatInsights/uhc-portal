@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import { Alert, Flex, Grid, GridItem, Title } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { awsNumericAccountID, required } from '~/common/validators';
 import {
   billingModelConstants,
@@ -51,7 +51,7 @@ export const AwsAccountDetails = () => {
                   aws sts get-caller-identity
                 </InstructionCommand>
                 <br />
-                <ExternalLink href={links.FINDING_AWS_ACCOUNT_IDENTIFIERS}>
+                <ExternalLink href={docLinks.FINDING_AWS_ACCOUNT_IDENTIFIERS}>
                   Finding your AWS account ID
                 </ExternalLink>
               </>

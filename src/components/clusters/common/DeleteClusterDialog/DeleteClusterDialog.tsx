@@ -89,7 +89,7 @@ const DeleteClusterDialog = ({ onClose, textContent, title }: DeleteClusterDialo
         submit();
       }}
       onSecondaryClick={cancelEdit}
-      isPrimaryDisabled={!isValid || isPending}
+      isPrimaryDisabled={!isValid}
       isPending={isPending}
       primaryVariant="danger"
       data-testid="delete-cluster-dialog"

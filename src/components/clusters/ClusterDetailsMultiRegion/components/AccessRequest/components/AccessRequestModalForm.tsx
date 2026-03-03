@@ -131,11 +131,7 @@ const AccessRequestModalForm = () => {
           onPrimaryClick={formik.handleSubmit}
           onSecondaryClick={handleClose}
           isPrimaryDisabled={
-            isEditMode &&
-            (!formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              isPostAccessRequestDecisionPending)
+            isEditMode && (!formik.isValid || !formik.dirty || formik.isSubmitting)
           }
           id="access-request-modal"
           isPending={isLoading}

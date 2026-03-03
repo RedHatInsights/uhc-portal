@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { Button, Icon, Popover } from '@patternfly/react-core';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { ClusterTransferStatus } from '~/types/accounts_mgmt.v1';
 
 import ExternalLink from '../../common/ExternalLink';
@@ -38,7 +38,7 @@ const TransferOwnerStatus = ({
     <div className="pf-v6-u-font-family-text">
       If you don&apos;t accept the transfer in <strong>{timeUntilExpiryString}</strong>, the request
       will expire.{' '}
-      <ExternalLink href={links.TRANSFER_CLUSTER_OWNERSHIP}>
+      <ExternalLink href={docLinks.TRANSFER_CLUSTER_OWNERSHIP}>
         <Button variant="link" isInline component="span">
           Learn more about cluster ownership transfer
         </Button>

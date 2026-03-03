@@ -1,6 +1,6 @@
 import React from 'react';
 
-import installLinks from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { required, validateGCPServiceAccount } from '~/common/validators';
 import { FileUploadField } from '~/components/clusters/wizards/form';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
@@ -23,7 +23,7 @@ const ServiceAccount = () => {
               To create a service account JSON file, create a key for your service account, export
               it to a file and upload it to this field.
             </p>
-            <ExternalLink href={installLinks.GCP_SERVICE_ACCOUNT_KEYS}>
+            <ExternalLink href={docLinks.GCP_SERVICE_ACCOUNT_KEYS}>
               Learn how to create service account keys
             </ExternalLink>
           </>

@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { useFormState } from '~/components/clusters/wizards/hooks';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
-import { render, screen } from '~/testUtils';
+import { mockUseFormState, render, screen } from '~/testUtils';
 
 import CreateRosaWizardFooter from './CreateRosaWizardFooter';
 
@@ -39,22 +38,16 @@ jest.mock('~/queries/ClusterDetailsQueries/useFetchActionsPermissions', () => ({
 const wizardPrimaryBtnTestId = 'wizard-next-button';
 
 describe('<CreateRosaWizardFooter />', () => {
-  const mockedUseFormState = useFormState as jest.Mock;
-
-  const useFormStateReturnValue = {
-    setFieldTouched: jest.fn(),
-    setFieldValue: jest.fn(),
-    getFieldProps: jest.fn(),
-    getFieldMeta: jest.fn().mockReturnValue({}),
-    values: {},
-  };
-
   const props = {
     accountAndRolesStepId: 'mockStepId',
     getUserRoleResponse: {},
     getUserRoleInfo: jest.fn(),
     onWizardContextChange: jest.fn(),
   };
+
+  beforeEach(() => {
+    mockUseFormState();
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -64,7 +57,6 @@ describe('<CreateRosaWizardFooter />', () => {
     (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
       canCreateManagedCluster: false,
     });
-    mockedUseFormState.mockReturnValue(useFormStateReturnValue);
     render(<CreateRosaWizardFooter {...props} />);
     expect(screen.getByTestId(wizardPrimaryBtnTestId)).toHaveAttribute('disabled');
   });
@@ -73,7 +65,6 @@ describe('<CreateRosaWizardFooter />', () => {
     (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
       canCreateManagedCluster: true,
     });
-    mockedUseFormState.mockReturnValue(useFormStateReturnValue);
     render(<CreateRosaWizardFooter {...props} />);
     expect(screen.getByTestId(wizardPrimaryBtnTestId)).not.toHaveAttribute('aria-disabled');
   });

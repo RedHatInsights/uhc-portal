@@ -1,5 +1,4 @@
-import { useFormState } from '~/components/clusters/wizards/hooks';
-import { render, renderHook, screen } from '~/testUtils';
+import { mockUseFormState, render, renderHook, screen } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { useSecurityGroupsSubTab } from './SecurityGroupsSubTab';
@@ -34,13 +33,12 @@ describe('SecurityGroupsSubTab', () => {
       expect(screen.queryByLabelText('Validation error on this tab')).not.toBeInTheDocument();
     }
   };
-  const mockedUseFormState = useFormState as jest.MockedFunction<typeof useFormState>;
 
-  mockedUseFormState.mockReturnValue({
-    values: { securityGroupIds: ['sg-01234567890123456'] },
-    setFieldValue: jest.fn(),
-    setFieldTouched: jest.fn(),
-  } as any);
+  beforeEach(() => {
+    mockUseFormState({
+      values: { securityGroupIds: ['sg-01234567890123456'] },
+    });
+  });
 
   afterEach(() => {
     jest.clearAllMocks();

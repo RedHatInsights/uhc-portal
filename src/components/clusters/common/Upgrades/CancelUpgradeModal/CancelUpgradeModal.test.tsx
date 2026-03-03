@@ -81,7 +81,7 @@ describe('<CancelUpgradeModal />', () => {
   it('calls deleteSchedule when button is clicked', async () => {
     mockUseGlobalState.mockReturnValue(scheduleMock);
     const { user } = await render(<CancelUpgradeModal {...defaultProps} />);
-    expect(mockMutate).not.toBeCalled();
+    expect(mockMutate).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: 'Cancel this update' }));
     expect(mockMutate).toHaveBeenCalledTimes(1);

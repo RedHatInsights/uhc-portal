@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Alert } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { Link } from '~/common/routing';
 import ExternalLink from '~/components/common/ExternalLink';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
@@ -46,7 +46,7 @@ const ResizingAlert = ({
       <p>
         Node scaling is automatic and will be performed immediately. Scaling node count beyond Red
         Hat&apos;s{' '}
-        <ExternalLink href={links.ROSA_CLASSIC_AWS_LIMITS_SCALE} noIcon>
+        <ExternalLink href={docLinks.ROSA_CLASSIC_AWS_LIMITS_SCALE} noIcon>
           documented thresholds
         </ExternalLink>{' '}
         may trigger manual Red Hat SRE intervention to vertically scale your Infrastructure and

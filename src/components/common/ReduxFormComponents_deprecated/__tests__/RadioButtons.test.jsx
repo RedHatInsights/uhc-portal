@@ -40,12 +40,12 @@ describe('<RadioButtons />', () => {
 
   it('calls onChange to change to default value on initial render', () => {
     render(<RadioButtons {...props} />);
-    expect(onChange).toBeCalledWith('test-default');
+    expect(onChange).toHaveBeenCalledWith('test-default');
   });
 
   it('calls onChange properly when user clicks on a radio button', async () => {
     const { user } = render(<RadioButtons {...props} />);
-    expect(onChange).toBeCalledWith('test-default');
+    expect(onChange).toHaveBeenCalledWith('test-default');
     await user.click(screen.getByLabelText('Option 1'));
 
     expect(onChange).toHaveBeenLastCalledWith('option-1');
@@ -53,7 +53,7 @@ describe('<RadioButtons />', () => {
 
   it('reverts to default when value is changed to empty string', () => {
     const { rerender } = render(<RadioButtons {...props} />);
-    expect(onChange).toBeCalledTimes(1);
+    expect(onChange).toHaveBeenCalledTimes(1);
 
     const newProps = {
       ...props,
@@ -62,7 +62,7 @@ describe('<RadioButtons />', () => {
 
     rerender(<RadioButtons {...newProps} />);
 
-    expect(onChange).toBeCalledTimes(2);
+    expect(onChange).toHaveBeenCalledTimes(2);
     expect(onChange).toHaveBeenLastCalledWith('test-default');
   });
 });

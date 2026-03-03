@@ -107,35 +107,28 @@ describe('<AddNotificationContactDialog />', () => {
     expect(addNotificationContactMock).toHaveBeenCalledTimes(0);
   });
 
-  // TODO: investigate why this fails
-  it.skip('after typing username', async () => {
+  it('after typing username', async () => {
     // Arrange
     const inputValue = 'whatever';
-    // +1 because the initial render
-    for (let i = 0; i < inputValue.length + 1; i += 1) {
-      useGlobalStateMock.mockReturnValueOnce(true);
-    }
+    // Use mockReturnValue to ensure modal stays open for all renders during typing
+    useGlobalStateMock.mockReturnValue(true);
 
     render(
       <AddNotificationContactDialog cluster={defaultClusterFromSubscription} {...defaultProps} />,
     );
 
     // Act
-
     await userEvent.type(screen.getByRole('textbox', { name: /user name/i }), inputValue);
 
     // Assert
-    // TODO: check whether the add contact is getEnabledHostCount, can be clicked and proper methods are called
     expect(screen.getByRole('button', { name: /add contact/i })).not.toHaveAttribute('disabled');
   });
-  // TODO: investigate why this fails
-  it.skip('invalid typing', async () => {
+
+  it('invalid typing', async () => {
     // Arrange
     const inputValue = '#@~#@~#@~#';
-    // +1 because the initial render
-    for (let i = 0; i < inputValue.length + 1; i += 1) {
-      useGlobalStateMock.mockReturnValueOnce(true);
-    }
+    // Use mockReturnValue to ensure modal stays open for all renders during typing
+    useGlobalStateMock.mockReturnValue(true);
 
     render(
       <AddNotificationContactDialog cluster={defaultClusterFromSubscription} {...defaultProps} />,

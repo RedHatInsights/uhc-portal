@@ -1,6 +1,7 @@
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import ClusterDetails from '../../pageobjects/ClusterDetails.page';
 import ClusterIdentityProviderDetails from '../../pageobjects/ClusterAddIdentityProvider.page';
+import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 const clusterProfiles = require('../../fixtures/rosa-hosted/RosaHostedClusterCreatePublic.json');
 const clusterProperties = clusterProfiles['rosa-hosted-public']['day2-profile'];
@@ -19,7 +20,7 @@ describe(
           /Navigate to the ROSA Hosted Access Control tab for .* cluster/,
         )
       ) {
-        cy.visit('/cluster-list');
+        cy.visit(CLUSTER_LIST_PATH);
         ClusterListPage.waitForDataReady();
         ClusterListPage.isClusterListScreen();
         ClusterListPage.filterTxtField().should('be.visible').click();

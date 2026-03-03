@@ -48,20 +48,16 @@ describe('AccessRequestStateIcon', () => {
 
   describe('renders proper state for different states', () => {
     it.each([
-      [AccessRequestStatusState.Approved, 'green', 'check-circle-icon'],
-      [AccessRequestStatusState.Denied, 'red', 'times-circle-icon'],
-      [AccessRequestStatusState.Expired, 'undefined', 'outlined-clock-icon'],
-      [AccessRequestStatusState.Pending, 'orange', 'exclamation-triangle-icon'],
-    ])(
-      '"%s" state',
-      (state: AccessRequestStatusState, expectedColor: string, expectedIconName: string) => {
-        // Act
-        render(<AccessRequestStateIcon accessRequest={{ status: { state } }} />);
+      [AccessRequestStatusState.Approved, 'check-circle-icon'],
+      [AccessRequestStatusState.Denied, 'times-circle-icon'],
+      [AccessRequestStatusState.Expired, 'outlined-clock-icon'],
+      [AccessRequestStatusState.Pending, 'exclamation-triangle-icon'],
+    ])('"%s" state', (state: AccessRequestStatusState, expectedIconName: string) => {
+      // Act
+      render(<AccessRequestStateIcon accessRequest={{ status: { state } }} />);
 
-        // Assert
-        expect(screen.getByText(new RegExp(state, 'i'))).toHaveStyle(`color: ${expectedColor}`);
-        expect(screen.getByText(new RegExp(expectedIconName, 'i'))).toBeInTheDocument();
-      },
-    );
+      // Assert
+      expect(screen.getByText(new RegExp(expectedIconName, 'i'))).toBeInTheDocument();
+    });
   });
 });

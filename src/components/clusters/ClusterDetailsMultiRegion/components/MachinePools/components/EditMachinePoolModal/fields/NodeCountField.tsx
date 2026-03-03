@@ -3,8 +3,8 @@ import { useField } from 'formik';
 
 import { FormGroup, SelectOption, Tooltip } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import { noQuotaTooltip } from '~/common/helpers';
-import links from '~/common/installLinks.mjs';
 import { normalizeProductID } from '~/common/normalize';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
@@ -76,7 +76,7 @@ const NodeCountField = ({
               {isRosa && (
                 <>
                   <br />
-                  <ExternalLink href={links.ROSA_WORKER_NODE_COUNT}>
+                  <ExternalLink href={docLinks.ROSA_WORKER_NODE_COUNT}>
                     Learn more about worker/compute node count
                   </ExternalLink>
                 </>

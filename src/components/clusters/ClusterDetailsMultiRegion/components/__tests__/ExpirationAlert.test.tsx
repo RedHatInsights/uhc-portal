@@ -94,14 +94,14 @@ describe('<ExpirationAlert />', () => {
             cluster={cluster}
           />,
         );
-        expect(mockedDispatch).toBeCalledTimes(0);
+        expect(mockedDispatch).toHaveBeenCalledTimes(0);
 
         // Act
         await user.click(screen.getByTestId('trial-button'));
 
         // Assert
-        expect(mockedDispatch).toBeCalledTimes(1);
-        expect(modalActions.openModal).toBeCalledWith(modals.UPGRADE_TRIAL_CLUSTER, {
+        expect(mockedDispatch).toHaveBeenCalledTimes(1);
+        expect(modalActions.openModal).toHaveBeenCalledWith(modals.UPGRADE_TRIAL_CLUSTER, {
           title: 'Upgrade cluster from Trial',
           clusterID: 'id',
           cluster,

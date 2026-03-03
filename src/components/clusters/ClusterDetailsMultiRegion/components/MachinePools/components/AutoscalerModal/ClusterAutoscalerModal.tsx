@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import { Content, Form, FormSection, Grid, GridItem, Switch } from '@patternfly/react-core';
 
-import installLinks from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { clusterAutoScalingValidators, validateListOfBalancingLabels } from '~/common/validators';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
 import {
@@ -225,14 +225,12 @@ export const ClusterAutoscalerModal = ({
           The cluster autoscaler adjusts the size of a cluster to meet its current deployment needs.
           Learn more about{' '}
           <ExternalLink
-            href={
-              isRosa ? installLinks.ROSA_CLUSTER_AUTOSCALING : installLinks.OSD_CLUSTER_AUTOSCALING
-            }
+            href={isRosa ? docLinks.ROSA_CLUSTER_AUTOSCALING : docLinks.OSD_CLUSTER_AUTOSCALING}
           >
             cluster autoscaling
           </ExternalLink>{' '}
           or
-          <ExternalLink href={installLinks.APPLYING_AUTOSCALING_API_DETAIL}> APIs</ExternalLink>.
+          <ExternalLink href={docLinks.APPLYING_AUTOSCALING_API_DETAIL}> APIs</ExternalLink>.
         </Content>
         {!isWizard && (
           <div className="pf-v6-u-mt-md">

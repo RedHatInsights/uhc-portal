@@ -1,5 +1,5 @@
 import { accountsService, clusterService } from '../../services';
-import { getClusterServiceForRegion } from '../../services/clusterService';
+import * as clusterServiceModule from '../../services/clusterService';
 import { clustersConstants } from '../constants';
 import { INVALIDATE_ACTION } from '../reduxHelpers';
 
@@ -7,7 +7,17 @@ import { clustersActions } from './clustersActions';
 
 jest.mock('../../services/accountsService');
 jest.mock('../../services/authorizationsService');
-jest.mock('../../services/clusterService');
+jest.mock('../../services/clusterService', () => {
+  const mockClusterService = {
+    postNewCluster: jest.fn(),
+    getInstallableVersions: jest.fn(),
+  };
+  return {
+    __esModule: true,
+    default: mockClusterService,
+    getClusterServiceForRegion: jest.fn(() => mockClusterService),
+  };
+});
 
 describe('clustersActions', () => {
   let mockDispatch;
@@ -30,7 +40,7 @@ describe('clustersActions', () => {
     it('dispatches successfully', () => {
       const fakeParams = { fake: 'params' };
       clustersActions.createCluster(fakeParams)(mockDispatch);
-      expect(mockDispatch).toBeCalledWith({
+      expect(mockDispatch).toHaveBeenCalledWith({
         payload: expect.anything(),
         type: clustersConstants.CREATE_CLUSTER,
       });
@@ -39,17 +49,27 @@ describe('clustersActions', () => {
     it('calls clusterService.postNewCluster', () => {
       const fakeParams = { fake: 'params' };
       clustersActions.createCluster(fakeParams)(mockDispatch);
-      expect(clusterService.postNewCluster).toBeCalledWith(fakeParams);
+      expect(clusterService.postNewCluster).toHaveBeenCalledWith(fakeParams);
     });
 
-    // skipping as test suites have issues with getClusterServiceForRegion()
-    it.skip('calls regionalClusterService.postNewCluster when regionalId exists', () => {
+    it('calls regionalClusterService.postNewCluster when regionalId exists', () => {
       const fakeCluster = { fake: 'params' };
       const fakeUpgradeSchedule = { fake: 'params' };
       const fakeRegionalId = 'aws.ap-southeast-1.stage';
-      const regionalClusterService = getClusterServiceForRegion(fakeRegionalId);
+      const mockedPostNewCluster = jest.fn();
+      const mockGetClusterServiceForRegion = jest.spyOn(
+        clusterServiceModule,
+        'getClusterServiceForRegion',
+      );
+      mockGetClusterServiceForRegion.mockReturnValue({
+        postNewCluster: mockedPostNewCluster,
+      });
+      mockedPostNewCluster.mockResolvedValue({ data: { id: 'cluster-id' } });
+
       clustersActions.createCluster(fakeCluster, fakeUpgradeSchedule, fakeRegionalId)(mockDispatch);
-      expect(regionalClusterService.postNewCluster).toHaveBeenCalledWith(fakeCluster);
+
+      expect(mockGetClusterServiceForRegion).toHaveBeenCalledWith(fakeRegionalId);
+      expect(mockedPostNewCluster).toHaveBeenCalledWith(fakeCluster);
     });
   });
 
@@ -65,7 +85,7 @@ describe('clustersActions', () => {
     it('calls clusterService.getClusterDetails', () => {
       const fakeParams = { fake: 'params' };
       clustersActions.fetchClusterDetails(fakeParams);
-      expect(accountsService.getSubscription).toBeCalledWith(fakeParams);
+      expect(accountsService.getSubscription).toHaveBeenCalledWith(fakeParams);
     });
   });
 
@@ -84,7 +104,7 @@ describe('clustersActions', () => {
       const isMarketplaceGcp = true;
       const isHCP = true;
       clustersActions.getInstallableVersions({ isRosa, isMarketplaceGcp, isHCP });
-      expect(clusterService.getInstallableVersions).toBeCalledWith({
+      expect(clusterService.getInstallableVersions).toHaveBeenCalledWith({
         isRosa,
         isMarketplaceGcp,
         isHCP,

@@ -81,7 +81,7 @@ const EditConsoleURLDialog = ({ onClose }: EditConsoleURLDialogProps) => {
       secondaryText="Cancel"
       onPrimaryClick={handleSubmit}
       onSecondaryClick={cancelEdit}
-      isPrimaryDisabled={!!validationMessage || !beenSet || isPending}
+      isPrimaryDisabled={!!validationMessage || !beenSet}
       isPending={isPending}
     >
       <>

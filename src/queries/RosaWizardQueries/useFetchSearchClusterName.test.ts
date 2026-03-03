@@ -17,12 +17,12 @@ describe('useFetchSearchClusterName hook', () => {
     jest.clearAllMocks();
   });
 
-  // skipping because the mocked request is returning "status: 500" error
-  it.skip('Get useFetchSearchClusterName valid response', async () => {
+  it('Get useFetchSearchClusterName valid response', async () => {
     const search = 'existing-cluster-name';
 
     // Mock the network request using axios
-    apiRequestMock.get.mockResolvedValueOnce(mockedExistingSearchedCluster);
+    // searchClusters uses POST, and returns { data: { items: [...] } }
+    apiRequestMock.post.mockResolvedValueOnce({ data: mockedExistingSearchedCluster });
 
     const { result } = renderHook(() => useFetchSearchClusterName(search, undefined));
 
@@ -34,6 +34,7 @@ describe('useFetchSearchClusterName hook', () => {
     });
 
     expect(result.current.isError).toBe(false);
-    expect(result.current.data).toEqual(mockedExistingSearchedCluster);
+    // The hook returns !!response?.data?.items?.length, which is true when items exist
+    expect(result.current.data).toBe(true);
   });
 });

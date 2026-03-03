@@ -2,7 +2,9 @@ import React from 'react';
 
 import { Content, ContentVariants } from '@patternfly/react-core';
 
-import links, { channels, tools } from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
+import { channels, tools } from '~/common/installLinks.mjs';
+import supportLinks from '~/common/supportLinks.mjs';
 import DownloadAndOSSelection from '~/components/clusters/install/instructions/components/DownloadAndOSSelection';
 import ExternalLink from '~/components/common/ExternalLink';
 
@@ -21,7 +23,7 @@ const StepDownloadROSACli = () => (
           <DownloadAndOSSelection tool={tools.ROSA} channel={channels.STABLE} />
         </div>
         <Content component="p">
-          <ExternalLink href={links.ROSA_CLI_DOCS}>Help with ROSA CLI setup</ExternalLink>
+          <ExternalLink href={supportLinks.ROSA_CLI_DOCS}>Help with ROSA CLI setup</ExternalLink>
         </Content>
       </Content>
       <Content component="li">
@@ -29,8 +31,10 @@ const StepDownloadROSACli = () => (
           Download, setup and configure the AWS CLI version 2
         </Content>
         <Content component={ContentVariants.p} className="pf-v6-u-mt-md">
-          Learn more about <ExternalLink href={links.AWS_CLI}>installing</ExternalLink> and{' '}
-          <ExternalLink href={links.AWS_CLI_CONFIGURATION_INSTRUCTIONS}>configuring</ExternalLink>{' '}
+          Learn more about <ExternalLink href={docLinks.AWS_CLI}>installing</ExternalLink> and{' '}
+          <ExternalLink href={docLinks.AWS_CLI_CONFIGURATION_INSTRUCTIONS}>
+            configuring
+          </ExternalLink>{' '}
           the AWS CLI.
         </Content>
       </Content>

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { GridItem, Title } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
@@ -36,7 +36,7 @@ function UserWorkloadMonitoringSection({ parent, disableUVM, planType, rosaMonit
           <>
             {constants.enableUserWorkloadMonitoringHelp}{' '}
             {isROSA || isOSD ? (
-              <ExternalLink href={isROSA ? rosaMonitoringLink : links.OSD_MONITORING_STACK}>
+              <ExternalLink href={isROSA ? rosaMonitoringLink : docLinks.OSD_MONITORING_STACK}>
                 Learn more
               </ExternalLink>
             ) : null}

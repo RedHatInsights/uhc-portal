@@ -16,7 +16,7 @@ describe('clustersActions', () => {
     it('dispatches successfully', () => {
       const mockGetState = jest.fn().mockImplementation(() => ({}));
       userActions.getOrganizationAndQuota({})(mockDispatch, mockGetState);
-      expect(mockDispatch).toBeCalledWith({
+      expect(mockDispatch).toHaveBeenCalledWith({
         payload: expect.anything(),
         type: userConstants.GET_ORGANIZATION,
       });

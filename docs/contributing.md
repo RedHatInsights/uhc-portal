@@ -23,11 +23,11 @@ Following [RedHat's Information Security guidelines](https://source.redhat.com/d
 To install, follow the [_quickstart-install_ section of the rh-pre-commit repo docs](https://gitlab.cee.redhat.com/infosec-public/developer-workbench/tools/-/tree/main/rh-pre-commit#quickstart-install) (which is part of the general [LeakTK rh-pre-commit installation guide](https://source.redhat.com/departments/operations/it-information-security/leaktk/leaktk_guides/rh_pre_commit_installation)).
 
 See the [Information security](#information-security) section below for details on what constitutes sensitive data.
-                   
+
 > [!NOTE]
-> 
+>
 > When running the quickstart.sh installation script, make sure to use the `-r` flag with the local repo path as value; If omitted, the hook will be installed for all existing repos under the home dir.
-> 
+>
 > Note that regardless of that flag, any future repo-clones on your system will have the hook installed automatically.
 
 ## Insights "Chrome" Architecture
@@ -135,9 +135,9 @@ See the [unit test guidelines](./unit-testing.md) for in-depth guidance on writi
 
 ### End-to-end tests
 
-End-to-end tests are written using [Cypress](https://www.cypress.io/).
+End-to-end tests are written using [Playwright](https://playwright.dev/).
 
-You can read more in the [dedicated `README`](../cypress/README.md) inside the `/cypress` folder.
+You can read more in the [dedicated `README`](../playwright/README.md) inside the `/playwright` folder and the [Test Automation Guidelines](Playwright-e2e-test-automation-guidelines.md).
 
 ## Code assistants
 
@@ -145,23 +145,23 @@ You can read more in the [dedicated `README`](../cypress/README.md) inside the `
 
 When using AI tools to write, modify, or generate code or documentation make sure to always follow these guidelines:
 
-* Treat AI-generated code as suggestions, not final code. Review all the generated code and modify as appropriate. Thoroughly review and test all code that you intend to integrate into your work.
-* Do not blindly trust AI-generated or assisted code. Always apply your own judgment and expertise. AI coding assistants can introduce security vulnerabilities if not used carefully, and AI models can sometimes hallucinate and provide incorrect or non-functional code.
-* Make sure you thoroughly understand any AI-generated code. If the generated code you intend to incorporate in your work is outside your expertise, consult with someone knowledgeable in the area prior to making it available to others.
-* Never input confidential, personal or proprietary data, such as API keys, customer data, or protected content like passwords and credentials directly into code assistants.
+- Treat AI-generated code as suggestions, not final code. Review all the generated code and modify as appropriate. Thoroughly review and test all code that you intend to integrate into your work.
+- Do not blindly trust AI-generated or assisted code. Always apply your own judgment and expertise. AI coding assistants can introduce security vulnerabilities if not used carefully, and AI models can sometimes hallucinate and provide incorrect or non-functional code.
+- Make sure you thoroughly understand any AI-generated code. If the generated code you intend to incorporate in your work is outside your expertise, consult with someone knowledgeable in the area prior to making it available to others.
+- Never input confidential, personal or proprietary data, such as API keys, customer data, or protected content like passwords and credentials directly into code assistants.
 
 ### "Marking" generated code
 
 Any nontrivial and substantial AI-generated or AI-assisted content needs to be “marked” in appropriate cases.
 
-You have to mark at least two places: 
-* the PR description field
-* the commit message when squashing and merging the PR
+You have to mark at least two places:
+
+- the PR description field
+- the commit message when squashing and merging the PR
 
 You should use a message like “Assisted-by:” or “Generated-by:”. For example: "Assisted-by: Cursor/gemini-2.5-pro". You can eventually elaborate on how the code assistant was used if necessary.
 
 When a significant portion of code inside a file is generated or assisted, you should add a source file comment to indicate it.
-
 
 ## OpenAPI types definitions
 
@@ -181,7 +181,6 @@ yarn storybook
 
 Storybook will be available locally at `http://localhost:6006/`.
 
-
 A component’s stories are defined in a story file that lives alongside the component file. The story file is for development-only, and it won't be included in the production bundle.
 When adding a component to storybook, please create stories in separate files using the `.stories.tsx` suffix. For example, to add stories to a component named "MySelect.tsx", create a separate `MySelect.stories.tsx` file in the same folder.
 
@@ -192,7 +191,7 @@ You can have a look at storybook docs for more info about [how to write stories]
 Please follow the guidelines described in the [Pull Request Process document](./pull-request-process.md) when opening new PRs.
 
 For external contributors: If you need a pull request review, please message the OCM UI team at the `#ocm-osd-ui` Slack channel.
-                                                              
+
 ## Information security
 
 When proposing changes, take care to:
@@ -203,4 +202,3 @@ When proposing changes, take care to:
 - According to FedRAMP guidance, not include any instances of in-boundary names (e.g. domains, URLs)
 
 If you have any doubts on whether data is sensitive or not, please reach out to OCM UI Core team or Infosec team first, before pushing any code.
-

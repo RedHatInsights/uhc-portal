@@ -13,8 +13,8 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import { constructSelectedSubnets } from '~/common/helpers';
-import links from '~/common/installLinks.mjs';
 import validators, { required } from '~/common/validators';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import {
@@ -113,7 +113,7 @@ export const CidrRanges = () => {
               correspond to the first IP address in their subnet.
             </p>
 
-            <ExternalLink href={links.CIDR_RANGE_DEFINITIONS_OSD}>
+            <ExternalLink href={docLinks.CIDR_RANGE_DEFINITIONS_OSD}>
               Learn more to avoid conflicts
             </ExternalLink>
           </Alert>
@@ -161,7 +161,7 @@ export const CidrRanges = () => {
                   {privateRangesHint}
 
                   <Content component={ContentVariants.p}>
-                    <ExternalLink href={links.OSD_CIDR_MACHINE}>Learn more</ExternalLink>
+                    <ExternalLink href={docLinks.OSD_CIDR_MACHINE}>Learn more</ExternalLink>
                   </Content>
                 </>
               }
@@ -186,7 +186,7 @@ export const CidrRanges = () => {
                   {privateRangesHint}
 
                   <Content component={ContentVariants.p}>
-                    <ExternalLink href={links.OSD_CIDR_SERVICE}>Learn more</ExternalLink>
+                    <ExternalLink href={docLinks.OSD_CIDR_SERVICE}>Learn more</ExternalLink>
                   </Content>
                 </>
               }
@@ -211,7 +211,7 @@ export const CidrRanges = () => {
                   {privateRangesHint}
 
                   <Content component={ContentVariants.p}>
-                    <ExternalLink href={links.OSD_CIDR_POD}>Learn more</ExternalLink>
+                    <ExternalLink href={docLinks.OSD_CIDR_POD}>Learn more</ExternalLink>
                   </Content>
                 </>
               }

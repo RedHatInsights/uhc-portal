@@ -1,8 +1,8 @@
-import installLinks from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 
 export const rosaHandsOnLinks = {
   slackChannel: 'https://red.ht/rosa-slack',
-  learnMore: installLinks.RH_ROSA,
+  learnMore: docLinks.RH_ROSA,
   getStarted: '/create/rosa/getstarted',
 };
 

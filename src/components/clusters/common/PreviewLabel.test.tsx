@@ -141,11 +141,11 @@ describe('PreviewLabel', () => {
 
     withState(defaultState).render(<PreviewLabel creationDateStr={createdDateStr} />);
 
-    expect(mockedUseGetTechPreviewStatus).toBeCalledTimes(1);
-    expect(mockedUseGetTechPreviewStatus).toBeCalledWith('rosa', 'hcp');
+    expect(mockedUseGetTechPreviewStatus).toHaveBeenCalledTimes(1);
+    expect(mockedUseGetTechPreviewStatus).toHaveBeenCalledWith('rosa', 'hcp');
 
     // This is not called because it is known in the redux state
-    expect(mockedGetPreview).toBeCalledTimes(0);
+    expect(mockedGetPreview).toHaveBeenCalledTimes(0);
   });
 
   it('calls useGetTechPreviewStatus on load with with custom product and type', () => {
@@ -155,10 +155,10 @@ describe('PreviewLabel', () => {
       <PreviewLabel creationDateStr={createdDateStr} product="myProduct" type="myType" />,
     );
 
-    expect(mockedUseGetTechPreviewStatus).toBeCalledTimes(1);
-    expect(mockedUseGetTechPreviewStatus).toBeCalledWith('myProduct', 'myType');
+    expect(mockedUseGetTechPreviewStatus).toHaveBeenCalledTimes(1);
+    expect(mockedUseGetTechPreviewStatus).toHaveBeenCalledWith('myProduct', 'myType');
 
     // This is called because 'myProduct' is not in the redux state
-    expect(mockedGetPreview).toBeCalledTimes(1);
+    expect(mockedGetPreview).toHaveBeenCalledTimes(1);
   });
 });

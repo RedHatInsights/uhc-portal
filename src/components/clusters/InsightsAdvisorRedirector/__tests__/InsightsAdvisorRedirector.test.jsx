@@ -59,7 +59,7 @@ describe('<InsightsAdvisorRedirector />', () => {
     it('should not call fetchClusterDetails', () => {
       render(<TestComponent {...defaultProps} {...defaultRouterProps} />, { withRouter: false });
 
-      expect(fetchClusterDetails).not.toBeCalled();
+      expect(fetchClusterDetails).not.toHaveBeenCalled();
     });
   });
 
@@ -82,7 +82,7 @@ describe('<InsightsAdvisorRedirector />', () => {
     it('should not call fetchClusterDetails', () => {
       render(<TestComponent {...defaultProps} {...routerParams} />, { withRouter: false });
 
-      expect(fetchClusterDetails).not.toBeCalled();
+      expect(fetchClusterDetails).not.toHaveBeenCalled();
     });
   });
 
@@ -100,11 +100,11 @@ describe('<InsightsAdvisorRedirector />', () => {
     });
 
     it('should call fetchClusterDetails', () => {
-      expect(fetchClusterDetails).not.toBeCalled();
+      expect(fetchClusterDetails).not.toHaveBeenCalled();
 
       render(<TestComponent {...defaultProps} {...routerParams} />, { withRouter: false });
 
-      expect(fetchClusterDetails).toBeCalledWith('1ZyOzuBzgnXcKa92ZE2E4olYmQa');
+      expect(fetchClusterDetails).toHaveBeenCalledWith('1ZyOzuBzgnXcKa92ZE2E4olYmQa');
     });
 
     it('should redirect after successful external ID fetch', () => {
@@ -112,7 +112,7 @@ describe('<InsightsAdvisorRedirector />', () => {
         withRouter: false,
       });
 
-      expect(fetchClusterDetails).toBeCalledWith('1ZyOzuBzgnXcKa92ZE2E4olYmQa');
+      expect(fetchClusterDetails).toHaveBeenCalledWith('1ZyOzuBzgnXcKa92ZE2E4olYmQa');
 
       const fulfilledProps = {
         ...defaultProps,
@@ -151,20 +151,20 @@ describe('<InsightsAdvisorRedirector />', () => {
     });
 
     it('should call fetchClusterDetails', () => {
-      expect(fetchClusterDetails).not.toBeCalled();
+      expect(fetchClusterDetails).not.toHaveBeenCalled();
 
       render(<TestComponent {...defaultProps} {...routerParams} />, {
         withRouter: false,
       });
 
-      expect(fetchClusterDetails).toBeCalledWith('1ZyOzuBzgnXcKa92ZE2E4olYmQa');
+      expect(fetchClusterDetails).toHaveBeenCalledWith('1ZyOzuBzgnXcKa92ZE2E4olYmQa');
     });
 
     it('should redirect after successful external ID fetch', () => {
       const { rerender } = render(<TestComponent {...defaultProps} {...routerParams} />, {
         withRouter: false,
       });
-      expect(fetchClusterDetails).toBeCalledWith('1ZyOzuBzgnXcKa92ZE2E4olYmQa');
+      expect(fetchClusterDetails).toHaveBeenCalledWith('1ZyOzuBzgnXcKa92ZE2E4olYmQa');
 
       const fulfilledProps = {
         ...defaultProps,
@@ -213,13 +213,13 @@ describe('<InsightsAdvisorRedirector />', () => {
     });
 
     it('should call setGlobalError', () => {
-      expect(setGlobalError).not.toBeCalled();
+      expect(setGlobalError).not.toHaveBeenCalled();
 
       render(<TestComponent {...noExternalIdProps} {...routerParams} />, {
         withRouter: false,
       });
 
-      expect(setGlobalError).toBeCalledWith(expect.anything(), 'clusterDetails', undefined);
+      expect(setGlobalError).toHaveBeenCalledWith(expect.anything(), 'clusterDetails', undefined);
     });
   });
 
@@ -245,11 +245,15 @@ describe('<InsightsAdvisorRedirector />', () => {
     });
 
     it('should call setGlobalError', () => {
-      expect(setGlobalError).not.toBeCalled();
+      expect(setGlobalError).not.toHaveBeenCalled();
 
       render(<TestComponent {...onErrorProps} {...routerParams} />, { withRouter: false });
 
-      expect(setGlobalError).toBeCalledWith(expect.anything(), 'clusterDetails', 'error message');
+      expect(setGlobalError).toHaveBeenCalledWith(
+        expect.anything(),
+        'clusterDetails',
+        'error message',
+      );
     });
   });
 });
