@@ -18,7 +18,6 @@ import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  Button,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -54,13 +53,6 @@ const useMediaQuery = (query) => {
   return match;
 };
 
-const dropdownRegisterCluster = (
-  <DropdownItem key="registercluster" data-testid="register-cluster-item">
-    <Link to="/register" className="pf-v6-c-dropdown__menu-item">
-      Register disconnected cluster
-    </Link>
-  </DropdownItem>
-);
 const toolbarViewArchivedClusters = (
   <ToolbarItem key="archived" alignSelf="center">
     <Link to="/archived">View cluster archives</Link>
@@ -86,25 +78,52 @@ const dropdownArchived = (
     </Link>
   </DropdownItem>
 );
-const toolbarCreateCluster = (
-  <ToolbarItem key="createcluster">
-    <Link
-      to="/create"
-      role="button"
-      className="pf-v6-c-button pf-m-primary"
-      data-testid="create_cluster_btn"
+const AddClusterDropdown = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleRef = useRef();
+
+  return (
+    <Dropdown
+      isOpen={isOpen}
+      onSelect={() => setIsOpen(false)}
+      onOpenChange={setIsOpen}
+      data-testid="add-cluster-dropdown"
+      toggle={{
+        toggleRef,
+        toggleNode: (
+          <MenuToggle
+            ref={toggleRef}
+            onClick={() => setIsOpen(!isOpen)}
+            isExpanded={isOpen}
+            variant="primary"
+            data-testid="add-cluster-dropdown-toggle"
+          >
+            Add cluster
+          </MenuToggle>
+        ),
+      }}
     >
-      Create cluster
-    </Link>
-  </ToolbarItem>
-);
-const toolbarRegisterCluster = (
-  <ToolbarItem key="registercluster">
-    <Link to="/register" rel="noopener noreferrer">
-      <Button variant="secondary" data-testid="register-cluster-item">
-        Register cluster
-      </Button>
-    </Link>
+      <DropdownList>
+        <DropdownItem key="create-cluster" data-testid="create_cluster_btn">
+          <Link to="/create" className="pf-v6-c-dropdown__menu-item">
+            Create cluster
+          </Link>
+        </DropdownItem>
+        {!isRestrictedEnv() ? (
+          <DropdownItem key="register-cluster" data-testid="register-cluster-item">
+            <Link to="/register" className="pf-v6-c-dropdown__menu-item">
+              Register cluster
+            </Link>
+          </DropdownItem>
+        ) : null}
+      </DropdownList>
+    </Dropdown>
+  );
+};
+
+const toolbarAddCluster = (
+  <ToolbarItem key="addcluster">
+    <AddClusterDropdown />
   </ToolbarItem>
 );
 
@@ -114,24 +133,15 @@ const useItems = (isDashboardView, showClusterRequest) => {
   const toolbarItems = [];
   const dropdownItems = [];
 
-  toolbarItems.push(toolbarCreateCluster);
+  toolbarItems.push(toolbarAddCluster);
   if (!isRestrictedEnv()) {
     if (isDashboardView) {
-      if (wide) {
-        toolbarItems.push(toolbarRegisterCluster);
-        dropdownItems.push(dropdownArchived);
-        if (showClusterRequest) dropdownItems.push(dropdownRequest);
-      } else {
-        dropdownItems.push(dropdownRegisterCluster);
-        dropdownItems.push(dropdownArchived);
-        if (showClusterRequest) dropdownItems.push(dropdownRequest);
-      }
+      dropdownItems.push(dropdownArchived);
+      if (showClusterRequest) dropdownItems.push(dropdownRequest);
     } else if (wide) {
-      toolbarItems.push(toolbarRegisterCluster);
       toolbarItems.push(toolbarViewArchivedClusters);
       if (showClusterRequest) toolbarItems.push(toolbarViewRequest);
     } else {
-      dropdownItems.push(dropdownRegisterCluster);
       dropdownItems.push(dropdownArchived);
       if (showClusterRequest) dropdownItems.push(dropdownRequest);
     }

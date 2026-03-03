@@ -81,7 +81,7 @@ export const Clusters = () => {
         >
           <Tab
             eventKey="list"
-            title={<TabTitleText>Cluster List</TabTitleText>}
+            title={<TabTitleText>Cluster list</TabTitleText>}
             aria-label="Cluster List"
             tabContentId="list"
           />
@@ -90,7 +90,7 @@ export const Clusters = () => {
               eventKey="hub-clusters"
               title={
                 <TabTitleText>
-                  Hub Clusters
+                  Hub clusters
                   <Popover
                     bodyContent="View clusters you tagged as Red Hat Advanced Cluster Management for Kubernetes (ACM) Hub clusters."
                     footerContent={
@@ -114,7 +114,7 @@ export const Clusters = () => {
           <Tab
             eventKey="requests"
             title={
-              <TabTitleText>Cluster Request {total ? <Badge>{total}</Badge> : null}</TabTitleText>
+              <TabTitleText>Cluster requests {total ? <Badge>{total}</Badge> : null}</TabTitleText>
             }
             aria-label="Cluster Requests"
             tabContentId="requests"
