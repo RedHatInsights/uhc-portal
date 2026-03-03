@@ -1,7 +1,8 @@
 import React from 'react';
 import get from 'lodash/get';
 
-import { DropdownItem, DropdownList } from '@patternfly/react-core';
+import { Button, DropdownItem, DropdownList, Popover } from '@patternfly/react-core';
+import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
 import { ACM_HUB_PROPERTY_KEY, ACM_HUB_PROPERTY_VALUE } from '~/common/acmHubConstants';
 import { isCompatibleFeature, SupportedFeature } from '~/common/featureCompatibility';
@@ -339,7 +340,33 @@ function actionResolver(
   const getTagAcmHubProps = () => {
     const properties = cluster.managed ? cluster.properties : cluster.cluster_id_properties;
     const isCurrentlyTagged = properties?.[ACM_HUB_PROPERTY_KEY] === ACM_HUB_PROPERTY_VALUE;
-    const title = isCurrentlyTagged ? 'Remove hub cluster tag' : 'Tag as hub cluster';
+    const title = isCurrentlyTagged ? (
+      'Remove hub cluster tag'
+    ) : (
+      <>
+        Tag as hub cluster{' '}
+        <Popover
+          bodyContent={
+            <>
+              <p>Tag as Red Hat Advanced Cluster Management for Kubernetes (RHACM) hub cluster.</p>
+              <p>
+                This does not impact anything in RHACM, and does not make a cluster in this list a
+                hub cluster.
+              </p>
+            </>
+          }
+        >
+          <Button
+            variant="plain"
+            aria-label="More info about tagging as hub cluster"
+            onClick={(e) => e.stopPropagation()}
+            isInline
+          >
+            <OutlinedQuestionCircleIcon />
+          </Button>
+        </Popover>
+      </>
+    );
 
     const tagAcmHubProps = {
       ...baseProps,
