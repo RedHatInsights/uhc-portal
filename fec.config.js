@@ -83,6 +83,7 @@ module.exports = {
     ],
     exposes: {
       './RootApp': path.resolve(__dirname, 'src/chrome-main.tsx'),
+      './DrawerPanel': path.resolve(__dirname, 'src/components/overview/components/common/DrawerPanel.tsx'),
     },
   },
 };
