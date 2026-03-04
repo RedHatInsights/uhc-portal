@@ -103,10 +103,13 @@ export const useFetchAccessRequests = ({
   // We need cluster data if we have access requests with cluster IDs
   const needsClusterData = hasAccessRequests && hasClusterIds && !hasClusterData;
 
-  // Treat as loading while access protection is still being determined, OR when the query
-  // is enabled but hasn't returned a response yet (covers the render gap between access
+  // Once the query has settled (success or error), stop treating it as loading
+  // so callers can see isError. Before that, treat the query as loading while
+  // access protection is still being determined or the query is enabled but
+  // hasn't returned a response yet (covers the render gap between access
   // protection resolving and React Query's isLoading becoming true).
-  const waitingForQuery = isAccessProtectionLoading || (queryEnabled && !data);
+  const querySettled = isSuccess || isError;
+  const waitingForQuery = isAccessProtectionLoading || (queryEnabled && !querySettled && !data);
   // Only block on cluster data when we have access requests that need it; otherwise empty
   // results would stay "loading" and we'd show an empty table instead of the empty state.
   const clusterDataLoading =

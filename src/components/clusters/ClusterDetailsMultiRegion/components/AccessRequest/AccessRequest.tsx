@@ -53,7 +53,7 @@ export const AccessRequest = ({ subscriptionId, showClusterName = false }: Acces
   const dispatch = useDispatch();
   const viewType = viewConstants.ACCESS_REQUESTS_VIEW;
   const viewOptions = useGlobalState((state) => state.viewOptions[viewType], shallowEqual);
-  const { organization } = useOrganization();
+  const { organization, isLoading: isOrganizationLoading } = useOrganization();
   const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
 
   const {
@@ -66,9 +66,7 @@ export const AccessRequest = ({ subscriptionId, showClusterName = false }: Acces
     isRestrictedEnv(),
   );
 
-  // When not using subscriptionId, we need the organization to load before we can
-  // determine access protection status. Treat missing org as still loading.
-  const isPrerequisitesLoading = !subscriptionId && !organization?.id;
+  const isPrerequisitesLoading = !subscriptionId && isOrganizationLoading;
 
   const { data: accessRequests, isLoading: isAccessRequestsLoading } = useFetchAccessRequests({
     subscriptionId,
