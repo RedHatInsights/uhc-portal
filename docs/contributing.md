@@ -220,7 +220,7 @@ Link URLs are separated into three different categories found in files installLi
 - support documentation (docs.redhat.com/en/documentation/openshift_container_platform/latest/html/support..)
 - knowledge base articles (access.redhat.com/articles/134..)
 
-[docLink.mjs](../src/common/docLinks.mjs)
+[docLinks.mjs](../src/common/docLinks.mjs)
 
 - almost all docs.redhat.com/.. URLs
 - educational content, YouTube tutorials
