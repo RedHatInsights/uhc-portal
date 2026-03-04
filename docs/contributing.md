@@ -208,19 +208,19 @@ If you have any doubts on whether data is sensitive or not, please reach out to 
 
 Link URLs are separated into three different categories found in files installLinks.mjs, supportLinks.mjs and docLinks.mjs.
 
-src/common/installLinks.mjs
+[installLinks.mjs](../src/common/installLinks.mjs)
 
 - installation binary downloads (mirror.openshift.com/..)
 - Links related to a binary download, like the Learn more links that are used directly in the download component
 - console.\* URLs (console.cloud.google.com, console.aws.com, console.redhat.com)
 
-src/common/supportLinks.mjs
+[supportLinks.mjs](../src/common/supportLinks.mjs)
 
 - access.redhat.com URLs
 - support documentation (docs.redhat.com/en/documentation/openshift_container_platform/latest/html/support..)
 - knowledge base articles (access.redhat.com/articles/134..)
 
-src/common/docLinks.mjs
+[docLink.mjs](../src/common/docLinks.mjs)
 
 - almost all docs.redhat.com/.. URLs
 - educational content, YouTube tutorials
