@@ -16,7 +16,7 @@
 - [Storybook](#storybook)
 - [Pull requests](#pull-requests)
 - [Information security](#information-security)
-- [Link architecture](#link-architecture)
+- [External links architecture](#external-links-architecture)
 
 ## Setup
 
@@ -204,23 +204,23 @@ When proposing changes, take care to:
 
 If you have any doubts on whether data is sensitive or not, please reach out to OCM UI Core team or Infosec team first, before pushing any code.
 
-## Link architecture
+## External links architecture
 
-Link URLs are separated into three different categories found in files supportLinks.mjs, installLinks.mjs and docLinks.mjs.
+Link URLs are separated into three different categories found in files installLinks.mjs, supportLinks.mjs and docLinks.mjs.
 
-installLinks.mjs
+src/common/installLinks.mjs
 
 - installation binary downloads (mirror.openshift.com/..)
 - Links related to a binary download, like the Learn more links that are used directly in the download component
 - console.\* URLs (console.cloud.google.com, console.aws.com, console.redhat.com)
 
-supportLinks.mjs
+src/common/supportLinks.mjs
 
 - access.redhat.com URLs
 - support documentation (docs.redhat.com/en/documentation/openshift_container_platform/latest/html/support..)
 - knowledge base articles (access.redhat.com/articles/134..)
 
-docLinks.mjs
+src/common/docLinks.mjs
 
 - almost all docs.redhat.com/.. URLs
 - educational content, YouTube tutorials
