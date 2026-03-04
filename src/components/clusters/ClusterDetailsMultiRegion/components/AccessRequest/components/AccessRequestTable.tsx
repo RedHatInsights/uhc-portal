@@ -141,7 +141,8 @@ const AccessRequestTable = ({
     );
   });
 
-  if (!isPending && accessRequestItems?.length === 0) {
+  const isEmpty = !accessRequestItems || accessRequestItems.length === 0;
+  if (!isPending && isEmpty) {
     return (
       <PageSection>
         <EmptyState

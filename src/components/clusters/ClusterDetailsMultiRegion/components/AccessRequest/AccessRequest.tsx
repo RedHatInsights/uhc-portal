@@ -66,6 +66,10 @@ export const AccessRequest = ({ subscriptionId, showClusterName = false }: Acces
     isRestrictedEnv(),
   );
 
+  // When not using subscriptionId, we need the organization to load before we can
+  // determine access protection status. Treat missing org as still loading.
+  const isPrerequisitesLoading = !subscriptionId && !organization?.id;
+
   const { data: accessRequests, isLoading: isAccessRequestsLoading } = useFetchAccessRequests({
     subscriptionId,
     organizationId: !subscriptionId ? organization?.id : undefined,
@@ -74,9 +78,11 @@ export const AccessRequest = ({ subscriptionId, showClusterName = false }: Acces
     accessProtection: { enabled: isOrganizationAccessProtectionEnabled || false },
   });
 
+  const isLoading = isPrerequisitesLoading || isAccessRequestsLoading;
+
   const isPendingNoData = useMemo(
-    () => isAccessRequestsLoading || !accessRequests?.length,
-    [isAccessRequestsLoading, accessRequests],
+    () => isLoading || !accessRequests?.length,
+    [isLoading, accessRequests],
   );
 
   const sortBy = useMemo(
@@ -117,7 +123,7 @@ export const AccessRequest = ({ subscriptionId, showClusterName = false }: Acces
       setSorting={setSorting}
       openDetailsAction={openAccessRequest}
       sortBy={sortBy}
-      isPending={isAccessRequestsLoading}
+      isPending={isLoading}
       showClusterName={showClusterName}
     />
   );

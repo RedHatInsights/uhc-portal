@@ -39,6 +39,8 @@ export const useFetchAccessRequests = ({
 
   const dispatch = useDispatch();
 
+  const queryEnabled = !isAccessProtectionLoading && !!accessProtection?.enabled;
+
   const { data, isLoading, isError, error, isSuccess } = useQuery({
     queryKey: [
       queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
@@ -60,7 +62,7 @@ export const useFetchAccessRequests = ({
 
       return response;
     },
-    enabled: !isAccessProtectionLoading && accessProtection?.enabled,
+    enabled: queryEnabled,
   });
   const accessRequestItems = data?.data?.items;
 
@@ -101,9 +103,15 @@ export const useFetchAccessRequests = ({
   // We need cluster data if we have access requests with cluster IDs
   const needsClusterData = hasAccessRequests && hasClusterIds && !hasClusterData;
 
-  // Check if we're in a loading state
-  const combinedIsLoading =
-    isLoading || isClusterDataLoading || isClusterDataFetching || needsClusterData;
+  // Treat as loading while access protection is still being determined, OR when the query
+  // is enabled but hasn't returned a response yet (covers the render gap between access
+  // protection resolving and React Query's isLoading becoming true).
+  const waitingForQuery = isAccessProtectionLoading || (queryEnabled && !data);
+  // Only block on cluster data when we have access requests that need it; otherwise empty
+  // results would stay "loading" and we'd show an empty table instead of the empty state.
+  const clusterDataLoading =
+    hasAccessRequests && (isClusterDataLoading || isClusterDataFetching || needsClusterData);
+  const combinedIsLoading = waitingForQuery || isLoading || clusterDataLoading;
 
   // Only build the joined data if we have cluster data or if there are no cluster IDs to fetch
   const accessRequestsWithClusterData = useMemo(() => {
