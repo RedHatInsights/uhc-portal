@@ -40,8 +40,10 @@ export const useFetchAccessRequests = ({
   const dispatch = useDispatch();
 
   const hasValidId = !!subscriptionId || !!organizationId;
+  const isAccessProtectionResolved =
+    !isAccessProtectionLoading && accessProtection?.enabled !== undefined;
   const queryEnabled =
-    !isAccessProtectionLoading && accessProtection?.enabled === true && hasValidId;
+    isAccessProtectionResolved && accessProtection?.enabled === true && hasValidId;
 
   const { data, isLoading, isError, error, isSuccess } = useQuery({
     queryKey: [
@@ -113,13 +115,14 @@ export const useFetchAccessRequests = ({
   const needsClusterData =
     hasAccessRequests && hasClusterIds && !hasClusterData && !isClusterDataError;
 
-  // Once the query has settled (success or error), stop treating it as loading
-  // so callers can see isError. Before that, treat the query as loading while
-  // access protection is still being determined or the query is enabled but
-  // hasn't returned a response yet (covers the render gap between access
-  // protection resolving and React Query's isLoading becoming true).
+  // Treat as unresolved while access protection hasn't settled (still loading
+  // or enabled is undefined). Once resolved, cover the render gap between
+  // access protection resolving and React Query's isLoading becoming true.
+  // Stop once the query itself has settled (success or error) so callers can
+  // see isError.
   const querySettled = isSuccess || isError;
-  const waitingForQuery = isAccessProtectionLoading || (queryEnabled && !querySettled && !data);
+  const waitingForQuery =
+    (hasValidId && !isAccessProtectionResolved) || (queryEnabled && !querySettled && !data);
   // Only block on cluster data when we have access requests that need it; otherwise empty
   // results would stay "loading" and we'd show an empty table instead of the empty state.
   const clusterDataLoading =
