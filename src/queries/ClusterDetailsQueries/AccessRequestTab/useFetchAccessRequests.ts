@@ -89,6 +89,7 @@ export const useFetchAccessRequests = ({
     data: clusterData,
     isLoading: isClusterDataLoading,
     isFetching: isClusterDataFetching,
+    isError: isClusterDataError,
   } = useFetchSubscriptionsByClusterId(clusterIds);
 
   const clusterMap = useMemo(
@@ -106,8 +107,10 @@ export const useFetchAccessRequests = ({
   const hasClusterIds = !!clusterIds;
   const hasClusterData = !!clusterData?.items;
 
-  // We need cluster data if we have access requests with cluster IDs
-  const needsClusterData = hasAccessRequests && hasClusterIds && !hasClusterData;
+  // We still need cluster data if we have access requests with cluster IDs,
+  // unless the cluster query already settled with an error.
+  const needsClusterData =
+    hasAccessRequests && hasClusterIds && !hasClusterData && !isClusterDataError;
 
   // Once the query has settled (success or error), stop treating it as loading
   // so callers can see isError. Before that, treat the query as loading while
@@ -132,8 +135,8 @@ export const useFetchAccessRequests = ({
       return [];
     }
 
-    if (hasClusterIds && hasClusterData) {
-      // We have both access requests and cluster data, join them
+    if (hasClusterIds && (hasClusterData || isClusterDataError)) {
+      // Join with cluster names when available; fall back to cluster_id if the lookup failed
       return accessRequestItems
         .map((request) => {
           const clusterName = clusterMap.get(request.cluster_id) ?? request.cluster_id;
@@ -143,7 +146,6 @@ export const useFetchAccessRequests = ({
     }
 
     if (!hasClusterIds) {
-      // No cluster IDs needed, return access requests as-is (this shouldn't happen in normal flow)
       return accessRequestItems as (AccessRequest & { name: string })[];
     }
 
@@ -153,6 +155,7 @@ export const useFetchAccessRequests = ({
     hasAccessRequests,
     hasClusterIds,
     hasClusterData,
+    isClusterDataError,
     accessRequestItems,
     clusterMap,
   ]);
