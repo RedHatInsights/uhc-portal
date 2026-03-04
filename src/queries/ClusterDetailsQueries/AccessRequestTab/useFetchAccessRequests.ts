@@ -39,7 +39,8 @@ export const useFetchAccessRequests = ({
 
   const dispatch = useDispatch();
 
-  const queryEnabled = !isAccessProtectionLoading && !!accessProtection?.enabled;
+  const hasValidId = !!subscriptionId || !!organizationId;
+  const queryEnabled = !isAccessProtectionLoading && !!accessProtection?.enabled && hasValidId;
 
   const { data, isLoading, isError, error, isSuccess } = useQuery({
     queryKey: [
@@ -49,12 +50,17 @@ export const useFetchAccessRequests = ({
       subscriptionId || organizationId,
     ],
     queryFn: async () => {
+      let search: string | undefined;
+      if (subscriptionId) {
+        search = `subscription_id='${subscriptionId}'`;
+      } else if (organizationId) {
+        search = `organization_id='${organizationId}' and status.state in ('Denied', 'Pending', 'Approved')`;
+      }
+
       const response = await accessRequestService.getAccessRequests({
         page: params.currentPage,
         size: params.pageSize,
-        search: subscriptionId
-          ? `subscription_id='${subscriptionId}'`
-          : `organization_id='${organizationId}' and status.state in ('Denied', 'Pending', 'Approved')`,
+        search,
         orderBy: params.sorting.sortField
           ? `${params.sorting.sortField} ${params.sorting.isAscending ? 'asc' : 'desc'}`
           : undefined,
