@@ -32,7 +32,7 @@ export const useFetchAccessRequests = ({
   organizationId?: string;
   params: ViewOptions;
   isAccessProtectionLoading?: boolean;
-  accessProtection?: { enabled: boolean };
+  accessProtection?: { enabled?: boolean };
 }) => {
   const viewType = viewConstants.ACCESS_REQUESTS_VIEW;
   const viewOptions = useGlobalState((state) => state.viewOptions[viewType]);
@@ -40,7 +40,8 @@ export const useFetchAccessRequests = ({
   const dispatch = useDispatch();
 
   const hasValidId = !!subscriptionId || !!organizationId;
-  const queryEnabled = !isAccessProtectionLoading && !!accessProtection?.enabled && hasValidId;
+  const queryEnabled =
+    !isAccessProtectionLoading && accessProtection?.enabled === true && hasValidId;
 
   const { data, isLoading, isError, error, isSuccess } = useQuery({
     queryKey: [

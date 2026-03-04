@@ -73,7 +73,7 @@ export const AccessRequest = ({ subscriptionId, showClusterName = false }: Acces
     organizationId: !subscriptionId ? organization?.id : undefined,
     params: viewOptions,
     isAccessProtectionLoading: isOrganizationAccessProtectionLoading,
-    accessProtection: { enabled: isOrganizationAccessProtectionEnabled || false },
+    accessProtection: { enabled: isOrganizationAccessProtectionEnabled },
   });
 
   const isLoading = isPrerequisitesLoading || isAccessRequestsLoading;

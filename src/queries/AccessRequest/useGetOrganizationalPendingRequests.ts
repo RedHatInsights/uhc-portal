@@ -6,7 +6,7 @@ import { queryConstants } from '../queriesConstants';
 
 export const useGetOrganizationalPendingRequests = (
   organizationId: string,
-  isOrganizationAccessProtectionEnabled: boolean,
+  isOrganizationAccessProtectionEnabled?: boolean,
   params?: { page: number; size: number },
 ) => {
   const queryKey = [
