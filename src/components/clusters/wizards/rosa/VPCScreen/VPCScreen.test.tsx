@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { checkAccessibility, mockUseFormState, render, screen } from '~/testUtils';
+import { useFormState } from '~/components/clusters/wizards/hooks';
+import { checkAccessibility, render, screen } from '~/testUtils';
 
 import { FieldId } from '../constants';
 
@@ -8,6 +9,7 @@ import { InstallToVPC } from './InstallToVPC';
 import { VPCScreen } from './VPCScreen';
 
 jest.mock('./InstallToVPC');
+jest.mock('~/components/clusters/wizards/hooks');
 
 const mockInstallToVPC = InstallToVPC as jest.Mock;
 mockInstallToVPC.mockImplementation(() => <div>InstallToVPC</div>);
@@ -24,7 +26,16 @@ const defaultFieldValues = {
   [FieldId.Hypershift]: 'false',
 };
 
+const defaultMockReturnValues = {
+  values: { ...defaultFieldValues },
+  setFieldValue: jest.fn(),
+  setFieldTouched: jest.fn(),
+};
+
 describe('<VPCScreen />', () => {
+  // Arrange
+  const mockedUseFormState = useFormState as jest.Mock;
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -33,7 +44,7 @@ describe('<VPCScreen />', () => {
   describe('renders InstallToVPC component given an openshiftVersion', () => {
     it('renders correctly with default values', async () => {
       // Arrange
-      mockUseFormState({ values: { ...defaultFieldValues } });
+      mockedUseFormState.mockReturnValue({ ...defaultMockReturnValues });
       // Act
       render(<VPCScreen privateLinkSelected />);
 
@@ -55,7 +66,10 @@ describe('<VPCScreen />', () => {
         [FieldId.MultiAz]: 'true',
         [FieldId.Hypershift]: 'true',
       };
-      mockUseFormState({ values: customFieldValues });
+      mockedUseFormState.mockReturnValue({
+        ...defaultMockReturnValues,
+        values: customFieldValues,
+      });
 
       // Act
       render(<VPCScreen privateLinkSelected />);
@@ -71,7 +85,10 @@ describe('<VPCScreen />', () => {
         ...defaultFieldValues,
         [FieldId.SharedVpc]: { is_selected: true, base_dns_domain: '<some-base-dns-domain>' },
       };
-      mockUseFormState({ values: customFieldValues });
+      mockedUseFormState.mockReturnValue({
+        ...defaultMockReturnValues,
+        values: customFieldValues,
+      });
 
       // Act
       render(<VPCScreen privateLinkSelected />);
@@ -92,7 +109,10 @@ describe('<VPCScreen />', () => {
         ],
         [FieldId.MultiAz]: 'true',
       };
-      mockUseFormState({ values: customFieldValues });
+      mockedUseFormState.mockReturnValue({
+        ...defaultMockReturnValues,
+        values: customFieldValues,
+      });
 
       // Act
       render(<VPCScreen privateLinkSelected />);
@@ -104,7 +124,6 @@ describe('<VPCScreen />', () => {
 
     it('triggers useEffect to reset subnets when VPC is not selected', async () => {
       // Arrange
-      const setFieldValueMock = jest.fn();
       const customFieldValues = {
         ...defaultFieldValues,
         [FieldId.SelectedVpc]: { id: '' }, // Simulate no VPC selected
@@ -115,9 +134,8 @@ describe('<VPCScreen />', () => {
         ],
         [FieldId.MultiAz]: 'true',
       };
-
-      mockUseFormState({
-        setFieldValue: setFieldValueMock,
+      mockedUseFormState.mockReturnValue({
+        ...defaultMockReturnValues,
         values: customFieldValues,
       });
 
@@ -125,7 +143,7 @@ describe('<VPCScreen />', () => {
       render(<VPCScreen privateLinkSelected />);
 
       // Assert
-      expect(setFieldValueMock).toHaveBeenCalledWith(FieldId.MachinePoolsSubnets, [
+      expect(mockedUseFormState().setFieldValue).toHaveBeenCalledWith(FieldId.MachinePoolsSubnets, [
         { availabilityZone: '', privateSubnetId: '', publicSubnetId: '' },
         { availabilityZone: '', privateSubnetId: '', publicSubnetId: '' },
         { availabilityZone: '', privateSubnetId: '', publicSubnetId: '' },
@@ -135,7 +153,8 @@ describe('<VPCScreen />', () => {
 
   it('renders no cluster versions Alert component when missing openshiftVersion', async () => {
     // Arrange
-    mockUseFormState({
+    mockedUseFormState.mockReturnValue({
+      ...defaultMockReturnValues,
       values: { ...defaultFieldValues, [FieldId.ClusterVersion]: '' },
     });
     // Act
@@ -160,7 +179,7 @@ describe('<VPCScreen />', () => {
 
   it('is accessible', async () => {
     // Arrange
-    mockUseFormState({ values: { ...defaultFieldValues } });
+    mockedUseFormState.mockReturnValue({ ...defaultMockReturnValues });
     // Act
     const { container } = render(<VPCScreen privateLinkSelected />);
 

@@ -102,12 +102,12 @@ describe('<UpgradeStatus />', () => {
       const { user } = render(
         <UpgradeStatus {...manualUpgradeScheduled} onCancelClick={onCancelClick} />,
       );
-      expect(onCancelClick).not.toHaveBeenCalled();
-      expect(openModal).not.toHaveBeenCalled();
+      expect(onCancelClick).not.toBeCalled();
+      expect(openModal).not.toBeCalled();
 
       await user.click(screen.getByRole('button', { name: cancelButtonText }));
-      expect(onCancelClick).toHaveBeenCalled();
-      expect(mockedDispatch).toHaveBeenCalledWith({
+      expect(onCancelClick).toBeCalled();
+      expect(mockedDispatch).toBeCalledWith({
         type: 'OPEN_MODAL',
         payload: {
           name: 'cancel-upgrade',

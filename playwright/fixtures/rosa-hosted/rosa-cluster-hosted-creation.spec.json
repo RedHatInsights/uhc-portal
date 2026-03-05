@@ -4,9 +4,8 @@
   "DomainPrefix": "smokerosahcp1",
   "Region": "us-west-2, US West, Oregon",
   "Availability": "Multi-zone",
-  "AdditionalEncryption": "Enabled",
+  "AdditionalEncryption": "Disabled",
   "EncryptVolumesWithCustomerKeys": "Disabled",
-  "FIPSCryptography": "Enabled",
   "Nodes": {
     "Control plane": "3/3",
     "Infra": "2/2",

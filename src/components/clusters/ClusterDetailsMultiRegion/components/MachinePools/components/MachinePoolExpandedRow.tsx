@@ -66,14 +66,15 @@ export const MachinePoolItemList = ({
       </div>
     )}
 
-    {items.map((item) => {
+    {items.map((item, index) => {
       const isTruncated = item.length > LABEL_MAX_LENGTH;
       const displayName = isTruncated ? truncateTextWithEllipsis(item, LABEL_MAX_LENGTH) : item;
 
       return (
         <Label
           color="blue"
-          key={`${title}-${item}`}
+          // eslint-disable-next-line react/no-array-index-key
+          key={`${title}-${index}`}
           textMaxWidth="16ch"
           className="pf-v6-c-label--break-word pf-v6-u-m-sm pf-v6-u-ml-0"
         >
@@ -123,20 +124,20 @@ const MachinePoolExpandedRow = ({
   return (
     <Grid hasGutter>
       {(labelsAvailable || (awsTagsNewMP && awsTagsAvailable)) && (
-        <GridItem key="labels-aws-tags" md={8}>
+        <GridItem md={8}>
           <Stack hasGutter>
             {awsTagsNewMP && awsTagsAvailable ? (
-              <StackItem key="labels-aws-tags-title">
+              <StackItem>
                 <Title headingLevel="h4">Labels and AWS tags</Title>
               </StackItem>
             ) : (
-              <StackItem key="labels-title">
+              <StackItem>
                 <Title headingLevel="h4">Labels</Title>
               </StackItem>
             )}
 
             {labelsAvailable && (
-              <StackItem key="labels-content">
+              <StackItem>
                 <Flex>
                   <FlexItem>
                     <div className="pf-v6-u-font-size-sm pf-v6-u-disabled-color-100">Labels</div>
@@ -163,7 +164,7 @@ const MachinePoolExpandedRow = ({
             )}
 
             {awsTagsNewMP && awsTagsAvailable && (
-              <StackItem key="aws-tags-content">
+              <StackItem>
                 <Flex>
                   <FlexItem>
                     <div className="pf-v6-u-font-size-sm pf-v6-u-disabled-color-100">AWS tags</div>
@@ -193,12 +194,12 @@ const MachinePoolExpandedRow = ({
         </GridItem>
       )}
       {machinePool.taints && (
-        <GridItem key="taints" md={6}>
+        <GridItem md={6}>
           <MachinePoolItemList title="Taints" items={taintsRenderer(machinePool.taints)} />
         </GridItem>
       )}
       {securityGroupIds.length > 0 && (
-        <GridItem key="security-groups" md={6}>
+        <GridItem md={6}>
           <MachinePoolItemList
             title="Security groups"
             items={securityGroupsRenderer(securityGroupIds, clusterVpc?.aws_security_groups || [])}
@@ -206,12 +207,12 @@ const MachinePoolExpandedRow = ({
         </GridItem>
       )}
       {hasSubnets(machinePool) && (
-        <GridItem key="subnets" md={4}>
+        <GridItem md={4}>
           <MachinePoolItemList title="Subnets" items={getSubnetIds(machinePool)} />
         </GridItem>
       )}
       {machinePool.autoscaling && (
-        <GridItem key="autoscaling" md={6}>
+        <GridItem md={6}>
           <MachinePoolAutoScalingDetail
             isMultiZoneMachinePool={isMultiZoneMachinePool}
             isMultiZoneCluster={isMultiZoneCluster}
@@ -220,12 +221,12 @@ const MachinePoolExpandedRow = ({
         </GridItem>
       )}
       {isHypershift && (
-        <GridItem key="auto-repair" md={6}>
+        <GridItem md={6}>
           <MachinePoolAutoRepairDetail isAutoRepairEnabled={isAutoRepairEnabled} />
         </GridItem>
       )}
       {isHypershift && isCapacityReservationIdFieldEnabled && (
-        <GridItem key="capacity-reservation" md={6}>
+        <GridItem md={6}>
           <MachinePoolCapacityReservationDetail
             capacityReservationId={capacityReservationId}
             capacityReservationPreference={capacityReservationPreference}
@@ -233,7 +234,7 @@ const MachinePoolExpandedRow = ({
         </GridItem>
       )}
       {spotMarketOptions && (
-        <GridItem key="spot-pricing" md={6}>
+        <GridItem md={6}>
           <Title headingLevel="h4">Spot instance pricing</Title>
           {spotMarketOptions.max_price
             ? `Maximum hourly price: ${spotMarketOptions.max_price}`

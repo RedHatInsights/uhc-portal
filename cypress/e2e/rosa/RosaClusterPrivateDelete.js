@@ -1,6 +1,5 @@
-import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 import ClusterListPage from '../../pageobjects/ClusterList.page';
-import { CLUSTER_LIST_PATH } from '../../support/routePaths';
+import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 
 const clusterDetails = require('../../fixtures/rosa/RosaClusterClassicCreatePrivate.json');
 const clusterProfiles = ['rosa-classic-private-advanced'];
@@ -11,7 +10,7 @@ describe(
   () => {
     beforeEach(() => {
       if (Cypress.currentTest.title.match(/Open.*cluster/g)) {
-        cy.visit(CLUSTER_LIST_PATH);
+        cy.visit('/cluster-list');
         ClusterListPage.waitForDataReady();
       }
     });

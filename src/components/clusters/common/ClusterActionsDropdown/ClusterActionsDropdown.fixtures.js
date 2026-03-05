@@ -38,7 +38,6 @@ const props = {
   canSubscribeOCP: false,
   canHibernateCluster: true,
   canTransferClusterOwnership: false,
-  isAutoClusterTransferOwnershipEnabled: false,
   openModal: jest.fn(),
   toggleSubscriptionReleased: jest.fn(),
   refreshFunc: jest.fn(),
@@ -230,8 +229,6 @@ const rhoicCluster = {
   openModal: jest.fn(),
   canSubscribeOCP: false,
   canHibernateCluster: false,
-  canTransferClusterOwnership: false,
-  isAutoClusterTransferOwnershipEnabled: false,
   refreshFunc: jest.fn(),
   toggleSubscriptionReleased: jest.fn(),
 };

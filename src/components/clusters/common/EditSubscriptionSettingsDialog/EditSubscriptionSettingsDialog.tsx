@@ -80,7 +80,7 @@ const EditSubscriptionSettingsDialog = ({ onClose }: EditSubscriptionSettingsDia
       secondaryText="Cancel"
       onPrimaryClick={handleSubmit}
       onSecondaryClick={handleCloseModal}
-      isPrimaryDisabled={!settings.isValid}
+      isPrimaryDisabled={isPending || !settings.isValid}
       isPending={isPending}
     >
       {isError ? (

@@ -1,7 +1,4 @@
-import { expect, Locator, Page } from '@playwright/test';
-
-import { CLUSTER_LIST_FULL_PATH } from '../support/playwright-constants';
-
+import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base-page';
 
 /**
@@ -13,7 +10,7 @@ export class ClusterListPage extends BasePage {
   }
 
   async isClusterListUrl(): Promise<void> {
-    await this.assertUrlIncludes(CLUSTER_LIST_FULL_PATH);
+    await this.assertUrlIncludes('/openshift/cluster-list');
   }
 
   filterTxtField(): Locator {
@@ -188,12 +185,5 @@ export class ClusterListPage extends BasePage {
 
   async clearFilters(): Promise<void> {
     await this.page.locator('button').filter({ hasText: 'Clear filters' }).click();
-  }
-
-  async openClusterDefinition(clusterName: string): Promise<void> {
-    const clusterLink = this.page.getByRole('link', { name: clusterName, exact: true });
-    await expect(clusterLink).toBeVisible({ timeout: 30000 });
-    await clusterLink.click();
-    await expect(this.page).toHaveURL(new RegExp('/openshift/details/'));
   }
 }

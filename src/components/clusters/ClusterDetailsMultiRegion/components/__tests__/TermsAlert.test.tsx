@@ -1,7 +1,6 @@
 import React from 'react';
 import * as reactRedux from 'react-redux';
 
-import * as locationUtils from '~/common/location';
 import { defaultSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import { selfTermsReview } from '~/redux/actions/userActions';
 import { useGlobalState } from '~/redux/hooks';
@@ -74,6 +73,7 @@ describe('<TermsAlert />', () => {
   });
 
   describe('TermsAlert has required terms', () => {
+    const locationSave = window.location;
     const currentUrl = 'http://cloud.openshift.com/details/123';
 
     const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
@@ -82,19 +82,18 @@ describe('<TermsAlert />', () => {
 
     selfTermsReviewMock.mockReturnValue('selfTermsReviewResult');
 
-    let locationSpy: jest.SpyInstance;
-
     beforeEach(() => {
-      locationSpy = jest.spyOn(locationUtils, 'getLocation');
-
-      locationSpy.mockReturnValue({
-        href: currentUrl,
-        pathname: '/',
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        enumerable: true,
+        value: new URL(currentUrl),
       });
     });
 
-    afterEach(() => {
-      locationSpy.mockRestore();
+    afterAll(() => {
+      (window.location as any).configurable = (locationSave as any).configurable;
+      (window.location as any).enumerable = (locationSave as any).enumerable;
+      (window.location as any).value = (locationSave as any).value;
     });
 
     it('is accessible', async () => {

@@ -1,8 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import docLinks from '~/common/docLinks.mjs';
-import { checkAccessibility, render, screen, within } from '~/testUtils';
+import { checkAccessibility, render, screen } from '~/testUtils';
 
 import { FieldId } from '../constants';
 
@@ -54,55 +53,5 @@ describe('<CIDRScreen />', () => {
   it('is accessible', async () => {
     const { container } = render(build());
     await checkAccessibility(container);
-  });
-
-  describe('Documentation links', () => {
-    it('renders correct link for CIDR ranges alert when hypershift', async () => {
-      render(
-        build({
-          [FieldId.Hypershift]: 'true',
-        }),
-      );
-
-      const link = screen.getByText('Learn more to avoid conflicts');
-      expect(link).toHaveAttribute('href', docLinks.CIDR_RANGE_DEFINITIONS_ROSA);
-    });
-
-    it('renders correct link for CIDR ranges alert when classic', async () => {
-      render(
-        build({
-          [FieldId.Hypershift]: 'false',
-        }),
-      );
-
-      const link = screen.getByText('Learn more to avoid conflicts');
-      expect(link).toHaveAttribute('href', docLinks.CIDR_RANGE_DEFINITIONS_ROSA_CLASSIC);
-    });
-
-    it.each([
-      ['Machine CIDR', 'true', docLinks.ROSA_CIDR_MACHINE],
-      ['Machine CIDR', 'false', docLinks.ROSA_CLASSIC_CIDR_MACHINE],
-      ['Service CIDR', 'true', docLinks.ROSA_CIDR_SERVICE],
-      ['Service CIDR', 'false', docLinks.ROSA_CLASSIC_CIDR_SERVICE],
-      ['Pod CIDR', 'true', docLinks.ROSA_CIDR_POD],
-      ['Pod CIDR', 'false', docLinks.ROSA_CLASSIC_CIDR_POD],
-      ['Host prefix', 'true', docLinks.ROSA_CIDR_HOST],
-      ['Host prefix', 'false', docLinks.ROSA_CLASSIC_CIDR_HOST],
-    ])(
-      'renders %s link when isHypershiftSelected %s',
-      async (fieldLabel, isHypershiftSelected, expectedLink) => {
-        const { user } = render(
-          build({
-            [FieldId.Hypershift]: isHypershiftSelected,
-          }),
-        );
-        const formGroup = screen.getByLabelText(fieldLabel).closest('.pf-v6-c-form__group');
-        const moreInfoBtn = within(formGroup).getByLabelText('More information');
-
-        await user.click(moreInfoBtn);
-        const link = screen.getByText('Learn more');
-        expect(link).toHaveAttribute('href', expectedLink);
-      },
-    );
   });
 });

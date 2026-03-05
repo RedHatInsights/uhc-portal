@@ -31,8 +31,7 @@ import { RadioButtons, ReduxCheckbox } from '~/components/common/ReduxFormCompon
 import useAnalytics from '~/hooks/useAnalytics';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
-import docLinks from '../../../../../common/docLinks.mjs';
-import supportLinks from '../../../../../common/supportLinks.mjs';
+import links from '../../../../../common/installLinks.mjs';
 
 function NetworkScreen(props) {
   const {
@@ -62,6 +61,7 @@ function NetworkScreen(props) {
       [FieldId.SelectedVpc]: selectedVPC,
     },
   } = useFormState();
+
   const privateClusterSelected = clusterPrivacy === 'internal';
   const isHypershiftSelected = hypershiftValue === 'true';
   const clusterVersionRawId = clusterVersionValue?.raw_id;
@@ -278,7 +278,7 @@ function NetworkScreen(props) {
                   title="You will not be able to access your cluster until you edit network settings in your cloud provider."
                 >
                   {cloudProviderID === 'aws' && (
-                    <ExternalLink href={docLinks.ROSA_PRIVATE_CONNECTIONS}>
+                    <ExternalLink href={links.ROSA_PRIVATE_CONNECTIONS}>
                       Learn more about configuring network settings
                     </ExternalLink>
                   )}
@@ -297,14 +297,12 @@ function NetworkScreen(props) {
                 Virtual Private Cloud (VPC)
               </Title>
             </GridItem>
-            {!privateClusterSelected && (
-              <GridItem>
-                <Content component="p">
-                  By default, a new VPC will be created for your cluster. Alternatively, you may opt
-                  to install to an existing VPC below.
-                </Content>
-              </GridItem>
-            )}
+            <GridItem>
+              <Content component="p">
+                By default, a new VPC will be created for your cluster. Alternatively, you may opt
+                to install to an existing VPC below.
+              </Content>
+            </GridItem>
             <GridItem>
               <FormGroup fieldId="install-to-vpc">
                 {privateClusterSelected ? (
@@ -367,7 +365,7 @@ function NetworkScreen(props) {
                   <>
                     {' '}
                     For 4.13 clusters, refer to{' '}
-                    <ExternalLink href={supportLinks.MANAGED_INGRESS_KNOWLEDGE_BASE}>
+                    <ExternalLink href={links.MANAGED_INGRESS_KNOWLEDGE_BASE}>
                       this knowledge base article
                     </ExternalLink>
                     .

@@ -6,7 +6,7 @@ import { HelpIcon } from '@patternfly/react-icons/dist/esm/icons/help-icon';
 import { PLATFORM_LIGHTSPEED_REBRAND } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
-import supportLinks from '../../../common/supportLinks.mjs';
+import links from '../../../common/installLinks.mjs';
 import ExternalLink from '../../common/ExternalLink';
 
 const InfoPopover = () => {
@@ -30,9 +30,7 @@ const InfoPopover = () => {
           <p>{informationText[0]}</p>
           <p>
             {informationText[1]}
-            <ExternalLink href={supportLinks.REMOTE_HEALTH_INSIGHTS}>
-              OpenShift documentation
-            </ExternalLink>
+            <ExternalLink href={links.REMOTE_HEALTH_INSIGHTS}>OpenShift documentation</ExternalLink>
           </p>
         </>
       }

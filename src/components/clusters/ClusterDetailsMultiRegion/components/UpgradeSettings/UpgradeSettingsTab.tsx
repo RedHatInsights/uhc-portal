@@ -16,7 +16,7 @@ import {
   GridItem,
 } from '@patternfly/react-core';
 
-import docLinks from '~/common/docLinks.mjs';
+import links from '~/common/installLinks.mjs';
 import { knownProducts } from '~/common/subscriptionTypes';
 import getClusterVersion from '~/components/clusters/common/getClusterVersion';
 import { getToVersionFromHelper } from '~/components/clusters/common/Upgrades/UpgradeAcknowledge/UpgradeAcknowledgeHelpers';
@@ -351,7 +351,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                       disableUVM={disableUVM}
                       planType={cluster.subscription?.plan?.type}
                       rosaMonitoringLink={
-                        isHypershift ? docLinks.ROSA_MONITORING : docLinks.ROSA_CLASSIC_MONITORING
+                        isHypershift ? links.ROSA_MONITORING : links.ROSA_CLASSIC_MONITORING
                       }
                     />
                   </CardBody>

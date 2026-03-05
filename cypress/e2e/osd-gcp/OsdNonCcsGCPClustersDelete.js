@@ -1,6 +1,5 @@
 import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 import ClusterListPage from '../../pageobjects/ClusterList.page';
-import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 const clusterDetails = require('../../fixtures/osd-gcp/OsdNonCcsGCPClusterCreate.json');
 const clusterProfiles = ['osd-nonccs-gcp-multizone', 'osd-nonccs-gcp-singlezone'];
 describe(
@@ -9,7 +8,7 @@ describe(
   () => {
     beforeEach(() => {
       if (Cypress.currentTest.title.match(/Open.*cluster/g)) {
-        cy.visit(CLUSTER_LIST_PATH);
+        cy.visit('/cluster-list');
         ClusterListPage.waitForDataReady();
       }
     });

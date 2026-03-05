@@ -74,7 +74,7 @@ const AddNotificationContactDialog = ({
       secondaryText="Cancel"
       onPrimaryClick={handleSubmit}
       onSecondaryClick={setInitialState}
-      isPrimaryDisabled={!!validationMessage || userName === ''}
+      isPrimaryDisabled={!!validationMessage || isAddNotificationContactPending || userName === ''}
       isPending={isAddNotificationContactPending}
     >
       <p className="pf-v6-u-mb-xl">

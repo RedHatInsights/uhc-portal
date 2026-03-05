@@ -6,7 +6,7 @@ import { SearchIcon } from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { PLATFORM_LIGHTSPEED_REBRAND } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
-import supportLinks from '../../../common/supportLinks.mjs';
+import links from '../../../common/installLinks.mjs';
 import ExternalLink from '../../common/ExternalLink';
 
 const AdvisorEmptyState = () => {
@@ -24,10 +24,7 @@ const AdvisorEmptyState = () => {
         This feature uses the Remote Health functionality of OpenShift Container Platform. For
         further details about Red Hat {allowPlatformLightspeedRebrand ? 'Lightspeed' : 'Insights'},
         see the{' '}
-        <ExternalLink href={supportLinks.REMOTE_HEALTH_INSIGHTS}>
-          OpenShift documentation
-        </ExternalLink>
-        .
+        <ExternalLink href={links.REMOTE_HEALTH_INSIGHTS}>OpenShift documentation</ExternalLink>.
       </EmptyStateBody>
     </EmptyState>
   );

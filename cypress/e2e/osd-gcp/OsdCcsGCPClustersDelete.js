@@ -1,7 +1,6 @@
 import 'cypress-each';
 import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 import ClusterListPage from '../../pageobjects/ClusterList.page';
-import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 const clusterDetails = require('../../fixtures/osd-gcp/OsdCcsGCPClusterCreate.json');
 const clusterProfiles = [
   'osd-ccs-gcp-public-singlezone-serviceaccount',
@@ -13,7 +12,7 @@ const clusterProfiles = [
 describe('OSD CCS GCP - delete clusters', { tags: ['day3', 'osd', 'ccs', 'gcp', 'public'] }, () => {
   it.each(clusterProfiles)('Delete the  %s cluster profile', (clusterProfile) => {
     let clusterName = clusterDetails[clusterProfile]['day1-profile'].ClusterName;
-    cy.visit(CLUSTER_LIST_PATH);
+    cy.visit('/cluster-list');
     ClusterListPage.waitForDataReady();
     ClusterListPage.filterTxtField().should('be.visible').click();
     ClusterListPage.filterTxtField().clear().type(clusterName);

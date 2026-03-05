@@ -1,7 +1,6 @@
 import React from 'react';
 
-import docLinks from '~/common/docLinks.mjs';
-import supportLinks from '~/common/supportLinks.mjs';
+import links from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 
@@ -16,11 +15,11 @@ const LoadBalancerPopover = () => (
         documented by AWS, we recommend using the Network Load Balancer. If you are using
         EC2-Classic Network, we recommend using Classic.
         <br />
-        <ExternalLink href={docLinks.AWS_LOAD_BALANCER_FEATURES}>
+        <ExternalLink href={links.AWS_LOAD_BALANCER_FEATURES}>
           Learn more about AWS load balancers.
         </ExternalLink>
         <br />
-        <ExternalLink href={supportLinks.MANAGED_INGRESS_KNOWLEDGE_BASE}>
+        <ExternalLink href={links.MANAGED_INGRESS_KNOWLEDGE_BASE}>
           Learn more about setting load balancers in OCP.
         </ExternalLink>
       </div>

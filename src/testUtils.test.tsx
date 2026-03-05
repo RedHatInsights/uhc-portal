@@ -76,17 +76,17 @@ describe('render() with default state', () => {
     it('Class component + connect()', () => {
       render(<ConnectedComponent other="1" />);
 
-      expect(mappedState).toHaveBeenCalledTimes(1);
-      expect(rendered).toHaveBeenCalledTimes(1);
-      expect(didMount).toHaveBeenCalledTimes(1);
+      expect(mappedState).toBeCalledTimes(1);
+      expect(rendered).toBeCalledTimes(1);
+      expect(didMount).toBeCalledTimes(1);
       expect(screen.getByText(/pending: n.*other: 1/)).toBeInTheDocument();
     });
 
     it('Functional component + hooks', () => {
       render(<FunctionalHookComponent other="1" />);
 
-      expect(rendered).toHaveBeenCalledTimes(1);
-      expect(didMount).toHaveBeenCalledTimes(1);
+      expect(rendered).toBeCalledTimes(1);
+      expect(didMount).toBeCalledTimes(1);
       expect(screen.getByText(/pending: n.*other: 1/)).toBeInTheDocument();
     });
   });
@@ -97,11 +97,11 @@ describe('render() with default state', () => {
 
       rerender(<ConnectedComponent other="3" />);
 
-      expect(didMount).toHaveBeenCalledTimes(1); // it remained mounted
+      expect(didMount).toBeCalledTimes(1); // it remained mounted
       // Seems mapStateToProps's result is reused without calling it again.
       // Nice optimization but not essential to this test.
-      // expect(mappedState).toHaveBeenCalledTimes(1);
-      expect(rendered).toHaveBeenCalledTimes(2);
+      // expect(mappedState).toBeCalledTimes(1);
+      expect(rendered).toBeCalledTimes(2);
       expect(screen.getByText(/other: 3/)).toBeInTheDocument();
     });
 
@@ -110,8 +110,8 @@ describe('render() with default state', () => {
 
       rerender(<FunctionalHookComponent other="3" />);
 
-      expect(didMount).toHaveBeenCalledTimes(1); // it remained mounted
-      expect(rendered).toHaveBeenCalledTimes(2);
+      expect(didMount).toBeCalledTimes(1); // it remained mounted
+      expect(rendered).toBeCalledTimes(2);
       expect(screen.getByText(/other: 3/)).toBeInTheDocument();
     });
   });
@@ -131,11 +131,9 @@ describe('withState()', () => {
 
       render(<ConnectedComponent other="4" />);
 
-      expect(mappedState).toHaveBeenCalledTimes(1);
-      expect(rendered).toHaveBeenLastCalledWith(
-        expect.objectContaining({ pending: true, other: '4' }),
-      );
-      expect(didMount).toHaveBeenCalledTimes(1);
+      expect(mappedState).toBeCalledTimes(1);
+      expect(rendered).lastCalledWith(expect.objectContaining({ pending: true, other: '4' }));
+      expect(didMount).toBeCalledTimes(1);
       expect(screen.getByText(/pending: y/)).toBeInTheDocument();
     });
 
@@ -147,8 +145,8 @@ describe('withState()', () => {
 
       render(<FunctionalHookComponent other="4" />);
 
-      expect(rendered).toHaveBeenLastCalledWith(true, { other: '4' });
-      expect(didMount).toHaveBeenCalledTimes(1);
+      expect(rendered).lastCalledWith(true, { other: '4' });
+      expect(didMount).toBeCalledTimes(1);
       expect(screen.getByText(/pending: y/)).toBeInTheDocument();
     });
   });
@@ -158,17 +156,17 @@ describe('withState()', () => {
       const { render, getState, dispatch } = withState({});
       render(<ConnectedComponent other="5" />);
 
-      expect(mappedState).toHaveBeenCalledTimes(1);
-      expect(rendered).toHaveBeenCalledTimes(1);
-      expect(didMount).toHaveBeenCalledTimes(1);
+      expect(mappedState).toBeCalledTimes(1);
+      expect(rendered).toBeCalledTimes(1);
+      expect(didMount).toBeCalledTimes(1);
       expect(screen.getByText(/pending: n/)).toBeInTheDocument();
 
       dispatch({ type: 'GET_DEFAULT_FLAVOUR_PENDING' });
 
       expect(getState().flavours.pending).toBe(true);
-      expect(didMount).toHaveBeenCalledTimes(1); // it remained mounted
-      expect(mappedState).toHaveBeenCalledTimes(2);
-      expect(rendered).toHaveBeenCalledTimes(2);
+      expect(didMount).toBeCalledTimes(1); // it remained mounted
+      expect(mappedState).toBeCalledTimes(2);
+      expect(rendered).toBeCalledTimes(2);
       expect(screen.getByText(/pending: y/)).toBeInTheDocument();
     });
 
@@ -176,15 +174,15 @@ describe('withState()', () => {
       const { render, getState, dispatch } = withState({});
       render(<FunctionalHookComponent other="5" />);
 
-      expect(rendered).toHaveBeenCalledTimes(1);
-      expect(didMount).toHaveBeenCalledTimes(1);
+      expect(rendered).toBeCalledTimes(1);
+      expect(didMount).toBeCalledTimes(1);
       expect(screen.getByText(/pending: n/)).toBeInTheDocument();
 
       dispatch({ type: 'GET_DEFAULT_FLAVOUR_PENDING' });
 
       expect(getState().flavours.pending).toBe(true);
-      expect(didMount).toHaveBeenCalledTimes(1); // it remained mounted
-      expect(rendered).toHaveBeenCalledTimes(2);
+      expect(didMount).toBeCalledTimes(1); // it remained mounted
+      expect(rendered).toBeCalledTimes(2);
       expect(screen.getByText(/pending: y/)).toBeInTheDocument();
     });
   });
@@ -194,30 +192,30 @@ describe('withState()', () => {
       const { render, dispatch } = withState({});
       render(<ConnectedComponent other="6" />);
 
-      expect(mappedState).toHaveBeenCalledTimes(1);
-      expect(rendered).toHaveBeenCalledTimes(1);
-      expect(didMount).toHaveBeenCalledTimes(1);
+      expect(mappedState).toBeCalledTimes(1);
+      expect(rendered).toBeCalledTimes(1);
+      expect(didMount).toBeCalledTimes(1);
       expect(screen.getByText(/pending: n/)).toBeInTheDocument();
 
       dispatch({ type: 'GET_DEFAULT_FLAVOUR_FULFILLED', payload: { data: {} } });
 
-      expect(didMount).toHaveBeenCalledTimes(1); // it remained mounted
-      expect(mappedState).toHaveBeenCalledTimes(2);
-      expect(rendered).toHaveBeenCalledTimes(1); // re-render was skipped
+      expect(didMount).toBeCalledTimes(1); // it remained mounted
+      expect(mappedState).toBeCalledTimes(2);
+      expect(rendered).toBeCalledTimes(1); // re-render was skipped
     });
 
     it('Functional component + hooks', () => {
       const { render, dispatch } = withState({});
       render(<FunctionalHookComponent other="6" />);
 
-      expect(rendered).toHaveBeenCalledTimes(1);
-      expect(didMount).toHaveBeenCalledTimes(1);
+      expect(rendered).toBeCalledTimes(1);
+      expect(didMount).toBeCalledTimes(1);
       expect(screen.getByText(/pending: n/)).toBeInTheDocument();
 
       dispatch({ type: 'GET_DEFAULT_FLAVOUR_FULFILLED', payload: { data: {} } });
 
-      expect(didMount).toHaveBeenCalledTimes(1); // it remained mounted
-      expect(rendered).toHaveBeenCalledTimes(1); // re-render was skipped
+      expect(didMount).toBeCalledTimes(1); // it remained mounted
+      expect(rendered).toBeCalledTimes(1); // re-render was skipped
     });
   });
 
@@ -251,25 +249,23 @@ describe('withState()', () => {
     const { render, dispatch } = withState({});
     const view = render(<ConnectedComponent other="A" />);
 
-    expect(mappedState).toHaveBeenCalledTimes(1);
-    expect(rendered).toHaveBeenCalledTimes(1);
-    expect(rendered).toHaveBeenLastCalledWith(
-      expect.objectContaining({ pending: false, other: 'A' }),
-    );
-    expect(didMount).toHaveBeenCalledTimes(1);
+    expect(mappedState).toBeCalledTimes(1);
+    expect(rendered).toBeCalledTimes(1);
+    expect(rendered).lastCalledWith(expect.objectContaining({ pending: false, other: 'A' }));
+    expect(didMount).toBeCalledTimes(1);
     expect(screen.getByText(/other: A/)).toBeInTheDocument();
 
     view.unmount();
     dispatch({ type: 'GET_DEFAULT_FLAVOUR_PENDING' });
 
     expect(screen.queryByText(/other: A/)).not.toBeInTheDocument();
-    expect(mappedState).toHaveBeenCalledTimes(1); // not called - nothing mounted.
+    expect(mappedState).toBeCalledTimes(1); // not called - nothing mounted.
 
     render(<FunctionalHookComponent other="B" />);
 
-    expect(rendered).toHaveBeenCalledTimes(2);
-    expect(rendered).toHaveBeenLastCalledWith(true, { other: 'B' });
-    expect(didMount).toHaveBeenCalledTimes(2);
+    expect(rendered).toBeCalledTimes(2);
+    expect(rendered).lastCalledWith(true, { other: 'B' });
+    expect(didMount).toBeCalledTimes(2);
     expect(screen.getByText(/pending: y.*other: B/)).toBeInTheDocument();
   });
 
@@ -280,22 +276,19 @@ describe('withState()', () => {
 
     render(<ConnectedComponent other="B" />);
 
-    expect(mappedState).toHaveBeenCalledTimes(1);
-    expect(rendered).toHaveBeenCalledTimes(2);
-    expect(rendered).toHaveBeenNthCalledWith(1, false, { other: 'A' });
-    expect(rendered).toHaveBeenNthCalledWith(
-      2,
-      expect.objectContaining({ pending: false, other: 'B' }),
-    );
-    expect(didMount).toHaveBeenCalledTimes(2);
+    expect(mappedState).toBeCalledTimes(1);
+    expect(rendered).toBeCalledTimes(2);
+    expect(rendered).nthCalledWith(1, false, { other: 'A' });
+    expect(rendered).nthCalledWith(2, expect.objectContaining({ pending: false, other: 'B' }));
+    expect(didMount).toBeCalledTimes(2);
     expect(screen.getByText(/pending: n.*other: A/)).toBeInTheDocument();
     expect(screen.getByText(/pending: n.*other: B/)).toBeInTheDocument();
 
     await user.click(buttonA);
 
-    expect(rendered).toHaveBeenCalledTimes(4);
-    expect(rendered).toHaveBeenCalledWith(true, { other: 'A' });
-    expect(rendered).toHaveBeenCalledWith(expect.objectContaining({ pending: true, other: 'B' }));
+    expect(rendered).toBeCalledTimes(4);
+    expect(rendered).toBeCalledWith(true, { other: 'A' });
+    expect(rendered).toBeCalledWith(expect.objectContaining({ pending: true, other: 'B' }));
     expect(screen.getByText(/pending: y.*other: A/)).toBeInTheDocument();
     expect(screen.getByText(/pending: y.*other: B/)).toBeInTheDocument();
   });

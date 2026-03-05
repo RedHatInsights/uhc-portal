@@ -3,13 +3,12 @@ import CreateClusterPage from '../../pageobjects/CreateCluster.page';
 import CreateOSDWizardPage from '../../pageobjects/CreateOSDWizard.page';
 import GlobalNav from '../../pageobjects/GlobalNav.page';
 import LeaveCreateClusterPrompt from '../../pageobjects/LeaveCreateClusterPrompt';
-import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 const clusterName = `test-${Math.random().toString(36).substr(2, 10)}`;
 
 describe('OSD cluster tests', { tags: ['ci'] }, () => {
   before(() => {
-    cy.visit(CLUSTER_LIST_PATH);
+    cy.visit('/cluster-list');
     ClusterListPage.waitForDataReady();
     ClusterListPage.isClusterListScreen();
   });

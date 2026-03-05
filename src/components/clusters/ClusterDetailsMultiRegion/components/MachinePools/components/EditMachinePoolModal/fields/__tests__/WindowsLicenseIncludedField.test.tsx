@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Formik, FormikValues } from 'formik';
 
-import docLinks from '~/common/docLinks.mjs';
-import { render, screen, waitFor } from '~/testUtils';
+import links from '~/common/installLinks.mjs';
+import { render, screen } from '~/testUtils';
 
 import { WindowsLicenseIncludedField } from '../WindowsLicenseIncludedField';
 
@@ -14,14 +14,10 @@ import {
   WindowsLIEnabledMachinePool,
 } from './WindowsLicenseIncludedField.fixtures';
 
-const minimumCompatibleVersion = '4.19.0';
-const compatibleClusterVersion = minimumCompatibleVersion;
-const nonCompatibleClusterVersion = '4.18.0';
-
 const {
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: AWS_DOCS_LINK,
   WINDOWS_LICENSE_INCLUDED_REDHAT_DOCS: REDHAT_DOCS_LINK,
-} = docLinks;
+} = links;
 
 // Formik Wrapper:
 const buildTestComponent = (
@@ -43,13 +39,13 @@ const buildTestComponent = (
 
 describe('<WindowsLicenseIncludedField />', () => {
   describe('When creating a new Machine Pool', () => {
-    describe('When using a compatible version cluster', () => {
-      it('Shows the checkbox text when selected Machine Type is Windows LI compatible', () => {
+    describe('When selected Machine Type is Windows LI compatible', () => {
+      it('Shows the checkbox text', () => {
         // Arrange
         render(
           buildTestComponent(
-            { ...initialValuesWithWindowsLIEnabledMachineTypeSelected },
-            <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
+            { initialValuesWithWindowsLIEnabledMachineTypeSelected },
+            <WindowsLicenseIncludedField />,
           ),
         );
 
@@ -62,232 +58,72 @@ describe('<WindowsLicenseIncludedField />', () => {
         const checkbox = screen.getByRole('checkbox');
         expect(checkbox).toBeInTheDocument();
       });
-
-      it('Shows a PopoverHint', async () => {
-        // Arrange
-        const { user } = render(
-          buildTestComponent(
-            { ...initialValuesWithWindowsLIEnabledMachineTypeSelected },
-            <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
-          ),
-        );
-
-        // Act
-        const popoverHint = screen.getByLabelText('More information');
-        await user.click(popoverHint);
-
-        // Assert
-        expect(screen.getByText(/Learn more about/i)).toBeInTheDocument();
-
-        const awsDocsLink = screen.getByText('Microsoft licensing on AWS');
-        const redhatDocsLink = screen.getByText('how to work with AWS-Windows-LI hosts');
-        expect(awsDocsLink).toBeInTheDocument();
-        expect(redhatDocsLink).toBeInTheDocument();
-        expect(awsDocsLink).toHaveAttribute('href', AWS_DOCS_LINK);
-        expect(redhatDocsLink).toHaveAttribute('href', REDHAT_DOCS_LINK);
-      });
-
-      it('Shows a disabled checkbox for Machine Types which are NOT Windows LI compatible', async () => {
-        // Arrange
-        render(
-          buildTestComponent(
-            { ...initialValues },
-            <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
-          ),
-        );
-
-        // Act
-        // Assert
-        const checkbox = screen.getByRole('checkbox');
-        expect(checkbox).toBeInTheDocument();
-        expect(checkbox).toBeDisabled();
-      });
-
-      it('Shows a related tooltip when hovering over the checkbox for Machine Types which are NOT Windows LI compatible', async () => {
-        // Arrange
-        const { user } = render(
-          buildTestComponent(
-            { ...initialValues },
-            <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
-          ),
-        );
-
-        // Act
-        const checkbox = screen.getByRole('checkbox');
-        await user.hover(checkbox);
-
-        // Assert
-        expect(
-          screen.getByText('This instance type is not Windows License Included compatible.'),
-        ).toBeInTheDocument();
-      });
-
-      it('Shows a disabled checkbox for an undefined selected Machine Type', async () => {
-        // Arrange
-        render(
-          buildTestComponent(
-            { ...initialValuesEmptyMachineType },
-            <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
-          ),
-        );
-
-        // Act
-        // Assert
-        const checkbox = screen.getByRole('checkbox');
-        expect(checkbox).toBeInTheDocument();
-        expect(checkbox).toBeDisabled();
-      });
-
-      it('Shows a related tooltip when hovering over the checkbox for an undefined selected Machine Type', async () => {
-        // Arrange
-        const { user } = render(
-          buildTestComponent(
-            { ...initialValuesEmptyMachineType },
-            <WindowsLicenseIncludedField clusterVersion={compatibleClusterVersion} />,
-          ),
-        );
-
-        // Act
-        const checkbox = screen.getByRole('checkbox');
-        await user.hover(checkbox);
-
-        // Assert
-        expect(
-          screen.getByText('This instance type is not Windows License Included compatible.'),
-        ).toBeInTheDocument();
-      });
     });
 
-    describe('When using a non-compatible version cluster', () => {
-      it('Shows a disabled checkbox', async () => {
-        // Arrange
-        render(
-          buildTestComponent(
-            { ...initialValuesWithWindowsLIEnabledMachineTypeSelected },
-            <WindowsLicenseIncludedField clusterVersion={nonCompatibleClusterVersion} />,
-          ),
-        );
+    it('Shows a PopoverHint for Machine Pools which are Windows LI enabled and verifies its functionality', async () => {
+      // Arrange
+      const { user } = render(
+        buildTestComponent(
+          { initialValuesWithWindowsLIEnabledMachineTypeSelected },
+          <WindowsLicenseIncludedField />,
+        ),
+      );
 
-        // Act
-        // Assert
-        const checkbox = screen.getByRole('checkbox');
-        expect(checkbox).toBeInTheDocument();
-        expect(checkbox).toBeDisabled();
-      });
+      // Act
+      const popoverHint = screen.getByLabelText('More information');
+      await user.click(popoverHint);
 
-      it('Shows a related tooltip', async () => {
-        // Arrange
-        const { user } = render(
-          buildTestComponent(
-            { ...initialValuesWithWindowsLIEnabledMachineTypeSelected },
-            <WindowsLicenseIncludedField clusterVersion={nonCompatibleClusterVersion} />,
-          ),
-        );
+      // Assert
+      expect(screen.getByText(/Learn more about/i)).toBeInTheDocument();
 
-        // Act
-        const checkbox = screen.getByRole('checkbox');
-        await user.hover(checkbox);
+      const awsDocsLink = screen.getByText('Microsoft licensing on AWS');
+      const redhatDocsLink = screen.getByText('how to work with AWS-Windows-LI hosts');
+      expect(awsDocsLink).toBeInTheDocument();
+      expect(redhatDocsLink).toBeInTheDocument();
+      expect(awsDocsLink).toHaveAttribute('href', AWS_DOCS_LINK);
+      expect(redhatDocsLink).toHaveAttribute('href', REDHAT_DOCS_LINK);
 
-        // Assert
-        await waitFor(() => {
-          expect(
-            screen.getByText(
-              `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`,
-            ),
-          ).toBeVisible();
-        });
-
-        // instance type tooltip does not override it when both incompatibilities apply
-        expect(
-          screen.queryByText('This instance type is not Windows License Included compatible.'),
-        ).not.toBeInTheDocument();
-      });
-
-      it('Shows a disabled checkbox when the selected Machine Type is NOT Windows LI compatible', async () => {
-        // Arrange
-        render(
-          buildTestComponent(
-            { ...initialValues },
-            <WindowsLicenseIncludedField clusterVersion={nonCompatibleClusterVersion} />,
-          ),
-        );
-
-        // Act
-        // Assert
-        const checkbox = screen.getByRole('checkbox');
-        expect(checkbox).toBeInTheDocument();
-        expect(checkbox).toBeDisabled();
-      });
-
-      it('Shows a tooltip related to version non-compatibility even if the selected Machine Type is NOT Windows LI compatible', async () => {
-        // Arrange
-        const { user } = render(
-          buildTestComponent(
-            { ...initialValues },
-            <WindowsLicenseIncludedField clusterVersion={nonCompatibleClusterVersion} />,
-          ),
-        );
-
-        // Act
-        const checkbox = screen.getByRole('checkbox');
-        await user.hover(checkbox);
-
-        // Assert
-        await waitFor(() => {
-          expect(
-            screen.getByText(
-              `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`,
-            ),
-          ).toBeVisible();
-        });
-      });
+      expect(
+        screen.getByText(
+          'When enabled, the machine pool is AWS License Included for Windows with associated fees.',
+        ),
+      ).toBeInTheDocument();
     });
 
-    // This case is not feasible in real life since we are talking about a ready cluster, so it must have a defined version
-    describe('When cluster version is not available', () => {
-      it('disables the checkbox when the selected instance type is incompatible', async () => {
-        // Arrange
-        render(
-          buildTestComponent(
-            { ...initialValues },
-            <WindowsLicenseIncludedField clusterVersion="" />,
-          ),
-        );
+    it('Shows a disabled checkbox with a related tooltip for Machine Types which are NOT Windows LI compatible', async () => {
+      // Arrange
+      const { user } = render(
+        buildTestComponent({ initialValues }, <WindowsLicenseIncludedField />),
+      );
 
-        // Act
-        // Assert
-        const checkbox = screen.getByRole('checkbox');
-        expect(checkbox).toBeInTheDocument();
-        expect(checkbox).toBeDisabled();
-      });
+      // Act
+      // Assert
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toBeInTheDocument();
+      expect(checkbox).toBeDisabled();
 
-      it('shows the version incompatibility tooltip when the selected instance type is incompatible', async () => {
-        // Arrange
-        const { user } = render(
-          buildTestComponent(
-            { ...initialValues },
-            <WindowsLicenseIncludedField clusterVersion="" />,
-          ),
-        );
+      await user.hover(checkbox);
+      expect(
+        screen.getByText('This instance type is not Windows License Included compatible.'),
+      ).toBeInTheDocument();
+    });
 
-        // Act
-        const checkbox = screen.getByRole('checkbox');
-        await user.hover(checkbox);
+    it('Shows a disabled checkbox with a related tooltip for an undefined selected Machine Type', async () => {
+      // Arrange
+      const { user } = render(
+        buildTestComponent({ initialValuesEmptyMachineType }, <WindowsLicenseIncludedField />),
+      );
 
-        // Assert
-        await waitFor(() => {
-          expect(
-            screen.getByText(
-              `Windows License Included enabled machine pools require control plane version ${minimumCompatibleVersion} or above.`,
-            ),
-          ).toBeVisible();
-        });
+      // Act
+      // Assert
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toBeInTheDocument();
+      expect(checkbox).toBeDisabled();
 
-        // instance type tooltip does not override it when both incompatibilities apply
-        expect(
-          screen.queryByText('This instance type is not Windows License Included compatible.'),
-        ).not.toBeInTheDocument();
-      });
+      await user.hover(checkbox);
+      expect(
+        screen.getByText('This instance type is not Windows License Included compatible.'),
+      ).toBeInTheDocument();
     });
   });
 
@@ -306,7 +142,7 @@ describe('<WindowsLicenseIncludedField />', () => {
         expect(screen.getByText('This machine pool is Windows LI enabled')).toBeInTheDocument();
       });
 
-      it('Shows a PopoverHint', async () => {
+      it('Shows a PopoverHint and verifies its functionality', async () => {
         // Arrange
         const { user } = render(
           buildTestComponent(
@@ -328,6 +164,12 @@ describe('<WindowsLicenseIncludedField />', () => {
         expect(redhatDocsLink).toBeInTheDocument();
         expect(awsDocsLink).toHaveAttribute('href', AWS_DOCS_LINK);
         expect(redhatDocsLink).toHaveAttribute('href', REDHAT_DOCS_LINK);
+
+        expect(
+          screen.getByText(
+            'When enabled, the machine pool is AWS License Included for Windows with associated fees.',
+          ),
+        ).toBeInTheDocument();
       });
     });
 

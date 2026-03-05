@@ -247,7 +247,7 @@ export const MachinePoolsTable = ({
 
         return (
           <Tbody key={machinePool.id} isExpanded={isMachinePoolExpanded(machinePool)}>
-            <Tr key={`${machinePool.id}-main-row`}>
+            <Tr>
               <Td
                 expand={
                   expandableRow
@@ -298,7 +298,7 @@ export const MachinePoolsTable = ({
             </Tr>
 
             <Tr
-              key={`${machinePool.id}-expandable-row`}
+              key="expandable-row"
               isExpanded={isMachinePoolExpanded(machinePool)}
               data-testid="expandable-row"
             >

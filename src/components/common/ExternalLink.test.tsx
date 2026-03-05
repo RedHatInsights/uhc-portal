@@ -1,6 +1,5 @@
 import React from 'react';
 
-import * as locationUtils from '~/common/location';
 import { checkAccessibility, render, screen, within } from '~/testUtils';
 
 import ExternalLink from './ExternalLink';
@@ -186,20 +185,22 @@ describe('<ExternalLink />', () => {
   });
 
   describe('useAnalytics', () => {
-    let locationSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      locationSpy = jest.spyOn(locationUtils, 'getLocation');
-      useAnalyticsMock.mockClear();
+    const mockPathname = jest.fn();
+    Object.defineProperty(window, 'location', {
+      value: {
+        get pathname() {
+          return mockPathname();
+        },
+      },
     });
-
-    afterEach(() => {
-      locationSpy.mockRestore();
+    beforeEach(() => {
+      useAnalyticsMock.mockClear();
+      mockPathname.mockClear();
     });
 
     it('is called for unknown pathname', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/foo' });
+      mockPathname.mockReturnValue('/foo');
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -221,7 +222,7 @@ describe('<ExternalLink />', () => {
 
     it('is called for rosa pathname', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/rosa' });
+      mockPathname.mockReturnValue('/rosa');
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -243,7 +244,7 @@ describe('<ExternalLink />', () => {
 
     it('is called for osd trial pathname', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/osdtrial' });
+      mockPathname.mockReturnValue('/osdtrial');
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -265,7 +266,7 @@ describe('<ExternalLink />', () => {
 
     it('is called for osd pathname', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/osd' });
+      mockPathname.mockReturnValue('/osd');
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -287,7 +288,7 @@ describe('<ExternalLink />', () => {
 
     it('is called for crc pathname', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/crc' });
+      mockPathname.mockReturnValue('/crc');
       const { user } = render(<ExternalLink href="http://example.com">Hello World</ExternalLink>);
 
       // Act
@@ -308,7 +309,7 @@ describe('<ExternalLink />', () => {
     });
     it('is called with custom tracking properties', async () => {
       // Arrange
-      locationSpy.mockReturnValue({ pathname: '/crc' });
+      mockPathname.mockReturnValue('/crc');
       const customProps = {
         current_path: '/openshift/details/s',
         tab_title: 'Add-ons',

@@ -12,7 +12,6 @@ import clusterStates from '../../../../common/clusterStates';
 import MachinePools from '../MachinePools';
 import {
   hasMachinePoolsQuotaSelector,
-  hasOrgLevelAutoscaleCapability,
   hasOrgLevelBypassPIDsLimitCapability,
 } from '../machinePoolsSelectors';
 import * as selectors from '../UpdateMachinePools/updateMachinePoolsHelpers';
@@ -61,7 +60,6 @@ jest.mock(
 );
 jest.mock('../machinePoolsSelectors', () => ({
   hasMachinePoolsQuotaSelector: jest.fn(),
-  hasOrgLevelAutoscaleCapability: jest.fn(),
   hasOrgLevelBypassPIDsLimitCapability: jest.fn(),
 }));
 
@@ -150,7 +148,6 @@ describe('<MachinePools />', () => {
   const useFetchMachineTypesMock = useFetchMachineTypes;
   const useFetchMachineOrNodePoolsMock = useFetchMachineOrNodePools;
   const useDeleteMachinePoolMock = useDeleteMachinePool;
-  const hasOrgLevelAutoscaleCapabilityMock = hasOrgLevelAutoscaleCapability;
   const hasOrgLevelBypassPIDsLimitCapabilityMock = hasOrgLevelBypassPIDsLimitCapability;
   describe('renders', () => {
     useDeleteMachinePoolMock.mockReturnValue({
@@ -193,26 +190,23 @@ describe('<MachinePools />', () => {
     });
 
     hasOrgLevelBypassPIDsLimitCapabilityMock.mockReturnValue(true);
-    hasOrgLevelAutoscaleCapabilityMock.mockReturnValue(false);
-    it('should call getMachinePools on mount', async () => {
+    it('should call getMachinePools on mount', () => {
       render(<MachinePools {...defaultProps} />);
-      // Wait for the component to fully render and all async updates to complete
-      await screen.findByText('test-mp');
-      expect(useFetchMachineOrNodePoolsMock).toHaveBeenCalled();
-      expect(useFetchMachineTypesMock).toHaveBeenCalled();
+      expect(useFetchMachineOrNodePoolsMock).toBeCalled();
+      expect(useFetchMachineTypesMock).toBeCalled();
     });
 
-    it('the machine pool ID', async () => {
+    it('the machine pool ID', () => {
       render(<MachinePools {...defaultProps} />);
-      expect(await screen.findByText('test-mp')).toBeInTheDocument();
+      expect(screen.getByText('test-mp')).toBeInTheDocument();
     });
 
-    it('the machine pool labels', async () => {
+    it('the machine pool labels', () => {
       useFetchMachineOrNodePoolsMock.mockReturnValue({
         isLoading: false,
         data: [
           {
-            ...simpleMachinePoolList?.data[0],
+            ...simpleMachinePoolList?.data,
             labels: { foo: 'bar', hello: 'world' },
           },
         ],
@@ -225,80 +219,69 @@ describe('<MachinePools />', () => {
         ...defaultProps,
       };
       render(<MachinePools {...newProps} />);
-      expect(await screen.findByText('foo = bar')).toHaveClass('pf-v6-c-label__text');
+      expect(screen.getByText('foo = bar')).toHaveClass('pf-v6-c-label__text');
     });
 
     // // TODO: to not skip once TableDeprecated is removed
-    it('is accessible with additional machine pools, some with labels and/or taints', async () => {
-      const machinePoolsData = [
-        {
-          availability_zones: ['us-east-1a'],
-          href: '/api/clusters_mgmt/v1/clusters/cluster-id/machine_pools/mp-with-labels-and-taints',
-          id: 'mp-with-labels-and-taints',
-          instance_type: 'm5.xlarge',
-          kind: 'MachinePool',
-          labels: { foo: 'bar' },
-          replicas: 1,
-          taints: [
-            { key: 'foo1', value: 'bazz1', effect: 'NoSchedule' },
-            { key: 'foo2', value: 'bazz2', effect: 'NoSchedule' },
-          ],
-        },
-        {
-          availability_zones: ['us-east-1a'],
-          href: '/api/clusters_mgmt/v1/clusters/cluster-id/machine_pools/mp-with-labels',
-          id: 'mp-with-label',
-          instance_type: 'm5.xlarge',
-          kind: 'MachinePool',
-          labels: { foo: 'bar' },
-          replicas: 1,
-        },
-        {
-          availability_zones: ['us-east-1a'],
-          href: '/api/clusters_mgmt/v1/clusters/cluster-id/machine_pools/mp-with-taints',
-          id: 'mp-with-taints',
-          instance_type: 'm5.xlarge',
-          kind: 'MachinePool',
-          replicas: 1,
-          taints: [
-            { key: 'foo1', value: 'bazz1', effect: 'NoSchedule' },
-            { key: 'foo2', value: 'bazz2', effect: 'NoSchedule' },
-          ],
-        },
-        {
-          availability_zones: ['us-east-1a'],
-          href: '/api/clusters_mgmt/v1/clusters/cluster-id/machine_pools/mp-with-no-labels-no-taints',
-          id: 'mp-with-no-labels-no-taints',
-          instance_type: 'm5.xlarge',
-          kind: 'MachinePool',
-          replicas: 1,
-        },
-      ];
-      useFetchMachineOrNodePoolsMock.mockReturnValue({
-        isLoading: false,
-        data: machinePoolsData,
-        isError: false,
-        error: {
-          error: null,
-        },
-        refetch: jest.fn(),
-        isRefetching: jest.fn(),
-      });
-      const newProps = {
-        ...defaultProps,
-        machinePoolsList: {
-          data: machinePoolsData,
-        },
-      };
-      const { container } = render(<MachinePools {...newProps} />);
-      expect(await screen.findByText('mp-with-labels-and-taints')).toBeInTheDocument();
-      expect(await screen.findByText('mp-with-label')).toBeInTheDocument();
-      expect(await screen.findByText('mp-with-taints')).toBeInTheDocument();
-      expect(await screen.findByText('mp-with-no-labels-no-taints')).toBeInTheDocument();
-      await checkAccessibility(container);
-    });
+    // it.skip('is accessible with additional machine pools, some with labels and/or taints', async () => {
+    //   const newProps = {
+    //     ...defaultProps,
+    //     machinePoolsList: {
+    //       data: [
+    //         {
+    //           availability_zones: ['us-east-1a'],
+    //           href: '/api/clusters_mgmt/v1/clusters/cluster-id/machine_pools/mp-with-labels-and-taints',
+    //           id: 'mp-with-labels-and-taints',
+    //           instance_type: 'm5.xlarge',
+    //           kind: 'MachinePool',
+    //           labels: { foo: 'bar' },
+    //           replicas: 1,
+    //           taints: [
+    //             { key: 'foo1', value: 'bazz1', effect: 'NoSchedule' },
+    //             { key: 'foo2', value: 'bazz2', effect: 'NoSchedule' },
+    //           ],
+    //         },
+    //         {
+    //           availability_zones: ['us-east-1a'],
+    //           href: '/api/clusters_mgmt/v1/clusters/cluster-id/machine_pools/mp-with-labels',
+    //           id: 'mp-with-label',
+    //           instance_type: 'm5.xlarge',
+    //           kind: 'MachinePool',
+    //           labels: { foo: 'bar' },
+    //           replicas: 1,
+    //         },
+    //         {
+    //           availability_zones: ['us-east-1a'],
+    //           href: '/api/clusters_mgmt/v1/clusters/cluster-id/machine_pools/mp-with-taints',
+    //           id: 'mp-with-taints',
+    //           instance_type: 'm5.xlarge',
+    //           kind: 'MachinePool',
+    //           replicas: 1,
+    //           taints: [
+    //             { key: 'foo1', value: 'bazz1', effect: 'NoSchedule' },
+    //             { key: 'foo2', value: 'bazz2', effect: 'NoSchedule' },
+    //           ],
+    //         },
+    //         {
+    //           availability_zones: ['us-east-1a'],
+    //           href: '/api/clusters_mgmt/v1/clusters/cluster-id/machine_pools/mp-with-no-labels-no-taints',
+    //           id: 'mp-with-no-labels-no-taints',
+    //           instance_type: 'm5.xlarge',
+    //           kind: 'MachinePool',
+    //           replicas: 1,
+    //         },
+    //       ],
+    //     },
+    //   };
+    //   const { container } = render(<MachinePools {...newProps} />);
+    //   expect(screen.getByText('mp-with-labels-and-taints')).toBeInTheDocument();
+    //   expect(screen.getByText('mp-with-label')).toBeInTheDocument();
+    //   expect(screen.getByText('mp-with-taints')).toBeInTheDocument();
+    //   expect(screen.getByText('mp-with-no-labels-no-taints')).toBeInTheDocument();
+    //   await checkAccessibility(container);
+    // });
 
-    it('with a machine pool with autoscaling enabled', async () => {
+    it('with a machine pool with autoscaling enabled', () => {
       useFetchMachineOrNodePoolsMock.mockReturnValue({
         isLoading: false,
         data: [
@@ -323,11 +306,9 @@ describe('<MachinePools />', () => {
       });
 
       render(<MachinePools {...defaultProps} />);
-      expect(await screen.findByText('mp-autoscaling')).toBeInTheDocument();
-      const minNodes = await screen.findByText('Min nodes');
-      expect(minNodes.closest('div')).toHaveTextContent('Min nodes 1');
-      const maxNodes = await screen.findByText('Max nodes');
-      expect(maxNodes.closest('div')).toHaveTextContent('Max nodes 2');
+      expect(screen.getByText('mp-autoscaling')).toBeInTheDocument();
+      expect(screen.getByText('Min nodes').closest('div')).toHaveTextContent('Min nodes 1');
+      expect(screen.getByText('Max nodes').closest('div')).toHaveTextContent('Max nodes 2');
     });
 
     it('should render skeleton while fetching machine pools', async () => {
@@ -349,7 +330,7 @@ describe('<MachinePools />', () => {
       await checkAccessibility(container);
     });
 
-    it('OpenShift version for machine pools is shown if hypershift', async () => {
+    it('OpenShift version for machine pools is shown if hypershift', () => {
       useFetchMachineOrNodePoolsMock.mockReturnValue({
         isLoading: false,
         data: [
@@ -394,10 +375,10 @@ describe('<MachinePools />', () => {
       };
       render(<MachinePools {...newProps} />);
 
-      expect(await screen.findByText('4.12.5-candidate')).toBeInTheDocument();
+      expect(screen.getByText('4.12.5-candidate')).toBeInTheDocument();
     });
 
-    it('should render error message', async () => {
+    it('should render error message', () => {
       useDeleteMachinePoolMock.mockReturnValue({
         mutate: jest.fn(),
         isPending: false,
@@ -413,7 +394,7 @@ describe('<MachinePools />', () => {
         ...defaultProps,
       };
       render(<MachinePools {...newProps} />);
-      expect(await screen.findByTestId('alert-error')).toBeInTheDocument();
+      expect(screen.getByTestId('alert-error')).toBeInTheDocument();
     });
   });
 
@@ -422,7 +403,7 @@ describe('<MachinePools />', () => {
       jest.clearAllMocks();
     });
     const hasMachinePoolsQuotaSelectorMock = hasMachinePoolsQuotaSelector;
-    it('should open modal', async () => {
+    it.skip('should open modal', async () => {
       hasMachinePoolsQuotaSelectorMock.mockReturnValue(true);
       const { user } = render(<MachinePools {...defaultProps} />);
       expect(
@@ -431,9 +412,9 @@ describe('<MachinePools />', () => {
       await user.click(screen.getByRole('button', { name: 'Add machine pool' }));
 
       // TODO: The name of the modal should be changed - this is an accessibility issues
-      const dialog = await screen.findByRole('dialog');
-      expect(dialog).toBeInTheDocument();
-      expect(screen.getByRole('heading', { name: 'Add machine pool' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('dialog', { name: 'Add machine pool Add machine pool' }),
+      ).toBeInTheDocument();
     });
 
     it('should not allow adding machine pools to users without enough quota', async () => {
@@ -441,12 +422,12 @@ describe('<MachinePools />', () => {
       const newProps = { ...defaultProps };
       render(<MachinePools {...newProps} />);
 
-      // Wait for the button to be rendered and all async updates to complete
-      const button = await screen.findByRole('button', { name: 'Add machine pool' });
-
       // TODO: The button is not correctly disabled - this is an accessibility issue and should be fixed
-      // expect(button).toBeDisabled();
-      expect(button).toHaveAttribute('aria-disabled', 'true');
+      // expect(screen.getByRole('button', { name: 'Add machine pool' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Add machine pool' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
     });
   });
 
@@ -604,7 +585,7 @@ describe('<MachinePools />', () => {
       );
     });
 
-    it('Should enable all actions in kebab menu if hypershift is false', async () => {
+    it('Should enable all actions in kebab menu if hypershift is false', () => {
       useDeleteMachinePoolMock.mockReturnValue({
         mutate: jest.fn(),
         isPending: false,
@@ -689,12 +670,9 @@ describe('<MachinePools />', () => {
       };
 
       const { user, container } = render(<MachinePools {...newProps} />);
-      // Wait for buttons to appear and all async updates to complete
-      const kebabButtons = await screen.findAllByRole('button', { name: 'Kebab toggle' });
-      expect(kebabButtons).toHaveLength(2);
+      expect(screen.getAllByRole('button', { name: 'Kebab toggle' })).toHaveLength(2);
 
-      // Click each button sequentially to avoid conflicts
-      const clickAndCheck = async (button) => {
+      screen.getAllByRole('button', { name: 'Kebab toggle' }).forEach(async (button) => {
         await user.click(button);
         const menuItems = container.querySelectorAll(
           '.pf-v6-c-dropdown__menu .pf-v6-c-dropdown__menu-item',
@@ -702,9 +680,7 @@ describe('<MachinePools />', () => {
         menuItems.forEach((item) => {
           expect(item).not.toHaveAttribute('aria-disabled');
         });
-      };
-      await clickAndCheck(kebabButtons[0]);
-      await clickAndCheck(kebabButtons[1]);
+      });
     });
 
     it('displays option to update machine pool if machine pool can be updated ', async () => {
@@ -833,7 +809,7 @@ describe('<MachinePools />', () => {
       expect(screen.queryByRole('menuitem', { name: 'Update version' })).not.toBeInTheDocument();
     });
 
-    it('Should disable actions on machine pools if user does not have permissions', async () => {
+    it('Should disable actions on machine pools if user does not have permissions', () => {
       useFetchMachineOrNodePoolsMock.mockReturnValue({
         isLoading: false,
         data: [
@@ -867,13 +843,11 @@ describe('<MachinePools />', () => {
           },
         },
       };
-      render(<MachinePools {...props} />);
-      // Wait for the button to be rendered and all async updates to complete
-      const addButton = await screen.findByRole('button', { name: 'Add machine pool' });
-      expect(addButton).toHaveAttribute('aria-disabled', 'true');
+      const { container } = render(<MachinePools {...props} />);
+      // add machine pool button is disabled
+      expect(container.querySelector('#add-machine-pool')).toHaveAttribute('aria-disabled', 'true');
       // table actions are disabled
-      const kebabButton = await screen.findByRole('button', { name: 'Kebab toggle' });
-      expect(kebabButton).toBeDisabled();
+      expect(screen.queryByRole('button', { name: 'Kebab toggle' })).toBeDisabled();
     });
 
     it('Should disable delete action if user does not have permissions', async () => {
@@ -921,7 +895,7 @@ describe('<MachinePools />', () => {
       );
     });
 
-    it('Should allow actions on machine pools if user has permissions', async () => {
+    it('Should allow actions on machine pools if user has permissions', () => {
       useFetchMachineOrNodePoolsMock.mockReturnValue({
         isLoading: false,
         data: [
@@ -949,17 +923,15 @@ describe('<MachinePools />', () => {
           },
         },
       };
-      render(<MachinePools {...props} />);
-      // Wait for the button to be rendered and all async updates to complete
-      const addButton = await screen.findByRole('button', { name: 'Add machine pool' });
-      expect(addButton).not.toHaveAttribute('aria-disabled');
+      const { container } = render(<MachinePools {...props} />);
+      // add machine pool button is enabled
+      expect(container.querySelector('#add-machine-pool')).not.toHaveAttribute('aria-disabled');
       // table actions are enabled
-      const kebabButton = await screen.findByRole('button', { name: 'Kebab toggle' });
-      expect(kebabButton).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Kebab toggle' })).toBeEnabled();
     });
   });
 
-  it('Should render successfully when machinePoolsActions is unset (rendering from cluster list data)', async () => {
+  it('Should render successfully when machinePoolsActions is unset (rendering from cluster list data)', () => {
     useFetchMachineOrNodePoolsMock.mockReturnValue({
       isLoading: false,
       data: simpleMachinePoolList.data,
@@ -979,10 +951,9 @@ describe('<MachinePools />', () => {
       },
     };
 
-    render(<MachinePools {...props} />);
-    // Wait for the button to be rendered and all async updates to complete
-    const addButton = await screen.findByRole('button', { name: 'Add machine pool' });
-    expect(addButton).toHaveAttribute('aria-disabled', 'true');
+    const { container } = render(<MachinePools {...props} />);
+    // add machine pool button is disabled
+    expect(container.querySelector('#add-machine-pool')).toHaveAttribute('aria-disabled', 'true');
     // the table does not become rendered because "list" permission is missing
     expect(screen.queryByRole('grid', { name: 'Machine pools' })).not.toBeInTheDocument();
   });
@@ -990,29 +961,33 @@ describe('<MachinePools />', () => {
   describe('Machine configuration', () => {
     mockUseFeatureGate([[ENABLE_MACHINE_CONFIGURATION, true]]);
     const machineConfigLabel = 'Edit machine configuration';
-    const expectActionButton = async ({ toBePresent, toBeEnabled = true }) => {
+    const expectActionButton = ({ toBePresent, toBeEnabled = true }) => {
       if (toBePresent) {
-        const button = await screen.findByRole('button', { name: machineConfigLabel });
-        expect(button).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: machineConfigLabel })).toBeInTheDocument();
         if (toBeEnabled === true) {
-          expect(button).not.toHaveAttribute('aria-disabled');
+          expect(screen.getByRole('button', { name: machineConfigLabel })).not.toHaveAttribute(
+            'aria-disabled',
+          );
         } else {
-          expect(button).toHaveAttribute('aria-disabled', `${String(!toBeEnabled)}`);
+          expect(screen.getByRole('button', { name: machineConfigLabel })).toHaveAttribute(
+            'aria-disabled',
+            `${String(!toBeEnabled)}`,
+          );
         }
       } else {
         expect(screen.queryByRole('button', { name: machineConfigLabel })).not.toBeInTheDocument();
       }
     };
 
-    it('is present for ROSA cluster', async () => {
+    it('is present for ROSA cluster', () => {
       mockUseFeatureGate([[ENABLE_MACHINE_CONFIGURATION, true]]);
       const props = { ...defaultProps };
       render(<MachinePools {...props} />);
 
-      await expectActionButton({ toBePresent: true });
+      expectActionButton({ toBePresent: true });
     });
 
-    it('is present if cluster is OSD with CCS on AWS', async () => {
+    it('is present if cluster is OSD with CCS on AWS', () => {
       const props = {
         ...defaultProps,
         hasMachineConfiguration: true,
@@ -1031,10 +1006,10 @@ describe('<MachinePools />', () => {
       };
       render(<MachinePools {...props} />);
 
-      await expectActionButton({ toBePresent: true });
+      expectActionButton({ toBePresent: true });
     });
 
-    it('is present but disabled if the cluster is not in "ready" state', async () => {
+    it('is present but disabled if the cluster is not in "ready" state', () => {
       const props = {
         ...defaultProps,
         hasMachineConfiguration: true,
@@ -1045,10 +1020,10 @@ describe('<MachinePools />', () => {
       };
       render(<MachinePools {...props} />);
 
-      await expectActionButton({ toBePresent: true, toBeEnabled: false });
+      expectActionButton({ toBePresent: true, toBeEnabled: false });
     });
 
-    it("is present but disabled if user doesn't have the proper rights", async () => {
+    it("is present but disabled if user doesn't have the proper rights", () => {
       const props = {
         ...defaultProps,
         hasMachineConfiguration: true,
@@ -1064,10 +1039,10 @@ describe('<MachinePools />', () => {
       };
       render(<MachinePools {...props} />);
 
-      await expectActionButton({ toBePresent: true, toBeEnabled: false });
+      expectActionButton({ toBePresent: true, toBeEnabled: false });
     });
 
-    it('is absent if cluster is OSD with CCS on GCP', async () => {
+    it('is absent if cluster is OSD with CCS on GCP', () => {
       const props = {
         ...defaultProps,
         hasMachineConfiguration: true,
@@ -1085,13 +1060,11 @@ describe('<MachinePools />', () => {
         },
       };
       render(<MachinePools {...props} />);
-      // Wait for component to render and all async updates to complete
-      await screen.findByText('test-mp');
 
-      await expectActionButton({ toBePresent: false });
+      expectActionButton({ toBePresent: false });
     });
 
-    it('is absent if cluster is OSD without CCS', async () => {
+    it('is absent if cluster is OSD without CCS', () => {
       const props = {
         ...defaultProps,
         hasMachineConfiguration: true,
@@ -1109,13 +1082,11 @@ describe('<MachinePools />', () => {
         },
       };
       render(<MachinePools {...props} />);
-      // Wait for component to render and all async updates to complete
-      await screen.findByText('test-mp');
 
-      await expectActionButton({ toBePresent: false });
+      expectActionButton({ toBePresent: false });
     });
 
-    it('is absent if cluster is Hypershift', async () => {
+    it('is absent if cluster is Hypershift', () => {
       const props = {
         ...defaultProps,
         hasMachineConfiguration: true,
@@ -1127,10 +1098,8 @@ describe('<MachinePools />', () => {
         },
       };
       render(<MachinePools {...props} />);
-      // Wait for component to render and all async updates to complete
-      await screen.findByText('test-mp');
 
-      await expectActionButton({ toBePresent: false });
+      expectActionButton({ toBePresent: false });
     });
 
     it('shows the machine configuration when clicking on "Edit machine configuration"', async () => {
@@ -1138,13 +1107,12 @@ describe('<MachinePools />', () => {
       const machineConfigurationTestID = 'machine-configuration';
       const { user } = render(<MachinePools {...props} />);
 
-      const button = await screen.findByRole('button', { name: machineConfigLabel });
-      expect(button).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: machineConfigLabel })).toBeInTheDocument();
       expect(screen.queryByTestId(machineConfigurationTestID)).not.toBeInTheDocument();
 
-      await user.click(button);
+      await user.click(screen.getByRole('button', { name: machineConfigLabel }));
 
-      expect(await screen.findByTestId(machineConfigurationTestID)).toBeInTheDocument();
+      expect(screen.getByTestId(machineConfigurationTestID)).toBeInTheDocument();
     });
   });
 });

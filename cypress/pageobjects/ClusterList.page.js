@@ -1,12 +1,11 @@
 import Page from './page';
-import { CLUSTER_LIST_FULL_PATH } from '../support/routePaths';
 
 /**
  * sub page containing specific selectors and methods for a specific page
  */
 class ClusterList extends Page {
   isClusterListUrl() {
-    super.assertUrlIncludes(CLUSTER_LIST_FULL_PATH);
+    super.assertUrlIncludes('/openshift/cluster-list');
   }
 
   filterTxtField = () => cy.getByTestId('filterInputClusterList', { timeout: 15000 });
@@ -52,7 +51,7 @@ class ClusterList extends Page {
   }
 
   isClusterListScreen() {
-    cy.contains('h1, h4, button', /Cluster List|Let's create your first cluster/);
+    cy.contains('h1, h4', /Cluster List|Let's create your first cluster/);
   }
 
   isRegisterClusterScreen() {
