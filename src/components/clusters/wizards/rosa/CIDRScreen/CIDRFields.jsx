@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 
 import { Alert, Content, ContentVariants, GridItem } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import { constructSelectedSubnets } from '~/common/helpers';
-import links from '~/common/installLinks.mjs';
 import validators, { required } from '~/common/validators';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
@@ -119,8 +119,8 @@ function CIDRFields({
           <ExternalLink
             href={
               isHypershiftSelected
-                ? links.CIDR_RANGE_DEFINITIONS_ROSA
-                : links.CIDR_RANGE_DEFINITIONS_ROSA_CLASSIC
+                ? docLinks.CIDR_RANGE_DEFINITIONS_ROSA
+                : docLinks.CIDR_RANGE_DEFINITIONS_ROSA_CLASSIC
             }
           >
             Learn more to avoid conflicts
@@ -171,7 +171,9 @@ function CIDRFields({
               <Content component={ContentVariants.p}>
                 <ExternalLink
                   href={
-                    isHypershiftSelected ? links.ROSA_CIDR_MACHINE : links.ROSA_CLASSIC_CIDR_MACHINE
+                    isHypershiftSelected
+                      ? docLinks.ROSA_CIDR_MACHINE
+                      : docLinks.ROSA_CLASSIC_CIDR_MACHINE
                   }
                 >
                   Learn more
@@ -206,7 +208,9 @@ function CIDRFields({
               <Content component={ContentVariants.p}>
                 <ExternalLink
                   href={
-                    isHypershiftSelected ? links.ROSA_CIDR_SERVICE : links.ROSA_CLASSIC_CIDR_SERVICE
+                    isHypershiftSelected
+                      ? docLinks.ROSA_CIDR_SERVICE
+                      : docLinks.ROSA_CLASSIC_CIDR_SERVICE
                   }
                 >
                   Learn more
@@ -240,7 +244,9 @@ function CIDRFields({
 
               <Content component={ContentVariants.p}>
                 <ExternalLink
-                  href={isHypershiftSelected ? links.ROSA_CIDR_POD : links.ROSA_CLASSIC_CIDR_POD}
+                  href={
+                    isHypershiftSelected ? docLinks.ROSA_CIDR_POD : docLinks.ROSA_CLASSIC_CIDR_POD
+                  }
                 >
                   Learn more
                 </ExternalLink>
@@ -272,7 +278,9 @@ function CIDRFields({
 
               <Content component={ContentVariants.p}>
                 <ExternalLink
-                  href={isHypershiftSelected ? links.ROSA_CIDR_HOST : links.ROSA_CLASSIC_CIDR_HOST}
+                  href={
+                    isHypershiftSelected ? docLinks.ROSA_CIDR_HOST : docLinks.ROSA_CLASSIC_CIDR_HOST
+                  }
                 >
                   Learn more
                 </ExternalLink>

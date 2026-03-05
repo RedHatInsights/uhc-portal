@@ -36,7 +36,7 @@ import {
 } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchUsers';
 import { useGlobalState } from '~/redux/hooks';
 
-import links from '../../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../../common/docLinks.mjs';
 import ButtonWithTooltip from '../../../../../common/ButtonWithTooltip';
 import ErrorBox from '../../../../../common/ErrorBox';
 import ExternalLink from '../../../../../common/ExternalLink';
@@ -74,8 +74,8 @@ const UsersSection = (props) => {
 
   const isAddUserModalOpen = useGlobalState((state) => shouldShowModal(state, 'add-user'));
   const iamOperatorRolesLink = isHypershift
-    ? links.ROSA_AWS_IAM_OPERATOR_ROLES
-    : links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES;
+    ? docLinks.ROSA_AWS_IAM_OPERATOR_ROLES
+    : docLinks.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES;
 
   const canAddClusterAdmin = canAllowAdminHelper(cluster);
   const clusterGroupUsers = users;
@@ -164,7 +164,7 @@ const UsersSection = (props) => {
         bodyContent={
           <p>
             Groups are mapped to role bindings on the cluster. For more information check the{' '}
-            <ExternalLink href={links.UNDERSTANDING_AUTHENTICATION}>
+            <ExternalLink href={docLinks.UNDERSTANDING_AUTHENTICATION}>
               OpenShift 4 documentation
             </ExternalLink>
           </p>
@@ -250,7 +250,7 @@ const UsersSection = (props) => {
         </StackItem>
         <StackItem>
           <p>
-            <ExternalLink href={isROSA ? iamOperatorRolesLink : links.OSD_DEDICATED_ADMIN_ROLE}>
+            <ExternalLink href={isROSA ? iamOperatorRolesLink : docLinks.OSD_DEDICATED_ADMIN_ROLE}>
               Learn more.
             </ExternalLink>
           </p>

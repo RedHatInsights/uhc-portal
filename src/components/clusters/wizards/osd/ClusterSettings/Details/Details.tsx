@@ -16,9 +16,9 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import { SupportedFeature } from '~/common/featureCompatibility';
 import { noQuotaTooltip } from '~/common/helpers';
-import links from '~/common/installLinks.mjs';
 import {
   asyncValidateClusterName,
   asyncValidateDomainPrefix,
@@ -432,7 +432,7 @@ function Details() {
                     hint={
                       <>
                         {constants.channelGroupHint}{' '}
-                        <ExternalLink href={links.OSD_LIFE_CYCLE_DATES}>
+                        <ExternalLink href={docLinks.OSD_LIFE_CYCLE_DATES}>
                           Learn more about the support lifecycle
                         </ExternalLink>
                       </>
@@ -565,7 +565,7 @@ function Details() {
                 hint={
                   <>
                     {constants.enableUserWorkloadMonitoringHelp}
-                    <ExternalLink href={links.OSD_MONITORING_STACK}>Learn more</ExternalLink>
+                    <ExternalLink href={docLinks.OSD_MONITORING_STACK}>Learn more</ExternalLink>
                   </>
                 }
               />
@@ -589,7 +589,7 @@ function Details() {
               )}
 
               <FipsCryptographySection />
-              <ClassicEtcdEncryptionSection learnMoreLink={links.OSD_ETCD_ENCRYPTION} />
+              <ClassicEtcdEncryptionSection learnMoreLink={docLinks.OSD_ETCD_ENCRYPTION} />
             </Grid>
           </ExpandableSection>
         </Flex>

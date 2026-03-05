@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import installLinks from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import { YoutubePlayer } from '~/components/common/YoutubePlayer/YoutubePlayer';
@@ -92,7 +93,7 @@ const OpenShiftVirtualizationPanelBody = (
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink
         data-testid="learn-more-about-redhat-acm-drawer-panel-content-link"
-        href={installLinks.RH_ACM}
+        href={docLinks.RH_ACM}
       >
         Learn more about Red Hat Advanced Cluster Management for Kubernetes
       </ExternalLink>

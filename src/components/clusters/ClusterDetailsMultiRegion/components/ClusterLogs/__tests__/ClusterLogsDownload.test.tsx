@@ -42,7 +42,7 @@ describe('<ClusterLogsDownload />', () => {
 
     await user.click(screen.getByTestId('submit-btn'));
     await waitFor(() => expect(screen.queryByTestId('submit-btn')).not.toBeInTheDocument());
-    expect(mockDownloadClusterLogs).toBeCalledWith(
+    expect(mockDownloadClusterLogs).toHaveBeenCalledWith(
       fixtures[0].cluster_uuid,
       fixtures[0].cluster_id,
       {
@@ -63,7 +63,7 @@ describe('<ClusterLogsDownload />', () => {
 
     await user.click(screen.getByTestId('submit-btn'));
     await waitFor(() => expect(screen.queryByTestId('submit-btn')).not.toBeInTheDocument());
-    expect(mockDownloadClusterLogs).toBeCalledWith(
+    expect(mockDownloadClusterLogs).toHaveBeenCalledWith(
       fixtures[0].cluster_uuid,
       fixtures[0].cluster_id,
       {

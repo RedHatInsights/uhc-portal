@@ -3,24 +3,24 @@ import React from 'react';
 import { Label, PageSection } from '@patternfly/react-core';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 
-import installLinks from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 
 import ExternalLink from '../common/ExternalLink';
 
 const content = [
   {
     title: 'Red Hat OpenShift Service on AWS learning hub',
-    link: installLinks.RH_ROSA_LEARN,
+    link: docLinks.RH_ROSA_LEARN,
     label: 'Documentation',
   },
   {
     title: 'Red Hat OpenShift Service on AWS (ROSA) interactive walkthrough',
-    link: installLinks.RH_ROSA_INSTALL,
+    link: docLinks.RH_ROSA_INSTALL,
     label: 'Walkthrough',
   },
   {
     title: 'Watch our Red Hat OpenShift Service on AWS video series',
-    link: installLinks.RH_ROSA_LIGHTBOARD,
+    link: docLinks.RH_ROSA_LIGHTBOARD,
     label: 'Video',
   },
 ];

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Card, CardBody, CardTitle, Content, ContentVariants, Title } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
 import TerraformLogo from './TerraformLogo';
@@ -22,9 +22,11 @@ const WithTerraform = () => (
       </Content>
       <Content component={ContentVariants.p} className="pf-v6-u-mb-sm">
         Learn how to{' '}
-        <ExternalLink href={links.TERRAFORM_ROSA_HCP_URL}>deploy a ROSA HCP cluster</ExternalLink>
+        <ExternalLink href={docLinks.TERRAFORM_ROSA_HCP_URL}>
+          deploy a ROSA HCP cluster
+        </ExternalLink>
         or{' '}
-        <ExternalLink href={links.TERRAFORM_REGISTRY_ROSA_HCP}>
+        <ExternalLink href={docLinks.TERRAFORM_REGISTRY_ROSA_HCP}>
           visit the Terraform registry
         </ExternalLink>
       </Content>

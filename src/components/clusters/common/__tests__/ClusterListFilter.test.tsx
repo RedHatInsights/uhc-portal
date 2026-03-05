@@ -86,7 +86,7 @@ describe('<ClusterListFilter />', () => {
     fireEvent.change(screen.getByTestId('filterInputClusterList'), { target: { value: 'hello' } });
 
     // Assert
-    expect(setTimeout).toBeCalled();
+    expect(setTimeout).toHaveBeenCalled();
     expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 300);
   });
 

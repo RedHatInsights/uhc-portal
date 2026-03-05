@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Alert, FormGroup, Grid, GridItem } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { validateAWSKMSKeyARN } from '~/common/validators';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { FieldId } from '~/components/clusters/wizards/common/constants';
@@ -26,7 +26,7 @@ export const AWSCustomerManagedEncryption = () => {
 
   const hasCustomerManagedKey = customerManagedKey === 'true';
 
-  const cloudProviderLearnLink = links.AWS_DATA_PROTECTION;
+  const cloudProviderLearnLink = docLinks.AWS_DATA_PROTECTION;
 
   const helpText =
     'Use a custom AWS KMS key for AWS EBS volume encryption instead of your default AWS KMS key.';
@@ -82,7 +82,7 @@ export const AWSCustomerManagedEncryption = () => {
             tooltip={
               <>
                 <p className="pf-v6-u-mb-sm">{constants.awsKeyARN}</p>
-                <ExternalLink href={links.AWS_FINDING_KEY_ARN}>
+                <ExternalLink href={docLinks.AWS_FINDING_KEY_ARN}>
                   Finding the key ID and ARN
                 </ExternalLink>
               </>

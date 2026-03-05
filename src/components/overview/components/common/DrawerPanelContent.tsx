@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 
-import installLinks from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 
 import { AdvancedClusterManagementDrawerPanelBody } from './DrawerPanelContents/AdvancedClusterManagement/DrawerPanelBody';
 import { AdvancedClusterSecurityDrawerPanelBody } from './DrawerPanelContents/AdvancedClusterSecurity/DrawerPanelBody';
@@ -36,7 +36,7 @@ const DRAWER_PANEL_CONTENT = {
     head: (
       <GeneralDrawerPanelHead
         {...PRODUCT_CARD_LOGOS.advancedClusterSecurity}
-        trialButtonLink={installLinks.RH_ACS_TRIAL}
+        trialButtonLink={docLinks.RH_ACS_TRIAL}
       />
     ),
     body: AdvancedClusterSecurityDrawerPanelBody,
@@ -45,7 +45,7 @@ const DRAWER_PANEL_CONTENT = {
     head: (
       <GeneralDrawerPanelHead
         {...PRODUCT_CARD_LOGOS.openshiftAi}
-        trialButtonLink={installLinks.RH_OPENSHIFT_AI_TRIAL}
+        trialButtonLink={docLinks.RH_OPENSHIFT_AI_TRIAL}
       />
     ),
     body: OpenShiftAiDrawerPanelBody,
@@ -58,7 +58,7 @@ const DRAWER_PANEL_CONTENT = {
     head: (
       <GeneralDrawerPanelHead
         {...PRODUCT_CARD_LOGOS.advancedClusterManagement}
-        trialButtonLink={installLinks.RH_ACM_TRIAL}
+        trialButtonLink={docLinks.RH_ACM_TRIAL}
       />
     ),
     body: AdvancedClusterManagementDrawerPanelBody,

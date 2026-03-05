@@ -4,7 +4,7 @@ import isEqual from 'lodash/isEqual';
 
 import { Flex, FormGroup } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { required, validateNumericInput } from '~/common/validators';
 import { getMinNodesRequired } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
@@ -252,7 +252,7 @@ export const AutoScaleEnabledInputs = () => {
                 <br />
                 {isRosa ? (
                   <>
-                    <ExternalLink href={links.ROSA_WORKER_NODE_COUNT}>
+                    <ExternalLink href={docLinks.ROSA_WORKER_NODE_COUNT}>
                       Learn more about worker/compute node count
                     </ExternalLink>
                     <br />

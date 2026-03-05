@@ -218,11 +218,11 @@ describe('<UpgradeScheduleSelection />', () => {
     expect(screen.getByText(warningMessage)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'reset the schedule' })).toBeInTheDocument();
 
-    expect(onChange).toBeCalledTimes(0);
+    expect(onChange).toHaveBeenCalledTimes(0);
 
     await user.click(screen.getByRole('button', { name: 'reset the schedule' }));
 
-    expect(onChange).toBeCalledTimes(1);
+    expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith('');
   });
 

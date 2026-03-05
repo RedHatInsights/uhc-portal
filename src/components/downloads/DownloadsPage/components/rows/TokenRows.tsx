@@ -9,7 +9,7 @@ import { Link } from '~/common/routing';
 import { AccessTokenCfg } from '~/types/accounts_mgmt.v1';
 import { ErrorState } from '~/types/types';
 
-import links from '../../../../../common/installLinks.mjs';
+import supportLinks from '../../../../../common/supportLinks.mjs';
 import AlignRight from '../../../../common/AlignRight';
 import ExternalLink from '../../../../common/ExternalLink';
 import CopyPullSecret from '../../../CopyPullSecret';
@@ -58,7 +58,7 @@ const PullSecretRow = ({ expanded, setExpanded, toolRefs, token }: PullSecretRow
         </Content>
         <Content component="p">
           Learn how to <Link to="/create">create a cluster</Link> or{' '}
-          <ExternalLink href={links.OCM_DOCS_PULL_SECRETS}>
+          <ExternalLink href={supportLinks.OCM_DOCS_PULL_SECRETS}>
             learn more about pull secrets
           </ExternalLink>
           .

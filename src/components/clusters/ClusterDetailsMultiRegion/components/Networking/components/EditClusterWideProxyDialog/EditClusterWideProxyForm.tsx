@@ -4,8 +4,8 @@ import { isEqual } from 'lodash';
 
 import { Alert, Button, Content, Form, Grid, GridItem } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import { stringToArray } from '~/common/helpers';
-import links from '~/common/installLinks.mjs';
 import {
   checkNoProxyDomains,
   composeValidators,
@@ -148,17 +148,14 @@ const EditClusterWideProxyForm = ({
 
   const replaceTrustBundle = (
     <>
-      <Content
-        component="p"
-        className="ocm-c-networking-vpc-details__card pf-v6-c-form__label-text pf-v6-c-form__group-label"
-      >
+      <div className="ocm-c-networking-vpc-details__card pf-v6-c-form__label-text pf-v6-c-form__group-label">
         Additional Trust Bundle{' '}
         <PopoverHint
           headerContent="Additional trust bundle"
           bodyContent={TRUST_BUNDLE_HELPER_TEXT}
         />
-      </Content>
-      <Content component="p">
+      </div>
+      <div>
         File Uploaded Successfully{' '}
         <Button
           // opens field to replace addition trust bundle
@@ -172,7 +169,7 @@ const EditClusterWideProxyForm = ({
         >
           Replace file
         </Button>
-      </Content>
+      </div>
     </>
   );
 
@@ -194,7 +191,7 @@ const EditClusterWideProxyForm = ({
               Enable an HTTP or HTTPS proxy to deny direct access to the Internet from your cluster
             </Content>
             <Content component="p" className="pf-v6-u-mt-sm">
-              <ExternalLink href={links.CONFIGURE_PROXY_URL}>
+              <ExternalLink href={docLinks.CONFIGURE_PROXY_URL}>
                 Learn more about configuring a cluster-wide proxy
               </ExternalLink>
             </Content>

@@ -15,6 +15,7 @@ import {
 
 import { Navigate, useNavigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
+import NotFoundError from '~/components/App/NotFoundError';
 import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
@@ -106,6 +107,7 @@ export const Clusters = () => {
             </TabContent>
           }
         />
+        <Route path="*" element={<NotFoundError />} />
       </Routes>
     </AppPage>
   );

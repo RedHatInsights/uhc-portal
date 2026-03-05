@@ -1,6 +1,6 @@
 import React from 'react';
 
-import docLinks from '../../../common/installLinks.mjs';
+import docLinks from '../../../common/docLinks.mjs';
 import OpenShiftProductIcon from '../../../styles/images/OpenShiftProductIcon.svg';
 
 export interface BannerContentData {

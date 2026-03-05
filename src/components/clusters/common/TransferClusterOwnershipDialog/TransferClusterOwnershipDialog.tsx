@@ -101,7 +101,7 @@ const TransferClusterOwnershipDialog = ({ onClose }: TransferClusterOwnershipDia
       secondaryText="Cancel"
       onPrimaryClick={handleSubmit}
       onSecondaryClick={handleClose}
-      isPrimaryDisabled={isToggleSubscriptionReleasedPending}
+      isPending={isToggleSubscriptionReleasedPending}
     >
       {isToggleSubscriptionReleasedError ? (
         <ErrorBox

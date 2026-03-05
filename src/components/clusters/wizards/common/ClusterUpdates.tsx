@@ -11,7 +11,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import supportLinks from '~/common/supportLinks.mjs';
 import PodDistruptionBudgetGraceSelect from '~/components/clusters/common/Upgrades/PodDistruptionBudgetGraceSelect';
 import UpgradeScheduleSelection from '~/components/clusters/common/Upgrades/UpgradeScheduleSelection';
@@ -38,7 +38,7 @@ export const ClusterUpdates = () => {
       description: (
         <>
           Schedule each update individually. Take into consideration end of life dates from the{' '}
-          <ExternalLink href={links.OSD_LIFE_CYCLE}>lifecycle policy</ExternalLink> when planning
+          <ExternalLink href={docLinks.OSD_LIFE_CYCLE}>lifecycle policy</ExternalLink> when planning
           updates.
         </>
       ),
@@ -49,7 +49,7 @@ export const ClusterUpdates = () => {
       description: (
         <>
           The cluster will be automatically updated based on your preferred day and start time when
-          new patch updates (<ExternalLink href={links.OSD_Z_STREAM}>z-stream</ExternalLink>) are
+          new patch updates (<ExternalLink href={docLinks.OSD_Z_STREAM}>z-stream</ExternalLink>) are
           available. When a new minor version is available, you&apos;ll be notified and must
           manually allow the cluster to update to the next minor version.
         </>

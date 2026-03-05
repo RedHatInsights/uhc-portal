@@ -8,7 +8,7 @@ test.describe.serial(
   { tag: ['@smoke', '@rosa-hosted', '@rosa'] },
   () => {
     // Setup cluster name and environment variables
-    const region = clusterProperties.Region.split(',')[0];
+    const region = process.env.QE_AWS_REGION || clusterProperties.Region.split(',')[0];
     const awsAccountID = process.env.QE_AWS_ID || '';
     const awsBillingAccountID = process.env.QE_AWS_BILLING_ID || '';
     let qeInfrastructure: any = {};
@@ -20,10 +20,14 @@ test.describe.serial(
     }
 
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
+    const awsKMSKey = process.env.QE_AWS_KMS_KEY;
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
     const clusterName = `smoke-playwright-rosa-hypershift-${Math.random().toString(36).substring(7)}`;
     const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2, 13)}`;
+    const availabilityZone =
+      Object.keys(qeInfrastructure.SUBNETS?.ZONES || {})[0] ||
+      clusterProperties.MachinePools[0].AvailabilityZones;
 
     test.beforeAll(async ({ navigateTo }) => {
       // Navigate to create
@@ -60,17 +64,18 @@ test.describe.serial(
       createRosaWizardPage,
     }) => {
       await createRosaWizardPage.isClusterDetailsScreen();
-      await createRosaWizardPage.selectRegion(clusterProperties.Region);
+      await createRosaWizardPage.selectRegion(region);
       await createRosaWizardPage.setClusterName(clusterName);
-      await createRosaWizardPage.closePopoverDialogs();
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().check();
       await createRosaWizardPage.setDomainPrefix(clusterDomainPrefix);
       await createRosaWizardPage.selectVersion(
         clusterProperties.Version || process.env.VERSION || '',
       );
-      await createRosaWizardPage.closePopoverDialogs();
-      await page.waitForTimeout(2000); // Small delay for UI stability
-      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.advancedEncryptionLink().click();
+      await createRosaWizardPage.enableFIPSCryptographyCheckbox().check();
+      await expect(createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox()).toBeChecked();
+      await createRosaWizardPage.inputEncryptEtcdKeyARN(awsKMSKey);
+      await createRosaWizardPage.closePopoverAndNavigateNext();
     });
 
     test('Step - Cluster Settings - Select machine pool node type and node count', async ({
@@ -86,8 +91,7 @@ test.describe.serial(
       await createRosaWizardPage.waitForVPCList();
       await createRosaWizardPage.selectVPC(qeInfrastructure.VPC_NAME);
       await createRosaWizardPage.selectMachinePoolPrivateSubnet(
-        qeInfrastructure.SUBNETS.ZONES[clusterProperties.MachinePools[0].AvailabilityZones]
-          .PRIVATE_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[availabilityZone].PRIVATE_SUBNET_NAME,
         1,
       );
       await createRosaWizardPage.selectComputeNodeType(
@@ -117,8 +121,7 @@ test.describe.serial(
       await createRosaWizardPage.selectClusterPrivacy('private');
       await createRosaWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
       await createRosaWizardPage.selectMachinePoolPublicSubnet(
-        qeInfrastructure.SUBNETS.ZONES[clusterProperties.MachinePools[0].AvailabilityZones]
-          .PUBLIC_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[availabilityZone].PUBLIC_SUBNET_NAME,
       );
       await createRosaWizardPage.rosaNextButton().click();
     });
@@ -193,8 +196,16 @@ test.describe.serial(
         clusterProperties.EncryptVolumesWithCustomerKeys,
       );
       await createRosaWizardPage.isClusterPropertyMatchesValue(
+        'FIPS cryptography',
+        clusterProperties.FIPSCryptography,
+      );
+      await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Additional etcd encryption',
         clusterProperties.AdditionalEncryption,
+      );
+      await createRosaWizardPage.isClusterPropertyMatchesValue(
+        'Etcd encryption key ARN',
+        awsKMSKey,
       );
     });
 
@@ -231,8 +242,7 @@ test.describe.serial(
       await createRosaWizardPage.isClusterPropertyMatchesValue('Cluster privacy', 'Public');
       await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Public subnet',
-        qeInfrastructure.SUBNETS.ZONES[clusterProperties.MachinePools[0].AvailabilityZones]
-          .PUBLIC_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[availabilityZone].PUBLIC_SUBNET_NAME,
       );
       await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Cluster-wide proxy',
@@ -274,8 +284,9 @@ test.describe.serial(
       createRosaWizardPage,
       clusterDetailsPage,
     }) => {
-      await page.waitForTimeout(2000); // Small delay for UI stability
-      await createRosaWizardPage.createClusterButton().click({ force: true });
+      // Wait for the review screen to be fully loaded (role API calls to complete)
+      await createRosaWizardPage.waitForReviewScreenReady();
+      await createRosaWizardPage.createClusterButton().click();
       await clusterDetailsPage.waitForInstallerScreenToLoad();
       await expect(clusterDetailsPage.clusterNameTitle()).toContainText(clusterName);
       await expect(page.locator('h2:has-text("Installing cluster")')).toBeVisible();
@@ -304,6 +315,10 @@ test.describe.serial(
       );
       await expect(clusterDetailsPage.clusterInfrastructureAWSaccountLabelValue()).toContainText(
         awsAccountID,
+      );
+
+      await expect(clusterDetailsPage.clusterFipsCryptographyStatus()).toContainText(
+        'FIPS Cryptography enabled',
       );
 
       await expect(clusterDetailsPage.clusterMachineCIDRLabelValue()).toContainText(

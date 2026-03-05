@@ -411,11 +411,11 @@ describe('UpdateMachinePoolModal', () => {
         />,
       );
       expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(mockUpdatePools).toBeCalledTimes(0);
+      expect(mockUpdatePools).toHaveBeenCalledTimes(0);
 
       await user.click(screen.getByRole('button', { name: 'Update machine pool' }));
 
-      await waitFor(() => expect(mockUpdatePools).toBeCalledTimes(1));
+      await waitFor(() => expect(mockUpdatePools).toHaveBeenCalledTimes(1));
 
       // once to to close the modal, second to invalidate machine pools
       expect(mockedDispatch).toHaveBeenCalledTimes(1);
@@ -436,11 +436,11 @@ describe('UpdateMachinePoolModal', () => {
         />,
       );
       expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(mockUpdatePools).toBeCalledTimes(0);
+      expect(mockUpdatePools).toHaveBeenCalledTimes(0);
 
       await user.click(screen.getByRole('button', { name: 'Update machine pool' }));
 
-      await waitFor(() => expect(mockUpdatePools).toBeCalledTimes(1));
+      await waitFor(() => expect(mockUpdatePools).toHaveBeenCalledTimes(1));
       // once to get updated machine pool list
       expect(refetchMachineOrNodePoolsQuery).toHaveBeenCalledTimes(1);
 

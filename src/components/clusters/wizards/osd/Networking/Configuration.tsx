@@ -3,9 +3,10 @@ import React from 'react';
 import { Alert, Content, Form, FormGroup, Grid, GridItem, Title } from '@patternfly/react-core';
 
 import { ocmResourceType, TrackEvent, trackEvents } from '~/common/analytics';
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { getDefaultSecurityGroupsSettings } from '~/common/securityGroupsHelpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import supportLinks from '~/common/supportLinks.mjs';
 import { isExactMajorMinor } from '~/common/versionHelpers';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import {
@@ -24,8 +25,6 @@ import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import ExternalLink from '~/components/common/ExternalLink';
 import useAnalytics from '~/hooks/useAnalytics';
-import { PRIVATE_SERVICE_CONNECT } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { FormSubnet } from '../../common/FormSubnet';
 
@@ -53,7 +52,6 @@ export const Configuration = () => {
   } = useFormState();
   const isByoc = byoc === 'true';
   const isGCP = cloudProvider === CloudProviderType.Gcp;
-  const hasPSCFeatureGate = useFeatureGate(PRIVATE_SERVICE_CONNECT);
   const isPrivateCluster = clusterPrivacy === ClusterPrivacyType.Internal;
   const showClusterPrivacy =
     cloudProvider === CloudProviderType.Aws || (cloudProvider === CloudProviderType.Gcp && isByoc);
@@ -65,13 +63,12 @@ export const Configuration = () => {
     isGCP &&
     [normalizedProducts.OSD, normalizedProducts.OSDTrial].includes(product) &&
     clusterVersionRawId &&
-    canConfigureDayOnePrivateServiceConnect(clusterVersionRawId) &&
-    hasPSCFeatureGate;
+    canConfigureDayOnePrivateServiceConnect(clusterVersionRawId);
   const isWifAuth = authTypeFormValue === GCPAuthType.WorkloadIdentityFederation;
 
   const showExistingVpcInstallText = !(isGCP && isPrivateCluster && isWifAuth);
   const PSCPrivateWifWarning =
-    isGCP && isPrivateCluster && isWifAuth && hasPSCFeatureGate
+    isGCP && isPrivateCluster && isWifAuth
       ? 'Private clusters deployed using Workload Identity Federation must be deployed into an existing VPC.'
       : '';
   const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
@@ -240,7 +237,7 @@ export const Configuration = () => {
                   title={`${PSCPrivateWifWarning} You will not be able to access your cluster until you properly configure private network connectivity to your cloud provider.`}
                 >
                   {cloudProvider === CloudProviderType.Aws && (
-                    <ExternalLink href={links.OSD_AWS_PRIVATE_CONNECTIONS}>
+                    <ExternalLink href={docLinks.OSD_AWS_PRIVATE_CONNECTIONS}>
                       Learn more about configuring network settings
                     </ExternalLink>
                   )}
@@ -273,7 +270,7 @@ export const Configuration = () => {
                   isDisabled={
                     usePrivateLink ||
                     configureProxy ||
-                    (isPrivateCluster && isWifAuth && hasPSCFeatureGate) ||
+                    (isPrivateCluster && isWifAuth) ||
                     isOSDFromGoogleCloud
                   }
                 />
@@ -344,7 +341,7 @@ export const Configuration = () => {
                   <>
                     {' '}
                     For 4.13 clusters, refer to{' '}
-                    <ExternalLink href={links.MANAGED_INGRESS_KNOWLEDGE_BASE}>
+                    <ExternalLink href={supportLinks.MANAGED_INGRESS_KNOWLEDGE_BASE}>
                       this knowledge base article
                     </ExternalLink>
                     .

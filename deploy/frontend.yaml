@@ -34,10 +34,10 @@ objects:
               title: Overview
               href: /openshift/overview
               product: Red Hat OpenShift Cluster Manager
-            - id: cluster-management
-              groupId: cluster-management
-              title: Cluster Management
-              navItems:
+            - id: fleet-management
+              title: Fleet management
+              expandable: true
+              routes:
                 - id: dashboard
                   title: Dashboard
                   href: /openshift/dashboard
@@ -46,31 +46,11 @@ objects:
                   title: Clusters
                   href: /openshift/clusters/list
                   product: Red Hat OpenShift Cluster Manager
-                # TODO: Replace advisor with navigationSegment from https://github.com/RedHatInsights/ocp-advisor-frontend/blob/master/deploy/frontend.yml
-                - id: advisor
-                  title: Advisor
-                  expandable: true
-                  routes:
-                    - id: recommendations
-                      title: Recommendations
-                      href: /openshift/insights/advisor/recommendations
-                      product: Red Hat OpenShift Cluster Manager
-                    - id: advisor-clusters
-                      title: Clusters
-                      href: /openshift/insights/advisor/clusters
-                      product: Red Hat OpenShift Cluster Manager
-                    - id: workloads
-                      title: Workloads
-                      href: /openshift/insights/advisor/workloads
-                      product: Red Hat OpenShift Cluster Manager
-                      permissions:
-                        - method: featureFlag
-                          args: ['ocp-advisor-ui-workloads', true]
-                        - method: featureFlag
-                          args: ['ocp-advisor-workloads-release', true]
-                # TODO: Replace vulnerability-dashboard with navigationSegment from https://github.com/RedHatInsights/vuln4shift-frontend/blob/master/deploy/frontend.yml
+                - segmentRef:
+                    segmentId: openshift-ocp-advisor
+                    frontendName: ocp-advisor
                 - id: vulnerability-dashboard
-                  title: Vulnerability Dashboard
+                  title: Vulnerability dashboard
                   expandable: true
                   routes:
                     - id: cves
@@ -81,6 +61,28 @@ objects:
                       title: Clusters
                       href: /openshift/insights/vulnerability/clusters
                       product: Red Hat OpenShift Cluster Manager
+                - segmentRef:
+                    segmentId: cost-management
+                    frontendName: cost-management
+            - id: cloud-console-settings
+              title: Cloud console settings
+              expandable: true
+              routes:
+                - id: user-access
+                  title: User access
+                  href: /iam/user-access/overview
+                - id: notifications
+                  title: Notifications
+                  expandable: true
+                  routes:
+                    - id: configure-events
+                      title: Configure events
+                      href: /settings/notifications/configure-events?bundle=openshift&tab=configuration
+                      permissions:
+                        - method: isOrgAdmin
+                    - id: notifications-users
+                      title: Notifications Preferences
+                      href: /settings/notifications/user-preferences?bundle=openshift&app=advisor
                 - id: subscriptions
                   title: Subscriptions
                   expandable: true
@@ -91,53 +93,13 @@ objects:
                     - id: annual-subscriptions
                       title: Annual Subscriptions
                       href: /openshift/quota
-                - segmentRef:
-                    segmentId: cost-management
-                    frontendName: cost-management
-            - id: products
-              groupId: products
-              title: Products
-              navItems:
-                - id: acm
-                  title: Advanced Cluster Management
-                  href: https://catalog.redhat.com/software/container-stacks/detail/5ec54aa3535cb70ab8c02996
-                  isExternal: true
-                - segmentRef:
-                    segmentId: acs
-                    frontendName: acs
-                # TODO: Replace openshift-ai with navigationSegment from https://github.com/RedHatInsights/developer-sandbox-ui/blob/master/deploy/frontend.yaml
-                - id: openshift-ai
-                  title: OpenShift AI
-                  expandable: true
-                  routes:
-                    - id: developer-sandbox-trial
-                      title: Developer Sandbox | OpenShift AI
-                      href: https://sandbox.redhat.com
-                      isExternal: true
-                    - id: sixty-day-trial
-                      title: 60-Day Product Trial | OpenShift AI
-                      href: https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai/trial
-                      isExternal: true
-                - id: openshift-virtualization
-                  title: OpenShift Virtualization
-                  href: https://catalog.redhat.com/software/container-stacks/detail/5ec53f218b6f188e53644c4f
-                  isExternal: true
-                - id: operators
-                  title: Operators
-                  href: /openshift/overview#recommended-operators
             - id: resources
-              groupId: resources
               title: Resources
-              navItems:
-                # TODO: Replace learning-resources with navigationSegment from https://github.com/RedHatInsights/learning-resources/blob/master/deploy/frontend.yml
-                - id: learning-resources
-                  title: Learning Resources
-                  href: /openshift/learning-resources
-                # TODO: Replace developer-sandbox with navigationSegment from https://github.com/RedHatInsights/developer-sandbox-ui/blob/master/deploy/frontend.yaml
-                - id: developer-sandbox
-                  title: Developer Sandbox
-                  href: https://sandbox.redhat.com
-                  isExternal: true
+              expandable: true
+              routes:
+                - segmentRef:
+                    frontendName: learning-resources
+                    segmentId: openshift-learning-resources
                 - id: downloads
                   title: Downloads
                   href: /openshift/downloads
@@ -145,6 +107,9 @@ objects:
                 - id: releases
                   title: Releases
                   href: /openshift/releases
+                - id: assisted-installer
+                  title: Assisted installer
+                  href: /openshift/assisted-installer/clusters
       serviceTiles:
         - section: containers
           group: openshift

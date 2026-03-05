@@ -82,7 +82,7 @@ describe('<CreateClusterPage />', () => {
           osdTrialFeature={false}
         />,
       );
-      expect(getOrganizationAndQuota).toBeCalled();
+      expect(getOrganizationAndQuota).toHaveBeenCalled();
     });
   });
 });

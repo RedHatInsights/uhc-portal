@@ -1,5 +1,6 @@
 import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 import ClusterListPage from '../../pageobjects/ClusterList.page';
+import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 const clusterDetails = require('../../fixtures/osd-aws/OsdAwsCcsCreatePublicCluster.json');
 const clusterProfiles = ['osdccs-aws-public', 'osdccs-aws-public-advanced'];
 
@@ -9,7 +10,7 @@ describe(
   () => {
     beforeEach(() => {
       if (Cypress.currentTest.title.match(/Open.*cluster/g)) {
-        cy.visit('/cluster-list');
+        cy.visit(CLUSTER_LIST_PATH);
         ClusterListPage.waitForDataReady();
       }
     });

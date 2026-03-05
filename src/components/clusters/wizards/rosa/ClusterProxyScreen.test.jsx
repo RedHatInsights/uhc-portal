@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 
 import { useWizardContext } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import {
   DISABLED_NO_PROXY_PLACEHOLDER,
   NO_PROXY_PLACEHOLDER,
@@ -65,14 +65,14 @@ describe('<ClusterProxyScreen />', () => {
     render(buildTestComponent(true));
 
     const learnMoreLink = screen.getByText('Learn more about configuring a cluster-wide proxy');
-    expect(learnMoreLink).toHaveAttribute('href', links.ROSA_CLUSTER_WIDE_PROXY);
+    expect(learnMoreLink).toHaveAttribute('href', docLinks.ROSA_CLUSTER_WIDE_PROXY);
   });
 
   it('renders rosa classic documentation link when classic is selected', async () => {
     render(buildTestComponent());
 
     const learnMoreLink = screen.getByText('Learn more about configuring a cluster-wide proxy');
-    expect(learnMoreLink).toHaveAttribute('href', links.ROSA_CLASSIC_CLUSTER_WIDE_PROXY);
+    expect(learnMoreLink).toHaveAttribute('href', docLinks.ROSA_CLASSIC_CLUSTER_WIDE_PROXY);
   });
 
   it('disables No Proxy domains when no HTTP/HTTPS URLs are set and shows disabled placeholder', async () => {

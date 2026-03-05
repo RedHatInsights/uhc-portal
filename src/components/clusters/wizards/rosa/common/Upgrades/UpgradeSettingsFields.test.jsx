@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Formik } from 'formik';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { render, screen } from '~/testUtils';
@@ -199,7 +199,7 @@ describe('UpgradeSettingsFields (ROSA)', () => {
         [FieldId.UpgradePolicy]: 'automatic',
       });
       const zStreamLink = screen.getByRole('link', { name: /z-stream/i });
-      expect(zStreamLink).toHaveAttribute('href', links.ROSA_Z_STREAM);
+      expect(zStreamLink).toHaveAttribute('href', docLinks.ROSA_Z_STREAM);
     });
 
     it('renders an external link for z-stream details in the Hypershift recurring update message', () => {
@@ -208,13 +208,13 @@ describe('UpgradeSettingsFields (ROSA)', () => {
         [FieldId.UpgradePolicy]: 'automatic',
       });
       const zStreamLink = screen.getByRole('link', { name: /z-stream/i });
-      expect(zStreamLink).toHaveAttribute('href', links.ROSA_Z_STREAM);
+      expect(zStreamLink).toHaveAttribute('href', docLinks.ROSA_Z_STREAM);
     });
 
     it('renders an external link for lifecycle policy details in the manual update message', () => {
       renderComponent({ [FieldId.UpgradePolicy]: 'manual' });
       const lifecycleLink = screen.getByRole('link', { name: /lifecycle policy/i });
-      expect(lifecycleLink).toHaveAttribute('href', links.ROSA_LIFE_CYCLE);
+      expect(lifecycleLink).toHaveAttribute('href', docLinks.ROSA_LIFE_CYCLE);
     });
   });
 });

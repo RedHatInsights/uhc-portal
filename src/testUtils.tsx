@@ -13,6 +13,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, renderHook, RenderOptions } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 
+import * as wizardHooks from '~/components/clusters/wizards/hooks';
 import * as featureGates from '~/queries/featureGates/useFetchFeatureGate';
 
 import promiseRejectionMiddleware from './redux/promiseRejectionMiddleware';
@@ -242,3 +243,47 @@ export const mockUseFeatureGate = (mockedGates: MockedGate[]) =>
     const gateToMock = mockedGates.find((gate) => gate[0] === feature);
     return gateToMock ? gateToMock[1] : false;
   });
+
+// Mocking useFormState hook
+export interface MockFormStateOptions {
+  values?: Record<string, any>;
+  setFieldValue?: jest.Mock;
+  setFieldTouched?: jest.Mock;
+  getFieldProps?: jest.Mock;
+  getFieldMeta?: jest.Mock;
+  validateField?: jest.Mock;
+  [key: string]: any; // Allow additional Formik context properties
+}
+
+export const mockUseFormState = (options: MockFormStateOptions = {}) => {
+  const {
+    values = {},
+    setFieldValue = jest.fn(),
+    setFieldTouched = jest.fn(),
+    getFieldProps = jest.fn().mockReturnValue({
+      name: '',
+      value: '',
+      onBlur: jest.fn(),
+      onChange: jest.fn(),
+    }),
+    getFieldMeta = jest.fn().mockReturnValue({
+      error: undefined,
+      touched: false,
+    }),
+    validateField = jest.fn(),
+    ...rest
+  } = options;
+
+  const useFormStateSpy = jest.spyOn(wizardHooks, 'useFormState');
+  useFormStateSpy.mockReturnValue({
+    values,
+    setFieldValue,
+    setFieldTouched,
+    getFieldProps,
+    getFieldMeta,
+    validateField,
+    ...rest,
+  } as any);
+
+  return useFormStateSpy;
+};

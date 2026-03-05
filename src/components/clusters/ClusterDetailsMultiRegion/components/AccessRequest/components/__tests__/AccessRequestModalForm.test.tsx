@@ -7,7 +7,7 @@ import {
   usePostAccessRequestDecision,
 } from '~/queries/ClusterDetailsQueries/AccessRequestTab/usePostAccessRequestDecision';
 import { useGlobalState } from '~/redux/hooks';
-import { act, render, screen, within } from '~/testUtils';
+import { act, render, screen, waitFor, within } from '~/testUtils';
 import { AccessRequestStatusState } from '~/types/access_transparency.v1';
 
 import AccessRequestModalForm from '../AccessRequestModalForm';
@@ -23,7 +23,16 @@ jest.mock('~/queries/ClusterDetailsQueries/AccessRequestTab/usePostAccessRequest
 
 jest.mock('../AccessRequestStateIcon', () => () => <div>access request state icon mock</div>);
 jest.mock('../AccessRequestDetails', () => () => <div>access request details mock</div>);
-jest.mock('~/components/common/ErrorBox', () => () => <div>error-box</div>);
+jest.mock(
+  '~/components/common/ErrorBox',
+  () =>
+    ({ response }: { response?: { errorDetails?: string } }) => (
+      <div data-testid="error-box">
+        error-box
+        {response?.errorDetails && <div>{response.errorDetails}</div>}
+      </div>
+    ),
+);
 
 jest.mock('~/components/common/Modal/ModalActions', () => ({
   closeModal: jest.fn(),
@@ -260,10 +269,12 @@ describe('AccessRequestModalForm', () => {
       expect(screen.queryByText(/No rights for making a decision/i)).not.toBeInTheDocument();
     });
 
-    it.skip('shows error after submit error', async () => {
+    it('shows error after submit error', async () => {
       // Arrange
       const onCloseMock = jest.fn();
+      const mutateMock = jest.fn();
 
+      // Initial render - form should be editable (no error)
       for (let i = 0; i <= REFRESH_TIMES; i += 1) {
         useGlobalStateMock.mockReturnValueOnce({
           accessRequest: {
@@ -274,9 +285,9 @@ describe('AccessRequestModalForm', () => {
         });
         useGlobalStateMock.mockReturnValueOnce('organizationId');
         usePostAccessRequestDecisionMock.mockReturnValueOnce({
-          mutate: jest.fn(),
+          mutate: mutateMock,
           isPending: false,
-          isError: true,
+          isError: false, // Start with no error so form is editable
           error: null,
           isSuccess: false,
         });
@@ -289,19 +300,28 @@ describe('AccessRequestModalForm', () => {
       }
 
       const { user, rerender } = render(<AccessRequestModalForm />);
+
+      // Click approve radio button
       await user.click(
         screen.getByRole('radio', {
           name: /approve/i,
         }),
       );
+
+      // Click save button
       await user.click(
         within(screen.getByRole('contentinfo')).getByRole('button', {
           name: /save/i,
         }),
       );
 
-      // Act
-      useGlobalStateMock.mockReturnValue({
+      // Act - Rerender with error state after submit
+      // Set up mocks for rerender - component calls hooks in this order:
+      // 1. useGlobalState (accessRequest/onClose)
+      // 2. useGlobalState (organizationId)
+      // 3. usePostAccessRequestDecision
+      // 4. useCanMakeDecision
+      useGlobalStateMock.mockReturnValueOnce({
         accessRequest: {
           id: 'accessRequestId',
           status: { state: AccessRequestStatusState.Pending },
@@ -310,9 +330,9 @@ describe('AccessRequestModalForm', () => {
       });
       useGlobalStateMock.mockReturnValueOnce('organizationId');
       usePostAccessRequestDecisionMock.mockReturnValueOnce({
-        mutate: jest.fn(),
+        mutate: mutateMock,
         isPending: false,
-        isError: true,
+        isError: true, // Now show error after submit
         error: {
           error: {
             errorDetails: 'ERROR DETAILS',
@@ -331,9 +351,18 @@ describe('AccessRequestModalForm', () => {
       rerender(<AccessRequestModalForm />);
 
       // Assert
+      await waitFor(() => {
+        expect(mutateMock).toHaveBeenCalledTimes(1);
+      });
+
+      // The error box should be shown
+      const errorBox = screen.getByTestId('error-box');
+      expect(errorBox).toBeInTheDocument();
+
+      // And it should surface the detailed error from the API, not just a generic message
+      expect(screen.getByText(/ERROR DETAILS/i)).toBeInTheDocument();
       expect(onCloseMock).toHaveBeenCalledTimes(0);
       expect(dispatchMock).toHaveBeenCalledTimes(0);
-      expect(screen.getByText(/error-box/i)).toBeInTheDocument();
     });
   });
 

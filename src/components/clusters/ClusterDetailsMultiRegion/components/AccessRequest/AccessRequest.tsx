@@ -15,7 +15,7 @@ import {
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 import { SortByDirection } from '@patternfly/react-table';
 
-import installLinks from '~/common/installLinks.mjs';
+import supportLinks from '~/common/supportLinks.mjs';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
 import ExternalLink from '~/components/common/ExternalLink';
 import ConnectedModal from '~/components/common/Modal/ConnectedModal';
@@ -106,7 +106,7 @@ export const AccessRequest = ({ subscriptionId, showClusterName = false }: Acces
   );
 
   const readMoreLink = (
-    <ExternalLink href={installLinks.ACCESS_REQUEST_DOC_LINK}>
+    <ExternalLink href={supportLinks.ACCESS_REQUEST_DOC_LINK}>
       Read more about Access Requests functionality
     </ExternalLink>
   );

@@ -1,13 +1,14 @@
 import React from 'react';
 
 import { BREADCRUMB_PATHS, buildBreadcrumbs } from '~/common/breadcrumbPaths';
-import links, { tools } from '~/common/installLinks.mjs';
+import installLinks, { tools } from '~/common/installLinks.mjs';
+import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
 export const nonTestedPlatformsLink = (
   <>
     For&nbsp;
-    <ExternalLink href={links.INSTALL_GENERIC_NON_TESTED_PLATFORMS} stopClickPropagation>
+    <ExternalLink href={supportLinks.INSTALL_GENERIC_NON_TESTED_PLATFORMS} stopClickPropagation>
       non-tested platforms
     </ExternalLink>
   </>
@@ -22,13 +23,13 @@ export const AlibabaProps = {
     label: 'Alibaba Cloud',
   }),
   aiPageLink: '/assisted-installer/clusters/~new',
-  aiLearnMoreLink: links.INSTALL_ASSISTED_LEARN_MORE,
+  aiLearnMoreLink: installLinks.INSTALL_ASSISTED_LEARN_MORE,
   hideIPI: true,
   ipiPageLink: '',
   hideUPI: true,
   upiPageLink: '',
   agentBasedPageLink: '/install/platform-agnostic/agent-based',
-  agentBasedLearnMoreLink: links.INSTALL_AGENT_LEARN_MORE,
+  agentBasedLearnMoreLink: installLinks.INSTALL_AGENT_LEARN_MORE,
   providerSpecificFeatures: {
     abi: [nonTestedPlatformsLink, 'For air-gapped/restricted networks'],
     ai: [nonTestedPlatformsLink],
@@ -56,13 +57,13 @@ export const OracleCloudProps = {
     'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Oracle Cloud Infrastructure',
   providerTitle: 'Oracle Cloud Infrastructure',
   aiPageLink: '/assisted-installer/clusters/~new',
-  aiLearnMoreLink: links.INSTALL_ASSISTED_LEARN_MORE,
+  aiLearnMoreLink: installLinks.INSTALL_ASSISTED_LEARN_MORE,
   hideIPI: true,
   ipiPageLink: '',
   hideUPI: true,
   upiPageLink: '',
   agentBasedPageLink: '/install/platform-agnostic/agent-based',
-  agentBasedLearnMoreLink: links.INSTALL_AGENT_LEARN_MORE,
+  agentBasedLearnMoreLink: installLinks.INSTALL_AGENT_LEARN_MORE,
   providerSpecificFeatures: {
     abi: [nonTestedPlatformsLink, 'For air-gapped/restricted networks'],
     ai: [nonTestedPlatformsLink],
