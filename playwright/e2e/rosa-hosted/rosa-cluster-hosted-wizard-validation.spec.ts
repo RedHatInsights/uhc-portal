@@ -8,7 +8,7 @@ test.describe.serial(
   { tag: ['@smoke', '@rosa-hosted', '@wizard-validation', '@rosa'] },
   () => {
     // Environment variables and test data setup
-    const region = process.env.QE_AWS_REGION || clusterFieldValidations.Region.split(',')[0];
+    const region = clusterFieldValidations.Region.split(',')[0];
     const awsAccountID = process.env.QE_AWS_ID || '';
     const awsBillingAccountID = process.env.QE_AWS_BILLING_ID || '';
     let qeInfrastructure: any = {};
@@ -23,9 +23,6 @@ test.describe.serial(
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterFieldValidations.OidcConfigId;
     const clusterName = `smoke-playwright-rosa-hypershift-${Math.random().toString(36).substring(7)}`;
-    const availabilityZones = Object.keys(qeInfrastructure.SUBNETS?.ZONES || {});
-    const getAvailabilityZone = (index: number): string =>
-      availabilityZones[index] || clusterFieldValidations.MachinePools[index]?.AvailabilityZones;
 
     test.beforeAll(async ({ navigateTo }) => {
       // Navigate to create
@@ -63,7 +60,7 @@ test.describe.serial(
       createRosaWizardPage,
     }) => {
       await createRosaWizardPage.isClusterDetailsScreen();
-      await createRosaWizardPage.selectRegion(region);
+      await createRosaWizardPage.selectRegion(clusterFieldValidations.Region);
 
       // Test invalid cluster names
       await createRosaWizardPage.setClusterName(
@@ -141,26 +138,8 @@ test.describe.serial(
       await createRosaWizardPage.isTextContainsInPage(
         clusterFieldValidations.ClusterSettings.Details.KeyARNs[1].WrongFormatWithWhitespaceError,
       );
-      await createRosaWizardPage.useDefaultKMSKeyRadio().check();
-      // default fips cryptography and etcd encryption checkbox status
-      await expect(createRosaWizardPage.enableFIPSCryptographyCheckbox()).not.toBeChecked();
-      await expect(
-        createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox(),
-      ).not.toBeChecked();
-      // check fips cryptography checkbox and status of etcd encryption checkbox
-      await createRosaWizardPage.enableFIPSCryptographyCheckbox().check();
-      await expect(createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox()).toBeChecked();
-      await expect(createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox()).toBeDisabled();
-      await expect(createRosaWizardPage.fipsRequiredHelperText()).toBeVisible();
-      await expect(createRosaWizardPage.encryptEtcdKeyARNInput()).toBeVisible();
-      // uncheck fips cryptography checkbox and status of etcd encryption checkbox
-      await createRosaWizardPage.enableFIPSCryptographyCheckbox().uncheck();
-      await expect(createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox()).toBeChecked();
-      await expect(createRosaWizardPage.fipsRequiredHelperText()).not.toBeVisible();
-      await expect(createRosaWizardPage.encryptEtcdKeyARNInput()).toBeVisible();
-      await createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox().uncheck();
-      await expect(createRosaWizardPage.encryptEtcdKeyARNInput()).not.toBeVisible();
 
+      await createRosaWizardPage.useDefaultKMSKeyRadio().check();
       await createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox().check();
       await createRosaWizardPage.rosaNextButton().click();
       await createRosaWizardPage.isTextContainsInPage('Field is required.');
@@ -180,7 +159,6 @@ test.describe.serial(
       );
 
       await createRosaWizardPage.enableEncyptEtcdWithCustomKMSKeyCheckbox().uncheck();
-
       await expect(createRosaWizardPage.rosaNextButton()).not.toBeDisabled();
       await expect(createRosaWizardPage.rosaBackButton()).not.toBeDisabled();
       await expect(createRosaWizardPage.rosaCancelButton()).not.toBeDisabled();
@@ -208,7 +186,8 @@ test.describe.serial(
       );
 
       await createRosaWizardPage.selectMachinePoolPrivateSubnet(
-        qeInfrastructure.SUBNETS.ZONES[getAvailabilityZone(0)].PRIVATE_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[0].AvailabilityZones]
+          .PRIVATE_SUBNET_NAME,
         1,
       );
 
@@ -244,7 +223,8 @@ test.describe.serial(
       );
 
       await createRosaWizardPage.checkVieworHideUsedSubnetsPresence(
-        qeInfrastructure.SUBNETS.ZONES[getAvailabilityZone(0)].PRIVATE_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[0].AvailabilityZones]
+          .PRIVATE_SUBNET_NAME,
         2,
       );
 
@@ -252,7 +232,8 @@ test.describe.serial(
       await createRosaWizardPage.addMachinePoolLink().click();
 
       await createRosaWizardPage.selectMachinePoolPrivateSubnet(
-        qeInfrastructure.SUBNETS.ZONES[getAvailabilityZone(0)].PRIVATE_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[0].AvailabilityZones]
+          .PRIVATE_SUBNET_NAME,
         2,
         true,
       );
@@ -261,7 +242,8 @@ test.describe.serial(
       );
 
       await createRosaWizardPage.selectMachinePoolPrivateSubnet(
-        qeInfrastructure.SUBNETS.ZONES[getAvailabilityZone(1)].PRIVATE_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[1].AvailabilityZones]
+          .PRIVATE_SUBNET_NAME,
         2,
       );
       await createRosaWizardPage.isTextContainsInPage(
@@ -365,12 +347,14 @@ test.describe.serial(
       // Check for validation errors in machine pool node counts fields after subnet changes
       await createRosaWizardPage.addMachinePoolLink().click();
       await createRosaWizardPage.selectMachinePoolPrivateSubnet(
-        qeInfrastructure.SUBNETS.ZONES[getAvailabilityZone(1)].PRIVATE_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[1].AvailabilityZones]
+          .PRIVATE_SUBNET_NAME,
         2,
       );
       await createRosaWizardPage.maximumNodeCountMinusButton().click();
       await createRosaWizardPage.selectMachinePoolPrivateSubnet(
-        qeInfrastructure.SUBNETS.ZONES[getAvailabilityZone(2)].PRIVATE_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[2].AvailabilityZones]
+          .PRIVATE_SUBNET_NAME,
         2,
       );
       await createRosaWizardPage.isTextContainsInPage(
@@ -402,7 +386,8 @@ test.describe.serial(
       // Check for minimum and maximum node count when both fields set to > minimum value
       await createRosaWizardPage.addMachinePoolLink().click();
       await createRosaWizardPage.selectMachinePoolPrivateSubnet(
-        qeInfrastructure.SUBNETS.ZONES[getAvailabilityZone(2)].PRIVATE_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[2].AvailabilityZones]
+          .PRIVATE_SUBNET_NAME,
         2,
       );
       await createRosaWizardPage.setMinimumNodeCount('3');
@@ -417,12 +402,14 @@ test.describe.serial(
       // Check for validation errors when minimum node count > maximum node count
       await createRosaWizardPage.addMachinePoolLink().click();
       await createRosaWizardPage.selectMachinePoolPrivateSubnet(
-        qeInfrastructure.SUBNETS.ZONES[getAvailabilityZone(1)].PRIVATE_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[1].AvailabilityZones]
+          .PRIVATE_SUBNET_NAME,
         2,
       );
       await createRosaWizardPage.addMachinePoolLink().click();
       await createRosaWizardPage.selectMachinePoolPrivateSubnet(
-        qeInfrastructure.SUBNETS.ZONES[getAvailabilityZone(2)].PRIVATE_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[2].AvailabilityZones]
+          .PRIVATE_SUBNET_NAME,
         3,
       );
       await createRosaWizardPage.setMinimumNodeCount('3');
@@ -486,7 +473,8 @@ test.describe.serial(
         clusterFieldValidations.ClusterSettings.Machinepool.SubnetRequiredError,
       );
       await createRosaWizardPage.selectMachinePoolPublicSubnet(
-        qeInfrastructure.SUBNETS.ZONES[getAvailabilityZone(0)].PUBLIC_SUBNET_NAME,
+        qeInfrastructure.SUBNETS.ZONES[clusterFieldValidations.MachinePools[0].AvailabilityZones]
+          .PUBLIC_SUBNET_NAME,
       );
       await createRosaWizardPage.enableConfigureClusterWideProxy();
       await createRosaWizardPage.rosaNextButton().click();

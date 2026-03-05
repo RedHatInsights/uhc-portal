@@ -1,7 +1,6 @@
 import 'cypress-each';
 import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 import ClusterListPage from '../../pageobjects/ClusterList.page';
-import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 const clusterDetails = require('../../fixtures/osd-gcp/OsdCcsGCPClusterCreate.json');
 const clusterProfiles = [
   'osd-ccs-gcp-public-singlezone-serviceaccount',
@@ -22,7 +21,7 @@ describe(
         let clusterName = clusterDetails[clusterProfile]['day1-profile'].ClusterName;
 
         before(() => {
-          cy.visit(CLUSTER_LIST_PATH);
+          cy.visit('/cluster-list');
           ClusterListPage.waitForDataReady();
         });
 

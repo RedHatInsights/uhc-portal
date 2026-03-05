@@ -4,7 +4,6 @@ import { useDispatch } from 'react-redux';
 import { Alert, AlertActionLink } from '@patternfly/react-core';
 
 import getTermsAppLink from '~/common/getTermsAppLink';
-import { getLocation } from '~/common/location';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { selfTermsReview } from '~/redux/actions/userActions';
 import { useGlobalState } from '~/redux/hooks';
@@ -22,7 +21,7 @@ const TermsAlert = ({ subscription, setHasTermsAlert }: TermsAlertProps) => {
   const [prevSubscription, setPrevSubscription] = useState<Subscription | undefined>(undefined);
 
   const getTncAppURL = (baseURL?: string) =>
-    getTermsAppLink(baseURL, getLocation().href, getLocation().href);
+    getTermsAppLink(baseURL, window.location.href, window.location.href);
 
   const isTermsReviewRequired = (subscription: Subscription) =>
     subscription.status !== SubscriptionCommonFieldsStatus.Deprovisioned &&

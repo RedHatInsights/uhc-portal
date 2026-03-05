@@ -2,7 +2,8 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import { checkOpenIDIssuer } from '~/common/validators';
-import { checkAccessibility, mockUseFormState, render, screen } from '~/testUtils';
+import { useFormState } from '~/components/clusters/wizards/hooks';
+import { checkAccessibility, render, screen } from '~/testUtils';
 
 import { FieldId } from '../../constants';
 import { hasAtLeastOneOpenIdClaimField } from '../IdentityProvidersPageFormikHelpers';
@@ -10,6 +11,10 @@ import { hasAtLeastOneOpenIdClaimField } from '../IdentityProvidersPageFormikHel
 import OpenIDFormRequired from './OpenIDFormRequired';
 
 // Mock external dependencies
+jest.mock('~/components/clusters/wizards/hooks', () => ({
+  useFormState: jest.fn(),
+}));
+
 jest.mock('~/common/validators', () => ({
   checkOpenIDIssuer: jest.fn(),
 }));
@@ -20,6 +25,15 @@ jest.mock('../IdentityProvidersPageFormikHelpers', () => ({
 
 interface FormValues {
   [key: string]: string | string[] | null;
+}
+
+interface MockFormState {
+  setFieldValue: jest.MockedFunction<(field: string, value: any) => void>;
+  getFieldProps: jest.MockedFunction<(field: string) => any>;
+  getFieldMeta: jest.MockedFunction<(field: string) => any>;
+  setFieldTouched: jest.MockedFunction<(field: string, touched?: boolean) => void>;
+  values: FormValues;
+  errors: { [key: string]: string };
 }
 
 interface ComponentProps {
@@ -39,6 +53,15 @@ describe('OpenIDFormRequired', () => {
     [FieldId.OPENID_NAME]: [''],
     [FieldId.OPENID_PREFFERED_USERNAME]: [''],
     [FieldId.OPENID_CLAIM_GROUPS]: [''],
+  };
+
+  const defaultFormState: MockFormState = {
+    setFieldValue: mockSetFieldValue,
+    getFieldProps: mockGetFieldProps,
+    getFieldMeta: mockGetFieldMeta,
+    setFieldTouched: mockSetFieldTouched,
+    values: defaultFormValues,
+    errors: {},
   };
 
   const initialFormValues: FormValues = {
@@ -68,14 +91,7 @@ describe('OpenIDFormRequired', () => {
     jest.clearAllMocks();
 
     // Setup default mock implementations
-    mockUseFormState({
-      setFieldValue: mockSetFieldValue,
-      getFieldProps: mockGetFieldProps,
-      getFieldMeta: mockGetFieldMeta,
-      setFieldTouched: mockSetFieldTouched,
-      values: defaultFormValues,
-      errors: {},
-    });
+    (useFormState as jest.Mock).mockReturnValue(defaultFormState);
     mockGetFieldProps.mockImplementation((fieldId: string) => ({
       name: fieldId,
       value: '',

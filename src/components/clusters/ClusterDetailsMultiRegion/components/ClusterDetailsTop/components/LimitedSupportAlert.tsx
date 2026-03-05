@@ -8,7 +8,7 @@ import {
   DescriptionListTerm,
 } from '@patternfly/react-core';
 
-import docLinks from '~/common/docLinks.mjs';
+import links from '~/common/installLinks.mjs';
 import MarkdownParser from '~/common/MarkdownParser';
 import ExternalLink from '~/components/common/ExternalLink';
 
@@ -56,9 +56,7 @@ const LimitedSupportAlert = ({
         isROSA || isOSD ? (
           <ExternalLink
             href={
-              isROSA
-                ? docLinks.ROSA_LIMITED_SUPPORT_DEFINITION
-                : docLinks.OSD_LIMITED_SUPPORT_DEFINITION
+              isROSA ? links.ROSA_LIMITED_SUPPORT_DEFINITION : links.OSD_LIMITED_SUPPORT_DEFINITION
             }
           >
             Learn more

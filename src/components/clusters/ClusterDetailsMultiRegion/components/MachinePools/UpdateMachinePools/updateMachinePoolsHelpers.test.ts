@@ -26,11 +26,11 @@ describe('updateMachinePoolsHelpers', () => {
     const toBeVersion = '4.14.1';
 
     it('calls postNodePoolUpgradeSchedule ', async () => {
-      expect(clusterService.postNodePoolUpgradeSchedule).not.toHaveBeenCalled();
+      expect(clusterService.postNodePoolUpgradeSchedule).not.toBeCalled();
       await updateAllMachinePools(machinePools, clusterId, toBeVersion);
 
-      expect(clusterService.patchNodePool).not.toHaveBeenCalled();
-      expect(clusterService.postNodePoolUpgradeSchedule).toHaveBeenCalledTimes(2);
+      expect(clusterService.patchNodePool).not.toBeCalled();
+      expect(clusterService.postNodePoolUpgradeSchedule).toBeCalledTimes(2);
 
       const nodePoolPostMock = clusterService.postNodePoolUpgradeSchedule as jest.Mock;
 

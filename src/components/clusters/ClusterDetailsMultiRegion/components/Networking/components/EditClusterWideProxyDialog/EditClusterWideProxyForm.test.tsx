@@ -1,7 +1,8 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { mockUseFormState, render, screen } from '~/testUtils';
+import { useFormState } from '~/components/clusters/wizards/hooks/useFormState';
+import { render, screen } from '~/testUtils';
 
 import EditClusterWideProxyForm from './EditClusterWideProxyForm';
 
@@ -12,11 +13,23 @@ jest.mock('~/components/common/ReduxFormComponents_deprecated/ReduxFileUpload', 
 ));
 
 describe('<EditClusterWideProxyForm />', () => {
+  const mockedUseFormState = useFormState as jest.Mock;
+
   const defaultInitialValues = {
     http_proxy_url: undefined,
     https_proxy_url: undefined,
     no_proxy_domains: undefined,
     additional_trust_bundle: undefined,
+  };
+
+  const defaultUseFormStateReturn = {
+    setFieldTouched: jest.fn(),
+    setFieldValue: jest.fn(), // Set value of form field directly
+    getFieldProps: jest.fn(), // Access: name, value, onBlur, onChange for a <Field>,
+    getFieldMeta: jest.fn().mockReturnValue({}), // Access: error, touched for a <Field>
+    values: {
+      ...defaultInitialValues,
+    },
   };
 
   const defaultProps = {
@@ -44,7 +57,7 @@ describe('<EditClusterWideProxyForm />', () => {
 
   describe('additional trust bundle', () => {
     it('shows text area if no trust bundle is loaded', async () => {
-      mockUseFormState({ values: { ...defaultInitialValues } });
+      mockedUseFormState.mockReturnValue(defaultUseFormStateReturn);
       render(
         <Formik initialValues={{}} onSubmit={() => {}}>
           <EditClusterWideProxyForm {...defaultProps} />
@@ -56,7 +69,8 @@ describe('<EditClusterWideProxyForm />', () => {
     });
 
     it('shows "replace file" link instead of text area if trust bundle is loaded', async () => {
-      mockUseFormState({
+      mockedUseFormState.mockReturnValue({
+        ...defaultUseFormStateReturn,
         values: { ...defaultInitialValues, additional_trust_bundle: 'I am a trust bundle' },
       });
       render(
@@ -70,7 +84,8 @@ describe('<EditClusterWideProxyForm />', () => {
     });
 
     it('shows text area when "replace file" link is clicked', async () => {
-      mockUseFormState({
+      mockedUseFormState.mockReturnValue({
+        ...defaultUseFormStateReturn,
         values: { ...defaultInitialValues, additional_trust_bundle: 'I am a trust bundle' },
       });
       const { user } = render(
@@ -87,7 +102,7 @@ describe('<EditClusterWideProxyForm />', () => {
 
   describe('error state', () => {
     it('displays the correct error message when cluster-wide proxy editing fails', async () => {
-      mockUseFormState({ values: { ...defaultInitialValues } });
+      mockedUseFormState.mockReturnValue(defaultUseFormStateReturn);
       render(
         <Formik initialValues={{}} onSubmit={() => {}}>
           <EditClusterWideProxyForm {...proxyErrorProps} />

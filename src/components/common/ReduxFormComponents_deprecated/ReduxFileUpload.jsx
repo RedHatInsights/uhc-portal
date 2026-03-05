@@ -8,12 +8,12 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '../PopoverHint';
 
 const ReduxFileUpload = ({
-  helpText = '',
+  helpText,
   extendedHelpTitle,
   extendedHelpText,
   input,
   meta: { error, dirty, touched },
-  isRequired = false,
+  isRequired,
   label,
   placeholder,
   dropzoneProps,
@@ -87,6 +87,11 @@ const ReduxFileUpload = ({
       </FormGroupHelperText>
     </FormGroup>
   );
+};
+
+ReduxFileUpload.defaultProps = {
+  helpText: '',
+  isRequired: false,
 };
 
 ReduxFileUpload.propTypes = {

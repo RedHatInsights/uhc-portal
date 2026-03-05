@@ -1,7 +1,6 @@
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 import ClusterHistoryPage from '../../pageobjects/ClusterHistory.page';
-import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 const clusterDetails = require('../../fixtures/rosa-hosted/RosaHostedClusterCreatePublic.json');
 const awsBillingAccountId = Cypress.env('QE_AWS_BILLING_ID');
@@ -14,7 +13,7 @@ describe(
   { tags: ['day2', 'hosted', 'rosa', 'hcp'] },
   () => {
     before(() => {
-      cy.visit(CLUSTER_LIST_PATH);
+      cy.visit('/cluster-list');
       ClusterListPage.waitForDataReady();
     });
 

@@ -20,29 +20,9 @@ export const ChannelGroupSelectField = ({
 }: ChannelGroupSelectFieldProps) => {
   const { setFieldValue } = useFormState();
 
-  const channelGroups = React.useMemo(
-    () => [
-      ...new Set(getInstallableVersionsResponse?.versions?.map((version) => version.channel_group)),
-    ],
-    [getInstallableVersionsResponse?.versions],
-  );
-
-  React.useEffect(() => {
-    if (
-      getInstallableVersionsResponse.fulfilled &&
-      channelGroups.length > 0 &&
-      !channelGroups.includes(field.value)
-    ) {
-      setFieldValue(field.name, channelGroups[0]);
-    }
-  }, [
-    getInstallableVersionsResponse.fulfilled,
-    channelGroups,
-    field.value,
-    field.name,
-    setFieldValue,
-  ]);
-
+  const channelGroups = [
+    ...new Set(getInstallableVersionsResponse?.versions?.map((version) => version.channel_group)),
+  ];
   if (getInstallableVersionsResponse.fulfilled) {
     return (
       <FormSelect

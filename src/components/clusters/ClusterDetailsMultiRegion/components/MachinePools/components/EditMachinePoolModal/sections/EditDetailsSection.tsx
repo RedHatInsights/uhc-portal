@@ -7,7 +7,7 @@ import TextField from '~/components/common/formik/TextField';
 import { WINDOWS_LICENSE_INCLUDED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
-import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
+import { MachinePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 import InstanceTypeField from '../fields/InstanceTypeField';
@@ -18,7 +18,7 @@ import { WindowsLicenseIncludedField } from '../fields/WindowsLicenseIncludedFie
 type EditDetailsSectionProps = {
   cluster: ClusterFromSubscription;
   isEdit: boolean;
-  machinePools: MachinePool[] | NodePool[];
+  machinePools: MachinePool[];
   currentMPId: string | undefined;
   setCurrentMPId: (currentMPId: string) => void;
   machineTypesResponse: MachineTypesResponse;
@@ -38,7 +38,6 @@ const EditDetailsSection = ({
 }: EditDetailsSectionProps) => {
   const isHypershift = isHypershiftCluster(cluster);
   const allowWindowsLicenseIncluded = useFeatureGate(WINDOWS_LICENSE_INCLUDED) && isHypershift;
-  const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
 
   return isEdit ? (
     <FormGroup fieldId="machine-pool" label="Machine pool">
@@ -52,7 +51,7 @@ const EditDetailsSection = ({
       {allowWindowsLicenseIncluded ? (
         <WindowsLicenseIncludedField
           isEdit
-          currentMP={machinePools.find((mp) => mp.id === currentMPId) as NodePool}
+          currentMP={machinePools.find((mp) => mp.id === currentMPId)}
         />
       ) : null}
     </FormGroup>
@@ -63,9 +62,7 @@ const EditDetailsSection = ({
         <SubnetField cluster={cluster} region={region} machinePools={machinePools} />
       ) : null}
       <InstanceTypeField cluster={cluster} machineTypesResponse={machineTypesResponse} />
-      {allowWindowsLicenseIncluded ? (
-        <WindowsLicenseIncludedField clusterVersion={clusterVersion} />
-      ) : null}
+      {allowWindowsLicenseIncluded ? <WindowsLicenseIncludedField /> : null}
     </>
   );
 };

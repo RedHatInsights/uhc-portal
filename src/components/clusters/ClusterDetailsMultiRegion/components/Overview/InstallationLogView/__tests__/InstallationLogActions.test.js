@@ -17,7 +17,7 @@ describe('installationLogActions', () => {
 
   it('dispatches successfully', () => {
     installationLogActions.getLogs()(mockDispatch);
-    expect(mockDispatch).toHaveBeenCalledWith({
+    expect(mockDispatch).toBeCalledWith({
       payload: expect.anything(),
       type: installationLogConstants.GET_LOGS,
     });
@@ -26,19 +26,19 @@ describe('installationLogActions', () => {
   it('calls clusterService.getLogs', () => {
     const fakeId = '1234';
     installationLogActions.getLogs(fakeId)(mockDispatch);
-    expect(mockedGetLogs).toHaveBeenCalledWith(fakeId, 0, 'install');
+    expect(mockedGetLogs).toBeCalledWith(fakeId, 0, 'install');
   });
 
   it('calls clusterService.getLogs with offset', () => {
     const fakeId = '1234';
     const offset = 50;
     installationLogActions.getLogs(fakeId, offset, 'install')(mockDispatch);
-    expect(mockedGetLogs).toHaveBeenCalledWith(fakeId, offset, 'install');
+    expect(mockedGetLogs).toBeCalledWith(fakeId, offset, 'install');
   });
 
   it('dispatches successfully', () => {
     installationLogActions.clearLogs()(mockDispatch);
-    expect(mockDispatch).toHaveBeenCalledWith({
+    expect(mockDispatch).toBeCalledWith({
       type: installationLogConstants.CLEAR_LOGS,
     });
   });

@@ -17,7 +17,6 @@ type SelectFieldProps = {
   isDisabled?: boolean;
   children: SelectProps['children'];
   label?: string;
-  ariaLabel?: string;
 };
 
 const SelectField = ({
@@ -27,7 +26,6 @@ const SelectField = ({
   isDisabled,
   children,
   label,
-  ariaLabel,
 }: SelectFieldProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -42,7 +40,7 @@ const SelectField = ({
       onClick={onToggle}
       isExpanded={isOpen}
       isFullWidth
-      aria-label={ariaLabel || 'select menu'}
+      aria-label="select menu"
       className="select-field-menu-toggle"
     >
       {label || value}

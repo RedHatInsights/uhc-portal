@@ -2,9 +2,10 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import { FieldId } from '~/components/clusters/wizards/common';
+import { useFormState } from '~/components/clusters/wizards/hooks/useFormState';
 import { useDisableClusterAutoscaler } from '~/queries/ClusterDetailsQueries/MachinePoolTab/ClusterAutoscaler/useDisableClusterAutoscaler';
 import { useEnableClusterAutoscaler } from '~/queries/ClusterDetailsQueries/MachinePoolTab/ClusterAutoscaler/useEnableClusterAutoscaler';
-import { checkAccessibility, mockUseFormState, render, screen, userEvent } from '~/testUtils';
+import { checkAccessibility, render, screen, userEvent } from '~/testUtils';
 
 import { clusterAutoscalerData } from './ClusterAutoscaler.fixtures';
 import { ClusterAutoscalerModal } from './ClusterAutoscalerModal';
@@ -58,11 +59,11 @@ const dirtyForm = {
 };
 
 describe('Cluster autoscaler modal', () => {
-  beforeEach(() => {
-    mockUseFormState({
-      values: { [FieldId.ClusterAutoscaling]: { ...clusterAutoscalerData } },
-      errors: { [FieldId.ClusterAutoscaling]: 'Error message' },
-    });
+  const mockedUseFormState = useFormState as jest.Mock;
+  mockedUseFormState.mockReturnValue({
+    values: { [FieldId.ClusterAutoscaling]: { ...clusterAutoscalerData } },
+    errors: { [FieldId.ClusterAutoscaling]: 'Error message' },
+    setFieldValue: jest.fn(),
   });
 
   const useDisableClusterAutoscalerMock = useDisableClusterAutoscaler as jest.Mock;

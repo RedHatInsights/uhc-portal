@@ -20,8 +20,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import docLinks from '~/common/docLinks.mjs';
-import installLinks from '~/common/installLinks.mjs';
+import links from '~/common/installLinks.mjs';
 import { AppPage } from '~/components/App/AppPage';
 import Breadcrumbs from '~/components/common/Breadcrumbs';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -60,8 +59,8 @@ const CreateRosaGetStarted = () => (
           breadth and depth of AWS using ROSA.
         </Content>
         <Content component={ContentVariants.p}>
-          Learn more about <ExternalLink href={docLinks.WHAT_IS_ROSA}>ROSA</ExternalLink> or{' '}
-          <ExternalLink href={docLinks.ROSA_COMMUNITY_SLACK}>Slack us</ExternalLink>
+          Learn more about <ExternalLink href={links.WHAT_IS_ROSA}>ROSA</ExternalLink> or{' '}
+          <ExternalLink href={links.ROSA_COMMUNITY_SLACK}>Slack us</ExternalLink>
         </Content>
       </Content>
       <Alert
@@ -76,13 +75,13 @@ const CreateRosaGetStarted = () => (
           </>
         }
       >
-        <ExternalLink data-testid="rosa-aws-fedramp" href={docLinks.ROSA_AWS_FEDRAMP}>
+        <ExternalLink data-testid="rosa-aws-fedramp" href={links.ROSA_AWS_FEDRAMP}>
           Learn more about ROSA with hosted control planes in AWS GovCloud
         </ExternalLink>
         or start the onboarding process with the{' '}
         <ExternalLink
           data-testid="fedramp-access-request-form"
-          href={installLinks.FEDRAMP_ACCESS_REQUEST_FORM}
+          href={links.FEDRAMP_ACCESS_REQUEST_FORM}
         >
           FedRAMP access request form
         </ExternalLink>
@@ -124,7 +123,7 @@ const CreateRosaGetStarted = () => (
 
               <ExternalLink
                 className="pf-v6-u-mt-md"
-                href={installLinks.AWS_CONSOLE_ROSA_HOME_GET_STARTED}
+                href={links.AWS_CONSOLE_ROSA_HOME_GET_STARTED}
                 isButton
                 variant={ButtonVariant.secondary}
               >
@@ -141,7 +140,7 @@ const CreateRosaGetStarted = () => (
                   <Title headingLevel="h2">Complete ROSA prerequisites</Title>
                 </SplitItem>
                 <SplitItem>
-                  <ExternalLink href={docLinks.AWS_ROSA_GET_STARTED}>
+                  <ExternalLink href={links.AWS_ROSA_GET_STARTED}>
                     More information on ROSA setup
                   </ExternalLink>
                 </SplitItem>

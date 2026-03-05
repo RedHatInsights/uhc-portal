@@ -4,7 +4,6 @@ import { Button, ButtonProps, ButtonVariant, Icon } from '@patternfly/react-core
 import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
 
 import { trackEvents } from '~/common/analytics';
-import { getLocation } from '~/common/location';
 import useAnalytics from '~/hooks/useAnalytics';
 
 import './ExternalLink.scss';
@@ -37,7 +36,7 @@ const ExternalLink = ({
   const track = useAnalytics();
 
   const trackExternalLink = () => {
-    const path = getLocation().pathname;
+    const path = window.location.pathname;
     let resource;
     if (path.includes('/rosa')) {
       resource = 'moa';

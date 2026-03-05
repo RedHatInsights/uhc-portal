@@ -12,8 +12,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import { channels, tools } from '../../common/installLinks.mjs';
-import supportLinks from '../../common/supportLinks.mjs';
+import links, { channels, tools } from '../../common/installLinks.mjs';
 import DownloadAndOSSelection from '../clusters/install/instructions/components/DownloadAndOSSelection';
 import ExternalLink from '../common/ExternalLink';
 import InstructionCommand from '../common/InstructionCommand';
@@ -93,7 +92,7 @@ const SSOLogin = ({
             You can find documentation for these related products and services here:
             <List>
               <ListItem>
-                <ExternalLink href={supportLinks.OCM_CLI_DOCS} noIcon>
+                <ExternalLink href={links.OCM_CLI_DOCS} noIcon>
                   OpenShift Cluster Manager documentation
                 </ExternalLink>
               </ListItem>

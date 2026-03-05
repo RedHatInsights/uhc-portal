@@ -1,6 +1,5 @@
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import CreateRosaWizardPage from '../../pageobjects/CreateRosaWizard.page';
-import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 const associatedAccountsSelector = '**/api/accounts_mgmt/v1/organizations/*/labels';
 const ARNsSelector = '**/api/clusters_mgmt/v1/aws_inquiries/sts_account_roles';
@@ -15,7 +14,7 @@ const interceptAndReturnMockARNs = (mockFile) =>
 
 describe.skip('Rosa cluster tests', { tags: ['ci'] }, () => {
   before(() => {
-    cy.visit(CLUSTER_LIST_PATH);
+    cy.visit('/cluster-list');
     ClusterListPage.waitForDataReady();
     ClusterListPage.isClusterListScreen();
   });

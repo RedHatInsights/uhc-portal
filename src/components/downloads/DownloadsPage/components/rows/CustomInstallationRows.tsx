@@ -2,8 +2,7 @@ import React from 'react';
 
 import { Content } from '@patternfly/react-core';
 
-import docLinks from '~/common/docLinks.mjs';
-import installLinks, { channels, tools } from '~/common/installLinks.mjs';
+import links, { channels, tools } from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
 import { DownloadsPageRowsType } from './DownloadsPageRowsType';
@@ -39,7 +38,7 @@ const CustomInstallationRows = ({
             <Content component="p">
               Write and validate machine configs in a convenient short-hand syntax with the Butane
               config transpiler CLI tool.{' '}
-              <ExternalLink href={installLinks.BUTANE_DOCS}>Learn more</ExternalLink>
+              <ExternalLink href={links.BUTANE_DOCS}>Learn more</ExternalLink>
             </Content>
           </Content>
         }
@@ -54,7 +53,7 @@ const CustomInstallationRows = ({
           <Content>
             <Content component="p">
               Download and install RHCOS disk images with the coreos-installer CLI tool.{' '}
-              <ExternalLink href={installLinks.COREOS_INSTALLER_DOCS}>Learn more</ExternalLink>
+              <ExternalLink href={links.COREOS_INSTALLER_DOCS}>Learn more</ExternalLink>
             </Content>
           </Content>
         }
@@ -75,7 +74,7 @@ const CustomInstallationRows = ({
               The ccoctl tool provides various commands to assist with the creating and maintenance
               of cloud credentials from outside the cluster (necessary when Cloud Credential
               Operator is put in Manual mode).{' '}
-              <ExternalLink href={docLinks.CCO_MANUAL_MODE}>Learn more</ExternalLink>
+              <ExternalLink href={links.CCO_MANUAL_MODE}>Learn more</ExternalLink>
             </Content>
           </Content>
         }

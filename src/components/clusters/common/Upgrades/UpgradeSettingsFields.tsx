@@ -14,7 +14,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import docLinks from '~/common/docLinks.mjs';
+import links from '~/common/installLinks.mjs';
 import supportLinks from '~/common/supportLinks.mjs';
 import PodDistruptionBudgetGraceSelect from '~/components/clusters/common/Upgrades/PodDistruptionBudgetGraceSelect';
 import UpgradeScheduleSelection from '~/components/clusters/common/Upgrades/UpgradeScheduleSelection';
@@ -64,9 +64,7 @@ function UpgradeSettingsFields({
     <>
       The cluster will be automatically updated based on your preferred day and start time when new
       patch updates (
-      <ExternalLink href={isRosa ? docLinks.ROSA_Z_STREAM : docLinks.OSD_Z_STREAM}>
-        z-stream
-      </ExternalLink>
+      <ExternalLink href={isRosa ? links.ROSA_Z_STREAM : links.OSD_Z_STREAM}>z-stream</ExternalLink>
       ) are available. When a new minor version is available, you'll be notified and must manually
       allow the cluster to update to the next minor version.
     </>
@@ -75,9 +73,7 @@ function UpgradeSettingsFields({
     <>
       The cluster control plane will be automatically updated based on your preferred day and start
       time when new patch updates (
-      <ExternalLink href={isRosa ? docLinks.ROSA_Z_STREAM : docLinks.OSD_Z_STREAM}>
-        z-stream
-      </ExternalLink>
+      <ExternalLink href={isRosa ? links.ROSA_Z_STREAM : links.OSD_Z_STREAM}>z-stream</ExternalLink>
       ) are available. When a new minor version is available, you'll be notified and must manually
       allow the cluster to update to the next minor version. The worker nodes will need to be
       manually updated.
@@ -127,7 +123,7 @@ function UpgradeSettingsFields({
     description: (
       <>
         Schedule each update individually. Take into consideration end of life dates from the{' '}
-        <ExternalLink href={isRosa ? docLinks.ROSA_LIFE_CYCLE : docLinks.OSD_LIFE_CYCLE}>
+        <ExternalLink href={isRosa ? links.ROSA_LIFE_CYCLE : links.OSD_LIFE_CYCLE}>
           lifecycle policy
         </ExternalLink>{' '}
         when planning updates.

@@ -40,7 +40,7 @@ describe('<ArchivedClusterListTable />', () => {
 
       await userEvent.click(nameBtn);
 
-      expect(setSorting).toHaveBeenCalled();
+      expect(setSorting).toBeCalled();
     });
 
     it('no clusters found', async () => {
@@ -75,7 +75,7 @@ describe('<ArchivedClusterListTable />', () => {
 
       await userEvent.click(unarchiveBtn);
 
-      expect(openModal).toHaveBeenCalled();
+      expect(openModal).toBeCalled();
     });
   });
 });

@@ -1,16 +1,14 @@
 import { v4 } from 'uuid';
-
-import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 import ClusterListPage from '../../pageobjects/ClusterList.page';
 import RegisterClusterPage from '../../pageobjects/RegisterCluster.page';
-import { CLUSTER_LIST_PATH } from '../../support/routePaths';
+import ClusterDetailsPage from '../../pageobjects/ClusterDetails.page';
 
 describe('Register cluster flow', { tags: ['ci', 'smoke'] }, () => {
   const clusterID = v4();
   const displayName = `cypress-${clusterID}`;
 
   before(() => {
-    cy.visit(CLUSTER_LIST_PATH);
+    cy.visit('/cluster-list');
     ClusterListPage.waitForDataReady();
     ClusterListPage.isClusterListScreen();
   });

@@ -1,5 +1,4 @@
 import ClusterListPage from '../../pageobjects/ClusterList.page';
-import { CLUSTER_LIST_PATH } from '../../support/routePaths';
 
 describe('OCM Cluster archives page', () => {
   describe(
@@ -7,7 +6,7 @@ describe('OCM Cluster archives page', () => {
     { tags: ['smoke'] },
     () => {
       before(() => {
-        cy.visit(CLUSTER_LIST_PATH);
+        cy.visit('/cluster-list');
         ClusterListPage.waitForDataReady();
         ClusterListPage.isClusterListScreen();
       });
