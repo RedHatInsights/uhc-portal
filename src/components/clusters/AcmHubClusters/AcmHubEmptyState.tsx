@@ -142,7 +142,7 @@ const AcmHubEmptyState = ({ onStartTagging }: AcmHubEmptyStateProps) => {
                         Manually tag hub clusters on the All clusters page to match your RHACM
                         cluster structure.
                       </p>
-                      <ExternalLink href={links.RHACM_DOCS}>
+                      <ExternalLink href={links.RHACM_TAGGING}>
                         Learn more about tagging hub clusters
                       </ExternalLink>
                     </CardBody>
