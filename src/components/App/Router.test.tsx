@@ -1,7 +1,6 @@
 import React from 'react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 
-import { CLUSTER_LIST_PATH } from '~/common/routing';
 import { mockOCPLifeCycleStatusData } from '~/components/clusters/wizards/rosa/ClusterSettings/VersionSelection.fixtures';
 import * as ReleaseHooks from '~/components/releases/hooks';
 import { mockRestrictedEnv, mockUseChrome, screen, withState } from '~/testUtils';

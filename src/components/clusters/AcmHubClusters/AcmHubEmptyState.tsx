@@ -17,9 +17,12 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 import { ClusterIcon } from '@patternfly/react-icons/dist/esm/icons';
+import { OpenDrawerRightIcon } from '@patternfly/react-icons/dist/esm/icons/open-drawer-right-icon';
 
 import links from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
+import DrawerPanel from '~/components/overview/components/common/DrawerPanel';
+import { DRAWER_PANEL_CONTENT } from '~/components/overview/components/common/DrawerPanelContent';
 
 type AcmHubEmptyStateProps = {
   onStartTagging: () => void;
@@ -28,6 +31,7 @@ type AcmHubEmptyStateProps = {
 const AcmHubEmptyState = ({ onStartTagging }: AcmHubEmptyStateProps) => {
   const [isClusterHubExpanded, setIsClusterHubExpanded] = useState(false);
   const [isAlreadyHaveHubExpanded, setIsAlreadyHaveHubExpanded] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const handleClusterHubToggle = () => {
     setIsClusterHubExpanded((prev) => !prev);
@@ -37,96 +41,119 @@ const AcmHubEmptyState = ({ onStartTagging }: AcmHubEmptyStateProps) => {
     setIsAlreadyHaveHubExpanded((prev) => !prev);
   };
 
+  const handleOpenDrawer = () => {
+    setIsDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+  };
+
   return (
-    <EmptyState
-      headingLevel="h4"
-      icon={ClusterIcon}
-      titleText="No hub clusters tagged yet"
-      variant={EmptyStateVariant.lg}
-      className="acm-hub-empty-state"
+    <DrawerPanel
+      title="Red Hat Advanced Cluster Management for Kubernetes"
+      content={DRAWER_PANEL_CONTENT.AdvancedClusterManagement}
+      isOpen={isDrawerOpen}
+      onClose={handleCloseDrawer}
     >
-      <EmptyStateBody>
-        <p>
-          Tag hub clusters to reflect your Red Hat Advanced Cluster Management for Kubernetes
-          (RHACM) cluster structure. Tagging does not affect behavior in RHACM and serves only to
-          help you organize clusters.
-        </p>
-      </EmptyStateBody>
-      <EmptyStateFooter>
-        <Button variant="primary" onClick={onStartTagging}>
-          Start tagging
-        </Button>
-        <EmptyStateActions>
-          <Stack hasGutter>
-            <StackItem>
-              <ExpandableSection
-                toggleText="What is a cluster hub in RHACM and what can it help me do?"
-                isExpanded={isClusterHubExpanded}
-                onToggle={handleClusterHubToggle}
-              >
-                <Card>
-                  <CardTitle style={{ textAlign: 'left' }}>
-                    <strong>
-                      Install RHACM to manage your fleet of clusters from a central hub
-                    </strong>
-                  </CardTitle>
-                  <CardBody style={{ textAlign: 'left' }}>
-                    <p>
-                      RHACM provides centralized management, visibility, and policy control for your
-                      entire fleet from a single console.
-                      <br /> A key component of RHACM is the hub cluster. A hub cluster has RHACM
-                      installed and lets you create, manage, and monitor other Kubernetes clusters
-                      in a single place.
-                    </p>
-                    <Flex
-                      direction={{ default: 'row' }}
-                      gap={{ default: 'gapMd' }}
-                      style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}
-                    >
-                      <FlexItem>
-                        <ExternalLink href={links.RHACM_DOCS}>Learn more about RHACM</ExternalLink>
-                      </FlexItem>
-                      <FlexItem>
-                        <ExternalLink href={links.RHACM_HUB_CLUSTERS_DOCS}>
-                          Learn more about hub clusters
-                        </ExternalLink>
-                      </FlexItem>
-                      <FlexItem>
-                        <ExternalLink href={links.RHACM_INSTALLATION_DOCS}>
-                          Installation guide
-                        </ExternalLink>
-                      </FlexItem>
-                    </Flex>
-                  </CardBody>
-                </Card>
-              </ExpandableSection>
-            </StackItem>
-            <StackItem>
-              <ExpandableSection
-                toggleText="Already have a cluster hub in RHACM?"
-                isExpanded={isAlreadyHaveHubExpanded}
-                onToggle={handleAlreadyHaveHubToggle}
-              >
-                <Card>
-                  <CardTitle style={{ textAlign: 'left' }}>
-                    <strong>Tag clusters as RHACM hub clusters</strong>
-                  </CardTitle>
-                  <CardBody style={{ textAlign: 'left' }}>
-                    <p>
-                      Manually tag hub clusters on the All clusters page to match your RHACM cluster
-                      structure.
-                    </p>
-                    <ExternalLink href={links.RHACM_DOCS}>
-                      Learn more about tagging hub clusters
-                    </ExternalLink>
-                  </CardBody>
-                </Card>
-              </ExpandableSection>
-            </StackItem>
-          </Stack>
-        </EmptyStateActions>
-      </EmptyStateFooter>
-    </EmptyState>
+      <EmptyState
+        headingLevel="h4"
+        icon={ClusterIcon}
+        titleText="No hub clusters tagged yet"
+        variant={EmptyStateVariant.lg}
+        className="acm-hub-empty-state"
+      >
+        <EmptyStateBody>
+          <p>
+            Tag hub clusters to reflect your Red Hat Advanced Cluster Management for Kubernetes
+            (RHACM) cluster structure. Tagging does not affect behavior in RHACM and serves only to
+            help you organize clusters.
+          </p>
+        </EmptyStateBody>
+        <EmptyStateFooter>
+          <Button variant="primary" onClick={onStartTagging}>
+            Start tagging
+          </Button>
+          <EmptyStateActions>
+            <Stack hasGutter>
+              <StackItem>
+                <ExpandableSection
+                  toggleText="What is a cluster hub in RHACM and what can it help me do?"
+                  isExpanded={isClusterHubExpanded}
+                  onToggle={handleClusterHubToggle}
+                >
+                  <Card>
+                    <CardTitle style={{ textAlign: 'left' }}>
+                      <strong>
+                        Install RHACM to manage your fleet of clusters from a central hub
+                      </strong>
+                    </CardTitle>
+                    <CardBody style={{ textAlign: 'left' }}>
+                      <p>
+                        RHACM provides centralized management, visibility, and policy control for
+                        your entire fleet from a single console.
+                        <br /> A key component of RHACM is the hub cluster. A hub cluster has RHACM
+                        installed and lets you create, manage, and monitor other Kubernetes clusters
+                        in a single place.
+                      </p>
+                      <Flex
+                        direction={{ default: 'row' }}
+                        gap={{ default: 'gapMd' }}
+                        style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}
+                      >
+                        <FlexItem>
+                          <Button
+                            variant="link"
+                            icon={<OpenDrawerRightIcon />}
+                            iconPosition="end"
+                            isInline
+                            onClick={handleOpenDrawer}
+                          >
+                            Learn more about RHACM
+                          </Button>
+                        </FlexItem>
+                        <FlexItem>
+                          <ExternalLink href={links.RHACM_HUB_CLUSTERS_DOCS}>
+                            Learn more about hub clusters
+                          </ExternalLink>
+                        </FlexItem>
+                        <FlexItem>
+                          <ExternalLink href={links.RHACM_INSTALLATION_DOCS}>
+                            Installation guide
+                          </ExternalLink>
+                        </FlexItem>
+                      </Flex>
+                    </CardBody>
+                  </Card>
+                </ExpandableSection>
+              </StackItem>
+              <StackItem>
+                <ExpandableSection
+                  toggleText="Already have a cluster hub in RHACM?"
+                  isExpanded={isAlreadyHaveHubExpanded}
+                  onToggle={handleAlreadyHaveHubToggle}
+                >
+                  <Card>
+                    <CardTitle style={{ textAlign: 'left' }}>
+                      <strong>Tag clusters as RHACM hub clusters</strong>
+                    </CardTitle>
+                    <CardBody style={{ textAlign: 'left' }}>
+                      <p>
+                        Manually tag hub clusters on the All clusters page to match your RHACM
+                        cluster structure.
+                      </p>
+                      <ExternalLink href={links.RHACM_DOCS}>
+                        Learn more about tagging hub clusters
+                      </ExternalLink>
+                    </CardBody>
+                  </Card>
+                </ExpandableSection>
+              </StackItem>
+            </Stack>
+          </EmptyStateActions>
+        </EmptyStateFooter>
+      </EmptyState>
+    </DrawerPanel>
   );
 };
 
