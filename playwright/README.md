@@ -1,5 +1,10 @@
 # Playwright E2E Tests
 
+## Additional Documentation
+
+- [Playwright E2E Test Automation Guidelines](../docs/Playwright-e2e-test-automation-guidelines.md)
+- [Playwright E2E Test Automation FAQ](../docs/Playwright-e2e-test-automation-faq.md)
+
 ## Installation
 
 ### Prerequisites
@@ -37,17 +42,14 @@ yarn playwright test --list
 
 ### Environment Variables
 
-The tests support multiple authentication methods and cloud provider configurations. All environment variables should be configured in the `playwright.env.json` file.
+Configure authentication and cloud provider values in `playwright.env.json`.
 
-#### Authentication Methods
+#### Authentication
 
-The tests support:
+Use username/password credentials:
 
-- **Username/Password Authentication**: Standard Red Hat SSO login
-
-1. **Username/Password Authentication (Primary)**:
-   - `TEST_WITHQUOTA_USER` - Username for test authentication
-   - `TEST_WITHQUOTA_PASSWORD` - Password for test authentication
+- `TEST_WITHQUOTA_USER` - Username for test authentication
+- `TEST_WITHQUOTA_PASSWORD` - Password for test authentication
 
 #### Configuration Files
 
@@ -58,7 +60,7 @@ The test configuration uses `playwright.env.json` for environment-specific setti
 ```json
 {
   // Base definition required for running any playwright tests
-  "TEST_WITHQUOTA_USER": "your-username@example.com",
+  "TEST_WITHQUOTA_USER": "your-username",
   "TEST_WITHQUOTA_PASSWORD": "your-password",
   "BROWSER": "chromium",
   "BASE_URL": "ex: https://console.dev.redhat.com/openshift/",
@@ -154,7 +156,7 @@ The test configuration uses `playwright.env.json` for environment-specific setti
 #### Using custom playwright script commands (Recommended)
 
 ```bash
-# Run all tests in headless mode (CI/CD mode)
+# Run all tests in headless mode
 yarn playwright-headless
 
 # Run tests with UI mode (interactive test explorer)
@@ -220,7 +222,6 @@ The tests use a global setup that:
 
 2. **Login Process** (`playwright/page-objects/login-page.ts`):
    - **Standard Flow**: Username → Next → Password → Submit
-   - **FedRAMP Flow**: Direct username/password entry for GOV_CLOUD environments
 
 #### Session Management
 
@@ -236,25 +237,26 @@ This approach is faster and more reliable than logging in for each test.
 
 ```
 playwright/
-├── e2e/                    # Test files organized by feature
-│   ├── clusters/          # Cluster management tests
-│   ├── downloads/         # Downloads page tests
-│   ├── osd/              # OpenShift Dedicated tests
-│   ├── rosa/             # ROSA (Red Hat OpenShift Service on AWS) tests
-│   └── rosa-hosted/      # ROSA Hosted Control Plane tests
-├── fixtures/             # Test data and authentication state
-│   ├── pages.ts          # Page object fixtures (dependency injection)
-│   ├── storageState.json # Saved authentication state
-│   └── *.json           # Test fixtures and mock data
-├── page-objects/         # Page object models for reusable components
-│   ├── base-page.ts     # Base page with common functionality
-│   ├── login-page.ts    # Authentication page object
-│   ├── cluster-*.ts     # Cluster-related page objects
-│   └── downloads-page.ts # Downloads page object
-└── support/             # Support utilities and configuration
-    ├── auth-config.ts   # Authentication configuration
-    ├── global-setup.ts  # Global test setup
-    └── custom-commands.ts # Custom commands and utilities
+├── e2e/                          # Test specification files
+│   ├── clusters/                 # Cluster management tests
+│   ├── rosa/                     # ROSA Classic tests
+│   ├── osd-aws/                  # OSD on AWS tests
+│   └── ...                       # Other feature folders
+├── fixtures/                     # Test fixtures and data
+│   ├── pages.ts                  # Page object fixtures (DI)
+│   ├── storageState.json         # Authentication state
+│   ├── rosa/                     # ROSA Classic test data
+│   ├── osd-aws/                  # OSD AWS test data
+│   └── ...                       # Other fixture folders
+├── page-objects/                 # Page Object Models
+│   ├── base-page.ts              # Base page with common methods
+│   └── *-page.ts                 # Feature-specific page objects
+└── support/                      # Support utilities
+    ├── auth-config.ts            # Authentication configuration
+    ├── custom-commands.ts        # Custom helper commands
+    ├── global-setup.ts           # Global test setup
+    ├── global-teardown.ts        # Global test teardown
+    └── playwright-constants.ts   # Constants and timeouts
 ```
 
 ### Page Object Fixture Pattern
@@ -303,16 +305,6 @@ test.describe.serial('Register cluster flow', () => {
 ✅ **Automatic Cleanup** - Resources properly disposed  
 ✅ **State Persistence** - Perfect for serial user flows
 
-#### Available Page Object Fixtures
-
-- `clusterListPage` - Cluster list operations
-- `registerClusterPage` - Register cluster form
-- `clusterDetailsPage` - Cluster details and actions
-- `ocmRolesAndAccessPage` - OCM roles management
-- `tokensPage` - Token management
-- `downloadsPage` - Downloads and CLI tools
-- `globalNavPage` - Global navigation menu
-
 ### Configuration Files
 
 - `playwright.config.ts` - Main Playwright configuration
@@ -347,3 +339,60 @@ test.describe.serial('Register cluster flow', () => {
 
 - **Solution**: Verify all required variables are set in `playwright.env.json`
 - **Check**: Run `yarn playwright test --list` to verify configuration loading
+
+## GitHub Actions Workflows
+
+### E2E Smoke Playwright (`e2e-smoke-playwright.yml`)
+
+This workflow runs daily smoke tests against staging environments with full cloud resource setup.
+
+#### Triggers
+
+- **Scheduled**: Runs daily at 7:00 AM UTC (`0 7 * * *`)
+- **Manual Dispatch**: Can be triggered manually with custom parameters
+
+#### Key Features
+
+- **Multi-Environment Support**: Can target staging, production, or local environments
+- **Cloud Resource Setup**: Automatically configures AWS CLI, ROSA CLI, and creates necessary IAM roles
+- **Tag-Based Filtering**: Run specific test suites using Playwright's grep pattern (e.g., `@smoke`)
+- **OCP Version Control**: Optionally specify a specific OpenShift version for tests
+- **Trace Collection**: Configurable trace levels for debugging
+- **Slack Notifications**: Detailed test result notifications with environment info
+- **Automatic Cleanup**: Cleans up AWS resources after test execution
+
+#### Manual Dispatch Options
+
+| Input         | Description                | Default    | Options                                    |
+| ------------- | -------------------------- | ---------- | ------------------------------------------ |
+| `browser`     | Browser to run tests on    | `chromium` | chromium, firefox, webkit                  |
+| `EUT`         | Environment Under Test     | `staging`  | staging, production, local                 |
+| `grep_tags`   | Test tags to filter        | `@smoke`   | Any valid grep pattern (e.g., `@smoke`)    |
+| `ocp_version` | OCP version for tests      | (latest)   | Any valid OCP version string               |
+| `trace_level` | Trace collection level     | `off`      | off, on-first-retry, retain-on-failure, on |
+| `workers`     | Number of parallel workers | `4`        | Any positive integer                       |
+
+#### Environment URLs
+
+| Environment  | Base URL                                      |
+| ------------ | --------------------------------------------- |
+| `staging`    | `https://console.dev.redhat.com/openshift/`   |
+| `production` | `https://console.redhat.com/openshift/`       |
+| `local`      | `https://prod.foo.redhat.com:1337/openshift/` |
+
+#### Cloud Setup (Automatic)
+
+The smoke workflow automatically:
+
+1. **AWS CLI Configuration**: Extracts credentials from `playwright.env.json` and configures AWS CLI
+2. **VPC Infrastructure**: Creates required VPC infrastructure using `create-vpc-infrastructure.sh`
+3. **ROSA CLI Login**: Authenticates using service account credentials
+4. **OCM/Account Roles**: Creates OCM roles and account roles with configured prefixes
+5. **Resource Cleanup**: Tears down created resources after test completion
+
+### Viewing Test Results
+
+1. Navigate to the repository's **Actions** tab
+2. Select the workflow run to view
+3. Check the **Slack channel** for automated notifications
+4. Download **test artifacts** for failed runs (screenshots, videos, traces)
