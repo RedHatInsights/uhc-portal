@@ -166,7 +166,7 @@
     "husky": "^9.0.0",
     "inquirer": "^11.0.0",
     "jest": "^30.0.5",
-    "jest-axe": "^9.0.0",
+    "jest-axe": "^10.0.0",
     "jest-cli": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "lint-staged": "^15.0.0",
