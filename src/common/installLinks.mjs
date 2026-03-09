@@ -220,7 +220,6 @@ const links = {
 
   OCM_CLI_RELEASES_LATEST:
     'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/ocm/latest',
-  RH_DEV_TOOLS: 'https://developers.redhat.com/topics/developer-tools',
 
   RHACM_HUB_CLUSTERS_DOCS: `${RHACM_DOCS_BASE}/about/welcome-to-red-hat-advanced-cluster-management-for-kubernetes#hub-cluster`,
   RHACM_INSTALLATION_DOCS: `${RHACM_DOCS_BASE}/install/installing`,
