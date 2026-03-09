@@ -78,8 +78,6 @@ const OCP_DOCS_BASE =
 const MTV_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/migration_toolkit_for_virtualization/2.0/html';
 
-const RH_BASE = 'https://www.redhat.com/en';
-
 const RHACM_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.15/html';
 
@@ -224,23 +222,9 @@ const links = {
     'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/ocm/latest',
   RH_DEV_TOOLS: 'https://developers.redhat.com/topics/developer-tools',
 
-  RH_CONTACT: `${RH_BASE}/contact`,
-  RH_ISTIO: `${RH_BASE}/topics/microservices/what-is-istio`,
-  RH_ARGO_CD: `${RH_BASE}/blog/argocd-and-gitops-whats-next`,
-  RH_OCP_SUBSCRIPTIONS: `${RH_BASE}/resources/self-managed-openshift-sizing-subscription-guide`,
-  RH_ACS_TRIAL: `${RH_BASE}/technologies/cloud-computing/openshift/advanced-cluster-security-kubernetes/trial`,
-  RH_OPENSHIFT_AI_TRIAL: `${RH_BASE}/technologies/cloud-computing/openshift/openshift-ai/trial`,
-  RH_ACM_TRIAL: `${RH_BASE}/technologies/management/advanced-cluster-management/trial`,
-  RH_ACM: `${RH_BASE}/technologies/management/advanced-cluster-management`,
-  RH_OPENSHIFT_OBSERVABILITY: `${RH_BASE}/technologies/cloud-computing/openshift/observability`,
-  RH_ROSA: `${RH_BASE}/technologies/cloud-computing/openshift/aws`,
-  RH_ROSA_LEARN: `${RH_BASE}/technologies/cloud-computing/openshift/aws/learn`,
-  RH_ROSA_INSTALL: `${RH_BASE}/products/interactive-walkthrough/install-rosa`,
-  RH_ROSA_LIGHTBOARD: `${RH_BASE}/about/videos/rosa-lightboard`,
-
-  RHACM_DOCS: `${RHACM_DOCS_BASE}/about/welcome-to-red-hat-advanced-cluster-management-for-kubernetes`,
   RHACM_HUB_CLUSTERS_DOCS: `${RHACM_DOCS_BASE}/about/welcome-to-red-hat-advanced-cluster-management-for-kubernetes#hub-cluster`,
   RHACM_INSTALLATION_DOCS: `${RHACM_DOCS_BASE}/install/installing`,
+  RHACM_TAGGING: `${RHACM_DOCS_BASE}/to-replace-with-actual-link-once-doc-is-ready`,
 };
 
 // Tool identifiers are public — e.g. for linking to specific tool in DownloadsPage.
