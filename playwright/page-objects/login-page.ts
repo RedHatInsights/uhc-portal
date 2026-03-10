@@ -84,15 +84,15 @@ export class LoginPage extends BasePage {
         }
 
         // Wait for authentication to complete
-        // Accommodate both standard console URLs and prod.foo.redhat.com:1337
-        const urlPattern = /(console\..*\.redhat\.com|prod\.foo\.redhat\.com:1337)/;
+        // Accommodate standard console URLs and dev proxy hostnames
+        const urlPattern = /(console\..*\.redhat\.com|(stage|prod)\.foo\.redhat\.com:1337)/;
         await this.page.waitForURL(urlPattern, { timeout: 30000 });
         console.log('✅ Authentication completed, redirected to console');
 
         await this.closePendoIfShowing();
       } else if (
         (this.page.url().includes('console') && this.page.url().includes('redhat.com')) ||
-        this.page.url().includes('prod.foo.redhat.com:1337')
+        this.page.url().includes('.foo.redhat.com:1337')
       ) {
         console.log('✅ Already authenticated, on console page');
       } else {
