@@ -14,16 +14,15 @@ const useFormStateMock = jest.spyOn(wizardHooks, 'useFormState');
 const useCanClusterAutoscaleMock = jest.spyOn(useCanClusterAutoscale, 'default');
 
 // Mock MachineTypeSelection to prevent Redux warnings
-jest.mock('~/components/clusters/common/ScaleSection-deprecated/MachineTypeSelection', () => ({
-  __esModule: true,
-  default: ({ machineType }) => {
-    // Simulate loading state when no machine type is selected
-    if (!machineType?.input?.value || !machineType.input.value.id) {
-      return <div data-testid="machine-type-selection">Loading node types...</div>;
-    }
-    return <div data-testid="machine-type-selection">Machine Type Selection</div>;
-  },
-}));
+jest.mock(
+  '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection',
+  () => ({
+    // Simulate initial loading state
+    MachineTypeSelection: () => (
+      <div data-testid="machine-type-selection">Loading node types...</div>
+    ),
+  }),
+);
 
 const mockValues = {
   [FieldId.SelectedVpc]: { id: '', aws_security_groups: [] }, // Provide empty VPC object instead of null

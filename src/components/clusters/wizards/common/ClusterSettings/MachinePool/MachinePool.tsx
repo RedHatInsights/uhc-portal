@@ -1,16 +1,15 @@
 import React from 'react';
-import { Field } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Content, ExpandableSection, Form, Grid, GridItem, Title } from '@patternfly/react-core';
 
 import { normalizedProducts } from '~/common/subscriptionTypes';
-import { required } from '~/common/validators';
 import { getNodesCount } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
-import MachineTypeSelection from '~/components/clusters/common/ScaleSection-deprecated/MachineTypeSelection';
+import { MachineTypeSelection } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
 import { CloudProviderType, FieldId } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
+import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypes';
 import {
   clearMachineTypesByRegion,
   getMachineTypes,
@@ -42,9 +41,7 @@ export const MachinePool = () => {
     },
     values,
     errors,
-    getFieldProps,
     setFieldValue,
-    getFieldMeta,
     setFieldTouched,
   } = useFormState();
   const isMultiAz = multiAz === 'true';
@@ -57,6 +54,7 @@ export const MachinePool = () => {
 
   const [loadNewMachineTypes, setLoadNewMachineTypes] = React.useState(false);
   const machineTypesByRegion = useSelector((state: GlobalState) => state.machineTypesByRegion);
+  const { data: machineTypesResponse, error: machineTypesError } = useFetchMachineTypes();
 
   React.useEffect(() => {
     if (machineTypesByRegion.region) {
@@ -80,7 +78,6 @@ export const MachinePool = () => {
     if (isAWS && isByoc) {
       if (!machineTypesByRegion.region || machineTypesByRegion.region?.id !== region) {
         setLoadNewMachineTypes(true);
-        setFieldValue(FieldId.MachineTypeForceChoice, false);
       }
       // no preiously loaded machineTypesByRegion in redux, load new machines
     }
@@ -179,29 +176,15 @@ export const MachinePool = () => {
 
       <Grid hasGutter>
         <GridItem md={6}>
-          <Field
-            component={MachineTypeSelection}
-            name={FieldId.MachineType}
-            validate={required}
+          <MachineTypeSelection
+            fieldId={FieldId.MachineType}
+            machineTypesResponse={machineTypesResponse}
+            machineTypesErrorResponse={machineTypesError?.error}
             isMultiAz={isMultiAz}
             isBYOC={isByoc}
             cloudProviderID={cloudProvider}
-            product={product}
-            isMachinePool={false}
+            productId={product}
             billingModel={billingModel}
-            machine_type={{
-              input: {
-                ...getFieldProps(FieldId.MachineType),
-                onChange: (value: string) => setFieldValue(FieldId.MachineType, value),
-              },
-              meta: getFieldMeta(FieldId.MachineType),
-            }}
-            machine_type_force_choice={{
-              input: {
-                ...getFieldProps(FieldId.MachineTypeForceChoice),
-                onChange: (value: string) => setFieldValue(FieldId.MachineTypeForceChoice, value),
-              },
-            }}
           />
         </GridItem>
 

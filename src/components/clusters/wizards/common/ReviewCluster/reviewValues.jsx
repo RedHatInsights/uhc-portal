@@ -207,6 +207,7 @@ const reviewValues = {
   },
   machine_type: {
     title: 'Node instance type',
+    valueTransform: (value) => value?.id,
   },
   autoscalingEnabled: {
     title: 'Autoscaling',

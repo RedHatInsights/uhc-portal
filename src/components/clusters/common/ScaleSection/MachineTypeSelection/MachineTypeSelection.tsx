@@ -27,9 +27,10 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
 import { MachineTypesResponse } from '~/queries/types';
 import { DEFAULT_FLAVOUR_ID, getDefaultFlavour } from '~/redux/actions/flavourActions';
+import { getMachineTypesByRegionARN } from '~/redux/actions/machineTypesActions';
 import { useGlobalState } from '~/redux/hooks';
 import { RelatedResourceBilling_model as RelatedResourceBillingModel } from '~/types/accounts_mgmt.v1';
-import { BillingModel, MachineType } from '~/types/clusters_mgmt.v1';
+import { BillingModel, CloudProvider, CloudVpc, MachineType } from '~/types/clusters_mgmt.v1';
 import { ErrorState } from '~/types/types';
 
 import { QuotaTypes } from '../../quotaModel';
@@ -48,8 +49,6 @@ import {
 } from './machineTypeSelectionHelper';
 import sortMachineTypes from './sortMachineTypes';
 
-const fieldId = 'instanceType';
-
 // Default selection scenarios:
 // - First time, default is available => select it.
 // - First time, default is not listed (due to quota or ccs_only) => leave placeholder ''.
@@ -62,23 +61,33 @@ const fieldId = 'instanceType';
 // - Something was selected (either automatically or manually), then changed cloud provider.
 //   CloudProviderSelectionField does `change('machine_type', '')` => same as first time.
 type MachineTypeSelectionProps = {
+  fieldId: string;
   machineTypesResponse: MachineTypesResponse;
-  isMultiAz: boolean;
-  isBYOC: boolean;
-  isMachinePool: boolean;
-  inModal: boolean;
-  cloudProviderID: 'aws' | 'gcp' | undefined;
+  machineTypesErrorResponse?: Pick<ErrorState, 'errorDetails' | 'errorMessage' | 'operationID'>;
+  selectedVpc?: CloudVpc;
+  region?: string;
+  installerRoleArn?: string;
+  isMultiAz?: boolean;
+  isBYOC?: boolean;
+  isMachinePool?: boolean;
+  inModal?: boolean;
+  cloudProviderID: CloudProvider['id'];
   productId: string;
   billingModel: BillingModel;
   allExpanded?: boolean;
 };
 
 const MachineTypeSelection = ({
+  fieldId,
   machineTypesResponse,
+  machineTypesErrorResponse,
+  selectedVpc,
+  region = '',
+  installerRoleArn = '',
   isMultiAz,
   isBYOC,
   isMachinePool,
-  inModal = false,
+  inModal,
   cloudProviderID,
   productId,
   billingModel,
@@ -127,10 +136,15 @@ const MachineTypeSelection = ({
   const [isMachineTypeFilteredByRegion, setIsMachineTypeFilteredByRegion] = React.useState(
     !previousSelectionFromUnfilteredSet,
   );
-  const activeMachineTypes =
-    isRegionSpecificDataReady && useRegionFilteredData && isMachineTypeFilteredByRegion
-      ? machineTypesByRegion
-      : machineTypesResponse;
+
+  const useMachineTypesByRegion =
+    isRegionSpecificDataReady && useRegionFilteredData && isMachineTypeFilteredByRegion;
+  const activeMachineTypes: MachineTypesResponse = useMachineTypesByRegion
+    ? machineTypesByRegion
+    : machineTypesResponse;
+  const activeMachineTypesError = useMachineTypesByRegion
+    ? machineTypesByRegion.error
+    : machineTypesErrorResponse;
 
   /**
    * Checks whether type can be offered, based on quota and ccs_only.
@@ -256,6 +270,18 @@ const MachineTypeSelection = ({
     [isTypeAvailable, sortedMachineTypes],
   );
 
+  React.useEffect(() => {
+    if (!installerRoleArn || !region) {
+      return;
+    }
+    const AZs = [
+      ...new Set(
+        selectedVpc?.aws_subnets?.map((el) => el.availability_zone ?? '')?.filter(Boolean),
+      ),
+    ];
+    dispatch(getMachineTypesByRegionARN(installerRoleArn, region, [...AZs]));
+  }, [dispatch, selectedVpc, installerRoleArn, region]);
+
   const machineTypeUnavailableWarning =
     'OCM does not have access to all AWS account details. Machine node type cannot be verified to be accessible for this AWS user.';
   const possiblyUnavailableWarnIcon = React.useMemo(
@@ -324,7 +350,7 @@ const MachineTypeSelection = ({
   if (
     isDataReady &&
     (!useRegionFilteredData || isRegionSpecificDataReady) &&
-    !('error' in activeMachineTypes ? activeMachineTypes.error : false)
+    !activeMachineTypesError
   ) {
     if (filteredMachineTypes.length === 0) {
       return (
@@ -344,7 +370,6 @@ const MachineTypeSelection = ({
       <FormGroup
         label="Compute node instance type"
         isRequired
-        fieldId="node_type"
         labelHelp={<PopoverHint hint={constants.computeNodeInstanceTypeHint} />}
       >
         <TreeViewSelect
@@ -379,8 +404,8 @@ const MachineTypeSelection = ({
     );
   }
 
-  return (activeMachineTypes as ErrorState)?.error ? (
-    <ErrorBox message="Error loading node types" response={activeMachineTypes as ErrorState} />
+  return activeMachineTypesError ? (
+    <ErrorBox message="Error loading node types" response={activeMachineTypesError} />
   ) : (
     <>
       <div className="spinner-fit-container">
@@ -391,4 +416,4 @@ const MachineTypeSelection = ({
   );
 };
 
-export { MachineTypeSelection, MachineTypeSelectionProps, fieldId };
+export { MachineTypeSelection, MachineTypeSelectionProps };
