@@ -57,8 +57,8 @@ alwaysApply: false
 # Test Specs
 
 - Always import `test` and `expect` from the custom fixtures (`../../fixtures/pages`), never from `@playwright/test`
-- Use `test.describe.serial` for multi-step flows or tests that share browser state
-- Use regular `test.describe` only when tests are fully independent and each sets up its own state
+- Use `test.describe.serial` only for multi-step flows that intentionally share state across tests
+- Use regular `test.describe` for independent tests
 - Every `describe` block must include appropriate tags via the second argument: `{ tag: ['@smoke', '@ci', '@rosa'] }`
 - Use the `navigateTo` fixture for navigation instead of `page.goto()`
 - Use page object fixtures from the test function signature (they are worker-scoped)
@@ -73,6 +73,6 @@ alwaysApply: false
 - Never use hard-coded waits like `page.waitForTimeout()` — wait for specific elements instead
 - Never use `page.waitForLoadState('networkidle')` — it hangs with polling and websockets
 - Never use `page.goBack()` — use `navigateTo()` for direct navigation
-- Never use parallel tests with worker-scoped fixtures — always use `test.describe.serial`
+- Never use parallel mode with worker-scoped fixtures
 - Never swallow errors with empty try/catch blocks — let failures propagate
 - Never skip tests without a JIRA issue reference in the skip reason
