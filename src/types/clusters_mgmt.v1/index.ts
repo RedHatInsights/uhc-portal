@@ -13841,6 +13841,7 @@ export interface components {
     };
     /** @description Contains the properties of a DNS domain. */
     DNSDomain: {
+      gcp?: any;
       /** @description Indicates the type of this object. Will be 'DNSDomain' if this is a complete object or 'DNSDomainLink' if it is just a link. */
       kind?: string;
       /** @description Unique identifier of the object. */

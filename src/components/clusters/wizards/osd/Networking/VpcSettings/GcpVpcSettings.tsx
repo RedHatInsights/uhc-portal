@@ -18,10 +18,15 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId, StepId } from '~/components/clusters/wizards/osd/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
+// import { useFetchGcpDnsDomains } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpDnsDomains';
+import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { DnsDomain } from '~/types/clusters_mgmt.v1';
 
 import { CheckboxField, TextInputField } from '../../../form';
 import { ClusterPrivacyType } from '../constants';
 
+import DnsZoneSelect from './DnsZoneSelect';
 import { GcpVpcNameSelectField } from './GcpVpcNameSelectField';
 import { GcpVpcSubnetSelectField } from './GcpVpcSubnetSelectField';
 
@@ -32,11 +37,27 @@ export const GcpVpcSettings = () => {
       [FieldId.InstallToSharedVpc]: installToSharedVpc,
       [FieldId.PrivateServiceConnect]: privateServiceConnect,
       [FieldId.ClusterPrivacy]: clusterPrivacy,
+      [FieldId.HasDomainPrefix]: hasDomainPrefix,
+      [FieldId.DomainPrefix]: domainPrefix,
+      [FieldId.Byoc]: byoc,
+      [FieldId.DnsZone]: selectedDnsZone,
     },
     getFieldProps,
     getFieldMeta,
     setFieldValue,
   } = useFormState();
+
+  const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
+  const isByoc = byoc === 'true';
+
+  // const {
+  //   data: dnsDomains,
+  //   // isError,
+  //   // error,
+  //   // isLoading,
+  // } = useFetchGcpDnsDomains(domainPrefix);
+
+  // console.log('dnsDomains', dnsDomains);
 
   const { goToStepById } = useWizardContext();
 
@@ -88,7 +109,21 @@ export const GcpVpcSettings = () => {
     return null;
   }, [clusterVersion?.raw_id, goToStepById, installToSharedVpc]);
 
+  const dnsZoneAlert = (
+    <Alert variant="warning" isInline title="Domain prefix required" className="pf-v6-u-mt-md">
+      <p>
+        To create and select a DNS zone, you must first specify a Custom domain prefix in the{' '}
+        <AlertActionLink onClick={() => goToStepById(StepId.ClusterSettingsDetails)}>
+          Cluster settings
+        </AlertActionLink>{' '}
+        step (Step 2).
+      </p>
+    </Alert>
+  );
+
   const showPSCSubnet = privateServiceConnect && clusterPrivacy === ClusterPrivacyType.Internal;
+  const showDnsZone = installToSharedVpc && isByoc && isGcpDnsZoneEnabled;
+
   return (
     <>
       <GridItem span={8}>
@@ -114,6 +149,40 @@ export const GcpVpcSettings = () => {
           {hostProjectId}
         </div>
       </GridItem>
+
+      {showDnsZone ? (
+        <GridItem span={8}>
+          <Title headingLevel="h4" size="md">
+            DNS Zone
+          </Title>
+          {/* {!hasDomainPrefix ? dnsZoneAlert : null} */}
+          {hasDomainPrefix ? (
+            <Field
+              component={DnsZoneSelect}
+              name={FieldId.DnsZone}
+              className="pf-v6-u-mt-md"
+              input={{
+                ...getFieldProps(FieldId.DnsZone),
+                onChange: (newDnsZoneValue: DnsDomain) => {
+                  setFieldValue(FieldId.DnsZone, newDnsZoneValue);
+                  // if (newDnsZoneValue?.id !== selectedDnsZone?.id) {
+                  //   setFieldValue(controlPlaneFieldName, []);
+                  //   setFieldValue(infraFieldName, []);
+                  //   setFieldValue(workerFieldName, []);
+                  // }
+                },
+              }}
+              // meta={vpcMeta}
+              // validate={(vpc: CloudVpc) => (dirty && !vpc?.id ? 'error' : undefined)}
+              selectedDnsZone={selectedDnsZone}
+              domainPrefix={domainPrefix}
+              showRefresh
+            />
+          ) : (
+            dnsZoneAlert
+          )}
+        </GridItem>
+      ) : null}
 
       <GridItem>
         <Title headingLevel="h4" size="md">
@@ -146,7 +215,6 @@ export const GcpVpcSettings = () => {
           </p>
         </div>
       </GridItem>
-
       <GridItem md={showPSCSubnet ? 12 : 4}>
         {installToSharedVpc ? (
           <TextInputField
@@ -170,7 +238,6 @@ export const GcpVpcSettings = () => {
           />
         )}
       </GridItem>
-
       <GridItem md={showPSCSubnet ? 12 : 4}>
         {installToSharedVpc ? (
           <TextInputField
@@ -194,7 +261,6 @@ export const GcpVpcSettings = () => {
           />
         )}
       </GridItem>
-
       <GridItem md={showPSCSubnet ? 12 : 4}>
         {installToSharedVpc ? (
           <TextInputField
@@ -243,7 +309,6 @@ export const GcpVpcSettings = () => {
           )}
         </GridItem>
       ) : null}
-
       {installToSharedVpc && (
         <GridItem span={9}>
           <div className="pf-v6-u-mt-md  pf-v6-u-mb-lg">
