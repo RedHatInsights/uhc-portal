@@ -19,6 +19,7 @@ import { TokensPage } from '../page-objects/tokens-page';
 import { CustomCommands } from '../support/custom-commands';
 import { STORAGE_STATE_PATH } from '../support/playwright-constants';
 
+
 /**
  * Worker-scoped fixtures - shared across all tests in a worker (suite-level)
  * Perfect for serial test suites where:
@@ -86,6 +87,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     async ({ browser }, use) => {
       const context = await browser.newContext({
         storageState: STORAGE_STATE_PATH,
+        ignoreHTTPSErrors: true,
       });
       await use(context);
       await context.close();
