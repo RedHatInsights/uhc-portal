@@ -194,7 +194,7 @@
     "typescript": "5.5.3",
     "wait-on": "8.0.1",
     "webpack": "^5.89.0",
-    "webpack-bundle-analyzer": "^4.10.1"
+    "webpack-bundle-analyzer": "^5.0.0"
   },
   "resolutions": {
     "@cypress/webpack-preprocessor": "6.0.2",
