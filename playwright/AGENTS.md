@@ -1,10 +1,6 @@
----
-description: Playwright e2e test automation conventions, page objects, and fixtures
-globs: playwright/**/*.ts, playwright/**/*.json
-alwaysApply: false
----
+# Playwright E2E Test Conventions
 
-# Support Utilities
+## Support Utilities
 
 - `playwright-constants.ts` defines all shared paths, timeouts, and route constants — always import from here instead of hardcoding
 - Available path constants: `STORAGE_STATE_PATH`, `TEST_DIR`, `E2E_DIR`, `FIXTURES_DIR`, `PAGE_OBJECTS_DIR`, `SUPPORT_DIR`
@@ -16,7 +12,7 @@ alwaysApply: false
 - `global-setup.ts` handles authentication and saves state to `storageState.json` — do not modify unless changing the auth flow
 - Environment variables are loaded from `playwright.env.json` at the workspace root via `playwright.config.ts`
 
-# Page Objects
+## Page Objects
 
 - Every page object must extend `BasePage` from `./base-page`
 - Name files as `<feature>-page.ts` and classes as `<Feature>Page` (e.g., `cluster-list-page.ts` / `ClusterListPage`)
@@ -32,18 +28,18 @@ alwaysApply: false
 - Use `locator().filter({ hasText: })` for filtering and `locator().first()` for nth element selection
 - Chain locators for scoped queries (e.g., `this.parentRow().getByRole('button', { name: 'Download' })`)
 
-# Fixtures
+## Fixtures
 
 - All page object fixtures are registered in `playwright/fixtures/pages.ts`
 - To add a new fixture: import the page object, add it to the `WorkerFixtures` type, then add the fixture definition
 - All page object fixtures must be worker-scoped using `{ scope: 'worker' }`
 - Use `authenticatedPage` (not raw `page`) when constructing page objects in fixture definitions
-- The `navigateTo` fixture is test-scoped and accepts a relative URL path
-- The `page` fixture is overridden to return `authenticatedPage` with pre-loaded authentication state
+- The `navigateTo` fixture is test-scoped and accepts a relative URL path — it is safe to use in `test.beforeAll` because `page` is overridden to delegate to the worker-scoped `authenticatedPage`, so navigation persists across all tests in the suite
+- The `page` fixture is overridden to return the worker-scoped `authenticatedPage` with pre-loaded authentication state — this is what makes test-scoped fixtures like `navigateTo` work correctly in `test.beforeAll`
 - Never create test-scoped page object fixtures — serial tests require shared worker-scoped state
 - Check `fixtures/pages.ts` for the current list of available fixtures before creating new ones
 
-# Test Data
+## Test Data
 
 - Name test data files as `<spec-name>.spec.json` and place them under `playwright/fixtures/<feature>/`
 - Mirror the `e2e/` folder structure (e.g., `fixtures/rosa/` for `e2e/rosa/` specs, `fixtures/osd-aws/` for `e2e/osd-aws/` specs)
@@ -54,7 +50,7 @@ alwaysApply: false
 - Use `require()` or `import` to load JSON fixtures in specs; both are acceptable
 - Use environment variables with JSON fixture fallbacks for environment-specific values
 
-# Test Specs
+## Test Specs
 
 - Always import `test` and `expect` from the custom fixtures (`../../fixtures/pages`), never from `@playwright/test`
 - Use `test.describe.serial` only for multi-step flows that intentionally share state across tests
