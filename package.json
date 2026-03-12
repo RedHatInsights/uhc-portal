@@ -192,7 +192,7 @@
     "ts-patch": "^3.3.0",
     "tsconfig-paths-webpack-plugin": "4.1.0",
     "typescript": "5.5.3",
-    "wait-on": "8.0.1",
+    "wait-on": "9.0.4",
     "webpack": "^5.89.0",
     "webpack-bundle-analyzer": "^4.10.1"
   },
