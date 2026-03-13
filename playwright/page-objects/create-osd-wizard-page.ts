@@ -783,6 +783,22 @@ export class CreateOSDWizardPage extends BasePage {
     return this.page.locator('input[id="form-radiobutton-applicationIngress-custom-field"]');
   }
 
+  vpcSelectButton(): Locator {
+    return this.page.locator('button').filter({ hasText: 'Select a VPC' });
+  }
+
+  vpcFilterInput(): Locator {
+    return this.page.locator('input[placeholder="Filter by VPC ID / name"]');
+  }
+
+  securityGroupsButton(): Locator {
+    return this.page.locator('button').filter({ hasText: 'Select security groups' });
+  }
+
+  securityGroupsFilterInput(): Locator {
+    return this.page.locator('input[placeholder="Filter by security group ID / name"]');
+  }
+
   applicationIngressRouterSelectorsInput(): Locator {
     return this.page.locator('input[name="defaultRouterSelectors"]');
   }
@@ -828,5 +844,135 @@ export class CreateOSDWizardPage extends BasePage {
     } else {
       await expect(locator).not.toBeVisible();
     }
+  }
+
+  // VPC and Subnet methods
+  async waitForVPCRefresh(): Promise<void> {
+    await expect(this.page.getByTestId('refresh-vpcs')).toBeDisabled();
+    await this.page
+      .locator('span[role="progressbar"], .spinner')
+      .waitFor({ state: 'detached', timeout: 80000 });
+  }
+
+  async selectVPC(vpcName: string): Promise<void> {
+    await expect(this.page.getByTestId('refresh-vpcs')).toBeEnabled();
+    await this.vpcSelectButton().click();
+    await this.vpcFilterInput().clear();
+    await this.vpcFilterInput().fill(vpcName);
+    // Use role-based locator scoped to dropdown options to avoid matching other elements with VPC name
+    await this.page.getByRole('option', { name: vpcName }).click();
+  }
+
+  async selectSubnetAvailabilityZone(subnetAvailability: string): Promise<void> {
+    await this.page.getByText('Select availability zone').first().click();
+    await this.page.getByRole('option', { name: subnetAvailability }).click();
+  }
+
+  /**
+   * Shared helper for subnet selection (private or public)
+   * @param index - Machine pool index
+   * @param subnetType - 'private' or 'public'
+   * @param subnetNameOrId - Subnet name or ID to select
+   */
+  private async selectSubnet(
+    index: number,
+    subnetType: 'private' | 'public',
+    subnetNameOrId: string,
+  ): Promise<void> {
+    const fieldId = subnetType === 'private' ? 'privateSubnetId' : 'publicSubnetId';
+    await this.page.locator(`button[id="machinePoolsSubnets[${index}].${fieldId}"]`).click();
+    await this.page.locator('input[placeholder="Filter by subnet ID / name"]').clear();
+    await this.page.locator('input[placeholder="Filter by subnet ID / name"]').fill(subnetNameOrId);
+    // Use role-based locator for dropdown options (listbox with role="option")
+    await this.page.getByRole('option', { name: subnetNameOrId }).click();
+  }
+
+  async selectPrivateSubnet(index: number, privateSubnetNameOrId: string): Promise<void> {
+    await this.selectSubnet(index, 'private', privateSubnetNameOrId);
+  }
+
+  async selectPublicSubnet(index: number, publicSubnetNameOrId: string): Promise<void> {
+    await this.selectSubnet(index, 'public', publicSubnetNameOrId);
+  }
+
+  // Security groups methods
+  additionalSecurityGroupsLink(): Locator {
+    return this.page.getByRole('button', { name: 'Additional security groups' });
+  }
+
+  applySameSecurityGroupsToAllNodeTypesCheckbox(): Locator {
+    return this.page.locator('input[name="securityGroups.applyControlPlaneToAll"]');
+  }
+
+  async selectAdditionalSecurityGroups(securityGroup: string): Promise<void> {
+    await this.securityGroupsButton().click();
+    await this.page.getByRole('menuitem', { name: securityGroup }).click();
+    await this.securityGroupsButton().click();
+  }
+
+  // Application ingress methods
+  applicationIngressNamespaceOwnershipPolicyRadio(): Locator {
+    return this.page.locator('input[id="isDefaultRouterNamespaceOwnershipPolicyStrict"]');
+  }
+
+  applicationIngressWildcardPolicyDisallowedRadio(): Locator {
+    return this.page.locator('input[id="isDefaultRouterWildcardPolicyAllowed"]');
+  }
+
+  // Review screen - additional values
+  routeSelectorsValue(): Locator {
+    return this.page.getByTestId('Route-selectors').locator('div');
+  }
+
+  excludedNamespacesValue(): Locator {
+    return this.page.getByTestId('Excluded-namespaces').locator('div');
+  }
+
+  wildcardPolicyValue(): Locator {
+    return this.page.getByTestId('Wildcard-policy').locator('div');
+  }
+
+  namespaceOwnershipValue(): Locator {
+    return this.page.getByTestId('Namespace-ownership-policy').locator('div');
+  }
+
+  vpcSubnetSettingsValue(): Locator {
+    return this.page.getByTestId('VPC-subnet-settings').locator('div');
+  }
+
+  /**
+   * Verifies a VPC subnet row in the review screen
+   * @param zone - Expected availability zone
+   * @param privateSubnet - Expected private subnet name
+   * @param publicSubnet - Expected public subnet name
+   */
+  async verifyVpcSubnetRow(
+    zone: string,
+    privateSubnet: string,
+    publicSubnet: string,
+  ): Promise<void> {
+    const container = this.page.getByTestId('VPC-subnet-settings');
+    await expect(container).toContainText(zone);
+    await expect(container).toContainText(privateSubnet);
+    await expect(container).toContainText(publicSubnet);
+  }
+
+  securityGroupsValue(): Locator {
+    return this.page.getByTestId('Security-groups');
+  }
+
+  /**
+   * Verifies security groups are displayed in the review screen
+   * @param securityGroups - Array of expected security group names
+   */
+  async verifySecurityGroups(securityGroups: string[]): Promise<void> {
+    const container = this.page.getByTestId('Security-groups');
+    for (const sg of securityGroups) {
+      await expect(container).toContainText(sg);
+    }
+  }
+
+  computeNodeRangeValue(): Locator {
+    return this.page.getByTestId('Compute-node-range').locator('div');
   }
 }
