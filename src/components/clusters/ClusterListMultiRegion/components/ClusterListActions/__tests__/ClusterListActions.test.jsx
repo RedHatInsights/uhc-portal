@@ -12,7 +12,7 @@ describe('<ClusterListActions />', () => {
   it('is accessible ', async () => {
     const { container } = render(<ClusterListActions />);
 
-    expect(screen.getByRole('button', { name: 'Create cluster' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add cluster' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Actions' })).toBeInTheDocument();
 
     await checkAccessibility(container);

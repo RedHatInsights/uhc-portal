@@ -78,6 +78,9 @@ const OCP_DOCS_BASE =
 const MTV_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/migration_toolkit_for_virtualization/2.0/html';
 
+const RHACM_DOCS_BASE =
+  'https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.15/html';
+
 const links = {
   OSD_GOOGLE_MARKETPLACE:
     'https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated',
@@ -217,6 +220,10 @@ const links = {
 
   OCM_CLI_RELEASES_LATEST:
     'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/ocm/latest',
+
+  RHACM_HUB_CLUSTERS_DOCS: `${RHACM_DOCS_BASE}/about/welcome-to-red-hat-advanced-cluster-management-for-kubernetes#hub-cluster`,
+  RHACM_INSTALLATION_DOCS: `${RHACM_DOCS_BASE}/install/installing`,
+  RHACM_TAGGING: `${RHACM_DOCS_BASE}/to-replace-with-actual-link-once-doc-is-ready`,
 };
 
 // Tool identifiers are public — e.g. for linking to specific tool in DownloadsPage.

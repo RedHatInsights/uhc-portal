@@ -425,7 +425,7 @@ describe('<ClusterList />', () => {
       expect(args[0].payload.value).toStrictEqual({ plan_id: [normalizedProducts.ROSA] });
       expect(args[0].payload.viewType).toBe(viewConstants.CLUSTERS_VIEW);
 
-      expect(await screen.findByRole('button', { name: 'Create cluster' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Add cluster' })).toBeInTheDocument();
     });
 
     it('does not render filtering', async () => {
@@ -436,7 +436,7 @@ describe('<ClusterList />', () => {
       rerender(<ClusterList {...props} />);
       expect(screen.queryByTestId('cluster-list-filter-dropdown')).not.toBeInTheDocument();
 
-      expect(await screen.findByRole('button', { name: 'Create cluster' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Add cluster' })).toBeInTheDocument();
     });
   });
 
