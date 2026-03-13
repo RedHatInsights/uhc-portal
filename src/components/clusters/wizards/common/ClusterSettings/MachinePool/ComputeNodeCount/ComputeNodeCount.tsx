@@ -12,9 +12,9 @@ import {
   getNodeIncrementHypershift,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
 import {
-  buildOptions,
   getAvailableQuota as getAvailableQuotaUtil,
   getIncludedNodes,
+  getMaxNodeCount,
 } from '~/components/clusters/common/machinePools/utils';
 import { computeNodeHintText } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -155,30 +155,28 @@ const ComputeNodeCount = ({
     ],
   );
 
-  const totalMaxNodes = React.useMemo(() => {
-    // get the array of possible node count values to extract the max value
-    const acceptableValues = buildOptions({
+  const totalMaxNodes = React.useMemo(
+    () =>
+      getMaxNodeCount({
+        included,
+        available,
+        isEditingCluster,
+        currentNodeCount: 0,
+        minNodes: minNodesRequired,
+        isHypershift: isHypershiftSelected,
+        clusterVersion: clusterVersionRawId,
+        allow249NodesOSDCCSROSA,
+      }),
+    [
       included,
       available,
-      isEditingCluster,
-      currentNodeCount: 0,
-      minNodes: minNodesRequired,
-      increment,
-      isHypershift: isHypershiftSelected,
-      clusterVersion: clusterVersionRawId,
+      minNodesRequired,
+      isHypershiftSelected,
       allow249NodesOSDCCSROSA,
-    });
-    return acceptableValues[acceptableValues.length - 1];
-  }, [
-    included,
-    available,
-    minNodesRequired,
-    increment,
-    isHypershiftSelected,
-    allow249NodesOSDCCSROSA,
-    clusterVersionRawId,
-    isEditingCluster,
-  ]);
+      clusterVersionRawId,
+      isEditingCluster,
+    ],
+  );
 
   const maxUserInputNodes = totalMaxNodes / increment;
   const minUserInputNodes = minNodesRequired / increment;
