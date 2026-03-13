@@ -9831,6 +9831,126 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/clusters_mgmt/v1/deleted_clusters': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves a list of deleted clusters */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Order criteria. */
+          order?: string;
+          /** @description Index of the requested page, where one corresponds to the first page. */
+          page?: number;
+          /** @description Search criteria. */
+          search?: string;
+          /** @description Maximum number of items that will be contained in the returned page. */
+          size?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @description Retrieved list of clusters. */
+              items?: components['schemas']['DeletedCluster'][];
+              /**
+               * Format: int32
+               * @description Index of the requested page, where one corresponds to the first page.
+               */
+              page?: number;
+              /**
+               * Format: int32
+               * @description Maximum number of items that will be contained in the returned page.
+               */
+              size?: number;
+              /**
+               * Format: int32
+               * @description Total number of items of the collection that match the search criteria,
+               *     regardless of the size of the page.
+               */
+              total?: number;
+            };
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/clusters_mgmt/v1/deleted_clusters/{deleted_cluster_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves a specific deleted cluster */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          deleted_cluster_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['DeletedCluster'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/clusters_mgmt/v1/dns_domains': {
     parameters: {
       query?: never;
@@ -13847,6 +13967,8 @@ export interface components {
       id?: string;
       /** @description Self link. */
       href?: string;
+      /** @description Signals which cloud provider the domain is ready for. */
+      cloud_provider?: components['schemas']['DnsCloudProvider'];
       /** @description Link to the cluster that is registered with the DNS domain (optional). */
       cluster?: components['schemas']['ClusterLink'];
       /** @description Signals which cluster architecture the domain is ready for. */
@@ -15068,6 +15190,9 @@ export interface components {
       billing_model?: components['schemas']['BillingModel'];
       /** @description Contains information about BYO OIDC. */
       byo_oidc?: components['schemas']['ByoOidc'];
+      /** @description Channel is the Y-stream update channel for the cluster (e.g., "stable-4.16", "eus-4.16").
+       *     This field allows specifying the update channel independently from the version. */
+      channel?: string;
       /** @description Link to the cloud provider where the cluster is installed. */
       cloud_provider?: components['schemas']['CloudProvider'];
       /** @description Information about the console of the cluster. */
@@ -15653,8 +15778,26 @@ export interface components {
        *     To enable it a SREP needs to patch the value through OCM API */
       enabled?: boolean;
     };
+    /** @description Representation of a deleted cluster with its deleted_timestamp and the entire cluster details */
+    DeletedCluster: {
+      /** @description Indicates the type of this object. Will be 'DeletedCluster' if this is a complete object or 'DeletedClusterLink' if it is just a link. */
+      kind?: string;
+      /** @description Unique identifier of the object. */
+      id?: string;
+      /** @description Self link. */
+      href?: string;
+      /** @description Reference to the deleted cluster */
+      cluster?: components['schemas']['Cluster'];
+      /**
+       * Format: date-time
+       * @description Date and time the cluster was effectively deleted
+       */
+      deleted_timestamp?: string;
+    };
     /** @enum {string} */
     DetectionType: DetectionType;
+    /** @enum {string} */
+    DnsCloudProvider: DnsCloudProvider;
     /**
      * @description Which Ec2MetadataHttpTokens to use for metadata service interaction options for EC2 instances
      * @enum {string}
@@ -16115,6 +16258,8 @@ export interface components {
       };
       /** @description Indicates if this is the default ingress. */
       default?: boolean;
+      /** @description A set of excluded exclude namespaces via labels for ingress. */
+      excluded_namespace_selectors?: components['schemas']['NamespaceSelector'][];
       /** @description A set of excluded namespaces for the ingress. */
       excluded_namespaces?: string[];
       /** @description Listening method of the ingress */
@@ -16263,7 +16408,7 @@ export interface components {
       /** @description List of additional applications to forward logs for. */
       applications?: string[];
       /** @description CloudWatch configuration for log forwarding destination. */
-      cloud_watch?: components['schemas']['LogForwarderCloudWatchConfig'];
+      cloudwatch?: components['schemas']['LogForwarderCloudWatchConfig'];
       /** @description Identifier of the cluster. */
       cluster_id?: string;
       /** @description List of log forwarder groups. */
@@ -16280,10 +16425,10 @@ export interface components {
     };
     /** @description Represents an application that can be configured for log forwarding. */
     LogForwarderApplication: {
-      /** @description The identifier of the application. */
-      id?: string;
       /** @description Indicates whether this application is available for use for log forwarding. */
-      state?: string;
+      enabled?: boolean;
+      /** @description The name of the application. */
+      name?: string;
     };
     /** @description CloudWatch configuration for log forwarding. */
     LogForwarderCloudWatchConfig: {
@@ -16308,10 +16453,10 @@ export interface components {
     };
     /** @description Represents a log forwarder group versions configuration. */
     LogForwarderGroupVersions: {
-      /** @description The identifier of the log forwarder group. */
-      id?: string;
       /** @description Indicates whether this group is available for use for log forwarding. */
-      state?: string;
+      enabled?: boolean;
+      /** @description The name of the log forwarder group. */
+      name?: string;
       /** @description List of available versions for this group. */
       versions?: components['schemas']['LogForwarderGroupVersion'][];
     };
@@ -16477,6 +16622,13 @@ export interface components {
      * @enum {string}
      */
     NamespaceOwnershipPolicy: NamespaceOwnershipPolicy;
+    /** @description Representation of a NamespaceSelector */
+    NamespaceSelector: {
+      /** @description Key value */
+      key?: string;
+      /** @description One or more values associated to the Key */
+      values?: string[];
+    };
     /** @description Network configuration of a cluster. */
     Network: {
       /**
@@ -17707,7 +17859,9 @@ export type SchemaControlPlane = components['schemas']['ControlPlane'];
 export type SchemaControlPlaneUpgradePolicy = components['schemas']['ControlPlaneUpgradePolicy'];
 export type SchemaCredentialRequest = components['schemas']['CredentialRequest'];
 export type SchemaDeleteProtection = components['schemas']['DeleteProtection'];
+export type SchemaDeletedCluster = components['schemas']['DeletedCluster'];
 export type SchemaDetectionType = components['schemas']['DetectionType'];
+export type SchemaDnsCloudProvider = components['schemas']['DnsCloudProvider'];
 export type SchemaEc2MetadataHttpTokens = components['schemas']['Ec2MetadataHttpTokens'];
 export type SchemaEncryptionKey = components['schemas']['EncryptionKey'];
 export type SchemaEnvironment = components['schemas']['Environment'];
@@ -17776,6 +17930,7 @@ export type SchemaManagedService = components['schemas']['ManagedService'];
 export type SchemaManifest = components['schemas']['Manifest'];
 export type SchemaMarketType = components['schemas']['MarketType'];
 export type SchemaNamespaceOwnershipPolicy = components['schemas']['NamespaceOwnershipPolicy'];
+export type SchemaNamespaceSelector = components['schemas']['NamespaceSelector'];
 export type SchemaNetwork = components['schemas']['Network'];
 export type SchemaNetworkVerification = components['schemas']['NetworkVerification'];
 export type SchemaNodeInfo = components['schemas']['NodeInfo'];
@@ -17961,6 +18116,10 @@ export enum ComponentRouteType {
 export enum DetectionType {
   auto = 'auto',
   manual = 'manual',
+}
+export enum DnsCloudProvider {
+  aws = 'aws',
+  gcp = 'gcp',
 }
 export enum Ec2MetadataHttpTokens {
   optional = 'optional',

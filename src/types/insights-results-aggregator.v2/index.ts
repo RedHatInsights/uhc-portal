@@ -140,8 +140,8 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Check status of a given cluster's request
-     * @description The status of the request with given ID if found. The cluster ID is required so only requests for the given cluster are returned, if any. Response should have the following format: ```
+     * Check the status of a given request_id, representing a single archive uploaded by the Insights Operator to Ingress. Doesn't distinguish between regular archives and those collected on-demand
+     * @description This endpoint is to be used as a simple check whether a given cluster archive has been processed successfully. It's primarily used by the Insights Operator's on-demand data gathering feature to check whether an archive has been processed and stored successfully. The response should have the following format: ```
      *     {
      *     "cluster": "{clusterID}",
      *     "requestID":"{requestID}",
@@ -284,7 +284,7 @@ export interface paths {
     };
     /**
      * Get all rule groups and their relevant information
-     * @description This simply redirects to an endpoint of the same name of a service called insights-content-service
+     * @description This simply redirects to an endpoint of the same name of a service called content-service
      */
     get: operations['getRuleGroups'];
     put?: never;
@@ -1230,7 +1230,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Stored status for the given cluster and request IDs */
+      /** @description A successful response means that the given request_id (a single Insights Operator archive uploaded to Ingress) has been successfully processed, stored, and the Insights results are available for retrieval */
       200: {
         headers: {
           [name: string]: unknown;
@@ -1243,7 +1243,7 @@ export interface operations {
           };
         };
       };
-      /** @description Invalid request or invalid cluster ID */
+      /** @description Invalid request, invalid cluster_id param or invalid request_id param */
       400: {
         headers: {
           [name: string]: unknown;
@@ -1251,7 +1251,7 @@ export interface operations {
         content?: never;
       };
       403: components['responses']['unauthorized'];
-      /** @description Request ID or cluster ID not found */
+      /** @description Request ID not found for given org_id and cluster_id. Doesn't distinguish between different processing states. The 404 response simply indicates that we don't have any information about the given request_id */
       404: {
         headers: {
           [name: string]: unknown;

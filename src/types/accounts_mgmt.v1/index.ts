@@ -14341,6 +14341,7 @@ export enum AccessReviewResource_type {
   OsdTrialProtectedCluster = 'OsdTrialProtectedCluster',
   ManifestWorkSync = 'ManifestWorkSync',
   ClusterForcedUpgrade = 'ClusterForcedUpgrade',
+  DeletedCluster = 'DeletedCluster',
 }
 export enum AccessReviewResponseAction {
   get = 'get',
@@ -14688,6 +14689,7 @@ export enum SelfAccessReviewResource_type {
   OsdTrialProtectedCluster = 'OsdTrialProtectedCluster',
   ManifestWorkSync = 'ManifestWorkSync',
   ClusterForcedUpgrade = 'ClusterForcedUpgrade',
+  DeletedCluster = 'DeletedCluster',
 }
 export enum SelfResourceReviewAction {
   get = 'get',
