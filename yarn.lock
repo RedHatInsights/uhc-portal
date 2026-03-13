@@ -2970,6 +2970,21 @@
     p-map "^7.0.2"
     react-content-loader "^6.2.0"
 
+"@redhat-cloud-services/frontend-components-utilities@^7.0.0":
+  version "7.0.40"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components-utilities/-/frontend-components-utilities-7.0.40.tgz#38e1e7eec418a3f7157028244257c2e461bf2441"
+  integrity sha512-O2PEkpFoZGyHS7ezfQR7utZMU6MlXlqre6uwSK6PUb7BIUygplyleDkWJ+AsjpvI1CLvh1oaU7DjaqanflZ58Q==
+  dependencies:
+    "@redhat-cloud-services/rbac-client" "^6.0.1"
+    "@redhat-cloud-services/types" "^3.0.0"
+    "@sentry/browser" "^10.0.0"
+    awesome-debounce-promise "^2.1.0"
+    axios "^1.12.2"
+    commander "^2.20.3"
+    mkdirp "^1.0.4"
+    p-map "^7.0.2"
+    react-content-loader "^6.2.0"
+
 "@redhat-cloud-services/frontend-components@^6.0.0":
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components/-/frontend-components-6.0.4.tgz#cd6c1d5c65224559ed68f8056db1896983b19d04"
@@ -2983,16 +2998,16 @@
     classnames "^2.2.5"
     sanitize-html "^2.13.1"
 
-"@redhat-cloud-services/frontend-components@^6.0.7":
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components/-/frontend-components-6.1.1.tgz#8427444f3b6d9988066aa96bf4d1385b21ff6f57"
-  integrity sha512-p6nqk6pLL8nnxxIzfyQd5K6yW4EBqNZlAlgWmgSttwuuPAzHTDHFtutTvtCMK/hzlyfTnyGgjRMe2TL+wXrEcQ==
+"@redhat-cloud-services/frontend-components@^7.0.0":
+  version "7.0.45"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components/-/frontend-components-7.0.45.tgz#4165c5a94a4fa47f534ba50fb5db04c9af94c2ca"
+  integrity sha512-qhIckbigwb2tU4m1rEEvUuQegVuhMgSy84ULmTDrkfHcPsAVvZrKG6gFZJsZBNmJ9DgVKEvGyiIi0MIICcuXdQ==
   dependencies:
     "@patternfly/react-component-groups" "^6.0.0"
-    "@redhat-cloud-services/frontend-components-utilities" "^6.0.0"
-    "@redhat-cloud-services/types" "^2.0.0"
-    "@scalprum/core" "^0.8.1"
-    "@scalprum/react-core" "^0.9.1"
+    "@redhat-cloud-services/frontend-components-utilities" "^7.0.0"
+    "@redhat-cloud-services/types" "^3.0.0"
+    "@scalprum/core" "^0.9.0"
+    "@scalprum/react-core" "^0.11.1"
     classnames "^2.2.5"
     sanitize-html "^2.13.1"
 
@@ -3004,6 +3019,14 @@
     axios "^1.7.2"
     tslib "^2.6.2"
 
+"@redhat-cloud-services/javascript-clients-shared@^2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/javascript-clients-shared/-/javascript-clients-shared-2.0.5.tgz#f75984b8a6a14973d49356439f02ddbb86af51dd"
+  integrity sha512-b0Pcmg4uf89cEh3GDeEXqwn2lTMSKMnRp1tP7vLdrUruarqEVFEeB7h4VyU5RmDM1lUfRlqq7tM5UEvkbdgk/w==
+  dependencies:
+    axios "^1.12.2"
+    tslib "^2.6.2"
+
 "@redhat-cloud-services/rbac-client@^1.0.111 || 2.x":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@redhat-cloud-services/rbac-client/-/rbac-client-2.0.3.tgz#b4b76b723071ad30cb683c60d4b1b6b6bcd52918"
@@ -3011,6 +3034,14 @@
   dependencies:
     "@redhat-cloud-services/javascript-clients-shared" "^1.2.2"
     axios "^1.7.2"
+    tslib "^2.6.2"
+
+"@redhat-cloud-services/rbac-client@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/rbac-client/-/rbac-client-6.0.1.tgz#220fdb013b2d6634e4285b3325edc18a25f20d1c"
+  integrity sha512-S+KVOMJTGLchBkSlU+T212bGkS8Ud6kiZwJWJ/DSIdZbjMXzAwNyLvWonJhuvHMfrwloSS6mG56xphbitYOQNg==
+  dependencies:
+    "@redhat-cloud-services/javascript-clients-shared" "^2.0.5"
     tslib "^2.6.2"
 
 "@redhat-cloud-services/tsc-transform-imports@^1.0.21":
@@ -3036,6 +3067,11 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@redhat-cloud-services/types/-/types-2.0.0.tgz#b192811cef0f04a132706e371d1eccf3213ce51b"
   integrity sha512-T9KvjntxMtRkNcyYCKB9OktIy7hhy24Y4n1nDZgGsysSnfWOrnmsrLUI7pyrwqsRVzjIjI3oYf7qH7DE5LcFag==
+
+"@redhat-cloud-services/types@^3.0.0":
+  version "3.3.31"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/types/-/types-3.3.31.tgz#2d37ab503ae319c81816210020e8553ee2581886"
+  integrity sha512-aiDKpu3qd42eidW7D8DjUxpNlp5N0HpiLXzNceGVTej7H0O68heWjp3TIJ6e4KtKXzx0I1MQeyGmQaXlnkRyyA==
 
 "@redocly/ajv@^8.11.2":
   version "8.11.2"
@@ -3104,6 +3140,14 @@
     "@openshift/dynamic-plugin-sdk" "^5.0.1"
     tslib "^2.6.2"
 
+"@scalprum/core@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@scalprum/core/-/core-0.9.0.tgz#5cf0b2cd9fc1ffab09b30c73c6b25cf98750ac91"
+  integrity sha512-E5IemBxYT4tsCoPoG4FGoIGD/R1W/d7LdhNyDhhalRL25YazHo71x2TLactK45heDByIhfe2OTIicGXuSrnFWw==
+  dependencies:
+    "@openshift/dynamic-plugin-sdk" "^5.0.1"
+    tslib "^2.6.2"
+
 "@scalprum/react-core@0.8.0":
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/@scalprum/react-core/-/react-core-0.8.0.tgz#34bdec81af62fa4f87741169b2721729b3dd69ee"
@@ -3111,6 +3155,15 @@
   dependencies:
     "@openshift/dynamic-plugin-sdk" "^5.0.1"
     "@scalprum/core" "^0.7.0"
+    lodash "^4.17.0"
+
+"@scalprum/react-core@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@scalprum/react-core/-/react-core-0.11.1.tgz#54a2ad1e14dbe5316c1dfbf6946bb3ab4718e598"
+  integrity sha512-PW5jK1t75Bokrci9k7VYMf/oNj/WzQisw6AYD/H4wb3soCjH1Qr3wzBCiOxqfo3dzzW1bOwduJ094O2+WocJHw==
+  dependencies:
+    "@openshift/dynamic-plugin-sdk" "^5.0.1"
+    "@scalprum/core" "^0.9.0"
     lodash "^4.17.0"
 
 "@scalprum/react-core@^0.9.1":
@@ -3121,6 +3174,20 @@
     "@openshift/dynamic-plugin-sdk" "^5.0.1"
     "@scalprum/core" "^0.8.1"
     lodash "^4.17.0"
+
+"@sentry-internal/browser-utils@10.43.0":
+  version "10.43.0"
+  resolved "https://registry.yarnpkg.com/@sentry-internal/browser-utils/-/browser-utils-10.43.0.tgz#afced399ac5707b59f1a174aecd5bd5e1edd9d8f"
+  integrity sha512-8zYTnzhAPvNkVH1Irs62wl0J/c+0QcJ62TonKnzpSFUUD3V5qz8YDZbjIDGfxy+1EB9fO0sxtddKCzwTHF/MbQ==
+  dependencies:
+    "@sentry/core" "10.43.0"
+
+"@sentry-internal/feedback@10.43.0":
+  version "10.43.0"
+  resolved "https://registry.yarnpkg.com/@sentry-internal/feedback/-/feedback-10.43.0.tgz#d2b569c9d8d6cb6a59dd1cf512e1d8edb6694f9d"
+  integrity sha512-YoXuwluP6eOcQxTeTtaWb090++MrLyWOVsUTejzUQQ6LFL13Jwt+bDPF1kvBugMq4a7OHw/UNKQfd6//rZMn2g==
+  dependencies:
+    "@sentry/core" "10.43.0"
 
 "@sentry-internal/feedback@7.120.2":
   version "7.120.2"
@@ -3139,6 +3206,14 @@
     "@sentry/core" "7.120.3"
     "@sentry/types" "7.120.3"
     "@sentry/utils" "7.120.3"
+
+"@sentry-internal/replay-canvas@10.43.0":
+  version "10.43.0"
+  resolved "https://registry.yarnpkg.com/@sentry-internal/replay-canvas/-/replay-canvas-10.43.0.tgz#8e9649e007ef8cd1d7c87e381b48d5a4f7235594"
+  integrity sha512-ZIw1UNKOFXo1LbPCJPMAx9xv7D8TMZQusLDUgb6BsPQJj0igAuwd7KRGTkjjgnrwBp2O/sxcQFRhQhknWk7QPg==
+  dependencies:
+    "@sentry-internal/replay" "10.43.0"
+    "@sentry/core" "10.43.0"
 
 "@sentry-internal/replay-canvas@7.120.2":
   version "7.120.2"
@@ -3160,6 +3235,14 @@
     "@sentry/types" "7.120.3"
     "@sentry/utils" "7.120.3"
 
+"@sentry-internal/replay@10.43.0":
+  version "10.43.0"
+  resolved "https://registry.yarnpkg.com/@sentry-internal/replay/-/replay-10.43.0.tgz#a107067cb2049d862c88797b64b1310e0e209ad4"
+  integrity sha512-khCXlGrlH1IU7P5zCEAJFestMeH97zDVCekj8OsNNDtN/1BmCJ46k6Xi0EqAUzdJgrOLJeLdoYdgtiIjovZ8Sg==
+  dependencies:
+    "@sentry-internal/browser-utils" "10.43.0"
+    "@sentry/core" "10.43.0"
+
 "@sentry-internal/tracing@7.120.2":
   version "7.120.2"
   resolved "https://registry.yarnpkg.com/@sentry-internal/tracing/-/tracing-7.120.2.tgz#6f46ff48116633639dbab37633242be4d8cda1f7"
@@ -3177,6 +3260,17 @@
     "@sentry/core" "7.120.3"
     "@sentry/types" "7.120.3"
     "@sentry/utils" "7.120.3"
+
+"@sentry/browser@^10.0.0":
+  version "10.43.0"
+  resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-10.43.0.tgz#744e1593d8578e4ea37579230041c8bdd64520c6"
+  integrity sha512-2V3I3sXi3SMeiZpKixd9ztokSgK27cmvsD9J5oyOyjhGLTW/6QKCwHbKnluMgQMXq20nixQk5zN4wRjRUma3sg==
+  dependencies:
+    "@sentry-internal/browser-utils" "10.43.0"
+    "@sentry-internal/feedback" "10.43.0"
+    "@sentry-internal/replay" "10.43.0"
+    "@sentry-internal/replay-canvas" "10.43.0"
+    "@sentry/core" "10.43.0"
 
 "@sentry/browser@^7.119.1":
   version "7.120.3"
@@ -3259,6 +3353,11 @@
     "@sentry/cli-linux-x64" "2.32.1"
     "@sentry/cli-win32-i686" "2.32.1"
     "@sentry/cli-win32-x64" "2.32.1"
+
+"@sentry/core@10.43.0":
+  version "10.43.0"
+  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-10.43.0.tgz#48b7b2295f36097775b529c59712688c9087c7bc"
+  integrity sha512-l0SszQAPiQGWl/ferw8GP3ALyHXiGiRKJaOvNmhGO+PrTQyZTZ6OYyPnGijAFRg58dE1V3RCH/zw5d2xSUIiNg==
 
 "@sentry/core@7.114.0":
   version "7.114.0"
