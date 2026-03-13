@@ -93,7 +93,7 @@ describe('OCM Overview Page tests (OCP-65189)', { tags: ['smoke'] }, () => {
     card.checkLink('View details', 'https://sandbox.redhat.com').opensInRightTab();
 
     card = Overview.centralSectionCard('offering-card_MIGRATION');
-    card.cyObj.contains('Evaluate VMware to Openshift Migration');
+    card.cyObj.contains('Evaluate VMware to Openshift Migration Advisor');
     card.shouldHaveLabel('Self-managed service');
     card.checkLink('Start evaluation', '/openshift/migration-assessment').opensInRightTab();
 

@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
@@ -45,9 +44,6 @@ module.exports = {
       APP_DEVMODE: process.env.NODE_ENV !== 'production',
       APP_SENTRY_RELEASE_VERSION: JSON.stringify(process.env.SENTRY_VERSION),
       APP_DEV_SERVER: process.env.NODE_ENV !== 'production',
-    }),
-    new CopyWebpackPlugin({
-      patterns: [{ from: 'public', to: path.resolve(__dirname, 'dist', name), toType: 'dir' }],
     }),
     bundleAnalyzer,
     new MonacoWebpackPlugin({
