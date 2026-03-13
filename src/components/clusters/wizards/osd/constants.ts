@@ -123,7 +123,7 @@ export const initialValues: FormikValues = {
   [FieldId.ClusterAutoscaling]: getDefaultClusterAutoScaling(),
   [FieldId.DomainPrefix]: '',
   [FieldId.HasDomainPrefix]: false,
-  [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
+  [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
   [FieldId.GcpWifConfig]: '',
   [FieldId.PrivateServiceConnect]: false,
   [FieldId.PSCSubnet]: '',

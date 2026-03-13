@@ -15,11 +15,7 @@ import {
 import { Owner } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/Owner/Owner';
 import { isCCS, isGCP, isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import getBillingModelLabel from '~/components/clusters/common/getBillingModelLabel';
-import {
-  ALLOW_EUS_CHANNEL,
-  FIPS_FOR_HYPERSHIFT,
-  OSD_GCP_WIF,
-} from '~/queries/featureGates/featureConstants';
+import { ALLOW_EUS_CHANNEL, FIPS_FOR_HYPERSHIFT } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { normalizedProducts } from '../../../../../common/subscriptionTypes';
@@ -59,10 +55,7 @@ function DetailsLeft({
   const isHypershift = isHypershiftCluster(cluster);
   const isRHOIC = cluster?.subscription?.plan?.type === normalizedProducts.RHOIC;
 
-  const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
-  // Only OSD GCP CCS clusters have the authentication type property as they are the only ones that have
-  // more than an option for authentication (service account and WIF)
-  const hasAuthenticationType = isWifEnabled && isGCP(cluster) && isCCS(cluster);
+  const hasAuthenticationType = isGCP(cluster) && isCCS(cluster);
   // We only have information about the wif configuration, we imply that if a wif config is not used
   // the user chose the other GCP authentication type, the service account
   const isWifCluster = hasAuthenticationType && cluster?.gcp?.authentication?.kind === 'WifConfig';

@@ -5,8 +5,7 @@ import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ReviewAndCreate } from '~/components/clusters/wizards/osd/ReviewAndCreate/ReviewAndCreate';
-import { OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
-import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
+import { checkAccessibility, render, screen } from '~/testUtils';
 
 const formValues = {
   product: 'OSD',
@@ -145,8 +144,6 @@ describe('<ReviewAndCreate />', () => {
 
   describe('OSD Google cloud provider', () => {
     it('shows service account when service account authentication is selected', () => {
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
-
       render(
         <Formik initialValues={formValues} onSubmit={() => {}}>
           <ReviewAndCreate />
@@ -160,7 +157,6 @@ describe('<ReviewAndCreate />', () => {
     });
 
     it('shows WIF info when WIF authentication is selected', () => {
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
       const wifConfigName = 'some-wif-config';
       const values = {
         ...formValues,
@@ -183,22 +179,7 @@ describe('<ReviewAndCreate />', () => {
       expect(screen.queryByText('Service Account')).not.toBeInTheDocument();
     });
 
-    it("doesn't show authentication type if WIF feature is disabled", () => {
-      mockUseFeatureGate([[OSD_GCP_WIF, false]]);
-
-      render(
-        <Formik initialValues={formValues} onSubmit={() => {}}>
-          <ReviewAndCreate />
-        </Formik>,
-      );
-
-      expect(screen.queryByText('Authentication type')).not.toBeInTheDocument();
-      expect(screen.queryByText('Service Account')).not.toBeInTheDocument();
-      expect(screen.queryByText('Workload Identity Federation')).not.toBeInTheDocument();
-    });
-
     it("doesn't show previously selected WIF config when auth type is service account (going back and forth changing auth configuration)", () => {
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
       const wifConfigName = 'some-wif-config';
       render(
         <Formik
@@ -228,7 +209,6 @@ describe('<ReviewAndCreate />', () => {
         { [FieldId.CloudProvider]: CloudProviderType.Aws },
       ],
     ])('%s', (_title: string, additionalValues: any) => {
-      mockUseFeatureGate([[OSD_GCP_WIF, true]]);
       const values = {
         ...formValues,
         ...additionalValues,
