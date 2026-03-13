@@ -1,5 +1,7 @@
 import { test, expect } from '../../fixtures/pages';
+
 const clusterProperties = require('../../fixtures/osd-gcp/osd-curated-gcp-wif-cluster-creation.spec.json');
+
 const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG || '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
@@ -8,9 +10,12 @@ const region = PSC_INFRA['REGION'] || clusterProperties.Region.split(',')[0];
 
 test.describe.serial(
   'OSD GCP Curated Marketplace WIF cluster creation tests (OCMUI-3888)',
-  { tag: ['@smoke', '@osd'] },
+  { tag: ['@smoke', '@osd', '@curated'] },
   () => {
     test.beforeAll(async ({ navigateTo }) => {
+      if (!QE_GCP_WIF_CONFIG?.trim()) {
+        throw new Error('QE_GCP_WIF_CONFIG must be set for curated GCP WIF tests');
+      }
       // Navigate directly to curated OSD GCP wizard
       await navigateTo('create/osdgcp');
     });
@@ -29,11 +34,9 @@ test.describe.serial(
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isOnlyGCPCloudProviderSelectionScreen();
-      await expect(createOSDWizardPage.workloadIdentityFederationButton()).toBePressed();
-      await expect(createOSDWizardPage.serviceAccountButton()).not.toBePressed();
-      await createOSDWizardPage.workloadIdentityFederationButton().click();
+      await createOSDWizardPage.isOnlyWifAuthenticationTypeScreen();
       await createOSDWizardPage.isPrerequisitesHintPresent(clusterProperties.PrerequisitesHint);
-      await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG || '');
+      await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG);
       await createOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       await page.locator(createOSDWizardPage.primaryButton).click();
     });
