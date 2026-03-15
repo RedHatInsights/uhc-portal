@@ -108,6 +108,9 @@ const reviewValues = {
     title: 'Version',
     valueTransform: (value) => getVersionNameWithChannel(value),
   },
+  version_channel: {
+    title: 'Channel',
+  },
   hypershift: {
     title: 'Control plane',
     isBoolean: true,

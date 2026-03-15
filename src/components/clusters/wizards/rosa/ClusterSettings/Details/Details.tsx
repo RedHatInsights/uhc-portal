@@ -40,6 +40,7 @@ import {
 } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { ChannelGroupSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelGroupSelectField';
+import { ChannelSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelSelectField';
 import { ClassicEtcdEncryptionSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdEncryptionSection';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
 import { FipsCryptographySection } from '~/components/clusters/wizards/common/ClusterSettings/Details/FipsCryptographySection';
@@ -59,6 +60,7 @@ import {
   ALLOW_EUS_CHANNEL,
   FIPS_FOR_HYPERSHIFT,
   MULTIREGION_PREVIEW_ENABLED,
+  Y_STREAM_CHANNEL,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { findRegionalInstance } from '~/queries/helpers';
@@ -117,6 +119,7 @@ function Details() {
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
+  const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
 
   const monitoringLink = isHypershiftSelected
     ? docLinks.ROSA_MONITORING
@@ -127,9 +130,11 @@ function Details() {
     if (isEUSChannelEnabled) {
       const parseVersion = (version: string | undefined) => semver.valid(semver.coerce(version));
 
-      const availableVersions = getInstallableVersionsResponse.versions.filter(
-        (version: Version) => version.channel_group === channelGroup,
-      );
+      const availableVersions = isYStreamChannelEnabled
+        ? getInstallableVersionsResponse.versions
+        : getInstallableVersionsResponse.versions.filter(
+            (version: Version) => version.channel_group === channelGroup,
+          );
 
       const foundVersion =
         availableVersions.length > 0
@@ -139,14 +144,21 @@ function Details() {
             )
           : null;
 
-      if (foundVersion) {
-        setFieldValue(FieldId.ClusterVersion, foundVersion);
+      if (isYStreamChannelEnabled) {
+        // Version selector owns default version (stable); only sync channel when we have a selection
+        if (foundVersion) {
+          setFieldValue(FieldId.VersionChannel, foundVersion?.available_channels?.[0] ?? '');
+        }
       } else {
-        setFieldValue(FieldId.ClusterVersion, availableVersions[0]);
+        setFieldValue(FieldId.ClusterVersion, foundVersion ?? availableVersions[0]);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelGroup]);
+  }, [
+    channelGroup,
+    // Re-run when versions load so default channel is set even when user keeps all defaults
+    getInstallableVersionsResponse.fulfilled,
+  ]);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const onToggle = () => {
@@ -280,6 +292,9 @@ function Details() {
 
   const handleVersionChange = (clusterVersion: Version | undefined) => {
     if (!clusterVersion) {
+      if (isYStreamChannelEnabled) {
+        setFieldValue(FieldId.VersionChannel, '');
+      }
       return;
     }
     // If features become incompatible with the new version, clear their settings
@@ -294,6 +309,11 @@ function Details() {
 
     if (!isHypershiftSelected) {
       resetMaxNodesTotal({ clusterVersion });
+    }
+
+    if (isYStreamChannelEnabled) {
+      // @ts-ignore - `available_channels` isn't available in API schemas yet
+      setFieldValue(FieldId.VersionChannel, clusterVersion?.available_channels?.[0] ?? '');
     }
   };
 
@@ -482,34 +502,36 @@ function Details() {
           </>
         )}
 
-        {isEUSChannelEnabled ? (
-          <GridItem md={6}>
-            <FormGroup
-              label="Channel group"
-              isRequired
-              fieldId={FieldId.ChannelGroup}
-              labelHelp={
-                <PopoverHint
-                  hint={
-                    <>
-                      {constants.channelGroupHint}{' '}
-                      <ExternalLink href={docLinks.ROSA_LIFE_CYCLE_DATES}>
-                        Learn more about the support lifecycle
-                      </ExternalLink>
-                    </>
-                  }
+        {isEUSChannelEnabled && !isYStreamChannelEnabled ? (
+          <>
+            <GridItem md={6}>
+              <FormGroup
+                label="Channel group"
+                isRequired
+                fieldId={FieldId.ChannelGroup}
+                labelHelp={
+                  <PopoverHint
+                    hint={
+                      <>
+                        {constants.channelGroupHint}{' '}
+                        <ExternalLink href={docLinks.ROSA_LIFE_CYCLE_DATES}>
+                          Learn more about the support lifecycle
+                        </ExternalLink>
+                      </>
+                    }
+                  />
+                }
+              >
+                <Field
+                  component={ChannelGroupSelectField}
+                  name={FieldId.ChannelGroup}
+                  getInstallableVersionsResponse={getInstallableVersionsResponse}
                 />
-              }
-            >
-              <Field
-                component={ChannelGroupSelectField}
-                name={FieldId.ChannelGroup}
-                getInstallableVersionsResponse={getInstallableVersionsResponse}
-              />
-            </FormGroup>
-          </GridItem>
+              </FormGroup>
+            </GridItem>
+            <GridItem md={6} />
+          </>
         ) : null}
-        {isEUSChannelEnabled ? <GridItem md={6} /> : null}
 
         <GridItem md={6}>
           <VersionSelection
@@ -517,10 +539,20 @@ function Details() {
             onChange={handleVersionChange}
             channelGroup={channelGroup}
             isEUSChannelEnabled={isEUSChannelEnabled}
+            isYStreamChannelEnabled={isYStreamChannelEnabled}
             key={selectedVersion?.id}
           />
         </GridItem>
         <GridItem md={6} />
+
+        {isYStreamChannelEnabled ? (
+          <>
+            <GridItem md={6}>
+              <ChannelSelectField clusterVersion={selectedVersion} />
+            </GridItem>
+            <GridItem md={6} />
+          </>
+        ) : null}
 
         {!isMultiRegionEnabled ? RegionField : null}
 

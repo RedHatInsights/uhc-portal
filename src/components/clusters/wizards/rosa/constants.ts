@@ -147,6 +147,7 @@ export const initialValues: (hypershiftDefault?: boolean) => FormikValues = (
   [FieldId.UsePrivateLink]: false,
   [FieldId.EnableExteranlAuthentication]: false,
   [FieldId.RegionalInstance]: {},
+  [FieldId.VersionChannel]: '',
   [FieldId.WorkerVolumeSizeGib]: defaultWorkerNodeVolumeSizeGiB,
 
   // Optional fields based on whether Hypershift is selected or not

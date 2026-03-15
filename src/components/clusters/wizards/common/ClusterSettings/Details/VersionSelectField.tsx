@@ -31,7 +31,7 @@ interface VersionSelectFieldProps {
   key?: string;
   isDisabled?: boolean;
   isEUSChannelEnabled?: boolean;
-  isPending?: boolean;
+  isYStreamChannelEnabled?: boolean;
 }
 
 export const VersionSelectField = ({
@@ -42,6 +42,7 @@ export const VersionSelectField = ({
   onChange,
   key,
   isEUSChannelEnabled,
+  isYStreamChannelEnabled,
 }: VersionSelectFieldProps) => {
   const dispatch = useDispatch();
   const organization = useGlobalState((state) => state.userProfile.organization.details);
@@ -122,9 +123,11 @@ export const VersionSelectField = ({
   useEffect(() => {
     if (versions.length && !selectedClusterVersion?.raw_id) {
       const versionIndex = versions.findIndex((version) => version.default === true);
-      setFieldValue(name, versions[versionIndex !== -1 ? versionIndex : 0]);
+      const defaultVersion = versions[versionIndex !== -1 ? versionIndex : 0];
+      setFieldValue(name, defaultVersion);
+      onChange(defaultVersion);
     }
-  }, [versions, selectedClusterVersion?.raw_id, name, setFieldValue]);
+  }, [versions, selectedClusterVersion?.raw_id, name, setFieldValue, onChange]);
 
   const onToggle: FuzzySelectProps['onOpenChange'] = (isExpanded) => {
     setIsOpen(isExpanded);
@@ -150,10 +153,16 @@ export const VersionSelectField = ({
         versions,
         unstableOCPVersionsEnabled,
         supportVersionMap,
-        channelGroup,
-        isEUSChannelEnabled,
+        isEUSChannelEnabled && !isYStreamChannelEnabled ? channelGroup : undefined,
       ),
-    [supportVersionMap, versions, unstableOCPVersionsEnabled, channelGroup, isEUSChannelEnabled],
+    [
+      supportVersionMap,
+      versions,
+      unstableOCPVersionsEnabled,
+      channelGroup,
+      isEUSChannelEnabled,
+      isYStreamChannelEnabled,
+    ],
   );
 
   return (
