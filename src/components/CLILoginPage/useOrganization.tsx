@@ -6,7 +6,7 @@ import { Organization } from '~/types/accounts_mgmt.v1';
 
 const useOrganization = () => {
   const [organization, setOrganization] = React.useState<Organization | undefined>();
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<unknown>();
 
   const manageFetchOrganization = async () => {

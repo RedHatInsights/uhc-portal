@@ -68,7 +68,7 @@ export const Clusters = () => {
           <Tab
             eventKey="requests"
             title={
-              <TabTitleText>Cluster Request {total ? <Badge>{total}</Badge> : null}</TabTitleText>
+              <TabTitleText>Cluster Requests {total ? <Badge>{total}</Badge> : null}</TabTitleText>
             }
             aria-label="Cluster Requests"
             tabContentId="requests"
