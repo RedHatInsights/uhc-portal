@@ -43,9 +43,31 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: install --frozen-lockfile --cache-folder .yarn
+      - name: Check for an existing open PR
+        id: check-pr
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          SWAP_BRANCH_NAME: ${{ env.SWAP_BRANCH_NAME }}
+          BASE_BRANCH_NAME: ${{ env.BASE_BRANCH_NAME }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_COUNT=$(gh api \
+            "repos/${REPO}/pulls" \
+            -X GET \
+            -f "head=${REPO%/*}:${SWAP_BRANCH_NAME}" \
+            -f "base=${BASE_BRANCH_NAME}" \
+            -f "state=open" \
+            --jq 'length')
+          if [[ "$PR_COUNT" -gt 0 ]]; then
+            echo "pr_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pr_exists=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Generating model based on OpenAPI contracts
+        if: steps.check-pr.outputs.pr_exists == 'false'
         run: make openapi
       - name: Create Pull Request
+        if: steps.check-pr.outputs.pr_exists == 'false'
         uses: peter-evans/create-pull-request@v8
         env:
           HUSKY: '0'
