@@ -1,6 +1,6 @@
 import React from 'react';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { render, screen } from '~/testUtils';
 
 import WithTerraform from './WithTerraformCard';
@@ -13,7 +13,7 @@ describe('<WithTerraform />', () => {
       name: 'deploy a ROSA HCP cluster (new window or tab)',
     });
 
-    expect(deployLink).toHaveAttribute('href', links.TERRAFORM_ROSA_HCP_URL);
+    expect(deployLink).toHaveAttribute('href', docLinks.TERRAFORM_ROSA_HCP_URL);
   });
 
   it('has correct link to Terraform registry', () => {
@@ -23,6 +23,6 @@ describe('<WithTerraform />', () => {
       name: 'visit the Terraform registry (new window or tab)',
     });
 
-    expect(registryLink).toHaveAttribute('href', links.TERRAFORM_REGISTRY_ROSA_HCP);
+    expect(registryLink).toHaveAttribute('href', docLinks.TERRAFORM_REGISTRY_ROSA_HCP);
   });
 });

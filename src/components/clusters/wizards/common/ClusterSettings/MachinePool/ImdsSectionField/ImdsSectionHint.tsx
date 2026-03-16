@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Content, ContentVariants } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 
@@ -17,7 +17,7 @@ export const ImdsSectionHint = () => (
           instance that applications can use to configure or manage the running instance.
         </Content>
         <Content component={ContentVariants.p}>
-          <ExternalLink href={links.AWS_IMDS}>Learn more about IMDS</ExternalLink>
+          <ExternalLink href={docLinks.AWS_IMDS}>Learn more about IMDS</ExternalLink>
         </Content>
       </>
     }

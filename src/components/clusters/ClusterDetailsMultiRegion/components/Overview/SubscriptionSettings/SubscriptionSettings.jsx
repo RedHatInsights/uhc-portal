@@ -21,7 +21,7 @@ import {
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
-import installLinks from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { normalizedProducts, subscriptionSettings } from '~/common/subscriptionTypes';
 import ExternalLink from '~/components/common/ExternalLink';
 import { modalActions } from '~/components/common/Modal/ModalActions';
@@ -135,7 +135,7 @@ function SubscriptionSettings({
             isInline
             title="Your organization doesn't have an active subscription. Purchase an OpenShift subscription by contacting sales."
           >
-            <ExternalLink href={installLinks.RH_CONTACT}>Contact sales</ExternalLink>
+            <ExternalLink href={docLinks.RH_CONTACT}>Contact sales</ExternalLink>
           </Alert>
         </CardBody>
       )}

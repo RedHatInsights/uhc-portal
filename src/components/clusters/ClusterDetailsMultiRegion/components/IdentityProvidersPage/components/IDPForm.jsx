@@ -13,7 +13,7 @@ import {
 
 import { useFormState } from '~/components/clusters/wizards/hooks';
 
-import links from '../../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../../common/docLinks.mjs';
 import { checkIdentityProviderName, composeValidators } from '../../../../../../common/validators';
 import ErrorBox from '../../../../../common/ErrorBox';
 import ExternalLink from '../../../../../common/ExternalLink';
@@ -134,12 +134,12 @@ const IDPForm = ({
   };
 
   const providerDocumentationLink = {
-    LDAPIdentityProvider: links.IDP_LDAP,
-    OpenIDIdentityProvider: links.IDP_OPENID,
-    GithubIdentityProvider: links.IDP_GITHUB,
-    GoogleIdentityProvider: links.IDP_GOOGLE,
-    GitlabIdentityProvider: links.IDP_GITLAB,
-    HTPasswdIdentityProvider: links.IDP_HTPASSWD,
+    LDAPIdentityProvider: docLinks.IDP_LDAP,
+    OpenIDIdentityProvider: docLinks.IDP_OPENID,
+    GithubIdentityProvider: docLinks.IDP_GITHUB,
+    GoogleIdentityProvider: docLinks.IDP_GOOGLE,
+    GitlabIdentityProvider: docLinks.IDP_GITLAB,
+    HTPasswdIdentityProvider: docLinks.IDP_HTPASSWD,
   };
 
   const SelectedProviderRequiredFields = providersRequiredFields[selectedIDP];
@@ -156,7 +156,9 @@ const IDPForm = ({
             Define an <code>htpasswd</code> identity provider for your managed cluster to create one
             or multiple static users that can log in to your cluster and troubleshoot it. If these
             users need elevated permissions, add it to an{' '}
-            <ExternalLink href={links.OSD_DEDICATED_ADMIN_ROLE}>administrative group</ExternalLink>{' '}
+            <ExternalLink href={docLinks.OSD_DEDICATED_ADMIN_ROLE}>
+              administrative group
+            </ExternalLink>{' '}
             within your organization.
           </>
         );

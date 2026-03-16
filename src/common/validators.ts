@@ -1120,7 +1120,7 @@ const disjointSubnets =
     return undefined;
   };
 
-const privateAddress = (value?: string): string | undefined => {
+const privateAddress = (value?: string, isMachineCidr?: boolean): string | undefined => {
   if (cidr(value) !== undefined || !value) {
     return undefined;
   }
@@ -1141,6 +1141,18 @@ const privateAddress = (value?: string): string | undefined => {
   // 192.168.0.0/16 – 192.168.255.255
   if (octets[0] === 192 && octets[1] === 168 && maskBits >= 16) {
     return undefined;
+  }
+
+  if (isMachineCidr) {
+    // 100.65.0.0 - 100.87.255.255
+    if (octets[0] === 100 && inRange(octets[1], 65, 88) && maskBits >= 10) {
+      return undefined;
+    }
+
+    // 100.89.0.0 - 100.127.255.255
+    if (octets[0] === 100 && inRange(octets[1], 89, 128) && maskBits >= 10) {
+      return undefined;
+    }
   }
 
   return 'Range is not private.';

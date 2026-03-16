@@ -2,6 +2,7 @@ import React from 'react';
 import * as reactRedux from 'react-redux';
 import { useLocation, useParams } from 'react-router-dom';
 
+import { CLUSTER_LIST_PATH, ocmBaseName } from '~/common/routing';
 import * as useFetchSubscriptionIdForCluster from '~/queries/ClusterDetailsQueries/useFetchSubscriptionIdForCluster';
 import { render, screen } from '~/testUtils';
 
@@ -52,7 +53,7 @@ describe('<ClusterDetailsRedirector />', () => {
 
   describe('on error', () => {
     describe('404 error', () => {
-      it('should render a redirect to /openshift/cluster-list', () => {
+      it(`should render a redirect to ${ocmBaseName}${CLUSTER_LIST_PATH}`, () => {
         mockedUseFetchSubscriptionIdForCluster.mockReturnValue({
           isLoading: false,
           isError: false,
@@ -60,7 +61,9 @@ describe('<ClusterDetailsRedirector />', () => {
           isFetched: true,
         });
         render(<ClusterDetailsRedirector />);
-        expect(screen.getByText('Redirected to "/openshift/cluster-list"')).toBeInTheDocument();
+        expect(
+          screen.getByText(`Redirected to "${ocmBaseName}${CLUSTER_LIST_PATH}"`),
+        ).toBeInTheDocument();
 
         expect(mockedDispatch).toHaveBeenCalled();
         const mockedCall = mockedDispatch.mock.calls[0][0];

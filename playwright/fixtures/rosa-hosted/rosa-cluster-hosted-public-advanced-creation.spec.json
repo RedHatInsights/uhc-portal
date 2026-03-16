@@ -26,13 +26,10 @@
       "OidcConfigType": "Red Hat managed",
       "UpdateStrategy": "Individual updates",
       "MachinePools": {
-        "MachinePoolCount": 3,
-        "AvailabilityZones": ["us-west-2a", "us-west-2b", "us-west-2c"],
         "InstanceType": "m6id.xlarge",
         "Autoscaling": "Enabled",
         "MiniNodeCount": "2",
-        "MaxNodeCount": "4",
-        "PublicSubnetZone": "us-west-2a"
+        "MaxNodeCount": "4"
       },
       "ClusterProxy": {
         "HttpProxy": "http://test.com",
@@ -48,6 +45,13 @@
         }
       }
     },
-    "day2-profile": {}
+    "day2-profile": {
+      "MachinePools": {
+        "WindowsLicense": {
+          "CompatibleInstanceType": "c5.metal",
+          "IncompatibleInstanceType": "m5.xlarge"
+        }
+      }
+    }
   }
 }

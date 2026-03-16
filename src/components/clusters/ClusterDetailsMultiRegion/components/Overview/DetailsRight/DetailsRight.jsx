@@ -29,7 +29,7 @@ import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/Mach
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
-import links from '../../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../../common/docLinks.mjs';
 import { isAISubscriptionWithoutMetrics } from '../../../../../../common/isAssistedInstallerCluster';
 import { humanizeValueWithUnit, humanizeValueWithUnitGiB } from '../../../../../../common/units';
 import ExternalLink from '../../../../../common/ExternalLink';
@@ -377,7 +377,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
               hint={
                 <>
                   {constants.autoscaleHint}{' '}
-                  <ExternalLink href={links.APPLYING_AUTOSCALING}>
+                  <ExternalLink href={docLinks.APPLYING_AUTOSCALING}>
                     Learn more about autoscaling
                   </ExternalLink>
                 </>

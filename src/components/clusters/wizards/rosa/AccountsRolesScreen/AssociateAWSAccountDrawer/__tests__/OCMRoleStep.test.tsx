@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { render, screen } from '~/testUtils';
 
@@ -31,7 +31,7 @@ describe('<OCMRoleStep />', () => {
     const link = screen.getByText(
       'Review the AWS policy permissions for the basic and admin OCM roles.',
     );
-    expect(link).toHaveAttribute('href', links.ROSA_AWS_ACCOUNT_ASSOCIATION);
+    expect(link).toHaveAttribute('href', docLinks.ROSA_AWS_ACCOUNT_ASSOCIATION);
   });
 
   it('AWS account association link is correct when classic is selected', async () => {
@@ -45,6 +45,6 @@ describe('<OCMRoleStep />', () => {
     const link = screen.getByText(
       'Review the AWS policy permissions for the basic and admin OCM roles.',
     );
-    expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_ACCOUNT_ASSOCIATION);
+    expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_AWS_ACCOUNT_ASSOCIATION);
   });
 });

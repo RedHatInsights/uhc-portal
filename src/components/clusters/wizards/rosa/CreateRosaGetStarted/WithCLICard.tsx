@@ -12,7 +12,7 @@ import {
 import { CodeIcon } from '@patternfly/react-icons/dist/esm/icons/code-icon';
 
 import { trackEvents } from '~/common/analytics';
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import InstructionCommand from '~/components/common/InstructionCommand';
 
@@ -39,7 +39,7 @@ const WithCLICard = () => (
     </CardBody>
     <CardFooter>
       Learn how to{' '}
-      <ExternalLink href={links.ROSA_HCP_CLI_URL}>
+      <ExternalLink href={docLinks.ROSA_HCP_CLI_URL}>
         deploy ROSA clusters with the ROSA CLI
       </ExternalLink>
     </CardFooter>

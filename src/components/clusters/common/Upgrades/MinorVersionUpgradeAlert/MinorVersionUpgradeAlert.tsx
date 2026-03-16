@@ -9,7 +9,7 @@ import { useEditSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettings
 import { UpgradePolicy } from '~/types/clusters_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
 
-import links from '../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../common/docLinks.mjs';
 import ExternalLink from '../../../../common/ExternalLink';
 import { setAutomaticUpgradePolicy } from '../clusterUpgradeActions';
 
@@ -128,7 +128,7 @@ const MinorVersionUpgradeAlert = ({
       ) : (
         <p data-testid="minorVersionUpgradeAlertEnableMessage">
           Allow your cluster to be updated to the newest minor version at the time you selected.{' '}
-          <ExternalLink href={isROSA(cluster) ? links.ROSA_UPGRADES : links.OSD_UPGRADES}>
+          <ExternalLink href={isROSA(cluster) ? docLinks.ROSA_UPGRADES : docLinks.OSD_UPGRADES}>
             Learn more about updates
           </ExternalLink>
         </p>

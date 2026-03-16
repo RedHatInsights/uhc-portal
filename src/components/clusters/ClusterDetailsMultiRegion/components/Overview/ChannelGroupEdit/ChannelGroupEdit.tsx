@@ -16,7 +16,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import clusterStates from '~/components/clusters/common/clusterStates';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import EditButton from '~/components/common/EditButton';
@@ -169,7 +169,7 @@ export const ChannelGroupEdit = ({
               <>
                 {constants.channelGroupHint}{' '}
                 <ExternalLink
-                  href={isROSA ? links.ROSA_LIFE_CYCLE_DATES : links.OSD_LIFE_CYCLE_DATES}
+                  href={isROSA ? docLinks.ROSA_LIFE_CYCLE_DATES : docLinks.OSD_LIFE_CYCLE_DATES}
                 >
                   Learn more about the support lifecycle
                 </ExternalLink>

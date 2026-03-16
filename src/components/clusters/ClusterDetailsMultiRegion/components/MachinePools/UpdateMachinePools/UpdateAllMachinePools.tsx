@@ -3,7 +3,7 @@ import semver from 'semver';
 
 import { Alert, AlertActionLink, AlertVariant, Spinner } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { Link } from '~/common/routing';
 import ExternalLink from '~/components/common/ExternalLink';
 import { refetchMachineOrNodePoolsQuery } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
@@ -136,7 +136,9 @@ const UpdateAllMachinePools = ({
           You can update all worker nodes to the current control plane version (
           {semver.coerce(controlPlaneVersion)?.version}
           ), or use the CLI to update a specific version.{' '}
-          <ExternalLink href={isHypershift ? links.ROSA_UPGRADES : links.ROSA_CLASSIC_UPGRADES}>
+          <ExternalLink
+            href={isHypershift ? docLinks.ROSA_UPGRADES : docLinks.ROSA_CLASSIC_UPGRADES}
+          >
             Learn more about updates
           </ExternalLink>
         </p>

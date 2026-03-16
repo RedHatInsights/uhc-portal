@@ -3,7 +3,7 @@ import React from 'react';
 import { PLATFORM_LIGHTSPEED_REBRAND } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
-import links from '../../../common/installLinks.mjs';
+import supportLinks from '../../../common/supportLinks.mjs';
 
 import InfoPopover from './InfoPopover';
 
@@ -21,7 +21,7 @@ describe('<InfoPopover />', () => {
     // Assert
     expect(screen.getByText('OpenShift documentation')).toHaveAttribute(
       'href',
-      links.REMOTE_HEALTH_INSIGHTS,
+      supportLinks.REMOTE_HEALTH_INSIGHTS,
     );
   });
 

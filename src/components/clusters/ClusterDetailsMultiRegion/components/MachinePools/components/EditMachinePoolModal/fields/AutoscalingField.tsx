@@ -3,7 +3,7 @@ import { useField } from 'formik';
 
 import { Checkbox, FormGroup } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { isROSA } from '~/components/clusters/common/clusterStates';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -27,7 +27,7 @@ const AutoscalingField = ({ cluster }: AutoscalingFieldProps) => {
   );
 
   const isRosa = isROSA(cluster);
-  const autoScalingUrl = isRosa ? links.ROSA_AUTOSCALING : links.APPLYING_AUTOSCALING;
+  const autoScalingUrl = isRosa ? docLinks.ROSA_AUTOSCALING : docLinks.APPLYING_AUTOSCALING;
 
   return canAutoScale ? (
     <FormGroup label="Scaling">

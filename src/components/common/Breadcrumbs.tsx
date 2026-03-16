@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 
-import { Link } from '~/common/routing';
+import { Link, useClusterListPath } from '~/common/routing';
 
 export type BreadcrumbPath = { label: string; path?: string };
 
@@ -10,39 +10,43 @@ type Props = {
   path: BreadcrumbPath[];
 };
 
-const Breadcrumbs = ({ path }: Props) => (
-  <Breadcrumb>
-    {path.map((item, i) => {
-      const itemLabel = item.label;
+const Breadcrumbs = ({ path }: Props) => {
+  const clusterListPath = useClusterListPath();
 
-      if (i < path.length - 1) {
-        let itemPath = item.path;
-        if (itemLabel === 'Cluster List' && !itemPath) {
-          itemPath = '/cluster-list';
+  return (
+    <Breadcrumb>
+      {path.map((item, i) => {
+        const itemLabel = item.label;
+
+        if (i < path.length - 1) {
+          let itemPath = item.path;
+          if (itemLabel === 'Cluster List' && !itemPath) {
+            itemPath = clusterListPath;
+          }
+
+          return (
+            <BreadcrumbItem
+              key={itemLabel}
+              render={({ className, ariaCurrent }) => (
+                <Link
+                  to={`${itemPath || '/overview'}`}
+                  className={className}
+                  aria-current={ariaCurrent}
+                >
+                  {itemLabel}
+                </Link>
+              )}
+            />
+          );
         }
-
         return (
-          <BreadcrumbItem
-            key={itemLabel}
-            render={({ className, ariaCurrent }) => (
-              <Link
-                to={`${itemPath || '/overview'}`}
-                className={className}
-                aria-current={ariaCurrent}
-              >
-                {itemLabel}
-              </Link>
-            )}
-          />
+          <BreadcrumbItem key={itemLabel} isActive>
+            {itemLabel}
+          </BreadcrumbItem>
         );
-      }
-      return (
-        <BreadcrumbItem key={itemLabel} isActive>
-          {itemLabel}
-        </BreadcrumbItem>
-      );
-    })}
-  </Breadcrumb>
-);
+      })}
+    </Breadcrumb>
+  );
+};
 
 export default Breadcrumbs;

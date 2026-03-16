@@ -2,7 +2,8 @@ import React from 'react';
 
 import { Content, ContentVariants } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
+import installLinks from '~/common/installLinks.mjs';
 import { Link } from '~/common/routing';
 import ExternalLink from '~/components/common/ExternalLink';
 
@@ -29,11 +30,11 @@ const WorkloadIdentityFederationPrerequisites = ({
         </li>
         <li>
           <Content component={ContentVariants.p} className="ocm-secondary-text">
-            <ExternalLink noIcon href={links.OSD_CCS_GCP_WIF_GCLOUD_CLI}>
+            <ExternalLink noIcon href={installLinks.OSD_CCS_GCP_WIF_GCLOUD_CLI}>
               Download
             </ExternalLink>{' '}
             the <code>gcloud</code> CLI and use the{' '}
-            <ExternalLink noIcon href={links.OSD_CCS_GCP_WIF_GCLOUD_CREDENTIALS}>
+            <ExternalLink noIcon href={docLinks.OSD_CCS_GCP_WIF_GCLOUD_CREDENTIALS}>
               Application Default Credentials{' '}
             </ExternalLink>{' '}
             to authenticate.
@@ -43,7 +44,7 @@ const WorkloadIdentityFederationPrerequisites = ({
           <li>
             <Content component={ContentVariants.p} className="ocm-secondary-text">
               Check your{' '}
-              <ExternalLink noIcon href={links.OSD_CCS_GCP_LIMITS}>
+              <ExternalLink noIcon href={docLinks.OSD_CCS_GCP_LIMITS}>
                 cluster resource requirements
               </ExternalLink>{' '}
               to make sure your Google Cloud account has the necessary resource quotas and limits to
@@ -55,7 +56,7 @@ const WorkloadIdentityFederationPrerequisites = ({
           <Content component={ContentVariants.p} className="ocm-secondary-text">
             Optional: You have Enhanced Support from Google Cloud. To prevent conflicts, make sure
             your project has no other provisioned resources before you provision OSD.{' '}
-            <ExternalLink noIcon href={links.OSD_CCS_GCP}>
+            <ExternalLink noIcon href={docLinks.OSD_CCS_GCP}>
               Learn more
             </ExternalLink>
             .

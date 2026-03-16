@@ -14,7 +14,8 @@ import {
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
 import { trackEvents } from '~/common/analytics';
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
+import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import InstructionCommand from '~/components/common/InstructionCommand';
 
@@ -62,8 +63,8 @@ const StepCreateNetwork = () => (
     </List>
     <div className="pf-v6-u-mt-md">
       Learn more about the{' '}
-      <ExternalLink href={links.ROSA_CREATE_NETWORK}>create network command</ExternalLink> and other
-      ways to <ExternalLink href={links.CREATE_VPC_WAYS}>create a VPC</ExternalLink>
+      <ExternalLink href={supportLinks.ROSA_CREATE_NETWORK}>create network command</ExternalLink>{' '}
+      and other ways to <ExternalLink href={docLinks.CREATE_VPC_WAYS}>create a VPC</ExternalLink>
     </div>
   </>
 );

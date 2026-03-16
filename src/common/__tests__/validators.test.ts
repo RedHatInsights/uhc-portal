@@ -360,20 +360,33 @@ describe('Field is valid Pod CIDR', () => {
 
 describe('Field is a private IP address', () => {
   it.each([
-    [undefined, undefined],
-    ['10.0.0.0/11', undefined],
-    ['10.255.255.255/8', undefined],
-    ['10.255.255.255/7', 'Range is not private.'],
-    ['172.16.0.0/12', undefined],
-    ['172.31.77.250/15', undefined],
-    ['172.31.255.255/11', 'Range is not private.'],
-    ['192.168.98.4/18', undefined],
-    ['192.168.255.255/20', undefined],
-    ['192.168.79.24/15', 'Range is not private.'],
-    ['67.25.66.98/15', 'Range is not private.'],
-  ])('value %p to be %p', (value: string | undefined, expected: string | undefined) => {
-    expect(validators.privateAddress(value)).toBe(expected);
-  });
+    [undefined, undefined, undefined],
+    ['10.0.0.0/11', undefined, undefined],
+    ['10.255.255.255/8', undefined, undefined],
+    ['10.255.255.255/7', 'Range is not private.', undefined],
+    ['172.16.0.0/12', undefined, undefined],
+    ['172.31.77.250/15', undefined, undefined],
+    ['172.31.255.255/11', 'Range is not private.', undefined],
+    ['192.168.98.4/18', undefined, undefined],
+    ['192.168.255.255/20', undefined, undefined],
+    ['192.168.79.24/15', 'Range is not private.', undefined],
+    ['67.25.66.98/15', 'Range is not private.', undefined],
+    ['100.87.0.0/16', undefined, true],
+    ['100.87.0.0/16', 'Range is not private.', undefined],
+    ['100.127.0.0/16', undefined, true],
+    ['100.127.0.0/16', 'Range is not private.', undefined],
+    ['100.88.0.0/16', 'Range is not private.', true],
+    ['100.128.0.0/16', 'Range is not private.', true],
+    ['100.65.0.0/16', undefined, true],
+    ['100.64.255.255/16', 'Range is not private.', true],
+    ['100.89.0.0/16', undefined, true],
+    ['100.87.0.0/9', 'Range is not private.', true],
+  ])(
+    'value %p to be %p',
+    (value: string | undefined, expected: string | undefined, isMachineCidr?: boolean) => {
+      expect(validators.privateAddress(value, isMachineCidr)).toBe(expected);
+    },
+  );
 });
 
 describe('Field does not share subnets with other fields', () => {

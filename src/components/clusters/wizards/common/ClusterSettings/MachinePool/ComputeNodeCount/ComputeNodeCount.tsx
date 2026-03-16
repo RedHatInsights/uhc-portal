@@ -3,8 +3,8 @@ import { Field } from 'formik';
 
 import { FormHelperText, HelperText, Tooltip } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import { noQuotaTooltip } from '~/common/helpers';
-import links from '~/common/installLinks.mjs';
 import { required, validateNumericInput } from '~/common/validators';
 import {
   getMinNodesRequired,
@@ -242,7 +242,7 @@ const ComputeNodeCount = ({
       extendedHelpText={
         <>
           {computeNodeHintText(isHypershiftSelected, false)}{' '}
-          <ExternalLink href={links.ROSA_SERVICE_DEFINITION_COMPUTE}>
+          <ExternalLink href={docLinks.ROSA_SERVICE_DEFINITION_COMPUTE}>
             Learn more about compute node count
           </ExternalLink>
         </>

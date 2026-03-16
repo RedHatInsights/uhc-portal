@@ -47,7 +47,8 @@ import {
 } from '~/restrictedEnv';
 import { Chrome } from '~/types/types';
 
-import links, { channels, tools } from '../../common/installLinks.mjs';
+import { channels, tools } from '../../common/installLinks.mjs';
+import supportLinks from '../../common/supportLinks.mjs';
 import DownloadAndOSSelection from '../clusters/install/instructions/components/DownloadAndOSSelection';
 import ExternalLink from '../common/ExternalLink';
 import OfflineTokensAlert from '../common/OfflineTokensAlert';
@@ -62,7 +63,7 @@ import { loadOfflineToken } from './TokenUtils';
 import './Instructions.scss';
 
 const defaultDocsLink = (
-  <ExternalLink href={links.OCM_CLI_DOCS} noIcon>
+  <ExternalLink href={supportLinks.OCM_CLI_DOCS} noIcon>
     read more about setting up the ocm CLI
   </ExternalLink>
 );

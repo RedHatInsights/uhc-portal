@@ -3,7 +3,7 @@ import { useField } from 'formik';
 
 import { Alert, Checkbox, Stack, StackItem } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import WithTooltip from '~/components/common/WithTooltip';
 
@@ -43,7 +43,7 @@ const UseSpotInstancesField = ({ children, isDisabled }: UseSpotInstancesFieldPr
               title="Your Spot Instance may be interrupted at any time. Use Spot Instances for workloads that can tolerate interruptions."
               isInline
             >
-              <ExternalLink href={links.AWS_SPOT_INSTANCES}>
+              <ExternalLink href={docLinks.AWS_SPOT_INSTANCES}>
                 Learn more about Spot instances
               </ExternalLink>
             </Alert>

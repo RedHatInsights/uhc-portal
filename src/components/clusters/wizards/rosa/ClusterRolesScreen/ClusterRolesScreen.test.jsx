@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
@@ -139,7 +139,7 @@ describe('<ClusterRolesScreen />', () => {
     const link = screen.getByText('Learn more about ROSA roles');
 
     await waitFor(() => {
-      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_RESOURCES);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_AWS_IAM_RESOURCES);
     });
   });
 

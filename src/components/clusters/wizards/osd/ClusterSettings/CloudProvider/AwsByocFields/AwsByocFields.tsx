@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Alert, Content, ContentVariants, Grid, GridItem, Title } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { Prerequisites } from '~/components/clusters/wizards/common/Prerequisites/Prerequisites';
 import ExternalLink from '~/components/common/ExternalLink';
 
@@ -33,7 +33,7 @@ export const AwsByocFields = () => (
               <Content component={ContentVariants.p} className="ocm-secondary-text">
                 Your AWS account has the necessary limits to support your desired cluster size
                 according to the{' '}
-                <ExternalLink noIcon href={links.OSD_CCS_AWS_LIMITS}>
+                <ExternalLink noIcon href={docLinks.OSD_CCS_AWS_LIMITS}>
                   cluster resource requirements
                 </ExternalLink>
                 .
@@ -54,7 +54,7 @@ export const AwsByocFields = () => (
 
           <Content component={ContentVariants.p} className="ocm-secondary-text">
             Business Support for AWS is also recommended. For more guidance, see the{' '}
-            <ExternalLink href={links.OSD_CCS_AWS_CUSTOMER_REQ}>
+            <ExternalLink href={docLinks.OSD_CCS_AWS_CUSTOMER_REQ}>
               Customer Cloud Subscription requirements
             </ExternalLink>
             .

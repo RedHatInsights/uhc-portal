@@ -12,8 +12,8 @@ import {
   useWizardContext,
 } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import { stringToArray } from '~/common/helpers';
-import links from '~/common/installLinks.mjs';
 import { checkNoProxyDomains, validateCA, validateUrl } from '~/common/validators';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import {
@@ -79,7 +79,7 @@ export const ClusterProxy = () => {
         <Content component="p" className="pf-v6-u-mt-sm">
           {constants.clusterProxyHint}
         </Content>
-        <ExternalLink href={links.OSD_CLUSTER_WIDE_PROXY}>
+        <ExternalLink href={docLinks.OSD_CLUSTER_WIDE_PROXY}>
           Learn more about configuring a cluster-wide proxy
         </ExternalLink>
       </GridItem>
