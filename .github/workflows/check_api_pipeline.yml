@@ -25,7 +25,12 @@ jobs:
       cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/create-github-app-token@v2
+        id: generate-token
+        with:
+          app-id: ${{ secrets.CHECK_OPENAPI_APP_ID }}
+          private-key: ${{ secrets.CHECK_OPENAPI_APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v6
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
@@ -41,12 +46,12 @@ jobs:
       - name: Generating model based on OpenAPI contracts
         run: make openapi
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         env:
           HUSKY: '0'
         with:
           # limitation imposed by GitHub Actions that an action cannot trigger other workflows
-          token: ${{ secrets.CHECK_API_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
           base: ${{ env.BASE_BRANCH_NAME }}
           branch: ${{ env.SWAP_BRANCH_NAME }}
           add-paths: |
@@ -57,7 +62,8 @@ jobs:
           delete-branch: true
           title: '[OPEN API] update model'
           body: |
-            Automatically created by Github action.\nReviewers should pay attention to changes from `src/types/` files have a correspondant change on the Open API related contract.
+            Automatically created by Github action. 
+            Reviewers should pay attention to changes from `src/types/` files have a corresponding change on the Open API related contract.
             Additionally to it, build and lint output should be checked. In case of build errors, our code should be adapted accordingly.
           labels: |
             update_open_api
