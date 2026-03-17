@@ -30,9 +30,7 @@ spec:
     value: 5d
   - name: dockerfile
     value: build-tools/Dockerfile
-  - name: test-app-name
-    value: uhc-portal
-  - name: test-app-port
+  - name: e2e-app-port
     value: "8000"
   - name: unit-tests-script
     value: |
@@ -65,8 +63,14 @@ spec:
       # whitelisted in sso.redhat.com so SSO accepts the redirect_uri natively.
       export BASE_URL="https://prod.foo.redhat.com:1337/openshift/"
 
-      # Wait for dev server to be ready
-      timeout 120s bash -c 'until curl -k https://prod.foo.redhat.com:1337 > /dev/null 2>&1; do
+      # Fail fast if credentials are missing
+      if [ -z "${E2E_USER:-}" ] || [ -z "${E2E_PASSWORD:-}" ]; then
+        echo "ERROR: E2E_USER and/or E2E_PASSWORD not set. Check ocm-ui-credentials-secret."
+        exit 1
+      fi
+
+      # Wait for dev server to be ready (probe the app route, not just /)
+      timeout 120s bash -c 'until curl -kf https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json > /dev/null 2>&1; do
         echo "Waiting for dev server to be ready"
         sleep 5
       done'
@@ -184,7 +188,7 @@ spec:
   - name: e2e-hcc-env-url
     value: https://console.dev.redhat.com
   pipelineRef:
-    name: docker-build
+    name: docker-build-run-all-tests
   taskRunTemplate:
     serviceAccountName: build-pipeline-uhc-portal
   taskRunSpecs:
