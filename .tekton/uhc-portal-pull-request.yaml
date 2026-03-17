@@ -76,10 +76,13 @@ spec:
       echo "Installing Playwright browsers..."
       npx playwright install --with-deps chromium
 
-      # Run CI-tagged tests — capture exit code so we can collect artifacts on failure
+      # Suppress Node.js TLS warning noise (one per worker)
+      export NODE_NO_WARNINGS=1
+
+      # Run CI-tagged tests — redirect verbose output to file, show summary only
       echo "Running Playwright tests..."
       set +e
-      yarn playwright-e2e-ci --project=chromium
+      yarn playwright-e2e-ci --project=chromium > /tmp/playwright-verbose.log 2>&1
       TEST_EXIT_CODE=$?
       set -e
 
@@ -135,20 +138,41 @@ spec:
         echo "  No test results JSON found"
       fi
 
-      # List failure artifacts if any exist
-      if [ -d "$RESULTS_DIR" ]; then
-        ARTIFACT_COUNT=$(find "$RESULTS_DIR" -type f \( -name "*.png" -o -name "*.webm" -o -name "*.zip" \) 2>/dev/null | wc -l)
-        if [ "$ARTIFACT_COUNT" -gt 0 ]; then
-          echo ""
-          echo "  Failure artifacts ($ARTIFACT_COUNT files):"
-          find "$RESULTS_DIR" -type f \( -name "*.png" -o -name "*.webm" -o -name "*.zip" \) -printf "    %f (%s bytes)\n" 2>/dev/null \
-            || find "$RESULTS_DIR" -type f \( -name "*.png" -o -name "*.webm" -o -name "*.zip" \) -exec ls -lh {} \;
-        fi
+      # Show failed test details (final attempt only, not retries)
+      if [ "$TEST_EXIT_CODE" -ne 0 ] && [ -f "$RESULTS_JSON" ]; then
+        echo ""
+        echo "  Failed test details:"
+        node -e "
+          const r = require('./$RESULTS_JSON');
+          function walk(s, path) {
+            const p = path ? path + ' > ' + s.title : s.title;
+            (s.suites||[]).forEach(c => walk(c, p));
+            (s.specs||[]).forEach(spec => {
+              (spec.tests||[]).forEach(t => {
+                if (t.status==='unexpected') {
+                  const last = t.results[t.results.length-1];
+                  console.log('    ✗ ' + spec.title);
+                  if (last && last.error && last.error.message) {
+                    console.log('      ' + last.error.message.split('\n')[0]);
+                  }
+                }
+              });
+            });
+          }
+          (r.suites||[]).forEach(s => walk(s, ''));
+        " 2>/dev/null || true
       fi
 
       echo "============================================"
       echo "  Exit code: $TEST_EXIT_CODE"
       echo "============================================"
+
+      # Full Playwright output available below (verbose):
+      if [ "$TEST_EXIT_CODE" -ne 0 ]; then
+        echo ""
+        echo "--- Full Playwright output (for debugging) ---"
+        cat /tmp/playwright-verbose.log
+      fi
 
       exit $TEST_EXIT_CODE
   - name: e2e-credentials-secret
