@@ -27,10 +27,9 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
 import { MachineTypesResponse } from '~/queries/types';
 import { DEFAULT_FLAVOUR_ID, getDefaultFlavour } from '~/redux/actions/flavourActions';
-import { getMachineTypesByRegionARN } from '~/redux/actions/machineTypesActions';
 import { useGlobalState } from '~/redux/hooks';
 import { RelatedResourceBilling_model as RelatedResourceBillingModel } from '~/types/accounts_mgmt.v1';
-import { BillingModel, CloudProvider, CloudVpc, MachineType } from '~/types/clusters_mgmt.v1';
+import { BillingModel, CloudProvider, MachineType } from '~/types/clusters_mgmt.v1';
 import { ErrorState } from '~/types/types';
 
 import { QuotaTypes } from '../../quotaModel';
@@ -64,9 +63,6 @@ type MachineTypeSelectionProps = {
   fieldId: string;
   machineTypesResponse: MachineTypesResponse;
   machineTypesErrorResponse?: Pick<ErrorState, 'errorDetails' | 'errorMessage' | 'operationID'>;
-  selectedVpc?: CloudVpc;
-  region?: string;
-  installerRoleArn?: string;
   isMultiAz?: boolean;
   isBYOC?: boolean;
   isMachinePool?: boolean;
@@ -81,9 +77,6 @@ const MachineTypeSelection = ({
   fieldId,
   machineTypesResponse,
   machineTypesErrorResponse,
-  selectedVpc,
-  region = '',
-  installerRoleArn = '',
   isMultiAz,
   isBYOC,
   isMachinePool,
@@ -269,18 +262,6 @@ const MachineTypeSelection = ({
     () => sortedMachineTypes.filter((type) => isTypeAvailable(type.id)),
     [isTypeAvailable, sortedMachineTypes],
   );
-
-  React.useEffect(() => {
-    if (!installerRoleArn || !region) {
-      return;
-    }
-    const AZs = [
-      ...new Set(
-        selectedVpc?.aws_subnets?.map((el) => el.availability_zone ?? '')?.filter(Boolean),
-      ),
-    ];
-    dispatch(getMachineTypesByRegionARN(installerRoleArn, region, [...AZs]));
-  }, [dispatch, selectedVpc, installerRoleArn, region]);
 
   const machineTypeUnavailableWarning =
     'OCM does not have access to all AWS account details. Machine node type cannot be verified to be accessible for this AWS user.';

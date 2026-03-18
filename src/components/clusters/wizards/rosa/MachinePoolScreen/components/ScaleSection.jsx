@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { FieldArray } from 'formik';
+import { useDispatch } from 'react-redux';
 
 import {
   Content,
@@ -23,6 +24,7 @@ import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypes';
 import { IMDS_SELECTION } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { getMachineTypesByRegionARN } from '~/redux/actions/machineTypesActions';
 
 import ComputeNodeCount from '../../../common/ClusterSettings/MachinePool/ComputeNodeCount/ComputeNodeCount';
 
@@ -67,6 +69,15 @@ function ScaleSection() {
   }, [isHypershiftSelected, clusterVersionRawId]);
 
   const { data: machineTypesResponse, error: machineTypesError } = useFetchMachineTypes();
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    if (!installerRoleArn || !region) {
+      return;
+    }
+    const AZs = [...new Set(selectedVpc?.aws_subnets?.map((el) => el.availability_zone))];
+    dispatch(getMachineTypesByRegionARN(installerRoleArn, region, AZs));
+  }, [dispatch, selectedVpc, installerRoleArn, region]);
 
   const LabelsSectionComponent = useCallback(
     () =>
@@ -145,9 +156,6 @@ function ScaleSection() {
           fieldId={FieldId.MachineType}
           machineTypesResponse={machineTypesResponse}
           machineTypesErrorResponse={machineTypesError?.error}
-          selectedVpc={selectedVpc}
-          installerRoleArn={installerRoleArn}
-          region={region}
           isMultiAz={isMultiAzSelected}
           isBYOC={isByoc}
           cloudProviderID={cloudProviderID}
