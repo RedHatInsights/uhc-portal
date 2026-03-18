@@ -1,14 +1,16 @@
+---
+description: Playwright E2E test conventions for page objects, fixtures, test specs, and test data
+globs: playwright/**/*.ts, playwright/**/*.json
+alwaysApply: false
+---
+
 # Playwright E2E Test Conventions
 
 ## Support Utilities
 
 - `playwright-constants.ts` defines all shared paths, timeouts, and route constants — always import from here instead of hardcoding
-- Available path constants: `STORAGE_STATE_PATH`, `TEST_DIR`, `E2E_DIR`, `FIXTURES_DIR`, `PAGE_OBJECTS_DIR`, `SUPPORT_DIR`
-- Available timeout constants: `DEFAULT_ACTION_TIMEOUT` (15s), `DEFAULT_NAVIGATION_TIMEOUT` (60s), `DEFAULT_EXPECT_TIMEOUT` (10s), `GLOBAL_TEST_TIMEOUT` (5m)
-- Available route constants: `OCM_BASE_PATH`, `CLUSTER_LIST_PATH`, `CLUSTER_LIST_FULL_PATH`
-- `auth-config.ts` provides `getAuthConfig()` which reads credentials from `TEST_WITHQUOTA_USER`/`TEST_WITHQUOTA_PASSWORD` or `E2E_USER`/`E2E_PASSWORD` env vars
-- `custom-commands.ts` provides `CustomCommands` class with helpers: `getByTestId`, `waitForSelector`, `waitForTestId`, `assertUrlReturns200`
-- `custom-commands.ts` also provides ROSA CLI helpers: `executeRosaCmd`, `rosaLoginViaOfflineToken`, `rosaLoginViaServiceAccount`
+- `auth-config.ts` provides auth configuration — reads credentials from environment variables
+- `custom-commands.ts` provides common interaction helpers and ROSA CLI helpers
 - `global-setup.ts` handles authentication and saves state to `storageState.json` — do not modify unless changing the auth flow
 - Environment variables are loaded from `playwright.env.json` at the workspace root via `playwright.config.ts`
 
