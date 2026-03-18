@@ -144,4 +144,195 @@ describe('<EditNodeCountSection />', () => {
       expect(link).toHaveAttribute('href', docLinks.OSD_CLUSTER_AUTOSCALING);
     });
   });
+
+  describe('HCP cluster minimum node requirements', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('allows 0 minimum nodes for tainted machine pool in HCP cluster', async () => {
+      const taintedMachinePool = {
+        id: 'tainted-pool',
+        replicas: 1,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+        taints: [{ key: 'test', value: 'true', effect: 'NoSchedule' }],
+      };
+
+      const otherPool = {
+        id: 'other-pool',
+        replicas: 2,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const { user } = withState(initialState).render(
+        <Formik
+          initialValues={{ replicas: 1, instanceType: 'm5.xlarge', autoscaling: false }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[otherPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={taintedMachinePool}
+          />
+        </Formik>,
+      );
+
+      const nodeCountInput = screen.getByLabelText('Compute nodes') as HTMLInputElement;
+      const minusButton = screen.getByLabelText('Decrement compute nodes');
+
+      await user.click(minusButton);
+      expect(nodeCountInput.value).toBe('0');
+    });
+
+    it('allows 0 minimum nodes for untainted pool when other pools have 2+ untainted nodes in HCP cluster', async () => {
+      const currentPool = {
+        id: 'current-pool',
+        replicas: 1,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const otherPool = {
+        id: 'other-pool',
+        replicas: 3,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const { user } = withState(initialState).render(
+        <Formik
+          initialValues={{ replicas: 1, instanceType: 'm5.xlarge', autoscaling: false }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[otherPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={currentPool}
+          />
+        </Formik>,
+      );
+
+      const nodeCountInput = screen.getByLabelText('Compute nodes') as HTMLInputElement;
+      const minusButton = screen.getByLabelText('Decrement compute nodes');
+
+      await user.click(minusButton);
+      expect(nodeCountInput.value).toBe('0');
+    });
+
+    it('requires 1 minimum node for untainted pool when other pools have 1 untainted node in HCP cluster', async () => {
+      const currentPool = {
+        id: 'current-pool',
+        replicas: 2,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const otherPool = {
+        id: 'other-pool',
+        replicas: 1,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const { user } = withState(initialState).render(
+        <Formik
+          initialValues={{ replicas: 2, instanceType: 'm5.xlarge', autoscaling: false }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[otherPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={currentPool}
+          />
+        </Formik>,
+      );
+
+      const nodeCountInput = screen.getByLabelText('Compute nodes') as HTMLInputElement;
+      const minusButton = screen.getByLabelText('Decrement compute nodes');
+
+      // Decrement once: 2 -> 1 (should work)
+      await user.click(minusButton);
+      expect(nodeCountInput.value).toBe('1');
+      expect(minusButton).toBeDisabled();
+    });
+
+    it('requires 2 minimum nodes for untainted pool when other pools have 0 untainted nodes in HCP cluster', async () => {
+      const currentPool = {
+        id: 'current-pool',
+        replicas: 3,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const taintedPool = {
+        id: 'tainted-pool',
+        replicas: 3,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+        taints: [{ key: 'test', value: 'true', effect: 'NoSchedule' }],
+      };
+
+      const { user } = withState(initialState).render(
+        <Formik
+          initialValues={{ replicas: 3, instanceType: 'm5.xlarge', autoscaling: false }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[taintedPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={currentPool}
+          />
+        </Formik>,
+      );
+
+      const nodeCountInput = screen.getByLabelText('Compute nodes') as HTMLInputElement;
+      const minusButton = screen.getByLabelText('Decrement compute nodes');
+
+      // Decrement once: 3 -> 2 (should work)
+      await user.click(minusButton);
+      expect(nodeCountInput.value).toBe('2');
+      expect(minusButton).toBeDisabled();
+    });
+
+    it('requires 2 minimum nodes for untainted pool when no other pools exist in HCP cluster', async () => {
+      const currentPool = {
+        id: 'current-pool',
+        replicas: 2,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      withState(initialState).render(
+        <Formik
+          initialValues={{ replicas: 2, instanceType: 'm5.xlarge', autoscaling: false }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[currentPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={currentPool}
+          />
+        </Formik>,
+      );
+
+      const nodeCountInput = screen.getByLabelText('Compute nodes') as HTMLInputElement;
+      const minusButton = screen.getByLabelText('Decrement compute nodes');
+
+      // Should not be able to decrement below 2
+      expect(nodeCountInput.value).toBe('2');
+      expect(minusButton).toBeDisabled();
+    });
+  });
 });

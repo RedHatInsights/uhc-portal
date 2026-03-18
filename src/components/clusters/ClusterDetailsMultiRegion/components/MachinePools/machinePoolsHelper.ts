@@ -142,6 +142,14 @@ const isEnforcedDefaultMachinePool = (
     });
 };
 
+const countReplicasWithoutTaints = (machinePools: MachinePool[], excludePoolId?: string) =>
+  machinePools?.reduce((count, pool) => {
+    if (pool.id !== excludePoolId && !pool.taints?.length) {
+      return count + (pool.autoscaling?.min_replicas ?? pool.replicas ?? 0);
+    }
+    return count;
+  }, 0);
+
 const isMinimumCountWithoutTaints = ({
   currentMachinePoolId,
   machinePools,
@@ -157,22 +165,13 @@ const isMinimumCountWithoutTaints = ({
     return true; // This only applies to HCP clusters
   }
 
-  let numberReplicas = machinePools?.reduce((count, pool) => {
-    if (pool.id !== currentMachinePoolId) {
-      if (!pool.taints?.length) {
-        return count + (pool.autoscaling?.min_replicas ?? pool.replicas ?? 0);
-      }
-    }
-    return count;
-  }, 0);
+  let numberReplicas = countReplicasWithoutTaints(machinePools, currentMachinePoolId);
 
-  if (
-    includeCurrentMachinePool &&
-    currentMachinePoolId &&
-    !machinePools.find((pool) => pool.id === currentMachinePoolId)?.taints?.length
-  ) {
-    // The minimum the current machine pool can have is 1 so adding it if the method is using to count total nodes
-    numberReplicas += 1;
+  if (includeCurrentMachinePool && currentMachinePoolId) {
+    const currentPool = machinePools.find((pool) => pool.id === currentMachinePoolId);
+    if (!currentPool?.taints?.length) {
+      numberReplicas += currentPool?.autoscaling?.min_replicas ?? currentPool?.replicas ?? 0;
+    }
   }
 
   return numberReplicas >= 2;
@@ -290,15 +289,13 @@ const getClusterMinNodes = ({
   machinePool: MachinePool | undefined;
   machinePools: MachinePool[];
 }) => {
+  // For HCP, return lowest allowed node count to maintain a total of at least 2 untainted nodes across all pools.
   if (isHypershiftCluster(cluster)) {
-    return isMinimumCountWithoutTaints({
-      currentMachinePoolId: machinePool?.id,
-      cluster,
-      machinePools,
-      includeCurrentMachinePool: true,
-    })
-      ? 1
-      : 2;
+    if (machinePool?.taints?.length) {
+      return 0;
+    }
+    const otherPoolsWithoutTaints = countReplicasWithoutTaints(machinePools, machinePool?.id);
+    return Math.max(0, 2 - otherPoolsWithoutTaints);
   }
   const isMultiAz = isMultiAZ(cluster);
 
@@ -365,6 +362,7 @@ const getCapacityPreferenceLabel = (
 export {
   actionResolver,
   canUseSpotInstances,
+  countReplicasWithoutTaints,
   getClusterMinNodes,
   getMinNodesRequired,
   getNodeIncrement,
