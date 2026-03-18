@@ -75,10 +75,9 @@ Runs once before all tests:
 ### `playwright/fixtures/pages.ts`
 
 The custom test fixture that creates worker-scoped authenticated browser
-contexts. Key setting for Konflux CI:
-
-- **`ignoreHTTPSErrors: true`** on `browser.newContext()` — the proxy's
-  internal TLS cert is self-signed.
+contexts. The `ignoreHTTPSErrors: true` setting is inherited from
+`playwright.config.ts` automatically — the test runner propagates `use`
+settings to all contexts created via `browser.newContext()`.
 
 ### `playwright/support/auth-config.ts`
 

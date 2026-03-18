@@ -10,7 +10,7 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
       == "main"
-    pipelinesascode.tekton.dev/pipeline: https://raw.githubusercontent.com/RedHatInsights/konflux-pipelines/main/pipelines/platform-ui/docker-build-run-all-tests.yaml
+    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-all-tests.yaml
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: ocm-ui
@@ -188,7 +188,7 @@ spec:
   - name: e2e-hcc-env-url
     value: https://console.dev.redhat.com
   pipelineRef:
-    name: docker-build-run-all-tests
+    name: docker-build
   taskRunTemplate:
     serviceAccountName: build-pipeline-uhc-portal
   taskRunSpecs:
