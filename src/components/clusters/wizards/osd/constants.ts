@@ -129,7 +129,7 @@ export const initialValues: FormikValues = {
   [FieldId.PrivateServiceConnect]: false,
   [FieldId.PSCSubnet]: '',
   [FieldId.ChannelGroup]: CHANNEL_GROUP_DEFAULT,
-  [FieldId.DnsZone]: '',
+  [FieldId.DnsZone]: { id: '' },
 };
 
 export const initialTouched = {

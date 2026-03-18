@@ -1,7 +1,20 @@
 import React from 'react';
 
-import { Button, Flex, FlexItem, FormGroup } from '@patternfly/react-core';
+import {
+  Button,
+  ClipboardCopy,
+  ClipboardCopyVariant,
+  Content,
+  ContentVariants,
+  ExpandableSection,
+  Flex,
+  FlexItem,
+  FormGroup,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
 
+import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import {
   refetchGcpDnsZones,
@@ -18,45 +31,49 @@ interface DnsZoneSelectProps {
     onChange: (selectedDnsZone: DnsDomain) => void;
     onBlur: () => void;
   };
-  //   meta: {
-  //     touched: boolean;
-  //     error: string;
-  //   };
-  //   showRefresh?: boolean;
+  meta: {
+    touched: boolean;
+    error: string;
+  };
 }
 
 const DnsZoneSelect = ({
   selectedDnsZone,
-  input: {
-    name,
-
-    onBlur: _onBlur,
-    ...inputProps
-  },
+  input: { name, onBlur: _onBlur, ...inputProps },
   domainPrefix,
+  meta: { error, touched },
 }: DnsZoneSelectProps) => {
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
-  //   const [dnsZones, setDnsZones] = React.useState([]);
+  const [isExpanded, setIsExpanded] = React.useState<boolean>(false);
+
+  const onToggle = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   const {
     data: dnsDomains,
-    // isError,
-    // error,
     isFetching,
     isLoading,
     isSuccess,
   } = useFetchGcpDnsDomains(domainPrefix);
 
-  console.log('dnsDomains DnsZoneSelect', dnsDomains);
-
-  const onSelect: FuzzySelectProps['onSelect'] = (_event, selectedVPCID) => {
-    // We want the form to store the original VPC object, rather than the option items
-    const selectedItem = dnsDomains?.find((dnsZone) => dnsZone.id === selectedDnsZone?.id);
+  const onSelect: FuzzySelectProps['onSelect'] = (_event, selectedDnsZone) => {
+    const selectedItem = dnsDomains?.find((dnsZone) => dnsZone.id === selectedDnsZone);
     if (selectedItem) {
       inputProps.onChange(selectedItem);
       setIsOpen(false);
     }
   };
+
+  React.useEffect(() => {
+    if (selectedDnsZone?.id && dnsDomains?.some((item) => item.id === selectedDnsZone?.id)) {
+      const selectedItem = dnsDomains.find((domain) => domain.id === selectedDnsZone.id);
+      if (selectedItem) {
+        inputProps.onChange(selectedItem);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dnsDomains, selectedDnsZone?.id]);
 
   const selectionData = React.useMemo(() => {
     let placeholder = 'Select a DNS Zone';
@@ -67,14 +84,10 @@ const DnsZoneSelect = ({
     }
 
     const dnsOptions = isSuccess
-      ? dnsDomains?.map((dnsZone: DnsDomain) => {
-          console.log(dnsZone);
-
-          return {
-            entryId: dnsZone.id,
-            label: `${dnsZone.gcp.domain_prefix}.${dnsZone.id} (${dnsZone.gcp.project_id})`,
-          };
-        })
+      ? dnsDomains?.map((dnsZone: DnsDomain) => ({
+          entryId: dnsZone.id,
+          label: `${dnsZone.gcp?.domain_prefix}.${dnsZone.id} (${dnsZone.gcp?.project_id})`,
+        }))
       : {};
 
     return {
@@ -83,25 +96,41 @@ const DnsZoneSelect = ({
     };
   }, [dnsDomains, isFetching, isSuccess]);
 
+  const createDnsZoneCommand = `ocm gcp create dns-zone --domain-prefix ${domainPrefix} --project-id <project-id> --network-project-id <shared-vpc-id> --network-id <vpc-id>`;
+
   return (
-    <FormGroup
-    //   label="Config ID"
-    //   labelHelp={
-    //     <PopoverHint
-    //       hint={
-    //         <span>
-    //           The OIDC configuration ID created by running the command{' '}
-    //           <pre>rosa create oidc-config</pre>
-    //         </span>
-    //       }
-    //     />
-    //   }
-    >
+    <FormGroup>
+      <Stack>
+        <StackItem>
+          <Content component={ContentVariants.p} className="pf-v6-u-mt-md">
+            To deploy without DNS Administrator privileges on the host project, pre create a DNS
+            zone using the cli and select it below. If you skip this step, DNS Administrator
+            privileges will be required
+          </Content>
+        </StackItem>
+        <StackItem>
+          <ExpandableSection
+            toggleText="Create DNS Zone"
+            isExpanded={isExpanded}
+            onToggle={onToggle}
+            className="pf-v6-u-mt-md"
+          >
+            <ClipboardCopy
+              textAriaLabel="Copyable create DNS zone command"
+              variant={ClipboardCopyVariant.inline}
+              isReadOnly
+              hoverTip="Copy"
+              clickTip="Copied"
+            >
+              {createDnsZoneCommand}
+            </ClipboardCopy>
+          </ExpandableSection>
+        </StackItem>
+      </Stack>
       <Flex>
         <FlexItem grow={{ default: 'grow' }}>
           <FuzzySelect
-            className="oidc-config-select"
-            aria-label="Config ID"
+            aria-label="DNS zone"
             isOpen={isOpen}
             onOpenChange={(isOpen) => setIsOpen(isOpen)}
             onSelect={onSelect}
@@ -109,7 +138,7 @@ const DnsZoneSelect = ({
             selectionData={selectionData.options}
             isDisabled={dnsDomains?.length === 0 || isFetching}
             placeholderText={selectionData.placeholder}
-            inlineFilterPlaceholderText="Filter by DNS Zone name"
+            inlineFilterPlaceholderText="Filter by DNS zone name"
             isScrollable
             popperProps={{
               maxWidth: 'trigger',
@@ -129,7 +158,7 @@ const DnsZoneSelect = ({
         </FlexItem>
       </Flex>
 
-      {/* <FormGroupHelperText touched={touched} error={error} /> */}
+      <FormGroupHelperText touched={touched} error={error} />
     </FormGroup>
   );
 };

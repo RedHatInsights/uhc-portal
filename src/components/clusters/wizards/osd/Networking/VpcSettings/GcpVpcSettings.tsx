@@ -18,7 +18,6 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId, StepId } from '~/components/clusters/wizards/osd/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-// import { useFetchGcpDnsDomains } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpDnsDomains';
 import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { DnsDomain } from '~/types/clusters_mgmt.v1';
@@ -49,15 +48,6 @@ export const GcpVpcSettings = () => {
 
   const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
   const isByoc = byoc === 'true';
-
-  // const {
-  //   data: dnsDomains,
-  //   // isError,
-  //   // error,
-  //   // isLoading,
-  // } = useFetchGcpDnsDomains(domainPrefix);
-
-  // console.log('dnsDomains', dnsDomains);
 
   const { goToStepById } = useWizardContext();
 
@@ -155,7 +145,6 @@ export const GcpVpcSettings = () => {
           <Title headingLevel="h4" size="md">
             DNS Zone
           </Title>
-          {/* {!hasDomainPrefix ? dnsZoneAlert : null} */}
           {hasDomainPrefix ? (
             <Field
               component={DnsZoneSelect}
@@ -165,15 +154,9 @@ export const GcpVpcSettings = () => {
                 ...getFieldProps(FieldId.DnsZone),
                 onChange: (newDnsZoneValue: DnsDomain) => {
                   setFieldValue(FieldId.DnsZone, newDnsZoneValue);
-                  // if (newDnsZoneValue?.id !== selectedDnsZone?.id) {
-                  //   setFieldValue(controlPlaneFieldName, []);
-                  //   setFieldValue(infraFieldName, []);
-                  //   setFieldValue(workerFieldName, []);
-                  // }
                 },
               }}
-              // meta={vpcMeta}
-              // validate={(vpc: CloudVpc) => (dirty && !vpc?.id ? 'error' : undefined)}
+              meta={getFieldMeta(FieldId.DnsZone)}
               selectedDnsZone={selectedDnsZone}
               domainPrefix={domainPrefix}
               showRefresh

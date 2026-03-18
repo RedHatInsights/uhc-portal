@@ -25,7 +25,11 @@ import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/C
 import { FieldId, StepId } from '~/components/clusters/wizards/osd/constants';
 import config from '~/config';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
-import { ALLOW_EUS_CHANNEL, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import {
+  ALLOW_EUS_CHANNEL,
+  GCP_DNS_ZONE,
+  OSD_GCP_WIF,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { MESSAGES } from '../../common/messages';
@@ -54,6 +58,7 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
       [FieldId.HasDomainPrefix]: hasDomainPrefix,
       [FieldId.GcpAuthType]: gcpAuthType,
       [FieldId.GcpWifConfig]: wifConfig,
+      [FieldId.DnsZone]: dnsZone,
     },
     values: formValues,
   } = useFormState();
@@ -61,6 +66,7 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
   const autoscalingEnabled = canAutoScale && !!formValues[FieldId.AutoscalingEnabled];
   const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
+  const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
 
   const isByoc = byoc === 'true';
   const isAWS = cloudProvider === CloudProviderType.Aws;
@@ -72,6 +78,8 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
     hasGcpAuthType && gcpAuthType === GCPAuthType.WorkloadIdentityFederation && wifConfig;
   const isGCPPrivateClusterInstalltoVPC =
     clusterPrivacy === ClusterPrivacyType.Internal && installToVpc && isGCP;
+  const showDnsZone =
+    isByoc && isGCP && installToSharedVpc && hasDomainPrefix && isGcpDnsZoneEnabled && dnsZone.id;
   const clusterSettingsFields = [
     FieldId.CloudProvider,
     ...(hasGcpAuthType ? [FieldId.GcpAuthType] : []),
@@ -161,6 +169,7 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
         {isByoc && isGCP && installToSharedVpc && (
           <ReviewItem name={FieldId.SharedHostProjectID} formValues={formValues} />
         )}
+        {showDnsZone && <ReviewItem name={FieldId.DnsZone} formValues={formValues} />}
         {isByoc && installToVpc && (
           <ReviewItem name={isAWS ? 'aws_standalone_vpc' : 'gpc_vpc'} formValues={formValues} />
         )}
