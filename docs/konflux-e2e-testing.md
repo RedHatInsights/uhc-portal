@@ -62,27 +62,13 @@ workflows (`e2e-ci-playwright.yml`, `e2e-smoke-playwright.yml`).
 Note: `stage.foo.redhat.com:1337` is **not** whitelisted in `sso.redhat.com`,
 which is why the `HCC_ENV=prod` override is required.
 
-## Playwright files changed for Konflux CI
-
-### `playwright/support/global-setup.ts`
-
-Runs once before all tests:
-
-1. Navigates to `prod.foo.redhat.com:1337/` (the proxy sidecar).
-2. Authenticates via SSO (`sso.redhat.com` accepts `prod.foo` as `redirect_uri`).
-3. Saves the authenticated session to `storageState.json`.
-
-### `playwright/fixtures/pages.ts`
-
-The custom test fixture that creates worker-scoped authenticated browser
-contexts. The `ignoreHTTPSErrors: true` setting is inherited from
-`playwright.config.ts` automatically — the test runner propagates `use`
-settings to all contexts created via `browser.newContext()`.
+## Playwright file changed for Konflux CI
 
 ### `playwright/support/auth-config.ts`
 
 Reads credentials from `TEST_WITHQUOTA_USER` / `TEST_WITHQUOTA_PASSWORD`
 (local/smoke) with fallback to `E2E_USER` / `E2E_PASSWORD` (Konflux secret).
+This is the only Playwright source file modified for Konflux support.
 
 ## Environment variables
 
