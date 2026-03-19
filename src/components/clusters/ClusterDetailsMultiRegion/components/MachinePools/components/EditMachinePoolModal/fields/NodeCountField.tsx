@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useField } from 'formik';
 
-import { FormGroup, SelectOption, Tooltip } from '@patternfly/react-core';
+import { FormGroup, NumberInput, Tooltip } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
 import { noQuotaTooltip } from '~/common/helpers';
@@ -12,55 +12,62 @@ import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import ExternalLink from '~/components/common/ExternalLink';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
-import useFormikOnChange from '~/hooks/useFormikOnChange';
 import { ClusterFromSubscription } from '~/types/types';
-
-import SelectField from './SelectField';
 
 const fieldId = 'replicas';
 
 type NodeCountFieldProps = {
   mpAvailZones: number | undefined;
   minNodesRequired: number;
-  options: number[];
+  maxNodes: number;
   cluster: ClusterFromSubscription;
 };
 
 const NodeCountField = ({
   minNodesRequired,
-  options,
+  maxNodes,
   cluster,
   mpAvailZones,
 }: NodeCountFieldProps) => {
-  const [field] = useField<number>(fieldId);
-  const onChange = useFormikOnChange(fieldId);
+  const [field, meta, helpers] = useField<number>(fieldId);
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
-  const optionExists = options.includes(field.value);
 
-  React.useEffect(() => {
-    // options could not be ready yet when NodeCountField renders for the first time
-    if (options.length > 0 && !optionExists) {
-      onChange(minNodesRequired);
-    }
-  }, [optionExists, minNodesRequired, onChange, options.length]);
+  const minNodes = isMultizoneMachinePool ? minNodesRequired / 3 : minNodesRequired;
+  const maxNodesPerZone = isMultizoneMachinePool ? maxNodes / 3 : maxNodes;
 
-  const notEnoughQuota = options.length < 1;
-
+  const notEnoughQuota = maxNodes < minNodesRequired;
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
+  const { touched, error } = meta;
 
-  const selectField = (
-    <SelectField
-      value={`${isMultizoneMachinePool ? field.value / 3 : field.value}`}
-      fieldId={fieldId}
-      onSelect={(newValue) => onChange(parseInt(newValue as string, 10))}
+  const onButtonPress = (plus: boolean) => () => {
+    const newValue = plus ? field.value + 1 : field.value - 1;
+    helpers.setValue(newValue);
+    helpers.setTouched(true, false);
+  };
+
+  const numberInput = (
+    <NumberInput
+      value={field.value}
+      min={minNodes}
+      max={maxNodesPerZone}
+      onMinus={onButtonPress(false)}
+      onChange={(event) => {
+        helpers.setValue(Number((event.target as HTMLInputElement).value));
+        helpers.setTouched(true, false);
+      }}
+      onPlus={onButtonPress(true)}
+      inputAriaLabel="Compute nodes"
+      minusBtnAriaLabel="Decrement compute nodes"
+      plusBtnAriaLabel="Increment compute nodes"
+      widthChars={4}
       isDisabled={notEnoughQuota}
-    >
-      {options.map((option) => (
-        <SelectOption key={option} value={`${option}`}>
-          {`${isMultizoneMachinePool ? option / 3 : option}`}
-        </SelectOption>
-      ))}
-    </SelectField>
+      inputProps={{
+        onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+          helpers.setValue(Number(event.target.value));
+          field.onBlur(event);
+        },
+      }}
+    />
   );
 
   return (
@@ -88,14 +95,14 @@ const NodeCountField = ({
     >
       {notEnoughQuota ? (
         <Tooltip content={noQuotaTooltip} position="right">
-          {selectField}
+          {numberInput}
         </Tooltip>
       ) : (
-        selectField
+        numberInput
       )}
 
-      <FormGroupHelperText>
-        {isMultizoneMachinePool && `x 3 zones = ${field.value}`}
+      <FormGroupHelperText touched={touched} error={error}>
+        {isMultizoneMachinePool && !(touched && error) && `x 3 zones = ${field.value * 3}`}
       </FormGroupHelperText>
     </FormGroup>
   );

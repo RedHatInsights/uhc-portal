@@ -3406,47 +3406,8 @@ export interface components {
       data: unknown[];
     };
     Status: {
-      /**
-       * Format: int64
-       * @example 1
-       */
-      api_version: number;
-      /** @example 178d2ea */
-      commit?: string;
-      /** @example 127.0.0.1:8000 */
-      server_address?: string;
-      /** @example 30 */
-      rbac_cache_ttl?: number;
-      /** @example {
-       *       "system": "Darwin",
-       *       "node": "node-1.example.com",
-       *       "release": "17.5.0",
-       *       "version": "Darwin Kernel Version 17.5.0",
-       *       "machine": "x86_64",
-       *       "processor": "i386"
-       *     } */
-      platform_info?: Record<string, never>;
-      /** @example 3.6.1 */
-      python_version?: string;
-      /** @example {
-       *       "coverage": "4.5.1",
-       *       "coverage.version": "4.5.1",
-       *       "coverage.xmlreport": "4.5.1",
-       *       "cryptography": "2.0.3",
-       *       "ctypes": "1.1.0",
-       *       "ctypes.macholib": "1.0",
-       *       "decimal": "1.70",
-       *       "django": "1.11.5",
-       *       "django.utils.six": "1.10.0",
-       *       "django_filters": "1.0.4",
-       *       "http.server": "0.6"
-       *     } */
-      modules?: Record<string, never>;
-      /** @example {
-       *       "debug": true,
-       *       "account_access_type": "db"
-       *     } */
-      config?: Record<string, never>;
+      /** @example OK */
+      status: string;
     };
     TagsFilter: {
       resolution?: components['schemas']['ReportResolution'];

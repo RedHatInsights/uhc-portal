@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { useField } from 'formik';
 
 import { FormGroup, NumberInput } from '@patternfly/react-core';
@@ -12,13 +12,12 @@ import { computeNodeHintText } from '~/components/clusters/common/ScaleSection/A
 import ExternalLink from '~/components/common/ExternalLink';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
-import useFormikOnChange from '~/hooks/useFormikOnChange';
 import { ClusterFromSubscription } from '~/types/types';
 
 type AutoscaleMaxReplicasFieldProps = {
   minNodes: number;
   cluster: ClusterFromSubscription;
-  options: number[];
+  maxNodes: number;
   mpAvailZones?: number;
 };
 
@@ -27,18 +26,23 @@ const fieldId = 'autoscaleMax';
 const AutoscaleMaxReplicasField = ({
   minNodes: initMinNodes,
   cluster,
-  options,
+  maxNodes: initMaxNodes,
   mpAvailZones,
 }: AutoscaleMaxReplicasFieldProps) => {
-  const [field, { error, touched }] = useField<number>(fieldId);
-  const onChange = useFormikOnChange(fieldId);
+  const [field, meta, helpers] = useField<number>(fieldId);
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
 
-  const maxValue = options.length ? options[options.length - 1] : 0;
-
   const minNodes = isMultizoneMachinePool ? initMinNodes / 3 : initMinNodes;
-  const maxNodes = isMultizoneMachinePool ? maxValue / 3 : maxValue;
+  const maxNodes = isMultizoneMachinePool ? initMaxNodes / 3 : initMaxNodes;
+
+  const { touched, error } = meta;
+
+  const onButtonPress = (plus: boolean) => () => {
+    const newValue = plus ? field.value + 1 : field.value - 1;
+    helpers.setValue(newValue);
+    helpers.setTouched(true, false);
+  };
 
   return (
     <FormGroup
@@ -65,20 +69,26 @@ const AutoscaleMaxReplicasField = ({
       }
     >
       <NumberInput
-        {...field}
-        onPlus={() => onChange(field.value + 1)}
-        onMinus={() => onChange(field.value - 1)}
+        value={field.value}
+        onPlus={onButtonPress(true)}
+        onMinus={onButtonPress(false)}
         onChange={(e) => {
-          const newValue = (e.target as any).value;
-          onChange(Number(newValue));
+          helpers.setValue(Number((e.target as HTMLInputElement).value));
+          helpers.setTouched(true, false);
         }}
         id={fieldId}
         min={minNodes || 1}
         max={maxNodes}
+        inputProps={{
+          onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+            helpers.setValue(Number(event.target.value));
+            field.onBlur(event);
+          },
+        }}
       />
 
       <FormGroupHelperText touched={touched} error={error}>
-        {isMultizoneMachinePool && `x 3 zones = ${field.value * 3}`}
+        {isMultizoneMachinePool && !(touched && error) && `x 3 zones = ${field.value * 3}`}
       </FormGroupHelperText>
     </FormGroup>
   );

@@ -223,7 +223,7 @@ describe('<Details />', () => {
       fulfilled: true,
       meta: {
         isMarketplaceGcp: false,
-        isWIF: false,
+        isWIF: true,
         includeUnstableVersions: false,
       },
     };

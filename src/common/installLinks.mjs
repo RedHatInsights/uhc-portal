@@ -83,6 +83,7 @@ const links = {
     'https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated',
   GCP_CONSOLE_OSD_HOME:
     'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
+  GCP_CONSOLE_OSD_PREREQ_CHECK: 'https://console.cloud.google.com/redhat-openshift/verify',
   GCP_CONSOLE_KMS: 'https://console.cloud.google.com/security/kms',
 
   ROSA_PRICING: 'https://aws.amazon.com/rosa/pricing',

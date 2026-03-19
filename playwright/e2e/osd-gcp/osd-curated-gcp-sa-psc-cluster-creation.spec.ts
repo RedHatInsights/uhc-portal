@@ -4,6 +4,8 @@ const clusterProperties = require('../../fixtures/osd-gcp/osd-curated-gcp-sa-psc
 const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 const QE_GCP = process.env.QE_GCP_OSDCCSADMIN_JSON;
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
+const PSC_INFRA = QE_INFRA_GCP['PSC_INFRA'] || {};
+const region = PSC_INFRA['REGION'] || clusterProperties.Region.split(',')[0];
 
 test.describe.serial(
   'OSD GCP Curated Marketplace Service Account PSC cluster creation tests (OCMUI-3888)',
@@ -31,7 +33,7 @@ test.describe.serial(
       await createOSDWizardPage.serviceAccountButton().click();
       await createOSDWizardPage.isWIFRecommendationAlertPresent();
       await createOSDWizardPage.uploadGCPServiceAccountJSON(QE_GCP || '{}');
-      await createOSDWizardPage.isPrerequisitesHintPresent();
+      await createOSDWizardPage.isPrerequisitesHintPresent(clusterProperties.PrerequisitesHint);
       await createOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       await page.locator(createOSDWizardPage.primaryButton).click();
     });
@@ -43,7 +45,7 @@ test.describe.serial(
       await createOSDWizardPage.isClusterDetailsScreen();
       await page.locator(createOSDWizardPage.clusterNameInput).fill(clusterName);
       await createOSDWizardPage.hideClusterNameValidation();
-      await createOSDWizardPage.selectRegion(clusterProperties.Region);
+      await createOSDWizardPage.selectRegion(region);
 
       if (clusterProperties.Version) {
         await createOSDWizardPage.selectVersion(clusterProperties.Version);
@@ -88,12 +90,13 @@ test.describe.serial(
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isVPCSubnetScreen();
-      const pscInfra = QE_INFRA_GCP['PSC_INFRA'] || {};
-      await createOSDWizardPage.selectGcpVPC(pscInfra['VPC_NAME'] || '');
-      await createOSDWizardPage.selectControlPlaneSubnetName(pscInfra['CONTROLPLANE_SUBNET'] || '');
-      await createOSDWizardPage.selectComputeSubnetName(pscInfra['COMPUTE_SUBNET'] || '');
+      await createOSDWizardPage.selectGcpVPC(PSC_INFRA['VPC_NAME'] || '');
+      await createOSDWizardPage.selectControlPlaneSubnetName(
+        PSC_INFRA['CONTROLPLANE_SUBNET'] || '',
+      );
+      await createOSDWizardPage.selectComputeSubnetName(PSC_INFRA['COMPUTE_SUBNET'] || '');
       await createOSDWizardPage.selectPrivateServiceConnectSubnetName(
-        pscInfra['PRIVATE_SERVICE_CONNECT_SUBNET'] || '',
+        PSC_INFRA['PRIVATE_SERVICE_CONNECT_SUBNET'] || '',
       );
       await createOSDWizardPage.wizardNextButton().click();
     });
@@ -145,9 +148,7 @@ test.describe.serial(
         clusterProperties.AuthenticationType,
       );
       await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
-      await expect(createOSDWizardPage.regionValue()).toContainText(
-        clusterProperties.Region.split(',')[0],
-      );
+      await expect(createOSDWizardPage.regionValue()).toContainText(region);
       await expect(createOSDWizardPage.availabilityValue()).toContainText(
         clusterProperties.Availability,
       );
@@ -235,9 +236,7 @@ test.describe.serial(
       await expect(clusterDetailsPage.clusterTypeLabelValue()).toContainText(
         clusterProperties.Type,
       );
-      await expect(clusterDetailsPage.clusterRegionLabelValue()).toContainText(
-        clusterProperties.Region.split(',')[0],
-      );
+      await expect(clusterDetailsPage.clusterRegionLabelValue()).toContainText(region);
       await expect(clusterDetailsPage.clusterAvailabilityLabelValue()).toContainText(
         clusterProperties.Availability,
       );

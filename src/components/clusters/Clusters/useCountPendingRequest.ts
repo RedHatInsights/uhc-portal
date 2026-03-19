@@ -31,7 +31,7 @@ export const useCountPendingRequest = (): number => {
 
   const { total } = useGetOrganizationalPendingRequests(
     organization?.id || '',
-    isOrganizationAccessProtectionEnabled || false,
+    isOrganizationAccessProtectionEnabled,
   );
 
   const pendingAccessRequests = total ?? 0;

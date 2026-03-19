@@ -53,7 +53,7 @@ export const AccessRequest = ({ subscriptionId, showClusterName = false }: Acces
   const dispatch = useDispatch();
   const viewType = viewConstants.ACCESS_REQUESTS_VIEW;
   const viewOptions = useGlobalState((state) => state.viewOptions[viewType], shallowEqual);
-  const { organization } = useOrganization();
+  const { organization, isLoading: isOrganizationLoading } = useOrganization();
   const isTabbedClustersEnabled = useFeatureGate(TABBED_CLUSTERS);
 
   const {
@@ -66,17 +66,21 @@ export const AccessRequest = ({ subscriptionId, showClusterName = false }: Acces
     isRestrictedEnv(),
   );
 
+  const isPrerequisitesLoading = !subscriptionId && isOrganizationLoading;
+
   const { data: accessRequests, isLoading: isAccessRequestsLoading } = useFetchAccessRequests({
     subscriptionId,
     organizationId: !subscriptionId ? organization?.id : undefined,
     params: viewOptions,
     isAccessProtectionLoading: isOrganizationAccessProtectionLoading,
-    accessProtection: { enabled: isOrganizationAccessProtectionEnabled || false },
+    accessProtection: { enabled: isOrganizationAccessProtectionEnabled },
   });
 
+  const isLoading = isPrerequisitesLoading || isAccessRequestsLoading;
+
   const isPendingNoData = useMemo(
-    () => isAccessRequestsLoading || !accessRequests?.length,
-    [isAccessRequestsLoading, accessRequests],
+    () => isLoading || !accessRequests?.length,
+    [isLoading, accessRequests],
   );
 
   const sortBy = useMemo(
@@ -117,7 +121,7 @@ export const AccessRequest = ({ subscriptionId, showClusterName = false }: Acces
       setSorting={setSorting}
       openDetailsAction={openAccessRequest}
       sortBy={sortBy}
-      isPending={isAccessRequestsLoading}
+      isPending={isLoading}
       showClusterName={showClusterName}
     />
   );
