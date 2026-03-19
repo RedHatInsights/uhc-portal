@@ -159,7 +159,6 @@ export const GcpVpcSettings = () => {
               meta={getFieldMeta(FieldId.DnsZone)}
               selectedDnsZone={selectedDnsZone}
               domainPrefix={domainPrefix}
-              showRefresh
             />
           ) : (
             dnsZoneAlert

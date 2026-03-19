@@ -76,7 +76,6 @@ describe('<DnsZoneSelect />', () => {
 
   it('shows refresh ', () => {
     useFetchGcpDnsDomainsMock.mockReturnValue({
-      isLoading: false,
       isFetching: false,
       data: dnsDomains,
       isSuccess: true,
@@ -89,7 +88,6 @@ describe('<DnsZoneSelect />', () => {
 
   it('shows search in select dns zone dropdown', async () => {
     useFetchGcpDnsDomainsMock.mockReturnValue({
-      isLoading: false,
       isFetching: false,
       data: dnsDomains,
       isSuccess: true,
@@ -107,7 +105,6 @@ describe('<DnsZoneSelect />', () => {
 
   it('shows properly formatted dns zone names', async () => {
     useFetchGcpDnsDomainsMock.mockReturnValue({
-      isLoading: false,
       isFetching: false,
       data: dnsDomains,
       isSuccess: true,
@@ -126,7 +123,6 @@ describe('<DnsZoneSelect />', () => {
 
   it('shows loading message ', async () => {
     useFetchGcpDnsDomainsMock.mockReturnValue({
-      isLoading: true,
       isFetching: true,
       data: [],
       isSuccess: true,
@@ -139,7 +135,6 @@ describe('<DnsZoneSelect />', () => {
 
   it('shows message that no DNS zones were found', async () => {
     useFetchGcpDnsDomainsMock.mockReturnValue({
-      isLoading: false,
       isFetching: false,
       data: [],
       isSuccess: true,

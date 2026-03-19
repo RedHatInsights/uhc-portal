@@ -50,12 +50,7 @@ const DnsZoneSelect = ({
     setIsExpanded(!isExpanded);
   };
 
-  const {
-    data: dnsDomains,
-    isFetching,
-    isLoading,
-    isSuccess,
-  } = useFetchGcpDnsDomains(domainPrefix);
+  const { data: dnsDomains, isFetching, isSuccess } = useFetchGcpDnsDomains(domainPrefix);
 
   const onSelect: FuzzySelectProps['onSelect'] = (_event, selectedDnsZone) => {
     const selectedItem = dnsDomains?.find((dnsZone) => dnsZone.id === selectedDnsZone);
@@ -150,7 +145,7 @@ const DnsZoneSelect = ({
             variant="secondary"
             className="pf-v6-u-mt-md"
             onClick={refetchGcpDnsZones}
-            isLoading={isLoading}
+            isLoading={isFetching}
             isDisabled={isFetching}
           >
             Refresh

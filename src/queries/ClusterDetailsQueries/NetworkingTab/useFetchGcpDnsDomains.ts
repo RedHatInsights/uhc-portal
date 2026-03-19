@@ -13,7 +13,7 @@ export const useFetchGcpDnsDomains = (domainPrefix: string) => {
   const { data, isLoading, isFetching, isError, error, isSuccess } = useQuery({
     queryKey: ['gcpDnsDomains'],
     queryFn: async () => {
-      const response = clusterService.getGcpDnsDomains();
+      const response = await clusterService.getGcpDnsDomains();
       return response;
     },
   });
@@ -24,10 +24,12 @@ export const useFetchGcpDnsDomains = (domainPrefix: string) => {
   if (isError) {
     const formattedError = formatErrorData(isLoading, isError, error);
     return {
-      data: data?.data.items,
+      data: data?.data?.items,
       isLoading,
+      isFetching,
       isError,
       error: formattedError.error,
+      isSuccess,
     };
   }
 
