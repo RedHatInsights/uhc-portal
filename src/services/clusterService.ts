@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 
+import { GcpDnsDomain } from '~/common/vpcHelpers';
 import { WifConfigList } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import defaultApiRequest, { APIRequest, getAPIRequestForRegion } from '~/services/apiRequest';
 import type { Subscription } from '~/types/accounts_mgmt.v1';
@@ -414,7 +415,7 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         /**
          * Retrieved list of add-ons.
          */
-        items?: Array<DnsDomain>;
+        items?: Array<GcpDnsDomain>;
         /**
          * Index of the requested page, where one corresponds to the first page.
          */

@@ -13983,14 +13983,6 @@ export interface components {
       /** @description Indicates if this dns domain is user defined. */
       user_defined?: boolean;
       /** @description Additional gcp properties of the domain */
-      gcp?: {
-        /** @description domain prefix of the cluster */
-        domain_prefix: string;
-        /** @description Indicates the GCP project ID in which the dns domain will be configured. */
-        project_id: string;
-        /** @description The vpc id of the dns domain */
-        network_id: string;
-      };
     };
     /** @description Google cloud platform settings of a cluster. */
     GCP: {

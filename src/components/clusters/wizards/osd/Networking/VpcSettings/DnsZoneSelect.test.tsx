@@ -74,7 +74,7 @@ describe('<DnsZoneSelect />', () => {
     jest.clearAllMocks();
   });
 
-  it('shows refresh ', () => {
+  it('shows refresh when data is loaded', () => {
     useFetchGcpDnsDomainsMock.mockReturnValue({
       isFetching: false,
       data: dnsDomains,
