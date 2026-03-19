@@ -224,7 +224,9 @@ const AcmHubClusterList: React.FC = () => {
                     } as any
                   }
                 />
-              ) : showFilteredEmptyState ? (
+              ) : null}
+
+              {showFilteredEmptyState ? (
                 <Bullseye>
                   <EmptyState
                     headingLevel="h2"
@@ -242,7 +244,9 @@ const AcmHubClusterList: React.FC = () => {
                     </EmptyStateFooter>
                   </EmptyState>
                 </Bullseye>
-              ) : (
+              ) : null}
+
+              {!isError && !showFilteredEmptyState ? (
                 <ClusterListTable
                   openModal={openModal}
                   clusters={clusters || []}
@@ -258,7 +262,7 @@ const AcmHubClusterList: React.FC = () => {
                   }}
                   refreshFunc={refetch}
                 />
-              )}
+              ) : null}
 
               <PaginationRow
                 currentPage={currentPage}
