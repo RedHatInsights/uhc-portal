@@ -1,6 +1,7 @@
 import {
   ONLY_MY_CLUSTERS_TOGGLE_CLUSTER_ARCHIVES_LIST,
   ONLY_MY_CLUSTERS_TOGGLE_CLUSTERS_LIST,
+  ONLY_MY_CLUSTERS_TOGGLE_HUB_CLUSTERS_LIST,
 } from '~/common/localStorageConstants';
 import { ViewOptions } from '~/types/types';
 
@@ -74,6 +75,14 @@ const INITIAL_CLUSTER_LIST_VIEW_STATE: ViewState = {
   },
 };
 
+const INITIAL_HUB_CLUSTERS_VIEW_STATE: ViewState = {
+  ...INITIAL_VIEW_STATE,
+  flags: {
+    ...INITIAL_VIEW_STATE.flags,
+    showMyClustersOnly: localStorage.getItem(ONLY_MY_CLUSTERS_TOGGLE_HUB_CLUSTERS_LIST) === 'true',
+  },
+};
+
 const INITIAL_OSL_VIEW_STATE: ViewState = {
   currentPage: 1,
   pageSize: 20,
@@ -111,7 +120,7 @@ initialState[viewConstants.ACCESS_REQUESTS_VIEW] = Object.assign(
 );
 initialState[viewConstants.CLUSTERS_VIEW] = Object.assign(INITIAL_CLUSTER_LIST_VIEW_STATE);
 initialState[viewConstants.ARCHIVED_CLUSTERS_VIEW] = Object.assign(INITIAL_ARCHIVED_VIEW_STATE);
-initialState[viewConstants.ACM_HUB_CLUSTERS_VIEW] = Object.assign(INITIAL_CLUSTER_LIST_VIEW_STATE);
+initialState[viewConstants.ACM_HUB_CLUSTERS_VIEW] = Object.assign(INITIAL_HUB_CLUSTERS_VIEW_STATE);
 initialState[viewConstants.CLUSTER_LOGS_VIEW] = Object.assign(INITIAL_OSL_VIEW_STATE);
 initialState[viewConstants.OVERVIEW_VIEW] = Object.assign(INITIAL_OVERVIEW_VIEW_STATE);
 initialState[viewConstants.OVERVIEW_EXPIRED_TRIALS] = Object.assign(INITIAL_OVERVIEW_VIEW_STATE);

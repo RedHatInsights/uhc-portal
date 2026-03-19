@@ -33,6 +33,7 @@ interface UseFetchClustersOptions {
   isArchived?: boolean;
   useManagedEndpoints?: boolean;
   paginationOptions?: PaginationOptions;
+  viewType?: string;
 }
 
 export const useFetchClusters = (
@@ -47,8 +48,9 @@ export const useFetchClusters = (
     ? isArchivedOrOptions.useManagedEndpoints ?? true
     : useManagedEndpointsParam;
   const paginationOptions = isOptionsObject ? isArchivedOrOptions.paginationOptions : undefined;
+  const customViewType = isOptionsObject ? isArchivedOrOptions.viewType : undefined;
 
-  const viewOptionsType = isArchived ? ARCHIVED_CLUSTERS_VIEW : CLUSTERS_VIEW;
+  const viewOptionsType = customViewType ?? (isArchived ? ARCHIVED_CLUSTERS_VIEW : CLUSTERS_VIEW);
 
   const [queries, setQueries] = React.useState<UseQueryOptions[]>([]);
 

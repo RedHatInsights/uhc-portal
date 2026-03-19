@@ -2,11 +2,24 @@ import React, { useCallback, useState } from 'react';
 import size from 'lodash/size';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { PageSection, Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/react-core';
+import {
+  Bullseye,
+  Button,
+  EmptyState,
+  EmptyStateActions,
+  EmptyStateBody,
+  EmptyStateFooter,
+  EmptyStateVariant,
+  PageSection,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
+} from '@patternfly/react-core';
+import { SearchIcon } from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { SortByDirection } from '@patternfly/react-table';
 
 import helpers from '~/common/helpers';
-import { ONLY_MY_CLUSTERS_TOGGLE_CLUSTERS_LIST } from '~/common/localStorageConstants';
+import { ONLY_MY_CLUSTERS_TOGGLE_HUB_CLUSTERS_LIST } from '~/common/localStorageConstants';
 import { AppPage } from '~/components/App/AppPage';
 import ClusterListActions from '~/components/clusters/ClusterListMultiRegion/components/ClusterListActions';
 import ClusterListFilterChipGroup from '~/components/clusters/ClusterListMultiRegion/components/ClusterListFilterChipGroup/ClusterListFilterChipGroup';
@@ -20,7 +33,8 @@ import ErrorBox from '~/components/common/ErrorBox';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import Unavailable from '~/components/common/Unavailable';
 import { useFetchAcmHubClusters } from '~/queries/AcmHubQueries/useFetchAcmHubClusters';
-import { CLUSTERS_VIEW } from '~/redux/constants/viewConstants';
+import { onListFilterSet, onListFlagsSet } from '~/redux/actions/viewOptionsActions';
+import { ACM_HUB_CLUSTERS_VIEW } from '~/redux/constants/viewConstants';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
 import CommonClusterModals from '../common/CommonClusterModals';
@@ -49,8 +63,9 @@ const AcmHubClusterList: React.FC = () => {
     [dispatch],
   );
 
-  const clusterViewOptions = useSelector((state: any) => state.viewOptions[CLUSTERS_VIEW]) || {};
-  const { showMyClustersOnly, subscriptionFilter } = clusterViewOptions.flags || {};
+  const hubViewOptions =
+    useSelector((state: any) => state.viewOptions[ACM_HUB_CLUSTERS_VIEW]) || {};
+  const { showMyClustersOnly, subscriptionFilter } = hubViewOptions.flags || {};
 
   const {
     isLoading,
@@ -66,7 +81,7 @@ const AcmHubClusterList: React.FC = () => {
     currentPage,
     pageSize,
     sorting,
-    filter: clusterViewOptions.filter,
+    filter: hubViewOptions.filter,
     flags: { showMyClustersOnly, subscriptionFilter },
   });
 
@@ -96,11 +111,18 @@ const AcmHubClusterList: React.FC = () => {
   const activeSortDirection = sorting.isAscending ? SortByDirection.asc : SortByDirection.desc;
 
   const hasNoFilters =
-    helpers.nestedIsEmpty(subscriptionFilter) && !showMyClustersOnly && !clusterViewOptions.filter;
+    helpers.nestedIsEmpty(subscriptionFilter) && !showMyClustersOnly && !hubViewOptions.filter;
 
   const isPendingNoData = !size(clusters) && (isLoading || !isFetched || isClustersDataPending);
   const showSpinner = isFetching || isLoading || isClustersDataPending;
   const showEmptyState = !showSpinner && !isError && !size(clusters) && hasNoFilters && isFetched;
+  const showFilteredEmptyState =
+    !showSpinner && !isError && !size(clusters) && !hasNoFilters && isFetched;
+
+  const clearAllFilters = useCallback(() => {
+    dispatch(onListFilterSet('', ACM_HUB_CLUSTERS_VIEW));
+    dispatch(onListFlagsSet('subscriptionFilter', {}, ACM_HUB_CLUSTERS_VIEW));
+  }, [dispatch]);
 
   const errorDetails = (errors || []).reduce((errorArray: string[], error: any) => {
     if (!error.reason) {
@@ -142,7 +164,7 @@ const AcmHubClusterList: React.FC = () => {
                   <ToolbarItem className="ocm-c-toolbar__item-cluster-filter-list">
                     <ClusterListFilter
                       isDisabled={isPendingNoData && hasNoFilters}
-                      view={CLUSTERS_VIEW}
+                      view={ACM_HUB_CLUSTERS_VIEW}
                     />
                   </ToolbarItem>
                   {isRestrictedEnv() ? null : (
@@ -151,20 +173,20 @@ const AcmHubClusterList: React.FC = () => {
                       data-testid="cluster-list-filter-dropdown"
                     >
                       <ClusterListFilterDropdown
-                        view={CLUSTERS_VIEW}
+                        view={ACM_HUB_CLUSTERS_VIEW}
                         isDisabled={isLoading || isFetching}
                       />
                     </ToolbarItem>
                   )}
                   <ClusterListActions showTabbedView />
                   <ViewOnlyMyClustersToggle
-                    view={CLUSTERS_VIEW}
+                    view={ACM_HUB_CLUSTERS_VIEW}
                     bodyContent="Show only the clusters you previously created, or all clusters in your organization."
-                    localStorageKey={ONLY_MY_CLUSTERS_TOGGLE_CLUSTERS_LIST}
+                    localStorageKey={ONLY_MY_CLUSTERS_TOGGLE_HUB_CLUSTERS_LIST}
                   />
                   {isRestrictedEnv() ? null : (
                     <ToolbarItem>
-                      <ClusterListFilterChipGroup />
+                      <ClusterListFilterChipGroup view={ACM_HUB_CLUSTERS_VIEW} />
                     </ToolbarItem>
                   )}
                   <ToolbarItem
@@ -202,6 +224,24 @@ const AcmHubClusterList: React.FC = () => {
                     } as any
                   }
                 />
+              ) : showFilteredEmptyState ? (
+                <Bullseye>
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={SearchIcon}
+                    titleText="No results found"
+                    variant={EmptyStateVariant.sm}
+                  >
+                    <EmptyStateBody>Clear all filters and try again.</EmptyStateBody>
+                    <EmptyStateFooter>
+                      <EmptyStateActions>
+                        <Button variant="link" onClick={clearAllFilters}>
+                          Clear all filters
+                        </Button>
+                      </EmptyStateActions>
+                    </EmptyStateFooter>
+                  </EmptyState>
+                </Bullseye>
               ) : (
                 <ClusterListTable
                   openModal={openModal}

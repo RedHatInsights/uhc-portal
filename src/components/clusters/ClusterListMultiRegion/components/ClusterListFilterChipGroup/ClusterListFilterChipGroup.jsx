@@ -13,11 +13,11 @@ import helpers from '../../../../../common/helpers';
 import { buildFilterURLParams } from '../../../../../common/queryHelpers';
 import { productFilterOptions } from '../../../../../common/subscriptionTypes';
 
-function ClusterListFilterChipGroup({ archive }) {
+function ClusterListFilterChipGroup({ archive, view: viewProp }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const view = archive ? ARCHIVED_CLUSTERS_VIEW : CLUSTERS_VIEW;
+  const view = viewProp || (archive ? ARCHIVED_CLUSTERS_VIEW : CLUSTERS_VIEW);
 
   const currentFilters =
     useSelector((state) => state.viewOptions[view].flags.subscriptionFilter) || {};
@@ -95,6 +95,7 @@ function ClusterListFilterChipGroup({ archive }) {
 
 ClusterListFilterChipGroup.propTypes = {
   archive: PropTypes.bool,
+  view: PropTypes.string,
 };
 
 export default ClusterListFilterChipGroup;

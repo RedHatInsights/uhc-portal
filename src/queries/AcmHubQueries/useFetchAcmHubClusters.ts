@@ -1,11 +1,10 @@
 import React from 'react';
 
 import { ACM_HUB_PROPERTY_KEY, ACM_HUB_PROPERTY_VALUE } from '~/common/acmHubConstants';
+import { ACM_HUB_CLUSTERS_VIEW } from '~/redux/constants/viewConstants';
 import type { PaginationOptions } from '~/types/types';
 
 import { useFetchClusters } from '../ClusterListQueries/useFetchClusters';
-
-const ACM_HUB_CLUSTERS_VIEW = 'ACM_HUB_CLUSTERS_VIEW';
 
 const SORT_FIELD_TO_CLUSTER_PROPERTY: Record<string, string> = {
   created_at: 'creation_timestamp',
@@ -24,7 +23,11 @@ export const useFetchAcmHubClusters = (paginationOptions?: PaginationOptions) =>
     isFetching,
     isFetched,
     isClustersDataPending,
-  } = useFetchClusters({ isArchived: false, useManagedEndpoints: true });
+  } = useFetchClusters({
+    isArchived: false,
+    useManagedEndpoints: true,
+    viewType: ACM_HUB_CLUSTERS_VIEW,
+  });
 
   const filteredData = React.useMemo(() => {
     if (!data?.items) {
@@ -75,5 +78,3 @@ export const useFetchAcmHubClusters = (paginationOptions?: PaginationOptions) =>
     totalCount: filteredData.itemsCount,
   };
 };
-
-export { ACM_HUB_CLUSTERS_VIEW };
