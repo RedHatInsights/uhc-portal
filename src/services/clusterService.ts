@@ -432,6 +432,7 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
       }>('/api/clusters_mgmt/v1/dns_domains', {
         params: {
           search: `cloud_provider='gcp'`,
+          size: -1,
         },
       }),
 

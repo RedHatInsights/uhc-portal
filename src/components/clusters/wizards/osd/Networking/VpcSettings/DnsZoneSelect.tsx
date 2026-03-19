@@ -91,7 +91,7 @@ const DnsZoneSelect = ({
     };
   }, [dnsDomains, isFetching, isSuccess]);
 
-  const createDnsZoneCommand = `ocm gcp create dns-zone --domain-prefix ${domainPrefix} --project-id <project-id> --network-project-id <shared-vpc-id> --network-id <vpc-id>`;
+  const createDnsZoneCommand = `ocm gcp create dns-zone --domain-prefix ${domainPrefix} --project-id <project-id> --network-project-id <network-project-id> --network-id <vpc-id>`;
 
   return (
     <FormGroup>
