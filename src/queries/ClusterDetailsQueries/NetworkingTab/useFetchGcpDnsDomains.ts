@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 
 import { queryClient } from '~/components/App/queryClient';
 import { formatErrorData } from '~/queries/helpers';
-// import { queryConstants } from '~/queries/queriesConstants';
 import clusterService from '~/services/clusterService';
 
 export const refetchGcpDnsZones = () => {
