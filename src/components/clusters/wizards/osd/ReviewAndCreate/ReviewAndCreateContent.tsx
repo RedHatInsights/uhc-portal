@@ -74,7 +74,14 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
   const isGCPPrivateClusterInstalltoVPC =
     clusterPrivacy === ClusterPrivacyType.Internal && installToVpc && isGCP;
   const showDnsZone =
-    isByoc && isGCP && installToSharedVpc && hasDomainPrefix && isGcpDnsZoneEnabled && dnsZone.id;
+    isByoc &&
+    isGCP &&
+    installToSharedVpc &&
+    hasDomainPrefix &&
+    isGcpDnsZoneEnabled &&
+    dnsZone.id &&
+    gcpAuthType === GCPAuthType.WorkloadIdentityFederation;
+
   const clusterSettingsFields = [
     FieldId.CloudProvider,
     ...(hasGcpAuthType ? [FieldId.GcpAuthType] : []),

@@ -65,6 +65,7 @@ describe('<GcpVpcSettings />', () => {
           [FieldId.InstallToSharedVpc]: true,
           [FieldId.HasDomainPrefix]: true,
           [FieldId.Byoc]: 'true',
+          [FieldId.GcpAuthType]: 'workloadIdentityFederation',
         }),
       );
 
@@ -78,6 +79,7 @@ describe('<GcpVpcSettings />', () => {
         prepareComponent({
           [FieldId.InstallToSharedVpc]: true,
           [FieldId.Byoc]: 'true',
+          [FieldId.GcpAuthType]: 'workloadIdentityFederation',
         }),
       );
 

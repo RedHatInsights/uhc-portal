@@ -16,6 +16,7 @@ import { required, validateGCPHostProjectId, validateGCPSubnet } from '~/common/
 import { versionComparator } from '~/common/versionComparator';
 import { GcpDnsDomain } from '~/common/vpcHelpers';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId, StepId } from '~/components/clusters/wizards/osd/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -39,6 +40,7 @@ export const GcpVpcSettings = () => {
       [FieldId.HasDomainPrefix]: hasDomainPrefix,
       [FieldId.DomainPrefix]: domainPrefix,
       [FieldId.Byoc]: byoc,
+      [FieldId.GcpAuthType]: gcpAuthType,
       [FieldId.DnsZone]: selectedDnsZone,
     },
     getFieldProps,
@@ -48,6 +50,7 @@ export const GcpVpcSettings = () => {
 
   const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
   const isByoc = byoc === 'true';
+  const isWIF = gcpAuthType === GCPAuthType.WorkloadIdentityFederation;
 
   const { goToStepById } = useWizardContext();
 
@@ -112,7 +115,7 @@ export const GcpVpcSettings = () => {
   );
 
   const showPSCSubnet = privateServiceConnect && clusterPrivacy === ClusterPrivacyType.Internal;
-  const showDnsZone = installToSharedVpc && isByoc && isGcpDnsZoneEnabled;
+  const showDnsZone = installToSharedVpc && isByoc && isWIF && isGcpDnsZoneEnabled;
 
   return (
     <>

@@ -357,6 +357,8 @@ describe('createClusterRequest', () => {
           dns_zone: gcpDnsData,
           install_to_shared_vpc: true,
           install_to_vpc: true,
+          gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+          gcp_wif_config: { id: '324ed23f2d12342d23d' },
         };
 
         const request = createClusterRequest({ isWizard: true }, data);
@@ -376,6 +378,29 @@ describe('createClusterRequest', () => {
           dns_zone: gcpDnsData,
           install_to_shared_vpc: true,
           install_to_vpc: true,
+          gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+          gcp_wif_config: { id: '324ed23f2d12342d23d' },
+        };
+
+        const request = createClusterRequest({ isWizard: true }, data);
+        expect(request.dns?.base_domain).toEqual(undefined);
+        expect(request.ccs.enabled).toBeTruthy();
+      });
+
+      it('does not send DNS zone data when auth type is serviceAccounts', () => {
+        const data = {
+          ...baseFormData,
+          billing_model: 'standard',
+          product: normalizedProducts.OSD,
+          cloud_provider: 'gcp',
+          byoc: 'true',
+          has_domain_prefix: true,
+          domain_prefix: 'prefix1',
+          dns_zone: gcpDnsData,
+          install_to_shared_vpc: true,
+          install_to_vpc: true,
+          gcp_auth_type: GCPAuthType.ServiceAccounts,
+          gcp_service_account: JSON.stringify(gcpServiceAccount),
         };
 
         const request = createClusterRequest({ isWizard: true }, data);
