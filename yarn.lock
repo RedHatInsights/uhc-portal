@@ -3015,10 +3015,10 @@
   dependencies:
     glob "10.3.3"
 
-"@redhat-cloud-services/types@1.0.11":
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/types/-/types-1.0.11.tgz#e13e621c57432cfd0debcb02bd7b1cea113dda03"
-  integrity sha512-Ml1OsVEa8lUq3t2xUC6CJzD8p/E446HOk36D8aDMJ1c8gum7nndweLXz2Vdq+zewCF2RE+Dbe9E0QNJSfJcRHA==
+"@redhat-cloud-services/types@3.4.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/types/-/types-3.4.1.tgz#faa5f03abc64dca515f33da22eb5f140db62a333"
+  integrity sha512-CFitF1y2aX+VkdNIiCDqEStBDETccSixkh1SyVnhTuY5BxksphkBzYyQSHxwe8SW9l/kG60owwRy0TDvntQ/8Q==
 
 "@redhat-cloud-services/types@^2.0.0":
   version "2.0.0"
