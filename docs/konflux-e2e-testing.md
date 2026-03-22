@@ -99,36 +99,3 @@ param). The secret provides `E2E_USER` and `E2E_PASSWORD`.
 | **ConfigMap** | `ocm-ui-dev-proxy-caddyfile` | Custom Caddy routes for the frontend-dev-proxy sidecar (`/apps/openshift*` → app container). |
 | **ConfigMap** | `ocm-ui-app-caddy-config` | Caddyfile for the built application container, volume-mounted to `/etc/caddy`. |
 | **ServiceAccount** | `build-pipeline-uhc-portal` | Pipeline service account with access to secrets and image push. |
-
-## Open items
-
-- **Secret cleanup**: The `e2e-hcc-env-url` key in `ocm-ui-credentials-secret`
-  is no longer consumed by the shared pipeline (moved to a pipeline parameter).
-  It can be removed from the Konflux secret to avoid confusion.
-
-## Artifact persistence
-
-Konflux pipelines run in ephemeral pods — all filesystem state is lost when the
-pipeline completes. Currently there is no built-in mechanism for persisting
-Playwright screenshots, videos, or HTML reports beyond the pipeline's lifetime.
-
-**Current approach**: The test summary (pass/fail counts, failed test names) is
-printed directly to Tekton logs, which are retained by Konflux. Failure
-artifacts (screenshots, videos, traces) are listed in the logs with file sizes
-but are not persisted.
-
-**Future options**:
-- Upload artifacts to an S3/object-storage bucket as a post-test step.
-- Use Tekton Results with an artifact backend (if/when supported by Konflux).
-- Push the HTML report to GitHub Pages or a similar hosting target.
-
-## Resource limits
-
-| Task | Step | Memory |
-|---|---|---|
-| `run-unit-tests` | `unit-tests` | 6 Gi |
-| `run-e2e-tests` | `e2e-tests` | 10 Gi |
-| workspace PVC | — | 10 Gi storage |
-
-The E2E step needs 10 Gi because Playwright runs 4 Chromium workers in
-parallel, each consuming ~1.5–2 Gi.
