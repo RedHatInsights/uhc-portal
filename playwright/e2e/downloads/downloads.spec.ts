@@ -1,6 +1,7 @@
-import { test, expect } from '../../fixtures/pages';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { expect, test } from '../../fixtures/pages';
 import { getDownloadUrl } from '../../support/download-url-helper';
 
 const ROSARowTitle = 'Manage your Red Hat OpenShift Service on AWS';

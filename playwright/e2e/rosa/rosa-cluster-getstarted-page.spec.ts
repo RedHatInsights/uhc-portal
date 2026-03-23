@@ -1,7 +1,7 @@
-import { test, expect } from '../../fixtures/pages';
-import installLinks from '../../../src/common/installLinks.mjs';
 import docLinks from '../../../src/common/docLinks.mjs';
+import installLinks from '../../../src/common/installLinks.mjs';
 import supportLinks from '../../../src/common/supportLinks.mjs';
+import { expect, test } from '../../fixtures/pages';
 import { getDownloadUrl } from '../../support/download-url-helper';
 
 test.describe.serial(
@@ -56,7 +56,10 @@ test.describe.serial(
       await expect(section.getByText('Verify your quotas on AWS console')).toBeVisible();
 
       const awsConsoleLink = section.getByRole('link', { name: 'Open AWS Console' });
-      await expect(awsConsoleLink).toHaveAttribute('href', installLinks.AWS_CONSOLE_ROSA_HOME_GET_STARTED);
+      await expect(awsConsoleLink).toHaveAttribute(
+        'href',
+        installLinks.AWS_CONSOLE_ROSA_HOME_GET_STARTED,
+      );
       await expect(awsConsoleLink).toBeVisible();
     });
 

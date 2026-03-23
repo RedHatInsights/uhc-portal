@@ -1,5 +1,5 @@
-import { test, expect } from '../../fixtures/pages';
 import docLinks from '../../../src/common/docLinks.mjs';
+import { expect, test } from '../../fixtures/pages';
 
 test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@ci'] }, () => {
   test.beforeAll(async ({ navigateTo }) => {
