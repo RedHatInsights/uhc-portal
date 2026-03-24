@@ -95,8 +95,8 @@ jobs:
           delete-branch: true
           title: '[OPEN API] update model'
           body: |
-            Automatically created by Github action. 
-            Reviewers should pay attention to changes from `src/types/` files have a corresponding change on the Open API related contract.
-            Additionally to it, build and lint output should be checked. In case of build errors, our code should be adapted accordingly.
+            Automatically created by a GitHub Action.
+            Reviewers should pay attention to changes in src/types/ files and ensure they have corresponding changes in the OpenAPI-related contract.
+            Additionally, build and lint outputs should be checked. In case of build errors, the code should be updated accordingly.
           labels: |
             update_open_api
