@@ -51,8 +51,7 @@ const VPCDetailsCard = ({ cluster }) => {
   const gcpVPCName = cluster.gcp_network?.vpc_name;
   const isBYOVPC = cluster.aws?.subnet_ids || cluster.gcp_network;
   const gcpPrivateServiceConnect = cluster.gcp?.private_service_connect?.service_attachment_subnet;
-  // const hostProjectId = cluster.gcp_network?.vpc_project_id;
-  const testHostProjectId = 'ocm-ui-dev';
+  const hostProjectId = cluster.gcp_network?.vpc_project_id;
   const dnsZone = cluster.dns?.base_domain;
 
   const region = cluster.subscription?.rh_region_id;
@@ -126,8 +125,8 @@ const VPCDetailsCard = ({ cluster }) => {
             </DescriptionList>
           </>
         ) : null}
-        {/* begin shared vpc */}
-        {testHostProjectId && isGcpDnsZoneEnabled ? (
+
+        {hostProjectId && isGcpDnsZoneEnabled ? (
           <>
             <Title headingLevel="h3" className="pf-v6-l-stack__item --">
               Shared VPC
@@ -138,16 +137,16 @@ const VPCDetailsCard = ({ cluster }) => {
             >
               <DescriptionListGroup>
                 <DescriptionListTerm>Host project ID</DescriptionListTerm>
-                <DescriptionListDescription>{testHostProjectId}</DescriptionListDescription>
+                <DescriptionListDescription>{hostProjectId}</DescriptionListDescription>
               </DescriptionListGroup>
               <DescriptionListGroup>
-                <DescriptionListTerm>DNS Zone</DescriptionListTerm>
+                <DescriptionListTerm>DNS zone</DescriptionListTerm>
                 <DescriptionListDescription>{dnsZone}</DescriptionListDescription>
               </DescriptionListGroup>
             </DescriptionList>
           </>
         ) : null}
-        {/* end shared vpc */}
+
         <Title headingLevel="h3" className="pf-v6-l-stack__item --">
           Cluster-wide Proxy
         </Title>

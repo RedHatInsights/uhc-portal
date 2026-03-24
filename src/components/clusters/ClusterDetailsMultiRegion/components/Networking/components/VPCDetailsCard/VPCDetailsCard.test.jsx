@@ -75,6 +75,7 @@ describe('<VPCDetailsCard />', () => {
           vpc_name: 'test-vpc1',
           control_plane_subnet: 'test-vpc1-control-plane',
           compute_subnet: 'test-vpc1-worker',
+          vpc_project_id: sharedVpc,
         },
         gcp: {},
         dns: {
@@ -87,15 +88,27 @@ describe('<VPCDetailsCard />', () => {
       render(<VPCDetailsCard {...props} />);
       expect(screen.queryByText('Shared VPC')).toBeInTheDocument();
       expect(screen.queryByText(sharedVpc)).toBeInTheDocument();
-      expect(screen.queryByText('DNS Zone')).toBeInTheDocument();
+      expect(screen.queryByText('DNS zone')).toBeInTheDocument();
       expect(screen.queryByText(baseDomain)).toBeInTheDocument();
     });
 
     it('does not show shared vpc details when shared vpc does not exist', () => {
-      render(<VPCDetailsCard {...props} />);
+      const newProps = {
+        cluster: {
+          ...props.cluster,
+          gcp_network: {
+            vpc_name: 'test-vpc1',
+            control_plane_subnet: 'test-vpc1-control-plane',
+            compute_subnet: 'test-vpc1-worker',
+            vpc_project_id: '',
+          },
+        },
+      };
+
+      render(<VPCDetailsCard {...newProps} />);
       expect(screen.queryByText('Shared VPC')).not.toBeInTheDocument();
       expect(screen.queryByText(sharedVpc)).not.toBeInTheDocument();
-      expect(screen.queryByText('DNS Zone')).not.toBeInTheDocument();
+      expect(screen.queryByText('DNS zone')).not.toBeInTheDocument();
       expect(screen.queryByText(baseDomain)).not.toBeInTheDocument();
     });
   });
