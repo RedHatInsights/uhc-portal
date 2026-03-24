@@ -20,6 +20,8 @@ env:
 jobs:
   check_api:
     name: Check API
+    # Security Hardening: Explicitly drop all default GITHUB_TOKEN permissions.
+    permissions: {}
     concurrency:
       group: check_api-${{ github.event_name }}-${{ github.head_ref }}
       cancel-in-progress: true
@@ -31,6 +33,10 @@ jobs:
           app-id: ${{ secrets.CHECK_OPENAPI_APP_ID }}
           private-key: ${{ secrets.CHECK_OPENAPI_APP_PRIVATE_KEY }}
       - uses: actions/checkout@v6
+        with:
+          # Security Hardening: Prevent repository token from being left in .git/config.
+          persist-credentials: false
+          
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
@@ -39,10 +45,12 @@ jobs:
         with:
           path: './node_modules'
           key: check_api-${{ env.NODE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
+          
       - name: Install yarn
         uses: borales/actions-yarn@v4
         with:
           cmd: install --frozen-lockfile --cache-folder .yarn
+          
       - name: Check for an existing open PR
         id: check-pr
         env:
@@ -63,16 +71,17 @@ jobs:
           else
             echo "pr_exists=false" >> "$GITHUB_OUTPUT"
           fi
+          
       - name: Generating model based on OpenAPI contracts
         if: steps.check-pr.outputs.pr_exists == 'false'
         run: make openapi
+        
       - name: Create Pull Request
         if: steps.check-pr.outputs.pr_exists == 'false'
         uses: peter-evans/create-pull-request@v8
         env:
           HUSKY: '0'
         with:
-          # limitation imposed by GitHub Actions that an action cannot trigger other workflows
           token: ${{ steps.generate-token.outputs.token }}
           base: ${{ env.BASE_BRANCH_NAME }}
           branch: ${{ env.SWAP_BRANCH_NAME }}
