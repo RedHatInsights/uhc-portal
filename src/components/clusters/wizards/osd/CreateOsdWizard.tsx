@@ -19,11 +19,9 @@ import { shouldRefetchQuota } from '~/common/helpers';
 import { Navigate, useNavigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
-import {
-  ClusterSettingsMachinePool,
-  ClusterUpdates,
-  NodeLabel,
-} from '~/components/clusters/wizards/common';
+import { MachinePool as ClusterSettingsMachinePool } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/MachinePool';
+import type { NodeLabel } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/NodeLabelsFieldArray';
+import { ClusterUpdates } from '~/components/clusters/wizards/common/ClusterUpdates';
 import submitOSDRequest from '~/components/clusters/wizards/common/submitOSDRequest';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { osdWizardFormValidator } from '~/components/clusters/wizards/osd/formValidators';

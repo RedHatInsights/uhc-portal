@@ -17,10 +17,8 @@ import {
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
 import { noMachineTypes } from '~/common/helpers';
-import { normalizedProducts } from '~/common/subscriptionTypes';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
-import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import ErrorBox from '~/components/common/ErrorBox';
 import ExternalLink from '~/components/common/ExternalLink';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
@@ -45,6 +43,7 @@ import {
   machineTypeDescriptionLabel,
   machineTypeFullLabel,
   machineTypeLabel,
+  shouldUseRegionFilteredData,
 } from './machineTypeSelectionHelper';
 import sortMachineTypes from './sortMachineTypes';
 
@@ -121,10 +120,12 @@ const MachineTypeSelection = ({
     machineTypesByRegion.fulfilled || (machineTypesByRegion.error && isDataReady);
 
   // use region data switch, wait for region data to be ready
-  const useRegionFilteredData =
-    (isBYOC || productId === normalizedProducts.ROSA) &&
-    cloudProviderID === CloudProviderType.Aws &&
-    !inModal;
+  const useRegionFilteredData = shouldUseRegionFilteredData(
+    productId,
+    cloudProviderID,
+    isBYOC,
+    inModal,
+  );
 
   const [isMachineTypeFilteredByRegion, setIsMachineTypeFilteredByRegion] = React.useState(
     !previousSelectionFromUnfilteredSet,

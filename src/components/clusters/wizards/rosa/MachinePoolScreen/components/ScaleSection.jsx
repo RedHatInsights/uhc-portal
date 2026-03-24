@@ -15,6 +15,10 @@ import {
   getWorkerNodeVolumeSizeMinGiB,
 } from '~/components/clusters/common/machinePools/utils';
 import { MachineTypeSelection } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
+import {
+  isMachineTypeIncludedInFilteredSet,
+  shouldUseRegionFilteredData,
+} from '~/components/clusters/common/ScaleSection/MachineTypeSelection/machineTypeSelectionHelper';
 import { AutoScale } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/AutoScale/AutoScale';
 import { canSelectImds } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -25,6 +29,7 @@ import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoo
 import { IMDS_SELECTION } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { getMachineTypesByRegionARN } from '~/redux/actions/machineTypesActions';
+import { useGlobalState } from '~/redux/hooks';
 
 import ComputeNodeCount from '../../../common/ClusterSettings/MachinePool/ComputeNodeCount/ComputeNodeCount';
 
@@ -47,9 +52,11 @@ function ScaleSection() {
       [FieldId.Region]: region,
       [FieldId.BillingModel]: billingModel,
       [FieldId.IMDS]: imds,
+      [FieldId.MachineType]: instanceType,
     },
     setFieldValue,
   } = useFormState();
+  const dispatch = useDispatch();
 
   const isImdsEnabledHypershift = useFeatureGate(IMDS_SELECTION);
 
@@ -69,7 +76,8 @@ function ScaleSection() {
   }, [isHypershiftSelected, clusterVersionRawId]);
 
   const { data: machineTypesResponse, error: machineTypesError } = useFetchMachineTypes();
-  const dispatch = useDispatch();
+  const machineTypesByRegion = useGlobalState((state) => state.machineTypesByRegion);
+  const useRegionFilteredData = shouldUseRegionFilteredData(product, cloudProviderID, isByoc);
 
   React.useEffect(() => {
     if (!installerRoleArn || !region) {
@@ -78,6 +86,15 @@ function ScaleSection() {
     const AZs = [...new Set(selectedVpc?.aws_subnets?.map((el) => el.availability_zone))];
     dispatch(getMachineTypesByRegionARN(installerRoleArn, region, AZs));
   }, [dispatch, selectedVpc, installerRoleArn, region]);
+
+  React.useEffect(() => {
+    const availabilityOfAMachinePool =
+      useRegionFilteredData &&
+      instanceType &&
+      !isMachineTypeIncludedInFilteredSet(instanceType?.id, machineTypesByRegion);
+    setFieldValue(FieldId.MachineTypeAvailability, availabilityOfAMachinePool);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setFieldValue, useRegionFilteredData, instanceType]);
 
   const LabelsSectionComponent = useCallback(
     () =>
