@@ -50,7 +50,7 @@ describe('ComputeNodeCount', () => {
     [FieldId.Hypershift]: 'true',
     [FieldId.MachinePoolsSubnets]: [],
     [FieldId.NodesCompute]: 2,
-    [FieldId.MachineType]: 'm5.xlarge',
+    [FieldId.MachineType]: { id: 'm5.xlarge' },
     [FieldId.CloudProviderId]: 'aws',
     [FieldId.Product]: 'ROSA',
     [FieldId.BillingModel]: 'marketplace',

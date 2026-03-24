@@ -12,7 +12,7 @@ describe('<MachinePool />', () => {
       <Formik
         initialValues={{
           [FieldId.NodeLabels]: [{ key: 'test-key', value: 'test-value' }],
-          [FieldId.MachineType]: 'test',
+          [FieldId.MachineType]: { id: 'test' },
           [FieldId.BillingModel]: 'marketplace-aws',
           [FieldId.Product]: 'ROSA',
           [FieldId.CloudProvider]: 'aws',
@@ -35,7 +35,7 @@ describe('<MachinePool />', () => {
       <Formik
         initialValues={{
           [FieldId.NodeLabels]: [{ key: 'test-key', value: 'test-value' }],
-          [FieldId.MachineType]: 'test',
+          [FieldId.MachineType]: { id: 'test' },
           [FieldId.BillingModel]: 'marketplace-gcp',
           [FieldId.Product]: 'OSD',
           [FieldId.CloudProvider]: 'GCP',
