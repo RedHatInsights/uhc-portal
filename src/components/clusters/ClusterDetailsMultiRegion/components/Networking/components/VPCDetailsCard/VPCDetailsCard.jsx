@@ -21,6 +21,8 @@ import { isHibernating } from '~/components/clusters/common/clusterStates';
 import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
+import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
 import EditClusterWideProxyDialog from '../EditClusterWideProxyDialog';
@@ -49,10 +51,14 @@ const VPCDetailsCard = ({ cluster }) => {
   const gcpVPCName = cluster.gcp_network?.vpc_name;
   const isBYOVPC = cluster.aws?.subnet_ids || cluster.gcp_network;
   const gcpPrivateServiceConnect = cluster.gcp?.private_service_connect?.service_attachment_subnet;
+  // const hostProjectId = cluster.gcp_network?.vpc_project_id;
+  const testHostProjectId = 'ocm-ui-dev';
+  const dnsZone = cluster.dns?.base_domain;
 
   const region = cluster.subscription?.rh_region_id;
 
   const isPrivateLinkInitialized = typeof privateLink !== 'undefined';
+  const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
 
   const { canUpdateClusterResource } = cluster;
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
@@ -120,6 +126,28 @@ const VPCDetailsCard = ({ cluster }) => {
             </DescriptionList>
           </>
         ) : null}
+        {/* begin shared vpc */}
+        {testHostProjectId && isGcpDnsZoneEnabled ? (
+          <>
+            <Title headingLevel="h3" className="pf-v6-l-stack__item --">
+              Shared VPC
+            </Title>
+            <DescriptionList
+              isHorizontal
+              className="pf-v6-l-stack__item pf-m-auto-column-widths details-card-dl"
+            >
+              <DescriptionListGroup>
+                <DescriptionListTerm>Host project ID</DescriptionListTerm>
+                <DescriptionListDescription>{testHostProjectId}</DescriptionListDescription>
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>DNS Zone</DescriptionListTerm>
+                <DescriptionListDescription>{dnsZone}</DescriptionListDescription>
+              </DescriptionListGroup>
+            </DescriptionList>
+          </>
+        ) : null}
+        {/* end shared vpc */}
         <Title headingLevel="h3" className="pf-v6-l-stack__item --">
           Cluster-wide Proxy
         </Title>

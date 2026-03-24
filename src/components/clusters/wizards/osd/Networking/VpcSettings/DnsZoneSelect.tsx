@@ -14,9 +14,11 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
+import { trackEvents } from '~/common/analytics';
 import { GcpDnsDomain } from '~/common/vpcHelpers';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
+import useAnalytics from '~/hooks/useAnalytics';
 import {
   refetchGcpDnsZones,
   useFetchGcpDnsDomains,
@@ -43,11 +45,22 @@ const DnsZoneSelect = ({
   domainPrefix,
   meta: { error, touched },
 }: DnsZoneSelectProps) => {
+  const track = useAnalytics();
+
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
   const [isExpanded, setIsExpanded] = React.useState<boolean>(false);
 
   const onToggle = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const trackDnsZoneSelection = (zoneId: string | undefined) => {
+    track(trackEvents.DnsZoneSelected, {
+      customProperties: {
+        module: 'openshift',
+        dns_zone_id: zoneId,
+      },
+    });
   };
 
   const { data: dnsDomains, isFetching, isSuccess } = useFetchGcpDnsDomains(domainPrefix);
@@ -56,8 +69,14 @@ const DnsZoneSelect = ({
     const selectedItem = dnsDomains?.find((dnsZone) => dnsZone.id === selectedDnsZone);
     if (selectedItem) {
       inputProps.onChange(selectedItem);
+      trackDnsZoneSelection(selectedItem.id);
       setIsOpen(false);
     }
+  };
+
+  const refreshDnsZones = () => {
+    track(trackEvents.RefreshDnsZones);
+    refetchGcpDnsZones();
   };
 
   React.useEffect(() => {
@@ -144,7 +163,7 @@ const DnsZoneSelect = ({
           <Button
             variant="secondary"
             className="pf-v6-u-mt-md"
-            onClick={refetchGcpDnsZones}
+            onClick={refreshDnsZones}
             isLoading={isFetching}
             isDisabled={isFetching}
           >

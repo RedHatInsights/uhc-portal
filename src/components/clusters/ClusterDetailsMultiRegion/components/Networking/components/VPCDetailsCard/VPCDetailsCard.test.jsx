@@ -1,8 +1,14 @@
 import * as React from 'react';
 
+import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { ClusterState } from '~/types/clusters_mgmt.v1/enums';
 
-import { mockRestrictedEnv, render, screen } from '../../../../../../../testUtils';
+import {
+  mockRestrictedEnv,
+  mockUseFeatureGate,
+  render,
+  screen,
+} from '../../../../../../../testUtils';
 
 import VPCDetailsCard from './VPCDetailsCard';
 
@@ -14,6 +20,10 @@ describe('<VPCDetailsCard />', () => {
       },
     },
   };
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe('in default environment', () => {
     it('renders footer', () => {
@@ -52,6 +62,41 @@ describe('<VPCDetailsCard />', () => {
       render(<VPCDetailsCard {...props} />);
       expect(screen.queryByText('Private Service Connect Subnet')).toBeInTheDocument();
       expect(screen.queryByText('gcpPrivateServiceConnect')).toBeInTheDocument();
+    });
+  });
+
+  describe('When shared vpc is provided', () => {
+    mockUseFeatureGate([[GCP_DNS_ZONE, true]]);
+    const baseDomain = 'wnsb.s2.devshift.org';
+    const sharedVpc = 'shared-vpc1';
+    const props = {
+      cluster: {
+        gcp_network: {
+          vpc_name: 'test-vpc1',
+          control_plane_subnet: 'test-vpc1-control-plane',
+          compute_subnet: 'test-vpc1-worker',
+        },
+        gcp: {},
+        dns: {
+          base_domain: baseDomain,
+        },
+      },
+    };
+
+    it('renders shared vpc details when shared vpc exists', () => {
+      render(<VPCDetailsCard {...props} />);
+      expect(screen.queryByText('Shared VPC')).toBeInTheDocument();
+      expect(screen.queryByText(sharedVpc)).toBeInTheDocument();
+      expect(screen.queryByText('DNS Zone')).toBeInTheDocument();
+      expect(screen.queryByText(baseDomain)).toBeInTheDocument();
+    });
+
+    it('does not show shared vpc details when shared vpc does not exist', () => {
+      render(<VPCDetailsCard {...props} />);
+      expect(screen.queryByText('Shared VPC')).not.toBeInTheDocument();
+      expect(screen.queryByText(sharedVpc)).not.toBeInTheDocument();
+      expect(screen.queryByText('DNS Zone')).not.toBeInTheDocument();
+      expect(screen.queryByText(baseDomain)).not.toBeInTheDocument();
     });
   });
 
