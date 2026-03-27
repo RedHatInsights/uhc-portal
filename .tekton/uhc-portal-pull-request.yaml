@@ -76,9 +76,14 @@ spec:
       done'
       echo "Dev server ready!"
 
-      # Install Playwright browsers
+      # Install Playwright browsers (suppress verbose apt output, show errors)
       echo "Installing Playwright browsers..."
-      npx playwright install --with-deps chromium
+      if ! npx playwright install --with-deps chromium > /tmp/playwright-install.log 2>&1; then
+        echo "ERROR: Playwright browser installation failed:"
+        cat /tmp/playwright-install.log
+        exit 1
+      fi
+      echo "Playwright browsers installed."
 
       # Suppress Node.js TLS warning noise (one per worker)
       export NODE_NO_WARNINGS=1
