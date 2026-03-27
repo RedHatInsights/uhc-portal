@@ -48,8 +48,7 @@ The built application container (Caddy on port 8000) is configured via the
 The shared pipeline defaults to `HCC_ENV=stage` (which would use
 `stage.foo.redhat.com:1337`). We override this to `HCC_ENV=prod` via the
 `e2e-hcc-env` pipeline parameter, which switches the proxy to
-`prod.foo.redhat.com:1337`. This override was added in
-[konflux-pipelines#219](https://github.com/RedHatInsights/konflux-pipelines/pull/219).
+`prod.foo.redhat.com:1337`.
 
 ### SSO authentication
 
