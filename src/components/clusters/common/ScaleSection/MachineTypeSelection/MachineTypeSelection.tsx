@@ -136,8 +136,11 @@ const MachineTypeSelection = ({
   const activeMachineTypes: MachineTypesResponse = useMachineTypesByRegion
     ? machineTypesByRegion
     : machineTypesResponse;
-  const activeMachineTypesError = useMachineTypesByRegion
+  const activeMachineTypesHasError = useMachineTypesByRegion
     ? machineTypesByRegion.error
+    : machineTypesErrorResponse;
+  const activeMachineTypesError = useMachineTypesByRegion
+    ? machineTypesByRegion
     : machineTypesErrorResponse;
 
   /**
@@ -332,7 +335,7 @@ const MachineTypeSelection = ({
   if (
     isDataReady &&
     (!useRegionFilteredData || isRegionSpecificDataReady) &&
-    !activeMachineTypesError
+    !activeMachineTypesHasError
   ) {
     if (filteredMachineTypes.length === 0) {
       return (
@@ -386,7 +389,7 @@ const MachineTypeSelection = ({
     );
   }
 
-  return activeMachineTypesError ? (
+  return activeMachineTypesHasError ? (
     <ErrorBox message="Error loading node types" response={activeMachineTypesError} />
   ) : (
     <>
