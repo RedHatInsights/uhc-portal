@@ -20,7 +20,6 @@ env:
 jobs:
   check_api:
     name: Check API
-    # Security Hardening: Explicitly drop all default GITHUB_TOKEN permissions.
     permissions: {}
     concurrency:
       group: check_api-${{ github.event_name }}
@@ -34,9 +33,7 @@ jobs:
           private-key: ${{ secrets.CHECK_OPENAPI_APP_PRIVATE_KEY }}
       - uses: actions/checkout@v6
         with:
-          # Explicitly provide the generated App token since default GITHUB_TOKEN has no permissions
           token: ${{ steps.generate-token.outputs.token }}
-          # Security Hardening: Prevent repository token from being left in .git/config.
           persist-credentials: false
           
       - name: Check for an existing open PR
