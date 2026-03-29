@@ -23,7 +23,7 @@ jobs:
     # Security Hardening: Explicitly drop all default GITHUB_TOKEN permissions.
     permissions: {}
     concurrency:
-      group: check_api-${{ github.event_name }}-${{ github.head_ref }}
+      group: check_api-${{ github.event_name }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
