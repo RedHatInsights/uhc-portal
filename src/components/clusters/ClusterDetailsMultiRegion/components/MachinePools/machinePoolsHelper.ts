@@ -253,11 +253,11 @@ const normalizeNodePool = (nodePool: NodePool) => {
   const normalizedNodePool = { ...nodePool, instance_type: nodePool.aws_node_pool?.instance_type };
   if (nodePool.autoscaling) {
     normalizedNodePool.autoscaling = { ...nodePool.autoscaling };
-    if (nodePool.autoscaling?.min_replica && nodePool.autoscaling?.min_replica > 0) {
+    if (nodePool.autoscaling?.min_replica !== undefined) {
       (normalizedNodePool as any).autoscaling.min_replicas = nodePool.autoscaling.min_replica;
       delete normalizedNodePool.autoscaling.min_replica;
     }
-    if (nodePool.autoscaling?.max_replica && nodePool.autoscaling?.max_replica > 0) {
+    if (nodePool.autoscaling?.max_replica !== undefined) {
       (normalizedNodePool as any).autoscaling.max_replicas = nodePool.autoscaling.max_replica;
       delete normalizedNodePool.autoscaling.max_replica;
     }

@@ -63,6 +63,80 @@ describe('useMachinePoolFormik', () => {
     expect(initialValues).toEqual(expected);
   });
 
+  describe('initialValues autoscaling', () => {
+    describe('HCP clusters', () => {
+      it('should set autoscaleMin to minNodesRequired', () => {
+        const machinePool = {
+          kind: 'NodePool',
+          id: 'other-pool',
+          replicas: 3,
+        };
+
+        const otherPool = {
+          kind: 'NodePool2',
+          id: 'other-pool2',
+          replicas: 3,
+        };
+
+        const { initialValues } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: [machinePool, otherPool],
+          }),
+        ).result.current;
+
+        expect(initialValues.autoscaleMin).toBe(0);
+        expect(initialValues.autoscaleMax).toBe(0);
+      });
+
+      it('should preserve existing autoscaling min_replicas of 0', () => {
+        const machinePoolWithZeroMin = {
+          kind: 'NodePool',
+          id: 'test-pool',
+          autoscaling: {
+            min_replicas: 0,
+            max_replicas: 10,
+          },
+        };
+
+        const { initialValues } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: machinePoolWithZeroMin,
+            machineTypes: defaultMachineTypes,
+            machinePools: [machinePoolWithZeroMin],
+          }),
+        ).result.current;
+
+        expect(initialValues.autoscaleMin).toBe(0);
+        expect(initialValues.autoscaleMax).toBe(10);
+      });
+    });
+
+    describe('Non-HCP clusters', () => {
+      it('should allow autoscaleMin of 0 when minNodesRequired is 0', () => {
+        const machinePool = {
+          kind: 'MachinePool',
+          id: 'test-pool',
+          replicas: 0,
+        };
+
+        const { initialValues } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: defaultCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: [machinePool],
+          }),
+        ).result.current;
+
+        expect(initialValues.autoscaleMin).toBe(0);
+      });
+    });
+  });
+
   describe('validationSchema', () => {
     describe('capacityReservationId', () => {
       it.each(['open', 'none', 'capacity-reservations-only'])(

@@ -124,8 +124,8 @@ const useMachinePoolFormik = ({
     let capacityReservationId;
     let capacityReservationPreference;
 
-    autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas || minNodesRequired;
-    autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas || minNodesRequired;
+    autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas ?? minNodesRequired;
+    autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas ?? minNodesRequired;
 
     const instanceTypeId = (machinePool as MachinePool)?.instance_type;
     const instanceType = (
