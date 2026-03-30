@@ -99,8 +99,9 @@ const DnsZoneSelect = ({
         <StackItem>
           <Content component={ContentVariants.p} className="pf-v6-u-mt-md">
             To deploy without DNS Administrator privileges on the host project, pre create a DNS
-            zone using the cli and select it below. If you skip this step, DNS Administrator
-            privileges will be required
+            zone using the cli and select it below. Make sure the --domain-prefix flag includes your
+            domain prefix from step 2. If you skip this step, DNS Administrator privileges will be
+            required.
           </Content>
         </StackItem>
         <StackItem>
