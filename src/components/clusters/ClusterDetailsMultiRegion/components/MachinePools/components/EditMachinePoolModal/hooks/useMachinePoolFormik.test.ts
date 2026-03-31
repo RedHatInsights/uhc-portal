@@ -138,6 +138,135 @@ describe('useMachinePoolFormik', () => {
   });
 
   describe('validationSchema', () => {
+    describe('autoscaleMin', () => {
+      it('should allow 0 min nodes for HCP clusters with autoscaling enabled', async () => {
+        const machinePool = {
+          kind: 'NodePool',
+          id: 'test-pool',
+          autoscaling: {
+            min_replicas: 0,
+            max_replicas: 5,
+          },
+        };
+
+        const otherPool = {
+          kind: 'NodePool',
+          id: 'other-pool',
+          replicas: 3,
+        };
+
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: [machinePool, otherPool],
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          autoscaling: true,
+          autoscaleMin: 0,
+          autoscaleMax: 5,
+        };
+
+        await expect(validationSchema.validateAt('autoscaleMin', values)).resolves.toBe(0);
+      });
+    });
+
+    describe('replicas', () => {
+      it('should allow 0 replicas for HCP clusters with autoscaling disabled', async () => {
+        const machinePool = {
+          kind: 'NodePool',
+          id: 'test-pool',
+          replicas: 0,
+        };
+
+        const otherPool = {
+          kind: 'NodePool',
+          id: 'other-pool',
+          replicas: 3,
+        };
+
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: [machinePool, otherPool],
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          autoscaling: false,
+          replicas: 0,
+        };
+
+        await expect(validationSchema.validateAt('replicas', values)).resolves.toBe(0);
+      });
+    });
+
+    describe('autoscaleMax', () => {
+      it('should allow 0 max nodes for HCP clusters with autoscaling enabled', async () => {
+        const machinePool = {
+          kind: 'NodePool',
+          id: 'test-pool',
+          autoscaling: {
+            min_replicas: 0,
+            max_replicas: 0,
+          },
+        };
+
+        const otherPool = {
+          kind: 'NodePool',
+          id: 'other-pool',
+          replicas: 3,
+        };
+
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: [machinePool, otherPool],
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          autoscaling: true,
+          autoscaleMin: 0,
+          autoscaleMax: 0,
+        };
+
+        await expect(validationSchema.validateAt('autoscaleMax', values)).resolves.toBe(0);
+      });
+
+      it('should reject 0 max nodes for non-HCP clusters with autoscaling enabled', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: defaultCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          autoscaling: true,
+          autoscaleMin: 0,
+          autoscaleMax: 0,
+        };
+
+        await expect(validationSchema.validateAt('autoscaleMax', values)).rejects.toThrow(
+          'Max nodes must be greater than 0.',
+        );
+      });
+    });
+
     describe('capacityReservationId', () => {
       it.each(['open', 'none', 'capacity-reservations-only'])(
         'should not require capacityReservationId when preference is %s',
