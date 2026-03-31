@@ -50,28 +50,35 @@ export class CreateOSDWizardPage extends BasePage {
     ).not.toBeVisible();
   }
 
+  async isOnlyWifAuthenticationTypeScreen(): Promise<void> {
+    await expect(
+      this.page.getByText('Authentication type: Workload Identity Federation'),
+    ).toBeVisible();
+    await expect(this.workloadIdentityFederationButton()).not.toBeVisible();
+    await expect(this.serviceAccountButton()).not.toBeVisible();
+  }
+
   async isWIFRecommendationAlertPresent(): Promise<void> {
     await expect(
       this.page
         .locator('h4')
-        .filter({ hasText: 'Red Hat recommends using WIF as the authentication type' }),
+        .filter({
+          hasText: 'Red Hat and Google Cloud recommend using WIF as the authentication type',
+        }),
     ).toBeVisible();
   }
 
-  async isPrerequisitesHintPresent(): Promise<void> {
-    await expect(
-      this.page.locator('strong').filter({ hasText: 'Have you prepared your Google account?' }),
-    ).toBeVisible();
-    await expect(
-      this.page.getByText(
-        "To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.",
-      ),
-    ).toBeVisible();
-    await expect(
-      this.page.getByRole('link', { name: 'Review Google terms and agreements' }),
-    ).toHaveAttribute(
+  async isPrerequisitesHintPresent(hint: {
+    Header: string;
+    Description: string;
+    LinkName: string;
+    LinkHref: string;
+  }): Promise<void> {
+    await expect(this.page.locator('strong').filter({ hasText: hint.Header })).toBeVisible();
+    await expect(this.page.getByText(hint.Description)).toBeVisible();
+    await expect(this.page.getByRole('link', { name: hint.LinkName })).toHaveAttribute(
       'href',
-      'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
+      hint.LinkHref,
     );
   }
 

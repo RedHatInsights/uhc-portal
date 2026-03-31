@@ -1,11 +1,11 @@
 {
-  "ClusterName": "ocmui-curated-smoke-osd-psc-sa-gcp",
+  "ClusterName": "ocmui-curated-smoke-osd-psc-wif-gcp",
   "Type": "OSD",
   "CloudProvider": "Google Cloud",
   "SubscriptionType": "On-Demand: Flexible usage billed through Google Cloud Marketplace",
   "Marketplace": "Google Cloud Marketplace",
   "InfrastructureType": "Customer cloud subscription",
-  "AuthenticationType": "Service Account",
+  "AuthenticationType": "Workload Identity Federation",
   "Region": "us-central1, Council Bluffs, Iowa, USA",
   "Availability": "Multi-zone",
   "SecureBootSupportForShieldedVMs": "Enabled",

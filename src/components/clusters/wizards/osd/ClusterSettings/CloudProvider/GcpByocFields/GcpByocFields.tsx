@@ -46,9 +46,13 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
 
   const {
     setFieldValue,
-    values: { [FieldId.GcpAuthType]: authType },
+    values: { [FieldId.GcpAuthType]: authTypeFormValue },
   } = useFormState();
 
+  // When coming from Google Cloud, force WIF regardless of form value
+  const authType = isOSDFromGoogleCloud
+    ? GCPAuthType.WorkloadIdentityFederation
+    : authTypeFormValue;
   let gcpTitle = 'Have you prepared your Google account?';
   let gcpText = `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
   let linkHref = links.GCP_CONSOLE_OSD_HOME;
@@ -106,47 +110,55 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
           </Alert>
         </FormAlert>
       )}
-
-      <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsLg' }}>
+      <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsMd' }}>
         <FlexItem>
           <Title headingLevel="h3" className="pf-v6-u-mb-sm">
             Google Cloud account details
           </Title>
-          <FormGroup
-            label="Authentication type"
-            labelHelp={
-              <Popover
-                bodyContent={
-                  <div>
+          {!isOSDFromGoogleCloud ? (
+            <FormGroup
+              label="Authentication type"
+              labelHelp={
+                <Popover
+                  bodyContent={
                     <div>
-                      Workload Identity Federation (WIF) uses short-lived credentials which are more
-                      secure. Use of WIF requires an OSD cluster running OpenShift{' '}
-                      <span className="pf-v6-u-font-family-monospace">4.17</span> or later.
+                      <div>
+                        Workload Identity Federation (WIF) uses short-lived credentials which are
+                        more secure. Use of WIF requires an OSD cluster running OpenShift{' '}
+                        <span className="pf-v6-u-font-family-monospace">4.17</span> or later.
+                      </div>
+                      <br />
+                      <div>Service Account uses long-lived credentials, which are less secure.</div>
                     </div>
-                    <br />
-                    <div>Service Account uses long-lived credentials, which are less secure.</div>
-                  </div>
-                }
-              >
-                <Button
-                  variant="plain"
-                  aria-label="More info for authentication types"
-                  onClick={(e: { preventDefault: () => any }) => e.preventDefault()}
-                  icon={<HelpIcon />}
-                  className={styles.formGroupLabelHelp}
-                />
-              </Popover>
-            }
-          >
-            {authButtons}
-          </FormGroup>
+                  }
+                >
+                  <Button
+                    variant="plain"
+                    aria-label="More info for authentication types"
+                    onClick={(e: { preventDefault: () => any }) => e.preventDefault()}
+                    icon={<HelpIcon />}
+                    className={styles.formGroupLabelHelp}
+                  />
+                </Popover>
+              }
+            >
+              {authButtons}
+            </FormGroup>
+          ) : (
+            <Flex className="pf-v6-u-pt-md" data-testid="gcp-auth-type-wif">
+              <span className="pf-v6-u-font-weight-bold">Authentication type:&nbsp;</span>Workload
+              Identity Federation
+            </Flex>
+          )}
         </FlexItem>
         <FlexItem>
-          <Title headingLevel="h4" className="pf-v6-u-mb-sm">
-            {authType === GCPAuthType.WorkloadIdentityFederation
-              ? 'Workload Identity Federation'
-              : 'Service Account'}
-          </Title>
+          {!isOSDFromGoogleCloud && (
+            <Title headingLevel="h4" className="pf-v6-u-mb-sm">
+              {authType === GCPAuthType.WorkloadIdentityFederation
+                ? 'Workload Identity Federation'
+                : 'Service Account'}
+            </Title>
+          )}
           {authType === GCPAuthType.ServiceAccounts && <ServiceAccountNotRecommendedAlert />}
           <Prerequisites acknowledgementRequired initiallyExpanded>
             {shouldShowPrepareGCPHint && (

@@ -361,6 +361,21 @@ describe('<Details />', () => {
         }),
       );
     });
+
+    it('initializes the version dropdown with the selected version', async () => {
+      const formValues = {
+        ...initialValues,
+        [FieldId.ClusterVersion]: versionsData[3], // 4.18.1
+        [FieldId.ChannelGroup]: 'stable',
+      };
+      withState(loadedState).render(
+        <Formik initialValues={formValues} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      expect(await screen.findByText('4.18.1')).toBeInTheDocument();
+    });
   });
 
   describe('Advanced Encryption', () => {

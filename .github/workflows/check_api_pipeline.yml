@@ -20,12 +20,22 @@ env:
 jobs:
   check_api:
     name: Check API
+    permissions: {}
     concurrency:
-      group: check_api-${{ github.event_name }}-${{ github.head_ref }}
+      group: check_api-${{ github.event_name }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/create-github-app-token@v2
+        id: generate-token
+        with:
+          app-id: ${{ secrets.CHECK_OPENAPI_APP_ID }}
+          private-key: ${{ secrets.CHECK_OPENAPI_APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          persist-credentials: false
+
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
@@ -34,19 +44,44 @@ jobs:
         with:
           path: './node_modules'
           key: check_api-${{ env.NODE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
+          
       - name: Install yarn
         uses: borales/actions-yarn@v4
         with:
           cmd: install --frozen-lockfile --cache-folder .yarn
+
+      - name: Check for an existing open PR
+        id: check-pr
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          SWAP_BRANCH_NAME: ${{ env.SWAP_BRANCH_NAME }}
+          BASE_BRANCH_NAME: ${{ env.BASE_BRANCH_NAME }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_COUNT=$(gh api \
+            "repos/${REPO}/pulls" \
+            -X GET \
+            -f "head=${REPO%/*}:${SWAP_BRANCH_NAME}" \
+            -f "base=${BASE_BRANCH_NAME}" \
+            -f "state=open" \
+            --jq 'length')
+          if [[ "$PR_COUNT" -gt 0 ]]; then
+            echo "pr_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pr_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+          
       - name: Generating model based on OpenAPI contracts
+        if: steps.check-pr.outputs.pr_exists == 'false'
         run: make openapi
+        
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        if: steps.check-pr.outputs.pr_exists == 'false'
+        uses: peter-evans/create-pull-request@v8
         env:
           HUSKY: '0'
         with:
-          # limitation imposed by GitHub Actions that an action cannot trigger other workflows
-          token: ${{ secrets.CHECK_API_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
           base: ${{ env.BASE_BRANCH_NAME }}
           branch: ${{ env.SWAP_BRANCH_NAME }}
           add-paths: |
@@ -57,7 +92,8 @@ jobs:
           delete-branch: true
           title: '[OPEN API] update model'
           body: |
-            Automatically created by Github action.\nReviewers should pay attention to changes from `src/types/` files have a correspondant change on the Open API related contract.
-            Additionally to it, build and lint output should be checked. In case of build errors, our code should be adapted accordingly.
+            Automatically created by a GitHub Action.
+            Reviewers should pay attention to changes in src/types/ files and ensure they have corresponding changes in the OpenAPI-related contract.
+            Additionally, build and lint outputs should be checked. In case of build errors, the code should be updated accordingly.
           labels: |
             update_open_api
