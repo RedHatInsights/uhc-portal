@@ -1,5 +1,6 @@
 import React from 'react';
 
+import docLinks from '~/common/docLinks.mjs';
 import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
@@ -1326,6 +1327,39 @@ describe('<DetailsRight />', () => {
       expect(screen.getByText(componentText.AUTOSCALE.ENABLED)).toBeInTheDocument();
       expect(screen.getByText(/2222/)).toHaveTextContent(`${componentText.AUTOSCALE.MIN} 2222`);
       expect(screen.getByText(/4444/)).toHaveTextContent(`${componentText.AUTOSCALE.MAX} 4444`);
+    });
+
+    it('renders correct autoscaling link for rosa cluster', async () => {
+      const clusterFixture = fixtures.ROSAClusterDetails.cluster;
+
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+        },
+      };
+
+      const { user } = render(<DetailsRight {...newProps} />);
+
+      const moreInfoBtn = await screen.findByRole('button', {
+        name: 'More information about autoscaling',
+      });
+      await user.click(moreInfoBtn);
+
+      const link = screen.getByText('Learn more about autoscaling');
+      expect(link).toHaveAttribute('href', docLinks.ROSA_AUTOSCALING);
+    });
+
+    it('renders correct autoscaling link for OSD cluster', async () => {
+      const { user } = render(<DetailsRight {...defaultProps} />);
+
+      const moreInfoBtn = await screen.findByRole('button', {
+        name: 'More information about autoscaling',
+      });
+      await user.click(moreInfoBtn);
+
+      const link = screen.getByText('Learn more about autoscaling');
+      expect(link).toHaveAttribute('href', docLinks.OSD_CLUSTER_AUTOSCALING);
     });
   });
 

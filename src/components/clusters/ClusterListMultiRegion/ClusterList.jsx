@@ -338,9 +338,12 @@ const ClusterList = ({
   const hasNoFilters =
     helpers.nestedIsEmpty(subscriptionFilter) && !showMyClustersOnly && !viewOptions.filter;
 
-  const isPendingNoData = !size(clusters) && (isLoading || !isFetched); // Show skeletons
+  const isPendingNoData =
+    !size(clusters) && (isLoading || !isFetched || (hasNoFilters && isFetching));
 
   const showSpinner = isFetching || isLoading;
+
+  const showListToolbarAndPagination = !(hasNoFilters && isPendingNoData);
 
   // The empty state asserts as a fact that you have no clusters;
   // not appropriate when results are indeterminate or empty due to filtering.
@@ -401,57 +404,59 @@ const ClusterList = ({
             />
           )}
 
-          <Toolbar id="cluster-list-toolbar">
-            <ToolbarContent>
-              <ToolbarItem className="ocm-c-toolbar__item-cluster-filter-list">
-                <ClusterListFilter
-                  isDisabled={isPendingNoData && hasNoFilters}
-                  view={CLUSTERS_VIEW}
-                />
-              </ToolbarItem>
-              {isRestrictedEnv() ? null : (
-                <ToolbarItem
-                  className="ocm-c-toolbar__item-cluster-list-filter-dropdown"
-                  data-testid="cluster-list-filter-dropdown"
-                >
-                  {/* Cluster type */}
-                  <ClusterListFilterDropdown
+          {showListToolbarAndPagination ? (
+            <Toolbar id="cluster-list-toolbar">
+              <ToolbarContent>
+                <ToolbarItem className="ocm-c-toolbar__item-cluster-filter-list">
+                  <ClusterListFilter
+                    isDisabled={isPendingNoData && hasNoFilters}
                     view={CLUSTERS_VIEW}
-                    isDisabled={isLoading || isFetching}
                   />
                 </ToolbarItem>
-              )}
-              <ClusterListActions showTabbedView={showTabbedView} />
-              <ViewOnlyMyClustersToggle
-                view={CLUSTERS_VIEW}
-                bodyContent="Show only the clusters you previously created, or all clusters in your organization."
-                localStorageKey={ONLY_MY_CLUSTERS_TOGGLE_CLUSTERS_LIST}
-              />
-
-              {isRestrictedEnv() ? null : (
-                <ToolbarItem>
-                  <ClusterListFilterChipGroup />
-                </ToolbarItem>
-              )}
-              <ToolbarItem
-                align={{ default: 'alignEnd' }}
-                variant="pagination"
-                className="pf-m-hidden visible-on-lgplus"
-              >
-                <PaginationRow
-                  currentPage={currentPage}
-                  pageSize={pageSize}
-                  itemCount={clustersTotal}
-                  variant="top"
-                  isDisabled={isPendingNoData}
-                  itemsStart={itemsStart}
-                  itemsEnd={itemsEnd}
-                  onPerPageSelect={onPerPageChange}
-                  onPageChange={onPageChange}
+                {isRestrictedEnv() ? null : (
+                  <ToolbarItem
+                    className="ocm-c-toolbar__item-cluster-list-filter-dropdown"
+                    data-testid="cluster-list-filter-dropdown"
+                  >
+                    {/* Cluster type */}
+                    <ClusterListFilterDropdown
+                      view={CLUSTERS_VIEW}
+                      isDisabled={isLoading || isFetching}
+                    />
+                  </ToolbarItem>
+                )}
+                <ClusterListActions showTabbedView={showTabbedView} />
+                <ViewOnlyMyClustersToggle
+                  view={CLUSTERS_VIEW}
+                  bodyContent="Show only the clusters you previously created, or all clusters in your organization."
+                  localStorageKey={ONLY_MY_CLUSTERS_TOGGLE_CLUSTERS_LIST}
                 />
-              </ToolbarItem>
-            </ToolbarContent>
-          </Toolbar>
+
+                {isRestrictedEnv() ? null : (
+                  <ToolbarItem>
+                    <ClusterListFilterChipGroup />
+                  </ToolbarItem>
+                )}
+                <ToolbarItem
+                  align={{ default: 'alignEnd' }}
+                  variant="pagination"
+                  className="pf-m-hidden visible-on-lgplus"
+                >
+                  <PaginationRow
+                    currentPage={currentPage}
+                    pageSize={pageSize}
+                    itemCount={clustersTotal}
+                    variant="top"
+                    isDisabled={isPendingNoData}
+                    itemsStart={itemsStart}
+                    itemsEnd={itemsEnd}
+                    onPerPageSelect={onPerPageChange}
+                    onPageChange={onPageChange}
+                  />
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
+          ) : null}
           {isError && !size(clusters) && isFetched ? (
             <Unavailable
               message="Error retrieving clusters"
@@ -492,17 +497,19 @@ const ClusterList = ({
               />
             </>
           )}
-          <PaginationRow
-            currentPage={currentPage}
-            pageSize={pageSize}
-            itemCount={clustersTotal}
-            variant="bottom"
-            isDisabled={isPendingNoData}
-            itemsStart={itemsStart}
-            itemsEnd={itemsEnd}
-            onPerPageSelect={onPerPageChange}
-            onPageChange={onPageChange}
-          />
+          {showListToolbarAndPagination ? (
+            <PaginationRow
+              currentPage={currentPage}
+              pageSize={pageSize}
+              itemCount={clustersTotal}
+              variant="bottom"
+              isDisabled={isPendingNoData}
+              itemsStart={itemsStart}
+              itemsEnd={itemsEnd}
+              onPerPageSelect={onPerPageChange}
+              onPageChange={onPageChange}
+            />
+          ) : null}
           <CommonClusterModals onClose={() => refetch()} clearMachinePools />
         </div>
       </PageSection>

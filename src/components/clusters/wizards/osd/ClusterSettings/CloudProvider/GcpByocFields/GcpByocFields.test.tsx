@@ -69,6 +69,22 @@ describe('<GcpByocFields />', () => {
     await checkAccessibility(container);
   });
 
+  it('shows service account button and title when isOSDFromGoogleCloud is false', async () => {
+    const { user } = render(prepareComponent());
+
+    // Both auth type buttons should be visible
+    expect(await screen.findByRole('button', { name: serviceAccountLabel })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: workloadIdentityFederationLabel }),
+    ).toBeInTheDocument();
+
+    // Click the service account button to switch to it
+    await user.click(screen.getByRole('button', { name: serviceAccountLabel }));
+
+    // Now the service account heading should appear
+    expect(screen.getAllByRole('heading', { name: serviceAccountLabel })[0]).toBeInTheDocument();
+  });
+
   describe('Test billing model prerequisites', () => {
     it('should not show the Google terms prerequisite if the billing model is not marketplace-gcp', async () => {
       render(
@@ -334,38 +350,34 @@ describe('<GcpByocFields />', () => {
       mockUseIsOSDFromGoogleCloud.mockReturnValue(true);
     });
 
-    it('switches between showing and hiding Prerequisites based on auth type', async () => {
-      const { user } = render(
+    it('does not show service account button or title and shows auth type: WIF text', async () => {
+      render(
         prepareComponent({
           [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
         }),
       );
 
-      expect(
-        screen.queryByRole('checkbox', {
-          name: "I've read and completed all the prerequisites and am ready to continue creating my cluster.",
+      expect(screen.queryByRole('button', { name: serviceAccountLabel })).not.toBeInTheDocument();
+
+      expect(screen.queryByRole('heading', { name: serviceAccountLabel })).not.toBeInTheDocument();
+
+      expect(screen.getByTestId('gcp-auth-type-wif')).toBeInTheDocument();
+    });
+
+    it('forces auth type to be Workload Identity Federation regardless of form value', async () => {
+      render(
+        prepareComponent({
+          [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
         }),
-      ).toBeInTheDocument();
+      );
 
-      // Switch to Service Account
-      await user.click(screen.getByRole('button', { name: serviceAccountLabel }));
+      expect(screen.queryByRole('button', { name: serviceAccountLabel })).not.toBeInTheDocument();
 
-      expect(
-        await screen.findByRole('checkbox', {
-          name: "I've read and completed all the prerequisites and am ready to continue creating my cluster.",
-        }),
-      ).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: serviceAccountLabel })).not.toBeInTheDocument();
 
-      // Switch back to WIF
-      await user.click(screen.getByRole('button', { name: workloadIdentityFederationLabel }));
+      expect(screen.getByTestId('gcp-auth-type-wif')).toBeInTheDocument();
 
-      await waitFor(() => {
-        expect(
-          screen.queryByText(
-            'Check your cluster resource requirements to make sure your Google Cloud account has the necessary resource quotas and limits to support the size cluster you want.',
-          ),
-        ).not.toBeInTheDocument();
-      });
+      expect(await screen.findByText('Select a configuration')).toBeInTheDocument();
     });
   });
 });

@@ -141,7 +141,9 @@ const viewOptionsReducer = (
   const updateState: State = {};
 
   const updatePageCounts = (viewType: string, itemsCount: number, perPageSize?: number) => {
-    const totalCount = itemsCount || 1;
+    // Use nullish coalescing so a real total of 0 (empty list) is preserved; `itemsCount || 1`
+    // incorrectly turned 0 into 1 and broke pagination text (e.g. "1–1 of 1" with no rows).
+    const totalCount = itemsCount ?? 0;
 
     const pageSize = perPageSize || state[viewType].pageSize;
 
@@ -152,7 +154,7 @@ const viewOptionsReducer = (
       totalCount,
       totalPages,
       pageSize,
-      currentPage: Math.min(state[viewType].currentPage, totalPages),
+      currentPage: totalPages === 0 ? 1 : Math.min(state[viewType].currentPage, totalPages),
     };
   };
 

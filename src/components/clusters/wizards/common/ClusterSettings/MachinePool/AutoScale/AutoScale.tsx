@@ -39,7 +39,7 @@ export const AutoScale = () => {
   const openAutoScalingModal = () => dispatch(openModal(modals.EDIT_CLUSTER_AUTOSCALING_V2));
 
   const isRosa = product === normalizedProducts.ROSA;
-  const autoScalingUrl = isRosa ? docLinks.ROSA_AUTOSCALING : docLinks.APPLYING_AUTOSCALING;
+  const autoScalingUrl = isRosa ? docLinks.ROSA_AUTOSCALING : docLinks.OSD_CLUSTER_AUTOSCALING;
   const isHypershiftSelected = isHypershift === 'true';
   const isByoc = byoc === 'true';
   const isRosaClassicOrOsdCcs = !isHypershiftSelected && isByoc;
@@ -68,6 +68,7 @@ export const AutoScale = () => {
         label="Autoscaling"
         labelHelp={
           <PopoverHint
+            buttonAriaLabel="More information about autoscaling"
             hint={
               <>
                 {constants.autoscaleHint}{' '}

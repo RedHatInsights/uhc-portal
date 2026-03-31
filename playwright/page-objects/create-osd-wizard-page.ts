@@ -50,6 +50,14 @@ export class CreateOSDWizardPage extends BasePage {
     ).not.toBeVisible();
   }
 
+  async isOnlyWifAuthenticationTypeScreen(): Promise<void> {
+    await expect(
+      this.page.getByText('Authentication type: Workload Identity Federation'),
+    ).toBeVisible();
+    await expect(this.workloadIdentityFederationButton()).not.toBeVisible();
+    await expect(this.serviceAccountButton()).not.toBeVisible();
+  }
+
   async isWIFRecommendationAlertPresent(): Promise<void> {
     await expect(
       this.page

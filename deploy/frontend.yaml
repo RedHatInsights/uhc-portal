@@ -44,7 +44,7 @@ objects:
                   product: Red Hat OpenShift Cluster Manager
                 - id: clusters
                   title: Clusters
-                  href: /openshift/clusters/list
+                  href: /openshift/clusters
                   product: Red Hat OpenShift Cluster Manager
                 - segmentRef:
                     segmentId: openshift-ocp-advisor
