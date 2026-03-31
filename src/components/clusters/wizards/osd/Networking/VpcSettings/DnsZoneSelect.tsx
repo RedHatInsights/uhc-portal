@@ -14,22 +14,22 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
-import { GcpDnsDomain } from '~/common/vpcHelpers';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import {
   refetchGcpDnsZones,
   useFetchGcpDnsDomains,
 } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpDnsDomains';
+import { DnsDomain } from '~/types/clusters_mgmt.v1';
 
 interface DnsZoneSelectProps {
-  selectedDnsZone?: GcpDnsDomain;
+  selectedDnsZone?: DnsDomain;
   domainPrefix: string;
   organizationId: string;
   input: {
     name: string;
     value: string;
-    onChange: (selectedDnsZone: GcpDnsDomain) => void;
+    onChange: (selectedDnsZone: DnsDomain) => void;
     onBlur: () => void;
   };
   meta: {
@@ -97,7 +97,7 @@ const DnsZoneSelect = ({
     }
 
     const dnsOptions = isSuccess
-      ? dnsDomains?.map((dnsZone: GcpDnsDomain) => ({
+      ? dnsDomains?.map((dnsZone: DnsDomain) => ({
           entryId: dnsZone.id,
           label: `${dnsZone.gcp?.domain_prefix}.${dnsZone.id} (${dnsZone.gcp?.project_id})`,
         }))

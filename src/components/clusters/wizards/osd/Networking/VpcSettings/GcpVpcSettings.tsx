@@ -14,7 +14,6 @@ import {
 import links from '~/common/installLinks.mjs';
 import { required, validateGCPHostProjectId, validateGCPSubnet } from '~/common/validators';
 import { versionComparator } from '~/common/versionComparator';
-import { GcpDnsDomain } from '~/common/vpcHelpers';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId, StepId } from '~/components/clusters/wizards/osd/constants';
@@ -23,6 +22,7 @@ import PopoverHint from '~/components/common/PopoverHint';
 import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
+import { DnsDomain } from '~/types/clusters_mgmt.v1';
 
 import { CheckboxField, TextInputField } from '../../../form';
 import { ClusterPrivacyType } from '../constants';
@@ -157,7 +157,7 @@ export const GcpVpcSettings = () => {
               className="pf-v6-u-mt-md"
               input={{
                 ...getFieldProps(FieldId.DnsZone),
-                onChange: (newDnsZoneValue: GcpDnsDomain) => {
+                onChange: (newDnsZoneValue: DnsDomain) => {
                   setFieldValue(FieldId.DnsZone, newDnsZoneValue);
                 },
               }}
