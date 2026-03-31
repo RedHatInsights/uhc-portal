@@ -157,6 +157,7 @@ const DnsZoneSelect = ({
             popperProps={{
               maxWidth: 'trigger',
             }}
+            fuzziness={0}
           />
         </FlexItem>
         <FlexItem>
