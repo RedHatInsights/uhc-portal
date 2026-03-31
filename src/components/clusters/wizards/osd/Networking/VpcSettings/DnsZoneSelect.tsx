@@ -25,6 +25,7 @@ import {
 interface DnsZoneSelectProps {
   selectedDnsZone?: GcpDnsDomain;
   domainPrefix: string;
+  organizationId: string;
   input: {
     name: string;
     value: string;
@@ -41,6 +42,7 @@ const DnsZoneSelect = ({
   selectedDnsZone,
   input: { name, onBlur: _onBlur, ...inputProps },
   domainPrefix,
+  organizationId,
   meta: { error, touched },
 }: DnsZoneSelectProps) => {
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
@@ -50,7 +52,11 @@ const DnsZoneSelect = ({
     setIsExpanded(!isExpanded);
   };
 
-  const { data: dnsDomains, isFetching, isSuccess } = useFetchGcpDnsDomains(domainPrefix);
+  const {
+    data: dnsDomains,
+    isFetching,
+    isSuccess,
+  } = useFetchGcpDnsDomains(domainPrefix, organizationId);
 
   const onSelect: FuzzySelectProps['onSelect'] = (_event, selectedDnsZone) => {
     const selectedItem = dnsDomains?.find((dnsZone) => dnsZone.id === selectedDnsZone);
@@ -69,6 +75,18 @@ const DnsZoneSelect = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dnsDomains, selectedDnsZone?.id]);
+
+  const refreshGcpDnsZones = () => {
+    refetchGcpDnsZones();
+
+    const isSelectedDnsZoneDeleted =
+      selectedDnsZone?.id &&
+      dnsDomains?.find((dnsZone) => dnsZone.id === selectedDnsZone?.id) === undefined;
+
+    if (isSelectedDnsZoneDeleted) {
+      inputProps.onChange({ id: '' });
+    }
+  };
 
   const selectionData = React.useMemo(() => {
     let placeholder = 'Select a DNS Zone';
@@ -98,7 +116,7 @@ const DnsZoneSelect = ({
       <Stack>
         <StackItem>
           <Content component={ContentVariants.p} className="pf-v6-u-mt-md">
-            To deploy without DNS Administrator privileges on the host project, pre create a DNS
+            To deploy without DNS Administrator privileges on the host project, pre-create a DNS
             zone using the cli and select it below. Make sure the --domain-prefix flag includes your
             domain prefix from step 2. If you skip this step, DNS Administrator privileges will be
             required.
@@ -145,7 +163,8 @@ const DnsZoneSelect = ({
           <Button
             variant="secondary"
             className="pf-v6-u-mt-md"
-            onClick={refetchGcpDnsZones}
+            // onClick={refetchGcpDnsZones}
+            onClick={refreshGcpDnsZones}
             isLoading={isFetching}
             isDisabled={isFetching}
           >

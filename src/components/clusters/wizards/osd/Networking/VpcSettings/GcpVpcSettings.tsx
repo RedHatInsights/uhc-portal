@@ -22,6 +22,7 @@ import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { useGlobalState } from '~/redux/hooks';
 
 import { CheckboxField, TextInputField } from '../../../form';
 import { ClusterPrivacyType } from '../constants';
@@ -51,6 +52,7 @@ export const GcpVpcSettings = () => {
   const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
   const isByoc = byoc === 'true';
   const isWIF = gcpAuthType === GCPAuthType.WorkloadIdentityFederation;
+  const organizationId = useGlobalState((state) => state.userProfile.organization.details?.id);
 
   const { goToStepById } = useWizardContext();
 
@@ -162,6 +164,7 @@ export const GcpVpcSettings = () => {
               meta={getFieldMeta(FieldId.DnsZone)}
               selectedDnsZone={selectedDnsZone}
               domainPrefix={domainPrefix}
+              organizationId={organizationId}
             />
           ) : (
             dnsZoneAlert
@@ -191,13 +194,13 @@ export const GcpVpcSettings = () => {
           className="pf-v6-u-ml-sm pf-v6-u-mt-md  pf-v6-u-mb-lg"
           style={{ width: 'fit-content' }}
         >
-          <p className="pf-v6-u-mt-sm">
+          <Content component={ContentVariants.p} className="pf-v6-u-mt-md">
             To install into an existing VPC, you need to ensure that your VPC is configured with a
             control plane subnet and compute subnet.
-          </p>
-          <p className="pf-v6-u-mt-sm">
+          </Content>
+          <Content component={ContentVariants.p} className="pf-v6-u-mt-md">
             You&#39;ll also need to match these VPC subnets when you define the CIDR ranges.
-          </p>
+          </Content>
         </div>
       </GridItem>
       <GridItem md={showPSCSubnet ? 12 : 4}>
