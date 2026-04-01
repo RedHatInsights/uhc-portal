@@ -55,26 +55,57 @@ const EditClusterWideProxyDialog = ({ cluster, region }: EditClusterWideProxyDia
     <Formik
       initialValues={initialValues}
       onSubmit={async (values) => {
-        const clusterProxyBody = {
-          proxy: {
-            http_proxy: OnlyReturnValueIfChanged(
-              values.http_proxy_url,
-              initialValues.http_proxy_url,
-            ),
-            https_proxy: OnlyReturnValueIfChanged(
-              values.https_proxy_url,
-              initialValues.https_proxy_url,
-            ),
-            no_proxy: OnlyReturnValueIfChanged(
-              arrayToString(values.no_proxy_domains),
-              arrayToString(initialValues.no_proxy_domains),
-            ),
-          },
-          additional_trust_bundle: OnlyReturnValueIfChanged(
-            values.additional_trust_bundle,
-            initialValues.additional_trust_bundle,
-          ),
-        };
+        // OCMUI-4183: Only include fields that have actually changed
+        // to avoid sending undefined values that can invalidate existing configuration
+        const clusterProxyBody: {
+          proxy?: {
+            http_proxy?: string;
+            https_proxy?: string;
+            no_proxy?: string;
+          };
+          additional_trust_bundle?: string;
+        } = {};
+
+        // Check which proxy fields changed
+        const httpProxyChanged = OnlyReturnValueIfChanged(
+          values.http_proxy_url,
+          initialValues.http_proxy_url,
+        );
+        const httpsProxyChanged = OnlyReturnValueIfChanged(
+          values.https_proxy_url,
+          initialValues.https_proxy_url,
+        );
+        const noProxyChanged = OnlyReturnValueIfChanged(
+          arrayToString(values.no_proxy_domains),
+          arrayToString(initialValues.no_proxy_domains),
+        );
+
+        // Only include proxy object if any proxy field changed
+        if (
+          httpProxyChanged !== undefined ||
+          httpsProxyChanged !== undefined ||
+          noProxyChanged !== undefined
+        ) {
+          clusterProxyBody.proxy = {};
+          if (httpProxyChanged !== undefined) {
+            clusterProxyBody.proxy.http_proxy = httpProxyChanged;
+          }
+          if (httpsProxyChanged !== undefined) {
+            clusterProxyBody.proxy.https_proxy = httpsProxyChanged;
+          }
+          if (noProxyChanged !== undefined) {
+            clusterProxyBody.proxy.no_proxy = noProxyChanged;
+          }
+        }
+
+        // Only include additional_trust_bundle if it changed
+        const trustBundleChanged = OnlyReturnValueIfChanged(
+          values.additional_trust_bundle,
+          initialValues.additional_trust_bundle,
+        );
+        if (trustBundleChanged !== undefined) {
+          clusterProxyBody.additional_trust_bundle = trustBundleChanged;
+        }
 
         mutateClusterEdit(
           {
