@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { render, screen, waitFor } from '~/testUtils';
-
 import * as useEditClusterHook from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { ClusterFromSubscription } from '~/types/types';
+import { render, screen, waitFor } from '~/testUtils';
 
 import EditClusterWideProxyDialog from './EditClusterWideProxyDialog';
 
@@ -61,9 +60,8 @@ describe('<EditClusterWideProxyDialog />', () => {
     jest.clearAllMocks();
   });
 
-  const renderComponent = (cluster: ClusterFromSubscription) => {
-    return render(<EditClusterWideProxyDialog cluster={cluster} region="us-east-1" />);
-  };
+  const renderComponent = (cluster: ClusterFromSubscription) =>
+    render(<EditClusterWideProxyDialog cluster={cluster} region="us-east-1" />);
 
   describe('OCMUI-4183: Conditional payload construction', () => {
     it('should only send additional_trust_bundle when only CA cert is changed', async () => {
@@ -77,8 +75,13 @@ describe('<EditClusterWideProxyDialog />', () => {
         '-----BEGIN CERTIFICATE-----\ntest cert\n-----END CERTIFICATE-----',
       );
 
-      // Submit the form
+      // Wait for Save button to be enabled (form is modified)
       const saveButton = await screen.findByRole('button', { name: /save/i });
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
+
+      // Submit the form
       await user.click(saveButton);
 
       await waitFor(() => {
@@ -103,8 +106,13 @@ describe('<EditClusterWideProxyDialog />', () => {
       await user.clear(httpProxyField);
       await user.type(httpProxyField, 'http://newproxy.example.com:8080');
 
-      // Submit the form
+      // Wait for Save button to be enabled (form is modified)
       const saveButton = await screen.findByRole('button', { name: /save/i });
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
+
+      // Submit the form
       await user.click(saveButton);
 
       await waitFor(() => {
@@ -138,8 +146,13 @@ describe('<EditClusterWideProxyDialog />', () => {
         '-----BEGIN CERTIFICATE-----\ntest cert\n-----END CERTIFICATE-----',
       );
 
-      // Submit the form
+      // Wait for Save button to be enabled (form is modified)
       const saveButton = await screen.findByRole('button', { name: /save/i });
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
+
+      // Submit the form
       await user.click(saveButton);
 
       await waitFor(() => {
@@ -171,8 +184,13 @@ describe('<EditClusterWideProxyDialog />', () => {
       await user.clear(httpsProxyField);
       await user.type(httpsProxyField, 'https://newproxy.example.com:8443');
 
-      // Submit the form
+      // Wait for Save button to be enabled (form is modified)
       const saveButton = await screen.findByRole('button', { name: /save/i });
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
+
+      // Submit the form
       await user.click(saveButton);
 
       await waitFor(() => {
@@ -201,8 +219,13 @@ describe('<EditClusterWideProxyDialog />', () => {
         '-----BEGIN CERTIFICATE-----\ntest cert\n-----END CERTIFICATE-----',
       );
 
-      // Submit the form
+      // Wait for Save button to be enabled (form is modified)
       const saveButton = await screen.findByRole('button', { name: /save/i });
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
+
+      // Submit the form
       await user.click(saveButton);
 
       await waitFor(() => {
@@ -239,8 +262,13 @@ describe('<EditClusterWideProxyDialog />', () => {
         '-----BEGIN CERTIFICATE-----\nIntermediate CA\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nRoot CA\n-----END CERTIFICATE-----',
       );
 
-      // Submit the form
+      // Wait for Save button to be enabled (form is modified)
       const saveButton = await screen.findByRole('button', { name: /save/i });
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
+
+      // Submit the form
       await user.click(saveButton);
 
       await waitFor(() => {
