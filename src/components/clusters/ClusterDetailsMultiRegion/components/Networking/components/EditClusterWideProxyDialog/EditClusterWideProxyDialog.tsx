@@ -55,25 +55,34 @@ const EditClusterWideProxyDialog = ({ cluster, region }: EditClusterWideProxyDia
     <Formik
       initialValues={initialValues}
       onSubmit={async (values) => {
-        const clusterProxyBody = {
-          proxy: {
-            http_proxy: OnlyReturnValueIfChanged(
-              values.http_proxy_url,
-              initialValues.http_proxy_url,
-            ),
-            https_proxy: OnlyReturnValueIfChanged(
-              values.https_proxy_url,
-              initialValues.https_proxy_url,
-            ),
-            no_proxy: OnlyReturnValueIfChanged(
-              arrayToString(values.no_proxy_domains),
-              arrayToString(initialValues.no_proxy_domains),
-            ),
-          },
-          additional_trust_bundle: OnlyReturnValueIfChanged(
-            values.additional_trust_bundle,
-            initialValues.additional_trust_bundle,
+        const proxyChanges = {
+          http_proxy: OnlyReturnValueIfChanged(
+            values.http_proxy_url,
+            initialValues.http_proxy_url,
           ),
+          https_proxy: OnlyReturnValueIfChanged(
+            values.https_proxy_url,
+            initialValues.https_proxy_url,
+          ),
+          no_proxy: OnlyReturnValueIfChanged(
+            arrayToString(values.no_proxy_domains),
+            arrayToString(initialValues.no_proxy_domains),
+          ),
+        };
+
+        const trustBundleChange = OnlyReturnValueIfChanged(
+          values.additional_trust_bundle,
+          initialValues.additional_trust_bundle,
+        );
+
+        // Only include proxy object if at least one proxy field changed
+        const hasProxyChanges = Object.values(proxyChanges).some((value) => value !== undefined);
+
+        // OCMUI-4183: Only include fields that have changed to avoid sending
+        // incomplete proxy config that can cause cluster operator degradation
+        const clusterProxyBody = {
+          ...(hasProxyChanges && { proxy: proxyChanges }),
+          ...(trustBundleChange !== undefined && { additional_trust_bundle: trustBundleChange }),
         };
 
         mutateClusterEdit(
