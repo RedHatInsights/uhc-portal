@@ -1,6 +1,7 @@
 import React from 'react';
 import * as reactRedux from 'react-redux';
 
+import { defaultClusterFromSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import * as useEditCluster from '~/queries/ClusterDetailsQueries/useEditCluster';
 import * as invalidateClusterDetailsQueries from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import { checkAccessibility, screen, waitFor, withState } from '~/testUtils';
@@ -49,6 +50,7 @@ describe('<EditClusterWideProxyDialog />', () => {
   useDispatchMock.mockReturnValue(mockedDispatch);
 
   const baseCluster: ClusterFromSubscription = {
+    ...defaultClusterFromSubscription,
     id: 'test-cluster-123',
     display_name: 'Test Cluster',
     external_id: 'test-external-id',
@@ -61,7 +63,7 @@ describe('<EditClusterWideProxyDialog />', () => {
       no_proxy: 'localhost,127.0.0.1',
     },
     additional_trust_bundle: undefined,
-  } as ClusterFromSubscription;
+  };
 
   const defaultState = {
     modal: {
@@ -233,7 +235,7 @@ describe('<EditClusterWideProxyDialog />', () => {
     it('does not send proxy object when no proxy fields change on cluster without proxy', async () => {
       setMockingValues();
 
-      const clusterWithoutProxy = {
+      const clusterWithoutProxy: ClusterFromSubscription = {
         ...baseCluster,
         proxy: undefined,
       };
