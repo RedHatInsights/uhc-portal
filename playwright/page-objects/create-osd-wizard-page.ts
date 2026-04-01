@@ -362,10 +362,12 @@ export class CreateOSDWizardPage extends BasePage {
     await this.dnsZoneDropdown().click();
     await this.dnsZoneFilterInput().clear();
     await this.dnsZoneFilterInput().fill(dnsZone);
-    const option = partialMatch
-      ? this.page.getByRole('option').filter({ hasText: new RegExp(`^${dnsZone}`) })
+    const escapedDnsZone = dnsZone.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const options = partialMatch
+      ? this.page.getByRole('option').filter({ hasText: new RegExp(`^${escapedDnsZone}`) })
       : this.page.getByRole('option', { name: dnsZone });
-    await option.click();
+    await expect(options).toHaveCount(1);
+    await options.first().click();
   }
 
   installIntoExistingVpcCheckBox(): Locator {

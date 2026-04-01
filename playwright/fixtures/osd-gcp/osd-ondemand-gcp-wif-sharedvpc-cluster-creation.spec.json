@@ -34,7 +34,6 @@
     {
       "Name": "worker",
       "InstanceType": "e2-standard-4",
-      "AvailabilityZones": "us-west-2a, us-west-2b, us-west-2c",
       "NodeCount": 1,
       "Autoscaling": "Disabled",
       "Labels": [

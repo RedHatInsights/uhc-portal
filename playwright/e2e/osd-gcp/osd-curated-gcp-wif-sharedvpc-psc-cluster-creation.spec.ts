@@ -12,6 +12,8 @@ test.describe.serial(
   'OSD GCP Curated Marketplace WIF Shared VPC DNS PSC cluster creation tests (OCMUI-3888)',
   { tag: ['@smoke', '@osd', '@curated', '@sharedvpc', '@psc', '@dns'] },
   () => {
+    let clusterSubmitted = false;
+
     test.beforeAll(async ({ navigateTo }) => {
       if (!QE_GCP_WIF_CONFIG?.trim()) {
         throw new Error(
@@ -57,7 +59,6 @@ test.describe.serial(
         await createOSDWizardPage.selectVersion(clusterProperties.Version);
       }
 
-      await createOSDWizardPage.singleZoneAvilabilityRadio().check();
       await createOSDWizardPage.selectAvailabilityZone(clusterProperties.Availability);
       await createOSDWizardPage.enableAdditionalEtcdEncryption(true, true);
       await createOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
@@ -162,6 +163,7 @@ test.describe.serial(
       await expect(createOSDWizardPage.authenticationTypeValue()).toContainText(
         clusterProperties.AuthenticationType,
       );
+      await expect(createOSDWizardPage.wifConfigurationValue()).toContainText(QE_GCP_WIF_CONFIG);
       await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
       await expect(createOSDWizardPage.regionValue()).toContainText(region);
       await expect(createOSDWizardPage.availabilityValue()).toContainText(
@@ -199,11 +201,30 @@ test.describe.serial(
         clusterProperties.InstallIntoExistingVPC,
       );
 
-      if (clusterProperties.hasOwnProperty('UsePrivateServiceConnect')) {
+      if ('UsePrivateServiceConnect' in clusterProperties) {
         await expect(createOSDWizardPage.privateServiceConnectValue()).toContainText(
           clusterProperties.UsePrivateServiceConnect,
         );
       }
+
+      await expect(createOSDWizardPage.sharedHostProjectIdValue()).toContainText(
+        SHARED_VPC_INFRA['HOST_PROJECT_ID'] || '',
+      );
+      await expect(createOSDWizardPage.dnsZoneValue()).toContainText(
+        clusterProperties.DomainPrefix,
+      );
+      await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
+        SHARED_VPC_INFRA['VPC_NAME'] || '',
+      );
+      await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
+        SHARED_VPC_INFRA['CONTROLPLANE_SUBNET'] || '',
+      );
+      await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
+        SHARED_VPC_INFRA['COMPUTE_SUBNET'] || '',
+      );
+      await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
+        SHARED_VPC_INFRA['PRIVATE_SERVICE_CONNECT_SUBNET'] || '',
+      );
 
       await expect(createOSDWizardPage.machineCIDRValue()).toContainText(
         clusterProperties.MachineCIDR,
@@ -231,6 +252,7 @@ test.describe.serial(
       clusterDetailsPage,
     }) => {
       await createOSDWizardPage.createClusterButton().click();
+      clusterSubmitted = true;
       await clusterDetailsPage.waitForInstallerScreenToLoad();
 
       await expect(clusterDetailsPage.clusterNameTitle()).toContainText(clusterName);
@@ -281,13 +303,18 @@ test.describe.serial(
       );
     });
 
-    test('Delete OSD GCP curated cluster', async ({ clusterDetailsPage }) => {
-      await clusterDetailsPage.actionsDropdownToggle().click();
-      await clusterDetailsPage.deleteClusterDropdownItem().click();
-      await clusterDetailsPage.deleteClusterNameInput().clear();
-      await clusterDetailsPage.deleteClusterNameInput().fill(clusterName);
-      await clusterDetailsPage.deleteClusterConfirm().click();
-      await clusterDetailsPage.waitForDeleteClusterActionComplete();
+    test.afterAll(async ({ clusterDetailsPage }) => {
+      if (!clusterSubmitted) return;
+      try {
+        await clusterDetailsPage.actionsDropdownToggle().click();
+        await clusterDetailsPage.deleteClusterDropdownItem().click();
+        await clusterDetailsPage.deleteClusterNameInput().clear();
+        await clusterDetailsPage.deleteClusterNameInput().fill(clusterName);
+        await clusterDetailsPage.deleteClusterConfirm().click();
+        await clusterDetailsPage.waitForDeleteClusterActionComplete();
+      } catch (error) {
+        console.error(`Cleanup failed for cluster "${clusterName}":`, error);
+      }
     });
   },
 );
