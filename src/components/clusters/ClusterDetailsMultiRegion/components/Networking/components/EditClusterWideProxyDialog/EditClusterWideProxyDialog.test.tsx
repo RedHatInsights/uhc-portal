@@ -20,14 +20,16 @@ jest.mock('~/components/common/ReduxFormComponents_deprecated/ReduxFileUpload', 
   __esModule: true,
   default: ({ input, meta }: any) => (
     <div>
-      <label htmlFor="mock-upload">Additional trust bundle</label>
-      <textarea
-        id="mock-upload"
-        data-testid="additional_trust_bundle"
-        value={input.value || ''}
-        onChange={(e) => input.onChange(e.target.value)}
-        onBlur={input.onBlur}
-      />
+      <label htmlFor="mock-upload">
+        Additional trust bundle
+        <textarea
+          id="mock-upload"
+          data-testid="additional_trust_bundle"
+          value={input.value || ''}
+          onChange={(e) => input.onChange(e.target.value)}
+          onBlur={input.onBlur}
+        />
+      </label>
       {meta?.error && <div role="alert">{meta.error}</div>}
     </div>
   ),
