@@ -19,9 +19,6 @@ type EditClusterWideProxyDialogProps = {
   region: string;
 };
 
-const OnlyReturnValueIfChanged = (newValue: string | undefined, oldValue: string | undefined) =>
-  newValue !== oldValue ? newValue : undefined;
-
 const EditClusterWideProxyDialog = ({ cluster, region }: EditClusterWideProxyDialogProps) => {
   const dispatch = useDispatch();
   const isOpen = useGlobalState((state) => shouldShowModal(state, modals.EDIT_CLUSTER_WIDE_PROXY));
@@ -55,25 +52,16 @@ const EditClusterWideProxyDialog = ({ cluster, region }: EditClusterWideProxyDia
     <Formik
       initialValues={initialValues}
       onSubmit={async (values) => {
+        // OCMUI-4183: Send all field values to avoid empty proxy object in API payload
+        // Previously used OnlyReturnValueIfChanged which caused undefined values to be
+        // stripped during JSON serialization, resulting in empty proxy: {} object
         const clusterProxyBody = {
           proxy: {
-            http_proxy: OnlyReturnValueIfChanged(
-              values.http_proxy_url,
-              initialValues.http_proxy_url,
-            ),
-            https_proxy: OnlyReturnValueIfChanged(
-              values.https_proxy_url,
-              initialValues.https_proxy_url,
-            ),
-            no_proxy: OnlyReturnValueIfChanged(
-              arrayToString(values.no_proxy_domains),
-              arrayToString(initialValues.no_proxy_domains),
-            ),
+            http_proxy: values.http_proxy_url,
+            https_proxy: values.https_proxy_url,
+            no_proxy: arrayToString(values.no_proxy_domains),
           },
-          additional_trust_bundle: OnlyReturnValueIfChanged(
-            values.additional_trust_bundle,
-            initialValues.additional_trust_bundle,
-          ),
+          additional_trust_bundle: values.additional_trust_bundle,
         };
 
         mutateClusterEdit(
