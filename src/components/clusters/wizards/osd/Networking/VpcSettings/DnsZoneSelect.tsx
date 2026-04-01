@@ -58,8 +58,15 @@ const DnsZoneSelect = ({
     isSuccess,
   } = useFetchGcpDnsDomains(domainPrefix, organizationId);
 
-  const onSelect: FuzzySelectProps['onSelect'] = (_event, selectedDnsZone) => {
-    const selectedItem = dnsDomains?.find((dnsZone) => dnsZone.id === selectedDnsZone);
+  const noDnsZoneEntryId = '__dns_zone_none__';
+
+  const onSelect: FuzzySelectProps['onSelect'] = (_event, value) => {
+    if (value === noDnsZoneEntryId) {
+      inputProps.onChange({ id: '' });
+      setIsOpen(false);
+      return;
+    }
+    const selectedItem = dnsDomains?.find((dnsZone) => dnsZone.id === value);
     if (selectedItem) {
       inputProps.onChange(selectedItem);
       setIsOpen(false);
@@ -90,18 +97,23 @@ const DnsZoneSelect = ({
 
   const selectionData = React.useMemo(() => {
     let placeholder = 'Select a DNS Zone';
+
     if (isFetching) {
       placeholder = 'Loading...';
     } else if (dnsDomains?.length === 0) {
       placeholder = 'No DNS Zones found';
     }
 
-    const dnsOptions = isSuccess
-      ? dnsDomains?.map((dnsZone: DnsDomain) => ({
-          entryId: dnsZone.id,
-          label: `${dnsZone.gcp?.domain_prefix}.${dnsZone.id} (${dnsZone.gcp?.project_id})`,
-        }))
-      : {};
+    const dnsOptions =
+      isSuccess && dnsDomains.length > 0
+        ? [
+            { entryId: noDnsZoneEntryId, label: '-' },
+            ...dnsDomains.map((dnsZone: DnsDomain) => ({
+              entryId: dnsZone.id,
+              label: `${dnsZone.gcp?.domain_prefix}.${dnsZone.id} (${dnsZone.gcp?.project_id})`,
+            })),
+          ]
+        : {};
 
     return {
       placeholder,
@@ -158,13 +170,17 @@ const DnsZoneSelect = ({
               maxWidth: 'trigger',
             }}
             fuzziness={0}
+            sortFn={(a, b) => {
+              if (a.entryId === noDnsZoneEntryId) return -1;
+              if (b.entryId === noDnsZoneEntryId) return 1;
+              return a.label.localeCompare(b.label);
+            }}
           />
         </FlexItem>
         <FlexItem>
           <Button
             variant="secondary"
             className="pf-v6-u-mt-md"
-            // onClick={refetchGcpDnsZones}
             onClick={refreshGcpDnsZones}
             isLoading={isFetching}
             isDisabled={isFetching}

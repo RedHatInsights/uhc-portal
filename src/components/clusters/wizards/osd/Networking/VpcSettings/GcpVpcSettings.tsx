@@ -105,7 +105,7 @@ export const GcpVpcSettings = () => {
   }, [clusterVersion?.raw_id, goToStepById, installToSharedVpc]);
 
   const dnsZoneAlert = (
-    <Alert variant="warning" isInline title="Domain prefix required" className="pf-v6-u-mt-md">
+    <Alert variant="info" isInline title="Domain prefix required" className="pf-v6-u-mt-md">
       <p>
         To create and select a DNS zone, you must first specify a Custom domain prefix in the{' '}
         <AlertActionLink onClick={() => goToStepById(StepId.ClusterSettingsDetails)}>
