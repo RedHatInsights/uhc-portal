@@ -58,10 +58,8 @@ const DnsZoneSelect = ({
     isSuccess,
   } = useFetchGcpDnsDomains(domainPrefix, organizationId);
 
-  const noDnsZoneEntryId = '__dns_zone_none__';
-
   const onSelect: FuzzySelectProps['onSelect'] = (_event, value) => {
-    if (value === noDnsZoneEntryId) {
+    if (value === '') {
       inputProps.onChange({ id: '' });
       setIsOpen(false);
       return;
@@ -104,16 +102,12 @@ const DnsZoneSelect = ({
       placeholder = 'No DNS Zones found';
     }
 
-    const dnsOptions =
-      isSuccess && dnsDomains.length > 0
-        ? [
-            { entryId: noDnsZoneEntryId, label: '-' },
-            ...dnsDomains.map((dnsZone: DnsDomain) => ({
-              entryId: dnsZone.id,
-              label: `${dnsZone.gcp?.domain_prefix}.${dnsZone.id} (${dnsZone.gcp?.project_id})`,
-            })),
-          ]
-        : {};
+    const dnsOptions = isSuccess
+      ? dnsDomains.map((dnsZone: DnsDomain) => ({
+          entryId: dnsZone.id,
+          label: `${dnsZone.gcp?.domain_prefix}.${dnsZone.id} (${dnsZone.gcp?.project_id})`,
+        }))
+      : {};
 
     return {
       placeholder,
@@ -170,11 +164,7 @@ const DnsZoneSelect = ({
               maxWidth: 'trigger',
             }}
             fuzziness={0}
-            sortFn={(a, b) => {
-              if (a.entryId === noDnsZoneEntryId) return -1;
-              if (b.entryId === noDnsZoneEntryId) return 1;
-              return a.label.localeCompare(b.label);
-            }}
+            isClearable
           />
         </FlexItem>
         <FlexItem>
