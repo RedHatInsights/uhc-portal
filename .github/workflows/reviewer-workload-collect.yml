@@ -1,0 +1,112 @@
+name: Reviewer Workload Collect
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  contents: read
+
+jobs:
+  collect-workload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Collect reviewer workload data
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const REPO_OWNER = 'RedHatInsights';
+            const REPO_NAME = 'uhc-portal';
+
+            const teamMembers = JSON.parse(
+              fs.readFileSync('.github/reviewer-workload-team.json', 'utf8')
+            );
+
+            // Only collect if the PR author is on the team
+            const prAuthor = context.payload.pull_request.user.login;
+            const isTeamMember = teamMembers.some(m => m.github.toLowerCase() === prAuthor.toLowerCase());
+            if (!isTeamMember) {
+              console.log(`PR author @${prAuthor} is not in reviewer-workload-team.json — skipping.`);
+              fs.writeFileSync('workload-data.json', JSON.stringify({ skip: true }));
+              return;
+            }
+
+            console.log(`PR author @${prAuthor} is a team member. Fetching workload for ${teamMembers.length} members...`);
+
+            const results = await Promise.all(teamMembers.map(async (member) => {
+              try {
+                const pendingSearch = await github.rest.search.issuesAndPullRequests({
+                  q: `is:pr is:open repo:${REPO_OWNER}/${REPO_NAME} review-requested:${member.github}`,
+                  per_page: 100
+                });
+                const pendingPRNumbers = new Set(
+                  (pendingSearch.data.items || []).map(pr => pr.number)
+                );
+                const pendingCount = pendingPRNumbers.size;
+
+                const reviewedSearch = await github.rest.search.issuesAndPullRequests({
+                  q: `is:pr is:open repo:${REPO_OWNER}/${REPO_NAME} reviewed-by:${member.github}`,
+                  per_page: 100
+                });
+
+                let approvedCount = 0;
+                const reviewedPRs = (reviewedSearch.data.items || []).slice(0, 20);
+
+                for (const pr of reviewedPRs) {
+                  if (pendingPRNumbers.has(pr.number)) continue;
+                  try {
+                    const reviews = await github.rest.pulls.listReviews({
+                      owner: REPO_OWNER,
+                      repo: REPO_NAME,
+                      pull_number: pr.number,
+                      per_page: 100
+                    });
+                    const userReviews = reviews.data
+                      .filter(r => r.user?.login === member.github && r.state !== 'PENDING')
+                      .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+                    if (userReviews.length > 0 && userReviews[0].state === 'APPROVED') {
+                      approvedCount++;
+                    }
+                  } catch (e) {
+                    console.warn(`Warning: could not fetch reviews for PR #${pr.number}: ${e.message}`);
+                  }
+                }
+
+                return {
+                  name: member.name,
+                  github: member.github,
+                  pending: pendingCount,
+                  approved: approvedCount,
+                  total: pendingCount + approvedCount
+                };
+              } catch (e) {
+                console.error(`Error fetching workload for ${member.name}: ${e.message}`);
+                return { name: member.name, github: member.github, pending: 0, approved: 0, total: 0 };
+              }
+            }));
+
+            results.sort((a, b) => {
+              if (a.pending !== b.pending) return a.pending - b.pending;
+              return a.total - b.total;
+            });
+
+            console.log('Workload results:', JSON.stringify(results, null, 2));
+
+            const payload = {
+              skip: false,
+              prNumber: context.payload.pull_request.number,
+              results,
+              timestamp: new Date().toISOString()
+            };
+            fs.writeFileSync('workload-data.json', JSON.stringify(payload));
+
+      - name: Upload workload data
+        uses: actions/upload-artifact@v4
+        with:
+          name: workload-data
+          path: workload-data.json
+          retention-days: 1

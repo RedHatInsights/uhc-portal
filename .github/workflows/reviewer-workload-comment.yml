@@ -1,19 +1,25 @@
 name: Reviewer Workload Comment
 
 on:
-  pull_request_target:
-    types: [opened]
+  workflow_run:
+    workflows: ["Reviewer Workload Collect"]
+    types: [completed]
 
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
-  post-workload-chart:
+  post-comment:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Download workload data
+        uses: actions/download-artifact@v4
+        with:
+          name: workload-data
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Post reviewer workload chart
         uses: actions/github-script@v7
@@ -23,87 +29,15 @@ jobs:
             const REPO_OWNER = 'RedHatInsights';
             const REPO_NAME = 'uhc-portal';
 
-            // Read team config
-            const teamMembers = JSON.parse(
-              fs.readFileSync('.github/reviewer-workload-team.json', 'utf8')
-            );
+            const payload = JSON.parse(fs.readFileSync('workload-data.json', 'utf8'));
 
-            // Only post the chart if the PR author is on the team
-            const prAuthor = context.payload.pull_request.user.login;
-            const isTeamMember = teamMembers.some(m => m.github.toLowerCase() === prAuthor.toLowerCase());
-            if (!isTeamMember) {
-              console.log(`PR author @${prAuthor} is not in reviewer-workload-team.json — skipping chart comment.`);
+            if (payload.skip) {
+              console.log('PR author is not a team member — skipping chart comment.');
               return;
             }
 
-            console.log(`PR author @${prAuthor} is a team member. Fetching workload for ${teamMembers.length} members...`);
-
-            // Fetch workload for each member
-            const results = await Promise.all(teamMembers.map(async (member) => {
-              try {
-                // Pending: PRs with an active review request
-                const pendingSearch = await github.rest.search.issuesAndPullRequests({
-                  q: `is:pr is:open repo:${REPO_OWNER}/${REPO_NAME} review-requested:${member.github}`,
-                  per_page: 100
-                });
-                const pendingPRNumbers = new Set(
-                  (pendingSearch.data.items || []).map(pr => pr.number)
-                );
-                const pendingCount = pendingPRNumbers.size;
-
-                // Reviewed: PRs where user has submitted a review
-                const reviewedSearch = await github.rest.search.issuesAndPullRequests({
-                  q: `is:pr is:open repo:${REPO_OWNER}/${REPO_NAME} reviewed-by:${member.github}`,
-                  per_page: 100
-                });
-
-                let approvedCount = 0;
-                const reviewedPRs = (reviewedSearch.data.items || []).slice(0, 20);
-
-                for (const pr of reviewedPRs) {
-                  // Skip PRs already counted as pending
-                  if (pendingPRNumbers.has(pr.number)) continue;
-
-                  try {
-                    const reviews = await github.rest.pulls.listReviews({
-                      owner: REPO_OWNER,
-                      repo: REPO_NAME,
-                      pull_number: pr.number,
-                      per_page: 100
-                    });
-
-                    const userReviews = reviews.data
-                      .filter(r => r.user?.login === member.github && r.state !== 'PENDING')
-                      .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
-
-                    if (userReviews.length > 0 && userReviews[0].state === 'APPROVED') {
-                      approvedCount++;
-                    }
-                  } catch (e) {
-                    console.warn(`Warning: could not fetch reviews for PR #${pr.number}: ${e.message}`);
-                  }
-                }
-
-                return {
-                  name: member.name,
-                  github: member.github,
-                  pending: pendingCount,
-                  approved: approvedCount,
-                  total: pendingCount + approvedCount
-                };
-              } catch (e) {
-                console.error(`Error fetching workload for ${member.name}: ${e.message}`);
-                return { name: member.name, github: member.github, pending: 0, approved: 0, total: 0 };
-              }
-            }));
-
-            // Sort by pending ascending, then total
-            results.sort((a, b) => {
-              if (a.pending !== b.pending) return a.pending - b.pending;
-              return a.total - b.total;
-            });
-
-            console.log('Workload results:', JSON.stringify(results, null, 2));
+            const { prNumber, results } = payload;
+            console.log(`Building chart for PR #${prNumber} with ${results.length} members...`);
 
             // Build QuickChart.io URL
             const labels = results.map(r => r.name);
@@ -155,14 +89,12 @@ jobs:
               }
             };
 
-            // QuickChart evaluates raw function() tokens in the config string.
-            // JSON.stringify drops JS functions, so we use a placeholder and replace it.
             const chartJson = JSON.stringify(chartConfig)
               .replace('"__FORMATTER__"', "function(v){return v>0?v:''}");
 
             const chartUrl = `https://quickchart.io/chart?bkg=%230a0a0a&c=${encodeURIComponent(chartJson)}`;
 
-            // Build the table for accessibility / text fallback
+            // Build the table
             const tableRows = results
               .filter(r => r.total > 0)
               .map(r => `| ${r.name} | @${r.github} | ${r.pending} | ${r.approved} | **${r.total}** |`)
@@ -170,7 +102,7 @@ jobs:
 
             const tableHeader = `| Name | GitHub | Pending | Approved | Total |\n|------|--------|---------|----------|-------|\n`;
 
-            const now = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+            const now = new Date(payload.timestamp).toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
 
             const body = [
               `## Reviewer Workload`,
@@ -187,12 +119,11 @@ jobs:
               `> **Pending** = awaiting review action | **Approved** = completed reviews on open PRs`
             ].join('\n');
 
-            // Post the comment
             await github.rest.issues.createComment({
               owner: REPO_OWNER,
               repo: REPO_NAME,
-              issue_number: context.payload.pull_request.number,
+              issue_number: prNumber,
               body
             });
 
-            console.log(`Posted workload chart comment on PR #${context.payload.pull_request.number}`);
+            console.log(`Posted workload chart comment on PR #${prNumber}`);
