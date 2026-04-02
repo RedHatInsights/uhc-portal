@@ -26,15 +26,13 @@ jest.mock('~/queries/ClusterDetailsQueries/useFetchClusterDetails', () => ({
 let formikRef: FormikProps<any> | null = null;
 
 jest.mock('./EditClusterWideProxyForm', () => {
-  const MockForm = ({ submitForm }: { submitForm: () => void }) => {
-    return (
-      <div data-testid="mock-form">
-        <button data-testid="submit-btn" onClick={submitForm}>
-          Save
-        </button>
-      </div>
-    );
-  };
+  const MockForm = ({ submitForm }: { submitForm: () => void }) => (
+    <div data-testid="mock-form">
+      <button type="button" data-testid="submit-btn" onClick={submitForm}>
+        Save
+      </button>
+    </div>
+  );
   MockForm.displayName = 'MockForm';
   return MockForm;
 });
@@ -55,7 +53,8 @@ jest.mock('formik', () => {
         <FormikWrapper {...props}>
           {(formikProps: FormikProps<any>) => {
             formikRef = formikProps;
-            return props.children(formikProps);
+            const { children } = props;
+            return children(formikProps);
           }}
         </FormikWrapper>
       );
