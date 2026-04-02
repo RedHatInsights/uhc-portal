@@ -28,7 +28,15 @@ jobs:
               fs.readFileSync('.github/reviewer-workload-team.json', 'utf8')
             );
 
-            console.log(`Fetching workload for ${teamMembers.length} team members...`);
+            // Only post the chart if the PR author is on the team
+            const prAuthor = context.payload.pull_request.user.login;
+            const isTeamMember = teamMembers.some(m => m.github.toLowerCase() === prAuthor.toLowerCase());
+            if (!isTeamMember) {
+              console.log(`PR author @${prAuthor} is not in reviewer-workload-team.json — skipping chart comment.`);
+              return;
+            }
+
+            console.log(`PR author @${prAuthor} is a team member. Fetching workload for ${teamMembers.length} members...`);
 
             // Fetch workload for each member
             const results = await Promise.all(teamMembers.map(async (member) => {
