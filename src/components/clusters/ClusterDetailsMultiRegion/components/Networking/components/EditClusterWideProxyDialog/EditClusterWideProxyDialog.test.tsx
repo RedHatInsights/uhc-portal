@@ -3,9 +3,8 @@ import type { FormikProps } from 'formik';
 import * as reactRedux from 'react-redux';
 
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
-import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import { useGlobalState } from '~/redux/hooks';
-import { act, render, screen, waitFor } from '~/testUtils';
+import { act, render, waitFor } from '~/testUtils';
 import type { ClusterFromSubscription } from '~/types/types';
 
 import EditClusterWideProxyDialog from './EditClusterWideProxyDialog';
