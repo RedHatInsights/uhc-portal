@@ -1,8 +1,11 @@
 import React from 'react';
 
-import { render, screen, waitFor } from '~/testUtils';
+import shouldShowModal from '~/components/common/Modal/ModalSelectors';
+import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
+import { render, screen } from '~/testUtils';
 
 import EditClusterWideProxyDialog from './EditClusterWideProxyDialog';
+import EditClusterWideProxyForm from './EditClusterWideProxyForm';
 
 // Mock dependencies
 jest.mock('~/queries/ClusterDetailsQueries/useEditCluster', () => ({
@@ -19,10 +22,6 @@ jest.mock('./EditClusterWideProxyForm', () => ({
 }));
 
 jest.mock('~/components/common/Modal/ModalSelectors', () => jest.fn());
-
-import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
-import shouldShowModal from '~/components/common/Modal/ModalSelectors';
-import EditClusterWideProxyForm from './EditClusterWideProxyForm';
 
 const mockUseEditCluster = useEditCluster as jest.MockedFunction<typeof useEditCluster>;
 const mockShouldShowModal = shouldShowModal as jest.MockedFunction<typeof shouldShowModal>;
@@ -44,9 +43,11 @@ describe('<EditClusterWideProxyDialog />', () => {
   };
 
   const defaultMockReturn = {
+    data: undefined,
     isPending: false,
     isError: false,
     error: null,
+    isSuccess: false,
     mutate: mockMutate,
     reset: mockReset,
   };
@@ -80,22 +81,10 @@ describe('<EditClusterWideProxyDialog />', () => {
       };
 
       // Manually trigger the onSubmit logic since we can't easily access Formik's internal onSubmit
-      // We'll verify the mutate call instead
-      mockUseEditCluster.mockReturnValue({
-        ...defaultMockReturn,
-        mutate: mockMutate,
-      });
-
-      // Re-render to get updated mutate function
-      const { rerender } = render(
-        <EditClusterWideProxyDialog cluster={mockCluster as any} region="us-east-1" />,
-      );
-
-      // The mutate function should be called with the correct payload
-      // We need to simulate the form submission
-      // Since we mocked the form, we'll verify the expected behavior through the Formik configuration
-
+      // Verify the hook was called with the correct region
       expect(mockUseEditCluster).toHaveBeenCalledWith('us-east-1');
+
+      // The actual assertion is in the unit tests below that test the logic directly
     });
 
     it('should build request body without proxy object when only CA cert is updated', () => {
