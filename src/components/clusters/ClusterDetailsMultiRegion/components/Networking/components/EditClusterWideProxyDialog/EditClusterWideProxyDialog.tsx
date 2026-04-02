@@ -55,21 +55,32 @@ const EditClusterWideProxyDialog = ({ cluster, region }: EditClusterWideProxyDia
     <Formik
       initialValues={initialValues}
       onSubmit={async (values) => {
+        const proxyHttpChange = OnlyReturnValueIfChanged(
+          values.http_proxy_url,
+          initialValues.http_proxy_url,
+        );
+        const proxyHttpsChange = OnlyReturnValueIfChanged(
+          values.https_proxy_url,
+          initialValues.https_proxy_url,
+        );
+        const proxyNoProxyChange = OnlyReturnValueIfChanged(
+          arrayToString(values.no_proxy_domains),
+          arrayToString(initialValues.no_proxy_domains),
+        );
+
+        const hasProxyChanges =
+          proxyHttpChange !== undefined ||
+          proxyHttpsChange !== undefined ||
+          proxyNoProxyChange !== undefined;
+
         const clusterProxyBody = {
-          proxy: {
-            http_proxy: OnlyReturnValueIfChanged(
-              values.http_proxy_url,
-              initialValues.http_proxy_url,
-            ),
-            https_proxy: OnlyReturnValueIfChanged(
-              values.https_proxy_url,
-              initialValues.https_proxy_url,
-            ),
-            no_proxy: OnlyReturnValueIfChanged(
-              arrayToString(values.no_proxy_domains),
-              arrayToString(initialValues.no_proxy_domains),
-            ),
-          },
+          ...(hasProxyChanges && {
+            proxy: {
+              http_proxy: proxyHttpChange,
+              https_proxy: proxyHttpsChange,
+              no_proxy: proxyNoProxyChange,
+            },
+          }),
           additional_trust_bundle: OnlyReturnValueIfChanged(
             values.additional_trust_bundle,
             initialValues.additional_trust_bundle,
