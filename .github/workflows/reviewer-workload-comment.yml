@@ -1,0 +1,190 @@
+name: Reviewer Workload Comment
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  post-workload-chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Post reviewer workload chart
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const REPO_OWNER = 'RedHatInsights';
+            const REPO_NAME = 'uhc-portal';
+
+            // Read team config
+            const teamMembers = JSON.parse(
+              fs.readFileSync('.github/reviewer-workload-team.json', 'utf8')
+            );
+
+            console.log(`Fetching workload for ${teamMembers.length} team members...`);
+
+            // Fetch workload for each member
+            const results = await Promise.all(teamMembers.map(async (member) => {
+              try {
+                // Pending: PRs with an active review request
+                const pendingSearch = await github.rest.search.issuesAndPullRequests({
+                  q: `is:pr is:open repo:${REPO_OWNER}/${REPO_NAME} review-requested:${member.github}`,
+                  per_page: 100
+                });
+                const pendingPRNumbers = new Set(
+                  (pendingSearch.data.items || []).map(pr => pr.number)
+                );
+                const pendingCount = pendingPRNumbers.size;
+
+                // Reviewed: PRs where user has submitted a review
+                const reviewedSearch = await github.rest.search.issuesAndPullRequests({
+                  q: `is:pr is:open repo:${REPO_OWNER}/${REPO_NAME} reviewed-by:${member.github}`,
+                  per_page: 100
+                });
+
+                let approvedCount = 0;
+                const reviewedPRs = (reviewedSearch.data.items || []).slice(0, 20);
+
+                for (const pr of reviewedPRs) {
+                  // Skip PRs already counted as pending
+                  if (pendingPRNumbers.has(pr.number)) continue;
+
+                  try {
+                    const reviews = await github.rest.pulls.listReviews({
+                      owner: REPO_OWNER,
+                      repo: REPO_NAME,
+                      pull_number: pr.number,
+                      per_page: 100
+                    });
+
+                    const userReviews = reviews.data
+                      .filter(r => r.user?.login === member.github && r.state !== 'PENDING')
+                      .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+
+                    if (userReviews.length > 0 && userReviews[0].state === 'APPROVED') {
+                      approvedCount++;
+                    }
+                  } catch (e) {
+                    console.warn(`Warning: could not fetch reviews for PR #${pr.number}: ${e.message}`);
+                  }
+                }
+
+                return {
+                  name: member.name,
+                  github: member.github,
+                  pending: pendingCount,
+                  approved: approvedCount,
+                  total: pendingCount + approvedCount
+                };
+              } catch (e) {
+                console.error(`Error fetching workload for ${member.name}: ${e.message}`);
+                return { name: member.name, github: member.github, pending: 0, approved: 0, total: 0 };
+              }
+            }));
+
+            // Sort by pending ascending, then total
+            results.sort((a, b) => {
+              if (a.pending !== b.pending) return a.pending - b.pending;
+              return a.total - b.total;
+            });
+
+            console.log('Workload results:', JSON.stringify(results, null, 2));
+
+            // Build QuickChart.io URL
+            const labels = results.map(r => r.name);
+            const pendingData = results.map(r => r.pending);
+            const approvedData = results.map(r => r.approved);
+            const maxVal = Math.max(...results.map(r => r.total), 1);
+
+            const chartConfig = {
+              type: 'bar',
+              data: {
+                labels,
+                datasets: [
+                  {
+                    label: 'Pending',
+                    data: pendingData,
+                    backgroundColor: '#f59e0b'
+                  },
+                  {
+                    label: 'Approved',
+                    data: approvedData,
+                    backgroundColor: '#34d399'
+                  }
+                ]
+              },
+              options: {
+                scales: {
+                  xAxes: [{ stacked: true, ticks: { fontColor: '#ccc' }, gridLines: { color: '#333' } }],
+                  yAxes: [{
+                    stacked: true,
+                    ticks: { fontColor: '#ccc', beginAtZero: true, stepSize: 1, max: maxVal + 1 },
+                    gridLines: { color: '#333' }
+                  }]
+                },
+                legend: { labels: { fontColor: '#ccc' } },
+                title: {
+                  display: true,
+                  text: 'Reviewer Workload (least busy first)',
+                  fontColor: '#e5e7eb',
+                  fontSize: 14
+                },
+                plugins: {
+                  datalabels: {
+                    display: true,
+                    color: '#000',
+                    font: { weight: 'bold', size: 11 },
+                    formatter: '__FORMATTER__'
+                  }
+                }
+              }
+            };
+
+            // QuickChart evaluates raw function() tokens in the config string.
+            // JSON.stringify drops JS functions, so we use a placeholder and replace it.
+            const chartJson = JSON.stringify(chartConfig)
+              .replace('"__FORMATTER__"', "function(v){return v>0?v:''}");
+
+            const chartUrl = `https://quickchart.io/chart?bkg=%230a0a0a&c=${encodeURIComponent(chartJson)}`;
+
+            // Build the table for accessibility / text fallback
+            const tableRows = results
+              .filter(r => r.total > 0)
+              .map(r => `| ${r.name} | @${r.github} | ${r.pending} | ${r.approved} | **${r.total}** |`)
+              .join('\n');
+
+            const tableHeader = `| Name | GitHub | Pending | Approved | Total |\n|------|--------|---------|----------|-------|\n`;
+
+            const now = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+
+            const body = [
+              `## Reviewer Workload`,
+              ``,
+              `![Reviewer Workload Chart](${chartUrl})`,
+              ``,
+              `<details><summary>View as table</summary>`,
+              ``,
+              tableHeader + tableRows,
+              ``,
+              `</details>`,
+              ``,
+              `> Snapshot at ${now}. Sorted by pending reviews (least busy first).`,
+              `> **Pending** = awaiting review action | **Approved** = completed reviews on open PRs`
+            ].join('\n');
+
+            // Post the comment
+            await github.rest.issues.createComment({
+              owner: REPO_OWNER,
+              repo: REPO_NAME,
+              issue_number: context.payload.pull_request.number,
+              body
+            });
+
+            console.log(`Posted workload chart comment on PR #${context.payload.pull_request.number}`);
