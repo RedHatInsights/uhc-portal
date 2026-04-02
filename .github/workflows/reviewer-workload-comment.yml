@@ -37,6 +37,13 @@ jobs:
             }
 
             const { prNumber, results } = payload;
+
+            if (!prNumber) {
+              console.log('No PR number provided (dry run). Data collected successfully:');
+              console.log(JSON.stringify(results, null, 2));
+              return;
+            }
+
             console.log(`Building chart for PR #${prNumber} with ${results.length} members...`);
 
             // Build QuickChart.io URL

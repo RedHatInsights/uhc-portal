@@ -3,6 +3,12 @@ name: Reviewer Workload Collect
 on:
   pull_request:
     types: [opened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to post the chart comment on (for testing)'
+        required: false
+        type: number
 
 permissions:
   contents: read
@@ -26,16 +32,25 @@ jobs:
               fs.readFileSync('.github/reviewer-workload-team.json', 'utf8')
             );
 
-            // Only collect if the PR author is on the team
-            const prAuthor = context.payload.pull_request.user.login;
-            const isTeamMember = teamMembers.some(m => m.github.toLowerCase() === prAuthor.toLowerCase());
-            if (!isTeamMember) {
-              console.log(`PR author @${prAuthor} is not in reviewer-workload-team.json — skipping.`);
-              fs.writeFileSync('workload-data.json', JSON.stringify({ skip: true }));
-              return;
+            const isManualDispatch = context.eventName === 'workflow_dispatch';
+            let prNumber;
+
+            if (isManualDispatch) {
+              prNumber = Number(context.payload.inputs?.pr_number) || 0;
+              console.log(`Manual dispatch — will target PR #${prNumber || '(none, dry run)'}`);
+            } else {
+              const prAuthor = context.payload.pull_request.user.login;
+              const isTeamMember = teamMembers.some(m => m.github.toLowerCase() === prAuthor.toLowerCase());
+              if (!isTeamMember) {
+                console.log(`PR author @${prAuthor} is not in reviewer-workload-team.json — skipping.`);
+                fs.writeFileSync('workload-data.json', JSON.stringify({ skip: true }));
+                return;
+              }
+              prNumber = context.payload.pull_request.number;
+              console.log(`PR author @${prAuthor} is a team member.`);
             }
 
-            console.log(`PR author @${prAuthor} is a team member. Fetching workload for ${teamMembers.length} members...`);
+            console.log(`Fetching workload for ${teamMembers.length} members...`);
 
             const results = await Promise.all(teamMembers.map(async (member) => {
               try {
@@ -98,7 +113,7 @@ jobs:
 
             const payload = {
               skip: false,
-              prNumber: context.payload.pull_request.number,
+              prNumber,
               results,
               timestamp: new Date().toISOString()
             };
