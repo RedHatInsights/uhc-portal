@@ -96,8 +96,8 @@ describe('<EditClusterWideProxyDialog />', () => {
     });
   });
 
-  describe('Regression: OCMUI-4183', () => {
-    it('does not include proxy object when only additional_trust_bundle changes', async () => {
+  describe('updating proxy and trust bundle', () => {
+    it('excludes proxy object when only additional_trust_bundle changes', async () => {
       // Arrange
       render(<EditClusterWideProxyDialog cluster={baseCluster} region="us-east-1" />);
 
