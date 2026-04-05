@@ -19,6 +19,7 @@ import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/excl
 import { noMachineTypes } from '~/common/helpers';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
+import { useFormState } from '~/components/clusters/wizards/hooks';
 import ErrorBox from '~/components/common/ErrorBox';
 import ExternalLink from '~/components/common/ExternalLink';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
@@ -87,11 +88,9 @@ const MachineTypeSelection = ({
 }: MachineTypeSelectionProps) => {
   const dispatch = useDispatch();
 
-  const [
-    _field,
-    { value: instanceType, touched, error: instanceTypeError },
-    { setValue: setFieldValue },
-  ] = useField(fieldId);
+  const {
+    values: { [fieldId]: selectedInstanceType },
+  } = useFormState();
 
   const { flavours, machineTypesByRegion, organization, quota } = useGlobalState(
     (state) => ({
@@ -106,8 +105,8 @@ const MachineTypeSelection = ({
   // checks if previous selection was from unfiltered machine set. Will flip filter value.
   const previousSelectionFromUnfilteredSet =
     machineTypesByRegion.fulfilled &&
-    !machineTypesByRegion?.typesByID[instanceType?.id]?.id &&
-    machineTypesResponse?.typesByID?.[instanceType?.id]?.id;
+    !machineTypesByRegion?.typesByID[selectedInstanceType?.id]?.id &&
+    machineTypesResponse?.typesByID?.[selectedInstanceType?.id]?.id;
 
   /** Checks whether required data arrived. */
   const isDataReady =
@@ -142,6 +141,26 @@ const MachineTypeSelection = ({
   const activeMachineTypesError = useMachineTypesByRegion
     ? machineTypesByRegion
     : machineTypesErrorResponse;
+
+  const [
+    _field,
+    { value: instanceType, touched, error: instanceTypeError },
+    { setValue: setFieldValue },
+  ] = useField({
+    name: fieldId,
+    validate: (value) => {
+      if (!isDataReady || (useRegionFilteredData && machineTypesByRegion.pending)) {
+        return 'data is not ready';
+      }
+      if (activeMachineTypesHasError) {
+        return 'an error occurred during machine-types request';
+      }
+      if (!value) {
+        return 'no value available';
+      }
+      return undefined;
+    },
+  });
 
   /**
    * Checks whether type can be offered, based on quota and ccs_only.
@@ -234,6 +253,10 @@ const MachineTypeSelection = ({
     activeMachineTypes?.typesByID,
   ]);
 
+  const setInvalidValue = React.useCallback(() => {
+    setFieldValue(null);
+  }, [setFieldValue]);
+
   React.useEffect(() => {
     dispatch(getDefaultFlavour()); // This should be migrated to React Query instead of sorting it in Redux. See issue #OCMUI-3323
   }, [dispatch]);
@@ -242,10 +265,18 @@ const MachineTypeSelection = ({
     if (
       isDataReady &&
       (!useRegionFilteredData || isRegionSpecificDataReady) &&
-      activeMachineTypes.typesByID &&
-      !instanceType
+      activeMachineTypes.typesByID
     ) {
-      setDefaultValue();
+      if (!instanceType) {
+        setDefaultValue();
+      }
+
+      // If user had made a choice, then some external param changed like CCS/MultiAz,
+      // (we can get here on mount after switching wizard steps)
+      // and selected type is no longer availble, force user to choose again.
+      if (instanceType && !isTypeAvailable(instanceType?.id)) {
+        setInvalidValue();
+      }
     }
   }, [
     instanceType,
@@ -255,6 +286,7 @@ const MachineTypeSelection = ({
     isRegionSpecificDataReady,
     isTypeAvailable,
     setDefaultValue,
+    setInvalidValue,
   ]);
 
   const sortedMachineTypes = React.useMemo(
