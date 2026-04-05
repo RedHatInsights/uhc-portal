@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 
 import docLinks from '~/common/docLinks.mjs';
 import * as utils from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/components/EditMachinePoolModal/components/utils';
@@ -142,6 +142,75 @@ describe('<EditNodeCountSection />', () => {
 
       const link = screen.getByText('Learn more about autoscaling');
       expect(link).toHaveAttribute('href', docLinks.OSD_CLUSTER_AUTOSCALING);
+    });
+
+    it('does not allow 0 max replicas for classic (non-HCP) cluster', async () => {
+      withState(initialState).render(
+        <Formik
+          initialValues={{
+            autoscaling: true,
+            autoscaleMin: 1,
+            autoscaleMax: 1,
+            instanceType: { id: 'm5.xlarge' },
+          }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={nonHCPCluster}
+            machinePool={defaultMachinePool}
+          />
+        </Formik>,
+      );
+
+      const autoScaleMaxNodesFormGroup = screen.getByTestId('autoscale-max-group');
+      const autoscaleMaxNodesInput = within(autoScaleMaxNodesFormGroup).getByRole(
+        'spinbutton',
+      ) as HTMLInputElement;
+      expect(autoscaleMaxNodesInput.value).toBe('1');
+
+      const autoscaleMaxNodesMinusButton = within(autoScaleMaxNodesFormGroup).getByRole('button', {
+        name: 'Minus',
+      });
+      expect(autoscaleMaxNodesMinusButton).toBeDisabled();
+    });
+
+    it('allows 0 max replicas for HCP cluster', async () => {
+      const { user } = withState(initialState).render(
+        <Formik
+          initialValues={{
+            autoscaling: true,
+            autoscaleMin: 0,
+            autoscaleMax: 1,
+            instanceType: { id: 'm5.xlarge' },
+          }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[defaultMachinePool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={{}}
+          />
+        </Formik>,
+      );
+
+      const autoScaleMaxNodesFormGroup = screen.getByTestId('autoscale-max-group');
+      const autoscaleMaxNodesInput = within(autoScaleMaxNodesFormGroup).getByRole(
+        'spinbutton',
+      ) as HTMLInputElement;
+      expect(autoscaleMaxNodesInput.value).toBe('1');
+
+      const autoscaleMaxNodesMinusButton = within(autoScaleMaxNodesFormGroup).getByRole('button', {
+        name: 'Minus',
+      });
+      expect(autoscaleMaxNodesMinusButton).not.toBeDisabled();
+
+      await user.click(autoscaleMaxNodesMinusButton);
+      expect(autoscaleMaxNodesInput.value).toBe('0');
     });
   });
 

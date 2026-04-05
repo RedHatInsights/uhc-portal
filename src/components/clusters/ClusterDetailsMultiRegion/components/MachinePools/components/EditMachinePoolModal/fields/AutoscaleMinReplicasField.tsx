@@ -47,7 +47,7 @@ const AutoscaleMinReplicasField = ({
           helpers.setTouched(true, false);
         }}
         id={fieldId}
-        min={minNodes || 1}
+        min={minNodes ?? 1}
         max={maxNodes}
         inputProps={{
           onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
