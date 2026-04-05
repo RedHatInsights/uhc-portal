@@ -8,7 +8,7 @@ cd "$(dirname "$(dirname "$0")")"  # repo root directory (above run/ that contai
 
 # If insights-proxy is already running, spandx will happily start on
 # next available port, despite us requesting specific SPANDX_PORT.
-yarn stop-insights-proxy
+npm run stop-insights-proxy
 export SPANDX_PORT=1337
 run/check-spandx-port-available.js
 
@@ -28,10 +28,10 @@ esac
 # insights-proxy container currently tends to not die when killed with SIGTERM.
 # `podman run` may "detach" & exit, but container stays running,
 # or may not exit at all!  So abort it ourselves.
-trap 'echo Trapped SIGINT; yarn stop-insights-proxy' INT
-trap 'echo Trapped SIGTERM; yarn stop-insights-proxy' TERM
-trap 'echo Trapped SIGHUP; yarn stop-insights-proxy' HUP
-trap 'yarn stop-insights-proxy' EXIT
+trap 'echo Trapped SIGINT; npm run stop-insights-proxy' INT
+trap 'echo Trapped SIGTERM; npm run stop-insights-proxy' TERM
+trap 'echo Trapped SIGHUP; npm run stop-insights-proxy' HUP
+trap 'npm run stop-insights-proxy' EXIT
 
 # bash doesn't trap signals while a foreground command is running.
 # Running in background + wait allows the trap to work.
