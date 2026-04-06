@@ -10,8 +10,7 @@
 .fuzzy-select__toggle.pf-v6-c-menu-toggle .pf-v6-c-menu-toggle__text {
   flex: 1;
   min-width: 0;
-  /* restore left alignment inside the grown area */
-  justify-content: flex-start; /* if this node is a flex container */
+  justify-content: flex-start;
   text-align: left;
 }
 
