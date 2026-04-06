@@ -211,6 +211,22 @@ describe('<EditClusterWideProxyDialog />', () => {
       expect(callArgs.cluster.proxy.https_proxy).toBeUndefined();
       expect(callArgs.cluster.proxy.no_proxy).toBeUndefined();
     });
+
+    it('skips API call and closes dialog when no fields change', async () => {
+      // Arrange
+      render(<EditClusterWideProxyDialog cluster={baseCluster} region="us-east-1" />);
+
+      // Act - submit without changing any values
+      await act(async () => {
+        formikRef?.submitForm();
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(dispatchMock).toHaveBeenCalled();
+      });
+      expect(mutateMock).not.toHaveBeenCalled();
+    });
   });
 
   it('does not render when modal is closed', () => {

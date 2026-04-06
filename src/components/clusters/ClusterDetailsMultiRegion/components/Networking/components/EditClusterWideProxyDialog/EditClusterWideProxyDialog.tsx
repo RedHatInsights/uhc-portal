@@ -73,6 +73,11 @@ const EditClusterWideProxyDialog = ({ cluster, region }: EditClusterWideProxyDia
           proxyHttpsChange !== undefined ||
           proxyNoProxyChange !== undefined;
 
+        const trustBundleChange = OnlyReturnValueIfChanged(
+          values.additional_trust_bundle,
+          initialValues.additional_trust_bundle,
+        );
+
         const clusterProxyBody = {
           ...(hasProxyChanges && {
             proxy: {
@@ -81,11 +86,15 @@ const EditClusterWideProxyDialog = ({ cluster, region }: EditClusterWideProxyDia
               no_proxy: proxyNoProxyChange,
             },
           }),
-          additional_trust_bundle: OnlyReturnValueIfChanged(
-            values.additional_trust_bundle,
-            initialValues.additional_trust_bundle,
-          ),
+          ...(trustBundleChange !== undefined && {
+            additional_trust_bundle: trustBundleChange,
+          }),
         };
+
+        if (Object.keys(clusterProxyBody).length === 0) {
+          handleClose();
+          return;
+        }
 
         mutateClusterEdit(
           {
