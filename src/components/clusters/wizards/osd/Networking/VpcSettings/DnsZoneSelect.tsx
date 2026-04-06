@@ -81,14 +81,21 @@ const DnsZoneSelect = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dnsDomains, selectedDnsZone?.id]);
 
+  const isSelectedDnsZoneDeleted = (currentDnsZone?: DnsDomain, dnsZones?: DnsDomain[]) =>
+    currentDnsZone?.id &&
+    dnsZones?.find((dnsZone) => dnsZone.id === currentDnsZone?.id) === undefined;
+
+  React.useEffect(() => {
+    if (isSelectedDnsZoneDeleted(selectedDnsZone, dnsDomains)) {
+      inputProps.onChange({ id: '' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dnsDomains]);
+
   const refreshGcpDnsZones = () => {
     refetchGcpDnsZones();
 
-    const isSelectedDnsZoneDeleted =
-      selectedDnsZone?.id &&
-      dnsDomains?.find((dnsZone) => dnsZone.id === selectedDnsZone?.id) === undefined;
-
-    if (isSelectedDnsZoneDeleted) {
+    if (isSelectedDnsZoneDeleted(selectedDnsZone, dnsDomains)) {
       inputProps.onChange({ id: '' });
     }
   };
