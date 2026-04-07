@@ -5,7 +5,7 @@ import clusterService from '~/services/clusterService';
 
 export const useFetchGcpDnsZone = (id: string, isGcp: boolean) => {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['gcpDnsDomains'],
+    queryKey: ['gcpDnsZone', id],
     queryFn: async () => {
       const response = await clusterService.getGcpDnsDomains({ id });
       return response;
