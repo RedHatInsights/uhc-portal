@@ -14,6 +14,7 @@ import { CreateOSDWizardPage } from '../page-objects/create-osd-wizard-page';
 import { CreateClusterPage } from '../page-objects/create-cluster-page';
 import { CreateRosaWizardPage } from '../page-objects/create-rosa-wizard-page';
 import { DownloadsPage } from '../page-objects/downloads-page';
+import { ClusterRolesAndAccessPage } from '../page-objects/cluster-roles-access-page';
 import { OCMRolesAndAccessPage } from '../page-objects/ocm-roles-access-page';
 import { OsdProductPage } from '../page-objects/osd-product-page';
 import { OverviewPage } from '../page-objects/overview-page';
@@ -44,6 +45,7 @@ type WorkerFixtures = {
   createClusterPage: CreateClusterPage;
   createRosaWizardPage: CreateRosaWizardPage;
   downloadsPage: DownloadsPage;
+  clusterRolesAndAccessPage: ClusterRolesAndAccessPage;
   ocmRolesAndAccessPage: OCMRolesAndAccessPage;
   osdProductPage: OsdProductPage;
   overviewPage: OverviewPage;
@@ -204,6 +206,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   downloadsPage: [
     async ({ authenticatedPage }, use) => {
       const pageObject = new DownloadsPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: ClusterRolesAndAccessPage instance - created once, reused across all tests in suite
+  clusterRolesAndAccessPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new ClusterRolesAndAccessPage(authenticatedPage);
       await use(pageObject);
     },
     { scope: 'worker' },

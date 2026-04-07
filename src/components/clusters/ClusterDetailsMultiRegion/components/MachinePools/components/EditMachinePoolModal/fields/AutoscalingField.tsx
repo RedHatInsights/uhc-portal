@@ -27,8 +27,7 @@ const AutoscalingField = ({ cluster }: AutoscalingFieldProps) => {
   );
 
   const isRosa = isROSA(cluster);
-  const autoScalingUrl = isRosa ? docLinks.ROSA_AUTOSCALING : docLinks.APPLYING_AUTOSCALING;
-
+  const autoScalingUrl = isRosa ? docLinks.ROSA_AUTOSCALING : docLinks.OSD_CLUSTER_AUTOSCALING;
   return canAutoScale ? (
     <FormGroup label="Scaling">
       <Checkbox
@@ -37,6 +36,7 @@ const AutoscalingField = ({ cluster }: AutoscalingFieldProps) => {
           <>
             Enable autoscaling{' '}
             <PopoverHint
+              buttonAriaLabel="More information about autoscaling"
               hint={
                 <>
                   {constants.autoscaleHint}{' '}

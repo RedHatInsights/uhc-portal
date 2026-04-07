@@ -350,11 +350,15 @@ function ClusterListTable(props) {
     );
   };
 
+  const hideHeaderWhilePendingEmpty = isPending && (!clusters || clusters.length === 0);
+
   return (
     <Table aria-label="Cluster List">
-      <Thead>
-        <Tr>{columnCells}</Tr>
-      </Thead>
+      {hideHeaderWhilePendingEmpty ? null : (
+        <Thead>
+          <Tr>{columnCells}</Tr>
+        </Thead>
+      )}
       <Tbody data-testid="clusterListTableBody">
         {isPending ? skeletonRows() : clusters.map((cluster) => clusterRow(cluster))}
       </Tbody>

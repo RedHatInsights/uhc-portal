@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Formik } from 'formik';
 
+import docLinks from '~/common/docLinks.mjs';
 import { FieldId } from '~/components/clusters/wizards/common';
 import { render, screen, waitFor } from '~/testUtils';
 
@@ -52,5 +53,60 @@ describe('<MachinePool />', () => {
     await waitFor(() => {
       expect(screen.getByText('Edit cluster autoscaling settings')).toBeInTheDocument();
     });
+  });
+
+  it('renders correct autoscaling link for OSD cluster', async () => {
+    const { user } = render(
+      <Formik
+        initialValues={{
+          [FieldId.NodeLabels]: [{ key: 'test-key', value: 'test-value' }],
+          [FieldId.MachineType]: 'test',
+          [FieldId.MachineTypeForceChoice]: 'test',
+          [FieldId.BillingModel]: 'marketplace-gcp',
+          [FieldId.Product]: 'OSD',
+          [FieldId.CloudProvider]: 'GCP',
+          [FieldId.Byoc]: 'true',
+          [FieldId.ClusterVersion]: { raw_id: '4.21.4' },
+        }}
+        onSubmit={() => {}}
+      >
+        <MachinePool />
+      </Formik>,
+    );
+
+    const moreInfoBtn = await screen.findByRole('button', {
+      name: 'More information about autoscaling',
+    });
+    await user.click(moreInfoBtn);
+
+    const link = screen.getByText('Learn more about autoscaling');
+    expect(link).toHaveAttribute('href', docLinks.OSD_CLUSTER_AUTOSCALING);
+  });
+
+  it('renders correct autoscaling link for rosa cluster', async () => {
+    const { user } = render(
+      <Formik
+        initialValues={{
+          [FieldId.NodeLabels]: [{ key: 'test-key', value: 'test-value' }],
+          [FieldId.MachineType]: 'test',
+          [FieldId.MachineTypeForceChoice]: 'test',
+          [FieldId.BillingModel]: 'marketplace-aws',
+          [FieldId.Product]: 'ROSA',
+          [FieldId.CloudProvider]: 'aws',
+          [FieldId.ClusterVersion]: { raw_id: '4.21.4' },
+        }}
+        onSubmit={() => {}}
+      >
+        <MachinePool />
+      </Formik>,
+    );
+
+    const moreInfoBtn = await screen.findByRole('button', {
+      name: 'More information about autoscaling',
+    });
+    await user.click(moreInfoBtn);
+
+    const link = screen.getByText('Learn more about autoscaling with ROSA');
+    expect(link).toHaveAttribute('href', docLinks.ROSA_AUTOSCALING);
   });
 });

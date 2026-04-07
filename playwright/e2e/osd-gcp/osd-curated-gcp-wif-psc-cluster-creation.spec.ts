@@ -1,17 +1,21 @@
 import { test, expect } from '../../fixtures/pages';
 
-const clusterProperties = require('../../fixtures/osd-gcp/osd-curated-gcp-sa-psc-cluster-creation.spec.json');
+const clusterProperties = require('../../fixtures/osd-gcp/osd-curated-gcp-wif-psc-cluster-creation.spec.json');
+
 const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
-const QE_GCP = process.env.QE_GCP_OSDCCSADMIN_JSON;
+const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG;
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
 const PSC_INFRA = QE_INFRA_GCP['PSC_INFRA'] || {};
 const region = PSC_INFRA['REGION'] || clusterProperties.Region.split(',')[0];
 
 test.describe.serial(
-  'OSD GCP Curated Marketplace Service Account PSC cluster creation tests (OCMUI-3888)',
-  { tag: ['@smoke', '@osd'] },
+  'OSD GCP Curated Marketplace WIF PSC cluster creation tests (OCMUI-3888)',
+  { tag: ['@smoke', '@osd', '@curated'] },
   () => {
     test.beforeAll(async ({ navigateTo }) => {
+      if (!QE_GCP_WIF_CONFIG?.trim()) {
+        throw new Error('QE_GCP_WIF_CONFIG must be set for curated GCP WIF PSC tests');
+      }
       // Navigate directly to curated OSD GCP wizard
       await navigateTo('create/osdgcp');
     });
@@ -30,10 +34,8 @@ test.describe.serial(
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isOnlyGCPCloudProviderSelectionScreen();
-      await createOSDWizardPage.serviceAccountButton().click();
-      await createOSDWizardPage.isWIFRecommendationAlertPresent();
-      await createOSDWizardPage.uploadGCPServiceAccountJSON(QE_GCP || '{}');
-      await createOSDWizardPage.isPrerequisitesHintPresent(clusterProperties.PrerequisitesHint);
+      await createOSDWizardPage.isOnlyWifAuthenticationTypeScreen();
+      await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG);
       await createOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       await page.locator(createOSDWizardPage.primaryButton).click();
     });

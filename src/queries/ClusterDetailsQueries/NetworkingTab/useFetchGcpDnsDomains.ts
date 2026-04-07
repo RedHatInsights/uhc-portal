@@ -8,7 +8,7 @@ export const refetchGcpDnsZones = () => {
   queryClient.invalidateQueries({ queryKey: ['gcpDnsDomains'] });
 };
 
-export const useFetchGcpDnsDomains = (domainPrefix: string) => {
+export const useFetchGcpDnsDomains = (domainPrefix: string, organizationId: string) => {
   const { data, isLoading, isFetching, isError, error, isSuccess } = useQuery({
     queryKey: ['gcpDnsDomains'],
     queryFn: async () => {
@@ -17,8 +17,12 @@ export const useFetchGcpDnsDomains = (domainPrefix: string) => {
     },
   });
 
-  const filteredDnsZones = (domainPrefix: string) =>
-    data?.data?.items?.filter((dnsZone) => dnsZone?.gcp?.domain_prefix === domainPrefix);
+  const filteredDnsZones = (domainPrefix: string, organizationId: string) =>
+    data?.data?.items?.filter(
+      (dnsZone) =>
+        dnsZone?.gcp?.domain_prefix === domainPrefix &&
+        dnsZone?.organization?.id === organizationId,
+    );
 
   if (isError) {
     const formattedError = formatErrorData(isLoading, isError, error);
@@ -33,7 +37,7 @@ export const useFetchGcpDnsDomains = (domainPrefix: string) => {
   }
 
   return {
-    data: filteredDnsZones(domainPrefix) ?? [],
+    data: filteredDnsZones(domainPrefix, organizationId) ?? [],
     isLoading,
     isFetching,
     isError,

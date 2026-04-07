@@ -3,8 +3,10 @@ import { Formik } from 'formik';
 
 import { screen } from '@testing-library/react';
 
+import docLinks from '~/common/docLinks.mjs';
 import * as utils from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/components/EditMachinePoolModal/components/utils';
 import { withState } from '~/testUtils';
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
@@ -31,13 +33,19 @@ const initialState = {
 };
 
 const nonHCPCluster: ClusterFromSubscription = {
-  product: { id: 'ROSA' },
+  product: { id: 'OSD' },
+  subscription: {
+    cluster_billing_model: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
+    capabilities: [{}],
+    managed: false,
+  },
   cloud_provider: { id: 'aws' },
   hypershift: { enabled: false },
 } as ClusterFromSubscription;
 
 const hcpCluster: ClusterFromSubscription = {
-  ...nonHCPCluster,
+  product: { id: 'ROSA' },
+  cloud_provider: { id: 'aws' },
   hypershift: { enabled: true },
 } as ClusterFromSubscription;
 
@@ -88,6 +96,52 @@ describe('<EditNodeCountSection />', () => {
       expect(
         screen.queryByText(/Node scaling is automatic and will be performed immediately/i),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('autoscaling', () => {
+    it('renders correct autoscaling link for rosa cluster', async () => {
+      const { user } = withState(initialState).render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <EditNodeCountSection
+            machinePools={[]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={defaultMachinePool}
+          />
+        </Formik>,
+      );
+
+      const moreInfoBtn = await screen.findByRole('button', {
+        name: 'More information about autoscaling',
+      });
+      await user.click(moreInfoBtn);
+
+      const link = screen.getByText('Learn more about autoscaling with ROSA');
+      expect(link).toHaveAttribute('href', docLinks.ROSA_AUTOSCALING);
+    });
+
+    it('renders correct autoscaling link for OSD cluster', async () => {
+      const { user } = withState(initialState).render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <EditNodeCountSection
+            machinePools={[]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={nonHCPCluster}
+            machinePool={defaultMachinePool}
+          />
+        </Formik>,
+      );
+
+      const moreInfoBtn = await screen.findByRole('button', {
+        name: 'More information about autoscaling',
+      });
+      await user.click(moreInfoBtn);
+
+      const link = screen.getByText('Learn more about autoscaling');
+      expect(link).toHaveAttribute('href', docLinks.OSD_CLUSTER_AUTOSCALING);
     });
   });
 });

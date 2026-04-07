@@ -415,7 +415,7 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         /**
          * Retrieved list of add-ons.
          */
-        items?: Array<GcpDnsDomain>;
+        items?: Array<DnsDomain>;
         /**
          * Index of the requested page, where one corresponds to the first page.
          */
