@@ -13984,7 +13984,6 @@ export interface components {
       reserved_at_timestamp?: string;
       /** @description Indicates if this dns domain is user defined. */
       user_defined?: boolean;
-      /** @description Additional gcp properties of the domain */
     };
     /** @description Google cloud platform settings of a cluster. */
     GCP: {
