@@ -1,5 +1,17 @@
 .fuzzy-select__toggle.pf-v6-c-menu-toggle {
   max-width: none;
+  // align clear button to the end of container
+  .pf-v6-c-menu-toggle__text {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.fuzzy-select__toggle.pf-v6-c-menu-toggle .pf-v6-c-menu-toggle__text {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 // New PF select doesn't support sticky footer oob. Adding a basic implementation
@@ -19,4 +31,9 @@
 .fuzzy-select__toggle-used-subnets {
   color: var(--pf-t--global--color--brand--default) !important;
   cursor: pointer;
+}
+
+.clearButton {
+  padding-top: 0;
+  padding-bottom: 0;
 }

@@ -24,6 +24,7 @@ export enum FieldId {
   ClusterAutoscaling = 'cluster_autoscaling',
   ClusterName = 'name',
   ClusterVersion = 'cluster_version',
+  VersionChannel = 'version_channel',
   ComputeSubnet = 'compute_subnet',
   ConfigureProxy = 'configure_proxy',
   PrivateServiceConnect = 'private_service_connect',
