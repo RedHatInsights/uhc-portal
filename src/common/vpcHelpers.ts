@@ -1,14 +1,6 @@
-import { CloudVpc, DnsDomain, Subnetwork } from '~/types/clusters_mgmt.v1';
+import { CloudVpc, Subnetwork } from '~/types/clusters_mgmt.v1';
 
 export type SubnetPrivacy = 'private' | 'public';
-
-type GcpDnsDomain = DnsDomain & {
-  gcp?: {
-    domain_prefix?: string;
-    project_id?: string;
-    network_id?: string;
-  };
-};
 
 const isSubnetMatchingPrivacy = (subnet: Subnetwork, privacy?: SubnetPrivacy) =>
   !privacy || (privacy === 'public' && subnet.public) || (privacy === 'private' && !subnet.public);
@@ -144,5 +136,4 @@ export {
   isSubnetMatchingPrivacy,
   getAllSubnetFieldNames,
   inferRegionFromSubnets,
-  GcpDnsDomain,
 };

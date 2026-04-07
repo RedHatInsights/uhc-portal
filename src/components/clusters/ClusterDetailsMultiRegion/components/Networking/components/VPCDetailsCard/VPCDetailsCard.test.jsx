@@ -88,7 +88,7 @@ describe('<VPCDetailsCard />', () => {
       render(<VPCDetailsCard {...props} />);
       expect(screen.queryByText('Shared VPC')).toBeInTheDocument();
       expect(screen.queryByText(sharedVpc)).toBeInTheDocument();
-      expect(screen.queryByText('DNS zone')).toBeInTheDocument();
+      expect(screen.queryByText('DNS Zone')).toBeInTheDocument();
       expect(screen.queryByText(baseDomain)).toBeInTheDocument();
     });
 
@@ -108,7 +108,7 @@ describe('<VPCDetailsCard />', () => {
       render(<VPCDetailsCard {...newProps} />);
       expect(screen.queryByText('Shared VPC')).not.toBeInTheDocument();
       expect(screen.queryByText(sharedVpc)).not.toBeInTheDocument();
-      expect(screen.queryByText('DNS zone')).not.toBeInTheDocument();
+      expect(screen.queryByText('DNS Zone')).not.toBeInTheDocument();
       expect(screen.queryByText(baseDomain)).not.toBeInTheDocument();
     });
   });

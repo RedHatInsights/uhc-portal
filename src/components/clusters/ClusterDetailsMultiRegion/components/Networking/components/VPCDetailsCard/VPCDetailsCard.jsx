@@ -139,10 +139,12 @@ const VPCDetailsCard = ({ cluster }) => {
                 <DescriptionListTerm>Host project ID</DescriptionListTerm>
                 <DescriptionListDescription>{hostProjectId}</DescriptionListDescription>
               </DescriptionListGroup>
-              <DescriptionListGroup>
-                <DescriptionListTerm>DNS zone</DescriptionListTerm>
-                <DescriptionListDescription>{dnsZone}</DescriptionListDescription>
-              </DescriptionListGroup>
+              {dnsZone ? (
+                <DescriptionListGroup>
+                  <DescriptionListTerm>DNS Zone</DescriptionListTerm>
+                  <DescriptionListDescription>{dnsZone}</DescriptionListDescription>
+                </DescriptionListGroup>
+              ) : null}
             </DescriptionList>
           </>
         ) : null}

@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
 
-import { GcpDnsDomain } from '~/common/vpcHelpers';
 import { WifConfigList } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import defaultApiRequest, { APIRequest, getAPIRequestForRegion } from '~/services/apiRequest';
 import type { Subscription } from '~/types/accounts_mgmt.v1';
