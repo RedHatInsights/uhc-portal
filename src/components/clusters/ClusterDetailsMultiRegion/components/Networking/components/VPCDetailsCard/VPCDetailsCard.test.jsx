@@ -1,14 +1,8 @@
 import * as React from 'react';
 
 import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
+import { mockRestrictedEnv, mockUseFeatureGate, render, screen } from '~/testUtils';
 import { ClusterState } from '~/types/clusters_mgmt.v1/enums';
-
-import {
-  mockRestrictedEnv,
-  mockUseFeatureGate,
-  render,
-  screen,
-} from '../../../../../../../testUtils';
 
 import VPCDetailsCard from './VPCDetailsCard';
 
