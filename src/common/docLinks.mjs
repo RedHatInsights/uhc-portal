@@ -180,6 +180,8 @@ const docLinks = {
     'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html-single/managing_clusters/index#transferring-cluster-ownership_downloading-and-updating-pull-secrets',
 
   RH_DEV_TOOLS: 'https://developers.redhat.com/topics/developer-tools',
+
+  OCP_UPDATE_CHANNELS: `${OCP_DOCS_BASE}/updating_clusters/understanding-openshift-updates-1#understanding-update-channels-releases`,
 };
 
 const getLinks = async () => combineAndSortLinks(Object.values(docLinks));

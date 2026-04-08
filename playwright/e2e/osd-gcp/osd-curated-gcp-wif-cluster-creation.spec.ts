@@ -1,12 +1,13 @@
-import { test, expect } from '../../fixtures/pages';
+import installLinks from '../../../src/common/installLinks.mjs';
+import { expect, test } from '../../fixtures/pages';
 
 const clusterProperties = require('../../fixtures/osd-gcp/osd-curated-gcp-wif-cluster-creation.spec.json');
 
 const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG || '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
-const PSC_INFRA = QE_INFRA_GCP['PSC_INFRA'] || {};
-const region = PSC_INFRA['REGION'] || clusterProperties.Region.split(',')[0];
+const PSC_INFRA = QE_INFRA_GCP.PSC_INFRA || {};
+const region = PSC_INFRA.REGION || clusterProperties.Region.split(',')[0];
 
 test.describe.serial(
   'OSD GCP Curated Marketplace WIF cluster creation tests (OCMUI-3888)',
@@ -35,7 +36,10 @@ test.describe.serial(
     }) => {
       await createOSDWizardPage.isOnlyGCPCloudProviderSelectionScreen();
       await createOSDWizardPage.isOnlyWifAuthenticationTypeScreen();
-      await createOSDWizardPage.isPrerequisitesHintPresent(clusterProperties.PrerequisitesHint);
+      await createOSDWizardPage.isPrerequisitesHintPresent(
+        clusterProperties.PrerequisitesHint,
+        installLinks.GCP_CONSOLE_OSD_PREREQ_CHECK,
+      );
       await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG);
       await createOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       await page.locator(createOSDWizardPage.primaryButton).click();
@@ -92,11 +96,9 @@ test.describe.serial(
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isVPCSubnetScreen();
-      await createOSDWizardPage.selectGcpVPC(PSC_INFRA['VPC_NAME'] || '');
-      await createOSDWizardPage.selectControlPlaneSubnetName(
-        PSC_INFRA['CONTROLPLANE_SUBNET'] || '',
-      );
-      await createOSDWizardPage.selectComputeSubnetName(PSC_INFRA['COMPUTE_SUBNET'] || '');
+      await createOSDWizardPage.selectGcpVPC(PSC_INFRA.VPC_NAME || '');
+      await createOSDWizardPage.selectControlPlaneSubnetName(PSC_INFRA.CONTROLPLANE_SUBNET || '');
+      await createOSDWizardPage.selectComputeSubnetName(PSC_INFRA.COMPUTE_SUBNET || '');
       await createOSDWizardPage.wizardNextButton().click();
     });
 

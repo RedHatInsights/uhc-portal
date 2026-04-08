@@ -41,6 +41,7 @@ export default {
       hosted_control_plane_enabled: true,
       end_of_life_timestamp: '2024-09-17T00:00:00Z',
     },
+    version_channel: 'fast-4.13',
     custom_operator_roles_prefix: 'my-cluster-cu1f',
     selected_vpc: {
       id: 'vpc-0cf6c1b4e2a234863',

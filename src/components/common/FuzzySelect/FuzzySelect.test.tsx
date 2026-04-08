@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { checkAccessibility, render, screen } from '~/testUtils';
+import { checkAccessibility, render, screen, waitFor } from '~/testUtils';
 
 import { FuzzySelect, FuzzySelectProps } from './FuzzySelect';
 
@@ -167,6 +167,81 @@ describe('FuzzySelect', () => {
           name: 'I am different',
         }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('Clear selection (isClearable)', () => {
+    it('does not render the clear control when isClearable is false despite a selected value', () => {
+      render(
+        <FuzzySelect
+          {...defaultProps}
+          isOpen={false}
+          isClearable={false}
+          selectedEntryId="item-111"
+          onSelect={() => null}
+        />,
+      );
+      expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument();
+    });
+
+    it('does not render the clear control when isClearable is true and nothing is selected', () => {
+      render(
+        <FuzzySelect
+          {...defaultProps}
+          isOpen={false}
+          isClearable
+          selectedEntryId=""
+          onSelect={() => null}
+        />,
+      );
+      expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument();
+    });
+
+    it('renders the clear control when isClearable is true and selectedEntryId is set', async () => {
+      render(
+        <FuzzySelect
+          {...defaultProps}
+          isOpen={false}
+          isClearable
+          selectedEntryId="item-111"
+          onSelect={() => null}
+        />,
+      );
+      expect(await screen.findByRole('button', { name: 'Clear selection' })).toBeInTheDocument();
+    });
+
+    it('does not render the clear control when isClearable is true but the select is disabled', () => {
+      render(
+        <FuzzySelect
+          {...defaultProps}
+          isOpen={false}
+          isClearable
+          isDisabled
+          selectedEntryId="item-111"
+          onSelect={() => null}
+        />,
+      );
+      expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument();
+    });
+
+    it('calls onSelect with an empty string and closes the menu when the clear control is clicked', async () => {
+      const onSelect = jest.fn();
+      const onOpenChange = jest.fn();
+      const { user } = render(
+        <FuzzySelect
+          {...defaultProps}
+          isOpen
+          isClearable
+          selectedEntryId="item-111"
+          onSelect={onSelect}
+          onOpenChange={onOpenChange}
+        />,
+      );
+      await user.click(await screen.findByRole('button', { name: 'Clear selection' }));
+      await waitFor(() => {
+        expect(onSelect).toHaveBeenCalledWith(expect.any(Object), '');
+      });
+      expect(onOpenChange).toHaveBeenCalledWith(false);
     });
   });
 });

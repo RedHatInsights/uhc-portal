@@ -13973,6 +13973,8 @@ export interface components {
       cluster?: components['schemas']['ClusterLink'];
       /** @description Signals which cluster architecture the domain is ready for. */
       cluster_arch?: components['schemas']['ClusterArchitecture'];
+      /** @description Gcp contains Google Cloud Platform-specific DNS domain configuration. */
+      gcp?: components['schemas']['GcpDnsDomain'];
       /** @description Link to the organization that reserved the DNS domain. */
       organization?: components['schemas']['OrganizationLink'];
       /**
@@ -15217,6 +15219,8 @@ export interface components {
       domain_prefix?: string;
       /** @description Indicates whether that etcd is encrypted or not.
        *     This is set only during cluster creation.
+       *     For ROSA-HCP Clusters, etcd is always encrypted, if not set/false, or kms user's key not set,
+       *     defaults true indicates 'encrypted by internal key'.
        *     For ARO-HCP Clusters, this is a readonly attribute, always set to true. */
       etcd_encryption?: boolean;
       /**
@@ -16017,6 +16021,17 @@ export interface components {
       id?: string;
       /** @description Indicates the type of this object */
       kind?: string;
+    };
+    /** @description GcpDnsDomain represents configuration for Google Cloud Platform DNS domain settings
+     *     used in cluster DNS configuration for GCP-hosted clusters. */
+    GcpDnsDomain: {
+      /** @description DomainPrefix specifies the DNS domain prefix that will be used for cluster DNS resolution.
+       *     This prefix is combined with the base domain to form the full DNS domain for the cluster. */
+      domain_prefix?: string;
+      /** @description NetworkId is the GCP VPC Network identifier where the DNS configuration will be applied. */
+      network_id?: string;
+      /** @description ProjectId is the Google Cloud Platform project identifier where the DNS zone is hosted. */
+      project_id?: string;
     };
     /** @description Google cloud platform private service connect configuration of a cluster. */
     GcpPrivateServiceConnect: {
@@ -17505,6 +17520,8 @@ export interface components {
       gcp_marketplace_enabled?: boolean;
       /** @description ROSAEnabled indicates whether this version can be used to create ROSA clusters. */
       rosa_enabled?: boolean;
+      /** @description AvailableChannels is the list of channels in which this version is present */
+      available_channels?: string[];
       /** @description AvailableUpgrades is the list of versions this version can be upgraded to. */
       available_upgrades?: string[];
       /** @description ChannelGroup is the name of the group where this image belongs.
@@ -17878,6 +17895,7 @@ export type SchemaExternalConfiguration = components['schemas']['ExternalConfigu
 export type SchemaFlavour = components['schemas']['Flavour'];
 export type SchemaFlavourNodes = components['schemas']['FlavourNodes'];
 export type SchemaGcpAuthentication = components['schemas']['GcpAuthentication'];
+export type SchemaGcpDnsDomain = components['schemas']['GcpDnsDomain'];
 export type SchemaGcpPrivateServiceConnect = components['schemas']['GcpPrivateServiceConnect'];
 export type SchemaGcpSecurity = components['schemas']['GcpSecurity'];
 export type SchemaGithubIdentityProvider = components['schemas']['GithubIdentityProvider'];

@@ -764,7 +764,7 @@ const urls = {
       [architectures.x86]: {
         [operatingSystems.linux]: `${ARGO_CD_CLI_LATEST}argocd-linux-amd64.tar.gz`,
         [operatingSystems.windows]: `${ARGO_CD_CLI_LATEST}argocd-windows-amd64.zip`,
-        [operatingSystems.mac]: `${ARGO_CD_CLI_LATEST}argocd-macos-amd64.tar.gz`,
+        [operatingSystems.mac]: `${ARGO_CD_CLI_LATEST}argocd-darwin-amd64.tar.gz`,
       },
       [architectures.s390x]: {
         [operatingSystems.linux]: `${ARGO_CD_CLI_LATEST}argocd-linux-s390x.tar.gz`,
@@ -774,7 +774,7 @@ const urls = {
       },
       [architectures.arm]: {
         [operatingSystems.linux]: `${ARGO_CD_CLI_LATEST}argocd-linux-arm64.tar.gz`,
-        [operatingSystems.mac]: `${ARGO_CD_CLI_LATEST}argocd-macos-arm64.tar.gz`,
+        [operatingSystems.mac]: `${ARGO_CD_CLI_LATEST}argocd-darwin-arm64.tar.gz`,
       },
     },
   },

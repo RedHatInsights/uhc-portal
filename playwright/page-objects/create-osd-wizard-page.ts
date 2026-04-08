@@ -60,25 +60,21 @@ export class CreateOSDWizardPage extends BasePage {
 
   async isWIFRecommendationAlertPresent(): Promise<void> {
     await expect(
-      this.page
-        .locator('h4')
-        .filter({
-          hasText: 'Red Hat and Google Cloud recommend using WIF as the authentication type',
-        }),
+      this.page.locator('h4').filter({
+        hasText: 'Red Hat and Google Cloud recommend using WIF as the authentication type',
+      }),
     ).toBeVisible();
   }
 
-  async isPrerequisitesHintPresent(hint: {
-    Header: string;
-    Description: string;
-    LinkName: string;
-    LinkHref: string;
-  }): Promise<void> {
+  async isPrerequisitesHintPresent(
+    hint: { Header: string; Description: string; LinkName: string },
+    linkHref: string,
+  ): Promise<void> {
     await expect(this.page.locator('strong').filter({ hasText: hint.Header })).toBeVisible();
     await expect(this.page.getByText(hint.Description)).toBeVisible();
     await expect(this.page.getByRole('link', { name: hint.LinkName })).toHaveAttribute(
       'href',
-      hint.LinkHref,
+      linkHref,
     );
   }
 

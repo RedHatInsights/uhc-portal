@@ -22,6 +22,13 @@ describe('<ClusterListTable />', () => {
     expect(screen.queryByText('No clusters found.')).not.toBeInTheDocument();
   });
 
+  it('omits column headers while pending with no clusters (initial load / reload)', () => {
+    render(<ClusterListTable {...initialProps} isPending clusters={[]} refreshFunc={() => {}} />);
+    expect(screen.getByTestId('clusterListTableBody')).toBeInTheDocument();
+    expect(screen.queryByRole('columnheader')).not.toBeInTheDocument();
+    expect(screen.getAllByText('loading cluster')).toHaveLength(10);
+  });
+
   it('shows empty state when there are no clusters and it is no longer pending', () => {
     const newProps = { ...initialProps, isPending: false, clusters: [] };
     render(<ClusterListTable {...newProps} />);

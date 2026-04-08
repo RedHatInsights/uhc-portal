@@ -76,8 +76,8 @@ describe('<ClusterList />', () => {
 
     expect(screen.getAllByTestId('skeleton')).toHaveLength(numberOfSkeletonRows);
 
-    // the number of rows in the tbody tag matches the number of skeleton rows
-    expect(within(screen.getAllByRole('rowgroup')[1]).getAllByRole('row')).toHaveLength(
+    // the number of rows in the tbody tag matches the number of skeleton rows (no thead rowgroup while pending+empty)
+    expect(within(screen.getByTestId('clusterListTableBody')).getAllByRole('row')).toHaveLength(
       numberOfSkeletonRows,
     );
 
@@ -90,6 +90,25 @@ describe('<ClusterList />', () => {
       screen.getByRole('progressbar', { name: 'Loading cluster list data' }),
     ).toBeInTheDocument(); // loading spinner
 
+    expect(screen.queryByText(emptyStateText)).not.toBeInTheDocument();
+
+    // List toolbar is hidden until load completes (avoids flash before empty state)
+    expect(screen.queryByTestId('cluster-list-filter-dropdown')).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId('page_drop_down')).toHaveLength(0);
+  });
+
+  it('hides list toolbar while refetching cached empty list (refresh timing)', () => {
+    mockedGetFetchedClusters.mockReturnValue({
+      data: { items: [] },
+      isLoading: false,
+      isFetched: true,
+      isFetching: true,
+      errors: [],
+    });
+    withState({}, true).render(<ClusterList {...props} />);
+
+    expect(screen.queryByTestId('cluster-list-filter-dropdown')).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId('page_drop_down')).toHaveLength(0);
     expect(screen.queryByText(emptyStateText)).not.toBeInTheDocument();
   });
 
