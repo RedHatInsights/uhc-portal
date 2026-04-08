@@ -1,34 +1,8 @@
-import { test, expect } from '../../fixtures/pages';
-
-// External links constants
-const LINKS = {
-  AWS_GOVCLOUD_ROSA:
-    'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/getting_started_with_red_hat_openshift_service_on_aws_in_aws_govcloud/index',
-  FEDRAMP_REQUEST_FORM: 'https://console.redhat.com/openshift/create/rosa/govcloud',
-  AWS_CONSOLE_GET_STARTED: 'https://console.aws.amazon.com/rosa/home#/get-started',
-  AWS_ROSA_GETTING_STARTED:
-    'https://docs.aws.amazon.com/ROSA/latest/userguide/getting-started.html',
-  ROSA_CLI_SETUP:
-    'https://access.redhat.com/documentation/en-us/red_hat_openshift_service_on_aws/4/html/rosa_cli/rosa-get-started-cli',
-  ROSA_CLIENT_MACOS: 'https://mirror.openshift.com/pub/cgw/rosa/latest/rosa-macosx.tar.gz',
-  ROSA_CLIENT_WINDOWS: 'https://mirror.openshift.com/pub/cgw/rosa/latest/rosa-windows.zip',
-  ROSA_CLIENT_LINUX: 'https://mirror.openshift.com/pub/cgw/rosa/latest/rosa-linux.tar.gz',
-  AWS_CLI: 'https://aws.amazon.com/cli/',
-  AWS_CLI_CONFIGURE: 'https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html',
-  ROSA_LOGIN_SSO:
-    'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/cli_tools/rosa-cli#rosa-login-sso_rosa-getting-started-cli',
-  AWS_ROSA_STS_MANUAL:
-    'https://docs.aws.amazon.com/ROSA/latest/userguide/getting-started-sts-manual.html',
-  CREATE_NETWORK_COMMAND: 'https://access.redhat.com/articles/7096266',
-  CREATE_VPC_HCP:
-    'https://docs.aws.amazon.com/rosa/latest/userguide/getting-started-hcp.html#create-vpc-hcp',
-  ROSA_HCP_CLI_DEPLOY:
-    'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_clusters/rosa-hcp-sts-creating-a-cluster-quickly',
-  ROSA_TERRAFORM:
-    'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/install_clusters/creating-a-red-hat-openshift-service-on-aws-cluster-with-terraform',
-  TERRAFORM_REGISTRY:
-    'https://registry.terraform.io/providers/terraform-redhat/rhcs/latest/docs/guides/hosted-control-planes',
-} as const;
+import docLinks from '../../../src/common/docLinks.mjs';
+import installLinks from '../../../src/common/installLinks.mjs';
+import supportLinks from '../../../src/common/supportLinks.mjs';
+import { expect, test } from '../../fixtures/pages';
+import { getDownloadUrl } from '../../support/download-url-helper';
 
 test.describe.serial(
   'ROSA cluster Get Started page (OCP-56363)',
@@ -48,14 +22,14 @@ test.describe.serial(
       await rosaGetStartedPage.checkAnchorProperties(
         rosaGetStartedPage.rosaFedRampDoclink(),
         'Learn more about ROSA with hosted control planes in AWS GovCloud',
-        LINKS.AWS_GOVCLOUD_ROSA,
+        docLinks.ROSA_AWS_FEDRAMP,
         true,
       );
 
       await rosaGetStartedPage.checkAnchorProperties(
         rosaGetStartedPage.rosaFedRampRequestFormlink(),
         'FedRAMP access request form',
-        LINKS.FEDRAMP_REQUEST_FORM,
+        installLinks.FEDRAMP_ACCESS_REQUEST_FORM,
         true,
       );
     });
@@ -82,7 +56,10 @@ test.describe.serial(
       await expect(section.getByText('Verify your quotas on AWS console')).toBeVisible();
 
       const awsConsoleLink = section.getByRole('link', { name: 'Open AWS Console' });
-      await expect(awsConsoleLink).toHaveAttribute('href', LINKS.AWS_CONSOLE_GET_STARTED);
+      await expect(awsConsoleLink).toHaveAttribute(
+        'href',
+        installLinks.AWS_CONSOLE_ROSA_HOME_GET_STARTED,
+      );
       await expect(awsConsoleLink).toBeVisible();
     });
 
@@ -95,7 +72,7 @@ test.describe.serial(
       await rosaGetStartedPage.checkAnchorProperties(
         page.getByRole('link', { name: 'More information on ROSA setup' }),
         'More information on ROSA setup',
-        LINKS.AWS_ROSA_GETTING_STARTED,
+        docLinks.AWS_ROSA_GET_STARTED,
         true,
       );
     });
@@ -121,15 +98,15 @@ test.describe.serial(
       await rosaGetStartedPage.checkAnchorProperties(
         step11Content.locator('..').getByRole('link', { name: 'Help with ROSA CLI setup' }),
         'Help with ROSA CLI setup',
-        LINKS.ROSA_CLI_SETUP,
+        supportLinks.ROSA_CLI_DOCS,
         true,
       );
 
       // Test ROSA client download options
       const rosaClientOptions = {
-        MacOS: LINKS.ROSA_CLIENT_MACOS,
-        Windows: LINKS.ROSA_CLIENT_WINDOWS,
-        Linux: LINKS.ROSA_CLIENT_LINUX,
+        MacOS: getDownloadUrl('rosa', 'mac'),
+        Windows: getDownloadUrl('rosa', 'windows'),
+        Linux: getDownloadUrl('rosa', 'linux'),
       };
 
       for (const [osName, downloadUrl] of Object.entries(rosaClientOptions)) {
@@ -149,14 +126,14 @@ test.describe.serial(
       await rosaGetStartedPage.checkAnchorProperties(
         step12Parent.getByRole('link', { name: 'installing' }),
         'installing',
-        LINKS.AWS_CLI,
+        docLinks.AWS_CLI,
         true,
       );
 
       await rosaGetStartedPage.checkAnchorProperties(
         step12Parent.getByRole('link', { name: 'configuring' }),
         'configuring',
-        LINKS.AWS_CLI_CONFIGURE,
+        docLinks.AWS_CLI_CONFIGURATION_INSTRUCTIONS,
         true,
       );
     });
@@ -188,7 +165,7 @@ test.describe.serial(
           name: 'logging into OpenShift Cluster Manager ROSA CLI with Red Hat single sign-on',
         }),
         'logging into OpenShift Cluster Manager ROSA CLI with Red Hat single sign-on',
-        LINKS.ROSA_LOGIN_SSO,
+        docLinks.LEARN_MORE_SSO_ROSA,
         true,
       );
 
@@ -205,7 +182,7 @@ test.describe.serial(
       await rosaGetStartedPage.checkAnchorProperties(
         step22Content.getByRole('link', { name: 'these instructions' }),
         'these instructions',
-        LINKS.AWS_ROSA_STS_MANUAL,
+        docLinks.AWS_CLI_GETTING_STARTED_MANUAL,
         true,
       );
     });
@@ -231,14 +208,14 @@ test.describe.serial(
       await rosaGetStartedPage.checkAnchorProperties(
         page.getByRole('link', { name: 'create network command' }),
         'create network command',
-        LINKS.CREATE_NETWORK_COMMAND,
+        supportLinks.ROSA_CREATE_NETWORK,
         true,
       );
 
       await rosaGetStartedPage.checkAnchorProperties(
         page.getByRole('link', { name: 'create a VPC' }),
         'create a VPC',
-        LINKS.CREATE_VPC_HCP,
+        docLinks.CREATE_VPC_WAYS,
         true,
       );
     });
@@ -267,7 +244,7 @@ test.describe.serial(
       await rosaGetStartedPage.checkAnchorProperties(
         cliCard.getByRole('link', { name: 'deploy ROSA clusters with the ROSA CLI' }),
         'deploy ROSA clusters with the ROSA CLI',
-        LINKS.ROSA_HCP_CLI_DEPLOY,
+        docLinks.ROSA_HCP_CLI_URL,
         true,
       );
 
@@ -311,14 +288,14 @@ test.describe.serial(
       await rosaGetStartedPage.checkAnchorProperties(
         terraformCard.getByRole('link', { name: 'deploy a ROSA HCP cluster' }),
         'deploy a ROSA HCP cluster',
-        LINKS.ROSA_TERRAFORM,
+        docLinks.TERRAFORM_ROSA_HCP_URL,
         true,
       );
 
       await rosaGetStartedPage.checkAnchorProperties(
         terraformCard.getByRole('link', { name: 'visit the Terraform registry' }),
         'visit the Terraform registry',
-        LINKS.TERRAFORM_REGISTRY,
+        docLinks.TERRAFORM_REGISTRY_ROSA_HCP,
         true,
       );
     });

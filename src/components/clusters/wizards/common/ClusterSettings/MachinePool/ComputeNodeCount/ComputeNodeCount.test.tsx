@@ -14,7 +14,7 @@ import '@testing-library/jest-dom';
 
 jest.mock('~/redux/hooks');
 jest.mock('~/components/clusters/common/machinePools/utils', () => ({
-  buildOptions: jest.fn(),
+  getMaxNodeCount: jest.fn(),
   getAvailableQuota: jest.fn(),
   getIncludedNodes: jest.fn(),
 }));
@@ -82,7 +82,7 @@ describe('ComputeNodeCount', () => {
 
     (machinePoolsUtilsModule.getIncludedNodes as jest.Mock).mockReturnValue([]);
     (machinePoolsUtilsModule.getAvailableQuota as jest.Mock).mockReturnValue(1000);
-    (machinePoolsUtilsModule.buildOptions as jest.Mock).mockReturnValue([0, 1, 2, 3, 4, 5]);
+    (machinePoolsUtilsModule.getMaxNodeCount as jest.Mock).mockReturnValue(5);
   });
 
   it('renders with default props and shows label', () => {

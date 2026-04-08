@@ -409,6 +409,32 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
       });
     },
 
+    getGcpDnsDomains: () =>
+      apiRequest.get<{
+        /**
+         * Retrieved list of add-ons.
+         */
+        items?: Array<DnsDomain>;
+        /**
+         * Index of the requested page, where one corresponds to the first page.
+         */
+        page?: number;
+        /**
+         * Maximum number of items that will be contained in the returned page.
+         */
+        size?: number;
+        /**
+         * Total number of items of the collection that match the search criteria,
+         * regardless of the size of the page.
+         */
+        total?: number;
+      }>('/api/clusters_mgmt/v1/dns_domains', {
+        params: {
+          search: `cloud_provider='gcp'`,
+          size: -1,
+        },
+      }),
+
     createNewDnsDomain: () => apiRequest.post<DnsDomain>('/api/clusters_mgmt/v1/dns_domains', {}),
 
     deleteDnsDomain: (id: string) =>

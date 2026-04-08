@@ -108,6 +108,16 @@ const reviewValues = {
     title: 'Version',
     valueTransform: (value) => getVersionNameWithChannel(value),
   },
+  version_channel: {
+    title: 'Channel',
+    valueTransform: (value, formValues) => {
+      const channels = formValues?.cluster_version?.available_channels;
+      if (Array.isArray(channels) && channels.length === 0 && !value) {
+        return 'No channels available for the selected version';
+      }
+      return value || 'None specified';
+    },
+  },
   hypershift: {
     title: 'Control plane',
     isBoolean: true,
@@ -493,6 +503,13 @@ const reviewValues = {
   },
   shared_host_project_id: {
     title: 'Google Cloud shared host project ID',
+  },
+  dns_zone: {
+    title: 'DNS zone',
+    valueTransform: (dnsZone = {}) =>
+      dnsZone.id
+        ? `${dnsZone?.gcp?.domain_prefix}.${dnsZone?.id} (${dnsZone?.gcp?.project_id})`
+        : '',
   },
   billing_account_id: {
     title: 'AWS billing account ID',

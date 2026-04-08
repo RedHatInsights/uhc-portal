@@ -2506,10 +2506,20 @@ export interface components {
       count?: number;
     };
     Source: {
-      /** @example Platform source identifier */
-      id: number;
+      /** @example 1 */
+      id: string;
       /** @example AWS */
       source_type: string;
+      /**
+       * @description CMMO-compatible source type identifier
+       * @example 1
+       */
+      source_type_id?: string;
+      /**
+       * @description Source reference (e.g., cluster ID for OCP sources)
+       * @example my-ocp-cluster
+       */
+      source_ref?: string;
     };
     SourceIn: components['schemas']['Source'] & {
       /**
@@ -2528,11 +2538,8 @@ export interface components {
       billing_source: Record<string, never>;
     };
     SourceOut: components['schemas']['Source'] & {
-      /**
-       * Format: int64
-       * @example 1
-       */
-      id: number;
+      /** @example 1 */
+      id: string;
       /**
        * Format: uuid
        * @example 57e60f90-8c0c-4bd1-87a0-2143759aae1d
@@ -2611,6 +2618,12 @@ export interface components {
        *     }
        */
       additional_context?: Record<string, never>;
+      /**
+       * Format: date-time
+       * @description Timestamp of when the provider was created.
+       * @example 2026-01-15 12:30:00
+       */
+      created_timestamp?: string | null;
     };
     SourcePagination: components['schemas']['ListPagination'] & {
       data: components['schemas']['SourceOut'][];
@@ -3406,47 +3419,8 @@ export interface components {
       data: unknown[];
     };
     Status: {
-      /**
-       * Format: int64
-       * @example 1
-       */
-      api_version: number;
-      /** @example 178d2ea */
-      commit?: string;
-      /** @example 127.0.0.1:8000 */
-      server_address?: string;
-      /** @example 30 */
-      rbac_cache_ttl?: number;
-      /** @example {
-       *       "system": "Darwin",
-       *       "node": "node-1.example.com",
-       *       "release": "17.5.0",
-       *       "version": "Darwin Kernel Version 17.5.0",
-       *       "machine": "x86_64",
-       *       "processor": "i386"
-       *     } */
-      platform_info?: Record<string, never>;
-      /** @example 3.6.1 */
-      python_version?: string;
-      /** @example {
-       *       "coverage": "4.5.1",
-       *       "coverage.version": "4.5.1",
-       *       "coverage.xmlreport": "4.5.1",
-       *       "cryptography": "2.0.3",
-       *       "ctypes": "1.1.0",
-       *       "ctypes.macholib": "1.0",
-       *       "decimal": "1.70",
-       *       "django": "1.11.5",
-       *       "django.utils.six": "1.10.0",
-       *       "django_filters": "1.0.4",
-       *       "http.server": "0.6"
-       *     } */
-      modules?: Record<string, never>;
-      /** @example {
-       *       "debug": true,
-       *       "account_access_type": "db"
-       *     } */
-      config?: Record<string, never>;
+      /** @example OK */
+      status: string;
     };
     TagsFilter: {
       resolution?: components['schemas']['ReportResolution'];
@@ -6604,7 +6578,7 @@ export interface operations {
       header?: never;
       path: {
         /** @description ID of source to get */
-        source_id: number;
+        source_id: string;
       };
       cookie?: never;
     };
@@ -7456,7 +7430,7 @@ export interface operations {
       header?: never;
       path: {
         /** @description ID of source to get */
-        source_id: number;
+        source_id: string;
       };
       cookie?: never;
     };
@@ -7504,7 +7478,7 @@ export interface operations {
       header?: never;
       path: {
         /** @description ID of source to get */
-        source_id: number;
+        source_id: string;
       };
       cookie?: never;
     };

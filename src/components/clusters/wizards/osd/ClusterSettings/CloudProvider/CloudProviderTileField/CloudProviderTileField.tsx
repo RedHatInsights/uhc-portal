@@ -57,6 +57,7 @@ export const CloudProviderTileField = () => {
     setFieldValue(FieldId.FipsCryptography, false);
     setFieldValue(FieldId.CloudProvider, value);
     setFieldValue(FieldId.ChannelGroup, CHANNEL_GROUP_DEFAULT);
+    setFieldValue(FieldId.ClusterVersion, undefined);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {

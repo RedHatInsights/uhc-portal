@@ -43,6 +43,7 @@ export enum OsdFieldId {
   NetworkMachineCidrSingleAz = 'network_machine_cidr_single_az',
   NetworkMachineCidrMultiAz = 'network_machine_cidr_multi_az',
   MarketplaceSelection = 'marketplace_selection',
+  DnsZone = 'dns_zone',
 }
 
 export const FieldId = { ...CommonFieldId, ...OsdFieldId };
@@ -123,11 +124,13 @@ export const initialValues: FormikValues = {
   [FieldId.ClusterAutoscaling]: getDefaultClusterAutoScaling(),
   [FieldId.DomainPrefix]: '',
   [FieldId.HasDomainPrefix]: false,
-  [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
+  [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
   [FieldId.GcpWifConfig]: '',
   [FieldId.PrivateServiceConnect]: false,
   [FieldId.PSCSubnet]: '',
   [FieldId.ChannelGroup]: CHANNEL_GROUP_DEFAULT,
+  [FieldId.VersionChannel]: '',
+  [FieldId.DnsZone]: { id: '' },
 };
 
 export const initialTouched = {

@@ -1,22 +1,22 @@
 import { test } from '../../fixtures/pages';
+import installLinks from '../../../src/common/installLinks.mjs';
+import docLinks from '../../../src/common/docLinks.mjs';
 
 const rows = [
   {
     label: 'Red Hat OpenShift Dedicated on Google Cloud Marketplace',
     badge: 'Documentation',
-    linkUrl:
-      'https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated',
+    linkUrl: installLinks.OSD_GOOGLE_MARKETPLACE,
   },
   {
     label: 'Red Hat OpenShift Dedicated Interactive Walkthrough',
     badge: 'Walkthrough',
-    linkUrl:
-      'https://www.redhat.com/en/products/interactive-walkthrough/install-openshift-dedicated-google-cloud',
+    linkUrl: docLinks.LEARN_MORE_OSD,
   },
   {
     label: 'How to get started with OpenShift Dedicated on Google Cloud Marketplace',
     badge: 'Quickstart',
-    linkUrl: 'https://www.youtube.com/watch?v=p9KBFvMDQJM&feature=youtu.be',
+    linkUrl: docLinks.OSD_QUICKSTART,
   },
 ];
 
@@ -33,7 +33,7 @@ test.describe.serial(
       await osdProductPage.isTitlePage();
       await osdProductPage.validateUrlLink(
         'Learn more about OpenShift Dedicated',
-        'https://www.redhat.com/en/technologies/cloud-computing/openshift/dedicated',
+        docLinks.WHAT_IS_OSD,
       );
     });
 
@@ -52,7 +52,7 @@ test.describe.serial(
       await osdProductPage.learnMoreCardIsCardTitle();
       await osdProductPage.learnMoreCardCheckLink(
         'Go to interactive walkthrough',
-        'https://www.redhat.com/en/products/interactive-walkthrough/install-openshift-dedicated-google-cloud',
+        docLinks.LEARN_MORE_OSD,
       );
     });
 
@@ -130,7 +130,7 @@ test.describe.serial(
 
       await osdProductPage.validateUrlLink(
         'Learn more about pricing (new window or tab',
-        'https://www.redhat.com/en/technologies/cloud-computing/openshift/dedicated?intcmp=7013a000003DQeVAAW#pricing',
+        installLinks.OSD_PRICING,
       );
     });
 

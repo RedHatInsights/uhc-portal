@@ -22,7 +22,6 @@ export const CLI_SSO_AUTHORIZATION = 'cli-sso-authorization';
 export const MULTIREGION_PREVIEW_ENABLED = 'multi-region-support';
 export const CLUSTER_OWNERSHIP_TRANSFER = 'cluster-ownership-transfer';
 export const AUTO_CLUSTER_TRANSFER_OWNERSHIP = 'ocmui-cluster-ownership-transfer';
-export const OSD_GCP_WIF = 'gcp-workload-identity-federation';
 export const CREATE_CLUSTER_YAML_EDITOR = 'enable-create-cluster-yaml-editor';
 export const UNSTABLE_CLUSTER_VERSIONS = 'ocmui-unstable-cluster-versions';
 export const EDIT_BILLING_ACCOUNT = 'ocmui-edit-billing-account';
@@ -37,7 +36,6 @@ export const HIDE_RH_MARKETPLACE = 'OCMUI-hide-rh-marketplace';
 export const IMDS_SELECTION = 'ocmui-imds-selection';
 export const AWS_TAGS_NEW_MP = 'ocmui-aws-tags-new-mp';
 export const TABBED_MACHINE_POOL_MODAL = 'ocmui-tabbed-machine-pool-modal';
-export const GCP_WIF_DEFAULT = 'ocmui-gcp-wif-default';
 export const MP_ADDITIONAL_MAINTENANCE_VALUES = 'ocmui-mp-additional-maintenance-values';
 export const WINDOWS_LICENSE_INCLUDED = 'ocmui-windows-license-included';
 export const ALLOW_EUS_CHANNEL = 'ocmui-allow-eus-channel';
@@ -46,6 +44,8 @@ export const CAPACITY_RESERVATION_ID_FIELD = 'ocmui-capacity-reservation-id-fiel
 export const TABBED_CLUSTERS = 'ocmui-tabbed-clusters';
 export const OSD_FOR_GOOGLE_CLOUD = 'ocmui-osd-wizard-for-google-cloud';
 export const FIPS_FOR_HYPERSHIFT = 'ocmui-fips-for-hypershift';
+export const Y_STREAM_CHANNEL = 'ocmui-y-stream-channel';
+export const GCP_DNS_ZONE = 'ocmui-gcp-dns-zone';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -57,7 +57,6 @@ export default {
   CLI_SSO_AUTHORIZATION,
   MULTIREGION_PREVIEW_ENABLED,
   CLUSTER_OWNERSHIP_TRANSFER,
-  OSD_GCP_WIF,
   CREATE_CLUSTER_YAML_EDITOR,
   UNSTABLE_CLUSTER_VERSIONS,
   EDIT_BILLING_ACCOUNT,
@@ -71,7 +70,6 @@ export default {
   IMDS_SELECTION,
   AWS_TAGS_NEW_MP,
   TABBED_MACHINE_POOL_MODAL,
-  GCP_WIF_DEFAULT,
   MP_ADDITIONAL_MAINTENANCE_VALUES,
   WINDOWS_LICENSE_INCLUDED,
   ALLOW_EUS_CHANNEL,
@@ -80,4 +78,6 @@ export default {
   TABBED_CLUSTERS,
   OSD_FOR_GOOGLE_CLOUD,
   FIPS_FOR_HYPERSHIFT,
+  Y_STREAM_CHANNEL,
+  GCP_DNS_ZONE,
 } as const;

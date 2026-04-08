@@ -10,7 +10,7 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
       == "main"
-    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-unit-tests.yaml
+    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-all-tests.yaml
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: ocm-ui
@@ -30,6 +30,8 @@ spec:
     value: 5d
   - name: dockerfile
     value: build-tools/Dockerfile
+  - name: e2e-app-port
+    value: "8000"
   - name: unit-tests-script
     value: |
       #!/bin/bash
@@ -41,12 +43,161 @@ spec:
       NODE_OPTIONS='--max-old-space-size=4096' yarn lint
       yarn prettier
       yarn test --run-in-band --no-cache
+  - name: run-app-script
+    value: |
+      #!/bin/sh
+      set -e
+      echo "Starting application with Caddy using ConfigMap Caddyfile..."
+      exec caddy run --config /etc/caddy/Caddyfile
+  - name: e2e-tests-script
+    value: |
+      #!/bin/bash
+      set -e  # Don't use -x to avoid printing secrets in logs
+
+      # CI mode: enables retries (2) and parallel workers (4) in playwright.config.ts
+      export CI=true
+      # Accept self-signed TLS certs at the Node.js level (covers test helpers,
+      # custom commands, and any non-browser HTTPS calls to the proxy)
+      export NODE_TLS_REJECT_UNAUTHORIZED=0
+      # Browser navigates directly to the proxy sidecar on prod.foo, which is
+      # whitelisted in sso.redhat.com so SSO accepts the redirect_uri natively.
+      export BASE_URL="https://prod.foo.redhat.com:1337/openshift/"
+
+      # Fail fast if credentials are missing
+      if [ -z "${E2E_USER:-}" ] || [ -z "${E2E_PASSWORD:-}" ]; then
+        echo "ERROR: E2E_USER and/or E2E_PASSWORD not set. Check ocm-ui-credentials-secret."
+        exit 1
+      fi
+
+      # Wait for dev server to be ready (probe the app route, not just /)
+      timeout 120s bash -c 'until curl -kf https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json > /dev/null 2>&1; do
+        echo "Waiting for dev server to be ready"
+        sleep 5
+      done'
+      echo "Dev server ready!"
+
+      # Install Playwright browsers (suppress verbose apt output, show errors)
+      echo "Installing Playwright browsers..."
+      if ! npx playwright install --with-deps chromium > /tmp/playwright-install.log 2>&1; then
+        echo "ERROR: Playwright browser installation failed:"
+        cat /tmp/playwright-install.log
+        exit 1
+      fi
+      echo "Playwright browsers installed."
+
+      # Suppress Node.js TLS warning noise (one per worker)
+      export NODE_NO_WARNINGS=1
+
+      # Run CI-tagged tests — redirect verbose output to file, show summary only
+      echo "Running Playwright tests..."
+      set +e
+      yarn playwright-e2e-ci --project=chromium > /tmp/playwright-verbose.log 2>&1
+      TEST_EXIT_CODE=$?
+      set -e
+
+      # === Results summary ===
+      RESULTS_JSON="playwright-artifacts/results/test-results.json"
+      RESULTS_DIR="playwright-artifacts/results"
+
+      echo ""
+      echo "============================================"
+      echo "  Playwright E2E Test Summary"
+      echo "============================================"
+
+      if [ -f "$RESULTS_JSON" ]; then
+        # Extract and print a concise summary from the JSON results using Node.js
+        node -e "
+          const r = require('./$RESULTS_JSON');
+          const suites = r.suites || [];
+          let passed=0, failed=0, skipped=0, flaky=0;
+          function walk(s) {
+            (s.suites||[]).forEach(walk);
+            (s.specs||[]).forEach(spec => {
+              (spec.tests||[]).forEach(t => {
+                if (t.status==='expected') passed++;
+                else if (t.status==='unexpected') failed++;
+                else if (t.status==='skipped') skipped++;
+                else if (t.status==='flaky') flaky++;
+              });
+            });
+          }
+          suites.forEach(walk);
+          const total = passed+failed+skipped+flaky;
+          console.log('  Total:   ' + total);
+          console.log('  Passed:  ' + passed);
+          console.log('  Failed:  ' + failed);
+          console.log('  Skipped: ' + skipped);
+          console.log('  Flaky:   ' + flaky);
+          if (failed > 0) {
+            console.log('');
+            console.log('  Failed tests:');
+            function listFailed(s, path) {
+              const p = path ? path + ' > ' + s.title : s.title;
+              (s.suites||[]).forEach(c => listFailed(c, p));
+              (s.specs||[]).forEach(spec => {
+                (spec.tests||[]).forEach(t => {
+                  if (t.status==='unexpected') console.log('    ✗ ' + p + ' > ' + spec.title);
+                });
+              });
+            }
+            suites.forEach(s => listFailed(s, ''));
+          }
+        " 2>/dev/null || echo "  (Could not parse test results JSON)"
+      else
+        echo "  No test results JSON found"
+      fi
+
+      # Show failed test details (final attempt only, not retries)
+      if [ "$TEST_EXIT_CODE" -ne 0 ] && [ -f "$RESULTS_JSON" ]; then
+        echo ""
+        echo "  Failed test details:"
+        node -e "
+          const r = require('./$RESULTS_JSON');
+          function walk(s, path) {
+            const p = path ? path + ' > ' + s.title : s.title;
+            (s.suites||[]).forEach(c => walk(c, p));
+            (s.specs||[]).forEach(spec => {
+              (spec.tests||[]).forEach(t => {
+                if (t.status==='unexpected') {
+                  const last = t.results[t.results.length-1];
+                  console.log('    ✗ ' + spec.title);
+                  if (last && last.error && last.error.message) {
+                    console.log('      ' + last.error.message.split('\n')[0]);
+                  }
+                }
+              });
+            });
+          }
+          (r.suites||[]).forEach(s => walk(s, ''));
+        " 2>/dev/null || true
+      fi
+
+      echo "============================================"
+      echo "  Exit code: $TEST_EXIT_CODE"
+      echo "============================================"
+
+      # Full Playwright output available below (verbose):
+      if [ "$TEST_EXIT_CODE" -ne 0 ]; then
+        echo ""
+        echo "--- Full Playwright output (for debugging) ---"
+        cat /tmp/playwright-verbose.log
+      fi
+
+      exit $TEST_EXIT_CODE
+  - name: e2e-credentials-secret
+    value: ocm-ui-credentials-secret
+  - name: frontend-proxy-routes-configmap
+    value: ocm-ui-dev-proxy-caddyfile
+  - name: e2e-hcc-env
+    value: prod
+  - name: e2e-hcc-env-url
+    value: https://console.dev.redhat.com
   pipelineRef:
     name: docker-build
   taskRunTemplate:
     serviceAccountName: build-pipeline-uhc-portal
-  # extend the unit-tests pipeline task to increase RAM
   taskRunSpecs:
+    # extend the unit-tests pipeline task to increase RAM
     - pipelineTaskName: run-unit-tests
       stepSpecs:
         - name: unit-tests
@@ -55,6 +206,31 @@ spec:
               memory: "6Gi"
             limits:
               memory: "6Gi"
+    - pipelineTaskName: run-e2e-tests
+      stepSpecs:
+        - name: e2e-tests
+          computeResources:
+            requests:
+              memory: "10Gi"
+            limits:
+              memory: "10Gi"
+      podTemplate:
+        hostAliases:
+          - ip: "::1"
+            hostnames:
+              - "prod.foo.redhat.com"
+          - ip: "127.0.0.1"
+            hostnames:
+              - "prod.foo.redhat.com"
+        volumes:
+          - name: test-app-caddyfile
+            configMap:
+              name: ocm-ui-app-caddy-config
+      sidecarSpecs:
+        - name: run-application
+          volumeMounts:
+            - name: test-app-caddyfile
+              mountPath: /etc/caddy
   workspaces:
   - name: workspace
     volumeClaimTemplate:
@@ -65,7 +241,7 @@ spec:
         - ReadWriteOnce
         resources:
           requests:
-            storage: 1Gi
+            storage: 10Gi
       status: {}
   - name: git-auth
     secret:

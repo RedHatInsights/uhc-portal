@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base-page';
+import supportLinks from '../../src/common/supportLinks.mjs';
 
 /**
  * Page object for Cluster Types page functionality
@@ -164,7 +165,7 @@ export class ClusterTypesPage extends BasePage {
       await expect(nonTestedLink).toBeVisible({ timeout: 30000 });
       await expect(nonTestedLink).toHaveAttribute(
         'href',
-        'https://access.redhat.com/articles/4207611',
+        supportLinks.INSTALL_GENERIC_NON_TESTED_PLATFORMS,
       );
     }
 
@@ -215,7 +216,7 @@ export class ClusterTypesPage extends BasePage {
       await expect(nonTestedLink).toBeVisible({ timeout: 30000 });
       await expect(nonTestedLink).toHaveAttribute(
         'href',
-        'https://access.redhat.com/articles/4207611',
+        supportLinks.INSTALL_GENERIC_NON_TESTED_PLATFORMS,
       );
     }
 
@@ -264,7 +265,7 @@ export class ClusterTypesPage extends BasePage {
       await expect(nonTestedLink).toBeVisible({ timeout: 30000 });
       await expect(nonTestedLink).toHaveAttribute(
         'href',
-        'https://access.redhat.com/articles/4207611',
+        supportLinks.INSTALL_GENERIC_NON_TESTED_PLATFORMS,
       );
     }
 

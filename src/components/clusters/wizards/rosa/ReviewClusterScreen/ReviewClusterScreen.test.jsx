@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
-import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { ALLOW_EUS_CHANNEL, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { initialValues } from '../constants';
@@ -460,6 +460,63 @@ describe('<ReviewClusterScreen />', () => {
       await waitFor(() => {
         expect(screen.queryByText('Channel group')).not.toBeInTheDocument();
       });
+    });
+
+    it('is not shown when both ALLOW_EUS_CHANNEL and Y_STREAM_CHANNEL feature gates are enabled', async () => {
+      mockUseFeatureGate([
+        [ALLOW_EUS_CHANNEL, true],
+        [Y_STREAM_CHANNEL, true],
+      ]);
+
+      render(
+        buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
+          channel_group: 'stable',
+        }),
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Channel group')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Channel', () => {
+    it('is shown when Y_STREAM_CHANNEL feature gate is enabled', async () => {
+      mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
+
+      expect(await screen.findByText('Channel')).toBeInTheDocument();
+      expect(screen.getByText('fast-4.13')).toBeInTheDocument();
+    });
+
+    it('is not shown when Y_STREAM_CHANNEL feature gate is disabled', async () => {
+      mockUseFeatureGate([[Y_STREAM_CHANNEL, false]]);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
+
+      await waitFor(() => {
+        expect(screen.queryByText('Channel')).not.toBeInTheDocument();
+      });
+    });
+
+    it('shows no channels message when the version has no available channels', async () => {
+      mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
+
+      render(
+        buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
+          cluster_version: {
+            ...sampleFormData.values.cluster_version,
+            available_channels: [],
+          },
+          version_channel: '',
+        }),
+      );
+
+      expect(await screen.findByText('Channel')).toBeInTheDocument();
+      expect(
+        screen.getByText('No channels available for the selected version'),
+      ).toBeInTheDocument();
     });
   });
 });
