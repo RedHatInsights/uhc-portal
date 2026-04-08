@@ -220,7 +220,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   async waitForInstallerScreenToLoad(): Promise<void> {
-    await this.page.waitForSelector('li.pf-v6-c-wizard__nav-item', {
+    await this.page.waitForSelector('li[class*="wizard__nav-item"]', {
       state: 'detached',
       timeout: 30000,
     });
@@ -350,6 +350,15 @@ export class ClusterDetailsPage extends BasePage {
 
   clusterWifConfigurationValue(): Locator {
     return this.page.getByTestId('wifConfiguration');
+  }
+
+  // Tab navigation
+  accessControlTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Access control' });
+  }
+
+  supportTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Support' });
   }
 
   // Settings tab functionality

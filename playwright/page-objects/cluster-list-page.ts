@@ -201,4 +201,12 @@ export class ClusterListPage extends BasePage {
     await clusterLink.click();
     await expect(this.page).toHaveURL(new RegExp('/openshift/details/'));
   }
+
+  async searchAndOpenClusterDetailsPage(clusterName: string): Promise<void> {
+    await this.filterTxtField().click();
+    await this.filterTxtField().clear();
+    await this.filterTxtField().fill(clusterName);
+    await this.waitForDataReady();
+    await this.openClusterDefinition(clusterName);
+  }
 }
