@@ -169,6 +169,8 @@ const UpgradeWizard = () => {
       onEscapePress={() => close()}
       variant={ModalVariant.large}
       className="openshift"
+      // renders a 'close' button in modal header, for when wizard header isn't rendered
+      onClose={isWizardDone ? () => close() : undefined}
     >
       {isWizardDone ? (
         <ModalBody>
