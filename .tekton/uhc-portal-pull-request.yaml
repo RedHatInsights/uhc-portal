@@ -51,20 +51,12 @@ spec:
     value: |
       #!/bin/sh
       set -e
-
-      # debugging - remove before push
-      node --version
-
       echo "Starting application with Caddy using ConfigMap Caddyfile..."
       exec caddy run --config /etc/caddy/Caddyfile
   - name: e2e-tests-script
     value: |
       #!/bin/bash
       set -e  # Don't use -x to avoid printing secrets in logs
-
-      # debugging - remove before push
-      node --version
-
       # CI mode: enables retries (2) and parallel workers (4) in playwright.config.ts
       export CI=true
       # Accept self-signed TLS certs at the Node.js level (covers test helpers,
