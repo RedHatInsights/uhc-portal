@@ -38,10 +38,8 @@ spec:
     value: |
       #!/bin/bash
       set -ex
-
       # debugging - remove before push
       node --version
-
       npm install -g yarn
       yarn install
       # cap the linter's heap size, as it tends to hog the RAM,
