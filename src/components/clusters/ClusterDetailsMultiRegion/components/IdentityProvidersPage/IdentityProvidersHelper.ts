@@ -10,6 +10,7 @@ import {
 
 import { strToCleanArray } from '../../../../../common/helpers';
 
+import { CREATION_MODE_UPLOAD } from './constants';
 import { GitHubTeamsAndOrgsDataType } from './model/GitHubTeamsAndOrgsDataType';
 import { IDPFormDataType } from './model/IDPFormDataType';
 import { LdapAttributesType } from './model/LdapAttributesType';
@@ -217,7 +218,9 @@ const getCreateIDPRequestData = (formData: IDPFormDataType) => {
     users: {
       items: formData.users?.map((user) => ({
         username: user.username,
-        password: user.password,
+        ...(formData.creationMode === CREATION_MODE_UPLOAD
+          ? { hashed_password: user.password }
+          : { password: user.password }),
       })),
     },
   });

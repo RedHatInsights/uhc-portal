@@ -1,6 +1,14 @@
 import React from 'react';
 
-import { HelperText, HelperTextItem } from '@patternfly/react-core';
+import {
+  Content,
+  ContentVariants,
+  Flex,
+  HelperText,
+  HelperTextItem,
+  Radio,
+  Title,
+} from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 
@@ -12,7 +20,9 @@ import {
   validateHTPasswdUsername,
   validateUniqueHTPasswdUsername,
 } from '../../../../../../../common/validators';
-import { FieldId } from '../../constants';
+import { CREATION_MODE_MANUAL, CREATION_MODE_UPLOAD, CreationMode, FieldId } from '../../constants';
+
+import HTPasswdFileUpload from './HTPasswdFileUpload';
 
 import './HTPasswdForm.scss';
 
@@ -141,7 +151,15 @@ const HTPasswdForm = ({
   isEdit?: boolean;
   user?: any;
 }) => {
-  const { getFieldMeta, setFieldValue } = useFormState();
+  const { getFieldMeta, setFieldValue, setTouched, values } = useFormState();
+  const creationMode: CreationMode = values[FieldId.CREATION_MODE] || CREATION_MODE_MANUAL;
+
+  const handleModeChange = (mode: CreationMode) => {
+    setFieldValue(FieldId.CREATION_MODE, mode);
+    setFieldValue(FieldId.USERS, [{ username: '', password: '', 'password-confirm': '' }]);
+    setTouched({});
+  };
+
   const getAutocompleteText = (value: string) => (
     <div>
       Use suggested password:
@@ -164,7 +182,6 @@ const HTPasswdForm = ({
   const addMoreButtonDisabled = error && error?.length !== 0;
 
   const isEditUser = isEdit && !!user;
-
   const userName = {
     name: 'username',
     label: 'Username',
@@ -197,19 +214,56 @@ const HTPasswdForm = ({
     },
   ];
 
+  const showModeSelection = !isEditUser && !onlySingleItem;
+
   return (
-    <CompoundFieldArray
-      fieldSpan={11}
-      compoundFields={compoundFields}
-      label="Users list"
-      addMoreTitle="Add user"
-      isRequired
-      disabled={isPending}
-      validate={[validateUniqueHTPasswdUsername]}
-      addMoreButtonDisabled={addMoreButtonDisabled}
-      minusButtonDisabledMessage="To delete the static user, add another user first."
-      onlySingleItem={onlySingleItem}
-    />
+    <>
+      {showModeSelection && (
+        <>
+          <Title headingLevel="h4" size="md">
+            Create users
+          </Title>
+          <Content component={ContentVariants.p} className="pf-v6-u-mb-0">
+            To creare the HTPasswd identity provider, you must create at least 1 user. You can add
+            additional users later.
+            <br />
+            Add a username and password for each user.
+          </Content>
+          <Flex className="pf-v6-u-mb-md">
+            <Radio
+              isChecked={creationMode === CREATION_MODE_MANUAL}
+              name="htpasswd-creation-mode"
+              onChange={() => handleModeChange(CREATION_MODE_MANUAL)}
+              label="Add users manually"
+              id="htpasswd-mode-manual"
+            />
+            <Radio
+              isChecked={creationMode === CREATION_MODE_UPLOAD}
+              name="htpasswd-creation-mode"
+              onChange={() => handleModeChange(CREATION_MODE_UPLOAD)}
+              label="Upload an HTPasswd file"
+              id="htpasswd-mode-upload"
+            />
+          </Flex>
+        </>
+      )}
+      {creationMode === CREATION_MODE_MANUAL || isEditUser ? (
+        <CompoundFieldArray
+          fieldSpan={11}
+          compoundFields={compoundFields}
+          label="Users list"
+          addMoreTitle="Add user"
+          isRequired
+          disabled={isPending}
+          validate={[validateUniqueHTPasswdUsername]}
+          addMoreButtonDisabled={addMoreButtonDisabled}
+          minusButtonDisabledMessage="To delete the static user, add another user first."
+          onlySingleItem={onlySingleItem}
+        />
+      ) : (
+        <HTPasswdFileUpload isDisabled={isPending} />
+      )}
+    </>
   );
 };
 
