@@ -30,8 +30,6 @@ spec:
     value: 5d
   - name: dockerfile
     value: build-tools/Dockerfile
-  - name: unit-test-image
-    value: "registry.access.redhat.com/ubi9/nodejs-24:latest"
   - name: e2e-app-port
     value: "8000"
   - name: unit-tests-script
