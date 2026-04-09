@@ -366,6 +366,27 @@ const useMachinePoolFormik = ({
                 }
                 return true;
               }),
+              effect: Yup.string().test('taint-effect', '', function test(value) {
+                const taintKey = this.parent.key;
+                const taintValue = this.parent.value;
+
+                // Allow completely empty taint row (single taint with empty key/value and default effect)
+                if (
+                  values.taints.length === 1 &&
+                  !taintKey &&
+                  !taintValue &&
+                  value === 'NoSchedule'
+                ) {
+                  return true;
+                }
+
+                // Otherwise, require key when effect is set
+                if (!taintKey) {
+                  return new Yup.ValidationError('Taint key has to be defined', value, this.path);
+                }
+
+                return true;
+              }),
             }) as any,
           ),
           autoscaleMin: values.autoscaling
