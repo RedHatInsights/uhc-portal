@@ -38,8 +38,6 @@ spec:
     value: |
       #!/bin/bash
       set -ex
-      # debugging - remove before push
-      node --version
       npm install -g yarn
       yarn install
       # cap the linter's heap size, as it tends to hog the RAM,
@@ -57,6 +55,7 @@ spec:
     value: |
       #!/bin/bash
       set -e  # Don't use -x to avoid printing secrets in logs
+
       # CI mode: enables retries (2) and parallel workers (4) in playwright.config.ts
       export CI=true
       # Accept self-signed TLS certs at the Node.js level (covers test helpers,
