@@ -30,11 +30,15 @@ spec:
     value: 5d
   - name: dockerfile
     value: build-tools/Dockerfile
+  - name: unit-test-image
+    value: "registry.access.redhat.com/ubi9/nodejs-24:latest"
   - name: e2e-app-port
     value: "8000"
-  # debugging - remove before push
+
+  # todo - remove before push - this is a workaround until konflux-pipelines #227 is merged
   - name: workspace-setup-script
     value: "echo 'wat'"
+
   - name: unit-tests-script
     value: |
       #!/bin/bash
