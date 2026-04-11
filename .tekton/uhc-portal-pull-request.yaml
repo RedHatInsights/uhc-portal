@@ -30,8 +30,6 @@ spec:
     value: 5d
   - name: dockerfile
     value: build-tools/Dockerfile
-  - name: unit-test-image
-    value: "registry.access.redhat.com/ubi9/nodejs-24:latest"
   - name: e2e-app-port
     value: "8000"
 
@@ -43,6 +41,10 @@ spec:
     value: |
       #!/bin/bash
       set -ex
+      
+      # todo - debugging - remove before push
+      node --version
+
       npm install -g yarn
       yarn install
       # cap the linter's heap size, as it tends to hog the RAM,
@@ -60,6 +62,9 @@ spec:
     value: |
       #!/bin/bash
       set -e  # Don't use -x to avoid printing secrets in logs
+      
+      # todo - debugging - remove before push
+      node --version
 
       # CI mode: enables retries (2) and parallel workers (4) in playwright.config.ts
       export CI=true
