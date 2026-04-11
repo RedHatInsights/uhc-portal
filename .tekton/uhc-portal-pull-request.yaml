@@ -32,6 +32,9 @@ spec:
     value: build-tools/Dockerfile
   - name: e2e-app-port
     value: "8000"
+  # debugging - remove before push
+  - name: workspace-setup-script
+    value: "echo 'wat'"
   - name: unit-tests-script
     value: |
       #!/bin/bash
