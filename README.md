@@ -19,7 +19,6 @@ Slack channels: `#forum-cluster-management` for OCM in general, `#ocm-osd-ui` fo
 ## Requirements
 
 - [NodeJS](https://nodejs.org/) \*
-- [Yarn](https://classic.yarnpkg.com/lang/en/) \*
 - [Podman](https://podman.io/docs/installation) `>= v5.5.2`
                 
 _\* see package.json for the compatible versions_
