@@ -26,7 +26,7 @@ _\* see package.json for the compatible versions_
 
 ## Setup
 
-For a first time setup, it's required to run `npx fec patch-etc-hosts`.
+For a first time setup, it's required to run `npm fec patch-etc-hosts`.
 
 This may ask for your `sudo` password to add some entries to `/etc/hosts`.
 
@@ -59,10 +59,10 @@ There are two development scripts available:
 npm install && npm run dev
 ```
 
-### `npm run start`
+### `npm start`
 
 ```bash
-npm install && npm run start
+npm install && npm start
 ```
 
 The UI will be available at https://prod.foo.redhat.com:1337/openshift/
@@ -84,8 +84,8 @@ If you see them in the [production source](https://app.segment.com/redhat-devtoo
 By default, the UI runs Assisted Installer without standalone mode. To run with Assisted Installer in standalone mode you need to follow these steps:
 
 - Download https://github.com/openshift-assisted/assisted-installer-app project
-- Inside assisted-installer-app run `npm install && npm run start:federated`
-- In uhc-portal run `LOCAL_APPS=assisted-installer-app:8003 npm run start`
+- Inside assisted-installer-app run `npm install && npm start:federated`
+- In uhc-portal run `LOCAL_APPS=assisted-installer-app:8003 npm start`
 
 ## Continuous integration
 

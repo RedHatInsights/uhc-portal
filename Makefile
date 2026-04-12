@@ -20,7 +20,7 @@ setup: node_modules insights-proxy-check
 
 .PHONY: node_modules
 node_modules:
-	npm ci
+	npm install
 
 .PHONY: app
 app: node_modules

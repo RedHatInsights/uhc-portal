@@ -75,7 +75,7 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Check uncommitted changes
         # Check that Git working tree is clean after running `install` command.
