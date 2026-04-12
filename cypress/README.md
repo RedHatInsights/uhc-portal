@@ -41,5 +41,5 @@ npm run cypress-headless
 To execute a specific test in headless mode:
 
 ```
-npm run cypress-headless --spec 'cypress/e2e/RosaClusterWizard.js'
+npm run cypress-headless -- --spec 'cypress/e2e/RosaClusterWizard.js'
 ```

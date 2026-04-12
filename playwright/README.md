@@ -15,10 +15,10 @@ From the project root directory, install all dependencies including Playwright:
 npm install
 
 # Install Playwright browsers
-npx playwright install
+npm exec playwright -- install
 
 # Optional: Install only Chromium browser for faster setup
-npx playwright install chromium
+npm exec playwright -- install chromium
 ```
 
 ### Verify Installation
@@ -27,10 +27,10 @@ You can verify that Playwright is properly installed by running:
 
 ```bash
 # Check Playwright version
-npx playwright --version
+npm exec playwright -- --version
 
 # List available tests (without running them)
-npx playwright test --list
+npm run playwright-headless --list
 ```
 
 ## Setup
@@ -187,28 +187,28 @@ For more advanced usage and customized options:
 
 ```bash
 # Run all tests
-npx playwright test
+npm run playwright-headless
 
 # Run specific test file
-npx playwright test playwright/e2e/clusters/register-cluster.spec.ts
+npm run playwright-headless playwright/e2e/clusters/register-cluster.spec.ts
 
 # Run tests for specific directory
-npx playwright test playwright/e2e/downloads/
+npm run playwright-headless playwright/e2e/downloads/
 
 # Run with specific browser
-BROWSER=chromium npx playwright test
+BROWSER=chromium npm run playwright-headless
 
 # Run with specific reporter
-npx playwright test --reporter=html
+npm run playwright-headless --reporter=html
 
 # Run with parallel executions in multiple workers
-npx playwright test --workers=<count>
+npm run playwright-headless --workers=<count>
 
 # Run the tests with specific tags
-npx playwright test --grep="<tag>"
+npm run playwright-headless --grep="<tag>"
 
 # Generate test code (record browser interactions)
-npx playwright codegen
+npm exec playwright -- codegen
 ```
 
 ### Authentication
@@ -357,4 +357,4 @@ test.describe.serial('Register cluster flow', () => {
 #### Environment Variable Issues
 
 - **Solution**: Verify all required variables are set in `playwright.env.json`
-- **Check**: Run `npx playwright test --list` to verify configuration loading
+- **Check**: Run `npm run playwright-headless --list` to verify configuration loading

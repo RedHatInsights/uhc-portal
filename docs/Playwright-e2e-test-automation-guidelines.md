@@ -789,16 +789,16 @@ test('critical test', { tag: ['@smoke'] }, async () => {
 
 ```bash
 # Run smoke tests only
-npx playwright test --grep="@smoke"
+npm run playwright-headless -- --grep="@smoke"
 
 # Run ROSA tests
-npx playwright test --grep="@rosa"
+npm run playwright-headless -- --grep="@rosa"
 
 # Exclude specific tags
-npx playwright test --grep-invert="@cluster-creation"
+npm run playwright-headless -- --grep-invert="@cluster-creation"
 
 # Combine tags
-npx playwright test --grep="@smoke" --grep="@rosa"
+npm run playwright-headless -- --grep="@smoke" --grep="@rosa"
 ```
 
 ---
@@ -1010,7 +1010,7 @@ npm run playwright-headed
 npm run playwright-debug
 
 # Specific test file
-npx playwright test playwright/e2e/downloads/downloads.spec.ts --headed
+npm run playwright-headless -- playwright/e2e/downloads/downloads.spec.ts --headed
 ```
 
 ### Add Debug Output
@@ -1049,10 +1049,10 @@ test('validate state', async ({ page }) => {
 
 ```bash
 # Run with tracing
-npx playwright test --trace on
+npm run playwright-headless --trace on
 
 # Open trace viewer
-npx playwright show-trace test-results/trace.zip
+npm exec playwright -- show-trace test-results/trace.zip
 ```
 
 ### Common Issues and Solutions
