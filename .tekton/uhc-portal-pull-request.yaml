@@ -30,8 +30,12 @@ spec:
     value: 5d
   - name: dockerfile
     value: build-tools/Dockerfile
+    # todo - remove (8000 is default)
   - name: e2e-app-port
     value: "8000"
+
+  - name: rebuild
+    value: "true"
 
   # todo - remove before push - this is a workaround until konflux-pipelines #227 is merged
   - name: workspace-setup-script
