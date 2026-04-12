@@ -202,6 +202,16 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         { password, username },
       ),
 
+    createHtpasswdUserFromFile: (
+      clusterID: string,
+      idpID: string,
+      users: { username: string; hashed_password: string }[],
+    ) =>
+      apiRequest.post<unknown>(
+        `/api/clusters_mgmt/v1/clusters/${clusterID}/identity_providers/${idpID}/htpasswd_users/import`,
+        { items: users },
+      ),
+
     editHtpasswdUser: (clusterID: string, idpID: string, userId: string, password: string) =>
       apiRequest.patch<unknown>(
         `/api/clusters_mgmt/v1/clusters/${clusterID}/identity_providers/${idpID}/htpasswd_users/${userId}`,

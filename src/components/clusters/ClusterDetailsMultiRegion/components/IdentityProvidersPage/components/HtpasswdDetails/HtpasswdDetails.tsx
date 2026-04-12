@@ -28,6 +28,7 @@ import BulkDeleteUserModal from './BulkDeleteUserModal';
 import DeleteHtpasswdUserDialog from './DeleteHtpasswdUserDialog';
 import EditUserModal from './EditUserModal';
 import EmptyState from './EmptyState';
+import UploadHTPasswdFileModal from './UploadHTPasswdFileModal';
 
 type Props = {
   idpName: string;
@@ -330,6 +331,23 @@ const HtpasswdDetails = ({
                     Add user
                   </Button>
                 </ToolbarItem>
+                <ToolbarItem>
+                  <Button
+                    variant={ButtonVariant.secondary}
+                    onClick={() => {
+                      dispatch(
+                        openModal(modals.UPLOAD_HTPASSWD_FILE, {
+                          idpName,
+                          clusterId,
+                          idpId,
+                          region,
+                        }),
+                      );
+                    }}
+                  >
+                    Upload HTPasswd file
+                  </Button>
+                </ToolbarItem>
               </>
             ) : null}
             <ToolbarItem align={{ default: 'alignEnd' }} variant="pagination">
@@ -386,6 +404,15 @@ const HtpasswdDetails = ({
           refetch();
         }}
         refreshHtpasswdUsers={refreshHtpasswdUsers}
+      />
+
+      <ConnectedModal
+        // @ts-ignore
+        ModalComponent={UploadHTPasswdFileModal}
+        onSuccess={() => {
+          setSearchValue('');
+          refetch();
+        }}
       />
 
       <ConnectedModal

@@ -229,7 +229,7 @@ const HTPasswdForm = ({
             <br />
             Add a username and password for each user.
           </Content>
-          <Flex className="pf-v6-u-mb-md">
+          <Flex className="pf-v6-u-mb-sm">
             <Radio
               isChecked={creationMode === CREATION_MODE_MANUAL}
               name="htpasswd-creation-mode"
