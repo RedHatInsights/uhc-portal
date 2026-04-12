@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 
+import { sqlString } from '~/common/queryHelpers';
 import { WifConfigList } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import defaultApiRequest, { APIRequest, getAPIRequestForRegion } from '~/services/apiRequest';
 import type { Subscription } from '~/types/accounts_mgmt.v1';
@@ -409,8 +410,13 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
       });
     },
 
-    getGcpDnsDomains: () =>
-      apiRequest.get<{
+    getGcpDnsDomains: (options?: { id?: string }) => {
+      const clauses = [`cloud_provider='gcp'`];
+      if (options?.id) {
+        clauses.push(`id=${sqlString(options.id)}`);
+      }
+      const search = clauses.join(' AND ');
+      return apiRequest.get<{
         /**
          * Retrieved list of add-ons.
          */
@@ -430,10 +436,11 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         total?: number;
       }>('/api/clusters_mgmt/v1/dns_domains', {
         params: {
-          search: `cloud_provider='gcp'`,
+          search,
           size: -1,
         },
-      }),
+      });
+    },
 
     createNewDnsDomain: () => apiRequest.post<DnsDomain>('/api/clusters_mgmt/v1/dns_domains', {}),
 

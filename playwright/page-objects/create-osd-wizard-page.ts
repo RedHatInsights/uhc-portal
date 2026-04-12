@@ -334,6 +334,42 @@ export class CreateOSDWizardPage extends BasePage {
     }
   }
 
+  installIntoSharedVpcCheckBox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Install into Google Cloud Shared VPC' });
+  }
+
+  sharedHostProjectIdInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Host project ID' });
+  }
+
+  createDnsZoneToggle(): Locator {
+    return this.page.getByRole('button', { name: 'Create DNS Zone' });
+  }
+
+  createDnsZoneCommand(): Locator {
+    return this.page.getByLabel('Copyable create DNS zone command');
+  }
+
+  dnsZoneDropdown(): Locator {
+    return this.page.getByRole('button', { name: 'Options menu' });
+  }
+
+  dnsZoneFilterInput(): Locator {
+    return this.page.getByLabel('Filter by DNS zone name');
+  }
+
+  async selectDnsZone(dnsZone: string, partialMatch: boolean = false): Promise<void> {
+    await this.dnsZoneDropdown().click();
+    await this.dnsZoneFilterInput().clear();
+    await this.dnsZoneFilterInput().fill(dnsZone);
+    const escapedDnsZone = dnsZone.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const options = partialMatch
+      ? this.page.getByRole('option').filter({ hasText: new RegExp(`^${escapedDnsZone}`) })
+      : this.page.getByRole('option', { name: dnsZone });
+    await expect(options).toHaveCount(1);
+    await options.first().click();
+  }
+
   installIntoExistingVpcCheckBox(): Locator {
     return this.page.locator('input[id="install_to_vpc"]');
   }
@@ -349,6 +385,18 @@ export class CreateOSDWizardPage extends BasePage {
     ).toBeVisible();
   }
 
+  vpcNameInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Existing VPC name' });
+  }
+
+  controlPlaneSubnetInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Control plane subnet name' });
+  }
+
+  computeSubnetInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Compute subnet name' });
+  }
+
   async selectGcpVPC(vpcName: string): Promise<void> {
     await this.page.locator('select[aria-label="Existing VPC name"]').selectOption(vpcName);
   }
@@ -361,6 +409,10 @@ export class CreateOSDWizardPage extends BasePage {
 
   async selectComputeSubnetName(subnetName: string): Promise<void> {
     await this.page.locator('select[aria-label="Compute subnet name"]').selectOption(subnetName);
+  }
+
+  privateServiceConnectSubnetInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Private Service Connect subnet name' });
   }
 
   async selectPrivateServiceConnectSubnetName(pscName: string): Promise<void> {
@@ -483,6 +535,18 @@ export class CreateOSDWizardPage extends BasePage {
 
   privateServiceConnectValue(): Locator {
     return this.page.getByLabel('Networking').getByTestId('Private-service-connect').locator('div');
+  }
+
+  sharedHostProjectIdValue(): Locator {
+    return this.page.getByTestId('Google-Cloud-shared-host-project-ID').locator('div');
+  }
+
+  dnsZoneValue(): Locator {
+    return this.page.getByTestId('DNS-zone').locator('div');
+  }
+
+  vpcSubnetSettingsValue(): Locator {
+    return this.page.getByTestId('VPC-subnet-settings');
   }
 
   applicationIngressValue(): Locator {

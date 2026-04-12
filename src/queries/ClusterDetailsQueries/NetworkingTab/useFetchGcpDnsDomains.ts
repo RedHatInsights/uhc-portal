@@ -15,6 +15,7 @@ export const useFetchGcpDnsDomains = (domainPrefix: string, organizationId: stri
       const response = await clusterService.getGcpDnsDomains();
       return response;
     },
+    enabled: !!domainPrefix && !!organizationId,
   });
 
   const filteredDnsZones = (domainPrefix: string, organizationId: string) =>

@@ -14,8 +14,10 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 
+import { trackEvents } from '~/common/analytics';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
+import useAnalytics from '~/hooks/useAnalytics';
 import {
   refetchGcpDnsZones,
   useFetchGcpDnsDomains,
@@ -48,8 +50,19 @@ const DnsZoneSelect = ({
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
   const [isExpanded, setIsExpanded] = React.useState<boolean>(false);
 
+  const track = useAnalytics();
+
   const onToggle = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const trackDnsZoneSelection = (zoneId: string | undefined) => {
+    track(trackEvents.DnsZoneSelected, {
+      customProperties: {
+        module: 'openshift',
+        dns_zone_id: zoneId,
+      },
+    });
   };
 
   const {
@@ -67,6 +80,7 @@ const DnsZoneSelect = ({
     const selectedItem = dnsDomains?.find((dnsZone) => dnsZone.id === value);
     if (selectedItem) {
       inputProps.onChange(selectedItem);
+      trackDnsZoneSelection(selectedItem.id);
       setIsOpen(false);
     }
   };
@@ -94,6 +108,7 @@ const DnsZoneSelect = ({
 
   const refreshGcpDnsZones = () => {
     refetchGcpDnsZones();
+    track(trackEvents.RefreshDnsZones);
 
     if (isSelectedDnsZoneDeleted(selectedDnsZone, dnsDomains)) {
       inputProps.onChange({ id: '' });

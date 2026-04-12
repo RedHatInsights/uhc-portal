@@ -55,6 +55,7 @@ const eventNames = {
   SECTION_EXPANDED: 'Section Expanded',
   ALERT_INTERACTION: 'Alert Interaction',
   TAB_VIEWED: 'Tab Viewed',
+  VALUE_SELECTED: 'Value Selected',
 };
 
 /**
@@ -371,6 +372,16 @@ const trackEvents: { [key: string]: TrackEvent } = {
   ClusterTabs: {
     event: eventNames.TAB_VIEWED,
     link_name: 'cluster-detail-tab',
+  },
+  RefreshDnsZones: {
+    event: eventNames.BUTTON_CLICKED,
+    link_name: 'dns-zone-refresh-clicked',
+    ocm_resource_type: ocmResourceType.OSD,
+  },
+  DnsZoneSelected: {
+    event: eventNames.VALUE_SELECTED,
+    link_name: 'dns-zone-selected',
+    ocm_resource_type: ocmResourceType.OSD,
   },
 };
 
