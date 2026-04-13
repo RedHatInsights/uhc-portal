@@ -154,8 +154,8 @@ const IDPForm = ({
         text = (
           <>
             Define an <code>htpasswd</code> identity provider for your managed cluster to create one
-            or multiple static users that can log in to your cluster and troubleshoot it. If these
-            users need elevated permissions, add it to an{' '}
+            or multiple static users that can log in to your. If these users need elevated
+            permissions, add it to an{' '}
             <ExternalLink href={docLinks.OSD_DEDICATED_ADMIN_ROLE}>
               administrative group
             </ExternalLink>{' '}
