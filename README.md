@@ -25,7 +25,7 @@ _\* see package.json for the compatible versions_
 
 ## Setup
 
-For a first time setup, it's required to run `npm run fec patch-etc-hosts`.
+For a first time setup, it's required to run `npm exec fec patch-etc-hosts`.
 
 This may ask for your `sudo` password to add some entries to `/etc/hosts`.
 
