@@ -53,6 +53,7 @@ const IDPForm = ({
   formTitle,
   HTPasswdErrors,
   isHypershift,
+  isROSACluster,
   IDPList,
   isPostIDPFormError,
   postIDPFormError,
@@ -154,9 +155,15 @@ const IDPForm = ({
         text = (
           <>
             Define an <code>htpasswd</code> identity provider for your managed cluster to create one
-            or multiple static users that can log in to your. If these users need elevated
+            or multiple static users that can log in to your cluster. If these users need elevated
             permissions, add it to an{' '}
-            <ExternalLink href={docLinks.OSD_DEDICATED_ADMIN_ROLE}>
+            <ExternalLink
+              href={
+                isROSACluster
+                  ? docLinks.ROSA_AUTHENTICATION_AND_AUTHORIZATION
+                  : docLinks.OSD_DEDICATED_ADMIN_ROLE
+              }
+            >
               administrative group
             </ExternalLink>{' '}
             within your organization.
@@ -334,6 +341,7 @@ IDPForm.propTypes = {
   IDPList: PropTypes.array.isRequired,
   isEditForm: PropTypes.bool,
   isHypershift: PropTypes.bool,
+  isROSACluster: PropTypes.bool,
   idpEdited: PropTypes.object,
   idpName: PropTypes.string,
   HTPasswdErrors: PropTypes.func.isRequired,

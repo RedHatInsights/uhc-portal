@@ -68,9 +68,9 @@ describe('<UploadHTPasswdFileModal />', () => {
 
     withState(initialState, true).render(<UploadHTPasswdFileModal onSuccess={onSuccess} />);
 
-    expect(screen.getByText('Upload HTPasswd file')).toBeInTheDocument();
+    expect(screen.getByText('Upload htpasswd file')).toBeInTheDocument();
     expect(
-      screen.getByText(/Upload an HTPasswd file to add users to identity provider/),
+      screen.getByText(/Upload an htpasswd file to add users to identity provider/),
     ).toBeInTheDocument();
     expect(screen.getByText('myIDPName')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled();

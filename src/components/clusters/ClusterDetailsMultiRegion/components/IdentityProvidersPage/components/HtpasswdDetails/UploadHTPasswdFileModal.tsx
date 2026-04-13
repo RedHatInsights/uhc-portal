@@ -100,7 +100,7 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
 
   return (
     <Modal
-      title="Upload HTPasswd file"
+      title="Upload htpasswd file"
       secondaryTitle={undefined}
       onClose={closeUploadModal}
       primaryText="Upload"
@@ -111,7 +111,7 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
     >
       <Form>
         <p>
-          Upload an HTPasswd file to add users to identity provider <strong>{idpName}</strong>
+          Upload an htpasswd file to add users to identity provider <strong>{idpName}</strong>
         </p>
 
         {isError ? (
@@ -124,7 +124,7 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
           />
         ) : null}
 
-        <FormGroup label="HTPasswd file" fieldId="htpasswd-file-upload-modal">
+        <FormGroup label="htpasswd file" fieldId="htpasswd-file-upload-modal">
           <FileUpload
             id="htpasswd-file-upload-modal"
             type="text"
@@ -137,7 +137,7 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
             isReadOnly
             browseButtonText="Browse"
             validated={parseErrors.length > 0 ? 'error' : 'default'}
-            filenamePlaceholder="Upload an HTPasswd file or drag and drop"
+            filenamePlaceholder="Upload an htpasswd file or drag and drop"
           />
 
           {parseErrors.length > 0 && (

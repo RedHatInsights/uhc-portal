@@ -224,7 +224,7 @@ const HTPasswdForm = ({
             Create users
           </Title>
           <Content component={ContentVariants.p} className="pf-v6-u-mb-0">
-            To create the HTPasswd identity provider, you must create at least 1 user. You can add
+            To create the htpasswd identity provider, you must create at least 1 user. You can add
             additional users later.
             <br />
             Add a username and password for each user.
@@ -241,7 +241,7 @@ const HTPasswdForm = ({
               isChecked={creationMode === CREATION_MODE_UPLOAD}
               name="htpasswd-creation-mode"
               onChange={() => handleModeChange(CREATION_MODE_UPLOAD)}
-              label="Upload an HTPasswd file"
+              label="Upload an htpasswd file"
               id="htpasswd-mode-upload"
             />
           </Flex>

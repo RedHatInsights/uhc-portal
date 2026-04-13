@@ -53,7 +53,7 @@ const HTPasswdFileUpload = ({ isDisabled }: { isDisabled?: boolean }) => {
   };
 
   return (
-    <FormGroup label="HTPasswd file" fieldId="htpasswd-file-upload">
+    <FormGroup label="htpasswd file" fieldId="htpasswd-file-upload">
       <FileUpload
         id="htpasswd-file-upload"
         type="text"
@@ -66,7 +66,7 @@ const HTPasswdFileUpload = ({ isDisabled }: { isDisabled?: boolean }) => {
         isReadOnly
         browseButtonText="Browse"
         validated={errors.length > 0 ? 'error' : 'default'}
-        filenamePlaceholder="Upload an HTPasswd file or drag and drop"
+        filenamePlaceholder="Upload an htpasswd file or drag and drop"
       />
 
       {errors.length > 0 && (

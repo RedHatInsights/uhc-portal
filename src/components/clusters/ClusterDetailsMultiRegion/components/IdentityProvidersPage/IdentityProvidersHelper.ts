@@ -47,7 +47,7 @@ const singularFormIDP = {
   [IDPformValues.OPENID]: 'an OpenID',
   [IDPformValues.LDAP]: 'an LDAP',
   [IDPformValues.GITLAB]: 'a GitLab',
-  [IDPformValues.HTPASSWD]: 'an HTPasswd',
+  [IDPformValues.HTPASSWD]: 'an htpasswd',
 };
 
 const IDPObjectNames: { [p: string]: keyof IdentityProvider } = {

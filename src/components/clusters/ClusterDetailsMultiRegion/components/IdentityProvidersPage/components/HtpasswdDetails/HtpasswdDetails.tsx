@@ -345,7 +345,7 @@ const HtpasswdDetails = ({
                       );
                     }}
                   >
-                    Upload HTPasswd file
+                    Upload htpasswd file
                   </Button>
                 </ToolbarItem>
               </>
