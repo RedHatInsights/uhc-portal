@@ -35,10 +35,6 @@ spec:
   - name: e2e-app-port
     value: "8000"
 
-  # todo - remove before push - this is a workaround until konflux-pipelines #227 is merged
-  - name: workspace-setup-script
-    value: "echo 'wat'"
-
   - name: unit-tests-script
     value: |
       #!/bin/bash
