@@ -44,14 +44,12 @@ describe('AutoScaleEnabledInputs', () => {
       await user.type(screen.getByLabelText('Minimum nodes'), '0');
 
       expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(0);
-      expect(screen.getByText('Input cannot be less than 2.')).toBeInTheDocument();
 
       // Test for right amount - above minimum value and below max nodes
       await user.clear(screen.getByLabelText('Minimum nodes'));
       await user.type(screen.getByLabelText('Minimum nodes'), '3');
 
       expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(3);
-      expect(screen.queryByText('Input cannot be less than 2.')).not.toBeInTheDocument();
 
       // Test for minimum more than maximum
       await user.clear(screen.getByLabelText('Minimum nodes'));
@@ -61,7 +59,7 @@ describe('AutoScaleEnabledInputs', () => {
       expect(screen.getByText('Max nodes cannot be less than min nodes.')).toBeInTheDocument();
     });
 
-    it('validates min nodes input correctly for more than 1 subnet', async () => {
+    it('validates min nodes input correctly for more than 1 subnet isHypershift', async () => {
       const { user } = render(
         buildTestComponent({
           [RosaFieldId.Hypershift]: 'true',
@@ -73,7 +71,22 @@ describe('AutoScaleEnabledInputs', () => {
       await user.type(screen.getByLabelText('Minimum nodes'), '0');
 
       expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(0);
-      expect(screen.getByText('Input cannot be less than 1.')).toBeInTheDocument();
+      expect(screen.queryByText('Input cannot be less than 1.')).not.toBeInTheDocument();
+    });
+
+    it('validates min nodes input correctly for more than 1 subnet !isHypershift', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'false',
+          [RosaFieldId.MachinePoolsSubnets]: ['subnet1', 'subnet2'],
+        }),
+      );
+      // Test for too few
+      await user.clear(screen.getByLabelText('Minimum nodes'));
+      await user.type(screen.getByLabelText('Minimum nodes'), '0');
+
+      expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(0);
+      expect(screen.getByText('Input cannot be less than 2.')).toBeInTheDocument();
     });
 
     it('validates max nodes input correctly', async () => {
@@ -88,7 +101,7 @@ describe('AutoScaleEnabledInputs', () => {
       await user.type(screen.getByLabelText('Maximum nodes'), '0');
 
       expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(0);
-      expect(screen.getByText('Input cannot be less than 2.')).toBeInTheDocument();
+      expect(screen.getByText('Max nodes cannot be less than min nodes.')).toBeInTheDocument();
 
       // Test for right amount - above minimum value
       await user.clear(screen.getByLabelText('Maximum nodes'));
@@ -118,7 +131,7 @@ describe('AutoScaleEnabledInputs', () => {
       expect(screen.getByText('Max nodes cannot be less than min nodes.')).toBeInTheDocument();
     });
 
-    it('sets minimum value when value is not set for 1 subnet', async () => {
+    it('sets minimum value when value is not set for 1 subnet isHypershift', async () => {
       render(
         buildTestComponent({
           [RosaFieldId.Hypershift]: 'true',
@@ -129,10 +142,24 @@ describe('AutoScaleEnabledInputs', () => {
       );
 
       expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(2);
+      expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(0);
+    });
+
+    it('sets minimum value when value is not set for 1 subnet !isHypershift', async () => {
+      render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'false',
+          [RosaFieldId.MachinePoolsSubnets]: ['subnet1'],
+          [RosaFieldId.MinReplicas]: '',
+          [RosaFieldId.MaxReplicas]: '',
+        }),
+      );
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(2);
       expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(2);
     });
 
-    it('sets minimum value when value is not set for 1 subnet', async () => {
+    it('sets minimum value when value is not set for 1 subnet isHypershift', async () => {
       render(
         buildTestComponent({
           [RosaFieldId.Hypershift]: 'true',
@@ -143,7 +170,7 @@ describe('AutoScaleEnabledInputs', () => {
       );
 
       expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(1);
-      expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(1);
+      expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(0);
     });
 
     it('shows max warning when user changes subnets', async () => {

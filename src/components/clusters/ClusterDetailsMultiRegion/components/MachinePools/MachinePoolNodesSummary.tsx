@@ -15,7 +15,14 @@ const MachinePoolNodesSummary = ({
     return `${machinePool.desired || machinePool.replicas}`;
   }
 
-  const autoScaleNodesText = `Min: ${machinePool.autoscaling.min_replicas}, Max: ${machinePool.autoscaling.max_replicas}`;
+  const minNodes = (replicas: number | undefined) => {
+    if (replicas === undefined) {
+      return 0;
+    }
+    return replicas;
+  };
+
+  const autoScaleNodesText = `Min: ${minNodes(machinePool.autoscaling.min_replicas)}, Max: ${machinePool.autoscaling.max_replicas}`;
   if (isMultiZoneCluster) {
     return (
       <Popover
