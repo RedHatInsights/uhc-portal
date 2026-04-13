@@ -60,9 +60,6 @@ const ChannelEditModal = ({
 }: ChannelEditModalProps) => {
   const { mutate, isError, error, isPending } = useEditChannelOnCluster();
 
-  const handleClose = () => {
-    onClose();
-  };
   return isOpen ? (
     <Formik
       initialValues={{ channel }}
@@ -72,7 +69,7 @@ const ChannelEditModal = ({
           { clusterID, channel: newChannel },
           {
             onSuccess: () => {
-              handleClose();
+              onClose();
               invalidateClusterDetailsQueries();
             },
           },
@@ -84,7 +81,7 @@ const ChannelEditModal = ({
           id="edit-channel-modal"
           title="Edit channel"
           variant={ModalVariant.small}
-          onClose={handleClose}
+          onClose={onClose}
           isOpen={isOpen}
           aria-labelledby="edit-channel-modal"
           aria-describedby="modal-box-edit-channel"
@@ -125,7 +122,7 @@ const ChannelEditModal = ({
             >
               Save
             </Button>
-            <Button key="cancel" variant="link" onClick={handleClose}>
+            <Button key="cancel" variant="link" onClick={onClose}>
               Cancel
             </Button>
           </ModalFooter>

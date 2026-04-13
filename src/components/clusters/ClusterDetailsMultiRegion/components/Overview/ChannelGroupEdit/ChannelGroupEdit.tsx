@@ -59,9 +59,6 @@ const ChannelGroupEditModal = ({
 }: ChannelGroupEditModalProps) => {
   const { mutate, isError, error, isPending } = useMutateChannelGroup();
 
-  const handleClose = () => {
-    onClose();
-  };
   return isOpen ? (
     <Formik
       initialValues={{ channelGroup }}
@@ -71,7 +68,7 @@ const ChannelGroupEditModal = ({
           { clusterID, channelGroup },
           {
             onSuccess: () => {
-              handleClose();
+              onClose();
               invalidateClusterDetailsQueries();
             },
           },
@@ -83,7 +80,7 @@ const ChannelGroupEditModal = ({
           id="edit-channel-group-modal"
           title="Edit channel group"
           variant={ModalVariant.small}
-          onClose={handleClose}
+          onClose={onClose}
           isOpen={isOpen}
           aria-labelledby="edit-channel-group-modal"
           aria-describedby="modal-box-edit-channel-group"
@@ -124,7 +121,7 @@ const ChannelGroupEditModal = ({
             >
               Save
             </Button>
-            <Button key="cancel" variant="link" onClick={handleClose}>
+            <Button key="cancel" variant="link" onClick={onClose}>
               Cancel
             </Button>
           </ModalFooter>
