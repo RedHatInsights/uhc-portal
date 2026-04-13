@@ -6,7 +6,8 @@ import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstan
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
-import { Cluster, Version } from '~/types/clusters_mgmt.v1';
+import type { Cluster, Version } from '~/types/clusters_mgmt.v1';
+import type { AugmentedCluster } from '~/types/types';
 
 type VersionsListResponse = {
   items?: Version[];
@@ -25,7 +26,10 @@ const availableChannelsFromVersions = (
   return toDropdownOptions(channels);
 };
 
-export const useGetChannelsData = (cluster: Cluster, canEdit: boolean) => {
+export const useGetChannelsData = (
+  cluster: AugmentedCluster & Partial<Pick<Cluster, 'billing_model'>>,
+) => {
+  const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isRosa = isROSA(cluster);
   const isHCP = isHypershiftCluster(cluster);
   const isMarketplaceGcp =
@@ -41,7 +45,7 @@ export const useGetChannelsData = (cluster: Cluster, canEdit: boolean) => {
     isWIF,
     isHCP,
     includeUnstableVersions: unstableOCPVersionsEnabled,
-    canEdit,
+    canEdit: canUpdateClusterResource,
   });
   const clusterRawId = cluster.version?.raw_id;
 

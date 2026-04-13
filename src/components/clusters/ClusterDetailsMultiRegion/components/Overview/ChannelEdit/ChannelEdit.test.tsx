@@ -1,14 +1,13 @@
 import React from 'react';
 
 import { render, screen, waitFor } from '~/testUtils';
+import type { AugmentedCluster } from '~/types/types';
 
 import { useEditChannelOnCluster } from '../../../../../../queries/ChannelEditQueries/useEditChannelOnCluster';
 import fixtures from '../../../__tests__/ClusterDetails.fixtures';
 
-import { CanEditCluster, ChannelEdit } from './ChannelEdit';
-import { useGetChannelsData } from './useGetChannelsData';
+import { ChannelEdit } from './ChannelEdit';
 
-jest.mock('./useGetChannelsData');
 jest.mock('../../../../../../queries/ChannelEditQueries/useEditChannelOnCluster');
 
 jest.mock('~/components/common/ErrorBox', () => (props: { message?: string }) => {
@@ -38,26 +37,31 @@ jest.mock('./ChannelSelect', () => ({
   ),
 }));
 
-const mockUseGetChannelsData = useGetChannelsData as jest.Mock;
 const mockUseEditChannelOnCluster = useEditChannelOnCluster as jest.Mock;
-
-const mockOptions = [
-  { value: 'stable-4.16', label: 'stable-4.16' },
-  { value: 'eus-4.16', label: 'eus-4.16' },
-];
 
 describe('<ChannelEdit />', () => {
   let mutateMock: jest.Mock;
 
-  const mockedROSAHyperShiftCluster = fixtures.ROSAHypershiftClusterDetails
-    .cluster as unknown as CanEditCluster;
+  const mockedROSAHyperShiftCluster = {
+    ...(fixtures.ROSAHypershiftClusterDetails.cluster as unknown as AugmentedCluster),
+    canUpdateClusterResource: true,
+    version: {
+      ...(fixtures.ROSAHypershiftClusterDetails.cluster as { version?: object }).version,
+      available_channels: ['stable-4.16', 'eus-4.16'],
+    },
+  };
 
-  const mockedROSAHyperShiftWaitingCluster = fixtures.ROSAHypershiftWaitingClusterDetails
-    .cluster as unknown as CanEditCluster;
+  const mockedROSAHyperShiftWaitingCluster = {
+    ...(fixtures.ROSAHypershiftWaitingClusterDetails.cluster as unknown as AugmentedCluster),
+    canUpdateClusterResource: true,
+    version: {
+      ...(fixtures.ROSAHypershiftWaitingClusterDetails.cluster as { version?: object }).version,
+      available_channels: ['stable-4.16', 'eus-4.16'],
+    },
+  };
 
   beforeEach(() => {
     mutateMock = jest.fn();
-    mockUseGetChannelsData.mockClear();
     mockUseEditChannelOnCluster.mockClear();
 
     mockUseEditChannelOnCluster.mockReturnValue({
@@ -67,29 +71,7 @@ describe('<ChannelEdit />', () => {
     });
   });
 
-  it('Renders channel and loading label', async () => {
-    mockUseGetChannelsData.mockReturnValue({
-      availableDropdownChannels: undefined,
-      isLoading: true,
-    });
-    render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
-      />,
-    );
-
-    expect(screen.getByLabelText('Loading...')).toBeInTheDocument();
-    expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
-  });
-
-  it('should render the channel and an enabled edit button when not loading and editable', () => {
-    mockUseGetChannelsData.mockReturnValue({
-      availableDropdownChannels: mockOptions,
-      isLoading: false,
-    });
-
+  it('should render the channel and an enabled edit button when editable and channels exist', () => {
     render(
       <ChannelEdit
         clusterID="cluster-123"
@@ -106,11 +88,6 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should render a disabled edit button when cluster is not ready', () => {
-    mockUseGetChannelsData.mockReturnValue({
-      availableDropdownChannels: mockOptions,
-      isLoading: false,
-    });
-
     render(
       <ChannelEdit
         clusterID="cluster-123"
@@ -127,11 +104,6 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should render N/A when channel is not provided', () => {
-    mockUseGetChannelsData.mockReturnValue({
-      availableDropdownChannels: mockOptions,
-      isLoading: false,
-    });
-
     render(
       <ChannelEdit clusterID="cluster-123" channel="" cluster={mockedROSAHyperShiftCluster} />,
     );
@@ -140,30 +112,27 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should not render an edit button when available channels list is empty', () => {
-    mockUseGetChannelsData.mockReturnValue({
-      availableDropdownChannels: [],
-      isLoading: false,
-    });
-
+    const clusterNoChannels = {
+      ...mockedROSAHyperShiftCluster,
+      version: {
+        ...mockedROSAHyperShiftCluster.version,
+        available_channels: [] as string[],
+      },
+    };
     render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
-      />,
+      <ChannelEdit clusterID="cluster-123" channel="stable-4.16" cluster={clusterNoChannels} />,
     );
 
     expect(screen.getByText('stable-4.16')).toBeInTheDocument();
     expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
   });
 
-  it('should not render an edit button if cluster is not editable', () => {
-    mockUseGetChannelsData.mockReturnValue({
-      availableDropdownChannels: mockOptions,
-      isLoading: false,
-    });
-
-    const nonEditableCluster = { ...mockedROSAHyperShiftCluster, canEdit: false };
+  it('should not render an edit button if cluster cannot update cluster resource', () => {
+    const nonEditableCluster = {
+      ...mockedROSAHyperShiftCluster,
+      canEdit: true,
+      canUpdateClusterResource: false,
+    };
     render(
       <ChannelEdit clusterID="cluster-123" channel="stable-4.16" cluster={nonEditableCluster} />,
     );
@@ -173,11 +142,6 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should open the modal when the edit button is clicked', async () => {
-    mockUseGetChannelsData.mockReturnValue({
-      availableDropdownChannels: mockOptions,
-      isLoading: false,
-    });
-
     const { user } = render(
       <ChannelEdit
         clusterID="cluster-123"
@@ -194,11 +158,6 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should close the modal when cancel button is clicked', async () => {
-    mockUseGetChannelsData.mockReturnValue({
-      availableDropdownChannels: mockOptions,
-      isLoading: false,
-    });
-
     const { user } = render(
       <ChannelEdit
         clusterID="cluster-123"
@@ -218,11 +177,6 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should have a disabled save button initially in the modal', async () => {
-    mockUseGetChannelsData.mockReturnValue({
-      availableDropdownChannels: mockOptions,
-      isLoading: false,
-    });
-
     const { user } = render(
       <ChannelEdit
         clusterID="cluster-123"
@@ -237,10 +191,6 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should call mutate with channel when save is clicked after changing selection', async () => {
-    mockUseGetChannelsData.mockReturnValue({
-      availableDropdownChannels: mockOptions,
-      isLoading: false,
-    });
     mockUseEditChannelOnCluster.mockReturnValue({
       mutate: mutateMock,
       isError: false,
@@ -269,11 +219,6 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should display an error in the modal if mutation fails', async () => {
-    mockUseGetChannelsData.mockReturnValue({
-      availableDropdownChannels: mockOptions,
-      isLoading: false,
-    });
-
     mockUseEditChannelOnCluster.mockReturnValue({
       mutate: mutateMock,
       isError: true,

@@ -25,7 +25,7 @@ import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import { useMutateChannelGroup } from '~/queries/ChannelGroupEditQueries/useMutateChannelGroup';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
-import { Cluster } from '~/types/clusters_mgmt.v1';
+import type { AugmentedCluster } from '~/types/types';
 
 import { formatChannelGroupName } from '../../../clusterDetailsHelper';
 
@@ -46,13 +46,9 @@ type ChannelGroupEditModalProps = {
 type ChannelGroupEditProps = {
   clusterID: string;
   channelGroup: string;
-  cluster: CanEditCluster;
+  cluster: AugmentedCluster;
   isROSA?: boolean;
 };
-
-export interface CanEditCluster extends Cluster {
-  canEdit: boolean;
-}
 
 const ChannelGroupEditModal = ({
   clusterID,
@@ -145,9 +141,9 @@ export const ChannelGroupEdit = ({
   isROSA,
 }: ChannelGroupEditProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
-  const { canEdit } = cluster;
+  const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isClusterReady = cluster.state === clusterStates.ready;
-  const { availableDropdownChannelGroups, isLoading } = useGetChannelGroupsData(cluster, canEdit);
+  const { availableDropdownChannelGroups, isLoading } = useGetChannelGroupsData(cluster);
 
   return (
     <>
@@ -179,7 +175,7 @@ export const ChannelGroupEdit = ({
         </DescriptionListTerm>
         <DescriptionListDescription>
           {formatChannelGroupName(channelGroup)}
-          {canEdit &&
+          {canUpdateClusterResource &&
             (isLoading ? (
               <Spinner size="sm" aria-label="Loading..." />
             ) : (
@@ -187,7 +183,7 @@ export const ChannelGroupEdit = ({
                 data-testid="channelGroupModal"
                 ariaLabel="editChannelGroupBtn"
                 onClick={() => setIsModalOpen(true)}
-                isAriaDisabled={!canEdit || isLoading || !isClusterReady}
+                isAriaDisabled={!canUpdateClusterResource || isLoading || !isClusterReady}
               />
             ))}
         </DescriptionListDescription>

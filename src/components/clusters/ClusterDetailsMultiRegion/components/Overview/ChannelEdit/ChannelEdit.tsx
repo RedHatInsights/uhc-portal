@@ -11,7 +11,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalVariant,
-  Spinner,
   StackItem,
   Title,
 } from '@patternfly/react-core';
@@ -25,12 +24,15 @@ import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import { useEditChannelOnCluster } from '~/queries/ChannelEditQueries/useEditChannelOnCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
-import { Cluster } from '~/types/clusters_mgmt.v1';
+import type { AugmentedCluster } from '~/types/types';
 
 import { formatChannelName } from '../../../clusterDetailsHelper';
 
 import { ChannelSelect } from './ChannelSelect';
-import { useGetChannelsData } from './useGetChannelsData';
+
+const channelsToDropdownOptions = (
+  channels: string[] | undefined,
+): { value: string; label: string }[] => (channels ?? []).map((c) => ({ value: c, label: c }));
 
 type ChannelEditModalProps = {
   clusterID: string;
@@ -46,12 +48,8 @@ type ChannelEditModalProps = {
 type ChannelEditProps = {
   clusterID: string;
   channel: string;
-  cluster: CanEditCluster;
+  cluster: AugmentedCluster;
 };
-
-export interface CanEditCluster extends Cluster {
-  canEdit: boolean;
-}
 
 const ChannelEditModal = ({
   clusterID,
@@ -139,10 +137,10 @@ const ChannelEditModal = ({
 
 export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
-  const { canEdit } = cluster;
+  const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isClusterReady = cluster.state === clusterStates.ready;
-  const { availableDropdownChannels, isLoading } = useGetChannelsData(cluster, canEdit);
-  const hasChannelOptions = (availableDropdownChannels?.length ?? 0) > 0;
+  const availableDropdownChannels = channelsToDropdownOptions(cluster.version?.available_channels);
+  const hasChannelOptions = availableDropdownChannels.length > 0;
 
   return (
     <>
@@ -170,13 +168,12 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
         </DescriptionListTerm>
         <DescriptionListDescription>
           {formatChannelName(channel ?? '')}
-          {canEdit && isLoading ? <Spinner size="sm" aria-label="Loading..." /> : null}
-          {canEdit && !isLoading && hasChannelOptions ? (
+          {canUpdateClusterResource && hasChannelOptions ? (
             <EditButton
               data-testid="channelModal"
               ariaLabel="editChannelBtn"
               onClick={() => setIsModalOpen(true)}
-              isAriaDisabled={!canEdit || !isClusterReady}
+              isAriaDisabled={!canUpdateClusterResource || !isClusterReady}
             />
           ) : null}
         </DescriptionListDescription>

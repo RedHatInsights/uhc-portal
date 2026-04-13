@@ -1,11 +1,12 @@
 import React from 'react';
 
 import { render, screen, waitFor } from '~/testUtils';
+import type { AugmentedCluster } from '~/types/types';
 
 import { useMutateChannelGroup } from '../../../../../../queries/ChannelGroupEditQueries/useMutateChannelGroup';
 import fixtures from '../../../__tests__/ClusterDetails.fixtures';
 
-import { CanEditCluster, ChannelGroupEdit } from './ChannelGroupEdit';
+import { ChannelGroupEdit } from './ChannelGroupEdit';
 import { useGetChannelGroupsData } from './useGetChannelGroupsData';
 
 jest.mock('./useGetChannelGroupsData');
@@ -50,11 +51,15 @@ const mockOptions = [
 describe('<ChannelGroupEdit />', () => {
   let mutateMock: jest.Mock;
 
-  const mockedROSAHyperShiftCluster = fixtures.ROSAHypershiftClusterDetails
-    .cluster as unknown as CanEditCluster;
+  const mockedROSAHyperShiftCluster = {
+    ...(fixtures.ROSAHypershiftClusterDetails.cluster as unknown as AugmentedCluster),
+    canUpdateClusterResource: true,
+  };
 
-  const mockedROSAHyperShiftWaitingCluster = fixtures.ROSAHypershiftWaitingClusterDetails
-    .cluster as unknown as CanEditCluster;
+  const mockedROSAHyperShiftWaitingCluster = {
+    ...(fixtures.ROSAHypershiftWaitingClusterDetails.cluster as unknown as AugmentedCluster),
+    canUpdateClusterResource: true,
+  };
 
   beforeEach(() => {
     mutateMock = jest.fn();
@@ -144,13 +149,17 @@ describe('<ChannelGroupEdit />', () => {
     expect(screen.getByText('N/A')).toBeInTheDocument();
   });
 
-  it('should not render an edit button if cluster is not editable', () => {
+  it('should not render an edit button if cluster cannot update cluster resource', () => {
     mockUseGetChannelGroupsData.mockReturnValue({
       availableDropdownChannelGroups: mockOptions,
       isLoading: false,
     });
 
-    const nonEditableCluster = { ...mockedROSAHyperShiftCluster, canEdit: false };
+    const nonEditableCluster = {
+      ...mockedROSAHyperShiftCluster,
+      canEdit: true,
+      canUpdateClusterResource: false,
+    };
     render(
       <ChannelGroupEdit
         clusterID="cluster-123"
