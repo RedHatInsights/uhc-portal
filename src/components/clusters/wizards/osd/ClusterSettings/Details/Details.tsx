@@ -411,7 +411,14 @@ function Details() {
                   domainPrefixAsyncValidation(value, undefined, hasExistingRegionalDomainPrefix)
                 }
                 isRequired
-                input={getFieldProps(FieldId.DomainPrefix)}
+                input={{
+                  ...getFieldProps(FieldId.DomainPrefix),
+                  onChange: async () => {
+                    if (isGCP) {
+                      setFieldValue(FieldId.DnsZone, { id: '' });
+                    }
+                  },
+                }}
               />
             </GridItem>
           )}

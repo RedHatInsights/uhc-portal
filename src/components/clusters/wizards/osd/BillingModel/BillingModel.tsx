@@ -17,7 +17,6 @@ import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons'
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
 import installLinks from '~/common/installLinks.mjs';
-import { deleteQueryParam, getQueryParam } from '~/common/queryHelpers';
 import { normalizedProducts, STANDARD_TRIAL_BILLING_MODEL_TYPE } from '~/common/subscriptionTypes';
 import supportLinks from '~/common/supportLinks.mjs';
 import {
@@ -41,7 +40,6 @@ import './BillingModel.scss';
 
 export const BillingModel = () => {
   const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
-  const sourceIsGCP = getQueryParam('source') === 'gcp';
   const {
     values: {
       [FieldId.Product]: product,
@@ -171,29 +169,6 @@ export const BillingModel = () => {
     quotas.standardOsd,
     selectedMarketplace,
   ]);
-
-  React.useEffect(() => {
-    if (sourceIsGCP) {
-      setFieldValue(
-        FieldId.MarketplaceSelection,
-        SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
-        false,
-      );
-      setFieldValue(FieldId.CloudProvider, CloudProviderType.Gcp, false);
-
-      // it's possible the select was used before the parent radio button was selected
-      // ensure the parent radio button is selected and the correct values are set
-      setFieldValue(
-        FieldId.BillingModel,
-        SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
-        false,
-      );
-      setFieldValue(FieldId.Byoc, 'true', false);
-      setFieldValue(FieldId.Product, normalizedProducts.OSD, false);
-      deleteQueryParam('source');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sourceIsGCP]);
 
   let isRhInfraQuotaDisabled = false;
   let isByocQuotaDisabled = false;

@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 
+import { sqlString } from '~/common/queryHelpers';
 import { WifConfigList } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import defaultApiRequest, { APIRequest, getAPIRequestForRegion } from '~/services/apiRequest';
 import type { Subscription } from '~/types/accounts_mgmt.v1';
@@ -406,6 +407,38 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         total?: number;
       }>('/api/clusters_mgmt/v1/dns_domains', {
         params: { search },
+      });
+    },
+
+    getGcpDnsDomains: (options?: { id?: string }) => {
+      const clauses = [`cloud_provider='gcp'`];
+      if (options?.id) {
+        clauses.push(`id=${sqlString(options.id)}`);
+      }
+      const search = clauses.join(' AND ');
+      return apiRequest.get<{
+        /**
+         * Retrieved list of add-ons.
+         */
+        items?: Array<DnsDomain>;
+        /**
+         * Index of the requested page, where one corresponds to the first page.
+         */
+        page?: number;
+        /**
+         * Maximum number of items that will be contained in the returned page.
+         */
+        size?: number;
+        /**
+         * Total number of items of the collection that match the search criteria,
+         * regardless of the size of the page.
+         */
+        total?: number;
+      }>('/api/clusters_mgmt/v1/dns_domains', {
+        params: {
+          search,
+          size: -1,
+        },
       });
     },
 

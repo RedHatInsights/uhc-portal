@@ -390,7 +390,7 @@ function ClusterDetailsTop(props) {
   };
 
   return (
-    <div id="cl-details-top" className="top-row">
+    <div id="cl-details-top">
       <Split>
         <SplitItem className="pf-v6-u-pb-md">{breadcrumbs}</SplitItem>
       </Split>

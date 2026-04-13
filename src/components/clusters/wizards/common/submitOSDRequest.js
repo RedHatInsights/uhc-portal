@@ -33,6 +33,7 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
   const isHypershiftSelected = formData.hypershift === 'true';
 
   const isRedHatOIDCManaged = formData?.byo_oidc_config_id_managed === 'true';
+  const isWif = formData[FieldId.GcpAuthType] === GCPAuthType.WorkloadIdentityFederation;
 
   const clusterRequest = {
     name: formData.name,
@@ -316,6 +317,9 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
         };
         if (formData.install_to_shared_vpc) {
           clusterRequest.gcp_network.vpc_project_id = formData.shared_host_project_id;
+          if (formData.has_domain_prefix && formData.dns_zone?.id && isWif) {
+            clusterRequest.dns = { base_domain: formData.dns_zone.id };
+          }
         }
       }
       if (formData.customer_managed_key === 'true') {

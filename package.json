@@ -183,7 +183,7 @@
     "sprintf-js": "^1.1.2",
     "storybook": "8.4.4",
     "style-loader": "4.0.0",
-    "ts-jest": "^29.4.0",
+    "ts-jest": "^29.4.9",
     "ts-loader": "^9.5.1",
     "ts-patch": "^3.3.0",
     "tsconfig-paths-webpack-plugin": "4.1.0",

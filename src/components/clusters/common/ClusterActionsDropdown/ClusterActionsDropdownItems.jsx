@@ -343,8 +343,8 @@ function actionResolver(
     !isProductOSDTrial &&
     !isHypershiftCluster(cluster);
   const showEditMachinePool = cluster.canEdit && cluster.managed;
-  const isArchived =
-    get(cluster, 'subscription.status', false) === SubscriptionCommonFieldsStatus.Archived;
+  const subscriptionStatus = get(cluster, 'subscription.status');
+  const isArchived = subscriptionStatus === SubscriptionCommonFieldsStatus.Archived;
   const showArchive = cluster.canEdit && !cluster.managed && cluster.subscription && !isArchived;
   const showUnarchive = cluster.canEdit && !cluster.managed && cluster.subscription && isArchived;
   const showEditURL =
@@ -365,9 +365,11 @@ function actionResolver(
   const showTransferClusterOwnership =
     cluster.canEdit &&
     canTransferClusterOwnership &&
+    cluster.subscription &&
     (isAllowedProducts ||
       (allowAutoTransferClusterOwnership && isClusterOwner && isClusterReady)) &&
-    get(cluster, 'subscription.status') !== SubscriptionCommonFieldsStatus.Archived;
+    subscriptionStatus !== SubscriptionCommonFieldsStatus.Archived &&
+    subscriptionStatus !== SubscriptionCommonFieldsStatus.Deprovisioned;
   const showUpgradeTrialCluster = isClusterReady && cluster.canEdit && isProductOSDTrial;
 
   return [

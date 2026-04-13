@@ -426,12 +426,13 @@ const ClusterList = ({
                   </ToolbarItem>
                 )}
                 <ClusterListActions showTabbedView={showTabbedView} />
+              </ToolbarContent>
+              <ToolbarContent>
                 <ViewOnlyMyClustersToggle
                   view={CLUSTERS_VIEW}
                   bodyContent="Show only the clusters you previously created, or all clusters in your organization."
                   localStorageKey={ONLY_MY_CLUSTERS_TOGGLE_CLUSTERS_LIST}
                 />
-
                 {isRestrictedEnv() ? null : (
                   <ToolbarItem>
                     <ClusterListFilterChipGroup />

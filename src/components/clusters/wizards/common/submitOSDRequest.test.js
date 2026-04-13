@@ -67,6 +67,14 @@ describe('createClusterRequest', () => {
     compute_subnet: 'nsimha-test-1-sd8x8-worker-subnet',
   };
 
+  const gcpDnsData = {
+    id: 'dnsId1',
+    gcp: {
+      domain_prefix: 'prefix1',
+      project_id: 'project1',
+    },
+  };
+
   const expectGCPVPC = (request) => {
     expect(request.gcp_network).toEqual({
       compute_subnet: 'nsimha-test-1-sd8x8-worker-subnet',
@@ -335,6 +343,69 @@ describe('createClusterRequest', () => {
         expect(request.gcp.private_service_connect?.service_attachment_subnet).toEqual(
           'psc_subnet',
         );
+      });
+
+      it('handles DNS zone data when configured', () => {
+        const data = {
+          ...baseFormData,
+          billing_model: 'standard',
+          product: normalizedProducts.OSD,
+          cloud_provider: 'gcp',
+          byoc: 'true',
+          has_domain_prefix: true,
+          domain_prefix: 'prefix1',
+          dns_zone: gcpDnsData,
+          install_to_shared_vpc: true,
+          install_to_vpc: true,
+          gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+          gcp_wif_config: { id: '324ed23f2d12342d23d' },
+        };
+
+        const request = createClusterRequest({ isWizard: true }, data);
+        expect(request.dns.base_domain).toEqual(data.dns_zone.id);
+        expect(request.ccs.enabled).toBeTruthy();
+      });
+
+      it('does not send DNS zone data when configured domain prefix does not exist', () => {
+        const data = {
+          ...baseFormData,
+          billing_model: 'standard',
+          product: normalizedProducts.OSD,
+          cloud_provider: 'gcp',
+          byoc: 'true',
+          has_domain_prefix: false,
+          domain_prefix: '',
+          dns_zone: gcpDnsData,
+          install_to_shared_vpc: true,
+          install_to_vpc: true,
+          gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+          gcp_wif_config: { id: '324ed23f2d12342d23d' },
+        };
+
+        const request = createClusterRequest({ isWizard: true }, data);
+        expect(request.dns?.base_domain).toEqual(undefined);
+        expect(request.ccs.enabled).toBeTruthy();
+      });
+
+      it('does not send DNS zone data when auth type is serviceAccounts', () => {
+        const data = {
+          ...baseFormData,
+          billing_model: 'standard',
+          product: normalizedProducts.OSD,
+          cloud_provider: 'gcp',
+          byoc: 'true',
+          has_domain_prefix: true,
+          domain_prefix: 'prefix1',
+          dns_zone: gcpDnsData,
+          install_to_shared_vpc: true,
+          install_to_vpc: true,
+          gcp_auth_type: GCPAuthType.ServiceAccounts,
+          gcp_service_account: JSON.stringify(gcpServiceAccount),
+        };
+
+        const request = createClusterRequest({ isWizard: true }, data);
+        expect(request.dns?.base_domain).toEqual(undefined);
+        expect(request.ccs.enabled).toBeTruthy();
       });
     });
 

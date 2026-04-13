@@ -82,18 +82,6 @@
               "UpperLimitError": "Input cannot be more than 83",
               "MinAndMaxLimitDependencyError": "Max nodes cannot be less than min nodes"
             }
-          },
-          "NonCCS": {
-            "SingleZone": {
-              "LowerLimitError": "Input cannot be less than 4",
-              "UpperLimitError": "Input cannot be more than 249",
-              "MinAndMaxLimitDependencyError": "Max nodes cannot be less than min nodes"
-            },
-            "MultiZone": {
-              "LowerLimitError": "Input cannot be less than 3",
-              "UpperLimitError": "Input cannot be more than 83",
-              "MinAndMaxLimitDependencyError": "Max nodes cannot be less than min nodes"
-            }
           }
         },
         "Common": {
@@ -166,6 +154,35 @@
                 }
               ]
             }
+          }
+        },
+        "InstallIntoExistingVPC": {
+          "InstallationNote": "NOTE: To install a cluster into a shared VPC, the shared VPC administrator must enable a project as a host project in their Google Cloud console. Then you can attach service projects to the host project",
+          "DNSZoneNote": "To create and select a DNS zone, you must first specify a Custom domain prefix",
+          "SharedHostProjectId": {
+            "NonExistingProjectId": "t1",
+            "NonExistingProjectIdError": "Not a valid hosted project ID. This must be an existing Google Cloud project ID within which all networks are defined",
+            "InvalidProjectId": "t@#$%^&*()_+=[]{}|;:'\",.<>/?",
+            "InvalidProjectIdError": "Not a valid hosted project ID. This must be an existing Google Cloud project ID within which all networks are defined",
+            "RequiredFieldError": "Field is required"
+          },
+          "ExistingVPCName": {
+            "InvalidVPCName": "D@#$%^&*()_+=[]{}|;:'\",.<>/?",
+            "InvalidVPCNameError": "Name should contain only lowercase letters, numbers and hyphens",
+            "RequiredFieldError": "Field is required",
+            "WhitespaceError": "Name must not contain whitespaces"
+          },
+          "ControlPlaneSubnetName": {
+            "InvalidControlPlaneSubnetName": "D@#$%^&*()_+=[]{}|;:'\",.<>/?",
+            "InvalidControlPlaneSubnetNameError": "Name should contain only lowercase letters, numbers and hyphens",
+            "RequiredFieldError": "Field is required",
+            "WhitespaceError": "Name must not contain whitespaces"
+          },
+          "ComputeSubnetName": {
+            "InvalidComputeSubnetName": "D@#$%^&*()_+=[]{}|;:'\",.<>/?",
+            "InvalidComputeSubnetNameError": "Name should contain only lowercase letters, numbers and hyphens",
+            "RequiredFieldError": "Field is required",
+            "WhitespaceError": "Name must not contain whitespaces"
           }
         }
       },

@@ -5,7 +5,7 @@ import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ReviewAndCreate } from '~/components/clusters/wizards/osd/ReviewAndCreate/ReviewAndCreate';
-import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { GCP_DNS_ZONE, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 const formValues = {
@@ -128,6 +128,7 @@ const formValues = {
   name: 're-test',
   nodes_compute: 2,
   network_pod_cidr: '10.128.0.0/14',
+  dns_zone: { id: '' },
 };
 
 describe('<ReviewAndCreate />', () => {
@@ -222,6 +223,29 @@ describe('<ReviewAndCreate />', () => {
       );
 
       expect(screen.queryByText('Authentication type')).not.toBeInTheDocument();
+    });
+
+    it('shows formatted dns zone when enabled', () => {
+      mockUseFeatureGate([[GCP_DNS_ZONE, true]]);
+
+      const values = {
+        ...formValues,
+        gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+        domain_prefix: 'prefix1',
+        has_domain_prefix: true,
+        byoc: 'true',
+        install_to_shared_vpc: true,
+        dns_zone: { id: 'dnsId1', gcp: { domain_prefix: 'prefix1', project_id: 'project1' } },
+      };
+      render(
+        <Formik initialValues={values} onSubmit={() => {}}>
+          <ReviewAndCreate />
+        </Formik>,
+      );
+
+      expect(screen.getByText('DNS zone')).toBeInTheDocument();
+
+      expect(screen.getByText('prefix1.dnsId1 (project1)')).toBeInTheDocument();
     });
 
     describe('Private Service Connect field - when "Billing model": Subscription type is On-Demand Flexible usage billed through Google Cloud Marketplace, Infrastructure type: Customer cloud subscription & "Cluster Settings": Cloud provider is Google Cloud, authentication type is Workload Identity Federation & "Network Configuration": cluster privacy is set to Private (internal)', () => {
