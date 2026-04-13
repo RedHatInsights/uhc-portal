@@ -150,13 +150,13 @@ const MachineTypeSelection = ({
     name: fieldId,
     validate: (value) => {
       if (!isDataReady || (useRegionFilteredData && machineTypesByRegion.pending)) {
-        return 'data is not ready';
+        return 'Data is not ready';
       }
       if (activeMachineTypesHasError) {
-        return 'an error occurred during machine-types request';
+        return 'An error occurred during machine-types request';
       }
       if (!value) {
-        return 'no value available';
+        return 'No value available';
       }
       return undefined;
     },
