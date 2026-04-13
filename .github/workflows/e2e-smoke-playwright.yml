@@ -322,7 +322,7 @@ jobs:
           # If environment is local, start the dev server first
           if [ "$EUT" = "local" ]; then
             echo "Starting local dev server..."
-            LOGGING=quiet npm run start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
+            LOGGING=quiet npm start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
             NODE_TLS_REJECT_UNAUTHORIZED=0 npm run wait-on -- -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
             echo "Local dev server is ready"
           fi

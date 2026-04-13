@@ -1049,10 +1049,10 @@ test('validate state', async ({ page }) => {
 
 ```bash
 # Run with tracing
-npm run playwright-headless --trace on
+npm run playwright-headless -- --trace on
 
 # Open trace viewer
-npm exec playwright -- show-trace test-results/trace.zip
+npm exec -- playwright show-trace test-results/trace.zip
 ```
 
 ### Common Issues and Solutions

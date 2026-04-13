@@ -120,7 +120,7 @@ jobs:
           WORKERS: ${{ github.event.inputs.workers || '4' }}
           BASE_URL: https://prod.foo.redhat.com:1337/openshift/
         run: |
-          LOGGING=quiet npm run start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
+          LOGGING=quiet npm start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
           NODE_TLS_REJECT_UNAUTHORIZED=0 npm run wait-on -- -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
           NODE_TLS_REJECT_UNAUTHORIZED=0 npm run playwright-e2e-ci -- --workers=$WORKERS
       - uses: actions/upload-artifact@v4

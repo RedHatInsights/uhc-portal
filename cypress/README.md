@@ -9,7 +9,7 @@ We run different subsets in different environments, controlled by `{ tags: [...]
 
 These are marked `tags: ['ci']`.
 For running locally, you'll need credentials in environment variables - `CYPRESS_TEST_WITHQUOTA_USER` and `CYPRESS_TEST_WITHQUOTA_PASSWORD` (ask team members), 
-and `npm run start` (or equivalent dev-env) is already running in another terminal.
+and `npm start` (or equivalent dev-env) is already running in another terminal.
 In GitLab-CI, these come from the repo's Settings > CI/CD.
 
 ## QE smoke tests

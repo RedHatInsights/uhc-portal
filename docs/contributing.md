@@ -52,7 +52,7 @@ The local development environment is powered by [Frontend Components (FEC)](http
 
 **`npm run dev`** uses `fec dev` with Hot Module Reloading (HMR) enabled. This provides instant feedback on code changes without requiring full page reloads—ideal for active UI development.
 
-**`npm run start`** uses `fec dev-proxy`, which runs webpack in watch mode with proxy capabilities for backend routing. Changes are recompiled automatically, but require a manual browser refresh to see updates (no HMR).
+**`npm start`** uses `fec dev-proxy`, which runs webpack in watch mode with proxy capabilities for backend routing. Changes are recompiled automatically, but require a manual browser refresh to see updates (no HMR).
 
 ### Custom Chrome Port
 
@@ -61,7 +61,7 @@ By default, the Chrome server runs on port `:9990`. To use a different port:
 ```bash
 FEC_CHROME_PORT=<PORT> npm run dev
 # or
-FEC_CHROME_PORT=<PORT> npm run start
+FEC_CHROME_PORT=<PORT> npm start
 ```
 
 ## Code guidelines
