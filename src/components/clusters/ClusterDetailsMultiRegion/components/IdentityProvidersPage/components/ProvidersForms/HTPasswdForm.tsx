@@ -224,7 +224,7 @@ const HTPasswdForm = ({
             Create users
           </Title>
           <Content component={ContentVariants.p} className="pf-v6-u-mb-0">
-            To creare the HTPasswd identity provider, you must create at least 1 user. You can add
+            To create the HTPasswd identity provider, you must create at least 1 user. You can add
             additional users later.
             <br />
             Add a username and password for each user.
