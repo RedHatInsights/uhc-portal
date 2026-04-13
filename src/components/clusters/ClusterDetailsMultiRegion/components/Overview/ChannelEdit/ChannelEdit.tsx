@@ -119,6 +119,7 @@ const ChannelEditModal = ({
               variant="primary"
               onClick={formik.submitForm}
               isDisabled={isPending || !formik.dirty}
+              isLoading={isPending}
             >
               Save
             </Button>
