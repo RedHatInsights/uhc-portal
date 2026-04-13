@@ -2,7 +2,7 @@ import React from 'react';
 import * as reactRedux from 'react-redux';
 
 import * as useImportHtpasswdUsersModule from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useImportHtpasswdUsers';
-import { fireEvent, screen, waitFor, withState } from '~/testUtils';
+import { screen, userEvent, waitFor, withState } from '~/testUtils';
 
 import UploadHTPasswdFileModal from './UploadHTPasswdFileModal';
 
@@ -38,11 +38,7 @@ const invalidFileContent = 'invalidline\nuser1:pass1';
 const uploadFile = async (content: string, filename = 'users.htpasswd') => {
   const file = new File([content], filename, { type: 'text/plain' });
   const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-  await waitFor(() =>
-    fireEvent.change(fileInput, {
-      target: { files: [file] },
-    }),
-  );
+  await userEvent.upload(fileInput, file);
 };
 
 describe('<UploadHTPasswdFileModal />', () => {

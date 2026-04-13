@@ -21,8 +21,8 @@ import { useGlobalState } from '~/redux/hooks';
 
 import {
   maskHTPasswdFileContent,
-  parseHTPasswdFile,
   ParsedHTPasswdUser,
+  parseHTPasswdFile,
 } from '../ProvidersForms/htpasswdFileParser';
 
 const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {

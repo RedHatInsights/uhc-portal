@@ -10,11 +10,11 @@ import {
 
 import { strToCleanArray } from '../../../../../common/helpers';
 
-import { CREATION_MODE_UPLOAD } from './constants';
 import { GitHubTeamsAndOrgsDataType } from './model/GitHubTeamsAndOrgsDataType';
 import { IDPFormDataType } from './model/IDPFormDataType';
 import { LdapAttributesType } from './model/LdapAttributesType';
 import { OpenIdClaimsType } from './model/OpenIdClaimsType';
+import { CREATION_MODE_UPLOAD } from './constants';
 
 const IDPformValues = {
   GITHUB: 'GithubIdentityProvider',

@@ -32,6 +32,8 @@ const HTPasswdFileUpload = ({ isDisabled }: { isDisabled?: boolean }) => {
         password: user.password,
       }));
       setFieldValue(FieldId.USERS, formUsers);
+    } else {
+      setFieldValue(FieldId.USERS, [{ username: '', password: '' }]);
     }
   };
 
