@@ -16,8 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        # todo
-        node-version: [22.x]
+        node-version: [24.x]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -48,8 +47,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        # todo
-        node-version: [22.x]
+        node-version: [24.x]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -76,8 +74,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        # todo
-        node-version: [22.x]
+        node-version: [24.x]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -104,8 +101,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        # todo
-        node-version: [22.x]
+        node-version: [24.x]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -132,8 +128,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        # todo
-        node-version: [22.x]
+        node-version: [24.x]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
