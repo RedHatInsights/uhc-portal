@@ -1,9 +1,12 @@
+# todo - rename file to align with convention ('check-api.yml')
+
 name: Check Backend Open API changes
 
 on:
   workflow_dispatch:
     inputs:
       node-version:
+        # todo
         default: '22.x'
         description: 'NodeJs version'
       swap-branch-name:
@@ -13,6 +16,7 @@ on:
     - cron: '0 0 * * *'
 
 env:
+  # todo
   NODE_VERSION: ${{ github.event.inputs.node-version || '22.x' }}
   SWAP_BRANCH_NAME: ${{ github.event.inputs.swap-branch-name || 'openapi' }}
   BASE_BRANCH_NAME: ${{ github.ref_name || 'main' }}
