@@ -195,7 +195,10 @@
   },
   "overrides": {
     "@cypress/webpack-preprocessor": "6.0.2",
-    "axios": "$axios",
+    "@redhat-cloud-services/frontend-components-config": { "axios": "^1.12.2" },
+    "@redhat-cloud-services/frontend-components-utilities": { "axios": "^1.12.2" },
+    "@redhat-cloud-services/javascript-clients-shared": { "axios": "^1.12.2" },
+    "@redhat-cloud-services/rbac-client": { "axios": "^1.12.2" },
     "form-data": "^4.0.4"
   },
   "scripts": {
