@@ -88,7 +88,7 @@ const ChannelGroupEditModal = ({
           <ModalHeader>
             <Title headingLevel="h1">Edit channel group</Title>
           </ModalHeader>
-          <ModalBody>
+          <ModalBody id="modal-box-edit-channel-group">
             {isError && (
               <StackItem>
                 <ErrorBox

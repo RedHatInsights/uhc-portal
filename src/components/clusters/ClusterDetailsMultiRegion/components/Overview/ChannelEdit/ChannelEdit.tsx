@@ -87,7 +87,7 @@ const ChannelEditModal = ({
           <ModalHeader>
             <Title headingLevel="h1">Edit channel</Title>
           </ModalHeader>
-          <ModalBody>
+          <ModalBody id="modal-box-edit-channel">
             {isError && (
               <StackItem>
                 <ErrorBox
@@ -167,7 +167,7 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
           {canUpdateClusterResource && hasChannelOptions ? (
             <EditButton
               data-testid="channelModal"
-              ariaLabel="editChannelBtn"
+              ariaLabel="Edit channel"
               onClick={() => setIsModalOpen(true)}
               isAriaDisabled={!canUpdateClusterResource || !isClusterReady}
             />
