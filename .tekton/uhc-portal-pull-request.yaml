@@ -30,6 +30,8 @@ spec:
     value: 5d
   - name: dockerfile
     value: build-tools/Dockerfile
+  - name: unit-test-image
+    value: "registry.access.redhat.com/ubi9/nodejs-24:latest"
 
     # todo - remove this while we're at it (8000 is default)
   - name: e2e-app-port
