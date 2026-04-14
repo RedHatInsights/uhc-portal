@@ -47,6 +47,7 @@ export const GCP_DNS_ZONE = 'ocmui-gcp-dns-zone';
 export const GCP_EXCLUDE_NAMESPACE_SELECTORS = 'ocmui-gcp-exclude-namespace-selectors';
 export const HTPASSWD_IMPORT = 'ocmui-htpasswd-import';
 export const ENABLE_AUTO_NODE = 'ocmui-enable-auto-node';
+export const HCP_LOG_FORWARDING = 'ocmui-hcp-log-forwarding';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -82,4 +83,5 @@ export default {
   GCP_EXCLUDE_NAMESPACE_SELECTORS,
   HTPASSWD_IMPORT,
   ENABLE_AUTO_NODE,
+  HCP_LOG_FORWARDING,
 } as const;

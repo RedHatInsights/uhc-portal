@@ -12,6 +12,9 @@ export const stepId = {
   NETWORKING__CIDR_RANGES: 34,
   CLUSTER_ROLES_AND_POLICIES: 40,
   CLUSTER_UPDATES: 50,
+  CLUSTER_ADDITIONAL_SETTINGS: 55,
+  CLUSTER_ADDITIONAL_SETTINGS__UPDATES: 56,
+  CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING: 57,
   REVIEW_AND_CREATE: 60,
 };
 
@@ -36,5 +39,8 @@ export const stepNameById = {
   [stepId.NETWORKING__CIDR_RANGES]: 'CIDR ranges',
   [stepId.CLUSTER_ROLES_AND_POLICIES]: 'Cluster roles and policies',
   [stepId.CLUSTER_UPDATES]: 'Cluster updates',
+  [stepId.CLUSTER_ADDITIONAL_SETTINGS]: 'Additional set up',
+  [stepId.CLUSTER_ADDITIONAL_SETTINGS__UPDATES]: 'Cluster updates',
+  [stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING]: 'Control plane log forwarding (optional)',
   [stepId.REVIEW_AND_CREATE]: 'Review and create',
 };

@@ -7,13 +7,17 @@ import {
   stringToArrayTrimmed,
   strToKeyValueObject,
 } from '~/common/helpers';
+import { queryClient } from '~/components/App/queryClient';
 import { getClusterAutoScalingSubmitSettings } from '~/components/clusters/common/clusterAutoScalingValues';
 import { parseFormExcludeNamespaceSelectorsToApi } from '~/components/clusters/wizards/common/excludeNamespaceSelectorsForm';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ApplicationIngressType } from '~/components/clusters/wizards/osd/Networking/constants';
+import { FieldId as RosaFieldId } from '~/components/clusters/wizards/rosa/constants';
+import { getRosaLogForwardersForClusterRequest } from '~/components/common/GroupsApplicationsSelector/buildClusterLogForwarders';
 import config from '~/config';
 import { regionalizedClusterId } from '~/queries/helpers';
+import { queryConstants } from '~/queries/queriesConstants';
 import { createCluster } from '~/redux/actions/clustersActions';
 import { DEFAULT_FLAVOUR_ID } from '~/redux/actions/flavourActions';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
@@ -426,6 +430,28 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
     clusterRequest.external_auth_config = {
       enabled: true,
     };
+  }
+
+  const rosaLogForwardingEnabled =
+    formData[RosaFieldId.LogForwardingS3Enabled] ||
+    formData[RosaFieldId.LogForwardingCloudWatchEnabled];
+
+  if (
+    rosaLogForwardingEnabled &&
+    isHypershiftSelected &&
+    actualProduct === 'ROSA' &&
+    actualCloudProviderID === 'aws'
+  ) {
+    const logForwardingTree = queryClient.getQueryData([
+      queryConstants.FETCH_LOG_FORWARDING_GROUPS,
+    ]);
+    const logForwarders = getRosaLogForwardersForClusterRequest(formData, logForwardingTree);
+    if (logForwarders.length > 0) {
+      clusterRequest.control_plane = {
+        ...clusterRequest.control_plane,
+        log_forwarders: logForwarders,
+      };
+    }
   }
 
   return clusterRequest;

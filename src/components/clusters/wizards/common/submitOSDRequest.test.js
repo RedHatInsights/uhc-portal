@@ -1,6 +1,10 @@
 import pick from 'lodash/pick';
 
+import { queryClient } from '~/components/App/queryClient';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
+import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import { mockLogForwardingGroupTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
+import { queryConstants } from '~/queries/queriesConstants';
 
 import { normalizedProducts } from '../../../../common/subscriptionTypes';
 
@@ -654,6 +658,10 @@ describe('createClusterRequest', () => {
   });
 
   describe('CreateROSAWizard', () => {
+    afterEach(() => {
+      queryClient.removeQueries({ queryKey: [queryConstants.FETCH_LOG_FORWARDING_GROUPS] });
+    });
+
     describe('ROSA button', () => {
       const hcpSubnetDetails = {
         selected_vpc: awsRosaOsdVPCData,
@@ -774,6 +782,76 @@ describe('createClusterRequest', () => {
         };
         const request = createClusterRequest({}, data);
         expect(request.aws.sts.auto_mode).toBeUndefined();
+      });
+
+      it('includes control_plane.log_forwarders for ROSA HCP when log forwarding is configured', () => {
+        queryClient.setQueryData(
+          [queryConstants.FETCH_LOG_FORWARDING_GROUPS],
+          mockLogForwardingGroupTree,
+        );
+        const data = {
+          ...rosaFormData,
+          billing_model: 'standard',
+          cloud_provider: 'aws',
+          byoc: 'true',
+          hypershift: 'true',
+          cluster_privacy: 'external',
+          ...hcpSubnetDetails,
+          ...CIDRData,
+          [FieldId.LogForwardingCloudWatchEnabled]: true,
+          [FieldId.LogForwardingCloudWatchRoleArn]:
+            'arn:aws:iam::123456789012:role/rosa-log-forwarding',
+          [FieldId.LogForwardingCloudWatchLogGroupName]: 'hcp-control-plane',
+          [FieldId.LogForwardingCloudWatchPrerequisiteAck]: true,
+          [FieldId.LogForwardingCloudWatchSelectedItems]: ['api-audit', 'api-server'],
+          [FieldId.LogForwardingS3Enabled]: true,
+          [FieldId.LogForwardingS3BucketName]: 'my-logs-bucket',
+          [FieldId.LogForwardingS3BucketPrefix]: '/rosa/logs/',
+          [FieldId.LogForwardingS3SelectedItems]: [
+            'auth-kube-apiserver',
+            'auth-konnectivity-agent',
+          ],
+        };
+        const request = createClusterRequest({}, data);
+        expect(request.control_plane?.log_forwarders).toEqual([
+          {
+            cloudwatch: {
+              log_distribution_role_arn: 'arn:aws:iam::123456789012:role/rosa-log-forwarding',
+              log_group_name: 'hcp-control-plane',
+            },
+            groups: [{ id: 'api' }],
+            applications: [],
+          },
+          {
+            s3: {
+              bucket_name: 'my-logs-bucket',
+              bucket_prefix: '/rosa/logs/',
+            },
+            groups: [{ id: 'authentication' }],
+            applications: [],
+          },
+        ]);
+      });
+
+      it('omits control_plane.log_forwarders when neither S3 nor CloudWatch log forwarding is enabled', () => {
+        queryClient.setQueryData(
+          [queryConstants.FETCH_LOG_FORWARDING_GROUPS],
+          mockLogForwardingGroupTree,
+        );
+        const data = {
+          ...rosaFormData,
+          billing_model: 'standard',
+          cloud_provider: 'aws',
+          byoc: 'true',
+          hypershift: 'true',
+          cluster_privacy: 'external',
+          ...hcpSubnetDetails,
+          ...CIDRData,
+          [FieldId.LogForwardingS3Enabled]: false,
+          [FieldId.LogForwardingCloudWatchEnabled]: false,
+        };
+        const request = createClusterRequest({}, data);
+        expect(request.control_plane?.log_forwarders).toBeUndefined();
       });
 
       it('includes auto_mode if is selected and byo_oidc_config_id_managed is false', () => {

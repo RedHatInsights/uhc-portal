@@ -24,11 +24,15 @@ import {
   stepId,
   stepNameById,
 } from '~/components/clusters/wizards/rosa/rosaWizardConstants';
+import { LogForwardingScreen } from '~/components/common/GroupsApplicationsSelector/LogForward';
 import config from '~/config';
 import withAnalytics from '~/hoc/withAnalytics';
 import useAnalytics from '~/hooks/useAnalytics';
 import usePreventBrowserNav from '~/hooks/usePreventBrowserNav';
-import { HYPERSHIFT_WIZARD_FEATURE } from '~/queries/featureGates/featureConstants';
+import {
+  HCP_LOG_FORWARDING,
+  HYPERSHIFT_WIZARD_FEATURE,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
@@ -78,6 +82,7 @@ const trackWizardNavigation = (track, event, currentStepId = '') => {
 
 const CreateROSAWizardInternal = ({
   isHypershiftEnabled,
+  isHcpLogForwardingEnabled,
   isHypershiftSelected,
   getOrganizationAndQuota,
   organization,
@@ -166,7 +171,7 @@ const CreateROSAWizardInternal = ({
       },
     });
 
-  const onStepChange = (_event, currentStep, _prevStep, scope) => {
+  const onStepChange = (_event, currentStep, prevStep, scope) => {
     setCurrentStep(currentStep);
     setCurrentStepId(currentStep.id);
 
@@ -184,6 +189,18 @@ const CreateROSAWizardInternal = ({
     }
 
     trackStepChange(trackEvent, currentStep.id);
+
+    const logForwardingConfigured =
+      values[FieldId.LogForwardingS3Enabled] || values[FieldId.LogForwardingCloudWatchEnabled];
+    if (
+      scope === WizardStepChangeScope.Next &&
+      prevStep?.id === stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING &&
+      isHcpLogForwardingEnabled &&
+      values[FieldId.Hypershift] === 'true' &&
+      logForwardingConfigured
+    ) {
+      track('Log Forwarding Configured', { context: 'cluster_creation' });
+    }
 
     closeDrawer({ skipOnClose: true });
   };
@@ -371,11 +388,31 @@ const CreateROSAWizardInternal = ({
               </ErrorBoundary>
             </WizardStep>
 
-            <WizardStep id={stepId.CLUSTER_UPDATES} name={stepNameById[stepId.CLUSTER_UPDATES]}>
-              <ErrorBoundary>
-                <UpdatesScreen />
-              </ErrorBoundary>
-            </WizardStep>
+            <WizardStep
+              id={stepId.CLUSTER_ADDITIONAL_SETTINGS}
+              name={stepNameById[stepId.CLUSTER_ADDITIONAL_SETTINGS]}
+              isExpandable
+              steps={[
+                <WizardStep
+                  id={stepId.CLUSTER_ADDITIONAL_SETTINGS__UPDATES}
+                  name={stepNameById[stepId.CLUSTER_ADDITIONAL_SETTINGS__UPDATES]}
+                >
+                  <ErrorBoundary>
+                    <UpdatesScreen />
+                  </ErrorBoundary>
+                </WizardStep>,
+
+                <WizardStep
+                  id={stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING}
+                  name={stepNameById[stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING]}
+                  isHidden={!isHypershiftSelected || !isHcpLogForwardingEnabled}
+                >
+                  <ErrorBoundary>
+                    <LogForwardingScreen />
+                  </ErrorBoundary>
+                </WizardStep>,
+              ]}
+            />
 
             <WizardStep id={stepId.REVIEW_AND_CREATE} name={stepNameById[stepId.REVIEW_AND_CREATE]}>
               <ReviewClusterScreen
@@ -416,6 +453,7 @@ function CreateROSAWizard(props) {
     isHypershiftSelected,
   };
   const isHypershiftEnabled = useFeatureGate(HYPERSHIFT_WIZARD_FEATURE);
+  const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
 
   return (
     <AppPage title="Create OpenShift ROSA Cluster">
@@ -425,6 +463,7 @@ function CreateROSAWizard(props) {
             {...combinedProps}
             closeDrawer={closeDrawer}
             isHypershiftEnabled={isHypershiftEnabled}
+            isHcpLogForwardingEnabled={isHcpLogForwardingEnabled}
             formValues={values}
             isValidating={isValidating}
             isValid={isValid}
@@ -446,6 +485,7 @@ CreateROSAWizardInternal.propTypes = {
   installToVPCSelected: PropTypes.bool,
   privateLinkSelected: PropTypes.bool,
   configureProxySelected: PropTypes.bool,
+  isHcpLogForwardingEnabled: PropTypes.bool,
   isErrorModalOpen: PropTypes.bool,
 
   createClusterResponse: PropTypes.shape({

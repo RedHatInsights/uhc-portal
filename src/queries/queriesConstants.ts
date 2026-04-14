@@ -17,4 +17,5 @@ export const queryConstants = {
   FETCH_MULTI_REGION_AVAILABLE_REGIONS: 'fetchGetMultiRegionAvailableRegions',
   FETCH_ORG_AND_QUOTA: 'fetchOrganizationAndQuota',
   FETCH_CAN_CREATE_MANAGED_CLUSTER: 'fetchCanCreateManagedCluster',
+  FETCH_LOG_FORWARDING_GROUPS: 'fetchLogForwardingGroups',
 };
