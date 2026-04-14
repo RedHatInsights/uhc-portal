@@ -1,5 +1,3 @@
-# todo - rename file to align with convention ('check-api.yml')
-
 name: Check Backend Open API changes
 
 on:
