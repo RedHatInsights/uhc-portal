@@ -83,7 +83,7 @@ If you see them in the [production source](https://app.segment.com/redhat-devtoo
 By default, the UI runs Assisted Installer without standalone mode. To run with Assisted Installer in standalone mode you need to follow these steps:
 
 - Download https://github.com/openshift-assisted/assisted-installer-app project
-- Inside assisted-installer-app run `npm install && npm start:federated`
+- Inside assisted-installer-app run `npm install && npm run start:federated`
 - In uhc-portal run `LOCAL_APPS=assisted-installer-app:8003 npm start`
 
 ## Continuous integration
