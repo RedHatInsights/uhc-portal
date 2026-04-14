@@ -26,8 +26,6 @@ import { useEditChannelOnCluster } from '~/queries/ChannelEditQueries/useEditCha
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import type { AugmentedCluster } from '~/types/types';
 
-import { formatChannelName } from '../../../clusterDetailsHelper';
-
 import { ChannelSelect } from './ChannelSelect';
 
 const channelsToDropdownOptions = (
@@ -47,7 +45,7 @@ type ChannelEditModalProps = {
 
 type ChannelEditProps = {
   clusterID: string;
-  channel: string;
+  channel?: string;
   cluster: AugmentedCluster;
 };
 
@@ -165,7 +163,7 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
           />
         </DescriptionListTerm>
         <DescriptionListDescription>
-          {formatChannelName(channel ?? '')}
+          {channel ?? 'N/A'}
           {canUpdateClusterResource && hasChannelOptions ? (
             <EditButton
               data-testid="channelModal"

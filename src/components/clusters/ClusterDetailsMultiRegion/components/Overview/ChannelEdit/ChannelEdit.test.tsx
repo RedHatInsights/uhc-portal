@@ -104,9 +104,7 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should render N/A when channel is not provided', () => {
-    render(
-      <ChannelEdit clusterID="cluster-123" channel="" cluster={mockedROSAHyperShiftCluster} />,
-    );
+    render(<ChannelEdit clusterID="cluster-123" cluster={mockedROSAHyperShiftCluster} />);
 
     expect(screen.getByText('N/A')).toBeInTheDocument();
   });
