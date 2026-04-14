@@ -46,7 +46,7 @@ jobs:
           key: check_api-${{ env.NODE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
           
       - name: Install yarn
-        uses: borales/actions-yarn@v4
+        uses: borales/actions-yarn@v5
         with:
           cmd: install --frozen-lockfile --cache-folder .yarn
 

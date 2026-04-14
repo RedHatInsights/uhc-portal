@@ -51,7 +51,7 @@ jobs:
           path: './node_modules'
           key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install
-        uses: borales/actions-yarn@v4
+        uses: borales/actions-yarn@v5
         with:
           cmd: install
       - name: Check uncommitted changes
