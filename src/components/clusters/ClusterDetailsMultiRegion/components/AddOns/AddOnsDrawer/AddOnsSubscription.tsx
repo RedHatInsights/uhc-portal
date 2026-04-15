@@ -12,8 +12,6 @@ import {
 } from '@patternfly/react-core';
 
 import { BillingQuota } from '~/components/clusters/common/quotaModel';
-import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { setAddonsDrawer } from '../AddOnsActions';
@@ -44,8 +42,6 @@ const AddOnsSubscription = ({
     );
   };
   const activeSubscription = subscriptionModels[activeCardId];
-
-  const hideRHMarketplace = useFeatureGate(HIDE_RH_MARKETPLACE);
 
   // TODO: We are hiding RHM and Azure options for now until backend is ready
   const hideRhmAzureForNow = true;
@@ -132,20 +128,6 @@ const AddOnsSubscription = ({
   const cloudAccounts = billingQuota.marketplace?.cloudAccounts;
   const marketplaceOptions = (
     <>
-      {!hideRhmAzureForNow && !hideRHMarketplace ? (
-        <AddOnsSubscriptionCard
-          subscriptionModels={subscriptionModels}
-          setSubscriptionModel={setSubscriptionModel}
-          activeCardId={activeCardId}
-          hasQuota={hasQuotaMarketplace}
-          isReady={isReady}
-          cloudAccounts={cloudAccounts}
-          installedAddOn={installedAddOn}
-          billingModel={SubscriptionCommonFieldsClusterBillingModel.marketplace_rhm}
-          name="Red Hat Marketplace"
-          cloudProvider="rhm"
-        />
-      ) : null}
       <AddOnsSubscriptionCard
         subscriptionModels={subscriptionModels}
         setSubscriptionModel={setSubscriptionModel}

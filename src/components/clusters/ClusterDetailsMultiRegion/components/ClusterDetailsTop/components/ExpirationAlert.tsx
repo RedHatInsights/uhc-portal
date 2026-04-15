@@ -8,8 +8,6 @@ import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
-import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { Cluster } from '~/types/clusters_mgmt.v1';
 
 type ExpirationAlertProps = {
@@ -25,8 +23,6 @@ const ExpirationAlert = ({
   cluster,
   OSDRHMExpiration,
 }: ExpirationAlertProps) => {
-  const hideRHMarketplace = useFeatureGate(HIDE_RH_MARKETPLACE);
-
   const dispatch = useDispatch();
   const now = dayjs.utc();
   const expirationTime = dayjs.utc(expirationTimestamp);
@@ -86,19 +82,7 @@ const ExpirationAlert = ({
     <>This cluster is scheduled for deletion on {expirationTimedate}</>
   );
   if (OSDRHMExpiration) {
-    contents = hideRHMarketplace ? (
-      <>Once expired, the cluster will be deleted permanently.</>
-    ) : (
-      <>
-        Your cluster subscription was purchased from Red Hat Marketplace and will expire on{' '}
-        {expirationTimedate}. Once expired, the cluster will be deleted permanently. To avoid
-        deletion, please purchase a new subscription from the{' '}
-        <ExternalLink href="https://marketplace.redhat.com/en-us/products/red-hat-openshift-dedicated">
-          Red Hat Marketplace
-        </ExternalLink>{' '}
-        before the expiration date.
-      </>
-    );
+    contents = <>Once expired, the cluster will be deleted permanently.</>;
   } else if (trialExpiration) {
     contents = (
       <>
