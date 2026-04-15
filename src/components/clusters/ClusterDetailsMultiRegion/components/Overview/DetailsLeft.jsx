@@ -177,9 +177,13 @@ function DetailsLeft({
             isROSA={isROSA}
           />
         )}
-      {isYStreamChannelEnabled && !isArchived && !isDeprovisioned && !isDisconnected && (
-        <ChannelEdit clusterID={clusterID} channel={cluster?.channel} cluster={cluster} />
-      )}
+      {isYStreamChannelEnabled &&
+        cluster.managed &&
+        !isArchived &&
+        !isDeprovisioned &&
+        !isDisconnected && (
+          <ChannelEdit clusterID={clusterID} channel={cluster?.channel} cluster={cluster} />
+        )}
       <DescriptionListGroup>
         <DescriptionListTerm>
           Version
