@@ -140,7 +140,7 @@ const ComputeNodeCount = ({
         cloudProviderID,
         isMultiAz: isMultiAzSelected,
         machineTypes,
-        machineTypeId: machineType,
+        machineTypeId: machineType?.id,
         product,
       }),
     [

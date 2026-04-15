@@ -27,7 +27,7 @@ describe('createClusterRequest', () => {
     automatic_upgrade_schedule: '0 0 * * 0',
     node_labels: [{}],
     enable_user_workload_monitoring: true,
-    machine_type: 'PDP-11', // GCP defaults 'custom-4-16384', AWS 'm5.xlarge' not important here.
+    machine_type: { id: 'PDP-11' }, // GCP defaults 'custom-4-16384', AWS 'm5.xlarge' not important here.
     cluster_version: {
       kind: 'Version',
       id: 'openshift-v4.17.1',
@@ -195,6 +195,13 @@ describe('createClusterRequest', () => {
       };
       const request = createClusterRequest({}, data);
       expectCIDR(request);
+    });
+  });
+
+  describe('Machine types', () => {
+    it('sets machine_type when available', () => {
+      const request = createClusterRequest({}, baseFormData);
+      expect(request.nodes.compute_machine_type.id).toBe('PDP-11');
     });
   });
 

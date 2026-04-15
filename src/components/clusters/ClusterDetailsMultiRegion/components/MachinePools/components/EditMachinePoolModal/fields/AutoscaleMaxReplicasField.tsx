@@ -33,6 +33,9 @@ const AutoscaleMaxReplicasField = ({
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
 
+  const isHcp = isHypershiftCluster(cluster);
+  const minAllowed = isHcp ? 0 : 1;
+
   const minNodes = isMultizoneMachinePool ? initMinNodes / 3 : initMinNodes;
   const maxNodes = isMultizoneMachinePool ? initMaxNodes / 3 : initMaxNodes;
 
@@ -47,6 +50,7 @@ const AutoscaleMaxReplicasField = ({
   return (
     <FormGroup
       fieldId={fieldId}
+      data-testid="autoscale-max-group"
       label="Maximum nodes count"
       isRequired
       labelHelp={
@@ -77,7 +81,7 @@ const AutoscaleMaxReplicasField = ({
           helpers.setTouched(true, false);
         }}
         id={fieldId}
-        min={minNodes || 1}
+        min={Math.max(minNodes, minAllowed)}
         max={maxNodes}
         inputProps={{
           onBlur: (event: React.FocusEvent<HTMLInputElement>) => {

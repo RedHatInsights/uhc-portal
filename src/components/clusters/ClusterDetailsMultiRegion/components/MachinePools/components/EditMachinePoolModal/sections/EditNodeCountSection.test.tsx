@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 
 import docLinks from '~/common/docLinks.mjs';
 import * as utils from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/components/EditMachinePoolModal/components/utils';
@@ -142,6 +142,266 @@ describe('<EditNodeCountSection />', () => {
 
       const link = screen.getByText('Learn more about autoscaling');
       expect(link).toHaveAttribute('href', docLinks.OSD_CLUSTER_AUTOSCALING);
+    });
+
+    it('does not allow 0 max replicas for classic (non-HCP) cluster', async () => {
+      withState(initialState).render(
+        <Formik
+          initialValues={{
+            autoscaling: true,
+            autoscaleMin: 1,
+            autoscaleMax: 1,
+            instanceType: { id: 'm5.xlarge' },
+          }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={nonHCPCluster}
+            machinePool={defaultMachinePool}
+          />
+        </Formik>,
+      );
+
+      const autoScaleMaxNodesFormGroup = screen.getByTestId('autoscale-max-group');
+      const autoscaleMaxNodesInput = within(autoScaleMaxNodesFormGroup).getByRole(
+        'spinbutton',
+      ) as HTMLInputElement;
+      expect(autoscaleMaxNodesInput.value).toBe('1');
+
+      const autoscaleMaxNodesMinusButton = within(autoScaleMaxNodesFormGroup).getByRole('button', {
+        name: 'Minus',
+      });
+      expect(autoscaleMaxNodesMinusButton).toBeDisabled();
+    });
+
+    it('allows 0 max replicas for HCP cluster', async () => {
+      const { user } = withState(initialState).render(
+        <Formik
+          initialValues={{
+            autoscaling: true,
+            autoscaleMin: 0,
+            autoscaleMax: 1,
+            instanceType: { id: 'm5.xlarge' },
+          }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[defaultMachinePool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={{}}
+          />
+        </Formik>,
+      );
+
+      const autoScaleMaxNodesFormGroup = screen.getByTestId('autoscale-max-group');
+      const autoscaleMaxNodesInput = within(autoScaleMaxNodesFormGroup).getByRole(
+        'spinbutton',
+      ) as HTMLInputElement;
+      expect(autoscaleMaxNodesInput.value).toBe('1');
+
+      const autoscaleMaxNodesMinusButton = within(autoScaleMaxNodesFormGroup).getByRole('button', {
+        name: 'Minus',
+      });
+      expect(autoscaleMaxNodesMinusButton).not.toBeDisabled();
+
+      await user.click(autoscaleMaxNodesMinusButton);
+      expect(autoscaleMaxNodesInput.value).toBe('0');
+    });
+  });
+
+  describe('HCP cluster minimum node requirements', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('allows 0 minimum nodes for tainted machine pool in HCP cluster', async () => {
+      const taintedMachinePool = {
+        id: 'tainted-pool',
+        replicas: 1,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+        taints: [{ key: 'test', value: 'true', effect: 'NoSchedule' }],
+      };
+
+      const otherPool = {
+        id: 'other-pool',
+        replicas: 2,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const { user } = withState(initialState).render(
+        <Formik
+          initialValues={{ replicas: 1, instanceType: 'm5.xlarge', autoscaling: false }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[otherPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={taintedMachinePool}
+          />
+        </Formik>,
+      );
+
+      const nodeCountInput = screen.getByLabelText('Compute nodes') as HTMLInputElement;
+      const minusButton = screen.getByLabelText('Decrement compute nodes');
+
+      await user.click(minusButton);
+      expect(nodeCountInput.value).toBe('0');
+    });
+
+    it('allows 0 minimum nodes for untainted pool when other pools have 2+ untainted nodes in HCP cluster', async () => {
+      const currentPool = {
+        id: 'current-pool',
+        replicas: 1,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const otherPool = {
+        id: 'other-pool',
+        replicas: 3,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const { user } = withState(initialState).render(
+        <Formik
+          initialValues={{ replicas: 1, instanceType: 'm5.xlarge', autoscaling: false }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[otherPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={currentPool}
+          />
+        </Formik>,
+      );
+
+      const nodeCountInput = screen.getByLabelText('Compute nodes') as HTMLInputElement;
+      const minusButton = screen.getByLabelText('Decrement compute nodes');
+
+      await user.click(minusButton);
+      expect(nodeCountInput.value).toBe('0');
+    });
+
+    it('requires 1 minimum node for untainted pool when other pools have 1 untainted node in HCP cluster', async () => {
+      const currentPool = {
+        id: 'current-pool',
+        replicas: 2,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const otherPool = {
+        id: 'other-pool',
+        replicas: 1,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const { user } = withState(initialState).render(
+        <Formik
+          initialValues={{ replicas: 2, instanceType: 'm5.xlarge', autoscaling: false }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[otherPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={currentPool}
+          />
+        </Formik>,
+      );
+
+      const nodeCountInput = screen.getByLabelText('Compute nodes') as HTMLInputElement;
+      const minusButton = screen.getByLabelText('Decrement compute nodes');
+
+      // Decrement once: 2 -> 1 (should work)
+      await user.click(minusButton);
+      expect(nodeCountInput.value).toBe('1');
+      expect(minusButton).toBeDisabled();
+    });
+
+    it('requires 2 minimum nodes for untainted pool when other pools have 0 untainted nodes in HCP cluster', async () => {
+      const currentPool = {
+        id: 'current-pool',
+        replicas: 3,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const taintedPool = {
+        id: 'tainted-pool',
+        replicas: 3,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+        taints: [{ key: 'test', value: 'true', effect: 'NoSchedule' }],
+      };
+
+      const { user } = withState(initialState).render(
+        <Formik
+          initialValues={{ replicas: 3, instanceType: 'm5.xlarge', autoscaling: false }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[taintedPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={currentPool}
+          />
+        </Formik>,
+      );
+
+      const nodeCountInput = screen.getByLabelText('Compute nodes') as HTMLInputElement;
+      const minusButton = screen.getByLabelText('Decrement compute nodes');
+
+      // Decrement once: 3 -> 2 (should work)
+      await user.click(minusButton);
+      expect(nodeCountInput.value).toBe('2');
+      expect(minusButton).toBeDisabled();
+    });
+
+    it('requires 2 minimum nodes for untainted pool when no other pools exist in HCP cluster', async () => {
+      const currentPool = {
+        id: 'current-pool',
+        replicas: 2,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      withState(initialState).render(
+        <Formik
+          initialValues={{ replicas: 2, instanceType: 'm5.xlarge', autoscaling: false }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[currentPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={currentPool}
+          />
+        </Formik>,
+      );
+
+      const nodeCountInput = screen.getByLabelText('Compute nodes') as HTMLInputElement;
+      const minusButton = screen.getByLabelText('Decrement compute nodes');
+
+      // Should not be able to decrement below 2
+      expect(nodeCountInput.value).toBe('2');
+      expect(minusButton).toBeDisabled();
     });
   });
 });
