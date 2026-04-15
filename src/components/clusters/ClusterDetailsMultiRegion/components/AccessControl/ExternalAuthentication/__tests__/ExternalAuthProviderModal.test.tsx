@@ -63,6 +63,58 @@ describe('<ExternalAuthProviderModal />', () => {
     expect(mockModalData.onClose).toHaveBeenCalled();
   });
 
+  it('disables Add until the user changes the form', () => {
+    render(
+      <ExternalAuthProviderModal
+        clusterID={mockModalData.clusterId}
+        onClose={mockModalData.onClose}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
+  });
+
+  it('disables Save until the form is edited', async () => {
+    const { user } = render(
+      <ExternalAuthProviderModal
+        clusterID={mockModalData.clusterId}
+        onClose={mockModalData.onClose}
+        externalAuthProvider={mockModalData.provider as any}
+        isEdit
+      />,
+    );
+
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    expect(saveButton).toBeDisabled();
+
+    await user.type(screen.getByRole('textbox', { name: 'Issuer URL' }), 'x');
+
+    expect(saveButton).not.toBeDisabled();
+  });
+
+  it('disables Save when the form is dirty but has validation errors', async () => {
+    const { user } = render(
+      <ExternalAuthProviderModal
+        clusterID={mockModalData.clusterId}
+        onClose={mockModalData.onClose}
+        externalAuthProvider={mockModalData.provider as any}
+        isEdit
+      />,
+    );
+
+    const issuerInput = screen.getByRole('textbox', { name: 'Issuer URL' });
+    await user.clear(issuerInput);
+    await user.type(issuerInput, 'http://redhat.com');
+    await user.tab();
+
+    expect(await screen.findByText('URL must be https')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Issuer URL' })).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
+
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
   it('calls post api on Add', async () => {
     const apiReturnValue = {
       data: {
@@ -110,6 +162,7 @@ describe('<ExternalAuthProviderModal />', () => {
     await user.type(screen.getByRole('textbox', { name: 'Console client secret' }), 'thissecret');
 
     expect(screen.queryByText(/Client ID must be a member of the audiences/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
   }, 80_000);
 
   it('calls post api on Add including console client', async () => {
