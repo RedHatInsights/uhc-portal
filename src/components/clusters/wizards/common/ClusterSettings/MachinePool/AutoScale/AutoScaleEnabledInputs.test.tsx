@@ -159,7 +159,7 @@ describe('AutoScaleEnabledInputs', () => {
       expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(2);
     });
 
-    it('sets minimum value when value is not set for 1 subnet isHypershift', async () => {
+    it('sets minimum value when value is not set for 2 subnets isHypershift', async () => {
       render(
         buildTestComponent({
           [RosaFieldId.Hypershift]: 'true',
