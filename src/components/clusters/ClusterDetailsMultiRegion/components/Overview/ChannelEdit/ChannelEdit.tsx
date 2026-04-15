@@ -169,7 +169,7 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
               data-testid="channelModal"
               ariaLabel="Edit channel"
               onClick={() => setIsModalOpen(true)}
-              isAriaDisabled={!canUpdateClusterResource || !isClusterReady}
+              isAriaDisabled={!isClusterReady}
             />
           ) : null}
         </DescriptionListDescription>
