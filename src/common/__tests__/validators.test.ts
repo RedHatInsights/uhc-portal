@@ -25,6 +25,7 @@ import validators, {
   required,
   validateAWSKMSKeyARN,
   validateGCPKMSServiceAccount,
+  validateGCPServiceAccount,
   validateGCPSubnet,
   validateHTPasswdPassword,
   validateHTPasswdUsername,
@@ -1045,6 +1046,38 @@ describe('GCP service account JSON', () => {
     } else {
       expect(validateServiceAccountObject(testObj)).toBe(undefined);
     }
+  });
+});
+
+describe('validateGCPServiceAccount', () => {
+  const validServiceAccount = fixtures.GCPServiceAccounts[0].testObj;
+
+  it('returns undefined for valid service account JSON', () => {
+    expect(validateGCPServiceAccount(JSON.stringify(validServiceAccount))).toBeUndefined();
+  });
+
+  it('returns a clear message when client_email uses the correct local part but the wrong domain', () => {
+    const obj = {
+      ...validServiceAccount,
+      client_email: 'osd-ccs-admin@wrongdomain.com',
+    };
+    expect(validateGCPServiceAccount(JSON.stringify(obj))).toBe(
+      "The provided JSON does not meet the requirements: The field 'client_email' must be a Google Cloud service account email ending in '.iam.gserviceaccount.com'.",
+    );
+  });
+
+  it("returns a clear message when client_email local part is not 'osd-ccs-admin'", () => {
+    const obj = {
+      ...validServiceAccount,
+      client_email: 'other-sa@exampleproj.iam.gserviceaccount.com',
+    };
+    expect(validateGCPServiceAccount(JSON.stringify(obj))).toBe(
+      "The provided JSON does not meet the requirements: The field 'client_email' requires a service account name of 'osd-ccs-admin'.",
+    );
+  });
+
+  it('returns invalid JSON message for malformed JSON', () => {
+    expect(validateGCPServiceAccount('{ not json')).toBe('Invalid JSON format.');
   });
 });
 
