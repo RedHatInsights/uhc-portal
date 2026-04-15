@@ -92,10 +92,10 @@ jobs:
         uses: borales/actions-yarn@v5
         with:
           cmd: lint-prettier
-  unitary-test:
-    name: Unitary Tests
+  unit-tests:
+    name: Unit Tests
     concurrency:
-      group: unitary-test-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
+      group: unit-tests-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
       cancel-in-progress: true
     needs: [build]
     strategy:
