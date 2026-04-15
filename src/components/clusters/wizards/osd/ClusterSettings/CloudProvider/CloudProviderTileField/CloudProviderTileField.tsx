@@ -37,7 +37,9 @@ export const CloudProviderTileField = () => {
     billingModel,
     isBYOC,
   });
-  const hasGcpResources = quotas.gcpResources;
+  const hasGcpResources =
+    billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp ||
+    quotas.gcpResources;
   const shouldShowAwsTile = !(
     billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
   );
