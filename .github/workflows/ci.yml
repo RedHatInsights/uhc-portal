@@ -9,7 +9,7 @@ on:
 
 jobs:
   install:
-    name: ${{ matrix.os }} - Install - Node ${{ matrix.node-version }}
+    name: Install
     concurrency:
       group: install-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
       cancel-in-progress: true
@@ -39,7 +39,7 @@ jobs:
         # The `git` command exits with 1 and fails the build if there are any uncommitted changes.
         run: git diff HEAD --exit-code
   build:
-    name: ${{ matrix.os }} - Build - Node ${{ matrix.node-version }}
+    name: Build
     concurrency:
       group: build-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
       cancel-in-progress: true
@@ -66,7 +66,7 @@ jobs:
         with:
           cmd: build
   lint:
-    name: ${{ matrix.os }} - Lint - Node ${{ matrix.node-version }}
+    name: Lint
     concurrency:
       group: lint-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
       cancel-in-progress: true
@@ -93,7 +93,7 @@ jobs:
         with:
           cmd: lint-prettier
   unitary-test:
-    name: ${{ matrix.os }} - Unitary Tests - Node ${{ matrix.node-version }}
+    name: Unitary Tests
     concurrency:
       group: unitary-test-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
       cancel-in-progress: true
@@ -129,7 +129,7 @@ jobs:
           fail_ci_if_error: false
           verbose: true
   circular-dependencies:
-    name: ${{ matrix.os }} - Circular Dependencies - Node ${{ matrix.node-version }}
+    name: Circular Dependencies
     concurrency:
       group: circular-dependencies-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.node-version }}
       cancel-in-progress: true

@@ -51,7 +51,7 @@ on:
 
 jobs:
   playwright-tests:
-    name: Playwright Tests (${{ inputs.grep_tags || '@smoke' }})
+    name: Playwright E2E Tests (${{ inputs.grep_tags || '@smoke' }})
     strategy:
       matrix:
         os: [ubuntu-latest]
