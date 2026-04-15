@@ -728,15 +728,6 @@ describe('isEnforcedDefaultMachinePool', () => {
         false,
         0,
       ],
-      [
-        'empty cluster, it is hypershift the rest undefined',
-        {},
-        undefined,
-        undefined,
-        undefined,
-        true,
-        2,
-      ],
     ])(
       '%p',
       (

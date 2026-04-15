@@ -42,7 +42,7 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
     },
     nodes: {
       compute_machine_type: {
-        id: formData.machine_type,
+        id: formData.machine_type?.id,
       },
     },
     managed: true,

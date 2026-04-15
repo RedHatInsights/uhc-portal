@@ -231,6 +231,28 @@ objects:
           title: Cluster Manager
           href: /openshift
           description: View, Register, or Create an OpenShift Cluster.
+      widgetRegistry:
+        - scope: landing
+          module: ./OpenShiftWidget
+          featureFlag: widget.openshift.enable
+          config:
+            title: Red Hat OpenShift
+            icon: OpenShiftIcon
+          defaults:
+            w: 1
+            h: 4
+            maxH: 10
+            minH: 1
+        - scope: landing
+          module: ./OpenShiftAiWidget
+          config:
+            title: Red Hat OpenShift AI
+            icon: OpenShiftAiIcon
+          defaults:
+            w: 1
+            h: 4
+            maxH: 10
+            minH: 1
       module:
         manifestLocation: '/apps/openshift/fed-mods.json'
         moduleConfig:

@@ -4,7 +4,7 @@ import '@patternfly/patternfly/patternfly-addons.css';
 import '~/styles/main.scss';
 
 import { BrowserRouter as Router } from 'react-router-dom';
-import { Preview } from '@storybook/react';
+import type { Preview } from '@storybook/react';
 
 const preview: Preview = {
   parameters: {

@@ -17,10 +17,9 @@ import {
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
 import { noMachineTypes } from '~/common/helpers';
-import { normalizedProducts } from '~/common/subscriptionTypes';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
-import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
+import { useFormState } from '~/components/clusters/wizards/hooks';
 import ErrorBox from '~/components/common/ErrorBox';
 import ExternalLink from '~/components/common/ExternalLink';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
@@ -29,7 +28,7 @@ import { MachineTypesResponse } from '~/queries/types';
 import { DEFAULT_FLAVOUR_ID, getDefaultFlavour } from '~/redux/actions/flavourActions';
 import { useGlobalState } from '~/redux/hooks';
 import { RelatedResourceBilling_model as RelatedResourceBillingModel } from '~/types/accounts_mgmt.v1';
-import { BillingModel, MachineType } from '~/types/clusters_mgmt.v1';
+import { BillingModel, CloudProvider, MachineType } from '~/types/clusters_mgmt.v1';
 import { ErrorState } from '~/types/types';
 
 import { QuotaTypes } from '../../quotaModel';
@@ -45,10 +44,9 @@ import {
   machineTypeDescriptionLabel,
   machineTypeFullLabel,
   machineTypeLabel,
+  shouldUseRegionFilteredData,
 } from './machineTypeSelectionHelper';
 import sortMachineTypes from './sortMachineTypes';
-
-const fieldId = 'instanceType';
 
 // Default selection scenarios:
 // - First time, default is available => select it.
@@ -62,23 +60,27 @@ const fieldId = 'instanceType';
 // - Something was selected (either automatically or manually), then changed cloud provider.
 //   CloudProviderSelectionField does `change('machine_type', '')` => same as first time.
 type MachineTypeSelectionProps = {
+  fieldId: string;
   machineTypesResponse: MachineTypesResponse;
-  isMultiAz: boolean;
-  isBYOC: boolean;
-  isMachinePool: boolean;
-  inModal: boolean;
-  cloudProviderID: 'aws' | 'gcp' | undefined;
+  machineTypesErrorResponse?: Pick<ErrorState, 'errorDetails' | 'errorMessage' | 'operationID'>;
+  isMultiAz?: boolean;
+  isBYOC?: boolean;
+  isMachinePool?: boolean;
+  inModal?: boolean;
+  cloudProviderID: CloudProvider['id'];
   productId: string;
   billingModel: BillingModel;
   allExpanded?: boolean;
 };
 
 const MachineTypeSelection = ({
+  fieldId,
   machineTypesResponse,
+  machineTypesErrorResponse,
   isMultiAz,
   isBYOC,
   isMachinePool,
-  inModal = false,
+  inModal,
   cloudProviderID,
   productId,
   billingModel,
@@ -86,11 +88,9 @@ const MachineTypeSelection = ({
 }: MachineTypeSelectionProps) => {
   const dispatch = useDispatch();
 
-  const [
-    _field,
-    { value: instanceType, touched, error: instanceTypeError },
-    { setValue: setFieldValue },
-  ] = useField(fieldId);
+  const {
+    values: { [fieldId]: selectedInstanceType },
+  } = useFormState();
 
   const { flavours, machineTypesByRegion, organization, quota } = useGlobalState(
     (state) => ({
@@ -105,8 +105,8 @@ const MachineTypeSelection = ({
   // checks if previous selection was from unfiltered machine set. Will flip filter value.
   const previousSelectionFromUnfilteredSet =
     machineTypesByRegion.fulfilled &&
-    !machineTypesByRegion?.typesByID[instanceType?.id]?.id &&
-    machineTypesResponse?.typesByID?.[instanceType?.id]?.id;
+    !machineTypesByRegion?.typesByID[selectedInstanceType?.id]?.id &&
+    machineTypesResponse?.typesByID?.[selectedInstanceType?.id]?.id;
 
   /** Checks whether required data arrived. */
   const isDataReady =
@@ -119,18 +119,48 @@ const MachineTypeSelection = ({
     machineTypesByRegion.fulfilled || (machineTypesByRegion.error && isDataReady);
 
   // use region data switch, wait for region data to be ready
-  const useRegionFilteredData =
-    (isBYOC || productId === normalizedProducts.ROSA) &&
-    cloudProviderID === CloudProviderType.Aws &&
-    !inModal;
+  const useRegionFilteredData = shouldUseRegionFilteredData(
+    productId,
+    cloudProviderID,
+    isBYOC,
+    inModal,
+  );
 
   const [isMachineTypeFilteredByRegion, setIsMachineTypeFilteredByRegion] = React.useState(
     !previousSelectionFromUnfilteredSet,
   );
-  const activeMachineTypes =
-    isRegionSpecificDataReady && useRegionFilteredData && isMachineTypeFilteredByRegion
-      ? machineTypesByRegion
-      : machineTypesResponse;
+
+  const useMachineTypesByRegion =
+    isRegionSpecificDataReady && useRegionFilteredData && isMachineTypeFilteredByRegion;
+  const activeMachineTypes: MachineTypesResponse = useMachineTypesByRegion
+    ? machineTypesByRegion
+    : machineTypesResponse;
+  const activeMachineTypesHasError = useMachineTypesByRegion
+    ? machineTypesByRegion.error
+    : machineTypesErrorResponse;
+  const activeMachineTypesError = useMachineTypesByRegion
+    ? machineTypesByRegion
+    : machineTypesErrorResponse;
+
+  const [
+    _field,
+    { value: instanceType, touched, error: instanceTypeError },
+    { setValue: setFieldValue },
+  ] = useField({
+    name: fieldId,
+    validate: (value) => {
+      if (!isDataReady || (useRegionFilteredData && machineTypesByRegion.pending)) {
+        return 'Data is not ready';
+      }
+      if (activeMachineTypesHasError) {
+        return 'An error occurred during machine-types request';
+      }
+      if (!value) {
+        return 'No value available';
+      }
+      return undefined;
+    },
+  });
 
   /**
    * Checks whether type can be offered, based on quota and ccs_only.
@@ -223,6 +253,10 @@ const MachineTypeSelection = ({
     activeMachineTypes?.typesByID,
   ]);
 
+  const setInvalidValue = React.useCallback(() => {
+    setFieldValue(null);
+  }, [setFieldValue]);
+
   React.useEffect(() => {
     dispatch(getDefaultFlavour()); // This should be migrated to React Query instead of sorting it in Redux. See issue #OCMUI-3323
   }, [dispatch]);
@@ -231,10 +265,18 @@ const MachineTypeSelection = ({
     if (
       isDataReady &&
       (!useRegionFilteredData || isRegionSpecificDataReady) &&
-      activeMachineTypes.typesByID &&
-      !instanceType
+      activeMachineTypes.typesByID
     ) {
-      setDefaultValue();
+      if (!instanceType) {
+        setDefaultValue();
+      }
+
+      // If user had made a choice, then some external param changed like CCS/MultiAz,
+      // (we can get here on mount after switching wizard steps)
+      // and selected type is no longer availble, force user to choose again.
+      if (instanceType && !isTypeAvailable(instanceType?.id)) {
+        setInvalidValue();
+      }
     }
   }, [
     instanceType,
@@ -244,6 +286,7 @@ const MachineTypeSelection = ({
     isRegionSpecificDataReady,
     isTypeAvailable,
     setDefaultValue,
+    setInvalidValue,
   ]);
 
   const sortedMachineTypes = React.useMemo(
@@ -324,7 +367,7 @@ const MachineTypeSelection = ({
   if (
     isDataReady &&
     (!useRegionFilteredData || isRegionSpecificDataReady) &&
-    !('error' in activeMachineTypes ? activeMachineTypes.error : false)
+    !activeMachineTypesHasError
   ) {
     if (filteredMachineTypes.length === 0) {
       return (
@@ -344,7 +387,6 @@ const MachineTypeSelection = ({
       <FormGroup
         label="Compute node instance type"
         isRequired
-        fieldId="node_type"
         labelHelp={<PopoverHint hint={constants.computeNodeInstanceTypeHint} />}
       >
         <TreeViewSelect
@@ -379,8 +421,8 @@ const MachineTypeSelection = ({
     );
   }
 
-  return (activeMachineTypes as ErrorState)?.error ? (
-    <ErrorBox message="Error loading node types" response={activeMachineTypes as ErrorState} />
+  return activeMachineTypesHasError ? (
+    <ErrorBox message="Error loading node types" response={activeMachineTypesError} />
   ) : (
     <>
       <div className="spinner-fit-container">
@@ -391,4 +433,4 @@ const MachineTypeSelection = ({
   );
 };
 
-export { MachineTypeSelection, MachineTypeSelectionProps, fieldId };
+export { MachineTypeSelection, MachineTypeSelectionProps };
