@@ -125,7 +125,7 @@ describe('<ChannelEdit />', () => {
     expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
   });
 
-  it('should not render an edit button if cluster cannot update cluster resource', () => {
+  it('should not render an edit button if user cannot update cluster resource', () => {
     const nonEditableCluster = {
       ...mockedROSAHyperShiftCluster,
       canEdit: true,
