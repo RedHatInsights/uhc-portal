@@ -1,4 +1,4 @@
-name: E2e Smoke Playwright
+name: E2E Smoke Playwright
 
 on:
   schedule:
