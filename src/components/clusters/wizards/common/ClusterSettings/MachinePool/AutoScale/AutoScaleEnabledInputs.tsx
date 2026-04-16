@@ -151,6 +151,17 @@ export const AutoScaleEnabledInputs = () => {
     clusterVersion?.raw_id,
   ]);
 
+  const minRequiredMaxReplicas = useMemo(
+    () =>
+      getMinNodesRequiredMaxReplicas(
+        isHypershiftSelected,
+        minNodes,
+        poolsLength,
+        autoscalingEnabled,
+      ),
+    [isHypershiftSelected, minNodes, poolsLength, autoscalingEnabled],
+  );
+
   useEffect(() => {
     if (maxReplicas) {
       // to trigger MaxReplicas field validation
@@ -178,6 +189,9 @@ export const AutoScaleEnabledInputs = () => {
     if (nodesError) {
       return nodesError;
     }
+    if (hasMin(minRequiredMaxReplicas) && value < minRequiredMaxReplicas) {
+      return `Maximum nodes cannot be less than ${minRequiredMaxReplicas}.`;
+    }
     return hasMin(minReplicas) && value < minReplicas
       ? 'Max nodes cannot be less than min nodes.'
       : undefined;
@@ -203,19 +217,20 @@ export const AutoScaleEnabledInputs = () => {
       if (hasMin(min)) {
         setFieldValue(RosaFieldId.MinReplicas, min);
       }
-      if (!maxReplicas || (maxReplicas < min && maxReplicas < minNodes)) {
-        if (minNodes === 0) {
-          const increment = poolsLength > 1 ? 1 : 2;
-          setFieldValue(RosaFieldId.MaxReplicas, minNodes + increment, true);
-          setMaxErrorMessage(validateMaxNodes(maxReplicas));
-        } else {
-          setFieldValue(RosaFieldId.MaxReplicas, minNodes, true);
-          setMaxErrorMessage(validateMaxNodes(maxReplicas));
-        }
+
+      if (
+        !maxReplicas ||
+        (hasMin(minRequiredMaxReplicas) && maxReplicas < minRequiredMaxReplicas)
+      ) {
+        const newMaxReplicas = hasMin(minRequiredMaxReplicas)
+          ? Math.max(minRequiredMaxReplicas, min)
+          : min;
+        setFieldValue(RosaFieldId.MaxReplicas, newMaxReplicas, true);
+        setMaxErrorMessage(validateMaxNodes(newMaxReplicas));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoscalingEnabled, isMultiAz, minNodes, setFieldValue]);
+  }, [autoscalingEnabled, isMultiAz, minNodes, poolsLength, setFieldValue]);
 
   return (
     <Flex
@@ -287,12 +302,7 @@ export const AutoScaleEnabledInputs = () => {
           displayError={(_: string, error: string) => setMaxErrorMessage(error)}
           hideError={() => setMaxErrorMessage(undefined)}
           limit="max"
-          min={getMinNodesRequiredMaxReplicas(
-            isHypershiftSelected,
-            minNodes,
-            poolsLength,
-            autoscalingEnabled,
-          )}
+          min={minRequiredMaxReplicas}
           max={maxNodes}
           input={{
             ...getFieldProps(RosaFieldId.MaxReplicas),

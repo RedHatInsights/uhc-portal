@@ -101,7 +101,7 @@ describe('AutoScaleEnabledInputs', () => {
       await user.type(screen.getByLabelText('Maximum nodes'), '0');
 
       expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(0);
-      expect(screen.getByText('Max nodes cannot be less than min nodes.')).toBeInTheDocument();
+      expect(screen.getByText('Maximum nodes cannot be less than 2.')).toBeInTheDocument();
 
       // Test for right amount - above minimum value
       await user.clear(screen.getByLabelText('Maximum nodes'));
@@ -194,6 +194,57 @@ describe('AutoScaleEnabledInputs', () => {
         }),
       );
       expect(screen.getByText('Max nodes cannot be less than min nodes.')).toBeInTheDocument();
+    });
+
+    it('shows validation error when max nodes is manually set to 0 with 1 subnet', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'true',
+          [RosaFieldId.MachinePoolsSubnets]: ['subnet1'],
+          [RosaFieldId.MinReplicas]: '0',
+          [RosaFieldId.MaxReplicas]: '2',
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '0');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(0);
+      expect(screen.getByText('Maximum nodes cannot be less than 2.')).toBeInTheDocument();
+    });
+
+    it('shows validation error when max nodes is manually set to 1 with 1 subnet', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'true',
+          [RosaFieldId.MachinePoolsSubnets]: ['subnet1'],
+          [RosaFieldId.MinReplicas]: '0',
+          [RosaFieldId.MaxReplicas]: '2',
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '1');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(1);
+      expect(screen.getByText('Maximum nodes cannot be less than 2.')).toBeInTheDocument();
+    });
+
+    it('allows max nodes of 1 when there are multiple subnets', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'true',
+          [RosaFieldId.MachinePoolsSubnets]: ['subnet1', 'subnet2'],
+          [RosaFieldId.MinReplicas]: '0',
+          [RosaFieldId.MaxReplicas]: '1',
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '1');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(1);
+      expect(screen.queryByText(/Maximum nodes cannot be less than/)).not.toBeInTheDocument();
     });
   });
 });
