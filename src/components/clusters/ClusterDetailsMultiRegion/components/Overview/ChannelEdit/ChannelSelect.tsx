@@ -3,7 +3,7 @@ import React from 'react';
 import { FormSelect, FormSelectOption } from '@patternfly/react-core';
 
 export type ChannelSelectProps = {
-  input: React.ComponentPropsWithoutRef<typeof FormSelect> & {
+  input: Omit<React.ComponentPropsWithoutRef<typeof FormSelect>, 'onChange' | 'children'> & {
     onChange?: (value: string) => void;
   };
   optionsDropdownData: {
