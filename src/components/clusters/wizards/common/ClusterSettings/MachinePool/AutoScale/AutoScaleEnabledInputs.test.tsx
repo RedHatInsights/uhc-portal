@@ -9,7 +9,7 @@ import { AutoScaleEnabledInputs } from './AutoScaleEnabledInputs';
 describe('AutoScaleEnabledInputs', () => {
   const initialValues = {
     [RosaFieldId.Hypershift]: 'true',
-    [RosaFieldId.AutoscalingEnabled]: 'true',
+    [RosaFieldId.AutoscalingEnabled]: true,
     [RosaFieldId.MachinePoolsSubnets]: ['subnet1', 'subnet2'],
     [RosaFieldId.MultiAz]: 'false',
     [RosaFieldId.MinReplicas]: '2',

@@ -214,9 +214,7 @@ export const AutoScaleEnabledInputs = () => {
       const minAutoscaleValue = minReplicas || minReplicas === 0 ? parseInt(minReplicas, 10) : 0;
       const min = minAutoscaleValue < minNodes ? minNodes : minAutoscaleValue;
 
-      if (hasMin(min)) {
-        setFieldValue(RosaFieldId.MinReplicas, min);
-      }
+      setFieldValue(RosaFieldId.MinReplicas, min);
 
       if (
         !maxReplicas ||
