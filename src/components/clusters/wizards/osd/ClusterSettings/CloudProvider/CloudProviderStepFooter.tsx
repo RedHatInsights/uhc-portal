@@ -11,6 +11,10 @@ import {
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { CreateOsdWizardFooter } from '~/components/clusters/wizards/osd/CreateOsdWizardFooter';
 import { useGlobalState } from '~/redux/hooks';
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
+
+import { useGetBillingQuotas } from '../../BillingModel/useGetBillingQuotas';
+import { FieldId } from '../../constants';
 
 export const CloudProviderStepFooter = ({
   onWizardContextChange,
@@ -22,6 +26,17 @@ export const CloudProviderStepFooter = ({
   const { goToNextStep } = useWizardContext();
   const { ccsCredentialsValidity } = useGlobalState((state) => state.ccsInquiries);
   const [pendingValidation, setPendingValidation] = useState(false);
+
+  const quotas = useGetBillingQuotas({
+    product: values[FieldId.Product],
+    billingModel: values[FieldId.BillingModel],
+    isBYOC: values[FieldId.Byoc] === 'true',
+  });
+  const hasGcpResources =
+    values[FieldId.BillingModel] === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp ||
+    quotas.gcpResources;
+
+  const disableNextButton = !hasGcpResources && values[FieldId.CloudProvider] === 'gcp';
 
   const onNext = () => {
     const validateCcsCredentials = shouldValidateCcsCredentials(values, ccsCredentialsValidity);
@@ -52,6 +67,7 @@ export const CloudProviderStepFooter = ({
 
   return (
     <CreateOsdWizardFooter
+      isNextDisabled={disableNextButton}
       onNext={onNext}
       isLoading={pendingValidation}
       onWizardContextChange={onWizardContextChange}

@@ -28,11 +28,12 @@ interface CreateOsdWizardFooterProps {
 }
 
 export const CreateOsdWizardFooter = ({
+  isNextDisabled,
   isLoading,
   onNext,
   track = () => {},
   onWizardContextChange,
-}: CreateOsdWizardFooterProps) => {
+}: CreateOsdWizardFooterProps & { isNextDisabled?: boolean }) => {
   const { goToNextStep, goToPrevStep, close, activeStep, steps, setStep, goToStepById } =
     useWizardContext();
   const { values, validateForm, setTouched, isValidating, submitForm } = useFormState();
@@ -111,7 +112,11 @@ export const CreateOsdWizardFooter = ({
         Create cluster
       </Button>
     ) : (
-      <Button {...primaryBtnCommonProps} onClick={onValidateNext}>
+      <Button
+        {...primaryBtnCommonProps}
+        isDisabled={isButtonDisabled || isNextDisabled}
+        onClick={onValidateNext}
+      >
         Next
       </Button>
     );
