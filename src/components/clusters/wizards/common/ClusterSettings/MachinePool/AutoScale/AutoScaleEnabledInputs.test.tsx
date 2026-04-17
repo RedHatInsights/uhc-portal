@@ -142,7 +142,7 @@ describe('AutoScaleEnabledInputs', () => {
       );
 
       expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(2);
-      expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(0);
+      expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(2);
     });
 
     it('sets minimum value when value is not set for 1 subnet !isHypershift', async () => {
@@ -170,7 +170,7 @@ describe('AutoScaleEnabledInputs', () => {
       );
 
       expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(1);
-      expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(0);
+      expect(await screen.findByLabelText('Minimum nodes')).toHaveValue(1);
     });
 
     it('shows max warning when user changes subnets', async () => {

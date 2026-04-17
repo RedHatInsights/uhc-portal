@@ -211,24 +211,30 @@ export const AutoScaleEnabledInputs = () => {
 
   useEffect(() => {
     if (autoscalingEnabled && hasMin(minNodes)) {
-      const minAutoscaleValue = minReplicas || minReplicas === 0 ? parseInt(minReplicas, 10) : 0;
+      let defaultMin = minNodes;
+
+      if (isHypershiftSelected) {
+        defaultMin = poolsLength > 1 ? 1 : 2;
+      }
+
+      const minAutoscaleValue =
+        minReplicas || minReplicas === 0 ? parseInt(minReplicas, 10) : defaultMin;
       const min = minAutoscaleValue < minNodes ? minNodes : minAutoscaleValue;
 
-      setFieldValue(RosaFieldId.MinReplicas, min);
+      if (hasMin(min) && min !== parseInt(minReplicas, 10)) {
+        setFieldValue(RosaFieldId.MinReplicas, min);
+      }
 
       if (
         !maxReplicas ||
         (hasMin(minRequiredMaxReplicas) && maxReplicas < minRequiredMaxReplicas)
       ) {
-        const newMaxReplicas = hasMin(minRequiredMaxReplicas)
-          ? Math.max(minRequiredMaxReplicas, min)
-          : min;
-        setFieldValue(RosaFieldId.MaxReplicas, newMaxReplicas, true);
-        setMaxErrorMessage(validateMaxNodes(newMaxReplicas));
+        setFieldValue(RosaFieldId.MaxReplicas, minRequiredMaxReplicas, true);
+        setMaxErrorMessage(validateMaxNodes(minRequiredMaxReplicas as number));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoscalingEnabled, isMultiAz, minNodes, poolsLength, setFieldValue]);
+  }, [autoscalingEnabled, isMultiAz, minNodes, minRequiredMaxReplicas, poolsLength, setFieldValue]);
 
   return (
     <Flex
