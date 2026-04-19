@@ -145,7 +145,7 @@ const isEnforcedDefaultMachinePool = (
 const countReplicasWithoutTaints = (machinePools: MachinePool[], excludePoolId?: string) =>
   machinePools?.reduce((count, pool) => {
     if (pool.id !== excludePoolId && !pool.taints?.length) {
-      return count + (pool.autoscaling?.min_replicas ?? pool.replicas ?? 0);
+      return count + (pool.autoscaling?.max_replicas ?? pool.replicas ?? 0);
     }
     return count;
   }, 0);
@@ -170,7 +170,7 @@ const isMinimumCountWithoutTaints = ({
   if (includeCurrentMachinePool && currentMachinePoolId) {
     const currentPool = machinePools.find((pool) => pool.id === currentMachinePoolId);
     if (!currentPool?.taints?.length) {
-      numberReplicas += currentPool?.autoscaling?.min_replicas ?? currentPool?.replicas ?? 0;
+      numberReplicas += currentPool?.autoscaling?.max_replicas ?? currentPool?.replicas ?? 0;
     }
   }
 
