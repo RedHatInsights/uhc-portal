@@ -195,10 +195,10 @@
   },
   "overrides": {
     "@cypress/webpack-preprocessor": "6.0.2",
-    "@redhat-cloud-services/frontend-components-config": { "axios": "^1.12.2" },
-    "@redhat-cloud-services/frontend-components-utilities": { "axios": "^1.12.2" },
-    "@redhat-cloud-services/javascript-clients-shared": { "axios": "^1.12.2" },
-    "@redhat-cloud-services/rbac-client": { "axios": "^1.12.2" },
+    "@redhat-cloud-services/frontend-components-config": { "axios": "$axios" },
+    "@redhat-cloud-services/frontend-components-utilities": { "axios": "$axios" },
+    "@redhat-cloud-services/javascript-clients-shared": { "axios": "$axios" },
+    "@redhat-cloud-services/rbac-client": { "axios": "$axios" },
     "form-data": "^4.0.4"
   },
   "scripts": {
@@ -250,7 +250,6 @@
     ]
   },
   "engines": {
-    "node": ">=22.0.0 || >=24.0.0",
-    "npm": ">= 10"
+    "node": ">=22.0.0 || >=24.0.0"
   }
 }
