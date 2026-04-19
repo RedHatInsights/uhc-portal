@@ -214,6 +214,133 @@ describe('<EditNodeCountSection />', () => {
     });
   });
 
+  describe('HCP autoscaling min replicas', () => {
+    it('allows 0 min replicas for HCP cluster when other pools cover capacity', async () => {
+      const currentPool = {
+        id: 'current-pool',
+        autoscaling: { min_replicas: 1, max_replicas: 1 },
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const otherPool = {
+        id: 'other-pool',
+        autoscaling: { min_replicas: 1, max_replicas: 1 },
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      const { user } = withState(initialState).render(
+        <Formik
+          initialValues={{
+            autoscaling: true,
+            autoscaleMin: 1,
+            autoscaleMax: 1,
+            instanceType: { id: 'm5.xlarge' },
+          }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[currentPool, otherPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={currentPool}
+          />
+        </Formik>,
+      );
+
+      const autoScaleMinFormGroup = screen.getByTestId('autoscale-min-group');
+      const minInput = within(autoScaleMinFormGroup).getByRole('spinbutton') as HTMLInputElement;
+      const minusButton = within(autoScaleMinFormGroup).getByRole('button', { name: 'Minus' });
+
+      expect(minInput.value).toBe('1');
+      expect(minusButton).not.toBeDisabled();
+
+      await user.click(minusButton);
+      expect(minInput.value).toBe('0');
+    });
+
+    it('does not allow negative min replicas for HCP cluster', async () => {
+      const currentPool = {
+        id: 'current-pool',
+        autoscaling: { min_replicas: 0, max_replicas: 2 },
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      };
+
+      withState(initialState).render(
+        <Formik
+          initialValues={{
+            autoscaling: true,
+            autoscaleMin: 0,
+            autoscaleMax: 2,
+            instanceType: { id: 'm5.xlarge' },
+          }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[currentPool]}
+            machineTypes={{}}
+            allow249NodesOSDCCSROSA={false}
+            cluster={hcpCluster}
+            machinePool={currentPool}
+          />
+        </Formik>,
+      );
+
+      const autoScaleMinFormGroup = screen.getByTestId('autoscale-min-group');
+      const minInput = within(autoScaleMinFormGroup).getByRole('spinbutton') as HTMLInputElement;
+      const minusButton = within(autoScaleMinFormGroup).getByRole('button', { name: 'Minus' });
+
+      expect(minInput.value).toBe('0');
+      expect(minusButton).toBeDisabled();
+    });
+
+    it('enforces minNodes on autoscale-min for non-HCP enforced default pool', () => {
+      const ccsCluster = {
+        ...nonHCPCluster,
+        ccs: { enabled: true },
+      } as ClusterFromSubscription;
+
+      const enforcedDefaultPool = {
+        id: 'worker',
+        replicas: 2,
+        availability_zones: ['us-east-1a'],
+        instance_type: 'm5.xlarge',
+      } as MachinePool;
+
+      withState(initialState).render(
+        <Formik
+          initialValues={{
+            autoscaling: true,
+            autoscaleMin: 2,
+            autoscaleMax: 5,
+            instanceType: { id: 'm5.xlarge' },
+          }}
+          onSubmit={() => {}}
+        >
+          <EditNodeCountSection
+            machinePools={[enforcedDefaultPool]}
+            machineTypes={{
+              types: { aws: [{ id: 'm5.xlarge', cpu: { value: 4 }, memory: { value: 16 } }] },
+            }}
+            allow249NodesOSDCCSROSA={false}
+            cluster={ccsCluster}
+            machinePool={enforcedDefaultPool}
+          />
+        </Formik>,
+      );
+
+      const autoScaleMinFormGroup = screen.getByTestId('autoscale-min-group');
+      const minInput = within(autoScaleMinFormGroup).getByRole('spinbutton') as HTMLInputElement;
+      const minusButton = within(autoScaleMinFormGroup).getByRole('button', { name: 'Minus' });
+
+      expect(minInput.value).toBe('2');
+      expect(minusButton).toBeDisabled();
+    });
+  });
+
   describe('HCP cluster minimum node requirements', () => {
     beforeEach(() => {
       jest.clearAllMocks();
