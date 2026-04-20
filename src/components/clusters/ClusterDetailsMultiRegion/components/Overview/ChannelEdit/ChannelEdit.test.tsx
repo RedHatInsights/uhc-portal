@@ -125,6 +125,26 @@ describe('<ChannelEdit />', () => {
     expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
   });
 
+  it('should not render an edit button when the only available channel is the current channel', () => {
+    const clusterSingleCurrentOnly = {
+      ...mockedROSAHyperShiftCluster,
+      version: {
+        ...mockedROSAHyperShiftCluster.version,
+        available_channels: ['stable-4.16'],
+      },
+    };
+    render(
+      <ChannelEdit
+        clusterID="cluster-123"
+        channel="stable-4.16"
+        cluster={clusterSingleCurrentOnly}
+      />,
+    );
+
+    expect(screen.getByText('stable-4.16')).toBeInTheDocument();
+    expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
+  });
+
   it('should not render an edit button if user cannot update cluster resource', () => {
     const nonEditableCluster = {
       ...mockedROSAHyperShiftCluster,

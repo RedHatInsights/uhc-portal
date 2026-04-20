@@ -136,7 +136,10 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
   const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isClusterReady = cluster.state === clusterStates.ready;
   const availableDropdownChannels = channelsToDropdownOptions(cluster.version?.available_channels);
-  const hasChannelOptions = availableDropdownChannels.length > 0;
+  const currentChannel = channel ?? '';
+  const hasAlternativeChannelOption = availableDropdownChannels.some(
+    (channel) => channel.value !== currentChannel,
+  );
 
   return (
     <>
@@ -164,7 +167,7 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
         </DescriptionListTerm>
         <DescriptionListDescription>
           {channel ?? 'N/A'}
-          {canUpdateClusterResource && hasChannelOptions ? (
+          {canUpdateClusterResource && hasAlternativeChannelOption ? (
             <EditButton
               data-testid="channelModal"
               ariaLabel="Edit channel"
