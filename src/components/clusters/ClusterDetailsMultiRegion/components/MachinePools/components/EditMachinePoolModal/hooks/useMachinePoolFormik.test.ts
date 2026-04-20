@@ -135,6 +135,93 @@ describe('useMachinePoolFormik', () => {
         expect(initialValues.autoscaleMin).toBe(0);
       });
     });
+
+    describe('new machine pool defaults (machinePool is undefined)', () => {
+      it('should default autoscaleMin, autoscaleMax, and replicas to at least 2 for HCP clusters', () => {
+        const otherPool = {
+          kind: 'NodePool',
+          id: 'other-pool',
+          replicas: 3,
+        };
+
+        const { initialValues } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: undefined,
+            machineTypes: defaultMachineTypes,
+            machinePools: [otherPool],
+          }),
+        ).result.current;
+
+        expect(initialValues.autoscaleMin).toBe(2);
+        expect(initialValues.autoscaleMax).toBe(2);
+        expect(initialValues.replicas).toBe(2);
+      });
+
+      it('should default to 2 even when minNodesRequired is 0 for HCP clusters', () => {
+        const otherPool = {
+          kind: 'NodePool',
+          id: 'other-pool',
+          replicas: 5,
+        };
+        const anotherPool = {
+          kind: 'NodePool',
+          id: 'another-pool',
+          replicas: 3,
+        };
+
+        const { initialValues } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: undefined,
+            machineTypes: defaultMachineTypes,
+            machinePools: [otherPool, anotherPool],
+          }),
+        ).result.current;
+
+        expect(initialValues.autoscaleMin).toBe(2);
+        expect(initialValues.autoscaleMax).toBe(2);
+        expect(initialValues.replicas).toBe(2);
+      });
+
+      it('should default to 2 for non-HCP clusters when minNodesRequired is below 2', () => {
+        const { initialValues } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: defaultCluster,
+            machinePool: undefined,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        expect(initialValues.autoscaleMin).toBe(2);
+        expect(initialValues.autoscaleMax).toBe(2);
+        expect(initialValues.replicas).toBe(2);
+      });
+
+      it('should not apply defaults when editing an existing machine pool', () => {
+        const existingPool = {
+          kind: 'NodePool',
+          id: 'existing-pool',
+          replicas: 1,
+        };
+        const otherPool = {
+          kind: 'NodePool',
+          id: 'other-pool',
+          replicas: 3,
+        };
+
+        const { initialValues } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: existingPool,
+            machineTypes: defaultMachineTypes,
+            machinePools: [existingPool, otherPool],
+          }),
+        ).result.current;
+        expect(initialValues.replicas).toBe(1);
+      });
+    });
   });
 
   describe('validationSchema', () => {

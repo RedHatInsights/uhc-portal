@@ -151,6 +151,14 @@ const useMachinePoolFormik = ({
 
     // For multi-zone machine pools, store per-zone values (divide by 3)
     let replicas = machinePool?.replicas || minNodesRequired;
+
+    const defaultMinReplicas = 2;
+    if (!machinePool) {
+      autoscaleMin = Math.max(autoscaleMin, defaultMinReplicas);
+      autoscaleMax = Math.max(autoscaleMax, defaultMinReplicas);
+      replicas = Math.max(replicas, defaultMinReplicas);
+    }
+
     if (isMachinePoolMz) {
       autoscaleMin /= 3;
       autoscaleMax /= 3;
