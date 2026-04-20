@@ -1,4 +1,4 @@
-name: E2e Smoke Playwright
+name: E2E Smoke Playwright
 
 on:
   schedule:
@@ -51,28 +51,31 @@ on:
 
 jobs:
   playwright-tests:
-    name: Playwright Tests (${{ inputs.grep_tags || '@smoke' }})
-    runs-on: ubuntu-latest
-
+    name: Playwright E2E Tests (${{ inputs.grep_tags || '@smoke' }})
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [24.x]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref || github.ref }}
 
-      - name: Use Node.js 22.x
-        uses: actions/setup-node@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v6
         with:
-          node-version: 22.x
+          node-version: ${{ matrix.node-version }}
 
       - name: Cache node modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: './node_modules'
-          key: ${{ runner.os }}-22.x-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependencies
-        uses: borales/actions-yarn@v4
+        uses: borales/actions-yarn@v5
         with:
           cmd: install
 

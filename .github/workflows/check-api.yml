@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       node-version:
-        default: '22.x'
+        default: '24.x'
         description: 'NodeJs version'
       swap-branch-name:
         default: 'openapi'
@@ -13,7 +13,7 @@ on:
     - cron: '0 0 * * *'
 
 env:
-  NODE_VERSION: ${{ github.event.inputs.node-version || '22.x' }}
+  NODE_VERSION: ${{ github.event.inputs.node-version || '24.x' }}
   SWAP_BRANCH_NAME: ${{ github.event.inputs.swap-branch-name || 'openapi' }}
   BASE_BRANCH_NAME: ${{ github.ref_name || 'main' }}
 
@@ -26,7 +26,7 @@ jobs:
       cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
           app-id: ${{ secrets.CHECK_OPENAPI_APP_ID }}
@@ -37,16 +37,16 @@ jobs:
           persist-credentials: false
 
       - name: Use Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: './node_modules'
           key: check_api-${{ env.NODE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
           
       - name: Install yarn
-        uses: borales/actions-yarn@v4
+        uses: borales/actions-yarn@v5
         with:
           cmd: install --frozen-lockfile --cache-folder .yarn
 
