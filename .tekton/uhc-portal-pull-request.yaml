@@ -32,6 +32,12 @@ spec:
     value: build-tools/Dockerfile
   - name: unit-test-image
     value: "registry.access.redhat.com/ubi9/nodejs-24:latest"
+    # todo - ask brandon tweed how to get node 24 in this image
+#  - name: e2e-playwright-image
+#    value: "quay.io/btweed/playwright_e2e:latest"
+    # todo - remove - not needed really
+#  - name: e2e-proxy-image
+#    value: ""
 
     # todo - remove this while we're at it (8000 is default)
   - name: e2e-app-port
