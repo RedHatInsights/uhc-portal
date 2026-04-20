@@ -90,7 +90,7 @@ const EditNodeCountSection = ({
             <Flex>
               <FlexItem>
                 <AutoscaleMinReplicasField
-                  minNodes={minNodesRequired}
+                  minNodes={isHcpCluster ? 0 : minNodesRequired}
                   cluster={cluster}
                   mpAvailZones={machinePool?.availability_zones?.length}
                   maxNodes={maxNodes}

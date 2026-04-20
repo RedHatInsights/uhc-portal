@@ -37,7 +37,12 @@ const AutoscaleMinReplicasField = ({
   };
 
   return (
-    <FormGroup fieldId={fieldId} label="Minimum nodes count" isRequired>
+    <FormGroup
+      fieldId={fieldId}
+      data-testid="autoscale-min-group"
+      label="Minimum nodes count"
+      isRequired
+    >
       <NumberInput
         value={field.value}
         onPlus={onButtonPress(true)}
