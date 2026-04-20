@@ -137,13 +137,12 @@ describe('useMachinePoolFormik', () => {
     });
 
     describe('new machine pool defaults (machinePool is undefined)', () => {
-      it('should default autoscaleMin, autoscaleMax, and replicas to at least 2 for HCP clusters', () => {
+      it('should default autoscaleMin, autoscaleMax, and replicas to 2 for HCP clusters', () => {
         const otherPool = {
           kind: 'NodePool',
           id: 'other-pool',
           replicas: 3,
         };
-
         const { initialValues } = renderHook(() =>
           useMachinePoolFormik({
             cluster: hyperShiftCluster,
@@ -152,12 +151,10 @@ describe('useMachinePoolFormik', () => {
             machinePools: [otherPool],
           }),
         ).result.current;
-
         expect(initialValues.autoscaleMin).toBe(2);
         expect(initialValues.autoscaleMax).toBe(2);
         expect(initialValues.replicas).toBe(2);
       });
-
       it('should default to 2 even when minNodesRequired is 0 for HCP clusters', () => {
         const otherPool = {
           kind: 'NodePool',
@@ -169,7 +166,6 @@ describe('useMachinePoolFormik', () => {
           id: 'another-pool',
           replicas: 3,
         };
-
         const { initialValues } = renderHook(() =>
           useMachinePoolFormik({
             cluster: hyperShiftCluster,
@@ -178,28 +174,11 @@ describe('useMachinePoolFormik', () => {
             machinePools: [otherPool, anotherPool],
           }),
         ).result.current;
-
         expect(initialValues.autoscaleMin).toBe(2);
         expect(initialValues.autoscaleMax).toBe(2);
         expect(initialValues.replicas).toBe(2);
       });
-
-      it('should default to 2 for non-HCP clusters when minNodesRequired is below 2', () => {
-        const { initialValues } = renderHook(() =>
-          useMachinePoolFormik({
-            cluster: defaultCluster,
-            machinePool: undefined,
-            machineTypes: defaultMachineTypes,
-            machinePools: defaultMachinePools,
-          }),
-        ).result.current;
-
-        expect(initialValues.autoscaleMin).toBe(2);
-        expect(initialValues.autoscaleMax).toBe(2);
-        expect(initialValues.replicas).toBe(2);
-      });
-
-      it('should not apply defaults when editing an existing machine pool', () => {
+      it('should not apply defaults when editing an existing HCP machine pool', () => {
         const existingPool = {
           kind: 'NodePool',
           id: 'existing-pool',
@@ -210,7 +189,6 @@ describe('useMachinePoolFormik', () => {
           id: 'other-pool',
           replicas: 3,
         };
-
         const { initialValues } = renderHook(() =>
           useMachinePoolFormik({
             cluster: hyperShiftCluster,

@@ -153,7 +153,7 @@ const useMachinePoolFormik = ({
     let replicas = machinePool?.replicas || minNodesRequired;
 
     const defaultMinReplicas = 2;
-    if (!machinePool) {
+    if (!machinePool && isHypershift) {
       autoscaleMin = Math.max(autoscaleMin, defaultMinReplicas);
       autoscaleMax = Math.max(autoscaleMax, defaultMinReplicas);
       replicas = Math.max(replicas, defaultMinReplicas);
