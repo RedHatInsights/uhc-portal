@@ -92,6 +92,7 @@ function Details() {
       [FieldId.DomainPrefix]: domainPrefix,
       [FieldId.ChannelGroup]: channelGroup,
       [FieldId.ClusterVersion]: selectedVersion,
+      [FieldId.AutoscalingEnabled]: autoscalingEnabled,
     },
     errors,
     getFieldProps,
@@ -316,6 +317,10 @@ function Details() {
     const mpSubnetsReset = new Array(isMultiAz ? 3 : 1).fill(emptyAWSSubnet());
     setFieldValue(FieldId.MachinePoolsSubnets, mpSubnetsReset);
     setFieldValue(FieldId.SelectedVpc, { id: '', name: '' });
+    if (isHypershiftSelected && autoscalingEnabled) {
+      setFieldValue(FieldId.MinReplicas, 2);
+      setFieldValue(FieldId.MaxReplicas, 2);
+    }
 
     // Reset the public subnet ID selection associated with cluster privacy on region change,
     // since the list of values there can change entirely based on the selected region.
