@@ -204,7 +204,6 @@
     "build": "fec build",
     "build:prod": "MODE=prod yarn build",
     "build:prod:monitored": "run/build-prod-monitored.sh",
-    "verify": "concurrently --group --names=BUILD,LINT,TEST 'yarn build:prod' 'NODE_OPTIONS=--max-old-space-size=4096 yarn lint-prettier' 'yarn test'",
     "insights-proxy": "make insights-proxy-check && run/insights-proxy.sh",
     "stop-insights-proxy": "run/podman-or-docker.sh kill insightsproxy; run/podman-or-docker.sh rm --force insightsproxy; true",
     "lint": "eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx",
