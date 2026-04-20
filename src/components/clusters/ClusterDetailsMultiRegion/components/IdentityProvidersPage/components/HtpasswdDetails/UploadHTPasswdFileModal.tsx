@@ -111,7 +111,17 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
     >
       <Form>
         <p>
-          Upload an htpasswd file to add users to identity provider <strong>{idpName}</strong>
+          Upload a valid htpasswd file to add users to identity provider <strong>{idpName}</strong>.
+          Generally, this file is prepared using the{' '}
+          <a
+            href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.8/html-single/authentication_and_authorization/index?extIdCarryOver=true&sc_cid=RHCTG0180000371695#creating-htpasswd-file"
+            target="_blank"
+            rel="noreferrer"
+          >
+            htpasswd
+          </a>{' '}
+          tool. Each line must contain a username and a hashed password. If any user fails to be
+          created for any reason, the entire import is cancelled — no users will be added.
         </p>
 
         {isError ? (
@@ -134,6 +144,7 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
             onFileInputChange={onFileInputChange}
             onClearClick={onClearClick}
             isDisabled={isPending}
+            hideDefaultPreview
             isReadOnly
             browseButtonText="Browse"
             validated={parseErrors.length > 0 ? 'error' : 'default'}

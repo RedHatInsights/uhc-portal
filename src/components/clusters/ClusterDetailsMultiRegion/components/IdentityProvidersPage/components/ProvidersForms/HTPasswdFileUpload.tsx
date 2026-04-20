@@ -63,6 +63,7 @@ const HTPasswdFileUpload = ({ isDisabled }: { isDisabled?: boolean }) => {
         onFileInputChange={onFileInputChange}
         onClearClick={onClearClick}
         isDisabled={isDisabled}
+        hideDefaultPreview
         isReadOnly
         browseButtonText="Browse"
         validated={errors.length > 0 ? 'error' : 'default'}
