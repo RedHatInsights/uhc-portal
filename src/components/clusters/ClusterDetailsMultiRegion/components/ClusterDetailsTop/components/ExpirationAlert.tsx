@@ -14,14 +14,12 @@ type ExpirationAlertProps = {
   expirationTimestamp: string;
   trialExpiration?: boolean;
   cluster?: Cluster;
-  OSDRHMExpiration?: boolean;
 };
 
 const ExpirationAlert = ({
   expirationTimestamp,
   trialExpiration,
   cluster,
-  OSDRHMExpiration,
 }: ExpirationAlertProps) => {
   const dispatch = useDispatch();
   const now = dayjs.utc();
@@ -81,9 +79,7 @@ const ExpirationAlert = ({
   let contents: string | React.ReactElement = (
     <>This cluster is scheduled for deletion on {expirationTimedate}</>
   );
-  if (OSDRHMExpiration) {
-    contents = <>Once expired, the cluster will be deleted permanently.</>;
-  } else if (trialExpiration) {
+  if (trialExpiration) {
     contents = (
       <>
         Your free trial cluster will automatically be deleted on {expirationTimedate}. Upgrade your

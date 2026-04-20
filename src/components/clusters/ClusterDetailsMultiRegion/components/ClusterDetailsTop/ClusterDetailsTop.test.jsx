@@ -5,16 +5,8 @@ import * as notifications from '@redhat-cloud-services/frontend-components-notif
 
 import { CLUSTER_LIST_PATH, ocmBaseName } from '~/common/routing';
 import { normalizedProducts } from '~/common/subscriptionTypes';
-import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
 import * as clusterService from '~/services/clusterService';
-import {
-  checkAccessibility,
-  mockUseChrome,
-  mockUseFeatureGate,
-  render,
-  screen,
-  within,
-} from '~/testUtils';
+import { checkAccessibility, mockUseChrome, render, screen, within } from '~/testUtils';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
 import clusterStates from '../../../common/clusterStates';
@@ -274,37 +266,6 @@ describe('<ClusterDetailsTop />', () => {
       await user.click(expandBtn);
 
       expect(await screen.findByRole('alert')).toBeInTheDocument();
-      expect(
-        within(screen.getByRole('alert')).getByText('Danger alert', {
-          exact: false,
-        }),
-      ).toBeInTheDocument();
-      expect(
-        within(screen.getByRole('alert')).getByText('This cluster will be deleted in a day', {
-          exact: false,
-        }),
-      ).toBeInTheDocument();
-    });
-
-    it('should show expiration alert for OSD RHM', async () => {
-      mockUseFeatureGate([[HIDE_RH_MARKETPLACE, false]]);
-
-      const { cluster } = fixtures.OSDRHMClusterDetails;
-
-      const expDate = new Date();
-      expDate.setDate(expDate.getDate() + 1); // now + 1 day
-      cluster.subscription.trial_end_date = '';
-      cluster.subscription.billing_expiration_date = expDate.toISOString();
-      cluster.expiration_timestamp = '';
-
-      const newProps = { ...props, cluster };
-
-      const { user } = render(<ClusterDetailsTop {...newProps} />);
-
-      const expandBtn = screen.getByText('Alerts and recommendations');
-
-      await user.click(expandBtn);
-
       expect(
         within(screen.getByRole('alert')).getByText('Danger alert', {
           exact: false,
