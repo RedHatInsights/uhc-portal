@@ -37,9 +37,11 @@ spec:
   - name: e2e-playwright-image
     value: "quay.io/btweed/playwright_e2e:latest"
 
-  # todo - hmm far fetched, but might work; try to pass playwright docker image version to quay image manifest
   - name: build-args
-    value: ["version=1.57"]
+    value:
+      # todo - hmm far fetched, but might work; try to pass playwright docker image version to quay image manifest
+      - version=1.57
+      - NODE_BUILD_VERSION=24
 
     # todo - remove - not needed really
 #  - name: e2e-proxy-image
