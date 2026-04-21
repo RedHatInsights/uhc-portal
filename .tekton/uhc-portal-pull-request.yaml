@@ -60,6 +60,7 @@ spec:
       set -ex
       
       # todo - debugging - remove before merge
+      echo '> unit-tests-script > node version:'
       node --version
 
       # todo - there might be a bug in the shared PL here..
@@ -85,6 +86,7 @@ spec:
       set -e
       
       # todo - debugging - remove before merge
+      echo '> run-app-script > node version:'
       node --version
 
       echo "Starting application with Caddy using ConfigMap Caddyfile..."
@@ -95,6 +97,7 @@ spec:
       set -e  # Don't use -x to avoid printing secrets in logs
       
       # todo - debugging - remove before merge
+      echo '> e2e-tests-script > node version:'
       node --version
 
       # CI mode: enables retries (2) and parallel workers (4) in playwright.config.ts
