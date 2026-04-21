@@ -51,17 +51,29 @@ spec:
   - name: e2e-app-port
     value: "8000"
 
+    # todo - what about app image node version?
+    # todo - should build-container / build-image-index have node 24, too?
+
   - name: unit-tests-script
     value: |
       #!/bin/bash
       set -ex
       
-      # todo - debugging - remove before push
+      # todo - debugging - remove before merge
       node --version
-      exit 0
+
+      # todo - there might be a bug in the shared PL here..
+      #        if `exit 0` is done before `yarn install`, the e2e task fails with 'playwright: not found'!!
+      #        this might hint at a hidden dep' between tasks, where unit-test is needed for e2e-test,
+      #        and the former must install npm packages for the latter!!
+      #        or maybe it's just because each task should install its own packages, and we don't do that here..
 
       npm install -g yarn
       yarn install
+             
+      # todo - debugging - remove before merge
+      exit 0
+
       # cap the linter's heap size, as it tends to hog the RAM,
       # causing the OS to kill the process due to out-of-memory errors
       NODE_OPTIONS='--max-old-space-size=4096' yarn lint
@@ -71,6 +83,10 @@ spec:
     value: |
       #!/bin/sh
       set -e
+      
+      # todo - debugging - remove before merge
+      node --version
+
       echo "Starting application with Caddy using ConfigMap Caddyfile..."
       exec caddy run --config /etc/caddy/Caddyfile
   - name: e2e-tests-script
@@ -78,7 +94,7 @@ spec:
       #!/bin/bash
       set -e  # Don't use -x to avoid printing secrets in logs
       
-      # todo - debugging - remove before push
+      # todo - debugging - remove before merge
       node --version
 
       # CI mode: enables retries (2) and parallel workers (4) in playwright.config.ts
