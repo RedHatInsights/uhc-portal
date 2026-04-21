@@ -68,6 +68,8 @@ spec:
       #        this might hint at a hidden dep' between tasks, where unit-test is needed for e2e-test,
       #        and the former must install npm packages for the latter!!
       #        or maybe it's just because each task should install its own packages, and we don't do that here..
+      #        
+      #        oh yes, the problem is that `npm install` should be moved to `workspace-setup-script` param!!!!!! 
 
       npm install -g yarn
       yarn install
