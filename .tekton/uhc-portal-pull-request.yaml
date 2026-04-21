@@ -84,11 +84,6 @@ spec:
     value: |
       #!/bin/sh
       set -e
-      
-      # todo - debugging - remove before merge
-      echo '> run-app-script > node version:'
-      node --version
-
       echo "Starting application with Caddy using ConfigMap Caddyfile..."
       exec caddy run --config /etc/caddy/Caddyfile
   - name: e2e-tests-script
