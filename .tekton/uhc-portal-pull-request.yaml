@@ -40,7 +40,7 @@ spec:
   - name: build-args
     value:
       # todo - hmm far fetched, but might work; try to pass playwright docker image version to quay image manifest
-      - version=1.57
+#      - version=1.57
       - NODE_BUILD_VERSION=24
 
     # todo - remove - not needed really
