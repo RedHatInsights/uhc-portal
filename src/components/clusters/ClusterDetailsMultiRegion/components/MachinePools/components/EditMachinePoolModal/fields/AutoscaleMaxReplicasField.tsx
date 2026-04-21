@@ -47,6 +47,11 @@ const AutoscaleMaxReplicasField = ({
     helpers.setTouched(true, false);
   };
 
+  React.useEffect(() => {
+    helpers.setTouched(true, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <FormGroup
       fieldId={fieldId}

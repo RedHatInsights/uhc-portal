@@ -45,6 +45,11 @@ const NodeCountField = ({
     helpers.setTouched(true, false);
   };
 
+  React.useEffect(() => {
+    helpers.setTouched(true, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const numberInput = (
     <NumberInput
       value={field.value}
