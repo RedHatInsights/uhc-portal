@@ -112,6 +112,68 @@ export class MachinePoolsPage extends BasePage {
     );
   }
 
+  autoscalingCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: /autoscaling/i });
+  }
+
+  autoscaleMinGroup(): Locator {
+    return this.page.getByTestId('autoscale-min-group');
+  }
+
+  autoscaleMaxGroup(): Locator {
+    return this.page.getByTestId('autoscale-max-group');
+  }
+
+  autoscaleMinInput(): Locator {
+    return this.autoscaleMinGroup().getByRole('spinbutton');
+  }
+
+  autoscaleMaxInput(): Locator {
+    return this.autoscaleMaxGroup().getByRole('spinbutton');
+  }
+
+  autoscaleMinMinusButton(): Locator {
+    return this.autoscaleMinGroup().getByRole('button', { name: 'Minus' });
+  }
+
+  autoscaleMaxMinusButton(): Locator {
+    return this.autoscaleMaxGroup().getByRole('button', { name: 'Minus' });
+  }
+
+  nodeCountInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'Compute nodes' });
+  }
+
+  nodeCountMinusButton(): Locator {
+    return this.page.getByRole('button', { name: 'Decrement compute nodes' });
+  }
+
+  editNodeLabelsAndTaintsButton(): Locator {
+    return this.page.getByRole('button', { name: 'Edit node labels and taints' });
+  }
+
+  labelsAndTaintsTab(): Locator {
+    return this.page.getByRole('tab', { name: /Labels.*Taints/i });
+  }
+
+  // Taint fields lack accessible labels in the source (TextField/TaintEffectField);
+  // Formik-stable name/id attributes are the only reliable selectors available.
+  taintKeyInput(index: number): Locator {
+    return this.page.locator(`input[name="taints[${index}].key"]`);
+  }
+
+  taintValueInput(index: number): Locator {
+    return this.page.locator(`input[name="taints[${index}].value"]`);
+  }
+
+  taintEffectToggle(index: number): Locator {
+    return this.page.locator(`[id="taints[${index}].effect"]`).getByRole('button');
+  }
+
+  taintEffectOption(effect: string): Locator {
+    return this.page.getByRole('option', { name: effect });
+  }
+
   async clickAddMachinePoolSubmitButton(): Promise<void> {
     await expect(this.addMachinePoolSubmitButton()).toBeEnabled();
     await this.addMachinePoolSubmitButton().click();
@@ -151,6 +213,34 @@ export class MachinePoolsPage extends BasePage {
     await this.pressKey('Escape');
   }
 
+  async setAutoscalingRange(min: string, max: string): Promise<void> {
+    await this.autoscalingCheckbox().check();
+    await this.autoscaleMinInput().fill(min);
+    await this.autoscaleMaxInput().fill(max);
+  }
+
+  async openTaintsSection(): Promise<void> {
+    const taintsTab = this.labelsAndTaintsTab();
+    if (await taintsTab.isVisible().catch(() => false)) {
+      await taintsTab.click();
+    } else {
+      const toggle = this.editNodeLabelsAndTaintsButton();
+      const expanded = await toggle.getAttribute('aria-expanded');
+      if (expanded !== 'true') {
+        await toggle.click();
+      }
+    }
+  }
+
+  async setTaint(index: number, key: string, value: string, effect?: string): Promise<void> {
+    await this.taintKeyInput(index).fill(key);
+    await this.taintValueInput(index).fill(value);
+    if (effect) {
+      await this.taintEffectToggle(index).click();
+      await this.taintEffectOption(effect).click();
+    }
+  }
+
   async selectInstanceType(instanceType: string): Promise<void> {
     await this.instanceTypeSelectButton().click();
     await this.instanceTypeSearchInput().clear();
@@ -180,6 +270,49 @@ export class MachinePoolsPage extends BasePage {
     await expect(this.machinePoolModal()).toBeVisible({ timeout: 30000 });
   }
 
+  async resetMachinePoolAutoscaling(id: string, min: string, max: string): Promise<void> {
+    await this.editMachinePool(id);
+
+    const currentMin = await this.autoscaleMinInput().inputValue();
+    const currentMax = await this.autoscaleMaxInput().inputValue();
+
+    if (currentMin === min && currentMax === max) {
+      await this.cancelMachinePoolModalButton().click();
+      return;
+    }
+
+    if (currentMin !== min) {
+      await this.autoscaleMinInput().fill(min);
+    }
+    if (currentMax !== max) {
+      await this.autoscaleMaxInput().fill(max);
+    }
+
+    await this.clickAddMachinePoolSubmitButton();
+    await expect(this.machinePoolModal()).toBeHidden({ timeout: 60000 });
+  }
+
+  async verifyDeleteEnabled(id: string): Promise<void> {
+    const row = this.page.getByRole('row').filter({ hasText: id });
+    await row.getByRole('button', { name: 'Kebab toggle' }).click();
+    const deleteItem = this.page.getByRole('menuitem', { name: 'Delete' });
+    await expect(deleteItem).not.toHaveAttribute('aria-disabled', 'true');
+    await this.page.keyboard.press('Escape');
+  }
+
+  async verifyDeleteDisabled(id: string, tooltipText?: string): Promise<void> {
+    const row = this.page.getByRole('row').filter({ hasText: id });
+    await row.getByRole('button', { name: 'Kebab toggle' }).click();
+    const deleteItem = this.page.getByRole('menuitem', { name: 'Delete' });
+    await expect(deleteItem).toHaveAttribute('aria-disabled', 'true');
+    if (tooltipText) {
+      await deleteItem.hover();
+      await expect(this.page.getByText(tooltipText)).toBeVisible();
+    }
+    // Close the kebab menu by pressing Escape
+    await this.page.keyboard.press('Escape');
+  }
+
   async deleteMachinePool(id: string): Promise<void> {
     const row = this.page.getByRole('row').filter({ hasText: id });
     await row.locator('button[aria-label="Kebab toggle"]').click();
@@ -193,8 +326,7 @@ export class MachinePoolsPage extends BasePage {
     await Promise.all([
       this.page.waitForResponse(
         (response) =>
-          response.request().method() === 'DELETE' &&
-          response.url().includes(`/node_pools/${id}`),
+          response.request().method() === 'DELETE' && response.url().includes(`/node_pools/${id}`),
         { timeout: 30000 },
       ),
       dialog.getByRole('button', { name: 'Delete' }).click(),
