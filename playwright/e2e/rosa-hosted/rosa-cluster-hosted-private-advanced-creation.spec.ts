@@ -226,7 +226,7 @@ test.describe.serial(
         await createRosaWizardPage.isClusterPropertyMatchesValue(
           'Compute node count',
           (
-            parseInt(clusterProperties.MachinePools.NodeCount) *
+            parseInt(clusterProperties.MachinePools.NodeCount, 10) *
             Object.keys(qeInfrastructure.SUBNETS.ZONES).length
           ).toString(),
         );

@@ -46,6 +46,8 @@ test.describe.serial(
 
       await machinePoolsPage.autoscalingCheckbox().check();
       await expect(machinePoolsPage.autoscalingCheckbox()).toBeChecked();
+      await expect(machinePoolsPage.autoscaleMinInput()).toHaveValue('2');
+      await expect(machinePoolsPage.autoscaleMaxInput()).toHaveValue('2');
 
       await expect(machinePoolsPage.autoscaleMinInput()).toBeVisible();
       await machinePoolsPage.autoscaleMinInput().fill('0');
@@ -64,6 +66,8 @@ test.describe.serial(
       await machinePoolsPage.openAddMachinePoolModal();
       await expect(machinePoolsPage.autoscalingCheckbox()).not.toBeChecked();
       await expect(machinePoolsPage.nodeCountInput()).toBeVisible();
+      await expect(machinePoolsPage.nodeCountInput()).toHaveValue('2');
+
       await machinePoolsPage.nodeCountInput().fill('0');
       await machinePoolsPage.nodeCountInput().blur();
       // Minus button should be disabled at the 0 floor
