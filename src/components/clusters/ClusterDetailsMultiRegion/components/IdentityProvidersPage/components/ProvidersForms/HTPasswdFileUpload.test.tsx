@@ -37,15 +37,13 @@ describe('<HTPasswdFileUpload />', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows masked content in textarea after valid file upload', async () => {
+  it('shows filename after valid file upload', async () => {
     render(<HTPasswdFileUpload />);
 
     await uploadFile(validFileContent);
 
     await waitFor(() => {
-      expect(screen.getByRole('textbox', { name: 'File upload' })).toHaveValue(
-        'user1:*******\nuser2:*******',
-      );
+      expect(screen.getByLabelText('Read only filename')).toHaveValue('users.htpasswd');
     });
   });
 

@@ -70,7 +70,7 @@ describe('<UploadHTPasswdFileModal />', () => {
 
     expect(screen.getByText('Upload htpasswd file')).toBeInTheDocument();
     expect(
-      screen.getByText(/Upload an htpasswd file to add users to identity provider/),
+      screen.getByText(/Upload a valid htpasswd file to add users to identity provider/),
     ).toBeInTheDocument();
     expect(screen.getByText('myIDPName')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled();
@@ -88,7 +88,7 @@ describe('<UploadHTPasswdFileModal />', () => {
     });
   });
 
-  it('shows masked content in the preview after file upload', async () => {
+  it('shows filename after file upload', async () => {
     mockedImportUsers.mockReturnValue(defaultReturn);
 
     withState(initialState, true).render(<UploadHTPasswdFileModal onSuccess={onSuccess} />);
@@ -96,8 +96,7 @@ describe('<UploadHTPasswdFileModal />', () => {
     await uploadFile(validFileContent);
 
     await waitFor(() => {
-      const textarea = screen.getByRole('textbox', { name: 'File upload' });
-      expect(textarea).toHaveValue('user1:*******\nuser2:*******');
+      expect(screen.getByLabelText('Read only filename')).toHaveValue('users.htpasswd');
     });
   });
 
