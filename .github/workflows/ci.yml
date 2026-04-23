@@ -30,7 +30,7 @@ jobs:
           path: './node_modules'
           key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
       - name: Install
-        run: npm install
+        run: npm ci
       - name: Check uncommitted changes
         if: ${{ always() }}
         # Check that Git working tree is clean after running `install` command.

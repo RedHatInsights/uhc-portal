@@ -36,7 +36,7 @@ spec:
     value: |
       #!/bin/bash
       set -ex
-      npm install
+      npm ci
       # cap the linter's heap size, as it tends to hog the RAM,
       # causing the OS to kill the process due to out-of-memory errors
       NODE_OPTIONS='--max-old-space-size=4096' npm run lint
