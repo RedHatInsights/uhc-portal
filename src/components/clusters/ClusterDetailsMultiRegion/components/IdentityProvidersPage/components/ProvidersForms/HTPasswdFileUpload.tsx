@@ -13,17 +13,15 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 
 import { FieldId } from '../../constants';
 
-import { maskHTPasswdFileContent, parseHTPasswdFile } from './htpasswdFileParser';
+import { parseHTPasswdFile } from './htpasswdFileParser';
 
 const HTPasswdFileUpload = ({ isDisabled }: { isDisabled?: boolean }) => {
   const { setFieldValue } = useFormState();
   const [filename, setFilename] = React.useState('');
-  const [maskedContent, setMaskedContent] = React.useState('');
   const [errors, setErrors] = React.useState<string[]>([]);
 
   const processContent = (content: string) => {
     const result = parseHTPasswdFile(content);
-    setMaskedContent(maskHTPasswdFileContent(content));
     setErrors(result.errors);
 
     if (result.errors.length === 0 && result.users.length > 0) {
@@ -47,7 +45,6 @@ const HTPasswdFileUpload = ({ isDisabled }: { isDisabled?: boolean }) => {
 
   const onClearClick = () => {
     setFilename('');
-    setMaskedContent('');
     setErrors([]);
     setFieldValue(FieldId.USERS, [{ username: '', password: '' }]);
   };
@@ -57,14 +54,12 @@ const HTPasswdFileUpload = ({ isDisabled }: { isDisabled?: boolean }) => {
       <FileUpload
         id="htpasswd-file-upload"
         type="text"
-        value={maskedContent}
         filename={filename}
         onDataChange={onDataChange}
         onFileInputChange={onFileInputChange}
         onClearClick={onClearClick}
         isDisabled={isDisabled}
         hideDefaultPreview
-        isReadOnly
         browseButtonText="Browse"
         validated={errors.length > 0 ? 'error' : 'default'}
         filenamePlaceholder="Upload an htpasswd file or drag and drop"

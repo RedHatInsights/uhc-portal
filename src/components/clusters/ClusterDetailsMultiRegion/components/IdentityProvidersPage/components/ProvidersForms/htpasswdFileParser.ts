@@ -54,21 +54,3 @@ export const parseHTPasswdFile = (content: string): HTPasswdParseResult => {
 
   return { users, errors };
 };
-
-export const maskHTPasswdFileContent = (content: string): string => {
-  const lines = content.split(/\r?\n/);
-  return lines
-    .map((line) => {
-      const trimmed = line.trim();
-      if (trimmed === '' || trimmed.startsWith('#')) {
-        return line;
-      }
-      const colonIndex = trimmed.indexOf(':');
-      if (colonIndex === -1) {
-        return line;
-      }
-      const username = trimmed.substring(0, colonIndex);
-      return `${username}:*******`;
-    })
-    .join('\n');
-};

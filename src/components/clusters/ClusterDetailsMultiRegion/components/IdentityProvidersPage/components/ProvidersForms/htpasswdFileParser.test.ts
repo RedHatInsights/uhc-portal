@@ -1,4 +1,4 @@
-import { maskHTPasswdFileContent, parseHTPasswdFile } from './htpasswdFileParser';
+import { parseHTPasswdFile } from './htpasswdFileParser';
 
 describe('htpasswdFileParser', () => {
   describe('parseHTPasswdFile', () => {
@@ -111,38 +111,6 @@ describe('htpasswdFileParser', () => {
       const result = parseHTPasswdFile(content);
       expect(result.users[0]).toEqual({ username: 'user1', password: 'pass1' });
       expect(result.errors).toHaveLength(0);
-    });
-  });
-
-  describe('maskHTPasswdFileContent', () => {
-    it('masks passwords with asterisks', () => {
-      const content = 'user1:secretpass\nuser2:anotherpass';
-      const result = maskHTPasswdFileContent(content);
-      expect(result).toBe('user1:*******\nuser2:*******');
-    });
-
-    it('preserves empty lines', () => {
-      const content = 'user1:pass\n\nuser2:pass';
-      const result = maskHTPasswdFileContent(content);
-      expect(result).toBe('user1:*******\n\nuser2:*******');
-    });
-
-    it('preserves comment lines', () => {
-      const content = '# comment\nuser1:pass';
-      const result = maskHTPasswdFileContent(content);
-      expect(result).toBe('# comment\nuser1:*******');
-    });
-
-    it('preserves lines without colons as-is', () => {
-      const content = 'invalidline\nuser1:pass';
-      const result = maskHTPasswdFileContent(content);
-      expect(result).toBe('invalidline\nuser1:*******');
-    });
-
-    it('handles passwords containing colons', () => {
-      const content = 'user1:$2y$05$salt:hash';
-      const result = maskHTPasswdFileContent(content);
-      expect(result).toBe('user1:*******');
     });
   });
 });

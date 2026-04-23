@@ -1,5 +1,7 @@
 import React from 'react';
 
+import docLinks from '~/common/docLinks.mjs';
+
 import {
   Content,
   ContentVariants,
@@ -250,11 +252,7 @@ const HTPasswdForm = ({
             <Content component={ContentVariants.p} className="pf-v6-u-mb-0">
               Upload a valid htpasswd file to import users into this identity provider. Generally,
               this file is prepared using the{' '}
-              <a
-                href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.8/html-single/authentication_and_authorization/index?extIdCarryOver=true&sc_cid=RHCTG0180000371695#creating-htpasswd-file"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href={docLinks.IDP_HTPASSWD_UTILITY} target="_blank" rel="noreferrer">
                 htpasswd
               </a>{' '}
               tool. Each line must contain a username and a hashed password. If any user fails to be

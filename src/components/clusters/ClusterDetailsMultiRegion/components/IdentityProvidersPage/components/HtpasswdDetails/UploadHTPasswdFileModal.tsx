@@ -1,6 +1,8 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
+import docLinks from '~/common/docLinks.mjs';
+
 import {
   DropEvent,
   FileUpload,
@@ -19,11 +21,7 @@ import modals from '~/components/common/Modal/modals';
 import { useImportHtpasswdUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useImportHtpasswdUsers';
 import { useGlobalState } from '~/redux/hooks';
 
-import {
-  maskHTPasswdFileContent,
-  ParsedHTPasswdUser,
-  parseHTPasswdFile,
-} from '../ProvidersForms/htpasswdFileParser';
+import { ParsedHTPasswdUser, parseHTPasswdFile } from '../ProvidersForms/htpasswdFileParser';
 
 const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
   const { idpName, clusterId, idpId, region } = useGlobalState((state) => state.modal.data) as {
@@ -43,7 +41,6 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
   );
 
   const [filename, setFilename] = React.useState('');
-  const [maskedContent, setMaskedContent] = React.useState('');
   const [parseErrors, setParseErrors] = React.useState<string[]>([]);
   const [parsedUsers, setParsedUsers] = React.useState<ParsedHTPasswdUser[]>([]);
 
@@ -67,7 +64,6 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const processContent = (content: string) => {
     const result = parseHTPasswdFile(content);
-    setMaskedContent(maskHTPasswdFileContent(content));
     setParseErrors(result.errors);
     setParsedUsers(result.errors.length === 0 ? result.users : []);
   };
@@ -82,7 +78,6 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const onClearClick = () => {
     setFilename('');
-    setMaskedContent('');
     setParseErrors([]);
     setParsedUsers([]);
   };
@@ -113,11 +108,7 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
         <p>
           Upload a valid htpasswd file to add users to identity provider <strong>{idpName}</strong>.
           Generally, this file is prepared using the{' '}
-          <a
-            href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.8/html-single/authentication_and_authorization/index?extIdCarryOver=true&sc_cid=RHCTG0180000371695#creating-htpasswd-file"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a href={docLinks.IDP_HTPASSWD_UTILITY} target="_blank" rel="noreferrer">
             htpasswd
           </a>{' '}
           tool. Each line must contain a username and a hashed password. If any user fails to be
@@ -138,14 +129,12 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
           <FileUpload
             id="htpasswd-file-upload-modal"
             type="text"
-            value={maskedContent}
             filename={filename}
             onDataChange={onDataChange}
             onFileInputChange={onFileInputChange}
             onClearClick={onClearClick}
             isDisabled={isPending}
             hideDefaultPreview
-            isReadOnly
             browseButtonText="Browse"
             validated={parseErrors.length > 0 ? 'error' : 'default'}
             filenamePlaceholder="Upload an htpasswd file or drag and drop"
