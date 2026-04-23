@@ -213,6 +213,9 @@ test.describe.serial(
     test('Cluster wizard revisit - Step - cluster details - machine pool', async ({
       createRosaWizardPage,
     }) => {
+      await expect(createRosaWizardPage.computeNodeTypeButton()).toContainText(
+        clusterProperties.MachinePools[0].InstanceType,
+      );
       await expect(createRosaWizardPage.minimumNodeInput()).toHaveValue(
         clusterProperties.MachinePools[0].MinimumNodeCount,
       );

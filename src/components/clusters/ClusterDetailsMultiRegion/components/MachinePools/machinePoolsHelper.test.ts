@@ -1,6 +1,11 @@
 import { ClusterFromSubscription } from '~/types/types';
 
-import { countReplicasWithoutTaints, getClusterMinNodes } from './machinePoolsHelper';
+import {
+  countReplicasWithoutTaints,
+  getClusterMinNodes,
+  getMinNodesRequiredMaxReplicas,
+  isMinimumCountWithoutTaints,
+} from './machinePoolsHelper';
 
 const hcpCluster = {
   product: { id: 'ROSA' },
@@ -45,21 +50,13 @@ describe('machinePoolsHelper', () => {
       expect(countReplicasWithoutTaints(pools, 'pool-1')).toBe(5);
     });
 
-    it('uses autoscaling min_replicas when available', () => {
+    it('uses autoscaling max_replicas when available', () => {
       const pools = [
         { id: 'pool-1', autoscaling: { min_replicas: 2, max_replicas: 10 } },
         { id: 'pool-2', replicas: 3 },
       ];
 
-      expect(countReplicasWithoutTaints(pools)).toBe(5);
-    });
-
-    it('prefers autoscaling min_replicas over replicas', () => {
-      const pools = [
-        { id: 'pool-1', replicas: 10, autoscaling: { min_replicas: 2, max_replicas: 10 } },
-      ];
-
-      expect(countReplicasWithoutTaints(pools)).toBe(2);
+      expect(countReplicasWithoutTaints(pools)).toBe(13);
     });
 
     it('handles mixed tainted and untainted pools with exclusion', () => {
@@ -74,7 +71,7 @@ describe('machinePoolsHelper', () => {
         { id: 'pool-4', autoscaling: { min_replicas: 1, max_replicas: 5 } },
       ];
 
-      expect(countReplicasWithoutTaints(pools, 'pool-1')).toBe(5); // pool-3 (4) + pool-4 (1)
+      expect(countReplicasWithoutTaints(pools, 'pool-1')).toBe(9); // pool-3 (4) + pool-4 (5)
     });
 
     it('ignores pools with empty taints array', () => {
@@ -84,6 +81,124 @@ describe('machinePoolsHelper', () => {
       ];
 
       expect(countReplicasWithoutTaints(pools)).toBe(8);
+    });
+
+    it('returns 0 when pool has no replicas and no autoscaling', () => {
+      const pools = [{ id: 'pool-1' }];
+
+      expect(countReplicasWithoutTaints(pools)).toBe(0);
+    });
+  });
+
+  describe('isMinimumCountWithoutTaints', () => {
+    const cluster = {
+      hypershift: { enabled: true },
+    } as ClusterFromSubscription;
+
+    it('returns true when other autoscaled pools have max_replicas >= 2', () => {
+      const machinePoolsScaled = [
+        {
+          id: 'mp-with-taints',
+          taints: [{ key: 'hello', value: 'world', effect: 'NoSchedule' }],
+          autoscaling: { min_replicas: 2, max_replicas: 3 },
+        },
+        {
+          id: 'mp1',
+          autoscaling: { min_replicas: 1, max_replicas: 3 },
+        },
+        {
+          id: 'mp-no-taints',
+          autoscaling: { min_replicas: 1, max_replicas: 3 },
+        },
+      ];
+
+      expect(
+        isMinimumCountWithoutTaints({
+          cluster,
+          machinePools: machinePoolsScaled,
+          currentMachinePoolId: 'mp-no-taints',
+        }),
+      ).toBeTruthy();
+    });
+
+    it('returns false when other autoscaled pools have total max_replicas < 2', () => {
+      const poolsWithLowMax = [
+        {
+          id: 'mp-no-taints',
+          autoscaling: { min_replicas: 0, max_replicas: 1 },
+        },
+        {
+          id: 'mp-other',
+          autoscaling: { min_replicas: 0, max_replicas: 1 },
+        },
+      ];
+
+      expect(
+        isMinimumCountWithoutTaints({
+          cluster,
+          machinePools: poolsWithLowMax,
+          currentMachinePoolId: 'mp-no-taints',
+        }),
+      ).toBeFalsy();
+    });
+
+    it('includes autoscaling max_replicas of current pool when includeCurrentMachinePool is true', () => {
+      const pools = [
+        {
+          id: 'autoscale-pool',
+          autoscaling: { min_replicas: 1, max_replicas: 3 },
+        },
+      ];
+
+      expect(
+        isMinimumCountWithoutTaints({
+          cluster,
+          machinePools: pools,
+          currentMachinePoolId: 'autoscale-pool',
+          includeCurrentMachinePool: true,
+        }),
+      ).toBeTruthy();
+    });
+
+    it('does not add replicas for tainted current pool when includeCurrentMachinePool is true', () => {
+      const pools = [
+        {
+          id: 'tainted-current',
+          replicas: 5,
+          taints: [{ key: 'k', value: 'v', effect: 'NoSchedule' }],
+        },
+        {
+          id: 'other',
+          replicas: 1,
+        },
+      ];
+
+      expect(
+        isMinimumCountWithoutTaints({
+          cluster,
+          machinePools: pools,
+          currentMachinePoolId: 'tainted-current',
+          includeCurrentMachinePool: true,
+        }),
+      ).toBeFalsy();
+    });
+
+    it('handles missing current pool gracefully when includeCurrentMachinePool is true', () => {
+      const pools = [
+        {
+          id: 'other',
+          replicas: 2,
+        },
+      ];
+
+      expect(
+        isMinimumCountWithoutTaints({
+          cluster,
+          machinePools: pools,
+          currentMachinePoolId: 'non-existent',
+          includeCurrentMachinePool: true,
+        }),
+      ).toBeTruthy();
     });
   });
 
@@ -191,7 +306,7 @@ describe('machinePoolsHelper', () => {
         expect(result).toBe(2);
       });
 
-      it('counts autoscaling min_replicas when calculating other pools', () => {
+      it('counts autoscaling max_replicas when calculating other pools capacity', () => {
         const currentPool = {
           id: 'current-pool',
           replicas: 1,
@@ -257,6 +372,41 @@ describe('machinePoolsHelper', () => {
 
         // First pool being added to empty cluster needs minimum 2
         expect(result).toBe(2);
+      });
+    });
+  });
+
+  describe('getMinNodesRequiredMaxReplicas', () => {
+    describe('Hypershift with autoscaling enabled', () => {
+      it('returns 2 when there is 1 machine pool', () => {
+        expect(getMinNodesRequiredMaxReplicas(true, 0, 1, true)).toBe(2);
+      });
+
+      it('returns 1 when there are multiple machine pools', () => {
+        expect(getMinNodesRequiredMaxReplicas(true, 0, 3, true)).toBe(1);
+      });
+
+      it('returns 2 when pools are reduced from 3 to 1', () => {
+        expect(getMinNodesRequiredMaxReplicas(true, 0, 3, true)).toBe(1);
+        expect(getMinNodesRequiredMaxReplicas(true, 0, 1, true)).toBe(2);
+      });
+    });
+
+    describe('Hypershift without autoscaling', () => {
+      it('returns minNodes when autoscaling is disabled', () => {
+        expect(getMinNodesRequiredMaxReplicas(true, 2, 1, false)).toBe(2);
+        expect(getMinNodesRequiredMaxReplicas(true, 1, 3, false)).toBe(1);
+      });
+    });
+
+    describe('non-Hypershift', () => {
+      it('returns minNodes regardless of pool count or autoscaling', () => {
+        expect(getMinNodesRequiredMaxReplicas(false, 4, 1, true)).toBe(4);
+        expect(getMinNodesRequiredMaxReplicas(false, 2, 3, false)).toBe(2);
+      });
+
+      it('returns undefined when minNodes is undefined', () => {
+        expect(getMinNodesRequiredMaxReplicas(false, undefined, 1, false)).toBeUndefined();
       });
     });
   });

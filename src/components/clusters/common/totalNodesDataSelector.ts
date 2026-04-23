@@ -33,12 +33,17 @@ const totalNodesDataSelector = <E extends ClusterFromSubscription>(
     machinePools.forEach((machinePool) => {
       if (machinePool.autoscaling) {
         hasMachinePoolWithAutoscaling = true;
-
         const autoscaling = machinePool.autoscaling as NodePoolAutoscaling;
-        if (isHypershift && (autoscaling?.min_replica || autoscaling?.max_replica)) {
+        if (
+          isHypershift &&
+          (autoscaling?.min_replica || autoscaling?.min_replica === 0 || autoscaling?.max_replica)
+        ) {
           // if hypershift then NodePool type
           totalMinNodesCount += autoscaling?.min_replica ?? NaN;
-          totalMaxNodesCount += autoscaling?.max_replica ?? NaN;
+          totalMaxNodesCount +=
+            autoscaling?.max_replica ??
+            (autoscaling as { max_replicas?: number }).max_replicas ??
+            NaN;
         } else {
           // otherwise MachinePool type
           totalMinNodesCount += (machinePool as MachinePool).autoscaling?.min_replicas ?? NaN;

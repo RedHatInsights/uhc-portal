@@ -1414,13 +1414,24 @@ const validateGCPServiceAccount = (content: string): string | undefined => {
       return 'Invalid JSON format.';
     }
     if (e instanceof ValidationError) {
-      let errorMessage;
+      let errorMessage: string;
       if (e.property.startsWith('instance.')) {
         const errorFieldName = e.property.replace('instance.', '');
-        if (errorFieldName === 'client_email' && e.instance.split[0] !== 'osd-ccs-admin') {
+        const clientEmailLocalPart =
+          errorFieldName === 'client_email' && typeof e.instance === 'string'
+            ? e.instance.split('@')[0]
+            : undefined;
+        if (
+          errorFieldName === 'client_email' &&
+          clientEmailLocalPart !== undefined &&
+          clientEmailLocalPart !== 'osd-ccs-admin'
+        ) {
           errorMessage = `The field '${errorFieldName}' requires a service account name of 'osd-ccs-admin'.`;
         } else if (e.message.indexOf('does not match pattern') !== -1) {
-          errorMessage = `The field '${errorFieldName}' is not in the required format.`;
+          errorMessage =
+            errorFieldName === 'client_email' && clientEmailLocalPart === 'osd-ccs-admin'
+              ? `The field '${errorFieldName}' must be a Google Cloud service account email ending in '.iam.gserviceaccount.com'.`
+              : `The field '${errorFieldName}' is not in the required format.`;
         } else {
           errorMessage = `The field '${errorFieldName}' ${e.message}`;
         }
