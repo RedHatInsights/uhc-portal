@@ -215,7 +215,55 @@ describe('<ClusterStatus />', () => {
           ]}
         />,
       );
+
       expect(screen.getByText('Ready 2 / 2')).toBeInTheDocument();
+    });
+
+    it('does not count pool without current_replicas as ready', () => {
+      render(
+        <ClusterStatus
+          cluster={{ ...cluster, hypershift: { enabled: true } }}
+          limitedSupport={false}
+          machinePools={[{ replicas: 2, status: {} }]}
+        />,
+      );
+
+      expect(screen.getByText('Pending 0 / 1')).toBeInTheDocument();
+    });
+
+    it('shows uninstalling state when cluster is uninstalling', () => {
+      render(
+        <ClusterStatus
+          cluster={{ ...cluster, hypershift: { enabled: true }, state: ClusterState.uninstalling }}
+          limitedSupport={false}
+          machinePools={machinePools}
+        />,
+      );
+
+      expect(screen.getByTestId('machine-pools-status')).toHaveTextContent('Uninstalling');
+    });
+
+    it('shows deleted when there are no machine pools and cluster is ready', () => {
+      render(
+        <ClusterStatus
+          cluster={{ ...cluster, hypershift: { enabled: true } }}
+          limitedSupport={false}
+          machinePools={[]}
+        />,
+      );
+
+      expect(screen.getByTestId('machine-pools-status')).toHaveTextContent('Deleted 0 / 0');
+    });
+
+    it('shows pending when there are no machine pools and cluster is installing', () => {
+      render(
+        <ClusterStatus
+          cluster={{ ...cluster, hypershift: { enabled: true }, state: ClusterState.installing }}
+          limitedSupport={false}
+          machinePools={[]}
+        />,
+      );
+      expect(screen.getByTestId('machine-pools-status')).toHaveTextContent('Pending 0 / 0');
     });
   });
 });
