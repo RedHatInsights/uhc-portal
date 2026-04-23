@@ -42,8 +42,6 @@ spec:
       # todo - test this once the build-tools dep-update for syncing insights-frontend-builder-common #323 is in
       - NODE_BUILD_VERSION=24
 
-    # todo - should build-image-index have node 24, too?
-
   - name: unit-tests-script
     value: |
       #!/bin/bash
