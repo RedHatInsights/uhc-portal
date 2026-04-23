@@ -40,6 +40,7 @@ spec:
   - name: build-args
     value:
       # todo - test this once the build-tools dep-update for syncing insights-frontend-builder-common #323 is in
+      # used in build-container task
       - NODE_BUILD_VERSION=24
 
   - name: unit-tests-script
