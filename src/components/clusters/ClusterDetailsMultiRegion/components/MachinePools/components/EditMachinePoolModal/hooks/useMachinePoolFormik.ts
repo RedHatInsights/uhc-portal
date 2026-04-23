@@ -362,7 +362,10 @@ const useMachinePoolFormik = ({
                   'Decimals are not allowed. Enter a whole number.',
                   Number.isInteger,
                 )
-                .min(minNodes, `Input cannot be less than ${minNodes}.`)
+                .min(
+                  isHypershift ? 0 : minNodes,
+                  `Input cannot be less than ${isHypershift ? 0 : minNodes}.`,
+                )
                 .max(values.autoscaleMax, 'Min nodes cannot be more than max nodes.')
             : Yup.number(),
           autoscaleMax: values.autoscaling
@@ -385,6 +388,13 @@ const useMachinePoolFormik = ({
                   if (value !== undefined && value < 1 && !isHypershift) {
                     return new Yup.ValidationError(
                       'Max nodes must be greater than 0.',
+                      value,
+                      'autoscaleMax',
+                    );
+                  }
+                  if (isHypershift && value !== undefined && value < minNodes) {
+                    return new Yup.ValidationError(
+                      `Max nodes must be at least ${minNodes} to satisfy the cluster-wide untainted-node minimum.`,
                       value,
                       'autoscaleMax',
                     );

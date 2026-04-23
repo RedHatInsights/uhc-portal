@@ -1,4 +1,4 @@
-name: e2e CI Playwright Tests
+name: E2E CI Playwright Tests
 
 on:
   push:
@@ -28,14 +28,14 @@ on:
           - '4'
 jobs:
   playwright-e2e-test:
-    name: Playwright E2E - ${{ matrix.os }} - e2e Tests - Node ${{ matrix.node-version }}
+    name: Playwright E2E Tests
     concurrency:
       group: playwright-e2e-test-${{ github.event_name }}-${{ github.head_ref || github.ref_name }}-${{ matrix.os }}-${{ matrix.node-version }}
       cancel-in-progress: true
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [22.x]
+        node-version: [24.x]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -43,15 +43,15 @@ jobs:
         with:
           ref: main
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: './node_modules'
           key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install
-        uses: borales/actions-yarn@v4
+        uses: borales/actions-yarn@v5
         with:
           cmd: install
       - name: Check uncommitted changes

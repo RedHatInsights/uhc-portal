@@ -25,6 +25,7 @@ import validators, {
   required,
   validateAWSKMSKeyARN,
   validateGCPKMSServiceAccount,
+  validateGCPServiceAccount,
   validateGCPSubnet,
   validateHTPasswdPassword,
   validateHTPasswdUsername,
@@ -1045,6 +1046,98 @@ describe('GCP service account JSON', () => {
     } else {
       expect(validateServiceAccountObject(testObj)).toBe(undefined);
     }
+  });
+});
+
+describe('validateGCPServiceAccount', () => {
+  const validServiceAccount = fixtures.GCPServiceAccounts[0].testObj;
+
+  it('returns undefined for valid service account JSON', () => {
+    expect(validateGCPServiceAccount(JSON.stringify(validServiceAccount))).toBeUndefined();
+  });
+
+  it('returns a clear message when client_email uses the correct local part but the wrong domain', () => {
+    const obj = {
+      ...validServiceAccount,
+      client_email: 'osd-ccs-admin@wrongdomain.com',
+    };
+    expect(validateGCPServiceAccount(JSON.stringify(obj))).toBe(
+      "The provided JSON does not meet the requirements: The field 'client_email' must be a Google Cloud service account email ending in '.iam.gserviceaccount.com'.",
+    );
+  });
+
+  it("returns a clear message when client_email local part is not 'osd-ccs-admin'", () => {
+    const obj = {
+      ...validServiceAccount,
+      client_email: 'other-sa@exampleproj.iam.gserviceaccount.com',
+    };
+    expect(validateGCPServiceAccount(JSON.stringify(obj))).toBe(
+      "The provided JSON does not meet the requirements: The field 'client_email' requires a service account name of 'osd-ccs-admin'.",
+    );
+  });
+
+  it('returns invalid JSON message for malformed JSON', () => {
+    expect(validateGCPServiceAccount('{ not json')).toBe('Invalid JSON format.');
+  });
+
+  it("returns 'not in the required format' when a non-client_email field fails a pattern check", () => {
+    const obj = {
+      ...validServiceAccount,
+      private_key: 'not-a-valid-key',
+    };
+    expect(validateGCPServiceAccount(JSON.stringify(obj))).toBe(
+      "The provided JSON does not meet the requirements: The field 'private_key' is not in the required format.",
+    );
+  });
+
+  it('returns a field-level error when type has the wrong const value', () => {
+    const obj = {
+      ...validServiceAccount,
+      type: 'wrong_type',
+    };
+    expect(validateGCPServiceAccount(JSON.stringify(obj))).toBe(
+      "The provided JSON does not meet the requirements: The field 'type' does not exactly match expected constant: service_account",
+    );
+  });
+
+  it('returns a field-level error when auth_uri has the wrong const value', () => {
+    const obj = {
+      ...validServiceAccount,
+      auth_uri: 'https://wrong.example.com',
+    };
+    expect(validateGCPServiceAccount(JSON.stringify(obj))).toBe(
+      "The provided JSON does not meet the requirements: The field 'auth_uri' does not exactly match expected constant: https://accounts.google.com/o/oauth2/auth",
+    );
+  });
+
+  it('returns a field-level error when auth_provider_x509_cert_url has the wrong const value', () => {
+    const obj = {
+      ...validServiceAccount,
+      auth_provider_x509_cert_url: 'https://wrong.example.com',
+    };
+    expect(validateGCPServiceAccount(JSON.stringify(obj))).toBe(
+      "The provided JSON does not meet the requirements: The field 'auth_provider_x509_cert_url' does not exactly match expected constant: https://www.googleapis.com/oauth2/v1/certs",
+    );
+  });
+
+  it('returns a field-level error when client_x509_cert_url is not a valid URI', () => {
+    const obj = {
+      ...validServiceAccount,
+      client_x509_cert_url: 'not-a-uri',
+    };
+    expect(validateGCPServiceAccount(JSON.stringify(obj))).toBe(
+      'The provided JSON does not meet the requirements: The field \'client_x509_cert_url\' does not conform to the "uri" format',
+    );
+  });
+
+  it('returns a field-level error when client_email is not a string', () => {
+    const obj = {
+      ...validServiceAccount,
+      client_email: 12345,
+    };
+    expect(validateGCPServiceAccount(JSON.stringify(obj))).toBe(
+      "The provided JSON does not meet the requirements: The field 'client_email' is not of a type(s) string",
+    );
   });
 });
 

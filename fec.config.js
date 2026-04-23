@@ -79,6 +79,14 @@ module.exports = {
     ],
     exposes: {
       './RootApp': path.resolve(__dirname, 'src/chrome-main.tsx'),
+      './OpenShiftWidget': path.resolve(
+        __dirname,
+        './src/components/Widgets/openshift-widget.tsx'
+      ),
+      './OpenShiftAiWidget': path.resolve(
+        __dirname,
+        './src/components/Widgets/openshift-ai-widget.tsx'
+      ),
     },
   },
 };
