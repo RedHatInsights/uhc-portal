@@ -22,6 +22,9 @@ spec:
   - name: build-args
     value:
     - YARN_BUILD_SCRIPT=build:prod:monitored
+    # used in build-container task
+    - NODE_BUILD_VERSION=24
+    - NODE_IMAGE_TAG=1-1776920161
   - name: git-url
     value: '{{source_url}}'
   - name: revision
@@ -30,6 +33,8 @@ spec:
     value: quay.io/redhat-user-workloads/ocm-ui-tenant/ocm-ui/uhc-portal:{{revision}}
   - name: dockerfile
     value: build-tools/Dockerfile
+  - name: unit-test-image
+    value: "registry.access.redhat.com/ubi9/nodejs-24:1-1776920161"
   - name: unit-tests-script
     value: |
       #!/bin/bash
