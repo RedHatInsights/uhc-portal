@@ -519,6 +519,7 @@ describe('<EditNodeCountSection />', () => {
             allow249NodesOSDCCSROSA={false}
             cluster={hcpCluster}
             machinePool={currentPool}
+            isEdit
           />
         </Formik>,
       );
