@@ -18,12 +18,19 @@ import {
 import docLinks from '~/common/docLinks.mjs';
 import clusterStates from '~/components/clusters/common/clusterStates';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
+import {
+  filterAvailableChannelsForUnstableFeature,
+  hasUnstableVersionsCapability,
+} from '~/components/clusters/wizards/common/ClusterSettings/Details/versionSelectHelper';
 import EditButton from '~/components/common/EditButton';
 import ErrorBox from '~/components/common/ErrorBox';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import { useEditChannelOnCluster } from '~/queries/ChannelEditQueries/useEditChannelOnCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
+import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { useGlobalState } from '~/redux/hooks';
 import type { AugmentedCluster } from '~/types/types';
 
 import { ChannelSelect } from './ChannelSelect';
@@ -133,9 +140,18 @@ const ChannelEditModal = ({
 
 export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
+  const organization = useGlobalState((state) => state.userProfile.organization.details);
+  const unstableOCPVersionsEnabled =
+    useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
   const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isClusterReady = cluster.state === clusterStates.ready;
-  const availableDropdownChannels = channelsToDropdownOptions(cluster.version?.available_channels);
+  const availableDropdownChannels = channelsToDropdownOptions(
+    filterAvailableChannelsForUnstableFeature(
+      cluster.version?.available_channels,
+      unstableOCPVersionsEnabled,
+      channel ?? '',
+    ),
+  );
   const currentChannel = channel ?? '';
   const hasAlternativeChannelOption = availableDropdownChannels.some(
     (channel) => channel.value !== currentChannel,

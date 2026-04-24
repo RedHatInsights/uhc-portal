@@ -179,6 +179,42 @@ const createChannelGroupLabel = (channelGroup: string) => {
   return channelGroup.charAt(0).toUpperCase() + channelGroup.slice(1);
 };
 
+/** Matches OCP update channel strings like `stable-4.17`, `fast-4.18`, `eus-4.16`. */
+const channelNamePrefixMatch = /^([a-z]+)-\d+\.\d+/i;
+
+const unstableChannelGroupsForFeatureGate = new Set<string>([
+  channelGroups.CANDIDATE,
+  channelGroups.FAST,
+  channelGroups.NIGHTLY,
+]);
+
+export const getChannelGroupPrefixFromChannelName = (channel: string): string | undefined => {
+  const match = channel.match(channelNamePrefixMatch);
+  return match?.[1]?.toLowerCase();
+};
+
+export const isUnstableAvailableChannelName = (channel: string): boolean => {
+  const prefix = getChannelGroupPrefixFromChannelName(channel);
+  return prefix ? unstableChannelGroupsForFeatureGate.has(prefix) : false;
+};
+
+export const filterAvailableChannelsForUnstableFeature = (
+  channels: string[] | undefined,
+  includeUnstableVersions: boolean,
+  currentChannel?: string,
+): string[] => {
+  if (!channels?.length) {
+    return [];
+  }
+  if (includeUnstableVersions) {
+    return [...channels];
+  }
+  const current = currentChannel ?? '';
+  return channels.filter(
+    (ch) => (current && ch === current) || !isUnstableAvailableChannelName(ch),
+  );
+};
+
 export {
   getVersionsData,
   supportStatuses,

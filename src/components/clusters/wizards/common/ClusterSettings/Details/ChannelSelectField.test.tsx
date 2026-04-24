@@ -1,10 +1,21 @@
 import React from 'react';
 import { Formik } from 'formik';
 
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
+import * as featureGates from '~/queries/featureGates/useFetchFeatureGate';
+import { useGlobalState } from '~/redux/hooks';
 import { checkAccessibility, render, screen } from '~/testUtils';
 import { Version } from '~/types/clusters_mgmt.v1';
 
 import { ChannelSelectField, ChannelSelectFieldProps } from './ChannelSelectField';
+
+jest.mock('~/redux/hooks', () => ({
+  ...jest.requireActual('~/redux/hooks'),
+  useGlobalState: jest.fn(),
+}));
+
+const useGlobalStateMock = useGlobalState as jest.Mock;
 
 const defaultVersion: Version = {
   kind: 'Version',
@@ -39,6 +50,36 @@ const buildComponent = (props: ChannelSelectFieldProps) =>
   );
 
 describe('<ChannelSelectField />', () => {
+  beforeEach(() => {
+    useGlobalStateMock.mockImplementation((selector: (state: unknown) => unknown) =>
+      selector({
+        userProfile: {
+          organization: {
+            details: {
+              capabilities: [
+                {
+                  name: subscriptionCapabilities.NON_STABLE_CHANNEL_GROUP,
+                  value: 'true',
+                  inherited: false,
+                },
+              ],
+            },
+          },
+        },
+      }),
+    );
+    jest.spyOn(featureGates, 'useFeatureGate').mockImplementation((feature) => {
+      if (feature === UNSTABLE_CLUSTER_VERSIONS) {
+        return true;
+      }
+      return false;
+    });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('is accessible', async () => {
     const { container } = buildComponent({
       clusterVersion: defaultVersion,
@@ -81,6 +122,28 @@ describe('<ChannelSelectField />', () => {
         screen.getByText('No channels available for the selected version'),
       ).toBeInTheDocument();
       expect(screen.getByRole('combobox', { name: 'Channel' })).toBeDisabled();
+    });
+  });
+
+  describe('when unstable cluster versions feature is off', () => {
+    beforeEach(() => {
+      jest.spyOn(featureGates, 'useFeatureGate').mockImplementation((feature) => {
+        if (feature === UNSTABLE_CLUSTER_VERSIONS) {
+          return false;
+        }
+        return false;
+      });
+    });
+
+    it('does not list candidate or fast channels', () => {
+      buildComponent({ clusterVersion: defaultVersion });
+
+      expect(screen.queryByText('candidate-4.19')).not.toBeInTheDocument();
+      expect(screen.queryByText('candidate-4.20')).not.toBeInTheDocument();
+      expect(screen.queryByText('fast-4.19')).not.toBeInTheDocument();
+      expect(screen.queryByText('fast-4.20')).not.toBeInTheDocument();
+      expect(screen.getByText('eus-4.20')).toBeInTheDocument();
+      expect(screen.getByText('stable-4.19')).toBeInTheDocument();
     });
   });
 });
