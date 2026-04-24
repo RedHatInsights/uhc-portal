@@ -19,6 +19,8 @@ type AutoscaleMaxReplicasFieldProps = {
   cluster: ClusterFromSubscription;
   maxNodes: number;
   mpAvailZones?: number;
+  isEdit?: boolean;
+  isHypershift?: boolean;
 };
 
 const fieldId = 'autoscaleMax';
@@ -28,6 +30,8 @@ const AutoscaleMaxReplicasField = ({
   cluster,
   maxNodes: initMaxNodes,
   mpAvailZones,
+  isEdit,
+  isHypershift,
 }: AutoscaleMaxReplicasFieldProps) => {
   const [field, meta, helpers] = useField<number>(fieldId);
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
@@ -48,7 +52,9 @@ const AutoscaleMaxReplicasField = ({
   };
 
   React.useEffect(() => {
-    helpers.setTouched(true, false);
+    if (!isEdit && isHypershift && maxNodes < 2) {
+      helpers.setValue(maxNodes);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

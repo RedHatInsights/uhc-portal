@@ -25,6 +25,7 @@ type EditNodeCountSectionProps = {
   cluster: ClusterFromSubscription;
   machineTypes: MachineTypesResponse;
   allow249NodesOSDCCSROSA: boolean;
+  isEdit?: boolean;
 };
 
 const EditNodeCountSection = ({
@@ -33,6 +34,7 @@ const EditNodeCountSection = ({
   cluster,
   machineTypes,
   allow249NodesOSDCCSROSA,
+  isEdit,
 }: EditNodeCountSectionProps) => {
   const { values } = useFormikContext<EditMachinePoolValues>();
 
@@ -94,6 +96,8 @@ const EditNodeCountSection = ({
                   cluster={cluster}
                   mpAvailZones={machinePool?.availability_zones?.length}
                   maxNodes={maxNodes}
+                  isEdit={isEdit}
+                  isHypershift={isHcpCluster}
                 />
               </FlexItem>
               <FlexItem>
@@ -102,6 +106,8 @@ const EditNodeCountSection = ({
                   minNodes={minNodesRequired}
                   cluster={cluster}
                   maxNodes={maxNodes}
+                  isEdit={isEdit}
+                  isHypershift={isHcpCluster}
                 />
               </FlexItem>
             </Flex>
@@ -111,6 +117,8 @@ const EditNodeCountSection = ({
               minNodesRequired={minNodesRequired}
               cluster={cluster}
               maxNodes={maxNodes}
+              isEdit={isEdit}
+              isHypershift={isHcpCluster}
             />
           )}
           {!isHcpCluster && (

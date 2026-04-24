@@ -12,6 +12,8 @@ type AutoscaleMinReplicasFieldProps = {
   minNodes: number;
   mpAvailZones?: number;
   maxNodes: number;
+  isEdit?: boolean;
+  isHypershift?: boolean;
 };
 
 const fieldId = 'autoscaleMin';
@@ -21,6 +23,8 @@ const AutoscaleMinReplicasField = ({
   minNodes: initMinNodes,
   mpAvailZones,
   maxNodes: initMaxNodes,
+  isEdit,
+  isHypershift,
 }: AutoscaleMinReplicasFieldProps) => {
   const [field, meta, helpers] = useField<number>(fieldId);
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
@@ -37,7 +41,9 @@ const AutoscaleMinReplicasField = ({
   };
 
   React.useEffect(() => {
-    helpers.setTouched(true, false);
+    if (!isEdit && isHypershift && maxNodes < 2) {
+      helpers.setValue(maxNodes);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

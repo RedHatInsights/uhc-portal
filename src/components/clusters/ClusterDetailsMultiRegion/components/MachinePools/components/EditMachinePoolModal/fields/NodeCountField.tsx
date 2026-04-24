@@ -21,6 +21,8 @@ type NodeCountFieldProps = {
   minNodesRequired: number;
   maxNodes: number;
   cluster: ClusterFromSubscription;
+  isEdit?: boolean;
+  isHypershift?: boolean;
 };
 
 const NodeCountField = ({
@@ -28,6 +30,8 @@ const NodeCountField = ({
   maxNodes,
   cluster,
   mpAvailZones,
+  isEdit,
+  isHypershift,
 }: NodeCountFieldProps) => {
   const [field, meta, helpers] = useField<number>(fieldId);
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
@@ -44,11 +48,6 @@ const NodeCountField = ({
     helpers.setValue(newValue);
     helpers.setTouched(true, false);
   };
-
-  React.useEffect(() => {
-    helpers.setTouched(true, false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const numberInput = (
     <NumberInput
@@ -74,6 +73,13 @@ const NodeCountField = ({
       }}
     />
   );
+
+  React.useEffect(() => {
+    if (!isEdit && isHypershift && maxNodes < 2) {
+      helpers.setValue(maxNodes);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <FormGroup
