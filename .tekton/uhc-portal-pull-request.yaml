@@ -18,6 +18,7 @@ metadata:
     pipelines.appstudio.openshift.io/type: build
   name: uhc-portal-on-pull-request
   namespace: ocm-ui-tenant
+# todo - port any necessary changes to 'push' PL, and to the equivalent SC PLs
 spec:
   params:
   - name: git-url
