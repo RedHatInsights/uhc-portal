@@ -17,7 +17,12 @@ const getMinNodesAllowed = ({
   autoScaleMinNodesValue = null,
   defaultMinAllowed = 0,
   isHypershiftWizard = false,
+  isAutoscaleEnabled,
 }) => {
+  if (isHypershiftWizard && isAutoscaleEnabled) {
+    return 0;
+  }
+
   let currMinNodes = parseInt(autoScaleMinNodesValue, 10) || 0;
   if (isMultiAz && !isHypershiftWizard) {
     currMinNodes *= 3;

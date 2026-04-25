@@ -64,7 +64,10 @@ const getMinNodesRequiredNonHypershift = (
  * @param {number | undefined=} numMachinePools
  * @returns number
  */
-const getMinNodesRequiredHypershift = (numMachinePools?: number) => {
+const getMinNodesRequiredHypershift = (numMachinePools?: number, isAutoscaleEnabled?: boolean) => {
+  if (isAutoscaleEnabled) {
+    return 0;
+  }
   if (numMachinePools === undefined) {
     // day 2 operation (Add/Edit)
     return 1;
@@ -88,14 +91,30 @@ const getMinNodesRequired = (
   isHypershiftCluster: boolean,
   hypershiftProps?: { numMachinePools?: number },
   nonHypershiftProps?: { isDefaultMachinePool: boolean; isByoc: boolean; isMultiAz: boolean },
+  isAutoscaleEnabled?: boolean,
 ) =>
   isHypershiftCluster
-    ? getMinNodesRequiredHypershift(hypershiftProps?.numMachinePools)
+    ? getMinNodesRequiredHypershift(hypershiftProps?.numMachinePools, isAutoscaleEnabled)
     : getMinNodesRequiredNonHypershift(
         nonHypershiftProps?.isDefaultMachinePool,
         nonHypershiftProps?.isByoc,
         nonHypershiftProps?.isMultiAz,
       );
+
+const getMinNodesRequiredMaxReplicas = (
+  isHypershiftCluster: boolean,
+  minNodes: number | undefined,
+  numMachinePools: number,
+  isAutoscaleEnabled: boolean,
+) => {
+  if (isHypershiftCluster && isAutoscaleEnabled) {
+    if (numMachinePools > 1) {
+      return 1;
+    }
+    return 2;
+  }
+  return minNodes;
+};
 
 const isEnforcedDefaultMachinePool = (
   currentMachinePoolId: string | undefined,
@@ -365,6 +384,7 @@ export {
   countReplicasWithoutTaints,
   getClusterMinNodes,
   getMinNodesRequired,
+  getMinNodesRequiredMaxReplicas,
   getNodeIncrement,
   getNodeIncrementHypershift,
   getSubnetIds,
