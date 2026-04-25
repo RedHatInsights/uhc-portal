@@ -22,7 +22,7 @@ spec:
   - name: build-args
     value:
     - YARN_BUILD_SCRIPT=build:prod:monitored
-    # used in build-container task
+      # node version/tag are used in build-container task
     - NODE_BUILD_VERSION=24
     - NODE_IMAGE_TAG=1-1776920161
   - name: git-url
