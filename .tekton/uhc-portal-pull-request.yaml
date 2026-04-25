@@ -44,28 +44,32 @@ spec:
   # todo - remove this once konflux-pipelines #232 is merged and it becomes the default value
   - name: e2e-playwright-image
     value: "mcr.microsoft.com/playwright:v1.59.0-noble"
+  - name: workspace-setup-script
+    value: |
+      #!/bin/bash
+      set -e
+      
+      # todo - debugging - remove before merge
+      echo '> workspace-setup-script > node version:'
+      node --version
+
+      npm install -g yarn
+      yarn install
   - name: unit-tests-script
     value: |
       #!/bin/bash
-      set -ex
+      set -e
       
       # todo - debugging - remove before merge
       echo '> unit-tests-script > node version:'
       node --version
 
-      # todo - there might be a bug in the shared PL here..
-      #        if `exit 0` is done before `yarn install`, the e2e task fails with 'playwright: not found'!!
-      #        this might hint at a hidden dep' between tasks, where unit-test is needed for e2e-test,
-      #        and the former must install npm packages for the latter!!
-      #        or maybe it's just because each task should install its own packages, and we don't do that here..
-      #        
-      #        oh yes, the problem is that `npm install` should be moved to `workspace-setup-script` param!!!!!! 
-
-      npm install -g yarn
-      yarn install
+      # todo - remove as redundant (moved to workspace setup)
+      # npm install -g yarn
+      # yarn install
              
       # todo - debugging - remove before merge
-      exit 0
+      # exit 0
 
       # cap the linter's heap size, as it tends to hog the RAM,
       # causing the OS to kill the process due to out-of-memory errors
