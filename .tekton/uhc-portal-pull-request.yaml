@@ -22,12 +22,17 @@ metadata:
 spec:
   params:
 
+  - name: node-version
+    value: 24
+  - name: node-image-tag
+    value: 1-1776920161
+
   - name: build-args
     value:
       # todo - test this once the build-tools dep-update for syncing insights-frontend-builder-common #323 is in
-      # used in build-container task
-      - NODE_BUILD_VERSION=24
-      - NODE_IMAGE_TAG=1-1776920161
+      # node version/tag are used in build-container task
+      - NODE_BUILD_VERSION=$(params.node-version)
+      - NODE_IMAGE_TAG=$(params.node-image-tag)
 
   - name: git-url
     value: '{{source_url}}'
@@ -40,7 +45,7 @@ spec:
   - name: dockerfile
     value: build-tools/Dockerfile
   - name: unit-test-image
-    value: "registry.access.redhat.com/ubi9/nodejs-24:1-1776920161"
+    value: "registry.access.redhat.com/ubi9/nodejs-$(params.node-version):$(params.node-image-tag)"
   # todo - remove this once konflux-pipelines #232 is merged and it becomes the default value
   - name: e2e-playwright-image
     value: "mcr.microsoft.com/playwright:v1.59.0-noble"
