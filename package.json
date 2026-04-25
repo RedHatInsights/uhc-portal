@@ -107,7 +107,7 @@
     "@babel/preset-env": "^7.23.9",
     "@babel/preset-react": "^7.23.3",
     "@chromatic-com/storybook": "3.2.2",
-    "@cypress/code-coverage": "^3.12.39",
+    "@cypress/code-coverage": "^4.0.0",
     "@cypress/grep": "^4.0.1",
     "@playwright/test": "^1.55.0",
     "@redhat-cloud-services/frontend-components-config": "^6.7.1",
