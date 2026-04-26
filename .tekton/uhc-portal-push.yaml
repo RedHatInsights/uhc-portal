@@ -22,7 +22,8 @@ spec:
   - name: build-args
     value:
     - YARN_BUILD_SCRIPT=build:prod:monitored
-      # node version/tag are used in build-container task
+      # override node version/tag in the build-tools dockerfile to get node v24 in the build-container task,
+      # until upstream supports it be default (tracked with RHCLOUD-45084)
     - NODE_BUILD_VERSION=24
     - NODE_IMAGE_TAG=1-1776920161
   - name: git-url
@@ -33,12 +34,13 @@ spec:
     value: quay.io/redhat-user-workloads/ocm-ui-tenant/ocm-ui/uhc-portal:{{revision}}
   - name: dockerfile
     value: build-tools/Dockerfile
+    # override image to get node v24, until the remote-pipeline supports it be default
   - name: unit-test-image
     value: "registry.access.redhat.com/ubi9/nodejs-24:1-1776920161"
   - name: unit-tests-script
     value: |
       #!/bin/bash
-      set -ex
+      set -e
       npm install -g yarn
       yarn install --immutable
       # cap the linter's heap size, as it tends to hog the RAM,

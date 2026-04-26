@@ -18,14 +18,12 @@ metadata:
     pipelines.appstudio.openshift.io/type: build
   name: uhc-portal-on-pull-request
   namespace: ocm-ui-tenant
-# todo - port any necessary changes to 'push' PL, and to the equivalent SC PLs
 spec:
   params:
-
   - name: build-args
     value:
-      # node version/tag are used in build-container task; this overrides the dockerfile defaults
-      # to get node v24, until upstream supports it be default (tracked with RHCLOUD-45084)
+      # override node version/tag in the build-tools dockerfile to get node v24 in the build-container task,
+      # until upstream supports it be default (tracked with RHCLOUD-45084)
       - NODE_BUILD_VERSION=24
       - NODE_IMAGE_TAG=1-1776920161
   - name: git-url
