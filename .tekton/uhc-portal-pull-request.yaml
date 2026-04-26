@@ -54,7 +54,7 @@ spec:
       node --version
 
       npm install -g yarn
-      yarn install
+      yarn install --immutable
   - name: unit-tests-script
     value: |
       #!/bin/bash
