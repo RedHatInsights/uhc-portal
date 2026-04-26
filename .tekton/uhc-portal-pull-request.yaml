@@ -44,33 +44,12 @@ spec:
   # todo - remove this once konflux-pipelines #232 is merged and it becomes the default value
   - name: e2e-playwright-image
     value: "mcr.microsoft.com/playwright:v1.59.0-noble"
-  - name: workspace-setup-script
-    value: |
-      #!/bin/bash
-      set -e
-      
-      # todo - debugging - remove before merge
-      echo '> workspace-setup-script > node version:'
-      node --version
-
-      npm install -g yarn
-      yarn install --immutable
   - name: unit-tests-script
     value: |
       #!/bin/bash
       set -e
-      
-      # todo - debugging - remove before merge
-      echo '> unit-tests-script > node version:'
-      node --version
-
-      # todo - remove as redundant (moved to workspace setup)
-      # npm install -g yarn
-      # yarn install
-             
-      # todo - debugging - remove before merge
-      # exit 0
-
+      npm install -g yarn
+      yarn install
       # cap the linter's heap size, as it tends to hog the RAM,
       # causing the OS to kill the process due to out-of-memory errors
       NODE_OPTIONS='--max-old-space-size=4096' yarn lint
@@ -86,10 +65,6 @@ spec:
     value: |
       #!/bin/bash
       set -e  # Don't use -x to avoid printing secrets in logs
-      
-      # todo - debugging - remove before merge
-      echo '> e2e-tests-script > node version:'
-      node --version
 
       # CI mode: enables retries (2) and parallel workers (4) in playwright.config.ts
       export CI=true
@@ -243,12 +218,6 @@ spec:
               memory: "6Gi"
             limits:
               memory: "6Gi"
-        - name: workspace-setup
-          computeResources:
-            requests:
-              memory: "8Gi"
-            limits:
-              memory: "8Gi"
     - pipelineTaskName: run-e2e-tests
       stepSpecs:
         - name: e2e-tests
