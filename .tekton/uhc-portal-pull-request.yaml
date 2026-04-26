@@ -243,6 +243,12 @@ spec:
               memory: "6Gi"
             limits:
               memory: "6Gi"
+        - name: workspace-setup
+          computeResources:
+            requests:
+              memory: "8Gi"
+            limits:
+              memory: "8Gi"
     - pipelineTaskName: run-e2e-tests
       stepSpecs:
         - name: e2e-tests
