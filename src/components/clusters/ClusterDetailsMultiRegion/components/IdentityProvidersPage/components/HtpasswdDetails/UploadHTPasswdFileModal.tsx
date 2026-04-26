@@ -73,6 +73,9 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
   };
 
   const onDataChange = (_event: DropEvent, content: string) => {
+    if (isError) {
+      reset();
+    }
     processContent(content);
   };
 

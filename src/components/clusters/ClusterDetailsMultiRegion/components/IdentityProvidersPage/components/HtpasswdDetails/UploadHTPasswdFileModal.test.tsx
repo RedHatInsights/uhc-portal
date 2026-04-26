@@ -185,4 +185,20 @@ describe('<UploadHTPasswdFileModal />', () => {
     expect(screen.getByText('Import failed')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toBeInTheDocument();
   });
+
+  it('clears backend error when a new file is uploaded', async () => {
+    mockedImportUsers.mockReturnValue({
+      ...defaultReturn,
+      isError: true,
+      error: { errorMessage: 'Import failed' },
+    });
+
+    withState(initialState, true).render(<UploadHTPasswdFileModal onSuccess={onSuccess} />);
+
+    expect(screen.getByText('Import failed')).toBeInTheDocument();
+
+    await uploadFile(validFileContent);
+
+    expect(reset).toHaveBeenCalled();
+  });
 });
