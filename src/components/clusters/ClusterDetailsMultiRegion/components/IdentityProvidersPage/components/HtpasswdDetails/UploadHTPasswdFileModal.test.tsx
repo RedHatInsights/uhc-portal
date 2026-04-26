@@ -158,17 +158,24 @@ describe('<UploadHTPasswdFileModal />', () => {
     expect(screen.getByRole('progressbar', { name: 'Loading...' })).toBeInTheDocument();
   });
 
-  it('closes modal and shows notification on success', () => {
-    mockedImportUsers.mockReturnValue({ ...defaultReturn, isSuccess: true });
+  it('closes modal and shows notification on success', async () => {
+    mockedImportUsers.mockReturnValue(defaultReturn);
 
-    withState(initialState, true).render(<UploadHTPasswdFileModal onSuccess={onSuccess} />);
+    const { rerender } = withState(initialState, true).render(
+      <UploadHTPasswdFileModal onSuccess={onSuccess} />,
+    );
+
+    await uploadFile(validFileContent);
+
+    mockedImportUsers.mockReturnValue({ ...defaultReturn, isSuccess: true });
+    rerender(<UploadHTPasswdFileModal onSuccess={onSuccess} />);
 
     expect(reset).toHaveBeenCalled();
     expect(mockedDispatch.mock.calls[0][0].type).toEqual('CLOSE_MODAL');
     expect(onSuccess).toHaveBeenCalled();
     expect(mockedAddNotification).toHaveBeenCalledWith({
       dismissable: true,
-      title: 'Successfully imported 0 user',
+      title: 'Successfully imported 2 users',
       variant: 'success',
     });
   });

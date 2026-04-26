@@ -1,7 +1,5 @@
 import React from 'react';
 
-import docLinks from '~/common/docLinks.mjs';
-
 import {
   Content,
   ContentVariants,
@@ -14,6 +12,7 @@ import {
 import { CheckCircleIcon } from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 
+import docLinks from '~/common/docLinks.mjs';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { CompoundFieldArray } from '~/components/common/FormikFormComponents/FormikFieldArray/CompoundFieldArray';
 

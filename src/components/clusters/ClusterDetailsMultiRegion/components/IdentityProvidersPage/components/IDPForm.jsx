@@ -156,7 +156,7 @@ const IDPForm = ({
           <>
             Define an <code>htpasswd</code> identity provider for your managed cluster to create one
             or multiple static users that can log in to your cluster. If these users need elevated
-            permissions, add it to an{' '}
+            permissions, add them to{' '}
             <ExternalLink
               href={
                 isROSACluster

@@ -1,8 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import docLinks from '~/common/docLinks.mjs';
-
 import {
   DropEvent,
   FileUpload,
@@ -14,6 +12,7 @@ import {
 } from '@patternfly/react-core';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
+import docLinks from '~/common/docLinks.mjs';
 import ErrorBox from '~/components/common/ErrorBox';
 import Modal from '~/components/common/Modal/Modal';
 import { closeModal } from '~/components/common/Modal/ModalActions';
