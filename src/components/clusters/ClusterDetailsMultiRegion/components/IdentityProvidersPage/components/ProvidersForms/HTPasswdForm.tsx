@@ -152,13 +152,16 @@ const HTPasswdForm = ({
   isEdit?: boolean;
   user?: any;
 }) => {
-  const { getFieldMeta, setFieldValue, setTouched, values } = useFormState();
+  const { getFieldMeta, setFieldValue, setTouched, touched, values } = useFormState();
   const creationMode: CreationMode = values[FieldId.CREATION_MODE] || CREATION_MODE_MANUAL;
 
   const handleModeChange = (mode: CreationMode) => {
     setFieldValue(FieldId.CREATION_MODE, mode);
     setFieldValue(FieldId.USERS, [{ username: '', password: '', 'password-confirm': '' }]);
-    setTouched({});
+    setTouched({
+      ...touched,
+      [FieldId.USERS]: [{ username: false, password: false, 'password-confirm': false }],
+    });
   };
 
   const getAutocompleteText = (value: string) => (
@@ -221,10 +224,10 @@ const HTPasswdForm = ({
     <>
       {showModeSelection && (
         <>
-          <Title headingLevel="h4" size="md">
+          <Title headingLevel="h4" size="md" id="htpasswd-creation-mode-label">
             Create users
           </Title>
-          <Flex>
+          <Flex role="radiogroup" aria-labelledby="htpasswd-creation-mode-label">
             <Radio
               isChecked={creationMode === CREATION_MODE_MANUAL}
               name="htpasswd-creation-mode"
