@@ -23,7 +23,7 @@ spec:
   - name: build-args
     value:
       # override node version/tag in the build-tools dockerfile to get node v24 in the build-container task,
-      # until upstream supports it be default (tracked with RHCLOUD-45084)
+      # until upstream supports it by default (tracked with RHCLOUD-45084)
       - NODE_BUILD_VERSION=24
       - NODE_IMAGE_TAG=1-1776920161
   - name: git-url
@@ -36,10 +36,10 @@ spec:
     value: 5d
   - name: dockerfile
     value: build-tools/Dockerfile
-    # override image to get node v24, until the remote-pipeline supports it be default
+    # override image to get node v24, until the remote-pipeline supports it by default
   - name: unit-test-image
     value: "registry.access.redhat.com/ubi9/nodejs-24:1-1776920161"
-    # override image to get node v24, until the remote-pipeline supports it be default (proposed with konflux-pipelines #232)
+    # override image to get node v24, until the remote-pipeline supports it by default (proposed with konflux-pipelines #232)
   - name: e2e-playwright-image
     value: "mcr.microsoft.com/playwright:v1.59.0-noble"
   - name: unit-tests-script
