@@ -14,6 +14,8 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/ex
 
 import docLinks from '~/common/docLinks.mjs';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { HTPASSWD_IMPORT } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { CompoundFieldArray } from '~/components/common/FormikFormComponents/FormikFieldArray/CompoundFieldArray';
 
 import {
@@ -153,7 +155,10 @@ const HTPasswdForm = ({
   user?: any;
 }) => {
   const { getFieldMeta, setFieldValue, setTouched, touched, values } = useFormState();
-  const creationMode: CreationMode = values[FieldId.CREATION_MODE] || CREATION_MODE_MANUAL;
+  const isImportEnabled = useFeatureGate(HTPASSWD_IMPORT);
+  const creationMode: CreationMode = isImportEnabled
+    ? values[FieldId.CREATION_MODE] || CREATION_MODE_MANUAL
+    : CREATION_MODE_MANUAL;
 
   const handleModeChange = (mode: CreationMode) => {
     setFieldValue(FieldId.CREATION_MODE, mode);
@@ -218,7 +223,7 @@ const HTPasswdForm = ({
     },
   ];
 
-  const showModeSelection = !isEditUser && !onlySingleItem;
+  const showModeSelection = isImportEnabled && !isEditUser && !onlySingleItem;
 
   return (
     <>
