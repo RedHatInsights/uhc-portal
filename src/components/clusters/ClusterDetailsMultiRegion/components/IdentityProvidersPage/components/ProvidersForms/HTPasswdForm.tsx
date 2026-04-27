@@ -14,9 +14,9 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/ex
 
 import docLinks from '~/common/docLinks.mjs';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { CompoundFieldArray } from '~/components/common/FormikFormComponents/FormikFieldArray/CompoundFieldArray';
 import { HTPASSWD_IMPORT } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import { CompoundFieldArray } from '~/components/common/FormikFormComponents/FormikFieldArray/CompoundFieldArray';
 
 import {
   validateHTPasswdPassword,

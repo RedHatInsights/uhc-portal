@@ -17,12 +17,12 @@ import {
 import { ActionsColumn, Table, Tbody, Td, Th, Thead, ThProps, Tr } from '@patternfly/react-table';
 
 import ErrorBox from '~/components/common/ErrorBox';
-import { HTPASSWD_IMPORT } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import ConnectedModal from '~/components/common/Modal/ConnectedModal';
 import { modalActions, openModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { useFetchHtpasswdUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchHtpasswdUsers';
+import { HTPASSWD_IMPORT } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { HtPasswdUser } from '~/types/clusters_mgmt.v1';
 
 import AddUserModal from './AddUserModal';
