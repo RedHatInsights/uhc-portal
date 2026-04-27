@@ -37,6 +37,7 @@ import { authInterceptor } from './services/apiRequest';
 import { Chrome } from './types/types';
 import config, { APP_API_ENV } from './config';
 
+import '@patternfly/patternfly/patternfly-charts.css';
 import './styles/main.scss';
 
 import './i18n';

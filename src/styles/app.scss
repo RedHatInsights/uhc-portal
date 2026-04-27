@@ -75,11 +75,6 @@ limitations under the License.
   text-align: center;
 }
 
-// fix donut chart tooltip css
-.metrics-chart .VictoryContainer > div > svg > g > text > tspan {
-  stroke: none !important;
-  fill: #ffffff !important;
-}
 
 // Enable word wrapping in the cluster list
 // TODO -- fix, .table-grid-pf-row was the PF3 one
