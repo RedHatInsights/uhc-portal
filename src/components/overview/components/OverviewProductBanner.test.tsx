@@ -56,7 +56,7 @@ describe('<OverviewProductBanner />', () => {
     const iconElement = screen.queryByRole('img');
     expect(iconElement).not.toBeInTheDocument();
 
-    const learnMoreLinkElement = screen.queryByText('Learn more');
+    const learnMoreLinkElement = screen.queryByRole('link', { name: /learn more/i });
     expect(learnMoreLinkElement).not.toBeInTheDocument();
   });
 
