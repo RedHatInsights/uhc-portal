@@ -3,8 +3,9 @@ import React from 'react';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { render, screen, waitFor } from '~/testUtils';
 
+import { dropFile, uploadFile } from '../testHelpers';
+
 import HTPasswdFileUpload from './HTPasswdFileUpload';
-import { uploadFile } from '../testHelpers';
 
 jest.mock('~/components/clusters/wizards/hooks/useFormState');
 
@@ -110,5 +111,17 @@ describe('<HTPasswdFileUpload />', () => {
     render(<HTPasswdFileUpload isDisabled />);
 
     expect(screen.getByRole('button', { name: 'Browse' })).toBeDisabled();
+  });
+
+  it('shows error when an unsupported file type is dropped', async () => {
+    render(<HTPasswdFileUpload />);
+
+    dropFile('data', 'image.png', 'image/png');
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('File type is not supported. Upload an htpasswd or plain text file.'),
+      ).toBeInTheDocument();
+    });
   });
 });

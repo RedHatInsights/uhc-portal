@@ -4,8 +4,9 @@ import * as reactRedux from 'react-redux';
 import * as useImportHtpasswdUsersModule from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useImportHtpasswdUsers';
 import { screen, waitFor, withState } from '~/testUtils';
 
+import { dropFile, uploadFile } from '../testHelpers';
+
 import UploadHTPasswdFileModal from './UploadHTPasswdFileModal';
-import { uploadFile } from '../testHelpers';
 
 // Re-export as a plain object so jest.spyOn can redefine useDispatch
 jest.mock('react-redux', () => ({
@@ -243,6 +244,22 @@ describe('<UploadHTPasswdFileModal />', () => {
 
     expect(screen.getByText('Import failed')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toBeInTheDocument();
+  });
+
+  it('shows error when an unsupported file type is dropped', async () => {
+    mockedImportUsers.mockReturnValue(defaultReturn);
+
+    withState(initialState, true).render(<UploadHTPasswdFileModal onSuccess={onSuccess} />);
+
+    dropFile('data', 'image.png', 'image/png');
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('File type is not supported. Upload an htpasswd or plain text file.'),
+      ).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled();
   });
 
   it('clears backend error when a new file is uploaded', async () => {

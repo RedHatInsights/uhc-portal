@@ -65,6 +65,9 @@ const HTPasswdFileUpload = ({ isDisabled }: { isDisabled?: boolean }) => {
         filenamePlaceholder="Upload an htpasswd file or drag and drop"
         dropzoneProps={{
           accept: { 'text/plain': ['.htpasswd'] },
+          onDropRejected: () => {
+            setErrors(['File type is not supported. Upload an htpasswd or plain text file.']);
+          },
         }}
       />
 
