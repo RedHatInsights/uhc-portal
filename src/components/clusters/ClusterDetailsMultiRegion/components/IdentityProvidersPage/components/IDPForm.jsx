@@ -148,6 +148,13 @@ const IDPForm = ({
 
   const span = selectedIDP === IDPformValues.HTPASSWD ? 11 : 8;
 
+  let adminGroupDocLink = docLinks.OSD_DEDICATED_ADMIN_ROLE;
+  if (isHypershift) {
+    adminGroupDocLink = docLinks.ROSA_HCP_AUTHENTICATION_AND_AUTHORIZATION;
+  } else if (isROSACluster) {
+    adminGroupDocLink = docLinks.ROSA_CLASSIC_AUTHENTICATION_AND_AUTHORIZATION;
+  }
+
   const topText = (idp) => {
     let text = null;
     switch (idp) {
@@ -156,17 +163,9 @@ const IDPForm = ({
           <>
             Define an <code>htpasswd</code> identity provider for your managed cluster to create one
             or multiple static users that can log in to your cluster. If these users need elevated
-            permissions, add them to{' '}
-            <ExternalLink
-              href={
-                isROSACluster
-                  ? docLinks.ROSA_AUTHENTICATION_AND_AUTHORIZATION
-                  : docLinks.OSD_DEDICATED_ADMIN_ROLE
-              }
-            >
-              administrative group
-            </ExternalLink>{' '}
-            within your organization.
+            permissions, add them to an{' '}
+            <ExternalLink href={adminGroupDocLink}>administrative group</ExternalLink> within your
+            organization.
           </>
         );
         break;

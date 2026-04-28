@@ -37,4 +37,4 @@ export enum FieldId {
 
 export const CREATION_MODE_MANUAL = 'manual';
 export const CREATION_MODE_UPLOAD = 'upload';
-export type CreationMode = 'manual' | 'upload';
+export type CreationMode = typeof CREATION_MODE_MANUAL | typeof CREATION_MODE_UPLOAD;

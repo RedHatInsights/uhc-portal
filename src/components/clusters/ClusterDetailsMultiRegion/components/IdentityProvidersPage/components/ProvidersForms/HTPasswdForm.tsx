@@ -269,7 +269,7 @@ const HTPasswdForm = ({
           )}
         </>
       )}
-      {creationMode === CREATION_MODE_MANUAL || isEditUser ? (
+      {creationMode === CREATION_MODE_MANUAL || isEditUser || onlySingleItem ? (
         <CompoundFieldArray
           fieldSpan={11}
           compoundFields={compoundFields}

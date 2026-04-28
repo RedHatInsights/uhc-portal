@@ -2,10 +2,12 @@ import React from 'react';
 import * as reactRedux from 'react-redux';
 
 import * as useImportHtpasswdUsersModule from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useImportHtpasswdUsers';
-import { screen, userEvent, waitFor, withState } from '~/testUtils';
+import { screen, waitFor, withState } from '~/testUtils';
 
 import UploadHTPasswdFileModal from './UploadHTPasswdFileModal';
+import { uploadFile } from '../testHelpers';
 
+// Re-export as a plain object so jest.spyOn can redefine useDispatch
 jest.mock('react-redux', () => ({
   __esModule: true,
   ...jest.requireActual('react-redux'),
@@ -14,8 +16,6 @@ jest.mock('react-redux', () => ({
 const mockedAddNotification = jest.fn();
 
 jest.mock('@redhat-cloud-services/frontend-components-notifications', () => ({
-  __esModule: true,
-  ...jest.requireActual('@redhat-cloud-services/frontend-components-notifications'),
   useAddNotification: () => mockedAddNotification,
 }));
 
@@ -32,14 +32,10 @@ const initialState = {
   },
 };
 
-const validFileContent = 'user1:$2y$05$hash1\nuser2:$2y$05$hash2';
-const invalidFileContent = 'invalidline\nuser1:pass1';
-
-const uploadFile = async (content: string, filename = 'users.htpasswd') => {
-  const file = new File([content], filename, { type: 'text/plain' });
-  const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-  await userEvent.upload(fileInput, file);
-};
+const validFileContent = `user1:$2y$05$hash1
+user2:$2y$05$hash2`;
+const invalidFileContent = `invalidline
+user1:pass1`;
 
 describe('<UploadHTPasswdFileModal />', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
@@ -111,6 +107,62 @@ describe('<UploadHTPasswdFileModal />', () => {
       expect(
         screen.getByText('Line 1: Invalid format. Expected "username:password".'),
       ).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled();
+  });
+
+  it('shows error for missing username', async () => {
+    mockedImportUsers.mockReturnValue(defaultReturn);
+
+    withState(initialState, true).render(<UploadHTPasswdFileModal onSuccess={onSuccess} />);
+
+    await uploadFile(':$2y$05$hash1');
+
+    await waitFor(() => {
+      expect(screen.getByText('Line 1: Username cannot be empty.')).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled();
+  });
+
+  it('shows error for missing password', async () => {
+    mockedImportUsers.mockReturnValue(defaultReturn);
+
+    withState(initialState, true).render(<UploadHTPasswdFileModal onSuccess={onSuccess} />);
+
+    await uploadFile('user1:');
+
+    await waitFor(() => {
+      expect(screen.getByText('Line 1: Password cannot be empty.')).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled();
+  });
+
+  it('shows error for a line with only colons', async () => {
+    mockedImportUsers.mockReturnValue(defaultReturn);
+
+    withState(initialState, true).render(<UploadHTPasswdFileModal onSuccess={onSuccess} />);
+
+    await uploadFile(':');
+
+    await waitFor(() => {
+      expect(screen.getByText('Line 1: Username cannot be empty.')).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled();
+  });
+
+  it('shows error for an empty file', async () => {
+    mockedImportUsers.mockReturnValue(defaultReturn);
+
+    withState(initialState, true).render(<UploadHTPasswdFileModal onSuccess={onSuccess} />);
+
+    await uploadFile('');
+
+    await waitFor(() => {
+      expect(screen.getByText('File is empty or contains no valid entries.')).toBeInTheDocument();
     });
 
     expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -39,27 +39,26 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
     region,
   );
 
-  const [filename, setFilename] = React.useState('');
-  const [parseErrors, setParseErrors] = React.useState<string[]>([]);
-  const [parsedUsers, setParsedUsers] = React.useState<ParsedHTPasswdUser[]>([]);
+  const [filename, setFilename] = useState('');
+  const [parseErrors, setParseErrors] = useState<string[]>([]);
+  const [parsedUsers, setParsedUsers] = useState<ParsedHTPasswdUser[]>([]);
 
-  const closeUploadModal = React.useCallback(() => {
+  const closeUploadModal = useCallback(() => {
     reset();
     dispatch(closeModal());
   }, [dispatch, reset]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isSuccess) {
       onSuccess();
       closeUploadModal();
       addNotification({
         variant: 'success',
-        title: `Successfully imported ${parsedUsers.length} user${parsedUsers.length > 1 ? 's' : ''}`,
+        title: `Successfully imported ${parsedUsers.length} user${parsedUsers.length === 1 ? '' : 's'}`,
         dismissable: true,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [closeUploadModal, isSuccess, onSuccess]);
+  }, [addNotification, closeUploadModal, isSuccess, onSuccess, parsedUsers.length]);
 
   const processContent = (content: string) => {
     const result = parseHTPasswdFile(content);
@@ -140,6 +139,9 @@ const UploadHTPasswdFileModal = ({ onSuccess }: { onSuccess: () => void }) => {
             browseButtonText="Browse"
             validated={parseErrors.length > 0 ? 'error' : 'default'}
             filenamePlaceholder="Upload an htpasswd file or drag and drop"
+            dropzoneProps={{
+              accept: { 'text/plain': ['.htpasswd'] },
+            }}
           />
 
           {parseErrors.length > 0 && (

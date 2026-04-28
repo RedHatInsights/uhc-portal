@@ -1,20 +1,15 @@
 import React from 'react';
 
 import { useFormState } from '~/components/clusters/wizards/hooks';
-import { render, screen, userEvent, waitFor } from '~/testUtils';
+import { render, screen, waitFor } from '~/testUtils';
 
 import HTPasswdFileUpload from './HTPasswdFileUpload';
+import { uploadFile } from '../testHelpers';
 
 jest.mock('~/components/clusters/wizards/hooks/useFormState');
 
 const validFileContent = 'user1:$2y$05$hash1\nuser2:$2y$05$hash2';
 const invalidFileContent = 'invalidline\nuser1:pass1';
-
-const uploadFile = async (content: string, filename = 'users.htpasswd') => {
-  const file = new File([content], filename, { type: 'text/plain' });
-  const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-  await userEvent.upload(fileInput, file);
-};
 
 describe('<HTPasswdFileUpload />', () => {
   const mockedUseFormState = useFormState as jest.Mock;

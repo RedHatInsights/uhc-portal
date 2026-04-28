@@ -63,6 +63,9 @@ const HTPasswdFileUpload = ({ isDisabled }: { isDisabled?: boolean }) => {
         browseButtonText="Browse"
         validated={errors.length > 0 ? 'error' : 'default'}
         filenamePlaceholder="Upload an htpasswd file or drag and drop"
+        dropzoneProps={{
+          accept: { 'text/plain': ['.htpasswd'] },
+        }}
       />
 
       {errors.length > 0 && (
