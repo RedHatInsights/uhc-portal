@@ -37,8 +37,7 @@ describe('<OverviewProductBanner />', () => {
       '/openshift/assisted-installer/clusters/~new',
     );
 
-    // eslint-disable-next-line testing-library/no-node-access
-    const learnMoreLinkElement = screen.getByText('Learn more');
+    const learnMoreLinkElement = screen.getByRole('link', { name: /learn more/i });
 
     expect(learnMoreLinkElement).toBeInTheDocument();
     expect(learnMoreLinkElement).toHaveAttribute('href', learnMoreLink);
