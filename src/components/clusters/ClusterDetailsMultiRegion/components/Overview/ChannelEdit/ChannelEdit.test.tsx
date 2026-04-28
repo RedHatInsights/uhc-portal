@@ -4,11 +4,13 @@ import { render, screen, waitFor } from '~/testUtils';
 import type { AugmentedCluster } from '~/types/types';
 
 import { useEditChannelOnCluster } from '../../../../../../queries/ChannelEditQueries/useEditChannelOnCluster';
+import { useGetSchedules } from '../../../../../../queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules';
 import fixtures from '../../../__tests__/ClusterDetails.fixtures';
 
 import { ChannelEdit } from './ChannelEdit';
 
 jest.mock('../../../../../../queries/ChannelEditQueries/useEditChannelOnCluster');
+jest.mock('../../../../../../queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules');
 
 jest.mock('~/components/common/ErrorBox', () => (props: { message?: string }) => {
   const { message } = props;
@@ -38,6 +40,7 @@ jest.mock('./ChannelSelect', () => ({
 }));
 
 const mockUseEditChannelOnCluster = useEditChannelOnCluster as jest.Mock;
+const mockUseGetSchedules = useGetSchedules as jest.Mock;
 
 describe('<ChannelEdit />', () => {
   let mutateMock: jest.Mock;
@@ -63,6 +66,11 @@ describe('<ChannelEdit />', () => {
   beforeEach(() => {
     mutateMock = jest.fn();
     mockUseEditChannelOnCluster.mockClear();
+    mockUseGetSchedules.mockClear();
+    mockUseGetSchedules.mockReturnValue({
+      data: { items: [] },
+      isLoading: false,
+    });
 
     mockUseEditChannelOnCluster.mockReturnValue({
       mutate: mutateMock,
@@ -101,6 +109,57 @@ describe('<ChannelEdit />', () => {
     const openModalButton = screen.getByTestId('channelModal');
     expect(openModalButton).toBeInTheDocument();
     expect(openModalButton).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('should disable channel edit and show tooltip when a recurring upgrade policy is enabled', async () => {
+    mockUseGetSchedules.mockReturnValue({
+      data: {
+        items: [{ id: 'policy-1', schedule_type: 'automatic' }],
+      },
+      isLoading: false,
+    });
+    const { user } = render(
+      <ChannelEdit
+        clusterID="cluster-123"
+        channel="stable-4.16"
+        cluster={mockedROSAHyperShiftCluster}
+      />,
+    );
+
+    const openModalButton = screen.getByTestId('channelModal');
+    expect(openModalButton).toHaveAttribute('aria-disabled', 'true');
+
+    await user.hover(openModalButton);
+
+    expect(
+      await screen.findByText(
+        'Channel editing is not available while an upgrade policy is scheduled.',
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(openModalButton);
+    expect(screen.queryByRole('dialog', { name: /edit channel/i })).not.toBeInTheDocument();
+  });
+
+  it('should disable channel edit when a manual upgrade is scheduled', async () => {
+    mockUseGetSchedules.mockReturnValue({
+      data: {
+        items: [{ id: 'policy-2', schedule_type: 'manual' }],
+      },
+      isLoading: false,
+    });
+    const { user } = render(
+      <ChannelEdit
+        clusterID="cluster-123"
+        channel="stable-4.16"
+        cluster={mockedROSAHyperShiftCluster}
+      />,
+    );
+
+    const openModalButton = screen.getByTestId('channelModal');
+    expect(openModalButton).toHaveAttribute('aria-disabled', 'true');
+    await user.click(openModalButton);
+    expect(screen.queryByRole('dialog', { name: /edit channel/i })).not.toBeInTheDocument();
   });
 
   it('should render N/A when channel is not provided', () => {

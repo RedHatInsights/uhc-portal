@@ -16,14 +16,16 @@ import {
 } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
-import clusterStates from '~/components/clusters/common/clusterStates';
+import clusterStates, { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import EditButton from '~/components/common/EditButton';
 import ErrorBox from '~/components/common/ErrorBox';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import { useEditChannelOnCluster } from '~/queries/ChannelEditQueries/useEditChannelOnCluster';
+import { useGetSchedules } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
+import { UpgradePolicy } from '~/types/clusters_mgmt.v1';
 import type { AugmentedCluster } from '~/types/types';
 
 import { ChannelSelect } from './ChannelSelect';
@@ -135,6 +137,19 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isClusterReady = cluster.state === clusterStates.ready;
+  const isHypershift = isHypershiftCluster(cluster);
+  const region = cluster?.subscription?.rh_region_id;
+  const { data: schedulesData, isLoading: isSchedulesLoading } = useGetSchedules(
+    clusterID,
+    isHypershift,
+    region,
+  );
+  const hasScheduledUpgradePolicy = (schedulesData?.items ?? []).some((policy: UpgradePolicy) =>
+    ['automatic', 'manual'].includes(policy.schedule_type ?? ''),
+  );
+  const scheduledUpgradePolicyReason =
+    hasScheduledUpgradePolicy &&
+    'Channel editing is not available while an upgrade policy is scheduled.';
   const availableDropdownChannels = channelsToDropdownOptions(cluster.version?.available_channels);
   const currentChannel = channel ?? '';
   const hasAlternativeChannelOption = availableDropdownChannels.some(
@@ -171,8 +186,13 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
             <EditButton
               data-testid="channelModal"
               ariaLabel="Edit channel"
-              onClick={() => setIsModalOpen(true)}
-              isAriaDisabled={!isClusterReady}
+              onClick={() => {
+                if (!hasScheduledUpgradePolicy && !isSchedulesLoading && isClusterReady) {
+                  setIsModalOpen(true);
+                }
+              }}
+              isAriaDisabled={!isClusterReady || isSchedulesLoading}
+              disableReason={scheduledUpgradePolicyReason}
             />
           ) : null}
         </DescriptionListDescription>
