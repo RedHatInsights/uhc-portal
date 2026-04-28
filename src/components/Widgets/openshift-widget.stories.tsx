@@ -22,7 +22,6 @@ export default meta;
 type Story = StoryObj<typeof OpenShiftWidget>;
 
 export const Default: Story = {
-  name: 'Default',
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
