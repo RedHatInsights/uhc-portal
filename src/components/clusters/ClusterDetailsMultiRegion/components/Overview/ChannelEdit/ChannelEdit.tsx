@@ -11,6 +11,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalVariant,
+  Spinner,
   StackItem,
   Title,
 } from '@patternfly/react-core';
@@ -49,6 +50,7 @@ type ChannelEditProps = {
   clusterID: string;
   channel?: string;
   cluster: AugmentedCluster;
+  isClusterDetailsFetching?: boolean;
 };
 
 const ChannelEditModal = ({
@@ -133,7 +135,12 @@ const ChannelEditModal = ({
   ) : null;
 };
 
-export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) => {
+export const ChannelEdit = ({
+  clusterID,
+  channel,
+  cluster,
+  isClusterDetailsFetching = false,
+}: ChannelEditProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isClusterReady = cluster.state === clusterStates.ready;
@@ -181,20 +188,26 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
           />
         </DescriptionListTerm>
         <DescriptionListDescription>
-          {channel ?? 'N/A'}
-          {canUpdateClusterResource && hasAlternativeChannelOption ? (
-            <EditButton
-              data-testid="channelModal"
-              ariaLabel="Edit channel"
-              onClick={() => {
-                if (!hasScheduledUpgradePolicy && !isSchedulesLoading && isClusterReady) {
-                  setIsModalOpen(true);
-                }
-              }}
-              isAriaDisabled={!isClusterReady || isSchedulesLoading}
-              disableReason={scheduledUpgradePolicyReason}
-            />
-          ) : null}
+          {isClusterDetailsFetching ? (
+            <Spinner size="sm" aria-label="Loading channel" />
+          ) : (
+            <>
+              {channel ?? 'N/A'}
+              {canUpdateClusterResource && hasAlternativeChannelOption ? (
+                <EditButton
+                  data-testid="channelModal"
+                  ariaLabel="Edit channel"
+                  onClick={() => {
+                    if (!hasScheduledUpgradePolicy && !isSchedulesLoading && isClusterReady) {
+                      setIsModalOpen(true);
+                    }
+                  }}
+                  isAriaDisabled={!isClusterReady || isSchedulesLoading}
+                  disableReason={scheduledUpgradePolicyReason}
+                />
+              ) : null}
+            </>
+          )}
         </DescriptionListDescription>
       </DescriptionListGroup>
     </>

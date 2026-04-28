@@ -79,6 +79,20 @@ describe('<ChannelEdit />', () => {
     });
   });
 
+  it('should show a loading spinner for the channel while cluster details are refetching', () => {
+    render(
+      <ChannelEdit
+        clusterID="cluster-123"
+        channel="stable-4.16"
+        cluster={mockedROSAHyperShiftCluster}
+        isClusterDetailsFetching
+      />,
+    );
+
+    expect(screen.getByLabelText('Loading channel')).toBeInTheDocument();
+    expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
+  });
+
   it('should render the channel and an enabled edit button when editable and channels exist', () => {
     render(
       <ChannelEdit

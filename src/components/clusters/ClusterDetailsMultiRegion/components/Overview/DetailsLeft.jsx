@@ -49,6 +49,7 @@ function DetailsLeft({
   isArchived,
   isDeprovisioned,
   isDisconnected,
+  clusterDetailsFetching,
 }) {
   const useEusChannel = useFeatureGate(ALLOW_EUS_CHANNEL);
   const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
@@ -182,7 +183,12 @@ function DetailsLeft({
         !isArchived &&
         !isDeprovisioned &&
         !isDisconnected && (
-          <ChannelEdit clusterID={clusterID} channel={cluster?.channel} cluster={cluster} />
+          <ChannelEdit
+            clusterID={clusterID}
+            channel={cluster?.channel}
+            cluster={cluster}
+            isClusterDetailsFetching={clusterDetailsFetching}
+          />
         )}
       <DescriptionListGroup>
         <DescriptionListTerm>
@@ -266,6 +272,7 @@ DetailsLeft.propTypes = {
   isArchived: PropTypes.bool,
   isDisconnected: PropTypes.bool,
   isDeprovisioned: PropTypes.bool,
+  clusterDetailsFetching: PropTypes.bool,
   cloudProviders: PropTypes.object.isRequired,
   showAssistedId: PropTypes.bool.isRequired,
   wifConfigData: PropTypes.shape({
