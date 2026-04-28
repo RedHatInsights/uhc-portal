@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
-import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
+import { render, screen, waitFor } from '~/testUtils';
 import type { AugmentedCluster } from '~/types/types';
 
 import { useEditChannelOnCluster } from '../../../../../../queries/ChannelEditQueries/useEditChannelOnCluster';
@@ -64,7 +63,6 @@ describe('<ChannelEdit />', () => {
   beforeEach(() => {
     mutateMock = jest.fn();
     mockUseEditChannelOnCluster.mockClear();
-    mockUseFeatureGate([[UNSTABLE_CLUSTER_VERSIONS, true]]);
 
     mockUseEditChannelOnCluster.mockReturnValue({
       mutate: mutateMock,
@@ -236,33 +234,6 @@ describe('<ChannelEdit />', () => {
         expect.any(Object),
       );
     });
-  });
-
-  it('should not list unstable channels in the modal when the unstable versions feature is off', async () => {
-    mockUseFeatureGate([[UNSTABLE_CLUSTER_VERSIONS, false]]);
-
-    const clusterWithMixedChannels = {
-      ...mockedROSAHyperShiftCluster,
-      version: {
-        ...mockedROSAHyperShiftCluster.version,
-        available_channels: ['stable-4.16', 'eus-4.16', 'fast-4.16', 'candidate-4.16'],
-      },
-    };
-
-    const { user } = render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={clusterWithMixedChannels}
-      />,
-    );
-
-    await user.click(screen.getByTestId('channelModal'));
-
-    expect(screen.getByRole('option', { name: 'stable-4.16' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'eus-4.16' })).toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'fast-4.16' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'candidate-4.16' })).not.toBeInTheDocument();
   });
 
   it('should display an error in the modal if mutation fails', async () => {

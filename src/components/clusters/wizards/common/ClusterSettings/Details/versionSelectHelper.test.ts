@@ -2,12 +2,9 @@ import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import { Version } from '~/types/clusters_mgmt.v1';
 
 import {
-  filterAvailableChannelsForUnstableFeature,
-  getChannelGroupPrefixFromChannelName,
   getVersionNameWithChannel,
   getVersionsData,
   hasUnstableVersionsCapability,
-  isUnstableAvailableChannelName,
   supportStatuses,
 } from './versionSelectHelper';
 
@@ -236,51 +233,5 @@ describe('getVersionNameWithChannel', () => {
     };
     expect(getVersionNameWithChannel(version1)).toBe('4.16.8 (candidate)');
     expect(getVersionNameWithChannel(version2)).toBe('4.17.8 ');
-  });
-});
-
-describe('getChannelGroupPrefixFromChannelName', () => {
-  it('parses known channel strings', () => {
-    expect(getChannelGroupPrefixFromChannelName('stable-4.17')).toBe('stable');
-    expect(getChannelGroupPrefixFromChannelName('eus-4.16')).toBe('eus');
-    expect(getChannelGroupPrefixFromChannelName('fast-4.18')).toBe('fast');
-    expect(getChannelGroupPrefixFromChannelName('candidate-4.19')).toBe('candidate');
-  });
-});
-
-describe('isUnstableAvailableChannelName', () => {
-  it('treats candidate, fast, and nightly as unstable', () => {
-    expect(isUnstableAvailableChannelName('candidate-4.19')).toBe(true);
-    expect(isUnstableAvailableChannelName('fast-4.17')).toBe(true);
-    expect(isUnstableAvailableChannelName('nightly-4.18')).toBe(true);
-  });
-
-  it('treats stable and eus as not unstable', () => {
-    expect(isUnstableAvailableChannelName('stable-4.17')).toBe(false);
-    expect(isUnstableAvailableChannelName('eus-4.16')).toBe(false);
-  });
-});
-
-describe('filterAvailableChannelsForUnstableFeature', () => {
-  const channels = ['candidate-4.19', 'fast-4.19', 'eus-4.20', 'stable-4.19', 'stable-4.20'];
-
-  it('returns all channels when unstable versions are enabled', () => {
-    expect(filterAvailableChannelsForUnstableFeature(channels, true, 'stable-4.19')).toEqual(
-      channels,
-    );
-  });
-
-  it('removes unstable channel entries when disabled', () => {
-    expect(filterAvailableChannelsForUnstableFeature(channels, false, 'stable-4.19')).toEqual([
-      'eus-4.20',
-      'stable-4.19',
-      'stable-4.20',
-    ]);
-  });
-
-  it('keeps the current channel even if it is an unstable group', () => {
-    expect(
-      filterAvailableChannelsForUnstableFeature(['fast-4.19', 'stable-4.19'], false, 'fast-4.19'),
-    ).toEqual(['fast-4.19', 'stable-4.19']);
   });
 });
