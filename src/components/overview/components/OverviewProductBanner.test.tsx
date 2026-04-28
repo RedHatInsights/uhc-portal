@@ -26,8 +26,19 @@ describe('<OverviewProductBanner />', () => {
     expect(iconElement).toHaveAttribute('src', icon);
     expect(iconElement).toHaveAttribute('alt', altText);
 
+    const createClusterLinkElement = screen.getByRole('link', { name: 'Create Cluster' });
+    const createClusterAILinkElement = screen.getByRole('link', {
+      name: 'Create cluster with Assisted Installer',
+    });
+
+    expect(createClusterLinkElement).toHaveAttribute('href', '/openshift/create');
+    expect(createClusterAILinkElement).toHaveAttribute(
+      'href',
+      '/openshift/assisted-installer/clusters/~new',
+    );
+
     // eslint-disable-next-line testing-library/no-node-access
-    const learnMoreLinkElement = screen.getByText('Learn more').closest('a');
+    const learnMoreLinkElement = screen.getByText('Learn more');
 
     expect(learnMoreLinkElement).toBeInTheDocument();
     expect(learnMoreLinkElement).toHaveAttribute('href', learnMoreLink);
