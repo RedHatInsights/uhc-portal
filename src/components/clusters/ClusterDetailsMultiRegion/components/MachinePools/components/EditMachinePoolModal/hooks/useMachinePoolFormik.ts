@@ -359,11 +359,6 @@ const useMachinePoolFormik = ({
                 if (err) {
                   return new Yup.ValidationError(err, value, this.path);
                 }
-
-                const taintKey = this.parent.key;
-                if (value && !taintKey) {
-                  return new Yup.ValidationError('Taint key has to be defined', value, this.path);
-                }
                 return true;
               }),
               effect: Yup.string().test('taint-effect', '', function test(value) {
