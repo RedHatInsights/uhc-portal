@@ -54,6 +54,9 @@ const AutoscaleMaxReplicasField = ({
     if (!isEdit && isHypershift && maxNodes < 2) {
       helpers.setValue(maxNodes);
     }
+    if (maxNodes === 0) {
+      helpers.setTouched(true, false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
