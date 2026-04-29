@@ -375,7 +375,7 @@ describe('IDPForm', () => {
       );
 
       const link = screen.getByRole('link', { name: /administrative group/ });
-      expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_AUTHENTICATION_AND_AUTHORIZATION);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_AUTH_HTPASSWD_CONFIG);
     });
 
     it('links to ROSA HCP authentication docs for ROSA HCP clusters', () => {
@@ -387,7 +387,7 @@ describe('IDPForm', () => {
       );
 
       const link = screen.getByRole('link', { name: /administrative group/ });
-      expect(link).toHaveAttribute('href', docLinks.ROSA_HCP_AUTHENTICATION_AND_AUTHORIZATION);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_HCP_AUTH_HTPASSWD_CONFIG);
     });
 
     it('does not displays mapping method ', () => {

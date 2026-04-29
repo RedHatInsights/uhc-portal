@@ -150,9 +150,9 @@ const IDPForm = ({
 
   let adminGroupDocLink = docLinks.OSD_DEDICATED_ADMIN_ROLE;
   if (isHypershift) {
-    adminGroupDocLink = docLinks.ROSA_HCP_AUTHENTICATION_AND_AUTHORIZATION;
+    adminGroupDocLink = docLinks.ROSA_HCP_AUTH_HTPASSWD_CONFIG;
   } else if (isROSACluster) {
-    adminGroupDocLink = docLinks.ROSA_CLASSIC_AUTHENTICATION_AND_AUTHORIZATION;
+    adminGroupDocLink = docLinks.ROSA_CLASSIC_AUTH_HTPASSWD_CONFIG;
   }
 
   const topText = (idp) => {

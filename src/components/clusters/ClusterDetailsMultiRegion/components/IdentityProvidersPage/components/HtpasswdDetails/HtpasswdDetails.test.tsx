@@ -654,6 +654,8 @@ describe('<HtpasswdDetails />', () => {
 
   describe('Upload htpasswd file button', () => {
     it('is not shown when feature flag is off', () => {
+      mockUseFeatureGate([[HTPASSWD_IMPORT, false]]);
+
       const users = createUsers(5);
       useFetchHtpasswdUsersMocked.mockReturnValue({
         isLoading: false,

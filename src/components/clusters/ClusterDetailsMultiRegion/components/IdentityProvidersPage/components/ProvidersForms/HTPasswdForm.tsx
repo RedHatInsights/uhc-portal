@@ -157,7 +157,7 @@ const HTPasswdForm = ({
   const { getFieldMeta, setFieldValue, setTouched, touched, values } = useFormState();
   const isImportEnabled = useFeatureGate(HTPASSWD_IMPORT);
   const creationMode: CreationMode = isImportEnabled
-    ? values[FieldId.CREATION_MODE] || CREATION_MODE_MANUAL
+    ? values[FieldId.CREATION_MODE]
     : CREATION_MODE_MANUAL;
 
   const handleModeChange = (mode: CreationMode) => {

@@ -31,7 +31,7 @@ const HTPasswdFileUpload = ({ isDisabled }: { isDisabled?: boolean }) => {
       }));
       setFieldValue(FieldId.USERS, formUsers);
     } else {
-      setFieldValue(FieldId.USERS, [{ username: '', password: '' }]);
+      setFieldValue(FieldId.USERS, []);
     }
   };
 
@@ -46,7 +46,7 @@ const HTPasswdFileUpload = ({ isDisabled }: { isDisabled?: boolean }) => {
   const onClearClick = () => {
     setFilename('');
     setErrors([]);
-    setFieldValue(FieldId.USERS, [{ username: '', password: '' }]);
+    setFieldValue(FieldId.USERS, []);
   };
 
   return (

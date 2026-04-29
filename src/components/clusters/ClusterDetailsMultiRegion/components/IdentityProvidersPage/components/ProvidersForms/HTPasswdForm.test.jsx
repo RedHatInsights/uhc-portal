@@ -61,6 +61,7 @@ describe('HTPasswdForm', () => {
           },
         ],
       },
+      touched: {},
       setFieldValue: jest.fn(),
       getFieldProps: jest.fn(),
       getFieldMeta: jest.fn().mockReturnValue({ error: 'ERROR' }),
@@ -74,6 +75,7 @@ describe('HTPasswdForm', () => {
   });
 
   it('does not show mode selection radio buttons when feature flag is off', () => {
+    mockUseFeatureGate([[HTPASSWD_IMPORT, false]]);
     mockedUseFormState.mockReturnValue({
       values: { ...initialValues },
       errors: {},
@@ -108,6 +110,8 @@ describe('HTPasswdForm', () => {
   });
 
   it('shows disabled Add user while fields have errors', async () => {
+    mockUseFeatureGate([[HTPASSWD_IMPORT, false]]);
+
     mockedUseFormState.mockReturnValue({
       values: { ...initialValues },
       errors: {
@@ -124,6 +128,7 @@ describe('HTPasswdForm', () => {
           },
         ],
       },
+      touched: {},
       setFieldValue: jest.fn(),
       getFieldProps: jest.fn(),
       getFieldMeta: jest.fn().mockReturnValue({ error: 'ERROR' }),

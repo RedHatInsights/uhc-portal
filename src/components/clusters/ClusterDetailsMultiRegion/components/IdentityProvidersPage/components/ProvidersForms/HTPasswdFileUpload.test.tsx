@@ -68,13 +68,13 @@ describe('<HTPasswdFileUpload />', () => {
     });
   });
 
-  it('calls setFieldValue with empty user after invalid file upload', async () => {
+  it('calls setFieldValue with empty array after invalid file upload', async () => {
     render(<HTPasswdFileUpload />);
 
     await uploadFile(invalidFileContent);
 
     await waitFor(() => {
-      expect(setFieldValue).toHaveBeenCalledWith('users', [{ username: '', password: '' }]);
+      expect(setFieldValue).toHaveBeenCalledWith('users', []);
     });
   });
 
@@ -91,7 +91,7 @@ describe('<HTPasswdFileUpload />', () => {
 
     await uploadFile(invalidFileContent);
     await waitFor(() => {
-      expect(setFieldValue).toHaveBeenLastCalledWith('users', [{ username: '', password: '' }]);
+      expect(setFieldValue).toHaveBeenLastCalledWith('users', []);
     });
   });
 
