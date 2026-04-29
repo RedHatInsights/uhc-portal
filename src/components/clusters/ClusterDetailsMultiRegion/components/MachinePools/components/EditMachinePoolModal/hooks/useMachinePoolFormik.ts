@@ -124,8 +124,14 @@ const useMachinePoolFormik = ({
     let capacityReservationId;
     let capacityReservationPreference;
 
-    autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas ?? minNodesRequired;
-    autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas ?? minNodesRequired;
+    const hypershiftDefaultMinReplicas = 2;
+
+    autoscaleMin =
+      (machinePool as MachinePool)?.autoscaling?.min_replicas ??
+      (isHypershift ? hypershiftDefaultMinReplicas : minNodesRequired);
+    autoscaleMax =
+      (machinePool as MachinePool)?.autoscaling?.max_replicas ??
+      (isHypershift ? hypershiftDefaultMinReplicas : minNodesRequired);
 
     const instanceTypeId = (machinePool as MachinePool)?.instance_type;
     const instanceType = (
@@ -150,14 +156,8 @@ const useMachinePoolFormik = ({
     }
 
     // For multi-zone machine pools, store per-zone values (divide by 3)
-    let replicas = machinePool?.replicas || minNodesRequired;
-
-    const defaultMinReplicas = 2;
-    if (!machinePool && isHypershift) {
-      autoscaleMin = Math.max(autoscaleMin, defaultMinReplicas);
-      autoscaleMax = Math.max(autoscaleMax, defaultMinReplicas);
-      replicas = Math.max(replicas, defaultMinReplicas);
-    }
+    let replicas =
+      machinePool?.replicas ?? (isHypershift ? hypershiftDefaultMinReplicas : minNodesRequired);
 
     if (isMachinePoolMz) {
       autoscaleMin /= 3;
@@ -393,7 +393,7 @@ const useMachinePoolFormik = ({
                       'autoscaleMax',
                     );
                   }
-                  if (value !== undefined && value < 1 && !isHypershift) {
+                  if (value !== undefined && value < 1) {
                     return new Yup.ValidationError(
                       'Max nodes must be greater than 0.',
                       value,

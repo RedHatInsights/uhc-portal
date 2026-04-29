@@ -65,7 +65,7 @@ describe('useMachinePoolFormik', () => {
 
   describe('initialValues autoscaling', () => {
     describe('HCP clusters', () => {
-      it('should set autoscaleMin to minNodesRequired', () => {
+      it('should set autoscaleMin to 2', () => {
         const machinePool = {
           kind: 'NodePool',
           id: 'other-pool',
@@ -87,8 +87,8 @@ describe('useMachinePoolFormik', () => {
           }),
         ).result.current;
 
-        expect(initialValues.autoscaleMin).toBe(0);
-        expect(initialValues.autoscaleMax).toBe(0);
+        expect(initialValues.autoscaleMin).toBe(2);
+        expect(initialValues.autoscaleMax).toBe(2);
       });
 
       it('should preserve existing autoscaling min_replicas of 0', () => {
@@ -313,7 +313,7 @@ describe('useMachinePoolFormik', () => {
     });
 
     describe('autoscaleMax', () => {
-      it('should allow 0 max nodes for HCP clusters with autoscaling enabled', async () => {
+      it('should reject 0 max nodes for HCP clusters with autoscaling enabled', async () => {
         const machinePool = {
           kind: 'NodePool',
           id: 'test-pool',
@@ -345,7 +345,9 @@ describe('useMachinePoolFormik', () => {
           autoscaleMax: 0,
         };
 
-        await expect(validationSchema.validateAt('autoscaleMax', values)).resolves.toBe(0);
+        await expect(validationSchema.validateAt('autoscaleMax', values)).rejects.toThrow(
+          'Max nodes must be greater than 0.',
+        );
       });
 
       it('should reject autoscaleMax below minNodes for HCP clusters', async () => {
@@ -358,21 +360,12 @@ describe('useMachinePoolFormik', () => {
           },
         };
 
-        const otherPool = {
-          kind: 'NodePool',
-          id: 'other-pool',
-          autoscaling: {
-            min_replicas: 1,
-            max_replicas: 1,
-          },
-        };
-
         const { validationSchema } = renderHook(() =>
           useMachinePoolFormik({
             cluster: hyperShiftCluster,
             machinePool,
             machineTypes: defaultMachineTypes,
-            machinePools: [machinePool, otherPool],
+            machinePools: [machinePool],
           }),
         ).result.current;
 
@@ -380,14 +373,55 @@ describe('useMachinePoolFormik', () => {
           ...hyperShiftExpectedInitialValues,
           autoscaling: true,
           autoscaleMin: 0,
-          autoscaleMax: 0,
+          autoscaleMax: 1,
         };
 
-        // minNodes = max(0, 2 - 1) = 1, so autoscaleMax of 0 should be rejected
+        // minNodes = 2 (only one pool, no other untainted pools to cover the minimum)
+        // autoscaleMax of 1 passes the > 0 check but fails the minNodes check
         await expect(validationSchema.validateAt('autoscaleMax', values)).rejects.toThrow(
-          'Max nodes must be at least 1 to satisfy the cluster-wide untainted-node minimum.',
+          'Max nodes must be at least 2 to satisfy the cluster-wide untainted-node minimum.',
         );
       });
+      // it('should reject autoscaleMax below minNodes for HCP clusters', async () => {
+      //   const machinePool = {
+      //     kind: 'NodePool',
+      //     id: 'test-pool',
+      //     autoscaling: {
+      //       min_replicas: 0,
+      //       max_replicas: 1,
+      //     },
+      //   };
+
+      //   const otherPool = {
+      //     kind: 'NodePool',
+      //     id: 'other-pool',
+      //     autoscaling: {
+      //       min_replicas: 1,
+      //       max_replicas: 1,
+      //     },
+      //   };
+
+      //   const { validationSchema } = renderHook(() =>
+      //     useMachinePoolFormik({
+      //       cluster: hyperShiftCluster,
+      //       machinePool,
+      //       machineTypes: defaultMachineTypes,
+      //       machinePools: [machinePool, otherPool],
+      //     }),
+      //   ).result.current;
+
+      //   const values = {
+      //     ...hyperShiftExpectedInitialValues,
+      //     autoscaling: true,
+      //     autoscaleMin: 0,
+      //     autoscaleMax: 0,
+      //   };
+
+      //   // minNodes = max(0, 2 - 1) = 1, so autoscaleMax of 0 should be rejected
+      //   await expect(validationSchema.validateAt('autoscaleMax', values)).rejects.toThrow(
+      //     'Max nodes must be at least 1 to satisfy the cluster-wide untainted-node minimum.',
+      //   );
+      // });
 
       it('should reject 0 max nodes for non-HCP clusters with autoscaling enabled', async () => {
         const { validationSchema } = renderHook(() =>
