@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 
 import { SelectOption } from '@patternfly/react-core';
 
@@ -16,7 +16,19 @@ type TaintEffectFieldProps = {
 
 const TaintEffectField = ({ fieldId, isDisabled }: TaintEffectFieldProps) => {
   const [field] = useField<TaintEffect>(fieldId);
-  const onChange = useFormikOnChange(fieldId);
+  const { setFieldTouched } = useFormikContext();
+  const onChangeEffect = useFormikOnChange(fieldId);
+
+  const onChange = React.useCallback(
+    (value: string) => {
+      onChangeEffect(value);
+      // Touch the sibling key field so validation errors display there
+      const keyFieldId = fieldId.replace(/\.effect$/, '.key');
+      setTimeout(() => setFieldTouched(keyFieldId, true, true));
+    },
+    [onChangeEffect, fieldId, setFieldTouched],
+  );
+
   return (
     <SelectField value={field.value} fieldId={fieldId} onSelect={onChange} isDisabled={isDisabled}>
       <SelectOption value="NoSchedule">NoSchedule</SelectOption>

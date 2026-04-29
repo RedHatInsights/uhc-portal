@@ -382,7 +382,8 @@ const useMachinePoolFormik = ({
 
                 // Otherwise, require key when effect is set
                 if (!taintKey) {
-                  return new Yup.ValidationError('Taint key has to be defined', value, this.path);
+                  const keyPath = this.path?.replace(/\.effect$/, '.key') ?? this.path;
+                  return new Yup.ValidationError('Taint key has to be defined', value, keyPath);
                 }
 
                 return true;

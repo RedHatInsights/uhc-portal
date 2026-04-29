@@ -497,9 +497,12 @@ describe('useMachinePoolFormik', () => {
           taints: [{ key: '', value: '', effect: 'NoExecute' }],
         };
 
-        // Changing effect without key should fail validation
-        await expect(validationSchema.validateAt('taints[0].effect', values)).rejects.toThrow(
-          'Taint key has to be defined',
+        // Changing effect without key should fail validation with error on key path
+        await expect(validationSchema.validateAt('taints[0].effect', values)).rejects.toMatchObject(
+          {
+            message: 'Taint key has to be defined',
+            path: 'taints[0].key',
+          },
         );
       });
 
