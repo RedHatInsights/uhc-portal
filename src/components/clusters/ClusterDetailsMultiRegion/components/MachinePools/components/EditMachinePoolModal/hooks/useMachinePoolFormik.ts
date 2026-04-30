@@ -71,6 +71,7 @@ type UseMachinePoolFormikArgs = {
   cluster: ClusterFromSubscription;
   machineTypes: MachineTypesResponse;
   machinePools: (MachinePool | NodePool)[];
+  hcpMaxDifference?: number | undefined;
 };
 
 const isMachinePool = (pool?: MachinePool | NodePool): pool is MachinePool =>
@@ -90,6 +91,7 @@ const useMachinePoolFormik = ({
   cluster,
   machineTypes,
   machinePools,
+  hcpMaxDifference,
 }: UseMachinePoolFormikArgs) => {
   const isMachinePoolMz = isMPoolAz(
     cluster,
@@ -124,7 +126,7 @@ const useMachinePoolFormik = ({
     let capacityReservationId;
     let capacityReservationPreference;
 
-    const hypershiftDefaultMinReplicas = 2;
+    const hypershiftDefaultMinReplicas = hcpMaxDifference && hcpMaxDifference < 2 ? 1 : 2;
 
     autoscaleMin =
       (machinePool as MachinePool)?.autoscaling?.min_replicas ??
@@ -230,6 +232,7 @@ const useMachinePoolFormik = ({
     machineTypes.typesByID,
     isHypershift,
     isValidCRVersion,
+    hcpMaxDifference,
   ]);
 
   const minDiskSize = getWorkerNodeVolumeSizeMinGiB(isHypershift);
@@ -389,6 +392,13 @@ const useMachinePoolFormik = ({
                   if (value !== undefined && value < 0) {
                     return new Yup.ValidationError(
                       'Max nodes cannot be negative.',
+                      value,
+                      'autoscaleMax',
+                    );
+                  }
+                  if (value !== undefined && maxNodes === 0) {
+                    return new Yup.ValidationError(
+                      'Max nodes limit has been reached',
                       value,
                       'autoscaleMax',
                     );

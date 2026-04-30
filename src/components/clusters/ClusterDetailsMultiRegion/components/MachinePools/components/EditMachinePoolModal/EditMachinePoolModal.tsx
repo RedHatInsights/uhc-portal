@@ -159,11 +159,25 @@ const EditMachinePoolModal = ({
   const [currentMachinePool, setCurrentMachinePool] = React.useState<MachinePool>();
   const [isEdit, setIsEdit] = React.useState<boolean>(getIsEditValue());
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(STARTING_TAB_KEY);
+
+  let hcpMaxDifference;
+  if (machinePoolsResponse && isHypershift) {
+    hcpMaxDifference =
+      getMaxNodesHCP(cluster.version?.raw_id) -
+      getNodeCount(
+        machinePoolsResponse,
+        isHypershift,
+        currentMachinePool?.id,
+        currentMachinePool?.instance_type,
+      );
+  }
+
   const { initialValues, validationSchema } = useMachinePoolFormik({
     machinePool: currentMachinePool,
     cluster,
     machinePools: machinePoolsResponse || [],
     machineTypes: machineTypesResponse,
+    hcpMaxDifference,
   });
 
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;

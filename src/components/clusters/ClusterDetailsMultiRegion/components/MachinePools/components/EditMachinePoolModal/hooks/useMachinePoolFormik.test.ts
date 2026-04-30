@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
+import * as machinePoolUtils from '~/components/clusters/common/machinePools/utils';
 import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate } from '~/testUtils';
 
@@ -313,6 +314,10 @@ describe('useMachinePoolFormik', () => {
     });
 
     describe('autoscaleMax', () => {
+      afterEach(() => {
+        jest.clearAllMocks();
+      });
+
       it('should reject 0 max nodes for HCP clusters with autoscaling enabled', async () => {
         const machinePool = {
           kind: 'NodePool',
@@ -382,48 +387,9 @@ describe('useMachinePoolFormik', () => {
           'Max nodes must be at least 2 to satisfy the cluster-wide untainted-node minimum.',
         );
       });
-      // it('should reject autoscaleMax below minNodes for HCP clusters', async () => {
-      //   const machinePool = {
-      //     kind: 'NodePool',
-      //     id: 'test-pool',
-      //     autoscaling: {
-      //       min_replicas: 0,
-      //       max_replicas: 1,
-      //     },
-      //   };
-
-      //   const otherPool = {
-      //     kind: 'NodePool',
-      //     id: 'other-pool',
-      //     autoscaling: {
-      //       min_replicas: 1,
-      //       max_replicas: 1,
-      //     },
-      //   };
-
-      //   const { validationSchema } = renderHook(() =>
-      //     useMachinePoolFormik({
-      //       cluster: hyperShiftCluster,
-      //       machinePool,
-      //       machineTypes: defaultMachineTypes,
-      //       machinePools: [machinePool, otherPool],
-      //     }),
-      //   ).result.current;
-
-      //   const values = {
-      //     ...hyperShiftExpectedInitialValues,
-      //     autoscaling: true,
-      //     autoscaleMin: 0,
-      //     autoscaleMax: 0,
-      //   };
-
-      //   // minNodes = max(0, 2 - 1) = 1, so autoscaleMax of 0 should be rejected
-      //   await expect(validationSchema.validateAt('autoscaleMax', values)).rejects.toThrow(
-      //     'Max nodes must be at least 1 to satisfy the cluster-wide untainted-node minimum.',
-      //   );
-      // });
 
       it('should reject 0 max nodes for non-HCP clusters with autoscaling enabled', async () => {
+        jest.spyOn(machinePoolUtils, 'getMaxNodeCountForMachinePool').mockReturnValue(50);
         const { validationSchema } = renderHook(() =>
           useMachinePoolFormik({
             cluster: defaultCluster,
@@ -442,6 +408,39 @@ describe('useMachinePoolFormik', () => {
 
         await expect(validationSchema.validateAt('autoscaleMax', values)).rejects.toThrow(
           'Max nodes must be greater than 0.',
+        );
+      });
+
+      it('should reject autoscaleMax when max nodes limit has been reached', async () => {
+        jest.spyOn(machinePoolUtils, 'getMaxNodeCountForMachinePool').mockReturnValue(0);
+
+        const machinePool = {
+          kind: 'NodePool',
+          id: 'test-pool',
+          autoscaling: {
+            min_replicas: 0,
+            max_replicas: 5,
+          },
+        };
+
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: [machinePool],
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          autoscaling: true,
+          autoscaleMin: 0,
+          autoscaleMax: 5,
+        };
+
+        await expect(validationSchema.validateAt('autoscaleMax', values)).rejects.toThrow(
+          'Max nodes limit has been reached',
         );
       });
     });
