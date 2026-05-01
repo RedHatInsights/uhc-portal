@@ -47,3 +47,6 @@ openapi/*.json
 /unitTestCoverage
 
 .cache/
+
+# Cursor local context (machine-specific, not shared)
+.cursor/rules/local-context.mdc
