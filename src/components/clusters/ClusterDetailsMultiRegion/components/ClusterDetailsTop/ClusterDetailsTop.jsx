@@ -21,7 +21,6 @@ import { useAddNotification } from '@redhat-cloud-services/frontend-components-n
 import { getOCMResourceType, trackEvents } from '~/common/analytics';
 import { BREADCRUMB_PATHS, buildBreadcrumbs } from '~/common/breadcrumbPaths';
 import getClusterName from '~/common/getClusterName';
-import { goZeroTime2Null } from '~/common/helpers';
 import isAssistedInstallSubscription, {
   isAvailableAssistedInstallCluster,
   isUninstalledAICluster,
@@ -39,7 +38,6 @@ import useAnalytics from '~/hooks/useAnalytics';
 import { usePreviousProps } from '~/hooks/usePreviousProps';
 import { refreshClusterDetails } from '~/queries/refreshEntireCache';
 import {
-  SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel,
   SubscriptionCommonFieldsStatus,
   SubscriptionCommonFieldsSupport_level as SubscriptionCommonFieldsSupportLevel,
 } from '~/types/accounts_mgmt.v1';
@@ -169,10 +167,6 @@ function ClusterDetailsTop(props) {
   const addNotification = useAddNotification();
   const isProductOSDTrial =
     get(cluster, 'subscription.plan.type', '') === normalizedProducts.OSDTrial;
-  const isProductOSDRHM =
-    get(cluster, 'subscription.plan.type', '') === normalizedProducts.OSD &&
-    get(cluster, 'subscription.cluster_billing_model', '') ===
-      SubscriptionCommonFieldsClusterBillingModel.marketplace;
   const isOSD = get(cluster, 'subscription.plan.type') === normalizedProducts.OSD;
   const isROSA = get(cluster, 'subscription.plan.type') === normalizedProducts.ROSA;
   const isOCP = get(cluster, 'subscription.plan.type') === normalizedProducts.OCP;
@@ -269,8 +263,6 @@ function ClusterDetailsTop(props) {
     pending || organization.pending || isClusterIdentityProvidersLoading || isRefetching;
 
   const trialEndDate = isProductOSDTrial && get(cluster, 'subscription.trial_end_date');
-  const OSDRHMEndDate =
-    isProductOSDRHM && goZeroTime2Null(get(cluster, 'subscription.billing_expiration_date'));
 
   const canNotEditReason =
     !cluster.canEdit && 'You do not have permissions to unarchive this cluster';
@@ -345,7 +337,6 @@ function ClusterDetailsTop(props) {
   const hasIDPAlert = showIDPMessage;
   const hasExpirationAlert = !!cluster.expiration_timestamp;
   const hasTrialExpirationAlert = !!trialEndDate && !isDeprovisioned;
-  const hasOsdRHMEEndDateAlert = OSDRHMEndDate && !isDeprovisioned;
   const hasGCPOrgPolicyAlert = !!showGcpOrgPolicyWarning;
   const hasSubscriptionCompliancyAlert =
     isOCP &&
@@ -365,7 +356,6 @@ function ClusterDetailsTop(props) {
     hasIDPAlert,
     hasExpirationAlert,
     hasTrialExpirationAlert,
-    hasOsdRHMEEndDateAlert,
     hasGCPOrgPolicyAlert,
     hasSubscriptionCompliancyAlert,
     hasClusterNonEditableAlert,
@@ -491,9 +481,7 @@ function ClusterDetailsTop(props) {
                 {...trialExpirationUpgradeProps}
               />
             )}
-            {OSDRHMEndDate && !isDeprovisioned && (
-              <ExpirationAlert expirationTimestamp={OSDRHMEndDate} OSDRHMExpiration />
-            )}
+
             {showGcpOrgPolicyWarning && <GcpOrgPolicyAlert summary={gcpOrgPolicyWarning} />}
 
             <SubscriptionCompliancy
