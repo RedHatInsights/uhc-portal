@@ -2,6 +2,7 @@ import has from 'lodash/has';
 import isEqual from 'lodash/isEqual';
 
 import { stringToArrayTrimmed, strToKeyValueObject } from '~/common/helpers';
+import { parseFormExcludeNamespaceSelectorsToApi } from '~/components/clusters/wizards/common/excludeNamespaceSelectorsForm';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import {
   LoadBalancerFlavor,
@@ -68,6 +69,17 @@ const createDefaultRouterRequest = (newData, currentData) => {
     requestDefaultRouter.excluded_namespaces = stringToArrayTrimmed(
       newData.defaultRouterExcludedNamespacesFlag,
     );
+  }
+
+  if (newData.defaultRouterExcludeNamespaceSelectors !== undefined) {
+    const parsed = parseFormExcludeNamespaceSelectorsToApi(
+      newData.defaultRouterExcludeNamespaceSelectors,
+    );
+    const currentSelectors = currentData.default.excludeNamespaceSelectors || [];
+    const newSelectors = parsed || [];
+    if (!isEqual(newSelectors, currentSelectors)) {
+      requestDefaultRouter.excluded_namespace_selectors = newSelectors;
+    }
   }
 
   if (
