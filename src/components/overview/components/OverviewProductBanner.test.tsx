@@ -26,7 +26,7 @@ describe('<OverviewProductBanner />', () => {
     expect(iconElement).toHaveAttribute('src', icon);
     expect(iconElement).toHaveAttribute('alt', altText);
 
-    const createClusterLinkElement = screen.getByRole('link', { name: 'Create Cluster' });
+    const createClusterLinkElement = screen.getByRole('link', { name: 'Create cluster' });
     const createClusterAILinkElement = screen.getByRole('link', {
       name: 'Create cluster with Assisted Installer',
     });

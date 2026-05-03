@@ -39,7 +39,7 @@ export const OverviewProductBanner = ({
           data-testid="create-cluster"
           component={Link}
         >
-          Create Cluster
+          Create cluster
         </InternalTrackingLink>
       </FlexItem>
       <FlexItem>
