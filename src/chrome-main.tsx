@@ -39,8 +39,6 @@ import config, { APP_API_ENV } from './config';
 
 import './styles/main.scss';
 
-import './i18n';
-
 const { Api, Config } = OCM;
 
 /**
