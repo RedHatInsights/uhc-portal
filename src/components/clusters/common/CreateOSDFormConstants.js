@@ -69,6 +69,8 @@ const constants = {
     "A domain prefix will be used for the subdomain and limited to 15 characters. If you do not create a custom domain prefix, we'll generate one for you.",
   channelGroupHint:
     'A channel group determines the versions and updates available for your cluster. For a longer support life cycle, change the channel group to an Extended Update Support (EUS) version.',
+  channelHint: `Channels provide recommended release versions and help control the pace of updates. Update channels align to a minor version, for example 4.20. To update to the next minor release, 
+    you might need to change the channel.`,
 };
 
 const billingModelConstants = {

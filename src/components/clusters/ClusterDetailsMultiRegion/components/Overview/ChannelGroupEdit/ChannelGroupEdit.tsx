@@ -25,7 +25,7 @@ import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import { useMutateChannelGroup } from '~/queries/ChannelGroupEditQueries/useMutateChannelGroup';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
-import { Cluster } from '~/types/clusters_mgmt.v1';
+import type { AugmentedCluster } from '~/types/types';
 
 import { formatChannelGroupName } from '../../../clusterDetailsHelper';
 
@@ -46,13 +46,9 @@ type ChannelGroupEditModalProps = {
 type ChannelGroupEditProps = {
   clusterID: string;
   channelGroup: string;
-  cluster: CanEditCluster;
+  cluster: AugmentedCluster;
   isROSA?: boolean;
 };
-
-export interface CanEditCluster extends Cluster {
-  canEdit: boolean;
-}
 
 const ChannelGroupEditModal = ({
   clusterID,
@@ -63,9 +59,6 @@ const ChannelGroupEditModal = ({
 }: ChannelGroupEditModalProps) => {
   const { mutate, isError, error, isPending } = useMutateChannelGroup();
 
-  const handleClose = () => {
-    onClose();
-  };
   return isOpen ? (
     <Formik
       initialValues={{ channelGroup }}
@@ -75,7 +68,7 @@ const ChannelGroupEditModal = ({
           { clusterID, channelGroup },
           {
             onSuccess: () => {
-              handleClose();
+              onClose();
               invalidateClusterDetailsQueries();
             },
           },
@@ -87,7 +80,7 @@ const ChannelGroupEditModal = ({
           id="edit-channel-group-modal"
           title="Edit channel group"
           variant={ModalVariant.small}
-          onClose={handleClose}
+          onClose={onClose}
           isOpen={isOpen}
           aria-labelledby="edit-channel-group-modal"
           aria-describedby="modal-box-edit-channel-group"
@@ -95,7 +88,7 @@ const ChannelGroupEditModal = ({
           <ModalHeader>
             <Title headingLevel="h1">Edit channel group</Title>
           </ModalHeader>
-          <ModalBody>
+          <ModalBody id="modal-box-edit-channel-group">
             {isError && (
               <StackItem>
                 <ErrorBox
@@ -125,10 +118,11 @@ const ChannelGroupEditModal = ({
               variant="primary"
               onClick={formik.submitForm}
               isDisabled={isPending || !formik.dirty}
+              isLoading={isPending}
             >
               Save
             </Button>
-            <Button key="cancel" variant="link" onClick={handleClose}>
+            <Button key="cancel" variant="link" onClick={onClose}>
               Cancel
             </Button>
           </ModalFooter>
@@ -145,9 +139,9 @@ export const ChannelGroupEdit = ({
   isROSA,
 }: ChannelGroupEditProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
-  const { canEdit } = cluster;
+  const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isClusterReady = cluster.state === clusterStates.ready;
-  const { availableDropdownChannelGroups, isLoading } = useGetChannelGroupsData(cluster, canEdit);
+  const { availableDropdownChannelGroups, isLoading } = useGetChannelGroupsData(cluster);
 
   return (
     <>
@@ -179,7 +173,7 @@ export const ChannelGroupEdit = ({
         </DescriptionListTerm>
         <DescriptionListDescription>
           {formatChannelGroupName(channelGroup)}
-          {canEdit &&
+          {canUpdateClusterResource &&
             (isLoading ? (
               <Spinner size="sm" aria-label="Loading..." />
             ) : (
@@ -187,7 +181,7 @@ export const ChannelGroupEdit = ({
                 data-testid="channelGroupModal"
                 ariaLabel="editChannelGroupBtn"
                 onClick={() => setIsModalOpen(true)}
-                isAriaDisabled={!canEdit || isLoading || !isClusterReady}
+                isAriaDisabled={!canUpdateClusterResource || isLoading || !isClusterReady}
               />
             ))}
         </DescriptionListDescription>

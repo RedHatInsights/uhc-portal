@@ -15,7 +15,11 @@ import {
 import { Owner } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/Owner/Owner';
 import { isCCS, isGCP, isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import getBillingModelLabel from '~/components/clusters/common/getBillingModelLabel';
-import { ALLOW_EUS_CHANNEL, FIPS_FOR_HYPERSHIFT } from '~/queries/featureGates/featureConstants';
+import {
+  ALLOW_EUS_CHANNEL,
+  FIPS_FOR_HYPERSHIFT,
+  Y_STREAM_CHANNEL,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { normalizedProducts } from '../../../../../common/subscriptionTypes';
@@ -23,6 +27,7 @@ import PopoverHint from '../../../../common/PopoverHint';
 import ClusterTypeLabel from '../../../common/ClusterTypeLabel';
 import InfrastructureModelLabel from '../../../common/InfrastructureModelLabel';
 
+import { ChannelEdit } from './ChannelEdit/ChannelEdit';
 import { ChannelGroupEdit } from './ChannelGroupEdit/ChannelGroupEdit';
 import ClusterVersionInfo from './ClusterVersionInfo';
 
@@ -44,8 +49,10 @@ function DetailsLeft({
   isArchived,
   isDeprovisioned,
   isDisconnected,
+  clusterDetailsFetching,
 }) {
   const useEusChannel = useFeatureGate(ALLOW_EUS_CHANNEL);
+  const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
   const cloudProviderId = cluster.cloud_provider ? cluster.cloud_provider.id : null;
   const region = cluster?.region?.id;
@@ -159,14 +166,30 @@ function DetailsLeft({
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
-      {useEusChannel && !isArchived && !isDeprovisioned && !isDisconnected && (
-        <ChannelGroupEdit
-          clusterID={clusterID}
-          channelGroup={cluster?.version?.channel_group}
-          cluster={cluster}
-          isROSA={isROSA}
-        />
-      )}
+      {useEusChannel &&
+        !isYStreamChannelEnabled &&
+        !isArchived &&
+        !isDeprovisioned &&
+        !isDisconnected && (
+          <ChannelGroupEdit
+            clusterID={clusterID}
+            channelGroup={cluster?.version?.channel_group}
+            cluster={cluster}
+            isROSA={isROSA}
+          />
+        )}
+      {isYStreamChannelEnabled &&
+        cluster.managed &&
+        !isArchived &&
+        !isDeprovisioned &&
+        !isDisconnected && (
+          <ChannelEdit
+            clusterID={clusterID}
+            channel={cluster?.channel}
+            cluster={cluster}
+            isClusterDetailsFetching={clusterDetailsFetching}
+          />
+        )}
       <DescriptionListGroup>
         <DescriptionListTerm>
           Version
@@ -249,6 +272,7 @@ DetailsLeft.propTypes = {
   isArchived: PropTypes.bool,
   isDisconnected: PropTypes.bool,
   isDeprovisioned: PropTypes.bool,
+  clusterDetailsFetching: PropTypes.bool,
   cloudProviders: PropTypes.object.isRequired,
   showAssistedId: PropTypes.bool.isRequired,
   wifConfigData: PropTypes.shape({
