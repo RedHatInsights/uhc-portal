@@ -66,7 +66,7 @@ jobs:
           fi
       - name: Install Playwright Browsers
         # Explicitly specify all browsers including chrome since Playwright 1.44+ no longer installs Chrome by default
-        run: npx playwright install chromium chrome firefox webkit --with-deps
+        run: yarn playwright install chromium chrome firefox webkit --with-deps
       - name: Get browser version
         id: browser-version
         env:
