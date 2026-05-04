@@ -33,6 +33,7 @@ export enum FieldId {
   CustomerManagedKey = 'customer_managed_key',
   CustomOperatorRolesPrefix = 'custom_operator_roles_prefix',
   DefaultRouterExcludedNamespacesFlag = 'defaultRouterExcludedNamespacesFlag',
+  DefaultRouterExcludeNamespaceSelectors = 'defaultRouterExcludeNamespaceSelectors',
   DefaultRouterSelectors = 'defaultRouterSelectors',
   DetectedOcmRole = 'detected_ocm_role',
   DisableScpChecks = 'disable_scp_checks',

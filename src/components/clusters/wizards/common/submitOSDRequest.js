@@ -8,6 +8,7 @@ import {
   strToKeyValueObject,
 } from '~/common/helpers';
 import { getClusterAutoScalingSubmitSettings } from '~/components/clusters/common/clusterAutoScalingValues';
+import { parseFormExcludeNamespaceSelectorsToApi } from '~/components/clusters/wizards/common/excludeNamespaceSelectorsForm';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ApplicationIngressType } from '~/components/clusters/wizards/osd/Networking/constants';
@@ -347,6 +348,9 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
       formData.applicationIngress === ApplicationIngressType.Custom &&
       canConfigureDayOneManagedIngress(formData.cluster_version?.raw_id)
     ) {
+      const excludedNamespaceSelectors = parseFormExcludeNamespaceSelectorsToApi(
+        formData[FieldId.DefaultRouterExcludeNamespaceSelectors],
+      );
       clusterRequest.ingresses = {
         items: [
           {
@@ -354,6 +358,9 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
             excluded_namespaces: formData.defaultRouterExcludedNamespacesFlag
               ? stringToArrayTrimmed(formData.defaultRouterExcludedNamespacesFlag)
               : undefined,
+            ...(excludedNamespaceSelectors?.length
+              ? { excluded_namespace_selectors: excludedNamespaceSelectors }
+              : {}),
             route_selectors: strToKeyValueObject(formData.defaultRouterSelectors, ''),
             route_wildcard_policy: formData.isDefaultRouterWildcardPolicyAllowed
               ? WildcardPolicy.WildcardsAllowed

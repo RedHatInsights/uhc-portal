@@ -4,7 +4,7 @@ import IPCIDR from 'ip-cidr';
 import { ValidationError, Validator } from 'jsonschema';
 import { get, indexOf, inRange } from 'lodash';
 
-import { parseCIDRSubnetLength, Subnet } from '~/common/helpers';
+import { parseCIDRSubnetLength, stringToArrayTrimmed, Subnet } from '~/common/helpers';
 import { FormSubnet } from '~/components/clusters/wizards/common/FormSubnet';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import type { Gcp, Taint } from '~/types/clusters_mgmt.v1';
@@ -1726,6 +1726,114 @@ const validateLabelKey = (
 
 const validateLabelValue = checkLabelValue;
 
+const shouldSkipExcludeNamespaceSelectorKeyValidation = (
+  allValues: Record<string, unknown>,
+  name?: string,
+): boolean => {
+  const rows = (allValues?.[FieldId.DefaultRouterExcludeNamespaceSelectors] as {
+    key: string;
+    value: string;
+  }[]) ?? [{}];
+  const [{ key: firstKey, value: firstValue }] = rows;
+  const keyIndex = name?.match(/\[([^[\]]*)\]/) ?? [];
+
+  return (
+    (rows.length === 1 && !firstKey && !firstValue) || !Object.keys(rows).includes(keyIndex[1])
+  );
+};
+
+const validateUniqueExcludeNamespaceSelectorKey = createUniqueFieldValidator(
+  'Each selector must have a different key.',
+  (currentFieldName: string, allValues: Record<string, unknown>) =>
+    Object.entries(
+      (allValues[FieldId.DefaultRouterExcludeNamespaceSelectors] as { key: string }[]) || [],
+    )
+      .filter(([fieldKey]) => !currentFieldName.includes(`[${fieldKey}]`))
+      .map(([, fieldValue]) => fieldValue.key),
+);
+
+/** Label selector values must not target these cluster namespaces (see DefaultIngressFields warning). */
+const PROTECTED_DEFAULT_ROUTER_NAMESPACE_SELECTOR_VALUES = new Set([
+  'openshift-console',
+  'openshift-authentication',
+]);
+
+const validateExcludeNamespaceSelectorKey = (
+  key: string,
+  allValues: Record<string, unknown>,
+  props?: unknown,
+  name?: string,
+): string | undefined => {
+  if (shouldSkipExcludeNamespaceSelectorKeyValidation(allValues, name)) {
+    return undefined;
+  }
+
+  const keyFormatError = checkLabelKey(key);
+  if (keyFormatError) {
+    return keyFormatError;
+  }
+
+  return name ? validateUniqueExcludeNamespaceSelectorKey(key, allValues, props, name) : undefined;
+};
+
+const validateExcludeNamespaceSelectorValue = (
+  value: string,
+  allValues: Record<string, unknown>,
+  _props?: unknown,
+  name?: string,
+): string | undefined => {
+  if (shouldSkipExcludeNamespaceSelectorKeyValidation(allValues, name)) {
+    return undefined;
+  }
+
+  const rows =
+    (allValues?.[FieldId.DefaultRouterExcludeNamespaceSelectors] as {
+      key: string;
+      value: string;
+    }[]) ?? [];
+  const idxMatch = name?.match(/\[(\d+)\]\.value$/);
+  const rowIndex = idxMatch ? parseInt(idxMatch[1], 10) : -1;
+  const rowKey = rowIndex >= 0 ? rows[rowIndex]?.key?.trim() : '';
+
+  if (!rowKey) {
+    return 'Enter a label key before values.';
+  }
+
+  const rawValue = value ?? '';
+  const rawSegments = rawValue.split(',');
+  if (rawSegments.some((segment) => segment !== segment.trim())) {
+    return 'Each comma-separated value must not have leading or trailing spaces.';
+  }
+  const isSingleEmptyField = rawSegments.length === 1 && rawValue === '';
+  if (!isSingleEmptyField && rawSegments.some((segment) => segment.trim() === '')) {
+    return 'Do not use a leading comma, trailing comma, or two commas in a row.';
+  }
+
+  const parts = stringToArrayTrimmed(value || '');
+  if (parts.length === 0) {
+    return 'Enter at least one value, separated by commas.';
+  }
+
+  for (let i = 0; i < parts.length; i += 1) {
+    const err = checkLabelValue(parts[i]);
+    if (err) {
+      return err;
+    }
+  }
+
+  for (let i = 0; i < parts.length; i += 1) {
+    const part = parts[i];
+    if (
+      part != null &&
+      PROTECTED_DEFAULT_ROUTER_NAMESPACE_SELECTOR_VALUES.has(part.toLowerCase())
+    ) {
+      return 'Do not exclude openshift-console or openshift-authentication namespaces; they are vital to cluster operations.';
+    }
+  }
+
+  return undefined;
+};
+
 type Tls = {
   clusterRoutesTlsSecretRef?: string;
   clusterRoutesHostname?: string;
@@ -1901,6 +2009,8 @@ export {
   validateAWSKMSKeyARN,
   validateCA,
   validateDuplicateLabels,
+  validateExcludeNamespaceSelectorKey,
+  validateExcludeNamespaceSelectorValue,
   validateGCPHostProjectId,
   validateGCPKMSServiceAccount,
   validateGCPServiceAccount,

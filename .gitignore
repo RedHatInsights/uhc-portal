@@ -38,6 +38,7 @@ yalc.lock
 *.patch
 
 *storybook.log
+/storybook-static/
 
 openapi/*.json
 

@@ -2,10 +2,9 @@ import React from 'react';
 
 import { Grid, GridItem, Label, LabelGroup } from '@patternfly/react-core';
 
-import { arrayToString, stringToArrayTrimmed, strToKeyValueObject } from '~/common/helpers';
+import { stringToArrayTrimmed, strToKeyValueObject } from '~/common/helpers';
 import { STANDARD_TRIAL_BILLING_MODEL_TYPE } from '~/common/subscriptionTypes';
 import { humanizeValueWithUnitGiB } from '~/common/units';
-import { routeSelectorsAsString } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/NetworkingSelector';
 import parseUpdateSchedule from '~/components/clusters/common/Upgrades/parseUpdateSchedule';
 import { IMDSType } from '~/components/clusters/wizards/common';
 import {
@@ -383,13 +382,73 @@ const reviewValues = {
   },
   defaultRouterSelectors: {
     title: 'Route selectors',
-    valueTransform: (value) =>
-      value ? routeSelectorsAsString(strToKeyValueObject(value, '')) : 'None specified',
+    valueTransform: (value) => {
+      if (!value) {
+        return 'None specified';
+      }
+      const selectors = strToKeyValueObject(value, '') ?? {};
+      const pairs = Object.entries(selectors).filter(([selectorKey]) => selectorKey?.trim());
+      if (!pairs.length) {
+        return 'None specified';
+      }
+      return (
+        <LabelGroup>
+          {pairs.map(([selectorKey, selectorValue]) => {
+            const trimmedKey = selectorKey.trim();
+            return (
+              <Label key={trimmedKey} color="blue" textMaxWidth="15em">
+                {`${trimmedKey} = ${selectorValue ?? ''}`}
+              </Label>
+            );
+          })}
+        </LabelGroup>
+      );
+    },
   },
   defaultRouterExcludedNamespacesFlag: {
     title: 'Excluded namespaces',
-    valueTransform: (value) =>
-      value ? arrayToString(stringToArrayTrimmed(value)) : 'None specified',
+    valueTransform: (value) => {
+      const namespaces = value ? stringToArrayTrimmed(value) : [];
+      if (!namespaces.length) {
+        return 'None specified';
+      }
+      return (
+        <LabelGroup>
+          {namespaces.map((namespace) => (
+            <Label key={namespace} color="blue" textMaxWidth="15em">
+              {namespace}
+            </Label>
+          ))}
+        </LabelGroup>
+      );
+    },
+  },
+  defaultRouterExcludeNamespaceSelectors: {
+    title: 'Exclude namespace selectors',
+    valueTransform: (rows) => {
+      if (!rows?.length) {
+        return 'None specified';
+      }
+      const labels = rows
+        .map((r) => {
+          const key = r.key?.trim();
+          if (!key) {
+            return null;
+          }
+          const vals = stringToArrayTrimmed(r.value || '');
+          if (!vals.length) {
+            return null;
+          }
+          const labelKey = r.id ?? `${key}=${vals.join('|')}`;
+          return (
+            <Label key={labelKey} color="blue" textMaxWidth="15em">
+              {`${key} = ${vals.join(', ')}`}
+            </Label>
+          );
+        })
+        .filter(Boolean);
+      return labels.length ? <LabelGroup>{labels}</LabelGroup> : 'None specified';
+    },
   },
   isDefaultRouterWildcardPolicyAllowed: {
     title: 'Wildcard policy',

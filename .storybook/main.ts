@@ -1,5 +1,6 @@
 import type { StorybookConfig } from '@storybook/react-webpack5';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+import webpack from 'webpack';
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
@@ -65,6 +66,14 @@ const config: StorybookConfig = {
         }),
       ];
     }
+    // Match fec.config.js DefinePlugin so `src/config.ts` and anything importing API services load.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Storybook bundles webpack; plugin types differ from root `webpack`.
+    const defineEnvPlugin: any = new webpack.DefinePlugin({
+      APP_DEV_SERVER: JSON.stringify(false),
+      APP_DEVMODE: JSON.stringify(false),
+      APP_SENTRY_RELEASE_VERSION: JSON.stringify(''),
+    });
+    config.plugins = [...(config.plugins ?? []), defineEnvPlugin];
     return config;
   },
   core: {

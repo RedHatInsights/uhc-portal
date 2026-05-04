@@ -414,6 +414,48 @@ describe('createClusterRequest', () => {
         expect(request.dns?.base_domain).toEqual(undefined);
         expect(request.ccs.enabled).toBeTruthy();
       });
+
+      describe('Custom application ingress', () => {
+        const customIngressData = {
+          ...baseFormData,
+          billing_model: 'standard',
+          product: normalizedProducts.OSD,
+          cloud_provider: 'gcp',
+          byoc: 'true',
+          gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+          gcp_wif_config: { id: '324ed23f2d12342d23d' },
+          secure_boot: true,
+          applicationIngress: 'custom',
+          defaultRouterSelectors: '',
+          defaultRouterExcludedNamespacesFlag: '',
+          defaultRouterExcludeNamespaceSelectors: [{ id: 'placeholder', key: '', value: '' }],
+          isDefaultRouterNamespaceOwnershipPolicyStrict: true,
+          isDefaultRouterWildcardPolicyAllowed: false,
+        };
+
+        it('omits excluded_namespace_selectors from ingress when no selectors are configured', () => {
+          const request = createClusterRequest({ isWizard: true }, customIngressData);
+
+          expect(request.ingresses?.items?.[0]).toBeDefined();
+          expect(request.ingresses.items[0].excluded_namespace_selectors).toBeUndefined();
+        });
+
+        it('includes excluded_namespace_selectors when form rows have keys and values', () => {
+          const data = {
+            ...customIngressData,
+            defaultRouterExcludeNamespaceSelectors: [
+              { key: 'department', value: 'finance, HR' },
+              { key: 'type', value: 'customer' },
+            ],
+          };
+          const request = createClusterRequest({ isWizard: true }, data);
+
+          expect(request.ingresses.items[0].excluded_namespace_selectors).toEqual([
+            { key: 'department', values: ['finance', 'HR'] },
+            { key: 'type', values: ['customer'] },
+          ]);
+        });
+      });
     });
 
     describe('OSD Trial button -> AWS', () => {
