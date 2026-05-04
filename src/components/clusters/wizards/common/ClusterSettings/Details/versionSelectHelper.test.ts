@@ -163,7 +163,7 @@ const stateWithoutNonStableChannelGroupCapability = {
 };
 
 describe('VersionSelectHelper', () => {
-  it('returns correct versions data for stable and unstable channels', () => {
+  it('returns only stable groups when input has no non-stable versions (no empty bucket keys)', () => {
     expect(getVersionsData(satbleVersions, false, supportMap)).toEqual(stableExpected);
   });
 
