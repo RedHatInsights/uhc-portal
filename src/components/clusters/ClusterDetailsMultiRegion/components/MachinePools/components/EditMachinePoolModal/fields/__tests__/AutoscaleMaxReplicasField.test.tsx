@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { render, screen, waitFor } from '~/testUtils';
+import { render, screen } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
 import AutoscaleMaxReplicasField from '../AutoscaleMaxReplicasField';
@@ -35,42 +35,6 @@ describe('<AutoscaleMaxReplicasField />', () => {
   });
 
   describe('initialization when maxNodes < 2', () => {
-    it('sets value to maxNodes on mount for new hypershift machine pool when maxNodes < 2', async () => {
-      render(
-        <FormikWrapper initialAutoscaleMax={2}>
-          <AutoscaleMaxReplicasField
-            cluster={hypershiftCluster}
-            minNodes={0}
-            maxNodes={1}
-            isHypershift
-          />
-        </FormikWrapper>,
-      );
-
-      await waitFor(() => {
-        const input = screen.getByRole('spinbutton');
-        expect(input).toHaveValue(1);
-      });
-    });
-
-    it('sets value to 0 on mount when maxNodes is 0', async () => {
-      render(
-        <FormikWrapper initialAutoscaleMax={2}>
-          <AutoscaleMaxReplicasField
-            cluster={hypershiftCluster}
-            minNodes={0}
-            maxNodes={0}
-            isHypershift
-          />
-        </FormikWrapper>,
-      );
-
-      await waitFor(() => {
-        const input = screen.getByRole('spinbutton');
-        expect(input).toHaveValue(0);
-      });
-    });
-
     it('does not override value when isEdit is true', () => {
       render(
         <FormikWrapper initialAutoscaleMax={2}>
@@ -78,7 +42,6 @@ describe('<AutoscaleMaxReplicasField />', () => {
             cluster={hypershiftCluster}
             minNodes={0}
             maxNodes={1}
-            isEdit
             isHypershift
           />
         </FormikWrapper>,

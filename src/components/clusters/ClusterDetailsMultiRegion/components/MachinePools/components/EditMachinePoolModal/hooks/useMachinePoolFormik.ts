@@ -126,14 +126,16 @@ const useMachinePoolFormik = ({
     let capacityReservationId;
     let capacityReservationPreference;
 
-    const hypershiftDefaultMinReplicas = hcpMaxDifference && hcpMaxDifference < 2 ? 1 : 2;
+    const hasMaxDifference = (hcpMaxDifference || hcpMaxDifference === 0) && hcpMaxDifference < 2;
+    const hypershiftDefaultMinReplicas = hasMaxDifference ? hcpMaxDifference : 2;
+    const hypershiftDefaultMaxReplicas = hasMaxDifference ? 1 : 2;
 
     autoscaleMin =
       (machinePool as MachinePool)?.autoscaling?.min_replicas ??
       (isHypershift ? hypershiftDefaultMinReplicas : minNodesRequired);
     autoscaleMax =
       (machinePool as MachinePool)?.autoscaling?.max_replicas ??
-      (isHypershift ? hypershiftDefaultMinReplicas : minNodesRequired);
+      (isHypershift ? hypershiftDefaultMaxReplicas : minNodesRequired);
 
     const instanceTypeId = (machinePool as MachinePool)?.instance_type;
     const instanceType = (
@@ -396,16 +398,16 @@ const useMachinePoolFormik = ({
                       'autoscaleMax',
                     );
                   }
-                  if (value !== undefined && maxNodes === 0) {
+                  if (value !== undefined && value < 1) {
                     return new Yup.ValidationError(
-                      'Max nodes limit has been reached',
+                      'Max nodes must be greater than 0.',
                       value,
                       'autoscaleMax',
                     );
                   }
-                  if (value !== undefined && value < 1) {
+                  if (value !== undefined && maxNodes === 0) {
                     return new Yup.ValidationError(
-                      'Max nodes must be greater than 0.',
+                      'Max nodes limit has been reached',
                       value,
                       'autoscaleMax',
                     );

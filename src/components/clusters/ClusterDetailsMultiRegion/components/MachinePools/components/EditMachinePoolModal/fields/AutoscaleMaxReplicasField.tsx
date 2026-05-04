@@ -19,7 +19,6 @@ type AutoscaleMaxReplicasFieldProps = {
   cluster: ClusterFromSubscription;
   maxNodes: number;
   mpAvailZones?: number;
-  isEdit?: boolean;
   isHypershift?: boolean;
 };
 
@@ -30,7 +29,6 @@ const AutoscaleMaxReplicasField = ({
   cluster,
   maxNodes: initMaxNodes,
   mpAvailZones,
-  isEdit,
   isHypershift,
 }: AutoscaleMaxReplicasFieldProps) => {
   const [field, meta, helpers] = useField<number>(fieldId);
@@ -51,13 +49,8 @@ const AutoscaleMaxReplicasField = ({
   };
 
   React.useEffect(() => {
-    if (isHypershift) {
-      if (!isEdit && maxNodes < 2) {
-        helpers.setValue(maxNodes);
-      }
-      if (maxNodes === 0) {
-        helpers.setTouched(true, false);
-      }
+    if (isHypershift && maxNodes === 0) {
+      helpers.setTouched(true, false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

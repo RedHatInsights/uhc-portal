@@ -380,7 +380,6 @@ const EditMachinePoolModal = ({
                       machinePools={machinePoolsResponse || []}
                       machineTypes={machineTypesResponse}
                       allow249NodesOSDCCSROSA={allow249NodesOSDCCSROSA}
-                      isEdit={isEdit}
                     />
                     <AutoRepairField cluster={cluster} />
                     {imdsSectionFeature && !isEdit && isHypershift ? (

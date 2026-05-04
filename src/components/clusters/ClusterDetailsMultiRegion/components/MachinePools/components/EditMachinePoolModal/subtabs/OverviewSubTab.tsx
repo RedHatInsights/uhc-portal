@@ -127,7 +127,6 @@ export const useOverviewSubTab = ({
           machinePools={machinePools || []}
           machineTypes={machineTypesResponse}
           allow249NodesOSDCCSROSA={allow249NodesOSDCCSROSA}
-          isEdit={isEdit}
         />
         {imdsSectionFeature && !isEdit && isHypershift ? (
           <ImdsSection
