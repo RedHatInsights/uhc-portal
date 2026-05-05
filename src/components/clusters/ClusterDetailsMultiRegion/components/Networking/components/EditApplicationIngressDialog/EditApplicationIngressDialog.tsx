@@ -15,7 +15,7 @@ import {
 import { trackEvents } from '~/common/analytics';
 import { getRandomID } from '~/common/helpers';
 import { hasConfiguredExcludeNamespaceSelectors } from '~/components/clusters/wizards/common/excludeNamespaceSelectorsForm';
-import { DefaultIngressFieldsFormik } from '~/components/clusters/wizards/rosa/NetworkScreen/DefaultIngressFieldsFormik';
+import { DefaultIngressFieldsFormik } from '~/components/clusters/wizards/common/NetworkingSection/DefaultIngressFieldsFormik';
 import ErrorBox from '~/components/common/ErrorBox';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
