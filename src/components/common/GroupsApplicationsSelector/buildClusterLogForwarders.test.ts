@@ -33,13 +33,13 @@ describe('splitLogForwardingSelectionForSubmit', () => {
     expect(applications).toEqual(['api-audit']);
   });
 
-  it('puts single-root leaf into applications', () => {
+  it('treats the only leaf in a one-leaf group as full group selection', () => {
     const { groupIds, applications } = splitLogForwardingSelectionForSubmit(
       mockLogForwardingGroupTree,
-      ['controller-manager'],
+      ['controller-manager-child'],
     );
-    expect(groupIds).toEqual([]);
-    expect(applications).toEqual(['controller-manager']);
+    expect(groupIds).toEqual(['controller_manager']);
+    expect(applications).toEqual([]);
   });
 
   it('falls back to all ids as applications when tree is missing', () => {

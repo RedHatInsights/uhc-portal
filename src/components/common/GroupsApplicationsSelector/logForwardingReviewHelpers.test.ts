@@ -17,11 +17,11 @@ describe('groupSelectedLogForwardingItems', () => {
 
   it('returns multiple groups when selections span roots', () => {
     const grouped = groupSelectedLogForwardingItems(mockLogForwardingGroupTree, [
-      'controller-manager',
+      'controller-manager-child',
       'sample-app',
     ]);
     expect(grouped).toEqual([
-      { groupLabel: 'Controller manager', applicationLabels: ['Controller manager'] },
+      { groupLabel: 'Controller manager', applicationLabels: ['controller manager'] },
       { groupLabel: 'Ungrouped applications', applicationLabels: ['sample-application'] },
     ]);
   });
