@@ -39,6 +39,16 @@ test.describe.serial(
       await machinePoolsPage.goToMachinePoolsTab();
     });
 
+    test('Verify delete is disabled for default machine pools due to minimum count restrictions', async ({
+      machinePoolsPage,
+    }) => {
+      const minCountTooltip =
+        'There needs to be at least 2 nodes without taints across all machine pools';
+
+      await machinePoolsPage.verifyDeleteDisabled('workers-0', minCountTooltip);
+      await machinePoolsPage.verifyDeleteDisabled('workers-1', minCountTooltip);
+    });
+
     test('Verify autoscaling min and max allow 0 for HCP in Add machine pool modal', async ({
       machinePoolsPage,
     }) => {
@@ -83,7 +93,7 @@ test.describe.serial(
       const firstZone = Object.keys(zones || {})[0];
       await machinePoolsPage.selectPrivateSubnet(zones[firstZone].PRIVATE_SUBNET_NAME);
 
-      await machinePoolsPage.setAutoscalingRange('0', '0');
+      await machinePoolsPage.setAutoscalingRange('0', '1');
 
       await machinePoolsPage.clickAddMachinePoolSubmitButton();
       await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 60000 });
@@ -100,7 +110,7 @@ test.describe.serial(
       const firstZone = Object.keys(zones || {})[0];
       await machinePoolsPage.selectPrivateSubnet(zones[firstZone].PRIVATE_SUBNET_NAME);
 
-      await machinePoolsPage.setAutoscalingRange('0', '0');
+      await machinePoolsPage.setAutoscalingRange('0', '1');
 
       await machinePoolsPage.openTaintsSection();
       await machinePoolsPage.setTaint(0, 'e2e-test', 'tainted');
@@ -119,7 +129,7 @@ test.describe.serial(
 
       await expect(machinePoolsPage.autoscalingCheckbox()).toBeChecked();
       await expect(machinePoolsPage.autoscaleMinInput()).toHaveValue('0');
-      await expect(machinePoolsPage.autoscaleMaxInput()).toHaveValue('0');
+      await expect(machinePoolsPage.autoscaleMaxInput()).toHaveValue('1');
 
       // No validation error should be shown for min=0 on HCP
       await expect(machinePoolsPage.getByText(/Input cannot be less than/)).toBeHidden();
@@ -190,21 +200,17 @@ test.describe.serial(
       await machinePoolsPage.cancelMachinePoolModalButton().click();
     });
 
-    test('Verify delete is disabled for default machine pools due to minimum count restrictions', async ({
-      machinePoolsPage,
-    }) => {
-      const minCountTooltip =
-        'There needs to be at least 2 nodes without taints across all machine pools';
-
-      await machinePoolsPage.verifyDeleteDisabled('workers-0', minCountTooltip);
-      await machinePoolsPage.verifyDeleteDisabled('workers-1', minCountTooltip);
-    });
-
     test('Scale tainted pool mpAutoscale2 max > 2 and verify delete still disabled for default pools', async ({
       machinePoolsPage,
     }) => {
       await machinePoolsPage.editMachinePool(mpAutoscale2);
       await machinePoolsPage.autoscaleMaxInput().fill('3');
+      await machinePoolsPage.clickAddMachinePoolSubmitButton();
+      await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 60000 });
+
+      await machinePoolsPage.editMachinePool(mpAutoscale1);
+      await machinePoolsPage.openTaintsSection();
+      await machinePoolsPage.setTaint(0, 'e2e-test', 'tainted');
       await machinePoolsPage.clickAddMachinePoolSubmitButton();
       await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 60000 });
 
@@ -215,37 +221,33 @@ test.describe.serial(
       await machinePoolsPage.verifyDeleteDisabled('workers-1', minCountTooltip);
     });
 
-    test('Edit workers-0 and verify autoscaleMax=0 and nodeCount=0 are rejected for untainted pool', async ({
+    test('Edit workers-0 and verify autoscaleMax=0 is rejected by capacity validation and nodeCount=0 is rejected', async ({
       machinePoolsPage,
     }) => {
+      // workers-0 max=2 should be accepted
       await machinePoolsPage.editMachinePool('workers-0');
+      await machinePoolsPage.autoscaleMaxInput().fill('2');
+      await machinePoolsPage.clickAddMachinePoolSubmitButton();
+      await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 60000 });
 
-      // Set autoscale max to 0 and verify rejection
-      await machinePoolsPage.autoscaleMaxInput().fill('0');
-      await machinePoolsPage.autoscaleMaxInput().blur();
-      await expect(
-        machinePoolsPage.getByText(
-          /Max nodes must be at least \d+ to satisfy the cluster-wide untainted-node minimum/,
-        ),
-      ).toBeVisible();
-      await expect(machinePoolsPage.addMachinePoolSubmitButton()).toBeDisabled();
 
-      // Disable autoscaling and set node count to 0
+
+      // workers-1 node count=0 without autoscaling should be accepted
+      await machinePoolsPage.editMachinePool('workers-1');
       await machinePoolsPage.autoscalingCheckbox().uncheck();
       await machinePoolsPage.nodeCountInput().fill('0');
-      await machinePoolsPage.nodeCountInput().blur();
-      await expect(machinePoolsPage.getByText(/Input cannot be less than \d+\./)).toBeVisible();
-      await expect(machinePoolsPage.addMachinePoolSubmitButton()).toBeDisabled();
+      await machinePoolsPage.clickAddMachinePoolSubmitButton();
+      await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 60000 });
 
-      await machinePoolsPage.cancelMachinePoolModalButton().click();
-    });
 
-    test('Adjust workers-0 and workers-1 max and verify capacity validation', async ({
-      machinePoolsPage,
-    }) => {
-      // workers-0 max=0 should be rejected (untainted minimum not met)
       await machinePoolsPage.editMachinePool('workers-0');
+      // For HCP, max=0 is rejected as min max requirement is now 1
       await machinePoolsPage.autoscaleMaxInput().fill('0');
+      await machinePoolsPage.autoscaleMaxInput().blur();
+      await expect(machinePoolsPage.getByText(/Max nodes must be greater than 0./)).toBeVisible();
+      await expect(machinePoolsPage.addMachinePoolSubmitButton()).toBeDisabled();
+      // For HCP, max=1 is rejected as minimum untainted node count is 2 per cluster
+      await machinePoolsPage.autoscaleMaxInput().fill('1');
       await machinePoolsPage.autoscaleMaxInput().blur();
       await expect(
         machinePoolsPage.getByText(
@@ -262,35 +264,16 @@ test.describe.serial(
           /Max nodes must be at least \d+ to satisfy the cluster-wide untainted-node minimum/,
         ),
       ).toBeHidden();
-      await machinePoolsPage.clickAddMachinePoolSubmitButton();
-      await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 60000 });
 
-      // workers-1 max=0 should now be accepted (workers-0 max=2 covers the minimum)
-      await machinePoolsPage.editMachinePool('workers-1');
-      await machinePoolsPage.autoscaleMaxInput().fill('0');
-      await machinePoolsPage.autoscaleMaxInput().blur();
-      await expect(
-        machinePoolsPage.getByText(
-          /Max nodes must be at least \d+ to satisfy the cluster-wide untainted-node minimum/,
-        ),
-      ).toBeHidden();
-      await machinePoolsPage.clickAddMachinePoolSubmitButton();
-      await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 60000 });
-
-      // workers-0 max=1 should be rejected (workers-1 is now 0, so workers-0 alone must cover 2)
-      await machinePoolsPage.editMachinePool('workers-0');
-      await machinePoolsPage.autoscaleMaxInput().fill('1');
-      await machinePoolsPage.autoscaleMaxInput().blur();
-      await expect(
-        machinePoolsPage.getByText(
-          /Max nodes must be at least \d+ to satisfy the cluster-wide untainted-node minimum/,
-        ),
-      ).toBeVisible();
+      // Disable autoscaling and set node count to 0
+      await machinePoolsPage.autoscalingCheckbox().uncheck();
+      await machinePoolsPage.nodeCountInput().fill('0');
+      await machinePoolsPage.nodeCountInput().blur();
+      await expect(machinePoolsPage.getByText(/Input cannot be less than \d+\./)).toBeVisible();
       await expect(machinePoolsPage.addMachinePoolSubmitButton()).toBeDisabled();
 
       await machinePoolsPage.cancelMachinePoolModalButton().click();
-
-      // Verify delete state: workers-0 max=2, workers-1 max=0
+      // Verify delete state: workers-0 max=2, workers-1 node count=0
       // Removing workers-0 leaves 0 untainted capacity → delete disabled
       await machinePoolsPage.verifyDeleteDisabled(
         'workers-0',
