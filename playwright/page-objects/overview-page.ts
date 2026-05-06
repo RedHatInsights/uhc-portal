@@ -40,7 +40,7 @@ export class OverviewPage extends BasePage {
   }
 
   headerCreateClusterWithAssistedInstallerButton(): Locator {
-    return this.page.locator('[data-testid="OverviewHeader"]').getByTestId('create-cluster-AI');
+    return this.page.locator('[data-testid="OverviewHeader"]').getByTestId('create-cluster-assisted-installer');
   }
 
   // Central section card methods

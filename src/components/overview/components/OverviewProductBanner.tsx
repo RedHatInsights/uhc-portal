@@ -47,7 +47,7 @@ export const OverviewProductBanner = ({
           isButton
           variant="secondary"
           to={createClusterAIURL}
-          data-testid="create-cluster-AI"
+          data-testid="create-cluster-assisted-installer"
           component={Link}
         >
           Create cluster with Assisted Installer
