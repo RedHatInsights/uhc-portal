@@ -53,7 +53,7 @@ const HtpasswdDetails = ({
 }: Props) => {
   const dispatch = useDispatch();
   const isImportEnabled = useFeatureGate(HTPASSWD_IMPORT);
-  const { isLoading, users, isError, error, isFetching, refetch } = useFetchHtpasswdUsers(
+  const { isLoading, users, isError, error, refetch } = useFetchHtpasswdUsers(
     clusterId,
     idpId,
     region,
@@ -248,7 +248,7 @@ const HtpasswdDetails = ({
     );
   };
 
-  if (isLoading || isFetching) {
+  if (isLoading) {
     return (
       <Card>
         <CardBody>

@@ -82,9 +82,6 @@ export default {
   FIPS_FOR_HYPERSHIFT,
   Y_STREAM_CHANNEL,
   GCP_DNS_ZONE,
-<<<<<<< HEAD
   GCP_EXCLUDE_NAMESPACE_SELECTORS,
-=======
   HTPASSWD_IMPORT,
->>>>>>> 41bfa98af (add feature flag)
 } as const;
