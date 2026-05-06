@@ -8,6 +8,10 @@ export type HTPasswdParseResult = {
   errors: string[];
 };
 
+const HASHED_PASSWORD_PATTERN = /^(\$2[aby]\$|\$apr1\$|\$5\$|\$6\$|\{SHA\})/;
+
+const isHashedPassword = (password: string): boolean => HASHED_PASSWORD_PATTERN.test(password);
+
 export const parseHTPasswdFile = (content: string): HTPasswdParseResult => {
   const lines = content.split(/\r?\n/);
   const users: ParsedHTPasswdUser[] = [];
@@ -41,6 +45,11 @@ export const parseHTPasswdFile = (content: string): HTPasswdParseResult => {
 
     if (seenUsernames.has(username)) {
       errors.push(`Line ${index + 1}: Duplicate username "${username}".`);
+      return;
+    }
+
+    if (!isHashedPassword(password)) {
+      errors.push(`Line ${index + 1}: Password for "${username}" does not appear to be hashed.`);
       return;
     }
 
