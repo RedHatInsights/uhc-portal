@@ -197,7 +197,7 @@ export const IdentityProvidersPageValidationSchema = (selectedIDP: string) => {
         [FieldId.CREATION_MODE]: Yup.string().oneOf([CREATION_MODE_MANUAL, CREATION_MODE_UPLOAD]),
         [FieldId.USERS]: Yup.array().when(FieldId.CREATION_MODE, {
           is: CREATION_MODE_UPLOAD,
-          then: (schema) => schema,
+          then: (schema) => schema.min(1, 'Upload a valid htpasswd file'),
           otherwise: (schema) =>
             schema.of(
               Yup.object().shape({

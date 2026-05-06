@@ -154,7 +154,7 @@ const HTPasswdForm = ({
   isEdit?: boolean;
   user?: any;
 }) => {
-  const { getFieldMeta, setFieldValue, setTouched, touched, values } = useFormState();
+  const { getFieldMeta, setFieldValue, values } = useFormState();
   const isImportEnabled = useFeatureGate(HTPASSWD_IMPORT);
   const creationMode: CreationMode = isImportEnabled
     ? values[FieldId.CREATION_MODE]
@@ -162,11 +162,10 @@ const HTPasswdForm = ({
 
   const handleModeChange = (mode: CreationMode) => {
     setFieldValue(FieldId.CREATION_MODE, mode);
-    setFieldValue(FieldId.USERS, [{ username: '', password: '', 'password-confirm': '' }]);
-    setTouched({
-      ...touched,
-      [FieldId.USERS]: [{ username: false, password: false, 'password-confirm': false }],
-    });
+    setFieldValue(
+      FieldId.USERS,
+      mode === CREATION_MODE_UPLOAD ? [] : [{ username: '', password: '', 'password-confirm': '' }],
+    );
   };
 
   const getAutocompleteText = (value: string) => (
