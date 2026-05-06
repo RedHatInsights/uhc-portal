@@ -1,16 +1,18 @@
 import React from 'react';
 
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import {
+  CCSQuotaList,
+  emptyQuotaList,
+} from '~/components/clusters/common/__tests__/quota.fixtures';
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
-import { useGetBillingQuotas } from '~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
-import { mockUseFormState, render, screen } from '~/testUtils';
+import { mockUseFormState, screen, withState } from '~/testUtils';
 import { SubscriptionCommonFieldsCluster_billing_model as BillingModel } from '~/types/accounts_mgmt.v1';
 
 import { CloudProviderStepFooter } from './CloudProviderStepFooter';
 
-jest.mock('~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas');
 jest.mock('~/queries/ClusterDetailsQueries/useFetchActionsPermissions');
 
 jest.mock('@patternfly/react-core', () => ({
@@ -33,6 +35,18 @@ const baseValues = {
   [FieldId.BillingModel]: BillingModel.standard,
   [FieldId.Byoc]: 'true',
 };
+
+const renderFooter = (quotaList = emptyQuotaList) =>
+  withState(
+    {
+      userProfile: {
+        organization: {
+          quotaList,
+        },
+      },
+    },
+    true,
+  ).render(<CloudProviderStepFooter onWizardContextChange={jest.fn()} />);
 
 describe('<CloudProviderStepFooter />', () => {
   describe('Next button', () => {
@@ -57,30 +71,18 @@ describe('<CloudProviderStepFooter />', () => {
     });
 
     it('disables Next when there is no GCP resources and cloud provider is GCP', () => {
-      (useGetBillingQuotas as jest.Mock).mockReturnValue({
-        gcpResources: false,
-      });
-
-      render(<CloudProviderStepFooter onWizardContextChange={jest.fn()} />);
+      renderFooter(emptyQuotaList);
 
       expect(screen.getByTestId(wizardNextTestId)).toHaveAttribute('disabled');
     });
 
     it('enables Next when GCP resources are available and cloud provider is GCP', () => {
-      (useGetBillingQuotas as jest.Mock).mockReturnValue({
-        gcpResources: true,
-      });
-
-      render(<CloudProviderStepFooter onWizardContextChange={jest.fn()} />);
+      renderFooter(CCSQuotaList);
 
       expect(screen.getByTestId(wizardNextTestId)).not.toHaveAttribute('disabled');
     });
 
     it('enables Next when there is no GCP resources but billing is Google Cloud Marketplace', () => {
-      (useGetBillingQuotas as jest.Mock).mockReturnValue({
-        gcpResources: false,
-      });
-
       mockUseFormState({
         values: {
           ...baseValues,
@@ -93,7 +95,7 @@ describe('<CloudProviderStepFooter />', () => {
         isValidating: false,
       });
 
-      render(<CloudProviderStepFooter onWizardContextChange={jest.fn()} />);
+      renderFooter(emptyQuotaList);
 
       expect(screen.getByTestId(wizardNextTestId)).not.toHaveAttribute('disabled');
     });
