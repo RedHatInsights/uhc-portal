@@ -177,6 +177,9 @@ function Details() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isIncompatibleSecureBootVersion]);
 
+  const isMarketplaceGcp =
+    billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp;
+
   const azQuotaParams = {
     product,
     billingModel,
@@ -184,17 +187,19 @@ function Details() {
     cloudProviderID: cloudProvider,
   } as QuotaParams;
 
-  const hasSingleAzResources =
-    availableQuota(quotaList as QuotaCostList, {
-      ...quotaParams.singleAzResources,
-      ...azQuotaParams,
-    }) > 0;
+  const hasSingleAzResources = isMarketplaceGcp
+    ? true
+    : availableQuota(quotaList as QuotaCostList, {
+        ...quotaParams.singleAzResources,
+        ...azQuotaParams,
+      }) > 0;
 
-  const hasMultiAzResources =
-    availableQuota(quotaList as QuotaCostList, {
-      ...quotaParams.multiAzResources,
-      ...azQuotaParams,
-    }) > 0;
+  const hasMultiAzResources = isMarketplaceGcp
+    ? true
+    : availableQuota(quotaList as QuotaCostList, {
+        ...quotaParams.multiAzResources,
+        ...azQuotaParams,
+      }) > 0;
 
   React.useEffect(() => {
     if (!hasSingleAzResources && hasMultiAzResources) {

@@ -27,7 +27,10 @@ import PopoverHint from '~/components/common/PopoverHint';
 import { MachineTypesResponse } from '~/queries/types';
 import { DEFAULT_FLAVOUR_ID, getDefaultFlavour } from '~/redux/actions/flavourActions';
 import { useGlobalState } from '~/redux/hooks';
-import { RelatedResourceBilling_model as RelatedResourceBillingModel } from '~/types/accounts_mgmt.v1';
+import {
+  RelatedResourceBilling_model as RelatedResourceBillingModel,
+  SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel,
+} from '~/types/accounts_mgmt.v1';
 import { BillingModel, CloudProvider, MachineType } from '~/types/clusters_mgmt.v1';
 import { ErrorState } from '~/types/types';
 
@@ -184,6 +187,10 @@ const MachineTypeSelection = ({
 
       if (!isBYOC && machineType.ccs_only) {
         return false;
+      }
+
+      if (billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp) {
+        return true;
       }
 
       const quotaParams = {
