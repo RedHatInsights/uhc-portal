@@ -16,6 +16,13 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
       docLinks.WHAT_IS_OPENSHIFT,
     );
 
+    // Check Create cluster header buttons redirect properly
+    await expect(overviewPage.headerCreateClusterButton()).toHaveAttribute('href', '/openshift/create');
+    await expect(overviewPage.headerCreateClusterWithAssistedInstallerButton()).toHaveAttribute(
+      'href',
+      '/openshift/assisted-installer/clusters/~new',
+    );
+
     // Verify central section has expected number of cards
     await overviewPage.centralSectionCardsExpected(7);
 
