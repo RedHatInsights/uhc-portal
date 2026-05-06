@@ -136,7 +136,7 @@ describe('<AutoscalingField />', () => {
         </FormikWrapper>,
       );
 
-      expect(screen.getByText('Maximum nodes has been reached.')).toBeInTheDocument();
+      expect(screen.getByText('Maximum nodes limit has been reached.')).toBeInTheDocument();
     });
 
     it('does not disable the checkbox when autoscaling is already enabled', () => {
@@ -160,7 +160,7 @@ describe('<AutoscalingField />', () => {
         </FormikWrapper>,
       );
 
-      expect(screen.queryByText('Maximum nodes has been reached.')).not.toBeInTheDocument();
+      expect(screen.queryByText('Maximum nodes limit has been reached.')).not.toBeInTheDocument();
     });
 
     it('does not disable the checkbox when cluster is not hypershift', () => {
@@ -184,7 +184,7 @@ describe('<AutoscalingField />', () => {
         </FormikWrapper>,
       );
 
-      expect(screen.queryByText('Maximum nodes has been reached.')).not.toBeInTheDocument();
+      expect(screen.queryByText('Maximum nodes limit has been reached.')).not.toBeInTheDocument();
     });
 
     it('does not disable the checkbox when isMaxReached is false', () => {
@@ -208,7 +208,7 @@ describe('<AutoscalingField />', () => {
         </FormikWrapper>,
       );
 
-      expect(screen.queryByText('Maximum nodes has been reached.')).not.toBeInTheDocument();
+      expect(screen.queryByText('Maximum nodes limit has been reached.')).not.toBeInTheDocument();
     });
 
     it('does not disable the checkbox when isMaxReached is undefined', () => {

@@ -64,7 +64,7 @@ const AutoscalingField = ({ cluster, isMaxReached }: AutoscalingFieldProps) => {
       />
       {isDisabled ? (
         <Alert
-          title="Maximum nodes has been reached."
+          title="Maximum nodes limit has been reached."
           className="pf-v6-u-mt-sm"
           variant="warning"
           isInline
