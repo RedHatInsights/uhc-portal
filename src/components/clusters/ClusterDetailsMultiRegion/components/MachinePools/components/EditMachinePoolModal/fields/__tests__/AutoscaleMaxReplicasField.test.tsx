@@ -38,12 +38,7 @@ describe('<AutoscaleMaxReplicasField />', () => {
     it('does not override value when isEdit is true', () => {
       render(
         <FormikWrapper initialAutoscaleMax={2}>
-          <AutoscaleMaxReplicasField
-            cluster={hypershiftCluster}
-            minNodes={0}
-            maxNodes={1}
-            isHypershift
-          />
+          <AutoscaleMaxReplicasField cluster={hypershiftCluster} minNodes={0} maxNodes={1} />
         </FormikWrapper>,
       );
 
@@ -63,12 +58,7 @@ describe('<AutoscaleMaxReplicasField />', () => {
     it('does not override value when maxNodes >= 2', () => {
       render(
         <FormikWrapper initialAutoscaleMax={2}>
-          <AutoscaleMaxReplicasField
-            cluster={hypershiftCluster}
-            minNodes={0}
-            maxNodes={5}
-            isHypershift
-          />
+          <AutoscaleMaxReplicasField cluster={hypershiftCluster} minNodes={0} maxNodes={5} />
         </FormikWrapper>,
       );
 

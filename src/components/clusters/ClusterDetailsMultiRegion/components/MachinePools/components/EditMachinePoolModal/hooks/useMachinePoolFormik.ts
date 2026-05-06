@@ -405,13 +405,6 @@ const useMachinePoolFormik = ({
                       'autoscaleMax',
                     );
                   }
-                  if (value !== undefined && maxNodes === 0) {
-                    return new Yup.ValidationError(
-                      'Max nodes limit has been reached',
-                      value,
-                      'autoscaleMax',
-                    );
-                  }
                   if (isHypershift && value !== undefined && value < minNodes) {
                     return new Yup.ValidationError(
                       `Max nodes must be at least ${minNodes} to satisfy the cluster-wide untainted-node minimum.`,

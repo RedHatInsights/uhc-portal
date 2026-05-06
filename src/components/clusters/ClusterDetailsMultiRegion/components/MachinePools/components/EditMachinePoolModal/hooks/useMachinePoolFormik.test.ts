@@ -410,39 +410,6 @@ describe('useMachinePoolFormik', () => {
           'Max nodes must be greater than 0.',
         );
       });
-
-      it('should reject autoscaleMax when max nodes limit has been reached', async () => {
-        jest.spyOn(machinePoolUtils, 'getMaxNodeCountForMachinePool').mockReturnValue(0);
-
-        const machinePool = {
-          kind: 'NodePool',
-          id: 'test-pool',
-          autoscaling: {
-            min_replicas: 0,
-            max_replicas: 5,
-          },
-        };
-
-        const { validationSchema } = renderHook(() =>
-          useMachinePoolFormik({
-            cluster: hyperShiftCluster,
-            machinePool,
-            machineTypes: defaultMachineTypes,
-            machinePools: [machinePool],
-          }),
-        ).result.current;
-
-        const values = {
-          ...hyperShiftExpectedInitialValues,
-          autoscaling: true,
-          autoscaleMin: 0,
-          autoscaleMax: 5,
-        };
-
-        await expect(validationSchema.validateAt('autoscaleMax', values)).rejects.toThrow(
-          'Max nodes limit has been reached',
-        );
-      });
     });
 
     describe('capacityReservationId', () => {
