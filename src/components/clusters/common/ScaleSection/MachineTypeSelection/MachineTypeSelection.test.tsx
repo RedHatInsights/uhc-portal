@@ -4,11 +4,13 @@ import { Formik } from 'formik';
 import {
   CCSOneNodeRemainingQuotaList,
   CCSQuotaList,
+  emptyQuotaList,
   rhQuotaList,
 } from '~/components/clusters/common/__tests__/quota.fixtures';
 import { useGlobalState } from '~/redux/hooks';
 import { mapMachineTypesById } from '~/redux/reducers/machineTypesReducer';
 import { checkAccessibility, render, screen, within } from '~/testUtils';
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import {
   baseFlavoursState,
@@ -73,6 +75,12 @@ const byocProps: MachineTypeSelectionProps = {
   machineTypesResponse,
   isMultiAz: true,
   isBYOC: true,
+};
+
+const gcpMarketplaceProps: MachineTypeSelectionProps = {
+  ...defaultProps,
+  machineTypesResponse,
+  billingModel: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
 };
 
 describe('MachineTypeSelection', () => {
@@ -265,6 +273,30 @@ describe('MachineTypeSelection', () => {
             { exact: false },
           ),
         ).toBeInTheDocument();
+      });
+    });
+
+    describe('with GCP marketplace billing model', () => {
+      it('displays machine types even when quota is unavailable', async () => {
+        // Arrange
+        useGlobalStateMock.mockReturnValue({
+          flavours: fulfilledFlavoursState,
+          machineTypesByRegion: fulfilledMachineByRegionState,
+          organization: organizationState,
+          quota: emptyQuotaList,
+        });
+
+        // Act
+        const { user } = render(
+          buildTestComponent(<MachineTypeSelection {...gcpMarketplaceProps} />),
+        );
+
+        await user.click(screen.getByLabelText('Machine type select toggle'));
+
+        // Assert
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(screen.getByText('m5.xlarge')).toBeInTheDocument();
+        expect(screen.getByText('m5.4xlarge')).toBeInTheDocument();
       });
     });
   });
