@@ -2,8 +2,8 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import * as helpers from '~/common/helpers';
-import * as ReleaseHooks from '~/components/releases/hooks';
 import * as versionSelectHelper from '~/components/clusters/wizards/common/ClusterSettings/Details/versionSelectHelper';
+import * as ReleaseHooks from '~/components/releases/hooks';
 import { clustersActions } from '~/redux/actions/clustersActions';
 import type { GlobalState } from '~/redux/stateTypes';
 import { checkAccessibility, screen, waitFor, within, withState } from '~/testUtils';
