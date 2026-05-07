@@ -247,7 +247,6 @@ function VersionSelection({
 
     const groupedVersions = getVersionsData(
       filteredVersions,
-      unstableOCPVersionsEnabled,
       supportVersionMap,
       isEUSChannelEnabled && !isYStreamChannelEnabled ? channelGroup : undefined,
     );
@@ -284,7 +283,6 @@ function VersionSelection({
     versions,
     showOnlyCompatibleVersions,
     incompatibleVersionReason,
-    unstableOCPVersionsEnabled,
     supportVersionMap,
     channelGroup,
     isEUSChannelEnabled,

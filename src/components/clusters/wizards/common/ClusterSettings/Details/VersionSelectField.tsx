@@ -151,18 +151,10 @@ export const VersionSelectField = ({
     () =>
       getVersionsData(
         versions,
-        unstableOCPVersionsEnabled,
         supportVersionMap,
         isEUSChannelEnabled && !isYStreamChannelEnabled ? channelGroup : undefined,
       ),
-    [
-      supportVersionMap,
-      versions,
-      unstableOCPVersionsEnabled,
-      channelGroup,
-      isEUSChannelEnabled,
-      isYStreamChannelEnabled,
-    ],
+    [supportVersionMap, versions, channelGroup, isEUSChannelEnabled, isYStreamChannelEnabled],
   );
 
   return (

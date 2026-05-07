@@ -41,7 +41,6 @@ type GetInstallableVersionsResponse = {
 
 const getVersionsData = (
   versions: Version[],
-  unstableVersionsIncluded: boolean,
   supportVersionMap?: SupportMap,
   channelGroupSelected?: string,
 ) => {
