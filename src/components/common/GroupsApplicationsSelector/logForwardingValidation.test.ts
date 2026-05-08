@@ -95,6 +95,7 @@ describe('logForwardingValidation', () => {
         [FieldId.LogForwardingS3Enabled]: true,
         [FieldId.LogForwardingS3BucketName]: '',
         [FieldId.LogForwardingS3BucketPrefix]: '',
+        [FieldId.LogForwardingS3SelectedItems]: ['api'],
       };
 
       it('requires bucket name', () => {
@@ -137,6 +138,16 @@ describe('logForwardingValidation', () => {
         } as Record<string, unknown>);
         expect(errors[FieldId.LogForwardingS3BucketName]).toBe('Bucket name is required.');
       });
+
+      it('requires at least one selected group or application', () => {
+        const errors = validateLogForwardingFields({
+          ...baseS3,
+          [FieldId.LogForwardingS3SelectedItems]: [],
+        });
+        expect(errors[FieldId.LogForwardingS3SelectedItems]).toBe(
+          'Select at least one group or application.',
+        );
+      });
     });
 
     describe('CloudWatch enabled', () => {
@@ -145,6 +156,7 @@ describe('logForwardingValidation', () => {
         [FieldId.LogForwardingCloudWatchLogGroupName]: '',
         [FieldId.LogForwardingCloudWatchRoleArn]: '',
         [FieldId.LogForwardingCloudWatchPrerequisiteAck]: false,
+        [FieldId.LogForwardingCloudWatchSelectedItems]: ['api'],
       };
 
       it('requires log group name', () => {
@@ -206,6 +218,36 @@ describe('logForwardingValidation', () => {
         );
         expect(errors[FieldId.LogForwardingCloudWatchRoleArn]).toBe('Role ARN is required.');
       });
+
+      it('rejects log group names with invalid characters', () => {
+        const errors = validateLogForwardingFields({
+          ...baseCw,
+          [FieldId.LogForwardingCloudWatchLogGroupName]: 'invalid name',
+          [FieldId.LogForwardingCloudWatchRoleArn]: validRoleArn,
+          [FieldId.LogForwardingCloudWatchPrerequisiteAck]: true,
+        });
+        expect(errors[FieldId.LogForwardingCloudWatchLogGroupName]).toContain('invalid characters');
+      });
+
+      it('rejects log group names longer than 512 characters', () => {
+        const errors = validateLogForwardingFields({
+          ...baseCw,
+          [FieldId.LogForwardingCloudWatchLogGroupName]: `${'a'.repeat(513)}`,
+          [FieldId.LogForwardingCloudWatchRoleArn]: validRoleArn,
+          [FieldId.LogForwardingCloudWatchPrerequisiteAck]: true,
+        });
+        expect(errors[FieldId.LogForwardingCloudWatchLogGroupName]).toContain('512');
+      });
+
+      it('requires at least one selected group or application', () => {
+        const errors = validateLogForwardingFields({
+          ...baseCw,
+          [FieldId.LogForwardingCloudWatchSelectedItems]: [],
+        });
+        expect(errors[FieldId.LogForwardingCloudWatchSelectedItems]).toBe(
+          'Select at least one group or application.',
+        );
+      });
     });
 
     it('validates S3 and CloudWatch independently when both are enabled', () => {
@@ -213,10 +255,12 @@ describe('logForwardingValidation', () => {
         [FieldId.LogForwardingS3Enabled]: true,
         [FieldId.LogForwardingS3BucketName]: '',
         [FieldId.LogForwardingS3BucketPrefix]: '',
+        [FieldId.LogForwardingS3SelectedItems]: ['api'],
         [FieldId.LogForwardingCloudWatchEnabled]: true,
         [FieldId.LogForwardingCloudWatchLogGroupName]: '',
         [FieldId.LogForwardingCloudWatchRoleArn]: '',
         [FieldId.LogForwardingCloudWatchPrerequisiteAck]: false,
+        [FieldId.LogForwardingCloudWatchSelectedItems]: ['api'],
       });
       expect(errors[FieldId.LogForwardingS3BucketName]).toBeDefined();
       expect(errors[FieldId.LogForwardingCloudWatchLogGroupName]).toBeDefined();

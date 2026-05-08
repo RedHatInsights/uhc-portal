@@ -196,7 +196,7 @@ const CreateROSAWizardInternal = ({
       scope === WizardStepChangeScope.Next &&
       prevStep?.id === stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING &&
       isHcpLogForwardingEnabled &&
-      values[FieldId.Hypershift] === 'true' &&
+      isHypershiftSelected &&
       logForwardingConfigured
     ) {
       track('Log Forwarding Configured', { context: 'cluster_creation' });

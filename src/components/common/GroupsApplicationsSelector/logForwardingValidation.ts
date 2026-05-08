@@ -3,6 +3,18 @@ import { FormikValues } from 'formik';
 import { validateRoleARN } from '~/common/validators';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 
+/** Allowed characters per CloudWatch Logs log group naming rules (max 512). */
+const CLOUDWATCH_LOG_GROUP_NAME_MAX_LENGTH = 512;
+const CLOUDWATCH_LOG_GROUP_NAME_RE = /^[-#./A-Za-z0-9_]+$/;
+
+function logForwardingSelectedItemsMissing(values: FormikValues, fieldId: string): boolean {
+  const raw = values[fieldId];
+  if (!Array.isArray(raw)) {
+    return true;
+  }
+  return raw.length === 0;
+}
+
 /** AWS S3 bucket naming rules (DNS-compliant): 3–63 chars, lowercase, no consecutive dots. */
 export function validateS3BucketName(name: string): string | undefined {
   const n = name.trim();
@@ -60,12 +72,22 @@ export function validateLogForwardingFields(values: FormikValues): Record<string
     if (prefixErr) {
       errors[FieldId.LogForwardingS3BucketPrefix] = prefixErr;
     }
+
+    if (logForwardingSelectedItemsMissing(values, FieldId.LogForwardingS3SelectedItems)) {
+      errors[FieldId.LogForwardingS3SelectedItems] = 'Select at least one group or application.';
+    }
   }
 
   if (values[FieldId.LogForwardingCloudWatchEnabled]) {
     const logGroup = String(values[FieldId.LogForwardingCloudWatchLogGroupName] ?? '').trim();
     if (!logGroup) {
       errors[FieldId.LogForwardingCloudWatchLogGroupName] = 'Log group name is required.';
+    } else if (logGroup.length > CLOUDWATCH_LOG_GROUP_NAME_MAX_LENGTH) {
+      errors[FieldId.LogForwardingCloudWatchLogGroupName] =
+        'Log group name contains invalid characters or is too long (max 512).';
+    } else if (!CLOUDWATCH_LOG_GROUP_NAME_RE.test(logGroup)) {
+      errors[FieldId.LogForwardingCloudWatchLogGroupName] =
+        'Log group name contains invalid characters or is too long (max 512).';
     }
     const roleArn = String(values[FieldId.LogForwardingCloudWatchRoleArn] ?? '').trim();
     if (!roleArn) {
@@ -79,6 +101,11 @@ export function validateLogForwardingFields(values: FormikValues): Record<string
     if (!values[FieldId.LogForwardingCloudWatchPrerequisiteAck]) {
       errors[FieldId.LogForwardingCloudWatchPrerequisiteAck] =
         'Confirm you have completed the prerequisites to continue.';
+    }
+
+    if (logForwardingSelectedItemsMissing(values, FieldId.LogForwardingCloudWatchSelectedItems)) {
+      errors[FieldId.LogForwardingCloudWatchSelectedItems] =
+        'Select at least one group or application.';
     }
   }
 

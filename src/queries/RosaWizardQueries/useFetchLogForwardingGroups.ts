@@ -11,30 +11,21 @@ export function useFetchLogForwardingGroups(options?: { enabled?: boolean }) {
   const { isLoading, data, isError, error, isFetching } = useQuery({
     queryKey: [queryConstants.FETCH_LOG_FORWARDING_GROUPS],
     queryFn: async (): Promise<LogForwardingGroupTreeNode[]> => {
-      const { data } = await clusterService.getLogForwardingGroups({ size: -1 });
-      return logForwardingGroupVersionsListToTree(data?.items);
+      const { data: response } = await clusterService.getLogForwardingGroups({ size: -1 });
+      return logForwardingGroupVersionsListToTree(response?.items);
     },
     staleTime: queryConstants.STALE_TIME_60_SEC,
     enabled: options?.enabled ?? true,
     retry: false,
   });
 
-  if (isError) {
-    const formattedError = formatErrorData(isLoading, isError, error);
-    return {
-      data,
-      isLoading,
-      isError,
-      error: formattedError.error,
-      isFetching,
-    };
-  }
+  const formattedError = isError ? formatErrorData(isLoading, isError, error) : null;
 
   return {
     data,
     isLoading,
     isError,
-    error,
+    error: formattedError?.error ?? error,
     isFetching,
   };
 }

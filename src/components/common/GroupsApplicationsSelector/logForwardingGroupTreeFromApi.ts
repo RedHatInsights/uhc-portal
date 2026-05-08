@@ -10,6 +10,10 @@ export function logForwardingGroupRootId(groupName: string): string {
 }
 
 /** Compare version ids so the numerically highest / latest id sorts last. */
+function isNonEmptyApplicationId(a: unknown): a is string {
+  return typeof a === 'string' && a.trim().length > 0;
+}
+
 export function compareLogForwarderVersionIds(a?: string, b?: string): number {
   const sa = a ?? '';
   const sb = b ?? '';
@@ -52,7 +56,7 @@ export function logForwardingGroupVersionsListToTree(
       return [];
     }
     const latest = pickLatestLogForwarderGroupVersion(group.versions);
-    const apps = latest?.applications?.filter((a) => a?.trim()) ?? [];
+    const apps = latest?.applications?.filter(isNonEmptyApplicationId) ?? [];
     if (!apps.length) {
       return [];
     }

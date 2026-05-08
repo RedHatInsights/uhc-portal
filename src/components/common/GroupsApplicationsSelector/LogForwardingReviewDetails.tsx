@@ -79,6 +79,9 @@ export function LogForwardingReviewDetails({ formValues }: { formValues: FormVal
     useFetchLogForwardingGroups();
   const s3On = !!formValues[FieldId.LogForwardingS3Enabled];
   const cwOn = !!formValues[FieldId.LogForwardingCloudWatchEnabled];
+  const s3BucketPrefixRaw = formValues[FieldId.LogForwardingS3BucketPrefix];
+  const s3BucketPrefixTrimmed =
+    typeof s3BucketPrefixRaw === 'string' ? s3BucketPrefixRaw.trim() : '';
 
   return (
     <>
@@ -105,11 +108,7 @@ export function LogForwardingReviewDetails({ formValues }: { formValues: FormVal
           <DescriptionListGroup>
             <DescriptionListTerm>Bucket prefix</DescriptionListTerm>
             <DescriptionListDescription>
-              {formValues[FieldId.LogForwardingS3BucketPrefix]?.trim() ? (
-                formValues[FieldId.LogForwardingS3BucketPrefix]?.trim()
-              ) : (
-                <span className="pf-v6-u-disabled-color-100">None</span>
-              )}
+              {s3BucketPrefixTrimmed || noneLabel}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
