@@ -5,10 +5,9 @@ import {
   Card,
   CardBody,
   CardTitle,
-  DescriptionList,
-  DescriptionListDescription,
-  DescriptionListGroup,
-  DescriptionListTerm,
+  Flex,
+  FlexItem,
+  Icon,
   Label,
   LabelGroup,
   Spinner,
@@ -46,7 +45,11 @@ function formatForwarderStatus(status: LogForwarderStatus | undefined): {
   if (state.includes('ready')) {
     return {
       label: 'Ready',
-      icon: <CheckCircleIcon className="pf-v6-u-color-status-success" aria-hidden />,
+      icon: (
+        <Icon status="success">
+          <CheckCircleIcon aria-hidden />
+        </Icon>
+      ),
     };
   }
   if (state.includes('pending') || state.includes('progress') || state.includes('waiting')) {
@@ -104,21 +107,66 @@ function SelectedGroupsApplicationsLabels({
   );
 }
 
+type ConfigColumn = { term: string; description: React.ReactNode };
+
+/** Single horizontal row: each column is label above value (matches Settings mockup). */
+function ForwarderConfigColumns({
+  columns,
+  forwarder,
+}: {
+  columns: ConfigColumn[];
+  forwarder: LogForwarder;
+}) {
+  const statusDisplay = formatForwarderStatus(forwarder.status);
+
+  return (
+    <Flex
+      direction={{ default: 'row' }}
+      flexWrap={{ default: 'wrap' }}
+      alignItems={{ default: 'alignItemsFlexStart' }}
+      justifyContent={{ default: 'justifyContentSpaceBetween' }}
+      gap={{ default: 'gapXl' }}
+    >
+      {columns.map((col) => (
+        <FlexItem key={col.term} flex={{ default: 'flex_1' }} className="pf-v6-u-min-width-0">
+          <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsXs' }}>
+            <span className="pf-v6-u-font-weight-bold">{col.term}</span>
+            <div>{col.description}</div>
+          </Flex>
+        </FlexItem>
+      ))}
+      <FlexItem flex={{ default: 'flex_1' }} className="pf-v6-u-min-width-0">
+        <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsXs' }}>
+          <span className="pf-v6-u-font-weight-bold">Status</span>
+          <div className="pf-v6-u-min-width-0">
+            <Flex
+              direction={{ default: 'row' }}
+              alignItems={{ default: 'alignItemsCenter' }}
+              spaceItems={{ default: 'spaceItemsSm' }}
+            >
+              {statusDisplay.icon}
+              <span>{statusDisplay.label}</span>
+            </Flex>
+          </div>
+        </Flex>
+      </FlexItem>
+    </Flex>
+  );
+}
+
 function LogDestinationCard({
   title,
   forwarder,
   tree,
   treeLoading,
-  children,
+  columns,
 }: {
   title: string;
   forwarder: LogForwarder;
   tree: LogForwardingGroupTreeNode[];
   treeLoading: boolean;
-  children: React.ReactNode;
+  columns: ConfigColumn[];
 }) {
-  const statusDisplay = formatForwarderStatus(forwarder.status);
-
   return (
     <Card isCompact>
       <CardTitle>
@@ -128,25 +176,7 @@ function LogDestinationCard({
       </CardTitle>
       <CardBody>
         <Stack hasGutter>
-          <DescriptionList isHorizontal termWidth="12rem">
-            {children}
-            <DescriptionListGroup>
-              <DescriptionListTerm>Status</DescriptionListTerm>
-              <DescriptionListDescription>
-                <Stack hasGutter>
-                  <StackItem>
-                    <span className="pf-v6-u-display-inline-flex pf-v6-u-align-items-center pf-v6-u-gap-sm">
-                      {statusDisplay.icon}
-                      {statusDisplay.label}
-                    </span>
-                  </StackItem>
-                  {forwarder.status?.message ? (
-                    <StackItem>{forwarder.status.message}</StackItem>
-                  ) : null}
-                </Stack>
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-          </DescriptionList>
+          <ForwarderConfigColumns columns={columns} forwarder={forwarder} />
           <div>
             <Title headingLevel="h5" size="md" className="pf-v6-u-mb-sm">
               Selected groups and applications
@@ -221,24 +251,21 @@ const ControlPlaneLogForwardingSection = ({ cluster }: { cluster: AugmentedClust
           forwarder={s3Forwarder}
           tree={catalogTree}
           treeLoading={treeLoading}
-        >
-          <DescriptionListGroup>
-            <DescriptionListTerm>Configuration</DescriptionListTerm>
-            <DescriptionListDescription>Enabled</DescriptionListDescription>
-          </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>Bucket name</DescriptionListTerm>
-            <DescriptionListDescription>
-              {s3Forwarder.s3?.bucket_name?.trim() || noneLabel}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>Bucket prefix</DescriptionListTerm>
-            <DescriptionListDescription>
-              {s3Forwarder.s3?.bucket_prefix?.trim() || noneLabel}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-        </LogDestinationCard>
+          columns={[
+            {
+              term: 'Configuration',
+              description: 'Enabled',
+            },
+            {
+              term: 'Bucket name',
+              description: s3Forwarder.s3?.bucket_name?.trim() || noneLabel,
+            },
+            {
+              term: 'Bucket prefix',
+              description: s3Forwarder.s3?.bucket_prefix?.trim() || noneLabel,
+            },
+          ]}
+        />
       ) : null}
 
       {!isForwardersLoading && !isForwardersError && cloudWatchForwarder ? (
@@ -247,21 +274,18 @@ const ControlPlaneLogForwardingSection = ({ cluster }: { cluster: AugmentedClust
           forwarder={cloudWatchForwarder}
           tree={catalogTree}
           treeLoading={treeLoading}
-        >
-          <DescriptionListGroup>
-            <DescriptionListTerm>Configuration</DescriptionListTerm>
-            <DescriptionListDescription>Enabled</DescriptionListDescription>
-          </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>Log group name</DescriptionListTerm>
-            <DescriptionListDescription>
-              {cloudWatchForwarder.cloudwatch?.log_group_name?.trim() || noneLabel}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>Role ARN</DescriptionListTerm>
-            <DescriptionListDescription>
-              {cloudWatchForwarder.cloudwatch?.log_distribution_role_arn ? (
+          columns={[
+            {
+              term: 'Configuration',
+              description: 'Enabled',
+            },
+            {
+              term: 'Log group name',
+              description: cloudWatchForwarder.cloudwatch?.log_group_name?.trim() || noneLabel,
+            },
+            {
+              term: 'Role ARN',
+              description: cloudWatchForwarder.cloudwatch?.log_distribution_role_arn ? (
                 <span
                   className="pf-v6-u-text-break-word"
                   title={cloudWatchForwarder.cloudwatch.log_distribution_role_arn}
@@ -270,10 +294,10 @@ const ControlPlaneLogForwardingSection = ({ cluster }: { cluster: AugmentedClust
                 </span>
               ) : (
                 noneLabel
-              )}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-        </LogDestinationCard>
+              ),
+            },
+          ]}
+        />
       ) : null}
     </Stack>
   );
