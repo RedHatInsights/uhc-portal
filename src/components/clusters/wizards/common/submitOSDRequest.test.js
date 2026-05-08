@@ -813,24 +813,26 @@ describe('createClusterRequest', () => {
           ],
         };
         const request = createClusterRequest({}, data);
-        expect(request.control_plane?.log_forwarders).toEqual([
-          {
-            cloudwatch: {
-              log_distribution_role_arn: 'arn:aws:iam::123456789012:role/rosa-log-forwarding',
-              log_group_name: 'hcp-control-plane',
+        expect(request.control_plane?.log_forwarders).toEqual({
+          items: [
+            {
+              cloudwatch: {
+                log_distribution_role_arn: 'arn:aws:iam::123456789012:role/rosa-log-forwarding',
+                log_group_name: 'hcp-control-plane',
+              },
+              groups: [{ id: 'api' }],
+              applications: [],
             },
-            groups: [{ id: 'api' }],
-            applications: [],
-          },
-          {
-            s3: {
-              bucket_name: 'my-logs-bucket',
-              bucket_prefix: '/rosa/logs/',
+            {
+              s3: {
+                bucket_name: 'my-logs-bucket',
+                bucket_prefix: '/rosa/logs/',
+              },
+              groups: [{ id: 'authentication' }],
+              applications: [],
             },
-            groups: [{ id: 'authentication' }],
-            applications: [],
-          },
-        ]);
+          ],
+        });
       });
 
       it('omits control_plane.log_forwarders when neither S3 nor CloudWatch log forwarding is enabled', () => {

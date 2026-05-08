@@ -449,7 +449,8 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
     if (logForwarders.length > 0) {
       clusterRequest.control_plane = {
         ...clusterRequest.control_plane,
-        log_forwarders: logForwarders,
+        // OCM expects api.LogForwarderList ({ items }) here, not a bare JSON array.
+        log_forwarders: { items: logForwarders },
       };
     }
   }
