@@ -56,6 +56,8 @@ import UserWorkloadMonitoringSection from '../../../common/UserWorkloadMonitorin
 import { UpdateAllMachinePools } from '../MachinePools/UpdateMachinePools';
 import { ChannelEdit } from '../Overview/ChannelEdit/ChannelEdit';
 
+import ControlPlaneLogForwardingSection from './ControlPlaneLogForwardingSection';
+
 interface UpgradeSettingsFormValues {
   upgrade_policy: 'automatic' | 'manual';
   automatic_upgrade_schedule: string;
@@ -496,6 +498,9 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
             </Card>
           )}
         </Stack>
+      </GridItem>
+      <GridItem lg={12} md={12}>
+        <ControlPlaneLogForwardingSection cluster={cluster} />
       </GridItem>
     </Grid>
   );

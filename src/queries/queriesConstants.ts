@@ -4,6 +4,8 @@ export const queryConstants = {
   API_PAGE_SIZE: 500,
   FETCH_CLUSTERS_QUERY_KEY: 'fetchClusters',
   FETCH_CLUSTER_DETAILS_QUERY_KEY: 'fetchClusterDetails',
+  FETCH_CLUSTER_CONTROL_PLANE_LOG_FORWARDERS: 'fetchClusterControlPlaneLogForwarders',
+  FETCH_LOG_FORWARDING_GROUPS_CATALOG: 'fetchLogForwardingGroupsCatalog',
   FETCH_CLUSTER_LOGS_QUERY_KEY: 'fetchClusterLogs',
   FETCH_CLUSTER_STATUS_MONITOR_INFLIGHT_CHECKS: 'fetchClusterStatusMonitorInflightChecks',
   FETCH_CLUSTERS_REFETCH_INTERVAL: 60000, // milliseconds

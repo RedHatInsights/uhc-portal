@@ -32,6 +32,7 @@ import type {
   KubeletConfig,
   LimitedSupportReason,
   Log,
+  LogForwarder,
   LogForwarderApplication,
   LogForwarderGroupVersions,
   MachinePool,
@@ -729,6 +730,24 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         total?: number;
       }>(`/api/clusters_mgmt/v1/clusters/${clusterID}/control_plane/upgrade_policies`, {
         params: {},
+      }),
+
+    getClusterControlPlaneLogForwarders: (clusterID: string) =>
+      apiRequest.get<{
+        items?: LogForwarder[];
+        page?: number;
+        size?: number;
+        total?: number;
+      }>(`/api/clusters_mgmt/v1/clusters/${clusterID}/control_plane/log_forwarders`),
+
+    getLogForwardingGroups: (params?: { size?: number }) =>
+      apiRequest.get<{
+        items?: LogForwarderGroupVersions[];
+        page?: number;
+        size?: number;
+        total?: number;
+      }>('/api/clusters_mgmt/v1/log_forwarding/groups', {
+        params: { size: params?.size ?? -1 },
       }),
 
     getUpgradeScheduleState: (

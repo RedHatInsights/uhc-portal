@@ -84,6 +84,26 @@ jest.mock('~/queries/ClusterDetailsQueries/useFetchClusterDetails', () => ({
   invalidateClusterDetailsQueries: jest.fn(),
 }));
 
+jest.mock('~/queries/ClusterDetailsQueries/useFetchClusterControlPlaneLogForwarders', () => ({
+  useFetchClusterControlPlaneLogForwarders: jest.fn(() => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+    error: null,
+    isFetching: false,
+  })),
+}));
+
+jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingGroupsCatalog', () => ({
+  useFetchLogForwardingGroupsCatalog: jest.fn(() => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+    error: null,
+    isFetching: false,
+  })),
+}));
+
 // Test fixtures
 const createMockCluster = (overrides = {}) => ({
   id: 'test-cluster-id',

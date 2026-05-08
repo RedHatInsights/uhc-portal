@@ -55,6 +55,12 @@ getMachineTypesByRegionARN.mockResolvedValue([]);
 const updateDeleteProtection = jest.fn();
 updateDeleteProtection.mockResolvedValue({});
 
+const getClusterControlPlaneLogForwarders = jest.fn();
+getClusterControlPlaneLogForwarders.mockResolvedValue({ data: { items: [] } });
+
+const getLogForwardingGroups = jest.fn();
+getLogForwardingGroups.mockResolvedValue({ data: { items: [] } });
+
 const clusterService = {
   getClusters,
   postNewCluster,
@@ -74,6 +80,8 @@ const clusterService = {
   clearGetMachinePoolsResponse,
   getInstallableVersions,
   getMachineTypesByRegionARN,
+  getClusterControlPlaneLogForwarders,
+  getLogForwardingGroups,
 };
 
 export default clusterService;
