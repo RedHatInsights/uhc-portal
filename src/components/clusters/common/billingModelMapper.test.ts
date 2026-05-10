@@ -4,7 +4,10 @@ import {
 } from '~/types/accounts_mgmt.v1';
 import { BillingModel } from '~/types/clusters_mgmt.v1/enums';
 
-import { clusterBillingModelToRelatedResource } from './billingModelMapper';
+import {
+  clusterBillingModelToRelatedResource,
+  isGcpMarketplaceBilling,
+} from './billingModelMapper';
 
 describe('billingModelMapper', () => {
   describe('clusterBillingModelToRelatedResource', () => {
@@ -37,5 +40,17 @@ describe('billingModelMapper', () => {
         expected: RelatedResourceBillingModel | string | undefined,
       ) => expect(clusterBillingModelToRelatedResource(clusterBillingModel)).toBe(expected),
     );
+  });
+  describe('isGcpMarketplaceBilling', () => {
+    it.each([
+      [SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp, true],
+      [BillingModel.marketplace_gcp, true],
+      ['marketplace-gcp', true],
+      [SubscriptionCommonFieldsClusterBillingModel.marketplace_aws, false],
+      [SubscriptionCommonFieldsClusterBillingModel.standard, false],
+      [undefined, false],
+    ])('when billing model is %p returns %p', (billingModel, expected) => {
+      expect(isGcpMarketplaceBilling(billingModel)).toBe(expected);
+    });
   });
 });
