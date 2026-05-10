@@ -17,6 +17,7 @@ import {
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
 import { noMachineTypes } from '~/common/helpers';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -27,10 +28,7 @@ import PopoverHint from '~/components/common/PopoverHint';
 import { MachineTypesResponse } from '~/queries/types';
 import { DEFAULT_FLAVOUR_ID, getDefaultFlavour } from '~/redux/actions/flavourActions';
 import { useGlobalState } from '~/redux/hooks';
-import {
-  RelatedResourceBilling_model as RelatedResourceBillingModel,
-  SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel,
-} from '~/types/accounts_mgmt.v1';
+import { RelatedResourceBilling_model as RelatedResourceBillingModel } from '~/types/accounts_mgmt.v1';
 import { BillingModel, CloudProvider, MachineType } from '~/types/clusters_mgmt.v1';
 import { ErrorState } from '~/types/types';
 
@@ -189,7 +187,7 @@ const MachineTypeSelection = ({
         return false;
       }
 
-      if (billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp) {
+      if (isGcpMarketplaceBilling(billingModel)) {
         return true;
       }
 

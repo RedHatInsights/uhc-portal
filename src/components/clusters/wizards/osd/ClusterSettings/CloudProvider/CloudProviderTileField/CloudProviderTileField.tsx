@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Bullseye, Card, CardBody, CardHeader, Gallery, Tooltip } from '@patternfly/react-core';
 
 import { noQuotaTooltip } from '~/common/helpers';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import {
   AWS_DEFAULT_REGION,
   CHANNEL_GROUP_DEFAULT,
@@ -15,7 +16,6 @@ import { useGetBillingQuotas } from '~/components/clusters/wizards/osd/BillingMo
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import AWSLogo from '~/styles/images/AWSLogo';
 import GCPLogo from '~/styles/images/GCPLogo';
-import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import './cloudProviderTileField.scss';
 
@@ -34,12 +34,8 @@ export const CloudProviderTileField = () => {
     billingModel,
     isBYOC,
   });
-  const hasGcpResources =
-    billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp ||
-    quotas.gcpResources;
-  const shouldShowAwsTile = !(
-    billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
-  );
+  const hasGcpResources = isGcpMarketplaceBilling(billingModel) || quotas.gcpResources;
+  const shouldShowAwsTile = !isGcpMarketplaceBilling(billingModel);
   const hasAwsResources = shouldShowAwsTile ? quotas.awsResources : false;
   const notAvailableTooltip =
     billingModel === shouldShowAwsTile
