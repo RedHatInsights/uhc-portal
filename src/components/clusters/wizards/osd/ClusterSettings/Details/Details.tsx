@@ -32,6 +32,7 @@ import {
 } from '~/common/validators';
 import { versionComparator } from '~/common/versionComparator';
 import { getIncompatibleVersionReason } from '~/common/versionCompatibility';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import LoadBalancersDropdown from '~/components/clusters/common/LoadBalancersDropdown';
 import PersistentStorageDropdown from '~/components/clusters/common/PersistentStorageDropdown';
@@ -71,10 +72,7 @@ import { useFetchSearchClusterName } from '~/queries/RosaWizardQueries/useFetchS
 import { useFetchSearchDomainPrefix } from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
 import { getCloudProviders } from '~/redux/actions/cloudProviderActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
-import {
-  QuotaCostList,
-  SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel,
-} from '~/types/accounts_mgmt.v1';
+import { QuotaCostList } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
 import { ChannelGroupSelectField } from '../../../common/ClusterSettings/Details/ChannelGroupSelectField';
@@ -177,8 +175,7 @@ function Details() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isIncompatibleSecureBootVersion]);
 
-  const isMarketplaceGcp =
-    billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp;
+  const isMarketplaceGcp = isGcpMarketplaceBilling(billingModel);
 
   const azQuotaParams = {
     product,
@@ -460,11 +457,7 @@ function Details() {
             <VersionSelectField
               name={FieldId.ClusterVersion}
               channelGroup={channelGroup}
-              label={
-                billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
-                  ? 'Version (Google Cloud Marketplace enabled)'
-                  : 'Version'
-              }
+              label={isMarketplaceGcp ? 'Version (Google Cloud Marketplace enabled)' : 'Version'}
               onChange={handleVersionChange}
               key={channelGroup}
               isEUSChannelEnabled={isEUSChannelEnabled}

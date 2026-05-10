@@ -6,6 +6,7 @@ import { Content, Flex, FlexItem, Stack, StackItem, Title } from '@patternfly/re
 import installLinks from '~/common/installLinks.mjs';
 import { normalizedProducts, STANDARD_TRIAL_BILLING_MODEL_TYPE } from '~/common/subscriptionTypes';
 import supportLinks from '~/common/supportLinks.mjs';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import {
   getMinReplicasCount,
   getNodesCount,
@@ -161,7 +162,7 @@ export const BillingModel = () => {
       selectedProduct = normalizedProducts.OSDTrial;
     }
 
-    if (value === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp) {
+    if (isGcpMarketplaceBilling(value)) {
       setFieldValue(FieldId.MarketplaceSelection, value, false);
       setFieldValue(FieldId.CloudProvider, CloudProviderType.Gcp, false);
     }

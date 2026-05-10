@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useWizardContext } from '@patternfly/react-core';
 import { WizardContextProps } from '@patternfly/react-core/dist/esm/components/Wizard/WizardContext';
 
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import {
   getCloudProverInfo,
   shouldValidateCcsCredentials,
@@ -11,7 +12,6 @@ import {
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { CreateOsdWizardFooter } from '~/components/clusters/wizards/osd/CreateOsdWizardFooter';
 import { useGlobalState } from '~/redux/hooks';
-import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { useGetBillingQuotas } from '../../BillingModel/useGetBillingQuotas';
 import { FieldId } from '../../constants';
@@ -33,8 +33,7 @@ export const CloudProviderStepFooter = ({
     isBYOC: values[FieldId.Byoc] === 'true',
   });
   const hasGcpResources =
-    values[FieldId.BillingModel] === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp ||
-    quotas.gcpResources;
+    isGcpMarketplaceBilling(values[FieldId.BillingModel]) || quotas.gcpResources;
 
   const disableNextButton = !hasGcpResources && values[FieldId.CloudProvider] === 'gcp';
 

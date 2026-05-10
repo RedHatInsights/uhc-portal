@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Bullseye, Card, CardBody, CardHeader, Gallery, Tooltip } from '@patternfly/react-core';
 
 import { noQuotaTooltip } from '~/common/helpers';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import {
   AWS_DEFAULT_REGION,
   CHANNEL_GROUP_DEFAULT,
@@ -18,7 +19,6 @@ import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
 import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
 import GCPLogoLightTheme from '~/styles/images/GoogleCloudLogo.svg';
 import GCPLogoDarkTheme from '~/styles/images/GoogleCloudLogoRev.svg';
-import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import './cloudProviderTileField.scss';
 
@@ -37,12 +37,8 @@ export const CloudProviderTileField = () => {
     billingModel,
     isBYOC,
   });
-  const hasGcpResources =
-    billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp ||
-    quotas.gcpResources;
-  const shouldShowAwsTile = !(
-    billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
-  );
+  const hasGcpResources = isGcpMarketplaceBilling(billingModel) || quotas.gcpResources;
+  const shouldShowAwsTile = !isGcpMarketplaceBilling(billingModel);
   const hasAwsResources = quotas.awsResources;
 
   const handleChange = (value: string) => {
