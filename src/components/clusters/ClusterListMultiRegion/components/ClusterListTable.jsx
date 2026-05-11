@@ -409,18 +409,18 @@ function ClusterListTable(props) {
     <Table aria-label="Cluster List">
       {hideHeaderWhilePendingEmpty ? null : (
         <Thead>
-        <Tr>
-          {showCheckboxes ? (
-            <Th
-              select={{
-                onSelect: selectAllClusters,
-                isSelected: areAllClustersSelected,
-              }}
-              aria-label="Select all clusters"
-            />
-          ) : null}
-          {columnCells}
-        </Tr>
+          <Tr>
+            {showCheckboxes ? (
+              <Th
+                select={{
+                  onSelect: selectAllClusters,
+                  isSelected: areAllClustersSelected,
+                }}
+                aria-label="Select all clusters"
+              />
+            ) : null}
+            {columnCells}
+          </Tr>
         </Thead>
       )}
       <Tbody data-testid="clusterListTableBody">
