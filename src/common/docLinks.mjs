@@ -110,7 +110,7 @@ const docLinks = {
   // OCP
   AWS_CONTROL_PLANE_URL: `${OCP_DOCS_BASE}/architecture/control-plane#control-plane`,
   IDP_HTPASSWD: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#configuring-htpasswd-identity-provider`,
-  IDP_HTPASSWD_UTILITY: `https://docs.redhat.com/en/documentation/openshift_container_platform/4.8/html-single/authentication_and_authorization/index#creating-htpasswd-file`,
+  IDP_HTPASSWD_UTILITY: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#creating-htpasswd-file`,
   IDP_LDAP: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-ldap-identity-provider`,
   IDP_GITHUB: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#configuring-github-identity-provider`,
   IDP_GITLAB: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-gitlab-identity-provider`,
