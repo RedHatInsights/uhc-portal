@@ -1,5 +1,6 @@
 import { queryClient } from '~/components/App/queryClient';
 import { queryConstants } from '~/queries/queriesConstants';
+import { ACM_HUB_CLUSTERS_VIEW } from '~/redux/constants/viewConstants';
 import * as useGlobalState from '~/redux/hooks/useGlobalState';
 import { GlobalState } from '~/redux/stateTypes';
 import { renderHook, waitFor } from '~/testUtils';
@@ -29,7 +30,7 @@ const mockedUseGlobalState = jest.spyOn(useGlobalState, 'useGlobalState');
 
 const mockedState = {
   userProfile: { keycloakProfile: { username: 'myUserName' } },
-  viewOptions: { CLUSTERS_VIEW: viewOptions },
+  viewOptions: { CLUSTERS_VIEW: viewOptions, ACM_HUB_CLUSTERS_VIEW: viewOptions },
 } as unknown as GlobalState;
 
 mockedUseGlobalState.mockImplementation((callback) => callback(mockedState));
@@ -264,6 +265,44 @@ describe('useFetchClusters', () => {
       // expect(managed1Cluster?.partialCS).toBeFalsy();
       // expect(managed1Cluster?.canEdit).toBe(true);
       expect(mockedFetchManagedClusters).toHaveBeenCalledTimes(2);
+    });
+
+    it('loads clusters when called with options object and ACM hub view type', async () => {
+      const canEditCanDeleteValue = {
+        ...mockedUseFetchCanEditDeleteValue,
+        canEdit: { 'myClusterId-managed-1': true },
+        canDelete: { 'myClusterId-managed-1': true },
+      };
+
+      mockedUseFetchCanEditDelete.mockReturnValue(canEditCanDeleteValue);
+
+      mockedFetchAIClusters.mockResolvedValue(
+        aiClustersValue as unknown as Awaited<ReturnType<typeof fetchClusters.fetchAIClusters>>,
+      );
+      mockedFetchManagedClusters.mockResolvedValueOnce(
+        managedClustersValueGlobal as unknown as Awaited<
+          ReturnType<typeof fetchClusters.fetchManagedClusters>
+        >,
+      );
+      mockedFetchManagedClusters.mockResolvedValue(
+        managedClustersValueRegional as unknown as Awaited<
+          ReturnType<typeof fetchClusters.fetchManagedClusters>
+        >,
+      );
+
+      const { result } = renderHook(() =>
+        useFetchClusters({
+          isArchived: false,
+          useManagedEndpoints: true,
+          viewType: ACM_HUB_CLUSTERS_VIEW,
+        }),
+      );
+
+      await waitFor(() => {
+        expect(result.current.isFetched).toBeTruthy();
+      });
+
+      expect(result.current.data?.items?.length).toBeGreaterThan(0);
     });
   });
 });

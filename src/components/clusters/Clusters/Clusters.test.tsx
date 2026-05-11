@@ -1,6 +1,8 @@
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
+import { ACM_CLUSTER_TAGGING } from '~/queries/featureGates/featureConstants';
+import * as useFetchFeatureGate from '~/queries/featureGates/useFetchFeatureGate';
 import { screen, withState } from '~/testUtils';
 
 import { Clusters } from './Clusters';
@@ -18,6 +20,10 @@ jest.mock('../ClusterTransfer/ClusterTransferList', () => ({
 
 jest.mock('./ClustersPageHeader', () => ({
   ClustersPageHeader: () => <div data-testid="clusters-page-header">Clusters Header</div>,
+}));
+
+jest.mock('~/components/clusters/AcmHubClusters', () => ({
+  AcmHubClusterList: () => <div data-testid="hub-clusters-content">Hub Clusters Content</div>,
 }));
 
 const mockNavigate = jest.fn();
@@ -221,6 +227,41 @@ describe('<Clusters />', () => {
       expect(screen.getByTestId('clusters-page-header')).toBeInTheDocument();
       expect(screen.getByRole('region', { name: 'Clusters' })).toBeInTheDocument();
       expect(screen.getByText('Clusters Header')).toBeInTheDocument();
+    });
+  });
+
+  describe('when ACM cluster tagging feature gate is enabled', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(useFetchFeatureGate, 'useFeatureGate')
+        .mockImplementation((feature) => feature === ACM_CLUSTER_TAGGING);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('renders the Hub clusters tab', () => {
+      renderWithPath('/clusters/list');
+
+      expect(screen.getByRole('tab', { name: 'Hub Clusters' })).toBeInTheDocument();
+    });
+
+    it('selects the Hub clusters tab on /clusters/hub-clusters and renders hub content', () => {
+      renderWithPath('/clusters/hub-clusters');
+
+      const hubTab = screen.getByRole('tab', { name: 'Hub Clusters' });
+      expect(hubTab).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByTestId('hub-clusters-content')).toBeInTheDocument();
+      expect(screen.queryByTestId('list-tab')).not.toBeInTheDocument();
+    });
+
+    it('navigates to /clusters/hub-clusters when clicking the Hub clusters tab', async () => {
+      const { user } = renderWithPath('/clusters/list');
+
+      await user.click(screen.getByRole('tab', { name: 'Hub Clusters' }));
+
+      expect(mockNavigate).toHaveBeenCalledWith('/clusters/hub-clusters');
     });
   });
 });

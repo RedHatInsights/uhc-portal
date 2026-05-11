@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { ACM_CLUSTER_TAGGING } from '~/queries/featureGates/featureConstants';
+import * as useFetchFeatureGate from '~/queries/featureGates/useFetchFeatureGate';
 import { render, screen } from '~/testUtils';
 
 import { mockedClusters } from './mocks/clusterListTable.mock';
@@ -124,6 +126,30 @@ describe('<ClusterListTable />', () => {
       const nameCell = row.getElementsByTagName('td')[0];
 
       expect(nameCell).toHaveTextContent('Unnamed Cluster');
+    });
+  });
+
+  describe('ACM hub cluster label', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(useFetchFeatureGate, 'useFeatureGate')
+        .mockImplementation((feature) => feature === ACM_CLUSTER_TAGGING);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('shows RHACM hub cluster label when cluster is tagged as ACM hub', () => {
+      const hubCluster = {
+        ...mockedClusters[0],
+        managed: true,
+        properties: { acm_hub: 'true' },
+      };
+
+      render(<ClusterListTable {...initialProps} clusters={[hubCluster]} />);
+
+      expect(screen.getByText('RHACM hub cluster')).toBeInTheDocument();
     });
   });
 });
