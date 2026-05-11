@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Alert } from '@patternfly/react-core';
+import { Alert, Content, ContentVariants } from '@patternfly/react-core';
 
 import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import ErrorBox from '~/components/common/ErrorBox';
@@ -14,13 +14,33 @@ type Props = {
   getAWSAccountRolesARNsResponse: GlobalState['rosaReducer']['getAWSAccountRolesARNsResponse'];
   isHypershiftSelected: boolean;
   isMissingOCMRole: boolean;
+  isNoConsoleRole?: boolean;
 };
 
 function AWSAccountRolesError({
   getAWSAccountRolesARNsResponse,
   isHypershiftSelected,
   isMissingOCMRole,
+  isNoConsoleRole,
 }: Props) {
+  if (isNoConsoleRole) {
+    return (
+      <Alert variant="danger" isInline title="OCM role has limited permissions">
+        <Content className="pf-v6-u-font-size-sm">
+          <Content component={ContentVariants.p}>
+            The OCM role linked to your AWS account was created with minimal permissions. Cluster
+            creation through the console is not supported with this configuration. To create
+            clusters using the console, update your OCM role with full permissions using the ROSA
+            CLI.
+          </Content>
+          <a href="TODO" target="_blank" rel="noopener noreferrer">
+            Learn more about OCM role permissions
+          </a>
+        </Content>
+      </Alert>
+    );
+  }
+
   if (getAWSAccountRolesARNsResponse.error) {
     const hasFailedToAssumeRoleError =
       getAWSAccountRolesARNsResponse.internalErrorCode === 'CLUSTERS-MGMT-400';

@@ -17,6 +17,8 @@ import { getScrollErrorIds } from '~/components/clusters/wizards/form/utils';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
+import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 
 import { isUserRoleForSelectedAWSAccount } from './AccountsRolesScreen/AccountsRolesScreen';
@@ -72,7 +74,14 @@ const CreateRosaWizardFooter = ({
   const isRefreshingVPCs =
     awsRequests.vpcsLoading && currentStepId === getVpcLoadingStep(isHypershiftSelected);
 
-  const { isPending: isGetOCMRolePending } = useFetchGetOCMRole(values[FieldId.AssociatedAwsId]);
+  const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
+  const {
+    isPending: isGetOCMRolePending,
+    data: ocmRoleData,
+    isSuccess: isOCMRoleSuccess,
+  } = useFetchGetOCMRole(values[FieldId.AssociatedAwsId]);
+  const isNoConsoleRole =
+    hasNoConsoleFlag && isOCMRoleSuccess && ocmRoleData?.data?.profile === 'no_console';
 
   const areAwsResourcesLoading =
     awsRequests.accountIDsLoading ||
@@ -82,7 +91,7 @@ const CreateRosaWizardFooter = ({
     isRefreshingVPCs;
 
   const isButtonLoading = isValidating || areAwsResourcesLoading;
-  const isButtonDisabled = isNextDeferred || areAwsResourcesLoading;
+  const isButtonDisabled = isNextDeferred || areAwsResourcesLoading || isNoConsoleRole;
 
   const onValidateNext = async () => {
     // defer execution until any ongoing validation is done

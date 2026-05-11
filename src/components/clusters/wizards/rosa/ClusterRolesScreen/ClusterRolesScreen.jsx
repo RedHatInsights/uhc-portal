@@ -24,7 +24,10 @@ import {
 } from '~/components/clusters/wizards/rosa/ClusterRolesScreen/clusterRolesHelper';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import useAnalytics from '~/hooks/useAnalytics';
-import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConstants';
+import {
+  MULTIREGION_PREVIEW_ENABLED,
+  OCM_ROLE_NO_CONSOLE,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import {
   refetchGetOCMRole,
@@ -68,6 +71,7 @@ const ClusterRolesScreen = () => {
 
   const isHypershiftSelected = hypershiftValue === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
+  const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
 
   const [isAutoModeAvailable, setIsAutoModeAvailable] = useState(false);
   const [hasByoOidcConfig, setHasByoOidcConfig] = useState(
@@ -124,14 +128,16 @@ const ClusterRolesScreen = () => {
   useEffect(() => {
     // clearing the ocm_role_response results in ocm role being re-fetched
     // when navigating to this step (from Next or Back)
-    refetchGetOCMRole();
+    refetchGetOCMRole(awsAccountID);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!rosaCreationMode && isGetOCMRoleSuccess) {
+    const isNoConsole = hasNoConsoleFlag && getOCMRoleData.data?.profile === 'no_console';
+    const effectiveIsAdmin = !isNoConsole && getOCMRoleData.data?.isAdmin;
     setFieldValue(
       FieldId.RosaRolesProviderCreationMode,
-      getOCMRoleData.data?.isAdmin ? roleModes.AUTO : roleModes.MANUAL,
+      effectiveIsAdmin ? roleModes.AUTO : roleModes.MANUAL,
     );
   }
 
@@ -142,7 +148,8 @@ const ClusterRolesScreen = () => {
       if (FieldId.RosaCreatorArn !== getOCMRoleData.data?.arn) {
         setFieldValue(FieldId.RosaCreatorArn, getOCMRoleData.data?.arn);
       }
-      const isAdmin = getOCMRoleData.data?.isAdmin;
+      const isNoConsole = hasNoConsoleFlag && getOCMRoleData.data?.profile === 'no_console';
+      const isAdmin = !isNoConsole && getOCMRoleData.data?.isAdmin;
       setIsAutoModeAvailable(isAdmin);
       setGetOCMRoleErrorBox(null);
     } else if (getOCMRoleError) {
@@ -157,13 +164,13 @@ const ClusterRolesScreen = () => {
         </ErrorBox>,
       );
     } else {
-      refetchGetOCMRole();
+      refetchGetOCMRole(awsAccountID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getOCMRoleStatus]);
 
   const handleRefresh = () => {
-    refetchGetOCMRole();
+    refetchGetOCMRole(awsAccountID);
     setFieldValue(FieldId.RosaRolesProviderCreationMode, undefined);
     track(trackEvents.OCMRoleRefreshed);
   };

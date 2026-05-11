@@ -29,8 +29,9 @@ import ReduxVerticalFormGroup from '~/components/common/ReduxFormComponents_depr
 import { useOCPLatestVersion } from '~/components/releases/hooks';
 import useAnalytics from '~/hooks/useAnalytics';
 import { usePreviousProps } from '~/hooks/usePreviousProps';
-import { HCP_USE_UNMANAGED } from '~/queries/featureGates/featureConstants';
+import { HCP_USE_UNMANAGED, OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 
 import { FieldId } from '../../constants';
 import { RosaCliCommand } from '../constants/cliCommands';
@@ -116,6 +117,11 @@ function AccountRolesARNsSection({
   const [hasFinishedLoadingRoles, setHasFinishedLoadingRoles] = useState(false);
   const [hasManagedPolicies, setHasManagedPolicies] = useState(false);
   const useHCPManagedAndUnmanaged = useFeatureGate(HCP_USE_UNMANAGED);
+  const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
+  const { data: ocmRoleData, isSuccess: isOCMRoleSuccess } =
+    useFetchGetOCMRole(selectedAWSAccountID);
+  const isNoConsoleRole =
+    hasNoConsoleFlag && isOCMRoleSuccess && ocmRoleData?.data?.profile === 'no_console';
   const isMissingOCMRole = hasNoTrustedRelationshipOnClusterRoleError(
     getAWSAccountRolesARNsResponse,
   );
@@ -345,7 +351,9 @@ function AccountRolesARNsSection({
   }, [hasStandaloneManagedRole, isHypershiftSelected, rosaMaxOSVersion]);
 
   const showAccountRolesError =
-    getAWSAccountRolesARNsResponse.error || (showMissingArnsError && hasFinishedLoadingRoles);
+    isNoConsoleRole ||
+    getAWSAccountRolesARNsResponse.error ||
+    (showMissingArnsError && hasFinishedLoadingRoles);
 
   return (
     <>
@@ -359,6 +367,7 @@ function AccountRolesARNsSection({
             getAWSAccountRolesARNsResponse={getAWSAccountRolesARNsResponse}
             isHypershiftSelected={isHypershiftSelected}
             isMissingOCMRole={isMissingOCMRole}
+            isNoConsoleRole={isNoConsoleRole}
           />
         </GridItem>
       ) : null}
