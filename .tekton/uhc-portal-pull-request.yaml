@@ -213,9 +213,9 @@ spec:
         - name: build
           computeResources:
             requests:
-              memory: "6Gi"
+              memory: "8Gi"
             limits:
-              memory: "6Gi"
+              memory: "8Gi"
     - pipelineTaskName: run-unit-tests
       stepSpecs:
         - name: unit-tests
