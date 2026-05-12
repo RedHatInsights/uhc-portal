@@ -24,6 +24,7 @@ import type { NodeLabel } from '~/components/clusters/wizards/common/ClusterSett
 import { ClusterUpdates } from '~/components/clusters/wizards/common/ClusterUpdates';
 import submitOSDRequest from '~/components/clusters/wizards/common/submitOSDRequest';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { useTrackOcmIngressExcludeNamespaceSelectorsOnClusterCreate } from '~/components/clusters/wizards/hooks/useTrackOcmIngressExcludeNamespaceSelectorsOnClusterCreate';
 import { osdWizardFormValidator } from '~/components/clusters/wizards/osd/formValidators';
 import { OsdWizardContext } from '~/components/clusters/wizards/osd/OsdWizardContext';
 import Breadcrumbs from '~/components/common/Breadcrumbs';
@@ -148,6 +149,8 @@ const CreateOsdWizardInternal = () => {
         },
       }),
     });
+
+  useTrackOcmIngressExcludeNamespaceSelectorsOnClusterCreate(values, product);
 
   const onClose = () => navigate(UrlPath.CreateCloud);
 

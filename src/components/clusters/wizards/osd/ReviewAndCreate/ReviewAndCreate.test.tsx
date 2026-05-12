@@ -56,6 +56,7 @@ const formValues = {
   imds: 'optional',
   applicationIngress: 'default',
   defaultRouterExcludedNamespacesFlag: '',
+  defaultRouterExcludeNamespaceSelectors: [{ id: 't1', key: '', value: '' }],
   isDefaultRouterNamespaceOwnershipPolicyStrict: true,
   isDefaultRouterWildcardPolicyAllowed: false,
   cluster_autoscaling: {

@@ -92,6 +92,69 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/price-lists/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List the price lists */
+    get: operations['listPriceLists'];
+    put?: never;
+    /** Create a new price list. */
+    post: operations['createPriceList'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/price-lists/{price_list_uuid}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a Price List. */
+    get: operations['getPriceList'];
+    /**
+     * Update a Price List.
+     * @description Full replacement update. PATCH is not supported — send all fields in the body. The version field auto-increments when rates, effective dates, or currency change. A disabled price list may only have name, description, and enabled updated.
+     */
+    put: operations['updatePriceList'];
+    post?: never;
+    /**
+     * Delete a Price List.
+     * @description Deletes a price list. Cannot be deleted if it is currently assigned to one or more cost models — remove the assignment first.
+     */
+    delete: operations['deletePriceList'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/price-lists/{price_list_uuid}/affected-cost-models/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List cost models that use this price list.
+     * @description Returns the cost models currently assigned to this price list along with their priority order (1 = highest). Returns an empty array if the price list is not assigned to any cost model.
+     */
+    get: operations['getPriceListAffectedCostModels'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/forecasts/aws/costs/': {
     parameters: {
       query?: never;
@@ -2303,6 +2366,63 @@ export interface components {
     CostModelPagination: components['schemas']['ListPagination'] & {
       data: components['schemas']['CostModelOut'][];
     };
+    PriceList: {
+      /**
+       * @description Display name for the price list.
+       * @example Production OCP Rates
+       */
+      name: string;
+      /** @description Optional description. */
+      description?: string;
+      /**
+       * @description ISO 4217 currency code. Defaults to the account currency if omitted.
+       * @example USD
+       */
+      currency?: string;
+      /**
+       * Format: date
+       * @description Start of the validity period (inclusive).
+       * @example 2026-01-01
+       */
+      effective_start_date: string;
+      /**
+       * Format: date
+       * @description End of the validity period (inclusive). Must be on or after effective_start_date.
+       * @example 2026-12-31
+       */
+      effective_end_date: string;
+      /**
+       * @description Controls whether this price list can be attached to cost models. Disabled price lists still participate in cost calculation if already assigned.
+       * @default true
+       */
+      enabled: boolean;
+      /** @description List of OCP metric rates. Each entry uses either tiered_rates or tag_rates (mutually exclusive per entry). */
+      rates?: (components['schemas']['TieredRate'] | components['schemas']['TagRate'])[];
+    };
+    PriceListOut: components['schemas']['PriceList'] & {
+      /** Format: uuid */
+      readonly uuid?: string;
+      /** @description Auto-incremented when rates, effective dates, or currency change. */
+      readonly version?: number;
+      /** Format: date-time */
+      readonly created_timestamp?: string;
+      /** Format: date-time */
+      readonly updated_timestamp?: string;
+    };
+    PriceListPagination: components['schemas']['ListPagination'] & {
+      data: components['schemas']['PriceListOut'][];
+    };
+    PriceListAffectedCostModel: {
+      /**
+       * Format: uuid
+       * @description UUID of the cost model.
+       */
+      uuid: string;
+      /** @description Name of the cost model. */
+      name: string;
+      /** @description Priority of this price list within the cost model (1 = highest priority). */
+      priority: number;
+    };
     CostTypePagination: components['schemas']['ListPagination'] & {
       data: components['schemas']['CostType'][];
     };
@@ -4042,6 +4162,10 @@ export type SchemaCostModel = components['schemas']['CostModel'];
 export type SchemaCostModelResp = components['schemas']['CostModelResp'];
 export type SchemaCostModelOut = components['schemas']['CostModelOut'];
 export type SchemaCostModelPagination = components['schemas']['CostModelPagination'];
+export type SchemaPriceList = components['schemas']['PriceList'];
+export type SchemaPriceListOut = components['schemas']['PriceListOut'];
+export type SchemaPriceListPagination = components['schemas']['PriceListPagination'];
+export type SchemaPriceListAffectedCostModel = components['schemas']['PriceListAffectedCostModel'];
 export type SchemaCostTypePagination = components['schemas']['CostTypePagination'];
 export type SchemaCostType = components['schemas']['CostType'];
 export type SchemaCurrency = components['schemas']['Currency'];
@@ -4509,6 +4633,317 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  listPriceLists: {
+    parameters: {
+      query?: {
+        /** @description Parameter for selecting the offset of data. */
+        offset?: components['parameters']['QueryOffset'];
+        /** @description Parameter for selecting the amount of data in a returned. */
+        limit?: components['parameters']['QueryLimit'];
+        /** @description Filter by price list name (case-insensitive substring match). */
+        name?: string;
+        /** @description Filter by exact price list UUID. */
+        uuid?: string;
+        /** @description Filter by enabled status. Use true to show only active price lists or false to show only disabled ones. */
+        enabled?: boolean;
+        /** @description Order response by allowed fields. Prefix with '-' for descending order. Default is 'name'. */
+        ordering?: PathsPriceListsGetParametersQueryOrdering;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description A paginated list of price list objects */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListPagination'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  createPriceList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PriceList'];
+      };
+    };
+    responses: {
+      /** @description An object describing the created price list */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListOut'];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  getPriceList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID of the Price List to retrieve. */
+        price_list_uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description A Price List object */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListOut'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  updatePriceList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID of the Price List to update. */
+        price_list_uuid: string;
+      };
+      cookie?: never;
+    };
+    /** @description Updated Price List payload */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PriceList'];
+      };
+    };
+    responses: {
+      /** @description Updated Price List object */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListOut'];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  deletePriceList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID of the Price List to delete. */
+        price_list_uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Price List deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Bad Request — price list is assigned to one or more cost models. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  getPriceListAffectedCostModels: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID of the Price List. */
+        price_list_uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description A list of cost models assigned to this price list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListAffectedCostModel'][];
         };
       };
       /** @description Unauthorized */
@@ -9343,6 +9778,14 @@ export enum PathsCostModelsGetParametersQueryOrdering {
   ValueMinusname = '-name',
   source_type = 'source_type',
   ValueMinussource_type = '-source_type',
+  updated_timestamp = 'updated_timestamp',
+  ValueMinusupdated_timestamp = '-updated_timestamp',
+}
+export enum PathsPriceListsGetParametersQueryOrdering {
+  name = 'name',
+  ValueMinusname = '-name',
+  effective_start_date = 'effective_start_date',
+  ValueMinuseffective_start_date = '-effective_start_date',
   updated_timestamp = 'updated_timestamp',
   ValueMinusupdated_timestamp = '-updated_timestamp',
 }

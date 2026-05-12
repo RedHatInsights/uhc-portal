@@ -4,13 +4,14 @@ import { useField } from 'formik';
 import { FormGroup, FormSelect, FormSelectOption } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
+import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { FieldId } from '~/components/clusters/wizards/common';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import { Version } from '~/types/clusters_mgmt.v1';
 
 export type ChannelSelectFieldProps = {
-  clusterVersion?: Version & { available_channels?: string[] };
+  clusterVersion?: Version;
 };
 
 export const ChannelSelectField = ({ clusterVersion }: ChannelSelectFieldProps) => {
@@ -24,9 +25,7 @@ export const ChannelSelectField = ({ clusterVersion }: ChannelSelectFieldProps) 
       buttonAriaLabel="Update channels information"
       hint={
         <>
-          Channels provide recommended release versions and help control the pace of updates. Update
-          channels align to a minor version, for example 4.20. To update to the next minor release,
-          you might need to change the channel.{' '}
+          {constants.channelHint}{' '}
           <ExternalLink href={docLinks.OCP_UPDATE_CHANNELS}>Learn more</ExternalLink>
         </>
       }

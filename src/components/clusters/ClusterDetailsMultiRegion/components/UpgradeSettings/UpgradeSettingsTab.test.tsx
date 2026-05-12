@@ -4,12 +4,24 @@ import docLinks from '~/common/docLinks.mjs';
 import { useDeleteSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useDeleteSchedule';
 import { useEditSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useEditSchedule';
 import { useFetchUnmetAcknowledgements } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useFetchUnmetAcknowledgements';
-import { useGetSchedules } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules';
+import {
+  refetchSchedules,
+  useGetSchedules,
+} from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules';
 import { usePostSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/usePostSchedule';
 import { useReplaceSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useReplaceSchedule';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
-import { checkAccessibility, render, screen } from '~/testUtils';
+import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
+import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import {
+  checkAccessibility,
+  mockUseFeatureGate,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '~/testUtils';
 import { AugmentedCluster } from '~/types/types';
 
 import UpgradeSettingsTab from './UpgradeSettingsTab';
@@ -79,6 +91,7 @@ const createMockCluster = (overrides = {}) => ({
   state: 'ready',
   status: { configuration_mode: 'full' },
   canEdit: true,
+  canUpdateClusterResource: true,
   subscription: {
     id: 'test-subscription-id',
     plan: { type: 'OSD' },
@@ -112,6 +125,7 @@ const renderComponent = (cluster = createMockCluster()) =>
 describe('<UpgradeSettingsTab>', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseFeatureGate([]);
     useGetSchedulesMock.mockReturnValue(mockGetSchedules);
     usePostScheduleMock.mockReturnValue(mockHookResponse);
     useReplaceScheduleMock.mockReturnValue(mockHookResponse);
@@ -175,7 +189,7 @@ describe('<UpgradeSettingsTab>', () => {
     it('should show update button when cluster has available upgrades', () => {
       renderComponent();
 
-      expect(screen.getByRole('button', { name: /update/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
     });
     it('should not show update button when no upgrades are available', () => {
       const clusterWithoutUpgrades = createMockCluster({
@@ -184,7 +198,7 @@ describe('<UpgradeSettingsTab>', () => {
 
       renderComponent(clusterWithoutUpgrades);
 
-      expect(screen.queryByRole('button', { name: /update/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Update' })).not.toBeInTheDocument();
     });
 
     it('should not show update button when cluster is hibernating', () => {
@@ -192,13 +206,13 @@ describe('<UpgradeSettingsTab>', () => {
 
       renderComponent(hibernatingCluster);
 
-      expect(screen.queryByRole('button', { name: /update/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Update' })).not.toBeInTheDocument();
     });
 
     it('should dispatch openModal action when update button is clicked', async () => {
       const { user } = renderComponent();
 
-      await user.click(screen.getByRole('button', { name: /update/i }));
+      await user.click(screen.getByRole('button', { name: 'Update' }));
 
       expect(mockDispatch).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -394,6 +408,69 @@ describe('<UpgradeSettingsTab>', () => {
     });
   });
 
+  describe('Channel settings', () => {
+    beforeEach(() => {
+      mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
+    });
+
+    it('does not render channel settings when Y_STREAM_CHANNEL feature gate is disabled', () => {
+      mockUseFeatureGate([[Y_STREAM_CHANNEL, false]]);
+
+      renderComponent(
+        createMockCluster({
+          channel: 'stable-4.12',
+          version: {
+            id: '4.12.0',
+            raw_id: 'openshift-v4.12.0',
+            available_upgrades: ['4.12.1', '4.12.2'],
+            available_channels: ['stable-4.12', 'eus-4.12'],
+          },
+        }),
+      );
+
+      expect(screen.queryByText('Channel settings')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
+    });
+
+    it('renders channel settings card with current channel and edit button', () => {
+      renderComponent(
+        createMockCluster({
+          channel: 'stable-4.12',
+          version: {
+            id: '4.12.0',
+            raw_id: 'openshift-v4.12.0',
+            available_upgrades: ['4.12.1', '4.12.2'],
+            available_channels: ['stable-4.12', 'eus-4.12'],
+          },
+        }),
+      );
+
+      expect(screen.getByText('Channel settings')).toBeInTheDocument();
+      expect(screen.getByText('Channel')).toBeInTheDocument();
+      expect(screen.getByTestId('channelModal')).toBeInTheDocument();
+    });
+
+    it('opens edit channel modal when pencil icon is clicked', async () => {
+      const { user } = renderComponent(
+        createMockCluster({
+          channel: 'stable-4.12',
+          version: {
+            id: '4.12.0',
+            raw_id: 'openshift-v4.12.0',
+            available_upgrades: ['4.12.1', '4.12.2'],
+            available_channels: ['stable-4.12', 'eus-4.12'],
+          },
+        }),
+      );
+
+      await user.click(screen.getByTestId('channelModal'));
+
+      const dialog = await screen.findByRole('dialog', { name: /edit channel/i });
+      expect(dialog).toBeInTheDocument();
+      expect(within(dialog).getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    });
+  });
+
   describe('Documentation links', () => {
     it('renders correct monitoring link when classic', async () => {
       const rosaCluster = createMockCluster({
@@ -409,6 +486,260 @@ describe('<UpgradeSettingsTab>', () => {
 
       const link = screen.getByText('Learn more');
       expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_MONITORING);
+    });
+  });
+
+  describe('handleSubmit', () => {
+    it('calls postScheduleMutate when switching from manual to recurring with no existing schedules', async () => {
+      const postMutate = jest.fn();
+      usePostScheduleMock.mockReturnValue({
+        ...mockHookResponse,
+        mutate: postMutate,
+      });
+
+      const { user } = renderComponent();
+
+      await user.click(screen.getByRole('radio', { name: /Recurring updates/i }));
+      await user.click(screen.getByRole('button', { name: /^save$/i }));
+
+      await waitFor(() => {
+        expect(postMutate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            schedule_type: 'automatic',
+            schedule: expect.any(String),
+          }),
+          expect.objectContaining({ onSuccess: expect.any(Function) }),
+        );
+      });
+    });
+
+    it('calls replaceScheduleMutate when switching from a manual schedule to recurring', async () => {
+      useGetSchedulesMock.mockReturnValue({
+        data: {
+          items: [
+            {
+              id: 'manual-schedule-id',
+              schedule_type: 'manual',
+              upgrade_type: 'OSD',
+            },
+          ],
+        },
+        isLoading: false,
+      } as any);
+
+      const replaceMutate = jest.fn();
+      useReplaceScheduleMock.mockReturnValue({
+        ...mockHookResponse,
+        mutate: replaceMutate,
+      });
+
+      const { user } = renderComponent();
+
+      await user.click(screen.getByRole('radio', { name: /Recurring updates/i }));
+      await user.click(screen.getByRole('button', { name: /^save$/i }));
+
+      await waitFor(() => {
+        expect(replaceMutate).toHaveBeenCalledWith(
+          {
+            oldScheduleID: 'manual-schedule-id',
+            newSchedule: expect.objectContaining({
+              schedule_type: 'automatic',
+              schedule: expect.any(String),
+            }),
+          },
+          expect.objectContaining({ onSuccess: expect.any(Function) }),
+        );
+      });
+    });
+
+    it('calls editSchedulesMutate when the automatic schedule is changed', async () => {
+      useGetSchedulesMock.mockReturnValue({
+        data: {
+          items: [
+            {
+              id: 'auto-policy-id',
+              schedule_type: 'automatic',
+              schedule: '00 2 * * 1',
+              upgrade_type: 'OSD',
+            },
+          ],
+        },
+        isLoading: false,
+      } as any);
+
+      const editMutate = jest.fn();
+      useEditScheduleMock.mockReturnValue({
+        ...mockHookResponse,
+        mutate: editMutate,
+      });
+
+      const { user } = renderComponent();
+
+      await user.click(screen.getByRole('button', { name: /^Monday$/ }));
+      await user.click(screen.getByRole('option', { name: /^Sunday$/ }));
+
+      await user.click(screen.getByRole('button', { name: /^save$/i }));
+
+      await waitFor(() => {
+        expect(editMutate).toHaveBeenCalledWith(
+          {
+            policyID: 'auto-policy-id',
+            schedule: {
+              schedule: '00 2 * * 0',
+            },
+          },
+          expect.objectContaining({ onSuccess: expect.any(Function) }),
+        );
+      });
+    });
+
+    it('calls deleteScheduleMutate when switching from recurring to individual updates', async () => {
+      useGetSchedulesMock.mockReturnValue({
+        data: {
+          items: [
+            {
+              id: 'automatic-policy-id',
+              schedule_type: 'automatic',
+              schedule: '00 2 * * 1',
+              upgrade_type: 'OSD',
+            },
+          ],
+        },
+        isLoading: false,
+      } as any);
+
+      const deleteMutate = jest.fn();
+      useDeleteScheduleMock.mockReturnValue({
+        ...mockHookResponse,
+        mutate: deleteMutate,
+      });
+
+      const { user } = renderComponent();
+
+      await user.click(screen.getByRole('radio', { name: /Individual updates/i }));
+      await user.click(screen.getByRole('button', { name: /^save$/i }));
+
+      await waitFor(() => {
+        expect(deleteMutate).toHaveBeenCalledWith(
+          'automatic-policy-id',
+          expect.objectContaining({ onSuccess: expect.any(Function) }),
+        );
+      });
+    });
+
+    it('calls editClusterMutate when node drain grace period changes', async () => {
+      const editClusterMutate = jest.fn();
+      useEditClusterMock.mockReturnValue({
+        ...mockHookResponse,
+        mutate: editClusterMutate,
+      });
+
+      const { user } = renderComponent();
+
+      await user.click(screen.getByTestId('grace-period-select'));
+      await user.click(screen.getByRole('option', { name: /30 minutes/i }));
+
+      await user.click(screen.getByRole('button', { name: /^save$/i }));
+
+      await waitFor(() => {
+        expect(editClusterMutate).toHaveBeenCalledWith(
+          {
+            clusterID: 'test-cluster-id',
+            cluster: {
+              node_drain_grace_period: { value: 30 },
+            },
+          },
+          expect.objectContaining({ onSuccess: expect.any(Function) }),
+        );
+      });
+    });
+
+    it('resets the form when Cancel is clicked after a change', async () => {
+      const { user } = renderComponent();
+
+      await user.click(screen.getByTestId('grace-period-select'));
+      await user.click(screen.getByRole('option', { name: /30 minutes/i }));
+
+      expect(screen.getByRole('button', { name: /cancel/i })).not.toBeDisabled();
+
+      await user.click(screen.getByRole('button', { name: /cancel/i }));
+
+      expect(screen.getByTestId('grace-period-select')).toHaveTextContent(/1 hour/i);
+    });
+  });
+
+  describe('Additional coverage', () => {
+    it('invalidates queries when edit cluster mutation reports success', () => {
+      jest.clearAllMocks();
+      useEditClusterMock.mockReturnValue({
+        ...mockHookResponse,
+        isPending: false,
+        isSuccess: true,
+      });
+
+      renderComponent();
+
+      expect(invalidateClusterDetailsQueries).toHaveBeenCalled();
+      expect(refetchSchedules).toHaveBeenCalled();
+    });
+
+    it('shows delete-schedule error when unschedule fails', () => {
+      useDeleteScheduleMock.mockReturnValue({
+        ...mockHookResponse,
+        isError: true,
+        error: { message: 'Cannot delete' },
+      } as any);
+
+      renderComponent();
+
+      expect(screen.getByText("Can't unschedule upgrade")).toBeInTheDocument();
+    });
+
+    it('disables save when an upgrade has started on the scheduled policy', () => {
+      useGetSchedulesMock.mockReturnValue({
+        data: {
+          items: [
+            {
+              id: 'manual-pol',
+              schedule_type: 'manual',
+              upgrade_type: 'OSD',
+              state: { value: 'started' },
+            },
+          ],
+        },
+        isLoading: false,
+      } as any);
+
+      renderComponent();
+
+      expect(screen.getByRole('button', { name: /^save$/i })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+    });
+
+    it('shows replace-schedule error when replaceSchedule fails', () => {
+      useReplaceScheduleMock.mockReturnValue({
+        ...mockHookResponse,
+        isError: true,
+        error: { message: 'Replace failed' },
+      } as any);
+
+      renderComponent();
+
+      expect(screen.getByText("Can't schedule upgrade")).toBeInTheDocument();
+    });
+
+    it('shows edit-schedule error when editSchedule fails', () => {
+      useEditScheduleMock.mockReturnValue({
+        ...mockHookResponse,
+        isError: true,
+        error: { message: 'Edit failed' },
+      } as any);
+
+      renderComponent();
+
+      expect(screen.getByText("Can't schedule upgrade")).toBeInTheDocument();
     });
   });
 });

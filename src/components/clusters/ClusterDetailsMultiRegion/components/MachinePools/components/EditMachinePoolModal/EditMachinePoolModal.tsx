@@ -159,11 +159,27 @@ const EditMachinePoolModal = ({
   const [currentMachinePool, setCurrentMachinePool] = React.useState<MachinePool>();
   const [isEdit, setIsEdit] = React.useState<boolean>(getIsEditValue());
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(STARTING_TAB_KEY);
+
+  let hcpMaxDifference;
+  if (machinePoolsResponse && isHypershift) {
+    hcpMaxDifference =
+      getMaxNodesHCP(cluster.version?.raw_id) -
+      getNodeCount(
+        machinePoolsResponse,
+        isHypershift,
+        currentMachinePool?.id,
+        currentMachinePool?.instance_type,
+      );
+  }
+
+  const isMaxReached = hcpMaxDifference === 0;
+
   const { initialValues, validationSchema } = useMachinePoolFormik({
     machinePool: currentMachinePool,
     cluster,
     machinePools: machinePoolsResponse || [],
     machineTypes: machineTypesResponse,
+    hcpMaxDifference,
   });
 
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
@@ -194,17 +210,6 @@ const EditMachinePoolModal = ({
     setIsEdit(getIsEditValue());
   }, [getIsEditValue]);
 
-  // Checks if max nodes amount is reached for add machine pool nodes
-  const isMaxReached =
-    isHypershift &&
-    machinePoolsResponse &&
-    getNodeCount(
-      machinePoolsResponse,
-      isHypershift,
-      currentMachinePool?.id,
-      currentMachinePool?.instance_type,
-    ) === getMaxNodesHCP(cluster.version?.raw_id);
-
   const { mutateAsync: editCreateMachineOrNodePoolMutation } = useEditCreateMachineOrNodePools(
     isHypershift,
     cluster,
@@ -224,6 +229,7 @@ const EditMachinePoolModal = ({
     machineTypesLoading,
     tabKey: 1,
     initialTabContentShown: STARTING_TAB_KEY === 1,
+    isMaxReached,
   });
 
   const [maintenanceTab, maintenanceContent] = useMaintenanceSubTab({
@@ -366,6 +372,7 @@ const EditMachinePoolModal = ({
                       machinePools={machinePoolsResponse || []}
                       machineTypes={machineTypesResponse}
                       allow249NodesOSDCCSROSA={allow249NodesOSDCCSROSA}
+                      isMaxReached={isMaxReached}
                     />
                     <AutoRepairField cluster={cluster} />
                     {imdsSectionFeature && !isEdit && isHypershift ? (

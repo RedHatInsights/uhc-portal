@@ -33,8 +33,7 @@ const AutoscaleMaxReplicasField = ({
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
 
-  const isHcp = isHypershiftCluster(cluster);
-  const minAllowed = isHcp ? 0 : 1;
+  const minAllowed = 1;
 
   const minNodes = isMultizoneMachinePool ? initMinNodes / 3 : initMinNodes;
   const maxNodes = isMultizoneMachinePool ? initMaxNodes / 3 : initMaxNodes;

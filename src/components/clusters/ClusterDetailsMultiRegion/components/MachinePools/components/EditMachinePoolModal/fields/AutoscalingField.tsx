@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useField } from 'formik';
 
-import { Checkbox, FormGroup } from '@patternfly/react-core';
+import { Alert, Checkbox, FormGroup } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
-import { isROSA } from '~/components/clusters/common/clusterStates';
+import { isHypershiftCluster, isROSA } from '~/components/clusters/common/clusterStates';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -15,9 +15,10 @@ const fieldId = 'autoscaling';
 
 type AutoscalingFieldProps = {
   cluster: ClusterFromSubscription;
+  isMaxReached?: boolean;
 };
 
-const AutoscalingField = ({ cluster }: AutoscalingFieldProps) => {
+const AutoscalingField = ({ cluster, isMaxReached }: AutoscalingFieldProps) => {
   const clusterFromSubscription = cluster as ClusterFromSubscription;
   const [field] = useField(fieldId);
   const canAutoScale = useCanClusterAutoscale(
@@ -27,6 +28,10 @@ const AutoscalingField = ({ cluster }: AutoscalingFieldProps) => {
   );
 
   const isRosa = isROSA(cluster);
+  const isHcpCluster = isHypershiftCluster(cluster);
+
+  const isDisabled = isHcpCluster && !field.value && isMaxReached;
+
   const autoScalingUrl = isRosa ? docLinks.ROSA_AUTOSCALING : docLinks.OSD_CLUSTER_AUTOSCALING;
   return canAutoScale ? (
     <FormGroup label="Scaling">
@@ -55,7 +60,17 @@ const AutoscalingField = ({ cluster }: AutoscalingFieldProps) => {
         }}
         id={fieldId}
         description="Autoscaling automatically adds and removes worker (compute) nodes from the cluster based on resource requirements."
+        isDisabled={isDisabled}
       />
+      {isDisabled ? (
+        <Alert
+          title="Maximum nodes limit has been reached."
+          className="pf-v6-u-mt-sm"
+          variant="warning"
+          isInline
+          isPlain
+        />
+      ) : null}
     </FormGroup>
   ) : null;
 };

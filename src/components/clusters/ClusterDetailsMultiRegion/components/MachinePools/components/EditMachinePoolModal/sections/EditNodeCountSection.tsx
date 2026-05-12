@@ -25,6 +25,7 @@ type EditNodeCountSectionProps = {
   cluster: ClusterFromSubscription;
   machineTypes: MachineTypesResponse;
   allow249NodesOSDCCSROSA: boolean;
+  isMaxReached?: boolean;
 };
 
 const EditNodeCountSection = ({
@@ -33,6 +34,7 @@ const EditNodeCountSection = ({
   cluster,
   machineTypes,
   allow249NodesOSDCCSROSA,
+  isMaxReached,
 }: EditNodeCountSectionProps) => {
   const { values } = useFormikContext<EditMachinePoolValues>();
 
@@ -78,7 +80,7 @@ const EditNodeCountSection = ({
 
   return (
     <>
-      <AutoscalingField cluster={cluster} />
+      <AutoscalingField cluster={cluster} isMaxReached={isMaxReached} />
       {organization.pending ? (
         <div>
           <Spinner size="md" aria-label="Loading..." />

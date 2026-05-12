@@ -1,6 +1,7 @@
 import { FormikValues } from 'formik';
 
 import { BREADCRUMB_PATHS, buildBreadcrumbs } from '~/common/breadcrumbPaths';
+import { getRandomID } from '~/common/helpers';
 import { getDefaultSecurityGroupsSettings } from '~/common/securityGroupsHelpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
@@ -119,6 +120,7 @@ export const initialValues: FormikValues = {
   [FieldId.IMDS]: IMDSType.V1AndV2,
   [FieldId.ApplicationIngress]: ApplicationIngressType.Default,
   [FieldId.DefaultRouterExcludedNamespacesFlag]: '',
+  [FieldId.DefaultRouterExcludeNamespaceSelectors]: [{ id: getRandomID(), key: '', value: '' }],
   [FieldId.IsDefaultRouterNamespaceOwnershipPolicyStrict]: true,
   [FieldId.IsDefaultRouterWildcardPolicyAllowed]: false,
   [FieldId.ClusterAutoscaling]: getDefaultClusterAutoScaling(),

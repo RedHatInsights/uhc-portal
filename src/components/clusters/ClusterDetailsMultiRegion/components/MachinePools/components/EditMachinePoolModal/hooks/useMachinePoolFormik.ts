@@ -71,6 +71,7 @@ type UseMachinePoolFormikArgs = {
   cluster: ClusterFromSubscription;
   machineTypes: MachineTypesResponse;
   machinePools: (MachinePool | NodePool)[];
+  hcpMaxDifference?: number | undefined;
 };
 
 const isMachinePool = (pool?: MachinePool | NodePool): pool is MachinePool =>
@@ -90,6 +91,7 @@ const useMachinePoolFormik = ({
   cluster,
   machineTypes,
   machinePools,
+  hcpMaxDifference,
 }: UseMachinePoolFormikArgs) => {
   const isMachinePoolMz = isMPoolAz(
     cluster,
@@ -124,8 +126,16 @@ const useMachinePoolFormik = ({
     let capacityReservationId;
     let capacityReservationPreference;
 
-    autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas ?? minNodesRequired;
-    autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas ?? minNodesRequired;
+    const hasMaxDifference = (hcpMaxDifference || hcpMaxDifference === 0) && hcpMaxDifference < 2;
+    const hypershiftDefaultMinReplicas = hasMaxDifference ? hcpMaxDifference : 2;
+    const hypershiftDefaultMaxReplicas = hasMaxDifference ? 1 : 2;
+
+    autoscaleMin =
+      (machinePool as MachinePool)?.autoscaling?.min_replicas ??
+      (isHypershift ? hypershiftDefaultMinReplicas : minNodesRequired);
+    autoscaleMax =
+      (machinePool as MachinePool)?.autoscaling?.max_replicas ??
+      (isHypershift ? hypershiftDefaultMaxReplicas : minNodesRequired);
 
     const instanceTypeId = (machinePool as MachinePool)?.instance_type;
     const instanceType = (
@@ -150,7 +160,9 @@ const useMachinePoolFormik = ({
     }
 
     // For multi-zone machine pools, store per-zone values (divide by 3)
-    let replicas = machinePool?.replicas || minNodesRequired;
+    let replicas =
+      machinePool?.replicas ?? (isHypershift ? hypershiftDefaultMinReplicas : minNodesRequired);
+
     if (isMachinePoolMz) {
       autoscaleMin /= 3;
       autoscaleMax /= 3;
@@ -222,6 +234,7 @@ const useMachinePoolFormik = ({
     machineTypes.typesByID,
     isHypershift,
     isValidCRVersion,
+    hcpMaxDifference,
   ]);
 
   const minDiskSize = getWorkerNodeVolumeSizeMinGiB(isHypershift);
@@ -385,7 +398,7 @@ const useMachinePoolFormik = ({
                       'autoscaleMax',
                     );
                   }
-                  if (value !== undefined && value < 1 && !isHypershift) {
+                  if (value !== undefined && value < 1) {
                     return new Yup.ValidationError(
                       'Max nodes must be greater than 0.',
                       value,

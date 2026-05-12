@@ -23,7 +23,7 @@ import {
 
 import { Link, Navigate, useClusterListPath } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
-import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
+import { isHypershiftCluster, isROSA } from '~/components/clusters/common/clusterStates';
 import { usePostIDPForm } from '~/queries/ClusterDetailsQueries/IDPPage/usePostIDPForm';
 import { useFetchClusterDetails } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import {
@@ -288,6 +288,7 @@ const IdentityProvidersPage = (props) => {
                             idpEdited={idpEdited}
                             idpName={idpTypeName}
                             isHypershift={isHypershiftCluster(cluster)}
+                            isROSACluster={isROSA(cluster)}
                             HTPasswdErrors={formik.errors?.users}
                             isClusterIDPsLoading={isClusterIDPsLoading}
                             isEditForm={isEditForm}

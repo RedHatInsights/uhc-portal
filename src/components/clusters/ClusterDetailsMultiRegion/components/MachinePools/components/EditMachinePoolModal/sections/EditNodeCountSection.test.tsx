@@ -177,7 +177,7 @@ describe('<EditNodeCountSection />', () => {
       expect(autoscaleMaxNodesMinusButton).toBeDisabled();
     });
 
-    it('allows 0 max replicas for HCP cluster', async () => {
+    it('does not allow 0 max replicas for HCP cluster', async () => {
       const { user } = withState(initialState).render(
         <Formik
           initialValues={{
@@ -207,10 +207,10 @@ describe('<EditNodeCountSection />', () => {
       const autoscaleMaxNodesMinusButton = within(autoScaleMaxNodesFormGroup).getByRole('button', {
         name: 'Minus',
       });
-      expect(autoscaleMaxNodesMinusButton).not.toBeDisabled();
+      expect(autoscaleMaxNodesMinusButton).toBeDisabled();
 
       await user.click(autoscaleMaxNodesMinusButton);
-      expect(autoscaleMaxNodesInput.value).toBe('0');
+      expect(autoscaleMaxNodesInput.value).toBe('1');
     });
   });
 

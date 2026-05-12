@@ -30,7 +30,6 @@ export const BYPASS_COMPUTE_NODE_COUNT_LIMIT_CLASSIC_OSD_GCP =
   'bypass-compute-node-count-limit-classic-osd-gcp';
 export const MAX_NODES_TOTAL_249 = 'ocmui-max-nodes-total-249';
 export const ENHANCED_HTPASSWRD = 'ocmui-enhanced-htpasswrd';
-export const ASSISTED_MIGRATION_ENABLED = 'assisted-migration';
 export const GCP_SECURE_BOOT = 'ocmui-gcp-secure-boot';
 export const HIDE_RH_MARKETPLACE = 'OCMUI-hide-rh-marketplace';
 export const IMDS_SELECTION = 'ocmui-imds-selection';
@@ -46,6 +45,8 @@ export const OSD_FOR_GOOGLE_CLOUD = 'ocmui-osd-wizard-for-google-cloud';
 export const FIPS_FOR_HYPERSHIFT = 'ocmui-fips-for-hypershift';
 export const Y_STREAM_CHANNEL = 'ocmui-y-stream-channel';
 export const GCP_DNS_ZONE = 'ocmui-gcp-dns-zone';
+export const GCP_EXCLUDE_NAMESPACE_SELECTORS = 'ocmui-gcp-exclude-namespace-selectors';
+export const HTPASSWD_IMPORT = 'ocmui-htpasswd-import';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -64,7 +65,6 @@ export default {
   BYPASS_COMPUTE_NODE_COUNT_LIMIT_CLASSIC_OSD_GCP,
   MAX_NODES_TOTAL_249,
   ENHANCED_HTPASSWRD,
-  ASSISTED_MIGRATION_ENABLED,
   GCP_SECURE_BOOT,
   HIDE_RH_MARKETPLACE,
   IMDS_SELECTION,
@@ -80,4 +80,6 @@ export default {
   FIPS_FOR_HYPERSHIFT,
   Y_STREAM_CHANNEL,
   GCP_DNS_ZONE,
+  GCP_EXCLUDE_NAMESPACE_SELECTORS,
+  HTPASSWD_IMPORT,
 } as const;

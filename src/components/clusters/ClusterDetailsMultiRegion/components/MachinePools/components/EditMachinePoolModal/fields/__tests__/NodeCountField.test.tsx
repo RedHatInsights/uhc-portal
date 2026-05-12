@@ -237,6 +237,59 @@ describe('<NodeCountField />', () => {
 
     expect(screen.getByLabelText('Compute nodes')).toHaveValue(3);
   });
+
+  describe('initialization when maxNodes < 2', () => {
+    const hypershiftCluster: ClusterFromSubscription = {
+      product: { id: 'ROSA' },
+      cloud_provider: { id: 'aws' },
+      hypershift: { enabled: true },
+    } as ClusterFromSubscription;
+
+    it('does not override value when isEdit is true', () => {
+      render(
+        <FormikWrapper initialReplicas={2}>
+          <NodeCountField
+            minNodesRequired={0}
+            maxNodes={1}
+            cluster={hypershiftCluster}
+            mpAvailZones={1}
+          />
+        </FormikWrapper>,
+      );
+
+      expect(screen.getByLabelText('Compute nodes')).toHaveValue(2);
+    });
+
+    it('does not override value when cluster is not hypershift', () => {
+      render(
+        <FormikWrapper initialReplicas={2}>
+          <NodeCountField
+            minNodesRequired={0}
+            maxNodes={1}
+            cluster={singleZoneCluster}
+            mpAvailZones={1}
+          />
+        </FormikWrapper>,
+      );
+
+      expect(screen.getByLabelText('Compute nodes')).toHaveValue(2);
+    });
+
+    it('does not override value when maxNodes >= 2', () => {
+      render(
+        <FormikWrapper initialReplicas={2}>
+          <NodeCountField
+            minNodesRequired={0}
+            maxNodes={5}
+            cluster={hypershiftCluster}
+            mpAvailZones={1}
+          />
+        </FormikWrapper>,
+      );
+
+      expect(screen.getByLabelText('Compute nodes')).toHaveValue(2);
+    });
+  });
 });
 
 describe('replicas validation via useMachinePoolFormik', () => {

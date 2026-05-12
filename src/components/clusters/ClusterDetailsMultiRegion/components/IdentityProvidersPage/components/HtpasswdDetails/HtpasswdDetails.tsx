@@ -21,6 +21,8 @@ import ConnectedModal from '~/components/common/Modal/ConnectedModal';
 import { modalActions, openModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { useFetchHtpasswdUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchHtpasswdUsers';
+import { HTPASSWD_IMPORT } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { HtPasswdUser } from '~/types/clusters_mgmt.v1';
 
 import AddUserModal from './AddUserModal';
@@ -28,6 +30,7 @@ import BulkDeleteUserModal from './BulkDeleteUserModal';
 import DeleteHtpasswdUserDialog from './DeleteHtpasswdUserDialog';
 import EditUserModal from './EditUserModal';
 import EmptyState from './EmptyState';
+import UploadHTPasswdFileModal from './UploadHTPasswdFileModal';
 
 type Props = {
   idpName: string;
@@ -49,7 +52,8 @@ const HtpasswdDetails = ({
   isSingleUserHtpasswd,
 }: Props) => {
   const dispatch = useDispatch();
-  const { isLoading, users, isError, error, isFetching, refetch } = useFetchHtpasswdUsers(
+  const isImportEnabled = useFeatureGate(HTPASSWD_IMPORT);
+  const { isLoading, users, isError, error, refetch } = useFetchHtpasswdUsers(
     clusterId,
     idpId,
     region,
@@ -244,7 +248,7 @@ const HtpasswdDetails = ({
     );
   };
 
-  if (isLoading || isFetching) {
+  if (isLoading) {
     return (
       <Card>
         <CardBody>
@@ -330,6 +334,25 @@ const HtpasswdDetails = ({
                     Add user
                   </Button>
                 </ToolbarItem>
+                {isImportEnabled && (
+                  <ToolbarItem>
+                    <Button
+                      variant={ButtonVariant.secondary}
+                      onClick={() => {
+                        dispatch(
+                          openModal(modals.UPLOAD_HTPASSWD_FILE, {
+                            idpName,
+                            clusterId,
+                            idpId,
+                            region,
+                          }),
+                        );
+                      }}
+                    >
+                      Upload htpasswd file
+                    </Button>
+                  </ToolbarItem>
+                )}
               </>
             ) : null}
             <ToolbarItem align={{ default: 'alignEnd' }} variant="pagination">
@@ -387,6 +410,17 @@ const HtpasswdDetails = ({
         }}
         refreshHtpasswdUsers={refreshHtpasswdUsers}
       />
+
+      {isImportEnabled && (
+        <ConnectedModal
+          // @ts-ignore
+          ModalComponent={UploadHTPasswdFileModal}
+          onSuccess={() => {
+            setSearchValue('');
+            refetch();
+          }}
+        />
+      )}
 
       <ConnectedModal
         // @ts-ignore

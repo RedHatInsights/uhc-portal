@@ -223,6 +223,7 @@ const Overview = (props) => {
                       isArchived={isArchived}
                       isDeprovisioned={isDeprovisioned}
                       isDisconnected={isDisconnected}
+                      clusterDetailsFetching={clusterDetailsFetching}
                     />
                   </GridItem>
                   <GridItem sm={6}>
