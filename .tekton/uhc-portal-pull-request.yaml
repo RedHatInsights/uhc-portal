@@ -64,6 +64,9 @@ spec:
       #!/bin/bash
       set -e  # Don't use -x to avoid printing secrets in logs
 
+      echo "----- node version -----"
+      node --version
+
       # CI mode: enables retries (2) and parallel workers (4) in playwright.config.ts
       export CI=true
       # Accept self-signed TLS certs at the Node.js level (covers test helpers,
