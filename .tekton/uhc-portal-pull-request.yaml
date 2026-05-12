@@ -39,9 +39,6 @@ spec:
     # override image to get node v24, until the remote-pipeline supports it by default
   - name: unit-test-image
     value: "registry.access.redhat.com/ubi9/nodejs-24:1-1776920161"
-    # override image to get node v24, until the remote-pipeline supports it by default (proposed with konflux-pipelines #232)
-  - name: e2e-playwright-image
-    value: "mcr.microsoft.com/playwright:v1.59.0-noble"
   - name: unit-tests-script
     value: |
       #!/bin/bash
