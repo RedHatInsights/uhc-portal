@@ -527,6 +527,16 @@ spec:
       optional: true
   taskRunTemplate:
     serviceAccountName: build-pipeline-uhc-portal-sc
+  # extend the pipeline tasks' specs
+  taskRunSpecs:
+    - pipelineTaskName: build-container
+      stepSpecs:
+        - name: build
+          computeResources:
+            requests:
+              memory: "10Gi"
+            limits:
+              memory: "10Gi"
   workspaces:
   - name: git-auth
     secret:
