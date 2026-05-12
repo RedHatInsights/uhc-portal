@@ -76,8 +76,7 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
   } = useFormState();
   const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
   const isGCP = provider === CloudProviderType.Gcp;
-  const showExcludeNamespaceSelectors =
-    isExcludeNamespaceSelectorsEnabled && isGCP && !isHypershiftCluster;
+  const showExcludeNamespaceSelectors = isExcludeNamespaceSelectorsEnabled && isGCP;
 
   return (
     <>

@@ -72,25 +72,6 @@ describe('DefaultIngressFieldsFormik – Exclude namespace selectors', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('does NOT render when cluster is Hypershift', () => {
-    mockUseFeatureGate([[GCP_EXCLUDE_NAMESPACE_SELECTORS, true]]);
-
-    render(
-      <Formik initialValues={defaultFormikValues} onSubmit={() => {}}>
-        <DefaultIngressFieldsFormik
-          isDay2
-          hasSufficientIngressEditVersion
-          provider="gcp"
-          isHypershiftCluster
-        />
-      </Formik>,
-    );
-
-    expect(
-      screen.queryByRole('textbox', { name: 'Exclude namespace selector values' }),
-    ).not.toBeInTheDocument();
-  });
-
   it('shows protected-namespace validation when entering openshift-console as a value', async () => {
     mockUseFeatureGate([[GCP_EXCLUDE_NAMESPACE_SELECTORS, true]]);
     const { user } = render(
