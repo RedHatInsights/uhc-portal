@@ -206,8 +206,16 @@ spec:
     name: docker-build-v2
   taskRunTemplate:
     serviceAccountName: build-pipeline-uhc-portal
+  # extend the pipeline tasks' specs
   taskRunSpecs:
-    # extend the unit-tests pipeline task to increase RAM
+    - pipelineTaskName: build-container
+      stepSpecs:
+        - name: build
+          computeResources:
+            requests:
+              memory: "10Gi"
+            limits:
+              memory: "10Gi"
     - pipelineTaskName: run-unit-tests
       stepSpecs:
         - name: unit-tests
