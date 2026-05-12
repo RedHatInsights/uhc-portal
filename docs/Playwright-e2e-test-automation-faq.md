@@ -1,4 +1,4 @@
-# Playwright Test Automation — Frequently Asked Questions (FAQ)
+# Playwright E2E Test Automation — Frequently Asked Questions (FAQ)
 
 > This FAQ is a companion to the [Test Automation Guidelines](Playwright-e2e-test-automation-guidelines.md).
 

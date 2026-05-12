@@ -1,4 +1,4 @@
-# Test Automation Guidelines
+# Playwright E2E Test Automation Guidelines
 
 ## Table of Contents
 
