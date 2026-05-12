@@ -167,7 +167,7 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
                     push={arrayHelpers.push}
                     remove={arrayHelpers.remove}
                     arrayFieldName="defaultRouterExcludeNamespaceSelectors"
-                    valueColumnLabel="Values (comma-separated)"
+                    valueColumnLabel="Value(s) (comma-separated)"
                     addButtonLabel="Add selector"
                     keyInputAriaLabel="Exclude namespace selector key"
                     valueInputAriaLabel="Exclude namespace selector values"

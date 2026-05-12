@@ -42,7 +42,7 @@ describe('DefaultIngressFieldsFormik – Exclude namespace selectors', () => {
     });
     expect(screen.getByText('Exclude namespace selectors')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add selector' })).toBeInTheDocument();
-    expect(screen.getByText('Values (comma-separated)')).toBeInTheDocument();
+    expect(screen.getByText('Value(s) (comma-separated)')).toBeInTheDocument();
   });
 
   it('does NOT render when feature flag is OFF', () => {
