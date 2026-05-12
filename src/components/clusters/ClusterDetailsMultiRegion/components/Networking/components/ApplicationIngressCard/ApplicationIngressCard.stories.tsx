@@ -14,12 +14,12 @@ import ApplicationIngressCard from './ApplicationIngressCard';
 
 const FEATURE_GATE_QUERY_KEY = 'featureGate' as const;
 
-function buildQueryClient(excludeNamespaceSelectorsEnabled: boolean) {
+function buildQueryClient() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   queryClient.setQueryData([FEATURE_GATE_QUERY_KEY, GCP_EXCLUDE_NAMESPACE_SELECTORS], {
-    data: { enabled: excludeNamespaceSelectorsEnabled },
+    data: { enabled: true },
   });
   return queryClient;
 }
@@ -81,44 +81,21 @@ const baseIngress: Ingress = {
   listening: 'external',
 };
 
-const ingressWithSelectors: Ingress[] = [
-  {
-    ...baseIngress,
-    excluded_namespace_selectors: [
-      { key: 'department', values: ['finance', 'HR'] },
-      { key: 'type', values: ['customer'] },
-    ],
-  },
-];
-
-const ingressWithoutSelectors: Ingress[] = [baseIngress];
-
 type StoryShellProps = {
-  cluster?: ClusterWithPermissions;
   clusterRoutersData?: Ingress[];
-  provider?: string;
-  excludeNamespaceSelectorsFeatureGate?: boolean;
 };
 
-function ApplicationIngressCardStoryShell({
-  cluster = gcpCluster,
-  clusterRoutersData = ingressWithSelectors,
-  provider = 'gcp',
-  excludeNamespaceSelectorsFeatureGate = false,
-}: StoryShellProps) {
+function ApplicationIngressCardStoryShell({ clusterRoutersData = [baseIngress] }: StoryShellProps) {
   const store = React.useMemo(() => buildStore(), []);
-  const queryClient = React.useMemo(
-    () => buildQueryClient(excludeNamespaceSelectorsFeatureGate),
-    [excludeNamespaceSelectorsFeatureGate],
-  );
+  const queryClient = React.useMemo(() => buildQueryClient(), []);
 
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <ApplicationIngressCard
-          cluster={cluster}
+          cluster={gcpCluster}
           clusterRoutersData={clusterRoutersData}
-          provider={provider}
+          provider="gcp"
           refreshCluster={() => {}}
         />
       </QueryClientProvider>
@@ -142,37 +119,24 @@ export default meta;
 
 type Story = StoryObj<typeof ApplicationIngressCardStoryShell>;
 
-export const GcpWithSelectors: Story = {
-  name: 'GCP + gate ON + selectors configured',
+export const Default: Story = {
+  name: 'Default (no selectors configured)',
   args: {
-    excludeNamespaceSelectorsFeatureGate: true,
-    clusterRoutersData: ingressWithSelectors,
+    clusterRoutersData: [baseIngress],
   },
 };
 
-export const GcpNoSelectors: Story = {
-  name: 'GCP + gate ON + no selectors',
+export const WithSelectors: Story = {
+  name: 'Multiple selectors (single + CSV values)',
   args: {
-    excludeNamespaceSelectorsFeatureGate: true,
-    clusterRoutersData: ingressWithoutSelectors,
-  },
-};
-
-export const GcpGateOff: Story = {
-  name: 'GCP + gate OFF (selectors hidden)',
-  args: {
-    excludeNamespaceSelectorsFeatureGate: false,
-  },
-};
-
-export const AwsGateOn: Story = {
-  name: 'AWS + gate ON (selectors hidden)',
-  args: {
-    excludeNamespaceSelectorsFeatureGate: true,
-    provider: 'aws',
-    cluster: {
-      ...gcpCluster,
-      cloud_provider: { id: 'aws' },
-    },
+    clusterRoutersData: [
+      {
+        ...baseIngress,
+        excluded_namespace_selectors: [
+          { key: 'department', values: ['finance', 'HR'] },
+          { key: 'type', values: ['customer'] },
+        ],
+      },
+    ],
   },
 };

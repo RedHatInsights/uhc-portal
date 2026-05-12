@@ -12,22 +12,18 @@ import { DefaultIngressFieldsFormik } from './DefaultIngressFieldsFormik';
 
 const FEATURE_GATE_QUERY_KEY = 'featureGate' as const;
 
-function buildQueryClient(excludeNamespaceSelectorsEnabled: boolean) {
+function buildQueryClient() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   queryClient.setQueryData([FEATURE_GATE_QUERY_KEY, GCP_EXCLUDE_NAMESPACE_SELECTORS], {
-    data: { enabled: excludeNamespaceSelectorsEnabled },
+    data: { enabled: true },
   });
   return queryClient;
 }
 
 type StoryShellProps = {
   formValues?: Partial<FormikValues>;
-  excludeNamespaceSelectorsFeatureGate?: boolean;
-  provider?: string;
-  isDay2?: boolean;
-  isHypershiftCluster?: boolean;
 };
 
 const defaultFormValues: FormikValues = {
@@ -42,18 +38,8 @@ const defaultFormValues: FormikValues = {
   clusterRoutesHostname: '',
 };
 
-function DefaultIngressFieldsFormikStoryShell({
-  formValues = {},
-  excludeNamespaceSelectorsFeatureGate = false,
-  provider = CloudProviderType.Gcp,
-  isDay2 = true,
-  isHypershiftCluster = false,
-}: StoryShellProps) {
-  const queryClient = React.useMemo(
-    () => buildQueryClient(excludeNamespaceSelectorsFeatureGate),
-    [excludeNamespaceSelectorsFeatureGate],
-  );
-
+function DefaultIngressFieldsFormikStoryShell({ formValues = {} }: StoryShellProps) {
+  const queryClient = React.useMemo(() => buildQueryClient(), []);
   const mergedValues = { ...defaultFormValues, ...formValues };
 
   return (
@@ -62,10 +48,9 @@ function DefaultIngressFieldsFormikStoryShell({
         {({ values }) => (
           <Form noValidate>
             <DefaultIngressFieldsFormik
-              isDay2={isDay2}
+              isDay2
               hasSufficientIngressEditVersion
-              provider={provider}
-              isHypershiftCluster={isHypershiftCluster}
+              provider={CloudProviderType.Gcp}
               values={values}
             />
           </Form>
@@ -91,39 +76,28 @@ export default meta;
 
 type Story = StoryObj<typeof DefaultIngressFieldsFormikStoryShell>;
 
-export const GcpExcludeNamespaceSelectorsOn: Story = {
-  name: 'Day 2 GCP + exclude-namespace selectors gate ON',
-  args: {
-    provider: CloudProviderType.Gcp,
-    excludeNamespaceSelectorsFeatureGate: true,
-  },
+export const Default: Story = {
+  name: 'Default (empty selector row)',
 };
 
-export const GcpExcludeNamespaceSelectorsOff: Story = {
-  name: 'Day 2 GCP + exclude-namespace selectors gate OFF',
+export const WithSelectors: Story = {
+  name: 'Multiple selectors (single + CSV values)',
   args: {
-    provider: CloudProviderType.Gcp,
-    excludeNamespaceSelectorsFeatureGate: false,
-  },
-};
-
-export const AwsGateOn: Story = {
-  name: 'Day 2 AWS (gate on; selectors hidden)',
-  args: {
-    provider: CloudProviderType.Aws,
-    excludeNamespaceSelectorsFeatureGate: true,
-  },
-};
-
-export const GcpWithPrefilledSelectors: Story = {
-  name: 'Day 2 GCP + pre-filled selectors',
-  args: {
-    provider: CloudProviderType.Gcp,
-    excludeNamespaceSelectorsFeatureGate: true,
     formValues: {
       defaultRouterExcludeNamespaceSelectors: [
         { id: '1', key: 'department', value: 'finance,HR' },
         { id: '2', key: 'type', value: 'customer' },
+      ],
+    },
+  },
+};
+
+export const ProtectedNamespaceValidation: Story = {
+  name: 'Validation: protected namespace (openshift-console)',
+  args: {
+    formValues: {
+      defaultRouterExcludeNamespaceSelectors: [
+        { id: '1', key: 'kubernetes.io/metadata.name', value: 'openshift-console' },
       ],
     },
   },
