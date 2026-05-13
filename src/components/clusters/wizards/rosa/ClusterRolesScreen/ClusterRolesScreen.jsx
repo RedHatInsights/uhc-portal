@@ -24,10 +24,7 @@ import {
 } from '~/components/clusters/wizards/rosa/ClusterRolesScreen/clusterRolesHelper';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import useAnalytics from '~/hooks/useAnalytics';
-import {
-  MULTIREGION_PREVIEW_ENABLED,
-  OCM_ROLE_NO_CONSOLE,
-} from '~/queries/featureGates/featureConstants';
+import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import {
   refetchGetOCMRole,
@@ -71,7 +68,6 @@ const ClusterRolesScreen = () => {
 
   const isHypershiftSelected = hypershiftValue === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
-  const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
 
   const [isAutoModeAvailable, setIsAutoModeAvailable] = useState(false);
   const [hasByoOidcConfig, setHasByoOidcConfig] = useState(
@@ -132,15 +128,6 @@ const ClusterRolesScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!rosaCreationMode && isGetOCMRoleSuccess) {
-    const isNoConsole = hasNoConsoleFlag && getOCMRoleData.data?.profile === 'no_console';
-    const effectiveIsAdmin = !isNoConsole && getOCMRoleData.data?.isAdmin;
-    setFieldValue(
-      FieldId.RosaRolesProviderCreationMode,
-      effectiveIsAdmin ? roleModes.AUTO : roleModes.MANUAL,
-    );
-  }
-
   useEffect(() => {
     if (isGetOCMRolePending) {
       setGetOCMRoleErrorBox(null);
@@ -148,9 +135,14 @@ const ClusterRolesScreen = () => {
       if (FieldId.RosaCreatorArn !== getOCMRoleData.data?.arn) {
         setFieldValue(FieldId.RosaCreatorArn, getOCMRoleData.data?.arn);
       }
-      const isNoConsole = hasNoConsoleFlag && getOCMRoleData.data?.profile === 'no_console';
-      const isAdmin = !isNoConsole && getOCMRoleData.data?.isAdmin;
+      const isAdmin = getOCMRoleData.data?.isAdmin;
       setIsAutoModeAvailable(isAdmin);
+      if (!rosaCreationMode) {
+        setFieldValue(
+          FieldId.RosaRolesProviderCreationMode,
+          isAdmin ? roleModes.AUTO : roleModes.MANUAL,
+        );
+      }
       setGetOCMRoleErrorBox(null);
     } else if (getOCMRoleError) {
       // display error
@@ -167,7 +159,7 @@ const ClusterRolesScreen = () => {
       refetchGetOCMRole(awsAccountID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getOCMRoleStatus]);
+  }, [getOCMRoleStatus, rosaCreationMode]);
 
   const handleRefresh = () => {
     refetchGetOCMRole(awsAccountID);
