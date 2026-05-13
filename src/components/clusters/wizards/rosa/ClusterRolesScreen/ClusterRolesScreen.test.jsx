@@ -2,6 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import docLinks from '~/common/docLinks.mjs';
+import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
 import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
@@ -119,6 +120,27 @@ describe('<ClusterRolesScreen />', () => {
     expect(
       await screen.findByText('ocm-role is no longer linked to your Red Hat organization'),
     ).toBeInTheDocument();
+  });
+
+  it('disables Auto option when profile is no_console even if isAdmin is true', async () => {
+    mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+    useFetchGetOCMRole.mockReturnValue({
+      data: {
+        data: {
+          isAdmin: true,
+          profile: 'no_console',
+          arn: 'arn:aws:iam::123456789012:role/MinimalOCMRole',
+        },
+      },
+      error: undefined,
+      isPending: false,
+      isSuccess: true,
+      status: 'success',
+    });
+    renderWithFormik();
+
+    const auto = await screen.findByRole('radio', { name: 'Auto' });
+    expect(auto).toBeDisabled();
   });
 
   it('is accessible', async () => {
