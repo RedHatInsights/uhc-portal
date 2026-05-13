@@ -41,7 +41,7 @@ import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { viewConstants } from '~/redux/constants';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
-import { ClusterTransferStatus } from '~/types/accounts_mgmt.v1';
+import { ClusterTransferStatus, SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 import { ViewOptions } from '~/types/types';
 
 import ErrorTriangle from '../common/ErrorTriangle';
@@ -245,14 +245,17 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
     const owner = transfer?.owner;
     const isOwner = owner === username;
     const isInterOrg = !transfer?.subscription && !isOwner;
-    const clusterName = isInterOrg ? (
-      transfer?.name
-    ) : (
-      <Link to={`/details/s/${subscriptionId}`}>{transfer?.name}</Link>
-    );
+    const clusterName =
+      isInterOrg || !subscriptionId ? (
+        transfer?.name
+      ) : (
+        <Link to={`/details/s/${subscriptionId}`}>{transfer?.name}</Link>
+      );
     const clusterStatus = transfer.status;
     const transferAction = !!(
-      transfer.id && transfer?.status === ClusterTransferStatus.Pending.toLowerCase()
+      transfer.id &&
+      transfer?.status === ClusterTransferStatus.Pending.toLowerCase() &&
+      transfer?.subscription?.status !== SubscriptionCommonFieldsStatus.Deprovisioned
     );
     return (
       <Tr key={transfer?.id}>
@@ -267,7 +270,11 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
             />
           ) : null}
         </Td>
-        <Td dataLabel={columnNames.type}>{transfer?.product?.id?.toUpperCase()}</Td>
+        <Td dataLabel={columnNames.type}>
+          {transfer?.product?.id === 'Unknown'
+            ? transfer?.product?.id
+            : transfer?.product?.id?.toUpperCase()}
+        </Td>
         <Td dataLabel={columnNames.version}>{transfer?.version?.raw_id}</Td>
         <Td dataLabel={columnNames.requested}>
           {isInterOrg ? (
@@ -276,7 +283,7 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
               <Tooltip
                 content={
                   <div>
-                    <p>This Transfer is from another user outside of your orgaization.</p>
+                    <p>This Transfer is from another user outside of your organization.</p>
                   </div>
                 }
               >

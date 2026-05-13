@@ -27,7 +27,7 @@ describe('createClusterRequest', () => {
     automatic_upgrade_schedule: '0 0 * * 0',
     node_labels: [{}],
     enable_user_workload_monitoring: true,
-    machine_type: 'PDP-11', // GCP defaults 'custom-4-16384', AWS 'm5.xlarge' not important here.
+    machine_type: { id: 'PDP-11' }, // GCP defaults 'custom-4-16384', AWS 'm5.xlarge' not important here.
     cluster_version: {
       kind: 'Version',
       id: 'openshift-v4.17.1',
@@ -65,6 +65,14 @@ describe('createClusterRequest', () => {
     vpc_name: 'nsimha-test-1-sd8x8-network',
     control_plane_subnet: 'nsimha-test-1-sd8x8-master-subnet',
     compute_subnet: 'nsimha-test-1-sd8x8-worker-subnet',
+  };
+
+  const gcpDnsData = {
+    id: 'dnsId1',
+    gcp: {
+      domain_prefix: 'prefix1',
+      project_id: 'project1',
+    },
   };
 
   const expectGCPVPC = (request) => {
@@ -187,6 +195,13 @@ describe('createClusterRequest', () => {
       };
       const request = createClusterRequest({}, data);
       expectCIDR(request);
+    });
+  });
+
+  describe('Machine types', () => {
+    it('sets machine_type when available', () => {
+      const request = createClusterRequest({}, baseFormData);
+      expect(request.nodes.compute_machine_type.id).toBe('PDP-11');
     });
   });
 
@@ -335,6 +350,111 @@ describe('createClusterRequest', () => {
         expect(request.gcp.private_service_connect?.service_attachment_subnet).toEqual(
           'psc_subnet',
         );
+      });
+
+      it('handles DNS zone data when configured', () => {
+        const data = {
+          ...baseFormData,
+          billing_model: 'standard',
+          product: normalizedProducts.OSD,
+          cloud_provider: 'gcp',
+          byoc: 'true',
+          has_domain_prefix: true,
+          domain_prefix: 'prefix1',
+          dns_zone: gcpDnsData,
+          install_to_shared_vpc: true,
+          install_to_vpc: true,
+          gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+          gcp_wif_config: { id: '324ed23f2d12342d23d' },
+        };
+
+        const request = createClusterRequest({ isWizard: true }, data);
+        expect(request.dns.base_domain).toEqual(data.dns_zone.id);
+        expect(request.ccs.enabled).toBeTruthy();
+      });
+
+      it('does not send DNS zone data when configured domain prefix does not exist', () => {
+        const data = {
+          ...baseFormData,
+          billing_model: 'standard',
+          product: normalizedProducts.OSD,
+          cloud_provider: 'gcp',
+          byoc: 'true',
+          has_domain_prefix: false,
+          domain_prefix: '',
+          dns_zone: gcpDnsData,
+          install_to_shared_vpc: true,
+          install_to_vpc: true,
+          gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+          gcp_wif_config: { id: '324ed23f2d12342d23d' },
+        };
+
+        const request = createClusterRequest({ isWizard: true }, data);
+        expect(request.dns?.base_domain).toEqual(undefined);
+        expect(request.ccs.enabled).toBeTruthy();
+      });
+
+      it('does not send DNS zone data when auth type is serviceAccounts', () => {
+        const data = {
+          ...baseFormData,
+          billing_model: 'standard',
+          product: normalizedProducts.OSD,
+          cloud_provider: 'gcp',
+          byoc: 'true',
+          has_domain_prefix: true,
+          domain_prefix: 'prefix1',
+          dns_zone: gcpDnsData,
+          install_to_shared_vpc: true,
+          install_to_vpc: true,
+          gcp_auth_type: GCPAuthType.ServiceAccounts,
+          gcp_service_account: JSON.stringify(gcpServiceAccount),
+        };
+
+        const request = createClusterRequest({ isWizard: true }, data);
+        expect(request.dns?.base_domain).toEqual(undefined);
+        expect(request.ccs.enabled).toBeTruthy();
+      });
+
+      describe('Custom application ingress', () => {
+        const customIngressData = {
+          ...baseFormData,
+          billing_model: 'standard',
+          product: normalizedProducts.OSD,
+          cloud_provider: 'gcp',
+          byoc: 'true',
+          gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+          gcp_wif_config: { id: '324ed23f2d12342d23d' },
+          secure_boot: true,
+          applicationIngress: 'custom',
+          defaultRouterSelectors: '',
+          defaultRouterExcludedNamespacesFlag: '',
+          defaultRouterExcludeNamespaceSelectors: [{ id: 'placeholder', key: '', value: '' }],
+          isDefaultRouterNamespaceOwnershipPolicyStrict: true,
+          isDefaultRouterWildcardPolicyAllowed: false,
+        };
+
+        it('omits excluded_namespace_selectors from ingress when no selectors are configured', () => {
+          const request = createClusterRequest({ isWizard: true }, customIngressData);
+
+          expect(request.ingresses?.items?.[0]).toBeDefined();
+          expect(request.ingresses.items[0].excluded_namespace_selectors).toBeUndefined();
+        });
+
+        it('includes excluded_namespace_selectors when form rows have keys and values', () => {
+          const data = {
+            ...customIngressData,
+            defaultRouterExcludeNamespaceSelectors: [
+              { key: 'department', value: 'finance, HR' },
+              { key: 'type', value: 'customer' },
+            ],
+          };
+          const request = createClusterRequest({ isWizard: true }, data);
+
+          expect(request.ingresses.items[0].excluded_namespace_selectors).toEqual([
+            { key: 'department', values: ['finance', 'HR'] },
+            { key: 'type', values: ['customer'] },
+          ]);
+        });
       });
     });
 

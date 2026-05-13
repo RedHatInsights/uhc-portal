@@ -21,7 +21,7 @@ import {
   SPOT_MIN_PRICE,
 } from '~/components/clusters/common/machinePools/constants';
 import {
-  getNodeOptions,
+  getMaxNodeCountForMachinePool,
   getWorkerNodeVolumeSizeMaxGiB,
   getWorkerNodeVolumeSizeMinGiB,
 } from '~/components/clusters/common/machinePools/utils';
@@ -71,6 +71,7 @@ type UseMachinePoolFormikArgs = {
   cluster: ClusterFromSubscription;
   machineTypes: MachineTypesResponse;
   machinePools: (MachinePool | NodePool)[];
+  hcpMaxDifference?: number | undefined;
 };
 
 const isMachinePool = (pool?: MachinePool | NodePool): pool is MachinePool =>
@@ -90,6 +91,7 @@ const useMachinePoolFormik = ({
   cluster,
   machineTypes,
   machinePools,
+  hcpMaxDifference,
 }: UseMachinePoolFormikArgs) => {
   const isMachinePoolMz = isMPoolAz(
     cluster,
@@ -124,8 +126,16 @@ const useMachinePoolFormik = ({
     let capacityReservationId;
     let capacityReservationPreference;
 
-    autoscaleMin = (machinePool as MachinePool)?.autoscaling?.min_replicas || minNodesRequired;
-    autoscaleMax = (machinePool as MachinePool)?.autoscaling?.max_replicas || minNodesRequired;
+    const hasMaxDifference = (hcpMaxDifference || hcpMaxDifference === 0) && hcpMaxDifference < 2;
+    const hypershiftDefaultMinReplicas = hasMaxDifference ? hcpMaxDifference : 2;
+    const hypershiftDefaultMaxReplicas = hasMaxDifference ? 1 : 2;
+
+    autoscaleMin =
+      (machinePool as MachinePool)?.autoscaling?.min_replicas ??
+      (isHypershift ? hypershiftDefaultMinReplicas : minNodesRequired);
+    autoscaleMax =
+      (machinePool as MachinePool)?.autoscaling?.max_replicas ??
+      (isHypershift ? hypershiftDefaultMaxReplicas : minNodesRequired);
 
     const instanceTypeId = (machinePool as MachinePool)?.instance_type;
     const instanceType = (
@@ -149,9 +159,14 @@ const useMachinePoolFormik = ({
       nodeDrainTimeout = machinePool.node_drain_grace_period?.value;
     }
 
+    // For multi-zone machine pools, store per-zone values (divide by 3)
+    let replicas =
+      machinePool?.replicas ?? (isHypershift ? hypershiftDefaultMinReplicas : minNodesRequired);
+
     if (isMachinePoolMz) {
       autoscaleMin /= 3;
       autoscaleMax /= 3;
+      replicas /= 3;
     }
 
     const machinePoolData: EditMachinePoolValues = {
@@ -159,8 +174,8 @@ const useMachinePoolFormik = ({
       autoscaling: !!machinePool?.autoscaling,
       auto_repair: autoRepair,
       autoscaleMin,
-      autoscaleMax: autoscaleMax || 1,
-      replicas: machinePool?.replicas || minNodesRequired,
+      autoscaleMax: isHypershift ? autoscaleMax : autoscaleMax || 1,
+      replicas,
       labels: machinePool?.labels
         ? Object.keys(machinePool.labels).map((key) => ({
             key,
@@ -219,6 +234,7 @@ const useMachinePoolFormik = ({
     machineTypes.typesByID,
     isHypershift,
     isValidCRVersion,
+    hcpMaxDifference,
   ]);
 
   const minDiskSize = getWorkerNodeVolumeSizeMinGiB(isHypershift);
@@ -235,7 +251,8 @@ const useMachinePoolFormik = ({
       Yup.lazy((values) => {
         const minNodes = isMachinePoolMz ? minNodesRequired / 3 : minNodesRequired;
         const secGroupValidation = validateSecurityGroups(values.securityGroupIds, isHypershift);
-        const nodeOptions = getNodeOptions({
+        const mpAvailZones = (machinePool as MachinePool)?.availability_zones?.length;
+        const maxNodes = getMaxNodeCountForMachinePool({
           cluster,
           machinePools: machinePools || [],
           machinePool,
@@ -245,8 +262,8 @@ const useMachinePoolFormik = ({
           machineTypeId: values.instanceType?.id,
           editMachinePoolId: values.name,
           allow249NodesOSDCCSROSA,
+          mpAvailZones,
         });
-        const maxNodes = nodeOptions.length ? nodeOptions[nodeOptions.length - 1] : 0;
 
         return Yup.object({
           name: Yup.string().test('mp-name', '', (value) => {
@@ -358,7 +375,10 @@ const useMachinePoolFormik = ({
                   'Decimals are not allowed. Enter a whole number.',
                   Number.isInteger,
                 )
-                .min(minNodes, `Input cannot be less than ${minNodes}.`)
+                .min(
+                  isHypershift ? 0 : minNodes,
+                  `Input cannot be less than ${isHypershift ? 0 : minNodes}.`,
+                )
                 .max(values.autoscaleMax, 'Min nodes cannot be more than max nodes.')
             : Yup.number(),
           autoscaleMax: values.autoscaling
@@ -371,9 +391,23 @@ const useMachinePoolFormik = ({
                       'autoscaleMax',
                     );
                   }
+                  if (value !== undefined && value < 0) {
+                    return new Yup.ValidationError(
+                      'Max nodes cannot be negative.',
+                      value,
+                      'autoscaleMax',
+                    );
+                  }
                   if (value !== undefined && value < 1) {
                     return new Yup.ValidationError(
                       'Max nodes must be greater than 0.',
+                      value,
+                      'autoscaleMax',
+                    );
+                  }
+                  if (isHypershift && value !== undefined && value < minNodes) {
+                    return new Yup.ValidationError(
+                      `Max nodes must be at least ${minNodes} to satisfy the cluster-wide untainted-node minimum.`,
                       value,
                       'autoscaleMax',
                     );
@@ -412,7 +446,19 @@ const useMachinePoolFormik = ({
                 .required('Compute node instance type is a required field.')
             : Yup.object(),
           isWindowsLicenseIncluded: Yup.boolean(),
-          replicas: Yup.number(),
+          replicas: !values.autoscaling
+            ? Yup.number()
+                .test(
+                  'whole-number',
+                  'Decimals are not allowed. Enter a whole number.',
+                  Number.isInteger,
+                )
+                .min(minNodes, `Input cannot be less than ${minNodes}.`)
+                .max(
+                  isMachinePoolMz ? maxNodes / 3 : maxNodes,
+                  `Input cannot be more than ${isMachinePoolMz ? maxNodes / 3 : maxNodes}.`,
+                )
+            : Yup.number(),
           maxSurge: Yup.number()
             .typeError('Max surge must be a number. Please provide a valid numeric value.')
             .nullable()

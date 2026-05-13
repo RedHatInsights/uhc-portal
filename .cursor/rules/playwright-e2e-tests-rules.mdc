@@ -1,0 +1,76 @@
+---
+description: Playwright E2E test conventions for page objects, fixtures, test specs, and test data
+globs: playwright/**/*.ts, playwright/**/*.json
+alwaysApply: false
+---
+
+# Playwright E2E Test Conventions
+
+## Support Utilities
+
+- `playwright-constants.ts` defines all shared paths, timeouts, and route constants — always import from here instead of hardcoding
+- `auth-config.ts` provides auth configuration — reads credentials from environment variables
+- `custom-commands.ts` provides common interaction helpers and ROSA CLI helpers
+- `global-setup.ts` handles authentication and saves state to `storageState.json` — do not modify unless changing the auth flow
+- Environment variables are loaded from `playwright.env.json` at the workspace root via `playwright.config.ts`
+
+## Page Objects
+
+- Every page object must extend `BasePage` from `./base-page`
+- Name files as `<feature>-page.ts` and classes as `<Feature>Page` (e.g., `cluster-list-page.ts` / `ClusterListPage`)
+- Name wizard page files as `create-<product>-wizard-page.ts` (e.g., `create-rosa-wizard-page.ts`)
+- Every page object must have an `is<PageName>()` async method that asserts URL and heading for page validation
+- Locator methods must be synchronous and return `Locator` for chainability and auto-waiting
+- Action methods that perform interactions must be async and return `Promise<void>`
+- Import constants like paths and timeouts from `../support/playwright-constants`
+- Use selectors in this priority order: `getByRole` with name, `getByLabel`, `getByText`, `getByTestId`
+- Never use CSS selectors — they are brittle and tightly coupled to implementation details
+- Never use dynamic or auto-generated IDs as selectors
+- Never store mutable test state as class properties in page objects
+- Use `locator().filter({ hasText: })` for filtering and `locator().first()` for nth element selection
+- Chain locators for scoped queries (e.g., `this.parentRow().getByRole('button', { name: 'Download' })`)
+
+## Fixtures
+
+- All page object fixtures are registered in `playwright/fixtures/pages.ts`
+- To add a new fixture: import the page object, add it to the `WorkerFixtures` type, then add the fixture definition
+- All page object fixtures must be worker-scoped using `{ scope: 'worker' }`
+- Use `authenticatedPage` (not raw `page`) when constructing page objects in fixture definitions
+- The `navigateTo` fixture is test-scoped and accepts a relative URL path — it is safe to use in `test.beforeAll` because `page` is overridden to delegate to the worker-scoped `authenticatedPage`, so navigation persists across all tests in the suite
+- The `page` fixture is overridden to return the worker-scoped `authenticatedPage` with pre-loaded authentication state — this is what makes test-scoped fixtures like `navigateTo` work correctly in `test.beforeAll`
+- Never create test-scoped page object fixtures — serial tests require shared worker-scoped state
+- Check `fixtures/pages.ts` for the current list of available fixtures before creating new ones
+
+## Test Data
+
+- Name test data files as `<spec-name>.spec.json` and place them under `playwright/fixtures/<feature>/`
+- Mirror the `e2e/` folder structure (e.g., `fixtures/rosa/` for `e2e/rosa/` specs, `fixtures/osd-aws/` for `e2e/osd-aws/` specs)
+- Use descriptive top-level keys matching wizard sections or validation areas (e.g., `ClusterSettings`, `ValidationScenarios`)
+- Keep environment-specific values (AWS IDs, regions, role prefixes) in `playwright.env.json`, not in fixture JSONs
+- Never include secrets, credentials, tokens, or sensitive data in fixture JSON files — use environment variables instead
+- Fixture JSONs should contain test scenario data: validation inputs, expected errors, cluster configuration defaults
+- Use `require()` or `import` to load JSON fixtures in specs; both are acceptable
+- Use environment variables with JSON fixture fallbacks for environment-specific values
+
+## Test Specs
+
+- Always import `test` and `expect` from the custom fixtures (`../../fixtures/pages`), never from `@playwright/test`
+- Use `test.describe.serial` only for multi-step flows that intentionally share state across tests
+- Use regular `test.describe` for independent tests
+- Every `describe` block must include appropriate tags via the second argument: `{ tag: ['@smoke', '@ci', '@rosa'] }`
+- Use the `navigateTo` fixture for navigation instead of `page.goto()`
+- Use page object fixtures from the test function signature (they are worker-scoped)
+- Call the page object's `is<PageName>()` method in `test.beforeAll` to validate navigation
+- Write descriptive, action-oriented test titles (e.g., "can expand and collapse rows", not "test rows")
+- Tag `@ci` for fast, side-effect-free tests (page loads, validation, navigation) that run on every PR
+- Tag `@smoke` for critical Day 0/Day 1 paths that run daily against staging
+- Tag `@advanced` for comprehensive coverage, multi-flavor tests, and edge cases
+- Always pair with `@day1` (creation/initial setup) or `@day2` (post-creation management) to indicate lifecycle phase
+- When unsure about tier, start with `@advanced` and promote to `@smoke` or `@ci` later
+- Day 2 specs require a corresponding Day 1 cluster to exist; reference the cluster name from a fixture JSON file
+- Never use hard-coded waits like `page.waitForTimeout()` — wait for specific elements instead
+- Never use `page.waitForLoadState('networkidle')` — it hangs with polling and websockets
+- Never use `page.goBack()` — use `navigateTo()` for direct navigation
+- Never use parallel mode with worker-scoped fixtures
+- Never swallow errors with empty try/catch blocks — let failures propagate
+- Never skip tests without a JIRA issue reference in the skip reason

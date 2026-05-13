@@ -12830,6 +12830,55 @@ export interface paths {
     };
     trace?: never;
   };
+  '/api/clusters_mgmt/v1/register_cluster': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Adds an existing cluster to the collection. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['ClusterRegistration'];
+        };
+      };
+      responses: {
+        /** @description Success. */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Cluster'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/clusters_mgmt/v1/registry_allowlists': {
     parameters: {
       query?: never;
@@ -13631,6 +13680,8 @@ export interface components {
       };
       /** @description Role ARN for VPC Endpoint Service cross account role. */
       vpc_endpoint_role_arn?: string;
+      /** @description Zero egress configuration. */
+      zero_egress?: components['schemas']['ZeroEgress'];
     };
     /** @description Backup configuration for AWS clusters */
     AWSBackupConfig: {
@@ -13973,6 +14024,8 @@ export interface components {
       cluster?: components['schemas']['ClusterLink'];
       /** @description Signals which cluster architecture the domain is ready for. */
       cluster_arch?: components['schemas']['ClusterArchitecture'];
+      /** @description Gcp contains Google Cloud Platform-specific DNS domain configuration. */
+      gcp?: components['schemas']['GcpDnsDomain'];
       /** @description Link to the organization that reserved the DNS domain. */
       organization?: components['schemas']['OrganizationLink'];
       /**
@@ -15217,6 +15270,8 @@ export interface components {
       domain_prefix?: string;
       /** @description Indicates whether that etcd is encrypted or not.
        *     This is set only during cluster creation.
+       *     For ROSA-HCP Clusters, etcd is always encrypted, if not set/false, or kms user's key not set,
+       *     defaults true indicates 'encrypted by internal key'.
        *     For ARO-HCP Clusters, this is a readonly attribute, always set to true. */
       etcd_encryption?: boolean;
       /**
@@ -16017,6 +16072,17 @@ export interface components {
       id?: string;
       /** @description Indicates the type of this object */
       kind?: string;
+    };
+    /** @description GcpDnsDomain represents configuration for Google Cloud Platform DNS domain settings
+     *     used in cluster DNS configuration for GCP-hosted clusters. */
+    GcpDnsDomain: {
+      /** @description DomainPrefix specifies the DNS domain prefix that will be used for cluster DNS resolution.
+       *     This prefix is combined with the base domain to form the full DNS domain for the cluster. */
+      domain_prefix?: string;
+      /** @description NetworkId is the GCP VPC Network identifier where the DNS configuration will be applied. */
+      network_id?: string;
+      /** @description ProjectId is the Google Cloud Platform project identifier where the DNS zone is hosted. */
+      project_id?: string;
     };
     /** @description Google cloud platform private service connect configuration of a cluster. */
     GcpPrivateServiceConnect: {
@@ -17505,6 +17571,8 @@ export interface components {
       gcp_marketplace_enabled?: boolean;
       /** @description ROSAEnabled indicates whether this version can be used to create ROSA clusters. */
       rosa_enabled?: boolean;
+      /** @description AvailableChannels is the list of channels in which this version is present */
+      available_channels?: string[];
       /** @description AvailableUpgrades is the list of versions this version can be upgraded to. */
       available_upgrades?: string[];
       /** @description ChannelGroup is the name of the group where this image belongs.
@@ -17690,6 +17758,14 @@ export interface components {
      * @enum {string}
      */
     WildcardPolicy: WildcardPolicy;
+    /** @description Zero egress configuration. */
+    ZeroEgress: {
+      /** @description Indicates if zero egress is enabled for this cluster. */
+      enabled?: boolean;
+      /** @description List of default no-proxy domains automatically added to the cluster's
+       *     no-proxy configuration when zero egress is enabled. */
+      no_proxy_default_domains?: string[];
+    };
     Error: {
       /** @description Indicates the type of this object. Will always be 'Error' */
       kind?: string;
@@ -17878,6 +17954,7 @@ export type SchemaExternalConfiguration = components['schemas']['ExternalConfigu
 export type SchemaFlavour = components['schemas']['Flavour'];
 export type SchemaFlavourNodes = components['schemas']['FlavourNodes'];
 export type SchemaGcpAuthentication = components['schemas']['GcpAuthentication'];
+export type SchemaGcpDnsDomain = components['schemas']['GcpDnsDomain'];
 export type SchemaGcpPrivateServiceConnect = components['schemas']['GcpPrivateServiceConnect'];
 export type SchemaGcpSecurity = components['schemas']['GcpSecurity'];
 export type SchemaGithubIdentityProvider = components['schemas']['GithubIdentityProvider'];
@@ -18016,6 +18093,7 @@ export type SchemaWifSecretRef = components['schemas']['WifSecretRef'];
 export type SchemaWifServiceAccount = components['schemas']['WifServiceAccount'];
 export type SchemaWifSupport = components['schemas']['WifSupport'];
 export type SchemaWildcardPolicy = components['schemas']['WildcardPolicy'];
+export type SchemaZeroEgress = components['schemas']['ZeroEgress'];
 export type SchemaError = components['schemas']['Error'];
 export type $defs = Record<string, never>;
 export enum AWSInfrastructureAccessRoleGrantState {

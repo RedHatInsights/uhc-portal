@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-Ensure you have Node.js (>= 18.12.0) and Yarn (>= 1.22.19) installed on your system.
+Ensure you have Node.js and Yarn installed on your system (see package.json for the compatible versions).
 
 ### Install Dependencies
 
@@ -94,11 +94,22 @@ The test configuration uses `playwright.env.json` for environment-specific setti
     "VPC_NAME": "Google cloud VPC name",
     "CONTROLPLANE_SUBNET": "Google cloud control plane subnet",
     "COMPUTE_SUBNET": "Google cloud compute subnet",
+    // GCP Private service connect details.
     "PSC_INFRA": {
       "VPC_NAME": "Google cloud Private service connect VPC",
       "CONTROLPLANE_SUBNET": "Google cloud control plane subnet",
       "COMPUTE_SUBNET": "Google cloud compute subnet",
       "PRIVATE_SERVICE_CONNECT_SUBNET": "Google cloud psc subnet"
+    },
+    //GCP Shared VPC details.
+    "SHARED_VPC_INFRA": {
+      "HOST_PROJECT_ID": "host project id",
+      "SERVICE_PROJECT_ID": "service project id",
+      "VPC_NAME": "shared VPC name from host project",
+      "REGION": "shared VPC configured region",
+      "CONTROLPLANE_SUBNET": "control plane subnet from shared vpc",
+      "COMPUTE_SUBNET": "compute subnet from shared vpc",
+      "PRIVATE_SERVICE_CONNECT_SUBNET": "psc subnet from shared vpc"
     }
   },
   // AWS VPC definition required for ROSA hosted, rosa classic clusters with custom VPCs

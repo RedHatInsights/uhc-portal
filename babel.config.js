@@ -10,8 +10,8 @@ module.exports = {
       {
         targets: {
           browsers: ['chrome >= 67', 'edge >= 79', 'firefox >= 68', 'opera >= 54', 'safari >= 14'],
-          // We have Node 18 in the CI. Could use 'current' but prefer testing exactly same code locally as on CI.
-          node: '18',
+          // Could use 'current' but prefer testing exactly same code locally as on CI.
+          node: '24',
         },
       },
     ],

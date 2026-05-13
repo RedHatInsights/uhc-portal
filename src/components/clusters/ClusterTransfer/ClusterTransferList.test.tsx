@@ -75,7 +75,7 @@ describe('<ClusterTransferList />', () => {
       isError: false,
     });
     const state = {
-      userProfile: { keycloakProfile: { testOwner } },
+      userProfile: { keycloakProfile: { username: testOwner } },
     };
     withState(state).render(<ClusterTransferList />);
     expect(screen.queryByRole('button', { name: 'Refresh' })).toBeInTheDocument();
@@ -85,9 +85,43 @@ describe('<ClusterTransferList />', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders cluster name as plain text without a details link when subscription id is unknown', () => {
+    const displayName = 'cluster-without-subscription-id';
+    useFetchClusterTransferDetailMock.useFetchClusterTransferDetail.mockReturnValue({
+      data: {
+        items: [
+          {
+            ...fixtures.clusterDetails.cluster,
+            status: ClusterTransferStatus.Completed.toLowerCase(),
+            owner: testOwner,
+            name: displayName,
+            subscription: {
+              display_name: displayName,
+            },
+            version: {
+              raw_id: '4.17',
+            },
+            recipient: testRecipient,
+          },
+        ],
+      },
+      isLoading: false,
+      errors: [],
+      isError: false,
+    });
+    const state = {
+      userProfile: { keycloakProfile: { username: testOwner } },
+    };
+    withState(state).render(<ClusterTransferList />);
+
+    const nameEl = screen.getByText(displayName);
+    expect(nameEl.closest('a')).toBeNull();
+    expect(screen.queryByRole('link', { name: displayName })).not.toBeInTheDocument();
+  });
+
   it('Accept/Decline action button shown', async () => {
     const state = {
-      userProfile: { keycloakProfile: { testRecipient } },
+      userProfile: { keycloakProfile: { username: testRecipient } },
     };
     useFetchClusterTransferDetailMock.useFetchClusterTransferDetail.mockReturnValue({
       data: {

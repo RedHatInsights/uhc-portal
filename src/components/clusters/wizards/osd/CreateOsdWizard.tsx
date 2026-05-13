@@ -19,13 +19,12 @@ import { shouldRefetchQuota } from '~/common/helpers';
 import { Navigate, useNavigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
-import {
-  ClusterSettingsMachinePool,
-  ClusterUpdates,
-  NodeLabel,
-} from '~/components/clusters/wizards/common';
+import { MachinePool as ClusterSettingsMachinePool } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/MachinePool';
+import type { NodeLabel } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/NodeLabelsFieldArray';
+import { ClusterUpdates } from '~/components/clusters/wizards/common/ClusterUpdates';
 import submitOSDRequest from '~/components/clusters/wizards/common/submitOSDRequest';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { useTrackOcmIngressExcludeNamespaceSelectorsOnClusterCreate } from '~/components/clusters/wizards/hooks/useTrackOcmIngressExcludeNamespaceSelectorsOnClusterCreate';
 import { osdWizardFormValidator } from '~/components/clusters/wizards/osd/formValidators';
 import { OsdWizardContext } from '~/components/clusters/wizards/osd/OsdWizardContext';
 import Breadcrumbs from '~/components/common/Breadcrumbs';
@@ -34,8 +33,6 @@ import Unavailable from '~/components/common/Unavailable';
 import config from '~/config';
 import useAnalytics from '~/hooks/useAnalytics';
 import usePreventBrowserNav from '~/hooks/usePreventBrowserNav';
-import { GCP_WIF_DEFAULT, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { resetCreatedClusterResponse } from '~/redux/actions/clustersActions';
 import getLoadBalancerValues from '~/redux/actions/loadBalancerActions';
 import getPersistentStorageValues from '~/redux/actions/persistentStorageActions';
@@ -50,7 +47,7 @@ import { ErrorState } from '~/types/types';
 import { QuotaTypes } from '../../common/quotaModel';
 import { useClusterWizardResetStepsHook } from '../hooks/useClusterWizardResetStepsHook';
 
-import { CloudProviderType, GCPAuthType } from './ClusterSettings/CloudProvider/types';
+import { CloudProviderType } from './ClusterSettings/CloudProvider/types';
 import { BillingModel } from './BillingModel';
 import {
   CloudProviderStepFooter,
@@ -152,6 +149,8 @@ const CreateOsdWizardInternal = () => {
         },
       }),
     });
+
+  useTrackOcmIngressExcludeNamespaceSelectorsOnClusterCreate(values, product);
 
   const onClose = () => navigate(UrlPath.CreateCloud);
 
@@ -336,18 +335,10 @@ export const CreateOsdWizard = ({
     dispatch((() => submitOSDRequest(dispatch, { isWizard: true })(submitValues)) as any);
   };
 
-  const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
-  const isWifDefaultEnabled = useFeatureGate(GCP_WIF_DEFAULT);
-
-  const defaultAuthType =
-    (isWifEnabled && isWifDefaultEnabled) || isOSDFromGoogleCloud
-      ? GCPAuthType.WorkloadIdentityFederation
-      : GCPAuthType.ServiceAccounts;
-
   const defaultInitialValues = {
     ...initialValues,
     ...(product && { product }),
-    [FieldId.GcpAuthType]: defaultAuthType,
+    // WIF is now unconditionally the default auth type (set in initialValues)
     ...(isOSDFromGoogleCloud && {
       [FieldId.InstallToVpc]: true,
       [FieldId.BillingModel]: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,

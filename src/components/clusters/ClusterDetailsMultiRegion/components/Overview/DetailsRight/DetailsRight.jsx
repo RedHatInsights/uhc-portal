@@ -102,6 +102,9 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const showWorkerNodesTogether = getQueryParam('showWorkerNodesTogether') === 'true';
   const isDisconnected =
     get(cluster, 'subscription.status', '') === SubscriptionCommonFieldsStatus.Disconnected;
+  const autoScalingUrl = isROSACluster
+    ? docLinks.ROSA_AUTOSCALING
+    : docLinks.OSD_CLUSTER_AUTOSCALING;
 
   const billingMarketplaceAccount = get(cluster, 'subscription.billing_marketplace_account', '');
 
@@ -374,12 +377,11 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
             <PopoverHint
               id="autoscaling-hint"
               iconClassName="nodes-hint"
+              buttonAriaLabel="More information about autoscaling"
               hint={
                 <>
                   {constants.autoscaleHint}{' '}
-                  <ExternalLink href={docLinks.APPLYING_AUTOSCALING}>
-                    Learn more about autoscaling
-                  </ExternalLink>
+                  <ExternalLink href={autoScalingUrl}>Learn more about autoscaling</ExternalLink>
                 </>
               }
             />

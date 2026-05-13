@@ -23,25 +23,34 @@ type NormalizedNodePool = Omit<NodePool, 'autoscaling'> & {
 
 // Despite being designed to handle HCP node pools, numberReadyNodePools function cannot accept type NodePool since we normalize the data to match the structure of NodePoolAutoscaling type to MachinePoolAutoscaling type.
 // See normalizeNodePool function in machinePoolsHelper.ts
-export const numberReadyNodePools = (nodePools: NormalizedNodePool[]) =>
-  nodePools?.filter((pool) => {
-    const current = pool.status?.current_replicas;
+export const numberReadyNodePools = (nodePools: NormalizedNodePool[]) => {
+  const hasMin = (min: number | undefined) => min !== undefined && min !== null;
+  return (
+    nodePools?.filter((pool) => {
+      const current = pool.status?.current_replicas;
 
-    if (current === undefined) {
-      return false;
-    }
-    if (pool.autoscaling) {
-      if (!pool.autoscaling.min_replicas || !pool.autoscaling.max_replicas) {
+      if (current === undefined) {
         return false;
       }
-      return current >= pool.autoscaling.min_replicas && current <= pool.autoscaling.max_replicas;
-    }
 
-    if (pool.replicas === undefined) {
-      return false;
-    }
-    return pool.replicas === current;
-  }).length || 0;
+      if (pool.status?.message && pool.autoscaling?.min_replicas === 0) {
+        return false;
+      }
+
+      if (pool.autoscaling) {
+        if (!hasMin(pool.autoscaling.min_replicas) || !hasMin(pool.autoscaling.max_replicas)) {
+          return false;
+        }
+        return current >= pool.autoscaling.min_replicas && current <= pool.autoscaling.max_replicas;
+      }
+
+      if (pool.replicas === undefined) {
+        return false;
+      }
+      return pool.replicas === current;
+    }).length || 0
+  );
+};
 
 interface ClusterStatusProps {
   cluster: ClusterFromSubscription;

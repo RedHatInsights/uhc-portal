@@ -1,0 +1,16 @@
+/* Let the scrollable field sit inside the card when max height is set on the selector row. */
+.groups-applications-selector__form-group--fill {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  > .pf-v6-c-form__group-control {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+}

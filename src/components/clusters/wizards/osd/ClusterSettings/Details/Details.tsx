@@ -41,6 +41,7 @@ import {
   getMinReplicasCount,
   getNodesCount,
 } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
+import { ChannelSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelSelectField';
 import { ClassicEtcdEncryptionSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdEncryptionSection';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
 import { FipsCryptographySection } from '~/components/clusters/wizards/common/ClusterSettings/Details/FipsCryptographySection';
@@ -64,7 +65,7 @@ import { FieldId, MIN_SECURE_BOOT_VERSION } from '~/components/clusters/wizards/
 import { CheckboxDescription } from '~/components/common/CheckboxDescription';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { ALLOW_EUS_CHANNEL, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useFetchSearchClusterName } from '~/queries/RosaWizardQueries/useFetchSearchClusterName';
 import { useFetchSearchDomainPrefix } from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
@@ -114,6 +115,7 @@ function Details() {
   );
 
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
+  const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
 
   const isByoc = byoc === 'true';
   const isMultiAz = multiAz === 'true';
@@ -247,54 +249,47 @@ function Details() {
         worker: [],
       });
     }
-    if (!canConfigureDayOnePrivateServiceConnect(clusterVersion?.raw_id || '')) {
-      setFieldValue(FieldId.PrivateServiceConnect, false);
-    } else if (clusterPrivacy === ClusterPrivacyType.Internal) {
-      setFieldValue(FieldId.PrivateServiceConnect, true);
-      setFieldValue(FieldId.InstallToVpc, true);
+    if (clusterPrivacy === ClusterPrivacyType.Internal) {
+      if (!canConfigureDayOnePrivateServiceConnect(clusterVersion?.raw_id || '')) {
+        setFieldValue(FieldId.PrivateServiceConnect, false);
+      } else {
+        setFieldValue(FieldId.PrivateServiceConnect, true);
+        setFieldValue(FieldId.InstallToVpc, true);
+      }
     }
 
     resetMaxNodesTotal({ clusterVersion });
+
+    if (isYStreamChannelEnabled) {
+      setFieldValue(FieldId.VersionChannel, '');
+    }
   };
 
-  const availableVersions = getInstallableVersionsResponse.versions.filter(
-    (version: Version) => version.channel_group === channelGroup,
-  );
+  const availableVersions = isYStreamChannelEnabled
+    ? getInstallableVersionsResponse.versions
+    : getInstallableVersionsResponse.versions.filter(
+        (version: Version) => version.channel_group === channelGroup,
+      );
 
   React.useEffect(() => {
-    if (isEUSChannelEnabled) {
+    if (isEUSChannelEnabled && availableVersions.length > 0) {
       const parseVersion = (version: string | undefined) => semver.valid(semver.coerce(version));
 
-      const foundVersion =
-        availableVersions.length > 0
-          ? availableVersions?.find(
-              (version: Version) =>
-                parseVersion(version?.raw_id) === parseVersion(selectedVersion?.raw_id),
-            )
-          : null;
+      const foundVersion = availableVersions?.find(
+        (version: Version) =>
+          parseVersion(version?.raw_id) === parseVersion(selectedVersion?.raw_id),
+      );
 
-      if (foundVersion) {
-        setFieldValue(FieldId.ClusterVersion, foundVersion);
-      } else {
-        setFieldValue(FieldId.ClusterVersion, availableVersions[0]);
+      if (!isYStreamChannelEnabled) {
+        setFieldValue(FieldId.ClusterVersion, foundVersion ?? availableVersions[0]);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelGroup, cloudProvider]);
-
-  React.useEffect(() => {
-    if (isEUSChannelEnabled) {
-      setFieldValue(FieldId.ClusterVersion, selectedVersion);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  React.useEffect(() => {
-    if (isEUSChannelEnabled) {
-      setFieldValue(FieldId.ClusterVersion, availableVersions[0]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cloudProvider]);
+  }, [
+    channelGroup,
+    // Re-run when versions load so default channel is set even when user keeps all defaults
+    getInstallableVersionsResponse.fulfilled,
+  ]);
 
   const availabilityZoneOptions: RadioGroupOption[] = [
     {
@@ -416,12 +411,19 @@ function Details() {
                   domainPrefixAsyncValidation(value, undefined, hasExistingRegionalDomainPrefix)
                 }
                 isRequired
-                input={getFieldProps(FieldId.DomainPrefix)}
+                input={{
+                  ...getFieldProps(FieldId.DomainPrefix),
+                  onChange: async () => {
+                    if (isGCP) {
+                      setFieldValue(FieldId.DnsZone, { id: '' });
+                    }
+                  },
+                }}
               />
             </GridItem>
           )}
 
-          {isEUSChannelEnabled ? (
+          {isEUSChannelEnabled && !isYStreamChannelEnabled ? (
             <GridItem>
               <FormGroup
                 label="Channel group"
@@ -461,8 +463,15 @@ function Details() {
               onChange={handleVersionChange}
               key={channelGroup}
               isEUSChannelEnabled={isEUSChannelEnabled}
+              isYStreamChannelEnabled={isYStreamChannelEnabled}
             />
           </GridItem>
+
+          {isYStreamChannelEnabled ? (
+            <GridItem>
+              <ChannelSelectField clusterVersion={selectedVersion} />
+            </GridItem>
+          ) : null}
 
           <GridItem>
             <FormGroup

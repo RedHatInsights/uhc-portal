@@ -2,17 +2,23 @@ import React from 'react';
 
 import { TextInput } from '@patternfly/react-core';
 
+import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
+
 import LabelKeyValueProps from './LabelKeyValueProps';
 
-const FormKeyLabelValue = ({ input, meta: { touched, error } }: LabelKeyValueProps) => (
+const FormKeyLabelValue = ({
+  input,
+  meta: { touched, error },
+  valueAriaLabel = 'Key-value list value',
+}: LabelKeyValueProps) => (
   <>
     <TextInput
-      aria-label="Key-value list value"
+      aria-label={valueAriaLabel}
       validated={touched && error ? 'error' : 'default'}
       onChange={(_, value) => input.onChange(value)}
       value={input.value}
     />
-    {touched && error && <span className="pf-v6-c-form__helper-text pf-m-error">{error}</span>}
+    <FormGroupHelperText touched={touched} error={touched ? error : undefined} />
   </>
 );
 

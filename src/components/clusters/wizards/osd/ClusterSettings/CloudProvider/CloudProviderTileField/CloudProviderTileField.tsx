@@ -52,12 +52,12 @@ export const CloudProviderTileField = () => {
     );
 
     // Allow MachineTypeSelection to pick a new default.
-    setFieldValue(FieldId.MachineTypeForceChoice, false);
-    setFieldValue(FieldId.MachineType, '');
+    setFieldValue(FieldId.MachineType, null);
     setFieldValue(FieldId.AcknowledgePrereq, false);
     setFieldValue(FieldId.FipsCryptography, false);
     setFieldValue(FieldId.CloudProvider, value);
     setFieldValue(FieldId.ChannelGroup, CHANNEL_GROUP_DEFAULT);
+    setFieldValue(FieldId.ClusterVersion, undefined);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {

@@ -1,3 +1,4 @@
+import { normalizedProducts } from '~/common/subscriptionTypes';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import {
   DEFAULT_NODE_COUNT_CUSTOMER_MULTI_AZ,
@@ -6,9 +7,169 @@ import {
   DEFAULT_NODE_COUNT_REDHAT_SINGLE_AZ,
 } from '~/components/clusters/wizards/common/constants';
 
-import { computeNodeHintText, getMinReplicasCount, getNodesCount } from './AutoScaleHelper';
+import getMinNodesAllowed, {
+  computeNodeHintText,
+  getMinReplicasCount,
+  getNodesCount,
+} from './AutoScaleHelper';
 
 describe('AutoScaleHelper.js', () => {
+  describe('getMinNodesAllowed', () => {
+    const base = {
+      isAutoscaleEnabled: false,
+    };
+
+    it('returns 0 when Hypershift wizard and autoscaling is enabled', () => {
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isHypershiftWizard: true,
+          isAutoscaleEnabled: true,
+          isDefaultMachinePool: true,
+          product: normalizedProducts.OSD,
+          isBYOC: false,
+          isMultiAz: false,
+        }),
+      ).toBe(0);
+    });
+
+    it('uses BYOC or ROSA default pool minimums: 3 multi-AZ, 2 single-AZ', () => {
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isDefaultMachinePool: true,
+          product: normalizedProducts.OSD,
+          isBYOC: true,
+          isMultiAz: true,
+        }),
+      ).toBe(3);
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isDefaultMachinePool: true,
+          product: normalizedProducts.OSD,
+          isBYOC: true,
+          isMultiAz: false,
+        }),
+      ).toBe(2);
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isDefaultMachinePool: true,
+          product: normalizedProducts.ROSA,
+          isBYOC: false,
+          isMultiAz: true,
+        }),
+      ).toBe(3);
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isDefaultMachinePool: true,
+          product: normalizedProducts.ROSA,
+          isBYOC: false,
+          isMultiAz: false,
+        }),
+      ).toBe(2);
+    });
+
+    it('uses non-BYOC OSD default pool minimums: 9 multi-AZ, 4 single-AZ', () => {
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isDefaultMachinePool: true,
+          product: normalizedProducts.OSD,
+          isBYOC: false,
+          isMultiAz: true,
+        }),
+      ).toBe(9);
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isDefaultMachinePool: true,
+          product: normalizedProducts.OSD,
+          isBYOC: false,
+          isMultiAz: false,
+        }),
+      ).toBe(4);
+    });
+
+    it('uses defaultMinAllowed for non-default machine pools when it is the effective max', () => {
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isDefaultMachinePool: false,
+          product: normalizedProducts.OSD,
+          isBYOC: false,
+          isMultiAz: true,
+          defaultMinAllowed: 0,
+        }),
+      ).toBe(0);
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isDefaultMachinePool: false,
+          product: normalizedProducts.OSD,
+          isBYOC: false,
+          isMultiAz: false,
+          defaultMinAllowed: 7,
+        }),
+      ).toBe(7);
+    });
+
+    it('returns the greater of scaled autoScaleMinNodesValue and default-pool floor', () => {
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isDefaultMachinePool: true,
+          product: normalizedProducts.OSD,
+          isBYOC: false,
+          isMultiAz: false,
+          autoScaleMinNodesValue: 8,
+        }),
+      ).toBe(8);
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isDefaultMachinePool: true,
+          product: normalizedProducts.OSD,
+          isBYOC: false,
+          isMultiAz: true,
+          autoScaleMinNodesValue: 5,
+        }),
+      ).toBe(15);
+    });
+
+    it('multiplies autoScaleMinNodesValue by 3 for multi-AZ when not Hypershift before taking max', () => {
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isDefaultMachinePool: false,
+          product: normalizedProducts.OSD,
+          isBYOC: false,
+          isMultiAz: true,
+          autoScaleMinNodesValue: 2,
+          defaultMinAllowed: 0,
+        }),
+      ).toBe(6);
+    });
+
+    it('does not multiply autoScaleMinNodesValue by 3 for multi-AZ when Hypershift wizard (autoscale off)', () => {
+      expect(
+        getMinNodesAllowed({
+          ...base,
+          isHypershiftWizard: true,
+          isAutoscaleEnabled: false,
+          isDefaultMachinePool: false,
+          product: normalizedProducts.ROSA,
+          isBYOC: true,
+          isMultiAz: true,
+          autoScaleMinNodesValue: 2,
+          defaultMinAllowed: 0,
+        }),
+      ).toBe(2);
+    });
+  });
+
   describe('computeNodeHintText', () => {
     it('returns HCP wizard help text', () => {
       const isHypershiftWizard = true;

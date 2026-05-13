@@ -34,7 +34,7 @@
     "@types/file-saver": "^2.0.5",
     "@types/humanize-duration": "^3.27.1",
     "@types/react-dom": "^18.3.0",
-    "axios": "^1.12.2",
+    "axios": "^1.15.0",
     "cidr-tools": "^11.0.0",
     "classnames": "^2.2.6",
     "dayjs": "^1.11.10",
@@ -109,8 +109,8 @@
     "@chromatic-com/storybook": "3.2.2",
     "@cypress/code-coverage": "^3.12.39",
     "@cypress/grep": "^4.0.1",
-    "@playwright/test": "^1.55.0",
-    "@redhat-cloud-services/frontend-components-config": "^6.7.1",
+    "@playwright/test": "1.59.0",
+    "@redhat-cloud-services/frontend-components-config": "^6.8.3",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.25",
     "@redhat-cloud-services/types": "1.0.11",
     "@sentry/cli": "^2.21.2",
@@ -141,7 +141,6 @@
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "babel-jest": "^30.0.5",
-    "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-imports": "^2.0.0",
     "cli-progress": "^3.12.0",
     "concurrently": "^9.0.0",
@@ -152,6 +151,7 @@
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-custom-rules": "./eslint-plugin-custom-rules",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsx-a11y": "^6.8.0",
@@ -184,19 +184,18 @@
     "sprintf-js": "^1.1.2",
     "storybook": "8.4.4",
     "style-loader": "4.0.0",
-    "transform-class-properties": "^1.0.0-beta",
-    "ts-jest": "^29.4.0",
+    "ts-jest": "^29.4.9",
     "ts-loader": "^9.5.1",
     "ts-patch": "^3.3.0",
     "tsconfig-paths-webpack-plugin": "4.1.0",
     "typescript": "5.5.3",
-    "wait-on": "8.0.1",
+    "wait-on": "^9.0.5",
     "webpack": "^5.89.0",
     "webpack-bundle-analyzer": "^4.10.1"
   },
   "resolutions": {
     "@cypress/webpack-preprocessor": "6.0.2",
-    "@redhat-cloud-services/**/axios": "^1.12.2",
+    "@redhat-cloud-services/**/axios": "^1.15.0",
     "form-data": "^4.0.4"
   },
   "scripts": {
@@ -205,7 +204,6 @@
     "build": "fec build",
     "build:prod": "MODE=prod yarn build",
     "build:prod:monitored": "run/build-prod-monitored.sh",
-    "verify": "concurrently --group --names=BUILD,LINT,TEST 'yarn build:prod' 'NODE_OPTIONS=--max-old-space-size=4096 yarn lint-prettier' 'yarn test'",
     "insights-proxy": "make insights-proxy-check && run/insights-proxy.sh",
     "stop-insights-proxy": "run/podman-or-docker.sh kill insightsproxy; run/podman-or-docker.sh rm --force insightsproxy; true",
     "lint": "eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx",
@@ -249,7 +247,7 @@
     ]
   },
   "engines": {
-    "node": ">=18.12.0 <19.0.0 || >=20.0.0 <21.0.0 || >=22.0.0",
+    "node": ">=22.0.0 || >=24.0.0",
     "yarn": ">= 1.22.19"
   }
 }

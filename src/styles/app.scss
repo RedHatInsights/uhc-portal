@@ -281,15 +281,6 @@ p.notfound {
   margin-bottom: 20px;
 }
 
-.top-row {
-  margin-top: calc(var(--pf-v6-c-page__main-section--PaddingBlockStart) * -1);
-  margin-right: calc(var(--pf-v6-c-page__main-section--PaddingInlineEnd) * -1);
-  margin-left: calc(var(--pf-v6-c-page__main-section--PaddingInlineStart) * -1);
-  padding-top: var(--pf-v6-c-page__main-section--PaddingBlockStart);
-  padding-right: var(--pf-v6-c-page__main-section--PaddingInlineEnd);
-  padding-left: var(--pf-v6-c-page__main-section--PaddingInlineStart);
-}
-
 #clusterdetails-content .container-fluid {
   padding-right: 0;
   padding-left: 0;

@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base-page';
+import { DEFAULT_NAVIGATION_TIMEOUT } from '../support/playwright-constants';
 
 /**
  * ROSA Get Started page object for Playwright tests
@@ -145,8 +146,18 @@ export class RosaGetStartedPage extends BasePage {
   }
 
   async isLinkAccessSuccess(link: string): Promise<void> {
-    const response = await this.page.request.get(link);
-    expect(response.status()).toBe(200);
+    // page.request.get() has a different TLS stack and cannot run JS challenges, so
+    // CDNs (docs.redhat.com, access.redhat.com) return 403 even with browser headers.
+    // Opening a new tab in the same browser context uses the real Chromium engine with-
+    // proper TLS fingerprinting and JS challenge execution, while preserving cookies.
+    const newPage = await this.page.context().newPage();
+    try {
+      const response = await newPage.goto(link, { waitUntil: 'commit', timeout: DEFAULT_NAVIGATION_TIMEOUT });
+      const status = response?.status();
+      expect(status, `Expected link to be reachable but got ${status}: ${link}`).toBe(200);
+    } finally {
+      await newPage.close();
+    }
   }
 
   // Additional helper methods for input field validation
