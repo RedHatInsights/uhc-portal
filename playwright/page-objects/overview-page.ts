@@ -1,6 +1,8 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from './base-page';
+import { expect,Locator, Page } from '@playwright/test';
+
 import { CustomCommands } from '../support/custom-commands';
+
+import { BasePage } from './base-page';
 
 /**
  * Overview page object for Playwright tests
@@ -31,6 +33,14 @@ export class OverviewPage extends BasePage {
     return this.page
       .locator('[data-testid="OverviewHeader"]')
       .getByRole('link', { name: 'Learn more' });
+  }
+
+  headerCreateClusterButton(): Locator {
+    return this.page.locator('[data-testid="OverviewHeader"]').getByTestId('create-cluster');
+  }
+
+  headerCreateClusterWithAssistedInstallerButton(): Locator {
+    return this.page.locator('[data-testid="OverviewHeader"]').getByTestId('create-cluster-assisted-installer');
   }
 
   // Central section card methods

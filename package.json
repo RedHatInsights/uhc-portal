@@ -193,32 +193,35 @@
     "webpack": "^5.89.0",
     "webpack-bundle-analyzer": "^4.10.1"
   },
-  "resolutions": {
+  "overrides": {
     "@cypress/webpack-preprocessor": "6.0.2",
-    "@redhat-cloud-services/**/axios": "^1.15.0",
+    "@redhat-cloud-services/frontend-components-config": { "axios": "$axios" },
+    "@redhat-cloud-services/frontend-components-utilities": { "axios": "$axios" },
+    "@redhat-cloud-services/javascript-clients-shared": { "axios": "$axios" },
+    "@redhat-cloud-services/rbac-client": { "axios": "$axios" },
     "form-data": "^4.0.4"
   },
   "scripts": {
     "dev": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'HOT=true fec dev --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
     "start": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'fec dev-proxy --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
     "build": "fec build",
-    "build:prod": "MODE=prod yarn build",
+    "build:prod": "MODE=prod npm run build",
     "build:prod:monitored": "run/build-prod-monitored.sh",
     "insights-proxy": "make insights-proxy-check && run/insights-proxy.sh",
     "stop-insights-proxy": "run/podman-or-docker.sh kill insightsproxy; run/podman-or-docker.sh rm --force insightsproxy; true",
     "lint": "eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx",
-    "lint-prettier": "yarn lint && yarn prettier",
+    "lint-prettier": "npm run lint && npm run prettier",
     "lint-staged": "lint-staged",
     "prettier": "prettier --check '{src,cypress,scripts}/**/*.{js,ts,mjs,jsx,tsx}' 'run/*js'",
     "prettier:fix": "prettier --write '{src,cypress,scripts}/**/*.{js,ts,mjs,jsx,tsx}' 'run/*js'",
     "test": "TZ=America/New_York LC_ALL=en_US.utf8 node --no-compilation-cache --expose-gc ./node_modules/.bin/jest --logHeapUsage --coverage ",
-    "test-no-coverage": "yarn test --coverage=false",
-    "test-changes": "yarn test --changedSince=main",
-    "test-changes-with-enforcement": "yarn test-changes --coverageThreshold='{\"global\":{\"statements\":\"80\"}}'",
-    "test-local": "yarn test --maxWorkers=50%",
+    "test-no-coverage": "npm run test -- --coverage=false",
+    "test-changes": "npm run test -- --changedSince=main",
+    "test-changes-with-enforcement": "npm run test-changes -- --coverageThreshold='{\"global\":{\"statements\":\"80\"}}'",
+    "test-local": "npm run test -- --maxWorkers=50%",
     "test:debug": "node --nolazy --inspect-brk ./node_modules/jest/bin/jest.js --runInBand --colors --verbose",
-    "e2e-test": "rm -rf ./coverage/* && yarn cypress-headless --env grepTags=ci",
-    "stop": "yarn stop-insights-proxy; run/podman-or-docker.sh rm --force browser; pkill --full 'concurrently.*SERVER(prevent self match){0},MOCK'; pkill --full 'concurrently.*BROWSER(prevent self match){0},TEST'; true",
+    "e2e-test": "rm -rf ./coverage/* && npm run cypress-headless -- --env grepTags=ci",
+    "stop": "npm run stop-insights-proxy; run/podman-or-docker.sh rm --force browser; pkill --full 'concurrently.*SERVER(prevent self match){0},MOCK'; pkill --full 'concurrently.*BROWSER(prevent self match){0},TEST'; true",
     "prepare": "husky",
     "cypress-ui": "cypress open",
     "cypress-headless": "cypress run --browser chrome",
@@ -229,10 +232,10 @@
     "playwright-report": "playwright show-report",
     "playwright-e2e-ci": "playwright test --grep @ci",
     "code-coverage": "nyc report --reporter=text-summary",
-    "analyze": "rm -rf dist && env BUNDLE_ANALYZER=true yarn build:prod",
+    "analyze": "rm -rf dist && env BUNDLE_ANALYZER=true npm run build:prod",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject ./dist/",
     "sentry:release": "sentry-cli --url https://glitchtip.devshift.net/ releases --org ocm --auth-token $GLITCHTIP_TOKEN --project=$SENTRY_PROJECT files $SENTRY_VERSION upload-sourcemaps dist/ --url-prefix '/apps'",
-    "sentry:sourcemaps-release": "yarn sentry:sourcemaps && yarn sentry:release",
+    "sentry:sourcemaps-release": "npm run sentry:sourcemaps && npm run sentry:release",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "postinstall": "ts-patch install",
@@ -247,7 +250,6 @@
     ]
   },
   "engines": {
-    "node": ">=22.0.0 || >=24.0.0",
-    "yarn": ">= 1.22.19"
+    "node": ">=22.0.0 || >=24.0.0"
   }
 }

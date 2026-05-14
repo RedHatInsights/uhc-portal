@@ -28,11 +28,9 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: './node_modules'
-          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
       - name: Install
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: install
+        run: npm ci
       - name: Check uncommitted changes
         if: ${{ always() }}
         # Check that Git working tree is clean after running `install` command.
@@ -59,12 +57,10 @@ jobs:
       - uses: actions/cache/restore@v4
         with:
           path: './node_modules'
-          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           fail-on-cache-miss: true
       - name: Build
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: build
+        run: npm run build
   lint:
     name: Lint
     concurrency:
@@ -86,12 +82,10 @@ jobs:
       - uses: actions/cache/restore@v4
         with:
           path: './node_modules'
-          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           fail-on-cache-miss: true
       - name: Lint
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: lint-prettier
+        run: npm run lint-prettier
   unit-tests:
     name: Unit Tests
     concurrency:
@@ -113,12 +107,10 @@ jobs:
       - uses: actions/cache/restore@v4
         with:
           path: './node_modules'
-          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           fail-on-cache-miss: true
       - name: Test
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: test
+        run: npm run test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
         with:
@@ -149,9 +141,7 @@ jobs:
       - uses: actions/cache/restore@v4
         with:
           path: './node_modules'
-          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           fail-on-cache-miss: true
       - name: Find Circular Dependencies
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: find-circular-dependencies
+        run: npm run find-circular-dependencies

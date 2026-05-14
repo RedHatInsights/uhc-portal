@@ -79,31 +79,31 @@ The authentication storage state (`storageState.json`) is created during the glo
 
 ```bash
 # Run a specific test file
-yarn playwright test playwright/e2e/downloads/downloads.spec.ts
+npm run playwright-headless -- playwright/e2e/downloads/downloads.spec.ts
 
 # Run a specific test by title (grep)
-yarn playwright test -g "can view pull secret"
+npm run playwright-headless -- -g "can view pull secret"
 
 # Run tests matching a tag
-yarn playwright test --grep="@smoke"
+npm run playwright-headless -- --grep="@smoke"
 
 # Run in headed mode to watch the browser
-yarn playwright test playwright/e2e/downloads/downloads.spec.ts --headed
+npm run playwright-headless -- playwright/e2e/downloads/downloads.spec.ts --headed
 
 # Run in UI mode for interactive debugging
-yarn playwright-ui
+npm run playwright-ui
 ```
 
 ## Q: My test passes locally but fails in CI. How do I debug it?
 
 1. **Check the trace:** CI runs generate traces automatically. Download the trace artifact and open it:
    ```bash
-   yarn playwright show-trace test-results/trace.zip
+   npm exec -- playwright show-trace test-results/trace.zip
    ```
 2. **Look at screenshots/videos:** Test artifacts (screenshots on failure, videos if configured) are uploaded as CI artifacts.
 3. **Reproduce headless locally:** CI runs headless by default. Test locally in headless mode to rule out headed-vs-headless differences:
    ```bash
-   yarn playwright test playwright/e2e/your-test.spec.ts
+   npm run playwright-headless -- playwright/e2e/your-test.spec.ts
    ```
 4. **Check timing:** CI environments are typically slower. If your test relies on tight timing, add proper waits for element visibility rather than hard-coded timeouts.
 
@@ -114,21 +114,21 @@ Playwright offers several modes to help you understand what a test is doing step
 1. **UI Mode (recommended first step):** Opens an interactive interface where you can watch test execution, inspect DOM snapshots at each step, and re-run individual tests:
 
    ```bash
-   yarn playwright-ui
+   npm run playwright-ui
    ```
 
 2. **Debug Mode:** Launches the browser with Playwright Inspector, letting you step through each action one at a time:
 
    ```bash
-   yarn playwright-debug
+   npm run playwright-debug
    # Or for a specific file:
-   PWDEBUG=1 yarn playwright test playwright/e2e/your-test.spec.ts
+   PWDEBUG=1 npm run playwright-headless -- playwright/e2e/your-test.spec.ts
    ```
 
 3. **Headed Mode:** Runs the test with a visible browser so you can see what's happening, but without the step-by-step debugger:
 
    ```bash
-   yarn playwright test playwright/e2e/your-test.spec.ts --headed
+   npm run playwright-headless -- playwright/e2e/your-test.spec.ts --headed
    ```
 
 4. **Add `page.pause()` to your test:** Drops you into the Playwright Inspector at a specific point in your test. Remove before committing:
@@ -143,8 +143,8 @@ Playwright offers several modes to help you understand what a test is doing step
 
 5. **Trace Viewer:** Run with tracing enabled to capture a detailed timeline of every action, network request, and DOM snapshot:
    ```bash
-   yarn playwright test --trace on
-   yarn playwright show-trace test-results/trace.zip
+   npm run playwright-headless -- --trace on
+   npm exec -- playwright show-trace test-results/trace.zip
    ```
 
 Start with **UI Mode** for most debugging — it gives you the fastest feedback loop without modifying your test code.

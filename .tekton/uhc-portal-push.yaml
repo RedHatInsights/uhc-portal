@@ -21,7 +21,7 @@ spec:
   params:
   - name: build-args
     value:
-    - YARN_BUILD_SCRIPT=build:prod:monitored
+    - NPM_BUILD_SCRIPT=build:prod:monitored
   - name: git-url
     value: '{{source_url}}'
   - name: revision
@@ -34,12 +34,11 @@ spec:
     value: |
       #!/bin/bash
       set -ex
-      npm install -g yarn
-      yarn install --immutable
+      npm ci
       # cap the linter's heap size, as it tends to hog the RAM,
       # causing the OS to kill the process due to out-of-memory errors
-      NODE_OPTIONS='--max-old-space-size=4096' yarn lint
-      yarn test --run-in-band --no-cache
+      NODE_OPTIONS='--max-old-space-size=4096' npm run lint
+      npm run test -- --run-in-band --no-cache
   pipelineRef:
     name: docker-build
   taskRunTemplate:

@@ -6,7 +6,7 @@ For this purpose we’ve created a basic mock server that sends mock
 data. It doesn’t support all actions the real backend supports, but it
 should allow you to run the UI and test basic read-only functionality.
 
-`yarn start` runs `mockdata/mockserver.py` in the background and arranges webpack proxying
+`npm start` runs `mockdata/mockserver.py` in the background and arranges webpack proxying
 such that UI will access if given `?env=mockdata` (synonim `?env=mockserver`) URL param.
 
 ## Preparing Data for Mock Backend
