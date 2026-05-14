@@ -19,14 +19,13 @@ Slack channels: `#forum-cluster-management` for OCM in general, `#ocm-osd-ui` fo
 ## Requirements
 
 - [NodeJS](https://nodejs.org/) \*
-- [Yarn](https://classic.yarnpkg.com/lang/en/) \*
 - [Podman](https://podman.io/docs/installation) `>= v5.5.2`
                 
 _\* see package.json for the compatible versions_
 
 ## Setup
 
-For a first time setup, it's required to run `yarn fec patch-etc-hosts`.
+For a first time setup, it's required to run `npm exec fec patch-etc-hosts`.
 
 This may ask for your `sudo` password to add some entries to `/etc/hosts`.
 
@@ -41,8 +40,8 @@ If you intend to contribute code, also refer to the [Setup section of the Contri
 To build the application run these commands:
 
 ```
-yarn install
-yarn build
+npm install
+npm run build
 ```
 
 ## Running locally
@@ -51,18 +50,18 @@ yarn build
 
 There are two development scripts available:
 
-### `yarn dev` (Hot Module Reloading)
+### `npm run dev` (Hot Module Reloading)
 
 > **Note:** This script requires Red Hat VPN connection to access the UI.
 
 ```bash
-yarn install && yarn dev
+npm install && npm run dev
 ```
 
-### `yarn start`
+### `npm start`
 
 ```bash
-yarn install && yarn start
+npm install && npm start
 ```
 
 The UI will be available at https://prod.foo.redhat.com:1337/openshift/
@@ -85,7 +84,7 @@ By default, the UI runs Assisted Installer without standalone mode. To run with 
 
 - Download https://github.com/openshift-assisted/assisted-installer-app project
 - Inside assisted-installer-app run `npm install && npm run start:federated`
-- In uhc-portal run `LOCAL_APPS=assisted-installer-app:8003 yarn start`
+- In uhc-portal run `LOCAL_APPS=assisted-installer-app:8003 npm start`
 
 ## Continuous integration
 
@@ -100,8 +99,8 @@ See [Continuous integration doc](docs/continuous-integration.md).
 
 ## Issues/Troubleshooting
 
-If you get a timeout/network connection issue when running `yarn install`, try increasing the timeout e.g.
-`yarn install --network-timeout 600000`.
+If you get a timeout/network connection issue when running `npm install`, try increasing the timeout e.g.
+`npm install --fetch-retry-mintimeout 600000`.
 
 ## Contributing
 

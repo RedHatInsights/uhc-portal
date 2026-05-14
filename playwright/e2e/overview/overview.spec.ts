@@ -6,7 +6,7 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
     // Navigate to overview page and wait for it to load
     await navigateTo('overview');
   });
-  test('OCM Overview Page - header and central section', async ({ overviewPage }) => {
+  test('OCM Overview Page - header and central section', async ({ overviewPage, navigateTo, page }) => {
     // Verify we're on the overview page
     await overviewPage.isOverviewPage();
 
@@ -15,6 +15,14 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
       overviewPage.headerLearnMoreLink(),
       docLinks.WHAT_IS_OPENSHIFT,
     );
+
+    // Check Create cluster header buttons redirect properly
+    await overviewPage.headerCreateClusterButton().click();
+    await expect(page).toHaveURL(/\/openshift\/create/);
+    await navigateTo('overview');
+    await overviewPage.headerCreateClusterWithAssistedInstallerButton().click();
+    await expect(page).toHaveURL(/\/openshift\/assisted-installer\/clusters\/~new/);
+    await navigateTo('overview');
 
     // Verify central section has expected number of cards
     await overviewPage.centralSectionCardsExpected(7);

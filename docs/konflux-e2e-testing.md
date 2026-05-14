@@ -13,7 +13,7 @@ pipeline and executes three main stages:
 | Stage | What it does |
 |---|---|
 | **Docker build** | Builds the uhc-portal container image from `build-tools/Dockerfile` and pushes to Quay. |
-| **Unit tests** | Installs dependencies, runs `yarn lint`, `yarn prettier`, and `yarn test`. Memory: 6 Gi. |
+| **Unit tests** | Installs dependencies, runs `npm run lint`, `npm run prettier`, and `npm run test`. Memory: 6 Gi. |
 | **E2E tests** | Starts the built app via Caddy sidecar, runs Playwright against it. Memory: 10 Gi. |
 
 ## Terminology
