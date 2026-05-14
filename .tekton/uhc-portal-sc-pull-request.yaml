@@ -19,6 +19,12 @@ metadata:
   namespace: ocm-ui-tenant
 spec:
   params:
+  - name: build-args
+    value:
+      # override node version/tag in the build-tools dockerfile to get node v24 in the build-container task,
+      # until upstream supports it by default (tracked with RHCLOUD-45084)
+      - NODE_BUILD_VERSION=24
+      - NODE_IMAGE_TAG=1-1776920161
   - name: git-url
     value: '{{source_url}}'
   - name: revision
@@ -524,6 +530,16 @@ spec:
       optional: true
   taskRunTemplate:
     serviceAccountName: build-pipeline-uhc-portal-sc
+  # extend the pipeline tasks' specs
+  taskRunSpecs:
+    - pipelineTaskName: build-container
+      stepSpecs:
+        - name: build
+          computeResources:
+            requests:
+              memory: "10Gi"
+            limits:
+              memory: "10Gi"
   workspaces:
   - name: git-auth
     secret:
