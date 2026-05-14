@@ -789,16 +789,16 @@ test('critical test', { tag: ['@smoke'] }, async () => {
 
 ```bash
 # Run smoke tests only
-yarn playwright test --grep="@smoke"
+npm run playwright-headless -- --grep="@smoke"
 
 # Run ROSA tests
-yarn playwright test --grep="@rosa"
+npm run playwright-headless -- --grep="@rosa"
 
 # Exclude specific tags
-yarn playwright test --grep-invert="@cluster-creation"
+npm run playwright-headless -- --grep-invert="@cluster-creation"
 
 # Combine tags
-yarn playwright test --grep="@smoke" --grep="@rosa"
+npm run playwright-headless -- --grep="@smoke" --grep="@rosa"
 ```
 
 ---
@@ -1001,16 +1001,16 @@ test.skip('broken test - JIRA-1234', async () => { ... });
 
 ```bash
 # UI Mode (Interactive)
-yarn playwright-ui
+npm run playwright-ui
 
 # Headed Mode (See browser)
-yarn playwright-headed
+npm run playwright-headed
 
 # Debug Mode (Step through)
-yarn playwright-debug
+npm run playwright-debug
 
 # Specific test file
-yarn playwright test playwright/e2e/downloads/downloads.spec.ts --headed
+npm run playwright-headless -- playwright/e2e/downloads/downloads.spec.ts --headed
 ```
 
 ### Add Debug Output
@@ -1049,10 +1049,10 @@ test('validate state', async ({ page }) => {
 
 ```bash
 # Run with tracing
-yarn playwright test --trace on
+npm run playwright-headless -- --trace on
 
 # Open trace viewer
-yarn playwright show-trace test-results/trace.zip
+npm exec -- playwright show-trace test-results/trace.zip
 ```
 
 ### Common Issues and Solutions

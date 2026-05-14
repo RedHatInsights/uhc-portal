@@ -12,13 +12,13 @@ From the project root directory, install all dependencies including Playwright:
 
 ```bash
 # Install all project dependencies (including Playwright)
-yarn install
+npm install
 
 # Install Playwright browsers
-yarn playwright install
+npm exec -- playwright install
 
 # Optional: Install only Chromium browser for faster setup
-yarn playwright install chromium
+npm exec -- playwright install chromium
 ```
 
 ### Verify Installation
@@ -27,10 +27,10 @@ You can verify that Playwright is properly installed by running:
 
 ```bash
 # Check Playwright version
-yarn playwright --version
+npm exec -- playwright --version
 
 # List available tests (without running them)
-yarn playwright test --list
+npm run playwright-headless -- --list
 ```
 
 ## Setup
@@ -166,19 +166,19 @@ The test configuration uses `playwright.env.json` for environment-specific setti
 
 ```bash
 # Run all tests in headless mode (CI/CD mode)
-yarn playwright-headless
+npm run playwright-headless
 
 # Run tests with UI mode (interactive test explorer)
-yarn playwright-ui
+npm run playwright-ui
 
 # Run tests in headed mode (see browser actions)
-yarn playwright-headed
+npm run playwright-headed
 
 # Run tests in debug mode (step through tests)
-yarn playwright-debug
+npm run playwright-debug
 
 # Show HTML test report
-yarn playwright-report
+npm run playwright-report
 ```
 
 #### Using Playwright CLI Directly
@@ -187,28 +187,28 @@ For more advanced usage and customized options:
 
 ```bash
 # Run all tests
-yarn playwright test
+npm run playwright-headless
 
 # Run specific test file
-yarn playwright test playwright/e2e/clusters/register-cluster.spec.ts
+npm run playwright-headless -- playwright/e2e/clusters/register-cluster.spec.ts
 
 # Run tests for specific directory
-yarn playwright test playwright/e2e/downloads/
+npm run playwright-headless -- playwright/e2e/downloads/
 
 # Run with specific browser
-BROWSER=chromium yarn playwright test
+BROWSER=chromium npm run playwright-headless
 
 # Run with specific reporter
-yarn playwright test --reporter=html
+npm run playwright-headless -- --reporter=html
 
 # Run with parallel executions in multiple workers
-yarn playwright test --workers=<count>
+npm run playwright-headless -- --workers=<count>
 
 # Run the tests with specific tags
-yarn playwright test --grep="<tag>"
+npm run playwright-headless -- --grep="<tag>"
 
 # Generate test code (record browser interactions)
-yarn playwright codegen
+npm exec -- playwright codegen
 ```
 
 ### Authentication
@@ -357,4 +357,4 @@ test.describe.serial('Register cluster flow', () => {
 #### Environment Variable Issues
 
 - **Solution**: Verify all required variables are set in `playwright.env.json`
-- **Check**: Run `yarn playwright test --list` to verify configuration loading
+- **Check**: Run `npm run playwright-headless -- --list` to verify configuration loading

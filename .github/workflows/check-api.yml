@@ -43,12 +43,10 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: './node_modules'
-          key: check_api-${{ env.NODE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
+          key: check_api-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
           
-      - name: Install yarn
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: install --frozen-lockfile --cache-folder .yarn
+      - name: Install dependencies
+        run: npm ci
 
       - name: Check for an existing open PR
         id: check-pr

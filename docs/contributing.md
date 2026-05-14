@@ -50,18 +50,18 @@ The local development environment is powered by [Frontend Components (FEC)](http
 
 ### Development Modes
 
-**`yarn dev`** uses `fec dev` with Hot Module Reloading (HMR) enabled. This provides instant feedback on code changes without requiring full page reloads—ideal for active UI development.
+**`npm run dev`** uses `fec dev` with Hot Module Reloading (HMR) enabled. This provides instant feedback on code changes without requiring full page reloads—ideal for active UI development.
 
-**`yarn start`** uses `fec dev-proxy`, which runs webpack in watch mode with proxy capabilities for backend routing. Changes are recompiled automatically, but require a manual browser refresh to see updates (no HMR).
+**`npm start`** uses `fec dev-proxy`, which runs webpack in watch mode with proxy capabilities for backend routing. Changes are recompiled automatically, but require a manual browser refresh to see updates (no HMR).
 
 ### Custom Chrome Port
 
 By default, the Chrome server runs on port `:9990`. To use a different port:
 
 ```bash
-FEC_CHROME_PORT=<PORT> yarn dev
+FEC_CHROME_PORT=<PORT> npm run dev
 # or
-FEC_CHROME_PORT=<PORT> yarn start
+FEC_CHROME_PORT=<PORT> npm start
 ```
 
 ## Code guidelines
@@ -82,7 +82,7 @@ tools](https://github.com/airbnb/javascript/tree/master/packages/eslint-config-a
 To run the linter:
 
 ```
-yarn lint
+npm run lint
 ```
 
 Note that this command will also run the formatter. See next chapter for more info.
@@ -94,13 +94,13 @@ To promote consistency in the code base, OCM uses the [Prettier](https://prettie
 To run prettier on all files in the `src` directory:
 
 ```
-yarn prettier
+npm run prettier
 ```
 
 To fix all formatting issues in all files in the `src` directory:
 
 ```
-yarn prettier:fix
+npm run prettier:fix
 ```
 
 If you need to have prettier run on a set of files, NPX can be used.
@@ -120,7 +120,7 @@ NOTE: Staged javascript files from the `src` directory will be checked and fixed
 To run the tests:
 
 ```
-yarn test
+npm run test
 ```
 
 Unit tests are written using [Jest](https://jestjs.io/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro).
@@ -129,7 +129,7 @@ Jest will use all available cores to spawn workers while running tests. This can
 You can run tests with a reduced amount of cpu usage by using:
 
 ```
-yarn test-local
+npm run test-local
 ```
 
 See the [unit test guidelines](./unit-testing.md) for in-depth guidance on writing tests.
@@ -177,7 +177,7 @@ A storybook is available to document UI elements, implement PoCs and run compone
 To run storybook:
 
 ```
-yarn storybook
+npm run storybook
 ```
 
 Storybook will be available locally at `http://localhost:6006/`.

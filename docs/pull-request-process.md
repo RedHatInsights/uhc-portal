@@ -12,7 +12,7 @@ Here is the process to move a PR from draft to merged:
    - builds
    - doesn't contain debugging statements and/or comments
    - contains updated/added unit tests OR a description why unit test were not added
-   - has reasonable amount of unit test coverage (by running `yarn test-changes`)
+   - has reasonable amount of unit test coverage (by running `npm run test-changes`)
    - passes all checks
    - is production ready
    
@@ -28,7 +28,7 @@ Here is the process to move a PR from draft to merged:
 
    - ensure code makes sense and easy to follow
    - ensure unit tests are added or modified. There are times where unit tests are not needed (refactor) and the author should have this noted in the "additional information" section. Not having enough time is not a valid reason.
-   - ensure newly added code has reasonable unit test coverage (by running yarn test-changes)
+   - ensure newly added code has reasonable unit test coverage (by running npm run test-changes)
    - ensure existing threads have been addressed or resolved
    - runs the code and verifies changes in a browser
 

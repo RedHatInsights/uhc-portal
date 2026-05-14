@@ -36,13 +36,12 @@ spec:
     value: |
       #!/bin/bash
       set -ex
-      npm install -g yarn
-      yarn install
+      npm ci
       # cap the linter's heap size, as it tends to hog the RAM,
       # causing the OS to kill the process due to out-of-memory errors
-      NODE_OPTIONS='--max-old-space-size=4096' yarn lint
-      yarn prettier
-      yarn test --run-in-band --no-cache
+      NODE_OPTIONS='--max-old-space-size=4096' npm run lint
+      npm run prettier
+      npm run test -- --run-in-band --no-cache
   - name: run-app-script
     value: |
       #!/bin/sh
@@ -91,7 +90,7 @@ spec:
       # Run CI-tagged tests — redirect verbose output to file, show summary only
       echo "Running Playwright tests..."
       set +e
-      yarn playwright-e2e-ci --project=chromium > /tmp/playwright-verbose.log 2>&1
+      npm run playwright-e2e-ci -- --project=chromium > /tmp/playwright-verbose.log 2>&1
       TEST_EXIT_CODE=$?
       set -e
 
