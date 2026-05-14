@@ -21,7 +21,7 @@ spec:
   params:
   - name: build-args
     value:
-    - YARN_BUILD_SCRIPT=build:prod:monitored
+    - NPM_BUILD_SCRIPT=build:prod:monitored
       # override node version/tag in the build-tools dockerfile to get node v24 in the build-container task,
       # until upstream supports it by default (tracked with RHCLOUD-45084)
     - NODE_BUILD_VERSION=24
@@ -41,12 +41,11 @@ spec:
     value: |
       #!/bin/bash
       set -e
-      npm install -g yarn
-      yarn install --immutable
+      npm ci
       # cap the linter's heap size, as it tends to hog the RAM,
       # causing the OS to kill the process due to out-of-memory errors
-      NODE_OPTIONS='--max-old-space-size=4096' yarn lint
-      yarn test --run-in-band --no-cache
+      NODE_OPTIONS='--max-old-space-size=4096' npm run lint
+      npm run test -- --run-in-band --no-cache
   pipelineRef:
     name: docker-build
   taskRunTemplate:

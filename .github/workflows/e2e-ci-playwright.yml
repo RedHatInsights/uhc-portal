@@ -49,11 +49,9 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: './node_modules'
-          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
       - name: Install
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: install
+        run: npm ci
       - name: Check uncommitted changes
         if: ${{ always() }}
         # Check that Git working tree is clean after running `install` command.
@@ -66,7 +64,7 @@ jobs:
           fi
       - name: Install Playwright Browsers
         # Explicitly specify all browsers including chrome since Playwright 1.44+ no longer installs Chrome by default
-        run: yarn playwright install chromium chrome firefox webkit --with-deps
+        run: npm exec playwright install chromium chrome firefox webkit --with-deps
       - name: Get browser version
         id: browser-version
         env:
@@ -122,9 +120,9 @@ jobs:
           WORKERS: ${{ github.event.inputs.workers || '4' }}
           BASE_URL: https://prod.foo.redhat.com:1337/openshift/
         run: |
-          LOGGING=quiet yarn start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
-          NODE_TLS_REJECT_UNAUTHORIZED=0 yarn wait-on -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
-          NODE_TLS_REJECT_UNAUTHORIZED=0 yarn playwright-e2e-ci --workers=$WORKERS
+          LOGGING=quiet npm start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
+          NODE_TLS_REJECT_UNAUTHORIZED=0 npm exec -- wait-on -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
+          NODE_TLS_REJECT_UNAUTHORIZED=0 npm run playwright-e2e-ci -- --workers=$WORKERS
       - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:

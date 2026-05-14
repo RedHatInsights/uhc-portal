@@ -29,10 +29,10 @@ fi
 
 # run a prod' build anyway - the build will use sentry env' vars,
 # if they're available, to initialize monitoring.
-yarn build:prod
+npm run build:prod
 
 # inject and publish sourcemaps to glitchtip releases, on stable environments.
 if [[ ${BETA} != 'true' ]]; then
-  yarn sentry:sourcemaps-release
+  npm run sentry:sourcemaps-release
 fi
 

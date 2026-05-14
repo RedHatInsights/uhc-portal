@@ -9,7 +9,7 @@ We run different subsets in different environments, controlled by `{ tags: [...]
 
 These are marked `tags: ['ci']`.
 For running locally, you'll need credentials in environment variables - `CYPRESS_TEST_WITHQUOTA_USER` and `CYPRESS_TEST_WITHQUOTA_PASSWORD` (ask team members), 
-and `yarn start` (or equivalent dev-env) is already running in another terminal.
+and `npm start` (or equivalent dev-env) is already running in another terminal.
 In GitLab-CI, these come from the repo's Settings > CI/CD.
 
 ## QE smoke tests
@@ -27,7 +27,7 @@ All these commands require the relevant env vars to be exported in the terminal 
 To launch the Cypress test runner:
 
 ```
-yarn cypress-ui
+npm run cypress-ui
 ```
 
 (Note this shows all tests; you may want to append e.g. `--env grepTags=ci` to see just one subset)
@@ -35,11 +35,11 @@ yarn cypress-ui
 To run Cypress in headless mode:
 
 ```
-yarn cypress-headless
+npm run cypress-headless
 ```
 
 To execute a specific test in headless mode:
 
 ```
-yarn cypress-headless --spec 'cypress/e2e/RosaClusterWizard.js'
+npm run cypress-headless -- --spec 'cypress/e2e/RosaClusterWizard.js'
 ```
