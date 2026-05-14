@@ -142,6 +142,7 @@ export const ChannelGroupEdit = ({
   const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isClusterReady = cluster.state === clusterStates.ready;
   const { availableDropdownChannelGroups, isLoading } = useGetChannelGroupsData(cluster);
+  const hasChannelGroupOptions = (availableDropdownChannelGroups?.length ?? 0) > 0;
 
   return (
     <>
@@ -180,8 +181,12 @@ export const ChannelGroupEdit = ({
               <EditButton
                 data-testid="channelGroupModal"
                 ariaLabel="editChannelGroupBtn"
-                onClick={() => setIsModalOpen(true)}
-                isAriaDisabled={!canUpdateClusterResource || isLoading || !isClusterReady}
+                onClick={() => {
+                  if (hasChannelGroupOptions) {
+                    setIsModalOpen(true);
+                  }
+                }}
+                isAriaDisabled={isLoading || !isClusterReady || !hasChannelGroupOptions}
               />
             ))}
         </DescriptionListDescription>

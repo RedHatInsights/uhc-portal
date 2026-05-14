@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
+import * as machinePoolUtils from '~/components/clusters/common/machinePools/utils';
 import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate } from '~/testUtils';
 
@@ -65,7 +66,7 @@ describe('useMachinePoolFormik', () => {
 
   describe('initialValues autoscaling', () => {
     describe('HCP clusters', () => {
-      it('should set autoscaleMin to minNodesRequired', () => {
+      it('should set autoscaleMin to 2', () => {
         const machinePool = {
           kind: 'NodePool',
           id: 'other-pool',
@@ -87,8 +88,8 @@ describe('useMachinePoolFormik', () => {
           }),
         ).result.current;
 
-        expect(initialValues.autoscaleMin).toBe(0);
-        expect(initialValues.autoscaleMax).toBe(0);
+        expect(initialValues.autoscaleMin).toBe(2);
+        expect(initialValues.autoscaleMax).toBe(2);
       });
 
       it('should preserve existing autoscaling min_replicas of 0', () => {
@@ -133,6 +134,71 @@ describe('useMachinePoolFormik', () => {
         ).result.current;
 
         expect(initialValues.autoscaleMin).toBe(0);
+      });
+    });
+
+    describe('new machine pool defaults (machinePool is undefined)', () => {
+      it('should default autoscaleMin, autoscaleMax, and replicas to 2 for HCP clusters', () => {
+        const otherPool = {
+          kind: 'NodePool',
+          id: 'other-pool',
+          replicas: 3,
+        };
+        const { initialValues } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: undefined,
+            machineTypes: defaultMachineTypes,
+            machinePools: [otherPool],
+          }),
+        ).result.current;
+        expect(initialValues.autoscaleMin).toBe(2);
+        expect(initialValues.autoscaleMax).toBe(2);
+        expect(initialValues.replicas).toBe(2);
+      });
+      it('should default to 2 even when minNodesRequired is 0 for HCP clusters', () => {
+        const otherPool = {
+          kind: 'NodePool',
+          id: 'other-pool',
+          replicas: 5,
+        };
+        const anotherPool = {
+          kind: 'NodePool',
+          id: 'another-pool',
+          replicas: 3,
+        };
+        const { initialValues } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: undefined,
+            machineTypes: defaultMachineTypes,
+            machinePools: [otherPool, anotherPool],
+          }),
+        ).result.current;
+        expect(initialValues.autoscaleMin).toBe(2);
+        expect(initialValues.autoscaleMax).toBe(2);
+        expect(initialValues.replicas).toBe(2);
+      });
+      it('should not apply defaults when editing an existing HCP machine pool', () => {
+        const existingPool = {
+          kind: 'NodePool',
+          id: 'existing-pool',
+          replicas: 1,
+        };
+        const otherPool = {
+          kind: 'NodePool',
+          id: 'other-pool',
+          replicas: 3,
+        };
+        const { initialValues } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: existingPool,
+            machineTypes: defaultMachineTypes,
+            machinePools: [existingPool, otherPool],
+          }),
+        ).result.current;
+        expect(initialValues.replicas).toBe(1);
       });
     });
   });
@@ -248,7 +314,11 @@ describe('useMachinePoolFormik', () => {
     });
 
     describe('autoscaleMax', () => {
-      it('should allow 0 max nodes for HCP clusters with autoscaling enabled', async () => {
+      afterEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it('should reject 0 max nodes for HCP clusters with autoscaling enabled', async () => {
         const machinePool = {
           kind: 'NodePool',
           id: 'test-pool',
@@ -280,7 +350,9 @@ describe('useMachinePoolFormik', () => {
           autoscaleMax: 0,
         };
 
-        await expect(validationSchema.validateAt('autoscaleMax', values)).resolves.toBe(0);
+        await expect(validationSchema.validateAt('autoscaleMax', values)).rejects.toThrow(
+          'Max nodes must be greater than 0.',
+        );
       });
 
       it('should reject autoscaleMax below minNodes for HCP clusters', async () => {
@@ -293,21 +365,12 @@ describe('useMachinePoolFormik', () => {
           },
         };
 
-        const otherPool = {
-          kind: 'NodePool',
-          id: 'other-pool',
-          autoscaling: {
-            min_replicas: 1,
-            max_replicas: 1,
-          },
-        };
-
         const { validationSchema } = renderHook(() =>
           useMachinePoolFormik({
             cluster: hyperShiftCluster,
             machinePool,
             machineTypes: defaultMachineTypes,
-            machinePools: [machinePool, otherPool],
+            machinePools: [machinePool],
           }),
         ).result.current;
 
@@ -315,16 +378,18 @@ describe('useMachinePoolFormik', () => {
           ...hyperShiftExpectedInitialValues,
           autoscaling: true,
           autoscaleMin: 0,
-          autoscaleMax: 0,
+          autoscaleMax: 1,
         };
 
-        // minNodes = max(0, 2 - 1) = 1, so autoscaleMax of 0 should be rejected
+        // minNodes = 2 (only one pool, no other untainted pools to cover the minimum)
+        // autoscaleMax of 1 passes the > 0 check but fails the minNodes check
         await expect(validationSchema.validateAt('autoscaleMax', values)).rejects.toThrow(
-          'Max nodes must be at least 1 to satisfy the cluster-wide untainted-node minimum.',
+          'Max nodes must be at least 2 to satisfy the cluster-wide untainted-node minimum.',
         );
       });
 
       it('should reject 0 max nodes for non-HCP clusters with autoscaling enabled', async () => {
+        jest.spyOn(machinePoolUtils, 'getMaxNodeCountForMachinePool').mockReturnValue(50);
         const { validationSchema } = renderHook(() =>
           useMachinePoolFormik({
             cluster: defaultCluster,

@@ -48,6 +48,7 @@ describe('<ChannelEdit />', () => {
   const mockedROSAHyperShiftCluster = {
     ...(fixtures.ROSAHypershiftClusterDetails.cluster as unknown as AugmentedCluster),
     canUpdateClusterResource: true,
+    channel: 'stable-4.16',
     version: {
       ...(fixtures.ROSAHypershiftClusterDetails.cluster as { version?: object }).version,
       available_channels: ['stable-4.16', 'eus-4.16'],
@@ -57,6 +58,7 @@ describe('<ChannelEdit />', () => {
   const mockedROSAHyperShiftWaitingCluster = {
     ...(fixtures.ROSAHypershiftWaitingClusterDetails.cluster as unknown as AugmentedCluster),
     canUpdateClusterResource: true,
+    channel: 'stable-4.16',
     version: {
       ...(fixtures.ROSAHypershiftWaitingClusterDetails.cluster as { version?: object }).version,
       available_channels: ['stable-4.16', 'eus-4.16'],
@@ -80,27 +82,14 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should show a loading spinner for the channel while cluster details are refetching', () => {
-    render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
-        isClusterDetailsFetching
-      />,
-    );
+    render(<ChannelEdit cluster={mockedROSAHyperShiftCluster} isClusterDetailsFetching />);
 
     expect(screen.getByLabelText('Loading channel')).toBeInTheDocument();
     expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
   });
 
   it('should render the channel and an enabled edit button when editable and channels exist', () => {
-    render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
-      />,
-    );
+    render(<ChannelEdit cluster={mockedROSAHyperShiftCluster} />);
 
     expect(screen.getByText('Channel')).toBeInTheDocument();
     expect(screen.getByText('stable-4.16')).toBeInTheDocument();
@@ -110,13 +99,7 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should render a disabled edit button when cluster is not ready', () => {
-    render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftWaitingCluster}
-      />,
-    );
+    render(<ChannelEdit cluster={mockedROSAHyperShiftWaitingCluster} />);
 
     expect(screen.getByText('Channel')).toBeInTheDocument();
     expect(screen.getByText('stable-4.16')).toBeInTheDocument();
@@ -132,13 +115,7 @@ describe('<ChannelEdit />', () => {
       },
       isLoading: false,
     });
-    const { user } = render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
-      />,
-    );
+    const { user } = render(<ChannelEdit cluster={mockedROSAHyperShiftCluster} />);
 
     const openModalButton = screen.getByTestId('channelModal');
     expect(openModalButton).toHaveAttribute('aria-disabled', 'true');
@@ -162,13 +139,7 @@ describe('<ChannelEdit />', () => {
       },
       isLoading: false,
     });
-    const { user } = render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
-      />,
-    );
+    const { user } = render(<ChannelEdit cluster={mockedROSAHyperShiftCluster} />);
 
     const openModalButton = screen.getByTestId('channelModal');
     expect(openModalButton).toHaveAttribute('aria-disabled', 'true');
@@ -176,8 +147,10 @@ describe('<ChannelEdit />', () => {
     expect(screen.queryByRole('dialog', { name: /edit channel/i })).not.toBeInTheDocument();
   });
 
-  it('should render N/A when channel is not provided', () => {
-    render(<ChannelEdit clusterID="cluster-123" cluster={mockedROSAHyperShiftCluster} />);
+  it('should render N/A when cluster channel is not provided', () => {
+    const clusterWithoutChannel = { ...mockedROSAHyperShiftCluster };
+    delete (clusterWithoutChannel as { channel?: string }).channel;
+    render(<ChannelEdit cluster={clusterWithoutChannel as AugmentedCluster} />);
 
     expect(screen.getByText('N/A')).toBeInTheDocument();
   });
@@ -190,9 +163,7 @@ describe('<ChannelEdit />', () => {
         available_channels: [] as string[],
       },
     };
-    render(
-      <ChannelEdit clusterID="cluster-123" channel="stable-4.16" cluster={clusterNoChannels} />,
-    );
+    render(<ChannelEdit cluster={clusterNoChannels} />);
 
     expect(screen.getByText('stable-4.16')).toBeInTheDocument();
     expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
@@ -206,13 +177,7 @@ describe('<ChannelEdit />', () => {
         available_channels: ['stable-4.16'],
       },
     };
-    render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={clusterSingleCurrentOnly}
-      />,
-    );
+    render(<ChannelEdit cluster={clusterSingleCurrentOnly} />);
 
     expect(screen.getByText('stable-4.16')).toBeInTheDocument();
     expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
@@ -224,22 +189,14 @@ describe('<ChannelEdit />', () => {
       canEdit: true,
       canUpdateClusterResource: false,
     };
-    render(
-      <ChannelEdit clusterID="cluster-123" channel="stable-4.16" cluster={nonEditableCluster} />,
-    );
+    render(<ChannelEdit cluster={nonEditableCluster} />);
 
     const openModalButton = screen.queryByTestId('channelModal');
     expect(openModalButton).not.toBeInTheDocument();
   });
 
   it('should open the modal when the edit button is clicked', async () => {
-    const { user } = render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
-      />,
-    );
+    const { user } = render(<ChannelEdit cluster={mockedROSAHyperShiftCluster} />);
 
     await user.click(screen.getByTestId('channelModal'));
 
@@ -249,13 +206,7 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should close the modal when cancel button is clicked', async () => {
-    const { user } = render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
-      />,
-    );
+    const { user } = render(<ChannelEdit cluster={mockedROSAHyperShiftCluster} />);
 
     await user.click(screen.getByTestId('channelModal'));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -268,13 +219,7 @@ describe('<ChannelEdit />', () => {
   });
 
   it('should have a disabled save button initially in the modal', async () => {
-    const { user } = render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
-      />,
-    );
+    const { user } = render(<ChannelEdit cluster={mockedROSAHyperShiftCluster} />);
 
     await user.click(screen.getByTestId('channelModal'));
 
@@ -289,13 +234,7 @@ describe('<ChannelEdit />', () => {
       isPending: false,
     });
 
-    const { user } = render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
-      />,
-    );
+    const { user } = render(<ChannelEdit cluster={mockedROSAHyperShiftCluster} />);
 
     await user.click(screen.getByTestId('channelModal'));
     await user.selectOptions(screen.getByTestId('channel-select'), 'eus-4.16');
@@ -303,7 +242,10 @@ describe('<ChannelEdit />', () => {
 
     await waitFor(() => {
       expect(mutateMock).toHaveBeenCalledWith(
-        { clusterID: 'cluster-123', channel: 'eus-4.16' },
+        {
+          clusterID: mockedROSAHyperShiftCluster.id ?? '',
+          channel: 'eus-4.16',
+        },
         expect.any(Object),
       );
     });
@@ -316,13 +258,7 @@ describe('<ChannelEdit />', () => {
       error: { error: { errorMessage: 'Changing channel resulted in error' } },
     });
 
-    const { user } = render(
-      <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
-      />,
-    );
+    const { user } = render(<ChannelEdit cluster={mockedROSAHyperShiftCluster} />);
 
     await user.click(screen.getByTestId('channelModal'));
 

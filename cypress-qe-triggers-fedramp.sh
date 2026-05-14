@@ -15,6 +15,6 @@ echo "$TAGS"
 
 # Install all the required plugins/packages for QE execution enviroument.
 # Installation will be done on the dynamic nodes or your machine as per place of call of this file.
-yarn install
+npm ci
 
 sh "${PWD}/run/cypress-qe-executor-fedramp.sh"

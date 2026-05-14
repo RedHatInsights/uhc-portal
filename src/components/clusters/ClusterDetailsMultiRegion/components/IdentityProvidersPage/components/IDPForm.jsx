@@ -53,6 +53,7 @@ const IDPForm = ({
   formTitle,
   HTPasswdErrors,
   isHypershift,
+  isROSACluster,
   IDPList,
   isPostIDPFormError,
   postIDPFormError,
@@ -147,6 +148,13 @@ const IDPForm = ({
 
   const span = selectedIDP === IDPformValues.HTPASSWD ? 11 : 8;
 
+  let adminGroupDocLink = docLinks.OSD_DEDICATED_ADMIN_ROLE;
+  if (isHypershift) {
+    adminGroupDocLink = docLinks.ROSA_HCP_AUTH_HTPASSWD_CONFIG;
+  } else if (isROSACluster) {
+    adminGroupDocLink = docLinks.ROSA_CLASSIC_AUTH_HTPASSWD_CONFIG;
+  }
+
   const topText = (idp) => {
     let text = null;
     switch (idp) {
@@ -154,12 +162,10 @@ const IDPForm = ({
         text = (
           <>
             Define an <code>htpasswd</code> identity provider for your managed cluster to create one
-            or multiple static users that can log in to your cluster and troubleshoot it. If these
-            users need elevated permissions, add it to an{' '}
-            <ExternalLink href={docLinks.OSD_DEDICATED_ADMIN_ROLE}>
-              administrative group
-            </ExternalLink>{' '}
-            within your organization.
+            or multiple static users that can log in to your cluster. If these users need elevated
+            permissions, add them to an{' '}
+            <ExternalLink href={adminGroupDocLink}>administrative group</ExternalLink> within your
+            organization.
           </>
         );
         break;
@@ -334,6 +340,7 @@ IDPForm.propTypes = {
   IDPList: PropTypes.array.isRequired,
   isEditForm: PropTypes.bool,
   isHypershift: PropTypes.bool,
+  isROSACluster: PropTypes.bool,
   idpEdited: PropTypes.object,
   idpName: PropTypes.string,
   HTPasswdErrors: PropTypes.func.isRequired,

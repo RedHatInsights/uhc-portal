@@ -72,12 +72,10 @@ jobs:
         uses: actions/cache@v5
         with:
           path: './node_modules'
-          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: install
+        run: npm ci
 
       - name: Check uncommitted changes
         # Check that Git working tree is clean after running `install` command.
@@ -145,7 +143,7 @@ jobs:
 
       - name: Install Playwright Browsers
         # Explicitly specify all browsers including chrome since Playwright 1.44+ no longer installs Chrome by default
-        run: yarn playwright install chromium chrome firefox webkit --with-deps
+        run: npm exec playwright install chromium chrome firefox webkit --with-deps
 
       - name: Get browser version
         id: browser-version
@@ -324,11 +322,11 @@ jobs:
           # If environment is local, start the dev server first
           if [ "$EUT" = "local" ]; then
             echo "Starting local dev server..."
-            LOGGING=quiet yarn start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
-            NODE_TLS_REJECT_UNAUTHORIZED=0 yarn wait-on -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
+            LOGGING=quiet npm start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
+            NODE_TLS_REJECT_UNAUTHORIZED=0 npm exec -- wait-on -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
             echo "Local dev server is ready"
           fi
-          yarn playwright-headless --grep "$GREP_PATTERN" --workers="$WORKERS"
+          npm run playwright-headless -- --grep "$GREP_PATTERN" --workers="$WORKERS"
 
       - name: Display artifact summary
         if: always()

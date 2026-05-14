@@ -272,7 +272,7 @@ export class MachinePoolsPage extends BasePage {
 
   async resetMachinePoolAutoscaling(id: string, min: string, max: string): Promise<void> {
     await this.editMachinePool(id);
-
+    await this.autoscalingCheckbox().check();
     const currentMin = await this.autoscaleMinInput().inputValue();
     const currentMax = await this.autoscaleMaxInput().inputValue();
 

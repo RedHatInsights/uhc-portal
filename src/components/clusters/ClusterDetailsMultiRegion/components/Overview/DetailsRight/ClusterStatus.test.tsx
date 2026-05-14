@@ -55,6 +55,13 @@ const machinePoolsAutoScaleReady = [
   },
 ];
 
+const machinePoolsAutoScaleZeroMin = [
+  {
+    autoscaling: { min_replicas: 0, max_replicas: 3 },
+    status: { current_replicas: 0 },
+  },
+];
+
 describe('<ClusterStatus />', () => {
   describe('Hypershift is not enabled', () => {
     it('is accessible', async () => {
@@ -160,6 +167,103 @@ describe('<ClusterStatus />', () => {
 
       // Assert
       expect(screen.getByText('Ready 2 / 2')).toBeInTheDocument();
+    });
+
+    it('shows autoscaling pool with min_replicas 0 and current_replicas 0 as ready', () => {
+      render(
+        <ClusterStatus
+          cluster={{ ...cluster, hypershift: { enabled: true } }}
+          limitedSupport={false}
+          machinePools={machinePoolsAutoScaleZeroMin}
+        />,
+      );
+
+      expect(screen.getByText('Ready 1 / 1')).toBeInTheDocument();
+    });
+
+    it('shows autoscaling pool with min_replicas 0 and a status message as not ready', () => {
+      render(
+        <ClusterStatus
+          cluster={{ ...cluster, hypershift: { enabled: true } }}
+          limitedSupport={false}
+          machinePools={[
+            {
+              autoscaling: { min_replicas: 0, max_replicas: 3 },
+              status: { current_replicas: 0, message: 'waitingOnMachine' },
+            },
+          ]}
+        />,
+      );
+
+      expect(screen.getByText('Pending 0 / 1')).toBeInTheDocument();
+    });
+
+    it('counts zero-min autoscaling pools alongside normal pools correctly', () => {
+      render(
+        <ClusterStatus
+          cluster={{ ...cluster, hypershift: { enabled: true } }}
+          limitedSupport={false}
+          machinePools={[
+            {
+              autoscaling: { min_replicas: 0, max_replicas: 3 },
+              status: { current_replicas: 0 },
+            },
+            {
+              autoscaling: { min_replicas: 2, max_replicas: 4 },
+              status: { current_replicas: 3 },
+            },
+          ]}
+        />,
+      );
+
+      expect(screen.getByText('Ready 2 / 2')).toBeInTheDocument();
+    });
+
+    it('does not count pool without current_replicas as ready', () => {
+      render(
+        <ClusterStatus
+          cluster={{ ...cluster, hypershift: { enabled: true } }}
+          limitedSupport={false}
+          machinePools={[{ replicas: 2, status: {} }]}
+        />,
+      );
+
+      expect(screen.getByText('Pending 0 / 1')).toBeInTheDocument();
+    });
+
+    it('shows uninstalling state when cluster is uninstalling', () => {
+      render(
+        <ClusterStatus
+          cluster={{ ...cluster, hypershift: { enabled: true }, state: ClusterState.uninstalling }}
+          limitedSupport={false}
+          machinePools={machinePools}
+        />,
+      );
+
+      expect(screen.getByTestId('machine-pools-status')).toHaveTextContent('Uninstalling');
+    });
+
+    it('shows deleted when there are no machine pools and cluster is ready', () => {
+      render(
+        <ClusterStatus
+          cluster={{ ...cluster, hypershift: { enabled: true } }}
+          limitedSupport={false}
+          machinePools={[]}
+        />,
+      );
+
+      expect(screen.getByTestId('machine-pools-status')).toHaveTextContent('Deleted 0 / 0');
+    });
+
+    it('shows pending when there are no machine pools and cluster is installing', () => {
+      render(
+        <ClusterStatus
+          cluster={{ ...cluster, hypershift: { enabled: true }, state: ClusterState.installing }}
+          limitedSupport={false}
+          machinePools={[]}
+        />,
+      );
+      expect(screen.getByTestId('machine-pools-status')).toHaveTextContent('Pending 0 / 0');
     });
   });
 });

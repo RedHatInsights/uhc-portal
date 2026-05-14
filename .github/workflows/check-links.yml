@@ -19,7 +19,7 @@ jobs:
           node-version: "24"
 
       - name: Install dependencies
-        run: yarn install
+        run: npm ci
 
       - name: Find and list broken links
         id: check-links

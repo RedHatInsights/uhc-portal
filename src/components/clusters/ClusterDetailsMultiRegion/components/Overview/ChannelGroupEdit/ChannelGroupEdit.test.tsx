@@ -149,6 +149,27 @@ describe('<ChannelGroupEdit />', () => {
     expect(screen.getByText('N/A')).toBeInTheDocument();
   });
 
+  it('should disable the edit button and not open the modal when there are no channel group options', async () => {
+    mockUseGetChannelGroupsData.mockReturnValue({
+      availableDropdownChannelGroups: [],
+      isLoading: false,
+    });
+
+    const { user } = render(
+      <ChannelGroupEdit
+        clusterID="cluster-123"
+        channelGroup="stable"
+        cluster={mockedROSAHyperShiftCluster}
+      />,
+    );
+
+    const openModalButton = screen.getByTestId('channelGroupModal');
+    expect(openModalButton).toHaveAttribute('aria-disabled', 'true');
+
+    await user.click(openModalButton);
+    expect(screen.queryByRole('dialog', { name: /edit channel group/i })).not.toBeInTheDocument();
+  });
+
   it('should not render an edit button if cluster cannot update cluster resource', () => {
     mockUseGetChannelGroupsData.mockReturnValue({
       availableDropdownChannelGroups: mockOptions,

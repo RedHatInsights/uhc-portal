@@ -54,6 +54,7 @@ type Props = {
   machineTypesLoading: boolean;
   tabKey: number | string;
   initialTabContentShown?: boolean;
+  isMaxReached?: boolean;
 };
 
 export const useOverviewSubTab = ({
@@ -68,6 +69,7 @@ export const useOverviewSubTab = ({
   machineTypesLoading,
   tabKey,
   initialTabContentShown,
+  isMaxReached,
 }: Props): [
   (errors: FormikErrors<EditMachinePoolValues>) => React.JSX.Element,
   ({
@@ -127,6 +129,7 @@ export const useOverviewSubTab = ({
           machinePools={machinePools || []}
           machineTypes={machineTypesResponse}
           allow249NodesOSDCCSROSA={allow249NodesOSDCCSROSA}
+          isMaxReached={isMaxReached}
         />
         {imdsSectionFeature && !isEdit && isHypershift ? (
           <ImdsSection

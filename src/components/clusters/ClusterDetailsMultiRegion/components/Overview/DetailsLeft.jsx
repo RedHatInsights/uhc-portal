@@ -183,12 +183,7 @@ function DetailsLeft({
         !isArchived &&
         !isDeprovisioned &&
         !isDisconnected && (
-          <ChannelEdit
-            clusterID={clusterID}
-            channel={cluster?.channel}
-            cluster={cluster}
-            isClusterDetailsFetching={clusterDetailsFetching}
-          />
+          <ChannelEdit cluster={cluster} isClusterDetailsFetching={clusterDetailsFetching} />
         )}
       <DescriptionListGroup>
         <DescriptionListTerm>
