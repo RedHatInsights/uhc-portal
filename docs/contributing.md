@@ -201,6 +201,7 @@ When proposing changes, take care to:
 - Not refer to any sensitive data in the docs (e.g. readme, wiki), including references to specific customers, or references to nonpublic Red Hat strategies/product plans
 - Not include any source-code obtained from a vendor/partner/customer, or through an acquisition
 - According to FedRAMP guidance, not include any instances of in-boundary names (e.g. domains, URLs)
+- Not reveal credentials via CI/CD logs (e.g. by using `-x` in shell scripts)
 
 If you have any doubts on whether data is sensitive or not, please reach out to OCM UI Core team or Infosec team first, before pushing any code.
 
