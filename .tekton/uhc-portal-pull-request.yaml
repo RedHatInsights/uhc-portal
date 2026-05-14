@@ -84,7 +84,7 @@ spec:
 
       # Install Playwright browsers (suppress verbose apt output, show errors)
       echo "Installing Playwright browsers..."
-      if ! yarn playwright install --with-deps chromium > /tmp/playwright-install.log 2>&1; then
+      if ! npm exec playwright install --with-deps chromium > /tmp/playwright-install.log 2>&1; then
         echo "ERROR: Playwright browser installation failed:"
         cat /tmp/playwright-install.log
         exit 1
