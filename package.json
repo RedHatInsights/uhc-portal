@@ -186,7 +186,7 @@
     "style-loader": "4.0.0",
     "ts-jest": "^29.4.9",
     "ts-loader": "^9.5.1",
-    "ts-patch": "^3.3.0",
+    "ts-patch": "^4.0.0",
     "tsconfig-paths-webpack-plugin": "4.1.0",
     "typescript": "5.5.3",
     "wait-on": "^9.0.5",
