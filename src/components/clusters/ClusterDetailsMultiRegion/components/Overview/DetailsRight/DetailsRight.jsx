@@ -195,7 +195,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
           clusterID={cluster.id}
           region={cluster.subscription?.rh_region_id}
           protectionEnabled={cluster.delete_protection?.enabled}
-          canToggle={cluster.canUpdateClusterResource}
+          canToggle={cluster.canUpdateDeleteProtection}
           pending={clusterDetailsFetching}
           isUninstalling={isClusterUninstalling}
         />

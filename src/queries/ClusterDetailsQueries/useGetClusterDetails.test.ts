@@ -68,6 +68,8 @@ describe('useClusterDetails hook', () => {
       canEditClusterAutoscaler: true,
       canEditOCMRoles: true,
       canViewOCMRoles: true,
+      canUpdateClusterResource: true,
+      canUpdateDeleteProtection: true,
       kubeletConfigActions: { get: true },
       machinePoolsActions: { get: true },
       idpActions: { get: true },

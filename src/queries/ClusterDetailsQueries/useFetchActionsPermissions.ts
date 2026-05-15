@@ -157,6 +157,26 @@ export const useFetchActionsPermissions = (
         enabled: subscriptionStatus !== SubscriptionCommonFieldsStatus.Deprovisioned,
       },
       {
+        queryKey: [
+          mainQueryKey,
+          'authorizationService',
+          'selfAccessReview',
+          SelfAccessReviewAction.update,
+          'DeleteProtection',
+          subscriptionID,
+          clusterID,
+        ],
+        queryFn: async () => {
+          const canUpdateDeleteProtection = fetchPermissions({
+            action: SelfAccessReviewAction.update,
+            resource_type: 'DeleteProtection' as unknown as SelfAccessReviewResourceType,
+            cluster_id: clusterID,
+          } as SelfAccessReview);
+          return canUpdateDeleteProtection;
+        },
+        enabled: subscriptionStatus !== SubscriptionCommonFieldsStatus.Deprovisioned,
+      },
+      {
         queryKey: [mainQueryKey, 'kubeletConfigPermissions', actions, subscriptionID],
         queryFn: async () => {
           const kubeletConfigActions: { [action: string]: boolean } = actions.reduce(
@@ -221,6 +241,7 @@ export const useFetchActionsPermissions = (
         canEditOCMRoles,
         canViewOCMRoles,
         canUpdateClusterResource,
+        canUpdateDeleteProtection,
         kubeletConfigActions,
         machinePoolsActions,
         idpActions,
@@ -237,6 +258,7 @@ export const useFetchActionsPermissions = (
           canEditOCMRoles,
           canViewOCMRoles,
           canUpdateClusterResource,
+          canUpdateDeleteProtection,
           kubeletConfigActions,
           machinePoolsActions,
           idpActions,
@@ -255,6 +277,7 @@ export const useFetchActionsPermissions = (
     canEditOCMRoles: !!data?.canEditOCMRoles.data,
     canViewOCMRoles: !!data?.canViewOCMRoles.data,
     canUpdateClusterResource: !!data?.canUpdateClusterResource.data,
+    canUpdateDeleteProtection: !!data?.canUpdateDeleteProtection.data,
     kubeletConfigActions: data?.kubeletConfigActions.data as { [action: string]: boolean },
     machinePoolsActions: data?.machinePoolsActions.data as { [action: string]: boolean },
     idpActions: data?.idpActions.data as { [action: string]: boolean },

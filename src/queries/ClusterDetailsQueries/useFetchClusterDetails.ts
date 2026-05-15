@@ -47,6 +47,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
     canEditOCMRoles,
     canViewOCMRoles,
     canUpdateClusterResource,
+    canUpdateDeleteProtection,
     kubeletConfigActions,
     machinePoolsActions,
     idpActions,
@@ -176,6 +177,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
       cluster.data.canEditOCMRoles = canEditOCMRoles;
       cluster.data.canViewOCMRoles = canViewOCMRoles;
       cluster.data.canUpdateClusterResource = canUpdateClusterResource;
+      cluster.data.canUpdateDeleteProtection = canUpdateDeleteProtection;
       cluster.data.canEditClusterAutoscaler = canEditClusterAutoscaler;
       cluster.data.idpActions = idpActions;
       cluster.data.machinePoolsActions = machinePoolsActions;
