@@ -123,7 +123,7 @@ jobs:
           LOGGING=quiet npm start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
           NODE_TLS_REJECT_UNAUTHORIZED=0 npm exec -- wait-on -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
           NODE_TLS_REJECT_UNAUTHORIZED=0 npm run playwright-e2e-ci -- --workers=$WORKERS
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ failure() }}
         with:
           name: playwright-e2e-facts
