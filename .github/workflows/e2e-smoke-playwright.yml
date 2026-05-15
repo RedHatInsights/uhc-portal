@@ -383,7 +383,7 @@ jobs:
         run: echo "now=$(date +%s)" >> $GITHUB_OUTPUT
       - name: Publish results to Slack
         if: always()
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@v3.0.3
         with:
           webhook: ${{ secrets.SLACK_PLAYWRIGHT_TESTS_PUBLISHER_WEBHOOK_URL }}
           webhook-type: incoming-webhook

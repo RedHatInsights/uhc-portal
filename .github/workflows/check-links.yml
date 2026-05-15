@@ -27,7 +27,7 @@ jobs:
 
       - name: Send message to Slack (404 found)
         if: steps.check-links.outputs.has404 == 'true'
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@v3.0.3
         with:
           webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
           webhook-type: webhook-trigger
@@ -39,7 +39,7 @@ jobs:
 
       - name: Send message to Slack (no 404 found)
         if: steps.check-links.outputs.has404 == 'false'
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@v3.0.3
         with:
           webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
           webhook-type: webhook-trigger
