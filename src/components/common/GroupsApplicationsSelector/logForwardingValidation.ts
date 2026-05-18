@@ -5,7 +5,7 @@ import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 
 /** Allowed characters per CloudWatch Logs log group naming rules (max 512). */
 const CLOUDWATCH_LOG_GROUP_NAME_MAX_LENGTH = 512;
-const CLOUDWATCH_LOG_GROUP_NAME_RE = /^[-#./A-Za-z0-9_]+$/;
+const CLOUDWATCH_LOG_GROUP_NAME_RE = /^[-#.:./A-Za-z0-9_]+$/;
 
 function logForwardingSelectedItemsMissing(values: FormikValues, fieldId: string): boolean {
   const raw = values[fieldId];

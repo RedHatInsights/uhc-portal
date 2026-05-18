@@ -229,6 +229,16 @@ describe('logForwardingValidation', () => {
         expect(errors[FieldId.LogForwardingCloudWatchLogGroupName]).toContain('invalid characters');
       });
 
+      it('accepts log group names with a colon', () => {
+        const errors = validateLogForwardingFields({
+          ...baseCw,
+          [FieldId.LogForwardingCloudWatchLogGroupName]: '/aws/app:production',
+          [FieldId.LogForwardingCloudWatchRoleArn]: validRoleArn,
+          [FieldId.LogForwardingCloudWatchPrerequisiteAck]: true,
+        });
+        expect(errors[FieldId.LogForwardingCloudWatchLogGroupName]).toBeUndefined();
+      });
+
       it('rejects log group names longer than 512 characters', () => {
         const errors = validateLogForwardingFields({
           ...baseCw,
