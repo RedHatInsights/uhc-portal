@@ -2,14 +2,12 @@ import React from 'react';
 
 import { Content, Form, Stack, StackItem, Title } from '@patternfly/react-core';
 
+import links from '~/common/installLinks.mjs';
 import { stepId, stepNameById } from '~/components/clusters/wizards/rosa/rosaWizardConstants';
 import ExternalLink from '~/components/common/ExternalLink';
 
 import { AmazonS3LogForwarding } from './AmazonS3LogForwarding';
 import { CloudWatchLogForwarding } from './CloudWatchLogForwarding';
-
-const LOG_FORWARDING_DOCS_HREF =
-  'https://docs.openshift.com/rosa/cluster_admin/rosa-configuring-log-forwarding.html';
 
 export function LogForwardingScreen() {
   return (
@@ -28,7 +26,7 @@ export function LogForwardingScreen() {
           <Content component="p">
             Configure log forwarding now to store and analyze your control plane logs, or set this
             up later in the console.{' '}
-            <ExternalLink href={LOG_FORWARDING_DOCS_HREF}>Learn more</ExternalLink>
+            <ExternalLink href={links.LOG_FORWARDING_DOCS}>Learn more</ExternalLink>
           </Content>
         </StackItem>
         <StackItem>

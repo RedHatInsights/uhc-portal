@@ -41,6 +41,6 @@ export const stepNameById = {
   [stepId.CLUSTER_UPDATES]: 'Cluster updates',
   [stepId.CLUSTER_ADDITIONAL_SETTINGS]: 'Additional set up',
   [stepId.CLUSTER_ADDITIONAL_SETTINGS__UPDATES]: 'Cluster updates',
-  [stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING]: 'Control plane log forwarding (optional)',
+  [stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING]: 'Control plane log forwarding',
   [stepId.REVIEW_AND_CREATE]: 'Review and create',
 };

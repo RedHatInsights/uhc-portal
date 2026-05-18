@@ -3,6 +3,7 @@ import { useField } from 'formik';
 
 import { Alert, Content, Stack, StackItem, Title } from '@patternfly/react-core';
 
+import links from '~/common/installLinks.mjs';
 import { CheckboxField, TextInputField } from '~/components/clusters/wizards/form';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -14,9 +15,6 @@ import {
   groupsApplicationsAvailableTooltip,
   groupsApplicationsChosenTooltip,
 } from './logForwardingTooltips';
-
-const CLOUDWATCH_PREREQUISITES_HREF =
-  'https://docs.openshift.com/rosa/cluster_admin/rosa-configuring-log-forwarding.html';
 
 export function CloudWatchLogForwarding() {
   const [{ value: cwEnabled }] = useField<boolean>(FieldId.LogForwardingCloudWatchEnabled);
@@ -42,7 +40,7 @@ export function CloudWatchLogForwarding() {
                   <StackItem>
                     <Content component="p">
                       To use a CloudWatch log group, you must create an IAM role and policy.{' '}
-                      <ExternalLink href={CLOUDWATCH_PREREQUISITES_HREF}>Learn more</ExternalLink>
+                      <ExternalLink href={links.LOG_FORWARDING_DOCS}>Learn more</ExternalLink>
                     </Content>
                   </StackItem>
                   <StackItem>

@@ -218,6 +218,8 @@ const links = {
 
   OCM_CLI_RELEASES_LATEST:
     'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/ocm/latest',
+  LOG_FORWARDING_DOCS:
+    'https://docs.openshift.com/rosa/cluster_admin/rosa-configuring-log-forwarding',
 };
 
 // Tool identifiers are public — e.g. for linking to specific tool in DownloadsPage.
