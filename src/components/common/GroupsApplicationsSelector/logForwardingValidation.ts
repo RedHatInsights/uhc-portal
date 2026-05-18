@@ -84,7 +84,7 @@ export function validateLogForwardingFields(values: FormikValues): Record<string
       errors[FieldId.LogForwardingCloudWatchLogGroupName] = 'Log group name is required.';
     } else if (logGroup.length > CLOUDWATCH_LOG_GROUP_NAME_MAX_LENGTH) {
       errors[FieldId.LogForwardingCloudWatchLogGroupName] =
-        'Log group name contains invalid characters or is too long (max 512).';
+        'Log group name must be 512 characters or fewer.';
     } else if (!CLOUDWATCH_LOG_GROUP_NAME_RE.test(logGroup)) {
       errors[FieldId.LogForwardingCloudWatchLogGroupName] =
         'Log group name contains invalid characters or is too long (max 512).';

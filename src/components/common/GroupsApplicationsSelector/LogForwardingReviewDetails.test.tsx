@@ -1,8 +1,10 @@
 import React from 'react';
 
+import { DescriptionList } from '@patternfly/react-core';
+
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
-import { render, screen, within } from '~/testUtils';
+import { checkAccessibility, render, screen, within } from '~/testUtils';
 
 import { mockLogForwardingGroupTree } from './logForwardingGroupTreeData';
 import { LogForwardingReviewDetails } from './LogForwardingReviewDetails';
@@ -24,10 +26,32 @@ const baseForm = {
 
 describe('LogForwardingReviewDetails', () => {
   beforeEach(() => {
+    mockUseFetchLogForwardingGroups.mockReset();
     mockUseFetchLogForwardingGroups.mockReturnValue({
       data: mockLogForwardingGroupTree,
       isLoading: false,
     });
+  });
+
+  it('is accessible', async () => {
+    const { container } = render(
+      <DescriptionList>
+        <LogForwardingReviewDetails
+          formValues={{
+            ...baseForm,
+            [FieldId.LogForwardingS3Enabled]: true,
+            [FieldId.LogForwardingS3BucketName]: 's3-bucket',
+            [FieldId.LogForwardingS3SelectedItems]: ['api-audit'],
+            [FieldId.LogForwardingCloudWatchEnabled]: true,
+            [FieldId.LogForwardingCloudWatchLogGroupName]: '/cw',
+            [FieldId.LogForwardingCloudWatchRoleArn]: 'arn:aws:iam::123456789012:role/x',
+            [FieldId.LogForwardingCloudWatchSelectedItems]: ['sample-app'],
+          }}
+        />
+      </DescriptionList>,
+    );
+
+    await checkAccessibility(container);
   });
 
   it('renders Amazon S3 and CloudWatch sections with configuration disabled by default', () => {
