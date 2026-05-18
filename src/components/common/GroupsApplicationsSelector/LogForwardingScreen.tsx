@@ -1,6 +1,5 @@
 import React from 'react';
 
-/* Tooltip and help copy: sync with `logForwardingTooltipCopy.ts` from product Google Doc (ID 1D1urM8EA2n0iwbfKZCeG0dzNsWEwQnKPv1sWv9_bXxA). */
 import { Content, Form, Stack, StackItem, Title } from '@patternfly/react-core';
 
 import { stepId, stepNameById } from '~/components/clusters/wizards/rosa/rosaWizardConstants';

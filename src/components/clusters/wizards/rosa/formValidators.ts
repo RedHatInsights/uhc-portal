@@ -1,4 +1,4 @@
-import { FormikValues } from 'formik';
+import type { FormikValues } from 'formik';
 
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { validateLogForwardingFields } from '~/components/common/GroupsApplicationsSelector/logForwardingValidation';

@@ -1,4 +1,4 @@
-import { FormikValues } from 'formik';
+import type { FormikValues } from 'formik';
 
 import { validateRoleARN } from '~/common/validators';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';

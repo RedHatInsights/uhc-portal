@@ -9,11 +9,11 @@ export function logForwardingGroupRootId(groupName: string): string {
   return `${LOG_FORWARDING_GROUP_ID_PREFIX}${groupName}`;
 }
 
-/** Compare version ids so the numerically highest / latest id sorts last. */
 function isNonEmptyApplicationId(a: unknown): a is string {
   return typeof a === 'string' && a.trim().length > 0;
 }
 
+/** Compare version ids so the numerically highest / latest id sorts last. */
 export function compareLogForwarderVersionIds(a?: string, b?: string): number {
   const sa = a ?? '';
   const sb = b ?? '';

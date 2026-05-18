@@ -24,7 +24,7 @@ import {
   stepId,
   stepNameById,
 } from '~/components/clusters/wizards/rosa/rosaWizardConstants';
-import { LogForwardingScreen } from '~/components/common/GroupsApplicationsSelector/LogForward';
+import { LogForwardingScreen } from '~/components/common/GroupsApplicationsSelector/LogForwardingScreen';
 import config from '~/config';
 import withAnalytics from '~/hoc/withAnalytics';
 import useAnalytics from '~/hooks/useAnalytics';
