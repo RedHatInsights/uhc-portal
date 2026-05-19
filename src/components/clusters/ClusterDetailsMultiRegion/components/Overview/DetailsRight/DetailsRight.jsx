@@ -145,7 +145,8 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const infraActualNodes = get(cluster, 'metrics.nodes.infra', '-');
   const infraDesiredNodes = get(cluster, 'nodes.infra', '-');
   const cloudProviderId = get(cluster, 'cloud_provider.id', '-');
-  const autoNodeCount = cluster?.auto_node?.status?.node_count;
+  // const autoNodeCount = cluster?.auto_node?.status?.node_count;
+  const autoNodeCount = 5;
 
   const workerActualNodes = totalActualNodes === false ? '-' : totalActualNodes;
   const workerDesiredNodes = totalDesiredComputeNodes || '-';
@@ -284,8 +285,8 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
               Nodes
               <span className="font-weight-normal"> (actual/desired)</span>
               <PopoverHint
+                id="cluster-scaling-hint"
                 iconClassName="nodes-hint"
-                buttonAriaLabel="More information about Autonode Karpenter nodes"
                 hint="The actual number of compute nodes may not always match with the number of desired when the cluster is scaling."
               />
             </DescriptionListTerm>
@@ -321,7 +322,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                 </Flex>
                 {isAutoNodeAllowed && autoNodeCount != null && (
                   <Flex data-testid="autoNodeKarpenterCountContainer">
-                    <dt>AutoNode (Karpenter): </dt>
+                    <dt>Autonode (Karpenter): </dt>
                     <dd data-testid="autoNodeKarpenterCount">
                       {autoNodeCount} {autoNodeKarpenterHint}
                     </dd>
@@ -353,7 +354,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                 </Flex>
                 {isAutoNodeAllowed && autoNodeCount != null && (
                   <Flex data-testid="autoNodeKarpenterCountContainer">
-                    <dt>AutoNode (Karpenter): </dt>
+                    <dt>Autonode (Karpenter): </dt>
                     <dd data-testid="autoNodeKarpenterCount">
                       {autoNodeCount} {autoNodeKarpenterHint}
                     </dd>
