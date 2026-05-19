@@ -11,6 +11,7 @@ import {
   getNodeIncrement,
   getNodeIncrementHypershift,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import {
   getAvailableQuota as getAvailableQuotaUtil,
   getIncludedNodes,
@@ -131,29 +132,30 @@ const ComputeNodeCount = ({
     [isHypershiftSelected, isMultiAzSelected, poolsLength],
   );
 
-  const available = React.useMemo(
-    () =>
-      getAvailableQuotaUtil({
-        quota,
-        isByoc,
-        billingModel,
-        cloudProviderID,
-        isMultiAz: isMultiAzSelected,
-        machineTypes,
-        machineTypeId: machineType?.id,
-        product,
-      }),
-    [
+  const available = React.useMemo(() => {
+    if (isGcpMarketplaceBilling(billingModel)) {
+      return undefined;
+    }
+    return getAvailableQuotaUtil({
       quota,
       isByoc,
       billingModel,
       cloudProviderID,
-      isMultiAzSelected,
+      isMultiAz: isMultiAzSelected,
       machineTypes,
-      machineType,
+      machineTypeId: machineType?.id,
       product,
-    ],
-  );
+    });
+  }, [
+    quota,
+    isByoc,
+    billingModel,
+    cloudProviderID,
+    isMultiAzSelected,
+    machineTypes,
+    machineType,
+    product,
+  ]);
 
   const totalMaxNodes = React.useMemo(
     () =>
@@ -166,6 +168,7 @@ const ComputeNodeCount = ({
         isHypershift: isHypershiftSelected,
         clusterVersion: clusterVersionRawId,
         allow249NodesOSDCCSROSA,
+        billingModel,
       }),
     [
       included,
@@ -175,6 +178,7 @@ const ComputeNodeCount = ({
       allow249NodesOSDCCSROSA,
       clusterVersionRawId,
       isEditingCluster,
+      billingModel,
     ],
   );
 

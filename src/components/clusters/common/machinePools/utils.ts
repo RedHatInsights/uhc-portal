@@ -14,7 +14,10 @@ import {
 } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
-import { clusterBillingModelToRelatedResource } from '../billingModelMapper';
+import {
+  clusterBillingModelToRelatedResource,
+  isGcpMarketplaceBilling,
+} from '../billingModelMapper';
 import { QuotaParams, QuotaTypes } from '../quotaModel';
 
 import {
@@ -106,8 +109,9 @@ export const getMaxNodeCount = ({
   clusterVersion,
   allow249NodesOSDCCSROSA,
   increment,
+  billingModel,
 }: {
-  available: number;
+  available?: number;
   isEditingCluster: boolean;
   currentNodeCount: number;
   minNodes: number;
@@ -116,11 +120,12 @@ export const getMaxNodeCount = ({
   clusterVersion: string | undefined;
   allow249NodesOSDCCSROSA?: boolean;
   increment?: number;
+  billingModel?: Cluster['billing_model'];
 }): number => {
   const maxNodesHCP = getMaxNodesHCP(clusterVersion);
   // no extra node quota = only base cluster size is available
-  const optionsAvailable = available > 0 || isEditingCluster;
-  let maxValue = isEditingCluster ? available + currentNodeCount : available + included;
+  const isGcpMarketplace = isGcpMarketplaceBilling(billingModel);
+  const optionsAvailable = isGcpMarketplace ? true : (available ?? 0) > 0 || isEditingCluster;
 
   // eslint-disable-next-line no-nested-ternary
   const maxNumberOfNodes = isHypershift
@@ -128,6 +133,14 @@ export const getMaxNodeCount = ({
     : allow249NodesOSDCCSROSA
       ? getMaxWorkerNodes(clusterVersion)
       : MAX_NODES_180;
+
+  let maxValue;
+  if (isGcpMarketplace) {
+    maxValue = maxNumberOfNodes;
+  } else {
+    maxValue = isEditingCluster ? (available ?? 0) + currentNodeCount : (available ?? 0) + included;
+  }
+
   if (maxValue > maxNumberOfNodes) {
     maxValue = maxNumberOfNodes;
   }
@@ -248,6 +261,10 @@ export const getMaxNodeCountForMachinePool = ({
   mpAvailZones,
 }: GetMaxNodeCountForMachinePoolParams): number => {
   const clusterIsMultiAz = isMultiAZ(cluster);
+  const billingModel =
+    (cluster as Cluster).billing_model ??
+    ((cluster as ClusterFromSubscription).subscription
+      ?.cluster_billing_model as Cluster['billing_model']);
 
   const available = getAvailableQuota({
     quota,
@@ -256,10 +273,7 @@ export const getMaxNodeCountForMachinePool = ({
     isMultiAz: clusterIsMultiAz,
     isByoc: !!cluster.ccs?.enabled,
     cloudProviderID: cluster.cloud_provider?.id,
-    billingModel:
-      (cluster as Cluster).billing_model ??
-      ((cluster as ClusterFromSubscription).subscription
-        ?.cluster_billing_model as Cluster['billing_model']),
+    billingModel,
     product: cluster.product?.id,
   });
 
@@ -293,6 +307,7 @@ export const getMaxNodeCountForMachinePool = ({
     clusterVersion: cluster.version?.raw_id,
     allow249NodesOSDCCSROSA,
     increment,
+    billingModel,
   });
 };
 
