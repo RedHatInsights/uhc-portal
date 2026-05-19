@@ -43,7 +43,14 @@ export class IdentityProvidersPage extends BasePage {
   }
 
   async openAddIdpDropdown(): Promise<void> {
-    await this.addIdentityProviderDropdown().click();
+    const dropdown = this.addIdentityProviderDropdown();
+    await dropdown.waitFor({ state: 'visible' });
+    await dropdown.click();
+    // Webkit occasionally fails to register the first click on PF6 MenuToggle
+    if ((await dropdown.getAttribute('aria-expanded')) !== 'true') {
+      await dropdown.click();
+    }
+    await expect(dropdown).toHaveAttribute('aria-expanded', 'true');
   }
 
   async selectIdpType(
@@ -113,7 +120,10 @@ export class IdentityProvidersPage extends BasePage {
   }
 
   mappingMethodValue(): Locator {
-    return this.page.getByRole('button', { name: 'Options menu' });
+    return this.page
+      .locator('.pf-v6-c-form__group')
+      .filter({ has: this.page.getByText('Mapping method', { exact: true }) })
+      .getByRole('button', { name: 'Options menu' });
   }
 
   hostnameInput(): Locator {
@@ -121,7 +131,7 @@ export class IdentityProvidersPage extends BasePage {
   }
 
   caFileUpload(): Locator {
-    return this.page.locator('input[type="file"]');
+    return this.page.getByTestId('ca-upload-input-file');
   }
 
   caFileTextarea(): Locator {

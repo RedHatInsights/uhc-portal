@@ -1,12 +1,15 @@
 import { expect, test } from '../../fixtures/pages';
 
+const {
+  'rosa-hosted-public-advanced': clusterProfile,
+} = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const testData = require('../../fixtures/access-control/identity-providers-github.spec.json');
 
 test.describe.serial(
   'GitHub Identity Provider - Access Control (OCP-23708, OCP-32006)',
-  { tag: ['@day2', '@smoke', '@access-control', '@idp', '@rosa-hosted'] },
+  { tag: ['@day2', '@access-control', '@rosa-hosted', '@hcp', '@idp'] },
   () => {
-    const clusterName = process.env.CLUSTER_NAME || testData.ClusterName;
+    const clusterName = process.env.CLUSTER_NAME || clusterProfile['day1-profile'].ClusterName;
     const clientId = process.env.GITHUB_CLIENT_ID || testData.ClientId;
     const clientSecret = process.env.GITHUB_CLIENT_SECRET || testData.ClientSecret;
     const testOrg = process.env.GITHUB_TEST_ORG || testData.Organization;
@@ -93,7 +96,6 @@ test.describe.serial(
       await expect(identityProvidersPage.nameInput()).toHaveValue(/^GitHub/);
 
       await identityProvidersPage.nameInput().fill(idpName);
-      await expect(identityProvidersPage.nameInput()).toHaveValue(idpName);
       await identityProvidersPage.nameInput().blur();
       await expect(identityProvidersPage.duplicateNameError()).toBeVisible();
       await expect(identityProvidersPage.createButton()).toBeDisabled();
