@@ -48,7 +48,7 @@ describe('<EditAutoNodeModal />', () => {
     it('displays the modal title and description', () => {
       render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
 
-      expect(screen.getByRole('heading', { name: 'Edit AutoNode settings' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Edit Autonode settings' })).toBeInTheDocument();
       expect(screen.getByText(/Configure Autonode for this cluster/)).toBeInTheDocument();
     });
 
@@ -194,16 +194,16 @@ describe('<EditAutoNodeModal />', () => {
       );
     });
 
-    it('calls editCluster with disabled mode when saving with toggle off', async () => {
+    it('keeps enabled mode when cluster is already enabled', async () => {
       const { user } = render(<EditAutoNodeModal cluster={enabledCluster} onClose={onClose} />);
 
-      await user.click(screen.getByLabelText('Enable Autonode'));
+      expect(screen.getByLabelText('Enable Autonode')).toBeDisabled();
       await user.click(screen.getByRole('button', { name: 'Save' }));
 
       expect(mockEditCluster).toHaveBeenCalledWith(
         expect.objectContaining({
           cluster: expect.objectContaining({
-            auto_node: { mode: 'disabled' },
+            auto_node: { mode: 'enabled' },
           }),
         }),
         expect.any(Object),
