@@ -33,7 +33,7 @@ import type { AugmentedCluster, AugmentedClusterResponse } from '~/types/types';
 
 import isAssistedInstallSubscription from '../../common/isAssistedInstallerCluster';
 import {
-  fakeClusterFromAISubscription,
+  fakeClusterFromAISubscriptionWithHostsMetrics,
   fakeClusterFromSubscription,
   normalizeCluster,
   normalizeMetrics,
@@ -319,7 +319,10 @@ const fetchSingleClusterAndPermissions = async (
   if (isAssistedInstallSubscription(subscription.data) && subscription.data.cluster_id) {
     try {
       const aiCluster = await assistedService.getAICluster(subscription.data.cluster_id);
-      cluster = fakeClusterFromAISubscription(subscription.data, aiCluster?.data || null);
+      cluster = await fakeClusterFromAISubscriptionWithHostsMetrics(
+        subscription.data,
+        aiCluster?.data || null,
+      );
       cluster.aiCluster = aiCluster.data;
     } catch (e) {
       if (axios.isAxiosError(e) && e.response?.status === 404) {
