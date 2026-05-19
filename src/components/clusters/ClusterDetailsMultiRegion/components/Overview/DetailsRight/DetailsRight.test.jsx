@@ -928,6 +928,138 @@ describe('<DetailsRight />', () => {
           checkForValue(componentText.NODES.COMPUTE, componentText.NODES.NA);
         });
       });
+
+      describe('Autonode (Karpenter) node count', () => {
+        it('shows Autonode Karpenter count when auto_node.status.node_count exists', () => {
+          mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+          const clusterFixture = defaultProps.cluster;
+          const newProps = {
+            ...defaultProps,
+            cluster: {
+              ...clusterFixture,
+              managed: true,
+              hypershift: { enabled: true },
+              auto_node: { mode: 'enabled', status: { node_count: 5 } },
+            },
+          };
+          useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+          render(<DetailsRight {...newProps} />);
+
+          expect(screen.getByTestId('autoNodeKarpenterCountContainer')).toBeInTheDocument();
+          expect(screen.getByTestId('autoNodeKarpenterCount')).toHaveTextContent('5');
+        });
+
+        it('shows Autonode Karpenter count of 0', () => {
+          mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+          const clusterFixture = defaultProps.cluster;
+          const newProps = {
+            ...defaultProps,
+            cluster: {
+              ...clusterFixture,
+              managed: true,
+              hypershift: { enabled: true },
+              auto_node: { mode: 'enabled', status: { node_count: 0 } },
+            },
+          };
+          useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+          render(<DetailsRight {...newProps} />);
+
+          expect(screen.getByTestId('autoNodeKarpenterCountContainer')).toBeInTheDocument();
+          expect(screen.getByTestId('autoNodeKarpenterCount')).toHaveTextContent('0');
+        });
+
+        it('hides Autonode Karpenter count when node_count does not exist', () => {
+          mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+          const clusterFixture = defaultProps.cluster;
+          const newProps = {
+            ...defaultProps,
+            cluster: {
+              ...clusterFixture,
+              managed: true,
+              hypershift: { enabled: true },
+              auto_node: { mode: 'enabled', status: { message: 'some message' } },
+            },
+          };
+          useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+          render(<DetailsRight {...newProps} />);
+
+          expect(screen.queryByTestId('autoNodeKarpenterCountContainer')).not.toBeInTheDocument();
+        });
+
+        it('hides Autonode Karpenter count when auto_node is undefined', () => {
+          mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+          const clusterFixture = defaultProps.cluster;
+          const newProps = {
+            ...defaultProps,
+            cluster: {
+              ...clusterFixture,
+              managed: true,
+              hypershift: { enabled: true },
+              auto_node: undefined,
+            },
+          };
+          useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+          render(<DetailsRight {...newProps} />);
+
+          expect(screen.queryByTestId('autoNodeKarpenterCountContainer')).not.toBeInTheDocument();
+        });
+
+        it('hides Autonode Karpenter count when feature gate is disabled', () => {
+          mockUseFeatureGate([[ENABLE_AUTO_NODE, false]]);
+          const clusterFixture = defaultProps.cluster;
+          const newProps = {
+            ...defaultProps,
+            cluster: {
+              ...clusterFixture,
+              managed: true,
+              hypershift: { enabled: true },
+              auto_node: { mode: 'enabled', status: { node_count: 5 } },
+            },
+          };
+          useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+          render(<DetailsRight {...newProps} />);
+
+          expect(screen.queryByTestId('autoNodeKarpenterCountContainer')).not.toBeInTheDocument();
+        });
+
+        it('hides Autonode Karpenter count when cluster is not hypershift', () => {
+          mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+          const clusterFixture = defaultProps.cluster;
+          const newProps = {
+            ...defaultProps,
+            cluster: {
+              ...clusterFixture,
+              managed: true,
+              hypershift: { enabled: false },
+              auto_node: { mode: 'enabled', status: { node_count: 5 } },
+            },
+          };
+          useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+          render(<DetailsRight {...newProps} />);
+
+          expect(screen.queryByTestId('autoNodeKarpenterCountContainer')).not.toBeInTheDocument();
+        });
+
+        it('shows popover hint for Autonode Karpenter nodes', () => {
+          mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+          const clusterFixture = defaultProps.cluster;
+          const newProps = {
+            ...defaultProps,
+            cluster: {
+              ...clusterFixture,
+              managed: true,
+              hypershift: { enabled: true },
+              auto_node: { mode: 'enabled', status: { node_count: 3 } },
+            },
+          };
+          useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+          render(<DetailsRight {...newProps} />);
+
+          expect(
+            screen.getByRole('button', { name: 'More information about Autonode Karpenter nodes' }),
+          ).toBeInTheDocument();
+        });
+      });
     });
 
     describe('Is autoscaled OR not managed', () => {

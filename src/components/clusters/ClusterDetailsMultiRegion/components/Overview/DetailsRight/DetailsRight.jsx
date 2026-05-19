@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import semver from 'semver';
 
 import {
+  Alert,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -144,6 +145,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const infraActualNodes = get(cluster, 'metrics.nodes.infra', '-');
   const infraDesiredNodes = get(cluster, 'nodes.infra', '-');
   const cloudProviderId = get(cluster, 'cloud_provider.id', '-');
+  const autoNodeCount = cluster?.auto_node?.status?.node_count;
 
   const workerActualNodes = totalActualNodes === false ? '-' : totalActualNodes;
   const workerDesiredNodes = totalDesiredComputeNodes || '-';
@@ -155,6 +157,21 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
 
   const showDeleteProtection = cluster.managed && !isArchivedSubscription(cluster);
   const isClusterUninstalling = cluster.state === clusterStates.uninstalling;
+
+  const autoNodeKarpenterHint = (
+    <PopoverHint
+      iconClassName="nodes-hint"
+      buttonAriaLabel="More information about AutoNode Karpenter nodes"
+      hint="These nodes are automatically provisioned and managed by Karpenter based on workload demands. These nodes are not managed through machine pools."
+    />
+  );
+
+  const autoNodeWarningAlert =
+    isAutoNodeAllowed && cluster?.auto_node?.status?.message ? (
+      <Alert variant="danger" isInline title="Autonode status" className="pf-v6-u-mt-sm" isPlain>
+        {cluster.auto_node.status.message}
+      </Alert>
+    ) : null;
 
   return (
     <DescriptionList>
@@ -267,8 +284,8 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
               Nodes
               <span className="font-weight-normal"> (actual/desired)</span>
               <PopoverHint
-                id="cluster-scaling-hint"
                 iconClassName="nodes-hint"
+                buttonAriaLabel="More information about Autonode Karpenter nodes"
                 hint="The actual number of compute nodes may not always match with the number of desired when the cluster is scaling."
               />
             </DescriptionListTerm>
@@ -302,6 +319,14 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                       : 'N/A'}
                   </dd>
                 </Flex>
+                {isAutoNodeAllowed && autoNodeCount != null && (
+                  <Flex data-testid="autoNodeKarpenterCountContainer">
+                    <dt>AutoNode (Karpenter): </dt>
+                    <dd data-testid="autoNodeKarpenterCount">
+                      {autoNodeCount} {autoNodeKarpenterHint}
+                    </dd>
+                  </Flex>
+                )}
               </dl>
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -326,6 +351,14 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                   <dt>Compute: </dt>
                   <dd>{totalActualNodes || 'N/A'}</dd>
                 </Flex>
+                {isAutoNodeAllowed && autoNodeCount != null && (
+                  <Flex data-testid="autoNodeKarpenterCountContainer">
+                    <dt>AutoNode (Karpenter): </dt>
+                    <dd data-testid="autoNodeKarpenterCount">
+                      {autoNodeCount} {autoNodeKarpenterHint}
+                    </dd>
+                  </Flex>
+                )}
               </dl>
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -441,7 +474,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                   <>
                     Enables hosted Karpenter to autoscale nodes.
                     {/* <ExternalLink href="https://docs.openshift.com/rosa/...">
-          Learn more about AutoNode
+          Learn more about Autonode
         </ExternalLink> */}
                   </>
                 }
@@ -452,9 +485,9 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                 data-testid="editAutoNodeButton"
                 ariaLabel="Edit Autonode settings"
                 disableReason={
-                  (!cluster?.canEdit && 'You do not have permission to edit AutoNode settings.') ||
+                  (!cluster?.canEdit && 'You do not have permission to edit Autonode settings.') ||
                   (!isAutoNodeVersionValid &&
-                    `Autonode requires cluster version ${AUTO_NODE_MIN_VERSION} or higher.`)
+                    `Autonode requires OpenShift version ${AUTO_NODE_MIN_VERSION} or above.`)
                 }
                 onClick={() => setIsEditAutoNodeModalOpen(true)}
               >
@@ -468,6 +501,9 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                 </div>
               ) : null}
             </DescriptionListDescription>
+            {autoNodeWarningAlert ? (
+              <DescriptionListDescription>{autoNodeWarningAlert}</DescriptionListDescription>
+            ) : null}
           </DescriptionListGroup>
         </>
       )}
