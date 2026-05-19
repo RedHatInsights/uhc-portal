@@ -79,7 +79,7 @@ export const CustomLabels: Story = {
   name: 'Custom column and add button labels',
   args: {
     keyColumnLabel: 'Selector key',
-    valueColumnLabel: 'Values (comma-separated)',
+    valueColumnLabel: 'Value(s) (comma-separated)',
     addButtonLabel: 'Add selector',
     valueInputAriaLabel: 'Selector values',
     initialRows: [{ key: 'app', value: 'frontend,api' }],

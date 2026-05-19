@@ -8,10 +8,9 @@ import {
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/VersionSelectField.fixtures';
 import { CloudProviderType, FieldId } from '~/components/clusters/wizards/common/constants';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
-import { checkAccessibility, mockUseFeatureGate, screen, withState } from '~/testUtils';
+import { checkAccessibility, screen, withState } from '~/testUtils';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import * as versionsSelectHelper from './versionSelectHelper';
@@ -62,9 +61,6 @@ describe('<VersionSelectField />', () => {
   const loadedState = {
     clusters: {
       clusterVersions: loaded,
-    },
-    features: {
-      [UNSTABLE_CLUSTER_VERSIONS]: false,
     },
   };
   const loadedStateUnmatchedVersions = {
@@ -219,7 +215,6 @@ describe('<VersionSelectField />', () => {
   });
 
   it('shows only filtered version by channel group when isEUSEnabled', async () => {
-    mockUseFeatureGate([[UNSTABLE_CLUSTER_VERSIONS, true]]);
     jest.spyOn(versionsSelectHelper, 'hasUnstableVersionsCapability').mockReturnValue(true);
 
     const newProps = {

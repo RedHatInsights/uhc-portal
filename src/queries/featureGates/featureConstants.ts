@@ -23,7 +23,6 @@ export const MULTIREGION_PREVIEW_ENABLED = 'multi-region-support';
 export const CLUSTER_OWNERSHIP_TRANSFER = 'cluster-ownership-transfer';
 export const AUTO_CLUSTER_TRANSFER_OWNERSHIP = 'ocmui-cluster-ownership-transfer';
 export const CREATE_CLUSTER_YAML_EDITOR = 'enable-create-cluster-yaml-editor';
-export const UNSTABLE_CLUSTER_VERSIONS = 'ocmui-unstable-cluster-versions';
 export const EDIT_BILLING_ACCOUNT = 'ocmui-edit-billing-account';
 export const AWS_BILLING_IN_BOUNDARY = 'ocmui-require-aws-billing-in-boundary';
 export const BYPASS_COMPUTE_NODE_COUNT_LIMIT_CLASSIC_OSD_GCP =
@@ -59,7 +58,6 @@ export default {
   MULTIREGION_PREVIEW_ENABLED,
   CLUSTER_OWNERSHIP_TRANSFER,
   CREATE_CLUSTER_YAML_EDITOR,
-  UNSTABLE_CLUSTER_VERSIONS,
   EDIT_BILLING_ACCOUNT,
   AWS_BILLING_IN_BOUNDARY,
   BYPASS_COMPUTE_NODE_COUNT_LIMIT_CLASSIC_OSD_GCP,

@@ -12,7 +12,7 @@
 
    In your app-interface fork, create a new topic branch from `master`.  
    
-   Under the section `# Production Deployment`, update `ref` to the new full-hash from step 2.
+   Under the sections `# Production Deployment` and `# Production Multi-Cluster Deployment`, update `ref` to the new full-hash from step 2.
 
    Commit and push changes, and create an MR against the upstream repo' ([example MR][9]).
       

@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-Ensure you have Node.js and Yarn installed on your system (see package.json for the compatible versions).
+Ensure you have Node.js and npm installed on your system (see package.json for the compatible versions).
 
 ### Install Dependencies
 

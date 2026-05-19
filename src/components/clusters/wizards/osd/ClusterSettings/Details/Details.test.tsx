@@ -16,10 +16,7 @@ import {
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/VersionSelectField.fixtures';
 import { FieldId, initialValues } from '~/components/clusters/wizards/osd/constants';
 import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleStatuses';
-import {
-  MAX_NODES_TOTAL_249,
-  UNSTABLE_CLUSTER_VERSIONS,
-} from '~/queries/featureGates/featureConstants';
+import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
 import { mockUseFeatureGate, render, screen, withState } from '~/testUtils';
@@ -34,9 +31,6 @@ jest.mock('~/services/productLifeCycleService');
 const version = { id: '4.14.0' };
 
 describe('<Details />', () => {
-  beforeEach(() => {
-    mockUseFeatureGate([[UNSTABLE_CLUSTER_VERSIONS, false]]);
-  });
   const defaultValues = {
     ...initialValues,
     [FieldId.CloudProvider]: 'aws',
@@ -230,9 +224,6 @@ describe('<Details />', () => {
     const loadedState = {
       clusters: {
         clusterVersions: loaded,
-      },
-      features: {
-        [UNSTABLE_CLUSTER_VERSIONS]: false,
       },
     };
     beforeEach(() => {

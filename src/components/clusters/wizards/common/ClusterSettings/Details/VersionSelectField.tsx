@@ -13,8 +13,6 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
 import { useOCPLifeCycleStatusData } from '~/components/releases/hooks';
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
@@ -47,8 +45,7 @@ export const VersionSelectField = ({
   const dispatch = useDispatch();
   const organization = useGlobalState((state) => state.userProfile.organization.details);
 
-  const unstableOCPVersionsEnabled =
-    useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
+  const unstableOCPVersionsEnabled = hasUnstableVersionsCapability(organization);
 
   const [input, { touched, error }] = useField(name);
   const { clusterVersions: getInstallableVersionsResponse } = useGlobalState(
@@ -154,18 +151,10 @@ export const VersionSelectField = ({
     () =>
       getVersionsData(
         versions,
-        unstableOCPVersionsEnabled,
         supportVersionMap,
         isEUSChannelEnabled && !isYStreamChannelEnabled ? channelGroup : undefined,
       ),
-    [
-      supportVersionMap,
-      versions,
-      unstableOCPVersionsEnabled,
-      channelGroup,
-      isEUSChannelEnabled,
-      isYStreamChannelEnabled,
-    ],
+    [supportVersionMap, versions, channelGroup, isEUSChannelEnabled, isYStreamChannelEnabled],
   );
 
   return (

@@ -19,8 +19,6 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
 import { useOCPLifeCycleStatusData } from '~/components/releases/hooks';
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
 import { useGlobalState } from '~/redux/hooks';
 import type { Version } from '~/types/clusters_mgmt.v1';
@@ -58,8 +56,7 @@ function VersionSelection({
   } = useFormState();
   const isHypershiftSelected = isHypershift === 'true';
   const organization = useGlobalState((state) => state.userProfile.organization.details);
-  const unstableOCPVersionsEnabled =
-    useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
+  const unstableOCPVersionsEnabled = hasUnstableVersionsCapability(organization);
 
   const dispatch = useDispatch();
   const getInstallableVersionsResponse = useGlobalState((state) => state.clusters.clusterVersions);
@@ -250,7 +247,6 @@ function VersionSelection({
 
     const groupedVersions = getVersionsData(
       filteredVersions,
-      unstableOCPVersionsEnabled,
       supportVersionMap,
       isEUSChannelEnabled && !isYStreamChannelEnabled ? channelGroup : undefined,
     );
@@ -287,7 +283,6 @@ function VersionSelection({
     versions,
     showOnlyCompatibleVersions,
     incompatibleVersionReason,
-    unstableOCPVersionsEnabled,
     supportVersionMap,
     channelGroup,
     isEUSChannelEnabled,

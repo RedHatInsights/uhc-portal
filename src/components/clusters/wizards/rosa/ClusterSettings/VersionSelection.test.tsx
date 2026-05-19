@@ -2,18 +2,11 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import * as helpers from '~/common/helpers';
+import * as versionSelectHelper from '~/components/clusters/wizards/common/ClusterSettings/Details/versionSelectHelper';
 import * as ReleaseHooks from '~/components/releases/hooks';
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
 import { clustersActions } from '~/redux/actions/clustersActions';
 import type { GlobalState } from '~/redux/stateTypes';
-import {
-  checkAccessibility,
-  mockUseFeatureGate,
-  screen,
-  waitFor,
-  within,
-  withState,
-} from '~/testUtils';
+import { checkAccessibility, screen, waitFor, within, withState } from '~/testUtils';
 import { ProductLifeCycle } from '~/types/product-life-cycles';
 
 import { FieldId } from '../constants';
@@ -1160,9 +1153,9 @@ describe('<VersionSelection />', () => {
       expect(filterInput).toHaveValue('');
     });
   });
-  describe('Test feature flag unstable versions', () => {
-    it('hides unstable versions when feature flag is turned off', async () => {
-      mockUseFeatureGate([[UNSTABLE_CLUSTER_VERSIONS, false]]);
+  describe('Unstable versions (organization capability)', () => {
+    it('hides unstable versions when organization lacks non-stable channel capability', async () => {
+      jest.spyOn(versionSelectHelper, 'hasUnstableVersionsCapability').mockReturnValue(false);
       // Arrange
       const state = {
         clusters: { clusterVersions: { ...fulfilledVersionsState, params: { product: 'hcp' } } },
@@ -1189,8 +1182,8 @@ describe('<VersionSelection />', () => {
       expect(screen.queryByRole('option', { name: '4.11.5 (candidate)' })).not.toBeInTheDocument();
       expect(screen.queryByRole('option', { name: '4.11.5 (fast)' })).not.toBeInTheDocument();
     });
-    it('show unstable versions when feature flag is turned on', async () => {
-      mockUseFeatureGate([[UNSTABLE_CLUSTER_VERSIONS, true]]);
+    it('shows unstable versions when organization has non-stable channel capability', async () => {
+      jest.spyOn(versionSelectHelper, 'hasUnstableVersionsCapability').mockReturnValue(true);
       // Arrange
       const state = {
         clusters: { clusterVersions: { ...fulfilledAllVersionsState, params: { product: 'hcp' } } },
