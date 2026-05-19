@@ -4,7 +4,10 @@ import * as Sentry from '@sentry/browser';
 import { useQuery } from '@tanstack/react-query';
 
 import isAssistedInstallSubscription from '~/common/isAssistedInstallerCluster';
-import { fakeClusterFromAISubscription, fakeClusterFromSubscription } from '~/common/normalize';
+import {
+  fakeClusterFromAISubscriptionWithHostsMetrics,
+  fakeClusterFromSubscription,
+} from '~/common/normalize';
 import { assistedService } from '~/services';
 import { Subscription } from '~/types/accounts_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
@@ -20,7 +23,10 @@ const getAIClusterDetails = async (clusterID: string, subscription: Subscription
   if (isAssistedInstallSubscription(subscription) && clusterID) {
     try {
       const aiCluster = await assistedService.getAICluster(clusterID);
-      cluster = fakeClusterFromAISubscription(subscription, aiCluster?.data || null);
+      cluster = await fakeClusterFromAISubscriptionWithHostsMetrics(
+        subscription,
+        aiCluster?.data || null,
+      );
       cluster.aiCluster = aiCluster.data;
     } catch (e) {
       // eslint-disable-next-line no-console
