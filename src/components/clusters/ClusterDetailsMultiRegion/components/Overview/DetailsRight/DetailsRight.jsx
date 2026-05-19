@@ -145,8 +145,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const infraActualNodes = get(cluster, 'metrics.nodes.infra', '-');
   const infraDesiredNodes = get(cluster, 'nodes.infra', '-');
   const cloudProviderId = get(cluster, 'cloud_provider.id', '-');
-  // const autoNodeCount = cluster?.auto_node?.status?.node_count;
-  const autoNodeCount = 5;
+  const autoNodeCount = cluster?.auto_node?.status?.node_count;
 
   const workerActualNodes = totalActualNodes === false ? '-' : totalActualNodes;
   const workerDesiredNodes = totalDesiredComputeNodes || '-';
