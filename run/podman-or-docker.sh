@@ -1,6 +1,6 @@
 #!/bin/bash
 # Exec `podman` (default) or `docker`, with friendly error message.
-# Respects RUNNER env var similarly to insights-proxy scripts, but default differs.
+# Respects RUNNER env var.
 RUNNER="${RUNNER:-podman}"
 
 if which "$RUNNER" > /dev/null; then

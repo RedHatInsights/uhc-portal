@@ -16,21 +16,15 @@
 
 # Default target
 .PHONY: setup
-setup: node_modules insights-proxy-check
+setup: node_modules dev-env-check
 
 .PHONY: node_modules
 node_modules:
-	npm ci
+	npm install
 
 .PHONY: app
 app: node_modules
 	npm run build:prod
-
-# Marking git clones .PHONY so we can git pull even if they already exist.
-
-.PHONY: run/insights-proxy
-run/insights-proxy:
-	[ -e $@ ] || git clone https://github.com/RedHatInsights/insights-proxy --depth=1 $@
 
 .PHONY: openapi
 openapi:
@@ -54,9 +48,9 @@ openapi:
 	npm run prettier:fix
 
 # Patching /etc/hosts is needed (once) for development with local server;
-.PHONY: insights-proxy-check
-.SILENT: insights-proxy-check
-insights-proxy-check: run/insights-proxy
+.PHONY: dev-env-check
+.SILENT: dev-env-check
+dev-env-check:
 	if ! grep --with-filename qa.foo.redhat.com /etc/hosts \
         || ! grep --with-filename prod.foo.redhat.com /etc/hosts; \
 	then \
@@ -66,12 +60,8 @@ insights-proxy-check: run/insights-proxy
 	fi
 
 .PHONY: dev-env-setup
-dev-env-setup: run/insights-proxy
-	sudo bash -x run/insights-proxy/scripts/patch-etc-hosts.sh
-
-.PHONY: insights-proxy-setup
-insights-proxy-setup: dev-env-setup
-	run/podman-or-docker.sh pull quay.io/redhat-sd-devel/insights-proxy:3.2.1
+dev-env-setup: node_modules
+	sudo npm exec -- fec patch-etc-hosts
 
 .PHONY: clean
 clean:
@@ -79,7 +69,4 @@ clean:
 		$(binaries) \
 		dist \
 		node_modules \
-		run/cucushift \
-		run/insights-proxy \
-		run/verification-tests \
 		$(NULL)
