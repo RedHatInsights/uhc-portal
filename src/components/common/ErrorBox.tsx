@@ -62,7 +62,7 @@ const ErrorBox = ({
       isInline
       title={message}
       role={variant === 'danger' || forceAsAlert ? 'alert' : undefined}
-      className="error-box"
+      className="pf-v6-u-mb-sm"
       data-testid="alert-error"
       {...(showCloseBtn && closeAlertProp)}
     >

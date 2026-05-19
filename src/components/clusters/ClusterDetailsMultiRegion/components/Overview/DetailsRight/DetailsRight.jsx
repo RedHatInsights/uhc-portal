@@ -1,6 +1,7 @@
 import React from 'react';
 import get from 'lodash/get';
 import PropTypes from 'prop-types';
+import semver from 'semver';
 
 import {
   DescriptionList,
@@ -24,8 +25,11 @@ import clusterStates, {
 import ClusterStatusErrorDisplay from '~/components/clusters/common/ClusterStatusErrorDisplay';
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
 import { IMDSType } from '~/components/clusters/wizards/common';
+import EditButton from '~/components/common/EditButton';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
+import { ENABLE_AUTO_NODE } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
@@ -39,6 +43,7 @@ import totalNodesDataSelector from '../../../../common/totalNodesDataSelector';
 import { isArchivedSubscription } from '../../../clusterDetailsHelper';
 import SecurityGroupsDisplayByNode from '../../SecurityGroups/SecurityGroupsDetailDisplay';
 import ClusterNetwork from '../ClusterNetwork';
+import EditAutoNodeModal from '../EditAutoNodeModal/EditAutoNodeModal';
 
 import DeleteProtection from './DeleteProtection/DeleteProtection';
 import { ClusterStatus } from './ClusterStatus';
@@ -49,6 +54,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const clusterID = cluster?.id;
   const clusterVersionID = cluster?.version?.id;
   const clusterRawVersionID = cluster?.version?.raw_id;
+  const isAutoNodeAllowed = useFeatureGate(ENABLE_AUTO_NODE) && isHypershift;
 
   const { data: machinePools } = useFetchMachineOrNodePools(
     clusterID,
@@ -62,6 +68,15 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
 
   const [hasAutoscaleMachinePools, setHasAutoscaleMachinePools] = React.useState();
   const [limitedSupport, setLimitedSupport] = React.useState();
+  const [isEditAutoNodeModalOpen, setIsEditAutoNodeModalOpen] = React.useState(false);
+
+  const AUTO_NODE_MIN_VERSION = '4.22.0';
+  const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
+
+  const coercedVersion = semver.coerce(clusterVersion);
+  const isAutoNodeVersionValid = semver.coerce(coercedVersion)
+    ? semver.gte(coercedVersion, AUTO_NODE_MIN_VERSION)
+    : false;
 
   const {
     hasMachinePoolWithAutoscaling,
@@ -404,6 +419,57 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
             </span>
           </DescriptionListDescription>
         </DescriptionListGroup>
+      )}
+      {/* Autonode */}
+      {isAutoNodeAllowed && (
+        <>
+          {isEditAutoNodeModalOpen && (
+            <EditAutoNodeModal
+              cluster={cluster}
+              region={region}
+              onClose={() => setIsEditAutoNodeModalOpen(false)}
+            />
+          )}
+          <DescriptionListGroup>
+            <DescriptionListTerm>
+              Autonode
+              <PopoverHint
+                id="autonode-hint"
+                iconClassName="nodes-hint"
+                buttonAriaLabel="More information about Autonode"
+                hint={
+                  <>
+                    Enables hosted Karpenter to autoscale nodes.
+                    {/* <ExternalLink href="https://docs.openshift.com/rosa/...">
+          Learn more about AutoNode
+        </ExternalLink> */}
+                  </>
+                }
+              />
+            </DescriptionListTerm>
+            <DescriptionListDescription>
+              <EditButton
+                data-testid="editAutoNodeButton"
+                ariaLabel="Edit Autonode settings"
+                disableReason={
+                  (!cluster?.canEdit && 'You do not have permission to edit AutoNode settings.') ||
+                  (!isAutoNodeVersionValid &&
+                    `Autonode requires cluster version ${AUTO_NODE_MIN_VERSION} or higher.`)
+                }
+                onClick={() => setIsEditAutoNodeModalOpen(true)}
+              >
+                <span data-testid="autoNodeStatus">
+                  {cluster?.auto_node?.mode === 'enabled' ? 'Enabled' : 'Disabled'}
+                </span>
+              </EditButton>
+              {cluster?.auto_node?.mode === 'enabled' && cluster?.aws?.auto_node?.role_arn ? (
+                <div className="pf-v6-u-color-200 pf-v6-u-font-size-sm">
+                  {cluster.aws.auto_node.role_arn}
+                </div>
+              ) : null}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        </>
       )}
       {/* Network */}
       <ClusterNetwork cluster={cluster} />
