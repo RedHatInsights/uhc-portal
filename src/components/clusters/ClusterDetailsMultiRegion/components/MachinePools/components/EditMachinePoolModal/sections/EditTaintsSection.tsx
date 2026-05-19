@@ -39,7 +39,8 @@ const EditTaintsSection = ({
   machineTypes,
 }: EditTaintsSectionProps) => {
   const [input] = useField<EditMachinePoolValues['taints']>('taints');
-  const { setFieldTouched } = useFormikContext() || {};
+  // Fallback needed for tests that mock useField but not useFormikContext
+  const { setFieldTouched } = useFormikContext() ?? {};
   const isDefaultMP =
     !!machinePoolId &&
     isEnforcedDefaultMachinePool(machinePoolId, machinePools, machineTypes, cluster);
@@ -92,12 +93,7 @@ const EditTaintsSection = ({
                           <TextField fieldId={keyField} isDisabled={!!taintsDisabledReason} />
                         </GridItem>
                         <GridItem span={4}>
-                          <div
-                            onBlur={() =>
-                              setFieldTouched &&
-                              setTimeout(() => setFieldTouched(keyField, true, true))
-                            }
-                          >
+                          <div onBlur={() => setFieldTouched?.(keyField, true, true)}>
                             <TextField fieldId={valueField} isDisabled={!!taintsDisabledReason} />
                           </div>
                         </GridItem>
@@ -105,6 +101,7 @@ const EditTaintsSection = ({
                           <TaintEffectField
                             fieldId={effectField}
                             isDisabled={!!taintsDisabledReason}
+                            setFieldTouched={setFieldTouched}
                           />
                         </GridItem>
                         <GridItem span={1}>

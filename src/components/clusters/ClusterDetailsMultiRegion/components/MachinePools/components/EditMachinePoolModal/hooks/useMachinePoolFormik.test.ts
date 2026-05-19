@@ -460,7 +460,7 @@ describe('useMachinePoolFormik', () => {
       });
     });
 
-    describe('Regression: OCMUI-3779 - taints validation', () => {
+    describe('taints validation', () => {
       it('allows initial empty taint row with default effect', async () => {
         const { validationSchema } = renderHook(() =>
           useMachinePoolFormik({
