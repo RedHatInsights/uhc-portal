@@ -470,14 +470,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                 id="autonode-hint"
                 iconClassName="nodes-hint"
                 buttonAriaLabel="More information about Autonode"
-                hint={
-                  <>
-                    Enables hosted Karpenter to autoscale nodes.
-                    {/* <ExternalLink href="https://docs.openshift.com/rosa/...">
-          Learn more about Autonode
-        </ExternalLink> */}
-                  </>
-                }
+                hint="Enables hosted Karpenter to autoscale nodes."
               />
             </DescriptionListTerm>
             <DescriptionListDescription>

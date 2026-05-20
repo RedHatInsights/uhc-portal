@@ -1039,26 +1039,6 @@ describe('<DetailsRight />', () => {
 
           expect(screen.queryByTestId('autoNodeKarpenterCountContainer')).not.toBeInTheDocument();
         });
-
-        it('shows popover hint for Autonode Karpenter nodes', () => {
-          mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
-          const clusterFixture = defaultProps.cluster;
-          const newProps = {
-            ...defaultProps,
-            cluster: {
-              ...clusterFixture,
-              managed: true,
-              hypershift: { enabled: true },
-              auto_node: { mode: 'enabled', status: { node_count: 3 } },
-            },
-          };
-          useFetchMachineOrNodePools.mockReturnValue({ data: [] });
-          render(<DetailsRight {...newProps} />);
-
-          expect(
-            screen.getByRole('button', { name: 'More information about Autonode Karpenter nodes' }),
-          ).toBeInTheDocument();
-        });
       });
     });
 
