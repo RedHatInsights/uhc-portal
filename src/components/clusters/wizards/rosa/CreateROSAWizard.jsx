@@ -194,18 +194,6 @@ const CreateROSAWizardInternal = ({
 
     trackStepChange(trackEvent, currentStep.id);
 
-    const logForwardingConfigured =
-      values[FieldId.LogForwardingS3Enabled] || values[FieldId.LogForwardingCloudWatchEnabled];
-    if (
-      scope === WizardStepChangeScope.Next &&
-      prevStep?.id === stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING &&
-      isHcpLogForwardingEnabled &&
-      isHypershiftSelected &&
-      logForwardingConfigured
-    ) {
-      track('Log Forwarding Configured', { context: 'cluster_creation' });
-    }
-
     closeDrawer({ skipOnClose: true });
   };
 
@@ -283,6 +271,19 @@ const CreateROSAWizardInternal = ({
                   getUserRoleInfo={() => getUserRole()}
                   isSubmitting={createClusterResponse.pending}
                   onWizardContextChange={onWizardContextChange}
+                  onValidNextStep={(fromStepId) => {
+                    const logForwardingConfigured =
+                      values[FieldId.LogForwardingS3Enabled] ||
+                      values[FieldId.LogForwardingCloudWatchEnabled];
+                    if (
+                      fromStepId === stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING &&
+                      isHcpLogForwardingEnabled &&
+                      isHypershiftSelected &&
+                      logForwardingConfigured
+                    ) {
+                      track('Log Forwarding Configured', { context: 'cluster_creation' });
+                    }
+                  }}
                 />
               </>
             }

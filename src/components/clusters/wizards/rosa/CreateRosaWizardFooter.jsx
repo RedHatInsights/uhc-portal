@@ -40,6 +40,7 @@ const CreateRosaWizardFooter = ({
   getUserRoleInfo,
   isSubmitting = false,
   onWizardContextChange,
+  onValidNextStep,
 }) => {
   const { goToNextStep, goToPrevStep, close, activeStep, steps, setStep, goToStepById } =
     useWizardContext();
@@ -112,6 +113,7 @@ const CreateRosaWizardFooter = ({
       }
     }
 
+    onValidNextStep?.(currentStepId);
     goToNextStep();
   };
 
@@ -192,6 +194,7 @@ CreateRosaWizardFooter.propTypes = {
   getUserRoleInfo: PropTypes.func.isRequired,
   isSubmitting: PropTypes.bool,
   onWizardContextChange: PropTypes.func.isRequired,
+  onValidNextStep: PropTypes.func,
 };
 
 export default CreateRosaWizardFooter;
