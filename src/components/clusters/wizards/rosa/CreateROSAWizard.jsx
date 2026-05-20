@@ -81,7 +81,7 @@ const trackWizardNavigation = (track, event, currentStepId = '') => {
 };
 
 const CreateROSAWizardInternal = ({
-  activeStepIdRef,
+  onActiveStepIdChange,
   isHypershiftEnabled,
   isHcpLogForwardingEnabled,
   isHypershiftSelected,
@@ -175,9 +175,7 @@ const CreateROSAWizardInternal = ({
   const onStepChange = (_event, currentStep, prevStep, scope) => {
     setCurrentStep(currentStep);
     setCurrentStepId(currentStep.id);
-    // Keep the ref in sync so the Formik validate function sees the current step.
-    // eslint-disable-next-line no-param-reassign
-    activeStepIdRef.current = currentStep.id;
+    onActiveStepIdChange(currentStep.id);
 
     let trackEvent;
 
@@ -487,9 +485,7 @@ const requestStatePropTypes = PropTypes.shape({
 });
 
 CreateROSAWizardInternal.propTypes = {
-  activeStepIdRef: PropTypes.shape({
-    current: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  }).isRequired,
+  onActiveStepIdChange: PropTypes.func.isRequired,
   installToVPCSelected: PropTypes.bool,
   privateLinkSelected: PropTypes.bool,
   configureProxySelected: PropTypes.bool,
@@ -537,6 +533,9 @@ CreateROSAWizardInternal.propTypes = {
 const CreateROSAWizardFormik = (props) => {
   const { onSubmit, track } = props;
   const activeStepIdRef = React.useRef();
+  const onActiveStepIdChange = React.useCallback((id) => {
+    activeStepIdRef.current = id;
+  }, []);
   return (
     <Formik
       initialValues={isRestrictedEnv() ? initialValuesRestrictedEnv : initialValues()}
@@ -548,7 +547,7 @@ const CreateROSAWizardFormik = (props) => {
         onSubmit(formikValues);
       }}
     >
-      <CreateROSAWizard {...props} activeStepIdRef={activeStepIdRef} />
+      <CreateROSAWizard {...props} onActiveStepIdChange={onActiveStepIdChange} />
     </Formik>
   );
 };
