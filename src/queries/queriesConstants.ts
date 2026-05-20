@@ -18,4 +18,5 @@ export const queryConstants = {
   FETCH_ORG_AND_QUOTA: 'fetchOrganizationAndQuota',
   FETCH_CAN_CREATE_MANAGED_CLUSTER: 'fetchCanCreateManagedCluster',
   FETCH_LOG_FORWARDING_GROUPS: 'fetchLogForwardingGroups',
+  FETCH_LOG_FORWARDING_APPLICATIONS: 'fetchLogForwardingApplications',
 };

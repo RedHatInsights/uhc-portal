@@ -32,6 +32,7 @@ import type {
   KubeletConfig,
   LimitedSupportReason,
   Log,
+  LogForwarderApplication,
   LogForwarderGroupVersions,
   MachinePool,
   MachineType,
@@ -1277,6 +1278,19 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         size?: number;
         total?: number;
       }>('/api/clusters_mgmt/v1/log_forwarding/groups', { params }),
+
+    getLogForwardingApplications: (params?: {
+      order?: string;
+      page?: number;
+      search?: string;
+      size?: number;
+    }) =>
+      apiRequest.get<{
+        items?: LogForwarderApplication[];
+        page?: number;
+        size?: number;
+        total?: number;
+      }>('/api/clusters_mgmt/v1/log_forwarding/applications', { params }),
   };
 }
 
