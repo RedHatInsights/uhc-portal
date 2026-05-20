@@ -2,7 +2,8 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import { useFormState } from '~/components/clusters/wizards/hooks';
-import { render, screen } from '~/testUtils';
+import { HTPASSWD_IMPORT } from '~/queries/featureGates/featureConstants';
+import { mockUseFeatureGate, render, screen } from '~/testUtils';
 
 import { FieldId } from '../../constants';
 
@@ -60,6 +61,7 @@ describe('HTPasswdForm', () => {
           },
         ],
       },
+      touched: {},
       setFieldValue: jest.fn(),
       getFieldProps: jest.fn(),
       getFieldMeta: jest.fn().mockReturnValue({ error: 'ERROR' }),
@@ -72,7 +74,44 @@ describe('HTPasswdForm', () => {
     expect(await screen.findByRole('button', { name: 'Add user' })).toBeDisabled();
   });
 
+  it('does not show mode selection radio buttons when feature flag is off', () => {
+    mockUseFeatureGate([[HTPASSWD_IMPORT, false]]);
+    mockedUseFormState.mockReturnValue({
+      values: { ...initialValues },
+      errors: {},
+      setFieldValue: jest.fn(),
+      getFieldProps: jest.fn(),
+      getFieldMeta: jest.fn().mockReturnValue({ error: undefined }),
+    });
+
+    render(buildTestComponent(<HTPasswdForm />));
+
+    expect(screen.queryByRole('radio', { name: 'Add users manually' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('radio', { name: 'Upload an htpasswd file' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows mode selection radio buttons when feature flag is on', () => {
+    mockUseFeatureGate([[HTPASSWD_IMPORT, true]]);
+
+    mockedUseFormState.mockReturnValue({
+      values: { ...initialValues },
+      errors: {},
+      setFieldValue: jest.fn(),
+      getFieldProps: jest.fn(),
+      getFieldMeta: jest.fn().mockReturnValue({ error: undefined }),
+    });
+
+    render(buildTestComponent(<HTPasswdForm />));
+
+    expect(screen.getByRole('radio', { name: 'Add users manually' })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Upload an htpasswd file' })).toBeInTheDocument();
+  });
+
   it('shows disabled Add user while fields have errors', async () => {
+    mockUseFeatureGate([[HTPASSWD_IMPORT, false]]);
+
     mockedUseFormState.mockReturnValue({
       values: { ...initialValues },
       errors: {
@@ -89,6 +128,7 @@ describe('HTPasswdForm', () => {
           },
         ],
       },
+      touched: {},
       setFieldValue: jest.fn(),
       getFieldProps: jest.fn(),
       getFieldMeta: jest.fn().mockReturnValue({ error: 'ERROR' }),

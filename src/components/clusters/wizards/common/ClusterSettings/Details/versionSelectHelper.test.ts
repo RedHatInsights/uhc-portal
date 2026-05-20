@@ -163,8 +163,8 @@ const stateWithoutNonStableChannelGroupCapability = {
 };
 
 describe('VersionSelectHelper', () => {
-  it('returns correct versions data for stable and unstable channels', () => {
-    expect(getVersionsData(satbleVersions, false, supportMap)).toEqual(stableExpected);
+  it('returns only stable groups when input has no non-stable versions (no empty bucket keys)', () => {
+    expect(getVersionsData(satbleVersions, supportMap)).toEqual(stableExpected);
   });
 
   it('returns correct versions data for stable and unstable channels', () => {
@@ -193,21 +193,21 @@ describe('VersionSelectHelper', () => {
         },
       ],
     };
-    expect(getVersionsData(stableAndUnstableVersions, true, supportMap)).toEqual(expected);
+    expect(getVersionsData(stableAndUnstableVersions, supportMap)).toEqual(expected);
   });
 
   it('returns filtered fast versions by channel group', () => {
     const expected = [
       { entryId: 'openshift-v4.15.28-fast', label: '4.15.28 (fast)', groupKey: 'fast' },
     ];
-    expect(getVersionsData(stableAndUnstableVersions, true, supportMap, 'fast')).toEqual(expected);
+    expect(getVersionsData(stableAndUnstableVersions, supportMap, 'fast')).toEqual(expected);
   });
 
   it('returns filtered eus versions by channel group', () => {
     const expected = [
       { entryId: 'openshift-v4.15.24-eus', label: '4.15.24 (eus)', groupKey: 'eus' },
     ];
-    expect(getVersionsData(stableAndUnstableVersions, true, supportMap, 'eus')).toEqual(expected);
+    expect(getVersionsData(stableAndUnstableVersions, supportMap, 'eus')).toEqual(expected);
   });
 });
 

@@ -44,7 +44,7 @@ describe('DefaultIngressFields', () => {
         within(excludeSelectorsSection).getByRole('button', { name: 'More information' }),
       ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Add selector' })).toBeInTheDocument();
-      expect(screen.getByText('Values (comma-separated)')).toBeInTheDocument();
+      expect(screen.getByText('Value(s) (comma-separated)')).toBeInTheDocument();
     });
 
     it('shows protected-namespace validation after entering openshift-console as a selector value', async () => {

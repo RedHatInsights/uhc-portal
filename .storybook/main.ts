@@ -1,3 +1,5 @@
+import path from 'path';
+
 import type { StorybookConfig } from '@storybook/react-webpack5';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import webpack from 'webpack';
@@ -65,6 +67,13 @@ const config: StorybookConfig = {
           extensions: config.resolve.extensions,
         }),
       ];
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@redhat-cloud-services/frontend-components/useChrome': path.resolve(
+          __dirname,
+          'mocks/useChrome.ts',
+        ),
+      };
     }
     // Match fec.config.js DefinePlugin so `src/config.ts` and anything importing API services load.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Storybook bundles webpack; plugin types differ from root `webpack`.

@@ -528,11 +528,13 @@ describe('<Details />', () => {
       {
         id: 'openshift-v4.12.1',
         raw_id: '4.12.1',
+        channel_group: 'stable',
         rosa_enabled: true,
       },
       {
         id: 'openshift-v4.18.1',
         raw_id: '4.18.1',
+        channel_group: 'stable',
         rosa_enabled: true,
       },
     ];

@@ -41,7 +41,6 @@ type GetInstallableVersionsResponse = {
 
 const getVersionsData = (
   versions: Version[],
-  unstableVersionsIncluded: boolean,
   supportVersionMap?: SupportMap,
   channelGroupSelected?: string,
 ) => {
@@ -56,10 +55,7 @@ const getVersionsData = (
   versions.forEach((version: Version) => {
     const { raw_id: versionRawId, id: versionId, channel_group: channelGroup } = version;
     if (versionRawId && versionId) {
-      if (
-        (!unstableVersionsIncluded && channelGroup !== channelGroups.EUS) ||
-        channelGroup === channelGroups.STABLE
-      ) {
+      if (channelGroup === channelGroups.STABLE) {
         const createMajorMinorVersion = (rawId: string) => {
           const versionObject = semver.parse(rawId);
 
@@ -86,43 +82,27 @@ const getVersionsData = (
         return;
       }
 
-      if (unstableVersionsIncluded) {
-        const versionEntry = {
-          entryId: versionId,
-          label: `${versionRawId} (${channelGroup})`,
-          groupKey: channelGroup,
-        };
+      const versionEntry = {
+        entryId: versionId,
+        label: `${versionRawId} (${channelGroup})`,
+        groupKey: channelGroup,
+      };
 
-        switch (channelGroup) {
-          case channelGroups.CANDIDATE:
-            candidate.push(versionEntry);
-            break;
-          case channelGroups.NIGHTLY:
-            nightly.push(versionEntry);
-            break;
-          case channelGroups.FAST:
-            fast.push(versionEntry);
-            break;
-          case channelGroups.EUS:
-            eus.push(versionEntry);
-            break;
-          default:
-            break;
-        }
-      } else {
-        const versionEntry = {
-          entryId: versionId,
-          label: `${versionRawId} (${channelGroup})`,
-          groupKey: channelGroup,
-        };
-
-        switch (channelGroup) {
-          case channelGroups.EUS:
-            eus.push(versionEntry);
-            break;
-          default:
-            break;
-        }
+      switch (channelGroup) {
+        case channelGroups.CANDIDATE:
+          candidate.push(versionEntry);
+          break;
+        case channelGroups.NIGHTLY:
+          nightly.push(versionEntry);
+          break;
+        case channelGroups.FAST:
+          fast.push(versionEntry);
+          break;
+        case channelGroups.EUS:
+          eus.push(versionEntry);
+          break;
+        default:
+          break;
       }
     }
   });
@@ -151,15 +131,13 @@ const getVersionsData = (
     }
   }
 
-  return unstableVersionsIncluded
-    ? {
-        ...stableVersions,
-        Candidate: candidate,
-        Nightly: nightly,
-        Fast: fast,
-        EUS: eus,
-      }
-    : stableVersions;
+  return {
+    ...stableVersions,
+    ...(candidate.length ? { Candidate: candidate } : {}),
+    ...(nightly.length ? { Nightly: nightly } : {}),
+    ...(fast.length ? { Fast: fast } : {}),
+    ...(eus.length ? { EUS: eus } : {}),
+  };
 };
 
 const hasUnstableVersionsCapability = (organization?: Organization) =>

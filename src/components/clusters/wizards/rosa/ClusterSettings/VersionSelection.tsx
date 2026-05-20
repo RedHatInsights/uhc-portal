@@ -19,8 +19,6 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
 import { useOCPLifeCycleStatusData } from '~/components/releases/hooks';
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
 import { useGlobalState } from '~/redux/hooks';
 import type { Version } from '~/types/clusters_mgmt.v1';
@@ -58,8 +56,7 @@ function VersionSelection({
   } = useFormState();
   const isHypershiftSelected = isHypershift === 'true';
   const organization = useGlobalState((state) => state.userProfile.organization.details);
-  const unstableOCPVersionsEnabled =
-    useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
+  const unstableOCPVersionsEnabled = hasUnstableVersionsCapability(organization);
 
   const dispatch = useDispatch();
   const getInstallableVersionsResponse = useGlobalState((state) => state.clusters.clusterVersions);
@@ -190,30 +187,30 @@ function VersionSelection({
       const targetChannelGroup =
         isEUSChannelEnabled && channelGroup ? channelGroup : channelGroups.STABLE;
 
-      const defaultVersion = versions.find((version) => version.default === true);
+      const inTargetChannel = (version: Version) => version.channel_group === targetChannelGroup;
 
-      const defaultRosaVersion = versions.find(
-        (version) => isValidRosaVersion(version) && version.channel_group === targetChannelGroup,
+      const isValidVersion = (version: Version) =>
+        (!isHypershiftSelected || version.hosted_control_plane_enabled === true) &&
+        isValidRosaVersion(version) &&
+        inTargetChannel(version);
+
+      const defaultVersion = versions.find(
+        (version) =>
+          (isHypershiftSelected
+            ? version.hosted_control_plane_default === true
+            : version.default === true) && isValidVersion(version),
       );
 
-      const defaultHypershiftVersion =
-        isHypershiftSelected &&
-        versions.find(
-          (version) =>
-            version.hosted_control_plane_enabled && version.channel_group === targetChannelGroup,
-        );
+      const latestVersion = versions.find((version) => isValidVersion(version));
 
-      if (!defaultRosaVersion || (isHypershiftSelected && !defaultHypershiftVersion)) {
+      const version = defaultVersion ?? latestVersion;
+
+      if (!version) {
         setRosaVersionError(true);
         return;
       }
 
       setRosaVersionError(false);
-
-      // default to max: hypershift version supported (if hypershift), rosa version supported, version.default, or first version in list
-      const version =
-        defaultHypershiftVersion || defaultRosaVersion || defaultVersion || versions[0];
-
       setValue(version);
       onChange(version);
     }
@@ -250,7 +247,6 @@ function VersionSelection({
 
     const groupedVersions = getVersionsData(
       filteredVersions,
-      unstableOCPVersionsEnabled,
       supportVersionMap,
       isEUSChannelEnabled && !isYStreamChannelEnabled ? channelGroup : undefined,
     );
@@ -287,7 +283,6 @@ function VersionSelection({
     versions,
     showOnlyCompatibleVersions,
     incompatibleVersionReason,
-    unstableOCPVersionsEnabled,
     supportVersionMap,
     channelGroup,
     isEUSChannelEnabled,

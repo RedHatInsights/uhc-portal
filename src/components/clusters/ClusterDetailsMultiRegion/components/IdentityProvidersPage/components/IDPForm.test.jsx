@@ -1,6 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
+import docLinks from '~/common/docLinks.mjs';
 import { render, screen } from '~/testUtils';
 
 import { IdentityProvidersPageFormInitialValues } from './IdentityProvidersPageFormikHelpers';
@@ -323,7 +324,7 @@ describe('IDPForm', () => {
       ...defaultProps,
       idpName: 'My htpasswd IDP',
       idpTypeName: 'HTPASSWD',
-      formTitle: 'Add an HTPasswd identity provider',
+      formTitle: 'Add an htpasswd identity provider',
       selectedIDP: 'HTPasswdIdentityProvider',
     };
     it('displays the correct title and helper text', () => {
@@ -332,7 +333,7 @@ describe('IDPForm', () => {
       );
 
       expect(
-        screen.getByRole('heading', { name: 'Add an HTPasswd identity provider' }),
+        screen.getByRole('heading', { name: 'Add an htpasswd identity provider' }),
       ).toBeInTheDocument();
 
       expect(
@@ -354,6 +355,39 @@ describe('IDPForm', () => {
       expect(screen.getByText(/Users list/)).toBeInTheDocument();
 
       // No Advanced options
+    });
+
+    it('links to OSD admin roles docs for non-ROSA clusters', () => {
+      render(
+        buildTestComponent(htpasswdDefaultProps.selectedIDP, <IDPForm {...htpasswdDefaultProps} />),
+      );
+
+      const link = screen.getByRole('link', { name: /administrative group/ });
+      expect(link).toHaveAttribute('href', docLinks.OSD_DEDICATED_ADMIN_ROLE);
+    });
+
+    it('links to ROSA Classic authentication docs for ROSA Classic clusters', () => {
+      render(
+        buildTestComponent(
+          htpasswdDefaultProps.selectedIDP,
+          <IDPForm {...htpasswdDefaultProps} isROSACluster />,
+        ),
+      );
+
+      const link = screen.getByRole('link', { name: /administrative group/ });
+      expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_AUTH_HTPASSWD_CONFIG);
+    });
+
+    it('links to ROSA HCP authentication docs for ROSA HCP clusters', () => {
+      render(
+        buildTestComponent(
+          htpasswdDefaultProps.selectedIDP,
+          <IDPForm {...htpasswdDefaultProps} isROSACluster isHypershift />,
+        ),
+      );
+
+      const link = screen.getByRole('link', { name: /administrative group/ });
+      expect(link).toHaveAttribute('href', docLinks.ROSA_HCP_AUTH_HTPASSWD_CONFIG);
     });
 
     it('does not displays mapping method ', () => {

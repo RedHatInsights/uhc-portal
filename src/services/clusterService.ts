@@ -202,6 +202,16 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         { password, username },
       ),
 
+    createHtpasswdUserFromFile: (
+      clusterID: string,
+      idpID: string,
+      users: { username: string; hashed_password: string }[],
+    ) =>
+      apiRequest.post<unknown>(
+        `/api/clusters_mgmt/v1/clusters/${clusterID}/identity_providers/${idpID}/htpasswd_users/import`,
+        { items: users },
+      ),
+
     editHtpasswdUser: (clusterID: string, idpID: string, userId: string, password: string) =>
       apiRequest.patch<unknown>(
         `/api/clusters_mgmt/v1/clusters/${clusterID}/identity_providers/${idpID}/htpasswd_users/${userId}`,
@@ -525,7 +535,7 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
           product: isHCP ? 'hcp' : undefined,
           // Internal users can test other channels via `ocm` CLI, no UI needed.
           // For external users, make sure we only offer stable channel.
-          search: `enabled='t' AND (channel_group='stable' OR channel_group='eus'${includeUnstableVersions ? " OR channel_group='candidate' OR channel_group='fast' OR channel_group='nightly'" : ''})${isRosa ? " AND rosa_enabled='t'" : ''}${
+          search: `enabled='t' AND (channel_group='stable' OR channel_group='eus' OR channel_group='candidate' OR channel_group='fast' OR channel_group='nightly')${isRosa ? " AND rosa_enabled='t'" : ''}${
             isMarketplaceGcp ? " AND gcp_marketplace_enabled='t'" : ''
           }${isWIF ? " AND wif_enabled='t'" : ''}`,
           size: -1,

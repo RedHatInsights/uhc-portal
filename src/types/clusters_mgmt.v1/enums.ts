@@ -12830,6 +12830,55 @@ export interface paths {
     };
     trace?: never;
   };
+  '/api/clusters_mgmt/v1/register_cluster': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Adds an existing cluster to the collection. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['ClusterRegistration'];
+        };
+      };
+      responses: {
+        /** @description Success. */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Cluster'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/clusters_mgmt/v1/registry_allowlists': {
     parameters: {
       query?: never;
@@ -13631,6 +13680,8 @@ export interface components {
       };
       /** @description Role ARN for VPC Endpoint Service cross account role. */
       vpc_endpoint_role_arn?: string;
+      /** @description Zero egress configuration. */
+      zero_egress?: components['schemas']['ZeroEgress'];
     };
     /** @description Backup configuration for AWS clusters */
     AWSBackupConfig: {
@@ -17707,6 +17758,14 @@ export interface components {
      * @enum {string}
      */
     WildcardPolicy: WildcardPolicy;
+    /** @description Zero egress configuration. */
+    ZeroEgress: {
+      /** @description Indicates if zero egress is enabled for this cluster. */
+      enabled?: boolean;
+      /** @description List of default no-proxy domains automatically added to the cluster's
+       *     no-proxy configuration when zero egress is enabled. */
+      no_proxy_default_domains?: string[];
+    };
     Error: {
       /** @description Indicates the type of this object. Will always be 'Error' */
       kind?: string;
@@ -18034,6 +18093,7 @@ export type SchemaWifSecretRef = components['schemas']['WifSecretRef'];
 export type SchemaWifServiceAccount = components['schemas']['WifServiceAccount'];
 export type SchemaWifSupport = components['schemas']['WifSupport'];
 export type SchemaWildcardPolicy = components['schemas']['WildcardPolicy'];
+export type SchemaZeroEgress = components['schemas']['ZeroEgress'];
 export type SchemaError = components['schemas']['Error'];
 export type $defs = Record<string, never>;
 export enum AWSInfrastructureAccessRoleGrantState {

@@ -23,6 +23,7 @@ import { ReleasesPage } from '../page-objects/releases-page';
 import { RosaGetStartedPage } from '../page-objects/rosa-getstarted-page';
 import { SubscriptionsPage } from '../page-objects/subscriptions-page';
 import { TokensPage } from '../page-objects/tokens-page';
+import { ClusterIdentityProviderPage } from '../page-objects/cluster-identity-provider-page';
 import { CustomCommands } from '../support/custom-commands';
 import { STORAGE_STATE_PATH } from '../support/playwright-constants';
 
@@ -55,6 +56,7 @@ type WorkerFixtures = {
   subscriptionsPage: SubscriptionsPage;
   tokensPage: TokensPage;
   customCommands: CustomCommands;
+  clusterIdentityProviderPage: ClusterIdentityProviderPage;
 };
 
 /**
@@ -295,6 +297,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     async ({ authenticatedPage }, use) => {
       const customCommands = new CustomCommands(authenticatedPage);
       await use(customCommands);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: ClusterIdentityProviderPage instance - created once, reused across all tests in suite
+  clusterIdentityProviderPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new ClusterIdentityProviderPage(authenticatedPage);
+      await use(pageObject);
     },
     { scope: 'worker' },
   ],

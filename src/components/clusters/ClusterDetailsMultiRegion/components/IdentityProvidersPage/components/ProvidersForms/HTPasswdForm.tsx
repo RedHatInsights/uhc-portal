@@ -1,18 +1,31 @@
 import React from 'react';
 
-import { HelperText, HelperTextItem } from '@patternfly/react-core';
+import {
+  Content,
+  ContentVariants,
+  Flex,
+  HelperText,
+  HelperTextItem,
+  Radio,
+  Title,
+} from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 
+import docLinks from '~/common/docLinks.mjs';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { CompoundFieldArray } from '~/components/common/FormikFormComponents/FormikFieldArray/CompoundFieldArray';
+import { HTPASSWD_IMPORT } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import {
   validateHTPasswdPassword,
   validateHTPasswdUsername,
   validateUniqueHTPasswdUsername,
 } from '../../../../../../../common/validators';
-import { FieldId } from '../../constants';
+import { CREATION_MODE_MANUAL, CREATION_MODE_UPLOAD, CreationMode, FieldId } from '../../constants';
+
+import HTPasswdFileUpload from './HTPasswdFileUpload';
 
 import './HTPasswdForm.scss';
 
@@ -141,7 +154,20 @@ const HTPasswdForm = ({
   isEdit?: boolean;
   user?: any;
 }) => {
-  const { getFieldMeta, setFieldValue } = useFormState();
+  const { getFieldMeta, setFieldValue, values } = useFormState();
+  const isImportEnabled = useFeatureGate(HTPASSWD_IMPORT);
+  const creationMode: CreationMode = isImportEnabled
+    ? values[FieldId.CREATION_MODE]
+    : CREATION_MODE_MANUAL;
+
+  const handleModeChange = (mode: CreationMode) => {
+    setFieldValue(FieldId.CREATION_MODE, mode);
+    setFieldValue(
+      FieldId.USERS,
+      mode === CREATION_MODE_UPLOAD ? [] : [{ username: '', password: '', 'password-confirm': '' }],
+    );
+  };
+
   const getAutocompleteText = (value: string) => (
     <div>
       Use suggested password:
@@ -164,7 +190,6 @@ const HTPasswdForm = ({
   const addMoreButtonDisabled = error && error?.length !== 0;
 
   const isEditUser = isEdit && !!user;
-
   const userName = {
     name: 'username',
     label: 'Username',
@@ -197,19 +222,69 @@ const HTPasswdForm = ({
     },
   ];
 
+  const showModeSelection = isImportEnabled && !isEditUser && !onlySingleItem;
+
   return (
-    <CompoundFieldArray
-      fieldSpan={11}
-      compoundFields={compoundFields}
-      label="Users list"
-      addMoreTitle="Add user"
-      isRequired
-      disabled={isPending}
-      validate={[validateUniqueHTPasswdUsername]}
-      addMoreButtonDisabled={addMoreButtonDisabled}
-      minusButtonDisabledMessage="To delete the static user, add another user first."
-      onlySingleItem={onlySingleItem}
-    />
+    <>
+      {showModeSelection && (
+        <>
+          <Title headingLevel="h4" size="md" id="htpasswd-creation-mode-label">
+            Create users
+          </Title>
+          <Flex role="radiogroup" aria-labelledby="htpasswd-creation-mode-label">
+            <Radio
+              isChecked={creationMode === CREATION_MODE_MANUAL}
+              name="htpasswd-creation-mode"
+              onChange={() => handleModeChange(CREATION_MODE_MANUAL)}
+              label="Add users manually"
+              id="htpasswd-mode-manual"
+            />
+            <Radio
+              isChecked={creationMode === CREATION_MODE_UPLOAD}
+              name="htpasswd-creation-mode"
+              onChange={() => handleModeChange(CREATION_MODE_UPLOAD)}
+              label="Upload an htpasswd file"
+              id="htpasswd-mode-upload"
+            />
+          </Flex>
+          {creationMode === CREATION_MODE_MANUAL ? (
+            <Content component={ContentVariants.p} className="pf-v6-u-mb-0">
+              To create the htpasswd identity provider, you must create at least 1 user. You can add
+              additional users later.
+              <br />
+              Add a username and password for each user.
+            </Content>
+          ) : (
+            <Content component={ContentVariants.p} className="pf-v6-u-mb-0">
+              Upload a valid htpasswd file to import users into this identity provider. Generally,
+              this file is prepared using the{' '}
+              <a href={docLinks.IDP_HTPASSWD_UTILITY} target="_blank" rel="noreferrer">
+                htpasswd
+              </a>{' '}
+              tool. Each line must contain a username and a hashed password. If any user fails to be
+              created for any reason, the entire import is cancelled — no users will be added. You
+              can add additional users later.
+            </Content>
+          )}
+        </>
+      )}
+      {creationMode === CREATION_MODE_MANUAL || isEditUser || onlySingleItem ? (
+        <CompoundFieldArray
+          fieldSpan={11}
+          compoundFields={compoundFields}
+          label="Users list"
+          addMoreTitle="Add user"
+          isRequired
+          disabled={isPending}
+          validate={[validateUniqueHTPasswdUsername]}
+          addMoreButtonDisabled={addMoreButtonDisabled}
+          minusButtonDisabledMessage="To delete the static user, add another user first."
+          onlySingleItem={onlySingleItem}
+        />
+      ) : (
+        <HTPasswdFileUpload isDisabled={isPending} />
+      )}
+    </>
   );
 };
 

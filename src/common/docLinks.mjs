@@ -80,6 +80,8 @@ const docLinks = {
 
   // OSD
   OSD_DEDICATED_ADMIN_ROLE: `${OSD_DOCS_BASE}/authentication_and_authorization/osd-admin-roles`,
+  ROSA_HCP_AUTH_HTPASSWD_CONFIG: `${ROSA_DOCS_BASE}-single/authentication_and_authorization/index#config-htpasswd-idp_sd-configuring-identity-providers`,
+  ROSA_CLASSIC_AUTH_HTPASSWD_CONFIG: `${ROSA_CLASSIC_DOCS_BASE}-single/authentication_and_authorization/index#config-htpasswd-idp_sd-configuring-identity-providers`,
   OSD_CCS_AWS_LIMITS: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs#aws-limits_aws-ccs`,
   OSD_CCS_AWS_CUSTOMER_REQ: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs#ccs-aws-customer-requirements_aws-ccs`,
   OSD_CCS_GCP: `${OSD_DOCS_BASE}/planning_your_environment/gcp-ccs`,
@@ -108,6 +110,7 @@ const docLinks = {
   // OCP
   AWS_CONTROL_PLANE_URL: `${OCP_DOCS_BASE}/architecture/control-plane#control-plane`,
   IDP_HTPASSWD: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#configuring-htpasswd-identity-provider`,
+  IDP_HTPASSWD_UTILITY: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#creating-htpasswd-file`,
   IDP_LDAP: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-ldap-identity-provider`,
   IDP_GITHUB: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#configuring-github-identity-provider`,
   IDP_GITLAB: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-gitlab-identity-provider`,

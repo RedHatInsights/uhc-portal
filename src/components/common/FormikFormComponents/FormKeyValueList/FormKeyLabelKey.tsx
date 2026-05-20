@@ -16,6 +16,7 @@ const FormKeyLabelKey = ({
       aria-label={keyInputAriaLabel}
       validated={touched && error ? 'error' : 'default'}
       onChange={(_, value) => input.onChange(value)}
+      onBlur={input.onBlur}
       value={input.value}
     />
     <FormGroupHelperText touched={touched} error={touched ? error : undefined} />

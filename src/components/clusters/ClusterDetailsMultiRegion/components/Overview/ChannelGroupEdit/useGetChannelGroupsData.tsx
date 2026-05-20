@@ -5,8 +5,6 @@ import {
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/versionSelectHelper';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { useFetchInstallableVersions } from '~/queries/ClusterDetailsQueries/useFetchInstallableVersions';
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 import type { AugmentedCluster } from '~/types/types';
@@ -19,8 +17,7 @@ export const useGetChannelGroupsData = (cluster: AugmentedCluster) => {
     cluster.billing_model === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp;
   const isWIF = cluster.gcp?.authentication?.id === GCPAuthType.WorkloadIdentityFederation;
   const organization = useGlobalState((state) => state.userProfile.organization.details);
-  const unstableOCPVersionsEnabled =
-    useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
+  const unstableOCPVersionsEnabled = hasUnstableVersionsCapability(organization);
 
   const { data, isLoading } = useFetchInstallableVersions({
     isRosa,

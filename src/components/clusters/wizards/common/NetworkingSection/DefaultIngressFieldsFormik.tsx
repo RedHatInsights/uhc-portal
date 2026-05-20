@@ -1,12 +1,21 @@
 // Duplication of `~/components/clusters/common/DefaultIngressFields` needed to convert it to formik
 import React from 'react';
 import classNames from 'classnames';
-import { Field } from 'formik';
+import { Field, FieldArray } from 'formik';
 
-import { FormGroup } from '@patternfly/react-core';
+import {
+  FormGroup,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
 
 import {
   checkRouteSelectors,
+  validateExcludeNamespaceSelectorKey,
+  validateExcludeNamespaceSelectorValue,
   validateNamespacesList,
   validateTlsHostname,
   validateTlsSecretName,
@@ -15,6 +24,10 @@ import {
   ExcludedNamespacesHelpText,
   ExcludedNamespacesPopover,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/ExcludedNamespacesPopover';
+import {
+  ExcludeNamespaceSelectorsHelpText,
+  ExcludeNamespaceSelectorsPopover,
+} from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/ExcludeNamespaceSelectorsPopover';
 import { NamespaceOwnerPolicyPopover } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/NamespaceOwnerPolicyPopover';
 import {
   RouteSelectorsHelpText,
@@ -23,11 +36,15 @@ import {
 import { WildcardPolicyPopover } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/WildcardsPolicyPopover';
 import { LoadBalancerFlavorLabel } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/constants';
 import LoadBalancerPopover from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/LoadBalancerPopover';
+import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import FormKeyValueList from '~/components/common/FormikFormComponents/FormKeyValueList';
 import {
   ReduxCheckbox,
   ReduxVerticalFormGroup,
 } from '~/components/common/ReduxFormComponents_deprecated';
+import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { LoadBalancerFlavor } from '~/types/clusters_mgmt.v1/enums';
 
 type DefaultIngressFieldsFormikProps = {
@@ -39,6 +56,7 @@ type DefaultIngressFieldsFormikProps = {
   canShowLoadBalancer?: boolean;
   isHypershiftCluster?: boolean;
   values?: any;
+  provider?: string;
 };
 
 export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProps> = ({
@@ -50,11 +68,15 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
   canShowLoadBalancer,
   isHypershiftCluster,
   values,
+  provider,
 }) => {
   const {
     getFieldProps, // Access: name, value, onBlur, onChange for a <Field>, useful for mapping to a field
     getFieldMeta, // Access: error, touched for a <Field>, useful for mapping to a field
   } = useFormState();
+  const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
+  const isGCP = provider === CloudProviderType.Gcp;
+  const showExcludeNamespaceSelectors = isExcludeNamespaceSelectorsEnabled && isGCP;
 
   return (
     <>
@@ -121,6 +143,42 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
             input={getFieldProps('defaultRouterExcludedNamespacesFlag')}
             meta={getFieldMeta('defaultRouterExcludedNamespacesFlag')}
           />
+        </FormGroup>
+      )}
+
+      {hasSufficientIngressEditVersion && showExcludeNamespaceSelectors && (
+        <FormGroup
+          className={className}
+          label="Exclude namespace selectors"
+          labelHelp={<ExcludeNamespaceSelectorsPopover />}
+        >
+          <Stack hasGutter>
+            <StackItem>
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem>{ExcludeNamespaceSelectorsHelpText}</HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            </StackItem>
+            <StackItem>
+              <FieldArray name="defaultRouterExcludeNamespaceSelectors" validateOnChange={false}>
+                {(arrayHelpers) => (
+                  <FormKeyValueList
+                    push={arrayHelpers.push}
+                    remove={arrayHelpers.remove}
+                    arrayFieldName="defaultRouterExcludeNamespaceSelectors"
+                    valueColumnLabel="Value(s) (comma-separated)"
+                    addButtonLabel="Add selector"
+                    keyInputAriaLabel="Exclude namespace selector key"
+                    valueInputAriaLabel="Exclude namespace selector values"
+                    validateKey={validateExcludeNamespaceSelectorKey}
+                    validateValue={validateExcludeNamespaceSelectorValue}
+                    allowKeyWithoutValue={false}
+                  />
+                )}
+              </FieldArray>
+            </StackItem>
+          </Stack>
         </FormGroup>
       )}
 

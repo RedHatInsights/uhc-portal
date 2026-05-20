@@ -179,6 +179,9 @@ const FormKeyValueList = ({
                   onChange: (value: string) => {
                     setFieldValue(fieldNameLabelKey, value, false);
                     setFieldTouched(fieldNameLabelKey, true, false);
+                    if (!allowKeyWithoutValue && value.trim()) {
+                      setFieldTouched(fieldNameLabelValue, true, false);
+                    }
                   },
                 }}
                 meta={getFieldMeta(fieldNameLabelKey)}
