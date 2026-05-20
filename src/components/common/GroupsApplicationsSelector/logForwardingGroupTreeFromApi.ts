@@ -1,4 +1,8 @@
-import type { LogForwarderGroupVersion, LogForwarderGroupVersions } from '~/types/clusters_mgmt.v1';
+import type {
+  LogForwarderApplication,
+  LogForwarderGroupVersion,
+  LogForwarderGroupVersions,
+} from '~/types/clusters_mgmt.v1';
 
 import type { LogForwardingGroupTreeNode } from './logForwardingGroupTreeData';
 
@@ -75,4 +79,38 @@ export function logForwardingGroupVersionsListToTree(
   roots.sort((a, b) => a.text.localeCompare(b.text, undefined, { sensitivity: 'base' }));
 
   return roots;
+}
+
+export const LOG_FORWARDING_OTHER_GROUP_NAME = 'Other';
+export const LOG_FORWARDING_OTHER_GROUP_ROOT_ID = logForwardingGroupRootId(
+  LOG_FORWARDING_OTHER_GROUP_NAME,
+);
+
+/**
+ * Builds an "Other" tree node for enabled applications that are not already covered by any node in
+ * `groupsTree`. Returns `null` when every application is already represented in a group.
+ */
+export function buildOtherGroupTreeNode(
+  applications: LogForwarderApplication[],
+  groupsTree: LogForwardingGroupTreeNode[],
+): LogForwardingGroupTreeNode | null {
+  const coveredIds = new Set<string>();
+  groupsTree.forEach((root) => {
+    (root.children ?? [root]).forEach((node) => coveredIds.add(node.id));
+  });
+
+  const others = applications
+    .filter((app) => app.enabled !== false && app.name && !coveredIds.has(app.name))
+    .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '', undefined, { sensitivity: 'base' }))
+    .map((app) => ({ id: app.name as string, text: app.name as string }));
+
+  if (!others.length) {
+    return null;
+  }
+
+  return {
+    id: LOG_FORWARDING_OTHER_GROUP_ROOT_ID,
+    text: LOG_FORWARDING_OTHER_GROUP_NAME,
+    children: others,
+  };
 }

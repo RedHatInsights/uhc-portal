@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { Alert, Spinner } from '@patternfly/react-core';
 
@@ -6,8 +6,11 @@ import {
   GroupsApplicationsSelector,
   type GroupsApplicationsSelectorProps,
 } from '~/components/common/GroupsApplicationsSelector/GroupsApplicationsSelector';
+import { useFetchLogForwardingApplications } from '~/queries/RosaWizardQueries/useFetchLogForwardingApplications';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
 import type { ErrorState } from '~/types/types';
+
+import { buildOtherGroupTreeNode } from './logForwardingGroupTreeFromApi';
 
 export type LogForwardingGroupsApplicationsSelectorProps = Omit<
   GroupsApplicationsSelectorProps,
@@ -15,17 +18,32 @@ export type LogForwardingGroupsApplicationsSelectorProps = Omit<
 >;
 
 /**
- * Loads log forwarding groups from GET /api/clusters_mgmt/v1/log_forwarding/groups and passes
- * the resolved tree into {@link GroupsApplicationsSelector}. Keeps cluster/API imports out of the
- * shared component so Storybook and tests can render with mock `treeData` only.
+ * Loads log forwarding groups and applications, joins them so that any application not covered by
+ * a named group appears under a synthetic "Other" group, then passes the full tree into
+ * {@link GroupsApplicationsSelector}.
  */
 export function LogForwardingGroupsApplicationsSelector(
   props: LogForwardingGroupsApplicationsSelectorProps,
 ) {
-  const { data: treeData = [], isLoading, isError, error } = useFetchLogForwardingGroups();
+  const {
+    data: groupsTree = [],
+    isLoading: isGroupsLoading,
+    isError: isGroupsError,
+    error: groupsError,
+  } = useFetchLogForwardingGroups();
 
-  if (isError) {
-    const err = error as ErrorState | null | undefined;
+  // Applications are used only to build the "Other" group; a failure here is non-fatal.
+  const { data: applications = [], isLoading: isAppsLoading } = useFetchLogForwardingApplications();
+
+  const isLoading = isGroupsLoading || isAppsLoading;
+
+  const treeData = useMemo(() => {
+    const otherNode = buildOtherGroupTreeNode(applications, groupsTree);
+    return otherNode ? [...groupsTree, otherNode] : groupsTree;
+  }, [groupsTree, applications]);
+
+  if (isGroupsError) {
+    const err = groupsError as ErrorState | null | undefined;
     return (
       <Alert variant="danger" isInline title="Could not load log forwarding groups">
         {err?.errorMessage ?? err?.reason ?? err?.message ?? 'Request failed'}

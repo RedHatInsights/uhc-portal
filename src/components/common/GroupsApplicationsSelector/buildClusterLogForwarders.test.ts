@@ -6,6 +6,10 @@ import {
   splitLogForwardingSelectionForSubmit,
 } from './buildClusterLogForwarders';
 import { mockLogForwardingGroupTree } from './logForwardingGroupTreeData';
+import {
+  LOG_FORWARDING_OTHER_GROUP_NAME,
+  LOG_FORWARDING_OTHER_GROUP_ROOT_ID,
+} from './logForwardingGroupTreeFromApi';
 
 describe('normalizeLogForwarderGroupSubmitId', () => {
   it('lowercases and replaces spaces with underscores', () => {
@@ -47,6 +51,47 @@ describe('splitLogForwardingSelectionForSubmit', () => {
       groupIds: [],
       applications: ['a', 'b'],
     });
+  });
+
+  it('always submits Other group items as individual applications, even when fully selected', () => {
+    const treeWithOther = [
+      ...mockLogForwardingGroupTree,
+      {
+        id: LOG_FORWARDING_OTHER_GROUP_ROOT_ID,
+        text: LOG_FORWARDING_OTHER_GROUP_NAME,
+        children: [
+          { id: 'etcd', text: 'etcd' },
+          { id: 'private-router', text: 'private-router' },
+        ],
+      },
+    ];
+
+    // All Other apps selected — must still go into applications, not groupIds
+    const { groupIds, applications } = splitLogForwardingSelectionForSubmit(treeWithOther, [
+      'etcd',
+      'private-router',
+    ]);
+    expect(groupIds).toEqual([]);
+    expect(applications).toEqual(['etcd', 'private-router']);
+  });
+
+  it('submits a partial Other selection as individual applications', () => {
+    const treeWithOther = [
+      {
+        id: LOG_FORWARDING_OTHER_GROUP_ROOT_ID,
+        text: LOG_FORWARDING_OTHER_GROUP_NAME,
+        children: [
+          { id: 'etcd', text: 'etcd' },
+          { id: 'private-router', text: 'private-router' },
+        ],
+      },
+    ];
+
+    const { groupIds, applications } = splitLogForwardingSelectionForSubmit(treeWithOther, [
+      'etcd',
+    ]);
+    expect(groupIds).toEqual([]);
+    expect(applications).toEqual(['etcd']);
   });
 });
 

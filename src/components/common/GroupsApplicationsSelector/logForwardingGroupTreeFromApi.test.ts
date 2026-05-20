@@ -1,5 +1,7 @@
 import {
+  buildOtherGroupTreeNode,
   compareLogForwarderVersionIds,
+  LOG_FORWARDING_OTHER_GROUP_ROOT_ID,
   logForwardingGroupRootId,
   logForwardingGroupVersionsListToTree,
   pickLatestLogForwarderGroupVersion,
@@ -62,5 +64,74 @@ describe('logForwardingGroupVersionsListToTree', () => {
         children: [{ id: 'kube-scheduler', text: 'kube-scheduler' }],
       },
     ]);
+  });
+});
+
+describe('buildOtherGroupTreeNode', () => {
+  const groupsTree = [
+    {
+      id: logForwardingGroupRootId('API'),
+      text: 'API',
+      children: [
+        { id: 'audit-webhook', text: 'audit-webhook' },
+        { id: 'kube-apiserver', text: 'kube-apiserver' },
+      ],
+    },
+    {
+      id: logForwardingGroupRootId('scheduler'),
+      text: 'scheduler',
+      children: [{ id: 'kube-scheduler', text: 'kube-scheduler' }],
+    },
+  ];
+
+  it('returns null when all applications are already covered by a group', () => {
+    const apps = [
+      { name: 'audit-webhook', enabled: true },
+      { name: 'kube-apiserver', enabled: true },
+      { name: 'kube-scheduler', enabled: true },
+    ];
+    expect(buildOtherGroupTreeNode(apps, groupsTree)).toBeNull();
+  });
+
+  it('builds an Other node for applications not in any group', () => {
+    const apps = [
+      { name: 'audit-webhook', enabled: true },
+      { name: 'kube-apiserver', enabled: true },
+      { name: 'etcd', enabled: true },
+      { name: 'private-router', enabled: true },
+    ];
+    const result = buildOtherGroupTreeNode(apps, groupsTree);
+    expect(result).toEqual({
+      id: LOG_FORWARDING_OTHER_GROUP_ROOT_ID,
+      text: 'Other',
+      children: [
+        { id: 'etcd', text: 'etcd' },
+        { id: 'private-router', text: 'private-router' },
+      ],
+    });
+  });
+
+  it('excludes disabled applications from Other', () => {
+    const apps = [
+      { name: 'etcd', enabled: false },
+      { name: 'private-router', enabled: true },
+    ];
+    const result = buildOtherGroupTreeNode(apps, groupsTree);
+    expect(result?.children).toHaveLength(1);
+    expect(result?.children?.[0].id).toBe('private-router');
+  });
+
+  it('sorts Other children alphabetically', () => {
+    const apps = [
+      { name: 'zoo-app', enabled: true },
+      { name: 'alpha-app', enabled: true },
+      { name: 'mid-app', enabled: true },
+    ];
+    const result = buildOtherGroupTreeNode(apps, []);
+    expect(result?.children?.map((c) => c.id)).toEqual(['alpha-app', 'mid-app', 'zoo-app']);
+  });
+
+  it('returns null when the applications list is empty', () => {
+    expect(buildOtherGroupTreeNode([], groupsTree)).toBeNull();
   });
 });

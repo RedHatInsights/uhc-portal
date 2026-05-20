@@ -2,6 +2,7 @@ import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import type { LogForwarder } from '~/types/clusters_mgmt.v1';
 
 import type { LogForwardingGroupTreeNode } from './logForwardingGroupTreeData';
+import { LOG_FORWARDING_OTHER_GROUP_ROOT_ID } from './logForwardingGroupTreeFromApi';
 
 /** Normalizes group display names from the API tree for LogForwarderGroup.id (e.g. API → api). */
 export function normalizeLogForwarderGroupSubmitId(displayName: string): string {
@@ -54,7 +55,12 @@ export function splitLogForwardingSelectionForSubmit(
       return;
     }
 
-    if (selectedInGroup.length === leafIds.length) {
+    // The "Other" group is a synthetic catch-all; always submit its items as individual
+    // applications since there is no corresponding group id on the API.
+    if (
+      selectedInGroup.length === leafIds.length &&
+      root.id !== LOG_FORWARDING_OTHER_GROUP_ROOT_ID
+    ) {
       pushGroup(root.text);
       return;
     }
