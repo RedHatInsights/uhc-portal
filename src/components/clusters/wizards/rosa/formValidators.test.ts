@@ -2,6 +2,7 @@ import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { validateLogForwardingFields } from '~/components/common/GroupsApplicationsSelector/logForwardingValidation';
 
 import { rosaWizardFormValidator } from './formValidators';
+import { stepId } from './rosaWizardConstants';
 
 jest.mock('~/components/common/GroupsApplicationsSelector/logForwardingValidation');
 
@@ -21,6 +22,8 @@ const validAutoscaling = {
   },
 };
 
+const logForwardingStep = stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING;
+
 describe('rosaWizardFormValidator', () => {
   beforeEach(() => {
     mockValidateLogForwardingFields.mockReset();
@@ -29,10 +32,13 @@ describe('rosaWizardFormValidator', () => {
 
   it('returns an empty object when cluster autoscaling is disabled and log forwarding is off', () => {
     expect(
-      rosaWizardFormValidator({
-        [FieldId.ClusterAutoscaling]: null,
-        ...logForwardingOff,
-      }),
+      rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: null,
+          ...logForwardingOff,
+        },
+        logForwardingStep,
+      ),
     ).toEqual({});
 
     expect(mockValidateLogForwardingFields).not.toHaveBeenCalled();
@@ -42,34 +48,62 @@ describe('rosaWizardFormValidator', () => {
     const lfErrors = { [FieldId.LogForwardingS3BucketName]: 'Bucket name is required.' };
     mockValidateLogForwardingFields.mockReturnValue(lfErrors);
 
-    const result = rosaWizardFormValidator({
-      [FieldId.ClusterAutoscaling]: null,
-      [FieldId.LogForwardingS3Enabled]: true,
-      [FieldId.LogForwardingCloudWatchEnabled]: false,
-    });
+    const result = rosaWizardFormValidator(
+      {
+        [FieldId.ClusterAutoscaling]: null,
+        [FieldId.LogForwardingS3Enabled]: true,
+        [FieldId.LogForwardingCloudWatchEnabled]: false,
+      },
+      logForwardingStep,
+    );
 
     expect(result).toEqual(lfErrors);
     expect(mockValidateLogForwardingFields).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips log forwarding validation on other steps even when CloudWatch is enabled', () => {
+    mockValidateLogForwardingFields.mockReturnValue({
+      [FieldId.LogForwardingCloudWatchRoleArn]: 'Role ARN is required.',
+    });
+
+    expect(
+      rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: null,
+          [FieldId.LogForwardingCloudWatchEnabled]: true,
+          [FieldId.LogForwardingS3Enabled]: false,
+        },
+        stepId.CLUSTER_ADDITIONAL_SETTINGS__UPDATES,
+      ),
+    ).toEqual({});
+
+    expect(mockValidateLogForwardingFields).not.toHaveBeenCalled();
   });
 
   it('returns an empty object when autoscaling is disabled, forwarding is on, and validation passes', () => {
     mockValidateLogForwardingFields.mockReturnValue({});
 
     expect(
-      rosaWizardFormValidator({
-        [FieldId.ClusterAutoscaling]: undefined,
-        [FieldId.LogForwardingCloudWatchEnabled]: true,
-        [FieldId.LogForwardingS3Enabled]: false,
-      }),
+      rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: undefined,
+          [FieldId.LogForwardingCloudWatchEnabled]: true,
+          [FieldId.LogForwardingS3Enabled]: false,
+        },
+        logForwardingStep,
+      ),
     ).toEqual({});
   });
 
   it('returns an empty object when autoscaling limits are valid and log forwarding is off', () => {
     expect(
-      rosaWizardFormValidator({
-        [FieldId.ClusterAutoscaling]: validAutoscaling,
-        ...logForwardingOff,
-      }),
+      rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: validAutoscaling,
+          ...logForwardingOff,
+        },
+        logForwardingStep,
+      ),
     ).toEqual({});
 
     expect(mockValidateLogForwardingFields).not.toHaveBeenCalled();
@@ -79,25 +113,31 @@ describe('rosaWizardFormValidator', () => {
     const lfErrors = { [FieldId.LogForwardingCloudWatchRoleArn]: 'Role ARN is required.' };
     mockValidateLogForwardingFields.mockReturnValue(lfErrors);
 
-    const result = rosaWizardFormValidator({
-      [FieldId.ClusterAutoscaling]: validAutoscaling,
-      [FieldId.LogForwardingS3Enabled]: true,
-      [FieldId.LogForwardingCloudWatchEnabled]: false,
-    });
+    const result = rosaWizardFormValidator(
+      {
+        [FieldId.ClusterAutoscaling]: validAutoscaling,
+        [FieldId.LogForwardingS3Enabled]: true,
+        [FieldId.LogForwardingCloudWatchEnabled]: false,
+      },
+      logForwardingStep,
+    );
 
     expect(result).toEqual(lfErrors);
   });
 
   it('returns cluster autoscaling resource limit errors when cores min exceeds max', () => {
-    const result = rosaWizardFormValidator({
-      [FieldId.ClusterAutoscaling]: {
-        resource_limits: {
-          cores: { min: 10, max: 5 },
-          memory: { min: 0, max: 100 },
+    const result = rosaWizardFormValidator(
+      {
+        [FieldId.ClusterAutoscaling]: {
+          resource_limits: {
+            cores: { min: 10, max: 5 },
+            memory: { min: 0, max: 100 },
+          },
         },
+        ...logForwardingOff,
       },
-      ...logForwardingOff,
-    });
+      logForwardingStep,
+    );
 
     expect(result).toEqual({
       cluster_autoscaling: {
@@ -112,15 +152,18 @@ describe('rosaWizardFormValidator', () => {
   });
 
   it('returns cluster autoscaling resource limit errors when memory min exceeds max', () => {
-    const result = rosaWizardFormValidator({
-      [FieldId.ClusterAutoscaling]: {
-        resource_limits: {
-          cores: { min: 0, max: 64 },
-          memory: { min: 200, max: 100 },
+    const result = rosaWizardFormValidator(
+      {
+        [FieldId.ClusterAutoscaling]: {
+          resource_limits: {
+            cores: { min: 0, max: 64 },
+            memory: { min: 200, max: 100 },
+          },
         },
+        ...logForwardingOff,
       },
-      ...logForwardingOff,
-    });
+      logForwardingStep,
+    );
 
     expect(result).toEqual({
       cluster_autoscaling: {
@@ -139,16 +182,19 @@ describe('rosaWizardFormValidator', () => {
       [FieldId.LogForwardingS3BucketName]: 'Bucket name is required.',
     });
 
-    const result = rosaWizardFormValidator({
-      [FieldId.ClusterAutoscaling]: {
-        resource_limits: {
-          cores: { min: 2, max: 1 },
-          memory: { min: 0, max: 50 },
+    const result = rosaWizardFormValidator(
+      {
+        [FieldId.ClusterAutoscaling]: {
+          resource_limits: {
+            cores: { min: 2, max: 1 },
+            memory: { min: 0, max: 50 },
+          },
         },
+        [FieldId.LogForwardingS3Enabled]: true,
+        [FieldId.LogForwardingCloudWatchEnabled]: false,
       },
-      [FieldId.LogForwardingS3Enabled]: true,
-      [FieldId.LogForwardingCloudWatchEnabled]: false,
-    });
+      logForwardingStep,
+    );
 
     expect(result).toEqual({
       cluster_autoscaling: {
@@ -163,19 +209,40 @@ describe('rosaWizardFormValidator', () => {
     });
   });
 
-  it('calls validateLogForwardingFields when either S3 or CloudWatch forwarding is enabled', () => {
+  it('calls validateLogForwardingFields when either S3 or CloudWatch forwarding is enabled on the log forwarding step', () => {
     mockValidateLogForwardingFields.mockReturnValue({});
 
-    rosaWizardFormValidator({
-      [FieldId.ClusterAutoscaling]: null,
-      [FieldId.LogForwardingS3Enabled]: false,
-      [FieldId.LogForwardingCloudWatchEnabled]: true,
-    });
+    rosaWizardFormValidator(
+      {
+        [FieldId.ClusterAutoscaling]: null,
+        [FieldId.LogForwardingS3Enabled]: false,
+        [FieldId.LogForwardingCloudWatchEnabled]: true,
+      },
+      logForwardingStep,
+    );
 
     expect(mockValidateLogForwardingFields).toHaveBeenCalledWith(
       expect.objectContaining({
         [FieldId.LogForwardingCloudWatchEnabled]: true,
       }),
     );
+  });
+
+  it('validates log forwarding on the review step', () => {
+    mockValidateLogForwardingFields.mockReturnValue({
+      [FieldId.LogForwardingCloudWatchRoleArn]: 'Role ARN is required.',
+    });
+
+    expect(
+      rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: null,
+          [FieldId.LogForwardingCloudWatchEnabled]: true,
+        },
+        stepId.REVIEW_AND_CREATE,
+      ),
+    ).toEqual({
+      [FieldId.LogForwardingCloudWatchRoleArn]: 'Role ARN is required.',
+    });
   });
 });
