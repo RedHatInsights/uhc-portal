@@ -47,14 +47,20 @@ describe('logForwardingGroupVersionsListToTree', () => {
     expect(tree[0].children?.map((c) => c.id)).toEqual(['audit', 'apiserver']);
   });
 
-  it('uses a single root leaf when only one application', () => {
+  it('renders a single-app group as a parent with one child', () => {
     const tree = logForwardingGroupVersionsListToTree([
       {
-        name: 'Controller manager',
+        name: 'scheduler',
         enabled: true,
-        versions: [{ id: '1', applications: ['controller-manager'] }],
+        versions: [{ id: '1', applications: ['kube-scheduler'] }],
       },
     ]);
-    expect(tree).toEqual([{ id: 'controller-manager', text: 'Controller manager' }]);
+    expect(tree).toEqual([
+      {
+        id: logForwardingGroupRootId('scheduler'),
+        text: 'scheduler',
+        children: [{ id: 'kube-scheduler', text: 'kube-scheduler' }],
+      },
+    ]);
   });
 });
