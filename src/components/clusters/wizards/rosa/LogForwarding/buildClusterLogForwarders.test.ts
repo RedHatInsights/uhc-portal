@@ -1,15 +1,15 @@
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import { mockLogForwardingGroupTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
+import {
+  LOG_FORWARDING_OTHER_GROUP_NAME,
+  LOG_FORWARDING_OTHER_GROUP_ROOT_ID,
+} from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 
 import {
   getRosaLogForwardersForClusterRequest,
   normalizeLogForwarderGroupSubmitId,
   splitLogForwardingSelectionForSubmit,
 } from './buildClusterLogForwarders';
-import { mockLogForwardingGroupTree } from './logForwardingGroupTreeData';
-import {
-  LOG_FORWARDING_OTHER_GROUP_NAME,
-  LOG_FORWARDING_OTHER_GROUP_ROOT_ID,
-} from './logForwardingGroupTreeFromApi';
 
 describe('normalizeLogForwarderGroupSubmitId', () => {
   it('lowercases and replaces spaces with underscores', () => {

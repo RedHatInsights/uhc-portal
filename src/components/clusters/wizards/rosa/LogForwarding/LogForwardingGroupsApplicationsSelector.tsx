@@ -6,11 +6,10 @@ import {
   GroupsApplicationsSelector,
   type GroupsApplicationsSelectorProps,
 } from '~/components/common/GroupsApplicationsSelector/GroupsApplicationsSelector';
+import { buildOtherGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 import { useFetchLogForwardingApplications } from '~/queries/RosaWizardQueries/useFetchLogForwardingApplications';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
 import type { ErrorState } from '~/types/types';
-
-import { buildOtherGroupTreeNode } from './logForwardingGroupTreeFromApi';
 
 export type LogForwardingGroupsApplicationsSelectorProps = Omit<
   GroupsApplicationsSelectorProps,

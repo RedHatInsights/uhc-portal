@@ -1,8 +1,7 @@
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import type { LogForwardingGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
+import { LOG_FORWARDING_OTHER_GROUP_ROOT_ID } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 import type { LogForwarder } from '~/types/clusters_mgmt.v1';
-
-import type { LogForwardingGroupTreeNode } from './logForwardingGroupTreeData';
-import { LOG_FORWARDING_OTHER_GROUP_ROOT_ID } from './logForwardingGroupTreeFromApi';
 
 /** Normalizes group display names from the API tree for LogForwarderGroup.id (e.g. API → api). */
 export function normalizeLogForwarderGroupSubmitId(displayName: string): string {

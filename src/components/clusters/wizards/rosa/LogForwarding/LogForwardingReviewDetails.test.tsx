@@ -3,10 +3,10 @@ import React from 'react';
 import { DescriptionList } from '@patternfly/react-core';
 
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import { mockLogForwardingGroupTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
 import { checkAccessibility, render, screen, within } from '~/testUtils';
 
-import { mockLogForwardingGroupTree } from './logForwardingGroupTreeData';
 import { LogForwardingReviewDetails } from './LogForwardingReviewDetails';
 
 jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingGroups');

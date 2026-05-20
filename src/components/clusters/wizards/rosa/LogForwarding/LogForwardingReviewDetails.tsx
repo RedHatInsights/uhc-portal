@@ -13,10 +13,9 @@ import {
 } from '@patternfly/react-core';
 
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import type { LogForwardingGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
+import { groupSelectedLogForwardingItems } from '~/components/common/GroupsApplicationsSelector/logForwardingReviewHelpers';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
-
-import type { LogForwardingGroupTreeNode } from './logForwardingGroupTreeData';
-import { groupSelectedLogForwardingItems } from './logForwardingReviewHelpers';
 
 type FormValuesShape = {
   [FieldId.LogForwardingS3Enabled]?: boolean;

@@ -24,12 +24,12 @@ import { canSelectImds } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { getUserRoleForSelectedAWSAccount } from '~/components/clusters/wizards/rosa/AccountsRolesScreen/AccountsRolesScreen';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import { LogForwardingReviewDetails } from '~/components/clusters/wizards/rosa/LogForwarding/LogForwardingReviewDetails';
 import {
   stepId as rosaStepId,
   stepNameById as rosaStepNameById,
 } from '~/components/clusters/wizards/rosa/rosaWizardConstants';
 import HiddenCheckbox from '~/components/common/FormikFormComponents/HiddenCheckbox';
-import { LogForwardingReviewDetails } from '~/components/common/GroupsApplicationsSelector/LogForwardingReviewDetails';
 import { SyncEditorModal } from '~/components/SyncEditor/SyncEditorModal';
 import config from '~/config';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';

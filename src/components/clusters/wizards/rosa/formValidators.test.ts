@@ -1,10 +1,10 @@
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
-import { validateLogForwardingFields } from '~/components/common/GroupsApplicationsSelector/logForwardingValidation';
+import { validateLogForwardingFields } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation';
 
 import { rosaWizardFormValidator } from './formValidators';
 import { stepId } from './rosaWizardConstants';
 
-jest.mock('~/components/common/GroupsApplicationsSelector/logForwardingValidation');
+jest.mock('~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation');
 
 const mockValidateLogForwardingFields = validateLogForwardingFields as jest.MockedFunction<
   typeof validateLogForwardingFields

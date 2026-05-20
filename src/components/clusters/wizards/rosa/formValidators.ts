@@ -1,7 +1,7 @@
 import type { FormikValues } from 'formik';
 
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
-import { validateLogForwardingFields } from '~/components/common/GroupsApplicationsSelector/logForwardingValidation';
+import { validateLogForwardingFields } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation';
 
 import { stepId } from './rosaWizardConstants';
 

@@ -19,12 +19,12 @@ import { AppDrawerContext } from '~/components/App/AppDrawer';
 import { AppPage } from '~/components/App/AppPage';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { rosaWizardFormValidator } from '~/components/clusters/wizards/rosa/formValidators';
+import { LogForwardingScreen } from '~/components/clusters/wizards/rosa/LogForwarding/LogForwardingScreen';
 import {
   getAccountAndRolesStepId,
   stepId,
   stepNameById,
 } from '~/components/clusters/wizards/rosa/rosaWizardConstants';
-import { LogForwardingScreen } from '~/components/common/GroupsApplicationsSelector/LogForwardingScreen';
 import config from '~/config';
 import withAnalytics from '~/hoc/withAnalytics';
 import useAnalytics from '~/hooks/useAnalytics';

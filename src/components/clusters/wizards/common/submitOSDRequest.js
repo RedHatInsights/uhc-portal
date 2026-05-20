@@ -14,7 +14,7 @@ import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/C
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ApplicationIngressType } from '~/components/clusters/wizards/osd/Networking/constants';
 import { FieldId as RosaFieldId } from '~/components/clusters/wizards/rosa/constants';
-import { getRosaLogForwardersForClusterRequest } from '~/components/common/GroupsApplicationsSelector/buildClusterLogForwarders';
+import { getRosaLogForwardersForClusterRequest } from '~/components/clusters/wizards/rosa/LogForwarding/buildClusterLogForwarders';
 import config from '~/config';
 import { regionalizedClusterId } from '~/queries/helpers';
 import { queryConstants } from '~/queries/queriesConstants';
