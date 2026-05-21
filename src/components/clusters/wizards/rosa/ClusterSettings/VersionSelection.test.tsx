@@ -316,6 +316,45 @@ describe('<VersionSelection />', () => {
     });
   });
 
+  describe('when Classic', () => {
+    it('Selects default API version when exists', async () => {
+      const defaultClassicVersion = {
+        ...versions[0],
+        raw_id: '4.12.99',
+        id: 'openshift-v4.12.99',
+        default: true,
+        enabled: true,
+        rosa_enabled: true,
+      };
+
+      const newVersions = [...versions, defaultClassicVersion];
+
+      const state = {
+        clusters: {
+          clusterVersions: {
+            ...fulfilledVersionsState,
+            versions: newVersions,
+          },
+        },
+      };
+      const newProps = {
+        ...defaultProps,
+        onChange: onChangeMock,
+      };
+
+      withState(state).render(
+        <Formik onSubmit={() => {}} initialValues={defaultFields}>
+          <VersionSelection {...newProps} />
+        </Formik>,
+      );
+
+      expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
+      // onChange is called on render to set the default version
+      expect(onChangeMock).toHaveBeenCalled();
+      expect(onChangeMock).toHaveBeenCalledWith(defaultClassicVersion);
+    });
+  });
+
   describe('when Hypershift', () => {
     it('hides versions prior to "4.11.4" when hypershift and an ARN with a managed policy are selected', async () => {
       // Arrange
@@ -370,7 +409,50 @@ describe('<VersionSelection />', () => {
       });
     });
 
-    it('Selects latest version when it is both rosa and hypershift enabled', async () => {
+    it('Selects default API version when exists', async () => {
+      const defaultHypershiftVersion = {
+        ...versions[0],
+        raw_id: '4.12.99',
+        id: 'openshift-v4.12.99',
+        default: false,
+        enabled: true,
+        rosa_enabled: true,
+        hosted_control_plane_enabled: true,
+        hosted_control_plane_default: true,
+      };
+
+      const newVersions = [...versions, defaultHypershiftVersion];
+
+      const state = {
+        clusters: {
+          clusterVersions: {
+            ...fulfilledVersionsState,
+            params: { product: 'hcp' },
+            versions: newVersions,
+          },
+        },
+      };
+      const newProps = {
+        ...defaultProps,
+        onChange: onChangeMock,
+      };
+      const newFields = {
+        ...defaultFields,
+        [FieldId.Hypershift]: 'true',
+      };
+      withState(state).render(
+        <Formik onSubmit={() => {}} initialValues={newFields}>
+          <VersionSelection {...newProps} />
+        </Formik>,
+      );
+
+      expect(await screen.findByText(defaultProps.label)).toBeInTheDocument();
+      // onChange is called on render to set the default version
+      expect(onChangeMock).toHaveBeenCalled();
+      expect(onChangeMock).toHaveBeenCalledWith(defaultHypershiftVersion);
+    });
+
+    it('Selects latest version when default API does not exist', async () => {
       const newVersions = [...versions];
 
       const latestVersion = {
@@ -511,6 +593,7 @@ describe('<VersionSelection />', () => {
       expect(onChangeMock).not.toHaveBeenCalledWith(latestVersion);
       expect(onChangeMock).toHaveBeenCalledWith(newVersions[1]);
     });
+
     it('shows all versions when hypershift regardless of ARN maxOS version settings', async () => {
       const newVersions = [
         {

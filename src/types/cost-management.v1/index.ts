@@ -3685,8 +3685,8 @@ export interface components {
              * @example 22
              */
             amount?: number;
-            /** @example null */
-            format?: string | null;
+            /** @example percent */
+            format?: string;
           };
           memory?: {
             /**
@@ -3694,7 +3694,7 @@ export interface components {
              * @example 45
              */
             amount?: number;
-            /** @example Mi */
+            /** @example percent */
             format?: string;
           };
         };
@@ -3765,8 +3765,8 @@ export interface components {
              * @example 20
              */
             amount?: number;
-            /** @example null */
-            format?: string | null;
+            /** @example percent */
+            format?: string;
           };
           memory?: {
             /**
@@ -3774,7 +3774,7 @@ export interface components {
              * @example 40
              */
             amount?: number;
-            /** @example Mi */
+            /** @example percent */
             format?: string;
           };
         };
@@ -9672,16 +9672,36 @@ export interface operations {
          *     Maximum number of records is 1000 i.e. 6000 rows for CSV downloads.
          *     The 'offset' parameter can be used for pagination with both formats. */
         format?: PathsRecommendationsOpenshiftGetParametersQueryFormat;
-        /** @description Cluster alias or UUID */
+        /** @description Partial match on cluster alias, exact match on cluster UUID */
         cluster?: string;
-        /** @description Options are daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
+        /** @description Exclude cluster by alias or UUID */
+        'exclude[cluster]'?: string;
+        /** @description Exact match on cluster alias or UUID */
+        'filter[exact:cluster]'?: string;
+        /** @description Exact match on workload type. Options are daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
         workload_type?: string;
-        /** @description Workload name */
+        /** @description Exclude by workload type. Must be one of: daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
+        'exclude[workload_type]'?: string;
+        /** @description Exact match on workload type. Must be one of: daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
+        'filter[exact:workload_type]'?: string;
+        /** @description Partial match on workload name */
         workload?: string;
-        /** @description Container name */
+        /** @description Exclude by workload name */
+        'exclude[workload]'?: string;
+        /** @description Exact match on workload name */
+        'filter[exact:workload]'?: string;
+        /** @description Partial match on container name */
         container?: string;
-        /** @description Project name */
+        /** @description Exclude by container name */
+        'exclude[container]'?: string;
+        /** @description Exact match on container name */
+        'filter[exact:container]'?: string;
+        /** @description Partial match on project name */
         project?: string;
+        /** @description Exclude by project name */
+        'exclude[project]'?: string;
+        /** @description Exact match on project name */
+        'filter[exact:project]'?: string;
         /** @description Shows all values in true/real-world units. Accepts 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, False. */
         'true-units'?: boolean;
         /**
@@ -9698,8 +9718,8 @@ export interface operations {
         offset?: number;
         /** @description Pagination limit */
         limit?: number;
-        /** @description Options are cluster, project, workload_type, workload, container, last_reported */
-        order_by?: string;
+        /** @description Field to order results by. Options: cluster, project, workload_type, workload, container, last_reported, cpu_request_current, memory_request_current, and per-term variation fields (e.g. cpu_variation_short_cost, memory_variation_long_performance). Variation values are percent of current CPU or memory request (float); see the recommendations.variation amounts in each list item. */
+        order_by?: PathsRecommendationsOpenshiftGetParametersQueryOrder_by;
         /** @description Options are ASC, DESC */
         order_how?: string;
         /** @description unit preference for memory */
@@ -9722,6 +9742,20 @@ export interface operations {
           'application/json': components['schemas']['RecommendationList'];
         };
       };
+      /** @description Bad request, e.g. invalid query parameter value */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            /** @example error */
+            status?: string;
+            /** @example invalid workload_type "not-a-real-type", must be one of: daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
+            message?: string;
+          };
+        };
+      };
       /** @description User is not authorized */
       401: {
         headers: {
@@ -9729,6 +9763,18 @@ export interface operations {
         };
         content: {
           'text/plain': string;
+        };
+      };
+      /** @description Service unavailable due to a database error */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            /** @example unable to fetch records from database */
+            error?: string;
+          };
         };
       };
     };
@@ -9792,6 +9838,28 @@ export enum PathsPriceListsGetParametersQueryOrdering {
 export enum PathsRecommendationsOpenshiftGetParametersQueryFormat {
   json = 'json',
   csv = 'csv',
+}
+export enum PathsRecommendationsOpenshiftGetParametersQueryOrder_by {
+  cluster = 'cluster',
+  project = 'project',
+  workload_type = 'workload_type',
+  workload = 'workload',
+  container = 'container',
+  last_reported = 'last_reported',
+  cpu_request_current = 'cpu_request_current',
+  memory_request_current = 'memory_request_current',
+  cpu_variation_short_cost = 'cpu_variation_short_cost',
+  cpu_variation_short_performance = 'cpu_variation_short_performance',
+  cpu_variation_medium_cost = 'cpu_variation_medium_cost',
+  cpu_variation_medium_performance = 'cpu_variation_medium_performance',
+  cpu_variation_long_cost = 'cpu_variation_long_cost',
+  cpu_variation_long_performance = 'cpu_variation_long_performance',
+  memory_variation_short_cost = 'memory_variation_short_cost',
+  memory_variation_short_performance = 'memory_variation_short_performance',
+  memory_variation_medium_cost = 'memory_variation_medium_cost',
+  memory_variation_medium_performance = 'memory_variation_medium_performance',
+  memory_variation_long_cost = 'memory_variation_long_cost',
+  memory_variation_long_performance = 'memory_variation_long_performance',
 }
 export enum PathsRecommendationsOpenshiftGetParametersQueryMemoryUnit {
   bytes = 'bytes',
