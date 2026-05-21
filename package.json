@@ -113,7 +113,7 @@
     "@redhat-cloud-services/frontend-components-config": "^6.8.4",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.58",
     "@redhat-cloud-services/types": "^3.4.2",
-    "@sentry/cli": "^2.21.2",
+    "@sentry/cli": "^3.0.0",
     "@storybook/addon-essentials": "8.4.4",
     "@storybook/addon-interactions": "8.4.4",
     "@storybook/addon-links": "8.4.4",
