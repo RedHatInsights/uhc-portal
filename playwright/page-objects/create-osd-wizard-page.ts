@@ -650,6 +650,14 @@ export class CreateOSDWizardPage extends BasePage {
     }
   }
 
+  versionSelectorToggle(): Locator {
+    return this.page.locator('button[id="version-selector"]');
+  }
+
+  versionOptionByChannel(channel: string): Locator {
+    return this.page.getByRole('option', { name: new RegExp(`\\(${channel}\\)`) }).first();
+  }
+
   async selectAvailabilityZone(az: string): Promise<void> {
     if (az.toLowerCase().includes('single')) {
       await this.singleZoneAvilabilityRadio().check();

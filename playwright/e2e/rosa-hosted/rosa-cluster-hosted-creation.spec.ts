@@ -68,6 +68,9 @@ test.describe.serial(
       await createRosaWizardPage.setClusterName(clusterName);
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().check();
       await createRosaWizardPage.setDomainPrefix(clusterDomainPrefix);
+      await createRosaWizardPage.versionSelectorToggle().click();
+      await expect(createRosaWizardPage.versionOptionByChannel('fast')).toBeVisible();
+      await createRosaWizardPage.versionSelectorToggle().click();
       await createRosaWizardPage.selectVersion(
         clusterProperties.Version || process.env.VERSION || '',
       );

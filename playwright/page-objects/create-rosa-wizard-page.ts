@@ -528,6 +528,14 @@ export class CreateRosaWizardPage extends BasePage {
     }
   }
 
+  versionSelectorToggle(): Locator {
+    return this.page.locator('button[id="version-selector"]');
+  }
+
+  versionOptionByChannel(channel: string): Locator {
+    return this.page.getByRole('option', { name: new RegExp(`\\(${channel}\\)`) }).first();
+  }
+
   async selectMachinePoolPrivateSubnet(
     privateSubnetNameOrId: string,
     machinePoolIndex: number = 1,
