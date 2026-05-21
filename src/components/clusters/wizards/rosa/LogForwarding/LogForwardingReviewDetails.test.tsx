@@ -4,13 +4,16 @@ import { DescriptionList } from '@patternfly/react-core';
 
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { mockLogForwardingGroupTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
+import { useFetchLogForwardingApplications } from '~/queries/RosaWizardQueries/useFetchLogForwardingApplications';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
 import { checkAccessibility, render, screen, within } from '~/testUtils';
 
 import { LogForwardingReviewDetails } from './LogForwardingReviewDetails';
 
+jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingApplications');
 jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingGroups');
 
+const mockUseFetchLogForwardingApplications = useFetchLogForwardingApplications as jest.Mock;
 const mockUseFetchLogForwardingGroups = useFetchLogForwardingGroups as jest.Mock;
 
 const baseForm = {
@@ -26,6 +29,9 @@ const baseForm = {
 
 describe('LogForwardingReviewDetails', () => {
   beforeEach(() => {
+    mockUseFetchLogForwardingApplications.mockReset();
+    mockUseFetchLogForwardingApplications.mockReturnValue({ data: [] });
+
     mockUseFetchLogForwardingGroups.mockReset();
     mockUseFetchLogForwardingGroups.mockReturnValue({
       data: mockLogForwardingGroupTree,
@@ -271,5 +277,25 @@ describe('LogForwardingReviewDetails', () => {
     );
 
     expect(screen.getByText('orphan-id')).toBeInTheDocument();
+  });
+
+  it('shows Other group applications that are selected but not covered by any group', () => {
+    mockUseFetchLogForwardingApplications.mockReturnValue({
+      data: [{ name: 'kube-dns', enabled: true }],
+    });
+
+    render(
+      <LogForwardingReviewDetails
+        formValues={{
+          ...baseForm,
+          [FieldId.LogForwardingS3Enabled]: true,
+          [FieldId.LogForwardingS3BucketName]: 'b',
+          [FieldId.LogForwardingS3SelectedItems]: ['kube-dns'],
+        }}
+      />,
+    );
+
+    expect(screen.getByText('Other')).toBeInTheDocument();
+    expect(screen.getByText('kube-dns')).toBeInTheDocument();
   });
 });

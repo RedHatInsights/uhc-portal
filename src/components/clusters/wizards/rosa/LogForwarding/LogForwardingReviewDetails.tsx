@@ -14,7 +14,9 @@ import {
 
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import type { LogForwardingGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
+import { buildOtherGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 import { groupSelectedLogForwardingItems } from '~/components/common/GroupsApplicationsSelector/logForwardingReviewHelpers';
+import { useFetchLogForwardingApplications } from '~/queries/RosaWizardQueries/useFetchLogForwardingApplications';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
 
 type FormValuesShape = {
@@ -74,8 +76,11 @@ const selectedAppsDescription = (
 };
 
 export function LogForwardingReviewDetails({ formValues }: { formValues: FormValuesShape }) {
-  const { data: logForwardingTree = [], isLoading: isLogForwardingTreeLoading } =
+  const { data: groupsTree = [], isLoading: isLogForwardingTreeLoading } =
     useFetchLogForwardingGroups();
+  const { data: applications = [] } = useFetchLogForwardingApplications();
+  const otherNode = buildOtherGroupTreeNode(applications, groupsTree);
+  const logForwardingTree = otherNode ? [...groupsTree, otherNode] : groupsTree;
   const s3On = !!formValues[FieldId.LogForwardingS3Enabled];
   const cwOn = !!formValues[FieldId.LogForwardingCloudWatchEnabled];
   const s3BucketPrefixRaw = formValues[FieldId.LogForwardingS3BucketPrefix];
