@@ -64,7 +64,7 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
       <GridItem span={9}>
         <FormGroup label="Route selector" labelHelp={<RouteSelectorsPopover />}>
           <Field
-            component={TextInput}
+            as={TextInput}
             name={FieldId.DefaultRouterSelectors}
             type="text"
             validate={checkRouteSelectors}
@@ -84,7 +84,7 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
       <GridItem span={9}>
         <FormGroup label="Excluded namespaces" labelHelp={<ExcludedNamespacesPopover />}>
           <Field
-            component={TextInput}
+            as={TextInput}
             name={FieldId.DefaultRouterExcludedNamespacesFlag}
             type="text"
             validate={validateNamespacesList}
