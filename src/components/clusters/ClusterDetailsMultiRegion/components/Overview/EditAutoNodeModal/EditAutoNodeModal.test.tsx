@@ -84,6 +84,80 @@ describe('<EditAutoNodeModal />', () => {
         screen.getByDisplayValue('arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role'),
       ).toBeInTheDocument();
     });
+
+    it('shows warning alert when enabling AutoNode for the first time', async () => {
+      const { user } = render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
+
+      await user.click(screen.getByLabelText('Enable Autonode'));
+
+      expect(screen.getByText('Enabling Autonode cannot be undone')).toBeInTheDocument();
+      expect(screen.getByText(/Ensure you have created the required IAM role/)).toBeInTheDocument();
+    });
+
+    it('does not show warning alert when Autonode is already enabled', () => {
+      render(<EditAutoNodeModal cluster={enabledCluster} onClose={onClose} />);
+
+      expect(screen.queryByText('Enabling Autonode cannot be undone')).not.toBeInTheDocument();
+    });
+
+    it('does not call editCluster when cluster.id is missing', async () => {
+      const clusterWithoutId = {
+        ...defaultCluster,
+        id: undefined,
+      } as unknown as ClusterFromSubscription;
+      const { user } = render(<EditAutoNodeModal cluster={clusterWithoutId} onClose={onClose} />);
+
+      await user.click(screen.getByRole('button', { name: 'Save' }));
+
+      expect(mockEditCluster).not.toHaveBeenCalled();
+    });
+
+    it('clears ARN validation error when input is cleared', async () => {
+      const { user } = render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
+
+      await user.click(screen.getByLabelText('Enable Autonode'));
+      const input = screen.getByPlaceholderText(
+        'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+      );
+
+      await user.type(input, 'invalid-arn');
+      expect(screen.getByText(/ARN value should be in the format/)).toBeInTheDocument();
+
+      await user.clear(input);
+      expect(screen.queryByText(/ARN value should be in the format/)).not.toBeInTheDocument();
+      expect(
+        screen.getByText('The ARN of the IAM Role with the required Autonode policy.'),
+      ).toBeInTheDocument();
+    });
+
+    it('disables the switch when AutoNode is already enabled', () => {
+      render(<EditAutoNodeModal cluster={enabledCluster} onClose={onClose} />);
+
+      expect(screen.getByLabelText('Enable Autonode')).toBeDisabled();
+    });
+
+    it('renders the popover hint for ARN field', () => {
+      render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
+
+      expect(
+        screen.getByRole('button', { name: 'Autonode IAM role ARN information' }),
+      ).toBeInTheDocument();
+    });
+
+    it('shows ARN whitespace validation error', async () => {
+      const { user } = render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
+
+      await user.click(screen.getByLabelText('Enable Autonode'));
+      await user.type(
+        screen.getByPlaceholderText(
+          'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+        ),
+        'arn:aws:iam::123456789012:role/My Role',
+      );
+
+      expect(screen.getByText(/must not contain whitespaces/)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
   });
 
   describe('interactions', () => {

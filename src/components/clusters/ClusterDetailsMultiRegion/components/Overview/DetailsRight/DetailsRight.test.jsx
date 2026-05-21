@@ -1039,6 +1039,28 @@ describe('<DetailsRight />', () => {
 
           expect(screen.queryByTestId('autoNodeKarpenterCountContainer')).not.toBeInTheDocument();
         });
+
+        it('shows Autonode Karpenter count in autoscaled nodes view', () => {
+          mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+          const clusterFixture = defaultProps.cluster;
+          useFetchMachineOrNodePools.mockReturnValue({
+            data: machinePoolsFixtures.nodePoolsWithAutoScale,
+          });
+
+          const newProps = {
+            ...defaultProps,
+            cluster: {
+              ...clusterFixture,
+              managed: true,
+              hypershift: { enabled: true },
+              auto_node: { mode: 'enabled', status: { node_count: 8 } },
+            },
+          };
+          render(<DetailsRight {...newProps} />);
+
+          expect(screen.getByTestId('autoNodeKarpenterCountContainer')).toBeInTheDocument();
+          expect(screen.getByTestId('autoNodeKarpenterCount')).toHaveTextContent('8');
+        });
       });
     });
 
@@ -1795,6 +1817,111 @@ describe('<DetailsRight />', () => {
 
       const editButton = screen.getByTestId('editAutoNodeButton');
       expect(editButton).not.toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('shows warning alert when auto_node.status.message exists', () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: {
+            mode: 'enabled',
+            status: { message: 'AutoNode installation failed' },
+          },
+          canEdit: true,
+          openshift_version: '4.22.0',
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.getByText('AutoNode installation failed')).toBeInTheDocument();
+    });
+
+    it('does not show warning alert when auto_node.status.message is absent', () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+          canEdit: true,
+          openshift_version: '4.22.0',
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.queryByText('Autonode status')).not.toBeInTheDocument();
+    });
+
+    it('opens EditAutoNodeModal when edit button is clicked', async () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+          canEdit: true,
+          openshift_version: '4.22.0',
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      const { user } = render(<DetailsRight {...newProps} />);
+
+      await user.click(screen.getByTestId('editAutoNodeButton'));
+
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Edit Autonode settings' })).toBeInTheDocument();
+    });
+
+    it('shows Autonode popover hint', () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'disabled' },
+          canEdit: true,
+          openshift_version: '4.22.0',
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(
+        screen.getByRole('button', { name: 'More information about Autonode' }),
+      ).toBeInTheDocument();
+    });
+
+    it('does not show ARN when mode is enabled but role_arn is empty', () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+          aws: { ...clusterFixture.aws, auto_node: { role_arn: '' } },
+          canEdit: true,
+          openshift_version: '4.22.0',
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.getByTestId('autoNodeStatus')).toHaveTextContent('Enabled');
+      expect(screen.queryByText('arn:')).not.toBeInTheDocument();
     });
   });
 
