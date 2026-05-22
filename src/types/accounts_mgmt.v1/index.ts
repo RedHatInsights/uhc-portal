@@ -14309,7 +14309,7 @@ export enum AccessReviewResource_type {
   RegistryCredential = 'RegistryCredential',
   CurrentAccount = 'CurrentAccount',
   AccessReview = 'AccessReview',
-  SelfAcccessReview = 'SelfAcccessReview',
+  SelfAccessReview = 'SelfAccessReview',
   ResourceReview = 'ResourceReview',
   SelfResourceReview = 'SelfResourceReview',
   ClusterRegistration = 'ClusterRegistration',
@@ -14331,7 +14331,6 @@ export enum AccessReviewResource_type {
   SubscriptionLabel = 'SubscriptionLabel',
   OrganizationLabel = 'OrganizationLabel',
   SubscriptionLabelInternal = 'SubscriptionLabelInternal',
-  SelfAccessReview = 'SelfAccessReview',
   SubscriptionInternal = 'SubscriptionInternal',
   SubscriptionRoleBinding = 'SubscriptionRoleBinding',
   ClusterSelfManaged = 'ClusterSelfManaged',
@@ -14342,6 +14341,7 @@ export enum AccessReviewResource_type {
   ManifestWorkSync = 'ManifestWorkSync',
   ClusterForcedUpgrade = 'ClusterForcedUpgrade',
   DeletedCluster = 'DeletedCluster',
+  DeleteProtection = 'DeleteProtection',
 }
 export enum AccessReviewResponseAction {
   get = 'get',
@@ -14366,7 +14366,7 @@ export enum AccessReviewResponseResource_type {
   RegistryCredential = 'RegistryCredential',
   CurrentAccount = 'CurrentAccount',
   AccessReview = 'AccessReview',
-  SelfAcccessReview = 'SelfAcccessReview',
+  SelfAccessReview = 'SelfAccessReview',
   ResourceReview = 'ResourceReview',
   SelfResourceReview = 'SelfResourceReview',
   ClusterRegistration = 'ClusterRegistration',
@@ -14388,7 +14388,6 @@ export enum AccessReviewResponseResource_type {
   SubscriptionLabel = 'SubscriptionLabel',
   OrganizationLabel = 'OrganizationLabel',
   SubscriptionLabelInternal = 'SubscriptionLabelInternal',
-  SelfAccessReview = 'SelfAccessReview',
   SubscriptionInternal = 'SubscriptionInternal',
   SubscriptionRoleBinding = 'SubscriptionRoleBinding',
   ClusterSelfManaged = 'ClusterSelfManaged',
@@ -14398,6 +14397,7 @@ export enum AccessReviewResponseResource_type {
   OsdTrialProtectedCluster = 'OsdTrialProtectedCluster',
   ManifestWorkSync = 'ManifestWorkSync',
   ClusterForcedUpgrade = 'ClusterForcedUpgrade',
+  DeleteProtection = 'DeleteProtection',
 }
 export enum AccountGroupManaged_by {
   SSO = 'SSO',
@@ -14651,7 +14651,7 @@ export enum SelfAccessReviewResource_type {
   RegistryCredential = 'RegistryCredential',
   CurrentAccount = 'CurrentAccount',
   AccessReview = 'AccessReview',
-  SelfAcccessReview = 'SelfAcccessReview',
+  SelfAccessReview = 'SelfAccessReview',
   ResourceReview = 'ResourceReview',
   SelfResourceReview = 'SelfResourceReview',
   ClusterRegistration = 'ClusterRegistration',
@@ -14673,7 +14673,6 @@ export enum SelfAccessReviewResource_type {
   SubscriptionLabel = 'SubscriptionLabel',
   OrganizationLabel = 'OrganizationLabel',
   SubscriptionLabelInternal = 'SubscriptionLabelInternal',
-  SelfAccessReview = 'SelfAccessReview',
   SubscriptionInternal = 'SubscriptionInternal',
   SubscriptionRoleBinding = 'SubscriptionRoleBinding',
   ClusterSelfManaged = 'ClusterSelfManaged',
@@ -14690,6 +14689,7 @@ export enum SelfAccessReviewResource_type {
   ManifestWorkSync = 'ManifestWorkSync',
   ClusterForcedUpgrade = 'ClusterForcedUpgrade',
   DeletedCluster = 'DeletedCluster',
+  DeleteProtection = 'DeleteProtection',
 }
 export enum SelfResourceReviewAction {
   get = 'get',
