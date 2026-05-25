@@ -178,10 +178,12 @@ export default [
       'no-use-before-define': 'off',
       'no-underscore-dangle': ['error', { allow: ['__dirname', '__filename'] }],
       'no-shadow': 'off',
-      'prefer-destructuring': ['warn', { array: false, object: true }],
+      'prefer-destructuring': [
+        'warn',
+        { VariableDeclarator: { array: false, object: true }, AssignmentExpression: { array: false, object: false } },
+      ],
       'prefer-promise-reject-errors': 'error',
       'arrow-body-style': 'error',
-      'class-methods-use-this': 'warn',
       'max-len': [
         'error',
         {

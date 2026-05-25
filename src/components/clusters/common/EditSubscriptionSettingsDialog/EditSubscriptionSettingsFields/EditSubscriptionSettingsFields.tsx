@@ -140,7 +140,6 @@ const EditSubscriptionSettingsFields = ({
       }
       // system_units must be valid for disconnected clusters
       if (isValid && isDisconnected) {
-        // eslint-disable-next-line prefer-destructuring
         isValid = validateSystemUnitsNumericField(settings).isValid;
       }
       // TODO
