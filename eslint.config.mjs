@@ -18,27 +18,15 @@ import customRules from './eslint-plugin-custom-rules/index.js';
 
 const testFiles = [
   '**/*setupTests.ts',
-  '**/*.test.js',
-  '**/*.test.jsx',
-  '**/*test.js',
-  '**/*test.jsx',
-  '**/*.spec.js',
-  '**/*.spec.jsx',
-  '**/*.test.ts',
-  '**/*.test.tsx',
-  '**/*test.ts',
-  '**/*test.tsx',
-  '**/*.spec.ts',
-  '**/*.spec.tsx',
-  '**/*.stories.ts',
-  '**/*.stories.tsx',
-  '**/*.stories.js',
-  '**/*.stories.jsx',
+  '**/*.test.{js,jsx,ts,tsx}',
+  '**/*test.{js,jsx,ts,tsx}',
+  '**/*.spec.{js,jsx,ts,tsx}',
+  '**/*.stories.{js,jsx,ts,tsx}',
   'src/testUtils.tsx',
   'cypress.config.js',
   'fec.config.js',
   '*.mjs',
-  'run/**/*',
+  'run/**/*.{js,mjs}',
 ];
 
 export default [
