@@ -20,7 +20,6 @@ const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
   const dispatch = useDispatch();
   const clusterVersion = getClusterVersion(cluster);
   const { upgrade } = cluster.metrics;
-  // eslint-disable-next-line camelcase
   const osdUpgradeAvailable =
     cluster.managed &&
     cluster.version?.available_upgrades?.length > 0 &&

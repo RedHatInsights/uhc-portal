@@ -470,7 +470,6 @@ const ClusterDetails = (props) => {
     ? false
     : cluster.managed &&
       // The (managed) cluster has not yet reported its cluster ID to AMS
-      // eslint-disable-next-line camelcase
       cluster.external_id === undefined;
   const displaySupportTab = !hideSupportTab && !isOSDTrial;
   const displayUpgradeSettingsTab =

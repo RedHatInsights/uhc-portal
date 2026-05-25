@@ -35,13 +35,6 @@ export default [
     ignores: ['node_modules/**', 'dist/**', '.yalc/**', '*.json'],
   },
 
-  // Linter options
-  {
-    linterOptions: {
-      reportUnusedDisableDirectives: 'off',
-    },
-  },
-
   // Base JS recommended rules
   js.configs.recommended,
 
@@ -158,7 +151,6 @@ export default [
         },
       ],
       'react/jsx-filename-extension': ['warn', { extensions: ['.tsx', '.jsx'] }],
-      'react/prop-types': 'off',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'error',
 
@@ -302,6 +294,7 @@ export default [
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-unnecessary-type-constraint': 'off',
+      'react/prop-types': 'off',
     },
   },
 

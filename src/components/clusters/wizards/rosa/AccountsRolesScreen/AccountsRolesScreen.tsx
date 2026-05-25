@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Field } from 'formik';
 import get from 'lodash/get';
