@@ -148,7 +148,6 @@ export default [
       // Import rules
       'import/no-extraneous-dependencies': 'error',
       'import/prefer-default-export': 'off',
-      'import/no-named-as-default-member': 'off',
       'import/extensions': [
         'error',
         'ignorePackages',
@@ -162,11 +161,6 @@ export default [
       ],
 
       // React rules
-      'react/forbid-prop-types': 'off',
-      'react/require-default-props': 'off',
-      'react/jsx-no-target-blank': 'error',
-      'react/jsx-props-no-spreading': 'off',
-      'react/sort-comp': 'off',
       'react/state-in-constructor': ['error', 'never'],
       'react/function-component-definition': [
         'error',
@@ -176,16 +170,14 @@ export default [
         },
       ],
       'react/jsx-filename-extension': ['warn', { extensions: ['.tsx', '.jsx'] }],
-      'react/jsx-wrap-multilines': 'off',
       'react/prop-types': 'off',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'error',
 
-      // Core JS rules (from Airbnb, kept for existing eslint-disable comments)
+      // Core JS rules
       camelcase: ['error', { properties: 'never', ignoreDestructuring: false }],
       'consistent-return': 'error',
       'default-case': 'error',
-      'default-param-last': 'off',
       'no-await-in-loop': 'error',
       'no-console': 'error',
       'no-nested-ternary': 'error',
@@ -194,12 +186,10 @@ export default [
         'error',
         { props: true, ignorePropertyModificationsFor: ['draft', 'response', 'acc'] },
       ],
-      'no-redeclare': 'error',
       'no-restricted-syntax': 'error',
       'no-use-before-define': 'off',
       'no-underscore-dangle': ['error', { allow: ['__dirname', '__filename'] }],
       'no-shadow': 'off',
-      'no-unused-vars': 'off', // TypeScript handles this
       'prefer-destructuring': ['warn', { array: false, object: true }],
       'prefer-promise-reject-errors': 'error',
       'arrow-body-style': 'error',
@@ -215,10 +205,9 @@ export default [
         },
       ],
 
-      // TypeScript rules - match original config (less strict than recommended)
+      // TypeScript rules
       '@typescript-eslint/no-use-before-define': 'error',
-      // Disable rules that weren't in original config
-      '@typescript-eslint/no-unused-vars': 'off', // Let TypeScript handle this
+      '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-unsafe-function-type': 'off',
       '@typescript-eslint/no-wrapper-object-types': 'off',
@@ -235,7 +224,6 @@ export default [
       'react/no-unstable-nested-components': 'error',
       'react/destructuring-assignment': 'error',
       'react/no-unused-prop-types': 'error',
-      'react/jsx-one-expression-per-line': 'off', // Prettier handles this
       'no-constant-binary-expression': 'off',
 
       // Import sorting
@@ -316,20 +304,10 @@ export default [
     },
   },
 
-  // TypeScript files - disable formatting rules (Prettier handles)
+  // TypeScript files - relax strict rules
   {
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
-      'no-unused-vars': 'off',
-      'implicit-arrow-linebreak': 'off',
-      'arrow-parens': 'off',
-      indent: 'off',
-      'operator-linebreak': 'off',
-      'object-curly-newline': 'off',
-      'no-confusing-arrow': 'off',
-      'function-paren-newline': 'off',
-      'react/jsx-one-expression-per-line': 'off',
-      // Relax TypeScript rules to match previous config
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
