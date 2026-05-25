@@ -76,6 +76,9 @@ The test configuration uses `playwright.env.json` for environment-specific setti
   "QE_LOG_FORWARDING_S3_BUCKET_NAME": "AWS S3 bucket name for log forwarding",
   "QE_LOG_FORWARDING_S3_BUCKET_PREFIX": "AWS s3 bucket prefix or folder name for log forwarding",
   "QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN": "AWS cloud watch account arn role for log forwarding",
+  // exclusively for OSD AWS tests
+  "QE_AWS_IAM_USER": "AWS IAM username for OSD infrastructure access tests",
+  "QE_AWS_INFRA_ACCESS_IAM_ARN": "(optional) full IAM user ARN for OSD— defaults to arn:aws:iam::<QE_AWS_ID>:user/<QE_AWS_IAM_USER>",
   // Optional definitions for special day2 test runs
   "QE_ORGADMIN_USER": "org admin username",
   "QE_ORGADMIN_PASSWORD": "org admin password",
