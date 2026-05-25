@@ -41,7 +41,6 @@ if (realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   // Running as script, process stdin -> stdout.
   // Line-by-line is weirdly painful in NodeJS, so slurp whole input.
   const chunks = [];
-  // eslint-disable-next-line no-restricted-syntax
   for await (const chunk of process.stdin) {
     chunks.push(chunk);
   }
