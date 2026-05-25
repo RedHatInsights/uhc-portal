@@ -1,0 +1,355 @@
+import eslintConfigPrettier from 'eslint-config-prettier';
+import importPlugin from 'eslint-plugin-import';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import noSnapshotTesting from 'eslint-plugin-no-snapshot-testing';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import storybook from 'eslint-plugin-storybook';
+import testingLibrary from 'eslint-plugin-testing-library';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+
+import { fixupPluginRules } from '@eslint/compat';
+import js from '@eslint/js';
+
+// eslint-disable-next-line import/extensions
+import customRules from './eslint-plugin-custom-rules/index.js';
+
+const testFiles = [
+  '**/*setupTests.ts',
+  '**/*.test.js',
+  '**/*.test.jsx',
+  '**/*test.js',
+  '**/*test.jsx',
+  '**/*.spec.js',
+  '**/*.spec.jsx',
+  '**/*.test.ts',
+  '**/*.test.tsx',
+  '**/*test.ts',
+  '**/*test.tsx',
+  '**/*.spec.ts',
+  '**/*.spec.tsx',
+  '**/*.stories.ts',
+  '**/*.stories.tsx',
+  '**/*.stories.js',
+  '**/*.stories.jsx',
+  'src/testUtils.tsx',
+  'cypress.config.js',
+  'fec.config.js',
+  '*.mjs',
+  'run/**/*',
+];
+
+export default [
+  // Global ignores
+  {
+    ignores: ['node_modules/**', 'dist/**', '.yalc/**', '*.json'],
+  },
+
+  // Linter options
+  {
+    linterOptions: {
+      reportUnusedDisableDirectives: 'off',
+    },
+  },
+
+  // Base JS recommended rules
+  js.configs.recommended,
+
+  // TypeScript recommended rules
+  ...tseslint.configs.recommended,
+
+  // React recommended
+  react.configs.flat.recommended,
+  react.configs.flat['jsx-runtime'],
+
+  // Main project configuration
+  {
+    files: ['**/*.{js,jsx,mjs,ts,tsx}'],
+    plugins: {
+      import: fixupPluginRules(importPlugin),
+      'simple-import-sort': simpleImportSort,
+      'no-snapshot-testing': noSnapshotTesting,
+      'custom-rules': customRules,
+      'jsx-a11y': jsxA11y,
+      'react-hooks': reactHooks,
+    },
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.jest,
+        insights: 'readonly',
+        APP_DEVMODE: 'readonly',
+        APP_DEV_SERVER: 'readonly',
+        APP_SENTRY_RELEASE_VERSION: 'readonly',
+        OCM_SHOW_OLD_METRICS: 'readonly',
+      },
+      parserOptions: {
+        project: './tsconfig.lint.json',
+        ecmaFeatures: {
+          jsx: true,
+        },
+        ecmaVersion: 2017,
+        sourceType: 'module',
+        extraFileExtensions: ['.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+      'import/resolver': {
+        typescript: {
+          project: '.',
+        },
+      },
+    },
+    rules: {
+      // no-restricted-imports - PatternFly, apiRequest, do_not_use
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['./apiRequest', '../**/apiRequest', '../**/services/apiRequest'],
+              message: 'Use ~/services/apiRequest that provides mocks in unit tests',
+            },
+            {
+              group: ['@patternfly/react-icons/dist/js**'],
+              message:
+                'Import using the full esm path `@patternfly/react-icons/dist/esm/icons/<icon>` instead',
+            },
+            {
+              group: ['@patternfly/react-tokens/dist/js**'],
+              message:
+                'Import using the full esm path `@patternfly/react-tokens/dist/esm/icons/<icon>` instead',
+            },
+            {
+              group: ['*/*do_not_use*/*', '~/*/*/*do_not_use*/*'],
+              message: "Files in a 'do not use' directory are archived and should not be used",
+            },
+          ],
+          paths: [
+            {
+              name: '@patternfly/react-icons',
+              message:
+                'Import using full path `@patternfly/react-icons/dist/esm/icons/<icon>` instead',
+            },
+            {
+              name: '@patternfly/react-tokens',
+              message: 'Import using full path `@patternfly/react-tokens/dist/esm/<token>` instead',
+            },
+          ],
+        },
+      ],
+
+      // Import rules
+      'import/no-extraneous-dependencies': 'error',
+      'import/prefer-default-export': 'off',
+      'import/no-named-as-default-member': 'off',
+      'import/extensions': [
+        'error',
+        'ignorePackages',
+        {
+          mjs: 'always',
+          js: 'never',
+          jsx: 'never',
+          ts: 'never',
+          tsx: 'never',
+        },
+      ],
+
+      // React rules
+      'react/forbid-prop-types': 'off',
+      'react/require-default-props': 'off',
+      'react/jsx-no-target-blank': 'error',
+      'react/jsx-props-no-spreading': 'off',
+      'react/sort-comp': 'off',
+      'react/state-in-constructor': ['error', 'never'],
+      'react/function-component-definition': [
+        'error',
+        {
+          namedComponents: ['function-declaration', 'arrow-function'],
+          unnamedComponents: ['function-expression', 'arrow-function'],
+        },
+      ],
+      'react/jsx-filename-extension': ['warn', { extensions: ['.tsx', '.jsx'] }],
+      'react/jsx-wrap-multilines': 'off',
+      'react/prop-types': 'off',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
+
+      // Core JS rules (from Airbnb, kept for existing eslint-disable comments)
+      camelcase: ['error', { properties: 'never', ignoreDestructuring: false }],
+      'consistent-return': 'error',
+      'default-case': 'error',
+      'default-param-last': 'off',
+      'no-await-in-loop': 'error',
+      'no-console': 'error',
+      'no-nested-ternary': 'error',
+      'no-new': 'error',
+      'no-param-reassign': [
+        'error',
+        { props: true, ignorePropertyModificationsFor: ['draft', 'response', 'acc'] },
+      ],
+      'no-redeclare': 'error',
+      'no-restricted-syntax': 'error',
+      'no-use-before-define': 'off',
+      'no-underscore-dangle': ['error', { allow: ['__dirname', '__filename'] }],
+      'no-shadow': 'off',
+      'no-unused-vars': 'off', // TypeScript handles this
+      'prefer-destructuring': ['warn', { array: false, object: true }],
+      'prefer-promise-reject-errors': 'error',
+      'arrow-body-style': 'error',
+      'class-methods-use-this': 'warn',
+      'max-len': [
+        'error',
+        {
+          code: 120,
+          ignoreUrls: true,
+          ignoreStrings: true,
+          ignoreTemplateLiterals: true,
+          ignoreComments: true,
+        },
+      ],
+
+      // TypeScript rules - match original config (less strict than recommended)
+      '@typescript-eslint/no-use-before-define': 'error',
+      // Disable rules that weren't in original config
+      '@typescript-eslint/no-unused-vars': 'off', // Let TypeScript handle this
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+      '@typescript-eslint/no-wrapper-object-types': 'off',
+      '@typescript-eslint/no-extra-non-null-assertion': 'off',
+      '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
+      '@typescript-eslint/no-this-alias': 'off',
+
+      // React rules
+      'react/display-name': 'off',
+      'react/jsx-key': 'off',
+      'react/no-array-index-key': 'warn',
+      'react/no-did-update-set-state': 'error',
+      'react/jsx-no-useless-fragment': 'error',
+      'react/no-unstable-nested-components': 'error',
+      'react/destructuring-assignment': 'error',
+      'react/no-unused-prop-types': 'error',
+      'react/jsx-one-expression-per-line': 'off', // Prettier handles this
+      'no-constant-binary-expression': 'off',
+
+      // Import sorting
+      'simple-import-sort/imports': [
+        'error',
+        {
+          groups: [
+            ['^react$', '^next', '^[a-z]'],
+            ['^@'],
+            ['^~'],
+            ['^\\.\\.(?!/?$)', '^\\.\\./?$'],
+            ['^\\./(?=.*/)(?!/?$)', '^\\.(?!/?$)', '^\\./?$'],
+            ['^.+\\.s?css$'],
+            ['^\\u0000'],
+          ],
+        },
+      ],
+
+      // Custom rules
+      'custom-rules/restrict-react-router-imports': 'error',
+
+      // Snapshot testing
+      'no-snapshot-testing/no-snapshot-testing': 'error',
+
+      // JSX A11y
+      ...jsxA11y.configs.recommended.rules,
+    },
+  },
+
+  // Testing Library config for test files
+  {
+    files: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.test.js',
+      '**/*.test.jsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+    ],
+    ...testingLibrary.configs['flat/react'],
+    rules: {
+      ...testingLibrary.configs['flat/react'].rules,
+      'testing-library/await-async-queries': 'error',
+      'testing-library/prefer-screen-queries': 'off',
+      'testing-library/prefer-presence-queries': 'off',
+      'testing-library/no-container': 'off',
+      'testing-library/no-dom-import': 'error',
+      'testing-library/no-unnecessary-act': 'error',
+      'testing-library/prefer-find-by': 'error',
+      'testing-library/prefer-user-event': 'error',
+      'testing-library/no-wait-for-multiple-assertions': 'error',
+      'testing-library/render-result-naming-convention': 'error',
+      'testing-library/no-debugging-utils': 'error',
+    },
+  },
+
+  // Storybook config
+  ...storybook.configs['flat/recommended'],
+  {
+    files: ['**/*.stories.ts', '**/*.stories.tsx', '**/*.stories.js', '**/*.stories.jsx'],
+    rules: {
+      'storybook/context-in-play-function': 'off',
+    },
+  },
+
+  // Test files override - allow devDependencies and node globals
+  {
+    files: testFiles,
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        global: 'readonly',
+      },
+    },
+    rules: {
+      'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+      'no-console': 'off',
+    },
+  },
+
+  // TypeScript files - disable formatting rules (Prettier handles)
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    rules: {
+      'no-unused-vars': 'off',
+      'implicit-arrow-linebreak': 'off',
+      'arrow-parens': 'off',
+      indent: 'off',
+      'operator-linebreak': 'off',
+      'object-curly-newline': 'off',
+      'no-confusing-arrow': 'off',
+      'function-paren-newline': 'off',
+      'react/jsx-one-expression-per-line': 'off',
+      // Relax TypeScript rules to match previous config
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-unnecessary-type-constraint': 'off',
+    },
+  },
+
+  // Node.js files in run/ directory - need node globals
+  {
+    files: ['run/**/*.js', 'run/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
+
+  // Prettier - must be last to override formatting rules
+  eslintConfigPrettier,
+];

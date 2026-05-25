@@ -15,6 +15,7 @@ const rendered = jest.fn();
 type Props = { pending: boolean; other: string; loadData: () => any };
 
 class PresentationalComponent extends React.Component<Props> {
+  // eslint-disable-next-line class-methods-use-this
   componentDidMount() {
     didMount();
   }
