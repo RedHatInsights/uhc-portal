@@ -46,7 +46,6 @@ function subscriptionSettingsReducer(
   state = initialState,
   action: PromiseActionType<SubscriptionSettingsAction>,
 ): State {
-  // eslint-disable-next-line consistent-return
   return produce(state, (draft) => {
     // eslint-disable-next-line default-case
     switch (action.type) {
