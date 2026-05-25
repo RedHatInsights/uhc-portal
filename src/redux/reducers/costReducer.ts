@@ -52,6 +52,7 @@ const initialState: State = {
   },
 };
 
+// eslint-disable-next-line default-param-last
 function costReducer(state = initialState, action: PromiseActionType<CostAction>): State {
   // eslint-disable-next-line consistent-return
   return produce(state, (draft) => {

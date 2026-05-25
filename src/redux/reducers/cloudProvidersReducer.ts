@@ -28,6 +28,7 @@ const initialState: State = {
 };
 
 const cloudProvidersReducer = (
+  // eslint-disable-next-line default-param-last
   state: State = initialState,
   action: PromiseActionType<CloudProviderAction>,
 ): State => {

@@ -47,6 +47,7 @@ const mapMachineTypesById = (types: { [id: string]: MachineType[] }) =>
   keyBy([...(types.aws ?? []), ...(types.gcp ?? [])], 'id');
 
 function machineTypesByRegionReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<MachineTypesByRegionAction>,
 ): MachineTypesByRegionState {

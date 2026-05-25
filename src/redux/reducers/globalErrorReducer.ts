@@ -13,6 +13,7 @@ const initialState: State = {
   sourceComponent: undefined,
 };
 
+// eslint-disable-next-line default-param-last
 function globalErrorReducer(state = initialState, action: GlobalErrorAction): State {
   switch (action.type) {
     case SET_GLOBAL_ERROR:

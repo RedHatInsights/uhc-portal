@@ -55,6 +55,7 @@ const initialState: State = {
 };
 
 function dashboardsReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<DashboardsAction>,
 ): State {

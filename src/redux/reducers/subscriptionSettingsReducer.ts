@@ -42,6 +42,7 @@ const initialState: State = {
 };
 
 function subscriptionSettingsReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<SubscriptionSettingsAction>,
 ): State {

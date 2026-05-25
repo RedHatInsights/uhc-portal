@@ -49,6 +49,7 @@ const initialState: State = {
 };
 
 function accessProtectionReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<AccessProtectionAction>,
 ): State {

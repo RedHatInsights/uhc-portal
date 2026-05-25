@@ -60,6 +60,7 @@ const initialState: SupportReducerState = {
   },
 };
 
+// eslint-disable-next-line default-param-last
 const supportReducer = (state = initialState, action: PromiseActionType<SupportActions>) =>
   // eslint-disable-next-line consistent-return
   produce(state, (draft) => {

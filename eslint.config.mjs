@@ -158,6 +158,7 @@ export default [
       camelcase: ['error', { properties: 'never', ignoreDestructuring: false }],
       'consistent-return': 'error',
       'default-case': 'error',
+      'default-param-last': 'error',
       'no-await-in-loop': 'error',
       'no-console': 'error',
       'no-nested-ternary': 'error',

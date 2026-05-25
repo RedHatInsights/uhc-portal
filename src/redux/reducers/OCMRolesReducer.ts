@@ -35,6 +35,7 @@ const initialState: State = {
   },
 };
 
+// eslint-disable-next-line default-param-last
 function OCMRolesReducer(state = initialState, action: PromiseActionType<OCMRoleAction>) {
   // eslint-disable-next-line consistent-return
   return produce(state, (draft) => {

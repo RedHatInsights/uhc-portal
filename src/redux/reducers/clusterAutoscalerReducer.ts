@@ -48,6 +48,7 @@ const initialState: State = {
 };
 
 function clusterAutoscalerReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<ClusterAutoscalerAction>,
 ): State {
