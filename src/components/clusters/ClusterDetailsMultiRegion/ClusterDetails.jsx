@@ -428,7 +428,6 @@ const ClusterDetails = (props) => {
   const gotRouters = get(clusterRouters, 'getRouters.routers.length', 0) > 0;
   const isROSA = get(cluster, 'subscription.plan.type') === normalizedProducts.ROSA;
 
-  // eslint-disable-next-line no-unused-vars
   const isManaged = cluster.managed;
   const isHypershift = isHypershiftCluster(cluster);
   const isClusterWaiting = cluster.state === clusterStates.waiting;
@@ -437,7 +436,7 @@ const ClusterDetails = (props) => {
   const isClusterReady = cluster.state === clusterStates.ready;
   const isClusterUpdating = cluster.state === clusterStates.updating;
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const canCreateGCPNonCCSCluster = hasCapability(
     organization.details,
     subscriptionCapabilities.CREATE_GCP_NON_CCS_CLUSTER,
