@@ -84,7 +84,6 @@ const IDPForm = ({
     if (isEditForm) {
       setIsExpanded(checkIfExpandable(selectedIDP, idpEdited));
     }
-    // eslint-disable-next-line  react-hooks/exhaustive-deps
   }, [isExpanded, isEditForm, selectedIdpName, selectedIDP, idpEdited]);
 
   React.useEffect(() => {
