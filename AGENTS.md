@@ -1,20 +1,38 @@
 # OCM UI (uhc-portal)
 
-UI for OpenShift Cluster Manager — a React/TypeScript single-page application running on console.redhat.com under the `/openshift` route.
+UI for OpenShift Cluster Manager — a React/TypeScript single-page application running on console.redhat.com under the `/openshift` route. Built on PatternFly (design system and component library), React Query (server state). Jest handles unit testing and  Playwright handles E2E against staging.
 
-## Feature Work and Bug Fixes
+Some parts of the application are legacy code, using JavaScript and Redux for global state management and data fetching.
 
-When writing or modifying application code, follow all conventions and guidelines in [`docs/contributing.md`](docs/contributing.md) and [`docs/code-guide.md`](docs/code-guide.md).
+## Documents index
 
-## Test
+All documents are located inside `/docs`. Read the relevant file before writing or reviewing code.
 
-### Unit tests
+root: docs/
 
-When writing or modifying unit tests, follow all conventions and guidelines in [`docs/unit-testing.md`](docs/unit-testing.md).
+UI-components:              code-guide.md
+contributing:               contributing.md
+unit-testing:               unit-testing.md
+e2e-testing:                Playwright-e2e-test-automation-guidelines.md
+e2e-testing FAQ:            Playwright-e2e-test-automation-faq.md
 
-### E2E tests (Playwright)
+## Project structure
 
-When writing or modifying E2E tests, follow all conventions and guidelines in [`docs/Playwright-e2e-test-automation-guidelines.md`](docs/Playwright-e2e-test-automation-guidelines.md) and [`docs/Playwright-e2e-test-automation-faq.md`](docs/Playwright-e2e-test-automation-faq.md).
+```
+src/
+  bootstrap.ts          # App entry point
+  chrome-main.tsx       # Module federation root
+  common/               # Shared utilities, link definitions (docLinks, supportLinks, installLinks)
+  components/           # Feature components organized by domain
+  config/               # Environment and app configuration
+  hoc/                  # Higher-order components
+  hooks/                # Shared custom hooks
+  queries/              # TanStack Query hooks organized by feature/domain
+  redux/                # Legacy Redux store, reducers, actions
+  services/             # API request layer and service functions
+  styles/               # Global styles
+  types/                # OpenAPI-generated TypeScript types
+```
 
 ## PR and Commit Conventions
 

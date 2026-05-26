@@ -12,7 +12,8 @@ Use these guidelines during development and code reviews. When in doubt or if a 
 ## General Conventions
 
 - Functional components with hooks only — no class components
-- PascalCase for component files and names; camelCase for non-component files, functions, and variables
+- PascalCase for component files and names; camelCase for non-component files, functions, and variables.
+- kebab-case for shell scripts and config files.
 - `UPPER_SNAKE_CASE` for true constants
 - Boolean props prefixed with `is`, `has`, `can`, `should`
 - Circular dependencies checked in CI: `yarn find-circular-dependencies`
