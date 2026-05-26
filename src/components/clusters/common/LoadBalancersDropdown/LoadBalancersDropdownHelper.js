@@ -11,7 +11,4 @@ const filterLoadBalancerValuesByQuota = (currentValue, loadBalancerValues, remai
   return result;
 };
 
-export {
-  // eslint-disable-next-line import/prefer-default-export
-  filterLoadBalancerValuesByQuota,
-};
+export { filterLoadBalancerValuesByQuota };
