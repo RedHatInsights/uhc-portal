@@ -194,16 +194,6 @@ export default [
       ],
       'prefer-promise-reject-errors': 'error',
       'arrow-body-style': 'error',
-      'max-len': [
-        'error',
-        {
-          code: 120,
-          ignoreUrls: true,
-          ignoreStrings: true,
-          ignoreTemplateLiterals: true,
-          ignoreComments: true,
-        },
-      ],
 
       // TypeScript rules
       '@typescript-eslint/no-use-before-define': 'error',
