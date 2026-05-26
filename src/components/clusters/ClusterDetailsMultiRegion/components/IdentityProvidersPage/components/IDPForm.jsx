@@ -90,7 +90,6 @@ const IDPForm = ({
     if (!isEditForm) {
       const generatedName = generateIDPName(selectedIDP, IDPList);
       if (generatedName !== IDPName) {
-        // eslint-disable-next-line react/no-did-update-set-state
         setFieldValue(FieldId.NAME, generatedName);
         setIDPName(generatedName);
       }

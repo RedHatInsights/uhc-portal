@@ -74,8 +74,6 @@ const Overview = (props) => {
     ) {
       // we only want to show this alert if the cluster transitioned from installing/pending
       // to Ready while the page was open.
-
-      // eslint-disable-next-line react/no-did-update-set-state
       setShowInstallSuccessAlert(true);
     }
 

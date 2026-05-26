@@ -169,7 +169,6 @@ const LogWindow = ({
       // If this is the first time we're getting the log, it'll trigger a scroll event,
       // setting userScrolled since the view won't be scrolled all the way down.
       // So we need to account for that, and set it to false here.
-      // eslint-disable-next-line react/no-did-update-set-state
       setUserScrolled(false);
     }
 
