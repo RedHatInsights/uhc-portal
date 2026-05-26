@@ -111,13 +111,103 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   async isClusterDetailsScreen(): Promise<void> {
-    await expect(this.page.getByRole('heading', { name: 'Cluster details' })).toBeVisible({
-      timeout: 30000,
+    const clusterDetailsHeading = this.page.locator('h3:has-text("Cluster details")');
+    await expect(
+      clusterDetailsHeading.or(this.page.getByRole('heading', { name: 'Cluster details' })),
+    ).toBeVisible({
+      timeout: 90000,
     });
     // Wait for cluster version dropdown to be visible to avoid flaky behavior
     await this.page
       .getByRole('button', { name: 'Options menu' })
       .waitFor({ state: 'visible', timeout: 90000 });
+  }
+
+  clusterSettingsDetailsWizardStep(): Locator {
+    return this.page.locator('button[id="cluster-settings-details"]');
+  }
+
+  /**
+   * Cloud provider Next triggers async CCS credential verification before advancing to Details.
+   * @see CloudProviderStepFooter
+   */
+  async waitForAwsCcsCredentialVerification(): Promise<void> {
+    const validating = this.page.getByText('Validating...');
+    const credentialError = this.page.getByRole('alert').filter({
+      hasText: /wasn't able to verify your credentials/i,
+    });
+
+    const sawValidating = await validating
+      .waitFor({ state: 'visible', timeout: 20_000 })
+      .then(() => true)
+      .catch(() => false);
+
+    if (sawValidating) {
+      await validating.waitFor({ state: 'hidden', timeout: 120_000 });
+    }
+
+    if (await credentialError.isVisible()) {
+      throw new Error(
+        'AWS CCS credential verification failed (staging rejected the keys). Check QE_AWS_ID, QE_AWS_ACCESS_KEY_ID, and QE_AWS_ACCESS_KEY_SECRET in playwright.env.json.',
+      );
+    }
+  }
+
+  /** AWS CCS: fill BYOC credentials, acknowledge prerequisites, and advance to Cluster details. */
+  async completeAwsCloudProviderStep(
+    awsAccountId: string,
+    awsAccessKeyId: string,
+    awsSecretAccessKey: string,
+  ): Promise<void> {
+    await this.isCloudProviderSelectionScreen();
+    await this.selectCloudProvider('AWS');
+
+    await this.awsAccountIDInput().fill(awsAccountId);
+    await this.awsAccountIDInput().blur();
+    await this.awsAccessKeyInput().fill(awsAccessKeyId);
+    await this.awsAccessKeyInput().blur();
+    await this.awsSecretKeyInput().fill(awsSecretAccessKey);
+    await this.awsSecretKeyInput().blur();
+
+    await this.acknowlegePrerequisitesCheckbox().check();
+    await expect(this.wizardNextButton()).toBeEnabled();
+    await this.wizardNextButton().click();
+
+    await this.waitForAwsCcsCredentialVerification();
+
+    await this.ensureClusterDetailsScreen();
+  }
+
+  /** GCP CCS (Service Account): upload credentials, acknowledge prerequisites, advance to Cluster details. */
+  async completeGcpCcsServiceAccountCloudProviderStep(
+    cloudProvider: string,
+    serviceAccountJson: string,
+  ): Promise<void> {
+    await this.isCloudProviderSelectionScreen();
+    await this.selectCloudProvider(cloudProvider);
+    await this.serviceAccountButton().click();
+    await this.uploadGCPServiceAccountJSON(serviceAccountJson);
+    await this.acknowlegePrerequisitesCheckbox().check();
+    await expect(this.wizardNextButton()).toBeEnabled();
+    await this.wizardNextButton().click();
+
+    await this.ensureClusterDetailsScreen();
+  }
+
+  /** GCP CCS (WIF): select provider, configure WIF, acknowledge prerequisites, advance to Cluster details. */
+  async completeGcpCcsWifCloudProviderStep(
+    cloudProvider: string,
+    wifConfig: string,
+  ): Promise<void> {
+    await this.isCloudProviderSelectionScreen();
+    await this.selectCloudProvider(cloudProvider);
+    await this.workloadIdentityFederationButton().click();
+    await this.selectWorkloadIdentityConfiguration(wifConfig);
+    await this.acknowlegePrerequisitesCheckbox().check();
+    await expect(this.wizardNextButton()).toBeEnabled();
+    await this.wizardNextButton().click();
+
+    await this.ensureClusterDetailsScreen();
   }
 
   get clusterNameInput(): string {
@@ -141,9 +231,9 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   async isNetworkingScreen(): Promise<void> {
-    await expect(
-      this.page.getByRole('heading', { name: 'Networking configuration' }),
-    ).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Networking configuration' })).toBeVisible({
+      timeout: 30000,
+    });
   }
 
   async isCIDRScreen(): Promise<void> {
@@ -247,6 +337,30 @@ export class CreateOSDWizardPage extends BasePage {
     await this.page.locator(this.clusterNameInput).scrollIntoViewIfNeeded();
     await this.page.locator(this.clusterNameInput).clear();
     await this.page.locator(this.clusterNameInput).fill(clusterName);
+  }
+
+  clusterNameUniqueError(): Locator {
+    return this.page
+      .locator(this.clusterNameInputError)
+      .filter({ hasText: 'Globally unique name in your organization' });
+  }
+
+  async waitForClusterNameAvailable(timeout = 120000): Promise<void> {
+    await this.page.locator(this.clusterNameInput).blur();
+    await expect(this.clusterNameUniqueError()).not.toBeVisible({ timeout });
+  }
+
+  async setClusterNameAndWaitForAvailability(clusterName: string): Promise<void> {
+    await this.setClusterName(clusterName);
+    await this.hideClusterNameValidation();
+    await this.waitForClusterNameAvailable();
+  }
+
+  async advanceFromClusterDetailsToMachinePool(): Promise<void> {
+    await this.waitForClusterNameAvailable();
+    await expect(this.wizardNextButton()).toBeEnabled();
+    await this.wizardNextButton().click();
+    await this.isMachinePoolScreen();
   }
 
   async setDomainPrefix(domainPrefix: string): Promise<void> {
@@ -581,6 +695,15 @@ export class CreateOSDWizardPage extends BasePage {
     return this.page.getByRole('button', { name: 'Create cluster' });
   }
 
+  /** After Create cluster, wait for redirect to the cluster installation (overview) page. */
+  async waitForClusterCreationAndOverview(): Promise<void> {
+    await expect(this.page.locator('h2, h3').filter({ hasText: 'Installing cluster' })).toBeVisible(
+      {
+        timeout: 120000,
+      },
+    );
+  }
+
   // Cluster privacy private radio
   clusterPrivacyPrivateRadio(): Locator {
     return this.page.locator('input[id="form-radiobutton-cluster_privacy-internal-field"]');
@@ -643,10 +766,236 @@ export class CreateOSDWizardPage extends BasePage {
   }
 
   // Cluster version selection
+  versionDropdownToggle(): Locator {
+    return this.page.locator('#version-selector');
+  }
+
+  /** Version options live in the FuzzySelect listbox, not native `<select>` options. */
+  versionDropdownOption(version: string): Locator {
+    return this.page
+      .getByRole('listbox', { name: 'Select options list' })
+      .getByRole('option', { name: version, exact: true });
+  }
+
+  versionLoadingIndicator(): Locator {
+    return this.page.getByLabel('Loading...');
+  }
+
+  /** Y-stream Channel `<select>` (requires `ocmui-y-stream-channel` feature gate). */
+  channelDropdown(): Locator {
+    return this.page.getByLabel('Channel', { exact: true });
+  }
+
+  channelGroupSelect(): Locator {
+    return this.page.getByLabel('Channel group');
+  }
+
+  channelFieldLabel(): Locator {
+    return this.page.getByText('Channel', { exact: true });
+  }
+
+  versionFieldLabel(): Locator {
+    return this.page.getByText('Version', { exact: true }).first();
+  }
+
+  async selectChannel(channel: string): Promise<void> {
+    await this.channelDropdown().waitFor({ state: 'visible', timeout: 90000 });
+    await this.channelDropdown().selectOption(channel);
+  }
+
+  /** Visible `<option>` values on the Channel select (excludes empty placeholder). */
+  async channelDropdownOptionValues(): Promise<string[]> {
+    const select = this.channelDropdown();
+    await select.waitFor({ state: 'visible', timeout: 90000 });
+    return select
+      .locator('option')
+      .evaluateAll((opts) =>
+        opts.map((o) => (o as HTMLOptionElement).value.trim()).filter((value) => value.length > 0),
+      );
+  }
+
+  channelDropdownPlaceholder(): Locator {
+    return this.channelDropdown().getByRole('option', { name: 'Select a channel' });
+  }
+
+  channelDropdownEmptyMessage(): Locator {
+    return this.channelDropdown().locator('option').filter({
+      hasText: 'No channels available for the selected version',
+    });
+  }
+
+  channelInfoIcon(): Locator {
+    return this.page.getByRole('button', { name: 'Update channels information' });
+  }
+
+  channelPopover(): Locator {
+    return this.page.getByRole('dialog', { name: 'help' }).filter({ hasText: /Channels provide/i });
+  }
+
+  channelPopoverLearnMoreLink(): Locator {
+    return this.channelPopover().getByRole('link', { name: 'Learn more' });
+  }
+
+  async followChannelPopoverLearnMoreLink(docUrlFragment: string): Promise<void> {
+    const learnMore = this.channelPopoverLearnMoreLink();
+    await expect(learnMore).toHaveAttribute('href', new RegExp(docUrlFragment));
+
+    const popupPromise = this.page.waitForEvent('popup', { timeout: 60000 });
+    await learnMore.click();
+    const docPage = await popupPromise;
+    await docPage.waitForLoadState('domcontentloaded');
+    await expect(docPage).toHaveURL(new RegExp(docUrlFragment));
+    await docPage.close();
+  }
+
+  reviewChannelValue(): Locator {
+    return this.page.getByTestId('Channel').locator('motion.div, div');
+  }
+
+  reviewVersionValue(): Locator {
+    return this.page.getByTestId('Version').locator('motion.div, div');
+  }
+
+  async waitForInstallableVersionsLoaded(): Promise<void> {
+    await this.ensureClusterDetailsScreen();
+    await this.versionDropdownToggle().waitFor({ state: 'visible', timeout: 90000 });
+    const loading = this.versionLoadingIndicator();
+    if (await loading.isVisible().catch(() => false)) {
+      await loading.waitFor({ state: 'hidden', timeout: 120000 });
+    }
+  }
+
+  async assertVersionFieldAppearsBeforeChannelField(): Promise<void> {
+    const versionBox = await this.versionFieldLabel().boundingBox();
+    const channelBox = await this.channelFieldLabel().boundingBox();
+    expect(versionBox).not.toBeNull();
+    expect(channelBox).not.toBeNull();
+    expect(versionBox!.y).toBeLessThan(channelBox!.y);
+  }
+
+  async assertYStreamChannelUiWithoutChannelGroup(): Promise<void> {
+    await expect(this.channelGroupSelect()).not.toBeVisible();
+    await expect(this.channelDropdown()).toBeVisible();
+  }
+
+  async fillMinimumClusterDetailsFields(region: string): Promise<void> {
+    await this.setClusterName(`ystream-ch-${Math.random().toString(36).substring(2, 10)}`);
+    await this.closePopoverDialogs();
+    await this.selectAvailabilityZone('Single Zone');
+    await this.selectRegion(region);
+  }
+
+  async assertChannelDropdownPlaceholderIsEmpty(placeholderLabel: string): Promise<void> {
+    const placeholder = this.channelDropdownPlaceholder();
+    await expect(placeholder).toHaveAttribute('value', '');
+    await expect(placeholder).toHaveText(placeholderLabel);
+  }
+
+  async assertChannelOptionValuesMatchAvailableChannelsPattern(): Promise<void> {
+    const optionValues = await this.channelDropdownOptionValues();
+    expect(optionValues.length).toBeGreaterThan(0);
+    for (const value of optionValues) {
+      expect(value).toMatch(/^(stable|fast|candidate|eus)-\d+\.\d+$/);
+    }
+  }
+
+  /** Navigates to Cluster details without leaving the wizard (never Back from Details). */
+  async ensureClusterDetailsScreen(): Promise<void> {
+    const detailsHeading = this.page
+      .locator('h3:has-text("Cluster details")')
+      .or(this.page.getByRole('heading', { name: 'Cluster details' }));
+
+    if (await detailsHeading.isVisible().catch(() => false)) {
+      await this.isClusterDetailsScreen();
+      return;
+    }
+
+    const machinePoolHeading = this.page.getByRole('heading', {
+      name: /Machine pools|Default machine pool/,
+    });
+    if (await machinePoolHeading.isVisible().catch(() => false)) {
+      await this.wizardBackButton().click();
+      await this.isClusterDetailsScreen();
+      return;
+    }
+
+    const detailsStep = this.page.getByRole('button', { name: 'Details', exact: true });
+    if (await detailsStep.isVisible().catch(() => false)) {
+      await detailsStep.click();
+      await this.isClusterDetailsScreen();
+      return;
+    }
+
+    const clusterDetailsWizardStep = this.clusterSettingsDetailsWizardStep();
+    if (await clusterDetailsWizardStep.isVisible().catch(() => false)) {
+      await clusterDetailsWizardStep.click();
+      await this.isClusterDetailsScreen();
+      return;
+    }
+
+    await this.isClusterDetailsScreen();
+  }
+
+  /** Clears channel selection on Cluster details. */
+  async resetClusterDetailsSelections(): Promise<void> {
+    await this.ensureClusterDetailsScreen();
+
+    const channelDropdown = this.channelDropdown();
+    if (await channelDropdown.isEnabled()) {
+      await channelDropdown.selectOption('');
+      await expect(channelDropdown).toHaveValue('');
+    }
+  }
+
+  async navigateWizardBackToClusterDetails(): Promise<void> {
+    await this.wizardBackButton().click();
+    await this.isClusterUpdatesScreen();
+    await this.wizardBackButton().click();
+    await this.isCIDRScreen();
+    await this.wizardBackButton().click();
+    await this.isNetworkingScreen();
+    await this.wizardBackButton().click();
+    await this.isMachinePoolScreen();
+    await this.wizardBackButton().click();
+    await this.isClusterDetailsScreen();
+  }
+
+  async completeMachinePoolStep(instanceType: string, nodeCount: number): Promise<void> {
+    await this.isMachinePoolScreen();
+    await this.selectComputeNodeType(instanceType);
+    await this.selectComputeNodeCount(nodeCount);
+  }
+
+  async advanceOsdWizardToReview(instanceType: string, nodeCount: number): Promise<void> {
+    await this.completeMachinePoolStep(instanceType, nodeCount);
+    await this.wizardNextButton().click();
+    await this.isCIDRScreen();
+    await this.wizardNextButton().click();
+    await this.isClusterUpdatesScreen();
+    await this.wizardNextButton().click();
+    await this.isReviewScreen();
+  }
+
+  /** Waits for the OCM POST /clusters request issued when Create cluster is clicked. */
+  waitForClusterCreatePostRequest() {
+    return this.page.waitForRequest(
+      (request) =>
+        request.method() === 'POST' &&
+        /\/api\/clusters_mgmt\/v1\/clusters\/?(\?|$)/.test(request.url()) &&
+        !request.url().includes('/clusters/'),
+    );
+  }
+
+  parseClusterCreatePostBody(request: { postData(): string | null }): Record<string, unknown> {
+    const raw = request.postData();
+    return raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+  }
+
   async selectVersion(version: string): Promise<void> {
     if (version !== '') {
-      await this.page.locator('button[id="version-selector"]').click();
-      await this.page.getByRole('option', { name: version }).click();
+      await this.waitForInstallableVersionsLoaded();
+      await this.versionDropdownToggle().click();
+      await this.versionDropdownOption(version).click();
     }
   }
 
