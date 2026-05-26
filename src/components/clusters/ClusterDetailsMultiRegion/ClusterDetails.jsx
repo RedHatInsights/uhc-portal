@@ -198,12 +198,10 @@ const ClusterDetails = (props) => {
   const canTransferClusterOwnership = canTransferClusterOwnershipMultiRegion(cluster);
   const hasIssues = issuesAndWarningsSelector(monitoring, cluster).issues.totalCount > 0;
 
-  // eslint-disable-next-line no-unused-vars
   const displayClusterLogs = cluster && (!!cluster.external_id || !!cluster.id);
 
   const initTabOpen = location.hash.replace('#', '');
   const [selectedTab, setSelectedTab] = React.useState('');
-  // eslint-disable-next-line no-unused-vars
   const [refreshEvent, setRefreshEvent] = React.useState({ type: eventTypes.NONE });
 
   const overviewTabRef = React.useRef();
