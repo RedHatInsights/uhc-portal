@@ -222,7 +222,6 @@ const parameterValuesForEditing = (addOnInstallation, addOn) => {
         paramValue = paramValue || undefined;
       }
       if (paramValue !== undefined) {
-        // eslint-disable-next-line no-param-reassign
         acc[curr.id] = paramValue;
       }
       return acc;
@@ -249,7 +248,6 @@ const parameterAndValue = (addOnInstallation, addOn) => {
       }
       if (paramValue !== undefined) {
         const updatedParam = { value: paramValue.toString(), ...curr };
-        // eslint-disable-next-line no-param-reassign
         acc[curr.id] = updatedParam;
       }
       return acc;
