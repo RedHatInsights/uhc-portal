@@ -39,7 +39,7 @@ const DeleteProtection = ({
     <EditButton
       disableReason={disableToggleReason}
       isAriaDisabled={!!disableToggleReason || pending}
-      ariaLabel={`${protectionEnabled ? 'Disable' : 'Enable'}`}
+      ariaLabel={`${protectionEnabled ? 'Disable' : 'Enable'} delete protection`}
       onClick={() =>
         dispatch(openModal(modals.DELETE_PROTECTION, { clusterID, protectionEnabled, region }))
       }

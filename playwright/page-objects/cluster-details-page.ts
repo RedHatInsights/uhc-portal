@@ -456,4 +456,79 @@ export class ClusterDetailsPage extends BasePage {
     await this.saveAutoNodeButton().click();
     await expect(this.editAutoNodeModalHeading()).toBeHidden({ timeout: 30000 });
   }
+
+  // Delete protection – Overview tab
+  deleteProtectionTerm(): Locator {
+    return this.page.getByRole('term').filter({ hasText: 'Delete Protection' });
+  }
+
+  deleteProtectionEnableButton(): Locator {
+    return this.page.getByRole('button', { name: 'Enable delete protection' });
+  }
+
+  deleteProtectionDisableButton(): Locator {
+    return this.page.getByRole('button', { name: 'Disable delete protection' });
+  }
+
+  deleteProtectionModalDialog(): Locator {
+    return this.page.getByTestId('delete-protection-dialog');
+  }
+
+  deleteProtectionModalHeading(action: 'Enable' | 'Disable'): Locator {
+    return this.page.getByRole('heading', {
+      name: `${action} deletion protection`,
+    });
+  }
+
+  deleteProtectionModalPrimaryButton(): Locator {
+    return this.deleteProtectionModalDialog().getByTestId('btn-primary');
+  }
+
+  deleteProtectionModalCancelButton(): Locator {
+    return this.deleteProtectionModalDialog().getByRole('button', { name: 'Cancel' });
+  }
+
+  async openEnableDeleteProtectionModal(): Promise<void> {
+    await this.deleteProtectionEnableButton().click();
+    await expect(this.deleteProtectionModalHeading('Enable')).toBeVisible({ timeout: 10000 });
+  }
+
+  async openDisableDeleteProtectionModal(): Promise<void> {
+    await this.deleteProtectionDisableButton().click();
+    await expect(this.deleteProtectionModalHeading('Disable')).toBeVisible({ timeout: 10000 });
+  }
+
+  async cancelDeleteProtectionModal(): Promise<void> {
+    await this.deleteProtectionModalCancelButton().click();
+    await expect(this.deleteProtectionModalDialog()).toBeHidden({ timeout: 10000 });
+  }
+
+  async enableDeleteProtection(): Promise<void> {
+    await this.deleteProtectionEnableButton().click();
+    await expect(this.deleteProtectionModalHeading('Enable')).toBeVisible({ timeout: 10000 });
+    await this.deleteProtectionModalPrimaryButton().click();
+    await expect(this.deleteProtectionModalDialog()).toBeHidden({ timeout: 30000 });
+  }
+
+  async disableDeleteProtection(): Promise<void> {
+    await this.deleteProtectionDisableButton().click();
+    await expect(this.deleteProtectionModalHeading('Disable')).toBeVisible({ timeout: 10000 });
+    await this.deleteProtectionModalPrimaryButton().click();
+    await expect(this.deleteProtectionModalDialog()).toBeHidden({ timeout: 30000 });
+  }
+
+  deleteProtectionDropdownTooltip(): Locator {
+    return this.page.getByTestId('delete-protection-tooltip');
+  }
+
+  async openActionsDropdown(): Promise<void> {
+    await this.actionsDropdownToggle().click();
+    await expect(this.deleteClusterDropdownItem()).toBeVisible({ timeout: 5000 });
+  }
+
+  async closeActionsDropdown(): Promise<void> {
+    await this.page.keyboard.press('Escape');
+    await expect(this.deleteClusterDropdownItem()).toBeHidden({ timeout: 5000 });
+  }
+  
 }

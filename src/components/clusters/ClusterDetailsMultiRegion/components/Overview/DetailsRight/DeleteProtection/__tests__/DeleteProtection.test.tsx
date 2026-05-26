@@ -52,7 +52,10 @@ describe('<DeleteProtection />', () => {
     };
     render(<DeleteProtection {...props} />);
 
-    expect(screen.getByRole('button', { name: 'Enable' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Enable delete protection' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 
   it('Disables the "Disable" button if not enough permission', () => {
@@ -63,7 +66,7 @@ describe('<DeleteProtection />', () => {
     };
     render(<DeleteProtection {...props} />);
 
-    expect(screen.getByRole('button', { name: 'Disable' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Disable delete protection' })).toHaveAttribute(
       'aria-disabled',
       'true',
     );
@@ -78,7 +81,7 @@ describe('<DeleteProtection />', () => {
     };
     render(<DeleteProtection {...props} />);
 
-    expect(screen.getByRole('button', { name: 'Disable' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Disable delete protection' })).toHaveAttribute(
       'aria-disabled',
       'true',
     );
