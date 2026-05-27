@@ -32,10 +32,6 @@ type FormValuesShape = {
 
 const noneLabel = <span className="pf-v6-u-disabled-color-100">None</span>;
 
-/** PatternFly LabelGroup replaces `${remaining}` in this string when collapsing overflow labels. */
-const LABEL_GROUP_OVERFLOW_PLACEHOLDER = '{remaining}';
-const LABEL_GROUP_OVERFLOW_TEXT = `$${LABEL_GROUP_OVERFLOW_PLACEHOLDER} more`;
-
 const selectedAppsDescription = (
   selectedIds: string[] | undefined,
   tree: LogForwardingGroupTreeNode[],
@@ -58,7 +54,6 @@ const selectedAppsDescription = (
         <StackItem key={groupLabel}>
           <LabelGroup
             numLabels={3}
-            collapsedText={LABEL_GROUP_OVERFLOW_TEXT}
             isCompact
             aria-label={`Applications for ${groupLabel}`}
             categoryName={groupLabel}
