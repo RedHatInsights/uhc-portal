@@ -120,10 +120,7 @@ export class IdentityProvidersPage extends BasePage {
   }
 
   mappingMethodValue(): Locator {
-    return this.page
-      .locator('.pf-v6-c-form__group')
-      .filter({ has: this.page.getByText('Mapping method', { exact: true }) })
-      .getByRole('button', { name: 'Options menu' });
+    return this.page.getByRole('button', { name: 'Options menu' });
   }
 
   hostnameInput(): Locator {
