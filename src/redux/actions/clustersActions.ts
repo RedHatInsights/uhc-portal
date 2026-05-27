@@ -22,7 +22,6 @@ import { isHypershiftCluster } from '~/components/clusters/common/clusterStates'
 import { getClusterServiceForRegion } from '~/services/clusterService';
 import {
   ClusterAuthorizationRequestProduct_id as ClusterAuthorizationRequestProductId,
-  type SelfAccessReview,
   SelfAccessReviewAction,
   SelfAccessReviewResource_type as SelfAccessReviewResourceType,
   SubscriptionCommonFieldsStatus,
@@ -149,7 +148,6 @@ const fetchSingleClusterAndPermissions = async (
   let canEditClusterAutoscaler = false;
   let canViewOCMRoles = false;
   let canUpdateClusterResource = false;
-  let canUpdateDeleteProtection = false;
 
   const buildPermissionsByActionObj = (obj: any, action: SelfAccessReviewAction) => {
     // eslint-disable-next-line no-param-reassign
@@ -235,15 +233,6 @@ const fetchSingleClusterAndPermissions = async (
       .then((response) => {
         canUpdateClusterResource = response.data.allowed;
       });
-    await authorizationsService
-      .selfAccessReview({
-        action: SelfAccessReviewAction.update,
-        resource_type: 'DeleteProtection' as unknown as SelfAccessReviewResourceType,
-        cluster_id: subscription.data.cluster_id,
-      } as SelfAccessReview)
-      .then((response) => {
-        canUpdateDeleteProtection = response.data.allowed;
-      });
 
     actions.forEach(async (action) => {
       await authorizationsService
@@ -322,7 +311,6 @@ const fetchSingleClusterAndPermissions = async (
     cluster.data.kubeletConfigActions = kubeletConfigActions;
     cluster.data.canDelete = !!canDeleteAccessReviewResponse?.data?.allowed;
     cluster.data.canUpdateClusterResource = canUpdateClusterResource;
-    cluster.data.canUpdateDeleteProtection = canUpdateDeleteProtection;
 
     return cluster;
   }
