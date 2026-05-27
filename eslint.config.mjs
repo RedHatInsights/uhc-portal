@@ -32,7 +32,13 @@ const testFiles = [
 export default [
   // Global ignores
   {
-    ignores: ['node_modules/**', 'dist/**', '.yalc/**', '*.json'],
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      '.yalc/**',
+      '*.json',
+      'src/components/RosaHandsOn/DemoExperienceModels/**', // Auto-generated Swagger files
+    ],
   },
 
   // Base JS recommended rules
