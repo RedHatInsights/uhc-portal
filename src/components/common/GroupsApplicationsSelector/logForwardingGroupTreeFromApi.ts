@@ -4,14 +4,14 @@ import type {
   LogForwarderGroupVersions,
 } from '~/types/clusters_mgmt.v1';
 
-import type { LogForwardingGroupTreeNode } from './logForwardingGroupTreeData';
+import {
+  LOG_FORWARDING_GROUP_ID_PREFIX,
+  logForwardingGroupRootId,
+  type LogForwardingGroupTreeNode,
+} from './logForwardingGroupTreeData';
 
-/** Prefix for synthetic group root ids so they do not collide with application ids from the API. */
-export const LOG_FORWARDING_GROUP_ID_PREFIX = 'lfg:';
-
-export function logForwardingGroupRootId(groupName: string): string {
-  return `${LOG_FORWARDING_GROUP_ID_PREFIX}${groupName}`;
-}
+// Re-export so existing imports from this module continue to work.
+export { LOG_FORWARDING_GROUP_ID_PREFIX, logForwardingGroupRootId };
 
 function isNonEmptyApplicationId(a: unknown): a is string {
   return typeof a === 'string' && a.trim().length > 0;
