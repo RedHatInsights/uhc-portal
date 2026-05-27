@@ -33,7 +33,7 @@ const DeleteProtection = ({
   const dispatch = useDispatch();
   const disableToggleReason =
     !canToggle &&
-    `You do not have permission to ${protectionEnabled ? 'disable' : 'enable'} Delete Protection. Only cluster owners, cluster editors, and Organization Administrators can ${protectionEnabled ? 'disable' : 'enable'} Delete Protection.`;
+    `You do not have permission to ${protectionEnabled ? 'disable' : 'enable'} Delete Protection. Only cluster owners and Organization Administrators can ${protectionEnabled ? 'disable' : 'enable'} Delete Protection.`;
 
   const DeleteProtectionButton = useEusChannel ? (
     <EditButton
