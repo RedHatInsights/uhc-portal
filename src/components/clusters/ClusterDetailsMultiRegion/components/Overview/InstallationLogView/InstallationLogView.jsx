@@ -1,4 +1,3 @@
-/* eslint-disable react/destructuring-assignment */
 import React from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
