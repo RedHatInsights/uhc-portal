@@ -234,6 +234,9 @@ export const useFetchActionsPermissions = (
           !!subscriptionID && subscriptionStatus !== SubscriptionCommonFieldsStatus.Deprovisioned,
       },
     ],
+    // IMPORTANT: the destructuring order here must match the order of the queries
+    // array above. Adding, removing, or reordering a query without updating this destructuring will
+    // silently assign the wrong permission to the wrong variable.
     combine: useCallback((results: UseQueryResult[]) => {
       const [
         canEdit,
