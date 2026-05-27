@@ -128,6 +128,7 @@ export default [
 
       // Import rules
       'import/no-extraneous-dependencies': 'error',
+      'import/no-named-as-default-member': 'error',
       'import/prefer-default-export': 'off',
       'import/extensions': [
         'error',
