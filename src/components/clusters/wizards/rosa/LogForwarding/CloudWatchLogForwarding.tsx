@@ -1,5 +1,5 @@
 import React from 'react';
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 
 import { Alert, Content, Stack, StackItem, Title } from '@patternfly/react-core';
 
@@ -9,17 +9,40 @@ import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 
 import { LogForwardingGroupsApplicationsSelector } from './LogForwardingGroupsApplicationsSelector';
+import { createCloudWatchLogGroupName } from './logForwardingNaming';
 import {
   cloudWatchLogGroupTooltip,
   cloudWatchRoleArnTooltip,
   groupsApplicationsAvailableTooltip,
   groupsApplicationsChosenTooltip,
 } from './logForwardingTooltips';
-import { useCloudWatchLogGroupNameAutofill } from './useCloudWatchLogGroupNameAutofill';
 
 export function CloudWatchLogForwarding() {
-  useCloudWatchLogGroupNameAutofill();
+  const { setFieldValue, setFieldTouched } = useFormikContext<Record<string, unknown>>();
   const [{ value: cwEnabled }] = useField<boolean>(FieldId.LogForwardingCloudWatchEnabled);
+  const [{ value: logGroupName }] = useField<string>(FieldId.LogForwardingCloudWatchLogGroupName);
+  const [{ value: clusterNameRaw }] = useField<string>(FieldId.ClusterName);
+  const clusterName = String(clusterNameRaw ?? '').trim();
+
+  // Autofill and clear are handled here in the event handler rather than a useEffect because
+  // both actions are caused by a specific user interaction (toggling the checkbox), not by the
+  // component being displayed. This keeps the data flow explicit and avoids the extra render
+  // pass that a useEffect-based approach would introduce.
+  //
+  // Passing `onChange` via the `input` prop replaces CheckboxField's internal field.onChange,
+  // so we call setFieldValue and setFieldTouched directly to replicate that behavior.
+  function handleCwEnabledChange(_event: React.FormEvent<HTMLInputElement>, enabled: boolean) {
+    setFieldValue(FieldId.LogForwardingCloudWatchEnabled, enabled);
+    setFieldTouched(FieldId.LogForwardingCloudWatchEnabled, true, true);
+    if (enabled && !logGroupName) {
+      setFieldValue(
+        FieldId.LogForwardingCloudWatchLogGroupName,
+        createCloudWatchLogGroupName(clusterName),
+      );
+    } else if (!enabled) {
+      setFieldValue(FieldId.LogForwardingCloudWatchLogGroupName, '');
+    }
+  }
 
   return (
     <Stack hasGutter>
@@ -31,6 +54,7 @@ export function CloudWatchLogForwarding() {
           name={FieldId.LogForwardingCloudWatchEnabled}
           label="Enable CloudWatch"
           helperText="Used for real-time monitoring and analysis"
+          input={{ onChange: handleCwEnabledChange }}
         />
       </StackItem>
       {cwEnabled ? (

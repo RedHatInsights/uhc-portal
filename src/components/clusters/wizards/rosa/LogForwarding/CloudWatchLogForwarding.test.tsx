@@ -12,10 +12,6 @@ jest.mock('./LogForwardingGroupsApplicationsSelector', () => ({
   ),
 }));
 
-jest.mock('./useCloudWatchLogGroupNameAutofill', () => ({
-  useCloudWatchLogGroupNameAutofill: jest.fn(),
-}));
-
 const renderCloudWatch = (formValues: Record<string, unknown> = {}) => {
   const { user, ...rest } = render(
     <Formik
@@ -65,5 +61,78 @@ describe('<CloudWatchLogForwarding />', () => {
     expect(screen.getByRole('textbox', { name: /Log group name/i })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /Role ARN/i })).toBeInTheDocument();
     expect(screen.getByTestId('log-forwarding-groups-applications-selector')).toBeInTheDocument();
+  });
+
+  describe('log group name autofill', () => {
+    it('autofills the log group name from the cluster name when CloudWatch is enabled', async () => {
+      const { user } = renderCloudWatch({
+        [FieldId.ClusterName]: 'my-cluster',
+        [FieldId.LogForwardingCloudWatchEnabled]: false,
+      });
+
+      await user.click(screen.getByLabelText('Enable CloudWatch'));
+
+      await waitFor(() => {
+        const input = screen.getByRole('textbox', { name: /Log group name/i });
+        expect((input as HTMLInputElement).value).toMatch(/^my-cluster-[a-z][a-z0-9]{3}$/);
+      });
+    });
+
+    it('does not autofill the log group name if a value already exists', async () => {
+      const { user } = renderCloudWatch({
+        [FieldId.ClusterName]: 'my-cluster',
+        [FieldId.LogForwardingCloudWatchEnabled]: false,
+        [FieldId.LogForwardingCloudWatchLogGroupName]: 'already-set',
+      });
+
+      await user.click(screen.getByLabelText('Enable CloudWatch'));
+
+      await waitFor(() => {
+        const input = screen.getByRole('textbox', { name: /Log group name/i });
+        expect((input as HTMLInputElement).value).toBe('already-set');
+      });
+    });
+
+    it('clears the log group name when CloudWatch is disabled', async () => {
+      const { user } = renderCloudWatch({
+        [FieldId.ClusterName]: 'my-cluster',
+        [FieldId.LogForwardingCloudWatchEnabled]: true,
+        [FieldId.LogForwardingCloudWatchLogGroupName]: 'my-cluster-abcd',
+      });
+
+      // Uncheck → fields are cleared and hidden
+      await user.click(screen.getByLabelText('Enable CloudWatch'));
+      await waitFor(() => {
+        expect(screen.queryByLabelText('Log group name')).not.toBeInTheDocument();
+      });
+
+      // Recheck → log group is empty so autofill fires with the current cluster name
+      await user.click(screen.getByLabelText('Enable CloudWatch'));
+      await waitFor(() => {
+        const input = screen.getByRole('textbox', { name: /Log group name/i });
+        expect((input as HTMLInputElement).value).toMatch(/^my-cluster-[a-z][a-z0-9]{3}$/);
+      });
+    });
+
+    it('autofills with the current cluster name when CloudWatch is toggled off then on', async () => {
+      const { user } = renderCloudWatch({
+        [FieldId.ClusterName]: 'new-cluster',
+        [FieldId.LogForwardingCloudWatchEnabled]: true,
+        // A stale log group name from an older cluster name is present
+        [FieldId.LogForwardingCloudWatchLogGroupName]: 'old-cluster-abcd',
+      });
+
+      // Uncheck to clear, wait for state to settle, then recheck to autofill
+      await user.click(screen.getByLabelText('Enable CloudWatch'));
+      await waitFor(() => {
+        expect(screen.queryByLabelText('Log group name')).not.toBeInTheDocument();
+      });
+
+      await user.click(screen.getByLabelText('Enable CloudWatch'));
+      await waitFor(() => {
+        const input = screen.getByRole('textbox', { name: /Log group name/i });
+        expect((input as HTMLInputElement).value).toMatch(/^new-cluster-/);
+      });
+    });
   });
 });
