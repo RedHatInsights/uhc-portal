@@ -71,13 +71,13 @@ const selectedAppsDescription = (
 };
 
 export function LogForwardingReviewDetails({ formValues }: { formValues: FormValuesShape }) {
-  const { data: groupsTree = [], isLoading: isLogForwardingTreeLoading } =
-    useFetchLogForwardingGroups();
-  const { data: applications = [] } = useFetchLogForwardingApplications();
-  const otherNode = buildOtherGroupTreeNode(applications, groupsTree);
-  const logForwardingTree = otherNode ? [...groupsTree, otherNode] : groupsTree;
   const s3On = !!formValues[FieldId.LogForwardingS3Enabled];
   const cwOn = !!formValues[FieldId.LogForwardingCloudWatchEnabled];
+  const { data: groupsTree = [], isLoading: isLogForwardingTreeLoading } =
+    useFetchLogForwardingGroups({ s3On, cwOn });
+  const { data: applications = [] } = useFetchLogForwardingApplications({ s3On, cwOn });
+  const otherNode = buildOtherGroupTreeNode(applications, groupsTree);
+  const logForwardingTree = otherNode ? [...groupsTree, otherNode] : groupsTree;
   const s3BucketPrefixRaw = formValues[FieldId.LogForwardingS3BucketPrefix];
   const s3BucketPrefixTrimmed =
     typeof s3BucketPrefixRaw === 'string' ? s3BucketPrefixRaw.trim() : '';

@@ -25,7 +25,9 @@ describe('useFetchLogForwardingApplications hook', () => {
   it('returns applications on a successful response', async () => {
     apiRequestMock.get.mockResolvedValueOnce({ data: { items: mockApplications } });
 
-    const { result } = renderHook(() => useFetchLogForwardingApplications());
+    const { result } = renderHook(() =>
+      useFetchLogForwardingApplications({ s3On: false, cwOn: true }),
+    );
 
     expect(result.current.isFetching).toBe(true);
 
@@ -40,7 +42,9 @@ describe('useFetchLogForwardingApplications hook', () => {
   it('returns an empty array when the response contains no items', async () => {
     apiRequestMock.get.mockResolvedValueOnce({ data: {} });
 
-    const { result } = renderHook(() => useFetchLogForwardingApplications());
+    const { result } = renderHook(() =>
+      useFetchLogForwardingApplications({ s3On: true, cwOn: false }),
+    );
 
     await waitFor(() => {
       expect(result.current.isFetching).toBe(false);
@@ -54,7 +58,9 @@ describe('useFetchLogForwardingApplications hook', () => {
     const networkError = { name: 500, message: 'Internal Server Error' };
     apiRequestMock.get.mockRejectedValueOnce(networkError);
 
-    const { result } = renderHook(() => useFetchLogForwardingApplications());
+    const { result } = renderHook(() =>
+      useFetchLogForwardingApplications({ s3On: true, cwOn: true }),
+    );
 
     expect(result.current.isFetching).toBe(true);
 
@@ -67,8 +73,10 @@ describe('useFetchLogForwardingApplications hook', () => {
     expect(result.current.error).toBeTruthy();
   });
 
-  it('does not fetch when enabled is false', () => {
-    const { result } = renderHook(() => useFetchLogForwardingApplications({ enabled: false }));
+  it('does not fetch when neither S3 nor CloudWatch is enabled', () => {
+    const { result } = renderHook(() =>
+      useFetchLogForwardingApplications({ s3On: false, cwOn: false }),
+    );
 
     expect(result.current.isFetching).toBe(false);
     expect(result.current.isLoading).toBe(false);

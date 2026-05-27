@@ -1,7 +1,9 @@
 import React, { useMemo } from 'react';
+import { useField } from 'formik';
 
 import { Spinner } from '@patternfly/react-core';
 
+import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ErrorBox from '~/components/common/ErrorBox';
 import {
   GroupsApplicationsSelector,
@@ -24,15 +26,21 @@ export type LogForwardingGroupsApplicationsSelectorProps = Omit<
 export function LogForwardingGroupsApplicationsSelector(
   props: LogForwardingGroupsApplicationsSelectorProps,
 ) {
+  const [{ value: s3On }] = useField<boolean>(FieldId.LogForwardingS3Enabled);
+  const [{ value: cwOn }] = useField<boolean>(FieldId.LogForwardingCloudWatchEnabled);
+
   const {
     data: groupsTree = [],
     isLoading: isGroupsLoading,
     isError: isGroupsError,
     error: groupsError,
-  } = useFetchLogForwardingGroups();
+  } = useFetchLogForwardingGroups({ s3On, cwOn });
 
   // Applications are used only to build the "Other" group; a failure here is non-fatal.
-  const { data: applications = [], isLoading: isAppsLoading } = useFetchLogForwardingApplications();
+  const { data: applications = [], isLoading: isAppsLoading } = useFetchLogForwardingApplications({
+    s3On,
+    cwOn,
+  });
 
   const isLoading = isGroupsLoading || isAppsLoading;
 

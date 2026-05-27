@@ -41,7 +41,7 @@ describe('useFetchLogForwardingGroups hook', () => {
   it('returns a transformed group tree on a successful response', async () => {
     apiRequestMock.get.mockResolvedValueOnce({ data: { items: mockGroupVersionsItems } });
 
-    const { result } = renderHook(() => useFetchLogForwardingGroups());
+    const { result } = renderHook(() => useFetchLogForwardingGroups({ s3On: false, cwOn: true }));
 
     expect(result.current.isFetching).toBe(true);
 
@@ -75,7 +75,7 @@ describe('useFetchLogForwardingGroups hook', () => {
   it('returns an empty array when the response contains no items', async () => {
     apiRequestMock.get.mockResolvedValueOnce({ data: {} });
 
-    const { result } = renderHook(() => useFetchLogForwardingGroups());
+    const { result } = renderHook(() => useFetchLogForwardingGroups({ s3On: true, cwOn: false }));
 
     await waitFor(() => {
       expect(result.current.isFetching).toBe(false);
@@ -89,7 +89,7 @@ describe('useFetchLogForwardingGroups hook', () => {
     const networkError = { name: 500, message: 'Internal Server Error' };
     apiRequestMock.get.mockRejectedValueOnce(networkError);
 
-    const { result } = renderHook(() => useFetchLogForwardingGroups());
+    const { result } = renderHook(() => useFetchLogForwardingGroups({ s3On: true, cwOn: true }));
 
     expect(result.current.isFetching).toBe(true);
 
@@ -102,8 +102,8 @@ describe('useFetchLogForwardingGroups hook', () => {
     expect(result.current.error).toBeTruthy();
   });
 
-  it('does not fetch when enabled is false', () => {
-    const { result } = renderHook(() => useFetchLogForwardingGroups({ enabled: false }));
+  it('does not fetch when neither S3 nor CloudWatch is enabled', () => {
+    const { result } = renderHook(() => useFetchLogForwardingGroups({ s3On: false, cwOn: false }));
 
     expect(result.current.isFetching).toBe(false);
     expect(result.current.isLoading).toBe(false);
