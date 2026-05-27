@@ -660,6 +660,7 @@ describe('createClusterRequest', () => {
   describe('CreateROSAWizard', () => {
     afterEach(() => {
       queryClient.removeQueries({ queryKey: [queryConstants.FETCH_LOG_FORWARDING_GROUPS] });
+      queryClient.removeQueries({ queryKey: [queryConstants.FETCH_LOG_FORWARDING_APPLICATIONS] });
     });
 
     describe('ROSA button', () => {
@@ -830,6 +831,43 @@ describe('createClusterRequest', () => {
               },
               groups: [{ id: 'authentication' }],
               applications: [],
+            },
+          ],
+        });
+      });
+
+      it('includes Other-group applications as individual applications in the request', () => {
+        queryClient.setQueryData(
+          [queryConstants.FETCH_LOG_FORWARDING_GROUPS],
+          mockLogForwardingGroupTree,
+        );
+        // kube-dns is not covered by any group in mockLogForwardingGroupTree, so it lands in Other
+        queryClient.setQueryData(
+          [queryConstants.FETCH_LOG_FORWARDING_APPLICATIONS],
+          [{ name: 'kube-dns', enabled: true }],
+        );
+        const data = {
+          ...rosaFormData,
+          billing_model: 'standard',
+          cloud_provider: 'aws',
+          byoc: 'true',
+          hypershift: 'true',
+          cluster_privacy: 'external',
+          ...hcpSubnetDetails,
+          ...CIDRData,
+          [FieldId.LogForwardingS3Enabled]: true,
+          [FieldId.LogForwardingS3BucketName]: 'my-logs-bucket',
+          [FieldId.LogForwardingS3BucketPrefix]: '',
+          [FieldId.LogForwardingS3SelectedItems]: ['kube-dns'],
+          [FieldId.LogForwardingCloudWatchEnabled]: false,
+        };
+        const request = createClusterRequest({}, data);
+        expect(request.control_plane?.log_forwarders).toEqual({
+          items: [
+            {
+              s3: { bucket_name: 'my-logs-bucket' },
+              groups: [],
+              applications: ['kube-dns'],
             },
           ],
         });

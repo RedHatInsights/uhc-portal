@@ -15,6 +15,7 @@ import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ApplicationIngressType } from '~/components/clusters/wizards/osd/Networking/constants';
 import { FieldId as RosaFieldId } from '~/components/clusters/wizards/rosa/constants';
 import { getRosaLogForwardersForClusterRequest } from '~/components/clusters/wizards/rosa/LogForwarding/buildClusterLogForwarders';
+import { buildOtherGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 import config from '~/config';
 import { regionalizedClusterId } from '~/queries/helpers';
 import { queryConstants } from '~/queries/queriesConstants';
@@ -442,9 +443,11 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
     actualProduct === 'ROSA' &&
     actualCloudProviderID === 'aws'
   ) {
-    const logForwardingTree = queryClient.getQueryData([
-      queryConstants.FETCH_LOG_FORWARDING_GROUPS,
-    ]);
+    const groupsTree = queryClient.getQueryData([queryConstants.FETCH_LOG_FORWARDING_GROUPS]) ?? [];
+    const applications =
+      queryClient.getQueryData([queryConstants.FETCH_LOG_FORWARDING_APPLICATIONS]) ?? [];
+    const otherNode = buildOtherGroupTreeNode(applications, groupsTree);
+    const logForwardingTree = otherNode ? [...groupsTree, otherNode] : groupsTree;
     const logForwarders = getRosaLogForwardersForClusterRequest(formData, logForwardingTree);
     if (logForwarders.length > 0) {
       clusterRequest.control_plane = {
