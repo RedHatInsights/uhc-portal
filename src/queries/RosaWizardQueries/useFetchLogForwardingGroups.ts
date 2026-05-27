@@ -25,7 +25,7 @@ export function useFetchLogForwardingGroups(options?: { enabled?: boolean }) {
     data,
     isLoading,
     isError,
-    error: formattedError?.error ?? error,
+    error: formattedError?.error,
     isFetching,
   };
 }

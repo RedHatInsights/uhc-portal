@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 
-import { Alert, Spinner } from '@patternfly/react-core';
+import { Spinner } from '@patternfly/react-core';
 
+import ErrorBox from '~/components/common/ErrorBox';
 import {
   GroupsApplicationsSelector,
   type GroupsApplicationsSelectorProps,
@@ -9,7 +10,6 @@ import {
 import { buildOtherGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 import { useFetchLogForwardingApplications } from '~/queries/RosaWizardQueries/useFetchLogForwardingApplications';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
-import type { ErrorState } from '~/types/types';
 
 export type LogForwardingGroupsApplicationsSelectorProps = Omit<
   GroupsApplicationsSelectorProps,
@@ -42,12 +42,7 @@ export function LogForwardingGroupsApplicationsSelector(
   }, [groupsTree, applications]);
 
   if (isGroupsError) {
-    const err = groupsError as ErrorState | null | undefined;
-    return (
-      <Alert variant="danger" isInline title="Could not load log forwarding groups">
-        {err?.errorMessage ?? err?.reason ?? err?.message ?? 'Request failed'}
-      </Alert>
-    );
+    return <ErrorBox message="Could not load log forwarding groups" response={groupsError ?? {}} />;
   }
 
   if (isLoading && treeData.length === 0) {

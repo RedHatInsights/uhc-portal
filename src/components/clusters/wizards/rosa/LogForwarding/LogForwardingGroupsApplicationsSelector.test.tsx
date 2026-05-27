@@ -130,7 +130,8 @@ describe('<LogForwardingGroupsApplicationsSelector />', () => {
 
     renderSelector();
 
-    expect(screen.getByText('Request failed')).toBeInTheDocument();
+    expect(screen.getByTestId('alert-error')).toBeInTheDocument();
+    expect(screen.getByText('Could not load log forwarding groups')).toBeInTheDocument();
   });
 
   it('passes the groups tree and synthetic Other group into the selector on success', () => {
