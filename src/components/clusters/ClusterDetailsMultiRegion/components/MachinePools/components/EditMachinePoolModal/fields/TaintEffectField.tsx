@@ -12,7 +12,7 @@ export type TaintEffect = 'NoSchedule' | 'NoExecute' | 'PreferNoSchedule';
 type TaintEffectFieldProps = {
   fieldId: string;
   isDisabled: boolean;
-  setFieldTouched?: (field: string, touched: boolean, shouldValidate?: boolean) => void;
+  setFieldTouched: (field: string, touched: boolean, shouldValidate?: boolean) => void;
 };
 
 const TaintEffectField = ({ fieldId, isDisabled, setFieldTouched }: TaintEffectFieldProps) => {
@@ -23,7 +23,7 @@ const TaintEffectField = ({ fieldId, isDisabled, setFieldTouched }: TaintEffectF
     onChangeEffect(value);
     // Touch the sibling key field so validation errors display there
     const keyFieldId = fieldId.replace(/\.effect$/, '.key');
-    setFieldTouched?.(keyFieldId, true, true);
+    setFieldTouched(keyFieldId, true, true);
   };
 
   return (
