@@ -24,6 +24,7 @@ jest.mock('../common/useFetchSubscription', () => ({
 jest.mock('./useFetchActionsPermissions', () => ({
   useFetchActionsPermissions: jest.fn(),
   useCanDeleteAccessReview: jest.fn(),
+  useCanUpdateDeleteProtection: jest.fn(),
 }));
 
 // Mock queryClient.invalidateQueries
@@ -69,7 +70,6 @@ describe('useClusterDetails hook', () => {
       canEditOCMRoles: true,
       canViewOCMRoles: true,
       canUpdateClusterResource: true,
-      canUpdateDeleteProtection: true,
       kubeletConfigActions: { get: true },
       machinePoolsActions: { get: true },
       idpActions: { get: true },
@@ -83,6 +83,12 @@ describe('useClusterDetails hook', () => {
           allowed: true,
         },
       },
+      isError: false,
+      error: null,
+    });
+    useFetchActionsPermissionsMock.useCanUpdateDeleteProtection.mockReturnValue({
+      isLoading: false,
+      canUpdateDeleteProtection: true,
       isError: false,
       error: null,
     });
@@ -126,7 +132,6 @@ describe('useClusterDetails hook', () => {
       canEditOCMRoles: true,
       canViewOCMRoles: true,
       canUpdateClusterResource: false,
-      canUpdateDeleteProtection: false,
       kubeletConfigActions: { get: true },
       machinePoolsActions: { get: true },
       idpActions: { get: true },
@@ -140,6 +145,12 @@ describe('useClusterDetails hook', () => {
           allowed: true,
         },
       },
+      isError: false,
+      error: null,
+    });
+    useFetchActionsPermissionsMock.useCanUpdateDeleteProtection.mockReturnValue({
+      isLoading: false,
+      canUpdateDeleteProtection: false,
       isError: false,
       error: null,
     });

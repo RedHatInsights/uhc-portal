@@ -6,7 +6,11 @@ import { useFetchSubscription } from '../common/useFetchSubscription';
 import { formatErrorData } from '../helpers';
 import { queryConstants } from '../queriesConstants';
 
-import { useCanDeleteAccessReview, useFetchActionsPermissions } from './useFetchActionsPermissions';
+import {
+  useCanDeleteAccessReview,
+  useCanUpdateDeleteProtection,
+  useFetchActionsPermissions,
+} from './useFetchActionsPermissions';
 import { useFetchAiCluster } from './useFetchAiCluster';
 import { useFetchCluster } from './useFetchCluster';
 import { useFetchInflightChecks } from './useFetchInflightChecks';
@@ -47,7 +51,6 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
     canEditOCMRoles,
     canViewOCMRoles,
     canUpdateClusterResource,
-    canUpdateDeleteProtection,
     kubeletConfigActions,
     machinePoolsActions,
     idpActions,
@@ -56,6 +59,10 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
     subscriptionID,
     queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
     subscription?.subscription.status,
+    subscription?.subscription.cluster_id as string,
+  );
+
+  const { canUpdateDeleteProtection } = useCanUpdateDeleteProtection(
     subscription?.subscription.cluster_id as string,
   );
 
@@ -177,7 +184,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
       cluster.data.canEditOCMRoles = canEditOCMRoles;
       cluster.data.canViewOCMRoles = canViewOCMRoles;
       cluster.data.canUpdateClusterResource = canUpdateClusterResource;
-      cluster.data.canUpdateDeleteProtection = canUpdateDeleteProtection;
+      cluster.data.canUpdateDeleteProtection = !!canUpdateDeleteProtection;
       cluster.data.canEditClusterAutoscaler = canEditClusterAutoscaler;
       cluster.data.idpActions = idpActions;
       cluster.data.machinePoolsActions = machinePoolsActions;
