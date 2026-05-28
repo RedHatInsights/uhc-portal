@@ -24,7 +24,7 @@ export function CloudWatchLogForwarding() {
   const [{ value: clusterNameRaw }] = useField<string>(FieldId.ClusterName);
   const clusterName = String(clusterNameRaw ?? '').trim();
 
-  // Autofill and clear are handled here in the event handler rather than a useEffect because
+  // Autofill is handled here in the event handler rather than a useEffect because
   // both actions are caused by a specific user interaction (toggling the checkbox), not by the
   // component being displayed. This keeps the data flow explicit and avoids the extra render
   // pass that a useEffect-based approach would introduce.
@@ -39,8 +39,6 @@ export function CloudWatchLogForwarding() {
         FieldId.LogForwardingCloudWatchLogGroupName,
         createCloudWatchLogGroupName(clusterName),
       );
-    } else if (!enabled) {
-      setFieldValue(FieldId.LogForwardingCloudWatchLogGroupName, '');
     }
   }
 

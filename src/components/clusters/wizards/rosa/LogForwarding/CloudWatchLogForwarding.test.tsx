@@ -93,36 +93,13 @@ describe('<CloudWatchLogForwarding />', () => {
       });
     });
 
-    it('clears the log group name when CloudWatch is disabled', async () => {
+    it('preserves the log group name when CloudWatch is disabled and re-enabled', async () => {
       const { user } = renderCloudWatch({
         [FieldId.ClusterName]: 'my-cluster',
         [FieldId.LogForwardingCloudWatchEnabled]: true,
         [FieldId.LogForwardingCloudWatchLogGroupName]: 'my-cluster-abcd',
       });
 
-      // Uncheck → fields are cleared and hidden
-      await user.click(screen.getByLabelText('Enable CloudWatch'));
-      await waitFor(() => {
-        expect(screen.queryByLabelText('Log group name')).not.toBeInTheDocument();
-      });
-
-      // Recheck → log group is empty so autofill fires with the current cluster name
-      await user.click(screen.getByLabelText('Enable CloudWatch'));
-      await waitFor(() => {
-        const input = screen.getByRole('textbox', { name: /Log group name/i });
-        expect((input as HTMLInputElement).value).toMatch(/^my-cluster-[a-z][a-z0-9]{3}$/);
-      });
-    });
-
-    it('autofills with the current cluster name when CloudWatch is toggled off then on', async () => {
-      const { user } = renderCloudWatch({
-        [FieldId.ClusterName]: 'new-cluster',
-        [FieldId.LogForwardingCloudWatchEnabled]: true,
-        // A stale log group name from an older cluster name is present
-        [FieldId.LogForwardingCloudWatchLogGroupName]: 'old-cluster-abcd',
-      });
-
-      // Uncheck to clear, wait for state to settle, then recheck to autofill
       await user.click(screen.getByLabelText('Enable CloudWatch'));
       await waitFor(() => {
         expect(screen.queryByLabelText('Log group name')).not.toBeInTheDocument();
@@ -131,7 +108,7 @@ describe('<CloudWatchLogForwarding />', () => {
       await user.click(screen.getByLabelText('Enable CloudWatch'));
       await waitFor(() => {
         const input = screen.getByRole('textbox', { name: /Log group name/i });
-        expect((input as HTMLInputElement).value).toMatch(/^new-cluster-/);
+        expect((input as HTMLInputElement).value).toBe('my-cluster-abcd');
       });
     });
   });
