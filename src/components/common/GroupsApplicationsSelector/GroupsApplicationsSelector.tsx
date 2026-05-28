@@ -185,7 +185,7 @@ export function GroupsApplicationsSelector({
 
   const availableListStyle: React.CSSProperties = isHeightConstrained
     ? { flex: 1, minHeight: 0, overflow: 'auto' }
-    : { minHeight: listMinHeight, overflow: 'auto' };
+    : { minHeight: listMinHeight };
 
   const chosenListStyle: React.CSSProperties | undefined = isHeightConstrained
     ? { flex: 1, minHeight: 0, overflow: 'auto' }

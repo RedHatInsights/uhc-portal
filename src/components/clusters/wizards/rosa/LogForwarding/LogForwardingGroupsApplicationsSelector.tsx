@@ -23,9 +23,10 @@ export type LogForwardingGroupsApplicationsSelectorProps = Omit<
  * a named group appears under a synthetic "Other" group, then passes the full tree into
  * {@link GroupsApplicationsSelector}.
  */
-export function LogForwardingGroupsApplicationsSelector(
-  props: LogForwardingGroupsApplicationsSelectorProps,
-) {
+export function LogForwardingGroupsApplicationsSelector({
+  containerMaxHeight,
+  ...selectorProps
+}: LogForwardingGroupsApplicationsSelectorProps) {
   const [{ value: s3On }] = useField<boolean>(FieldId.LogForwardingS3Enabled);
   const [{ value: cwOn }] = useField<boolean>(FieldId.LogForwardingCloudWatchEnabled);
 
@@ -57,5 +58,11 @@ export function LogForwardingGroupsApplicationsSelector(
     return <Spinner aria-label="Loading groups and applications" />;
   }
 
-  return <GroupsApplicationsSelector {...props} treeData={treeData} />;
+  return (
+    <GroupsApplicationsSelector
+      {...selectorProps}
+      treeData={treeData}
+      containerMaxHeight={containerMaxHeight ?? ''}
+    />
+  );
 }
