@@ -3,9 +3,9 @@ import type { LogForwardingGroupTreeNode } from '~/components/common/GroupsAppli
 import { LOG_FORWARDING_OTHER_GROUP_ROOT_ID } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 import type { LogForwarder } from '~/types/clusters_mgmt.v1';
 
-/** Normalizes group display names from the API tree for LogForwarderGroup.id (e.g. API → api). */
+/** Maps group display names from the API tree to LogForwarderGroup.id (API `name`, lowercased). */
 export function normalizeLogForwarderGroupSubmitId(displayName: string): string {
-  return displayName.trim().toLowerCase().replace(/\s+/g, '_');
+  return displayName.trim().toLowerCase();
 }
 
 /**

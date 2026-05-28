@@ -12,9 +12,9 @@ import {
 } from './buildClusterLogForwarders';
 
 describe('normalizeLogForwarderGroupSubmitId', () => {
-  it('lowercases and replaces spaces with underscores', () => {
+  it('lowercases the API group name and preserves spaces', () => {
     expect(normalizeLogForwarderGroupSubmitId('API')).toBe('api');
-    expect(normalizeLogForwarderGroupSubmitId('Controller manager')).toBe('controller_manager');
+    expect(normalizeLogForwarderGroupSubmitId('Controller manager')).toBe('controller manager');
   });
 });
 
@@ -42,7 +42,7 @@ describe('splitLogForwardingSelectionForSubmit', () => {
       mockLogForwardingGroupTree,
       ['controller-manager-child'],
     );
-    expect(groupIds).toEqual(['controller_manager']);
+    expect(groupIds).toEqual(['controller manager']);
     expect(applications).toEqual([]);
   });
 

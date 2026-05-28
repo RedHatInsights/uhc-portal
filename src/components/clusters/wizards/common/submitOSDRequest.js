@@ -452,7 +452,8 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
     if (logForwarders.length > 0) {
       clusterRequest.control_plane = {
         ...clusterRequest.control_plane,
-        // OCM expects api.LogForwarderList ({ items }) here, not a bare JSON array.
+        // OpenAPI types log_forwarders as LogForwarder[], but OCM unmarshals this field as
+        // api.LogForwarderList ({ items: [...] }). A bare array returns CLUSTERS-MGMT-400.
         log_forwarders: { items: logForwarders },
       };
     }
