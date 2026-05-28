@@ -28,11 +28,14 @@ function AWSAccountRolesError({
       <Alert variant="danger" isInline title="OCM role has limited permissions">
         <Content className="pf-v6-u-font-size-sm">
           <Content component={ContentVariants.p}>
-            The OCM role linked to your AWS account was created with minimal permissions. Cluster
-            creation through the console is not supported with this configuration. To create
-            clusters using the console, update your OCM role with full permissions using the ROSA
-            CLI.
+            The OCM Role linked to your AWS account was created without console permissions. Cluster
+            creation through the console is not supported with this configuration. To create cluster
+            using the Red Hat console, update your ocm role with appropriate permissions using the
+            ROSA CLI:
           </Content>
+          <InstructionCommand textAriaLabel="Copyable rosa create ocm-role command">
+            {RosaCliCommand.OcmRole}
+          </InstructionCommand>
           <a href="TODO" target="_blank" rel="noopener noreferrer">
             Learn more about OCM role permissions
           </a>

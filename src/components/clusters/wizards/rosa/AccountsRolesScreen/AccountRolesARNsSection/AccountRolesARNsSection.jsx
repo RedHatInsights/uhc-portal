@@ -357,7 +357,6 @@ function AccountRolesARNsSection({
 
   return (
     <>
-      <GridItem />
       <GridItem>
         <Title headingLevel="h3">Account roles</Title>
       </GridItem>
