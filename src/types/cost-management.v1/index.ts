@@ -4424,7 +4424,10 @@ export interface operations {
         source_uuid?: string;
         /** @description Filter response on source type. */
         source_type?: string;
-        /** @description Filter response on cost model name. */
+        /**
+         * @description Filter response on cost model name using case-insensitive substring matching. Accepts comma-separated values as an AND filter (e.g. 'gpu,demo' returns only models whose name contains both 'gpu' AND 'demo').
+         * @example OpenShift
+         */
         name?: string;
         /** @description Filter response on currency. */
         currency?: string;
