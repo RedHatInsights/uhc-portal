@@ -5,6 +5,7 @@ import { useWizardContext } from '@patternfly/react-core';
 import { WizardContextProps } from '@patternfly/react-core/dist/esm/components/Wizard/WizardContext';
 
 import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
+import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import {
   getCloudProverInfo,
   shouldValidateCcsCredentials,
@@ -35,7 +36,8 @@ export const CloudProviderStepFooter = ({
   const hasGcpResources =
     isGcpMarketplaceBilling(values[FieldId.BillingModel]) || quotas.gcpResources;
 
-  const disableNextButton = !hasGcpResources && values[FieldId.CloudProvider] === 'gcp';
+  const disableNextButton =
+    !hasGcpResources && values[FieldId.CloudProvider] === CloudProviderType.Gcp;
 
   const onNext = () => {
     const validateCcsCredentials = shouldValidateCcsCredentials(values, ccsCredentialsValidity);
