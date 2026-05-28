@@ -25,15 +25,16 @@ interface CreateOsdWizardFooterProps {
   onNext?(): void | Promise<void>;
   track?(): void;
   onWizardContextChange(context: Partial<WizardContextProps>): void;
+  isNextDisabled?: boolean;
 }
 
 export const CreateOsdWizardFooter = ({
-  isNextDisabled,
   isLoading,
   onNext,
   track = () => {},
   onWizardContextChange,
-}: CreateOsdWizardFooterProps & { isNextDisabled?: boolean }) => {
+  isNextDisabled,
+}: CreateOsdWizardFooterProps) => {
   const { goToNextStep, goToPrevStep, close, activeStep, steps, setStep, goToStepById } =
     useWizardContext();
   const { values, validateForm, setTouched, isValidating, submitForm } = useFormState();
