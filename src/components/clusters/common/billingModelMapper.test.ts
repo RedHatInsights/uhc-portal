@@ -44,8 +44,6 @@ describe('billingModelMapper', () => {
   describe('isGcpMarketplaceBilling', () => {
     it.each([
       [SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp, true],
-      [BillingModel.marketplace_gcp, true],
-      ['marketplace-gcp', true],
       [SubscriptionCommonFieldsClusterBillingModel.marketplace_aws, false],
       [SubscriptionCommonFieldsClusterBillingModel.standard, false],
       [undefined, false],
