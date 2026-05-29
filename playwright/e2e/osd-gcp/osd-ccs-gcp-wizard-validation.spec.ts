@@ -171,6 +171,11 @@ Clusters.forEach((clusterProperties) => {
         );
 
         await createOSDWizardPage.createCustomDomainPrefixCheckbox().uncheck();
+
+        await createOSDWizardPage.versionSelectorToggle().click();
+        await expect(createOSDWizardPage.versionOptionByChannel('fast')).toBeVisible();
+        await createOSDWizardPage.versionSelectorToggle().click();
+
         await createOSDWizardPage.selectAvailabilityZone('Single Zone');
 
         if (clusterProperties.CloudProvider.includes('GCP')) {

@@ -98,6 +98,11 @@ test.describe.serial(
       );
 
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().uncheck();
+
+      await createRosaWizardPage.versionSelectorToggle().click();
+      await expect(createRosaWizardPage.versionOptionByChannel('fast')).toBeVisible();
+      await createRosaWizardPage.versionSelectorToggle().click();
+
       await createRosaWizardPage.advancedEncryptionLink().click();
       await createRosaWizardPage.useCustomKMSKeyRadio().check();
       await createRosaWizardPage.customerManageKeyARNInput().click();

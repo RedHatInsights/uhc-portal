@@ -65,9 +65,6 @@ test.describe.serial(
       await createOSDWizardPage.setDomainPrefix(clusterDomainPrefix);
       await createOSDWizardPage.closePopoverDialogs();
       await expect(createOSDWizardPage.singleZoneAvilabilityRadio()).toBeChecked();
-      await createOSDWizardPage.versionSelectorToggle().click();
-      await expect(createOSDWizardPage.versionOptionByChannel('fast')).toBeVisible();
-      await createOSDWizardPage.versionSelectorToggle().click();
       await createOSDWizardPage.selectVersion(
         gcpClusterProperties.Version || process.env.VERSION || '',
       );

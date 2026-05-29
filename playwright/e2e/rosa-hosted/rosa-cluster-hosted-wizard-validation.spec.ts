@@ -122,6 +122,10 @@ test.describe.serial(
 
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().uncheck();
 
+      await createRosaWizardPage.versionSelectorToggle().click();
+      await expect(createRosaWizardPage.versionOptionByChannel('fast')).toBeVisible();
+      await createRosaWizardPage.versionSelectorToggle().click();
+
       // Test encryption validations
       await createRosaWizardPage.advancedEncryptionLink().click();
       await createRosaWizardPage.useCustomKMSKeyRadio().check();
