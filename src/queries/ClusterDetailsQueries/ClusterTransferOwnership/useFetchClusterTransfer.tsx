@@ -23,11 +23,13 @@ export const useFetchClusterTransfer = ({
   clusterExternalID,
   filter,
   showPendingTransfer,
+  suppressRefetch,
 }: {
   transferID?: string;
   clusterExternalID?: string;
   filter?: string;
   showPendingTransfer?: boolean;
+  suppressRefetch?: boolean;
 }) => {
   const viewType = viewConstants.CLUSTER_TRANSFER_VIEW;
   const viewOptions = useGlobalState((state) => state.viewOptions[viewType]);
@@ -61,7 +63,7 @@ export const useFetchClusterTransfer = ({
       return response;
     },
     enabled: !!clusterExternalID || !!transferID || !!filter,
-    refetchInterval: queryConstants.STALE_TIME_60_SEC,
+    refetchInterval: suppressRefetch ? false : queryConstants.STALE_TIME_60_SEC,
   });
 
   // Recalculate totalPages when pageSize changes or new data arrives (list/search only).

@@ -13,6 +13,7 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 
+import { useModalPresence } from '~/components/clusters/ClusterDetailsMultiRegion/ModalPresenceContext';
 import { getOCMResourceType } from '~/common/analytics';
 import { noQuotaTooltip } from '~/common/helpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
@@ -67,6 +68,7 @@ import './MachinePools.scss';
 
 const MachinePools = ({ cluster }) => {
   const dispatch = useDispatch();
+  const { registerModal, unregisterModal } = useModalPresence();
   const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
 
   const isDeleteMachinePoolModalOpen = useGlobalState((state) =>
@@ -275,7 +277,10 @@ const MachinePools = ({ cluster }) => {
                         quotaReason
                       }
                       id="add-machine-pool"
-                      onClick={() => setAddMachinePool(true)}
+                      onClick={() => {
+                        setAddMachinePool(true);
+                        registerModal();
+                      }}
                       variant={ButtonVariant.secondary}
                     >
                       Add machine pool
@@ -299,7 +304,10 @@ const MachinePools = ({ cluster }) => {
                     <ToolbarItem>
                       <ButtonWithTooltip
                         disableReason={isMachineConfigurationActionDisabledReason}
-                        onClick={() => setShowMachinePoolsConfigModal(true)}
+                        onClick={() => {
+                          setShowMachinePoolsConfigModal(true);
+                          registerModal();
+                        }}
                         variant={ButtonVariant.secondary}
                       >
                         Edit machine configuration
@@ -326,7 +334,10 @@ const MachinePools = ({ cluster }) => {
                   isDeleteMachinePoolPending={isDeleteMachinePoolPending}
                   isDeleteMachinePoolSuccess={isDeleteMachinePoolSuccess}
                   isDeleteMachinePoolError={isDeleteMachinePoolError}
-                  setEditMachinePoolId={setEditMachinePoolId}
+                  setEditMachinePoolId={(id) => {
+                    setEditMachinePoolId(id);
+                    registerModal();
+                  }}
                   setHideDeleteMachinePoolError={setHideDeleteMachinePoolError}
                   cluster={cluster}
                   isMachinePoolError={isMachinePoolError}
@@ -349,6 +360,7 @@ const MachinePools = ({ cluster }) => {
           onClose={() => {
             setEditMachinePoolId(undefined);
             setAddMachinePool(false);
+            unregisterModal();
           }}
           isHypershift={isHypershift}
           machinePoolId={editMachinePoolId}
@@ -400,7 +412,10 @@ const MachinePools = ({ cluster }) => {
               ? getClusterServiceForRegion(region).patchKubeletConfiguration
               : clusterService.patchKubeletConfiguration
           }
-          onClose={() => setShowMachinePoolsConfigModal(false)}
+          onClose={() => {
+            setShowMachinePoolsConfigModal(false);
+            unregisterModal();
+          }}
           canBypassPIDsLimit={canBypassPIDsLimit}
         />
       )}

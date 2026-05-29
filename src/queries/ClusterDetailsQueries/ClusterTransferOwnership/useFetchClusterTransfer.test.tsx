@@ -313,6 +313,26 @@ describe('useFetchClusterTransfer', () => {
     expect(result.current.data).toEqual({ items: [] });
   });
 
+  it('fetches data but disables automatic polling when suppressRefetch is true', async () => {
+    // Arrange
+    getClusterTransferByExternalIDSpy.mockResolvedValueOnce({
+      data: { items: [], total: 0 },
+    });
+
+    // Act
+    const { result } = renderHook(() =>
+      useFetchClusterTransfer({ clusterExternalID: 'ext-suppress', suppressRefetch: true }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    // Assert
+    expect(getClusterTransferByExternalIDSpy).toHaveBeenCalledWith('ext-suppress');
+    expect(result.current.isError).toBe(false);
+  });
+
   it('returns formatted error when the request fails', async () => {
     getClusterTransferByExternalIDSpy.mockRejectedValueOnce({
       name: 403,

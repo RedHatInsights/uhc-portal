@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import { Alert, Card, CardBody, Flex, FlexItem, Title } from '@patternfly/react-core';
 
+import { useModalPresence } from '~/components/clusters/ClusterDetailsMultiRegion/ModalPresenceContext';
 import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import ErrorBox from '~/components/common/ErrorBox';
 import { openModal } from '~/components/common/Modal/ModalActions';
@@ -27,9 +28,11 @@ export const ClusterTransferSection = ({
   subscription,
   canEdit,
 }: ClusterTransferSectionProps) => {
+  const { isAnyLocalModalOpen } = useModalPresence();
   const { data, isLoading, isError, error } = useFetchClusterTransfer({
     clusterExternalID,
     showPendingTransfer: true,
+    suppressRefetch: isAnyLocalModalOpen,
   });
   const dispatch = useDispatch();
   const transfer = data?.items?.[0] || {};

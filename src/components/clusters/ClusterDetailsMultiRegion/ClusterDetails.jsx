@@ -87,6 +87,7 @@ import { canTransferClusterOwnershipMultiRegion } from '../common/TransferCluste
 import CancelUpgradeModal from '../common/Upgrades/CancelUpgradeModal/CancelUpgradeModal';
 import { getSchedules } from '../common/Upgrades/clusterUpgradeActions';
 
+import { ModalPresenceProvider, useModalPresence } from './ModalPresenceContext';
 import AccessControl from './components/AccessControl/AccessControl';
 import usersActions from './components/AccessControl/UsersSection/UsersActions';
 import { AccessRequest } from './components/AccessRequest/AccessRequest';
@@ -111,7 +112,7 @@ import { eventTypes } from './clusterDetailsHelper';
 
 const PAGE_TITLE = 'Red Hat OpenShift Cluster Manager';
 
-const ClusterDetails = (props) => {
+const ClusterDetailsInner = (props) => {
   const location = useLocation();
   const clusterListPath = useClusterListPath();
   const { toggleSubscriptionReleased } = props;
@@ -119,7 +120,9 @@ const ClusterDetails = (props) => {
   const monitoring = useGlobalState((state) => state.monitoring);
 
   const canHibernateCluster = useGlobalState((state) => userCanHibernateClustersSelector(state));
-  const anyModalOpen = useGlobalState((state) => !!state.modal.modalName);
+  const anyReduxModalOpen = useGlobalState((state) => !!state.modal.modalName);
+  const { isAnyLocalModalOpen } = useModalPresence();
+  const anyModalOpen = anyReduxModalOpen || isAnyLocalModalOpen;
   const userAccess = useGlobalState((state) => state.cost.userAccess);
 
   const { organization } = useGlobalState((state) => state.userProfile);
@@ -809,8 +812,16 @@ const ClusterDetails = (props) => {
   );
 };
 
-ClusterDetails.propTypes = {
+ClusterDetailsInner.propTypes = {
   toggleSubscriptionReleased: PropTypes.func.isRequired,
 };
+
+const ClusterDetails = (props) => (
+  <ModalPresenceProvider>
+    <ClusterDetailsInner {...props} />
+  </ModalPresenceProvider>
+);
+
+ClusterDetails.propTypes = ClusterDetailsInner.propTypes;
 
 export default ClusterDetails;
