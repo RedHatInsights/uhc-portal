@@ -47,6 +47,7 @@ import ClusterNetwork from '../ClusterNetwork';
 import EditAutoNodeModal from '../EditAutoNodeModal/EditAutoNodeModal';
 
 import DeleteProtection from './DeleteProtection/DeleteProtection';
+import AutoNodeKarpenterCount from './AutoNodeKarpenterCount';
 import { ClusterStatus } from './ClusterStatus';
 
 function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDetailsFetching }) {
@@ -158,17 +159,9 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const showDeleteProtection = cluster.managed && !isArchivedSubscription(cluster);
   const isClusterUninstalling = cluster.state === clusterStates.uninstalling;
 
-  const autoNodeKarpenterHint = (
-    <PopoverHint
-      iconClassName="nodes-hint"
-      buttonAriaLabel="More information about AutoNode Karpenter nodes"
-      hint="These nodes are automatically provisioned and managed by Karpenter based on workload demands. These nodes are not managed through machine pools."
-    />
-  );
-
   const autoNodeWarningAlert =
     isAutoNodeAllowed && cluster?.auto_node?.status?.message ? (
-      <Alert variant="danger" isInline title="Autonode status" className="pf-v6-u-mt-sm" isPlain>
+      <Alert variant="warning" isInline title="Autonode status" className="pf-v6-u-mt-sm" isPlain>
         {cluster.auto_node.status.message}
       </Alert>
     ) : null;
@@ -320,12 +313,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                   </dd>
                 </Flex>
                 {isAutoNodeAllowed && autoNodeCount != null && (
-                  <Flex data-testid="autoNodeKarpenterCountContainer">
-                    <dt>Autonode (Karpenter): </dt>
-                    <dd data-testid="autoNodeKarpenterCount">
-                      {autoNodeCount} {autoNodeKarpenterHint}
-                    </dd>
-                  </Flex>
+                  <AutoNodeKarpenterCount count={autoNodeCount} />
                 )}
               </dl>
             </DescriptionListDescription>
@@ -352,12 +340,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                   <dd>{totalActualNodes || 'N/A'}</dd>
                 </Flex>
                 {isAutoNodeAllowed && autoNodeCount != null && (
-                  <Flex data-testid="autoNodeKarpenterCountContainer">
-                    <dt>Autonode (Karpenter): </dt>
-                    <dd data-testid="autoNodeKarpenterCount">
-                      {autoNodeCount} {autoNodeKarpenterHint}
-                    </dd>
-                  </Flex>
+                  <AutoNodeKarpenterCount count={autoNodeCount} />
                 )}
               </dl>
             </DescriptionListDescription>
@@ -478,9 +461,12 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                 data-testid="editAutoNodeButton"
                 ariaLabel="Edit Autonode settings"
                 disableReason={
-                  (!cluster?.canEdit && 'You do not have permission to edit Autonode settings.') ||
+                  (!cluster?.canUpdateClusterResource &&
+                    'You do not have permission to edit Autonode settings.') ||
                   (!isAutoNodeVersionValid &&
-                    `Autonode requires OpenShift version ${AUTO_NODE_MIN_VERSION} or above.`)
+                    `Autonode requires OpenShift version ${AUTO_NODE_MIN_VERSION} or above.`) ||
+                  (cluster?.state !== clusterStates.ready &&
+                    'Autonode settings can only be edited when the cluster is ready.')
                 }
                 onClick={() => setIsEditAutoNodeModalOpen(true)}
               >

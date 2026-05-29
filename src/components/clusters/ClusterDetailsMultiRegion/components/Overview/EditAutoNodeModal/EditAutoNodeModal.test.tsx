@@ -104,9 +104,17 @@ describe('<EditAutoNodeModal />', () => {
       const clusterWithoutId = {
         ...defaultCluster,
         id: undefined,
+        auto_node: { mode: 'disabled' },
       } as unknown as ClusterFromSubscription;
       const { user } = render(<EditAutoNodeModal cluster={clusterWithoutId} onClose={onClose} />);
 
+      await user.click(screen.getByLabelText('Enable Autonode'));
+      await user.type(
+        screen.getByPlaceholderText(
+          'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+        ),
+        'arn:aws:iam::123456789012:role/TestRole',
+      );
       await user.click(screen.getByRole('button', { name: 'Save' }));
 
       expect(mockEditCluster).not.toHaveBeenCalled();
@@ -271,7 +279,11 @@ describe('<EditAutoNodeModal />', () => {
     it('keeps enabled mode when cluster is already enabled', async () => {
       const { user } = render(<EditAutoNodeModal cluster={enabledCluster} onClose={onClose} />);
 
-      expect(screen.getByLabelText('Enable Autonode')).toBeDisabled();
+      const input = screen.getByDisplayValue(
+        'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+      );
+      await user.clear(input);
+      await user.type(input, 'arn:aws:iam::999999999999:role/NewRole');
       await user.click(screen.getByRole('button', { name: 'Save' }));
 
       expect(mockEditCluster).toHaveBeenCalledWith(
@@ -284,10 +296,70 @@ describe('<EditAutoNodeModal />', () => {
       );
     });
 
-    it('enables Save button when Autonode is disabled (toggle off)', () => {
+    it('disables Save button when no changes have been made', () => {
       render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
 
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    it('disables Save button when no changes have been made on an enabled cluster', () => {
+      render(<EditAutoNodeModal cluster={enabledCluster} onClose={onClose} />);
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    it('enables Save button when ARN is changed from its original value', async () => {
+      const { user } = render(<EditAutoNodeModal cluster={enabledCluster} onClose={onClose} />);
+
+      const input = screen.getByDisplayValue(
+        'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+      );
+      await user.clear(input);
+      await user.type(input, 'arn:aws:iam::123456789012:role/UpdatedRole');
+
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
+    it('disables Save button when ARN is reverted to its original value', async () => {
+      const { user } = render(<EditAutoNodeModal cluster={enabledCluster} onClose={onClose} />);
+
+      const input = screen.getByDisplayValue(
+        'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+      );
+      await user.clear(input);
+      await user.type(input, 'arn:aws:iam::123456789012:role/UpdatedRole');
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+      await user.clear(input);
+      await user.type(input, 'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role');
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    it('enables Save button when Autonode toggle is changed', async () => {
+      const { user } = render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
+
+      await user.click(screen.getByLabelText('Enable Autonode'));
+
+      // Still disabled because ARN is empty (isValid is false)
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+      await user.type(
+        screen.getByPlaceholderText(
+          'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+        ),
+        'arn:aws:iam::123456789012:role/TestRole',
+      );
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
+    it('disables Save button when Autonode toggle is reverted back', async () => {
+      const { user } = render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
+
+      await user.click(screen.getByLabelText('Enable Autonode'));
+      await user.click(screen.getByLabelText('Enable Autonode'));
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     });
   });
 });

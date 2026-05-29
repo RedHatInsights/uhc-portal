@@ -6,9 +6,16 @@ type WithTooltipProps = {
   showTooltip: boolean;
   content: React.ReactNode;
   children: React.ReactElement;
+  position?: React.ComponentProps<typeof Tooltip>['position'];
 };
 
-const WithTooltip = ({ showTooltip, content, children }: WithTooltipProps) =>
-  showTooltip ? <Tooltip content={content}>{children}</Tooltip> : children;
+const WithTooltip = ({ showTooltip, content, children, position }: WithTooltipProps) =>
+  showTooltip ? (
+    <Tooltip content={content} position={position || 'top'}>
+      {children}
+    </Tooltip>
+  ) : (
+    children
+  );
 
 export default WithTooltip;

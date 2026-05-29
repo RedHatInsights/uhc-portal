@@ -1728,7 +1728,7 @@ describe('<DetailsRight />', () => {
           ...clusterFixture,
           hypershift: { enabled: true },
           auto_node: { mode: 'enabled' },
-          canEdit: true,
+          canUpdateClusterResource: true,
           openshift_version: '4.22.0',
         },
       };
@@ -1748,7 +1748,7 @@ describe('<DetailsRight />', () => {
           ...clusterFixture,
           hypershift: { enabled: true },
           auto_node: { mode: 'enabled' },
-          canEdit: true,
+          canUpdateClusterResource: true,
           openshift_version: '4.21.3',
         },
       };
@@ -1759,7 +1759,7 @@ describe('<DetailsRight />', () => {
       expect(editButton).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('disables edit button when user does not have edit permission', () => {
+    it('disables edit button when user does not have cluster update permission', () => {
       mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
       const clusterFixture = defaultProps.cluster;
       const newProps = {
@@ -1768,7 +1768,7 @@ describe('<DetailsRight />', () => {
           ...clusterFixture,
           hypershift: { enabled: true },
           auto_node: { mode: 'enabled' },
-          canEdit: false,
+          canUpdateClusterResource: false,
           openshift_version: '4.22.0',
         },
       };
@@ -1788,7 +1788,7 @@ describe('<DetailsRight />', () => {
           ...clusterFixture,
           hypershift: { enabled: true },
           auto_node: { mode: 'enabled' },
-          canEdit: true,
+          canUpdateClusterResource: true,
           openshift_version: undefined,
         },
       };
@@ -1797,6 +1797,69 @@ describe('<DetailsRight />', () => {
 
       const editButton = screen.getByTestId('editAutoNodeButton');
       expect(editButton).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('disables edit button when cluster state is not ready', () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+          canUpdateClusterResource: true,
+          openshift_version: '4.22.0',
+          state: 'installing',
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      const editButton = screen.getByTestId('editAutoNodeButton');
+      expect(editButton).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('disables edit button when cluster state is waiting', () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+          canUpdateClusterResource: true,
+          openshift_version: '4.22.0',
+          state: 'waiting',
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      const editButton = screen.getByTestId('editAutoNodeButton');
+      expect(editButton).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('enables edit button when cluster state is ready', () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+          canUpdateClusterResource: true,
+          openshift_version: '4.22.0',
+          state: 'ready',
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      const editButton = screen.getByTestId('editAutoNodeButton');
+      expect(editButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
     it('enables edit button for versions higher than minimum', () => {
@@ -1808,7 +1871,7 @@ describe('<DetailsRight />', () => {
           ...clusterFixture,
           hypershift: { enabled: true },
           auto_node: { mode: 'disabled' },
-          canEdit: true,
+          canUpdateClusterResource: true,
           openshift_version: '4.22.0-0.nightly-2026-05-19-113338',
         },
       };
@@ -1831,7 +1894,7 @@ describe('<DetailsRight />', () => {
             mode: 'enabled',
             status: { message: 'AutoNode installation failed' },
           },
-          canEdit: true,
+          canUpdateClusterResource: true,
           openshift_version: '4.22.0',
         },
       };
@@ -1850,7 +1913,7 @@ describe('<DetailsRight />', () => {
           ...clusterFixture,
           hypershift: { enabled: true },
           auto_node: { mode: 'enabled' },
-          canEdit: true,
+          canUpdateClusterResource: true,
           openshift_version: '4.22.0',
         },
       };
@@ -1869,7 +1932,7 @@ describe('<DetailsRight />', () => {
           ...clusterFixture,
           hypershift: { enabled: true },
           auto_node: { mode: 'enabled' },
-          canEdit: true,
+          canUpdateClusterResource: true,
           openshift_version: '4.22.0',
         },
       };
@@ -1891,7 +1954,7 @@ describe('<DetailsRight />', () => {
           ...clusterFixture,
           hypershift: { enabled: true },
           auto_node: { mode: 'disabled' },
-          canEdit: true,
+          canUpdateClusterResource: true,
           openshift_version: '4.22.0',
         },
       };
@@ -1913,7 +1976,7 @@ describe('<DetailsRight />', () => {
           hypershift: { enabled: true },
           auto_node: { mode: 'enabled' },
           aws: { ...clusterFixture.aws, auto_node: { role_arn: '' } },
-          canEdit: true,
+          canUpdateClusterResource: true,
           openshift_version: '4.22.0',
         },
       };

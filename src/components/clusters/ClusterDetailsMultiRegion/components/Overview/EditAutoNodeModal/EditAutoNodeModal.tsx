@@ -23,6 +23,7 @@ import { validateRoleARN } from '~/common/validators';
 import { queryClient } from '~/components/App/queryClient';
 import ErrorBox from '~/components/common/ErrorBox';
 import PopoverHint from '~/components/common/PopoverHint';
+import WithTooltip from '~/components/common/WithTooltip';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { queryConstants } from '~/queries/queriesConstants';
 import { ClusterFromSubscription } from '~/types/types';
@@ -34,13 +35,17 @@ type EditAutoNodeModalProps = {
 };
 
 const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps) => {
-  const [isAutoNodeEnabled, setIsAutoNodeEnabled] = React.useState(
-    cluster?.auto_node?.mode === 'enabled',
-  );
-  const [iamRoleArn, setIamRoleArn] = React.useState(cluster?.aws?.auto_node?.role_arn ?? '');
+  const initialAutoNodeEnabled = cluster?.auto_node?.mode === 'enabled';
+  const initialIamRoleArn = cluster?.aws?.auto_node?.role_arn ?? '';
+
+  const [isAutoNodeEnabled, setIsAutoNodeEnabled] = React.useState(initialAutoNodeEnabled);
+  const [iamRoleArn, setIamRoleArn] = React.useState(initialIamRoleArn);
+
   const [arnValidationError, setArnValidationError] = React.useState<string | undefined>(undefined);
 
   const isValid = !isAutoNodeEnabled || (iamRoleArn.trim().length > 0 && !arnValidationError);
+  const hasChanges =
+    isAutoNodeEnabled !== initialAutoNodeEnabled || iamRoleArn !== initialIamRoleArn;
 
   const { mutate: editCluster, isPending: isSubmitting, isError, error } = useEditCluster(region);
 
@@ -93,13 +98,20 @@ const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps)
       </ModalHeader>
       <ModalBody>
         <Form>
-          <Switch
-            id="enable-auto-node"
-            label="Enable Autonode"
-            isChecked={isAutoNodeEnabled}
-            onChange={(_event, checked) => setIsAutoNodeEnabled(checked)}
-            isDisabled={cluster?.auto_node?.mode === 'enabled'}
-          />
+          <WithTooltip
+            showTooltip={cluster?.auto_node?.mode === 'enabled'}
+            content="Autonode cannot be disabled once enabled."
+            position="top-start"
+          >
+            <Switch
+              id="enable-auto-node"
+              label="Enable Autonode"
+              isChecked={isAutoNodeEnabled}
+              onChange={(_event, checked) => setIsAutoNodeEnabled(checked)}
+              isDisabled={cluster?.auto_node?.mode === 'enabled'}
+            />
+          </WithTooltip>
+
           {isAutoNodeEnabled && cluster?.auto_node?.mode !== 'enabled' ? (
             <Alert variant="warning" isInline isPlain title="Enabling Autonode cannot be undone">
               Ensure you have created the required IAM role in your AWS account before proceeding.
@@ -108,7 +120,7 @@ const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps)
 
           <FormGroup
             label="AutoNode IAM role ARN"
-            isRequired
+            isRequired={isAutoNodeEnabled}
             labelHelp={
               <PopoverHint
                 buttonAriaLabel="Autonode IAM role ARN information"
@@ -124,7 +136,6 @@ const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps)
                 setArnValidationError(value.trim().length > 0 ? validateRoleARN(value) : undefined);
               }}
               placeholder="arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role"
-              isRequired
               isDisabled={!isAutoNodeEnabled}
             />
             <HelperText>
@@ -143,7 +154,7 @@ const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps)
         <Button
           variant="primary"
           onClick={handleSave}
-          isDisabled={!isValid || isSubmitting}
+          isDisabled={!isValid || isSubmitting || !hasChanges}
           isLoading={isSubmitting}
         >
           Save
