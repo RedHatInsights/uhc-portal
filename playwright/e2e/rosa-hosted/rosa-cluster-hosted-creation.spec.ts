@@ -30,7 +30,6 @@ test.describe.serial(
       clusterProperties.MachinePools[0].AvailabilityZones;
 
     test.beforeAll(async ({ navigateTo }) => {
-      // Navigate to create
       await navigateTo('create');
     });
     test('Open Rosa cluster wizard', async ({ page, createRosaWizardPage }) => {

@@ -1112,6 +1112,64 @@ export class CreateRosaWizardPage extends BasePage {
     return this.logForwardingReviewSection().getByText('Disabled', { exact: true });
   }
 
+  logForwardingS3BucketNameInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Bucket name' });
+  }
+
+  logForwardingS3BucketPrefixInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Bucket prefix' });
+  }
+
+  logForwardingCloudWatchLogGroupNameInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Log group name' });
+  }
+
+  logForwardingCloudWatchRoleArnInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Role ARN' });
+  }
+
+  logForwardingCloudWatchPrerequisiteCheckbox(): Locator {
+    return this.page.getByRole('checkbox', {
+      name: "I've read and completed all the prerequisites",
+    });
+  }
+
+  /**
+   * Selects a group by name in the log forwarding available groups/applications tree.
+   * S3 tree is at index 0, CloudWatch tree is at index 1.
+   */
+  async selectLogForwardingGroup(groupName: string, section: 'S3' | 'CloudWatch'): Promise<void> {
+    const treeIndex = section === 'S3' ? 0 : 1;
+    await this.page
+      .getByRole('tree', { name: 'Select groups and applications' })
+      .nth(treeIndex)
+      .getByRole('checkbox', { name: `Select ${groupName}` })
+      .check();
+  }
+
+  /**
+   * Selects all available groups in a log forwarding tree section.
+   * Waits for the tree to load, then checks every unchecked checkbox.
+   */
+  async selectAllLogForwardingGroups(section: 'S3' | 'CloudWatch'): Promise<void> {
+    const treeIndex = section === 'S3' ? 0 : 1;
+    const tree = this.page
+      .getByRole('tree', { name: 'Select groups and applications' })
+      .nth(treeIndex);
+
+    await tree.getByRole('checkbox').first().waitFor({ state: 'visible', timeout: 30000 });
+
+    const checkboxes = tree.getByRole('checkbox');
+    const count = await checkboxes.count();
+    for (let i = 0; i < count; i++) {
+      const cb = checkboxes.nth(i);
+      if (!(await cb.isChecked())) {
+        await cb.check();
+      }
+    }
+  }
+
+
   // Additional validation method for compute node range
   computeNodeRangeValue(): Locator {
     return this.page.getByTestId('Compute-node-range').locator('div');
@@ -1131,5 +1189,9 @@ export class CreateRosaWizardPage extends BasePage {
 
   operatorRoleCommandInput(): Locator {
     return this.page.getByLabel('Copyable ROSA create operator-roles');
+  }
+
+  logForwardingReviewText(text: string): Locator {
+    return this.logForwardingReviewSection().getByText(text);
   }
 }
