@@ -10,10 +10,10 @@ const TestConsumer = () => {
   return (
     <div>
       <span data-testid="modal-status">{isAnyLocalModalOpen ? 'open' : 'closed'}</span>
-      <button data-testid="register" onClick={registerModal}>
+      <button type="button" data-testid="register" onClick={registerModal}>
         Register
       </button>
-      <button data-testid="unregister" onClick={unregisterModal}>
+      <button type="button" data-testid="unregister" onClick={unregisterModal}>
         Unregister
       </button>
     </div>

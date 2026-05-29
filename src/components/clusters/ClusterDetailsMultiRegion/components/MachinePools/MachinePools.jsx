@@ -13,10 +13,10 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 
-import { useModalPresence } from '~/components/clusters/ClusterDetailsMultiRegion/ModalPresenceContext';
 import { getOCMResourceType } from '~/common/analytics';
 import { noQuotaTooltip } from '~/common/helpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import { useModalPresence } from '~/components/clusters/ClusterDetailsMultiRegion/ModalPresenceContext';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
 import { LoadingSkeletonCard } from '~/components/clusters/common/LoadingSkeletonCard/LoadingSkeletonCard';
 import { MachineConfiguration } from '~/components/clusters/common/MachineConfiguration';

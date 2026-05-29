@@ -87,7 +87,6 @@ import { canTransferClusterOwnershipMultiRegion } from '../common/TransferCluste
 import CancelUpgradeModal from '../common/Upgrades/CancelUpgradeModal/CancelUpgradeModal';
 import { getSchedules } from '../common/Upgrades/clusterUpgradeActions';
 
-import { ModalPresenceProvider, useModalPresence } from './ModalPresenceContext';
 import AccessControl from './components/AccessControl/AccessControl';
 import usersActions from './components/AccessControl/UsersSection/UsersActions';
 import { AccessRequest } from './components/AccessRequest/AccessRequest';
@@ -109,6 +108,7 @@ import AddNotificationContactDialog from './components/Support/components/AddNot
 import TabsRow from './components/TabsRow/TabsRow';
 import UpgradeSettingsTab from './components/UpgradeSettings';
 import { eventTypes } from './clusterDetailsHelper';
+import { ModalPresenceProvider, useModalPresence } from './ModalPresenceContext';
 
 const PAGE_TITLE = 'Red Hat OpenShift Cluster Manager';
 
