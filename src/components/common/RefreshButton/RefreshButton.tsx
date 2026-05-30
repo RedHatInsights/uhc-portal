@@ -14,7 +14,8 @@ type Props = {
 };
 
 const shortTimerSeconds = 10;
-const longTimerSeconds = 60;
+// Temporary fix to replace longTimerSeconds to 5 minutes instead of 60 seconds
+const longTimerSeconds = 300;
 const numberOfShortTries = 3;
 
 // See https://overreacted.io/making-setinterval-declarative-with-react-hooks/

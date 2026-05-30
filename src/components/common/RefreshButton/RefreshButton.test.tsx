@@ -14,7 +14,7 @@ jest.spyOn(global, 'setInterval');
 
 // Times set for refresh, change here if the corresponding var are changed within the component file
 const shortTimerSeconds = 10;
-const longTimerSeconds = 60;
+const longTimerSeconds = 300;
 
 describe('<RefreshButton />', () => {
   const onClickFunc = jest.fn();

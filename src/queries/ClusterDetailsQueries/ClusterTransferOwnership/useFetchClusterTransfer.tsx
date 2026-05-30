@@ -61,7 +61,8 @@ export const useFetchClusterTransfer = ({
       return response;
     },
     enabled: !!clusterExternalID || !!transferID || !!filter,
-    refetchInterval: queryConstants.STALE_TIME_60_SEC,
+    // Temporary fix to replace queryConstants.STALE_TIME_60_SEC with 5 minute timer
+    refetchInterval: 300000,
   });
 
   // Recalculate totalPages when pageSize changes or new data arrives (list/search only).
