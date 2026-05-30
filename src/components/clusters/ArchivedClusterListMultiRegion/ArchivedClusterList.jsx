@@ -111,15 +111,13 @@ const ClusterList = ({
   );
 
   const clusters = data?.items;
-  const reduxClustersTotal = useSelector((state) => state.viewOptions[viewType]?.totalCount);
-  const clustersTotal = data?.itemsCount ?? reduxClustersTotal ?? 0;
+  const clustersTotal = useSelector((state) => state.viewOptions[viewType]?.totalCount);
 
   React.useEffect(() => {
-    if (!isLoading && data?.itemsCount !== undefined && data.itemsCount !== reduxClustersTotal) {
+    if (!isLoading && data?.itemsCount !== undefined && data.itemsCount !== clustersTotal) {
       dispatch(onSetTotalClusters(data?.itemsCount, viewType));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.itemsCount, isLoading]);
+  }, [clustersTotal, data?.itemsCount, dispatch, isLoading, viewType]);
 
   const errorDetails = (errors || []).reduce((errorArray, error) => {
     if (!error.reason) {
