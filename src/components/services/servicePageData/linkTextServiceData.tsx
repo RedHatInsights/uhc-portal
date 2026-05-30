@@ -4,7 +4,9 @@ import { Label } from '@patternfly/react-core';
 
 import ExternalLink from '~/components/common/ExternalLink';
 
-import docLinks from '../../../common/installLinks.mjs';
+import docLinks from '../../../common/docLinks.mjs';
+import installLinks from '../../../common/installLinks.mjs';
+import supportLinks from '../../../common/supportLinks.mjs';
 
 type TextLabelLinkItem = {
   listItemText: string;
@@ -23,7 +25,9 @@ export const osdLinkTextLabelLinkCardContents: LinkTextLabelLinkCardContents = {
     {
       listItemText: 'Red Hat OpenShift Dedicated on Google Cloud Marketplace',
       listItemLabel: <Label color="yellow">Documentation</Label>,
-      listItemLink: <ExternalLink href={docLinks.OSD_GOOGLE_MARKETPLACE}>Learn More</ExternalLink>,
+      listItemLink: (
+        <ExternalLink href={installLinks.OSD_GOOGLE_MARKETPLACE}>Learn More</ExternalLink>
+      ),
     },
     {
       listItemText: 'Red Hat OpenShift Dedicated Interactive Walkthrough',
@@ -44,7 +48,7 @@ export const rosaLinkTextLabelLinkCardContents: LinkTextLabelLinkCardContents = 
     {
       listItemText: 'Product Documentation for Red Hat OpenShift Service on AWS 4',
       listItemLabel: <Label color="yellow">Documentation</Label>,
-      listItemLink: <ExternalLink href={docLinks.ROSA_CP_DOCS}>Learn More</ExternalLink>,
+      listItemLink: <ExternalLink href={supportLinks.ROSA_CP_DOCS}>Learn More</ExternalLink>,
     },
     {
       listItemText: 'Red Hat OpenShift Service on AWS quickstart guide',
@@ -55,13 +59,15 @@ export const rosaLinkTextLabelLinkCardContents: LinkTextLabelLinkCardContents = 
       listItemText: 'Troubleshooting installations',
       listItemLabel: <Label color="yellow">Documentation</Label>,
       listItemLink: (
-        <ExternalLink href={docLinks.ROSA_TROUBLESHOOTING_INSTALLATIONS}>Learn More</ExternalLink>
+        <ExternalLink href={supportLinks.ROSA_TROUBLESHOOTING_INSTALLATIONS}>
+          Learn More
+        </ExternalLink>
       ),
     },
     {
       listItemText: 'Red Hat OpenShift Service on AWS service definition',
       listItemLabel: <Label color="yellow">Documentation</Label>,
-      listItemLink: <ExternalLink href={docLinks.ROSA_DEFINITION_DOC}>Learn More</ExternalLink>,
+      listItemLink: <ExternalLink href={supportLinks.ROSA_DEFINITION_DOC}>Learn More</ExternalLink>,
     },
   ],
 };

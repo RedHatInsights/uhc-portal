@@ -1,6 +1,7 @@
 import { FormikValues } from 'formik';
 
 import { BREADCRUMB_PATHS, buildBreadcrumbs } from '~/common/breadcrumbPaths';
+import { getRandomID } from '~/common/helpers';
 import { getDefaultSecurityGroupsSettings } from '~/common/securityGroupsHelpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
@@ -43,6 +44,7 @@ export enum OsdFieldId {
   NetworkMachineCidrSingleAz = 'network_machine_cidr_single_az',
   NetworkMachineCidrMultiAz = 'network_machine_cidr_multi_az',
   MarketplaceSelection = 'marketplace_selection',
+  DnsZone = 'dns_zone',
 }
 
 export const FieldId = { ...CommonFieldId, ...OsdFieldId };
@@ -118,16 +120,19 @@ export const initialValues: FormikValues = {
   [FieldId.IMDS]: IMDSType.V1AndV2,
   [FieldId.ApplicationIngress]: ApplicationIngressType.Default,
   [FieldId.DefaultRouterExcludedNamespacesFlag]: '',
+  [FieldId.DefaultRouterExcludeNamespaceSelectors]: [{ id: getRandomID(), key: '', value: '' }],
   [FieldId.IsDefaultRouterNamespaceOwnershipPolicyStrict]: true,
   [FieldId.IsDefaultRouterWildcardPolicyAllowed]: false,
   [FieldId.ClusterAutoscaling]: getDefaultClusterAutoScaling(),
   [FieldId.DomainPrefix]: '',
   [FieldId.HasDomainPrefix]: false,
-  [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
+  [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
   [FieldId.GcpWifConfig]: '',
   [FieldId.PrivateServiceConnect]: false,
   [FieldId.PSCSubnet]: '',
   [FieldId.ChannelGroup]: CHANNEL_GROUP_DEFAULT,
+  [FieldId.VersionChannel]: '',
+  [FieldId.DnsZone]: { id: '' },
 };
 
 export const initialTouched = {

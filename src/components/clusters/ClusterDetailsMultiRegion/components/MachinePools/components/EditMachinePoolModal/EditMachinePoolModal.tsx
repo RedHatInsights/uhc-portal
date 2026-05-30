@@ -16,8 +16,6 @@ import {
   ModalHeader,
   ModalVariant,
   Spinner,
-  Split,
-  SplitItem,
   StackItem,
   Tabs,
   Title,
@@ -161,11 +159,27 @@ const EditMachinePoolModal = ({
   const [currentMachinePool, setCurrentMachinePool] = React.useState<MachinePool>();
   const [isEdit, setIsEdit] = React.useState<boolean>(getIsEditValue());
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(STARTING_TAB_KEY);
+
+  let hcpMaxDifference;
+  if (machinePoolsResponse && isHypershift) {
+    hcpMaxDifference =
+      getMaxNodesHCP(cluster.version?.raw_id) -
+      getNodeCount(
+        machinePoolsResponse,
+        isHypershift,
+        currentMachinePool?.id,
+        currentMachinePool?.instance_type,
+      );
+  }
+
+  const isMaxReached = hcpMaxDifference === 0;
+
   const { initialValues, validationSchema } = useMachinePoolFormik({
     machinePool: currentMachinePool,
     cluster,
     machinePools: machinePoolsResponse || [],
     machineTypes: machineTypesResponse,
+    hcpMaxDifference,
   });
 
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
@@ -196,17 +210,6 @@ const EditMachinePoolModal = ({
     setIsEdit(getIsEditValue());
   }, [getIsEditValue]);
 
-  // Checks if max nodes amount is reached for add machine pool nodes
-  const isMaxReached =
-    isHypershift &&
-    machinePoolsResponse &&
-    getNodeCount(
-      machinePoolsResponse,
-      isHypershift,
-      currentMachinePool?.id,
-      currentMachinePool?.instance_type,
-    ) === getMaxNodesHCP(cluster.version?.raw_id);
-
   const { mutateAsync: editCreateMachineOrNodePoolMutation } = useEditCreateMachineOrNodePools(
     isHypershift,
     cluster,
@@ -222,9 +225,11 @@ const EditMachinePoolModal = ({
     currentMachinePool,
     setCurrentMPId,
     machineTypesResponse,
+    machineTypesErrorResponse,
     machineTypesLoading,
     tabKey: 1,
     initialTabContentShown: STARTING_TAB_KEY === 1,
+    isMaxReached,
   });
 
   const [maintenanceTab, maintenanceContent] = useMaintenanceSubTab({
@@ -296,11 +301,11 @@ const EditMachinePoolModal = ({
             <Title headingLevel="h1">{isEdit ? 'Edit machine pool' : 'Add machine pool'}</Title>
 
             {shouldDisplayClusterName ? (
-              <StackItem className="modal-secondary-title">
-                <Split>
-                  <SplitItem>Cluster</SplitItem>
-                  <SplitItem>{clusterName}</SplitItem>
-                </Split>
+              <StackItem>
+                <div className="pf-v6-u-font-size-sm pf-v6-u-mt-xs">
+                  <span className="pf-v6-u-color-200 pf-v6-u-mr-sm">Cluster:</span>
+                  {clusterName}
+                </div>
               </StackItem>
             ) : null}
             {!isEdit ? (
@@ -358,6 +363,7 @@ const EditMachinePoolModal = ({
                       currentMPId={currentMachinePool?.id}
                       setCurrentMPId={setCurrentMPId}
                       machineTypesResponse={machineTypesResponse}
+                      machineTypesErrorResponse={machineTypesErrorResponse}
                       machineTypesLoading={machineTypesLoading}
                     />
                     <EditNodeCountSection
@@ -366,6 +372,7 @@ const EditMachinePoolModal = ({
                       machinePools={machinePoolsResponse || []}
                       machineTypes={machineTypesResponse}
                       allow249NodesOSDCCSROSA={allow249NodesOSDCCSROSA}
+                      isMaxReached={isMaxReached}
                     />
                     <AutoRepairField cluster={cluster} />
                     {imdsSectionFeature && !isEdit && isHypershift ? (
@@ -405,10 +412,12 @@ const EditMachinePoolModal = ({
                 }}
               />
             )}
-            {isMaxReached ? (
-              <Tooltip content="Maximum cluster node count limit reached">
+            {(() => {
+              const nodeCount = values.autoscaling ? values.autoscaleMax : values.replicas;
+              const isDisabled = !!isMaxReached && nodeCount > 0;
+              const button = (
                 <SubmitButton
-                  isMaxReached={isMaxReached}
+                  isMaxReached={isDisabled}
                   isValid={isValid}
                   isSubmitting={isSubmitting}
                   machinePoolsResponse={machinePoolsResponse || []}
@@ -418,20 +427,13 @@ const EditMachinePoolModal = ({
                   submitForm={submitForm}
                   isEdit={isEdit}
                 />
-              </Tooltip>
-            ) : (
-              <SubmitButton
-                isMaxReached={isMaxReached || false}
-                isValid={isValid}
-                isSubmitting={isSubmitting}
-                machinePoolsResponse={machinePoolsResponse || []}
-                machineTypesResponse={machineTypesResponse}
-                initialValues={initialValues}
-                values={values}
-                submitForm={submitForm}
-                isEdit={isEdit}
-              />
-            )}
+              );
+              return isDisabled ? (
+                <Tooltip content="Maximum cluster node count limit reached">{button}</Tooltip>
+              ) : (
+                button
+              );
+            })()}
             <Button
               variant="link"
               isDisabled={isSubmitting}
@@ -503,8 +505,8 @@ export const ConnectedEditMachinePoolModal = ({
       machinePoolsError={isMachinePoolError}
       machineTypesLoading={isMachineTypesLoading}
       machineTypesError={isMachineTypesError}
-      machinePoolsErrorResponse={machinePoolError.error}
-      machineTypesErrorResponse={machineTypesError.error}
+      machinePoolsErrorResponse={machinePoolError?.error}
+      machineTypesErrorResponse={machineTypesError?.error}
       onSave={() => {
         if (!isMachinePoolLoading) {
           machinePoolOrNodePoolsRefetch();

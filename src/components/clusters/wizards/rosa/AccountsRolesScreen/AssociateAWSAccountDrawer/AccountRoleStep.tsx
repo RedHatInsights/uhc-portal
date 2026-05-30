@@ -3,7 +3,7 @@ import React from 'react';
 import { Alert, AlertVariant, Content, ContentVariants } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -47,7 +47,7 @@ const AccountRoleStep = (props: AssociateAWSAccountStepProps) => {
           <>
             If you would prefer to manually create the required roles and policies within your AWS
             account, then follow{' '}
-            <ExternalLink href={links.AWS_CLI_GETTING_STARTED_MANUAL} noIcon>
+            <ExternalLink href={docLinks.AWS_CLI_GETTING_STARTED_MANUAL} noIcon>
               these instructions
             </ExternalLink>
             .

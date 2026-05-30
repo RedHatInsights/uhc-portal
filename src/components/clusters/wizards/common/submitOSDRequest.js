@@ -8,6 +8,7 @@ import {
   strToKeyValueObject,
 } from '~/common/helpers';
 import { getClusterAutoScalingSubmitSettings } from '~/components/clusters/common/clusterAutoScalingValues';
+import { parseFormExcludeNamespaceSelectorsToApi } from '~/components/clusters/wizards/common/excludeNamespaceSelectorsForm';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ApplicationIngressType } from '~/components/clusters/wizards/osd/Networking/constants';
@@ -33,6 +34,7 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
   const isHypershiftSelected = formData.hypershift === 'true';
 
   const isRedHatOIDCManaged = formData?.byo_oidc_config_id_managed === 'true';
+  const isWif = formData[FieldId.GcpAuthType] === GCPAuthType.WorkloadIdentityFederation;
 
   const clusterRequest = {
     name: formData.name,
@@ -41,7 +43,7 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
     },
     nodes: {
       compute_machine_type: {
-        id: formData.machine_type,
+        id: formData.machine_type?.id,
       },
     },
     managed: true,
@@ -83,6 +85,10 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
 
   if (formData.cluster_version) {
     clusterRequest.version = { id: formData.cluster_version.id };
+  }
+
+  if (formData.version_channel) {
+    clusterRequest.channel = formData.version_channel;
   }
 
   if (formData.autoscalingEnabled) {
@@ -312,6 +318,9 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
         };
         if (formData.install_to_shared_vpc) {
           clusterRequest.gcp_network.vpc_project_id = formData.shared_host_project_id;
+          if (formData.has_domain_prefix && formData.dns_zone?.id && isWif) {
+            clusterRequest.dns = { base_domain: formData.dns_zone.id };
+          }
         }
       }
       if (formData.customer_managed_key === 'true') {
@@ -339,6 +348,9 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
       formData.applicationIngress === ApplicationIngressType.Custom &&
       canConfigureDayOneManagedIngress(formData.cluster_version?.raw_id)
     ) {
+      const excludedNamespaceSelectors = parseFormExcludeNamespaceSelectorsToApi(
+        formData[FieldId.DefaultRouterExcludeNamespaceSelectors],
+      );
       clusterRequest.ingresses = {
         items: [
           {
@@ -346,6 +358,9 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
             excluded_namespaces: formData.defaultRouterExcludedNamespacesFlag
               ? stringToArrayTrimmed(formData.defaultRouterExcludedNamespacesFlag)
               : undefined,
+            ...(excludedNamespaceSelectors?.length
+              ? { excluded_namespace_selectors: excludedNamespaceSelectors }
+              : {}),
             route_selectors: strToKeyValueObject(formData.defaultRouterSelectors, ''),
             route_wildcard_policy: formData.isDefaultRouterWildcardPolicyAllowed
               ? WildcardPolicy.WildcardsAllowed

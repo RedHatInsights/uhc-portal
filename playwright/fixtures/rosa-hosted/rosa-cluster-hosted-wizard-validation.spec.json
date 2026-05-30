@@ -49,12 +49,14 @@
       "DuplicateSubnetsError": "Every machine pool must be associated to a different subnet",
       "SubnetRequiredError": "Subnet is required",
       "NodeCount": {
-        "MultiZone": {
-          "LowerLimitError": "Input cannot be less than 2",
-          "UpperLimitError": "Input cannot be more than 500",
-          "LowerLimitErrorWithMultipleMachinePools": "Input cannot be less than 1",
-          "UpperLimitErrorWithMultipleMachinePools": "Input cannot be more than 250",
-          "MinAndMaxLimitDependencyError": "Max nodes cannot be less than min nodes"
+        "LowerLimitError": "Input cannot be less than 2",
+        "UpperLimitError": "Input cannot be more than 500",
+        "LowerLimitErrorWithMultipleMachinePools": "Input cannot be less than 1",
+        "UpperLimitErrorWithMultipleMachinePools": "Input cannot be more than 250",
+        "MinAndMaxLimitDependencyError": "Max nodes cannot be less than min nodes",
+        "Autoscaling": {
+          "LowerLimitError": "Input cannot be less than 0",
+          "LowerLimitErrorInMaximumNodeCount": "Maximum nodes cannot be less than 2"
         }
       },
       "RootDiskSize": {

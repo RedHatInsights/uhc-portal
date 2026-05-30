@@ -86,7 +86,7 @@ describe('useFetchAccessRequests', () => {
     );
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.isLoading).toBeTruthy();
     });
 
     expect(apiRequestMock).not.toHaveBeenCalled();

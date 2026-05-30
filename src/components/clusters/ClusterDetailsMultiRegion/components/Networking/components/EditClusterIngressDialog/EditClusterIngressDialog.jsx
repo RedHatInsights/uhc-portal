@@ -20,7 +20,7 @@ import { useEditClusterIngressMutation } from '~/queries/ClusterDetailsQueries/N
 import { refetchGetClusterRouters } from '~/queries/ClusterDetailsQueries/NetworkingTab/useGetClusterRouters';
 import { useGlobalState } from '~/redux/hooks';
 
-import links from '../../../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../../../common/docLinks.mjs';
 import { knownProducts } from '../../../../../../../common/subscriptionTypes';
 import { checkLabelsAdditionalRouter } from '../../../../../../../common/validators';
 import ErrorBox from '../../../../../../common/ErrorBox';
@@ -79,7 +79,7 @@ const EditClusterIngressDialog = ({ provider, cluster, refreshCluster, clusterRo
       isInline
     >
       {isAWS && (
-        <ExternalLink href={links.OSD_PRIVATE_CLUSTER}>
+        <ExternalLink href={docLinks.OSD_PRIVATE_CLUSTER}>
           Learn more about cluster privacy
         </ExternalLink>
       )}

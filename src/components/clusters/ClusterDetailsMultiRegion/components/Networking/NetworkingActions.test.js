@@ -389,6 +389,56 @@ describe('createDefaultRouterRequest', () => {
     });
   });
 
+  test('sets excluded_namespace_selectors', () => {
+    const newData = { defaultRouterExcludeNamespaceSelectors: undefined }; // by the user
+    const currentData = { default: { routerID: 'router-id' } }; // by the API
+
+    newData.defaultRouterExcludeNamespaceSelectors = [{ key: 'department', value: 'finance,HR' }];
+    expect(createDefaultRouterRequest(newData, currentData)).toEqual({
+      id: 'router-id',
+      excluded_namespace_selectors: [{ key: 'department', values: ['finance', 'HR'] }],
+    });
+
+    newData.defaultRouterExcludeNamespaceSelectors = [
+      { key: 'department', value: 'finance,HR' },
+      { key: 'type', value: 'customer' },
+    ];
+    expect(createDefaultRouterRequest(newData, currentData)).toEqual({
+      id: 'router-id',
+      excluded_namespace_selectors: [
+        { key: 'department', values: ['finance', 'HR'] },
+        { key: 'type', values: ['customer'] },
+      ],
+    });
+
+    newData.defaultRouterExcludeNamespaceSelectors = [{ key: 'env', value: 'prod' }];
+    currentData.default.excludeNamespaceSelectors = [{ key: 'department', values: ['finance'] }];
+    expect(createDefaultRouterRequest(newData, currentData)).toEqual({
+      id: 'router-id',
+      excluded_namespace_selectors: [{ key: 'env', values: ['prod'] }],
+    });
+  });
+
+  test('does not set excluded_namespace_selectors', () => {
+    const newData = { defaultRouterExcludeNamespaceSelectors: undefined }; // by the user
+    const currentData = { default: { routerID: 'router-id' } }; // by the API
+
+    expect(createDefaultRouterRequest(newData, currentData)).toEqual({
+      id: 'router-id',
+    });
+
+    newData.defaultRouterExcludeNamespaceSelectors = [{ key: '', value: '' }];
+    expect(createDefaultRouterRequest(newData, currentData)).toEqual({
+      id: 'router-id',
+    });
+
+    newData.defaultRouterExcludeNamespaceSelectors = [{ key: 'department', value: 'finance' }];
+    currentData.default.excludeNamespaceSelectors = [{ key: 'department', values: ['finance'] }];
+    expect(createDefaultRouterRequest(newData, currentData)).toEqual({
+      id: 'router-id',
+    });
+  });
+
   test('can combine multiple fields', () => {
     const newData = {}; // by the user
     const currentData = { default: { routerID: 'router-id' } }; // by the API
@@ -398,6 +448,7 @@ describe('createDefaultRouterRequest', () => {
     newData.clusterRoutesTlsSecretRef = 'zzz';
     newData.is_nlb_load_balancer = false;
     newData.defaultRouterSelectors = 'foo=bar';
+    newData.defaultRouterExcludeNamespaceSelectors = [{ key: 'env', value: 'staging' }];
 
     expect(createDefaultRouterRequest(newData, currentData)).toEqual({
       id: 'router-id',
@@ -407,6 +458,7 @@ describe('createDefaultRouterRequest', () => {
       route_selectors: {
         foo: 'bar',
       },
+      excluded_namespace_selectors: [{ key: 'env', values: ['staging'] }],
     });
   });
 });

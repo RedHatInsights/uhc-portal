@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 
+import { sqlString } from '~/common/queryHelpers';
 import { WifConfigList } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import defaultApiRequest, { APIRequest, getAPIRequestForRegion } from '~/services/apiRequest';
 import type { Subscription } from '~/types/accounts_mgmt.v1';
@@ -199,6 +200,16 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
       apiRequest.post<unknown>(
         `/api/clusters_mgmt/v1/clusters/${clusterID}/identity_providers/${idpID}/htpasswd_users`,
         { password, username },
+      ),
+
+    createHtpasswdUserFromFile: (
+      clusterID: string,
+      idpID: string,
+      users: { username: string; hashed_password: string }[],
+    ) =>
+      apiRequest.post<unknown>(
+        `/api/clusters_mgmt/v1/clusters/${clusterID}/identity_providers/${idpID}/htpasswd_users/import`,
+        { items: users },
       ),
 
     editHtpasswdUser: (clusterID: string, idpID: string, userId: string, password: string) =>
@@ -409,6 +420,38 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
       });
     },
 
+    getGcpDnsDomains: (options?: { id?: string }) => {
+      const clauses = [`cloud_provider='gcp'`];
+      if (options?.id) {
+        clauses.push(`id=${sqlString(options.id)}`);
+      }
+      const search = clauses.join(' AND ');
+      return apiRequest.get<{
+        /**
+         * Retrieved list of add-ons.
+         */
+        items?: Array<DnsDomain>;
+        /**
+         * Index of the requested page, where one corresponds to the first page.
+         */
+        page?: number;
+        /**
+         * Maximum number of items that will be contained in the returned page.
+         */
+        size?: number;
+        /**
+         * Total number of items of the collection that match the search criteria,
+         * regardless of the size of the page.
+         */
+        total?: number;
+      }>('/api/clusters_mgmt/v1/dns_domains', {
+        params: {
+          search,
+          size: -1,
+        },
+      });
+    },
+
     createNewDnsDomain: () => apiRequest.post<DnsDomain>('/api/clusters_mgmt/v1/dns_domains', {}),
 
     deleteDnsDomain: (id: string) =>
@@ -492,7 +535,7 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
           product: isHCP ? 'hcp' : undefined,
           // Internal users can test other channels via `ocm` CLI, no UI needed.
           // For external users, make sure we only offer stable channel.
-          search: `enabled='t' AND (channel_group='stable' OR channel_group='eus'${includeUnstableVersions ? " OR channel_group='candidate' OR channel_group='fast' OR channel_group='nightly'" : ''})${isRosa ? " AND rosa_enabled='t'" : ''}${
+          search: `enabled='t' AND (channel_group='stable' OR channel_group='eus' OR channel_group='candidate' OR channel_group='fast' OR channel_group='nightly')${isRosa ? " AND rosa_enabled='t'" : ''}${
             isMarketplaceGcp ? " AND gcp_marketplace_enabled='t'" : ''
           }${isWIF ? " AND wif_enabled='t'" : ''}`,
           size: -1,

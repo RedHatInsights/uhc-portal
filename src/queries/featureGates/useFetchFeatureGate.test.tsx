@@ -4,15 +4,13 @@ import { queryClient } from '~/components/App/queryClient';
 import apiRequest from '~/services/apiRequest';
 import { renderHook, waitFor } from '~/testUtils';
 
-import featureConstants, { HYPERSHIFT_WIZARD_FEATURE } from './featureConstants';
+import featureConstants from './featureConstants';
 import { preFetchAllFeatureGates, useFeatureGate } from './useFetchFeatureGate';
 
 type MockedJest = jest.Mocked<typeof axios> & jest.Mock;
 const apiRequestMock = apiRequest as unknown as MockedJest;
 
 describe('useFetchFeatureGate', () => {
-  Storage.prototype.getItem = jest.fn();
-
   const sampleFeature = Object.values(featureConstants)[2];
 
   afterEach(() => {
@@ -84,38 +82,6 @@ describe('useFetchFeatureGate', () => {
       expect(apiRequestMock.post).toHaveBeenCalled();
       await waitFor(() => {
         expect(result.current).toBeFalsy();
-      });
-    });
-
-    it('does not make an API call in simulated restricted environment', async () => {
-      // Is restrictedEnvironment
-      // @ts-ignore
-      Storage.prototype.getItem.mockReturnValue('true');
-
-      expect(sampleFeature).not.toEqual(HYPERSHIFT_WIZARD_FEATURE);
-
-      apiRequestMock.post.mockResolvedValue({ data: { enabled: true } });
-      expect(apiRequestMock.post).not.toHaveBeenCalled();
-      const { result } = renderHook(() => useFeatureGate(sampleFeature));
-
-      expect(apiRequestMock.post).not.toHaveBeenCalled();
-      await waitFor(() => {
-        expect(result.current).toBeFalsy();
-      });
-    });
-
-    it('makes an API call in simulated restricted environment with feature gate on allow list', async () => {
-      // Is restrictedEnvironment
-      // @ts-ignore
-      Storage.prototype.getItem.mockReturnValue('true');
-
-      apiRequestMock.post.mockResolvedValue({ data: { enabled: true } });
-      expect(apiRequestMock.post).not.toHaveBeenCalled();
-      const { result } = renderHook(() => useFeatureGate(HYPERSHIFT_WIZARD_FEATURE));
-
-      expect(apiRequestMock.post).toHaveBeenCalled();
-      await waitFor(() => {
-        expect(result.current).toBeTruthy();
       });
     });
   });

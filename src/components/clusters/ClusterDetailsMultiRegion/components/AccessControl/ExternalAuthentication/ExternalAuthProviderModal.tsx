@@ -259,7 +259,7 @@ export function ExternalAuthProviderModal(props: ExternalAuthProviderModalProps)
             <Button
               key="add-ext-auth-provider"
               variant="primary"
-              isDisabled={isPending}
+              isDisabled={isPending || !formik.dirty || !formik.isValid}
               isLoading={isPending}
               onClick={formik.submitForm}
             >

@@ -3,7 +3,9 @@ import Fuse from 'fuse.js';
 
 import {
   Alert,
+  Button,
   Divider,
+  Flex,
   MenuFooter,
   MenuSearch,
   MenuSearchInput,
@@ -18,6 +20,7 @@ import {
   SelectOption,
   SelectProps,
 } from '@patternfly/react-core';
+import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 
 import { truncateTextWithEllipsis } from '~/common/helpers';
 import { isSubnetMatchingPrivacy } from '~/common/vpcHelpers';
@@ -81,6 +84,8 @@ export interface FuzzySelectProps
   privacy?: 'public' | 'private';
   /** Allowed availability zones for subnets. */
   allowedAZs?: string[];
+  /** When true, shows a clear (times) control that clears the selection and calls `onSelect` with an empty string. */
+  isClearable?: boolean;
 }
 
 const defaultSortFn = (a: FuzzyEntryType, b: FuzzyEntryType): number =>
@@ -116,6 +121,7 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     allSubnets,
     privacy,
     allowedAZs,
+    isClearable = false,
     ...rest
   } = props;
 
@@ -306,6 +312,17 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     onOpenChange(false);
   }, [onOpenChange]);
 
+  const handleClear = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation();
+      setInputValue('');
+      setFilterValue('');
+      onSelect?.(event, '');
+      closeMenu();
+    },
+    [closeMenu, onSelect],
+  );
+
   const selectOption = useCallback(
     (
       value: string | number,
@@ -389,22 +406,49 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     }
   }, [selectedEntryId]);
 
-  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
-    <MenuToggle
-      className="fuzzy-select__toggle"
-      ref={toggleRef}
-      aria-label="Options menu"
-      onClick={onToggleClick}
-      isExpanded={isOpen}
-      isDisabled={isDisabled}
-      isFullWidth
-      id={toggleId}
-      status={validated}
-      style={toggleStyle}
-    >
-      {inputValue || placeholderText}
-    </MenuToggle>
-  );
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => {
+    const hasSelection = Boolean(selectedEntryId) || Boolean(inputValue);
+    const label = inputValue || placeholderText;
+    return (
+      <MenuToggle
+        className="fuzzy-select__toggle"
+        ref={toggleRef}
+        aria-label="Options menu"
+        onClick={onToggleClick}
+        isExpanded={isOpen}
+        isDisabled={isDisabled}
+        isFullWidth
+        id={toggleId}
+        status={validated}
+        style={toggleStyle}
+      >
+        {isClearable && hasSelection && !isDisabled ? (
+          <Flex
+            className="fuzzy-select__toggle-inner"
+            flexWrap={{ default: 'nowrap' }}
+            alignItems={{ default: 'alignItemsCenter' }}
+            justifyContent={{ default: 'justifyContentSpaceBetween' }}
+            style={{ width: '100%', minWidth: 0 }}
+          >
+            <span className="pf-m-truncate" style={{ minWidth: 0, flex: 1 }}>
+              {label}
+            </span>
+            <Button
+              className="clearButton"
+              variant="plain"
+              type="button"
+              aria-label="Clear selection"
+              onClick={handleClear}
+              size="sm"
+              icon={<TimesIcon />}
+            />
+          </Flex>
+        ) : (
+          label
+        )}
+      </MenuToggle>
+    );
+  };
 
   const optionList = useMemo(() => {
     if (invalidFilter) {

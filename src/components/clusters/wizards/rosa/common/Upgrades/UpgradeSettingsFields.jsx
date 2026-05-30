@@ -6,7 +6,7 @@ import { Field } from 'formik';
 
 import { Content, ContentVariants, Divider, Grid, GridItem, Title } from '@patternfly/react-core';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import supportLinks from '~/common/supportLinks.mjs';
 import PodDistruptionBudgetGraceSelect from '~/components/clusters/common/Upgrades/PodDistruptionBudgetGraceSelect';
 import UpgradeScheduleSelection from '~/components/clusters/common/Upgrades/UpgradeScheduleSelection';
@@ -35,7 +35,7 @@ function UpgradeSettingsFields() {
   const recurringUpdateMessage = (
     <>
       The cluster will be automatically updated based on your preferred day and start time when new
-      patch updates (<ExternalLink href={links.ROSA_Z_STREAM}>z-stream</ExternalLink>) are
+      patch updates (<ExternalLink href={docLinks.ROSA_Z_STREAM}>z-stream</ExternalLink>) are
       available. When a new minor version is available, you'll be notified and must manually allow
       the cluster to update to the next minor version.
     </>
@@ -43,10 +43,10 @@ function UpgradeSettingsFields() {
   const recurringUpdateHypershift = (
     <>
       The cluster control plane will be automatically updated based on your preferred day and start
-      time when new patch updates (<ExternalLink href={links.ROSA_Z_STREAM}>z-stream</ExternalLink>)
-      are available. When a new minor version is available, you'll be notified and must manually
-      allow the cluster to update to the next minor version. The worker nodes will need to be
-      manually updated.
+      time when new patch updates (
+      <ExternalLink href={docLinks.ROSA_Z_STREAM}>z-stream</ExternalLink>) are available. When a new
+      minor version is available, you'll be notified and must manually allow the cluster to update
+      to the next minor version. The worker nodes will need to be manually updated.
     </>
   );
 
@@ -80,7 +80,7 @@ function UpgradeSettingsFields() {
     description: (
       <>
         Schedule each update individually. Take into consideration end of life dates from the{' '}
-        <ExternalLink href={links.ROSA_LIFE_CYCLE}>lifecycle policy</ExternalLink> when planning
+        <ExternalLink href={docLinks.ROSA_LIFE_CYCLE}>lifecycle policy</ExternalLink> when planning
         updates.
       </>
     ),

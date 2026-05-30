@@ -1,7 +1,11 @@
 import React from 'react';
 
 import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
-import { Grid } from '@patternfly/react-core';
+import { Flex, FlexItem, Grid, Stack, StackItem } from '@patternfly/react-core';
+
+import { Link } from '~/common/routing';
+import ExternalLink from '~/components/common/ExternalLink';
+import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 
 import './OverviewProductBanner.scss';
 
@@ -21,23 +25,59 @@ export const OverviewProductBanner = ({
   title,
   description,
   dataTestId,
-}: OverviewProductBannerProps) => (
-  <Grid className="overview-product-banner-grid" data-testid={dataTestId}>
-    <PageHeader
-      title={title}
-      subtitle={description}
-      icon={icon ? <img src={icon} alt={altText} className="overview-product-banner-icon" /> : null}
-      linkProps={
-        learnMoreLink
-          ? {
-              label: 'Learn more',
-              isExternal: true,
-              href: learnMoreLink,
-              target: '_blank',
-            }
-          : undefined
-      }
-      data-testid={dataTestId}
-    />
-  </Grid>
-);
+}: OverviewProductBannerProps) => {
+  const createClusterURL = '/create';
+  const createClusterAIURL = '/assisted-installer/clusters/~new';
+
+  const headerActions = (
+    <Flex>
+      <FlexItem>
+        <InternalTrackingLink
+          isButton
+          variant="primary"
+          to={createClusterURL}
+          data-testid="create-cluster"
+          component={Link}
+        >
+          Create cluster
+        </InternalTrackingLink>
+      </FlexItem>
+      <FlexItem>
+        <InternalTrackingLink
+          isButton
+          variant="secondary"
+          to={createClusterAIURL}
+          data-testid="create-cluster-assisted-installer"
+          component={Link}
+        >
+          Create cluster with Assisted Installer
+        </InternalTrackingLink>
+      </FlexItem>
+      {learnMoreLink ? (
+        <FlexItem>
+          <ExternalLink href={learnMoreLink}>Learn more</ExternalLink>
+        </FlexItem>
+      ) : null}
+    </Flex>
+  );
+
+  const subtitle = (
+    <Stack hasGutter>
+      <StackItem>{description}</StackItem>
+      <StackItem>{headerActions}</StackItem>
+    </Stack>
+  );
+
+  return (
+    <Grid className="overview-product-banner-grid" data-testid={dataTestId}>
+      <PageHeader
+        title={title}
+        subtitle={subtitle}
+        icon={
+          icon ? <img src={icon} alt={altText} className="overview-product-banner-icon" /> : null
+        }
+        data-testid={dataTestId}
+      />
+    </Grid>
+  );
+};

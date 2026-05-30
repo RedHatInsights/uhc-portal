@@ -1,4 +1,6 @@
 /* eslint-disable camelcase */
+import { CreationMode } from '../constants';
+
 // TODO: set the proper typing for the different fields
 export type IDPFormDataType = {
   idpId?: any;
@@ -41,4 +43,5 @@ export type IDPFormDataType = {
     username?: string;
     password?: string;
   }[];
+  creationMode?: CreationMode;
 };

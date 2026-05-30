@@ -220,14 +220,8 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   async waitForInstallerScreenToLoad(): Promise<void> {
-    await this.page.waitForSelector('li.pf-v6-c-wizard__nav-item', {
-      state: 'detached',
-      timeout: 30000,
-    });
-    await this.page.waitForSelector('div.cluster-loading-container', {
-      state: 'detached',
-      timeout: 100000,
-    });
+    await expect(this.clusterNameTitle()).toBeVisible({ timeout: 100000 });
+    await expect(this.clusterInstallationHeader()).toBeVisible({ timeout: 30000 });
   }
 
   async waitForDeleteClusterActionComplete(): Promise<void> {

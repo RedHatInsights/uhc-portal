@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-import { FieldId } from '../constants';
+import { CREATION_MODE_MANUAL, CREATION_MODE_UPLOAD, FieldId } from '../constants';
 import { IDPformValues, IDPTypeNames } from '../IdentityProvidersHelper';
 
 export const hasAtLeastOneOpenIdClaimField = (context: any): boolean => {
@@ -90,6 +90,7 @@ export const IdentityProvidersPageFormInitialValues = (selectedIDP: string) => {
         [FieldId.TYPE]: selectedIDP || defaultIDP,
         [FieldId.NAME]: IDPTypeNames[selectedIDP],
         [FieldId.USERS]: [{ username: '', password: '', 'password-confirm': '' }],
+        [FieldId.CREATION_MODE]: CREATION_MODE_MANUAL,
       };
   }
 };
@@ -193,15 +194,21 @@ export const IdentityProvidersPageValidationSchema = (selectedIDP: string) => {
     default: // HTPasswdIdentityProvider
       return Yup.object({
         [FieldId.NAME]: Yup.string().required(),
-        [FieldId.USERS]: Yup.array().of(
-          Yup.object().shape({
-            [FieldId.USERNAME]: Yup.string().required('Username is required'),
-            [FieldId.PASSWORD]: Yup.string().required('Password is required'),
-            [FieldId.PASSWORD_CONFIRM]: Yup.string()
-              .oneOf([Yup.ref(FieldId.PASSWORD), ''], 'Passwords must match')
-              .required('Confirm password is required'),
-          }),
-        ),
+        [FieldId.CREATION_MODE]: Yup.string().oneOf([CREATION_MODE_MANUAL, CREATION_MODE_UPLOAD]),
+        [FieldId.USERS]: Yup.array().when(FieldId.CREATION_MODE, {
+          is: CREATION_MODE_UPLOAD,
+          then: (schema) => schema.min(1, 'Upload a valid htpasswd file'),
+          otherwise: (schema) =>
+            schema.of(
+              Yup.object().shape({
+                [FieldId.USERNAME]: Yup.string().required('Username is required'),
+                [FieldId.PASSWORD]: Yup.string().required('Password is required'),
+                [FieldId.PASSWORD_CONFIRM]: Yup.string()
+                  .oneOf([Yup.ref(FieldId.PASSWORD), ''], 'Passwords must match')
+                  .required('Confirm password is required'),
+              }),
+            ),
+        }),
       });
   }
 };

@@ -1,6 +1,8 @@
+import { normalizedProducts } from '~/common/subscriptionTypes';
 import { humanizeValueWithUnit, Unit } from '~/common/units';
+import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { MachineTypesByRegionState } from '~/redux/reducers/machineTypesByRegionReducer';
-import { MachineType } from '~/types/clusters_mgmt.v1';
+import { CloudProvider, MachineType } from '~/types/clusters_mgmt.v1';
 
 import { machineCategories } from './sortMachineTypes';
 
@@ -46,10 +48,21 @@ const machineTypeFullLabel = (machineType: MachineType) =>
     ? `${machineTypeLabel(machineType)} - ${machineTypeDescriptionLabel(machineType)}`
     : '';
 
+const shouldUseRegionFilteredData = (
+  productId: string,
+  cloudProviderID: CloudProvider['id'],
+  isBYOC?: boolean,
+  inModal?: boolean,
+) =>
+  (isBYOC || productId === normalizedProducts.ROSA) &&
+  cloudProviderID === CloudProviderType.Aws &&
+  !inModal;
+
 export {
   groupedMachineTypes,
   isMachineTypeIncludedInFilteredSet,
   machineTypeDescriptionLabel,
   machineTypeFullLabel,
   machineTypeLabel,
+  shouldUseRegionFilteredData,
 };

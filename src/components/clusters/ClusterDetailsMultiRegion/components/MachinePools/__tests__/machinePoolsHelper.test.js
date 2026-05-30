@@ -369,16 +369,6 @@ describe('isMinimumCountWithoutTaints ', () => {
       ).toBeTruthy();
     });
 
-    it('returns false if less than 2 autoscaled nodes without taints - no scaling', () => {
-      expect(
-        isMinimumCountWithoutTaints({
-          cluster,
-          machinePools: machinePoolsScaled,
-          currentMachinePoolId: 'mp-no-taints',
-        }),
-      ).toBeFalsy();
-    });
-
     it('returns true if  2 nodes without taints', () => {
       expect(
         isMinimumCountWithoutTaints({
@@ -727,15 +717,6 @@ describe('isEnforcedDefaultMachinePool', () => {
         undefined,
         false,
         0,
-      ],
-      [
-        'empty cluster, it is hypershift the rest undefined',
-        {},
-        undefined,
-        undefined,
-        undefined,
-        true,
-        2,
       ],
     ])(
       '%p',

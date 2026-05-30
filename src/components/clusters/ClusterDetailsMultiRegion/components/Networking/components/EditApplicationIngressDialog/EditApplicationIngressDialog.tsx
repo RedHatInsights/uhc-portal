@@ -1,5 +1,5 @@
 import React from 'react';
-import { Formik } from 'formik';
+import { Formik, setNestedObjectValues } from 'formik';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -12,17 +12,22 @@ import {
   ModalVariant,
 } from '@patternfly/react-core';
 
-import { DefaultIngressFieldsFormik } from '~/components/clusters/wizards/rosa/NetworkScreen/DefaultIngressFieldsFormik';
+import { trackEvents } from '~/common/analytics';
+import { getRandomID } from '~/common/helpers';
+import { hasConfiguredExcludeNamespaceSelectors } from '~/components/clusters/wizards/common/excludeNamespaceSelectorsForm';
+import { DefaultIngressFieldsFormik } from '~/components/clusters/wizards/common/NetworkingSection/DefaultIngressFieldsFormik';
 import ErrorBox from '~/components/common/ErrorBox';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import shouldShowModal from '~/components/common/Modal/ModalSelectors';
+import useAnalytics from '~/hooks/useAnalytics';
 import { useEditClusterIngressMutation } from '~/queries/ClusterDetailsQueries/NetworkingTab/useEditClusterIngress';
 import { useGlobalState } from '~/redux/hooks';
 import { LoadBalancerFlavor } from '~/types/clusters_mgmt.v1/enums';
 import { ErrorState } from '~/types/types';
 
 import {
+  apiSelectorsToFormRows,
   ClusterRouters,
   excludedNamespacesAsString,
   routeSelectorsAsString,
@@ -36,6 +41,7 @@ type EditApplicationIngressDialogProps = {
   clusterRouters: ClusterRouters;
   clusterID?: string;
   region?: string;
+  provider?: string;
   refreshCluster: () => void;
 };
 
@@ -48,6 +54,7 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
   clusterRouters,
   clusterID,
   region,
+  provider,
 }) => {
   const {
     isPending,
@@ -56,6 +63,7 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
     mutate: editClusterIngress,
   } = useEditClusterIngressMutation(clusterID, region);
   const dispatch = useDispatch();
+  const track = useAnalytics();
   const isOpen = useGlobalState((state) => shouldShowModal(state, modals.EDIT_APPLICATION_INGRESS));
 
   if (!isOpen) {
@@ -74,12 +82,21 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
   };
 
   const clusterRoutesTlsSecretRef = clusterRouters.default?.tlsSecretRef;
+  const existingSelectorRows = apiSelectorsToFormRows(
+    clusterRouters.default?.excludeNamespaceSelectors,
+  );
+  const selectorFormRows =
+    existingSelectorRows.length > 0
+      ? existingSelectorRows.map((r) => ({ ...r, id: getRandomID() }))
+      : [{ id: getRandomID(), key: '', value: '' }];
+
   const ingressProps = hasSufficientIngressEditVersion
     ? {
         defaultRouterSelectors: routeSelectorsAsString(clusterRouters.default?.routeSelectors),
         defaultRouterExcludedNamespacesFlag: excludedNamespacesAsString(
           clusterRouters.default?.excludedNamespaces,
         ),
+        defaultRouterExcludeNamespaceSelectors: selectorFormRows,
         isDefaultRouterNamespaceOwnershipPolicyStrict:
           clusterRouters.default?.isNamespaceOwnershipPolicyStrict,
         isDefaultRouterWildcardPolicyAllowed: clusterRouters.default?.isWildcardPolicyAllowed,
@@ -105,13 +122,22 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
           { formData, currentData },
           {
             onSuccess: () => {
+              if (
+                hasConfiguredExcludeNamespaceSelectors(
+                  values.defaultRouterExcludeNamespaceSelectors,
+                )
+              ) {
+                track(trackEvents.OcmIngressExcludeNamespaceSelectorsSet, {
+                  customProperties: { cluster_creation: false },
+                });
+              }
               onClose();
             },
           },
         );
       }}
     >
-      {({ dirty, handleSubmit, values }) => (
+      {({ dirty, handleSubmit, validateForm, setTouched, values }) => (
         <Modal
           id="edit-application-ingress-modal"
           variant={ModalVariant.medium}
@@ -132,13 +158,21 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
                 areFieldsDisabled={isHypershiftCluster}
                 isHypershiftCluster={isHypershiftCluster}
                 values={values}
+                provider={provider}
               />
             </Form>
           </ModalBody>
           <ModalFooter>
             <Button
               variant="primary"
-              onClick={handleSubmit as unknown as () => void}
+              onClick={async () => {
+                const errors = await validateForm();
+                if (Object.keys(errors).length > 0) {
+                  setTouched(setNestedObjectValues(errors, true));
+                  return;
+                }
+                handleSubmit();
+              }}
               isDisabled={!dirty || isPending}
               isLoading={isPending}
             >

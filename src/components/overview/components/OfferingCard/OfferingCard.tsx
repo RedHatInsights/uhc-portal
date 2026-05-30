@@ -20,7 +20,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import docLinks from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { Link } from '~/common/routing';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -245,7 +245,7 @@ function OfferingCard(props: OfferingCardProps) {
       cardLogo = <RHLogo className="offering-logo" />;
       break;
     case 'MIGRATION':
-      offeringCardTitle = 'Evaluate VMware to Openshift Migration';
+      offeringCardTitle = 'Evaluate VMware to Openshift Migration Advisor';
       offeringCardLabel = 'Self-managed service';
       offeringCardShowSupportLevelBadge = true;
       offeringCardTextBody =

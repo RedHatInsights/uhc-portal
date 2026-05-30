@@ -3,9 +3,11 @@ import React from 'react';
 import { Alert, Content, Form, FormGroup, Grid, GridItem, Title } from '@patternfly/react-core';
 
 import { ocmResourceType, TrackEvent, trackEvents } from '~/common/analytics';
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
+import { getRandomID } from '~/common/helpers';
 import { getDefaultSecurityGroupsSettings } from '~/common/securityGroupsHelpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import supportLinks from '~/common/supportLinks.mjs';
 import { isExactMajorMinor } from '~/common/versionHelpers';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import {
@@ -24,6 +26,8 @@ import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import ExternalLink from '~/components/common/ExternalLink';
 import useAnalytics from '~/hooks/useAnalytics';
+import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { FormSubnet } from '../../common/FormSubnet';
 
@@ -71,6 +75,7 @@ export const Configuration = () => {
       ? 'Private clusters deployed using Workload Identity Federation must be deployed into an existing VPC.'
       : '';
   const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
+  const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
   const trackOcmResourceType =
     product === normalizedProducts.ROSA ? ocmResourceType.MOA : ocmResourceType.OSD;
 
@@ -171,6 +176,22 @@ export const Configuration = () => {
 
   const onApplicationIngressChange = (value: string) => {
     setFieldValue(FieldId.ApplicationIngress, value);
+    if (value === ApplicationIngressType.Custom && isGCP && isExcludeNamespaceSelectorsEnabled) {
+      const rows = values[FieldId.DefaultRouterExcludeNamespaceSelectors];
+      if (!Array.isArray(rows) || rows.length === 0) {
+        setFieldValue(FieldId.DefaultRouterExcludeNamespaceSelectors, [
+          { id: getRandomID(), key: '', value: '' },
+        ]);
+      }
+    }
+    // if the value is default, reset the custom settings
+    if (value === ApplicationIngressType.Default) {
+      setFieldValue(FieldId.DefaultRouterExcludeNamespaceSelectors, []);
+      setFieldValue(FieldId.DefaultRouterExcludedNamespacesFlag, '');
+      setFieldValue(FieldId.DefaultRouterSelectors, '');
+      setFieldValue(FieldId.IsDefaultRouterNamespaceOwnershipPolicyStrict, true);
+      setFieldValue(FieldId.IsDefaultRouterWildcardPolicyAllowed, false);
+    }
   };
 
   const clusterPrivacyOptions: RadioGroupOption[] = [
@@ -236,7 +257,7 @@ export const Configuration = () => {
                   title={`${PSCPrivateWifWarning} You will not be able to access your cluster until you properly configure private network connectivity to your cloud provider.`}
                 >
                   {cloudProvider === CloudProviderType.Aws && (
-                    <ExternalLink href={links.OSD_AWS_PRIVATE_CONNECTIONS}>
+                    <ExternalLink href={docLinks.OSD_AWS_PRIVATE_CONNECTIONS}>
                       Learn more about configuring network settings
                     </ExternalLink>
                   )}
@@ -340,7 +361,7 @@ export const Configuration = () => {
                   <>
                     {' '}
                     For 4.13 clusters, refer to{' '}
-                    <ExternalLink href={links.MANAGED_INGRESS_KNOWLEDGE_BASE}>
+                    <ExternalLink href={supportLinks.MANAGED_INGRESS_KNOWLEDGE_BASE}>
                       this knowledge base article
                     </ExternalLink>
                     .

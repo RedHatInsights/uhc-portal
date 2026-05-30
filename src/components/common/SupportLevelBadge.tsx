@@ -3,7 +3,7 @@ import React from 'react';
 import { Icon, Label, Popover, PopoverPosition } from '@patternfly/react-core';
 import { InfoCircleIcon } from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
-import links from '../../common/installLinks.mjs';
+import supportLinks from '../../common/supportLinks.mjs';
 
 import ExternalLink from './ExternalLink';
 
@@ -19,7 +19,7 @@ type SupportLevelProps = {
 // Same as @openshift-assisted/ui-lib's <TechnologyPreview>
 export const TECH_PREVIEW: SupportLevelProps = {
   text: 'Technology Preview',
-  externalLink: links.TECH_PREVIEW_KCS,
+  externalLink: supportLinks.TECH_PREVIEW_KCS,
   popoverContent:
     'Technology preview features provide early access to upcoming product innovations, enabling you to test functionality and provide feedback during the development process.',
 };
@@ -27,7 +27,7 @@ export const TECH_PREVIEW: SupportLevelProps = {
 export const DEV_PREVIEW: SupportLevelProps = {
   // TODO: this differs from @openshift-assisted/ui-lib's <DeveloperPreview>
   text: 'Developer Preview',
-  externalLink: links.INSTALL_PRE_RELEASE_SUPPORT_KCS,
+  externalLink: supportLinks.INSTALL_PRE_RELEASE_SUPPORT_KCS,
   popoverContent:
     'Developer preview features provide early access to upcoming product innovations, enabling\n' +
     'you to test functionality and provide feedback during the development process.',
@@ -35,7 +35,7 @@ export const DEV_PREVIEW: SupportLevelProps = {
 
 export const COOPERATIVE_COMMUNITY: SupportLevelProps = {
   text: 'Cooperative Community',
-  externalLink: links.COOPERATIVE_COMMUNITY_SUPPORT_KCS,
+  externalLink: supportLinks.COOPERATIVE_COMMUNITY_SUPPORT_KCS,
   popoverContent:
     'Cooperative Community Support provides assistance to Red Hat customers that have questions\n' +
     'about community-provided software that is often used with our Red Hat products',

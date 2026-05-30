@@ -13,7 +13,7 @@ import {
 
 import { useFormState } from '~/components/clusters/wizards/hooks';
 
-import links from '../../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../../common/docLinks.mjs';
 import { checkIdentityProviderName, composeValidators } from '../../../../../../common/validators';
 import ErrorBox from '../../../../../common/ErrorBox';
 import ExternalLink from '../../../../../common/ExternalLink';
@@ -53,6 +53,7 @@ const IDPForm = ({
   formTitle,
   HTPasswdErrors,
   isHypershift,
+  isROSACluster,
   IDPList,
   isPostIDPFormError,
   postIDPFormError,
@@ -134,18 +135,25 @@ const IDPForm = ({
   };
 
   const providerDocumentationLink = {
-    LDAPIdentityProvider: links.IDP_LDAP,
-    OpenIDIdentityProvider: links.IDP_OPENID,
-    GithubIdentityProvider: links.IDP_GITHUB,
-    GoogleIdentityProvider: links.IDP_GOOGLE,
-    GitlabIdentityProvider: links.IDP_GITLAB,
-    HTPasswdIdentityProvider: links.IDP_HTPASSWD,
+    LDAPIdentityProvider: docLinks.IDP_LDAP,
+    OpenIDIdentityProvider: docLinks.IDP_OPENID,
+    GithubIdentityProvider: docLinks.IDP_GITHUB,
+    GoogleIdentityProvider: docLinks.IDP_GOOGLE,
+    GitlabIdentityProvider: docLinks.IDP_GITLAB,
+    HTPasswdIdentityProvider: docLinks.IDP_HTPASSWD,
   };
 
   const SelectedProviderRequiredFields = providersRequiredFields[selectedIDP];
   const SelectedProviderAdvancedOptions = providersAdvancedOptions[selectedIDP];
 
   const span = selectedIDP === IDPformValues.HTPASSWD ? 11 : 8;
+
+  let adminGroupDocLink = docLinks.OSD_DEDICATED_ADMIN_ROLE;
+  if (isHypershift) {
+    adminGroupDocLink = docLinks.ROSA_HCP_AUTH_HTPASSWD_CONFIG;
+  } else if (isROSACluster) {
+    adminGroupDocLink = docLinks.ROSA_CLASSIC_AUTH_HTPASSWD_CONFIG;
+  }
 
   const topText = (idp) => {
     let text = null;
@@ -154,10 +162,10 @@ const IDPForm = ({
         text = (
           <>
             Define an <code>htpasswd</code> identity provider for your managed cluster to create one
-            or multiple static users that can log in to your cluster and troubleshoot it. If these
-            users need elevated permissions, add it to an{' '}
-            <ExternalLink href={links.OSD_DEDICATED_ADMIN_ROLE}>administrative group</ExternalLink>{' '}
-            within your organization.
+            or multiple static users that can log in to your cluster. If these users need elevated
+            permissions, add them to an{' '}
+            <ExternalLink href={adminGroupDocLink}>administrative group</ExternalLink> within your
+            organization.
           </>
         );
         break;
@@ -332,6 +340,7 @@ IDPForm.propTypes = {
   IDPList: PropTypes.array.isRequired,
   isEditForm: PropTypes.bool,
   isHypershift: PropTypes.bool,
+  isROSACluster: PropTypes.bool,
   idpEdited: PropTypes.object,
   idpName: PropTypes.string,
   HTPasswdErrors: PropTypes.func.isRequired,

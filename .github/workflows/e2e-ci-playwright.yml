@@ -1,4 +1,4 @@
-name: e2e CI Playwright Tests
+name: E2E CI Playwright Tests
 
 on:
   push:
@@ -28,32 +28,30 @@ on:
           - '4'
 jobs:
   playwright-e2e-test:
-    name: Playwright E2E - ${{ matrix.os }} - e2e Tests - Node ${{ matrix.node-version }}
+    name: Playwright E2E Tests
     concurrency:
       group: playwright-e2e-test-${{ github.event_name }}-${{ github.head_ref || github.ref_name }}-${{ matrix.os }}-${{ matrix.node-version }}
       cancel-in-progress: true
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [22.x]
+        node-version: [24.x]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: main
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: './node_modules'
-          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
       - name: Install
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install
+        run: npm ci
       - name: Check uncommitted changes
         if: ${{ always() }}
         # Check that Git working tree is clean after running `install` command.
@@ -66,7 +64,7 @@ jobs:
           fi
       - name: Install Playwright Browsers
         # Explicitly specify all browsers including chrome since Playwright 1.44+ no longer installs Chrome by default
-        run: npx playwright install chromium chrome firefox webkit --with-deps
+        run: npm exec playwright install chromium chrome firefox webkit --with-deps
       - name: Get browser version
         id: browser-version
         env:
@@ -122,10 +120,10 @@ jobs:
           WORKERS: ${{ github.event.inputs.workers || '4' }}
           BASE_URL: https://prod.foo.redhat.com:1337/openshift/
         run: |
-          LOGGING=quiet yarn start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
-          NODE_TLS_REJECT_UNAUTHORIZED=0 yarn wait-on -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
-          NODE_TLS_REJECT_UNAUTHORIZED=0 yarn playwright-e2e-ci --workers=$WORKERS
-      - uses: actions/upload-artifact@v4
+          LOGGING=quiet npm start 2>&1 | grep --line-buffered -Ev '\[SERVER\] \[SERVE\]' &
+          NODE_TLS_REJECT_UNAUTHORIZED=0 npm exec -- wait-on -i 5000 -t 120s https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json
+          NODE_TLS_REJECT_UNAUTHORIZED=0 npm run playwright-e2e-ci -- --workers=$WORKERS
+      - uses: actions/upload-artifact@v7
         if: ${{ failure() }}
         with:
           name: playwright-e2e-facts

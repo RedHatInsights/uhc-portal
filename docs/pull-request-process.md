@@ -12,7 +12,7 @@ Here is the process to move a PR from draft to merged:
    - builds
    - doesn't contain debugging statements and/or comments
    - contains updated/added unit tests OR a description why unit test were not added
-   - has reasonable amount of unit test coverage (by running `yarn test-changes`)
+   - has reasonable amount of unit test coverage (by running `npm run test-changes`)
    - passes all checks
    - is production ready
    
@@ -20,13 +20,16 @@ Here is the process to move a PR from draft to merged:
 
 1. :pencil2: Author moves PR out of draft and changes corresponding Jira item(s) to "Code review" status
 
+1. :pencil2: Author responds to the initial AI-generated review (CodeRabbit), addressing any issues or explaining why certain comments do not need to be acted upon. The AI-powered reviewer is responsible for resolving the threads it opened.
+
 1. :pencil2: Author assigns 2 developers as reviewers. If the QE reviewer is known, they are also added as a reviewer
 
 1. :eyes: Dev reviewers review code, add comments, ask questions etc
 
-   - ensure code makes sense and easy to follow
+   - ensure code makes sense and easy to follow.  use the [coding guidelines](/docs/code-guide.md) as reference.
    - ensure unit tests are added or modified. There are times where unit tests are not needed (refactor) and the author should have this noted in the "additional information" section. Not having enough time is not a valid reason.
-   - ensure newly added code has reasonable unit test coverage (by running yarn test-changes)
+   - ensure newly added code has reasonable unit test coverage (by running npm run test-changes)
+   - ensure existing threads have been addressed or resolved
    - runs the code and verifies changes in a browser
 
 1. :eyes: Dev reviewers approve the PR once they feel it is production-ready

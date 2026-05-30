@@ -1,6 +1,6 @@
 import React from 'react';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { render, screen } from '~/testUtils';
 
 import AddUserDialog from '../AddUserDialog';
@@ -24,9 +24,9 @@ describe('<AddUserDialog />', () => {
   });
 
   it.each([
-    ['classic', true, false, links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES],
-    ['hypershift', true, true, links.ROSA_AWS_IAM_OPERATOR_ROLES],
-    ['OSD', false, false, links.OSD_DEDICATED_ADMIN_ROLE],
+    ['classic', true, false, docLinks.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES],
+    ['hypershift', true, true, docLinks.ROSA_AWS_IAM_OPERATOR_ROLES],
+    ['OSD', false, false, docLinks.OSD_DEDICATED_ADMIN_ROLE],
   ])(
     'renders the correct operator roles link for %s cluster',
     (fieldLabel, isRosa, isHypershift, expectedLink) => {

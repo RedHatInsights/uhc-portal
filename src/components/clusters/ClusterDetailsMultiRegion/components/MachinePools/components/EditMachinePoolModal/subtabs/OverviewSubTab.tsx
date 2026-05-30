@@ -16,7 +16,7 @@ import {
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
-import { ClusterFromSubscription } from '~/types/types';
+import { ClusterFromSubscription, ErrorState } from '~/types/types';
 
 import CapacityReservationField from '../fields/CapacityReservationField';
 import DiskSizeField from '../fields/DiskSizeField';
@@ -50,9 +50,11 @@ type Props = {
   currentMachinePool?: MachinePool;
   setCurrentMPId: (id: string) => void;
   machineTypesResponse: MachineTypesResponse;
+  machineTypesErrorResponse?: Pick<ErrorState, 'errorMessage' | 'errorDetails' | 'operationID'>;
   machineTypesLoading: boolean;
   tabKey: number | string;
   initialTabContentShown?: boolean;
+  isMaxReached?: boolean;
 };
 
 export const useOverviewSubTab = ({
@@ -63,9 +65,11 @@ export const useOverviewSubTab = ({
   currentMachinePool,
   setCurrentMPId,
   machineTypesResponse,
+  machineTypesErrorResponse,
   machineTypesLoading,
   tabKey,
   initialTabContentShown,
+  isMaxReached,
 }: Props): [
   (errors: FormikErrors<EditMachinePoolValues>) => React.JSX.Element,
   ({
@@ -116,6 +120,7 @@ export const useOverviewSubTab = ({
           currentMPId={currentMachinePool?.id}
           setCurrentMPId={setCurrentMPId}
           machineTypesResponse={machineTypesResponse}
+          machineTypesErrorResponse={machineTypesErrorResponse}
           machineTypesLoading={machineTypesLoading}
         />
         <EditNodeCountSection
@@ -124,6 +129,7 @@ export const useOverviewSubTab = ({
           machinePools={machinePools || []}
           machineTypes={machineTypesResponse}
           allow249NodesOSDCCSROSA={allow249NodesOSDCCSROSA}
+          isMaxReached={isMaxReached}
         />
         {imdsSectionFeature && !isEdit && isHypershift ? (
           <ImdsSection

@@ -16,7 +16,8 @@ import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/esm/icons/exte
 import { trackEvents } from '~/common/analytics';
 import useAnalytics from '~/hooks/useAnalytics';
 
-import links, { channels, tools } from '../../../common/installLinks.mjs';
+import docLinks from '../../../common/docLinks.mjs';
+import { channels, tools } from '../../../common/installLinks.mjs';
 import Instruction from '../../common/Instruction';
 import Instructions from '../../common/Instructions';
 import DownloadAndOSSelection from '../install/instructions/components/DownloadAndOSSelection';
@@ -24,7 +25,7 @@ import PullSecretSection from '../install/instructions/components/PullSecretSect
 import TokenErrorAlert from '../install/instructions/components/TokenErrorAlert';
 
 const pendoID = window.location.pathname;
-const docURL = links.OPENSHIFT_LOCAL_SUPPORT_AND_COMMUNITY_DOCS;
+const docURL = docLinks.OPENSHIFT_LOCAL_SUPPORT_AND_COMMUNITY_DOCS;
 
 const LocalTab = ({ token }) => {
   const track = useAnalytics();

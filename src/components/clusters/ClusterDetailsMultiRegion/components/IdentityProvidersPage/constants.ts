@@ -32,4 +32,9 @@ export enum FieldId {
   GITHUB_AUTH_MODE = 'github_auth_mode',
   ORGANIZATIONS = 'organizations',
   TEAMS = 'teams',
+  CREATION_MODE = 'creationMode',
 }
+
+export const CREATION_MODE_MANUAL = 'manual';
+export const CREATION_MODE_UPLOAD = 'upload';
+export type CreationMode = typeof CREATION_MODE_MANUAL | typeof CREATION_MODE_UPLOAD;

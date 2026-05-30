@@ -1,7 +1,7 @@
 import type { BreadcrumbPath } from '~/components/common/Breadcrumbs';
 
 export const BREADCRUMB_PATHS = {
-  CLUSTER_LIST: { label: 'Cluster List', path: '/cluster-list' },
+  CLUSTER_LIST: { label: 'Cluster List' },
   CLUSTER_TYPE: { label: 'Cluster Type', path: '/create' },
   CLUSTER_ARCHIVES: { label: 'Cluster Archives', path: '/archived' },
   OVERVIEW: { label: 'Overview', path: '/overview' },

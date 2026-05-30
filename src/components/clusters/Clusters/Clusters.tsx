@@ -15,6 +15,7 @@ import {
 
 import { Navigate, useNavigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
+import NotFoundError from '~/components/App/NotFoundError';
 import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
@@ -67,7 +68,7 @@ export const Clusters = () => {
           <Tab
             eventKey="requests"
             title={
-              <TabTitleText>Cluster Request {total ? <Badge>{total}</Badge> : null}</TabTitleText>
+              <TabTitleText>Cluster Requests {total ? <Badge>{total}</Badge> : null}</TabTitleText>
             }
             aria-label="Cluster Requests"
             tabContentId="requests"
@@ -106,6 +107,7 @@ export const Clusters = () => {
             </TabContent>
           }
         />
+        <Route path="*" element={<NotFoundError />} />
       </Routes>
     </AppPage>
   );

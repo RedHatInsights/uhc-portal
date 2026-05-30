@@ -3,7 +3,7 @@ import React from 'react';
 import { PLATFORM_LIGHTSPEED_REBRAND } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
-import links from '../../../common/installLinks.mjs';
+import supportLinks from '../../../common/supportLinks.mjs';
 
 import AdvisorEmptyState from './AdvisorEmptyState';
 
@@ -13,7 +13,7 @@ describe('<AdvisorEmptyState />', () => {
 
     expect(screen.getByText('OpenShift documentation')).toHaveAttribute(
       'href',
-      links.REMOTE_HEALTH_INSIGHTS,
+      supportLinks.REMOTE_HEALTH_INSIGHTS,
     );
   });
 

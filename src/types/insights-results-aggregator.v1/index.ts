@@ -253,7 +253,7 @@ export interface paths {
     };
     /**
      * Get all rule groups and their relevant information
-     * @description This simply redirects to an endpoint of the same name of a service called insights-content-service
+     * @description This simply redirects to an endpoint of the same name of a service called content-service
      */
     get: operations['getRuleGroups'];
     put?: never;

@@ -21,9 +21,9 @@ import {
   SplitItem,
 } from '@patternfly/react-core';
 
-import { Link, Navigate } from '~/common/routing';
+import { Link, Navigate, useClusterListPath } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
-import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
+import { isHypershiftCluster, isROSA } from '~/components/clusters/common/clusterStates';
 import { usePostIDPForm } from '~/queries/ClusterDetailsQueries/IDPPage/usePostIDPForm';
 import { useFetchClusterDetails } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import {
@@ -62,6 +62,7 @@ const IdentityProvidersPage = (props) => {
   const { isEditForm } = props;
   const params = useParams();
   const subscriptionID = params.id;
+  const clusterListPath = useClusterListPath();
 
   const canViewHtpasswd = useFeatureGate(ENHANCED_HTPASSWRD);
 
@@ -173,7 +174,7 @@ const IdentityProvidersPage = (props) => {
           clusterDetailsError.errorMessage,
         ),
       );
-      return <Navigate replace to="/cluster-list" />;
+      return <Navigate replace to={clusterListPath} />;
     }
     return errorState();
   }
@@ -188,7 +189,7 @@ const IdentityProvidersPage = (props) => {
         "Go to the cluster's console to see and edit identity providers.",
       ),
     );
-    return <Navigate replace to="/cluster-list" />;
+    return <Navigate replace to={clusterListPath} />;
   }
 
   if (
@@ -287,6 +288,7 @@ const IdentityProvidersPage = (props) => {
                             idpEdited={idpEdited}
                             idpName={idpTypeName}
                             isHypershift={isHypershiftCluster(cluster)}
+                            isROSACluster={isROSA(cluster)}
                             HTPasswdErrors={formik.errors?.users}
                             isClusterIDPsLoading={isClusterIDPsLoading}
                             isEditForm={isEditForm}

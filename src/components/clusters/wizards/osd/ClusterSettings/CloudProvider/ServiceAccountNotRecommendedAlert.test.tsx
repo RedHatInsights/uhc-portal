@@ -16,7 +16,7 @@ describe('<ServiceAccountNotRecommendedAlert />', () => {
 
     expect(
       screen.getByText(
-        /Red Hat recommends using WIF as the authentication type because it provides enhanced security/i,
+        /Red Hat and Google Cloud recommend using WIF as the authentication type as it provides enhanced security/i,
       ),
     ).toBeInTheDocument();
   });

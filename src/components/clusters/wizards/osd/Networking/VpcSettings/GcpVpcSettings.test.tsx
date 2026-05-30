@@ -1,7 +1,8 @@
 import React from 'react';
 import { Formik, FormikValues } from 'formik';
 
-import { render, screen } from '~/testUtils';
+import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
+import { mockUseFeatureGate, render, screen } from '~/testUtils';
 
 import { FieldId, initialValues } from '../../constants';
 import { ClusterPrivacyType } from '../constants';
@@ -55,6 +56,35 @@ describe('<GcpVpcSettings />', () => {
       );
 
       expect(screen.queryByText('Private Service Connect subnet name')).toBeInTheDocument();
+    });
+
+    it('renders DNS Zone when hasDomainPrefix true', () => {
+      mockUseFeatureGate([[GCP_DNS_ZONE, true]]);
+      render(
+        prepareComponent({
+          [FieldId.InstallToSharedVpc]: true,
+          [FieldId.HasDomainPrefix]: true,
+          [FieldId.Byoc]: 'true',
+          [FieldId.GcpAuthType]: 'workloadIdentityFederation',
+        }),
+      );
+
+      expect(screen.getByText('DNS Zone')).toBeInTheDocument();
+      expect(screen.getByText('Create DNS Zone')).toBeInTheDocument();
+    });
+
+    it('renders DNS zone alert when no domain prefix exists', async () => {
+      mockUseFeatureGate([[GCP_DNS_ZONE, true]]);
+      render(
+        prepareComponent({
+          [FieldId.InstallToSharedVpc]: true,
+          [FieldId.Byoc]: 'true',
+          [FieldId.GcpAuthType]: 'workloadIdentityFederation',
+        }),
+      );
+
+      expect(screen.getByText('DNS Zone')).toBeInTheDocument();
+      expect(screen.getByText('Domain prefix required')).toBeInTheDocument();
     });
   });
 });

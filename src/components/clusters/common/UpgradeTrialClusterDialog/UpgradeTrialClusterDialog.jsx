@@ -14,8 +14,8 @@ import { refreshClusterDetails } from '~/queries/refreshEntireCache';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
+import docLinks from '../../../../common/docLinks.mjs';
 import getClusterName from '../../../../common/getClusterName';
-import links from '../../../../common/installLinks.mjs';
 import { normalizedProducts } from '../../../../common/subscriptionTypes';
 import { useUpgradeClusterFromTrial } from '../../../../queries/ClusterActionsQueries/useUpgradeClusterFromTrial';
 import { useFetchMachineOrNodePools } from '../../../../queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
@@ -256,7 +256,7 @@ const UpgradeTrialClusterDialog = ({ onClose }) => {
           Convert this trial cluster to a fully supported OpenShift Dedicated cluster.
           <br />
           <br />
-          <ExternalLink href={links.OCM_DOCS_UPGRADING_OSD_TRIAL}>Learn more</ExternalLink>
+          <ExternalLink href={docLinks.OCM_DOCS_UPGRADING_OSD_TRIAL}>Learn more</ExternalLink>
           {noQuota && (
             <Alert
               variant="warning"

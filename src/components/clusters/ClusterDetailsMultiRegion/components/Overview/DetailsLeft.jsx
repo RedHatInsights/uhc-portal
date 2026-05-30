@@ -18,7 +18,7 @@ import getBillingModelLabel from '~/components/clusters/common/getBillingModelLa
 import {
   ALLOW_EUS_CHANNEL,
   FIPS_FOR_HYPERSHIFT,
-  OSD_GCP_WIF,
+  Y_STREAM_CHANNEL,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
@@ -27,6 +27,7 @@ import PopoverHint from '../../../../common/PopoverHint';
 import ClusterTypeLabel from '../../../common/ClusterTypeLabel';
 import InfrastructureModelLabel from '../../../common/InfrastructureModelLabel';
 
+import { ChannelEdit } from './ChannelEdit/ChannelEdit';
 import { ChannelGroupEdit } from './ChannelGroupEdit/ChannelGroupEdit';
 import ClusterVersionInfo from './ClusterVersionInfo';
 
@@ -48,8 +49,10 @@ function DetailsLeft({
   isArchived,
   isDeprovisioned,
   isDisconnected,
+  clusterDetailsFetching,
 }) {
   const useEusChannel = useFeatureGate(ALLOW_EUS_CHANNEL);
+  const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
   const cloudProviderId = cluster.cloud_provider ? cluster.cloud_provider.id : null;
   const region = cluster?.region?.id;
@@ -59,10 +62,7 @@ function DetailsLeft({
   const isHypershift = isHypershiftCluster(cluster);
   const isRHOIC = cluster?.subscription?.plan?.type === normalizedProducts.RHOIC;
 
-  const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
-  // Only OSD GCP CCS clusters have the authentication type property as they are the only ones that have
-  // more than an option for authentication (service account and WIF)
-  const hasAuthenticationType = isWifEnabled && isGCP(cluster) && isCCS(cluster);
+  const hasAuthenticationType = isGCP(cluster) && isCCS(cluster);
   // We only have information about the wif configuration, we imply that if a wif config is not used
   // the user chose the other GCP authentication type, the service account
   const isWifCluster = hasAuthenticationType && cluster?.gcp?.authentication?.kind === 'WifConfig';
@@ -166,14 +166,25 @@ function DetailsLeft({
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
-      {useEusChannel && !isArchived && !isDeprovisioned && !isDisconnected && (
-        <ChannelGroupEdit
-          clusterID={clusterID}
-          channelGroup={cluster?.version?.channel_group}
-          cluster={cluster}
-          isROSA={isROSA}
-        />
-      )}
+      {useEusChannel &&
+        !isYStreamChannelEnabled &&
+        !isArchived &&
+        !isDeprovisioned &&
+        !isDisconnected && (
+          <ChannelGroupEdit
+            clusterID={clusterID}
+            channelGroup={cluster?.version?.channel_group}
+            cluster={cluster}
+            isROSA={isROSA}
+          />
+        )}
+      {isYStreamChannelEnabled &&
+        cluster.managed &&
+        !isArchived &&
+        !isDeprovisioned &&
+        !isDisconnected && (
+          <ChannelEdit cluster={cluster} isClusterDetailsFetching={clusterDetailsFetching} />
+        )}
       <DescriptionListGroup>
         <DescriptionListTerm>
           Version
@@ -256,6 +267,7 @@ DetailsLeft.propTypes = {
   isArchived: PropTypes.bool,
   isDisconnected: PropTypes.bool,
   isDeprovisioned: PropTypes.bool,
+  clusterDetailsFetching: PropTypes.bool,
   cloudProviders: PropTypes.object.isRequired,
   showAssistedId: PropTypes.bool.isRequired,
   wifConfigData: PropTypes.shape({

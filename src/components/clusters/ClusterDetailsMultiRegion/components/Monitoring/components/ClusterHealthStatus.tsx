@@ -7,7 +7,8 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclam
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 import InProgressIcon from '@patternfly/react-icons/dist/esm/icons/in-progress-icon';
 import UnknownIcon from '@patternfly/react-icons/dist/esm/icons/unknown-icon';
-import { DateFormat } from '@redhat-cloud-services/frontend-components';
+
+import LiveDateFormat from '~/components/common/LiveDateFormat/LiveDateFormat';
 
 import { monitoringStatuses } from '../monitoringHelper';
 
@@ -23,20 +24,17 @@ const Element = ({
   lastCheckIn,
 }: {
   icon: React.ReactNode;
-  status: string | React.ReactNode;
+  status: React.ReactNode;
   lastCheckIn?: string | number | Date;
 }) => (
   <Split>
     <SplitItem>{icon}</SplitItem>
     <SplitItem isFilled>{status}</SplitItem>
     <SplitItem className="last-checkin">
-      {status === monitoringStatuses.UNKNOWN && (
-        // @ts-ignore
-        <ExclamationCircleIcon className="danger" size="md" />
-      )}
       {lastCheckIn !== undefined && (
         <>
-          Last check-in: <DateFormat date={lastCheckIn} type="relative" />
+          Last check-in:{' '}
+          <LiveDateFormat date={new Date(lastCheckIn)} className="pf-v6-u-font-size-md" />
         </>
       )}
     </SplitItem>

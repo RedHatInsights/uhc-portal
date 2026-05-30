@@ -8,7 +8,7 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import Modal from '~/components/common/Modal/Modal';
 import { refetchUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchUsers';
 
-import links from '../../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../../common/docLinks.mjs';
 import { checkUserID } from '../../../../../../common/validators';
 import ErrorBox from '../../../../../common/ErrorBox';
 import ExternalLink from '../../../../../common/ExternalLink';
@@ -33,8 +33,8 @@ const AddUserDialog = ({
   const [userIdTouched, setUserIdTouched] = React.useState(false);
 
   const iamOperatorRolesLink = isHypershift
-    ? links.ROSA_AWS_IAM_OPERATOR_ROLES
-    : links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES;
+    ? docLinks.ROSA_AWS_IAM_OPERATOR_ROLES
+    : docLinks.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES;
 
   const resetInitialState = () => {
     setSelectedGroup('dedicated-admins');
@@ -132,7 +132,7 @@ const AddUserDialog = ({
                     {isROSA ? 'Service on AWS' : 'Dedicated'}. Users can perform administrative
                     actions listed in the{' '}
                     <ExternalLink
-                      href={isROSA ? iamOperatorRolesLink : links.OSD_DEDICATED_ADMIN_ROLE}
+                      href={isROSA ? iamOperatorRolesLink : docLinks.OSD_DEDICATED_ADMIN_ROLE}
                     >
                       documentation
                     </ExternalLink>

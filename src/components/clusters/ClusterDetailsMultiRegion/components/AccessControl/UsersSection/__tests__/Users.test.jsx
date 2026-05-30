@@ -1,6 +1,6 @@
 import React from 'react';
 
-import links from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { checkAccessibility, render, screen, within } from '~/testUtils';
 
 import { useFetchUsers } from '../../../../../../../queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchUsers';
@@ -128,7 +128,7 @@ describe('<Users />', () => {
       render(<UsersSection {...props} isROSA />);
 
       const link = screen.getByText('Learn more.');
-      expect(link).toHaveAttribute('href', links.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_AWS_IAM_OPERATOR_ROLES);
     });
 
     it('renders HCP link when cluster is HCP', async () => {
@@ -144,7 +144,7 @@ describe('<Users />', () => {
       render(<UsersSection {...props} isROSA isHypershift />);
 
       const link = screen.getByText('Learn more.');
-      expect(link).toHaveAttribute('href', links.ROSA_AWS_IAM_OPERATOR_ROLES);
+      expect(link).toHaveAttribute('href', docLinks.ROSA_AWS_IAM_OPERATOR_ROLES);
     });
   });
 });

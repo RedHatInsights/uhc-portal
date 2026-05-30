@@ -30,7 +30,7 @@ import { useFetchIDPsWithHTPUsers } from '~/queries/ClusterDetailsQueries/Access
 import { ENHANCED_HTPASSWRD } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
-import links from '../../../../../../common/installLinks.mjs';
+import docLinks from '../../../../../../common/docLinks.mjs';
 import ClipboardCopyLinkButton from '../../../../../common/ClipboardCopyLinkButton';
 import { modalActions } from '../../../../../common/Modal/ModalActions';
 import {
@@ -72,7 +72,9 @@ const IDPSection = (props) => {
     <a
       rel="noopener noreferrer"
       href={
-        isROSA ? links.ROSA_UNDERSTANDING_IDENTITY_PROVIDER : links.UNDERSTANDING_IDENTITY_PROVIDER
+        isROSA
+          ? docLinks.ROSA_UNDERSTANDING_IDENTITY_PROVIDER
+          : docLinks.UNDERSTANDING_IDENTITY_PROVIDER
       }
       target="_blank"
     >
