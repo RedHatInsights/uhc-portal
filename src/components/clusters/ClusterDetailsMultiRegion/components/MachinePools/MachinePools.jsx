@@ -40,7 +40,7 @@ import { getClusterServiceForRegion } from '~/services/clusterService';
 import { getOrganizationAndQuota } from '../../../../../redux/actions/userActions';
 import ButtonWithTooltip from '../../../../common/ButtonWithTooltip';
 import ErrorBox from '../../../../common/ErrorBox';
-import { openModal } from '../../../../common/Modal/ModalActions';
+import { closeModal, openModal } from '../../../../common/Modal/ModalActions';
 import modals from '../../../../common/Modal/modals';
 import shouldShowModal from '../../../../common/Modal/ModalSelectors';
 import clusterStates, {
@@ -139,6 +139,17 @@ const MachinePools = ({ cluster }) => {
     // Should run only once on mount and once on unmount
     // eslint-disable-next-line  react-hooks/exhaustive-deps
   }, []);
+
+  // Pause auto-refresh while the edit/add machine pool modal is open.
+  // EditMachinePoolModal uses local state (not Redux), so anyModalOpen in ClusterDetails
+  // stays false and RefreshButton keeps firing. Syncing into the Redux modal slot fixes that.
+  React.useEffect(() => {
+    if (editMachinePoolId || addMachinePool) {
+      dispatch(openModal(modals.EDIT_MACHINE_POOL));
+    } else {
+      dispatch(closeModal());
+    }
+  }, [editMachinePoolId, addMachinePool]);
 
   React.useEffect(() => {
     if (!isDeleteMachinePoolPending && isDeleteMachinePoolSuccess && !isMachinePoolLoading) {
