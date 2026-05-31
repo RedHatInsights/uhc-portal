@@ -75,6 +75,9 @@ const MachinePools = ({ cluster }) => {
   const isClusterAutoscalingModalOpen = useGlobalState((state) =>
     shouldShowModal(state, modals.EDIT_CLUSTER_AUTOSCALING_V2),
   );
+  const isEditMachinePoolModalOpen = useGlobalState((state) =>
+    shouldShowModal(state, modals.EDIT_MACHINE_POOL),
+  );
 
   const hasMachineConfiguration = useFeatureGate(ENABLE_MACHINE_CONFIGURATION);
   const organization = useGlobalState((state) => state.userProfile.organization);
@@ -143,12 +146,15 @@ const MachinePools = ({ cluster }) => {
   // Pause auto-refresh while the edit/add machine pool modal is open.
   // EditMachinePoolModal uses local state (not Redux), so anyModalOpen in ClusterDetails
   // stays false and RefreshButton keeps firing. Syncing into the Redux modal slot fixes that.
+  // isEditMachinePoolModalOpen is intentionally excluded from deps to avoid a dispatch loop;
+  // it is read as a snapshot to guard against wiping unrelated modal state on mount/close.
   React.useEffect(() => {
     if (editMachinePoolId || addMachinePool) {
       dispatch(openModal(modals.EDIT_MACHINE_POOL));
-    } else {
+    } else if (isEditMachinePoolModalOpen) {
       dispatch(closeModal());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editMachinePoolId, addMachinePool]);
 
   React.useEffect(() => {
