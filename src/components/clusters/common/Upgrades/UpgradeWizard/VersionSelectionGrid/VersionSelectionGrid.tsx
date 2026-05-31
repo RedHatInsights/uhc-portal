@@ -105,7 +105,7 @@ const VersionSelectionGrid = ({
   );
   return (
     <>
-      <Title className="version-select-step-title" size="lg" headingLevel="h3">
+      <Title className="wizard-step-title" size="lg" headingLevel="h3">
         Select version
       </Title>
       <div id="version-grid-wrapper">
