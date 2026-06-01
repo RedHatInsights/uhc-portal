@@ -142,6 +142,7 @@ jobs:
           rosa version
 
       - name: Install Playwright Browsers
+        timeout-minutes: 15
         # Explicitly specify all browsers including chrome since Playwright 1.44+ no longer installs Chrome by default
         run: npm exec playwright install chromium chrome firefox webkit --with-deps
 
