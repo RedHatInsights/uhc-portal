@@ -75,10 +75,6 @@ const MachinePools = ({ cluster }) => {
   const isClusterAutoscalingModalOpen = useGlobalState((state) =>
     shouldShowModal(state, modals.EDIT_CLUSTER_AUTOSCALING_V2),
   );
-  const isEditMachinePoolModalOpen = useGlobalState((state) =>
-    shouldShowModal(state, modals.EDIT_MACHINE_POOL),
-  );
-
   const hasMachineConfiguration = useFeatureGate(ENABLE_MACHINE_CONFIGURATION);
   const organization = useGlobalState((state) => state.userProfile.organization);
 
@@ -145,17 +141,23 @@ const MachinePools = ({ cluster }) => {
 
   // Pause auto-refresh while the edit/add machine pool modal is open.
   // EditMachinePoolModal uses local state (not Redux), so anyModalOpen in ClusterDetails
-  // stays false and RefreshButton keeps firing. Syncing into the Redux modal slot fixes that.
-  // isEditMachinePoolModalOpen is intentionally excluded from deps to avoid a dispatch loop;
-  // it is read as a snapshot to guard against wiping unrelated modal state on mount/close.
-  React.useEffect(() => {
-    if (editMachinePoolId || addMachinePool) {
-      dispatch(openModal(modals.EDIT_MACHINE_POOL));
-    } else if (isEditMachinePoolModalOpen) {
-      dispatch(closeModal());
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editMachinePoolId, addMachinePool]);
+  // stays false and RefreshButton keeps firing. We dispatch openModal/closeModal directly
+  // in the event handlers so no useEffect is needed.
+  const openEditMachinePoolModal = (machinePoolId) => {
+    setEditMachinePoolId(machinePoolId);
+    dispatch(openModal(modals.EDIT_MACHINE_POOL));
+  };
+
+  const openAddMachinePoolModal = () => {
+    setAddMachinePool(true);
+    dispatch(openModal(modals.EDIT_MACHINE_POOL));
+  };
+
+  const closeEditMachinePoolModal = () => {
+    setEditMachinePoolId(undefined);
+    setAddMachinePool(false);
+    dispatch(closeModal());
+  };
 
   React.useEffect(() => {
     if (!isDeleteMachinePoolPending && isDeleteMachinePoolSuccess && !isMachinePoolLoading) {
@@ -292,7 +294,7 @@ const MachinePools = ({ cluster }) => {
                         quotaReason
                       }
                       id="add-machine-pool"
-                      onClick={() => setAddMachinePool(true)}
+                      onClick={openAddMachinePoolModal}
                       variant={ButtonVariant.secondary}
                     >
                       Add machine pool
@@ -343,7 +345,7 @@ const MachinePools = ({ cluster }) => {
                   isDeleteMachinePoolPending={isDeleteMachinePoolPending}
                   isDeleteMachinePoolSuccess={isDeleteMachinePoolSuccess}
                   isDeleteMachinePoolError={isDeleteMachinePoolError}
-                  setEditMachinePoolId={setEditMachinePoolId}
+                  setEditMachinePoolId={openEditMachinePoolModal}
                   setHideDeleteMachinePoolError={setHideDeleteMachinePoolError}
                   cluster={cluster}
                   isMachinePoolError={isMachinePoolError}
@@ -363,10 +365,7 @@ const MachinePools = ({ cluster }) => {
           region={region}
           cluster={cluster}
           onSave={refreshMachinePools}
-          onClose={() => {
-            setEditMachinePoolId(undefined);
-            setAddMachinePool(false);
-          }}
+          onClose={closeEditMachinePoolModal}
           isHypershift={isHypershift}
           machinePoolId={editMachinePoolId}
           machinePoolsResponse={machinePoolData}
