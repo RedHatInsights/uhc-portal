@@ -153,7 +153,7 @@ const MachinePools = ({ cluster }) => {
     dispatch(openModal(modals.EDIT_MACHINE_POOL));
   };
 
-  const closeEditMachinePoolModal = () => {
+  const closeMachinePoolModal = () => {
     setEditMachinePoolId(undefined);
     setAddMachinePool(false);
     dispatch(closeModal());
@@ -365,7 +365,7 @@ const MachinePools = ({ cluster }) => {
           region={region}
           cluster={cluster}
           onSave={refreshMachinePools}
-          onClose={closeEditMachinePoolModal}
+          onClose={closeMachinePoolModal}
           isHypershift={isHypershift}
           machinePoolId={editMachinePoolId}
           machinePoolsResponse={machinePoolData}

@@ -70,7 +70,11 @@ jest.mock('./UpdateMachinePools', () => ({
 
 jest.mock('./components/EditMachinePoolModal/EditMachinePoolModal', () => ({
   __esModule: true,
-  default: ({ onClose }: { onClose: () => void }) => <button onClick={onClose}>Close modal</button>,
+  default: ({ onClose }: { onClose: () => void }) => (
+    <button type="button" onClick={onClose}>
+      Close modal
+    </button>
+  ),
 }));
 
 // --- Fixtures ---
