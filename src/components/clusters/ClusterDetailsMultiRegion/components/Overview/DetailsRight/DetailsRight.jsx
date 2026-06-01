@@ -14,6 +14,7 @@ import {
   TimestampFormat,
 } from '@patternfly/react-core';
 
+import { trackEvents } from '~/common/analytics';
 import { getQueryParam } from '~/common/queryHelpers';
 import { hasSecurityGroupIds } from '~/common/securityGroupsHelpers';
 import AIClusterStatus from '~/components/AIComponents/AIClusterStatus';
@@ -27,6 +28,7 @@ import ClusterStatusErrorDisplay from '~/components/clusters/common/ClusterStatu
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
 import { IMDSType } from '~/components/clusters/wizards/common';
 import EditButton from '~/components/common/EditButton';
+import useAnalytics from '~/hooks/useAnalytics';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { ENABLE_AUTO_NODE } from '~/queries/featureGates/featureConstants';
@@ -50,6 +52,8 @@ import DeleteProtection from './DeleteProtection/DeleteProtection';
 import AutoNodeKarpenterCount from './AutoNodeKarpenterCount';
 import { ClusterStatus } from './ClusterStatus';
 
+const AUTO_NODE_MIN_VERSION = '4.22.0';
+
 function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDetailsFetching }) {
   const isHypershift = isHypershiftCluster(cluster);
   const region = cluster?.subscription?.rh_region_id;
@@ -57,6 +61,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const clusterVersionID = cluster?.version?.id;
   const clusterRawVersionID = cluster?.version?.raw_id;
   const isAutoNodeAllowed = useFeatureGate(ENABLE_AUTO_NODE) && isHypershift;
+  const track = useAnalytics();
 
   const { data: machinePools } = useFetchMachineOrNodePools(
     clusterID,
@@ -72,11 +77,10 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const [limitedSupport, setLimitedSupport] = React.useState();
   const [isEditAutoNodeModalOpen, setIsEditAutoNodeModalOpen] = React.useState(false);
 
-  const AUTO_NODE_MIN_VERSION = '4.22.0';
   const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
 
   const coercedVersion = semver.coerce(clusterVersion);
-  const isAutoNodeVersionValid = semver.coerce(coercedVersion)
+  const isAutoNodeVersionValid = coercedVersion
     ? semver.gte(coercedVersion, AUTO_NODE_MIN_VERSION)
     : false;
 
@@ -468,7 +472,10 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                   (cluster?.state !== clusterStates.ready &&
                     'Autonode settings can only be edited when the cluster is ready.')
                 }
-                onClick={() => setIsEditAutoNodeModalOpen(true)}
+                onClick={() => {
+                  track(trackEvents.AutonodeEnableModalOpened);
+                  setIsEditAutoNodeModalOpen(true);
+                }}
               >
                 <span data-testid="autoNodeStatus">
                   {cluster?.auto_node?.mode === 'enabled' ? 'Enabled' : 'Disabled'}

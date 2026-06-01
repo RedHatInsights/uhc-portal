@@ -388,6 +388,16 @@ const trackEvents: { [key: string]: TrackEvent } = {
     link_name: 'ocm_ingress_exclude_namespace_selectors_set',
     ocm_resource_type: ocmResourceType.OSD,
   },
+  AutonodeEnableModalOpened: {
+    event: eventNames.BUTTON_CLICKED,
+    link_name: 'autonode-enable-modal-opened',
+    ocm_resource_type: ocmResourceType.MOA,
+  },
+  AutonodeEnableSubmitted: {
+    event: eventNames.BUTTON_CLICKED,
+    link_name: 'autonode-enable-submitted',
+    ocm_resource_type: ocmResourceType.MOA,
+  },
 };
 
 /**

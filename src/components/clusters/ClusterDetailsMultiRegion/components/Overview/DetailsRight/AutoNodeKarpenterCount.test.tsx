@@ -33,7 +33,7 @@ describe('<AutoNodeKarpenterCount />', () => {
     render(<AutoNodeKarpenterCount count={1} />);
 
     expect(
-      screen.getByRole('button', { name: 'More information about AutoNode Karpenter nodes' }),
+      screen.getByRole('button', { name: 'More information about Autonode Karpenter nodes' }),
     ).toBeInTheDocument();
   });
 

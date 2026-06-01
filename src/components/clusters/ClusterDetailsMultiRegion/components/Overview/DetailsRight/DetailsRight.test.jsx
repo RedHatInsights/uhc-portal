@@ -30,6 +30,8 @@ jest.mock(
   '../../../../../../queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools',
 );
 
+jest.mock('~/hooks/useAnalytics', () => () => jest.fn());
+
 const componentText = {
   STATUS: { label: 'Status', limitedSupport: '- Limited support' },
   STATUS_ERROR: { label: 'Details:' },

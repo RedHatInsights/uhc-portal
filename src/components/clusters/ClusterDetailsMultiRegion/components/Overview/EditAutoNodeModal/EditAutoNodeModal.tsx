@@ -19,11 +19,13 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import { trackEvents } from '~/common/analytics';
 import { validateRoleARN } from '~/common/validators';
 import { queryClient } from '~/components/App/queryClient';
 import ErrorBox from '~/components/common/ErrorBox';
 import PopoverHint from '~/components/common/PopoverHint';
 import WithTooltip from '~/components/common/WithTooltip';
+import useAnalytics from '~/hooks/useAnalytics';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { queryConstants } from '~/queries/queriesConstants';
 import { ClusterFromSubscription } from '~/types/types';
@@ -37,6 +39,7 @@ type EditAutoNodeModalProps = {
 const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps) => {
   const initialAutoNodeEnabled = cluster?.auto_node?.mode === 'enabled';
   const initialIamRoleArn = cluster?.aws?.auto_node?.role_arn ?? '';
+  const track = useAnalytics();
 
   const [isAutoNodeEnabled, setIsAutoNodeEnabled] = React.useState(initialAutoNodeEnabled);
   const [iamRoleArn, setIamRoleArn] = React.useState(initialIamRoleArn);
@@ -70,6 +73,7 @@ const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps)
       },
       {
         onSuccess: () => {
+          track(trackEvents.AutonodeEnableSubmitted);
           queryClient.invalidateQueries({
             queryKey: [
               queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
@@ -119,7 +123,7 @@ const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps)
           ) : null}
 
           <FormGroup
-            label="AutoNode IAM role ARN"
+            label="Autonode IAM role ARN"
             isRequired={isAutoNodeEnabled}
             labelHelp={
               <PopoverHint

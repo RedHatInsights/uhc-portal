@@ -15,7 +15,7 @@ const AutoNodeKarpenterCount = ({ count }: AutoNodeKarpenterCountProps) => (
       {count}{' '}
       <PopoverHint
         iconClassName="nodes-hint"
-        buttonAriaLabel="More information about AutoNode Karpenter nodes"
+        buttonAriaLabel="More information about Autonode Karpenter nodes"
         hint="These nodes are automatically provisioned and managed by Karpenter based on workload demands. These nodes are not managed through machine pools."
       />
     </dd>
