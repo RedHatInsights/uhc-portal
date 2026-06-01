@@ -29,7 +29,6 @@ export const useFetchCluster = (
       return response;
     },
     retry: false,
-    refetchOnWindowFocus: false,
     enabled:
       !!subscription &&
       subscription.status !== SubscriptionCommonFieldsStatus.Deprovisioned &&

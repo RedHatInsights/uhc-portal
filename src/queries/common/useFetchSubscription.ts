@@ -32,7 +32,6 @@ export const useFetchSubscription = (subscriptionID: string, mainQueryKey: strin
         isOSDCluster,
       };
     },
-    refetchOnWindowFocus: false,
   });
 
   return {
