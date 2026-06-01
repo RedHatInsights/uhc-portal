@@ -25,6 +25,7 @@
   "prConcurrentLimit": 10,
   "prHourlyLimit": 0,
   "reviewersFromCodeOwners": true,
+  "minimumReleaseAge": "7 days",
   "baseBranchPatterns": ["main"],
   "tekton": {
     "schedule": ["at any time"]
