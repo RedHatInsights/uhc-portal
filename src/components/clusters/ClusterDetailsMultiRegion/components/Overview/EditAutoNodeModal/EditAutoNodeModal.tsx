@@ -47,8 +47,10 @@ const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps)
   const [arnValidationError, setArnValidationError] = React.useState<string | undefined>(undefined);
 
   const isValid = !isAutoNodeEnabled || (iamRoleArn.trim().length > 0 && !arnValidationError);
+
   const hasChanges =
-    isAutoNodeEnabled !== initialAutoNodeEnabled || iamRoleArn !== initialIamRoleArn;
+    isAutoNodeEnabled !== initialAutoNodeEnabled ||
+    (isAutoNodeEnabled && iamRoleArn !== initialIamRoleArn);
 
   const { mutate: editCluster, isPending: isSubmitting, isError, error } = useEditCluster(region);
 

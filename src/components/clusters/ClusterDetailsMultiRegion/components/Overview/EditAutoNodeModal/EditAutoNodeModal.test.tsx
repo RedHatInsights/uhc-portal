@@ -361,5 +361,18 @@ describe('<EditAutoNodeModal />', () => {
 
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     });
+
+    it('disables Save button when Autonode is enabled, ARN is typed, then Autonode is disabled again', async () => {
+      const { user } = render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
+      await user.click(screen.getByLabelText('Enable Autonode'));
+      await user.type(
+        screen.getByPlaceholderText(
+          'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+        ),
+        'test',
+      );
+      await user.click(screen.getByLabelText('Enable Autonode'));
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
   });
 });
