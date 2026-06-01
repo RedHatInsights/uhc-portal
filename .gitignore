@@ -6,9 +6,9 @@
 /dist/
 /build/
 /node_modules/
-/run/insights-proxy/
 
 # No longer `git clone`d, kept here in case anyone has them checked out:
+/run/insights-proxy/
 /run/cucushift/
 /run/verification-tests/
 /run/ocm-api-model/

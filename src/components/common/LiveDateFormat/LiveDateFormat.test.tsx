@@ -15,6 +15,11 @@ describe('<LiveDateFormat />', () => {
     expect(screen.getByText('a few seconds ago')).toBeInTheDocument();
   });
 
+  it('applies className to the Timestamp component', () => {
+    const { container } = render(<LiveDateFormat date={new Date()} className="my-custom-class" />);
+    expect(container.querySelector('.my-custom-class')).toBeInTheDocument();
+  });
+
   afterAll(() => {
     jest.useRealTimers();
   });

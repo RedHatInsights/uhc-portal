@@ -50,7 +50,7 @@ configs.production = import(/* webpackMode: "eager" */ './config/production.json
 configs.staging = import(/* webpackMode: "eager" */ './config/staging.json');
 configs.integration = import(/* webpackMode: "eager" */ './config/integration.json');
 
-if (APP_DEV_SERVER) {
+if (typeof APP_DEV_SERVER !== 'undefined' && APP_DEV_SERVER) {
   // running in webpack dev server, add mockdata configs
   configs.mockdata = import(/* webpackMode: "eager" */ './config/mockdata.json');
 }

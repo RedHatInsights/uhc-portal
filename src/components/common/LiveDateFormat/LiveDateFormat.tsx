@@ -8,9 +8,10 @@ dayjs.extend(relativeTime);
 
 type Props = {
   date?: Date | undefined;
+  className?: string;
 };
 
-const LiveDateFormat = ({ date }: Props) => {
+const LiveDateFormat = ({ date, className }: Props) => {
   // use state to trigger an update on a set interval
   const [, triggerUpdate] = React.useState(0);
   React.useEffect(() => {
@@ -30,6 +31,7 @@ const LiveDateFormat = ({ date }: Props) => {
       timeFormat={TimestampFormat.medium}
       shouldDisplayUTC
       locale="eng-GB"
+      className={className}
       tooltip={{ variant: TimestampTooltipVariant.default }}
     >
       {dayjs().to(dayjs(date))}

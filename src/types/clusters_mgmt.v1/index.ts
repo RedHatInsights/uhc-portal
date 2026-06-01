@@ -13687,6 +13687,8 @@ export interface components {
     AWSBackupConfig: {
       /** @description Name of the S3 bucket used to save the backup */
       s3_bucket?: string;
+      /** @description ARN of the role used in the Disaster Recovery (DR) account to manipulate backups for deleted clusters */
+      access_shared_role_arn?: string;
       /** @description ID of the AWS Disaster Recovery (DR) account */
       account_id?: string;
       /** @description ARN of the identity provider created in the Disaster Recovery (DR) account for the Management Cluster */
@@ -15419,6 +15421,11 @@ export interface components {
     ClusterAutoNodeStatus: {
       /** @description Messages relating to the status of the AutoNode installation on this Cluster */
       message?: string;
+      /**
+       * Format: int32
+       * @description The number of Nodes AutoNode has provisioned in the cluster
+       */
+      node_count?: number;
     };
     /** @description Cluster-wide autoscaling configuration. */
     ClusterAutoscaler: {

@@ -9,6 +9,7 @@ import {
   HelperTextItem,
   Stack,
   StackItem,
+  TextInput,
 } from '@patternfly/react-core';
 
 import {
@@ -63,10 +64,10 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
       <GridItem span={9}>
         <FormGroup label="Route selector" labelHelp={<RouteSelectorsPopover />}>
           <Field
+            as={TextInput}
             name={FieldId.DefaultRouterSelectors}
             type="text"
             validate={checkRouteSelectors}
-            className="pf-v6-u-w-100"
             input={{
               ...getFieldProps(FieldId.DefaultRouterSelectors),
               onChange: (value: string) =>
@@ -83,10 +84,10 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
       <GridItem span={9}>
         <FormGroup label="Excluded namespaces" labelHelp={<ExcludedNamespacesPopover />}>
           <Field
+            as={TextInput}
             name={FieldId.DefaultRouterExcludedNamespacesFlag}
             type="text"
             validate={validateNamespacesList}
-            className="pf-v6-u-w-100"
             input={{
               ...getFieldProps(FieldId.DefaultRouterExcludedNamespacesFlag),
               onChange: (value: string) =>

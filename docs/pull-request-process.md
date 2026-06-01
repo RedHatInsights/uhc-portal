@@ -26,7 +26,7 @@ Here is the process to move a PR from draft to merged:
 
 1. :eyes: Dev reviewers review code, add comments, ask questions etc
 
-   - ensure code makes sense and easy to follow
+   - ensure code makes sense and easy to follow.  use the [coding guidelines](/docs/code-guide.md) as reference.
    - ensure unit tests are added or modified. There are times where unit tests are not needed (refactor) and the author should have this noted in the "additional information" section. Not having enough time is not a valid reason.
    - ensure newly added code has reasonable unit test coverage (by running npm run test-changes)
    - ensure existing threads have been addressed or resolved

@@ -21,9 +21,9 @@
     "@patternfly/react-table": "6.2.1",
     "@patternfly/react-tokens": "6.2.1",
     "@react-hook/resize-observer": "^2.0.0",
-    "@redhat-cloud-services/frontend-components": "^6.0.7",
-    "@redhat-cloud-services/frontend-components-config-utilities": "^4.4.0",
-    "@redhat-cloud-services/frontend-components-notifications": "^6.0.0",
+    "@redhat-cloud-services/frontend-components": "^7.3.1",
+    "@redhat-cloud-services/frontend-components-config-utilities": "^4.8.3",
+    "@redhat-cloud-services/frontend-components-notifications": "^6.5.1",
     "@reduxjs/toolkit": "^2.2.2",
     "@scalprum/core": "0.7.0",
     "@scalprum/react-core": "0.8.0",
@@ -109,10 +109,10 @@
     "@chromatic-com/storybook": "3.2.2",
     "@cypress/code-coverage": "^3.12.39",
     "@cypress/grep": "^4.0.1",
-    "@playwright/test": "1.59.0",
-    "@redhat-cloud-services/frontend-components-config": "^6.8.3",
-    "@redhat-cloud-services/tsc-transform-imports": "^1.0.25",
-    "@redhat-cloud-services/types": "1.0.11",
+    "@playwright/test": "1.60.0",
+    "@redhat-cloud-services/frontend-components-config": "^6.8.4",
+    "@redhat-cloud-services/tsc-transform-imports": "^1.0.58",
+    "@redhat-cloud-services/types": "^3.4.2",
     "@sentry/cli": "^2.21.2",
     "@storybook/addon-essentials": "8.4.4",
     "@storybook/addon-interactions": "8.4.4",
@@ -160,7 +160,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^12.0.0",
     "eslint-plugin-storybook": "0.11.0",
-    "eslint-plugin-testing-library": "^6.2.2",
+    "eslint-plugin-testing-library": "^7.0.0",
     "fork-ts-checker-webpack-plugin": "^9.0.0",
     "husky": "^9.0.0",
     "inquirer": "^11.0.0",
@@ -175,7 +175,6 @@
     "nyc": "^17.0.0",
     "openapi-typescript": "^7.5.2",
     "ora": "^8.0.0",
-    "porty": "^3.1.1",
     "prettier": "3.3.2",
     "progress": "^2.0.3",
     "redux-mock-store": "^1.5.4",
@@ -195,10 +194,18 @@
   },
   "overrides": {
     "@cypress/webpack-preprocessor": "6.0.2",
-    "@redhat-cloud-services/frontend-components-config": { "axios": "$axios" },
-    "@redhat-cloud-services/frontend-components-utilities": { "axios": "$axios" },
-    "@redhat-cloud-services/javascript-clients-shared": { "axios": "$axios" },
-    "@redhat-cloud-services/rbac-client": { "axios": "$axios" },
+    "@redhat-cloud-services/frontend-components-config": {
+      "axios": "$axios"
+    },
+    "@redhat-cloud-services/frontend-components-utilities": {
+      "axios": "$axios"
+    },
+    "@redhat-cloud-services/javascript-clients-shared": {
+      "axios": "$axios"
+    },
+    "@redhat-cloud-services/rbac-client": {
+      "axios": "$axios"
+    },
     "form-data": "^4.0.4"
   },
   "scripts": {
@@ -207,8 +214,6 @@
     "build": "fec build",
     "build:prod": "MODE=prod npm run build",
     "build:prod:monitored": "run/build-prod-monitored.sh",
-    "insights-proxy": "make insights-proxy-check && run/insights-proxy.sh",
-    "stop-insights-proxy": "run/podman-or-docker.sh kill insightsproxy; run/podman-or-docker.sh rm --force insightsproxy; true",
     "lint": "eslint src 'run/*js' --ext mjs,js,jsx,ts,tsx",
     "lint-prettier": "npm run lint && npm run prettier",
     "lint-staged": "lint-staged",
@@ -221,7 +226,7 @@
     "test-local": "npm run test -- --maxWorkers=50%",
     "test:debug": "node --nolazy --inspect-brk ./node_modules/jest/bin/jest.js --runInBand --colors --verbose",
     "e2e-test": "rm -rf ./coverage/* && npm run cypress-headless -- --env grepTags=ci",
-    "stop": "npm run stop-insights-proxy; run/podman-or-docker.sh rm --force browser; pkill --full 'concurrently.*SERVER(prevent self match){0},MOCK'; pkill --full 'concurrently.*BROWSER(prevent self match){0},TEST'; true",
+    "stop": "run/podman-or-docker.sh rm --force browser; pkill --full 'concurrently.*SERVER(prevent self match){0},MOCK'; pkill --full 'concurrently.*BROWSER(prevent self match){0},TEST'; true",
     "prepare": "husky",
     "cypress-ui": "cypress open",
     "cypress-headless": "cypress run --browser chrome",
