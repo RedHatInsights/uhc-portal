@@ -1584,7 +1584,7 @@ describe('<DetailsRight />', () => {
     });
   });
 
-  describe('Autonode', () => {
+  describe('Red Hat build of Karpenter (Autonode)', () => {
     it('shows Autonode section with "Enabled" when auto_node mode is enabled on a hypershift cluster', () => {
       mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
       const clusterFixture = defaultProps.cluster;
@@ -1607,7 +1607,9 @@ describe('<DetailsRight />', () => {
 
       expect(screen.getByTestId('autoNodeStatus')).toHaveTextContent('Enabled');
       expect(
-        screen.getByText('arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role'),
+        screen.getByText(
+          'Autonode IAM role ARN: arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+        ),
       ).toBeInTheDocument();
     });
 

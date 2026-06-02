@@ -452,7 +452,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
           )}
           <DescriptionListGroup>
             <DescriptionListTerm>
-              Autonode
+              Red Hat build of Karpenter (Autonode)
               <PopoverHint
                 id="autonode-hint"
                 iconClassName="nodes-hint"
@@ -483,7 +483,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
               </EditButton>
               {cluster?.auto_node?.mode === 'enabled' && cluster?.aws?.auto_node?.role_arn ? (
                 <div className="pf-v6-u-color-200 pf-v6-u-font-size-sm">
-                  {cluster.aws.auto_node.role_arn}
+                  Autonode IAM role ARN: {cluster.aws.auto_node.role_arn}
                 </div>
               ) : null}
             </DescriptionListDescription>

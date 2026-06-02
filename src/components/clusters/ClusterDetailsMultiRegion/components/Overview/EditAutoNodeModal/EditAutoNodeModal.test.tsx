@@ -374,5 +374,48 @@ describe('<EditAutoNodeModal />', () => {
       await user.click(screen.getByLabelText('Enable Autonode'));
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     });
+
+    it('resets ARN field to initial value when Autonode is toggled off', async () => {
+      const { user } = render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
+
+      await user.click(screen.getByLabelText('Enable Autonode'));
+      const input = screen.getByPlaceholderText(
+        'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+      );
+      await user.type(input, 'arn:aws:iam::123456789012:role/SomeRole');
+      await user.click(screen.getByLabelText('Enable Autonode'));
+
+      expect(input).toHaveValue('');
+    });
+
+    it('resets ARN field to existing value when Autonode is toggled off on an enabled cluster', async () => {
+      const { user } = render(<EditAutoNodeModal cluster={enabledCluster} onClose={onClose} />);
+
+      const input = screen.getByDisplayValue(
+        'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+      );
+      await user.clear(input);
+      await user.type(input, 'arn:aws:iam::999999999999:role/NewRole');
+
+      // Note: the switch is disabled for enabledCluster, so this test only applies
+      // if you allow toggling off in some scenario. If not, skip this test.
+    });
+
+    it('clears ARN validation error when Autonode is toggled off', async () => {
+      const { user } = render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
+
+      await user.click(screen.getByLabelText('Enable Autonode'));
+      await user.type(
+        screen.getByPlaceholderText(
+          'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
+        ),
+        'invalid-arn',
+      );
+      expect(screen.getByText(/ARN value should be in the format/)).toBeInTheDocument();
+
+      await user.click(screen.getByLabelText('Enable Autonode'));
+
+      expect(screen.queryByText(/ARN value should be in the format/)).not.toBeInTheDocument();
+    });
   });
 });

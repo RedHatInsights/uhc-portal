@@ -113,7 +113,13 @@ const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps)
               id="enable-auto-node"
               label="Enable Autonode"
               isChecked={isAutoNodeEnabled}
-              onChange={(_event, checked) => setIsAutoNodeEnabled(checked)}
+              onChange={(_event, checked) => {
+                setIsAutoNodeEnabled(checked);
+                if (!checked) {
+                  setIamRoleArn(initialIamRoleArn);
+                  setArnValidationError(undefined);
+                }
+              }}
               isDisabled={cluster?.auto_node?.mode === 'enabled'}
             />
           </WithTooltip>
