@@ -1,6 +1,7 @@
 import React from 'react';
 import get from 'lodash/get';
 import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
 import semver from 'semver';
 
 import {
@@ -28,6 +29,8 @@ import ClusterStatusErrorDisplay from '~/components/clusters/common/ClusterStatu
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
 import { IMDSType } from '~/components/clusters/wizards/common';
 import EditButton from '~/components/common/EditButton';
+import { closeModal, openModal } from '~/components/common/Modal/ModalActions';
+import modals from '~/components/common/Modal/modals';
 import useAnalytics from '~/hooks/useAnalytics';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
@@ -62,6 +65,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const clusterRawVersionID = cluster?.version?.raw_id;
   const isAutoNodeAllowed = useFeatureGate(ENABLE_AUTO_NODE) && isHypershift;
   const track = useAnalytics();
+  const dispatch = useDispatch();
 
   const { data: machinePools } = useFetchMachineOrNodePools(
     clusterID,
@@ -76,6 +80,18 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const [hasAutoscaleMachinePools, setHasAutoscaleMachinePools] = React.useState();
   const [limitedSupport, setLimitedSupport] = React.useState();
   const [isEditAutoNodeModalOpen, setIsEditAutoNodeModalOpen] = React.useState(false);
+
+  // Pause auto-refresh while the edit Autonode modal is open.
+  const openEditAutoNodeModal = () => {
+    track(trackEvents.AutonodeEnableModalOpened);
+    setIsEditAutoNodeModalOpen(true);
+    dispatch(openModal(modals.EDIT_AUTO_NODE));
+  };
+
+  const closeEditAutoNodeModal = () => {
+    setIsEditAutoNodeModalOpen(false);
+    dispatch(closeModal());
+  };
 
   const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
 
@@ -444,11 +460,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
       {isAutoNodeAllowed && (
         <>
           {isEditAutoNodeModalOpen && (
-            <EditAutoNodeModal
-              cluster={cluster}
-              region={region}
-              onClose={() => setIsEditAutoNodeModalOpen(false)}
-            />
+            <EditAutoNodeModal cluster={cluster} region={region} onClose={closeEditAutoNodeModal} />
           )}
           <DescriptionListGroup>
             <DescriptionListTerm>
@@ -472,10 +484,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                   (cluster?.state !== clusterStates.ready &&
                     'Autonode settings can only be edited when the cluster is ready.')
                 }
-                onClick={() => {
-                  track(trackEvents.AutonodeEnableModalOpened);
-                  setIsEditAutoNodeModalOpen(true);
-                }}
+                onClick={openEditAutoNodeModal}
               >
                 <span data-testid="autoNodeStatus">
                   {cluster?.auto_node?.mode === 'enabled' ? 'Enabled' : 'Disabled'}

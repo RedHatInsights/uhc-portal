@@ -81,7 +81,6 @@ const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps)
               queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
               'clusterService',
               cluster.id,
-              cluster.subscription,
             ],
           });
           onClose();
@@ -148,6 +147,7 @@ const EditAutoNodeModal = ({ cluster, region, onClose }: EditAutoNodeModalProps)
                 setArnValidationError(value.trim().length > 0 ? validateRoleARN(value) : undefined);
               }}
               placeholder="arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role"
+              validated={arnValidationError ? 'error' : 'default'}
               isDisabled={!isAutoNodeEnabled}
             />
             <HelperText>

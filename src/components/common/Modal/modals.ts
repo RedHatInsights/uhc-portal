@@ -9,6 +9,7 @@ const modals = {
   DELETE_MACHINE_POOL: 'delete-machine-pool',
   DELETE_PROTECTION: 'delete-protection',
   EDIT_APPLICATION_INGRESS: 'edit-application-ingress',
+  EDIT_AUTO_NODE: 'edit-auto-node',
   EDIT_CLUSTER_AUTOSCALING_V2: 'edit-cluster-autoscaling-v2',
   EDIT_CLUSTER_INGRESS: 'edit-cluster-ingress',
   EDIT_CLUSTER_WIDE_PROXY: 'EDIT_CLUSTER_WIDE_PROXY',
