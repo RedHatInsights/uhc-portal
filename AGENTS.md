@@ -26,7 +26,7 @@ API types and generation:   README.md
 src/
   bootstrap.ts          # App entry point
   chrome-main.tsx       # Module federation root
-  common/               # Shared utilities, link definitions (docLinks, supportLinks, installLinks)
+  common/               # Shared utilities, UI components, and link definitions (docLinks, supportLinks, installLinks)
   components/           # Feature components organized by domain
   config/               # Environment and app configuration
   hoc/                  # Higher-order components
