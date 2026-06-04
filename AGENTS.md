@@ -38,6 +38,18 @@ src/
   types/                # OpenAPI-generated TypeScript types
 ```
 
+Other relevant top-level directories:
+
+```text
+docs/           # Project documentation and coding guidelines
+openapi/        # OpenAPI specs and type generation
+playwright/     # Playwright E2E tests
+cypress/        # Cypress E2E tests (legacy)
+.storybook/     # Storybook configuration
+mockdata/       # Mock API data for local development
+__mocks__/      # Jest module mocks
+```
+
 ## PR and Commit Conventions
 
 When opening a pull request, follow the PR template in [`.github/pull_request_template.md`](.github/pull_request_template.md).
