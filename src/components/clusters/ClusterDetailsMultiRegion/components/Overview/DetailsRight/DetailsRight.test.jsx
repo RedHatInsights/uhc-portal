@@ -1497,6 +1497,90 @@ describe('<DetailsRight />', () => {
       const link = screen.getByText('Learn more about autoscaling');
       expect(link).toHaveAttribute('href', docLinks.OSD_CLUSTER_AUTOSCALING);
     });
+
+    it('shows helper text when autoscale is enabled and autonode is enabled', () => {
+      // Arrange
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      useFetchMachineOrNodePools.mockReturnValue({
+        data: machinePoolsFixtures.nodePoolsWithAutoScale,
+      });
+
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+        },
+        hasAutoscaleCluster: false,
+      };
+
+      render(<DetailsRight {...newProps} />);
+
+      // Assert
+      expect(
+        screen.getByText(
+          'Min/Max applies to machine pool nodes only. Autonode (Karpenter) may provision additional nodes beyond this range.',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('does not show autonode helper text when autoscale is enabled but autonode is disabled', () => {
+      // Arrange
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      useFetchMachineOrNodePools.mockReturnValue({
+        data: machinePoolsFixtures.nodePoolsWithAutoScale,
+      });
+
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'disabled' },
+        },
+        hasAutoscaleCluster: false,
+      };
+
+      render(<DetailsRight {...newProps} />);
+
+      // Assert
+      expect(
+        screen.queryByText(
+          'Min/Max applies to machine pool nodes only. Autonode (Karpenter) may provision additional nodes beyond this range.',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not show autonode helper text when autonode feature gate is disabled', () => {
+      // Arrange
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, false]]);
+      const clusterFixture = defaultProps.cluster;
+      useFetchMachineOrNodePools.mockReturnValue({
+        data: machinePoolsFixtures.nodePoolsWithAutoScale,
+      });
+
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+        },
+        hasAutoscaleCluster: false,
+      };
+
+      render(<DetailsRight {...newProps} />);
+
+      // Assert
+      expect(
+        screen.queryByText(
+          'Min/Max applies to machine pool nodes only. Autonode (Karpenter) may provision additional nodes beyond this range.',
+        ),
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe('OIDC config', () => {

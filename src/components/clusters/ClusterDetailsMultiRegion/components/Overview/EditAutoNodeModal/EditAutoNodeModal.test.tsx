@@ -388,19 +388,6 @@ describe('<EditAutoNodeModal />', () => {
       expect(input).toHaveValue('');
     });
 
-    it('resets ARN field to existing value when Autonode is toggled off on an enabled cluster', async () => {
-      const { user } = render(<EditAutoNodeModal cluster={enabledCluster} onClose={onClose} />);
-
-      const input = screen.getByDisplayValue(
-        'arn:aws:iam::123456789012:role/ManagedOpenShift-Autonode-Role',
-      );
-      await user.clear(input);
-      await user.type(input, 'arn:aws:iam::999999999999:role/NewRole');
-
-      // Note: the switch is disabled for enabledCluster, so this test only applies
-      // if you allow toggling off in some scenario. If not, skip this test.
-    });
-
     it('clears ARN validation error when Autonode is toggled off', async () => {
       const { user } = render(<EditAutoNodeModal cluster={defaultCluster} onClose={onClose} />);
 

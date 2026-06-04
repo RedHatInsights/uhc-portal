@@ -11,6 +11,8 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   Flex,
+  HelperText,
+  HelperTextItem,
   Timestamp,
   TimestampFormat,
 } from '@patternfly/react-core';
@@ -443,6 +445,18 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
             <span className="pf-v6-u-ml-lg autoscale-data-t">Max: </span>
             {totalMaxNodesCount}
           </DescriptionListDescription>
+          {isAutoNodeAllowed && cluster?.auto_node?.mode === 'enabled' ? (
+            <DescriptionListDescription>
+              <HelperText>
+                <HelperTextItem variant="indeterminate">
+                  <i>
+                    Min/Max applies to machine pool nodes only. Autonode (Karpenter) may provision
+                    additional nodes beyond this range.
+                  </i>
+                </HelperTextItem>
+              </HelperText>
+            </DescriptionListDescription>
+          ) : null}
         </DescriptionListGroup>
       )}
       {/* IMDS */}
