@@ -16,9 +16,13 @@ unit-testing:               unit-testing.md
 e2e-testing:                Playwright-e2e-test-automation-guidelines.md
 e2e-testing FAQ:            Playwright-e2e-test-automation-faq.md
 
+root: openapi/
+
+API types and generation:   README.md
+
 ## Project structure
 
-```
+```text
 src/
   bootstrap.ts          # App entry point
   chrome-main.tsx       # Module federation root

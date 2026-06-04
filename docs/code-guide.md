@@ -16,7 +16,7 @@ Use these guidelines during development and code reviews. When in doubt or if a 
 - kebab-case for shell scripts and config files.
 - `UPPER_SNAKE_CASE` for true constants
 - Boolean props prefixed with `is`, `has`, `can`, `should`
-- Circular dependencies checked in CI: `yarn find-circular-dependencies`
+- Circular dependencies checked in CI: `npm run find-circular-dependencies`
 - Before creating a new hook, query, utility, or helper function, search the entire codebase for existing implementations — not just shared folders like `src/queries/` or `src/hooks/`. This is a legacy codebase and existing implementations may live inside other component folders. If you find a duplicate, reuse it and consider extracting it to a shared location.
 - Do not extend existing duplication. If you find the same business logic implemented in multiple places (e.g., the same calculation in different files for Day 1 vs Day 2, or JS vs TS versions), do not add another variant. Flag the duplication and consolidate into a single shared function before using it.
 - Before writing new logic (calculations, conditionals, data transformations), check if the same logic already exists in parent components, sibling components, or nearby files. Reuse existing logic rather than reimplementing it.
@@ -30,7 +30,7 @@ Components should be properly broken down into UI elements responsible for a sin
 
 Example folder structure for a hypothetical `UsersList` component:
 
-```
+```text
 UsersList/
 ├── UsersList.tsx           # Container component
 ├── UsersList.test.tsx      
@@ -142,6 +142,7 @@ Import order is enforced by `simple-import-sort`:
 4. Relative `../` imports
 5. Relative `./` imports
 6. Style imports (`.css`, `.scss`)
+7. Side effect imports
 
 ## TypeScript 
 
