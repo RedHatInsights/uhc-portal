@@ -492,7 +492,8 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                 ariaLabel="Edit Autonode settings"
                 disableReason={
                   // Update to !cluster?.canUpdateClusterResource once https://redhat.atlassian.net/browse/ROSAENG-8210 is resolved
-                  (!cluster?.canEdit && 'You do not have permission to edit Autonode settings.') ||
+                  (!cluster?.canUpdateClusterResource &&
+                    'You do not have permission to edit Autonode settings.') ||
                   (!isAutoNodeVersionValid &&
                     `Autonode requires OpenShift version ${AUTO_NODE_MIN_VERSION} or above.`) ||
                   (cluster?.state !== clusterStates.ready &&
