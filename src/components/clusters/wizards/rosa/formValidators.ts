@@ -1,6 +1,7 @@
 import type { FormikValues } from 'formik';
 
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import { isRosaHcpLogForwardingSubmitContext } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingTreeFromQueryClient';
 import { validateLogForwardingFields } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation';
 
 import { stepId } from './rosaWizardConstants';
@@ -26,10 +27,8 @@ const addMinMaxError = (
 
 const rosaWizardFormValidator = (values: FormikValues, activeStepId?: string | number) => {
   const autoScaler = values[FieldId.ClusterAutoscaling];
-  const logForwardingEnabled =
-    values[FieldId.LogForwardingS3Enabled] || values[FieldId.LogForwardingCloudWatchEnabled];
   const validateLogForwarding =
-    logForwardingEnabled &&
+    isRosaHcpLogForwardingSubmitContext({}, values) &&
     (activeStepId === stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING ||
       activeStepId === stepId.REVIEW_AND_CREATE);
   const logForwardingErrors = validateLogForwarding ? validateLogForwardingFields(values) : {};

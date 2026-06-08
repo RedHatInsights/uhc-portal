@@ -85,6 +85,18 @@ export enum StepId {
 
 const hypershiftDefaultSelected = true;
 
+export const logForwardingInitialFieldValues = {
+  [FieldId.LogForwardingS3Enabled]: false,
+  [FieldId.LogForwardingS3BucketName]: '',
+  [FieldId.LogForwardingS3BucketPrefix]: '',
+  [FieldId.LogForwardingS3SelectedItems]: [],
+  [FieldId.LogForwardingCloudWatchEnabled]: false,
+  [FieldId.LogForwardingCloudWatchPrerequisiteAck]: false,
+  [FieldId.LogForwardingCloudWatchLogGroupName]: '',
+  [FieldId.LogForwardingCloudWatchRoleArn]: '',
+  [FieldId.LogForwardingCloudWatchSelectedItems]: [],
+};
+
 export const initialValuesHypershift = (isHypershift: boolean, isMultiRegionEnabled?: boolean) =>
   isHypershift
     ? {
@@ -159,15 +171,7 @@ export const initialValues: (hypershiftDefault?: boolean) => FormikValues = (
   [FieldId.VersionChannel]: '',
   [FieldId.WorkerVolumeSizeGib]: defaultWorkerNodeVolumeSizeGiB,
 
-  [FieldId.LogForwardingS3Enabled]: false,
-  [FieldId.LogForwardingS3BucketName]: '',
-  [FieldId.LogForwardingS3BucketPrefix]: '',
-  [FieldId.LogForwardingS3SelectedItems]: [],
-  [FieldId.LogForwardingCloudWatchEnabled]: false,
-  [FieldId.LogForwardingCloudWatchPrerequisiteAck]: false,
-  [FieldId.LogForwardingCloudWatchLogGroupName]: '',
-  [FieldId.LogForwardingCloudWatchRoleArn]: '',
-  [FieldId.LogForwardingCloudWatchSelectedItems]: [],
+  ...logForwardingInitialFieldValues,
 
   // Optional fields based on whether Hypershift is selected or not
   ...initialValuesHypershift(hypershiftDefault),

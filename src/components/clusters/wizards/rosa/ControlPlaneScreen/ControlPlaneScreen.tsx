@@ -25,7 +25,7 @@ import RedHat from '~/styles/images/Logo-Red_Hat-B-Standard-RGB.png';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { NO_ROLE_DETECTED } from '../AccountsRolesScreen/AccountRolesARNsSection/AccountRolesARNsSection';
-import { FieldId, initialValuesHypershift } from '../constants';
+import { FieldId, initialValuesHypershift, logForwardingInitialFieldValues } from '../constants';
 
 import { hypershiftValue } from './ControlPlaneCommon';
 import { HostedTile } from './HostedTile';
@@ -68,6 +68,7 @@ const ControlPlaneField = ({
     setValues({
       ...formValues,
       ...initialValuesHypershift(isHypershift === 'true', isMultiRegionEnabled),
+      ...logForwardingInitialFieldValues,
       [FieldId.Hypershift]: isHypershift,
       // Uncheck the following Network checkboxes when switching Control plane selection
       [FieldId.InstallToVpc]: false,

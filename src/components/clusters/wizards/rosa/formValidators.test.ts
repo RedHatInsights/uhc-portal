@@ -15,6 +15,12 @@ const logForwardingOff = {
   [FieldId.LogForwardingCloudWatchEnabled]: false,
 };
 
+const rosaHcpLogForwardingContext = {
+  [FieldId.Hypershift]: 'true',
+  [FieldId.Product]: 'ROSA',
+  [FieldId.CloudProvider]: 'aws',
+};
+
 const validAutoscaling = {
   resource_limits: {
     cores: { min: 0, max: 128 },
@@ -53,6 +59,7 @@ describe('rosaWizardFormValidator', () => {
         [FieldId.ClusterAutoscaling]: null,
         [FieldId.LogForwardingS3Enabled]: true,
         [FieldId.LogForwardingCloudWatchEnabled]: false,
+        ...rosaHcpLogForwardingContext,
       },
       logForwardingStep,
     );
@@ -89,6 +96,7 @@ describe('rosaWizardFormValidator', () => {
           [FieldId.ClusterAutoscaling]: undefined,
           [FieldId.LogForwardingCloudWatchEnabled]: true,
           [FieldId.LogForwardingS3Enabled]: false,
+          ...rosaHcpLogForwardingContext,
         },
         logForwardingStep,
       ),
@@ -118,6 +126,7 @@ describe('rosaWizardFormValidator', () => {
         [FieldId.ClusterAutoscaling]: validAutoscaling,
         [FieldId.LogForwardingS3Enabled]: true,
         [FieldId.LogForwardingCloudWatchEnabled]: false,
+        ...rosaHcpLogForwardingContext,
       },
       logForwardingStep,
     );
@@ -192,6 +201,7 @@ describe('rosaWizardFormValidator', () => {
         },
         [FieldId.LogForwardingS3Enabled]: true,
         [FieldId.LogForwardingCloudWatchEnabled]: false,
+        ...rosaHcpLogForwardingContext,
       },
       logForwardingStep,
     );
@@ -217,6 +227,7 @@ describe('rosaWizardFormValidator', () => {
         [FieldId.ClusterAutoscaling]: null,
         [FieldId.LogForwardingS3Enabled]: false,
         [FieldId.LogForwardingCloudWatchEnabled]: true,
+        ...rosaHcpLogForwardingContext,
       },
       logForwardingStep,
     );
@@ -228,7 +239,7 @@ describe('rosaWizardFormValidator', () => {
     );
   });
 
-  it('validates log forwarding on the review step', () => {
+  it('validates log forwarding on the review step for ROSA HCP clusters', () => {
     mockValidateLogForwardingFields.mockReturnValue({
       [FieldId.LogForwardingCloudWatchRoleArn]: 'Role ARN is required.',
     });
@@ -238,11 +249,35 @@ describe('rosaWizardFormValidator', () => {
         {
           [FieldId.ClusterAutoscaling]: null,
           [FieldId.LogForwardingCloudWatchEnabled]: true,
+          [FieldId.LogForwardingS3Enabled]: true,
+          ...rosaHcpLogForwardingContext,
         },
         stepId.REVIEW_AND_CREATE,
       ),
     ).toEqual({
       [FieldId.LogForwardingCloudWatchRoleArn]: 'Role ARN is required.',
     });
+  });
+
+  it('skips log forwarding validation on the review step after switching to classic control plane', () => {
+    mockValidateLogForwardingFields.mockReturnValue({
+      [FieldId.LogForwardingCloudWatchRoleArn]: 'Role ARN is required.',
+    });
+
+    expect(
+      rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: null,
+          [FieldId.LogForwardingCloudWatchEnabled]: true,
+          [FieldId.LogForwardingS3Enabled]: true,
+          [FieldId.Hypershift]: 'false',
+          [FieldId.Product]: 'ROSA',
+          [FieldId.CloudProvider]: 'aws',
+        },
+        stepId.REVIEW_AND_CREATE,
+      ),
+    ).toEqual({});
+
+    expect(mockValidateLogForwardingFields).not.toHaveBeenCalled();
   });
 });
