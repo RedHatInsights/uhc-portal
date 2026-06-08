@@ -377,7 +377,7 @@ export const useCanUpdateDeleteProtection = (clusterID: string | undefined) => {
         action: SelfAccessReviewAction.update,
         resource_type: SelfAccessReviewResourceType.DeleteProtection,
         cluster_id: clusterID,
-      } as SelfAccessReview);
+      });
 
       return response;
     },

@@ -63,7 +63,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
   );
 
   const { canUpdateDeleteProtection } = useCanUpdateDeleteProtection(
-    subscription?.subscription.cluster_id as string,
+    subscription?.subscription.cluster_id,
   );
 
   const {
