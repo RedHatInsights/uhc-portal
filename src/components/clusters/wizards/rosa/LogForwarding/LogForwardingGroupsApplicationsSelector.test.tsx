@@ -105,6 +105,29 @@ describe('<LogForwardingGroupsApplicationsSelector />', () => {
     expect(screen.getByTestId('groups-applications-selector')).toBeInTheDocument();
   });
 
+  it('shows a warning and still renders the selector when loading applications fails', () => {
+    mockUseFetchLogForwardingApplications.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+      error: { errorMessage: 'Service unavailable' },
+    });
+
+    renderSelector();
+
+    expect(
+      screen.getByText(
+        'Could not load all applications. Some options may be missing from the list.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Service unavailable')).toBeInTheDocument();
+    expect(screen.getByTestId('groups-applications-selector')).toBeInTheDocument();
+    expect(screen.getByTestId('groups-applications-selector')).toHaveAttribute(
+      'data-has-other',
+      'false',
+    );
+  });
+
   it('shows an error alert when loading groups fails', () => {
     mockUseFetchLogForwardingGroups.mockReturnValue({
       data: undefined,

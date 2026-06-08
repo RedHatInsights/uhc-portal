@@ -7,7 +7,6 @@ import {
   stringToArrayTrimmed,
   strToKeyValueObject,
 } from '~/common/helpers';
-import { queryClient } from '~/components/App/queryClient';
 import { getClusterAutoScalingSubmitSettings } from '~/components/clusters/common/clusterAutoScalingValues';
 import { parseFormExcludeNamespaceSelectorsToApi } from '~/components/clusters/wizards/common/excludeNamespaceSelectorsForm';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
@@ -15,10 +14,9 @@ import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ApplicationIngressType } from '~/components/clusters/wizards/osd/Networking/constants';
 import { FieldId as RosaFieldId } from '~/components/clusters/wizards/rosa/constants';
 import { getRosaLogForwardersForClusterRequest } from '~/components/clusters/wizards/rosa/LogForwarding/buildClusterLogForwarders';
-import { buildOtherGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
+import { getLogForwardingTreeForClusterRequest } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingTreeFromQueryClient';
 import config from '~/config';
 import { regionalizedClusterId } from '~/queries/helpers';
-import { queryConstants } from '~/queries/queriesConstants';
 import { createCluster } from '~/redux/actions/clustersActions';
 import { DEFAULT_FLAVOUR_ID } from '~/redux/actions/flavourActions';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
@@ -30,7 +28,11 @@ import {
 } from './constants';
 import * as submitRequestHelpers from './submitOSDRequestHelper';
 
-export const createClusterRequest = ({ isWizard = true, cloudProviderID, product }, formData) => {
+export const createClusterRequest = (
+  { isWizard = true, cloudProviderID, product },
+  formData,
+  { logForwardingTree } = {},
+) => {
   const isMultiAz = formData.multi_az === 'true';
   // See submitOSDRequest.test.js for when we get fields vs side params.
   // But to avoid bugs where we ignore user's choices, when both are present, the field should win.
@@ -443,11 +445,6 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
     actualProduct === 'ROSA' &&
     actualCloudProviderID === 'aws'
   ) {
-    const groupsTree = queryClient.getQueryData([queryConstants.FETCH_LOG_FORWARDING_GROUPS]) ?? [];
-    const applications =
-      queryClient.getQueryData([queryConstants.FETCH_LOG_FORWARDING_APPLICATIONS]) ?? [];
-    const otherNode = buildOtherGroupTreeNode(applications, groupsTree);
-    const logForwardingTree = otherNode ? [...groupsTree, otherNode] : groupsTree;
     const logForwarders = getRosaLogForwardersForClusterRequest(formData, logForwardingTree);
     if (logForwarders.length > 0) {
       clusterRequest.control_plane = {
@@ -473,7 +470,13 @@ export const upgradeScheduleRequest = (formData) =>
 const submitOSDRequest = (dispatch, params) => (formData) => {
   const regionalId = regionalizedClusterId(formData);
   const { isWizard, cloudProviderID, product } = params;
-  const clusterRequest = createClusterRequest({ isWizard, cloudProviderID, product }, formData);
+  const logForwardingTree = getLogForwardingTreeForClusterRequest(
+    { isWizard, cloudProviderID, product },
+    formData,
+  );
+  const clusterRequest = createClusterRequest({ isWizard, cloudProviderID, product }, formData, {
+    logForwardingTree,
+  });
   const upgradeSchedule = upgradeScheduleRequest(formData);
   dispatch(createCluster(clusterRequest, upgradeSchedule, regionalId));
 };

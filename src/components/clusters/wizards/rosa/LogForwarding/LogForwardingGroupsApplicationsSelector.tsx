@@ -9,7 +9,7 @@ import {
   GroupsApplicationsSelector,
   type GroupsApplicationsSelectorProps,
 } from '~/components/common/GroupsApplicationsSelector/GroupsApplicationsSelector';
-import { buildOtherGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
+import { buildLogForwardingTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 import { useFetchLogForwardingApplications } from '~/queries/RosaWizardQueries/useFetchLogForwardingApplications';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
 
@@ -38,17 +38,19 @@ export function LogForwardingGroupsApplicationsSelector({
   } = useFetchLogForwardingGroups({ s3On, cwOn });
 
   // Applications are used only to build the "Other" group; a failure here is non-fatal.
-  const { data: applications = [], isLoading: isAppsLoading } = useFetchLogForwardingApplications({
-    s3On,
-    cwOn,
-  });
+  const {
+    data: applications = [],
+    isLoading: isAppsLoading,
+    isError: isAppsError,
+    error: appsError,
+  } = useFetchLogForwardingApplications({ s3On, cwOn });
 
   const isLoading = isGroupsLoading || isAppsLoading;
 
-  const treeData = useMemo(() => {
-    const otherNode = buildOtherGroupTreeNode(applications, groupsTree);
-    return otherNode ? [...groupsTree, otherNode] : groupsTree;
-  }, [groupsTree, applications]);
+  const treeData = useMemo(
+    () => buildLogForwardingTree(groupsTree, applications),
+    [groupsTree, applications],
+  );
 
   if (isGroupsError) {
     return <ErrorBox message="Could not load log forwarding groups" response={groupsError ?? {}} />;
@@ -59,10 +61,19 @@ export function LogForwardingGroupsApplicationsSelector({
   }
 
   return (
-    <GroupsApplicationsSelector
-      {...selectorProps}
-      treeData={treeData}
-      containerMaxHeight={containerMaxHeight ?? ''}
-    />
+    <>
+      {isAppsError && (
+        <ErrorBox
+          variant="warning"
+          message="Could not load all applications. Some options may be missing from the list."
+          response={appsError ?? {}}
+        />
+      )}
+      <GroupsApplicationsSelector
+        {...selectorProps}
+        treeData={treeData}
+        containerMaxHeight={containerMaxHeight ?? ''}
+      />
+    </>
   );
 }

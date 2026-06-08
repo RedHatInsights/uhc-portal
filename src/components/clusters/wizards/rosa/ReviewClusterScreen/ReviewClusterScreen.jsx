@@ -25,6 +25,7 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import { getUserRoleForSelectedAWSAccount } from '~/components/clusters/wizards/rosa/AccountsRolesScreen/AccountsRolesScreen';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { LogForwardingReviewDetails } from '~/components/clusters/wizards/rosa/LogForwarding/LogForwardingReviewDetails';
+import { getLogForwardingTreeForClusterRequest } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingTreeFromQueryClient';
 import {
   stepId as rosaStepId,
   stepNameById as rosaStepNameById,
@@ -157,7 +158,12 @@ const ReviewClusterScreen = ({
           isOpen={isSyncEditorModalOpen}
           closeCallback={() => setIsSyncEditorModalOpen(false)}
           content={ClusterRequestTranslatorFactory.createClusterRequestTranslator(product).toYaml(
-            createClusterRequest({ isWizard: true }, formValues),
+            createClusterRequest({ isWizard: true }, formValues, {
+              logForwardingTree: getLogForwardingTreeForClusterRequest(
+                { product, cloudProviderID: formValues.cloud_provider },
+                formValues,
+              ),
+            }),
           )}
           schema={{
             uri: 'https://api.openshift.com/api/clusters_mgmt/v1/openapi#/components/schemas/Cluster',

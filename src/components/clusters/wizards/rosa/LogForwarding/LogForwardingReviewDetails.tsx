@@ -13,8 +13,9 @@ import {
 } from '@patternfly/react-core';
 
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import ErrorBox from '~/components/common/ErrorBox';
 import type { LogForwardingGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
-import { buildOtherGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
+import { buildLogForwardingTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 import { groupSelectedLogForwardingItems } from '~/components/common/GroupsApplicationsSelector/logForwardingReviewHelpers';
 import { useFetchLogForwardingApplications } from '~/queries/RosaWizardQueries/useFetchLogForwardingApplications';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
@@ -31,6 +32,9 @@ type FormValuesShape = {
 };
 
 const noneLabel = <span className="pf-v6-u-disabled-color-100">None</span>;
+
+const applicationsLoadWarningMessage =
+  'Could not load all applications. Some options may be missing from the list.';
 
 const selectedAppsDescription = (
   selectedIds: string[] | undefined,
@@ -75,15 +79,32 @@ export function LogForwardingReviewDetails({ formValues }: { formValues: FormVal
   const cwOn = !!formValues[FieldId.LogForwardingCloudWatchEnabled];
   const { data: groupsTree = [], isLoading: isLogForwardingTreeLoading } =
     useFetchLogForwardingGroups({ s3On, cwOn });
-  const { data: applications = [] } = useFetchLogForwardingApplications({ s3On, cwOn });
-  const otherNode = buildOtherGroupTreeNode(applications, groupsTree);
-  const logForwardingTree = otherNode ? [...groupsTree, otherNode] : groupsTree;
+  const {
+    data: applications = [],
+    isError: isAppsError,
+    error: appsError,
+  } = useFetchLogForwardingApplications({ s3On, cwOn });
+  const logForwardingTree = buildLogForwardingTree(groupsTree, applications);
   const s3BucketPrefixRaw = formValues[FieldId.LogForwardingS3BucketPrefix];
   const s3BucketPrefixTrimmed =
     typeof s3BucketPrefixRaw === 'string' ? s3BucketPrefixRaw.trim() : '';
 
   return (
     <>
+      {isAppsError && (s3On || cwOn) ? (
+        <DescriptionListGroup>
+          <DescriptionListTerm>
+            <span className="pf-v6-u-screen-reader">Applications catalog</span>
+          </DescriptionListTerm>
+          <DescriptionListDescription>
+            <ErrorBox
+              variant="warning"
+              message={applicationsLoadWarningMessage}
+              response={appsError ?? {}}
+            />
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      ) : null}
       <DescriptionListGroup>
         <DescriptionListTerm>
           <Title headingLevel="h4">Amazon S3</Title>

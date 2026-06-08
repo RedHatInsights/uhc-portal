@@ -114,3 +114,12 @@ export function buildOtherGroupTreeNode(
     children: others,
   };
 }
+
+/** Merges API group tree nodes with a synthetic "Other" group when needed. */
+export function buildLogForwardingTree(
+  groupsTree: LogForwardingGroupTreeNode[],
+  applications: LogForwarderApplication[],
+): LogForwardingGroupTreeNode[] {
+  const otherNode = buildOtherGroupTreeNode(applications, groupsTree);
+  return otherNode ? [...groupsTree, otherNode] : groupsTree;
+}

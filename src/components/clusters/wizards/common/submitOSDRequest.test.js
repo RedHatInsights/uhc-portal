@@ -1,10 +1,9 @@
 import pick from 'lodash/pick';
 
-import { queryClient } from '~/components/App/queryClient';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { mockLogForwardingGroupTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
-import { queryConstants } from '~/queries/queriesConstants';
+import { buildLogForwardingTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 
 import { normalizedProducts } from '../../../../common/subscriptionTypes';
 
@@ -658,11 +657,6 @@ describe('createClusterRequest', () => {
   });
 
   describe('CreateROSAWizard', () => {
-    afterEach(() => {
-      queryClient.removeQueries({ queryKey: [queryConstants.FETCH_LOG_FORWARDING_GROUPS] });
-      queryClient.removeQueries({ queryKey: [queryConstants.FETCH_LOG_FORWARDING_APPLICATIONS] });
-    });
-
     describe('ROSA button', () => {
       const hcpSubnetDetails = {
         selected_vpc: awsRosaOsdVPCData,
@@ -786,10 +780,6 @@ describe('createClusterRequest', () => {
       });
 
       it('includes control_plane.log_forwarders for ROSA HCP when log forwarding is configured', () => {
-        queryClient.setQueryData(
-          [queryConstants.FETCH_LOG_FORWARDING_GROUPS],
-          mockLogForwardingGroupTree,
-        );
         const data = {
           ...rosaFormData,
           billing_model: 'standard',
@@ -813,7 +803,9 @@ describe('createClusterRequest', () => {
             'auth-konnectivity-agent',
           ],
         };
-        const request = createClusterRequest({}, data);
+        const request = createClusterRequest({}, data, {
+          logForwardingTree: buildLogForwardingTree(mockLogForwardingGroupTree, []),
+        });
         expect(request.control_plane?.log_forwarders).toEqual({
           items: [
             {
@@ -837,15 +829,10 @@ describe('createClusterRequest', () => {
       });
 
       it('includes Other-group applications as individual applications in the request', () => {
-        queryClient.setQueryData(
-          [queryConstants.FETCH_LOG_FORWARDING_GROUPS],
-          mockLogForwardingGroupTree,
-        );
         // kube-dns is not covered by any group in mockLogForwardingGroupTree, so it lands in Other
-        queryClient.setQueryData(
-          [queryConstants.FETCH_LOG_FORWARDING_APPLICATIONS],
-          [{ name: 'kube-dns', enabled: true }],
-        );
+        const logForwardingTree = buildLogForwardingTree(mockLogForwardingGroupTree, [
+          { name: 'kube-dns', enabled: true },
+        ]);
         const data = {
           ...rosaFormData,
           billing_model: 'standard',
@@ -861,7 +848,7 @@ describe('createClusterRequest', () => {
           [FieldId.LogForwardingS3SelectedItems]: ['kube-dns'],
           [FieldId.LogForwardingCloudWatchEnabled]: false,
         };
-        const request = createClusterRequest({}, data);
+        const request = createClusterRequest({}, data, { logForwardingTree });
         expect(request.control_plane?.log_forwarders).toEqual({
           items: [
             {
@@ -874,10 +861,6 @@ describe('createClusterRequest', () => {
       });
 
       it('omits control_plane.log_forwarders when neither S3 nor CloudWatch log forwarding is enabled', () => {
-        queryClient.setQueryData(
-          [queryConstants.FETCH_LOG_FORWARDING_GROUPS],
-          mockLogForwardingGroupTree,
-        );
         const data = {
           ...rosaFormData,
           billing_model: 'standard',

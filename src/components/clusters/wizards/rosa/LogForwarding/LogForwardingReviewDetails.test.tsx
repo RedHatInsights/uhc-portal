@@ -16,6 +16,9 @@ jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingGroups');
 const mockUseFetchLogForwardingApplications = useFetchLogForwardingApplications as jest.Mock;
 const mockUseFetchLogForwardingGroups = useFetchLogForwardingGroups as jest.Mock;
 
+const applicationsLoadWarningMessage =
+  'Could not load all applications. Some options may be missing from the list.';
+
 const baseForm = {
   [FieldId.LogForwardingS3Enabled]: false,
   [FieldId.LogForwardingS3BucketName]: '',
@@ -30,7 +33,12 @@ const baseForm = {
 describe('LogForwardingReviewDetails', () => {
   beforeEach(() => {
     mockUseFetchLogForwardingApplications.mockReset();
-    mockUseFetchLogForwardingApplications.mockReturnValue({ data: [] });
+    mockUseFetchLogForwardingApplications.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
 
     mockUseFetchLogForwardingGroups.mockReset();
     mockUseFetchLogForwardingGroups.mockReturnValue({
@@ -277,6 +285,78 @@ describe('LogForwardingReviewDetails', () => {
     );
 
     expect(screen.getByText('orphan-id')).toBeInTheDocument();
+  });
+
+  it('shows a warning when loading applications fails but still renders review details', () => {
+    mockUseFetchLogForwardingApplications.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+      error: { errorMessage: 'Service unavailable' },
+    });
+
+    render(
+      <DescriptionList>
+        <LogForwardingReviewDetails
+          formValues={{
+            ...baseForm,
+            [FieldId.LogForwardingS3Enabled]: true,
+            [FieldId.LogForwardingS3BucketName]: 'my-bucket',
+            [FieldId.LogForwardingS3SelectedItems]: ['api-audit'],
+          }}
+        />
+      </DescriptionList>,
+    );
+
+    expect(screen.getByText(applicationsLoadWarningMessage)).toBeInTheDocument();
+    expect(screen.getByText('Service unavailable')).toBeInTheDocument();
+    expect(screen.getByText('my-bucket')).toBeInTheDocument();
+    expect(screen.getByText('audit')).toBeInTheDocument();
+  });
+
+  it('shows the applications warning once when both S3 and CloudWatch are enabled', () => {
+    mockUseFetchLogForwardingApplications.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+      error: { errorMessage: 'Service unavailable' },
+    });
+
+    render(
+      <DescriptionList>
+        <LogForwardingReviewDetails
+          formValues={{
+            ...baseForm,
+            [FieldId.LogForwardingS3Enabled]: true,
+            [FieldId.LogForwardingS3BucketName]: 's3-bucket',
+            [FieldId.LogForwardingS3SelectedItems]: ['api-audit'],
+            [FieldId.LogForwardingCloudWatchEnabled]: true,
+            [FieldId.LogForwardingCloudWatchLogGroupName]: '/cw',
+            [FieldId.LogForwardingCloudWatchRoleArn]: 'arn:aws:iam::123456789012:role/x',
+            [FieldId.LogForwardingCloudWatchSelectedItems]: ['sample-app'],
+          }}
+        />
+      </DescriptionList>,
+    );
+
+    expect(screen.getAllByText(applicationsLoadWarningMessage)).toHaveLength(1);
+  });
+
+  it('does not show an applications warning when log forwarding is disabled', () => {
+    mockUseFetchLogForwardingApplications.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+      error: { errorMessage: 'Service unavailable' },
+    });
+
+    render(
+      <DescriptionList>
+        <LogForwardingReviewDetails formValues={baseForm} />
+      </DescriptionList>,
+    );
+
+    expect(screen.queryByText(applicationsLoadWarningMessage)).not.toBeInTheDocument();
   });
 
   it('shows Other group applications that are selected but not covered by any group', () => {

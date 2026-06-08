@@ -7,6 +7,7 @@ import {
   createClusterRequest,
   upgradeScheduleRequest,
 } from '~/components/clusters/wizards/common/submitOSDRequest';
+import { getLogForwardingTreeForClusterRequest } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingTreeFromQueryClient';
 
 interface DebugClusterRequestProps {
   cloudProvider: string;
@@ -23,7 +24,12 @@ export const DebugClusterRequest = ({
   let upgradeSchedule;
 
   try {
-    clusterRequest = createClusterRequest({ product, cloudProviderID: cloudProvider }, formValues);
+    clusterRequest = createClusterRequest({ product, cloudProviderID: cloudProvider }, formValues, {
+      logForwardingTree: getLogForwardingTreeForClusterRequest(
+        { product, cloudProviderID: cloudProvider },
+        formValues,
+      ),
+    });
   } catch (err) {
     clusterRequest = `error computing cluster request: ${err}`;
   }

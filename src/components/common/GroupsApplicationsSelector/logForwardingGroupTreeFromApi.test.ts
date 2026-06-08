@@ -1,4 +1,5 @@
 import {
+  buildLogForwardingTree,
   buildOtherGroupTreeNode,
   compareLogForwarderVersionIds,
   LOG_FORWARDING_OTHER_GROUP_ROOT_ID,
@@ -133,5 +134,16 @@ describe('buildOtherGroupTreeNode', () => {
 
   it('returns null when the applications list is empty', () => {
     expect(buildOtherGroupTreeNode([], groupsTree)).toBeNull();
+  });
+
+  it('buildLogForwardingTree returns groups only when no orphan applications exist', () => {
+    expect(buildLogForwardingTree(groupsTree, [])).toEqual(groupsTree);
+  });
+
+  it('buildLogForwardingTree appends the Other group when orphan applications exist', () => {
+    const tree = buildLogForwardingTree(groupsTree, [{ name: 'orphan-app', enabled: true }]);
+    expect(tree).toHaveLength(groupsTree.length + 1);
+    expect(tree.at(-1)?.text).toBe('Other');
+    expect(tree.at(-1)?.children?.map((c) => c.id)).toEqual(['orphan-app']);
   });
 });
