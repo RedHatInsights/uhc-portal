@@ -23,7 +23,7 @@ Clusters.forEach((clusterProperties) => {
         await navigateTo('create');
       });
       test(`Launch OSD cluster wizard`, async ({ createOSDWizardPage }) => {
-        await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
+        await createOSDWizardPage.openOsdCreateClusterWizard();
         await createOSDWizardPage.isCreateOSDPage();
       });
 
@@ -768,7 +768,6 @@ Clusters.forEach((clusterProperties) => {
           ClustersValidation.ClusterSettings.Machinepool.Common.NodeLabel[2].KeyError,
           false,
         );
-
         await createOSDWizardPage.wizardNextButton().click();
       });
 
@@ -873,6 +872,158 @@ Clusters.forEach((clusterProperties) => {
             .ExcludedNamespaces[1].Error,
           false,
         );
+
+        const excludeNamespaceSelectors =
+          ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
+            .ExcludeNamespaceSelectors;
+
+        await expect(createOSDWizardPage.excludeNamespaceSelectorsSection()).toBeVisible();
+        await expect(page.getByText(excludeNamespaceSelectors.HelpText)).toBeVisible();
+
+        await createOSDWizardPage.excludeNamespaceSelectorsMoreInfoButton().click();
+        await expect(
+          page.getByRole('dialog').getByText(excludeNamespaceSelectors.PopoverTitle),
+        ).toBeVisible();
+        await createOSDWizardPage.closePopoverDialogs();
+
+        // Key exceeds 63 characters
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.UpperCharacterLimitValue);
+        await createOSDWizardPage.excludeNamespaceSelectorValuesInput(0).fill('prod');
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.KeyUpperCharacterLimitError,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Each comma-separated value segment exceeds 63 characters
+        await createOSDWizardPage.excludeNamespaceSelectorKeyInput(0).fill('env');
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.UpperCharacterLimitValue);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.ValueUpperCharacterLimitError,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.ValueUpperCharacterLimitInList.Key);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.ValueUpperCharacterLimitInList.Value);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.ValueUpperCharacterLimitError,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Unsupported characters in key field
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.UnsupportedKeyCharacters.Value);
+        await createOSDWizardPage.excludeNamespaceSelectorValuesInput(0).fill('prod');
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.UnsupportedKeyCharacters.Error,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Missing key — values entered without a key
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.MissingKey.Value);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.MissingKey.Error,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Missing values — key entered without values
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.MissingValues.Key);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.MissingValues.Value);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.MissingValues.Error,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Unsupported characters in value field (invalid comma-separated segment)
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.UnsupportedValueCharacters.Key);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.UnsupportedValueCharacters.Value);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorErrorContaining(
+          excludeNamespaceSelectors.UnsupportedValueCharacters.ErrorContains,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Reserved namespace values in value field
+        for (const reserved of excludeNamespaceSelectors.ReservedNamespaces) {
+          await createOSDWizardPage.excludeNamespaceSelectorKeyInput(0).fill(reserved.Key);
+          await createOSDWizardPage.excludeNamespaceSelectorValuesInput(0).fill(reserved.Value);
+          await createOSDWizardPage.expectExcludeNamespaceSelectorError(reserved.Error);
+          await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+        }
+
+        // Duplicate key across selector rows
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.DuplicateKey.Key);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.DuplicateKey.FirstValue);
+        await createOSDWizardPage.addExcludeNamespaceSelectorRow();
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(1)
+          .fill(excludeNamespaceSelectors.DuplicateKey.Key);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(1)
+          .fill(excludeNamespaceSelectors.DuplicateKey.SecondValue);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.DuplicateKey.Error,
+        );
+
+        await createOSDWizardPage
+          .excludeNamespaceSelectorsSection()
+          .getByRole('button', { name: 'Remove item' })
+          .nth(1)
+          .click();
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Erasing a previously entered key leaves values and shows missing-key error
+        await createOSDWizardPage.fillExcludeNamespaceSelector(
+          0,
+          excludeNamespaceSelectors.ClearedKey.Key,
+          excludeNamespaceSelectors.ClearedKey.Value,
+        );
+        await createOSDWizardPage.excludeNamespaceSelectorKeyInput(0).clear();
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.ClearedKey.Value);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.ClearedKey.ErrorAfterClear,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Valid key and values clear validation errors
+        await createOSDWizardPage.fillExcludeNamespaceSelector(
+          0,
+          excludeNamespaceSelectors.Valid.Key,
+          excludeNamespaceSelectors.Valid.Value,
+        );
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.ReservedNamespaces[0].Error,
+          false,
+        );
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.DuplicateKey.Error,
+          false,
+        );
+
         if (clusterProperties.AuthenticationType?.includes('Workload Identity Federation')) {
           await createOSDWizardPage.installIntoExistingVpcCheckBox().check();
           await createOSDWizardPage.wizardNextButton().click();
