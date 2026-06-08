@@ -1,5 +1,6 @@
-import { expect,Locator, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 
+import { DEFAULT_NAVIGATION_TIMEOUT } from '../support/playwright-constants';
 import { BaseWizardPage } from './base-wizard-page';
 
 /**
@@ -774,6 +775,19 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.locator('span input[id="kms_key_arn"]');
   }
 
+  /**
+   * Opens the OSD billing step via direct URL navigation (not the create landing button).
+   * Always reloads so parameterized serial suites sharing one page start from a clean wizard.
+   */
+  async openOsdCreateClusterWizard(): Promise<void> {
+    await this.page.goto('create/osd', {
+      waitUntil: 'domcontentloaded',
+      timeout: DEFAULT_NAVIGATION_TIMEOUT,
+    });
+    await this.closePopoverDialogs();
+    await this.isBillingModelScreen();
+  }
+
   // OSD-only application ingress selectors (shared ingress locators live on BaseWizardPage).
   applicationIngressExcludeNamespaceSelectorKeyInput(): Locator {
     return this.page.getByRole('textbox', { name: 'Exclude namespace selector key' });
@@ -789,6 +803,149 @@ export class CreateOSDWizardPage extends BaseWizardPage {
 
   applicationIngressWildcardPolicyAllowedRadio(): Locator {
     return this.page.getByRole('switch', { name: /^(Allowed|Disallowed)$/ });
+  }
+
+  async selectApplicationIngressCustomSettings(): Promise<void> {
+    const customSettingsRadio = this.page.getByRole('radio', { name: 'Custom settings' });
+    await customSettingsRadio.scrollIntoViewIfNeeded();
+    await customSettingsRadio.check();
+    await expect(customSettingsRadio).toBeChecked();
+  }
+
+  async ensureExcludeNamespaceSelectorsSectionVisible(): Promise<void> {
+    await this.page.getByText('Application ingress settings').scrollIntoViewIfNeeded();
+    await expect(this.excludeNamespaceSelectorsSection()).toBeVisible();
+  }
+
+  async expectApplicationIngressRouteFieldsEmpty(): Promise<void> {
+    await expect(this.applicationIngressRouterSelectorsInput()).toHaveValue('');
+    await expect(this.applicationIngressExcludedNamespacesInput()).toHaveValue('');
+  }
+
+  async expectApplicationIngressEmptyOnReview(): Promise<void> {
+    await expect(this.routeSelectorsReviewValue()).toHaveText('None specified');
+    await expect(this.excludedNamespacesReviewValue()).toHaveText('None specified');
+    await expect(this.excludeNamespaceSelectorsReviewValue()).toHaveText('None specified');
+  }
+
+  namespaceOwnershipPolicySwitch(): Locator {
+    return this.page.getByRole('switch', { name: 'Strict' });
+  }
+
+  wildcardPolicySwitch(): Locator {
+    return this.page.getByRole('switch', { name: 'Disallowed' });
+  }
+
+  excludeNamespaceSelectorsSection(): Locator {
+    return this.page.getByTestId('default-ingress-exclude-namespace-selectors');
+  }
+
+  excludeNamespaceSelectorsLabel(): Locator {
+    return this.excludeNamespaceSelectorsSection()
+      .locator('.pf-v6-c-form__group-label')
+      .getByText('Exclude namespace selectors', { exact: true });
+  }
+
+  excludeNamespaceSelectorsLabelHelpIcon(): Locator {
+    return this.excludeNamespaceSelectorsSection().locator('.pf-v6-c-form__group-label-help');
+  }
+
+  excludeNamespaceSelectorKeyInput(rowIndex = 0): Locator {
+    return this.excludeNamespaceSelectorsSection()
+      .getByRole('textbox', { name: 'Exclude namespace selector key' })
+      .nth(rowIndex);
+  }
+
+  excludeNamespaceSelectorValuesInput(rowIndex = 0): Locator {
+    return this.excludeNamespaceSelectorsSection()
+      .getByRole('textbox', { name: 'Exclude namespace selector values' })
+      .nth(rowIndex);
+  }
+
+  excludeNamespaceSelectorsAddRowButton(): Locator {
+    return this.excludeNamespaceSelectorsSection().getByRole('button', { name: 'Add selector' });
+  }
+
+  excludeNamespaceSelectorsMoreInfoButton(): Locator {
+    return this.excludeNamespaceSelectorsSection().getByRole('button', {
+      name: 'More information',
+    });
+  }
+
+  /** Spec-facing aliases for existing review-value locators. */
+  routeSelectorsReviewValue(): Locator {
+    return this.routeSelectorsValue();
+  }
+
+  excludedNamespacesReviewValue(): Locator {
+    return this.excludedNamespacesValue();
+  }
+
+  excludeNamespaceSelectorsReviewValue(): Locator {
+    return this.excludeNamespaceSelectorsValue();
+  }
+
+  namespaceOwnershipPolicyReviewValue(): Locator {
+    return this.namespaceOwnershipValue();
+  }
+
+  wildcardPolicyReviewValue(): Locator {
+    return this.wildcardPolicyValue();
+  }
+
+  /**
+   * PatternFly LabelGroup shows at most 3 labels inline; additional labels are behind an "N more"
+   * overflow control. Expands when needed, then asserts each label text is visible on the page.
+   */
+  async expectReviewLabelGroupDisplays(
+    reviewValue: Locator,
+    reviewDisplays: string[],
+  ): Promise<void> {
+    await expect(reviewValue).toBeVisible();
+
+    const overflowButton = reviewValue.getByRole('button', { name: /\d+ more/ });
+    if (await overflowButton.isVisible().catch(() => false)) {
+      await overflowButton.click();
+    }
+
+    for (const reviewDisplay of reviewDisplays) {
+      await expect(this.page.getByText(reviewDisplay, { exact: true })).toBeVisible();
+    }
+  }
+
+  async fillExcludeNamespaceSelector(rowIndex: number, key: string, values: string): Promise<void> {
+    await this.excludeNamespaceSelectorKeyInput(rowIndex).fill(key);
+    await this.excludeNamespaceSelectorValuesInput(rowIndex).fill(values);
+  }
+
+  async addExcludeNamespaceSelectorRow(): Promise<void> {
+    await this.excludeNamespaceSelectorsAddRowButton().click();
+  }
+
+  async clearExcludeNamespaceSelectorRow(rowIndex = 0): Promise<void> {
+    await this.excludeNamespaceSelectorKeyInput(rowIndex).clear();
+    await this.excludeNamespaceSelectorValuesInput(rowIndex).clear();
+  }
+
+  async expectExcludeNamespaceSelectorError(errorText: string, present = true): Promise<void> {
+    const locator = this.excludeNamespaceSelectorsSection().getByText(errorText);
+    if (present) {
+      await expect(locator.first()).toBeVisible();
+    } else {
+      await expect(locator).toHaveCount(0);
+    }
+  }
+
+  async expectExcludeNamespaceSelectorErrorContaining(
+    errorText: string,
+    present = true,
+  ): Promise<void> {
+    const locator = this.excludeNamespaceSelectorsSection().getByText(errorText, { exact: false });
+    if (present) {
+      await expect(locator.first()).toBeVisible();
+    } else {
+      await expect(locator).toHaveCount(0);
+    }
   }
 
   // Validation helper methods
