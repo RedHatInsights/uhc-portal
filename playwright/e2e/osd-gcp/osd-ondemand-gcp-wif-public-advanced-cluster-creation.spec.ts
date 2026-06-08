@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/pages';
+import { expect, test } from '../../fixtures/pages';
 import { getUsernameSuffix } from '../../support/auth-config';
 
 const clusterProperties = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-advanced-cluster-creation.spec.json');
@@ -106,24 +106,53 @@ test.describe.serial(
       await createOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
       await createOSDWizardPage.installIntoExistingVpcCheckBox().check();
       await createOSDWizardPage.applicationIngressCustomSettingsRadio().check();
+      await createOSDWizardPage.ensureExcludeNamespaceSelectorsSectionVisible();
+    });
+
+    test(`OSD ${clusterProperties.CloudProvider} WIF wizard - Networking configuration - custom ingress controller definitions`, async ({
+      createOSDWizardPage,
+    }) => {
+      await createOSDWizardPage.isNetworkingScreen();
+      await createOSDWizardPage.ensureExcludeNamespaceSelectorsSectionVisible();
+
       await createOSDWizardPage
         .applicationIngressRouterSelectorsInput()
         .fill(clusterProperties.RouteSelector.KeyValue);
       await createOSDWizardPage
         .applicationIngressExcludedNamespacesInput()
         .fill(clusterProperties.ExcludedNamespaces.Values);
-      await createOSDWizardPage
-        .applicationIngressExcludeNamespaceSelectorKeyInput()
-        .fill(clusterProperties.ExcludeNamespaceSelectors.Key);
-      await createOSDWizardPage
-        .applicationIngressExcludeNamespaceSelectorValuesInput()
-        .fill(clusterProperties.ExcludeNamespaceSelectors.Values);
-      await expect(
-        createOSDWizardPage.applicationIngressNamespaceOwnershipPolicyRadio(),
-      ).toBeChecked();
-      await expect(
-        createOSDWizardPage.applicationIngressWildcardPolicyAllowedRadio(),
-      ).not.toBeChecked();
+
+      const namespaceSwitch = createOSDWizardPage.namespaceOwnershipPolicySwitch();
+      const wildcardSwitch = createOSDWizardPage.wildcardPolicySwitch();
+      const shouldBeStrict =
+        clusterProperties.NamespaceOwnershipPolicy.toLowerCase().includes('strict');
+      const shouldAllowWildcard = clusterProperties.WildcardPolicy === 'Allowed';
+
+      if ((await namespaceSwitch.isChecked()) !== shouldBeStrict) {
+        await namespaceSwitch.click();
+      }
+      await expect(namespaceSwitch).toBeChecked({ checked: shouldBeStrict });
+
+      if ((await wildcardSwitch.isChecked()) !== shouldAllowWildcard) {
+        await wildcardSwitch.click();
+      }
+      if (shouldAllowWildcard) {
+        await expect(wildcardSwitch).toBeChecked();
+      } else {
+        await expect(wildcardSwitch).not.toBeChecked();
+      }
+
+      await expect(createOSDWizardPage.applicationIngressRouterSelectorsInput()).toHaveValue(
+        clusterProperties.RouteSelector.KeyValue,
+      );
+      await expect(createOSDWizardPage.applicationIngressExcludedNamespacesInput()).toHaveValue(
+        clusterProperties.ExcludedNamespaces.Values,
+      );
+
+      await createOSDWizardPage.fillAllExcludeNamespaceSelectors(
+        clusterProperties.ExcludeNamespaceSelectors,
+      );
+
       await createOSDWizardPage.wizardNextButton().click();
     });
 
@@ -238,10 +267,14 @@ test.describe.serial(
         clusterProperties.RouteSelector.KeyValue.replace('=', ' = '),
       );
       for (const namespace of clusterProperties.ExcludedNamespaces.Values.split(',')) {
+        // eslint-disable-next-line no-await-in-loop
         await expect(createOSDWizardPage.excludedNamespacesValue()).toContainText(namespace.trim());
       }
-      await expect(createOSDWizardPage.excludeNamespaceSelectorsValue()).toContainText(
-        `${clusterProperties.ExcludeNamespaceSelectors.Key} = ${clusterProperties.ExcludeNamespaceSelectors.Values.split(',').join(', ')}`,
+      await createOSDWizardPage.expectReviewLabelGroupDisplays(
+        createOSDWizardPage.excludeNamespaceSelectorsValue(),
+        clusterProperties.ExcludeNamespaceSelectors.map(
+          (selector: { ReviewDisplay: string }) => selector.ReviewDisplay,
+        ),
       );
       await expect(createOSDWizardPage.wildcardPolicyValue()).toContainText(
         clusterProperties.WildcardPolicy,
