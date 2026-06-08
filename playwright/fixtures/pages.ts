@@ -7,6 +7,7 @@ import {
 } from '@playwright/test';
 import { ClusterDetailsPage } from '../page-objects/cluster-details-page';
 import { MachinePoolsPage } from '../page-objects/machine-pools-page';
+import { NetworkingPage } from '../page-objects/networking-page';
 import { ClusterListPage } from '../page-objects/cluster-list-page';
 import { ClusterRequestsPage } from '../page-objects/cluster-requests-page';
 import { ClusterTypesPage } from '../page-objects/cluster-types-page';
@@ -38,6 +39,7 @@ type WorkerFixtures = {
   authenticatedPage: Page;
   clusterDetailsPage: ClusterDetailsPage;
   machinePoolsPage: MachinePoolsPage;
+  networkingPage: NetworkingPage;
   clusterListPage: ClusterListPage;
   clusterRequestsPage: ClusterRequestsPage;
   clusterTypesPage: ClusterTypesPage;
@@ -143,6 +145,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   machinePoolsPage: [
     async ({ authenticatedPage }, use) => {
       const pageObject = new MachinePoolsPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: NetworkingPage instance - created once, reused across all tests in suite
+  networkingPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new NetworkingPage(authenticatedPage);
       await use(pageObject);
     },
     { scope: 'worker' },

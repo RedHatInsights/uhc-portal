@@ -31,9 +31,22 @@
   "ServiceCIDR": "172.30.0.0/16",
   "PodCIDR": "10.128.0.0/14",
   "HostPrefix": "/23",
-  "ApplicationIngress": "Use default settings",
+  "ApplicationIngress": "Custom settings",
+  "ExcludeNamespaceSelectorsHelpText": "Namespaces matching any of these label selectors will be excluded from the default ingress controller.",
   "UpdateStrategy": "Individual updates",
   "NodeDraining": "60 minutes",
+  "ExcludeNamespaceSelectors": [
+    {
+      "Key": "department",
+      "Values": "finance,hr",
+      "ReviewDisplay": "department = finance, hr"
+    },
+    {
+      "Key": "kubernetes.io/metadata.name",
+      "Values": "workloads",
+      "ReviewDisplay": "kubernetes.io/metadata.name = workloads"
+    }
+  ],
   "MachinePools": [
     {
       "Name": "worker",
@@ -55,6 +68,13 @@
       "ServiceCIDR": "172.30.0.0/16",
       "PodCIDR": "10.128.0.0/14",
       "Hostprefix": "/23"
+    }
+  },
+  "Day2": {
+    "ClusterNamePrefix": "ocmui-smoke-osd-curated-gcp-wif",
+    "ApplicationIngress": {
+      "RouteSelectorLabel": "Route selector",
+      "ExcludedNamespacesLabel": "Excluded namespaces"
     }
   }
 }

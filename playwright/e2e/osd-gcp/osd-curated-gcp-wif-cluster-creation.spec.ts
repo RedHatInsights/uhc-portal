@@ -11,13 +11,12 @@ const region = PSC_INFRA.REGION || clusterProperties.Region.split(',')[0];
 
 test.describe.serial(
   'OSD GCP Curated Marketplace WIF cluster creation tests (OCMUI-3888)',
-  { tag: ['@smoke', '@osd', '@curated'] },
+  { tag: ['@smoke', '@osd', '@curated', '@custom-ingress'] },
   () => {
-    test.beforeAll(async ({ navigateTo }) => {
+    test.beforeAll(async ({ page, navigateTo }) => {
       if (!QE_GCP_WIF_CONFIG?.trim()) {
         throw new Error('QE_GCP_WIF_CONFIG must be set for curated GCP WIF tests');
       }
-      // Navigate directly to curated OSD GCP wizard
       await navigateTo('create/osdgcp');
     });
 
@@ -82,11 +81,30 @@ test.describe.serial(
       await page.locator(createOSDWizardPage.primaryButton).click();
     });
 
-    test(`OSD GCP curated wizard - ${clusterProperties.CloudProvider} -${clusterProperties.AuthenticationType} -${clusterProperties.Marketplace} : Networking configuration - cluster privacy definitions`, async ({
+    test(`OSD GCP curated wizard - ${clusterProperties.CloudProvider} -${clusterProperties.AuthenticationType} -${clusterProperties.Marketplace} : Networking configuration - cluster privacy and application ingress definitions`, async ({
       page,
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isNetworkingScreen();
+      await createOSDWizardPage.applicationIngressCustomSettingsRadio().check();
+      await expect(createOSDWizardPage.excludeNamespaceSelectorsSection()).toBeVisible();
+      await expect(
+        page.getByText(clusterProperties.ExcludeNamespaceSelectorsHelpText),
+      ).toBeVisible();
+
+      const selectors = clusterProperties.ExcludeNamespaceSelectors;
+      await createOSDWizardPage.fillExcludeNamespaceSelector(
+        0,
+        selectors[0].Key,
+        selectors[0].Values,
+      );
+      await createOSDWizardPage.addExcludeNamespaceSelectorRow();
+      await createOSDWizardPage.fillExcludeNamespaceSelector(
+        1,
+        selectors[1].Key,
+        selectors[1].Values,
+      );
+
       await createOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
       await expect(createOSDWizardPage.installIntoExistingVpcCheckBox()).toBeChecked();
       await page.locator(createOSDWizardPage.primaryButton).click();
@@ -204,6 +222,11 @@ test.describe.serial(
       await expect(createOSDWizardPage.applicationIngressValue()).toContainText(
         clusterProperties.ApplicationIngress,
       );
+      const excludeNamespaceSelectorsReview =
+        createOSDWizardPage.excludeNamespaceSelectorsReviewValue();
+      for (const selector of clusterProperties.ExcludeNamespaceSelectors) {
+        await expect(excludeNamespaceSelectorsReview).toContainText(selector.ReviewDisplay);
+      }
       await expect(createOSDWizardPage.updateStratergyValue()).toContainText(
         clusterProperties.UpdateStrategy,
       );
