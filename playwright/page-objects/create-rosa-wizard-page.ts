@@ -529,11 +529,19 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   versionSelectorToggle(): Locator {
-    return this.page.locator('button[id="version-selector"]');
+    return this.page.locator('#version-selector');
   }
 
   versionOptionByChannel(channel: string): Locator {
     return this.page.getByRole('option', { name: new RegExp(`\\(${channel}\\)`) }).first();
+  }
+
+  channelSelect(): Locator {
+    return this.page.getByRole('combobox', { name: 'Channel' });
+  }
+
+  channelSelectOption(channelPrefix: string): Locator {
+    return this.page.getByRole('option', { name: new RegExp(`^${channelPrefix}-`) }).first();
   }
 
   async selectMachinePoolPrivateSubnet(

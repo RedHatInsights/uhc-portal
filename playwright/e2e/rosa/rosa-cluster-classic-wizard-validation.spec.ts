@@ -103,6 +103,11 @@ test.describe.serial(
       await expect(createRosaWizardPage.versionOptionByChannel('fast')).toBeVisible();
       await createRosaWizardPage.versionSelectorToggle().click();
 
+      // Open the channel dropdown and verify a fast option exists
+      await createRosaWizardPage.channelSelect().click();
+      await expect(createRosaWizardPage.channelSelectOption('fast')).toBeAttached();
+      await createRosaWizardPage.channelSelect().click();
+
       await createRosaWizardPage.advancedEncryptionLink().click();
       await createRosaWizardPage.useCustomKMSKeyRadio().check();
       await createRosaWizardPage.customerManageKeyARNInput().click();
