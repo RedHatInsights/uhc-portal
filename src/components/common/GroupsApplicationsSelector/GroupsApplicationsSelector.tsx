@@ -17,6 +17,7 @@ import {
   TreeViewDataItem,
 } from '@patternfly/react-core';
 
+import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
 
 import type { LogForwardingGroupTreeNode } from './logForwardingGroupTreeData';
@@ -59,7 +60,7 @@ export function GroupsApplicationsSelector({
   listMinHeight = '300px',
   containerMaxHeight = '800px',
 }: GroupsApplicationsSelectorProps) {
-  const [field, , helpers] = useField<string[]>(name);
+  const [field, meta, helpers] = useField<string[]>(name);
   const chosenLeafIds = useMemo(() => field.value ?? [], [field.value]);
 
   const memoizedLeavesById = useMemo(() => {
@@ -238,7 +239,7 @@ export function GroupsApplicationsSelector({
             <CardBody style={cardBodyFillStyle}>
               <FormGroup
                 className={formGroupFillClassName}
-                fieldId={chosenFieldId}
+                fieldId={name}
                 label={chosenTitle}
                 labelHelp={chosenTooltip ? <PopoverHint hint={chosenTooltip} /> : undefined}
                 isRequired={isRequired}
@@ -292,6 +293,7 @@ export function GroupsApplicationsSelector({
           </Card>
         </FlexItem>
       </Flex>
+      <FormGroupHelperText touched={meta.touched} error={meta.error} />
     </div>
   );
 }
