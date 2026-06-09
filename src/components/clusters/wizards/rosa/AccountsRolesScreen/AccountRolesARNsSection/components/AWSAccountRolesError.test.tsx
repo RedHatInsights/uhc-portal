@@ -13,6 +13,7 @@ const defaultProps: ComponentProps<typeof AWSAccountRolesError> = {
   },
   isHypershiftSelected: false,
   isMissingOCMRole: false,
+  onRefreshOCMRole: jest.fn(),
 };
 
 describe('<AWSAccountRolesError />', () => {
@@ -30,6 +31,35 @@ describe('<AWSAccountRolesError />', () => {
       render(<AWSAccountRolesError {...defaultProps} isNoConsoleRole={false} />);
 
       expect(screen.queryByText('OCM role has limited permissions')).not.toBeInTheDocument();
+    });
+
+    it('shows Refresh OCM role button and calls onRefreshOCMRole when clicked', async () => {
+      const onRefreshOCMRole = jest.fn();
+      render(
+        <AWSAccountRolesError
+          {...defaultProps}
+          isNoConsoleRole
+          onRefreshOCMRole={onRefreshOCMRole}
+        />,
+      );
+
+      const button = screen.getByRole('button', { name: /refresh ocm role/i });
+      expect(button).toBeInTheDocument();
+      button.click();
+      expect(onRefreshOCMRole).toHaveBeenCalledTimes(1);
+    });
+
+    it('disables Refresh OCM role button while OCM role is pending', () => {
+      render(
+        <AWSAccountRolesError
+          {...defaultProps}
+          isNoConsoleRole
+          onRefreshOCMRole={jest.fn()}
+          isOCMRolePending
+        />,
+      );
+
+      expect(screen.getByRole('button', { name: /refresh ocm role/i })).toBeDisabled();
     });
 
     it('takes precedence over other error states', () => {

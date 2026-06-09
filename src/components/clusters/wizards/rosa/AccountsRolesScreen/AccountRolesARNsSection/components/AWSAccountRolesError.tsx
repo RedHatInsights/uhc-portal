@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Alert, Content, ContentVariants } from '@patternfly/react-core';
+import { Alert, Button, Content, ContentVariants } from '@patternfly/react-core';
 
 import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import ErrorBox from '~/components/common/ErrorBox';
@@ -15,6 +15,8 @@ type Props = {
   isHypershiftSelected: boolean;
   isMissingOCMRole: boolean;
   isNoConsoleRole?: boolean;
+  onRefreshOCMRole: () => void;
+  isOCMRolePending?: boolean;
 };
 
 function AWSAccountRolesError({
@@ -22,6 +24,8 @@ function AWSAccountRolesError({
   isHypershiftSelected,
   isMissingOCMRole,
   isNoConsoleRole,
+  onRefreshOCMRole,
+  isOCMRolePending,
 }: Props) {
   if (isNoConsoleRole) {
     return (
@@ -39,6 +43,19 @@ function AWSAccountRolesError({
           <a href="TODO" target="_blank" rel="noopener noreferrer">
             Learn more about OCM role permissions
           </a>
+          <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
+            After updating your OCM role, check again:
+            <Button
+              variant="link"
+              isInline
+              isLoading={isOCMRolePending}
+              isDisabled={isOCMRolePending}
+              onClick={onRefreshOCMRole}
+              className="pf-v6-u-ml-sm"
+            >
+              Refresh OCM role
+            </Button>
+          </Content>
         </Content>
       </Alert>
     );

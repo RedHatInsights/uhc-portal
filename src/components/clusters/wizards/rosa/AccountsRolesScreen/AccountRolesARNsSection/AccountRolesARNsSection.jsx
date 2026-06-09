@@ -31,7 +31,10 @@ import useAnalytics from '~/hooks/useAnalytics';
 import { usePreviousProps } from '~/hooks/usePreviousProps';
 import { HCP_USE_UNMANAGED, OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import {
+  refetchGetOCMRole,
+  useFetchGetOCMRole,
+} from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 
 import { FieldId } from '../../constants';
 import { RosaCliCommand } from '../constants/cliCommands';
@@ -118,8 +121,11 @@ function AccountRolesARNsSection({
   const [hasManagedPolicies, setHasManagedPolicies] = useState(false);
   const useHCPManagedAndUnmanaged = useFeatureGate(HCP_USE_UNMANAGED);
   const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
-  const { data: ocmRoleData, isSuccess: isOCMRoleSuccess } =
-    useFetchGetOCMRole(selectedAWSAccountID);
+  const {
+    data: ocmRoleData,
+    isSuccess: isOCMRoleSuccess,
+    isPending: isOCMRolePending,
+  } = useFetchGetOCMRole(selectedAWSAccountID);
   const isNoConsoleRole =
     hasNoConsoleFlag && isOCMRoleSuccess && ocmRoleData?.data?.profile === 'no_console';
   const isMissingOCMRole = hasNoTrustedRelationshipOnClusterRoleError(
@@ -367,6 +373,8 @@ function AccountRolesARNsSection({
             isHypershiftSelected={isHypershiftSelected}
             isMissingOCMRole={isMissingOCMRole}
             isNoConsoleRole={isNoConsoleRole}
+            onRefreshOCMRole={() => refetchGetOCMRole(selectedAWSAccountID)}
+            isOCMRolePending={isOCMRolePending}
           />
         </GridItem>
       ) : null}
