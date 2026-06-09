@@ -43,8 +43,8 @@ const AddOnsSubscription = ({
   };
   const activeSubscription = subscriptionModels[activeCardId];
 
-  // TODO: We are hiding RHM and Azure options for now until backend is ready
-  const hideRhmAzureForNow = true;
+  // TODO: We are hiding Azure options for now until backend is ready
+  const hideAzureForNow = true;
   // TODO: PATCH operation to change billing model after install not yet supported
   const cannotModifyBillingAfterInstall = Boolean(installedAddOn);
 
@@ -140,7 +140,7 @@ const AddOnsSubscription = ({
         name="AWS Marketplace"
         cloudProvider="aws"
       />
-      {!hideRhmAzureForNow && (
+      {!hideAzureForNow && (
         <AddOnsSubscriptionCard
           subscriptionModels={subscriptionModels}
           setSubscriptionModel={setSubscriptionModel}

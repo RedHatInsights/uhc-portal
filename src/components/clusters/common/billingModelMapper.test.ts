@@ -27,10 +27,6 @@ describe('billingModelMapper', () => {
         SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
         RelatedResourceBillingModel.marketplace,
       ],
-      [
-        SubscriptionCommonFieldsClusterBillingModel.marketplace_rhm,
-        RelatedResourceBillingModel.marketplace,
-      ],
       [SubscriptionCommonFieldsClusterBillingModel.standard, RelatedResourceBillingModel.standard],
       ['any', RelatedResourceBillingModel.any],
       ['whatever', undefined],

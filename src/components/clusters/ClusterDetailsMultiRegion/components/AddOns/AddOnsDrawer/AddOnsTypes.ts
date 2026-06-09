@@ -1,6 +1,6 @@
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
-export type CloudProviders = 'rhm' | 'aws' | 'azure';
+export type CloudProviders = 'aws' | 'azure';
 
 export type CloudAccount = {
   // eslint-disable-next-line camelcase

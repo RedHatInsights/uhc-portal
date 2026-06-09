@@ -222,12 +222,6 @@ export const billingQuota = {
   },
   marketplace: {
     cloudAccounts: {
-      rhm: [
-        {
-          cloud_account_id: 'fakeRHMarketplaceAccount',
-          cloud_provider_id: 'rhm',
-        },
-      ],
       aws: [
         {
           cloud_account_id: '000000000004',

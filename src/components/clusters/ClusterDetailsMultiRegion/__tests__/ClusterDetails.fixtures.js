@@ -443,16 +443,6 @@ const OSDTrialClusterDetails = produce(CCSClusterDetails, (draft) => {
   };
 });
 
-const OSDRHMClusterDetails = produce(CCSClusterDetails, (draft) => {
-  draft.cluster.product = { id: normalizedProducts.OSD };
-  draft.cluster.subscription.plan = {
-    id: normalizedProducts.OSD,
-    type: normalizedProducts.OSD,
-  };
-  draft.cluster.subscription.cluster_billing_model =
-    SubscriptionCommonFieldsClusterBillingModel.marketplace;
-});
-
 const OSDGCPClusterDetails = produce(CCSClusterDetails, (draft) => {
   draft.cluster.product = { id: normalizedProducts.OSD };
   draft.cluster.subscription.plan = {
@@ -1132,7 +1122,6 @@ const fixtures = {
   clusterDetails,
   CCSClusterDetails,
   OSDTrialClusterDetails,
-  OSDRHMClusterDetails,
   OSDGCPClusterDetails,
   ROSAClusterDetails,
   ROSAManualClusterDetails,
