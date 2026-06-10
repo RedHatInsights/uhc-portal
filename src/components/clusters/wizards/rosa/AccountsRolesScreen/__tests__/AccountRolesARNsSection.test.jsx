@@ -2,7 +2,10 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import docLinks from '~/common/docLinks.mjs';
-import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
+import {
+  OCM_ROLE_NO_CONSOLE_PROFILE,
+  ROSA_HOSTED_CLI_MIN_VERSION,
+} from '~/components/clusters/wizards/rosa/rosaConstants';
 import { HCP_USE_UNMANAGED, OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
 import * as useFetchGetOCMRoleModule from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
@@ -371,7 +374,7 @@ describe('<AccountRolesARNsSection />', () => {
     it('shows limited permissions error when feature gate is on and profile is no_console', async () => {
       mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
       jest.spyOn(useFetchGetOCMRoleModule, 'useFetchGetOCMRole').mockReturnValue({
-        data: { data: { profile: 'no_console', isAdmin: false } },
+        data: { data: { profile: OCM_ROLE_NO_CONSOLE_PROFILE, isAdmin: false } },
         isSuccess: true,
       });
 
@@ -384,7 +387,7 @@ describe('<AccountRolesARNsSection />', () => {
     it('does not show error when feature gate is off even if profile is no_console', async () => {
       mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
       jest.spyOn(useFetchGetOCMRoleModule, 'useFetchGetOCMRole').mockReturnValue({
-        data: { data: { profile: 'no_console', isAdmin: false } },
+        data: { data: { profile: OCM_ROLE_NO_CONSOLE_PROFILE, isAdmin: false } },
         isSuccess: true,
       });
 

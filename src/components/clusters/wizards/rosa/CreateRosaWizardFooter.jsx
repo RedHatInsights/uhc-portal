@@ -23,6 +23,7 @@ import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRo
 
 import { isUserRoleForSelectedAWSAccount } from './AccountsRolesScreen/AccountsRolesScreen';
 import { FieldId } from './constants';
+import { OCM_ROLE_NO_CONSOLE_PROFILE } from './rosaConstants';
 import { hasLoadingState, stepId } from './rosaWizardConstants';
 
 // Must return the step in which VPCDropdown is located, as it's in charge of fetching the VPCs
@@ -81,7 +82,9 @@ const CreateRosaWizardFooter = ({
     isSuccess: isOCMRoleSuccess,
   } = useFetchGetOCMRole(values[FieldId.AssociatedAwsId]);
   const isNoConsoleRole =
-    hasNoConsoleFlag && isOCMRoleSuccess && ocmRoleData?.data?.profile === 'no_console';
+    hasNoConsoleFlag &&
+    isOCMRoleSuccess &&
+    ocmRoleData?.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
 
   const areAwsResourcesLoading =
     awsRequests.accountIDsLoading ||

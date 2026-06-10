@@ -1,6 +1,6 @@
 import React, { ComponentProps } from 'react';
 
-import { render, screen } from '~/testUtils';
+import { render, screen, userEvent } from '~/testUtils';
 
 import AWSAccountRolesError from './AWSAccountRolesError';
 
@@ -45,7 +45,7 @@ describe('<AWSAccountRolesError />', () => {
 
       const button = screen.getByRole('button', { name: /refresh ocm role/i });
       expect(button).toBeInTheDocument();
-      button.click();
+      await userEvent.click(button);
       expect(onRefreshOCMRole).toHaveBeenCalledTimes(1);
     });
 

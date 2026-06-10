@@ -21,7 +21,10 @@ import docLinks from '~/common/docLinks.mjs';
 import { formatMinorVersion, isSupportedMinorVersion } from '~/common/helpers';
 import { Link } from '~/common/routing';
 import { useFormState } from '~/components/clusters/wizards/hooks';
-import { MIN_MANAGED_POLICY_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
+import {
+  MIN_MANAGED_POLICY_VERSION,
+  OCM_ROLE_NO_CONSOLE_PROFILE,
+} from '~/components/clusters/wizards/rosa/rosaConstants';
 import ExternalLink from '~/components/common/ExternalLink';
 import InstructionCommand from '~/components/common/InstructionCommand';
 import { ReduxSelectDropdown } from '~/components/common/ReduxFormComponents_deprecated';
@@ -127,7 +130,9 @@ function AccountRolesARNsSection({
     isPending: isOCMRolePending,
   } = useFetchGetOCMRole(selectedAWSAccountID);
   const isNoConsoleRole =
-    hasNoConsoleFlag && isOCMRoleSuccess && ocmRoleData?.data?.profile === 'no_console';
+    hasNoConsoleFlag &&
+    isOCMRoleSuccess &&
+    ocmRoleData?.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
   const isMissingOCMRole = hasNoTrustedRelationshipOnClusterRoleError(
     getAWSAccountRolesARNsResponse,
   );
