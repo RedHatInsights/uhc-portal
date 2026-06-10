@@ -24,7 +24,6 @@ jest.mock('../common/useFetchSubscription', () => ({
 jest.mock('./useFetchActionsPermissions', () => ({
   useFetchActionsPermissions: jest.fn(),
   useCanDeleteAccessReview: jest.fn(),
-  useCanUpdateDeleteProtection: jest.fn(),
 }));
 
 // Mock queryClient.invalidateQueries
@@ -86,13 +85,6 @@ describe('useClusterDetails hook', () => {
       isError: false,
       error: null,
     });
-    useFetchActionsPermissionsMock.useCanUpdateDeleteProtection.mockReturnValue({
-      isLoading: false,
-      canUpdateDeleteProtection: true,
-      isError: false,
-      error: null,
-    });
-
     const { result } = renderHook(() => useFetchClusterDetails(subscriptionID));
 
     await waitFor(() => {
@@ -102,10 +94,9 @@ describe('useClusterDetails hook', () => {
     expect(result.current.cluster?.id).toBe(mockedClusterResponse.data.id);
     expect(result.current.cluster?.canEdit).toBe(true);
     expect(result.current.cluster?.canUpdateClusterResource).toBe(true);
-    expect(result.current.cluster?.canUpdateDeleteProtection).toBe(true);
   });
 
-  it('useClusterDetails reflects false permissions for canUpdateClusterResource and canUpdateDeleteProtection', async () => {
+  it('useClusterDetails reflects false permissions for canUpdateClusterResource', async () => {
     const subscriptionID = 'mockedSubscriptionID';
 
     const useFetchSubscriptionMock = jest.requireMock('../common/useFetchSubscription');
@@ -148,13 +139,6 @@ describe('useClusterDetails hook', () => {
       isError: false,
       error: null,
     });
-    useFetchActionsPermissionsMock.useCanUpdateDeleteProtection.mockReturnValue({
-      isLoading: false,
-      canUpdateDeleteProtection: false,
-      isError: false,
-      error: null,
-    });
-
     const { result } = renderHook(() => useFetchClusterDetails(subscriptionID));
 
     await waitFor(() => {
@@ -162,7 +146,6 @@ describe('useClusterDetails hook', () => {
     });
 
     expect(result.current.cluster?.canUpdateClusterResource).toBe(false);
-    expect(result.current.cluster?.canUpdateDeleteProtection).toBe(false);
   });
 
   it('useSubscription error results in useClusterDetails error response', async () => {

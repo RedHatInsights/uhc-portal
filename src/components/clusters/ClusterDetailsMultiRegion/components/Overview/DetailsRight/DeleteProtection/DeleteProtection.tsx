@@ -11,24 +11,25 @@ import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import EditButton from '~/components/common/EditButton';
 import { openModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
+import { useCanUpdateDeleteProtection } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 const DeleteProtection = ({
   protectionEnabled,
   clusterID,
-  canToggle,
   isUninstalling,
   pending,
   region,
 }: {
   protectionEnabled: boolean;
   clusterID: string;
-  canToggle: boolean;
   isUninstalling?: boolean;
   pending?: boolean;
   region?: string;
 }) => {
+  const { canUpdateDeleteProtection, isLoading } = useCanUpdateDeleteProtection(clusterID);
+  const canToggle = !!canUpdateDeleteProtection && !isLoading;
   const useEusChannel = useFeatureGate(ALLOW_EUS_CHANNEL);
   const dispatch = useDispatch();
   const disableToggleReason =
