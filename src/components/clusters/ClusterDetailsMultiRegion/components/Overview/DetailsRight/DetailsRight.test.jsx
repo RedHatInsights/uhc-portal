@@ -2074,6 +2074,30 @@ describe('<DetailsRight />', () => {
       expect(screen.getByTestId('autoNodeStatus')).toHaveTextContent('Enabled');
       expect(screen.queryByText('arn:')).not.toBeInTheDocument();
     });
+
+    it('renders Autonode doc link in the popover hint', async () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+        },
+      };
+
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      const { user } = render(<DetailsRight {...newProps} />);
+
+      const moreInfoBtn = await screen.findByRole('button', {
+        name: 'More information about Autonode',
+      });
+      await user.click(moreInfoBtn);
+
+      const link = screen.getByText('Learn more');
+      expect(link).toHaveAttribute('href', docLinks.ROSA_AUTONODE);
+    });
   });
 
   describe('in restricted env', () => {

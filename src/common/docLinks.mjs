@@ -77,6 +77,7 @@ const docLinks = {
   ROSA_AWS_FEDRAMP: `${ROSA_DOCS_BASE}/getting_started_with_red_hat_openshift_service_on_aws_in_aws_govcloud/index`,
   ROSA_HCP_CLI_URL: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-sts-creating-a-cluster-quickly`,
   LEARN_MORE_SSO_ROSA: `${ROSA_DOCS_BASE}/cli_tools/rosa-cli#rosa-login-sso_rosa-getting-started-cli`,
+  ROSA_AUTONODE: `${ROSA_DOCS_BASE}-single/cluster_administration/index#rosa-nodes-autonode-managing`,
 
   // OSD
   OSD_DEDICATED_ADMIN_ROLE: `${OSD_DOCS_BASE}/authentication_and_authorization/osd-admin-roles`,

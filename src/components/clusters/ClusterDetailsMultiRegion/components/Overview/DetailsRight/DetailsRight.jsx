@@ -483,7 +483,12 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
                 id="autonode-hint"
                 iconClassName="nodes-hint"
                 buttonAriaLabel="More information about Autonode"
-                hint="Enables hosted Karpenter to autoscale nodes."
+                hint={
+                  <>
+                    Enables hosted Karpenter to autoscale nodes.{' '}
+                    <ExternalLink href={docLinks.ROSA_AUTONODE}>Learn more</ExternalLink>
+                  </>
+                }
               />
             </DescriptionListTerm>
             <DescriptionListDescription>
