@@ -262,6 +262,51 @@ describe('<GroupsApplicationsSelector />', () => {
     expect(screen.getByText('Select at least one group or application.')).toBeInTheDocument();
   });
 
+  it('hides a stale Formik error when the chosen list is not empty', () => {
+    render(
+      <Formik
+        initialValues={{ [FIELD_NAME]: ['leaf-1'] }}
+        initialTouched={{ [FIELD_NAME]: true }}
+        initialErrors={{ [FIELD_NAME]: 'Select at least one group or application.' }}
+        onSubmit={jest.fn()}
+      >
+        <Form noValidate>
+          <GroupsApplicationsSelector name={FIELD_NAME} treeData={minimalTree} isRequired />
+        </Form>
+      </Formik>,
+    );
+
+    expect(screen.getByText('App One')).toBeInTheDocument();
+    expect(screen.queryByText('Select at least one group or application.')).not.toBeInTheDocument();
+  });
+
+  it('clears the validation error when the user selects an item after a failed submit', async () => {
+    const onSubmit = jest.fn();
+    const { user } = render(
+      <Formik
+        initialValues={{ [FIELD_NAME]: [] as string[] }}
+        validate={(values) => {
+          if (!values[FIELD_NAME]?.length) {
+            return { [FIELD_NAME]: 'Select at least one group or application.' };
+          }
+          return {};
+        }}
+        onSubmit={onSubmit}
+      >
+        <Form noValidate>
+          <GroupsApplicationsSelector name={FIELD_NAME} treeData={minimalTree} isRequired />
+          <button type="submit">Submit</button>
+        </Form>
+      </Formik>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+    expect(screen.getByText('Select at least one group or application.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('checkbox', { name: 'Select Standalone' }));
+    expect(screen.queryByText('Select at least one group or application.')).not.toBeInTheDocument();
+  });
+
   it('shows validation error after submit when selection is required but empty', async () => {
     const onSubmit = jest.fn();
     const { user } = render(
