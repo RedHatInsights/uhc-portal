@@ -1048,6 +1048,48 @@ export class CreateRosaWizardPage extends BasePage {
     });
   }
 
+  // Log forwarding screen selectors
+  logForwardingHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'Control plane log forwarding' });
+  }
+
+  amazonS3EnableCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Enable Amazon S3' });
+  }
+
+  cloudWatchEnableCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Enable CloudWatch' });
+  }
+
+  amazonS3Heading(): Locator {
+    return this.page.getByRole('heading', { name: 'Amazon S3' });
+  }
+
+  cloudWatchHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'CloudWatch' });
+  }
+
+  async isLogForwardingScreen(): Promise<void> {
+    await expect(this.logForwardingHeading()).toBeVisible({ timeout: 30000 });
+  }
+
+  // Log forwarding review section selectors
+  logForwardingReviewSection(): Locator {
+    return this.page.getByRole('region', { name: 'Control plane log forwarding' });
+  }
+
+  logForwardingReviewS3Heading(): Locator {
+    return this.logForwardingReviewSection().getByRole('heading', { name: 'Amazon S3' });
+  }
+
+  logForwardingReviewCloudWatchHeading(): Locator {
+    return this.logForwardingReviewSection().getByRole('heading', { name: 'CloudWatch' });
+  }
+
+  logForwardingReviewConfigurationValues(): Locator {
+    return this.logForwardingReviewSection().getByText('Disabled', { exact: true });
+  }
+
   // Additional validation method for compute node range
   computeNodeRangeValue(): Locator {
     return this.page.getByTestId('Compute-node-range').locator('div');
