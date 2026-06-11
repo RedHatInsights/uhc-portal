@@ -123,13 +123,13 @@ test.describe.serial(
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().uncheck();
 
       await createRosaWizardPage.versionSelectorToggle().click();
-      await expect(createRosaWizardPage.versionOptionByChannel('fast')).toBeVisible();
+      await expect(createRosaWizardPage.versionOptionsByChannel('fast')).not.toHaveCount(0);
       await createRosaWizardPage.versionSelectorToggle().click();
 
       // Open the channel dropdown and verify a fast option exists
       await createRosaWizardPage.channelSelect().click();
-      await expect(createRosaWizardPage.channelSelectOption('fast')).toBeAttached();
-      await createRosaWizardPage.channelSelect().click(); 
+      await expect(createRosaWizardPage.channelSelectOptionsByPrefix('fast')).not.toHaveCount(0);
+      await createRosaWizardPage.channelSelect().click();
 
       // Test encryption validations
       await createRosaWizardPage.advancedEncryptionLink().click();
