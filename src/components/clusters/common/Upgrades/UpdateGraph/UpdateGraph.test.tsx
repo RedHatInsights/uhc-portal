@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { checkAccessibility, render, screen } from '~/testUtils';
+import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 import { AugmentedCluster } from '~/types/types';
 
 import UpdateGraph from './UpdateGraph';
@@ -40,6 +41,10 @@ const defaultProps = {
 };
 
 describe('<UpdateGraph />', () => {
+  beforeEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('is accessible', async () => {
     const { container } = render(
       <UpdateGraph
@@ -88,5 +93,23 @@ describe('<UpdateGraph />', () => {
     expect(
       screen.getByText('Additional versions available between 1.2.3 and 1.2.4'),
     ).toBeInTheDocument();
+  });
+
+  it('shows other-channels notice when Y_STREAM_CHANNEL is enabled', () => {
+    mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
+    render(<UpdateGraph currentVersion="1.2.3" updateVersion={undefined} {...defaultProps} />);
+
+    expect(
+      screen.getByText('Additional versions may be available in other channels'),
+    ).toBeInTheDocument();
+  });
+
+  it('does not show other-channels notice when Y_STREAM_CHANNEL is disabled', () => {
+    mockUseFeatureGate([[Y_STREAM_CHANNEL, false]]);
+    render(<UpdateGraph currentVersion="1.2.3" updateVersion={undefined} {...defaultProps} />);
+
+    expect(
+      screen.queryByText('Additional versions may be available in other channels'),
+    ).not.toBeInTheDocument();
   });
 });

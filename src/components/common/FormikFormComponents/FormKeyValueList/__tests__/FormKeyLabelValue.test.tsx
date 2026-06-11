@@ -41,4 +41,22 @@ describe('<FormKeyLabelValue />', () => {
     // Assert
     expect(onChangeFn).toHaveBeenCalledTimes(inputText.length);
   });
+
+  it('uses valueAriaLabel for the value input when provided', () => {
+    const customLabel = 'Exclude namespace selector values';
+    render(<FormKeyLabelValue {...props} valueAriaLabel={customLabel} />);
+
+    const input = screen.getByRole('textbox', { name: customLabel });
+    expect(input).toBeInTheDocument();
+    expect(input).toHaveAttribute('value', 'valueX');
+  });
+
+  it('shows validation error via FormGroupHelperText when touched', () => {
+    const errorMessage = 'Enter at least one value, separated by commas.';
+    render(
+      <FormKeyLabelValue {...props} meta={{ ...props.meta, touched: true, error: errorMessage }} />,
+    );
+
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+  });
 });

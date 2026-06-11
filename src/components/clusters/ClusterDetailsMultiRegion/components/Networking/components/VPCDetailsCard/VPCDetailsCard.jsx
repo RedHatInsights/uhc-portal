@@ -18,9 +18,13 @@ import {
 
 import { stringToArray } from '~/common/helpers';
 import { isHibernating } from '~/components/clusters/common/clusterStates';
+import { CloudProviderType } from '~/components/clusters/wizards/common';
 import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
+import { useFetchGcpDnsZone } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpDnsZone';
+import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
 import EditClusterWideProxyDialog from '../EditClusterWideProxyDialog';
@@ -41,7 +45,7 @@ const VPCDetailsCard = ({ cluster }) => {
   const dispatch = useDispatch();
 
   const privateLink = cluster.aws?.private_link;
-
+  const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
   const httpProxyUrl = cluster.proxy?.http_proxy;
   const httpsProxyUrl = cluster.proxy?.https_proxy;
   const noProxyDomains = stringToArray(cluster.proxy?.no_proxy);
@@ -49,10 +53,15 @@ const VPCDetailsCard = ({ cluster }) => {
   const gcpVPCName = cluster.gcp_network?.vpc_name;
   const isBYOVPC = cluster.aws?.subnet_ids || cluster.gcp_network;
   const gcpPrivateServiceConnect = cluster.gcp?.private_service_connect?.service_attachment_subnet;
+  const hostProjectId = cluster.gcp_network?.vpc_project_id;
 
   const region = cluster.subscription?.rh_region_id;
 
   const isPrivateLinkInitialized = typeof privateLink !== 'undefined';
+  const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
+
+  const { data: dnsZone } = useFetchGcpDnsZone(cluster.dns?.base_domain, isGCP);
+  const hasPreSelectedDnsZone = !!dnsZone?.gcp?.domain_prefix;
 
   const { canUpdateClusterResource } = cluster;
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
@@ -120,6 +129,32 @@ const VPCDetailsCard = ({ cluster }) => {
             </DescriptionList>
           </>
         ) : null}
+
+        {hostProjectId && isGcpDnsZoneEnabled ? (
+          <>
+            <Title headingLevel="h3" className="pf-v6-l-stack__item --">
+              Shared VPC
+            </Title>
+            <DescriptionList
+              isHorizontal
+              className="pf-v6-l-stack__item pf-m-auto-column-widths details-card-dl"
+            >
+              <DescriptionListGroup>
+                <DescriptionListTerm>Host project ID</DescriptionListTerm>
+                <DescriptionListDescription>{hostProjectId}</DescriptionListDescription>
+              </DescriptionListGroup>
+              {hasPreSelectedDnsZone ? (
+                <DescriptionListGroup>
+                  <DescriptionListTerm>DNS Zone</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {dnsZone.gcp.domain_prefix}.{dnsZone.id}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+              ) : null}
+            </DescriptionList>
+          </>
+        ) : null}
+
         <Title headingLevel="h3" className="pf-v6-l-stack__item --">
           Cluster-wide Proxy
         </Title>

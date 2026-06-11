@@ -1,0 +1,9 @@
+{
+  "Description": "ROSA HCP cluster definition used for Autonode Day 2 tests",
+  "irreversibleWarning": "Enabling Autonode cannot be undone",
+  "karpenterTooltipHint": "These nodes are automatically provisioned and managed by Karpenter based on workload demands. These nodes are not managed through machine pools.",
+  "invalidArn": "not-a-valid-arn",
+  "arnWithWhitespace": "  arn:aws:iam::123456789012:role/dummy  ",
+  "arnWithWhitespaceError": "Value must not contain whitespaces",
+  "invalidArnError": "ARN value should be in the format arn:aws:iam::123456789012:role/role-name."
+}

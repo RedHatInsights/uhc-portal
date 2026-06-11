@@ -70,7 +70,7 @@ const ARGO_CD_CLI_LATEST =
   'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-gitops/latest/';
 
 const SHP_CLI_LATEST =
-  'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-builds/latest/';
+  'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/openshift-builds/latest/';
 
 const OCP_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/openshift_container_platform/latest/html';
@@ -83,6 +83,7 @@ const links = {
     'https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated',
   GCP_CONSOLE_OSD_HOME:
     'https://console.cloud.google.com/marketplace/agreements/redhat-marketplace/red-hat-openshift-dedicated',
+  GCP_CONSOLE_OSD_PREREQ_CHECK: 'https://console.cloud.google.com/redhat-openshift/verify',
   GCP_CONSOLE_KMS: 'https://console.cloud.google.com/security/kms',
 
   ROSA_PRICING: 'https://aws.amazon.com/rosa/pricing',
@@ -191,7 +192,7 @@ const links = {
 
   ARGO_CD_DOCS: `https://docs.redhat.com/en/documentation/red_hat_openshift_gitops/1.13/html/installing_gitops/installing-argocd-gitops-cli`,
 
-  SHP_CLI_DOCS: `https://docs.redhat.com/en/documentation/builds_for_red_hat_openshift/1.1/html-single/work_with_builds/index`,
+  SHP_CLI_DOCS: `https://docs.redhat.com/en/documentation/builds_for_red_hat_openshift/`,
 
   OSD_CCS_GCP_WIF_GCLOUD_CLI: 'https://cloud.google.com/sdk/docs/install',
 
@@ -763,7 +764,7 @@ const urls = {
       [architectures.x86]: {
         [operatingSystems.linux]: `${ARGO_CD_CLI_LATEST}argocd-linux-amd64.tar.gz`,
         [operatingSystems.windows]: `${ARGO_CD_CLI_LATEST}argocd-windows-amd64.zip`,
-        [operatingSystems.mac]: `${ARGO_CD_CLI_LATEST}argocd-macos-amd64.tar.gz`,
+        [operatingSystems.mac]: `${ARGO_CD_CLI_LATEST}argocd-darwin-amd64.tar.gz`,
       },
       [architectures.s390x]: {
         [operatingSystems.linux]: `${ARGO_CD_CLI_LATEST}argocd-linux-s390x.tar.gz`,
@@ -773,7 +774,7 @@ const urls = {
       },
       [architectures.arm]: {
         [operatingSystems.linux]: `${ARGO_CD_CLI_LATEST}argocd-linux-arm64.tar.gz`,
-        [operatingSystems.mac]: `${ARGO_CD_CLI_LATEST}argocd-macos-arm64.tar.gz`,
+        [operatingSystems.mac]: `${ARGO_CD_CLI_LATEST}argocd-darwin-arm64.tar.gz`,
       },
     },
   },
@@ -781,9 +782,19 @@ const urls = {
   [tools.SHP_CLI]: {
     [channels.STABLE]: {
       [architectures.x86]: {
-        [operatingSystems.linux]: `${SHP_CLI_LATEST}shp-linux-amd64.tar.gz`,
-        [operatingSystems.windows]: `${SHP_CLI_LATEST}shp-windows-amd64.zip`,
-        [operatingSystems.mac]: `${SHP_CLI_LATEST}shp-darwin-amd64.tar.gz`,
+        [operatingSystems.linux]: `${SHP_CLI_LATEST}openshift-builds-client-linux-amd64.tar.gz`,
+        [operatingSystems.windows]: `${SHP_CLI_LATEST}openshift-builds-client-windows-amd64.zip`,
+        [operatingSystems.mac]: `${SHP_CLI_LATEST}openshift-builds-client-darwin-amd64.tar.gz`,
+      },
+      [architectures.arm]: {
+        [operatingSystems.linux]: `${SHP_CLI_LATEST}openshift-builds-client-linux-arm64.tar.gz`,
+        [operatingSystems.mac]: `${SHP_CLI_LATEST}openshift-builds-client-darwin-arm64.tar.gz`,
+      },
+      [architectures.ppc]: {
+        [operatingSystems.linux]: `${SHP_CLI_LATEST}openshift-builds-client-linux-ppc64le.tar.gz`,
+      },
+      [architectures.s390x]: {
+        [operatingSystems.linux]: `${SHP_CLI_LATEST}openshift-builds-client-linux-s390x.tar.gz`,
       },
     },
   },

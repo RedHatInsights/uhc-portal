@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
@@ -46,9 +45,6 @@ module.exports = {
       APP_SENTRY_RELEASE_VERSION: JSON.stringify(process.env.SENTRY_VERSION),
       APP_DEV_SERVER: process.env.NODE_ENV !== 'production',
     }),
-    new CopyWebpackPlugin({
-      patterns: [{ from: 'public', to: path.resolve(__dirname, 'dist', name), toType: 'dir' }],
-    }),
     bundleAnalyzer,
     new MonacoWebpackPlugin({
       languages: ['yaml'],
@@ -83,6 +79,14 @@ module.exports = {
     ],
     exposes: {
       './RootApp': path.resolve(__dirname, 'src/chrome-main.tsx'),
+      './OpenShiftWidget': path.resolve(
+        __dirname,
+        './src/components/Widgets/openshift-widget.tsx'
+      ),
+      './OpenShiftAiWidget': path.resolve(
+        __dirname,
+        './src/components/Widgets/openshift-ai-widget.tsx'
+      ),
     },
   },
 };

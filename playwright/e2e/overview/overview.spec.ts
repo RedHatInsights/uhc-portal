@@ -1,19 +1,28 @@
-import { test, expect } from '../../fixtures/pages';
+import docLinks from '../../../src/common/docLinks.mjs';
+import { expect, test } from '../../fixtures/pages';
 
 test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@ci'] }, () => {
   test.beforeAll(async ({ navigateTo }) => {
     // Navigate to overview page and wait for it to load
     await navigateTo('overview');
   });
-  test('OCM Overview Page - header and central section', async ({ overviewPage }) => {
+  test('OCM Overview Page - header and central section', async ({ overviewPage, navigateTo, page }) => {
     // Verify we're on the overview page
     await overviewPage.isOverviewPage();
 
     // Check Learn more link
     await overviewPage.expectLinkOpensInNewTab(
       overviewPage.headerLearnMoreLink(),
-      'https://www.redhat.com/en/technologies/cloud-computing/openshift',
+      docLinks.WHAT_IS_OPENSHIFT,
     );
+
+    // Check Create cluster header buttons redirect properly
+    await overviewPage.headerCreateClusterButton().click();
+    await expect(page).toHaveURL(/\/openshift\/create/);
+    await navigateTo('overview');
+    await overviewPage.headerCreateClusterWithAssistedInstallerButton().click();
+    await expect(page).toHaveURL(/\/openshift\/assisted-installer\/clusters\/~new/);
+    await navigateTo('overview');
 
     // Verify central section has expected number of cards
     await overviewPage.centralSectionCardsExpected(7);
@@ -76,7 +85,7 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
 
     await overviewPage.expectLinkOpensInNewTab(
       overviewPage.cardLearnMoreLink('offering-card_Azure', 'Learn more on Azure'),
-      'https://azure.microsoft.com/en-us/products/openshift/',
+      docLinks.AZURE_OPENSHIFT_GET_STARTED,
     );
 
     // Red Hat OpenShift Container Platform card
@@ -129,7 +138,7 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
     // Migration card
     await overviewPage.expectCardHasText(
       'offering-card_MIGRATION',
-      'Evaluate VMware to Openshift Migration',
+      'Evaluate VMware to Openshift Migration Advisor',
     );
     await overviewPage.expectCardHasLabel('offering-card_MIGRATION', 'Self-managed service');
 

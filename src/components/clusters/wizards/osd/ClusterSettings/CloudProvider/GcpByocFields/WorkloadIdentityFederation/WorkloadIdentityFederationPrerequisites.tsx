@@ -55,9 +55,11 @@ const WorkloadIdentityFederationPrerequisites = ({
         <li>
           <Content component={ContentVariants.p} className="ocm-secondary-text">
             Optional: You have Enhanced Support from Google Cloud. To prevent conflicts, make sure
-            your project has no other provisioned resources before you provision OSD.{' '}
+            your project has no other provisioned resources before you provision OSD.
+            <br />
+            For more guidance, see the{' '}
             <ExternalLink noIcon href={docLinks.OSD_CCS_GCP}>
-              Learn more
+              Customer Cloud Subscription requirements
             </ExternalLink>
             .
           </Content>

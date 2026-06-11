@@ -14,6 +14,7 @@ import { GitHubTeamsAndOrgsDataType } from './model/GitHubTeamsAndOrgsDataType';
 import { IDPFormDataType } from './model/IDPFormDataType';
 import { LdapAttributesType } from './model/LdapAttributesType';
 import { OpenIdClaimsType } from './model/OpenIdClaimsType';
+import { CREATION_MODE_UPLOAD } from './constants';
 
 const IDPformValues = {
   GITHUB: 'GithubIdentityProvider',
@@ -46,7 +47,7 @@ const singularFormIDP = {
   [IDPformValues.OPENID]: 'an OpenID',
   [IDPformValues.LDAP]: 'an LDAP',
   [IDPformValues.GITLAB]: 'a GitLab',
-  [IDPformValues.HTPASSWD]: 'an HTPasswd',
+  [IDPformValues.HTPASSWD]: 'an htpasswd',
 };
 
 const IDPObjectNames: { [p: string]: keyof IdentityProvider } = {
@@ -217,7 +218,9 @@ const getCreateIDPRequestData = (formData: IDPFormDataType) => {
     users: {
       items: formData.users?.map((user) => ({
         username: user.username,
-        password: user.password,
+        ...(formData.creationMode === CREATION_MODE_UPLOAD
+          ? { hashed_password: user.password }
+          : { password: user.password }),
       })),
     },
   });

@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { FormGroup, Spinner } from '@patternfly/react-core';
 
 import { versionComparator } from '~/common/versionComparator';
-import { FieldId } from '~/components/clusters/wizards/common/constants';
+import { CloudProviderType, FieldId } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import ErrorBox from '~/components/common/ErrorBox';
@@ -13,8 +13,6 @@ import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
 import { useOCPLifeCycleStatusData } from '~/components/releases/hooks';
-import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
@@ -31,7 +29,7 @@ interface VersionSelectFieldProps {
   key?: string;
   isDisabled?: boolean;
   isEUSChannelEnabled?: boolean;
-  isPending?: boolean;
+  isYStreamChannelEnabled?: boolean;
 }
 
 export const VersionSelectField = ({
@@ -42,12 +40,12 @@ export const VersionSelectField = ({
   onChange,
   key,
   isEUSChannelEnabled,
+  isYStreamChannelEnabled,
 }: VersionSelectFieldProps) => {
   const dispatch = useDispatch();
   const organization = useGlobalState((state) => state.userProfile.organization.details);
 
-  const unstableOCPVersionsEnabled =
-    useFeatureGate(UNSTABLE_CLUSTER_VERSIONS) && hasUnstableVersionsCapability(organization);
+  const unstableOCPVersionsEnabled = hasUnstableVersionsCapability(organization);
 
   const [input, { touched, error }] = useField(name);
   const { clusterVersions: getInstallableVersionsResponse } = useGlobalState(
@@ -59,6 +57,7 @@ export const VersionSelectField = ({
       [FieldId.ClusterVersion]: selectedClusterVersion,
       [FieldId.BillingModel]: billingModel,
       [FieldId.GcpAuthType]: gcpAuthType,
+      [FieldId.CloudProvider]: cloudProvider,
     },
     setFieldValue,
   } = useFormState();
@@ -73,7 +72,9 @@ export const VersionSelectField = ({
 
   const isMarketplaceGcp =
     billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp;
-  const isWIF = gcpAuthType === GCPAuthType.WorkloadIdentityFederation;
+  const isWIF =
+    gcpAuthType === GCPAuthType.WorkloadIdentityFederation &&
+    cloudProvider === CloudProviderType.Gcp;
 
   const getInstallableVersions = useCallback(
     () =>
@@ -122,9 +123,11 @@ export const VersionSelectField = ({
   useEffect(() => {
     if (versions.length && !selectedClusterVersion?.raw_id) {
       const versionIndex = versions.findIndex((version) => version.default === true);
-      setFieldValue(name, versions[versionIndex !== -1 ? versionIndex : 0]);
+      const defaultVersion = versions[versionIndex !== -1 ? versionIndex : 0];
+      setFieldValue(name, defaultVersion);
+      onChange(defaultVersion);
     }
-  }, [versions, selectedClusterVersion?.raw_id, name, setFieldValue]);
+  }, [versions, selectedClusterVersion?.raw_id, name, setFieldValue, onChange]);
 
   const onToggle: FuzzySelectProps['onOpenChange'] = (isExpanded) => {
     setIsOpen(isExpanded);
@@ -148,12 +151,10 @@ export const VersionSelectField = ({
     () =>
       getVersionsData(
         versions,
-        unstableOCPVersionsEnabled,
         supportVersionMap,
-        channelGroup,
-        isEUSChannelEnabled,
+        isEUSChannelEnabled && !isYStreamChannelEnabled ? channelGroup : undefined,
       ),
-    [supportVersionMap, versions, unstableOCPVersionsEnabled, channelGroup, isEUSChannelEnabled],
+    [supportVersionMap, versions, channelGroup, isEUSChannelEnabled, isYStreamChannelEnabled],
   );
 
   return (

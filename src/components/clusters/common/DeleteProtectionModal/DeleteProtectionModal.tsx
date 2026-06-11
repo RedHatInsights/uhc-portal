@@ -50,6 +50,11 @@ const DeleteProtectionModal = ({ onClose }: { onClose: () => void }) => {
       data-testid="delete-protection-dialog"
       titleIconVariant="warning"
       isPending={isPending}
+      description={
+        protectionEnabled
+          ? 'Disabling the Deletion Protection will allow you to delete this cluster. Cluster deletion can result in data loss or service disruption.'
+          : 'The cluster cannot be deleted if the Deletion Protection is enabled to safeguard from accidental deletion. You can disable the Deletion Protection at any time.'
+      }
     >
       <Flex direction={{ default: 'column' }}>
         {isError ? (
@@ -58,12 +63,6 @@ const DeleteProtectionModal = ({ onClose }: { onClose: () => void }) => {
             response={error || {}}
           />
         ) : null}
-        <p>
-          {protectionEnabled
-            ? 'Disabling the Deletion Protection will allow you to delete this cluster. Cluster deletion can result in data loss or service disruption.'
-            : 'The cluster cannot be deleted if the Deletion Protection is enabled to safeguard from accidental deletion. You can disable the Deletion Protection at any time.'}
-        </p>
-        <br />
         <p>
           <b>{`${protectionEnabled ? 'Disable' : 'Enable'} Deletion Protection for this cluster?`}</b>
         </p>

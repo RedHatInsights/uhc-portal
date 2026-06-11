@@ -32,12 +32,18 @@ export const useFetchAccessRequests = ({
   organizationId?: string;
   params: ViewOptions;
   isAccessProtectionLoading?: boolean;
-  accessProtection?: { enabled: boolean };
+  accessProtection?: { enabled?: boolean };
 }) => {
   const viewType = viewConstants.ACCESS_REQUESTS_VIEW;
   const viewOptions = useGlobalState((state) => state.viewOptions[viewType]);
 
   const dispatch = useDispatch();
+
+  const hasValidId = !!subscriptionId || !!organizationId;
+  const isAccessProtectionResolved =
+    !isAccessProtectionLoading && accessProtection?.enabled !== undefined;
+  const queryEnabled =
+    isAccessProtectionResolved && accessProtection?.enabled === true && hasValidId;
 
   const { data, isLoading, isError, error, isSuccess } = useQuery({
     queryKey: [
@@ -47,12 +53,17 @@ export const useFetchAccessRequests = ({
       subscriptionId || organizationId,
     ],
     queryFn: async () => {
+      let search: string | undefined;
+      if (subscriptionId) {
+        search = `subscription_id='${subscriptionId}'`;
+      } else if (organizationId) {
+        search = `organization_id='${organizationId}' and status.state in ('Denied', 'Pending', 'Approved')`;
+      }
+
       const response = await accessRequestService.getAccessRequests({
         page: params.currentPage,
         size: params.pageSize,
-        search: subscriptionId
-          ? `subscription_id='${subscriptionId}'`
-          : `organization_id='${organizationId}' and status.state in ('Denied', 'Pending', 'Approved')`,
+        search,
         orderBy: params.sorting.sortField
           ? `${params.sorting.sortField} ${params.sorting.isAscending ? 'asc' : 'desc'}`
           : undefined,
@@ -60,7 +71,7 @@ export const useFetchAccessRequests = ({
 
       return response;
     },
-    enabled: !isAccessProtectionLoading && accessProtection?.enabled,
+    enabled: queryEnabled,
   });
   const accessRequestItems = data?.data?.items;
 
@@ -81,6 +92,7 @@ export const useFetchAccessRequests = ({
     data: clusterData,
     isLoading: isClusterDataLoading,
     isFetching: isClusterDataFetching,
+    isError: isClusterDataError,
   } = useFetchSubscriptionsByClusterId(clusterIds);
 
   const clusterMap = useMemo(
@@ -98,12 +110,24 @@ export const useFetchAccessRequests = ({
   const hasClusterIds = !!clusterIds;
   const hasClusterData = !!clusterData?.items;
 
-  // We need cluster data if we have access requests with cluster IDs
-  const needsClusterData = hasAccessRequests && hasClusterIds && !hasClusterData;
+  // We still need cluster data if we have access requests with cluster IDs,
+  // unless the cluster query already settled with an error.
+  const needsClusterData =
+    hasAccessRequests && hasClusterIds && !hasClusterData && !isClusterDataError;
 
-  // Check if we're in a loading state
-  const combinedIsLoading =
-    isLoading || isClusterDataLoading || isClusterDataFetching || needsClusterData;
+  // Treat as unresolved while access protection hasn't settled (still loading
+  // or enabled is undefined). Once resolved, cover the render gap between
+  // access protection resolving and React Query's isLoading becoming true.
+  // Stop once the query itself has settled (success or error) so callers can
+  // see isError.
+  const querySettled = isSuccess || isError;
+  const waitingForQuery =
+    (hasValidId && !isAccessProtectionResolved) || (queryEnabled && !querySettled && !data);
+  // Only block on cluster data when we have access requests that need it; otherwise empty
+  // results would stay "loading" and we'd show an empty table instead of the empty state.
+  const clusterDataLoading =
+    hasAccessRequests && (isClusterDataLoading || isClusterDataFetching || needsClusterData);
+  const combinedIsLoading = waitingForQuery || isLoading || clusterDataLoading;
 
   // Only build the joined data if we have cluster data or if there are no cluster IDs to fetch
   const accessRequestsWithClusterData = useMemo(() => {
@@ -115,8 +139,8 @@ export const useFetchAccessRequests = ({
       return [];
     }
 
-    if (hasClusterIds && hasClusterData) {
-      // We have both access requests and cluster data, join them
+    if (hasClusterIds && (hasClusterData || isClusterDataError)) {
+      // Join with cluster names when available; fall back to cluster_id if the lookup failed
       return accessRequestItems
         .map((request) => {
           const clusterName = clusterMap.get(request.cluster_id) ?? request.cluster_id;
@@ -126,7 +150,6 @@ export const useFetchAccessRequests = ({
     }
 
     if (!hasClusterIds) {
-      // No cluster IDs needed, return access requests as-is (this shouldn't happen in normal flow)
       return accessRequestItems as (AccessRequest & { name: string })[];
     }
 
@@ -136,6 +159,7 @@ export const useFetchAccessRequests = ({
     hasAccessRequests,
     hasClusterIds,
     hasClusterData,
+    isClusterDataError,
     accessRequestItems,
     clusterMap,
   ]);

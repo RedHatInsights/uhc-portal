@@ -14,6 +14,7 @@ import {
   Form,
   Grid,
   GridItem,
+  Stack,
 } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
@@ -32,6 +33,8 @@ import { useReplaceSchedule } from '~/queries/ClusterDetailsQueries/ClusterSetti
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
+import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
 import { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
 
@@ -51,6 +54,7 @@ import UpgradeSettingsFields from '../../../common/Upgrades/UpgradeSettingsField
 import UpgradeStatus from '../../../common/Upgrades/UpgradeStatus';
 import UserWorkloadMonitoringSection from '../../../common/UserWorkloadMonitoringSectionMultiRegion';
 import { UpdateAllMachinePools } from '../MachinePools/UpdateMachinePools';
+import { ChannelEdit } from '../Overview/ChannelEdit/ChannelEdit';
 
 interface UpgradeSettingsFormValues {
   upgrade_policy: 'automatic' | 'manual';
@@ -70,10 +74,10 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
   const clusterID = cluster.id || '';
   const { canEdit } = cluster;
 
+  const isYStreamEnabled = useFeatureGate(Y_STREAM_CHANNEL);
   const isHypershift = isHypershiftCluster(cluster);
   const clusterVersion = getClusterVersion(cluster);
   const isRosa = isROSA(cluster);
-
   const { data: schedulesData, isLoading: isGetShcedulesLoading } = useGetSchedules(
     clusterID,
     isHypershift,
@@ -447,39 +451,51 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
         )}
       </Formik>
       <GridItem lg={3} md={12} className="ocm-c-upgrade-monitoring-top">
-        <Card>
-          <CardTitle>Update status</CardTitle>
-          <CardBody>
-            <UpgradeStatus
-              clusterID={clusterID}
-              canEdit={canEdit}
-              clusterVersion={clusterVersion}
-              scheduledUpgrade={scheduledUpgrade}
-              availableUpgrades={availableUpgrades || ([] as any)}
-              schedules={schedules}
-              cluster={cluster}
-              isHypershift={isHypershift}
-              isSTSEnabled={cluster?.aws?.sts?.enabled}
-              unmetAcknowledgements={unmetAcknowledgements as VersionGate[]}
-            />
-            {showUpdateButton && (
-              <ButtonWithTooltip
-                variant="secondary"
-                onClick={() => {
-                  dispatch(
-                    openModal(modals.UPGRADE_WIZARD, {
-                      clusterName: getClusterName(cluster),
-                      subscriptionID: cluster?.subscription?.id,
-                    }),
-                  );
-                }}
-                disableReason={notReadyReason}
-              >
-                Update
-              </ButtonWithTooltip>
-            )}
-          </CardBody>
-        </Card>
+        <Stack hasGutter>
+          <Card>
+            <CardTitle>Update status</CardTitle>
+            <CardBody>
+              <UpgradeStatus
+                clusterID={clusterID}
+                canEdit={canEdit}
+                clusterVersion={clusterVersion}
+                scheduledUpgrade={scheduledUpgrade}
+                availableUpgrades={availableUpgrades || ([] as any)}
+                schedules={schedules}
+                cluster={cluster}
+                isHypershift={isHypershift}
+                isSTSEnabled={cluster?.aws?.sts?.enabled}
+                unmetAcknowledgements={unmetAcknowledgements as VersionGate[]}
+              />
+              {showUpdateButton && (
+                <ButtonWithTooltip
+                  variant="secondary"
+                  onClick={() => {
+                    dispatch(
+                      openModal(modals.UPGRADE_WIZARD, {
+                        clusterName: getClusterName(cluster),
+                        subscriptionID: cluster?.subscription?.id,
+                      }),
+                    );
+                  }}
+                  disableReason={notReadyReason}
+                >
+                  Update
+                </ButtonWithTooltip>
+              )}
+            </CardBody>
+          </Card>
+          {isYStreamEnabled && (
+            <Card>
+              <CardTitle>Channel settings</CardTitle>
+              <CardBody>
+                <Stack hasGutter>
+                  <ChannelEdit cluster={cluster} />
+                </Stack>
+              </CardBody>
+            </Card>
+          )}
+        </Stack>
       </GridItem>
     </Grid>
   );

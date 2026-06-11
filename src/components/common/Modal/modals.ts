@@ -9,6 +9,7 @@ const modals = {
   DELETE_MACHINE_POOL: 'delete-machine-pool',
   DELETE_PROTECTION: 'delete-protection',
   EDIT_APPLICATION_INGRESS: 'edit-application-ingress',
+  EDIT_AUTO_NODE: 'edit-auto-node',
   EDIT_CLUSTER_AUTOSCALING_V2: 'edit-cluster-autoscaling-v2',
   EDIT_CLUSTER_INGRESS: 'edit-cluster-ingress',
   EDIT_CLUSTER_WIDE_PROXY: 'EDIT_CLUSTER_WIDE_PROXY',
@@ -32,5 +33,6 @@ const modals = {
   EDIT_HTPASSWD_USER: 'EDIT_HTPASSWD_USER',
   BULK_DELETE_HTPASSWD_USER: 'BULK_DELETE_HTPASSWD_USER',
   DELETE_HTPASSWD_USER: 'DELETE_HTPASSWD_USER',
+  UPLOAD_HTPASSWD_FILE: 'UPLOAD_HTPASSWD_FILE',
 };
 export default modals;

@@ -148,4 +148,13 @@ export class BasePage {
       throw error; // Re-throw original error, not screenshot error
     }
   }
+
+  async isTextContainsInPage(text: string, present: boolean = true): Promise<void> {
+    const locator = this.page.locator('body').filter({ hasText: text });
+    if (present) {
+      await expect(locator).toBeVisible();
+    } else {
+      await expect(locator).not.toBeVisible();
+    }
+  }
 }

@@ -220,14 +220,8 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   async waitForInstallerScreenToLoad(): Promise<void> {
-    await this.page.waitForSelector('li.pf-v6-c-wizard__nav-item', {
-      state: 'detached',
-      timeout: 30000,
-    });
-    await this.page.waitForSelector('div.cluster-loading-container', {
-      state: 'detached',
-      timeout: 100000,
-    });
+    await expect(this.clusterNameTitle()).toBeVisible({ timeout: 100000 });
+    await expect(this.clusterInstallationHeader()).toBeVisible({ timeout: 30000 });
   }
 
   async waitForDeleteClusterActionComplete(): Promise<void> {
@@ -372,5 +366,94 @@ export class ClusterDetailsPage extends BasePage {
   // Additional cluster property getters for persistent storage
   clusterPersistentStorageLabelValue(): Locator {
     return this.page.getByTestId('persistent-storage');
+  }
+
+  // ── Autonode (Red Hat build of Karpenter) ────────────────────────────────
+
+  autoNodeStatus(): Locator {
+    return this.page.getByTestId('autoNodeStatus');
+  }
+
+  editAutoNodeButton(): Locator {
+    return this.page.getByRole('button', { name: 'Edit Autonode settings' });
+  }
+
+  autoNodeIamRoleArnText(): Locator {
+    return this.page.getByText('Autonode IAM role ARN:', { exact: false });
+  }
+
+  autoNodeKarpenterCountContainer(): Locator {
+    return this.page.getByTestId('autoNodeKarpenterCountContainer');
+  }
+
+  autoNodeKarpenterCount(): Locator {
+    return this.page.getByTestId('autoNodeKarpenterCount');
+  }
+
+  autoNodeKarpenterTooltipButton(): Locator {
+    return this.page.getByRole('button', {
+      name: 'More information about Autonode Karpenter nodes',
+    });
+  }
+
+  autoNodeStatusAlert(): Locator {
+    return this.page.getByRole('alert').filter({ hasText: 'Autonode status' });
+  }
+
+  editAutoNodeModal(): Locator {
+    return this.page
+      .getByRole('dialog')
+      .filter({
+        has: this.page.getByRole('heading', { name: 'Edit Autonode settings', level: 1 }),
+      });
+  }
+
+  editAutoNodeModalHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'Edit Autonode settings', level: 1 });
+  }
+
+  enableAutoNodeSwitch(): Locator {
+    return this.page.getByRole('switch', { name: 'Enable Autonode' });
+  }
+
+  autoNodeIamRoleArnInput(): Locator {
+    return this.editAutoNodeModal().getByRole('textbox');
+  }
+
+  saveAutoNodeButton(): Locator {
+    return this.editAutoNodeModal().getByRole('button', { name: 'Save' });
+  }
+
+  cancelAutoNodeButton(): Locator {
+    return this.editAutoNodeModal().getByRole('button', { name: 'Cancel' });
+  }
+
+  async isAutoNodeSectionVisible(): Promise<void> {
+    await expect(this.autoNodeStatus()).toBeVisible({ timeout: 30000 });
+  }
+
+  async checkAutoNodeSwitch(): Promise<void> {
+    await this.enableAutoNodeSwitch().check({ force: true });
+  }
+
+  async uncheckAutoNodeSwitch(): Promise<void> {
+    await this.enableAutoNodeSwitch().uncheck({ force: true });
+  }
+
+  async openEditAutoNodeModal(): Promise<void> {
+    await this.editAutoNodeButton().click();
+    await expect(this.editAutoNodeModalHeading()).toBeVisible({ timeout: 30000 });
+  }
+
+  async closeEditAutoNodeModal(): Promise<void> {
+    await this.cancelAutoNodeButton().click();
+    await expect(this.editAutoNodeModalHeading()).toBeHidden({ timeout: 30000 });
+  }
+
+  async enableAutoNodeWithArn(iamRoleArn: string): Promise<void> {
+    await this.checkAutoNodeSwitch();
+    await this.autoNodeIamRoleArnInput().fill(iamRoleArn);
+    await this.saveAutoNodeButton().click();
+    await expect(this.editAutoNodeModalHeading()).toBeHidden({ timeout: 30000 });
   }
 }

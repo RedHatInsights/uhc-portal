@@ -142,7 +142,7 @@
         "cypress.config.js",
         "fec.config.js",
         "*.mjs",
-        "run/**/*",
+        "run/**/*"
       ],
       "rules": {
         "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
@@ -187,9 +187,15 @@
   },
   "settings": {
     "import/resolver": {
+      // "alias" resolver doesn't work with node v24 - it fails module resolution and causes linter errors.
+      // it's kept for backwards compatibility, until CI is updated to v24
       "alias": {
         "extensions": [".js", ".jsx", ".ts", ".tsx", ".mjs"],
         "map": [["~", "./src"]]
+      },
+      // "typescript" resolver works with node v24, and will eventually replace "alias" resolver
+      "typescript": {
+        "project": "."
       }
     }
   }

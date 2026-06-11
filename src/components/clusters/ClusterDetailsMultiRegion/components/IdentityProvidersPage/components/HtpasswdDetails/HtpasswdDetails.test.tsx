@@ -2,7 +2,15 @@ import React from 'react';
 import * as reactRedux from 'react-redux';
 
 import { useFetchHtpasswdUsers } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useFetchHtpasswdUsers';
-import { checkAccessibility, render, screen, waitFor, within } from '~/testUtils';
+import { HTPASSWD_IMPORT } from '~/queries/featureGates/featureConstants';
+import {
+  checkAccessibility,
+  mockUseFeatureGate,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '~/testUtils';
 import { HtPasswdUser } from '~/types/clusters_mgmt.v1';
 
 import HtpasswdDetails from './HtpasswdDetails';
@@ -642,6 +650,42 @@ describe('<HtpasswdDetails />', () => {
       expect(mockedDispatch.mock.calls[0][0].type).toEqual('OPEN_MODAL');
       expect(mockedDispatch.mock.calls[0][0].payload.name).toEqual('BULK_DELETE_HTPASSWD_USER');
     }, 20000);
+  });
+
+  describe('Upload htpasswd file button', () => {
+    it('is not shown when feature flag is off', () => {
+      mockUseFeatureGate([[HTPASSWD_IMPORT, false]]);
+
+      const users = createUsers(5);
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      render(<HtpasswdDetails {...defaultProps} />);
+
+      expect(
+        screen.queryByRole('button', { name: 'Upload htpasswd file' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('is shown when feature flag is on', () => {
+      mockUseFeatureGate([[HTPASSWD_IMPORT, true]]);
+
+      const users = createUsers(5);
+      useFetchHtpasswdUsersMocked.mockReturnValue({
+        isLoading: false,
+        users,
+        isError: false,
+        error: null,
+      });
+
+      render(<HtpasswdDetails {...defaultProps} />);
+
+      expect(screen.getByRole('button', { name: 'Upload htpasswd file' })).toBeInTheDocument();
+    });
   });
 
   describe('Bulk delete', () => {

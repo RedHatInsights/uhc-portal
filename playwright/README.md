@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-Ensure you have Node.js (>= 18.12.0) and Yarn (>= 1.22.19) installed on your system.
+Ensure you have Node.js and npm installed on your system (see package.json for the compatible versions).
 
 ### Install Dependencies
 
@@ -12,13 +12,13 @@ From the project root directory, install all dependencies including Playwright:
 
 ```bash
 # Install all project dependencies (including Playwright)
-yarn install
+npm install
 
 # Install Playwright browsers
-yarn playwright install
+npm exec -- playwright install
 
 # Optional: Install only Chromium browser for faster setup
-yarn playwright install chromium
+npm exec -- playwright install chromium
 ```
 
 ### Verify Installation
@@ -27,10 +27,10 @@ You can verify that Playwright is properly installed by running:
 
 ```bash
 # Check Playwright version
-yarn playwright --version
+npm exec -- playwright --version
 
 # List available tests (without running them)
-yarn playwright test --list
+npm run playwright-headless -- --list
 ```
 
 ## Setup
@@ -94,11 +94,22 @@ The test configuration uses `playwright.env.json` for environment-specific setti
     "VPC_NAME": "Google cloud VPC name",
     "CONTROLPLANE_SUBNET": "Google cloud control plane subnet",
     "COMPUTE_SUBNET": "Google cloud compute subnet",
+    // GCP Private service connect details.
     "PSC_INFRA": {
       "VPC_NAME": "Google cloud Private service connect VPC",
       "CONTROLPLANE_SUBNET": "Google cloud control plane subnet",
       "COMPUTE_SUBNET": "Google cloud compute subnet",
       "PRIVATE_SERVICE_CONNECT_SUBNET": "Google cloud psc subnet"
+    },
+    //GCP Shared VPC details.
+    "SHARED_VPC_INFRA": {
+      "HOST_PROJECT_ID": "host project id",
+      "SERVICE_PROJECT_ID": "service project id",
+      "VPC_NAME": "shared VPC name from host project",
+      "REGION": "shared VPC configured region",
+      "CONTROLPLANE_SUBNET": "control plane subnet from shared vpc",
+      "COMPUTE_SUBNET": "compute subnet from shared vpc",
+      "PRIVATE_SERVICE_CONNECT_SUBNET": "psc subnet from shared vpc"
     }
   },
   // AWS VPC definition required for ROSA hosted, rosa classic clusters with custom VPCs
@@ -155,19 +166,19 @@ The test configuration uses `playwright.env.json` for environment-specific setti
 
 ```bash
 # Run all tests in headless mode (CI/CD mode)
-yarn playwright-headless
+npm run playwright-headless
 
 # Run tests with UI mode (interactive test explorer)
-yarn playwright-ui
+npm run playwright-ui
 
 # Run tests in headed mode (see browser actions)
-yarn playwright-headed
+npm run playwright-headed
 
 # Run tests in debug mode (step through tests)
-yarn playwright-debug
+npm run playwright-debug
 
 # Show HTML test report
-yarn playwright-report
+npm run playwright-report
 ```
 
 #### Using Playwright CLI Directly
@@ -176,28 +187,28 @@ For more advanced usage and customized options:
 
 ```bash
 # Run all tests
-yarn playwright test
+npm run playwright-headless
 
 # Run specific test file
-yarn playwright test playwright/e2e/clusters/register-cluster.spec.ts
+npm run playwright-headless -- playwright/e2e/clusters/register-cluster.spec.ts
 
 # Run tests for specific directory
-yarn playwright test playwright/e2e/downloads/
+npm run playwright-headless -- playwright/e2e/downloads/
 
 # Run with specific browser
-BROWSER=chromium yarn playwright test
+BROWSER=chromium npm run playwright-headless
 
 # Run with specific reporter
-yarn playwright test --reporter=html
+npm run playwright-headless -- --reporter=html
 
 # Run with parallel executions in multiple workers
-yarn playwright test --workers=<count>
+npm run playwright-headless -- --workers=<count>
 
 # Run the tests with specific tags
-yarn playwright test --grep="<tag>"
+npm run playwright-headless -- --grep="<tag>"
 
 # Generate test code (record browser interactions)
-yarn playwright codegen
+npm exec -- playwright codegen
 ```
 
 ### Authentication
@@ -346,4 +357,4 @@ test.describe.serial('Register cluster flow', () => {
 #### Environment Variable Issues
 
 - **Solution**: Verify all required variables are set in `playwright.env.json`
-- **Check**: Run `yarn playwright test --list` to verify configuration loading
+- **Check**: Run `npm run playwright-headless -- --list` to verify configuration loading

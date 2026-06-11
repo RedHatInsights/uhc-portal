@@ -92,6 +92,69 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/price-lists/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List the price lists */
+    get: operations['listPriceLists'];
+    put?: never;
+    /** Create a new price list. */
+    post: operations['createPriceList'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/price-lists/{price_list_uuid}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a Price List. */
+    get: operations['getPriceList'];
+    /**
+     * Update a Price List.
+     * @description Full replacement update. PATCH is not supported — send all fields in the body. The version field auto-increments when rates, effective dates, or currency change. A disabled price list may only have name, description, and enabled updated.
+     */
+    put: operations['updatePriceList'];
+    post?: never;
+    /**
+     * Delete a Price List.
+     * @description Deletes a price list. Cannot be deleted if it is currently assigned to one or more cost models — remove the assignment first.
+     */
+    delete: operations['deletePriceList'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/price-lists/{price_list_uuid}/affected-cost-models/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List cost models that use this price list.
+     * @description Returns the cost models currently assigned to this price list along with their priority order (1 = highest). Returns an empty array if the price list is not assigned to any cost model.
+     */
+    get: operations['getPriceListAffectedCostModels'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/forecasts/aws/costs/': {
     parameters: {
       query?: never;
@@ -2303,6 +2366,63 @@ export interface components {
     CostModelPagination: components['schemas']['ListPagination'] & {
       data: components['schemas']['CostModelOut'][];
     };
+    PriceList: {
+      /**
+       * @description Display name for the price list.
+       * @example Production OCP Rates
+       */
+      name: string;
+      /** @description Optional description. */
+      description?: string;
+      /**
+       * @description ISO 4217 currency code. Defaults to the account currency if omitted.
+       * @example USD
+       */
+      currency?: string;
+      /**
+       * Format: date
+       * @description Start of the validity period (inclusive).
+       * @example 2026-01-01
+       */
+      effective_start_date: string;
+      /**
+       * Format: date
+       * @description End of the validity period (inclusive). Must be on or after effective_start_date.
+       * @example 2026-12-31
+       */
+      effective_end_date: string;
+      /**
+       * @description Controls whether this price list can be attached to cost models. Disabled price lists still participate in cost calculation if already assigned.
+       * @default true
+       */
+      enabled: boolean;
+      /** @description List of OCP metric rates. Each entry uses either tiered_rates or tag_rates (mutually exclusive per entry). */
+      rates?: (components['schemas']['TieredRate'] | components['schemas']['TagRate'])[];
+    };
+    PriceListOut: components['schemas']['PriceList'] & {
+      /** Format: uuid */
+      readonly uuid?: string;
+      /** @description Auto-incremented when rates, effective dates, or currency change. */
+      readonly version?: number;
+      /** Format: date-time */
+      readonly created_timestamp?: string;
+      /** Format: date-time */
+      readonly updated_timestamp?: string;
+    };
+    PriceListPagination: components['schemas']['ListPagination'] & {
+      data: components['schemas']['PriceListOut'][];
+    };
+    PriceListAffectedCostModel: {
+      /**
+       * Format: uuid
+       * @description UUID of the cost model.
+       */
+      uuid: string;
+      /** @description Name of the cost model. */
+      name: string;
+      /** @description Priority of this price list within the cost model (1 = highest priority). */
+      priority: number;
+    };
     CostTypePagination: components['schemas']['ListPagination'] & {
       data: components['schemas']['CostType'][];
     };
@@ -2506,10 +2626,20 @@ export interface components {
       count?: number;
     };
     Source: {
-      /** @example Platform source identifier */
-      id: number;
+      /** @example 1 */
+      id: string;
       /** @example AWS */
       source_type: string;
+      /**
+       * @description CMMO-compatible source type identifier
+       * @example 1
+       */
+      source_type_id?: string;
+      /**
+       * @description Source reference (e.g., cluster ID for OCP sources)
+       * @example my-ocp-cluster
+       */
+      source_ref?: string;
     };
     SourceIn: components['schemas']['Source'] & {
       /**
@@ -2528,11 +2658,8 @@ export interface components {
       billing_source: Record<string, never>;
     };
     SourceOut: components['schemas']['Source'] & {
-      /**
-       * Format: int64
-       * @example 1
-       */
-      id: number;
+      /** @example 1 */
+      id: string;
       /**
        * Format: uuid
        * @example 57e60f90-8c0c-4bd1-87a0-2143759aae1d
@@ -2611,6 +2738,12 @@ export interface components {
        *     }
        */
       additional_context?: Record<string, never>;
+      /**
+       * Format: date-time
+       * @description Timestamp of when the provider was created.
+       * @example 2026-01-15 12:30:00
+       */
+      created_timestamp?: string | null;
     };
     SourcePagination: components['schemas']['ListPagination'] & {
       data: components['schemas']['SourceOut'][];
@@ -3406,47 +3539,8 @@ export interface components {
       data: unknown[];
     };
     Status: {
-      /**
-       * Format: int64
-       * @example 1
-       */
-      api_version: number;
-      /** @example 178d2ea */
-      commit?: string;
-      /** @example 127.0.0.1:8000 */
-      server_address?: string;
-      /** @example 30 */
-      rbac_cache_ttl?: number;
-      /** @example {
-       *       "system": "Darwin",
-       *       "node": "node-1.example.com",
-       *       "release": "17.5.0",
-       *       "version": "Darwin Kernel Version 17.5.0",
-       *       "machine": "x86_64",
-       *       "processor": "i386"
-       *     } */
-      platform_info?: Record<string, never>;
-      /** @example 3.6.1 */
-      python_version?: string;
-      /** @example {
-       *       "coverage": "4.5.1",
-       *       "coverage.version": "4.5.1",
-       *       "coverage.xmlreport": "4.5.1",
-       *       "cryptography": "2.0.3",
-       *       "ctypes": "1.1.0",
-       *       "ctypes.macholib": "1.0",
-       *       "decimal": "1.70",
-       *       "django": "1.11.5",
-       *       "django.utils.six": "1.10.0",
-       *       "django_filters": "1.0.4",
-       *       "http.server": "0.6"
-       *     } */
-      modules?: Record<string, never>;
-      /** @example {
-       *       "debug": true,
-       *       "account_access_type": "db"
-       *     } */
-      config?: Record<string, never>;
+      /** @example OK */
+      status: string;
     };
     TagsFilter: {
       resolution?: components['schemas']['ReportResolution'];
@@ -3591,8 +3685,8 @@ export interface components {
              * @example 22
              */
             amount?: number;
-            /** @example null */
-            format?: string | null;
+            /** @example percent */
+            format?: string;
           };
           memory?: {
             /**
@@ -3600,7 +3694,7 @@ export interface components {
              * @example 45
              */
             amount?: number;
-            /** @example Mi */
+            /** @example percent */
             format?: string;
           };
         };
@@ -3671,8 +3765,8 @@ export interface components {
              * @example 20
              */
             amount?: number;
-            /** @example null */
-            format?: string | null;
+            /** @example percent */
+            format?: string;
           };
           memory?: {
             /**
@@ -3680,7 +3774,7 @@ export interface components {
              * @example 40
              */
             amount?: number;
-            /** @example Mi */
+            /** @example percent */
             format?: string;
           };
         };
@@ -4068,6 +4162,10 @@ export type SchemaCostModel = components['schemas']['CostModel'];
 export type SchemaCostModelResp = components['schemas']['CostModelResp'];
 export type SchemaCostModelOut = components['schemas']['CostModelOut'];
 export type SchemaCostModelPagination = components['schemas']['CostModelPagination'];
+export type SchemaPriceList = components['schemas']['PriceList'];
+export type SchemaPriceListOut = components['schemas']['PriceListOut'];
+export type SchemaPriceListPagination = components['schemas']['PriceListPagination'];
+export type SchemaPriceListAffectedCostModel = components['schemas']['PriceListAffectedCostModel'];
 export type SchemaCostTypePagination = components['schemas']['CostTypePagination'];
 export type SchemaCostType = components['schemas']['CostType'];
 export type SchemaCurrency = components['schemas']['Currency'];
@@ -4535,6 +4633,317 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  listPriceLists: {
+    parameters: {
+      query?: {
+        /** @description Parameter for selecting the offset of data. */
+        offset?: components['parameters']['QueryOffset'];
+        /** @description Parameter for selecting the amount of data in a returned. */
+        limit?: components['parameters']['QueryLimit'];
+        /** @description Filter by price list name (case-insensitive substring match). */
+        name?: string;
+        /** @description Filter by exact price list UUID. */
+        uuid?: string;
+        /** @description Filter by enabled status. Use true to show only active price lists or false to show only disabled ones. */
+        enabled?: boolean;
+        /** @description Order response by allowed fields. Prefix with '-' for descending order. Default is 'name'. */
+        ordering?: PathsPriceListsGetParametersQueryOrdering;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description A paginated list of price list objects */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListPagination'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  createPriceList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PriceList'];
+      };
+    };
+    responses: {
+      /** @description An object describing the created price list */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListOut'];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  getPriceList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID of the Price List to retrieve. */
+        price_list_uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description A Price List object */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListOut'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  updatePriceList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID of the Price List to update. */
+        price_list_uuid: string;
+      };
+      cookie?: never;
+    };
+    /** @description Updated Price List payload */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PriceList'];
+      };
+    };
+    responses: {
+      /** @description Updated Price List object */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListOut'];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  deletePriceList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID of the Price List to delete. */
+        price_list_uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Price List deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Bad Request — price list is assigned to one or more cost models. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  getPriceListAffectedCostModels: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID of the Price List. */
+        price_list_uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description A list of cost models assigned to this price list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListAffectedCostModel'][];
         };
       };
       /** @description Unauthorized */
@@ -6604,7 +7013,7 @@ export interface operations {
       header?: never;
       path: {
         /** @description ID of source to get */
-        source_id: number;
+        source_id: string;
       };
       cookie?: never;
     };
@@ -7456,7 +7865,7 @@ export interface operations {
       header?: never;
       path: {
         /** @description ID of source to get */
-        source_id: number;
+        source_id: string;
       };
       cookie?: never;
     };
@@ -7504,7 +7913,7 @@ export interface operations {
       header?: never;
       path: {
         /** @description ID of source to get */
-        source_id: number;
+        source_id: string;
       };
       cookie?: never;
     };
@@ -9263,16 +9672,36 @@ export interface operations {
          *     Maximum number of records is 1000 i.e. 6000 rows for CSV downloads.
          *     The 'offset' parameter can be used for pagination with both formats. */
         format?: PathsRecommendationsOpenshiftGetParametersQueryFormat;
-        /** @description Cluster alias or UUID */
+        /** @description Partial match on cluster alias, exact match on cluster UUID */
         cluster?: string;
-        /** @description Options are daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
+        /** @description Exclude cluster by alias or UUID */
+        'exclude[cluster]'?: string;
+        /** @description Exact match on cluster alias or UUID */
+        'filter[exact:cluster]'?: string;
+        /** @description Exact match on workload type. Options are daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
         workload_type?: string;
-        /** @description Workload name */
+        /** @description Exclude by workload type. Must be one of: daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
+        'exclude[workload_type]'?: string;
+        /** @description Exact match on workload type. Must be one of: daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
+        'filter[exact:workload_type]'?: string;
+        /** @description Partial match on workload name */
         workload?: string;
-        /** @description Container name */
+        /** @description Exclude by workload name */
+        'exclude[workload]'?: string;
+        /** @description Exact match on workload name */
+        'filter[exact:workload]'?: string;
+        /** @description Partial match on container name */
         container?: string;
-        /** @description Project name */
+        /** @description Exclude by container name */
+        'exclude[container]'?: string;
+        /** @description Exact match on container name */
+        'filter[exact:container]'?: string;
+        /** @description Partial match on project name */
         project?: string;
+        /** @description Exclude by project name */
+        'exclude[project]'?: string;
+        /** @description Exact match on project name */
+        'filter[exact:project]'?: string;
         /** @description Shows all values in true/real-world units. Accepts 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, False. */
         'true-units'?: boolean;
         /**
@@ -9289,8 +9718,8 @@ export interface operations {
         offset?: number;
         /** @description Pagination limit */
         limit?: number;
-        /** @description Options are cluster, project, workload_type, workload, container, last_reported */
-        order_by?: string;
+        /** @description Field to order results by. Options: cluster, project, workload_type, workload, container, last_reported, cpu_request_current, memory_request_current, and per-term variation fields (e.g. cpu_variation_short_cost, memory_variation_long_performance). Variation values are percent of current CPU or memory request (float); see the recommendations.variation amounts in each list item. */
+        order_by?: PathsRecommendationsOpenshiftGetParametersQueryOrder_by;
         /** @description Options are ASC, DESC */
         order_how?: string;
         /** @description unit preference for memory */
@@ -9313,6 +9742,20 @@ export interface operations {
           'application/json': components['schemas']['RecommendationList'];
         };
       };
+      /** @description Bad request, e.g. invalid query parameter value */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            /** @example error */
+            status?: string;
+            /** @example invalid workload_type "not-a-real-type", must be one of: daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
+            message?: string;
+          };
+        };
+      };
       /** @description User is not authorized */
       401: {
         headers: {
@@ -9320,6 +9763,18 @@ export interface operations {
         };
         content: {
           'text/plain': string;
+        };
+      };
+      /** @description Service unavailable due to a database error */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            /** @example unable to fetch records from database */
+            error?: string;
+          };
         };
       };
     };
@@ -9372,9 +9827,39 @@ export enum PathsCostModelsGetParametersQueryOrdering {
   updated_timestamp = 'updated_timestamp',
   ValueMinusupdated_timestamp = '-updated_timestamp',
 }
+export enum PathsPriceListsGetParametersQueryOrdering {
+  name = 'name',
+  ValueMinusname = '-name',
+  effective_start_date = 'effective_start_date',
+  ValueMinuseffective_start_date = '-effective_start_date',
+  updated_timestamp = 'updated_timestamp',
+  ValueMinusupdated_timestamp = '-updated_timestamp',
+}
 export enum PathsRecommendationsOpenshiftGetParametersQueryFormat {
   json = 'json',
   csv = 'csv',
+}
+export enum PathsRecommendationsOpenshiftGetParametersQueryOrder_by {
+  cluster = 'cluster',
+  project = 'project',
+  workload_type = 'workload_type',
+  workload = 'workload',
+  container = 'container',
+  last_reported = 'last_reported',
+  cpu_request_current = 'cpu_request_current',
+  memory_request_current = 'memory_request_current',
+  cpu_variation_short_cost = 'cpu_variation_short_cost',
+  cpu_variation_short_performance = 'cpu_variation_short_performance',
+  cpu_variation_medium_cost = 'cpu_variation_medium_cost',
+  cpu_variation_medium_performance = 'cpu_variation_medium_performance',
+  cpu_variation_long_cost = 'cpu_variation_long_cost',
+  cpu_variation_long_performance = 'cpu_variation_long_performance',
+  memory_variation_short_cost = 'memory_variation_short_cost',
+  memory_variation_short_performance = 'memory_variation_short_performance',
+  memory_variation_medium_cost = 'memory_variation_medium_cost',
+  memory_variation_medium_performance = 'memory_variation_medium_performance',
+  memory_variation_long_cost = 'memory_variation_long_cost',
+  memory_variation_long_performance = 'memory_variation_long_performance',
 }
 export enum PathsRecommendationsOpenshiftGetParametersQueryMemoryUnit {
   bytes = 'bytes',

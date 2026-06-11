@@ -7,7 +7,7 @@ test.describe.serial('Register cluster flow', { tag: ['@ci', '@smoke'] }, () => 
 
   test.beforeAll(async ({ navigateTo }) => {
     // Navigate to cluster list with clean state
-    await navigateTo('cluster-list');
+    await navigateTo('clusters/list');
   });
 
   test('navigate to register cluster', async ({ clusterListPage }) => {

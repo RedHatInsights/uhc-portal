@@ -1,0 +1,97 @@
+name: Check Backend Open API changes
+
+on:
+  workflow_dispatch:
+    inputs:
+      node-version:
+        default: '24.x'
+        description: 'NodeJs version'
+      swap-branch-name:
+        default: 'openapi'
+        description: 'Swap branch name to work with'
+  schedule:
+    - cron: '0 0 * * *'
+
+env:
+  NODE_VERSION: ${{ github.event.inputs.node-version || '24.x' }}
+  SWAP_BRANCH_NAME: ${{ github.event.inputs.swap-branch-name || 'openapi' }}
+  BASE_BRANCH_NAME: ${{ github.ref_name || 'main' }}
+
+jobs:
+  check_api:
+    name: Check API
+    permissions: {}
+    concurrency:
+      group: check_api-${{ github.event_name }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v3
+        id: generate-token
+        with:
+          app-id: ${{ secrets.CHECK_OPENAPI_APP_ID }}
+          private-key: ${{ secrets.CHECK_OPENAPI_APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          persist-credentials: false
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/cache@v5
+        with:
+          path: './node_modules'
+          key: check_api-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
+          
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for an existing open PR
+        id: check-pr
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          SWAP_BRANCH_NAME: ${{ env.SWAP_BRANCH_NAME }}
+          BASE_BRANCH_NAME: ${{ env.BASE_BRANCH_NAME }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_COUNT=$(gh api \
+            "repos/${REPO}/pulls" \
+            -X GET \
+            -f "head=${REPO%/*}:${SWAP_BRANCH_NAME}" \
+            -f "base=${BASE_BRANCH_NAME}" \
+            -f "state=open" \
+            --jq 'length')
+          if [[ "$PR_COUNT" -gt 0 ]]; then
+            echo "pr_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pr_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+          
+      - name: Generating model based on OpenAPI contracts
+        if: steps.check-pr.outputs.pr_exists == 'false'
+        run: make openapi
+        
+      - name: Create Pull Request
+        if: steps.check-pr.outputs.pr_exists == 'false'
+        uses: peter-evans/create-pull-request@v8
+        env:
+          HUSKY: '0'
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          base: ${{ env.BASE_BRANCH_NAME }}
+          branch: ${{ env.SWAP_BRANCH_NAME }}
+          add-paths: |
+            src/types/**
+          commit-message: Update API model
+          committer: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          delete-branch: true
+          title: '[OPEN API] update model'
+          body: |
+            Automatically created by a GitHub Action.
+            Reviewers should pay attention to changes in src/types/ files and ensure they have corresponding changes in the OpenAPI-related contract.
+            Additionally, build and lint outputs should be checked. In case of build errors, the code should be updated accordingly.
+          labels: |
+            update_open_api

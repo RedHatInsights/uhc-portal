@@ -1,4 +1,10 @@
-import { test as base, BrowserContext, Page } from '@playwright/test';
+import {
+  test as base,
+  expect as baseExpect,
+  BrowserContext,
+  Locator,
+  Page,
+} from '@playwright/test';
 import { ClusterDetailsPage } from '../page-objects/cluster-details-page';
 import { MachinePoolsPage } from '../page-objects/machine-pools-page';
 import { ClusterListPage } from '../page-objects/cluster-list-page';
@@ -8,6 +14,7 @@ import { CreateOSDWizardPage } from '../page-objects/create-osd-wizard-page';
 import { CreateClusterPage } from '../page-objects/create-cluster-page';
 import { CreateRosaWizardPage } from '../page-objects/create-rosa-wizard-page';
 import { DownloadsPage } from '../page-objects/downloads-page';
+import { ClusterRolesAndAccessPage } from '../page-objects/cluster-roles-access-page';
 import { OCMRolesAndAccessPage } from '../page-objects/ocm-roles-access-page';
 import { OsdProductPage } from '../page-objects/osd-product-page';
 import { OverviewPage } from '../page-objects/overview-page';
@@ -16,6 +23,7 @@ import { ReleasesPage } from '../page-objects/releases-page';
 import { RosaGetStartedPage } from '../page-objects/rosa-getstarted-page';
 import { SubscriptionsPage } from '../page-objects/subscriptions-page';
 import { TokensPage } from '../page-objects/tokens-page';
+import { ClusterIdentityProviderPage } from '../page-objects/cluster-identity-provider-page';
 import { CustomCommands } from '../support/custom-commands';
 import { STORAGE_STATE_PATH } from '../support/playwright-constants';
 
@@ -38,6 +46,7 @@ type WorkerFixtures = {
   createClusterPage: CreateClusterPage;
   createRosaWizardPage: CreateRosaWizardPage;
   downloadsPage: DownloadsPage;
+  clusterRolesAndAccessPage: ClusterRolesAndAccessPage;
   ocmRolesAndAccessPage: OCMRolesAndAccessPage;
   osdProductPage: OsdProductPage;
   overviewPage: OverviewPage;
@@ -47,6 +56,7 @@ type WorkerFixtures = {
   subscriptionsPage: SubscriptionsPage;
   tokensPage: TokensPage;
   customCommands: CustomCommands;
+  clusterIdentityProviderPage: ClusterIdentityProviderPage;
 };
 
 /**
@@ -203,6 +213,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     { scope: 'worker' },
   ],
 
+  // Worker-scoped: ClusterRolesAndAccessPage instance - created once, reused across all tests in suite
+  clusterRolesAndAccessPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new ClusterRolesAndAccessPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
   // Worker-scoped: OCMRolesAndAccessPage instance - created once, reused across all tests in suite
   ocmRolesAndAccessPage: [
     async ({ authenticatedPage }, use) => {
@@ -281,6 +300,31 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     },
     { scope: 'worker' },
   ],
+
+  // Worker-scoped: ClusterIdentityProviderPage instance - created once, reused across all tests in suite
+  clusterIdentityProviderPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new ClusterIdentityProviderPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
 });
 
-export { expect } from '@playwright/test';
+export const expect = baseExpect.extend({
+  async toBePressed(locator: Locator) {
+    const assertionName = 'toBePressed';
+    let pass: boolean;
+    try {
+      await baseExpect(locator).toHaveAttribute('aria-pressed', 'true');
+      pass = true;
+    } catch {
+      pass = false;
+    }
+    const actual = await locator.getAttribute('aria-pressed');
+    const message = pass
+      ? () => `expected locator not to be pressed (aria-pressed="true"), got ${actual}`
+      : () => `expected locator to be pressed (aria-pressed="true"), got ${actual}`;
+    return { pass, message, name: assertionName };
+  },
+});

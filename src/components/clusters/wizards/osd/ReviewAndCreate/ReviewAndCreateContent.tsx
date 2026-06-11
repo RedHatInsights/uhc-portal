@@ -25,7 +25,12 @@ import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/C
 import { FieldId, StepId } from '~/components/clusters/wizards/osd/constants';
 import config from '~/config';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
-import { ALLOW_EUS_CHANNEL, OSD_GCP_WIF } from '~/queries/featureGates/featureConstants';
+import {
+  ALLOW_EUS_CHANNEL,
+  GCP_DNS_ZONE,
+  GCP_EXCLUDE_NAMESPACE_SELECTORS,
+  Y_STREAM_CHANNEL,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { MESSAGES } from '../../common/messages';
@@ -54,32 +59,45 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
       [FieldId.HasDomainPrefix]: hasDomainPrefix,
       [FieldId.GcpAuthType]: gcpAuthType,
       [FieldId.GcpWifConfig]: wifConfig,
+      [FieldId.DnsZone]: dnsZone,
     },
     values: formValues,
   } = useFormState();
   const canAutoScale = useCanClusterAutoscale(product, billingModel);
   const autoscalingEnabled = canAutoScale && !!formValues[FieldId.AutoscalingEnabled];
-  const isWifEnabled = useFeatureGate(OSD_GCP_WIF);
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
+  const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
+  const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
+  const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
 
   const isByoc = byoc === 'true';
   const isAWS = cloudProvider === CloudProviderType.Aws;
   const isGCP = cloudProvider === CloudProviderType.Gcp;
 
   const hasSecurityGroups = isByoc && hasSelectedSecurityGroups(securityGroups);
-  const hasGcpAuthType = isWifEnabled && isGCP && isByoc;
+  const hasGcpAuthType = isGCP && isByoc;
   const hasWIFConfiguration =
     hasGcpAuthType && gcpAuthType === GCPAuthType.WorkloadIdentityFederation && wifConfig;
   const isGCPPrivateClusterInstalltoVPC =
     clusterPrivacy === ClusterPrivacyType.Internal && installToVpc && isGCP;
+  const showDnsZone =
+    isByoc &&
+    isGCP &&
+    installToSharedVpc &&
+    hasDomainPrefix &&
+    isGcpDnsZoneEnabled &&
+    dnsZone.id &&
+    gcpAuthType === GCPAuthType.WorkloadIdentityFederation;
+
   const clusterSettingsFields = [
     FieldId.CloudProvider,
     ...(hasGcpAuthType ? [FieldId.GcpAuthType] : []),
     ...(hasWIFConfiguration ? [FieldId.GcpWifConfig] : []),
     FieldId.ClusterName,
     ...(hasDomainPrefix ? [FieldId.DomainPrefix] : []),
-    ...(isEUSChannelEnabled ? [FieldId.ChannelGroup] : []),
+    ...(isEUSChannelEnabled && !isYStreamChannelEnabled ? [FieldId.ChannelGroup] : []),
     FieldId.ClusterVersion,
+    ...(isYStreamChannelEnabled ? [FieldId.VersionChannel] : []),
     FieldId.Region,
     FieldId.MultiAz,
     ...(isGCP ? [FieldId.SecureBoot] : []),
@@ -161,6 +179,7 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
         {isByoc && isGCP && installToSharedVpc && (
           <ReviewItem name={FieldId.SharedHostProjectID} formValues={formValues} />
         )}
+        {showDnsZone && <ReviewItem name={FieldId.DnsZone} formValues={formValues} />}
         {isByoc && installToVpc && (
           <ReviewItem name={isAWS ? 'aws_standalone_vpc' : 'gpc_vpc'} formValues={formValues} />
         )}
@@ -191,6 +210,12 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
               name={FieldId.DefaultRouterExcludedNamespacesFlag}
               formValues={formValues}
             />
+            {isGCP && isExcludeNamespaceSelectorsEnabled && (
+              <ReviewItem
+                name={FieldId.DefaultRouterExcludeNamespaceSelectors}
+                formValues={formValues}
+              />
+            )}
             <ReviewItem
               name={FieldId.IsDefaultRouterWildcardPolicyAllowed}
               formValues={formValues}

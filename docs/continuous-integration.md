@@ -26,6 +26,10 @@ Our repo declares a non-default pipeline-run config, which extends a remote pipe
 
 See [docker-build-run-unit-tests][11] at the _RedHatInsights/konflux-pipelines_ repo.
 
+## E2E testing in Konflux
+
+The pull-request pipeline runs Playwright E2E tests against each PR build using a Caddy proxy sidecar.  For details on the architecture, SSO authentication, environment variables, and Konflux resources, see the [Konflux E2E testing guide][15].
+
  
 ## Getting help
 
@@ -50,3 +54,4 @@ To get further assistance, post an ask in the #konflux-users Slack channel.
 [12]: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/ocm-ui-tenant/applications/ocm-ui/components/uhc-portal
 [13]: https://konflux.pages.redhat.com/docs/users/faq/general-questions.html
 [14]: https://gitlab.cee.redhat.com/releng/konflux-release-data/-/blob/main/tenants-config/README.md?ref_type=heads#add-or-update-a-tenant-namespace-with-the-helper-script
+[15]: ./konflux-e2e-testing.md

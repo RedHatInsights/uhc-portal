@@ -1,6 +1,8 @@
-import { test, expect } from '../../fixtures/pages';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { expect, test } from '../../fixtures/pages';
+import { getDownloadUrl } from '../../support/download-url-helper';
 
 const ROSARowTitle = 'Manage your Red Hat OpenShift Service on AWS';
 const OCRowTitle =
@@ -97,14 +99,14 @@ test.describe.serial('Downloads page', { tag: ['@ci', '@smoke'] }, () => {
 
     await expect(page.getByTestId('download-btn-odo')).toHaveAttribute(
       'href',
-      'https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/odo/latest/odo-linux-amd64.tar.gz',
+      getDownloadUrl('odo', 'linux'),
     );
 
     await page.getByTestId('arch-dropdown-odo').selectOption('ppc64le');
 
     await expect(page.getByTestId('download-btn-odo')).toHaveAttribute(
       'href',
-      'https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/odo/latest/odo-linux-ppc64le.tar.gz',
+      getDownloadUrl('odo', 'linux', 'ppc'),
     );
 
     // Only x86 available for Windows.
@@ -118,7 +120,7 @@ test.describe.serial('Downloads page', { tag: ['@ci', '@smoke'] }, () => {
 
     await expect(page.getByTestId('download-btn-odo')).toHaveAttribute(
       'href',
-      'https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/odo/latest/odo-windows-amd64.exe.zip',
+      getDownloadUrl('odo', 'windows'),
     );
   });
 

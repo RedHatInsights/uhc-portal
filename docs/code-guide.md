@@ -9,6 +9,19 @@ These guidelines serve to:
 
 Use these guidelines during development and code reviews. When in doubt or if a scenario isn't covered, ask the team for help.
 
+## General Conventions
+
+- Functional components with hooks only — no class components
+- PascalCase for component files and names; camelCase for non-component files, functions, and variables.
+- kebab-case for shell scripts and config files.
+- `UPPER_SNAKE_CASE` for true constants
+- Boolean props prefixed with `is`, `has`, `can`, `should`
+- Circular dependencies checked in CI: `npm run find-circular-dependencies`
+- Before creating a new hook, query, utility, or helper function, search the entire codebase for existing implementations — not just shared folders like `src/queries/` or `src/hooks/`. This is a legacy codebase and existing implementations may live inside other component folders. If you find a duplicate, reuse it and consider extracting it to a shared location.
+- Do not extend existing duplication. If you find the same business logic implemented in multiple places (e.g., the same calculation in different files for Day 1 vs Day 2, or JS vs TS versions), do not add another variant. Flag the duplication and consolidate into a single shared function before using it.
+- Before writing new logic (calculations, conditionals, data transformations), check if the same logic already exists in parent components, sibling components, or nearby files. Reuse existing logic rather than reimplementing it.
+- Do not blindly copy patterns or workarounds from existing code. This is a legacy codebase and some code contains hacks or workarounds (e.g., `setTimeout` around Formik's `setFieldTouched`) that only apply to specific situations. Understand *why* a pattern exists before replicating it — the workaround may not be needed in your context.
+
 ## Component Structure
 
 Components should be organized by features. Each feature is represented by a container component in charge of handling logic and rendering other presentational components. The main responsibilities of presentational components are to display data received via props and handle user interactions.
@@ -17,7 +30,7 @@ Components should be properly broken down into UI elements responsible for a sin
 
 Example folder structure for a hypothetical `UsersList` component:
 
-```
+```text
 UsersList/
 ├── UsersList.tsx           # Container component
 ├── UsersList.test.tsx      
@@ -105,6 +118,31 @@ When displaying data retrieved with asynchronous operations, always take care of
 While data is being loaded, a proper UI state should be displayed. PF offers `Skeleton` and `Spinner` components for this purpose. Read the corresponding design guidelines to decide how to design/implement loading case by case.
 
 In a similar way you should always handle possible errors. UIs should not fail silently if something went wrong. PF offers an "Alert" component with general indication in the related design guidelines.
+
+## Path Alias
+
+`~` maps to `src/` (configured in `tsconfig.json`, `jest.config.js`, and `fec.config.js`).
+
+## Import Restrictions
+
+The following import rules are enforced by ESLint:
+
+- PatternFly icons: use full ESM path `@patternfly/react-icons/dist/esm/icons/<icon>`
+- PatternFly tokens: use full ESM path `@patternfly/react-tokens/dist/esm/<token>`
+- `apiRequest`: always import from `~/services/apiRequest`
+- Files in `do_not_use` directories must not be imported
+
+## Import Order
+
+Import order is enforced by `simple-import-sort`:
+
+1. `react`, `next`, then packages starting with a letter
+2. Packages starting with `@`
+3. Packages starting with `~` (src alias)
+4. Relative `../` imports
+5. Relative `./` imports
+6. Style imports (`.css`, `.scss`)
+7. Side effect imports
 
 ## TypeScript 
 

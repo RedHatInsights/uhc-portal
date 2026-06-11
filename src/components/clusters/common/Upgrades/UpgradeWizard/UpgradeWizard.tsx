@@ -12,10 +12,10 @@ import {
   TimestampFormat,
   Title,
   Wizard,
+  WizardHeader,
   WizardStep,
 } from '@patternfly/react-core';
 
-import { ModalWizardHeader } from '~/components/clusters/wizards/common/ModalWizardHeader/ModalWizardHeader';
 import ErrorBox from '~/components/common/ErrorBox';
 import { useFetchUnmetAcknowledgements } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useFetchUnmetAcknowledgements';
 import { refetchSchedules } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules';
@@ -167,12 +167,11 @@ const UpgradeWizard = () => {
       isOpen
       aria-label="Wizard modal"
       onEscapePress={() => close()}
-      onClose={() => close()}
       variant={ModalVariant.large}
-      className="openshift ocm-upgrade-wizard__modal"
+      className="openshift"
+      // renders a 'close' button in modal header, for when wizard header isn't rendered
+      onClose={isWizardDone ? () => close() : undefined}
     >
-      <ModalWizardHeader title="Update cluster" description={clusterName} />
-
       {isWizardDone ? (
         <ModalBody>
           <FinishedStep
@@ -186,7 +185,18 @@ const UpgradeWizard = () => {
           />
         </ModalBody>
       ) : (
-        <Wizard onClose={() => close()} onSave={() => onSave()} className="ocm-upgrade-wizard">
+        <Wizard
+          className="ocm-upgrade-wizard"
+          header={
+            <WizardHeader
+              title="Update cluster"
+              description={clusterName}
+              onClose={() => close()}
+            />
+          }
+          onClose={() => close()}
+          onSave={() => onSave()}
+        >
           <WizardStep
             name="Select version"
             id="select-version"

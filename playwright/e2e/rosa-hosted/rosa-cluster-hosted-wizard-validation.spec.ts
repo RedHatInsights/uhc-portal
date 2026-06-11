@@ -218,11 +218,11 @@ test.describe.serial(
       await expect(createRosaWizardPage.computeNodeCountDecrementButton()).not.toBeEnabled();
       await createRosaWizardPage.selectComputeNodeCount((parseInt(minNodes) - 1).toString());
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone.LowerLimitError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.LowerLimitError,
       );
       await createRosaWizardPage.computeNodeCountIncrementButton().click();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone.LowerLimitError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.LowerLimitError,
         false,
       );
       await createRosaWizardPage.selectComputeNodeCount(maxNodes);
@@ -230,11 +230,11 @@ test.describe.serial(
       await expect(createRosaWizardPage.computeNodeCountDecrementButton()).toBeEnabled();
       await createRosaWizardPage.selectComputeNodeCount((parseInt(maxNodes) + 1).toString());
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone.UpperLimitError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.UpperLimitError,
       );
       await createRosaWizardPage.computeNodeCountDecrementButton().click();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone.UpperLimitError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.UpperLimitError,
         false,
       );
 
@@ -273,12 +273,12 @@ test.describe.serial(
       var maxNodes = '250';
       await createRosaWizardPage.selectComputeNodeCount((parseInt(minNodes) - 1).toString());
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount
           .LowerLimitErrorWithMultipleMachinePools,
       );
       await createRosaWizardPage.computeNodeCountIncrementButton().click();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount
           .LowerLimitErrorWithMultipleMachinePools,
         false,
       );
@@ -287,12 +287,12 @@ test.describe.serial(
       await expect(createRosaWizardPage.computeNodeCountDecrementButton()).toBeEnabled();
       await createRosaWizardPage.selectComputeNodeCount((parseInt(maxNodes) + 1).toString());
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount
           .UpperLimitErrorWithMultipleMachinePools,
       );
       await createRosaWizardPage.computeNodeCountDecrementButton().click();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount
           .UpperLimitErrorWithMultipleMachinePools,
         false,
       );
@@ -307,61 +307,69 @@ test.describe.serial(
       // Test node count validations
       await expect(createRosaWizardPage.minimumNodeCountInput()).toHaveValue('2');
       await expect(createRosaWizardPage.maximumNodeCountInput()).toHaveValue('2');
-      await expect(createRosaWizardPage.minimumNodeCountMinusButton()).not.toBeEnabled();
+      await expect(createRosaWizardPage.minimumNodeCountMinusButton()).toBeEnabled();
       await expect(createRosaWizardPage.maximumNodeCountMinusButton()).not.toBeEnabled();
 
-      await createRosaWizardPage.setMinimumNodeCount('0');
+      await createRosaWizardPage.setMinimumNodeCount('-1');
+      await expect(createRosaWizardPage.minimumNodeCountMinusButton()).not.toBeEnabled();
+      await expect(createRosaWizardPage.minimumNodeCountPlusButton()).toBeEnabled();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone.LowerLimitError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.Autoscaling.LowerLimitError,
       );
-
       await createRosaWizardPage.setMinimumNodeCount('600');
+      await expect(createRosaWizardPage.minimumNodeCountMinusButton()).toBeEnabled();
+      await expect(createRosaWizardPage.minimumNodeCountPlusButton()).not.toBeEnabled();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone.UpperLimitError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.UpperLimitError,
       );
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
-          .MinAndMaxLimitDependencyError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MinAndMaxLimitDependencyError,
       );
 
-      await createRosaWizardPage.setMinimumNodeCount('2');
+      await createRosaWizardPage.setMinimumNodeCount('0');
+      await expect(createRosaWizardPage.minimumNodeCountMinusButton()).not.toBeEnabled();
+      await expect(createRosaWizardPage.minimumNodeCountPlusButton()).toBeEnabled();
+
       await createRosaWizardPage.setMaximumNodeCount('600');
+      await expect(createRosaWizardPage.maximumNodeCountMinusButton()).toBeEnabled();
+      await expect(createRosaWizardPage.maximumNodeCountPlusButton()).not.toBeEnabled();
+
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone.UpperLimitError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.UpperLimitError,
       );
 
       await createRosaWizardPage.setMaximumNodeCount('0');
+      await expect(createRosaWizardPage.maximumNodeCountMinusButton()).not.toBeEnabled();
+      await expect(createRosaWizardPage.maximumNodeCountPlusButton()).toBeEnabled();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone.LowerLimitError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.Autoscaling
+          .LowerLimitErrorInMaximumNodeCount,
       );
 
       await createRosaWizardPage.setMaximumNodeCount('2');
       await createRosaWizardPage.minimumNodeCountPlusButton().click();
+      await createRosaWizardPage.minimumNodeCountPlusButton().click();
+      await createRosaWizardPage.minimumNodeCountPlusButton().click();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
-          .MinAndMaxLimitDependencyError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MinAndMaxLimitDependencyError,
       );
 
       await createRosaWizardPage.maximumNodeCountPlusButton().click();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
-          .MinAndMaxLimitDependencyError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MinAndMaxLimitDependencyError,
         false,
       );
 
       await createRosaWizardPage.maximumNodeCountMinusButton().click();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
-          .MinAndMaxLimitDependencyError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MinAndMaxLimitDependencyError,
       );
 
       await createRosaWizardPage.minimumNodeCountMinusButton().click();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
-          .MinAndMaxLimitDependencyError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MinAndMaxLimitDependencyError,
         false,
       );
-
       // Check for validation errors in machine pool node counts fields after subnet changes
       await createRosaWizardPage.addMachinePoolLink().click();
       await createRosaWizardPage.selectMachinePoolPrivateSubnet(
@@ -374,29 +382,26 @@ test.describe.serial(
         2,
       );
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
-          .MinAndMaxLimitDependencyError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MinAndMaxLimitDependencyError,
       );
 
       await createRosaWizardPage.minimumNodeCountMinusButton().click();
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone.LowerLimitError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.LowerLimitError,
         false,
       );
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
-          .MinAndMaxLimitDependencyError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MinAndMaxLimitDependencyError,
         false,
       );
 
       // Check for minimum and maximum node counts when both fields set to minimum value
       await createRosaWizardPage.removeMachinePool(2);
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
-          .MinAndMaxLimitDependencyError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MinAndMaxLimitDependencyError,
         false,
       );
-      await expect(createRosaWizardPage.minimumNodeInput()).toHaveValue('2');
+      await expect(createRosaWizardPage.minimumNodeInput()).toHaveValue('1');
       await expect(createRosaWizardPage.maximumNodeInput()).toHaveValue('2');
 
       // Check for minimum and maximum node count when both fields set to > minimum value
@@ -410,8 +415,7 @@ test.describe.serial(
       await expect(createRosaWizardPage.minimumNodeInput()).toHaveValue('3');
       await expect(createRosaWizardPage.maximumNodeInput()).toHaveValue('2');
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
-          .MinAndMaxLimitDependencyError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MinAndMaxLimitDependencyError,
       );
 
       // Check for validation errors when minimum node count > maximum node count
@@ -425,21 +429,26 @@ test.describe.serial(
         qeInfrastructure.SUBNETS.ZONES[getAvailabilityZone(2)].PRIVATE_SUBNET_NAME,
         3,
       );
-      await createRosaWizardPage.setMinimumNodeCount('3');
+      await createRosaWizardPage.setMinimumNodeCount('0');
       await createRosaWizardPage.setMaximumNodeCount('1');
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.Autoscaling
+          .LowerLimitErrorInMaximumNodeCount,
+        false,
+      );
+      await createRosaWizardPage.setMinimumNodeCount('3');
       await createRosaWizardPage.removeMachinePool(2);
       await createRosaWizardPage.removeMachinePool(2);
       await expect(createRosaWizardPage.minimumNodeInput()).toHaveValue('3');
       await expect(createRosaWizardPage.maximumNodeInput()).toHaveValue('2');
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone.LowerLimitError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.LowerLimitError,
         false,
       );
       await createRosaWizardPage.isTextContainsInPage(
-        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MultiZone
-          .MinAndMaxLimitDependencyError,
+        clusterFieldValidations.ClusterSettings.Machinepool.NodeCount.MinAndMaxLimitDependencyError,
       );
-      await createRosaWizardPage.setMinimumNodeCount('2');
+      await createRosaWizardPage.setMinimumNodeCount('0');
       await createRosaWizardPage.setMinimumNodeCount('2');
     });
 
