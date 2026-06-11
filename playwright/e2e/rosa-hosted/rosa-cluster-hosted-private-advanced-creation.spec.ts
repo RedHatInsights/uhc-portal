@@ -26,13 +26,13 @@ test.describe.serial(
     const logForwardingS3BucketName = process.env.QE_LOG_FORWARDING_S3_BUCKET_NAME || '';
     const logForwardingS3BucketPrefix = process.env.QE_LOG_FORWARDING_S3_BUCKET_PREFIX || '';
     const logForwardingCwRoleArn = process.env.QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN || '';
-    if (!logForwardingS3BucketName || !logForwardingS3BucketPrefix || !logForwardingCwRoleArn) {
-      throw new Error(
-        'Missing required env vars: QE_LOG_FORWARDING_S3_BUCKET_NAME, QE_LOG_FORWARDING_S3_BUCKET_PREFIX, QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN',
-      );
-    }
+
     test.beforeAll(async ({ navigateTo }) => {
-      // Initial navigation using navigateTo
+      if (!logForwardingS3BucketName || !logForwardingS3BucketPrefix || !logForwardingCwRoleArn) {
+        throw new Error(
+          'Missing required env vars: QE_LOG_FORWARDING_S3_BUCKET_NAME, QE_LOG_FORWARDING_S3_BUCKET_PREFIX, QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN',
+        );
+      }
       await navigateTo('create');
     });
 
