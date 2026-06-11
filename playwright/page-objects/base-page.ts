@@ -20,6 +20,11 @@ export class BasePage {
     return typeof selector === 'string' ? this.page.locator(selector) : selector;
   }
 
+  /** Escapes regex metacharacters when building RegExp patterns from arbitrary strings. */
+  protected escapeRegExp(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
   async assertUrlIncludes(path: string): Promise<void> {
     await expect(this.page).toHaveURL(new RegExp(path));
   }

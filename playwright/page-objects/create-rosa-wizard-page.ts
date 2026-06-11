@@ -534,7 +534,9 @@ export class CreateRosaWizardPage extends BasePage {
 
   /** Version dropdown (FuzzySelect) — option labels like "4.16.0 (fast)". */
   versionOptionsByChannel(channel: string): Locator {
-    return this.page.getByRole('option', { name: new RegExp(`\\(${channel}\\)`) });
+    return this.page.getByRole('option', {
+      name: new RegExp(`\\(${this.escapeRegExp(channel)}\\)`),
+    });
   }
 
   channelSelect(): Locator {
@@ -543,7 +545,9 @@ export class CreateRosaWizardPage extends BasePage {
 
   /** Channel combobox (FormSelect) — option labels like "fast-4.16". */
   channelSelectOptionsByPrefix(prefix: string): Locator {
-    return this.channelSelect().getByRole('option', { name: new RegExp(`^${prefix}-`) });
+    return this.channelSelect().getByRole('option', {
+      name: new RegExp(`^${this.escapeRegExp(prefix)}-`),
+    });
   }
 
   async selectMachinePoolPrivateSubnet(

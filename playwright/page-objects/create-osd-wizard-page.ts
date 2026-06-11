@@ -362,7 +362,7 @@ export class CreateOSDWizardPage extends BasePage {
     await this.dnsZoneDropdown().click();
     await this.dnsZoneFilterInput().clear();
     await this.dnsZoneFilterInput().fill(dnsZone);
-    const escapedDnsZone = dnsZone.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedDnsZone = this.escapeRegExp(dnsZone);
     const options = partialMatch
       ? this.page.getByRole('option').filter({ hasText: new RegExp(`^${escapedDnsZone}`) })
       : this.page.getByRole('option', { name: dnsZone });
@@ -656,7 +656,9 @@ export class CreateOSDWizardPage extends BasePage {
 
   /** Version dropdown (FuzzySelect) — option labels like "4.16.0 (fast)". */
   versionOptionsByChannel(channel: string): Locator {
-    return this.page.getByRole('option', { name: new RegExp(`\\(${channel}\\)`) });
+    return this.page.getByRole('option', {
+      name: new RegExp(`\\(${this.escapeRegExp(channel)}\\)`),
+    });
   }
 
   channelSelect(): Locator {
@@ -665,7 +667,9 @@ export class CreateOSDWizardPage extends BasePage {
 
   /** Channel combobox (FormSelect) — option labels like "fast-4.16". */
   channelSelectOptionsByPrefix(prefix: string): Locator {
-    return this.channelSelect().getByRole('option', { name: new RegExp(`^${prefix}-`) });
+    return this.channelSelect().getByRole('option', {
+      name: new RegExp(`^${this.escapeRegExp(prefix)}-`),
+    });
   }
 
   async selectAvailabilityZone(az: string): Promise<void> {
