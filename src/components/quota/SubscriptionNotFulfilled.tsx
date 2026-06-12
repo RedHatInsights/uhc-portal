@@ -11,8 +11,8 @@ import {
 
 import { Link } from '~/common/routing';
 
-import { BANNED_USER_CODE, overrideErrorMessage } from '../../common/errors';
 import docLinks from '../../common/docLinks.mjs';
+import { BANNED_USER_CODE, overrideErrorMessage } from '../../common/errors';
 import ExternalLink from '../common/ExternalLink';
 
 type Props = {
