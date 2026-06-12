@@ -740,16 +740,6 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         total?: number;
       }>(`/api/clusters_mgmt/v1/clusters/${clusterID}/control_plane/log_forwarders`),
 
-    getLogForwardingGroups: (params?: { size?: number }) =>
-      apiRequest.get<{
-        items?: LogForwarderGroupVersions[];
-        page?: number;
-        size?: number;
-        total?: number;
-      }>('/api/clusters_mgmt/v1/log_forwarding/groups', {
-        params: { size: params?.size ?? -1 },
-      }),
-
     getUpgradeScheduleState: (
       clusterID: string,
       policyID: string,
@@ -1296,7 +1286,12 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         page?: number;
         size?: number;
         total?: number;
-      }>('/api/clusters_mgmt/v1/log_forwarding/groups', { params }),
+      }>('/api/clusters_mgmt/v1/log_forwarding/groups', {
+        params: {
+          ...params,
+          size: params?.size ?? -1,
+        },
+      }),
 
     getLogForwardingApplications: (params?: {
       order?: string;
