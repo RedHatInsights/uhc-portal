@@ -740,6 +740,27 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         total?: number;
       }>(`/api/clusters_mgmt/v1/clusters/${clusterID}/control_plane/log_forwarders`),
 
+    postClusterControlPlaneLogForwarder: (clusterID: string, data: LogForwarder) =>
+      apiRequest.post<LogForwarder>(
+        `/api/clusters_mgmt/v1/clusters/${clusterID}/control_plane/log_forwarders`,
+        data,
+      ),
+
+    patchClusterControlPlaneLogForwarder: (
+      clusterID: string,
+      logForwarderID: string,
+      data: LogForwarder,
+    ) =>
+      apiRequest.patch<LogForwarder>(
+        `/api/clusters_mgmt/v1/clusters/${clusterID}/control_plane/log_forwarders/${logForwarderID}`,
+        data,
+      ),
+
+    deleteClusterControlPlaneLogForwarder: (clusterID: string, logForwarderID: string) =>
+      apiRequest.delete<unknown>(
+        `/api/clusters_mgmt/v1/clusters/${clusterID}/control_plane/log_forwarders/${logForwarderID}`,
+      ),
+
     getUpgradeScheduleState: (
       clusterID: string,
       policyID: string,

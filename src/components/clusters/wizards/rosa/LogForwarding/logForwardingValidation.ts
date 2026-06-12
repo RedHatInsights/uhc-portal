@@ -111,3 +111,69 @@ export function validateLogForwardingFields(values: FormikValues): Record<string
 
   return errors;
 }
+
+export type LogForwardingModalFormValues = {
+  bucketName: string;
+  bucketPrefix: string;
+  logGroupName: string;
+  roleArn: string;
+  selectedItems: string[];
+  prerequisiteAck: boolean;
+};
+
+export function validateLogForwardingModalFields(
+  kind: 's3' | 'cloudwatch',
+  values: LogForwardingModalFormValues,
+  options?: { requireCloudWatchPrerequisite?: boolean },
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+
+  if (kind === 's3') {
+    const bucket = values.bucketName.trim();
+    if (!bucket) {
+      errors.bucketName = 'Bucket name is required.';
+    } else {
+      const bucketErr = validateS3BucketName(bucket);
+      if (bucketErr) {
+        errors.bucketName = bucketErr;
+      }
+    }
+    const prefixErr = validateS3BucketPrefix(values.bucketPrefix.trim());
+    if (prefixErr) {
+      errors.bucketPrefix = prefixErr;
+    }
+    if (!values.selectedItems?.length) {
+      errors.selectedItems = 'Select at least one group or application.';
+    }
+    return errors;
+  }
+
+  const logGroup = values.logGroupName.trim();
+  if (!logGroup) {
+    errors.logGroupName = 'Log group name is required.';
+  } else if (logGroup.length > CLOUDWATCH_LOG_GROUP_NAME_MAX_LENGTH) {
+    errors.logGroupName = 'Log group name must be 512 characters or fewer.';
+  } else if (!CLOUDWATCH_LOG_GROUP_NAME_RE.test(logGroup)) {
+    errors.logGroupName = 'Log group name contains invalid characters.';
+  }
+
+  const roleArn = values.roleArn.trim();
+  if (!roleArn) {
+    errors.roleArn = 'Role ARN is required.';
+  } else {
+    const arnErr = validateRoleARN(roleArn);
+    if (arnErr) {
+      errors.roleArn = arnErr;
+    }
+  }
+
+  if (options?.requireCloudWatchPrerequisite && !values.prerequisiteAck) {
+    errors.prerequisiteAck = 'Confirm you have completed the prerequisites to continue.';
+  }
+
+  if (!values.selectedItems?.length) {
+    errors.selectedItems = 'Select at least one group or application.';
+  }
+
+  return errors;
+}

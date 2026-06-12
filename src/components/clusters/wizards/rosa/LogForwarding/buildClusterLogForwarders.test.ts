@@ -6,7 +6,9 @@ import {
 } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 
 import {
+  buildSingleLogForwarder,
   getRosaLogForwardersForClusterRequest,
+  logForwarderToFormValues,
   normalizeLogForwarderGroupSubmitId,
   splitLogForwardingSelectionForSubmit,
 } from './buildClusterLogForwarders';
@@ -132,5 +134,62 @@ describe('getRosaLogForwardersForClusterRequest', () => {
       [FieldId.LogForwardingS3SelectedItems]: [],
     };
     expect(getRosaLogForwardersForClusterRequest(form, mockLogForwardingGroupTree)).toEqual([]);
+  });
+});
+
+describe('buildSingleLogForwarder', () => {
+  it('builds an S3 forwarder from modal form values', () => {
+    const forwarder = buildSingleLogForwarder(
+      's3',
+      {
+        bucketName: 'my-bucket',
+        bucketPrefix: 'logs/',
+        logGroupName: '',
+        roleArn: '',
+        selectedItems: ['api-audit', 'api-server'],
+      },
+      mockLogForwardingGroupTree,
+    );
+    expect(forwarder).toEqual({
+      s3: { bucket_name: 'my-bucket', bucket_prefix: 'logs/' },
+      groups: [{ id: 'api' }],
+      applications: [],
+    });
+  });
+
+  it('builds a CloudWatch forwarder from modal form values', () => {
+    const forwarder = buildSingleLogForwarder(
+      'cloudwatch',
+      {
+        bucketName: '',
+        bucketPrefix: '',
+        logGroupName: '/aws/rosa/group',
+        roleArn: 'arn:aws:iam::123456789012:role/forward',
+        selectedItems: ['auth-kube-apiserver'],
+      },
+      mockLogForwardingGroupTree,
+    );
+    expect(forwarder?.cloudwatch).toEqual({
+      log_group_name: '/aws/rosa/group',
+      log_distribution_role_arn: 'arn:aws:iam::123456789012:role/forward',
+    });
+    expect(forwarder?.applications).toEqual(['auth-kube-apiserver']);
+  });
+});
+
+describe('logForwarderToFormValues', () => {
+  it('maps an existing S3 forwarder to form values', () => {
+    const forwarder = {
+      s3: { bucket_name: 'bucket-a', bucket_prefix: 'pfx/' },
+      groups: [{ id: 'api' }],
+      applications: [],
+    };
+    expect(logForwarderToFormValues('s3', forwarder, mockLogForwardingGroupTree)).toEqual({
+      bucketName: 'bucket-a',
+      bucketPrefix: 'pfx/',
+      logGroupName: '',
+      roleArn: '',
+      selectedItems: ['api-audit', 'api-server'],
+    });
   });
 });

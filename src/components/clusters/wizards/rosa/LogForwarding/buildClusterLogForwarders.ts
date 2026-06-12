@@ -1,6 +1,7 @@
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import type { LogForwardingGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
 import { LOG_FORWARDING_OTHER_GROUP_ROOT_ID } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
+import { expandLogForwarderSelectionToLeafIds } from '~/components/common/GroupsApplicationsSelector/logForwardingReviewHelpers';
 import type { LogForwarder } from '~/types/clusters_mgmt.v1';
 
 /** Maps group display names from the API tree to LogForwarderGroup.id (API `name`, lowercased). */
@@ -114,4 +115,85 @@ export function getRosaLogForwardersForClusterRequest(
   }
 
   return forwarders;
+}
+
+export type LogForwardingDestinationKind = 's3' | 'cloudwatch';
+
+export type SingleLogForwarderFormValues = {
+  bucketName: string;
+  bucketPrefix: string;
+  logGroupName: string;
+  roleArn: string;
+  selectedItems: string[];
+};
+
+export function buildSingleLogForwarder(
+  kind: LogForwardingDestinationKind,
+  values: SingleLogForwarderFormValues,
+  tree: LogForwardingGroupTreeNode[] | undefined,
+): LogForwarder | null {
+  const { groupIds, applications } = splitLogForwardingSelectionForSubmit(
+    tree,
+    values.selectedItems,
+  );
+
+  if (groupIds.length === 0 && applications.length === 0) {
+    return null;
+  }
+
+  if (kind === 'cloudwatch') {
+    const roleArn = values.roleArn.trim();
+    const logGroup = values.logGroupName.trim();
+    if (!roleArn || !logGroup) {
+      return null;
+    }
+    return {
+      cloudwatch: {
+        log_distribution_role_arn: roleArn,
+        log_group_name: logGroup,
+      },
+      groups: groupIds.map((id) => ({ id })),
+      applications,
+    };
+  }
+
+  const bucket = values.bucketName.trim();
+  const prefixRaw = values.bucketPrefix.trim();
+  if (!bucket) {
+    return null;
+  }
+  return {
+    s3: {
+      bucket_name: bucket,
+      ...(prefixRaw ? { bucket_prefix: prefixRaw } : {}),
+    },
+    groups: groupIds.map((id) => ({ id })),
+    applications,
+  };
+}
+
+export function logForwarderToFormValues(
+  kind: LogForwardingDestinationKind,
+  forwarder: LogForwarder,
+  tree: LogForwardingGroupTreeNode[],
+): SingleLogForwarderFormValues {
+  const selectedItems = expandLogForwarderSelectionToLeafIds(forwarder, tree);
+
+  if (kind === 'cloudwatch') {
+    return {
+      bucketName: '',
+      bucketPrefix: '',
+      logGroupName: forwarder.cloudwatch?.log_group_name?.trim() ?? '',
+      roleArn: forwarder.cloudwatch?.log_distribution_role_arn?.trim() ?? '',
+      selectedItems,
+    };
+  }
+
+  return {
+    bucketName: forwarder.s3?.bucket_name?.trim() ?? '',
+    bucketPrefix: forwarder.s3?.bucket_prefix?.trim() ?? '',
+    logGroupName: '',
+    roleArn: '',
+    selectedItems,
+  };
 }
