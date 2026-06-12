@@ -92,6 +92,11 @@ export class ClusterTypesPage extends BasePage {
     ).toBeVisible({ timeout: 60000 });
   }
 
+  /** Navigate back to a provider install-type page after a section check navigates away. */
+  async returnToProvider(installPath: string): Promise<void> {
+    await this.goto(installPath);
+  }
+
   async isAutomated(
     clusterType: string,
     clusterHeader: string,
@@ -131,8 +136,6 @@ export class ClusterTypesPage extends BasePage {
     );
     await expect(this.page.locator('h1')).toHaveText(expectedHeaderRegex, { timeout: 30000 });
     await expect(this.page).toHaveURL(new RegExp('installer-provisioned'));
-
-    await this.page.goBack();
   }
 
   async isFullControl(
@@ -186,15 +189,9 @@ export class ClusterTypesPage extends BasePage {
     await expect(this.page.locator('h1')).toHaveText(expectedHeader.trim(), { timeout: 30000 });
 
     await expect(this.page).toHaveURL(new RegExp('user-provisioned'));
-
-    await this.page.goBack();
   }
 
-  async isInteractive(
-    nonTested?: boolean,
-    recommended?: boolean,
-    previousPage?: string,
-  ): Promise<void> {
+  async isInteractive(nonTested?: boolean, recommended?: boolean): Promise<void> {
     await this.interactiveSection.scrollIntoViewIfNeeded();
 
     // Check section elements
@@ -233,12 +230,6 @@ export class ClusterTypesPage extends BasePage {
     await expect(
       this.page.locator('h1').filter({ hasText: 'Install OpenShift with the Assisted Installer' }),
     ).toBeVisible({ timeout: 30000 });
-
-    if (previousPage) {
-      await this.page.goto(previousPage);
-    } else {
-      await this.page.goBack();
-    }
   }
 
   async isLocalAgentBased(
@@ -283,7 +274,5 @@ export class ClusterTypesPage extends BasePage {
     const archText = clusterArch && clusterArch.length > 0 ? `${clusterArch} ` : '';
     const expectedHeader = `Install OpenShift on ${clusterHeader} locally ${archText}with Agent`;
     await expect(this.page.locator('h1')).toHaveText(expectedHeader, { timeout: 30000 });
-
-    await this.page.goBack();
   }
 }

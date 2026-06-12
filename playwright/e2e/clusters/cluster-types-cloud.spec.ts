@@ -12,30 +12,39 @@ test.describe(
     test('Checks cluster installation types for cloud provider Alibaba Cloud', async ({
       clusterTypesPage,
     }) => {
+      const installPath = 'install/alibaba';
+
       await clusterTypesPage.clickCloudProvider('Alibaba Cloud', true);
-      await clusterTypesPage.isClusterTypesUrl('/install/alibaba');
+      await clusterTypesPage.isClusterTypesUrl(`/${installPath}`);
       await clusterTypesPage.isClusterTypesHeader('Alibaba Cloud');
-      await clusterTypesPage.isInteractive(true, true, 'install/alibaba');
+      await clusterTypesPage.isInteractive(true, true);
+      await clusterTypesPage.returnToProvider(installPath);
       await clusterTypesPage.isLocalAgentBased('any x86_64 platform', '', true);
     });
 
     test('Checks cluster installation types for cloud provider AWS (x86_64)', async ({
       clusterTypesPage,
     }) => {
+      const installPath = 'install/aws';
+
       await clusterTypesPage.clickCloudProvider('AWS (x86_64)');
-      await clusterTypesPage.isClusterTypesUrl('/install/aws');
+      await clusterTypesPage.isClusterTypesUrl(`/${installPath}`);
       await clusterTypesPage.isClusterTypesHeader('AWS');
       await clusterTypesPage.isAutomated('aws', 'AWS', '');
+      await clusterTypesPage.returnToProvider(installPath);
       await clusterTypesPage.isFullControl('aws', 'AWS', '');
     });
 
     test('Checks cluster installation types for cloud provider AWS (ARM)', async ({
       clusterTypesPage,
     }) => {
+      const installPath = 'install/aws/arm';
+
       await clusterTypesPage.clickCloudProvider('AWS (ARM)');
-      await clusterTypesPage.isClusterTypesUrl('/install/aws/arm');
+      await clusterTypesPage.isClusterTypesUrl(`/${installPath}`);
       await clusterTypesPage.isClusterTypesHeader('AWS (ARM)');
       await clusterTypesPage.isAutomated('aws', 'AWS', 'ARM');
+      await clusterTypesPage.returnToProvider(installPath);
       await clusterTypesPage.isFullControl('aws', 'AWS', 'ARM');
     });
 
@@ -55,10 +64,13 @@ test.describe(
     test('Checks cluster installation types for cloud provider Azure (x86_64)', async ({
       clusterTypesPage,
     }) => {
+      const installPath = 'install/azure';
+
       await clusterTypesPage.clickCloudProvider('Azure (x86_64)');
-      await clusterTypesPage.isClusterTypesUrl('/install/azure');
+      await clusterTypesPage.isClusterTypesUrl(`/${installPath}`);
       await clusterTypesPage.isClusterTypesHeader('Azure');
       await clusterTypesPage.isAutomated('azure', 'Azure', '');
+      await clusterTypesPage.returnToProvider(installPath);
       await clusterTypesPage.isFullControl('azure', 'Azure', '');
     });
 
@@ -91,10 +103,13 @@ test.describe(
     test('Checks cluster installation types for cloud provider Google Cloud', async ({
       clusterTypesPage,
     }) => {
+      const installPath = 'install/gcp';
+
       await clusterTypesPage.clickCloudProvider('Google Cloud');
-      await clusterTypesPage.isClusterTypesUrl('/install/gcp');
+      await clusterTypesPage.isClusterTypesUrl(`/${installPath}`);
       await clusterTypesPage.isClusterTypesHeader('Google Cloud');
       await clusterTypesPage.isAutomated('gcp', 'Google Cloud', '');
+      await clusterTypesPage.returnToProvider(installPath);
       await clusterTypesPage.isFullControl('gcp', 'Google Cloud', '');
     });
 
@@ -141,21 +156,28 @@ test.describe(
     test('Checks cluster installation types for cloud provider Platform Agnostic', async ({
       clusterTypesPage,
     }) => {
+      const installPath = 'install/platform-agnostic';
+
       await clusterTypesPage.clickCloudProvider('Platform agnostic (x86_64)');
-      await clusterTypesPage.isClusterTypesUrl('/install/platform-agnostic');
+      await clusterTypesPage.isClusterTypesUrl(`/${installPath}`);
       await clusterTypesPage.isClusterTypesHeader('Platform agnostic (x86_64)');
-      await clusterTypesPage.isInteractive(true, true, 'install/platform-agnostic');
+      await clusterTypesPage.isInteractive(true, true);
+      await clusterTypesPage.returnToProvider(installPath);
       await clusterTypesPage.isLocalAgentBased('any x86_64 platform', '', true);
+      await clusterTypesPage.returnToProvider(installPath);
       await clusterTypesPage.isFullControl('platform-agnostic', 'any x86_64 platform', '', true);
     });
 
     test('Checks cluster installation types for cloud provider Oracle Cloud Infrastructure', async ({
       clusterTypesPage,
     }) => {
+      const installPath = 'install/oracle-cloud';
+
       await clusterTypesPage.clickCloudProvider('Oracle Cloud Infrastructure');
-      await clusterTypesPage.isClusterTypesUrl('/install/oracle-cloud');
+      await clusterTypesPage.isClusterTypesUrl(`/${installPath}`);
       await clusterTypesPage.isClusterTypesHeader('Oracle Cloud Infrastructure');
-      await clusterTypesPage.isInteractive(true, true, 'install/oracle-cloud');
+      await clusterTypesPage.isInteractive(true, true);
+      await clusterTypesPage.returnToProvider(installPath);
       await clusterTypesPage.isLocalAgentBased('any x86_64 platform', '', true);
     });
   },
