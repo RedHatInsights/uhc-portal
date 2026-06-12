@@ -6,7 +6,7 @@ import { useFetchLogForwardingGroupsCatalog } from '~/queries/RosaWizardQueries/
 import { render, screen } from '~/testUtils';
 import type { AugmentedCluster } from '~/types/types';
 
-import ControlPlaneLogForwardingSection from './ControlPlaneLogForwardingSection';
+import LogForwardingSection from './LogForwardingSection';
 
 jest.mock('~/queries/featureGates/useFetchFeatureGate');
 jest.mock('~/queries/ClusterDetailsQueries/useFetchClusterControlPlaneLogForwarders');
@@ -52,7 +52,7 @@ const mockCluster: AugmentedCluster = {
   },
 } as AugmentedCluster;
 
-describe('ControlPlaneLogForwardingSection', () => {
+describe('LogForwardingSection', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useFeatureGate as jest.Mock).mockReturnValue(true);
@@ -70,7 +70,7 @@ describe('ControlPlaneLogForwardingSection', () => {
       error: null,
     });
 
-    render(<ControlPlaneLogForwardingSection cluster={mockCluster} />);
+    render(<LogForwardingSection cluster={mockCluster} />);
 
     expect(screen.getByText('Control plane log forwarding')).toBeInTheDocument();
     expect(screen.getByText('No log forwarding configured.')).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('ControlPlaneLogForwardingSection', () => {
       error: null,
     });
 
-    render(<ControlPlaneLogForwardingSection cluster={mockCluster} />);
+    render(<LogForwardingSection cluster={mockCluster} />);
 
     expect(screen.getByText('Amazon S3')).toBeInTheDocument();
     expect(screen.getByText('zac-test-12')).toBeInTheDocument();
@@ -110,7 +110,7 @@ describe('ControlPlaneLogForwardingSection', () => {
       error: null,
     });
 
-    const { user } = render(<ControlPlaneLogForwardingSection cluster={mockCluster} />);
+    const { user } = render(<LogForwardingSection cluster={mockCluster} />);
 
     await user.click(screen.getByRole('button', { name: 'Add configuration' }));
     await user.click(screen.getByRole('menuitem', { name: 'Amazon S3' }));
@@ -133,7 +133,7 @@ describe('ControlPlaneLogForwardingSection', () => {
       error: null,
     });
 
-    const { user } = render(<ControlPlaneLogForwardingSection cluster={mockCluster} />);
+    const { user } = render(<LogForwardingSection cluster={mockCluster} />);
 
     await user.click(screen.getByRole('button', { name: 'Amazon S3 configuration actions' }));
     await user.click(screen.getByRole('menuitem', { name: 'Delete configuration' }));
@@ -150,7 +150,7 @@ describe('ControlPlaneLogForwardingSection', () => {
       error: null,
     });
 
-    render(<ControlPlaneLogForwardingSection cluster={mockCluster} />);
+    render(<LogForwardingSection cluster={mockCluster} />);
 
     expect(screen.queryByText('Control plane log forwarding')).not.toBeInTheDocument();
   });
