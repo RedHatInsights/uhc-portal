@@ -39,13 +39,16 @@ export const logForwardingNoneLabel = <span className="pf-v6-u-disabled-color-10
 
 export type LogForwardingConfigColumn = { term: string; description: React.ReactNode };
 
+const LOG_FORWARDER_READY_STATES = ['ready'];
+const LOG_FORWARDER_PENDING_STATES = ['pending', 'in_progress', 'progress', 'waiting'];
+
 function formatForwarderStatus(status: LogForwarderStatus | undefined): {
   label: string;
   icon: React.ReactNode;
 } {
   const raw = status?.state ?? '';
   const state = raw.toLowerCase();
-  if (state.includes('ready')) {
+  if (LOG_FORWARDER_READY_STATES.includes(state)) {
     return {
       label: 'Ready',
       icon: (
@@ -55,7 +58,7 @@ function formatForwarderStatus(status: LogForwarderStatus | undefined): {
       ),
     };
   }
-  if (state.includes('pending') || state.includes('progress') || state.includes('waiting')) {
+  if (LOG_FORWARDER_PENDING_STATES.includes(state)) {
     return {
       label: raw ? raw.replace(/_/g, ' ') : 'Pending',
       icon: <OutlinedClockIcon className="pf-v6-u-color-text-subtle" aria-hidden />,

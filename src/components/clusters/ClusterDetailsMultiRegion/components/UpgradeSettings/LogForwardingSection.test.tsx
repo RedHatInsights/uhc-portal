@@ -6,6 +6,8 @@ import { useFetchLogForwardingGroupsCatalog } from '~/queries/RosaWizardQueries/
 import { render, screen } from '~/testUtils';
 import type { AugmentedCluster } from '~/types/types';
 
+import { isHibernating } from '../../../common/clusterStates';
+
 import LogForwardingSection from './LogForwardingSection';
 
 jest.mock('~/queries/featureGates/useFetchFeatureGate');
@@ -153,5 +155,120 @@ describe('LogForwardingSection', () => {
     render(<LogForwardingSection cluster={mockCluster} />);
 
     expect(screen.queryByText('Control plane log forwarding')).not.toBeInTheDocument();
+  });
+
+  it('shows loading spinner while forwarders are loading', () => {
+    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+      data: [],
+      isLoading: true,
+      isError: false,
+      error: null,
+    });
+
+    render(<LogForwardingSection cluster={mockCluster} />);
+
+    expect(screen.getByLabelText('Loading log forwarding configuration')).toBeInTheDocument();
+  });
+
+  it('shows error alert when forwarders fail to load', () => {
+    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: true,
+      error: { errorMessage: 'Request failed' },
+    });
+
+    render(<LogForwardingSection cluster={mockCluster} />);
+
+    expect(screen.getByText('Could not load control plane log forwarding')).toBeInTheDocument();
+    expect(screen.getByText('Request failed')).toBeInTheDocument();
+  });
+
+  it('shows CloudWatch forwarder details', () => {
+    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+      data: [
+        {
+          id: 'lf-cw-1',
+          cloudwatch: {
+            log_group_name: '/aws/rosa/my-group',
+            log_distribution_role_arn: 'arn:aws:iam::123456789012:role/forward',
+          },
+          applications: ['api-audit'],
+          status: { state: 'ready' },
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(<LogForwardingSection cluster={mockCluster} />);
+
+    expect(screen.getByText('CloudWatch')).toBeInTheDocument();
+    expect(screen.getByText('/aws/rosa/my-group')).toBeInTheDocument();
+    expect(screen.getByText('arn:aws:iam::123456789012:role/forward')).toBeInTheDocument();
+  });
+
+  it('opens edit modal from card kebab menu', async () => {
+    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+      data: [
+        {
+          id: 'lf-s3-1',
+          s3: { bucket_name: 'zac-test-12' },
+          applications: ['api-audit'],
+          status: { state: 'ready' },
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    const { user } = render(<LogForwardingSection cluster={mockCluster} />);
+
+    await user.click(screen.getByRole('button', { name: 'Amazon S3 configuration actions' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Edit configuration' }));
+
+    expect(screen.getByTestId('add-edit-s3-edit')).toBeInTheDocument();
+  });
+
+  it('opens edit modal for CloudWatch from card kebab menu', async () => {
+    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+      data: [
+        {
+          id: 'lf-cw-1',
+          cloudwatch: {
+            log_group_name: '/aws/rosa/my-group',
+            log_distribution_role_arn: 'arn:aws:iam::123456789012:role/forward',
+          },
+          applications: ['api-audit'],
+          status: { state: 'ready' },
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    const { user } = render(<LogForwardingSection cluster={mockCluster} />);
+
+    await user.click(screen.getByRole('button', { name: 'CloudWatch configuration actions' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Edit configuration' }));
+
+    expect(screen.getByTestId('add-edit-cloudwatch-edit')).toBeInTheDocument();
+  });
+
+  it('disables add configuration when cluster is hibernating', () => {
+    (isHibernating as jest.Mock).mockReturnValue(true);
+    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(<LogForwardingSection cluster={mockCluster} />);
+
+    expect(screen.getByRole('button', { name: 'Add configuration' })).toBeDisabled();
   });
 });

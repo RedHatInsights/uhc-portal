@@ -2,6 +2,7 @@ import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 
 import {
   validateLogForwardingFields,
+  validateLogForwardingModalFields,
   validateS3BucketName,
   validateS3BucketPrefix,
 } from './logForwardingValidation';
@@ -148,6 +149,16 @@ describe('logForwardingValidation', () => {
           'Select at least one group or application.',
         );
       });
+
+      it('treats non-array selected items as missing', () => {
+        const errors = validateLogForwardingFields({
+          ...baseS3,
+          [FieldId.LogForwardingS3SelectedItems]: 'not-an-array',
+        } as Record<string, unknown>);
+        expect(errors[FieldId.LogForwardingS3SelectedItems]).toBe(
+          'Select at least one group or application.',
+        );
+      });
     });
 
     describe('CloudWatch enabled', () => {
@@ -278,6 +289,123 @@ describe('logForwardingValidation', () => {
       expect(errors[FieldId.LogForwardingCloudWatchLogGroupName]).toBeDefined();
       expect(errors[FieldId.LogForwardingCloudWatchRoleArn]).toBeDefined();
       expect(errors[FieldId.LogForwardingCloudWatchPrerequisiteAck]).toBeDefined();
+    });
+  });
+
+  describe('validateLogForwardingModalFields', () => {
+    const validRoleArn = 'arn:aws:iam::123456789012:role/log-forward-role';
+
+    it('validates required S3 modal fields', () => {
+      const errors = validateLogForwardingModalFields('s3', {
+        bucketName: '',
+        bucketPrefix: '',
+        logGroupName: '',
+        roleArn: '',
+        selectedItems: [],
+        prerequisiteAck: false,
+      });
+
+      expect(errors.bucketName).toBe('Bucket name is required.');
+      expect(errors.selectedItems).toBe('Select at least one group or application.');
+    });
+
+    it('maps S3 bucket and prefix validation errors', () => {
+      const errors = validateLogForwardingModalFields('s3', {
+        bucketName: 'AB',
+        bucketPrefix: 'a..b',
+        logGroupName: '',
+        roleArn: '',
+        selectedItems: ['api'],
+        prerequisiteAck: false,
+      });
+
+      expect(errors.bucketName).toContain('3 and 63');
+      expect(errors.bucketPrefix).toContain('consecutive');
+    });
+
+    it('validates required CloudWatch modal fields', () => {
+      const errors = validateLogForwardingModalFields('cloudwatch', {
+        bucketName: '',
+        bucketPrefix: '',
+        logGroupName: '',
+        roleArn: '',
+        selectedItems: [],
+        prerequisiteAck: false,
+      });
+
+      expect(errors.logGroupName).toBe('Log group name is required.');
+      expect(errors.roleArn).toBe('Role ARN is required.');
+      expect(errors.selectedItems).toBe('Select at least one group or application.');
+    });
+
+    it('requires CloudWatch prerequisite acknowledgment when configured', () => {
+      const errors = validateLogForwardingModalFields(
+        'cloudwatch',
+        {
+          bucketName: '',
+          bucketPrefix: '',
+          logGroupName: '/aws/log-group',
+          roleArn: validRoleArn,
+          selectedItems: ['api'],
+          prerequisiteAck: false,
+        },
+        { requireCloudWatchPrerequisite: true },
+      );
+
+      expect(errors.prerequisiteAck).toBe(
+        'Confirm you have completed the prerequisites to continue.',
+      );
+    });
+
+    it('rejects invalid CloudWatch log group names and role ARNs', () => {
+      const errors = validateLogForwardingModalFields('cloudwatch', {
+        bucketName: '',
+        bucketPrefix: '',
+        logGroupName: 'invalid name',
+        roleArn: 'not-a-valid-arn',
+        selectedItems: ['api'],
+        prerequisiteAck: true,
+      });
+
+      expect(errors.logGroupName).toContain('invalid characters');
+      expect(errors.roleArn).toContain('ARN value should be');
+    });
+
+    it('rejects log group names longer than 512 characters', () => {
+      const errors = validateLogForwardingModalFields('cloudwatch', {
+        bucketName: '',
+        bucketPrefix: '',
+        logGroupName: 'a'.repeat(513),
+        roleArn: validRoleArn,
+        selectedItems: ['api'],
+        prerequisiteAck: true,
+      });
+
+      expect(errors.logGroupName).toContain('512');
+    });
+
+    it('returns no errors for valid modal values', () => {
+      expect(
+        validateLogForwardingModalFields('s3', {
+          bucketName: 'my-bucket',
+          bucketPrefix: 'logs/',
+          logGroupName: '',
+          roleArn: '',
+          selectedItems: ['api'],
+          prerequisiteAck: false,
+        }),
+      ).toEqual({});
+
+      expect(
+        validateLogForwardingModalFields('cloudwatch', {
+          bucketName: '',
+          bucketPrefix: '',
+          logGroupName: '/aws/log-group',
+          roleArn: validRoleArn,
+          selectedItems: ['api'],
+          prerequisiteAck: true,
+        }),
+      ).toEqual({});
     });
   });
 });
