@@ -29,6 +29,11 @@ describe('pickLatestLogForwarderGroupVersion', () => {
     expect(latest?.id).toBe('10');
     expect(latest?.applications).toEqual(['b']);
   });
+
+  it('returns undefined when versions are missing or empty', () => {
+    expect(pickLatestLogForwarderGroupVersion(undefined)).toBeUndefined();
+    expect(pickLatestLogForwarderGroupVersion([])).toBeUndefined();
+  });
 });
 
 describe('logForwardingGroupVersionsListToTree', () => {
@@ -59,6 +64,38 @@ describe('logForwardingGroupVersionsListToTree', () => {
       },
     ]);
     expect(tree).toEqual([{ id: 'kube-scheduler', text: 'scheduler' }]);
+  });
+
+  it('skips blank group names and versions without applications', () => {
+    const tree = logForwardingGroupVersionsListToTree([
+      { name: '   ', enabled: true, versions: [{ id: '1', applications: ['app'] }] },
+      { name: 'Empty', enabled: true, versions: [{ id: '1', applications: [] }] },
+      {
+        name: 'API',
+        enabled: true,
+        versions: [{ id: '1', applications: ['audit'] }],
+      },
+    ]);
+
+    expect(tree).toEqual([{ id: 'audit', text: 'API' }]);
+  });
+
+  it('sorts root nodes alphabetically by display name', () => {
+    const tree = logForwardingGroupVersionsListToTree([
+      {
+        name: 'Zulu',
+        enabled: true,
+        versions: [{ id: '1', applications: ['z-app'] }],
+      },
+      {
+        name: 'Alpha',
+        enabled: true,
+        versions: [{ id: '1', applications: ['a-one', 'a-two'] }],
+      },
+    ]);
+
+    expect(tree.map((node) => node.text)).toEqual(['Alpha', 'Zulu']);
+    expect(tree[0].children?.map((child) => child.id)).toEqual(['a-one', 'a-two']);
   });
 });
 

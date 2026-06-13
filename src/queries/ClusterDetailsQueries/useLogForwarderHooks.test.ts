@@ -112,7 +112,7 @@ describe('useFetchClusterControlPlaneLogForwarders', () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
 
-    expect(result.current.data).toBeUndefined();
+    expect(result.current.data).toEqual([]);
     expect(result.current.error).toBeTruthy();
   });
 });

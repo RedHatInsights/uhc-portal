@@ -145,6 +145,16 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
               <span className="pf-v6-u-color-text-subtle">No log forwarding configured.</span>
             ) : null}
 
+            {!isForwardersLoading &&
+            !isForwardersError &&
+            forwarders.length > 0 &&
+            !s3Forwarder &&
+            !cloudWatchForwarder ? (
+              <span className="pf-v6-u-color-text-subtle">
+                No supported log forwarding destinations are configured.
+              </span>
+            ) : null}
+
             {!isForwardersLoading && !isForwardersError && s3Forwarder ? (
               <LogDestinationCard
                 title="Amazon S3"

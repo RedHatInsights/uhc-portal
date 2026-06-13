@@ -13,7 +13,7 @@ import { useReplaceSchedule } from '~/queries/ClusterDetailsQueries/ClusterSetti
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
-import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { HCP_LOG_FORWARDING, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
   mockUseFeatureGate,
@@ -202,6 +202,23 @@ describe('<UpgradeSettingsTab>', () => {
       renderComponent(rosaCluster);
 
       expect(screen.queryByLabelText('Monitoring')).not.toBeInTheDocument();
+    });
+
+    it('should render control plane log forwarding section for HCP ROSA clusters', () => {
+      mockUseFeatureGate([[HCP_LOG_FORWARDING, true]]);
+      const rosaHcpCluster = createMockCluster({
+        subscription: {
+          ...createMockCluster().subscription,
+          plan: { type: 'ROSA' },
+        },
+        hypershift: {
+          enabled: true,
+        },
+      });
+
+      renderComponent(rosaHcpCluster);
+
+      expect(screen.getByText('Control plane log forwarding')).toBeInTheDocument();
     });
   });
 

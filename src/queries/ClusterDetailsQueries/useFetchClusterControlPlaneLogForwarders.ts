@@ -27,7 +27,7 @@ export function useFetchClusterControlPlaneLogForwarders(
   const formattedError = isError ? formatErrorData(isLoading, isError, error) : null;
 
   return {
-    data,
+    data: data ?? [],
     isLoading,
     isError,
     error: formattedError?.error ?? error,

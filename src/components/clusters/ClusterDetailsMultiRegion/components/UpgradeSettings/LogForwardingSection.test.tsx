@@ -184,6 +184,21 @@ describe('LogForwardingSection', () => {
     expect(screen.getByText('Request failed')).toBeInTheDocument();
   });
 
+  it('shows a message when forwarders have no supported destinations', () => {
+    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+      data: [{ id: 'lf-unknown-1', applications: ['orphan-app'] }],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(<LogForwardingSection cluster={mockCluster} />);
+
+    expect(
+      screen.getByText('No supported log forwarding destinations are configured.'),
+    ).toBeInTheDocument();
+  });
+
   it('shows CloudWatch forwarder details', () => {
     (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
       data: [
