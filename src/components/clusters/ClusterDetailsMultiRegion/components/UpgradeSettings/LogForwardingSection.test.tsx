@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useFetchClusterControlPlaneLogForwarders } from '~/queries/ClusterDetailsQueries/useFetchClusterControlPlaneLogForwarders';
+import { useFetchLogForwarders } from '~/queries/ClusterDetailsQueries/useFetchLogForwarders';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useFetchLogForwardingGroupsCatalog } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroupsCatalog';
 import { render, screen } from '~/testUtils';
@@ -11,7 +11,7 @@ import { isHibernating } from '../../../common/clusterStates';
 import LogForwardingSection from './LogForwardingSection';
 
 jest.mock('~/queries/featureGates/useFetchFeatureGate');
-jest.mock('~/queries/ClusterDetailsQueries/useFetchClusterControlPlaneLogForwarders');
+jest.mock('~/queries/ClusterDetailsQueries/useFetchLogForwarders');
 jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingGroupsCatalog');
 
 jest.mock('../../../common/clusterStates', () => ({
@@ -65,7 +65,7 @@ describe('LogForwardingSection', () => {
   });
 
   it('shows empty state when no forwarders are configured', () => {
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [],
       isLoading: false,
       isError: false,
@@ -80,7 +80,7 @@ describe('LogForwardingSection', () => {
   });
 
   it('shows Amazon S3 forwarder details', () => {
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [
         {
           id: 'lf-s3-1',
@@ -105,7 +105,7 @@ describe('LogForwardingSection', () => {
   });
 
   it('opens add modal from Add configuration dropdown', async () => {
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [],
       isLoading: false,
       isError: false,
@@ -121,7 +121,7 @@ describe('LogForwardingSection', () => {
   });
 
   it('opens delete modal from card kebab menu', async () => {
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [
         {
           id: 'lf-s3-1',
@@ -145,7 +145,7 @@ describe('LogForwardingSection', () => {
 
   it('does not render when feature gate is disabled', () => {
     (useFeatureGate as jest.Mock).mockReturnValue(false);
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [],
       isLoading: false,
       isError: false,
@@ -158,7 +158,7 @@ describe('LogForwardingSection', () => {
   });
 
   it('shows loading spinner while forwarders are loading', () => {
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [],
       isLoading: true,
       isError: false,
@@ -171,7 +171,7 @@ describe('LogForwardingSection', () => {
   });
 
   it('shows error alert when forwarders fail to load', () => {
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [],
       isLoading: false,
       isError: true,
@@ -185,7 +185,7 @@ describe('LogForwardingSection', () => {
   });
 
   it('shows a message when forwarders have no supported destinations', () => {
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [{ id: 'lf-unknown-1', applications: ['orphan-app'] }],
       isLoading: false,
       isError: false,
@@ -200,7 +200,7 @@ describe('LogForwardingSection', () => {
   });
 
   it('shows CloudWatch forwarder details', () => {
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [
         {
           id: 'lf-cw-1',
@@ -225,7 +225,7 @@ describe('LogForwardingSection', () => {
   });
 
   it('opens edit modal from card kebab menu', async () => {
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [
         {
           id: 'lf-s3-1',
@@ -248,7 +248,7 @@ describe('LogForwardingSection', () => {
   });
 
   it('opens edit modal for CloudWatch from card kebab menu', async () => {
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [
         {
           id: 'lf-cw-1',
@@ -275,7 +275,7 @@ describe('LogForwardingSection', () => {
 
   it('disables add configuration when cluster is hibernating', () => {
     (isHibernating as jest.Mock).mockReturnValue(true);
-    (useFetchClusterControlPlaneLogForwarders as jest.Mock).mockReturnValue({
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
       data: [],
       isLoading: false,
       isError: false,

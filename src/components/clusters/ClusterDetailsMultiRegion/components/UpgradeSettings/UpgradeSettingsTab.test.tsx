@@ -84,8 +84,8 @@ jest.mock('~/queries/ClusterDetailsQueries/useFetchClusterDetails', () => ({
   invalidateClusterDetailsQueries: jest.fn(),
 }));
 
-jest.mock('~/queries/ClusterDetailsQueries/useFetchClusterControlPlaneLogForwarders', () => ({
-  useFetchClusterControlPlaneLogForwarders: jest.fn(() => ({
+jest.mock('~/queries/ClusterDetailsQueries/useFetchLogForwarders', () => ({
+  useFetchLogForwarders: jest.fn(() => ({
     data: [],
     isLoading: false,
     isError: false,

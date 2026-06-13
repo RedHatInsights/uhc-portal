@@ -8,7 +8,7 @@ import { invalidateLogForwarder } from './invalidateLogForwarder';
 import { useCreateLogForwarder } from './useCreateLogForwarder';
 import { useDeleteLogForwarder } from './useDeleteLogForwarder';
 import { useEditLogForwarder } from './useEditLogForwarder';
-import { useFetchClusterControlPlaneLogForwarders } from './useFetchClusterControlPlaneLogForwarders';
+import { useFetchLogForwarders } from './useFetchLogForwarders';
 
 jest.mock('~/components/App/queryClient', () => ({
   queryClient: {
@@ -48,7 +48,7 @@ describe('invalidateLogForwarder', () => {
   });
 });
 
-describe('useFetchClusterControlPlaneLogForwarders', () => {
+describe('useFetchLogForwarders', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -60,9 +60,7 @@ describe('useFetchClusterControlPlaneLogForwarders', () => {
       getClusterControlPlaneLogForwarders: regionalGet,
     } as unknown as ReturnType<typeof getClusterServiceForRegion>);
 
-    const { result } = renderHook(() =>
-      useFetchClusterControlPlaneLogForwarders('cluster-1', 'us-east-1'),
-    );
+    const { result } = renderHook(() => useFetchLogForwarders('cluster-1', 'us-east-1'));
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -77,9 +75,7 @@ describe('useFetchClusterControlPlaneLogForwarders', () => {
       data: { items: [] },
     } as unknown as Awaited<ReturnType<typeof clusterService.getClusterControlPlaneLogForwarders>>);
 
-    const { result } = renderHook(() =>
-      useFetchClusterControlPlaneLogForwarders('cluster-1', undefined),
-    );
+    const { result } = renderHook(() => useFetchLogForwarders('cluster-1', undefined));
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -91,9 +87,7 @@ describe('useFetchClusterControlPlaneLogForwarders', () => {
   });
 
   it('does not fetch when cluster id is missing', () => {
-    const { result } = renderHook(() =>
-      useFetchClusterControlPlaneLogForwarders(undefined, 'us-east-1', { enabled: true }),
-    );
+    const { result } = renderHook(() => useFetchLogForwarders(undefined, 'us-east-1'));
 
     expect(result.current.isLoading).toBe(false);
     expect(mockGetClusterServiceForRegion).not.toHaveBeenCalled();
@@ -106,9 +100,7 @@ describe('useFetchClusterControlPlaneLogForwarders', () => {
       getClusterControlPlaneLogForwarders: regionalGet,
     } as unknown as ReturnType<typeof getClusterServiceForRegion>);
 
-    const { result } = renderHook(() =>
-      useFetchClusterControlPlaneLogForwarders('cluster-1', 'us-east-1'),
-    );
+    const { result } = renderHook(() => useFetchLogForwarders('cluster-1', 'us-east-1'));
 
     await waitFor(() => expect(result.current.isError).toBe(true));
 
@@ -207,7 +199,13 @@ describe('useEditLogForwarder', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(patchMock).toHaveBeenCalledWith('cluster-1', 'lf-1', body);
-    expect(queryClient.invalidateQueries).toHaveBeenCalled();
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: [
+        queryConstants.FETCH_CLUSTER_CONTROL_PLANE_LOG_FORWARDERS,
+        'cluster-1',
+        'us-east-1',
+      ],
+    });
   });
 
   it('formats errors from failed edit requests', async () => {
@@ -248,7 +246,13 @@ describe('useDeleteLogForwarder', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(deleteMock).toHaveBeenCalledWith('cluster-1', 'lf-1');
-    expect(queryClient.invalidateQueries).toHaveBeenCalled();
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: [
+        queryConstants.FETCH_CLUSTER_CONTROL_PLANE_LOG_FORWARDERS,
+        'cluster-1',
+        'us-east-1',
+      ],
+    });
   });
 
   it('formats errors from failed delete requests', async () => {

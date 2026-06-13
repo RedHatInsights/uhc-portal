@@ -5,13 +5,7 @@ import { queryConstants } from '~/queries/queriesConstants';
 import clusterService, { getClusterServiceForRegion } from '~/services/clusterService';
 import type { LogForwarder } from '~/types/clusters_mgmt.v1';
 
-export function useFetchClusterControlPlaneLogForwarders(
-  clusterID: string | undefined,
-  region: string | undefined,
-  options?: { enabled?: boolean },
-) {
-  const enabled = !!clusterID && (options?.enabled ?? true);
-
+export function useFetchLogForwarders(clusterID: string | undefined, region?: string) {
   const { data, isLoading, isError, error, isFetching } = useQuery({
     queryKey: [queryConstants.FETCH_CLUSTER_CONTROL_PLANE_LOG_FORWARDERS, clusterID, region],
     queryFn: async () => {
@@ -20,7 +14,7 @@ export function useFetchClusterControlPlaneLogForwarders(
       return response.data?.items ?? ([] as LogForwarder[]);
     },
     staleTime: queryConstants.STALE_TIME_60_SEC,
-    enabled,
+    enabled: !!clusterID,
     retry: false,
   });
 

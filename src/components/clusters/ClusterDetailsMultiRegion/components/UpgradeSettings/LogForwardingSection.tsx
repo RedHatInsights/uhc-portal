@@ -13,7 +13,7 @@ import {
 
 import getClusterName from '~/common/getClusterName';
 import type { LogForwardingDestinationKind } from '~/components/clusters/wizards/rosa/LogForwarding/buildClusterLogForwarders';
-import { useFetchClusterControlPlaneLogForwarders } from '~/queries/ClusterDetailsQueries/useFetchClusterControlPlaneLogForwarders';
+import { useFetchLogForwarders } from '~/queries/ClusterDetailsQueries/useFetchLogForwarders';
 import { HCP_LOG_FORWARDING } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useFetchLogForwardingGroupsCatalog } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroupsCatalog';
@@ -67,9 +67,7 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
     isLoading: isForwardersLoading,
     isError: isForwardersError,
     error: forwardersError,
-  } = useFetchClusterControlPlaneLogForwarders(clusterID, region, {
-    enabled: showSection,
-  });
+  } = useFetchLogForwarders(showSection ? clusterID : undefined, region);
 
   const { data: catalogTree = [], isLoading: isCatalogLoading } =
     useFetchLogForwardingGroupsCatalog({ enabled: showSection });
