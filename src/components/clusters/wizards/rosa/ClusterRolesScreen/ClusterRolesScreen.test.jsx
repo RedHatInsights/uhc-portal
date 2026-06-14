@@ -5,6 +5,8 @@ import docLinks from '~/common/docLinks.mjs';
 import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
+import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
+
 import { FieldId } from '../constants';
 
 import ClusterRolesScreen from './ClusterRolesScreen';
@@ -119,6 +121,61 @@ describe('<ClusterRolesScreen />', () => {
     expect(
       await screen.findByText('ocm-role is no longer linked to your Red Hat organization'),
     ).toBeInTheDocument();
+  });
+
+  describe('no_console OCM role', () => {
+    const noConsoleOCMRole = {
+      data: {
+        data: {
+          profile: 'no_console',
+          isAdmin: false,
+          arn: 'arn:aws:iam::123456789012:role/NoConsoleRole',
+        },
+      },
+      error: undefined,
+      isPending: false,
+      isSuccess: true,
+      status: 'success',
+    };
+
+    it('shows limited permissions alert when feature gate is on and profile is no_console', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+      useFetchGetOCMRole.mockReturnValue(noConsoleOCMRole);
+      renderWithFormik();
+
+      expect(await screen.findByText('OCM role has limited permissions')).toBeInTheDocument();
+      expect(screen.getByText(/was created without console permissions/i)).toBeInTheDocument();
+    });
+
+    it('does not show limited permissions alert when feature gate is off', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
+      useFetchGetOCMRole.mockReturnValue(noConsoleOCMRole);
+      renderWithFormik();
+
+      await screen.findByRole('radio', { name: 'Manual' });
+      expect(screen.queryByText('OCM role has limited permissions')).not.toBeInTheDocument();
+    });
+
+    it('does not show limited permissions alert when profile is standard', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+      useFetchGetOCMRole.mockReturnValue({
+        data: {
+          data: {
+            profile: 'standard',
+            isAdmin: false,
+            arn: 'arn:aws:iam::123456789012:role/StandardRole',
+          },
+        },
+        error: undefined,
+        isPending: false,
+        isSuccess: true,
+        status: 'success',
+      });
+      renderWithFormik();
+
+      await screen.findByRole('radio', { name: 'Manual' });
+      expect(screen.queryByText('OCM role has limited permissions')).not.toBeInTheDocument();
+    });
   });
 
   it('is accessible', async () => {

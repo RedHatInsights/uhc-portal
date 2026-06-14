@@ -23,8 +23,12 @@ import {
   getOperatorRolesCommand,
 } from '~/components/clusters/wizards/rosa/ClusterRolesScreen/clusterRolesHelper';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import { OCM_ROLE_NO_CONSOLE_PROFILE } from '~/components/clusters/wizards/rosa/rosaConstants';
 import useAnalytics from '~/hooks/useAnalytics';
-import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConstants';
+import {
+  MULTIREGION_PREVIEW_ENABLED,
+  OCM_ROLE_NO_CONSOLE,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import {
   refetchGetOCMRole,
@@ -68,6 +72,7 @@ const ClusterRolesScreen = () => {
 
   const isHypershiftSelected = hypershiftValue === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
+  const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
 
   const [isAutoModeAvailable, setIsAutoModeAvailable] = useState(false);
   const [hasByoOidcConfig, setHasByoOidcConfig] = useState(
@@ -86,6 +91,10 @@ const ClusterRolesScreen = () => {
     isSuccess: isGetOCMRoleSuccess,
     status: getOCMRoleStatus,
   } = useFetchGetOCMRole(awsAccountID);
+  const isNoConsoleRole =
+    hasNoConsoleFlag &&
+    isGetOCMRoleSuccess &&
+    getOCMRoleData?.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
 
   const toggleByoOidcConfig = (isChecked) => () => {
     if (isChecked) {
@@ -292,6 +301,22 @@ const ClusterRolesScreen = () => {
           </>
         )}
         {getOCMRoleErrorBox && <GridItem>{getOCMRoleErrorBox}</GridItem>}
+        {isNoConsoleRole && (
+          <GridItem>
+            <Alert variant="danger" isInline title="OCM role has limited permissions">
+              <Content className="pf-v6-u-font-size-sm">
+                <Content component={ContentVariants.p}>
+                  The OCM Role linked to your AWS account was created without console permissions.
+                  Cluster creation through the console is not supported with this configuration.
+                </Content>
+                <Content component={ContentVariants.p}>
+                  To resolve this, update your OCM role with the ROSA CLI and then{' '}
+                  <BackToAssociateAwsAccountLink />.
+                </Content>
+              </Content>
+            </Alert>
+          </GridItem>
+        )}
         {isGetOCMRolePending && (
           <GridItem>
             <div className="spinner-fit-container">
