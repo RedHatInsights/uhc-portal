@@ -62,6 +62,13 @@ describe('<AWSAccountRolesError />', () => {
       expect(screen.getByRole('button', { name: /refresh ocm role/i })).toBeDisabled();
     });
 
+    it('takes precedence over isOCMRoleError', () => {
+      render(<AWSAccountRolesError {...defaultProps} isNoConsoleRole isOCMRoleError />);
+
+      expect(screen.getByText('OCM role has limited permissions')).toBeInTheDocument();
+      expect(screen.queryByText('Cannot detect an OCM role')).not.toBeInTheDocument();
+    });
+
     it('takes precedence over other error states', () => {
       render(
         <AWSAccountRolesError
@@ -78,6 +85,20 @@ describe('<AWSAccountRolesError />', () => {
       );
 
       expect(screen.getByText('OCM role has limited permissions')).toBeInTheDocument();
+      expect(screen.queryByText('Cannot detect an OCM role')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('isOCMRoleError', () => {
+    it('shows cannot-detect-OCM-role alert when isOCMRoleError is true', () => {
+      render(<AWSAccountRolesError {...defaultProps} isOCMRoleError />);
+
+      expect(screen.getByText('Cannot detect an OCM role')).toBeInTheDocument();
+    });
+
+    it('does not show OCM role error when isOCMRoleError is false', () => {
+      render(<AWSAccountRolesError {...defaultProps} isOCMRoleError={false} />);
+
       expect(screen.queryByText('Cannot detect an OCM role')).not.toBeInTheDocument();
     });
   });

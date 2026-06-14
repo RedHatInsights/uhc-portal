@@ -80,6 +80,7 @@ const CreateRosaWizardFooter = ({
     isPending: isGetOCMRolePending,
     data: ocmRoleData,
     isSuccess: isOCMRoleSuccess,
+    isError: isOCMRoleError,
   } = useFetchGetOCMRole(values[FieldId.AssociatedAwsId]);
   const isNoConsoleRole =
     hasNoConsoleFlag &&
@@ -94,7 +95,11 @@ const CreateRosaWizardFooter = ({
     isRefreshingVPCs;
 
   const isButtonLoading = isValidating || areAwsResourcesLoading;
-  const isButtonDisabled = isNextDeferred || areAwsResourcesLoading || isNoConsoleRole;
+  const isButtonDisabled =
+    isNextDeferred ||
+    areAwsResourcesLoading ||
+    isNoConsoleRole ||
+    (hasNoConsoleFlag && isOCMRoleError);
 
   const onValidateNext = async () => {
     // defer execution until any ongoing validation is done

@@ -15,6 +15,7 @@ type Props = {
   isHypershiftSelected: boolean;
   isMissingOCMRole: boolean;
   isNoConsoleRole?: boolean;
+  isOCMRoleError?: boolean;
   onRefreshOCMRole: () => void;
   isOCMRolePending?: boolean;
 };
@@ -24,6 +25,7 @@ function AWSAccountRolesError({
   isHypershiftSelected,
   isMissingOCMRole,
   isNoConsoleRole,
+  isOCMRoleError,
   onRefreshOCMRole,
   isOCMRolePending,
 }: Props) {
@@ -59,6 +61,10 @@ function AWSAccountRolesError({
         </Content>
       </Alert>
     );
+  }
+
+  if (isOCMRoleError) {
+    return <AwsRoleErrorAlert title="Cannot detect an OCM role" targetRole="ocm" />;
   }
 
   if (getAWSAccountRolesARNsResponse.error) {

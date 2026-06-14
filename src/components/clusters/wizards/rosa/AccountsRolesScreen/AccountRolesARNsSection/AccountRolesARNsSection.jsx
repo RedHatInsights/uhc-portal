@@ -111,6 +111,7 @@ function AccountRolesARNsSection({
   clearGetAWSAccountRolesARNsResponse,
   isHypershiftSelected,
   onAccountChanged,
+  onOCMRoleRefresh,
 }) {
   const { setFieldValue, getFieldProps, getFieldMeta, setFieldTouched, validateForm } =
     useFormState();
@@ -127,6 +128,7 @@ function AccountRolesARNsSection({
   const {
     data: ocmRoleData,
     isSuccess: isOCMRoleSuccess,
+    isError: isOCMRoleError,
     isPending: isOCMRolePending,
   } = useFetchGetOCMRole(selectedAWSAccountID);
   const isNoConsoleRole =
@@ -363,6 +365,7 @@ function AccountRolesARNsSection({
 
   const showAccountRolesError =
     isNoConsoleRole ||
+    isOCMRoleError ||
     getAWSAccountRolesARNsResponse.error ||
     (showMissingArnsError && hasFinishedLoadingRoles);
 
@@ -378,7 +381,11 @@ function AccountRolesARNsSection({
             isHypershiftSelected={isHypershiftSelected}
             isMissingOCMRole={isMissingOCMRole}
             isNoConsoleRole={isNoConsoleRole}
-            onRefreshOCMRole={() => refetchGetOCMRole(selectedAWSAccountID)}
+            isOCMRoleError={isOCMRoleError}
+            onRefreshOCMRole={() => {
+              refetchGetOCMRole(selectedAWSAccountID);
+              onOCMRoleRefresh?.();
+            }}
             isOCMRolePending={isOCMRolePending}
           />
         </GridItem>
@@ -596,6 +603,7 @@ AccountRolesARNsSection.propTypes = {
   clearGetAWSAccountRolesARNsResponse: PropTypes.func.isRequired,
   isHypershiftSelected: PropTypes.bool,
   onAccountChanged: PropTypes.func.isRequired,
+  onOCMRoleRefresh: PropTypes.func,
 };
 
 export default AccountRolesARNsSection;
