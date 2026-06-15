@@ -61,7 +61,6 @@ import ReviewSection, {
   FormikReviewItem as ReviewItem,
 } from '../../common/ReviewCluster/ReviewSection';
 import { createClusterRequest, upgradeScheduleRequest } from '../../common/submitOSDRequest';
-
 import { BackToAssociateAwsAccountLink } from '../common/BackToAssociateAwsAccountLink';
 import { OCM_ROLE_NO_CONSOLE_PROFILE } from '../rosaConstants';
 

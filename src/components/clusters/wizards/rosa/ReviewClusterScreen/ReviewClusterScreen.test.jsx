@@ -3,7 +3,15 @@ import { Formik } from 'formik';
 
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
-import { ALLOW_EUS_CHANNEL, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import {
+  ALLOW_EUS_CHANNEL,
+  OCM_ROLE_NO_CONSOLE,
+  Y_STREAM_CHANNEL,
+} from '~/queries/featureGates/featureConstants';
+import {
+  refetchGetOCMRole,
+  useFetchGetOCMRole,
+} from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { initialValues } from '../constants';
@@ -12,6 +20,15 @@ import sampleFormData from './mockHCPCluster';
 import ReviewClusterScreen from './ReviewClusterScreen';
 
 jest.mock('~/components/CLILoginPage/useOrganization');
+
+jest.mock('~/queries/RosaWizardQueries/useFetchGetOCMRole', () => ({
+  useFetchGetOCMRole: jest.fn().mockReturnValue({
+    data: { data: { profile: 'standard' } },
+    isSuccess: true,
+    isPending: false,
+  }),
+  refetchGetOCMRole: jest.fn(),
+}));
 
 const mockUseOrganization = jest.mocked(useOrganization);
 
@@ -517,6 +534,56 @@ describe('<ReviewClusterScreen />', () => {
       expect(
         screen.getByText('No channels available for the selected version'),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('no_console OCM role', () => {
+    const noConsoleRoleResponse = {
+      data: { data: { profile: 'no_console' } },
+      isSuccess: true,
+      isPending: false,
+    };
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('shows danger alert when feature gate is on and profile is no_console', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+      useFetchGetOCMRole.mockReturnValue(noConsoleRoleResponse);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
+
+      expect(await screen.findByText('OCM role has limited permissions')).toBeInTheDocument();
+      expect(screen.getByText(/was created without console permissions/i)).toBeInTheDocument();
+    });
+
+    it('does not show alert when feature gate is off', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
+      useFetchGetOCMRole.mockReturnValue(noConsoleRoleResponse);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
+
+      await screen.findByText('Review your ROSA cluster');
+      expect(screen.queryByText('OCM role has limited permissions')).not.toBeInTheDocument();
+    });
+
+    it('calls refetchGetOCMRole on mount when feature gate is on', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
+
+      await screen.findByText('Review your ROSA cluster');
+      expect(refetchGetOCMRole).toHaveBeenCalledWith('210987654321');
+    });
+
+    it('does not call refetchGetOCMRole on mount when feature gate is off', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
+
+      await screen.findByText('Review your ROSA cluster');
+      expect(refetchGetOCMRole).not.toHaveBeenCalled();
     });
   });
 });

@@ -146,6 +146,16 @@ describe('<ClusterRolesScreen />', () => {
       expect(screen.getByText(/was created without console permissions/i)).toBeInTheDocument();
     });
 
+    it('hides role mode radio buttons when feature gate is on and profile is no_console', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+      useFetchGetOCMRole.mockReturnValue(noConsoleOCMRole);
+      renderWithFormik();
+
+      await screen.findByText('OCM role has limited permissions');
+      expect(screen.queryByRole('radio', { name: 'Manual' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('radio', { name: 'Auto' })).not.toBeInTheDocument();
+    });
+
     it('does not show limited permissions alert when feature gate is off', async () => {
       mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
       useFetchGetOCMRole.mockReturnValue(noConsoleOCMRole);
