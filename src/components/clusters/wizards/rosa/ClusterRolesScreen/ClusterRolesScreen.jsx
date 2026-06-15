@@ -309,9 +309,18 @@ const ClusterRolesScreen = () => {
                   The OCM Role linked to your AWS account was created without console permissions.
                   Cluster creation through the console is not supported with this configuration.
                 </Content>
-                <Content component={ContentVariants.p}>
-                  To resolve this, update your OCM role with the ROSA CLI and then{' '}
-                  <BackToAssociateAwsAccountLink />.
+                <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
+                  After updating your OCM role, check again:
+                  <Button
+                    variant="link"
+                    isInline
+                    isLoading={isGetOCMRolePending}
+                    isDisabled={isGetOCMRolePending}
+                    onClick={handleRefresh}
+                    className="pf-v6-u-ml-sm"
+                  >
+                    Refresh OCM role
+                  </Button>
                 </Content>
               </Content>
             </Alert>
