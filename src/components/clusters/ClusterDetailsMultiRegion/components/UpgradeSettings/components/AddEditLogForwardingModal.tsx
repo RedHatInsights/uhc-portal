@@ -1,5 +1,6 @@
 import React from 'react';
-import { Formik } from 'formik';
+import { Formik, type FormikProps } from 'formik';
+import isEqual from 'lodash/isEqual';
 
 import { Button, Form, Stack, StackItem } from '@patternfly/react-core';
 
@@ -43,6 +44,109 @@ const destinationLabels: Record<LogForwardingDestinationKind, string> = {
 
 const EMPTY_CATALOG_TREE: LogForwardingGroupTreeNode[] = [];
 
+type ModalFormProps = {
+  formik: FormikProps<LogForwardingModalFormValues>;
+  submitErrorValues: LogForwardingModalFormValues | null;
+  setSubmitErrorValues: React.Dispatch<React.SetStateAction<LogForwardingModalFormValues | null>>;
+  isError: boolean;
+  isPending: boolean;
+  isEdit: boolean;
+  mutationError: ReturnType<typeof useCreateLogForwarder>['error'];
+  resetMutations: () => void;
+  mode: 'add' | 'edit';
+  destinationType: LogForwardingDestinationKind;
+  destinationLabel: string;
+  handleClose: () => void;
+};
+
+function ModalForm({
+  formik,
+  submitErrorValues,
+  setSubmitErrorValues,
+  isError,
+  isPending,
+  isEdit,
+  mutationError,
+  resetMutations,
+  mode,
+  destinationType,
+  destinationLabel,
+  handleClose,
+}: ModalFormProps) {
+  const { values } = formik;
+  const prevIsErrorRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (isError && !prevIsErrorRef.current) {
+      setSubmitErrorValues(values);
+    }
+    if (!isError) {
+      setSubmitErrorValues(null);
+    }
+    prevIsErrorRef.current = isError;
+
+    if (isError && submitErrorValues !== null && !isEqual(values, submitErrorValues)) {
+      resetMutations();
+    }
+  }, [values, isError, resetMutations, setSubmitErrorValues, submitErrorValues]);
+
+  const unchangedSinceSubmitError =
+    isError && (submitErrorValues === null || isEqual(values, submitErrorValues));
+
+  return (
+    <Modal
+      id={`${mode}-log-forwarding-${destinationType}-modal`}
+      title={`${isEdit ? 'Edit' : 'Add'} ${destinationLabel} configuration`}
+      onClose={handleClose}
+      modalSize="large"
+      hideDefaultFooter
+      footer={
+        <Stack hasGutter>
+          {isError && mutationError ? (
+            <StackItem>
+              <ErrorBox
+                message={`A problem occurred while ${isEdit ? 'updating' : 'adding'} the configuration`}
+                response={{
+                  errorMessage: mutationError!.error.errorMessage,
+                  operationID: mutationError!.error.operationID,
+                }}
+              />
+            </StackItem>
+          ) : null}
+          <StackItem>
+            <Button
+              onClick={formik.submitForm}
+              className="pf-v6-u-mr-md"
+              data-testid="log-forwarding-submit-btn"
+              isDisabled={
+                !formik.isValid || formik.isSubmitting || isPending || unchangedSinceSubmitError
+              }
+              isLoading={isPending}
+            >
+              {isEdit ? 'Save' : 'Add'}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleClose}
+              isDisabled={formik.isSubmitting || isPending || unchangedSinceSubmitError}
+            >
+              Cancel
+            </Button>
+          </StackItem>
+        </Stack>
+      }
+    >
+      <Form>
+        {destinationType === 's3' ? (
+          <LogForwardingS3FormFields />
+        ) : (
+          <LogForwardingCloudWatchFormFields showPrerequisites={!isEdit} />
+        )}
+      </Form>
+    </Modal>
+  );
+}
+
 export function AddEditLogForwardingModal({
   clusterId,
   region,
@@ -57,6 +161,8 @@ export function AddEditLogForwardingModal({
   const track = useAnalytics();
   const destinationLabel = destinationLabels[destinationType];
   const isEdit = mode === 'edit';
+  const [submitErrorValues, setSubmitErrorValues] =
+    React.useState<LogForwardingModalFormValues | null>(null);
 
   const {
     isPending: isPostPending,
@@ -78,6 +184,12 @@ export function AddEditLogForwardingModal({
   const isError = isPostError || isPatchError;
   const mutationError = isPostError ? postError : patchError;
 
+  const resetMutations = React.useCallback(() => {
+    setSubmitErrorValues(null);
+    resetPost();
+    resetPatch();
+  }, [resetPost, resetPatch]);
+
   React.useEffect(() => {
     if (isOpen) {
       track('Log Forwarding Edit Modal Opened', { destination: destinationType, mode });
@@ -85,8 +197,7 @@ export function AddEditLogForwardingModal({
   }, [destinationType, isOpen, mode, track]);
 
   const handleClose = () => {
-    resetPost();
-    resetPatch();
+    resetMutations();
     onClose();
   };
 
@@ -124,9 +235,10 @@ export function AddEditLogForwardingModal({
           requireCloudWatchPrerequisite: destinationType === 'cloudwatch' && !isEdit,
         })
       }
-      onSubmit={(values) => {
+      onSubmit={(values, { setSubmitting }) => {
         const body = buildSingleLogForwarder(destinationType, values, catalogTree);
         if (!body) {
+          setSubmitting(false);
           return;
         }
 
@@ -138,63 +250,33 @@ export function AddEditLogForwardingModal({
           handleClose();
         };
 
+        const onError = () => {
+          setSubmitting(false);
+        };
+
         if (isEdit && forwarder?.id) {
-          patchForwarder({ logForwarderID: forwarder.id, body }, { onSuccess });
+          patchForwarder({ logForwarderID: forwarder.id, body }, { onSuccess, onError });
           return;
         }
 
-        postForwarder(body, { onSuccess });
+        postForwarder(body, { onSuccess, onError });
       }}
     >
       {(formik) => (
-        <Modal
-          id={`${mode}-log-forwarding-${destinationType}-modal`}
-          title={`${isEdit ? 'Edit' : 'Add'} ${destinationLabel} configuration`}
-          onClose={handleClose}
-          modalSize="large"
-          hideDefaultFooter
-          footer={
-            <Stack hasGutter>
-              {isError && mutationError ? (
-                <StackItem>
-                  <ErrorBox
-                    message={`A problem occurred while ${isEdit ? 'updating' : 'adding'} the configuration`}
-                    response={{
-                      errorMessage: mutationError!.error.errorMessage,
-                      operationID: mutationError!.error.operationID,
-                    }}
-                  />
-                </StackItem>
-              ) : null}
-              <StackItem>
-                <Button
-                  onClick={formik.submitForm}
-                  className="pf-v6-u-mr-md"
-                  data-testid="log-forwarding-submit-btn"
-                  isDisabled={!formik.isValid || formik.isSubmitting || isPending}
-                  isLoading={isPending}
-                >
-                  {isEdit ? 'Save' : 'Add'}
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={handleClose}
-                  isDisabled={formik.isSubmitting || isPending}
-                >
-                  Cancel
-                </Button>
-              </StackItem>
-            </Stack>
-          }
-        >
-          <Form>
-            {destinationType === 's3' ? (
-              <LogForwardingS3FormFields />
-            ) : (
-              <LogForwardingCloudWatchFormFields showPrerequisites={!isEdit} />
-            )}
-          </Form>
-        </Modal>
+        <ModalForm
+          formik={formik}
+          submitErrorValues={submitErrorValues}
+          setSubmitErrorValues={setSubmitErrorValues}
+          isError={isError}
+          isPending={isPending}
+          isEdit={isEdit}
+          mutationError={mutationError}
+          resetMutations={resetMutations}
+          mode={mode}
+          destinationType={destinationType}
+          destinationLabel={destinationLabel}
+          handleClose={handleClose}
+        />
       )}
     </Formik>
   );

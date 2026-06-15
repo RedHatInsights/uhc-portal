@@ -173,6 +173,8 @@ describe('AddEditLogForwardingModal', () => {
       screen.getByText(/A problem occurred while adding the configuration/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/CLUSTERS-MGMT-400: Invalid request/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
   });
 
   it('calls patch mutation when saving an edit', async () => {
@@ -194,7 +196,10 @@ describe('AddEditLogForwardingModal', () => {
           s3: expect.objectContaining({ bucket_name: 'my-bucket' }),
         }),
       }),
-      expect.objectContaining({ onSuccess: expect.any(Function) }),
+      expect.objectContaining({
+        onSuccess: expect.any(Function),
+        onError: expect.any(Function),
+      }),
     );
   });
 });
