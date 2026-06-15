@@ -68,9 +68,6 @@ export function logForwardingGroupVersionsListToTree(
     if (!apps.length) {
       return [];
     }
-    if (apps.length === 1) {
-      return [{ id: apps[0], text: name }];
-    }
     return [
       {
         id: logForwardingGroupRootId(name),
