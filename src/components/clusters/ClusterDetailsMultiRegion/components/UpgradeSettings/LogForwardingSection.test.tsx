@@ -1,8 +1,10 @@
 import React from 'react';
 
+import { mockLogForwardingGroupTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
 import { useFetchLogForwarders } from '~/queries/ClusterDetailsQueries/useFetchLogForwarders';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import { useFetchLogForwardingGroupsCatalog } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroupsCatalog';
+import { useFetchLogForwardingApplications } from '~/queries/RosaWizardQueries/useFetchLogForwardingApplications';
+import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
 import { render, screen } from '~/testUtils';
 import type { AugmentedCluster } from '~/types/types';
 
@@ -12,7 +14,8 @@ import LogForwardingSection from './LogForwardingSection';
 
 jest.mock('~/queries/featureGates/useFetchFeatureGate');
 jest.mock('~/queries/ClusterDetailsQueries/useFetchLogForwarders');
-jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingGroupsCatalog');
+jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingGroups');
+jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingApplications');
 
 jest.mock('../../../common/clusterStates', () => ({
   isHibernating: jest.fn(() => false),
@@ -58,7 +61,11 @@ describe('LogForwardingSection', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useFeatureGate as jest.Mock).mockReturnValue(true);
-    (useFetchLogForwardingGroupsCatalog as jest.Mock).mockReturnValue({
+    (useFetchLogForwardingGroups as jest.Mock).mockReturnValue({
+      data: [],
+      isLoading: false,
+    });
+    (useFetchLogForwardingApplications as jest.Mock).mockReturnValue({
       data: [],
       isLoading: false,
     });
@@ -77,6 +84,36 @@ describe('LogForwardingSection', () => {
     expect(screen.getByText('Control plane log forwarding')).toBeInTheDocument();
     expect(screen.getByText('No log forwarding configured.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add configuration' })).toBeInTheDocument();
+  });
+
+  it('shows Other applications under selected groups and applications', () => {
+    (useFetchLogForwardingGroups as jest.Mock).mockReturnValue({
+      data: mockLogForwardingGroupTree,
+      isLoading: false,
+    });
+    (useFetchLogForwardingApplications as jest.Mock).mockReturnValue({
+      data: [{ name: 'kube-dns', enabled: true }],
+      isLoading: false,
+    });
+
+    (useFetchLogForwarders as jest.Mock).mockReturnValue({
+      data: [
+        {
+          id: 'lf-s3-1',
+          s3: { bucket_name: 'zac-test-12' },
+          applications: ['kube-dns'],
+          status: { state: 'ready' },
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(<LogForwardingSection cluster={mockCluster} />);
+
+    expect(screen.getByText('Other')).toBeInTheDocument();
+    expect(screen.getByText('kube-dns')).toBeInTheDocument();
   });
 
   it('shows Amazon S3 forwarder details', () => {

@@ -10,12 +10,9 @@ import {
   Flex,
   FlexItem,
   Icon,
-  Label,
-  LabelGroup,
   MenuToggle,
   Spinner,
   Stack,
-  StackItem,
   Title,
   Tooltip,
 } from '@patternfly/react-core';
@@ -25,17 +22,14 @@ import OutlinedClockIcon from '@patternfly/react-icons/dist/esm/icons/outlined-c
 
 import type { LogForwardingDestinationKind } from '~/components/clusters/wizards/rosa/LogForwarding/buildClusterLogForwarders';
 import type { LogForwardingGroupTreeNode } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
+import { expandLogForwarderSelectionToLeafIds } from '~/components/common/GroupsApplicationsSelector/logForwardingReviewHelpers';
 import {
-  expandLogForwarderSelectionToLeafIds,
-  groupSelectedLogForwardingItems,
-} from '~/components/common/GroupsApplicationsSelector/logForwardingReviewHelpers';
+  logForwardingNoneLabel,
+  LogForwardingSelectedAppsDescription,
+} from '~/components/common/GroupsApplicationsSelector/LogForwardingSelectedAppsDescription';
 import type { LogForwarder, LogForwarderStatus } from '~/types/clusters_mgmt.v1';
 
-/** PatternFly LabelGroup replaces `${remaining}` when collapsing overflow labels. */
-const LABEL_GROUP_OVERFLOW_PLACEHOLDER = '{remaining}';
-const LABEL_GROUP_OVERFLOW_TEXT = `$${LABEL_GROUP_OVERFLOW_PLACEHOLDER} more`;
-
-export const logForwardingNoneLabel = <span className="pf-v6-u-disabled-color-100">None</span>;
+export { logForwardingNoneLabel };
 
 export type LogForwardingConfigColumn = { term: string; description: React.ReactNode };
 
@@ -83,33 +77,8 @@ function SelectedGroupsApplicationsLabels({
     return <Spinner size="sm" aria-label="Loading groups catalog" />;
   }
   const leafIds = expandLogForwarderSelectionToLeafIds(forwarder, tree);
-  if (leafIds.length === 0) {
-    return logForwardingNoneLabel;
-  }
-  const grouped = groupSelectedLogForwardingItems(tree, leafIds);
-  if (!grouped.length) {
-    return <>{leafIds.join(', ')}</>;
-  }
   return (
-    <Stack hasGutter>
-      {grouped.map(({ groupLabel, applicationLabels }) => (
-        <StackItem key={groupLabel}>
-          <LabelGroup
-            numLabels={3}
-            collapsedText={LABEL_GROUP_OVERFLOW_TEXT}
-            isCompact
-            aria-label={`Applications for ${groupLabel}`}
-            categoryName={groupLabel}
-          >
-            {applicationLabels.map((text) => (
-              <Label key={`${groupLabel}-${text}`} variant="filled" isCompact>
-                {text}
-              </Label>
-            ))}
-          </LabelGroup>
-        </StackItem>
-      ))}
-    </Stack>
+    <LogForwardingSelectedAppsDescription selectedIds={leafIds} tree={tree} treeLoading={false} />
   );
 }
 

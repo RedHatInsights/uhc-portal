@@ -94,8 +94,18 @@ jest.mock('~/queries/ClusterDetailsQueries/useFetchLogForwarders', () => ({
   })),
 }));
 
-jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingGroupsCatalog', () => ({
-  useFetchLogForwardingGroupsCatalog: jest.fn(() => ({
+jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingGroups', () => ({
+  useFetchLogForwardingGroups: jest.fn(() => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+    error: null,
+    isFetching: false,
+  })),
+}));
+
+jest.mock('~/queries/RosaWizardQueries/useFetchLogForwardingApplications', () => ({
+  useFetchLogForwardingApplications: jest.fn(() => ({
     data: [],
     isLoading: false,
     isError: false,

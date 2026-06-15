@@ -13,10 +13,12 @@ import {
 
 import getClusterName from '~/common/getClusterName';
 import type { LogForwardingDestinationKind } from '~/components/clusters/wizards/rosa/LogForwarding/buildClusterLogForwarders';
+import { buildLogForwardingTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 import { useFetchLogForwarders } from '~/queries/ClusterDetailsQueries/useFetchLogForwarders';
 import { HCP_LOG_FORWARDING } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import { useFetchLogForwardingGroupsCatalog } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroupsCatalog';
+import { useFetchLogForwardingApplications } from '~/queries/RosaWizardQueries/useFetchLogForwardingApplications';
+import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
 import type { LogForwarder } from '~/types/clusters_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
 
@@ -69,8 +71,20 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
     error: forwardersError,
   } = useFetchLogForwarders(showSection ? clusterID : undefined, region);
 
-  const { data: catalogTree = [], isLoading: isCatalogLoading } =
-    useFetchLogForwardingGroupsCatalog({ enabled: showSection });
+  const { data: groupsTree = [], isLoading: isGroupsLoading } = useFetchLogForwardingGroups({
+    s3On: showSection,
+    cwOn: showSection,
+  });
+  const { data: applications = [], isLoading: isAppsLoading } = useFetchLogForwardingApplications({
+    s3On: showSection,
+    cwOn: showSection,
+  });
+
+  const catalogTree = React.useMemo(
+    () => buildLogForwardingTree(groupsTree, applications),
+    [groupsTree, applications],
+  );
+  const isCatalogLoading = isGroupsLoading || isAppsLoading;
 
   if (!showSection || !clusterID) {
     return null;
