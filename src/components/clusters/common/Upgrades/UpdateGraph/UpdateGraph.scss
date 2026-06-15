@@ -43,7 +43,6 @@
   &:last-child::after {
     background: transparent;
     border: 8px solid transparent;
-    border-left-color: var(--pf-t--global--border--color--default);
     border-width: 8px 12px;
     content: '';
     position: absolute;
@@ -53,7 +52,7 @@
 }
 
 .ocm-upgrade-graph-version {
-  color: var(--pf-t--global--text--color--regular);
+  color: inherit;
   display: flex;
   flex-direction: column;
   height: 35px;
