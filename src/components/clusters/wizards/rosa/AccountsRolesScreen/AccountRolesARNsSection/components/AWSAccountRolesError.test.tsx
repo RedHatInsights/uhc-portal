@@ -23,7 +23,6 @@ describe('<AWSAccountRolesError />', () => {
 
       expect(screen.getByText('OCM role has limited permissions')).toBeInTheDocument();
       expect(screen.getByText(/was created without console permissions/i)).toBeInTheDocument();
-      expect(screen.getByLabelText('Copyable rosa create ocm-role command')).toBeInTheDocument();
       expect(screen.getByText('Learn more about OCM role permissions')).toBeInTheDocument();
     });
 

@@ -325,7 +325,7 @@ const ClusterRolesScreen = () => {
             <div className="spinner-loading-text pf-v6-u-ml-xl">Checking for admin OCM role...</div>
           </GridItem>
         )}
-        {isGetOCMRoleSuccess && !hasByoOidcConfig && (
+        {isGetOCMRoleSuccess && !hasByoOidcConfig && !isNoConsoleRole && (
           <>
             <GridItem>
               <Content component={ContentVariants.p}>
