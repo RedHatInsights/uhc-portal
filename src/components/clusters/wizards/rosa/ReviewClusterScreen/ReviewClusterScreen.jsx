@@ -3,8 +3,11 @@ import isEmpty from 'lodash/isEmpty';
 import PropTypes from 'prop-types';
 
 import {
+  Alert,
   Bullseye,
   Button,
+  Content,
+  ContentVariants,
   Flex,
   FlexItem,
   Icon,
@@ -42,9 +45,14 @@ import {
   HYPERSHIFT_WIZARD_FEATURE,
   IMDS_SELECTION,
   MULTIREGION_PREVIEW_ENABLED,
+  OCM_ROLE_NO_CONSOLE,
   Y_STREAM_CHANNEL,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import {
+  refetchGetOCMRole,
+  useFetchGetOCMRole,
+} from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 
 import { ClusterRequestTranslatorFactory } from '../../common/ClusterRequestTranslator/ClusterRequestTranslatorFactory';
 import { DebugClusterRequest } from '../../common/DebugClusterRequest';
@@ -53,6 +61,9 @@ import ReviewSection, {
   FormikReviewItem as ReviewItem,
 } from '../../common/ReviewCluster/ReviewSection';
 import { createClusterRequest, upgradeScheduleRequest } from '../../common/submitOSDRequest';
+
+import { BackToAssociateAwsAccountLink } from '../common/BackToAssociateAwsAccountLink';
+import { OCM_ROLE_NO_CONSOLE_PROFILE } from '../rosaConstants';
 
 import ReviewRoleItem from './ReviewRoleItem';
 
@@ -148,6 +159,12 @@ const ReviewClusterScreen = ({
   const [ocmRole, setOcmRole] = useState('');
   const [errorWithAWSAccountRoles, setErrorWithAWSAccountRoles] = useState(false);
   const isHypershiftEnabled = useFeatureGate(HYPERSHIFT_WIZARD_FEATURE);
+  const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
+  const { data: ocmRoleData, isSuccess: isOCMRoleSuccess } = useFetchGetOCMRole(associatedAwsId);
+  const isNoConsoleRole =
+    hasNoConsoleFlag &&
+    isOCMRoleSuccess &&
+    ocmRoleData?.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
 
   const [isSyncEditorModalOpen, setIsSyncEditorModalOpen] = useState(false);
 
@@ -203,6 +220,9 @@ const ReviewClusterScreen = ({
     clearGetOcmRoleResponse();
     // reset hidden form field to false
     setFieldValue(FieldId.DetectedOcmAndUserRoles, false);
+    if (hasNoConsoleFlag) {
+      refetchGetOCMRole(associatedAwsId);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -299,6 +319,25 @@ const ReviewClusterScreen = ({
           ) : null}
         </Flex>
         <HiddenCheckbox name={FieldId.DetectedOcmAndUserRoles} />
+        {isNoConsoleRole && (
+          <Alert
+            variant="danger"
+            isInline
+            className="pf-v6-u-mb-md"
+            title="OCM role has limited permissions"
+          >
+            <Content className="pf-v6-u-font-size-sm">
+              <Content component={ContentVariants.p}>
+                The OCM Role linked to your AWS account was created without console permissions.
+                Cluster creation through the console is not supported with this configuration.
+              </Content>
+              <Content component={ContentVariants.p}>
+                To resolve this, update your OCM role with the ROSA CLI and then{' '}
+                <BackToAssociateAwsAccountLink />.
+              </Content>
+            </Content>
+          </Alert>
+        )}
         {isHypershiftEnabled && (
           <ReviewSection
             title={getStepName('CONTROL_PLANE')}
