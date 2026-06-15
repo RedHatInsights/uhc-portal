@@ -21,10 +21,7 @@ import docLinks from '~/common/docLinks.mjs';
 import { formatMinorVersion, isSupportedMinorVersion } from '~/common/helpers';
 import { Link } from '~/common/routing';
 import { useFormState } from '~/components/clusters/wizards/hooks';
-import {
-  MIN_MANAGED_POLICY_VERSION,
-  OCM_ROLE_NO_CONSOLE_PROFILE,
-} from '~/components/clusters/wizards/rosa/rosaConstants';
+import { MIN_MANAGED_POLICY_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import ExternalLink from '~/components/common/ExternalLink';
 import InstructionCommand from '~/components/common/InstructionCommand';
 import { ReduxSelectDropdown } from '~/components/common/ReduxFormComponents_deprecated';
@@ -32,12 +29,10 @@ import ReduxVerticalFormGroup from '~/components/common/ReduxFormComponents_depr
 import { useOCPLatestVersion } from '~/components/releases/hooks';
 import useAnalytics from '~/hooks/useAnalytics';
 import { usePreviousProps } from '~/hooks/usePreviousProps';
-import { HCP_USE_UNMANAGED, OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
+import { HCP_USE_UNMANAGED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import {
-  refetchGetOCMRole,
-  useFetchGetOCMRole,
-} from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { refetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 
 import { FieldId } from '../../constants';
 import { RosaCliCommand } from '../constants/cliCommands';
@@ -124,17 +119,11 @@ function AccountRolesARNsSection({
   const [hasFinishedLoadingRoles, setHasFinishedLoadingRoles] = useState(false);
   const [hasManagedPolicies, setHasManagedPolicies] = useState(false);
   const useHCPManagedAndUnmanaged = useFeatureGate(HCP_USE_UNMANAGED);
-  const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
   const {
-    data: ocmRoleData,
-    isSuccess: isOCMRoleSuccess,
+    isNoConsoleRole,
     isError: isOCMRoleError,
     isPending: isOCMRolePending,
-  } = useFetchGetOCMRole(selectedAWSAccountID);
-  const isNoConsoleRole =
-    hasNoConsoleFlag &&
-    isOCMRoleSuccess &&
-    ocmRoleData?.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
+  } = useIsNoConsoleRole(selectedAWSAccountID);
   const isMissingOCMRole = hasNoTrustedRelationshipOnClusterRoleError(
     getAWSAccountRolesARNsResponse,
   );

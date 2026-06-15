@@ -19,11 +19,10 @@ import { CreateManagedClusterButtonWithTooltip } from '~/components/common/Creat
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 
 import { isUserRoleForSelectedAWSAccount } from './AccountsRolesScreen/AccountsRolesScreen';
 import { FieldId } from './constants';
-import { OCM_ROLE_NO_CONSOLE_PROFILE } from './rosaConstants';
 import { hasLoadingState, stepId } from './rosaWizardConstants';
 
 // Must return the step in which VPCDropdown is located, as it's in charge of fetching the VPCs
@@ -77,15 +76,10 @@ const CreateRosaWizardFooter = ({
 
   const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
   const {
+    isNoConsoleRole,
     isPending: isGetOCMRolePending,
-    data: ocmRoleData,
-    isSuccess: isOCMRoleSuccess,
     isError: isOCMRoleError,
-  } = useFetchGetOCMRole(values[FieldId.AssociatedAwsId]);
-  const isNoConsoleRole =
-    hasNoConsoleFlag &&
-    isOCMRoleSuccess &&
-    ocmRoleData?.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
+  } = useIsNoConsoleRole(values[FieldId.AssociatedAwsId]);
 
   const areAwsResourcesLoading =
     awsRequests.accountIDsLoading ||

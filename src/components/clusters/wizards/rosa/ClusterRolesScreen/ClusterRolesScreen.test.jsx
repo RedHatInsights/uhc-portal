@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 import docLinks from '~/common/docLinks.mjs';
 import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
 import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { OCM_ROLE_NO_CONSOLE_PROFILE } from '~/components/clusters/wizards/rosa/rosaConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { FieldId } from '../constants';
@@ -126,7 +127,7 @@ describe('<ClusterRolesScreen />', () => {
     const noConsoleOCMRole = {
       data: {
         data: {
-          profile: 'no_console',
+          profile: OCM_ROLE_NO_CONSOLE_PROFILE,
           isAdmin: false,
           arn: 'arn:aws:iam::123456789012:role/NoConsoleRole',
         },

@@ -32,10 +32,9 @@ import usePreventBrowserNav from '~/hooks/usePreventBrowserNav';
 import {
   HCP_LOG_FORWARDING,
   HYPERSHIFT_WIZARD_FEATURE,
-  OCM_ROLE_NO_CONSOLE,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
 import ErrorBoundary from '../../../App/ErrorBoundary';
@@ -58,7 +57,6 @@ import CreateClusterErrorModal from './CreateClusterErrorModal';
 import CreateRosaWizardFooter from './CreateRosaWizardFooter';
 import MachinePoolScreen from './MachinePoolScreen';
 import ReviewClusterScreen from './ReviewClusterScreen';
-import { OCM_ROLE_NO_CONSOLE_PROFILE } from './rosaConstants';
 import { ValuesPanel } from './ValuesPanel';
 
 import './createROSAWizard.scss';
@@ -116,13 +114,7 @@ const CreateROSAWizardInternal = ({
   const accountAndRolesStepId = getAccountAndRolesStepId(isHypershiftEnabled);
   const firstStepId = isHypershiftEnabled ? stepId.CONTROL_PLANE : accountAndRolesStepId;
 
-  const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
-  const { data: ocmRoleData, isSuccess: isOCMRoleSuccess } =
-    useFetchGetOCMRole(selectedAWSAccountID);
-  const isNoConsoleRole =
-    hasNoConsoleFlag &&
-    isOCMRoleSuccess &&
-    ocmRoleData?.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
+  const { isNoConsoleRole } = useIsNoConsoleRole(selectedAWSAccountID);
 
   const [currentStepId, setCurrentStepId] = React.useState(firstStepId);
   const [currentStep, setCurrentStep] = React.useState();

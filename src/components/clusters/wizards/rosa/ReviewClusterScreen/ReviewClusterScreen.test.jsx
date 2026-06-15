@@ -3,6 +3,7 @@ import { Formik } from 'formik';
 
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
+import { OCM_ROLE_NO_CONSOLE_PROFILE } from '~/components/clusters/wizards/rosa/rosaConstants';
 import {
   ALLOW_EUS_CHANNEL,
   OCM_ROLE_NO_CONSOLE,
@@ -539,7 +540,7 @@ describe('<ReviewClusterScreen />', () => {
 
   describe('no_console OCM role', () => {
     const noConsoleRoleResponse = {
-      data: { data: { profile: 'no_console' } },
+      data: { data: { profile: OCM_ROLE_NO_CONSOLE_PROFILE } },
       isSuccess: true,
       isPending: false,
     };

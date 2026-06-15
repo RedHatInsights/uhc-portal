@@ -49,10 +49,8 @@ import {
   Y_STREAM_CHANNEL,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import {
-  refetchGetOCMRole,
-  useFetchGetOCMRole,
-} from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { refetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 
 import { ClusterRequestTranslatorFactory } from '../../common/ClusterRequestTranslator/ClusterRequestTranslatorFactory';
 import { DebugClusterRequest } from '../../common/DebugClusterRequest';
@@ -61,7 +59,6 @@ import ReviewSection, {
   FormikReviewItem as ReviewItem,
 } from '../../common/ReviewCluster/ReviewSection';
 import { createClusterRequest, upgradeScheduleRequest } from '../../common/submitOSDRequest';
-import { OCM_ROLE_NO_CONSOLE_PROFILE } from '../rosaConstants';
 
 import ReviewRoleItem from './ReviewRoleItem';
 
@@ -158,15 +155,7 @@ const ReviewClusterScreen = ({
   const [errorWithAWSAccountRoles, setErrorWithAWSAccountRoles] = useState(false);
   const isHypershiftEnabled = useFeatureGate(HYPERSHIFT_WIZARD_FEATURE);
   const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
-  const {
-    data: ocmRoleData,
-    isSuccess: isOCMRoleSuccess,
-    isPending: isOCMRolePending,
-  } = useFetchGetOCMRole(associatedAwsId);
-  const isNoConsoleRole =
-    hasNoConsoleFlag &&
-    isOCMRoleSuccess &&
-    ocmRoleData?.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
+  const { isNoConsoleRole, isPending: isOCMRolePending } = useIsNoConsoleRole(associatedAwsId);
   const handleRefreshOCMRole = () => refetchGetOCMRole(associatedAwsId);
 
   const [isSyncEditorModalOpen, setIsSyncEditorModalOpen] = useState(false);

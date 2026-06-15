@@ -23,17 +23,11 @@ import {
   getOperatorRolesCommand,
 } from '~/components/clusters/wizards/rosa/ClusterRolesScreen/clusterRolesHelper';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
-import { OCM_ROLE_NO_CONSOLE_PROFILE } from '~/components/clusters/wizards/rosa/rosaConstants';
 import useAnalytics from '~/hooks/useAnalytics';
-import {
-  MULTIREGION_PREVIEW_ENABLED,
-  OCM_ROLE_NO_CONSOLE,
-} from '~/queries/featureGates/featureConstants';
+import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import {
-  refetchGetOCMRole,
-  useFetchGetOCMRole,
-} from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { refetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 
 import docLinks from '../../../../../common/docLinks.mjs';
 import { required } from '../../../../../common/validators';
@@ -72,8 +66,6 @@ const ClusterRolesScreen = () => {
 
   const isHypershiftSelected = hypershiftValue === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
-  const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
-
   const [isAutoModeAvailable, setIsAutoModeAvailable] = useState(false);
   const [hasByoOidcConfig, setHasByoOidcConfig] = useState(
     !!(isHypershiftSelected || byoOidcConfigID),
@@ -85,16 +77,13 @@ const ClusterRolesScreen = () => {
   const regionSearch = regionalInstance?.id;
 
   const {
+    isNoConsoleRole,
     data: getOCMRoleData,
     error: getOCMRoleError,
     isPending: isGetOCMRolePending,
     isSuccess: isGetOCMRoleSuccess,
     status: getOCMRoleStatus,
-  } = useFetchGetOCMRole(awsAccountID);
-  const isNoConsoleRole =
-    hasNoConsoleFlag &&
-    isGetOCMRoleSuccess &&
-    getOCMRoleData?.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
+  } = useIsNoConsoleRole(awsAccountID);
 
   const toggleByoOidcConfig = (isChecked) => () => {
     if (isChecked) {
