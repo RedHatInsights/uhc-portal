@@ -112,6 +112,18 @@ describe('LogDestinationCard', () => {
 
     expect(screen.getByRole('button', { name: 'Amazon S3 configuration actions' })).toBeDisabled();
   });
+
+  it('wraps disabled kebab in a tooltip when a disable reason is provided', () => {
+    render(
+      <LogDestinationCard
+        {...defaultCardProps}
+        canManage={false}
+        disableReason="This operation is not available while cluster is hibernating"
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Amazon S3 configuration actions' })).toBeDisabled();
+  });
 });
 
 describe('AddConfigurationDropdown', () => {

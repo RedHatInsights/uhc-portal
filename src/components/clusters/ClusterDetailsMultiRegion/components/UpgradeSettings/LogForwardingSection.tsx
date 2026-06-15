@@ -186,6 +186,7 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
                 tree={catalogTree}
                 treeLoading={treeLoading}
                 canManage={canManage}
+                disableReason={disableReason}
                 onEdit={() => openEditModal('s3', s3Forwarder)}
                 onDelete={() => openDeleteModal('s3', s3Forwarder)}
                 columns={[
@@ -212,6 +213,7 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
                 tree={catalogTree}
                 treeLoading={treeLoading}
                 canManage={canManage}
+                disableReason={disableReason}
                 onEdit={() => openEditModal('cloudwatch', cloudWatchForwarder)}
                 onDelete={() => openDeleteModal('cloudwatch', cloudWatchForwarder)}
                 columns={[

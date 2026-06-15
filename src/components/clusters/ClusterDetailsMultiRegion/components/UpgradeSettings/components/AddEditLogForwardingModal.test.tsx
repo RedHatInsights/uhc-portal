@@ -174,7 +174,32 @@ describe('AddEditLogForwardingModal', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/CLUSTERS-MGMT-400: Invalid request/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
+  });
+
+  it('closes on cancel after a submit error', async () => {
+    (useCreateLogForwarder as jest.Mock).mockReturnValue({
+      isPending: false,
+      isError: true,
+      error: {
+        error: {
+          errorMessage: 'CLUSTERS-MGMT-400: Invalid request',
+          operationID: 'op-456',
+        },
+      },
+      mutate: mockPostMutate,
+      reset: mockPostReset,
+    });
+
+    const { user } = render(
+      <AddEditLogForwardingModal {...defaultProps} destinationType="s3" mode="add" />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(mockPostReset).toHaveBeenCalled();
+    expect(mockPatchReset).toHaveBeenCalled();
+    expect(mockOnClose).toHaveBeenCalled();
   });
 
   it('calls patch mutation when saving an edit', async () => {

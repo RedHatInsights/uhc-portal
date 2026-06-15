@@ -133,6 +133,7 @@ export function LogDestinationCard({
   treeLoading,
   columns,
   canManage,
+  disableReason,
   onEdit,
   onDelete,
 }: {
@@ -142,11 +143,58 @@ export function LogDestinationCard({
   treeLoading: boolean;
   columns: LogForwardingConfigColumn[];
   canManage: boolean;
+  disableReason?: string;
   onEdit: () => void;
   onDelete: () => void;
 }) {
   const [isKebabOpen, setIsKebabOpen] = React.useState(false);
   const kebabToggleRef = React.useRef<HTMLButtonElement>(null);
+
+  const kebabMenu = (
+    <Dropdown
+      isOpen={isKebabOpen}
+      onOpenChange={(open) => setIsKebabOpen(open)}
+      popperProps={{ position: 'right', appendTo: () => document.body }}
+      toggle={{
+        toggleRef: kebabToggleRef,
+        toggleNode: (
+          <MenuToggle
+            ref={kebabToggleRef}
+            variant="plain"
+            aria-label={`${title} configuration actions`}
+            onClick={() => setIsKebabOpen(!isKebabOpen)}
+            isExpanded={isKebabOpen}
+            isDisabled={!canManage}
+          >
+            <EllipsisVIcon />
+          </MenuToggle>
+        ),
+      }}
+    >
+      <DropdownList>
+        <DropdownItem
+          key="edit"
+          isDisabled={!canManage}
+          onClick={() => {
+            setIsKebabOpen(false);
+            onEdit();
+          }}
+        >
+          Edit configuration
+        </DropdownItem>
+        <DropdownItem
+          key="delete"
+          isDisabled={!canManage}
+          onClick={() => {
+            setIsKebabOpen(false);
+            onDelete();
+          }}
+        >
+          Delete configuration
+        </DropdownItem>
+      </DropdownList>
+    </Dropdown>
+  );
 
   return (
     <Card isCompact>
@@ -158,49 +206,11 @@ export function LogDestinationCard({
           <Title headingLevel="h3" size="lg">
             {title}
           </Title>
-          <Dropdown
-            isOpen={isKebabOpen}
-            onOpenChange={(open) => setIsKebabOpen(open)}
-            popperProps={{ position: 'right', appendTo: () => document.body }}
-            toggle={{
-              toggleRef: kebabToggleRef,
-              toggleNode: (
-                <MenuToggle
-                  ref={kebabToggleRef}
-                  variant="plain"
-                  aria-label={`${title} configuration actions`}
-                  onClick={() => setIsKebabOpen(!isKebabOpen)}
-                  isExpanded={isKebabOpen}
-                  isDisabled={!canManage}
-                >
-                  <EllipsisVIcon />
-                </MenuToggle>
-              ),
-            }}
-          >
-            <DropdownList>
-              <DropdownItem
-                key="edit"
-                isDisabled={!canManage}
-                onClick={() => {
-                  setIsKebabOpen(false);
-                  onEdit();
-                }}
-              >
-                Edit configuration
-              </DropdownItem>
-              <DropdownItem
-                key="delete"
-                isDisabled={!canManage}
-                onClick={() => {
-                  setIsKebabOpen(false);
-                  onDelete();
-                }}
-              >
-                Delete configuration
-              </DropdownItem>
-            </DropdownList>
-          </Dropdown>
+          {disableReason && !canManage ? (
+            <Tooltip content={disableReason}>{kebabMenu}</Tooltip>
+          ) : (
+            kebabMenu
+          )}
         </Flex>
       </CardTitle>
       <CardBody>

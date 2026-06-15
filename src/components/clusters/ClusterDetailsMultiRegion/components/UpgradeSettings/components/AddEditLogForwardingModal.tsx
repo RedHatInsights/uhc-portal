@@ -128,7 +128,7 @@ function ModalForm({
             <Button
               variant="secondary"
               onClick={handleClose}
-              isDisabled={formik.isSubmitting || isPending || unchangedSinceSubmitError}
+              isDisabled={formik.isSubmitting || isPending}
             >
               Cancel
             </Button>
