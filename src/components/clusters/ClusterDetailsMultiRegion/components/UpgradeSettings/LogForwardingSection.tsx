@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
 
 import {
   Alert,
@@ -14,6 +15,8 @@ import {
 import getClusterName from '~/common/getClusterName';
 import type { LogForwardingDestinationKind } from '~/components/clusters/wizards/rosa/LogForwarding/buildClusterLogForwarders';
 import { buildLogForwardingTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
+import { closeModal, openModal } from '~/components/common/Modal/ModalActions';
+import modals from '~/components/common/Modal/modals';
 import { useFetchLogForwarders } from '~/queries/ClusterDetailsQueries/useFetchLogForwarders';
 import { HCP_LOG_FORWARDING } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -47,6 +50,7 @@ type ModalState =
   | null;
 
 const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
+  const dispatch = useDispatch();
   const clusterID = cluster.id;
   const region = cluster.subscription?.rh_region_id;
   const isHypershift = isHypershiftCluster(cluster);
@@ -98,6 +102,7 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
 
   const openAddModal = (destinationType: LogForwardingDestinationKind) => {
     setModalState({ kind: 'add-edit', destinationType, mode: 'add' });
+    dispatch(openModal(modals.EDIT_LOG_FORWARDING));
   };
 
   const openEditModal = (
@@ -105,6 +110,7 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
     forwarder: LogForwarder,
   ) => {
     setModalState({ kind: 'add-edit', destinationType, mode: 'edit', forwarder });
+    dispatch(openModal(modals.EDIT_LOG_FORWARDING));
   };
 
   const openDeleteModal = (
@@ -112,9 +118,13 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
     forwarder: LogForwarder,
   ) => {
     setModalState({ kind: 'delete', destinationType, forwarder });
+    dispatch(openModal(modals.EDIT_LOG_FORWARDING));
   };
 
-  const closeModal = () => setModalState(null);
+  const closeLogForwardingModal = () => {
+    setModalState(null);
+    dispatch(closeModal());
+  };
 
   return (
     <>
@@ -243,7 +253,7 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
           catalogTree={catalogTree}
           clusterName={clusterName}
           isOpen
-          onClose={closeModal}
+          onClose={closeLogForwardingModal}
         />
       ) : null}
 
@@ -254,7 +264,7 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
           destinationType={modalState.destinationType}
           forwarder={modalState.forwarder}
           isOpen
-          onClose={closeModal}
+          onClose={closeLogForwardingModal}
         />
       ) : null}
     </>
