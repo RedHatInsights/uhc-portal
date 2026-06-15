@@ -32,8 +32,10 @@ import usePreventBrowserNav from '~/hooks/usePreventBrowserNav';
 import {
   HCP_LOG_FORWARDING,
   HYPERSHIFT_WIZARD_FEATURE,
+  OCM_ROLE_NO_CONSOLE,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
 import ErrorBoundary from '../../../App/ErrorBoundary';
@@ -53,6 +55,7 @@ import AccountsRolesScreen from './AccountsRolesScreen';
 import ClusterProxyScreen from './ClusterProxyScreen';
 import { FieldId, initialTouched, initialValues, initialValuesRestrictedEnv } from './constants';
 import CreateClusterErrorModal from './CreateClusterErrorModal';
+import { OCM_ROLE_NO_CONSOLE_PROFILE } from './rosaConstants';
 import CreateRosaWizardFooter from './CreateRosaWizardFooter';
 import MachinePoolScreen from './MachinePoolScreen';
 import ReviewClusterScreen from './ReviewClusterScreen';
@@ -112,6 +115,14 @@ const CreateROSAWizardInternal = ({
 
   const accountAndRolesStepId = getAccountAndRolesStepId(isHypershiftEnabled);
   const firstStepId = isHypershiftEnabled ? stepId.CONTROL_PLANE : accountAndRolesStepId;
+
+  const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
+  const { data: ocmRoleData, isSuccess: isOCMRoleSuccess } =
+    useFetchGetOCMRole(selectedAWSAccountID);
+  const isNoConsoleRole =
+    hasNoConsoleFlag &&
+    isOCMRoleSuccess &&
+    ocmRoleData?.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
 
   const [currentStepId, setCurrentStepId] = React.useState(firstStepId);
   const [currentStep, setCurrentStep] = React.useState();
@@ -310,6 +321,7 @@ const CreateROSAWizardInternal = ({
               id={stepId.CLUSTER_SETTINGS}
               name={stepNameById[stepId.CLUSTER_SETTINGS]}
               isExpandable
+              isDisabled={isNoConsoleRole}
               steps={[
                 <WizardStep
                   id={stepId.CLUSTER_SETTINGS__DETAILS}
@@ -335,6 +347,7 @@ const CreateROSAWizardInternal = ({
               id={stepId.NETWORKING}
               name={stepNameById[stepId.NETWORKING]}
               isExpandable
+              isDisabled={isNoConsoleRole}
               steps={[
                 <WizardStep
                   id={stepId.NETWORKING__CONFIGURATION}
@@ -385,6 +398,7 @@ const CreateROSAWizardInternal = ({
             <WizardStep
               id={stepId.CLUSTER_ROLES_AND_POLICIES}
               name={stepNameById[stepId.CLUSTER_ROLES_AND_POLICIES]}
+              isDisabled={isNoConsoleRole}
             >
               <ErrorBoundary>
                 <ClusterRolesScreen />
@@ -395,6 +409,7 @@ const CreateROSAWizardInternal = ({
               id={stepId.CLUSTER_ADDITIONAL_SETTINGS}
               name={stepNameById[stepId.CLUSTER_ADDITIONAL_SETTINGS]}
               isExpandable
+              isDisabled={isNoConsoleRole}
               steps={[
                 <WizardStep
                   id={stepId.CLUSTER_ADDITIONAL_SETTINGS__UPDATES}
@@ -417,7 +432,11 @@ const CreateROSAWizardInternal = ({
               ]}
             />
 
-            <WizardStep id={stepId.REVIEW_AND_CREATE} name={stepNameById[stepId.REVIEW_AND_CREATE]}>
+            <WizardStep
+              id={stepId.REVIEW_AND_CREATE}
+              name={stepNameById[stepId.REVIEW_AND_CREATE]}
+              isDisabled={isNoConsoleRole}
+            >
               <ReviewClusterScreen
                 createCluster={createCluster}
                 isSubmitPending={createClusterResponse?.pending}
