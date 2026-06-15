@@ -155,7 +155,7 @@ const CreateRosaWizardFooter = ({
       <Button
         {...primaryBtnCommonProps}
         onClick={() => submitForm()}
-        isDisabled={!canCreateManagedCluster}
+        isDisabled={!canCreateManagedCluster || isNoConsoleRole}
       >
         Create cluster
       </Button>
