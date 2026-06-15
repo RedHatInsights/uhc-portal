@@ -35,19 +35,16 @@ import {
   logForwardingNoneLabel,
 } from './logForwardingSectionComponents';
 
-type ModalState =
-  | {
-      kind: 'add-edit';
-      destinationType: LogForwardingDestinationKind;
-      mode: 'add' | 'edit';
-      forwarder?: LogForwarder;
-    }
-  | {
-      kind: 'delete';
-      destinationType: LogForwardingDestinationKind;
-      forwarder: LogForwarder;
-    }
-  | null;
+type AddEditModalState = {
+  destinationType: LogForwardingDestinationKind;
+  mode: 'add' | 'edit';
+  forwarder?: LogForwarder;
+};
+
+type DeleteModalState = {
+  destinationType: LogForwardingDestinationKind;
+  forwarder: LogForwarder;
+};
 
 const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
   const dispatch = useDispatch();
@@ -58,7 +55,8 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
   const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
   const showSection = isHypershift && isRosa && isHcpLogForwardingEnabled;
 
-  const [modalState, setModalState] = React.useState<ModalState>(null);
+  const [addEditModal, setAddEditModal] = React.useState<AddEditModalState | null>(null);
+  const [deleteModal, setDeleteModal] = React.useState<DeleteModalState | null>(null);
 
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
   const clusterHibernating = isHibernating(cluster);
@@ -101,7 +99,8 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
   const clusterName = getClusterName(cluster);
 
   const openAddModal = (destinationType: LogForwardingDestinationKind) => {
-    setModalState({ kind: 'add-edit', destinationType, mode: 'add' });
+    setDeleteModal(null);
+    setAddEditModal({ destinationType, mode: 'add' });
     dispatch(openModal(modals.EDIT_LOG_FORWARDING));
   };
 
@@ -109,7 +108,8 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
     destinationType: LogForwardingDestinationKind,
     forwarder: LogForwarder,
   ) => {
-    setModalState({ kind: 'add-edit', destinationType, mode: 'edit', forwarder });
+    setDeleteModal(null);
+    setAddEditModal({ destinationType, mode: 'edit', forwarder });
     dispatch(openModal(modals.EDIT_LOG_FORWARDING));
   };
 
@@ -117,12 +117,14 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
     destinationType: LogForwardingDestinationKind,
     forwarder: LogForwarder,
   ) => {
-    setModalState({ kind: 'delete', destinationType, forwarder });
+    setAddEditModal(null);
+    setDeleteModal({ destinationType, forwarder });
     dispatch(openModal(modals.EDIT_LOG_FORWARDING));
   };
 
   const closeLogForwardingModal = () => {
-    setModalState(null);
+    setAddEditModal(null);
+    setDeleteModal(null);
     dispatch(closeModal());
   };
 
@@ -243,13 +245,13 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
         </CardBody>
       </Card>
 
-      {modalState?.kind === 'add-edit' ? (
+      {addEditModal ? (
         <AddEditLogForwardingModal
           clusterId={clusterID}
           region={region}
-          destinationType={modalState.destinationType}
-          mode={modalState.mode}
-          forwarder={modalState.forwarder}
+          destinationType={addEditModal.destinationType}
+          mode={addEditModal.mode}
+          forwarder={addEditModal.forwarder}
           catalogTree={catalogTree}
           clusterName={clusterName}
           isOpen
@@ -257,12 +259,12 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
         />
       ) : null}
 
-      {modalState?.kind === 'delete' ? (
+      {deleteModal ? (
         <DeleteLogForwardingModal
           clusterId={clusterID}
           region={region}
-          destinationType={modalState.destinationType}
-          forwarder={modalState.forwarder}
+          destinationType={deleteModal.destinationType}
+          forwarder={deleteModal.forwarder}
           isOpen
           onClose={closeLogForwardingModal}
         />
