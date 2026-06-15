@@ -55,7 +55,7 @@ describe('logForwardingGroupVersionsListToTree', () => {
     expect(tree[0].children?.map((c) => c.id)).toEqual(['audit', 'apiserver']);
   });
 
-  it('flattens a single-app group to one leaf node with the group display name', () => {
+  it('keeps a single-app group as a parent node with the application name as the leaf', () => {
     const tree = logForwardingGroupVersionsListToTree([
       {
         name: 'scheduler',
@@ -63,7 +63,13 @@ describe('logForwardingGroupVersionsListToTree', () => {
         versions: [{ id: '1', applications: ['kube-scheduler'] }],
       },
     ]);
-    expect(tree).toEqual([{ id: 'kube-scheduler', text: 'scheduler' }]);
+    expect(tree).toEqual([
+      {
+        id: logForwardingGroupRootId('scheduler'),
+        text: 'scheduler',
+        children: [{ id: 'kube-scheduler', text: 'kube-scheduler' }],
+      },
+    ]);
   });
 
   it('skips blank group names and versions without applications', () => {
@@ -77,7 +83,13 @@ describe('logForwardingGroupVersionsListToTree', () => {
       },
     ]);
 
-    expect(tree).toEqual([{ id: 'audit', text: 'API' }]);
+    expect(tree).toEqual([
+      {
+        id: logForwardingGroupRootId('API'),
+        text: 'API',
+        children: [{ id: 'audit', text: 'audit' }],
+      },
+    ]);
   });
 
   it('sorts root nodes alphabetically by display name', () => {
