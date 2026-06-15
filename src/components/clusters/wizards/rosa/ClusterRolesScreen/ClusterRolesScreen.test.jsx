@@ -2,10 +2,9 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import docLinks from '~/common/docLinks.mjs';
+import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
 import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
-
-import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
 
 import { FieldId } from '../constants';
 

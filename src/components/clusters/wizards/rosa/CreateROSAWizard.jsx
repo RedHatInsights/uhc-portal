@@ -55,10 +55,10 @@ import AccountsRolesScreen from './AccountsRolesScreen';
 import ClusterProxyScreen from './ClusterProxyScreen';
 import { FieldId, initialTouched, initialValues, initialValuesRestrictedEnv } from './constants';
 import CreateClusterErrorModal from './CreateClusterErrorModal';
-import { OCM_ROLE_NO_CONSOLE_PROFILE } from './rosaConstants';
 import CreateRosaWizardFooter from './CreateRosaWizardFooter';
 import MachinePoolScreen from './MachinePoolScreen';
 import ReviewClusterScreen from './ReviewClusterScreen';
+import { OCM_ROLE_NO_CONSOLE_PROFILE } from './rosaConstants';
 import { ValuesPanel } from './ValuesPanel';
 
 import './createROSAWizard.scss';
