@@ -85,7 +85,7 @@ export function logForwardingGroupVersionsListToTree(
   return roots;
 }
 
-export const LOG_FORWARDING_OTHER_GROUP_NAME = 'Other';
+export const LOG_FORWARDING_OTHER_GROUP_NAME = 'other';
 export const LOG_FORWARDING_OTHER_GROUP_ROOT_ID = logForwardingGroupRootId(
   LOG_FORWARDING_OTHER_GROUP_NAME,
 );

@@ -2,6 +2,7 @@ import {
   buildLogForwardingTree,
   buildOtherGroupTreeNode,
   compareLogForwarderVersionIds,
+  LOG_FORWARDING_OTHER_GROUP_NAME,
   LOG_FORWARDING_OTHER_GROUP_ROOT_ID,
   logForwardingGroupRootId,
   logForwardingGroupVersionsListToTree,
@@ -147,7 +148,7 @@ describe('buildOtherGroupTreeNode', () => {
     const result = buildOtherGroupTreeNode(apps, groupsTree);
     expect(result).toEqual({
       id: LOG_FORWARDING_OTHER_GROUP_ROOT_ID,
-      text: 'Other',
+      text: LOG_FORWARDING_OTHER_GROUP_NAME,
       children: [
         { id: 'etcd', text: 'etcd' },
         { id: 'private-router', text: 'private-router' },
@@ -186,7 +187,7 @@ describe('buildOtherGroupTreeNode', () => {
   it('buildLogForwardingTree appends the Other group when orphan applications exist', () => {
     const tree = buildLogForwardingTree(groupsTree, [{ name: 'orphan-app', enabled: true }]);
     expect(tree).toHaveLength(groupsTree.length + 1);
-    expect(tree.at(-1)?.text).toBe('Other');
+    expect(tree.at(-1)?.text).toBe(LOG_FORWARDING_OTHER_GROUP_NAME);
     expect(tree.at(-1)?.children?.map((c) => c.id)).toEqual(['orphan-app']);
   });
 });

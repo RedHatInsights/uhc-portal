@@ -375,7 +375,7 @@ describe('LogForwardingReviewDetails', () => {
       />,
     );
 
-    expect(screen.getByText('Other')).toBeInTheDocument();
+    expect(screen.getByText('other')).toBeInTheDocument();
     expect(screen.getByText('kube-dns')).toBeInTheDocument();
   });
 });

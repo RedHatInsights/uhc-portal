@@ -112,7 +112,7 @@ describe('LogForwardingSection', () => {
 
     render(<LogForwardingSection cluster={mockCluster} />);
 
-    expect(screen.getByText('Other')).toBeInTheDocument();
+    expect(screen.getByText('other')).toBeInTheDocument();
     expect(screen.getByText('kube-dns')).toBeInTheDocument();
   });
 

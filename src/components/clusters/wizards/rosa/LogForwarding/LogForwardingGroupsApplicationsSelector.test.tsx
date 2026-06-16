@@ -3,6 +3,7 @@ import { Form, Formik } from 'formik';
 
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { mockLogForwardingGroupTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
+import { LOG_FORWARDING_OTHER_GROUP_NAME } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeFromApi';
 import { useFetchLogForwardingApplications } from '~/queries/RosaWizardQueries/useFetchLogForwardingApplications';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
 import { render, screen } from '~/testUtils';
@@ -24,7 +25,9 @@ jest.mock('~/components/common/GroupsApplicationsSelector/GroupsApplicationsSele
       data-testid="groups-applications-selector"
       data-name={name}
       data-tree-size={treeData.length}
-      data-has-other={String(treeData.some((node) => node.text === 'Other'))}
+      data-has-other={String(
+        treeData.some((node) => node.text === LOG_FORWARDING_OTHER_GROUP_NAME),
+      )}
     />
   ),
 }));
