@@ -632,5 +632,57 @@ describe('<ReviewClusterScreen />', () => {
       expect(await screen.findByText('arn:aws:iam::123:role/ReduxRole')).toBeInTheDocument();
       expect(screen.queryByText('arn:aws:iam::123:role/ReactQueryRole')).not.toBeInTheDocument();
     });
+
+    it('shows ocm-role error when Refresh returns an error (no role linked) and feature gate is on', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+      // Simulate Refresh result: React Query got an error (no OCM role linked)
+      useFetchGetOCMRole.mockReturnValue({
+        data: undefined,
+        isError: true,
+        isSuccess: false,
+        isPending: false,
+      });
+
+      // Redux state is stale — still fulfilled with old ARN
+      const propsWithStaleRedux = {
+        ...defaultProps,
+        getOCMRoleResponse: {
+          fulfilled: true,
+          data: { arn: 'arn:aws:iam::123:role/OldUnlinkedRole' },
+        },
+      };
+
+      render(buildTestComponent(<ReviewClusterScreen {...propsWithStaleRedux} />));
+
+      // Error state from React Query should be reflected: "could not be detected" shown
+      expect(await screen.findByText(/ocm-role could not be detected/i)).toBeInTheDocument();
+      // Stale Redux ARN must not appear
+      expect(screen.queryByText('arn:aws:iam::123:role/OldUnlinkedRole')).not.toBeInTheDocument();
+    });
+
+    it('does not change ocm-role display when Refresh returns an error and feature gate is off', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
+      // React Query has an error — but the flag is off so Redux is still the source of truth
+      useFetchGetOCMRole.mockReturnValue({
+        data: undefined,
+        isError: true,
+        isSuccess: false,
+        isPending: false,
+      });
+
+      const propsWithFulfilledRedux = {
+        ...defaultProps,
+        getOCMRoleResponse: {
+          fulfilled: true,
+          data: { arn: 'arn:aws:iam::123:role/ReduxRole' },
+        },
+      };
+
+      render(buildTestComponent(<ReviewClusterScreen {...propsWithFulfilledRedux} />));
+
+      // Redux says fulfilled + has ARN → should be displayed normally (no error)
+      expect(await screen.findByText('arn:aws:iam::123:role/ReduxRole')).toBeInTheDocument();
+      expect(screen.queryByText(/ocm-role could not be detected/i)).not.toBeInTheDocument();
+    });
   });
 });

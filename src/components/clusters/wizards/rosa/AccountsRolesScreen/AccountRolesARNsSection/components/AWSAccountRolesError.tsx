@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Alert, Content, ContentVariants } from '@patternfly/react-core';
 
-import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import { NoConsoleRoleAlert } from '~/components/clusters/wizards/rosa/common/NoConsoleRoleAlert';
+import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import ErrorBox from '~/components/common/ErrorBox';
 import InstructionCommand from '~/components/common/InstructionCommand';
 import { GlobalState } from '~/redux/stateTypes';

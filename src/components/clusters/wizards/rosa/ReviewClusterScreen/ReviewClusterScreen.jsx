@@ -158,6 +158,7 @@ const ReviewClusterScreen = ({
     isPending: isOCMRolePending,
     data: ocmRoleQueryData,
     isSuccess: isOCMRoleQuerySuccess,
+    isError: isOCMRoleQueryError,
   } = useIsNoConsoleRole(associatedAwsId);
   const handleRefreshOCMRole = () => refetchGetOCMRole(associatedAwsId);
 
@@ -252,21 +253,37 @@ const ReviewClusterScreen = ({
   // When the feature flag is on, prefer the React Query ARN over the Redux-derived ocmRole.
   // The Refresh button invalidates React Query but not Redux, so without this override the
   // displayed ARN would remain stale after a refresh.
+  // Return '' on React Query error so ReviewRoleItem shows the "could not be detected" message.
   const displayedOcmRole =
     hasNoConsoleFlag && isOCMRoleQuerySuccess && ocmRoleQueryData?.data?.arn
       ? ocmRoleQueryData.data.arn
-      : ocmRole;
+      : hasNoConsoleFlag && isOCMRoleQueryError
+        ? ''
+        : ocmRole;
 
   useEffect(() => {
-    const hasError =
-      getUserRoleResponse?.error || !userRole || getOCMRoleResponse?.error || !ocmRole;
+    // When the flag is on, React Query is the source of truth for OCM role validity after Refresh.
+    // Redux state is not invalidated by Refresh, so we must check React Query error/empty states.
+    const ocmRoleHasError = hasNoConsoleFlag
+      ? isOCMRoleQueryError || !displayedOcmRole
+      : getOCMRoleResponse?.error || !ocmRole;
+    const hasError = getUserRoleResponse?.error || !userRole || ocmRoleHasError;
     if (hasError !== errorWithAWSAccountRoles) {
       setErrorWithAWSAccountRoles(hasError);
       // setting hidden form field for field level validation
       setFieldValue(FieldId.DetectedOcmAndUserRoles, !hasError);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getUserRoleResponse, getOCMRoleResponse, userRole, ocmRole, errorWithAWSAccountRoles]);
+  }, [
+    getUserRoleResponse,
+    getOCMRoleResponse,
+    userRole,
+    ocmRole,
+    errorWithAWSAccountRoles,
+    hasNoConsoleFlag,
+    isOCMRoleQueryError,
+    displayedOcmRole,
+  ]);
 
   // ensure regionalInstance does not exist if !isMultiRegionEnabled
   useEffect(() => {
