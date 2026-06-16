@@ -37,15 +37,15 @@ function AWSAccountRolesError({
             The OCM role linked to your AWS account was created without console permissions. Cluster
             creation through the console is not supported with this configuration. To create a
             cluster using the Red Hat console, update your ocm role with appropriate permissions
-            using the ROSA CLI.
+            using the ROSA CLI.{' '}
+            <a
+              href="https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/prepare_your_environment/rosa-hcp-prepare-iam-roles-resources#rosa-sts-ocm-roles-and-permissions-iam-basic-role_prepare-role-resources"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Learn more about OCM role permissions
+            </a>
           </Content>
-          <a
-            href="https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/prepare_your_environment/rosa-hcp-prepare-iam-roles-resources#rosa-sts-ocm-roles-and-permissions-iam-basic-role_prepare-role-resources"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn more about OCM role permissions
-          </a>
           <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
             After updating your OCM role, check again:
             <Button
