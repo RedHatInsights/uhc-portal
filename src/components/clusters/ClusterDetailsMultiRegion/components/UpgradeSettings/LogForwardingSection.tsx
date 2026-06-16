@@ -23,7 +23,7 @@ import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useFetchLogForwardingApplications } from '~/queries/RosaWizardQueries/useFetchLogForwardingApplications';
 import { useFetchLogForwardingGroups } from '~/queries/RosaWizardQueries/useFetchLogForwardingGroups';
 import type { LogForwarder } from '~/types/clusters_mgmt.v1';
-import { AugmentedCluster } from '~/types/types';
+import type { AugmentedCluster } from '~/types/types';
 
 import { isHibernating, isHypershiftCluster, isROSA } from '../../../common/clusterStates';
 
@@ -46,7 +46,7 @@ type DeleteModalState = {
   forwarder: LogForwarder;
 };
 
-const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
+export function LogForwardingSection({ cluster }: { cluster: AugmentedCluster }) {
   const dispatch = useDispatch();
   const clusterID = cluster.id;
   const region = cluster.subscription?.rh_region_id;
@@ -273,6 +273,4 @@ const LogForwardingSection = ({ cluster }: { cluster: AugmentedCluster }) => {
       ) : null}
     </>
   );
-};
-
-export default LogForwardingSection;
+}

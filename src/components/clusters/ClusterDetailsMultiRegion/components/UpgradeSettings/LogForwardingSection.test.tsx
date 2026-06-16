@@ -10,7 +10,7 @@ import type { AugmentedCluster } from '~/types/types';
 
 import { isHibernating } from '../../../common/clusterStates';
 
-import LogForwardingSection from './LogForwardingSection';
+import { LogForwardingSection } from './LogForwardingSection';
 
 jest.mock('~/queries/featureGates/useFetchFeatureGate');
 jest.mock('~/queries/ClusterDetailsQueries/useFetchLogForwarders');
