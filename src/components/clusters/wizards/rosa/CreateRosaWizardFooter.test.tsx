@@ -100,6 +100,8 @@ describe('<CreateRosaWizardFooter />', () => {
         isSuccess: true,
         isPending: false,
         isError: false,
+        error: undefined,
+        status: 'success',
       });
 
       render(<CreateRosaWizardFooter {...reviewStepProps} />);
@@ -114,6 +116,8 @@ describe('<CreateRosaWizardFooter />', () => {
         isSuccess: true,
         isPending: false,
         isError: false,
+        error: undefined,
+        status: 'success',
       });
 
       render(<CreateRosaWizardFooter {...reviewStepProps} />);
