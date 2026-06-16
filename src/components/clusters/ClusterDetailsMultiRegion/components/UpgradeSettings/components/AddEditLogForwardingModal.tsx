@@ -46,13 +46,10 @@ const EMPTY_CATALOG_TREE: LogForwardingGroupTreeNode[] = [];
 
 type ModalFormProps = {
   formik: FormikProps<LogForwardingModalFormValues>;
-  submitErrorValues: LogForwardingModalFormValues | null;
-  setSubmitErrorValues: React.Dispatch<React.SetStateAction<LogForwardingModalFormValues | null>>;
-  isError: boolean;
+  failedSubmitValues: LogForwardingModalFormValues | null;
   isPending: boolean;
   isEdit: boolean;
   mutationError: ReturnType<typeof useCreateLogForwarder>['error'];
-  resetMutations: () => void;
   mode: 'add' | 'edit';
   destinationType: LogForwardingDestinationKind;
   destinationLabel: string;
@@ -61,37 +58,20 @@ type ModalFormProps = {
 
 function ModalForm({
   formik,
-  submitErrorValues,
-  setSubmitErrorValues,
-  isError,
+  failedSubmitValues,
   isPending,
   isEdit,
   mutationError,
-  resetMutations,
   mode,
   destinationType,
   destinationLabel,
   handleClose,
 }: ModalFormProps) {
   const { values } = formik;
-  const prevIsErrorRef = React.useRef(false);
 
-  React.useEffect(() => {
-    if (isError && !prevIsErrorRef.current) {
-      setSubmitErrorValues(values);
-    }
-    if (!isError) {
-      setSubmitErrorValues(null);
-    }
-    prevIsErrorRef.current = isError;
-
-    if (isError && submitErrorValues !== null && !isEqual(values, submitErrorValues)) {
-      resetMutations();
-    }
-  }, [values, isError, resetMutations, setSubmitErrorValues, submitErrorValues]);
-
-  const unchangedSinceSubmitError =
-    isError && (submitErrorValues === null || isEqual(values, submitErrorValues));
+  const valuesUnchangedSinceFailedSubmit =
+    failedSubmitValues !== null && isEqual(values, failedSubmitValues);
+  const showSubmitError = valuesUnchangedSinceFailedSubmit && mutationError;
 
   return (
     <Modal
@@ -102,7 +82,7 @@ function ModalForm({
       hideDefaultFooter
       footer={
         <Stack hasGutter>
-          {isError && mutationError ? (
+          {showSubmitError ? (
             <StackItem>
               <ErrorBox
                 message={`A problem occurred while ${isEdit ? 'updating' : 'adding'} the configuration`}
@@ -119,7 +99,10 @@ function ModalForm({
               className="pf-v6-u-mr-md"
               data-testid="log-forwarding-submit-btn"
               isDisabled={
-                !formik.isValid || formik.isSubmitting || isPending || unchangedSinceSubmitError
+                !formik.isValid ||
+                formik.isSubmitting ||
+                isPending ||
+                valuesUnchangedSinceFailedSubmit
               }
               isLoading={isPending}
             >
@@ -161,12 +144,11 @@ export function AddEditLogForwardingModal({
   const track = useAnalytics();
   const destinationLabel = destinationLabels[destinationType];
   const isEdit = mode === 'edit';
-  const [submitErrorValues, setSubmitErrorValues] =
+  const [failedSubmitValues, setFailedSubmitValues] =
     React.useState<LogForwardingModalFormValues | null>(null);
 
   const {
     isPending: isPostPending,
-    isError: isPostError,
     error: postError,
     mutate: postForwarder,
     reset: resetPost,
@@ -174,18 +156,16 @@ export function AddEditLogForwardingModal({
 
   const {
     isPending: isPatchPending,
-    isError: isPatchError,
     error: patchError,
     mutate: patchForwarder,
     reset: resetPatch,
   } = useEditLogForwarder(clusterId, region);
 
   const isPending = isPostPending || isPatchPending;
-  const isError = isPostError || isPatchError;
-  const mutationError = isPostError ? postError : patchError;
+  const mutationError = postError ?? patchError;
 
   const resetMutations = React.useCallback(() => {
-    setSubmitErrorValues(null);
+    setFailedSubmitValues(null);
     resetPost();
     resetPatch();
   }, [resetPost, resetPatch]);
@@ -252,6 +232,7 @@ export function AddEditLogForwardingModal({
 
         const onError = () => {
           setSubmitting(false);
+          setFailedSubmitValues(values);
         };
 
         if (isEdit && forwarder?.id) {
@@ -265,13 +246,10 @@ export function AddEditLogForwardingModal({
       {(formik) => (
         <ModalForm
           formik={formik}
-          submitErrorValues={submitErrorValues}
-          setSubmitErrorValues={setSubmitErrorValues}
-          isError={isError}
+          failedSubmitValues={failedSubmitValues}
           isPending={isPending}
           isEdit={isEdit}
           mutationError={mutationError}
-          resetMutations={resetMutations}
           mode={mode}
           destinationType={destinationType}
           destinationLabel={destinationLabel}
