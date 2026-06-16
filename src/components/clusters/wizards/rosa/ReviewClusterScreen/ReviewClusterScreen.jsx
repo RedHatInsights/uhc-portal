@@ -155,7 +155,12 @@ const ReviewClusterScreen = ({
   const [errorWithAWSAccountRoles, setErrorWithAWSAccountRoles] = useState(false);
   const isHypershiftEnabled = useFeatureGate(HYPERSHIFT_WIZARD_FEATURE);
   const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
-  const { isNoConsoleRole, isPending: isOCMRolePending } = useIsNoConsoleRole(associatedAwsId);
+  const {
+    isNoConsoleRole,
+    isPending: isOCMRolePending,
+    data: ocmRoleQueryData,
+    isSuccess: isOCMRoleQuerySuccess,
+  } = useIsNoConsoleRole(associatedAwsId);
   const handleRefreshOCMRole = () => refetchGetOCMRole(associatedAwsId);
 
   const [isSyncEditorModalOpen, setIsSyncEditorModalOpen] = useState(false);
@@ -245,6 +250,14 @@ const ReviewClusterScreen = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getOCMRoleResponse]);
+
+  // When the feature flag is on, prefer the React Query ARN over the Redux-derived ocmRole.
+  // The Refresh button invalidates React Query but not Redux, so without this override the
+  // displayed ARN would remain stale after a refresh.
+  const displayedOcmRole =
+    hasNoConsoleFlag && isOCMRoleQuerySuccess && ocmRoleQueryData?.data?.arn
+      ? ocmRoleQueryData.data.arn
+      : ocmRole;
 
   useEffect(() => {
     const hasError =
@@ -357,7 +370,7 @@ const ReviewClusterScreen = ({
           {ReviewRoleItem({
             name: 'ocm-role',
             getRoleResponse: getOCMRoleResponse,
-            content: ocmRole,
+            content: displayedOcmRole,
           })}
           {ReviewRoleItem({
             name: 'user-role',

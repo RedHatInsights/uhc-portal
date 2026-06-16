@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Field } from 'formik';
 
 import {
@@ -72,6 +72,9 @@ const ClusterRolesScreen = () => {
   );
 
   const [getOCMRoleErrorBox, setGetOCMRoleErrorBox] = useState(null);
+  // Tracks when the user explicitly clicked Refresh, so the next successful fetch
+  // always re-derives the mode from isAdmin rather than keeping the stale mode value.
+  const refreshPendingRef = useRef(false);
   const track = useAnalytics();
 
   const regionSearch = regionalInstance?.id;
@@ -134,8 +137,13 @@ const ClusterRolesScreen = () => {
         setFieldValue(FieldId.RosaCreatorArn, getOCMRoleData.data?.arn);
       }
       const isAdmin = getOCMRoleData.data?.isAdmin;
+      // Always reflect the latest isAdmin in the toggle enabled state.
       setIsAutoModeAvailable(isAdmin);
-      if (!rosaCreationMode) {
+      // Set the mode on initial load (!rosaCreationMode) or after an explicit
+      // Refresh (refreshPendingRef). In both cases the mode should be derived
+      // from the freshly-fetched isAdmin value, not kept stale.
+      if (!rosaCreationMode || refreshPendingRef.current) {
+        refreshPendingRef.current = false;
         setFieldValue(
           FieldId.RosaRolesProviderCreationMode,
           isAdmin ? roleModes.AUTO : roleModes.MANUAL,
@@ -157,11 +165,11 @@ const ClusterRolesScreen = () => {
       refetchGetOCMRole(awsAccountID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getOCMRoleStatus, rosaCreationMode]);
+  }, [getOCMRoleStatus, rosaCreationMode, getOCMRoleData]);
 
   const handleRefresh = () => {
+    refreshPendingRef.current = true;
     refetchGetOCMRole(awsAccountID);
-    setFieldValue(FieldId.RosaRolesProviderCreationMode, undefined);
     track(trackEvents.OCMRoleRefreshed);
   };
 

@@ -586,5 +586,28 @@ describe('<ReviewClusterScreen />', () => {
       await screen.findByText('Review your ROSA cluster');
       expect(refetchGetOCMRole).not.toHaveBeenCalled();
     });
+
+    it('updates displayed OCM role ARN from React Query data when feature gate is on', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+      useFetchGetOCMRole.mockReturnValue({
+        data: { data: { arn: 'arn:aws:iam::123:role/RefreshedRole', profile: 'standard' } },
+        isSuccess: true,
+        isPending: false,
+      });
+
+      const propsWithFulfilledRedux = {
+        ...defaultProps,
+        getOCMRoleResponse: {
+          fulfilled: true,
+          data: { arn: 'arn:aws:iam::123:role/StaleReduxRole' },
+        },
+      };
+
+      render(buildTestComponent(<ReviewClusterScreen {...propsWithFulfilledRedux} />));
+
+      // The ARN from React Query (RefreshedRole) should take precedence over the stale Redux value
+      expect(await screen.findByText('arn:aws:iam::123:role/RefreshedRole')).toBeInTheDocument();
+      expect(screen.queryByText('arn:aws:iam::123:role/StaleReduxRole')).not.toBeInTheDocument();
+    });
   });
 });
