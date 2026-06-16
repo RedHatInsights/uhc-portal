@@ -609,5 +609,28 @@ describe('<ReviewClusterScreen />', () => {
       expect(await screen.findByText('arn:aws:iam::123:role/RefreshedRole')).toBeInTheDocument();
       expect(screen.queryByText('arn:aws:iam::123:role/StaleReduxRole')).not.toBeInTheDocument();
     });
+
+    it('uses Redux ARN for OCM role display when feature gate is off', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
+      useFetchGetOCMRole.mockReturnValue({
+        data: { data: { arn: 'arn:aws:iam::123:role/ReactQueryRole', profile: 'standard' } },
+        isSuccess: true,
+        isPending: false,
+      });
+
+      const propsWithFulfilledRedux = {
+        ...defaultProps,
+        getOCMRoleResponse: {
+          fulfilled: true,
+          data: { arn: 'arn:aws:iam::123:role/ReduxRole' },
+        },
+      };
+
+      render(buildTestComponent(<ReviewClusterScreen {...propsWithFulfilledRedux} />));
+
+      // The ARN from Redux should be shown — React Query data is not used when flag is off
+      expect(await screen.findByText('arn:aws:iam::123:role/ReduxRole')).toBeInTheDocument();
+      expect(screen.queryByText('arn:aws:iam::123:role/ReactQueryRole')).not.toBeInTheDocument();
+    });
   });
 });

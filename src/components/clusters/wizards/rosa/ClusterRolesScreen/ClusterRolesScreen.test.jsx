@@ -203,6 +203,55 @@ describe('<ClusterRolesScreen />', () => {
       expect(auto).toBeChecked();
     });
 
+    it('enables and selects Auto mode after Refresh when feature gate is off', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
+      // When feature gate is off, isNoConsoleRole is always false regardless of profile,
+      // so radio buttons are shown and the "Refresh to enable auto mode" button is the entry point
+      useFetchGetOCMRole.mockReturnValue({
+        data: {
+          data: {
+            isAdmin: false,
+            arn: 'arn:aws:iam::123456789012:role/StandardRole',
+            profile: 'standard',
+          },
+        },
+        error: undefined,
+        isPending: false,
+        isSuccess: true,
+        status: 'success',
+      });
+
+      const { user, rerender } = renderWithFormik();
+
+      // Auto is disabled, "Refresh to enable auto mode" button is shown
+      expect(await screen.findByRole('radio', { name: 'Auto' })).toBeDisabled();
+      expect(screen.queryByText('OCM role has limited permissions')).not.toBeInTheDocument();
+
+      // Update mock to return admin role and click Refresh
+      useFetchGetOCMRole.mockReturnValue({
+        data: {
+          data: {
+            isAdmin: true,
+            arn: 'arn:aws:iam::123456789012:role/AdminRole',
+            profile: 'admin',
+          },
+        },
+        error: undefined,
+        isPending: false,
+        isSuccess: true,
+        status: 'success',
+      });
+      await user.click(screen.getByRole('button', { name: 'Refresh to enable auto mode' }));
+
+      // Force re-render to simulate React Query delivering the updated data
+      rerender(buildFormikElement());
+
+      // Auto should now be enabled and selected
+      const auto = await screen.findByRole('radio', { name: 'Auto' });
+      expect(auto).not.toBeDisabled();
+      expect(auto).toBeChecked();
+    });
+
     it('does not show limited permissions alert when profile is standard', async () => {
       mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
       useFetchGetOCMRole.mockReturnValue({
