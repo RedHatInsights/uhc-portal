@@ -93,7 +93,7 @@ export function DeleteLogForwardingModal({
     >
       <ModalHeader
         title={`Delete ${destinationLabel} configuration`}
-        titleIconVariant="warning"
+        titleIconVariant="danger"
         labelId="delete-log-forwarding-title"
       />
       <ModalBody>
