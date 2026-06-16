@@ -17,7 +17,7 @@ import {
 } from '@patternfly/react-core';
 
 import { stringToArray } from '~/common/helpers';
-import { isHibernating } from '~/components/clusters/common/clusterStates';
+import { isHibernating, isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
 import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import { modalActions } from '~/components/common/Modal/ModalActions';
@@ -58,6 +58,7 @@ const VPCDetailsCard = ({ cluster }) => {
   const region = cluster.subscription?.rh_region_id;
 
   const isPrivateLinkInitialized = typeof privateLink !== 'undefined';
+  const showPrivateLink = isPrivateLinkInitialized && !isHypershiftCluster(cluster);
   const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
 
   const { data: dnsZone } = useFetchGcpDnsZone(cluster.dns?.base_domain, isGCP);
@@ -95,7 +96,7 @@ const VPCDetailsCard = ({ cluster }) => {
         </Title>
       </CardTitle>
       <CardBody className="ocm-c-networking-vpc-details__card--body pf-v6-l-stack pf-m-gutter">
-        {gcpVPCName || isPrivateLinkInitialized || gcpPrivateServiceConnect ? (
+        {gcpVPCName || showPrivateLink || gcpPrivateServiceConnect ? (
           <>
             <Title headingLevel="h3" className="pf-v6-l-stack__item">
               VPC Details
@@ -110,7 +111,7 @@ const VPCDetailsCard = ({ cluster }) => {
                   <DescriptionListDescription>{gcpVPCName}</DescriptionListDescription>
                 </DescriptionListGroup>
               ) : null}
-              {isPrivateLinkInitialized ? (
+              {showPrivateLink ? (
                 <DescriptionListGroup>
                   <DescriptionListTerm>PrivateLink</DescriptionListTerm>
                   <DescriptionListDescription>
