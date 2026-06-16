@@ -254,12 +254,14 @@ const ReviewClusterScreen = ({
   // The Refresh button invalidates React Query but not Redux, so without this override the
   // displayed ARN would remain stale after a refresh.
   // Return '' on React Query error so ReviewRoleItem shows the "could not be detected" message.
-  const displayedOcmRole =
-    hasNoConsoleFlag && isOCMRoleQuerySuccess && ocmRoleQueryData?.data?.arn
-      ? ocmRoleQueryData.data.arn
-      : hasNoConsoleFlag && isOCMRoleQueryError
-        ? ''
-        : ocmRole;
+  let displayedOcmRole = ocmRole;
+  if (hasNoConsoleFlag) {
+    if (isOCMRoleQuerySuccess && ocmRoleQueryData?.arn) {
+      displayedOcmRole = ocmRoleQueryData.arn;
+    } else if (isOCMRoleQueryError) {
+      displayedOcmRole = '';
+    }
+  }
 
   useEffect(() => {
     // When the flag is on, React Query is the source of truth for OCM role validity after Refresh.

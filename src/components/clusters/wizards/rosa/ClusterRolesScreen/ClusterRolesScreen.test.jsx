@@ -16,7 +16,7 @@ mockUseFeatureGate([]);
 jest.mock('~/queries/RosaWizardQueries/useFetchGetOCMRole', () => {
   const impl = {
     useFetchGetOCMRole: jest.fn().mockReturnValue({
-      data: { data: { isAdmin: true, arn: 'arn:aws:iam::123456789012:role/AdminOCMRole' } },
+      data: { isAdmin: true, arn: 'arn:aws:iam::123456789012:role/AdminOCMRole' },
       error: undefined,
       isPending: false,
       isSuccess: true,
@@ -72,7 +72,7 @@ describe('<ClusterRolesScreen />', () => {
 
   it('disables Auto option when API says not admin (isAdmin=false)', async () => {
     useFetchGetOCMRole.mockReturnValue({
-      data: { data: { isAdmin: false, arn: 'arn:aws:iam::123456789012:role/BasicOCMRole' } },
+      data: { isAdmin: false, arn: 'arn:aws:iam::123456789012:role/BasicOCMRole' },
       error: undefined,
       isPending: false,
       isSuccess: true,
@@ -125,11 +125,9 @@ describe('<ClusterRolesScreen />', () => {
   describe('no_console OCM role', () => {
     const noConsoleOCMRole = {
       data: {
-        data: {
-          profile: OCM_ROLE_NO_CONSOLE_PROFILE,
-          isAdmin: false,
-          arn: 'arn:aws:iam::123456789012:role/NoConsoleRole',
-        },
+        profile: OCM_ROLE_NO_CONSOLE_PROFILE,
+        isAdmin: false,
+        arn: 'arn:aws:iam::123456789012:role/NoConsoleRole',
       },
       error: undefined,
       isPending: false,
@@ -178,11 +176,9 @@ describe('<ClusterRolesScreen />', () => {
       // Simulate user fixing their OCM role: update mock to return admin data
       useFetchGetOCMRole.mockReturnValue({
         data: {
-          data: {
-            isAdmin: true,
-            arn: 'arn:aws:iam::123456789012:role/AdminRole',
-            profile: 'admin',
-          },
+          isAdmin: true,
+          arn: 'arn:aws:iam::123456789012:role/AdminRole',
+          profile: 'admin',
         },
         error: undefined,
         isPending: false,
@@ -207,11 +203,9 @@ describe('<ClusterRolesScreen />', () => {
       mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
       useFetchGetOCMRole.mockReturnValue({
         data: {
-          data: {
-            isAdmin: true,
-            arn: 'arn:aws:iam::123456789012:role/AdminRole',
-            profile: 'admin',
-          },
+          isAdmin: true,
+          arn: 'arn:aws:iam::123456789012:role/AdminRole',
+          profile: 'admin',
         },
         error: undefined,
         isPending: false,
@@ -259,7 +253,7 @@ describe('<ClusterRolesScreen />', () => {
 
   it('renders correct documentation link when hypershift is not selected', async () => {
     useFetchGetOCMRole.mockReturnValue({
-      data: { data: { isAdmin: false, arn: 'arn:aws:iam::123456789012:role/BasicOCMRole' } },
+      data: { isAdmin: false, arn: 'arn:aws:iam::123456789012:role/BasicOCMRole' },
       error: undefined,
       isPending: false,
       isSuccess: true,
@@ -276,7 +270,7 @@ describe('<ClusterRolesScreen />', () => {
 
   it('does not render documentation link when hypershift is selected', async () => {
     useFetchGetOCMRole.mockReturnValue({
-      data: { data: { isAdmin: false, arn: 'arn:aws:iam::123456789012:role/BasicOCMRole' } },
+      data: { isAdmin: false, arn: 'arn:aws:iam::123456789012:role/BasicOCMRole' },
       error: undefined,
       isPending: false,
       isSuccess: true,

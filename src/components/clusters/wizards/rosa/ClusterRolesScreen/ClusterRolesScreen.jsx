@@ -134,10 +134,10 @@ const ClusterRolesScreen = () => {
     if (isGetOCMRolePending) {
       setGetOCMRoleErrorBox(null);
     } else if (isGetOCMRoleSuccess) {
-      if (FieldId.RosaCreatorArn !== getOCMRoleData.data?.arn) {
-        setFieldValue(FieldId.RosaCreatorArn, getOCMRoleData.data?.arn);
+      if (FieldId.RosaCreatorArn !== getOCMRoleData?.arn) {
+        setFieldValue(FieldId.RosaCreatorArn, getOCMRoleData?.arn);
       }
-      const isAdmin = getOCMRoleData.data?.isAdmin;
+      const isAdmin = getOCMRoleData?.isAdmin;
       // Always reflect the latest isAdmin in the toggle enabled state.
       setIsAutoModeAvailable(isAdmin);
       // Set the mode on initial load (!rosaCreationMode) or after an explicit

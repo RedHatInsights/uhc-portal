@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Alert, Content, ContentVariants } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core';
 
 import { NoConsoleRoleAlert } from '~/components/clusters/wizards/rosa/common/NoConsoleRoleAlert';
 import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';

@@ -8,8 +8,6 @@ export const useIsNoConsoleRole = (awsAccountID: string) => {
   const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
   const ocmRole = useFetchGetOCMRole(awsAccountID);
   const isNoConsoleRole =
-    hasNoConsoleFlag &&
-    ocmRole.isSuccess &&
-    ocmRole.data?.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
+    hasNoConsoleFlag && ocmRole.isSuccess && ocmRole.data?.profile === OCM_ROLE_NO_CONSOLE_PROFILE;
   return { ...ocmRole, isNoConsoleRole };
 };

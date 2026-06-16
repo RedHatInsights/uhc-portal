@@ -16,7 +16,7 @@ export const useFetchGetOCMRole = (awsAccountID: string) => {
     queryFn: async () => {
       const response = await accountsService.getOCMRole(awsAccountID);
 
-      return response;
+      return response.data;
     },
     retry: false,
     enabled: !!awsAccountID,

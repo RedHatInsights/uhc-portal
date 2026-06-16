@@ -201,8 +201,12 @@ const getAWSAccountARNs = (awsAccountID: string) =>
     account_id: awsAccountID,
   });
 
+// The generated AwsstsRole type does not yet include the `profile` field returned by the API.
+// Extend it locally until the OpenAPI spec is updated and types are regenerated.
+type OCMRoleResponse = AwsstsRole & { profile?: string };
+
 const getOCMRole = (awsAccountID: string) =>
-  apiRequest.post<AwsstsRole>('/api/clusters_mgmt/v1/aws_inquiries/sts_ocm_role', {
+  apiRequest.post<OCMRoleResponse>('/api/clusters_mgmt/v1/aws_inquiries/sts_ocm_role', {
     account_id: awsAccountID,
   });
 

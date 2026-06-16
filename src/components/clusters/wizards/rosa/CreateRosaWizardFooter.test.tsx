@@ -96,7 +96,7 @@ describe('<CreateRosaWizardFooter />', () => {
     it('disables "Create cluster" button when no_console role is detected', () => {
       mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
       jest.spyOn(useFetchGetOCMRoleModule, 'useFetchGetOCMRole').mockReturnValue({
-        data: { data: { profile: 'no_console' } },
+        data: { profile: 'no_console' },
         isSuccess: true,
         isPending: false,
         isError: false,
@@ -110,7 +110,7 @@ describe('<CreateRosaWizardFooter />', () => {
     it('enables "Create cluster" button when OCM role has console permissions', () => {
       mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
       jest.spyOn(useFetchGetOCMRoleModule, 'useFetchGetOCMRole').mockReturnValue({
-        data: { data: { profile: 'standard' } },
+        data: { profile: 'standard' },
         isSuccess: true,
         isPending: false,
         isError: false,

@@ -24,7 +24,7 @@ jest.mock('~/components/CLILoginPage/useOrganization');
 
 jest.mock('~/queries/RosaWizardQueries/useFetchGetOCMRole', () => ({
   useFetchGetOCMRole: jest.fn().mockReturnValue({
-    data: { data: { profile: 'standard' } },
+    data: { profile: 'standard' },
     isSuccess: true,
     isPending: false,
   }),
@@ -540,7 +540,7 @@ describe('<ReviewClusterScreen />', () => {
 
   describe('no_console OCM role', () => {
     const noConsoleRoleResponse = {
-      data: { data: { profile: OCM_ROLE_NO_CONSOLE_PROFILE } },
+      data: { profile: OCM_ROLE_NO_CONSOLE_PROFILE },
       isSuccess: true,
       isPending: false,
     };
@@ -590,7 +590,7 @@ describe('<ReviewClusterScreen />', () => {
     it('updates displayed OCM role ARN from React Query data when feature gate is on', async () => {
       mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
       useFetchGetOCMRole.mockReturnValue({
-        data: { data: { arn: 'arn:aws:iam::123:role/RefreshedRole', profile: 'standard' } },
+        data: { arn: 'arn:aws:iam::123:role/RefreshedRole', profile: 'standard' },
         isSuccess: true,
         isPending: false,
       });
@@ -613,7 +613,7 @@ describe('<ReviewClusterScreen />', () => {
     it('uses Redux ARN for OCM role display when feature gate is off', async () => {
       mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
       useFetchGetOCMRole.mockReturnValue({
-        data: { data: { arn: 'arn:aws:iam::123:role/ReactQueryRole', profile: 'standard' } },
+        data: { arn: 'arn:aws:iam::123:role/ReactQueryRole', profile: 'standard' },
         isSuccess: true,
         isPending: false,
       });
