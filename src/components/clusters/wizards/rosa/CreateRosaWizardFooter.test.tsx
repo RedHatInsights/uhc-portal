@@ -100,7 +100,7 @@ describe('<CreateRosaWizardFooter />', () => {
         isSuccess: true,
         isPending: false,
         isError: false,
-        error: undefined,
+        error: null,
         status: 'success',
       });
 
@@ -116,7 +116,7 @@ describe('<CreateRosaWizardFooter />', () => {
         isSuccess: true,
         isPending: false,
         isError: false,
-        error: undefined,
+        error: null,
         status: 'success',
       });
 

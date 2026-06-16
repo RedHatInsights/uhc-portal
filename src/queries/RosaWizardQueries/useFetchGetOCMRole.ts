@@ -27,7 +27,7 @@ export const useFetchGetOCMRole = (awsAccountID: string) => {
   return {
     data,
     isError,
-    error: errorData?.error,
+    error: errorData?.error ?? null,
     isPending,
     isSuccess,
     status,
