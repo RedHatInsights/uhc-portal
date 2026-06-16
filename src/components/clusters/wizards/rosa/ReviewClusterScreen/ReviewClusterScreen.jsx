@@ -3,11 +3,8 @@ import isEmpty from 'lodash/isEmpty';
 import PropTypes from 'prop-types';
 
 import {
-  Alert,
   Bullseye,
   Button,
-  Content,
-  ContentVariants,
   Flex,
   FlexItem,
   Icon,
@@ -59,6 +56,7 @@ import ReviewSection, {
   FormikReviewItem as ReviewItem,
 } from '../../common/ReviewCluster/ReviewSection';
 import { createClusterRequest, upgradeScheduleRequest } from '../../common/submitOSDRequest';
+import { NoConsoleRoleAlert } from '../common/NoConsoleRoleAlert';
 
 import ReviewRoleItem from './ReviewRoleItem';
 
@@ -325,32 +323,11 @@ const ReviewClusterScreen = ({
         </Flex>
         <HiddenCheckbox name={FieldId.DetectedOcmAndUserRoles} />
         {isNoConsoleRole && (
-          <Alert
-            variant="danger"
-            isInline
+          <NoConsoleRoleAlert
+            onRefresh={handleRefreshOCMRole}
+            isRefreshPending={isOCMRolePending}
             className="pf-v6-u-mb-md"
-            title="OCM role has limited permissions"
-          >
-            <Content className="pf-v6-u-font-size-sm">
-              <Content component={ContentVariants.p}>
-                The OCM Role linked to your AWS account was created without console permissions.
-                Cluster creation through the console is not supported with this configuration.
-              </Content>
-              <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
-                After updating your OCM role, check again:
-                <Button
-                  variant="link"
-                  isInline
-                  isLoading={isOCMRolePending}
-                  isDisabled={isOCMRolePending}
-                  onClick={handleRefreshOCMRole}
-                  className="pf-v6-u-ml-sm"
-                >
-                  Refresh OCM role
-                </Button>
-              </Content>
-            </Content>
-          </Alert>
+          />
         )}
         {isHypershiftEnabled && (
           <ReviewSection

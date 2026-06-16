@@ -37,6 +37,7 @@ import InstructionCommand from '../../../../common/InstructionCommand';
 import PopoverHint from '../../../../common/PopoverHint';
 import RadioButtons from '../../../../common/ReduxFormComponents_deprecated/RadioButtons';
 import { BackToAssociateAwsAccountLink } from '../common/BackToAssociateAwsAccountLink';
+import { NoConsoleRoleAlert } from '../common/NoConsoleRoleAlert';
 
 import CustomerOIDCConfiguration from './CustomerOIDCConfiguration';
 import CustomOperatorRoleNames from './CustomOperatorRoleNames';
@@ -300,27 +301,7 @@ const ClusterRolesScreen = () => {
         {getOCMRoleErrorBox && <GridItem>{getOCMRoleErrorBox}</GridItem>}
         {isNoConsoleRole && (
           <GridItem>
-            <Alert variant="danger" isInline title="OCM role has limited permissions">
-              <Content className="pf-v6-u-font-size-sm">
-                <Content component={ContentVariants.p}>
-                  The OCM Role linked to your AWS account was created without console permissions.
-                  Cluster creation through the console is not supported with this configuration.
-                </Content>
-                <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
-                  After updating your OCM role, check again:
-                  <Button
-                    variant="link"
-                    isInline
-                    isLoading={isGetOCMRolePending}
-                    isDisabled={isGetOCMRolePending}
-                    onClick={handleRefresh}
-                    className="pf-v6-u-ml-sm"
-                  >
-                    Refresh OCM role
-                  </Button>
-                </Content>
-              </Content>
-            </Alert>
+            <NoConsoleRoleAlert onRefresh={handleRefresh} isRefreshPending={isGetOCMRolePending} />
           </GridItem>
         )}
         {isGetOCMRolePending && (

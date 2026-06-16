@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { Alert, Button, Content, ContentVariants } from '@patternfly/react-core';
+import { Alert, Content, ContentVariants } from '@patternfly/react-core';
 
 import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
+import { NoConsoleRoleAlert } from '~/components/clusters/wizards/rosa/common/NoConsoleRoleAlert';
 import ErrorBox from '~/components/common/ErrorBox';
 import InstructionCommand from '~/components/common/InstructionCommand';
 import { GlobalState } from '~/redux/stateTypes';
@@ -30,38 +31,7 @@ function AWSAccountRolesError({
   isOCMRolePending,
 }: Props) {
   if (isNoConsoleRole) {
-    return (
-      <Alert variant="danger" isInline title="OCM role has limited permissions">
-        <Content className="pf-v6-u-font-size-sm">
-          <Content component={ContentVariants.p}>
-            The OCM role linked to your AWS account was created without console permissions. Cluster
-            creation through the console is not supported with this configuration. To create a
-            cluster using the Red Hat console, update your ocm role with appropriate permissions
-            using the ROSA CLI.{' '}
-            <a
-              href="https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/prepare_your_environment/rosa-hcp-prepare-iam-roles-resources#rosa-sts-ocm-roles-and-permissions-iam-basic-role_prepare-role-resources"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn more about OCM role permissions
-            </a>
-          </Content>
-          <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
-            After updating your OCM role, check again:
-            <Button
-              variant="link"
-              isInline
-              isLoading={isOCMRolePending}
-              isDisabled={isOCMRolePending}
-              onClick={onRefreshOCMRole}
-              className="pf-v6-u-ml-sm"
-            >
-              Refresh OCM role
-            </Button>
-          </Content>
-        </Content>
-      </Alert>
-    );
+    return <NoConsoleRoleAlert onRefresh={onRefreshOCMRole} isRefreshPending={isOCMRolePending} />;
   }
 
   if (isOCMRoleError) {
