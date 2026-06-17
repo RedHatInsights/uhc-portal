@@ -33,6 +33,7 @@ import {
 import { refetchAccessRequest } from '~/queries/ClusterDetailsQueries/AccessRequestTab/useFetchAccessRequest';
 import { useFetchPendingAccessRequests } from '~/queries/ClusterDetailsQueries/AccessRequestTab/useFetchPendingAccessRequests';
 import { useAddNotificationContact } from '~/queries/ClusterDetailsQueries/ClusterSupportTab/useAddNotificationContact';
+import { invalidateLogForwarder } from '~/queries/ClusterDetailsQueries/invalidateLogForwarder';
 import {
   invalidateClusterDetailsQueries,
   useFetchClusterDetails,
@@ -307,6 +308,7 @@ const ClusterDetails = (props) => {
 
       dispatch(getOnDemandMetrics(subscriptionID));
     }
+    invalidateLogForwarder(clusterID, cluster?.subscription?.rh_region_id);
     setRefreshEvent({ type: clicked || eventTypes.AUTO });
   };
 

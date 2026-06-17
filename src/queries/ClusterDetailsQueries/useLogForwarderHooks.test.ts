@@ -4,7 +4,7 @@ import clusterService, { getClusterServiceForRegion } from '~/services/clusterSe
 import { act, renderHook, waitFor } from '~/testUtils';
 import type { LogForwarder } from '~/types/clusters_mgmt.v1';
 
-import { invalidateLogForwarder } from './invalidateLogForwarder';
+import { invalidateAllLogForwarderQueries, invalidateLogForwarder } from './invalidateLogForwarder';
 import { useCreateLogForwarder } from './useCreateLogForwarder';
 import { useDeleteLogForwarder } from './useDeleteLogForwarder';
 import { useEditLogForwarder } from './useEditLogForwarder';
@@ -45,6 +45,25 @@ describe('invalidateLogForwarder', () => {
         'us-east-1',
       ],
     });
+  });
+});
+
+describe('invalidateAllLogForwarderQueries', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('invalidates all control plane log forwarder queries', () => {
+    invalidateAllLogForwarderQueries();
+
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      predicate: expect.any(Function),
+    });
+    const { predicate } = (queryClient.invalidateQueries as jest.Mock).mock.calls[0][0];
+    expect(
+      predicate({ queryKey: [queryConstants.FETCH_CLUSTER_CONTROL_PLANE_LOG_FORWARDERS, 'c-1'] }),
+    ).toBe(true);
+    expect(predicate({ queryKey: [queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY] })).toBe(false);
   });
 });
 
