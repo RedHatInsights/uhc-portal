@@ -173,7 +173,13 @@ describe('<ClusterRolesScreen />', () => {
       expect(await screen.findByText('OCM role has limited permissions')).toBeInTheDocument();
       expect(screen.queryByRole('radio', { name: 'Auto' })).not.toBeInTheDocument();
 
-      // Simulate user fixing their OCM role: update mock to return admin data
+      // Click Refresh — sets refreshPendingRef so the next fetch result re-derives the mode
+      await user.click(screen.getByRole('button', { name: 'Refresh OCM role' }));
+
+      // Simulate user fixing their OCM role: update mock to return admin data.
+      // Done AFTER the click so refreshPendingRef is already true when the component
+      // first sees the new data (otherwise the re-render from act() in user.click would
+      // fire the effect with refreshPendingRef still false).
       useFetchGetOCMRole.mockReturnValue({
         data: {
           isAdmin: true,
@@ -186,9 +192,6 @@ describe('<ClusterRolesScreen />', () => {
         status: 'success',
       });
 
-      // Click Refresh — sets refreshPendingRef so the next fetch result re-derives the mode
-      await user.click(screen.getByRole('button', { name: 'Refresh OCM role' }));
-
       // Force re-render to simulate React Query delivering the updated data
       rerender(buildFormikElement());
 
@@ -196,7 +199,7 @@ describe('<ClusterRolesScreen />', () => {
       expect(screen.queryByText('OCM role has limited permissions')).not.toBeInTheDocument();
       const auto = await screen.findByRole('radio', { name: 'Auto' });
       expect(auto).not.toBeDisabled();
-      expect(auto).toBeChecked();
+      await waitFor(() => expect(auto).toBeChecked());
     });
 
     it('automatically enables and selects Auto mode when admin role is returned and feature gate is off', async () => {

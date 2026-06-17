@@ -10,7 +10,7 @@ type Props = {
 
 export const NoConsoleRoleAlert = ({ onRefresh, isRefreshPending, className }: Props) => (
   <Alert variant="danger" isInline title="OCM role has limited permissions" className={className}>
-    <Content className="pf-v6-u-font-size-sm">
+    <Content style={{ fontSize: 'var(--pf-t--global--font--size--sm)' }}>
       <Content component={ContentVariants.p}>
         The OCM role linked to your AWS account was created without console permissions. Cluster
         creation through the console is not supported with this configuration. To create a cluster
@@ -24,7 +24,10 @@ export const NoConsoleRoleAlert = ({ onRefresh, isRefreshPending, className }: P
           Learn more about OCM role permissions
         </a>
       </Content>
-      <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
+      <Content
+        component={ContentVariants.p}
+        style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}
+      >
         After updating your OCM role, check again:
         <Button
           variant="link"
@@ -32,7 +35,7 @@ export const NoConsoleRoleAlert = ({ onRefresh, isRefreshPending, className }: P
           isLoading={isRefreshPending}
           isDisabled={isRefreshPending}
           onClick={onRefresh}
-          className="pf-v6-u-ml-sm"
+          style={{ marginLeft: 'var(--pf-t--global--spacer--sm)' }}
         >
           Refresh OCM role
         </Button>
