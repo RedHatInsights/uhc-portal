@@ -23,12 +23,8 @@ jest.mock('~/hooks/useAnalytics', () => ({
 jest.mock('~/queries/ClusterDetailsQueries/useCreateLogForwarder');
 jest.mock('~/queries/ClusterDetailsQueries/useEditLogForwarder');
 
-jest.mock('~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation', () => ({
-  validateLogForwardingModalFields: jest.fn(() => ({})),
-}));
-
-jest.mock('./LogForwardingS3FormFields', () => ({
-  LogForwardingS3FormFields: () => <div data-testid="s3-form-fields">S3 fields</div>,
+jest.mock('./ClusterLogForwardingGroupsApplicationsSelector', () => ({
+  ClusterLogForwardingGroupsApplicationsSelector: () => null,
 }));
 
 jest.mock('./LogForwardingCloudWatchFormFields', () => ({
@@ -87,8 +83,51 @@ describe('AddEditLogForwardingModal', () => {
     render(<AddEditLogForwardingModal {...defaultProps} destinationType="s3" mode="add" />);
 
     expect(screen.getByText('Add Amazon S3 configuration')).toBeInTheDocument();
-    expect(screen.getByTestId('s3-form-fields')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /bucket name/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
+  });
+
+  it('disables Add until the user changes the form', () => {
+    render(<AddEditLogForwardingModal {...defaultProps} destinationType="s3" mode="add" />);
+
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
+  });
+
+  it('enables Add after any field input, even when the form is still invalid', async () => {
+    const { user } = render(
+      <AddEditLogForwardingModal {...defaultProps} destinationType="s3" mode="add" />,
+    );
+
+    await user.type(screen.getByRole('textbox', { name: /bucket name/i }), 'a');
+
+    expect(screen.getByRole('button', { name: 'Add' })).toBeEnabled();
+  });
+
+  it('shows validation errors when Add is clicked on an incomplete form', async () => {
+    const { user } = render(
+      <AddEditLogForwardingModal {...defaultProps} destinationType="s3" mode="add" />,
+    );
+
+    await user.type(screen.getByRole('textbox', { name: /bucket name/i }), 'a');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+
+    expect(
+      screen.getByText('Bucket name must be between 3 and 63 characters.'),
+    ).toBeInTheDocument();
+    expect(mockPostMutate).not.toHaveBeenCalled();
+  });
+
+  it('disables Save when the edit form has not changed', () => {
+    render(
+      <AddEditLogForwardingModal
+        {...defaultProps}
+        destinationType="s3"
+        mode="edit"
+        forwarder={s3Forwarder}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
   it('renders add CloudWatch modal with prerequisites', () => {
@@ -187,6 +226,8 @@ describe('AddEditLogForwardingModal', () => {
       />,
     );
 
+    await user.clear(screen.getByRole('textbox', { name: /bucket name/i }));
+    await user.type(screen.getByRole('textbox', { name: /bucket name/i }), 'updated-bucket');
     await user.click(screen.getByRole('button', { name: 'Save' }));
     rerender(
       <AddEditLogForwardingModal
@@ -239,6 +280,8 @@ describe('AddEditLogForwardingModal', () => {
       />,
     );
 
+    await user.clear(screen.getByRole('textbox', { name: /bucket name/i }));
+    await user.type(screen.getByRole('textbox', { name: /bucket name/i }), 'updated-bucket');
     await user.click(screen.getByRole('button', { name: 'Save' }));
     rerender(
       <AddEditLogForwardingModal
@@ -265,13 +308,15 @@ describe('AddEditLogForwardingModal', () => {
       />,
     );
 
+    await user.clear(screen.getByRole('textbox', { name: /bucket name/i }));
+    await user.type(screen.getByRole('textbox', { name: /bucket name/i }), 'updated-bucket');
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     expect(mockPatchMutate).toHaveBeenCalledWith(
       expect.objectContaining({
         logForwarderID: 'lf-s3-1',
         body: expect.objectContaining({
-          s3: expect.objectContaining({ bucket_name: 'my-bucket' }),
+          s3: expect.objectContaining({ bucket_name: 'updated-bucket' }),
         }),
       }),
       expect.objectContaining({

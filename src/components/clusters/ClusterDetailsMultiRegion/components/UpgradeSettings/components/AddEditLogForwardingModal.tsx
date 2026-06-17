@@ -67,11 +67,17 @@ function ModalForm({
   destinationLabel,
   handleClose,
 }: ModalFormProps) {
-  const { values } = formik;
+  const { values, initialValues, dirty } = formik;
 
   const valuesUnchangedSinceFailedSubmit =
     failedSubmitValues !== null && isEqual(values, failedSubmitValues);
+  const valuesUnchangedFromInitial = isEdit && isEqual(values, initialValues);
   const showSubmitError = valuesUnchangedSinceFailedSubmit && mutationError;
+  const submitDisabled =
+    formik.isSubmitting ||
+    isPending ||
+    valuesUnchangedSinceFailedSubmit ||
+    (isEdit ? !formik.isValid || valuesUnchangedFromInitial : !dirty);
 
   return (
     <Modal
@@ -98,12 +104,7 @@ function ModalForm({
               onClick={formik.submitForm}
               className="pf-v6-u-mr-md"
               data-testid="log-forwarding-submit-btn"
-              isDisabled={
-                !formik.isValid ||
-                formik.isSubmitting ||
-                isPending ||
-                valuesUnchangedSinceFailedSubmit
-              }
+              isDisabled={submitDisabled}
               isLoading={isPending}
             >
               {isEdit ? 'Save' : 'Add'}
@@ -202,6 +203,14 @@ export function AddEditLogForwardingModal({
     };
   }, [destinationType, clusterName, forwarder, catalogTreeForInitialValues, isEdit]);
 
+  const validateForm = React.useCallback(
+    (values: LogForwardingModalFormValues) =>
+      validateLogForwardingModalFields(destinationType, values, {
+        requireCloudWatchPrerequisite: destinationType === 'cloudwatch' && !isEdit,
+      }),
+    [destinationType, isEdit],
+  );
+
   if (!isOpen) {
     return null;
   }
@@ -210,11 +219,8 @@ export function AddEditLogForwardingModal({
     <Formik
       initialValues={initialValues}
       enableReinitialize={isEdit}
-      validate={(values) =>
-        validateLogForwardingModalFields(destinationType, values, {
-          requireCloudWatchPrerequisite: destinationType === 'cloudwatch' && !isEdit,
-        })
-      }
+      validateOnMount={isEdit}
+      validate={validateForm}
       onSubmit={(values, { setSubmitting }) => {
         const body = buildSingleLogForwarder(destinationType, values, catalogTree);
         if (!body) {
