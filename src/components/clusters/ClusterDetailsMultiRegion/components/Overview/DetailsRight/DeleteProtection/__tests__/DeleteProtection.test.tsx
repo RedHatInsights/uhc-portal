@@ -91,7 +91,7 @@ describe('<DeleteProtection />', () => {
     };
     render(<DeleteProtection {...props} />);
 
-    expect(screen.getByRole('button', { name: 'Disable' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Disable delete protection' })).toHaveAttribute(
       'aria-disabled',
       'true',
     );
