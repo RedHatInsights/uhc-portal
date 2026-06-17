@@ -764,6 +764,105 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
   displayUsageNotes(verbose);
 }
 
+/**
+ * Writes a multiline value to the GitHub Actions output file.
+ * @param {string} name - Output name
+ * @param {string} value - Output value
+ */
+function writeGithubOutput(name, value) {
+  if (!process.env.GITHUB_OUTPUT) return;
+  const delimiter = `EOF_${name}`;
+  fs.appendFileSync(
+    process.env.GITHUB_OUTPUT,
+    `${name}<<${delimiter}\n${value ?? ''}\n${delimiter}\n`,
+  );
+}
+
+/**
+ * Formats client/server error items for Slack and GitHub output.
+ * @param {Array} items - Error items with url and status
+ * @returns {string} Formatted detail text
+ */
+function formatClientServerErrors(items) {
+  if (items.length === 0) {
+    return 'None';
+  }
+  return items.map((r) => `${r.status} — ${r.url}`).join('\n');
+}
+
+/**
+ * Formats request error items for Slack and GitHub output.
+ * @param {Array} items - Request error items
+ * @returns {string} Formatted detail text
+ */
+function formatRequestErrors(items) {
+  if (items.length === 0) {
+    return 'None';
+  }
+  return items.map((r) => `${r.url} — ${r.errorMessage}`).join('\n');
+}
+
+/**
+ * Writes link-check summary and detail outputs for GitHub Actions.
+ * @param {Object} statusByUrl - URL checking results
+ * @param {Array} redirectItems - Redirect test results
+ */
+function writeGithubActionOutputs(statusByUrl, redirectItems) {
+  if (!process.env.GITHUB_OUTPUT) {
+    return;
+  }
+
+  const categories = categorizeResults(statusByUrl);
+  const { success, redirects, clientErrors, serverErrors, errors, skipped } = categories;
+
+  let redirectErrorCount = 0;
+  const redirectErrorsDetailLines = [];
+  redirectItems.forEach((item) => {
+    const failed =
+      item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300));
+    if (failed) {
+      redirectErrorCount += 1;
+      const final = item.finalStatus ?? item.error;
+      redirectErrorsDetailLines.push(
+        `${item.originalUrl} → ${item.redirectUrl} (final: ${final})`,
+      );
+    }
+  });
+
+  const totalChecked =
+    success.length + redirects.length + clientErrors.length + serverErrors.length + errors.length;
+  const hasIssues =
+    redirectErrorCount > 0 ||
+    clientErrors.length > 0 ||
+    serverErrors.length > 0 ||
+    errors.length > 0;
+  const has404 = clientErrors.filter((r) => r.status === 404);
+
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `hasIssues=${hasIssues}\n`);
+  fs.appendFileSync(
+    process.env.GITHUB_OUTPUT,
+    `statusMessage=${hasIssues ? 'Issues found' : 'All clear'}\n`,
+  );
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `skipped=${skipped.length}\n`);
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `success=${success.length}\n`);
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `redirects=${redirects.length}\n`);
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `redirectErrors=${redirectErrorCount}\n`);
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `clientErrors=${clientErrors.length}\n`);
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `serverErrors=${serverErrors.length}\n`);
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `requestErrors=${errors.length}\n`);
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `totalChecked=${totalChecked}\n`);
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `has404=${has404.length > 0}\n`);
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `notFoundLength=${has404.length}\n`);
+
+  writeGithubOutput('clientErrorsDetail', formatClientServerErrors(clientErrors));
+  writeGithubOutput('serverErrorsDetail', formatClientServerErrors(serverErrors));
+  writeGithubOutput('requestErrorsDetail', formatRequestErrors(errors));
+  writeGithubOutput(
+    'redirectErrorsDetail',
+    redirectErrorsDetailLines.length ? redirectErrorsDetailLines.join('\n') : 'None',
+  );
+}
+
 // ======================================================================
 // URL PROCESSING FUNCTIONS
 // ======================================================================
@@ -824,13 +923,7 @@ async function main() {
   // Display the results
   displayResults(statusByUrl, redirectItems, verboseMode, redirectsMode);
 
-  const has404 = Object.values(statusByUrl).filter(
-    (result) => typeof result === 'number' && result === 404,
-  );
-  if (process.env.GITHUB_OUTPUT) {
-    fs.appendFileSync(process.env.GITHUB_OUTPUT, `has404=${has404.length > 0}\n`);
-    fs.appendFileSync(process.env.GITHUB_OUTPUT, `notFoundLength=${has404.length}\n`);
-  }
+  writeGithubActionOutputs(statusByUrl, redirectItems);
 }
 
 // ======================================================================
