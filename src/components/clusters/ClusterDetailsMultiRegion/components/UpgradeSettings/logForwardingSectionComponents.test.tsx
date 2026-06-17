@@ -113,8 +113,8 @@ describe('LogDestinationCard', () => {
     expect(screen.getByRole('button', { name: 'Amazon S3 configuration actions' })).toBeDisabled();
   });
 
-  it('wraps disabled kebab in a tooltip when a disable reason is provided', () => {
-    render(
+  it('wraps disabled kebab in a tooltip when a disable reason is provided', async () => {
+    const { user } = render(
       <LogDestinationCard
         {...defaultCardProps}
         canManage={false}
@@ -122,7 +122,13 @@ describe('LogDestinationCard', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Amazon S3 configuration actions' })).toBeDisabled();
+    const kebabButton = screen.getByRole('button', { name: 'Amazon S3 configuration actions' });
+    expect(kebabButton).toBeDisabled();
+
+    await user.hover(kebabButton);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'This operation is not available while cluster is hibernating',
+    );
   });
 });
 
@@ -164,8 +170,8 @@ describe('AddConfigurationDropdown', () => {
     expect(screen.getByRole('button', { name: 'Add configuration' })).toBeDisabled();
   });
 
-  it('disables the dropdown when management is not allowed', () => {
-    render(
+  it('disables the dropdown when management is not allowed', async () => {
+    const { user } = render(
       <AddConfigurationDropdown
         canAddS3
         canAddCloudWatch
@@ -175,6 +181,32 @@ describe('AddConfigurationDropdown', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Add configuration' })).toBeDisabled();
+    const addButton = screen.getByRole('button', { name: 'Add configuration' });
+    expect(addButton).toBeDisabled();
+
+    await user.hover(addButton);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'This operation is not available while cluster is hibernating',
+    );
+  });
+
+  it('shows a tooltip when all destinations are configured and a disable reason is provided', async () => {
+    const { user } = render(
+      <AddConfigurationDropdown
+        canAddS3={false}
+        canAddCloudWatch={false}
+        canManage={false}
+        disableReason="All supported log forwarding destinations are already configured."
+        onSelect={jest.fn()}
+      />,
+    );
+
+    const addButton = screen.getByRole('button', { name: 'Add configuration' });
+    expect(addButton).toBeDisabled();
+
+    await user.hover(addButton);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'All supported log forwarding destinations are already configured.',
+    );
   });
 });

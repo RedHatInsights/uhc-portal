@@ -63,8 +63,6 @@ export function LogForwardingSection({ cluster }: { cluster: AugmentedCluster })
   const readOnlyReason = isReadOnly && 'This operation is not available during maintenance';
   const hibernatingReason =
     clusterHibernating && 'This operation is not available while cluster is hibernating';
-  const disableReason = readOnlyReason || hibernatingReason || undefined;
-  const canManage = !!cluster.canEdit && !disableReason;
 
   const {
     data: forwarders = [],
@@ -97,6 +95,14 @@ export function LogForwardingSection({ cluster }: { cluster: AugmentedCluster })
   const cloudWatchForwarder = forwarders.find((f) => f.cloudwatch);
   const hasAnyForwarder = forwarders.length > 0;
   const clusterName = getClusterName(cluster);
+  const allSupportedDestinations = s3Forwarder && cloudWatchForwarder;
+  const allSupportedDestinationsReason =
+    allSupportedDestinations && 'All supported log forwarding destinations are already configured.';
+  const addDisableReason =
+    readOnlyReason || hibernatingReason || allSupportedDestinationsReason || undefined;
+  const editDisableReason = readOnlyReason || hibernatingReason || undefined;
+  const addCanManage = !!cluster.canEdit && !addDisableReason;
+  const editCanManage = !!cluster.canEdit && !editDisableReason;
 
   const openAddModal = (destinationType: LogForwardingDestinationKind) => {
     setDeleteModal(null);
@@ -142,8 +148,8 @@ export function LogForwardingSection({ cluster }: { cluster: AugmentedCluster })
             <AddConfigurationDropdown
               canAddS3={!s3Forwarder}
               canAddCloudWatch={!cloudWatchForwarder}
-              canManage={canManage}
-              disableReason={disableReason}
+              canManage={addCanManage}
+              disableReason={addDisableReason}
               onSelect={openAddModal}
             />
           </Flex>
@@ -185,8 +191,8 @@ export function LogForwardingSection({ cluster }: { cluster: AugmentedCluster })
                 forwarder={s3Forwarder}
                 tree={catalogTree}
                 treeLoading={treeLoading}
-                canManage={canManage}
-                disableReason={disableReason}
+                canManage={editCanManage}
+                disableReason={editDisableReason}
                 onEdit={() => openEditModal('s3', s3Forwarder)}
                 onDelete={() => openDeleteModal('s3', s3Forwarder)}
                 columns={[
@@ -212,8 +218,8 @@ export function LogForwardingSection({ cluster }: { cluster: AugmentedCluster })
                 forwarder={cloudWatchForwarder}
                 tree={catalogTree}
                 treeLoading={treeLoading}
-                canManage={canManage}
-                disableReason={disableReason}
+                canManage={editCanManage}
+                disableReason={editDisableReason}
                 onEdit={() => openEditModal('cloudwatch', cloudWatchForwarder)}
                 onDelete={() => openDeleteModal('cloudwatch', cloudWatchForwarder)}
                 columns={[

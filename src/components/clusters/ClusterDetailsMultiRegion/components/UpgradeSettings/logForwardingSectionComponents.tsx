@@ -33,6 +33,30 @@ export { logForwardingNoneLabel };
 
 export type LogForwardingConfigColumn = { term: string; description: React.ReactNode };
 
+/**
+ * MenuToggle applies pointer-events: none when disabled, so Tooltip cannot target it directly.
+ * Button avoids this via isAriaDisabled (see ButtonWithTooltip); MenuToggle has no equivalent.
+ * Link the tooltip to a wrapper span via triggerRef instead (see Tooltips.tsx).
+ */
+function MenuToggleDisableTooltip({
+  content,
+  children,
+}: {
+  content: React.ReactNode;
+  children: React.ReactElement;
+}) {
+  const triggerRef = React.useRef<HTMLSpanElement>(null);
+
+  return (
+    <>
+      <Tooltip content={content} triggerRef={triggerRef} />
+      <span ref={triggerRef} className="pf-v6-u-display-inline-block">
+        {children}
+      </span>
+    </>
+  );
+}
+
 const LOG_FORWARDER_READY_STATES = ['ready'];
 const LOG_FORWARDER_PENDING_STATES = ['pending', 'in_progress', 'progress', 'waiting'];
 
@@ -150,25 +174,44 @@ export function LogDestinationCard({
   const [isKebabOpen, setIsKebabOpen] = React.useState(false);
   const kebabToggleRef = React.useRef<HTMLButtonElement>(null);
 
+  const kebabToggle = (
+    <MenuToggle
+      ref={kebabToggleRef}
+      variant="plain"
+      aria-label={`${title} configuration actions`}
+      onClick={() => {
+        if (!canManage) {
+          return;
+        }
+        setIsKebabOpen(!isKebabOpen);
+      }}
+      isExpanded={isKebabOpen}
+      isDisabled={!canManage}
+    >
+      <EllipsisVIcon />
+    </MenuToggle>
+  );
+
+  const kebabToggleNode =
+    disableReason && !canManage ? (
+      <MenuToggleDisableTooltip content={disableReason}>{kebabToggle}</MenuToggleDisableTooltip>
+    ) : (
+      kebabToggle
+    );
+
   const kebabMenu = (
     <Dropdown
       isOpen={isKebabOpen}
-      onOpenChange={(open) => setIsKebabOpen(open)}
+      onOpenChange={(open) => {
+        if (!canManage) {
+          return;
+        }
+        setIsKebabOpen(open);
+      }}
       popperProps={{ position: 'right', appendTo: () => document.body }}
       toggle={{
         toggleRef: kebabToggleRef,
-        toggleNode: (
-          <MenuToggle
-            ref={kebabToggleRef}
-            variant="plain"
-            aria-label={`${title} configuration actions`}
-            onClick={() => setIsKebabOpen(!isKebabOpen)}
-            isExpanded={isKebabOpen}
-            isDisabled={!canManage}
-          >
-            <EllipsisVIcon />
-          </MenuToggle>
-        ),
+        toggleNode: kebabToggleNode,
       }}
     >
       <DropdownList>
@@ -206,11 +249,7 @@ export function LogDestinationCard({
           <Title headingLevel="h3" size="lg">
             {title}
           </Title>
-          {disableReason && !canManage ? (
-            <Tooltip content={disableReason}>{kebabMenu}</Tooltip>
-          ) : (
-            kebabMenu
-          )}
+          {kebabMenu}
         </Flex>
       </CardTitle>
       <CardBody>
@@ -249,25 +288,44 @@ export function AddConfigurationDropdown({
   const isDisabled = !canManage || (!canAddS3 && !canAddCloudWatch);
   const addToggleRef = React.useRef<HTMLButtonElement>(null);
 
-  const dropdown = (
+  const menuToggle = (
+    <MenuToggle
+      ref={addToggleRef}
+      variant="secondary"
+      onClick={() => {
+        if (isDisabled) {
+          return;
+        }
+        setIsOpen(!isOpen);
+      }}
+      isExpanded={isOpen}
+      isDisabled={isDisabled}
+      aria-label="Add configuration"
+    >
+      Add configuration
+    </MenuToggle>
+  );
+
+  const toggleNode =
+    disableReason && isDisabled ? (
+      <MenuToggleDisableTooltip content={disableReason}>{menuToggle}</MenuToggleDisableTooltip>
+    ) : (
+      menuToggle
+    );
+
+  return (
     <Dropdown
       isOpen={isOpen}
-      onOpenChange={(open) => setIsOpen(open)}
+      onOpenChange={(open) => {
+        if (isDisabled) {
+          return;
+        }
+        setIsOpen(open);
+      }}
       popperProps={{ appendTo: () => document.body }}
       toggle={{
         toggleRef: addToggleRef,
-        toggleNode: (
-          <MenuToggle
-            ref={addToggleRef}
-            variant="secondary"
-            onClick={() => setIsOpen(!isOpen)}
-            isExpanded={isOpen}
-            isDisabled={isDisabled}
-            aria-label="Add configuration"
-          >
-            Add configuration
-          </MenuToggle>
-        ),
+        toggleNode,
       }}
     >
       <DropdownList>
@@ -296,10 +354,4 @@ export function AddConfigurationDropdown({
       </DropdownList>
     </Dropdown>
   );
-
-  if (disableReason && isDisabled) {
-    return <Tooltip content={disableReason}>{dropdown}</Tooltip>;
-  }
-
-  return dropdown;
 }
