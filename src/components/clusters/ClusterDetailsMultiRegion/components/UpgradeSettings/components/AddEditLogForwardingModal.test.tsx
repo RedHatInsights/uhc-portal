@@ -242,8 +242,61 @@ describe('AddEditLogForwardingModal', () => {
       screen.getByText(/A problem occurred while updating the configuration/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/CLUSTERS-MGMT-400: Invalid request/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
+  });
+
+  it('allows retrying submit after an API error without changing form values', async () => {
+    const mutationError = {
+      error: {
+        errorMessage: 'CLUSTERS-MGMT-400: Invalid request',
+        operationID: 'op-456',
+      },
+    };
+
+    const mutateWithError = jest.fn((_body: unknown, { onError }: { onError: () => void }) => {
+      onError();
+    });
+
+    (useEditLogForwarder as jest.Mock).mockReturnValue({
+      isPending: false,
+      isError: false,
+      error: null,
+      mutate: mutateWithError,
+      reset: mockPatchReset,
+    });
+
+    const { user, rerender } = render(
+      <AddEditLogForwardingModal
+        {...defaultProps}
+        destinationType="s3"
+        mode="edit"
+        forwarder={s3Forwarder}
+      />,
+    );
+
+    await user.clear(screen.getByRole('textbox', { name: /bucket name/i }));
+    await user.type(screen.getByRole('textbox', { name: /bucket name/i }), 'updated-bucket');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    (useEditLogForwarder as jest.Mock).mockReturnValue({
+      isPending: false,
+      isError: true,
+      error: mutationError,
+      mutate: mutateWithError,
+      reset: mockPatchReset,
+    });
+    rerender(
+      <AddEditLogForwardingModal
+        {...defaultProps}
+        destinationType="s3"
+        mode="edit"
+        forwarder={s3Forwarder}
+      />,
+    );
+
+    expect(mutateWithError).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(mutateWithError).toHaveBeenCalledTimes(2);
   });
 
   it('closes on cancel after a submit error', async () => {

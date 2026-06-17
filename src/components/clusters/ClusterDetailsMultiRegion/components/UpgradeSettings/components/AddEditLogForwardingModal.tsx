@@ -76,7 +76,6 @@ function ModalForm({
   const submitDisabled =
     formik.isSubmitting ||
     isPending ||
-    valuesUnchangedSinceFailedSubmit ||
     (isEdit ? !formik.isValid || valuesUnchangedFromInitial : !dirty);
 
   return (
