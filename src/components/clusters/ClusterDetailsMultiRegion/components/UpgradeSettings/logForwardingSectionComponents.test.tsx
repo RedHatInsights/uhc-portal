@@ -91,6 +91,18 @@ describe('LogDestinationCard', () => {
     expect(screen.getByText('None')).toBeInTheDocument();
   });
 
+  it('truncates long configuration values without breaking layout', () => {
+    const longLogGroupName = `/aws/rosa/my-cluster/${'a'.repeat(250)}`;
+    const { container } = render(
+      <LogDestinationCard
+        {...defaultCardProps}
+        columns={[{ term: 'Log group name', description: longLogGroupName }]}
+      />,
+    );
+
+    expect(container.querySelector('.pf-v6-c-truncate')).toBeInTheDocument();
+  });
+
   it('opens edit and delete actions from the kebab menu', async () => {
     const onEdit = jest.fn();
     const onDelete = jest.fn();

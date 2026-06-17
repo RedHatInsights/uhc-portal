@@ -235,16 +235,9 @@ export function LogForwardingSection({ cluster }: { cluster: AugmentedCluster })
                   },
                   {
                     term: 'Role ARN',
-                    description: cloudWatchForwarder.cloudwatch?.log_distribution_role_arn ? (
-                      <span
-                        className="pf-v6-u-text-break-word"
-                        title={cloudWatchForwarder.cloudwatch.log_distribution_role_arn}
-                      >
-                        {cloudWatchForwarder.cloudwatch.log_distribution_role_arn}
-                      </span>
-                    ) : (
-                      logForwardingNoneLabel
-                    ),
+                    description:
+                      cloudWatchForwarder.cloudwatch?.log_distribution_role_arn?.trim() ||
+                      logForwardingNoneLabel,
                   },
                 ]}
               />

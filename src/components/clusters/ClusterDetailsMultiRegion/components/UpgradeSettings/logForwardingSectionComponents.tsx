@@ -15,6 +15,7 @@ import {
   Stack,
   Title,
   Tooltip,
+  Truncate,
 } from '@patternfly/react-core';
 import CheckCircleIcon from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
 import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
@@ -106,6 +107,14 @@ function SelectedGroupsApplicationsLabels({
   );
 }
 
+function ForwarderConfigDescription({ description }: { description: React.ReactNode }) {
+  if (typeof description === 'string' && description.length > 0) {
+    return <Truncate content={description} position="middle" />;
+  }
+
+  return description;
+}
+
 function ForwarderConfigColumns({
   columns,
   forwarder,
@@ -127,7 +136,9 @@ function ForwarderConfigColumns({
         <FlexItem key={col.term} flex={{ default: 'flex_1' }} className="pf-v6-u-min-width-0">
           <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsXs' }}>
             <span className="pf-v6-u-font-weight-bold">{col.term}</span>
-            <div>{col.description}</div>
+            <div className="pf-v6-u-min-width-0">
+              <ForwarderConfigDescription description={col.description} />
+            </div>
           </Flex>
         </FlexItem>
       ))}
