@@ -256,9 +256,18 @@ describe('LogForwardingSection', () => {
 
     render(<LogForwardingSection cluster={mockCluster} />);
 
+    const roleArn = 'arn:aws:iam::123456789012:role/forward';
+
     expect(screen.getByText('CloudWatch')).toBeInTheDocument();
     expect(screen.getByText('/aws/rosa/my-group')).toBeInTheDocument();
-    expect(screen.getByText('arn:aws:iam::123456789012:role/forward')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, element) =>
+          !!element &&
+          element.classList.contains('pf-v6-c-truncate') &&
+          element.textContent === roleArn,
+      ),
+    ).toBeInTheDocument();
   });
 
   it('opens edit modal from card kebab menu', async () => {
