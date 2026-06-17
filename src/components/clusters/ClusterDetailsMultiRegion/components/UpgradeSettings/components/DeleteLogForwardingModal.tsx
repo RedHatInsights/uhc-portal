@@ -111,7 +111,7 @@ export function DeleteLogForwardingModal({
       <ModalFooter>
         <Button
           key="delete"
-          variant="primary"
+          variant="danger"
           isDisabled={isPending}
           isLoading={isPending}
           onClick={() => {
