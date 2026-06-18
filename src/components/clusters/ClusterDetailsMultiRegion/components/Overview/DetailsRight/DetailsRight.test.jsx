@@ -1,7 +1,11 @@
 import React from 'react';
 
 import docLinks from '~/common/docLinks.mjs';
-import { ALLOW_EUS_CHANNEL, ENABLE_AUTO_NODE } from '~/queries/featureGates/featureConstants';
+import {
+  ALLOW_EUS_CHANNEL,
+  ENABLE_AUTO_NODE,
+  HCP_LOG_FORWARDING,
+} from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
   mockRestrictedEnv,
@@ -12,6 +16,7 @@ import {
 } from '~/testUtils';
 
 import { useFetchMachineOrNodePools } from '../../../../../../queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
+import { useFetchLogForwarders } from '../../../../../../queries/ClusterDetailsQueries/useFetchLogForwarders';
 import { SubscriptionCommonFieldsStatus } from '../../../../../../types/accounts_mgmt.v1';
 import fixtures from '../../../__tests__/ClusterDetails.fixtures';
 
@@ -29,6 +34,10 @@ const defaultProps = {
 jest.mock(
   '../../../../../../queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools',
 );
+
+jest.mock('../../../../../../queries/ClusterDetailsQueries/useFetchLogForwarders', () => ({
+  useFetchLogForwarders: jest.fn(() => ({ data: [] })),
+}));
 
 jest.mock('~/hooks/useAnalytics', () => () => jest.fn());
 
@@ -2097,6 +2106,87 @@ describe('<DetailsRight />', () => {
 
       const link = screen.getByText('Learn more');
       expect(link).toHaveAttribute('href', docLinks.ROSA_AUTONODE);
+    });
+  });
+
+  describe('Control plane log forwarding', () => {
+    beforeEach(() => {
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+    });
+
+    it('shows Disabled when no forwarders are configured', () => {
+      mockUseFeatureGate([[HCP_LOG_FORWARDING, true]]);
+
+      const newProps = {
+        ...defaultProps,
+        cluster: fixtures.ROSAHypershiftClusterDetails.cluster,
+      };
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.getByTestId('controlPlaneLogForwardingDescription')).toHaveTextContent(
+        'Disabled',
+      );
+      expect(screen.getByTestId('controlPlaneLogForwardingDescription')).not.toHaveTextContent(
+        'Amazon S3:',
+      );
+    });
+
+    it('shows status when at least one forwarder is configured', () => {
+      mockUseFeatureGate([[HCP_LOG_FORWARDING, true]]);
+      useFetchLogForwarders.mockReturnValue({
+        data: [{ s3: { bucket_name: 'my-bucket' } }],
+      });
+
+      const newProps = {
+        ...defaultProps,
+        cluster: fixtures.ROSAHypershiftClusterDetails.cluster,
+      };
+      render(<DetailsRight {...newProps} />);
+
+      const description = screen.getByTestId('controlPlaneLogForwardingDescription');
+      expect(description).toHaveTextContent('Amazon S3:');
+      expect(description).toHaveTextContent('Enabled');
+      expect(description).toHaveTextContent('CloudWatch:');
+      expect(description).toHaveTextContent('Disabled');
+    });
+
+    it('View details links to Settings tab', () => {
+      mockUseFeatureGate([[HCP_LOG_FORWARDING, true]]);
+
+      const newProps = {
+        ...defaultProps,
+        cluster: fixtures.ROSAHypershiftClusterDetails.cluster,
+      };
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.getByRole('link', { name: 'View details' })).toHaveAttribute(
+        'href',
+        expect.stringContaining('#updateSettings'),
+      );
+    });
+
+    it('hides section when feature gate is disabled', () => {
+      mockUseFeatureGate([[HCP_LOG_FORWARDING, false]]);
+
+      const newProps = {
+        ...defaultProps,
+        cluster: fixtures.ROSAHypershiftClusterDetails.cluster,
+      };
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.queryByText('Control plane log forwarding')).not.toBeInTheDocument();
+    });
+
+    it('hides section for non hypershift clusters', () => {
+      mockUseFeatureGate([[HCP_LOG_FORWARDING, true]]);
+
+      const newProps = {
+        ...defaultProps,
+        cluster: fixtures.ROSAClusterDetails.cluster,
+      };
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.queryByText('Control plane log forwarding')).not.toBeInTheDocument();
     });
   });
 

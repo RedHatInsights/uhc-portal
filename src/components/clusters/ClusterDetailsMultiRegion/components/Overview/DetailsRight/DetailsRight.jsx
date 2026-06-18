@@ -6,6 +6,7 @@ import semver from 'semver';
 
 import {
   Alert,
+  Button,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -19,6 +20,7 @@ import {
 
 import { trackEvents } from '~/common/analytics';
 import { getQueryParam } from '~/common/queryHelpers';
+import { Link } from '~/common/routing';
 import { hasSecurityGroupIds } from '~/common/securityGroupsHelpers';
 import AIClusterStatus from '~/components/AIComponents/AIClusterStatus';
 import { OverviewBillingAccount } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/BillingAccount/OverviewBillingAccount';
@@ -36,7 +38,8 @@ import modals from '~/components/common/Modal/modals';
 import useAnalytics from '~/hooks/useAnalytics';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
-import { ENABLE_AUTO_NODE } from '~/queries/featureGates/featureConstants';
+import { useFetchLogForwarders } from '~/queries/ClusterDetailsQueries/useFetchLogForwarders';
+import { ENABLE_AUTO_NODE, HCP_LOG_FORWARDING } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
@@ -61,11 +64,14 @@ const AUTO_NODE_MIN_VERSION = '4.22.0';
 
 function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDetailsFetching }) {
   const isHypershift = isHypershiftCluster(cluster);
+  const isROSACluster = isROSA(cluster);
   const region = cluster?.subscription?.rh_region_id;
   const clusterID = cluster?.id;
   const clusterVersionID = cluster?.version?.id;
   const clusterRawVersionID = cluster?.version?.raw_id;
   const isAutoNodeAllowed = useFeatureGate(ENABLE_AUTO_NODE) && isHypershift;
+  const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
+  const showControlPlaneLogForwarding = isHypershift && isROSACluster && isHcpLogForwardingEnabled;
   const track = useAnalytics();
   const dispatch = useDispatch();
 
@@ -76,6 +82,15 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
     region,
     clusterRawVersionID,
   );
+
+  const { data: logForwarders = [] } = useFetchLogForwarders(
+    showControlPlaneLogForwarding ? clusterID : undefined,
+    region,
+  );
+
+  const s3LogForwarder = logForwarders.find((forwarder) => forwarder.s3);
+  const cloudWatchLogForwarder = logForwarders.find((forwarder) => forwarder.cloudwatch);
+  const hasConfiguredLogForwarder = s3LogForwarder || cloudWatchLogForwarder;
 
   const nodesSectionData = totalNodesDataSelector(cluster, machinePools);
 
@@ -130,7 +145,6 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   );
   const isAWS = cluster.subscription?.cloud_provider_id === 'aws';
   const isGCP = cluster.subscription?.cloud_provider_id === 'gcp';
-  const isROSACluster = isROSA(cluster);
   const infraAccount = cluster.subscription?.cloud_account_id || null;
   const hypershiftEtcdEncryptionKey = isHypershift && cluster.aws?.etcd_encryption?.kms_key_arn;
   const { clusterVpc } = useAWSVPCFromCluster(cluster);
@@ -551,6 +565,35 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
+      {/* Control plane log forwarding */}
+      {showControlPlaneLogForwarding ? (
+        <DescriptionListGroup>
+          <DescriptionListTerm>
+            <Flex gap={{ default: 'gapSm' }}>
+              Control plane log forwarding
+              <Button variant="link" component={Link} to={{ hash: '#updateSettings' }}>
+                View details
+              </Button>
+            </Flex>
+          </DescriptionListTerm>
+          <DescriptionListDescription data-testid="controlPlaneLogForwardingDescription">
+            {!hasConfiguredLogForwarder ? (
+              <span>Disabled</span>
+            ) : (
+              <dl className="pf-v6-l-stack">
+                <Flex>
+                  <dt>Amazon S3: </dt>
+                  <dd>{s3LogForwarder ? 'Enabled' : 'Disabled'}</dd>
+                </Flex>
+                <Flex>
+                  <dt>CloudWatch: </dt>
+                  <dd>{cloudWatchLogForwarder ? 'Enabled' : 'Disabled'}</dd>
+                </Flex>
+              </dl>
+            )}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      ) : null}
     </DescriptionList>
   );
 }
