@@ -26,6 +26,7 @@ test.describe.serial(
     const logForwardingS3BucketName = process.env.QE_LOG_FORWARDING_S3_BUCKET_NAME || '';
     const logForwardingS3BucketPrefix = process.env.QE_LOG_FORWARDING_S3_BUCKET_PREFIX || '';
     const logForwardingCwRoleArn = process.env.QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN || '';
+    const logForwardingCwLogGroupName = clusterProperties.CloudWatchLogGroupName;
 
     test.beforeAll(async ({ navigateTo }) => {
       if (!logForwardingS3BucketName || !logForwardingS3BucketPrefix || !logForwardingCwRoleArn) {
@@ -196,6 +197,10 @@ test.describe.serial(
       await expect(createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput()).toHaveValue(
         new RegExp(`^${clusterName.slice(0, 15)}`),
       );
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchLogGroupNameInput()
+        .fill(logForwardingCwLogGroupName);
       await createRosaWizardPage.logForwardingCloudWatchRoleArnInput().fill(logForwardingCwRoleArn);
       await createRosaWizardPage.logForwardingCloudWatchPrerequisiteCheckbox().check();
       await createRosaWizardPage.selectAllLogForwardingGroups('CloudWatch');
@@ -367,7 +372,7 @@ test.describe.serial(
       ).toBeVisible();
       await expect(createRosaWizardPage.logForwardingReviewCloudWatchHeading()).toBeVisible();
       await expect(
-        createRosaWizardPage.logForwardingReviewText(clusterName.slice(0, 15)),
+        createRosaWizardPage.logForwardingReviewText(logForwardingCwLogGroupName),
       ).toBeVisible();
       await expect(
         createRosaWizardPage.logForwardingReviewText(logForwardingCwRoleArn),

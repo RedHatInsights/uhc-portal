@@ -530,5 +530,193 @@ export class ClusterDetailsPage extends BasePage {
     await this.page.keyboard.press('Escape');
     await expect(this.deleteClusterDropdownItem()).toBeHidden({ timeout: 5000 });
   }
-  
+
+  // ── Day 2 Log Forwarding (Settings tab) ──────────────────────────────────
+
+  logForwardingSectionHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'Control plane log forwarding', level: 2 });
+  }
+
+  logForwardingEmptyState(): Locator {
+    return this.page.getByText('No log forwarding configured.');
+  }
+
+  addConfigurationButton(): Locator {
+    return this.page.getByRole('button', { name: 'Add configuration' });
+  }
+
+  async hoverAddConfigurationButton(): Promise<Locator> {
+    await this.addConfigurationButton().hover({ force: true });
+    return this.page.getByRole('tooltip');
+  }
+
+  addConfigurationMenuItem(destination: 'Amazon S3' | 'CloudWatch'): Locator {
+    return this.page.getByRole('menuitem', { name: destination });
+  }
+
+  logForwardingCardTitle(title: 'Amazon S3' | 'CloudWatch'): Locator {
+    return this.page.getByRole('heading', { name: title, level: 3 });
+  }
+
+  logForwardingCardKebab(title: 'Amazon S3' | 'CloudWatch'): Locator {
+    return this.page.getByRole('button', { name: `${title} configuration actions` });
+  }
+
+  editConfigurationMenuItem(): Locator {
+    return this.page.getByRole('menuitem', { name: 'Edit configuration' });
+  }
+
+  deleteConfigurationMenuItem(): Locator {
+    return this.page.getByRole('menuitem', { name: 'Delete configuration' });
+  }
+
+  logForwardingModalHeading(action: 'Add' | 'Edit' | 'Delete', destination: string): Locator {
+    return this.page.getByText(`${action} ${destination} configuration`);
+  }
+
+  logForwardingBucketNameInput(): Locator {
+    return this.page.getByRole('textbox', { name: /Bucket name/i });
+  }
+
+  logForwardingBucketPrefixInput(): Locator {
+    return this.page.getByRole('textbox', { name: /Bucket prefix/i });
+  }
+
+  logForwardingLogGroupNameInput(): Locator {
+    return this.page.getByRole('textbox', { name: /Log group name/i });
+  }
+
+  logForwardingRoleArnInput(): Locator {
+    return this.page.getByRole('textbox', { name: /Role ARN/i });
+  }
+
+  logForwardingPrerequisiteCheckbox(): Locator {
+    return this.page.getByLabel(
+      "I've read and completed all the prerequisites and am ready to continue.",
+    );
+  }
+
+  logForwardingSubmitButton(): Locator {
+    return this.page.getByTestId('log-forwarding-submit-btn');
+  }
+
+  logForwardingModalCancelButton(): Locator {
+    return this.page.getByRole('button', { name: 'Cancel' });
+  }
+
+  deleteLogForwardingConfirmButton(): Locator {
+    return this.page.getByRole('button', { name: 'Delete configuration' });
+  }
+
+  logForwardingDeleteDescription(): Locator {
+    return this.page.getByRole('dialog').getByRole('paragraph');
+  }
+
+  logForwardingSelectedGroupsHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'Selected groups and applications' });
+  }
+
+  logForwardingGroupCategory(category: string): Locator {
+    return this.page.getByRole('list', { name: category });
+  }
+
+  logForwardingGroupLabel(category: string, label: string): Locator {
+    return this.logForwardingGroupCategory(category).getByRole('listitem').filter({ hasText: label });
+  }
+
+  logForwardingPropertyValue(label: string, value: string): Locator {
+    return this.page
+      .getByText(label, { exact: true })
+      .locator('..')
+      .getByText(value, { exact: true })
+      .first();
+  }
+
+  async isLogForwardingSectionVisible(): Promise<void> {
+    await expect(this.logForwardingSectionHeading()).toBeVisible({ timeout: 30000 });
+  }
+
+  async navigateToSettingsTab(): Promise<void> {
+    await this.settingsTab().click();
+    await expect(this.page.getByText('Update strategy')).toBeVisible({ timeout: 30000 });
+  }
+
+  async scrollToLogForwardingSection(): Promise<void> {
+    await this.logForwardingSectionHeading().scrollIntoViewIfNeeded();
+    await expect(this.logForwardingSectionHeading()).toBeVisible({ timeout: 30000 });
+  }
+
+  async openAddConfigurationMenu(destination: 'Amazon S3' | 'CloudWatch'): Promise<void> {
+    await this.addConfigurationButton().click();
+    await this.addConfigurationMenuItem(destination).click();
+  }
+
+  async fillS3Configuration(bucketName: string, bucketPrefix: string): Promise<void> {
+    await this.logForwardingBucketNameInput().fill(bucketName);
+    await this.logForwardingBucketPrefixInput().fill(bucketPrefix);
+  }
+
+  async fillCloudWatchConfiguration(logGroupName: string, roleArn: string): Promise<void> {
+    await this.logForwardingLogGroupNameInput().clear();
+    await this.logForwardingLogGroupNameInput().fill(logGroupName);
+    await this.logForwardingRoleArnInput().fill(roleArn);
+  }
+
+  async deleteLogForwardingIfExists(destination: 'Amazon S3' | 'CloudWatch'): Promise<void> {
+    const card = this.logForwardingCardTitle(destination);
+    try {
+      await card.waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      return;
+    }
+    await this.openCardKebabAction(destination, 'Delete configuration');
+    await this.confirmDeleteLogForwarding();
+    await expect(card).toBeHidden({ timeout: 30000 });
+  }
+
+  async selectLogForwardingGroup(groupName: string): Promise<void> {
+    const tree = this.page.getByRole('tree', { name: 'Select groups and applications' });
+    await tree.waitFor({ state: 'visible', timeout: 30000 });
+    const item = tree.getByRole('treeitem', { name: groupName });
+    const checkbox = item.getByRole('checkbox');
+    if (!(await checkbox.isChecked())) {
+      await checkbox.check();
+    }
+  }
+
+  async selectAllLogForwardingGroups(): Promise<void> {
+    const tree = this.page.getByRole('tree', { name: 'Select groups and applications' });
+    await tree.getByRole('checkbox').first().waitFor({ state: 'visible', timeout: 30000 });
+
+    const checkboxes = tree.getByRole('checkbox');
+    const count = await checkboxes.count();
+    for (let i = 0; i < count; i++) {
+      const cb = checkboxes.nth(i);
+      if (!(await cb.isChecked())) {
+        await cb.check();
+      }
+    }
+  }
+
+  async submitLogForwardingModal(): Promise<void> {
+    await this.logForwardingSubmitButton().click();
+    await expect(this.logForwardingSubmitButton()).toBeHidden({ timeout: 30000 });
+  }
+
+  async openCardKebabAction(
+    cardTitle: 'Amazon S3' | 'CloudWatch',
+    action: 'Edit configuration' | 'Delete configuration',
+  ): Promise<void> {
+    await this.logForwardingCardKebab(cardTitle).click();
+    if (action === 'Edit configuration') {
+      await this.editConfigurationMenuItem().click();
+    } else {
+      await this.deleteConfigurationMenuItem().click();
+    }
+  }
+
+  async confirmDeleteLogForwarding(): Promise<void> {
+    await this.deleteLogForwardingConfirmButton().click();
+    await expect(this.deleteLogForwardingConfirmButton()).toBeHidden({ timeout: 30000 });
+  }
 }
