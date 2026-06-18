@@ -101,8 +101,8 @@ export function LogForwardingSection({ cluster }: { cluster: AugmentedCluster })
   const addDisableReason =
     readOnlyReason || hibernatingReason || allSupportedDestinationsReason || undefined;
   const editDisableReason = readOnlyReason || hibernatingReason || undefined;
-  const addCanManage = !!cluster.canEdit && !addDisableReason;
-  const editCanManage = !!cluster.canEdit && !editDisableReason;
+  const addCanManage = !!cluster.canUpdateClusterResource && !addDisableReason;
+  const editCanManage = !!cluster.canUpdateClusterResource && !editDisableReason;
 
   const openAddModal = (destinationType: LogForwardingDestinationKind) => {
     setDeleteModal(null);
