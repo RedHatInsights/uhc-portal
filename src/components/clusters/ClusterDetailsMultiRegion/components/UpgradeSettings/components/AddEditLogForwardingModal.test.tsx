@@ -93,23 +93,23 @@ describe('AddEditLogForwardingModal', () => {
     expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
   });
 
-  it('enables Add after any field input, even when the form is still invalid', async () => {
+  it('keeps Add disabled when the form has validation errors', async () => {
     const { user } = render(
       <AddEditLogForwardingModal {...defaultProps} destinationType="s3" mode="add" />,
     );
 
     await user.type(screen.getByRole('textbox', { name: /bucket name/i }), 'a');
 
-    expect(screen.getByRole('button', { name: 'Add' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
   });
 
-  it('shows validation errors when Add is clicked on an incomplete form', async () => {
+  it('shows validation errors as the user enters invalid data', async () => {
     const { user } = render(
       <AddEditLogForwardingModal {...defaultProps} destinationType="s3" mode="add" />,
     );
 
     await user.type(screen.getByRole('textbox', { name: /bucket name/i }), 'a');
-    await user.click(screen.getByRole('button', { name: 'Add' }));
+    await user.tab();
 
     expect(
       screen.getByText('Bucket name must be between 3 and 63 characters.'),

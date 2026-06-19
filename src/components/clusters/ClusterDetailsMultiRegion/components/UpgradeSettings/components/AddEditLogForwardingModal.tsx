@@ -76,7 +76,8 @@ function ModalForm({
   const submitDisabled =
     formik.isSubmitting ||
     isPending ||
-    (isEdit ? !formik.isValid || valuesUnchangedFromInitial : !dirty);
+    !formik.isValid ||
+    (isEdit ? valuesUnchangedFromInitial : !dirty);
 
   return (
     <Modal
@@ -219,6 +220,7 @@ export function AddEditLogForwardingModal({
       initialValues={initialValues}
       enableReinitialize={isEdit}
       validateOnMount={isEdit}
+      validateOnChange
       validate={validateForm}
       onSubmit={(values, { setSubmitting }) => {
         const body = buildSingleLogForwarder(destinationType, values, catalogTree);
