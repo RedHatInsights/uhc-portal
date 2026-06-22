@@ -70,8 +70,8 @@ jobs:
             serverErrors: "${{ steps.check-links.outputs.serverErrors }}"
             requestErrors: "${{ steps.check-links.outputs.requestErrors }}"
             totalChecked: "${{ steps.check-links.outputs.totalChecked }}"
-            clientErrorsDetail: "${{ steps.check-links.outputs.clientErrorsDetail }}"
-            serverErrorsDetail: "${{ steps.check-links.outputs.serverErrorsDetail }}"
-            requestErrorsDetail: "${{ steps.check-links.outputs.requestErrorsDetail }}"
-            redirectErrorsDetail: "${{ steps.check-links.outputs.redirectErrorsDetail }}"
+            clientErrorsDetail: ${{ toJSON(steps.check-links.outputs.clientErrorsDetail) }}
+            serverErrorsDetail: ${{ toJSON(steps.check-links.outputs.serverErrorsDetail) }}
+            requestErrorsDetail: ${{ toJSON(steps.check-links.outputs.requestErrorsDetail) }}
+            redirectErrorsDetail: ${{ toJSON(steps.check-links.outputs.redirectErrorsDetail) }}
             run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"

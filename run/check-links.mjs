@@ -764,6 +764,9 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
   displayUsageNotes(verbose);
 }
 
+const MAX_DETAIL_ITEMS = 10;
+const REQUEST_ERROR_MAX_LENGTH = 80;
+
 /**
  * Writes a multiline value to the GitHub Actions output file.
  * @param {string} name - Output name
@@ -779,15 +782,49 @@ function writeGithubOutput(name, value) {
 }
 
 /**
+ * Joins formatted blocks for Slack with spacing and optional truncation.
+ * @param {Array<string>} blocks - Pre-formatted detail blocks
+ * @param {number} maxItems - Maximum blocks to include
+ * @returns {string} Formatted detail text
+ */
+function formatDetailBlocks(blocks, maxItems = MAX_DETAIL_ITEMS) {
+  if (blocks.length === 0) {
+    return 'None';
+  }
+
+  const shown = blocks.slice(0, maxItems);
+  const suffix =
+    blocks.length > maxItems
+      ? `\n\n… and ${blocks.length - maxItems} more (see GitHub Actions run)`
+      : '';
+
+  return shown.join('\n\n') + suffix;
+}
+
+/**
+ * Shortens verbose fetch error messages for Slack output.
+ * @param {string} errorMessage - Raw error message
+ * @returns {string} Shortened error message
+ */
+function shortenRequestErrorMessage(errorMessage) {
+  const withoutPrefix = errorMessage.replace(/^FetchError:\s*/, '');
+  const reasonMatch = withoutPrefix.match(/reason:\s*(.+)$/i);
+  const shortened = reasonMatch ? reasonMatch[1] : withoutPrefix;
+
+  if (shortened.length <= REQUEST_ERROR_MAX_LENGTH) {
+    return shortened;
+  }
+
+  return `${shortened.slice(0, REQUEST_ERROR_MAX_LENGTH)}…`;
+}
+
+/**
  * Formats client/server error items for Slack and GitHub output.
  * @param {Array} items - Error items with url and status
  * @returns {string} Formatted detail text
  */
 function formatClientServerErrors(items) {
-  if (items.length === 0) {
-    return 'None';
-  }
-  return items.map((r) => `${r.status} — ${r.url}`).join('\n');
+  return formatDetailBlocks(items.map((r) => `• ${r.status} — ${r.url}`));
 }
 
 /**
@@ -796,10 +833,33 @@ function formatClientServerErrors(items) {
  * @returns {string} Formatted detail text
  */
 function formatRequestErrors(items) {
-  if (items.length === 0) {
-    return 'None';
-  }
-  return items.map((r) => `${r.url} — ${r.errorMessage}`).join('\n');
+  return formatDetailBlocks(
+    items.map((r) => `• ${r.url}\n  ${shortenRequestErrorMessage(r.errorMessage)}`),
+  );
+}
+
+/**
+ * Formats a single redirect error for Slack and GitHub output.
+ * @param {Object} item - Redirect test result
+ * @returns {string} Formatted redirect error block
+ */
+function formatRedirectError(item) {
+  const final = item.finalStatus ?? item.error;
+  return [`• ${item.originalUrl}`, `  → ${item.redirectUrl}`, `  Final: ${final}`].join('\n');
+}
+
+/**
+ * Formats redirect error items for Slack and GitHub output.
+ * @param {Array} redirectItems - Redirect test results
+ * @returns {string} Formatted detail text
+ */
+function formatRedirectErrors(redirectItems) {
+  const failedRedirects = redirectItems.filter(
+    (item) =>
+      item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300)),
+  );
+
+  return formatDetailBlocks(failedRedirects.map(formatRedirectError));
 }
 
 /**
@@ -815,19 +875,11 @@ function writeGithubActionOutputs(statusByUrl, redirectItems) {
   const categories = categorizeResults(statusByUrl);
   const { success, redirects, clientErrors, serverErrors, errors, skipped } = categories;
 
-  let redirectErrorCount = 0;
-  const redirectErrorsDetailLines = [];
-  redirectItems.forEach((item) => {
-    const failed =
-      item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300));
-    if (failed) {
-      redirectErrorCount += 1;
-      const final = item.finalStatus ?? item.error;
-      redirectErrorsDetailLines.push(
-        `${item.originalUrl} → ${item.redirectUrl} (final: ${final})`,
-      );
-    }
-  });
+  const failedRedirects = redirectItems.filter(
+    (item) =>
+      item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300)),
+  );
+  const redirectErrorCount = failedRedirects.length;
 
   const totalChecked =
     success.length + redirects.length + clientErrors.length + serverErrors.length + errors.length;
@@ -857,10 +909,7 @@ function writeGithubActionOutputs(statusByUrl, redirectItems) {
   writeGithubOutput('clientErrorsDetail', formatClientServerErrors(clientErrors));
   writeGithubOutput('serverErrorsDetail', formatClientServerErrors(serverErrors));
   writeGithubOutput('requestErrorsDetail', formatRequestErrors(errors));
-  writeGithubOutput(
-    'redirectErrorsDetail',
-    redirectErrorsDetailLines.length ? redirectErrorsDetailLines.join('\n') : 'None',
-  );
+  writeGithubOutput('redirectErrorsDetail', formatRedirectErrors(redirectItems));
 }
 
 // ======================================================================
