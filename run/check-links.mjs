@@ -893,7 +893,7 @@ function writeGithubActionOutputs(statusByUrl, redirectItems) {
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `hasIssues=${hasIssues}\n`);
   fs.appendFileSync(
     process.env.GITHUB_OUTPUT,
-    `statusMessage=${hasIssues ? 'Issues found' : 'All clear'}\n`,
+    `statusMessage=${hasIssues ? '🚨 Issues found' : '✅ All clear'}\n`,
   );
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `skipped=${skipped.length}\n`);
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `success=${success.length}\n`);
