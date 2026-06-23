@@ -2165,6 +2165,41 @@ describe('<DetailsRight />', () => {
       );
     });
 
+    it('does not show View details link when cluster is archived', () => {
+      mockUseFeatureGate([[HCP_LOG_FORWARDING, true]]);
+
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...fixtures.ROSAHypershiftClusterDetails.cluster,
+          subscription: {
+            ...fixtures.ROSAHypershiftClusterDetails.cluster.subscription,
+            status: SubscriptionCommonFieldsStatus.Archived,
+          },
+        },
+      };
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.getByText('Control plane log forwarding')).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'View details' })).not.toBeInTheDocument();
+    });
+
+    it('does not show View details link when user does not have canEdit', () => {
+      mockUseFeatureGate([[HCP_LOG_FORWARDING, true]]);
+
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...fixtures.ROSAHypershiftClusterDetails.cluster,
+          canEdit: false,
+        },
+      };
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.getByText('Control plane log forwarding')).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'View details' })).not.toBeInTheDocument();
+    });
+
     it('hides section when feature gate is disabled', () => {
       mockUseFeatureGate([[HCP_LOG_FORWARDING, false]]);
 
