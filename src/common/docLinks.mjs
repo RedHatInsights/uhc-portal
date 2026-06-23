@@ -182,7 +182,7 @@ const docLinks = {
   // OCM
   OCM_DOCS_PULL_SECRETS: `${OCM_DOCS_BASE}/assembly-managing-clusters_assembly-cluster-subscriptions#managing-pull-secrets-intro_assembly-managing-clusters`,
   OCM_DOCS_SUBSCRIPTIONS: `${OCM_DOCS_BASE}/assembly-cluster-subscriptions_assembly-cluster-subscriptions`,
-  OCM_DOCS_UPGRADING_OSD_TRIAL: `${OSD_DOCS_BASE}/upgrading/osd-upgrades`,
+  OCM_DOCS_UPGRADING_OSD_TRIAL: `${OCM_DOCS_BASE}/assembly-cluster-subscriptions_assembly-cluster-subscriptions#upgrading-osd-trial-cluster_assembly-cluster-subscriptions`,
 
   // Telemetry
   TELEMETRY_INFORMATION: `${OCP_DOCS_BASE}/support/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring`,
