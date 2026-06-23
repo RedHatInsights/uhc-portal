@@ -78,6 +78,13 @@ spec:
         exit 1
       fi
 
+      # Currents.dev integration — uploads screenshots, traces, and videos
+      if [ -n "${CURRENTS_RECORD_KEY:-}" ]; then
+        export CURRENTS_CI_BUILD_ID="${PIPELINE_RUN_NAME:-$RANDOM}"
+        export CURRENTS_TAG="pr-{{pull_request_number}}"
+        echo "Currents.dev reporting enabled (build: $CURRENTS_CI_BUILD_ID)"
+      fi
+
       # Wait for dev server to be ready (probe the app route, not just /)
       timeout 120s bash -c 'until curl -kf https://prod.foo.redhat.com:1337/apps/openshift/fed-mods.json > /dev/null 2>&1; do
         echo "Waiting for dev server to be ready"
@@ -226,6 +233,13 @@ spec:
     - pipelineTaskName: run-e2e-tests
       stepSpecs:
         - name: e2e-tests
+          env:
+            - name: CURRENTS_RECORD_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ocm-ui-credentials-secret
+                  key: CURRENTS_RECORD_KEY
+                  optional: true
           computeResources:
             requests:
               memory: "10Gi"
