@@ -312,6 +312,14 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('etcEncryptionStatus');
   }
 
+  controlPlaneLogForwardingDescription(): Locator {
+    return this.page.getByTestId('controlPlaneLogForwardingDescription');
+  }
+
+  controlPlaneLogForwardingViewDetailsLink(): Locator {
+    return this.page.getByRole('link', { name: 'View details' });
+  }
+
   // Installation screen elements
   clusterInstallationHeader(): Locator {
     return this.page.locator('h2, h3').filter({ hasText: 'Installing cluster' });
@@ -346,7 +354,11 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('wifConfiguration');
   }
 
-  // Settings tab functionality
+  // Tab navigation
+  overviewTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Overview' });
+  }
+
   settingsTab(): Locator {
     return this.page.getByRole('tab', { name: 'Settings' });
   }
@@ -401,11 +413,9 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   editAutoNodeModal(): Locator {
-    return this.page
-      .getByRole('dialog')
-      .filter({
-        has: this.page.getByRole('heading', { name: 'Edit Autonode settings', level: 1 }),
-      });
+    return this.page.getByRole('dialog').filter({
+      has: this.page.getByRole('heading', { name: 'Edit Autonode settings', level: 1 }),
+    });
   }
 
   editAutoNodeModalHeading(): Locator {
@@ -621,19 +631,24 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   logForwardingGroupLabel(category: string, label: string): Locator {
-    return this.logForwardingGroupCategory(category).getByRole('listitem').filter({ hasText: label });
+    return this.logForwardingGroupCategory(category)
+      .getByRole('listitem')
+      .filter({ hasText: label });
   }
 
-  logForwardingPropertyValue(label: string, value: string): Locator {
+  logForwardingPropertyValue(cardTitle: string, label: string, value: string): Locator {
     return this.page
-      .getByText(label, { exact: true })
-      .locator('..')
-      .getByText(value, { exact: true })
-      .first();
+      .getByRole('group', { name: `${cardTitle} ${label}` })
+      .getByText(value, { exact: true });
   }
 
   async isLogForwardingSectionVisible(): Promise<void> {
     await expect(this.logForwardingSectionHeading()).toBeVisible({ timeout: 30000 });
+  }
+
+  async navigateToOverviewTab(): Promise<void> {
+    await this.overviewTab().click();
+    await expect(this.clusterNameTitle()).toBeVisible({ timeout: 30000 });
   }
 
   async navigateToSettingsTab(): Promise<void> {

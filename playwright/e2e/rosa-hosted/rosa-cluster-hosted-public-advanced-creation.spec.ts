@@ -365,18 +365,24 @@ test.describe.serial(
     }) => {
       await expect(createRosaWizardPage.logForwardingReviewS3Heading()).toBeVisible();
       await expect(
-        createRosaWizardPage.logForwardingReviewText(logForwardingS3BucketName),
-      ).toBeVisible();
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'configuration'),
+      ).toHaveText('Enabled');
       await expect(
-        createRosaWizardPage.logForwardingReviewText(logForwardingS3BucketPrefix),
-      ).toBeVisible();
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'bucket-name'),
+      ).toHaveText(logForwardingS3BucketName);
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'bucket-prefix'),
+      ).toHaveText(logForwardingS3BucketPrefix);
       await expect(createRosaWizardPage.logForwardingReviewCloudWatchHeading()).toBeVisible();
       await expect(
-        createRosaWizardPage.logForwardingReviewText(logForwardingCwLogGroupName),
-      ).toBeVisible();
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'configuration'),
+      ).toHaveText('Enabled');
       await expect(
-        createRosaWizardPage.logForwardingReviewText(logForwardingCwRoleArn),
-      ).toBeVisible();
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'log-group-name'),
+      ).toHaveText(logForwardingCwLogGroupName);
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'role-arn'),
+      ).toHaveText(logForwardingCwRoleArn);
     });
 
     test('Create cluster and check the installation progress', async ({
@@ -400,6 +406,11 @@ test.describe.serial(
       await clusterDetailsPage.checkInstallationStepStatus('Network settings');
       await clusterDetailsPage.checkInstallationStepStatus('DNS setup');
       await clusterDetailsPage.checkInstallationStepStatus('Cluster installation');
+
+      const logForwardingDescription =
+        clusterDetailsPage.controlPlaneLogForwardingDescription();
+      await expect(logForwardingDescription).toContainText('Amazon S3: Enabled');
+      await expect(logForwardingDescription).toContainText('CloudWatch: Enabled');
     });
   },
 );

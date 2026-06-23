@@ -70,25 +70,25 @@ export function LogForwardingReviewDetails({ formValues }: { formValues: FormVal
           <span className="pf-v6-u-screen-reader">Amazon S3 log forwarding</span>
         </DescriptionListDescription>
       </DescriptionListGroup>
-      <DescriptionListGroup>
+      <DescriptionListGroup data-testid="review-lf-s3-configuration">
         <DescriptionListTerm>Configuration</DescriptionListTerm>
         <DescriptionListDescription>{s3On ? 'Enabled' : 'Disabled'}</DescriptionListDescription>
       </DescriptionListGroup>
       {s3On ? (
         <>
-          <DescriptionListGroup>
+          <DescriptionListGroup data-testid="review-lf-s3-bucket-name">
             <DescriptionListTerm>Bucket name</DescriptionListTerm>
             <DescriptionListDescription>
               {formValues[FieldId.LogForwardingS3BucketName]?.trim() || logForwardingNoneLabel}
             </DescriptionListDescription>
           </DescriptionListGroup>
-          <DescriptionListGroup>
+          <DescriptionListGroup data-testid="review-lf-s3-bucket-prefix">
             <DescriptionListTerm>Bucket prefix</DescriptionListTerm>
             <DescriptionListDescription>
               {s3BucketPrefixTrimmed || logForwardingNoneLabel}
             </DescriptionListDescription>
           </DescriptionListGroup>
-          <DescriptionListGroup>
+          <DescriptionListGroup data-testid="review-lf-s3-selected-groups">
             <DescriptionListTerm>Selected groups and applications</DescriptionListTerm>
             <DescriptionListDescription>
               <LogForwardingSelectedAppsDescription
@@ -109,26 +109,26 @@ export function LogForwardingReviewDetails({ formValues }: { formValues: FormVal
           <span className="pf-v6-u-screen-reader">CloudWatch log forwarding</span>
         </DescriptionListDescription>
       </DescriptionListGroup>
-      <DescriptionListGroup>
+      <DescriptionListGroup data-testid="review-lf-cw-configuration">
         <DescriptionListTerm>Configuration</DescriptionListTerm>
         <DescriptionListDescription>{cwOn ? 'Enabled' : 'Disabled'}</DescriptionListDescription>
       </DescriptionListGroup>
       {cwOn ? (
         <>
-          <DescriptionListGroup>
+          <DescriptionListGroup data-testid="review-lf-cw-log-group-name">
             <DescriptionListTerm>Log group name</DescriptionListTerm>
             <DescriptionListDescription>
               {formValues[FieldId.LogForwardingCloudWatchLogGroupName]?.trim() ||
                 logForwardingNoneLabel}
             </DescriptionListDescription>
           </DescriptionListGroup>
-          <DescriptionListGroup>
+          <DescriptionListGroup data-testid="review-lf-cw-role-arn">
             <DescriptionListTerm>Role ARN</DescriptionListTerm>
             <DescriptionListDescription>
               {formValues[FieldId.LogForwardingCloudWatchRoleArn]?.trim() || logForwardingNoneLabel}
             </DescriptionListDescription>
           </DescriptionListGroup>
-          <DescriptionListGroup>
+          <DescriptionListGroup data-testid="review-lf-cw-selected-groups">
             <DescriptionListTerm>Selected groups and applications</DescriptionListTerm>
             <DescriptionListDescription>
               <LogForwardingSelectedAppsDescription

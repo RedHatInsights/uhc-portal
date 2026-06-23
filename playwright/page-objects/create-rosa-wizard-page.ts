@@ -1108,10 +1108,6 @@ export class CreateRosaWizardPage extends BasePage {
     return this.logForwardingReviewSection().getByRole('heading', { name: 'CloudWatch' });
   }
 
-  logForwardingReviewConfigurationValues(): Locator {
-    return this.logForwardingReviewSection().getByText('Disabled', { exact: true });
-  }
-
   logForwardingS3BucketNameInput(): Locator {
     return this.page.getByRole('textbox', { name: 'Bucket name' });
   }
@@ -1169,7 +1165,6 @@ export class CreateRosaWizardPage extends BasePage {
     }
   }
 
-
   // Additional validation method for compute node range
   computeNodeRangeValue(): Locator {
     return this.page.getByTestId('Compute-node-range').locator('div');
@@ -1191,7 +1186,30 @@ export class CreateRosaWizardPage extends BasePage {
     return this.page.getByLabel('Copyable ROSA create operator-roles');
   }
 
-  logForwardingReviewText(text: string): Locator {
-    return this.logForwardingReviewSection().getByText(text);
+  /**
+   * Returns the description (value) cell of a specific log forwarding property in the review
+   * screen. Scopes to the data-testid set on each DescriptionListGroup in
+   * LogForwardingReviewDetails, then returns the <dd> (definition) within it.
+   *
+   * Testid format: review-lf-{provider}-{label}
+   *   provider: 's3' | 'cw'
+   *   label:    'configuration' | 'bucket-name' | 'bucket-prefix' |
+   *             'log-group-name' | 'role-arn' | 'selected-groups'
+   *
+   * Example:
+   *   logForwardingReviewPropertyValue('s3', 'configuration')  → "Enabled" / "Disabled"
+   *   logForwardingReviewPropertyValue('cw', 'role-arn')        → the ARN string
+   */
+  logForwardingReviewPropertyValue(
+    provider: 's3' | 'cw',
+    label:
+      | 'configuration'
+      | 'bucket-name'
+      | 'bucket-prefix'
+      | 'log-group-name'
+      | 'role-arn'
+      | 'selected-groups',
+  ): Locator {
+    return this.page.getByTestId(`review-lf-${provider}-${label}`).getByRole('definition');
   }
 }

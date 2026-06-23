@@ -116,9 +116,11 @@ function ForwarderConfigDescription({ description }: { description: React.ReactN
 }
 
 function ForwarderConfigColumns({
+  title,
   columns,
   forwarder,
 }: {
+  title: string;
   columns: LogForwardingConfigColumn[];
   forwarder: LogForwarder;
 }) {
@@ -133,7 +135,13 @@ function ForwarderConfigColumns({
       gap={{ default: 'gapXl' }}
     >
       {columns.map((col) => (
-        <FlexItem key={col.term} flex={{ default: 'flex_1' }} className="pf-v6-u-min-width-0">
+        <FlexItem
+          key={col.term}
+          flex={{ default: 'flex_1' }}
+          className="pf-v6-u-min-width-0"
+          role="group"
+          aria-label={`${title} ${col.term}`}
+        >
           <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsXs' }}>
             <span className="pf-v6-u-font-weight-bold">{col.term}</span>
             <div className="pf-v6-u-min-width-0">
@@ -265,7 +273,7 @@ export function LogDestinationCard({
       </CardTitle>
       <CardBody>
         <Stack hasGutter>
-          <ForwarderConfigColumns columns={columns} forwarder={forwarder} />
+          <ForwarderConfigColumns title={title} columns={columns} forwarder={forwarder} />
           <div>
             <Title headingLevel="h5" size="md" className="pf-v6-u-mb-sm">
               Selected groups and applications
