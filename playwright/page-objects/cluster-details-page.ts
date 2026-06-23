@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base-page';
+import type { ClusterListPage } from './cluster-list-page';
 
 /**
  * Cluster Details page object for Playwright tests
@@ -321,6 +322,18 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByText('Cluster creation usually takes 30 to 60 minutes to complete');
   }
 
+  clusterInstallationExpectedTextRosaHcp(): Locator {
+    return this.page.getByText('Cluster creation usually takes 10 minutes to complete');
+  }
+
+  async expectRosaHcpClusterInstallationInProgress(clusterName: string): Promise<void> {
+    await this.waitForInstallerScreenToLoad();
+    await expect(this.clusterNameTitle()).toContainText(clusterName);
+    await expect(this.clusterInstallationHeader()).toBeVisible();
+    await expect(this.downloadOcCliLink()).toBeVisible();
+    await expect(this.clusterInstallationExpectedTextRosaHcp()).toBeVisible();
+  }
+
   downloadOcCliLink(): Locator {
     return this.page.getByRole('link', { name: 'Download OC CLI' });
   }
@@ -401,11 +414,9 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   editAutoNodeModal(): Locator {
-    return this.page
-      .getByRole('dialog')
-      .filter({
-        has: this.page.getByRole('heading', { name: 'Edit Autonode settings', level: 1 }),
-      });
+    return this.page.getByRole('dialog').filter({
+      has: this.page.getByRole('heading', { name: 'Edit Autonode settings', level: 1 }),
+    });
   }
 
   editAutoNodeModalHeading(): Locator {
@@ -530,5 +541,295 @@ export class ClusterDetailsPage extends BasePage {
     await this.page.keyboard.press('Escape');
     await expect(this.deleteClusterDropdownItem()).toBeHidden({ timeout: 5000 });
   }
-  
+
+  overviewTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Overview' });
+  }
+
+  /** Cluster details tab label is "Settings"; panel aria-label is "Upgrade settings". */
+  upgradeSettingsTab(): Locator {
+    return this.settingsTab();
+  }
+
+  upgradeSettingsPanel(): Locator {
+    return this.page.getByRole('tabpanel', { name: 'Upgrade settings' });
+  }
+
+  async openOverviewTab(): Promise<void> {
+    await this.overviewTab().click();
+    await this.waitForClusterDetailsLoad();
+  }
+
+  async openUpgradeSettingsTab(): Promise<void> {
+    await this.settingsTab().click();
+    await this.upgradeSettingsPanel().waitFor({ state: 'visible', timeout: 30000 });
+    await this.waitForClusterDetailsLoad();
+  }
+
+  upgradeSettingsSaveButton(): Locator {
+    return this.upgradeSettingsPanel().getByRole('button', { name: 'Save' });
+  }
+
+  async saveUpgradeSettingsIfNeeded(): Promise<void> {
+    const saveButton = this.upgradeSettingsSaveButton();
+    await saveButton.scrollIntoViewIfNeeded();
+
+    if (await saveButton.getAttribute('aria-disabled') === 'true') {
+      return;
+    }
+
+    const isUpgradePolicyMutationResponse = (url: string, method: string): boolean =>
+      /control_plane\/upgrade_policies|upgrade_policies|upgrade.*polic/i.test(url) &&
+      !url.includes('dryRun=true') &&
+      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+
+    const waitForSaveResponse = () =>
+      this.page.waitForResponse(
+        (response) =>
+          isUpgradePolicyMutationResponse(response.url(), response.request().method()),
+        { timeout: 120000 },
+      );
+
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const saveResponsePromise = waitForSaveResponse();
+      await saveButton.click();
+
+      const response = await saveResponsePromise;
+      if (response.status() === 429 && attempt < maxAttempts) {
+        await this.page.waitForTimeout(5000 * attempt);
+        continue;
+      }
+
+      if (!response.ok()) {
+        const responseBody = await response.text().catch(() => '');
+        throw new Error(
+          `Upgrade settings save failed: ${response.status()} ${response.statusText()} (${response.url()})${responseBody ? ` — ${responseBody}` : ''}`,
+        );
+      }
+
+      await expect(saveButton).toHaveAttribute('aria-disabled', 'true', { timeout: 120000 });
+      return;
+    }
+  }
+
+  async expectChannelSettingsEditDisabled(): Promise<void> {
+    await expect(this.channelSettingsHeading()).toBeVisible({ timeout: 60000 });
+
+    const editButton = this.channelSettingsEditButton();
+    await editButton.scrollIntoViewIfNeeded();
+    await expect(editButton).toBeVisible();
+    // PatternFly uses aria-disabled + pf-m-aria-disabled, not the native disabled attribute.
+    await expect(editButton).toHaveAttribute('aria-disabled', 'true');
+    await expect(editButton).toHaveClass(/pf-m-aria-disabled/);
+    await expect(editButton).toBeDisabled();
+  }
+
+  async ensureUpdateStrategy(updateStrategy: string): Promise<void> {
+    await this.openUpgradeSettingsTab();
+    const panel = this.upgradeSettingsPanel();
+
+    if (updateStrategy === 'Recurring updates') {
+      const recurringRadio = panel.getByTestId('upgrade_policy-automatic');
+      if (!(await recurringRadio.isChecked())) {
+        await recurringRadio.check();
+      }
+      await expect(recurringRadio).toBeChecked();
+      await this.saveUpgradeSettingsIfNeeded();
+      await this.expectChannelSettingsEditDisabled();
+      return;
+    }
+
+    if (updateStrategy === 'Individual updates') {
+      const individualRadio = panel.getByTestId('upgrade_policy-manual');
+      const recurringRadio = panel.getByTestId('upgrade_policy-automatic');
+
+      if (await recurringRadio.isChecked()) {
+        await individualRadio.check();
+        await expect(individualRadio).toBeChecked();
+        await this.saveUpgradeSettingsIfNeeded();
+      } else if (!(await individualRadio.isChecked())) {
+        await individualRadio.check();
+        await this.saveUpgradeSettingsIfNeeded();
+      }
+
+      await expect(this.channelSettingsEditButton()).not.toHaveAttribute('aria-disabled', 'true', {
+        timeout: 120000,
+      });
+    }
+  }
+
+  channelLoadingIndicator(): Locator {
+    return this.page.getByLabel('Loading channel');
+  }
+
+  async waitForOverviewChannelReady(): Promise<void> {
+    await this.openOverviewTab();
+    await this.waitForClusterDetailsLoad();
+    await expect(this.channelLoadingIndicator()).not.toBeVisible({ timeout: 120000 });
+    await expect(this.overviewChannelValue()).toBeVisible({ timeout: 60000 });
+  }
+
+  /** Switches to Individual updates and waits until Overview channel edit is enabled. */
+  async ensureIndividualUpdatesForChannelEdit(): Promise<void> {
+    await this.waitForOverviewChannelReady();
+    const editButton = this.channelEditButton();
+    await editButton.scrollIntoViewIfNeeded();
+
+    if ((await editButton.getAttribute('aria-disabled')) !== 'true') {
+      return;
+    }
+
+    await this.ensureUpdateStrategy('Individual updates');
+    await this.waitForOverviewChannelReady();
+    await expect(editButton).not.toHaveAttribute('aria-disabled', 'true', {
+      timeout: 120000,
+    });
+  }
+
+  /** Details card on the Overview tab (left column). */
+  overviewDetailsCard(): Locator {
+    return this.page.locator('.ocm-c-overview-details__card');
+  }
+
+  overviewChannelTerm(): Locator {
+    return this.overviewDetailsCard()
+      .getByRole('term')
+      .filter({ has: this.page.getByText('Channel', { exact: true }) });
+  }
+
+  /** Channel row in Overview Details (parent of term + definition). */
+  overviewChannelRow(): Locator {
+    return this.overviewChannelTerm().locator('..');
+  }
+
+  overviewChannelGroup(): Locator {
+    return this.overviewChannelRow();
+  }
+
+  overviewChannelValue(): Locator {
+    return this.overviewChannelRow()
+      .getByRole('definition')
+      .filter({ hasText: /stable-|fast-|eus-|candidate-|N\/A/ });
+  }
+
+  channelGroupOverviewLabel(): Locator {
+    return this.overviewDetailsCard().getByText('Channel group', { exact: true });
+  }
+
+  /** Pencil edit control on Overview → Details Channel row. */
+  overviewChannelEditButton(): Locator {
+    return this.overviewChannelRow().getByRole('button', { name: 'Edit channel' });
+  }
+
+  /** "Channel settings" card title in the Settings tab sidebar (Y-stream). */
+  channelSettingsHeading(): Locator {
+    return this.upgradeSettingsPanel().getByText('Channel settings', { exact: true });
+  }
+
+  /**
+   * Pencil in Channel settings sidebar (`data-testid="channelModal"`, `aria-label="Edit channel"`).
+   * Scoped to #upgradeSettingsContent so it does not match Overview Channel edit.
+   * Disabled state is aria-disabled="true" with class pf-m-aria-disabled (not native disabled).
+   */
+  channelSettingsEditButton(): Locator {
+    return this.upgradeSettingsPanel().getByTestId('channelModal');
+  }
+
+  /** Opens Settings and asserts the Channel settings card and edit pencil are visible. */
+  async expectChannelSettingsSectionWithPencil(): Promise<void> {
+    await this.openUpgradeSettingsTab();
+    await expect(this.channelSettingsHeading()).toBeVisible({ timeout: 60000 });
+
+    const editPencil = this.channelSettingsEditButton();
+    await editPencil.scrollIntoViewIfNeeded();
+    await expect(editPencil).toBeVisible();
+  }
+
+  /** Asserts the Channel settings pencil is visible and editable (ready cluster, no scheduled policy). */
+  async expectChannelSettingsEditEditable(): Promise<void> {
+    await expect(this.channelSettingsHeading()).toBeVisible({ timeout: 60000 });
+
+    const editButton = this.channelSettingsEditButton();
+    await editButton.scrollIntoViewIfNeeded();
+    await expect(editButton).toBeVisible();
+    await expect(editButton).not.toHaveAttribute('aria-disabled', 'true');
+    await expect(editButton).not.toHaveClass(/pf-m-aria-disabled/);
+    await expect(editButton).toBeEnabled();
+    await expect(this.channelEditScheduledPolicyTooltip()).not.toBeVisible();
+  }
+
+  channelEditButton(): Locator {
+    return this.overviewChannelEditButton();
+  }
+
+  channelOverviewHintButton(): Locator {
+    return this.overviewChannelTerm().getByRole('button', { name: 'More information' });
+  }
+
+  channelOverviewPopover(): Locator {
+    return this.page
+      .getByRole('dialog', { name: 'help' })
+      .filter({ hasText: /Channels provide recommended/i });
+  }
+
+  channelOverviewLearnMoreLink(): Locator {
+    return this.channelOverviewPopover().getByRole('link', { name: 'Learn more' });
+  }
+
+  editChannelModal(): Locator {
+    return this.page.getByRole('dialog', { name: 'Edit channel' });
+  }
+
+  editChannelModalChannelSelect(): Locator {
+    return this.editChannelModal().getByLabel('Channel select input');
+  }
+
+  editChannelModalSaveButton(): Locator {
+    return this.editChannelModal().getByRole('button', { name: 'Save' });
+  }
+
+  editChannelModalCancelButton(): Locator {
+    return this.editChannelModal().getByRole('link', { name: 'Cancel' });
+  }
+
+  editChannelModalCloseButton(): Locator {
+    return this.editChannelModal().getByRole('button', { name: 'Close' });
+  }
+
+  editChannelModalErrorAlert(): Locator {
+    return this.editChannelModal().getByRole('alert');
+  }
+
+  channelEditScheduledPolicyTooltip(): Locator {
+    return this.page.getByText('Channel editing is not available while an upgrade policy is scheduled.');
+  }
+
+  async openEditChannelModal(editButton: Locator = this.overviewChannelEditButton()): Promise<void> {
+    await editButton.scrollIntoViewIfNeeded();
+    // PatternFly EditButton uses aria-disabled (recurring policy, schedules loading, or cluster not ready).
+    await expect(editButton).not.toHaveAttribute('aria-disabled', 'true', { timeout: 60000 });
+    await editButton.click();
+    await expect(this.editChannelModal()).toBeVisible({ timeout: 30000 });
+  }
+
+  async selectEditChannelModalOption(channel: string): Promise<void> {
+    const select = this.editChannelModalChannelSelect();
+    await this.expectEditChannelModalHasOption(channel);
+    await select.selectOption(channel);
+  }
+
+  async expectEditChannelModalHasOption(channel: string): Promise<void> {
+    await expect(
+      this.editChannelModalChannelSelect().getByRole('option', { name: channel, exact: true }),
+    ).toHaveCount(1);
+  }
+
+  async navigateToClusterByName(clusterListPage: ClusterListPage, clusterName: string): Promise<void> {
+    await clusterListPage.isClusterListScreen();
+    await clusterListPage.filterTxtField().fill(clusterName);
+    await clusterListPage.waitForDataReady();
+    await clusterListPage.openClusterDefinition(clusterName);
+    await this.waitForClusterDetailsLoad();
+  }
 }

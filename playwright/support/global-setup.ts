@@ -98,7 +98,8 @@ async function globalSetup(config: FullConfig) {
       // Wait for navigation to complete after login
       // Accommodate both standard console URLs and prod.foo.redhat.com:1337
       const urlPattern = /(console\..*\.redhat\.com|prod\.foo\.redhat\.com:1337)/;
-      await page.waitForURL(urlPattern, { timeout: DEFAULT_NAVIGATION_TIMEOUT / 2 });
+      // Match initial goto: SSO redirect to console can be slower than 30s on staging.
+      await page.waitForURL(urlPattern, { timeout: DEFAULT_NAVIGATION_TIMEOUT * 1.5 });
       console.log('✅ Verified console page navigation for non-GOV_CLOUD environment');
     } else {
       console.log('🏛️ GOV_CLOUD environment detected, skipping overview page verification');
