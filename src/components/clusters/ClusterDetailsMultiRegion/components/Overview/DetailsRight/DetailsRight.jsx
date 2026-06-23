@@ -6,7 +6,6 @@ import semver from 'semver';
 
 import {
   Alert,
-  Button,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -14,17 +13,13 @@ import {
   Flex,
   HelperText,
   HelperTextItem,
-  Stack,
-  StackItem,
   Timestamp,
   TimestampFormat,
 } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
 import { getQueryParam } from '~/common/queryHelpers';
-import { Link } from '~/common/routing';
 import { hasSecurityGroupIds } from '~/common/securityGroupsHelpers';
-import { knownProducts } from '~/common/subscriptionTypes';
 import AIClusterStatus from '~/components/AIComponents/AIClusterStatus';
 import { OverviewBillingAccount } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/BillingAccount/OverviewBillingAccount';
 import clusterStates, {
@@ -62,10 +57,17 @@ import EditAutoNodeModal from '../EditAutoNodeModal/EditAutoNodeModal';
 import DeleteProtection from './DeleteProtection/DeleteProtection';
 import AutoNodeKarpenterCount from './AutoNodeKarpenterCount';
 import { ClusterStatus } from './ClusterStatus';
+import LogForwardingConfiguration from './LogForwardingConfiguration';
 
 const AUTO_NODE_MIN_VERSION = '4.22.0';
 
-function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDetailsFetching }) {
+function DetailsRight({
+  cluster,
+  hasAutoscaleCluster,
+  isDeprovisioned,
+  clusterDetailsFetching,
+  displayUpgradeSettingsTab,
+}) {
   const isHypershift = isHypershiftCluster(cluster);
   const isROSACluster = isROSA(cluster);
   const region = cluster?.subscription?.rh_region_id;
@@ -74,13 +76,7 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const clusterRawVersionID = cluster?.version?.raw_id;
   const isAutoNodeAllowed = useFeatureGate(ENABLE_AUTO_NODE) && isHypershift;
   const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
-  const isArchived =
-    get(cluster, 'subscription.status', false) === SubscriptionCommonFieldsStatus.Archived ||
-    get(cluster, 'subscription.status', false) === SubscriptionCommonFieldsStatus.Deprovisioned;
-  const isAROCluster = get(cluster, 'subscription.plan.type', '') === knownProducts.ARO;
-  const displayUpgradeSettingsTab =
-    cluster.managed && !isAROCluster && cluster.canEdit && !isArchived;
-  const showControlPlaneLogForwarding = isHypershift && isROSACluster && isHcpLogForwardingEnabled;
+  const showControlPlaneLogForwarding = isHypershift && isHcpLogForwardingEnabled;
   const track = useAnalytics();
   const dispatch = useDispatch();
 
@@ -99,7 +95,6 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
 
   const s3LogForwarder = logForwarders.find((forwarder) => forwarder.s3);
   const cloudWatchLogForwarder = logForwarders.find((forwarder) => forwarder.cloudwatch);
-  const hasConfiguredLogForwarder = s3LogForwarder || cloudWatchLogForwarder;
 
   const nodesSectionData = totalNodesDataSelector(cluster, machinePools);
 
@@ -576,38 +571,11 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
       )}
       {/* Control plane log forwarding */}
       {showControlPlaneLogForwarding ? (
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            <Flex gap={{ default: 'gapSm' }}>
-              Control plane log forwarding
-              {displayUpgradeSettingsTab && (
-                <Button variant="link" component={Link} to={{ hash: '#updateSettings' }}>
-                  View details
-                </Button>
-              )}
-            </Flex>
-          </DescriptionListTerm>
-          <DescriptionListDescription data-testid="controlPlaneLogForwardingDescription">
-            {!hasConfiguredLogForwarder ? (
-              <span>Disabled</span>
-            ) : (
-              <Stack>
-                <StackItem>
-                  <Flex>
-                    <dt>Amazon S3: </dt>
-                    <dd>{s3LogForwarder ? 'Enabled' : 'Disabled'}</dd>
-                  </Flex>
-                </StackItem>
-                <StackItem>
-                  <Flex>
-                    <dt>CloudWatch: </dt>
-                    <dd>{cloudWatchLogForwarder ? 'Enabled' : 'Disabled'}</dd>
-                  </Flex>
-                </StackItem>
-              </Stack>
-            )}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
+        <LogForwardingConfiguration
+          displayUpgradeSettingsTab={displayUpgradeSettingsTab}
+          isS3Enabled={!!s3LogForwarder}
+          isCloudWatchEnabled={!!cloudWatchLogForwarder}
+        />
       ) : null}
     </DescriptionList>
   );
@@ -618,6 +586,7 @@ DetailsRight.propTypes = {
   isDeprovisioned: PropTypes.bool,
   hasAutoscaleCluster: PropTypes.bool,
   clusterDetailsFetching: PropTypes.bool,
+  displayUpgradeSettingsTab: PropTypes.bool,
 };
 
 export default DetailsRight;

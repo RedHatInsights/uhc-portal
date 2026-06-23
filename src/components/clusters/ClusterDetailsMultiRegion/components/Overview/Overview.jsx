@@ -54,6 +54,7 @@ const Overview = (props) => {
     clusterDetailsLoading,
     isSubscriptionSettingsRequestPending,
     clusterDetailsFetching,
+    displayUpgradeSettingsTab,
     wifConfigData,
   } = props;
 
@@ -233,6 +234,7 @@ const Overview = (props) => {
                       isDeprovisioned={isDeprovisioned}
                       hasAutoscaleCluster={!!cluster?.autoscaler}
                       clusterDetailsFetching={clusterDetailsFetching}
+                      displayUpgradeSettingsTab={displayUpgradeSettingsTab}
                     />
                   </GridItem>
                 </Grid>
@@ -300,6 +302,7 @@ Overview.propTypes = {
     fulfilled: PropTypes.bool,
   }).isRequired,
   clusterDetailsFetching: PropTypes.bool,
+  displayUpgradeSettingsTab: PropTypes.bool,
   wifConfigData: PropTypes.shape({
     displayName: PropTypes.string,
     isLoading: PropTypes.bool,

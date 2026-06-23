@@ -607,6 +607,7 @@ const ClusterDetails = (props) => {
                 userAccess={userAccess}
                 canSubscribeOCP={canSubscribeOCP}
                 isSubscriptionSettingsRequestPending={isSubscriptionSettingsRequestPending}
+                displayUpgradeSettingsTab={displayUpgradeSettingsTab}
                 wifConfigData={{
                   displayName: wifConfigData?.display_name,
                   isLoading: isWifLoading,
