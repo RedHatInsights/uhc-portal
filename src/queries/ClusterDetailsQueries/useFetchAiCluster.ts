@@ -49,11 +49,11 @@ const getAIClusterDetails = async (clusterID: string, subscription: Subscription
 };
 
 /**
- * Query responsible for fetching actions and permissions
- * @param subscriptionID subscription ID to pass into api call
+ * Query responsible for fetching AI cluster details
+ * @param clusterID cluster ID to pass into api call
  * @param mainQueryKey used for invalidation of the query (refetch)
- * @param subscriptionStatus status of the subscription for query enablement
- * @returns cloud providers array
+ * @param subscription subscription object used for query enablement and building fake cluster
+ * @returns AI cluster details or fake cluster assembled from subscription
  */
 export const useFetchAiCluster = (
   clusterID: string,
