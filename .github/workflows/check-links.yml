@@ -26,7 +26,7 @@ jobs:
         run: node run/check-links.mjs
 
       - name: Send report to Slack
-        if: always()
+        if: steps.check-links.outcome == 'success'
         uses: slackapi/slack-github-action@v2.1.1
         with:
           webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
@@ -41,4 +41,22 @@ jobs:
             serverErrors: "${{ steps.check-links.outputs.serverErrors }}"
             requestErrors: "${{ steps.check-links.outputs.requestErrors }}"
             totalChecked: "${{ steps.check-links.outputs.totalChecked }}"
+            run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Send failure notice to Slack
+        if: failure()
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            statusMessage: "❌ Link check failed to run"
+            skipped: "—"
+            success: "—"
+            redirects: "—"
+            redirectErrors: "—"
+            clientErrors: "—"
+            serverErrors: "—"
+            requestErrors: "—"
+            totalChecked: "—"
             run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
