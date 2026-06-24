@@ -23,14 +23,9 @@ const getAIClusterDetails = async (clusterID: string, subscription: Subscription
       cluster = fakeClusterFromAISubscription(subscription, aiCluster?.data || null);
       cluster.aiCluster = aiCluster.data;
     } catch (e) {
-      if (axios.isAxiosError(e) && e.response?.status === 404) {
-        // The cluster is garbage collected or the user does not have privileges
-        // eslint-disable-next-line no-console
-        console.info('Failed to query assisted-installer cluster id: ', clusterID);
-        cluster = fakeClusterFromSubscription(subscription);
-      } else {
-        throw e;
-      }
+      // eslint-disable-next-line no-console
+      console.info('Failed to query assisted-installer cluster id: ', clusterID);
+      cluster = fakeClusterFromSubscription(subscription);
     }
     try {
       const featureSupportLevels = await assistedService.getAIFeatureSupportLevels(
