@@ -188,6 +188,12 @@ spec:
         " 2>/dev/null || true
       fi
 
+      # Print Currents.dev dashboard link if reporting was enabled
+      if [ -n "${CURRENTS_RECORD_KEY:-}" ]; then
+        echo ""
+        echo "  Currents.dev: https://app.currents.dev/projects/AFvdNQ/runs"
+      fi
+
       echo "============================================"
       echo "  Exit code: $TEST_EXIT_CODE"
       echo "============================================"
