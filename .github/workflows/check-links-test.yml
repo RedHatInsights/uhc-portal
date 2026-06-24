@@ -33,7 +33,6 @@ jobs:
         if: ${{ inputs.skip_slack }}
         run: |
           echo "=== Slack payload preview ==="
-          echo "hasIssues: ${{ steps.check-links.outputs.hasIssues }}"
           echo "statusMessage: ${{ steps.check-links.outputs.statusMessage }}"
           echo "skipped: ${{ steps.check-links.outputs.skipped }}"
           echo "success: ${{ steps.check-links.outputs.success }}"
@@ -43,14 +42,6 @@ jobs:
           echo "serverErrors: ${{ steps.check-links.outputs.serverErrors }}"
           echo "requestErrors: ${{ steps.check-links.outputs.requestErrors }}"
           echo "totalChecked: ${{ steps.check-links.outputs.totalChecked }}"
-          echo "--- clientErrorsDetail ---"
-          echo "${{ steps.check-links.outputs.clientErrorsDetail }}"
-          echo "--- serverErrorsDetail ---"
-          echo "${{ steps.check-links.outputs.serverErrorsDetail }}"
-          echo "--- requestErrorsDetail ---"
-          echo "${{ steps.check-links.outputs.requestErrorsDetail }}"
-          echo "--- redirectErrorsDetail ---"
-          echo "${{ steps.check-links.outputs.redirectErrorsDetail }}"
           echo "run_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Send report to Slack test DM
@@ -60,7 +51,6 @@ jobs:
           webhook: ${{ secrets.SLACK_BROKEN_LINKS_TEST_WEBHOOK_URL }}
           webhook-type: webhook-trigger
           payload: |
-            hasIssues: "${{ steps.check-links.outputs.hasIssues }}"
             statusMessage: "${{ steps.check-links.outputs.statusMessage }}"
             skipped: "${{ steps.check-links.outputs.skipped }}"
             success: "${{ steps.check-links.outputs.success }}"
@@ -70,8 +60,4 @@ jobs:
             serverErrors: "${{ steps.check-links.outputs.serverErrors }}"
             requestErrors: "${{ steps.check-links.outputs.requestErrors }}"
             totalChecked: "${{ steps.check-links.outputs.totalChecked }}"
-            clientErrorsDetail: ${{ toJSON(steps.check-links.outputs.clientErrorsDetail) }}
-            serverErrorsDetail: ${{ toJSON(steps.check-links.outputs.serverErrorsDetail) }}
-            requestErrorsDetail: ${{ toJSON(steps.check-links.outputs.requestErrorsDetail) }}
-            redirectErrorsDetail: ${{ toJSON(steps.check-links.outputs.redirectErrorsDetail) }}
             run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"

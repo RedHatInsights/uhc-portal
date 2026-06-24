@@ -764,106 +764,9 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
   displayUsageNotes(verbose);
 }
 
-const MAX_DETAIL_ITEMS = 10;
-const REQUEST_ERROR_MAX_LENGTH = 80;
-
 /**
- * Writes a multiline value to the GitHub Actions output file.
- * @param {string} name - Output name
- * @param {string} value - Output value
- */
-function writeGithubOutput(name, value) {
-  if (!process.env.GITHUB_OUTPUT) return;
-  const delimiter = `EOF_${name}`;
-  fs.appendFileSync(
-    process.env.GITHUB_OUTPUT,
-    `${name}<<${delimiter}\n${value ?? ''}\n${delimiter}\n`,
-  );
-}
-
-/**
- * Joins formatted blocks for Slack with spacing and optional truncation.
- * @param {Array<string>} blocks - Pre-formatted detail blocks
- * @param {number} maxItems - Maximum blocks to include
- * @returns {string} Formatted detail text
- */
-function formatDetailBlocks(blocks, maxItems = MAX_DETAIL_ITEMS) {
-  if (blocks.length === 0) {
-    return 'None';
-  }
-
-  const shown = blocks.slice(0, maxItems);
-  const suffix =
-    blocks.length > maxItems
-      ? `\n\n… and ${blocks.length - maxItems} more (see GitHub Actions run)`
-      : '';
-
-  return shown.join('\n\n') + suffix;
-}
-
-/**
- * Shortens verbose fetch error messages for Slack output.
- * @param {string} errorMessage - Raw error message
- * @returns {string} Shortened error message
- */
-function shortenRequestErrorMessage(errorMessage) {
-  const withoutPrefix = errorMessage.replace(/^FetchError:\s*/, '');
-  const reasonMatch = withoutPrefix.match(/reason:\s*(.+)$/i);
-  const shortened = reasonMatch ? reasonMatch[1] : withoutPrefix;
-
-  if (shortened.length <= REQUEST_ERROR_MAX_LENGTH) {
-    return shortened;
-  }
-
-  return `${shortened.slice(0, REQUEST_ERROR_MAX_LENGTH)}…`;
-}
-
-/**
- * Formats client/server error items for Slack and GitHub output.
- * @param {Array} items - Error items with url and status
- * @returns {string} Formatted detail text
- */
-function formatClientServerErrors(items) {
-  return formatDetailBlocks(items.map((r) => `• ${r.status} — ${r.url}`));
-}
-
-/**
- * Formats request error items for Slack and GitHub output.
- * @param {Array} items - Request error items
- * @returns {string} Formatted detail text
- */
-function formatRequestErrors(items) {
-  return formatDetailBlocks(
-    items.map((r) => `• ${r.url}\n  ${shortenRequestErrorMessage(r.errorMessage)}`),
-  );
-}
-
-/**
- * Formats a single redirect error for Slack and GitHub output.
- * @param {Object} item - Redirect test result
- * @returns {string} Formatted redirect error block
- */
-function formatRedirectError(item) {
-  const final = item.finalStatus ?? item.error;
-  return [`• ${item.originalUrl}`, `  → ${item.redirectUrl}`, `  Final: ${final}`].join('\n');
-}
-
-/**
- * Formats redirect error items for Slack and GitHub output.
- * @param {Array} redirectItems - Redirect test results
- * @returns {string} Formatted detail text
- */
-function formatRedirectErrors(redirectItems) {
-  const failedRedirects = redirectItems.filter(
-    (item) =>
-      item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300)),
-  );
-
-  return formatDetailBlocks(failedRedirects.map(formatRedirectError));
-}
-
-/**
- * Writes link-check summary and detail outputs for GitHub Actions.
+ * Writes link-check summary outputs for GitHub Actions.
+ * Full error details are printed to the console by displayResults().
  * @param {Object} statusByUrl - URL checking results
  * @param {Array} redirectItems - Redirect test results
  */
@@ -875,11 +778,10 @@ function writeGithubActionOutputs(statusByUrl, redirectItems) {
   const categories = categorizeResults(statusByUrl);
   const { success, redirects, clientErrors, serverErrors, errors, skipped } = categories;
 
-  const failedRedirects = redirectItems.filter(
+  const redirectErrorCount = redirectItems.filter(
     (item) =>
       item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300)),
-  );
-  const redirectErrorCount = failedRedirects.length;
+  ).length;
 
   const totalChecked =
     success.length + redirects.length + clientErrors.length + serverErrors.length + errors.length;
@@ -888,13 +790,8 @@ function writeGithubActionOutputs(statusByUrl, redirectItems) {
     clientErrors.length > 0 ||
     serverErrors.length > 0 ||
     errors.length > 0;
-  const has404 = clientErrors.filter((r) => r.status === 404);
 
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `hasIssues=${hasIssues}\n`);
-  fs.appendFileSync(
-    process.env.GITHUB_OUTPUT,
-    `statusMessage=${hasIssues ? '🚨 Issues found' : '✅ All clear'}\n`,
-  );
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `statusMessage=${hasIssues ? '👎' : '👍'}\n`);
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `skipped=${skipped.length}\n`);
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `success=${success.length}\n`);
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `redirects=${redirects.length}\n`);
@@ -903,13 +800,6 @@ function writeGithubActionOutputs(statusByUrl, redirectItems) {
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `serverErrors=${serverErrors.length}\n`);
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `requestErrors=${errors.length}\n`);
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `totalChecked=${totalChecked}\n`);
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `has404=${has404.length > 0}\n`);
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `notFoundLength=${has404.length}\n`);
-
-  writeGithubOutput('clientErrorsDetail', formatClientServerErrors(clientErrors));
-  writeGithubOutput('serverErrorsDetail', formatClientServerErrors(serverErrors));
-  writeGithubOutput('requestErrorsDetail', formatRequestErrors(errors));
-  writeGithubOutput('redirectErrorsDetail', formatRedirectErrors(redirectItems));
 }
 
 // ======================================================================

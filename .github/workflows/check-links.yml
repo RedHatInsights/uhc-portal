@@ -8,7 +8,7 @@ jobs:
   check-links-and-send-failures-to-slack:
     name: Check Links and Send Failures to Slack
     runs-on: ubuntu-latest
-   
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -25,26 +25,20 @@ jobs:
         id: check-links
         run: node run/check-links.mjs
 
-      - name: Send message to Slack (404 found)
-        if: steps.check-links.outputs.has404 == 'true'
+      - name: Send report to Slack
+        if: always()
         uses: slackapi/slack-github-action@v2.1.1
         with:
           webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
           webhook-type: webhook-trigger
           payload: |
-            has404: "${{ steps.check-links.outputs.has404 }}"
-            404_length: "${{ steps.check-links.outputs.notFoundLength }}"
-            message: "Broken links found"
-            run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-      - name: Send message to Slack (no 404 found)
-        if: steps.check-links.outputs.has404 == 'false'
-        uses: slackapi/slack-github-action@v2.1.1
-        with:
-          webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
-          webhook-type: webhook-trigger
-          payload: |
-            has404: "${{ steps.check-links.outputs.has404 }}"
-            404_length: "${{ steps.check-links.outputs.notFoundLength }}"
-            message: "No broken links found :)"
+            statusMessage: "${{ steps.check-links.outputs.statusMessage }}"
+            skipped: "${{ steps.check-links.outputs.skipped }}"
+            success: "${{ steps.check-links.outputs.success }}"
+            redirects: "${{ steps.check-links.outputs.redirects }}"
+            redirectErrors: "${{ steps.check-links.outputs.redirectErrors }}"
+            clientErrors: "${{ steps.check-links.outputs.clientErrors }}"
+            serverErrors: "${{ steps.check-links.outputs.serverErrors }}"
+            requestErrors: "${{ steps.check-links.outputs.requestErrors }}"
+            totalChecked: "${{ steps.check-links.outputs.totalChecked }}"
             run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
