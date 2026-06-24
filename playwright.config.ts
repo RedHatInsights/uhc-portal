@@ -83,7 +83,10 @@ export default defineConfig({
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
 
-    /* Record video on failure */
+    /* Context-level video fallback for non-Currents runs (GitHub Actions, local).
+       Note: with our worker-scoped shared context this is a no-op in practice.
+       Per-test video for Currents.dev uses the page.screencast API via the
+       _currentsScreencast auto-fixture in fixtures/pages.ts. */
     video: 'retain-on-failure',
 
     /* Default timeout for each action */
