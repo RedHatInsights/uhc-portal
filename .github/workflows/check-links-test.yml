@@ -27,15 +27,7 @@ jobs:
 
       - name: Find and list broken links
         id: check-links
-        run: |
-          node run/check-links.mjs 2>&1 | tee report.txt
-          sed 's/\x1b\[[0-9;]*m//g' report.txt > report-clean.txt
-          sed -n '/---LINK_CHECK_SLACK_SUMMARY---/,/---END_LINK_CHECK_SLACK_SUMMARY---/p' report-clean.txt | sed '1d;$d' > slack-report.txt
-          {
-            echo 'report<<EOF_REPORT'
-            cat slack-report.txt
-            echo 'EOF_REPORT'
-          } >> "$GITHUB_OUTPUT"
+        run: node run/check-links.mjs
 
       - name: Preview Slack payload
         if: ${{ inputs.skip_slack }}
