@@ -663,12 +663,13 @@ function displayUsageNotes(verbose) {
 }
 
 /**
- * Displays the summary table of results
+ * Formats the summary table as a string.
  * @param {Object} categories - Categorized results
  * @param {number} totalChecked - Total checked URLs
  * @param {number} redirectErrorCount - Count of redirect errors
+ * @returns {string} Summary report text
  */
-function displaySummaryTable(categories, totalChecked, redirectErrorCount) {
+function formatSummaryReport(categories, totalChecked, redirectErrorCount) {
   const { success, redirects, clientErrors, serverErrors, errors, skipped } = categories;
   const hasIssues =
     redirectErrorCount > 0 ||
@@ -676,21 +677,34 @@ function displaySummaryTable(categories, totalChecked, redirectErrorCount) {
     serverErrors.length > 0 ||
     errors.length > 0;
 
-  console.log('\nURL CHECK RESULTS');
-  console.log(hasIssues ? '👎 Issues found' : '👍 All clear');
-  console.log();
+  return [
+    hasIssues ? '👎 Issues found' : '👍 All clear',
+    '',
+    'Category                           Count',
+    '---------------------------------- ------',
+    `Total URLs skipped                ${formatCount(skipped.length)}`,
+    `Success                           ${formatCount(success.length)}`,
+    `Redirects                         ${formatCount(redirects.length)}`,
+    `Redirects errors                  ${formatCount(redirectErrorCount, true)}`,
+    `Client errors (4xx)               ${formatCount(clientErrors.length, true)}`,
+    `Server errors (5xx)               ${formatCount(serverErrors.length, true)}`,
+    `Request errors                    ${formatCount(errors.length, true)}`,
+    '---------------------------------- ------',
+    `Total URLs checked                ${formatCount(totalChecked)}`,
+  ].join('\n');
+}
 
-  console.log('Category                           Count');
-  console.log('---------------------------------- ------');
-  console.log(`Total URLs skipped                ${formatCount(skipped.length)}`);
-  console.log(`Success                           ${formatCount(success.length)}`);
-  console.log(`Redirects                         ${formatCount(redirects.length)}`);
-  console.log(`Redirects errors                  ${formatCount(redirectErrorCount, true)}`);
-  console.log(`Client errors (4xx)               ${formatCount(clientErrors.length, true)}`);
-  console.log(`Server errors (5xx)               ${formatCount(serverErrors.length, true)}`);
-  console.log(`Request errors                    ${formatCount(errors.length, true)}`);
-  console.log('---------------------------------- ------');
-  console.log(`Total URLs checked                ${formatCount(totalChecked)}`);
+/**
+ * Displays the summary table of results
+ * @param {Object} categories - Categorized results
+ * @param {number} totalChecked - Total checked URLs
+ * @param {number} redirectErrorCount - Count of redirect errors
+ */
+function displaySummaryTable(categories, totalChecked, redirectErrorCount) {
+  console.log('\nURL CHECK RESULTS');
+  console.log('---LINK_CHECK_SLACK_SUMMARY---');
+  console.log(formatSummaryReport(categories, totalChecked, redirectErrorCount));
+  console.log('---END_LINK_CHECK_SLACK_SUMMARY---');
 }
 
 /**
