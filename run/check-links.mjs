@@ -701,10 +701,18 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount) {
  * @param {number} redirectErrorCount - Count of redirect errors
  */
 function displaySummaryTable(categories, totalChecked, redirectErrorCount) {
+  const summary = formatSummaryReport(categories, totalChecked, redirectErrorCount);
+
   console.log('\nURL CHECK RESULTS');
-  console.log('---LINK_CHECK_SLACK_SUMMARY---');
-  console.log(formatSummaryReport(categories, totalChecked, redirectErrorCount));
-  console.log('---END_LINK_CHECK_SLACK_SUMMARY---');
+
+  if (process.env.GITHUB_ACTIONS) {
+    console.log('---LINK_CHECK_SLACK_SUMMARY---');
+    console.log(summary);
+    console.log('---END_LINK_CHECK_SLACK_SUMMARY---');
+    return;
+  }
+
+  console.log(summary);
 }
 
 /**
