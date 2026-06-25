@@ -12,6 +12,7 @@
  * - Color-coded output for easy identification of issues
  * - Multiple output modes (default, verbose, redirects-only)
  */
+import fs from 'fs';
 import fetch from 'node-fetch';
 import ProgressBar from 'progress';
 
@@ -662,6 +663,34 @@ function displayUsageNotes(verbose) {
   }
 }
 
+const ANSI_ESCAPE_PATTERN = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
+
+/**
+ * Removes ANSI color codes from text.
+ * @param {string} text - Text that may contain ANSI escape sequences
+ * @returns {string} Plain text without ANSI codes
+ */
+function stripAnsi(text) {
+  return text.replace(ANSI_ESCAPE_PATTERN, '');
+}
+
+/**
+ * Writes a multiline value to the GitHub Actions output file.
+ * @param {string} name - Output name
+ * @param {string} value - Output value
+ */
+function writeGithubOutput(name, value) {
+  if (!process.env.GITHUB_OUTPUT) {
+    return;
+  }
+
+  const delimiter = `EOF_${name}`;
+  fs.appendFileSync(
+    process.env.GITHUB_OUTPUT,
+    `${name}<<${delimiter}\n${value ?? ''}\n${delimiter}\n`,
+  );
+}
+
 /**
  * Formats the summary table as a string.
  * @param {Object} categories - Categorized results
@@ -704,15 +733,9 @@ function displaySummaryTable(categories, totalChecked, redirectErrorCount) {
   const summary = formatSummaryReport(categories, totalChecked, redirectErrorCount);
 
   console.log('\nURL CHECK RESULTS');
-
-  if (process.env.GITHUB_ACTIONS) {
-    console.log('---LINK_CHECK_SLACK_SUMMARY---');
-    console.log(summary);
-    console.log('---END_LINK_CHECK_SLACK_SUMMARY---');
-    return;
-  }
-
   console.log(summary);
+
+  writeGithubOutput('report', stripAnsi(summary));
 }
 
 /**
