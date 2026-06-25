@@ -1,12 +1,16 @@
-name: Check Links and Send Failures to Slack
+name: Check Links Test (Slack DM)
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "45 11 * * MON"
+    inputs:
+      skip_slack:
+        description: 'Skip Slack and only print the payload in the Actions log'
+        type: boolean
+        default: false
+
 jobs:
-  check-links-and-send-failures-to-slack:
-    name: Check Links and Send Failures to Slack
+  check-links-test:
+    name: Check Links Test
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24"
+          node-version: '24'
 
       - name: Install dependencies
         run: npm ci
@@ -32,21 +36,30 @@ jobs:
             echo 'EOF_REPORT'
           } >> "$GITHUB_OUTPUT"
 
-      - name: Send report to Slack
-        if: steps.check-links.outcome == 'success'
+      - name: Preview Slack payload
+        if: ${{ inputs.skip_slack }}
+        run: |
+          echo "=== Slack payload preview ==="
+          echo "--- report ---"
+          echo "${{ steps.check-links.outputs.report }}"
+          echo "--- run_url ---"
+          echo "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Send report to Slack test DM
+        if: ${{ !inputs.skip_slack && steps.check-links.outcome == 'success' }}
         uses: slackapi/slack-github-action@v2.1.1
         with:
-          webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
+          webhook: ${{ secrets.SLACK_BROKEN_LINKS_TEST_WEBHOOK_URL }}
           webhook-type: webhook-trigger
           payload: |
             report: ${{ toJSON(steps.check-links.outputs.report) }}
             run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-      - name: Send failure notice to Slack
-        if: failure()
+      - name: Send failure notice to Slack test DM
+        if: ${{ !inputs.skip_slack && failure() }}
         uses: slackapi/slack-github-action@v2.1.1
         with:
-          webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
+          webhook: ${{ secrets.SLACK_BROKEN_LINKS_TEST_WEBHOOK_URL }}
           webhook-type: webhook-trigger
           payload: |
             report: "❌ Link check failed to run. See GitHub Actions log for details."

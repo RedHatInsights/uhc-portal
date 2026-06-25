@@ -12,7 +12,6 @@
  * - Color-coded output for easy identification of issues
  * - Multiple output modes (default, verbose, redirects-only)
  */
-import fs from 'fs';
 import fetch from 'node-fetch';
 import ProgressBar from 'progress';
 
@@ -671,8 +670,14 @@ function displayUsageNotes(verbose) {
  */
 function displaySummaryTable(categories, totalChecked, redirectErrorCount) {
   const { success, redirects, clientErrors, serverErrors, errors, skipped } = categories;
+  const hasIssues =
+    redirectErrorCount > 0 ||
+    clientErrors.length > 0 ||
+    serverErrors.length > 0 ||
+    errors.length > 0;
 
   console.log('\nURL CHECK RESULTS');
+  console.log(hasIssues ? '👎 Issues found' : '👍 All clear');
   console.log();
 
   console.log('Category                           Count');
@@ -764,44 +769,6 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
   displayUsageNotes(verbose);
 }
 
-/**
- * Writes link-check summary outputs for GitHub Actions.
- * Full error details are printed to the console by displayResults().
- * @param {Object} statusByUrl - URL checking results
- * @param {Array} redirectItems - Redirect test results
- */
-function writeGithubActionOutputs(statusByUrl, redirectItems) {
-  if (!process.env.GITHUB_OUTPUT) {
-    return;
-  }
-
-  const categories = categorizeResults(statusByUrl);
-  const { success, redirects, clientErrors, serverErrors, errors, skipped } = categories;
-
-  const redirectErrorCount = redirectItems.filter(
-    (item) =>
-      item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300)),
-  ).length;
-
-  const totalChecked =
-    success.length + redirects.length + clientErrors.length + serverErrors.length + errors.length;
-  const hasIssues =
-    redirectErrorCount > 0 ||
-    clientErrors.length > 0 ||
-    serverErrors.length > 0 ||
-    errors.length > 0;
-
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `statusMessage=${hasIssues ? '👎' : '👍'}\n`);
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `skipped=${skipped.length}\n`);
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `success=${success.length}\n`);
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `redirects=${redirects.length}\n`);
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `redirectErrors=${redirectErrorCount}\n`);
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `clientErrors=${clientErrors.length}\n`);
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `serverErrors=${serverErrors.length}\n`);
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `requestErrors=${errors.length}\n`);
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `totalChecked=${totalChecked}\n`);
-}
-
 // ======================================================================
 // URL PROCESSING FUNCTIONS
 // ======================================================================
@@ -861,8 +828,6 @@ async function main() {
 
   // Display the results
   displayResults(statusByUrl, redirectItems, verboseMode, redirectsMode);
-
-  writeGithubActionOutputs(statusByUrl, redirectItems);
 }
 
 // ======================================================================
