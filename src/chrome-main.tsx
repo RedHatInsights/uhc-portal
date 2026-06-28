@@ -37,6 +37,10 @@ import config, { APP_API_ENV } from './config';
 
 import './styles/main.scss';
 
+if (APP_DEVMODE) {
+  import('./mocks/browser').then(({ worker }) => worker.start({ onUnhandledRequest: 'bypass' }));
+}
+
 type Props = {
   chrome: Chrome;
   track: Track;
