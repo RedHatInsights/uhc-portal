@@ -17,6 +17,7 @@ import {
   TreeViewDataItem,
 } from '@patternfly/react-core';
 
+import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
 
 import type { LogForwardingGroupTreeNode } from './logForwardingGroupTreeData';
@@ -59,7 +60,7 @@ export function GroupsApplicationsSelector({
   listMinHeight = '300px',
   containerMaxHeight = '800px',
 }: GroupsApplicationsSelectorProps) {
-  const [field, , helpers] = useField<string[]>(name);
+  const [field, meta, helpers] = useField<string[]>(name);
   const chosenLeafIds = useMemo(() => field.value ?? [], [field.value]);
 
   const memoizedLeavesById = useMemo(() => {
@@ -115,6 +116,18 @@ export function GroupsApplicationsSelector({
     [treeData, chosenLeafIds],
   );
 
+  // Formik can keep a stale field error after the user fixes the selection (e.g. wizard
+  // "Next" already passes while meta.error still reflects an earlier failed attempt).
+  const fieldError = chosenLeafIds.length === 0 ? meta.error : undefined;
+
+  const updateChosenLeafIds = (nextIds: string[]) => {
+    helpers.setValue(nextIds);
+    helpers.setTouched(true, false);
+    if (nextIds.length > 0) {
+      helpers.setError(undefined);
+    }
+  };
+
   const onTreeCheck = (event: React.ChangeEvent<HTMLInputElement>, item: TreeViewDataItem) => {
     const nodeId = item.id;
     if (!nodeId) {
@@ -131,13 +144,11 @@ export function GroupsApplicationsSelector({
     } else {
       leafIds.forEach((id) => next.delete(id));
     }
-    helpers.setValue(Array.from(next));
-    helpers.setTouched(true);
+    updateChosenLeafIds(Array.from(next));
   };
 
   const removeLeaf = (leafId: string) => {
-    helpers.setValue(chosenLeafIds.filter((id) => id !== leafId));
-    helpers.setTouched(true);
+    updateChosenLeafIds(chosenLeafIds.filter((id) => id !== leafId));
   };
 
   const removeGroup = (groupRootId: string) => {
@@ -146,8 +157,7 @@ export function GroupsApplicationsSelector({
       return;
     }
     const drop = new Set(leafIds);
-    helpers.setValue(chosenLeafIds.filter((id) => !drop.has(id)));
-    helpers.setTouched(true);
+    updateChosenLeafIds(chosenLeafIds.filter((id) => !drop.has(id)));
   };
 
   const availableFieldId = `${name}-available`;
@@ -185,7 +195,7 @@ export function GroupsApplicationsSelector({
 
   const availableListStyle: React.CSSProperties = isHeightConstrained
     ? { flex: 1, minHeight: 0, overflow: 'auto' }
-    : { minHeight: listMinHeight, overflow: 'auto' };
+    : { minHeight: listMinHeight };
 
   const chosenListStyle: React.CSSProperties | undefined = isHeightConstrained
     ? { flex: 1, minHeight: 0, overflow: 'auto' }
@@ -238,7 +248,7 @@ export function GroupsApplicationsSelector({
             <CardBody style={cardBodyFillStyle}>
               <FormGroup
                 className={formGroupFillClassName}
-                fieldId={chosenFieldId}
+                fieldId={name}
                 label={chosenTitle}
                 labelHelp={chosenTooltip ? <PopoverHint hint={chosenTooltip} /> : undefined}
                 isRequired={isRequired}
@@ -292,6 +302,7 @@ export function GroupsApplicationsSelector({
           </Card>
         </FlexItem>
       </Flex>
+      <FormGroupHelperText touched={meta.touched} error={fieldError} />
     </div>
   );
 }

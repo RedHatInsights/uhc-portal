@@ -34,7 +34,7 @@
     "@types/file-saver": "^2.0.5",
     "@types/humanize-duration": "^3.27.1",
     "@types/react-dom": "^18.3.0",
-    "axios": "^1.15.0",
+    "axios": "^1.16.1",
     "cidr-tools": "^11.0.0",
     "classnames": "^2.2.6",
     "dayjs": "^1.11.10",
@@ -109,7 +109,7 @@
     "@chromatic-com/storybook": "3.2.2",
     "@cypress/code-coverage": "^3.12.39",
     "@cypress/grep": "^4.0.1",
-    "@playwright/test": "1.59.0",
+    "@playwright/test": "1.60.0",
     "@redhat-cloud-services/frontend-components-config": "^6.8.4",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.58",
     "@redhat-cloud-services/types": "^3.4.2",
@@ -128,7 +128,7 @@
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.0.4",
-    "@types/jest": "^29.5.12",
+    "@types/jest": "^30.0.0",
     "@types/jest-axe": "^3.5.9",
     "@types/js-yaml": "^4.0.9",
     "@types/lodash": "^4.17.0",
@@ -143,7 +143,7 @@
     "babel-jest": "^30.0.5",
     "babel-plugin-transform-imports": "^2.0.0",
     "cli-progress": "^3.12.0",
-    "concurrently": "^9.0.0",
+    "concurrently": "^10.0.0",
     "css-loader": "^7.0.0",
     "cypress": "^13.6.2",
     "cypress-each": "^1.14.0",
@@ -160,7 +160,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^12.0.0",
     "eslint-plugin-storybook": "0.11.0",
-    "eslint-plugin-testing-library": "^6.2.2",
+    "eslint-plugin-testing-library": "^7.0.0",
     "fork-ts-checker-webpack-plugin": "^9.0.0",
     "husky": "^9.0.0",
     "inquirer": "^11.0.0",
@@ -255,6 +255,7 @@
     ]
   },
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=24.0.0",
+    "npm": ">=11.10.0"
   }
 }

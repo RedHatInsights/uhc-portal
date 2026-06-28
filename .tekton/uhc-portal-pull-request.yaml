@@ -39,6 +39,9 @@ spec:
     # override image to get node v24, until the remote-pipeline supports it by default
   - name: unit-test-image
     value: "registry.access.redhat.com/ubi9/nodejs-24:1-1776920161"
+    # override playwright image to our needs; this needs to match the version declared in package.json
+  - name: e2e-playwright-image
+    value: "mcr.microsoft.com/playwright:v1.60.0-noble"
   - name: unit-tests-script
     value: |
       #!/bin/bash

@@ -1,0 +1,11 @@
+{
+  "ClientId": "test-client-id-12345",
+  "ClientSecret": "test-client-secret-67890",
+  "Organization": "ocm-qe-test-org",
+  "Team": "ocm-qe-test-org/test-team",
+  "UpdatedClientId": "updated-client-id-99999",
+  "UpdatedTeam": "ocm-qe-test-org/updated-team",
+  "MappingMethod": "claim",
+  "Hostname": "github.example.com",
+  "CaContent": "-----BEGIN CERTIFICATE-----\nMIICpDCCAYwCCQDU+pQ4P3MQ8jANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAls\nb2NhbGhvc3QwHhcNMjMwMTAxMDAwMDAwWhcNMjQwMTAxMDAwMDAwWjAUMRIwEAYD\nVQQDDAlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC7\no5e7VvX3p6Z3H9aZ3o5e7VvX3p6Z3H9aZ3o5e7VvX3p6Z3H9aZ3o5e7VvX3p6Z3H\n9aZ3o5e7VvX3p6Z3H9aZ3o5e7VvX3p6Z3H9aZwIDAQABMA0GCSqGSIb3DQEBCwUA\nA4IBAQBvE3o5e7VvX3p6Z3H9aZ3o5e7VvX3p6Z3H9aZ3o5e7VvX3p6Z3H9aZ3o5e\n7VvX3p6Z3H9aZ3o5e7VvX3p6Z3H9aZ3o5e7VvX3p6Z3H9aZ3o5e7VvX3p6Z3H9aZ\n-----END CERTIFICATE-----"
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Field } from 'formik';
 
 import {
@@ -26,10 +26,8 @@ import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import useAnalytics from '~/hooks/useAnalytics';
 import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import {
-  refetchGetOCMRole,
-  useFetchGetOCMRole,
-} from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { refetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 
 import docLinks from '../../../../../common/docLinks.mjs';
 import { required } from '../../../../../common/validators';
@@ -39,6 +37,7 @@ import InstructionCommand from '../../../../common/InstructionCommand';
 import PopoverHint from '../../../../common/PopoverHint';
 import RadioButtons from '../../../../common/ReduxFormComponents_deprecated/RadioButtons';
 import { BackToAssociateAwsAccountLink } from '../common/BackToAssociateAwsAccountLink';
+import { NoConsoleRoleAlert } from '../common/NoConsoleRoleAlert';
 
 import CustomerOIDCConfiguration from './CustomerOIDCConfiguration';
 import CustomOperatorRoleNames from './CustomOperatorRoleNames';
@@ -68,24 +67,27 @@ const ClusterRolesScreen = () => {
 
   const isHypershiftSelected = hypershiftValue === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
-
   const [isAutoModeAvailable, setIsAutoModeAvailable] = useState(false);
   const [hasByoOidcConfig, setHasByoOidcConfig] = useState(
     !!(isHypershiftSelected || byoOidcConfigID),
   );
 
   const [getOCMRoleErrorBox, setGetOCMRoleErrorBox] = useState(null);
+  // Tracks when the user explicitly clicked Refresh, so the next successful fetch
+  // always re-derives the mode from isAdmin rather than keeping the stale mode value.
+  const refreshPendingRef = useRef(false);
   const track = useAnalytics();
 
   const regionSearch = regionalInstance?.id;
 
   const {
+    isNoConsoleRole,
     data: getOCMRoleData,
     error: getOCMRoleError,
     isPending: isGetOCMRolePending,
     isSuccess: isGetOCMRoleSuccess,
     status: getOCMRoleStatus,
-  } = useFetchGetOCMRole(awsAccountID);
+  } = useIsNoConsoleRole(awsAccountID);
 
   const toggleByoOidcConfig = (isChecked) => () => {
     if (isChecked) {
@@ -124,26 +126,30 @@ const ClusterRolesScreen = () => {
   useEffect(() => {
     // clearing the ocm_role_response results in ocm role being re-fetched
     // when navigating to this step (from Next or Back)
-    refetchGetOCMRole();
+    refetchGetOCMRole(awsAccountID);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  if (!rosaCreationMode && isGetOCMRoleSuccess) {
-    setFieldValue(
-      FieldId.RosaRolesProviderCreationMode,
-      getOCMRoleData.data?.isAdmin ? roleModes.AUTO : roleModes.MANUAL,
-    );
-  }
 
   useEffect(() => {
     if (isGetOCMRolePending) {
       setGetOCMRoleErrorBox(null);
     } else if (isGetOCMRoleSuccess) {
-      if (FieldId.RosaCreatorArn !== getOCMRoleData.data?.arn) {
-        setFieldValue(FieldId.RosaCreatorArn, getOCMRoleData.data?.arn);
+      if (FieldId.RosaCreatorArn !== getOCMRoleData?.arn) {
+        setFieldValue(FieldId.RosaCreatorArn, getOCMRoleData?.arn);
       }
-      const isAdmin = getOCMRoleData.data?.isAdmin;
+      const isAdmin = getOCMRoleData?.isAdmin;
+      // Always reflect the latest isAdmin in the toggle enabled state.
       setIsAutoModeAvailable(isAdmin);
+      // Set the mode on initial load (!rosaCreationMode) or after an explicit
+      // Refresh (refreshPendingRef). In both cases the mode should be derived
+      // from the freshly-fetched isAdmin value, not kept stale.
+      if (!rosaCreationMode || refreshPendingRef.current) {
+        refreshPendingRef.current = false;
+        setFieldValue(
+          FieldId.RosaRolesProviderCreationMode,
+          isAdmin ? roleModes.AUTO : roleModes.MANUAL,
+        );
+      }
       setGetOCMRoleErrorBox(null);
     } else if (getOCMRoleError) {
       // display error
@@ -157,14 +163,14 @@ const ClusterRolesScreen = () => {
         </ErrorBox>,
       );
     } else {
-      refetchGetOCMRole();
+      refetchGetOCMRole(awsAccountID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getOCMRoleStatus]);
+  }, [getOCMRoleStatus, rosaCreationMode, getOCMRoleData]);
 
   const handleRefresh = () => {
-    refetchGetOCMRole();
-    setFieldValue(FieldId.RosaRolesProviderCreationMode, undefined);
+    refreshPendingRef.current = true;
+    refetchGetOCMRole(awsAccountID);
     track(trackEvents.OCMRoleRefreshed);
   };
 
@@ -293,6 +299,11 @@ const ClusterRolesScreen = () => {
           </>
         )}
         {getOCMRoleErrorBox && <GridItem>{getOCMRoleErrorBox}</GridItem>}
+        {isNoConsoleRole && (
+          <GridItem>
+            <NoConsoleRoleAlert onRefresh={handleRefresh} isRefreshPending={isGetOCMRolePending} />
+          </GridItem>
+        )}
         {isGetOCMRolePending && (
           <GridItem>
             <div className="spinner-fit-container">
@@ -301,7 +312,7 @@ const ClusterRolesScreen = () => {
             <div className="spinner-loading-text pf-v6-u-ml-xl">Checking for admin OCM role...</div>
           </GridItem>
         )}
-        {isGetOCMRoleSuccess && !hasByoOidcConfig && (
+        {isGetOCMRoleSuccess && !hasByoOidcConfig && !isNoConsoleRole && (
           <>
             <GridItem>
               <Content component={ContentVariants.p}>

@@ -210,7 +210,7 @@ While automated accessibility tests only catch around 20% of the accessibility i
 Each state of the component should be tested for accessibility. Ideally accessibility checks would be separate tests, but accessibility checks can be added to other tests if the tests include a state change.
 
 ```javascript
-import { render, screen, checkAccessibility } from '@testUtils';
+import { render, screen, checkAccessibility } from '~/testUtils';
 
 it('is accessible on initial render', async () => {
   // Arrange

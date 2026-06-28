@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Alert } from '@patternfly/react-core';
 
+import { NoConsoleRoleAlert } from '~/components/clusters/wizards/rosa/common/NoConsoleRoleAlert';
 import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import ErrorBox from '~/components/common/ErrorBox';
 import InstructionCommand from '~/components/common/InstructionCommand';
@@ -14,13 +15,29 @@ type Props = {
   getAWSAccountRolesARNsResponse: GlobalState['rosaReducer']['getAWSAccountRolesARNsResponse'];
   isHypershiftSelected: boolean;
   isMissingOCMRole: boolean;
+  isNoConsoleRole?: boolean;
+  isOCMRoleError?: boolean;
+  onRefreshOCMRole: () => void;
+  isOCMRolePending?: boolean;
 };
 
 function AWSAccountRolesError({
   getAWSAccountRolesARNsResponse,
   isHypershiftSelected,
   isMissingOCMRole,
+  isNoConsoleRole,
+  isOCMRoleError,
+  onRefreshOCMRole,
+  isOCMRolePending,
 }: Props) {
+  if (isNoConsoleRole) {
+    return <NoConsoleRoleAlert onRefresh={onRefreshOCMRole} isRefreshPending={isOCMRolePending} />;
+  }
+
+  if (isOCMRoleError) {
+    return <AwsRoleErrorAlert title="Cannot detect an OCM role" targetRole="ocm" />;
+  }
+
   if (getAWSAccountRolesARNsResponse.error) {
     const hasFailedToAssumeRoleError =
       getAWSAccountRolesARNsResponse.internalErrorCode === 'CLUSTERS-MGMT-400';

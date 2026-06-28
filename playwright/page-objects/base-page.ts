@@ -20,6 +20,11 @@ export class BasePage {
     return typeof selector === 'string' ? this.page.locator(selector) : selector;
   }
 
+  /** Escapes regex metacharacters when building RegExp patterns from arbitrary strings. */
+  protected escapeRegExp(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
   async assertUrlIncludes(path: string): Promise<void> {
     await expect(this.page).toHaveURL(new RegExp(path));
   }
@@ -146,6 +151,15 @@ export class BasePage {
     } catch (screenshotError) {
       console.error('❌ Failed to capture error screenshot:', screenshotError);
       throw error; // Re-throw original error, not screenshot error
+    }
+  }
+
+  async isTextContainsInPage(text: string, present: boolean = true): Promise<void> {
+    const locator = this.page.locator('body').filter({ hasText: text });
+    if (present) {
+      await expect(locator).toBeVisible();
+    } else {
+      await expect(locator).not.toBeVisible();
     }
   }
 }

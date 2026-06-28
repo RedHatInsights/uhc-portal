@@ -63,6 +63,44 @@ describe('<VPCDetailsCard />', () => {
     });
   });
 
+  describe('PrivateLink', () => {
+    it.each([
+      ['Enabled', true],
+      ['Disabled', false],
+    ])('renders PrivateLink as %s for classic ROSA clusters', (label, privateLink) => {
+      render(
+        <VPCDetailsCard
+          cluster={{
+            aws: {
+              subnet_ids: ['subnet-05281fa2678b6d8cd'],
+              private_link: privateLink,
+            },
+            hypershift: { enabled: false },
+          }}
+        />,
+      );
+
+      expect(screen.getByText('PrivateLink')).toBeInTheDocument();
+      expect(screen.getByText(label)).toBeInTheDocument();
+    });
+
+    it('does not render PrivateLink for HCP clusters', () => {
+      render(
+        <VPCDetailsCard
+          cluster={{
+            aws: {
+              subnet_ids: ['subnet-05281fa2678b6d8cd'],
+              private_link: false,
+            },
+            hypershift: { enabled: true },
+          }}
+        />,
+      );
+
+      expect(screen.queryByText('PrivateLink')).not.toBeInTheDocument();
+    });
+  });
+
   describe('When Private Service Connect Subnet is provided', () => {
     const props = {
       cluster: {

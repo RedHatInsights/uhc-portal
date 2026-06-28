@@ -1,8 +1,8 @@
 {
   "kind": "SubscriptionList",
   "page": 1,
-  "size": 24,
-  "total": 24,
+  "size": 25,
+  "total": 25,
   "items": [
     {
       "id": "1KgB0WcVBZBdRGAreuve29yoxUB",
@@ -2195,6 +2195,177 @@
       "support_level": "Premium",
       "trial_end_date": "0001-01-01T00:00:00Z",
       "updated_at": "2025-03-03T18:18:20.794573Z"
+    },
+    {
+      "billing_expiration_date": "0001-01-01T00:00:00Z",
+      "cloud_provider_id": "baremetal",
+      "cluster_id": "ff472515-43b1-4eab-9695-2f06f1d8208c",
+      "console_url": "https://console-openshift-console.apps.mock-ai-cluster.example.com",
+      "cpu_total": 54,
+      "created_at": "2026-06-22T15:43:43.006527Z",
+      "creator": {
+        "email": "mock-user@example.com",
+        "first_name": "Mock",
+        "href": "/api/accounts_mgmt/v1/accounts/mockAccountId000000000000000",
+        "id": "mockAccountId000000000000000",
+        "kind": "Account",
+        "last_name": "User",
+        "name": "Mock User",
+        "username": "mock-user"
+      },
+      "display_name": "Assisted-Installer-OCP-ready",
+      "eval_expiration_date": "2026-08-21T15:43:43.006527Z",
+      "external_cluster_id": "3aa3f722-d252-455d-b467-22cf02b7f9a7",
+      "href": "/api/accounts_mgmt/v1/subscriptions/3FUwb52jbkRmgLRG87DATCl3ixN",
+      "id": "3FUwb52jbkRmgLRG87DATCl3ixN",
+      "kind": "Subscription",
+      "last_reconcile_date": "0001-01-01T00:00:00Z",
+      "last_released_at": "0001-01-01T00:00:00Z",
+      "last_telemetry_date": "2026-06-22T16:16:39.746712Z",
+      "managed": false,
+      "metrics": [
+        {
+          "arch": "amd64",
+          "cloud_provider": "baremetal",
+          "cluster_type": "",
+          "compute_nodes_cpu": {
+            "total": {
+              "unit": "",
+              "value": 54
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "",
+              "value": 0
+            }
+          },
+          "compute_nodes_memory": {
+            "total": {
+              "unit": "B",
+              "value": 154145402880
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "B",
+              "value": 0
+            }
+          },
+          "compute_nodes_sockets": {
+            "total": {
+              "unit": "",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "",
+              "value": 0
+            }
+          },
+          "console_url": "https://console-openshift-console.apps.mock-ai-cluster.example.com",
+          "cpu": {
+            "total": {
+              "unit": "",
+              "value": 102
+            },
+            "updated_timestamp": "2026-06-22T16:50:03.024Z",
+            "used": {
+              "unit": "",
+              "value": 3.5333333333333234
+            }
+          },
+          "critical_alerts_firing": 0,
+          "health_state": "healthy",
+          "memory": {
+            "total": {
+              "unit": "B",
+              "value": 255085625344
+            },
+            "updated_timestamp": "2026-06-22T16:50:02.985Z",
+            "used": {
+              "unit": "B",
+              "value": 32693620736
+            }
+          },
+          "nodes": {
+            "compute": 3,
+            "infra": 0,
+            "master": 3,
+            "total": 6
+          },
+          "nodes_arch": [
+            {
+              "arch": "amd64",
+              "compute": 3,
+              "infra": 0,
+              "master": 3,
+              "total": 6
+            }
+          ],
+          "non_virt_nodes": 0,
+          "openshift_version": "4.20.24",
+          "operating_system": "",
+          "operators_condition_failing": 0,
+          "query_timestamp": "2026-06-22T16:50:02Z",
+          "region": "",
+          "sockets": {
+            "total": {
+              "unit": "",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "",
+              "value": 0
+            }
+          },
+          "state": "ready",
+          "state_description": "",
+          "storage": {
+            "total": {
+              "unit": "B",
+              "value": 0
+            },
+            "updated_timestamp": "0001-01-01T00:00:00Z",
+            "used": {
+              "unit": "B",
+              "value": 0
+            }
+          },
+          "subscription_cpu_total": 0,
+          "subscription_obligation_exists": 2,
+          "subscription_socket_total": 54,
+          "upgrade": {
+            "available": false,
+            "state": "",
+            "updated_timestamp": "2026-06-22T16:50:02.947Z",
+            "version": ""
+          }
+        }
+      ],
+      "organization": {
+        "created_at": "2022-05-15T09:30:23.62944Z",
+        "ebs_account_id": "0000000",
+        "external_id": "00000000",
+        "href": "/api/accounts_mgmt/v1/organizations/mockOrgId0000000000000000000",
+        "id": "mockOrgId0000000000000000000",
+        "kind": "Organization",
+        "name": "Mock Organization",
+        "updated_at": "2026-06-22T17:16:04.872927Z"
+      },
+      "organization_id": "mockOrgId0000000000000000000",
+      "plan": {
+        "category": "AssistedInstall",
+        "href": "/api/accounts_mgmt/v1/plans/OCP-AssistedInstall",
+        "id": "OCP-AssistedInstall",
+        "kind": "Plan",
+        "type": "OCP"
+      },
+      "provenance": "Provisioning",
+      "socket_total": 54,
+      "status": "Active",
+      "support_level": "Eval",
+      "trial_end_date": "0001-01-01T00:00:00Z",
+      "updated_at": "2026-06-22T19:55:01.391793Z"
     }
   ]
 }

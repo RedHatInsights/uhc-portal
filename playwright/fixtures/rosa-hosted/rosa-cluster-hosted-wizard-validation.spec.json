@@ -131,5 +131,44 @@
         "Error": "Custom operator roles prefix 'CustomRoles-123' isn't valid, must consist of lower-case alphanumeric characters or '-', start with an alphabetic character, and end with an alphanumeric character. For example, 'my-name', or 'abc-123'"
       }
     ]
+  },
+  "LogForwarding": {
+    "S3": {
+      "BucketNameRequired": "Bucket name is required.",
+      "BucketNameTooShort": "ab",
+      "BucketNameTooShortError": "Bucket name must be between 3 and 63 characters.",
+      "BucketNameTooLong": "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz01234",
+      "BucketNameTooLongError": "Bucket name must be between 3 and 63 characters.",
+      "BucketNameStartsUppercase": "Abcbucket",
+      "BucketNameStartsUppercaseError": "Bucket name must start and end with a lowercase letter or number.",
+      "BucketNameConsecutiveDots": "my..bucket",
+      "BucketNameConsecutiveDotsError": "Bucket name cannot contain consecutive periods.",
+      "BucketNameIPAddress": "192.168.1.1",
+      "BucketNameIPAddressError": "Bucket name cannot be formatted as an IP address.",
+      "BucketNameValid": "my-valid-bucket-name",
+      "BucketPrefixConsecutiveDots": "prefix..value",
+      "BucketPrefixConsecutiveDotsError": "Prefix cannot contain consecutive periods.",
+      "SelectedItemsRequired": "Select at least one group or application.",
+      "ValidBucketName": "my-test-s3-bucket",
+      "ValidBucketPrefix": "logs/rosa"
+    },
+    "CloudWatch": {
+      "LogGroupNameRequired": "Log group name is required.",
+      "LogGroupNameInvalidChars": "log group @invalid!",
+      "LogGroupNameInvalidCharsError": "Log group name contains invalid characters.",
+      "LogGroupNameWithColon": "rosa:log-group",
+      "LogGroupNameWithColonError": "Log group name contains invalid characters.",
+      "LogGroupNameTooLong": "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz01234567890123456789012",
+      "LogGroupNameTooLongError": "Log group name must be 512 characters or fewer.",
+      "RoleArnRequired": "Role ARN is required.",
+      "RoleArnInvalidFormat": "wrongformat",
+      "RoleArnInvalidFormatError": "ARN value should be in the format arn:aws:iam::123456789012:role/role-name.",
+      "RoleArnWhitespace": "arn:aws:iam: :role/test",
+      "RoleArnWhitespaceError": "Value must not contain whitespaces.",
+      "PrerequisiteAckRequired": "Confirm you have completed the prerequisites to continue.",
+      "SelectedItemsRequired": "Select at least one group or application.",
+      "ValidRoleArn": "arn:aws:iam::123456789012:role/my-cw-log-role",
+      "ValidLogGroupName": "rosa-cw-log-group"
+    }
   }
 }

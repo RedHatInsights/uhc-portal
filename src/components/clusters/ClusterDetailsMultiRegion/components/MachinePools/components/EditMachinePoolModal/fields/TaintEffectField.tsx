@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 
 import { SelectOption } from '@patternfly/react-core';
 
@@ -11,12 +11,20 @@ export type TaintEffect = 'NoSchedule' | 'NoExecute' | 'PreferNoSchedule';
 
 type TaintEffectFieldProps = {
   fieldId: string;
+  keyFieldId: string;
   isDisabled: boolean;
 };
 
-const TaintEffectField = ({ fieldId, isDisabled }: TaintEffectFieldProps) => {
+const TaintEffectField = ({ fieldId, keyFieldId, isDisabled }: TaintEffectFieldProps) => {
   const [field] = useField<TaintEffect>(fieldId);
-  const onChange = useFormikOnChange(fieldId);
+  const { setFieldTouched } = useFormikContext();
+  const onChangeEffect = useFormikOnChange(fieldId);
+
+  const onChange = (value: string) => {
+    onChangeEffect(value);
+    setFieldTouched(keyFieldId, true, true);
+  };
+
   return (
     <SelectField value={field.value} fieldId={fieldId} onSelect={onChange} isDisabled={isDisabled}>
       <SelectOption value="NoSchedule">NoSchedule</SelectOption>

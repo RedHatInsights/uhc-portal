@@ -5,7 +5,7 @@ $font-family-log-window-body: var(--pf-t--global--font--family--mono);
 $log-window-container-min-height: 25em;
 
 .log-window-container {
-  background-color: #fff;
+  background-color: var(--pf-t--global--background--color--primary--default);
   display: flex;
   flex-direction: column;
 

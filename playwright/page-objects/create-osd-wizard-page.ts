@@ -362,7 +362,7 @@ export class CreateOSDWizardPage extends BasePage {
     await this.dnsZoneDropdown().click();
     await this.dnsZoneFilterInput().clear();
     await this.dnsZoneFilterInput().fill(dnsZone);
-    const escapedDnsZone = dnsZone.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedDnsZone = this.escapeRegExp(dnsZone);
     const options = partialMatch
       ? this.page.getByRole('option').filter({ hasText: new RegExp(`^${escapedDnsZone}`) })
       : this.page.getByRole('option', { name: dnsZone });
@@ -648,6 +648,28 @@ export class CreateOSDWizardPage extends BasePage {
       await this.page.locator('button[id="version-selector"]').click();
       await this.page.getByRole('option', { name: version }).click();
     }
+  }
+
+  versionSelectorToggle(): Locator {
+    return this.page.locator('#version-selector');
+  }
+
+  /** Version dropdown (FuzzySelect) — option labels like "4.16.0 (fast)". */
+  versionOptionsByChannel(channel: string): Locator {
+    return this.page.getByRole('option', {
+      name: new RegExp(`\\(${this.escapeRegExp(channel)}\\)`),
+    });
+  }
+
+  channelSelect(): Locator {
+    return this.page.getByRole('combobox', { name: 'Channel' });
+  }
+
+  /** Channel combobox (FormSelect) — option labels like "fast-4.16". */
+  channelSelectOptionsByPrefix(prefix: string): Locator {
+    return this.channelSelect().getByRole('option', {
+      name: new RegExp(`^${this.escapeRegExp(prefix)}-`),
+    });
   }
 
   async selectAvailabilityZone(az: string): Promise<void> {

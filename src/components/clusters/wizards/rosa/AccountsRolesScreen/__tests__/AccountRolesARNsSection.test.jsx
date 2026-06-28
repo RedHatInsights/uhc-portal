@@ -2,8 +2,12 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import docLinks from '~/common/docLinks.mjs';
-import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
-import { HCP_USE_UNMANAGED } from '~/queries/featureGates/featureConstants';
+import {
+  OCM_ROLE_NO_CONSOLE_PROFILE,
+  ROSA_HOSTED_CLI_MIN_VERSION,
+} from '~/components/clusters/wizards/rosa/rosaConstants';
+import { HCP_USE_UNMANAGED, OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
+import * as useFetchGetOCMRoleModule from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
 import { initialValues } from '../../constants';
@@ -363,6 +367,34 @@ describe('<AccountRolesARNsSection />', () => {
       expect(screen.queryByText(rosaCLIMessage)).not.toBeInTheDocument();
       expect(screen.getByText('Cannot detect an OCM role')).toBeInTheDocument();
       expect(screen.getByText('create the required role')).toBeInTheDocument();
+    });
+  });
+
+  describe('no_console OCM role', () => {
+    it('shows limited permissions error when feature gate is on and profile is no_console', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+      jest.spyOn(useFetchGetOCMRoleModule, 'useFetchGetOCMRole').mockReturnValue({
+        data: { profile: OCM_ROLE_NO_CONSOLE_PROFILE, isAdmin: false },
+        isSuccess: true,
+      });
+
+      render(buildTestComponent(<AccountRolesARNsSection {...props} />));
+      await isRendered();
+
+      expect(screen.getByText('OCM role has limited permissions')).toBeInTheDocument();
+    });
+
+    it('does not show error when feature gate is off even if profile is no_console', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
+      jest.spyOn(useFetchGetOCMRoleModule, 'useFetchGetOCMRole').mockReturnValue({
+        data: { profile: OCM_ROLE_NO_CONSOLE_PROFILE, isAdmin: false },
+        isSuccess: true,
+      });
+
+      render(buildTestComponent(<AccountRolesARNsSection {...props} />));
+      await isRendered();
+
+      expect(screen.queryByText('OCM role has limited permissions')).not.toBeInTheDocument();
     });
   });
 

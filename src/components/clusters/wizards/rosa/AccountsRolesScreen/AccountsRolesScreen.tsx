@@ -259,6 +259,7 @@ function AccountsRolesScreen({
             clearGetAWSAccountRolesARNsResponse={clearGetAWSAccountRolesARNsResponse}
             isHypershiftSelected={isHypershiftSelected}
             onAccountChanged={resetUserRoleFields}
+            onOCMRoleRefresh={resetAWSAccountFields}
           />
         )}
 

@@ -225,6 +225,10 @@ TODO: This is overriding too much, should be more specific
   margin-bottom: 15px;
 }
 
+.pf-v6-c-modal-box__footer .error-box {
+  margin-bottom: 15px;
+}
+
 .pf-v6-c-modal-box__footer {
   display: block;
 }
@@ -590,12 +594,17 @@ $ocm-c-width-limiter--breakpoint-map: build-breakpoint-map();
 }
 
 // Fix selectable card border issue due to a style override in chroming
-:is(.ocm-fix-selectable-card-border .pf-v6-c-card, .ocm-fix-selectable-card-border.pf-v6-c-card):is(.pf-m-clickable, .pf-m-selectable)::before {
+:is(.ocm-fix-selectable-card-border .pf-v6-c-card, .ocm-fix-selectable-card-border.pf-v6-c-card):is(
+    .pf-m-clickable,
+    .pf-m-selectable
+  )::before {
   border: revert !important;
 }
 
 // Fix expandable table issue until PF issue is resolved https://github.com/patternfly/patternfly-react/issues/11812
-.pf-v6-c-table tbody:where(.pf-v6-c-table__tbody).pf-m-expanded>:first-child:not(.pf-v6-c-table__control-row) {
+.pf-v6-c-table
+  tbody:where(.pf-v6-c-table__tbody).pf-m-expanded
+  > :first-child:not(.pf-v6-c-table__control-row) {
   border-block-end-width: 0;
 }
 

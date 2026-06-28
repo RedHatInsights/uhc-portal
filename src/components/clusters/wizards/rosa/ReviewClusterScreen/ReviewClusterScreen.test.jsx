@@ -3,7 +3,16 @@ import { Formik } from 'formik';
 
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
-import { ALLOW_EUS_CHANNEL, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { OCM_ROLE_NO_CONSOLE_PROFILE } from '~/components/clusters/wizards/rosa/rosaConstants';
+import {
+  ALLOW_EUS_CHANNEL,
+  OCM_ROLE_NO_CONSOLE,
+  Y_STREAM_CHANNEL,
+} from '~/queries/featureGates/featureConstants';
+import {
+  refetchGetOCMRole,
+  useFetchGetOCMRole,
+} from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { initialValues } from '../constants';
@@ -12,6 +21,15 @@ import sampleFormData from './mockHCPCluster';
 import ReviewClusterScreen from './ReviewClusterScreen';
 
 jest.mock('~/components/CLILoginPage/useOrganization');
+
+jest.mock('~/queries/RosaWizardQueries/useFetchGetOCMRole', () => ({
+  useFetchGetOCMRole: jest.fn().mockReturnValue({
+    data: { profile: 'standard' },
+    isSuccess: true,
+    isPending: false,
+  }),
+  refetchGetOCMRole: jest.fn(),
+}));
 
 const mockUseOrganization = jest.mocked(useOrganization);
 
@@ -517,6 +535,154 @@ describe('<ReviewClusterScreen />', () => {
       expect(
         screen.getByText('No channels available for the selected version'),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('no_console OCM role', () => {
+    const noConsoleRoleResponse = {
+      data: { profile: OCM_ROLE_NO_CONSOLE_PROFILE },
+      isSuccess: true,
+      isPending: false,
+    };
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('shows danger alert when feature gate is on and profile is no_console', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+      useFetchGetOCMRole.mockReturnValue(noConsoleRoleResponse);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
+
+      expect(await screen.findByText('OCM role has limited permissions')).toBeInTheDocument();
+      expect(screen.getByText(/was created without console permissions/i)).toBeInTheDocument();
+    });
+
+    it('does not show alert when feature gate is off', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
+      useFetchGetOCMRole.mockReturnValue(noConsoleRoleResponse);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
+
+      await screen.findByText('Review your ROSA cluster');
+      expect(screen.queryByText('OCM role has limited permissions')).not.toBeInTheDocument();
+    });
+
+    it('calls refetchGetOCMRole on mount when feature gate is on', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
+
+      await screen.findByText('Review your ROSA cluster');
+      expect(refetchGetOCMRole).toHaveBeenCalledWith('210987654321');
+    });
+
+    it('does not call refetchGetOCMRole on mount when feature gate is off', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
+
+      await screen.findByText('Review your ROSA cluster');
+      expect(refetchGetOCMRole).not.toHaveBeenCalled();
+    });
+
+    it('updates displayed OCM role ARN from React Query data when feature gate is on', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+      useFetchGetOCMRole.mockReturnValue({
+        data: { arn: 'arn:aws:iam::123:role/RefreshedRole', profile: 'standard' },
+        isSuccess: true,
+        isPending: false,
+      });
+
+      const propsWithFulfilledRedux = {
+        ...defaultProps,
+        getOCMRoleResponse: {
+          fulfilled: true,
+          data: { arn: 'arn:aws:iam::123:role/StaleReduxRole' },
+        },
+      };
+
+      render(buildTestComponent(<ReviewClusterScreen {...propsWithFulfilledRedux} />));
+
+      // The ARN from React Query (RefreshedRole) should take precedence over the stale Redux value
+      expect(await screen.findByText('arn:aws:iam::123:role/RefreshedRole')).toBeInTheDocument();
+      expect(screen.queryByText('arn:aws:iam::123:role/StaleReduxRole')).not.toBeInTheDocument();
+    });
+
+    it('uses Redux ARN for OCM role display when feature gate is off', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
+      useFetchGetOCMRole.mockReturnValue({
+        data: { arn: 'arn:aws:iam::123:role/ReactQueryRole', profile: 'standard' },
+        isSuccess: true,
+        isPending: false,
+      });
+
+      const propsWithFulfilledRedux = {
+        ...defaultProps,
+        getOCMRoleResponse: {
+          fulfilled: true,
+          data: { arn: 'arn:aws:iam::123:role/ReduxRole' },
+        },
+      };
+
+      render(buildTestComponent(<ReviewClusterScreen {...propsWithFulfilledRedux} />));
+
+      // The ARN from Redux should be shown — React Query data is not used when flag is off
+      expect(await screen.findByText('arn:aws:iam::123:role/ReduxRole')).toBeInTheDocument();
+      expect(screen.queryByText('arn:aws:iam::123:role/ReactQueryRole')).not.toBeInTheDocument();
+    });
+
+    it('shows ocm-role error when Refresh returns an error (no role linked) and feature gate is on', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, true]]);
+      // Simulate Refresh result: React Query got an error (no OCM role linked)
+      useFetchGetOCMRole.mockReturnValue({
+        data: undefined,
+        isError: true,
+        isSuccess: false,
+        isPending: false,
+      });
+
+      // Redux state is stale — still fulfilled with old ARN
+      const propsWithStaleRedux = {
+        ...defaultProps,
+        getOCMRoleResponse: {
+          fulfilled: true,
+          data: { arn: 'arn:aws:iam::123:role/OldUnlinkedRole' },
+        },
+      };
+
+      render(buildTestComponent(<ReviewClusterScreen {...propsWithStaleRedux} />));
+
+      // Error state from React Query should be reflected: "could not be detected" shown
+      expect(await screen.findByText(/ocm-role could not be detected/i)).toBeInTheDocument();
+      // Stale Redux ARN must not appear
+      expect(screen.queryByText('arn:aws:iam::123:role/OldUnlinkedRole')).not.toBeInTheDocument();
+    });
+
+    it('does not change ocm-role display when Refresh returns an error and feature gate is off', async () => {
+      mockUseFeatureGate([[OCM_ROLE_NO_CONSOLE, false]]);
+      // React Query has an error — but the flag is off so Redux is still the source of truth
+      useFetchGetOCMRole.mockReturnValue({
+        data: undefined,
+        isError: true,
+        isSuccess: false,
+        isPending: false,
+      });
+
+      const propsWithFulfilledRedux = {
+        ...defaultProps,
+        getOCMRoleResponse: {
+          fulfilled: true,
+          data: { arn: 'arn:aws:iam::123:role/ReduxRole' },
+        },
+      };
+
+      render(buildTestComponent(<ReviewClusterScreen {...propsWithFulfilledRedux} />));
+
+      // Redux says fulfilled + has ARN → should be displayed normally (no error)
+      expect(await screen.findByText('arn:aws:iam::123:role/ReduxRole')).toBeInTheDocument();
+      expect(screen.queryByText(/ocm-role could not be detected/i)).not.toBeInTheDocument();
     });
   });
 });

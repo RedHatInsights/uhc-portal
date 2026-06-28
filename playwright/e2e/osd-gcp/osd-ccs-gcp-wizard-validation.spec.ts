@@ -171,6 +171,16 @@ Clusters.forEach((clusterProperties) => {
         );
 
         await createOSDWizardPage.createCustomDomainPrefixCheckbox().uncheck();
+
+        await createOSDWizardPage.versionSelectorToggle().click();
+        await expect(createOSDWizardPage.versionOptionsByChannel('fast')).not.toHaveCount(0);
+        await createOSDWizardPage.versionSelectorToggle().click();
+
+        // Open the channel dropdown and verify a fast option exists
+        await createOSDWizardPage.channelSelect().click();
+        await expect(createOSDWizardPage.channelSelectOptionsByPrefix('fast')).not.toHaveCount(0);
+        await createOSDWizardPage.channelSelect().click();
+
         await createOSDWizardPage.selectAvailabilityZone('Single Zone');
 
         if (clusterProperties.CloudProvider.includes('GCP')) {

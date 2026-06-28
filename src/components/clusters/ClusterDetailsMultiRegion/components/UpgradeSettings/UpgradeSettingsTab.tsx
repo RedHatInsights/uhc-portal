@@ -15,6 +15,7 @@ import {
   Grid,
   GridItem,
   Stack,
+  StackItem,
 } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
@@ -55,6 +56,8 @@ import UpgradeStatus from '../../../common/Upgrades/UpgradeStatus';
 import UserWorkloadMonitoringSection from '../../../common/UserWorkloadMonitoringSectionMultiRegion';
 import { UpdateAllMachinePools } from '../MachinePools/UpdateMachinePools';
 import { ChannelEdit } from '../Overview/ChannelEdit/ChannelEdit';
+
+import { LogForwardingSection } from './LogForwardingSection';
 
 interface UpgradeSettingsFormValues {
   upgrade_policy: 'automatic' | 'manual';
@@ -363,89 +366,99 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
               </GridItem>
             )}
             <GridItem lg={9} md={12} className="ocm-c-upgrade-monitoring-top">
-              <Card>
-                <CardTitle>Update strategy</CardTitle>
-                <CardBody>
-                  {clusterHibernating && hibernatingClusterInfo}
-                  {(isPostScheduleError || isReplaceScheduleError || isEditSchedulesError) && (
-                    <ErrorBox
-                      response={
-                        postScheduleError || replaceScheduleError || editSchedulesError || {}
-                      }
-                      message="Can't schedule upgrade"
-                    />
-                  )}
-                  {isDeleteScheduleError && (
-                    <ErrorBox response={deleteScheduleError} message="Can't unschedule upgrade" />
-                  )}
+              <Stack hasGutter>
+                <StackItem>
+                  <Card>
+                    <CardTitle>Update strategy</CardTitle>
+                    <CardBody>
+                      {clusterHibernating && hibernatingClusterInfo}
+                      {(isPostScheduleError || isReplaceScheduleError || isEditSchedulesError) && (
+                        <ErrorBox
+                          response={
+                            postScheduleError || replaceScheduleError || editSchedulesError || {}
+                          }
+                          message="Can't schedule upgrade"
+                        />
+                      )}
+                      {isDeleteScheduleError && (
+                        <ErrorBox
+                          response={deleteScheduleError}
+                          message="Can't unschedule upgrade"
+                        />
+                      )}
 
-                  <UpgradeAcknowledgeWarning
-                    isHypershift={isHypershift}
-                    schedules={schedules}
-                    cluster={cluster}
-                    unmetAcknowledgements={unmetAcknowledgements as VersionGate[]}
-                  />
-                  <MinorVersionUpgradeAlert
-                    clusterId={cluster?.id || ''}
-                    schedules={schedules}
-                    cluster={cluster}
-                    isHypershift={isHypershift}
-                    hasUnmetAcknowledgements={hasVersionGates}
-                  />
-                  <UpdateAllMachinePools
-                    goToMachinePoolTab
-                    isHypershift={isHypershift}
-                    clusterId={clusterID}
-                    controlPlaneVersion={clusterVersion}
-                    controlPlaneRawVersion={cluster.version?.raw_id || ''}
-                    isMachinePoolError={isMachinePoolError}
-                    machinePoolData={machinePoolData}
-                    region={region}
-                  />
-
-                  <Form>
-                    <Grid hasGutter>
-                      <UpgradeSettingsFields
-                        isDisabled={!!formDisableReason}
-                        initialScheduleValue={formik.initialValues.automatic_upgrade_schedule}
-                        showDivider
+                      <UpgradeAcknowledgeWarning
                         isHypershift={isHypershift}
-                        isRosa={isRosa}
-                        scheduledManualUpgrade={scheduledManualUpgrade}
+                        schedules={schedules}
+                        cluster={cluster}
+                        unmetAcknowledgements={unmetAcknowledgements as VersionGate[]}
                       />
-                    </Grid>
-                  </Form>
-                </CardBody>
-                <CardFooter>
-                  <Flex>
-                    <FlexItem>
-                      <ButtonWithTooltip
-                        disableReason={
-                          formDisableReason ||
-                          (!formik.dirty && 'No changes to save') ||
-                          notReadyReason
-                        }
-                        isAriaDisabled={isDisabled || upgradeStarted}
-                        variant="primary"
-                        onClick={formik.submitForm}
-                        isLoading={isPending}
-                      >
-                        Save
-                      </ButtonWithTooltip>
-                    </FlexItem>
-                    <FlexItem>
-                      <ButtonWithTooltip
-                        isDisabled={!formik.dirty}
-                        variant="link"
-                        onClick={() => formik.resetForm()}
-                        isInline={false}
-                      >
-                        Cancel
-                      </ButtonWithTooltip>
-                    </FlexItem>
-                  </Flex>
-                </CardFooter>
-              </Card>
+                      <MinorVersionUpgradeAlert
+                        clusterId={cluster?.id || ''}
+                        schedules={schedules}
+                        cluster={cluster}
+                        isHypershift={isHypershift}
+                        hasUnmetAcknowledgements={hasVersionGates}
+                      />
+                      <UpdateAllMachinePools
+                        goToMachinePoolTab
+                        isHypershift={isHypershift}
+                        clusterId={clusterID}
+                        controlPlaneVersion={clusterVersion}
+                        controlPlaneRawVersion={cluster.version?.raw_id || ''}
+                        isMachinePoolError={isMachinePoolError}
+                        machinePoolData={machinePoolData}
+                        region={region}
+                      />
+
+                      <Form>
+                        <Grid hasGutter>
+                          <UpgradeSettingsFields
+                            isDisabled={!!formDisableReason}
+                            initialScheduleValue={formik.initialValues.automatic_upgrade_schedule}
+                            showDivider
+                            isHypershift={isHypershift}
+                            isRosa={isRosa}
+                            scheduledManualUpgrade={scheduledManualUpgrade}
+                          />
+                        </Grid>
+                      </Form>
+                    </CardBody>
+                    <CardFooter>
+                      <Flex>
+                        <FlexItem>
+                          <ButtonWithTooltip
+                            disableReason={
+                              formDisableReason ||
+                              (!formik.dirty && 'No changes to save') ||
+                              notReadyReason
+                            }
+                            isAriaDisabled={isDisabled || upgradeStarted}
+                            variant="primary"
+                            onClick={formik.submitForm}
+                            isLoading={isPending}
+                          >
+                            Save
+                          </ButtonWithTooltip>
+                        </FlexItem>
+                        <FlexItem>
+                          <ButtonWithTooltip
+                            isDisabled={!formik.dirty}
+                            variant="link"
+                            onClick={() => formik.resetForm()}
+                            isInline={false}
+                          >
+                            Cancel
+                          </ButtonWithTooltip>
+                        </FlexItem>
+                      </Flex>
+                    </CardFooter>
+                  </Card>
+                </StackItem>
+                <StackItem>
+                  <LogForwardingSection cluster={cluster} />
+                </StackItem>
+              </Stack>
             </GridItem>
           </>
         )}

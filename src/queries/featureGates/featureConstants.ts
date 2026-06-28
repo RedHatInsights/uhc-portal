@@ -46,6 +46,9 @@ export const Y_STREAM_CHANNEL = 'ocmui-y-stream-channel';
 export const GCP_DNS_ZONE = 'ocmui-gcp-dns-zone';
 export const GCP_EXCLUDE_NAMESPACE_SELECTORS = 'ocmui-gcp-exclude-namespace-selectors';
 export const HTPASSWD_IMPORT = 'ocmui-htpasswd-import';
+export const ENABLE_AUTO_NODE = 'ocmui-enable-auto-node';
+export const HCP_LOG_FORWARDING = 'ocmui-hcp-log-forwarding';
+export const OCM_ROLE_NO_CONSOLE = 'ocmui-ocm-role-no-console';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -80,4 +83,7 @@ export default {
   GCP_DNS_ZONE,
   GCP_EXCLUDE_NAMESPACE_SELECTORS,
   HTPASSWD_IMPORT,
+  ENABLE_AUTO_NODE,
+  HCP_LOG_FORWARDING,
+  OCM_ROLE_NO_CONSOLE,
 } as const;

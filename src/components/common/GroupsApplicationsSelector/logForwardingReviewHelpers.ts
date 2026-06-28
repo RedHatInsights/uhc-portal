@@ -1,4 +1,7 @@
+import type { LogForwarder } from '~/types/clusters_mgmt.v1';
+
 import type { LogForwardingGroupTreeNode } from './logForwardingGroupTreeData';
+import { normalizeLogForwardingGroupIdFromDisplay } from './logForwardingGroupTreeFromApi';
 
 export type LogForwardingSelectedByGroup = {
   groupLabel: string;
@@ -85,4 +88,29 @@ export function groupSelectedLogForwardingItems(
     groupLabel,
     applicationLabels: leaves.map((leaf) => leaf.text),
   }));
+}
+
+/** Maps stored API group ids + application ids to leaf ids for grouping under the catalog tree. */
+export function expandLogForwarderSelectionToLeafIds(
+  forwarder: LogForwarder,
+  tree: LogForwardingGroupTreeNode[],
+): string[] {
+  const ids = new Set<string>();
+  (forwarder.applications ?? []).forEach((a) => ids.add(a));
+
+  const rootByKey = new Map<string, LogForwardingGroupTreeNode>();
+  tree.forEach((root) => {
+    rootByKey.set(root.id, root);
+    rootByKey.set(normalizeLogForwardingGroupIdFromDisplay(root.text), root);
+  });
+
+  (forwarder.groups ?? []).forEach((g) => {
+    const gid = g.id ?? '';
+    const root = rootByKey.get(gid) ?? rootByKey.get(normalizeLogForwardingGroupIdFromDisplay(gid));
+    if (root) {
+      getLeafDescendants(root).forEach((leaf) => ids.add(leaf.id));
+    }
+  });
+
+  return Array.from(ids);
 }

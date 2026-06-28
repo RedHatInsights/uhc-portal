@@ -14,6 +14,9 @@ jest.mock('formik', () => ({
       value: [],
     },
   ]),
+  useFormikContext: jest.fn().mockReturnValue({
+    setFieldTouched: jest.fn(),
+  }),
 }));
 
 describe('LabelsTagsTaintsSubTab', () => {
