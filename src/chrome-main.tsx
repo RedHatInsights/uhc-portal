@@ -41,6 +41,10 @@ import './styles/main.scss';
 
 import './i18n';
 
+if (APP_DEVMODE) {
+  import('./mocks/browser').then(({ worker }) => worker.start({ onUnhandledRequest: 'bypass' }));
+}
+
 const { Api, Config } = OCM;
 
 /**
