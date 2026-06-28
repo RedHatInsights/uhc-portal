@@ -171,6 +171,7 @@
     "lint-staged": "^15.0.0",
     "madge": "8.0.0",
     "monaco-editor-webpack-plugin": "^7.1.0",
+    "msw": "^2.14.6",
     "node-fetch": "^3.0.0",
     "nyc": "^17.0.0",
     "openapi-typescript": "^7.5.2",
