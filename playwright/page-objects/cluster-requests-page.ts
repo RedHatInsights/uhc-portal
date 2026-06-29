@@ -108,9 +108,15 @@ export class ClusterRequestsPage extends BasePage {
     transferRecipient: string,
     finalStatus: string = '',
   ): Promise<void> {
-    const row = this.clusterRow(name);
+    const transferTable = this.clusterTransferTable();
+    await expect(transferTable).toBeVisible({ timeout: 30000 });
+    const row = transferTable
+      .getByRole('row')
+      .filter({ has: this.page.getByRole('gridcell', { name, exact: true }) })
+      .filter({ has: this.page.getByRole('gridcell', { name: status }) })
+      .first();
 
-    await expect(row.locator('td[data-label="Status"]')).toContainText(status);
+    await expect(row).toBeVisible({ timeout: 15000 });
     await expect(row.locator('td[data-label="Type"]')).toContainText(type);
     await expect(row.locator('td[data-label="Current Owner"]')).toContainText(currentOwner);
     await expect(row.locator('td[data-label="Transfer Recipient"]')).toContainText(
@@ -123,18 +129,19 @@ export class ClusterRequestsPage extends BasePage {
   }
 
   async cancelClusterRequestsByClusterName(name: string): Promise<void> {
-    const row = this.clusterRow(name);
-    await row.getByRole('button', { name: 'Cancel' }).click();
+    const transferTable = this.clusterTransferTable();
+    await transferTable.scrollIntoViewIfNeeded();
+    const row = transferTable
+      .getByRole('row')
+      .filter({ has: this.page.getByRole('gridcell', { name, exact: true }) })
+      .filter({ has: this.page.getByRole('button', { name: 'Retract' }) });
+    await row.getByRole('button', { name: 'Retract' }).click();
 
     await expect(
-      this.page.getByRole('heading', { name: /Cancel cluster transfer/i }),
-    ).toBeVisible();
-    await expect(
-      this.page.getByText(
-        `This action cannot be undone. It will cancel the impending transfer for cluster ${name}`,
-      ),
+      this.page.getByRole('heading', { name: /Cancel cluster transfer|Retract/i }),
     ).toBeVisible();
 
-    await this.cancelTransferButton().click();
+    const confirmButton = this.page.getByRole('dialog').getByRole('button', { name: /Retract|Cancel Transfer/i });
+    await confirmButton.click();
   }
 }

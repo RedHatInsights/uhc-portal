@@ -359,8 +359,16 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByRole('tab', { name: 'Overview' });
   }
 
+  accessControlTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Access control' });
+  }
+
   settingsTab(): Locator {
     return this.page.getByRole('tab', { name: 'Settings' });
+  }
+
+  clusterOwnerLink(): Locator {
+    return this.page.getByTestId('ownerTranswerOverviewLink');
   }
 
   enableUserWorkloadMonitoringCheckbox(): Locator {
