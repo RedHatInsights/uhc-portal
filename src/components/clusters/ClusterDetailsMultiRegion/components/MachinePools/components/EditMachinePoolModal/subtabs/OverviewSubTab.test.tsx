@@ -1,11 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import {
-  GCP_SECURE_BOOT,
-  IMDS_SELECTION,
-  MAX_NODES_TOTAL_249,
-} from '~/queries/featureGates/featureConstants';
+import { IMDS_SELECTION, MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { MachineTypesResponse } from '~/queries/types';
 import { mockUseFeatureGate, render, renderHook, screen } from '~/testUtils';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
@@ -88,7 +84,6 @@ describe('OverviewSubTab', () => {
   beforeEach(() => {
     mockUseFeatureGate([
       [MAX_NODES_TOTAL_249, false],
-      [GCP_SECURE_BOOT, false],
       [IMDS_SELECTION, false],
     ]);
   });
@@ -154,7 +149,6 @@ describe('OverviewSubTab', () => {
     it('displays IMDS section when feature enabled and not editing hypershift cluster', () => {
       mockUseFeatureGate([
         [MAX_NODES_TOTAL_249, false],
-        [GCP_SECURE_BOOT, false],
         [IMDS_SELECTION, true],
       ]);
 
@@ -179,7 +173,6 @@ describe('OverviewSubTab', () => {
     it('does not display IMDS section when editing', () => {
       mockUseFeatureGate([
         [MAX_NODES_TOTAL_249, false],
-        [GCP_SECURE_BOOT, false],
         [IMDS_SELECTION, true],
       ]);
 
@@ -201,13 +194,7 @@ describe('OverviewSubTab', () => {
       expect(screen.queryByText('Instance Metadata Service')).not.toBeInTheDocument();
     });
 
-    it('displays ShieldedVM section for GCP cluster when feature enabled', () => {
-      mockUseFeatureGate([
-        [MAX_NODES_TOTAL_249, false],
-        [GCP_SECURE_BOOT, true],
-        [IMDS_SELECTION, false],
-      ]);
-
+    it('displays ShieldedVM section for GCP cluster', () => {
       const { result } = renderHook(() =>
         useOverviewSubTab({
           ...defaultProps,
@@ -227,12 +214,6 @@ describe('OverviewSubTab', () => {
     });
 
     it('does not display ShieldedVM section for non-GCP cluster', () => {
-      mockUseFeatureGate([
-        [MAX_NODES_TOTAL_249, false],
-        [GCP_SECURE_BOOT, true],
-        [IMDS_SELECTION, false],
-      ]);
-
       const { result } = renderHook(() => useOverviewSubTab(defaultProps));
       const [_tab, content] = result.current;
 

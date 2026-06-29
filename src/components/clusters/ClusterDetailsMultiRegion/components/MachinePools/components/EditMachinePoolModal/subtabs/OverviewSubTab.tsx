@@ -8,11 +8,7 @@ import { CloudProviderType, IMDSType } from '~/components/clusters/wizards/commo
 import { ShieldedVM } from '~/components/clusters/wizards/common/ShieldedVM';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ImdsSection from '~/components/clusters/wizards/rosa/MachinePoolScreen/components/ImdsSection';
-import {
-  GCP_SECURE_BOOT,
-  IMDS_SELECTION,
-  MAX_NODES_TOTAL_249,
-} from '~/queries/featureGates/featureConstants';
+import { IMDS_SELECTION, MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
@@ -84,7 +80,6 @@ export const useOverviewSubTab = ({
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
 
   const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
-  const isSecureBootEnabled = useFeatureGate(GCP_SECURE_BOOT);
   const imdsSectionFeature = useFeatureGate(IMDS_SELECTION);
 
   const contentRef1 = React.createRef<HTMLElement>();
@@ -140,7 +135,7 @@ export const useOverviewSubTab = ({
         ) : null}
         <DiskSizeField cluster={cluster} isEdit={isEdit} />
         <CapacityReservationField cluster={cluster} isEdit={isEdit} />
-        {isGCP && isSecureBootEnabled ? <ShieldedVM isEditModal={!!isEdit} /> : null}
+        {isGCP ? <ShieldedVM isEditModal={!!isEdit} /> : null}
       </Form>
     </TabContent>
   );
