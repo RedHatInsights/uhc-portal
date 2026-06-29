@@ -38,7 +38,12 @@ import config, { APP_API_ENV } from './config';
 import './styles/main.scss';
 
 if (APP_DEVMODE) {
-  import('./mocks/browser').then(({ worker }) => worker.start({ onUnhandledRequest: 'bypass' }));
+  const isMSW =
+    new URLSearchParams(window.location.search).get('env') === 'msw' ||
+    localStorage.getItem('ocmOverridenEnvironment') === 'msw';
+  if (isMSW) {
+    import('./mocks/browser').then(({ worker }) => worker.start({ onUnhandledRequest: 'bypass' }));
+  }
 }
 
 type Props = {

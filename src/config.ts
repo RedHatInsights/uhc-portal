@@ -73,6 +73,8 @@ const parseEnvQueryParam = (): string | undefined => {
         ret = val;
       } else if (key === 'env' && val === 'mockserver' && configs.mockdata) {
         ret = 'mockdata';
+      } else if (key === 'env' && val === 'msw') {
+        ret = 'msw';
       }
     });
   return ret;
@@ -162,7 +164,14 @@ const config = {
       }
 
       const queryEnv = parseEnvQueryParam() || localStorage.getItem(ENV_OVERRIDE_LOCALSTORAGE_KEY);
-      if (queryEnv && configs[queryEnv]) {
+      if (queryEnv === 'msw') {
+        configs.default?.then((data) => {
+          this.loadConfig(data, chrome);
+          that.envOverride = 'msw';
+          localStorage.setItem(ENV_OVERRIDE_LOCALSTORAGE_KEY, 'msw');
+          resolve();
+        });
+      } else if (queryEnv && configs[queryEnv]) {
         configs[queryEnv]!.then((data) => {
           this.loadConfig(data, chrome);
           // eslint-disable-next-line no-console
