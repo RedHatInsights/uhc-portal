@@ -666,9 +666,7 @@ function displayGrandTotal(grandTotal) {
  */
 function displayUsageNotes(verbose) {
   if (!verbose) {
-    log(
-      '\nNote: Run with -v or --verbose to see URLs for successful requests and redirects',
-    );
+    log('\nNote: Run with -v or --verbose to see URLs for successful requests and redirects');
     log('      Run with -r or --redirects to see ONLY redirected URLs with targets');
     log('      Run with -h or --help for more information');
   } else {
