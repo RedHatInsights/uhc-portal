@@ -3,7 +3,7 @@ name: Check Links and Send Failures to Slack
 on:
   workflow_dispatch:
   schedule:
-    - cron: "45 11 * * MON"
+    - cron: '45 11 * * MON'
 jobs:
   check-links-and-send-failures-to-slack:
     name: Check Links and Send Failures to Slack
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24"
+          node-version: '24'
 
       - name: Install dependencies
         run: npm ci
