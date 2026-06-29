@@ -3,7 +3,6 @@ import React from 'react';
 import './GCPLogo.scss';
 
 const GCPLogo = () => (
-  // eslint-disable-next-line max-len
   <svg
     role="img"
     title="GCP"

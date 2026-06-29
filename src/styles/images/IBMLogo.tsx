@@ -3,7 +3,6 @@ import React from 'react';
 const IBMLogo = (props: { height?: string; width?: string; className?: string }) => {
   const { height, width, className } = props;
   return (
-    // eslint-disable-next-line max-len
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width={height || '64'}

@@ -20,6 +20,7 @@ const initialState: State = {
 };
 
 function loadBalancersReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<LoadBalancerAction>,
 ): State {

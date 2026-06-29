@@ -4,7 +4,6 @@ import './AWSLogo.scss';
 
 const AWSLogo = (props: { height?: string; width?: string; className?: string }) => {
   const { height, width, className } = props;
-  // eslint-disable-next-line max-len
   return (
     <svg
       className={className}

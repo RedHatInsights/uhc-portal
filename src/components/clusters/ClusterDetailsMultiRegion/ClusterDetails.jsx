@@ -198,12 +198,10 @@ const ClusterDetails = (props) => {
   const canTransferClusterOwnership = canTransferClusterOwnershipMultiRegion(cluster);
   const hasIssues = issuesAndWarningsSelector(monitoring, cluster).issues.totalCount > 0;
 
-  // eslint-disable-next-line no-unused-vars
   const displayClusterLogs = cluster && (!!cluster.external_id || !!cluster.id);
 
   const initTabOpen = location.hash.replace('#', '');
   const [selectedTab, setSelectedTab] = React.useState('');
-  // eslint-disable-next-line no-unused-vars
   const [refreshEvent, setRefreshEvent] = React.useState({ type: eventTypes.NONE });
 
   const overviewTabRef = React.useRef();
@@ -427,7 +425,6 @@ const ClusterDetails = (props) => {
   const gotRouters = get(clusterRouters, 'getRouters.routers.length', 0) > 0;
   const isROSA = get(cluster, 'subscription.plan.type') === normalizedProducts.ROSA;
 
-  // eslint-disable-next-line no-unused-vars
   const isManaged = cluster.managed;
   const isHypershift = isHypershiftCluster(cluster);
   const isClusterWaiting = cluster.state === clusterStates.waiting;
@@ -436,7 +433,7 @@ const ClusterDetails = (props) => {
   const isClusterReady = cluster.state === clusterStates.ready;
   const isClusterUpdating = cluster.state === clusterStates.updating;
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const canCreateGCPNonCCSCluster = hasCapability(
     organization.details,
     subscriptionCapabilities.CREATE_GCP_NON_CCS_CLUSTER,
@@ -469,7 +466,6 @@ const ClusterDetails = (props) => {
     ? false
     : cluster.managed &&
       // The (managed) cluster has not yet reported its cluster ID to AMS
-      // eslint-disable-next-line camelcase
       cluster.external_id === undefined;
   const displaySupportTab = !hideSupportTab && !isOSDTrial;
   const displayUpgradeSettingsTab =

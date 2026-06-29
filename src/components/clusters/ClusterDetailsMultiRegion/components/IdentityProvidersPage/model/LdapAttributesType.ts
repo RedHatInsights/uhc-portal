@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 export type LdapAttributesType = {
   id: number;
   ldap_name?: string;

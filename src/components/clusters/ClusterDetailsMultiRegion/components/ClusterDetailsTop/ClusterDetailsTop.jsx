@@ -239,7 +239,6 @@ function ClusterDetailsTop(props) {
   }
 
   // TODO: Required until actions menu story is done
-  // eslint-disable-next-line no-unused-vars
   const actions = !isUninstalledAICluster(cluster) && (
     <ClusterActionsDropdown
       disabled={!cluster.canEdit && !cluster.canDelete}
@@ -299,7 +298,6 @@ function ClusterDetailsTop(props) {
     cluster.state !== clusterStates.uninstalling;
 
   // TODO: Part of ClusterStatusMonitor story (installation)
-  // eslint-disable-next-line no-unused-vars
   const shouldShowStatusMonitor =
     [
       clusterStates.waiting,

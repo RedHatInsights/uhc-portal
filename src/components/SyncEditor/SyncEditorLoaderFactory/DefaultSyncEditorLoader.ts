@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 import { type MonacoEditor } from 'monaco-types';
 
 import { ISyncEditorLoader } from './ISyncEditorLoader';

@@ -22,6 +22,7 @@ export const ScaleClusterForm = ({ submitForm, pending }: ScaleClusterFormProps)
   const region = get(modalData, 'rh_region_id', undefined);
   const isByoc = modalData.ccs?.enabled;
   // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const shouldDisplayClusterName = modalData.shouldDisplayClusterName || false;
   const cloudProviderID = get(modalData, 'cloud_provider.id', '');
   const billingModel = modalData.subscription?.cluster_billing_model;

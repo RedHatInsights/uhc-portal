@@ -35,7 +35,6 @@ const hashToTabIndex = {
 
 const tabIndexToHash = Object.entries(hashToTabIndex).reduce((acc, tabIndex) => {
   const [key, value] = tabIndex;
-  // eslint-disable-next-line no-param-reassign
   acc[value] = key;
   return acc;
 }, {});

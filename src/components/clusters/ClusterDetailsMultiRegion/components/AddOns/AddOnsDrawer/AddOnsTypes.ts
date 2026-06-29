@@ -3,9 +3,7 @@ import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFiel
 export type CloudProviders = 'rhm' | 'aws' | 'azure';
 
 export type CloudAccount = {
-  // eslint-disable-next-line camelcase
   cloud_account_id: string;
-  // eslint-disable-next-line camelcase
   cloud_provider_id: CloudProviders;
 };
 
