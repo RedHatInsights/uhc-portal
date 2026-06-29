@@ -10,9 +10,8 @@
  * - Reports HTTP status codes (2xx, 3xx, 4xx, 5xx)
  * - Tests redirect destinations
  * - Color-coded output for easy identification of issues
- * - Multiple output modes (default, verbose, redirects-only)
+ * - Multiple output modes (default, verbose, redirects-only, summary)
  */
-import fs from 'fs';
 import fetch from 'node-fetch';
 import ProgressBar from 'progress';
 
@@ -27,6 +26,20 @@ const args = process.argv.slice(2);
 const verboseMode = args.includes('-v') || args.includes('--verbose');
 const helpMode = args.includes('-h') || args.includes('--help');
 const redirectsMode = args.includes('-r') || args.includes('--redirects');
+const summaryMode = args.includes('--summary');
+
+/**
+ * Writes informational output. In --summary mode, routes to stderr so stdout
+ * can be reserved for the summary table only.
+ * @param {...unknown} args - Values to print
+ */
+function log(...messageArgs) {
+  if (summaryMode) {
+    console.error(...messageArgs);
+  } else {
+    console.log(...messageArgs);
+  }
+}
 
 // Constants
 const LINE_LENGTH = 80;
@@ -61,6 +74,7 @@ Options:
   -v, --verbose  Show detailed URL listings for all categories
                  (By default, only error URLs are displayed)
   -r, --redirects Show ONLY redirected URLs with their redirect targets
+  --summary      Print only the summary table to stdout (details go to stderr)
 
 Output:
   The script categorizes URLs by their HTTP status:
@@ -186,7 +200,7 @@ function getColorCodedStatus(status) {
 function printHeader(title, count) {
   const countStr = `${count} URLs`;
   const padding = Math.max(0, LINE_LENGTH - title.length - countStr.length);
-  console.log(`\n${title}${' '.repeat(padding)}${countStr}`);
+  log(`\n${title}${' '.repeat(padding)}${countStr}`);
 }
 
 /**
@@ -311,7 +325,7 @@ async function testRedirectUrls(statusByUrl) {
   }
 
   // Test redirect destinations
-  console.log('\nTesting redirect destinations...');
+  log('\nTesting redirect destinations...');
 
   // Create a progress bar for redirect testing
   const testBar = new ProgressBar(':bar :current/:total redirect URLs tested (:percent)', {
@@ -357,9 +371,9 @@ function displayRedirectStatusGroup(status, items, redirectTestMap, verbose) {
   const targetColumn = LINE_LENGTH - countStr.length;
   const padding = Math.max(1, targetColumn - statusTitle.length - 3);
 
-  console.log();
-  console.log(`${statusTitle} - ${' '.repeat(padding)}${countStr}`);
-  console.log();
+  log();
+  log(`${statusTitle} - ${' '.repeat(padding)}${countStr}`);
+  log();
 
   // Classify test results
   const successfulTests = [];
@@ -386,24 +400,24 @@ function displayRedirectStatusGroup(status, items, redirectTestMap, verbose) {
 
   // Always display success and error summaries
   if (successfulTests.length > 0) {
-    console.log(
+    log(
       `  ${COLOR.GREEN}✓ ${successfulTests.length} redirect URLs tested successfully${COLOR.RESET}`,
     );
   }
 
   if (failedTests.length > 0) {
-    console.log(`  ${COLOR.RED}X ${failedTests.length} redirect URLs had errors${COLOR.RESET}`);
-    console.log();
+    log(`  ${COLOR.RED}X ${failedTests.length} redirect URLs had errors${COLOR.RESET}`);
+    log();
 
     // Display the failed URLs
     failedTests.forEach((r) => {
-      console.log(`  [Original URL] ${r.url}`);
+      log(`  [Original URL] ${r.url}`);
       if (r.redirectUrl) {
-        console.log(`  [Redirect URL] ${r.redirectUrl}`);
+        log(`  [Redirect URL] ${r.redirectUrl}`);
 
         // Show test result details
         if (r.testResult.error) {
-          console.log(
+          log(
             `  [Redirect URL Test] ${COLOR.RED}${r.testResult.error.substring(0, 60)}${COLOR.RESET}`,
           );
         } else if (r.testResult.finalStatus) {
@@ -414,34 +428,34 @@ function displayRedirectStatusGroup(status, items, redirectTestMap, verbose) {
           } else {
             statusText = `${COLOR.RED}${testStatus}${COLOR.RESET}`;
           }
-          console.log(`  [Redirect URL Test] ${statusText}`);
+          log(`  [Redirect URL Test] ${statusText}`);
         }
       }
-      console.log();
+      log();
     });
   } else if (successfulTests.length > 0) {
     // Add a line break after successful tests summary if there are no failed tests
-    console.log();
+    log();
   }
 
   // In verbose mode, also display successful URLs if requested
   if (verbose && successfulTests.length > 0) {
-    console.log('  Successful redirect details:');
-    console.log();
+    log('  Successful redirect details:');
+    log();
 
     successfulTests.forEach((r) => {
-      console.log(`  [Original URL] ${r.url}`);
+      log(`  [Original URL] ${r.url}`);
       if (r.redirectUrl) {
-        console.log(`  [Redirect URL] ${r.redirectUrl}`);
+        log(`  [Redirect URL] ${r.redirectUrl}`);
 
         // Show test result details
         if (r.testResult.finalStatus) {
           const testStatus = r.testResult.finalStatus;
           // Use getColorCodedStatus to fix "defined but never used" error
-          console.log(`  [Redirect URL Test] ${getColorCodedStatus(testStatus)}`);
+          log(`  [Redirect URL Test] ${getColorCodedStatus(testStatus)}`);
         }
       }
-      console.log();
+      log();
     });
   }
 }
@@ -453,7 +467,7 @@ function displayRedirectStatusGroup(status, items, redirectTestMap, verbose) {
  */
 function displayRedirectsOnly(redirects, redirectTestMap) {
   if (redirects.length === 0) {
-    console.log('\nNo redirects found');
+    log('\nNo redirects found');
     return;
   }
 
@@ -489,7 +503,7 @@ function displayRedirectsSection(redirects, redirectTestMap, verbose) {
   printHeader('REDIRECTS:', redirects.length);
 
   if (redirects.length === 0) {
-    console.log('No redirects found');
+    log('No redirects found');
     return;
   }
 
@@ -524,7 +538,7 @@ function displayErrorSection(title, errorItems) {
   printHeader(title, errorItems.length);
 
   if (errorItems.length === 0) {
-    console.log(`No ${title.toLowerCase().replace(':', '')} found`);
+    log(`No ${title.toLowerCase().replace(':', '')} found`);
     return;
   }
 
@@ -553,15 +567,15 @@ function displayErrorSection(title, errorItems) {
     const targetColumn = LINE_LENGTH - countStr.length;
     const padding = Math.max(1, targetColumn - statusTitle.length - 3);
 
-    console.log();
-    console.log(`${statusTitle} - ${' '.repeat(padding)}${countStr}`);
-    console.log();
+    log();
+    log(`${statusTitle} - ${' '.repeat(padding)}${countStr}`);
+    log();
 
     if (items.length > 0) {
       items.forEach((r) => {
         // Print each URL with a red status code
-        console.log(`  [Original URL] ${r.url}`);
-        console.log();
+        log(`  [Original URL] ${r.url}`);
+        log();
       });
     }
   });
@@ -575,7 +589,7 @@ function displayRequestErrorsSection(errors) {
   printHeader('REQUEST ERRORS:', errors.length);
 
   if (errors.length === 0) {
-    console.log('No request errors found');
+    log('No request errors found');
     return;
   }
 
@@ -596,15 +610,15 @@ function displayRequestErrorsSection(errors) {
     const targetColumn = LINE_LENGTH - countStr.length;
     const padding = Math.max(1, targetColumn - typeTitle.length - 3);
 
-    console.log();
-    console.log(`${typeTitle} - ${' '.repeat(padding)}${countStr}`);
-    console.log();
+    log();
+    log(`${typeTitle} - ${' '.repeat(padding)}${countStr}`);
+    log();
 
     if (items.length > 0) {
       items.forEach((r) => {
-        console.log(`  [Original URL] ${r.url}`);
-        console.log(`  [Error] ${r.errorMessage}`);
-        console.log();
+        log(`  [Original URL] ${r.url}`);
+        log(`  [Error] ${r.errorMessage}`);
+        log();
       });
     }
   });
@@ -619,17 +633,17 @@ function displaySkippedSection(skipped, verbose) {
   printHeader('SKIPPED:', skipped.length);
 
   if (skipped.length === 0) {
-    console.log('No URLs were skipped');
+    log('No URLs were skipped');
     return;
   }
 
   if (verbose) {
     skipped.forEach((r) => {
-      console.log(`  [Original URL] ${r.url}`);
-      console.log();
+      log(`  [Original URL] ${r.url}`);
+      log();
     });
   } else {
-    console.log('URLs that were skipped (e.g., mailto: links)');
+    log('URLs that were skipped (e.g., mailto: links)');
   }
 }
 
@@ -638,12 +652,12 @@ function displaySkippedSection(skipped, verbose) {
  * @param {number} grandTotal - Total URLs
  */
 function displayGrandTotal(grandTotal) {
-  console.log(`\n${'-'.repeat(LINE_LENGTH)}`);
+  log(`\n${'-'.repeat(LINE_LENGTH)}`);
   const grandTotalTitle = 'Total URLs checked:';
   const grandCountStr = `${grandTotal} URLs`;
   const grandPadding = Math.max(0, LINE_LENGTH - grandTotalTitle.length - grandCountStr.length);
-  console.log(`${grandTotalTitle}${' '.repeat(grandPadding)}${grandCountStr}`);
-  console.log('-'.repeat(LINE_LENGTH));
+  log(`${grandTotalTitle}${' '.repeat(grandPadding)}${grandCountStr}`);
+  log('-'.repeat(LINE_LENGTH));
 }
 
 /**
@@ -652,18 +666,16 @@ function displayGrandTotal(grandTotal) {
  */
 function displayUsageNotes(verbose) {
   if (!verbose) {
-    console.log(
+    log(
       '\nNote: Run with -v or --verbose to see URLs for successful requests and redirects',
     );
-    console.log('      Run with -r or --redirects to see ONLY redirected URLs with targets');
-    console.log('      Run with -h or --help for more information');
+    log('      Run with -r or --redirects to see ONLY redirected URLs with targets');
+    log('      Run with -h or --help for more information');
   } else {
-    console.log('\nNote: Run with -r or --redirects to see ONLY redirected URLs with targets');
-    console.log('      Run with -h or --help for more information');
+    log('\nNote: Run with -r or --redirects to see ONLY redirected URLs with targets');
+    log('      Run with -h or --help for more information');
   }
 }
-
-const ANSI_ESCAPE_PATTERN = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
 
 /**
  * Removes ANSI color codes from text.
@@ -671,24 +683,8 @@ const ANSI_ESCAPE_PATTERN = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`
  * @returns {string} Plain text without ANSI codes
  */
 function stripAnsi(text) {
-  return text.replace(ANSI_ESCAPE_PATTERN, '');
-}
-
-/**
- * Writes a multiline value to the GitHub Actions output file.
- * @param {string} name - Output name
- * @param {string} value - Output value
- */
-function writeGithubOutput(name, value) {
-  if (!process.env.GITHUB_OUTPUT) {
-    return;
-  }
-
-  const delimiter = `EOF_${name}`;
-  fs.appendFileSync(
-    process.env.GITHUB_OUTPUT,
-    `${name}<<${delimiter}\n${value ?? ''}\n${delimiter}\n`,
-  );
+  const ansiEscapePattern = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
+  return text.replace(ansiEscapePattern, '');
 }
 
 /**
@@ -732,10 +728,12 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount) {
 function displaySummaryTable(categories, totalChecked, redirectErrorCount) {
   const summary = formatSummaryReport(categories, totalChecked, redirectErrorCount);
 
-  console.log('\nURL CHECK RESULTS');
-  console.log(summary);
+  log('\nURL CHECK RESULTS');
+  log(summary);
 
-  writeGithubOutput('report', stripAnsi(summary));
+  if (summaryMode) {
+    console.log(stripAnsi(summary));
+  }
 }
 
 /**
@@ -747,15 +745,15 @@ function displaySuccessSection(success, verbose) {
   printHeader('SUCCESS:', success.length);
 
   if (success.length > 0) {
-    console.log(`All these URLs returned status code 200 (OK)`);
+    log(`All these URLs returned status code 200 (OK)`);
     if (verbose) {
       success.forEach((r) => {
-        console.log(`  [Original URL] ${r.url}`);
-        console.log();
+        log(`  [Original URL] ${r.url}`);
+        log();
       });
     }
   } else {
-    console.log('No successful URLs found');
+    log('No successful URLs found');
   }
 }
 
@@ -822,11 +820,11 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
  * Processes URLs and tests redirects
  */
 async function main() {
-  console.log('Checking URLs...');
+  log('Checking URLs...');
 
   // Get URLs to check
   const urls = await getAllExternalLinks();
-  console.log(`Found ${urls.length} URLs to check`);
+  log(`Found ${urls.length} URLs to check`);
 
   // Create a progress bar
   const bar = new ProgressBar(':bar :current/:total URLs checked (:percent)', {
