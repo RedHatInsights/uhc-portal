@@ -38,6 +38,7 @@ import validators, {
   validateHTPasswdUsername,
   validateMaxNodes,
   validateMultipleMachinePoolsSubnets,
+  validateNamespacesList,
   validateNumericInput,
   validatePositive,
   validatePrivateHostedZoneId,
@@ -986,10 +987,12 @@ describe('Field is a valid key value pair', () => {
     ['', undefined],
     ['foo', undefined],
     ['foo=', undefined],
+    ['foo=,bar=', undefined],
     ['foo=bar', undefined],
     ['fOo=BAr', undefined],
     ['foo=3', undefined],
     ['foo=bar,foo=3', undefined],
+    ['foo=bar,key1=value1', undefined],
     ['fo_o=ba-r', undefined],
     ['fo-o=ba_r', undefined],
     ['foo.bar=wat', undefined],
@@ -1446,22 +1449,45 @@ describe('k8sGpuParameter', () => {
   ])('value %p to be %p', (value: string, expected: string | undefined) =>
     expect(clusterAutoScalingValidators.k8sGpuParameter(value)).toBe(expected),
   );
+});
 
+describe('checkKeyValueFormat', () => {
   it.each([
     ['', undefined],
     ['whatever', 'Routes should match comma separated pairs in key=value format'],
     ['key=value', undefined],
     ['key=value,key1=value1', undefined],
-  ])('checkKeyValueFormat value %p to be %p', (value: string, expected: string | undefined) =>
+  ])('value %p to be %p', (value: string, expected: string | undefined) =>
     expect(checkKeyValueFormat(value)).toBe(expected),
   );
+});
+
+describe('checkRouteSelectors', () => {
+  it.each([
+    ['', undefined],
+    ['foo=bar', undefined],
+    ['foo=bar,key1=value1', undefined],
+    ['foo=a,foo=b', 'Each label should have a unique key. "foo" already exists.'],
+  ])('value %p to be %p', (value: string, expected: string | undefined) =>
+    expect(checkRouteSelectors(value)).toBe(expected),
+  );
+});
+
+describe('validateNamespacesList', () => {
+  const invalidNamespaceError = (name: string) =>
+    `Namespace name '${name}' isn't valid, must consist of lower-case alphanumeric characters or '-', start with an alphabetic character, and end with an alphanumeric character. For example, 'my-name', or 'abc-123'.`;
+  const longNamespaceName = `a${'b'.repeat(63)}`;
 
   it.each([
-    ['key=', undefined],
-    ['key=,key2=', undefined],
-    ['key=a,key=b', 'Each label should have a unique key. "key" already exists.'],
-  ])('checkRouteSelectors value %p to be %p', (value: string, expected: string | undefined) =>
-    expect(checkRouteSelectors(value)).toBe(expected),
+    ['', undefined],
+    ['foo-bar', undefined],
+    ['foo-bar,my-namespace,abc-123', undefined],
+    ['Invalid_Name', invalidNamespaceError('Invalid_Name')],
+    ['123foo', invalidNamespaceError('123foo')],
+    [longNamespaceName, 'Namespace names may not exceed 63 characters.'],
+    ['foo-bar,Invalid_Name', invalidNamespaceError('Invalid_Name')],
+  ])('value %p to be %p', (value: string, expected: string | undefined) =>
+    expect(validateNamespacesList(value)).toBe(expected),
   );
 });
 
