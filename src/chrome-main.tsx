@@ -42,7 +42,12 @@ import './styles/main.scss';
 import './i18n';
 
 if (APP_DEVMODE) {
-  import('./mocks/browser').then(({ worker }) => worker.start({ onUnhandledRequest: 'bypass' }));
+  const isMSW =
+    new URLSearchParams(window.location.search).get('env') === 'msw' ||
+    localStorage.getItem('ocmOverridenEnvironment') === 'msw';
+  if (isMSW) {
+    import('./mocks/browser').then(({ worker }) => worker.start({ onUnhandledRequest: 'bypass' }));
+  }
 }
 
 const { Api, Config } = OCM;
