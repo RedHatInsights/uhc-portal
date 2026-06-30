@@ -68,6 +68,7 @@ The test configuration uses `playwright.env.json` for environment-specific setti
   "QE_AWS_REGION": "default region value ex: us-west-2",
   "QE_AWS_ID": "AWS account ID",
   "QE_AWS_BILLING_ID": "AWS billing account ID",
+  "QE_AWS_SECONDARY_BILLING_ID": "Secondary AWS billing account ID (used for billing account update tests)",
   "QE_AWS_KMS_KEY" : "AWS KMS key ARN",
   "QE_ACCOUNT_ROLE_PREFIX": "cypress-account-roles",
   "QE_OCM_ROLE_PREFIX": "cypress-ocm-role",

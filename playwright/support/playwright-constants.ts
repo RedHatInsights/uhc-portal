@@ -97,7 +97,12 @@ export const GLOBAL_TEST_TIMEOUT = 300000;
 export const OCM_BASE_PATH = '/openshift';
 
 /**
- * Cluster list path (relative)
+ * Cluster list path (relative to baseURL, used with navigateTo)
+ */
+export const CLUSTER_LIST_ROUTE = 'clusters/list';
+
+/**
+ * Cluster list path (absolute, starts with /)
  */
 export const CLUSTER_LIST_PATH = '/clusters/list';
 
@@ -105,3 +110,8 @@ export const CLUSTER_LIST_PATH = '/clusters/list';
  * Full cluster list path including base path
  */
 export const CLUSTER_LIST_FULL_PATH = `${OCM_BASE_PATH}${CLUSTER_LIST_PATH}`;
+
+/**
+ * Create cluster route (relative to baseURL, used with navigateTo)
+ */
+export const CREATE_CLUSTER_ROUTE = 'create';
