@@ -66,7 +66,6 @@ export function OverviewBillingAccountModal(props: OverviewBillingAccountModalPr
                 queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
                 'clusterService',
                 cluster?.id,
-                cluster?.subscription,
               ],
             });
           },
