@@ -608,6 +608,94 @@ export class ClusterDetailsPage extends BasePage {
     await expect(this.deleteClusterDropdownItem()).toBeHidden({ timeout: 5000 });
   }
 
+  // ── Billing Account management (Overview tab) ───────────────────────────
+
+  editBillingAccountModal(): Locator {
+    return this.page.getByRole('dialog', { name: 'Edit AWS billing' });
+  }
+
+  billingAccountDropdownToggle(): Locator {
+    return this.editBillingAccountModal().getByRole('button', { name: 'Options menu' });
+  }
+
+  billingAccountFilterInput(): Locator {
+    return this.page.getByPlaceholder('Filter by account ID');
+  }
+
+  billingAccountDocLink(text: string): Locator {
+    return this.page.getByRole('link', { name: text });
+  }
+
+  refreshAWSAccountsButton(): Locator {
+    return this.page.getByTestId('refresh-aws-accounts');
+  }
+
+  updateBillingAccountButton(): Locator {
+    return this.page.getByTestId('Update');
+  }
+
+  billingAccountOption(accountId: string): Locator {
+    return this.page.getByRole('listbox').getByRole('option', { name: accountId });
+  }
+
+  async openEditBillingAccountModal(): Promise<void> {
+    await this.clusterBillingMarketplaceAccountLabelValue().click({ force: true });
+    await expect(this.editBillingAccountModal()).toBeVisible({ timeout: 30000 });
+  }
+
+  async openBillingAccountDropdown(): Promise<void> {
+    await expect(this.billingAccountDropdownToggle()).toBeEnabled({ timeout: 30000 });
+    await this.billingAccountDropdownToggle().click({ force: true });
+  }
+
+  async closeBillingAccountDropdown(): Promise<void> {
+    await this.editBillingAccountModal().click();
+  }
+
+  async filterBillingAccount(accountId: string): Promise<void> {
+    await this.billingAccountFilterInput().clear();
+    await this.billingAccountFilterInput().fill(accountId);
+  }
+
+  async selectBillingAccount(accountId: string): Promise<void> {
+    await this.billingAccountOption(accountId).click({ force: true });
+  }
+
+  async updateBillingAccount(): Promise<void> {
+    await this.updateBillingAccountButton().click({ force: true });
+    await expect(this.editBillingAccountModal()).toBeHidden({ timeout: 30000 });
+  }
+
+  // ── Cluster History tab ────────────────────────────────────────────────
+
+  clusterHistoryTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Cluster history' });
+  }
+
+  historyRefreshButton(): Locator {
+    return this.page.getByRole('button', { name: 'Refresh' });
+  }
+
+  async navigateToClusterHistoryTab(): Promise<void> {
+    await this.clusterHistoryTab().click();
+  }
+
+  async expandHistoryRowEntry(text: string): Promise<void> {
+    const row = this.page.getByRole('row').filter({ hasText: text }).first();
+    const detailsButton = row.getByRole('button', { name: 'Details' });
+    await expect(async () => {
+      if ((await detailsButton.getAttribute('aria-expanded')) !== 'true') {
+        await detailsButton.click();
+      }
+      await expect(detailsButton).toHaveAttribute('aria-expanded', 'true');
+    }).toPass({ timeout: 15000 });
+  }
+
+  async verifyHistoryRowContainsText(text: string): Promise<void> {
+    const historyPanel = this.page.getByRole('tabpanel', { name: 'Cluster history' });
+    await expect(historyPanel).toContainText(text, { timeout: 30000 });
+  }
+
   // ── Day 2 Log Forwarding (Settings tab) ──────────────────────────────────
 
   logForwardingSectionHeading(): Locator {

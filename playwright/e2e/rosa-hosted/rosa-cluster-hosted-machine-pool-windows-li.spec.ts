@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfile = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const day1Profile = clusterProfile['rosa-hosted-public-advanced']['day1-profile'];
@@ -24,7 +25,7 @@ test.describe.serial(
       if (!zones || Object.keys(zones).length === 0) {
         throw new Error(`SUBNETS.ZONES is not defined in QE_INFRA_REGIONS for region "${region}"`);
       }
-      await navigateTo('cluster-list');
+      await navigateTo(CLUSTER_LIST_ROUTE);
       await clusterListPage.waitForDataReady();
     });
 
