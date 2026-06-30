@@ -90,10 +90,7 @@ const UpdateAllMachinePools = ({
     );
     setPending(false);
     setErrors(updateErrors);
-
-    if (updateErrors.length === 0) {
-      setIsConfirmModalOpen(false);
-    }
+    setIsConfirmModalOpen(false);
 
     if (isHypershift && refreshMachinePools) {
       refreshMachinePools();

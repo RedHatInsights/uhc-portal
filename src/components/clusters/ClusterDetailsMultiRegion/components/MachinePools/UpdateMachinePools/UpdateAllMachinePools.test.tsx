@@ -706,6 +706,42 @@ describe('<UpdateAllMachinePools />', () => {
       expect(apiRequestMock.post).not.toHaveBeenCalled();
     });
 
+    it('closes the confirmation modal and shows an error alert when update fails', async () => {
+      apiRequestMock.post.mockRejectedValue({
+        response: {
+          data: {
+            code: 'CLUSTERS-MGMT-400',
+            reason: 'Failed to schedule machine pool update',
+          },
+        },
+      });
+
+      const { user } = withState(defaultStore).render(
+        <UpdateAllMachinePools
+          isMachinePoolError={false}
+          isHypershift
+          controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
+          clusterId={clusterId}
+          machinePoolData={[machinePoolBehind1]}
+        />,
+      );
+
+      await clickUpdateButton(user);
+      await confirmUpdateAllMachinePools(user);
+
+      expect(
+        screen.queryByText('Update all machine pools to version 4.12.13?', { exact: false }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId(errorAlertTestId)).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Danger alert details' }));
+      expect(
+        within(screen.getByTestId(errorAlertTestId)).getByText(
+          'CLUSTERS-MGMT-400 - Failed to schedule machine pool update',
+        ),
+      ).toBeInTheDocument();
+    });
+
     it('create node policy is called ', async () => {
       apiRequestMock.post.mockResolvedValue('success');
       const dummyDispatch = jest.fn();
