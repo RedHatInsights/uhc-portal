@@ -21,7 +21,8 @@ test.describe.serial(
 
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
-    const clusterName = clusterProperties.ClusterName;
+    const clusterNamePrefix = clusterProperties.ClusterName;
+    const clusterName = `${clusterNamePrefix}-${Math.random().toString(36).slice(2, 7)}`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
     test.beforeAll(async ({ navigateTo }) => {
       await navigateTo('create');

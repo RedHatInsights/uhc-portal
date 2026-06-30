@@ -1,4 +1,5 @@
 import { expect, test } from '../../fixtures/pages';
+import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 
@@ -13,7 +14,7 @@ test.describe.serial(
     const clusterAdminUser = `ca-user-${Math.random().toString(36).slice(2, 7)}`;
 
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
-      await navigateTo('cluster-list');
+      await navigateTo(CLUSTER_LIST_ROUTE);
       await clusterListPage.waitForDataReady();
     });
 
