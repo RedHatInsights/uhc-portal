@@ -139,6 +139,7 @@
         "**/*.stories.ts*",
         "**/*.stories.js*",
         "src/testUtils.tsx",
+        "src/mocks/**/*",
         "cypress.config.js",
         "fec.config.js",
         "*.mjs",
