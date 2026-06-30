@@ -129,4 +129,35 @@ describe('useFetchUpgradeGateAgreements', () => {
     });
     expect(apiRequest.get).toHaveBeenCalledTimes(1);
   });
+
+  it('refetches gate agreements when rh_region_id changes', async () => {
+    apiRequestMock.get.mockResolvedValue(mockedGateAgreements);
+
+    const { result, rerender } = renderHook(
+      ({ subscription }: { subscription: SubscriptionResponseType }) =>
+        useFetchUpgradeGateAgreements(clusterID, subscription, MAIN_QUERY_KEY),
+      { initialProps: { subscription: subscriptionWithRegion } },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+    expect(apiRequest.get).toHaveBeenCalledTimes(1);
+    expect(mockGetClusterServiceForRegion).toHaveBeenCalledWith('us-east-1');
+
+    rerender({
+      subscription: {
+        ...subscriptionWithRegion,
+        subscription: {
+          ...subscriptionWithRegion.subscription,
+          rh_region_id: 'us-west-2',
+        },
+      },
+    });
+
+    await waitFor(() => {
+      expect(apiRequest.get).toHaveBeenCalledTimes(2);
+    });
+    expect(mockGetClusterServiceForRegion).toHaveBeenCalledWith('us-west-2');
+  });
 });
