@@ -1331,14 +1331,17 @@ describe('HTPasswd password', () => {
 });
 
 describe('HTPasswd username', () => {
-  const validationErrorMessage = 'Username must not contain /, :, %, or empty spaces.';
   it.each([
     ['username1234', undefined],
-    ['username%', validationErrorMessage],
-    ['username:', validationErrorMessage],
-    ['username/', validationErrorMessage],
-    ['username1  ', validationErrorMessage],
-    [' ', validationErrorMessage],
+    ['user name', undefined],
+    ['username1  ', undefined],
+    ['     ', undefined],
+    ['username%', 'Username must not contain /, :, or %.'],
+    ['username:', 'Username must not contain /, :, or %.'],
+    ['username/', 'Username must not contain /, :, or %.'],
+    ['', 'Username is required.'],
+    ['a'.repeat(255), undefined],
+    ['a'.repeat(256), 'Username may not exceed 255 characters.'],
   ])('value %p to be %p', (value: string, expected: string | undefined) => {
     expect(validateHTPasswdUsername(value)).toBe(expected);
   });
