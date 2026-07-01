@@ -47,6 +47,8 @@ import { ErrorState } from '~/types/types';
 import { QuotaTypes } from '../../common/quotaModel';
 import { useClusterWizardResetStepsHook } from '../hooks/useClusterWizardResetStepsHook';
 
+import { useGetBillingQuotas } from './BillingModel/useGetBillingQuotas';
+import { getDefaultBillingModel, getDefaultByoc } from './BillingModel/utils';
 import { CloudProviderType } from './ClusterSettings/CloudProvider/types';
 import { BillingModel } from './BillingModel';
 import {
@@ -294,6 +296,8 @@ export const CreateOsdWizard = ({
   const persistentStorageValues = useGlobalState((state) => state.persistentStorageValues);
   const loadBalancerValues = useGlobalState((state) => state.loadBalancerValues);
   const organization = useGlobalState((state) => state.userProfile.organization);
+  const billingQuotas = useGetBillingQuotas({ product: product || initialValues[FieldId.Product] });
+  const billingModel = getDefaultBillingModel(billingQuotas);
 
   usePreventBrowserNav();
 
@@ -338,6 +342,10 @@ export const CreateOsdWizard = ({
   const defaultInitialValues = {
     ...initialValues,
     ...(product && { product }),
+    ...(organization.fulfilled && {
+      [FieldId.BillingModel]: billingModel,
+      [FieldId.Byoc]: getDefaultByoc(billingQuotas, billingModel),
+    }),
     // WIF is now unconditionally the default auth type (set in initialValues)
     ...(isOSDFromGoogleCloud && {
       [FieldId.InstallToVpc]: true,
@@ -345,12 +353,14 @@ export const CreateOsdWizard = ({
       [FieldId.Byoc]: 'true',
     }),
   };
+
   const contextValue = useMemo(() => ({ isOSDFromGoogleCloud }), [isOSDFromGoogleCloud]);
   return (
     <AppPage title={documentTitle}>
       <OsdWizardContext.Provider value={contextValue}>
         <Formik
           initialValues={defaultInitialValues}
+          enableReinitialize
           initialTouched={initialTouched}
           validate={osdWizardFormValidator}
           validateOnChange={false}

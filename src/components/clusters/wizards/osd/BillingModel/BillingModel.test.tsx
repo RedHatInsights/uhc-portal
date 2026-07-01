@@ -9,6 +9,7 @@ import { FieldId, initialValues } from '../constants';
 
 import { BillingModel } from './BillingModel';
 import { useGetBillingQuotas } from './useGetBillingQuotas';
+import { BillingQuotas, getDefaultBillingModel, getDefaultByoc } from './utils';
 
 // Mock hooks
 jest.mock('~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud');
@@ -17,31 +18,38 @@ jest.mock('~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas');
 const mockUseIsOSDFromGoogleCloud = useIsOSDFromGoogleCloud as jest.Mock;
 const mockUseGetBillingQuotas = useGetBillingQuotas as jest.Mock;
 
-const defaultQuotas = {
+const defaultQuotas: BillingQuotas = {
   osdTrial: true,
   standardOsd: true,
   marketplace: true,
   gcpResources: true,
+  awsResources: true,
   rhInfra: true,
   byoc: true,
   marketplaceRhInfra: true,
   marketplaceByoc: true,
 };
 
-const buildTestComponent = (isOSDFromGoogleCloud = false) => (
-  <Formik
-    initialValues={{
-      ...initialValues,
-      ...(isOSDFromGoogleCloud && {
-        [FieldId.BillingModel]: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
-      }),
-    }}
-    initialTouched={{}}
-    onSubmit={() => {}}
-  >
-    <BillingModel />
-  </Formik>
-);
+const buildTestComponent = (isOSDFromGoogleCloud = false, quotas = defaultQuotas) => {
+  const billingModel = isOSDFromGoogleCloud
+    ? SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
+    : getDefaultBillingModel(quotas);
+  const byoc = isOSDFromGoogleCloud ? 'true' : getDefaultByoc(quotas, billingModel);
+
+  return (
+    <Formik
+      initialValues={{
+        ...initialValues,
+        [FieldId.BillingModel]: billingModel,
+        [FieldId.Byoc]: byoc,
+      }}
+      initialTouched={{}}
+      onSubmit={() => {}}
+    >
+      <BillingModel />
+    </Formik>
+  );
+};
 
 describe('<BillingModel />', () => {
   beforeEach(() => {
@@ -93,6 +101,36 @@ describe('<BillingModel />', () => {
       expect(byocRadioCCSOption).toBeInTheDocument();
       expect(byocRadioCCSOption).toBeChecked();
     });
+
+    it('defaults to Red Hat cloud account when there is no BYOC quota', () => {
+      mockUseGetBillingQuotas.mockReturnValue({
+        ...defaultQuotas,
+        byoc: false,
+      });
+
+      render(buildTestComponent(false, { ...defaultQuotas, byoc: false }));
+
+      const rhInfraRadioOption = screen.getByRole('radio', {
+        name: /red hat cloud account/i,
+      });
+
+      expect(rhInfraRadioOption).toBeChecked();
+    });
+
+    it('defaults to On-Demand when there is no standard OSD quota', () => {
+      mockUseGetBillingQuotas.mockReturnValue({
+        ...defaultQuotas,
+        standardOsd: false,
+      });
+
+      render(buildTestComponent(false, { ...defaultQuotas, standardOsd: false }));
+
+      const onDemandRadioOption = screen.getByRole('radio', {
+        name: /On-Demand: Flexible usage billed through/i,
+      });
+
+      expect(onDemandRadioOption).toBeChecked();
+    });
   });
 
   describe('When creating a cluster coming from google cloud console', () => {
@@ -123,18 +161,14 @@ describe('<BillingModel />', () => {
       expect(screen.getByText(/On-Demand: Flexible usage billed through/i)).toBeInTheDocument();
     });
 
-    it('has On-Demand selected by default', async () => {
+    it('has On-Demand selected by default', () => {
       render(buildTestComponent(true));
 
       const onDemandRadioOption = screen.getByRole('radio', {
         name: /On-Demand: Flexible usage billed through/i,
       });
       expect(onDemandRadioOption).toBeInTheDocument();
-
-      // Wait for the useEffect to update the billing model
-      await waitFor(() => {
-        expect(onDemandRadioOption).toBeChecked();
-      });
+      expect(onDemandRadioOption).toBeChecked();
     });
 
     it('displays only customer cloud subscription infrastructure option', () => {
