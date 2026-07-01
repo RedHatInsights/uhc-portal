@@ -1663,15 +1663,25 @@ const validateUniqueHTPasswdUsername = (fields: { name: string }[]) => {
   return undefined;
 };
 
+const MAX_HTPASSWD_USERNAME_LENGTH = 255;
+
 const validateHTPasswdUsername = (username: string): string | undefined => {
+  if (!username) {
+    return 'Username is required.';
+  }
+
   if (
     indexOf(username, '%') !== -1 ||
     indexOf(username, ':') !== -1 ||
-    indexOf(username, '/') !== -1 ||
-    indexOf(username, ' ') !== -1
+    indexOf(username, '/') !== -1
   ) {
-    return 'Username must not contain /, :, %, or empty spaces.';
+    return 'Username must not contain /, :, or %.';
   }
+
+  if (username.length > MAX_HTPASSWD_USERNAME_LENGTH) {
+    return `Username may not exceed ${MAX_HTPASSWD_USERNAME_LENGTH} characters.`;
+  }
+
   return undefined;
 };
 
