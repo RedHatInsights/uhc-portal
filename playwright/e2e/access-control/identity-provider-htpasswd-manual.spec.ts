@@ -12,6 +12,7 @@ const manualProfile = htpasswdProfile.Htpasswd.Manual;
 // Short suffix makes each run's IDP names unique, preventing collisions on retries or shared clusters.
 const runId = Math.random().toString(36).slice(2, 5);
 const htpasswdIdpNames = [`HtpasswdSingleUser-${runId}`, `HtpasswdMultipleUsers-${runId}`];
+const singleUserUsername = manualProfile.Usernames.ValidUsernameWithSpaces;
 // >10 users required to exercise per-page-10 pagination; +1 extra reserved for the add-user edit modal test
 const BULK_USER_COUNT = 15;
 const bulkUsers = Array.from({ length: BULK_USER_COUNT + 1 }, (_, i) => `ocmplaywright${i + 1}`);
@@ -85,6 +86,12 @@ test.describe.serial(
         clusterIdentityProviderPage.getByText(manualProfile.Usernames.InValidUserNameError),
       ).toBeVisible();
 
+      await clusterIdentityProviderPage.htpasswdUsernameInput().fill(singleUserUsername);
+      await clusterIdentityProviderPage.htpasswdUsernameInput().blur();
+      await expect(
+        clusterIdentityProviderPage.getByText(manualProfile.Usernames.InValidUserNameError),
+      ).not.toBeVisible();
+
       for (const info of manualProfile.Password.DefaultPasswordInformation) {
         await expect(clusterIdentityProviderPage.getByText(info)).toBeVisible();
       }
@@ -102,7 +109,7 @@ test.describe.serial(
       await clusterIdentityProviderPage.openHtpasswdForm();
 
       await clusterIdentityProviderPage.htpasswdNameInput().fill(htpasswdIdpNames[0]);
-      await clusterIdentityProviderPage.htpasswdUsernameInput().fill(bulkUsers[1]);
+      await clusterIdentityProviderPage.htpasswdUsernameInput().fill(singleUserUsername);
       await clusterIdentityProviderPage.fillSuggestedPassword();
       await clusterIdentityProviderPage.fillSuggestedConfirmPassword();
 
