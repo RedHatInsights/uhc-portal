@@ -706,6 +706,32 @@ describe('<UpdateAllMachinePools />', () => {
       expect(apiRequestMock.post).not.toHaveBeenCalled();
     });
 
+    it('closes the confirmation modal while update is in progress', async () => {
+      apiRequestMock.post.mockImplementation(() => new Promise(() => {}));
+
+      const { user } = withState(defaultStore).render(
+        <UpdateAllMachinePools
+          isMachinePoolError={false}
+          isHypershift
+          controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
+          clusterId={clusterId}
+          machinePoolData={[machinePoolBehind1]}
+        />,
+      );
+
+      await clickUpdateButton(user);
+      await confirmUpdateAllMachinePools(user);
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      expect(
+        screen.queryByText('Update all machine pools to version 4.12.13?', { exact: false }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('progressbar', { name: 'Updating machine pools' }),
+      ).toBeInTheDocument();
+    });
+
     it('closes the confirmation modal and shows an error alert when update fails', async () => {
       apiRequestMock.post.mockRejectedValue({
         response: {

@@ -75,9 +75,7 @@ const UpdateAllMachinePools = ({
   }
 
   const closeConfirmModal = () => {
-    if (!pending) {
-      setIsConfirmModalOpen(false);
-    }
+    setIsConfirmModalOpen(false);
   };
 
   const updateNodePools = async () => {
@@ -165,7 +163,7 @@ const UpdateAllMachinePools = ({
           secondaryText="Cancel"
           onPrimaryClick={updateNodePools}
           onSecondaryClick={closeConfirmModal}
-          isPending={pending}
+          isPrimaryDisabled={pending}
         >
           <p>
             Update all machine pools to version {displayControlPlaneVersion(controlPlaneVersion)}?
