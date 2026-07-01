@@ -37,9 +37,6 @@ module.exports = {
     '/mockdata': {
       host: 'http://localhost:8010',
     },
-    '/mockServiceWorker.js': {
-      host: 'http://localhost:8003',
-    },
   },
   plugins: [
     process.env.NODE_ENV !== 'production' && new (require('./src/mocks/MSWPlugin'))(),
