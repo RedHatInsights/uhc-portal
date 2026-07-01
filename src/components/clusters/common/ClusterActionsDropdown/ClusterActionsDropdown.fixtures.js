@@ -64,6 +64,7 @@ const hibernateClusterModalData = {
   clusterID: cluster.id,
   clusterName: cluster.name,
   subscriptionID: cluster.subscription.id,
+  isROSA: false,
 };
 
 const deleteModalData = {
