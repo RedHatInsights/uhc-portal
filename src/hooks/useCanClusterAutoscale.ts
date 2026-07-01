@@ -1,6 +1,7 @@
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { hasOrgLevelAutoscaleCapability } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsSelectors';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { useGlobalState } from '~/redux/hooks';
 import {
   Capability,
@@ -28,7 +29,7 @@ const useCanClusterAutoscale = (
     (product === normalizedProducts.OSD &&
       (billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace ||
         billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_aws ||
-        billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp ||
+        isGcpMarketplaceBilling(billingModel) ||
         hasAutoScaleCapability))
   );
 };

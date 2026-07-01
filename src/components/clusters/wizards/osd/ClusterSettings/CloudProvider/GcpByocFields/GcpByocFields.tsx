@@ -17,6 +17,7 @@ import { HelpIcon } from '@patternfly/react-icons/dist/esm/icons/help-icon';
 import styles from '@patternfly/react-styles/css/components/Form/form';
 
 import links from '~/common/installLinks.mjs';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { Prerequisites } from '~/components/clusters/wizards/common/Prerequisites/Prerequisites';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { PrepareGCPHint } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/PrepareGCPHint';
@@ -30,7 +31,6 @@ import { WorkloadIdentityFederationPrerequisites } from '~/components/clusters/w
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
-import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { ServiceAccountNotRecommendedAlert } from '../ServiceAccountNotRecommendedAlert';
 
@@ -96,12 +96,10 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
     </ToggleGroup>
   );
   const shouldShowPrepareGCPHint =
-    (billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp &&
-      !isOSDFromGoogleCloud) ||
-    isOSDFromGoogleCloud;
+    (isGcpMarketplaceBilling(billingModel) && !isOSDFromGoogleCloud) || isOSDFromGoogleCloud;
   return (
     <>
-      {billingModel !== SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
+      {!isGcpMarketplaceBilling(billingModel) && (
         <FormAlert>
           <Alert variant="info" isInline isPlain title="Customer cloud subscription">
             Provision your cluster in a Google Cloud account owned by you or your company to

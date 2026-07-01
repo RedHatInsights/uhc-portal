@@ -17,6 +17,7 @@ import {
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
 import { noMachineTypes } from '~/common/helpers';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -184,6 +185,10 @@ const MachineTypeSelection = ({
 
       if (!isBYOC && machineType.ccs_only) {
         return false;
+      }
+
+      if (isGcpMarketplaceBilling(billingModel)) {
+        return true;
       }
 
       const quotaParams = {

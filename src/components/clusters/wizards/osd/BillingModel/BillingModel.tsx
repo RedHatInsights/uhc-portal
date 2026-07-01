@@ -1,24 +1,12 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import {
-  Button,
-  Content,
-  Flex,
-  FlexItem,
-  Icon,
-  Popover,
-  PopoverPosition,
-  Stack,
-  StackItem,
-  Title,
-} from '@patternfly/react-core';
-import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons';
-import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
+import { Content, Flex, FlexItem, Stack, StackItem, Title } from '@patternfly/react-core';
 
 import installLinks from '~/common/installLinks.mjs';
 import { normalizedProducts, STANDARD_TRIAL_BILLING_MODEL_TYPE } from '~/common/subscriptionTypes';
 import supportLinks from '~/common/supportLinks.mjs';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import {
   getMinReplicasCount,
   getNodesCount,
@@ -79,32 +67,6 @@ export const BillingModel = () => {
     </ExternalLink>
   );
 
-  const marketplaceDisabledDescription = (
-    <Stack>
-      <StackItem className="pf-v6-u-mb-sm">
-        <Icon status="warning">
-          <ExclamationTriangleIcon />
-        </Icon>{' '}
-        You do not currently have a Google Cloud subscription
-      </StackItem>
-
-      <StackItem>
-        <Popover
-          position={PopoverPosition.right}
-          headerContent="On-Demand subscription"
-          bodyContent={
-            <p>Billing based on cluster consumption. Purchase a subscription via {gcpLink}</p>
-          }
-          aria-label="help"
-        >
-          <Button icon={<OutlinedQuestionCircleIcon />} isInline variant="link">
-            How can I purchase a subscription?
-          </Button>
-        </Popover>
-      </StackItem>
-    </Stack>
-  );
-
   const subOptions = [
     ...(showOsdTrial && !isOSDFromGoogleCloud
       ? [
@@ -128,12 +90,10 @@ export const BillingModel = () => {
         ]
       : []),
     {
-      disabled: !quotas.gcpResources,
       value: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
       label: <div>On-Demand: Flexible usage billed through {gcpLink}</div>,
-      description: !quotas.gcpResources
-        ? marketplaceDisabledDescription
-        : 'Use Google Cloud Marketplace to subscribe and pay based on the services you use',
+      description:
+        'Use Google Cloud Marketplace to subscribe and pay based on the services you use',
     },
   ];
 
@@ -217,7 +177,7 @@ export const BillingModel = () => {
       selectedProduct = normalizedProducts.OSDTrial;
     }
 
-    if (value === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp) {
+    if (isGcpMarketplaceBilling(value)) {
       setFieldValue(FieldId.MarketplaceSelection, value, false);
       setFieldValue(FieldId.CloudProvider, CloudProviderType.Gcp, false);
     }

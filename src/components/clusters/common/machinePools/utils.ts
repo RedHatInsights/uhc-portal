@@ -128,6 +128,7 @@ export const getMaxNodeCount = ({
     : allow249NodesOSDCCSROSA
       ? getMaxWorkerNodes(clusterVersion)
       : MAX_NODES_180;
+
   if (maxValue > maxNumberOfNodes) {
     maxValue = maxNumberOfNodes;
   }
@@ -248,6 +249,10 @@ export const getMaxNodeCountForMachinePool = ({
   mpAvailZones,
 }: GetMaxNodeCountForMachinePoolParams): number => {
   const clusterIsMultiAz = isMultiAZ(cluster);
+  const billingModel =
+    (cluster as Cluster).billing_model ??
+    ((cluster as ClusterFromSubscription).subscription
+      ?.cluster_billing_model as Cluster['billing_model']);
 
   const available = getAvailableQuota({
     quota,
@@ -256,10 +261,7 @@ export const getMaxNodeCountForMachinePool = ({
     isMultiAz: clusterIsMultiAz,
     isByoc: !!cluster.ccs?.enabled,
     cloudProviderID: cluster.cloud_provider?.id,
-    billingModel:
-      (cluster as Cluster).billing_model ??
-      ((cluster as ClusterFromSubscription).subscription
-        ?.cluster_billing_model as Cluster['billing_model']),
+    billingModel,
     product: cluster.product?.id,
   });
 

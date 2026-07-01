@@ -22,7 +22,6 @@ const defaultQuotas = {
   osdTrial: true,
   standardOsd: true,
   marketplace: true,
-  gcpResources: true,
   rhInfra: true,
   byoc: true,
   marketplaceRhInfra: true,
@@ -163,58 +162,6 @@ describe('<BillingModel />', () => {
       render(buildTestComponent(true));
 
       expect(screen.queryByText('Free trial (upgradeable)')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Google Cloud Marketplace', () => {
-    it('Google Cloud Marketplace option is enabled when there is gcp quota', async () => {
-      mockUseGetBillingQuotas.mockReturnValue({
-        gcpResources: true,
-      });
-
-      render(buildTestComponent());
-
-      expect(
-        screen.queryByRole('radio', { name: /On-Demand: Flexible usage billed through/i }),
-      ).toBeEnabled();
-    });
-
-    it('Google Cloud Marketplace option is disabled when there is no gcp quota', async () => {
-      mockUseGetBillingQuotas.mockReturnValue({
-        gcpResources: false,
-      });
-
-      render(buildTestComponent());
-
-      expect(
-        screen.queryByRole('radio', { name: /On-Demand: Flexible usage billed through/i }),
-      ).toBeDisabled();
-    });
-
-    it('Shows enabled description when there is gcp quota', async () => {
-      mockUseGetBillingQuotas.mockReturnValue({
-        gcpResources: true,
-      });
-
-      render(buildTestComponent());
-
-      expect(
-        screen.getByText(
-          'Use Google Cloud Marketplace to subscribe and pay based on the services you use',
-        ),
-      ).toBeInTheDocument();
-    });
-
-    it('Shows disabled description when there is no gcp quota', async () => {
-      mockUseGetBillingQuotas.mockReturnValue({
-        gcpResources: false,
-      });
-      render(buildTestComponent());
-
-      expect(
-        screen.getByText('You do not currently have a Google Cloud subscription'),
-      ).toBeInTheDocument();
-      expect(screen.getByText('How can I purchase a subscription?')).toBeInTheDocument();
     });
   });
 });
