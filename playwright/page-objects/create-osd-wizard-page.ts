@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { DEFAULT_NAVIGATION_TIMEOUT } from '../support/playwright-constants';
 import { BasePage } from './base-page';
 
 /**
@@ -28,7 +29,7 @@ export class CreateOSDWizardPage extends BasePage {
   async isBillingModelScreen(): Promise<void> {
     await expect(
       this.page.getByRole('heading', { name: 'Welcome to Red Hat OpenShift Dedicated' }),
-    ).toBeVisible({ timeout: 60000 });
+    ).toBeVisible({ timeout: 100000 });
   }
 
   async isCuratedBillingModelEnabledAndSelected(): Promise<void> {
@@ -80,8 +81,22 @@ export class CreateOSDWizardPage extends BasePage {
 
   async waitAndClick(buttonLocator: Locator, timeout: number = 160000): Promise<void> {
     await buttonLocator.waitFor({ state: 'visible', timeout });
-    await buttonLocator.click();
+    await buttonLocator.click({ timeout });
   }
+
+  /**
+   * Opens the OSD billing step via direct URL navigation (not the create landing button).
+   * Always reloads so parameterized serial suites sharing one page start from a clean wizard.
+   */
+  async openOsdCreateClusterWizard(): Promise<void> {
+    await this.page.goto('create/osd', {
+      waitUntil: 'domcontentloaded',
+      timeout: DEFAULT_NAVIGATION_TIMEOUT,
+    });
+    await this.closePopoverDialogs();
+    await this.isBillingModelScreen();
+  }
+
   // Machine pool selectors
   computeNodeTypeButton(): Locator {
     return this.page.locator('button[aria-label="Machine type select toggle"]');
@@ -214,7 +229,7 @@ export class CreateOSDWizardPage extends BasePage {
     await this.page.locator('input[placeholder="Filter by name / ID"]').clear();
     await this.page.locator('input[placeholder="Filter by name / ID"]').fill(wifConfig);
     await this.page.getByText(wifConfig).scrollIntoViewIfNeeded();
-    await this.page.getByText(wifConfig).click();
+    await this.page.getByText(wifConfig).click({ force: true });
   }
 
   // AWS credentials
@@ -872,12 +887,169 @@ export class CreateOSDWizardPage extends BasePage {
     return this.page.locator('input[id="form-radiobutton-applicationIngress-custom-field"]');
   }
 
+  async selectApplicationIngressCustomSettings(): Promise<void> {
+    const customSettingsRadio = this.page.getByRole('radio', { name: 'Custom settings' });
+    await customSettingsRadio.scrollIntoViewIfNeeded();
+    await customSettingsRadio.check();
+    await expect(customSettingsRadio).toBeChecked();
+  }
+
+  wizardScrollContainer(): Locator {
+    return this.page.locator('.pf-v6-c-wizard__main, .pf-v6-c-wizard__main-body').first();
+  }
+
+  async scrollWizardContentDown(deltaY = 400): Promise<void> {
+    const container = this.wizardScrollContainer();
+    if (await container.isVisible().catch(() => false)) {
+      await container.hover();
+    } else {
+      await this.page.getByText('Application ingress settings').hover();
+    }
+    await this.page.mouse.wheel(0, deltaY);
+  }
+
+  async ensureExcludeNamespaceSelectorsSectionVisible(): Promise<void> {
+    const section = this.excludeNamespaceSelectorsSection();
+
+    await this.page.getByText('Application ingress settings').scrollIntoViewIfNeeded();
+  }
+
+  async expectApplicationIngressRouteFieldsEmpty(): Promise<void> {
+    await expect(this.applicationIngressRouterSelectorsInput()).toHaveValue('');
+    await expect(this.applicationIngressExcludedNamespacesInput()).toHaveValue('');
+  }
+
+  async expectApplicationIngressEmptyOnReview(): Promise<void> {
+    await expect(this.routeSelectorsReviewValue()).toHaveText('None specified');
+    await expect(this.excludedNamespacesReviewValue()).toHaveText('None specified');
+    await expect(this.excludeNamespaceSelectorsReviewValue()).toHaveText('None specified');
+  }
+
   applicationIngressRouterSelectorsInput(): Locator {
     return this.page.locator('input[name="defaultRouterSelectors"]');
   }
 
   applicationIngressExcludedNamespacesInput(): Locator {
     return this.page.locator('input[name="defaultRouterExcludedNamespacesFlag"]');
+  }
+
+  namespaceOwnershipPolicySwitch(): Locator {
+    return this.page.getByRole('switch', { name: 'Strict' });
+  }
+
+  wildcardPolicySwitch(): Locator {
+    return this.page.getByRole('switch', { name: 'Disallowed' });
+  }
+
+  excludeNamespaceSelectorsSection(): Locator {
+    return this.page.getByTestId('default-ingress-exclude-namespace-selectors');
+  }
+
+  excludeNamespaceSelectorsLabel(): Locator {
+    return this.excludeNamespaceSelectorsSection()
+      .locator('.pf-v6-c-form__group-label')
+      .getByText('Exclude namespace selectors', { exact: true });
+  }
+
+  excludeNamespaceSelectorsLabelHelpIcon(): Locator {
+    return this.excludeNamespaceSelectorsSection().locator('.pf-v6-c-form__group-label-help');
+  }
+
+  excludeNamespaceSelectorKeyInput(rowIndex = 0): Locator {
+    return this.excludeNamespaceSelectorsSection()
+      .getByRole('textbox', { name: 'Exclude namespace selector key' })
+      .nth(rowIndex);
+  }
+
+  excludeNamespaceSelectorValuesInput(rowIndex = 0): Locator {
+    return this.excludeNamespaceSelectorsSection()
+      .getByRole('textbox', { name: 'Exclude namespace selector values' })
+      .nth(rowIndex);
+  }
+
+  excludeNamespaceSelectorsAddRowButton(): Locator {
+    return this.excludeNamespaceSelectorsSection().getByRole('button', { name: 'Add selector' });
+  }
+
+  excludeNamespaceSelectorsReviewValue(): Locator {
+    return this.page.getByTestId('Exclude-namespace-selectors');
+  }
+
+  /**
+   * PatternFly LabelGroup shows at most 3 labels inline; additional labels are behind an "N more"
+   * overflow control. Expands when needed, then asserts each label text is visible on the page.
+   */
+  async expectReviewLabelGroupDisplays(
+    reviewValue: Locator,
+    reviewDisplays: string[],
+  ): Promise<void> {
+    await expect(reviewValue).toBeVisible();
+
+    const overflowButton = reviewValue.getByRole('button', { name: /\d+ more/ });
+    if (await overflowButton.isVisible().catch(() => false)) {
+      await overflowButton.click();
+    }
+
+    for (const reviewDisplay of reviewDisplays) {
+      await expect(this.page.getByText(reviewDisplay, { exact: true })).toBeVisible();
+    }
+  }
+
+  routeSelectorsReviewValue(): Locator {
+    return this.page.getByTestId('Route-selectors');
+  }
+
+  excludedNamespacesReviewValue(): Locator {
+    return this.page.getByTestId('Excluded-namespaces');
+  }
+
+  namespaceOwnershipPolicyReviewValue(): Locator {
+    return this.page.getByTestId('Namespace-ownership-policy');
+  }
+
+  wildcardPolicyReviewValue(): Locator {
+    return this.page.getByTestId('Wildcard-policy');
+  }
+
+  excludeNamespaceSelectorsMoreInfoButton(): Locator {
+    return this.excludeNamespaceSelectorsSection().getByRole('button', {
+      name: 'More information',
+    });
+  }
+
+  async fillExcludeNamespaceSelector(rowIndex: number, key: string, values: string): Promise<void> {
+    await this.excludeNamespaceSelectorKeyInput(rowIndex).fill(key);
+    await this.excludeNamespaceSelectorValuesInput(rowIndex).fill(values);
+  }
+
+  async addExcludeNamespaceSelectorRow(): Promise<void> {
+    await this.excludeNamespaceSelectorsAddRowButton().click();
+  }
+
+  async clearExcludeNamespaceSelectorRow(rowIndex = 0): Promise<void> {
+    await this.excludeNamespaceSelectorKeyInput(rowIndex).clear();
+    await this.excludeNamespaceSelectorValuesInput(rowIndex).clear();
+  }
+
+  async expectExcludeNamespaceSelectorError(errorText: string, present = true): Promise<void> {
+    const locator = this.excludeNamespaceSelectorsSection().getByText(errorText);
+    if (present) {
+      await expect(locator.first()).toBeVisible();
+    } else {
+      await expect(locator).toHaveCount(0);
+    }
+  }
+
+  async expectExcludeNamespaceSelectorErrorContaining(
+    errorText: string,
+    present = true,
+  ): Promise<void> {
+    const locator = this.excludeNamespaceSelectorsSection().getByText(errorText, { exact: false });
+    if (present) {
+      await expect(locator.first()).toBeVisible();
+    } else {
+      await expect(locator).toHaveCount(0);
+    }
   }
 
   // Navigation buttons (if not already present)

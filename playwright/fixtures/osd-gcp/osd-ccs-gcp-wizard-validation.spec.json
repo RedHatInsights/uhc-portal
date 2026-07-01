@@ -152,7 +152,63 @@
                   "InvalidValue": "Invalid-",
                   "Error": "Namespace name 'Invalid-' isn't valid, must consist of lower-case alphanumeric characters or '-', start with an alphabetic character, and end with an alphanumeric character. For example, 'my-name', or 'abc-123'."
                 }
-              ]
+              ],
+              "ExcludeNamespaceSelectors": {
+                "HelpText": "Namespaces matching any of these label selectors will be excluded from the default ingress controller.",
+                "PopoverTitle": "Exclude namespace selectors",
+                "UpperCharacterLimitValue": "characterslimtgreaterthan60testingssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+                "KeyUpperCharacterLimitError": "A valid key name must be 63 characters or less",
+                "ValueUpperCharacterLimitError": "A valid value must be 63 characters or less",
+                "ValueUpperCharacterLimitInList": {
+                  "Key": "env",
+                  "Value": "prod,characterslimtgreaterthan60testingssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+                },
+                "UnsupportedKeyCharacters": {
+                  "Value": "Invalid_Label_Key!",
+                  "Error": "A valid key name must consist of alphanumeric characters, '-', '.' , '_'  or '/' and must start and end with an alphanumeric character"
+                },
+                "UnsupportedValueCharacters": {
+                  "Key": "department",
+                  "Value": "good,bad value!",
+                  "ErrorContains": "valid value"
+                },
+                "MissingKey": {
+                  "Value": "prod",
+                  "Error": "Enter a label key before values."
+                },
+                "MissingValues": {
+                  "Key": "env",
+                  "Value": "",
+                  "Error": "Enter at least one value, separated by commas."
+                },
+                "DuplicateKey": {
+                  "Key": "env",
+                  "FirstValue": "prod",
+                  "SecondValue": "dev",
+                  "Error": "Each selector must have a different key."
+                },
+                "ReservedNamespaces": [
+                  {
+                    "Key": "kubernetes.io/metadata.name",
+                    "Value": "openshift-console",
+                    "Error": "Do not exclude openshift-console or openshift-authentication namespaces; they are vital to cluster operations."
+                  },
+                  {
+                    "Key": "kubernetes.io/metadata.name",
+                    "Value": "openshift-authentication",
+                    "Error": "Do not exclude openshift-console or openshift-authentication namespaces; they are vital to cluster operations."
+                  }
+                ],
+                "ClearedKey": {
+                  "Key": "department",
+                  "Value": "finance",
+                  "ErrorAfterClear": "Enter a label key before values."
+                },
+                "Valid": {
+                  "Key": "department",
+                  "Value": "finance,hr,legal"
+                }
+              }
             }
           }
         },
