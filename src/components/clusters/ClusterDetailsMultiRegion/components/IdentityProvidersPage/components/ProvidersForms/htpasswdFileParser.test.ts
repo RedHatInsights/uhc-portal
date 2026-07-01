@@ -137,6 +137,13 @@ describe('htpasswdFileParser', () => {
       expect(result.errors).toHaveLength(0);
     });
 
+    it('accepts usernames containing only spaces', () => {
+      const content = '   :$2y$05$hash123';
+      const result = parseHTPasswdFile(content);
+      expect(result.users).toEqual([{ username: '   ', password: '$2y$05$hash123' }]);
+      expect(result.errors).toHaveLength(0);
+    });
+
     it('reports error for plain text passwords', () => {
       const content = 'test:JKN@#$123';
       const result = parseHTPasswdFile(content);

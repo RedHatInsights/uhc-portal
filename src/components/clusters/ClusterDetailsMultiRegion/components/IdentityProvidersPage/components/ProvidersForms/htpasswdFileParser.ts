@@ -35,7 +35,7 @@ export const parseHTPasswdFile = (content: string): HTPasswdParseResult => {
     const username = rawLine.substring(0, colonIndex);
     const password = rawLine.substring(colonIndex + 1).trim();
 
-    if (!username.trim()) {
+    if (username.length === 0) {
       errors.push(`Line ${index + 1}: Username cannot be empty.`);
       return;
     }
