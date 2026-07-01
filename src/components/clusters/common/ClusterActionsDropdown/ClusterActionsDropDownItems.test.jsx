@@ -81,6 +81,28 @@ describe('Cluster Actions Dropdown Items', () => {
       });
     });
 
+    it('passes isROSA when opening hibernate cluster modal for ROSA cluster', async () => {
+      const rosaClusterProps = {
+        ...Fixtures.managedReadyProps,
+        cluster: {
+          ...Fixtures.managedReadyProps.cluster,
+          product: { id: 'ROSA' },
+          subscription: { id: 'subscription-id', plan: { type: 'ROSA' } },
+        },
+      };
+      const { user } = render(<DropDownItemsRenderHelper {...rosaClusterProps} />);
+
+      await user.click(screen.getByRole('menuitem', { name: 'Hibernate cluster' }));
+
+      expect(Fixtures.managedReadyProps.openModal).toHaveBeenCalledWith('hibernate-cluster', {
+        clusterID: Fixtures.managedReadyProps.cluster.id,
+        clusterName: Fixtures.managedReadyProps.cluster.name,
+        subscriptionID: 'subscription-id',
+        isROSA: true,
+        shouldDisplayClusterName: false,
+      });
+    });
+
     it('should open delete modal', async () => {
       const { user } = render(<DropDownItemsRenderHelper {...Fixtures.managedReadyProps} />);
       expect(Fixtures.managedReadyProps.openModal).toHaveBeenCalledTimes(0);
@@ -183,6 +205,20 @@ describe('Cluster Actions Dropdown Items', () => {
         <DropDownItemsRenderHelper {...Fixtures.clusterHibernatingProps} />,
       );
       await checkAccessibility(container);
+    });
+
+    it('passes isROSA when opening resume cluster modal', async () => {
+      const { user } = render(<DropDownItemsRenderHelper {...Fixtures.clusterHibernatingProps} />);
+
+      await user.click(screen.getByRole('menuitem', { name: 'Resume from Hibernation' }));
+
+      expect(Fixtures.clusterHibernatingProps.openModal).toHaveBeenCalledWith('resume-cluster', {
+        clusterID: Fixtures.clusterHibernatingProps.cluster.id,
+        clusterName: Fixtures.clusterHibernatingProps.cluster.name,
+        subscriptionID: Fixtures.clusterHibernatingProps.cluster.subscription.id,
+        isROSA: false,
+        shouldDisplayClusterName: false,
+      });
     });
 
     it.each([
