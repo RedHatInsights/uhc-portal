@@ -73,7 +73,7 @@ const parseEnvQueryParam = (): string | undefined => {
         ret = val;
       } else if (key === 'env' && val === 'mockserver' && configs.mockdata) {
         ret = 'mockdata';
-      } else if (key === 'env' && val === 'msw') {
+      } else if (key === 'env' && val === 'msw' && APP_DEVMODE) {
         ret = 'msw';
       }
     });
@@ -164,7 +164,7 @@ const config = {
       }
 
       const queryEnv = parseEnvQueryParam() || localStorage.getItem(ENV_OVERRIDE_LOCALSTORAGE_KEY);
-      if (queryEnv === 'msw') {
+      if (queryEnv === 'msw' && APP_DEVMODE) {
         configs.default?.then((data) => {
           this.loadConfig(data, chrome);
           that.envOverride = 'msw';
