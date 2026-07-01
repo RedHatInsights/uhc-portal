@@ -1,0 +1,8 @@
+{
+  "kind": "ControlPlaneUpgradePolicyList",
+  "href": "/api/clusters_mgmt/v1/clusters/21696acc0dbkvh0mh4lranlmvvqb11lg/control_plane/upgrade_policies",
+  "page": 1,
+  "size": 0,
+  "total": 0,
+  "items": []
+}
