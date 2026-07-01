@@ -16,7 +16,6 @@ limitations under the License.
 import React from 'react';
 import { Provider } from 'react-redux';
 
-import * as OCM from '@openshift-assisted/ui-lib/ocm';
 import { GenerateId } from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { NotificationsProvider } from '@redhat-cloud-services/frontend-components-notifications';
@@ -33,25 +32,10 @@ import App from './components/App/App';
 import useAnalytics, { Track } from './hooks/useAnalytics';
 import { userInfoResponse } from './redux/actions/userActions';
 import { store } from './redux/store';
-import { authInterceptor } from './services/apiRequest';
 import { Chrome } from './types/types';
 import config, { APP_API_ENV } from './config';
 
 import './styles/main.scss';
-
-import './i18n';
-
-const { Api, Config } = OCM;
-
-/**
- * Assisted Installer configuration
- *
- * We need to pass axios auth interceptor so every request from AI has proper headers.
- *
- * We also need to set the route base path for the internal AI routing to work properly.
- */
-Api.setAuthInterceptor(authInterceptor);
-Config.setRouteBasePath('/assisted-installer');
 
 type Props = {
   chrome: Chrome;
