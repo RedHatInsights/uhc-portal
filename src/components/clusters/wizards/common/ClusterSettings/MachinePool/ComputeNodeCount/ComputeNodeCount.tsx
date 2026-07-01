@@ -101,6 +101,7 @@ const ComputeNodeCount = ({
   const machineTypes = useGlobalState((state) => state.machineTypes);
   const quota = useGlobalState((state) => state.userProfile.organization.quotaList);
   const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
+  const bypassQuotaForMaxNodes = isGcpMarketplaceBilling(billingModel);
 
   const [nodesComputeErrorMessage, setNodesComputeErrorMessage] = useState<string>();
 
@@ -132,9 +133,10 @@ const ComputeNodeCount = ({
     [isHypershiftSelected, isMultiAzSelected, poolsLength],
   );
 
+  // Available quota is Infinity for GCP Marketplace billing model, to adjust to no quota checks for GCP Marketplace.
   const available = React.useMemo(() => {
-    if (isGcpMarketplaceBilling(billingModel)) {
-      return undefined;
+    if (bypassQuotaForMaxNodes) {
+      return Infinity;
     }
     return getAvailableQuotaUtil({
       quota,
@@ -147,13 +149,14 @@ const ComputeNodeCount = ({
       product,
     });
   }, [
+    bypassQuotaForMaxNodes,
     quota,
     isByoc,
     billingModel,
     cloudProviderID,
     isMultiAzSelected,
     machineTypes,
-    machineType,
+    machineType?.id,
     product,
   ]);
 
@@ -168,7 +171,6 @@ const ComputeNodeCount = ({
         isHypershift: isHypershiftSelected,
         clusterVersion: clusterVersionRawId,
         allow249NodesOSDCCSROSA,
-        billingModel,
       }),
     [
       included,
@@ -178,7 +180,6 @@ const ComputeNodeCount = ({
       allow249NodesOSDCCSROSA,
       clusterVersionRawId,
       isEditingCluster,
-      billingModel,
     ],
   );
 
