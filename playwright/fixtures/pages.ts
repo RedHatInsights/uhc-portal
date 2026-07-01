@@ -67,6 +67,8 @@ type WorkerFixtures = {
  * Test-scoped fixtures - created fresh for each test
  */
 type TestFixtures = {
+  /** Screencast auto-fixture — starts/stops page.screencast per test when Currents is enabled */
+  _currentsScreencast: void;
   navigateTo: (
     url: string,
     options?: { waitUntil?: 'load' | 'domcontentloaded' | 'networkidle' | 'commit' },
@@ -121,6 +123,32 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   page: async ({ authenticatedPage }, use) => {
     await use(authenticatedPage);
   },
+
+  // Auto-fixture: per-test screencast recording when Currents.dev is enabled.
+  // Uses the page.screencast API (Playwright 1.59+) which works independently of
+  // context lifecycle — critical for our worker-scoped shared context architecture.
+  _currentsScreencast: [
+    async ({ page }, use, testInfo) => {
+      if (!process.env.CURRENTS_RECORD_KEY) {
+        await use();
+        return;
+      }
+
+      const videoPath = testInfo.outputPath('screencast.webm');
+      const size = page.viewportSize() ?? { width: 1280, height: 720 };
+      await page.screencast.start({ path: videoPath, size });
+      await use();
+      await page.screencast.stop();
+
+      if (testInfo.status !== testInfo.expectedStatus) {
+        await testInfo.attach('video', {
+          path: videoPath,
+          contentType: 'video/webm',
+        });
+      }
+    },
+    { auto: true },
+  ],
 
   // Test-scoped: navigateTo - Navigate to a URL with a clean state
   navigateTo: async ({ page }, use) => {

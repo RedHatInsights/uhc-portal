@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { currentsReporter } from '@currents/playwright';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
@@ -55,6 +56,7 @@ export default defineConfig({
   reporter: [
     ['html', { outputFolder: REPORTS_DIR, open: 'never' }],
     ['json', { outputFile: path.join(RESULTS_DIR, 'test-results.json') }],
+    ...(process.env.CURRENTS_RECORD_KEY ? [currentsReporter()] : []),
   ],
   outputDir: RESULTS_DIR, // For traces, videos, screenshots
   /* Increase default timeout for all expectations */
@@ -72,15 +74,19 @@ export default defineConfig({
     /* Ignore HTTPS certificate errors globally */
     ignoreHTTPSErrors: true,
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace:
-      (process.env.PLAYWRIGHT_TRACE as 'on' | 'off' | 'on-first-retry' | 'retain-on-failure') ||
-      'off',
+    /* Collect trace: always-on when uploading to Currents, otherwise configurable */
+    trace: process.env.CURRENTS_RECORD_KEY
+      ? 'on'
+      : ((process.env.PLAYWRIGHT_TRACE as 'on' | 'off' | 'on-first-retry' | 'retain-on-failure') ||
+          'off'),
 
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
 
-    /* Record video on failure */
+    /* Context-level video fallback for non-Currents runs (GitHub Actions, local).
+       Note: with our worker-scoped shared context this is a no-op in practice.
+       Per-test video for Currents.dev uses the page.screencast API via the
+       _currentsScreencast auto-fixture in fixtures/pages.ts. */
     video: 'retain-on-failure',
 
     /* Default timeout for each action */
