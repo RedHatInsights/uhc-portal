@@ -1,16 +1,10 @@
-import { keyBy } from 'lodash';
-
 import { useQuery } from '@tanstack/react-query';
 
 import { formatErrorData } from '~/queries/helpers';
 import { queryConstants } from '~/queries/queriesConstants';
 import clusterService, { getClusterServiceForRegion } from '~/services/clusterService';
-import { MachineType } from '~/types/clusters_mgmt.v1';
 
-import { groupByCloudProvider } from './utils';
-
-const mapMachineTypesById = (types: { [id: string]: MachineType[] }) =>
-  keyBy([...(types.aws ?? []), ...(types.gcp ?? [])], 'id');
+import { mapMachineTypesItemsToResponse } from './utils';
 
 /**
  * Query to fetch machine types
@@ -24,14 +18,16 @@ export const useFetchMachineTypes = (region?: string) => {
       if (region) {
         const clusterService = getClusterServiceForRegion(region);
         const response = await clusterService.getMachineTypes();
-        const groupedByCloudProvider = groupByCloudProvider(response.data.items);
-        const typesByID = mapMachineTypesById(groupedByCloudProvider);
+        const { types: groupedByCloudProvider, typesByID } = mapMachineTypesItemsToResponse(
+          response.data.items,
+        );
         return { groupedByCloudProvider, typesByID };
       }
 
       const response = await clusterService.getMachineTypes();
-      const groupedByCloudProvider = groupByCloudProvider(response.data.items);
-      const typesByID = mapMachineTypesById(groupedByCloudProvider);
+      const { types: groupedByCloudProvider, typesByID } = mapMachineTypesItemsToResponse(
+        response.data.items,
+      );
       return { groupedByCloudProvider, typesByID };
     },
     retry: false,

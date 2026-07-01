@@ -1,6 +1,6 @@
 import { MachineType } from '~/types/clusters_mgmt.v1';
 
-import { groupByCloudProvider } from './utils';
+import { groupByCloudProvider, mapMachineTypesItemsToResponse } from './utils';
 
 describe('groupByCloudProvider', () => {
   it('should group machine types by cloud provider id', () => {
@@ -50,5 +50,32 @@ describe('groupByCloudProvider', () => {
     ];
     const result = groupByCloudProvider(machineTypes);
     expect(result.azure.length).toBe(2);
+  });
+});
+
+describe('mapMachineTypesItemsToResponse', () => {
+  it('returns types and typesByID for aws and gcp only', () => {
+    const items = [
+      { id: 'a1', cloud_provider: { id: 'aws' } },
+      { id: 'g1', cloud_provider: { id: 'gcp' } },
+    ] satisfies MachineType[];
+    const result = mapMachineTypesItemsToResponse(items);
+    expect(result).toEqual({
+      types: {
+        aws: [items[0]],
+        gcp: [items[1]],
+      },
+      typesByID: {
+        a1: items[0],
+        g1: items[1],
+      },
+    });
+  });
+
+  it('returns empty maps when items undefined', () => {
+    expect(mapMachineTypesItemsToResponse(undefined)).toEqual({
+      types: {},
+      typesByID: {},
+    });
   });
 });

@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { FieldArray } from 'formik';
-import { useDispatch } from 'react-redux';
 
 import {
   Content,
@@ -20,6 +19,7 @@ import {
   isMachineTypeIncludedInFilteredSet,
   shouldUseRegionFilteredData,
 } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/machineTypeSelectionHelper';
+import { useMachineTypeSelection } from '~/components/clusters/common/ScaleSection/useMachineTypeSelection';
 import { AutoScale } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/AutoScale/AutoScale';
 import { canSelectImds } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -27,10 +27,9 @@ import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import FormKeyValueList from '~/components/common/FormikFormComponents/FormKeyValueList';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypes';
+import { useFetchMachineTypesByRegionArn } from '~/queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypesByRegionArn';
 import { IMDS_SELECTION } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import { getMachineTypesByRegionARN } from '~/redux/actions/machineTypesActions';
-import { useGlobalState } from '~/redux/hooks';
 
 import ComputeNodeCount from '../../../common/ClusterSettings/MachinePool/ComputeNodeCount/ComputeNodeCount';
 
@@ -57,7 +56,6 @@ function ScaleSection() {
     },
     setFieldValue,
   } = useFormState();
-  const dispatch = useDispatch();
 
   const isImdsEnabledHypershift = useFeatureGate(IMDS_SELECTION);
 
@@ -77,25 +75,57 @@ function ScaleSection() {
   }, [isHypershiftSelected, clusterVersionRawId]);
 
   const { data: machineTypesResponse, error: machineTypesError } = useFetchMachineTypes();
-  const machineTypesByRegion = useGlobalState((state) => state.machineTypesByRegion);
-  const useRegionFilteredData = shouldUseRegionFilteredData(product, cloudProviderID, isByoc);
+  const availabilityZones = useMemo(
+    () => [...new Set(selectedVpc?.aws_subnets?.map((el) => el.availability_zone) ?? [])],
+    [selectedVpc],
+  );
 
-  React.useEffect(() => {
-    if (!installerRoleArn || !region) {
-      return;
-    }
-    const AZs = [...new Set(selectedVpc?.aws_subnets?.map((el) => el.availability_zone))];
-    dispatch(getMachineTypesByRegionARN(installerRoleArn, region, AZs));
-  }, [dispatch, selectedVpc, installerRoleArn, region]);
+  const regionArnEnabled = Boolean(installerRoleArn && region);
+  const regionMachineTypesResponse = useFetchMachineTypesByRegionArn({
+    installerRoleArn,
+    region,
+    availabilityZones,
+    enabled: regionArnEnabled,
+  });
+
+  const regionMachineTypesError =
+    regionMachineTypesResponse.isError && regionMachineTypesResponse.error
+      ? {
+          errorMessage:
+            regionMachineTypesResponse.error instanceof Error
+              ? regionMachineTypesResponse.error.message
+              : String(regionMachineTypesResponse.error),
+        }
+      : undefined;
+
+  const useRegionFilteredData = shouldUseRegionFilteredData(product, cloudProviderID, isByoc);
+  const machineTypeSelectionProps = useMachineTypeSelection({
+    fieldId: FieldId.MachineType,
+    machineTypesResponse,
+    machineTypesErrorResponse: machineTypesError?.error,
+    isMultiAz: isMultiAzSelected,
+    isBYOC: isByoc,
+    cloudProviderID,
+    productId: product,
+    billingModel,
+    machineTypesByRegionResponse: regionMachineTypesResponse.data,
+    machineTypesByRegionErrorResponse: regionMachineTypesError,
+    machineTypesByRegionPending: regionMachineTypesResponse.isPending,
+  });
 
   React.useEffect(() => {
     const availabilityOfAMachinePool =
       useRegionFilteredData &&
       instanceType &&
-      !isMachineTypeIncludedInFilteredSet(instanceType?.id, machineTypesByRegion);
+      !isMachineTypeIncludedInFilteredSet(
+        instanceType?.id,
+        regionMachineTypesResponse.data ?? {
+          typesByID: {},
+        },
+      );
     setFieldValue(FieldId.MachineTypeAvailability, availabilityOfAMachinePool);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setFieldValue, useRegionFilteredData, instanceType]);
+  }, [setFieldValue, useRegionFilteredData, instanceType, regionMachineTypesResponse.data]);
 
   const LabelsSectionComponent = useCallback(
     () =>
@@ -176,16 +206,7 @@ function ScaleSection() {
       )}
       {/* Instance type */}
       <GridItem md={6}>
-        <MachineTypeSelection
-          fieldId={FieldId.MachineType}
-          machineTypesResponse={machineTypesResponse}
-          machineTypesErrorResponse={machineTypesError?.error}
-          isMultiAz={isMultiAzSelected}
-          isBYOC={isByoc}
-          cloudProviderID={cloudProviderID}
-          productId={product}
-          billingModel={billingModel}
-        />
+        <MachineTypeSelection {...machineTypeSelectionProps} />
       </GridItem>
       <GridItem md={6} />
       {/* Cluster and default machine pool autoScaling (they use the same form prop) */}

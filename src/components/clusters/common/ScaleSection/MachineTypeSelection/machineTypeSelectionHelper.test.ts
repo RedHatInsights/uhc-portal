@@ -1,9 +1,7 @@
-import { MachineTypesByRegionState } from '~/redux/reducers/machineTypesByRegionReducer';
-import { baseRequestState } from '~/redux/reduxHelpers';
-import { MachineType } from '~/types/clusters_mgmt.v1';
-import { MachineTypeCategory } from '~/types/clusters_mgmt.v1/enums';
+import type { Flavour, MachineType } from '~/types/clusters_mgmt.v1';
 
 import {
+  defaultComputeInstanceTypeFromFlavour,
   groupedMachineTypes,
   isMachineTypeIncludedInFilteredSet,
   machineTypeDescriptionLabel,
@@ -12,16 +10,21 @@ import {
 } from './machineTypeSelectionHelper';
 import { machineCategories } from './sortMachineTypes';
 
+function categoryForGroupedTest(name: string): MachineType['category'] {
+  const allowed = new Set(machineCategories.map((c) => c.name));
+  if (!allowed.has(name)) {
+    throw new Error(`Unexpected category name: ${name}`);
+  }
+  return name as MachineType['category'];
+}
+
 describe('machineTypeSelectionHelper', () => {
   describe('isMachineTypeIncludedInFilteredSet', () => {
     it('should return true for a Machine Type which exists on the list', () => {
       // Arrange
       const machineTypeID = '1';
-      const machineTypes: MachineTypesByRegionState = {
-        ...baseRequestState,
-        types: { '1': [] as MachineType[] },
-        typesByID: { '1': 'some_type' },
-        region: undefined,
+      const machineTypes = {
+        typesByID: { '1': { id: '1' } satisfies MachineType },
       };
 
       // Act
@@ -34,11 +37,8 @@ describe('machineTypeSelectionHelper', () => {
     it('should return false for a Machine Type which does not exist on the list', () => {
       // Arrange
       const machineTypeID = '0';
-      const machineTypes: MachineTypesByRegionState = {
-        ...baseRequestState,
-        types: { '1': [] as MachineType[] },
-        typesByID: { '1': 'some_type' },
-        region: undefined,
+      const machineTypes = {
+        typesByID: { '1': { id: '1' } satisfies MachineType },
       };
 
       // Act
@@ -51,11 +51,8 @@ describe('machineTypeSelectionHelper', () => {
     it('should return false in case of a missing MachineTypeID', () => {
       // Arrange
       const machineTypeID = undefined;
-      const machineTypes: MachineTypesByRegionState = {
-        ...baseRequestState,
-        types: { '1': [] as MachineType[] },
-        typesByID: { '1': 'some_type' },
-        region: undefined,
+      const machineTypes = {
+        typesByID: { '1': { id: '1' } satisfies MachineType },
       };
 
       // Act
@@ -72,7 +69,7 @@ describe('machineTypeSelectionHelper', () => {
       // Arrange
       const machineTypes: MachineType[] = machineCategories.map((e, index) => ({
         id: `${index}`,
-        category: e.name as MachineTypeCategory,
+        category: categoryForGroupedTest(e.name),
       }));
 
       // Act
@@ -89,6 +86,54 @@ describe('machineTypeSelectionHelper', () => {
         'Accelerated computing': [{ id: '6', category: 'accelerated_computing' }],
       });
     });
+
+    it('returns every category label with empty lists when there are no machines', () => {
+      const result = groupedMachineTypes([]);
+      expect(result['General purpose']).toStrictEqual([]);
+      expect(result['Accelerated computing']).toStrictEqual([]);
+    });
+
+    it('places machines only under their category label', () => {
+      const machines = [
+        { id: 'a', category: categoryForGroupedTest('burstable') },
+        { id: 'b', category: categoryForGroupedTest('burstable') },
+      ] satisfies MachineType[];
+      const result = groupedMachineTypes(machines);
+      expect(result.Burstable).toStrictEqual(machines);
+      expect(result['General purpose']).toStrictEqual([]);
+    });
+  });
+
+  describe('defaultComputeInstanceTypeFromFlavour', () => {
+    it('returns AWS compute instance type when cloud is aws', () => {
+      const flavour = {
+        aws: { compute_instance_type: 'm5.xlarge' },
+      } satisfies Flavour;
+      expect(defaultComputeInstanceTypeFromFlavour(flavour, 'aws')).toBe('m5.xlarge');
+    });
+
+    it('returns GCP compute instance type when cloud is gcp', () => {
+      const flavour = {
+        gcp: { compute_instance_type: 'n1-standard-4' },
+      } satisfies Flavour;
+      expect(defaultComputeInstanceTypeFromFlavour(flavour, 'gcp')).toBe('n1-standard-4');
+    });
+
+    it('returns undefined when flavour or cloud is missing', () => {
+      expect(defaultComputeInstanceTypeFromFlavour(undefined, 'aws')).toBeUndefined();
+      expect(
+        defaultComputeInstanceTypeFromFlavour(
+          { aws: { compute_instance_type: 'm5.xlarge' } },
+          undefined,
+        ),
+      ).toBeUndefined();
+      expect(
+        defaultComputeInstanceTypeFromFlavour(
+          { aws: { compute_instance_type: 'm5.xlarge' } },
+          'gcp',
+        ),
+      ).toBeUndefined();
+    });
   });
 
   describe('machineTypeDescriptionLabel', () => {
@@ -103,7 +148,7 @@ describe('machineTypeSelectionHelper', () => {
           value: 8589934592,
           unit: 'B',
         },
-      } as MachineType;
+      } satisfies MachineType;
 
       // Act
       const result = machineTypeDescriptionLabel(machineType);
@@ -123,9 +168,9 @@ describe('machineTypeSelectionHelper', () => {
           value: 8589934592,
           unit: 'B',
         },
-        category: 'accelerated_computing' as MachineTypeCategory,
+        category: 'accelerated_computing',
         name: 'g4ad.2xlarge - Accelerated Computing',
-      } as MachineType;
+      } satisfies MachineType;
 
       // Act
       const result = machineTypeDescriptionLabel(machineType);
@@ -145,9 +190,9 @@ describe('machineTypeSelectionHelper', () => {
           value: 8589934592,
           unit: 'B',
         },
-        category: 'accelerated_computing' as MachineTypeCategory,
+        category: 'accelerated_computing',
         name: 'g4dn.2xlarge - Accelerated Computing (1 GPU)',
-      } as MachineType;
+      } satisfies MachineType;
 
       // Act
       const result = machineTypeDescriptionLabel(machineType);
@@ -158,7 +203,7 @@ describe('machineTypeSelectionHelper', () => {
 
     it('should output an empty label for an empty Machine Type', () => {
       // Arrange
-      const machineType = {} as MachineType;
+      const machineType = {} satisfies MachineType;
 
       // Act
       const result = machineTypeDescriptionLabel(machineType);
@@ -173,7 +218,7 @@ describe('machineTypeSelectionHelper', () => {
         memory: {
           unit: 'B',
         },
-      } as MachineType;
+      } satisfies MachineType;
 
       // Act
       const result = machineTypeDescriptionLabel(machineType);
@@ -188,7 +233,7 @@ describe('machineTypeSelectionHelper', () => {
         memory: {
           value: 8589934592,
         },
-      } as MachineType;
+      } satisfies MachineType;
 
       // Act
       const result = machineTypeDescriptionLabel(machineType);
@@ -203,7 +248,7 @@ describe('machineTypeSelectionHelper', () => {
       // Arrange
       const machineType = {
         id: '1',
-      } as MachineType;
+      } satisfies MachineType;
 
       // Act
       const result = machineTypeLabel(machineType);
@@ -214,7 +259,7 @@ describe('machineTypeSelectionHelper', () => {
 
     it('returns an empty string in case an id is missing inside the MachineType', () => {
       // Arrange
-      const machineType = {} as MachineType;
+      const machineType = {} satisfies MachineType;
 
       // Act
       const result = machineTypeLabel(machineType);
@@ -237,7 +282,7 @@ describe('machineTypeSelectionHelper', () => {
           value: 8589934592,
           unit: 'B',
         },
-      } as MachineType;
+      } satisfies MachineType;
 
       // Act
       const result = machineTypeFullLabel(machineType);
@@ -248,7 +293,7 @@ describe('machineTypeSelectionHelper', () => {
 
     it('returns an "empty" string in case a MachineType is not defined', () => {
       // Arrange
-      const machineType = {} as MachineType;
+      const machineType = {} satisfies MachineType;
 
       // Act
       const result = machineTypeFullLabel(machineType);
@@ -256,8 +301,5 @@ describe('machineTypeSelectionHelper', () => {
       // Assert
       expect(result).toBe(' - ');
     });
-
-    // TODO: write more unit tests for "groupedMachineTypes" to increase coverage
-    // related ticket: https://issues.redhat.com/browse/OCMUI-3355
   });
 });

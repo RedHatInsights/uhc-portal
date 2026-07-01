@@ -8,7 +8,7 @@ import { isMajorMinorEqualOrGreater, splitVersion } from '~/common/versionHelper
 import { CheckboxField } from '~/components/clusters/wizards/form';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import { NodePool } from '~/types/clusters_mgmt.v1';
+import type { NodePool } from '~/types/clusters_mgmt.v1';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 
 import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';

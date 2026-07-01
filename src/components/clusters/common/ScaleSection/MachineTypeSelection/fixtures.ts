@@ -20,7 +20,7 @@ const fulfilledFlavoursState = {
         compute_instance_type: 'm5.xlarge',
       },
       gcp: {
-        compute_instance_type: 'custom-4-16384', // TODO not listed in machineTypes
+        compute_instance_type: 'custom-4-16384',
       },
     },
   },
@@ -166,6 +166,31 @@ const machineTypes: MachineTypesResponse['types'] = {
       },
       ccs_only: true,
       generic_name: 't4-gpu-8',
+    },
+  ],
+  gcp: [
+    {
+      kind: 'MachineType',
+      name: 'custom-4-16384 - General Purpose',
+      category: 'general_purpose',
+      size: 'small',
+      id: 'custom-4-16384',
+      href: '/api/clusters_mgmt/v1/machine_types/custom-4-16384',
+      memory: {
+        value: 17179869184,
+        unit: 'B',
+      },
+      cpu: {
+        value: 4,
+        unit: 'vCPU',
+      },
+      cloud_provider: {
+        kind: 'CloudProviderLink',
+        id: 'gcp',
+        href: '/api/clusters_mgmt/v1/cloud_providers/gcp',
+      },
+      ccs_only: false,
+      generic_name: 'standard-4',
     },
   ],
 };

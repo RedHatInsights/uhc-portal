@@ -1,24 +1,19 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { Content, ExpandableSection, Form, Grid, GridItem, Title } from '@patternfly/react-core';
 
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { getNodesCount } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import { MachineTypeSelection } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
+import { useMachineTypeSelection } from '~/components/clusters/common/ScaleSection/useMachineTypeSelection';
 import { CloudProviderType, FieldId } from '~/components/clusters/wizards/common/constants';
+import { getAwsCcsCredentials } from '~/components/clusters/wizards/common/utils/ccsCredentials';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypes';
-import {
-  clearMachineTypesByRegion,
-  getMachineTypes,
-  getMachineTypesByRegion,
-} from '~/redux/actions/machineTypesActions';
-import { GlobalState } from '~/redux/stateTypes';
-import { AWSCredentials } from '~/types/types';
-
-import { getAwsCcsCredentials } from '../../utils/ccsCredentials';
+import { useFetchMachineTypesByRegionCcs } from '~/queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypesByRegionCcs';
+import { getMachineTypes } from '~/redux/actions/machineTypesActions';
 
 import { AutoScale } from './AutoScale/AutoScale';
 import ComputeNodeCount from './ComputeNodeCount/ComputeNodeCount';
@@ -50,38 +45,35 @@ export const MachinePool = () => {
   const isAWS = cloudProvider === CloudProviderType.Aws;
   const canAutoScale = useCanClusterAutoscale(product, billingModel);
   const [isNodeLabelsExpanded, setIsNodeLabelsExpanded] = React.useState(false);
-  const awsCreds = React.useMemo<AWSCredentials>(() => getAwsCcsCredentials(values), [values]);
-
-  const [loadNewMachineTypes, setLoadNewMachineTypes] = React.useState(false);
-  const machineTypesByRegion = useSelector((state: GlobalState) => state.machineTypesByRegion);
   const { data: machineTypesResponse, error: machineTypesError } = useFetchMachineTypes();
 
-  React.useEffect(() => {
-    if (machineTypesByRegion.region) {
-      if (!isByoc || !isAWS || cloudProvider === CloudProviderType.Gcp || isRosa) {
-        // purge cache when related wizard context changes, i.e. provider/product/credentials
-        dispatch(clearMachineTypesByRegion());
-      }
-    }
-  }, [
-    cloudProvider,
-    isRosa,
-    machineTypesByRegion.region,
-    isByoc,
-    isAWS,
-    dispatch,
-    region,
-    setFieldValue,
-  ]);
+  const awsCreds = React.useMemo(() => getAwsCcsCredentials(values), [values]);
+  const ccsMachineTypesByRegionEnabled =
+    isAWS &&
+    isByoc &&
+    !isRosa &&
+    cloudProvider !== CloudProviderType.Gcp &&
+    Boolean(
+      region && awsCreds?.access_key_id && awsCreds?.account_id && awsCreds?.secret_access_key,
+    );
 
-  React.useEffect(() => {
-    if (isAWS && isByoc) {
-      if (!machineTypesByRegion.region || machineTypesByRegion.region?.id !== region) {
-        setLoadNewMachineTypes(true);
-      }
-      // no preiously loaded machineTypesByRegion in redux, load new machines
-    }
-  }, [machineTypesByRegion.region, isAWS, isByoc, region, setFieldValue]);
+  const regionMachineTypesQuery = useFetchMachineTypesByRegionCcs({
+    region,
+    accessKeyId: awsCreds?.access_key_id,
+    accountId: awsCreds?.account_id,
+    secretAccessKey: awsCreds?.secret_access_key,
+    enabled: ccsMachineTypesByRegionEnabled,
+  });
+
+  const regionMachineTypesError =
+    regionMachineTypesQuery.isError && regionMachineTypesQuery.error
+      ? {
+          errorMessage:
+            regionMachineTypesQuery.error instanceof Error
+              ? regionMachineTypesQuery.error.message
+              : String(regionMachineTypesQuery.error),
+        }
+      : undefined;
 
   // If no value has been set for compute nodes already,
   // set an initial value based on infrastructure and availability selections.
@@ -112,32 +104,19 @@ export const MachinePool = () => {
     if (nodeLabels[0]?.key) setIsNodeLabelsExpanded(true);
   }, [nodeLabels]);
 
-  React.useEffect(() => {
-    if (
-      loadNewMachineTypes &&
-      awsCreds?.access_key_id &&
-      awsCreds?.account_id &&
-      awsCreds?.secret_access_key &&
-      region
-    ) {
-      dispatch(
-        getMachineTypesByRegion(
-          awsCreds?.access_key_id as string,
-          awsCreds?.account_id as string,
-          awsCreds?.secret_access_key as string,
-          region,
-        ),
-      );
-      setLoadNewMachineTypes(false);
-    }
-  }, [
-    dispatch,
-    loadNewMachineTypes,
-    awsCreds?.access_key_id,
-    awsCreds?.account_id,
-    awsCreds?.secret_access_key,
-    region,
-  ]);
+  const machineTypeSelectionProps = useMachineTypeSelection({
+    fieldId: FieldId.MachineType,
+    machineTypesResponse,
+    machineTypesErrorResponse: machineTypesError?.error,
+    isMultiAz,
+    isBYOC: isByoc,
+    cloudProviderID: cloudProvider,
+    productId: product,
+    billingModel,
+    machineTypesByRegionResponse: regionMachineTypesQuery.data,
+    machineTypesByRegionErrorResponse: regionMachineTypesError,
+    machineTypesByRegionPending: regionMachineTypesQuery.isPending,
+  });
 
   const nodeLabelsExpandableSection = (
     <ExpandableSection
@@ -176,16 +155,7 @@ export const MachinePool = () => {
 
       <Grid hasGutter>
         <GridItem md={6}>
-          <MachineTypeSelection
-            fieldId={FieldId.MachineType}
-            machineTypesResponse={machineTypesResponse}
-            machineTypesErrorResponse={machineTypesError?.error}
-            isMultiAz={isMultiAz}
-            isBYOC={isByoc}
-            cloudProviderID={cloudProvider}
-            productId={product}
-            billingModel={billingModel}
-          />
+          <MachineTypeSelection {...machineTypeSelectionProps} />
         </GridItem>
 
         <GridItem md={6} />

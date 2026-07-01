@@ -6,12 +6,13 @@ import { normalizeProductID } from '~/common/normalize';
 import { isMultiAZ } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { MachineTypeSelection } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/MachineTypeSelection';
+import { useMachineTypeSelection } from '~/components/clusters/common/ScaleSection/useMachineTypeSelection';
 import TextField from '~/components/common/formik/TextField';
 import { WINDOWS_LICENSE_INCLUDED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
-import { BillingModel, Cluster, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
+import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription, ErrorState } from '~/types/types';
 
 import SelectField from '../fields/SelectField';
@@ -44,6 +45,24 @@ const EditDetailsSection = ({
   const isHypershift = isHypershiftCluster(cluster);
   const allowWindowsLicenseIncluded = useFeatureGate(WINDOWS_LICENSE_INCLUDED) && isHypershift;
   const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
+  const productId = normalizeProductID(cluster.product?.id);
+  const cloudProviderID = cluster.cloud_provider?.id;
+  const isBYOC = !!cluster.ccs?.enabled;
+  const machineTypeSelectionProps = useMachineTypeSelection({
+    fieldId: 'instanceType',
+    machineTypesResponse,
+    machineTypesErrorResponse,
+    isMultiAz: isMultiAZ(cluster),
+    isBYOC,
+    cloudProviderID,
+    productId,
+    isMachinePool: true,
+    billingModel:
+      cluster.billing_model ??
+      cluster.subscription?.cluster_billing_model ??
+      SubscriptionCommonFieldsClusterBillingModel.standard,
+    inModal: true,
+  });
 
   return isEdit ? (
     <FormGroup fieldId="machine-pool" label="Machine pool">
@@ -68,23 +87,7 @@ const EditDetailsSection = ({
         <SubnetField cluster={cluster} region={region} machinePools={machinePools} />
       ) : null}
       <GridItem>
-        <MachineTypeSelection
-          fieldId="instanceType"
-          machineTypesResponse={machineTypesResponse}
-          machineTypesErrorResponse={machineTypesErrorResponse}
-          isMultiAz={isMultiAZ(cluster)}
-          isBYOC={!!cluster.ccs?.enabled}
-          cloudProviderID={cluster.cloud_provider?.id}
-          productId={normalizeProductID(cluster.product?.id)}
-          isMachinePool
-          billingModel={
-            (cluster as Cluster).billing_model ||
-            ((cluster as ClusterFromSubscription).subscription
-              ?.cluster_billing_model as BillingModel) ||
-            SubscriptionCommonFieldsClusterBillingModel.standard
-          }
-          inModal
-        />
+        <MachineTypeSelection {...machineTypeSelectionProps} />
       </GridItem>
       {allowWindowsLicenseIncluded ? (
         <WindowsLicenseIncludedField clusterVersion={clusterVersion} />

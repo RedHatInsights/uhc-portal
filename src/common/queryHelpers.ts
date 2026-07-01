@@ -241,6 +241,23 @@ const deleteQueryParam = (param: string): void => {
   window.history.replaceState({}, '', url.toString());
 };
 
+/**
+ * used to store a fingerprint of a secret (e.g. from an input field value),
+ * and not the raw secret, in query a key.
+ * allows an opaque cache-bust token so rotating a secret refetches the query.
+ */
+const secretFingerprint = (secret: string | undefined) => {
+  if (!secret) {
+    return '';
+  }
+  const mod = 1_000_000_007;
+  let h = 0;
+  for (let i = 0; i < secret.length; i += 1) {
+    h = (h * 131 + secret.charCodeAt(i)) % mod;
+  }
+  return h.toString(16);
+};
+
 export {
   buildFilterURLParams,
   buildUrlParams,
@@ -251,4 +268,5 @@ export {
   sqlString,
   getQueryParam,
   deleteQueryParam,
+  secretFingerprint,
 };
