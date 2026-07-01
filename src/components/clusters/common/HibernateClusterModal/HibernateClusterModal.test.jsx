@@ -1,6 +1,8 @@
 import React from 'react';
 import * as reactRedux from 'react-redux';
 
+import docLinks from '~/common/docLinks.mjs';
+import supportLinks from '~/common/supportLinks.mjs';
 import * as useHibernateCluster from '~/queries/ClusterActionsQueries/useHibernateCluster';
 import * as useGetSchedules from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules';
 import { checkAccessibility, screen, withState } from '~/testUtils';
@@ -195,6 +197,35 @@ describe('<HibernateClusterModal />', () => {
       expect(
         screen.getByRole('button', { name: 'Change cluster upgrade policy' }),
       ).toBeInTheDocument();
+    });
+
+    it('renders OCP hibernation doc link when cluster is not ROSA', () => {
+      mockedUseGetSchedules.mockReturnValue(useGetSchedulesReturnData);
+      mockedUseHibernateCluster.mockReturnValue(useHibernateClusterReturnData);
+      withState(defaultReduxState).render(<HibernateClusterModal {...defaultProps} />);
+
+      expect(screen.getByText(/Learn more about cluster hibernation/)).toHaveAttribute(
+        'href',
+        docLinks.OCP_HIBERNATING_CLUSTER,
+      );
+    });
+
+    it('renders ROSA hibernation support link when cluster is ROSA', () => {
+      mockedUseGetSchedules.mockReturnValue(useGetSchedulesReturnData);
+      mockedUseHibernateCluster.mockReturnValue(useHibernateClusterReturnData);
+      withState({
+        modal: {
+          data: {
+            ...defaultReduxState.modal.data,
+            isROSA: true,
+          },
+        },
+      }).render(<HibernateClusterModal {...defaultProps} />);
+
+      expect(screen.getByText(/Learn more about cluster hibernation/)).toHaveAttribute(
+        'href',
+        supportLinks.HIBERNATING_CLUSTER,
+      );
     });
   });
 });

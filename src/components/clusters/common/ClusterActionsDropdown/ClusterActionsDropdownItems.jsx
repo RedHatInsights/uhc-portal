@@ -10,7 +10,7 @@ import getClusterName from '../../../../common/getClusterName';
 import { isAssistedInstallCluster } from '../../../../common/isAssistedInstallerCluster';
 import { normalizedProducts } from '../../../../common/subscriptionTypes';
 import modals from '../../../common/Modal/modals';
-import clusterStates, { isHibernating, isHypershiftCluster } from '../clusterStates';
+import clusterStates, { isHibernating, isHypershiftCluster, isROSA } from '../clusterStates';
 
 /**
  * Helper using reason message why it's disabled as source-of-truth
@@ -120,6 +120,7 @@ function actionResolver(
       clusterName,
       subscriptionID: cluster.subscription ? cluster.subscription.id : '',
       shouldDisplayClusterName: inClusterList,
+      isROSA: isROSA(cluster),
     };
     const hibernateClusterProps = {
       ...hibernateClusterBaseProps,
