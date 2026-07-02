@@ -187,6 +187,8 @@ function DetailsRight({
   const infraDesiredNodes = get(cluster, 'nodes.infra', '-');
   const cloudProviderId = get(cluster, 'cloud_provider.id', '-');
   const autoNodeCount = cluster?.auto_node?.status?.node_count;
+  const showAutoNodeCount =
+    isAutoNodeAllowed && !isArchivedSubscription(cluster) && autoNodeCount != null;
 
   const workerActualNodes = totalActualNodes === false ? '-' : totalActualNodes;
   const workerDesiredNodes = totalDesiredComputeNodes || '-';
@@ -351,9 +353,7 @@ function DetailsRight({
                       : 'N/A'}
                   </dd>
                 </Flex>
-                {isAutoNodeAllowed && autoNodeCount != null && (
-                  <AutoNodeKarpenterCount count={autoNodeCount} />
-                )}
+                {showAutoNodeCount && <AutoNodeKarpenterCount count={autoNodeCount} />}
               </dl>
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -378,9 +378,7 @@ function DetailsRight({
                   <dt>Compute: </dt>
                   <dd>{totalActualNodes || 'N/A'}</dd>
                 </Flex>
-                {isAutoNodeAllowed && autoNodeCount != null && (
-                  <AutoNodeKarpenterCount count={autoNodeCount} />
-                )}
+                {showAutoNodeCount && <AutoNodeKarpenterCount count={autoNodeCount} />}
               </dl>
             </DescriptionListDescription>
           </DescriptionListGroup>
