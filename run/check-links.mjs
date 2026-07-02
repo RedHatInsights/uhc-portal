@@ -655,7 +655,9 @@ function displayGrandTotal(grandTotal) {
  */
 function displayUsageNotes(verbose) {
   if (!verbose) {
-    console.log('\nNote: Run with -v or --verbose to see URLs for successful requests and redirects');
+    console.log(
+      '\nNote: Run with -v or --verbose to see URLs for successful requests and redirects',
+    );
     console.log('      Run with -r or --redirects to see ONLY redirected URLs with targets');
     console.log('      Run with -h or --help for more information');
   } else {
