@@ -488,7 +488,7 @@ function DetailsRight({
         </DescriptionListGroup>
       )}
       {/* Autonode */}
-      {isAutoNodeAllowed && (
+      {isAutoNodeAllowed && !isArchivedSubscription(cluster) && (
         <>
           {isEditAutoNodeModalOpen && (
             <EditAutoNodeModal cluster={cluster} region={region} onClose={closeEditAutoNodeModal} />

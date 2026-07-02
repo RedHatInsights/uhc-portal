@@ -1798,6 +1798,48 @@ describe('<DetailsRight />', () => {
       expect(screen.queryByTestId('autoNodeStatus')).not.toBeInTheDocument();
     });
 
+    it('hides Autonode section when cluster subscription is archived', () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+          subscription: {
+            ...clusterFixture.subscription,
+            status: SubscriptionCommonFieldsStatus.Archived,
+          },
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.queryByTestId('autoNodeStatus')).not.toBeInTheDocument();
+    });
+
+    it('hides Autonode section when cluster subscription is deprovisioned', () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+          subscription: {
+            ...clusterFixture.subscription,
+            status: SubscriptionCommonFieldsStatus.Deprovisioned,
+          },
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.queryByTestId('autoNodeStatus')).not.toBeInTheDocument();
+    });
+
     it('shows "Disabled" when auto_node is undefined', () => {
       mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
       const clusterFixture = defaultProps.cluster;
