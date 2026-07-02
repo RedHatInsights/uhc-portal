@@ -22,7 +22,7 @@ let validIamUserArn: string;
 let invalidIamUserArn: string;
 
 test.describe.serial(
-  'OSD non-CCS AWS cluster - AWS infrastructure access',
+  'OSD non-CCS AWS cluster - AWS infrastructure access (OCP-27994, OCP-27996)',
   {
     tag: [
       '@day2',
@@ -106,6 +106,11 @@ test.describe.serial(
       await expect(awsInfrastructureAccessPage.iamArnInput()).toBeEmpty();
       await expect(awsInfrastructureAccessPage.grantRoleSubmitButton()).toBeDisabled();
 
+      await awsInfrastructureAccessPage.iamArnInput().fill('a');
+      await awsInfrastructureAccessPage.iamArnInput().clear();
+      await awsInfrastructureAccessPage.iamArnInput().blur();
+      await awsInfrastructureAccessPage.isTextContainsInPage(testData.Validation.EmptyArnError);
+
       await awsInfrastructureAccessPage.cancelButton().click();
       await expect(awsInfrastructureAccessPage.grantModalHeading()).toBeHidden();
     });
@@ -173,6 +178,11 @@ test.describe.serial(
         invalidIamUserArn,
         testData.GrantRole.ReadOnlyRoleName,
       );
+      const expectedFailureTitle = testData.Notifications.GrantFailureTitle.replace(
+        '{userArn}',
+        invalidIamUserArn,
+      );
+      await awsInfrastructureAccessPage.isTextContainsInPage(expectedFailureTitle);
       await expect(
         awsInfrastructureAccessPage.grantRow(
           invalidIamUserArn,
@@ -204,6 +214,10 @@ test.describe.serial(
         validIamUserArn,
         testData.GrantRole.ReadOnlyRoleName,
       );
+      const expectedReadOnlySuccessTitle = testData.Notifications.GrantSuccessTitle
+        .replace('{roleName}', testData.GrantRole.ReadOnlyRoleName)
+        .replace('{userArn}', validIamUserArn);
+      await awsInfrastructureAccessPage.isTextContainsInPage(expectedReadOnlySuccessTitle);
       await expect(
         awsInfrastructureAccessPage.grantRow(validIamUserArn, testData.GrantRole.ReadOnlyRoleName),
       ).toContainText(testData.GrantRole.ReadOnlyRoleName);
@@ -227,6 +241,10 @@ test.describe.serial(
         validIamUserArn,
         testData.GrantRole.NetworkManagementRoleName,
       );
+      const expectedNetworkMgmtSuccessTitle = testData.Notifications.GrantSuccessTitle
+        .replace('{roleName}', testData.GrantRole.NetworkManagementRoleName)
+        .replace('{userArn}', validIamUserArn);
+      await awsInfrastructureAccessPage.isTextContainsInPage(expectedNetworkMgmtSuccessTitle);
       await expect(
         awsInfrastructureAccessPage.grantRow(validIamUserArn, testData.GrantRole.ReadOnlyRoleName),
       ).toContainText('Ready');
