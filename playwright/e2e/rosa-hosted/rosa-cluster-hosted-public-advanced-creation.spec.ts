@@ -21,7 +21,8 @@ test.describe.serial(
 
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
-    const clusterName = clusterProperties.ClusterName;
+    const clusterNamePrefix = clusterProperties.ClusterName;
+    const clusterName = `${clusterNamePrefix}-${Math.random().toString(36).slice(2, 7)}`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
     const logForwardingS3BucketName = process.env.QE_LOG_FORWARDING_S3_BUCKET_NAME || '';
     const logForwardingS3BucketPrefix = process.env.QE_LOG_FORWARDING_S3_BUCKET_PREFIX || '';
@@ -37,7 +38,7 @@ test.describe.serial(
       await navigateTo('create');
     });
 
-    test(`Open Rosa wizard for public advanced cluster : ${clusterName}`, async ({
+    test(`Open Rosa wizard for public advanced cluster : ${clusterNamePrefix}`, async ({
       page,
       createRosaWizardPage,
     }) => {
@@ -47,14 +48,14 @@ test.describe.serial(
       await expect(page.locator('.spinner-loading-text')).not.toBeVisible();
     });
 
-    test(`Step - Control plane - Select control plane type ${clusterName}`, async ({
+    test(`Step - Control plane - Select control plane type ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await createRosaWizardPage.selectHostedControlPlaneType();
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Accounts and roles - Select Accounts and roles for ${clusterName}`, async ({
+    test(`Step - Accounts and roles - Select Accounts and roles for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await createRosaWizardPage.isAccountsAndRolesScreen();
@@ -67,7 +68,7 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Cluster Settings - Set cluster details for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - Set cluster details for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
       page,
     }) => {
@@ -82,7 +83,7 @@ test.describe.serial(
       await createRosaWizardPage.closePopoverAndNavigateNext();
     });
 
-    test(`Step - Cluster Settings - Set machine pools for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - Set machine pools for ${clusterNamePrefix}`, async ({
       page,
       createRosaWizardPage,
     }) => {
@@ -121,7 +122,7 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Cluster Settings - configuration - cluster privacy for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - configuration - cluster privacy for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await createRosaWizardPage.selectClusterPrivacy('Private');
@@ -138,7 +139,7 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Cluster Settings - CIDR Ranges - CIDR default values for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - CIDR Ranges - CIDR default values for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await expect(createRosaWizardPage.cidrDefaultValuesCheckBox()).toBeChecked();

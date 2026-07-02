@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const autonodeFixtureData = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-autonode.spec.json');
 const clusterProfileFixture = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
@@ -18,7 +19,7 @@ test.describe.serial(
           'QE_AUTONODE_ROLE_ARN environment variable is required to run this test suite',
         );
       }
-      await navigateTo('cluster-list');
+      await navigateTo(CLUSTER_LIST_ROUTE);
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
     });

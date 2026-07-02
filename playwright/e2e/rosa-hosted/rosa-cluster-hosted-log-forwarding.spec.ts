@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const clusterProperties = clusterProfiles['rosa-hosted-public-advanced']['day1-profile'];
@@ -28,7 +29,7 @@ test.describe.serial(
           'Missing required env vars: QE_LOG_FORWARDING_S3_BUCKET_NAME, QE_LOG_FORWARDING_S3_BUCKET_PREFIX, QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN',
         );
       }
-      await navigateTo('cluster-list');
+      await navigateTo(CLUSTER_LIST_ROUTE);
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
     });
