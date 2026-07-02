@@ -2,8 +2,10 @@ import React from 'react';
 
 import { Gallery, GalleryItem, Title } from '@patternfly/react-core';
 
+import { DrawerPanelContentNode } from '~/hooks/useChromeDrawerPanel';
+
 import { ProductCard } from '../../../common/ProductCard/ProductCard';
-import { DRAWER_PANEL_CONTENT, DrawerPanelContentNode } from '../common/DrawerPanelContent';
+import { DRAWER_PANEL_CONTENT } from '../common/DrawerPanelContent';
 import PRODUCT_CARD_LOGOS from '../common/ProductCardLogos';
 
 const TITLE = 'Featured products';
@@ -47,7 +49,7 @@ const FEATURED_PRODUCTS_CARDS: FeaturedProductsCardsNode[] = [
 ];
 
 type FeaturedProductsCardsProps = {
-  openLearnMore: (title: string, content?: DrawerPanelContentNode) => void;
+  openLearnMore: (title: string, content: DrawerPanelContentNode) => void;
   selectedCardTitle: string;
 };
 
