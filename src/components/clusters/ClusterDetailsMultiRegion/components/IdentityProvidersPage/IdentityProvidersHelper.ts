@@ -112,7 +112,6 @@ const getOauthCallbackURL = (
   if (isHypershift && !idpOauthNeedsPort(IDPName)) {
     const lastPart = URLParts[URLParts.length - 1];
     if (lastPart.indexOf(':') !== -1) {
-      // eslint-disable-next-line prefer-destructuring
       URLParts[URLParts.length - 1] = `${lastPart.split(':')[0]}/`;
     }
   }

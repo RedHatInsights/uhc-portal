@@ -52,7 +52,6 @@ const ClusterLogsConditionalFilter = (props) => {
       });
     }
     // Should run once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFlags, currentFilter]);
 
   const updateFilter = () => {

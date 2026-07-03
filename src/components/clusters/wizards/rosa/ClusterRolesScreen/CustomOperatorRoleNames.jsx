@@ -34,7 +34,6 @@ function CustomOperatorRoleNames({ isHypershiftSelected }) {
           name={FieldId.CustomOperatorRolesPrefix}
           label="Custom operator roles prefix"
           type="text"
-          // eslint-disable-next-line import/no-named-as-default-member
           validate={validators.checkCustomOperatorRolesPrefix}
           helpText={`Maximum ${MAX_CUSTOM_OPERATOR_ROLES_PREFIX_LENGTH} characters.  Changing the cluster name will regenerate this value.`}
           extendedHelpText={

@@ -172,6 +172,7 @@ export const indexRegions = (data: { items?: CloudRegion[] }) => {
 };
 
 function ccsInquiriesReducer(
+  // eslint-disable-next-line default-param-last
   state: State = initialState,
   action: PromiseActionType<InquiriesAction>,
 ): State {

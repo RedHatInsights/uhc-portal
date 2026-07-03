@@ -18,6 +18,7 @@ const initialState: State = {
 };
 
 const tollboothReducer = (
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<TollboothAction>,
 ): State => {

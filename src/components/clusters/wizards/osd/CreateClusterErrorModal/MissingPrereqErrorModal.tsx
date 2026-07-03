@@ -47,7 +47,6 @@ const MissingPrereqErrorModal = ({
       onTertiaryClick={close}
     >
       <p>
-        {/* eslint-disable-next-line max-len */}
         The cluster cannot be created because the provided AWS credentials don&apos;t belong to the{' '}
         <strong>osdCcsAdmin</strong> user. To provision a cluster successfully, your AWS account
         requires an IAM user called <strong>osdCcsAdmin</strong> with the{' '}

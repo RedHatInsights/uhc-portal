@@ -49,10 +49,10 @@ const initialState: State = {
 };
 
 function accessProtectionReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<AccessProtectionAction>,
 ): State {
-  // eslint-disable-next-line consistent-return
   return produce(state, (draft) => {
     // eslint-disable-next-line default-case
     switch (action.type) {

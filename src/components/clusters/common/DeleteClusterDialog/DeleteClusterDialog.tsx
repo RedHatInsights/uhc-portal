@@ -101,7 +101,6 @@ const DeleteClusterDialog = ({ onClose, textContent, title }: DeleteClusterDialo
             'This action cannot be undone. It will uninstall the cluster, and all data will be deleted.'}
         </p>
         <p>
-          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
           Confirm deletion by typing <strong>{clusterName}</strong> below:
         </p>
         <Form onSubmit={() => submit()}>

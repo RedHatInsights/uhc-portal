@@ -3,7 +3,6 @@ import React from 'react';
 const RedHatLogo = (props: { height?: string; width?: string; className?: string }) => {
   const { height, width, className } = props;
   return (
-    // eslint-disable-next-line max-len
     <svg
       className={className}
       height={height || '.9em'}

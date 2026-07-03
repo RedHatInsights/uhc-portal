@@ -23,6 +23,7 @@ export const initialState: State = {
 };
 
 export default function flavoursReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<FlavourAction>,
 ): State {

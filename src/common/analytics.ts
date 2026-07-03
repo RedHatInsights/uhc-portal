@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { tools } from './installLinks.mjs';
 import { normalizedProducts } from './subscriptionTypes';
 

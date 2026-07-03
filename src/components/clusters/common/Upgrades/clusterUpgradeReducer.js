@@ -48,7 +48,6 @@ const initialState = {
 
 // eslint-disable-next-line default-param-last
 function UpgradesRecuder(state = initialState, action) {
-  // eslint-disable-next-line consistent-return
   return produce(state, (draft) => {
     // eslint-disable-next-line default-case
     switch (action.type) {

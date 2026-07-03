@@ -518,7 +518,6 @@ const reviewValues = {
     isOptional: true,
     valueTransform: (noProxyDomains) => (
       <LabelGroup>
-        {/* eslint-disable-next-line react/destructuring-assignment */}
         {noProxyDomains.map((domain) => (
           <Label color="blue" isCompact textMaxWidth="15em">
             {domain}

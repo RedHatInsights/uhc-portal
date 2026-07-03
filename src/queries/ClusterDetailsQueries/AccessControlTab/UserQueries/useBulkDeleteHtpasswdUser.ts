@@ -13,7 +13,6 @@ export const useBulkDeleteHtpasswdUser = (clusterID: string, idpId: string, regi
     mutationKey: ['bulkDeleteHtpasswdUser'],
     mutationFn: async (htpasswdUsers: HtPasswdUser[]) => {
       const clusterService = getClusterServiceForRegion(region);
-      // eslint-disable-next-line no-restricted-syntax
       for (const user of htpasswdUsers) {
         if (user?.id) {
           try {

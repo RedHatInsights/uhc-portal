@@ -21,6 +21,7 @@ githubReleasesToFetch.forEach((repo) => {
   initialState[repo] = baseRequestState;
 });
 
+// eslint-disable-next-line default-param-last
 function githubReducer(state = initialState, action: PromiseActionType<GithubActions>): State {
   return produce(state, (draft) => {
     // eslint-disable-next-line default-case
