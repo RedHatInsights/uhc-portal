@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
-import { checkAccessibility, render, screen, waitFor } from '~/testUtils';
+import { checkAccessibility, render, screen } from '~/testUtils';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { FieldId, initialValues } from '../constants';
