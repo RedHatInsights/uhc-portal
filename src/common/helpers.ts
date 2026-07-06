@@ -236,27 +236,6 @@ const parseReduxFormTaints = (
 const goZeroTime = '0001-01-01T00:00:00Z';
 
 /**
- * try to parse the go zero time, and return null for it.
- * it does not exhaust all time formats.
- * the fix is for AMS returning null timestamp in the form of go zerotime.
- * @param {string} timeStr the timestamp string. Example:
- * '2021-10-08T17:11:02Z' returns '2021-10-08T17:11:02Z'
- * '0001-01-01T00:00:00Z' returns null
- */
-const goZeroTime2Null = (timeStr: string): string | null => {
-  if (timeStr === goZeroTime) {
-    return null;
-  }
-
-  const tm = Date.parse(timeStr);
-  if (!Number.isNaN(tm) && tm === Date.parse(goZeroTime)) {
-    return null;
-  }
-
-  return timeStr;
-};
-
-/**
  * determine if a version's major.minor level is <= maxMinorVerison's major.minor level.
  * we exclude the patch version of maxMinorVersion here even though ocpVersion can have a patch version.
  * this works because a <=major.minor semver range ignores patch versions, e.g. 4.11.13 satisfies the range <=4.11.
@@ -426,7 +405,6 @@ export {
   parseReduxFormKeyValueList,
   parseReduxFormTaints,
   goZeroTime,
-  goZeroTime2Null,
   stringToArray,
   arrayToString,
   truncateTextWithEllipsis,

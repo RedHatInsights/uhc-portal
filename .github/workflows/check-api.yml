@@ -29,7 +29,7 @@ jobs:
       - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          app-id: ${{ secrets.CHECK_OPENAPI_APP_ID }}
+          client-id: ${{ secrets.CHECK_OPENAPI_APP_ID }}
           private-key: ${{ secrets.CHECK_OPENAPI_APP_PRIVATE_KEY }}
       - uses: actions/checkout@v6
         with:
@@ -44,7 +44,7 @@ jobs:
         with:
           path: './node_modules'
           key: check_api-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
-          
+
       - name: Install dependencies
         run: npm ci
 
@@ -68,11 +68,23 @@ jobs:
           else
             echo "pr_exists=false" >> "$GITHUB_OUTPUT"
           fi
-          
+
       - name: Generating model based on OpenAPI contracts
         if: steps.check-pr.outputs.pr_exists == 'false'
         run: make openapi
-        
+
+      - name: Get GitHub App bot user ID
+        if: steps.check-pr.outputs.pr_exists == 'false'
+        id: app-bot-user
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: echo "user-id=$(gh api "/users/${{ steps.generate-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+
+      - name: Build GitHub App bot committer string
+        id: app-bot-committer
+        if: steps.check-pr.outputs.pr_exists == 'false'
+        run: echo "string=${{ steps.generate-token.outputs.app-slug }}[bot] <${{ steps.app-bot-user.outputs.user-id }}+${{ steps.generate-token.outputs.app-slug }}[bot]@users.noreply.github.com>" >> "$GITHUB_OUTPUT"
+
       - name: Create Pull Request
         if: steps.check-pr.outputs.pr_exists == 'false'
         uses: peter-evans/create-pull-request@v8
@@ -85,8 +97,9 @@ jobs:
           add-paths: |
             src/types/**
           commit-message: Update API model
-          committer: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
-          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          signoff: true
+          committer: ${{ steps.app-bot-committer.outputs.string }}
+          author: ${{ steps.app-bot-committer.outputs.string }}
           delete-branch: true
           title: '[OPEN API] update model'
           body: |

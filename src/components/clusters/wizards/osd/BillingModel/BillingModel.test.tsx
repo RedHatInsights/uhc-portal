@@ -2,8 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
-import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
-import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
+import { checkAccessibility, render, screen, waitFor } from '~/testUtils';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { FieldId, initialValues } from '../constants';
@@ -47,7 +46,6 @@ const buildTestComponent = (isOSDFromGoogleCloud = false) => (
 describe('<BillingModel />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseFeatureGate([[HIDE_RH_MARKETPLACE, true]]);
     mockUseGetBillingQuotas.mockReturnValue(defaultQuotas);
   });
   describe('Default path for osd creation', () => {

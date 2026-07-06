@@ -8,8 +8,6 @@ import { Alert, Button, Form } from '@patternfly/react-core';
 import { Link } from '~/common/routing';
 import Modal from '~/components/common/Modal/Modal';
 import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypes';
-import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { refreshClusterDetails } from '~/queries/refreshEntireCache';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
@@ -33,7 +31,6 @@ import './UpgradeTrialClusterDialog.scss';
 
 const UpgradeTrialClusterDialog = ({ onClose }) => {
   const dispatch = useDispatch();
-  const hideRHMarketplace = useFeatureGate(HIDE_RH_MARKETPLACE);
   const modalData = useGlobalState((state) => state.modal.data);
   const organization = useGlobalState((state) => state.userProfile.organization);
   const clusterID = modalData.clusterID ? modalData.clusterID : '';
@@ -116,7 +113,7 @@ const UpgradeTrialClusterDialog = ({ onClose }) => {
       return acc;
     }, {});
 
-    const quota = { MARKETPLACE: !hideRHMarketplace, STANDARD: true };
+    let standardQuota = true;
     Object.keys(machinePoolTypes || {}).forEach((key) => {
       const quotaParams = {
         product: OSD,
@@ -137,75 +134,24 @@ const UpgradeTrialClusterDialog = ({ onClose }) => {
         resourceType: QuotaTypes.NODE,
       });
 
-      quota.STANDARD =
-        quota.STANDARD && standardNodes >= machinePoolTypes[key] && standardClusters > 0;
-
-      const marketClusters = availableQuota(quotaList, {
-        ...quotaParams,
-        billingModel: SubscriptionCommonFieldsClusterBillingModel.marketplace,
-        resourceType: QuotaTypes.CLUSTER,
-      });
-      const marketNodes = availableQuota(quotaList, {
-        ...quotaParams,
-        billingModel: SubscriptionCommonFieldsClusterBillingModel.marketplace,
-        resourceType: QuotaTypes.NODE,
-      });
-
-      quota.MARKETPLACE =
-        !hideRHMarketplace &&
-        quota.MARKETPLACE &&
-        marketNodes >= machinePoolTypes[key] &&
-        marketClusters > 0;
+      standardQuota =
+        standardQuota && standardNodes >= machinePoolTypes[key] && standardClusters > 0;
     });
-    return quota;
+    return standardQuota;
   };
 
   const getPrimaryButtonProps = (availableQuotaValue) => {
-    const marketplaceQuotaEnabled = availableQuotaValue.MARKETPLACE && !hideRHMarketplace;
     const button = {
       primaryText: 'Contact sales',
       onPrimaryClick: () => buttonLinkClick('https://cloud.redhat.com/products/dedicated/contact/'),
     };
 
-    if (availableQuotaValue.STANDARD && !marketplaceQuotaEnabled) {
+    if (availableQuotaValue) {
       button.primaryText = 'Upgrade using quota';
       button.primaryLink = null;
       button.onPrimaryClick = () =>
         submitUpgrade(clusterID, SubscriptionCommonFieldsClusterBillingModel.standard);
       return button;
-    }
-
-    if (marketplaceQuotaEnabled) {
-      button.primaryText = 'Upgrade using Marketplace billing';
-      button.primaryLink = null;
-      button.onPrimaryClick = () =>
-        submitUpgrade(clusterID, SubscriptionCommonFieldsClusterBillingModel.marketplace);
-      return button;
-    }
-
-    return button;
-  };
-
-  const getSecondaryButtonProps = (availableQuotaValue) => {
-    const marketplaceQuotaEnabled = availableQuotaValue.MARKETPLACE && !hideRHMarketplace;
-    const button = {
-      showSecondary: false,
-    };
-
-    button.secondaryText = 'Enable Marketplace billing';
-    button.showSecondary = !hideRHMarketplace;
-    button.onSecondaryClick = () =>
-      buttonLinkClick('https://marketplace.redhat.com/en-us/products/red-hat-openshift-dedicated');
-
-    if (marketplaceQuotaEnabled && availableQuotaValue.STANDARD) {
-      button.secondaryText = 'Upgrade using quota';
-      button.onSecondaryClick = () =>
-        submitUpgrade(clusterID, SubscriptionCommonFieldsClusterBillingModel.standard);
-    }
-
-    if (marketplaceQuotaEnabled && !availableQuotaValue.STANDARD) {
-      button.showSecondary = false;
-      button.secondaryLink = null;
     }
 
     return button;
@@ -230,10 +176,8 @@ const UpgradeTrialClusterDialog = ({ onClose }) => {
 
   const availableQuotaValue = upgradeModalQuota();
   const primaryButton = getPrimaryButtonProps(availableQuotaValue);
-  const secondaryButton = getSecondaryButtonProps(availableQuotaValue);
   const tertiaryButton = getTertiaryButtonProps();
-  const noQuota =
-    !availableQuotaValue.STANDARD && (!availableQuotaValue.MARKETPLACE || hideRHMarketplace);
+  const noQuota = !availableQuotaValue;
   const modalSize = noQuota ? 'small' : 'medium';
 
   return (
@@ -245,7 +189,7 @@ const UpgradeTrialClusterDialog = ({ onClose }) => {
       isSmall={false}
       {...primaryButton}
       className="upgrade-trial-cluster-dialog"
-      {...secondaryButton}
+      showSecondary={false}
       {...tertiaryButton}
       isPending={isUpgradeFromTrialPending}
     >

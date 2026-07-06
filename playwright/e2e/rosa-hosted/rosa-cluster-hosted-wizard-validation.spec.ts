@@ -797,6 +797,237 @@ test.describe.serial(
       await createRosaWizardPage.customOperatorPrefixInput().selectText();
       await createRosaWizardPage.customOperatorPrefixInput().fill('test-123-test');
       await createRosaWizardPage.rosaNextButton().click();
+    });
+
+    test('Step - Cluster updates - navigate through', async ({ createRosaWizardPage }) => {
+      await createRosaWizardPage.isUpdatesScreen();
+      await createRosaWizardPage.rosaNextButton().click();
+    });
+
+    test('Step - Control plane log forwarding - widget validations', async ({
+      createRosaWizardPage,
+    }) => {
+      // --- S3 validations ---
+      await createRosaWizardPage.amazonS3EnableCheckbox().check();
+
+      // Click Next with empty S3 bucket name → required error
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameRequired,
+      );
+
+      // Bucket name too short (< 3 chars)
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameTooShort);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameTooShortError,
+      );
+
+      // Bucket name too long (> 63 chars)
+      await createRosaWizardPage.logForwardingS3BucketNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameTooLong);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameTooLongError,
+      );
+
+      // Bucket name starts with uppercase
+      await createRosaWizardPage.logForwardingS3BucketNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameStartsUppercase);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameStartsUppercaseError,
+      );
+
+      // Bucket name with consecutive dots
+      await createRosaWizardPage.logForwardingS3BucketNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameConsecutiveDots);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameConsecutiveDotsError,
+      );
+
+      // Bucket name formatted as IP address
+      await createRosaWizardPage.logForwardingS3BucketNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameIPAddress);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameIPAddressError,
+      );
+
+      // Bucket prefix with consecutive dots
+      await createRosaWizardPage.logForwardingS3BucketNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameValid);
+      await createRosaWizardPage
+        .logForwardingS3BucketPrefixInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketPrefixConsecutiveDots);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketPrefixConsecutiveDotsError,
+      );
+
+      // Clear prefix error with valid bucket name
+      await createRosaWizardPage.logForwardingS3BucketPrefixInput().clear();
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketPrefixConsecutiveDotsError,
+        false,
+      );
+
+      // Click Next without selecting any S3 groups → required error
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.SelectedItemsRequired,
+      );
+
+      // Uncheck S3 to clear its errors
+      await createRosaWizardPage.amazonS3EnableCheckbox().uncheck();
+
+      // --- CloudWatch validations ---
+      await createRosaWizardPage.cloudWatchEnableCheckbox().check();
+
+      // Log group name auto-fills; clear it and verify required error
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameRequired,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.RoleArnRequired,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.PrerequisiteAckRequired,
+      );
+
+      // Log group name with invalid characters
+      await createRosaWizardPage
+        .logForwardingCloudWatchLogGroupNameInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameInvalidChars);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameInvalidCharsError,
+      );
+
+      // Log group name with colon (rejected by OCM)
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchLogGroupNameInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameWithColon);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameWithColonError,
+      );
+
+      // Log group name too long (> 512 chars)
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchLogGroupNameInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameTooLong);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameTooLongError,
+      );
+
+      // Valid log group name → error clears
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().fill('valid-log-group');
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameRequired,
+        false,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameInvalidCharsError,
+        false,
+      );
+
+      // Role ARN with invalid format
+      await createRosaWizardPage
+        .logForwardingCloudWatchRoleArnInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.RoleArnInvalidFormat);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.RoleArnInvalidFormatError,
+      );
+
+      // Role ARN with whitespace
+      await createRosaWizardPage.logForwardingCloudWatchRoleArnInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchRoleArnInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.RoleArnWhitespace);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.RoleArnWhitespaceError,
+      );
+
+      // --- Fill valid S3 and CloudWatch data, then verify group selection required ---
+
+      // Enable S3 and fill valid data
+      await createRosaWizardPage.amazonS3EnableCheckbox().check();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.ValidBucketName);
+      await createRosaWizardPage
+        .logForwardingS3BucketPrefixInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.ValidBucketPrefix);
+
+      // Clear CloudWatch errors and fill valid data
+      await createRosaWizardPage.logForwardingCloudWatchRoleArnInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchRoleArnInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.ValidRoleArn);
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchLogGroupNameInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.ValidLogGroupName);
+      await createRosaWizardPage.logForwardingCloudWatchPrerequisiteCheckbox().check();
+
+      // Click Next without selecting any groups → both S3 and CloudWatch group errors
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.SelectedItemsRequired,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.SelectedItemsRequired,
+      );
+
+      // Select groups (both S3 and CloudWatch trees are visible: S3=nth(0), CloudWatch=nth(1))
+      await createRosaWizardPage.selectLogForwardingGroup('api', 'S3');
+      await createRosaWizardPage.selectLogForwardingGroup('api', 'CloudWatch');
+
+      // Navigate to Review and Create
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.waitForReviewScreenReady();
+
+      // Verify S3 details on review screen
+      await createRosaWizardPage.isTextContainsInPage('Amazon S3');
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.ValidBucketName,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.ValidBucketPrefix,
+      );
+      // Verify CloudWatch details on review screen
+      await createRosaWizardPage.isTextContainsInPage('CloudWatch');
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.ValidLogGroupName,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.ValidRoleArn,
+      );
+
       await createRosaWizardPage.rosaCancelButton().click();
     });
   },

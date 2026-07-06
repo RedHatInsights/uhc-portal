@@ -1108,8 +1108,61 @@ export class CreateRosaWizardPage extends BasePage {
     return this.logForwardingReviewSection().getByRole('heading', { name: 'CloudWatch' });
   }
 
-  logForwardingReviewConfigurationValues(): Locator {
-    return this.logForwardingReviewSection().getByText('Disabled', { exact: true });
+  logForwardingS3BucketNameInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Bucket name' });
+  }
+
+  logForwardingS3BucketPrefixInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Bucket prefix' });
+  }
+
+  logForwardingCloudWatchLogGroupNameInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Log group name' });
+  }
+
+  logForwardingCloudWatchRoleArnInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Role ARN' });
+  }
+
+  logForwardingCloudWatchPrerequisiteCheckbox(): Locator {
+    return this.page.getByRole('checkbox', {
+      name: "I've read and completed all the prerequisites",
+    });
+  }
+
+  /**
+   * Selects a group by name in the log forwarding available groups/applications tree.
+   * S3 tree is at index 0, CloudWatch tree is at index 1.
+   */
+  async selectLogForwardingGroup(groupName: string, section: 'S3' | 'CloudWatch'): Promise<void> {
+    const treeIndex = section === 'S3' ? 0 : 1;
+    await this.page
+      .getByRole('tree', { name: 'Select groups and applications' })
+      .nth(treeIndex)
+      .getByRole('checkbox', { name: `Select ${groupName}` })
+      .check();
+  }
+
+  /**
+   * Selects all available groups in a log forwarding tree section.
+   * Waits for the tree to load, then checks every unchecked checkbox.
+   */
+  async selectAllLogForwardingGroups(section: 'S3' | 'CloudWatch'): Promise<void> {
+    const treeIndex = section === 'S3' ? 0 : 1;
+    const tree = this.page
+      .getByRole('tree', { name: 'Select groups and applications' })
+      .nth(treeIndex);
+
+    await tree.getByRole('checkbox').first().waitFor({ state: 'visible', timeout: 30000 });
+
+    const checkboxes = tree.getByRole('checkbox');
+    const count = await checkboxes.count();
+    for (let i = 0; i < count; i++) {
+      const cb = checkboxes.nth(i);
+      if (!(await cb.isChecked())) {
+        await cb.check();
+      }
+    }
   }
 
   // Additional validation method for compute node range
@@ -1131,5 +1184,32 @@ export class CreateRosaWizardPage extends BasePage {
 
   operatorRoleCommandInput(): Locator {
     return this.page.getByLabel('Copyable ROSA create operator-roles');
+  }
+
+  /**
+   * Returns the description (value) cell of a specific log forwarding property in the review
+   * screen. Scopes to the data-testid set on each DescriptionListGroup in
+   * LogForwardingReviewDetails, then returns the <dd> (definition) within it.
+   *
+   * Testid format: review-lf-{provider}-{label}
+   *   provider: 's3' | 'cw'
+   *   label:    'configuration' | 'bucket-name' | 'bucket-prefix' |
+   *             'log-group-name' | 'role-arn' | 'selected-groups'
+   *
+   * Example:
+   *   logForwardingReviewPropertyValue('s3', 'configuration')  → "Enabled" / "Disabled"
+   *   logForwardingReviewPropertyValue('cw', 'role-arn')        → the ARN string
+   */
+  logForwardingReviewPropertyValue(
+    provider: 's3' | 'cw',
+    label:
+      | 'configuration'
+      | 'bucket-name'
+      | 'bucket-prefix'
+      | 'log-group-name'
+      | 'role-arn'
+      | 'selected-groups',
+  ): Locator {
+    return this.page.getByTestId(`review-lf-${provider}-${label}`).getByRole('definition');
   }
 }

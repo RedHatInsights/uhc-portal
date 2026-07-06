@@ -150,7 +150,6 @@ const addOnBillingQuota = (quotaList: QuotaCostList, quotaParams: QuotaParams): 
           models.marketplace = {
             cost: resource.cost,
             cloudAccounts: {
-              rhm: quotaCostItem.cloud_accounts?.filter((m) => m.cloud_provider_id === 'rhm') ?? [],
               aws: quotaCostItem.cloud_accounts?.filter((m) => m.cloud_provider_id === 'aws') ?? [],
               azure:
                 quotaCostItem.cloud_accounts?.filter((m) => m.cloud_provider_id === 'azure') ?? [],

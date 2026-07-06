@@ -23,9 +23,7 @@ test.describe.serial(
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
     const clusterName = clusterProperties.ClusterName;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
-
     test.beforeAll(async ({ navigateTo }) => {
-      // Initial navigation using navigateTo
       await navigateTo('create');
     });
 
@@ -163,6 +161,17 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
+    test('Step - Additional set up - Control plane log forwarding options', async ({
+      createRosaWizardPage,
+    }) => {
+      await createRosaWizardPage.isLogForwardingScreen();
+      await expect(createRosaWizardPage.amazonS3Heading()).toBeVisible();
+      await expect(createRosaWizardPage.cloudWatchHeading()).toBeVisible();
+      await expect(createRosaWizardPage.amazonS3EnableCheckbox()).not.toBeChecked();
+      await expect(createRosaWizardPage.cloudWatchEnableCheckbox()).not.toBeChecked();
+      await createRosaWizardPage.rosaNextButton().click();
+    });
+
     test('Step - Review and create : Accounts and roles definitions', async ({
       createRosaWizardPage,
     }) => {
@@ -285,6 +294,20 @@ test.describe.serial(
         'OIDC Configuration ID',
         oidcConfigId,
       );
+    });
+
+    test('Step - Review and create : Control plane log forwarding definitions', async ({
+      createRosaWizardPage,
+    }) => {
+      await expect(createRosaWizardPage.logForwardingReviewSection()).toBeVisible();
+      await expect(createRosaWizardPage.logForwardingReviewS3Heading()).toBeVisible();
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'configuration'),
+      ).toHaveText('Disabled');
+      await expect(createRosaWizardPage.logForwardingReviewCloudWatchHeading()).toBeVisible();
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'configuration'),
+      ).toHaveText('Disabled');
     });
 
     test('Create cluster and check the installation progress', async ({

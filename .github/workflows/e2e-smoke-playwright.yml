@@ -46,7 +46,7 @@ on:
       workers:
         description: 'Number of parallel workers'
         required: false
-        default: '4'
+        default: '2'
         type: string
 
 jobs:
@@ -312,7 +312,7 @@ jobs:
           export TEST_WITHQUOTA_PASSWORD=$(jq -r '.QE_ORGADMIN_PASSWORD // empty' playwright.env.json)
 
           GREP_PATTERN="${{ inputs.grep_tags || '@smoke' }}"
-          WORKERS="${{ inputs.workers || '4' }}"
+          WORKERS="${{ inputs.workers || '2' }}"
           EUT="${{ inputs.EUT || 'staging' }}"
 
           echo "Running tests with pattern: $GREP_PATTERN"
@@ -427,7 +427,7 @@ jobs:
                     },
                     {
                       "title": "Workers",
-                      "value": "${{ inputs.workers || '4' }}",
+                      "value": "${{ inputs.workers || '2' }}",
                       "short": true
                     },
                     {

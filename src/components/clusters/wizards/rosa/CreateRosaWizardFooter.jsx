@@ -170,10 +170,6 @@ const CreateRosaWizardFooter = ({
     <WizardFooterWrapper>
       <ActionList>
         <ActionListGroup>
-          <CreateManagedClusterButtonWithTooltip wrap>
-            {primaryBtn}
-          </CreateManagedClusterButtonWithTooltip>
-
           <ActionListItem>
             <Button
               variant="secondary"
@@ -184,6 +180,9 @@ const CreateRosaWizardFooter = ({
               Back
             </Button>
           </ActionListItem>
+          <CreateManagedClusterButtonWithTooltip wrap>
+            {primaryBtn}
+          </CreateManagedClusterButtonWithTooltip>
         </ActionListGroup>
         <ActionListGroup>
           <ActionListItem>

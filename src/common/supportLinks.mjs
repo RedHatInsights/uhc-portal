@@ -13,9 +13,6 @@ const SOLUTIONS_URL = `${BASE_URL}solutions/`;
 const SECURITY_URL = `${BASE_URL}security/`;
 const DOCUMENTATION_URL = `${BASE_URL}documentation/`;
 const ROSA_CP_DOCS_BASE = `${BASE_URL}documentation/en-us/red_hat_openshift_service_on_aws/4/html`;
-const OCM_DOCS_BASE = `${BASE_URL}documentation/en-us/openshift_cluster_manager/2023`;
-const OCP_DOCS_BASE =
-  'https://docs.redhat.com/en/documentation/openshift_container_platform/latest/html';
 
 const supportLinks = {
   // Support Case Management
@@ -51,12 +48,6 @@ const supportLinks = {
   ROSA_CLI_DOCS: `${ROSA_CP_DOCS_BASE}/rosa_cli/rosa-get-started-cli`,
   ROSA_HCP_EXT_AUTH: `${ROSA_CP_DOCS_BASE}/install_rosa_with_hcp_clusters/rosa-hcp-sts-creating-a-cluster-ext-auth`,
   ROSA_HCP_BREAK_GLASS: `${ROSA_CP_DOCS_BASE}/install_rosa_with_hcp_clusters/rosa-hcp-sts-creating-a-cluster-ext-auth#rosa-hcp-sts-accessing-a-break-glass-cred-cli_rosa-hcp-sts-creating-a-cluster-ext-auth`,
-  OCM_DOCS_PULL_SECRETS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-managing-clusters#downloading_and_updating_pull_secrets`,
-  OCM_DOCS_ROLES_AND_ACCESS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-user-management-ocm`,
-  OCM_DOCS_SUBSCRIPTIONS: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-cluster-subscriptions`,
-  OCM_DOCS_UPGRADING_OSD_TRIAL: `${OCM_DOCS_BASE}/html/managing_clusters/assembly-cluster-subscriptions#upgrading-osd-trial-cluster_assembly-cluster-subscriptions`,
-  TELEMETRY_INFORMATION: `${OCP_DOCS_BASE}/support/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring`,
-  REMOTE_HEALTH_INSIGHTS: `${OCP_DOCS_BASE}/support/remote-health-monitoring-with-connected-clusters#insights-operator-advisor-overview_using-insights-to-identify-issues-with-your-cluster`,
 
   // Support Offerings
   INSTALL_PRE_RELEASE_SUPPORT_KCS: `${SUPPORT_URL}offerings/devpreview`,

@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 
 import helpers, {
-  goZeroTime2Null,
   isSupportedMinorVersion,
   parseCIDRSubnetLength,
   parseReduxFormKeyValueList,
@@ -100,27 +99,6 @@ describe('parseReduxFormTaints', () => {
     const reduxFormInput = [{}, {}, {}];
     const expected = [];
     expect(parseReduxFormTaints(reduxFormInput)).toEqual(expected);
-  });
-});
-
-describe('goZeroTime2Null', () => {
-  it('returns null for golang zero time', () => {
-    expect(goZeroTime2Null('0001-01-01T00:00:00Z')).toEqual(null);
-    expect(goZeroTime2Null('0001-01-01T00:00:00Z')).toEqual(null);
-    expect(goZeroTime2Null('0001-01-01T00:00:00.000000+00:00')).toEqual(null);
-  });
-
-  it('returns "empty" values as is', () => {
-    expect(goZeroTime2Null(null)).toEqual(null);
-    expect(goZeroTime2Null(false)).toEqual(false);
-    expect(goZeroTime2Null('')).toEqual('');
-  });
-
-  it('returns valid time str as is', () => {
-    const tm = new Date();
-    expect(goZeroTime2Null(tm.toDateString())).toEqual(tm.toDateString());
-    expect(goZeroTime2Null(tm.toLocaleDateString())).toEqual(tm.toLocaleDateString());
-    expect(goZeroTime2Null(tm.toUTCString())).toEqual(tm.toUTCString());
   });
 });
 

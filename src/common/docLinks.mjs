@@ -13,6 +13,8 @@ const OSD_DOCS_BASE = 'https://docs.redhat.com/en/documentation/openshift_dedica
 const ROSA_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html';
 const RH_BASE = 'https://www.redhat.com/en';
+const OCM_DOCS_BASE =
+  'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html/managing_clusters';
 const COSTMGMT_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/cost_management_service/1-latest/html';
 
@@ -176,6 +178,15 @@ const docLinks = {
   RH_ROSA_LEARN: `${RH_BASE}/technologies/cloud-computing/openshift/aws/learn`,
   RH_ROSA_INSTALL: `${RH_BASE}/products/interactive-walkthrough/install-rosa`,
   RH_ROSA_LIGHTBOARD: `${RH_BASE}/about/videos/rosa-lightboard`,
+
+  // OCM
+  OCM_DOCS_PULL_SECRETS: `${OCM_DOCS_BASE}/assembly-managing-clusters_assembly-cluster-subscriptions#managing-pull-secrets-intro_assembly-managing-clusters`,
+  OCM_DOCS_SUBSCRIPTIONS: `${OCM_DOCS_BASE}/assembly-cluster-subscriptions_assembly-cluster-subscriptions`,
+  OCM_DOCS_UPGRADING_OSD_TRIAL: `${OCM_DOCS_BASE}/assembly-cluster-subscriptions_assembly-cluster-subscriptions#upgrading-osd-trial-cluster_assembly-cluster-subscriptions`,
+
+  // Telemetry
+  TELEMETRY_INFORMATION: `${OCP_DOCS_BASE}/support/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring`,
+  REMOTE_HEALTH_INSIGHTS: `${OCP_DOCS_BASE}/support/remote-health-monitoring-with-connected-clusters#insights-operator-advisor-overview_using-insights-to-identify-issues-with-your-cluster`,
 
   // Misc
   LEARN_MORE_SSO:

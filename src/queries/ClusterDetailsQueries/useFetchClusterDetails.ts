@@ -107,7 +107,11 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
     subscription?.subscription.rh_region_id,
   );
 
-  const { isLoading: isAIClusterLoading, data: aiClusterResponse } = useFetchAiCluster(
+  const {
+    isLoading: isAIClusterLoading,
+    data: aiClusterResponse,
+    isError: isAIClusterError,
+  } = useFetchAiCluster(
     subscription?.subscription.cluster_id as string,
     queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
     subscription?.subscription,
@@ -135,18 +139,21 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
       isSubscriptionError ||
       isClusterDetailsError ||
       isActionsError ||
-      isCanDeleteAccessReviewError
+      isCanDeleteAccessReviewError ||
+      isAIClusterError
     ) {
       const isError =
         isSubscriptionError ||
         isClusterDetailsError ||
         isActionsError ||
-        isCanDeleteAccessReviewError;
+        isCanDeleteAccessReviewError ||
+        isAIClusterError;
       const isLoading =
         subscriptionLoading ||
         isClusterDetailsLoading ||
         isActionQueriesLoading ||
-        isCanDeleteAccessReviewLoading;
+        isCanDeleteAccessReviewLoading ||
+        isAIClusterLoading;
       const error =
         subscriptionError || clusterDetailsError || actionsError || canDeleteAccessReviewError;
 

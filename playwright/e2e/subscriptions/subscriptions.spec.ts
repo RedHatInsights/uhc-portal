@@ -161,7 +161,7 @@ test.describe.serial('Subscription page (OCP-25171)', { tag: ['@smoke'] }, () =>
     const learnMoreLink = subscriptionsPage.learnMoreLink();
     await expect(learnMoreLink).toHaveAttribute(
       'href',
-      /https:\/\/access\.redhat\.com\/documentation\/en-us\/openshift_cluster_manager\/2023\/html\/managing_clusters\/assembly-cluster-subscriptions/,
+      /https:\/\/docs\.redhat\.com\/en\/documentation\/openshift_cluster_manager\/1-latest\/html\/managing_clusters\/assembly-cluster-subscriptions_assembly-cluster-subscriptions/,
     );
   });
 });

@@ -4,7 +4,6 @@ import { clusterService } from '~/services';
 import { getClusterServiceForRegion } from '~/services/clusterService';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
-import { queryConstants } from '../queriesConstants';
 import { SubscriptionResponseType } from '../types';
 
 /**
@@ -21,12 +20,11 @@ export const useFetchUpgradeGateAgreements = (
 ) => {
   const { isLoading, data } = useQuery({
     queryKey: [
-      queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
       mainQueryKey,
-      'upgradeGates',
       'clusterService',
+      'upgradeGates',
       clusterID,
-      subscription,
+      subscription?.subscription.rh_region_id,
     ],
     queryFn: async () => {
       if (subscription?.subscription.rh_region_id) {

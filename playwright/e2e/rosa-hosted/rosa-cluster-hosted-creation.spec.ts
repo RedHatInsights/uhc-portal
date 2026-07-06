@@ -30,7 +30,6 @@ test.describe.serial(
       clusterProperties.MachinePools[0].AvailabilityZones;
 
     test.beforeAll(async ({ navigateTo }) => {
-      // Navigate to create
       await navigateTo('create');
     });
     test('Open Rosa cluster wizard', async ({ page, createRosaWizardPage }) => {
@@ -295,8 +294,13 @@ test.describe.serial(
     }) => {
       await expect(createRosaWizardPage.logForwardingReviewSection()).toBeVisible();
       await expect(createRosaWizardPage.logForwardingReviewS3Heading()).toBeVisible();
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'configuration'),
+      ).toHaveText('Disabled');
       await expect(createRosaWizardPage.logForwardingReviewCloudWatchHeading()).toBeVisible();
-      await expect(createRosaWizardPage.logForwardingReviewConfigurationValues()).toHaveCount(2);
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'configuration'),
+      ).toHaveText('Disabled');
     });
 
     test('Create cluster and check the installation progress', async ({
@@ -353,9 +357,13 @@ test.describe.serial(
       await expect(clusterDetailsPage.clusterHostPrefixLabelValue()).toContainText(
         clusterProperties.HostPrefix.replace('/', ''),
       );
+
+      await expect(clusterDetailsPage.controlPlaneLogForwardingDescription()).toContainText(
+        'Disabled',
+      );
     });
 
-    test('Delete the cluster', async ({ page, clusterDetailsPage }) => {
+    test('Delete the cluster', async ({clusterDetailsPage }) => {
       await clusterDetailsPage.actionsDropdownToggle().click();
       await clusterDetailsPage.deleteClusterDropdownItem().click();
       await clusterDetailsPage.deleteClusterNameInput().clear();

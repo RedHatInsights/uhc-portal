@@ -73,6 +73,9 @@ The test configuration uses `playwright.env.json` for environment-specific setti
   "QE_OCM_ROLE_PREFIX": "cypress-ocm-role",
   "QE_USER_ROLE_PREFIX": "cypress-user-role",
   "QE_OIDC_CONFIG_ID" : "Oidc config id for ROSA hosted clusters",
+  "QE_LOG_FORWARDING_S3_BUCKET_NAME": "AWS S3 bucket name for log forwarding",
+  "QE_LOG_FORWARDING_S3_BUCKET_PREFIX": "AWS s3 bucket prefix or folder name for log forwarding",
+  "QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN": "AWS cloud watch account arn role for log forwarding",
   // Optional definitions for special day2 test runs
   "QE_ORGADMIN_USER": "org admin username",
   "QE_ORGADMIN_PASSWORD": "org admin password",

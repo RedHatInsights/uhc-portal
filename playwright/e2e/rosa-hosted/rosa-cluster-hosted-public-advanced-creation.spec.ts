@@ -23,9 +23,17 @@ test.describe.serial(
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
     const clusterName = clusterProperties.ClusterName;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
+    const logForwardingS3BucketName = process.env.QE_LOG_FORWARDING_S3_BUCKET_NAME || '';
+    const logForwardingS3BucketPrefix = process.env.QE_LOG_FORWARDING_S3_BUCKET_PREFIX || '';
+    const logForwardingCwRoleArn = process.env.QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN || '';
+    const logForwardingCwLogGroupName = clusterProperties.CloudWatchLogGroupName;
 
     test.beforeAll(async ({ navigateTo }) => {
-      // Initial navigation using navigateTo
+      if (!logForwardingS3BucketName || !logForwardingS3BucketPrefix || !logForwardingCwRoleArn) {
+        throw new Error(
+          'Missing required env vars: QE_LOG_FORWARDING_S3_BUCKET_NAME, QE_LOG_FORWARDING_S3_BUCKET_PREFIX, QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN',
+        );
+      }
       await navigateTo('create');
     });
 
@@ -171,6 +179,32 @@ test.describe.serial(
       } else {
         await createRosaWizardPage.individualUpdateRadio().check({ force: true });
       }
+      await createRosaWizardPage.rosaNextButton().click();
+    });
+
+    test('Step - Control plane log forwarding - enable S3 and CloudWatch', async ({
+      createRosaWizardPage,
+    }) => {
+      await createRosaWizardPage.isLogForwardingScreen();
+      await createRosaWizardPage.amazonS3EnableCheckbox().check();
+      await createRosaWizardPage.logForwardingS3BucketNameInput().fill(logForwardingS3BucketName);
+      await createRosaWizardPage
+        .logForwardingS3BucketPrefixInput()
+        .fill(logForwardingS3BucketPrefix);
+      await createRosaWizardPage.selectAllLogForwardingGroups('S3');
+
+      await createRosaWizardPage.cloudWatchEnableCheckbox().check();
+      await expect(createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput()).toHaveValue(
+        new RegExp(`^${clusterName.slice(0, 15)}`),
+      );
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchLogGroupNameInput()
+        .fill(logForwardingCwLogGroupName);
+      await createRosaWizardPage.logForwardingCloudWatchRoleArnInput().fill(logForwardingCwRoleArn);
+      await createRosaWizardPage.logForwardingCloudWatchPrerequisiteCheckbox().check();
+      await createRosaWizardPage.selectAllLogForwardingGroups('CloudWatch');
+
       await createRosaWizardPage.rosaNextButton().click();
     });
 
@@ -326,6 +360,31 @@ test.describe.serial(
       );
     });
 
+    test('Step - Review and create : Log forwarding definitions', async ({
+      createRosaWizardPage,
+    }) => {
+      await expect(createRosaWizardPage.logForwardingReviewS3Heading()).toBeVisible();
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'configuration'),
+      ).toHaveText('Enabled');
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'bucket-name'),
+      ).toHaveText(logForwardingS3BucketName);
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'bucket-prefix'),
+      ).toHaveText(logForwardingS3BucketPrefix);
+      await expect(createRosaWizardPage.logForwardingReviewCloudWatchHeading()).toBeVisible();
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'configuration'),
+      ).toHaveText('Enabled');
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'log-group-name'),
+      ).toHaveText(logForwardingCwLogGroupName);
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'role-arn'),
+      ).toHaveText(logForwardingCwRoleArn);
+    });
+
     test('Create cluster and check the installation progress', async ({
       createRosaWizardPage,
       clusterDetailsPage,
@@ -347,6 +406,11 @@ test.describe.serial(
       await clusterDetailsPage.checkInstallationStepStatus('Network settings');
       await clusterDetailsPage.checkInstallationStepStatus('DNS setup');
       await clusterDetailsPage.checkInstallationStepStatus('Cluster installation');
+
+      const logForwardingDescription =
+        clusterDetailsPage.controlPlaneLogForwardingDescription();
+      await expect(logForwardingDescription).toContainText('Amazon S3: Enabled');
+      await expect(logForwardingDescription).toContainText('CloudWatch: Enabled');
     });
   },
 );

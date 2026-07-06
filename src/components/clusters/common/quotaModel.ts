@@ -29,7 +29,6 @@ export type QuotaParams = {
 export type QuotaQuery = Omit<RelatedResource, 'cost'>;
 
 export type BillingQuotaCloudAccounts = {
-  rhm: CloudAccount[];
   aws: CloudAccount[];
   azure: CloudAccount[];
 };
