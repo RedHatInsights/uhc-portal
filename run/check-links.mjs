@@ -702,43 +702,20 @@ function formatPlainCount(count) {
 }
 
 const SLACK_MAX_BROKEN_LINK_ENTRIES = 12;
-const SLACK_MAX_URL_LENGTH = 100;
 const SLACK_MAX_REPORT_LENGTH = 2800;
-
-/**
- * Shortens a URL for Slack display.
- * @param {string} url - URL to truncate
- * @param {number} [maxLength] - Maximum length before truncation
- * @returns {string} Truncated URL
- */
-function truncateUrlForSlack(url, maxLength = SLACK_MAX_URL_LENGTH) {
-  if (url.length <= maxLength) {
-    return url;
-  }
-  return `${url.slice(0, maxLength - 3)}...`;
-}
-
-/**
- * Ensures the Slack report stays within size limits.
- * @param {string} report - Full report text
- * @returns {string} Report within Slack limits
- */
-function enforceSlackReportLimit(report) {
-  if (report.length <= SLACK_MAX_REPORT_LENGTH) {
-    return report;
-  }
-
-  const truncated = report.slice(0, SLACK_MAX_REPORT_LENGTH - 80).trimEnd();
-  return `${truncated}\n\n... (report truncated — see GitHub Actions log for full details)`;
-}
 
 /**
  * Formats a list of broken links for the Slack summary.
  * @param {Object} categories - Categorized results
  * @param {Array} testedRedirects - Results of redirect testing
+ * @param {number} [maxBrokenEntries] - Maximum broken links to include
  * @returns {string} Broken links section, or empty string if none
  */
-function formatBrokenLinksList(categories, testedRedirects) {
+function formatBrokenLinksList(
+  categories,
+  testedRedirects,
+  maxBrokenEntries = SLACK_MAX_BROKEN_LINK_ENTRIES,
+) {
   const { clientErrors, serverErrors, errors } = categories;
   /** @type {Array<{ kind: 'simple' | 'redirect', text: string }>} */
   const entries = [];
@@ -746,14 +723,14 @@ function formatBrokenLinksList(categories, testedRedirects) {
   clientErrors.forEach(({ url, status }) => {
     entries.push({
       kind: 'simple',
-      text: `  ${truncateUrlForSlack(url)} (${status})`,
+      text: `  ${url} (${status})`,
     });
   });
 
   serverErrors.forEach(({ url, status }) => {
     entries.push({
       kind: 'simple',
-      text: `  ${truncateUrlForSlack(url)} (${status})`,
+      text: `  ${url} (${status})`,
     });
   });
 
@@ -761,7 +738,7 @@ function formatBrokenLinksList(categories, testedRedirects) {
     const shortError = errorMessage.length > 80 ? `${errorMessage.slice(0, 77)}...` : errorMessage;
     entries.push({
       kind: 'simple',
-      text: `  ${truncateUrlForSlack(url)} (${shortError})`,
+      text: `  ${url} (${shortError})`,
     });
   });
 
@@ -777,18 +754,17 @@ function formatBrokenLinksList(categories, testedRedirects) {
       entries.push({
         kind: 'redirect',
         text: [
-          `  ${truncateUrlForSlack(item.originalUrl)}`,
-          `  -> ${truncateUrlForSlack(item.redirectUrl)}`,
+          `  ${item.originalUrl}`,
+          `  -> ${item.redirectUrl}`,
           `  (redirect error: ${shortError})`,
         ].join('\n'),
       });
     } else {
       entries.push({
         kind: 'redirect',
-        text: [
-          `  ${truncateUrlForSlack(item.originalUrl)}`,
-          `  -> ${truncateUrlForSlack(item.redirectUrl)} (${item.finalStatus})`,
-        ].join('\n'),
+        text: [`  ${item.originalUrl}`, `  -> ${item.redirectUrl} (${item.finalStatus})`].join(
+          '\n',
+        ),
       });
     }
   });
@@ -797,7 +773,7 @@ function formatBrokenLinksList(categories, testedRedirects) {
     return '';
   }
 
-  const shown = entries.slice(0, SLACK_MAX_BROKEN_LINK_ENTRIES);
+  const shown = entries.slice(0, maxBrokenEntries);
   const omitted = entries.length - shown.length;
 
   const sections = [];
@@ -827,10 +803,16 @@ function formatBrokenLinksList(categories, testedRedirects) {
  * @param {boolean} [options.plain] - Omit ANSI color codes from counts
  * @param {boolean} [options.includeBrokenLinks] - Append broken link URLs when issues exist
  * @param {Array} [options.testedRedirects] - Redirect test results for broken link list
+ * @param {number} [options.maxBrokenEntries] - Maximum broken links to include in Slack output
  * @returns {string} Summary report text
  */
 function formatSummaryReport(categories, totalChecked, redirectErrorCount, options = {}) {
-  const { plain = false, includeBrokenLinks = false, testedRedirects = [] } = options;
+  const {
+    plain = false,
+    includeBrokenLinks = false,
+    testedRedirects = [],
+    maxBrokenEntries = SLACK_MAX_BROKEN_LINK_ENTRIES,
+  } = options;
   const count = plain
     ? (value) => formatPlainCount(value)
     : (value, useRed = false) => formatCount(value, useRed);
@@ -859,13 +841,47 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
   ];
 
   if (includeBrokenLinks && hasIssues) {
-    const brokenLinks = formatBrokenLinksList(categories, testedRedirects);
+    const brokenLinks = formatBrokenLinksList(categories, testedRedirects, maxBrokenEntries);
     if (brokenLinks) {
       lines.push(brokenLinks);
     }
   }
 
   return lines.join('\n');
+}
+
+/**
+ * Builds a Slack report, reducing broken-link entries until it fits size limits.
+ * URLs are never truncated — only the number of listed links is reduced.
+ * @param {Object} categories - Categorized results
+ * @param {number} totalChecked - Total checked URLs
+ * @param {number} redirectErrorCount - Count of redirect errors
+ * @param {Array} testedRedirects - Redirect test results
+ * @returns {string} Slack report text
+ */
+function buildSlackReport(categories, totalChecked, redirectErrorCount, testedRedirects) {
+  let maxBrokenEntries = SLACK_MAX_BROKEN_LINK_ENTRIES;
+
+  while (maxBrokenEntries >= 0) {
+    const report = formatSummaryReport(categories, totalChecked, redirectErrorCount, {
+      plain: true,
+      includeBrokenLinks: maxBrokenEntries > 0,
+      testedRedirects,
+      maxBrokenEntries,
+    });
+
+    if (report.length <= SLACK_MAX_REPORT_LENGTH || maxBrokenEntries === 0) {
+      return report;
+    }
+
+    maxBrokenEntries -= 1;
+  }
+
+  return formatSummaryReport(categories, totalChecked, redirectErrorCount, {
+    plain: true,
+    includeBrokenLinks: false,
+    testedRedirects,
+  });
 }
 
 /**
@@ -943,12 +959,13 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
   displaySummaryTable(categories, totalChecked, redirectErrorCount);
 
   if (reportFilePath) {
-    const slackReport = formatSummaryReport(categories, totalChecked, redirectErrorCount, {
-      plain: true,
-      includeBrokenLinks: true,
+    const slackReport = buildSlackReport(
+      categories,
+      totalChecked,
+      redirectErrorCount,
       testedRedirects,
-    });
-    fs.writeFileSync(reportFilePath, `${enforceSlackReportLimit(slackReport)}\n`);
+    );
+    fs.writeFileSync(reportFilePath, `${slackReport}\n`);
   }
 
   if (!summaryOnly) {
