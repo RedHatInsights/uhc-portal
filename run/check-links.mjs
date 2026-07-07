@@ -709,19 +709,20 @@ function formatPlainCount(count) {
  */
 function formatBrokenLinksList(categories, testedRedirects) {
   const { clientErrors, serverErrors, errors } = categories;
-  const lines = [];
+  const simpleLines = [];
+  const redirectBlocks = [];
 
   clientErrors.forEach(({ url, status }) => {
-    lines.push(`  ${url} (${status})`);
+    simpleLines.push(`  ${url} (${status})`);
   });
 
   serverErrors.forEach(({ url, status }) => {
-    lines.push(`  ${url} (${status})`);
+    simpleLines.push(`  ${url} (${status})`);
   });
 
   errors.forEach(({ url, errorMessage }) => {
     const shortError = errorMessage.length > 80 ? `${errorMessage.slice(0, 77)}...` : errorMessage;
-    lines.push(`  ${url} (${shortError})`);
+    simpleLines.push(`  ${url} (${shortError})`);
   });
 
   testedRedirects.forEach((item) => {
@@ -733,17 +734,38 @@ function formatBrokenLinksList(categories, testedRedirects) {
 
     if (item.error) {
       const shortError = item.error.length > 60 ? `${item.error.slice(0, 57)}...` : item.error;
-      lines.push(`  ${item.originalUrl} -> ${item.redirectUrl} (redirect error: ${shortError})`);
+      redirectBlocks.push(
+        [
+          `  ${item.originalUrl}`,
+          `  -> ${item.redirectUrl}`,
+          `  (redirect error: ${shortError})`,
+        ].join('\n'),
+      );
     } else {
-      lines.push(`  ${item.originalUrl} -> ${item.redirectUrl} (${item.finalStatus})`);
+      redirectBlocks.push(
+        [`  ${item.originalUrl}`, `  -> ${item.redirectUrl} (${item.finalStatus})`].join('\n'),
+      );
     }
   });
 
-  if (lines.length === 0) {
+  if (simpleLines.length === 0 && redirectBlocks.length === 0) {
     return '';
   }
 
-  return ['', 'Broken links:', ...lines].join('\n');
+  const sections = [...simpleLines];
+  if (redirectBlocks.length > 0) {
+    if (simpleLines.length > 0) {
+      sections.push('');
+    }
+    redirectBlocks.forEach((block, index) => {
+      if (index > 0) {
+        sections.push('');
+      }
+      sections.push(block);
+    });
+  }
+
+  return ['', 'Broken links:', ...sections].join('\n');
 }
 
 /**
