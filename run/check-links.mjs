@@ -701,6 +701,37 @@ function formatPlainCount(count) {
   return count.toString().padStart(6);
 }
 
+const SLACK_MAX_BROKEN_LINK_ENTRIES = 12;
+const SLACK_MAX_URL_LENGTH = 100;
+const SLACK_MAX_REPORT_LENGTH = 2800;
+
+/**
+ * Shortens a URL for Slack display.
+ * @param {string} url - URL to truncate
+ * @param {number} [maxLength] - Maximum length before truncation
+ * @returns {string} Truncated URL
+ */
+function truncateUrlForSlack(url, maxLength = SLACK_MAX_URL_LENGTH) {
+  if (url.length <= maxLength) {
+    return url;
+  }
+  return `${url.slice(0, maxLength - 3)}...`;
+}
+
+/**
+ * Ensures the Slack report stays within size limits.
+ * @param {string} report - Full report text
+ * @returns {string} Report within Slack limits
+ */
+function enforceSlackReportLimit(report) {
+  if (report.length <= SLACK_MAX_REPORT_LENGTH) {
+    return report;
+  }
+
+  const truncated = report.slice(0, SLACK_MAX_REPORT_LENGTH - 80).trimEnd();
+  return `${truncated}\n\n... (report truncated — see GitHub Actions log for full details)`;
+}
+
 /**
  * Formats a list of broken links for the Slack summary.
  * @param {Object} categories - Categorized results
@@ -709,20 +740,29 @@ function formatPlainCount(count) {
  */
 function formatBrokenLinksList(categories, testedRedirects) {
   const { clientErrors, serverErrors, errors } = categories;
-  const simpleLines = [];
-  const redirectBlocks = [];
+  /** @type {Array<{ kind: 'simple' | 'redirect', text: string }>} */
+  const entries = [];
 
   clientErrors.forEach(({ url, status }) => {
-    simpleLines.push(`  ${url} (${status})`);
+    entries.push({
+      kind: 'simple',
+      text: `  ${truncateUrlForSlack(url)} (${status})`,
+    });
   });
 
   serverErrors.forEach(({ url, status }) => {
-    simpleLines.push(`  ${url} (${status})`);
+    entries.push({
+      kind: 'simple',
+      text: `  ${truncateUrlForSlack(url)} (${status})`,
+    });
   });
 
   errors.forEach(({ url, errorMessage }) => {
     const shortError = errorMessage.length > 80 ? `${errorMessage.slice(0, 77)}...` : errorMessage;
-    simpleLines.push(`  ${url} (${shortError})`);
+    entries.push({
+      kind: 'simple',
+      text: `  ${truncateUrlForSlack(url)} (${shortError})`,
+    });
   });
 
   testedRedirects.forEach((item) => {
@@ -734,35 +774,45 @@ function formatBrokenLinksList(categories, testedRedirects) {
 
     if (item.error) {
       const shortError = item.error.length > 60 ? `${item.error.slice(0, 57)}...` : item.error;
-      redirectBlocks.push(
-        [
-          `  ${item.originalUrl}`,
-          `  -> ${item.redirectUrl}`,
+      entries.push({
+        kind: 'redirect',
+        text: [
+          `  ${truncateUrlForSlack(item.originalUrl)}`,
+          `  -> ${truncateUrlForSlack(item.redirectUrl)}`,
           `  (redirect error: ${shortError})`,
         ].join('\n'),
-      );
+      });
     } else {
-      redirectBlocks.push(
-        [`  ${item.originalUrl}`, `  -> ${item.redirectUrl} (${item.finalStatus})`].join('\n'),
-      );
+      entries.push({
+        kind: 'redirect',
+        text: [
+          `  ${truncateUrlForSlack(item.originalUrl)}`,
+          `  -> ${truncateUrlForSlack(item.redirectUrl)} (${item.finalStatus})`,
+        ].join('\n'),
+      });
     }
   });
 
-  if (simpleLines.length === 0 && redirectBlocks.length === 0) {
+  if (entries.length === 0) {
     return '';
   }
 
-  const sections = [...simpleLines];
-  if (redirectBlocks.length > 0) {
-    if (simpleLines.length > 0) {
+  const shown = entries.slice(0, SLACK_MAX_BROKEN_LINK_ENTRIES);
+  const omitted = entries.length - shown.length;
+
+  const sections = [];
+  shown.forEach((entry, index) => {
+    if (index > 0 && entry.kind === 'redirect') {
       sections.push('');
     }
-    redirectBlocks.forEach((block, index) => {
-      if (index > 0) {
-        sections.push('');
-      }
-      sections.push(block);
-    });
+    sections.push(entry.text);
+  });
+
+  if (omitted > 0) {
+    sections.push('');
+    sections.push(
+      `  ... and ${omitted} more broken link${omitted === 1 ? '' : 's'} (see GitHub Actions log)`,
+    );
   }
 
   return ['', 'Broken links:', ...sections].join('\n');
@@ -893,14 +943,12 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
   displaySummaryTable(categories, totalChecked, redirectErrorCount);
 
   if (reportFilePath) {
-    fs.writeFileSync(
-      reportFilePath,
-      `${formatSummaryReport(categories, totalChecked, redirectErrorCount, {
-        plain: true,
-        includeBrokenLinks: true,
-        testedRedirects,
-      })}\n`,
-    );
+    const slackReport = formatSummaryReport(categories, totalChecked, redirectErrorCount, {
+      plain: true,
+      includeBrokenLinks: true,
+      testedRedirects,
+    });
+    fs.writeFileSync(reportFilePath, `${enforceSlackReportLimit(slackReport)}\n`);
   }
 
   if (!summaryOnly) {
