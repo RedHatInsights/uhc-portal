@@ -720,8 +720,7 @@ function formatBrokenLinksList(categories, testedRedirects) {
   });
 
   errors.forEach(({ url, errorMessage }) => {
-    const shortError =
-      errorMessage.length > 80 ? `${errorMessage.slice(0, 77)}...` : errorMessage;
+    const shortError = errorMessage.length > 80 ? `${errorMessage.slice(0, 77)}...` : errorMessage;
     lines.push(`  ${url} (${shortError})`);
   });
 
