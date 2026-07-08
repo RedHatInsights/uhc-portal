@@ -66,6 +66,22 @@ export class IdentityProvidersPage extends BasePage {
     return this.page.getByRole('table', { name: 'Identity Providers' });
   }
 
+  idpTableRows(): Locator {
+    return this.idpTable().getByRole('row');
+  }
+
+  async hasConfiguredIdps(): Promise<boolean> {
+    await this.goToAccessControlTab();
+    await this.goToIdentityProvidersTab();
+    const tableVisible = await this.idpTable().isVisible();
+    if (!tableVisible) {
+      return false;
+    }
+    const rowCount = await this.idpTableRows().count();
+    // Table header counts as a row, so more than 1 row means IDPs exist
+    return rowCount > 1;
+  }
+
   idpRow(idpName: string): Locator {
     return this.page.getByRole('row').filter({ hasText: idpName });
   }

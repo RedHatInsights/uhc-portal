@@ -1,0 +1,16 @@
+{
+  "expectedOperators": {
+    "featuredProducts": [
+      "Advanced Cluster Security for Kubernetes",
+      "Red Hat OpenShift AI",
+      "OpenShift Virtualization",
+      "Red Hat Advanced Cluster Management for Kubernetes"
+    ],
+    "recommendedOperators": [
+      "Red Hat OpenShift GitOps",
+      "Red Hat OpenShift Pipelines",
+      "Red Hat OpenShift Service Mesh"
+    ]
+  },
+  "totalOperatorCards": 7
+}

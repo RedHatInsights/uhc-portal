@@ -1090,4 +1090,107 @@ export class ClusterDetailsPage extends BasePage {
     await clusterListPage.openClusterDefinition(clusterName);
     await this.waitForClusterDetailsLoad();
   }
+  // ── Alerts and Recommendations ──────────────────────────────────────────
+
+  alertsAndRecommendationsToggle(): Locator {
+    return this.page.getByRole('button', { name: /Alerts and recommendations/i });
+  }
+
+  async expandAlertsAndRecommendations(): Promise<void> {
+    const toggle = this.alertsAndRecommendationsToggle();
+    const isExpanded = await toggle.getAttribute('aria-expanded');
+    if (isExpanded !== 'true') {
+      await toggle.click();
+    }
+  }
+
+  // ── Identity Provider Hint Alert ────────────────────────────────────────
+
+  idpHintAlert(): Locator {
+    return this.page.getByText('Create an identity provider to access cluster');
+  }
+
+  idpHintDescription(): Locator {
+    return this.page.getByText(
+      'Identity providers determine how you can log into the cluster',
+    );
+  }
+
+  createIdentityProviderButton(): Locator {
+    return this.page.getByRole('button', { name: 'Create identity provider' });
+  }
+
+  // ── Recommended Operators Alert ────────────────────────────────────────
+
+  recommendedOperatorsAlert(): Locator {
+    return this.page.getByText(
+      /Optimize your cluster with operators|Your cluster is being created|Action is required/,
+    );
+  }
+
+  recommendedOperatorsExpandToggle(): Locator {
+    return this.page.getByRole('button', { name: /recommended operators/i });
+  }
+
+  recommendedOperatorsAlertCloseButton(): Locator {
+    return this.page.getByRole('button', {
+      name: /Close Info alert.*(?:Optimize your cluster|Your cluster is being created|Action is required)/i,
+    });
+  }
+
+  productCard(productName: string): Locator {
+    return this.page
+      .getByTestId('product-overview-card')
+      .filter({ hasText: productName });
+  }
+
+  productCardLearnMoreButton(productName: string): Locator {
+    return this.productCard(productName).getByRole('button', { name: 'Learn more' });
+  }
+
+  allProductCards(): Locator {
+    return this.page.getByTestId('product-overview-card');
+  }
+
+  drawerCloseButton(): Locator {
+    return this.page.getByTestId('drawer-close-button');
+  }
+
+
+  async expandRecommendedOperators(): Promise<void> {
+    const toggle = this.recommendedOperatorsExpandToggle();
+    const isExpanded = await toggle.getAttribute('aria-expanded');
+    if (isExpanded !== 'true') {
+      await toggle.click();
+    }
+    await expect(this.page.getByTestId('product-overview-card').first()).toBeVisible({
+      timeout: 10000,
+    });
+  }
+
+  async collapseRecommendedOperators(): Promise<void> {
+    const toggle = this.recommendedOperatorsExpandToggle();
+    const isExpanded = await toggle.getAttribute('aria-expanded');
+    if (isExpanded === 'true') {
+      await toggle.click();
+    }
+    await expect(this.page.getByTestId('product-overview-card').first()).toBeHidden({
+      timeout: 10000,
+    });
+  }
+
+  async openProductDrawer(productName: string): Promise<void> {
+    await this.productCardLearnMoreButton(productName).click();
+    await expect(this.drawerCloseButton()).toBeVisible({ timeout: 10000 });
+  }
+
+  async closeDrawer(): Promise<void> {
+    await this.drawerCloseButton().click();
+    await expect(this.drawerCloseButton()).toBeHidden({ timeout: 10000 });
+  }
+
+  async dismissRecommendedOperatorsAlert(): Promise<void> {
+    await this.recommendedOperatorsAlertCloseButton().click();
+    await expect(this.recommendedOperatorsAlert()).toBeHidden({ timeout: 10000 });
+  }
 }
