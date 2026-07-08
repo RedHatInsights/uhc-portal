@@ -328,8 +328,21 @@ describe('<ClusterDetailsTop />', () => {
       expect(container.querySelector('.pf-v6-c-skeleton')).toBeInTheDocument();
     });
 
+    it('should show severity label change alert', async () => {
+      const { user } = render(<ClusterDetailsTop {...props} />);
+
+      const expandBtn = screen.getByText('Alerts and recommendations');
+      await user.click(expandBtn);
+
+      expect(
+        screen.getByText(
+          'To ensure consistency across our platform, we are updating the severity labels of the service log messages.',
+        ),
+      ).toBeInTheDocument();
+    });
+
     it('displays the correct count of alerts', async () => {
-      // mock osdtrial expiration, gcpOrgPolicy and reccomendedOperators alerts
+      // mock osdtrial expiration, gcpOrgPolicy, reccomendedOperators, and severity label alerts
       const { cluster } = fixtures.OSDTrialClusterDetails;
       const expDate = new Date();
       expDate.setDate(expDate.getDate() + 1); // now + 1 day
@@ -340,7 +353,7 @@ describe('<ClusterDetailsTop />', () => {
       render(<ClusterDetailsTop {...newProps} />);
 
       const alertsBadge = screen.getByTestId('alerts-badge');
-      expect(alertsBadge).toHaveTextContent('3');
+      expect(alertsBadge).toHaveTextContent('4');
     });
   });
 });
