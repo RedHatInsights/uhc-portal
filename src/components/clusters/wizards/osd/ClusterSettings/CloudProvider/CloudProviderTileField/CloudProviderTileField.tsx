@@ -13,8 +13,8 @@ import {
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { useGetBillingQuotas } from '~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import AWSLogo from '~/styles/images/AWSLogo';
-import GCPLogo from '~/styles/images/GCPLogo';
+import AWSLogo from '~/styles/images/AWSLogo.svg';
+import GCPLogo from '~/styles/images/GCPLogo.svg';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import './cloudProviderTileField.scss';
@@ -88,7 +88,7 @@ export const CloudProviderTileField = () => {
         }}
       >
         <Bullseye>
-          <GCPLogo />
+          <img src={GCPLogo} alt="Google Cloud logo" className="ocm-tile-cloud-provider-logo" />
         </Bullseye>
       </CardHeader>
       <CardBody>
@@ -118,7 +118,11 @@ export const CloudProviderTileField = () => {
         }}
       >
         <Bullseye>
-          <AWSLogo />
+          <img
+            src={AWSLogo}
+            alt="Amazon Web Service logo"
+            className="ocm-tile-cloud-provider-logo"
+          />
         </Bullseye>
       </CardHeader>
       <CardBody>Run on Amazon Web Services</CardBody>

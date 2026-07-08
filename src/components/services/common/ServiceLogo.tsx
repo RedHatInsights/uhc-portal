@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Divider, Stack } from '@patternfly/react-core';
 
-import AWSLogo from '~/styles/images/AWSLogo';
-import RedHatLogo from '~/styles/images/RedHatLogo';
+import AWSLogo from '~/styles/images/AWSLogo.svg';
+import RedHatLogo from '~/styles/images/RedHatLogo.svg';
 
 interface ServiceLogoProps {
   serviceName: string;
@@ -12,17 +12,17 @@ interface ServiceLogoProps {
 const AWSRedHatVerticalLogo = () => (
   <Stack hasGutter>
     <span>
-      <RedHatLogo height="3em" width="5em" />
+      <img src={RedHatLogo} alt="Red Hat logo" className="ocm-vertical-logo-red-hat" />
     </span>
     <Divider />
-    <AWSLogo height="2.5em" width="5em" />
+    <img src={AWSLogo} alt="Amazon Web Service logo" className="ocm-vertical-logo-aws" />
   </Stack>
 );
 
 const RedHatVerticalLogo = () => (
   <Stack hasGutter>
     <span className="pf-v6-u-mt-xl">
-      <RedHatLogo height="3em" width="5em" />
+      <img src={RedHatLogo} alt="Red Hat logo" className="ocm-vertical-logo-red-hat" />
     </span>
   </Stack>
 );
