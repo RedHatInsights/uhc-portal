@@ -1156,6 +1156,10 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('drawer-close-button');
   }
 
+  drawerProductHeading(productName: string): Locator {
+    return this.page.getByRole('heading', { name: productName, level: 2 });
+  }
+
 
   async expandRecommendedOperators(): Promise<void> {
     const toggle = this.recommendedOperatorsExpandToggle();

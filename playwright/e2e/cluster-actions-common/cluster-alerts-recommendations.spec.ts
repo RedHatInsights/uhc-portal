@@ -126,10 +126,10 @@ test.describe.serial(
       const secondProduct = expectedOperators.featuredProducts[1];
 
       await clusterDetailsPage.openProductDrawer(firstProduct);
-      await expect(clusterDetailsPage.drawerCloseButton()).toBeVisible();
+      await expect(clusterDetailsPage.drawerProductHeading(firstProduct)).toBeVisible();
 
       await clusterDetailsPage.productCardLearnMoreButton(secondProduct).click();
-      await expect(clusterDetailsPage.drawerCloseButton()).toBeVisible();
+      await expect(clusterDetailsPage.drawerProductHeading(secondProduct)).toBeVisible();
 
       await clusterDetailsPage.closeDrawer();
     });

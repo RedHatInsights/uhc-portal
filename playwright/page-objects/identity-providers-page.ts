@@ -66,20 +66,16 @@ export class IdentityProvidersPage extends BasePage {
     return this.page.getByRole('table', { name: 'Identity Providers' });
   }
 
-  idpTableRows(): Locator {
-    return this.idpTable().getByRole('row');
-  }
-
   async hasConfiguredIdps(): Promise<boolean> {
+    const idpResponsePromise = this.page.waitForResponse(
+      (resp) => resp.url().includes('/identity_providers') && resp.request().method() === 'GET',
+      { timeout: 30000 },
+    );
     await this.goToAccessControlTab();
     await this.goToIdentityProvidersTab();
-    const tableVisible = await this.idpTable().isVisible();
-    if (!tableVisible) {
-      return false;
-    }
-    const rowCount = await this.idpTableRows().count();
-    // Table header counts as a row, so more than 1 row means IDPs exist
-    return rowCount > 1;
+    const response = await idpResponsePromise;
+    const body = await response.json();
+    return body?.size > 0;
   }
 
   idpRow(idpName: string): Locator {
