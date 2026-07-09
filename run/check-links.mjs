@@ -760,9 +760,7 @@ function formatBrokenLinksList(
 
   if (omitted > 0) {
     sections.push('');
-    sections.push(
-      `  ... and ${omitted} more broken link${omitted === 1 ? '' : 's'}`,
-    );
+    sections.push(`  ... and ${omitted} more broken link${omitted === 1 ? '' : 's'}`);
   }
 
   return ['', 'Broken links:', ...sections].join('\n');
