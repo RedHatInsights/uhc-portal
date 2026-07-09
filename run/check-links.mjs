@@ -10,9 +10,8 @@
  * - Reports HTTP status codes (2xx, 3xx, 4xx, 5xx)
  * - Tests redirect destinations
  * - Color-coded output for easy identification of issues
- * - Multiple output modes (default, verbose, redirects-only, summary, report-file)
+ * - Multiple output modes (default, verbose, redirects-only, summary)
  */
-import fs from 'fs';
 import fetch from 'node-fetch';
 import ProgressBar from 'progress';
 
@@ -28,20 +27,6 @@ const verboseMode = args.includes('-v') || args.includes('--verbose');
 const helpMode = args.includes('-h') || args.includes('--help');
 const redirectsMode = args.includes('-r') || args.includes('--redirects');
 const summaryMode = args.includes('--summary');
-
-/**
- * @returns {string|null} Path passed to --report-file, if any
- */
-function getReportFilePath() {
-  const index = args.findIndex((arg) => arg === '--report-file');
-  if (index === -1) {
-    return null;
-  }
-  return args[index + 1] ?? null;
-}
-
-const reportFilePath = getReportFilePath();
-const summaryOnly = summaryMode && !reportFilePath;
 
 // Constants
 const LINE_LENGTH = 80;
@@ -76,8 +61,7 @@ Options:
   -v, --verbose  Show detailed URL listings for all categories
                  (By default, only error URLs are displayed)
   -r, --redirects Show ONLY redirected URLs with their redirect targets
-  --summary      Print only the summary table (omit detailed sections)
-  --report-file  Write a plain-text summary (with broken links) to the given path
+  --summary      Print summary table and broken links only (for CI / Slack)
 
 Output:
   The script categorizes URLs by their HTTP status:
@@ -328,7 +312,7 @@ async function testRedirectUrls(statusByUrl) {
   }
 
   // Test redirect destinations
-  if (!summaryOnly) {
+  if (!summaryMode) {
     console.log('\nTesting redirect destinations...');
   }
 
@@ -682,15 +666,8 @@ function displayUsageNotes(verbose) {
   }
 }
 
-/**
- * Removes ANSI color codes from text.
- * @param {string} text - Text that may contain ANSI escape sequences
- * @returns {string} Plain text without ANSI codes
- */
-function stripAnsi(text) {
-  const ansiEscapePattern = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
-  return text.replace(ansiEscapePattern, '');
-}
+const SUMMARY_MAX_BROKEN_LINK_ENTRIES = 12;
+const SUMMARY_MAX_REPORT_LENGTH = 2800;
 
 /**
  * Formats a count for plain-text output (no ANSI).
@@ -700,9 +677,6 @@ function stripAnsi(text) {
 function formatPlainCount(count) {
   return count.toString().padStart(6);
 }
-
-const SLACK_MAX_BROKEN_LINK_ENTRIES = 12;
-const SLACK_MAX_REPORT_LENGTH = 2800;
 
 /**
  * Formats a list of broken links for the Slack summary.
@@ -714,7 +688,7 @@ const SLACK_MAX_REPORT_LENGTH = 2800;
 function formatBrokenLinksList(
   categories,
   testedRedirects,
-  maxBrokenEntries = SLACK_MAX_BROKEN_LINK_ENTRIES,
+  maxBrokenEntries = SUMMARY_MAX_BROKEN_LINK_ENTRIES,
 ) {
   const { clientErrors, serverErrors, errors } = categories;
   /** @type {Array<{ kind: 'simple' | 'redirect', text: string }>} */
@@ -787,7 +761,7 @@ function formatBrokenLinksList(
   if (omitted > 0) {
     sections.push('');
     sections.push(
-      `  ... and ${omitted} more broken link${omitted === 1 ? '' : 's'} (see GitHub Actions log)`,
+      `  ... and ${omitted} more broken link${omitted === 1 ? '' : 's'}`,
     );
   }
 
@@ -811,7 +785,7 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
     plain = false,
     includeBrokenLinks = false,
     testedRedirects = [],
-    maxBrokenEntries = SLACK_MAX_BROKEN_LINK_ENTRIES,
+    maxBrokenEntries = SUMMARY_MAX_BROKEN_LINK_ENTRIES,
   } = options;
   const count = plain
     ? (value) => formatPlainCount(value)
@@ -851,16 +825,15 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
 }
 
 /**
- * Builds a Slack report, reducing broken-link entries until it fits size limits.
- * URLs are never truncated — only the number of listed links is reduced.
+ * Builds --summary output (summary table + broken links), reducing entries if needed for size limits.
  * @param {Object} categories - Categorized results
  * @param {number} totalChecked - Total checked URLs
  * @param {number} redirectErrorCount - Count of redirect errors
  * @param {Array} testedRedirects - Redirect test results
- * @returns {string} Slack report text
+ * @returns {string} Plain-text summary report
  */
-function buildSlackReport(categories, totalChecked, redirectErrorCount, testedRedirects) {
-  let maxBrokenEntries = SLACK_MAX_BROKEN_LINK_ENTRIES;
+function buildSummaryReport(categories, totalChecked, redirectErrorCount, testedRedirects) {
+  let maxBrokenEntries = SUMMARY_MAX_BROKEN_LINK_ENTRIES;
 
   while (maxBrokenEntries >= 0) {
     const report = formatSummaryReport(categories, totalChecked, redirectErrorCount, {
@@ -870,7 +843,7 @@ function buildSlackReport(categories, totalChecked, redirectErrorCount, testedRe
       maxBrokenEntries,
     });
 
-    if (report.length <= SLACK_MAX_REPORT_LENGTH || maxBrokenEntries === 0) {
+    if (report.length <= SUMMARY_MAX_REPORT_LENGTH || maxBrokenEntries === 0) {
       return report;
     }
 
@@ -894,7 +867,7 @@ function displaySummaryTable(categories, totalChecked, redirectErrorCount) {
   const summary = formatSummaryReport(categories, totalChecked, redirectErrorCount);
 
   console.log('\nURL CHECK RESULTS');
-  console.log(summaryOnly ? stripAnsi(summary) : summary);
+  console.log(summary);
 }
 
 /**
@@ -955,34 +928,29 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
     }
   });
 
+  // In --summary mode, print only the summary table and broken links
+  if (summaryMode) {
+    console.log('\nURL CHECK RESULTS');
+    console.log(buildSummaryReport(categories, totalChecked, redirectErrorCount, testedRedirects));
+    return;
+  }
+
   // Display summary table
   displaySummaryTable(categories, totalChecked, redirectErrorCount);
 
-  if (reportFilePath) {
-    const slackReport = buildSlackReport(
-      categories,
-      totalChecked,
-      redirectErrorCount,
-      testedRedirects,
-    );
-    fs.writeFileSync(reportFilePath, `${slackReport}\n`);
-  }
+  // Display detailed sections
+  displaySuccessSection(success, verbose);
+  displayRedirectsSection(redirects, redirectTestMap, verbose);
+  displayErrorSection('CLIENT ERRORS (4xx):', clientErrors);
+  displayErrorSection('SERVER ERRORS (5xx):', serverErrors);
+  displayRequestErrorsSection(errors);
+  displaySkippedSection(skipped, verbose);
 
-  if (!summaryOnly) {
-    // Display detailed sections
-    displaySuccessSection(success, verbose);
-    displayRedirectsSection(redirects, redirectTestMap, verbose);
-    displayErrorSection('CLIENT ERRORS (4xx):', clientErrors);
-    displayErrorSection('SERVER ERRORS (5xx):', serverErrors);
-    displayRequestErrorsSection(errors);
-    displaySkippedSection(skipped, verbose);
+  // Display grand total
+  displayGrandTotal(grandTotal);
 
-    // Display grand total
-    displayGrandTotal(grandTotal);
-
-    // Display usage notes
-    displayUsageNotes(verbose);
-  }
+  // Display usage notes
+  displayUsageNotes(verbose);
 }
 
 // ======================================================================
@@ -993,13 +961,13 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
  * Processes URLs and tests redirects
  */
 async function main() {
-  if (!summaryOnly) {
+  if (!summaryMode) {
     console.log('Checking URLs...');
   }
 
   // Get URLs to check
   const urls = await getAllExternalLinks();
-  if (!summaryOnly) {
+  if (!summaryMode) {
     console.log(`Found ${urls.length} URLs to check`);
   }
 

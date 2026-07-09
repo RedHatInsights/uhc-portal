@@ -24,8 +24,8 @@ jobs:
       - name: Find and list broken links
         id: check-links
         run: |
-          node run/check-links.mjs --report-file /tmp/link-check-summary.txt
-          report=$(cat /tmp/link-check-summary.txt)
+          report=$(node run/check-links.mjs --summary)
+          echo "$report"
           {
             echo "report<<EOF"
             echo "$report"
