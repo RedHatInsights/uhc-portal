@@ -1050,6 +1050,50 @@ describe('<DetailsRight />', () => {
           expect(screen.queryByTestId('autoNodeKarpenterCountContainer')).not.toBeInTheDocument();
         });
 
+        it('hides Autonode Karpenter count when cluster subscription is archived', () => {
+          mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+          const clusterFixture = defaultProps.cluster;
+          const newProps = {
+            ...defaultProps,
+            cluster: {
+              ...clusterFixture,
+              managed: true,
+              hypershift: { enabled: true },
+              auto_node: { mode: 'enabled', status: { node_count: 5 } },
+              subscription: {
+                ...clusterFixture.subscription,
+                status: SubscriptionCommonFieldsStatus.Archived,
+              },
+            },
+          };
+          useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+          render(<DetailsRight {...newProps} />);
+
+          expect(screen.queryByTestId('autoNodeKarpenterCountContainer')).not.toBeInTheDocument();
+        });
+
+        it('hides Autonode Karpenter count when cluster subscription is deprovisioned', () => {
+          mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+          const clusterFixture = defaultProps.cluster;
+          const newProps = {
+            ...defaultProps,
+            cluster: {
+              ...clusterFixture,
+              managed: true,
+              hypershift: { enabled: true },
+              auto_node: { mode: 'enabled', status: { node_count: 5 } },
+              subscription: {
+                ...clusterFixture.subscription,
+                status: SubscriptionCommonFieldsStatus.Deprovisioned,
+              },
+            },
+          };
+          useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+          render(<DetailsRight {...newProps} />);
+
+          expect(screen.queryByTestId('autoNodeKarpenterCountContainer')).not.toBeInTheDocument();
+        });
+
         it('shows Autonode Karpenter count in autoscaled nodes view', () => {
           mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
           const clusterFixture = defaultProps.cluster;
@@ -1790,6 +1834,48 @@ describe('<DetailsRight />', () => {
           ...clusterFixture,
           hypershift: { enabled: true },
           auto_node: { mode: 'enabled' },
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.queryByTestId('autoNodeStatus')).not.toBeInTheDocument();
+    });
+
+    it('hides Autonode section when cluster subscription is archived', () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+          subscription: {
+            ...clusterFixture.subscription,
+            status: SubscriptionCommonFieldsStatus.Archived,
+          },
+        },
+      };
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.queryByTestId('autoNodeStatus')).not.toBeInTheDocument();
+    });
+
+    it('hides Autonode section when cluster subscription is deprovisioned', () => {
+      mockUseFeatureGate([[ENABLE_AUTO_NODE, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          auto_node: { mode: 'enabled' },
+          subscription: {
+            ...clusterFixture.subscription,
+            status: SubscriptionCommonFieldsStatus.Deprovisioned,
+          },
         },
       };
       useFetchMachineOrNodePools.mockReturnValue({ data: [] });
