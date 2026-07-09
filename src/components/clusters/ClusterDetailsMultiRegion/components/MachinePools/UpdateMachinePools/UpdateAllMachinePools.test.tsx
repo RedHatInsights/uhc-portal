@@ -706,7 +706,7 @@ describe('<UpdateAllMachinePools />', () => {
       expect(apiRequestMock.post).not.toHaveBeenCalled();
     });
 
-    it('closes the confirmation modal while update is in progress', async () => {
+    it('closes the confirmation modal and shows a spinner when update starts', async () => {
       apiRequestMock.post.mockImplementation(() => new Promise(() => {}));
 
       const { user } = withState(defaultStore).render(
@@ -722,7 +722,6 @@ describe('<UpdateAllMachinePools />', () => {
 
       await clickUpdateButton(user);
       await confirmUpdateAllMachinePools(user);
-      await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
       expect(
         screen.queryByText('Update all machine pools to version 4.12.13?', { exact: false }),

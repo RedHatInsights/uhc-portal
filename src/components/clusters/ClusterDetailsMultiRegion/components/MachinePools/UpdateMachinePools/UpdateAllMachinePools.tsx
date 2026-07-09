@@ -79,6 +79,7 @@ const UpdateAllMachinePools = ({
   };
 
   const updateNodePools = async () => {
+    setIsConfirmModalOpen(false);
     setPending(true);
     const updateErrors = await updateAllPools(
       machinePoolsToUpdate,
@@ -88,7 +89,6 @@ const UpdateAllMachinePools = ({
     );
     setPending(false);
     setErrors(updateErrors);
-    setIsConfirmModalOpen(false);
 
     if (isHypershift && refreshMachinePools) {
       refreshMachinePools();
