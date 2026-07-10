@@ -10,7 +10,9 @@ const defaultPool = day1.MachinePools[0];
 const editData = day2.EditMachinePool;
 const region = process.env.QE_AWS_REGION || day1.Region.split(',')[0];
 const qeInfrastructure = JSON.parse(process.env.QE_INFRA_REGIONS || '{}')[region]?.[0];
-const availabilityZones = Object.keys(qeInfrastructure?.SUBNETS?.ZONES || {}).join(', ');
+const azKeys = Object.keys(qeInfrastructure?.SUBNETS?.ZONES || {});
+const availabilityZones = azKeys.join(', ');
+const zoneCount = azKeys.length || 3;
 const workerName = `worker-${(Math.random() + 1).toString(36).substring(4)}`;
 
 test.describe.serial(
@@ -274,16 +276,18 @@ test.describe.serial(
     }) => {
       await clusterDetailsPage.overviewTab().click();
 
-      await machinePoolsPage.verifyOverviewProperty('Nodes', day2.Nodes['Control plane']);
-      await machinePoolsPage.verifyOverviewProperty('Nodes', day2.Nodes['Infra']);
-      await machinePoolsPage.verifyOverviewProperty('Nodes', day2.Nodes['Compute']);
+      for (const nodeType of ['Control plane', 'Infra', 'Compute'] as const) {
+        await machinePoolsPage.verifyOverviewProperty('Nodes', day2.Nodes[nodeType]);
+      }
       await machinePoolsPage.verifyOverviewProperty(
         'Autoscale',
         day2.NewMachinePool.Autoscaling,
       );
 
-      await machinePoolsPage.verifyOverviewMinMaxNodeCount('Min:');
-      await machinePoolsPage.verifyOverviewMinMaxNodeCount('Max:');
+      const expectedMin = (Number(defaultPool.MinimumNodeCount) + Number(editData.MinimumNodeCount)) * zoneCount;
+      const expectedMax = (Number(defaultPool.MaximumNodeCount) + Number(editData.MaximumNodeCount)) * zoneCount;
+      await machinePoolsPage.verifyOverviewMinMaxNodeCount('Min:', expectedMin);
+      await machinePoolsPage.verifyOverviewMinMaxNodeCount('Max:', expectedMax);
     });
 
     test('Delete created machine pool', async ({

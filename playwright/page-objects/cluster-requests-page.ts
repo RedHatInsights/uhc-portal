@@ -79,7 +79,9 @@ export class ClusterRequestsPage extends BasePage {
 
   transferTableRow(name: string, status: string): Locator {
     return this.clusterTransferTable()
-      .getByRole('row', { name: new RegExp(`${name}.*${status}`, 'i') })
+      .getByRole('row')
+      .filter({ hasText: name })
+      .filter({ hasText: status })
       .first();
   }
 
@@ -135,7 +137,8 @@ export class ClusterRequestsPage extends BasePage {
   async cancelClusterRequestsByClusterName(name: string): Promise<void> {
     const transferTable = this.clusterTransferTable();
     const row = transferTable
-      .getByRole('row', { name: new RegExp(name) })
+      .getByRole('row')
+      .filter({ hasText: name })
       .filter({ has: this.page.getByRole('button', { name: 'Retract' }) })
       .first();
     await row.getByRole('button', { name: 'Retract' }).click();

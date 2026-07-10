@@ -105,6 +105,8 @@ test.describe.serial(
     });
 
     test('Step - Networking - Configuration settings', async ({ createRosaWizardPage }) => {
+      // Toggling to 'private' first auto-enables VPC and PrivateLink fields,
+      // then switching back to the target privacy mode retains the VPC state.
       await createRosaWizardPage.selectClusterPrivacy('private');
       await createRosaWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
       await createRosaWizardPage.enableInstallIntoExistingVpc();

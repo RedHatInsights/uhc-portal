@@ -558,9 +558,8 @@ export class MachinePoolsPage extends BasePage {
   async verifyOverviewProperty(property: string, value: string): Promise<void> {
     const term = this.page.getByRole('term').filter({ hasText: property });
     await expect(term).toBeVisible();
-    await expect(
-      this.page.getByRole('definition').filter({ hasText: value }).first(),
-    ).toBeVisible();
+    // Adjacent sibling selector targets the <dd> paired with this <dt>.
+    await expect(term.locator('+ dd')).toContainText(value);
   }
 
   async verifyOverviewMinMaxNodeCount(label: string, count?: number): Promise<void> {
