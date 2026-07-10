@@ -11,7 +11,7 @@ import { CreateManagedClusterButtonWithTooltip } from '~/components/common/Creat
 import ExternalLink from '~/components/common/ExternalLink';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 import { isRestrictedEnv } from '~/restrictedEnv';
-import AWSLogo from '~/styles/images/AWS.png';
+import AWSLogo from '~/styles/images/AWSLogo.svg';
 import IBMCloudLogo from '~/styles/images/ibm_cloud-icon.png';
 import RedHatLogo from '~/styles/images/Logo-RedHat-Hat-Color-RGB.png';
 import MicrosoftLogo from '~/styles/images/Microsoft_logo.svg';
