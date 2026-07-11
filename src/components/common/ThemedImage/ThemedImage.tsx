@@ -1,24 +1,17 @@
-import React from 'react';
+import React, { ImgHTMLAttributes } from 'react';
 
 import { useRemoteHook } from '@scalprum/react-core';
 
-type ThemedImageProps = {
-  lightThemeSrc: string;
+type ThemedImageProps = ImgHTMLAttributes<HTMLImageElement> & {
   darkThemeSrc: string;
-  altText: string;
-  className?: string;
+  lightThemeSrc: string;
 };
 
 interface DarkModeStoreHookProps {
   isDark: boolean;
 }
 
-const ThemedImage = ({
-  lightThemeSrc,
-  darkThemeSrc,
-  altText,
-  className = '',
-}: ThemedImageProps) => {
+const ThemedImage = ({ darkThemeSrc, lightThemeSrc, alt, ...rest }: ThemedImageProps) => {
   const { hookResult, loading, error } = useRemoteHook<DarkModeStoreHookProps>({
     scope: 'chrome',
     module: './theme/useDarkModeStore',
@@ -27,7 +20,7 @@ const ThemedImage = ({
 
   const file = !loading && !error && hookResult?.isDark ? darkThemeSrc : lightThemeSrc;
 
-  return <img src={file} alt={altText} className={className} />;
+  return <img src={file} alt={alt} {...rest} />;
 };
 
 export default ThemedImage;

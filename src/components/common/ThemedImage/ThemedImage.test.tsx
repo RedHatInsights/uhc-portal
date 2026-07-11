@@ -15,7 +15,7 @@ const useRemoteHookMock = useRemoteHook as jest.MockedFunction<typeof useRemoteH
 const baseProps = {
   darkThemeSrc: 'dark-theme-image.svg',
   lightThemeSrc: 'light-theme-image.png',
-  altText: 'a themed logo',
+  alt: 'a themed logo',
 };
 
 const baseRemoteHookReturnValue = {

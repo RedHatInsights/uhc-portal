@@ -26,7 +26,9 @@ import { CreateManagedClusterButtonWithTooltip } from '~/components/common/Creat
 import ExternalLink from '~/components/common/ExternalLink';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 import SupportLevelBadge, { DEV_PREVIEW } from '~/components/common/SupportLevelBadge';
-import AWSLogo from '~/styles/images/AWSLogo.svg';
+import ThemedImage from '~/components/common/ThemedImage/ThemedImage';
+import AWSLogoLightTheme from '~/styles/images/AWS_logo_RGB.svg';
+import AWSLogoDarkTheme from '~/styles/images/AWS_logo_RGB_REV.svg';
 import IBMLogo from '~/styles/images/ibm_cloud-icon.svg';
 import microsoftLogo from '~/styles/images/Microsoft_logo.svg';
 import OpenShiftProductIcon from '~/styles/images/OpenShiftProductIcon.svg';
@@ -148,7 +150,14 @@ function OfferingCard(props: OfferingCardProps) {
           component={AWSOfferingCardDocLinkComponent}
         />
       );
-      cardLogo = <img className="offering-logo" src={AWSLogo} alt="Amazon Web Service logo" />;
+      cardLogo = (
+        <ThemedImage
+          darkThemeSrc={AWSLogoDarkTheme}
+          lightThemeSrc={AWSLogoLightTheme}
+          alt="Amazon Web Service logo"
+          className="offering-logo"
+        />
+      );
       break;
     case 'Azure':
       offeringCardTitle = 'Azure Red Hat OpenShift (ARO)';
