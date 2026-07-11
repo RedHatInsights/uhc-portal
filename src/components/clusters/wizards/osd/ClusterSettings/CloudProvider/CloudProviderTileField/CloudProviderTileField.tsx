@@ -14,8 +14,8 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import { useGetBillingQuotas } from '~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import ThemedImage from '~/components/common/ThemedImage/ThemedImage';
-import AWSLogoLightTheme from '~/styles/images/AWS_logo_RGB.svg';
-import AWSLogoDarkTheme from '~/styles/images/AWS_logo_RGB_REV.svg';
+import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
+import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
 import GCPLogo from '~/styles/images/GCPLogo.svg';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 

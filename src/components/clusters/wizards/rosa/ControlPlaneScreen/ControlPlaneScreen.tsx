@@ -21,8 +21,8 @@ import {
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
 import { isRestrictedEnv } from '~/restrictedEnv';
-import AWSLogoLightTheme from '~/styles/images/AWS_logo_RGB.svg';
-import AWSLogoDarkTheme from '~/styles/images/AWS_logo_RGB_REV.svg';
+import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
+import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
 import RedHat from '~/styles/images/Logo-Red_Hat-B-Standard-RGB.png';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
