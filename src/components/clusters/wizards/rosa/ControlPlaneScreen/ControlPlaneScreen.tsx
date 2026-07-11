@@ -23,7 +23,8 @@ import { useGlobalState } from '~/redux/hooks';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
 import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
-import RedHat from '~/styles/images/Logo-Red_Hat-B-Standard-RGB.svg';
+import RedHatLogoDarkTheme from '~/styles/images/Logo-Red_Hat-B-Reverse-RGB.svg';
+import RedHatLogoLightTheme from '~/styles/images/Logo-Red_Hat-B-Standard-RGB.svg';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { NO_ROLE_DETECTED } from '../AccountsRolesScreen/AccountRolesARNsSection/AccountRolesARNsSection';
@@ -144,7 +145,13 @@ const ControlPlaneScreen = () => {
     >
       {/* these images use fixed positioning */}
       <div className="ocm-c-wizard-intro-image-container">
-        <img src={RedHat} className="ocm-c-wizard-intro-image-top" aria-hidden="true" alt="" />
+        <ThemedImage
+          darkThemeSrc={RedHatLogoDarkTheme}
+          lightThemeSrc={RedHatLogoLightTheme}
+          className="ocm-c-wizard-intro-image-top"
+          aria-hidden="true"
+          alt=""
+        />
         <ThemedImage
           darkThemeSrc={AWSLogoDarkTheme}
           lightThemeSrc={AWSLogoLightTheme}
