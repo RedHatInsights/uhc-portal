@@ -1,11 +1,10 @@
 import React from 'react';
-import { Formik, type FormikValues } from 'formik';
+import { Formik, type FormikTouched, type FormikValues } from 'formik';
 
 import { Form, Grid } from '@patternfly/react-core';
 import type { Meta, StoryObj } from '@storybook/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
 
 import { FieldId, initialValues } from '../constants';
@@ -14,12 +13,12 @@ import { DefaultIngressFields } from './DefaultIngressFields';
 
 const FEATURE_GATE_QUERY_KEY = 'featureGate' as const;
 
-function buildQueryClient(excludeNamespaceSelectorsEnabled: boolean) {
+function buildQueryClient() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   queryClient.setQueryData([FEATURE_GATE_QUERY_KEY, GCP_EXCLUDE_NAMESPACE_SELECTORS], {
-    data: { enabled: excludeNamespaceSelectorsEnabled },
+    data: { enabled: true },
   });
   return queryClient;
 }
@@ -27,8 +26,8 @@ function buildQueryClient(excludeNamespaceSelectorsEnabled: boolean) {
 type StoryShellProps = {
   /** Merged into OSD wizard `initialValues` for fields this component reads. */
   formValues?: Partial<FormikValues>;
-  /** Cached result for {@link GCP_EXCLUDE_NAMESPACE_SELECTORS}. */
-  excludeNamespaceSelectorsFeatureGate?: boolean;
+  /** Mark the first exclude-namespace selector row touched so validation renders in Storybook. */
+  touchExcludeNamespaceSelectorFields?: boolean;
 };
 
 /**
@@ -37,12 +36,16 @@ type StoryShellProps = {
  */
 function DefaultIngressFieldsStoryShell({
   formValues = {},
-  excludeNamespaceSelectorsFeatureGate = false,
+  touchExcludeNamespaceSelectorFields = false,
 }: StoryShellProps) {
-  const queryClient = React.useMemo(
-    () => buildQueryClient(excludeNamespaceSelectorsFeatureGate),
-    [excludeNamespaceSelectorsFeatureGate],
-  );
+  const queryClient = React.useMemo(() => buildQueryClient(), []);
+
+  const initialTouched: FormikTouched<FormikValues> | undefined =
+    touchExcludeNamespaceSelectorFields
+      ? {
+          [FieldId.DefaultRouterExcludeNamespaceSelectors]: [{ key: true, value: true }],
+        }
+      : undefined;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -52,6 +55,8 @@ function DefaultIngressFieldsStoryShell({
           [FieldId.DefaultRouterSelectors]: '',
           ...formValues,
         }}
+        initialTouched={initialTouched}
+        validateOnMount={touchExcludeNamespaceSelectorFields}
         onSubmit={() => undefined}
       >
         <Form noValidate>
@@ -80,26 +85,30 @@ export default meta;
 
 type Story = StoryObj<typeof DefaultIngressFieldsStoryShell>;
 
-export const GcpFeatureGateOff: Story = {
-  name: 'GCP (exclude-namespace selectors gate off)',
+export const Default: Story = {
+  name: 'Default (empty selector row)',
+};
+
+export const WithSelectors: Story = {
+  name: 'Multiple selectors (single + CSV values)',
   args: {
-    formValues: { [FieldId.CloudProvider]: CloudProviderType.Gcp },
-    excludeNamespaceSelectorsFeatureGate: false,
+    formValues: {
+      [FieldId.DefaultRouterExcludeNamespaceSelectors]: [
+        { id: '1', key: 'department', value: 'finance,HR' },
+        { id: '2', key: 'type', value: 'customer' },
+      ],
+    },
   },
 };
 
-export const GcpExcludeNamespaceSelectors: Story = {
-  name: 'GCP + exclude-namespace selectors',
+export const ProtectedNamespaceValidation: Story = {
+  name: 'Validation: protected namespace (openshift-console)',
   args: {
-    formValues: { [FieldId.CloudProvider]: CloudProviderType.Gcp },
-    excludeNamespaceSelectorsFeatureGate: true,
-  },
-};
-
-export const AwsProviderGateOn: Story = {
-  name: 'AWS (gate on; selectors hidden)',
-  args: {
-    formValues: { [FieldId.CloudProvider]: CloudProviderType.Aws },
-    excludeNamespaceSelectorsFeatureGate: true,
+    formValues: {
+      [FieldId.DefaultRouterExcludeNamespaceSelectors]: [
+        { id: '1', key: 'kubernetes.io/metadata.name', value: 'openshift-console' },
+      ],
+    },
+    touchExcludeNamespaceSelectorFields: true,
   },
 };
