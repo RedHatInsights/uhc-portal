@@ -23,7 +23,7 @@ import { useGlobalState } from '~/redux/hooks';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
 import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
-import RedHat from '~/styles/images/Logo-Red_Hat-B-Standard-RGB.png';
+import RedHat from '~/styles/images/Logo-Red_Hat-B-Standard-RGB.svg';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { NO_ROLE_DETECTED } from '../AccountsRolesScreen/AccountRolesARNsSection/AccountRolesARNsSection';
