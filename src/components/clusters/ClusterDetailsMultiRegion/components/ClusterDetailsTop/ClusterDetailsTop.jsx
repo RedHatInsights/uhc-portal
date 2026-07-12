@@ -350,7 +350,7 @@ function ClusterDetailsTop(props) {
   const [hasTermsAlert, setHasTermsAlert] = React.useState(false);
   const [hasTransferClusterOwnershipAlert, setHasTransferClusterOwnershipAlert] =
     React.useState(false);
-  const hasSeverityLabelChangeAlert = true;
+  const hasSeverityLabelChangeAlert = !isArchived && !isDeprovisioned;
 
   const alerts = [
     hasLimitedSupportAlert,
@@ -512,7 +512,7 @@ function ClusterDetailsTop(props) {
                 planType={cluster?.subscription?.plan?.id ?? normalizedProducts.UNKNOWN}
               />
             ) : null}
-            <SeverityLabelChangeAlert />
+            {hasSeverityLabelChangeAlert && <SeverityLabelChangeAlert />}
           </ExpandableSection>
         )
       )}
