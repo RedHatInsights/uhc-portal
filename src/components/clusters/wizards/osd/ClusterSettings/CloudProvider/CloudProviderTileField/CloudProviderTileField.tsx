@@ -38,7 +38,7 @@ export const CloudProviderTileField = () => {
   const shouldShowAwsTile = !(
     billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
   );
-  const hasAwsResources = shouldShowAwsTile ? quotas.awsResources : false;
+  const hasAwsResources = quotas.awsResources;
 
   const handleChange = (value: string) => {
     // Silently reset some user choices that are now meaningless.
