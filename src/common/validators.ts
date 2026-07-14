@@ -2,7 +2,7 @@
 import { containsCidr, overlapCidr } from 'cidr-tools';
 import IPCIDR from 'ip-cidr';
 import { ValidationError, Validator } from 'jsonschema';
-import { get, indexOf, inRange } from 'lodash';
+import { get, inRange } from 'lodash';
 
 import { parseCIDRSubnetLength, stringToArrayTrimmed, Subnet } from '~/common/helpers';
 import { FormSubnet } from '~/components/clusters/wizards/common/FormSubnet';
@@ -1663,32 +1663,6 @@ const validateUniqueHTPasswdUsername = (fields: { name: string }[]) => {
   return undefined;
 };
 
-const MAX_HTPASSWD_USERNAME_LENGTH = 255;
-
-const validateHTPasswdUsername = (username: string): string | undefined => {
-  if (!username || !username.trim()) {
-    return 'Username is required.';
-  }
-
-  if (username.trim() !== username) {
-    return 'Username must not contain leading or trailing spaces.';
-  }
-
-  if (
-    indexOf(username, '%') !== -1 ||
-    indexOf(username, ':') !== -1 ||
-    indexOf(username, '/') !== -1
-  ) {
-    return 'Username must not contain /, :, or %.';
-  }
-
-  if (username.length > MAX_HTPASSWD_USERNAME_LENGTH) {
-    return `Username may not exceed ${MAX_HTPASSWD_USERNAME_LENGTH} characters.`;
-  }
-
-  return undefined;
-};
-
 const validateHTPasswdPasswordConfirm = (
   passwordConfirm: string,
   allValues: { [key: string]: string },
@@ -2031,7 +2005,6 @@ export {
   validateGCPSubnet,
   validateHTPasswdPassword,
   validateHTPasswdPasswordConfirm,
-  validateHTPasswdUsername,
   validateLabelKey,
   validateLabelValue,
   validateListOfBalancingLabels,

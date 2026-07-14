@@ -1,4 +1,4 @@
-import { validateHTPasswdUsername } from '~/common/validators';
+import { validateHTPasswdUsername } from './providersHelper';
 
 export type ParsedHTPasswdUser = {
   username: string;

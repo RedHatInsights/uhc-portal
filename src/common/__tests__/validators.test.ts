@@ -35,7 +35,6 @@ import validators, {
   validateGCPServiceAccount,
   validateGCPSubnet,
   validateHTPasswdPassword,
-  validateHTPasswdUsername,
   validateMaxNodes,
   validateMultipleMachinePoolsSubnets,
   validateNamespacesList,
@@ -1327,24 +1326,6 @@ describe('HTPasswd password', () => {
     ],
   ])('value %p to be %p', (value: string, expected: any | undefined) => {
     expect(validateHTPasswdPassword(value)).toStrictEqual(expected);
-  });
-});
-
-describe('HTPasswd username', () => {
-  it.each([
-    ['username1234', undefined],
-    ['user name', undefined],
-    ['username1  ', 'Username must not contain leading or trailing spaces.'],
-    [' user name', 'Username must not contain leading or trailing spaces.'],
-    ['     ', 'Username is required.'],
-    ['username%', 'Username must not contain /, :, or %.'],
-    ['username:', 'Username must not contain /, :, or %.'],
-    ['username/', 'Username must not contain /, :, or %.'],
-    ['', 'Username is required.'],
-    ['a'.repeat(255), undefined],
-    ['a'.repeat(256), 'Username may not exceed 255 characters.'],
-  ])('value %p to be %p', (value: string, expected: string | undefined) => {
-    expect(validateHTPasswdUsername(value)).toBe(expected);
   });
 });
 
