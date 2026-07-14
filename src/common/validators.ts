@@ -1666,8 +1666,12 @@ const validateUniqueHTPasswdUsername = (fields: { name: string }[]) => {
 const MAX_HTPASSWD_USERNAME_LENGTH = 255;
 
 const validateHTPasswdUsername = (username: string): string | undefined => {
-  if (!username) {
+  if (!username || !username.trim()) {
     return 'Username is required.';
+  }
+
+  if (username.trim() !== username) {
+    return 'Username must not contain leading or trailing spaces.';
   }
 
   if (

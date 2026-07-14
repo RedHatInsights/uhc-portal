@@ -21,21 +21,21 @@ export const parseHTPasswdFile = (content: string): HTPasswdParseResult => {
   const seenUsernames = new Set<string>();
 
   lines.forEach((rawLine, index) => {
-    const trimmedLine = rawLine.trim();
-    if (trimmedLine === '' || trimmedLine.startsWith('#')) {
+    const line = rawLine.trim();
+    if (line === '' || line.startsWith('#')) {
       return;
     }
 
-    const colonIndex = rawLine.indexOf(':');
+    const colonIndex = line.indexOf(':');
     if (colonIndex === -1) {
       errors.push(`Line ${index + 1}: Invalid format. Expected "username:password".`);
       return;
     }
 
-    const username = rawLine.substring(0, colonIndex);
-    const password = rawLine.substring(colonIndex + 1).trim();
+    const username = line.substring(0, colonIndex).trim();
+    const password = line.substring(colonIndex + 1).trim();
 
-    if (username.length === 0) {
+    if (!username) {
       errors.push(`Line ${index + 1}: Username cannot be empty.`);
       return;
     }

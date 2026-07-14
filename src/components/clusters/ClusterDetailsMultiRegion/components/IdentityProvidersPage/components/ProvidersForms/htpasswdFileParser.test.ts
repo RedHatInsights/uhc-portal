@@ -123,25 +123,26 @@ describe('htpasswdFileParser', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it('trims whitespace from passwords but preserves username spacing', () => {
+    it('trims whitespace from lines, usernames, and passwords', () => {
       const content = '  user1 : $2y$05$hash1  ';
       const result = parseHTPasswdFile(content);
-      expect(result.users[0]).toEqual({ username: '  user1 ', password: '$2y$05$hash1' });
+      expect(result.users[0]).toEqual({ username: 'user1', password: '$2y$05$hash1' });
       expect(result.errors).toHaveLength(0);
     });
 
-    it('preserves leading and trailing spaces in usernames', () => {
+    it('accepts usernames with spaces between characters', () => {
       const content = ' user name :$2y$05$hash123';
       const result = parseHTPasswdFile(content);
-      expect(result.users).toEqual([{ username: ' user name ', password: '$2y$05$hash123' }]);
+      expect(result.users).toEqual([{ username: 'user name', password: '$2y$05$hash123' }]);
       expect(result.errors).toHaveLength(0);
     });
 
-    it('accepts usernames containing only spaces', () => {
+    it('reports error for usernames containing only spaces', () => {
       const content = '   :$2y$05$hash123';
       const result = parseHTPasswdFile(content);
-      expect(result.users).toEqual([{ username: '   ', password: '$2y$05$hash123' }]);
-      expect(result.errors).toHaveLength(0);
+      expect(result.users).toHaveLength(0);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toBe('Line 1: Username cannot be empty.');
     });
 
     it('reports error for plain text passwords', () => {

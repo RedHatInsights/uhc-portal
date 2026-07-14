@@ -1334,8 +1334,9 @@ describe('HTPasswd username', () => {
   it.each([
     ['username1234', undefined],
     ['user name', undefined],
-    ['username1  ', undefined],
-    ['     ', undefined],
+    ['username1  ', 'Username must not contain leading or trailing spaces.'],
+    [' user name', 'Username must not contain leading or trailing spaces.'],
+    ['     ', 'Username is required.'],
     ['username%', 'Username must not contain /, :, or %.'],
     ['username:', 'Username must not contain /, :, or %.'],
     ['username/', 'Username must not contain /, :, or %.'],
