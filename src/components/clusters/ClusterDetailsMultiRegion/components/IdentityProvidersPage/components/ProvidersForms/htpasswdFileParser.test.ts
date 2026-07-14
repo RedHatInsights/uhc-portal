@@ -52,7 +52,7 @@ describe('htpasswdFileParser', () => {
       const result = parseHTPasswdFile(content);
       expect(result.users).toHaveLength(0);
       expect(result.errors).toHaveLength(1);
-      expect(result.errors[0]).toBe('Line 1: Username cannot be empty.');
+      expect(result.errors[0]).toBe('Line 1: Username is required.');
     });
 
     it('reports error for empty password', () => {
@@ -142,7 +142,7 @@ describe('htpasswdFileParser', () => {
       const result = parseHTPasswdFile(content);
       expect(result.users).toHaveLength(0);
       expect(result.errors).toHaveLength(1);
-      expect(result.errors[0]).toBe('Line 1: Username cannot be empty.');
+      expect(result.errors[0]).toBe('Line 1: Username is required.');
     });
 
     it('reports error for plain text passwords', () => {
