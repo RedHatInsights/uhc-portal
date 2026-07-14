@@ -1,4 +1,5 @@
 import { expect, test } from '../../fixtures/pages';
+import { ClusterIdentityProviderPage } from '../../page-objects/cluster-identity-provider-page';
 
 const {
   'rosa-hosted-public-advanced': clusterProfile,
@@ -17,6 +18,26 @@ const singleUserUsername = manualProfile.Usernames.ValidUsernameWithSpaces;
 const BULK_USER_COUNT = 15;
 const bulkUsers = Array.from({ length: BULK_USER_COUNT + 1 }, (_, i) => `ocmplaywright${i + 1}`);
 
+const fillHtpasswdUsersSequentially = async (
+  clusterIdentityProviderPage: ClusterIdentityProviderPage,
+  userCount: number,
+) => {
+  await Array.from({ length: userCount }, (_, index) => index).reduce(
+    async (previousStep, index) => {
+      await previousStep;
+
+      await clusterIdentityProviderPage.htpasswdUsernameInput().fill(bulkUsers[index]);
+      await clusterIdentityProviderPage.fillSuggestedPassword();
+      await clusterIdentityProviderPage.fillSuggestedConfirmPassword();
+
+      if (index < userCount - 1) {
+        await clusterIdentityProviderPage.addUserButton().click();
+      }
+    },
+    Promise.resolve(),
+  );
+};
+
 test.describe.serial(
   'ROSA Hosted Public Cluster - Htpasswd IDP validation (OCP-42373, OCP-42372, OCP-28661)',
   { tag: ['@day2', '@access-control', '@rosa-hosted', '@hcp', '@idp', '@htpasswd'] },
@@ -28,9 +49,8 @@ test.describe.serial(
     });
 
     test.afterAll(async ({ clusterIdentityProviderPage }) => {
-      for (const idpName of [htpasswdIdpNames[0], htpasswdIdpNames[1]]) {
-        await clusterIdentityProviderPage.deleteHtpasswdIDP(idpName).catch(() => {});
-      }
+      await clusterIdentityProviderPage.deleteHtpasswdIDP(htpasswdIdpNames[0]).catch(() => {});
+      await clusterIdentityProviderPage.deleteHtpasswdIDP(htpasswdIdpNames[1]).catch(() => {});
     });
 
     test(`Navigate to the ROSA Hosted Access Control tab for ${clusterName} cluster`, async ({
@@ -92,9 +112,11 @@ test.describe.serial(
         clusterIdentityProviderPage.getByText(manualProfile.Usernames.InValidUserNameError),
       ).not.toBeVisible();
 
-      for (const info of manualProfile.Password.DefaultPasswordInformation) {
-        await expect(clusterIdentityProviderPage.getByText(info)).toBeVisible();
-      }
+      await Promise.all(
+        manualProfile.Password.DefaultPasswordInformation.map((info: string) =>
+          expect(clusterIdentityProviderPage.getByText(info)).toBeVisible(),
+        ),
+      );
       await expect(
         clusterIdentityProviderPage.getByText(manualProfile.Password.ConfirmPassword),
       ).toBeVisible();
@@ -122,17 +144,7 @@ test.describe.serial(
     }) => {
       await clusterIdentityProviderPage.openHtpasswdForm();
 
-      for (let i = 0; i < BULK_USER_COUNT; i++) {
-        const isLast = i === BULK_USER_COUNT - 1;
-
-        await clusterIdentityProviderPage.htpasswdUsernameInput().fill(bulkUsers[i]);
-        await clusterIdentityProviderPage.fillSuggestedPassword();
-        await clusterIdentityProviderPage.fillSuggestedConfirmPassword();
-
-        if (!isLast) {
-          await clusterIdentityProviderPage.addUserButton().click();
-        }
-      }
+      await fillHtpasswdUsersSequentially(clusterIdentityProviderPage, BULK_USER_COUNT);
 
       await clusterIdentityProviderPage.htpasswdNameInput().fill(htpasswdIdpNames[1]);
       await clusterIdentityProviderPage.idpFormSubmitButton().click();
@@ -142,14 +154,16 @@ test.describe.serial(
     test(`Verify IDP table shows Name, Type and Auth callback URL columns for ${clusterName}`, async ({
       clusterIdentityProviderPage,
     }) => {
-      for (const column of ['Name', 'Type', 'Auth callback URL']) {
-        await expect(
-          clusterIdentityProviderPage
-            .identityProvidersTable()
-            .getByRole('columnheader')
-            .filter({ hasText: column }),
-        ).toBeVisible({ timeout: 20000 });
-      }
+      await Promise.all(
+        ['Name', 'Type', 'Auth callback URL'].map((column) =>
+          expect(
+            clusterIdentityProviderPage
+              .identityProvidersTable()
+              .getByRole('columnheader')
+              .filter({ hasText: column }),
+          ).toBeVisible({ timeout: 20000 }),
+        ),
+      );
     });
 
     test(`Expand  IDP collapsible and verify users are listed`, async ({
