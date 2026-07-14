@@ -22,9 +22,7 @@ const OCP_UPDATE_CHANNELS_DOC_FRAGMENT =
 
 /** Shared with osd-ccs-gcp-ystream-channel-day2.spec.ts (Day-1 create / Day-2 navigation). */
 const clusterName =
-  process.env.CLUSTER_NAME ||
-  process.env.QE_YSTREAM_DAY2_CLUSTER_NAME ||
-  clusterProperties.Name;
+  process.env.CLUSTER_NAME || process.env.QE_YSTREAM_DAY2_CLUSTER_NAME || clusterProperties.Name;
 
 test.describe.serial(
   `OSD GCP CCS Y-stream Channel wizard tests (${configName})`,
@@ -97,7 +95,7 @@ test.describe.serial(
       await createOSDWizardPage.selectAvailabilityZone('Single Zone');
       await createOSDWizardPage.selectRegion(clusterProperties.Region);
       await createOSDWizardPage.selectVersion(versionWithChannels);
-      await expect(createOSDWizardPage.channelDropdown()).toHaveValue('');
+      await expect(createOSDWizardPage.channelSelect()).toHaveValue('');
       await createOSDWizardPage.advanceFromClusterDetailsToMachinePool();
     });
 
@@ -109,9 +107,9 @@ test.describe.serial(
       await createOSDWizardPage.selectRegion(clusterProperties.Region);
       await createOSDWizardPage.selectVersion(yStream.SelectedVersion);
 
-      await createOSDWizardPage.channelDropdown().click();
+      await createOSDWizardPage.channelSelect().click();
 
-      const availableChannelOptions = await createOSDWizardPage.channelDropdownOptionValues();
+      const availableChannelOptions = await createOSDWizardPage.channelSelectOptionValues();
 
       for (const expectedChannel of yStream.AvailableChannels) {
         expect(availableChannelOptions).toContain(expectedChannel);
@@ -129,7 +127,7 @@ test.describe.serial(
       );
 
       await createOSDWizardPage.selectChannel(yStream.SelectedChannel);
-      await expect(createOSDWizardPage.channelDropdown()).toHaveValue(yStream.SelectedChannel);
+      await expect(createOSDWizardPage.channelSelect()).toHaveValue(yStream.SelectedChannel);
 
       await createOSDWizardPage.selectAvailabilityZone('Multi-zone');
       await createOSDWizardPage.selectAvailabilityZone('Single Zone');
@@ -137,7 +135,7 @@ test.describe.serial(
       await expect(createOSDWizardPage.versionDropdownToggle()).toContainText(
         yStream.SelectedVersion,
       );
-      await expect(createOSDWizardPage.channelDropdown()).toHaveValue(yStream.SelectedChannel);
+      await expect(createOSDWizardPage.channelSelect()).toHaveValue(yStream.SelectedChannel);
 
       await createOSDWizardPage.waitForClusterNameAvailable();
       await createOSDWizardPage.advanceFromClusterDetailsToMachinePool();
@@ -177,7 +175,7 @@ test.describe.serial(
 
       await createOSDWizardPage.navigateWizardBackToClusterDetails();
       await createOSDWizardPage.selectVersion(versionWithoutChannels);
-      await expect(createOSDWizardPage.channelDropdown()).toBeDisabled();
+      await expect(createOSDWizardPage.channelSelect()).toBeDisabled();
       await createOSDWizardPage.advanceOsdWizardToReview(
         clusterProperties.MachinePool.InstanceType,
         clusterProperties.MachinePool.NodeCount,

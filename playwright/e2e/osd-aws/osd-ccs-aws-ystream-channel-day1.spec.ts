@@ -93,7 +93,7 @@ test.describe.serial(
       await createOSDWizardPage.selectAvailabilityZone('Single Zone');
       await createOSDWizardPage.selectRegion(clusterProperties.Region);
       await createOSDWizardPage.selectVersion(versionWithChannels);
-      await expect(createOSDWizardPage.channelDropdown()).toHaveValue('');
+      await expect(createOSDWizardPage.channelSelect()).toHaveValue('');
       await createOSDWizardPage.wizardNextButton().click();
       await createOSDWizardPage.isMachinePoolScreen();
     });
@@ -104,9 +104,9 @@ test.describe.serial(
       await createOSDWizardPage.ensureClusterDetailsScreen();
       await createOSDWizardPage.selectVersion(yStream.SelectedVersion);
 
-      await createOSDWizardPage.channelDropdown().click();
+      await createOSDWizardPage.channelSelect().click();
 
-      const availableChannelOptions = await createOSDWizardPage.channelDropdownOptionValues();
+      const availableChannelOptions = await createOSDWizardPage.channelSelectOptionValues();
 
       for (const expectedChannel of yStream.AvailableChannels) {
         expect(availableChannelOptions).toContain(expectedChannel);
@@ -124,7 +124,7 @@ test.describe.serial(
       );
 
       await createOSDWizardPage.selectChannel(yStream.SelectedChannel);
-      await expect(createOSDWizardPage.channelDropdown()).toHaveValue(yStream.SelectedChannel);
+      await expect(createOSDWizardPage.channelSelect()).toHaveValue(yStream.SelectedChannel);
 
       await createOSDWizardPage.selectAvailabilityZone('Multi-zone');
       await createOSDWizardPage.selectAvailabilityZone('Single Zone');
@@ -132,7 +132,7 @@ test.describe.serial(
       await expect(createOSDWizardPage.versionDropdownToggle()).toContainText(
         yStream.SelectedVersion,
       );
-      await expect(createOSDWizardPage.channelDropdown()).toHaveValue(yStream.SelectedChannel);
+      await expect(createOSDWizardPage.channelSelect()).toHaveValue(yStream.SelectedChannel);
 
       await createOSDWizardPage.wizardNextButton().click();
     });
@@ -171,7 +171,7 @@ test.describe.serial(
 
       await createOSDWizardPage.navigateWizardBackToClusterDetails();
       await createOSDWizardPage.selectVersion(versionWithoutChannels);
-      await expect(createOSDWizardPage.channelDropdown()).toBeDisabled();
+      await expect(createOSDWizardPage.channelSelect()).toBeDisabled();
       await createOSDWizardPage.advanceOsdWizardToReview(
         clusterProperties.MachinePool.InstanceType,
         clusterProperties.MachinePool.NodeCount,
@@ -189,10 +189,6 @@ test.describe.serial(
       await expect(createOSDWizardPage.reviewVersionValue()).toContainText(yStream.SelectedVersion);
       await createOSDWizardPage.createClusterButton().click();
       await createOSDWizardPage.waitForClusterCreationAndOverview();
-    });
-
-    test('Delete OSD AWS Y-stream channel cluster', async ({ clusterDetailsPage }) => {
-      await clusterDetailsPage.deleteClusterByName(clusterProperties.Name);
     });
   },
 );

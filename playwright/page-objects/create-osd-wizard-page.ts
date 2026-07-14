@@ -1,10 +1,11 @@
 import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from './base-page';
+import { BaseWizardPage } from './base-wizard-page';
 
 /**
- * Create OSD Wizard page object for Playwright tests
+ * Create OSD Wizard page object for Playwright tests.
+ * OSD-specific wizard logic only; shared version/channel helpers live on BaseWizardPage.
  */
-export class CreateOSDWizardPage extends BasePage {
+export class CreateOSDWizardPage extends BaseWizardPage {
   constructor(page: Page) {
     super(page);
   }
@@ -78,10 +79,11 @@ export class CreateOSDWizardPage extends BasePage {
     );
   }
 
+  /** OSD cloud-provider steps can take longer than the shared wizard default. */
   async waitAndClick(buttonLocator: Locator, timeout: number = 160000): Promise<void> {
-    await buttonLocator.waitFor({ state: 'visible', timeout });
-    await buttonLocator.click();
+    await super.waitAndClick(buttonLocator, timeout);
   }
+
   // Machine pool selectors
   computeNodeTypeButton(): Locator {
     return this.page.locator('button[aria-label="Machine type select toggle"]');
@@ -369,17 +371,6 @@ export class CreateOSDWizardPage extends BasePage {
     await this.domainPrefixInput().fill(domainPrefix);
   }
 
-  async closePopoverDialogs(): Promise<void> {
-    const closeButtons = this.page.locator('button[aria-label="Close"]');
-    const count = await closeButtons.count();
-    if (count > 0) {
-      const visibleCloseButton = closeButtons.first();
-      if (await visibleCloseButton.isVisible()) {
-        await visibleCloseButton.click();
-      }
-    }
-  }
-
   singleZoneAvilabilityRadio(): Locator {
     return this.page.locator('input[id="form-radiobutton-multi_az-false-field"]');
   }
@@ -533,10 +524,6 @@ export class CreateOSDWizardPage extends BasePage {
     await this.page
       .locator('select[aria-label="Private Service Connect subnet name"]')
       .selectOption(pscName);
-  }
-
-  wizardNextButton(): Locator {
-    return this.page.getByTestId('wizard-next-button');
   }
 
   // CIDR selectors
@@ -765,138 +752,11 @@ export class CreateOSDWizardPage extends BasePage {
     }
   }
 
-  // Cluster version selection
-  versionDropdownToggle(): Locator {
-    return this.page.locator('#version-selector');
-  }
-
-  /** Version options live in the FuzzySelect listbox, not native `<select>` options. */
-  versionDropdownOption(version: string): Locator {
-    return this.page
-      .getByRole('listbox', { name: 'Select options list' })
-      .getByRole('option', { name: version, exact: true });
-  }
-
-  versionLoadingIndicator(): Locator {
-    return this.page.getByLabel('Loading...');
-  }
-
-  /** Y-stream Channel `<select>` (requires `ocmui-y-stream-channel` feature gate). */
-  channelDropdown(): Locator {
-    return this.page.getByLabel('Channel', { exact: true });
-  }
-
-  channelGroupSelect(): Locator {
-    return this.page.getByLabel('Channel group');
-  }
-
-  channelFieldLabel(): Locator {
-    return this.page.getByText('Channel', { exact: true });
-  }
-
-  versionFieldLabel(): Locator {
-    return this.page.getByText('Version', { exact: true }).first();
-  }
-
-  async selectChannel(channel: string): Promise<void> {
-    await this.channelDropdown().waitFor({ state: 'visible', timeout: 90000 });
-    await this.channelDropdown().selectOption(channel);
-  }
-
-  /** Visible `<option>` values on the Channel select (excludes empty placeholder). */
-  async channelDropdownOptionValues(): Promise<string[]> {
-    const select = this.channelDropdown();
-    await select.waitFor({ state: 'visible', timeout: 90000 });
-    return select
-      .locator('option')
-      .evaluateAll((opts) =>
-        opts.map((o) => (o as HTMLOptionElement).value.trim()).filter((value) => value.length > 0),
-      );
-  }
-
-  channelDropdownPlaceholder(): Locator {
-    return this.channelDropdown().getByRole('option', { name: 'Select a channel' });
-  }
-
-  channelDropdownEmptyMessage(): Locator {
-    return this.channelDropdown().locator('option').filter({
-      hasText: 'No channels available for the selected version',
-    });
-  }
-
-  channelInfoIcon(): Locator {
-    return this.page.getByRole('button', { name: 'Update channels information' });
-  }
-
-  channelPopover(): Locator {
-    return this.page.getByRole('dialog', { name: 'help' }).filter({ hasText: /Channels provide/i });
-  }
-
-  channelPopoverLearnMoreLink(): Locator {
-    return this.channelPopover().getByRole('link', { name: 'Learn more' });
-  }
-
-  async followChannelPopoverLearnMoreLink(docUrlFragment: string): Promise<void> {
-    const learnMore = this.channelPopoverLearnMoreLink();
-    await expect(learnMore).toHaveAttribute('href', new RegExp(docUrlFragment));
-
-    const popupPromise = this.page.waitForEvent('popup', { timeout: 60000 });
-    await learnMore.click();
-    const docPage = await popupPromise;
-    await docPage.waitForLoadState('domcontentloaded');
-    await expect(docPage).toHaveURL(new RegExp(docUrlFragment));
-    await docPage.close();
-  }
-
-  reviewChannelValue(): Locator {
-    return this.page.getByTestId('Channel').locator('motion.div, div');
-  }
-
-  reviewVersionValue(): Locator {
-    return this.page.getByTestId('Version').locator('motion.div, div');
-  }
-
-  async waitForInstallableVersionsLoaded(): Promise<void> {
-    await this.ensureClusterDetailsScreen();
-    await this.versionDropdownToggle().waitFor({ state: 'visible', timeout: 90000 });
-    const loading = this.versionLoadingIndicator();
-    if (await loading.isVisible().catch(() => false)) {
-      await loading.waitFor({ state: 'hidden', timeout: 120000 });
-    }
-  }
-
-  async assertVersionFieldAppearsBeforeChannelField(): Promise<void> {
-    const versionBox = await this.versionFieldLabel().boundingBox();
-    const channelBox = await this.channelFieldLabel().boundingBox();
-    expect(versionBox).not.toBeNull();
-    expect(channelBox).not.toBeNull();
-    expect(versionBox!.y).toBeLessThan(channelBox!.y);
-  }
-
-  async assertYStreamChannelUiWithoutChannelGroup(): Promise<void> {
-    await expect(this.channelGroupSelect()).not.toBeVisible();
-    await expect(this.channelDropdown()).toBeVisible();
-  }
-
   async fillMinimumClusterDetailsFields(region: string): Promise<void> {
     await this.setClusterName(`ystream-ch-${Math.random().toString(36).substring(2, 10)}`);
     await this.closePopoverDialogs();
     await this.selectAvailabilityZone('Single Zone');
     await this.selectRegion(region);
-  }
-
-  async assertChannelDropdownPlaceholderIsEmpty(placeholderLabel: string): Promise<void> {
-    const placeholder = this.channelDropdownPlaceholder();
-    await expect(placeholder).toHaveAttribute('value', '');
-    await expect(placeholder).toHaveText(placeholderLabel);
-  }
-
-  async assertChannelOptionValuesMatchAvailableChannelsPattern(): Promise<void> {
-    const optionValues = await this.channelDropdownOptionValues();
-    expect(optionValues.length).toBeGreaterThan(0);
-    for (const value of optionValues) {
-      expect(value).toMatch(/^(stable|fast|candidate|eus)-\d+\.\d+$/);
-    }
   }
 
   /** Navigates to Cluster details without leaving the wizard (never Back from Details). */
@@ -934,17 +794,6 @@ export class CreateOSDWizardPage extends BasePage {
     }
 
     await this.isClusterDetailsScreen();
-  }
-
-  /** Clears channel selection on Cluster details. */
-  async resetClusterDetailsSelections(): Promise<void> {
-    await this.ensureClusterDetailsScreen();
-
-    const channelDropdown = this.channelDropdown();
-    if (await channelDropdown.isEnabled()) {
-      await channelDropdown.selectOption('');
-      await expect(channelDropdown).toHaveValue('');
-    }
   }
 
   async navigateWizardBackToClusterDetails(): Promise<void> {
@@ -989,36 +838,6 @@ export class CreateOSDWizardPage extends BasePage {
   parseClusterCreatePostBody(request: { postData(): string | null }): Record<string, unknown> {
     const raw = request.postData();
     return raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
-  }
-
-  async selectVersion(version: string): Promise<void> {
-    if (version !== '') {
-      await this.waitForInstallableVersionsLoaded();
-      await this.versionDropdownToggle().click();
-      await this.versionDropdownOption(version).click();
-    }
-  }
-
-  versionSelectorToggle(): Locator {
-    return this.page.locator('#version-selector');
-  }
-
-  /** Version dropdown (FuzzySelect) — option labels like "4.16.0 (fast)". */
-  versionOptionsByChannel(channel: string): Locator {
-    return this.page.getByRole('option', {
-      name: new RegExp(`\\(${this.escapeRegExp(channel)}\\)`),
-    });
-  }
-
-  channelSelect(): Locator {
-    return this.page.getByRole('combobox', { name: 'Channel' });
-  }
-
-  /** Channel combobox (FormSelect) — option labels like "fast-4.16". */
-  channelSelectOptionsByPrefix(prefix: string): Locator {
-    return this.channelSelect().getByRole('option', {
-      name: new RegExp(`^${this.escapeRegExp(prefix)}-`),
-    });
   }
 
   async selectAvailabilityZone(az: string): Promise<void> {
@@ -1229,11 +1048,6 @@ export class CreateOSDWizardPage extends BasePage {
     return this.page.locator('input[name="defaultRouterExcludedNamespacesFlag"]');
   }
 
-  // Navigation buttons (if not already present)
-  wizardBackButton(): Locator {
-    return this.page.getByTestId('wizard-back-button');
-  }
-
   // Validation helper methods
   async enableAutoScaling(): Promise<void> {
     await this.enableAutoscalingCheckbox().check();
@@ -1257,14 +1071,5 @@ export class CreateOSDWizardPage extends BasePage {
     await this.maximumNodeInput().click();
     await this.maximumNodeInput().press('Control+a');
     await this.maximumNodeInput().fill(nodeCount);
-  }
-
-  async isTextContainsInPage(text: string, present: boolean = true): Promise<void> {
-    const locator = this.page.locator('body').filter({ hasText: text });
-    if (present) {
-      await expect(locator).toBeVisible();
-    } else {
-      await expect(locator).not.toBeVisible();
-    }
   }
 }
