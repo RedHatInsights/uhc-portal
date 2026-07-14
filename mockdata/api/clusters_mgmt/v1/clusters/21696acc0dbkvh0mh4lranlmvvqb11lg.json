@@ -12,7 +12,7 @@
     "id": "aws",
     "href": "/api/clusters_mgmt/v1/cloud_providers/aws"
   },
-  "openshift_version": "4.12.0-rc.8",
+  "openshift_version": "4.21.20",
   "subscription": {
     "kind": "SubscriptionLink",
     "id": "2KBhQVMVQx0CEoXuYZUMBQrQG8y",
@@ -33,7 +33,7 @@
   "nodes": {
     "master": 3,
     "infra": 2,
-    "compute": 2,
+    "compute": 4,
     "availability_zones": [
       "us-east-1d"
     ],
@@ -185,13 +185,11 @@
   },
   "version": {
     "kind": "Version",
-    "id": "openshift-v4.12.0-rc.8-candidate",
-    "href": "/api/clusters_mgmt/v1/versions/openshift-v4.12.0-rc.8-candidate",
-    "raw_id": "4.12.0-rc.8",
-    "channel_group": "candidate",
-    "available_upgrades": [
-      "4.12.0"
-    ]
+    "id": "openshift-v4.21.20",
+    "href": "/api/clusters_mgmt/v1/versions/openshift-v4.21.20",
+    "raw_id": "4.21.20",
+    "channel_group": "stable",
+    "available_upgrades": []
   },
   "identity_providers": {
     "kind": "IdentityProviderListLink",
