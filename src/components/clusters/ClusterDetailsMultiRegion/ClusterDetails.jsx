@@ -17,8 +17,8 @@ import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useLocation, useParams } from 'react-router-dom';
 
-import { useModule } from '@scalprum/react-core';
 import { PageSection, Spinner, TabContent, Tooltip } from '@patternfly/react-core';
+import { useModule } from '@scalprum/react-core';
 
 import { Navigate, useClusterListPath, useNavigate } from '~/common/routing';
 import { knownProducts, normalizedProducts } from '~/common/subscriptionTypes';

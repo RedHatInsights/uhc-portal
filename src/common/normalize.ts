@@ -1,8 +1,8 @@
 import type { AxiosResponse } from 'axios';
 import { Draft, produce } from 'immer';
-import { getModule } from '@scalprum/core';
 
 import type { Cluster as AICluster } from '@openshift-assisted/types/assisted-installer-service';
+import { getModule } from '@scalprum/core';
 
 import {
   type ClusterMetricsNodes,
