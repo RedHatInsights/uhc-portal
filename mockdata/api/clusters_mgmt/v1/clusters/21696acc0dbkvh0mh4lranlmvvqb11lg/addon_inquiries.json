@@ -338,7 +338,7 @@
           "status": {
             "fulfilled": false,
             "error_msgs": [
-              "This addon is not supported on clusters with a version of '4.12.0-rc.8'. Does not satisfy constraints '\u003e= 4.9'"
+              "This addon is not supported on clusters with a version of '4.21.20'. Does not satisfy constraints '\u003e= 4.9'"
             ]
           },
           "id": "cluster-requirements",
@@ -2079,7 +2079,7 @@
           "status": {
             "fulfilled": false,
             "error_msgs": [
-              "This addon is not supported on clusters with a version of '4.12.0-rc.8'. Does not satisfy constraints '\u003e= 4.11'"
+              "This addon is not supported on clusters with a version of '4.21.20'. Does not satisfy constraints '\u003e= 4.11'"
             ]
           },
           "id": "cluster-requirements",
@@ -2339,7 +2339,7 @@
           "status": {
             "fulfilled": false,
             "error_msgs": [
-              "This addon is not supported on clusters with a version of '4.12.0-rc.8'. Does not satisfy constraints '\u003c 4.11'"
+              "This addon is not supported on clusters with a version of '4.21.20'. Does not satisfy constraints '\u003c 4.11'"
             ]
           },
           "id": "cluster-requirements",
@@ -2494,7 +2494,7 @@
           "status": {
             "fulfilled": false,
             "error_msgs": [
-              "This addon is not supported on clusters with a version of '4.12.0-rc.8'. Does not satisfy constraints '\u003c 4.11'"
+              "This addon is not supported on clusters with a version of '4.21.20'. Does not satisfy constraints '\u003c 4.11'"
             ]
           },
           "id": "cluster-requirements",
@@ -2793,7 +2793,7 @@
             "fulfilled": false,
             "error_msgs": [
               "This addon requires more compute nodes available in this cluster. Current max available is 2, but require at least 3. Scale up the number of compute nodes and try again.",
-              "This addon is not supported on clusters with a version of '4.12.0-rc.8'. Does not satisfy constraints '\u003c 4.11'",
+              "This addon is not supported on clusters with a version of '4.21.20'. Does not satisfy constraints '\u003c 4.11'",
               "This addon is not supported on clusters with a value of 'm5.xlarge' for 'nodes.compute_machine_type.id'"
             ]
           },
@@ -3045,7 +3045,7 @@
             "fulfilled": false,
             "error_msgs": [
               "This addon requires more compute nodes available in this cluster. Current max available is 2, but require at least 3. Scale up the number of compute nodes and try again.",
-              "This addon is not supported on clusters with a version of '4.12.0-rc.8'. Does not satisfy constraints '\u003c 4.11'"
+              "This addon is not supported on clusters with a version of '4.21.20'. Does not satisfy constraints '\u003c 4.11'"
             ]
           },
           "id": "cluster-requirements",

@@ -1139,7 +1139,7 @@
             "total": 0
           },
           "non_virt_nodes": 0,
-          "openshift_version": "4.12.0-rc.8",
+          "openshift_version": "4.21.20",
           "operating_system": "",
           "operators_condition_failing": 1,
           "query_timestamp": "2023-01-18T15:35:49Z",
@@ -1175,7 +1175,7 @@
             "available": false,
             "state": "failed",
             "updated_timestamp": "2023-01-18T15:36:11.285Z",
-            "version": "4.12.0-rc.8"
+            "version": "4.21.20"
           }
         }
       ],
