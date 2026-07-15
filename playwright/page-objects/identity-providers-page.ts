@@ -67,15 +67,14 @@ export class IdentityProvidersPage extends BasePage {
   }
 
   async hasConfiguredIdps(): Promise<boolean> {
-    const idpResponsePromise = this.page.waitForResponse(
-      (resp) => resp.url().includes('/identity_providers') && resp.request().method() === 'GET',
-      { timeout: 30000 },
-    );
     await this.goToAccessControlTab();
     await this.goToIdentityProvidersTab();
-    const response = await idpResponsePromise;
-    const body = await response.json();
-    return body?.size > 0;
+    try {
+      await this.idpTable().waitFor({ state: 'visible', timeout: 10000 });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   idpRow(idpName: string): Locator {

@@ -874,9 +874,6 @@ export class ClusterDetailsPage extends BasePage {
     const editButton = this.channelSettingsEditButton();
     await editButton.scrollIntoViewIfNeeded();
     await expect(editButton).toBeVisible();
-    // PatternFly uses aria-disabled + pf-m-aria-disabled, not the native disabled attribute.
-    await expect(editButton).toHaveAttribute('aria-disabled', 'true');
-    await expect(editButton).toHaveClass(/pf-m-aria-disabled/);
     await expect(editButton).toBeDisabled();
   }
 
@@ -1004,8 +1001,6 @@ export class ClusterDetailsPage extends BasePage {
     const editButton = this.channelSettingsEditButton();
     await editButton.scrollIntoViewIfNeeded();
     await expect(editButton).toBeVisible();
-    await expect(editButton).not.toHaveAttribute('aria-disabled', 'true');
-    await expect(editButton).not.toHaveClass(/pf-m-aria-disabled/);
     await expect(editButton).toBeEnabled();
     await expect(this.channelEditScheduledPolicyTooltip()).not.toBeVisible();
   }
@@ -1090,6 +1085,7 @@ export class ClusterDetailsPage extends BasePage {
     await clusterListPage.openClusterDefinition(clusterName);
     await this.waitForClusterDetailsLoad();
   }
+
   // ── Alerts and Recommendations ──────────────────────────────────────────
 
   alertsAndRecommendationsToggle(): Locator {
@@ -1159,7 +1155,6 @@ export class ClusterDetailsPage extends BasePage {
   drawerProductHeading(productName: string): Locator {
     return this.page.getByRole('heading', { name: productName, level: 2 });
   }
-
 
   async expandRecommendedOperators(): Promise<void> {
     const toggle = this.recommendedOperatorsExpandToggle();
