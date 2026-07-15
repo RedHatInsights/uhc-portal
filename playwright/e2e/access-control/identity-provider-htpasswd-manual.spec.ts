@@ -22,20 +22,17 @@ const fillHtpasswdUsersSequentially = async (
   clusterIdentityProviderPage: ClusterIdentityProviderPage,
   userCount: number,
 ) => {
-  await Array.from({ length: userCount }, (_, index) => index).reduce(
-    async (previousStep, index) => {
-      await previousStep;
+  /* eslint-disable no-await-in-loop -- each user must be added before the next Add user click */
+  for (let index = 0; index < userCount; index += 1) {
+    await clusterIdentityProviderPage.htpasswdUsernameInput().fill(bulkUsers[index]);
+    await clusterIdentityProviderPage.fillSuggestedPassword();
+    await clusterIdentityProviderPage.fillSuggestedConfirmPassword();
 
-      await clusterIdentityProviderPage.htpasswdUsernameInput().fill(bulkUsers[index]);
-      await clusterIdentityProviderPage.fillSuggestedPassword();
-      await clusterIdentityProviderPage.fillSuggestedConfirmPassword();
-
-      if (index < userCount - 1) {
-        await clusterIdentityProviderPage.addUserButton().click();
-      }
-    },
-    Promise.resolve(),
-  );
+    if (index < userCount - 1) {
+      await clusterIdentityProviderPage.addUserButton().click();
+    }
+  }
+  /* eslint-enable no-await-in-loop */
 };
 
 test.describe.serial(
