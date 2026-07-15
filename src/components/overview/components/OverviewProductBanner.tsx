@@ -3,7 +3,6 @@ import React from 'react';
 import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { Flex, FlexItem, Grid, Stack, StackItem } from '@patternfly/react-core';
 
-import { Link } from '~/common/routing';
 import ExternalLink from '~/components/common/ExternalLink';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 
@@ -37,7 +36,6 @@ export const OverviewProductBanner = ({
           variant="primary"
           to={createClusterURL}
           data-testid="create-cluster"
-          component={Link}
         >
           Create cluster
         </InternalTrackingLink>
@@ -48,7 +46,6 @@ export const OverviewProductBanner = ({
           variant="secondary"
           to={createClusterAIURL}
           data-testid="create-cluster-assisted-installer"
-          component={Link}
         >
           Create cluster with Assisted Installer
         </InternalTrackingLink>

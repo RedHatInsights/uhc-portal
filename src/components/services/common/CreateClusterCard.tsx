@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 
 import {
   Card,
@@ -13,7 +13,6 @@ import {
 } from '@patternfly/react-core';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
 
-import { Link } from '~/common/routing';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
@@ -31,10 +30,6 @@ export const CreateClusterCard = ({
   bodyContent,
   createClusterBtnTitle,
 }: CreateClusterCardProps) => {
-  const LinkComponent = useCallback(
-    (props: any) => <Link data-testid="register-cluster" to={linkComponentURL} {...props} />,
-    [linkComponentURL],
-  );
   const { canCreateManagedCluster } = useCanCreateManagedCluster();
 
   const createClusterBtn = (
@@ -43,7 +38,6 @@ export const CreateClusterCard = ({
       data-testid="register-cluster"
       variant="primary"
       to={linkComponentURL}
-      component={LinkComponent}
       isAriaDisabled={!canCreateManagedCluster}
     >
       {createClusterBtnTitle}

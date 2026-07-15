@@ -1,9 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
 import { Gallery, GalleryItem, PageSection, Title } from '@patternfly/react-core';
 
 import { useScrollToAnchor } from '~/common/helpers';
-import { Link } from '~/common/routing';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 import { DrawerPanelContentNode, useChromeDrawerPanel } from '~/hooks/useChromeDrawerPanel';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
@@ -40,10 +39,6 @@ function OverviewEmptyState() {
   const { canCreateManagedCluster } = useCanCreateManagedCluster();
 
   const createClusterURL = '/create';
-  const CreateClusterLink = useCallback(
-    (props: any) => <Link {...props} data-testid="create-cluster" to={createClusterURL} />,
-    [],
-  );
 
   const [selectedCardTitle, setSelectedCardTitle] = useState<string>('');
 
@@ -95,12 +90,7 @@ function OverviewEmptyState() {
             <OfferingCard offeringType="MIGRATION" />
           </GalleryItem>
         </Gallery>
-        <InternalTrackingLink
-          to={createClusterURL}
-          variant="link"
-          data-testid="create-cluster"
-          component={CreateClusterLink}
-        >
+        <InternalTrackingLink to={createClusterURL} data-testid="create-cluster">
           View all OpenShift cluster types
         </InternalTrackingLink>
         <FeaturedProductsCards openLearnMore={openDrawer} selectedCardTitle={selectedCardTitle} />

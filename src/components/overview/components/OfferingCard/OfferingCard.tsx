@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 
 import {
   Button,
@@ -21,7 +21,6 @@ import {
 } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
-import { Link } from '~/common/routing';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import ExternalLink from '~/components/common/ExternalLink';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
@@ -47,28 +46,10 @@ const createClusterURL = '/create';
 const registerClusterURL = '/register';
 const openMigrationWizard = '/migration-assessment';
 
-const CreateRosaClusterLink = (props: any) => (
-  <Link {...props} data-testid="create-cluster" to={createRosaClusterURL} />
-);
-
-const CreateOSDCluterLink = (props: any) => (
-  <Link {...props} data-testid="create-cluster" to={createOSDClusterURL} />
-);
-
-const CreateRHOCPCluterLink = (props: any) => (
-  <Link {...props} data-testid="create-cluster" to={createClusterURL} />
-);
-
 const DEVSNBXOfferingCardDocLinkComponent = () => (
   <ExternalLink noTarget noIcon href="https://sandbox.redhat.com">
     View details
   </ExternalLink>
-);
-
-const CreateMigrationLink = (props: any) => (
-  <Link {...props} href={openMigrationWizard}>
-    Start evaluation
-  </Link>
 );
 
 function OfferingCard(props: OfferingCardProps) {
@@ -85,27 +66,12 @@ function OfferingCard(props: OfferingCardProps) {
   let offeringCardCreationLink: React.ReactNode | undefined;
   let cardLogo: React.ReactNode | undefined;
 
-  const RHOCPOfferingCardDocLinkComponent = useCallback(
-    (props: any) => <Link to={registerClusterURL}>Register cluster</Link>,
-    [],
-  );
-
-  const RHOSDOfferingCardDocLinkComponent = useCallback(
-    (props: any) => <Link to={OSDServicePageURL}>View details</Link>,
-    [],
-  );
-
-  const AWSOfferingCardDocLinkComponent = useCallback(
-    (props: any) => <Link to={rosaServicePageURL}>View details</Link>,
-    [],
-  );
-
   const createAWSClusterBtn = (
     <InternalTrackingLink
       isButton
       variant="secondary"
       to={createRosaClusterURL}
-      component={CreateRosaClusterLink}
+      data-testid="create-cluster"
       isAriaDisabled={!canCreateManagedCluster}
     >
       Create cluster
@@ -117,7 +83,7 @@ function OfferingCard(props: OfferingCardProps) {
       isButton
       variant="secondary"
       to={createOSDClusterURL}
-      component={CreateOSDCluterLink}
+      data-testid="create-cluster"
       isAriaDisabled={!canCreateManagedCluster}
     >
       Create cluster
@@ -141,12 +107,7 @@ function OfferingCard(props: OfferingCardProps) {
         </CreateManagedClusterButtonWithTooltip>
       );
       offeringCardDocLink = (
-        <InternalTrackingLink
-          isButton
-          variant={ButtonVariant.link}
-          to={rosaServicePageURL}
-          component={AWSOfferingCardDocLinkComponent}
-        />
+        <InternalTrackingLink to={rosaServicePageURL}>View details</InternalTrackingLink>
       );
       cardLogo = <AWSLogo className="offering-logo" />;
       break;
@@ -176,12 +137,7 @@ function OfferingCard(props: OfferingCardProps) {
         </CreateManagedClusterButtonWithTooltip>
       );
       offeringCardDocLink = (
-        <InternalTrackingLink
-          isButton
-          variant={ButtonVariant.link}
-          to={OSDServicePageURL}
-          component={RHOSDOfferingCardDocLinkComponent}
-        />
+        <InternalTrackingLink to={OSDServicePageURL}>View details</InternalTrackingLink>
       );
       cardLogo = <RHLogo className="offering-logo" />;
       break;
@@ -199,19 +155,13 @@ function OfferingCard(props: OfferingCardProps) {
           isButton
           variant="secondary"
           to={createClusterURL}
-          component={CreateRHOCPCluterLink}
+          data-testid="create-cluster"
         >
           Create cluster
         </InternalTrackingLink>
       );
       offeringCardDocLink = (
-        <InternalTrackingLink
-          variant={ButtonVariant.link}
-          component={RHOCPOfferingCardDocLinkComponent}
-          to={registerClusterURL}
-        >
-          Register cluster
-        </InternalTrackingLink>
+        <InternalTrackingLink to={registerClusterURL}>Register cluster</InternalTrackingLink>
       );
       cardLogo = (
         <img className="offering-logo" src={OpenShiftProductIcon} alt="OpenShift product logo" />
@@ -251,12 +201,7 @@ function OfferingCard(props: OfferingCardProps) {
       offeringCardTextBody =
         'Discover your VMware environment, select a target cluster and create a migration plan.';
       offeringCardCreationLink = (
-        <InternalTrackingLink
-          isButton
-          variant="secondary"
-          to={openMigrationWizard}
-          component={CreateMigrationLink}
-        >
+        <InternalTrackingLink isButton variant="secondary" to={openMigrationWizard}>
           Start evaluation
         </InternalTrackingLink>
       );

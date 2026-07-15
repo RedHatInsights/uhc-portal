@@ -15,7 +15,6 @@ type InternalTrackingLinkProps = {
   stopClickPropagation?: boolean;
   isButton?: boolean;
   variant?: ButtonProps['variant'];
-  component?: (props: any) => React.JSX.Element;
   'data-testid'?: string;
   isAriaDisabled?: boolean;
 };
@@ -35,7 +34,6 @@ const InternalLink = (props: InternalTrackingLinkProps) => {
     children,
     stopClickPropagation,
     isButton,
-    component,
     variant,
     className,
     'data-testid': dataTestId,
@@ -85,17 +83,13 @@ const InternalLink = (props: InternalTrackingLinkProps) => {
 
   // Props for Button component (PatternFly-specific props are allowed)
   const buttonProps = {
-    ...linkProps,
+    variant,
     isAriaDisabled,
   };
 
-  return isButton ? (
-    <Button component={component || 'a'} variant={variant} onClick={handleClick} {...buttonProps}>
-      {children}
-    </Button>
-  ) : (
+  return (
     <Link onClick={handleClick} {...linkProps}>
-      {children}
+      {isButton ? <Button {...buttonProps}>{children}</Button> : children}
     </Link>
   );
 };
