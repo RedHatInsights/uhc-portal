@@ -262,17 +262,9 @@ export const CompoundFieldArray = (props) => {
     });
   };
 
-  React.useEffect(
-    () => {
-      if (usersData?.length === 0) {
-        addNewField();
-      } else {
-        setAreFieldsFilled(usersData?.map((field) => !!field));
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [usersData],
-  );
+  React.useEffect(() => {
+    setAreFieldsFilled(usersData?.map((field) => !!field) ?? []);
+  }, [usersData]);
 
   const onFieldChange = (e, value, index, fieldName) => {
     setFieldTouched(fieldName, true);
