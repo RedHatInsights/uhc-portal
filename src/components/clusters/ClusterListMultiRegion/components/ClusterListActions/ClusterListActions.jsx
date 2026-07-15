@@ -88,13 +88,10 @@ const dropdownArchived = (
 );
 const toolbarCreateCluster = (
   <ToolbarItem key="createcluster">
-    <Link
-      to="/create"
-      role="button"
-      className="pf-v6-c-button pf-m-primary"
-      data-testid="create_cluster_btn"
-    >
-      Create cluster
+    <Link to="/create">
+      <Button variant="primary" data-testid="create_cluster_btn">
+        Create cluster
+      </Button>
     </Link>
   </ToolbarItem>
 );
