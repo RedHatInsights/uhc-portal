@@ -17,13 +17,19 @@ import links from '~/common/installLinks.mjs';
 import { AWS_ACCOUNT_ROSA_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzyDataType, FuzzyEntryType } from '~/components/common/FuzzySelect/types';
+import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { CloudAccount } from '~/types/accounts_mgmt.v1';
 
 import { FuzzySelect } from '../../../../common/FuzzySelect/FuzzySelect';
 import PopoverHint from '../../../../common/PopoverHint';
 
 import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/AssociateAWSAccountDrawer';
-import { getContract } from './AWSBillingAccount/awsBillingAccountHelper';
+import {
+  createBillingAccountSortFn,
+  getBillingAccountSelectOptions,
+  getContract,
+} from './AWSBillingAccount/awsBillingAccountHelper';
 
 import './AccountsRolesScreen.scss';
 
@@ -46,6 +52,9 @@ function sortFn(a: FuzzyEntryType, b: FuzzyEntryType) {
   const ret = b.label.length - a.label.length;
   return ret || b.label.localeCompare(a.label);
 }
+
+const billingAccountSortFn = createBillingAccountSortFn(sortFn);
+
 export interface AWSAccountSelectionProps {
   input: {
     name: string;
@@ -98,6 +107,8 @@ function AWSAccountSelection({
   const { onRefresh, text } = refresh;
   const { onChange } = inputProps;
   const { openDrawer } = useAssociateAWSAccountDrawer();
+  const isBillingContractNotificationEnabled = useFeatureGate(BILLING_CONTRACT_NOTIFICATION);
+  const showEnhancedBillingOptions = isBillingAccount && isBillingContractNotificationEnabled;
 
   useEffect(() => {
     // only scroll to associateAWSAccountBtn when no AWS accounts
@@ -123,19 +134,20 @@ function AWSAccountSelection({
     [setIsOpen, onChange],
   );
 
-  const selectionData = useMemo<FuzzyDataType>(
-    () =>
-      accounts.map((cloudAccount) => {
-        const accountId = cloudAccount.cloud_account_id as string;
-        return {
-          entryId: accountId,
-          label: accountId,
-          description: isBillingAccount && !!getContract(cloudAccount) ? 'Contract enabled' : '',
-        };
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [accounts],
-  );
+  const selectionData = useMemo<FuzzyDataType>(() => {
+    if (showEnhancedBillingOptions) {
+      return getBillingAccountSelectOptions(accounts);
+    }
+
+    return accounts.map((cloudAccount) => {
+      const accountId = cloudAccount.cloud_account_id as string;
+      return {
+        entryId: accountId,
+        label: accountId,
+        description: isBillingAccount && !!getContract(cloudAccount) ? 'Contract enabled' : '',
+      };
+    });
+  }, [accounts, isBillingAccount, showEnhancedBillingOptions]);
 
   const onClick = useCallback(() => {
     // close dropdown
@@ -184,7 +196,7 @@ function AWSAccountSelection({
             selectionData={selectionData}
             onOpenChange={onToggle}
             onSelect={onSelect}
-            sortFn={sortFn}
+            sortFn={showEnhancedBillingOptions ? billingAccountSortFn : sortFn}
             isDisabled={isDisabled}
             placeholderText={AWS_ACCT_ID_PLACEHOLDER}
             inlineFilterPlaceholderText="Filter by account ID"
