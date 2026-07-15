@@ -478,7 +478,7 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     let optionsToRender: React.ReactNode[] = [];
 
     if (Array.isArray(currentSelectOptions)) {
-      const sortedItems = currentSelectOptions.sort(sortFn);
+      const sortedItems = [...currentSelectOptions].sort(sortFn);
       optionsToRender = sortedItems.flatMap((entry, index) => {
         const entryLabel = filterValue ? (
           <FuzzySelectMatchName key={entry.entryId} entry={entry} filterText={filterValue} />
