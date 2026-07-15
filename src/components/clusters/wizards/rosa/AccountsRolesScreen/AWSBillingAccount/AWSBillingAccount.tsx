@@ -52,7 +52,7 @@ const AWSBillingAccount = ({
   );
 
   const [cloudAccounts, setCloudAccounts] = useState<CloudAccount[]>([]);
-  const hasContracts = useFeatureGate(BILLING_CONTRACT_NOTIFICATION);
+  const enableBillingContractNotification = useFeatureGate(BILLING_CONTRACT_NOTIFICATION);
 
   const refresh = useCallback(() => {
     dispatch(getAWSBillingAccountIDs(organization.details?.id) as any);
@@ -93,7 +93,7 @@ const AWSBillingAccount = ({
       return;
     }
 
-    if (hasContracts) {
+    if (enableBillingContractNotification) {
       const contractedAccount = cloudAccounts.find((account) => getContract(account) !== null);
       setFieldValue(
         FieldId.BillingAccountId,
@@ -103,7 +103,7 @@ const AWSBillingAccount = ({
       setFieldValue(FieldId.BillingAccountId, cloudAccounts[0].cloud_account_id || '');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cloudAccounts, selectedAWSBillingAccountID, hasContracts]);
+  }, [cloudAccounts, selectedAWSBillingAccountID, enableBillingContractNotification]);
 
   const connectNewAcctBtn = (
     <ExternalLink
