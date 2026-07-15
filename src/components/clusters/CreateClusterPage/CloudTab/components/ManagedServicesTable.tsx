@@ -60,22 +60,16 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
     purchasedThrough: 'Red Hat',
     details: 'Available on Google Cloud',
     action: (
-      <CreateManagedClusterButtonWithTooltip
-        childComponent={Button}
-        className="create-button"
-        isAriaDisabled={!canCreateManagedCluster}
-        variant={ButtonVariant.primary}
-        component={(props: any) => (
-          <Link
-            {...props}
-            id="create-trial-cluster"
-            to="/create/osdtrial?trial=osd"
-            data-testid="osd-create-trial-cluster"
-            role="button"
-          />
-        )}
-      >
-        Create trial cluster
+      <CreateManagedClusterButtonWithTooltip childComponent={Link} to="/create/osdtrial?trial=osd">
+        <Button
+          className="create-button"
+          isAriaDisabled={!canCreateManagedCluster}
+          variant={ButtonVariant.primary}
+          id="create-trial-cluster"
+          data-testid="osd-create-trial-cluster"
+        >
+          Create trial cluster
+        </Button>
       </CreateManagedClusterButtonWithTooltip>
     ),
     expandedSection: null,
@@ -85,21 +79,16 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
 
   if (hasOSDQuota) {
     osdRowaction = (
-      <CreateManagedClusterButtonWithTooltip
-        childComponent={Button}
-        className="create-button"
-        isAriaDisabled={!canCreateManagedCluster}
-        variant={ButtonVariant.primary}
-        component={(props: any) => (
-          <Link
-            {...props}
-            id="create-cluster"
-            to="/create/osd"
-            data-testid="osd-create-cluster-button"
-          />
-        )}
-      >
-        Create cluster
+      <CreateManagedClusterButtonWithTooltip childComponent={Link} to="/create/osd">
+        <Button
+          className="create-button"
+          isAriaDisabled={!canCreateManagedCluster}
+          variant={ButtonVariant.primary}
+          id="create-cluster"
+          data-testid="osd-create-cluster-button"
+        >
+          Create cluster
+        </Button>
       </CreateManagedClusterButtonWithTooltip>
     );
   } else {

@@ -47,14 +47,14 @@ const WithWizard = () => {
         />
       </CardBody>
       <CardFooter>
-        <CreateManagedClusterButtonWithTooltip
-          childComponent={Button}
-          variant={ButtonVariant.secondary}
-          icon={<DesktopIcon />}
-          component={LinkComponent}
-          isAriaDisabled={!canCreateManagedCluster}
-        >
-          Create with web interface
+        <CreateManagedClusterButtonWithTooltip childComponent={LinkComponent}>
+          <Button
+            variant={ButtonVariant.secondary}
+            icon={<DesktopIcon />}
+            isAriaDisabled={!canCreateManagedCluster}
+          >
+            Create with web interface
+          </Button>
         </CreateManagedClusterButtonWithTooltip>
       </CardFooter>
     </Card>
