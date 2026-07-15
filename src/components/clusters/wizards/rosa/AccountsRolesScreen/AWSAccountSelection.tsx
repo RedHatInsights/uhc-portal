@@ -26,6 +26,7 @@ import PopoverHint from '../../../../common/PopoverHint';
 
 import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/AssociateAWSAccountDrawer';
 import {
+  CONTRACT_ENABLED_DESCRIPTION,
   createBillingAccountSortFn,
   getBillingAccountSelectOptions,
   getContract,
@@ -144,7 +145,8 @@ function AWSAccountSelection({
       return {
         entryId: accountId,
         label: accountId,
-        description: isBillingAccount && !!getContract(cloudAccount) ? 'Contract enabled' : '',
+        description:
+          isBillingAccount && !!getContract(cloudAccount) ? CONTRACT_ENABLED_DESCRIPTION : '',
       };
     });
   }, [accounts, isBillingAccount, showEnhancedBillingOptions]);
