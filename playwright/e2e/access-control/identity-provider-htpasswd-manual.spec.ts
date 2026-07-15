@@ -106,6 +106,28 @@ test.describe.serial(
         clusterIdentityProviderPage.getByText(manualProfile.Usernames.InValidUserNameError),
       ).toBeVisible();
 
+      await clusterIdentityProviderPage
+        .htpasswdUsernameInput()
+        .fill(manualProfile.Usernames.InvalidUsernameWithLeadingSpace);
+      await clusterIdentityProviderPage.htpasswdUsernameInput().blur();
+      await expect(
+        clusterIdentityProviderPage.getByText(manualProfile.Usernames.LeadingTrailingSpaceError),
+      ).toBeVisible();
+
+      await clusterIdentityProviderPage
+        .htpasswdUsernameInput()
+        .fill(manualProfile.Usernames.InvalidUsernameWithTrailingSpace);
+      await clusterIdentityProviderPage.htpasswdUsernameInput().blur();
+      await expect(
+        clusterIdentityProviderPage.getByText(manualProfile.Usernames.LeadingTrailingSpaceError),
+      ).toBeVisible();
+
+      await clusterIdentityProviderPage.htpasswdUsernameInput().fill('a'.repeat(256));
+      await clusterIdentityProviderPage.htpasswdUsernameInput().blur();
+      await expect(
+        clusterIdentityProviderPage.getByText(manualProfile.Usernames.UsernameTooLongError),
+      ).toBeVisible();
+
       await clusterIdentityProviderPage.htpasswdUsernameInput().fill(singleUserUsername);
       await clusterIdentityProviderPage.htpasswdUsernameInput().blur();
       await expect(
