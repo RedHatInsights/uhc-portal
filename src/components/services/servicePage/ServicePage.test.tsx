@@ -21,10 +21,9 @@ describe('Service page unit tests', () => {
     it('has a link for "begin setup"', () => {
       render(<ServicePage serviceName="ROSA" />);
 
-      expect(screen.getByText('Begin setup', { selector: 'span' }).parentElement).toHaveAttribute(
-        'href',
-        '/openshift/create/rosa/getstarted',
-      );
+      expect(
+        screen.getByText('Begin setup', { selector: 'span' }).parentElement?.parentElement,
+      ).toHaveAttribute('href', '/openshift/create/rosa/getstarted');
     });
 
     it('has a working link for "self-service deployment"', async () => {
@@ -145,7 +144,7 @@ describe('Service page unit tests', () => {
       render(<ServicePage serviceName="OSD" />);
 
       expect(
-        screen.getByText('Create cluster', { selector: 'span' }).parentElement,
+        screen.getByText('Create cluster', { selector: 'span' }).parentElement?.parentElement,
       ).toHaveAttribute('href', '/openshift/create/osd');
     });
 
