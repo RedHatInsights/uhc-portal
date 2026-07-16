@@ -66,6 +66,14 @@ describe('FuzzySelect', () => {
       expect(options[3]).toHaveTextContent('I am different');
     });
 
+    it('does not insert option dividers when entries omit dividerGroup', async () => {
+      render(<FuzzySelect {...defaultProps} />);
+
+      expect(await screen.findAllByRole('option')).toHaveLength(4);
+      // Only the search/menu divider is present (flatMap must not change default rendering)
+      expect(screen.getAllByRole('separator')).toHaveLength(1);
+    });
+
     it('renders a divider between options with different dividerGroup values', async () => {
       const selectionDataWithDividerGroups = [
         { entryId: 'contracted-1', label: '111111111111', dividerGroup: 'contracted' },
