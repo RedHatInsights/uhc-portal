@@ -74,22 +74,17 @@ const InternalLink = (props: InternalTrackingLinkProps) => {
     }
   };
 
-  const testHookProps = {
-    'data-testid': dataTestId,
-  };
-
   // Props that are safe to pass to DOM elements (Link)
   const linkProps = {
     to,
     className,
-    ...(!isButton && testHookProps),
+    'data-testid': dataTestId,
   };
 
   // Props for Button component (PatternFly-specific props are allowed)
   const buttonProps = {
     variant,
     isAriaDisabled,
-    ...(isButton && testHookProps),
   };
 
   return (
