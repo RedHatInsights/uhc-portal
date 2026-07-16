@@ -161,9 +161,8 @@ export const InfrastructureAccount: Story = {
     isBillingContractNotificationEnabled: false,
     label: 'Associated AWS infrastructure account',
     extendedHelpText: 'Associate an AWS account to your Red Hat account.',
-    accounts: MIXED_CONTRACT_ACCOUNTS.map(({ cloud_account_id, cloud_provider_id }) => ({
-      cloud_account_id,
-      cloud_provider_id,
+    accounts: MIXED_CONTRACT_ACCOUNTS.map((account) => ({
+      ...account,
       contracts: [],
     })),
   },
