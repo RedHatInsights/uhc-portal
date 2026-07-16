@@ -22,9 +22,9 @@ Here is the process to move a PR from draft to merged:
 
 1. :pencil2: Author responds to the initial AI-generated review (CodeRabbit), addressing any issues or explaining why certain comments do not need to be acted upon. The AI-powered reviewer is responsible for resolving the threads it opened.
 
-1. :pencil2: Author assigns 2 developers as reviewers. If the QE reviewer is known, they are also added as a reviewer
+1. :pencil2: Author assigns 3 reviewers. One of the reviewers should be the person assigned as the QA Contact in the Jira ticket — they are responsible for pre-merge testing. If the QA Contact field is empty, the author assigns one of the reviewers to that role and updates the Jira ticket accordingly
 
-1. :eyes: Dev reviewers review code, add comments, ask questions etc
+1. :eyes:  Reviewers review code, add comments, ask questions etc
 
    - ensure code makes sense and easy to follow.  use the [coding guidelines](/docs/code-guide.md) as reference.
    - ensure unit tests are added or modified. There are times where unit tests are not needed (refactor) and the author should have this noted in the "additional information" section. Not having enough time is not a valid reason.
@@ -32,27 +32,34 @@ Here is the process to move a PR from draft to merged:
    - ensure existing threads have been addressed or resolved
    - runs the code and verifies changes in a browser
 
-1. :eyes: Dev reviewers approve the PR once they feel it is production-ready
+1. :eyes: Reviewers approve the PR once they feel it is production-ready
 
-1. :pencil2: If there are any code changes after 2 dev approvals, then both approvals are removed by clicking on the "re-request review" button next to each reviewer
+1. :pencil2: If there are any code changes after 2 approvals, then both approvals are removed by clicking on the "re-request review" button next to each reviewer
 
-1. :pencil2: If QE reviewer is not assigned. the author adds the person assigned as the QA Contact in the Jira ticket as a reviewer on the PR. If this field is empty, add Jaya as a reviewer.
+1. :pencil2: Once there are 2 approvals, author sets corresponding Jira item(s) to "Review" status
 
-1. :pencil2: Once there are 2 dev approvals, author sets corresponding Jira item(s) to "Review" status
+1. :notebook: Pre-merge testing — reviewer performs pre-merge testing locally (download from the respective PR and run the local server)
 
-1. :notebook: QE reviewer reviews code and writes new tests if needed
+1. :notebook: Pre-merge testing — reviewer reports bugs or issues and reflects pre-merge testing feedback in the PR
 
-1. :notebook: QE reviewer requests test-case review from the author (if needed)
+1. :notebook: Pre-merge testing — reviewer ensures that any changes introduced in the PR do not break existing E2E smoke tests
+
+1. :notebook: Pre-merge testing — reviewer identifies missing Playwright E2E test specs for the PR changes and requests the author to add them (if applicable)
+
+   - :warning: The parent PR will be blocked if the Playwright E2E spec PR is handled separately
+   - :handshake: Both the author and reviewer must align on the changes and coordinate the merge process, ensuring that both PRs are merged sequentially to maintain test integrity
+
+1. :notebook: Pre-merge testing — reviewer updates/creates Polarion test cases (if needed)
+
+1. :notebook: Pre-merge testing — reviewer requests Polarion test-case review from the author (if needed)
 
 1. :pencil2: Author reviews test-cases and adds 'tc-approved' on the Jira item(s)
 
-1. :notebook: QE reviewer completes all tasks in the PR template (see QE Reviewer section of the PR)
-
-1. :notebook: QE reviewer approves the PR once they feel the PR is production-ready
+1. :notebook: Pre-merge testing — reviewer approves the PR once they feel it is production-ready
 
 1. :pencil2: Author pulls in changes from 'main' if needed and waits for all checks/tests to pass
 
-1. :pencil2: Author merges the PR using the "squash commits" button once there are 3 approvals (2 developer and 1 QE)
+1. :pencil2: Author merges the PR using the "squash commits" button once there are 3 approvals
 
 1. :pencil2: If the PR contains substantial AI contributions, author adds the "Generated-by:" or "Assisted-by:" formula inside the commit message when squashing the PR
 
