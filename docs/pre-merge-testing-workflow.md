@@ -32,7 +32,7 @@ For every file touched by the diff:
 
 1. **Read the changed source file** to understand the before/after intent.
 
-2. **Search for matching Playwright specs** (`playwright/e2e/`) and **unit tests** (`*.test.ts`) that cover the changed component or function. Use two passes:
+2. **Search for matching Playwright specs** (`playwright/e2e/`) and **unit tests** (`*.test.ts`, `*.test.tsx`, `*.test.jsx`, `*.test.js`, including files under `__tests__/`) that cover the changed component or function. Use two passes:
    - **Direct match**: search for specs that import or reference the changed component or function by name.
    - **Route/page match**: identify the page or route the changed component belongs to (e.g. from its file path or parent component), then search `playwright/e2e/` broadly for any spec that navigates to the same page or route — even if it does not directly import the changed file. These indirect specs are high-risk for UI behaviour regressions.
    
@@ -70,7 +70,7 @@ Print the report inline using the template below. Group bugs under severity head
 
 ## Bug Report Template
 
-```markdown
+````markdown
 ## Pre-Merge Testing Report — <branch-name>
 
 Diff base: `<base-branch>`  |  Commits reviewed: <N>  |  Files changed: <N>
@@ -136,7 +136,7 @@ Diff base: `<base-branch>`  |  Commits reviewed: <N>  |  Files changed: <N>
 
 ### ✅ No issues or regression risks found in
 - `path/to/clean-file.ts`
-```
+````
 
 ---
 
