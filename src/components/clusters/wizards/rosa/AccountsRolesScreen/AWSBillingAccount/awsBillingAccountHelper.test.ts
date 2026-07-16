@@ -1,4 +1,8 @@
-import { getContract, getDimensionValue } from './awsBillingAccountHelper';
+import {
+  getContract,
+  getDimensionValue,
+  shouldShowBillingContractNotification,
+} from './awsBillingAccountHelper';
 
 const getTestDimensions = (testDimension: string) => [
   {
@@ -43,6 +47,57 @@ describe('getContract', () => {
       contracts: [],
     };
     expect(getContract(dataWithNoContracts)).toBe(null);
+  });
+});
+
+describe('shouldShowBillingContractNotification', () => {
+  const accountWithContract = getCloudAccountWithDimension('four_vcpu_hour');
+  const accountWithoutContract = {
+    cloud_account_id: '456',
+    cloud_provider_id: 'aws',
+    contracts: [],
+  };
+
+  it('returns false when the selected account has a contract', () => {
+    expect(
+      shouldShowBillingContractNotification(
+        [accountWithContract, accountWithoutContract],
+        accountWithContract.cloud_account_id,
+      ),
+    ).toBe(false);
+  });
+
+  it('returns false when no accounts have contracts', () => {
+    expect(
+      shouldShowBillingContractNotification(
+        [accountWithoutContract, { ...accountWithoutContract, cloud_account_id: '789' }],
+        accountWithoutContract.cloud_account_id,
+      ),
+    ).toBe(false);
+  });
+
+  it('returns true when the selected account has no contract and another account does', () => {
+    expect(
+      shouldShowBillingContractNotification(
+        [accountWithContract, accountWithoutContract],
+        accountWithoutContract.cloud_account_id,
+      ),
+    ).toBe(true);
+  });
+
+  it('returns false when there is only one account', () => {
+    expect(
+      shouldShowBillingContractNotification(
+        [accountWithoutContract],
+        accountWithoutContract.cloud_account_id,
+      ),
+    ).toBe(false);
+  });
+
+  it('returns false when the account list is empty', () => {
+    expect(shouldShowBillingContractNotification([], accountWithoutContract.cloud_account_id)).toBe(
+      false,
+    );
   });
 });
 
