@@ -61,7 +61,7 @@ export const formatErrorData = (
       errorMessage,
       reason: trimmedReason || errorMessage,
       internalErrorCode: code,
-      operationID /* OPERATION ID AND ERRORNMESSAGE ? */,
+      operationID,
     };
     return {
       isLoading,
