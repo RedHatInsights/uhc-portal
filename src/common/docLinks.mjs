@@ -105,7 +105,7 @@ const docLinks = {
   OSD_CIDR_SERVICE: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions#service-cidr-description`,
   OSD_CIDR_POD: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions#pod-cidr-description`,
   OSD_CIDR_HOST: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions#host-prefix-description`,
-  OSD_CLUSTER_AUTOSCALING: `${OSD_DOCS_BASE}/cluster_administration/osd-cluster-autoscaling`,
+  OSD_CLUSTER_AUTOSCALING: `${OSD_DOCS_BASE}/cluster_administration/osd-cluster-autoscaling_private-cluster`,
   OSD_SECURITY_GROUPS: `${OSD_DOCS_BASE}/planning_your_environment/aws-ccs#osd-security-groups-custom_aws-ccs`,
   CIDR_RANGE_DEFINITIONS_OSD: `${OSD_DOCS_BASE}/networking_overview/cidr-range-definitions`,
   CONFIGURE_PROXY_URL: `${OSD_DOCS_BASE}/networking_overview/index`,
