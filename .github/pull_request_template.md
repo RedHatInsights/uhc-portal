@@ -8,7 +8,7 @@
 # Jira
 
 <!-- link to the corresponding Jira item -->
-<!-- for example: Fixes [OCMUI-XXXX](https://issues.redhat.com/browse/OCMUI-XXXX) -->
+<!-- for example: Fixes [OCMUI-XXXX](https://redhat.atlassian.net/browse/OCMUI-XXXX) -->
 
 # Additional information
 
@@ -34,10 +34,3 @@ specially used CLI options, the user-flow, and so on -->
 
 Please review and follow the [PR process](https://github.com/RedHatInsights/uhc-portal/blob/main/docs/pull-request-process.md).
 
-## QE Reviewer
-
-- [ ] _Pre-merge testing : Verified change locally in a browser (downloaded and ran code using reviewx tool)_
-- [ ] Updated/created Polarion test cases which were peer QE reviewed
-- [ ] Confirmed 'tc-approved' label was added by dev to the linked JIRA ticket
-- [ ] (optional) Updated/created Cypress e2e tests
-- [ ] Closed threads I started after the author made changes or added an explanation
