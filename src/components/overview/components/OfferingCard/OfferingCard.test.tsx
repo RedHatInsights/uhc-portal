@@ -18,14 +18,19 @@ describe('<OfferingCard />', () => {
       canCreateManagedCluster: false,
     });
     render(<OfferingCard offeringType="AWS" canCreateManagedCluster={false} />);
-    expect(screen.getByTestId('create-cluster')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByText('Create cluster', { selector: 'span' }).parentElement).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
   it('Enables create cluster button if user has permissions', async () => {
     (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
       canCreateManagedCluster: true,
     });
     render(<OfferingCard offeringType="AWS" canCreateManagedCluster />);
-    expect(screen.getByTestId('create-cluster')).not.toHaveAttribute('aria-disabled');
+    expect(
+      screen.getByText('Create cluster', { selector: 'span' }).parentElement,
+    ).not.toHaveAttribute('aria-disabled');
   });
   it('Shows Developer Preview support level badge for MIGRATION offering', () => {
     render(<OfferingCard offeringType="MIGRATION" canCreateManagedCluster />);

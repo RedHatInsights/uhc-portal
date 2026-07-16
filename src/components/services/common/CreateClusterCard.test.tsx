@@ -26,13 +26,18 @@ describe('<CreateClusterCard />', () => {
       canCreateManagedCluster: false,
     });
     render(<CreateClusterCard {...props} />);
-    expect(screen.getByTestId('register-cluster')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByText('fake-title', { selector: 'span' }).parentElement).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
   it('Enables the button if user has no permissions to create a managed cluster', async () => {
     (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
       canCreateManagedCluster: true,
     });
     render(<CreateClusterCard {...props} />);
-    expect(screen.getByTestId('register-cluster')).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByText('fake-title', { selector: 'span' }).parentElement).not.toHaveAttribute(
+      'aria-disabled',
+    );
   });
 });
