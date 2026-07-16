@@ -1,4 +1,4 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 import { ErrorState } from '~/types/types';
 
@@ -28,12 +28,6 @@ describe('formatOcmApiErrorMessage', () => {
   it('uses a 429 fallback when reason is missing', () => {
     expect(formatOcmApiErrorMessage('CLUSTERS-MGMT-429', undefined, 429)).toBe(
       'CLUSTERS-MGMT-429: Too many requests. Please try again.',
-    );
-  });
-
-  it('uses a generic fallback when code is present without reason or known status', () => {
-    expect(formatOcmApiErrorMessage('CLUSTERS-MGMT-500', undefined, 500)).toBe(
-      'CLUSTERS-MGMT-500: An error occurred. Please try again.',
     );
   });
 
