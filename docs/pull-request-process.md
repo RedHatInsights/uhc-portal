@@ -34,8 +34,6 @@ Here is the process to move a PR from draft to merged:
 
 1. :eyes: Reviewers approve the PR once they feel it is production-ready
 
-1. :pencil2: If there are any code changes after 2 approvals, then both approvals are removed by clicking on the "re-request review" button next to each reviewer
-
 1. :pencil2: Once there are 2 approvals, author sets corresponding Jira item(s) to "Review" status
 
 1. :notebook: Pre-merge testing — reviewer performs pre-merge testing locally (download from the respective PR and run the local server)
