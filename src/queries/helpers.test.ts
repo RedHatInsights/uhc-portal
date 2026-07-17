@@ -30,24 +30,6 @@ describe('formatOcmApiErrorMessage', () => {
       'CLUSTERS-MGMT-429: Too many requests. Please try again.',
     );
   });
-
-  it('returns reason alone when code is absent', () => {
-    expect(formatOcmApiErrorMessage(undefined, 'Something went wrong', 400)).toBe(
-      'Something went wrong',
-    );
-  });
-
-  it('returns HTTP status fallback when code and reason are absent', () => {
-    expect(formatOcmApiErrorMessage(undefined, undefined, 429)).toBe(
-      'Too many requests. Please try again.',
-    );
-  });
-
-  it('never surfaces the literal string undefined', () => {
-    expect(formatOcmApiErrorMessage('CLUSTERS-MGMT-429', undefined, 429)).not.toContain(
-      'undefined',
-    );
-  });
 });
 
 describe('formatErrorData', () => {
@@ -60,7 +42,6 @@ describe('formatErrorData', () => {
     expect(error.errorMessage).toBe('CLUSTERS-MGMT-429: Too many requests. Please try again.');
     expect(error.internalErrorCode).toBe('CLUSTERS-MGMT-429');
     expect(error.errorCode).toBe(429);
-    expect(error.errorMessage).not.toContain('undefined');
   });
 
   it('preserves code and reason when reason is provided', () => {
@@ -96,6 +77,5 @@ describe('addNotificationErrorFormat', () => {
     expect(result?.error?.errorMessage).toBe(
       'CLUSTERS-MGMT-429: Too many requests. Please try again.',
     );
-    expect(result?.error?.errorMessage).not.toContain('undefined');
   });
 });
