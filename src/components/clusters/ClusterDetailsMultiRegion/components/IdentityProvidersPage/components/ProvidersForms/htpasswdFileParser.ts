@@ -1,3 +1,5 @@
+import { validateHTPasswdUsername } from './providersHelper';
+
 export type ParsedHTPasswdUser = {
   username: string;
   password: string;
@@ -19,22 +21,23 @@ export const parseHTPasswdFile = (content: string): HTPasswdParseResult => {
   const seenUsernames = new Set<string>();
 
   lines.forEach((rawLine, index) => {
-    const line = rawLine.trim();
-    if (line === '' || line.startsWith('#')) {
+    const trimmedLine = rawLine.trim();
+    if (trimmedLine === '' || trimmedLine.startsWith('#')) {
       return;
     }
 
-    const colonIndex = line.indexOf(':');
+    const colonIndex = rawLine.indexOf(':');
     if (colonIndex === -1) {
       errors.push(`Line ${index + 1}: Invalid format. Expected "username:password".`);
       return;
     }
 
-    const username = line.substring(0, colonIndex).trim();
-    const password = line.substring(colonIndex + 1).trim();
+    const username = rawLine.substring(0, colonIndex);
+    const password = rawLine.substring(colonIndex + 1).trim();
 
-    if (!username) {
-      errors.push(`Line ${index + 1}: Username cannot be empty.`);
+    const usernameError = validateHTPasswdUsername(username);
+    if (usernameError) {
+      errors.push(`Line ${index + 1}: ${usernameError}`);
       return;
     }
 
