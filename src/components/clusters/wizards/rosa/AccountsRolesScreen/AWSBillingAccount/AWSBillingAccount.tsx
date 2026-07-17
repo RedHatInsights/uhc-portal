@@ -135,6 +135,14 @@ const AWSBillingAccount = ({
     onContractCheckChange?.(hasWarning);
   }, [hasWarning, onContractCheckChange]);
 
+  const hasWarning =
+    isBillingContractNotificationEnabled &&
+    shouldShowBillingContractNotification(cloudAccounts, selectedAWSBillingAccountID);
+
+  useEffect(() => {
+    onContractCheckChange?.(hasWarning);
+  }, [hasWarning, onContractCheckChange]);
+
   return (
     <>
       <GridItem span={8}>
