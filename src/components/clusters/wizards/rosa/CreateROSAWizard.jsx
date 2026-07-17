@@ -118,6 +118,7 @@ const CreateROSAWizardInternal = ({
 
   const [currentStepId, setCurrentStepId] = React.useState(firstStepId);
   const [currentStep, setCurrentStep] = React.useState();
+  const [hasContractWarning, setHasContractWarning] = React.useState(false);
 
   const wizardContextRef = React.useRef();
 
@@ -272,6 +273,7 @@ const CreateROSAWizardInternal = ({
                   getUserRoleInfo={() => getUserRole()}
                   isSubmitting={createClusterResponse.pending}
                   onWizardContextChange={onWizardContextChange}
+                  hasContractWarning={hasContractWarning}
                   onValidNextStep={(fromStepId) => {
                     const logForwardingConfigured =
                       values[FieldId.LogForwardingS3Enabled] ||
@@ -305,6 +307,7 @@ const CreateROSAWizardInternal = ({
                   organizationID={organization?.details?.id}
                   isHypershiftEnabled={isHypershiftEnabled}
                   isHypershiftSelected={isHypershiftSelected}
+                  onContractCheckChange={setHasContractWarning}
                 />
               </ErrorBoundary>
             </WizardStep>

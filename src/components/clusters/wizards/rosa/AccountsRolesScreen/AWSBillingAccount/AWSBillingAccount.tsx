@@ -38,11 +38,13 @@ import ContractInfo from './ContractInfo';
 interface AWSBillingAccountProps {
   selectedAWSBillingAccountID: string;
   selectedAWSAccountID: string;
+  onContractCheckChange?: (hasWarning: boolean) => void;
 }
 
 const AWSBillingAccount = ({
   selectedAWSBillingAccountID,
   selectedAWSAccountID,
+  onContractCheckChange,
 }: AWSBillingAccountProps) => {
   const { setFieldValue, getFieldProps, getFieldMeta, setFieldTouched } = useFormState();
   const dispatch = useDispatch();
@@ -124,6 +126,14 @@ const AWSBillingAccount = ({
   const showContractWarning =
     isBillingContractNotificationEnabled &&
     shouldShowBillingContractNotification(cloudAccounts, selectedAWSBillingAccountID);
+
+  const hasWarning =
+    isBillingContractNotificationEnabled &&
+    shouldShowBillingContractNotification(cloudAccounts, selectedAWSBillingAccountID);
+
+  useEffect(() => {
+    onContractCheckChange?.(hasWarning);
+  }, [hasWarning, onContractCheckChange]);
 
   return (
     <>

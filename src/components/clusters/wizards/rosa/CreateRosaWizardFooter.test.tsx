@@ -1,10 +1,14 @@
 import React from 'react';
 
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
-import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
+import {
+  BILLING_CONTRACT_NOTIFICATION,
+  OCM_ROLE_NO_CONSOLE,
+} from '~/queries/featureGates/featureConstants';
 import * as useFetchGetOCMRoleModule from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { mockUseFeatureGate, mockUseFormState, render, screen } from '~/testUtils';
 
+import { FieldId } from './constants';
 import CreateRosaWizardFooter from './CreateRosaWizardFooter';
 import { stepId } from './rosaWizardConstants';
 
@@ -70,6 +74,124 @@ describe('<CreateRosaWizardFooter />', () => {
     });
     render(<CreateRosaWizardFooter {...props} />);
     expect(screen.getByTestId(wizardPrimaryBtnTestId)).not.toHaveAttribute('aria-disabled');
+  });
+
+  describe('contract nudge confirmation dialog', () => {
+    const mockGoToNextStep = jest.fn();
+
+    const accountsStepProps = {
+      ...props,
+      accountAndRolesStepId: String(stepId.ACCOUNTS_AND_ROLES_AS_FIRST_STEP),
+      currentStepId: String(stepId.ACCOUNTS_AND_ROLES_AS_FIRST_STEP),
+      getUserRoleResponse: { fulfilled: true },
+      onValidNextStep: jest.fn(),
+    };
+
+    beforeEach(() => {
+      (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
+        canCreateManagedCluster: true,
+      });
+      jest.spyOn(useFetchGetOCMRoleModule, 'useFetchGetOCMRole').mockReturnValue({
+        data: { profile: 'standard' },
+        isSuccess: true,
+        isPending: false,
+        isError: false,
+        error: null,
+        status: 'success',
+      });
+      jest.mocked(jest.requireMock('@patternfly/react-core').useWizardContext).mockReturnValue({
+        goToNextStep: mockGoToNextStep,
+        goToPrevStep: jest.fn(),
+        close: jest.fn(),
+        activeStep: { id: stepId.ACCOUNTS_AND_ROLES_AS_FIRST_STEP },
+        steps: [],
+        setStep: jest.fn(),
+        goToStepById: jest.fn(),
+      });
+      mockUseFormState({
+        values: { [FieldId.BillingAccountId]: '123456789012' },
+        validateForm: jest.fn().mockResolvedValue({}),
+        isValidating: false,
+      });
+    });
+
+    it('shows dialog when clicking Next with trigger condition met', async () => {
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const { user } = render(<CreateRosaWizardFooter {...accountsStepProps} hasContractWarning />);
+
+      await user.click(screen.getByTestId(wizardPrimaryBtnTestId));
+
+      expect(
+        await screen.findByText('Continue without a contracted billing account?'),
+      ).toBeInTheDocument();
+      expect(mockGoToNextStep).not.toHaveBeenCalled();
+    });
+
+    it('advances to next step when "Continue with selection" is clicked', async () => {
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const { user } = render(<CreateRosaWizardFooter {...accountsStepProps} hasContractWarning />);
+
+      await user.click(screen.getByTestId(wizardPrimaryBtnTestId));
+      await screen.findByText('Continue with selection');
+
+      await user.click(screen.getByText('Continue with selection'));
+      expect(mockGoToNextStep).toHaveBeenCalled();
+    });
+
+    it('closes dialog without advancing when "Go back" is clicked', async () => {
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const { user } = render(<CreateRosaWizardFooter {...accountsStepProps} hasContractWarning />);
+
+      await user.click(screen.getByTestId(wizardPrimaryBtnTestId));
+      await screen.findByText('Go back');
+
+      await user.click(screen.getByText('Go back'));
+      expect(mockGoToNextStep).not.toHaveBeenCalled();
+      expect(
+        screen.queryByText('Continue without a contracted billing account?'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not show dialog when feature gate is disabled', async () => {
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, false]]);
+
+      const { user } = render(<CreateRosaWizardFooter {...accountsStepProps} hasContractWarning />);
+
+      await user.click(screen.getByTestId(wizardPrimaryBtnTestId));
+
+      expect(
+        screen.queryByText('Continue without a contracted billing account?'),
+      ).not.toBeInTheDocument();
+      expect(mockGoToNextStep).toHaveBeenCalled();
+    });
+
+    it('does not show dialog when hasContractWarning is false', async () => {
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const { user } = render(
+        <CreateRosaWizardFooter {...accountsStepProps} hasContractWarning={false} />,
+      );
+
+      await user.click(screen.getByTestId(wizardPrimaryBtnTestId));
+
+      expect(
+        screen.queryByText('Continue without a contracted billing account?'),
+      ).not.toBeInTheDocument();
+      expect(mockGoToNextStep).toHaveBeenCalled();
+    });
+
+    it('includes the selected billing account ID in the dialog', async () => {
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const { user } = render(<CreateRosaWizardFooter {...accountsStepProps} hasContractWarning />);
+
+      await user.click(screen.getByTestId(wizardPrimaryBtnTestId));
+
+      expect(await screen.findByText('123456789012')).toBeInTheDocument();
+    });
   });
 
   describe('no_console role on Review and create step', () => {
