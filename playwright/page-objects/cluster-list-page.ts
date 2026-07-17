@@ -201,9 +201,12 @@ export class ClusterListPage extends BasePage {
   ): Promise<void> {
     let clusterLink;
     switch (matchType) {
-      case 'startsWith':
-        clusterLink = this.page.getByRole('link', { name: new RegExp(`^${clusterName}`) });
+      case 'startsWith': {
+        // Escape so clusterName is matched literally (e.g. '.' is not "any character")
+        const escapedName = clusterName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        clusterLink = this.page.getByRole('link', { name: new RegExp(`^${escapedName}`) });
         break;
+      }
       case 'partial':
         clusterLink = this.page.getByRole('link', { name: clusterName, exact: false });
         break;

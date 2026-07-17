@@ -221,7 +221,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   deleteClusterDialog(): Locator {
-    return this.page.locator('[data-testid="delete-cluster-dialog"]');
+    return this.page.getByTestId('delete-cluster-dialog');
   }
 
   async openDeleteClusterDialog(clusterName: string): Promise<void> {
@@ -244,46 +244,31 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   /**
-   * Deletes the cluster via Actions → Delete cluster, with optional cooldown and 429 retry.
-   * Use cooldown after suites that issue many clusters-mgmt mutations (e.g. day-2 channel tests).
+   * Deletes the cluster via Actions → Delete cluster.
+   * Retries automatically on transient failures (e.g. 429 rate limiting)
+   * using Playwright's toPass() with escalating intervals.
    */
-  async deleteClusterByName(
-    clusterName: string,
-    options: { cooldownMs?: number; maxAttempts?: number } = {},
-  ): Promise<void> {
-    const { cooldownMs = 0, maxAttempts = 3 } = options;
-
-    if (cooldownMs > 0) {
-      await this.page.waitForTimeout(cooldownMs);
-    }
-
+  async deleteClusterByName(clusterName: string): Promise<void> {
     await this.openDeleteClusterDialog(clusterName);
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    await expect(async () => {
       const responsePromise = this.page.waitForResponse(
         (response) =>
           response.request().method() === 'DELETE' &&
           /\/api\/clusters_mgmt\/v1\/clusters\/[^/?#]+/.test(response.url()),
-        { timeout: 120000 },
       );
       await this.deleteClusterConfirm().click();
 
       const response = await responsePromise;
-      if (response.status() === 429 && attempt < maxAttempts) {
-        await this.page.waitForTimeout(5000 * attempt);
-        continue;
-      }
-
       if (!response.ok()) {
-        const responseBody = await response.text().catch(() => '');
+        const body = await response.text().catch(() => '');
         throw new Error(
-          `Delete cluster failed: ${response.status()} ${response.statusText()} (${response.url()})${responseBody ? ` — ${responseBody}` : ''}`,
+          `Delete cluster failed: ${response.status()} ${response.statusText()} (${response.url()})${body ? ` — ${body}` : ''}`,
         );
       }
+    }).toPass({ timeout: 30_000, intervals: [5_000, 10_000, 15_000] });
 
-      await this.waitForDeleteClusterActionComplete();
-      return;
-    }
+    await this.waitForDeleteClusterActionComplete();
   }
 
   async checkInstallationStepStatus(step: string, status: string = ''): Promise<void> {
@@ -330,8 +315,17 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('infrastructureAWSAccount');
   }
 
+  /** Pencil/edit control that opens the billing account modal. */
   clusterBillingMarketplaceAccountLabelValue(): Locator {
     return this.page.getByTestId('billingMarketplaceAccountLink');
+  }
+
+  /** Visible AWS billing account ID on Overview (inside the description list value). */
+  billingMarketplaceAccountIdText(): Locator {
+    return this.page
+      .getByRole('definition')
+      .filter({ has: this.page.getByTestId('billingMarketplaceAccountLink') })
+      .getByText(/\d{12}/);
   }
 
   clusterMachineCIDRLabelValue(): Locator {
@@ -635,17 +629,20 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   billingAccountOption(accountId: string): Locator {
-    return this.page.getByRole('listbox').getByRole('option', { name: accountId });
+    // FuzzySelect splits matched IDs across nested spans, so accessible name matching is
+    // unreliable — use role + text filter (same pattern as other selects in this POM).
+    return this.page.getByRole('listbox').getByRole('option').filter({ hasText: accountId });
   }
 
   async openEditBillingAccountModal(): Promise<void> {
     await this.clusterBillingMarketplaceAccountLabelValue().click({ force: true });
     await expect(this.editBillingAccountModal()).toBeVisible({ timeout: 30000 });
+    await expect(this.billingAccountDropdownToggle()).toBeEnabled({ timeout: 60000 });
   }
 
   async openBillingAccountDropdown(): Promise<void> {
-    await expect(this.billingAccountDropdownToggle()).toBeEnabled({ timeout: 30000 });
-    await this.billingAccountDropdownToggle().click({ force: true });
+    await this.billingAccountDropdownToggle().click();
+    await expect(this.billingAccountFilterInput()).toBeVisible({ timeout: 50000 });
   }
 
   async closeBillingAccountDropdown(): Promise<void> {
@@ -658,12 +655,46 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   async selectBillingAccount(accountId: string): Promise<void> {
-    await this.billingAccountOption(accountId).click({ force: true });
+    const option = this.billingAccountOption(accountId);
+    await expect(option).toBeVisible({ timeout: 30000 });
+    await option.click();
   }
 
   async updateBillingAccount(): Promise<void> {
-    await this.updateBillingAccountButton().click({ force: true });
+    await expect(this.updateBillingAccountButton()).toBeEnabled({ timeout: 15000 });
+    await this.updateBillingAccountButton().click();
     await expect(this.editBillingAccountModal()).toBeHidden({ timeout: 30000 });
+  }
+
+  async cancelEditBillingAccountModal(): Promise<void> {
+    await this.editBillingAccountModal().getByRole('button', { name: 'Cancel' }).click();
+    await expect(this.editBillingAccountModal()).toBeHidden({ timeout: 30000 });
+  }
+
+  /** Updates the cluster billing account when the overview value differs from accountId. */
+  async ensureBillingAccount(accountId: string): Promise<void> {
+    await expect(this.billingMarketplaceAccountIdText()).toBeVisible({ timeout: 30000 });
+    const currentBillingAccount = await this.billingMarketplaceAccountIdText().innerText();
+    if (currentBillingAccount.includes(accountId)) {
+      return;
+    }
+
+    await this.openEditBillingAccountModal();
+    const selectedInModal = await this.billingAccountDropdownToggle().innerText();
+    if (selectedInModal.includes(accountId)) {
+      // Overview can lag behind the modal/cluster value after a prior update.
+      await this.cancelEditBillingAccountModal();
+      return;
+    }
+
+    await this.openBillingAccountDropdown();
+    await this.filterBillingAccount(accountId);
+    await this.selectBillingAccount(accountId);
+    await this.updateBillingAccount();
+    await expect(async () => {
+      await this.clusterDetailsPageRefresh();
+      await expect(this.billingMarketplaceAccountIdText()).toContainText(accountId);
+    }).toPass({ timeout: 120_000, intervals: [10_000, 20_000, 30_000] });
   }
 
   // ── Cluster History tab ────────────────────────────────────────────────
