@@ -24,6 +24,7 @@ test.describe.serial(
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
     const clusterNamePrefix = clusterProperties.ClusterName;
     const clusterName = `${clusterNamePrefix}-${Math.random().toString(36).slice(2, 7)}`;
+    const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2, 13)}`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
     test.beforeAll(async ({ navigateTo }) => {
       await navigateTo(CREATE_CLUSTER_ROUTE);
@@ -67,7 +68,7 @@ test.describe.serial(
       await createRosaWizardPage.selectRegion(region);
       await createRosaWizardPage.setClusterName(clusterName);
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().check();
-      await createRosaWizardPage.setDomainPrefix(clusterProperties.DomainPrefix);
+      await createRosaWizardPage.setDomainPrefix(clusterDomainPrefix);
       await createRosaWizardPage.selectVersion(
         clusterProperties.Version || process.env.VERSION || '',
       );
@@ -198,7 +199,7 @@ test.describe.serial(
       await createRosaWizardPage.isClusterPropertyMatchesValue('Cluster name', clusterName);
       await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Domain prefix',
-        clusterProperties.DomainPrefix,
+        clusterDomainPrefix,
       );
       await createRosaWizardPage.isClusterPropertyMatchesValue('Region', region);
       await createRosaWizardPage.isClusterPropertyMatchesValue(

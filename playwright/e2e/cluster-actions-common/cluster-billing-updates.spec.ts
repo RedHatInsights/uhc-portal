@@ -1,4 +1,5 @@
 import { expect, test } from '../../fixtures/pages';
+import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const rosaHostedFixture = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const clusterName =
@@ -17,13 +18,15 @@ test.describe.serial(
           'Missing required env vars: QE_AWS_BILLING_ID, QE_AWS_SECONDARY_BILLING_ID',
         );
       }
-      await navigateTo('cluster-list');
+      await navigateTo(CLUSTER_LIST_ROUTE);
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
       await clusterListPage.filterTxtField().fill(clusterName);
       await clusterListPage.waitForDataReady();
       await clusterListPage.openClusterDefinition(clusterName);
       await clusterDetailsPage.waitForClusterDetailsLoad();
+      // Ensure a known starting account so re-runs are idempotent after a failed afterAll.
+      await clusterDetailsPage.ensureBillingAccount(awsBillingAccountId);
     });
 
     test('can validate billing account filter within the dropdown', async ({
@@ -75,11 +78,8 @@ test.describe.serial(
 
     test.afterAll(async ({ clusterDetailsPage }) => {
       await clusterDetailsPage.navigateToOverviewTab();
-      await clusterDetailsPage.openEditBillingAccountModal();
-      await clusterDetailsPage.openBillingAccountDropdown();
-      await clusterDetailsPage.filterBillingAccount(awsBillingAccountId);
-      await clusterDetailsPage.selectBillingAccount(awsBillingAccountId);
-      await clusterDetailsPage.updateBillingAccount();
+      await clusterDetailsPage.clusterDetailsPageRefresh();
+      await clusterDetailsPage.ensureBillingAccount(awsBillingAccountId);
     });
   },
 );

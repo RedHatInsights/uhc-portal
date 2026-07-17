@@ -24,12 +24,7 @@ test.describe.serial(
     });
 
     test(`Delete the cluster matching ${clusterNamePrefix}`, async ({ clusterDetailsPage }) => {
-      await clusterDetailsPage.actionsDropdownToggle().click();
-      await clusterDetailsPage.deleteClusterDropdownItem().click();
-      await clusterDetailsPage.deleteClusterNameInput().clear();
-      await clusterDetailsPage.deleteClusterNameInput().fill(clusterName);
-      await clusterDetailsPage.deleteClusterConfirm().click();
-      await clusterDetailsPage.waitForDeleteClusterActionComplete();
+      await clusterDetailsPage.deleteClusterByName(clusterName);
     });
   },
 );
