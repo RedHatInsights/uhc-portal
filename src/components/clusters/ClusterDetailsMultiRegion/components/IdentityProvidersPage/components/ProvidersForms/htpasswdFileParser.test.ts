@@ -52,7 +52,7 @@ describe('htpasswdFileParser', () => {
       const result = parseHTPasswdFile(content);
       expect(result.users).toHaveLength(0);
       expect(result.errors).toHaveLength(1);
-      expect(result.errors[0]).toBe('Line 1: Username cannot be empty.');
+      expect(result.errors[0]).toBe('Line 1: Username is required.');
     });
 
     it('reports error for empty password', () => {
@@ -61,6 +61,23 @@ describe('htpasswdFileParser', () => {
       expect(result.users).toHaveLength(0);
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0]).toBe('Line 1: Password cannot be empty.');
+    });
+
+    it('accepts usernames up to 255 characters', () => {
+      const username = 'a'.repeat(255);
+      const content = `${username}:$2y$05$hash123`;
+      const result = parseHTPasswdFile(content);
+      expect(result.users).toEqual([{ username, password: '$2y$05$hash123' }]);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('reports error for usernames longer than 255 characters', () => {
+      const username = 'a'.repeat(256);
+      const content = `${username}:$2y$05$hash123`;
+      const result = parseHTPasswdFile(content);
+      expect(result.users).toHaveLength(0);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toBe('Line 1: Username may not exceed 255 characters.');
     });
 
     it('reports error for duplicate usernames', () => {
@@ -106,11 +123,36 @@ describe('htpasswdFileParser', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it('trims whitespace from lines, usernames, and passwords', () => {
-      const content = '  user1 : $2y$05$hash1  ';
+    it('trims whitespace from passwords only', () => {
+      const content = 'user1:$2y$05$hash1  ';
       const result = parseHTPasswdFile(content);
       expect(result.users[0]).toEqual({ username: 'user1', password: '$2y$05$hash1' });
       expect(result.errors).toHaveLength(0);
+    });
+
+    it('accepts usernames with spaces between characters', () => {
+      const content = 'user name:$2y$05$hash123';
+      const result = parseHTPasswdFile(content);
+      expect(result.users).toEqual([{ username: 'user name', password: '$2y$05$hash123' }]);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('reports error for usernames with leading or trailing spaces', () => {
+      const content = ' user name :$2y$05$hash123';
+      const result = parseHTPasswdFile(content);
+      expect(result.users).toHaveLength(0);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toBe(
+        'Line 1: Username must not contain leading or trailing spaces.',
+      );
+    });
+
+    it('reports error for usernames containing only spaces', () => {
+      const content = '   :$2y$05$hash123';
+      const result = parseHTPasswdFile(content);
+      expect(result.users).toHaveLength(0);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toBe('Line 1: Username is required.');
     });
 
     it('reports error for plain text passwords', () => {
