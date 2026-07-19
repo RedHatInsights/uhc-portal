@@ -1,4 +1,5 @@
 import { expect, test } from '../../fixtures/pages';
+import { ClusterIdentityProviderPage } from '../../page-objects/cluster-identity-provider-page';
 
 const {
   'rosa-hosted-public-advanced': clusterProfile,
@@ -12,9 +13,27 @@ const manualProfile = htpasswdProfile.Htpasswd.Manual;
 // Short suffix makes each run's IDP names unique, preventing collisions on retries or shared clusters.
 const runId = Math.random().toString(36).slice(2, 5);
 const htpasswdIdpNames = [`HtpasswdSingleUser-${runId}`, `HtpasswdMultipleUsers-${runId}`];
+const singleUserUsername = manualProfile.Usernames.ValidUsernameWithSpaces;
 // >10 users required to exercise per-page-10 pagination; +1 extra reserved for the add-user edit modal test
 const BULK_USER_COUNT = 15;
 const bulkUsers = Array.from({ length: BULK_USER_COUNT + 1 }, (_, i) => `ocmplaywright${i + 1}`);
+
+const fillHtpasswdUsersSequentially = async (
+  clusterIdentityProviderPage: ClusterIdentityProviderPage,
+  userCount: number,
+) => {
+  /* eslint-disable no-await-in-loop -- each user must be added before the next Add user click */
+  for (let index = 0; index < userCount; index += 1) {
+    await clusterIdentityProviderPage.htpasswdUsernameInput().fill(bulkUsers[index]);
+    await clusterIdentityProviderPage.fillSuggestedPassword();
+    await clusterIdentityProviderPage.fillSuggestedConfirmPassword();
+
+    if (index < userCount - 1) {
+      await clusterIdentityProviderPage.addUserButton().click();
+    }
+  }
+  /* eslint-enable no-await-in-loop */
+};
 
 test.describe.serial(
   'ROSA Hosted Public Cluster - Htpasswd IDP validation (OCP-42373, OCP-42372, OCP-28661)',
@@ -27,9 +46,8 @@ test.describe.serial(
     });
 
     test.afterAll(async ({ clusterIdentityProviderPage }) => {
-      for (const idpName of [htpasswdIdpNames[0], htpasswdIdpNames[1]]) {
-        await clusterIdentityProviderPage.deleteHtpasswdIDP(idpName).catch(() => {});
-      }
+      await clusterIdentityProviderPage.deleteHtpasswdIDP(htpasswdIdpNames[0]).catch(() => {});
+      await clusterIdentityProviderPage.deleteHtpasswdIDP(htpasswdIdpNames[1]).catch(() => {});
     });
 
     test(`Navigate to the ROSA Hosted Access Control tab for ${clusterName} cluster`, async ({
@@ -85,9 +103,39 @@ test.describe.serial(
         clusterIdentityProviderPage.getByText(manualProfile.Usernames.InValidUserNameError),
       ).toBeVisible();
 
-      for (const info of manualProfile.Password.DefaultPasswordInformation) {
-        await expect(clusterIdentityProviderPage.getByText(info)).toBeVisible();
-      }
+      await clusterIdentityProviderPage
+        .htpasswdUsernameInput()
+        .fill(manualProfile.Usernames.InvalidUsernameWithLeadingSpace);
+      await clusterIdentityProviderPage.htpasswdUsernameInput().blur();
+      await expect(
+        clusterIdentityProviderPage.getByText(manualProfile.Usernames.LeadingTrailingSpaceError),
+      ).toBeVisible();
+
+      await clusterIdentityProviderPage
+        .htpasswdUsernameInput()
+        .fill(manualProfile.Usernames.InvalidUsernameWithTrailingSpace);
+      await clusterIdentityProviderPage.htpasswdUsernameInput().blur();
+      await expect(
+        clusterIdentityProviderPage.getByText(manualProfile.Usernames.LeadingTrailingSpaceError),
+      ).toBeVisible();
+
+      await clusterIdentityProviderPage.htpasswdUsernameInput().fill('a'.repeat(256));
+      await clusterIdentityProviderPage.htpasswdUsernameInput().blur();
+      await expect(
+        clusterIdentityProviderPage.getByText(manualProfile.Usernames.UsernameTooLongError),
+      ).toBeVisible();
+
+      await clusterIdentityProviderPage.htpasswdUsernameInput().fill(singleUserUsername);
+      await clusterIdentityProviderPage.htpasswdUsernameInput().blur();
+      await expect(
+        clusterIdentityProviderPage.getByText(manualProfile.Usernames.InValidUserNameError),
+      ).not.toBeVisible();
+
+      await Promise.all(
+        manualProfile.Password.DefaultPasswordInformation.map((info: string) =>
+          expect(clusterIdentityProviderPage.getByText(info)).toBeVisible(),
+        ),
+      );
       await expect(
         clusterIdentityProviderPage.getByText(manualProfile.Password.ConfirmPassword),
       ).toBeVisible();
@@ -102,7 +150,7 @@ test.describe.serial(
       await clusterIdentityProviderPage.openHtpasswdForm();
 
       await clusterIdentityProviderPage.htpasswdNameInput().fill(htpasswdIdpNames[0]);
-      await clusterIdentityProviderPage.htpasswdUsernameInput().fill(bulkUsers[1]);
+      await clusterIdentityProviderPage.htpasswdUsernameInput().fill(singleUserUsername);
       await clusterIdentityProviderPage.fillSuggestedPassword();
       await clusterIdentityProviderPage.fillSuggestedConfirmPassword();
 
@@ -115,17 +163,7 @@ test.describe.serial(
     }) => {
       await clusterIdentityProviderPage.openHtpasswdForm();
 
-      for (let i = 0; i < BULK_USER_COUNT; i++) {
-        const isLast = i === BULK_USER_COUNT - 1;
-
-        await clusterIdentityProviderPage.htpasswdUsernameInput().fill(bulkUsers[i]);
-        await clusterIdentityProviderPage.fillSuggestedPassword();
-        await clusterIdentityProviderPage.fillSuggestedConfirmPassword();
-
-        if (!isLast) {
-          await clusterIdentityProviderPage.addUserButton().click();
-        }
-      }
+      await fillHtpasswdUsersSequentially(clusterIdentityProviderPage, BULK_USER_COUNT);
 
       await clusterIdentityProviderPage.htpasswdNameInput().fill(htpasswdIdpNames[1]);
       await clusterIdentityProviderPage.idpFormSubmitButton().click();
@@ -135,14 +173,16 @@ test.describe.serial(
     test(`Verify IDP table shows Name, Type and Auth callback URL columns for ${clusterName}`, async ({
       clusterIdentityProviderPage,
     }) => {
-      for (const column of ['Name', 'Type', 'Auth callback URL']) {
-        await expect(
-          clusterIdentityProviderPage
-            .identityProvidersTable()
-            .getByRole('columnheader')
-            .filter({ hasText: column }),
-        ).toBeVisible({ timeout: 20000 });
-      }
+      await Promise.all(
+        ['Name', 'Type', 'Auth callback URL'].map((column) =>
+          expect(
+            clusterIdentityProviderPage
+              .identityProvidersTable()
+              .getByRole('columnheader')
+              .filter({ hasText: column }),
+          ).toBeVisible({ timeout: 20000 }),
+        ),
+      );
     });
 
     test(`Expand  IDP collapsible and verify users are listed`, async ({

@@ -36,6 +36,7 @@ const clusterVersionRawID = '4.12.13';
 const clusterId = 'myClusterId';
 
 const updateAllButtonTestId = 'btn-update-all';
+const updateAllConfirmButtonName = 'Update machine pools';
 const errorAlertTestId = 'alert-danger';
 const warningAlertTestId = 'alert-warning';
 const goToMachinePoolText = 'Go to Machine pools list';
@@ -54,6 +55,10 @@ const expectUpdateButtonAbsence = (container?: HTMLElement) => {
 // The type for the user isn't easily available
 const clickUpdateButton = async (user: any) => {
   await user.click(screen.getByTestId(updateAllButtonTestId));
+};
+
+const confirmUpdateAllMachinePools = async (user: any) => {
+  await user.click(screen.getByRole('button', { name: updateAllConfirmButtonName }));
 };
 
 // ********************* Default store values ***********************
@@ -652,6 +657,116 @@ describe('<UpdateAllMachinePools />', () => {
       jest.resetAllMocks();
     });
 
+    it('opens a confirmation modal before updating machine pools', async () => {
+      const newState = {
+        ...defaultStore,
+      };
+
+      const { user } = withState(newState).render(
+        <UpdateAllMachinePools
+          isMachinePoolError={false}
+          isHypershift
+          controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
+          clusterId={clusterId}
+          machinePoolData={[machinePoolBehind1]}
+        />,
+      );
+
+      await clickUpdateButton(user);
+
+      expect(
+        screen.getByText('Update all machine pools to version 4.12.13?', { exact: false }),
+      ).toBeInTheDocument();
+      expect(apiRequestMock.post).not.toHaveBeenCalled();
+    });
+
+    it('does not update machine pools when confirmation is cancelled', async () => {
+      const newState = {
+        ...defaultStore,
+      };
+
+      const { user } = withState(newState).render(
+        <UpdateAllMachinePools
+          isMachinePoolError={false}
+          isHypershift
+          controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
+          clusterId={clusterId}
+          machinePoolData={[machinePoolBehind1]}
+        />,
+      );
+
+      await clickUpdateButton(user);
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      expect(
+        screen.queryByText('Update all machine pools to version 4.12.13?', { exact: false }),
+      ).not.toBeInTheDocument();
+      expect(apiRequestMock.post).not.toHaveBeenCalled();
+    });
+
+    it('closes the confirmation modal and shows a spinner when update starts', async () => {
+      apiRequestMock.post.mockImplementation(() => new Promise(() => {}));
+
+      const { user } = withState(defaultStore).render(
+        <UpdateAllMachinePools
+          isMachinePoolError={false}
+          isHypershift
+          controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
+          clusterId={clusterId}
+          machinePoolData={[machinePoolBehind1]}
+        />,
+      );
+
+      await clickUpdateButton(user);
+      await confirmUpdateAllMachinePools(user);
+
+      expect(
+        screen.queryByText('Update all machine pools to version 4.12.13?', { exact: false }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('progressbar', { name: 'Updating machine pools' }),
+      ).toBeInTheDocument();
+    });
+
+    it('closes the confirmation modal and shows an error alert when update fails', async () => {
+      apiRequestMock.post.mockRejectedValue({
+        response: {
+          data: {
+            code: 'CLUSTERS-MGMT-400',
+            reason: 'Failed to schedule machine pool update',
+          },
+        },
+      });
+
+      const { user } = withState(defaultStore).render(
+        <UpdateAllMachinePools
+          isMachinePoolError={false}
+          isHypershift
+          controlPlaneVersion={clusterVersionID}
+          controlPlaneRawVersion={clusterVersionRawID}
+          clusterId={clusterId}
+          machinePoolData={[machinePoolBehind1]}
+        />,
+      );
+
+      await clickUpdateButton(user);
+      await confirmUpdateAllMachinePools(user);
+
+      expect(
+        screen.queryByText('Update all machine pools to version 4.12.13?', { exact: false }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId(errorAlertTestId)).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Danger alert details' }));
+      expect(
+        within(screen.getByTestId(errorAlertTestId)).getByText(
+          'CLUSTERS-MGMT-400 - Failed to schedule machine pool update',
+        ),
+      ).toBeInTheDocument();
+    });
+
     it('create node policy is called ', async () => {
       apiRequestMock.post.mockResolvedValue('success');
       const dummyDispatch = jest.fn();
@@ -687,6 +802,7 @@ describe('<UpdateAllMachinePools />', () => {
 
       // ACT
       await clickUpdateButton(user);
+      await confirmUpdateAllMachinePools(user);
 
       // ASSERT
       expect(apiRequestMock.post).toHaveBeenCalledTimes(1);
@@ -732,6 +848,7 @@ describe('<UpdateAllMachinePools />', () => {
 
       // ACT
       await clickUpdateButton(user);
+      await confirmUpdateAllMachinePools(user);
 
       // ASSERT
       expect(screen.queryByTestId(errorAlertTestId)).not.toBeInTheDocument();

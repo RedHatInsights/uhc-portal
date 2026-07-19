@@ -5,20 +5,21 @@
 ## Table of Contents
 
 1. [Project Structure](#project-structure)
-2. [Naming Conventions](#naming-conventions)
-3. [Creating New Test Specs](#creating-new-test-specs)
-4. [Page Object Model (POM)](#page-object-model-pom)
-5. [Using Fixtures](#using-fixtures)
-6. [Selector Strategy](#selector-strategy)
-7. [Test Organization](#test-organization)
-8. [Test Data Management](#test-data-management)
-9. [Tagging Strategy](#tagging-strategy)
-   - [Test Execution Tiers](#test-execution-tiers)
-   - [Choosing the Right Tier for New Tests](#choosing-the-right-tier-for-new-tests)
-10. [Best Practices](#best-practices)
-11. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
-12. [Debugging Tests](#debugging-tests)
-13. [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
+2. [Support Utilities](#support-utilities)
+3. [Naming Conventions](#naming-conventions)
+4. [Creating New Test Specs](#creating-new-test-specs)
+5. [Page Object Model (POM)](#page-object-model-pom)
+6. [Using Fixtures](#using-fixtures)
+7. [Selector Strategy](#selector-strategy)
+8. [Test Organization](#test-organization)
+9. [Test Data Management](#test-data-management)
+10. [Tagging Strategy](#tagging-strategy)
+    - [Test Execution Tiers](#test-execution-tiers)
+    - [Choosing the Right Tier for New Tests](#choosing-the-right-tier-for-new-tests)
+11. [Best Practices](#best-practices)
+12. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+13. [Debugging Tests](#debugging-tests)
+14. [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
 
 ---
 
@@ -47,6 +48,19 @@ playwright/
     ├── global-teardown.ts        # Global test teardown
     └── playwright-constants.ts   # Constants and timeouts
 ```
+
+---
+
+## Support Utilities
+
+The `playwright/support/` directory contains shared infrastructure used across all tests:
+
+- **`playwright-constants.ts`** — Defines all shared paths, timeouts, and route constants. Always import from here instead of hardcoding values.
+- **`auth-config.ts`** — Provides auth configuration. Reads credentials from environment variables.
+- **`custom-commands.ts`** — Provides common interaction helpers and ROSA CLI helpers.
+- **`global-setup.ts`** — Handles authentication and saves state to `storageState.json`. Do not modify unless changing the auth flow.
+- **`global-teardown.ts`** — Handles cleanup after test runs.
+- Environment variables are loaded from `playwright.env.json` at the workspace root via `playwright.config.ts`.
 
 ---
 
@@ -232,7 +246,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
 ### Base Page Structure
 
-All page objects extend `BasePage` which provides common utilities:
+Import constants like paths and timeouts from `../support/playwright-constants` instead of hardcoding values.
+
+**IMPORTANT: Before writing test code, always check `playwright/page-objects/base-page.ts` for reusable utilities.** BasePage provides common methods for navigation, element interaction, assertions, and screenshots. Use these methods instead of duplicating logic in your tests or page objects.
+
+All page objects extend `BasePage` which provides common utilities (see `base-page.ts` for the complete list):
 
 ```typescript
 class BasePage {
@@ -252,16 +270,23 @@ class BasePage {
   async waitForSelector(selector: string, options?): Promise<Locator>;
   async waitForLoadState(state?): Promise<void>;
 
-  // Helpers
+  // Helpers & Assertions
   getByTestId(testId: string): Locator;
+  getByText(text: string | RegExp, options?): Locator;
+  async isTextContainsInPage(text: string, present?: boolean): Promise<void>;
+  async pressKey(key: string): Promise<void>;
 
   // Screenshots
   async captureScreenshot(name: string, options?): Promise<string>;
   async captureErrorScreenshot(error: Error, context?: string): Promise<string>;
+
+  // ... and more - see playwright/page-objects/base-page.ts for the complete API
 }
 ```
 
 ### Page Object Patterns
+
+**Important:** Never store mutable test state as class properties in page objects. Let the page DOM maintain state instead of storing it in your page object class.
 
 #### Pattern 1: Locator Methods (Return `Locator`)
 
@@ -315,6 +340,14 @@ async isTextContainsInPage(text: string, shouldExist: boolean = true): Promise<v
 ---
 
 ## Using Fixtures
+
+### Fixture Scoping and Internals
+
+All page object fixtures must be **worker-scoped** using `{ scope: 'worker' }`. Never create test-scoped page object fixtures — serial tests require shared worker-scoped state.
+
+**Important:** Always use `authenticatedPage` (not raw `page`) when constructing page objects in fixture definitions. The `page` fixture is overridden to return the worker-scoped `authenticatedPage` with pre-loaded authentication state. This is what makes test-scoped fixtures like `navigateTo` work correctly in `test.beforeAll`.
+
+The `navigateTo` fixture is test-scoped and accepts a relative URL path. It is safe to use in `test.beforeAll` because `page` is overridden to delegate to the worker-scoped `authenticatedPage`, so navigation persists across all tests in the suite.
 
 ### Worker-Scoped Fixtures
 
@@ -388,25 +421,30 @@ test('my test', async ({ navigateTo }) => {
    this.page.getByLabel('Email address');
    ```
 
-3. **Text content** (Use sparingly)
+3. **Text content** (Only when no role or label is available)
 
    ```typescript
    this.page.getByText('Submit application');
    ```
 
-4. **`data-testid` attributes**
+4. **`data-testid` attributes** (Only when no role, label, or text selector is available)
 
    ```typescript
    this.page.getByTestId('submit-button');
    ```
 
-5. **CSS selectors** — Avoid
+5. **CSS selectors** — Never use
+
+   CSS selectors are brittle and tightly coupled to implementation details. PatternFly class selectors (e.g., `.pf-c-button`, `.pf-m-primary`, `.pf-v5-c-*`) are especially problematic as they may change between framework versions. Never use dynamic or auto-generated IDs as selectors either.
+
    ```typescript
+   // ❌ Never use these
    this.page.locator('button.submit-btn');
    this.page.locator('#cluster-name-input');
    this.page.locator('[aria-label="Close"]');
    ```
-   > ⚠️ **Note:** CSS selectors are brittle and tightly coupled to implementation details. PatternFly class selectors (e.g., `.pf-c-button`, `.pf-m-primary`, `.pf-v5-c-*`) are especially problematic as they may change between framework versions. Some existing tests use CSS selectors due to unavoidable circumstances (e.g., elements lacking accessible roles or test IDs). When you encounter these, the recommendation is to update the application source to add proper accessible attributes and then migrate the selector to a higher-priority strategy above.
+
+   > **Note:** Some existing tests use CSS selectors due to unavoidable circumstances (e.g., elements lacking accessible roles or test IDs). When you encounter these, update the application source to add proper accessible attributes and then migrate the selector to a higher-priority strategy above.
 
 ### Selector Examples
 
@@ -444,19 +482,24 @@ clusterNameInput(): Locator {
 ### Filtering and Chaining
 
 ```typescript
-// Filter by parent
+// Filter by text content
 pullSecretRow(): Locator {
-  return this.page.locator('tr').filter({ hasText: 'Pull secret' });
+  return this.page.getByRole('row').filter({ hasText: 'Pull secret' });
 }
 
-// Chain locators
+// Chain locators for scoped queries
 downloadButton(): Locator {
   return this.pullSecretRow().getByRole('button', { name: 'Download' });
 }
 
-// nth element
+// First matching element
 firstClusterLink(): Locator {
-  return this.page.locator('td[data-label="Name"] a').first();
+  return this.page.getByRole('link', { name: /cluster/i }).first();
+}
+
+// Filter with nested locator
+activeClusterRow(): Locator {
+  return this.page.getByRole('row').filter({ has: this.page.getByText('Ready') });
 }
 ```
 
@@ -545,6 +588,13 @@ test.describe.serial('Feature tests', { tag: ['@ci'] }, () => {
 ---
 
 ## Test Data Management
+
+### Test Data Principles
+
+- Mirror the `e2e/` folder structure when placing fixture files (e.g., `fixtures/rosa/` for `e2e/rosa/` specs, `fixtures/osd-aws/` for `e2e/osd-aws/` specs).
+- Fixture JSONs should contain test scenario data: validation inputs, expected errors, and cluster configuration defaults.
+- Keep environment-specific values (AWS IDs, regions, role prefixes) in `playwright.env.json`, not in fixture JSONs.
+- Never include secrets, credentials, tokens, or sensitive data in fixture JSON files — use environment variables instead.
 
 ### External Test Data Files
 
@@ -703,7 +753,7 @@ Use the following decision guide when adding a new test:
 
 **Rule of thumb:**
 
-- If in doubt, start with `@advanced` and promote to `@smoke` or `@ci` only when the test is fast, stable, and covers a critical path.
+- **When unsure about tier, start with `@advanced` and promote to `@smoke` or `@ci` later** once the test proves fast, stable, and critical.
 - Always pair with `@day1` (creation/initial setup) or `@day2` (post-creation management) to indicate the lifecycle phase.
 - `@ci` tests must be **fast and side-effect-free**.
 - `@smoke` tests should be **reliable and focused on critical paths** (typically `@day1`).
@@ -807,7 +857,30 @@ npm run playwright-headless -- --grep="@smoke" --grep="@rosa"
 
 ## Best Practices
 
-### 1. Wait for Elements Properly
+### 1. Use BasePage Utilities Before Writing Custom Code
+
+**Always check `playwright/page-objects/base-page.ts` for existing utilities before writing custom assertions or helper methods.**
+
+```typescript
+// ❌ Bad: Duplicating logic that already exists in BasePage
+test('check error message', async ({ page }) => {
+  await expect(page.getByText('Error occurred')).toBeVisible();
+});
+
+// ✅ Good: Using BasePage utility
+test('check error message', async ({ featurePage }) => {
+  await featurePage.isTextContainsInPage('Error occurred');
+});
+```
+
+Common BasePage utilities to use:
+- `isTextContainsInPage(text, present?)` - Check text visibility on page
+- `assertUrlIncludes(path)` - Verify URL contains path
+- `pressKey(key)` - Keyboard interactions
+- `getByTestId(testId)` / `getByText(text)` - Element locators
+- `captureScreenshot(name)` - Debug screenshots
+
+### 2. Wait for Elements Properly
 
 ```typescript
 // ✅ Good: Use built-in auto-waiting
@@ -985,6 +1058,8 @@ await element.click(); // Will fail with clear error message
 
 ### ❌ Don't Skip Tests Without Tracking
 
+**Never skip tests without a JIRA issue reference in the skip reason.** This ensures skipped tests are tracked and eventually fixed or removed.
+
 ```typescript
 // ❌ Bad: Permanent skip with no tracking
 test.skip('broken test', async () => { ... });
@@ -1124,6 +1199,7 @@ export class YourFeaturePage extends BasePage {
 Add to `fixtures/pages.ts` (replace `yourFeaturePage` and `YourFeaturePage` with your names):
 
 ```typescript
+// IMPORTANT: Always use authenticatedPage (not raw page) when constructing page objects
 yourFeaturePage: [
   async ({ authenticatedPage }, use) => {
     const pageObject = new YourFeaturePage(authenticatedPage);

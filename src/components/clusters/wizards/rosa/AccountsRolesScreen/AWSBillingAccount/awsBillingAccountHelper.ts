@@ -22,4 +22,25 @@ const getContract = (cloudAccount: CloudAccount): BillingContract | null => {
 const getDimensionValue = (dimensions: ContractDimension[], resource: string) =>
   dimensions.find((dimension: ContractDimension) => dimension?.name === resource)?.value || 0;
 
-export { getContract, getDimensionValue };
+const shouldShowBillingContractNotification = (
+  cloudAccounts: CloudAccount[],
+  selectedAccountId: string,
+): boolean => {
+  if (!cloudAccounts.length || !selectedAccountId) {
+    return false;
+  }
+
+  const selectedAccount = cloudAccounts.find(
+    (account) => account.cloud_account_id === selectedAccountId,
+  );
+
+  if (!selectedAccount || getContract(selectedAccount)) {
+    return false;
+  }
+
+  return cloudAccounts.some(
+    (account) => account.cloud_account_id !== selectedAccountId && getContract(account) !== null,
+  );
+};
+
+export { getContract, getDimensionValue, shouldShowBillingContractNotification };
