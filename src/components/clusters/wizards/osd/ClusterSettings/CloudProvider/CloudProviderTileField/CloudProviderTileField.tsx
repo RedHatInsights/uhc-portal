@@ -13,7 +13,7 @@ import {
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { useGetBillingQuotas } from '~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import ThemedImage from '~/components/common/ThemedImage/ThemedImage';
+import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
 import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
 import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
 import GCPLogoLightTheme from '~/styles/images/GoogleCloudLogo.svg';

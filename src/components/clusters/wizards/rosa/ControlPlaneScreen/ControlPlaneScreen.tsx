@@ -13,7 +13,7 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import { PrerequisitesInfoBox } from '~/components/clusters/wizards/rosa/common/PrerequisitesInfoBox';
 import { WelcomeMessage } from '~/components/clusters/wizards/rosa/common/WelcomeMessage';
 import ExternalLink from '~/components/common/ExternalLink';
-import ThemedImage from '~/components/common/ThemedImage/ThemedImage';
+import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
 import {
   FIPS_FOR_HYPERSHIFT,
   MULTIREGION_PREVIEW_ENABLED,

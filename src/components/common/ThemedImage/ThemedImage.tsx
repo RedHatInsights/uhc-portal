@@ -11,7 +11,7 @@ interface DarkModeStoreHookProps {
   isDark: boolean;
 }
 
-const ThemedImage = ({ darkThemeSrc, lightThemeSrc, alt, ...rest }: ThemedImageProps) => {
+export const ThemedImage = ({ darkThemeSrc, lightThemeSrc, alt, ...rest }: ThemedImageProps) => {
   const { hookResult, loading, error } = useRemoteHook<DarkModeStoreHookProps>({
     scope: 'chrome',
     module: './theme/useDarkModeStore',
@@ -22,5 +22,3 @@ const ThemedImage = ({ darkThemeSrc, lightThemeSrc, alt, ...rest }: ThemedImageP
 
   return <img src={file} alt={alt} {...rest} />;
 };
-
-export default ThemedImage;

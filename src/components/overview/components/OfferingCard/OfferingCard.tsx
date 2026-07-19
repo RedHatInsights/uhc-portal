@@ -26,7 +26,7 @@ import { CreateManagedClusterButtonWithTooltip } from '~/components/common/Creat
 import ExternalLink from '~/components/common/ExternalLink';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 import SupportLevelBadge, { DEV_PREVIEW } from '~/components/common/SupportLevelBadge';
-import ThemedImage from '~/components/common/ThemedImage/ThemedImage';
+import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
 import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
 import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
 import IBMLogo from '~/styles/images/ibm_cloud-icon.svg';

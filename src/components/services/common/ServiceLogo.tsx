@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Divider, Stack } from '@patternfly/react-core';
 
-import ThemedImage from '~/components/common/ThemedImage/ThemedImage';
+import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
 import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
 import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
 import RedHatLogo from '~/styles/images/RedHatLogo.svg';

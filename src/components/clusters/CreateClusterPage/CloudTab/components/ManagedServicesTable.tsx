@@ -9,7 +9,7 @@ import CreateClusterDropDown from '~/components/clusters/CreateClusterPage/Cloud
 import links from '~/components/clusters/CreateClusterPage/CreateClusterConsts';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import ExternalLink from '~/components/common/ExternalLink';
-import ThemedImage from '~/components/common/ThemedImage/ThemedImage';
+import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';

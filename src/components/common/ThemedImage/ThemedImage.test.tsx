@@ -4,7 +4,7 @@ import { useRemoteHook } from '@scalprum/react-core';
 
 import { checkAccessibility, render, screen } from '~/testUtils';
 
-import ThemedImage from './ThemedImage';
+import { ThemedImage } from './ThemedImage';
 
 jest.mock('@scalprum/react-core', () => ({
   useRemoteHook: jest.fn(),
