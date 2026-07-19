@@ -4,7 +4,6 @@ import {
   Button,
   Flex,
   FlexItem,
-  Icon,
   Timestamp,
   TimestampFormat,
   Tooltip,
@@ -180,9 +179,7 @@ export const BreakGlassCredentialList = ({
                 onClick={() => refetchBreakGlassCredentials()}
                 isDisabled={isLoading || isFetching}
               >
-                <Icon>
-                  <RedoIcon />
-                </Icon>
+                <RedoIcon />
               </ButtonWithTooltip>
             </FlexItem>
           </>
