@@ -46,10 +46,8 @@ describe('formatOcmApiErrorMessage', () => {
     expect(formatOcmApiErrorMessage()).toBe('');
   });
 
-  it('returns code with empty fallback when reason is missing and status is not 429', () => {
-    expect(formatOcmApiErrorMessage('CLUSTERS-MGMT-500', undefined, 500)).toBe(
-      'CLUSTERS-MGMT-500: ',
-    );
+  it('returns code only when reason is missing and status is not 429', () => {
+    expect(formatOcmApiErrorMessage('CLUSTERS-MGMT-500', undefined, 500)).toBe('CLUSTERS-MGMT-500');
   });
 });
 
@@ -79,7 +77,7 @@ describe('formatErrorData', () => {
 });
 
 describe('addNotificationErrorFormat', () => {
-  it('uses reason when present', () => {
+  it('formats code and reason when both are provided', () => {
     const axiosError = createAxiosError(400, {
       code: 'CLUSTERS-MGMT-400',
       reason: 'Invalid channel',
@@ -87,7 +85,7 @@ describe('addNotificationErrorFormat', () => {
 
     const result = addNotificationErrorFormat(false, true, axiosError);
 
-    expect(result?.error?.errorMessage).toBe('Invalid channel');
+    expect(result?.error?.errorMessage).toBe('CLUSTERS-MGMT-400: Invalid channel');
   });
 
   it('falls back when reason is missing on a 429 response', () => {
