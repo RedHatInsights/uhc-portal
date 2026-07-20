@@ -66,6 +66,17 @@ export class IdentityProvidersPage extends BasePage {
     return this.page.getByRole('table', { name: 'Identity Providers' });
   }
 
+  async hasConfiguredIdps(): Promise<boolean> {
+    await this.goToAccessControlTab();
+    await this.goToIdentityProvidersTab();
+    try {
+      await this.idpTable().waitFor({ state: 'visible', timeout: 10000 });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   idpRow(idpName: string): Locator {
     return this.page.getByRole('row').filter({ hasText: idpName });
   }

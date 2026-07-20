@@ -38,11 +38,7 @@ export const CloudProviderTileField = () => {
   const shouldShowAwsTile = !(
     billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
   );
-  const hasAwsResources = shouldShowAwsTile ? quotas.awsResources : false;
-  const notAvailableTooltip =
-    billingModel === shouldShowAwsTile
-      ? noQuotaTooltip
-      : 'OpenShift Dedicated purchased through the Google Cloud marketplace can only be provisioned on Google Cloud.';
+  const hasAwsResources = quotas.awsResources;
 
   const handleChange = (value: string) => {
     // Silently reset some user choices that are now meaningless.
@@ -139,7 +135,7 @@ export const CloudProviderTileField = () => {
     >
       {hasGcpResources ? gcpTile : <Tooltip content={noQuotaTooltip}>{gcpTile}</Tooltip>}
       {shouldShowAwsTile &&
-        (hasAwsResources ? awsTile : <Tooltip content={notAvailableTooltip}>{awsTile}</Tooltip>)}
+        (hasAwsResources ? awsTile : <Tooltip content={noQuotaTooltip}>{awsTile}</Tooltip>)}
     </Gallery>
   );
 };

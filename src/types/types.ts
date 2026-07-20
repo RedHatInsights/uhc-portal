@@ -1,7 +1,6 @@
 import React from 'react';
 
 import type { Cluster as AICluster } from '@openshift-assisted/types/assisted-installer-service';
-import type { FeaturesSupportsLevel } from '@openshift-assisted/ui-lib/ocm';
 import type { ChromeAPI } from '@redhat-cloud-services/types';
 
 import type { List, OneMetric, Subscription } from './accounts_mgmt.v1';
@@ -117,7 +116,9 @@ export type AugmentedCluster = ClusterWithPermissions & {
   upgradeGates?: VersionGateAgreement[];
   aiCluster?: AICluster;
   limitedSupportReasons?: LimitedSupportReason[];
-  aiSupportLevels?: FeaturesSupportsLevel;
+  aiSupportLevels?: {
+    features: Record<string, string>;
+  };
   status?: ClusterStatus;
   api?: ClusterApi;
 };

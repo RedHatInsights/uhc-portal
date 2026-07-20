@@ -31,12 +31,12 @@ const fakeBaseCluster = { id: CLUSTER_ID } as any;
 describe('useFetchAiCluster', () => {
   const getAIClusterSpy = jest.spyOn(assistedService, 'getAICluster');
   const getAIFeatureSupportLevelsSpy = jest.spyOn(assistedService, 'getAIFeatureSupportLevels');
-  const fakeClusterFromAISubscriptionMock =
-    normalizeModule.fakeClusterFromAISubscription as jest.Mock;
+  const fakeClusterFromAISubscriptionWithHostsMetricsMock =
+    normalizeModule.fakeClusterFromAISubscriptionWithHostsMetrics as jest.Mock;
   const fakeClusterFromSubscriptionMock = normalizeModule.fakeClusterFromSubscription as jest.Mock;
 
   beforeEach(() => {
-    fakeClusterFromAISubscriptionMock.mockReturnValue({ ...fakeBaseCluster });
+    fakeClusterFromAISubscriptionWithHostsMetricsMock.mockResolvedValue({ ...fakeBaseCluster });
     fakeClusterFromSubscriptionMock.mockReturnValue({ ...fakeBaseCluster });
     getAIFeatureSupportLevelsSpy.mockResolvedValue(undefined as any);
   });
@@ -53,7 +53,10 @@ describe('useFetchAiCluster', () => {
 
     expect(result.current.isError).toBe(false);
     expect(result.current.data?.aiCluster).toEqual(mockAiCluster);
-    expect(fakeClusterFromAISubscriptionMock).toHaveBeenCalledWith(aiSubscription, mockAiCluster);
+    expect(fakeClusterFromAISubscriptionWithHostsMetricsMock).toHaveBeenCalledWith(
+      aiSubscription,
+      mockAiCluster,
+    );
     expect(fakeClusterFromSubscriptionMock).not.toHaveBeenCalled();
   });
 
@@ -77,7 +80,7 @@ describe('useFetchAiCluster', () => {
     expect(result.current.isError).toBe(false);
     expect(result.current.data).toBeDefined();
     expect(result.current.data?.aiCluster).toBeUndefined();
-    expect(fakeClusterFromAISubscriptionMock).not.toHaveBeenCalled();
+    expect(fakeClusterFromAISubscriptionWithHostsMetricsMock).not.toHaveBeenCalled();
     expect(fakeClusterFromSubscriptionMock).toHaveBeenCalledWith(aiSubscription);
   });
 
@@ -97,7 +100,7 @@ describe('useFetchAiCluster', () => {
     expect(result.current.isError).toBe(false);
     expect(result.current.data).toBeDefined();
     expect(result.current.data?.aiCluster).toBeUndefined();
-    expect(fakeClusterFromAISubscriptionMock).not.toHaveBeenCalled();
+    expect(fakeClusterFromAISubscriptionWithHostsMetricsMock).not.toHaveBeenCalled();
     expect(fakeClusterFromSubscriptionMock).toHaveBeenCalledWith(aiSubscription);
   });
 
