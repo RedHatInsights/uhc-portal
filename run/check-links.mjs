@@ -40,7 +40,7 @@ const COLOR = {
 // Rate-limiting configuration
 const MAX_CONCURRENT_GLOBAL = 15;
 const MAX_CONCURRENT_PER_HOST = 3;
-const RETRY_COUNT = 3;
+const MAX_ATTEMPTS = 3;
 const RETRY_BACKOFF_MS = 1500;
 const RETRYABLE_STATUSES = new Set([403, 429, 503]);
 const INTER_REQUEST_DELAY_MS = 200;
@@ -382,12 +382,12 @@ async function rateLimitedFetch(url, options = {}) {
   await hostSem.acquire();
   try {
     let lastResponse;
-    for (let attempt = 0; attempt < RETRY_COUNT; attempt++) {
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       if (attempt > 0) {
         await sleep(RETRY_BACKOFF_MS * attempt);
       }
       lastResponse = await fetchWithFallback(url, options);
-      if (!RETRYABLE_STATUSES.has(lastResponse.status) || attempt === RETRY_COUNT - 1) {
+      if (!RETRYABLE_STATUSES.has(lastResponse.status) || attempt === MAX_ATTEMPTS - 1) {
         return lastResponse;
       }
     }
@@ -678,7 +678,7 @@ function displayErrorSection(title, errorItems) {
 
     if (RETRYABLE_STATUSES.has(statusInt)) {
       console.log(
-        `  ${COLOR.YELLOW}(${RETRY_COUNT} retries were attempted; may be transient — re-run to confirm)${COLOR.RESET}`,
+        `  ${COLOR.YELLOW}(${MAX_ATTEMPTS} attempts were made; may be transient — re-run to confirm)${COLOR.RESET}`,
       );
     }
     console.log();
