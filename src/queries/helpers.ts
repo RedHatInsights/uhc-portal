@@ -95,9 +95,7 @@ export const addNotificationErrorFormat = (
     errorData.fulfilled = false;
     errorData.errorCode = httpStatus;
     errorData.errorDetails = details;
-    errorData.errorMessage = trimmedReason
-      ? trimmedReason
-      : formatOcmApiErrorMessage(code, reason, httpStatus);
+    errorData.errorMessage = trimmedReason || formatOcmApiErrorMessage(code, reason, httpStatus);
     errorData.internalErrorCode = code;
     errorData.operationID = operationID;
     return {
