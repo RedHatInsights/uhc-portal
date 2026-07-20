@@ -37,6 +37,90 @@ const COLOR = {
   RESET: '\x1b[0m',
 };
 
+// Rate-limiting configuration
+const MAX_CONCURRENT_GLOBAL = 15;
+const MAX_CONCURRENT_PER_HOST = 3;
+const RETRY_COUNT = 3;
+const RETRY_BACKOFF_MS = 1500;
+const RETRYABLE_STATUSES = new Set([403, 429, 503]);
+const INTER_REQUEST_DELAY_MS = 200;
+
+/**
+ * Known URL patterns that produce expected (non-actionable) errors.
+ * Each entry maps a regex to a short explanation shown in the output.
+ */
+const KNOWN_FALSE_POSITIVES = [
+  {
+    pattern: /join\.slack\.com\/.*shared_invite/,
+    reason: 'Slack invite links block programmatic access (expected 403)',
+  },
+  {
+    pattern: /console\.cloud\.google\.com/,
+    reason: 'Google Cloud Console returns oversized headers that exceed node-fetch limits',
+  },
+];
+
+/**
+ * Returns a contextual note if a URL matches a known false-positive pattern.
+ * @param {string} url - The URL to check
+ * @returns {string|null} Explanation string or null
+ */
+function getKnownFalsePositiveNote(url) {
+  for (const { pattern, reason } of KNOWN_FALSE_POSITIVES) {
+    if (pattern.test(url)) {
+      return reason;
+    }
+  }
+  return null;
+}
+
+// ======================================================================
+// CONCURRENCY CONTROL
+// ======================================================================
+
+class Semaphore {
+  constructor(max) {
+    this.max = max;
+    this.current = 0;
+    this.queue = [];
+  }
+
+  acquire() {
+    if (this.current < this.max) {
+      this.current++;
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => this.queue.push(resolve));
+  }
+
+  release() {
+    this.current--;
+    if (this.queue.length > 0) {
+      this.current++;
+      this.queue.shift()();
+    }
+  }
+}
+
+const globalSemaphore = new Semaphore(MAX_CONCURRENT_GLOBAL);
+const hostSemaphores = new Map();
+
+function getHostSemaphore(url) {
+  try {
+    const { hostname } = new URL(url);
+    if (!hostSemaphores.has(hostname)) {
+      hostSemaphores.set(hostname, new Semaphore(MAX_CONCURRENT_PER_HOST));
+    }
+    return hostSemaphores.get(hostname);
+  } catch {
+    return new Semaphore(MAX_CONCURRENT_PER_HOST);
+  }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 // ======================================================================
 // HELP INFORMATION
 // ======================================================================
@@ -258,7 +342,9 @@ function categorizeResults(results) {
 }
 
 /**
- * Fetches a URL with HEAD method, falling back to GET if HEAD returns 405
+ * Fetches a URL with HEAD method, falling back to GET if HEAD returns
+ * 404 or 405 (some servers like Google Cloud return 404 for HEAD but
+ * serve correct responses for GET).
  * @param {string} url - The URL to fetch
  * @param {Object} options - Fetch options (e.g., redirect: 'manual')
  * @returns {Promise<Response>} The fetch response
@@ -266,19 +352,50 @@ function categorizeResults(results) {
 async function fetchWithFallback(url, options = {}) {
   try {
     const headResponse = await fetch(url, { ...options, method: 'HEAD' });
-    // If HEAD returns 405 (Method Not Allowed), try GET instead
-    if (headResponse.status === 405) {
-      return await fetch(url, { ...options, method: 'GET' });
+    if (headResponse.status === 404 || headResponse.status === 405) {
+      const getResponse = await fetch(url, { ...options, method: 'GET' });
+      if (getResponse.status !== headResponse.status) {
+        return getResponse;
+      }
+      return headResponse;
     }
     return headResponse;
   } catch (e) {
-    // If HEAD fails with an error, try GET as fallback
     try {
       return await fetch(url, { ...options, method: 'GET' });
-    } catch (getError) {
-      // If both fail, throw the original error
+    } catch {
       throw e;
     }
+  }
+}
+
+/**
+ * Wraps fetchWithFallback with per-host rate limiting, global concurrency
+ * control, and retry with exponential backoff for transient errors.
+ * @param {string} url - The URL to fetch
+ * @param {Object} options - Fetch options
+ * @returns {Promise<Response>} The fetch response
+ */
+async function rateLimitedFetch(url, options = {}) {
+  const hostSem = getHostSemaphore(url);
+  await globalSemaphore.acquire();
+  await hostSem.acquire();
+  try {
+    let lastResponse;
+    for (let attempt = 0; attempt < RETRY_COUNT; attempt++) {
+      if (attempt > 0) {
+        await sleep(RETRY_BACKOFF_MS * attempt);
+      }
+      lastResponse = await fetchWithFallback(url, options);
+      if (!RETRYABLE_STATUSES.has(lastResponse.status) || attempt === RETRY_COUNT - 1) {
+        return lastResponse;
+      }
+    }
+    return lastResponse;
+  } finally {
+    await sleep(INTER_REQUEST_DELAY_MS);
+    hostSem.release();
+    globalSemaphore.release();
   }
 }
 
@@ -325,19 +442,14 @@ async function testRedirectUrls(statusByUrl) {
     clear: true,
   });
 
-  // Test each redirect URL
+  // Test each redirect URL with rate limiting
   await Promise.all(
     redirectItems.map(async (item) => {
       try {
-        const { status: finalStatus } = await fetchWithFallback(item.redirectUrl);
-        // If we got 200 with GET after 405 with HEAD, treat it as success
-        const newItem = { ...item, finalStatus };
-        // Use Object.assign to update the original item for progress tracking
-        Object.assign(item, newItem);
+        const { status: finalStatus } = await rateLimitedFetch(item.redirectUrl);
+        Object.assign(item, { finalStatus });
       } catch (e) {
-        const newItem = { ...item, error: e.toString() };
-        // Use Object.assign to update the original item for progress tracking
-        Object.assign(item, newItem);
+        Object.assign(item, { error: e.toString() });
       }
       testBar.tick();
     }),
@@ -418,6 +530,11 @@ function displayRedirectStatusGroup(status, items, redirectTestMap, verbose) {
             statusText = `${COLOR.RED}${testStatus}${COLOR.RESET}`;
           }
           console.log(`  [Redirect URL Test] ${statusText}`);
+        }
+
+        const note = getKnownFalsePositiveNote(r.redirectUrl);
+        if (note) {
+          console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
         }
       }
       console.log();
@@ -550,7 +667,7 @@ function displayErrorSection(title, errorItems) {
   sortedStatusCodes.forEach((status) => {
     const items = errorsByStatus[status];
     const description = getStatusCodeDescription(parseInt(status, 10));
-    // Color just the status code in red, not the entire title
+    const statusInt = parseInt(status, 10);
     const statusTitle = `[Status ${COLOR.RED}${status}${COLOR.RESET} - ${description}]`;
     const countStr = `${items.length} URLs`;
     const targetColumn = LINE_LENGTH - countStr.length;
@@ -558,12 +675,21 @@ function displayErrorSection(title, errorItems) {
 
     console.log();
     console.log(`${statusTitle} - ${' '.repeat(padding)}${countStr}`);
+
+    if (RETRYABLE_STATUSES.has(statusInt)) {
+      console.log(
+        `  ${COLOR.YELLOW}(${RETRY_COUNT} retries were attempted; may be transient — re-run to confirm)${COLOR.RESET}`,
+      );
+    }
     console.log();
 
     if (items.length > 0) {
       items.forEach((r) => {
-        // Print each URL with a red status code
         console.log(`  [Original URL] ${r.url}`);
+        const note = getKnownFalsePositiveNote(r.url);
+        if (note) {
+          console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
+        }
         console.log();
       });
     }
@@ -607,6 +733,10 @@ function displayRequestErrorsSection(errors) {
       items.forEach((r) => {
         console.log(`  [Original URL] ${r.url}`);
         console.log(`  [Error] ${r.errorMessage}`);
+        const note = getKnownFalsePositiveNote(r.url);
+        if (note) {
+          console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
+        }
         console.log();
       });
     }
@@ -981,16 +1111,14 @@ async function main() {
   // Results object
   const statusByUrl = {};
 
-  // Process all URLs in parallel
+  // Process all URLs with rate limiting
   await Promise.all(
     urls.map(async (url) => {
       if (url.startsWith('mailto:')) {
         statusByUrl[url] = 'not checked';
       } else {
         try {
-          // For permanent redirects, you might want to update the link
-          const response = await fetchWithFallback(url, { redirect: 'manual' });
-          // If we got 200 with GET after 405 with HEAD, treat it as success
+          const response = await rateLimitedFetch(url, { redirect: 'manual' });
           if (response.status === 200) {
             statusByUrl[url] = 200;
           } else {
@@ -1001,7 +1129,6 @@ async function main() {
             }
           }
         } catch (e) {
-          // 3xx-5xx are NOT exceptions, but network errors, etc. are.
           statusByUrl[url] = e.toString();
         }
       }
