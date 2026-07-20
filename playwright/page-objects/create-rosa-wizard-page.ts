@@ -1033,15 +1033,6 @@ export class CreateRosaWizardPage extends BasePage {
     await this.enableConfigureClusterWideProxyCheckbox().check();
   }
 
-  async isTextContainsInPage(text: string, present: boolean = true): Promise<void> {
-    const locator = this.page.locator('body').filter({ hasText: text });
-    if (present) {
-      await expect(locator).toBeVisible();
-    } else {
-      await expect(locator).not.toBeVisible();
-    }
-  }
-
   async selectRoleProviderMode(mode: string): Promise<void> {
     if (mode.toLowerCase() === 'auto') {
       await this.createModeAutoRadio().check();

@@ -1,0 +1,102 @@
+{
+  "osd-gcp-ingress-public-advanced": {
+    "day1-profile": {
+      "ClusterName": "ocmui-playwright-osd-gcp-wif-ingress",
+      "Type": "OSD",
+      "CloudProvider": "Google Cloud",
+      "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
+      "SubscriptionBillingModel": "Annual Red Hat subscriptions",
+      "InfrastructureType": "Customer cloud subscription",
+      "AuthenticationType": "Workload Identity Federation",
+      "Region": "us-central1, Council Bluffs, Iowa, USA",
+      "Availability": "Single zone",
+      "SecureBootSupportForShieldedVMs": "Enabled",
+      "UserWorkloadMonitoring": "Enabled",
+      "EncryptVolumesWithCustomerKeys": "Disabled",
+      "FIPSCryptography": "Disabled",
+      "AdditionalEncryption": "Disabled",
+      "ClusterAutoscaling": "Disabled",
+      "InstallIntoExistingVPC": "Disabled",
+      "ClusterPrivacy": "Public",
+      "MachineCIDR": "10.0.0.0/16",
+      "ServiceCIDR": "172.30.0.0/16",
+      "PodCIDR": "10.128.0.0/14",
+      "HostPrefix": "/23",
+      "ApplicationIngress": "Custom settings",
+      "RouteSelectorEmptyReviewDisplay": "None specified",
+      "ExcludedNamespacesEmptyReviewDisplay": "None specified",
+      "ExcludeNamespaceSelectorsEmptyReviewDisplay": "None specified",
+      "RouteSelector": {
+        "Value": "route1=value1,route2=value2",
+        "ReviewDisplays": ["route1 = value1", "route2 = value2"]
+      },
+      "ExcludedNamespaces": {
+        "Value": "test-excluded-ns-1,test-excluded-ns-2",
+        "ReviewDisplays": ["test-excluded-ns-1", "test-excluded-ns-2"]
+      },
+      "NamespaceOwnershipPolicy": "Strict",
+      "NamespaceOwnershipPolicyReviewDisplay": "Strict namespace ownership",
+      "WildcardPolicy": "Disallowed",
+      "WildcardPolicyReviewDisplay": "Disallowed",
+      "UpdateStrategy": "Individual updates",
+      "NodeDraining": "1 hour",
+      "ExcludeNamespaceSelectorsHelpText": "Namespaces matching any of these label selectors will be excluded from the default ingress controller.",
+      "ExcludeNamespaceSelectorsValidation": {
+        "MissingKey": {
+          "Value": "prod",
+          "Error": "Enter a label key before values."
+        },
+        "MissingValues": {
+          "Key": "env",
+          "Error": "Enter at least one value, separated by commas."
+        }
+      },
+      "ExcludeNamespaceSelectors": [
+        {
+          "Key": "env",
+          "Values": "testing",
+          "ReviewDisplay": "env = testing"
+        },
+        {
+          "Key": "longerstringslongerstringslongerstringslongerstringslongerstri",
+          "Values": "longerstringslongerstringslongerstringslongerstringslongerstri",
+          "ReviewDisplay": "longerstringslongerstringslongerstringslongerstringslongerstri = longerstringslongerstringslongerstringslongerstringslongerstri"
+        },
+        {
+          "Key": "example.co.in/app.com",
+          "Values": "exmaples.co.in",
+          "ReviewDisplay": "example.co.in/app.com = exmaples.co.in"
+        },
+        {
+          "Key": "app.kubernetes.io/version",
+          "Values": "v1.2",
+          "ReviewDisplay": "app.kubernetes.io/version = v1.2"
+        },
+        {
+          "Key": "v22-22_t23",
+          "Values": "v22-22_t23.2,ddd",
+          "ReviewDisplay": "v22-22_t23 = v22-22_t23.2, ddd"
+        }
+      ],
+      "MachinePools": [
+        {
+          "Name": "worker",
+          "InstanceType": "e2-standard-4",
+          "NodeCount": 2,
+          "Autoscaling": "Disabled"
+        }
+      ]
+    },
+    "day2-profile": {
+      "ClusterNamePrefix": "ocmui-smoke-osd-gcp-wif-custom-ingress",
+      "ApplicationIngress": {
+        "RouteSelectorLabel": "Route selector",
+        "ExcludedNamespacesLabel": "Excluded namespaces",
+        "RouteSelector": "route1=value1,route2=value2",
+        "ExcludedNamespaces": "test-excluded-ns-1,test-excluded-ns-2",
+        "NamespaceOwnershipPolicy": "Strict",
+        "WildcardPolicy": "Disallowed"
+      }
+    }
+  }
+}
