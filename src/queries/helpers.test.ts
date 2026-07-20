@@ -30,6 +30,27 @@ describe('formatOcmApiErrorMessage', () => {
       'CLUSTERS-MGMT-429: Too many requests. Please try again.',
     );
   });
+
+  it('returns reason alone when code is missing', () => {
+    expect(formatOcmApiErrorMessage(undefined, 'Bad request', 400)).toBe('Bad request');
+  });
+
+  it('returns HTTP status fallback when code and reason are missing', () => {
+    expect(formatOcmApiErrorMessage(undefined, undefined, 429)).toBe(
+      'Too many requests. Please try again.',
+    );
+  });
+
+  it('returns empty string when code, reason, and HTTP status are all missing', () => {
+    expect(formatOcmApiErrorMessage(undefined, undefined, 500)).toBe('');
+    expect(formatOcmApiErrorMessage()).toBe('');
+  });
+
+  it('returns code with empty fallback when reason is missing and status is not 429', () => {
+    expect(formatOcmApiErrorMessage('CLUSTERS-MGMT-500', undefined, 500)).toBe(
+      'CLUSTERS-MGMT-500: ',
+    );
+  });
 });
 
 describe('formatErrorData', () => {
@@ -77,5 +98,13 @@ describe('addNotificationErrorFormat', () => {
     expect(result?.error?.errorMessage).toBe(
       'CLUSTERS-MGMT-429: Too many requests. Please try again.',
     );
+  });
+
+  it('returns undefined when error is not an axios error', () => {
+    expect(addNotificationErrorFormat(false, true, new Error('network down'))).toBeUndefined();
+  });
+
+  it('returns undefined when isError is false', () => {
+    expect(addNotificationErrorFormat(false, false, null)).toBeUndefined();
   });
 });
