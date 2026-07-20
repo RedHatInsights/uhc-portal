@@ -39,6 +39,7 @@ module.exports = {
     },
   },
   plugins: [
+    process.env.NODE_ENV !== 'production' && new (require('./src/mocks/MSWPlugin'))(),
     new ForkTsCheckerWebpackPlugin(),
     new webpack.DefinePlugin({
       APP_DEVMODE: process.env.NODE_ENV !== 'production',
