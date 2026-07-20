@@ -1,17 +1,24 @@
 import get from 'lodash/get';
 
+import { getModule } from '@scalprum/core';
+
 import {
   dedicatedRhInfra,
   rhmiAddon,
   unlimitedROSA,
 } from '../../components/clusters/common/__tests__/quota_cost.fixtures';
 import {
+  fakeClusterFromAISubscriptionWithHostsMetrics,
   normalizeCluster,
   normalizeMetrics,
   normalizeProductID,
   normalizeQuotaCost,
 } from '../normalize';
 import { normalizedProducts } from '../subscriptionTypes';
+
+jest.mock('@scalprum/core', () => ({
+  getModule: jest.fn(),
+}));
 
 const productOCP = {
   kind: 'ProductLink',
@@ -410,5 +417,65 @@ describe('normalizeMetrics()', () => {
 
   it('returns original metrics when everything is fine', () => {
     expect(normalizeMetrics(clusterWithMetrics.metrics)).toMatchObject(clusterWithMetrics.metrics);
+  });
+});
+
+describe('fakeClusterFromAISubscriptionWithHostsMetrics', () => {
+  const aiSubscriptionWithoutMetrics = {
+    id: 'sub-id',
+    cluster_id: 'cluster-id',
+    plan: {
+      id: normalizedProducts.OCP_AssistedInstall,
+      type: normalizedProducts.OCP_AssistedInstall,
+    },
+    metrics: [],
+  };
+
+  const aiClusterWithHosts = {
+    openshiftVersion: '4.14.0',
+    status: 'installed',
+    hosts: [{ id: 'host-1' }],
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('enriches cluster metrics from federated computeAIClusterMetrics', async () => {
+    const computeAIClusterMetrics = jest.fn().mockReturnValue({
+      memoryTotal: 100,
+      cpuTotal: 8,
+      workerCount: 2,
+      masterCount: 3,
+    });
+    getModule.mockResolvedValue(computeAIClusterMetrics);
+
+    const cluster = await fakeClusterFromAISubscriptionWithHostsMetrics(
+      aiSubscriptionWithoutMetrics,
+      aiClusterWithHosts,
+    );
+
+    expect(getModule).toHaveBeenCalledWith(
+      'assistedInstallerApp',
+      './computeAIClusterMetrics',
+      'computeAIClusterMetrics',
+    );
+    expect(computeAIClusterMetrics).toHaveBeenCalledWith(aiClusterWithHosts);
+    expect(cluster.metrics.memory.total.value).toBe(100);
+    expect(cluster.metrics.cpu.total.value).toBe(8);
+    expect(cluster.metrics.nodes.total).toBe(5);
+    expect(cluster.metrics.nodes.master).toBe(3);
+    expect(cluster.metrics.nodes.compute).toBe(2);
+  });
+
+  it('returns cluster when federated metrics module fails to load', async () => {
+    getModule.mockRejectedValue(new Error('load failed'));
+
+    const cluster = await fakeClusterFromAISubscriptionWithHostsMetrics(
+      aiSubscriptionWithoutMetrics,
+      aiClusterWithHosts,
+    );
+
+    expect(cluster.id).toBe('cluster-id');
   });
 });

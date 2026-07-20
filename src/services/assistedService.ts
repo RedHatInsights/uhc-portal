@@ -1,19 +1,25 @@
-import { Services } from '@openshift-assisted/ui-lib/ocm';
+import { getModule } from '@scalprum/core';
 
-const {
-  APIs: { ClustersAPI },
-  NewFeatureSupportLevelsService,
-} = Services;
-
-const getAIClustersBySubscription = ClustersAPI.listBySubscriptionIds;
-
-const getAICluster = ClustersAPI.get;
-const getAIFeatureSupportLevels = NewFeatureSupportLevelsService.getFeaturesSupportLevel;
+const getServices = () => getModule('assistedInstallerApp', './Services', 'default');
 
 const assistedService = {
-  getAIClustersBySubscription,
-  getAICluster,
-  getAIFeatureSupportLevels,
+  async getAIClustersBySubscription(subscriptionIds: string[]) {
+    const Services = await getServices();
+    return Services.APIs.ClustersAPI.listBySubscriptionIds(subscriptionIds);
+  },
+
+  async getAICluster(clusterID: string) {
+    const Services = await getServices();
+    return Services.APIs.ClustersAPI.get(clusterID);
+  },
+
+  async getAIFeatureSupportLevels(openshiftVersion: string, cpuArchitecture?: string) {
+    const Services = await getServices();
+    return Services.NewFeatureSupportLevelsService.getFeaturesSupportLevel(
+      openshiftVersion,
+      cpuArchitecture,
+    );
+  },
 };
 
 export default assistedService;

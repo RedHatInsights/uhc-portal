@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { Form, Formik } from 'formik';
 
+import { noQuotaTooltip } from '~/common/helpers';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
+import { useGetBillingQuotas } from '~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import {
   FieldId,
@@ -12,12 +14,14 @@ import { SubscriptionCommonFieldsCluster_billing_model as BillingModel } from '~
 
 import { CloudProviderTileField } from './CloudProviderTileField';
 
-jest.mock('~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas', () => ({
-  useGetBillingQuotas: () => ({
-    gcpResources: true,
-    awsResources: true,
-  }),
-}));
+jest.mock('~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas');
+
+const mockUseGetBillingQuotas = useGetBillingQuotas as jest.Mock;
+
+const defaultQuotas = {
+  gcpResources: true,
+  awsResources: true,
+};
 
 const expectCloudProviderToBe = (submitFn: jest.Mock, value: string) => {
   expect(submitFn).toHaveBeenCalledWith(
@@ -31,6 +35,10 @@ const expectCloudProviderToBe = (submitFn: jest.Mock, value: string) => {
 describe('<CloudProviderTileField />', () => {
   const awsLabel = 'Amazon Web Service logo Run on Amazon Web Services';
   const gcpLabel = 'Run on Google Cloud';
+
+  beforeEach(() => {
+    mockUseGetBillingQuotas.mockReturnValue(defaultQuotas);
+  });
 
   it('is accessible', async () => {
     const { container } = render(
@@ -80,9 +88,53 @@ describe('<CloudProviderTileField />', () => {
 
     await waitFor(() => expectCloudProviderToBe(handleSubmit, CloudProviderType.Aws));
   });
+
+  describe('no-quota tooltip', () => {
+    it('shows no-quota tooltip when GCP tile is disabled', async () => {
+      mockUseGetBillingQuotas.mockReturnValue({
+        ...defaultQuotas,
+        gcpResources: false,
+      });
+
+      const { user } = render(
+        <Formik initialValues={defaultValues} onSubmit={() => {}}>
+          <Form>
+            <CloudProviderTileField />
+          </Form>
+        </Formik>,
+      );
+
+      await user.hover(screen.getByRole('radio', { name: gcpLabel }));
+
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(noQuotaTooltip);
+    });
+
+    it('shows no-quota tooltip when AWS tile is disabled', async () => {
+      mockUseGetBillingQuotas.mockReturnValue({
+        ...defaultQuotas,
+        awsResources: false,
+      });
+
+      const { user } = render(
+        <Formik initialValues={defaultValues} onSubmit={() => {}}>
+          <Form>
+            <CloudProviderTileField />
+          </Form>
+        </Formik>,
+      );
+
+      await user.hover(screen.getByRole('radio', { name: awsLabel }));
+
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(noQuotaTooltip);
+    });
+  });
 });
 
 describe('CloudProviderTileField visibility logic based on billing model and GCP auth type', () => {
+  beforeEach(() => {
+    mockUseGetBillingQuotas.mockReturnValue(defaultQuotas);
+  });
+
   it('hides AWS tile when billing model is "On-demand: Flexible usage billed through the Google Cloud Marketplace"', () => {
     const customValues = {
       ...defaultValues,
