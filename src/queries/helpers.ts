@@ -21,7 +21,7 @@ export const formatOcmApiErrorMessage = (
   }
   if (code) {
     const fallback = (httpStatus !== undefined && HTTP_STATUS_FALLBACK_MESSAGE[httpStatus]) || '';
-    return `${code}: ${fallback}`;
+    return fallback ? `${code}: ${fallback}` : code;
   }
   if (trimmedReason) {
     return trimmedReason;
@@ -88,14 +88,13 @@ export const addNotificationErrorFormat = (
   if (isError && axios.isAxiosError(error)) {
     const { code, reason, details, operation_id: operationID } = error.response?.data ?? {};
     const httpStatus = error.response?.status;
-    const trimmedReason = reason?.trim();
     const errorData: RQApiErrorType = {};
     errorData.pending = isLoading;
     errorData.error = isError;
     errorData.fulfilled = false;
     errorData.errorCode = httpStatus;
     errorData.errorDetails = details;
-    errorData.errorMessage = trimmedReason || formatOcmApiErrorMessage(code, reason, httpStatus);
+    errorData.errorMessage = formatOcmApiErrorMessage(code, reason, httpStatus);
     errorData.internalErrorCode = code;
     errorData.operationID = operationID;
     return {
