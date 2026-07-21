@@ -24,7 +24,12 @@ import { AugmentedCluster } from '~/types/types';
 import ButtonWithTooltip from '../../../../../../common/ButtonWithTooltip';
 import { modalActions } from '../../../../../../common/Modal/ModalActions';
 import modals from '../../../../../../common/Modal/modals';
-import { isHibernating, isHypershiftCluster, isOffline } from '../../../../../common/clusterStates';
+import {
+  isHibernating,
+  isHypershiftCluster,
+  isOffline,
+  isWIFCluster,
+} from '../../../../../common/clusterStates';
 import NetworkingSelector, { routeSelectorPairsAsStrings } from '../../NetworkingSelector';
 import EditClusterIngressDialog from '../EditClusterIngressDialog';
 
@@ -36,24 +41,31 @@ const resolveDisableEditReason = ({
   isSTSEnabled,
   clusterHibernating,
   hypershiftCluster,
+  isGCPWifCluster,
 }: {
   canEdit?: boolean;
   isReadOnly: boolean;
   isSTSEnabled: boolean;
   clusterHibernating: boolean;
   hypershiftCluster: boolean;
+  isGCPWifCluster: boolean;
 }) => {
   const readOnlyReason = isReadOnly && 'This operation is not available during maintenance';
   const STSEnabledReason =
     isSTSEnabled &&
     !hypershiftCluster &&
     'Cluster ingress can only be edited for ROSA hosted control plane clusters or clusters not using Security Token Service (STS)';
+  const gcpWifReason =
+    isGCPWifCluster &&
+    "Cluster ingress can't be edited for OSD GCP clusters using Workload Identity Federation (WIF) authentication";
   const hibernatingReason =
     clusterHibernating && 'This operation is not available while cluster is hibernating';
   const canNotEditReason =
     !canEdit &&
     'You do not have permission to edit routers. Only cluster owners, cluster editors, and organization administrators can edit routers.';
-  return STSEnabledReason || readOnlyReason || hibernatingReason || canNotEditReason;
+  return (
+    STSEnabledReason || gcpWifReason || readOnlyReason || hibernatingReason || canNotEditReason
+  );
 };
 
 type ClusterIngressCardProps = {
@@ -90,6 +102,7 @@ const ClusterIngressCard = ({
   const clusterHibernating = isHibernating(cluster);
   const showConsoleLink = consoleURL && !isOffline(cluster);
   const hypershiftCluster = isHypershiftCluster(cluster);
+  const isGCPWifCluster = isWIFCluster(cluster);
 
   const dispatch = useDispatch();
   const handleEditSettings = () => {
@@ -102,6 +115,7 @@ const ClusterIngressCard = ({
     isSTSEnabled,
     clusterHibernating,
     hypershiftCluster,
+    isGCPWifCluster,
   });
 
   return (

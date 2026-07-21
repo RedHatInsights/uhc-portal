@@ -258,6 +258,14 @@ const canViewMachinePoolTab = (cluster: ClusterFromSubscription): boolean => {
 const isAWSPrivateCluster = (cluster: ClusterFromSubscription): boolean =>
   (cluster?.aws && cluster?.ccs?.enabled && cluster?.aws?.private_link) ?? false;
 
+/**
+ * Indicates that this is a GCP CCS cluster authenticated via Workload Identity Federation
+ *
+ * @param cluster ClusterFromSubscription
+ */
+const isWIFCluster = (cluster: ClusterFromSubscription): boolean =>
+  isGCP(cluster) && isCCS(cluster) && cluster?.gcp?.authentication?.kind === 'WifConfig';
+
 export {
   canViewMachinePoolTab,
   getClusterAIPermissions,
@@ -283,6 +291,7 @@ export {
   isWaitingForOIDCProviderOrOperatorRolesMode,
   isWaitingHypershiftCluster,
   isWaitingROSAManualMode,
+  isWIFCluster,
 };
 
 export default clusterStates;
