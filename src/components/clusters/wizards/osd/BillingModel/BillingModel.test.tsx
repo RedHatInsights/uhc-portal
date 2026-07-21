@@ -117,6 +117,25 @@ describe('<BillingModel />', () => {
       expect(rhInfraRadioOption).toBeChecked();
     });
 
+    it('does not disable customer cloud subscription for GCP Marketplace, even without marketplace quota', () => {
+      const quotas = {
+        ...defaultQuotas,
+        standardOsd: false,
+        marketplaceByoc: false,
+        marketplaceRhInfra: false,
+      };
+      mockUseGetBillingQuotas.mockReturnValue(quotas);
+
+      render(buildTestComponent(false, quotas));
+
+      const byocRadioCCSOption = screen.getByRole('radio', {
+        name: /customer cloud subscription/i,
+      });
+
+      expect(byocRadioCCSOption).toBeEnabled();
+      expect(byocRadioCCSOption).toBeChecked();
+    });
+
     it('defaults to On-Demand when there is no standard OSD quota', () => {
       mockUseGetBillingQuotas.mockReturnValue({
         ...defaultQuotas,

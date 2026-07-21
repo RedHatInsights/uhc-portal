@@ -50,6 +50,7 @@ export const BillingModel = () => {
     }
   };
 
+  const isGCPMarketplace = isGcpMarketplaceBilling(billingModel);
   const quotas = useGetBillingQuotas({ product });
   const showOsdTrial = quotas.osdTrial;
 
@@ -124,7 +125,7 @@ export const BillingModel = () => {
 
   if (billingModel.startsWith(SubscriptionCommonFieldsClusterBillingModel.marketplace)) {
     isRhInfraQuotaDisabled = !quotas.marketplaceRhInfra;
-    isByocQuotaDisabled = !quotas.marketplaceByoc;
+    isByocQuotaDisabled = isGCPMarketplace ? false : !quotas.marketplaceByoc;
   } else {
     isRhInfraQuotaDisabled = !quotas.rhInfra;
     isByocQuotaDisabled = !quotas.byoc;
@@ -162,7 +163,7 @@ export const BillingModel = () => {
       selectedProduct = normalizedProducts.OSDTrial;
     }
 
-    if (isGcpMarketplaceBilling(value)) {
+    if (isGCPMarketplace) {
       setFieldValue(FieldId.MarketplaceSelection, value, false);
       setFieldValue(FieldId.CloudProvider, CloudProviderType.Gcp, false);
     }
