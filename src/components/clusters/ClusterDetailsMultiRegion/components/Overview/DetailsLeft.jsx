@@ -69,6 +69,8 @@ function DetailsLeft({
 
   const hasAuthenticationType = isGCP(cluster) && isCCS(cluster);
   const isWifCluster = isWIFCluster(cluster);
+  // We only have information about the wif configuration, we imply that if a wif config is not used
+  // the user chose the other GCP authentication type, the service account
   const authenticationType = isWifCluster ? 'Workload Identity Federation' : 'Service Account';
   const wifConfigName = useMemo(() => {
     switch (true) {
