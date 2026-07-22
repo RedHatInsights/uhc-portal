@@ -21,7 +21,6 @@ import {
   MAX_NODES,
   MAX_NODES_HCP as MAX_NODES_HCP_DEFAULT,
   MAX_NODES_HCP_INSUFFICIEN_VERSION,
-  MAX_NODES_INSUFFICIEN_VERSION as MAX_NODES_180,
   MAX_NODES_INSUFFICIEN_VERSION,
   workerNodeVolumeSizeMinGiB,
   workerNodeVolumeSizeMinGiBHcp,
@@ -104,7 +103,6 @@ export const getMaxNodeCount = ({
   minNodes,
   isHypershift,
   clusterVersion,
-  allow249NodesOSDCCSROSA,
   increment,
 }: {
   available: number;
@@ -114,7 +112,6 @@ export const getMaxNodeCount = ({
   included: number;
   isHypershift?: boolean;
   clusterVersion: string | undefined;
-  allow249NodesOSDCCSROSA?: boolean;
   increment?: number;
 }): number => {
   const maxNodesHCP = getMaxNodesHCP(clusterVersion);
@@ -123,11 +120,8 @@ export const getMaxNodeCount = ({
   let maxValue = isEditingCluster ? available + currentNodeCount : available + included;
 
   // eslint-disable-next-line no-nested-ternary
-  const maxNumberOfNodes = isHypershift
-    ? maxNodesHCP
-    : allow249NodesOSDCCSROSA
-      ? getMaxWorkerNodes(clusterVersion)
-      : MAX_NODES_180;
+  const maxNumberOfNodes = isHypershift ? maxNodesHCP : getMaxWorkerNodes(clusterVersion);
+
   if (maxValue > maxNumberOfNodes) {
     maxValue = maxNumberOfNodes;
   }
@@ -223,7 +217,6 @@ export type GetMaxNodeCountForMachinePoolParams = {
   machinePool: MachinePool | undefined;
   minNodes: number;
   editMachinePoolId?: string;
-  allow249NodesOSDCCSROSA?: boolean;
   /** Number of availability zones for the machine pool. Used to calculate increment for multi-AZ pools. */
   mpAvailZones?: number;
 };
@@ -244,7 +237,6 @@ export const getMaxNodeCountForMachinePool = ({
   machinePool,
   minNodes,
   editMachinePoolId,
-  allow249NodesOSDCCSROSA,
   mpAvailZones,
 }: GetMaxNodeCountForMachinePoolParams): number => {
   const clusterIsMultiAz = isMultiAZ(cluster);
@@ -291,7 +283,6 @@ export const getMaxNodeCountForMachinePool = ({
     minNodes,
     isHypershift: isHypershiftCluster(cluster),
     clusterVersion: cluster.version?.raw_id,
-    allow249NodesOSDCCSROSA,
     increment,
   });
 };

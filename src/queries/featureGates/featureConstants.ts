@@ -27,7 +27,6 @@ export const EDIT_BILLING_ACCOUNT = 'ocmui-edit-billing-account';
 export const AWS_BILLING_IN_BOUNDARY = 'ocmui-require-aws-billing-in-boundary';
 export const BYPASS_COMPUTE_NODE_COUNT_LIMIT_CLASSIC_OSD_GCP =
   'bypass-compute-node-count-limit-classic-osd-gcp';
-export const MAX_NODES_TOTAL_249 = 'ocmui-max-nodes-total-249';
 export const ENHANCED_HTPASSWRD = 'ocmui-enhanced-htpasswrd';
 export const HIDE_RH_MARKETPLACE = 'OCMUI-hide-rh-marketplace';
 export const IMDS_SELECTION = 'ocmui-imds-selection';
@@ -64,7 +63,6 @@ export default {
   EDIT_BILLING_ACCOUNT,
   AWS_BILLING_IN_BOUNDARY,
   BYPASS_COMPUTE_NODE_COUNT_LIMIT_CLASSIC_OSD_GCP,
-  MAX_NODES_TOTAL_249,
   ENHANCED_HTPASSWRD,
   HIDE_RH_MARKETPLACE,
   IMDS_SELECTION,
