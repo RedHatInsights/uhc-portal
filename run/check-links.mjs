@@ -66,12 +66,8 @@ const KNOWN_FALSE_POSITIVES = [
  * @returns {string|null} Explanation string or null
  */
 function getKnownFalsePositiveNote(url) {
-  for (const { pattern, reason } of KNOWN_FALSE_POSITIVES) {
-    if (pattern.test(url)) {
-      return reason;
-    }
-  }
-  return null;
+  const match = KNOWN_FALSE_POSITIVES.find(({ pattern }) => pattern.test(url));
+  return match ? match.reason : null;
 }
 
 // ======================================================================
@@ -87,16 +83,18 @@ class Semaphore {
 
   acquire() {
     if (this.current < this.max) {
-      this.current++;
+      this.current += 1;
       return Promise.resolve();
     }
-    return new Promise((resolve) => this.queue.push(resolve));
+    return new Promise((resolve) => {
+      this.queue.push(resolve);
+    });
   }
 
   release() {
-    this.current--;
+    this.current -= 1;
     if (this.queue.length > 0) {
-      this.current++;
+      this.current += 1;
       this.queue.shift()();
     }
   }
@@ -118,7 +116,9 @@ function getHostSemaphore(url) {
 }
 
 function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 // ======================================================================
@@ -382,10 +382,13 @@ async function rateLimitedFetch(url, options = {}) {
   await hostSem.acquire();
   try {
     let lastResponse;
-    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    // eslint-disable-next-line no-await-in-loop -- retries must be sequential
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
       if (attempt > 0) {
+        // eslint-disable-next-line no-await-in-loop -- intentional backoff between retries
         await sleep(RETRY_BACKOFF_MS * attempt);
       }
+      // eslint-disable-next-line no-await-in-loop -- each attempt depends on the previous result
       lastResponse = await fetchWithFallback(url, options);
       if (!RETRYABLE_STATUSES.has(lastResponse.status) || attempt === MAX_ATTEMPTS - 1) {
         return lastResponse;
