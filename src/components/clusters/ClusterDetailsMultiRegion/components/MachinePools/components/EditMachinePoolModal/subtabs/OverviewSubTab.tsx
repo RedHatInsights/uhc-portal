@@ -8,7 +8,7 @@ import { CloudProviderType, IMDSType } from '~/components/clusters/wizards/commo
 import { ShieldedVM } from '~/components/clusters/wizards/common/ShieldedVM';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ImdsSection from '~/components/clusters/wizards/rosa/MachinePoolScreen/components/ImdsSection';
-import { IMDS_SELECTION, MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
+import { IMDS_SELECTION } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
@@ -79,7 +79,6 @@ export const useOverviewSubTab = ({
   const isHypershift = isHypershiftCluster(cluster);
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
 
-  const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
   const imdsSectionFeature = useFeatureGate(IMDS_SELECTION);
 
   const contentRef1 = React.createRef<HTMLElement>();
@@ -123,7 +122,6 @@ export const useOverviewSubTab = ({
           machinePool={currentMachinePool}
           machinePools={machinePools || []}
           machineTypes={machineTypesResponse}
-          allow249NodesOSDCCSROSA={allow249NodesOSDCCSROSA}
           isMaxReached={isMaxReached}
         />
         {imdsSectionFeature && !isEdit && isHypershift ? (

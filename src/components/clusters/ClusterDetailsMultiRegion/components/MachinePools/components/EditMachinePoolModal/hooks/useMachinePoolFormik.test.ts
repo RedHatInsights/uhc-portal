@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
 import * as machinePoolUtils from '~/components/clusters/common/machinePools/utils';
-import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
-import { mockUseFeatureGate } from '~/testUtils';
 
 import useMachinePoolFormik from './useMachinePoolFormik';
 import {
@@ -31,7 +29,6 @@ const mockUseOrganization = () => {
 
 describe('useMachinePoolFormik', () => {
   beforeEach(() => {
-    mockUseFeatureGate([[MAX_NODES_TOTAL_249, false]]);
     mockUseOrganization();
   });
 

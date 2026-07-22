@@ -65,7 +65,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={nonHCPCluster}
             machinePool={defaultMachinePool}
           />
@@ -86,7 +85,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={hcpCluster}
             machinePool={defaultMachinePool}
           />
@@ -106,7 +104,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={hcpCluster}
             machinePool={defaultMachinePool}
           />
@@ -128,7 +125,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={nonHCPCluster}
             machinePool={defaultMachinePool}
           />
@@ -158,7 +154,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={nonHCPCluster}
             machinePool={defaultMachinePool}
           />
@@ -191,7 +186,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[defaultMachinePool]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={hcpCluster}
             machinePool={{}}
           />
@@ -243,7 +237,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[currentPool, otherPool]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={hcpCluster}
             machinePool={currentPool}
           />
@@ -282,7 +275,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[currentPool]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={hcpCluster}
             machinePool={currentPool}
           />
@@ -325,7 +317,6 @@ describe('<EditNodeCountSection />', () => {
             machineTypes={{
               types: { aws: [{ id: 'm5.xlarge', cpu: { value: 4 }, memory: { value: 16 } }] },
             }}
-            allow249NodesOSDCCSROSA={false}
             cluster={ccsCluster}
             machinePool={enforcedDefaultPool}
           />
@@ -370,7 +361,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[otherPool]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={hcpCluster}
             machinePool={taintedMachinePool}
           />
@@ -407,7 +397,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[otherPool]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={hcpCluster}
             machinePool={currentPool}
           />
@@ -444,7 +433,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[otherPool]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={hcpCluster}
             machinePool={currentPool}
           />
@@ -484,7 +472,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[taintedPool]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={hcpCluster}
             machinePool={currentPool}
           />
@@ -516,7 +503,6 @@ describe('<EditNodeCountSection />', () => {
           <EditNodeCountSection
             machinePools={[currentPool]}
             machineTypes={{}}
-            allow249NodesOSDCCSROSA={false}
             cluster={hcpCluster}
             machinePool={currentPool}
           />

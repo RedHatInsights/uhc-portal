@@ -16,10 +16,9 @@ import {
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/VersionSelectField.fixtures';
 import { FieldId, initialValues } from '~/components/clusters/wizards/osd/constants';
 import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleStatuses';
-import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
-import { mockUseFeatureGate, render, screen, withState } from '~/testUtils';
+import { render, screen, withState } from '~/testUtils';
 
 import { ClusterPrivacyType } from '../../Networking/constants';
 
@@ -163,9 +162,6 @@ describe('<Details />', () => {
     });
 
     it('resets max-nodes-total to default when changing availability zone', async () => {
-      // Arrange
-      mockUseFeatureGate([[MAX_NODES_TOTAL_249, true]]);
-
       const formValues = {
         ...initialValues,
         // Change max-nodes-total to a non-default value
@@ -309,9 +305,6 @@ describe('<Details />', () => {
     );
 
     it('resets max-nodes-total to default when changing a version', async () => {
-      // Arrange
-      mockUseFeatureGate([[MAX_NODES_TOTAL_249, true]]);
-
       const formValues = {
         ...initialValues,
         // Change max-nodes-total to a non-default value

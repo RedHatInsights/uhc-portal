@@ -19,7 +19,6 @@ import { normalizedProducts } from '~/common/subscriptionTypes';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
 import { LoadingSkeletonCard } from '~/components/clusters/common/LoadingSkeletonCard/LoadingSkeletonCard';
 import { MachineConfiguration } from '~/components/clusters/common/MachineConfiguration';
-import { MAX_NODES_INSUFFICIEN_VERSION as MAX_NODES_180 } from '~/components/clusters/common/machinePools/constants';
 import { getMaxNodesTotalDefaultAutoscaler } from '~/components/clusters/common/machinePools/utils';
 import {
   refetchClusterAutoscalerData,
@@ -28,10 +27,7 @@ import {
 import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypes';
 import { useDeleteMachinePool } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useDeleteMachinePool';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
-import {
-  ENABLE_MACHINE_CONFIGURATION,
-  MAX_NODES_TOTAL_249,
-} from '~/queries/featureGates/featureConstants';
+import { ENABLE_MACHINE_CONFIGURATION } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
 import { clusterService } from '~/services';
@@ -67,7 +63,6 @@ import './MachinePools.scss';
 
 const MachinePools = ({ cluster }) => {
   const dispatch = useDispatch();
-  const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
 
   const isDeleteMachinePoolModalOpen = useGlobalState((state) =>
     shouldShowModal(state, modals.DELETE_MACHINE_POOL),
@@ -188,11 +183,8 @@ const MachinePools = ({ cluster }) => {
   ]);
 
   const maxNodesTotalDefault = useMemo(
-    () =>
-      allow249NodesOSDCCSROSA
-        ? getMaxNodesTotalDefaultAutoscaler(cluster.version?.raw_id, cluster.multi_az)
-        : MAX_NODES_180,
-    [allow249NodesOSDCCSROSA, cluster.version?.raw_id, cluster.multi_az],
+    () => getMaxNodesTotalDefaultAutoscaler(cluster.version?.raw_id, cluster.multi_az),
+    [cluster.version?.raw_id, cluster.multi_az],
   );
 
   const hasMachinePoolsQuota = hasMachinePoolsQuotaSelector(
