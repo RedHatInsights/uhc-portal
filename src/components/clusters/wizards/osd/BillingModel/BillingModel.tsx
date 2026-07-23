@@ -111,14 +111,7 @@ export const BillingModel = () => {
 
     clearPreviousVersionsReponse();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    product,
-    billingModel,
-    showOsdTrial,
-    quotas.gcpResources,
-    quotas.standardOsd,
-    selectedMarketplace,
-  ]);
+  }, [product, billingModel, showOsdTrial, quotas.standardOsd, selectedMarketplace]);
 
   let isRhInfraQuotaDisabled = false;
   let isByocQuotaDisabled = false;
@@ -163,7 +156,7 @@ export const BillingModel = () => {
       selectedProduct = normalizedProducts.OSDTrial;
     }
 
-    if (isGCPMarketplace) {
+    if (isGcpMarketplaceBilling(value)) {
       setFieldValue(FieldId.MarketplaceSelection, value, false);
       setFieldValue(FieldId.CloudProvider, CloudProviderType.Gcp, false);
     }

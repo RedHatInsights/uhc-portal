@@ -19,14 +19,13 @@ import RedHatLogo from '~/styles/images/Logo-RedHat-Hat-Color-RGB.png';
 import MicrosoftLogo from '~/styles/images/Microsoft_logo.svg';
 
 interface ManagedServicesTableProps {
-  hasOSDQuota?: boolean;
   isTrialEnabled?: boolean;
 }
 
 const ManagedServicesTable = (props: ManagedServicesTableProps) => {
   const { canCreateManagedCluster } = useCanCreateManagedCluster();
 
-  const { hasOSDQuota = false, isTrialEnabled = false } = props;
+  const { isTrialEnabled = false } = props;
   const [openRows, setOpenRows] = useState<Array<string>>([]);
   const setRowExpanded = (rowKey: string, isExpanding = true) =>
     setOpenRows((prevExpanded) => {
@@ -83,40 +82,26 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
     expandedSection: null,
   };
 
-  let osdRowaction;
-
-  if (hasOSDQuota) {
-    osdRowaction = (
-      <CreateManagedClusterButtonWithTooltip
-        childComponent={Button}
-        className="create-button"
-        isAriaDisabled={!canCreateManagedCluster}
-        variant={ButtonVariant.primary}
-        component={(props: any) => (
-          <Link
-            {...props}
-            id="create-cluster"
-            to="/create/osd"
-            data-testid="osd-create-cluster-button"
-          />
-        )}
-      >
-        Create cluster
-      </CreateManagedClusterButtonWithTooltip>
-    );
-  } else {
-    osdRowaction = (
-      <ExternalLink
-        href={links.OSD_LEARN_MORE}
-        isButton
-        variant={ButtonVariant.secondary}
-        className="create-button"
-        noIcon
-      >
-        <span>Learn more</span>
-      </ExternalLink>
-    );
-  }
+  // OSD always offers the On-Demand Google Cloud Marketplace billing option regardless of
+  // quota, so "Create cluster" should never be gated behind pre-purchased quota for it.
+  const osdRowaction = (
+    <CreateManagedClusterButtonWithTooltip
+      childComponent={Button}
+      className="create-button"
+      isAriaDisabled={!canCreateManagedCluster}
+      variant={ButtonVariant.primary}
+      component={(props: any) => (
+        <Link
+          {...props}
+          id="create-cluster"
+          to="/create/osd"
+          data-testid="osd-create-cluster-button"
+        />
+      )}
+    >
+      Create cluster
+    </CreateManagedClusterButtonWithTooltip>
+  );
 
   const osdRow = {
     key: rowKeys.osd,

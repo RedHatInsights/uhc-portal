@@ -55,25 +55,25 @@ const verifyOSDButtonVisibility = (buttons) => {
 
 describe('<CloudTab />', () => {
   describe('OSD clusters', () => {
-    it('is accessible when both trial and quota are enabled', async () => {
+    it('is accessible when trial is enabled', async () => {
       // Arrange
-      const { container } = render(<CloudTab hasOSDQuota trialEnabled />);
+      const { container } = render(<CloudTab trialEnabled />);
 
       // Assert
       await checkAccessibility(container);
     });
 
-    it('is accessible when trial is disabled and no quota', async () => {
+    it('is accessible when trial is disabled', async () => {
       // Arrange
-      const { container } = render(<CloudTab hasOSDQuota={false} trialEnabled={false} />);
+      const { container } = render(<CloudTab trialEnabled={false} />);
 
       // Assert
       await checkAccessibility(container);
     });
 
-    it('shows two sections, create cluster, and quota link when it has OSD quota', () => {
+    it('always shows create cluster and quota link, regardless of quota, since On-Demand GCP Marketplace never requires quota', () => {
       // Arrange
-      render(<CloudTab hasOSDQuota trialEnabled={false} />);
+      render(<CloudTab trialEnabled={false} />);
 
       // Assert
       verifyBothSectionsShowing();
@@ -89,45 +89,9 @@ describe('<CloudTab />', () => {
       ]);
     });
 
-    it('shows two sections, learn more link,  and quota link when there is not any OSD quota', () => {
+    it('shows two sections, create OSD button, and create OSD trial button when trial is enabled', () => {
       // Arrange
-      render(<CloudTab hasOSDQuota={false} trialEnabled={false} />);
-
-      // Assert
-      verifyBothSectionsShowing();
-
-      verifyOSDButtonVisibility([
-        { name: componentText.CREATE_CLUSTER_BUTTON, visibility: false },
-        { name: componentText.VIEW_OSD_QUOTA_LINK, visibility: true },
-        { name: componentText.LEARN_MORE_OSD_LINK, visibility: true },
-        {
-          name: componentText.CREATE_TRIAL_CLUSTER_BUTTON,
-          visibility: false,
-        },
-      ]);
-    });
-
-    it('shows two sections and create OSD trail button when trial is enabled', () => {
-      // Arrange
-      render(<CloudTab hasOSDQuota={false} trialEnabled />);
-
-      // Assert
-      verifyBothSectionsShowing();
-
-      verifyOSDButtonVisibility([
-        { name: componentText.CREATE_CLUSTER_BUTTON, visibility: false },
-        { name: componentText.VIEW_OSD_QUOTA_LINK, visibility: true },
-        { name: componentText.LEARN_MORE_OSD_LINK, visibility: true },
-        {
-          name: componentText.CREATE_TRIAL_CLUSTER_BUTTON,
-          visibility: true,
-        },
-      ]);
-    });
-
-    it('shows  two sections, create OSD button, create OSD trial, and quota link when  both trial enabled and OSD quota', () => {
-      // Arrange
-      render(<CloudTab hasOSDQuota trialEnabled />);
+      render(<CloudTab trialEnabled />);
 
       // Assert
       verifyBothSectionsShowing();
@@ -147,7 +111,6 @@ describe('<CloudTab />', () => {
   describe('in Restricted env', () => {
     const isRestrictedEnv = mockRestrictedEnv();
     const props = {
-      hasOSDQuota: false,
       trialEnabled: false,
     };
 

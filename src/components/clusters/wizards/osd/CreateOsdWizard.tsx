@@ -18,7 +18,6 @@ import { ocmResourceTypeByProduct, TrackEvent, trackEvents } from '~/common/anal
 import { shouldRefetchQuota } from '~/common/helpers';
 import { Navigate, useNavigate } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
-import { availableQuota } from '~/components/clusters/common/quotaSelectors';
 import { MachinePool as ClusterSettingsMachinePool } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/MachinePool';
 import type { NodeLabel } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/NodeLabelsFieldArray';
 import { ClusterUpdates } from '~/components/clusters/wizards/common/ClusterUpdates';
@@ -38,13 +37,9 @@ import getLoadBalancerValues from '~/redux/actions/loadBalancerActions';
 import getPersistentStorageValues from '~/redux/actions/persistentStorageActions';
 import { getOrganizationAndQuota } from '~/redux/actions/userActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
-import {
-  QuotaCostList,
-  SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel,
-} from '~/types/accounts_mgmt.v1';
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 import { ErrorState } from '~/types/types';
 
-import { QuotaTypes } from '../../common/quotaModel';
 import { useClusterWizardResetStepsHook } from '../hooks/useClusterWizardResetStepsHook';
 
 import { useGetBillingQuotas } from './BillingModel/useGetBillingQuotas';
@@ -111,12 +106,6 @@ const CreateOsdWizardInternal = () => {
     };
   };
   useClusterWizardResetStepsHook({ currentStep, wizardContextRef, values });
-
-  const hasProductQuota =
-    availableQuota(organization.quotaList as QuotaCostList, {
-      product,
-      resourceType: QuotaTypes.CLUSTER,
-    }) >= 1;
 
   const requestErrors = [
     {
@@ -196,10 +185,6 @@ const CreateOsdWizardInternal = () => {
 
   if (createClusterResponse.fulfilled) {
     return <Navigate replace to={`/details/s/${createClusterResponse.cluster.subscription?.id}`} />;
-  }
-
-  if (organization.fulfilled && !hasProductQuota) {
-    return <Navigate replace to="/create" />;
   }
 
   if (requestErrors.length > 0) {

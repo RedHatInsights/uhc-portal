@@ -28,7 +28,6 @@ describe('<CreateClusterPage />', () => {
   const props = {
     getOrganizationAndQuota,
     getAuthToken,
-    hasOSDQuota: true,
     hasOSDTrialQuota: true,
     rosaCreationWizardFeature: false,
     organization: { ...organization, fulfilled: true },
@@ -58,7 +57,6 @@ describe('<CreateClusterPage />', () => {
     it('should render', async () => {
       render(
         <CreateClusterPage
-          hasOSDQuota={false}
           hasOSDTrialQuota={false}
           getOrganizationAndQuota={getOrganizationAndQuota}
           organization={{ ...organization, fulfilled: true }}
@@ -77,7 +75,6 @@ describe('<CreateClusterPage />', () => {
     it('should fetch quota', () => {
       render(
         <CreateClusterPage
-          hasOSDQuota={false}
           hasOSDTrialQuota={false}
           getOrganizationAndQuota={getOrganizationAndQuota}
           organization={{ ...organization, fulfilled: false }}
