@@ -461,6 +461,82 @@ describe('<AWSBillingAccount />', () => {
       });
     });
 
+    it('auto-selects the first item in dropdown sort order when multiple accounts have contracts', async () => {
+      const setFieldValueMock = jest.fn();
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+      mockUseFormState({
+        setFieldValue: setFieldValueMock,
+        getFieldProps: jest.fn().mockReturnValue({
+          name: FieldId.BillingAccountId,
+          value: '',
+          onBlur: jest.fn(),
+          onChange: jest.fn(),
+        }),
+      });
+
+      const stateWithMultipleContracts = {
+        ...stateWithMixedContracts,
+        userProfile: {
+          organization: {
+            quotaList: {
+              items: [
+                {
+                  allowed: 2020,
+                  cloud_accounts: [
+                    {
+                      cloud_account_id: '111',
+                      cloud_provider_id: 'aws',
+                      contracts: [],
+                    },
+                    {
+                      cloud_account_id: '222',
+                      cloud_provider_id: 'aws',
+                      contracts: [
+                        {
+                          dimensions: [
+                            { name: 'four_vcpu_hour', value: '96' },
+                            { name: 'control_plane', value: '4' },
+                          ],
+                        },
+                      ],
+                    },
+                    {
+                      cloud_account_id: '999',
+                      cloud_provider_id: 'aws',
+                      contracts: [
+                        {
+                          dimensions: [
+                            { name: 'four_vcpu_hour', value: '96' },
+                            { name: 'control_plane', value: '4' },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                  quota_id: 'cluster|byoc|moa|marketplace',
+                },
+              ],
+            },
+          },
+        },
+      };
+
+      const newProps = {
+        ...defaultProps,
+        selectedAWSBillingAccountID: '',
+      };
+
+      withState(stateWithMultipleContracts).render(
+        buildTestComponent(<AWSBillingAccount {...newProps} />),
+      );
+
+      // Ascending localeCompare puts '222' first among contracted accounts
+      await waitFor(() => {
+        expect(setFieldValueMock).toHaveBeenCalledWith(FieldId.BillingAccountId, '222');
+      });
+    });
+
     it('falls back to first account when feature gate is enabled but no accounts have contracts', async () => {
       const setFieldValueMock = jest.fn();
       shouldRefreshQuotaMock.mockReturnValue(false);
@@ -502,6 +578,7 @@ describe('<AWSBillingAccount />', () => {
 
       withState(stateNoContracts).render(buildTestComponent(<AWSBillingAccount {...newProps} />));
 
+      // Same ascending label sort as the dropdown: '111' comes first
       await waitFor(() => {
         expect(setFieldValueMock).toHaveBeenCalledWith(FieldId.BillingAccountId, '111');
       });

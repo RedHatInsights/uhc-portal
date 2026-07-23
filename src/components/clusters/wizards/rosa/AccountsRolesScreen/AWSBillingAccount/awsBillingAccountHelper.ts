@@ -73,10 +73,34 @@ const createBillingAccountSortFn =
     return secondarySortFn(a, b);
   };
 
+/** Shared label sort used by AWS account dropdowns (shorter IDs first, then ascending locale). */
+const compareAWSAccountLabels = (a: FuzzyEntryType, b: FuzzyEntryType): number => {
+  const lengthDiff = a.label.length - b.label.length;
+  return lengthDiff || a.label.localeCompare(b.label);
+};
+
+const billingAccountSortFn = createBillingAccountSortFn(compareAWSAccountLabels);
+
+/**
+ * Returns the account ID that appears first in the billing-account dropdown
+ * (contracted accounts first, then the shared label sort).
+ */
+const getDefaultBillingAccountId = (accounts: CloudAccount[]): string => {
+  if (!accounts.length) {
+    return '';
+  }
+
+  const [firstOption] = [...getBillingAccountSelectOptions(accounts)].sort(billingAccountSortFn);
+  return firstOption?.entryId || '';
+};
+
 export {
+  billingAccountSortFn,
+  compareAWSAccountLabels,
   createBillingAccountSortFn,
   getBillingAccountSelectOptions,
   getContract,
+  getDefaultBillingAccountId,
   getDimensionValue,
   shouldShowBillingContractNotification,
 };

@@ -16,7 +16,7 @@ import {
 import links from '~/common/installLinks.mjs';
 import { AWS_ACCOUNT_ROSA_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
-import { FuzzyDataType, FuzzyEntryType } from '~/components/common/FuzzySelect/types';
+import { FuzzyDataType } from '~/components/common/FuzzySelect/types';
 import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { CloudAccount } from '~/types/accounts_mgmt.v1';
@@ -26,8 +26,9 @@ import PopoverHint from '../../../../common/PopoverHint';
 
 import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/AssociateAWSAccountDrawer';
 import {
+  billingAccountSortFn,
+  compareAWSAccountLabels,
   CONTRACT_ENABLED_DESCRIPTION,
-  createBillingAccountSortFn,
   getBillingAccountSelectOptions,
   getContract,
 } from './AWSBillingAccount/awsBillingAccountHelper';
@@ -48,13 +49,6 @@ function NoAssociatedAWSAccounts() {
     </EmptyState>
   );
 }
-
-function sortFn(a: FuzzyEntryType, b: FuzzyEntryType) {
-  const ret = b.label.length - a.label.length;
-  return ret || b.label.localeCompare(a.label);
-}
-
-const billingAccountSortFn = createBillingAccountSortFn(sortFn);
 
 export interface AWSAccountSelectionProps {
   input: {
@@ -198,7 +192,7 @@ function AWSAccountSelection({
             selectionData={selectionData}
             onOpenChange={onToggle}
             onSelect={onSelect}
-            sortFn={showEnhancedBillingOptions ? billingAccountSortFn : sortFn}
+            sortFn={showEnhancedBillingOptions ? billingAccountSortFn : compareAWSAccountLabels}
             isDisabled={isDisabled}
             placeholderText={AWS_ACCT_ID_PLACEHOLDER}
             inlineFilterPlaceholderText="Filter by account ID"
