@@ -20,6 +20,8 @@ import { shouldRefetchQuota } from '~/common/helpers';
 import links from '~/common/installLinks.mjs';
 import { getAwsBillingAccountsFromQuota } from '~/components/clusters/common/quotaSelectors';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { CloudAccount } from '~/types/accounts_mgmt.v1';
 
@@ -50,6 +52,7 @@ const AWSBillingAccount = ({
   );
 
   const [cloudAccounts, setCloudAccounts] = useState<CloudAccount[]>([]);
+  const isBillingContractNotificationEnabled = useFeatureGate(BILLING_CONTRACT_NOTIFICATION);
 
   const refresh = useCallback(() => {
     dispatch(getAWSBillingAccountIDs(organization.details?.id) as any);
@@ -85,13 +88,22 @@ const AWSBillingAccount = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getAWSBillingAccountsResponse]);
 
-  // if there's only one account, select it by default
   useEffect(() => {
-    if (cloudAccounts?.length === 1 && !selectedAWSBillingAccountID) {
+    if (!cloudAccounts?.length || selectedAWSBillingAccountID) {
+      return;
+    }
+
+    if (isBillingContractNotificationEnabled) {
+      const contractedAccount = cloudAccounts.find((account) => getContract(account) !== null);
+      setFieldValue(
+        FieldId.BillingAccountId,
+        contractedAccount?.cloud_account_id || cloudAccounts[0].cloud_account_id || '',
+      );
+    } else if (cloudAccounts.length === 1) {
       setFieldValue(FieldId.BillingAccountId, cloudAccounts[0].cloud_account_id || '');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cloudAccounts, selectedAWSBillingAccountID]);
+  }, [cloudAccounts, selectedAWSBillingAccountID, isBillingContractNotificationEnabled]);
 
   const connectNewAcctBtn = (
     <ExternalLink

@@ -1,11 +1,12 @@
 import { Page, Locator, expect } from '@playwright/test';
 
-import { BasePage } from './base-page';
+import { BaseWizardPage } from './base-wizard-page';
 
 /**
- * Create ROSA Wizard page object for Playwright tests
+ * Create ROSA Wizard page object for Playwright tests.
+ * ROSA-specific wizard logic only; shared version/channel helpers live on BaseWizardPage.
  */
-export class CreateRosaWizardPage extends BasePage {
+export class CreateRosaWizardPage extends BaseWizardPage {
   constructor(page: Page) {
     super(page);
   }
@@ -15,16 +16,19 @@ export class CreateRosaWizardPage extends BasePage {
     return this.page.getByTestId('rosa-create-cluster-button');
   }
 
+  /** Alias kept for existing ROSA specs; same as shared wizardNextButton(). */
   rosaNextButton(): Locator {
-    return this.page.getByTestId('wizard-next-button');
+    return this.wizardNextButton();
   }
 
+  /** Alias kept for existing ROSA specs; same as shared wizardBackButton(). */
   rosaBackButton(): Locator {
-    return this.page.getByTestId('wizard-back-button');
+    return this.wizardBackButton();
   }
 
+  /** Alias kept for existing ROSA specs; same as shared wizardCancelButton(). */
   rosaCancelButton(): Locator {
-    return this.page.getByTestId('wizard-cancel-button');
+    return this.wizardCancelButton();
   }
 
   rosaClusterWithCLI(): Locator {
@@ -323,11 +327,6 @@ export class CreateRosaWizardPage extends BasePage {
     await expect(this.page).toHaveURL(/\/openshift\/create\/rosa\/wizard/);
   }
 
-  async waitAndClick(buttonLocator: Locator, timeout: number = 60000): Promise<void> {
-    await buttonLocator.waitFor({ state: 'visible', timeout });
-    await buttonLocator.click();
-  }
-
   async isControlPlaneTypeScreen(): Promise<void> {
     // Wait for h2 with specific text to load and be visible
     await this.page
@@ -367,9 +366,9 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   async waitForNetworkingConfigurationScreen(): Promise<void> {
-    await expect(
-      this.page.getByRole('heading', { name: 'Networking configuration' }),
-    ).toBeVisible({ timeout: 60000 });
+    await expect(this.page.getByRole('heading', { name: 'Networking configuration' })).toBeVisible({
+      timeout: 60000,
+    });
     await expect(this.clusterPrivacyPublicRadio()).toBeVisible({ timeout: 30000 });
   }
 
@@ -504,23 +503,6 @@ export class CreateRosaWizardPage extends BasePage {
     }
   }
 
-  async closePopoverDialogs(): Promise<void> {
-    const closeButtons = this.page.locator('button[aria-label="Close"]');
-    const count = await closeButtons.count();
-
-    for (let i = 0; i < count; i++) {
-      const button = closeButtons.nth(i);
-      try {
-        if (await button.isVisible()) {
-          await button.click();
-        }
-      } catch (error) {
-        // Continue if button is not clickable
-        console.log(`Could not click close button ${i}:`, error);
-      }
-    }
-  }
-
   async waitForVPCList(): Promise<void> {
     await this.page.getByRole('progressbar', { name: 'Loading...' }).waitFor({
       state: 'detached',
@@ -538,120 +520,10 @@ export class CreateRosaWizardPage extends BasePage {
     await this.page.locator('text=' + vpcName).click();
   }
 
-  async selectVersion(version: string): Promise<void> {
-    if (version !== '') {
-      await this.waitForInstallableVersionsLoaded();
-      await this.versionDropdownToggle().click();
-      await this.versionDropdownOption(version).click();
-    }
-  }
-
-  versionDropdownToggle(): Locator {
-    return this.page.locator('#version-selector');
-  }
-
-  /** Version options live in the FuzzySelect listbox, not native `<select>` options. */
-  versionDropdownOption(version: string): Locator {
-    return this.page
-      .getByRole('listbox', { name: 'Select options list' })
-      .getByRole('option', { name: version, exact: true });
-  }
-
-  versionLoadingIndicator(): Locator {
-    return this.page.getByLabel('Loading...');
-  }
-
-  async waitForInstallableVersionsLoaded(): Promise<void> {
-    await this.ensureClusterDetailsScreen();
-    await this.versionDropdownToggle().waitFor({ state: 'visible', timeout: 90000 });
-    const loading = this.versionLoadingIndicator();
-    if (await loading.isVisible().catch(() => false)) {
-      await loading.waitFor({ state: 'hidden', timeout: 120000 });
-    }
-  }
-
-  channelDropdown(): Locator {
-    return this.page.getByLabel('Channel', { exact: true });
-  }
-
-  channelGroupSelect(): Locator {
-    return this.page.getByLabel('Channel group');
-  }
-
-  channelFieldLabel(): Locator {
-    return this.page.getByText('Channel', { exact: true });
-  }
-
-  versionFieldLabel(): Locator {
-    return this.page.getByText('Version', { exact: true }).first();
-  }
-
-  async selectChannel(channel: string): Promise<void> {
-    await this.channelDropdown().waitFor({ state: 'visible', timeout: 90000 });
-    await this.channelDropdown().selectOption(channel);
-  }
-
-  async channelDropdownOptionValues(): Promise<string[]> {
-    const select = this.channelDropdown();
-    await select.waitFor({ state: 'visible', timeout: 90000 });
-    return select.locator('option').evaluateAll((opts) =>
-      opts
-        .map((o) => (o as HTMLOptionElement).value.trim())
-        .filter((value) => value.length > 0),
-    );
-  }
-
-  channelInfoIcon(): Locator {
-    return this.page.getByRole('button', { name: 'Update channels information' });
-  }
-
-  channelPopover(): Locator {
-    return this.page
-      .getByRole('dialog', { name: 'help' })
-      .filter({ hasText: /Channels provide/i });
-  }
-
   machinePoolVpcRegionPrompt(region: string): Locator {
     return this.page.getByText(
       `Select a VPC to install your machine pools into your selected region: ${region}`,
     );
-  }
-
-  channelPopoverLearnMoreLink(): Locator {
-    return this.channelPopover().getByRole('link', { name: 'Learn more' });
-  }
-
-  async followChannelPopoverLearnMoreLink(docUrlFragment: string): Promise<void> {
-    const learnMore = this.channelPopoverLearnMoreLink();
-    await expect(learnMore).toHaveAttribute('href', new RegExp(docUrlFragment));
-
-    const popupPromise = this.page.waitForEvent('popup', { timeout: 60000 });
-    await learnMore.click();
-    const docPage = await popupPromise;
-    await docPage.waitForLoadState('domcontentloaded');
-    await expect(docPage).toHaveURL(new RegExp(docUrlFragment));
-    await docPage.close();
-  }
-
-  reviewChannelValue(): Locator {
-    return this.page.getByTestId('Channel').locator('motion.div, div');
-  }
-
-  reviewVersionValue(): Locator {
-    return this.page.getByTestId('Version').locator('motion.div, div');
-  }
-
-  async assertYStreamChannelUiWithoutChannelGroup(): Promise<void> {
-    await expect(this.channelGroupSelect()).not.toBeVisible();
-    await expect(this.channelDropdown()).toBeVisible();
-  }
-
-  async assertVersionFieldAppearsBeforeChannelField(): Promise<void> {
-    const versionBox = await this.versionFieldLabel().boundingBox();
-    const channelBox = await this.channelFieldLabel().boundingBox();
-    expect(versionBox).not.toBeNull();
-    expect(channelBox).not.toBeNull();
-    expect(versionBox!.y).toBeLessThan(channelBox!.y);
   }
 
   async ensureClusterDetailsScreen(): Promise<void> {
@@ -670,16 +542,6 @@ export class CreateRosaWizardPage extends BasePage {
     }
 
     await this.isClusterDetailsScreen();
-  }
-
-  async resetClusterDetailsSelections(): Promise<void> {
-    await this.ensureClusterDetailsScreen();
-
-    const channelDropdown = this.channelDropdown();
-    if (await channelDropdown.isEnabled()) {
-      await channelDropdown.selectOption('');
-      await expect(channelDropdown).toHaveValue('');
-    }
   }
 
   async navigateWizardBackToClusterDetails(): Promise<void> {
@@ -732,9 +594,11 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   async waitForClusterCreationAndOverview(): Promise<void> {
-    await expect(this.page.locator('h2, h3').filter({ hasText: 'Installing cluster' })).toBeVisible({
-      timeout: 120000,
-    });
+    await expect(this.page.locator('h2, h3').filter({ hasText: 'Installing cluster' })).toBeVisible(
+      {
+        timeout: 120000,
+      },
+    );
   }
 
   async selectMachinePoolPrivateSubnet(
@@ -789,7 +653,11 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   async selectMachinePoolPublicSubnet(publicSubnetNameOrId: string): Promise<void> {
-    if (await this.clusterPrivacyPublicSubnetButton().isVisible().catch(() => false)) {
+    if (
+      await this.clusterPrivacyPublicSubnetButton()
+        .isVisible()
+        .catch(() => false)
+    ) {
       await this.selectClusterPrivacyPublicSubnet(publicSubnetNameOrId);
       return;
     }
@@ -805,7 +673,10 @@ export class CreateRosaWizardPage extends BasePage {
     await this.subnetFilterInput().waitFor({ state: 'visible', timeout: 50000 });
     await this.subnetFilterInput().clear();
     await this.subnetFilterInput().fill(publicSubnetNameOrId);
-    await this.page.locator('li').filter({ hasText: publicSubnetNameOrId }).scrollIntoViewIfNeeded();
+    await this.page
+      .locator('li')
+      .filter({ hasText: publicSubnetNameOrId })
+      .scrollIntoViewIfNeeded();
     await this.page.locator('li').filter({ hasText: publicSubnetNameOrId }).click();
   }
 
@@ -820,7 +691,10 @@ export class CreateRosaWizardPage extends BasePage {
     await this.subnetFilterInput().waitFor({ state: 'visible', timeout: 50000 });
     await this.subnetFilterInput().clear();
     await this.subnetFilterInput().fill(publicSubnetNameOrId);
-    await this.page.locator('li').filter({ hasText: publicSubnetNameOrId }).scrollIntoViewIfNeeded();
+    await this.page
+      .locator('li')
+      .filter({ hasText: publicSubnetNameOrId })
+      .scrollIntoViewIfNeeded();
     await this.page.locator('li').filter({ hasText: publicSubnetNameOrId }).click();
   }
 
@@ -1031,15 +905,6 @@ export class CreateRosaWizardPage extends BasePage {
 
   async enableConfigureClusterWideProxy(): Promise<void> {
     await this.enableConfigureClusterWideProxyCheckbox().check();
-  }
-
-  async isTextContainsInPage(text: string, present: boolean = true): Promise<void> {
-    const locator = this.page.locator('body').filter({ hasText: text });
-    if (present) {
-      await expect(locator).toBeVisible();
-    } else {
-      await expect(locator).not.toBeVisible();
-    }
   }
 
   async selectRoleProviderMode(mode: string): Promise<void> {

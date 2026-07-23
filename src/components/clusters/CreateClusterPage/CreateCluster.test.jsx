@@ -4,6 +4,11 @@ import { checkAccessibility, render, screen, userEvent } from '../../../testUtil
 
 import CreateClusterPage from './CreateClusterPage';
 
+jest.mock('@scalprum/react-core', () => ({
+  ...jest.requireActual('@scalprum/react-core'),
+  useRemoteHook: jest.fn(() => ({ hookResult: null })),
+}));
+
 describe('<CreateClusterPage />', () => {
   const getOrganizationAndQuota = jest.fn();
   const getAuthToken = jest.fn();

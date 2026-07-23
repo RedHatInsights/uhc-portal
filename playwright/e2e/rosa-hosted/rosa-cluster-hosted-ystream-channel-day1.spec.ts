@@ -121,7 +121,7 @@ test.describe.serial(
       await createRosaWizardPage.selectRegion(region);
       await createRosaWizardPage.setClusterName(clusterName);
       await createRosaWizardPage.selectVersion(versionWithChannels);
-      await expect(createRosaWizardPage.channelDropdown()).toHaveValue('');
+      await expect(createRosaWizardPage.channelSelect()).toHaveValue('');
       await createRosaWizardPage.closePopoverAndNavigateNext();
     });
 
@@ -132,9 +132,9 @@ test.describe.serial(
       await createRosaWizardPage.selectRegion(region);
       await createRosaWizardPage.selectVersion(yStream.SelectedVersion);
 
-      await createRosaWizardPage.channelDropdown().click();
+      await createRosaWizardPage.channelSelect().click();
 
-      const availableChannelOptions = await createRosaWizardPage.channelDropdownOptionValues();
+      const availableChannelOptions = await createRosaWizardPage.channelSelectOptionValues();
 
       for (const expectedChannel of yStream.AvailableChannels) {
         expect(availableChannelOptions).toContain(expectedChannel);
@@ -153,7 +153,7 @@ test.describe.serial(
 
       for (const channel of yStream.AvailableChannels) {
         await createRosaWizardPage.selectChannel(channel);
-        await expect(createRosaWizardPage.channelDropdown()).toHaveValue(channel);
+        await expect(createRosaWizardPage.channelSelect()).toHaveValue(channel);
         await expect(createRosaWizardPage.versionDropdownToggle()).toContainText(
           yStream.SelectedVersion,
         );
@@ -272,7 +272,7 @@ test.describe.serial(
 
       await createRosaWizardPage.navigateWizardBackToClusterDetails();
       await createRosaWizardPage.selectVersion(versionWithoutChannels);
-      await expect(createRosaWizardPage.channelDropdown()).toBeDisabled();
+      await expect(createRosaWizardPage.channelSelect()).toBeDisabled();
       await createRosaWizardPage.closePopoverAndNavigateNext();
 
       await createRosaWizardPage.waitForVPCList();

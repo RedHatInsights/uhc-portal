@@ -5,6 +5,11 @@ import { render, screen } from '~/testUtils';
 
 import { ManagedServicesTable } from './ManagedServicesTable';
 
+jest.mock('@scalprum/react-core', () => ({
+  ...jest.requireActual('@scalprum/react-core'),
+  useRemoteHook: jest.fn(() => ({ hookResult: null })),
+}));
+
 jest.mock('~/queries/ClusterDetailsQueries/useFetchActionsPermissions', () => ({
   useCanCreateManagedCluster: jest.fn(),
 }));

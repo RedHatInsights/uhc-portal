@@ -166,9 +166,9 @@ test.describe.serial(
 
       await createOSDWizardPage.createCustomDomainPrefixCheckbox().uncheck();
 
-      await createOSDWizardPage.versionSelectorToggle().click();
+      await createOSDWizardPage.versionDropdownToggle().click();
       await expect(createOSDWizardPage.versionOptionsByChannel('fast')).not.toHaveCount(0);
-      await createOSDWizardPage.versionSelectorToggle().click();
+      await createOSDWizardPage.versionDropdownToggle().click();
 
       // Open the channel dropdown and verify a fast option exists
       await createOSDWizardPage.channelSelect().click();

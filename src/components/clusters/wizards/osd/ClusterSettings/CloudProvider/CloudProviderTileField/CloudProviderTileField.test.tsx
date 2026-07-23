@@ -14,6 +14,11 @@ import { SubscriptionCommonFieldsCluster_billing_model as BillingModel } from '~
 
 import { CloudProviderTileField } from './CloudProviderTileField';
 
+jest.mock('@scalprum/react-core', () => ({
+  ...jest.requireActual('@scalprum/react-core'),
+  useRemoteHook: jest.fn(() => ({ hookResult: null })),
+}));
+
 jest.mock('~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas');
 
 const mockUseGetBillingQuotas = useGetBillingQuotas as jest.Mock;
@@ -34,7 +39,7 @@ const expectCloudProviderToBe = (submitFn: jest.Mock, value: string) => {
 
 describe('<CloudProviderTileField />', () => {
   const awsLabel = 'Amazon Web Service logo Run on Amazon Web Services';
-  const gcpLabel = 'Run on Google Cloud';
+  const gcpLabel = 'Google Cloud logo Run on Google Cloud';
 
   beforeEach(() => {
     mockUseGetBillingQuotas.mockReturnValue(defaultQuotas);

@@ -17,11 +17,7 @@ const GovCloudTCPage = ({ redirectURL }: { redirectURL: string }) => (
       <br />
       <Button
         variant="link"
-        icon={
-          <Icon>
-            <ExternalLinkAltIcon />
-          </Icon>
-        }
+        icon={<ExternalLinkAltIcon />}
         iconPosition="right"
         isInline
         onClick={() => window.location.assign(`${redirectURL}&redirect=${window.location.href}`)}
