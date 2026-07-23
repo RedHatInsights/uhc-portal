@@ -669,12 +669,13 @@ function displayErrorSection(title, errorItems) {
   // Print each status group
   sortedStatusCodes.forEach((status) => {
     const items = errorsByStatus[status];
-    const description = getStatusCodeDescription(parseInt(status, 10));
     const statusInt = parseInt(status, 10);
+    const description = getStatusCodeDescription(statusInt);
+    const plainTitle = `[Status ${status} - ${description}]`;
     const statusTitle = `[Status ${COLOR.RED}${status}${COLOR.RESET} - ${description}]`;
     const countStr = `${items.length} URLs`;
     const targetColumn = LINE_LENGTH - countStr.length;
-    const padding = Math.max(1, targetColumn - statusTitle.length - 3);
+    const padding = Math.max(1, targetColumn - plainTitle.length - 3);
 
     console.log();
     console.log(`${statusTitle} - ${' '.repeat(padding)}${countStr}`);
