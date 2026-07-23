@@ -130,4 +130,62 @@ describe('<ClusterIngressCard />', () => {
       expect(screen.getByTestId('edit-cluster-ingress')).toHaveAttribute('aria-disabled', 'true');
     });
   });
+
+  describe('OSD GCP WIF cluster', () => {
+    it('disables editing cluster ingress', async () => {
+      const props = {
+        ...defaultProps,
+        cluster: {
+          ...defaultProps.cluster,
+          canEdit: true,
+          cloud_provider: {
+            id: 'gcp',
+          },
+          ccs: {
+            enabled: true,
+          },
+          gcp: {
+            authentication: {
+              kind: 'WifConfig',
+              id: 'some-wif-config-id',
+            },
+          },
+          hypershift: {
+            enabled: false,
+          },
+        } as AugmentedCluster,
+      };
+      const { user } = render(<ClusterIngressCard {...props} />);
+      const editButton = screen.getByTestId('edit-cluster-ingress');
+      expect(editButton).toHaveAttribute('aria-disabled', 'true');
+
+      await user.hover(editButton);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
+        'Cluster ingress cannot be edited for OSD clusters using Workload Identity Federation (WIF)',
+      );
+    });
+
+    it('does not disable editing cluster ingress for OSD GCP service account clusters', async () => {
+      const props = {
+        ...defaultProps,
+        cluster: {
+          ...defaultProps.cluster,
+          canEdit: true,
+          cloud_provider: {
+            id: 'gcp',
+          },
+          ccs: {
+            enabled: true,
+          },
+          gcp: {},
+          hypershift: {
+            enabled: false,
+          },
+        } as AugmentedCluster,
+      };
+      render(<ClusterIngressCard {...props} />);
+      const editButton = screen.getByTestId('edit-cluster-ingress');
+      expect(editButton).not.toHaveAttribute('aria-disabled', 'true');
+    });
+  });
 });

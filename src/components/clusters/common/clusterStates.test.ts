@@ -27,6 +27,7 @@ import clusterStates, {
   isWaitingForOIDCProviderOrOperatorRolesMode,
   isWaitingHypershiftCluster,
   isWaitingROSAManualMode,
+  isWIFCluster,
 } from './clusterStates';
 
 describe('getClusterStateAndDescription', () => {
@@ -345,6 +346,53 @@ describe('getClusterStateAndDescription', () => {
         },
       };
       expect(isGCP(cluster)).toBe(expectedResult);
+    });
+  });
+
+  describe('isWIFCluster', () => {
+    it.each([
+      [
+        'GCP CCS cluster with a WifConfig authentication reference',
+        true,
+        {
+          cloud_provider: { id: 'gcp' },
+          ccs: { enabled: true },
+          gcp: { authentication: { kind: 'WifConfig', id: 'some-wif-config-id' } },
+        },
+      ],
+      [
+        'GCP CCS cluster without a WifConfig authentication reference (service account)',
+        false,
+        {
+          cloud_provider: { id: 'gcp' },
+          ccs: { enabled: true },
+          gcp: {},
+        },
+      ],
+      [
+        'GCP cluster that is not CCS',
+        false,
+        {
+          cloud_provider: { id: 'gcp' },
+          ccs: { enabled: false },
+          gcp: { authentication: { kind: 'WifConfig', id: 'some-wif-config-id' } },
+        },
+      ],
+      [
+        'non-GCP cluster',
+        false,
+        {
+          cloud_provider: { id: 'aws' },
+          ccs: { enabled: true },
+          gcp: {},
+        },
+      ],
+    ])('%s returns %s', (_title, expectedResult, clusterProps) => {
+      const cluster: ClusterFromSubscription = {
+        ...defaultClusterFromSubscription,
+        ...clusterProps,
+      };
+      expect(isWIFCluster(cluster)).toBe(expectedResult);
     });
   });
 

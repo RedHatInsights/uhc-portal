@@ -13,7 +13,12 @@ import {
 } from '@patternfly/react-core';
 
 import { Owner } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/Owner/Owner';
-import { isCCS, isGCP, isHypershiftCluster } from '~/components/clusters/common/clusterStates';
+import {
+  isCCS,
+  isGCP,
+  isHypershiftCluster,
+  isWIFCluster,
+} from '~/components/clusters/common/clusterStates';
 import getBillingModelLabel from '~/components/clusters/common/getBillingModelLabel';
 import {
   ALLOW_EUS_CHANNEL,
@@ -63,9 +68,9 @@ function DetailsLeft({
   const isRHOIC = cluster?.subscription?.plan?.type === normalizedProducts.RHOIC;
 
   const hasAuthenticationType = isGCP(cluster) && isCCS(cluster);
+  const isWifCluster = isWIFCluster(cluster);
   // We only have information about the wif configuration, we imply that if a wif config is not used
   // the user chose the other GCP authentication type, the service account
-  const isWifCluster = hasAuthenticationType && cluster?.gcp?.authentication?.kind === 'WifConfig';
   const authenticationType = isWifCluster ? 'Workload Identity Federation' : 'Service Account';
   const wifConfigName = useMemo(() => {
     switch (true) {
