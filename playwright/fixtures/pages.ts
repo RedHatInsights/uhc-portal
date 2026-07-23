@@ -26,6 +26,7 @@ import { RosaGetStartedPage } from '../page-objects/rosa-getstarted-page';
 import { SubscriptionsPage } from '../page-objects/subscriptions-page';
 import { TokensPage } from '../page-objects/tokens-page';
 import { ClusterIdentityProviderPage } from '../page-objects/cluster-identity-provider-page';
+import { AwsInfrastructureAccessPage } from '../page-objects/aws-infrastructure-access-page';
 import { CustomCommands } from '../support/custom-commands';
 import { STORAGE_STATE_PATH } from '../support/playwright-constants';
 
@@ -61,6 +62,7 @@ type WorkerFixtures = {
   tokensPage: TokensPage;
   customCommands: CustomCommands;
   clusterIdentityProviderPage: ClusterIdentityProviderPage;
+  awsInfrastructureAccessPage: AwsInfrastructureAccessPage;
 };
 
 /**
@@ -327,6 +329,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   clusterIdentityProviderPage: [
     async ({ authenticatedPage }, use) => {
       const pageObject = new ClusterIdentityProviderPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: AwsInfrastructureAccessPage instance - created once, reused across all tests in suite
+  awsInfrastructureAccessPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new AwsInfrastructureAccessPage(authenticatedPage);
       await use(pageObject);
     },
     { scope: 'worker' },

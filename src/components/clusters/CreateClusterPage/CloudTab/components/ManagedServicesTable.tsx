@@ -9,10 +9,12 @@ import CreateClusterDropDown from '~/components/clusters/CreateClusterPage/Cloud
 import links from '~/components/clusters/CreateClusterPage/CreateClusterConsts';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import ExternalLink from '~/components/common/ExternalLink';
+import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 import { isRestrictedEnv } from '~/restrictedEnv';
-import AWSLogo from '~/styles/images/AWS.png';
-import IBMCloudLogo from '~/styles/images/ibm_cloud-icon.png';
+import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
+import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
+import IBMCloudLogo from '~/styles/images/ibm_cloud-icon.svg';
 import RedHatLogo from '~/styles/images/Logo-RedHat-Hat-Color-RGB.png';
 import MicrosoftLogo from '~/styles/images/Microsoft_logo.svg';
 
@@ -229,7 +231,14 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
 
   const rosaRow = {
     key: rowKeys.rosa,
-    logo: <img className="partner-logo" src={AWSLogo} alt="AWS" />,
+    logo: (
+      <ThemedImage
+        darkThemeSrc={AWSLogoDarkTheme}
+        lightThemeSrc={AWSLogoLightTheme}
+        className="partner-logo"
+        alt="AWS"
+      />
+    ),
     offerings: (
       <ExternalLink noIcon href={links.AWS}>
         Red Hat OpenShift Service on AWS (ROSA)

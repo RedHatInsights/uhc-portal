@@ -427,6 +427,8 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
       const clauses = [`cloud_provider='gcp'`];
       if (options?.id) {
         clauses.push(`id=${sqlString(options.id)}`);
+      } else {
+        clauses.push(`cluster.id=''`);
       }
       const search = clauses.join(' AND ');
       return apiRequest.get<{

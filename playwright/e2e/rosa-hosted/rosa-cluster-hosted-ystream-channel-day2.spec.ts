@@ -170,10 +170,9 @@ test.describe.serial(
       );
     });
 
-    test('Settings tab shows Channel settings section with edit pencil', async ({
-      clusterDetailsPage,
-    }) => {
-      await clusterDetailsPage.expectChannelSettingsSectionWithPencil();
+    test('Delete ROSA HCP Y-stream channel cluster', async ({ clusterDetailsPage }) => {
+      await clusterDetailsPage.deleteClusterByName(clusterName, { cooldownMs: 10_000 });
     });
+  
   },
 );

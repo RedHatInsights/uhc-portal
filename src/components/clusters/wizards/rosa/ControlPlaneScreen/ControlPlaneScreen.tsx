@@ -13,6 +13,7 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import { PrerequisitesInfoBox } from '~/components/clusters/wizards/rosa/common/PrerequisitesInfoBox';
 import { WelcomeMessage } from '~/components/clusters/wizards/rosa/common/WelcomeMessage';
 import ExternalLink from '~/components/common/ExternalLink';
+import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
 import {
   FIPS_FOR_HYPERSHIFT,
   MULTIREGION_PREVIEW_ENABLED,
@@ -20,8 +21,10 @@ import {
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
 import { isRestrictedEnv } from '~/restrictedEnv';
-import AWSLogo from '~/styles/images/AWS.png';
-import RedHat from '~/styles/images/Logo-Red_Hat-B-Standard-RGB.png';
+import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
+import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
+import RedHatLogoDarkTheme from '~/styles/images/Logo-Red_Hat-B-Reverse-RGB.svg';
+import RedHatLogoLightTheme from '~/styles/images/Logo-Red_Hat-B-Standard-RGB.svg';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { NO_ROLE_DETECTED } from '../AccountsRolesScreen/AccountRolesARNsSection/AccountRolesARNsSection';
@@ -142,8 +145,20 @@ const ControlPlaneScreen = () => {
     >
       {/* these images use fixed positioning */}
       <div className="ocm-c-wizard-intro-image-container">
-        <img src={RedHat} className="ocm-c-wizard-intro-image-top" aria-hidden="true" alt="" />
-        <img src={AWSLogo} className="ocm-c-wizard-intro-image-bottom" aria-hidden="true" alt="" />
+        <ThemedImage
+          darkThemeSrc={RedHatLogoDarkTheme}
+          lightThemeSrc={RedHatLogoLightTheme}
+          className="ocm-c-wizard-intro-image-top"
+          aria-hidden="true"
+          alt=""
+        />
+        <ThemedImage
+          darkThemeSrc={AWSLogoDarkTheme}
+          lightThemeSrc={AWSLogoLightTheme}
+          className="ocm-c-wizard-intro-image-bottom"
+          aria-hidden="true"
+          alt=""
+        />
       </div>
       <Grid hasGutter className="pf-v6-u-mt-md">
         <GridItem span={10}>
