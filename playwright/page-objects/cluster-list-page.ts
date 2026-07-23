@@ -195,10 +195,26 @@ export class ClusterListPage extends BasePage {
     await this.page.getByRole('button', { name: 'Clear filters' }).click();
   }
 
-  async openClusterDefinition(clusterName: string): Promise<void> {
-    const clusterLink = this.page.getByRole('link', { name: clusterName, exact: true });
-    await expect(clusterLink).toBeVisible({ timeout: 30000 });
-    await clusterLink.click();
+  async openClusterDefinition(
+    clusterName: string,
+    matchType: 'exact' | 'partial' | 'startsWith' = 'startsWith',
+  ): Promise<void> {
+    let clusterLink;
+    switch (matchType) {
+      case 'startsWith': {
+        // Escape so clusterName is matched literally (e.g. '.' is not "any character")
+        const escapedName = clusterName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        clusterLink = this.page.getByRole('link', { name: new RegExp(`^${escapedName}`) });
+        break;
+      }
+      case 'partial':
+        clusterLink = this.page.getByRole('link', { name: clusterName, exact: false });
+        break;
+      default:
+        clusterLink = this.page.getByRole('link', { name: clusterName, exact: true });
+    }
+    await expect(clusterLink.first()).toBeVisible({ timeout: 30000 });
+    await clusterLink.first().click();
     await expect(this.page).toHaveURL(new RegExp('/openshift/details/'));
   }
 }

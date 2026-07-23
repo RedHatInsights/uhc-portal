@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
 // Import cluster field validations JSON
 const clusterFieldValidations = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-wizard-validation.spec.json');
@@ -29,7 +30,7 @@ test.describe.serial(
 
     test.beforeAll(async ({ navigateTo }) => {
       // Navigate to create
-      await navigateTo('create');
+      await navigateTo(CREATE_CLUSTER_ROUTE);
     });
     test('Open Rosa cluster wizard', async ({ page, createRosaWizardPage }) => {
       await createRosaWizardPage.waitAndClick(createRosaWizardPage.rosaCreateClusterButton());

@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
 // Import cluster properties JSON
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-private-advanced-creation.spec.json');
@@ -21,10 +22,12 @@ test.describe.serial(
 
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
-    const clusterName = clusterProperties.ClusterName;
+    const clusterNamePrefix = clusterProperties.ClusterName;
+    const clusterName = `${clusterNamePrefix}-${Math.random().toString(36).slice(2, 7)}`;
+    const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2, 13)}`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
     test.beforeAll(async ({ navigateTo }) => {
-      await navigateTo('create');
+      await navigateTo(CREATE_CLUSTER_ROUTE);
     });
 
     test(`Open Rosa wizard for private advanced cluster : ${clusterName}`, async ({
@@ -65,7 +68,7 @@ test.describe.serial(
       await createRosaWizardPage.selectRegion(region);
       await createRosaWizardPage.setClusterName(clusterName);
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().check();
-      await createRosaWizardPage.setDomainPrefix(clusterProperties.DomainPrefix);
+      await createRosaWizardPage.setDomainPrefix(clusterDomainPrefix);
       await createRosaWizardPage.selectVersion(
         clusterProperties.Version || process.env.VERSION || '',
       );
@@ -196,7 +199,7 @@ test.describe.serial(
       await createRosaWizardPage.isClusterPropertyMatchesValue('Cluster name', clusterName);
       await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Domain prefix',
-        clusterProperties.DomainPrefix,
+        clusterDomainPrefix,
       );
       await createRosaWizardPage.isClusterPropertyMatchesValue('Region', region);
       await createRosaWizardPage.isClusterPropertyMatchesValue(
