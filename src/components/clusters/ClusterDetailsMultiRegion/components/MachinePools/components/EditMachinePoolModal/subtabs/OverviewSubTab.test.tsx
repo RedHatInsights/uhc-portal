@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { IMDS_SELECTION, MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
+import { IMDS_SELECTION } from '~/queries/featureGates/featureConstants';
 import { MachineTypesResponse } from '~/queries/types';
 import { mockUseFeatureGate, render, renderHook, screen } from '~/testUtils';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
@@ -82,10 +82,7 @@ describe('OverviewSubTab', () => {
   };
 
   beforeEach(() => {
-    mockUseFeatureGate([
-      [MAX_NODES_TOTAL_249, false],
-      [IMDS_SELECTION, false],
-    ]);
+    mockUseFeatureGate([[IMDS_SELECTION, false]]);
   });
 
   afterEach(() => {
@@ -147,10 +144,7 @@ describe('OverviewSubTab', () => {
     });
 
     it('displays IMDS section when feature enabled and not editing hypershift cluster', () => {
-      mockUseFeatureGate([
-        [MAX_NODES_TOTAL_249, false],
-        [IMDS_SELECTION, true],
-      ]);
+      mockUseFeatureGate([[IMDS_SELECTION, true]]);
 
       const { result } = renderHook(() =>
         useOverviewSubTab({
@@ -171,10 +165,7 @@ describe('OverviewSubTab', () => {
     });
 
     it('does not display IMDS section when editing', () => {
-      mockUseFeatureGate([
-        [MAX_NODES_TOTAL_249, false],
-        [IMDS_SELECTION, true],
-      ]);
+      mockUseFeatureGate([[IMDS_SELECTION, true]]);
 
       const { result } = renderHook(() =>
         useOverviewSubTab({

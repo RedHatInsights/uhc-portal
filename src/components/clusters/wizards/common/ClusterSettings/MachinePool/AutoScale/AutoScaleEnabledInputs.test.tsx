@@ -247,4 +247,22 @@ describe('AutoScaleEnabledInputs', () => {
       expect(screen.queryByText(/Maximum nodes cannot be less than/)).not.toBeInTheDocument();
     });
   });
+
+  describe('not hypershift cluster', () => {
+    it('falls back to the default max worker nodes when no cluster version is set', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'false',
+          [RosaFieldId.MultiAz]: 'false',
+          [RosaFieldId.ClusterVersion]: undefined,
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '181');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(181);
+      expect(screen.getByText('Input cannot be more than 180.')).toBeInTheDocument();
+    });
+  });
 });
