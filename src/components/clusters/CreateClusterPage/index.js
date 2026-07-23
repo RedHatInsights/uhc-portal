@@ -10,11 +10,6 @@ import { availableQuota } from '../common/quotaSelectors';
 import CreateClusterPage from './CreateClusterPage';
 
 const mapStateToProps = (state) => ({
-  hasOSDQuota:
-    availableQuota(state.userProfile.organization.quotaList, {
-      product: normalizedProducts.OSD,
-      resourceType: QuotaTypes.CLUSTER,
-    }) >= 1,
   hasOSDTrialQuota:
     availableQuota(state.userProfile.organization.quotaList, {
       product: normalizedProducts.OSDTrial,
