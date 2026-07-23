@@ -22,7 +22,7 @@ describe('<ManagedServicesTable />', () => {
     (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
       canCreateManagedCluster: false,
     });
-    render(<ManagedServicesTable hasOSDQuota isTrialEnabled />);
+    render(<ManagedServicesTable isTrialEnabled />);
     expect(screen.getByTestId('osd-create-trial-cluster')).toHaveAttribute('aria-disabled', 'true');
     expect(screen.getByTestId('osd-create-cluster-button')).toHaveAttribute(
       'aria-disabled',
@@ -33,7 +33,7 @@ describe('<ManagedServicesTable />', () => {
     (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
       canCreateManagedCluster: true,
     });
-    render(<ManagedServicesTable hasOSDQuota isTrialEnabled />);
+    render(<ManagedServicesTable isTrialEnabled />);
     expect(screen.getByTestId('osd-create-trial-cluster')).not.toHaveAttribute('aria-disabled');
     expect(screen.getByTestId('osd-create-cluster-button')).not.toHaveAttribute('aria-disabled');
   });
