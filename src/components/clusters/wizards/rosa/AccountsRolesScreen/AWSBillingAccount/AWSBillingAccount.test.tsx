@@ -538,4 +538,127 @@ describe('<AWSBillingAccount />', () => {
       });
     });
   });
+
+  describe('contract nudge inline warning', () => {
+    const stateWithMixedContracts = {
+      userProfile: {
+        organization: {
+          quotaList: {
+            items: [
+              {
+                allowed: 2020,
+                cloud_accounts: [
+                  {
+                    cloud_account_id: '111',
+                    cloud_provider_id: 'aws',
+                    contracts: [],
+                  },
+                  {
+                    cloud_account_id: '222',
+                    cloud_provider_id: 'aws',
+                    contracts: [
+                      {
+                        dimensions: [
+                          { name: 'four_vcpu_hour', value: '96' },
+                          { name: 'control_plane', value: '4' },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+                quota_id: 'cluster|byoc|moa|marketplace',
+              },
+            ],
+          },
+        },
+      },
+      rosaReducer: {
+        getAWSBillingAccountsResponse: {
+          data: [],
+          fulfilled: false,
+          pending: false,
+          error: false,
+        },
+      },
+    };
+
+    it('shows warning when non-contracted account is selected and another has a contract', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const newProps = {
+        selectedAWSBillingAccountID: '111',
+        selectedAWSAccountID: '111',
+      };
+
+      withState(stateWithMixedContracts).render(
+        buildTestComponent(<AWSBillingAccount {...newProps} />),
+      );
+
+      expect(
+        await screen.findByText('No contract on selected billing account'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/does not have any pre-purchased ROSA capacity contracted/),
+      ).toBeInTheDocument();
+    });
+
+    it('does not show warning when contracted account is selected', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const newProps = {
+        selectedAWSBillingAccountID: '222',
+        selectedAWSAccountID: '222',
+      };
+
+      withState(stateWithMixedContracts).render(
+        buildTestComponent(<AWSBillingAccount {...newProps} />),
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText('No contract on selected billing account'),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('does not show warning when feature gate is disabled', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, false]]);
+
+      const newProps = {
+        selectedAWSBillingAccountID: '111',
+        selectedAWSAccountID: '111',
+      };
+
+      withState(stateWithMixedContracts).render(
+        buildTestComponent(<AWSBillingAccount {...newProps} />),
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText('No contract on selected billing account'),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('includes the selected account ID in the warning message', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const newProps = {
+        selectedAWSBillingAccountID: '111',
+        selectedAWSAccountID: '111',
+      };
+
+      withState(stateWithMixedContracts).render(
+        buildTestComponent(<AWSBillingAccount {...newProps} />),
+      );
+
+      const warningAlert = await screen.findByText('No contract on selected billing account');
+      const alertContainer = warningAlert.closest('.pf-v6-c-alert')!;
+      expect(within(alertContainer as HTMLElement).getByText('111')).toBeInTheDocument();
+    });
+  });
 });
