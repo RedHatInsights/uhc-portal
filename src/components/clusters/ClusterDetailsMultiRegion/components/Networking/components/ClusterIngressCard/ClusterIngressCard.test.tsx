@@ -161,7 +161,7 @@ describe('<ClusterIngressCard />', () => {
 
       await user.hover(editButton);
       expect(await screen.findByRole('tooltip')).toHaveTextContent(
-        "Cluster ingress can't be edited for OSD GCP clusters using Workload Identity Federation (WIF) authentication",
+        'Cluster ingress cannot be edited for OSD clusters using Workload Identity Federation (WIF)',
       );
     });
 

@@ -57,7 +57,7 @@ const resolveDisableEditReason = ({
     'Cluster ingress can only be edited for ROSA hosted control plane clusters or clusters not using Security Token Service (STS)';
   const gcpWifReason =
     isGCPWifCluster &&
-    "Cluster ingress can't be edited for OSD GCP clusters using Workload Identity Federation (WIF) authentication";
+    'Cluster ingress cannot be edited for OSD clusters using Workload Identity Federation (WIF)';
   const hibernatingReason =
     clusterHibernating && 'This operation is not available while cluster is hibernating';
   const canNotEditReason =
