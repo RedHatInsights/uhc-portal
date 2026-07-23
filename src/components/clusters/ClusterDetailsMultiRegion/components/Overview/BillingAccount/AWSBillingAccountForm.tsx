@@ -1,18 +1,23 @@
 import React from 'react';
 import { Field, Form, useField, useFormikContext } from 'formik';
 
-import { Button, Popover, Stack, StackItem } from '@patternfly/react-core';
+import { Alert, AlertVariant, Button, Popover, Stack, StackItem } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
 import links from '~/common/installLinks.mjs';
 import { getAwsBillingAccountsFromQuota } from '~/components/clusters/common/quotaSelectors';
 import { useFetchOrganizationQuota } from '~/queries/ClusterDetailsQueries/useFetchOrganizationQuota';
+import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 
 import { required } from '../../../../../../common/validators';
 import ExternalLink from '../../../../../common/ExternalLink';
 import AWSAccountSelection from '../../../../wizards/rosa/AccountsRolesScreen/AWSAccountSelection';
-import { getContract } from '../../../../wizards/rosa/AccountsRolesScreen/AWSBillingAccount/awsBillingAccountHelper';
+import {
+  getContract,
+  shouldShowBillingContractNotification,
+} from '../../../../wizards/rosa/AccountsRolesScreen/AWSBillingAccount/awsBillingAccountHelper';
 import ContractInfo from '../../../../wizards/rosa/AccountsRolesScreen/AWSBillingAccount/ContractInfo';
 
 type AWSBillingAccountProps = {
@@ -28,9 +33,14 @@ export const AWSBillingAccountForm = ({
   const { isLoading, data, isFetching, refetch } = useFetchOrganizationQuota(
     organization.details?.id || '',
   );
+  const isBillingContractNotificationEnabled = useFeatureGate(BILLING_CONTRACT_NOTIFICATION);
   const cloudAccounts = getAwsBillingAccountsFromQuota(data?.organizationQuota?.items);
   const [field, { error, touched }] = useField(name);
   const { setFieldValue } = useFormikContext();
+
+  const hasContractWarning =
+    isBillingContractNotificationEnabled &&
+    shouldShowBillingContractNotification(cloudAccounts, field.value);
 
   const connectNewAcctBtn = (
     <ExternalLink
@@ -89,6 +99,18 @@ export const AWSBillingAccountForm = ({
           isBillingAccount
         />
       </Form>
+      {hasContractWarning && (
+        <Alert
+          isInline
+          className="pf-v6-u-mt-md pf-v6-u-mb-md"
+          variant={AlertVariant.warning}
+          title="No contract on selected billing account"
+        >
+          The selected account <strong>{field.value}</strong> does not have any pre-purchased ROSA
+          capacity contracted. However, at least one other billing account linked to your Red Hat
+          account has an active contract. You may want to review your selection.
+        </Alert>
+      )}
       {selectedContract ? (
         <Stack>
           <StackItem>

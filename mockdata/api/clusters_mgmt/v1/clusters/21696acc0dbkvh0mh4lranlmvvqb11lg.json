@@ -63,6 +63,7 @@
     "rosa_creator_arn": "arn:aws:iam::000000012345:user/user"
   },
   "aws": {
+    "billing_account_id": "111122223333",
     "subnet_ids": [
       "subnet-03ffa2ef863422df2",
       "subnet-0da631ca7d1b2ef9c"
