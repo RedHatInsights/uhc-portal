@@ -5,6 +5,7 @@ import {
   DIVIDER_GROUP_NON_CONTRACTED,
   getBillingAccountSelectOptions,
   getContract,
+  getDefaultBillingAccountId,
   getDimensionValue,
   NO_CONTRACT_ENABLED_DESCRIPTION,
   shouldShowBillingContractNotification,
@@ -168,5 +169,57 @@ describe('createBillingAccountSortFn', () => {
     ];
 
     expect([...options].sort(sortFn).map((option) => option.entryId)).toEqual(['1', '2', '3']);
+  });
+});
+
+describe('getDefaultBillingAccountId', () => {
+  const contract = {
+    dimensions: getTestDimensions('four_vcpu_hour'),
+    end_date: 'some-end-date',
+    start_date: 'some-start-date',
+  };
+
+  it('returns the first account after billing-account sort order', () => {
+    const accounts = [
+      {
+        cloud_account_id: '111',
+        cloud_provider_id: 'aws',
+        contracts: [],
+      },
+      {
+        cloud_account_id: '222',
+        cloud_provider_id: 'aws',
+        contracts: [contract],
+      },
+      {
+        cloud_account_id: '999',
+        cloud_provider_id: 'aws',
+        contracts: [contract],
+      },
+    ];
+
+    // Contracted accounts first; within that group ascending localeCompare puts 222 before 999
+    expect(getDefaultBillingAccountId(accounts)).toBe('222');
+  });
+
+  it('falls back to the first sorted non-contracted account when none have contracts', () => {
+    const accounts = [
+      {
+        cloud_account_id: '111',
+        cloud_provider_id: 'aws',
+        contracts: [],
+      },
+      {
+        cloud_account_id: '222',
+        cloud_provider_id: 'aws',
+        contracts: [],
+      },
+    ];
+
+    expect(getDefaultBillingAccountId(accounts)).toBe('111');
+  });
+
+  it('returns an empty string when there are no accounts', () => {
+    expect(getDefaultBillingAccountId([])).toBe('');
   });
 });

@@ -151,10 +151,10 @@ describe('AWSAccountSelection tests', () => {
       expect(options).toHaveLength(3);
       expect(options[0]).toHaveTextContent('123123123123');
       expect(within(options[0]).getByText(CONTRACT_ENABLED_DESCRIPTION)).toBeInTheDocument();
-      // Secondary sort is length then reverse localeCompare within each divider group
-      expect(options[1]).toHaveTextContent('789789789789');
+      // Secondary sort is shorter-first, then ascending localeCompare within each divider group
+      expect(options[1]).toHaveTextContent('456456456456');
       expect(within(options[1]).getByText(NO_CONTRACT_ENABLED_DESCRIPTION)).toBeInTheDocument();
-      expect(options[2]).toHaveTextContent('456456456456');
+      expect(options[2]).toHaveTextContent('789789789789');
       expect(within(options[2]).getByText(NO_CONTRACT_ENABLED_DESCRIPTION)).toBeInTheDocument();
       // One divider under the search input, plus one between contract groups
       expect(screen.getAllByRole('separator')).toHaveLength(2);
