@@ -6,7 +6,7 @@ Some parts of the application are legacy code, using JavaScript and Redux for gl
 
 ## Documents index
 
-All documents are located inside `/docs`. Read the relevant file before writing or reviewing code.
+All documents are located inside `/docs`. **Read the relevant file BEFORE writing or reviewing code.**
 
 ```text
 root: docs/
@@ -16,6 +16,7 @@ contributing:               contributing.md
 unit-testing:               unit-testing.md
 e2e-testing:                Playwright-e2e-test-automation-guidelines.md
 e2e-testing FAQ:            Playwright-e2e-test-automation-faq.md
+pre-merge-testing:          pre-merge-testing-workflow.md
 ```
 
 For information about the generation of TS models from OpenAPI specs, check the `/openapi/README.md` doc.
@@ -57,4 +58,8 @@ When opening a pull request, follow the PR template in [`.github/pull_request_te
 ## PR Reviews
 
 When reviewing a pull request, follow the process in [`docs/pull-request-process.md`](docs/pull-request-process.md) and verify the code adheres to [`docs/code-guide.md`](docs/code-guide.md) and [`docs/unit-testing.md`](docs/unit-testing.md).
+
+## Pre-Merge Testing
+
+When asked to conduct pre-merge testing, review a PR for bugs, find all functional issues in a feature branch, audit commits before merge, or when the user says "pre-merge test" or "find all functional issues", follow the workflow documented in [`docs/pre-merge-testing-workflow.md`](docs/pre-merge-testing-workflow.md).
 
