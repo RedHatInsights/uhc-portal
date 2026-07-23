@@ -738,4 +738,71 @@ describe('<AWSBillingAccount />', () => {
       expect(onContractCheckChangeMock).toHaveBeenLastCalledWith(false);
     });
   });
+
+  describe('contract confirmation dialog', () => {
+    it('is not shown by default', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(defaultState).render(buildTestComponent(<AWSBillingAccount {...defaultProps} />));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText('Continue without a contracted billing account?'),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('is shown when isContractDialogOpen is true, displaying the selected billing account', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(defaultState).render(
+        buildTestComponent(<AWSBillingAccount {...defaultProps} isContractDialogOpen />),
+      );
+
+      expect(
+        await screen.findByText('Continue without a contracted billing account?'),
+      ).toBeInTheDocument();
+      expect(
+        within(screen.getByRole('dialog')).getByText(defaultProps.selectedAWSBillingAccountID),
+      ).toBeInTheDocument();
+    });
+
+    it('calls onContractDialogContinue when "Continue with selection" is clicked', async () => {
+      const onContractDialogContinueMock = jest.fn();
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      const { user } = withState(defaultState).render(
+        buildTestComponent(
+          <AWSBillingAccount
+            {...defaultProps}
+            isContractDialogOpen
+            onContractDialogContinue={onContractDialogContinueMock}
+          />,
+        ),
+      );
+
+      await user.click(await screen.findByText('Continue with selection'));
+
+      expect(onContractDialogContinueMock).toHaveBeenCalled();
+    });
+
+    it('calls onContractDialogClose when "Go back" is clicked', async () => {
+      const onContractDialogCloseMock = jest.fn();
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      const { user } = withState(defaultState).render(
+        buildTestComponent(
+          <AWSBillingAccount
+            {...defaultProps}
+            isContractDialogOpen
+            onContractDialogClose={onContractDialogCloseMock}
+          />,
+        ),
+      );
+
+      await user.click(await screen.findByText('Go back'));
+
+      expect(onContractDialogCloseMock).toHaveBeenCalled();
+    });
+  });
 });

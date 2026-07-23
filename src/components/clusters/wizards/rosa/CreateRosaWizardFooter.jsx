@@ -13,7 +13,6 @@ import {
 } from '@patternfly/react-core';
 
 import { scrollToFirstField } from '~/common/helpers';
-import { ConfirmationDialog } from '~/common/modals/ConfirmationDialog';
 import { getScrollErrorIds } from '~/components/clusters/wizards/form/utils';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
@@ -48,6 +47,7 @@ const CreateRosaWizardFooter = ({
   onWizardContextChange,
   onValidNextStep,
   hasContractWarning = false,
+  onRequestContractConfirmation,
 }) => {
   const { goToNextStep, goToPrevStep, close, activeStep, steps, setStep, goToStepById } =
     useWizardContext();
@@ -56,7 +56,6 @@ const CreateRosaWizardFooter = ({
   // used to determine the actions' disabled state.
   // (as a more exclusive rule than isValidating, which relying upon would block progress to the next step)
   const [isNextDeferred, setIsNextDeferred] = useState(false);
-  const [isContractDialogOpen, setIsContractDialogOpen] = useState(false);
 
   const isBillingContractNotificationEnabled = useFeatureGate(BILLING_CONTRACT_NOTIFICATION);
 
@@ -64,13 +63,16 @@ const CreateRosaWizardFooter = ({
 
   useEffect(() => {
     // callback to pass updated context back up
+    // (goToNextStep is exposed so the contract-confirmation dialog, owned by
+    // AccountsRolesScreen/AWSBillingAccount, can advance the wizard once confirmed)
     onWizardContextChange({
       steps,
       setStep,
       goToStepById,
+      goToNextStep,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [steps, setStep]);
+  }, [steps, setStep, goToNextStep]);
 
   const awsRequests = useSelector((state) => ({
     accountIDsLoading: state.rosaReducer.getAWSAccountIDsResponse.pending || false,
@@ -137,7 +139,7 @@ const CreateRosaWizardFooter = ({
       currentStepId === accountAndRolesStepId &&
       hasContractWarning
     ) {
-      setIsContractDialogOpen(true);
+      onRequestContractConfirmation?.();
       return;
     }
 
@@ -183,61 +185,33 @@ const CreateRosaWizardFooter = ({
       </Button>
     );
 
-  const handleContractDialogProceed = () => {
-    onValidNextStep?.(currentStepId);
-    goToNextStep();
-  };
-
   return isSubmitting ? null : (
-    <>
-      <ConfirmationDialog
-        title="Continue without a contracted billing account?"
-        content={
-          <>
-            <p>
-              The selected account <strong>{values[FieldId.BillingAccountId]}</strong> does not have
-              any pre-purchased ROSA capacity contracted. However, at least one other billing
-              account linked to your Red Hat account has an active contract.
-            </p>
-            <p>
-              You can go back to select a different billing account, or continue with your current
-              selection. You can change the billing AWS account after the cluster is created.
-            </p>
-          </>
-        }
-        primaryActionLabel="Continue with selection"
-        primaryAction={handleContractDialogProceed}
-        secondaryActionLabel="Go back"
-        isOpen={isContractDialogOpen}
-        closeCallback={() => setIsContractDialogOpen(false)}
-      />
-      <WizardFooterWrapper>
-        <ActionList>
-          <ActionListGroup>
-            <ActionListItem>
-              <Button
-                variant="secondary"
-                data-testid="wizard-back-button"
-                onClick={goToPrevStep}
-                isDisabled={steps.indexOf(activeStep) === 0}
-              >
-                Back
-              </Button>
-            </ActionListItem>
-            <CreateManagedClusterButtonWithTooltip wrap>
-              {primaryBtn}
-            </CreateManagedClusterButtonWithTooltip>
-          </ActionListGroup>
-          <ActionListGroup>
-            <ActionListItem>
-              <Button variant="link" data-testid="wizard-cancel-button" onClick={close}>
-                Cancel
-              </Button>
-            </ActionListItem>
-          </ActionListGroup>
-        </ActionList>
-      </WizardFooterWrapper>
-    </>
+    <WizardFooterWrapper>
+      <ActionList>
+        <ActionListGroup>
+          <ActionListItem>
+            <Button
+              variant="secondary"
+              data-testid="wizard-back-button"
+              onClick={goToPrevStep}
+              isDisabled={steps.indexOf(activeStep) === 0}
+            >
+              Back
+            </Button>
+          </ActionListItem>
+          <CreateManagedClusterButtonWithTooltip wrap>
+            {primaryBtn}
+          </CreateManagedClusterButtonWithTooltip>
+        </ActionListGroup>
+        <ActionListGroup>
+          <ActionListItem>
+            <Button variant="link" data-testid="wizard-cancel-button" onClick={close}>
+              Cancel
+            </Button>
+          </ActionListItem>
+        </ActionListGroup>
+      </ActionList>
+    </WizardFooterWrapper>
   );
 };
 
@@ -251,6 +225,7 @@ CreateRosaWizardFooter.propTypes = {
   onWizardContextChange: PropTypes.func.isRequired,
   onValidNextStep: PropTypes.func,
   hasContractWarning: PropTypes.bool,
+  onRequestContractConfirmation: PropTypes.func,
 };
 
 export default CreateRosaWizardFooter;

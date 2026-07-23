@@ -119,16 +119,39 @@ const CreateROSAWizardInternal = ({
   const [currentStepId, setCurrentStepId] = React.useState(firstStepId);
   const [currentStep, setCurrentStep] = React.useState();
   const [hasContractWarning, setHasContractWarning] = React.useState(false);
+  const [isContractDialogOpen, setIsContractDialogOpen] = React.useState(false);
 
   const wizardContextRef = React.useRef();
 
-  const onWizardContextChange = ({ steps, setStep, goToStepById }) => {
+  const onWizardContextChange = ({ steps, setStep, goToStepById, goToNextStep }) => {
     wizardContextRef.current = {
       steps,
       setStep,
       goToStepById,
+      goToNextStep,
     };
   };
+
+  const handleValidNextStep = (fromStepId) => {
+    const logForwardingConfigured =
+      values[FieldId.LogForwardingS3Enabled] || values[FieldId.LogForwardingCloudWatchEnabled];
+    if (
+      fromStepId === stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING &&
+      isHcpLogForwardingEnabled &&
+      isHypershiftSelected &&
+      logForwardingConfigured
+    ) {
+      track('Log Forwarding Configured', { context: 'cluster_creation' });
+    }
+  };
+
+  const handleContractDialogContinue = () => {
+    setIsContractDialogOpen(false);
+    wizardContextRef.current?.goToNextStep();
+  };
+
+  const handleContractDialogClose = () => setIsContractDialogOpen(false);
+
   useClusterWizardResetStepsHook({
     currentStep,
     wizardContextRef,
@@ -274,19 +297,8 @@ const CreateROSAWizardInternal = ({
                   isSubmitting={createClusterResponse.pending}
                   onWizardContextChange={onWizardContextChange}
                   hasContractWarning={hasContractWarning}
-                  onValidNextStep={(fromStepId) => {
-                    const logForwardingConfigured =
-                      values[FieldId.LogForwardingS3Enabled] ||
-                      values[FieldId.LogForwardingCloudWatchEnabled];
-                    if (
-                      fromStepId === stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING &&
-                      isHcpLogForwardingEnabled &&
-                      isHypershiftSelected &&
-                      logForwardingConfigured
-                    ) {
-                      track('Log Forwarding Configured', { context: 'cluster_creation' });
-                    }
-                  }}
+                  onValidNextStep={handleValidNextStep}
+                  onRequestContractConfirmation={() => setIsContractDialogOpen(true)}
                 />
               </>
             }
@@ -308,6 +320,9 @@ const CreateROSAWizardInternal = ({
                   isHypershiftEnabled={isHypershiftEnabled}
                   isHypershiftSelected={isHypershiftSelected}
                   onContractCheckChange={setHasContractWarning}
+                  isContractDialogOpen={isContractDialogOpen}
+                  onContractDialogContinue={handleContractDialogContinue}
+                  onContractDialogClose={handleContractDialogClose}
                 />
               </ErrorBoundary>
             </WizardStep>
