@@ -2,11 +2,12 @@ import React from 'react';
 
 import { Content, List, ListItem } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
-const HibernateInfoLink = () => (
-  <ExternalLink href={supportLinks.HIBERNATING_CLUSTER}>
+const HibernateInfoLink = ({ isROSA }: { isROSA: boolean }) => (
+  <ExternalLink href={isROSA ? supportLinks.HIBERNATING_CLUSTER : docLinks.OCP_HIBERNATING_CLUSTER}>
     Learn more about cluster hibernation
   </ExternalLink>
 );
@@ -14,9 +15,11 @@ const HibernateInfoLink = () => (
 const HibernateClusterContent = ({
   clusterName,
   isHibernating,
+  isROSA,
 }: {
   clusterName: string;
   isHibernating: boolean;
+  isROSA: boolean;
 }) =>
   isHibernating ? (
     <Content>
@@ -24,7 +27,7 @@ const HibernateClusterContent = ({
         Cluster <strong>{clusterName}</strong> will move out of Hibernating state and all cluster
         operations will be resumed.
       </Content>
-      <HibernateInfoLink />
+      <HibernateInfoLink isROSA={isROSA} />
     </Content>
   ) : (
     <>
@@ -37,7 +40,7 @@ const HibernateClusterContent = ({
           It&apos;s recommended to hibernate only clusters that run recoverable workloads.
         </ListItem>
       </List>
-      <HibernateInfoLink />
+      <HibernateInfoLink isROSA={isROSA} />
       <Content>
         <Content component="p">
           Are you sure you want to hibernate <strong>{clusterName}</strong>?

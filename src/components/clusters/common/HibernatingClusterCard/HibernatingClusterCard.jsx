@@ -18,7 +18,7 @@ import { modalActions } from '~/components/common/Modal/ModalActions';
 
 import ButtonWithTooltip from '../../../common/ButtonWithTooltip';
 import modals from '../../../common/Modal/modals';
-import clusterStates from '../clusterStates';
+import clusterStates, { isROSA } from '../clusterStates';
 
 function HibernatingClusterCard({ cluster }) {
   const dispatch = useDispatch();
@@ -33,6 +33,7 @@ function HibernatingClusterCard({ cluster }) {
       clusterID: cluster.id,
       clusterName: cluster.name,
       subscriptionID: cluster.subscription.id,
+      isROSA: isROSA(cluster),
     };
     dispatch(modalActions.openModal(modals.RESUME_CLUSTER, clusterData));
   };
