@@ -265,7 +265,11 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   // VPC installation selector
   installIntoExistingVpcCheckbox(): Locator {
-    return this.page.locator('#install_to_vpc');
+    return this.page.getByRole('checkbox', { name: 'Install into an existing VPC' });
+  }
+
+  usePrivateLinkCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Use a PrivateLink' });
   }
 
   // Grace period selector
@@ -424,6 +428,10 @@ export class CreateRosaWizardPage extends BaseWizardPage {
       state: 'detached',
       timeout: 80000,
     });
+  }
+
+  controlPlaneType(): Locator {
+    return this.page.getByTestId('Control-plane');
   }
 
   /**
@@ -745,14 +753,9 @@ export class CreateRosaWizardPage extends BaseWizardPage {
   }
 
   async isClusterPropertyMatchesValue(property: string, value: string): Promise<void> {
-    await expect(
-      this.page
-        .locator('span.pf-v6-c-description-list__text')
-        .filter({ hasText: property })
-        .locator('..')
-        .locator('~ *')
-        .locator('div'),
-    ).toContainText(value);
+    const term = this.page.getByRole('term').filter({ hasText: property });
+    const definition = term.locator('..').getByRole('definition');
+    await expect(definition).toContainText(value);
   }
 
   // Additional selectors for validation tests
@@ -1120,6 +1123,10 @@ export class CreateRosaWizardPage extends BaseWizardPage {
   }
 
   // Application ingress selectors for networking validations
+  applicationIngressDefaultSettingsRadio(): Locator {
+    return this.page.getByTestId('applicationIngress-default');
+  }
+
   applicationIngressCustomSettingsRadio(): Locator {
     return this.page.getByRole('radio', { name: 'Custom settings' });
   }

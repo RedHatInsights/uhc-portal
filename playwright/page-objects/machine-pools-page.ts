@@ -16,7 +16,7 @@ export class MachinePoolsPage extends BasePage {
   }
 
   machinePoolModal(): Locator {
-    return this.page.locator('#edit-mp-modal');
+    return this.page.getByRole('dialog', { name: /(Add|Edit) machine pool/i });
   }
 
   cancelMachinePoolModalButton(): Locator {
@@ -36,7 +36,7 @@ export class MachinePoolsPage extends BasePage {
   }
 
   capacityReservationIdInput(): Locator {
-    return this.page.locator('input[id="capacityReservationId"]');
+    return this.page.getByLabel('Reservation Id');
   }
 
   capacityReservationHintButton(): Locator {
@@ -47,10 +47,12 @@ export class MachinePoolsPage extends BasePage {
     return this.page.getByRole('dialog', { name: 'help' });
   }
 
+  // Formik-controlled select scoped by stable field ID; no accessible label is rendered.
   privateSubnetToggle(): Locator {
     return this.page.locator('#privateSubnetId');
   }
 
+  // FuzzySelect internal option ID; no accessible role or label available.
   viewUsedSubnetsButton(): Locator {
     return this.page.locator('#view-more-used-subnets');
   }
@@ -64,15 +66,15 @@ export class MachinePoolsPage extends BasePage {
   }
 
   instanceTypeSelectButton(): Locator {
-    return this.page.locator('button[aria-label="Machine type select toggle"]');
+    return this.page.getByRole('button', { name: 'Machine type select toggle' });
   }
 
   instanceTypeSearchInput(): Locator {
-    return this.page.locator('input[aria-label="Machine type select search field"]');
+    return this.page.getByLabel('Machine type select search field');
   }
 
   machinePoolTable(): Locator {
-    return this.page.locator('table').filter({ hasText: 'Machine pool' });
+    return this.page.getByRole('table').filter({ hasText: 'Machine pool' });
   }
 
   // Windows License Included locators
@@ -156,6 +158,50 @@ export class MachinePoolsPage extends BasePage {
     return this.page.getByRole('tab', { name: /Labels.*Taints/i });
   }
 
+  costSavingsTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Cost savings' });
+  }
+
+  securityGroupsTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Security groups' });
+  }
+
+  securityGroupsSelect(): Locator {
+    return this.page.getByTestId('securitygroups-id');
+  }
+
+  securityGroupsToggle(): Locator {
+    return this.machinePoolModal().getByRole('button', { name: 'Options menu' });
+  }
+
+  securityGroupsNoChangeAlert(): Locator {
+    return this.page.getByText(
+      'You cannot add or edit security groups to the machine pool nodes after they are created.',
+    );
+  }
+
+  securityGroupsNoEditWarning(): Locator {
+    return this.page.getByText(
+      'This option cannot be edited from its original setting selection.',
+    );
+  }
+
+  securityGroupsEmptyMessage(): Locator {
+    return this.page.getByText(
+      'This machine pool does not have additional security groups.',
+    );
+  }
+
+  securityGroupsLabel(): Locator {
+    return this.page.getByLabel('Security groups');
+  }
+
+  async selectFirstSecurityGroup(): Promise<void> {
+    await this.securityGroupsToggle().click();
+    await this.page.getByRole('menuitem').first().click();
+    await this.securityGroupsToggle().click();
+  }
+
   // Taint fields lack accessible labels in the source (TextField/TaintEffectField);
   // Formik-stable name/id attributes are the only reliable selectors available.
   taintKeyInput(index: number): Locator {
@@ -166,12 +212,15 @@ export class MachinePoolsPage extends BasePage {
     return this.page.locator(`input[name="taints[${index}].value"]`);
   }
 
+  // PF6 Select renders the MenuToggle as a sibling to the Menu (which gets the id);
+  // the toggle uses the default aria-label "select menu". Taint effects are the only
+  // "select menu" buttons in the modal, so nth() by index is reliable.
   taintEffectToggle(index: number): Locator {
-    return this.page.locator(`[id="taints[${index}].effect"]`).getByRole('button');
+    return this.machinePoolModal().getByRole('button', { name: 'select menu' }).nth(index);
   }
 
   taintEffectOption(effect: string): Locator {
-    return this.page.getByRole('option', { name: effect });
+    return this.page.getByRole('option', { name: effect, exact: true });
   }
 
   async clickAddMachinePoolSubmitButton(): Promise<void> {
@@ -245,6 +294,8 @@ export class MachinePoolsPage extends BasePage {
     await this.instanceTypeSelectButton().click();
     await this.instanceTypeSearchInput().clear();
     await this.instanceTypeSearchInput().fill(instanceType);
+    // PatternFly Select option li uses the instance type as its DOM id;
+    // option text includes extra metadata so the id gives an exact match.
     await this.page.locator(`li[id="${instanceType}"]`).click();
   }
 
@@ -260,12 +311,12 @@ export class MachinePoolsPage extends BasePage {
   }
 
   getMachinePoolRow(id: string): Locator {
-    return this.page.locator('tr').filter({ has: this.page.locator(`td:has-text("${id}")`) });
+    return this.page.getByRole('row').filter({ hasText: id });
   }
 
   async editMachinePool(id: string): Promise<void> {
-    const row = this.page.getByRole('row').filter({ hasText: id });
-    await row.locator('button[aria-label="Kebab toggle"]').click();
+    const row = this.getMachinePoolRow(id);
+    await row.getByRole('button', { name: 'Kebab toggle' }).click();
     await this.page.getByRole('menuitem', { name: 'Edit' }).click();
     await expect(this.machinePoolModal()).toBeVisible({ timeout: 30000 });
   }
@@ -293,7 +344,7 @@ export class MachinePoolsPage extends BasePage {
   }
 
   async verifyDeleteEnabled(id: string): Promise<void> {
-    const row = this.page.getByRole('row').filter({ hasText: id });
+    const row = this.getMachinePoolRow(id);
     await row.getByRole('button', { name: 'Kebab toggle' }).click();
     const deleteItem = this.page.getByRole('menuitem', { name: 'Delete' });
     await expect(deleteItem).not.toHaveAttribute('aria-disabled', 'true');
@@ -301,7 +352,7 @@ export class MachinePoolsPage extends BasePage {
   }
 
   async verifyDeleteDisabled(id: string, tooltipText?: string): Promise<void> {
-    const row = this.page.getByRole('row').filter({ hasText: id });
+    const row = this.getMachinePoolRow(id);
     await row.getByRole('button', { name: 'Kebab toggle' }).click();
     const deleteItem = this.page.getByRole('menuitem', { name: 'Delete' });
     await expect(deleteItem).toHaveAttribute('aria-disabled', 'true');
@@ -314,26 +365,25 @@ export class MachinePoolsPage extends BasePage {
   }
 
   async deleteMachinePool(id: string): Promise<void> {
-    const row = this.page.getByRole('row').filter({ hasText: id });
-    await row.locator('button[aria-label="Kebab toggle"]').click();
+    const row = this.getMachinePoolRow(id);
+    await row.getByRole('button', { name: 'Kebab toggle' }).click();
     await this.page.getByRole('menuitem', { name: 'Delete' }).click();
-    // Confirm deletion in modal
     const dialog = this.page.getByRole('dialog', {
       name: 'Permanently delete machine pool?',
     });
     await expect(dialog.getByText(`"${id}" will be lost`)).toBeVisible();
-    // Click Delete and wait for the API call to complete
+    // Classic uses /machine_pools/, HCP uses /node_pools/
     await Promise.all([
       this.page.waitForResponse(
         (response) =>
-          response.request().method() === 'DELETE' && response.url().includes(`/node_pools/${id}`),
+          response.request().method() === 'DELETE' &&
+          (response.url().includes(`/machine_pools/${id}`) ||
+            response.url().includes(`/node_pools/${id}`)),
         { timeout: 30000 },
       ),
       dialog.getByRole('button', { name: 'Delete' }).click(),
     ]);
-    // Wait for dialog to close
     await expect(dialog).toBeHidden({ timeout: 30000 });
-    // Then wait for the row to be removed from the DOM
     await expect(row).toHaveCount(0, { timeout: 60000 });
   }
 
@@ -350,5 +400,173 @@ export class MachinePoolsPage extends BasePage {
     await expect(rowGroup.getByText(`Reservation Preference: ${expectedPreference}`)).toBeVisible();
     await expect(rowGroup.getByText(`Reservation Id: ${expectedReservationId}`)).toBeVisible();
     await detailsButton.click();
+  }
+
+  spotInstanceCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Use Amazon EC2 Spot Instance' });
+  }
+
+  onDemandPriceRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Use On-Demand instance price' });
+  }
+
+  setMaxPriceRadio(): Locator {
+    return this.page.getByRole('radio', { name: /Set maximum price/i });
+  }
+
+  // MaxPriceField's FormGroup has no label prop; the Formik-stable id="maxPrice"
+  // on the NumberInput wrapper is the only available identifier.
+  maxPriceInput(): Locator {
+    return this.page.locator('#maxPrice').getByRole('spinbutton');
+  }
+
+  closeMachinePoolModalButton(): Locator {
+    return this.page.getByRole('button', { name: 'Close' });
+  }
+
+  // FormGroup label="Root disk size" wraps multiple sibling NumberInputs;
+  // the Formik-stable id="diskSize" on the NumberInput wrapper is the only unique identifier.
+  rootDiskSizeInput(): Locator {
+    return this.page.locator('#diskSize').getByRole('spinbutton');
+  }
+
+  // Label fields lack accessible labels in the source (TextField);
+  // Formik-stable name attributes are the only reliable selectors available.
+  labelKeyInput(index: number): Locator {
+    return this.page.locator(`input[name="labels[${index}].key"]`);
+  }
+
+  labelValueInput(index: number): Locator {
+    return this.page.locator(`input[name="labels[${index}].value"]`);
+  }
+
+  addLabelButton(): Locator {
+    return this.page.getByRole('button', { name: 'Add label' });
+  }
+
+  addTaintButton(): Locator {
+    return this.page.getByRole('button', { name: 'Add taint' });
+  }
+
+  computeNodeCountDropdown(): Locator {
+    return this.page.getByTestId('compute-node-count').getByRole('button');
+  }
+
+  editClusterAutoscalingButton(): Locator {
+    return this.page.getByRole('button', { name: 'Edit cluster autoscaling' });
+  }
+
+  async verifyTableHeader(header: string): Promise<void> {
+    const headerCell = this.page.getByRole('columnheader', { name: header });
+    await expect(headerCell).toBeVisible({ timeout: 20000 });
+  }
+
+  async verifyTableContainsValue(value: string | number): Promise<void> {
+    await expect(
+      this.page.getByRole('rowgroup').getByText(String(value)).first(),
+    ).toBeVisible();
+  }
+
+  async selectComputeNodeCount(count: string): Promise<void> {
+    await this.computeNodeCountDropdown().click({ force: true });
+    await this.page.getByRole('listbox').getByRole('option', { name: count }).click();
+  }
+
+  // Label helpers
+  async setLabel(index: number, key: string, value: string): Promise<void> {
+    await this.labelKeyInput(index).clear();
+    await this.labelKeyInput(index).fill(key);
+    await this.labelValueInput(index).clear();
+    await this.labelValueInput(index).fill(value);
+  }
+
+  async expandMachinePoolRow(id: string): Promise<void> {
+    const row = this.getMachinePoolRow(id);
+    await row.waitFor({ state: 'visible' });
+    const expandButton = row.getByRole('button', { name: 'Details' });
+    await expect(async () => {
+      const isExpanded = await expandButton.getAttribute('aria-expanded');
+      if (isExpanded !== 'true') {
+        await expandButton.click();
+      }
+      await expect(expandButton).toHaveAttribute('aria-expanded', 'true');
+    }).toPass({ timeout: 30000 });
+  }
+
+  expandedRowContent(id: string): Locator {
+    return this.getMachinePoolRow(id)
+      .locator('xpath=following-sibling::tr[@data-testid="expandable-row"][1]');
+  }
+
+  async verifyLabels(id: string, key: string, value: string): Promise<void> {
+    const expanded = this.expandedRowContent(id);
+    await expect(expanded.getByRole('heading', { name: /Labels/ })).toBeVisible();
+
+    const expandButton = expanded.getByRole('button', { name: /remaining/ });
+    if (await expandButton.isVisible()) {
+      await expandButton.click();
+    }
+    await expect(expanded.getByText(`${key} = ${value}`, { exact: true })).toBeVisible();
+  }
+
+  async verifyTaints(id: string, key: string, value: string, effect: string): Promise<void> {
+    const expanded = this.expandedRowContent(id);
+    await expect(
+      expanded.getByRole('heading', { name: 'Taints' }),
+    ).toBeVisible();
+    await expect(
+      expanded.getByText(`${key} = ${value}:${effect}`, { exact: true }),
+    ).toBeVisible();
+  }
+
+  async verifySpotInstancePricing(id: string, maxPrice: string): Promise<void> {
+    const expanded = this.expandedRowContent(id);
+    await expect(
+      expanded.getByRole('heading', { name: 'Spot instance pricing' }),
+    ).toBeVisible();
+    await expect(expanded.getByText(`Maximum hourly price: ${maxPrice}`)).toBeVisible();
+  }
+
+  private async getAutoscaleValue(expanded: Locator, headingName: string): Promise<string> {
+    const heading = expanded.getByRole('heading', { name: headingName });
+    await expect(heading).toBeVisible();
+    return heading.evaluate((el) => el.nextSibling?.textContent?.trim() ?? '');
+  }
+
+  async verifySingleZoneAutoscaling(id: string, minNodes: string, maxNodes: string): Promise<void> {
+    const expanded = this.expandedRowContent(id);
+    await expect(
+      expanded.getByRole('heading', { name: 'Autoscaling' }),
+    ).toBeVisible();
+    expect(await this.getAutoscaleValue(expanded, 'Min nodes')).toBe(minNodes);
+    expect(await this.getAutoscaleValue(expanded, 'Max nodes')).toBe(maxNodes);
+  }
+
+  async verifyMultiZoneAutoscaling(
+    id: string,
+    minNodes: string,
+    maxNodes: string,
+  ): Promise<void> {
+    const expanded = this.expandedRowContent(id);
+    await expect(
+      expanded.getByRole('heading', { name: 'Autoscaling' }),
+    ).toBeVisible();
+    expect(await this.getAutoscaleValue(expanded, 'Min nodes per zone')).toBe(minNodes);
+    expect(await this.getAutoscaleValue(expanded, 'Max nodes per zone')).toBe(maxNodes);
+  }
+
+  async verifyOverviewProperty(property: string, value: string): Promise<void> {
+    const term = this.page.getByRole('term').filter({ hasText: property });
+    await expect(term).toBeVisible();
+    // Adjacent sibling selector targets the <dd> paired with this <dt>.
+    await expect(term.locator('+ dd')).toContainText(value);
+  }
+
+  async verifyOverviewMinMaxNodeCount(label: string, count?: number): Promise<void> {
+    const definition = this.page.getByRole('definition').filter({ hasText: label });
+    await expect(definition).toBeVisible();
+    if (count !== undefined) {
+      await expect(definition).toContainText(String(count));
+    }
   }
 }
