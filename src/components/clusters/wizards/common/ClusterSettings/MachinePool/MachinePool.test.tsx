@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 
 import docLinks from '~/common/docLinks.mjs';
 import { FieldId } from '~/components/clusters/wizards/common';
-import { render, screen, waitFor } from '~/testUtils';
+import { render, screen, waitFor, withState } from '~/testUtils';
 
 import { MachinePool } from './MachinePool';
 
@@ -29,6 +29,34 @@ describe('<MachinePool />', () => {
       const sectionToggle = screen.getByRole('button', { name: 'Add node labels' });
       expect(sectionToggle).toHaveAttribute('aria-expanded', 'true');
     });
+  });
+
+  it('defaults max-nodes-total to the fallback worker node count when no cluster version is set', async () => {
+    const { user } = withState({}).render(
+      <Formik
+        initialValues={{
+          [FieldId.NodeLabels]: [],
+          [FieldId.MachineType]: { id: 'test' },
+          [FieldId.BillingModel]: 'marketplace-gcp',
+          [FieldId.Product]: 'OSD',
+          [FieldId.CloudProvider]: 'GCP',
+          [FieldId.Byoc]: 'true',
+          [FieldId.MultiAz]: 'false',
+          [FieldId.AutoscalingEnabled]: true,
+        }}
+        onSubmit={() => {}}
+      >
+        <MachinePool />
+      </Formik>,
+    );
+
+    const editButton = await screen.findByRole('button', {
+      name: 'Edit cluster autoscaling settings',
+    });
+    await user.click(editButton);
+
+    // No cluster version -> MAX_NODES_INSUFFICIEN_VERSION (180) + 3 master nodes + 2 infra nodes (single AZ)
+    expect(await screen.findByText('Default value: 185')).toBeInTheDocument();
   });
 
   it('should show autoscaling settings button for OSD CCS GCP', async () => {
