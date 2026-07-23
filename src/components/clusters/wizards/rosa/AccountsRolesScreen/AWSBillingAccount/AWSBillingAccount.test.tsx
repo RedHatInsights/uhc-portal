@@ -538,4 +538,148 @@ describe('<AWSBillingAccount />', () => {
       });
     });
   });
+
+  describe('contract warning notification', () => {
+    const contractState = {
+      ...defaultState,
+      rosaReducer: {
+        getAWSBillingAccountsResponse: {
+          data: [
+            {
+              cloud_account_id: '123',
+              cloud_provider_id: 'aws',
+              contracts: [],
+            },
+            {
+              cloud_account_id: '111',
+              cloud_provider_id: 'aws',
+              contracts: [{ dimensions: [{ name: 'four_vcpu_hour', value: '96' }] }],
+            },
+          ],
+          fulfilled: true,
+          pending: false,
+          error: false,
+        },
+      },
+    };
+
+    it('reports a warning when the selected account has no contract but another does AND the feature gate is enabled', async () => {
+      const onContractCheckChangeMock = jest.fn();
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(contractState).render(
+        buildTestComponent(
+          <AWSBillingAccount {...defaultProps} onContractCheckChange={onContractCheckChangeMock} />,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(onContractCheckChangeMock).toHaveBeenCalledWith(true);
+      });
+    });
+
+    it('does not report a warning when the billing contract notification feature gate is disabled', async () => {
+      const onContractCheckChangeMock = jest.fn();
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, false]]);
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(contractState).render(
+        buildTestComponent(
+          <AWSBillingAccount {...defaultProps} onContractCheckChange={onContractCheckChangeMock} />,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(onContractCheckChangeMock).toHaveBeenCalledWith(false);
+      });
+    });
+
+    it('clears the reported warning when the component unmounts', async () => {
+      const onContractCheckChangeMock = jest.fn();
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      const { unmount } = withState(contractState).render(
+        buildTestComponent(
+          <AWSBillingAccount {...defaultProps} onContractCheckChange={onContractCheckChangeMock} />,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(onContractCheckChangeMock).toHaveBeenCalledWith(true);
+      });
+
+      unmount();
+
+      expect(onContractCheckChangeMock).toHaveBeenLastCalledWith(false);
+    });
+  });
+
+  describe('contract confirmation dialog', () => {
+    it('is not shown by default', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(defaultState).render(buildTestComponent(<AWSBillingAccount {...defaultProps} />));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText('Continue without a contracted billing account?'),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('is shown when isContractDialogOpen is true, displaying the selected billing account', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(defaultState).render(
+        buildTestComponent(<AWSBillingAccount {...defaultProps} isContractDialogOpen />),
+      );
+
+      expect(
+        await screen.findByText('Continue without a contracted billing account?'),
+      ).toBeInTheDocument();
+      expect(
+        within(screen.getByRole('dialog')).getByText(defaultProps.selectedAWSBillingAccountID),
+      ).toBeInTheDocument();
+    });
+
+    it('calls onContractDialogContinue when "Continue with selection" is clicked', async () => {
+      const onContractDialogContinueMock = jest.fn();
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      const { user } = withState(defaultState).render(
+        buildTestComponent(
+          <AWSBillingAccount
+            {...defaultProps}
+            isContractDialogOpen
+            onContractDialogContinue={onContractDialogContinueMock}
+          />,
+        ),
+      );
+
+      await user.click(await screen.findByText('Continue with selection'));
+
+      expect(onContractDialogContinueMock).toHaveBeenCalled();
+    });
+
+    it('calls onContractDialogClose when "Go back" is clicked', async () => {
+      const onContractDialogCloseMock = jest.fn();
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      const { user } = withState(defaultState).render(
+        buildTestComponent(
+          <AWSBillingAccount
+            {...defaultProps}
+            isContractDialogOpen
+            onContractDialogClose={onContractDialogCloseMock}
+          />,
+        ),
+      );
+
+      await user.click(await screen.findByText('Go back'));
+
+      expect(onContractDialogCloseMock).toHaveBeenCalled();
+    });
+  });
 });

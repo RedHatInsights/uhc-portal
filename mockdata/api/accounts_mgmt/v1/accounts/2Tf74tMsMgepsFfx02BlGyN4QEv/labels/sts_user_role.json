@@ -1,0 +1,12 @@
+{
+  "created_at": "2024-01-15T00:00:00.000000Z",
+  "href": "/api/accounts_mgmt/v1/accounts/2Tf74tMsMgepsFfx02BlGyN4QEv/labels/sts_user_role",
+  "id": "sts_user_role",
+  "internal": false,
+  "key": "sts_user_role",
+  "kind": "Label",
+  "account_id": "2Tf74tMsMgepsFfx02BlGyN4QEv",
+  "type": "Account",
+  "updated_at": "2024-01-15T00:00:00.000000Z",
+  "value": "[{\"aws_id\":\"264732383067\",\"arn\":\"arn:aws:iam::264732383067:role/ManagedOpenShift-User-Role-1515115\"}]"
+}
