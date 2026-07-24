@@ -120,6 +120,7 @@ const CreateROSAWizardInternal = ({
   const [currentStep, setCurrentStep] = React.useState();
   const [hasContractWarning, setHasContractWarning] = React.useState(false);
   const [isContractDialogOpen, setIsContractDialogOpen] = React.useState(false);
+  const [confirmedBillingAccountId, setConfirmedBillingAccountId] = React.useState(null);
 
   const wizardContextRef = React.useRef();
 
@@ -147,10 +148,22 @@ const CreateROSAWizardInternal = ({
 
   const handleContractDialogContinue = () => {
     setIsContractDialogOpen(false);
+    setConfirmedBillingAccountId(values[FieldId.BillingAccountId]);
     wizardContextRef.current?.goToNextStep();
   };
 
   const handleContractDialogClose = () => setIsContractDialogOpen(false);
+
+  const selectedBillingAccountId = values[FieldId.BillingAccountId];
+  const [prevSelectedBillingAccountId, setPrevSelectedBillingAccountId] =
+    React.useState(selectedBillingAccountId);
+  if (selectedBillingAccountId !== prevSelectedBillingAccountId) {
+    setPrevSelectedBillingAccountId(selectedBillingAccountId);
+    setConfirmedBillingAccountId(null);
+  }
+
+  const shouldConfirmContract =
+    hasContractWarning && selectedBillingAccountId !== confirmedBillingAccountId;
 
   useClusterWizardResetStepsHook({
     currentStep,
@@ -296,7 +309,7 @@ const CreateROSAWizardInternal = ({
                   getUserRoleInfo={() => getUserRole()}
                   isSubmitting={createClusterResponse.pending}
                   onWizardContextChange={onWizardContextChange}
-                  hasContractWarning={hasContractWarning}
+                  hasContractWarning={shouldConfirmContract}
                   onValidNextStep={handleValidNextStep}
                   onRequestContractConfirmation={() => setIsContractDialogOpen(true)}
                 />
