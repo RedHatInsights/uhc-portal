@@ -119,7 +119,6 @@ export const getMaxNodeCount = ({
   const optionsAvailable = available > 0 || isEditingCluster;
   let maxValue = isEditingCluster ? available + currentNodeCount : available + included;
 
-  // eslint-disable-next-line no-nested-ternary
   const maxNumberOfNodes = isHypershift ? maxNodesHCP : getMaxWorkerNodes(clusterVersion);
 
   if (maxValue > maxNumberOfNodes) {
