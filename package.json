@@ -210,6 +210,8 @@
   "scripts": {
     "dev": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'HOT=true fec dev --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
     "start": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'fec dev-proxy --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
+    "msw": "./start-with-msw.sh",
+    "msw:setup": "./setup-msw.sh",
     "build": "fec build",
     "build:prod": "MODE=prod npm run build",
     "build:prod:monitored": "run/build-prod-monitored.sh",

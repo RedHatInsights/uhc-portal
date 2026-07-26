@@ -34,22 +34,22 @@ jest.mock('./mocks/browser', () => ({ worker: { start: jest.fn() } }));
 
 describe('chrome-main', () => {
   const originalAppDevMode = (global as any).APP_DEVMODE;
+  const originalAppMswEnabled = (global as any).APP_MSW_ENABLED;
 
   beforeEach(() => {
     jest.resetModules();
-    localStorage.clear();
+    delete (global as any).APP_MSW_ENABLED;
   });
 
   afterEach(() => {
     (global as any).APP_DEVMODE = originalAppDevMode;
-    localStorage.clear();
-    window.history.pushState({}, '', '/');
+    (global as any).APP_MSW_ENABLED = originalAppMswEnabled;
   });
 
   describe('MSW worker initialization', () => {
-    it('starts MSW worker when APP_DEVMODE is true and localStorage contains msw', async () => {
+    it('starts MSW worker when APP_DEVMODE and APP_MSW_ENABLED are both true', async () => {
       (global as any).APP_DEVMODE = true;
-      localStorage.setItem('ocmOverridenEnvironment', 'msw');
+      (global as any).APP_MSW_ENABLED = true;
 
       await import('./chrome-main');
       // flush the microtask queue so the dynamic import's .then() callback runs
@@ -61,9 +61,9 @@ describe('chrome-main', () => {
       expect(worker.start).toHaveBeenCalledWith({ onUnhandledRequest: 'bypass' });
     });
 
-    it('starts MSW worker when APP_DEVMODE is true and ?env=msw is in the URL', async () => {
-      (global as any).APP_DEVMODE = true;
-      window.history.pushState({}, '', '?env=msw');
+    it('does not start MSW worker when APP_DEVMODE is false', async () => {
+      (global as any).APP_DEVMODE = false;
+      (global as any).APP_MSW_ENABLED = true;
 
       await import('./chrome-main');
       await new Promise<void>((resolve) => {
@@ -71,12 +71,24 @@ describe('chrome-main', () => {
       });
 
       const { worker } = await import('./mocks/browser');
-      expect(worker.start).toHaveBeenCalledWith({ onUnhandledRequest: 'bypass' });
+      expect(worker.start).not.toHaveBeenCalled();
     });
 
-    it('does not start MSW worker when APP_DEVMODE is false', async () => {
-      (global as any).APP_DEVMODE = false;
-      localStorage.setItem('ocmOverridenEnvironment', 'msw');
+    it('does not start MSW worker when APP_MSW_ENABLED is false', async () => {
+      (global as any).APP_DEVMODE = true;
+      (global as any).APP_MSW_ENABLED = false;
+
+      await import('./chrome-main');
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 0);
+      });
+
+      const { worker } = await import('./mocks/browser');
+      expect(worker.start).not.toHaveBeenCalled();
+    });
+
+    it('does not start MSW worker when APP_MSW_ENABLED is not set', async () => {
+      (global as any).APP_DEVMODE = true;
 
       await import('./chrome-main');
       await new Promise<void>((resolve) => {

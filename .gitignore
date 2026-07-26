@@ -47,3 +47,6 @@ openapi/*.json
 /unitTestCoverage
 
 .cache/
+
+# mkcert certificates (contain private keys)
+*.pem

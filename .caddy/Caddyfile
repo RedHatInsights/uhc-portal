@@ -1,0 +1,69 @@
+{
+	order rewrite before reverse_proxy
+	order rh_identity_transform before respond
+	admin off
+	log {
+		output {$LOG_OUTPUT:stdout}
+	}
+}
+
+{$HCC_ENV}.foo.redhat.com:{$PROXY_PORT} {
+	log default {
+		output {$LOG_OUTPUT:stdout}
+		format transform "{common_log}"
+	}
+
+	@html_fallback {
+		header Accept *text/html*
+		not path_regexp .*\/(silent-check-sso\.html)$
+	}
+
+	@iop expression `{env.HCC_ENV}.startsWith("iop")`
+
+	{$LOCAL_ROUTES}
+
+	handle /api/* {
+		handle @iop {
+			reverse_proxy {$HCC_ENV_URL} {
+				header_up Host {http.reverse_proxy.upstream.hostport}
+				header_up Accept-Encoding "gzip;q=0,deflate,sdch"
+				header_up -Origin
+				header_down Location {http.reverse_proxy.upstream.host} {http.request.hostport}
+				transport http {
+					tls_insecure_skip_verify
+				}
+			}
+		}
+		handle {
+			reverse_proxy {$HCC_ENV_URL} {
+				header_up Host {http.reverse_proxy.upstream.hostport}
+				header_up Accept-Encoding "gzip;q=0,deflate,sdch"
+				header_up -Origin
+			}
+		}
+	}
+
+	handle {
+		cache
+		handle @iop {
+			reverse_proxy {$HCC_ENV_URL} {
+				header_up Host {http.reverse_proxy.upstream.hostport}
+				header_up Accept-Encoding "gzip;q=0,deflate,sdch"
+				header_up -Origin
+				header_down Location {http.reverse_proxy.upstream.host} {http.request.hostport}
+				transport http {
+					tls_insecure_skip_verify
+				}
+			}
+		}
+		handle {
+			reverse_proxy {$HCC_ENV_URL} {
+				header_up Host {http.reverse_proxy.upstream.hostport}
+				header_up Accept-Encoding "gzip;q=0,deflate,sdch"
+				header_up -Origin
+			}
+		}
+	}
+
+	tls /certs/prod.foo.redhat.com.pem /certs/prod.foo.redhat.com-key.pem
+}
