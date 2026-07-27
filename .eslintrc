@@ -183,6 +183,7 @@
     "insights": "readonly",
     "APP_DEVMODE": "readonly",
     "APP_DEV_SERVER": "readonly",
+    "APP_MSW_ENABLED": "readonly",
     "APP_SENTRY_RELEASE_VERSION": "readonly",
     "OCM_SHOW_OLD_METRICS": "readonly"
   },

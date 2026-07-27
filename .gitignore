@@ -49,4 +49,4 @@ openapi/*.json
 .cache/
 
 # mkcert certificates (contain private keys)
-*.pem
+/*.pem

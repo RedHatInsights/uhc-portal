@@ -41,9 +41,12 @@ DEV_SERVER_PID=$!
 # Function to cleanup on exit.
 # npm -> concurrently (--kill-others) -> webpack, http-server, container
 # Killing npm triggers concurrently's --kill-others, which cleans up the rest.
+# We also stop the recreated container since concurrently only knows about the original.
 cleanup() {
     echo ""
     echo "Shutting down..."
+    $RUNTIME stop $CONTAINER_NAME 2>/dev/null || true
+    $RUNTIME rm $CONTAINER_NAME 2>/dev/null || true
     kill $DEV_SERVER_PID 2>/dev/null || true
     wait $DEV_SERVER_PID 2>/dev/null || true
 }
@@ -91,8 +94,8 @@ done < <($RUNTIME inspect $CONTAINER_NAME --format '{{range .Config.Env}}{{print
 # Extract port mapping
 PORT_MAPPING=$($RUNTIME port $CONTAINER_NAME 2>/dev/null | head -1 || echo "")
 if [[ -n "$PORT_MAPPING" ]]; then
-    CONTAINER_PORT=$(echo "$PORT_MAPPING" | cut -d' ' -f1)
-    HOST_PORT=$(echo "$PORT_MAPPING" | sed 's/.*://')
+    CONTAINER_PORT="${PORT_MAPPING%% *}"
+    HOST_PORT="${PORT_MAPPING##*:}"
 else
     CONTAINER_PORT="1337/tcp"
     HOST_PORT="1337"
@@ -109,8 +112,8 @@ $RUNTIME run -d \
     -v "$REPO_ROOT/.caddy/Caddyfile:/etc/caddy/Caddyfile:${MOUNT_OPTS}" \
     -v "$REPO_ROOT/prod.foo.redhat.com.pem:/certs/prod.foo.redhat.com.pem:${MOUNT_OPTS}" \
     -v "$REPO_ROOT/prod.foo.redhat.com-key.pem:/certs/prod.foo.redhat.com-key.pem:${MOUNT_OPTS}" \
-    --name $CONTAINER_NAME \
-    $IMAGE
+    --name "$CONTAINER_NAME" \
+    "$IMAGE"
 
 echo ""
 echo "MSW dev environment ready!"

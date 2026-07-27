@@ -4,7 +4,7 @@ Mock Service Worker (MSW) allows you to intercept and mock API calls in the brow
 
 ## Quick Start
 
-### First Time Setup (One-time per machine)
+### First Time Setup
 
 ```bash
 npm run msw:setup
@@ -12,10 +12,12 @@ npm run msw:setup
 
 This script will:
 1. Check if mkcert is installed (and guide you if it's not)
-2. Install the mkcert Certificate Authority (if needed)
-3. Generate SSL certificates for `prod.foo.redhat.com`
+2. Install the mkcert Certificate Authority (one-time per machine, shared across all projects)
+3. Generate SSL certificates for `prod.foo.redhat.com` (per checkout, gitignored)
 
 **Important:** After setup, **fully restart your browser** to pick up the trusted certificate.
+
+If you hit certificate errors later, delete the `.pem` files and re-run `npm run msw:setup`.
 
 ### Running MSW
 
@@ -43,12 +45,15 @@ When you run `npm run msw`:
    - `/apps/chrome/*` → Chrome server (HCC shell)
    - `/apps/openshift/*` → http-server (port 8003)
    - `/mockServiceWorker.js` → http-server (port 8003) - **required for MSW**
-4. **Custom certificates** are mounted into the Caddy container (via `restart-proxy-with-certs.sh`)
+4. **Custom certificates** are mounted into the Caddy container (via `start-with-msw.sh`)
 5. **MSW service worker** registers and intercepts API calls
 
 ### MSW Activation
 
-MSW activates ONLY when you run `npm run msw`, which sets the `MSW_ENABLED=true` environment variable.
+MSW activates when **both** compile-time gates are true:
+
+1. `APP_DEVMODE` — set automatically by the dev build (always true during local development)
+2. `APP_MSW_ENABLED` — set only when you run `npm run msw` (which passes `MSW_ENABLED=true` to webpack's DefinePlugin)
 
 The service worker then intercepts matching API requests and returns mocked responses.
 

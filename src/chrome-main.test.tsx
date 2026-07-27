@@ -29,7 +29,6 @@ jest.mock('~/queries/featureGates/useFetchFeatureGate', () => ({
 }));
 jest.mock('./components/App/App', () => ({ __esModule: true, default: () => null }));
 jest.mock('./hooks/useAnalytics', () => ({ __esModule: true, default: jest.fn() }));
-jest.mock('./i18n', () => {});
 jest.mock('./mocks/browser', () => ({ worker: { start: jest.fn() } }));
 
 describe('chrome-main', () => {
@@ -38,7 +37,7 @@ describe('chrome-main', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    delete (global as any).APP_MSW_ENABLED;
+    (global as any).APP_MSW_ENABLED = false;
   });
 
   afterEach(() => {
