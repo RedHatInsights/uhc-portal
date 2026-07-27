@@ -32,6 +32,11 @@ if [[ "$(uname)" == "Linux" ]]; then
     MOUNT_OPTS="ro,Z"
 fi
 
+# Remove any leftover container from a previous run so the wait loop
+# only finds the freshly-created one from this FEC session.
+$RUNTIME stop "$CONTAINER_NAME" 2>/dev/null || true
+$RUNTIME rm "$CONTAINER_NAME" 2>/dev/null || true
+
 echo "Starting dev server with MSW support..."
 
 # Start the dev server in the background
@@ -59,7 +64,7 @@ MAX_WAIT=120
 WAITED=0
 
 while [ $WAITED -lt $MAX_WAIT ]; do
-    if $RUNTIME inspect $CONTAINER_NAME &>/dev/null; then
+    if $RUNTIME container inspect "$CONTAINER_NAME" &>/dev/null; then
         echo "Caddy container is running"
         break
     fi
@@ -81,18 +86,20 @@ sleep 3
 
 # Extract container configuration
 echo "Mounting mkcert certificates..."
-IMAGE=$($RUNTIME inspect $CONTAINER_NAME --format '{{.Config.Image}}')
-ROUTES_CONFIG=$($RUNTIME inspect $CONTAINER_NAME --format '{{range .Mounts}}{{if eq .Destination "/config/routes.json"}}{{.Source}}{{end}}{{end}}')
+# Podman uses .ImageName, Docker uses .Config.Image
+IMAGE=$($RUNTIME container inspect "$CONTAINER_NAME" --format '{{.ImageName}}' 2>/dev/null \
+    || $RUNTIME container inspect "$CONTAINER_NAME" --format '{{.Config.Image}}')
+ROUTES_CONFIG=$($RUNTIME container inspect "$CONTAINER_NAME" --format '{{range .Mounts}}{{if eq .Destination "/config/routes.json"}}{{.Source}}{{end}}{{end}}')
 
 # Extract ALL environment variables from the original container
 ENV_ARGS=()
 while IFS= read -r envvar; do
     [[ -z "$envvar" ]] && continue
     ENV_ARGS+=("-e" "$envvar")
-done < <($RUNTIME inspect $CONTAINER_NAME --format '{{range .Config.Env}}{{println .}}{{end}}')
+done < <($RUNTIME container inspect "$CONTAINER_NAME" --format '{{range .Config.Env}}{{println .}}{{end}}')
 
 # Extract port mapping
-PORT_MAPPING=$($RUNTIME port $CONTAINER_NAME 2>/dev/null | head -1 || echo "")
+PORT_MAPPING=$($RUNTIME port "$CONTAINER_NAME" 2>/dev/null | head -1 || echo "")
 if [[ -n "$PORT_MAPPING" ]]; then
     CONTAINER_PORT="${PORT_MAPPING%% *}"
     HOST_PORT="${PORT_MAPPING##*:}"
@@ -102,8 +109,8 @@ else
 fi
 
 # Stop, remove, and restart container with custom certificates
-$RUNTIME stop $CONTAINER_NAME
-$RUNTIME rm $CONTAINER_NAME
+$RUNTIME stop "$CONTAINER_NAME"
+$RUNTIME rm "$CONTAINER_NAME"
 
 $RUNTIME run -d \
     "${ENV_ARGS[@]}" \
