@@ -661,4 +661,81 @@ describe('<AWSBillingAccount />', () => {
       expect(within(alertContainer as HTMLElement).getByText('111')).toBeInTheDocument();
     });
   });
+
+  describe('contract warning notification', () => {
+    const contractState = {
+      ...defaultState,
+      rosaReducer: {
+        getAWSBillingAccountsResponse: {
+          data: [
+            {
+              cloud_account_id: '123',
+              cloud_provider_id: 'aws',
+              contracts: [],
+            },
+            {
+              cloud_account_id: '111',
+              cloud_provider_id: 'aws',
+              contracts: [{ dimensions: [{ name: 'four_vcpu_hour', value: '96' }] }],
+            },
+          ],
+          fulfilled: true,
+          pending: false,
+          error: false,
+        },
+      },
+    };
+
+    it('reports a warning when the selected account has no contract but another does AND the feature gate is enabled', async () => {
+      const onContractCheckChangeMock = jest.fn();
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(contractState).render(
+        buildTestComponent(
+          <AWSBillingAccount {...defaultProps} onContractCheckChange={onContractCheckChangeMock} />,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(onContractCheckChangeMock).toHaveBeenCalledWith(true);
+      });
+    });
+
+    it('does not report a warning when the billing contract notification feature gate is disabled', async () => {
+      const onContractCheckChangeMock = jest.fn();
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, false]]);
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(contractState).render(
+        buildTestComponent(
+          <AWSBillingAccount {...defaultProps} onContractCheckChange={onContractCheckChangeMock} />,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(onContractCheckChangeMock).toHaveBeenCalledWith(false);
+      });
+    });
+
+    it('clears the reported warning when the component unmounts', async () => {
+      const onContractCheckChangeMock = jest.fn();
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      const { unmount } = withState(contractState).render(
+        buildTestComponent(
+          <AWSBillingAccount {...defaultProps} onContractCheckChange={onContractCheckChangeMock} />,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(onContractCheckChangeMock).toHaveBeenCalledWith(true);
+      });
+
+      unmount();
+
+      expect(onContractCheckChangeMock).toHaveBeenLastCalledWith(false);
+    });
+  });
 });

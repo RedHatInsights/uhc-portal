@@ -123,24 +123,14 @@ const AWSBillingAccount = ({
     (account) => account.cloud_account_id === selectedAWSBillingAccountID,
   );
   const selectedContract = selectedAccount ? getContract(selectedAccount) : null;
-  const showContractWarning =
-    isBillingContractNotificationEnabled &&
-    shouldShowBillingContractNotification(cloudAccounts, selectedAWSBillingAccountID);
-
   const hasWarning =
     isBillingContractNotificationEnabled &&
     shouldShowBillingContractNotification(cloudAccounts, selectedAWSBillingAccountID);
 
   useEffect(() => {
     onContractCheckChange?.(hasWarning);
-  }, [hasWarning, onContractCheckChange]);
-
-  const hasWarning =
-    isBillingContractNotificationEnabled &&
-    shouldShowBillingContractNotification(cloudAccounts, selectedAWSBillingAccountID);
-
-  useEffect(() => {
-    onContractCheckChange?.(hasWarning);
+    // clear the wizard-owned warning when this component is no longer rendered
+    return () => onContractCheckChange?.(false);
   }, [hasWarning, onContractCheckChange]);
 
   return (
@@ -207,7 +197,7 @@ const AWSBillingAccount = ({
       <GridItem span={7} />
       <GridItem sm={12} md={12}>
         <Stack hasGutter>
-          {showContractWarning && (
+          {hasWarning && (
             <StackItem>
               <Alert
                 isLiveRegion
