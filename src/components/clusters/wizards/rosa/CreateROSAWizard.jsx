@@ -596,4 +596,6 @@ const CreateROSAWizardFormik = (props) => {
 
 CreateROSAWizardFormik.propTypes = { ...CreateROSAWizardInternal.propTypes };
 
+export { CreateROSAWizardInternal };
+
 export default withAnalytics(CreateROSAWizardFormik);
