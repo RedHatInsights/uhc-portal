@@ -1,5 +1,4 @@
 import { Page, Locator, expect } from '@playwright/test';
-
 import {
   clearQuotaCostMock as clearQuotaCostRouteMock,
   mockQuotaCostWithBillingContract as mockQuotaCostRouteWithBillingContract,
@@ -88,6 +87,7 @@ export class ClusterDetailsPage extends BasePage {
       name: /Success alert: Cluster .* has been unarchived$/,
     });
   }
+
   unarchiveClusterButton(): Locator {
     return this.page.locator('[id="cl-details-btns"]').getByRole('button', { name: 'Unarchive' });
   }
@@ -452,6 +452,22 @@ export class ClusterDetailsPage extends BasePage {
   // Additional cluster property getters for persistent storage
   clusterPersistentStorageLabelValue(): Locator {
     return this.page.getByTestId('persistent-storage');
+  }
+
+  clusterLoadBalancersValue(): Locator {
+    return this.page.getByTestId('load-balancers');
+  }
+
+  clusterComputeNodeCountValue(): Locator {
+    return this.page.getByTestId('computeNodeCount');
+  }
+
+  clusterTotalvCPUValue(): Locator {
+    return this.page.getByTestId('total-vcpu');
+  }
+
+  clusterTotalMemoryValue(): Locator {
+    return this.page.getByTestId('total-memory');
   }
 
   // ── Autonode (Red Hat build of Karpenter) ────────────────────────────────
