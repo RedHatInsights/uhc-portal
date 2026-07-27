@@ -96,11 +96,13 @@ This document was built using AI-assisted research:
 
 1. **Parsed `src/common/docLinks.mjs` and `src/common/supportLinks.mjs`** to extract all external documentation domains.
 2. **Identified doc base URLs** and grouped by product area.
-3. **Queried `openshift/openshift-docs` commit history** by path to identify documentation writers per product area:
+3. **Queried `openshift/openshift-docs` commit history** by path as a discovery signal to identify likely documentation writers per product area:
    ```bash
    gh api "repos/openshift/openshift-docs/commits?path=PATH&per_page=5" \
      --jq '.[] | "\(.commit.author.name) <\(.commit.author.email)>"'
    ```
+
+> **Caveat:** Commit history indicates recent contributors, not necessarily current team assignments. Contacts listed above were the most frequent recent committers at time of compilation (July 2026) and may have rotated since. When in doubt, file an OSDOCS JIRA ticket — the docs team will route to the current owner.
 
 ### Refreshing This Data
 
@@ -111,4 +113,4 @@ gh api "repos/openshift/openshift-docs/commits?path=PATH&per_page=5" \
   --jq '.[] | "\(.commit.author.name) <\(.commit.author.email)>"'
 ```
 
-Replace `PATH` with the topic directory (e.g., `cli_reference`, `installing`, `networking`, `rosa_install_access_delete_clusters`, `authentication`).
+Replace `PATH` with the topic directory (e.g., `cli_reference`, `installing`, `networking`, `rosa_install_access_delete_clusters`, `authentication`). Treat results as a starting point — verify against the OSDOCS team roster if critical.

@@ -26,7 +26,7 @@ When the weekly link checker finds a broken URL on the downloads page, we need t
 | Knative CLI (kn) | [openshift-knative/client](https://github.com/openshift-knative/client) | Christoph Stäbler (@creydr), David Simansky (@dsimansk), Kaustubh Pande (@Kaustubh-pande), Marek Schmidt (@maschmid), Michal Vinkler (@mvinkler, mvinkler@redhat.com), Rudra Pratap (@rudyredhat1, rpratap@redhat.com) | Andrea Hoffer (ahoffer@redhat.com) — OSDOCS | openshift-serverless |
 | Tekton CLI (tkn) | [tektoncd/cli](https://github.com/tektoncd/cli) | Divyanshu Agrawal (@divyansh42), Vincent Demeester (@vdemeester, vdemeest@redhat.com), Chmouel Boudjnah (@chmouel, chmouel@chmouel.com), Vinamra Jain (@vinamra28) | Andrea Hoffer (ahoffer@redhat.com) — OSDOCS | openshift-pipelines |
 | Argo CD CLI (argocd) | [redhat-developer/gitops-operator](https://github.com/redhat-developer/gitops-operator) | William Tam (@wtam2018, wtam@redhat.com), chetan-rns, jannfis, jgwest, anandf, varshab1210, svghadi | [OSDOCS — GitOps](../../common/EXTERNAL_LINKS_CONTACTS.md#osdocs) | openshift-gitops |
-| Shipwright CLI (shp) | [shipwright-io/build](https://github.com/shipwright-io/build) | Enrique Encalada (@qu1queee), Sascha Schwarze (@SaschaSchwarze0, schwarzs@de.ibm.com), HeavyWombat, apoorvajagtap | [OSDOCS — Builds](../../common/EXTERNAL_LINKS_CONTACTS.md#osdocs) | openshift-builds , shipwright |
+| Shipwright CLI (shp) | [shipwright-io/cli](https://github.com/shipwright-io/cli) | Enrique Encalada (@qu1queee), Sascha Schwarze (@SaschaSchwarze0, schwarzs@de.ibm.com), HeavyWombat, apoorvajagtap | [OSDOCS — Builds](../../common/EXTERNAL_LINKS_CONTACTS.md#osdocs) | openshift-builds , shipwright |
 
 ### Developer Tools
 
@@ -34,7 +34,7 @@ When the weekly link checker finds a broken URL on the downloads page, we need t
 |-------------|-------------|-------------------------------|------------------------|---------------------|
 | Developer CLI (odo) | [redhat-developer/odo](https://github.com/redhat-developer/odo) | **DEPRECATED** — see [odo deprecation](https://odo.dev/blog/odo-deprecation-announcement) | odo.dev (upstream community) | odo , developer-tools |
 | Helm 3 CLI (helm) | [helm/helm](https://github.com/helm/helm) (upstream) | ART team publishes RH builds — Justin Pierce (@jupierce), Joep van Delft (@joepvd, jdelft@redhat.com), Siddharth Sharma (@thegreyd) | Andrea Hoffer (ahoffer@redhat.com) — OSDOCS | helm , art- |
-| Operator Package Mgr (opm) | [operator-framework/operator-sdk](https://github.com/operator-framework/operator-sdk) | sdk-admins, sdk-approvers (GitHub teams) | Michael Burke (mburke@redhat.com) — OSDOCS | olm- , operator-framework |
+| Operator Package Mgr (opm) | [operator-framework/operator-registry](https://github.com/operator-framework/operator-registry) | kevinrizza, joelanford, grokspawn, perdasilva, oceanc80, tmshort (OLM team) | Michael Burke (mburke@redhat.com) — OSDOCS | olm- , operator-framework |
 | Operator SDK CLI | [operator-framework/operator-sdk](https://github.com/operator-framework/operator-sdk) | sdk-admins, sdk-approvers — **removed in OCP 4.19** | Michael Burke (mburke@redhat.com) — OSDOCS | operator-sdk , olm- |
 | RHOAS CLI (rhoas) | [redhat-developer/app-services-cli](https://github.com/redhat-developer/app-services-cli) | Product deprecated; repo not archived | GitHub repo README | app-services |
 
