@@ -38,9 +38,7 @@ export class ClusterListPage extends BasePage {
   }
 
   viewClusterRequests(): Locator {
-    return this.page
-      .getByRole('tab', { name: 'Cluster Request' })
-      .or(this.page.getByRole('link', { name: /cluster requests/i }));
+    return this.clusterRequestsTab();
   }
 
   assistedInstallerClusters(): Locator {
@@ -195,10 +193,79 @@ export class ClusterListPage extends BasePage {
     await this.page.getByRole('button', { name: 'Clear filters' }).click();
   }
 
-  async openClusterDefinition(clusterName: string): Promise<void> {
-    const clusterLink = this.page.getByRole('link', { name: clusterName, exact: true });
-    await expect(clusterLink).toBeVisible({ timeout: 30000 });
-    await clusterLink.click();
+  async openClusterDefinition(
+    clusterName: string,
+    matchType: 'exact' | 'partial' | 'startsWith' = 'exact',
+  ): Promise<void> {
+    let clusterLink;
+    switch (matchType) {
+      case 'partial':
+        clusterLink = this.page.getByRole('link', { name: clusterName });
+        break;
+      case 'startsWith':
+        clusterLink = this.page.getByRole('link', { name: new RegExp(`^${clusterName}`) });
+        break;
+      default:
+        clusterLink = this.page.getByRole('link', { name: clusterName, exact: true });
+    }
+    await expect(clusterLink.first()).toBeVisible({ timeout: 30000 });
+    await clusterLink.first().click();
     await expect(this.page).toHaveURL(new RegExp('/openshift/details/'));
+  }
+
+  async waitForClusterInClusterList(clusterName: string): Promise<void> {
+    const clusterLink = this.page.getByRole('link', { name: clusterName, exact: true });
+    await expect(clusterLink).toBeVisible({ timeout: 60000 });
+  }
+
+  async clickClusterKebabIcon(clusterName: string): Promise<void> {
+    const row = this.page
+      .locator('tr')
+      .filter({ has: this.page.getByRole('link', { name: clusterName, exact: true }) });
+    await row.getByRole('button', { name: 'Kebab toggle' }).click();
+  }
+
+  async clickKebabMenuItem(menuText: string): Promise<void> {
+    await this.page.getByRole('menuitem', { name: menuText }).click();
+  }
+
+  async clickClusterKebabAction(clusterName: string, menuText: string): Promise<void> {
+    const row = this.page
+      .locator('tr')
+      .filter({ has: this.page.getByRole('link', { name: clusterName, exact: true }) });
+    const kebab = row.getByRole('button', { name: 'Kebab toggle' });
+    const menuItem = this.page.getByRole('menuitem', { name: menuText });
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await kebab.click();
+      const clicked = await menuItem
+        .click({ timeout: 5000 })
+        .then(() => true)
+        .catch(() => false);
+      if (clicked) return;
+    }
+    await kebab.click();
+    await menuItem.click();
+  }
+
+  clusterRequestsTab(): Locator {
+    return this.page
+      .getByRole('tab', { name: 'Cluster Request' })
+      .or(this.page.getByRole('link', { name: /cluster requests/i }));
+  }
+
+  showPendingTransferRequestsLink(): Locator {
+    return this.clusterRequestsTab();
+  }
+
+  async isPendingTransferRequestsBannerShown(
+    isShown: boolean,
+    transferRequests: string,
+  ): Promise<void> {
+    const tab = this.clusterRequestsTab();
+    if (isShown) {
+      await expect(tab).toContainText(transferRequests, { timeout: 15000 });
+    } else {
+      await expect(tab).not.toContainText(transferRequests, { timeout: 15000 });
+    }
   }
 }

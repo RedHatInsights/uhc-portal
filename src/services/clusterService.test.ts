@@ -300,4 +300,32 @@ describe('clusterService', () => {
       );
     });
   });
+
+  describe('getGcpDnsDomains', () => {
+    it('searches for unattached GCP dns domains when no id is provided', async () => {
+      await clusterService.getGcpDnsDomains();
+
+      expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
+      expect(apiRequestMock.get.mock.calls[0][0]).toEqual('/api/clusters_mgmt/v1/dns_domains');
+      expect(getApiGetParams()).toEqual({
+        search: "cloud_provider='gcp' AND cluster.id=''",
+        size: -1,
+      });
+    });
+
+    it('searches for unattached GCP dns domains when options omit id', async () => {
+      await clusterService.getGcpDnsDomains({});
+
+      expect(getApiGetParams().search).toBe("cloud_provider='gcp' AND cluster.id=''");
+      expect(getApiGetParams().search).not.toMatch(/(^|AND )id=/);
+    });
+
+    it('searches by id without filtering out attached domains', async () => {
+      await clusterService.getGcpDnsDomains({ id: 'abc123.s1.devshift.org' });
+
+      expect(getApiGetParams().search).toBe("cloud_provider='gcp' AND id='abc123.s1.devshift.org'");
+      expect(getApiGetParams().search).not.toContain("cluster.id=''");
+      expect(getApiGetParams().size).toBe(-1);
+    });
+  });
 });

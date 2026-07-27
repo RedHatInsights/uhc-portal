@@ -1,0 +1,118 @@
+{
+  "rosa-classic-public-advanced": {
+    "ClusterNamePrefix": "play-rosa-classic-pub-adv",
+    "ControlPlaneType": "Classic architecture",
+    "Type": "ROSA",
+    "Region": "us-west-2, US West, Oregon",
+    "Availability": "Multi-zone",
+    "AdditionalEncryption": "Enabled",
+    "FIPSCryptography": "Enabled",
+    "ClusterAutoscaling": "Enabled",
+    "UserWorkloadMonitoring": "Enabled",
+    "InstanceMetadataService": "IMDSv2 only",
+    "RootDiskSize": "555",
+    "ClusterPrivacy": "Public",
+    "MachineCIDR": "10.0.0.0/16",
+    "ServiceCIDR": "172.30.0.0/16",
+    "PodCIDR": "10.128.0.0/14",
+    "HostPrefix": "23",
+    "InstallIntoExistingVPC": "Enabled",
+    "OidcProviderMode": "auto",
+    "ApplicationIngress": "Custom settings",
+    "RouteSelector": "roas=advanced,profile=testing",
+    "ExcludedNamespaces": "multizone,public,autoscale",
+    "NamespaceOwnershipPolicy": "Strict",
+    "WildcardPolicy": "Disallowed",
+    "UpdateStrategy": "Recurring updates",
+    "NodeDrainingGracePeriod": "30 minutes",
+    "MachinePools": [
+      {
+        "Name": "worker",
+        "InstanceType": "m6id.xlarge",
+        "Autoscaling": "Enabled",
+        "MinimumNodeCount": "2",
+        "MaximumNodeCount": "3",
+        "NodeLabels": [
+          {
+            "Key": "name",
+            "Value": "play-rosa-advanced-public-custom-profile"
+          }
+        ]
+      }
+    ],
+    "day2-profile": {
+      "AccessControl": {
+        "TransferOwnership": {
+          "AccountDetails": {
+            "Username": "ocmui-orgmem",
+            "AccountID": "6344158",
+            "OrganizationID": "12832570"
+          },
+          "AccountValidations": {
+            "LongUserNameIDs": "longest-characterslimtgreaterthan60testingssssssssssssssssssssssssssssssssssssssssssssssssssss",
+            "LongCharacterLengthError": "Must be 64 characters or less",
+            "TransferYourselfError": "Username must be different from the current owner",
+            "InvalidAccountOrgID": "[{}]|invalidAccountOrOrg:';<,>'!@~1$%^&&*(-=)",
+            "InvalidAccountIDError": "Account ID must be an alpha numeric with no symbols",
+            "InvalidOrganizationIDError": "Organization ID must be an alpha numeric with no symbols"
+          }
+        }
+      },
+      "MachinePoolsValidation": {
+        "SetMaximumPrice": "0.03",
+        "ComputeNodeCount": "4",
+        "Nodes": {
+          "Control plane": "3",
+          "Infra": "3",
+          "Compute": "3"
+        },
+        "NodeLabels": [
+          {
+            "Key": "Available-zone",
+            "Value": "Multi-zone"
+          },
+          {
+            "Key": "ocm-tests-key",
+            "Value": "play-rosa-classic-pub-adv"
+          }
+        ],
+        "Taints": [
+          {
+            "Key": "controlplane",
+            "Value": "classic",
+            "Effect": "NoSchedule"
+          },
+          {
+            "Key": "ocm-tests-taints",
+            "Value": "rosa-adv-mz",
+            "Effect": "PreferNoSchedule"
+          }
+        ],
+        "RootDiskSize": {
+          "LimitError": "Disk size can not be more than 16384 GiB"
+        },
+        "NewMachinePool": {
+          "InstanceType": "m5.xlarge",
+          "NodeCount": "1",
+          "MinimumNodeCount": "3",
+          "MaximumNodeCount": "4",
+          "Autoscaling": "Enabled"
+        },
+        "EditMachinePool": {
+          "MinimumNodeCount": "2",
+          "MaximumNodeCount": "5",
+          "NodeLabels": [
+            {
+              "Key": "edit-label",
+              "Value": "day2-edit"
+            },
+            {
+              "Key": "ocm-tests-key",
+              "Value": "edited-rosa-classic"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

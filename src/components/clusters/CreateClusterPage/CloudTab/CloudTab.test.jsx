@@ -4,6 +4,11 @@ import { checkAccessibility, mockRestrictedEnv, render, screen } from '~/testUti
 
 import CloudTab from './CloudTab';
 
+jest.mock('@scalprum/react-core', () => ({
+  ...jest.requireActual('@scalprum/react-core'),
+  useRemoteHook: jest.fn(() => ({ hookResult: null })),
+}));
+
 const componentText = {
   CREATE_CLUSTER_BUTTON: 'Create cluster',
   LEARN_MORE_OSD_LINK: 'Learn more (new window or tab)',

@@ -3,8 +3,10 @@ import { Formik } from 'formik';
 import * as reactRedux from 'react-redux';
 
 import * as helpers from '~/common/helpers';
+import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
+  mockUseFeatureGate,
   mockUseFormState,
   render,
   screen,
@@ -380,6 +382,283 @@ describe('<AWSBillingAccount />', () => {
     // Assert
     await waitFor(() => {
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('default selection with contracts feature gate', () => {
+    const stateWithMixedContracts = {
+      userProfile: {
+        organization: {
+          quotaList: {
+            items: [
+              {
+                allowed: 2020,
+                cloud_accounts: [
+                  {
+                    cloud_account_id: '111',
+                    cloud_provider_id: 'aws',
+                    contracts: [],
+                  },
+                  {
+                    cloud_account_id: '222',
+                    cloud_provider_id: 'aws',
+                    contracts: [
+                      {
+                        dimensions: [
+                          { name: 'four_vcpu_hour', value: '96' },
+                          { name: 'control_plane', value: '4' },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    cloud_account_id: '333',
+                    cloud_provider_id: 'aws',
+                    contracts: [],
+                  },
+                ],
+                quota_id: 'cluster|byoc|moa|marketplace',
+              },
+            ],
+          },
+        },
+      },
+      rosaReducer: {
+        getAWSBillingAccountsResponse: {
+          data: [],
+          fulfilled: false,
+          pending: false,
+          error: false,
+        },
+      },
+    };
+
+    it('auto-selects the first contracted account when feature gate is enabled', async () => {
+      const setFieldValueMock = jest.fn();
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+      mockUseFormState({
+        setFieldValue: setFieldValueMock,
+        getFieldProps: jest.fn().mockReturnValue({
+          name: FieldId.BillingAccountId,
+          value: '',
+          onBlur: jest.fn(),
+          onChange: jest.fn(),
+        }),
+      });
+
+      const newProps = {
+        ...defaultProps,
+        selectedAWSBillingAccountID: '',
+      };
+
+      withState(stateWithMixedContracts).render(
+        buildTestComponent(<AWSBillingAccount {...newProps} />),
+      );
+
+      await waitFor(() => {
+        expect(setFieldValueMock).toHaveBeenCalledWith(FieldId.BillingAccountId, '222');
+      });
+    });
+
+    it('falls back to first account when feature gate is enabled but no accounts have contracts', async () => {
+      const setFieldValueMock = jest.fn();
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+      mockUseFormState({
+        setFieldValue: setFieldValueMock,
+        getFieldProps: jest.fn().mockReturnValue({
+          name: FieldId.BillingAccountId,
+          value: '',
+          onBlur: jest.fn(),
+          onChange: jest.fn(),
+        }),
+      });
+
+      const stateNoContracts = {
+        ...stateWithMixedContracts,
+        userProfile: {
+          organization: {
+            quotaList: {
+              items: [
+                {
+                  allowed: 2020,
+                  cloud_accounts: [
+                    { cloud_account_id: '111', cloud_provider_id: 'aws', contracts: [] },
+                    { cloud_account_id: '222', cloud_provider_id: 'aws', contracts: [] },
+                  ],
+                  quota_id: 'cluster|byoc|moa|marketplace',
+                },
+              ],
+            },
+          },
+        },
+      };
+
+      const newProps = {
+        ...defaultProps,
+        selectedAWSBillingAccountID: '',
+      };
+
+      withState(stateNoContracts).render(buildTestComponent(<AWSBillingAccount {...newProps} />));
+
+      await waitFor(() => {
+        expect(setFieldValueMock).toHaveBeenCalledWith(FieldId.BillingAccountId, '111');
+      });
+    });
+
+    it('does not override an existing selection when feature gate is enabled', async () => {
+      const setFieldValueMock = jest.fn();
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+      mockUseFormState({
+        setFieldValue: setFieldValueMock,
+        getFieldProps: jest.fn().mockReturnValue({
+          name: FieldId.BillingAccountId,
+          value: '333',
+          onBlur: jest.fn(),
+          onChange: jest.fn(),
+        }),
+      });
+
+      const newProps = {
+        ...defaultProps,
+        selectedAWSBillingAccountID: '333',
+      };
+
+      withState(stateWithMixedContracts).render(
+        buildTestComponent(<AWSBillingAccount {...newProps} />),
+      );
+
+      await waitFor(() => {
+        expect(setFieldValueMock).not.toHaveBeenCalledWith(
+          FieldId.BillingAccountId,
+          expect.any(String),
+        );
+      });
+    });
+  });
+
+  describe('contract nudge inline warning', () => {
+    const stateWithMixedContracts = {
+      userProfile: {
+        organization: {
+          quotaList: {
+            items: [
+              {
+                allowed: 2020,
+                cloud_accounts: [
+                  {
+                    cloud_account_id: '111',
+                    cloud_provider_id: 'aws',
+                    contracts: [],
+                  },
+                  {
+                    cloud_account_id: '222',
+                    cloud_provider_id: 'aws',
+                    contracts: [
+                      {
+                        dimensions: [
+                          { name: 'four_vcpu_hour', value: '96' },
+                          { name: 'control_plane', value: '4' },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+                quota_id: 'cluster|byoc|moa|marketplace',
+              },
+            ],
+          },
+        },
+      },
+      rosaReducer: {
+        getAWSBillingAccountsResponse: {
+          data: [],
+          fulfilled: false,
+          pending: false,
+          error: false,
+        },
+      },
+    };
+
+    it('shows warning when non-contracted account is selected and another has a contract', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const newProps = {
+        selectedAWSBillingAccountID: '111',
+        selectedAWSAccountID: '111',
+      };
+
+      withState(stateWithMixedContracts).render(
+        buildTestComponent(<AWSBillingAccount {...newProps} />),
+      );
+
+      expect(
+        await screen.findByText('No contract on selected billing account'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/does not have any pre-purchased ROSA capacity contracted/),
+      ).toBeInTheDocument();
+    });
+
+    it('does not show warning when contracted account is selected', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const newProps = {
+        selectedAWSBillingAccountID: '222',
+        selectedAWSAccountID: '222',
+      };
+
+      withState(stateWithMixedContracts).render(
+        buildTestComponent(<AWSBillingAccount {...newProps} />),
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText('No contract on selected billing account'),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('does not show warning when feature gate is disabled', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, false]]);
+
+      const newProps = {
+        selectedAWSBillingAccountID: '111',
+        selectedAWSAccountID: '111',
+      };
+
+      withState(stateWithMixedContracts).render(
+        buildTestComponent(<AWSBillingAccount {...newProps} />),
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText('No contract on selected billing account'),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('includes the selected account ID in the warning message', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const newProps = {
+        selectedAWSBillingAccountID: '111',
+        selectedAWSAccountID: '111',
+      };
+
+      withState(stateWithMixedContracts).render(
+        buildTestComponent(<AWSBillingAccount {...newProps} />),
+      );
+
+      const warningAlert = await screen.findByText('No contract on selected billing account');
+      const alertContainer = warningAlert.closest('.pf-v6-c-alert')!;
+      expect(within(alertContainer as HTMLElement).getByText('111')).toBeInTheDocument();
     });
   });
 });

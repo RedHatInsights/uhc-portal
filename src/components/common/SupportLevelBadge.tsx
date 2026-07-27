@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Icon, Label, Popover, PopoverPosition } from '@patternfly/react-core';
+import { Label, Popover, PopoverPosition } from '@patternfly/react-core';
 import { InfoCircleIcon } from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
 import supportLinks from '../../common/supportLinks.mjs';
@@ -61,11 +61,7 @@ const SupportLevelBadge = ({
         onClick={(event) => {
           event.preventDefault();
         }}
-        icon={
-          <Icon>
-            <InfoCircleIcon />
-          </Icon>
-        }
+        icon={<InfoCircleIcon />}
         className={`${className} pf-v6-u-display-inline`}
       >
         {text}

@@ -10,6 +10,11 @@ import Overview from '../Overview';
 
 import '@testing-library/jest-dom';
 
+jest.mock('@scalprum/react-core', () => ({
+  ...jest.requireActual('@scalprum/react-core'),
+  useRemoteHook: jest.fn(() => ({ hookResult: null })),
+}));
+
 // Store for drawer state setters that persist across re-renders
 let drawerStateSetter = null;
 

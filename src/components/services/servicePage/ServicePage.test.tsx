@@ -4,6 +4,11 @@ import { checkAccessibility, getByText, render, screen } from '~/testUtils';
 
 import { ServicePage } from './ServicePage';
 
+jest.mock('@scalprum/react-core', () => ({
+  ...jest.requireActual('@scalprum/react-core'),
+  useRemoteHook: jest.fn(() => ({ hookResult: null })),
+}));
+
 describe('Service page unit tests', () => {
   describe('ROSA Service Page', () => {
     it('is accessible', async () => {
