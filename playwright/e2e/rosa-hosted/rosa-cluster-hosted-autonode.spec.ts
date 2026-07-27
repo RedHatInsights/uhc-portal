@@ -30,7 +30,7 @@ test.describe.serial(
     }) => {
       await clusterListPage.filterTxtField().fill(clusterName);
       await clusterListPage.waitForDataReady();
-      await clusterListPage.openClusterDefinition(clusterName);
+      await clusterListPage.openClusterDefinition(clusterName, 'startsWith');
       await clusterDetailsPage.isAutoNodeSectionVisible();
     });
 

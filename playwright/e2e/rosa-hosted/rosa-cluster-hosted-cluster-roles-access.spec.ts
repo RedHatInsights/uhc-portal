@@ -25,7 +25,7 @@ test.describe.serial(
       await clusterListPage.isClusterListScreen();
       await clusterListPage.filterTxtField().fill(clusterName);
       await clusterListPage.waitForDataReady();
-      await clusterListPage.openClusterDefinition(clusterName);
+      await clusterListPage.openClusterDefinition(clusterName, 'startsWith');
       await clusterRolesAndAccessPage.goToAccessControlTab();
       await clusterRolesAndAccessPage.goToClusterRolesAndAccessTab();
       await clusterRolesAndAccessPage.isClusterRolesAndAccessPage();

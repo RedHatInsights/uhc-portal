@@ -19,7 +19,7 @@ test.describe.serial(
       await clusterListPage.filterTxtField().clear();
       await clusterListPage.filterTxtField().fill(clusterNamePrefix);
       await clusterListPage.waitForDataReady();
-      await clusterListPage.openClusterDefinition(clusterNamePrefix);
+      await clusterListPage.openClusterDefinition(clusterNamePrefix, 'startsWith');
       clusterName = await clusterDetailsPage.clusterNameTitle().innerText();
     });
 

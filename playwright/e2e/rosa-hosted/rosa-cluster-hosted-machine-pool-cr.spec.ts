@@ -61,7 +61,7 @@ test.describe.serial(
       // Filter for the specific cluster and open it
       await clusterListPage.filterTxtField().fill(clusterName);
       await clusterListPage.waitForDataReady();
-      await clusterListPage.openClusterDefinition(clusterName);
+      await clusterListPage.openClusterDefinition(clusterName, 'startsWith');
       await machinePoolsPage.goToMachinePoolsTab();
     });
 
