@@ -1,3 +1,5 @@
+import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { CloudAccount, Contract, ContractDimension } from '~/types/accounts_mgmt.v1';
 
 const resources = ['control_plane', 'four_vcpu_hour'];
@@ -43,4 +45,20 @@ const shouldShowBillingContractNotification = (
   );
 };
 
-export { getContract, getDimensionValue, shouldShowBillingContractNotification };
+const useShouldShowBillingContractWarning = (
+  cloudAccounts: CloudAccount[],
+  selectedAccountId: string,
+): boolean => {
+  const isBillingContractNotificationEnabled = useFeatureGate(BILLING_CONTRACT_NOTIFICATION);
+  return (
+    isBillingContractNotificationEnabled &&
+    shouldShowBillingContractNotification(cloudAccounts, selectedAccountId)
+  );
+};
+
+export {
+  getContract,
+  getDimensionValue,
+  shouldShowBillingContractNotification,
+  useShouldShowBillingContractWarning,
+};
