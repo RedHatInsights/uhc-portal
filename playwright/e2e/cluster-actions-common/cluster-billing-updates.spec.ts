@@ -23,7 +23,7 @@ test.describe.serial(
       await clusterListPage.isClusterListScreen();
       await clusterListPage.filterTxtField().fill(clusterName);
       await clusterListPage.waitForDataReady();
-      await clusterListPage.openClusterDefinition(clusterName);
+      await clusterListPage.openClusterDefinition(clusterName, 'startsWith');
       await clusterDetailsPage.waitForClusterDetailsLoad();
       // Ensure a known starting account so re-runs are idempotent after a failed afterAll.
       await clusterDetailsPage.ensureBillingAccount(awsBillingAccountId);
