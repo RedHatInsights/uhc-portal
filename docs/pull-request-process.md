@@ -22,7 +22,7 @@ Here is the process to move a PR from draft to merged:
 
 1. :pencil2: Author responds to the initial AI-generated review (CodeRabbit), addressing any issues or explaining why certain comments do not need to be acted upon. The AI-powered reviewer is responsible for resolving the threads it opened.
 
-1. :pencil2: Author assigns 3 reviewers. One of the reviewers should be the person assigned as the QA Contact in the Jira ticket — they are responsible for pre-merge testing. If the QA Contact field is empty, the author assigns one of the reviewers to that role and updates the Jira ticket accordingly
+1. :pencil2: Author assigns 3 reviewers. One of the reviewers must be the person assigned as the QA Contact in the Jira ticket — they are responsible for pre-merge testing. If the QA Contact field is empty, the author assigns a QA Contact in Jira and assigns the same person as one of the reviewers
 
 1. :eyes:  Reviewers review code, add comments, ask questions etc
 
