@@ -33,7 +33,11 @@ import ExternalLink from '../../../../../common/ExternalLink';
 import { FieldId } from '../../constants';
 import AWSAccountSelection from '../AWSAccountSelection';
 
-import { getContract, shouldShowBillingContractNotification } from './awsBillingAccountHelper';
+import {
+  getContract,
+  getDefaultBillingAccountId,
+  shouldShowBillingContractNotification,
+} from './awsBillingAccountHelper';
 import ContractInfo from './ContractInfo';
 
 interface AWSBillingAccountProps {
@@ -103,11 +107,7 @@ const AWSBillingAccount = ({
     }
 
     if (isBillingContractNotificationEnabled) {
-      const contractedAccount = cloudAccounts.find((account) => getContract(account) !== null);
-      setFieldValue(
-        FieldId.BillingAccountId,
-        contractedAccount?.cloud_account_id || cloudAccounts[0].cloud_account_id || '',
-      );
+      setFieldValue(FieldId.BillingAccountId, getDefaultBillingAccountId(cloudAccounts));
     } else if (cloudAccounts.length === 1) {
       setFieldValue(FieldId.BillingAccountId, cloudAccounts[0].cloud_account_id || '');
     }

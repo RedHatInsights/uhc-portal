@@ -26,8 +26,6 @@ import {
   getWorkerNodeVolumeSizeMinGiB,
 } from '~/components/clusters/common/machinePools/utils';
 import { CloudProviderType, IMDSType } from '~/components/clusters/wizards/common';
-import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
@@ -244,8 +242,6 @@ const useMachinePoolFormik = ({
 
   const organization = useOrganization();
 
-  const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
-
   const validationSchema = React.useMemo(
     () =>
       Yup.lazy((values) => {
@@ -261,7 +257,6 @@ const useMachinePoolFormik = ({
           minNodes: minNodesRequired,
           machineTypeId: values.instanceType?.id,
           editMachinePoolId: values.name,
-          allow249NodesOSDCCSROSA,
           mpAvailZones,
         });
 
@@ -534,7 +529,6 @@ const useMachinePoolFormik = ({
       maxDiskSize,
       hasMachinePool,
       isHypershift,
-      allow249NodesOSDCCSROSA,
     ],
   );
 

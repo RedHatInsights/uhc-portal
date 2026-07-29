@@ -21,8 +21,6 @@ import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
-import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
 
 import NodeCountInput from './NodeCountInput';
@@ -99,7 +97,6 @@ const ComputeNodeCount = ({
 
   const machineTypes = useGlobalState((state) => state.machineTypes);
   const quota = useGlobalState((state) => state.userProfile.organization.quotaList);
-  const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
 
   const [nodesComputeErrorMessage, setNodesComputeErrorMessage] = useState<string>();
 
@@ -165,14 +162,12 @@ const ComputeNodeCount = ({
         minNodes: minNodesRequired,
         isHypershift: isHypershiftSelected,
         clusterVersion: clusterVersionRawId,
-        allow249NodesOSDCCSROSA,
       }),
     [
       included,
       available,
       minNodesRequired,
       isHypershiftSelected,
-      allow249NodesOSDCCSROSA,
       clusterVersionRawId,
       isEditingCluster,
     ],
