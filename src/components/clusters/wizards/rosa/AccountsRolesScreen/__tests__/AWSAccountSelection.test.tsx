@@ -1,10 +1,46 @@
 import React from 'react';
 
-import { checkAccessibility, render, screen, waitFor } from '~/testUtils';
+import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
+import {
+  checkAccessibility,
+  mockUseFeatureGate,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '~/testUtils';
 
 import AWSAccountSelection from '../AWSAccountSelection';
+import {
+  CONTRACT_ENABLED_DESCRIPTION,
+  NO_CONTRACT_ENABLED_DESCRIPTION,
+} from '../AWSBillingAccount/awsBillingAccountHelper';
 
 import { defaultProps } from './AWSAccountSelection.fixtures';
+
+const billingAccountsWithMixedContracts = [
+  {
+    cloud_account_id: '456456456456',
+    cloud_provider_id: 'aws',
+    contracts: [],
+  },
+  {
+    cloud_account_id: '123123123123',
+    cloud_provider_id: 'aws',
+    contracts: [
+      {
+        dimensions: [{ name: 'four_vcpu_hour', value: '1' }],
+        end_date: 'some-end-date',
+        start_date: 'some-start-date',
+      },
+    ],
+  },
+  {
+    cloud_account_id: '789789789789',
+    cloud_provider_id: 'aws',
+    contracts: [],
+  },
+];
 
 describe('AWSAccountSelection tests', () => {
   afterEach(() => {
@@ -95,5 +131,53 @@ describe('AWSAccountSelection tests', () => {
 
     // Unfortunately the only way to tell if the field is required is to find the hidden "*" in the label tag
     expect(container.querySelector('label')?.textContent).toEqual('AWS billing account *');
+  });
+
+  describe('billing contract notification enhancements', () => {
+    it('sorts contracted accounts first with labels and a divider when the feature flag is enabled', async () => {
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+      const { user } = render(
+        <AWSAccountSelection
+          {...defaultProps}
+          isBillingAccount
+          accounts={billingAccountsWithMixedContracts}
+          label="AWS billing account"
+        />,
+      );
+
+      await user.click(screen.getByText(/select an account/i));
+
+      const options = await screen.findAllByRole('option');
+      expect(options).toHaveLength(3);
+      expect(options[0]).toHaveTextContent('123123123123');
+      expect(within(options[0]).getByText(CONTRACT_ENABLED_DESCRIPTION)).toBeInTheDocument();
+      // Secondary sort is shorter-first, then ascending localeCompare within each divider group
+      expect(options[1]).toHaveTextContent('456456456456');
+      expect(within(options[1]).getByText(NO_CONTRACT_ENABLED_DESCRIPTION)).toBeInTheDocument();
+      expect(options[2]).toHaveTextContent('789789789789');
+      expect(within(options[2]).getByText(NO_CONTRACT_ENABLED_DESCRIPTION)).toBeInTheDocument();
+      // One divider under the search input, plus one between contract groups
+      expect(screen.getAllByRole('separator')).toHaveLength(2);
+    });
+
+    it('does not show the no-contract label or group divider when the feature flag is disabled', async () => {
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, false]]);
+      const { user } = render(
+        <AWSAccountSelection
+          {...defaultProps}
+          isBillingAccount
+          accounts={billingAccountsWithMixedContracts}
+          label="AWS billing account"
+        />,
+      );
+
+      await user.click(screen.getByText(/select an account/i));
+
+      expect(await screen.findByText('123123123123')).toBeInTheDocument();
+      expect(screen.getByText(CONTRACT_ENABLED_DESCRIPTION)).toBeInTheDocument();
+      expect(screen.queryByText(NO_CONTRACT_ENABLED_DESCRIPTION)).not.toBeInTheDocument();
+      // Only the search/menu divider is present
+      expect(screen.getAllByRole('separator')).toHaveLength(1);
+    });
   });
 });

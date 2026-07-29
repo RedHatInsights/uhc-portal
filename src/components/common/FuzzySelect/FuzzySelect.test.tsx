@@ -66,6 +66,49 @@ describe('FuzzySelect', () => {
       expect(options[3]).toHaveTextContent('I am different');
     });
 
+    it('does not insert option dividers when entries omit dividerGroup', async () => {
+      render(<FuzzySelect {...defaultProps} />);
+
+      expect(await screen.findAllByRole('option')).toHaveLength(4);
+      // Only the search/menu divider is present (flatMap must not change default rendering)
+      expect(screen.getAllByRole('separator')).toHaveLength(1);
+    });
+
+    it('renders a divider between options with different dividerGroup values', async () => {
+      const selectionDataWithDividerGroups = [
+        { entryId: 'contracted-1', label: '111111111111', dividerGroup: 'contracted' },
+        { entryId: 'non-contracted-1', label: '222222222222', dividerGroup: 'non-contracted' },
+        { entryId: 'contracted-2', label: '333333333333', dividerGroup: 'contracted' },
+      ];
+      const sortWithContractedFirst = (
+        a: { dividerGroup?: string; label: string },
+        b: { dividerGroup?: string; label: string },
+      ) => {
+        const aRank = a.dividerGroup === 'contracted' ? 0 : 1;
+        const bRank = b.dividerGroup === 'contracted' ? 0 : 1;
+        if (aRank !== bRank) {
+          return aRank - bRank;
+        }
+        return a.label.localeCompare(b.label);
+      };
+
+      render(
+        <FuzzySelect
+          {...defaultProps}
+          selectionData={selectionDataWithDividerGroups}
+          sortFn={sortWithContractedFirst}
+        />,
+      );
+
+      const options = await screen.findAllByRole('option');
+      expect(options).toHaveLength(3);
+      expect(options[0]).toHaveTextContent('111111111111');
+      expect(options[1]).toHaveTextContent('333333333333');
+      expect(options[2]).toHaveTextContent('222222222222');
+      // Search/menu divider plus one between divider groups
+      expect(screen.getAllByRole('separator')).toHaveLength(2);
+    });
+
     it('truncates names that are longer than truncation', async () => {
       // render dropdown
       render(<FuzzySelect {...defaultProps} truncation={15} />);

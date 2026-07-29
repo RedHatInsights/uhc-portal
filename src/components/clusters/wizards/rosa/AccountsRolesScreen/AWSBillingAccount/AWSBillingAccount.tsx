@@ -32,7 +32,11 @@ import ExternalLink from '../../../../../common/ExternalLink';
 import { FieldId } from '../../constants';
 import AWSAccountSelection from '../AWSAccountSelection';
 
-import { getContract } from './awsBillingAccountHelper';
+import {
+  getContract,
+  getDefaultBillingAccountId,
+  shouldShowBillingContractNotification,
+} from './awsBillingAccountHelper';
 import ContractInfo from './ContractInfo';
 
 interface AWSBillingAccountProps {
@@ -94,11 +98,7 @@ const AWSBillingAccount = ({
     }
 
     if (isBillingContractNotificationEnabled) {
-      const contractedAccount = cloudAccounts.find((account) => getContract(account) !== null);
-      setFieldValue(
-        FieldId.BillingAccountId,
-        contractedAccount?.cloud_account_id || cloudAccounts[0].cloud_account_id || '',
-      );
+      setFieldValue(FieldId.BillingAccountId, getDefaultBillingAccountId(cloudAccounts));
     } else if (cloudAccounts.length === 1) {
       setFieldValue(FieldId.BillingAccountId, cloudAccounts[0].cloud_account_id || '');
     }
@@ -121,6 +121,9 @@ const AWSBillingAccount = ({
     (account) => account.cloud_account_id === selectedAWSBillingAccountID,
   );
   const selectedContract = selectedAccount ? getContract(selectedAccount) : null;
+  const showContractWarning =
+    isBillingContractNotificationEnabled &&
+    shouldShowBillingContractNotification(cloudAccounts, selectedAWSBillingAccountID);
 
   return (
     <>
@@ -185,18 +188,37 @@ const AWSBillingAccount = ({
       </GridItem>
       <GridItem span={7} />
       <GridItem sm={12} md={12}>
-        {selectedAWSBillingAccountID !== selectedAWSAccountID &&
-        selectedAWSBillingAccountID &&
-        selectedAWSAccountID ? (
-          <Alert
-            isInline
-            variant={AlertVariant.info}
-            component="p"
-            role="alert"
-            title="The selected AWS billing account is a different account than your AWS infrastructure account.
-            The AWS billing account will be charged for subscription usage.  The AWS infrastructure account will be used for managing the cluster."
-          />
-        ) : null}
+        <Stack hasGutter>
+          {showContractWarning && (
+            <StackItem>
+              <Alert
+                isLiveRegion
+                isInline
+                variant={AlertVariant.warning}
+                title="No contract on selected billing account"
+              >
+                The selected account <strong>{selectedAWSBillingAccountID}</strong> does not have
+                any pre-purchased ROSA capacity contracted. However, at least one other billing
+                account linked to your Red Hat account has an active contract. You may want to
+                review your selection.
+              </Alert>
+            </StackItem>
+          )}
+          {selectedAWSBillingAccountID !== selectedAWSAccountID &&
+          selectedAWSBillingAccountID &&
+          selectedAWSAccountID ? (
+            <StackItem>
+              <Alert
+                isInline
+                variant={AlertVariant.info}
+                component="p"
+                role="alert"
+                title="The selected AWS billing account is a different account than your AWS infrastructure account.
+                The AWS billing account will be charged for subscription usage.  The AWS infrastructure account will be used for managing the cluster."
+              />
+            </StackItem>
+          ) : null}
+        </Stack>
       </GridItem>
     </>
   );

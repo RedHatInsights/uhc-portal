@@ -18,7 +18,6 @@ import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleSt
 import {
   ALLOW_EUS_CHANNEL,
   FIPS_FOR_HYPERSHIFT,
-  MAX_NODES_TOTAL_249,
   MULTIREGION_PREVIEW_ENABLED,
 } from '~/queries/featureGates/featureConstants';
 import { useFetchGetMultiRegionAvailableRegions } from '~/queries/RosaWizardQueries/useFetchGetMultiRegionAvailableRegions';
@@ -569,7 +568,6 @@ describe('<Details />', () => {
 
     beforeEach(() => {
       jest.resetAllMocks();
-      mockUseFeatureGate([[MAX_NODES_TOTAL_249, true]]);
       (clusterService.getInstallableVersions as jest.Mock).mockResolvedValue({
         data: { items: [] },
       });

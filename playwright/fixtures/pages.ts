@@ -27,6 +27,7 @@ import { SubscriptionsPage } from '../page-objects/subscriptions-page';
 import { TokensPage } from '../page-objects/tokens-page';
 import { ClusterIdentityProviderPage } from '../page-objects/cluster-identity-provider-page';
 import { AwsInfrastructureAccessPage } from '../page-objects/aws-infrastructure-access-page';
+import { TransferOwnershipPage } from '../page-objects/transfer-ownership-page';
 import { CustomCommands } from '../support/custom-commands';
 import { STORAGE_STATE_PATH } from '../support/playwright-constants';
 
@@ -63,6 +64,7 @@ type WorkerFixtures = {
   customCommands: CustomCommands;
   clusterIdentityProviderPage: ClusterIdentityProviderPage;
   awsInfrastructureAccessPage: AwsInfrastructureAccessPage;
+  transferOwnershipPage: TransferOwnershipPage;
 };
 
 /**
@@ -338,6 +340,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   awsInfrastructureAccessPage: [
     async ({ authenticatedPage }, use) => {
       const pageObject = new AwsInfrastructureAccessPage(authenticatedPage);
+      await use(pageObject);
+      },
+      { scope: 'worker' },
+  ],
+  
+  // Worker-scoped: TransferOwnershipPage instance - created once, reused across all tests in suite
+  transferOwnershipPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new TransferOwnershipPage(authenticatedPage);
       await use(pageObject);
     },
     { scope: 'worker' },
