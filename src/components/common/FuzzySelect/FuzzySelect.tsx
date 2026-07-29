@@ -478,14 +478,14 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
     let optionsToRender: React.ReactNode[] = [];
 
     if (Array.isArray(currentSelectOptions)) {
-      const sortedItems = currentSelectOptions.sort(sortFn);
-      optionsToRender = sortedItems.map((entry) => {
+      const sortedItems = [...currentSelectOptions].sort(sortFn);
+      optionsToRender = sortedItems.flatMap((entry, index) => {
         const entryLabel = filterValue ? (
           <FuzzySelectMatchName key={entry.entryId} entry={entry} filterText={filterValue} />
         ) : (
           truncateTextWithEllipsis(entry.label, truncation)
         );
-        return (
+        const option = (
           <FuzzySelectOption
             key={entry.entryId}
             entry={entry}
@@ -494,6 +494,16 @@ export const FuzzySelect: React.FC<FuzzySelectProps> = (props) => {
             isPopover={isPopover}
           />
         );
+        const previousEntry = sortedItems[index - 1];
+        const showDivider =
+          index > 0 &&
+          !!entry.dividerGroup &&
+          !!previousEntry?.dividerGroup &&
+          entry.dividerGroup !== previousEntry.dividerGroup;
+
+        return showDivider
+          ? [<Divider component="li" key={`divider-before-${entry.entryId}`} />, option]
+          : [option];
       });
     } else {
       const originalOrder = isSubnetSelectMode

@@ -81,7 +81,6 @@ describe('machinePools utils', () => {
             ...defaultArgs.cluster,
             hypershift: { enabled: false },
           },
-          allow249NodesOSDCCSROSA: true,
         };
 
         const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
@@ -105,7 +104,6 @@ describe('machinePools utils', () => {
               instance_type: 'm5.myothertype',
             },
           ],
-          allow249NodesOSDCCSROSA: true,
         };
 
         const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
@@ -151,7 +149,6 @@ describe('machinePools utils', () => {
             ...defaultArgs.cluster,
             hypershift: { enabled: false },
           },
-          allow249NodesOSDCCSROSA: true,
         };
 
         const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
@@ -175,7 +172,6 @@ describe('machinePools utils', () => {
               instance_type: 'm5.myothertype',
             },
           ],
-          allow249NodesOSDCCSROSA: true,
         };
 
         const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);

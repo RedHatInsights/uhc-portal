@@ -12,7 +12,6 @@ import {
   getMinNodesRequiredMaxReplicas,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
-import { MAX_NODES_INSUFFICIEN_VERSION as MAX_NODES_180 } from '~/components/clusters/common/machinePools/constants';
 import { getMaxNodesHCP, getMaxWorkerNodes } from '~/components/clusters/common/machinePools/utils';
 import getMinNodesAllowed from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -21,8 +20,6 @@ import ExternalLink from '~/components/common/ExternalLink';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import PopoverHint from '~/components/common/PopoverHint';
 import { usePreviousProps } from '~/hooks/usePreviousProps';
-import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { NodesInput } from './NodesInput';
 
@@ -45,7 +42,6 @@ export const AutoScaleEnabledInputs = () => {
       [RosaFieldId.ClusterVersion]: clusterVersion,
     },
   } = useFormState();
-  const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
 
   const poolsLength = useMemo(
     () => machinePoolsSubnets?.length ?? 1,
@@ -133,9 +129,7 @@ export const AutoScaleEnabledInputs = () => {
   }, [product, isByoc, isMultiAz, defaultMinAllowed, isHypershiftSelected, autoscalingEnabled]);
 
   const maxNodes = useMemo(() => {
-    const maxWorkerNodes = allow249NodesOSDCCSROSA
-      ? getMaxWorkerNodes(clusterVersion?.raw_id)
-      : MAX_NODES_180;
+    const maxWorkerNodes = getMaxWorkerNodes(clusterVersion?.raw_id);
     if (isHypershiftSelected) {
       return Math.floor(getMaxNodesHCP(clusterVersion?.raw_id) / poolsLength);
     }
@@ -143,13 +137,7 @@ export const AutoScaleEnabledInputs = () => {
       return maxWorkerNodes / 3;
     }
     return maxWorkerNodes;
-  }, [
-    isMultiAz,
-    isHypershiftSelected,
-    poolsLength,
-    allow249NodesOSDCCSROSA,
-    clusterVersion?.raw_id,
-  ]);
+  }, [isMultiAz, isHypershiftSelected, poolsLength, clusterVersion?.raw_id]);
 
   const minRequiredMaxReplicas = useMemo(
     () =>

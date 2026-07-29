@@ -39,7 +39,6 @@ import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/Mach
 import {
   CAPACITY_RESERVATION_ID_FIELD,
   IMDS_SELECTION,
-  MAX_NODES_TOTAL_249,
   TABBED_MACHINE_POOL_MODAL,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -183,7 +182,6 @@ const EditMachinePoolModal = ({
 
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
 
-  const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
   const imdsSectionFeature = useFeatureGate(IMDS_SELECTION);
   const isCapacityReservationEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
 
@@ -369,7 +367,6 @@ const EditMachinePoolModal = ({
                       machinePool={currentMachinePool}
                       machinePools={machinePoolsResponse || []}
                       machineTypes={machineTypesResponse}
-                      allow249NodesOSDCCSROSA={allow249NodesOSDCCSROSA}
                       isMaxReached={isMaxReached}
                     />
                     <AutoRepairField cluster={cluster} />
