@@ -91,7 +91,21 @@ describe('Formik fields change', () => {
     await userEvent.type(screen.getByLabelText('Password *'), '1234faewd%Dadsfvaerwv');
     await userEvent.type(screen.getByLabelText('Confirm password *'), '1234faewd%Dadsfvaerwv');
 
-    expect(screen.getByText('Add user').getAttribute('disabled')).toBe(null);
+    expect(screen.getByRole('button', { name: 'Add user' })).toBeEnabled();
+  });
+
+  it('disables Add user when fields are empty', () => {
+    render(buildTestComponent(<CompoundFieldArray {...defaultProps} />));
+
+    expect(screen.getByRole('button', { name: 'Add user' })).toBeDisabled();
+  });
+
+  it('disables Add user when only some fields are filled', async () => {
+    render(buildTestComponent(<CompoundFieldArray {...defaultProps} />));
+
+    await userEvent.type(screen.getByPlaceholderText('Unique username 1'), 'username1');
+
+    expect(screen.getByRole('button', { name: 'Add user' })).toBeDisabled();
   });
 
   it('adds new field', async () => {
@@ -105,6 +119,19 @@ describe('Formik fields change', () => {
 
     expect(screen.getAllByLabelText('Password *')).toHaveLength(2);
   });
+
+  it('disables Add user after adding a new empty row', async () => {
+    render(buildTestComponent(<CompoundFieldArray {...defaultProps} />));
+
+    await userEvent.type(screen.getByPlaceholderText('Unique username 1'), 'username1');
+    await userEvent.type(screen.getByLabelText('Password *'), '1234faewd%Dadsfvaerwv');
+    await userEvent.type(screen.getByLabelText('Confirm password *'), '1234faewd%Dadsfvaerwv');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add user' }));
+
+    expect(screen.getByRole('button', { name: 'Add user' })).toBeDisabled();
+  });
+
   describe('onlySingleItem', () => {
     it('does not show label, add, or delete buttons if onlySingleItem', () => {
       render(buildTestComponent(<CompoundFieldArray {...defaultProps} onlySingleItem />));

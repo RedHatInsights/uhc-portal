@@ -1,6 +1,5 @@
 import React from 'react';
 import { Field, FieldArray } from 'formik';
-import { pullAt } from 'lodash';
 import { PropTypes } from 'prop-types';
 
 import { Button, GridItem } from '@patternfly/react-core';
@@ -245,7 +244,6 @@ export const CompoundFieldArray = (props) => {
     isGroupError,
     onlySingleItem,
   } = props;
-  const [areFieldsFilled, setAreFieldsFilled] = React.useState([]);
   const [touched, setTouched] = React.useState(false);
 
   const {
@@ -254,34 +252,21 @@ export const CompoundFieldArray = (props) => {
     values: { [FieldId.USERS]: usersData },
   } = useFormState();
 
+  const areFieldsFilled =
+    usersData?.map(
+      (field) => !!(field?.username && field?.password && field?.['password-confirm']),
+    ) ?? [];
+
   const addNewField = (insert) => {
     insert(0, { username: '', password: '', 'password-confirm': '' });
-    setAreFieldsFilled((areFieldsFilled) => {
-      const newFilledStatus = [false, ...areFieldsFilled];
-      return newFilledStatus;
-    });
   };
-
-  React.useEffect(() => {
-    setAreFieldsFilled(usersData?.map((field) => !!field) ?? []);
-  }, [usersData]);
 
   const onFieldChange = (e, value, index, fieldName) => {
     setFieldTouched(fieldName, true);
-    setAreFieldsFilled((areFieldsFilled) => {
-      const newFilledStatus = [...areFieldsFilled];
-      newFilledStatus[index] = !!value;
-      return newFilledStatus;
-    });
   };
 
   const removeField = (index, remove) => {
     remove(index);
-    setAreFieldsFilled((areFieldsFilled) => {
-      const newFilledStatus = [...areFieldsFilled];
-      pullAt(newFilledStatus, index);
-      return newFilledStatus;
-    });
   };
 
   return (
