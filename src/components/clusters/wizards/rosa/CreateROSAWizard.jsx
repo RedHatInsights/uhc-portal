@@ -118,16 +118,53 @@ const CreateROSAWizardInternal = ({
 
   const [currentStepId, setCurrentStepId] = React.useState(firstStepId);
   const [currentStep, setCurrentStep] = React.useState();
+  const [hasContractWarning, setHasContractWarning] = React.useState(false);
+  const [isContractDialogOpen, setIsContractDialogOpen] = React.useState(false);
+  const [confirmedBillingAccountId, setConfirmedBillingAccountId] = React.useState(null);
 
   const wizardContextRef = React.useRef();
 
-  const onWizardContextChange = ({ steps, setStep, goToStepById }) => {
+  const onWizardContextChange = ({ steps, setStep, goToStepById, goToNextStep }) => {
     wizardContextRef.current = {
       steps,
       setStep,
       goToStepById,
+      goToNextStep,
     };
   };
+
+  const handleValidNextStep = (fromStepId) => {
+    const logForwardingConfigured =
+      values[FieldId.LogForwardingS3Enabled] || values[FieldId.LogForwardingCloudWatchEnabled];
+    if (
+      fromStepId === stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING &&
+      isHcpLogForwardingEnabled &&
+      isHypershiftSelected &&
+      logForwardingConfigured
+    ) {
+      track('Log Forwarding Configured', { context: 'cluster_creation' });
+    }
+  };
+
+  const handleContractDialogContinue = () => {
+    setIsContractDialogOpen(false);
+    setConfirmedBillingAccountId(values[FieldId.BillingAccountId]);
+    wizardContextRef.current?.goToNextStep();
+  };
+
+  const handleContractDialogClose = () => setIsContractDialogOpen(false);
+
+  const selectedBillingAccountId = values[FieldId.BillingAccountId];
+  const [prevSelectedBillingAccountId, setPrevSelectedBillingAccountId] =
+    React.useState(selectedBillingAccountId);
+  if (selectedBillingAccountId !== prevSelectedBillingAccountId) {
+    setPrevSelectedBillingAccountId(selectedBillingAccountId);
+    setConfirmedBillingAccountId(null);
+  }
+
+  const shouldConfirmContract =
+    hasContractWarning && selectedBillingAccountId !== confirmedBillingAccountId;
+
   useClusterWizardResetStepsHook({
     currentStep,
     wizardContextRef,
@@ -272,19 +309,9 @@ const CreateROSAWizardInternal = ({
                   getUserRoleInfo={() => getUserRole()}
                   isSubmitting={createClusterResponse.pending}
                   onWizardContextChange={onWizardContextChange}
-                  onValidNextStep={(fromStepId) => {
-                    const logForwardingConfigured =
-                      values[FieldId.LogForwardingS3Enabled] ||
-                      values[FieldId.LogForwardingCloudWatchEnabled];
-                    if (
-                      fromStepId === stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING &&
-                      isHcpLogForwardingEnabled &&
-                      isHypershiftSelected &&
-                      logForwardingConfigured
-                    ) {
-                      track('Log Forwarding Configured', { context: 'cluster_creation' });
-                    }
-                  }}
+                  hasContractWarning={shouldConfirmContract}
+                  onValidNextStep={handleValidNextStep}
+                  onRequestContractConfirmation={() => setIsContractDialogOpen(true)}
                 />
               </>
             }
@@ -305,6 +332,10 @@ const CreateROSAWizardInternal = ({
                   organizationID={organization?.details?.id}
                   isHypershiftEnabled={isHypershiftEnabled}
                   isHypershiftSelected={isHypershiftSelected}
+                  onContractCheckChange={setHasContractWarning}
+                  isContractDialogOpen={isContractDialogOpen}
+                  onContractDialogContinue={handleContractDialogContinue}
+                  onContractDialogClose={handleContractDialogClose}
                 />
               </ErrorBoundary>
             </WizardStep>
@@ -564,5 +595,7 @@ const CreateROSAWizardFormik = (props) => {
 };
 
 CreateROSAWizardFormik.propTypes = { ...CreateROSAWizardInternal.propTypes };
+
+export { CreateROSAWizardInternal };
 
 export default withAnalytics(CreateROSAWizardFormik);

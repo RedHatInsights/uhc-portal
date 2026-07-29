@@ -1,10 +1,14 @@
 import React from 'react';
 
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
-import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
+import {
+  BILLING_CONTRACT_NOTIFICATION,
+  OCM_ROLE_NO_CONSOLE,
+} from '~/queries/featureGates/featureConstants';
 import * as useFetchGetOCMRoleModule from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { mockUseFeatureGate, mockUseFormState, render, screen } from '~/testUtils';
 
+import { FieldId } from './constants';
 import CreateRosaWizardFooter from './CreateRosaWizardFooter';
 import { stepId } from './rosaWizardConstants';
 
@@ -70,6 +74,85 @@ describe('<CreateRosaWizardFooter />', () => {
     });
     render(<CreateRosaWizardFooter {...props} />);
     expect(screen.getByTestId(wizardPrimaryBtnTestId)).not.toHaveAttribute('aria-disabled');
+  });
+
+  describe('contract nudge confirmation', () => {
+    // The confirmation dialog itself is rendered by AWSBillingAccount; the footer is only
+    // responsible for intercepting "Next" and requesting confirmation instead of advancing.
+    const mockGoToNextStep = jest.fn();
+    const onRequestContractConfirmation = jest.fn();
+
+    const accountsStepProps = {
+      ...props,
+      accountAndRolesStepId: String(stepId.ACCOUNTS_AND_ROLES_AS_FIRST_STEP),
+      currentStepId: String(stepId.ACCOUNTS_AND_ROLES_AS_FIRST_STEP),
+      getUserRoleResponse: { fulfilled: true },
+      onValidNextStep: jest.fn(),
+      onRequestContractConfirmation,
+    };
+
+    beforeEach(() => {
+      (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
+        canCreateManagedCluster: true,
+      });
+      jest.spyOn(useFetchGetOCMRoleModule, 'useFetchGetOCMRole').mockReturnValue({
+        data: { profile: 'standard' },
+        isSuccess: true,
+        isPending: false,
+        isError: false,
+        error: null,
+        status: 'success',
+      });
+      jest.mocked(jest.requireMock('@patternfly/react-core').useWizardContext).mockReturnValue({
+        goToNextStep: mockGoToNextStep,
+        goToPrevStep: jest.fn(),
+        close: jest.fn(),
+        activeStep: { id: stepId.ACCOUNTS_AND_ROLES_AS_FIRST_STEP },
+        steps: [],
+        setStep: jest.fn(),
+        goToStepById: jest.fn(),
+      });
+      mockUseFormState({
+        values: { [FieldId.BillingAccountId]: '123456789012' },
+        validateForm: jest.fn().mockResolvedValue({}),
+        isValidating: false,
+      });
+    });
+
+    it('requests contract confirmation instead of advancing when trigger condition is met', async () => {
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const { user } = render(<CreateRosaWizardFooter {...accountsStepProps} hasContractWarning />);
+
+      await user.click(screen.getByTestId(wizardPrimaryBtnTestId));
+
+      expect(onRequestContractConfirmation).toHaveBeenCalled();
+      expect(mockGoToNextStep).not.toHaveBeenCalled();
+    });
+
+    it('advances to next step directly when feature gate is disabled', async () => {
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, false]]);
+
+      const { user } = render(<CreateRosaWizardFooter {...accountsStepProps} hasContractWarning />);
+
+      await user.click(screen.getByTestId(wizardPrimaryBtnTestId));
+
+      expect(onRequestContractConfirmation).not.toHaveBeenCalled();
+      expect(mockGoToNextStep).toHaveBeenCalled();
+    });
+
+    it('advances to next step directly when hasContractWarning is false', async () => {
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const { user } = render(
+        <CreateRosaWizardFooter {...accountsStepProps} hasContractWarning={false} />,
+      );
+
+      await user.click(screen.getByTestId(wizardPrimaryBtnTestId));
+
+      expect(onRequestContractConfirmation).not.toHaveBeenCalled();
+      expect(mockGoToNextStep).toHaveBeenCalled();
+    });
   });
 
   describe('no_console role on Review and create step', () => {
