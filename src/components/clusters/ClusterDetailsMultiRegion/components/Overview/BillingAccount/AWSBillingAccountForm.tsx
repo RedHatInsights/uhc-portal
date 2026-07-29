@@ -95,12 +95,6 @@ export const AWSBillingAccountForm = ({
           isBillingAccount
         />
       </Form>
-      {hasContractWarning && (
-        <BillingContractWarningAlert
-          selectedAccountId={field.value}
-          className="pf-v6-u-mt-md pf-v6-u-mb-md"
-        />
-      )}
       {selectedContract ? (
         <Stack>
           <StackItem>
@@ -114,6 +108,12 @@ export const AWSBillingAccountForm = ({
         </Stack>
       ) : (
         connectNewAcctBtn
+      )}
+      {hasContractWarning && (
+        <BillingContractWarningAlert
+          selectedAccountId={field.value}
+          className="pf-v6-u-mt-md pf-v6-u-mb-md"
+        />
       )}
     </>
   );
