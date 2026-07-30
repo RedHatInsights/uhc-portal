@@ -13,7 +13,7 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
     RosaGetstartedPage.checkAnchorProperties(
       RosaGetstartedPage.rosaOppAwsMarketplaceEmeaLink(),
       'AWS Marketplace listing for EMEA',
-      'https://aws.amazon.com/marketplace/pp/prodview-sx7q3g4x2v6a4',
+      'https://aws.amazon.com/marketplace/pp/prodview-sxbakgvp63pcs',
       true,
     );
     RosaGetstartedPage.checkAnchorProperties(
