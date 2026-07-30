@@ -1,6 +1,6 @@
 # External Links Contacts
 
-This document maps all external documentation URLs used across the OCMUI app to the teams and people who maintain them. Use this when the weekly link checker reports a broken doc/support link.
+This document maps all external documentation URLs used across the OCMUI app to the teams who maintain them. Use this when the weekly link checker reports a broken doc/support link.
 
 > **Note:** For download-specific binary URLs and tool ownership, see [`src/components/downloads/DOWNLOAD_CONTACTS.md`](../components/downloads/DOWNLOAD_CONTACTS.md).
 
@@ -19,45 +19,31 @@ This document maps all external documentation URLs used across the OCMUI app to 
 
 ### OSDOCS (docs.redhat.com)
 
-All `docs.redhat.com` links are maintained by the CCS (Customer Content Services) team. File broken link tickets in the **OSDOCS** JIRA project.
+All `docs.redhat.com` links are maintained by the CCS (Customer Content Services) team.
 
-| Domain | Base URL | Doc Team Contacts | Source File |
-|--------|---------|-------------------|-------------|
-| OCP | `docs.redhat.com/.../openshift_container_platform/latest/html/` | Varies by area (see below) | installLinks.mjs, docLinks.mjs |
-| ROSA | `docs.redhat.com/.../red_hat_openshift_service_on_aws/4/html/` | Eric Ponvelle (eponvell@redhat.com), Jake Berger (jberger@redhat.com), Ben Hardesty (bhardest@redhat.com) | docLinks.mjs |
-| ROSA Classic | `docs.redhat.com/.../red_hat_openshift_service_on_aws_classic_architecture/4/html/` | Eric Ponvelle, Jeana Routh (jeana@redhat.com) | docLinks.mjs |
-| OSD | `docs.redhat.com/.../openshift_dedicated/4/html/` | Jake Berger (jberger@redhat.com), Jeana Routh (jeana@redhat.com), Ben Scott (bscott@redhat.com) | docLinks.mjs |
-| OCM | `docs.redhat.com/.../openshift_cluster_manager/1-latest/html/` | Frances McDonald (fmcdonal@redhat.com), Janelle Neczypor (jneczypo@redhat.com) | docLinks.mjs |
-| Cost Management | `docs.redhat.com/.../cost_management_service/1-latest/html/` | See resolution process below | docLinks.mjs |
-| GitOps | `docs.redhat.com/.../red_hat_openshift_gitops/` | See resolution process below | installLinks.mjs |
-| Builds | `docs.redhat.com/.../builds_for_red_hat_openshift/` | See resolution process below | installLinks.mjs |
-| MTV | `docs.redhat.com/.../migration_toolkit_for_virtualization/` | See resolution process below | installLinks.mjs |
+JIRA project: **OSDOCS** | Slack: `#forum-ocp-docs` (OCP) or `#forum-hcm-docs` (ROSA/OSD/OCM)
+
+| Domain | Base URL | Slack Channel | Source File |
+|--------|---------|---------------|-------------|
+| OCP | `docs.redhat.com/.../openshift_container_platform/latest/html/` | `#forum-ocp-docs` | installLinks.mjs, docLinks.mjs |
+| ROSA | `docs.redhat.com/.../red_hat_openshift_service_on_aws/4/html/` | `#forum-hcm-docs` | docLinks.mjs |
+| ROSA Classic | `docs.redhat.com/.../red_hat_openshift_service_on_aws_classic_architecture/4/html/` | `#forum-hcm-docs` | docLinks.mjs |
+| OSD | `docs.redhat.com/.../openshift_dedicated/4/html/` | `#forum-hcm-docs` | docLinks.mjs |
+| OCM | `docs.redhat.com/.../openshift_cluster_manager/1-latest/html/` | `#forum-hcm-docs` | docLinks.mjs |
+| Cost Management | `docs.redhat.com/.../cost_management_service/1-latest/html/` | `#forum-ocp-docs` | docLinks.mjs |
+| GitOps | `docs.redhat.com/.../red_hat_openshift_gitops/` | `#forum-openshift-gitops` | installLinks.mjs |
+| Builds | `docs.redhat.com/.../builds_for_red_hat_openshift/` | `#forum-openshift-builds` | installLinks.mjs |
+| MTV | `docs.redhat.com/.../migration_toolkit_for_virtualization/` | `#forum-ocp-docs` | installLinks.mjs |
 
 ### Others
 
-| Domain | Base URL | Responsible Team | Source File |
-|--------|---------|-----------------|-------------|
-| Red Hat Support Portal | `access.redhat.com/articles/...`, `access.redhat.com/support/...`, `access.redhat.com/solutions/...` | Support Engineering / KCS authors | supportLinks.mjs |
-| AWS Docs | `docs.aws.amazon.com/...` | AWS (external, not RH-controlled) | docLinks.mjs |
-| GCP Docs | `cloud.google.com/...` | Google (external, not RH-controlled) | docLinks.mjs |
-| Azure Docs | `azure.microsoft.com/...` | Microsoft (external, not RH-controlled) | docLinks.mjs |
-| Red Hat website | `www.redhat.com/en/...` | Red Hat Marketing / Web team | docLinks.mjs |
-
-## OCP Documentation Areas and Contacts
-
-The OCP docs base (`docs.redhat.com/.../openshift_container_platform/`) is divided into topic areas, each with a dedicated writer:
-
-| OCP Doc Path | Topic Area | Primary Doc Writer | Email |
-|-------------|-----------|-------------------|-------|
-| `/cli_tools/` | CLI tools (oc, kn, tkn, opm, helm) | Andrea Hoffer | ahoffer@redhat.com |
-| `/installing_*/` | All installation methods | Max Bridges | mbridges@redhat.com |
-| `/authentication_*/` | Identity providers, auth | Michael Burke | mburke@redhat.com |
-| `/updating_clusters/` | Cluster upgrades | Michael Burke | mburke@redhat.com |
-| `/networking*/` | Networking, proxy, ingress | William Gabor, Brendan Daly | wgabor@redhat.com |
-| `/operators*/` | OLM, Operator SDK | Michael Burke, William Gabor | mburke@redhat.com |
-| `/disconnected_environments/` | Mirror registry, oc-mirror | Max Bridges | mbridges@redhat.com |
-| `/machine_management/` | Machine pools, autoscaling | See resolution process below | — |
-| `/postinstallation_configuration/` | Multi-arch, post-install | Max Bridges | mbridges@redhat.com |
+| Domain | Base URL | Responsible Team | Slack Channel | Source File |
+|--------|---------|-----------------|---------------|-------------|
+| Red Hat Support Portal | `access.redhat.com/articles/...`, `access.redhat.com/support/...`, `access.redhat.com/solutions/...` | Support Engineering / KCS authors | `#forum-customer-portal` | supportLinks.mjs |
+| AWS Docs | `docs.aws.amazon.com/...` | AWS (external, not RH-controlled) | — | docLinks.mjs |
+| GCP Docs | `cloud.google.com/...` | Google (external, not RH-controlled) | — | docLinks.mjs |
+| Azure Docs | `azure.microsoft.com/...` | Microsoft (external, not RH-controlled) | — | docLinks.mjs |
+| Red Hat website | `www.redhat.com/en/...` | Red Hat Marketing / Web team | — | docLinks.mjs |
 
 ## Resolution Process
 
@@ -70,16 +56,16 @@ Doc links typically break when:
 
 **Steps:**
 1. File a JIRA ticket in the **OSDOCS** project
-2. Contact the relevant doc writer from the tables above
+2. Ask in `#forum-ocp-docs` (OCP docs) or `#forum-hcm-docs` (ROSA/OSD/OCM docs)
 3. Or find who last modified the broken path:
    ```bash
    gh api "repos/openshift/openshift-docs/commits?path=PATH&per_page=5" \
-     --jq '.[] | {author: .commit.author.name, email: .commit.author.email}'
+     --jq '.[] | .commit.author.name'
    ```
 
 ### When a Support/KB Link Breaks (access.redhat.com)
 
-Support portal links (`access.redhat.com/articles/...`, `/solutions/...`) are managed by Support Engineering. These are Knowledge-Centered Support (KCS) articles. There's no single JIRA project — contact the support team or search for the article number internally.
+Support portal links (`access.redhat.com/articles/...`, `/solutions/...`) are managed by Support Engineering (KCS articles). Ask in `#forum-customer-portal` or search for the article number internally.
 
 ### When a Third-Party Link Breaks (AWS/GCP/Azure)
 
@@ -96,21 +82,6 @@ This document was built using AI-assisted research:
 
 1. **Parsed `src/common/docLinks.mjs` and `src/common/supportLinks.mjs`** to extract all external documentation domains.
 2. **Identified doc base URLs** and grouped by product area.
-3. **Queried `openshift/openshift-docs` commit history** by path as a discovery signal to identify likely documentation writers per product area:
-   ```bash
-   gh api "repos/openshift/openshift-docs/commits?path=PATH&per_page=5" \
-     --jq '.[] | "\(.commit.author.name) <\(.commit.author.email)>"'
-   ```
+3. **Cross-referenced Slack channels** using Slack MCP search and upstream repo CONTRIBUTING.md files to find the correct forum channels per product/team.
 
-> **Caveat:** Commit history indicates recent contributors, not necessarily current team assignments. Contacts listed above were the most frequent recent committers at time of compilation (July 2026) and may have rotated since. When in doubt, file an OSDOCS JIRA ticket — the docs team will route to the current owner.
-
-### Refreshing This Data
-
-Doc team assignments change as writers rotate. To find the current owner for any doc path:
-
-```bash
-gh api "repos/openshift/openshift-docs/commits?path=PATH&per_page=5" \
-  --jq '.[] | "\(.commit.author.name) <\(.commit.author.email)>"'
-```
-
-Replace `PATH` with the topic directory (e.g., `cli_reference`, `installing`, `networking`, `rosa_install_access_delete_clusters`, `authentication`). Treat results as a starting point — verify against the OSDOCS team roster if critical.
+Slack channels are durable. When in doubt, ask in the relevant channel — the team will route to the current owner.
