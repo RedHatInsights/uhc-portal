@@ -36,8 +36,8 @@ For broken doc links ("Get started" / "Learn more"), file a ticket in the **OSDO
 |-------------|-----------------|-----------------|---------------|
 | Developer CLI (odo) | [redhat-developer/odo/OWNERS](https://github.com/redhat-developer/odo/blob/main/OWNERS) | **DEPRECATED** — see [odo deprecation](https://odo.dev/blog/odo-deprecation-announcement) | — |
 | Helm 3 CLI (helm) | [helm/helm](https://github.com/helm/helm) (upstream) | ART team publishes RH builds | `#forum-helm` |
-| Operator Package Mgr (opm) | [operator-framework/operator-registry/OWNERS](https://github.com/operator-framework/operator-registry/blob/master/OWNERS) | OLM team (see OWNERS file) | `#forum-olm` (archived) |
-| Operator SDK CLI | [operator-framework/operator-sdk/OWNERS](https://github.com/operator-framework/operator-sdk/blob/master/OWNERS) | **removed in OCP 4.19** | `#forum-olm` (archived) |
+| Operator Package Mgr (opm) | [operator-framework/operator-registry/OWNERS](https://github.com/operator-framework/operator-registry/blob/master/OWNERS) | OLM team (see OWNERS file) | `#olm-dev` (Kubernetes Slack) |
+| Operator SDK CLI | [operator-framework/operator-sdk/OWNERS](https://github.com/operator-framework/operator-sdk/blob/master/OWNERS) | **removed in OCP 4.19** | `#olm-dev` (Kubernetes Slack) |
 | RHOAS CLI (rhoas) | [redhat-developer/app-services-cli](https://github.com/redhat-developer/app-services-cli) | Product deprecated; repo not archived | — |
 
 ### Installation Tools

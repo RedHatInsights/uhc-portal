@@ -80,7 +80,7 @@ Links to AWS, GCP, and Azure documentation are external. When they break:
 
 This document was built using AI-assisted research:
 
-1. **Parsed `src/common/docLinks.mjs` and `src/common/supportLinks.mjs`** to extract all external documentation domains.
+1. **Parsed `src/common/installLinks.mjs`, `src/common/docLinks.mjs`, and `src/common/supportLinks.mjs`** to extract all external documentation domains.
 2. **Identified doc base URLs** and grouped by product area.
 3. **Cross-referenced Slack channels** using Slack MCP search and upstream repo CONTRIBUTING.md files to find the correct forum channels per product/team.
 
