@@ -55,8 +55,8 @@ export class RosaGetStartedPage extends BasePage {
     return this.page.getByTestId('create-vpc-networking-hcp-label');
   }
 
-  rosaFedRampDoclink(): Locator {
-    return this.page.getByTestId('rosa-aws-fedramp');
+  rosaOppAwsMarketplaceEmeaLink(): Locator {
+    return this.page.getByTestId('rosa-opp-aws-marketplace-emea');
   }
 
   rosaClientDropdown(): Locator {
@@ -67,8 +67,8 @@ export class RosaGetStartedPage extends BasePage {
     return this.page.getByTestId('download-btn-rosa');
   }
 
-  rosaFedRampRequestFormlink(): Locator {
-    return this.page.getByTestId('fedramp-access-request-form');
+  rosaOppAwsMarketplaceNonEmeaLink(): Locator {
+    return this.page.getByTestId('rosa-opp-aws-marketplace-non-emea');
   }
 
   deployWithCliCard(): Locator {
@@ -93,10 +93,10 @@ export class RosaGetStartedPage extends BasePage {
     ).toBeVisible({ timeout: 60000 });
   }
 
-  async isRosaFedRAMPInfoAlertShown(): Promise<void> {
+  async isPlatformPlusMarketplaceAlertShown(): Promise<void> {
     await expect(
       this.page.getByRole('heading', {
-        name: 'Red Hat OpenShift Service on AWS (ROSA) with hosted control planes in AWS GovCloud achieves FedRAMP High Authorization',
+        name: 'Red Hat OpenShift Platform Plus for Red Hat Openshift Service on AWS (ROSA) is now available on the AWS Marketplace',
         level: 2,
       }),
     ).toBeVisible();

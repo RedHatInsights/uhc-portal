@@ -36,8 +36,6 @@ import WithCLICard from './WithCLICard';
 import WithTerraformCard from './WithTerraformCard';
 import WithWizardCard from './WithWizardCard';
 
-import '../createROSAWizard.scss';
-
 export const productName = 'Red Hat OpenShift Service on AWS';
 const title = (productName: string = '') => `Set up ${productName} (ROSA)`;
 
@@ -67,25 +65,32 @@ const CreateRosaGetStarted = () => (
       <Alert
         variant={AlertVariant.info}
         isInline
-        id="env-override-message"
+        id="platform-plus-marketplace-alert"
         component="h2"
         title={
           <>
-            Red Hat OpenShift Service on AWS (ROSA) with hosted control planes in AWS GovCloud
-            achieves FedRAMP High Authorization
+            Red Hat OpenShift Platform Plus for Red Hat Openshift Service on AWS (ROSA) is now
+            available on the AWS Marketplace
           </>
         }
       >
-        <ExternalLink data-testid="rosa-aws-fedramp" href={docLinks.ROSA_AWS_FEDRAMP}>
-          Learn more about ROSA with hosted control planes in AWS GovCloud
-        </ExternalLink>
-        or start the onboarding process with the{' '}
+        Learn how Red Hat OpenShift Platform Plus provides cluster management, multi-cluster
+        security, global registry, and storage capabilities that integrate into your workloads. Read
+        the blog.{' '}
         <ExternalLink
-          data-testid="fedramp-access-request-form"
-          href={installLinks.FEDRAMP_ACCESS_REQUEST_FORM}
+          data-testid="rosa-opp-aws-marketplace-emea"
+          href={installLinks.ROSA_OPP_AWS_MARKETPLACE_EMEA}
         >
-          FedRAMP access request form
+          AWS Marketplace listing for EMEA
+        </ExternalLink>{' '}
+        /{' '}
+        <ExternalLink
+          data-testid="rosa-opp-aws-marketplace-non-emea"
+          href={installLinks.ROSA_OPP_AWS_MARKETPLACE_NON_EMEA}
+        >
+          AWS Marketplace listing for NA, LATAM, and APAC
         </ExternalLink>
+        .
       </Alert>
     </PageTitle>
     <PageSection hasBodyWrapper={false}>

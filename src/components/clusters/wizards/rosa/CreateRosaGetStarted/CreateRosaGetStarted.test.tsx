@@ -1,6 +1,6 @@
 import React from 'react';
 
-import docLinks from '~/common/docLinks.mjs';
+import installLinks from '~/common/installLinks.mjs';
 import { checkAccessibility, mockUseChrome, render, screen } from '~/testUtils';
 
 import CreateRosaGetStarted from './CreateRosaGetStarted';
@@ -14,17 +14,24 @@ describe('<CreateRosaGetStarted />', () => {
     await checkAccessibility(container);
   });
 
-  it('FedRAMP alert is visible and has correct urls', () => {
+  it('Platform Plus marketplace alert is visible and has correct urls', () => {
     render(<CreateRosaGetStarted />);
 
     expect(
-      screen.getByRole('link', {
-        name: 'Learn more about ROSA with hosted control planes in AWS GovCloud (new window or tab)',
-      }),
-    ).toHaveAttribute('href', docLinks.ROSA_AWS_FEDRAMP);
+      screen.getByText(
+        'Red Hat OpenShift Platform Plus for Red Hat Openshift Service on AWS (ROSA) is now available on the AWS Marketplace',
+      ),
+    ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'FedRAMP access request form (new window or tab)' }),
-    ).toHaveAttribute('href', 'https://console.redhat.com/openshift/create/rosa/govcloud');
+      screen.getByRole('link', {
+        name: 'AWS Marketplace listing for EMEA (new window or tab)',
+      }),
+    ).toHaveAttribute('href', installLinks.ROSA_OPP_AWS_MARKETPLACE_EMEA);
+    expect(
+      screen.getByRole('link', {
+        name: 'AWS Marketplace listing for NA, LATAM, and APAC (new window or tab)',
+      }),
+    ).toHaveAttribute('href', installLinks.ROSA_OPP_AWS_MARKETPLACE_NON_EMEA);
   });
 
   it('Create VPC command is present', () => {
