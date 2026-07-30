@@ -96,7 +96,7 @@ export class RosaGetStartedPage extends BasePage {
   async isPlatformPlusMarketplaceAlertShown(): Promise<void> {
     await expect(
       this.page.getByRole('heading', {
-        name: 'Red Hat OpenShift Platform Plus for Red Hat Openshift Service on AWS (ROSA) is now available on the AWS Marketplace',
+        name: 'Red Hat OpenShift Platform Plus for Red Hat OpenShift Service on AWS (ROSA) is now available on the AWS Marketplace',
         level: 2,
       }),
     ).toBeVisible();

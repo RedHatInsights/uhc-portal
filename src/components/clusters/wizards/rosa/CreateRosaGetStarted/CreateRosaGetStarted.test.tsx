@@ -19,7 +19,7 @@ describe('<CreateRosaGetStarted />', () => {
 
     expect(
       screen.getByText(
-        'Red Hat OpenShift Platform Plus for Red Hat Openshift Service on AWS (ROSA) is now available on the AWS Marketplace',
+        'Red Hat OpenShift Platform Plus for Red Hat OpenShift Service on AWS (ROSA) is now available on the AWS Marketplace',
       ),
     ).toBeInTheDocument();
     expect(
