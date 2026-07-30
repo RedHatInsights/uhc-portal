@@ -10,22 +10,14 @@ import { combineAndSortLinks } from './linkUtils.mjs';
 const MIRROR_BUTANE_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest';
 const MIRROR_CLIENTS_STABLE_X86 =
   'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/';
-const MIRROR_CLIENTS_LATEST_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/';
 const MIRROR_CLIENTS_CANDIDATE_X86 =
   'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/candidate/';
 const MIRROR_CLIENTS_STABLE_IBMZ =
   'https://mirror.openshift.com/pub/openshift-v4/s390x/clients/ocp/stable/';
-const MIRROR_CLIENTS_LATEST_IBMZ =
-  'https://mirror.openshift.com/pub/openshift-v4/s390x/clients/ocp/latest/';
 const MIRROR_CLIENTS_STABLE_PPC =
   'https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/stable/';
-const MIRROR_CLIENTS_LATEST_PPC =
-  'https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/latest/';
 const MIRROR_CLIENTS_STABLE_ARM =
   'https://mirror.openshift.com/pub/openshift-v4/aarch64/clients/ocp/stable/';
-const MIRROR_CLIENTS_LATEST_ARM =
-  'https://mirror.openshift.com/pub/openshift-v4/aarch64/clients/ocp/latest/';
 const MIRROR_CLIENTS_STABLE_MULTI =
   'https://mirror.openshift.com/pub/openshift-v4/multi/clients/ocp/stable/';
 const MIRROR_CLIENTS_LATEST_PRE_X86 =
