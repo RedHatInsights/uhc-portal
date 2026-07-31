@@ -34,7 +34,9 @@ test.describe.serial(
       );
     });
 
-    test('ROSA Get Started page - check for Platform Plus marketplace alert sections', async ({ rosaGetStartedPage }) => {
+    test('ROSA Get Started page - check for Platform Plus marketplace alert sections', async ({
+      rosaGetStartedPage,
+    }) => {
       await rosaGetStartedPage.isPlatformPlusMarketplaceAlertShown();
 
       await rosaGetStartedPage.checkAnchorProperties(

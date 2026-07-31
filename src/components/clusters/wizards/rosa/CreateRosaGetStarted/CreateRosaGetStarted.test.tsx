@@ -1,10 +1,10 @@
 import React from 'react';
 
+import docLinks from '~/common/docLinks.mjs';
 import installLinks from '~/common/installLinks.mjs';
 import { checkAccessibility, mockUseChrome, render, screen } from '~/testUtils';
 
 import CreateRosaGetStarted from './CreateRosaGetStarted';
-import docLinks from '~/common/docLinks.mjs';
 
 mockUseChrome();
 
