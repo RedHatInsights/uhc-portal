@@ -4,9 +4,13 @@ import { Field, Form, useField, useFormikContext } from 'formik';
 import { Button, Popover, Stack, StackItem } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
+import { trackEvents } from '~/common/analytics';
 import links from '~/common/installLinks.mjs';
 import { getAwsBillingAccountsFromQuota } from '~/components/clusters/common/quotaSelectors';
+import useAnalytics from '~/hooks/useAnalytics';
 import { useFetchOrganizationQuota } from '~/queries/ClusterDetailsQueries/useFetchOrganizationQuota';
+import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 
 import { required } from '../../../../../../common/validators';
@@ -14,6 +18,7 @@ import ExternalLink from '../../../../../common/ExternalLink';
 import AWSAccountSelection from '../../../../wizards/rosa/AccountsRolesScreen/AWSAccountSelection';
 import {
   getContract,
+  shouldShowBillingContractNotification,
   useShouldShowBillingContractWarning,
 } from '../../../../wizards/rosa/AccountsRolesScreen/AWSBillingAccount/awsBillingAccountHelper';
 import BillingContractWarningAlert from '../../../../wizards/rosa/AccountsRolesScreen/AWSBillingAccount/BillingContractWarningAlert';
@@ -28,6 +33,7 @@ export const AWSBillingAccountForm = ({
   name,
   selectedAWSBillingAccountID,
 }: AWSBillingAccountProps) => {
+  const track = useAnalytics();
   const organization = useGlobalState((state) => state.userProfile.organization);
   const { isLoading, data, isFetching, refetch } = useFetchOrganizationQuota(
     organization.details?.id || '',
@@ -35,6 +41,7 @@ export const AWSBillingAccountForm = ({
   const cloudAccounts = getAwsBillingAccountsFromQuota(data?.organizationQuota?.items);
   const [field, { error, touched }] = useField(name);
   const { setFieldValue } = useFormikContext();
+  const isBillingContractNotificationEnabled = useFeatureGate(BILLING_CONTRACT_NOTIFICATION);
 
   const hasContractWarning = useShouldShowBillingContractWarning(cloudAccounts, field.value);
 
@@ -55,6 +62,16 @@ export const AWSBillingAccountForm = ({
   );
   const selectedContract = selectedAccount ? getContract(selectedAccount) : null;
 
+  const handleBillingAccountChange = (value: string) => {
+    setFieldValue(name, value);
+    if (
+      isBillingContractNotificationEnabled &&
+      shouldShowBillingContractNotification(cloudAccounts, value)
+    ) {
+      track(trackEvents.BillingContractWarningShown);
+    }
+  };
+
   return (
     <>
       <Form>
@@ -66,9 +83,7 @@ export const AWSBillingAccountForm = ({
             name: { name },
             value: field.value,
             onBlur: () => {},
-            onChange: (e: React.ChangeEvent<any>) => {
-              setFieldValue(name, e);
-            },
+            onChange: handleBillingAccountChange,
           }}
           meta={{
             touched,
