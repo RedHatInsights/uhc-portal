@@ -49,6 +49,51 @@ test.describe.serial(
       await clusterDetailsPage.isTextContainsInPage('No results found');
 
       await clusterDetailsPage.closeBillingAccountDropdown();
+      await clusterDetailsPage.cancelEditBillingAccountModal();
+    });
+
+    test('can validate billing contract warning in edit modal', async ({ clusterDetailsPage }) => {
+      // Neither staging billing account has a contract. Overlay quota_cost so the
+      // secondary account is temporarily contracted; keep the same AWS account IDs.
+      // Day 2 shows the inline warning only — no confirmation dialog on Update.
+      await clusterDetailsPage.mockQuotaCostWithBillingContract(secondaryAWSBillingAccountId, [
+        awsBillingAccountId,
+        secondaryAWSBillingAccountId,
+      ]);
+
+      try {
+        await clusterDetailsPage.openEditBillingAccountModal();
+        await clusterDetailsPage.refreshAWSBillingAccounts();
+
+        // Contracted account — no inline warning; badge visible
+        await clusterDetailsPage.chooseBillingAccount(secondaryAWSBillingAccountId);
+        await clusterDetailsPage.expectContractEnabledForBillingAccount(true);
+        await clusterDetailsPage.expectBillingContractWarning(false);
+
+        // Non-contracted while another is contracted — warning with account ID
+        await clusterDetailsPage.chooseBillingAccount(awsBillingAccountId);
+        await clusterDetailsPage.expectContractEnabledForBillingAccount(false);
+        await clusterDetailsPage.expectBillingContractWarning(true, awsBillingAccountId);
+
+        // Switching back to contracted clears the warning
+        await clusterDetailsPage.chooseBillingAccount(secondaryAWSBillingAccountId);
+        await clusterDetailsPage.expectBillingContractWarning(false);
+        await clusterDetailsPage.expectContractEnabledForBillingAccount(true);
+
+        // Both accounts have no contracts: no warning
+        await clusterDetailsPage.clearQuotaCostMock();
+        await clusterDetailsPage.refreshAWSBillingAccounts();
+        await clusterDetailsPage.chooseBillingAccount(secondaryAWSBillingAccountId);
+        await clusterDetailsPage.expectContractEnabledForBillingAccount(false);
+        await clusterDetailsPage.expectBillingContractWarning(false);
+        await clusterDetailsPage.chooseBillingAccount(awsBillingAccountId);
+        await clusterDetailsPage.expectContractEnabledForBillingAccount(false);
+        await clusterDetailsPage.expectBillingContractWarning(false);
+
+        await clusterDetailsPage.cancelEditBillingAccountModal();
+      } finally {
+        await clusterDetailsPage.clearQuotaCostMock();
+      }
     });
 
     test('can update billing account to a secondary account', async ({ clusterDetailsPage }) => {

@@ -1,4 +1,9 @@
 import { Page, Locator, expect } from '@playwright/test';
+
+import {
+  clearQuotaCostMock as clearQuotaCostRouteMock,
+  mockQuotaCostWithBillingContract as mockQuotaCostRouteWithBillingContract,
+} from '../support/quota-mock-helper';
 import { BasePage } from './base-page';
 import type { ClusterListPage } from './cluster-list-page';
 
@@ -666,6 +671,74 @@ export class ClusterDetailsPage extends BasePage {
     const option = this.billingAccountOption(accountId);
     await expect(option).toBeVisible({ timeout: 30000 });
     await option.click();
+  }
+
+  /** Opens the dropdown, filters, and selects the given billing account. */
+  async chooseBillingAccount(accountId: string): Promise<void> {
+    await this.openBillingAccountDropdown();
+    await this.filterBillingAccount(accountId);
+    await this.selectBillingAccount(accountId);
+  }
+
+  contractEnabledForBillingAccountButton(): Locator {
+    return this.editBillingAccountModal().getByRole('button', {
+      name: 'Contract enabled for this billing account',
+    });
+  }
+
+  billingContractWarningTitle(): Locator {
+    return this.editBillingAccountModal().getByText('No contract on selected billing account');
+  }
+
+  async mockQuotaCostWithBillingContract(
+    contractedAccountId: string,
+    billingAccountIds: string[] = [],
+  ): Promise<void> {
+    await mockQuotaCostRouteWithBillingContract(
+      this.page,
+      contractedAccountId,
+      billingAccountIds,
+    );
+  }
+
+  async clearQuotaCostMock(): Promise<void> {
+    await clearQuotaCostRouteMock(this.page);
+  }
+
+  async refreshAWSBillingAccounts(): Promise<void> {
+    const quotaCostResponse = this.page.waitForResponse(
+      (response) => response.url().includes('quota_cost') && response.ok(),
+    );
+    await this.refreshAWSAccountsButton().click();
+    await quotaCostResponse;
+    await expect(this.refreshAWSAccountsButton()).toBeEnabled({ timeout: 60000 });
+  }
+
+  async expectContractEnabledForBillingAccount(visible = true): Promise<void> {
+    if (visible) {
+      await expect(this.contractEnabledForBillingAccountButton()).toBeVisible({ timeout: 15000 });
+    } else {
+      await expect(this.contractEnabledForBillingAccountButton()).toBeHidden({ timeout: 15000 });
+    }
+  }
+
+  /**
+   * Inline warning shown when the selected billing account has no contract while
+   * another linked account does. Day 2 has no confirmation dialog.
+   */
+  async expectBillingContractWarning(visible = true, accountId?: string): Promise<void> {
+    if (visible) {
+      await expect(this.billingContractWarningTitle()).toBeVisible({ timeout: 15000 });
+      if (accountId) {
+        await expect(
+          this.editBillingAccountModal().getByText(
+            `The selected account ${accountId} does not have any`,
+          ),
+        ).toBeVisible();
+      }
+    } else {
+      await expect(this.billingContractWarningTitle()).toBeHidden({ timeout: 15000 });
+    }
   }
 
   async updateBillingAccount(): Promise<void> {
