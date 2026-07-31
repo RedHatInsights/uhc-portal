@@ -16,6 +16,24 @@ test.describe.serial(
       await rosaGetStartedPage.isRosaGetStartedPage();
     });
 
+    test('ROSA Get Started page - check for FedRAMP sections', async ({ rosaGetStartedPage }) => {
+      await rosaGetStartedPage.isRosaFedRAMPInfoAlertShown();
+
+      await rosaGetStartedPage.checkAnchorProperties(
+        rosaGetStartedPage.rosaFedRampDoclink(),
+        'Learn more about ROSA with hosted control planes in AWS GovCloud',
+        docLinks.ROSA_AWS_FEDRAMP,
+        true,
+      );
+
+      await rosaGetStartedPage.checkAnchorProperties(
+        rosaGetStartedPage.rosaFedRampRequestFormlink(),
+        'FedRAMP access request form',
+        installLinks.FEDRAMP_ACCESS_REQUEST_FORM,
+        true,
+      );
+    });
+
     test('ROSA Get Started page - check for Platform Plus marketplace alert sections', async ({ rosaGetStartedPage }) => {
       await rosaGetStartedPage.isPlatformPlusMarketplaceAlertShown();
 

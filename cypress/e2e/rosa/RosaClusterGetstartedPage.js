@@ -8,6 +8,22 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
     RosaGetstartedPage.isRosaGetStartedPage();
   });
 
+  it(`ROSA Getstarted page - check for FedRAMP sections`, () => {
+    RosaGetstartedPage.isRosaFedRAMPInfoAlertShown();
+    RosaGetstartedPage.checkAnchorProperties(
+      RosaGetstartedPage.rosaFedRampDoclink(),
+      'Learn more about ROSA with hosted control planes in AWS GovCloud',
+      'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/getting_started_with_red_hat_openshift_service_on_aws_in_aws_govcloud/index',
+      true,
+    );
+    RosaGetstartedPage.checkAnchorProperties(
+      RosaGetstartedPage.rosaFedRampRequestFormlink(),
+      'FedRAMP access request form',
+      'https://console.redhat.com/openshift/create/rosa/govcloud',
+      true,
+    );
+  });
+
   it(`ROSA Getstarted page - check for Platform Plus marketplace alert`, () => {
     RosaGetstartedPage.isPlatformPlusMarketplaceAlertShown();
     RosaGetstartedPage.checkAnchorProperties(

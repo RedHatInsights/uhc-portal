@@ -4,6 +4,7 @@ import installLinks from '~/common/installLinks.mjs';
 import { checkAccessibility, mockUseChrome, render, screen } from '~/testUtils';
 
 import CreateRosaGetStarted from './CreateRosaGetStarted';
+import docLinks from '~/common/docLinks.mjs';
 
 mockUseChrome();
 
@@ -12,6 +13,19 @@ describe('<CreateRosaGetStarted />', () => {
   it('is accessible', async () => {
     const { container } = render(<CreateRosaGetStarted />);
     await checkAccessibility(container);
+  });
+
+  it('FedRAMP alert is visible and has correct urls', () => {
+    render(<CreateRosaGetStarted />);
+
+    expect(
+      screen.getByRole('link', {
+        name: 'Learn more about ROSA with hosted control planes in AWS GovCloud (new window or tab)',
+      }),
+    ).toHaveAttribute('href', docLinks.ROSA_AWS_FEDRAMP);
+    expect(
+      screen.getByRole('link', { name: 'FedRAMP access request form (new window or tab)' }),
+    ).toHaveAttribute('href', installLinks.FEDRAMP_ACCESS_REQUEST_FORM);
   });
 
   it('Platform Plus marketplace alert is visible and has correct urls', () => {

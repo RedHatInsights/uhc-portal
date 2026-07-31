@@ -23,13 +23,17 @@ class RosaGetstarted extends Page {
 
   rosaHpcCreateVpcLabel = () => cy.getByTestId('create-vpc-networking-hcp-label');
 
+  rosaFedRampDoclink = () => cy.getByTestId('rosa-aws-fedramp');
+
+  rosaFedRampRequestFormlink = () => cy.getByTestId('fedramp-access-request-form');
+
   rosaOppAwsMarketplaceEmeaLink = () => cy.getByTestId('rosa-opp-aws-marketplace-emea');
+
+  rosaOppAwsMarketplaceNonEmeaLink = () => cy.getByTestId('rosa-opp-aws-marketplace-non-emea');
 
   rosaClientDropdown = () => cy.getByTestId('os-dropdown-rosa');
 
   rosaClientButton = () => cy.getByTestId('download-btn-rosa');
-
-  rosaOppAwsMarketplaceNonEmeaLink = () => cy.getByTestId('rosa-opp-aws-marketplace-non-emea');
 
   deployWithCliCard = () => cy.getByTestId('deploy-with-cli-card');
 
@@ -39,6 +43,14 @@ class RosaGetstarted extends Page {
 
   isRosaGetStartedPage() {
     cy.contains('h1', 'Set up Red Hat OpenShift Service on AWS (ROSA)', { timeout: 20000 })
+      .should('be.exist')
+      .should('be.visible');
+  }
+  isRosaFedRAMPInfoAlertShown() {
+    cy.contains(
+      'h2',
+      'Red Hat OpenShift Service on AWS (ROSA) with hosted control planes in AWS GovCloud achieves FedRAMP High Authorization',
+    )
       .should('be.exist')
       .should('be.visible');
   }
