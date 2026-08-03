@@ -53,7 +53,7 @@ export const clusterType = (cluster: ClusterWithPermissions) => {
     },
     [normalizedProducts.ROVS]: {
       name: 'ROVS',
-      tooltip: 'Red Hat OpenShift Virtualization Service',
+      tooltip: 'Red Hat OpenShift Virtualization Service on IBM Cloud',
     },
     [normalizedProducts.UNKNOWN]: {
       name: 'N/A',
