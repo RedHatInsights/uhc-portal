@@ -6,9 +6,7 @@ import { ErrorState } from '~/types/types';
 
 import { AvailableRegionalInstance, RQApiErrorType, SearchRegionalClusterItems } from './types';
 
-const HTTP_STATUS_FALLBACK_MESSAGE: Record<number, string> = {
-  429: 'Too many requests. Please try again.',
-};
+const TOO_MANY_REQUESTS_MESSAGE = 'Too many requests. Please try again.';
 
 export const formatOcmApiErrorMessage = (
   code?: string,
@@ -16,18 +14,19 @@ export const formatOcmApiErrorMessage = (
   httpStatus?: number,
 ): string => {
   const trimmedReason = reason?.trim();
+  const isTooManyRequests = httpStatus === axios.HttpStatusCode.TooManyRequests;
+
   if (code && trimmedReason) {
     return `${code}: ${trimmedReason}`;
   }
   if (code) {
-    const fallback = (httpStatus !== undefined && HTTP_STATUS_FALLBACK_MESSAGE[httpStatus]) || '';
-    return fallback ? `${code}: ${fallback}` : code;
+    return isTooManyRequests ? `${code}: ${TOO_MANY_REQUESTS_MESSAGE}` : code;
   }
   if (trimmedReason) {
     return trimmedReason;
   }
-  if (httpStatus !== undefined && HTTP_STATUS_FALLBACK_MESSAGE[httpStatus]) {
-    return HTTP_STATUS_FALLBACK_MESSAGE[httpStatus];
+  if (isTooManyRequests) {
+    return TOO_MANY_REQUESTS_MESSAGE;
   }
   return '';
 };
