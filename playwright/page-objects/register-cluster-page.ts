@@ -14,19 +14,21 @@ export class RegisterClusterPage extends BasePage {
   }
 
   async isRegisterClusterScreen(): Promise<void> {
-    await expect(this.page.locator('h1')).toContainText('Register disconnected cluster');
+    await expect(
+      this.page.getByRole('heading', { name: 'Register disconnected cluster' }),
+    ).toBeVisible();
   }
 
   clusterIDInput(): Locator {
-    return this.page.locator('input[name="cluster_id"]');
+    return this.page.getByRole('textbox', { name: /Cluster ID/i });
   }
 
   displayNameInput(): Locator {
-    return this.page.locator('input[name="display_name"]');
+    return this.page.getByRole('textbox', { name: /Display name/i });
   }
 
   clusterURLInput(): Locator {
-    return this.page.locator('input[name="web_console_url"]');
+    return this.page.getByRole('textbox', { name: /Web console URL/i });
   }
 
   clusterIDError(): Locator {
@@ -46,6 +48,6 @@ export class RegisterClusterPage extends BasePage {
   }
 
   submitButton(): Locator {
-    return this.page.locator('button[type="submit"]');
+    return this.page.getByRole('button', { name: 'Register cluster' });
   }
 }

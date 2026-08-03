@@ -4,12 +4,9 @@ import { BasePage } from './base-page';
 
 /**
  * Shared wizard page object for OSD and ROSA create-cluster flows.
- *
- * Holds version/channel locators, shared AWS VPC/security-group controls, and
  * common wizard actions that are identical across products. Product-specific logic stays in:
  *   - CreateRosaWizardPage (ROSA-specific)
  *   - CreateOSDWizardPage (OSD-specific)
- *
  * Hierarchy:
  *   BasePage → BaseWizardPage → CreateOSDWizardPage | CreateRosaWizardPage
  */
@@ -33,7 +30,7 @@ export abstract class BaseWizardPage extends BasePage {
   }
 
   async closePopoverDialogs(): Promise<void> {
-    const closeButtons = this.page.locator('button[aria-label="Close"]');
+    const closeButtons = this.page.getByRole('button', { name: 'Close' });
     const count = await closeButtons.count();
 
     for (let i = 0; i < count; i++) {
@@ -48,11 +45,29 @@ export abstract class BaseWizardPage extends BasePage {
     }
   }
 
+  /**
+   * Click Next, then dismiss any info popovers that reappear and retry Next
+   * until none remain (version/channel helper dialogs on Cluster details).
+   */
+  async closePopoverAndNavigateNext(): Promise<void> {
+    const maxAttempts = 10;
+    await this.wizardNextButton().click();
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const closeButtons = this.page.getByRole('button', { name: 'Close' });
+      const count = await closeButtons.count();
+      if (count === 0) {
+        return;
+      }
+      await this.closePopoverDialogs();
+      await this.wizardNextButton().click();
+    }
+  }
+
   // ── Version (FuzzySelect) ─────────────────────────────────────────────────
 
-  /** FuzzySelect MenuToggle for cluster version (`id="version-selector"`). */
+  /** FuzzySelect MenuToggle for cluster version (`aria-label="Options menu"`). */
   versionDropdownToggle(): Locator {
-    return this.page.locator('#version-selector');
+    return this.page.getByRole('button', { name: 'Options menu' });
   }
 
   versionLoadingIndicator(): Locator {
@@ -132,7 +147,7 @@ export abstract class BaseWizardPage extends BasePage {
     const select = this.channelSelect();
     await select.waitFor({ state: 'visible', timeout: 90000 });
     return select
-      .locator('option')
+      .getByRole('option')
       .evaluateAll((opts) =>
         opts.map((o) => (o as HTMLOptionElement).value.trim()).filter((value) => value.length > 0),
       );
@@ -255,5 +270,406 @@ export abstract class BaseWizardPage extends BasePage {
     const zoneOption = this.page.getByRole('option').filter({ hasText: zone });
     await expect(zoneOption).toBeEnabled({ timeout: 30000 });
     await zoneOption.click();
+  }
+  createCustomDomainPrefixCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Create custom domain prefix' });
+  }
+
+  domainPrefixInput(): Locator {
+    // RichInputField/TextInputGroupMain accessible name is "Type to filter", not the FormGroup label.
+    return this.page.locator('input[name="domain_prefix"]');
+  }
+
+  // ── Machine pool (shared locators) ────────────────────────────────────────
+
+  computeNodeTypeButton(): Locator {
+    return this.page.getByRole('button', { name: 'Machine type select toggle' });
+  }
+
+  computeNodeTypeSearchInput(): Locator {
+    return this.page.getByLabel('Machine type select search field');
+  }
+
+  computeNodeCountInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'Compute nodes' });
+  }
+
+  computeNodeCountIncrementButton(): Locator {
+    return this.page.getByRole('button', { name: 'Increment compute nodes' });
+  }
+
+  computeNodeCountDecrementButton(): Locator {
+    return this.page.getByRole('button', { name: 'Decrement compute nodes' });
+  }
+
+  enableAutoscalingCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Enable autoscaling' });
+  }
+
+  /** Alias for ROSA specs that use camelCase "AutoScaling". */
+  enableAutoScalingCheckbox(): Locator {
+    return this.enableAutoscalingCheckbox();
+  }
+
+  async enableAutoScaling(): Promise<void> {
+    await this.enableAutoscalingCheckbox().check();
+  }
+
+  useBothIMDSv1AndIMDSv2Radio(): Locator {
+    return this.page.getByTestId('imds-optional');
+  }
+
+  // ── CIDR ──────────────────────────────────────────────────────────────────
+
+  cidrDefaultValuesCheckBox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Use default values' });
+  }
+
+  machineCIDRInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Machine CIDR' });
+  }
+
+  serviceCIDRInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Service CIDR' });
+  }
+
+  podCIDRInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Pod CIDR' });
+  }
+
+  hostPrefixInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Host prefix' });
+  }
+
+  async useCIDRDefaultValues(value: boolean = true): Promise<void> {
+    if (value) {
+      await this.cidrDefaultValuesCheckBox().check();
+    } else {
+      await this.cidrDefaultValuesCheckBox().uncheck();
+    }
+  }
+
+  async isCIDRScreen(): Promise<void> {
+    await expect(this.page.getByRole('heading', { name: 'CIDR ranges', exact: true })).toBeVisible({
+      timeout: 30000,
+    });
+  }
+
+  // ── Post-create ───────────────────────────────────────────────────────────
+
+  /** After Create cluster, wait for redirect to the cluster installation page. */
+  async waitForClusterCreationAndOverview(): Promise<void> {
+    await expect(this.page.getByRole('heading', { name: /Installing cluster/ })).toBeVisible({
+      timeout: 120000,
+    });
+  }
+
+  // ── Cluster autoscaling modal ─────────────────────────────────────────────
+
+  editClusterAutoscalingSettingsButton(): Locator {
+    return this.page.getByTestId('set-cluster-autoscaling-btn');
+  }
+
+  clusterAutoscalingLogVerbosityInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'log-verbosity' });
+  }
+
+  clusterAutoscalingMaxNodeProvisionTimeInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'max-node-provision-time' });
+  }
+
+  clusterAutoscalingBalancingIgnoredLabelsInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'balancing-ignored-labels' });
+  }
+
+  clusterAutoscalingCoresTotalMinInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'cores-total-min' });
+  }
+
+  clusterAutoscalingCoresTotalMaxInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'cores-total-max' });
+  }
+
+  clusterAutoscalingMemoryTotalMinInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'memory-total-min' });
+  }
+
+  clusterAutoscalingMemoryTotalMaxInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'memory-total-max' });
+  }
+
+  clusterAutoscalingMaxNodesTotalInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'max-nodes-total' });
+  }
+
+  clusterAutoscalingGPUsInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'GPUs' });
+  }
+
+  clusterAutoscalingScaleDownUtilizationThresholdInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'scale-down-utilization-threshold' });
+  }
+
+  clusterAutoscalingScaleDownUnneededTimeInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'scale-down-unneeded-time' });
+  }
+
+  clusterAutoscalingScaleDownDelayAfterAddInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'scale-down-delay-after-add' });
+  }
+
+  clusterAutoscalingScaleDownDelayAfterDeleteInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'scale-down-delay-after-delete' });
+  }
+
+  clusterAutoscalingScaleDownDelayAfterFailureInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'scale-down-delay-after-failure' });
+  }
+
+  clusterAutoscalingRevertAllToDefaultsButton(): Locator {
+    return this.page.getByRole('button', { name: 'Revert all to defaults' });
+  }
+
+  clusterAutoscalingCloseButton(): Locator {
+    return this.page.getByRole('button', { name: 'Close' });
+  }
+
+  // ── Cluster details (shared) ──────────────────────────────────────────────
+
+  /**
+   * Shared cluster-name field locator. Prefer this over product-specific APIs.
+   * OSD specs still use a string getter `clusterNameInput` for legacy `page.locator(...)`.
+   */
+  clusterNameField(): Locator {
+    // RichInputField/TextInputGroupMain accessible name is "Type to filter", not the FormGroup label.
+    return this.page.locator('input[name="name"]');
+  }
+
+  regionSelect(): Locator {
+    return this.page.getByRole('combobox', { name: 'Region' });
+  }
+
+  async isClusterDetailsScreen(): Promise<void> {
+    await expect(this.page.getByRole('heading', { name: 'Cluster details' })).toBeVisible({
+      timeout: 90000,
+    });
+    await expect(this.versionDropdownToggle()).toBeVisible({ timeout: 90000 });
+  }
+
+  async setClusterName(clusterName: string): Promise<void> {
+    const input = this.clusterNameField();
+    await input.scrollIntoViewIfNeeded();
+    await input.clear();
+    await input.fill(clusterName);
+    await input.blur();
+  }
+
+  async setDomainPrefix(domainPrefix: string): Promise<void> {
+    const input = this.domainPrefixInput();
+    await input.scrollIntoViewIfNeeded();
+    await input.clear();
+    await input.fill(domainPrefix);
+    await input.blur();
+  }
+
+  async selectRegion(region: string): Promise<void> {
+    const regionValue = region.split(',')[0].trim();
+    await this.regionSelect().selectOption(regionValue);
+  }
+
+  // ── Availability zone ─────────────────────────────────────────────────────
+
+  multiZoneAvilabilityRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Multi-zone' });
+  }
+
+  singleZoneAvailabilityRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Single zone' });
+  }
+
+  /** Alias for the historical misspelling used by OSD specs. */
+  singleZoneAvilabilityRadio(): Locator {
+    return this.singleZoneAvailabilityRadio();
+  }
+
+  async selectAvailabilityZone(availability: string): Promise<void> {
+    const value = availability.toLowerCase();
+    if (value.includes('single')) {
+      await this.singleZoneAvailabilityRadio().check();
+    } else if (value.includes('multiple') || value.includes('multi')) {
+      await this.multiZoneAvilabilityRadio().check();
+    } else {
+      await this.singleZoneAvailabilityRadio().check();
+    }
+  }
+
+  // ── Machine pool actions ──────────────────────────────────────────────────
+
+  async selectComputeNodeType(computeNodeType: string): Promise<void> {
+    await this.computeNodeTypeButton().click();
+    await this.computeNodeTypeSearchInput().waitFor({ state: 'visible', timeout: 30000 });
+    await this.computeNodeTypeSearchInput().clear();
+    await this.computeNodeTypeSearchInput().fill(computeNodeType);
+    await this.page.getByRole('button', { name: computeNodeType }).click();
+    await expect(this.computeNodeTypeButton()).toContainText(computeNodeType, { timeout: 30000 });
+  }
+
+  async selectComputeNodeCount(count: string | number): Promise<void> {
+    const input = this.computeNodeCountInput();
+    await input.clear();
+    await input.fill(String(count));
+    await input.blur();
+  }
+
+  minimumNodeInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'Minimum nodes' });
+  }
+
+  maximumNodeInput(): Locator {
+    return this.page.getByRole('spinbutton', { name: 'Maximum nodes' });
+  }
+
+  minimumNodeCountInput(): Locator {
+    return this.minimumNodeInput();
+  }
+
+  maximumNodeCountInput(): Locator {
+    return this.maximumNodeInput();
+  }
+
+  minimumNodeCountPlusButton(): Locator {
+    return this.page.getByRole('button', { name: 'Minimum nodes plus' });
+  }
+
+  minimumNodeCountMinusButton(): Locator {
+    return this.page.getByRole('button', { name: 'Minimum nodes minus' });
+  }
+
+  maximumNodeCountPlusButton(): Locator {
+    return this.page.getByRole('button', { name: 'Maximum nodes plus' });
+  }
+
+  maximumNodeCountMinusButton(): Locator {
+    return this.page.getByRole('button', { name: 'Maximum nodes minus' });
+  }
+
+  async setMinimumNodeCount(count: string): Promise<void> {
+    await this.minimumNodeInput().clear();
+    await this.minimumNodeInput().fill(count);
+    await this.minimumNodeInput().blur();
+  }
+
+  async setMaximumNodeCount(count: string): Promise<void> {
+    await this.maximumNodeInput().clear();
+    await this.maximumNodeInput().fill(count);
+    await this.maximumNodeInput().blur();
+  }
+
+  // ── Networking / privacy ──────────────────────────────────────────────────
+
+  clusterPrivacyPublicRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Public', exact: true });
+  }
+
+  clusterPrivacyPrivateRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Private', exact: true });
+  }
+
+  async selectClusterPrivacy(privacy: string): Promise<void> {
+    if (privacy.toLowerCase().includes('private')) {
+      await this.clusterPrivacyPrivateRadio().check();
+    } else {
+      await this.clusterPrivacyPublicRadio().check();
+    }
+  }
+
+  applicationIngressDefaultSettingsRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Default settings' });
+  }
+
+  applicationIngressCustomSettingsRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Custom settings' });
+  }
+
+  applicationIngressRouterSelectorsInput(): Locator {
+    return this.page.locator('input[name="defaultRouterSelectors"]');
+  }
+
+  applicationIngressExcludedNamespacesInput(): Locator {
+    return this.page.locator('input[name="defaultRouterExcludedNamespacesFlag"]');
+  }
+
+  // ── Update strategy ───────────────────────────────────────────────────────
+
+  individualUpdateRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Individual updates' });
+  }
+
+  recurringUpdateRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Recurring updates' });
+  }
+
+  updateStrategyIndividualRadio(): Locator {
+    return this.individualUpdateRadio();
+  }
+
+  updateStrategyRecurringRadio(): Locator {
+    return this.recurringUpdateRadio();
+  }
+
+  async selectUpdateStratergy(strategy: string): Promise<void> {
+    if (strategy.toLowerCase().includes('individual')) {
+      await this.individualUpdateRadio().check();
+    } else {
+      await this.recurringUpdateRadio().check();
+    }
+  }
+
+  gracePeriodSelect(): Locator {
+    return this.page.getByTestId('grace-period-select');
+  }
+
+  async selectGracePeriod(period: string): Promise<void> {
+    await this.gracePeriodSelect().click();
+    // PF Select may expose options as role=option (ROSA) or role=button (OSD)
+    const option = this.page.getByRole('option', { name: period });
+    const menuButton = this.page.getByRole('button', { name: period });
+    await option.or(menuButton).first().click();
+  }
+
+  async selectNodeDraining(nodeDrain: string): Promise<void> {
+    await this.selectGracePeriod(nodeDrain);
+  }
+
+  async isUpdatesScreen(): Promise<void> {
+    await expect(this.page.getByRole('heading', { name: 'Cluster update strategy' })).toBeVisible({
+      timeout: 30000,
+    });
+  }
+
+  async isClusterUpdatesScreen(): Promise<void> {
+    await this.isUpdatesScreen();
+  }
+
+  // ── Encryption ────────────────────────────────────────────────────────────
+
+  advancedEncryptionLink(): Locator {
+    return this.page.getByRole('button', { name: 'Advanced Encryption' });
+  }
+
+  enableFIPSCryptographyCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Enable FIPS cryptography' });
+  }
+
+  enableAdditionalEtcdEncryptionCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Enable additional etcd' });
+  }
+
+  useCustomKMSKeyRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Use custom KMS keys' });
+  }
+
+  useDefaultKMSKeyRadio(): Locator {
+    return this.page.getByRole('radio', { name: 'Use default KMS Keys' });
   }
 }

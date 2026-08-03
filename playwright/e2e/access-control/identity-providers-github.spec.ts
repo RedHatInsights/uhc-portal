@@ -25,203 +25,203 @@ test.describe.serial(
 
     test('Navigate to cluster and Access Control > Identity Providers tab', async ({
       clusterListPage,
-      identityProvidersPage,
+      clusterIdentityProviderPage,
     }) => {
       await clusterListPage.isClusterListScreen();
       await clusterListPage.filterTxtField().fill(clusterName);
       await clusterListPage.waitForDataReady();
       await clusterListPage.openClusterDefinition(clusterName);
 
-      await identityProvidersPage.goToAccessControlTab();
-      await identityProvidersPage.goToIdentityProvidersTab();
-      await identityProvidersPage.isIdentityProvidersPage();
+      await clusterIdentityProviderPage.goToAccessControlTab();
+      await clusterIdentityProviderPage.goToIdentityProvidersTab();
+      await clusterIdentityProviderPage.isIdentityProvidersPage();
     });
 
-    test('Verify Identity Providers section layout', async ({ identityProvidersPage }) => {
-      await expect(identityProvidersPage.identityProvidersHeading()).toBeVisible();
-      await expect(identityProvidersPage.learnMoreLink()).toBeVisible();
-      await expect(identityProvidersPage.addIdentityProviderDropdown()).toBeVisible();
+    test('Verify Identity Providers section layout', async ({ clusterIdentityProviderPage }) => {
+      await expect(clusterIdentityProviderPage.identityProvidersHeading()).toBeVisible();
+      await expect(clusterIdentityProviderPage.learnMoreLink()).toBeVisible();
+      await expect(clusterIdentityProviderPage.addIdentityProviderDropdown()).toBeVisible();
     });
 
     test('Verify Add identity provider dropdown contains GitHub option', async ({
-      identityProvidersPage,
+      clusterIdentityProviderPage,
     }) => {
-      await identityProvidersPage.openAddIdpDropdown();
-      await expect(identityProvidersPage.addIdpDropdownItem('GitHub')).toBeVisible();
-      await identityProvidersPage.pressKey('Escape');
+      await clusterIdentityProviderPage.openAddIdpDropdown();
+      await expect(clusterIdentityProviderPage.addIdpDropdownItem('GitHub')).toBeVisible();
+      await clusterIdentityProviderPage.pressKey('Escape');
     });
 
     test('Create GitHub IDP with Organizations - verify form and submit (OCP-23708)', async ({
-      identityProvidersPage,
+      clusterIdentityProviderPage,
     }) => {
-      await identityProvidersPage.selectIdpType('GitHub');
+      await clusterIdentityProviderPage.selectIdpType('GitHub');
 
-      await expect(identityProvidersPage.nameInput()).toBeVisible();
-      await expect(identityProvidersPage.clientIdInput()).toBeVisible();
-      await expect(identityProvidersPage.clientSecretInput()).toBeVisible();
-      await expect(identityProvidersPage.hostnameInput()).toBeVisible();
-      await expect(identityProvidersPage.useOrganizationsRadio()).toBeVisible();
-      await expect(identityProvidersPage.useTeamsRadio()).toBeVisible();
+      await expect(clusterIdentityProviderPage.nameInput()).toBeVisible();
+      await expect(clusterIdentityProviderPage.clientIdInput()).toBeVisible();
+      await expect(clusterIdentityProviderPage.clientSecretInput()).toBeVisible();
+      await expect(clusterIdentityProviderPage.hostnameInput()).toBeVisible();
+      await expect(clusterIdentityProviderPage.useOrganizationsRadio()).toBeVisible();
+      await expect(clusterIdentityProviderPage.useTeamsRadio()).toBeVisible();
 
-      const nameValue = await identityProvidersPage.nameInput().inputValue();
+      const nameValue = await clusterIdentityProviderPage.nameInput().inputValue();
       expect(nameValue).toMatch(/^GitHub/);
 
-      await expect(identityProvidersPage.createButton()).toBeDisabled();
+      await expect(clusterIdentityProviderPage.createButton()).toBeDisabled();
 
-      await identityProvidersPage.nameInput().clear();
-      await identityProvidersPage.nameInput().fill(idpName);
-      await identityProvidersPage.clientIdInput().fill(clientId);
-      await identityProvidersPage.clientSecretInput().fill(clientSecret);
-      await identityProvidersPage.useOrganizationsRadio().click();
-      await identityProvidersPage.organizationsInput().fill(testOrg);
+      await clusterIdentityProviderPage.nameInput().clear();
+      await clusterIdentityProviderPage.nameInput().fill(idpName);
+      await clusterIdentityProviderPage.clientIdInput().fill(clientId);
+      await clusterIdentityProviderPage.clientSecretInput().fill(clientSecret);
+      await clusterIdentityProviderPage.useOrganizationsRadio().click();
+      await clusterIdentityProviderPage.organizationsInput().fill(testOrg);
 
-      await identityProvidersPage.submitCreateAndVerify();
+      await clusterIdentityProviderPage.submitCreateAndVerify();
     });
 
-    test('Verify created GitHub IDP appears in table', async ({ identityProvidersPage }) => {
-      await identityProvidersPage.goToAccessControlTab();
-      await identityProvidersPage.goToIdentityProvidersTab();
+    test('Verify created GitHub IDP appears in table', async ({ clusterIdentityProviderPage }) => {
+      await clusterIdentityProviderPage.goToAccessControlTab();
+      await clusterIdentityProviderPage.goToIdentityProvidersTab();
 
-      await identityProvidersPage.verifyIdpExists(idpName, 'GitHub');
-      await expect(identityProvidersPage.copyCallbackUrlButton(idpName)).toBeVisible();
+      await clusterIdentityProviderPage.verifyIdpExists(idpName, 'GitHub');
+      await expect(clusterIdentityProviderPage.copyCallbackUrlButton(idpName)).toBeVisible();
     });
 
     test('Create GitHub IDP with Teams, Hostname, and CA (OCP-23708)', async ({
-      identityProvidersPage,
+      clusterIdentityProviderPage,
       page,
     }) => {
       await page.reload();
-      await identityProvidersPage.goToIdentityProvidersTab();
-      await identityProvidersPage.selectIdpType('GitHub');
-      await expect(identityProvidersPage.nameInput()).toHaveValue(/^GitHub/);
+      await clusterIdentityProviderPage.goToIdentityProvidersTab();
+      await clusterIdentityProviderPage.selectIdpType('GitHub');
+      await expect(clusterIdentityProviderPage.nameInput()).toHaveValue(/^GitHub/);
 
-      await identityProvidersPage.nameInput().fill(idpName);
-      await identityProvidersPage.nameInput().blur();
-      await expect(identityProvidersPage.duplicateNameError()).toBeVisible();
-      await expect(identityProvidersPage.createButton()).toBeDisabled();
+      await clusterIdentityProviderPage.nameInput().fill(idpName);
+      await clusterIdentityProviderPage.nameInput().blur();
+      await expect(clusterIdentityProviderPage.duplicateNameError()).toBeVisible();
+      await expect(clusterIdentityProviderPage.createButton()).toBeDisabled();
 
-      await identityProvidersPage.nameInput().clear();
-      await identityProvidersPage.nameInput().fill(idpNameTeams);
+      await clusterIdentityProviderPage.nameInput().clear();
+      await clusterIdentityProviderPage.nameInput().fill(idpNameTeams);
 
-      await identityProvidersPage.clientIdInput().fill(clientId);
-      await identityProvidersPage.clientSecretInput().fill(clientSecret);
+      await clusterIdentityProviderPage.clientIdInput().fill(clientId);
+      await clusterIdentityProviderPage.clientSecretInput().fill(clientSecret);
 
-      await identityProvidersPage.hostnameInput().fill(testData.Hostname);
-      await identityProvidersPage.uploadCaFile(testData.CaContent);
+      await clusterIdentityProviderPage.hostnameInput().fill(testData.Hostname);
+      await clusterIdentityProviderPage.uploadCaFile(testData.CaContent);
 
-      await identityProvidersPage.useTeamsRadio().click();
-      await identityProvidersPage.teamsInput().fill(testData.Team);
+      await clusterIdentityProviderPage.useTeamsRadio().click();
+      await clusterIdentityProviderPage.teamsInput().fill(testData.Team);
 
-      await identityProvidersPage.submitCreateAndVerify();
+      await clusterIdentityProviderPage.submitCreateAndVerify();
     });
 
-    test('Verify Teams-based GitHub IDP appears in table', async ({ identityProvidersPage }) => {
-      await identityProvidersPage.goToAccessControlTab();
-      await identityProvidersPage.goToIdentityProvidersTab();
+    test('Verify Teams-based GitHub IDP appears in table', async ({ clusterIdentityProviderPage }) => {
+      await clusterIdentityProviderPage.goToAccessControlTab();
+      await clusterIdentityProviderPage.goToIdentityProvidersTab();
 
-      await identityProvidersPage.verifyIdpExists(idpNameTeams, 'GitHub');
+      await clusterIdentityProviderPage.verifyIdpExists(idpNameTeams, 'GitHub');
     });
 
     test('Edit Teams IDP - verify Hostname and CA, validate Hostname required (OCP-32006)', async ({
-      identityProvidersPage,
+      clusterIdentityProviderPage,
       page,
     }) => {
       await page.reload();
-      await identityProvidersPage.goToAccessControlTab();
-      await identityProvidersPage.goToIdentityProvidersTab();
-      await identityProvidersPage.clickEditIdp(idpNameTeams);
-      await expect(identityProvidersPage.editIdpHeading()).toBeVisible();
+      await clusterIdentityProviderPage.goToAccessControlTab();
+      await clusterIdentityProviderPage.goToIdentityProvidersTab();
+      await clusterIdentityProviderPage.clickEditIdp(idpNameTeams);
+      await expect(clusterIdentityProviderPage.editIdpHeading()).toBeVisible();
 
-      const hostnameValue = await identityProvidersPage.hostnameInput().inputValue();
+      const hostnameValue = await clusterIdentityProviderPage.hostnameInput().inputValue();
       expect(hostnameValue).toBe(testData.Hostname);
 
-      await expect(identityProvidersPage.caFileTextarea()).toBeVisible();
+      await expect(clusterIdentityProviderPage.caFileTextarea()).toBeVisible();
 
-      await identityProvidersPage.uploadCaFile(testData.CaContent);
-      await identityProvidersPage.hostnameInput().clear();
-      await identityProvidersPage.hostnameInput().blur();
-      await expect(identityProvidersPage.confirmButton()).toBeDisabled();
+      await clusterIdentityProviderPage.uploadCaFile(testData.CaContent);
+      await clusterIdentityProviderPage.hostnameInput().clear();
+      await clusterIdentityProviderPage.hostnameInput().blur();
+      await expect(clusterIdentityProviderPage.confirmButton()).toBeDisabled();
 
-      await identityProvidersPage.cancelFormAndReturnToIdpTab();
+      await clusterIdentityProviderPage.cancelFormAndReturnToIdpTab();
     });
 
     test('Edit GitHub IDP - verify pre-filled values including Mapping Method (OCP-32006)', async ({
-      identityProvidersPage,
+      clusterIdentityProviderPage,
     }) => {
-      await identityProvidersPage.clickEditIdp(idpName);
-      await expect(identityProvidersPage.editIdpHeading()).toBeVisible();
+      await clusterIdentityProviderPage.clickEditIdp(idpName);
+      await expect(clusterIdentityProviderPage.editIdpHeading()).toBeVisible();
 
-      await expect(identityProvidersPage.mappingMethodValue()).toContainText(testData.MappingMethod);
+      await expect(clusterIdentityProviderPage.mappingMethodValue()).toContainText(testData.MappingMethod);
 
-      const clientIdValue = await identityProvidersPage.clientIdInput().inputValue();
+      const clientIdValue = await clusterIdentityProviderPage.clientIdInput().inputValue();
       expect(clientIdValue).toBe(clientId);
 
-      const clientSecretValue = await identityProvidersPage.clientSecretInput().inputValue();
+      const clientSecretValue = await clusterIdentityProviderPage.clientSecretInput().inputValue();
       expect(clientSecretValue).toBeTruthy();
 
-      await expect(identityProvidersPage.useOrganizationsRadio()).toBeChecked();
-      const orgValue = await identityProvidersPage.organizationsInput().inputValue();
+      await expect(clusterIdentityProviderPage.useOrganizationsRadio()).toBeChecked();
+      const orgValue = await clusterIdentityProviderPage.organizationsInput().inputValue();
       expect(orgValue).toBe(testOrg);
 
-      await identityProvidersPage.cancelFormAndReturnToIdpTab();
+      await clusterIdentityProviderPage.cancelFormAndReturnToIdpTab();
     });
 
     test('Edit GitHub IDP - update Client ID and verify change (OCP-32006)', async ({
-      identityProvidersPage,
+      clusterIdentityProviderPage,
     }) => {
-      await identityProvidersPage.clickEditIdp(idpName);
-      await expect(identityProvidersPage.editIdpHeading()).toBeVisible();
+      await clusterIdentityProviderPage.clickEditIdp(idpName);
+      await expect(clusterIdentityProviderPage.editIdpHeading()).toBeVisible();
 
-      await identityProvidersPage.clientIdInput().clear();
-      await identityProvidersPage.clientIdInput().blur();
-      await expect(identityProvidersPage.requiredFieldError()).toBeVisible();
-      await expect(identityProvidersPage.confirmButton()).toBeDisabled();
+      await clusterIdentityProviderPage.clientIdInput().clear();
+      await clusterIdentityProviderPage.clientIdInput().blur();
+      await expect(clusterIdentityProviderPage.requiredFieldError()).toBeVisible();
+      await expect(clusterIdentityProviderPage.confirmButton()).toBeDisabled();
 
-      await identityProvidersPage.clientIdInput().fill(testData.UpdatedClientId);
+      await clusterIdentityProviderPage.clientIdInput().fill(testData.UpdatedClientId);
 
-      await identityProvidersPage.submitEditAndVerify();
+      await clusterIdentityProviderPage.submitEditAndVerify();
     });
 
     test('Edit GitHub IDP - switch from Organizations to Teams (OCP-32006)', async ({
-      identityProvidersPage,
+      clusterIdentityProviderPage,
       page,
     }) => {
       await page.reload();
-      await identityProvidersPage.goToAccessControlTab();
-      await identityProvidersPage.goToIdentityProvidersTab();
+      await clusterIdentityProviderPage.goToAccessControlTab();
+      await clusterIdentityProviderPage.goToIdentityProvidersTab();
 
-      await identityProvidersPage.clickEditIdp(idpName);
-      await expect(identityProvidersPage.editIdpHeading()).toBeVisible();
+      await clusterIdentityProviderPage.clickEditIdp(idpName);
+      await expect(clusterIdentityProviderPage.editIdpHeading()).toBeVisible();
 
-      await identityProvidersPage.useTeamsRadio().click();
-      await expect(identityProvidersPage.teamsInput()).toBeVisible();
-      await identityProvidersPage.teamsInput().fill(testData.UpdatedTeam);
+      await clusterIdentityProviderPage.useTeamsRadio().click();
+      await expect(clusterIdentityProviderPage.teamsInput()).toBeVisible();
+      await clusterIdentityProviderPage.teamsInput().fill(testData.UpdatedTeam);
 
-      await identityProvidersPage.submitEditAndVerify();
+      await clusterIdentityProviderPage.submitEditAndVerify();
     });
 
-    test('Delete GitHub IDP (Organizations) and verify removal', async ({ identityProvidersPage }) => {
-      await identityProvidersPage.goToAccessControlTab();
-      await identityProvidersPage.goToIdentityProvidersTab();
+    test('Delete GitHub IDP (Organizations) and verify removal', async ({ clusterIdentityProviderPage }) => {
+      await clusterIdentityProviderPage.goToAccessControlTab();
+      await clusterIdentityProviderPage.goToIdentityProvidersTab();
 
-      await identityProvidersPage.deleteIdp(idpName);
-      await expect(identityProvidersPage.idpRow(idpName)).toBeHidden({ timeout: 30000 });
+      await clusterIdentityProviderPage.deleteIdp(idpName);
+      await expect(clusterIdentityProviderPage.idpRow(idpName)).toBeHidden({ timeout: 30000 });
     });
 
-    test('Delete GitHub IDP (Teams) and verify removal', async ({ identityProvidersPage }) => {
-      await identityProvidersPage.deleteIdp(idpNameTeams);
-      await expect(identityProvidersPage.idpRow(idpNameTeams)).toBeHidden({ timeout: 30000 });
+    test('Delete GitHub IDP (Teams) and verify removal', async ({ clusterIdentityProviderPage }) => {
+      await clusterIdentityProviderPage.deleteIdp(idpNameTeams);
+      await expect(clusterIdentityProviderPage.idpRow(idpNameTeams)).toBeHidden({ timeout: 30000 });
     });
 
-    test.afterAll(async ({ identityProvidersPage }) => {
+    test.afterAll(async ({ clusterIdentityProviderPage }) => {
       try {
-        await identityProvidersPage.goToAccessControlTab();
-        await identityProvidersPage.goToIdentityProvidersTab();
+        await clusterIdentityProviderPage.goToAccessControlTab();
+        await clusterIdentityProviderPage.goToIdentityProvidersTab();
 
         for (const name of [idpName, idpNameTeams]) {
-          const idpRowVisible = await identityProvidersPage.idpRow(name).isVisible();
+          const idpRowVisible = await clusterIdentityProviderPage.idpRow(name).isVisible();
           if (idpRowVisible) {
-            await identityProvidersPage.deleteIdp(name);
+            await clusterIdentityProviderPage.deleteIdp(name);
           }
         }
       } catch {

@@ -39,9 +39,9 @@ test.describe.serial(
 
     test('Identity provider hint alert is visible when no IDPs are configured', async ({
       clusterDetailsPage,
-      identityProvidersPage,
+      clusterIdentityProviderPage,
     }) => {
-      const hasIdps = await identityProvidersPage.hasConfiguredIdps();
+      const hasIdps = await clusterIdentityProviderPage.hasConfiguredIdps();
 
       await clusterDetailsPage.navigateToOverviewTab();
       await clusterDetailsPage.expandAlertsAndRecommendations();

@@ -17,7 +17,6 @@ import { CreateRosaWizardPage } from '../page-objects/create-rosa-wizard-page';
 import { DownloadsPage } from '../page-objects/downloads-page';
 import { ClusterRolesAndAccessPage } from '../page-objects/cluster-roles-access-page';
 import { ClusterSupportPage } from '../page-objects/cluster-support-page';
-import { IdentityProvidersPage } from '../page-objects/identity-providers-page';
 import { OCMRolesAndAccessPage } from '../page-objects/ocm-roles-access-page';
 import { OsdProductPage } from '../page-objects/osd-product-page';
 import { OverviewPage } from '../page-objects/overview-page';
@@ -54,7 +53,6 @@ type WorkerFixtures = {
   downloadsPage: DownloadsPage;
   clusterRolesAndAccessPage: ClusterRolesAndAccessPage;
   clusterSupportPage: ClusterSupportPage;
-  identityProvidersPage: IdentityProvidersPage;
   ocmRolesAndAccessPage: OCMRolesAndAccessPage;
   osdProductPage: OsdProductPage;
   overviewPage: OverviewPage;
@@ -245,15 +243,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   clusterSupportPage: [
     async ({ authenticatedPage }, use) => {
       const pageObject = new ClusterSupportPage(authenticatedPage);
-      await use(pageObject);
-    },
-    { scope: 'worker' },
-  ],
-
-  // Worker-scoped: IdentityProvidersPage instance - created once, reused across all tests in suite
-  identityProvidersPage: [
-    async ({ authenticatedPage }, use) => {
-      const pageObject = new IdentityProvidersPage(authenticatedPage);
       await use(pageObject);
     },
     { scope: 'worker' },

@@ -1,8 +1,9 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator, expect, Response } from '@playwright/test';
 import {
   clearQuotaCostMock as clearQuotaCostRouteMock,
   mockQuotaCostWithBillingContract as mockQuotaCostRouteWithBillingContract,
 } from '../support/quota-mock-helper';
+import { DEFAULT_NAVIGATION_TIMEOUT } from '../support/playwright-constants';
 import { BasePage } from './base-page';
 import type { ClusterListPage } from './cluster-list-page';
 
@@ -15,7 +16,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   async isClusterDetailsPage(displayName: string): Promise<void> {
-    await expect(this.page.locator('.cl-details-page-title')).toContainText(displayName, {
+    await expect(this.clusterNameTitle()).toContainText(displayName, {
       timeout: 30000,
     });
   }
@@ -203,9 +204,10 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   async waitForClusterDetailsLoad(): Promise<void> {
-    await this.page
-      .locator('div.ins-c-spinner.cluster-details-spinner')
-      .waitFor({ state: 'detached', timeout: 30000 });
+    const loading = this.page.getByRole('progressbar', { name: 'Loading...' });
+    if (await loading.isVisible().catch(() => false)) {
+      await loading.waitFor({ state: 'detached', timeout: 30000 });
+    }
   }
 
   // ROSA cluster installation methods
@@ -249,6 +251,48 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   /**
+   * Clicks a button and waits for a matching API response.
+   * Retries via toPass on non-OK responses (e.g. clusters-mgmt 429).
+   */
+  private async clickAndWaitForMutation(options: {
+    button: Locator;
+    actionName: string;
+    responseMatch: (response: Response) => boolean;
+    responseTimeout?: number;
+    passTimeout?: number;
+    /** When true, skip the click if the button is already disabled (nothing to submit). */
+    skipIfDisabled?: boolean;
+  }): Promise<void> {
+    const {
+      button,
+      actionName,
+      responseMatch,
+      responseTimeout,
+      passTimeout = 90_000,
+      skipIfDisabled = false,
+    } = options;
+
+    await expect(async () => {
+      if (skipIfDisabled && !(await button.isEnabled())) {
+        return;
+      }
+
+      const responsePromise = this.page.waitForResponse(responseMatch, {
+        timeout: responseTimeout,
+      });
+      await button.click();
+      const response = await responsePromise;
+
+      if (!response.ok()) {
+        const responseBody = await response.text().catch(() => '');
+        throw new Error(
+          `${actionName} failed: ${response.status()} ${response.statusText()} (${response.url()})${responseBody ? ` — ${responseBody}` : ''}`,
+        );
+      }
+    }).toPass({ timeout: passTimeout, intervals: [5_000, 10_000, 15_000] });
+  }
+
+  /**
    * Deletes the cluster via Actions → Delete cluster.
    * Retries automatically on transient failures (e.g. 429 rate limiting)
    * using Playwright's toPass() with escalating intervals.
@@ -256,37 +300,25 @@ export class ClusterDetailsPage extends BasePage {
   async deleteClusterByName(clusterName: string): Promise<void> {
     await this.openDeleteClusterDialog(clusterName);
 
-    await expect(async () => {
-      const responsePromise = this.page.waitForResponse(
-        (response) =>
-          response.request().method() === 'DELETE' &&
-          /\/api\/clusters_mgmt\/v1\/clusters\/[^/?#]+/.test(response.url()),
-      );
-      await this.deleteClusterConfirm().click();
-
-      const response = await responsePromise;
-      if (!response.ok()) {
-        const body = await response.text().catch(() => '');
-        throw new Error(
-          `Delete cluster failed: ${response.status()} ${response.statusText()} (${response.url()})${body ? ` — ${body}` : ''}`,
-        );
-      }
-    }).toPass({ timeout: 30_000, intervals: [5_000, 10_000, 15_000] });
+    await this.clickAndWaitForMutation({
+      button: this.deleteClusterConfirm(),
+      actionName: 'Delete cluster',
+      responseMatch: (response) =>
+        response.request().method() === 'DELETE' &&
+        /\/api\/clusters_mgmt\/v1\/clusters\/[^/?#]+/.test(response.url()),
+      passTimeout: 30_000,
+    });
 
     await this.waitForDeleteClusterActionComplete();
   }
 
   async checkInstallationStepStatus(step: string, status: string = ''): Promise<void> {
-    const installStep = this.page
-      .locator('div.pf-v6-c-progress-stepper__step-title')
-      .filter({ hasText: step });
+    const installStep = this.page.getByRole('listitem').filter({ hasText: step });
 
     await expect(installStep).toBeVisible({ timeout: 80000 });
 
     if (status !== '' && status === 'Completed') {
-      await expect(installStep.locator('..').locator('..').locator('li')).toHaveClass(
-        /pf-m-success/,
-      );
+      await expect(installStep.getByText('Completed', { exact: true })).toBeVisible();
     }
   }
 
@@ -1040,7 +1072,10 @@ export class ClusterDetailsPage extends BasePage {
 
   async openUpgradeSettingsTab(): Promise<void> {
     await this.settingsTab().click();
-    await this.upgradeSettingsPanel().waitFor({ state: 'visible', timeout: 30000 });
+    await this.upgradeSettingsPanel().waitFor({
+      state: 'visible',
+      timeout: DEFAULT_NAVIGATION_TIMEOUT,
+    });
     await this.waitForClusterDetailsLoad();
   }
 
@@ -1048,148 +1083,154 @@ export class ClusterDetailsPage extends BasePage {
     return this.upgradeSettingsPanel().getByRole('button', { name: 'Save' });
   }
 
-  async saveUpgradeSettingsIfNeeded(): Promise<void> {
+  async saveUpgradeSettingsIfNeeded(
+    timeout: number = DEFAULT_NAVIGATION_TIMEOUT,
+  ): Promise<void> {
     const saveButton = this.upgradeSettingsSaveButton();
     await saveButton.scrollIntoViewIfNeeded();
 
-    if ((await saveButton.getAttribute('aria-disabled')) === 'true') {
+    if (!(await saveButton.isEnabled())) {
       return;
     }
 
-    const isUpgradePolicyMutationResponse = (url: string, method: string): boolean =>
-      /control_plane\/upgrade_policies|upgrade_policies|upgrade.*polic/i.test(url) &&
-      !url.includes('dryRun=true') &&
-      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+    await this.clickAndWaitForMutation({
+      button: saveButton,
+      actionName: 'Upgrade settings save',
+      responseMatch: (response) =>
+        /control_plane\/upgrade_policies|upgrade_policies|upgrade.*polic/i.test(response.url()) &&
+        !response.url().includes('dryRun=true') &&
+        ['POST', 'PUT', 'PATCH', 'DELETE'].includes(response.request().method()),
+      responseTimeout: timeout,
+      skipIfDisabled: true,
+    });
 
-    const waitForSaveResponse = () =>
-      this.page.waitForResponse(
-        (response) => isUpgradePolicyMutationResponse(response.url(), response.request().method()),
-        { timeout: 120000 },
-      );
-
-    const maxAttempts = 3;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const saveResponsePromise = waitForSaveResponse();
-      await saveButton.click();
-
-      const response = await saveResponsePromise;
-      if (response.status() === 429 && attempt < maxAttempts) {
-        await this.page.waitForTimeout(5000 * attempt);
-        continue;
-      }
-
-      if (!response.ok()) {
-        const responseBody = await response.text().catch(() => '');
-        throw new Error(
-          `Upgrade settings save failed: ${response.status()} ${response.statusText()} (${response.url()})${responseBody ? ` — ${responseBody}` : ''}`,
-        );
-      }
-
-      await expect(saveButton).toHaveAttribute('aria-disabled', 'true', { timeout: 120000 });
-      return;
-    }
+    await expect(saveButton).toBeDisabled({ timeout });
   }
 
-  async expectChannelSettingsEditDisabled(): Promise<void> {
-    await expect(this.channelSettingsHeading()).toBeVisible({ timeout: 60000 });
+  /**
+   * Asserts Channel settings pencil is disabled.
+   * When Recurring is selected, also hovers and asserts the scheduled-policy tooltip.
+   */
+  async expectChannelSettingsEditDisabled(
+    options: { withScheduledPolicyTooltip?: boolean } = { withScheduledPolicyTooltip: true },
+  ): Promise<void> {
+    await expect(this.channelSettingsHeading()).toBeVisible({
+      timeout: DEFAULT_NAVIGATION_TIMEOUT,
+    });
 
     const editButton = this.channelSettingsEditButton();
     await editButton.scrollIntoViewIfNeeded();
     await expect(editButton).toBeVisible();
     await expect(editButton).toBeDisabled();
+
+    if (options.withScheduledPolicyTooltip) {
+      await editButton.hover();
+      await expect(this.channelEditScheduledPolicyTooltip()).toBeVisible({
+        timeout: DEFAULT_NAVIGATION_TIMEOUT,
+      });
+    }
   }
 
-  async ensureUpdateStrategy(updateStrategy: string): Promise<void> {
+  async ensureUpdateStrategy(
+    updateStrategy: 'Recurring updates' | 'Individual updates',
+    timeout: number = DEFAULT_NAVIGATION_TIMEOUT,
+  ): Promise<void> {
     await this.openUpgradeSettingsTab();
     const panel = this.upgradeSettingsPanel();
+    const recurringRadio = panel.getByTestId('upgrade_policy-automatic');
+    const individualRadio = panel.getByTestId('upgrade_policy-manual');
+
+    const targetRadio =
+      updateStrategy === 'Recurring updates'
+        ? recurringRadio
+        : updateStrategy === 'Individual updates'
+          ? individualRadio
+          : null;
+
+    if (!targetRadio) {
+      throw new Error(
+        `ensureUpdateStrategy: unsupported updateStrategy "${updateStrategy}". Expected "Recurring updates" or "Individual updates".`,
+      );
+    }
+
+    if (!(await targetRadio.isChecked())) {
+      await targetRadio.check();
+    }
+    await expect(targetRadio).toBeChecked();
+    await this.saveUpgradeSettingsIfNeeded(timeout);
 
     if (updateStrategy === 'Recurring updates') {
-      const recurringRadio = panel.getByTestId('upgrade_policy-automatic');
-      if (!(await recurringRadio.isChecked())) {
-        await recurringRadio.check();
-      }
-      await expect(recurringRadio).toBeChecked();
-      await this.saveUpgradeSettingsIfNeeded();
-      await this.expectChannelSettingsEditDisabled();
+      await this.expectChannelSettingsEditDisabled({ withScheduledPolicyTooltip: true });
       return;
     }
 
-    if (updateStrategy === 'Individual updates') {
-      const individualRadio = panel.getByTestId('upgrade_policy-manual');
-      const recurringRadio = panel.getByTestId('upgrade_policy-automatic');
-
-      if (await recurringRadio.isChecked()) {
-        await individualRadio.check();
-        await expect(individualRadio).toBeChecked();
-        await this.saveUpgradeSettingsIfNeeded();
-      } else if (!(await individualRadio.isChecked())) {
-        await individualRadio.check();
-        await this.saveUpgradeSettingsIfNeeded();
-      }
-
-      await expect(this.channelSettingsEditButton()).not.toHaveAttribute('aria-disabled', 'true', {
-        timeout: 120000,
-      });
-    }
+    await expect(this.channelSettingsEditButton()).toBeEnabled({ timeout });
   }
 
   channelLoadingIndicator(): Locator {
     return this.page.getByLabel('Loading channel');
   }
 
-  async waitForOverviewChannelReady(): Promise<void> {
+  async waitForOverviewChannelReady(
+    timeout: number = DEFAULT_NAVIGATION_TIMEOUT,
+  ): Promise<void> {
     await this.openOverviewTab();
     await this.waitForClusterDetailsLoad();
-    await expect(this.channelLoadingIndicator()).not.toBeVisible({ timeout: 120000 });
-    await expect(this.overviewChannelValue()).toBeVisible({ timeout: 60000 });
-  }
-
-  /** Switches to Individual updates and waits until Overview channel edit is enabled. */
-  async ensureIndividualUpdatesForChannelEdit(): Promise<void> {
-    await this.waitForOverviewChannelReady();
-    const editButton = this.channelEditButton();
-    await editButton.scrollIntoViewIfNeeded();
-
-    if ((await editButton.getAttribute('aria-disabled')) !== 'true') {
-      return;
-    }
-
-    await this.ensureUpdateStrategy('Individual updates');
-    await this.waitForOverviewChannelReady();
-    await expect(editButton).not.toHaveAttribute('aria-disabled', 'true', {
-      timeout: 120000,
+    await expect(this.channelLoadingIndicator()).not.toBeVisible({ timeout });
+    await expect(this.overviewChannelValue()).toBeVisible({
+      timeout: DEFAULT_NAVIGATION_TIMEOUT,
     });
   }
 
-  /** Details card on the Overview tab (left column). */
-  overviewDetailsCard(): Locator {
-    return this.page.locator('.ocm-c-overview-details__card');
+  /** Switches to Individual updates and waits until Overview channel edit is enabled. */
+  async ensureIndividualUpdatesForChannelEdit(
+    timeout: number = DEFAULT_NAVIGATION_TIMEOUT,
+  ): Promise<void> {
+    await this.waitForOverviewChannelReady(timeout);
+    const editButton = this.channelEditButton();
+    await editButton.scrollIntoViewIfNeeded();
+
+    if (await editButton.isEnabled()) {
+      return;
+    }
+
+    await this.ensureUpdateStrategy('Individual updates', timeout);
+    await this.waitForOverviewChannelReady(timeout);
+    await expect(editButton).toBeEnabled({ timeout });
   }
 
+  /** Channel <dt> on Overview Details. */
   overviewChannelTerm(): Locator {
-    return this.overviewDetailsCard()
+    return this.page
       .getByRole('term')
       .filter({ has: this.page.getByText('Channel', { exact: true }) });
   }
 
-  /** Channel row in Overview Details (parent of term + definition). */
+  /**
+   * Channel row visibility helper. DescriptionListGroup has no ARIA role, so the
+   * Channel term is the stable role-based stand-in for "row is present".
+   */
   overviewChannelRow(): Locator {
-    return this.overviewChannelTerm().locator('..');
+    return this.overviewChannelTerm();
   }
 
+  /**
+   * Channel <dd> paired with the Channel <dt>.
+   * Uses the semantic dt→dd sibling (same pattern as machine-pools-page), not a styling class.
+   */
   overviewChannelValue(): Locator {
-    return this.overviewChannelRow()
-      .getByRole('definition')
-      .filter({ hasText: /stable-|fast-|eus-|candidate-|N\/A/ });
+    return this.overviewChannelTerm().locator('+ dd');
   }
 
   channelGroupOverviewLabel(): Locator {
-    return this.overviewDetailsCard().getByText('Channel group', { exact: true });
+    return this.page
+      .getByRole('term')
+      .filter({ has: this.page.getByText('Channel group', { exact: true }) });
   }
 
   /** Pencil edit control on Overview → Details Channel row. */
   overviewChannelEditButton(): Locator {
-    return this.overviewChannelRow().getByRole('button', { name: 'Edit channel' });
+    return this.overviewChannelValue().getByRole('button', { name: 'Edit channel' });
   }
 
   /** "Channel settings" card title in the Settings tab sidebar (Y-stream). */
@@ -1200,7 +1241,6 @@ export class ClusterDetailsPage extends BasePage {
   /**
    * Pencil in Channel settings sidebar (`data-testid="channelModal"`, `aria-label="Edit channel"`).
    * Scoped to #upgradeSettingsContent so it does not match Overview Channel edit.
-   * Disabled state is aria-disabled="true" with class pf-m-aria-disabled (not native disabled).
    */
   channelSettingsEditButton(): Locator {
     return this.upgradeSettingsPanel().getByTestId('channelModal');
@@ -1209,7 +1249,9 @@ export class ClusterDetailsPage extends BasePage {
   /** Opens Settings and asserts the Channel settings card and edit pencil are visible. */
   async expectChannelSettingsSectionWithPencil(): Promise<void> {
     await this.openUpgradeSettingsTab();
-    await expect(this.channelSettingsHeading()).toBeVisible({ timeout: 60000 });
+    await expect(this.channelSettingsHeading()).toBeVisible({
+      timeout: DEFAULT_NAVIGATION_TIMEOUT,
+    });
 
     const editPencil = this.channelSettingsEditButton();
     await editPencil.scrollIntoViewIfNeeded();
@@ -1218,7 +1260,9 @@ export class ClusterDetailsPage extends BasePage {
 
   /** Asserts the Channel settings pencil is visible and editable (ready cluster, no scheduled policy). */
   async expectChannelSettingsEditEditable(): Promise<void> {
-    await expect(this.channelSettingsHeading()).toBeVisible({ timeout: 60000 });
+    await expect(this.channelSettingsHeading()).toBeVisible({
+      timeout: DEFAULT_NAVIGATION_TIMEOUT,
+    });
 
     const editButton = this.channelSettingsEditButton();
     await editButton.scrollIntoViewIfNeeded();
@@ -1279,10 +1323,9 @@ export class ClusterDetailsPage extends BasePage {
     editButton: Locator = this.overviewChannelEditButton(),
   ): Promise<void> {
     await editButton.scrollIntoViewIfNeeded();
-    // PatternFly EditButton uses aria-disabled (recurring policy, schedules loading, or cluster not ready).
-    await expect(editButton).not.toHaveAttribute('aria-disabled', 'true', { timeout: 60000 });
+    await expect(editButton).toBeEnabled({ timeout: DEFAULT_NAVIGATION_TIMEOUT });
     await editButton.click();
-    await expect(this.editChannelModal()).toBeVisible({ timeout: 30000 });
+    await expect(this.editChannelModal()).toBeVisible({ timeout: DEFAULT_NAVIGATION_TIMEOUT });
   }
 
   async selectEditChannelModalOption(channel: string): Promise<void> {
@@ -1295,6 +1338,26 @@ export class ClusterDetailsPage extends BasePage {
     await expect(
       this.editChannelModalChannelSelect().getByRole('option', { name: channel, exact: true }),
     ).toHaveCount(1);
+  }
+
+  /** Saves Edit channel and waits for the clusters-mgmt PATCH to complete. */
+  async saveEditChannelModal(
+    expectedChannel: string,
+    timeout: number = DEFAULT_NAVIGATION_TIMEOUT,
+  ): Promise<void> {
+    await this.clickAndWaitForMutation({
+      button: this.editChannelModalSaveButton(),
+      actionName: 'Edit channel',
+      responseMatch: (response) =>
+        ['PATCH', 'PUT'].includes(response.request().method()) &&
+        /\/api\/clusters_mgmt\/v1\/clusters\/[^/?#]+$/.test(response.url()),
+      responseTimeout: timeout,
+    });
+
+    await expect(this.editChannelModal()).not.toBeVisible({
+      timeout: DEFAULT_NAVIGATION_TIMEOUT,
+    });
+    await expect(this.overviewChannelValue()).toContainText(expectedChannel);
   }
 
   async navigateToClusterByName(

@@ -10,49 +10,50 @@ export class GlobalNavPage extends BasePage {
   }
 
   globalNavigation(): Locator {
-    return this.page.locator('button[aria-label="Global navigation"]');
+    return this.page.getByRole('button', { name: 'Global navigation' });
   }
 
   clustersNavigation(): Locator {
-    return this.page.locator('a[data-quickstart-id="openshift"]');
+    return this.page.getByRole('link', { name: 'Clusters', exact: true });
   }
 
   overviewNavigation(): Locator {
-    return this.page.locator('a[data-quickstart-id="openshift_overview"]');
+    return this.page.getByRole('link', { name: 'Overview', exact: true });
   }
 
   releasesNavigation(): Locator {
-    return this.page.locator('a[data-quickstart-id="openshift_releases"]');
+    return this.page.getByRole('link', { name: 'Releases', exact: true });
   }
 
   downloadsNavigation(): Locator {
-    return this.page.locator('a[data-quickstart-id="openshift_downloads"]');
+    return this.page.getByRole('link', { name: 'Downloads', exact: true });
   }
 
   subscriptionsNavigation(): Locator {
-    return this.page.locator('li[data-quickstart-id="Subscriptions"]');
+    return this.page.getByRole('button', { name: 'Subscriptions' });
   }
 
   subscriptionsAnnualNavigation(): Locator {
-    return this.page.locator('a[data-quickstart-id="openshift_quota"]');
+    return this.page.getByRole('link', { name: /Annual|Subscriptions/i }).first();
   }
 
   subscriptionsOnDemandNavigation(): Locator {
-    return this.page.locator('a[data-quickstart-id="openshift_quota_resource-limits"]');
+    return this.page.getByRole('link', { name: /On-Demand|resource limits/i });
   }
 
+  /** Ensures the Insights side navigation is open before clicking nav links. */
   async closeSideBar(): Promise<void> {
-    const sideBar = this.page.locator('#chr-c-sidebar');
-    const isVisible = await sideBar.isVisible();
-    if (!isVisible) {
-      await this.page.locator('#nav-toggle').click();
+    const sideNav = this.page.getByRole('navigation', { name: /Global Navigation/i });
+    if (!(await sideNav.isVisible().catch(() => false))) {
+      await this.globalNavigation().click();
     }
   }
 
   async navigateTo(text: string): Promise<void> {
     await this.closeSideBar();
-    await this.page.locator('.pf-v6-c-skeleton').waitFor({ state: 'detached' });
-    await this.page.locator('a.pf-v6-c-nav__link').filter({ hasText: text }).click();
+    const link = this.page.getByRole('link', { name: text });
+    await link.waitFor({ state: 'visible', timeout: 60000 });
+    await link.click();
   }
 
   async closeSideBarNav(): Promise<void> {
@@ -60,6 +61,9 @@ export class GlobalNavPage extends BasePage {
   }
 
   breadcrumbItem(item: string): Locator {
-    return this.page.locator('ol.pf-v6-c-breadcrumb__list > li').filter({ hasText: item });
+    return this.page
+      .getByRole('navigation', { name: 'Breadcrumb' })
+      .getByRole('listitem')
+      .filter({ hasText: item });
   }
 }
