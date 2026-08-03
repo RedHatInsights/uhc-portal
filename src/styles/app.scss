@@ -16,6 +16,16 @@ limitations under the License.
 
 @import '~@patternfly/patternfly/sass-utilities';
 
+// insights-chrome sets :where(a):hover { color: link-hover } at specificity (0,1,0),
+// tying PatternFly's .pf-v6-c-button { color: var(--pf-v6-c-button--Color) }.
+// PF hover only reassigns the --Color custom property (not the color property),
+// so chrome's link hover color wins and primary button text becomes unreadable.
+a.pf-v6-c-button,
+a.pf-v6-c-button:hover,
+a.pf-v6-c-button:focus {
+  color: var(--pf-v6-c-button--Color);
+}
+
 // override the blue patternfly header border to match other properties
 .navbar-pf-vertical {
   border: 0;
