@@ -11,6 +11,8 @@ import { CreateManagedClusterButtonWithTooltip } from '~/components/common/Creat
 import ExternalLink from '~/components/common/ExternalLink';
 import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
+import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
 import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
@@ -24,6 +26,7 @@ interface ManagedServicesTableProps {
 
 const ManagedServicesTable = (props: ManagedServicesTableProps) => {
   const { canCreateManagedCluster } = useCanCreateManagedCluster();
+  const isRovsRegistrationEnabled = useFeatureGate(ROVS_REGISTRATION);
 
   const { isTrialEnabled = false } = props;
   const [openRows, setOpenRows] = useState<Array<string>>([]);
@@ -47,6 +50,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
     osd: 'osd',
     azure: 'azure',
     ibm: 'ibm',
+    rovs: 'rovs',
     rosa: 'rosa',
   };
 
@@ -214,6 +218,47 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
     },
   };
 
+  const rovsRow = {
+    key: rowKeys.rovs,
+    logo: <img className="partner-logo" src={IBMCloudLogo} alt="IBM Cloud" />,
+    offerings: (
+      <ExternalLink href={links.IBM_CLOUD_ROVS} noIcon>
+        Red Hat OpenShift Virtualization Service on IBM Cloud
+      </ExternalLink>
+    ),
+    purchasedThrough: 'IBM',
+    details: 'Flexible hourly billing',
+    action: (
+      <ExternalLink
+        isButton
+        noIcon
+        href={links.IBM_CLOUD_ROVS}
+        variant={ButtonVariant.secondary}
+        className="create-button"
+        data-testid="rovs-try-it-on-ibm"
+      >
+        Try it on IBM
+      </ExternalLink>
+    ),
+    expandedSection: {
+      content: (
+        <Stack hasGutter>
+          <StackItem>
+            A preconfigured OpenShift Virtualization environment provided as a fully-managed cloud
+            service at enterprise scale.
+            <br />
+            Hosted on IBM Cloud.
+          </StackItem>
+          <StackItem>
+            <ExternalLink href={links.IBM_CLOUD_ROVS}>
+              Learn more about Red Hat OpenShift Virtualization Service on IBM Cloud
+            </ExternalLink>
+          </StackItem>
+        </Stack>
+      ),
+    },
+  };
+
   const rosaRow = {
     key: rowKeys.rosa,
     logo: (
@@ -264,6 +309,9 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
       rows.push(osdTrialRow);
     }
     rows.push(osdRow, azureRow, ibmCloudRow);
+    if (isRovsRegistrationEnabled) {
+      rows.push(rovsRow);
+    }
   }
   rows.push(rosaRow);
 

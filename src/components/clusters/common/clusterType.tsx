@@ -51,6 +51,10 @@ export const clusterType = (cluster: ClusterWithPermissions) => {
       name: 'RHOIC',
       tooltip: 'Red Hat OpenShift Service on IBM Cloud',
     },
+    [normalizedProducts.ROVS]: {
+      name: 'ROVS',
+      tooltip: 'Red Hat OpenShift Virtualization Service',
+    },
     [normalizedProducts.UNKNOWN]: {
       name: 'N/A',
       tooltip: 'Not Available',

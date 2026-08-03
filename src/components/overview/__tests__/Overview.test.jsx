@@ -2,7 +2,15 @@ import React, { useState } from 'react';
 
 import * as useChromeHook from '@redhat-cloud-services/frontend-components/useChrome';
 
-import { checkAccessibility, render, screen, stubbedChrome, userEvent } from '~/testUtils';
+import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
+import {
+  checkAccessibility,
+  mockUseFeatureGate,
+  render,
+  screen,
+  stubbedChrome,
+  userEvent,
+} from '~/testUtils';
 
 import DrawerPanel from '../components/common/DrawerPanel';
 import { FEATURED_PRODUCTS_CARDS, RECOMMENDED_OPERATORS_CARDS_DATA } from '../components/fixtures';
@@ -68,6 +76,7 @@ describe('<Overview />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     drawerStateSetter = null;
+    mockUseFeatureGate([[ROVS_REGISTRATION, false]]);
   });
 
   const advancedClusterSecurityCardData = { ...FEATURED_PRODUCTS_CARDS[0] };
@@ -94,6 +103,10 @@ describe('<Overview />', () => {
       }),
     ).toHaveAttribute('href', '/openshift/create');
 
+    expect(
+      screen.queryByText('Red Hat OpenShift Virtualization Service on IBM Cloud'),
+    ).not.toBeInTheDocument();
+
     // Recommended Operator Cards:
 
     expect(screen.getByText('Recommended operators')).toBeInTheDocument();
@@ -108,6 +121,16 @@ describe('<Overview />', () => {
     );
 
     await checkAccessibility(container);
+  });
+
+  it('shows ROVS offering card when feature flag is enabled', () => {
+    mockUseFeatureGate([[ROVS_REGISTRATION, true]]);
+    renderOverview();
+
+    expect(
+      screen.getByText('Red Hat OpenShift Virtualization Service on IBM Cloud'),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('offering-card_ROVS')).toBeInTheDocument();
   });
 
   it.each([

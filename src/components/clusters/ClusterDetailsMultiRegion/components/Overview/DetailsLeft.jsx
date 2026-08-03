@@ -66,6 +66,7 @@ function DetailsLeft({
   const isROSA = planType === normalizedProducts.ROSA;
   const isHypershift = isHypershiftCluster(cluster);
   const isRHOIC = cluster?.subscription?.plan?.type === normalizedProducts.RHOIC;
+  const isROVS = cluster?.subscription?.plan?.type === normalizedProducts.ROVS;
 
   const hasAuthenticationType = isGCP(cluster) && isCCS(cluster);
   const isWifCluster = isWIFCluster(cluster);
@@ -131,7 +132,7 @@ function DetailsLeft({
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
-      {!isRHOIC || (isRHOIC && region) ? (
+      {!(isRHOIC || isROVS) || region ? (
         <DescriptionListGroup>
           <DescriptionListTerm>Region</DescriptionListTerm>
           <DescriptionListDescription>

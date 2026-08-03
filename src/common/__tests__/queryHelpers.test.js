@@ -66,6 +66,14 @@ describe('createViewQueryObject()', () => {
   it('properly creates the query object when no filter is defined', () => {
     expect(createViewQueryObject(baseViewOptions)).toEqual(baseResult);
   });
+
+  it('includes ROVS in plan.id filter when includeRovs is enabled', () => {
+    expect(createViewQueryObject(baseViewOptions, undefined, { includeRovs: true })).toEqual({
+      ...baseResult,
+      filter:
+        "(cluster_id!='') AND (plan.id IN ('OSD', 'OSDTrial', 'OCP', 'RHMI', 'ROSA', 'RHOIC', 'MOA', 'MOA-HostedControlPlane', 'ROSA-HyperShift', 'ARO', 'OCP-AssistedInstall', 'ROVS')) AND (status NOT IN ('Deprovisioned', 'Archived'))",
+    });
+  });
   it('sorts correctly (with display_name column name translation)', () => {
     const viewOptions = {
       ...baseViewOptions,
