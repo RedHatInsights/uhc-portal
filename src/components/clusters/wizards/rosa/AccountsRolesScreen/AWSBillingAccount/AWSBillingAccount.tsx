@@ -36,8 +36,9 @@ import AWSAccountSelection from '../AWSAccountSelection';
 import {
   getContract,
   getDefaultBillingAccountId,
-  shouldShowBillingContractNotification,
+  useShouldShowBillingContractWarning,
 } from './awsBillingAccountHelper';
+import BillingContractWarningAlert from './BillingContractWarningAlert';
 import ContractInfo from './ContractInfo';
 
 interface AWSBillingAccountProps {
@@ -130,9 +131,10 @@ const AWSBillingAccount = ({
     (account) => account.cloud_account_id === selectedAWSBillingAccountID,
   );
   const selectedContract = selectedAccount ? getContract(selectedAccount) : null;
-  const hasWarning =
-    isBillingContractNotificationEnabled &&
-    shouldShowBillingContractNotification(cloudAccounts, selectedAWSBillingAccountID);
+  const hasWarning = useShouldShowBillingContractWarning(
+    cloudAccounts,
+    selectedAWSBillingAccountID,
+  );
 
   useEffect(() => {
     onContractCheckChange?.(hasWarning);
@@ -227,17 +229,7 @@ const AWSBillingAccount = ({
         <Stack hasGutter>
           {hasWarning && (
             <StackItem>
-              <Alert
-                isLiveRegion
-                isInline
-                variant={AlertVariant.warning}
-                title="No contract on selected billing account"
-              >
-                The selected account <strong>{selectedAWSBillingAccountID}</strong> does not have
-                any pre-purchased ROSA capacity contracted. However, at least one other billing
-                account linked to your Red Hat account has an active contract. You may want to
-                review your selection.
-              </Alert>
+              <BillingContractWarningAlert selectedAccountId={selectedAWSBillingAccountID} />
             </StackItem>
           )}
           {selectedAWSBillingAccountID !== selectedAWSAccountID &&

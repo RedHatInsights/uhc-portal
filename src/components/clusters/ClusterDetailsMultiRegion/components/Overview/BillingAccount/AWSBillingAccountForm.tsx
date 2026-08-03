@@ -12,7 +12,11 @@ import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { required } from '../../../../../../common/validators';
 import ExternalLink from '../../../../../common/ExternalLink';
 import AWSAccountSelection from '../../../../wizards/rosa/AccountsRolesScreen/AWSAccountSelection';
-import { getContract } from '../../../../wizards/rosa/AccountsRolesScreen/AWSBillingAccount/awsBillingAccountHelper';
+import {
+  getContract,
+  useShouldShowBillingContractWarning,
+} from '../../../../wizards/rosa/AccountsRolesScreen/AWSBillingAccount/awsBillingAccountHelper';
+import BillingContractWarningAlert from '../../../../wizards/rosa/AccountsRolesScreen/AWSBillingAccount/BillingContractWarningAlert';
 import ContractInfo from '../../../../wizards/rosa/AccountsRolesScreen/AWSBillingAccount/ContractInfo';
 
 type AWSBillingAccountProps = {
@@ -31,6 +35,8 @@ export const AWSBillingAccountForm = ({
   const cloudAccounts = getAwsBillingAccountsFromQuota(data?.organizationQuota?.items);
   const [field, { error, touched }] = useField(name);
   const { setFieldValue } = useFormikContext();
+
+  const hasContractWarning = useShouldShowBillingContractWarning(cloudAccounts, field.value);
 
   const connectNewAcctBtn = (
     <ExternalLink
@@ -102,6 +108,9 @@ export const AWSBillingAccountForm = ({
         </Stack>
       ) : (
         connectNewAcctBtn
+      )}
+      {hasContractWarning && (
+        <BillingContractWarningAlert selectedAccountId={field.value} className="pf-v6-u-mt-md" />
       )}
     </>
   );

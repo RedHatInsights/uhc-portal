@@ -76,6 +76,53 @@ const defaultState = {
   },
 };
 
+const stateWithMixedContracts = {
+  userProfile: {
+    organization: {
+      quotaList: {
+        items: [
+          {
+            allowed: 2020,
+            cloud_accounts: [
+              {
+                cloud_account_id: '111',
+                cloud_provider_id: 'aws',
+                contracts: [],
+              },
+              {
+                cloud_account_id: '222',
+                cloud_provider_id: 'aws',
+                contracts: [
+                  {
+                    dimensions: [
+                      { name: 'four_vcpu_hour', value: '96' },
+                      { name: 'control_plane', value: '4' },
+                    ],
+                  },
+                ],
+              },
+              {
+                cloud_account_id: '333',
+                cloud_provider_id: 'aws',
+                contracts: [],
+              },
+            ],
+            quota_id: 'cluster|byoc|moa|marketplace',
+          },
+        ],
+      },
+    },
+  },
+  rosaReducer: {
+    getAWSBillingAccountsResponse: {
+      data: [],
+      fulfilled: false,
+      pending: false,
+      error: false,
+    },
+  },
+};
+
 jest.mock('react-redux', () => {
   const config = {
     __esModule: true,
@@ -386,53 +433,6 @@ describe('<AWSBillingAccount />', () => {
   });
 
   describe('default selection with contracts feature gate', () => {
-    const stateWithMixedContracts = {
-      userProfile: {
-        organization: {
-          quotaList: {
-            items: [
-              {
-                allowed: 2020,
-                cloud_accounts: [
-                  {
-                    cloud_account_id: '111',
-                    cloud_provider_id: 'aws',
-                    contracts: [],
-                  },
-                  {
-                    cloud_account_id: '222',
-                    cloud_provider_id: 'aws',
-                    contracts: [
-                      {
-                        dimensions: [
-                          { name: 'four_vcpu_hour', value: '96' },
-                          { name: 'control_plane', value: '4' },
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    cloud_account_id: '333',
-                    cloud_provider_id: 'aws',
-                    contracts: [],
-                  },
-                ],
-                quota_id: 'cluster|byoc|moa|marketplace',
-              },
-            ],
-          },
-        },
-      },
-      rosaReducer: {
-        getAWSBillingAccountsResponse: {
-          data: [],
-          fulfilled: false,
-          pending: false,
-          error: false,
-        },
-      },
-    };
-
     it('auto-selects the first contracted account when feature gate is enabled', async () => {
       const setFieldValueMock = jest.fn();
       shouldRefreshQuotaMock.mockReturnValue(false);
@@ -617,48 +617,6 @@ describe('<AWSBillingAccount />', () => {
   });
 
   describe('contract nudge inline warning', () => {
-    const stateWithMixedContracts = {
-      userProfile: {
-        organization: {
-          quotaList: {
-            items: [
-              {
-                allowed: 2020,
-                cloud_accounts: [
-                  {
-                    cloud_account_id: '111',
-                    cloud_provider_id: 'aws',
-                    contracts: [],
-                  },
-                  {
-                    cloud_account_id: '222',
-                    cloud_provider_id: 'aws',
-                    contracts: [
-                      {
-                        dimensions: [
-                          { name: 'four_vcpu_hour', value: '96' },
-                          { name: 'control_plane', value: '4' },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-                quota_id: 'cluster|byoc|moa|marketplace',
-              },
-            ],
-          },
-        },
-      },
-      rosaReducer: {
-        getAWSBillingAccountsResponse: {
-          data: [],
-          fulfilled: false,
-          pending: false,
-          error: false,
-        },
-      },
-    };
-
     it('shows warning when non-contracted account is selected and another has a contract', async () => {
       shouldRefreshQuotaMock.mockReturnValue(false);
       mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
