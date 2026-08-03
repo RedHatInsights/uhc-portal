@@ -152,7 +152,7 @@ test.describe.serial('Register cluster flow', { tag: ['@ci', '@smoke'] }, () => 
     await clusterDetailsPage.archiveClusterDropdownItem().click();
     await clusterDetailsPage.waitForArchiveClusterModalToLoad();
     await clusterDetailsPage.archiveClusterDialogConfirm().click();
-    await expect(clusterDetailsPage.archivedClusterSuccessNotification().nth(1)).toBeVisible();
+    await expect(clusterDetailsPage.archivedClusterSuccessNotification().last()).toBeVisible();
     await clusterDetailsPage.waitForClusterDetailsLoad();
     await expect(clusterDetailsPage.unarchiveClusterButton()).toBeVisible();
   });
