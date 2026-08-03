@@ -60,7 +60,9 @@ export const AWSBillingAccountForm = ({
 
   const handleBillingAccountChange = (value: string) => {
     setFieldValue(name, value);
-    track(trackEvents.BillingContractWarningShown);
+    if (hasContractWarning) {
+      track(trackEvents.BillingContractWarningShown);
+    }
   };
 
   return (
