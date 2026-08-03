@@ -121,6 +121,18 @@ describe('<ClusterActionsDropdown />', () => {
     });
   });
 
+  describe('rovs cluster', () => {
+    it('shows expected options (rovs)', async () => {
+      const { user } = render(
+        <ClusterActionsDropdown {...Fixtures.rovsCluster} canTransferClusterOwnership />,
+      );
+      await user.click(screen.getByRole('button'));
+      expect(await screen.findByRole('menu')).toBeInTheDocument();
+
+      expect(screen.getByRole('menuitem', { name: 'Transfer cluster ownership' })).toBeEnabled();
+    });
+  });
+
   it('closes automatically when clicking outside of it', async () => {
     const { user } = render(
       <>

@@ -6,9 +6,13 @@ import { GetClusterHistoryParams } from '~/services/serviceLogService';
 import { ViewOptions } from '../types/types';
 
 import { getLocation } from './location';
-import { allowedProducts, productFilterOptions } from './subscriptionTypes';
+import { getAllowedProducts, getProductFilterOptions } from './subscriptionTypes';
 
 type QueryObject = { [key: string]: string | number | boolean };
+
+type CreateViewQueryOptions = {
+  includeRovs?: boolean;
+};
 
 const viewPropsChanged = (nextViewOptions: ViewOptions, currentViewOptions: ViewOptions): boolean =>
   nextViewOptions.currentPage !== currentViewOptions.currentPage ||
@@ -37,8 +41,15 @@ const getOrder = (sortField: string, isAscending: boolean) => {
     .join(', ');
 };
 
-const createViewQueryObject = (viewOptions?: ViewOptions, username?: string): QueryObject => {
+const createViewQueryObject = (
+  viewOptions?: ViewOptions,
+  username?: string,
+  options?: CreateViewQueryOptions,
+): QueryObject => {
   const queryObject: QueryObject = {};
+  const includeRovs = options?.includeRovs ?? false;
+  const allowedProducts = getAllowedProducts(includeRovs);
+  const productFilterOptions = getProductFilterOptions(includeRovs);
 
   if (viewOptions) {
     queryObject.page = viewOptions.currentPage;

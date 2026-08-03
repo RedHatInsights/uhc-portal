@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { createViewQueryObject } from '~/common/queryHelpers';
+import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { getSubscriptionQueryType } from '~/services/accountsService';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 import { ViewOptions } from '~/types/types';
@@ -16,12 +18,13 @@ const fetchGlobalSubscriptions = async (
   viewOptions: ViewOptions,
   userName?: string,
   isArchived?: boolean,
+  includeRovs?: boolean,
 ) => {
   const modifiedViewOptions = {
     ...viewOptions,
     flags: { ...viewOptions.flags, showArchived: isArchived },
   };
-  const params = createViewQueryObject(modifiedViewOptions, userName);
+  const params = createViewQueryObject(modifiedViewOptions, userName, { includeRovs });
 
   const response = await accountsService.getSubscriptions(params as getSubscriptionQueryType);
   const subscriptions = mapListResponse(response, normalizeSubscription);
@@ -71,12 +74,18 @@ export const useFetchSubscriptions = ({
   userName?: string;
   isArchived?: boolean;
 }) => {
-  const queryKey = createQueryKey({ type: 'subscriptions', viewOptions, isArchived });
+  const includeRovs = useFeatureGate(ROVS_REGISTRATION);
+  const queryKey = createQueryKey({
+    type: 'subscriptions',
+    viewOptions,
+    isArchived,
+    other: includeRovs ? ['rovs'] : undefined,
+  });
 
   const { data, isLoading, isFetching, isFetched, isError, error } = useQuery({
     queryKey,
     enabled,
-    queryFn: () => fetchGlobalSubscriptions(viewOptions, userName, isArchived),
+    queryFn: () => fetchGlobalSubscriptions(viewOptions, userName, isArchived, includeRovs),
   });
 
   return {

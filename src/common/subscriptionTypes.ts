@@ -48,6 +48,7 @@ const {
   RHOSE,
   RHOSETrial,
   RHOIC,
+  ROVS,
 } = ClusterAuthorizationRequestProductId;
 
 const knownProducts = {
@@ -67,6 +68,7 @@ const knownProducts = {
   RHOSE,
   RHOSETrial,
   RHOIC,
+  ROVS,
   ...rosaProducts,
 };
 
@@ -84,6 +86,15 @@ const allowedProducts = [
   ClusterAuthorizationRequestProductId.ARO,
   ClusterAuthorizationRequestProductId.OCP_AssistedInstall,
 ];
+
+const rovsFilterOption = {
+  key: ROVS,
+  label: 'ROVS',
+  plansToQuery: [ROVS],
+};
+
+const getAllowedProducts = (includeRovs = false): string[] =>
+  includeRovs ? [...allowedProducts, ROVS] : allowedProducts;
 
 /**
  * cluster.product.id, subscription.plan.type, subscription.plan.id,
@@ -128,6 +139,9 @@ const productFilterOptions = [
   { key: ClusterAuthorizationRequestProductId.ARO, label: 'ARO', plansToQuery: ['ARO'] },
   { key: ClusterAuthorizationRequestProductId.RHOIC, label: 'RHOIC', plansToQuery: ['RHOIC'] },
 ];
+
+const getProductFilterOptions = (includeRovs = false) =>
+  includeRovs ? [...productFilterOptions, rovsFilterOption] : productFilterOptions;
 
 const STANDARD_TRIAL_BILLING_MODEL_TYPE = 'standard-trial';
 
@@ -179,6 +193,8 @@ const ocmRoles: Record<string, OcmRoleItem> = {
 export {
   allowedProducts,
   clustersServiceProducts,
+  getAllowedProducts,
+  getProductFilterOptions,
   knownProducts,
   normalizedProducts,
   ocmRoles,

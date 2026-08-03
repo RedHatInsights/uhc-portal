@@ -4,7 +4,8 @@ import * as reactRedux from 'react-redux';
 import * as useGetAccessProtection from '~/queries/AccessRequest/useGetAccessProtection';
 import * as useGetOrganizationalPendingRequests from '~/queries/AccessRequest/useGetOrganizationalPendingRequests';
 import * as useFetchClusters from '~/queries/ClusterListQueries/useFetchClusters';
-import { mockRestrictedEnv, screen, within, withState } from '~/testUtils';
+import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
+import { mockRestrictedEnv, mockUseFeatureGate, screen, within, withState } from '~/testUtils';
 
 import { normalizedProducts } from '../../../common/subscriptionTypes';
 import { viewConstants } from '../../../redux/constants';
@@ -462,10 +463,12 @@ describe('<ClusterList />', () => {
   describe('cluster filter', () => {
     beforeEach(() => {
       mockNavigate.mockClear();
+      sessionStorage.clear();
     });
 
     it('filter by clicking on cluster type', async () => {
       // Arrange
+      mockUseFeatureGate([[ROVS_REGISTRATION, false]]);
       mockedGetFetchedClusters.mockReturnValue({
         data: { items: [fixtures.clusterDetails.cluster] },
         errors: [],
@@ -479,14 +482,31 @@ describe('<ClusterList />', () => {
       await user.click(screen.getByText('RHOIC'));
 
       // Assert
+      expect(screen.queryByText('ROVS')).not.toBeInTheDocument();
       expect(mockNavigate).toHaveBeenLastCalledWith(
         { search: 'plan_id=ARO,RHOIC' },
         { replace: true },
       );
     });
 
+    it('includes ROVS in cluster type filter when feature flag is enabled', async () => {
+      mockUseFeatureGate([[ROVS_REGISTRATION, true]]);
+      mockedGetFetchedClusters.mockReturnValue({
+        data: { items: [fixtures.clusterDetails.cluster] },
+        errors: [],
+      });
+
+      const { user } = withState({}, true).render(<ClusterList {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'Cluster type' }));
+      await user.click(screen.getByText('ROVS'));
+
+      expect(mockNavigate).toHaveBeenLastCalledWith({ search: 'plan_id=ROVS' }, { replace: true });
+    });
+
     it('filter by already set state and URL param reacts accordingly', async () => {
       // Arrange
+      mockUseFeatureGate([[ROVS_REGISTRATION, false]]);
       mockedGetFetchedClusters.mockReturnValue({
         data: { items: [fixtures.clusterDetails.cluster] },
         errors: [],

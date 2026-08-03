@@ -13,9 +13,11 @@ import {
 import { FilterIcon } from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 
 import { useNavigate } from '~/common/routing';
+import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { buildFilterURLParams } from '../../../../../common/queryHelpers';
-import { productFilterOptions } from '../../../../../common/subscriptionTypes';
+import { getProductFilterOptions } from '../../../../../common/subscriptionTypes';
 
 type Filter = {
   [group: string]: string[];
@@ -28,6 +30,7 @@ const ClusterListFilterDropdown = (props: {
 }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const includeRovs = useFeatureGate(ROVS_REGISTRATION);
 
   const { currentFilters, setFilter, isDisabled } = props;
 
@@ -35,7 +38,7 @@ const ClusterListFilterDropdown = (props: {
     {
       key: 'plan_id',
       label: 'Cluster type',
-      options: productFilterOptions,
+      options: getProductFilterOptions(includeRovs),
     },
   ];
 
