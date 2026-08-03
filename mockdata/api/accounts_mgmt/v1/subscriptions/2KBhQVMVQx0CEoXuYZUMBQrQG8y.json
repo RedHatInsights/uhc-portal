@@ -1,5 +1,6 @@
 {
   "billing_expiration_date": "0001-01-01T00:00:00Z",
+  "billing_marketplace_account": "111122223333",
   "capabilities": [
     {
       "inherited": false,

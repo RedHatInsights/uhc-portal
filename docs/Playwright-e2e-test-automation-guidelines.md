@@ -747,6 +747,7 @@ Use the following decision guide when adding a new test:
 | Does it cover a critical Day 0 or Day 1 workflow that, if broken, would block users?            | Tag `@smoke`                                                | Continue below |
 | Does it involve cluster creation or initial setup?                                              | Also tag `@day1`                                            | Continue below |
 | Does it involve post-creation operations (scaling, upgrades, IDP, networking, etc.)?            | Also tag `@day2`                                            | Continue below |
+| Does it perform final cleanup after Day 1/Day 2 work (e.g. cluster delete)?                     | Also tag `@day3`                                            | Continue below |
 | Does it test a specific configuration variant, Day 2 operation, or edge case?                   | Tag `@advanced` (with `@day1` and/or `@day2` as applicable) | Revisit scope  |
 
 **A test can belong to multiple tiers.** For example, a basic wizard validation test might be tagged `@ci` (runs on every PR) and also `@smoke` (validates a critical path). However, be intentional — adding a slow cluster-creation test to `@ci` will degrade PR feedback time for all contributors.
@@ -754,10 +755,11 @@ Use the following decision guide when adding a new test:
 **Rule of thumb:**
 
 - **When unsure about tier, start with `@advanced` and promote to `@smoke` or `@ci` later** once the test proves fast, stable, and critical.
-- Always pair with `@day1` (creation/initial setup) or `@day2` (post-creation management) to indicate the lifecycle phase.
+- Require `@day1`, `@day2`, or `@day3` only for tests that participate in a cluster lifecycle (creation, post-creation management, or final cleanup). Pure `@ci` page-rendering, navigation, and form-validation specs do not need a day tag.
 - `@ci` tests must be **fast and side-effect-free**.
 - `@smoke` tests should be **reliable and focused on critical paths** (typically `@day1`).
-- `@advanced` tests can be **thorough and resource-intensive** (use `@day1`, `@day2`, or both).
+- `@advanced` tests can be **thorough and resource-intensive** (use `@day1`, `@day2`, or both when they touch cluster lifecycle).
+- `@day3` tests are **final/cleanup tasks** that run after Day 1 or Day 2 specs (for example, deleting a cluster created for those specs).
 
 ### Available Tags
 
@@ -773,19 +775,36 @@ Use the following decision guide when adding a new test:
 | `@osd`               | OSD tests               | OpenShift Dedicated tests                                     |
 | `@day1`              | Day 1 operations        | Cluster creation and initial setup                            |
 | `@day2`              | Day 2 operations        | Post-creation cluster management                              |
+| `@day3`              | Day 3 cleanup           | Final/cleanup tasks after Day 1 or Day 2 (e.g. cluster delete)|
 
-### Day 1 and Day 2 Test Dependencies
+### Day 1, Day 2, and Day 3 Test Dependencies
 
-**Important:** Day 2 tests have a dependency on Day 1 cluster availability.
+**Important:** Day 2 and Day 3 tests have a dependency on Day 1 cluster availability.
 
 - **`@day1`**: Tests that create clusters or perform initial setup operations. These tests provision the resources needed for day 2 operations.
 - **`@day2`**: Tests that perform post-creation operations like machine pool management, upgrades, scaling, etc. These tests **require** an existing cluster created by a day 1 spec.
+- **`@day3`**: Final/cleanup tasks that run after Day 1 or Day 2 specs have finished — for example, deleting the cluster created for those specs. These tests tear down shared resources so later runs start clean.
 
 **Before creating or running a `@day2` spec:**
 
 1. Ensure the corresponding `@day1` spec exists and has been executed successfully
 2. Verify the day 1 cluster is available and in a ready state
 3. Reference the day 1 cluster name/ID in your day 2 spec fixture
+
+**Before creating or running a `@day3` spec:**
+
+1. Ensure the corresponding `@day1` (and any `@day2`) specs that own the resource have completed or are no longer needed
+2. Reference the same cluster name/ID used by those Day 1/Day 2 specs
+3. Prefer `@day3` for teardown (e.g. delete) rather than burying cleanup only in `afterAll` when the cleanup itself is a user-facing flow under test
+
+**`test.afterAll` cleanup for write operations on a shared Day 1 cluster:**
+
+Day 2 (and similar) specs often mutate a long-lived Day 1 cluster. Use `test.afterAll` to **always restore** that cluster when the suite performs any write operation, so later runs do not start dirty.
+
+- **When required:** Any suite that adds/updates/deletes machine pools, changes cluster properties (billing account, delete protection, networking, IDP users, channel, etc.), or otherwise leaves mutable state on a shared Day 1 cluster.
+- **What to do:** In `test.afterAll`, reverse or remove what the suite created or changed (delete added machine pools, restore original property values, remove test IDPs/users, and so on). Prefer checking current state first and restoring only when needed.
+- **Failure handling:** Cleanup must still run when tests fail. Catch and log restore failures in `afterAll` so a flaky cleanup step does not hide the original test failure, but always attempt the restore.
+- **vs `@day3`:** Use `afterAll` for in-suite restore of shared cluster state. Use a `@day3` spec for final lifecycle teardown of the cluster itself (for example, cluster delete).
 
 ```typescript
 // Example: Day 2 spec referencing a Day 1 cluster
@@ -806,7 +825,15 @@ test.describe.serial(
     // Note: 'clusterDetailsPage' is an illustrative fixture name
     // Check fixtures/pages.ts for actual available fixtures
     test('should add machine pool', async ({ clusterDetailsPage }) => {
-      // Day 2 operations on existing cluster
+      // Day 2 write operation on existing Day 1 cluster
+    });
+
+    test.afterAll(async ({ machinePoolsPage }) => {
+      // Always restore write-operation side effects on the shared Day 1 cluster
+      // (e.g. delete machine pools added by this suite)
+      await machinePoolsPage.deleteMachinePool('test-mp').catch((error) => {
+        console.error('afterAll: failed to restore Day 1 cluster state', error);
+      });
     });
   },
 );

@@ -17,7 +17,10 @@ import { getScrollErrorIds } from '~/components/clusters/wizards/form/utils';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
-import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
+import {
+  BILLING_CONTRACT_NOTIFICATION,
+  OCM_ROLE_NO_CONSOLE,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 
@@ -43,6 +46,8 @@ const CreateRosaWizardFooter = ({
   isSubmitting = false,
   onWizardContextChange,
   onValidNextStep,
+  hasContractWarning = false,
+  onRequestContractConfirmation,
 }) => {
   const { goToNextStep, goToPrevStep, close, activeStep, steps, setStep, goToStepById } =
     useWizardContext();
@@ -52,17 +57,22 @@ const CreateRosaWizardFooter = ({
   // (as a more exclusive rule than isValidating, which relying upon would block progress to the next step)
   const [isNextDeferred, setIsNextDeferred] = useState(false);
 
+  const isBillingContractNotificationEnabled = useFeatureGate(BILLING_CONTRACT_NOTIFICATION);
+
   const { canCreateManagedCluster } = useCanCreateManagedCluster();
 
   useEffect(() => {
     // callback to pass updated context back up
+    // (goToNextStep is exposed so the contract-confirmation dialog, owned by
+    // AccountsRolesScreen/AWSBillingAccount, can advance the wizard once confirmed)
     onWizardContextChange({
       steps,
       setStep,
       goToStepById,
+      goToNextStep,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [steps, setStep]);
+  }, [steps, setStep, goToNextStep]);
 
   const awsRequests = useSelector((state) => ({
     accountIDsLoading: state.rosaReducer.getAWSAccountIDsResponse.pending || false,
@@ -122,6 +132,15 @@ const CreateRosaWizardFooter = ({
       if (!gotoNextStep) {
         return;
       }
+    }
+
+    if (
+      isBillingContractNotificationEnabled &&
+      currentStepId === accountAndRolesStepId &&
+      hasContractWarning
+    ) {
+      onRequestContractConfirmation?.();
+      return;
     }
 
     onValidNextStep?.(currentStepId);
@@ -205,6 +224,8 @@ CreateRosaWizardFooter.propTypes = {
   isSubmitting: PropTypes.bool,
   onWizardContextChange: PropTypes.func.isRequired,
   onValidNextStep: PropTypes.func,
+  hasContractWarning: PropTypes.bool,
+  onRequestContractConfirmation: PropTypes.func,
 };
 
 export default CreateRosaWizardFooter;

@@ -2,6 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 import * as reactRedux from 'react-redux';
 
+import { trackEvents } from '~/common/analytics';
 import * as helpers from '~/common/helpers';
 import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
 import {
@@ -19,6 +20,9 @@ import { CloudAccount } from '~/types/accounts_mgmt.v1';
 import { FieldId, initialValues } from '../../constants';
 
 import AWSBillingAccount from './AWSBillingAccount';
+
+const useAnalyticsMock = jest.fn();
+jest.mock('~/hooks/useAnalytics', () => jest.fn(() => useAnalyticsMock));
 
 const defaultProps = {
   selectedAWSBillingAccountID: '123',
@@ -70,6 +74,53 @@ const defaultState = {
         },
       ],
       fulfilled: true,
+      pending: false,
+      error: false,
+    },
+  },
+};
+
+const stateWithMixedContracts = {
+  userProfile: {
+    organization: {
+      quotaList: {
+        items: [
+          {
+            allowed: 2020,
+            cloud_accounts: [
+              {
+                cloud_account_id: '111',
+                cloud_provider_id: 'aws',
+                contracts: [],
+              },
+              {
+                cloud_account_id: '222',
+                cloud_provider_id: 'aws',
+                contracts: [
+                  {
+                    dimensions: [
+                      { name: 'four_vcpu_hour', value: '96' },
+                      { name: 'control_plane', value: '4' },
+                    ],
+                  },
+                ],
+              },
+              {
+                cloud_account_id: '333',
+                cloud_provider_id: 'aws',
+                contracts: [],
+              },
+            ],
+            quota_id: 'cluster|byoc|moa|marketplace',
+          },
+        ],
+      },
+    },
+  },
+  rosaReducer: {
+    getAWSBillingAccountsResponse: {
+      data: [],
+      fulfilled: false,
       pending: false,
       error: false,
     },
@@ -386,53 +437,6 @@ describe('<AWSBillingAccount />', () => {
   });
 
   describe('default selection with contracts feature gate', () => {
-    const stateWithMixedContracts = {
-      userProfile: {
-        organization: {
-          quotaList: {
-            items: [
-              {
-                allowed: 2020,
-                cloud_accounts: [
-                  {
-                    cloud_account_id: '111',
-                    cloud_provider_id: 'aws',
-                    contracts: [],
-                  },
-                  {
-                    cloud_account_id: '222',
-                    cloud_provider_id: 'aws',
-                    contracts: [
-                      {
-                        dimensions: [
-                          { name: 'four_vcpu_hour', value: '96' },
-                          { name: 'control_plane', value: '4' },
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    cloud_account_id: '333',
-                    cloud_provider_id: 'aws',
-                    contracts: [],
-                  },
-                ],
-                quota_id: 'cluster|byoc|moa|marketplace',
-              },
-            ],
-          },
-        },
-      },
-      rosaReducer: {
-        getAWSBillingAccountsResponse: {
-          data: [],
-          fulfilled: false,
-          pending: false,
-          error: false,
-        },
-      },
-    };
-
     it('auto-selects the first contracted account when feature gate is enabled', async () => {
       const setFieldValueMock = jest.fn();
       shouldRefreshQuotaMock.mockReturnValue(false);
@@ -617,48 +621,6 @@ describe('<AWSBillingAccount />', () => {
   });
 
   describe('contract nudge inline warning', () => {
-    const stateWithMixedContracts = {
-      userProfile: {
-        organization: {
-          quotaList: {
-            items: [
-              {
-                allowed: 2020,
-                cloud_accounts: [
-                  {
-                    cloud_account_id: '111',
-                    cloud_provider_id: 'aws',
-                    contracts: [],
-                  },
-                  {
-                    cloud_account_id: '222',
-                    cloud_provider_id: 'aws',
-                    contracts: [
-                      {
-                        dimensions: [
-                          { name: 'four_vcpu_hour', value: '96' },
-                          { name: 'control_plane', value: '4' },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-                quota_id: 'cluster|byoc|moa|marketplace',
-              },
-            ],
-          },
-        },
-      },
-      rosaReducer: {
-        getAWSBillingAccountsResponse: {
-          data: [],
-          fulfilled: false,
-          pending: false,
-          error: false,
-        },
-      },
-    };
-
     it('shows warning when non-contracted account is selected and another has a contract', async () => {
       shouldRefreshQuotaMock.mockReturnValue(false);
       mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
@@ -736,6 +698,188 @@ describe('<AWSBillingAccount />', () => {
       const warningAlert = await screen.findByText('No contract on selected billing account');
       const alertContainer = warningAlert.closest('.pf-v6-c-alert')!;
       expect(within(alertContainer as HTMLElement).getByText('111')).toBeInTheDocument();
+    });
+
+    it('tracks BillingContractWarningShown when a non-contracted account is selected', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const { user } = withState(stateWithMixedContracts).render(
+        buildTestComponent(
+          <AWSBillingAccount selectedAWSBillingAccountID="222" selectedAWSAccountID="222" />,
+        ),
+      );
+
+      await user.click(await screen.findByRole('button', { name: 'Options menu' }));
+      await user.click(screen.getByRole('option', { name: /111/ }));
+
+      expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.BillingContractWarningShown);
+    });
+
+    it('does not track BillingContractWarningShown when a contracted account is selected', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const { user } = withState(stateWithMixedContracts).render(
+        buildTestComponent(
+          <AWSBillingAccount selectedAWSBillingAccountID="111" selectedAWSAccountID="111" />,
+        ),
+      );
+
+      useAnalyticsMock.mockClear();
+
+      await user.click(await screen.findByRole('button', { name: 'Options menu' }));
+      await user.click(screen.getByRole('option', { name: /222/ }));
+
+      expect(useAnalyticsMock).not.toHaveBeenCalledWith(trackEvents.BillingContractWarningShown);
+    });
+  });
+
+  describe('contract warning notification', () => {
+    const contractState = {
+      ...defaultState,
+      rosaReducer: {
+        getAWSBillingAccountsResponse: {
+          data: [
+            {
+              cloud_account_id: '123',
+              cloud_provider_id: 'aws',
+              contracts: [],
+            },
+            {
+              cloud_account_id: '111',
+              cloud_provider_id: 'aws',
+              contracts: [{ dimensions: [{ name: 'four_vcpu_hour', value: '96' }] }],
+            },
+          ],
+          fulfilled: true,
+          pending: false,
+          error: false,
+        },
+      },
+    };
+
+    it('reports a warning when the selected account has no contract but another does AND the feature gate is enabled', async () => {
+      const onContractCheckChangeMock = jest.fn();
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(contractState).render(
+        buildTestComponent(
+          <AWSBillingAccount {...defaultProps} onContractCheckChange={onContractCheckChangeMock} />,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(onContractCheckChangeMock).toHaveBeenCalledWith(true);
+      });
+    });
+
+    it('does not report a warning when the billing contract notification feature gate is disabled', async () => {
+      const onContractCheckChangeMock = jest.fn();
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, false]]);
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(contractState).render(
+        buildTestComponent(
+          <AWSBillingAccount {...defaultProps} onContractCheckChange={onContractCheckChangeMock} />,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(onContractCheckChangeMock).toHaveBeenCalledWith(false);
+      });
+    });
+
+    it('clears the reported warning when the component unmounts', async () => {
+      const onContractCheckChangeMock = jest.fn();
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      const { unmount } = withState(contractState).render(
+        buildTestComponent(
+          <AWSBillingAccount {...defaultProps} onContractCheckChange={onContractCheckChangeMock} />,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(onContractCheckChangeMock).toHaveBeenCalledWith(true);
+      });
+
+      unmount();
+
+      expect(onContractCheckChangeMock).toHaveBeenLastCalledWith(false);
+    });
+  });
+
+  describe('contract confirmation dialog', () => {
+    it('is not shown by default', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(defaultState).render(buildTestComponent(<AWSBillingAccount {...defaultProps} />));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText('Continue without a contracted billing account?'),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('is shown when isContractDialogOpen is true, displaying the selected billing account', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      withState(defaultState).render(
+        buildTestComponent(<AWSBillingAccount {...defaultProps} isContractDialogOpen />),
+      );
+
+      expect(
+        await screen.findByText('Continue without a contracted billing account?'),
+      ).toBeInTheDocument();
+      expect(
+        within(screen.getByRole('dialog')).getByText(defaultProps.selectedAWSBillingAccountID),
+      ).toBeInTheDocument();
+    });
+
+    it('calls onContractDialogContinue when "Continue with selection" is clicked', async () => {
+      const onContractDialogContinueMock = jest.fn();
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      const { user } = withState(defaultState).render(
+        buildTestComponent(
+          <AWSBillingAccount
+            {...defaultProps}
+            isContractDialogOpen
+            onContractDialogContinue={onContractDialogContinueMock}
+          />,
+        ),
+      );
+
+      await user.click(await screen.findByText('Continue with selection'));
+
+      expect(onContractDialogContinueMock).toHaveBeenCalled();
+      expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.BillingContractWarningProceed);
+      expect(useAnalyticsMock).not.toHaveBeenCalledWith(trackEvents.BillingContractWarningGoBack);
+    });
+
+    it('calls onContractDialogClose when "Go back" is clicked', async () => {
+      const onContractDialogCloseMock = jest.fn();
+      shouldRefreshQuotaMock.mockReturnValue(false);
+
+      const { user } = withState(defaultState).render(
+        buildTestComponent(
+          <AWSBillingAccount
+            {...defaultProps}
+            isContractDialogOpen
+            onContractDialogClose={onContractDialogCloseMock}
+          />,
+        ),
+      );
+
+      await user.click(await screen.findByText('Go back'));
+
+      expect(onContractDialogCloseMock).toHaveBeenCalled();
+      expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.BillingContractWarningGoBack);
+      expect(useAnalyticsMock).not.toHaveBeenCalledWith(trackEvents.BillingContractWarningProceed);
     });
   });
 });

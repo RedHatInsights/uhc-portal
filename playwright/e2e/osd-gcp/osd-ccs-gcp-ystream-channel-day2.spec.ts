@@ -166,7 +166,7 @@ test.describe.serial(
     });
 
     test('Delete OSD GCP Y-stream channel cluster', async ({ clusterDetailsPage }) => {
-      await clusterDetailsPage.deleteClusterByName(clusterName, { cooldownMs: 10_000 });
+      await clusterDetailsPage.deleteClusterByName(clusterName);
     });
   },
 );

@@ -144,7 +144,7 @@ export interface paths {
       /** @description Log record */
       requestBody: {
         content: {
-          'application/json': components['schemas']['ClusterLog'];
+          'application/json': components['schemas']['ClusterLogRequest'];
         };
       };
       responses: {
@@ -771,12 +771,12 @@ export interface components {
       internal_only: boolean;
       last_name?: string;
       /** @enum {string} */
-      log_type: ClusterLogLog_type;
-      service_name: string;
+      log_type?: ClusterLogLog_type;
+      service_name?: string;
       /** @enum {string} */
-      severity: ClusterLogSeverity;
+      severity?: ClusterLogSeverity;
       subscription_id?: string;
-      summary: string;
+      summary?: string;
       /** Format: date-time */
       timestamp?: string;
       username?: string;
@@ -784,6 +784,7 @@ export interface components {
     ClusterLogList: components['schemas']['List'] & {
       items?: components['schemas']['ClusterLog'][];
     };
+    ClusterLogRequest: components['schemas']['ClusterLog'] & Record<string, never>;
     Error: components['schemas']['ObjectReference'] & {
       code?: string;
       operation_id?: string;
@@ -907,6 +908,7 @@ export interface components {
 }
 export type ClusterLog = components['schemas']['ClusterLog'];
 export type ClusterLogList = components['schemas']['ClusterLogList'];
+export type ClusterLogRequest = components['schemas']['ClusterLogRequest'];
 export type Error = components['schemas']['Error'];
 export type ErrorList = components['schemas']['ErrorList'];
 export type List = components['schemas']['List'];
@@ -954,5 +956,8 @@ export enum ClusterLogSeverity {
   Warning = 'Warning',
   Major = 'Major',
   Critical = 'Critical',
+  Low = 'Low',
+  Moderate = 'Moderate',
+  Important = 'Important',
 }
 export type operations = Record<string, never>;

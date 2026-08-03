@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
 // Import cluster field validations JSON
 const clusterFieldValidations = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-wizard-validation.spec.json');
@@ -11,6 +12,7 @@ test.describe.serial(
     const region = process.env.QE_AWS_REGION || clusterFieldValidations.Region.split(',')[0];
     const awsAccountID = process.env.QE_AWS_ID || '';
     const awsBillingAccountID = process.env.QE_AWS_BILLING_ID || '';
+    const awsSecondaryBillingAccountID = process.env.QE_AWS_SECONDARY_BILLING_ID || '';
     let qeInfrastructure: any = {};
 
     try {
@@ -29,7 +31,7 @@ test.describe.serial(
 
     test.beforeAll(async ({ navigateTo }) => {
       // Navigate to create
-      await navigateTo('create');
+      await navigateTo(CREATE_CLUSTER_ROUTE);
     });
     test('Open Rosa cluster wizard', async ({ page, createRosaWizardPage }) => {
       await createRosaWizardPage.waitAndClick(createRosaWizardPage.rosaCreateClusterButton());
@@ -53,9 +55,104 @@ test.describe.serial(
       await createRosaWizardPage.waitForARNList();
       await createRosaWizardPage.refreshInfrastructureAWSAccountButton().click();
       await createRosaWizardPage.waitForARNList();
-      await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
       await createRosaWizardPage.selectInstallerRole(installerARN);
+    });
+
+    test('Step - Accounts and roles - widget - billing model validations', async ({
+      createRosaWizardPage,
+    }) => {
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+
+      // Empty secondary ID would mock/select incorrectly (no contracted account; first row clicked).
+      // Still select primary billing and advance so the serial suite can continue.
+      if (!awsBillingAccountID || !awsSecondaryBillingAccountID) {
+        test.info().annotations.push({
+          type: 'skip',
+          description:
+            'Billing model validations skipped: QE_AWS_BILLING_ID and QE_AWS_SECONDARY_BILLING_ID are required',
+        });
+        await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
+        await createRosaWizardPage.rosaNextButton().click();
+        await createRosaWizardPage.isClusterDetailsScreen();
+        return;
+      }
+
+      // Neither staging billing account has a contract. Overlay quota_cost so the
+      // secondary account is temporarily contracted; keep the same AWS account IDs.
+      await createRosaWizardPage.mockQuotaCostWithBillingContract(awsSecondaryBillingAccountID, [
+        awsBillingAccountID,
+        awsSecondaryBillingAccountID,
+      ]);
+      await createRosaWizardPage.refreshAWSBillingAccounts();
+
+      // Contracted account — no inline warning; badge visible
+      await createRosaWizardPage.selectAWSBillingAccount(awsSecondaryBillingAccountID);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(true);
+      await createRosaWizardPage.expectBillingContractWarning(false);
+
+      // Non-contracted while another is contracted — warning with account ID
+      await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(false);
+      await createRosaWizardPage.expectBillingContractWarning(true, awsBillingAccountID);
+
+      // Switching back to contracted clears the warning
+      await createRosaWizardPage.selectAWSBillingAccount(awsSecondaryBillingAccountID);
+      await createRosaWizardPage.expectBillingContractWarning(false);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(true);
+
+      // Contracted account: Next advances without confirmation dialog
       await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isClusterDetailsScreen();
+      await createRosaWizardPage.expectBillingContractConfirmationDialog(false);
+
+      // Non-contracted account while another is contracted: warning + dialog on Next
+      await createRosaWizardPage.rosaBackButton().click();
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+      await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(false);
+      await createRosaWizardPage.expectBillingContractWarning(true, awsBillingAccountID);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.expectBillingContractConfirmationShowsAccount(
+        awsBillingAccountID,
+      );
+
+      // Go back keeps the user on Accounts & roles
+      await createRosaWizardPage.dismissBillingContractConfirmation();
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+
+      // Continue with selection advances; confirmed account is not re-prompted
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.confirmBillingContractSelection(awsBillingAccountID);
+      await createRosaWizardPage.isClusterDetailsScreen();
+      await createRosaWizardPage.rosaBackButton().click();
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isClusterDetailsScreen();
+      await createRosaWizardPage.expectBillingContractConfirmationDialog(false);
+
+      // Changing billing account clears confirmation; non-contracted selection re-prompts
+      await createRosaWizardPage.rosaBackButton().click();
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+      await createRosaWizardPage.selectAWSBillingAccount(awsSecondaryBillingAccountID);
+      await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.confirmBillingContractSelection(awsBillingAccountID);
+      await createRosaWizardPage.isClusterDetailsScreen();
+
+      // Both accounts have no contracts: no warning, Next advances with no dialog
+      await createRosaWizardPage.clearQuotaCostMock();
+      await createRosaWizardPage.rosaBackButton().click();
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+      await createRosaWizardPage.refreshAWSBillingAccounts();
+      await createRosaWizardPage.selectAWSBillingAccount(awsSecondaryBillingAccountID);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(false);
+      await createRosaWizardPage.expectBillingContractWarning(false);
+      await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(false);
+      await createRosaWizardPage.expectBillingContractWarning(false);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isClusterDetailsScreen();
+      await createRosaWizardPage.expectBillingContractConfirmationDialog(false);
     });
 
     test('Step - Cluster Settings - Details - widget validations', async ({
