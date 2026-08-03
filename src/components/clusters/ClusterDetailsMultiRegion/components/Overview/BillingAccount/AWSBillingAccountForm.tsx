@@ -9,8 +9,6 @@ import links from '~/common/installLinks.mjs';
 import { getAwsBillingAccountsFromQuota } from '~/components/clusters/common/quotaSelectors';
 import useAnalytics from '~/hooks/useAnalytics';
 import { useFetchOrganizationQuota } from '~/queries/ClusterDetailsQueries/useFetchOrganizationQuota';
-import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 
 import { required } from '../../../../../../common/validators';
@@ -18,7 +16,6 @@ import ExternalLink from '../../../../../common/ExternalLink';
 import AWSAccountSelection from '../../../../wizards/rosa/AccountsRolesScreen/AWSAccountSelection';
 import {
   getContract,
-  shouldShowBillingContractNotification,
   useShouldShowBillingContractWarning,
 } from '../../../../wizards/rosa/AccountsRolesScreen/AWSBillingAccount/awsBillingAccountHelper';
 import BillingContractWarningAlert from '../../../../wizards/rosa/AccountsRolesScreen/AWSBillingAccount/BillingContractWarningAlert';
@@ -41,7 +38,6 @@ export const AWSBillingAccountForm = ({
   const cloudAccounts = getAwsBillingAccountsFromQuota(data?.organizationQuota?.items);
   const [field, { error, touched }] = useField(name);
   const { setFieldValue } = useFormikContext();
-  const isBillingContractNotificationEnabled = useFeatureGate(BILLING_CONTRACT_NOTIFICATION);
 
   const hasContractWarning = useShouldShowBillingContractWarning(cloudAccounts, field.value);
 
@@ -64,12 +60,7 @@ export const AWSBillingAccountForm = ({
 
   const handleBillingAccountChange = (value: string) => {
     setFieldValue(name, value);
-    if (
-      isBillingContractNotificationEnabled &&
-      shouldShowBillingContractNotification(cloudAccounts, value)
-    ) {
-      track(trackEvents.BillingContractWarningShown);
-    }
+    track(trackEvents.BillingContractWarningShown);
   };
 
   return (
