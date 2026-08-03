@@ -112,7 +112,11 @@ const MachineTypeSelection = ({
   /** Checks whether required data arrived. */
   const isDataReady =
     organization.fulfilled &&
-    machineTypesResponse &&
+    // machineTypesResponse (e.g. from useFetchMachineTypes) is always a defined object,
+    // even before the underlying request resolves, so check typesByID itself instead of
+    // just the object's truthiness. Otherwise the "not enough quota" alert can flash
+    // briefly while machine types are still loading (filteredMachineTypes is momentarily empty).
+    !!machineTypesResponse?.typesByID &&
     // Tolerate flavours error gracefully.
     (flavours.fulfilled || flavours.error);
 
