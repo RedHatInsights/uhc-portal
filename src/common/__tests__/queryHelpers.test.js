@@ -191,6 +191,21 @@ describe('createViewQueryObject()', () => {
     expect(createViewQueryObject(viewOptions)).toEqual(expected);
   });
 
+  it('maps enabled ROVS filters to the backend plan ID', () => {
+    const viewOptions = {
+      ...baseViewOptions,
+      flags: {
+        subscriptionFilter: {
+          plan_id: ['ROVS'],
+        },
+      },
+    };
+
+    expect(createViewQueryObject(viewOptions, undefined, { includeRovs: true }).filter).toContain(
+      "plan_id IN ('ROVS')",
+    );
+  });
+
   it('correctly applies filtering by username', () => {
     const username = 'test@test.com';
     const viewOptions = {
