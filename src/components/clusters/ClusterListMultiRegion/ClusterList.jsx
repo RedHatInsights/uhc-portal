@@ -139,7 +139,7 @@ const ClusterList = ({
   const dispatch = useDispatch();
   const viewType = viewConstants.CLUSTERS_VIEW;
   const isTabbedClusters = useFeatureGate(TABBED_CLUSTERS);
-  const includeRovs = useFeatureGate(ROVS_REGISTRATION);
+  const isRovsRegistrationEnabled = useFeatureGate(ROVS_REGISTRATION);
   const PAGE_TITLE = showTabbedView
     ? 'Clusters | Red Hat OpenShift Cluster Manager'
     : 'Cluster List | Red Hat OpenShift Cluster Manager';
@@ -248,7 +248,7 @@ const ClusterList = ({
 
     if (!isEmpty(planIDFilter)) {
       const allowedProducts = {};
-      getProductFilterOptions(includeRovs).forEach((option) => {
+      getProductFilterOptions(isRovsRegistrationEnabled).forEach((option) => {
         allowedProducts[option.key] = true;
       });
       const sanitizedFilter = planIDFilter.split(',').filter((value) => allowedProducts[value]);

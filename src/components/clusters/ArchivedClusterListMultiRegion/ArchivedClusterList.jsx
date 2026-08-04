@@ -104,7 +104,7 @@ const ClusterList = ({
 }) => {
   const dispatch = useDispatch();
   const clusterListPath = useClusterListPath();
-  const includeRovs = useFeatureGate(ROVS_REGISTRATION);
+  const isRovsRegistrationEnabled = useFeatureGate(ROVS_REGISTRATION);
 
   const viewType = viewConstants.ARCHIVED_CLUSTERS_VIEW;
   const isArchived = true;
@@ -197,7 +197,7 @@ const ClusterList = ({
 
     if (!isEmpty(planIDFilter)) {
       const allowedProducts = {};
-      getProductFilterOptions(includeRovs).forEach((option) => {
+      getProductFilterOptions(isRovsRegistrationEnabled).forEach((option) => {
         allowedProducts[option.key] = true;
       });
       const sanitizedFilter = planIDFilter.split(',').filter((value) => allowedProducts[value]);

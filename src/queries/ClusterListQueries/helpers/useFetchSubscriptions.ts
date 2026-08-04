@@ -74,18 +74,19 @@ export const useFetchSubscriptions = ({
   userName?: string;
   isArchived?: boolean;
 }) => {
-  const includeRovs = useFeatureGate(ROVS_REGISTRATION);
+  const isRovsRegistrationEnabled = useFeatureGate(ROVS_REGISTRATION);
   const queryKey = createQueryKey({
     type: 'subscriptions',
     viewOptions,
     isArchived,
-    other: includeRovs ? ['rovs'] : undefined,
+    other: isRovsRegistrationEnabled ? ['rovs'] : undefined,
   });
 
   const { data, isLoading, isFetching, isFetched, isError, error } = useQuery({
     queryKey,
     enabled,
-    queryFn: () => fetchGlobalSubscriptions(viewOptions, userName, isArchived, includeRovs),
+    queryFn: () =>
+      fetchGlobalSubscriptions(viewOptions, userName, isArchived, isRovsRegistrationEnabled),
   });
 
   return {
