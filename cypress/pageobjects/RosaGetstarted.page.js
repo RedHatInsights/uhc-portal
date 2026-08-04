@@ -27,10 +27,6 @@ class RosaGetstarted extends Page {
 
   rosaFedRampRequestFormlink = () => cy.getByTestId('fedramp-access-request-form');
 
-  rosaOppAwsMarketplaceEmeaLink = () => cy.getByTestId('rosa-opp-aws-marketplace-emea');
-
-  rosaOppAwsMarketplaceNonEmeaLink = () => cy.getByTestId('rosa-opp-aws-marketplace-non-emea');
-
   rosaClientDropdown = () => cy.getByTestId('os-dropdown-rosa');
 
   rosaClientButton = () => cy.getByTestId('download-btn-rosa');
@@ -50,14 +46,6 @@ class RosaGetstarted extends Page {
     cy.contains(
       'h2',
       'Red Hat OpenShift Service on AWS (ROSA) with hosted control planes in AWS GovCloud achieves FedRAMP High Authorization',
-    )
-      .should('be.exist')
-      .should('be.visible');
-  }
-  isPlatformPlusMarketplaceAlertShown() {
-    cy.contains(
-      'h2',
-      'Red Hat OpenShift Platform Plus for Red Hat OpenShift Service on AWS (ROSA) is now available on the AWS Marketplace',
     )
       .should('be.exist')
       .should('be.visible');

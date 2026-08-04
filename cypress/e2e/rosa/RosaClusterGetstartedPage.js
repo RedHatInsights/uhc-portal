@@ -24,22 +24,6 @@ describe('Rosa cluster Get Started page(OCP-56363)', { tags: ['smoke'] }, () => 
     );
   });
 
-  it(`ROSA Getstarted page - check for Platform Plus marketplace alert`, () => {
-    RosaGetstartedPage.isPlatformPlusMarketplaceAlertShown();
-    RosaGetstartedPage.checkAnchorProperties(
-      RosaGetstartedPage.rosaOppAwsMarketplaceEmeaLink(),
-      'AWS Marketplace listing for EMEA',
-      'https://aws.amazon.com/marketplace/pp/prodview-sxbakgvp63pcs',
-      true,
-    );
-    RosaGetstartedPage.checkAnchorProperties(
-      RosaGetstartedPage.rosaOppAwsMarketplaceNonEmeaLink(),
-      'AWS Marketplace listing for NA, LATAM, and APAC',
-      'https://aws.amazon.com/marketplace/pp/prodview-dm5otbp2o25zk',
-      true,
-    );
-  });
-
   it(`ROSA Getstarted page - check for "Complete AWS prerequisites" section`, () => {
     RosaGetstartedPage.isCompleteAWSPrerequisitesHeaderShown();
     cy.contains('h3', 'Have you prepared your AWS account?')

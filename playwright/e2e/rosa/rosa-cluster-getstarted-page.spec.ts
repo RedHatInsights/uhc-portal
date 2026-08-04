@@ -34,26 +34,6 @@ test.describe.serial(
       );
     });
 
-    test('ROSA Get Started page - check for Platform Plus marketplace alert sections', async ({
-      rosaGetStartedPage,
-    }) => {
-      await rosaGetStartedPage.isPlatformPlusMarketplaceAlertShown();
-
-      await rosaGetStartedPage.checkAnchorProperties(
-        rosaGetStartedPage.rosaOppAwsMarketplaceEmeaLink(),
-        'AWS Marketplace listing for EMEA',
-        installLinks.ROSA_OPP_AWS_MARKETPLACE_EMEA,
-        true,
-      );
-
-      await rosaGetStartedPage.checkAnchorProperties(
-        rosaGetStartedPage.rosaOppAwsMarketplaceNonEmeaLink(),
-        'AWS Marketplace listing for NA, LATAM, and APAC',
-        installLinks.ROSA_OPP_AWS_MARKETPLACE_NON_EMEA,
-        true,
-      );
-    });
-
     test('ROSA Get Started page - check for "Complete AWS prerequisites" section', async ({
       page,
       rosaGetStartedPage,

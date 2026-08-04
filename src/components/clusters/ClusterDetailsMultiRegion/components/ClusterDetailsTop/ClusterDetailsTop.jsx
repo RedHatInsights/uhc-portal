@@ -25,7 +25,10 @@ import isAssistedInstallSubscription, {
   isAvailableAssistedInstallCluster,
   isUninstalledAICluster,
 } from '~/common/isAssistedInstallerCluster';
-import { HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT } from '~/common/localStorageConstants';
+import {
+  HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT,
+  HAS_USER_DISMISSED_ROSA_OPP_MARKETPLACE_ALERT,
+} from '~/common/localStorageConstants';
 import { useClusterListPath, useNavigate } from '~/common/routing';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { PreviewLabel } from '~/components/clusters/common/PreviewLabel';
@@ -58,6 +61,7 @@ import ClusterStatusMonitor from './components/ClusterStatusMonitor';
 import ExpirationAlert from './components/ExpirationAlert';
 import GcpOrgPolicyAlert from './components/GcpOrgPolicyAlert';
 import LimitedSupportAlert from './components/LimitedSupportAlert';
+import PlatformPlusMarketplaceAlert from './components/PlatformPlusMarketplaceAlert';
 import { RecommendedOperatorsAlert } from './components/RecommendedOperatorsAlert/RecommendedOperatorsAlert';
 import SeverityLabelChangeAlert from './components/SeverityLabelChangeAlert';
 import SubscriptionCompliancy from './components/SubscriptionCompliancy';
@@ -123,7 +127,7 @@ function ClusterDetailsTop(props) {
   const track = useAnalytics();
 
   const clusterListPath = useClusterListPath();
-  const hasAlertBeenDismissed = localStorage.getItem(
+  const hasOperatorsAlertBeenDismissed = localStorage.getItem(
     HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT,
   );
   const isArchived =
@@ -132,7 +136,14 @@ function ClusterDetailsTop(props) {
     get(cluster, 'subscription.status', false) === SubscriptionCommonFieldsStatus.Deprovisioned;
 
   const [showRecommendedOperatorsAlert, setShowRecommendedOperatorsAlert] = useState(
-    !hasAlertBeenDismissed && !isArchived && !isDeprovisioned,
+    !hasOperatorsAlertBeenDismissed && !isArchived && !isDeprovisioned,
+  );
+  const hasOppAlertBeenDismissed = localStorage.getItem(
+    HAS_USER_DISMISSED_ROSA_OPP_MARKETPLACE_ALERT,
+  );
+  const isROSA = get(cluster, 'subscription.plan.type') === normalizedProducts.ROSA;
+  const [showPlatformPlusMarketplaceAlert, setShowPlatformPlusMarketplaceAlert] = useState(
+    isROSA && !hasOppAlertBeenDismissed && !isArchived && !isDeprovisioned,
   );
 
   let topCard = null;
@@ -169,7 +180,6 @@ function ClusterDetailsTop(props) {
   const isProductOSDTrial =
     get(cluster, 'subscription.plan.type', '') === normalizedProducts.OSDTrial;
   const isOSD = get(cluster, 'subscription.plan.type') === normalizedProducts.OSD;
-  const isROSA = get(cluster, 'subscription.plan.type') === normalizedProducts.ROSA;
   const isOCP = get(cluster, 'subscription.plan.type') === normalizedProducts.OCP;
   const supportLevel = get(cluster, 'subscription.support_level');
   const clusterName = getClusterName(cluster);
@@ -351,6 +361,7 @@ function ClusterDetailsTop(props) {
   const [hasTransferClusterOwnershipAlert, setHasTransferClusterOwnershipAlert] =
     React.useState(false);
   const hasSeverityLabelChangeAlert = !isArchived && !isDeprovisioned;
+  const hasPlatformPlusMarketplaceAlert = showPlatformPlusMarketplaceAlert;
 
   const alerts = [
     hasLimitedSupportAlert,
@@ -365,6 +376,7 @@ function ClusterDetailsTop(props) {
     hasTermsAlert,
     hasTransferClusterOwnershipAlert,
     hasSeverityLabelChangeAlert,
+    hasPlatformPlusMarketplaceAlert,
   ];
 
   const alertsCount = alerts.filter((alert) => alert === true).length || null;
@@ -513,6 +525,12 @@ function ClusterDetailsTop(props) {
               />
             ) : null}
             {hasSeverityLabelChangeAlert && <SeverityLabelChangeAlert />}
+
+            {showPlatformPlusMarketplaceAlert ? (
+              <PlatformPlusMarketplaceAlert
+                onDismiss={() => setShowPlatformPlusMarketplaceAlert(false)}
+              />
+            ) : null}
           </ExpandableSection>
         )
       )}

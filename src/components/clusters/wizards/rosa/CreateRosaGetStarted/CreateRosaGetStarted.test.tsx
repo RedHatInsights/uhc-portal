@@ -28,26 +28,6 @@ describe('<CreateRosaGetStarted />', () => {
     ).toHaveAttribute('href', installLinks.FEDRAMP_ACCESS_REQUEST_FORM);
   });
 
-  it('Platform Plus marketplace alert is visible and has correct urls', () => {
-    render(<CreateRosaGetStarted />);
-
-    expect(
-      screen.getByText(
-        'Red Hat OpenShift Platform Plus for Red Hat OpenShift Service on AWS (ROSA) is now available on the AWS Marketplace',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', {
-        name: 'AWS Marketplace listing for EMEA (new window or tab)',
-      }),
-    ).toHaveAttribute('href', installLinks.ROSA_OPP_AWS_MARKETPLACE_EMEA);
-    expect(
-      screen.getByRole('link', {
-        name: 'AWS Marketplace listing for NA, LATAM, and APAC (new window or tab)',
-      }),
-    ).toHaveAttribute('href', installLinks.ROSA_OPP_AWS_MARKETPLACE_NON_EMEA);
-  });
-
   it('Create VPC command is present', () => {
     render(<CreateRosaGetStarted />);
     expect(
