@@ -98,4 +98,23 @@ describe('reviewValues', () => {
       expect(screen.getByText('openshift-monitoring')).toBeInTheDocument();
     });
   });
+
+  describe('node_drain_grace_period', () => {
+    const { title, values } = reviewValues.node_drain_grace_period;
+
+    it('uses the expected review title', () => {
+      expect(title).toBe('Node draining');
+    });
+
+    it.each([
+      [15, '15 minutes'],
+      [30, '30 minutes'],
+      [60, '1 hour'],
+      [120, '2 hours'],
+      [240, '4 hours'],
+      [480, '8 hours'],
+    ])('maps %s minutes to %s', (minutes, label) => {
+      expect(values[minutes]).toBe(label);
+    });
+  });
 });

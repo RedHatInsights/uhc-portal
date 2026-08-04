@@ -258,7 +258,7 @@ test.describe.serial(
         gcpClusterProperties.UpdateStrategy,
       );
       await expect(createOSDWizardPage.nodeDrainingValue()).toContainText(
-        `${parseInt(gcpClusterProperties.NodeDraining) * 60} minutes`,
+        gcpClusterProperties.NodeDraining,
       );
     });
 
