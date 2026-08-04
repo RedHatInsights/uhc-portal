@@ -72,6 +72,7 @@ type MachineTypeSelectionProps = {
   productId: string;
   billingModel: BillingModel;
   allExpanded?: boolean;
+  enableGCMQuotaBypass?: boolean; // Temporary flag to enable GCM quota bypass for day 1 and disable for day 2, this will be removed once the day 1 and day 2 PRs are merged
 };
 
 const MachineTypeSelection = ({
@@ -86,6 +87,7 @@ const MachineTypeSelection = ({
   productId,
   billingModel,
   allExpanded = true,
+  enableGCMQuotaBypass = true,
 }: MachineTypeSelectionProps) => {
   const dispatch = useDispatch();
 
@@ -191,7 +193,7 @@ const MachineTypeSelection = ({
         return false;
       }
 
-      if (isGcpMarketplaceBilling(billingModel)) {
+      if (enableGCMQuotaBypass && isGcpMarketplaceBilling(billingModel)) {
         return true;
       }
 
@@ -242,6 +244,7 @@ const MachineTypeSelection = ({
       isMultiAz,
       productId,
       quota,
+      enableGCMQuotaBypass,
     ],
   );
 
