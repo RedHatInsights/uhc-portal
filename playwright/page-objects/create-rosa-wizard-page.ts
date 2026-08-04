@@ -1,5 +1,9 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 
+import {
+  clearQuotaCostMock as clearQuotaCostRouteMock,
+  mockQuotaCostWithBillingContract as mockQuotaCostRouteWithBillingContract,
+} from '../support/quota-mock-helper';
 import { BaseWizardPage } from './base-wizard-page';
 
 /**
@@ -141,6 +145,34 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   refreshInfrastructureAWSAccountButton(): Locator {
     return this.page.getByTestId('refresh-aws-accounts').first();
+  }
+
+  refreshAWSBillingAccountButton(): Locator {
+    return this.page.getByTestId('refresh-aws-accounts').nth(1);
+  }
+
+  billingContractConfirmationDialog(): Locator {
+    return this.page.getByRole('dialog', {
+      name: 'Continue without a contracted billing account?',
+    });
+  }
+
+  continueWithBillingSelectionButton(): Locator {
+    return this.billingContractConfirmationDialog().getByRole('button', {
+      name: 'Continue with selection',
+    });
+  }
+
+  goBackFromBillingConfirmationButton(): Locator {
+    return this.billingContractConfirmationDialog().getByRole('button', { name: 'Go back' });
+  }
+
+  contractEnabledForBillingAccountButton(): Locator {
+    return this.page.getByRole('button', { name: 'Contract enabled for this billing account' });
+  }
+
+  billingContractWarningTitle(): Locator {
+    return this.page.getByText('No contract on selected billing account');
   }
 
   // Input fields
@@ -419,6 +451,88 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await this.page.locator('li').filter({ hasText: accountID }).click();
   }
 
+  async mockQuotaCostWithBillingContract(
+    contractedAccountId: string,
+    billingAccountIds: string[] = [],
+  ): Promise<void> {
+    await mockQuotaCostRouteWithBillingContract(
+      this.page,
+      contractedAccountId,
+      billingAccountIds,
+    );
+  }
+
+  async clearQuotaCostMock(): Promise<void> {
+    await clearQuotaCostRouteMock(this.page);
+  }
+
+  async refreshAWSBillingAccounts(): Promise<void> {
+    const quotaCostResponse = this.page.waitForResponse(
+      (response) => response.url().includes('quota_cost') && response.ok(),
+    );
+    await this.refreshAWSBillingAccountButton().click();
+    await quotaCostResponse;
+    await expect(this.refreshAWSBillingAccountButton()).toBeEnabled({ timeout: 60000 });
+  }
+
+  async expectBillingContractConfirmationDialog(visible = true): Promise<void> {
+    if (visible) {
+      await expect(this.billingContractConfirmationDialog()).toBeVisible({ timeout: 15000 });
+    } else {
+      await expect(this.billingContractConfirmationDialog()).toBeHidden({ timeout: 15000 });
+    }
+  }
+
+  async expectBillingContractConfirmationShowsAccount(accountId: string): Promise<void> {
+    await this.expectBillingContractConfirmationDialog(true);
+    await expect(
+      this.billingContractConfirmationDialog().getByText(
+        `The selected account ${accountId} does not have any`,
+      ),
+    ).toBeVisible();
+  }
+
+  async expectContractEnabledForBillingAccount(visible = true): Promise<void> {
+    if (visible) {
+      await expect(this.contractEnabledForBillingAccountButton()).toBeVisible({ timeout: 15000 });
+    } else {
+      await expect(this.contractEnabledForBillingAccountButton()).toBeHidden({ timeout: 15000 });
+    }
+  }
+
+  /**
+   * Inline warning shown when the selected billing account has no contract while
+   * another linked account does.
+   */
+  async expectBillingContractWarning(visible = true, accountId?: string): Promise<void> {
+    if (visible) {
+      await expect(this.billingContractWarningTitle()).toBeVisible({ timeout: 15000 });
+      if (accountId) {
+        await expect(
+          this.page.getByText(`The selected account ${accountId} does not have any`),
+        ).toBeVisible();
+      }
+    } else {
+      await expect(this.billingContractWarningTitle()).toBeHidden({ timeout: 15000 });
+    }
+  }
+
+  async confirmBillingContractSelection(accountId?: string): Promise<void> {
+    if (accountId) {
+      await this.expectBillingContractConfirmationShowsAccount(accountId);
+    } else {
+      await this.expectBillingContractConfirmationDialog(true);
+    }
+    await this.continueWithBillingSelectionButton().click();
+    await this.expectBillingContractConfirmationDialog(false);
+  }
+
+  async dismissBillingContractConfirmation(): Promise<void> {
+    await this.expectBillingContractConfirmationDialog(true);
+    await this.goBackFromBillingConfirmationButton().click();
+    await this.expectBillingContractConfirmationDialog(false);
+  }
+
   async waitForARNList(): Promise<void> {
     await this.page.getByRole('progressbar', { name: 'Loading...' }).waitFor({
       state: 'detached',
@@ -524,8 +638,8 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await this.vpcFilterInput().waitFor({ state: 'visible', timeout: 50000 });
     await this.vpcFilterInput().clear();
     await this.vpcFilterInput().fill(vpcName);
-    await this.page.locator('text=' + vpcName).scrollIntoViewIfNeeded();
-    await this.page.locator('text=' + vpcName).click();
+    await this.page.locator(`text=${  vpcName}`).scrollIntoViewIfNeeded();
+    await this.page.locator(`text=${  vpcName}`).click();
   }
 
   machinePoolVpcRegionPrompt(region: string): Locator {
@@ -890,7 +1004,7 @@ export class CreateRosaWizardPage extends BaseWizardPage {
   }
 
   async removeMachinePool(index: number): Promise<void> {
-    let mpIndex = index - 1;
+    const mpIndex = index - 1;
     await this.page.getByTestId(`remove-machine-pool-${mpIndex}`).click();
   }
 
