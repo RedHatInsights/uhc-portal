@@ -18,7 +18,7 @@ import { getProductFilterOptions } from '../../../../../common/subscriptionTypes
 function ClusterListFilterChipGroup({ archive }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const includeRovs = useFeatureGate(ROVS_REGISTRATION);
+  const isRovsRegistrationEnabled = useFeatureGate(ROVS_REGISTRATION);
 
   const view = archive ? ARCHIVED_CLUSTERS_VIEW : CLUSTERS_VIEW;
 
@@ -46,7 +46,7 @@ function ClusterListFilterChipGroup({ archive }) {
     {
       key: 'plan_id',
       label: 'Cluster type',
-      options: getProductFilterOptions(includeRovs),
+      options: getProductFilterOptions(isRovsRegistrationEnabled),
     },
   ];
 
@@ -63,7 +63,6 @@ function ClusterListFilterChipGroup({ archive }) {
               return (
                 <LabelGroup key={`chipgroup-${group.key}`} categoryName={group.label}>
                   {currentFilter.map((key) => {
-                    // Skip keys that may no longer in filter options (safeguard).
                     const option = group.options.find((opt) => opt.key === key);
                     if (!option) {
                       return null;

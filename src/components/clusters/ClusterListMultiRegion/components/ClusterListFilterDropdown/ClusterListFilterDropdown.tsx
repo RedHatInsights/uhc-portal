@@ -30,7 +30,7 @@ const ClusterListFilterDropdown = (props: {
 }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const includeRovs = useFeatureGate(ROVS_REGISTRATION);
+  const isRovsRegistrationEnabled = useFeatureGate(ROVS_REGISTRATION);
 
   const { currentFilters, setFilter, isDisabled } = props;
 
@@ -38,7 +38,7 @@ const ClusterListFilterDropdown = (props: {
     {
       key: 'plan_id',
       label: 'Cluster type',
-      options: getProductFilterOptions(includeRovs),
+      options: getProductFilterOptions(isRovsRegistrationEnabled),
     },
   ];
 
