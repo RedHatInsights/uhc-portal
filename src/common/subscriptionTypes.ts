@@ -93,6 +93,7 @@ const rovsFilterOption = {
   plansToQuery: [ROVS],
 };
 
+/** Returns products allowed in cluster list queries; includes ROVS when gated on. */
 const getAllowedProducts = (includeRovs = false): string[] =>
   includeRovs ? [...allowedProducts, ROVS] : allowedProducts;
 
@@ -140,6 +141,7 @@ const productFilterOptions = [
   { key: ClusterAuthorizationRequestProductId.RHOIC, label: 'RHOIC', plansToQuery: ['RHOIC'] },
 ];
 
+/** Returns cluster-type filter options; includes ROVS when gated on. */
 const getProductFilterOptions = (includeRovs = false) =>
   includeRovs ? [...productFilterOptions, rovsFilterOption] : productFilterOptions;
 
