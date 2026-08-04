@@ -17,15 +17,15 @@ import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useLocation, useParams } from 'react-router-dom';
 
-import { getAddHostsTabState } from '@openshift-assisted/ui-lib/ocm';
 import { PageSection, Spinner, TabContent, Tooltip } from '@patternfly/react-core';
+import { useModule } from '@scalprum/react-core';
 
 import { Navigate, useClusterListPath, useNavigate } from '~/common/routing';
 import { knownProducts, normalizedProducts } from '~/common/subscriptionTypes';
 import AIHostsClusterDetailTab from '~/components/AIComponents/AIHostsClusterDetailTab';
 import { AppPage } from '~/components/App/AppPage';
 import { modalActions } from '~/components/common/Modal/ModalActions';
-import DrawerPanel from '~/components/overview/components/common/DrawerPanel';
+import { useChromeDrawerPanel } from '~/hooks/useChromeDrawerPanel';
 import {
   refetchAccessProtection,
   useFetchAccessProtection,
@@ -33,6 +33,7 @@ import {
 import { refetchAccessRequest } from '~/queries/ClusterDetailsQueries/AccessRequestTab/useFetchAccessRequest';
 import { useFetchPendingAccessRequests } from '~/queries/ClusterDetailsQueries/AccessRequestTab/useFetchPendingAccessRequests';
 import { useAddNotificationContact } from '~/queries/ClusterDetailsQueries/ClusterSupportTab/useAddNotificationContact';
+import { invalidateLogForwarder } from '~/queries/ClusterDetailsQueries/invalidateLogForwarder';
 import {
   invalidateClusterDetailsQueries,
   useFetchClusterDetails,
@@ -249,22 +250,16 @@ const ClusterDetails = (props) => {
     }
   };
 
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
-  const [drawerInfo, setDrawerInfo] = React.useState();
   const [selectedCardTitle, setSelectedCardTitle] = React.useState('');
 
+  const { open, close } = useChromeDrawerPanel({
+    module: './DrawerPanel',
+    onClose: () => setSelectedCardTitle(''),
+  });
+
   const openDrawer = (title, content) => {
-    setDrawerInfo({ title, content });
-    setIsDrawerOpen(true);
-
     setSelectedCardTitle(title);
-  };
-
-  const closeDrawer = () => {
-    setDrawerInfo(undefined);
-    setIsDrawerOpen(false);
-
-    setSelectedCardTitle('');
+    open({ title, content });
   };
 
   /**
@@ -307,6 +302,7 @@ const ClusterDetails = (props) => {
 
       dispatch(getOnDemandMetrics(subscriptionID));
     }
+    invalidateLogForwarder(clusterID, cluster?.subscription?.rh_region_id);
     setRefreshEvent({ type: clicked || eventTypes.AUTO });
   };
 
@@ -372,6 +368,13 @@ const ClusterDetails = (props) => {
       <Unavailable message="Error retrieving cluster details" response={error} />
       {isPending && <Spinner size="lg" aria-label="Loading..." />}
     </AppPage>
+  );
+
+  const getAddHostsTabState = useModule(
+    'assistedInstallerApp',
+    './getAddHostsTabState',
+    null,
+    'getAddHostsTabState',
   );
 
   // organization.details is required by canCreateGCPNonCCSCluster below
@@ -477,7 +480,7 @@ const ClusterDetails = (props) => {
 
   let addHostsTabState = { showTab: false, isDisabled: false, tabTooltip: '' };
   if (isAssistedInstallCluster(cluster) && !isArchived) {
-    addHostsTabState = getAddHostsTabState(cluster);
+    addHostsTabState = getAddHostsTabState?.(cluster) ?? addHostsTabState;
   }
 
   const findGcpOrgPolicyWarning = (logs) => {
@@ -491,321 +494,317 @@ const ClusterDetails = (props) => {
   };
 
   return (
-    <DrawerPanel
-      title={drawerInfo?.title}
-      content={drawerInfo?.content}
-      isOpen={isDrawerOpen}
-      onClose={closeDrawer}
-    >
-      <AppPage title={PAGE_TITLE}>
-        <ReadOnlyBanner isReadOnly={isReadOnly} />
-        <PageSection hasBodyWrapper={false} id="clusterdetails-content">
-          <ClusterDetailsTop
-            cluster={cluster}
-            isRefetching={isFetching}
-            pending={isClusterDetailsLoading}
-            refreshFunc={refresh}
-            clickRefreshFunc={() => refresh(eventTypes.CLICKED)}
-            clusterIdentityProviders={clusterIdentityProviders}
-            organization={organization}
-            error={isError}
-            errorMessage={error?.errorObj.response.data.reason}
-            canSubscribeOCP={canSubscribeOCP}
-            canTransferClusterOwnership={canTransferClusterOwnership}
-            isAutoClusterTransferOwnershipEnabled={isAutoClusterTransferOwnershipEnabled}
-            canHibernateCluster={canHibernateCluster}
-            autoRefreshEnabled={!anyModalOpen}
-            toggleSubscriptionReleased={toggleSubscriptionReleased}
-            showPreviewLabel={isHypershift}
-            isClusterIdentityProvidersLoading={isClusterIdentityProvidersLoading}
-            clusterIdentityProvidersError={clusterIdentityProvidersError}
-            gcpOrgPolicyWarning={gcpOrgPolicyWarning}
-            regionalInstance={regionalInstance}
-            openDrawer={openDrawer}
-            closeDrawer={closeDrawer}
-            selectedCardTitle={selectedCardTitle}
-          >
-            <TabsRow
-              tabsInfo={{
-                [ClusterTabsId.OVERVIEW]: { ref: overviewTabRef, hasIssues: false },
-                [ClusterTabsId.MONITORING]: {
-                  ref: monitoringTabRef,
-                  show: displayMonitoringTab,
-                  hasIssues: cluster.state !== clusterStates.installing && hasIssues,
-                },
-                [ClusterTabsId.ACCESS_CONTROL]: {
-                  ref: accessControlTabRef,
-                  show: displayAccessControlTab,
-                },
-                [ClusterTabsId.ADD_ONS]: { ref: addOnsTabRef, show: displayAddOnsTab },
-                [ClusterTabsId.CLUSTER_HISTORY]: {
-                  ref: clusterHistoryTabRef,
-                  show: displayClusterLogs,
-                },
-                [ClusterTabsId.NETWORKING]: {
-                  ref: networkingTabRef,
-                  show: displayNetworkingTab,
-                },
-                [ClusterTabsId.MACHINE_POOLS]: {
-                  ref: machinePoolsTabRef,
-                  show: canViewMachinePoolTab(cluster),
-                },
-                [ClusterTabsId.SUPPORT]: {
-                  ref: supportTabRef,
-                  show: displaySupportTab,
-                },
-                [ClusterTabsId.UPDATE_SETTINGS]: {
-                  ref: upgradeSettingsTabRef,
-                  show: displayUpgradeSettingsTab,
-                },
-                [ClusterTabsId.ADD_ASSISTED_HOSTS]: {
-                  ref: addAssistedTabRef,
-                  show: addHostsTabState.showTab,
-                  isDisabled: addHostsTabState.isDisabled,
-                  tooltip: addHostsTabState.tabTooltip,
-                },
-                [ClusterTabsId.ACCESS_REQUEST]: {
-                  ref: accessRequestsTabRef,
-                  show: accessRequestsTabVisible,
-                  tooltip: (
-                    <Tooltip
-                      content={
-                        pendingAccessRequests?.total > 0
-                          ? `${pendingAccessRequests.total} pending request${pendingAccessRequests.total > 1 ? 's' : ''}`
-                          : 'No pending requests'
-                      }
-                    />
-                  ),
-                  hasIssues: pendingAccessRequests?.total > 0,
-                  numberOfIssues: pendingAccessRequests?.total,
-                  isLoading: pendingAccessRequests?.pending,
-                },
+    <AppPage title={PAGE_TITLE}>
+      <ReadOnlyBanner isReadOnly={isReadOnly} />
+      <PageSection hasBodyWrapper={false} id="clusterdetails-content">
+        <ClusterDetailsTop
+          cluster={cluster}
+          isRefetching={isFetching}
+          pending={isClusterDetailsLoading}
+          refreshFunc={refresh}
+          clickRefreshFunc={() => refresh(eventTypes.CLICKED)}
+          clusterIdentityProviders={clusterIdentityProviders}
+          organization={organization}
+          error={isError}
+          errorMessage={error?.errorObj.response.data.reason}
+          canSubscribeOCP={canSubscribeOCP}
+          canTransferClusterOwnership={canTransferClusterOwnership}
+          isAutoClusterTransferOwnershipEnabled={isAutoClusterTransferOwnershipEnabled}
+          canHibernateCluster={canHibernateCluster}
+          autoRefreshEnabled={!anyModalOpen}
+          toggleSubscriptionReleased={toggleSubscriptionReleased}
+          showPreviewLabel={isHypershift}
+          isClusterIdentityProvidersLoading={isClusterIdentityProvidersLoading}
+          clusterIdentityProvidersError={clusterIdentityProvidersError}
+          gcpOrgPolicyWarning={gcpOrgPolicyWarning}
+          regionalInstance={regionalInstance}
+          openDrawer={openDrawer}
+          closeDrawer={close}
+          selectedCardTitle={selectedCardTitle}
+        >
+          <TabsRow
+            tabsInfo={{
+              [ClusterTabsId.OVERVIEW]: { ref: overviewTabRef, hasIssues: false },
+              [ClusterTabsId.MONITORING]: {
+                ref: monitoringTabRef,
+                show: displayMonitoringTab,
+                hasIssues: cluster.state !== clusterStates.installing && hasIssues,
+              },
+              [ClusterTabsId.ACCESS_CONTROL]: {
+                ref: accessControlTabRef,
+                show: displayAccessControlTab,
+              },
+              [ClusterTabsId.ADD_ONS]: { ref: addOnsTabRef, show: displayAddOnsTab },
+              [ClusterTabsId.CLUSTER_HISTORY]: {
+                ref: clusterHistoryTabRef,
+                show: displayClusterLogs,
+              },
+              [ClusterTabsId.NETWORKING]: {
+                ref: networkingTabRef,
+                show: displayNetworkingTab,
+              },
+              [ClusterTabsId.MACHINE_POOLS]: {
+                ref: machinePoolsTabRef,
+                show: canViewMachinePoolTab(cluster),
+              },
+              [ClusterTabsId.SUPPORT]: {
+                ref: supportTabRef,
+                show: displaySupportTab,
+              },
+              [ClusterTabsId.UPDATE_SETTINGS]: {
+                ref: upgradeSettingsTabRef,
+                show: displayUpgradeSettingsTab,
+              },
+              [ClusterTabsId.ADD_ASSISTED_HOSTS]: {
+                ref: addAssistedTabRef,
+                show: addHostsTabState.showTab,
+                isDisabled: addHostsTabState.isDisabled,
+                tooltip: addHostsTabState.tabTooltip ? (
+                  <Tooltip content={addHostsTabState.tabTooltip} />
+                ) : undefined,
+              },
+              [ClusterTabsId.ACCESS_REQUEST]: {
+                ref: accessRequestsTabRef,
+                show: accessRequestsTabVisible,
+                tooltip: (
+                  <Tooltip
+                    content={
+                      pendingAccessRequests?.total > 0
+                        ? `${pendingAccessRequests.total} pending request${pendingAccessRequests.total > 1 ? 's' : ''}`
+                        : 'No pending requests'
+                    }
+                  />
+                ),
+                hasIssues: pendingAccessRequests?.total > 0,
+                numberOfIssues: pendingAccessRequests?.total,
+                isLoading: pendingAccessRequests?.pending,
+              },
+            }}
+            initTabOpen={initTabOpen}
+            onTabSelected={onTabSelected}
+          />
+        </ClusterDetailsTop>
+        <TabContent
+          eventKey={ClusterTabsId.OVERVIEW}
+          id="overviewTabContent"
+          ref={overviewTabRef}
+          aria-label="Overview"
+          ouiaId="overviewTabContent"
+        >
+          <ErrorBoundary>
+            <Overview
+              cluster={cluster}
+              region={cluster.subscription.rh_region_id}
+              clusterDetailsLoading={isClusterDetailsLoading}
+              clusterDetailsFetching={isFetching}
+              subscription={cluster.subscription}
+              cloudProviders={cloudProviders}
+              refresh={refresh}
+              insightsData={insightsData[cluster.external_id]}
+              userAccess={userAccess}
+              canSubscribeOCP={canSubscribeOCP}
+              isSubscriptionSettingsRequestPending={isSubscriptionSettingsRequestPending}
+              displayUpgradeSettingsTab={displayUpgradeSettingsTab}
+              wifConfigData={{
+                displayName: wifConfigData?.display_name,
+                isLoading: isWifLoading,
+                isSuccess: isWifSuccess,
               }}
-              initTabOpen={initTabOpen}
-              onTabSelected={onTabSelected}
             />
-          </ClusterDetailsTop>
-          <TabContent
-            eventKey={ClusterTabsId.OVERVIEW}
-            id="overviewTabContent"
-            ref={overviewTabRef}
-            aria-label="Overview"
-            ouiaId="overviewTabContent"
-          >
-            <ErrorBoundary>
-              <Overview
-                cluster={cluster}
-                region={cluster.subscription.rh_region_id}
-                clusterDetailsLoading={isClusterDetailsLoading}
-                clusterDetailsFetching={isFetching}
-                subscription={cluster.subscription}
-                cloudProviders={cloudProviders}
-                refresh={refresh}
-                insightsData={insightsData[cluster.external_id]}
-                userAccess={userAccess}
-                canSubscribeOCP={canSubscribeOCP}
-                isSubscriptionSettingsRequestPending={isSubscriptionSettingsRequestPending}
-                wifConfigData={{
-                  displayName: wifConfigData?.display_name,
-                  isLoading: isWifLoading,
-                  isSuccess: isWifSuccess,
-                }}
-              />
-            </ErrorBoundary>
-          </TabContent>
+          </ErrorBoundary>
+        </TabContent>
 
-          {displayMonitoringTab && (
-            <TabContent
-              eventKey={ClusterTabsId.MONITORING}
-              id="monitoringTabContent"
-              ref={monitoringTabRef}
-              aria-label="Monitoring"
-              hidden
-            >
-              <ErrorBoundary>
-                <Monitoring cluster={cluster} />
-              </ErrorBoundary>
-            </TabContent>
-          )}
-          {displayAccessControlTab && (
-            <TabContent
-              eventKey={ClusterTabsId.ACCESS_CONTROL}
-              id="accessControlTabContent"
-              ref={accessControlTabRef}
-              aria-label="Access Control"
-              hidden
-            >
-              <ErrorBoundary>
-                <AccessControl
-                  cluster={cluster}
-                  refreshEvent={refreshEvent}
-                  region={cluster.subscription.rh_region_id}
-                  isAutoClusterTransferOwnershipEnabled={isAutoClusterTransferOwnershipEnabled}
-                  isROSA={isROSA}
-                />
-              </ErrorBoundary>
-            </TabContent>
-          )}
-          {isManaged && (
-            <TabContent
-              eventKey={ClusterTabsId.ADD_ONS}
-              id="addOnsTabContent"
-              ref={addOnsTabRef}
-              aria-label="Add-ons"
-              hidden
-            >
-              <ErrorBoundary>
-                <AddOns
-                  clusterID={cluster.id}
-                  isHypershift={isHypershift}
-                  region={cluster.subscription.rh_region_id}
-                  cluster={cluster}
-                />
-              </ErrorBoundary>
-            </TabContent>
-          )}
-          {displayClusterLogs && (
-            <TabContent
-              eventKey={ClusterTabsId.CLUSTER_HISTORY}
-              id="clusterHistoryTabContent"
-              ref={clusterHistoryTabRef}
-              aria-label="Cluster history"
-              hidden
-            >
-              <ErrorBoundary>
-                <ClusterLogs
-                  externalClusterID={cluster.external_id}
-                  clusterID={cluster.id}
-                  region={cluster.subscription?.rh_region_id}
-                  createdAt={cluster.creation_timestamp}
-                  refreshEvent={{
-                    type: refreshEvent.type,
-                    reset: () => setRefreshEvent({ type: eventTypes.NONE }),
-                  }}
-                  isVisible={selectedTab === ClusterTabsId.CLUSTER_HISTORY}
-                  findGcpOrgPolicyWarning={
-                    cloudProvider === 'gcp' ? findGcpOrgPolicyWarning : undefined
-                  }
-                />
-              </ErrorBoundary>
-            </TabContent>
-          )}
-          {displayNetworkingTab && (
-            <TabContent
-              eventKey={ClusterTabsId.NETWORKING}
-              id="networkingTabContent"
-              ref={networkingTabRef}
-              aria-label="Networking"
-              hidden
-            >
-              <ErrorBoundary>
-                <Networking
-                  clusterID={cluster.id}
-                  refreshCluster={refresh}
-                  cluster={cluster}
-                  isManaged={cluster.managed}
-                  region={cluster.subscription.rh_region_id}
-                />
-              </ErrorBoundary>
-            </TabContent>
-          )}
-          {canViewMachinePoolTab(cluster) && (
-            <TabContent
-              eventKey={ClusterTabsId.MACHINE_POOLS}
-              id="machinePoolsContent"
-              ref={machinePoolsTabRef}
-              aria-label="Machine pools"
-              hidden
-            >
-              <ErrorBoundary>
-                <MachinePools cluster={cluster} />
-              </ErrorBoundary>
-            </TabContent>
-          )}
+        {displayMonitoringTab && (
           <TabContent
-            eventKey={ClusterTabsId.SUPPORT}
-            id="supportTabContent"
-            ref={supportTabRef}
-            aria-label="Support"
+            eventKey={ClusterTabsId.MONITORING}
+            id="monitoringTabContent"
+            ref={monitoringTabRef}
+            aria-label="Monitoring"
             hidden
           >
             <ErrorBoundary>
-              {cluster ? (
-                <Support
-                  isDisabled={isArchived}
-                  cluster={cluster}
-                  addNotificationStatus={addNotificationStatus}
-                  isAddNotificationContactSuccess={isAddNotificationContactSuccess}
-                  isAddNotificationContactPending={isAddNotificationContactPending}
-                />
-              ) : null}
+              <Monitoring cluster={cluster} />
             </ErrorBoundary>
           </TabContent>
-          {displayUpgradeSettingsTab && (
-            <TabContent
-              eventKey={ClusterTabsId.UPDATE_SETTINGS}
-              id="upgradeSettingsContent"
-              ref={upgradeSettingsTabRef}
-              aria-label="Upgrade settings"
-              hidden
-            >
-              <ErrorBoundary>
-                <UpgradeSettingsTab cluster={cluster} />
-              </ErrorBoundary>
-            </TabContent>
-          )}
-          {/* If the tab is shown and disabled, it will have a tooltip and no content */}
-          {addHostsTabState.showTab && !addHostsTabState.isDisabled && (
-            <TabContent
-              eventKey={ClusterTabsId.ADD_ASSISTED_HOSTS}
-              id="addHostsContent"
-              ref={addAssistedTabRef}
-              aria-label="Add Hosts"
-              hidden
-            >
-              <ErrorBoundary>
-                <AIHostsClusterDetailTab
-                  cluster={cluster}
-                  isVisible={selectedTab === ClusterTabsId.ADD_ASSISTED_HOSTS}
-                />
-              </ErrorBoundary>
-            </TabContent>
-          )}
-          {accessRequestsTabVisible ? (
-            <TabContent
-              eventKey={ClusterTabsId.ACCESS_REQUEST}
-              id="accessRequestsContent"
-              ref={accessRequestsTabRef}
-              aria-label="Access Requests"
-              hidden
-            >
-              <ErrorBoundary>
-                <AccessRequest subscriptionId={subscriptionID} showClusterName={false} />
-              </ErrorBoundary>
-            </TabContent>
-          ) : null}
+        )}
+        {displayAccessControlTab && (
+          <TabContent
+            eventKey={ClusterTabsId.ACCESS_CONTROL}
+            id="accessControlTabContent"
+            ref={accessControlTabRef}
+            aria-label="Access Control"
+            hidden
+          >
+            <ErrorBoundary>
+              <AccessControl
+                cluster={cluster}
+                refreshEvent={refreshEvent}
+                region={cluster.subscription.rh_region_id}
+                isAutoClusterTransferOwnershipEnabled={isAutoClusterTransferOwnershipEnabled}
+                isROSA={isROSA}
+              />
+            </ErrorBoundary>
+          </TabContent>
+        )}
+        {isManaged && (
+          <TabContent
+            eventKey={ClusterTabsId.ADD_ONS}
+            id="addOnsTabContent"
+            ref={addOnsTabRef}
+            aria-label="Add-ons"
+            hidden
+          >
+            <ErrorBoundary>
+              <AddOns
+                clusterID={cluster.id}
+                isHypershift={isHypershift}
+                region={cluster.subscription.rh_region_id}
+                cluster={cluster}
+              />
+            </ErrorBoundary>
+          </TabContent>
+        )}
+        {displayClusterLogs && (
+          <TabContent
+            eventKey={ClusterTabsId.CLUSTER_HISTORY}
+            id="clusterHistoryTabContent"
+            ref={clusterHistoryTabRef}
+            aria-label="Cluster history"
+            hidden
+          >
+            <ErrorBoundary>
+              <ClusterLogs
+                externalClusterID={cluster.external_id}
+                clusterID={cluster.id}
+                region={cluster.subscription?.rh_region_id}
+                createdAt={cluster.creation_timestamp}
+                refreshEvent={{
+                  type: refreshEvent.type,
+                  reset: () => setRefreshEvent({ type: eventTypes.NONE }),
+                }}
+                isVisible={selectedTab === ClusterTabsId.CLUSTER_HISTORY}
+                findGcpOrgPolicyWarning={
+                  cloudProvider === 'gcp' ? findGcpOrgPolicyWarning : undefined
+                }
+              />
+            </ErrorBoundary>
+          </TabContent>
+        )}
+        {displayNetworkingTab && (
+          <TabContent
+            eventKey={ClusterTabsId.NETWORKING}
+            id="networkingTabContent"
+            ref={networkingTabRef}
+            aria-label="Networking"
+            hidden
+          >
+            <ErrorBoundary>
+              <Networking
+                clusterID={cluster.id}
+                refreshCluster={refresh}
+                cluster={cluster}
+                isManaged={cluster.managed}
+                region={cluster.subscription.rh_region_id}
+              />
+            </ErrorBoundary>
+          </TabContent>
+        )}
+        {canViewMachinePoolTab(cluster) && (
+          <TabContent
+            eventKey={ClusterTabsId.MACHINE_POOLS}
+            id="machinePoolsContent"
+            ref={machinePoolsTabRef}
+            aria-label="Machine pools"
+            hidden
+          >
+            <ErrorBoundary>
+              <MachinePools cluster={cluster} />
+            </ErrorBoundary>
+          </TabContent>
+        )}
+        <TabContent
+          eventKey={ClusterTabsId.SUPPORT}
+          id="supportTabContent"
+          ref={supportTabRef}
+          aria-label="Support"
+          hidden
+        >
+          <ErrorBoundary>
+            {cluster ? (
+              <Support
+                isDisabled={isArchived}
+                cluster={cluster}
+                addNotificationStatus={addNotificationStatus}
+                isAddNotificationContactSuccess={isAddNotificationContactSuccess}
+                isAddNotificationContactPending={isAddNotificationContactPending}
+              />
+            ) : null}
+          </ErrorBoundary>
+        </TabContent>
+        {displayUpgradeSettingsTab && (
+          <TabContent
+            eventKey={ClusterTabsId.UPDATE_SETTINGS}
+            id="upgradeSettingsContent"
+            ref={upgradeSettingsTabRef}
+            aria-label="Upgrade settings"
+            hidden
+          >
+            <ErrorBoundary>
+              <UpgradeSettingsTab cluster={cluster} />
+            </ErrorBoundary>
+          </TabContent>
+        )}
+        {/* If the tab is shown and disabled, it will have a tooltip and no content */}
+        {addHostsTabState.showTab && !addHostsTabState.isDisabled && (
+          <TabContent
+            eventKey={ClusterTabsId.ADD_ASSISTED_HOSTS}
+            id="addHostsContent"
+            ref={addAssistedTabRef}
+            aria-label="Add Hosts"
+            hidden
+          >
+            <ErrorBoundary>
+              <AIHostsClusterDetailTab
+                cluster={cluster}
+                isVisible={selectedTab === ClusterTabsId.ADD_ASSISTED_HOSTS}
+              />
+            </ErrorBoundary>
+          </TabContent>
+        )}
+        {accessRequestsTabVisible ? (
+          <TabContent
+            eventKey={ClusterTabsId.ACCESS_REQUEST}
+            id="accessRequestsContent"
+            ref={accessRequestsTabRef}
+            aria-label="Access Requests"
+            hidden
+          >
+            <ErrorBoundary>
+              <AccessRequest subscriptionId={subscriptionID} showClusterName={false} />
+            </ErrorBoundary>
+          </TabContent>
+        ) : null}
 
-          <CommonClusterModals
-            onClose={onDialogClose}
-            onClusterDeleted={() => {
-              invalidateClusterDetailsQueries();
-              navigate(clusterListPath);
-            }}
+        <CommonClusterModals
+          onClose={onDialogClose}
+          onClusterDeleted={() => {
+            invalidateClusterDetailsQueries();
+            navigate(clusterListPath);
+          }}
+        />
+        <DeleteIDPDialog refreshParent={refreshIDP} />
+        {cluster ? (
+          <AddNotificationContactDialog
+            cluster={cluster}
+            addNotificationMutation={addNotificationMutation}
+            isAddNotificationContactSuccess={isAddNotificationContactSuccess}
+            isAddNotificationContactPending={isAddNotificationContactPending}
+            addNotificationContactError={addNotificationContactError}
           />
-          <DeleteIDPDialog refreshParent={refreshIDP} />
-          {cluster ? (
-            <AddNotificationContactDialog
-              cluster={cluster}
-              addNotificationMutation={addNotificationMutation}
-              isAddNotificationContactSuccess={isAddNotificationContactSuccess}
-              isAddNotificationContactPending={isAddNotificationContactPending}
-              addNotificationContactError={addNotificationContactError}
-            />
-          ) : null}
-          <CancelUpgradeModal isHypershift={isHypershift} />
-        </PageSection>
-      </AppPage>
-    </DrawerPanel>
+        ) : null}
+        <CancelUpgradeModal isHypershift={isHypershift} />
+      </PageSection>
+    </AppPage>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 
 import docLinks from '~/common/docLinks.mjs';
 
@@ -13,11 +13,6 @@ import { ServiceMeshDrawerPanelBody } from './DrawerPanelContents/ServiceMesh/Dr
 import PRODUCT_CARD_LOGOS from './ProductCardLogos';
 
 import './DrawerPanelContent.scss';
-
-type DrawerPanelContentNode = {
-  head?: ReactNode;
-  body: ReactNode;
-};
 
 const DRAWER_PANEL_CONTENT = {
   gitops: {
@@ -65,4 +60,4 @@ const DRAWER_PANEL_CONTENT = {
   },
 };
 
-export { DRAWER_PANEL_CONTENT, DrawerPanelContentNode };
+export { DRAWER_PANEL_CONTENT };

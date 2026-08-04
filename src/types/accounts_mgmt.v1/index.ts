@@ -14466,6 +14466,7 @@ export enum ClusterAuthorizationRequestProduct_id {
   ARO = 'ARO',
   RHOIC = 'RHOIC',
   OCP_AssistedInstall = 'OCP-AssistedInstall',
+  ROVS = 'ROVS',
 }
 export enum ClusterTransferStatus {
   Pending = 'Pending',

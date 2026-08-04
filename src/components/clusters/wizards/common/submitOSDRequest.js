@@ -12,6 +12,9 @@ import { parseFormExcludeNamespaceSelectorsToApi } from '~/components/clusters/w
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ApplicationIngressType } from '~/components/clusters/wizards/osd/Networking/constants';
+import { FieldId as RosaFieldId } from '~/components/clusters/wizards/rosa/constants';
+import { getRosaLogForwardersForClusterRequest } from '~/components/clusters/wizards/rosa/LogForwarding/buildClusterLogForwarders';
+import { getLogForwardingTreeForClusterRequest } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingTreeFromQueryClient';
 import config from '~/config';
 import { regionalizedClusterId } from '~/queries/helpers';
 import { createCluster } from '~/redux/actions/clustersActions';
@@ -25,7 +28,11 @@ import {
 } from './constants';
 import * as submitRequestHelpers from './submitOSDRequestHelper';
 
-export const createClusterRequest = ({ isWizard = true, cloudProviderID, product }, formData) => {
+export const createClusterRequest = (
+  { isWizard = true, cloudProviderID, product },
+  formData,
+  { logForwardingTree } = {},
+) => {
   const isMultiAz = formData.multi_az === 'true';
   // See submitOSDRequest.test.js for when we get fields vs side params.
   // But to avoid bugs where we ignore user's choices, when both are present, the field should win.
@@ -428,6 +435,27 @@ export const createClusterRequest = ({ isWizard = true, cloudProviderID, product
     };
   }
 
+  const rosaLogForwardingEnabled =
+    formData[RosaFieldId.LogForwardingS3Enabled] ||
+    formData[RosaFieldId.LogForwardingCloudWatchEnabled];
+
+  if (
+    rosaLogForwardingEnabled &&
+    isHypershiftSelected &&
+    actualProduct === 'ROSA' &&
+    actualCloudProviderID === 'aws'
+  ) {
+    const logForwarders = getRosaLogForwardersForClusterRequest(formData, logForwardingTree);
+    if (logForwarders.length > 0) {
+      clusterRequest.control_plane = {
+        ...clusterRequest.control_plane,
+        // OpenAPI types log_forwarders as LogForwarder[], but OCM unmarshals this field as
+        // api.LogForwarderList ({ items: [...] }). A bare array returns CLUSTERS-MGMT-400.
+        log_forwarders: { items: logForwarders },
+      };
+    }
+  }
+
   return clusterRequest;
 };
 
@@ -442,7 +470,13 @@ export const upgradeScheduleRequest = (formData) =>
 const submitOSDRequest = (dispatch, params) => (formData) => {
   const regionalId = regionalizedClusterId(formData);
   const { isWizard, cloudProviderID, product } = params;
-  const clusterRequest = createClusterRequest({ isWizard, cloudProviderID, product }, formData);
+  const logForwardingTree = getLogForwardingTreeForClusterRequest(
+    { isWizard, cloudProviderID, product },
+    formData,
+  );
+  const clusterRequest = createClusterRequest({ isWizard, cloudProviderID, product }, formData, {
+    logForwardingTree,
+  });
   const upgradeSchedule = upgradeScheduleRequest(formData);
   dispatch(createCluster(clusterRequest, upgradeSchedule, regionalId));
 };

@@ -6,10 +6,10 @@ import { getOCMResourceType, trackEvents } from '~/common/analytics';
 import { HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT } from '~/common/localStorageConstants';
 import ExternalLink from '~/components/common/ExternalLink';
 import useAnalytics from '~/hooks/useAnalytics';
+import { DrawerPanelContentNode } from '~/hooks/useChromeDrawerPanel';
 import { ClusterState } from '~/types/clusters_mgmt.v1/enums';
 
 import { ProductCardNode } from '../../../../../../common/ProductCard/ProductCard';
-import { DrawerPanelContentNode } from '../../../../../../overview/components/common/DrawerPanelContent';
 import { FEATURED_PRODUCTS_CARDS } from '../../../../../../overview/components/FeaturedProductsCards/FeaturedProductsCards';
 import { RECOMMENDED_OPERATORS_CARDS } from '../../../../../../overview/components/RecommendedOperatorsCards/RecommendedOperatorsCards';
 import clusterStates from '../../../../../common/clusterStates';
@@ -22,7 +22,7 @@ const OPERATORS_CARDS: ProductCardNode[] = [
 ];
 
 type RecommendedOperatorsAlertProps = {
-  openLearnMore: (title: string, content?: DrawerPanelContentNode) => void;
+  openLearnMore: (title: string, content: DrawerPanelContentNode) => void;
   selectedCardTitle?: string;
   clusterState: clusterStates;
   closeDrawer: () => void;

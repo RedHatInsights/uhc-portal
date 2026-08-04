@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 
 import {
-  Icon,
   Menu,
   MenuContainer,
   MenuContent,
@@ -94,11 +93,7 @@ const ClusterListFilterDropdown = (props: {
   const toggle = (
     <MenuToggle
       ref={toggleRef}
-      icon={
-        <Icon>
-          <FilterIcon />
-        </Icon>
-      }
+      icon={<FilterIcon />}
       onClick={() => setIsOpen(!isOpen)}
       isExpanded={isOpen}
       isDisabled={isDisabled}

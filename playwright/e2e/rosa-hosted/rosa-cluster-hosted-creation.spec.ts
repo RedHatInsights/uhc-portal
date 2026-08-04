@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
 // Import cluster properties JSON
 const clusterProperties = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-creation.spec.json');
@@ -30,8 +31,7 @@ test.describe.serial(
       clusterProperties.MachinePools[0].AvailabilityZones;
 
     test.beforeAll(async ({ navigateTo }) => {
-      // Navigate to create
-      await navigateTo('create');
+      await navigateTo(CREATE_CLUSTER_ROUTE);
     });
     test('Open Rosa cluster wizard', async ({ page, createRosaWizardPage }) => {
       await createRosaWizardPage.waitAndClick(createRosaWizardPage.rosaCreateClusterButton());
@@ -160,6 +160,17 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
+    test('Step - Additional set up - Control plane log forwarding options', async ({
+      createRosaWizardPage,
+    }) => {
+      await createRosaWizardPage.isLogForwardingScreen();
+      await expect(createRosaWizardPage.amazonS3Heading()).toBeVisible();
+      await expect(createRosaWizardPage.cloudWatchHeading()).toBeVisible();
+      await expect(createRosaWizardPage.amazonS3EnableCheckbox()).not.toBeChecked();
+      await expect(createRosaWizardPage.cloudWatchEnableCheckbox()).not.toBeChecked();
+      await createRosaWizardPage.rosaNextButton().click();
+    });
+
     test('Step - Review and create : Accounts and roles definitions', async ({
       createRosaWizardPage,
     }) => {
@@ -279,6 +290,20 @@ test.describe.serial(
       );
     });
 
+    test('Step - Review and create : Control plane log forwarding definitions', async ({
+      createRosaWizardPage,
+    }) => {
+      await expect(createRosaWizardPage.logForwardingReviewSection()).toBeVisible();
+      await expect(createRosaWizardPage.logForwardingReviewS3Heading()).toBeVisible();
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'configuration'),
+      ).toHaveText('Disabled');
+      await expect(createRosaWizardPage.logForwardingReviewCloudWatchHeading()).toBeVisible();
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'configuration'),
+      ).toHaveText('Disabled');
+    });
+
     test('Create cluster and check the installation progress', async ({
       page,
       createRosaWizardPage,
@@ -333,9 +358,13 @@ test.describe.serial(
       await expect(clusterDetailsPage.clusterHostPrefixLabelValue()).toContainText(
         clusterProperties.HostPrefix.replace('/', ''),
       );
+
+      await expect(clusterDetailsPage.controlPlaneLogForwardingDescription()).toContainText(
+        'Disabled',
+      );
     });
 
-    test('Delete the cluster', async ({ page, clusterDetailsPage }) => {
+    test('Delete the cluster', async ({clusterDetailsPage }) => {
       await clusterDetailsPage.actionsDropdownToggle().click();
       await clusterDetailsPage.deleteClusterDropdownItem().click();
       await clusterDetailsPage.deleteClusterNameInput().clear();

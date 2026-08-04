@@ -35,6 +35,7 @@ import CreateOSDWizardIntro from '~/styles/images/CreateOSDWizard-intro.png';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { useGetBillingQuotas } from './useGetBillingQuotas';
+import { getDefaultByoc } from './utils';
 
 import './BillingModel.scss';
 
@@ -147,25 +148,13 @@ export const BillingModel = () => {
       }
     }
 
-    // Select marketplace billing if user only has marketplace quota
-    // Also, if the selected default billing model is disabled
-    // Default to marketplace
-    if (
-      (!showOsdTrial || billingModel === SubscriptionCommonFieldsClusterBillingModel.standard) &&
-      quotas.marketplace &&
-      !quotas.standardOsd &&
-      !billingModel.startsWith(SubscriptionCommonFieldsClusterBillingModel.marketplace)
-    ) {
-      setFieldValue(FieldId.BillingModel, SubscriptionCommonFieldsClusterBillingModel.marketplace);
-    }
-
     clearPreviousVersionsReponse();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     product,
     billingModel,
     showOsdTrial,
-    quotas.marketplace,
+    quotas.gcpResources,
     quotas.standardOsd,
     selectedMarketplace,
   ]);
@@ -209,10 +198,6 @@ export const BillingModel = () => {
   const onBillingModelChange = (_event: React.FormEvent<HTMLDivElement>, value: string) => {
     let selectedProduct = normalizedProducts.OSD;
 
-    if (value !== SubscriptionCommonFieldsClusterBillingModel.standard) {
-      setFieldValue(FieldId.Byoc, 'true');
-    }
-
     if (value === STANDARD_TRIAL_BILLING_MODEL_TYPE) {
       selectedProduct = normalizedProducts.OSDTrial;
     }
@@ -222,6 +207,7 @@ export const BillingModel = () => {
       setFieldValue(FieldId.CloudProvider, CloudProviderType.Gcp, false);
     }
 
+    setFieldValue(FieldId.Byoc, getDefaultByoc(quotas, value));
     setFieldValue(FieldId.Product, selectedProduct);
   };
 

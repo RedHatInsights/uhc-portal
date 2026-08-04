@@ -1,0 +1,11 @@
+{
+  "NotificationContact": {
+    "ValidUsername": "ocmui-orgadmin",
+    "ExpectedFirstName": "ocmui",
+    "ExpectedLastName": "admin",
+    "InvalidUsernameWithSymbols": "admin$test",
+    "InvalidUsernameSymbolsError": "Username includes illegal symbols",
+    "ValidUsernameNotFound": "admintest",
+    "UsernameNotFoundError": "Could not find any account identified by admintest"
+  }
+}

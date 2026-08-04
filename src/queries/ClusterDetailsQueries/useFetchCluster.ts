@@ -18,7 +18,7 @@ export const useFetchCluster = (
   mainQueryKey: string,
 ) => {
   const { isLoading, data, isError, error, isFetching } = useQuery({
-    queryKey: [mainQueryKey, 'clusterService', clusterID, subscription],
+    queryKey: [mainQueryKey, 'clusterService', clusterID, subscription?.rh_region_id],
     queryFn: async () => {
       if (subscription?.rh_region_id) {
         const clusterService = getClusterServiceForRegion(subscription?.rh_region_id);

@@ -108,29 +108,5 @@ describe('<ExpirationAlert />', () => {
         });
       });
     });
-
-    describe('OSDRHMExpiration true', () => {
-      it('properly renders the button', () => {
-        // Arrange
-        const expirationTimestamp = dayjs
-          .utc()
-          .add(12, 'hour')
-          .local()
-          .format('YYYY-MM-DDTHH:mm:ss.SSSZ');
-        const timeDifference = dayjs.utc().to(dayjs.utc(expirationTimestamp));
-        const expirationTimeString = dayjs
-          .utc(expirationTimestamp)
-          .local()
-          .format('dddd, MMMM D, YYYY [at] h:mm A');
-
-        // Act
-        render(<ExpirationAlert expirationTimestamp={expirationTimestamp} OSDRHMExpiration />);
-
-        // Assert
-        expect(screen.getByTestId('expiration-alert-will-delete')).toHaveTextContent(
-          `This cluster will be deleted ${timeDifference}.Your cluster subscription was purchased from Red Hat Marketplace and will expire on ${expirationTimeString}`,
-        );
-      });
-    });
   });
 });

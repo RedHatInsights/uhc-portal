@@ -31,6 +31,8 @@ import useAnalytics from '~/hooks/useAnalytics';
 import { usePreviousProps } from '~/hooks/usePreviousProps';
 import { HCP_USE_UNMANAGED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { refetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 
 import { FieldId } from '../../constants';
 import { RosaCliCommand } from '../constants/cliCommands';
@@ -104,6 +106,7 @@ function AccountRolesARNsSection({
   clearGetAWSAccountRolesARNsResponse,
   isHypershiftSelected,
   onAccountChanged,
+  onOCMRoleRefresh,
 }) {
   const { setFieldValue, getFieldProps, getFieldMeta, setFieldTouched, validateForm } =
     useFormState();
@@ -116,6 +119,11 @@ function AccountRolesARNsSection({
   const [hasFinishedLoadingRoles, setHasFinishedLoadingRoles] = useState(false);
   const [hasManagedPolicies, setHasManagedPolicies] = useState(false);
   const useHCPManagedAndUnmanaged = useFeatureGate(HCP_USE_UNMANAGED);
+  const {
+    isNoConsoleRole,
+    isError: isOCMRoleError,
+    isPending: isOCMRolePending,
+  } = useIsNoConsoleRole(selectedAWSAccountID);
   const isMissingOCMRole = hasNoTrustedRelationshipOnClusterRoleError(
     getAWSAccountRolesARNsResponse,
   );
@@ -345,11 +353,13 @@ function AccountRolesARNsSection({
   }, [hasStandaloneManagedRole, isHypershiftSelected, rosaMaxOSVersion]);
 
   const showAccountRolesError =
-    getAWSAccountRolesARNsResponse.error || (showMissingArnsError && hasFinishedLoadingRoles);
+    isNoConsoleRole ||
+    isOCMRoleError ||
+    getAWSAccountRolesARNsResponse.error ||
+    (showMissingArnsError && hasFinishedLoadingRoles);
 
   return (
     <>
-      <GridItem />
       <GridItem>
         <Title headingLevel="h3">Account roles</Title>
       </GridItem>
@@ -359,6 +369,13 @@ function AccountRolesARNsSection({
             getAWSAccountRolesARNsResponse={getAWSAccountRolesARNsResponse}
             isHypershiftSelected={isHypershiftSelected}
             isMissingOCMRole={isMissingOCMRole}
+            isNoConsoleRole={isNoConsoleRole}
+            isOCMRoleError={isOCMRoleError}
+            onRefreshOCMRole={() => {
+              refetchGetOCMRole(selectedAWSAccountID);
+              onOCMRoleRefresh?.();
+            }}
+            isOCMRolePending={isOCMRolePending}
           />
         </GridItem>
       ) : null}
@@ -575,6 +592,7 @@ AccountRolesARNsSection.propTypes = {
   clearGetAWSAccountRolesARNsResponse: PropTypes.func.isRequired,
   isHypershiftSelected: PropTypes.bool,
   onAccountChanged: PropTypes.func.isRequired,
+  onOCMRoleRefresh: PropTypes.func,
 };
 
 export default AccountRolesARNsSection;

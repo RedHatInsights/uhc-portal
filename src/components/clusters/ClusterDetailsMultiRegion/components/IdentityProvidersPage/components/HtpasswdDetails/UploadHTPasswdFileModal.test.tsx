@@ -121,7 +121,7 @@ describe('<UploadHTPasswdFileModal />', () => {
     await uploadFile(':$2y$05$hash1');
 
     await waitFor(() => {
-      expect(screen.getByText('Line 1: Username cannot be empty.')).toBeInTheDocument();
+      expect(screen.getByText('Line 1: Username is required.')).toBeInTheDocument();
     });
 
     expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled();
@@ -149,7 +149,7 @@ describe('<UploadHTPasswdFileModal />', () => {
     await uploadFile(':');
 
     await waitFor(() => {
-      expect(screen.getByText('Line 1: Username cannot be empty.')).toBeInTheDocument();
+      expect(screen.getByText('Line 1: Username is required.')).toBeInTheDocument();
     });
 
     expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled();

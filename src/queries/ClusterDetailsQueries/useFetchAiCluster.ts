@@ -4,7 +4,10 @@ import * as Sentry from '@sentry/browser';
 import { useQuery } from '@tanstack/react-query';
 
 import isAssistedInstallSubscription from '~/common/isAssistedInstallerCluster';
-import { fakeClusterFromAISubscription, fakeClusterFromSubscription } from '~/common/normalize';
+import {
+  fakeClusterFromAISubscriptionWithHostsMetrics,
+  fakeClusterFromSubscription,
+} from '~/common/normalize';
 import { assistedService } from '~/services';
 import { Subscription } from '~/types/accounts_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
@@ -20,17 +23,15 @@ const getAIClusterDetails = async (clusterID: string, subscription: Subscription
   if (isAssistedInstallSubscription(subscription) && clusterID) {
     try {
       const aiCluster = await assistedService.getAICluster(clusterID);
-      cluster = fakeClusterFromAISubscription(subscription, aiCluster?.data || null);
+      cluster = await fakeClusterFromAISubscriptionWithHostsMetrics(
+        subscription,
+        aiCluster?.data || null,
+      );
       cluster.aiCluster = aiCluster.data;
     } catch (e) {
-      if (axios.isAxiosError(e) && e.response?.status === 404) {
-        // The cluster is garbage collected or the user does not have privileges
-        // eslint-disable-next-line no-console
-        console.info('Failed to query assisted-installer cluster id: ', clusterID);
-        cluster = fakeClusterFromSubscription(subscription);
-      } else {
-        throw e;
-      }
+      // eslint-disable-next-line no-console
+      console.info('Failed to query assisted-installer cluster id: ', clusterID);
+      cluster = fakeClusterFromSubscription(subscription);
     }
     try {
       const featureSupportLevels = await assistedService.getAIFeatureSupportLevels(
@@ -54,11 +55,11 @@ const getAIClusterDetails = async (clusterID: string, subscription: Subscription
 };
 
 /**
- * Query responsible for fetching actions and permissions
- * @param subscriptionID subscription ID to pass into api call
+ * Query responsible for fetching AI cluster details
+ * @param clusterID cluster ID to pass into api call
  * @param mainQueryKey used for invalidation of the query (refetch)
- * @param subscriptionStatus status of the subscription for query enablement
- * @returns cloud providers array
+ * @param subscription subscription object used for query enablement and building fake cluster
+ * @returns AI cluster details or fake cluster assembled from subscription
  */
 export const useFetchAiCluster = (
   clusterID: string,

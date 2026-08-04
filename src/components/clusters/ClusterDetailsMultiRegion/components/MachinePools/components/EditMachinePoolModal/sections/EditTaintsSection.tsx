@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FieldArray, useField } from 'formik';
+import { FieldArray, useField, useFormikContext } from 'formik';
 
 import {
   Button,
@@ -39,6 +39,7 @@ const EditTaintsSection = ({
   machineTypes,
 }: EditTaintsSectionProps) => {
   const [input] = useField<EditMachinePoolValues['taints']>('taints');
+  const { setFieldTouched } = useFormikContext();
   const isDefaultMP =
     !!machinePoolId &&
     isEnforcedDefaultMachinePool(machinePoolId, machinePools, machineTypes, cluster);
@@ -91,11 +92,14 @@ const EditTaintsSection = ({
                           <TextField fieldId={keyField} isDisabled={!!taintsDisabledReason} />
                         </GridItem>
                         <GridItem span={4}>
-                          <TextField fieldId={valueField} isDisabled={!!taintsDisabledReason} />
+                          <div onBlur={() => setFieldTouched(keyField, true, true)}>
+                            <TextField fieldId={valueField} isDisabled={!!taintsDisabledReason} />
+                          </div>
                         </GridItem>
                         <GridItem span={3}>
                           <TaintEffectField
                             fieldId={effectField}
+                            keyFieldId={keyField}
                             isDisabled={!!taintsDisabledReason}
                           />
                         </GridItem>

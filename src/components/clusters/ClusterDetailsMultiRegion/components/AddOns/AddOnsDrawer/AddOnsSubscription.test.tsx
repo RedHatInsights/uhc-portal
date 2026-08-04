@@ -35,7 +35,6 @@ describe('AddOnsSubscription', () => {
         allowed: 100,
         cloudAccounts: {
           aws: [],
-          rhm: [],
           azure: [],
         },
       },
@@ -90,7 +89,6 @@ describe('AddOnsSubscription', () => {
           allowed: 100,
           cloudAccounts: {
             aws: [],
-            rhm: [],
             azure: [],
           },
         },
@@ -126,7 +124,6 @@ describe('AddOnsSubscription', () => {
           cost: 0,
           cloudAccounts: {
             aws: [],
-            rhm: [],
             azure: [],
           },
         },

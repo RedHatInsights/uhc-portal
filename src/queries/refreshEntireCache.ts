@@ -1,5 +1,6 @@
 import { queryClient } from '~/components/App/queryClient';
 
+import { invalidateAllLogForwarderQueries } from './ClusterDetailsQueries/invalidateLogForwarder';
 import { queryConstants } from './queriesConstants';
 
 export const refreshQueries = () => {
@@ -10,4 +11,5 @@ export const refreshClusterDetails = () => {
   queryClient.invalidateQueries({
     predicate: (query) => query.queryKey[0] === queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
   });
+  invalidateAllLogForwarderQueries();
 };

@@ -26,12 +26,24 @@ const FIELD_NAME = 'groupsApplicationsSelection';
 type StoryArgs = GroupsApplicationsSelectorProps & {
   /** Seed value for the Formik field (leaf ids). */
   initialSelectedIds: string[];
+  /** When true, shows the chosen-panel validation error (simulates failed Next on log forwarding step). */
+  showValidationError?: boolean;
+  validationErrorMessage?: string;
 };
 
-function StoryFormikShell({ initialSelectedIds, ...selectorProps }: StoryArgs) {
+function StoryFormikShell({
+  initialSelectedIds,
+  showValidationError = false,
+  validationErrorMessage = 'Select at least one group or application.',
+  ...selectorProps
+}: StoryArgs) {
+  const fieldName = selectorProps.name;
+
   return (
     <Formik<Record<string, string[]>>
-      initialValues={{ [selectorProps.name]: initialSelectedIds }}
+      initialValues={{ [fieldName]: initialSelectedIds }}
+      initialTouched={showValidationError ? { [fieldName]: true } : undefined}
+      initialErrors={showValidationError ? { [fieldName]: validationErrorMessage } : undefined}
       enableReinitialize
       onSubmit={() => undefined}
     >
@@ -57,6 +69,15 @@ const meta = {
     initialSelectedIds: {
       control: 'object',
       description: 'Initial selected leaf ids (story-only; resets when changed in Controls)',
+    },
+    showValidationError: {
+      control: 'boolean',
+      description:
+        'Simulates a failed wizard Next: field is touched with an empty selection error on the chosen panel.',
+    },
+    validationErrorMessage: {
+      control: 'text',
+      description: 'Error message shown when showValidationError is true.',
     },
     treeData: {
       control: 'object',
@@ -110,6 +131,20 @@ export const PartialSelection: Story = {
   args: {
     treeData: MOCK_TREE_DATA,
     initialSelectedIds: ['auth-konnectivity-agent', 'api-audit', 'controller-manager'],
+  },
+};
+
+/** Empty required field after validation — same message as the ROSA log forwarding step. */
+export const ValidationError: Story = {
+  name: 'Validation error',
+  args: {
+    treeData: MOCK_TREE_DATA,
+    initialSelectedIds: [],
+    isRequired: true,
+    showValidationError: true,
+    validationErrorMessage: 'Select at least one group or application.',
+    availableTooltip: 'Choose which control plane log sources to forward.',
+    chosenTooltip: 'Remove individual apps or an entire group with the row action.',
   },
 };
 

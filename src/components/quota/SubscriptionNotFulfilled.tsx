@@ -11,8 +11,8 @@ import {
 
 import { Link } from '~/common/routing';
 
+import docLinks from '../../common/docLinks.mjs';
 import { BANNED_USER_CODE, overrideErrorMessage } from '../../common/errors';
-import supportLinks from '../../common/supportLinks.mjs';
 import ExternalLink from '../common/ExternalLink';
 
 type Props = {
@@ -125,7 +125,7 @@ const SubscriptionNotFulfilled = ({ data, refresh, marketplace }: Props) => {
             </Button>
           </p>
           <br />
-          <ExternalLink href={supportLinks.OCM_DOCS_SUBSCRIPTIONS}>Learn more</ExternalLink>
+          <ExternalLink href={docLinks.OCM_DOCS_SUBSCRIPTIONS}>Learn more</ExternalLink>
         </div>
       ),
       emptyButton: undefined,

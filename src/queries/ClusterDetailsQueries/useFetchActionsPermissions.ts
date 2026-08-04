@@ -214,6 +214,9 @@ export const useFetchActionsPermissions = (
           !!subscriptionID && subscriptionStatus !== SubscriptionCommonFieldsStatus.Deprovisioned,
       },
     ],
+    // IMPORTANT: the destructuring order here must match the order of the queries
+    // array above. Adding, removing, or reordering a query without updating this destructuring will
+    // silently assign the wrong permission to the wrong variable.
     combine: useCallback((results: UseQueryResult[]) => {
       const [
         canEdit,
@@ -350,6 +353,40 @@ export const useCanCreateManagedCluster = () => {
   return {
     isLoading,
     canCreateManagedCluster,
+    isError,
+    error,
+  };
+};
+
+export const useCanUpdateDeleteProtection = (clusterID: string | undefined) => {
+  const {
+    isLoading,
+    data: canUpdateDeleteProtection,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: [
+      'authorizationService',
+      'selfAccessReview',
+      SelfAccessReviewAction.update,
+      SelfAccessReviewResourceType.DeleteProtection,
+      clusterID,
+    ],
+    queryFn: async () => {
+      const response = fetchPermissions({
+        action: SelfAccessReviewAction.update,
+        resource_type: SelfAccessReviewResourceType.DeleteProtection,
+        cluster_id: clusterID,
+      });
+
+      return response;
+    },
+    enabled: !!clusterID,
+    staleTime: queryConstants.STALE_TIME_60_SEC,
+  });
+  return {
+    isLoading,
+    canUpdateDeleteProtection,
     isError,
     error,
   };

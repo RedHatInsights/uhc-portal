@@ -1,5 +1,11 @@
 import { Page, Locator, expect } from '@playwright/test';
+
+import {
+  clearQuotaCostMock as clearQuotaCostRouteMock,
+  mockQuotaCostWithBillingContract as mockQuotaCostRouteWithBillingContract,
+} from '../support/quota-mock-helper';
 import { BasePage } from './base-page';
+import type { ClusterListPage } from './cluster-list-page';
 
 /**
  * Cluster Details page object for Playwright tests
@@ -219,16 +225,55 @@ export class ClusterDetailsPage extends BasePage {
       .first();
   }
 
+  deleteClusterDialog(): Locator {
+    return this.page.getByTestId('delete-cluster-dialog');
+  }
+
+  async openDeleteClusterDialog(clusterName: string): Promise<void> {
+    if (await this.deleteClusterDialog().isVisible()) {
+      return;
+    }
+
+    await this.actionsDropdownToggle().click();
+    await this.deleteClusterDropdownItem().click();
+    await this.deleteClusterNameInput().fill(clusterName);
+  }
+
   async waitForInstallerScreenToLoad(): Promise<void> {
     await expect(this.clusterNameTitle()).toBeVisible({ timeout: 100000 });
     await expect(this.clusterInstallationHeader()).toBeVisible({ timeout: 30000 });
   }
 
   async waitForDeleteClusterActionComplete(): Promise<void> {
-    await this.page.waitForSelector('[data-testid="delete-cluster-dialog"]', {
-      state: 'detached',
-      timeout: 100000,
-    });
+    await this.deleteClusterDialog().waitFor({ state: 'detached', timeout: 100000 });
+  }
+
+  /**
+   * Deletes the cluster via Actions → Delete cluster.
+   * Retries automatically on transient failures (e.g. 429 rate limiting)
+   * using Playwright's toPass() with escalating intervals.
+   */
+  async deleteClusterByName(clusterName: string): Promise<void> {
+    await this.openDeleteClusterDialog(clusterName);
+
+    await expect(async () => {
+      const responsePromise = this.page.waitForResponse(
+        (response) =>
+          response.request().method() === 'DELETE' &&
+          /\/api\/clusters_mgmt\/v1\/clusters\/[^/?#]+/.test(response.url()),
+      );
+      await this.deleteClusterConfirm().click();
+
+      const response = await responsePromise;
+      if (!response.ok()) {
+        const body = await response.text().catch(() => '');
+        throw new Error(
+          `Delete cluster failed: ${response.status()} ${response.statusText()} (${response.url()})${body ? ` — ${body}` : ''}`,
+        );
+      }
+    }).toPass({ timeout: 30_000, intervals: [5_000, 10_000, 15_000] });
+
+    await this.waitForDeleteClusterActionComplete();
   }
 
   async checkInstallationStepStatus(step: string, status: string = ''): Promise<void> {
@@ -275,8 +320,17 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('infrastructureAWSAccount');
   }
 
+  /** Pencil/edit control that opens the billing account modal. */
   clusterBillingMarketplaceAccountLabelValue(): Locator {
     return this.page.getByTestId('billingMarketplaceAccountLink');
+  }
+
+  /** Visible AWS billing account ID on Overview (inside the description list value). */
+  billingMarketplaceAccountIdText(): Locator {
+    return this.page
+      .getByRole('definition')
+      .filter({ has: this.page.getByTestId('billingMarketplaceAccountLink') })
+      .getByText(/\d{12}/);
   }
 
   clusterMachineCIDRLabelValue(): Locator {
@@ -312,6 +366,14 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('etcEncryptionStatus');
   }
 
+  controlPlaneLogForwardingDescription(): Locator {
+    return this.page.getByTestId('controlPlaneLogForwardingDescription');
+  }
+
+  controlPlaneLogForwardingViewDetailsLink(): Locator {
+    return this.page.getByRole('link', { name: 'View details' });
+  }
+
   // Installation screen elements
   clusterInstallationHeader(): Locator {
     return this.page.locator('h2, h3').filter({ hasText: 'Installing cluster' });
@@ -319,6 +381,18 @@ export class ClusterDetailsPage extends BasePage {
 
   clusterInstallationExpectedText(): Locator {
     return this.page.getByText('Cluster creation usually takes 30 to 60 minutes to complete');
+  }
+
+  clusterInstallationExpectedTextRosaHcp(): Locator {
+    return this.page.getByText('Cluster creation usually takes 10 minutes to complete');
+  }
+
+  async expectRosaHcpClusterInstallationInProgress(clusterName: string): Promise<void> {
+    await this.waitForInstallerScreenToLoad();
+    await expect(this.clusterNameTitle()).toContainText(clusterName);
+    await expect(this.clusterInstallationHeader()).toBeVisible();
+    await expect(this.downloadOcCliLink()).toBeVisible();
+    await expect(this.clusterInstallationExpectedTextRosaHcp()).toBeVisible();
   }
 
   downloadOcCliLink(): Locator {
@@ -346,9 +420,21 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('wifConfiguration');
   }
 
-  // Settings tab functionality
+  // Tab navigation
+  overviewTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Overview' });
+  }
+
+  accessControlTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Access control' });
+  }
+
   settingsTab(): Locator {
     return this.page.getByRole('tab', { name: 'Settings' });
+  }
+
+  clusterOwnerLink(): Locator {
+    return this.page.getByTestId('ownerTranswerOverviewLink');
   }
 
   enableUserWorkloadMonitoringCheckbox(): Locator {
@@ -401,11 +487,9 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   editAutoNodeModal(): Locator {
-    return this.page
-      .getByRole('dialog')
-      .filter({
-        has: this.page.getByRole('heading', { name: 'Edit Autonode settings', level: 1 }),
-      });
+    return this.page.getByRole('dialog').filter({
+      has: this.page.getByRole('heading', { name: 'Edit Autonode settings', level: 1 }),
+    });
   }
 
   editAutoNodeModalHeading(): Locator {
@@ -455,5 +539,857 @@ export class ClusterDetailsPage extends BasePage {
     await this.autoNodeIamRoleArnInput().fill(iamRoleArn);
     await this.saveAutoNodeButton().click();
     await expect(this.editAutoNodeModalHeading()).toBeHidden({ timeout: 30000 });
+  }
+
+  // Delete protection – Overview tab
+  deleteProtectionTerm(): Locator {
+    return this.page.getByRole('term').filter({ hasText: 'Delete Protection' });
+  }
+
+  deleteProtectionEnableButton(): Locator {
+    return this.page.getByRole('button', { name: 'Enable delete protection' });
+  }
+
+  deleteProtectionDisableButton(): Locator {
+    return this.page.getByRole('button', { name: 'Disable delete protection' });
+  }
+
+  deleteProtectionModalDialog(): Locator {
+    return this.page.getByTestId('delete-protection-dialog');
+  }
+
+  deleteProtectionModalHeading(action: 'Enable' | 'Disable'): Locator {
+    return this.page.getByRole('heading', {
+      name: `${action} deletion protection`,
+    });
+  }
+
+  deleteProtectionModalPrimaryButton(): Locator {
+    return this.deleteProtectionModalDialog().getByTestId('btn-primary');
+  }
+
+  deleteProtectionModalCancelButton(): Locator {
+    return this.deleteProtectionModalDialog().getByRole('button', { name: 'Cancel' });
+  }
+
+  async openEnableDeleteProtectionModal(): Promise<void> {
+    await this.deleteProtectionEnableButton().click();
+    await expect(this.deleteProtectionModalHeading('Enable')).toBeVisible({ timeout: 10000 });
+  }
+
+  async openDisableDeleteProtectionModal(): Promise<void> {
+    await this.deleteProtectionDisableButton().click();
+    await expect(this.deleteProtectionModalHeading('Disable')).toBeVisible({ timeout: 10000 });
+  }
+
+  async cancelDeleteProtectionModal(): Promise<void> {
+    await this.deleteProtectionModalCancelButton().click();
+    await expect(this.deleteProtectionModalDialog()).toBeHidden({ timeout: 10000 });
+  }
+
+  async enableDeleteProtection(): Promise<void> {
+    await this.deleteProtectionEnableButton().click();
+    await expect(this.deleteProtectionModalHeading('Enable')).toBeVisible({ timeout: 10000 });
+    await this.deleteProtectionModalPrimaryButton().click();
+    await expect(this.deleteProtectionModalDialog()).toBeHidden({ timeout: 30000 });
+  }
+
+  async disableDeleteProtection(): Promise<void> {
+    await this.deleteProtectionDisableButton().click();
+    await expect(this.deleteProtectionModalHeading('Disable')).toBeVisible({ timeout: 10000 });
+    await this.deleteProtectionModalPrimaryButton().click();
+    await expect(this.deleteProtectionModalDialog()).toBeHidden({ timeout: 30000 });
+  }
+
+  deleteProtectionDropdownTooltip(): Locator {
+    return this.page.getByTestId('delete-protection-tooltip');
+  }
+
+  async openActionsDropdown(): Promise<void> {
+    await this.actionsDropdownToggle().click();
+    await expect(this.deleteClusterDropdownItem()).toBeVisible({ timeout: 5000 });
+  }
+
+  async closeActionsDropdown(): Promise<void> {
+    await this.page.keyboard.press('Escape');
+    await expect(this.deleteClusterDropdownItem()).toBeHidden({ timeout: 5000 });
+  }
+
+  // ── Billing Account management (Overview tab) ───────────────────────────
+
+  editBillingAccountModal(): Locator {
+    return this.page.getByRole('dialog', { name: 'Edit AWS billing' });
+  }
+
+  billingAccountDropdownToggle(): Locator {
+    return this.editBillingAccountModal().getByRole('button', { name: 'Options menu' });
+  }
+
+  billingAccountFilterInput(): Locator {
+    return this.page.getByPlaceholder('Filter by account ID');
+  }
+
+  billingAccountDocLink(text: string): Locator {
+    return this.page.getByRole('link', { name: text });
+  }
+
+  refreshAWSAccountsButton(): Locator {
+    return this.page.getByTestId('refresh-aws-accounts');
+  }
+
+  updateBillingAccountButton(): Locator {
+    return this.page.getByTestId('Update');
+  }
+
+  billingAccountOption(accountId: string): Locator {
+    // FuzzySelect splits matched IDs across nested spans, so accessible name matching is
+    // unreliable — use role + text filter (same pattern as other selects in this POM).
+    return this.page.getByRole('listbox').getByRole('option').filter({ hasText: accountId });
+  }
+
+  async openEditBillingAccountModal(): Promise<void> {
+    await this.clusterBillingMarketplaceAccountLabelValue().click({ force: true });
+    await expect(this.editBillingAccountModal()).toBeVisible({ timeout: 30000 });
+    await expect(this.billingAccountDropdownToggle()).toBeEnabled({ timeout: 60000 });
+  }
+
+  async openBillingAccountDropdown(): Promise<void> {
+    await this.billingAccountDropdownToggle().click();
+    await expect(this.billingAccountFilterInput()).toBeVisible({ timeout: 50000 });
+  }
+
+  async closeBillingAccountDropdown(): Promise<void> {
+    await this.editBillingAccountModal().click();
+  }
+
+  async filterBillingAccount(accountId: string): Promise<void> {
+    await this.billingAccountFilterInput().clear();
+    await this.billingAccountFilterInput().fill(accountId);
+  }
+
+  async selectBillingAccount(accountId: string): Promise<void> {
+    const option = this.billingAccountOption(accountId);
+    await expect(option).toBeVisible({ timeout: 30000 });
+    await option.click();
+  }
+
+  /** Opens the dropdown, filters, and selects the given billing account. */
+  async chooseBillingAccount(accountId: string): Promise<void> {
+    await this.openBillingAccountDropdown();
+    await this.filterBillingAccount(accountId);
+    await this.selectBillingAccount(accountId);
+  }
+
+  contractEnabledForBillingAccountButton(): Locator {
+    return this.editBillingAccountModal().getByRole('button', {
+      name: 'Contract enabled for this billing account',
+    });
+  }
+
+  billingContractWarningTitle(): Locator {
+    return this.editBillingAccountModal().getByText('No contract on selected billing account');
+  }
+
+  async mockQuotaCostWithBillingContract(
+    contractedAccountId: string,
+    billingAccountIds: string[] = [],
+  ): Promise<void> {
+    await mockQuotaCostRouteWithBillingContract(
+      this.page,
+      contractedAccountId,
+      billingAccountIds,
+    );
+  }
+
+  async clearQuotaCostMock(): Promise<void> {
+    await clearQuotaCostRouteMock(this.page);
+  }
+
+  async refreshAWSBillingAccounts(): Promise<void> {
+    const quotaCostResponse = this.page.waitForResponse(
+      (response) => response.url().includes('quota_cost') && response.ok(),
+    );
+    await this.refreshAWSAccountsButton().click();
+    await quotaCostResponse;
+    await expect(this.refreshAWSAccountsButton()).toBeEnabled({ timeout: 60000 });
+  }
+
+  async expectContractEnabledForBillingAccount(visible = true): Promise<void> {
+    if (visible) {
+      await expect(this.contractEnabledForBillingAccountButton()).toBeVisible({ timeout: 15000 });
+    } else {
+      await expect(this.contractEnabledForBillingAccountButton()).toBeHidden({ timeout: 15000 });
+    }
+  }
+
+  /**
+   * Inline warning shown when the selected billing account has no contract while
+   * another linked account does. Day 2 has no confirmation dialog.
+   */
+  async expectBillingContractWarning(visible = true, accountId?: string): Promise<void> {
+    if (visible) {
+      await expect(this.billingContractWarningTitle()).toBeVisible({ timeout: 15000 });
+      if (accountId) {
+        await expect(
+          this.editBillingAccountModal().getByText(
+            `The selected account ${accountId} does not have any`,
+          ),
+        ).toBeVisible();
+      }
+    } else {
+      await expect(this.billingContractWarningTitle()).toBeHidden({ timeout: 15000 });
+    }
+  }
+
+  async updateBillingAccount(): Promise<void> {
+    await expect(this.updateBillingAccountButton()).toBeEnabled({ timeout: 15000 });
+    await this.updateBillingAccountButton().click();
+    await expect(this.editBillingAccountModal()).toBeHidden({ timeout: 30000 });
+  }
+
+  async cancelEditBillingAccountModal(): Promise<void> {
+    await this.editBillingAccountModal().getByRole('button', { name: 'Cancel' }).click();
+    await expect(this.editBillingAccountModal()).toBeHidden({ timeout: 30000 });
+  }
+
+  /** Updates the cluster billing account when the overview value differs from accountId. */
+  async ensureBillingAccount(accountId: string): Promise<void> {
+    await expect(this.billingMarketplaceAccountIdText()).toBeVisible({ timeout: 30000 });
+    const currentBillingAccount = await this.billingMarketplaceAccountIdText().innerText();
+    if (currentBillingAccount.includes(accountId)) {
+      return;
+    }
+
+    await this.openEditBillingAccountModal();
+    const selectedInModal = await this.billingAccountDropdownToggle().innerText();
+    if (selectedInModal.includes(accountId)) {
+      // Overview can lag behind the modal/cluster value after a prior update.
+      await this.cancelEditBillingAccountModal();
+      return;
+    }
+
+    await this.openBillingAccountDropdown();
+    await this.filterBillingAccount(accountId);
+    await this.selectBillingAccount(accountId);
+    await this.updateBillingAccount();
+    await expect(async () => {
+      await this.clusterDetailsPageRefresh();
+      await expect(this.billingMarketplaceAccountIdText()).toContainText(accountId);
+    }).toPass({ timeout: 120_000, intervals: [10_000, 20_000, 30_000] });
+  }
+
+  // ── Cluster History tab ────────────────────────────────────────────────
+
+  clusterHistoryTab(): Locator {
+    return this.page.getByRole('tab', { name: 'Cluster history' });
+  }
+
+  historyRefreshButton(): Locator {
+    return this.page.getByRole('button', { name: 'Refresh' });
+  }
+
+  async navigateToClusterHistoryTab(): Promise<void> {
+    await this.clusterHistoryTab().click();
+  }
+
+  async expandHistoryRowEntry(text: string): Promise<void> {
+    const row = this.page.getByRole('row').filter({ hasText: text }).first();
+    const detailsButton = row.getByRole('button', { name: 'Details' });
+    await expect(async () => {
+      if ((await detailsButton.getAttribute('aria-expanded')) !== 'true') {
+        await detailsButton.click();
+      }
+      await expect(detailsButton).toHaveAttribute('aria-expanded', 'true');
+    }).toPass({ timeout: 15000 });
+  }
+
+  async verifyHistoryRowContainsText(text: string): Promise<void> {
+    const historyPanel = this.page.getByRole('tabpanel', { name: 'Cluster history' });
+    await expect(historyPanel).toContainText(text, { timeout: 30000 });
+  }
+
+  // ── Day 2 Log Forwarding (Settings tab) ──────────────────────────────────
+
+  logForwardingSectionHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'Control plane log forwarding', level: 2 });
+  }
+
+  logForwardingEmptyState(): Locator {
+    return this.page.getByText('No log forwarding configured.');
+  }
+
+  addConfigurationButton(): Locator {
+    return this.page.getByRole('button', { name: 'Add configuration' });
+  }
+
+  async hoverAddConfigurationButton(): Promise<Locator> {
+    await this.addConfigurationButton().hover({ force: true });
+    return this.page.getByRole('tooltip');
+  }
+
+  addConfigurationMenuItem(destination: 'Amazon S3' | 'CloudWatch'): Locator {
+    return this.page.getByRole('menuitem', { name: destination });
+  }
+
+  logForwardingCardTitle(title: 'Amazon S3' | 'CloudWatch'): Locator {
+    return this.page.getByRole('heading', { name: title, level: 3 });
+  }
+
+  logForwardingCardKebab(title: 'Amazon S3' | 'CloudWatch'): Locator {
+    return this.page.getByRole('button', { name: `${title} configuration actions` });
+  }
+
+  editConfigurationMenuItem(): Locator {
+    return this.page.getByRole('menuitem', { name: 'Edit configuration' });
+  }
+
+  deleteConfigurationMenuItem(): Locator {
+    return this.page.getByRole('menuitem', { name: 'Delete configuration' });
+  }
+
+  logForwardingModalHeading(action: 'Add' | 'Edit' | 'Delete', destination: string): Locator {
+    return this.page.getByText(`${action} ${destination} configuration`);
+  }
+
+  logForwardingBucketNameInput(): Locator {
+    return this.page.getByRole('textbox', { name: /Bucket name/i });
+  }
+
+  logForwardingBucketPrefixInput(): Locator {
+    return this.page.getByRole('textbox', { name: /Bucket prefix/i });
+  }
+
+  logForwardingLogGroupNameInput(): Locator {
+    return this.page.getByRole('textbox', { name: /Log group name/i });
+  }
+
+  logForwardingRoleArnInput(): Locator {
+    return this.page.getByRole('textbox', { name: /Role ARN/i });
+  }
+
+  logForwardingPrerequisiteCheckbox(): Locator {
+    return this.page.getByLabel(
+      "I've read and completed all the prerequisites and am ready to continue.",
+    );
+  }
+
+  logForwardingSubmitButton(): Locator {
+    return this.page.getByTestId('log-forwarding-submit-btn');
+  }
+
+  logForwardingModalCancelButton(): Locator {
+    return this.page.getByRole('button', { name: 'Cancel' });
+  }
+
+  deleteLogForwardingConfirmButton(): Locator {
+    return this.page.getByRole('button', { name: 'Delete configuration' });
+  }
+
+  logForwardingDeleteDescription(): Locator {
+    return this.page.getByRole('dialog').getByRole('paragraph');
+  }
+
+  logForwardingSelectedGroupsHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'Selected groups and applications' });
+  }
+
+  logForwardingGroupCategory(category: string): Locator {
+    return this.page.getByRole('list', { name: category });
+  }
+
+  logForwardingGroupLabel(category: string, label: string): Locator {
+    return this.logForwardingGroupCategory(category)
+      .getByRole('listitem')
+      .filter({ hasText: label });
+  }
+
+  logForwardingPropertyValue(cardTitle: string, label: string, value: string): Locator {
+    return this.page
+      .getByRole('group', { name: `${cardTitle} ${label}` })
+      .getByText(value, { exact: true });
+  }
+
+  async isLogForwardingSectionVisible(): Promise<void> {
+    await expect(this.logForwardingSectionHeading()).toBeVisible({ timeout: 30000 });
+  }
+
+  async navigateToOverviewTab(): Promise<void> {
+    await this.overviewTab().click();
+    await expect(this.clusterNameTitle()).toBeVisible({ timeout: 30000 });
+  }
+
+  async navigateToSettingsTab(): Promise<void> {
+    await this.settingsTab().click();
+    await expect(this.page.getByText('Update strategy')).toBeVisible({ timeout: 30000 });
+  }
+
+  async scrollToLogForwardingSection(): Promise<void> {
+    await this.logForwardingSectionHeading().scrollIntoViewIfNeeded();
+    await expect(this.logForwardingSectionHeading()).toBeVisible({ timeout: 30000 });
+  }
+
+  async openAddConfigurationMenu(destination: 'Amazon S3' | 'CloudWatch'): Promise<void> {
+    await this.addConfigurationButton().click();
+    await this.addConfigurationMenuItem(destination).click();
+  }
+
+  async fillS3Configuration(bucketName: string, bucketPrefix: string): Promise<void> {
+    await this.logForwardingBucketNameInput().fill(bucketName);
+    await this.logForwardingBucketPrefixInput().fill(bucketPrefix);
+  }
+
+  async fillCloudWatchConfiguration(logGroupName: string, roleArn: string): Promise<void> {
+    await this.logForwardingLogGroupNameInput().clear();
+    await this.logForwardingLogGroupNameInput().fill(logGroupName);
+    await this.logForwardingRoleArnInput().fill(roleArn);
+  }
+
+  async deleteLogForwardingIfExists(destination: 'Amazon S3' | 'CloudWatch'): Promise<void> {
+    const card = this.logForwardingCardTitle(destination);
+    try {
+      await card.waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      return;
+    }
+    await this.openCardKebabAction(destination, 'Delete configuration');
+    await this.confirmDeleteLogForwarding();
+    await expect(card).toBeHidden({ timeout: 30000 });
+  }
+
+  async selectLogForwardingGroup(groupName: string): Promise<void> {
+    const tree = this.page.getByRole('tree', { name: 'Select groups and applications' });
+    await tree.waitFor({ state: 'visible', timeout: 30000 });
+    const item = tree.getByRole('treeitem', { name: groupName });
+    const checkbox = item.getByRole('checkbox');
+    if (!(await checkbox.isChecked())) {
+      await checkbox.check();
+    }
+  }
+
+  async selectAllLogForwardingGroups(): Promise<void> {
+    const tree = this.page.getByRole('tree', { name: 'Select groups and applications' });
+    await tree.getByRole('checkbox').first().waitFor({ state: 'visible', timeout: 30000 });
+
+    const checkboxes = tree.getByRole('checkbox');
+    const count = await checkboxes.count();
+    for (let i = 0; i < count; i++) {
+      const cb = checkboxes.nth(i);
+      if (!(await cb.isChecked())) {
+        await cb.check();
+      }
+    }
+  }
+
+  async submitLogForwardingModal(): Promise<void> {
+    await this.logForwardingSubmitButton().click();
+    await expect(this.logForwardingSubmitButton()).toBeHidden({ timeout: 30000 });
+  }
+
+  async openCardKebabAction(
+    cardTitle: 'Amazon S3' | 'CloudWatch',
+    action: 'Edit configuration' | 'Delete configuration',
+  ): Promise<void> {
+    await this.logForwardingCardKebab(cardTitle).click();
+    if (action === 'Edit configuration') {
+      await this.editConfigurationMenuItem().click();
+    } else {
+      await this.deleteConfigurationMenuItem().click();
+    }
+  }
+
+  async confirmDeleteLogForwarding(): Promise<void> {
+    await this.deleteLogForwardingConfirmButton().click();
+    await expect(this.deleteLogForwardingConfirmButton()).toBeHidden({ timeout: 30000 });
+  }
+
+  /** Cluster details tab label is "Settings"; panel aria-label is "Upgrade settings". */
+  upgradeSettingsTab(): Locator {
+    return this.settingsTab();
+  }
+
+  upgradeSettingsPanel(): Locator {
+    return this.page.getByRole('tabpanel', { name: 'Upgrade settings' });
+  }
+
+  async openOverviewTab(): Promise<void> {
+    await this.overviewTab().click();
+    await this.waitForClusterDetailsLoad();
+  }
+
+  async openUpgradeSettingsTab(): Promise<void> {
+    await this.settingsTab().click();
+    await this.upgradeSettingsPanel().waitFor({ state: 'visible', timeout: 30000 });
+    await this.waitForClusterDetailsLoad();
+  }
+
+  upgradeSettingsSaveButton(): Locator {
+    return this.upgradeSettingsPanel().getByRole('button', { name: 'Save' });
+  }
+
+  async saveUpgradeSettingsIfNeeded(): Promise<void> {
+    const saveButton = this.upgradeSettingsSaveButton();
+    await saveButton.scrollIntoViewIfNeeded();
+
+    if ((await saveButton.getAttribute('aria-disabled')) === 'true') {
+      return;
+    }
+
+    const isUpgradePolicyMutationResponse = (url: string, method: string): boolean =>
+      /control_plane\/upgrade_policies|upgrade_policies|upgrade.*polic/i.test(url) &&
+      !url.includes('dryRun=true') &&
+      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+
+    const waitForSaveResponse = () =>
+      this.page.waitForResponse(
+        (response) => isUpgradePolicyMutationResponse(response.url(), response.request().method()),
+        { timeout: 120000 },
+      );
+
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const saveResponsePromise = waitForSaveResponse();
+      await saveButton.click();
+
+      const response = await saveResponsePromise;
+      if (response.status() === 429 && attempt < maxAttempts) {
+        await this.page.waitForTimeout(5000 * attempt);
+        continue;
+      }
+
+      if (!response.ok()) {
+        const responseBody = await response.text().catch(() => '');
+        throw new Error(
+          `Upgrade settings save failed: ${response.status()} ${response.statusText()} (${response.url()})${responseBody ? ` — ${responseBody}` : ''}`,
+        );
+      }
+
+      await expect(saveButton).toHaveAttribute('aria-disabled', 'true', { timeout: 120000 });
+      return;
+    }
+  }
+
+  async expectChannelSettingsEditDisabled(): Promise<void> {
+    await expect(this.channelSettingsHeading()).toBeVisible({ timeout: 60000 });
+
+    const editButton = this.channelSettingsEditButton();
+    await editButton.scrollIntoViewIfNeeded();
+    await expect(editButton).toBeVisible();
+    await expect(editButton).toBeDisabled();
+  }
+
+  async ensureUpdateStrategy(updateStrategy: string): Promise<void> {
+    await this.openUpgradeSettingsTab();
+    const panel = this.upgradeSettingsPanel();
+
+    if (updateStrategy === 'Recurring updates') {
+      const recurringRadio = panel.getByTestId('upgrade_policy-automatic');
+      if (!(await recurringRadio.isChecked())) {
+        await recurringRadio.check();
+      }
+      await expect(recurringRadio).toBeChecked();
+      await this.saveUpgradeSettingsIfNeeded();
+      await this.expectChannelSettingsEditDisabled();
+      return;
+    }
+
+    if (updateStrategy === 'Individual updates') {
+      const individualRadio = panel.getByTestId('upgrade_policy-manual');
+      const recurringRadio = panel.getByTestId('upgrade_policy-automatic');
+
+      if (await recurringRadio.isChecked()) {
+        await individualRadio.check();
+        await expect(individualRadio).toBeChecked();
+        await this.saveUpgradeSettingsIfNeeded();
+      } else if (!(await individualRadio.isChecked())) {
+        await individualRadio.check();
+        await this.saveUpgradeSettingsIfNeeded();
+      }
+
+      await expect(this.channelSettingsEditButton()).not.toHaveAttribute('aria-disabled', 'true', {
+        timeout: 120000,
+      });
+    }
+  }
+
+  channelLoadingIndicator(): Locator {
+    return this.page.getByLabel('Loading channel');
+  }
+
+  async waitForOverviewChannelReady(): Promise<void> {
+    await this.openOverviewTab();
+    await this.waitForClusterDetailsLoad();
+    await expect(this.channelLoadingIndicator()).not.toBeVisible({ timeout: 120000 });
+    await expect(this.overviewChannelValue()).toBeVisible({ timeout: 60000 });
+  }
+
+  /** Switches to Individual updates and waits until Overview channel edit is enabled. */
+  async ensureIndividualUpdatesForChannelEdit(): Promise<void> {
+    await this.waitForOverviewChannelReady();
+    const editButton = this.channelEditButton();
+    await editButton.scrollIntoViewIfNeeded();
+
+    if ((await editButton.getAttribute('aria-disabled')) !== 'true') {
+      return;
+    }
+
+    await this.ensureUpdateStrategy('Individual updates');
+    await this.waitForOverviewChannelReady();
+    await expect(editButton).not.toHaveAttribute('aria-disabled', 'true', {
+      timeout: 120000,
+    });
+  }
+
+  /** Details card on the Overview tab (left column). */
+  overviewDetailsCard(): Locator {
+    return this.page.locator('.ocm-c-overview-details__card');
+  }
+
+  overviewChannelTerm(): Locator {
+    return this.overviewDetailsCard()
+      .getByRole('term')
+      .filter({ has: this.page.getByText('Channel', { exact: true }) });
+  }
+
+  /** Channel row in Overview Details (parent of term + definition). */
+  overviewChannelRow(): Locator {
+    return this.overviewChannelTerm().locator('..');
+  }
+
+  overviewChannelValue(): Locator {
+    return this.overviewChannelRow()
+      .getByRole('definition')
+      .filter({ hasText: /stable-|fast-|eus-|candidate-|N\/A/ });
+  }
+
+  channelGroupOverviewLabel(): Locator {
+    return this.overviewDetailsCard().getByText('Channel group', { exact: true });
+  }
+
+  /** Pencil edit control on Overview → Details Channel row. */
+  overviewChannelEditButton(): Locator {
+    return this.overviewChannelRow().getByRole('button', { name: 'Edit channel' });
+  }
+
+  /** "Channel settings" card title in the Settings tab sidebar (Y-stream). */
+  channelSettingsHeading(): Locator {
+    return this.upgradeSettingsPanel().getByText('Channel settings', { exact: true });
+  }
+
+  /**
+   * Pencil in Channel settings sidebar (`data-testid="channelModal"`, `aria-label="Edit channel"`).
+   * Scoped to #upgradeSettingsContent so it does not match Overview Channel edit.
+   * Disabled state is aria-disabled="true" with class pf-m-aria-disabled (not native disabled).
+   */
+  channelSettingsEditButton(): Locator {
+    return this.upgradeSettingsPanel().getByTestId('channelModal');
+  }
+
+  /** Opens Settings and asserts the Channel settings card and edit pencil are visible. */
+  async expectChannelSettingsSectionWithPencil(): Promise<void> {
+    await this.openUpgradeSettingsTab();
+    await expect(this.channelSettingsHeading()).toBeVisible({ timeout: 60000 });
+
+    const editPencil = this.channelSettingsEditButton();
+    await editPencil.scrollIntoViewIfNeeded();
+    await expect(editPencil).toBeVisible();
+  }
+
+  /** Asserts the Channel settings pencil is visible and editable (ready cluster, no scheduled policy). */
+  async expectChannelSettingsEditEditable(): Promise<void> {
+    await expect(this.channelSettingsHeading()).toBeVisible({ timeout: 60000 });
+
+    const editButton = this.channelSettingsEditButton();
+    await editButton.scrollIntoViewIfNeeded();
+    await expect(editButton).toBeVisible();
+    await expect(editButton).toBeEnabled();
+    await expect(this.channelEditScheduledPolicyTooltip()).not.toBeVisible();
+  }
+
+  channelEditButton(): Locator {
+    return this.overviewChannelEditButton();
+  }
+
+  channelOverviewHintButton(): Locator {
+    return this.overviewChannelTerm().getByRole('button', { name: 'More information' });
+  }
+
+  channelOverviewPopover(): Locator {
+    return this.page
+      .getByRole('dialog', { name: 'help' })
+      .filter({ hasText: /Channels provide recommended/i });
+  }
+
+  channelOverviewLearnMoreLink(): Locator {
+    return this.channelOverviewPopover().getByRole('link', { name: 'Learn more' });
+  }
+
+  editChannelModal(): Locator {
+    return this.page.getByRole('dialog', { name: 'Edit channel' });
+  }
+
+  editChannelModalChannelSelect(): Locator {
+    return this.editChannelModal().getByLabel('Channel select input');
+  }
+
+  editChannelModalSaveButton(): Locator {
+    return this.editChannelModal().getByRole('button', { name: 'Save' });
+  }
+
+  editChannelModalCancelButton(): Locator {
+    return this.editChannelModal().getByRole('link', { name: 'Cancel' });
+  }
+
+  editChannelModalCloseButton(): Locator {
+    return this.editChannelModal().getByRole('button', { name: 'Close' });
+  }
+
+  editChannelModalErrorAlert(): Locator {
+    return this.editChannelModal().getByRole('alert');
+  }
+
+  channelEditScheduledPolicyTooltip(): Locator {
+    return this.page.getByText(
+      'Channel editing is not available while an upgrade policy is scheduled.',
+    );
+  }
+
+  async openEditChannelModal(
+    editButton: Locator = this.overviewChannelEditButton(),
+  ): Promise<void> {
+    await editButton.scrollIntoViewIfNeeded();
+    // PatternFly EditButton uses aria-disabled (recurring policy, schedules loading, or cluster not ready).
+    await expect(editButton).not.toHaveAttribute('aria-disabled', 'true', { timeout: 60000 });
+    await editButton.click();
+    await expect(this.editChannelModal()).toBeVisible({ timeout: 30000 });
+  }
+
+  async selectEditChannelModalOption(channel: string): Promise<void> {
+    const select = this.editChannelModalChannelSelect();
+    await this.expectEditChannelModalHasOption(channel);
+    await select.selectOption(channel);
+  }
+
+  async expectEditChannelModalHasOption(channel: string): Promise<void> {
+    await expect(
+      this.editChannelModalChannelSelect().getByRole('option', { name: channel, exact: true }),
+    ).toHaveCount(1);
+  }
+
+  async navigateToClusterByName(
+    clusterListPage: ClusterListPage,
+    clusterName: string,
+  ): Promise<void> {
+    await clusterListPage.isClusterListScreen();
+    await clusterListPage.filterTxtField().fill(clusterName);
+    await clusterListPage.waitForDataReady();
+    await clusterListPage.openClusterDefinition(clusterName);
+    await this.waitForClusterDetailsLoad();
+  }
+
+  // ── Alerts and Recommendations ──────────────────────────────────────────
+
+  alertsAndRecommendationsToggle(): Locator {
+    return this.page.getByRole('button', { name: /Alerts and recommendations/i });
+  }
+
+  async expandAlertsAndRecommendations(): Promise<void> {
+    const toggle = this.alertsAndRecommendationsToggle();
+    const isExpanded = await toggle.getAttribute('aria-expanded');
+    if (isExpanded !== 'true') {
+      await toggle.click();
+    }
+  }
+
+  // ── Identity Provider Hint Alert ────────────────────────────────────────
+
+  idpHintAlert(): Locator {
+    return this.page.getByText('Create an identity provider to access cluster');
+  }
+
+  idpHintDescription(): Locator {
+    return this.page.getByText(
+      'Identity providers determine how you can log into the cluster',
+    );
+  }
+
+  createIdentityProviderButton(): Locator {
+    return this.page.getByRole('button', { name: 'Create identity provider' });
+  }
+
+  // ── Recommended Operators Alert ────────────────────────────────────────
+
+  recommendedOperatorsAlert(): Locator {
+    return this.page.getByText(
+      /Optimize your cluster with operators|Your cluster is being created|Action is required/,
+    );
+  }
+
+  recommendedOperatorsExpandToggle(): Locator {
+    return this.page.getByRole('button', { name: /recommended operators/i });
+  }
+
+  recommendedOperatorsAlertCloseButton(): Locator {
+    return this.page.getByRole('button', {
+      name: /Close Info alert.*(?:Optimize your cluster|Your cluster is being created|Action is required)/i,
+    });
+  }
+
+  productCard(productName: string): Locator {
+    return this.page
+      .getByTestId('product-overview-card')
+      .filter({ hasText: productName });
+  }
+
+  productCardLearnMoreButton(productName: string): Locator {
+    return this.productCard(productName).getByRole('button', { name: 'Learn more' });
+  }
+
+  allProductCards(): Locator {
+    return this.page.getByTestId('product-overview-card');
+  }
+
+  drawerCloseButton(): Locator {
+    return this.page.getByTestId('drawer-close-button');
+  }
+
+  drawerProductHeading(productName: string): Locator {
+    return this.page.getByRole('heading', { name: productName, level: 2 });
+  }
+
+  async expandRecommendedOperators(): Promise<void> {
+    const toggle = this.recommendedOperatorsExpandToggle();
+    const isExpanded = await toggle.getAttribute('aria-expanded');
+    if (isExpanded !== 'true') {
+      await toggle.click();
+    }
+    await expect(this.page.getByTestId('product-overview-card').first()).toBeVisible({
+      timeout: 10000,
+    });
+  }
+
+  async collapseRecommendedOperators(): Promise<void> {
+    const toggle = this.recommendedOperatorsExpandToggle();
+    const isExpanded = await toggle.getAttribute('aria-expanded');
+    if (isExpanded === 'true') {
+      await toggle.click();
+    }
+    await expect(this.page.getByTestId('product-overview-card').first()).toBeHidden({
+      timeout: 10000,
+    });
+  }
+
+  async openProductDrawer(productName: string): Promise<void> {
+    await this.productCardLearnMoreButton(productName).click();
+    await expect(this.drawerCloseButton()).toBeVisible({ timeout: 10000 });
+  }
+
+  async closeDrawer(): Promise<void> {
+    await this.drawerCloseButton().click();
+    await expect(this.drawerCloseButton()).toBeHidden({ timeout: 10000 });
+  }
+
+  async dismissRecommendedOperatorsAlert(): Promise<void> {
+    await this.recommendedOperatorsAlertCloseButton().click();
+    await expect(this.recommendedOperatorsAlert()).toBeHidden({ timeout: 10000 });
   }
 }

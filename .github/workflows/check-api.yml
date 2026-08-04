@@ -29,7 +29,7 @@ jobs:
       - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          app-id: ${{ secrets.CHECK_OPENAPI_APP_ID }}
+          client-id: ${{ secrets.CHECK_OPENAPI_APP_ID }}
           private-key: ${{ secrets.CHECK_OPENAPI_APP_PRIVATE_KEY }}
       - uses: actions/checkout@v6
         with:
@@ -44,7 +44,7 @@ jobs:
         with:
           path: './node_modules'
           key: check_api-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
-          
+
       - name: Install dependencies
         run: npm ci
 
@@ -68,11 +68,11 @@ jobs:
           else
             echo "pr_exists=false" >> "$GITHUB_OUTPUT"
           fi
-          
+
       - name: Generating model based on OpenAPI contracts
         if: steps.check-pr.outputs.pr_exists == 'false'
         run: make openapi
-        
+
       - name: Create Pull Request
         if: steps.check-pr.outputs.pr_exists == 'false'
         uses: peter-evans/create-pull-request@v8
@@ -85,8 +85,11 @@ jobs:
           add-paths: |
             src/types/**
           commit-message: Update API model
-          committer: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
-          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          # Required by the "Required Signed Commits on Everything" ruleset.
+          # Uses GitHub App token to create API-signed (verified) commits as the App bot.
+          # author/committer inputs are ignored when sign-commits is true.
+          sign-commits: true
+          signoff: true
           delete-branch: true
           title: '[OPEN API] update model'
           body: |

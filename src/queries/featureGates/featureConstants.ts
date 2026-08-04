@@ -27,9 +27,7 @@ export const EDIT_BILLING_ACCOUNT = 'ocmui-edit-billing-account';
 export const AWS_BILLING_IN_BOUNDARY = 'ocmui-require-aws-billing-in-boundary';
 export const BYPASS_COMPUTE_NODE_COUNT_LIMIT_CLASSIC_OSD_GCP =
   'bypass-compute-node-count-limit-classic-osd-gcp';
-export const MAX_NODES_TOTAL_249 = 'ocmui-max-nodes-total-249';
 export const ENHANCED_HTPASSWRD = 'ocmui-enhanced-htpasswrd';
-export const GCP_SECURE_BOOT = 'ocmui-gcp-secure-boot';
 export const HIDE_RH_MARKETPLACE = 'OCMUI-hide-rh-marketplace';
 export const IMDS_SELECTION = 'ocmui-imds-selection';
 export const AWS_TAGS_NEW_MP = 'ocmui-aws-tags-new-mp';
@@ -47,6 +45,9 @@ export const GCP_DNS_ZONE = 'ocmui-gcp-dns-zone';
 export const GCP_EXCLUDE_NAMESPACE_SELECTORS = 'ocmui-gcp-exclude-namespace-selectors';
 export const HTPASSWD_IMPORT = 'ocmui-htpasswd-import';
 export const ENABLE_AUTO_NODE = 'ocmui-enable-auto-node';
+export const HCP_LOG_FORWARDING = 'ocmui-hcp-log-forwarding';
+export const OCM_ROLE_NO_CONSOLE = 'ocmui-ocm-role-no-console';
+export const BILLING_CONTRACT_NOTIFICATION = 'ocmui-billing-contract-notification';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -62,9 +63,7 @@ export default {
   EDIT_BILLING_ACCOUNT,
   AWS_BILLING_IN_BOUNDARY,
   BYPASS_COMPUTE_NODE_COUNT_LIMIT_CLASSIC_OSD_GCP,
-  MAX_NODES_TOTAL_249,
   ENHANCED_HTPASSWRD,
-  GCP_SECURE_BOOT,
   HIDE_RH_MARKETPLACE,
   IMDS_SELECTION,
   AWS_TAGS_NEW_MP,
@@ -82,4 +81,7 @@ export default {
   GCP_EXCLUDE_NAMESPACE_SELECTORS,
   HTPASSWD_IMPORT,
   ENABLE_AUTO_NODE,
+  HCP_LOG_FORWARDING,
+  OCM_ROLE_NO_CONSOLE,
+  BILLING_CONTRACT_NOTIFICATION,
 } as const;

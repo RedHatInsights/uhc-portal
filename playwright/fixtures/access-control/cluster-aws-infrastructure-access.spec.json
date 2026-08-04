@@ -1,0 +1,18 @@
+{
+  "Validation": {
+    "EmptyArnError": "Field is required.",
+    "WhitespaceArnError": "Value must not contain whitespaces.",
+    "InvalidArnError": "ARN value should be in the format arn:aws:iam::123456789012:user/name.",
+    "InvalidArnInput": "invalid-arn",
+    "WhitespaceArnInput": "arn:aws:iam::123456789012:user/name with space"
+  },
+  "GrantRole": {
+    "ReadOnlyRoleName": "Read only",
+    "NetworkManagementRoleName": "Network management",
+    "InvalidIamUserNamePrefix": "playwright-infra-access"
+  },
+  "Notifications": {
+    "GrantFailureTitle": "Role creation failed for {userArn}",
+    "GrantSuccessTitle": "{roleName} role successfully created for {userArn}"
+  }
+}

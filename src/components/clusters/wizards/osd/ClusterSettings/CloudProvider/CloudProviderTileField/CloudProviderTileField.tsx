@@ -13,8 +13,11 @@ import {
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { useGetBillingQuotas } from '~/components/clusters/wizards/osd/BillingModel/useGetBillingQuotas';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
-import AWSLogo from '~/styles/images/AWSLogo';
-import GCPLogo from '~/styles/images/GCPLogo';
+import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
+import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
+import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
+import GCPLogoLightTheme from '~/styles/images/GoogleCloudLogo.svg';
+import GCPLogoDarkTheme from '~/styles/images/GoogleCloudLogoRev.svg';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import './cloudProviderTileField.scss';
@@ -38,11 +41,7 @@ export const CloudProviderTileField = () => {
   const shouldShowAwsTile = !(
     billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
   );
-  const hasAwsResources = shouldShowAwsTile ? quotas.awsResources : false;
-  const notAvailableTooltip =
-    billingModel === shouldShowAwsTile
-      ? noQuotaTooltip
-      : 'OpenShift Dedicated purchased through the Google Cloud marketplace can only be provisioned on Google Cloud.';
+  const hasAwsResources = quotas.awsResources;
 
   const handleChange = (value: string) => {
     // Silently reset some user choices that are now meaningless.
@@ -88,7 +87,12 @@ export const CloudProviderTileField = () => {
         }}
       >
         <Bullseye>
-          <GCPLogo />
+          <ThemedImage
+            darkThemeSrc={GCPLogoDarkTheme}
+            lightThemeSrc={GCPLogoLightTheme}
+            alt="Google Cloud logo"
+            className="ocm-tile-cloud-provider-logo"
+          />
         </Bullseye>
       </CardHeader>
       <CardBody>
@@ -118,7 +122,12 @@ export const CloudProviderTileField = () => {
         }}
       >
         <Bullseye>
-          <AWSLogo />
+          <ThemedImage
+            darkThemeSrc={AWSLogoDarkTheme}
+            lightThemeSrc={AWSLogoLightTheme}
+            alt="Amazon Web Service logo"
+            className="ocm-tile-cloud-provider-logo"
+          />
         </Bullseye>
       </CardHeader>
       <CardBody>Run on Amazon Web Services</CardBody>
@@ -139,7 +148,7 @@ export const CloudProviderTileField = () => {
     >
       {hasGcpResources ? gcpTile : <Tooltip content={noQuotaTooltip}>{gcpTile}</Tooltip>}
       {shouldShowAwsTile &&
-        (hasAwsResources ? awsTile : <Tooltip content={notAvailableTooltip}>{awsTile}</Tooltip>)}
+        (hasAwsResources ? awsTile : <Tooltip content={noQuotaTooltip}>{awsTile}</Tooltip>)}
     </Gallery>
   );
 };

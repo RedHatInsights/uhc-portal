@@ -68,6 +68,7 @@ describe('useClusterDetails hook', () => {
       canEditClusterAutoscaler: true,
       canEditOCMRoles: true,
       canViewOCMRoles: true,
+      canUpdateClusterResource: true,
       kubeletConfigActions: { get: true },
       machinePoolsActions: { get: true },
       idpActions: { get: true },
@@ -84,7 +85,6 @@ describe('useClusterDetails hook', () => {
       isError: false,
       error: null,
     });
-
     const { result } = renderHook(() => useFetchClusterDetails(subscriptionID));
 
     await waitFor(() => {
@@ -93,6 +93,59 @@ describe('useClusterDetails hook', () => {
 
     expect(result.current.cluster?.id).toBe(mockedClusterResponse.data.id);
     expect(result.current.cluster?.canEdit).toBe(true);
+    expect(result.current.cluster?.canUpdateClusterResource).toBe(true);
+  });
+
+  it('useClusterDetails reflects false permissions for canUpdateClusterResource', async () => {
+    const subscriptionID = 'mockedSubscriptionID';
+
+    const useFetchSubscriptionMock = jest.requireMock('../common/useFetchSubscription');
+    useFetchSubscriptionMock.useFetchSubscription.mockReturnValue({
+      isLoading: false,
+      data: mockedSubscriptionWithClusterType,
+      isError: false,
+      error: null,
+    });
+
+    const useFetchClusterMock = jest.requireMock('./useFetchCluster');
+    useFetchClusterMock.useFetchCluster.mockReturnValue({
+      isLoading: false,
+      data: mockedClusterResponse,
+      isError: false,
+      error: null,
+    });
+
+    const useFetchActionsPermissionsMock = jest.requireMock('./useFetchActionsPermissions');
+    useFetchActionsPermissionsMock.useFetchActionsPermissions.mockReturnValue({
+      isLoading: false,
+      canEdit: true,
+      canEditClusterAutoscaler: true,
+      canEditOCMRoles: true,
+      canViewOCMRoles: true,
+      canUpdateClusterResource: false,
+      kubeletConfigActions: { get: true },
+      machinePoolsActions: { get: true },
+      idpActions: { get: true },
+      isError: false,
+      error: null,
+    });
+    useFetchActionsPermissionsMock.useCanDeleteAccessReview.mockReturnValue({
+      isLoading: false,
+      canDeleteAccessreviewResponse: {
+        data: {
+          allowed: true,
+        },
+      },
+      isError: false,
+      error: null,
+    });
+    const { result } = renderHook(() => useFetchClusterDetails(subscriptionID));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.cluster?.canUpdateClusterResource).toBe(false);
   });
 
   it('useSubscription error results in useClusterDetails error response', async () => {

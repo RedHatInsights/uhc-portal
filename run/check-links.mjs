@@ -10,9 +10,8 @@
  * - Reports HTTP status codes (2xx, 3xx, 4xx, 5xx)
  * - Tests redirect destinations
  * - Color-coded output for easy identification of issues
- * - Multiple output modes (default, verbose, redirects-only)
+ * - Multiple output modes (default, verbose, redirects-only, summary)
  */
-import fs from 'fs';
 import fetch from 'node-fetch';
 import ProgressBar from 'progress';
 
@@ -27,6 +26,7 @@ const args = process.argv.slice(2);
 const verboseMode = args.includes('-v') || args.includes('--verbose');
 const helpMode = args.includes('-h') || args.includes('--help');
 const redirectsMode = args.includes('-r') || args.includes('--redirects');
+const summaryMode = args.includes('--summary');
 
 // Constants
 const LINE_LENGTH = 80;
@@ -36,6 +36,90 @@ const COLOR = {
   YELLOW: '\x1b[33m',
   RESET: '\x1b[0m',
 };
+
+// Rate-limiting configuration
+const MAX_CONCURRENT_GLOBAL = 15;
+const MAX_CONCURRENT_PER_HOST = 3;
+const MAX_ATTEMPTS = 3;
+const RETRY_BACKOFF_MS = 1500;
+const RETRYABLE_STATUSES = new Set([403, 429, 503]);
+const INTER_REQUEST_DELAY_MS = 200;
+
+/**
+ * Known URL patterns that produce expected (non-actionable) errors.
+ * Each entry maps a regex to a short explanation shown in the output.
+ */
+const KNOWN_FALSE_POSITIVES = [
+  {
+    pattern: /join\.slack\.com\/.*shared_invite/,
+    reason: 'Slack invite links block programmatic access (expected 403)',
+  },
+  {
+    pattern: /console\.cloud\.google\.com/,
+    reason: 'Google Cloud Console returns oversized headers that exceed node-fetch limits',
+  },
+];
+
+/**
+ * Returns a contextual note if a URL matches a known false-positive pattern.
+ * @param {string} url - The URL to check
+ * @returns {string|null} Explanation string or null
+ */
+function getKnownFalsePositiveNote(url) {
+  const match = KNOWN_FALSE_POSITIVES.find(({ pattern }) => pattern.test(url));
+  return match ? match.reason : null;
+}
+
+// ======================================================================
+// CONCURRENCY CONTROL
+// ======================================================================
+
+class Semaphore {
+  constructor(max) {
+    this.max = max;
+    this.current = 0;
+    this.queue = [];
+  }
+
+  acquire() {
+    if (this.current < this.max) {
+      this.current += 1;
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+      this.queue.push(resolve);
+    });
+  }
+
+  release() {
+    this.current -= 1;
+    if (this.queue.length > 0) {
+      this.current += 1;
+      this.queue.shift()();
+    }
+  }
+}
+
+const globalSemaphore = new Semaphore(MAX_CONCURRENT_GLOBAL);
+const hostSemaphores = new Map();
+
+function getHostSemaphore(url) {
+  try {
+    const { hostname } = new URL(url);
+    if (!hostSemaphores.has(hostname)) {
+      hostSemaphores.set(hostname, new Semaphore(MAX_CONCURRENT_PER_HOST));
+    }
+    return hostSemaphores.get(hostname);
+  } catch {
+    return new Semaphore(MAX_CONCURRENT_PER_HOST);
+  }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 // ======================================================================
 // HELP INFORMATION
@@ -61,6 +145,7 @@ Options:
   -v, --verbose  Show detailed URL listings for all categories
                  (By default, only error URLs are displayed)
   -r, --redirects Show ONLY redirected URLs with their redirect targets
+  --summary      Print summary table and broken links only
 
 Output:
   The script categorizes URLs by their HTTP status:
@@ -257,7 +342,9 @@ function categorizeResults(results) {
 }
 
 /**
- * Fetches a URL with HEAD method, falling back to GET if HEAD returns 405
+ * Fetches a URL with HEAD method, falling back to GET if HEAD returns
+ * 404 or 405 (some servers like Google Cloud return 404 for HEAD but
+ * serve correct responses for GET).
  * @param {string} url - The URL to fetch
  * @param {Object} options - Fetch options (e.g., redirect: 'manual')
  * @returns {Promise<Response>} The fetch response
@@ -265,19 +352,53 @@ function categorizeResults(results) {
 async function fetchWithFallback(url, options = {}) {
   try {
     const headResponse = await fetch(url, { ...options, method: 'HEAD' });
-    // If HEAD returns 405 (Method Not Allowed), try GET instead
-    if (headResponse.status === 405) {
-      return await fetch(url, { ...options, method: 'GET' });
+    if (headResponse.status === 404 || headResponse.status === 405) {
+      const getResponse = await fetch(url, { ...options, method: 'GET' });
+      if (getResponse.status !== headResponse.status) {
+        return getResponse;
+      }
+      return headResponse;
     }
     return headResponse;
   } catch (e) {
-    // If HEAD fails with an error, try GET as fallback
     try {
       return await fetch(url, { ...options, method: 'GET' });
-    } catch (getError) {
-      // If both fail, throw the original error
+    } catch {
       throw e;
     }
+  }
+}
+
+/**
+ * Wraps fetchWithFallback with per-host rate limiting, global concurrency
+ * control, and retry with exponential backoff for transient errors.
+ * @param {string} url - The URL to fetch
+ * @param {Object} options - Fetch options
+ * @returns {Promise<Response>} The fetch response
+ */
+async function rateLimitedFetch(url, options = {}) {
+  const hostSem = getHostSemaphore(url);
+  await globalSemaphore.acquire();
+  await hostSem.acquire();
+  try {
+    let lastResponse;
+    // eslint-disable-next-line no-await-in-loop -- retries must be sequential
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
+      if (attempt > 0) {
+        // eslint-disable-next-line no-await-in-loop -- intentional backoff between retries
+        await sleep(RETRY_BACKOFF_MS * attempt);
+      }
+      // eslint-disable-next-line no-await-in-loop -- each attempt depends on the previous result
+      lastResponse = await fetchWithFallback(url, options);
+      if (!RETRYABLE_STATUSES.has(lastResponse.status) || attempt === MAX_ATTEMPTS - 1) {
+        return lastResponse;
+      }
+    }
+    return lastResponse;
+  } finally {
+    await sleep(INTER_REQUEST_DELAY_MS);
+    hostSem.release();
+    globalSemaphore.release();
   }
 }
 
@@ -311,7 +432,9 @@ async function testRedirectUrls(statusByUrl) {
   }
 
   // Test redirect destinations
-  console.log('\nTesting redirect destinations...');
+  if (!summaryMode) {
+    console.log('\nTesting redirect destinations...');
+  }
 
   // Create a progress bar for redirect testing
   const testBar = new ProgressBar(':bar :current/:total redirect URLs tested (:percent)', {
@@ -322,19 +445,14 @@ async function testRedirectUrls(statusByUrl) {
     clear: true,
   });
 
-  // Test each redirect URL
+  // Test each redirect URL with rate limiting
   await Promise.all(
     redirectItems.map(async (item) => {
       try {
-        const { status: finalStatus } = await fetchWithFallback(item.redirectUrl);
-        // If we got 200 with GET after 405 with HEAD, treat it as success
-        const newItem = { ...item, finalStatus };
-        // Use Object.assign to update the original item for progress tracking
-        Object.assign(item, newItem);
+        const { status: finalStatus } = await rateLimitedFetch(item.redirectUrl);
+        Object.assign(item, { finalStatus });
       } catch (e) {
-        const newItem = { ...item, error: e.toString() };
-        // Use Object.assign to update the original item for progress tracking
-        Object.assign(item, newItem);
+        Object.assign(item, { error: e.toString() });
       }
       testBar.tick();
     }),
@@ -415,6 +533,11 @@ function displayRedirectStatusGroup(status, items, redirectTestMap, verbose) {
             statusText = `${COLOR.RED}${testStatus}${COLOR.RESET}`;
           }
           console.log(`  [Redirect URL Test] ${statusText}`);
+        }
+
+        const note = getKnownFalsePositiveNote(r.redirectUrl);
+        if (note) {
+          console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
         }
       }
       console.log();
@@ -546,21 +669,31 @@ function displayErrorSection(title, errorItems) {
   // Print each status group
   sortedStatusCodes.forEach((status) => {
     const items = errorsByStatus[status];
-    const description = getStatusCodeDescription(parseInt(status, 10));
-    // Color just the status code in red, not the entire title
+    const statusInt = parseInt(status, 10);
+    const description = getStatusCodeDescription(statusInt);
+    const plainTitle = `[Status ${status} - ${description}]`;
     const statusTitle = `[Status ${COLOR.RED}${status}${COLOR.RESET} - ${description}]`;
     const countStr = `${items.length} URLs`;
     const targetColumn = LINE_LENGTH - countStr.length;
-    const padding = Math.max(1, targetColumn - statusTitle.length - 3);
+    const padding = Math.max(1, targetColumn - plainTitle.length - 3);
 
     console.log();
     console.log(`${statusTitle} - ${' '.repeat(padding)}${countStr}`);
+
+    if (RETRYABLE_STATUSES.has(statusInt)) {
+      console.log(
+        `  ${COLOR.YELLOW}(${MAX_ATTEMPTS} attempts were made; may be transient — re-run to confirm)${COLOR.RESET}`,
+      );
+    }
     console.log();
 
     if (items.length > 0) {
       items.forEach((r) => {
-        // Print each URL with a red status code
         console.log(`  [Original URL] ${r.url}`);
+        const note = getKnownFalsePositiveNote(r.url);
+        if (note) {
+          console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
+        }
         console.log();
       });
     }
@@ -604,6 +737,10 @@ function displayRequestErrorsSection(errors) {
       items.forEach((r) => {
         console.log(`  [Original URL] ${r.url}`);
         console.log(`  [Error] ${r.errorMessage}`);
+        const note = getKnownFalsePositiveNote(r.url);
+        if (note) {
+          console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
+        }
         console.log();
       });
     }
@@ -663,6 +800,195 @@ function displayUsageNotes(verbose) {
   }
 }
 
+const SUMMARY_MAX_BROKEN_LINK_ENTRIES = 12;
+const SUMMARY_MAX_REPORT_LENGTH = 2800;
+
+/**
+ * Formats a count for plain-text output (no ANSI).
+ * @param {number} count - The count to display
+ * @returns {string} Formatted count string
+ */
+function formatPlainCount(count) {
+  return count.toString().padStart(6);
+}
+
+/**
+ * Formats a list of broken links for the Slack summary.
+ * @param {Object} categories - Categorized results
+ * @param {Array} testedRedirects - Results of redirect testing
+ * @param {number} [maxBrokenEntries] - Maximum broken links to include
+ * @returns {string} Broken links section, or empty string if none
+ */
+function formatBrokenLinksList(
+  categories,
+  testedRedirects,
+  maxBrokenEntries = SUMMARY_MAX_BROKEN_LINK_ENTRIES,
+) {
+  const { clientErrors, serverErrors, errors } = categories;
+  /** @type {Array<{ kind: 'simple' | 'redirect', text: string }>} */
+  const entries = [];
+
+  clientErrors.forEach(({ url, status }) => {
+    entries.push({
+      kind: 'simple',
+      text: `  ${url} (${status})`,
+    });
+  });
+
+  serverErrors.forEach(({ url, status }) => {
+    entries.push({
+      kind: 'simple',
+      text: `  ${url} (${status})`,
+    });
+  });
+
+  errors.forEach(({ url, errorMessage }) => {
+    const shortError = errorMessage.length > 80 ? `${errorMessage.slice(0, 77)}...` : errorMessage;
+    entries.push({
+      kind: 'simple',
+      text: `  ${url} (${shortError})`,
+    });
+  });
+
+  testedRedirects.forEach((item) => {
+    const isError =
+      item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300));
+    if (!isError) {
+      return;
+    }
+
+    if (item.error) {
+      const shortError = item.error.length > 60 ? `${item.error.slice(0, 57)}...` : item.error;
+      entries.push({
+        kind: 'redirect',
+        text: [
+          `  ${item.originalUrl}`,
+          `  -> ${item.redirectUrl}`,
+          `  (redirect error: ${shortError})`,
+        ].join('\n'),
+      });
+    } else {
+      entries.push({
+        kind: 'redirect',
+        text: [`  ${item.originalUrl}`, `  -> ${item.redirectUrl} (${item.finalStatus})`].join(
+          '\n',
+        ),
+      });
+    }
+  });
+
+  if (entries.length === 0) {
+    return '';
+  }
+
+  const shown = entries.slice(0, maxBrokenEntries);
+  const omitted = entries.length - shown.length;
+
+  const sections = [];
+  shown.forEach((entry, index) => {
+    if (index > 0 && entry.kind === 'redirect') {
+      sections.push('');
+    }
+    sections.push(entry.text);
+  });
+
+  if (omitted > 0) {
+    sections.push('');
+    sections.push(`  ... and ${omitted} more broken link${omitted === 1 ? '' : 's'}`);
+  }
+
+  return ['', 'Broken links:', ...sections].join('\n');
+}
+
+/**
+ * Formats the summary table as a string.
+ * @param {Object} categories - Categorized results
+ * @param {number} totalChecked - Total checked URLs
+ * @param {number} redirectErrorCount - Count of redirect errors
+ * @param {Object} [options] - Formatting options
+ * @param {boolean} [options.plain] - Omit ANSI color codes from counts
+ * @param {boolean} [options.includeBrokenLinks] - Append broken link URLs when issues exist
+ * @param {Array} [options.testedRedirects] - Redirect test results for broken link list
+ * @param {number} [options.maxBrokenEntries] - Maximum broken links to include in Slack output
+ * @returns {string} Summary report text
+ */
+function formatSummaryReport(categories, totalChecked, redirectErrorCount, options = {}) {
+  const {
+    plain = false,
+    includeBrokenLinks = false,
+    testedRedirects = [],
+    maxBrokenEntries = SUMMARY_MAX_BROKEN_LINK_ENTRIES,
+  } = options;
+  const count = plain
+    ? (value) => formatPlainCount(value)
+    : (value, useRed = false) => formatCount(value, useRed);
+
+  const { success, redirects, clientErrors, serverErrors, errors, skipped } = categories;
+  const hasIssues =
+    redirectErrorCount > 0 ||
+    clientErrors.length > 0 ||
+    serverErrors.length > 0 ||
+    errors.length > 0;
+
+  const lines = [
+    hasIssues ? '👎 Issues found' : '👍 All clear',
+    '',
+    'Category                           Count',
+    '---------------------------------- ------',
+    `Total URLs skipped                ${count(skipped.length)}`,
+    `Success                           ${count(success.length)}`,
+    `Redirects                         ${count(redirects.length)}`,
+    `Redirects errors                  ${count(redirectErrorCount, true)}`,
+    `Client errors (4xx)               ${count(clientErrors.length, true)}`,
+    `Server errors (5xx)               ${count(serverErrors.length, true)}`,
+    `Request errors                    ${count(errors.length, true)}`,
+    '---------------------------------- ------',
+    `Total URLs checked                ${count(totalChecked)}`,
+  ];
+
+  if (includeBrokenLinks && hasIssues) {
+    const brokenLinks = formatBrokenLinksList(categories, testedRedirects, maxBrokenEntries);
+    if (brokenLinks) {
+      lines.push(brokenLinks);
+    }
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * Builds --summary output (summary table + broken links), reducing entries if needed for size limits.
+ * @param {Object} categories - Categorized results
+ * @param {number} totalChecked - Total checked URLs
+ * @param {number} redirectErrorCount - Count of redirect errors
+ * @param {Array} testedRedirects - Redirect test results
+ * @returns {string} Plain-text summary report
+ */
+function buildSummaryReport(categories, totalChecked, redirectErrorCount, testedRedirects) {
+  let maxBrokenEntries = SUMMARY_MAX_BROKEN_LINK_ENTRIES;
+
+  while (maxBrokenEntries >= 0) {
+    const report = formatSummaryReport(categories, totalChecked, redirectErrorCount, {
+      plain: true,
+      includeBrokenLinks: maxBrokenEntries > 0,
+      testedRedirects,
+      maxBrokenEntries,
+    });
+
+    if (report.length <= SUMMARY_MAX_REPORT_LENGTH || maxBrokenEntries === 0) {
+      return report;
+    }
+
+    maxBrokenEntries -= 1;
+  }
+
+  return formatSummaryReport(categories, totalChecked, redirectErrorCount, {
+    plain: true,
+    includeBrokenLinks: false,
+    testedRedirects,
+  });
+}
+
 /**
  * Displays the summary table of results
  * @param {Object} categories - Categorized results
@@ -670,22 +996,10 @@ function displayUsageNotes(verbose) {
  * @param {number} redirectErrorCount - Count of redirect errors
  */
 function displaySummaryTable(categories, totalChecked, redirectErrorCount) {
-  const { success, redirects, clientErrors, serverErrors, errors, skipped } = categories;
+  const summary = formatSummaryReport(categories, totalChecked, redirectErrorCount);
 
   console.log('\nURL CHECK RESULTS');
-  console.log();
-
-  console.log('Category                           Count');
-  console.log('---------------------------------- ------');
-  console.log(`Total URLs skipped                ${formatCount(skipped.length)}`);
-  console.log(`Success                           ${formatCount(success.length)}`);
-  console.log(`Redirects                         ${formatCount(redirects.length)}`);
-  console.log(`Redirects errors                  ${formatCount(redirectErrorCount, true)}`);
-  console.log(`Client errors (4xx)               ${formatCount(clientErrors.length, true)}`);
-  console.log(`Server errors (5xx)               ${formatCount(serverErrors.length, true)}`);
-  console.log(`Request errors                    ${formatCount(errors.length, true)}`);
-  console.log('---------------------------------- ------');
-  console.log(`Total URLs checked                ${formatCount(totalChecked)}`);
+  console.log(summary);
 }
 
 /**
@@ -746,6 +1060,13 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
     }
   });
 
+  // In --summary mode, print only the summary table and broken links
+  if (summaryMode) {
+    console.log('\nURL CHECK RESULTS');
+    console.log(buildSummaryReport(categories, totalChecked, redirectErrorCount, testedRedirects));
+    return;
+  }
+
   // Display summary table
   displaySummaryTable(categories, totalChecked, redirectErrorCount);
 
@@ -772,11 +1093,15 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
  * Processes URLs and tests redirects
  */
 async function main() {
-  console.log('Checking URLs...');
+  if (!summaryMode) {
+    console.log('Checking URLs...');
+  }
 
   // Get URLs to check
   const urls = await getAllExternalLinks();
-  console.log(`Found ${urls.length} URLs to check`);
+  if (!summaryMode) {
+    console.log(`Found ${urls.length} URLs to check`);
+  }
 
   // Create a progress bar
   const bar = new ProgressBar(':bar :current/:total URLs checked (:percent)', {
@@ -790,16 +1115,14 @@ async function main() {
   // Results object
   const statusByUrl = {};
 
-  // Process all URLs in parallel
+  // Process all URLs with rate limiting
   await Promise.all(
     urls.map(async (url) => {
       if (url.startsWith('mailto:')) {
         statusByUrl[url] = 'not checked';
       } else {
         try {
-          // For permanent redirects, you might want to update the link
-          const response = await fetchWithFallback(url, { redirect: 'manual' });
-          // If we got 200 with GET after 405 with HEAD, treat it as success
+          const response = await rateLimitedFetch(url, { redirect: 'manual' });
           if (response.status === 200) {
             statusByUrl[url] = 200;
           } else {
@@ -810,7 +1133,6 @@ async function main() {
             }
           }
         } catch (e) {
-          // 3xx-5xx are NOT exceptions, but network errors, etc. are.
           statusByUrl[url] = e.toString();
         }
       }
@@ -823,14 +1145,6 @@ async function main() {
 
   // Display the results
   displayResults(statusByUrl, redirectItems, verboseMode, redirectsMode);
-
-  const has404 = Object.values(statusByUrl).filter(
-    (result) => typeof result === 'number' && result === 404,
-  );
-  if (process.env.GITHUB_OUTPUT) {
-    fs.appendFileSync(process.env.GITHUB_OUTPUT, `has404=${has404.length > 0}\n`);
-    fs.appendFileSync(process.env.GITHUB_OUTPUT, `notFoundLength=${has404.length}\n`);
-  }
 }
 
 // ======================================================================

@@ -119,12 +119,18 @@ export const useAWSVPCFromCluster = (cluster: ClusterFromSubscription, region?: 
   // The dependencies are the primitive values - if we use an object the event will trigger even when no data has changed.
   const subnetId = subnetIds.length > 0 ? subnetIds[0] : undefined;
   const roleArn = cluster.aws?.sts?.role_arn;
+  const externalId = cluster.aws?.sts?.external_id;
   const regionId = cluster.region?.id || '';
 
   const fetchVPC = () => {
     const loadVpcByStsCredentials = async () => {
       const request = {
-        awsCredentials: { sts: { role_arn: roleArn } },
+        awsCredentials: {
+          sts: {
+            role_arn: roleArn,
+            ...(externalId ? { external_id: externalId } : {}),
+          },
+        },
         region: regionId,
         subnet: subnetId,
         options: { includeSecurityGroups: isHypershift },
@@ -145,6 +151,7 @@ export const useAWSVPCFromCluster = (cluster: ClusterFromSubscription, region?: 
     isHypershift,
     subnetId,
     roleArn,
+    externalId,
     regionId,
     region,
     manageVpcFetch,

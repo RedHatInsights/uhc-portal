@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
 // Import cluster field validations JSON
 const clusterFieldValidations = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-wizard-validation.spec.json');
@@ -11,6 +12,7 @@ test.describe.serial(
     const region = process.env.QE_AWS_REGION || clusterFieldValidations.Region.split(',')[0];
     const awsAccountID = process.env.QE_AWS_ID || '';
     const awsBillingAccountID = process.env.QE_AWS_BILLING_ID || '';
+    const awsSecondaryBillingAccountID = process.env.QE_AWS_SECONDARY_BILLING_ID || '';
     let qeInfrastructure: any = {};
 
     try {
@@ -29,7 +31,7 @@ test.describe.serial(
 
     test.beforeAll(async ({ navigateTo }) => {
       // Navigate to create
-      await navigateTo('create');
+      await navigateTo(CREATE_CLUSTER_ROUTE);
     });
     test('Open Rosa cluster wizard', async ({ page, createRosaWizardPage }) => {
       await createRosaWizardPage.waitAndClick(createRosaWizardPage.rosaCreateClusterButton());
@@ -53,9 +55,104 @@ test.describe.serial(
       await createRosaWizardPage.waitForARNList();
       await createRosaWizardPage.refreshInfrastructureAWSAccountButton().click();
       await createRosaWizardPage.waitForARNList();
-      await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
       await createRosaWizardPage.selectInstallerRole(installerARN);
+    });
+
+    test('Step - Accounts and roles - widget - billing model validations', async ({
+      createRosaWizardPage,
+    }) => {
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+
+      // Empty secondary ID would mock/select incorrectly (no contracted account; first row clicked).
+      // Still select primary billing and advance so the serial suite can continue.
+      if (!awsBillingAccountID || !awsSecondaryBillingAccountID) {
+        test.info().annotations.push({
+          type: 'skip',
+          description:
+            'Billing model validations skipped: QE_AWS_BILLING_ID and QE_AWS_SECONDARY_BILLING_ID are required',
+        });
+        await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
+        await createRosaWizardPage.rosaNextButton().click();
+        await createRosaWizardPage.isClusterDetailsScreen();
+        return;
+      }
+
+      // Neither staging billing account has a contract. Overlay quota_cost so the
+      // secondary account is temporarily contracted; keep the same AWS account IDs.
+      await createRosaWizardPage.mockQuotaCostWithBillingContract(awsSecondaryBillingAccountID, [
+        awsBillingAccountID,
+        awsSecondaryBillingAccountID,
+      ]);
+      await createRosaWizardPage.refreshAWSBillingAccounts();
+
+      // Contracted account — no inline warning; badge visible
+      await createRosaWizardPage.selectAWSBillingAccount(awsSecondaryBillingAccountID);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(true);
+      await createRosaWizardPage.expectBillingContractWarning(false);
+
+      // Non-contracted while another is contracted — warning with account ID
+      await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(false);
+      await createRosaWizardPage.expectBillingContractWarning(true, awsBillingAccountID);
+
+      // Switching back to contracted clears the warning
+      await createRosaWizardPage.selectAWSBillingAccount(awsSecondaryBillingAccountID);
+      await createRosaWizardPage.expectBillingContractWarning(false);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(true);
+
+      // Contracted account: Next advances without confirmation dialog
       await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isClusterDetailsScreen();
+      await createRosaWizardPage.expectBillingContractConfirmationDialog(false);
+
+      // Non-contracted account while another is contracted: warning + dialog on Next
+      await createRosaWizardPage.rosaBackButton().click();
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+      await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(false);
+      await createRosaWizardPage.expectBillingContractWarning(true, awsBillingAccountID);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.expectBillingContractConfirmationShowsAccount(
+        awsBillingAccountID,
+      );
+
+      // Go back keeps the user on Accounts & roles
+      await createRosaWizardPage.dismissBillingContractConfirmation();
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+
+      // Continue with selection advances; confirmed account is not re-prompted
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.confirmBillingContractSelection(awsBillingAccountID);
+      await createRosaWizardPage.isClusterDetailsScreen();
+      await createRosaWizardPage.rosaBackButton().click();
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isClusterDetailsScreen();
+      await createRosaWizardPage.expectBillingContractConfirmationDialog(false);
+
+      // Changing billing account clears confirmation; non-contracted selection re-prompts
+      await createRosaWizardPage.rosaBackButton().click();
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+      await createRosaWizardPage.selectAWSBillingAccount(awsSecondaryBillingAccountID);
+      await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.confirmBillingContractSelection(awsBillingAccountID);
+      await createRosaWizardPage.isClusterDetailsScreen();
+
+      // Both accounts have no contracts: no warning, Next advances with no dialog
+      await createRosaWizardPage.clearQuotaCostMock();
+      await createRosaWizardPage.rosaBackButton().click();
+      await createRosaWizardPage.isAccountsAndRolesScreen();
+      await createRosaWizardPage.refreshAWSBillingAccounts();
+      await createRosaWizardPage.selectAWSBillingAccount(awsSecondaryBillingAccountID);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(false);
+      await createRosaWizardPage.expectBillingContractWarning(false);
+      await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
+      await createRosaWizardPage.expectContractEnabledForBillingAccount(false);
+      await createRosaWizardPage.expectBillingContractWarning(false);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isClusterDetailsScreen();
+      await createRosaWizardPage.expectBillingContractConfirmationDialog(false);
     });
 
     test('Step - Cluster Settings - Details - widget validations', async ({
@@ -121,6 +218,15 @@ test.describe.serial(
       );
 
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().uncheck();
+
+      await createRosaWizardPage.versionDropdownToggle().click();
+      await expect(createRosaWizardPage.versionOptionsByChannel('fast')).not.toHaveCount(0);
+      await createRosaWizardPage.versionDropdownToggle().click();
+
+      // Open the channel dropdown and verify a fast option exists
+      await createRosaWizardPage.channelSelect().click();
+      await expect(createRosaWizardPage.channelSelectOptionsByPrefix('fast')).not.toHaveCount(0);
+      await createRosaWizardPage.channelSelect().click();
 
       // Test encryption validations
       await createRosaWizardPage.advancedEncryptionLink().click();
@@ -788,6 +894,237 @@ test.describe.serial(
       await createRosaWizardPage.customOperatorPrefixInput().selectText();
       await createRosaWizardPage.customOperatorPrefixInput().fill('test-123-test');
       await createRosaWizardPage.rosaNextButton().click();
+    });
+
+    test('Step - Cluster updates - navigate through', async ({ createRosaWizardPage }) => {
+      await createRosaWizardPage.isUpdatesScreen();
+      await createRosaWizardPage.rosaNextButton().click();
+    });
+
+    test('Step - Control plane log forwarding - widget validations', async ({
+      createRosaWizardPage,
+    }) => {
+      // --- S3 validations ---
+      await createRosaWizardPage.amazonS3EnableCheckbox().check();
+
+      // Click Next with empty S3 bucket name → required error
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameRequired,
+      );
+
+      // Bucket name too short (< 3 chars)
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameTooShort);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameTooShortError,
+      );
+
+      // Bucket name too long (> 63 chars)
+      await createRosaWizardPage.logForwardingS3BucketNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameTooLong);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameTooLongError,
+      );
+
+      // Bucket name starts with uppercase
+      await createRosaWizardPage.logForwardingS3BucketNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameStartsUppercase);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameStartsUppercaseError,
+      );
+
+      // Bucket name with consecutive dots
+      await createRosaWizardPage.logForwardingS3BucketNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameConsecutiveDots);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameConsecutiveDotsError,
+      );
+
+      // Bucket name formatted as IP address
+      await createRosaWizardPage.logForwardingS3BucketNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameIPAddress);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketNameIPAddressError,
+      );
+
+      // Bucket prefix with consecutive dots
+      await createRosaWizardPage.logForwardingS3BucketNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketNameValid);
+      await createRosaWizardPage
+        .logForwardingS3BucketPrefixInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.BucketPrefixConsecutiveDots);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketPrefixConsecutiveDotsError,
+      );
+
+      // Clear prefix error with valid bucket name
+      await createRosaWizardPage.logForwardingS3BucketPrefixInput().clear();
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.BucketPrefixConsecutiveDotsError,
+        false,
+      );
+
+      // Click Next without selecting any S3 groups → required error
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.SelectedItemsRequired,
+      );
+
+      // Uncheck S3 to clear its errors
+      await createRosaWizardPage.amazonS3EnableCheckbox().uncheck();
+
+      // --- CloudWatch validations ---
+      await createRosaWizardPage.cloudWatchEnableCheckbox().check();
+
+      // Log group name auto-fills; clear it and verify required error
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameRequired,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.RoleArnRequired,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.PrerequisiteAckRequired,
+      );
+
+      // Log group name with invalid characters
+      await createRosaWizardPage
+        .logForwardingCloudWatchLogGroupNameInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameInvalidChars);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameInvalidCharsError,
+      );
+
+      // Log group name with colon (rejected by OCM)
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchLogGroupNameInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameWithColon);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameWithColonError,
+      );
+
+      // Log group name too long (> 512 chars)
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchLogGroupNameInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameTooLong);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameTooLongError,
+      );
+
+      // Valid log group name → error clears
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().fill('valid-log-group');
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameRequired,
+        false,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.LogGroupNameInvalidCharsError,
+        false,
+      );
+
+      // Role ARN with invalid format
+      await createRosaWizardPage
+        .logForwardingCloudWatchRoleArnInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.RoleArnInvalidFormat);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.RoleArnInvalidFormatError,
+      );
+
+      // Role ARN with whitespace
+      await createRosaWizardPage.logForwardingCloudWatchRoleArnInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchRoleArnInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.RoleArnWhitespace);
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.RoleArnWhitespaceError,
+      );
+
+      // --- Fill valid S3 and CloudWatch data, then verify group selection required ---
+
+      // Enable S3 and fill valid data
+      await createRosaWizardPage.amazonS3EnableCheckbox().check();
+      await createRosaWizardPage
+        .logForwardingS3BucketNameInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.ValidBucketName);
+      await createRosaWizardPage
+        .logForwardingS3BucketPrefixInput()
+        .fill(clusterFieldValidations.LogForwarding.S3.ValidBucketPrefix);
+
+      // Clear CloudWatch errors and fill valid data
+      await createRosaWizardPage.logForwardingCloudWatchRoleArnInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchRoleArnInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.ValidRoleArn);
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchLogGroupNameInput()
+        .fill(clusterFieldValidations.LogForwarding.CloudWatch.ValidLogGroupName);
+      await createRosaWizardPage.logForwardingCloudWatchPrerequisiteCheckbox().check();
+
+      // Click Next without selecting any groups → both S3 and CloudWatch group errors
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.SelectedItemsRequired,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.SelectedItemsRequired,
+      );
+
+      // Select groups (both S3 and CloudWatch trees are visible: S3=nth(0), CloudWatch=nth(1))
+      await createRosaWizardPage.selectLogForwardingGroup('api', 'S3');
+      await createRosaWizardPage.selectLogForwardingGroup('api', 'CloudWatch');
+
+      // Navigate to Review and Create
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.waitForReviewScreenReady();
+
+      // Verify S3 details on review screen
+      await createRosaWizardPage.isTextContainsInPage('Amazon S3');
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.ValidBucketName,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.S3.ValidBucketPrefix,
+      );
+      // Verify CloudWatch details on review screen
+      await createRosaWizardPage.isTextContainsInPage('CloudWatch');
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.ValidLogGroupName,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.LogForwarding.CloudWatch.ValidRoleArn,
+      );
+
       await createRosaWizardPage.rosaCancelButton().click();
     });
   },

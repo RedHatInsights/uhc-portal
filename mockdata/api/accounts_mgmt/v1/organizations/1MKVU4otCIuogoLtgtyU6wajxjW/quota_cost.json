@@ -9924,6 +9924,36 @@
       "kind": "QuotaCost",
       "organization_id": "1MKVU4otCIuogoLtgtyU6wajxjW",
       "quota_id": "cluster|byoc|moa|marketplace",
+      "cloud_accounts": [
+        {
+          "cloud_account_id": "123456789012",
+          "cloud_provider_id": "aws"
+        },
+        {
+          "cloud_account_id": "111122223333",
+          "cloud_provider_id": "aws",
+          "contracts": [
+            {
+              "dimensions": [
+                { "name": "four_vcpu_hour", "value": "96" },
+                { "name": "control_plane", "value": "4" }
+              ]
+            }
+          ]
+        },
+        {
+          "cloud_account_id": "444455556666",
+          "cloud_provider_id": "aws",
+          "contracts": [
+            {
+              "dimensions": [
+                { "name": "four_vcpu_hour", "value": "48" },
+                { "name": "control_plane", "value": "2" }
+              ]
+            }
+          ]
+        }
+      ],
       "related_resources": [
         {
           "availability_zone_type": "any",

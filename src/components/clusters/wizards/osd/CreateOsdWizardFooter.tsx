@@ -120,9 +120,6 @@ export const CreateOsdWizardFooter = ({
     <WizardFooterWrapper>
       <ActionList>
         <ActionListGroup>
-          <CreateManagedClusterButtonWithTooltip wrap>
-            {primaryBtn}
-          </CreateManagedClusterButtonWithTooltip>
           <ActionListItem>
             <Button
               variant="secondary"
@@ -133,6 +130,9 @@ export const CreateOsdWizardFooter = ({
               Back
             </Button>
           </ActionListItem>
+          <CreateManagedClusterButtonWithTooltip wrap>
+            {primaryBtn}
+          </CreateManagedClusterButtonWithTooltip>
         </ActionListGroup>
         <ActionListGroup>
           <ActionListItem>

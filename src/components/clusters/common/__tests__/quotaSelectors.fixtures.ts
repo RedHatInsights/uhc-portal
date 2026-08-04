@@ -112,10 +112,6 @@ export const quotaWithAccounts: QuotaCostList = {
           cloud_provider_id: 'aws',
         },
         {
-          cloud_account_id: 'fakeRHMarketplaceAccount',
-          cloud_provider_id: 'rhm',
-        },
-        {
           cloud_account_id: 'fakeAzureAccount',
           cloud_provider_id: 'azure',
         },
@@ -142,10 +138,6 @@ export const quotaWithoutAccounts: QuotaCostList = {
     {
       allowed: 1080,
       cloud_accounts: [
-        {
-          cloud_account_id: 'fakeRHMarketplaceAccount',
-          cloud_provider_id: 'rhm',
-        },
         {
           cloud_account_id: 'fakeAzureAccount',
           cloud_provider_id: 'azure',
@@ -224,7 +216,6 @@ export const expectedAddons = {
     consumed: 0,
     cost: 1,
     cloudAccounts: {
-      rhm: [],
       aws: [],
       azure: [],
     },

@@ -6,11 +6,13 @@ import { Alert, AlertActionLink, AlertVariant, Spinner } from '@patternfly/react
 import docLinks from '~/common/docLinks.mjs';
 import { Link } from '~/common/routing';
 import ExternalLink from '~/components/common/ExternalLink';
+import Modal from '~/components/common/Modal/Modal';
 import { refetchMachineOrNodePoolsQuery } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { NodePool } from '~/types/clusters_mgmt.v1';
 
 import {
   compareIsMachinePoolBehindControlPlane,
+  displayControlPlaneVersion,
   isControlPlaneValidForMachinePool,
   isMachinePoolScheduleError,
   isMachinePoolUpgrading,
@@ -42,6 +44,7 @@ const UpdateAllMachinePools = ({
   refreshMachinePools?: () => void;
 }) => {
   const [pending, setPending] = React.useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
   const [errors, setErrors] = React.useState<string[]>(
     initialErrorMessage ? [initialErrorMessage] : [],
   );
@@ -71,16 +74,21 @@ const UpdateAllMachinePools = ({
     return null;
   }
 
+  const closeConfirmModal = () => {
+    setIsConfirmModalOpen(false);
+  };
+
   const updateNodePools = async () => {
+    setIsConfirmModalOpen(false);
     setPending(true);
-    const errors = await updateAllPools(
+    const updateErrors = await updateAllPools(
       machinePoolsToUpdate,
       clusterId,
       controlPlaneRawVersion,
       region,
     );
     setPending(false);
-    setErrors(errors);
+    setErrors(updateErrors);
 
     if (isHypershift && refreshMachinePools) {
       refreshMachinePools();
@@ -122,7 +130,10 @@ const UpdateAllMachinePools = ({
               <Spinner size="sm" aria-label="Updating machine pools" />
             ) : null}
             {!pending && !goToMachinePoolTab ? (
-              <AlertActionLink onClick={() => updateNodePools()} data-testid="btn-update-all">
+              <AlertActionLink
+                onClick={() => setIsConfirmModalOpen(true)}
+                data-testid="btn-update-all"
+              >
                 Update all Machine pools now
               </AlertActionLink>
             ) : null}
@@ -143,6 +154,22 @@ const UpdateAllMachinePools = ({
           </ExternalLink>
         </p>
       </Alert>
+      {isConfirmModalOpen ? (
+        <Modal
+          modalSize="small"
+          title="Update machine pools"
+          onClose={closeConfirmModal}
+          primaryText="Update machine pools"
+          secondaryText="Cancel"
+          onPrimaryClick={updateNodePools}
+          onSecondaryClick={closeConfirmModal}
+          isPrimaryDisabled={pending}
+        >
+          <p>
+            Update all machine pools to version {displayControlPlaneVersion(controlPlaneVersion)}?
+          </p>
+        </Modal>
+      ) : null}
     </>
   );
 };

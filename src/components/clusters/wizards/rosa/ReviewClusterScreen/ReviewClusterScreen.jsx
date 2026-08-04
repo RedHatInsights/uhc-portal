@@ -24,6 +24,8 @@ import { canSelectImds } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { getUserRoleForSelectedAWSAccount } from '~/components/clusters/wizards/rosa/AccountsRolesScreen/AccountsRolesScreen';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
+import { LogForwardingReviewDetails } from '~/components/clusters/wizards/rosa/LogForwarding/LogForwardingReviewDetails';
+import { getLogForwardingTreeForClusterRequest } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingTreeFromQueryClient';
 import {
   stepId as rosaStepId,
   stepNameById as rosaStepNameById,
@@ -36,12 +38,16 @@ import {
   ALLOW_EUS_CHANNEL,
   CREATE_CLUSTER_YAML_EDITOR,
   FIPS_FOR_HYPERSHIFT,
+  HCP_LOG_FORWARDING,
   HYPERSHIFT_WIZARD_FEATURE,
   IMDS_SELECTION,
   MULTIREGION_PREVIEW_ENABLED,
+  OCM_ROLE_NO_CONSOLE,
   Y_STREAM_CHANNEL,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { refetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 
 import { ClusterRequestTranslatorFactory } from '../../common/ClusterRequestTranslator/ClusterRequestTranslatorFactory';
 import { DebugClusterRequest } from '../../common/DebugClusterRequest';
@@ -50,6 +56,7 @@ import ReviewSection, {
   FormikReviewItem as ReviewItem,
 } from '../../common/ReviewCluster/ReviewSection';
 import { createClusterRequest, upgradeScheduleRequest } from '../../common/submitOSDRequest';
+import { NoConsoleRoleAlert } from '../common/NoConsoleRoleAlert';
 
 import ReviewRoleItem from './ReviewRoleItem';
 
@@ -122,6 +129,7 @@ const ReviewClusterScreen = ({
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
   const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
+  const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
 
   const clusterSettingsFields = [
     FieldId.ClusterName,
@@ -144,6 +152,15 @@ const ReviewClusterScreen = ({
   const [ocmRole, setOcmRole] = useState('');
   const [errorWithAWSAccountRoles, setErrorWithAWSAccountRoles] = useState(false);
   const isHypershiftEnabled = useFeatureGate(HYPERSHIFT_WIZARD_FEATURE);
+  const hasNoConsoleFlag = useFeatureGate(OCM_ROLE_NO_CONSOLE);
+  const {
+    isNoConsoleRole,
+    isPending: isOCMRolePending,
+    data: ocmRoleQueryData,
+    isSuccess: isOCMRoleQuerySuccess,
+    isError: isOCMRoleQueryError,
+  } = useIsNoConsoleRole(associatedAwsId);
+  const handleRefreshOCMRole = () => refetchGetOCMRole(associatedAwsId);
 
   const [isSyncEditorModalOpen, setIsSyncEditorModalOpen] = useState(false);
 
@@ -154,7 +171,12 @@ const ReviewClusterScreen = ({
           isOpen={isSyncEditorModalOpen}
           closeCallback={() => setIsSyncEditorModalOpen(false)}
           content={ClusterRequestTranslatorFactory.createClusterRequestTranslator(product).toYaml(
-            createClusterRequest({ isWizard: true }, formValues),
+            createClusterRequest({ isWizard: true }, formValues, {
+              logForwardingTree: getLogForwardingTreeForClusterRequest(
+                { product, cloudProviderID: formValues.cloud_provider },
+                formValues,
+              ),
+            }),
           )}
           schema={{
             uri: 'https://api.openshift.com/api/clusters_mgmt/v1/openapi#/components/schemas/Cluster',
@@ -194,6 +216,9 @@ const ReviewClusterScreen = ({
     clearGetOcmRoleResponse();
     // reset hidden form field to false
     setFieldValue(FieldId.DetectedOcmAndUserRoles, false);
+    if (hasNoConsoleFlag) {
+      refetchGetOCMRole(associatedAwsId);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -225,16 +250,42 @@ const ReviewClusterScreen = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getOCMRoleResponse]);
 
+  // When the feature flag is on, prefer the React Query ARN over the Redux-derived ocmRole.
+  // The Refresh button invalidates React Query but not Redux, so without this override the
+  // displayed ARN would remain stale after a refresh.
+  // Return '' on React Query error so ReviewRoleItem shows the "could not be detected" message.
+  let displayedOcmRole = ocmRole;
+  if (hasNoConsoleFlag) {
+    if (isOCMRoleQuerySuccess && ocmRoleQueryData?.arn) {
+      displayedOcmRole = ocmRoleQueryData.arn;
+    } else if (isOCMRoleQueryError) {
+      displayedOcmRole = '';
+    }
+  }
+
   useEffect(() => {
-    const hasError =
-      getUserRoleResponse?.error || !userRole || getOCMRoleResponse?.error || !ocmRole;
+    // When the flag is on, React Query is the source of truth for OCM role validity after Refresh.
+    // Redux state is not invalidated by Refresh, so we must check React Query error/empty states.
+    const ocmRoleHasError = hasNoConsoleFlag
+      ? isOCMRoleQueryError || !displayedOcmRole
+      : getOCMRoleResponse?.error || !ocmRole;
+    const hasError = getUserRoleResponse?.error || !userRole || ocmRoleHasError;
     if (hasError !== errorWithAWSAccountRoles) {
       setErrorWithAWSAccountRoles(hasError);
       // setting hidden form field for field level validation
       setFieldValue(FieldId.DetectedOcmAndUserRoles, !hasError);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getUserRoleResponse, getOCMRoleResponse, userRole, ocmRole, errorWithAWSAccountRoles]);
+  }, [
+    getUserRoleResponse,
+    getOCMRoleResponse,
+    userRole,
+    ocmRole,
+    errorWithAWSAccountRoles,
+    hasNoConsoleFlag,
+    isOCMRoleQueryError,
+    displayedOcmRole,
+  ]);
 
   // ensure regionalInstance does not exist if !isMultiRegionEnabled
   useEffect(() => {
@@ -290,6 +341,13 @@ const ReviewClusterScreen = ({
           ) : null}
         </Flex>
         <HiddenCheckbox name={FieldId.DetectedOcmAndUserRoles} />
+        {isNoConsoleRole && (
+          <NoConsoleRoleAlert
+            onRefresh={handleRefreshOCMRole}
+            isRefreshPending={isOCMRolePending}
+            className="pf-v6-u-mb-md"
+          />
+        )}
         {isHypershiftEnabled && (
           <ReviewSection
             title={getStepName('CONTROL_PLANE')}
@@ -308,7 +366,7 @@ const ReviewClusterScreen = ({
           {ReviewRoleItem({
             name: 'ocm-role',
             getRoleResponse: getOCMRoleResponse,
-            content: ocmRole,
+            content: displayedOcmRole,
           })}
           {ReviewRoleItem({
             name: 'user-role',
@@ -446,13 +504,24 @@ const ReviewClusterScreen = ({
           {ReviewItem(FieldId.CustomOperatorRolesPrefix)}
         </ReviewSection>
         <ReviewSection
-          title="Updates"
-          onGoToStep={() => goToStepByIndex(getStepIndex('CLUSTER_UPDATES'))}
+          title={getStepName('CLUSTER_ADDITIONAL_SETTINGS__UPDATES')}
+          onGoToStep={() => goToStepByIndex(getStepIndex('CLUSTER_ADDITIONAL_SETTINGS__UPDATES'))}
         >
           {ReviewItem(FieldId.UpgradePolicy)}
           {upgradePolicy === 'automatic' && ReviewItem(FieldId.AutomaticUpgradeSchedule)}
           {!isHypershiftSelected && ReviewItem(FieldId.NodeDrainGracePeriod)}
         </ReviewSection>
+
+        {isHypershiftSelected && isHcpLogForwardingEnabled && (
+          <ReviewSection
+            title={getStepName('CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING')}
+            onGoToStep={() =>
+              goToStepByIndex(getStepIndex('CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING'))
+            }
+          >
+            <LogForwardingReviewDetails formValues={formValues} />
+          </ReviewSection>
+        )}
 
         {config.fakeOSD && (
           <DebugClusterRequest

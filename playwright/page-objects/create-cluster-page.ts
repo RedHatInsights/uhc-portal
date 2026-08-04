@@ -78,10 +78,6 @@ export class CreateClusterPage extends BasePage {
     );
   }
 
-  escapeRegExp(str: string): string {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
   // Managed services helper methods
   async checkManagedServiceLink(title: string, expectedUrl: string): Promise<void> {
     const escapedTitle = this.escapeRegExp(title);

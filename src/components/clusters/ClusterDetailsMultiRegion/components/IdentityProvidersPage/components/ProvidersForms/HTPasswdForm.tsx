@@ -20,12 +20,12 @@ import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import {
   validateHTPasswdPassword,
-  validateHTPasswdUsername,
   validateUniqueHTPasswdUsername,
 } from '../../../../../../../common/validators';
 import { CREATION_MODE_MANUAL, CREATION_MODE_UPLOAD, CreationMode, FieldId } from '../../constants';
 
 import HTPasswdFileUpload from './HTPasswdFileUpload';
+import { validateHTPasswdUsername } from './providersHelper';
 
 import './HTPasswdForm.scss';
 

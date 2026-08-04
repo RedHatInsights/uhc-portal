@@ -259,4 +259,73 @@ describe('clusterService', () => {
       );
     });
   });
+
+  describe('Control plane log forwarders', () => {
+    it('call to post a control plane log forwarder', async () => {
+      apiRequestMock.post.mockResolvedValue({ data: { id: 'lf-1' } });
+      const clusterId = 'myCluster';
+      const body = { s3: { bucket_name: 'my-bucket' }, applications: ['etcd'] };
+
+      await clusterService.postClusterControlPlaneLogForwarder(clusterId, body);
+      expect(apiRequestMock.post).toHaveBeenCalledTimes(1);
+      expect(apiRequestMock.post.mock.calls[0][0]).toEqual(
+        '/api/clusters_mgmt/v1/clusters/myCluster/control_plane/log_forwarders',
+      );
+      expect(apiRequestMock.post.mock.calls[0][1]).toEqual(body);
+    });
+
+    it('call to patch a control plane log forwarder', async () => {
+      apiRequestMock.patch.mockResolvedValue({ data: { id: 'lf-1' } });
+      const clusterId = 'myCluster';
+      const logForwarderId = 'lf-1';
+      const body = { s3: { bucket_name: 'updated-bucket' }, applications: ['etcd'] };
+
+      await clusterService.patchClusterControlPlaneLogForwarder(clusterId, logForwarderId, body);
+      expect(apiRequestMock.patch).toHaveBeenCalledTimes(1);
+      expect(apiRequestMock.patch.mock.calls[0][0]).toEqual(
+        '/api/clusters_mgmt/v1/clusters/myCluster/control_plane/log_forwarders/lf-1',
+      );
+      expect(apiRequestMock.patch.mock.calls[0][1]).toEqual(body);
+    });
+
+    it('call to delete a control plane log forwarder', async () => {
+      apiRequestMock.delete.mockResolvedValue({});
+      const clusterId = 'myCluster';
+      const logForwarderId = 'lf-1';
+
+      await clusterService.deleteClusterControlPlaneLogForwarder(clusterId, logForwarderId);
+      expect(apiRequestMock.delete).toHaveBeenCalledTimes(1);
+      expect(apiRequestMock.delete.mock.calls[0][0]).toEqual(
+        '/api/clusters_mgmt/v1/clusters/myCluster/control_plane/log_forwarders/lf-1',
+      );
+    });
+  });
+
+  describe('getGcpDnsDomains', () => {
+    it('searches for unattached GCP dns domains when no id is provided', async () => {
+      await clusterService.getGcpDnsDomains();
+
+      expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
+      expect(apiRequestMock.get.mock.calls[0][0]).toEqual('/api/clusters_mgmt/v1/dns_domains');
+      expect(getApiGetParams()).toEqual({
+        search: "cloud_provider='gcp' AND cluster.id=''",
+        size: -1,
+      });
+    });
+
+    it('searches for unattached GCP dns domains when options omit id', async () => {
+      await clusterService.getGcpDnsDomains({});
+
+      expect(getApiGetParams().search).toBe("cloud_provider='gcp' AND cluster.id=''");
+      expect(getApiGetParams().search).not.toMatch(/(^|AND )id=/);
+    });
+
+    it('searches by id without filtering out attached domains', async () => {
+      await clusterService.getGcpDnsDomains({ id: 'abc123.s1.devshift.org' });
+
+      expect(getApiGetParams().search).toBe("cloud_provider='gcp' AND id='abc123.s1.devshift.org'");
+      expect(getApiGetParams().search).not.toContain("cluster.id=''");
+      expect(getApiGetParams().size).toBe(-1);
+    });
+  });
 });

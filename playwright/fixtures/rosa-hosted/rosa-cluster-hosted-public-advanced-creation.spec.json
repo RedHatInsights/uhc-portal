@@ -31,6 +31,7 @@
         "MiniNodeCount": "2",
         "MaxNodeCount": "4"
       },
+      "CloudWatchLogGroupName": "ply-rosa-hosted-cw-log-group",
       "ClusterProxy": {
         "HttpProxy": "http://test.com",
         "HttpsProxy": "https://test.com",
@@ -51,6 +52,12 @@
           "CompatibleInstanceType": "c5.metal",
           "IncompatibleInstanceType": "m5.xlarge"
         }
+      },
+      "ControlPlaneLogForwarding": {
+        "UpdatedS3BucketPrefix": "updated-logs",
+        "UpdatedCwLogGroupName": "ocm-e2e-cw-log-group-updated",
+        "EditedCwLogGroupName": "ocm-e2e-cw-log-group-edited",
+        "SelectedGroup": "api"
       }
     }
   }

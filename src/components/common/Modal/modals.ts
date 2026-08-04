@@ -16,6 +16,7 @@ const modals = {
   EDIT_CONSOLE_URL: 'edit-console-url',
   EDIT_DISPLAY_NAME: 'edit-display-name',
   EDIT_MACHINE_POOL: 'edit-machine-pool',
+  EDIT_LOG_FORWARDING: 'edit-log-forwarding',
   EDIT_SUBSCRIPTION_SETTINGS: 'edit-subscription-settings',
   ACCESS_REQUEST_DETAILS: 'accessRequest-details',
   HIBERNATE_CLUSTER: 'hibernate-cluster',

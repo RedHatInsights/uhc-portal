@@ -74,7 +74,6 @@ describe('quotaSelectors', () => {
       [BillingModel.marketplace, BillingModel.marketplace],
       [BillingModel.marketplace_azure, BillingModel.marketplace_azure],
       [BillingModel.marketplace_gcp, BillingModel.marketplace_gcp],
-      [BillingModel.marketplace_rhm, BillingModel.marketplace_rhm],
     ])('model %p is %p', (model: BillingModel, expected: string) => {
       expect(getBillingQuotaModel(model)).toBe(expected);
     });

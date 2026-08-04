@@ -8,6 +8,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalVariant,
+  Stack,
   StackItem,
 } from '@patternfly/react-core';
 
@@ -66,7 +67,6 @@ export function OverviewBillingAccountModal(props: OverviewBillingAccountModalPr
                 queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
                 'clusterService',
                 cluster?.id,
-                cluster?.subscription,
               ],
             });
           },
@@ -89,21 +89,25 @@ export function OverviewBillingAccountModal(props: OverviewBillingAccountModalPr
             labelId="edit-billing-aws-account-modal"
           />
           <ModalBody>
-            <AWSBillingAccountForm
-              name="billingAccountId"
-              selectedAWSBillingAccountID={formik.values.billingAccountId}
-            />
-            {isClusterEditError && (
+            <Stack hasGutter>
               <StackItem>
-                <ErrorBox
-                  message="A problem occurred updating the billing account."
-                  response={{
-                    errorMessage: clusterEditError?.message || clusterEditError?.errorMessage,
-                    operationID: clusterEditError?.operationID,
-                  }}
+                <AWSBillingAccountForm
+                  name="billingAccountId"
+                  selectedAWSBillingAccountID={formik.values.billingAccountId}
                 />
               </StackItem>
-            )}
+              {isClusterEditError && (
+                <StackItem>
+                  <ErrorBox
+                    message="A problem occurred updating the billing account."
+                    response={{
+                      errorMessage: clusterEditError?.message || clusterEditError?.errorMessage,
+                      operationID: clusterEditError?.operationID,
+                    }}
+                  />
+                </StackItem>
+              )}
+            </Stack>
           </ModalBody>
           <ModalFooter>
             <Button

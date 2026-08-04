@@ -2305,7 +2305,7 @@ export interface paths {
     };
     /**
      * Get recommendation for container
-     * @description This feature is in limited preview for select customers
+     * @description Get recommendation by ID i.e. UUID
      */
     get: operations['getRecommendationById'];
     put?: never;
@@ -3626,8 +3626,8 @@ export interface components {
           cpu?: {
             /** @example 5 */
             amount?: number;
-            /** @example null */
-            format?: string | null;
+            /** @example  */
+            format?: string;
           };
           memory?: {
             /** @example 6700 */
@@ -3640,8 +3640,8 @@ export interface components {
           cpu?: {
             /** @example 3 */
             amount?: number;
-            /** @example null */
-            format?: string | null;
+            /** @example  */
+            format?: string;
           };
           memory?: {
             /** @example 700 */
@@ -3707,7 +3707,7 @@ export interface components {
             /** @example 622 */
             amount?: number;
             /** @example m */
-            format?: string | null;
+            format?: string;
           };
           memory?: {
             /** @example 500 */
@@ -3720,8 +3720,8 @@ export interface components {
           cpu?: {
             /** @example 3.92 */
             amount?: number;
-            /** @example null */
-            format?: string | null;
+            /** @example  */
+            format?: string;
           };
           memory?: {
             /** @example 6000 */
@@ -3850,8 +3850,8 @@ export interface components {
             cpu?: {
               /** @example 2 */
               amount?: number;
-              /** @example null */
-              format?: string | null;
+              /** @example  */
+              format?: string;
             };
             memory?: {
               /** @example 30.715 */
@@ -3864,8 +3864,8 @@ export interface components {
             cpu?: {
               /** @example 2 */
               amount?: number;
-              /** @example null */
-              format?: string | null;
+              /** @example  */
+              format?: string;
             };
             memory?: {
               /** @example 20.391 */
@@ -3910,7 +3910,7 @@ export interface components {
      */
     cpuUsageFloatComponent: number;
     cpuUsage: {
-      /** @example cores */
+      /** @example  */
       format?: string;
       max?: components['schemas']['cpuUsageFloatComponent'];
       median?: components['schemas']['cpuUsageFloatComponent'];
@@ -3945,7 +3945,10 @@ export interface components {
         cpuUsage?: components['schemas']['cpuUsage'];
         memoryUsage?: components['schemas']['memoryUsage'];
       };
-      '2023-04-02T00:00:00Z'?: Record<string, never>;
+      '2023-04-02T00:00:00Z'?: {
+        cpuUsage?: components['schemas']['cpuUsage'];
+        memoryUsage?: components['schemas']['memoryUsage'];
+      };
     };
     PlotsData: {
       /** @example 4 */
@@ -4025,8 +4028,8 @@ export interface components {
             cpu?: {
               /** @example 2 */
               amount?: number;
-              /** @example null */
-              format?: string | null;
+              /** @example  */
+              format?: string;
             };
             memory?: {
               /** @example 30.715 */
@@ -4039,8 +4042,8 @@ export interface components {
             cpu?: {
               /** @example 2 */
               amount?: number;
-              /** @example null */
-              format?: string | null;
+              /** @example  */
+              format?: string;
             };
             memory?: {
               /** @example 20.391 */
@@ -4424,7 +4427,10 @@ export interface operations {
         source_uuid?: string;
         /** @description Filter response on source type. */
         source_type?: string;
-        /** @description Filter response on cost model name. */
+        /**
+         * @description Filter response on cost model name using case-insensitive substring matching. Accepts comma-separated values as an AND filter (e.g. 'gpu,demo' returns only models whose name contains both 'gpu' AND 'demo').
+         * @example OpenShift
+         */
         name?: string;
         /** @description Filter response on currency. */
         currency?: string;
@@ -9678,12 +9684,12 @@ export interface operations {
         'exclude[cluster]'?: string;
         /** @description Exact match on cluster alias or UUID */
         'filter[exact:cluster]'?: string;
-        /** @description Exact match on workload type. Options are daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
-        workload_type?: string;
-        /** @description Exclude by workload type. Must be one of: daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
-        'exclude[workload_type]'?: string;
-        /** @description Exact match on workload type. Must be one of: daemonset, deployment, deploymentconfig, replicaset, replicationcontroller, statefulset */
-        'filter[exact:workload_type]'?: string;
+        /** @description Exact match on workload type. */
+        workload_type?: PathsRecommendationsOpenshiftGetParametersQueryWorkload_type;
+        /** @description Exclude by workload type. */
+        'exclude[workload_type]'?: PathsRecommendationsOpenshiftGetParametersQueryExcludeWorkload_type;
+        /** @description Exact match on workload type. */
+        'filter[exact:workload_type]'?: PathsRecommendationsOpenshiftGetParametersQueryFilterExactWorkload_type;
         /** @description Partial match on workload name */
         workload?: string;
         /** @description Exclude by workload name */
@@ -9718,10 +9724,10 @@ export interface operations {
         offset?: number;
         /** @description Pagination limit */
         limit?: number;
-        /** @description Field to order results by. Options: cluster, project, workload_type, workload, container, last_reported, cpu_request_current, memory_request_current, and per-term variation fields (e.g. cpu_variation_short_cost, memory_variation_long_performance). Variation values are percent of current CPU or memory request (float); see the recommendations.variation amounts in each list item. */
+        /** @description Field to order results by. Variation values are percent of current CPU or memory request (float); see the recommendations.variation amounts in each list item. */
         order_by?: PathsRecommendationsOpenshiftGetParametersQueryOrder_by;
-        /** @description Options are ASC, DESC */
-        order_how?: string;
+        /** @description Ordering direction for recommendations */
+        order_how?: PathsRecommendationsOpenshiftGetParametersQueryOrder_how;
         /** @description unit preference for memory */
         'memory-unit'?: PathsRecommendationsOpenshiftGetParametersQueryMemoryUnit;
         /** @description unit preference for cpu */
@@ -9739,7 +9745,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RecommendationList'];
+          'application/json; charset=UTF-8': components['schemas']['RecommendationList'];
         };
       };
       /** @description Bad request, e.g. invalid query parameter value */
@@ -9816,6 +9822,15 @@ export interface operations {
           'text/plain': string;
         };
       };
+      /** @description Container recommendation not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': string;
+        };
+      };
     };
   };
 }
@@ -9839,6 +9854,30 @@ export enum PathsRecommendationsOpenshiftGetParametersQueryFormat {
   json = 'json',
   csv = 'csv',
 }
+export enum PathsRecommendationsOpenshiftGetParametersQueryWorkload_type {
+  daemonset = 'daemonset',
+  deployment = 'deployment',
+  deploymentconfig = 'deploymentconfig',
+  replicaset = 'replicaset',
+  replicationcontroller = 'replicationcontroller',
+  statefulset = 'statefulset',
+}
+export enum PathsRecommendationsOpenshiftGetParametersQueryExcludeWorkload_type {
+  daemonset = 'daemonset',
+  deployment = 'deployment',
+  deploymentconfig = 'deploymentconfig',
+  replicaset = 'replicaset',
+  replicationcontroller = 'replicationcontroller',
+  statefulset = 'statefulset',
+}
+export enum PathsRecommendationsOpenshiftGetParametersQueryFilterExactWorkload_type {
+  daemonset = 'daemonset',
+  deployment = 'deployment',
+  deploymentconfig = 'deploymentconfig',
+  replicaset = 'replicaset',
+  replicationcontroller = 'replicationcontroller',
+  statefulset = 'statefulset',
+}
 export enum PathsRecommendationsOpenshiftGetParametersQueryOrder_by {
   cluster = 'cluster',
   project = 'project',
@@ -9860,6 +9899,10 @@ export enum PathsRecommendationsOpenshiftGetParametersQueryOrder_by {
   memory_variation_medium_performance = 'memory_variation_medium_performance',
   memory_variation_long_cost = 'memory_variation_long_cost',
   memory_variation_long_performance = 'memory_variation_long_performance',
+}
+export enum PathsRecommendationsOpenshiftGetParametersQueryOrder_how {
+  ASC = 'ASC',
+  DESC = 'DESC',
 }
 export enum PathsRecommendationsOpenshiftGetParametersQueryMemoryUnit {
   bytes = 'bytes',

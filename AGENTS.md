@@ -8,6 +8,7 @@ Some parts of the application are legacy code, using JavaScript and Redux for gl
 
 All documents are located inside `/docs`. Read the relevant file before writing or reviewing code.
 
+```text
 root: docs/
 
 UI-components:              code-guide.md
@@ -15,10 +16,9 @@ contributing:               contributing.md
 unit-testing:               unit-testing.md
 e2e-testing:                Playwright-e2e-test-automation-guidelines.md
 e2e-testing FAQ:            Playwright-e2e-test-automation-faq.md
+```
 
-root: openapi/
-
-API types and generation:   README.md
+For information about the generation of TS models from OpenAPI specs, check the `/openapi/README.md` doc.
 
 ## Project structure
 

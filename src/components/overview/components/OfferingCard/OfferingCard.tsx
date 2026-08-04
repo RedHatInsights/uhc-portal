@@ -26,11 +26,13 @@ import { CreateManagedClusterButtonWithTooltip } from '~/components/common/Creat
 import ExternalLink from '~/components/common/ExternalLink';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 import SupportLevelBadge, { DEV_PREVIEW } from '~/components/common/SupportLevelBadge';
-import AWSLogo from '~/styles/images/AWSLogo';
+import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
+import AWSLogoLightTheme from '~/styles/images/AWSLogo.svg';
+import AWSLogoDarkTheme from '~/styles/images/AWSLogoRev.svg';
 import IBMLogo from '~/styles/images/ibm_cloud-icon.svg';
 import microsoftLogo from '~/styles/images/Microsoft_logo.svg';
 import OpenShiftProductIcon from '~/styles/images/OpenShiftProductIcon.svg';
-import RHLogo from '~/styles/images/RedHatLogo';
+import RHLogo from '~/styles/images/RedHatLogo.svg';
 
 import './OfferingCard.scss';
 
@@ -148,7 +150,14 @@ function OfferingCard(props: OfferingCardProps) {
           component={AWSOfferingCardDocLinkComponent}
         />
       );
-      cardLogo = <AWSLogo className="offering-logo" />;
+      cardLogo = (
+        <ThemedImage
+          darkThemeSrc={AWSLogoDarkTheme}
+          lightThemeSrc={AWSLogoLightTheme}
+          alt="Amazon Web Service logo"
+          className="offering-logo"
+        />
+      );
       break;
     case 'Azure':
       offeringCardTitle = 'Azure Red Hat OpenShift (ARO)';
@@ -183,7 +192,7 @@ function OfferingCard(props: OfferingCardProps) {
           component={RHOSDOfferingCardDocLinkComponent}
         />
       );
-      cardLogo = <RHLogo className="offering-logo" />;
+      cardLogo = <img className="offering-logo" src={RHLogo} alt="Red Hat logo" />;
       break;
 
     case 'RHOCP':
@@ -242,7 +251,7 @@ function OfferingCard(props: OfferingCardProps) {
           View details
         </Button>
       );
-      cardLogo = <RHLogo className="offering-logo" />;
+      cardLogo = <img className="offering-logo" src={RHLogo} alt="Red Hat logo" />;
       break;
     case 'MIGRATION':
       offeringCardTitle = 'Evaluate VMware to Openshift Migration Advisor';

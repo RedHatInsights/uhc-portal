@@ -4,10 +4,24 @@ export type LogForwardingGroupTreeNode = {
   children?: LogForwardingGroupTreeNode[];
 };
 
-/** Test and Storybook fixture; not from the API. */
+/** Prefix for synthetic group root ids so they do not collide with application ids from the API. */
+export const LOG_FORWARDING_GROUP_ID_PREFIX = 'lfg:';
+
+/** Returns the canonical root-node id for a log forwarding group (e.g. `'lfg:API'`). */
+export function logForwardingGroupRootId(groupName: string): string {
+  return `${LOG_FORWARDING_GROUP_ID_PREFIX}${groupName}`;
+}
+
+/**
+ * Test and Storybook fixture; not from the API.
+ *
+ * Root node ids use `logForwardingGroupRootId()` so they match the shape produced by
+ * `logForwardingGroupVersionsListToTree`. Leaf ids are intentionally unique across the mock
+ * (unlike the real API where leaf ids equal the application name) to keep test cases distinct.
+ */
 export const mockLogForwardingGroupTree: LogForwardingGroupTreeNode[] = [
   {
-    id: 'api',
+    id: logForwardingGroupRootId('API'),
     text: 'API',
     children: [
       { id: 'api-audit', text: 'audit' },
@@ -15,7 +29,7 @@ export const mockLogForwardingGroupTree: LogForwardingGroupTreeNode[] = [
     ],
   },
   {
-    id: 'authentication',
+    id: logForwardingGroupRootId('Authentication'),
     text: 'Authentication',
     children: [
       { id: 'auth-kube-apiserver', text: 'kube-apiserver' },
@@ -23,12 +37,12 @@ export const mockLogForwardingGroupTree: LogForwardingGroupTreeNode[] = [
     ],
   },
   {
-    id: 'controller-manager',
+    id: logForwardingGroupRootId('Controller manager'),
     text: 'Controller manager',
     children: [{ id: 'controller-manager-child', text: 'controller manager' }],
   },
   {
-    id: 'ungrouped-applications',
+    id: logForwardingGroupRootId('Ungrouped applications'),
     text: 'Ungrouped applications',
     children: [{ id: 'sample-app', text: 'sample-application' }],
   },

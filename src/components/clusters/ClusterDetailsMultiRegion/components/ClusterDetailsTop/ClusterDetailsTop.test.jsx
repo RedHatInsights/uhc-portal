@@ -5,16 +5,9 @@ import * as notifications from '@redhat-cloud-services/frontend-components-notif
 
 import { CLUSTER_LIST_PATH, ocmBaseName } from '~/common/routing';
 import { normalizedProducts } from '~/common/subscriptionTypes';
-import { HIDE_RH_MARKETPLACE } from '~/queries/featureGates/featureConstants';
+import supportLinks from '~/common/supportLinks.mjs';
 import * as clusterService from '~/services/clusterService';
-import {
-  checkAccessibility,
-  mockUseChrome,
-  mockUseFeatureGate,
-  render,
-  screen,
-  within,
-} from '~/testUtils';
+import { checkAccessibility, mockUseChrome, render, screen, within } from '~/testUtils';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
 import clusterStates from '../../../common/clusterStates';
@@ -228,6 +221,10 @@ describe('<ClusterDetailsTop />', () => {
     });
   });
   describe('alerts', () => {
+    beforeEach(() => {
+      defaultCluster.subscription = { status: SubscriptionCommonFieldsStatus.Active };
+    });
+
     it('should show expiration alert based on expiration_time', async () => {
       const { cluster } = fixtures.OSDTrialClusterDetails;
       const expDate = new Date();
@@ -274,37 +271,6 @@ describe('<ClusterDetailsTop />', () => {
       await user.click(expandBtn);
 
       expect(await screen.findByRole('alert')).toBeInTheDocument();
-      expect(
-        within(screen.getByRole('alert')).getByText('Danger alert', {
-          exact: false,
-        }),
-      ).toBeInTheDocument();
-      expect(
-        within(screen.getByRole('alert')).getByText('This cluster will be deleted in a day', {
-          exact: false,
-        }),
-      ).toBeInTheDocument();
-    });
-
-    it('should show expiration alert for OSD RHM', async () => {
-      mockUseFeatureGate([[HIDE_RH_MARKETPLACE, false]]);
-
-      const { cluster } = fixtures.OSDRHMClusterDetails;
-
-      const expDate = new Date();
-      expDate.setDate(expDate.getDate() + 1); // now + 1 day
-      cluster.subscription.trial_end_date = '';
-      cluster.subscription.billing_expiration_date = expDate.toISOString();
-      cluster.expiration_timestamp = '';
-
-      const newProps = { ...props, cluster };
-
-      const { user } = render(<ClusterDetailsTop {...newProps} />);
-
-      const expandBtn = screen.getByText('Alerts and recommendations');
-
-      await user.click(expandBtn);
-
       expect(
         within(screen.getByRole('alert')).getByText('Danger alert', {
           exact: false,
@@ -367,8 +333,79 @@ describe('<ClusterDetailsTop />', () => {
       expect(container.querySelector('.pf-v6-c-skeleton')).toBeInTheDocument();
     });
 
+    it('should show severity label change alert', async () => {
+      const { user } = render(<ClusterDetailsTop {...props} />);
+
+      const expandBtn = screen.getByText('Alerts and recommendations');
+      await user.click(expandBtn);
+
+      expect(
+        screen.getByText(
+          'To ensure consistency across our platform, we are updating the severity labels of the service log messages.',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('displays learn more link in severity label change alert', async () => {
+      const { user } = render(<ClusterDetailsTop {...props} />);
+
+      const expandBtn = screen.getByText('Alerts and recommendations');
+      await user.click(expandBtn);
+
+      const learnMoreLink = screen.getByText('Learn more.');
+      expect(learnMoreLink).toHaveAttribute('href', supportLinks.SEVERITY_LABEL_CHANGE_KB);
+    });
+
+    it('should not show severity label change alert when cluster is archived', async () => {
+      const expDate = new Date();
+      expDate.setDate(expDate.getDate() - (365 * 2 + 1));
+
+      const cluster = {
+        ...fixtures.clusterDetails.cluster,
+        subscription: { status: 'Archived', id: 'fake' },
+        expiration_timestamp: expDate.toISOString(), // Include an expiration alert so the Alerts and recommendations section is rendered
+      };
+
+      const newProps = { ...props, cluster };
+
+      const { user } = render(<ClusterDetailsTop {...newProps} />);
+
+      const expandBtn = screen.getByText('Alerts and recommendations');
+      await user.click(expandBtn);
+
+      expect(
+        screen.queryByText(
+          'To ensure consistency across our platform, we are updating the severity labels of the service log messages.',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should not show severity label change alert when cluster is deprovisioned', async () => {
+      const expDate = new Date();
+      expDate.setDate(expDate.getDate() - (365 * 2 + 1));
+
+      const cluster = {
+        ...fixtures.clusterDetails.cluster,
+        subscription: { status: 'Deprovisioned', id: 'fake' },
+        expiration_timestamp: expDate.toISOString(),
+      };
+
+      const newProps = { ...props, cluster };
+
+      const { user } = render(<ClusterDetailsTop {...newProps} />);
+
+      const expandBtn = screen.getByText('Alerts and recommendations');
+      await user.click(expandBtn);
+
+      expect(
+        screen.queryByText(
+          'To ensure consistency across our platform, we are updating the severity labels of the service log messages.',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
     it('displays the correct count of alerts', async () => {
-      // mock osdtrial expiration, gcpOrgPolicy and reccomendedOperators alerts
+      // mock osdtrial expiration, gcpOrgPolicy, reccomendedOperators, and severity label alerts
       const { cluster } = fixtures.OSDTrialClusterDetails;
       const expDate = new Date();
       expDate.setDate(expDate.getDate() + 1); // now + 1 day
@@ -379,7 +416,7 @@ describe('<ClusterDetailsTop />', () => {
       render(<ClusterDetailsTop {...newProps} />);
 
       const alertsBadge = screen.getByTestId('alerts-badge');
-      expect(alertsBadge).toHaveTextContent('3');
+      expect(alertsBadge).toHaveTextContent('4');
     });
   });
 });

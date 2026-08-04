@@ -228,7 +228,6 @@ export const BillingModelShowcase: Story = {
     const base = buildFullReviewFormValues();
     const models: Array<{ label: string; billingModel: string }> = [
       { label: 'Standard', billingModel: ClusterBillingModel.standard },
-      { label: 'Marketplace (RHM)', billingModel: ClusterBillingModel.marketplace },
       { label: 'Marketplace AWS', billingModel: ClusterBillingModel.marketplace_aws },
       { label: 'Marketplace GCP', billingModel: ClusterBillingModel.marketplace_gcp },
       { label: 'Free trial', billingModel: STANDARD_TRIAL_BILLING_MODEL_TYPE },

@@ -109,10 +109,6 @@ export const quotaWithAccounts = {
           cloud_provider_id: 'aws',
         },
         {
-          cloud_account_id: 'fakeRHMarketplaceAccount',
-          cloud_provider_id: 'rhm',
-        },
-        {
           cloud_account_id: 'fakeAzureAccount',
           cloud_provider_id: 'azure',
         },
@@ -137,10 +133,6 @@ export const quotaWithoutAccounts = {
     {
       allowed: 1080,
       cloud_accounts: [
-        {
-          cloud_account_id: 'fakeRHMarketplaceAccount',
-          cloud_provider_id: 'rhm',
-        },
         {
           cloud_account_id: 'fakeAzureAccount',
           cloud_provider_id: 'azure',

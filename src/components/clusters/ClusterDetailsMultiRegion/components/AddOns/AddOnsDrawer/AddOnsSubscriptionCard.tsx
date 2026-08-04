@@ -23,7 +23,6 @@ import './AddOnsSubscriptionCard.scss';
 const SELECT_ACCOUNT_PLACEHOLDER = 'Select an account';
 const marketplaceLinks: {
   [addOn: string]: {
-    rhm?: string;
     aws?: string;
     azure?: string;
   };

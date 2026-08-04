@@ -1,8 +1,9 @@
 import React from 'react';
 
+import { DrawerPanelContentNode } from '~/hooks/useChromeDrawerPanel';
 import SomeLogo from '~/styles/images/RedHatOpenShiftGitOpsLogo.svg';
 
-import { DRAWER_PANEL_CONTENT, DrawerPanelContentNode } from './common/DrawerPanelContent';
+import { DRAWER_PANEL_CONTENT } from './common/DrawerPanelContent';
 import PRODUCT_CARD_LOGOS from './common/ProductCardLogos';
 import { FEATURED_PRODUCTS_CARDS } from './FeaturedProductsCards/FeaturedProductsCards';
 
@@ -61,12 +62,10 @@ const PRODUCT_CARD_TEST_CASES = {
 };
 
 const BASIC_DRAWER_PANEL_PROPS = {
-  children: <div data-testid="children-of-drawer-panel">some children</div>,
   content: {
     head: <div data-testid="test-head-div">example drawer panel content head</div>,
     body: <div data-testid="test-body-div">example drawer panel content body</div>,
   },
-  isOpen: true,
   onClose: jest.fn(),
 };
 
@@ -94,7 +93,7 @@ type RecommendedOperatorsCardsNode = {
   description: string;
   logo: string | undefined;
   labelText?: string;
-  drawerPanelContent?: DrawerPanelContentNode;
+  drawerPanelContent: DrawerPanelContentNode;
 };
 
 const RECOMMENDED_OPERATORS_CARDS_DATA: RecommendedOperatorsCardsNode[] = [

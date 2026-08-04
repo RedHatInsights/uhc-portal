@@ -218,6 +218,8 @@ const links = {
 
   OCM_CLI_RELEASES_LATEST:
     'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/ocm/latest',
+  LOG_FORWARDING_DOCS:
+    'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/logging/rosa-forwarding-control-plane-logs',
 };
 
 // Tool identifiers are public — e.g. for linking to specific tool in DownloadsPage.
@@ -352,8 +354,8 @@ const urls = {
   [tools.OCM]: {
     [channels.STABLE]: {
       [architectures.x86]: {
-        [operatingSystems.linux]: `${links.OCM_CLI_RELEASES_LATEST}/ocm_linux_amd64.zip`,
-        [operatingSystems.mac]: `${links.OCM_CLI_RELEASES_LATEST}/ocm_darwin_amd64.zip`,
+        [operatingSystems.linux]: `${links.OCM_CLI_RELEASES_LATEST}/ocm_linux_amd64.tar.gz`,
+        [operatingSystems.mac]: `${links.OCM_CLI_RELEASES_LATEST}/ocm_darwin_amd64.tar.gz`,
         [operatingSystems.windows]: `${links.OCM_CLI_RELEASES_LATEST}/ocm_windows_amd64.zip`,
       },
     },

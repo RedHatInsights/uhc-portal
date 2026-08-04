@@ -72,7 +72,17 @@ export class ClusterRequestsPage extends BasePage {
   }
 
   clusterTransferTable(): Locator {
-    return this.page.locator('table[aria-label="Cluster transfer ownership"]');
+    return this.page
+      .getByRole('grid', { name: 'Cluster transfer ownership' })
+      .or(this.page.locator('table[aria-label="Cluster transfer ownership"]'));
+  }
+
+  transferTableRow(name: string, status: string): Locator {
+    return this.clusterTransferTable()
+      .getByRole('row')
+      .filter({ hasText: name })
+      .filter({ hasText: status })
+      .first();
   }
 
   tableHeader(header: string): Locator {
@@ -108,9 +118,11 @@ export class ClusterRequestsPage extends BasePage {
     transferRecipient: string,
     finalStatus: string = '',
   ): Promise<void> {
-    const row = this.clusterRow(name);
+    const transferTable = this.clusterTransferTable();
+    await expect(transferTable).toBeVisible({ timeout: 30000 });
+    const row = this.transferTableRow(name, status);
 
-    await expect(row.locator('td[data-label="Status"]')).toContainText(status);
+    await expect(row).toBeVisible({ timeout: 15000 });
     await expect(row.locator('td[data-label="Type"]')).toContainText(type);
     await expect(row.locator('td[data-label="Current Owner"]')).toContainText(currentOwner);
     await expect(row.locator('td[data-label="Transfer Recipient"]')).toContainText(
@@ -123,18 +135,19 @@ export class ClusterRequestsPage extends BasePage {
   }
 
   async cancelClusterRequestsByClusterName(name: string): Promise<void> {
-    const row = this.clusterRow(name);
-    await row.getByRole('button', { name: 'Cancel' }).click();
+    const transferTable = this.clusterTransferTable();
+    const row = transferTable
+      .getByRole('row')
+      .filter({ hasText: name })
+      .filter({ has: this.page.getByRole('button', { name: 'Retract' }) })
+      .first();
+    await row.getByRole('button', { name: 'Retract' }).click();
 
     await expect(
-      this.page.getByRole('heading', { name: /Cancel cluster transfer/i }),
-    ).toBeVisible();
-    await expect(
-      this.page.getByText(
-        `This action cannot be undone. It will cancel the impending transfer for cluster ${name}`,
-      ),
+      this.page.getByRole('heading', { name: /Cancel cluster transfer|Retract/i }),
     ).toBeVisible();
 
-    await this.cancelTransferButton().click();
+    const confirmButton = this.page.getByRole('dialog').getByRole('button', { name: /Retract|Cancel Transfer/i });
+    await confirmButton.click();
   }
 }

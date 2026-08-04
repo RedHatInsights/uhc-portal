@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
 import * as machinePoolUtils from '~/components/clusters/common/machinePools/utils';
-import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
-import { mockUseFeatureGate } from '~/testUtils';
 
 import useMachinePoolFormik from './useMachinePoolFormik';
 import {
@@ -31,7 +29,6 @@ const mockUseOrganization = () => {
 
 describe('useMachinePoolFormik', () => {
   beforeEach(() => {
-    mockUseFeatureGate([[MAX_NODES_TOTAL_249, false]]);
     mockUseOrganization();
   });
 
@@ -457,6 +454,123 @@ describe('useMachinePoolFormik', () => {
         // Yup's .trim() transform should return the trimmed value
         const result = await validationSchema.validateAt('capacityReservationId', values);
         expect(result).toBe('cr-12345678901234567');
+      });
+    });
+
+    describe('taints validation', () => {
+      it('allows initial empty taint row with default effect', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: defaultCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          taints: [{ key: '', value: '', effect: 'NoSchedule' }],
+        };
+
+        // Initial empty taint row should be valid
+        await expect(validationSchema.validateAt('taints[0].effect', values)).resolves.toBe(
+          'NoSchedule',
+        );
+      });
+
+      it('requires taint key when effect is changed from default', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: defaultCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          taints: [{ key: '', value: '', effect: 'NoExecute' }],
+        };
+
+        // Changing effect without key should fail validation with error on key path
+        await expect(validationSchema.validateAt('taints[0].effect', values)).rejects.toMatchObject(
+          {
+            message: 'Taint key has to be defined',
+            path: 'taints[0].key',
+          },
+        );
+      });
+
+      it('allows taint with effect when key is provided', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: defaultCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          taints: [{ key: 'app', value: '', effect: 'NoExecute' }],
+        };
+
+        // Taint with key and changed effect should be valid
+        await expect(validationSchema.validateAt('taints[0].effect', values)).resolves.toBe(
+          'NoExecute',
+        );
+      });
+
+      it('requires taint key even when effect is default but value is set', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: defaultCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          taints: [{ key: '', value: 'test', effect: 'NoSchedule' }],
+        };
+
+        // Effect validation catches this case and reports error on key field
+        await expect(validationSchema.validateAt('taints[0].effect', values)).rejects.toMatchObject(
+          {
+            message: 'Taint key has to be defined',
+            path: 'taints[0].key',
+          },
+        );
+      });
+
+      it('allows complete taint with key, value, and effect', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: defaultCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          taints: [{ key: 'app', value: 'frontend', effect: 'NoSchedule' }],
+        };
+
+        // Complete taint should be valid
+        await expect(validationSchema.validateAt('taints[0].effect', values)).resolves.toBe(
+          'NoSchedule',
+        );
+        await expect(validationSchema.validateAt('taints[0].key', values)).resolves.toBe('app');
+        await expect(validationSchema.validateAt('taints[0].value', values)).resolves.toBe(
+          'frontend',
+        );
       });
     });
   });

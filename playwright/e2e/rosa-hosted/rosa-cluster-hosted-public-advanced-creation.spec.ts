@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
 // Import cluster properties JSON
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
@@ -21,15 +22,25 @@ test.describe.serial(
 
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
-    const clusterName = clusterProperties.ClusterName;
+    const clusterNamePrefix = clusterProperties.ClusterName;
+    const clusterName = `${clusterNamePrefix}-${Math.random().toString(36).slice(2, 7)}`;
+    const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2, 13)}`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
+    const logForwardingS3BucketName = process.env.QE_LOG_FORWARDING_S3_BUCKET_NAME || '';
+    const logForwardingS3BucketPrefix = process.env.QE_LOG_FORWARDING_S3_BUCKET_PREFIX || '';
+    const logForwardingCwRoleArn = process.env.QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN || '';
+    const logForwardingCwLogGroupName = clusterProperties.CloudWatchLogGroupName;
 
     test.beforeAll(async ({ navigateTo }) => {
-      // Initial navigation using navigateTo
-      await navigateTo('create');
+      if (!logForwardingS3BucketName || !logForwardingS3BucketPrefix || !logForwardingCwRoleArn) {
+        throw new Error(
+          'Missing required env vars: QE_LOG_FORWARDING_S3_BUCKET_NAME, QE_LOG_FORWARDING_S3_BUCKET_PREFIX, QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN',
+        );
+      }
+      await navigateTo(CREATE_CLUSTER_ROUTE);
     });
 
-    test(`Open Rosa wizard for public advanced cluster : ${clusterName}`, async ({
+    test(`Open Rosa wizard for public advanced cluster : ${clusterNamePrefix}`, async ({
       page,
       createRosaWizardPage,
     }) => {
@@ -39,14 +50,14 @@ test.describe.serial(
       await expect(page.locator('.spinner-loading-text')).not.toBeVisible();
     });
 
-    test(`Step - Control plane - Select control plane type ${clusterName}`, async ({
+    test(`Step - Control plane - Select control plane type ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await createRosaWizardPage.selectHostedControlPlaneType();
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Accounts and roles - Select Accounts and roles for ${clusterName}`, async ({
+    test(`Step - Accounts and roles - Select Accounts and roles for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await createRosaWizardPage.isAccountsAndRolesScreen();
@@ -59,7 +70,7 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Cluster Settings - Set cluster details for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - Set cluster details for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
       page,
     }) => {
@@ -67,14 +78,14 @@ test.describe.serial(
       await createRosaWizardPage.selectRegion(region);
       await createRosaWizardPage.setClusterName(clusterName);
       await createRosaWizardPage.createCustomDomainPrefixCheckbox().check();
-      await createRosaWizardPage.setDomainPrefix(clusterProperties.DomainPrefix);
+      await createRosaWizardPage.setDomainPrefix(clusterDomainPrefix);
       await createRosaWizardPage.selectVersion(
         clusterProperties.Version || process.env.VERSION || '',
       );
       await createRosaWizardPage.closePopoverAndNavigateNext();
     });
 
-    test(`Step - Cluster Settings - Set machine pools for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - Set machine pools for ${clusterNamePrefix}`, async ({
       page,
       createRosaWizardPage,
     }) => {
@@ -113,7 +124,7 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Cluster Settings - configuration - cluster privacy for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - configuration - cluster privacy for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await createRosaWizardPage.selectClusterPrivacy('Private');
@@ -130,7 +141,7 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Cluster Settings - CIDR Ranges - CIDR default values for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - CIDR Ranges - CIDR default values for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await expect(createRosaWizardPage.cidrDefaultValuesCheckBox()).toBeChecked();
@@ -174,6 +185,32 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
+    test('Step - Control plane log forwarding - enable S3 and CloudWatch', async ({
+      createRosaWizardPage,
+    }) => {
+      await createRosaWizardPage.isLogForwardingScreen();
+      await createRosaWizardPage.amazonS3EnableCheckbox().check();
+      await createRosaWizardPage.logForwardingS3BucketNameInput().fill(logForwardingS3BucketName);
+      await createRosaWizardPage
+        .logForwardingS3BucketPrefixInput()
+        .fill(logForwardingS3BucketPrefix);
+      await createRosaWizardPage.selectAllLogForwardingGroups('S3');
+
+      await createRosaWizardPage.cloudWatchEnableCheckbox().check();
+      await expect(createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput()).toHaveValue(
+        new RegExp(`^${clusterName.slice(0, 15)}`),
+      );
+      await createRosaWizardPage.logForwardingCloudWatchLogGroupNameInput().clear();
+      await createRosaWizardPage
+        .logForwardingCloudWatchLogGroupNameInput()
+        .fill(logForwardingCwLogGroupName);
+      await createRosaWizardPage.logForwardingCloudWatchRoleArnInput().fill(logForwardingCwRoleArn);
+      await createRosaWizardPage.logForwardingCloudWatchPrerequisiteCheckbox().check();
+      await createRosaWizardPage.selectAllLogForwardingGroups('CloudWatch');
+
+      await createRosaWizardPage.rosaNextButton().click();
+    });
+
     test('Step - Review and create : Accounts and roles definitions', async ({
       createRosaWizardPage,
     }) => {
@@ -198,7 +235,7 @@ test.describe.serial(
       await createRosaWizardPage.isClusterPropertyMatchesValue('Cluster name', clusterName);
       await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Domain prefix',
-        clusterProperties.DomainPrefix,
+        clusterDomainPrefix,
       );
       await createRosaWizardPage.isClusterPropertyMatchesValue('Region', region);
       await createRosaWizardPage.isClusterPropertyMatchesValue(
@@ -326,6 +363,31 @@ test.describe.serial(
       );
     });
 
+    test('Step - Review and create : Log forwarding definitions', async ({
+      createRosaWizardPage,
+    }) => {
+      await expect(createRosaWizardPage.logForwardingReviewS3Heading()).toBeVisible();
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'configuration'),
+      ).toHaveText('Enabled');
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'bucket-name'),
+      ).toHaveText(logForwardingS3BucketName);
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('s3', 'bucket-prefix'),
+      ).toHaveText(logForwardingS3BucketPrefix);
+      await expect(createRosaWizardPage.logForwardingReviewCloudWatchHeading()).toBeVisible();
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'configuration'),
+      ).toHaveText('Enabled');
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'log-group-name'),
+      ).toHaveText(logForwardingCwLogGroupName);
+      await expect(
+        createRosaWizardPage.logForwardingReviewPropertyValue('cw', 'role-arn'),
+      ).toHaveText(logForwardingCwRoleArn);
+    });
+
     test('Create cluster and check the installation progress', async ({
       createRosaWizardPage,
       clusterDetailsPage,
@@ -347,6 +409,11 @@ test.describe.serial(
       await clusterDetailsPage.checkInstallationStepStatus('Network settings');
       await clusterDetailsPage.checkInstallationStepStatus('DNS setup');
       await clusterDetailsPage.checkInstallationStepStatus('Cluster installation');
+
+      const logForwardingDescription =
+        clusterDetailsPage.controlPlaneLogForwardingDescription();
+      await expect(logForwardingDescription).toContainText('Amazon S3: Enabled');
+      await expect(logForwardingDescription).toContainText('CloudWatch: Enabled');
     });
   },
 );

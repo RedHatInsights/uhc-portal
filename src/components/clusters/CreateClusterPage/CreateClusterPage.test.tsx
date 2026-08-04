@@ -4,6 +4,11 @@ import { mockRestrictedEnv, render, screen } from '~/testUtils';
 
 import CreateClusterPage from './CreateClusterPage';
 
+jest.mock('@scalprum/react-core', () => ({
+  ...jest.requireActual('@scalprum/react-core'),
+  useRemoteHook: jest.fn(() => ({ hookResult: null })),
+}));
+
 describe('<CreateClusterPage />', () => {
   describe('in Restricted env', () => {
     const isRestrictedEnv = mockRestrictedEnv();

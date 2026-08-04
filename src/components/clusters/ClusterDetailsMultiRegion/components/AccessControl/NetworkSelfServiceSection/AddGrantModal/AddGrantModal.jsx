@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 
 import { Form, FormGroup, Radio, TextInput } from '@patternfly/react-core';
 
-import installLinks from '~/common/installLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { validateUserOrGroupARN } from '~/common/validators';
 import ErrorBox from '~/components/common/ErrorBox';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
@@ -131,11 +131,7 @@ const AddGrantModal = ({
                   hint={
                     <div>
                       <p>Need help configuring ARNs?</p>
-                      <a
-                        href={installLinks.AWS_ARN_CONFIG}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                      >
+                      <a href={docLinks.AWS_ARN_CONFIG} target="_blank" rel="noreferrer noopener">
                         Check the AWS documentation.
                       </a>
                     </div>

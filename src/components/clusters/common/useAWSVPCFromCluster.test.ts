@@ -121,4 +121,31 @@ describe('useAWSVPCFromCluster', () => {
     expect(hasError).toBeFalsy();
     expect(refreshVPC).toBeInstanceOf(Function);
   });
+
+  it('includes STS external_id in VPC request for HCP cluster', async () => {
+    mockedfetchVpcByStsCredentials.mockReturnValue(Promise.resolve(dataForVPC));
+    const hcpCluster = {
+      ...cluster,
+      hypershift: { enabled: true },
+      aws: {
+        subnet_ids: ['mySubnetId'],
+        sts: { role_arn: 'myRoleArn', external_id: 'myExternalId' },
+      },
+    };
+
+    const { result } = renderHook(() => useAWSVPCFromCluster(hcpCluster, 'myRegion'));
+    await waitFor(() => expect(result.current.isLoading).toBeFalsy());
+
+    expect(mockedfetchVpcByStsCredentials).toHaveBeenCalledWith(
+      {
+        awsCredentials: {
+          sts: { role_arn: 'myRoleArn', external_id: 'myExternalId' },
+        },
+        region: 'myRegionId',
+        subnet: 'mySubnetId',
+        options: { includeSecurityGroups: true },
+      },
+      'myRegion',
+    );
+  });
 });

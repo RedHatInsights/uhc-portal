@@ -5,20 +5,21 @@
 ## Table of Contents
 
 1. [Project Structure](#project-structure)
-2. [Naming Conventions](#naming-conventions)
-3. [Creating New Test Specs](#creating-new-test-specs)
-4. [Page Object Model (POM)](#page-object-model-pom)
-5. [Using Fixtures](#using-fixtures)
-6. [Selector Strategy](#selector-strategy)
-7. [Test Organization](#test-organization)
-8. [Test Data Management](#test-data-management)
-9. [Tagging Strategy](#tagging-strategy)
-   - [Test Execution Tiers](#test-execution-tiers)
-   - [Choosing the Right Tier for New Tests](#choosing-the-right-tier-for-new-tests)
-10. [Best Practices](#best-practices)
-11. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
-12. [Debugging Tests](#debugging-tests)
-13. [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
+2. [Support Utilities](#support-utilities)
+3. [Naming Conventions](#naming-conventions)
+4. [Creating New Test Specs](#creating-new-test-specs)
+5. [Page Object Model (POM)](#page-object-model-pom)
+6. [Using Fixtures](#using-fixtures)
+7. [Selector Strategy](#selector-strategy)
+8. [Test Organization](#test-organization)
+9. [Test Data Management](#test-data-management)
+10. [Tagging Strategy](#tagging-strategy)
+    - [Test Execution Tiers](#test-execution-tiers)
+    - [Choosing the Right Tier for New Tests](#choosing-the-right-tier-for-new-tests)
+11. [Best Practices](#best-practices)
+12. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+13. [Debugging Tests](#debugging-tests)
+14. [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
 
 ---
 
@@ -47,6 +48,19 @@ playwright/
     ├── global-teardown.ts        # Global test teardown
     └── playwright-constants.ts   # Constants and timeouts
 ```
+
+---
+
+## Support Utilities
+
+The `playwright/support/` directory contains shared infrastructure used across all tests:
+
+- **`playwright-constants.ts`** — Defines all shared paths, timeouts, and route constants. Always import from here instead of hardcoding values.
+- **`auth-config.ts`** — Provides auth configuration. Reads credentials from environment variables.
+- **`custom-commands.ts`** — Provides common interaction helpers and ROSA CLI helpers.
+- **`global-setup.ts`** — Handles authentication and saves state to `storageState.json`. Do not modify unless changing the auth flow.
+- **`global-teardown.ts`** — Handles cleanup after test runs.
+- Environment variables are loaded from `playwright.env.json` at the workspace root via `playwright.config.ts`.
 
 ---
 
@@ -232,7 +246,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
 ### Base Page Structure
 
-All page objects extend `BasePage` which provides common utilities:
+Import constants like paths and timeouts from `../support/playwright-constants` instead of hardcoding values.
+
+**IMPORTANT: Before writing test code, always check `playwright/page-objects/base-page.ts` for reusable utilities.** BasePage provides common methods for navigation, element interaction, assertions, and screenshots. Use these methods instead of duplicating logic in your tests or page objects.
+
+All page objects extend `BasePage` which provides common utilities (see `base-page.ts` for the complete list):
 
 ```typescript
 class BasePage {
@@ -252,16 +270,23 @@ class BasePage {
   async waitForSelector(selector: string, options?): Promise<Locator>;
   async waitForLoadState(state?): Promise<void>;
 
-  // Helpers
+  // Helpers & Assertions
   getByTestId(testId: string): Locator;
+  getByText(text: string | RegExp, options?): Locator;
+  async isTextContainsInPage(text: string, present?: boolean): Promise<void>;
+  async pressKey(key: string): Promise<void>;
 
   // Screenshots
   async captureScreenshot(name: string, options?): Promise<string>;
   async captureErrorScreenshot(error: Error, context?: string): Promise<string>;
+
+  // ... and more - see playwright/page-objects/base-page.ts for the complete API
 }
 ```
 
 ### Page Object Patterns
+
+**Important:** Never store mutable test state as class properties in page objects. Let the page DOM maintain state instead of storing it in your page object class.
 
 #### Pattern 1: Locator Methods (Return `Locator`)
 
@@ -315,6 +340,14 @@ async isTextContainsInPage(text: string, shouldExist: boolean = true): Promise<v
 ---
 
 ## Using Fixtures
+
+### Fixture Scoping and Internals
+
+All page object fixtures must be **worker-scoped** using `{ scope: 'worker' }`. Never create test-scoped page object fixtures — serial tests require shared worker-scoped state.
+
+**Important:** Always use `authenticatedPage` (not raw `page`) when constructing page objects in fixture definitions. The `page` fixture is overridden to return the worker-scoped `authenticatedPage` with pre-loaded authentication state. This is what makes test-scoped fixtures like `navigateTo` work correctly in `test.beforeAll`.
+
+The `navigateTo` fixture is test-scoped and accepts a relative URL path. It is safe to use in `test.beforeAll` because `page` is overridden to delegate to the worker-scoped `authenticatedPage`, so navigation persists across all tests in the suite.
 
 ### Worker-Scoped Fixtures
 
@@ -388,25 +421,30 @@ test('my test', async ({ navigateTo }) => {
    this.page.getByLabel('Email address');
    ```
 
-3. **Text content** (Use sparingly)
+3. **Text content** (Only when no role or label is available)
 
    ```typescript
    this.page.getByText('Submit application');
    ```
 
-4. **`data-testid` attributes**
+4. **`data-testid` attributes** (Only when no role, label, or text selector is available)
 
    ```typescript
    this.page.getByTestId('submit-button');
    ```
 
-5. **CSS selectors** — Avoid
+5. **CSS selectors** — Never use
+
+   CSS selectors are brittle and tightly coupled to implementation details. PatternFly class selectors (e.g., `.pf-c-button`, `.pf-m-primary`, `.pf-v5-c-*`) are especially problematic as they may change between framework versions. Never use dynamic or auto-generated IDs as selectors either.
+
    ```typescript
+   // ❌ Never use these
    this.page.locator('button.submit-btn');
    this.page.locator('#cluster-name-input');
    this.page.locator('[aria-label="Close"]');
    ```
-   > ⚠️ **Note:** CSS selectors are brittle and tightly coupled to implementation details. PatternFly class selectors (e.g., `.pf-c-button`, `.pf-m-primary`, `.pf-v5-c-*`) are especially problematic as they may change between framework versions. Some existing tests use CSS selectors due to unavoidable circumstances (e.g., elements lacking accessible roles or test IDs). When you encounter these, the recommendation is to update the application source to add proper accessible attributes and then migrate the selector to a higher-priority strategy above.
+
+   > **Note:** Some existing tests use CSS selectors due to unavoidable circumstances (e.g., elements lacking accessible roles or test IDs). When you encounter these, update the application source to add proper accessible attributes and then migrate the selector to a higher-priority strategy above.
 
 ### Selector Examples
 
@@ -444,19 +482,24 @@ clusterNameInput(): Locator {
 ### Filtering and Chaining
 
 ```typescript
-// Filter by parent
+// Filter by text content
 pullSecretRow(): Locator {
-  return this.page.locator('tr').filter({ hasText: 'Pull secret' });
+  return this.page.getByRole('row').filter({ hasText: 'Pull secret' });
 }
 
-// Chain locators
+// Chain locators for scoped queries
 downloadButton(): Locator {
   return this.pullSecretRow().getByRole('button', { name: 'Download' });
 }
 
-// nth element
+// First matching element
 firstClusterLink(): Locator {
-  return this.page.locator('td[data-label="Name"] a').first();
+  return this.page.getByRole('link', { name: /cluster/i }).first();
+}
+
+// Filter with nested locator
+activeClusterRow(): Locator {
+  return this.page.getByRole('row').filter({ has: this.page.getByText('Ready') });
 }
 ```
 
@@ -545,6 +588,13 @@ test.describe.serial('Feature tests', { tag: ['@ci'] }, () => {
 ---
 
 ## Test Data Management
+
+### Test Data Principles
+
+- Mirror the `e2e/` folder structure when placing fixture files (e.g., `fixtures/rosa/` for `e2e/rosa/` specs, `fixtures/osd-aws/` for `e2e/osd-aws/` specs).
+- Fixture JSONs should contain test scenario data: validation inputs, expected errors, and cluster configuration defaults.
+- Keep environment-specific values (AWS IDs, regions, role prefixes) in `playwright.env.json`, not in fixture JSONs.
+- Never include secrets, credentials, tokens, or sensitive data in fixture JSON files — use environment variables instead.
 
 ### External Test Data Files
 
@@ -697,17 +747,19 @@ Use the following decision guide when adding a new test:
 | Does it cover a critical Day 0 or Day 1 workflow that, if broken, would block users?            | Tag `@smoke`                                                | Continue below |
 | Does it involve cluster creation or initial setup?                                              | Also tag `@day1`                                            | Continue below |
 | Does it involve post-creation operations (scaling, upgrades, IDP, networking, etc.)?            | Also tag `@day2`                                            | Continue below |
+| Does it perform final cleanup after Day 1/Day 2 work (e.g. cluster delete)?                     | Also tag `@day3`                                            | Continue below |
 | Does it test a specific configuration variant, Day 2 operation, or edge case?                   | Tag `@advanced` (with `@day1` and/or `@day2` as applicable) | Revisit scope  |
 
 **A test can belong to multiple tiers.** For example, a basic wizard validation test might be tagged `@ci` (runs on every PR) and also `@smoke` (validates a critical path). However, be intentional — adding a slow cluster-creation test to `@ci` will degrade PR feedback time for all contributors.
 
 **Rule of thumb:**
 
-- If in doubt, start with `@advanced` and promote to `@smoke` or `@ci` only when the test is fast, stable, and covers a critical path.
-- Always pair with `@day1` (creation/initial setup) or `@day2` (post-creation management) to indicate the lifecycle phase.
+- **When unsure about tier, start with `@advanced` and promote to `@smoke` or `@ci` later** once the test proves fast, stable, and critical.
+- Require `@day1`, `@day2`, or `@day3` only for tests that participate in a cluster lifecycle (creation, post-creation management, or final cleanup). Pure `@ci` page-rendering, navigation, and form-validation specs do not need a day tag.
 - `@ci` tests must be **fast and side-effect-free**.
 - `@smoke` tests should be **reliable and focused on critical paths** (typically `@day1`).
-- `@advanced` tests can be **thorough and resource-intensive** (use `@day1`, `@day2`, or both).
+- `@advanced` tests can be **thorough and resource-intensive** (use `@day1`, `@day2`, or both when they touch cluster lifecycle).
+- `@day3` tests are **final/cleanup tasks** that run after Day 1 or Day 2 specs (for example, deleting a cluster created for those specs).
 
 ### Available Tags
 
@@ -723,19 +775,36 @@ Use the following decision guide when adding a new test:
 | `@osd`               | OSD tests               | OpenShift Dedicated tests                                     |
 | `@day1`              | Day 1 operations        | Cluster creation and initial setup                            |
 | `@day2`              | Day 2 operations        | Post-creation cluster management                              |
+| `@day3`              | Day 3 cleanup           | Final/cleanup tasks after Day 1 or Day 2 (e.g. cluster delete)|
 
-### Day 1 and Day 2 Test Dependencies
+### Day 1, Day 2, and Day 3 Test Dependencies
 
-**Important:** Day 2 tests have a dependency on Day 1 cluster availability.
+**Important:** Day 2 and Day 3 tests have a dependency on Day 1 cluster availability.
 
 - **`@day1`**: Tests that create clusters or perform initial setup operations. These tests provision the resources needed for day 2 operations.
 - **`@day2`**: Tests that perform post-creation operations like machine pool management, upgrades, scaling, etc. These tests **require** an existing cluster created by a day 1 spec.
+- **`@day3`**: Final/cleanup tasks that run after Day 1 or Day 2 specs have finished — for example, deleting the cluster created for those specs. These tests tear down shared resources so later runs start clean.
 
 **Before creating or running a `@day2` spec:**
 
 1. Ensure the corresponding `@day1` spec exists and has been executed successfully
 2. Verify the day 1 cluster is available and in a ready state
 3. Reference the day 1 cluster name/ID in your day 2 spec fixture
+
+**Before creating or running a `@day3` spec:**
+
+1. Ensure the corresponding `@day1` (and any `@day2`) specs that own the resource have completed or are no longer needed
+2. Reference the same cluster name/ID used by those Day 1/Day 2 specs
+3. Prefer `@day3` for teardown (e.g. delete) rather than burying cleanup only in `afterAll` when the cleanup itself is a user-facing flow under test
+
+**`test.afterAll` cleanup for write operations on a shared Day 1 cluster:**
+
+Day 2 (and similar) specs often mutate a long-lived Day 1 cluster. Use `test.afterAll` to **always restore** that cluster when the suite performs any write operation, so later runs do not start dirty.
+
+- **When required:** Any suite that adds/updates/deletes machine pools, changes cluster properties (billing account, delete protection, networking, IDP users, channel, etc.), or otherwise leaves mutable state on a shared Day 1 cluster.
+- **What to do:** In `test.afterAll`, reverse or remove what the suite created or changed (delete added machine pools, restore original property values, remove test IDPs/users, and so on). Prefer checking current state first and restoring only when needed.
+- **Failure handling:** Cleanup must still run when tests fail. Catch and log restore failures in `afterAll` so a flaky cleanup step does not hide the original test failure, but always attempt the restore.
+- **vs `@day3`:** Use `afterAll` for in-suite restore of shared cluster state. Use a `@day3` spec for final lifecycle teardown of the cluster itself (for example, cluster delete).
 
 ```typescript
 // Example: Day 2 spec referencing a Day 1 cluster
@@ -756,7 +825,15 @@ test.describe.serial(
     // Note: 'clusterDetailsPage' is an illustrative fixture name
     // Check fixtures/pages.ts for actual available fixtures
     test('should add machine pool', async ({ clusterDetailsPage }) => {
-      // Day 2 operations on existing cluster
+      // Day 2 write operation on existing Day 1 cluster
+    });
+
+    test.afterAll(async ({ machinePoolsPage }) => {
+      // Always restore write-operation side effects on the shared Day 1 cluster
+      // (e.g. delete machine pools added by this suite)
+      await machinePoolsPage.deleteMachinePool('test-mp').catch((error) => {
+        console.error('afterAll: failed to restore Day 1 cluster state', error);
+      });
     });
   },
 );
@@ -807,7 +884,30 @@ npm run playwright-headless -- --grep="@smoke" --grep="@rosa"
 
 ## Best Practices
 
-### 1. Wait for Elements Properly
+### 1. Use BasePage Utilities Before Writing Custom Code
+
+**Always check `playwright/page-objects/base-page.ts` for existing utilities before writing custom assertions or helper methods.**
+
+```typescript
+// ❌ Bad: Duplicating logic that already exists in BasePage
+test('check error message', async ({ page }) => {
+  await expect(page.getByText('Error occurred')).toBeVisible();
+});
+
+// ✅ Good: Using BasePage utility
+test('check error message', async ({ featurePage }) => {
+  await featurePage.isTextContainsInPage('Error occurred');
+});
+```
+
+Common BasePage utilities to use:
+- `isTextContainsInPage(text, present?)` - Check text visibility on page
+- `assertUrlIncludes(path)` - Verify URL contains path
+- `pressKey(key)` - Keyboard interactions
+- `getByTestId(testId)` / `getByText(text)` - Element locators
+- `captureScreenshot(name)` - Debug screenshots
+
+### 2. Wait for Elements Properly
 
 ```typescript
 // ✅ Good: Use built-in auto-waiting
@@ -985,6 +1085,8 @@ await element.click(); // Will fail with clear error message
 
 ### ❌ Don't Skip Tests Without Tracking
 
+**Never skip tests without a JIRA issue reference in the skip reason.** This ensures skipped tests are tracked and eventually fixed or removed.
+
 ```typescript
 // ❌ Bad: Permanent skip with no tracking
 test.skip('broken test', async () => { ... });
@@ -1124,6 +1226,7 @@ export class YourFeaturePage extends BasePage {
 Add to `fixtures/pages.ts` (replace `yourFeaturePage` and `YourFeaturePage` with your names):
 
 ```typescript
+// IMPORTANT: Always use authenticatedPage (not raw page) when constructing page objects
 yourFeaturePage: [
   async ({ authenticatedPage }, use) => {
     const pageObject = new YourFeaturePage(authenticatedPage);

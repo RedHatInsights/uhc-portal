@@ -1,11 +1,16 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 
-import { BasePage } from './base-page';
+import {
+  clearQuotaCostMock as clearQuotaCostRouteMock,
+  mockQuotaCostWithBillingContract as mockQuotaCostRouteWithBillingContract,
+} from '../support/quota-mock-helper';
+import { BaseWizardPage } from './base-wizard-page';
 
 /**
- * Create ROSA Wizard page object for Playwright tests
+ * Create ROSA Wizard page object for Playwright tests.
+ * ROSA-specific wizard logic only; shared version/channel helpers live on BaseWizardPage.
  */
-export class CreateRosaWizardPage extends BasePage {
+export class CreateRosaWizardPage extends BaseWizardPage {
   constructor(page: Page) {
     super(page);
   }
@@ -15,16 +20,19 @@ export class CreateRosaWizardPage extends BasePage {
     return this.page.getByTestId('rosa-create-cluster-button');
   }
 
+  /** Alias kept for existing ROSA specs; same as shared wizardNextButton(). */
   rosaNextButton(): Locator {
-    return this.page.getByTestId('wizard-next-button');
+    return this.wizardNextButton();
   }
 
+  /** Alias kept for existing ROSA specs; same as shared wizardBackButton(). */
   rosaBackButton(): Locator {
-    return this.page.getByTestId('wizard-back-button');
+    return this.wizardBackButton();
   }
 
+  /** Alias kept for existing ROSA specs; same as shared wizardCancelButton(). */
   rosaCancelButton(): Locator {
-    return this.page.getByTestId('wizard-cancel-button');
+    return this.wizardCancelButton();
   }
 
   rosaClusterWithCLI(): Locator {
@@ -137,6 +145,34 @@ export class CreateRosaWizardPage extends BasePage {
 
   refreshInfrastructureAWSAccountButton(): Locator {
     return this.page.getByTestId('refresh-aws-accounts').first();
+  }
+
+  refreshAWSBillingAccountButton(): Locator {
+    return this.page.getByTestId('refresh-aws-accounts').nth(1);
+  }
+
+  billingContractConfirmationDialog(): Locator {
+    return this.page.getByRole('dialog', {
+      name: 'Continue without a contracted billing account?',
+    });
+  }
+
+  continueWithBillingSelectionButton(): Locator {
+    return this.billingContractConfirmationDialog().getByRole('button', {
+      name: 'Continue with selection',
+    });
+  }
+
+  goBackFromBillingConfirmationButton(): Locator {
+    return this.billingContractConfirmationDialog().getByRole('button', { name: 'Go back' });
+  }
+
+  contractEnabledForBillingAccountButton(): Locator {
+    return this.page.getByRole('button', { name: 'Contract enabled for this billing account' });
+  }
+
+  billingContractWarningTitle(): Locator {
+    return this.page.getByText('No contract on selected billing account');
   }
 
   // Input fields
@@ -261,7 +297,11 @@ export class CreateRosaWizardPage extends BasePage {
 
   // VPC installation selector
   installIntoExistingVpcCheckbox(): Locator {
-    return this.page.locator('#install_to_vpc');
+    return this.page.getByRole('checkbox', { name: 'Install into an existing VPC' });
+  }
+
+  usePrivateLinkCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Use a PrivateLink' });
   }
 
   // Grace period selector
@@ -310,6 +350,10 @@ export class CreateRosaWizardPage extends BasePage {
     return this.page.locator('button').filter({ hasText: 'Select public subnet' });
   }
 
+  clusterPrivacyPublicSubnetButton(): Locator {
+    return this.page.locator('button[id="cluster_privacy_public_subnet_id"]');
+  }
+
   subnetFilterInput(): Locator {
     return this.page.locator('input[placeholder="Filter by subnet ID / name"]');
   }
@@ -317,11 +361,6 @@ export class CreateRosaWizardPage extends BasePage {
   // Screen validation methods
   async isCreateRosaPage(): Promise<void> {
     await expect(this.page).toHaveURL(/\/openshift\/create\/rosa\/wizard/);
-  }
-
-  async waitAndClick(buttonLocator: Locator, timeout: number = 60000): Promise<void> {
-    await buttonLocator.waitFor({ state: 'visible', timeout });
-    await buttonLocator.click();
   }
 
   async isControlPlaneTypeScreen(): Promise<void> {
@@ -362,6 +401,19 @@ export class CreateRosaWizardPage extends BasePage {
     ).toBeVisible({ timeout: 30000 });
   }
 
+  async waitForNetworkingConfigurationScreen(): Promise<void> {
+    await expect(this.page.getByRole('heading', { name: 'Networking configuration' })).toBeVisible({
+      timeout: 60000,
+    });
+    await expect(this.clusterPrivacyPublicRadio()).toBeVisible({ timeout: 30000 });
+  }
+
+  async navigateNextFromMachinePools(): Promise<void> {
+    await expect(this.rosaNextButton()).toBeEnabled({ timeout: 30000 });
+    await this.rosaNextButton().click();
+    await this.waitForNetworkingConfigurationScreen();
+  }
+
   async isAssociateAccountsDrawer(): Promise<void> {
     await expect(
       this.page.locator('h2:has-text("How to associate a new AWS account")'),
@@ -399,6 +451,88 @@ export class CreateRosaWizardPage extends BasePage {
     await this.page.locator('li').filter({ hasText: accountID }).click();
   }
 
+  async mockQuotaCostWithBillingContract(
+    contractedAccountId: string,
+    billingAccountIds: string[] = [],
+  ): Promise<void> {
+    await mockQuotaCostRouteWithBillingContract(
+      this.page,
+      contractedAccountId,
+      billingAccountIds,
+    );
+  }
+
+  async clearQuotaCostMock(): Promise<void> {
+    await clearQuotaCostRouteMock(this.page);
+  }
+
+  async refreshAWSBillingAccounts(): Promise<void> {
+    const quotaCostResponse = this.page.waitForResponse(
+      (response) => response.url().includes('quota_cost') && response.ok(),
+    );
+    await this.refreshAWSBillingAccountButton().click();
+    await quotaCostResponse;
+    await expect(this.refreshAWSBillingAccountButton()).toBeEnabled({ timeout: 60000 });
+  }
+
+  async expectBillingContractConfirmationDialog(visible = true): Promise<void> {
+    if (visible) {
+      await expect(this.billingContractConfirmationDialog()).toBeVisible({ timeout: 15000 });
+    } else {
+      await expect(this.billingContractConfirmationDialog()).toBeHidden({ timeout: 15000 });
+    }
+  }
+
+  async expectBillingContractConfirmationShowsAccount(accountId: string): Promise<void> {
+    await this.expectBillingContractConfirmationDialog(true);
+    await expect(
+      this.billingContractConfirmationDialog().getByText(
+        `The selected account ${accountId} does not have any`,
+      ),
+    ).toBeVisible();
+  }
+
+  async expectContractEnabledForBillingAccount(visible = true): Promise<void> {
+    if (visible) {
+      await expect(this.contractEnabledForBillingAccountButton()).toBeVisible({ timeout: 15000 });
+    } else {
+      await expect(this.contractEnabledForBillingAccountButton()).toBeHidden({ timeout: 15000 });
+    }
+  }
+
+  /**
+   * Inline warning shown when the selected billing account has no contract while
+   * another linked account does.
+   */
+  async expectBillingContractWarning(visible = true, accountId?: string): Promise<void> {
+    if (visible) {
+      await expect(this.billingContractWarningTitle()).toBeVisible({ timeout: 15000 });
+      if (accountId) {
+        await expect(
+          this.page.getByText(`The selected account ${accountId} does not have any`),
+        ).toBeVisible();
+      }
+    } else {
+      await expect(this.billingContractWarningTitle()).toBeHidden({ timeout: 15000 });
+    }
+  }
+
+  async confirmBillingContractSelection(accountId?: string): Promise<void> {
+    if (accountId) {
+      await this.expectBillingContractConfirmationShowsAccount(accountId);
+    } else {
+      await this.expectBillingContractConfirmationDialog(true);
+    }
+    await this.continueWithBillingSelectionButton().click();
+    await this.expectBillingContractConfirmationDialog(false);
+  }
+
+  async dismissBillingContractConfirmation(): Promise<void> {
+    await this.expectBillingContractConfirmationDialog(true);
+    await this.goBackFromBillingConfirmationButton().click();
+    await this.expectBillingContractConfirmationDialog(false);
+  }
+
   async waitForARNList(): Promise<void> {
     await this.page.getByRole('progressbar', { name: 'Loading...' }).waitFor({
       state: 'detached',
@@ -408,6 +542,10 @@ export class CreateRosaWizardPage extends BasePage {
       state: 'detached',
       timeout: 80000,
     });
+  }
+
+  controlPlaneType(): Locator {
+    return this.page.getByTestId('Control-plane');
   }
 
   /**
@@ -487,23 +625,6 @@ export class CreateRosaWizardPage extends BasePage {
     }
   }
 
-  async closePopoverDialogs(): Promise<void> {
-    const closeButtons = this.page.locator('button[aria-label="Close"]');
-    const count = await closeButtons.count();
-
-    for (let i = 0; i < count; i++) {
-      const button = closeButtons.nth(i);
-      try {
-        if (await button.isVisible()) {
-          await button.click();
-        }
-      } catch (error) {
-        // Continue if button is not clickable
-        console.log(`Could not click close button ${i}:`, error);
-      }
-    }
-  }
-
   async waitForVPCList(): Promise<void> {
     await this.page.getByRole('progressbar', { name: 'Loading...' }).waitFor({
       state: 'detached',
@@ -517,15 +638,89 @@ export class CreateRosaWizardPage extends BasePage {
     await this.vpcFilterInput().waitFor({ state: 'visible', timeout: 50000 });
     await this.vpcFilterInput().clear();
     await this.vpcFilterInput().fill(vpcName);
-    await this.page.locator('text=' + vpcName).scrollIntoViewIfNeeded();
-    await this.page.locator('text=' + vpcName).click();
+    await this.page.locator(`text=${  vpcName}`).scrollIntoViewIfNeeded();
+    await this.page.locator(`text=${  vpcName}`).click();
   }
 
-  async selectVersion(version: string): Promise<void> {
-    if (version !== '') {
-      await this.page.locator('button[id="version-selector"]').click();
-      await this.page.getByRole('option', { name: version }).click();
+  machinePoolVpcRegionPrompt(region: string): Locator {
+    return this.page.getByText(
+      `Select a VPC to install your machine pools into your selected region: ${region}`,
+    );
+  }
+
+  async ensureClusterDetailsScreen(): Promise<void> {
+    const detailsHeading = this.page.locator('h3:has-text("Cluster details")');
+
+    if (await detailsHeading.isVisible().catch(() => false)) {
+      await this.isClusterDetailsScreen();
+      return;
     }
+
+    const machinePoolHeading = this.page.getByRole('heading', { name: /^Machine pools$/ });
+    if (await machinePoolHeading.isVisible().catch(() => false)) {
+      await this.rosaBackButton().click();
+      await this.isClusterDetailsScreen();
+      return;
+    }
+
+    await this.isClusterDetailsScreen();
+  }
+
+  async navigateWizardBackToClusterDetails(): Promise<void> {
+    const reviewHeading = this.page.getByRole('heading', { name: 'Review your ROSA cluster' });
+    if (await reviewHeading.isVisible().catch(() => false)) {
+      await this.rosaBackButton().click();
+    }
+
+    await this.isUpdatesScreen();
+    await this.rosaBackButton().click();
+    await this.rosaBackButton().click();
+    await this.rosaBackButton().click();
+    await this.rosaBackButton().click();
+    await this.isClusterMachinepoolsScreen(true);
+    await this.rosaBackButton().click();
+    await this.isClusterDetailsScreen();
+  }
+
+  async completeRosaHostedMachinePoolStep(
+    vpcName: string,
+    privateSubnetName: string,
+    instanceType: string,
+    nodeCount: string | number,
+  ): Promise<void> {
+    await this.isClusterMachinepoolsScreen(true);
+    await this.waitForVPCList();
+    await this.selectVPC(vpcName);
+    await this.selectMachinePoolPrivateSubnet(privateSubnetName, 1);
+    await this.selectComputeNodeType(instanceType);
+    await this.selectComputeNodeCount(String(nodeCount));
+    await this.navigateNextFromMachinePools();
+  }
+
+  async advanceRosaHostedWizardToReview(
+    oidcConfigId: string,
+    publicSubnetName?: string,
+  ): Promise<void> {
+    await expect(this.clusterPrivacyPublicRadio()).toBeVisible({ timeout: 30000 });
+    if (publicSubnetName) {
+      await this.selectClusterPrivacyPublicSubnet(publicSubnetName);
+    }
+    await this.rosaNextButton().click();
+    await expect(this.page.locator('h3:has-text("CIDR ranges")')).toBeVisible({ timeout: 30000 });
+    await this.rosaNextButton().click();
+    await this.selectOidcConfigId(oidcConfigId);
+    await this.rosaNextButton().click();
+    await this.isUpdatesScreen();
+    await this.rosaNextButton().click();
+    await this.waitForReviewScreenReady();
+  }
+
+  async waitForClusterCreationAndOverview(): Promise<void> {
+    await expect(this.page.locator('h2, h3').filter({ hasText: 'Installing cluster' })).toBeVisible(
+      {
+        timeout: 120000,
+      },
+    );
   }
 
   async selectMachinePoolPrivateSubnet(
@@ -580,19 +775,58 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   async selectMachinePoolPublicSubnet(publicSubnetNameOrId: string): Promise<void> {
-    await this.publicSubnetButton().click();
+    if (
+      await this.clusterPrivacyPublicSubnetButton()
+        .isVisible()
+        .catch(() => false)
+    ) {
+      await this.selectClusterPrivacyPublicSubnet(publicSubnetNameOrId);
+      return;
+    }
+
+    const machinePoolPublicSubnet = this.page.locator(
+      'button[id="machinePoolsSubnets[0].publicSubnetId"]',
+    );
+    if (await machinePoolPublicSubnet.isVisible().catch(() => false)) {
+      await machinePoolPublicSubnet.click();
+    } else {
+      await this.publicSubnetButton().click();
+    }
     await this.subnetFilterInput().waitFor({ state: 'visible', timeout: 50000 });
     await this.subnetFilterInput().clear();
     await this.subnetFilterInput().fill(publicSubnetNameOrId);
-    await this.page.locator('text=' + publicSubnetNameOrId).scrollIntoViewIfNeeded();
-    await this.page.locator('text=' + publicSubnetNameOrId).click();
+    await this.page
+      .locator('li')
+      .filter({ hasText: publicSubnetNameOrId })
+      .scrollIntoViewIfNeeded();
+    await this.page.locator('li').filter({ hasText: publicSubnetNameOrId }).click();
+  }
+
+  /** Public subnet on the Networking > Cluster privacy step (ROSA HCP). */
+  async selectClusterPrivacyPublicSubnet(publicSubnetNameOrId: string): Promise<void> {
+    await this.waitForNetworkingConfigurationScreen();
+    await expect(this.clusterPrivacyPublicRadio()).toBeChecked();
+    const publicSubnetToggle = this.clusterPrivacyPublicSubnetButton();
+    await expect(publicSubnetToggle).toBeVisible({ timeout: 30000 });
+    await publicSubnetToggle.scrollIntoViewIfNeeded();
+    await publicSubnetToggle.click();
+    await this.subnetFilterInput().waitFor({ state: 'visible', timeout: 50000 });
+    await this.subnetFilterInput().clear();
+    await this.subnetFilterInput().fill(publicSubnetNameOrId);
+    await this.page
+      .locator('li')
+      .filter({ hasText: publicSubnetNameOrId })
+      .scrollIntoViewIfNeeded();
+    await this.page.locator('li').filter({ hasText: publicSubnetNameOrId }).click();
   }
 
   async selectComputeNodeType(computeNodeType: string): Promise<void> {
     await this.computeNodeTypeButton().click();
+    await this.computeNodeTypeSearchInput().waitFor({ state: 'visible', timeout: 30000 });
     await this.computeNodeTypeSearchInput().clear();
     await this.computeNodeTypeSearchInput().fill(computeNodeType);
     await this.page.getByRole('button', { name: computeNodeType }).click();
+    await expect(this.computeNodeTypeButton()).toContainText(computeNodeType, { timeout: 30000 });
   }
 
   async enableAutoScaling(): Promise<void> {
@@ -633,14 +867,9 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   async isClusterPropertyMatchesValue(property: string, value: string): Promise<void> {
-    await expect(
-      this.page
-        .locator('span.pf-v6-c-description-list__text')
-        .filter({ hasText: property })
-        .locator('..')
-        .locator('~ *')
-        .locator('div'),
-    ).toContainText(value);
+    const term = this.page.getByRole('term').filter({ hasText: property });
+    const definition = term.locator('..').getByRole('definition');
+    await expect(definition).toContainText(value);
   }
 
   // Additional selectors for validation tests
@@ -775,7 +1004,7 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   async removeMachinePool(index: number): Promise<void> {
-    let mpIndex = index - 1;
+    const mpIndex = index - 1;
     await this.page.getByTestId(`remove-machine-pool-${mpIndex}`).click();
   }
 
@@ -793,15 +1022,6 @@ export class CreateRosaWizardPage extends BasePage {
 
   async enableConfigureClusterWideProxy(): Promise<void> {
     await this.enableConfigureClusterWideProxyCheckbox().check();
-  }
-
-  async isTextContainsInPage(text: string, present: boolean = true): Promise<void> {
-    const locator = this.page.locator('body').filter({ hasText: text });
-    if (present) {
-      await expect(locator).toBeVisible();
-    } else {
-      await expect(locator).not.toBeVisible();
-    }
   }
 
   async selectRoleProviderMode(mode: string): Promise<void> {
@@ -1017,6 +1237,10 @@ export class CreateRosaWizardPage extends BasePage {
   }
 
   // Application ingress selectors for networking validations
+  applicationIngressDefaultSettingsRadio(): Locator {
+    return this.page.getByTestId('applicationIngress-default');
+  }
+
   applicationIngressCustomSettingsRadio(): Locator {
     return this.page.getByRole('radio', { name: 'Custom settings' });
   }
@@ -1048,6 +1272,101 @@ export class CreateRosaWizardPage extends BasePage {
     });
   }
 
+  // Log forwarding screen selectors
+  logForwardingHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'Control plane log forwarding' });
+  }
+
+  amazonS3EnableCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Enable Amazon S3' });
+  }
+
+  cloudWatchEnableCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Enable CloudWatch' });
+  }
+
+  amazonS3Heading(): Locator {
+    return this.page.getByRole('heading', { name: 'Amazon S3' });
+  }
+
+  cloudWatchHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'CloudWatch' });
+  }
+
+  async isLogForwardingScreen(): Promise<void> {
+    await expect(this.logForwardingHeading()).toBeVisible({ timeout: 30000 });
+  }
+
+  // Log forwarding review section selectors
+  logForwardingReviewSection(): Locator {
+    return this.page.getByRole('region', { name: 'Control plane log forwarding' });
+  }
+
+  logForwardingReviewS3Heading(): Locator {
+    return this.logForwardingReviewSection().getByRole('heading', { name: 'Amazon S3' });
+  }
+
+  logForwardingReviewCloudWatchHeading(): Locator {
+    return this.logForwardingReviewSection().getByRole('heading', { name: 'CloudWatch' });
+  }
+
+  logForwardingS3BucketNameInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Bucket name' });
+  }
+
+  logForwardingS3BucketPrefixInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Bucket prefix' });
+  }
+
+  logForwardingCloudWatchLogGroupNameInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Log group name' });
+  }
+
+  logForwardingCloudWatchRoleArnInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Role ARN' });
+  }
+
+  logForwardingCloudWatchPrerequisiteCheckbox(): Locator {
+    return this.page.getByRole('checkbox', {
+      name: "I've read and completed all the prerequisites",
+    });
+  }
+
+  /**
+   * Selects a group by name in the log forwarding available groups/applications tree.
+   * S3 tree is at index 0, CloudWatch tree is at index 1.
+   */
+  async selectLogForwardingGroup(groupName: string, section: 'S3' | 'CloudWatch'): Promise<void> {
+    const treeIndex = section === 'S3' ? 0 : 1;
+    await this.page
+      .getByRole('tree', { name: 'Select groups and applications' })
+      .nth(treeIndex)
+      .getByRole('checkbox', { name: `Select ${groupName}` })
+      .check();
+  }
+
+  /**
+   * Selects all available groups in a log forwarding tree section.
+   * Waits for the tree to load, then checks every unchecked checkbox.
+   */
+  async selectAllLogForwardingGroups(section: 'S3' | 'CloudWatch'): Promise<void> {
+    const treeIndex = section === 'S3' ? 0 : 1;
+    const tree = this.page
+      .getByRole('tree', { name: 'Select groups and applications' })
+      .nth(treeIndex);
+
+    await tree.getByRole('checkbox').first().waitFor({ state: 'visible', timeout: 30000 });
+
+    const checkboxes = tree.getByRole('checkbox');
+    const count = await checkboxes.count();
+    for (let i = 0; i < count; i++) {
+      const cb = checkboxes.nth(i);
+      if (!(await cb.isChecked())) {
+        await cb.check();
+      }
+    }
+  }
+
   // Additional validation method for compute node range
   computeNodeRangeValue(): Locator {
     return this.page.getByTestId('Compute-node-range').locator('div');
@@ -1067,5 +1386,32 @@ export class CreateRosaWizardPage extends BasePage {
 
   operatorRoleCommandInput(): Locator {
     return this.page.getByLabel('Copyable ROSA create operator-roles');
+  }
+
+  /**
+   * Returns the description (value) cell of a specific log forwarding property in the review
+   * screen. Scopes to the data-testid set on each DescriptionListGroup in
+   * LogForwardingReviewDetails, then returns the <dd> (definition) within it.
+   *
+   * Testid format: review-lf-{provider}-{label}
+   *   provider: 's3' | 'cw'
+   *   label:    'configuration' | 'bucket-name' | 'bucket-prefix' |
+   *             'log-group-name' | 'role-arn' | 'selected-groups'
+   *
+   * Example:
+   *   logForwardingReviewPropertyValue('s3', 'configuration')  → "Enabled" / "Disabled"
+   *   logForwardingReviewPropertyValue('cw', 'role-arn')        → the ARN string
+   */
+  logForwardingReviewPropertyValue(
+    provider: 's3' | 'cw',
+    label:
+      | 'configuration'
+      | 'bucket-name'
+      | 'bucket-prefix'
+      | 'log-group-name'
+      | 'role-arn'
+      | 'selected-groups',
+  ): Locator {
+    return this.page.getByTestId(`review-lf-${provider}-${label}`).getByRole('definition');
   }
 }

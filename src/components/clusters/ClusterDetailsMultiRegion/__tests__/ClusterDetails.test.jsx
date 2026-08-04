@@ -231,6 +231,9 @@ jest.mock('../../../../queries/ClusterDetailsQueries/useFetchClusterDetails', ()
   useFetchClusterDetails: jest.fn(),
   invalidateClusterDetailsQueries: jest.fn(),
 }));
+jest.mock('../../../../queries/ClusterDetailsQueries/invalidateLogForwarder', () => ({
+  invalidateLogForwarder: jest.fn(),
+}));
 jest.mock('../../../../queries/common/useFetchCloudProviders', () => ({
   useFetchCloudProviders: jest.fn(),
   invalidateCloudProviders: jest.fn(),

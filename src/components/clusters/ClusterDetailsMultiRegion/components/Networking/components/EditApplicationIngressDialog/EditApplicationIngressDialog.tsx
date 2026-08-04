@@ -77,7 +77,6 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
   ) : null;
 
   const onClose = () => {
-    refreshCluster();
     dispatch(modalActions.closeModal());
   };
 
@@ -131,6 +130,7 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
                   customProperties: { cluster_creation: false },
                 });
               }
+              refreshCluster();
               onClose();
             },
           },

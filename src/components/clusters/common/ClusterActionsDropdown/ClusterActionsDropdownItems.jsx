@@ -82,7 +82,7 @@ function actionResolver(
   );
 
   const deleteProtectionMessage = cluster.delete_protection?.enabled && (
-    <span>
+    <span data-testid="delete-protection-tooltip">
       Cluster is locked and cannot be deleted. To unlock, go to cluster details and disable deletion
       protection.
     </span>

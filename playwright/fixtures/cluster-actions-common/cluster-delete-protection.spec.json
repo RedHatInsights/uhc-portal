@@ -1,0 +1,12 @@
+{
+  "delete-protection": {
+    "Description": "Day 2 delete protection toggle tests against an existing managed cluster",
+    "ModalContent": {
+      "EnableDescription": "The cluster cannot be deleted if the Deletion Protection is enabled to safeguard from accidental deletion. You can disable the Deletion Protection at any time.",
+      "DisableDescription": "Disabling the Deletion Protection will allow you to delete this cluster. Cluster deletion can result in data loss or service disruption."
+    },
+    "TooltipContent": {
+      "DeleteProtectionLocked": "Cluster is locked and cannot be deleted. To unlock, go to cluster details and disable deletion protection."
+    }
+  }
+}

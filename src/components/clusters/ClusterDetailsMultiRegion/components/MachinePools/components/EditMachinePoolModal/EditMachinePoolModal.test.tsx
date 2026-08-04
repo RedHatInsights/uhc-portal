@@ -4,7 +4,6 @@ import fixtures from '~/components/clusters/ClusterDetailsMultiRegion/__tests__/
 import { MAX_NODES_HCP } from '~/components/clusters/common/machinePools/constants';
 import {
   AWS_TAGS_NEW_MP,
-  GCP_SECURE_BOOT,
   IMDS_SELECTION,
   TABBED_MACHINE_POOL_MODAL,
 } from '~/queries/featureGates/featureConstants';
@@ -531,10 +530,6 @@ describe('<EditMachinePoolModal />', () => {
   });
 
   describe('GCP cluster machine pool', () => {
-    beforeEach(() => {
-      mockUseFeatureGate([[GCP_SECURE_BOOT, true]]);
-    });
-
     const { OSDGCPClusterDetails } = fixtures;
 
     const GCPClusterWithSecureBoot = {

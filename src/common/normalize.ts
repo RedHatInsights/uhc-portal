@@ -2,12 +2,7 @@ import type { AxiosResponse } from 'axios';
 import { Draft, produce } from 'immer';
 
 import type { Cluster as AICluster } from '@openshift-assisted/types/assisted-installer-service';
-import {
-  getClusterMemoryAmount as getAIMemoryAmount,
-  getClustervCPUCount as getAIClusterCPUCount,
-  getMasterCount as getAICMasterCount,
-  getWorkerCount as getAICWorkerCount,
-} from '@openshift-assisted/ui-lib/ocm';
+import { getModule } from '@scalprum/core';
 
 import {
   type ClusterMetricsNodes,
@@ -266,16 +261,6 @@ const fakeClusterFromAISubscription = (
 ): FakeCluster => {
   const cluster = fakeClusterFromSubscription(subscription);
   if (isAISubscriptionWithoutMetrics(subscription)) {
-    // Enrich for AI Cluster data instead.
-    const clusterWorkers = aiCluster ? getAICWorkerCount(aiCluster.hosts ?? []) : 0;
-    const clusterMasters = aiCluster ? getAICMasterCount(aiCluster.hosts ?? []) : 0;
-
-    cluster.metrics.memory.total.value = aiCluster ? getAIMemoryAmount(aiCluster) : 0;
-    cluster.metrics.cpu.total.value = aiCluster ? getAIClusterCPUCount(aiCluster) : 0;
-    cluster.metrics.nodes.total = clusterWorkers + clusterMasters;
-    cluster.metrics.nodes.master = clusterMasters;
-    cluster.metrics.nodes.compute = clusterWorkers;
-
     const openshiftVersion =
       cluster.metrics.openshift_version || aiCluster?.openshiftVersion || 'N/A';
     cluster.metrics.openshift_version = openshiftVersion;
@@ -286,7 +271,33 @@ const fakeClusterFromAISubscription = (
     cluster.state = status;
     cluster.cpu_architecture = cluster.metrics.arch;
   }
+  return cluster;
+};
 
+const fakeClusterFromAISubscriptionWithHostsMetrics = async (
+  subscription: Subscription,
+  aiCluster?: AICluster,
+): Promise<FakeCluster> => {
+  const cluster = fakeClusterFromAISubscription(subscription, aiCluster);
+  if (isAISubscriptionWithoutMetrics(subscription) && aiCluster?.hosts?.length) {
+    try {
+      const computeAIClusterMetrics = await getModule(
+        'assistedInstallerApp',
+        './computeAIClusterMetrics',
+        'computeAIClusterMetrics',
+      );
+
+      const aiMetrics = computeAIClusterMetrics(aiCluster);
+      cluster.metrics.memory.total.value = aiMetrics.memoryTotal;
+      cluster.metrics.cpu.total.value = aiMetrics.cpuTotal;
+      cluster.metrics.nodes.total = aiMetrics.workerCount + aiMetrics.masterCount;
+      cluster.metrics.nodes.master = aiMetrics.masterCount;
+      cluster.metrics.nodes.compute = aiMetrics.workerCount;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to load Assisted Installer cluster metrics from federated module:', e);
+    }
+  }
   return cluster;
 };
 
@@ -327,6 +338,7 @@ const mapListResponse = <I extends any, T extends { items?: I[] }, D extends Dra
 
 export {
   fakeClusterFromAISubscription,
+  fakeClusterFromAISubscriptionWithHostsMetrics,
   fakeClusterFromSubscription,
   mapListResponse,
   normalizeCluster,

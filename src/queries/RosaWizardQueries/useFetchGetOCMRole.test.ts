@@ -31,7 +31,7 @@ describe('useFetchGetOCMRole hook', () => {
       expect(result.current.isPending).toBe(false);
     });
     expect(result.current.isError).toBe(false);
-    expect(result.current.data).toEqual(mockedGetOCMRole);
+    expect(result.current.data).toEqual(mockedGetOCMRole.data);
   });
 
   it('Get useFetchGetOCMRole error response', async () => {

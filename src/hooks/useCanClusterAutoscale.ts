@@ -26,8 +26,7 @@ const useCanClusterAutoscale = (
   return (
     product === normalizedProducts.ROSA ||
     (product === normalizedProducts.OSD &&
-      (billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace ||
-        billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_aws ||
+      (billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_aws ||
         billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp ||
         hasAutoScaleCapability))
   );

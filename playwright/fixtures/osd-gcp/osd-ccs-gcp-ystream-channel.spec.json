@@ -1,0 +1,28 @@
+{
+  "Clusters": {
+    "Name": "ocmui-playwright-ystream-channel-gcp",
+    "ClusterName": "ocmui-playwright-ystream-channel-gcp",
+    "CloudProvider": "Google Cloud",
+    "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
+    "InfrastructureType": "Customer cloud subscription",
+    "AuthenticationType": "Workload Identity Federation",
+    "Region": "us-central1, Council Bluffs, Iowa, USA",
+    "MachinePool": {
+      "InstanceType": "e2-standard-4",
+      "NodeCount": 2
+    }
+  },
+  "YStreamChannel": {
+    "PlaceholderOptionLabel": "Select a channel",
+    "ReviewNoneSpecified": "None specified",
+    "AvailableChannels": ["candidate-4.21", "candidate-4.22", "fast-4.21", "stable-4.21"],
+    "ReviewNoChannelsAvailable": "No channels available for the selected version",
+    "SelectedVersion": "4.21.15",
+    "SelectedChannel": "stable-4.21"
+  },
+  "Day2": {
+    "UpdateStrategy": "Recurring updates",
+    "AlternateVersionWithChannels": "4.20.16",
+    "AlternateChannel": "candidate-4.21"
+  }
+}

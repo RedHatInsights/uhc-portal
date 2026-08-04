@@ -38,9 +38,7 @@ import { useEditCreateMachineOrNodePools } from '~/queries/ClusterDetailsQueries
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import {
   CAPACITY_RESERVATION_ID_FIELD,
-  GCP_SECURE_BOOT,
   IMDS_SELECTION,
-  MAX_NODES_TOTAL_249,
   TABBED_MACHINE_POOL_MODAL,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -184,8 +182,6 @@ const EditMachinePoolModal = ({
 
   const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
 
-  const allow249NodesOSDCCSROSA = useFeatureGate(MAX_NODES_TOTAL_249);
-  const isSecureBootEnabled = useFeatureGate(GCP_SECURE_BOOT);
   const imdsSectionFeature = useFeatureGate(IMDS_SELECTION);
   const isCapacityReservationEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
 
@@ -371,7 +367,6 @@ const EditMachinePoolModal = ({
                       machinePool={currentMachinePool}
                       machinePools={machinePoolsResponse || []}
                       machineTypes={machineTypesResponse}
-                      allow249NodesOSDCCSROSA={allow249NodesOSDCCSROSA}
                       isMaxReached={isMaxReached}
                     />
                     <AutoRepairField cluster={cluster} />
@@ -393,7 +388,7 @@ const EditMachinePoolModal = ({
                         machineTypes={machineTypesResponse}
                       />
                     </ExpandableSection>
-                    {isGCP && isSecureBootEnabled ? <ShieldedVM isEditModal={!!isEdit} /> : null}
+                    {isGCP ? <ShieldedVM isEditModal={!!isEdit} /> : null}
                     <EditSecurityGroupsSection cluster={cluster} isReadOnly={isEdit} isExpandable />
                     {canUseSpotInstances(cluster) && <SpotInstancesSection isEdit={isEdit} />}
                   </Form>

@@ -1,0 +1,38 @@
+{
+  "Clusters": {
+    "Name": "ocmui-playwright-ystream-channel-rosa-hcp",
+    "ClusterName": "ocmui-playwright-ystream-channel-rosa-hcp",
+    "ControlPlaneType": "Hosted architecture",
+    "Region": "us-west-2, US West, Oregon",
+    "ClusterPrivacy": "Public",
+    "OidcConfigId": "22rif2kh7jagoe7u2ak1caoi74hjrjvj",
+    "MachineCIDR": "10.0.0.0/16",
+    "ServiceCIDR": "172.30.0.0/16",
+    "PodCIDR": "10.128.0.0/14",
+    "HostPrefix": "/23",
+    "MachinePools": [
+      {
+        "Name": "worker",
+        "InstanceType": "m6id.xlarge",
+        "AvailabilityZones": "us-west-2a",
+        "NodeCount": "4",
+        "Autoscaling": "Disabled",
+        "RootDiskSize": "555"
+      }
+    ]
+  },
+  "YStreamChannel": {
+    "PlaceholderOptionLabel": "Select a channel",
+    "ReviewNoneSpecified": "None specified",
+    "AvailableChannels": ["candidate-4.21", "candidate-4.22", "fast-4.21", "stable-4.21"],
+    "ReviewNoChannelsAvailable": "No channels available for the selected version",
+    "SelectedVersion": "4.21.16",
+    "SelectedChannel": "stable-4.21",
+    "SelectedEUSVersion": "4.20.23"
+  },
+  "Day2": {
+    "UpdateStrategy": "Recurring updates",
+    "AlternateVersionWithChannels": "4.20.16",
+    "AlternateChannel": "candidate-4.21"
+  }
+}

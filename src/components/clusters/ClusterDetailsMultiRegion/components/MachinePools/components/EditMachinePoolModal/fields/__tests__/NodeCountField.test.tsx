@@ -2,8 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import * as machinePoolUtils from '~/components/clusters/common/machinePools/utils';
-import { MAX_NODES_TOTAL_249 } from '~/queries/featureGates/featureConstants';
-import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
+import { render, screen, waitFor } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
 import useMachinePoolFormik from '../../hooks/useMachinePoolFormik';
@@ -294,7 +293,6 @@ describe('<NodeCountField />', () => {
 
 describe('replicas validation via useMachinePoolFormik', () => {
   beforeEach(() => {
-    mockUseFeatureGate([[MAX_NODES_TOTAL_249, false]]);
     mockUseOrganization();
     mockGetMaxNodeCount();
   });
