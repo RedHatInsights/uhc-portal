@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { trackEvents } from '~/common/analytics';
 import { mockedClusterResponse } from '~/queries/__mocks__/queryMockedData';
 import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen, within } from '~/testUtils';
@@ -23,6 +24,9 @@ jest.mock('~/queries/ClusterDetailsQueries/useFetchOrganizationQuota', () => ({
 jest.mock('~/redux/hooks/useGlobalState', () => ({
   useGlobalState: () => ({ details: { id: 'org-123' } }),
 }));
+
+const useAnalyticsMock = jest.fn();
+jest.mock('~/hooks/useAnalytics', () => jest.fn(() => useAnalyticsMock));
 
 const nonContractedAccountId = '111111111111';
 const contractedAccountId = '222222222222';
@@ -193,5 +197,23 @@ describe('contract warning in billing account modal', () => {
     expect(screen.getByText('No contract on selected billing account')).toBeInTheDocument();
     expect(screen.getByTestId('Update')).toBeInTheDocument();
     expect(screen.getByText('Cancel')).toBeInTheDocument();
+  });
+
+  it('tracks BillingContractWarningShown when a non-contracted account is selected', async () => {
+    mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+    const { user } = render(
+      <OverviewBillingAccountModal
+        onClose={() => {}}
+        billingAccount={contractedAccountId}
+        cluster={fixtures.clusterDetails.cluster as unknown as ClusterFromSubscription}
+      />,
+    );
+
+    useAnalyticsMock.mockClear();
+
+    await user.click(await screen.findByRole('button', { name: 'Options menu' }));
+    await user.click(screen.getByRole('option', { name: new RegExp(nonContractedAccountId) }));
+
+    expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.BillingContractWarningShown);
   });
 });

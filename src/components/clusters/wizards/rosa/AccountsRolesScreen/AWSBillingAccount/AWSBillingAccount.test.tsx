@@ -2,6 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 import * as reactRedux from 'react-redux';
 
+import { trackEvents } from '~/common/analytics';
 import * as helpers from '~/common/helpers';
 import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
 import {
@@ -19,6 +20,9 @@ import { CloudAccount } from '~/types/accounts_mgmt.v1';
 import { FieldId, initialValues } from '../../constants';
 
 import AWSBillingAccount from './AWSBillingAccount';
+
+const useAnalyticsMock = jest.fn();
+jest.mock('~/hooks/useAnalytics', () => jest.fn(() => useAnalyticsMock));
 
 const defaultProps = {
   selectedAWSBillingAccountID: '123',
@@ -695,6 +699,40 @@ describe('<AWSBillingAccount />', () => {
       const alertContainer = warningAlert.closest('.pf-v6-c-alert')!;
       expect(within(alertContainer as HTMLElement).getByText('111')).toBeInTheDocument();
     });
+
+    it('tracks BillingContractWarningShown when a non-contracted account is selected', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const { user } = withState(stateWithMixedContracts).render(
+        buildTestComponent(
+          <AWSBillingAccount selectedAWSBillingAccountID="222" selectedAWSAccountID="222" />,
+        ),
+      );
+
+      await user.click(await screen.findByRole('button', { name: 'Options menu' }));
+      await user.click(screen.getByRole('option', { name: /111/ }));
+
+      expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.BillingContractWarningShown);
+    });
+
+    it('does not track BillingContractWarningShown when a contracted account is selected', async () => {
+      shouldRefreshQuotaMock.mockReturnValue(false);
+      mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
+
+      const { user } = withState(stateWithMixedContracts).render(
+        buildTestComponent(
+          <AWSBillingAccount selectedAWSBillingAccountID="111" selectedAWSAccountID="111" />,
+        ),
+      );
+
+      useAnalyticsMock.mockClear();
+
+      await user.click(await screen.findByRole('button', { name: 'Options menu' }));
+      await user.click(screen.getByRole('option', { name: /222/ }));
+
+      expect(useAnalyticsMock).not.toHaveBeenCalledWith(trackEvents.BillingContractWarningShown);
+    });
   });
 
   describe('contract warning notification', () => {
@@ -819,6 +857,8 @@ describe('<AWSBillingAccount />', () => {
       await user.click(await screen.findByText('Continue with selection'));
 
       expect(onContractDialogContinueMock).toHaveBeenCalled();
+      expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.BillingContractWarningProceed);
+      expect(useAnalyticsMock).not.toHaveBeenCalledWith(trackEvents.BillingContractWarningGoBack);
     });
 
     it('calls onContractDialogClose when "Go back" is clicked', async () => {
@@ -838,6 +878,8 @@ describe('<AWSBillingAccount />', () => {
       await user.click(await screen.findByText('Go back'));
 
       expect(onContractDialogCloseMock).toHaveBeenCalled();
+      expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.BillingContractWarningGoBack);
+      expect(useAnalyticsMock).not.toHaveBeenCalledWith(trackEvents.BillingContractWarningProceed);
     });
   });
 });

@@ -16,11 +16,13 @@ import {
 } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
+import { trackEvents } from '~/common/analytics';
 import { shouldRefetchQuota } from '~/common/helpers';
 import links from '~/common/installLinks.mjs';
 import { ConfirmationDialog } from '~/common/modals/ConfirmationDialog';
 import { getAwsBillingAccountsFromQuota } from '~/components/clusters/common/quotaSelectors';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import useAnalytics from '~/hooks/useAnalytics';
 import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
@@ -36,6 +38,7 @@ import AWSAccountSelection from '../AWSAccountSelection';
 import {
   getContract,
   getDefaultBillingAccountId,
+  shouldShowBillingContractNotification,
   useShouldShowBillingContractWarning,
 } from './awsBillingAccountHelper';
 import BillingContractWarningAlert from './BillingContractWarningAlert';
@@ -60,6 +63,7 @@ const AWSBillingAccount = ({
 }: AWSBillingAccountProps) => {
   const { setFieldValue, getFieldProps, getFieldMeta, setFieldTouched } = useFormState();
   const dispatch = useDispatch();
+  const track = useAnalytics();
   const organization = useGlobalState((state) => state.userProfile.organization);
   const getAWSBillingAccountsResponse = useGlobalState(
     (state) => state.rosaReducer.getAWSBillingAccountsResponse,
@@ -142,6 +146,15 @@ const AWSBillingAccount = ({
     return () => onContractCheckChange?.(false);
   }, [hasWarning, onContractCheckChange]);
 
+  const handleContractDialogContinue = () => {
+    track(trackEvents.BillingContractWarningProceed);
+    onContractDialogContinue?.();
+  };
+
+  const handleContractDialogGoBack = () => {
+    track(trackEvents.BillingContractWarningGoBack);
+  };
+
   return (
     <>
       <ConfirmationDialog
@@ -160,8 +173,9 @@ const AWSBillingAccount = ({
           </>
         }
         primaryActionLabel="Continue with selection"
-        primaryAction={onContractDialogContinue}
+        primaryAction={handleContractDialogContinue}
         secondaryActionLabel="Go back"
+        secondaryAction={handleContractDialogGoBack}
         isOpen={isContractDialogOpen}
         closeCallback={onContractDialogClose}
       />
@@ -187,7 +201,15 @@ const AWSBillingAccount = ({
           input={{
             // name, value, onBlur, onChange
             ...getFieldProps(FieldId.BillingAccountId),
-            onChange: (value: string) => setFieldValue(FieldId.BillingAccountId, value),
+            onChange: (value: string) => {
+              setFieldValue(FieldId.BillingAccountId, value);
+              if (
+                isBillingContractNotificationEnabled &&
+                shouldShowBillingContractNotification(cloudAccounts, value)
+              ) {
+                track(trackEvents.BillingContractWarningShown);
+              }
+            },
           }}
           meta={getFieldMeta(FieldId.BillingAccountId)}
           label="AWS billing account"
