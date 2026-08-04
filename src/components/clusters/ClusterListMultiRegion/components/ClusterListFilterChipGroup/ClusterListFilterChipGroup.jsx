@@ -63,6 +63,7 @@ function ClusterListFilterChipGroup({ archive }) {
               return (
                 <LabelGroup key={`chipgroup-${group.key}`} categoryName={group.label}>
                   {currentFilter.map((key) => {
+                    // Skip keys that may no longer exist in filter options (safeguard).
                     const option = group.options.find((opt) => opt.key === key);
                     if (!option) {
                       return null;
