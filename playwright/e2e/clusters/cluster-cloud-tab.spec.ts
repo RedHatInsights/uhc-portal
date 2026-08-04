@@ -1,4 +1,9 @@
+import links from '../../../src/components/clusters/CreateClusterPage/CreateClusterConsts';
 import { test } from '../../fixtures/pages';
+import {
+  mockFeatureGateEnabled,
+  ROVS_REGISTRATION_FEATURE,
+} from '../../support/feature-gate-mock-helper';
 
 // Description text constants
 const OSDDescriptionText = 'A complete OpenShift cluster provided as a fully-managed cloud service';
@@ -6,6 +11,8 @@ const AzureDescriptionText =
   'A flexible, self-service deployment of OpenShift clusters provided as a fully-managed cloud service by Microsoft and Red Hat';
 const IBMDescriptionText =
   'A preconfigured OpenShift environment provided as a fully-managed cloud service at enterprise scale';
+const ROVSDescriptionText =
+  'A preconfigured OpenShift Virtualization environment provided as a fully-managed cloud service at enterprise scale';
 const ROSADescriptionText =
   'Build, deploy, and manage Kubernetes applications with Red Hat OpenShift running natively on AWS';
 
@@ -13,7 +20,9 @@ test.describe.serial(
   'Test checking elements at create cluster page, in Cloud tab selected - OCP-38888',
   { tag: ['@smoke', '@ci'] },
   () => {
-    test.beforeAll(async ({ navigateTo }) => {
+    test.beforeAll(async ({ navigateTo, page }) => {
+      // Enable ROVS before first OCM load so the managed-services row is shown
+      await mockFeatureGateEnabled(page, ROVS_REGISTRATION_FEATURE);
       // Navigate to cloud create page
       await navigateTo('create/cloud');
     });
@@ -104,6 +113,23 @@ test.describe.serial(
       );
     });
 
+    test('Check ROVS section contents', async ({ createClusterPage }) => {
+      await createClusterPage.checkManagedServiceLink(
+        'Red Hat OpenShift Virtualization Service on IBM Cloud',
+        links.IBM_CLOUD_ROVS,
+      );
+
+      await createClusterPage.checkManagedServiceButton('Try it on IBM', links.IBM_CLOUD_ROVS);
+
+      await createClusterPage.expandToggle('#rovs4');
+      await createClusterPage.isTextVisible(ROVSDescriptionText);
+
+      await createClusterPage.checkManagedServiceLink(
+        'Learn more about Red Hat OpenShift Virtualization Service on IBM Cloud',
+        links.IBM_CLOUD_ROVS,
+      );
+    });
+
     test('Check ROSA section contents', async ({ createClusterPage }) => {
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Service on AWS (ROSA)',
@@ -115,7 +141,8 @@ test.describe.serial(
       await createClusterPage.isCreateRosaPage();
       await createClusterPage.clickBackButton();
 
-      await createClusterPage.expandToggle('#rosa4');
+      // ROVS row shifts ROSA expand id from #rosa4 to #rosa5 when the gate is on
+      await createClusterPage.expandToggle('#rosa5');
       await createClusterPage.isTextVisible(ROSADescriptionText);
 
       await createClusterPage.checkManagedServiceLink(

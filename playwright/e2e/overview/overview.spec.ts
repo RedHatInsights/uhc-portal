@@ -1,12 +1,23 @@
 import docLinks from '../../../src/common/docLinks.mjs';
+import links from '../../../src/components/clusters/CreateClusterPage/CreateClusterConsts';
 import { expect, test } from '../../fixtures/pages';
+import {
+  mockFeatureGateEnabled,
+  ROVS_REGISTRATION_FEATURE,
+} from '../../support/feature-gate-mock-helper';
 
 test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@ci'] }, () => {
-  test.beforeAll(async ({ navigateTo }) => {
+  test.beforeAll(async ({ navigateTo, page }) => {
+    // Enable ROVS before first OCM load so the offering card is shown
+    await mockFeatureGateEnabled(page, ROVS_REGISTRATION_FEATURE);
     // Navigate to overview page and wait for it to load
     await navigateTo('overview');
   });
-  test('OCM Overview Page - header and central section', async ({ overviewPage, navigateTo, page }) => {
+  test('OCM Overview Page - header and central section', async ({
+    overviewPage,
+    navigateTo,
+    page,
+  }) => {
     // Verify we're on the overview page
     await overviewPage.isOverviewPage();
 
@@ -24,8 +35,8 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
     await expect(page).toHaveURL(/\/openshift\/assisted-installer\/clusters\/~new/);
     await navigateTo('overview');
 
-    // Verify central section has expected number of cards
-    await overviewPage.centralSectionCardsExpected(7);
+    // Verify central section has expected number of cards (includes gated ROVS card)
+    await overviewPage.centralSectionCardsExpected(8);
 
     // Red Hat OpenShift Dedicated card
     await overviewPage.expectCardHasText('offering-card_RHOSD', 'Red Hat OpenShift Dedicated');
@@ -124,6 +135,24 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
     await overviewPage.expectLinkOpensInNewTab(
       overviewPage.cardLearnMoreLink('offering-card_RHOIBM', 'Learn more on IBM'),
       'https://cloud.ibm.com/kubernetes/catalog/create?platformType=openshift',
+    );
+
+    // Red Hat OpenShift Virtualization Service on IBM Cloud card
+    await overviewPage.expectCardHasText(
+      'offering-card_ROVS',
+      'Red Hat OpenShift Virtualization Service on IBM Cloud',
+    );
+    await overviewPage.expectCardHasLabel('offering-card_ROVS', 'Managed service');
+
+    await overviewPage.expectCardDetails('offering-card_ROVS', {
+      'Runs on': 'IBM Cloud',
+      'Purchase through': 'IBM',
+      'Billing type': 'Flexible hourly',
+    });
+
+    await overviewPage.expectLinkOpensInNewTab(
+      overviewPage.cardLearnMoreLink('offering-card_ROVS', 'Learn more on IBM'),
+      links.IBM_CLOUD_ROVS,
     );
 
     // Developer Sandbox card

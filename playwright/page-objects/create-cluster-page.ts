@@ -90,7 +90,10 @@ export class CreateClusterPage extends BasePage {
   }
 
   async checkManagedServiceButton(buttonText: string, expectedUrl: string): Promise<void> {
-    const button = this.managedServicesTable.locator('a').filter({ hasText: buttonText });
+    // Filter by href as well — button labels can repeat across rows (e.g. IBM vs ROVS)
+    const button = this.managedServicesTable
+      .locator(`a[href="${expectedUrl}"]`)
+      .filter({ hasText: buttonText });
     await expect(button).toBeVisible();
     await expect(button).toHaveAttribute('href', expectedUrl);
   }

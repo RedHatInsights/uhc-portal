@@ -1,10 +1,16 @@
-import { test, expect } from '../../fixtures/pages';
+import { expect, test } from '../../fixtures/pages';
+import {
+  mockFeatureGateEnabled,
+  ROVS_REGISTRATION_FEATURE,
+} from '../../support/feature-gate-mock-helper';
 
 test.describe.serial(
   'Check all cluster lists page items presence and its actions (OCP-21339)',
   { tag: ['@smoke', '@ci'] },
   () => {
-    test.beforeAll(async ({ navigateTo, clusterListPage }) => {
+    test.beforeAll(async ({ navigateTo, page, clusterListPage }) => {
+      // Enable ROVS before first OCM load so cluster-type filter includes it
+      await mockFeatureGateEnabled(page, ROVS_REGISTRATION_FEATURE);
       // Navigate to cluster list and wait for data to load
       await navigateTo('clusters/list');
       await clusterListPage.waitForDataReady();
@@ -43,11 +49,13 @@ test.describe.serial(
         await clusterListPage.clickClusterTypes('ROSA');
         await clusterListPage.clickClusterTypes('ARO');
         await clusterListPage.clickClusterTypes('RHOIC');
+        await clusterListPage.clickClusterTypes('ROVS');
         await clusterListPage.clickClusterTypes('OCP');
         await clusterListPage.clickClusterTypes('OSD');
         await clusterListPage.clickClusterTypes('ROSA');
         await clusterListPage.clickClusterTypes('ARO');
         await clusterListPage.clickClusterTypes('RHOIC');
+        await clusterListPage.clickClusterTypes('ROVS');
         await clusterListPage.clickClusterTypeFilters();
 
         // Test create cluster button
@@ -115,7 +123,6 @@ test.describe.serial(
       await clusterListPage.viewOnlyMyCluster().click();
       await clusterListPage.checkForDetailsInAnchor();
     });
-
 
     test('Cluster list page: first anchor should navigate to details page', async ({
       clusterListPage,
