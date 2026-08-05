@@ -18,7 +18,7 @@ import ErrorBox from '~/components/common/ErrorBox';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
-import { useOCPLifeCycleStatusData } from '~/components/releases/hooks';
+import { useOCPLifeCycleStatus } from '~/queries/useOCPLifeCycleStatus';
 import { clustersActions } from '~/redux/actions';
 import { useGlobalState } from '~/redux/hooks';
 import type { Version } from '~/types/clusters_mgmt.v1';
@@ -85,12 +85,11 @@ function VersionSelection({
   const [versions, setVersions] = useState<Version[]>([]);
   const [rosaVersionError, setRosaVersionError] = useState(false);
   const [showOnlyCompatibleVersions, setShowOnlyCompatibleVersions] = useState(true);
-  const [statusData] = useOCPLifeCycleStatusData();
-  const statusVersions = statusData?.[0]?.versions || [];
+  const { versions: statusVersions } = useOCPLifeCycleStatus();
 
   const supportVersionMap = Object.fromEntries(
     // version.name is 'major.minor' string e.g. '4.11'.
-    statusVersions.map((version) => [version.name, version.type]),
+    (statusVersions ?? []).map((version) => [version.name, version.type]),
   );
 
   const isValidRosaVersion = React.useCallback(

@@ -15,7 +15,7 @@ import { useFetchUpgradeGatesFromApi } from '~/queries/ClusterDetailsQueries/use
 
 import ClusterUpdateLink from '../../../../common/ClusterUpdateLink';
 import UpgradeStatus from '../../../../common/Upgrades/UpgradeStatus';
-import SupportStatusLabel from '../SupportStatusLabel';
+import { SupportStatusLabel } from '../SupportStatusLabel/SupportStatusLabel';
 
 // TODO: Part of the upgrade tab
 const ClusterVersionInfo = ({ cluster }) => {

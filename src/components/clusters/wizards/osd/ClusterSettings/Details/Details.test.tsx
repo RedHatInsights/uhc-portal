@@ -349,7 +349,7 @@ describe('<Details />', () => {
     it('initializes the version dropdown with the selected version', async () => {
       const formValues = {
         ...initialValues,
-        [FieldId.ClusterVersion]: versionsData[3], // 4.18.1
+        [FieldId.ClusterVersion]: versionsData.find((v) => v.id === '4.18.1')!,
         [FieldId.ChannelGroup]: 'stable',
       };
       withState(loadedState).render(

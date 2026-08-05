@@ -33,7 +33,6 @@ import { subscriptionReleasedReducer } from './subscriptionReleasedReducer';
 import { subscriptionSettingsReducer } from './subscriptionSettingsReducer';
 import { subscriptionsReducer } from './subscriptionsReducer';
 import { supportReducer } from './supportReducer';
-import supportStatusReducer from './supportStatusReducer';
 import tollboothReducer from './tollbooth';
 import userReducer from './userReducer';
 import { viewOptionsReducer } from './viewOptionsReducer';
@@ -68,7 +67,6 @@ const reducers = {
   clusterRouters: NetworkingReducer,
   cost: costReducer,
   dashboards: dashboardsReducer,
-  supportStatus: supportStatusReducer,
   entitlementConfig: entitlementConfigReducer,
 
   clusterUpgrades,

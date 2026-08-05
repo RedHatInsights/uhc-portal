@@ -57,7 +57,7 @@ const componentText = {
     value: 'FIPS Cryptography enabled',
   },
 };
-jest.mock('./SupportStatusLabel');
+jest.mock('./SupportStatusLabel/SupportStatusLabel');
 
 const checkForValue = (label, value) => {
   expect(screen.getByText(label)).toBeInTheDocument();

@@ -1,22 +1,8 @@
 import * as React from 'react';
 import semver from 'semver';
 
-import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
+import { useOCPLifeCycleStatus } from '~/queries/useOCPLifeCycleStatus';
 import getOCPReleaseChannel from '~/services/releaseChannelService';
-import { ProductLifeCycle } from '~/types/product-life-cycles';
-
-export const useOCPLifeCycleStatusData = () => {
-  const [statusData, setStatusData] = React.useState<ProductLifeCycle[] | undefined>();
-  React.useEffect(() => {
-    const fetchStatusData = async () => {
-      const result = await getOCPLifeCycleStatus();
-      setStatusData(result.data.data);
-    };
-    fetchStatusData();
-  }, []);
-  const loaded = statusData !== undefined;
-  return [statusData, loaded] as const;
-};
 
 export const useOCPLatestVersionInChannel = (releaseChannel: string | undefined) => {
   const [latestVersion, setLatestVersion] = React.useState<string | undefined>(undefined);
@@ -38,11 +24,10 @@ export const useOCPLatestVersionInChannel = (releaseChannel: string | undefined)
 };
 
 export const useOCPLatestVersion = (releaseChannelPrefix = 'stable') => {
-  const [statusData, statusDataLoaded] = useOCPLifeCycleStatusData();
+  const { versions, isLoading } = useOCPLifeCycleStatus();
   let latestReleaseChannel: string | undefined;
-  if (statusDataLoaded) {
-    const allVersions = statusData?.[0]?.versions || [];
-    const filteredVersions = allVersions.filter((version) => !version.name.includes('EUS'));
+  if (!isLoading) {
+    const filteredVersions = (versions ?? []).filter((version) => !version.name.includes('EUS'));
     const latestMinorVersion = filteredVersions.length > 0 ? filteredVersions[0]?.name : undefined;
     latestReleaseChannel = latestMinorVersion && `${releaseChannelPrefix}-${latestMinorVersion}`;
   }

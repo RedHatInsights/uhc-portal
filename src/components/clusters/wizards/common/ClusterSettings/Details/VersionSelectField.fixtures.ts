@@ -3,6 +3,18 @@ import { Version } from '~/types/clusters_mgmt.v1';
 const versionsData: Version[] = [
   {
     kind: 'Version',
+    raw_id: '5.0.1',
+    id: '5.0.1',
+    enabled: true,
+    default: false,
+    channel_group: 'stable',
+    rosa_enabled: true,
+    hosted_control_plane_enabled: true,
+    gcp_marketplace_enabled: true,
+    end_of_life_timestamp: '2026-09-17T00:00:00Z',
+  },
+  {
+    kind: 'Version',
     raw_id: '4.18.3',
     id: '4.18.3',
     enabled: true,
@@ -115,9 +127,9 @@ const lifecycleResponseData = {
   data: [
     {
       uuid: '0964595a-151e-4240-8a62-31e6c3730226',
-      name: 'OpenShift Container Platform 4',
+      name: 'Red Hat OpenShift Container Platform',
       former_names: [],
-      show_last_minor_release: false,
+      opl_uuid: null,
       show_final_minor_release: false,
       is_layered_product: false,
       all_phases: [
@@ -167,6 +179,31 @@ const lifecycleResponseData = {
         },
       ],
       versions: [
+        {
+          name: '5.0',
+          type: 'Full Support',
+          last_minor_release: null,
+          final_minor_release: null,
+          extra_header_value: null,
+          additional_text: '',
+          phases: [
+            {
+              name: 'General availability',
+              date: '2026-09-01T00:00:00.000Z',
+              date_format: 'date',
+              additional_text: '',
+            },
+            {
+              name: 'Extended update support',
+              date: '2028-03-01T00:00:00.000Z',
+              date_format: 'date',
+              additional_text: '',
+            },
+          ],
+          tier: 'N/A',
+          openshift_compatibility: null,
+          extra_dependences: [],
+        },
         {
           name: '4.16',
           type: 'Full Support',
