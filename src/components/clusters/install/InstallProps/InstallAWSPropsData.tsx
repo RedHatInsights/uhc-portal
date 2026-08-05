@@ -1,9 +1,10 @@
 import links from '~/common/installLinks.mjs';
 
+import { INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 
 export const AWSProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | AWS',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | AWS`,
   providerTitle: 'AWS',
   ipiPageLink: '/install/aws/installer-provisioned',
   ipiLearnMoreLink: links.INSTALL_AWSIPI_LEARN_MORE,
@@ -21,8 +22,7 @@ export const AWSProps = {
 };
 
 export const AWSIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | AWS Installer-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | AWS Installer-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.aws.x86.ipi.title,
   cloudProviderId: 'aws',
   customizations: instructionsMapping.aws.customizations,
@@ -36,8 +36,7 @@ export const AWSIPIProps = {
 };
 
 export const AWSUPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | AWS User-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | AWS User-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.aws.x86.upi.title,
   cloudProviderId: 'aws',
   isUPI: true,

@@ -5,6 +5,8 @@ import installLinks, { tools } from '~/common/installLinks.mjs';
 import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
+import { INSTALL_OPENSHIFT_PREFIX, INSTALL_PAGE_PREFIX } from '../installConstants';
+
 export const nonTestedPlatformsLink = (
   <>
     For&nbsp;
@@ -16,7 +18,7 @@ export const nonTestedPlatformsLink = (
 
 // Example of props data for generic install component
 export const AlibabaProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Alibaba Cloud',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Alibaba Cloud`,
   providerTitle: 'Alibaba Cloud',
   name: 'alibaba-cloud',
   breadCrumbsPaths: buildBreadcrumbs(BREADCRUMB_PATHS.CLUSTER_LIST, BREADCRUMB_PATHS.CLUSTER_TYPE, {
@@ -38,14 +40,14 @@ export const AlibabaProps = {
 };
 
 export const PullSecretProps = {
-  appPageTitle: 'Install OpenShift 4 | Pull Secret',
-  providerTitle: 'Install OpenShift Container Platform 4',
+  appPageTitle: `${INSTALL_OPENSHIFT_PREFIX} | Pull Secret`,
+  providerTitle: 'Install OpenShift Container Platform',
   breadCrumbsPaths: buildBreadcrumbs(BREADCRUMB_PATHS.DOWNLOADS, { label: 'Pull secret' }),
 };
 
 export const PreReleaseProps = {
-  appPageTitle: 'Install OpenShift 4 | Experimental Developer Preview Builds',
-  providerTitle: 'Install OpenShift Container Platform 4',
+  appPageTitle: `${INSTALL_OPENSHIFT_PREFIX} | Experimental Developer Preview Builds`,
+  providerTitle: 'Install OpenShift Container Platform',
   installer: tools.X86INSTALLER,
   breadCrumbsPaths: buildBreadcrumbs(BREADCRUMB_PATHS.CLUSTER_LIST, BREADCRUMB_PATHS.CLUSTER_TYPE, {
     label: 'Pre-Release Builds',
@@ -53,8 +55,7 @@ export const PreReleaseProps = {
 };
 
 export const OracleCloudProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Oracle Cloud Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Oracle Cloud Infrastructure`,
   providerTitle: 'Oracle Cloud Infrastructure',
   aiPageLink: '/assisted-installer/clusters/~new',
   aiLearnMoreLink: installLinks.INSTALL_ASSISTED_LEARN_MORE,

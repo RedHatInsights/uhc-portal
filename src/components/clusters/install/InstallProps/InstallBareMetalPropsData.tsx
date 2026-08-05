@@ -1,10 +1,10 @@
 import links from '~/common/installLinks.mjs';
 
+import { INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 
 export const BareMetalABIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Bare Metal Agent-based installer',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Bare Metal Agent-based installer`,
   providerTitle: instructionsMapping.baremetal.x86.abi.title,
   cloudProviderId: 'baremetal',
   installationTypeId: 'local-agent-based',
@@ -19,8 +19,7 @@ export const BareMetalABIProps = {
 };
 
 export const BareMetalIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Bare Metal Installer-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Bare Metal Installer-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.baremetal.x86.ipi.title,
   cloudProviderId: 'baremetal',
   instructionsMapping: instructionsMapping.baremetal.x86.ipi,
@@ -33,8 +32,7 @@ export const BareMetalIPIProps = {
 };
 
 export const BareMetalUPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Bare Metal User-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Bare Metal User-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.baremetal.x86.upi.title,
   cloudProviderId: 'baremetal',
   isUPI: true,
@@ -48,7 +46,7 @@ export const BareMetalUPIProps = {
 };
 
 export const BareMetalProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Bare Metal',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Bare Metal`,
   providerTitle: 'Bare Metal',
   aiPageLink: '/assisted-installer/clusters/~new',
   aiLearnMoreLink: links.INSTALL_ASSISTED_LEARN_MORE,

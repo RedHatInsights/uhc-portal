@@ -9,7 +9,7 @@ describe('<ClusterListEmptyState />', () => {
     const { container } = render(<ClusterListEmptyState />);
     expect(
       screen.getByText(
-        "You don't have any clusters yet, but you can easily create or register your first OpenShift 4 cluster.",
+        "You don't have any clusters yet, but you can easily create or register your first OpenShift cluster.",
         { exact: false },
       ),
     );
