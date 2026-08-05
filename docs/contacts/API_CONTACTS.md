@@ -105,10 +105,10 @@ When you have questions about an API — its behavior, expected response data, c
 - **Slack:** `#forum-consoledot`
 
 ### Demo Experience (ROSA Hands-On)
-- **Path:** `api.demo-experience.demo.redhat.com`
+- **Path:** `https://api.demo-experience.demo.redhat.com`
 - **UI Areas:**
   - ROSA Hands-On page
-- **Slack:** `#tmp-rosa-handson`
+- **Slack:** `#tmp-rosa-handson` (fallback: `#forum-managed-openshift`)
 
 ### Product Life Cycles
 - **Path:** `access.redhat.com/product-life-cycles/api/v1`
@@ -118,6 +118,7 @@ When you have questions about an API — its behavior, expected response data, c
   |---|---|
   | OSD wizard | ROSA Classic wizard |
   | ROSA HCP wizard | ROSA Get Started wizard |
+
 - **Slack:** `#forum-ocp-release`
 - **JIRA:** PLMCORE
 
@@ -126,7 +127,7 @@ When you have questions about an API — its behavior, expected response data, c
 - **UI Areas:**
   - Downloads page
   - Install cluster instruction pages
-- **Slack:** N/A (public GitHub API)
+- **Slack:** `#ocm-osd-ui` (our code makes these calls; GitHub is a public API)
 
 ### Assisted Installer
 - **Path:** Federated (module federation remote)
@@ -158,5 +159,4 @@ When you have questions about an API — its behavior, expected response data, c
 
 ## Maintenance
 
-- **Types out of date?** Run `make openapi` from the repo root (`RedHatInsights/uhc-portal`) to regenerate types. See `openapi/README.md` for spec source URLs.
-- **New API to consume?** Update this file and add the generation command to the root `Makefile`.
+- **New API to consume?** Add a section to this file with the API's path, UI areas, Slack channel, and JIRA project.
