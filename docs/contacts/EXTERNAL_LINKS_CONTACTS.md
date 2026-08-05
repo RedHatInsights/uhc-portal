@@ -63,19 +63,3 @@ JIRA project: **OSDOCS**
 | Domain | Base URL |
 |--------|----------|
 | Azure Docs | `azure.microsoft.com/...` |
-
-## Resolution Steps
-
-### Broken `docs.redhat.com` link
-
-1. Ask in the Slack channel listed above for the product area.
-2. File a JIRA ticket in the **OSDOCS** project with the broken URL.
-3. If the path has simply been renamed (e.g., `installing-aws-default` → `installer-provisioned-infrastructure`), search the current docs and update the URL in `docLinks.mjs` or `installLinks.mjs`.
-
-### Broken `access.redhat.com` link
-
-Ask in `#forum-customer-portal` or search for the article number internally.
-
-### Broken third-party link (AWS/GCP/Azure)
-
-These are external docs not maintained by Red Hat. Ask in the relevant product channel listed above for help locating the new URL, then update `docLinks.mjs`.
