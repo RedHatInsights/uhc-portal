@@ -3,7 +3,7 @@ import React from 'react';
 import { Alert } from '@patternfly/react-core';
 
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
-import { isROSA } from '~/components/clusters/common/clusterStates';
+import { isOSD, isROSA } from '~/components/clusters/common/clusterStates';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -32,13 +32,14 @@ const getWarningTitle = (cluster: AugmentedCluster): React.ReactNode =>
 
 const UpgradeToV5Warning = ({ cluster, isHypershift, organization }: UpgradeToV5WarningProps) => {
   const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
+  const isRosaOrOsd = isROSA(cluster) || isOSD(cluster);
   const hasOcp5Capability = (organization?.capabilities ?? []).some(
     (capability) =>
       capability.name === subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5 &&
       capability.value === 'true',
   );
 
-  if (!isOcp5SupportEnabled || isHypershift || hasOcp5Capability) {
+  if (!isOcp5SupportEnabled || !isRosaOrOsd || isHypershift || hasOcp5Capability) {
     return null;
   }
 

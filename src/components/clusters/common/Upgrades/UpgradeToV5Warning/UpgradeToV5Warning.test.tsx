@@ -18,8 +18,14 @@ const rosaClassicCluster = {
 } as unknown as AugmentedCluster;
 
 const osdClassicGcpCluster = {
+  product: { id: 'OSD' },
   subscription: { plan: { type: 'OSD' } },
   cloud_provider: { id: 'gcp' },
+} as unknown as AugmentedCluster;
+
+const aroCluster = {
+  product: { id: 'ARO' },
+  subscription: { plan: { type: 'ARO' } },
 } as unknown as AugmentedCluster;
 
 const rosaClassicWarningText =
@@ -90,6 +96,12 @@ describe('<UpgradeToV5Warning />', () => {
 
   it('does not render for Hypershift clusters', () => {
     render(<UpgradeToV5Warning cluster={rosaClassicCluster} isHypershift />);
+
+    expect(screen.queryByTestId('classic-upgrade-to-v5-warning')).not.toBeInTheDocument();
+  });
+
+  it('does not render for non-ROSA, non-OSD clusters (e.g. ARO)', () => {
+    render(<UpgradeToV5Warning cluster={aroCluster} isHypershift={false} />);
 
     expect(screen.queryByTestId('classic-upgrade-to-v5-warning')).not.toBeInTheDocument();
   });
