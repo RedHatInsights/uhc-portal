@@ -2,9 +2,9 @@ export const mockOCPLifeCycleStatusData = [
   [
     {
       uuid: '0964595a-151e-4240-8a62-31e6c3730226',
-      name: 'OpenShift Container Platform 4',
+      name: 'Red Hat OpenShift Container Platform',
       former_names: [],
-      show_last_minor_release: false,
+      opl_uuid: null,
       show_final_minor_release: false,
       is_layered_product: false,
       all_phases: [

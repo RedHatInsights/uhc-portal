@@ -4,7 +4,8 @@ import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
 
 import GET_SUPPORT_STATUS from '../constants/supportStatusConstants';
 
-const getSupportStatus = () => action(GET_SUPPORT_STATUS, getOCPLifeCycleStatus());
+const getSupportStatus = (useOcp5Support: boolean) =>
+  action(GET_SUPPORT_STATUS, getOCPLifeCycleStatus(useOcp5Support));
 
 const supportStatusActions = {
   getSupportStatus,
