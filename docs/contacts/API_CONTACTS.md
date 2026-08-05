@@ -154,9 +154,3 @@ When you have questions about an API — its behavior, expected response data, c
 - `#sd-app-sre` — SRE operations for all OCM/HCC services
 - `#ocm-osd-ui` — Inbound channel where backend teams (SRE, ROSA eng, CCS docs, AMS, platform), support (CEE/TAMs), and cross-team stakeholders reach the OCM UI team
 - `#webrca-status-board-adoption` — WebRCA + Status Board
-
----
-
-## Maintenance
-
-- **New API to consume?** Add a section to this file with the API's path, UI areas, Slack channel, and JIRA project.
