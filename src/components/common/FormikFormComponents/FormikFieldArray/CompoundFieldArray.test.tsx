@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { render, screen, userEvent } from '~/testUtils';
+import { render, screen } from '~/testUtils';
 
 import { FieldId } from '../../../clusters/ClusterDetailsMultiRegion/components/IdentityProvidersPage/constants';
 
@@ -85,11 +85,11 @@ describe('Formik fields change', () => {
   });
 
   it('shows enabled Add user while fields are populated and error free', async () => {
-    render(buildTestComponent(<CompoundFieldArray {...defaultProps} />));
+    const { user } = render(buildTestComponent(<CompoundFieldArray {...defaultProps} />));
 
-    await userEvent.type(screen.getByPlaceholderText('Unique username 1'), 'username1');
-    await userEvent.type(screen.getByLabelText('Password *'), '1234faewd%Dadsfvaerwv');
-    await userEvent.type(screen.getByLabelText('Confirm password *'), '1234faewd%Dadsfvaerwv');
+    await user.type(screen.getByPlaceholderText('Unique username 1'), 'username1');
+    await user.type(screen.getByLabelText('Password *'), '1234faewd%Dadsfvaerwv');
+    await user.type(screen.getByLabelText('Confirm password *'), '1234faewd%Dadsfvaerwv');
 
     expect(screen.getByRole('button', { name: 'Add user' })).toBeEnabled();
   });
@@ -101,33 +101,33 @@ describe('Formik fields change', () => {
   });
 
   it('disables Add user when only some fields are filled', async () => {
-    render(buildTestComponent(<CompoundFieldArray {...defaultProps} />));
+    const { user } = render(buildTestComponent(<CompoundFieldArray {...defaultProps} />));
 
-    await userEvent.type(screen.getByPlaceholderText('Unique username 1'), 'username1');
+    await user.type(screen.getByPlaceholderText('Unique username 1'), 'username1');
 
     expect(screen.getByRole('button', { name: 'Add user' })).toBeDisabled();
   });
 
   it('adds new field', async () => {
-    render(buildTestComponent(<CompoundFieldArray {...defaultProps} />));
+    const { user } = render(buildTestComponent(<CompoundFieldArray {...defaultProps} />));
 
-    await userEvent.type(screen.getByPlaceholderText('Unique username 1'), 'username1');
-    await userEvent.type(screen.getByLabelText('Password *'), '1234faewd%Dadsfvaerwv');
-    await userEvent.type(screen.getByLabelText('Confirm password *'), '1234faewd%Dadsfvaerwv');
+    await user.type(screen.getByPlaceholderText('Unique username 1'), 'username1');
+    await user.type(screen.getByLabelText('Password *'), '1234faewd%Dadsfvaerwv');
+    await user.type(screen.getByLabelText('Confirm password *'), '1234faewd%Dadsfvaerwv');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Add user' }));
+    await user.click(screen.getByRole('button', { name: 'Add user' }));
 
     expect(screen.getAllByLabelText('Password *')).toHaveLength(2);
   });
 
   it('disables Add user after adding a new empty row', async () => {
-    render(buildTestComponent(<CompoundFieldArray {...defaultProps} />));
+    const { user } = render(buildTestComponent(<CompoundFieldArray {...defaultProps} />));
 
-    await userEvent.type(screen.getByPlaceholderText('Unique username 1'), 'username1');
-    await userEvent.type(screen.getByLabelText('Password *'), '1234faewd%Dadsfvaerwv');
-    await userEvent.type(screen.getByLabelText('Confirm password *'), '1234faewd%Dadsfvaerwv');
+    await user.type(screen.getByPlaceholderText('Unique username 1'), 'username1');
+    await user.type(screen.getByLabelText('Password *'), '1234faewd%Dadsfvaerwv');
+    await user.type(screen.getByLabelText('Confirm password *'), '1234faewd%Dadsfvaerwv');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Add user' }));
+    await user.click(screen.getByRole('button', { name: 'Add user' }));
 
     expect(screen.getByRole('button', { name: 'Add user' })).toBeDisabled();
   });
