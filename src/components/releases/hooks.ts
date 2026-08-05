@@ -1,19 +1,22 @@
 import * as React from 'react';
 import semver from 'semver';
 
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
 import getOCPReleaseChannel from '~/services/releaseChannelService';
 import { ProductLifeCycle } from '~/types/product-life-cycles';
 
 export const useOCPLifeCycleStatusData = () => {
+  const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
   const [statusData, setStatusData] = React.useState<ProductLifeCycle[] | undefined>();
   React.useEffect(() => {
     const fetchStatusData = async () => {
-      const result = await getOCPLifeCycleStatus();
+      const result = await getOCPLifeCycleStatus(isOcp5SupportEnabled);
       setStatusData(result.data.data);
     };
     fetchStatusData();
-  }, []);
+  }, [isOcp5SupportEnabled]);
   const loaded = statusData !== undefined;
   return [statusData, loaded] as const;
 };

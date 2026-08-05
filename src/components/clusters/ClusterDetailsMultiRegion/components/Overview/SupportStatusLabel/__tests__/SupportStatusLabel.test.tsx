@@ -67,7 +67,7 @@ describe('<SupportStatusLabel />', () => {
     render(<SupportStatusLabel clusterVersion="4.5" />);
 
     // Assert
-    expect(getSupportStatusMock).toHaveBeenCalled();
+    expect(getSupportStatusMock).toHaveBeenCalledWith(false);
   });
 
   it('should render skeleton when pending', () => {
