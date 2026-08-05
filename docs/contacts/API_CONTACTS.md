@@ -143,6 +143,19 @@ When you have questions about an API — its behavior, expected response data, c
 
 ---
 
+## Product Managers
+
+| Product Area | PM(s) | Slack |
+|-------------|--------|-------|
+| ROSA | Bala Chandrasekaran, Aaren de Jong, Sean Y | `@Bala Chandrasekaran`, `@Aaren`, `@Sean Y` |
+| OSD | Shreyans Mulkutkar | `@Shreyans Mulkutkar` |
+| ARO | Jerome Boutaud, Oren Kashi | `@Jerome`, `@Oren Kashi` |
+| OCM | Likhith Nagendra Kumar | `@Likhith` |
+| Marketplace/Billing | Likhith Nagendra Kumar, Jiri Fiala | `@Likhith`, `@Jiri Fiala` |
+| ROSA Hyperfleet | Aaren de Jong, Abhishek Gupta | `@Aaren`, `@Abhishek Gupta` |
+
+---
+
 ## Cross-Cutting Slack Channels
 
 - `#forum-rosa-service-engineering` — Primary hub for all OCM backend services (CS, AMS, ATS, OSL, Upgrades Info)
