@@ -1,9 +1,10 @@
 import links, { tools } from '~/common/installLinks.mjs';
 
+import { INSTALL_OPENSHIFT_PREFIX, INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 
 export const IBMCloudProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | IBM Cloud',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | IBM Cloud`,
   providerTitle: instructionsMapping.ibmCloud.title,
   cloudProviderId: 'ibmCloud',
   instructionsMapping: instructionsMapping.ibmCloud,
@@ -15,7 +16,7 @@ export const IBMCloudProps = {
 };
 
 export const IBMZProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | IBM Z (s390x)',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | IBM Z (s390x)`,
   providerTitle: 'IBM Z (s390x)',
   aiPageLink: '/assisted-installer/clusters/~new',
   aiLearnMoreLink: links.INSTALL_ASSISTED_LEARN_MORE,
@@ -41,8 +42,7 @@ export const IBMZProps = {
 };
 
 export const IBMZABIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | IBM Z (s390x) Agent-based installer',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | IBM Z (s390x) Agent-based installer`,
   providerTitle: instructionsMapping.baremetal.s390x.abi.title,
   cloudProviderId: 'baremetal',
   instructionsMapping: instructionsMapping.baremetal.s390x.abi,
@@ -58,7 +58,7 @@ export const IBMZABIProps = {
 };
 
 export const IBMZUPIProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | IBM Z (s390x)',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | IBM Z (s390x)`,
   providerTitle: instructionsMapping.baremetal.s390x.upi.title,
   cloudProviderId: 'baremetal',
   isUPI: true,
@@ -72,7 +72,7 @@ export const IBMZUPIProps = {
 };
 
 export const IBMZPreReleaseProps = {
-  appPageTitle: 'Install OpenShift 4 | IBM Z | Experimental Developer Preview Builds',
+  appPageTitle: `${INSTALL_OPENSHIFT_PREFIX} | IBM Z | Experimental Developer Preview Builds`,
   providerTitle: 'Install OpenShift on IBM Z with user-provisioned infrastructure',
   installer: tools.IBMZINSTALLER,
   breadCrumbsPaths: [

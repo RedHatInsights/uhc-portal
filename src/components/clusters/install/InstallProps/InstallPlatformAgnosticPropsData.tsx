@@ -1,12 +1,12 @@
 import links from '~/common/installLinks.mjs';
 
+import { INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 
 import { nonTestedPlatformsLink } from './InstallWrapperPropsData';
 
 export const PlatformAgnosticProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | x86_64 User-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | x86_64 User-Provisioned Infrastructure`,
   providerTitle: 'Platform agnostic (x86_64)',
   aiPageLink: '/assisted-installer/clusters/~new',
   aiLearnMoreLink: links.INSTALL_ASSISTED_LEARN_MORE,
@@ -29,8 +29,7 @@ export const PlatformAgnosticProps = {
 };
 
 export const PlatformAgnosticUPI = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | x86_64 User-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | x86_64 User-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.generic.upi.title,
   cloudProviderId: 'generic',
   isUPI: true,
@@ -44,8 +43,7 @@ export const PlatformAgnosticUPI = {
 };
 
 export const PlatformAgnosticABI = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | x86_64 Agent-based installer',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | x86_64 Agent-based installer`,
   providerTitle: instructionsMapping.generic.abi.title,
   cloudProviderId: 'generic',
   installationTypeId: 'local-agent-based',

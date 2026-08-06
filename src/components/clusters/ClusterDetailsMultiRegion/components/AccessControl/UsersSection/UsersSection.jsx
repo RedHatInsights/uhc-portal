@@ -165,7 +165,7 @@ const UsersSection = (props) => {
           <p>
             Groups are mapped to role bindings on the cluster. For more information check the{' '}
             <ExternalLink href={docLinks.UNDERSTANDING_AUTHENTICATION}>
-              OpenShift 4 documentation
+              OpenShift documentation
             </ExternalLink>
           </p>
         }
