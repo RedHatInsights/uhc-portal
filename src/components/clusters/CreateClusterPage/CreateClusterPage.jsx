@@ -44,7 +44,6 @@ const CreateCluster = ({
   getOrganizationAndQuota,
   organization,
   getAuthToken,
-  hasOSDQuota,
   hasOSDTrialQuota,
   rosaCreationWizardFeature,
   token,
@@ -121,7 +120,6 @@ const CreateCluster = ({
               {[
                 <Tab eventKey={0} title={tabTitle(0)} key="cloudTab">
                   <CloudTab
-                    hasOSDQuota={hasOSDQuota}
                     rosaCreationWizardFeature={rosaCreationWizardFeature}
                     trialEnabled={hasOSDTrialQuota}
                   />
@@ -155,7 +153,6 @@ const CreateCluster = ({
 };
 
 CreateCluster.propTypes = {
-  hasOSDQuota: PropTypes.bool.isRequired,
   hasOSDTrialQuota: PropTypes.bool.isRequired,
   rosaCreationWizardFeature: PropTypes.bool,
   organization: PropTypes.shape({

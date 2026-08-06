@@ -21,7 +21,6 @@ describe('<CreateClusterPage />', () => {
         organization: {
           fulfilled: true,
         },
-        hasOSDQuota: true,
         hasOSDTrialQuota: true,
         rosaCreationWizardFeature: true,
         getOrganizationAndQuota: () => {},
