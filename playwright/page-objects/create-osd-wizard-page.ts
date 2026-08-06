@@ -1,4 +1,5 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { expect,Locator, Page } from '@playwright/test';
+
 import { BaseWizardPage } from './base-wizard-page';
 
 /**
@@ -100,6 +101,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   computeNodeCountIncrementButton(): Locator {
     return this.page.getByRole('button', { name: 'Increment compute nodes' });
   }
+
   computeNodeCountDecrementButton(): Locator {
     return this.page.getByRole('button', { name: 'Decrement compute nodes' });
   }
@@ -476,7 +478,18 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   installIntoExistingVpcCheckBox(): Locator {
-    return this.page.locator('input[id="install_to_vpc"]');
+    return this.page.getByRole('checkbox', { name: 'Install into an existing VPC' });
+  }
+
+  vpcSettingsWizardStep(): Locator {
+    return this.page.getByRole('button', { name: 'VPC settings' });
+  }
+
+  async enableInstallIntoExistingVpc(): Promise<void> {
+    await this.installIntoExistingVpcCheckBox().check();
+    await expect(this.installIntoExistingVpcCheckBox()).toBeChecked();
+    // Wizard only adds the VPC settings step to the nav after Formik install_to_vpc is true.
+    await expect(this.vpcSettingsWizardStep()).toBeVisible({ timeout: 15000 });
   }
 
   usePrivateServiceConnectCheckBox(): Locator {
@@ -1071,5 +1084,100 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     await this.maximumNodeInput().click();
     await this.maximumNodeInput().press('Control+a');
     await this.maximumNodeInput().fill(nodeCount);
+  }
+
+  // AWS VPC / subnet / security group selectors (role-first; filter by text where FuzzySelect
+  // hardcodes aria-label "Options menu"). Shared VPC/SG filter locators live on BaseWizardPage.
+  privateSubnetSelectButtons(): Locator {
+    return this.page.getByRole('button').filter({ hasText: 'Select private subnet' });
+  }
+
+  publicSubnetSelectButtons(): Locator {
+    return this.page.getByRole('button').filter({ hasText: 'Select public subnet' });
+  }
+
+  applicationIngressNamespaceOwnershipPolicyRadio(): Locator {
+    return this.page.getByRole('switch', { name: 'Strict', exact: true });
+  }
+
+  applicationIngressWildcardPolicyDisallowedRadio(): Locator {
+    return this.page.getByRole('switch', { name: 'Disallowed', exact: true });
+  }
+
+  computeNodeRangeValue(): Locator {
+    return this.page.getByTestId('Compute-node-range');
+  }
+
+  routeSelectorsValue(): Locator {
+    return this.page.getByTestId('Route-selectors');
+  }
+
+  excludedNamespacesValue(): Locator {
+    return this.page.getByTestId('Excluded-namespaces');
+  }
+
+  wildcardPolicyValue(): Locator {
+    return this.page.getByTestId('Wildcard-policy');
+  }
+
+  namespaceOwnershipValue(): Locator {
+    return this.page.getByTestId('Namespace-ownership-policy');
+  }
+
+  securityGroupsValue(): Locator {
+    return this.page.getByTestId('Security-groups');
+  }
+
+  async waitForVPCRefresh(): Promise<void> {
+    await this.page.getByRole('progressbar', { name: 'Loading...' }).waitFor({
+      state: 'detached',
+      timeout: 80000,
+    });
+    await expect(this.page.getByTestId('refresh-vpcs')).toBeEnabled({ timeout: 80000 });
+  }
+
+  async selectVPC(vpcName: string): Promise<void> {
+    await this.waitForVPCRefresh();
+    await this.vpcSelectButton().click();
+    await this.vpcFilterInput().waitFor({ state: 'visible', timeout: 50000 });
+    await this.vpcFilterInput().clear();
+    await this.vpcFilterInput().fill(vpcName);
+    await this.page.getByRole('option').filter({ hasText: vpcName }).click();
+    await expect(this.page.getByRole('button').filter({ hasText: vpcName })).toBeVisible({
+      timeout: 30000,
+    });
+  }
+
+  /** Selects the next unselected private subnet toggle (call zones in order 0..n). */
+  async selectPrivateSubnet(_index: number, subnetName: string): Promise<void> {
+    await this.privateSubnetSelectButtons().first().click();
+    await this.subnetFilterInput().clear();
+    await this.subnetFilterInput().fill(subnetName);
+    await this.page
+      .getByRole('option')
+      .filter({ hasText: subnetName })
+      .or(this.page.getByRole('listitem').filter({ hasText: subnetName }))
+      .first()
+      .click();
+  }
+
+  /** Selects the next unselected public subnet toggle (call zones in order 0..n). */
+  async selectPublicSubnet(_index: number, subnetName: string): Promise<void> {
+    await this.publicSubnetSelectButtons().first().click();
+    await this.subnetFilterInput().clear();
+    await this.subnetFilterInput().fill(subnetName);
+    await this.page
+      .getByRole('option')
+      .filter({ hasText: subnetName })
+      .or(this.page.getByRole('listitem').filter({ hasText: subnetName }))
+      .first()
+      .click();
+  }
+
+  async selectAdditionalSecurityGroups(securityGroup: string): Promise<void> {
+    await this.securityGroupsButton().click();
+    // PF Select with role="menu" exposes items as menuitem (name includes SG id description).
+    await this.page.getByRole('menuitem').filter({ hasText: securityGroup }).click();
+    await this.securityGroupsButton().click();
   }
 }

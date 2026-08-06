@@ -387,6 +387,16 @@ export class MachinePoolsPage extends BasePage {
     await expect(row).toHaveCount(0, { timeout: 60000 });
   }
 
+  overviewNodesDescription(): Locator {
+    return this.page.getByRole('term').filter({ hasText: /^Nodes/ }).locator('+ dd');
+  }
+
+  async hasOverviewNodeMetrics(): Promise<boolean> {
+    const nodesText = await this.overviewNodesDescription().innerText();
+    // Stub/fake clusters often report master=0 and compute N/A when metrics are absent.
+    return !/Compute:\s*N\/A/i.test(nodesText) && !/Control plane:\s*0\b/.test(nodesText);
+  }
+
   async verifyCapacityReservationDetail(
     machinePoolId: string,
     expectedPreference: string,
