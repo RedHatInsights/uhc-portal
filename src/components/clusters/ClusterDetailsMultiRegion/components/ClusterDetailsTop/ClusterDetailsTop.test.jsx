@@ -434,7 +434,7 @@ describe('<ClusterDetailsTop />', () => {
 
       expect(
         screen.getByText(
-          'Red Hat OpenShift Platform Plus for Red Hat OpenShift Service on AWS (ROSA) is now available on the AWS Marketplace',
+          'Red Hat OpenShift Platform Plus for ROSA is now available on the AWS Marketplace',
         ),
       ).toBeInTheDocument();
       expect(
@@ -458,7 +458,7 @@ describe('<ClusterDetailsTop />', () => {
 
       expect(
         screen.queryByText(
-          'Red Hat OpenShift Platform Plus for Red Hat OpenShift Service on AWS (ROSA) is now available on the AWS Marketplace',
+          'Red Hat OpenShift Platform Plus for ROSA is now available on the AWS Marketplace',
         ),
       ).not.toBeInTheDocument();
     });
@@ -479,7 +479,7 @@ describe('<ClusterDetailsTop />', () => {
 
       expect(
         screen.queryByText(
-          'Red Hat OpenShift Platform Plus for Red Hat OpenShift Service on AWS (ROSA) is now available on the AWS Marketplace',
+          'Red Hat OpenShift Platform Plus for ROSA is now available on the AWS Marketplace',
         ),
       ).not.toBeInTheDocument();
     });
@@ -497,7 +497,7 @@ describe('<ClusterDetailsTop />', () => {
       await user.click(screen.getByText('Alerts and recommendations'));
 
       const alertTitle =
-        'Red Hat OpenShift Platform Plus for Red Hat OpenShift Service on AWS (ROSA) is now available on the AWS Marketplace';
+        'Red Hat OpenShift Platform Plus for ROSA is now available on the AWS Marketplace';
       const alertTitleElement = screen.getByText(alertTitle);
       expect(alertTitleElement).toBeInTheDocument();
 

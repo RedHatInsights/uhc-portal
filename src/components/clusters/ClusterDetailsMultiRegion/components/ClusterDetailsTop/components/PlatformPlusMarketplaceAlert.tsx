@@ -22,7 +22,7 @@ const PlatformPlusMarketplaceAlert = ({ onDismiss }: Props) => {
       isInline
       component="h2"
       className="pf-v6-u-mt-md"
-      title="Red Hat OpenShift Platform Plus for Red Hat OpenShift Service on AWS (ROSA) is now available on the AWS Marketplace"
+      title="Red Hat OpenShift Platform Plus for ROSA is now available on the AWS Marketplace"
       actionClose={<AlertActionCloseButton onClose={handleClose} />}
       data-testid="platform-plus-marketplace-alert"
     >
