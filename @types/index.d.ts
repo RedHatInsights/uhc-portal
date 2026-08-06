@@ -19,6 +19,7 @@ interface Window {
 // See webpack config DefinePlugin
 declare const APP_DEVMODE: boolean;
 declare const APP_DEV_SERVER: boolean;
+declare const APP_MSW_ENABLED: boolean;
 declare const BASE_PATH: string;
 declare const APP_SENTRY_RELEASE_VERSION: string;
 

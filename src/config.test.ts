@@ -4,6 +4,7 @@ import { ENV_OVERRIDE_LOCALSTORAGE_KEY } from './common/localStorageConstants';
 
 describe('config', () => {
   const originalAppDevServer = (global as any).APP_DEV_SERVER;
+  const originalAppDevMode = (global as any).APP_DEVMODE;
   const mockChrome = { isBeta: () => false, getEnvironment: () => 'prod' };
 
   beforeEach(() => {
@@ -13,6 +14,7 @@ describe('config', () => {
 
   afterEach(() => {
     (global as any).APP_DEV_SERVER = originalAppDevServer;
+    (global as any).APP_DEVMODE = originalAppDevMode;
     localStorage.clear();
   });
 
