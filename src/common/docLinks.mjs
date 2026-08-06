@@ -127,6 +127,7 @@ const docLinks = {
   AWS_SPOT_INSTANCES: `${OCP_DOCS_BASE}/machine_management/managing-compute-machines-with-the-machine-api#machineset-non-guaranteed-instance_creating-machineset-aws`,
   COSTMGMT_ADDING_OCP: `${COSTMGMT_DOCS_BASE}/integrating_openshift_container_platform_data_into_cost_management/index`,
   UPDATING_CLUSTER: `${OCP_DOCS_BASE}/updating_clusters/performing-a-cluster-update#updating-cluster-web-console`,
+  OCP_HIBERNATING_CLUSTER: `${OCP_DOCS_BASE}/backup_and_restore/hibernating-cluster`,
 
   // AWS
   AWS_CLI: 'https://aws.amazon.com/cli/',

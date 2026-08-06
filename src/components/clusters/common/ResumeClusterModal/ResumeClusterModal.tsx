@@ -22,6 +22,7 @@ const ResumeClusterModal = ({ onClose }: ResumeClusterModalProps) => {
   const clusterID = modalData.clusterID || '';
   const clusterName = modalData.clusterName || '';
   const shouldDisplayClusterName = !!modalData.shouldDisplayClusterName;
+  const isROSA = !!modalData.isROSA;
   const region = modalData.rh_region_id;
 
   const {
@@ -63,7 +64,7 @@ const ResumeClusterModal = ({ onClose }: ResumeClusterModalProps) => {
         {resumeClusterIsError ? (
           <ErrorBox message="Error hibernating cluster" response={resumeClusterError || {}} />
         ) : null}
-        <HibernateClusterContent clusterName={clusterName} isHibernating />
+        <HibernateClusterContent clusterName={clusterName} isHibernating isROSA={isROSA} />
       </Form>
     </Modal>
   );

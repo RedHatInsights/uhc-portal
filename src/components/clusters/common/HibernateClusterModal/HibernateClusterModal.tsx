@@ -32,6 +32,7 @@ const HibernateClusterModal = ({ onClose }: HibernateClusterModalProps) => {
   const clusterName = modalData.clusterName || '';
   const subscriptionID = modalData.subscriptionID || '';
   const shouldDisplayClusterName = !!modalData.shouldDisplayClusterName;
+  const isROSA = !!modalData.isROSA;
 
   const isHypershift = isHypershiftCluster(modalData);
 
@@ -98,7 +99,7 @@ const HibernateClusterModal = ({ onClose }: HibernateClusterModalProps) => {
   } else {
     isHibernateEnabled = true;
     hibernateFormContent = (
-      <HibernateClusterContent clusterName={clusterName} isHibernating={false} />
+      <HibernateClusterContent clusterName={clusterName} isHibernating={false} isROSA={isROSA} />
     );
   }
 
