@@ -59,16 +59,16 @@ export class RosaGetStartedPage extends BasePage {
     return this.page.getByTestId('rosa-aws-fedramp');
   }
 
+  rosaFedRampRequestFormlink(): Locator {
+    return this.page.getByTestId('fedramp-access-request-form');
+  }
+
   rosaClientDropdown(): Locator {
     return this.page.getByTestId('os-dropdown-rosa');
   }
 
   rosaClientButton(): Locator {
     return this.page.getByTestId('download-btn-rosa');
-  }
-
-  rosaFedRampRequestFormlink(): Locator {
-    return this.page.getByTestId('fedramp-access-request-form');
   }
 
   deployWithCliCard(): Locator {
@@ -152,7 +152,10 @@ export class RosaGetStartedPage extends BasePage {
     // proper TLS fingerprinting and JS challenge execution, while preserving cookies.
     const newPage = await this.page.context().newPage();
     try {
-      const response = await newPage.goto(link, { waitUntil: 'commit', timeout: DEFAULT_NAVIGATION_TIMEOUT });
+      const response = await newPage.goto(link, {
+        waitUntil: 'commit',
+        timeout: DEFAULT_NAVIGATION_TIMEOUT,
+      });
       const status = response?.status();
       expect(status, `Expected link to be reachable but got ${status}: ${link}`).toBe(200);
     } finally {

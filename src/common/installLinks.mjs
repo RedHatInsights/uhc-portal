@@ -206,6 +206,9 @@ const links = {
 
   FEDRAMP_ACCESS_REQUEST_FORM: 'https://console.redhat.com/openshift/create/rosa/govcloud',
 
+  ROSA_OPP_AWS_MARKETPLACE_EMEA: 'https://aws.amazon.com/marketplace/pp/prodview-sxbakgvp63pcs',
+  ROSA_OPP_AWS_MARKETPLACE_NON_EMEA: 'https://aws.amazon.com/marketplace/pp/prodview-dm5otbp2o25zk',
+
   KN_DOCS: `${OCP_DOCS_BASE}/cli_tools/kn-cli-tools`,
   TKN_DOCS: `${OCP_DOCS_BASE}/cli_tools/pipelines-cli-tkn#installing-tkn`,
   CLI_TOOLS_OCP_GETTING_STARTED: `${OCP_DOCS_BASE}/cli_tools/openshift-cli-oc#cli-about-cli_cli-developer-commands`,
