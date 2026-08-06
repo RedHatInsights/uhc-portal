@@ -361,7 +361,6 @@ function ClusterDetailsTop(props) {
   const [hasTransferClusterOwnershipAlert, setHasTransferClusterOwnershipAlert] =
     React.useState(false);
   const hasSeverityLabelChangeAlert = !isArchived && !isDeprovisioned;
-  const hasPlatformPlusMarketplaceAlert = showPlatformPlusMarketplaceAlert;
 
   const alerts = [
     hasLimitedSupportAlert,
@@ -376,7 +375,7 @@ function ClusterDetailsTop(props) {
     hasTermsAlert,
     hasTransferClusterOwnershipAlert,
     hasSeverityLabelChangeAlert,
-    hasPlatformPlusMarketplaceAlert,
+    showPlatformPlusMarketplaceAlert,
   ];
 
   const alertsCount = alerts.filter((alert) => alert === true).length || null;

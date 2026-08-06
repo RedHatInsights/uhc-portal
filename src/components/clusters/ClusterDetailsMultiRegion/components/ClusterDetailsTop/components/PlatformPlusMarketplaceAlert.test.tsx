@@ -4,7 +4,7 @@ import installLinks from '~/common/installLinks.mjs';
 import { HAS_USER_DISMISSED_ROSA_OPP_MARKETPLACE_ALERT } from '~/common/localStorageConstants';
 import { checkAccessibility, render, screen } from '~/testUtils';
 
-import PlatformPlusMarketplaceAlert from '../ClusterDetailsTop/components/PlatformPlusMarketplaceAlert';
+import PlatformPlusMarketplaceAlert from './PlatformPlusMarketplaceAlert';
 
 describe('<PlatformPlusMarketplaceAlert />', () => {
   beforeEach(() => {
