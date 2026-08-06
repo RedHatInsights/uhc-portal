@@ -929,6 +929,8 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
     clientErrors.length > 0 ||
     serverErrors.length > 0 ||
     errors.length > 0;
+  const totalErrors =
+    redirectErrorCount + clientErrors.length + serverErrors.length + errors.length;
 
   const lines = [
     hasIssues ? '👎 Issues found' : '👍 All clear',
@@ -944,6 +946,7 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
     `Request errors                    ${count(errors.length, true)}`,
     '---------------------------------- ------',
     `Total URLs checked                ${count(totalChecked)}`,
+    `Total Errors                      ${count(totalErrors, true)}`,
   ];
 
   if (includeBrokenLinks && hasIssues) {

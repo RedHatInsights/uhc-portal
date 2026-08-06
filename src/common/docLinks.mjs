@@ -54,7 +54,7 @@ const docLinks = {
   ROSA_CIDR_HOST: `${ROSA_DOCS_BASE}/networking_overview/cidr-range-definitions#host-prefix-description`,
   ROSA_CLUSTER_AUTOSCALING: `${ROSA_DOCS_BASE}/cluster_administration/rosa-cluster-autoscaling-hcp`,
   ROSA_MONITORING: `${ROSA_DOCS_BASE}-single/monitoring/index#preparing-to-configure-the-monitoring-stack-uwm`,
-  ROSA_AUTOSCALING: `${ROSA_DOCS_BASE}/cluster_administration/manage-nodes-using-machine-pools#rosa-nodes-about-autoscaling-nodes`,
+  ROSA_AUTOSCALING: `${ROSA_DOCS_BASE}/cluster_administration/managing-compute-nodes-using-machine-pools#rosa-nodes-about-autoscaling-nodes`,
   ROSA_SECURITY_GROUPS: `${ROSA_DOCS_BASE}/prepare_your_environment/rosa-hcp-prereqs#rosa-security-groups_rosa-hcp-prereqs`,
   ROSA_LIFE_CYCLE: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#life-cycle-overview_rosa-life-cycle`,
   ROSA_LIFE_CYCLE_DATES: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#sd-life-cycle-dates_rosa-hcp-life-cycle`,
