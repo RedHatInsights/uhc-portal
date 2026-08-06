@@ -27,6 +27,7 @@ const subscriptionCapabilities = {
   ALLOW_ETCD_ENCRYPTION: 'capability.account.allow_etcd_encryption',
   ENABLE_ACCESS_PROTECTION: 'capability.cluster.enable_access_protection',
   ENABLE_TERMS_ENFORCEMENT: 'capability.account.enable_terms_enforcement',
+  ROSA_OSD_ALLOW_OCP_5: 'capability.organization.rosa_osd_allow_ocp_5',
 };
 
 const hasCapability = (subscription: Subscription | undefined, name: string): boolean => {
