@@ -1,11 +1,19 @@
 import React from 'react';
 import type axios from 'axios';
 
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import apiRequest from '~/services/apiRequest';
-import { checkAccessibility, mockRestrictedEnv, render, screen, waitFor } from '~/testUtils';
+import {
+  checkAccessibility,
+  mockRestrictedEnv,
+  mockUseFeatureGate,
+  render,
+  screen,
+  waitFor,
+} from '~/testUtils';
 
 import ocpLifeCycleStatuses from './__mocks__/ocpLifeCycleStatuses';
-import Releases from './index';
+import Releases from './Releases';
 
 type MockedJest = jest.Mocked<typeof axios> & jest.Mock;
 const apiRequestMock = apiRequest as unknown as MockedJest;
@@ -26,6 +34,19 @@ describe('<Releases />', () => {
     expect(apiRequestMock.get).toHaveBeenCalled();
 
     await checkAccessibility(container);
+  });
+
+  it('renders OCP 5.x versions when OCP5_SUPPORT is enabled', async () => {
+    mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+    render(<Releases />);
+
+    expect(await screen.findByTestId('version-5.0')).toBeInTheDocument();
+    expect(screen.getByTestId('version-5.1')).toBeInTheDocument();
+    expect(screen.getByText('OpenShift 5.0')).toBeInTheDocument();
+    // 5.0 has concrete EUS dates in the mock; 5.1 does not
+    expect(screen.getByText('eus-5.0')).toBeInTheDocument();
+    expect(screen.getByText('No 5.1 EUS channel')).toBeInTheDocument();
   });
 
   describe('in restricted env', () => {

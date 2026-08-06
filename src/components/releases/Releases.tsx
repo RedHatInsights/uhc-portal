@@ -1,5 +1,4 @@
 import React from 'react';
-import semver from 'semver';
 
 import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import {
@@ -18,12 +17,15 @@ import {
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
 import { Link, useClusterListPath } from '~/common/routing';
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
 import { AppPage } from '../App/AppPage';
 import ExternalLink from '../common/ExternalLink';
 
 import getReleaseNotesLink from './getReleaseNotesLink';
+import { hasEUSChannel } from './hasEUSChannel';
 import { useOCPLifeCycleStatusData } from './hooks';
 import ReleaseChannel from './ReleaseChannel';
 import ReleaseChannelDescription from './ReleaseChannelDescription';
@@ -33,21 +35,14 @@ import './Releases.scss';
 
 const Releases = () => {
   const clusterListPath = useClusterListPath();
+  const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
   const [statusData] = useOCPLifeCycleStatusData();
 
   const allVersions = statusData?.[0]?.versions;
-  // Filter out EOL versions - show all currently supported versions
+  // Filter out EOL and dedicated EUS lifecycle rows (EUS status is shown on the base version card)
   const versionsToDisplay = allVersions?.filter(
-    (version) => version.type?.toLowerCase() !== 'end of life',
+    (version) => version.type?.toLowerCase() !== 'end of life' && !version.name.includes('EUS'),
   );
-  const hasEUSChannel = (versionName: string) => {
-    const parsed = semver.coerce(versionName);
-    if (!parsed) {
-      return false;
-    }
-    const { minor } = parsed;
-    return minor > 5 && minor % 2 === 0;
-  };
   const hasEUSLifeCycle = (versionName: string) =>
     allVersions?.find((v) => v.name.includes(`${versionName} EUS`));
   const latestVersion = versionsToDisplay?.[0]?.name ?? '4.7';
@@ -134,7 +129,7 @@ const Releases = () => {
                                     status={version.type}
                                   />
                                 )}
-                                {hasEUSChannel(version.name) ? (
+                                {hasEUSChannel(version, isOcp5SupportEnabled) ? (
                                   <ReleaseChannel
                                     channel={`eus-${version.name}`}
                                     status={hasEUSLifeCycle(version.name)?.type ?? version.type}

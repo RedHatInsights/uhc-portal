@@ -12,7 +12,7 @@ describe('getSupportStatus action', () => {
     (getOCPLifeCycleStatus as jest.Mock).mockReturnValueOnce('whatever the result');
 
     // Act
-    const returnedAction = getSupportStatus();
+    const returnedAction = getSupportStatus(false);
 
     // Assert
     expect(returnedAction).toEqual({

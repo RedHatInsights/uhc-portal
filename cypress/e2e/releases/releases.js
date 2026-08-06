@@ -5,7 +5,7 @@ import { CLUSTER_LIST_FULL_PATH } from '../../support/routePaths';
 var current_version;
 describe('Releases pages tests', () => {
   it('Check latest openshift release versions(OCP-41253)', { tags: ['smoke'] }, () => {
-    cy.intercept('/product-life-cycles/api/v1/products?name=Openshift*').as('getProductsLifecycle');
+    cy.intercept('/product-life-cycles/api/v*/products?name=*').as('getProductsLifecycle');
     cy.visit('/releases', { retryOnNetworkFailure: true });
     Releases.isReleasesPage();
     cy.wait('@getProductsLifecycle').then((intercept) => {
