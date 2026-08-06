@@ -10,22 +10,14 @@ import { combineAndSortLinks } from './linkUtils.mjs';
 const MIRROR_BUTANE_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest';
 const MIRROR_CLIENTS_STABLE_X86 =
   'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/';
-const MIRROR_CLIENTS_LATEST_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/';
 const MIRROR_CLIENTS_CANDIDATE_X86 =
   'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/candidate/';
 const MIRROR_CLIENTS_STABLE_IBMZ =
   'https://mirror.openshift.com/pub/openshift-v4/s390x/clients/ocp/stable/';
-const MIRROR_CLIENTS_LATEST_IBMZ =
-  'https://mirror.openshift.com/pub/openshift-v4/s390x/clients/ocp/latest/';
 const MIRROR_CLIENTS_STABLE_PPC =
   'https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/stable/';
-const MIRROR_CLIENTS_LATEST_PPC =
-  'https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/latest/';
 const MIRROR_CLIENTS_STABLE_ARM =
   'https://mirror.openshift.com/pub/openshift-v4/aarch64/clients/ocp/stable/';
-const MIRROR_CLIENTS_LATEST_ARM =
-  'https://mirror.openshift.com/pub/openshift-v4/aarch64/clients/ocp/latest/';
 const MIRROR_CLIENTS_STABLE_MULTI =
   'https://mirror.openshift.com/pub/openshift-v4/multi/clients/ocp/stable/';
 const MIRROR_CLIENTS_LATEST_PRE_X86 =
@@ -65,6 +57,7 @@ const MIRROR_RHCOS_LATEST_ARM =
   'https://mirror.openshift.com/pub/openshift-v4/aarch64/dependencies/rhcos/latest';
 const MIRROR_ROSA_LATEST = 'https://mirror.openshift.com/pub/cgw/rosa/latest';
 const MIRROR_MIRROR_REGISTRY_LATEST = 'https://mirror.openshift.com/pub/cgw/mirror-registry/latest';
+const MIRROR_OC_MIRROR_LATEST = 'https://mirror.openshift.com/pub/cgw/oc-mirror/latest';
 
 const ARGO_CD_CLI_LATEST =
   'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-gitops/latest/';
@@ -743,20 +736,20 @@ const urls = {
   [tools.OC_MIRROR_PLUGIN]: {
     [channels.STABLE]: {
       [architectures.x86]: {
-        [operatingSystems.rhel9]: `${MIRROR_CLIENTS_LATEST_X86}oc-mirror.rhel9.tar.gz`,
-        [operatingSystems.rhel8]: `${MIRROR_CLIENTS_LATEST_X86}oc-mirror.tar.gz`,
+        [operatingSystems.rhel9]: `${MIRROR_OC_MIRROR_LATEST}/oc-mirror-rhel9-linux-amd64.tar.gz`,
+        [operatingSystems.rhel8]: `${MIRROR_OC_MIRROR_LATEST}/oc-mirror-rhel8-linux-amd64.tar.gz`,
       },
       [architectures.arm]: {
-        [operatingSystems.rhel9]: `${MIRROR_CLIENTS_LATEST_ARM}oc-mirror.rhel9.tar.gz`,
-        [operatingSystems.rhel8]: `${MIRROR_CLIENTS_LATEST_ARM}oc-mirror.tar.gz`,
+        [operatingSystems.rhel9]: `${MIRROR_OC_MIRROR_LATEST}/oc-mirror-rhel9-linux-arm64.tar.gz`,
+        [operatingSystems.rhel8]: `${MIRROR_OC_MIRROR_LATEST}/oc-mirror-rhel8-linux-arm64.tar.gz`,
       },
       [architectures.s390x]: {
-        [operatingSystems.rhel9]: `${MIRROR_CLIENTS_LATEST_IBMZ}oc-mirror.rhel9.tar.gz`,
-        [operatingSystems.rhel8]: `${MIRROR_CLIENTS_LATEST_IBMZ}oc-mirror.tar.gz`,
+        [operatingSystems.rhel9]: `${MIRROR_OC_MIRROR_LATEST}/oc-mirror-rhel9-linux-s390x.tar.gz`,
+        [operatingSystems.rhel8]: `${MIRROR_OC_MIRROR_LATEST}/oc-mirror-rhel8-linux-s390x.tar.gz`,
       },
       [architectures.ppc]: {
-        [operatingSystems.rhel9]: `${MIRROR_CLIENTS_LATEST_PPC}oc-mirror.rhel9.tar.gz`,
-        [operatingSystems.rhel8]: `${MIRROR_CLIENTS_LATEST_PPC}oc-mirror.tar.gz`,
+        [operatingSystems.rhel9]: `${MIRROR_OC_MIRROR_LATEST}/oc-mirror-rhel9-linux-ppc64le.tar.gz`,
+        [operatingSystems.rhel8]: `${MIRROR_OC_MIRROR_LATEST}/oc-mirror-rhel8-linux-ppc64le.tar.gz`,
       },
     },
   },
