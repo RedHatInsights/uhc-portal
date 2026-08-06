@@ -6,6 +6,31 @@ import { ErrorState } from '~/types/types';
 
 import { AvailableRegionalInstance, RQApiErrorType, SearchRegionalClusterItems } from './types';
 
+const TOO_MANY_REQUESTS_MESSAGE = 'Too many requests. Please try again.';
+
+export const formatOcmApiErrorMessage = (
+  code?: string,
+  reason?: string | null,
+  httpStatus?: number,
+): string => {
+  const trimmedReason = reason?.trim();
+  const isTooManyRequests = httpStatus === axios.HttpStatusCode.TooManyRequests;
+
+  if (code && trimmedReason) {
+    return `${code}: ${trimmedReason}`;
+  }
+  if (code) {
+    return isTooManyRequests ? `${code}: ${TOO_MANY_REQUESTS_MESSAGE}` : code;
+  }
+  if (trimmedReason) {
+    return trimmedReason;
+  }
+  if (isTooManyRequests) {
+    return TOO_MANY_REQUESTS_MESSAGE;
+  }
+  return '';
+};
+
 export type FormattedErrorData = {
   isLoading: boolean;
   isError: boolean;
@@ -21,16 +46,21 @@ export const formatErrorData = (
   error: (Error | null) | (Error | null)[],
 ) => {
   if (isError && axios.isAxiosError(error)) {
+    const { code, reason, details, operation_id: operationID } = error.response?.data ?? {};
+    const httpStatus = error.response?.status;
+    const errorMessage = formatOcmApiErrorMessage(code, reason, httpStatus);
+    const trimmedReason = reason?.trim();
+
     const errorData: ErrorState = {
       pending: isLoading,
       error: isError,
       fulfilled: false,
-      errorCode: error?.response?.status,
-      errorDetails: error?.response?.data?.details,
-      errorMessage: `${error?.response?.data.code}: ${error?.response?.data.reason}`,
-      reason: `${error?.response?.data.reason}`,
-      internalErrorCode: error?.response?.data.code,
-      operationID: error?.response?.data.operation_id,
+      errorCode: httpStatus,
+      errorDetails: details,
+      errorMessage,
+      reason: trimmedReason || errorMessage,
+      internalErrorCode: code,
+      operationID,
     };
     return {
       isLoading,
@@ -55,15 +85,17 @@ export const addNotificationErrorFormat = (
   error: (Error | null) | (Error | null)[],
 ) => {
   if (isError && axios.isAxiosError(error)) {
+    const { code, reason, details, operation_id: operationID } = error.response?.data ?? {};
+    const httpStatus = error.response?.status;
     const errorData: RQApiErrorType = {};
     errorData.pending = isLoading;
     errorData.error = isError;
     errorData.fulfilled = false;
-    errorData.errorCode = error?.response?.status;
-    errorData.errorDetails = error?.response?.data?.details;
-    errorData.errorMessage = `${error?.response?.data.reason}`;
-    errorData.internalErrorCode = error?.response?.data.code;
-    errorData.operationID = error?.response?.data.operation_id;
+    errorData.errorCode = httpStatus;
+    errorData.errorDetails = details;
+    errorData.errorMessage = formatOcmApiErrorMessage(code, reason, httpStatus);
+    errorData.internalErrorCode = code;
+    errorData.operationID = operationID;
     return {
       isLoading,
       isError,
