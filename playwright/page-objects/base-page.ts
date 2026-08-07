@@ -72,13 +72,18 @@ export class BasePage {
 
   /**
    * Reads the live Unleash/authorization state for a feature gate.
-   * Mirrors the app's self_feature_review check (no route mocking).
-   * Throws on non-2xx so API/auth failures are not treated as "flag off".
+   * Mirrors the app's self_feature_review check.
+   * Unknown features (404) are treated as disabled — same as useFeatureGate
+   * defaulting to false when the query has no successful data.
+   * Other non-2xx responses still throw so auth/API breakage is not silent.
    */
   async isFeatureGateEnabled(featureId: string): Promise<boolean> {
     const response = await this.page.request.post('/api/authorizations/v1/self_feature_review', {
       data: { feature: featureId },
     });
+    if (response.status() === 404) {
+      return false;
+    }
     if (!response.ok()) {
       throw new Error(
         `self_feature_review failed for "${featureId}": ${response.status()} ${response.statusText()}`,
