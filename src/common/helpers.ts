@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { useEffect, useRef } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { useLocation } from 'react-router-dom';

@@ -30,10 +30,8 @@ jest.mock('../ChartByGroups', () => {
   const { Flex, FlexItem, Title } = require('@patternfly/react-core');
   const { groupTagHitsByGroups } = require('../../overviewHelpers');
 
-  // eslint-disable-next-line react/prop-types
   const MockedTitleComponent = ({ data, index, x, y, style }) => {
     const entity = data[index];
-    // eslint-disable-next-line react/prop-types
     const { name, count } = entity;
     // For accessibility tests, render as plain text to avoid nested-interactive violation
     // The link is still present for functionality but not focusable
@@ -46,7 +44,6 @@ jest.mock('../ChartByGroups', () => {
     );
   };
 
-  // eslint-disable-next-line react/prop-types
   const MockedChartByGroups = ({ tagHits, groups }) => {
     const groupedRulesByGroups = groupTagHitsByGroups(tagHits, [...groups]);
     const totalHits = Object.values(groupedRulesByGroups).reduce(
@@ -127,7 +124,6 @@ jest.mock(
 
     const { ChartLabel } = require('@patternfly/react-charts/victory');
 
-    // eslint-disable-next-line react/prop-types
     const MockedInsightsLabelComponent = ({ style, datum, externalId, ...props }) => (
       // For accessibility tests, render as plain ChartLabel without link wrapper
       // This avoids nested-interactive violation while still rendering the component
@@ -135,7 +131,6 @@ jest.mock(
         {...props}
         style={{ ...style, fontSize: 15 }}
         className={
-          // eslint-disable-next-line react/prop-types
           externalId && datum?.value > 0
             ? 'ocm-c-overview-advisor--enabled-link'
             : 'ocm-c-overview-advisor--disabled-link'
@@ -143,7 +138,6 @@ jest.mock(
       />
     );
 
-    // eslint-disable-next-line react/prop-types
     const MockedInsightsSubtitleComponent = ({ externalId, style, ...props }) => (
       // For accessibility tests, render as plain ChartLabel without link wrapper
       <ChartLabel

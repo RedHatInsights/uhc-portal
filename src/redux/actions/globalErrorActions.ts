@@ -8,6 +8,7 @@ const setGlobalError = (errorTitle: string, sourceComponent: string, errorMessag
 const clearGlobalError = (requestingComponent?: string) =>
   action(CLEAR_GLOBAL_ERROR, requestingComponent);
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const actions = {
   setGlobalError,
   clearGlobalError,

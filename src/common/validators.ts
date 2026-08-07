@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { containsCidr, overlapCidr } from 'cidr-tools';
 import IPCIDR from 'ip-cidr';
 import { ValidationError, Validator } from 'jsonschema';

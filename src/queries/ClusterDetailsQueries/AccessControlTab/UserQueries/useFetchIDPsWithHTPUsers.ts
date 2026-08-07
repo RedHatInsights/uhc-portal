@@ -28,7 +28,6 @@ export const useFetchIDPsWithHTPUsers = (clusterID: string, region?: string) => 
 
         const htPasswdIds = getHtpasswdIds(idpItems);
 
-        // eslint-disable-next-line no-restricted-syntax
         for (const htpId of htPasswdIds) {
           try {
             // eslint-disable-next-line no-await-in-loop
@@ -45,12 +44,10 @@ export const useFetchIDPsWithHTPUsers = (clusterID: string, region?: string) => 
         const mergeHtpUsersToIdp = (idps: IdentityProvider[], htpUsersData: HTPasswdIdpUsers[]) => {
           const mergedIdps = new Map();
 
-          // eslint-disable-next-line no-restricted-syntax
           for (const idp of idps) {
             mergedIdps.set(idp.id, { ...idp });
           }
 
-          // eslint-disable-next-line no-restricted-syntax
           for (const item of htpUsersData) {
             if (mergedIdps.has(item.idpId)) {
               const existingIdp = mergedIdps.get(item.idpId);

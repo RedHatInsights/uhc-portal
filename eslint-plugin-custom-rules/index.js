@@ -1,6 +1,17 @@
 module.exports = {
+  meta: {
+    name: 'eslint-plugin-custom-rules',
+    version: '1.0.2',
+  },
   rules: {
     'restrict-react-router-imports': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: "Restrict certain imports from 'react-router-dom' to use project wrappers",
+        },
+        schema: [],
+      },
       create(context) {
         return {
           ImportDeclaration(node) {

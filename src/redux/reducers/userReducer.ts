@@ -44,6 +44,7 @@ const initialState: UserProfileState = {
   },
 };
 const userProfile = (
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<UserAction>,
 ): UserProfileState =>

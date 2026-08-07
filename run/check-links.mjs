@@ -382,7 +382,6 @@ async function rateLimitedFetch(url, options = {}) {
   await hostSem.acquire();
   try {
     let lastResponse;
-    // eslint-disable-next-line no-await-in-loop -- retries must be sequential
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
       if (attempt > 0) {
         // eslint-disable-next-line no-await-in-loop -- intentional backoff between retries

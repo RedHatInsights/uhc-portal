@@ -81,10 +81,10 @@ const initialState: State = {
 };
 
 function subscriptionsReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<SubscriptionsAction>,
 ): State {
-  // eslint-disable-next-line consistent-return
   return produce(state, (draft) => {
     // eslint-disable-next-line default-case
     switch (action.type) {

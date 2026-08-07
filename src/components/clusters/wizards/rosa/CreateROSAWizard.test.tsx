@@ -43,7 +43,6 @@ jest.mock('./ClusterSettings/Details/Details', () => ({
   default: () => <h2>Cluster details</h2>,
 }));
 
-// eslint-disable-next-line global-require
 const MockAccountsRolesScreen: jest.Mock = require('./AccountsRolesScreen').default;
 
 const MockAccountsRolesScreenImpl = ({

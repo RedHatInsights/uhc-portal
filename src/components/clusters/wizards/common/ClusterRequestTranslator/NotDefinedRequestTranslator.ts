@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 import { IClusterRequestTranslator } from './IClusterRequestTranslator';
 
 class NotDefinedRequestTranslator implements IClusterRequestTranslator {
