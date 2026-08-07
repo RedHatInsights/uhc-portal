@@ -1,17 +1,14 @@
 import docLinks from '../../../src/common/docLinks.mjs';
 import links from '../../../src/components/clusters/CreateClusterPage/CreateClusterConsts';
+import { ROVS_REGISTRATION } from '../../../src/queries/featureGates/featureConstants';
 import { expect, test } from '../../fixtures/pages';
-import {
-  mockFeatureGateEnabled,
-  ROVS_REGISTRATION_FEATURE,
-} from '../../support/feature-gate-mock-helper';
 
 test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@ci'] }, () => {
-  test.beforeAll(async ({ navigateTo, page }) => {
-    // Enable ROVS before first OCM load so the offering card is shown
-    await mockFeatureGateEnabled(page, ROVS_REGISTRATION_FEATURE);
-    // Navigate to overview page and wait for it to load
+  let isRovsRegistrationEnabled = false;
+
+  test.beforeAll(async ({ navigateTo, overviewPage }) => {
     await navigateTo('overview');
+    isRovsRegistrationEnabled = await overviewPage.isFeatureGateEnabled(ROVS_REGISTRATION);
   });
   test('OCM Overview Page - header and central section', async ({
     overviewPage,
@@ -35,8 +32,8 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
     await expect(page).toHaveURL(/\/openshift\/assisted-installer\/clusters\/~new/);
     await navigateTo('overview');
 
-    // Verify central section has expected number of cards (includes gated ROVS card)
-    await overviewPage.centralSectionCardsExpected(8);
+    // Verify central section card count (ROVS card is feature-gated)
+    await overviewPage.centralSectionCardsExpected(isRovsRegistrationEnabled ? 8 : 7);
 
     // Red Hat OpenShift Dedicated card
     await overviewPage.expectCardHasText('offering-card_RHOSD', 'Red Hat OpenShift Dedicated');
@@ -138,22 +135,24 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
     );
 
     // Red Hat OpenShift Virtualization Service on IBM Cloud card
-    await overviewPage.expectCardHasText(
-      'offering-card_ROVS',
-      'Red Hat OpenShift Virtualization Service on IBM Cloud',
-    );
-    await overviewPage.expectCardHasLabel('offering-card_ROVS', 'Managed service');
+    if (isRovsRegistrationEnabled) {
+      await overviewPage.expectCardHasText(
+        'offering-card_ROVS',
+        'Red Hat OpenShift Virtualization Service on IBM Cloud',
+      );
+      await overviewPage.expectCardHasLabel('offering-card_ROVS', 'Managed service');
 
-    await overviewPage.expectCardDetails('offering-card_ROVS', {
-      'Runs on': 'IBM Cloud',
-      'Purchase through': 'IBM',
-      'Billing type': 'Flexible hourly',
-    });
+      await overviewPage.expectCardDetails('offering-card_ROVS', {
+        'Runs on': 'IBM Cloud',
+        'Purchase through': 'IBM',
+        'Billing type': 'Flexible hourly',
+      });
 
-    await overviewPage.expectLinkOpensInNewTab(
-      overviewPage.cardLearnMoreLink('offering-card_ROVS', 'Learn more on IBM'),
-      links.IBM_CLOUD_ROVS,
-    );
+      await overviewPage.expectLinkOpensInNewTab(
+        overviewPage.cardLearnMoreLink('offering-card_ROVS', 'Learn more on IBM'),
+        links.IBM_CLOUD_ROVS,
+      );
+    }
 
     // Developer Sandbox card
     await overviewPage.expectCardHasText('offering-card_DEVSNBX', 'Developer Sandbox');

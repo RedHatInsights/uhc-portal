@@ -1,9 +1,6 @@
 import links from '../../../src/components/clusters/CreateClusterPage/CreateClusterConsts';
+import { ROVS_REGISTRATION } from '../../../src/queries/featureGates/featureConstants';
 import { test } from '../../fixtures/pages';
-import {
-  mockFeatureGateEnabled,
-  ROVS_REGISTRATION_FEATURE,
-} from '../../support/feature-gate-mock-helper';
 
 // Description text constants
 const OSDDescriptionText = 'A complete OpenShift cluster provided as a fully-managed cloud service';
@@ -20,11 +17,12 @@ test.describe.serial(
   'Test checking elements at create cluster page, in Cloud tab selected - OCP-38888',
   { tag: ['@smoke', '@ci'] },
   () => {
-    test.beforeAll(async ({ navigateTo, page }) => {
-      // Enable ROVS before first OCM load so the managed-services row is shown
-      await mockFeatureGateEnabled(page, ROVS_REGISTRATION_FEATURE);
-      // Navigate to cloud create page
+    let isRovsRegistrationEnabled = false;
+
+    test.beforeAll(async ({ navigateTo, createClusterPage }) => {
       await navigateTo('create/cloud');
+      isRovsRegistrationEnabled =
+        await createClusterPage.isFeatureGateEnabled(ROVS_REGISTRATION);
     });
     test('is Cloud tab selected', async ({ createClusterPage }) => {
       await createClusterPage.isCloudTabPage();
@@ -114,6 +112,11 @@ test.describe.serial(
     });
 
     test('Check ROVS section contents', async ({ createClusterPage }) => {
+      test.skip(
+        !isRovsRegistrationEnabled,
+        'ocmui-rovs-registration disabled in this environment',
+      );
+
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Virtualization Service on IBM Cloud',
         links.IBM_CLOUD_ROVS,
@@ -142,7 +145,7 @@ test.describe.serial(
       await createClusterPage.clickBackButton();
 
       // ROVS row shifts ROSA expand id from #rosa4 to #rosa5 when the gate is on
-      await createClusterPage.expandToggle('#rosa5');
+      await createClusterPage.expandToggle(isRovsRegistrationEnabled ? '#rosa5' : '#rosa4');
       await createClusterPage.isTextVisible(ROSADescriptionText);
 
       await createClusterPage.checkManagedServiceLink(

@@ -1,6 +1,7 @@
-import { Page, Locator, expect } from '@playwright/test';
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
+
+import { expect, Locator, Page } from '@playwright/test';
 
 /**
  * Base page object containing all methods, selectors and functionality
@@ -67,6 +68,24 @@ export class BasePage {
 
   async isVisible(selector: string | Locator): Promise<boolean> {
     return this.getLocator(selector).isVisible();
+  }
+
+  /**
+   * Reads the live Unleash/authorization state for a feature gate.
+   * Mirrors the app's self_feature_review check (no route mocking).
+   * Throws on non-2xx so API/auth failures are not treated as "flag off".
+   */
+  async isFeatureGateEnabled(featureId: string): Promise<boolean> {
+    const response = await this.page.request.post('/api/authorizations/v1/self_feature_review', {
+      data: { feature: featureId },
+    });
+    if (!response.ok()) {
+      throw new Error(
+        `self_feature_review failed for "${featureId}": ${response.status()} ${response.statusText()}`,
+      );
+    }
+    const body = (await response.json()) as { enabled?: boolean };
+    return Boolean(body?.enabled);
   }
 
   async waitForLoadState(
