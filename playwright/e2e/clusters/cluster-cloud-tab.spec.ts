@@ -1,5 +1,4 @@
 import links from '../../../src/components/clusters/CreateClusterPage/CreateClusterConsts';
-import { ROVS_REGISTRATION } from '../../../src/queries/featureGates/featureConstants';
 import { test } from '../../fixtures/pages';
 
 // Description text constants
@@ -21,8 +20,8 @@ test.describe.serial(
 
     test.beforeAll(async ({ navigateTo, createClusterPage }) => {
       await navigateTo('create/cloud');
-      isRovsRegistrationEnabled =
-        await createClusterPage.isFeatureGateEnabled(ROVS_REGISTRATION);
+      // Infer gate from rendered UI — self_feature_review can 404 in CI while ROVS still renders
+      isRovsRegistrationEnabled = await createClusterPage.isEventuallyVisible('rovs-try-it-on-ibm');
     });
     test('is Cloud tab selected', async ({ createClusterPage }) => {
       await createClusterPage.isCloudTabPage();

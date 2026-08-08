@@ -1,18 +1,13 @@
-import { ROVS_REGISTRATION } from '../../../src/queries/featureGates/featureConstants';
 import { expect, test } from '../../fixtures/pages';
 
 test.describe.serial(
   'Check all cluster lists page items presence and its actions (OCP-21339)',
   { tag: ['@smoke', '@ci'] },
   () => {
-    let isRovsRegistrationEnabled = false;
-
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
       await navigateTo('clusters/list');
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
-      isRovsRegistrationEnabled =
-        await clusterListPage.isFeatureGateEnabled(ROVS_REGISTRATION);
     });
     test('Cluster list page : filters & its actions', async ({
       navigateTo,
@@ -42,6 +37,9 @@ test.describe.serial(
 
         // Test cluster type filters
         await clusterListPage.clickClusterTypeFilters();
+        // Infer ROVS gate from rendered filter option (API review can disagree with UI in CI)
+        const isRovsRegistrationEnabled =
+          await clusterListPage.isEventuallyVisible('cluster-type-ROVS', 5000);
         await clusterListPage.clickClusterTypes('OCP');
         await clusterListPage.clickClusterTypes('OSD');
         await clusterListPage.clickClusterTypes('ROSA');

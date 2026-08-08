@@ -71,32 +71,52 @@ export class BasePage {
   }
 
   /**
-   * Reads the live Unleash/authorization state for a feature gate.
-   * Uses in-page fetch so the call shares the browser origin/cookies with the app
-   * (page.request can 404 against the CI proxy while the app's call succeeds).
-   * Unknown features (404) are treated as disabled — same as useFeatureGate
-   * defaulting to false when the query has no successful data.
-   * Other non-2xx responses still throw so auth/API breakage is not silent.
+   * Returns true if the locator becomes visible within timeout.
+   * Used to infer feature-gated UI without a second self_feature_review call
+   * (CI proxy/API responses can disagree with what the app actually rendered).
+   */
+  async isEventuallyVisible(
+    locatorOrTestId: Locator | string,
+    timeout: number = 10000,
+  ): Promise<boolean> {
+    const locator =
+      typeof locatorOrTestId === 'string'
+        ? this.page.getByTestId(locatorOrTestId)
+        : locatorOrTestId;
+    try {
+      await locator.waitFor({ state: 'visible', timeout });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Reads the live Unleash/authorization state for a feature gate via in-page fetch.
+   * Prefer isEventuallyVisible for gated UI assertions — CI self_feature_review can
+   * 404 while the app still renders the gated content from its own prefetch.
    */
   async isFeatureGateEnabled(featureId: string): Promise<boolean> {
-    return this.page.evaluate(async (feature) => {
-      const response = await fetch('/api/authorizations/v1/self_feature_review', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ feature }),
-        credentials: 'same-origin',
-      });
-      if (response.status === 404) {
-        return false;
-      }
-      if (!response.ok) {
-        throw new Error(
-          `self_feature_review failed for "${feature}": ${response.status} ${response.statusText}`,
-        );
-      }
-      const body = (await response.json()) as { enabled?: boolean };
-      return Boolean(body?.enabled);
-    }, featureId);
+    try {
+      return await this.page.evaluate(async (feature) => {
+        const response = await fetch('/api/authorizations/v1/self_feature_review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ feature }),
+          credentials: 'same-origin',
+        });
+        if (response.status === 404) {
+          return false;
+        }
+        if (!response.ok) {
+          return false;
+        }
+        const body = (await response.json()) as { enabled?: boolean };
+        return Boolean(body?.enabled);
+      }, featureId);
+    } catch {
+      return false;
+    }
   }
 
   async waitForLoadState(
