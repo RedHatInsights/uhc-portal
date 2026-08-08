@@ -1,14 +1,15 @@
 import docLinks from '../../../src/common/docLinks.mjs';
 import links from '../../../src/components/clusters/CreateClusterPage/CreateClusterConsts';
+import { ROVS_REGISTRATION } from '../../../src/queries/featureGates/featureConstants';
 import { expect, test } from '../../fixtures/pages';
 
 test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@ci'] }, () => {
   let isRovsRegistrationEnabled = false;
 
   test.beforeAll(async ({ navigateTo, overviewPage }) => {
+    const gatePromise = overviewPage.isFeatureGateEnabled(ROVS_REGISTRATION);
     await navigateTo('overview');
-    // Infer gate from rendered card — API review can disagree with UI in CI
-    isRovsRegistrationEnabled = await overviewPage.isEventuallyVisible('offering-card_ROVS');
+    isRovsRegistrationEnabled = await gatePromise;
   });
   test('OCM Overview Page - header and central section', async ({
     overviewPage,

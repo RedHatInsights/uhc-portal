@@ -71,52 +71,33 @@ export class BasePage {
   }
 
   /**
-   * Returns true if the locator becomes visible within timeout.
-   * Used to infer feature-gated UI without a second self_feature_review call
-   * (CI proxy/API responses can disagree with what the app actually rendered).
-   */
-  async isEventuallyVisible(
-    locatorOrTestId: Locator | string,
-    timeout: number = 10000,
-  ): Promise<boolean> {
-    const locator =
-      typeof locatorOrTestId === 'string'
-        ? this.page.getByTestId(locatorOrTestId)
-        : locatorOrTestId;
-    try {
-      await locator.waitFor({ state: 'visible', timeout });
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  /**
-   * Reads the live Unleash/authorization state for a feature gate via in-page fetch.
-   * Prefer isEventuallyVisible for gated UI assertions — CI self_feature_review can
-   * 404 while the app still renders the gated content from its own prefetch.
+   * Reads the live Unleash/authorization state for a feature gate by waiting on the
+   * app's own self_feature_review prefetch (not a second API call).
+   * Start this before the first OCM navigation so the waiter catches the prefetch.
+   * Unknown features (404) / non-OK responses are treated as disabled.
    */
   async isFeatureGateEnabled(featureId: string): Promise<boolean> {
-    try {
-      return await this.page.evaluate(async (feature) => {
-        const response = await fetch('/api/authorizations/v1/self_feature_review', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ feature }),
-          credentials: 'same-origin',
-        });
-        if (response.status === 404) {
+    const response = await this.page.waitForResponse(
+      async (res) => {
+        if (!res.url().includes('/api/authorizations/v1/self_feature_review')) {
           return false;
         }
-        if (!response.ok) {
+        if (res.request().method() !== 'POST') {
           return false;
         }
-        const body = (await response.json()) as { enabled?: boolean };
-        return Boolean(body?.enabled);
-      }, featureId);
-    } catch {
+        try {
+          return res.request().postDataJSON()?.feature === featureId;
+        } catch {
+          return false;
+        }
+      },
+      { timeout: 30000 },
+    );
+    if (response.status() === 404 || !response.ok()) {
       return false;
     }
+    const body = (await response.json()) as { enabled?: boolean };
+    return Boolean(body?.enabled);
   }
 
   async waitForLoadState(
