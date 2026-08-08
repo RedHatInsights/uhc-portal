@@ -1,14 +1,18 @@
-import { test, expect } from '../../fixtures/pages';
+import { ROVS_REGISTRATION } from '../../../src/queries/featureGates/featureConstants';
+import { expect, test } from '../../fixtures/pages';
 
 test.describe.serial(
   'Check all cluster lists page items presence and its actions (OCP-21339)',
   { tag: ['@smoke', '@ci'] },
   () => {
+    let isRovsRegistrationEnabled = false;
+
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
-      // Navigate to cluster list and wait for data to load
+      const gatePromise = clusterListPage.isFeatureGateEnabled(ROVS_REGISTRATION);
       await navigateTo('clusters/list');
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
+      isRovsRegistrationEnabled = await gatePromise;
     });
     test('Cluster list page : filters & its actions', async ({
       navigateTo,
@@ -43,11 +47,17 @@ test.describe.serial(
         await clusterListPage.clickClusterTypes('ROSA');
         await clusterListPage.clickClusterTypes('ARO');
         await clusterListPage.clickClusterTypes('RHOIC');
+        if (isRovsRegistrationEnabled) {
+          await clusterListPage.clickClusterTypes('ROVS');
+        }
         await clusterListPage.clickClusterTypes('OCP');
         await clusterListPage.clickClusterTypes('OSD');
         await clusterListPage.clickClusterTypes('ROSA');
         await clusterListPage.clickClusterTypes('ARO');
         await clusterListPage.clickClusterTypes('RHOIC');
+        if (isRovsRegistrationEnabled) {
+          await clusterListPage.clickClusterTypes('ROVS');
+        }
         await clusterListPage.clickClusterTypeFilters();
 
         // Test create cluster button
@@ -115,7 +125,6 @@ test.describe.serial(
       await clusterListPage.viewOnlyMyCluster().click();
       await clusterListPage.checkForDetailsInAnchor();
     });
-
 
     test('Cluster list page: first anchor should navigate to details page', async ({
       clusterListPage,

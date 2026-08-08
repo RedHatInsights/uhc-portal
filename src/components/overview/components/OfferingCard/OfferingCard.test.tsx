@@ -1,5 +1,6 @@
 import React from 'react';
 
+import links from '~/components/clusters/CreateClusterPage/CreateClusterConsts';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 import { render, screen } from '~/testUtils';
 
@@ -39,5 +40,12 @@ describe('<OfferingCard />', () => {
   it('Does not show support level badge for non-migration offerings', () => {
     render(<OfferingCard offeringType="AWS" canCreateManagedCluster />);
     expect(screen.queryByText('Developer Preview')).not.toBeInTheDocument();
+  });
+  it('Shows ROVS offering title and IBM learn more link', () => {
+    render(<OfferingCard offeringType="ROVS" />);
+    expect(
+      screen.getByText('Red Hat OpenShift Virtualization Service on IBM Cloud'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Learn more on IBM')).toHaveAttribute('href', links.IBM_CLOUD_ROVS);
   });
 });

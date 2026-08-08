@@ -22,6 +22,7 @@ import {
 
 import docLinks from '~/common/docLinks.mjs';
 import { Link } from '~/common/routing';
+import links from '~/components/clusters/CreateClusterPage/CreateClusterConsts';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import ExternalLink from '~/components/common/ExternalLink';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
@@ -37,7 +38,7 @@ import RHLogo from '~/styles/images/RedHatLogo.svg';
 import './OfferingCard.scss';
 
 type OfferingCardProps = {
-  offeringType?: 'AWS' | 'Azure' | 'RHOSD' | 'RHOCP' | 'RHOIBM' | 'DEVSNBX' | 'MIGRATION';
+  offeringType?: 'AWS' | 'Azure' | 'RHOSD' | 'RHOCP' | 'RHOIBM' | 'ROVS' | 'DEVSNBX' | 'MIGRATION';
   canCreateManagedCluster?: boolean;
 };
 
@@ -238,6 +239,19 @@ function OfferingCard(props: OfferingCardProps) {
         <ExternalLink href="https://cloud.ibm.com/kubernetes/catalog/create?platformType=openshift">
           Learn more on IBM
         </ExternalLink>
+      );
+      cardLogo = <img className="offering-logo" src={IBMLogo} alt="IBM logo" />;
+      break;
+
+    case 'ROVS':
+      offeringCardTitle = 'Red Hat OpenShift Virtualization Service on IBM Cloud';
+      offeringCardDescriptionList = [
+        { descriptionListTerm: 'Runs on', descriptionListDescription: 'IBM Cloud' },
+        { descriptionListTerm: 'Purchase through', descriptionListDescription: 'IBM' },
+        { descriptionListTerm: 'Billing type', descriptionListDescription: 'Flexible hourly' },
+      ];
+      offeringCardDocLink = (
+        <ExternalLink href={links.IBM_CLOUD_ROVS}>Learn more on IBM</ExternalLink>
       );
       cardLogo = <img className="offering-logo" src={IBMLogo} alt="IBM logo" />;
       break;
