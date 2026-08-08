@@ -142,9 +142,7 @@
         "cypress.config.js",
         "fec.config.js",
         "*.mjs",
-        "run/**/*",
-        "playwright/**/*",
-        "playwright.config.ts"
+        "run/**/*"
       ],
       "rules": {
         "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
