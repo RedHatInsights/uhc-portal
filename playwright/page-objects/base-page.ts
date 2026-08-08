@@ -72,25 +72,31 @@ export class BasePage {
 
   /**
    * Reads the live Unleash/authorization state for a feature gate.
-   * Mirrors the app's self_feature_review check.
+   * Uses in-page fetch so the call shares the browser origin/cookies with the app
+   * (page.request can 404 against the CI proxy while the app's call succeeds).
    * Unknown features (404) are treated as disabled — same as useFeatureGate
    * defaulting to false when the query has no successful data.
    * Other non-2xx responses still throw so auth/API breakage is not silent.
    */
   async isFeatureGateEnabled(featureId: string): Promise<boolean> {
-    const response = await this.page.request.post('/api/authorizations/v1/self_feature_review', {
-      data: { feature: featureId },
-    });
-    if (response.status() === 404) {
-      return false;
-    }
-    if (!response.ok()) {
-      throw new Error(
-        `self_feature_review failed for "${featureId}": ${response.status()} ${response.statusText()}`,
-      );
-    }
-    const body = (await response.json()) as { enabled?: boolean };
-    return Boolean(body?.enabled);
+    return this.page.evaluate(async (feature) => {
+      const response = await fetch('/api/authorizations/v1/self_feature_review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feature }),
+        credentials: 'same-origin',
+      });
+      if (response.status === 404) {
+        return false;
+      }
+      if (!response.ok) {
+        throw new Error(
+          `self_feature_review failed for "${feature}": ${response.status} ${response.statusText}`,
+        );
+      }
+      const body = (await response.json()) as { enabled?: boolean };
+      return Boolean(body?.enabled);
+    }, featureId);
   }
 
   async waitForLoadState(
