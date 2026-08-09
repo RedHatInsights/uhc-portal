@@ -891,6 +891,27 @@ const AROClusterDetails = {
   },
 };
 
+const ROVSClusterDetails = {
+  ...AROClusterDetails,
+  cluster: {
+    ...AROClusterDetails.cluster,
+    name: 'test-rovs',
+    display_name: 'test-rovs',
+    subscription: {
+      ...AROClusterDetails.cluster.subscription,
+      plan: {
+        id: 'ROVS',
+        kind: 'Plan',
+        href: '/api/accounts_mgmt/v1/plans/ROVS',
+        type: 'ROVS',
+      },
+    },
+    product: {
+      id: normalizedProducts.ROVS,
+    },
+  },
+};
+
 const cloudProviders = {
   error: false,
   errorMessage: '',
@@ -1132,6 +1153,7 @@ const fixtures = {
   OCPClusterDetails,
   AIClusterDetails,
   AROClusterDetails,
+  ROVSClusterDetails,
   cloudProviders,
   gotRouters: false,
   clusterIdentityProviders,
