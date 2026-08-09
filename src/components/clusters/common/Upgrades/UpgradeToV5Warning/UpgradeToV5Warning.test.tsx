@@ -29,9 +29,9 @@ const aroCluster = {
 } as unknown as AugmentedCluster;
 
 const rosaClassicWarningText =
-  'OpenShift 5 is available, but upgrading from v4 to v5 is not supported on ROSA Classic clusters. To use OpenShift 5, create a new ROSA HCP cluster.';
+  'OpenShift v4 reaches end of life on March 31, 2028. Classic clusters cannot be upgraded to v5. To continue with OpenShift v5, create a new ROSA HCP cluster.';
 const osdClassicWarningText =
-  'OpenShift 5 is available, but upgrading from v4 to v5 is not supported on OSD Classic clusters.';
+  'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
 
 const orgWithCapability = (value: 'true' | 'false'): Organization =>
   ({

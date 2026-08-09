@@ -19,15 +19,15 @@ interface UpgradeToV5WarningProps {
 const getWarningTitle = (cluster: AugmentedCluster): React.ReactNode =>
   isROSA(cluster) ? (
     <>
-      OpenShift 5 is available, but upgrading from v4 to v5 is not supported on ROSA Classic
-      clusters. To use OpenShift 5,{' '}
+      OpenShift v4 reaches end of life on March 31, 2028. Classic clusters cannot be upgraded to v5.
+      To continue with OpenShift v5,{' '}
       <InternalTrackingLink to="/create/rosa/getstarted">
         create a new ROSA HCP cluster
       </InternalTrackingLink>
       .
     </>
   ) : (
-    'OpenShift 5 is available, but upgrading from v4 to v5 is not supported on OSD Classic clusters.'
+    'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.'
   );
 
 const UpgradeToV5Warning = ({ cluster, isHypershift, organization }: UpgradeToV5WarningProps) => {
