@@ -3,6 +3,10 @@ import * as path from 'path';
 
 import { expect, Locator, Page } from '@playwright/test';
 
+import Features from '../../src/queries/featureGates/featureConstants';
+
+type FeatureGate = (typeof Features)[keyof typeof Features];
+
 /**
  * Base page object containing all methods, selectors and functionality
  * that is shared across all page objects
@@ -76,7 +80,7 @@ export class BasePage {
    * Start this before the first OCM navigation so the waiter catches the prefetch.
    * Unknown features (404) / non-OK responses are treated as disabled.
    */
-  async isFeatureGateEnabled(featureId: string): Promise<boolean> {
+  async isFeatureGateEnabled(featureId: FeatureGate): Promise<boolean> {
     const response = await this.page.waitForResponse(
       async (res) => {
         if (!res.url().includes('/api/authorizations/v1/self_feature_review')) {
