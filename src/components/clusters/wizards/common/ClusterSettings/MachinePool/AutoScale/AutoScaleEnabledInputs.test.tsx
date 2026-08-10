@@ -246,6 +246,86 @@ describe('AutoScaleEnabledInputs', () => {
       expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(1);
       expect(screen.queryByText(/Maximum nodes cannot be less than/)).not.toBeInTheDocument();
     });
+
+    it('rejects max nodes above HCP ceiling with 1 pool and sufficient version', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'true',
+          [RosaFieldId.MachinePoolsSubnets]: ['subnet1'],
+          [RosaFieldId.ClusterVersion]: { raw_id: '4.16.0' },
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '501');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(501);
+      expect(screen.getByText('Input cannot be more than 500.')).toBeInTheDocument();
+    });
+
+    it('rejects max nodes above HCP ceiling divided by 2 pools', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'true',
+          [RosaFieldId.MachinePoolsSubnets]: ['subnet1', 'subnet2'],
+          [RosaFieldId.ClusterVersion]: { raw_id: '4.16.0' },
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '251');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(251);
+      expect(screen.getByText('Input cannot be more than 250.')).toBeInTheDocument();
+    });
+
+    it('rejects max nodes above HCP ceiling divided by 3 pools (floors to 166)', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'true',
+          [RosaFieldId.MachinePoolsSubnets]: ['subnet1', 'subnet2', 'subnet3'],
+          [RosaFieldId.ClusterVersion]: { raw_id: '4.16.0' },
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '167');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(167);
+      expect(screen.getByText('Input cannot be more than 166.')).toBeInTheDocument();
+    });
+
+    it('rejects max nodes above HCP insufficient-version ceiling with 1 pool', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'true',
+          [RosaFieldId.MachinePoolsSubnets]: ['subnet1'],
+          [RosaFieldId.ClusterVersion]: { raw_id: '4.14.19' },
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '91');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(91);
+      expect(screen.getByText('Input cannot be more than 90.')).toBeInTheDocument();
+    });
+
+    it('rejects max nodes above HCP insufficient-version ceiling divided by 2 pools (floors to 45)', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'true',
+          [RosaFieldId.MachinePoolsSubnets]: ['subnet1', 'subnet2'],
+          [RosaFieldId.ClusterVersion]: { raw_id: '4.14.19' },
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '46');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(46);
+      expect(screen.getByText('Input cannot be more than 45.')).toBeInTheDocument();
+    });
   });
 
   describe('not hypershift cluster', () => {
@@ -263,6 +343,38 @@ describe('AutoScaleEnabledInputs', () => {
 
       expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(181);
       expect(screen.getByText('Input cannot be more than 180.')).toBeInTheDocument();
+    });
+
+    it('rejects max nodes above Classic ceiling with sufficient version (249)', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'false',
+          [RosaFieldId.MultiAz]: 'false',
+          [RosaFieldId.ClusterVersion]: { raw_id: '4.14.14' },
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '250');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(250);
+      expect(screen.getByText('Input cannot be more than 249.')).toBeInTheDocument();
+    });
+
+    it('rejects max nodes above Classic multi-AZ ceiling per zone with sufficient version (83)', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'false',
+          [RosaFieldId.MultiAz]: 'true',
+          [RosaFieldId.ClusterVersion]: { raw_id: '4.14.14' },
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '84');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(84);
+      expect(screen.getByText('Input cannot be more than 83.')).toBeInTheDocument();
     });
   });
 });
