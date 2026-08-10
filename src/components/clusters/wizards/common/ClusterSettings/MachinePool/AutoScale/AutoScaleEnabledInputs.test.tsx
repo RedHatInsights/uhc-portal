@@ -376,5 +376,21 @@ describe('AutoScaleEnabledInputs', () => {
       expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(84);
       expect(screen.getByText('Input cannot be more than 83.')).toBeInTheDocument();
     });
+
+    it('rejects max nodes above Classic multi-AZ ceiling per zone with insufficient version (60)', async () => {
+      const { user } = render(
+        buildTestComponent({
+          [RosaFieldId.Hypershift]: 'false',
+          [RosaFieldId.MultiAz]: 'true',
+          [RosaFieldId.ClusterVersion]: { raw_id: '4.13.0' },
+        }),
+      );
+
+      await user.clear(screen.getByLabelText('Maximum nodes'));
+      await user.type(screen.getByLabelText('Maximum nodes'), '61');
+
+      expect(await screen.findByLabelText('Maximum nodes')).toHaveValue(61);
+      expect(screen.getByText('Input cannot be more than 60.')).toBeInTheDocument();
+    });
   });
 });

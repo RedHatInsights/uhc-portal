@@ -191,6 +191,9 @@ describe('machinePools utils', () => {
         ['version 4.16.0 allows 500 nodes', '4.16.0', 500],
         ['undefined version and undefined options gets default version', undefined, 500],
         ['undefined version and max nodes 500', undefined, 500],
+        ['version 4.14.28 (4.14.x boundary) allows 500 nodes', '4.14.28', 500],
+        ['version 4.14.27 (one below 4.14.x boundary) returns 90', '4.14.27', 90],
+        ['version 4.15.15 (4.15.x boundary) allows 500 nodes', '4.15.15', 500],
       ])('%s', (_title: string, version: string | undefined, exptected: number) => {
         // Act
         const result = utils.getMaxNodesHCP(version);
@@ -392,6 +395,29 @@ describe('machinePools utils', () => {
         increment: 3,
       });
       expect(result).toBe(99);
+    });
+
+    it('adds included nodes to available when not editing', () => {
+      // non-editing path: maxValue = available + included
+      const result = utils.getMaxNodeCount({
+        ...baseArgs,
+        isHypershift: true,
+        available: 90,
+        included: 4,
+      });
+      expect(result).toBe(94);
+    });
+
+    it('uses available + currentNodeCount for Classic edit without HCP cap', () => {
+      // Classic edit: maxValue = available + currentNodeCount, HCP cap is skipped
+      const result = utils.getMaxNodeCount({
+        ...baseArgs,
+        isHypershift: false,
+        isEditingCluster: true,
+        available: 100,
+        currentNodeCount: 50,
+      });
+      expect(result).toBe(150);
     });
 
     it('caps HCP edit-mode result to maxNodesHCP minus other-pool node count', () => {
