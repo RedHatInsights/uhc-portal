@@ -13,6 +13,7 @@ import { AugmentedCluster } from '~/types/types';
 import {
   getHasScheduledManual,
   getToVersionFromHelper,
+  isMajorVersionUpgrade,
   isManualUpdateSchedulingRequired,
 } from '../UpgradeAcknowledgeHelpers';
 
@@ -45,6 +46,7 @@ const UpgradeAcknowledgeWarning = ({
   const maxVersion = getToVersionFromHelper([], cluster);
   const hasScheduledManual = getHasScheduledManual(schedules, cluster);
   const showManualUpgradeWarning = isManualUpdateSchedulingRequired(schedules, cluster);
+  const upgradeStreamLabel = isMajorVersionUpgrade(cluster) ? 'major release' : 'Y stream';
   const hasUnmetAcknowledgements = (unmetAcknowledgements?.length || 0) > 0;
   const { data: metAcknowledgements } = useFetchUpgradeGateAgreements(
     clusterId || '',
@@ -77,8 +79,8 @@ const UpgradeAcknowledgeWarning = ({
           <Icon status="warning">
             <ExclamationTriangleIcon />
           </Icon>{' '}
-          Your update strategy is currently set to recurring updates. Update {maxVersion} is a Y
-          stream update and must be individually updated.
+          Your update strategy is currently set to recurring updates. Update {maxVersion} is a{' '}
+          {upgradeStreamLabel} update and must be individually updated.
         </div>
       ) : null}
       {showConfirmMessage ? (

@@ -32,18 +32,41 @@ export const getHasScheduledManual = (
   !schedules?.some((policy) => policy.schedule_type === 'automatic') &&
   !!schedules?.some((schedule) => schedule.version !== getFromVersionFromHelper(cluster));
 
-export const isManualUpdateSchedulingRequired = (
-  schedules: UpgradePolicyWithState[],
-  cluster: AugmentedCluster,
-): boolean => {
-  // is this a minor or greater version upgrade?
+type UpgradeVersionParts = {
+  toMajor: number;
+  toMinor: number;
+  fromMajor: number;
+  fromMinor: number;
+};
+
+const getUpgradeVersionParts = (cluster: AugmentedCluster): UpgradeVersionParts | null => {
   const toVersion = getToVersionFromHelper([], cluster);
   const fromVersion = getFromVersionFromHelper(cluster);
   const [toMajor, toMinor] = splitVersion(toVersion || '');
   const [fromMajor, fromMinor] = splitVersion(fromVersion || '');
-  if (!toMajor || !toMinor || !fromMajor || !fromMinor) {
+
+  if (
+    !Number.isFinite(toMajor) ||
+    !Number.isFinite(toMinor) ||
+    !Number.isFinite(fromMajor) ||
+    !Number.isFinite(fromMinor)
+  ) {
+    return null;
+  }
+
+  return { toMajor, toMinor, fromMajor, fromMinor };
+};
+
+export const isManualUpdateSchedulingRequired = (
+  schedules: UpgradePolicyWithState[],
+  cluster: AugmentedCluster,
+): boolean => {
+  const versionParts = getUpgradeVersionParts(cluster);
+  if (!versionParts) {
     return false;
   }
+
+  const { toMajor, toMinor, fromMajor, fromMinor } = versionParts;
   const minorPlusUpgrade = toMajor > fromMajor || toMinor > fromMinor;
 
   // is the ControlPlaneUpgradePolicy schedule type automatic and is enable_minor_version_upgrades true?
@@ -54,8 +77,14 @@ export const isManualUpdateSchedulingRequired = (
     (policy) => policy?.enable_minor_version_upgrades === true,
   );
 
-  // is the ControlPlaneUpgradePolicy pending?
-  // const upgradePolicyPending = !!schedules?.find((policy) => policy?.state?.value === 'pending');
-
   return minorPlusUpgrade && automaticUpdatePolicyExists && !enableMinorVersionUpgrade;
+};
+
+export const isMajorVersionUpgrade = (cluster: AugmentedCluster): boolean => {
+  const versionParts = getUpgradeVersionParts(cluster);
+  if (!versionParts) {
+    return false;
+  }
+
+  return versionParts.toMajor > versionParts.fromMajor;
 };
