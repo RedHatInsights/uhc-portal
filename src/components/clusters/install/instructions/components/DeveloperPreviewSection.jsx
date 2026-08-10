@@ -15,7 +15,9 @@ const DeveloperPreviewSection = ({
     <span className="pf-v6-c-label pf-m-compact dev-preview-label">
       <CodeIcon /> Developer Preview
     </span>{' '}
-    <Link to={devPreviewLink}>{isDevPreview ? 'About' : 'Download'} pre-release builds</Link>
+    <span className="pf-v6-u-ml-md">
+      <Link to={devPreviewLink}>{isDevPreview ? 'About' : 'Download'} pre-release builds</Link>
+    </span>
   </>
 );
 
