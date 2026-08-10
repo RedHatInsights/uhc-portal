@@ -21,5 +21,5 @@ export const clusterBillingModelToRelatedResource = (
 };
 
 export const isGcpMarketplaceBilling = (
-  billingModel?: SubscriptionCommonFieldsClusterBillingModel | BillingModel | string | undefined,
+  billingModel?: SubscriptionCommonFieldsClusterBillingModel | BillingModel | string,
 ): boolean => billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp;

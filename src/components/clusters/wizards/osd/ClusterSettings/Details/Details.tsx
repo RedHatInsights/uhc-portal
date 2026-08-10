@@ -72,7 +72,6 @@ import { useFetchSearchClusterName } from '~/queries/RosaWizardQueries/useFetchS
 import { useFetchSearchDomainPrefix } from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
 import { getCloudProviders } from '~/redux/actions/cloudProviderActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
-import { QuotaCostList } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
 import { ChannelGroupSelectField } from '../../../common/ClusterSettings/Details/ChannelGroupSelectField';
@@ -186,14 +185,14 @@ function Details() {
 
   const hasSingleAzResources = isMarketplaceGcp
     ? true
-    : availableQuota(quotaList as QuotaCostList, {
+    : availableQuota(quotaList, {
         ...quotaParams.singleAzResources,
         ...azQuotaParams,
       }) > 0;
 
   const hasMultiAzResources = isMarketplaceGcp
     ? true
-    : availableQuota(quotaList as QuotaCostList, {
+    : availableQuota(quotaList, {
         ...quotaParams.multiAzResources,
         ...azQuotaParams,
       }) > 0;

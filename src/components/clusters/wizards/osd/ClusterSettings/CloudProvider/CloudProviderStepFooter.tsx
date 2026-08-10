@@ -15,7 +15,6 @@ import { quotaParams, QuotaType } from '~/components/clusters/wizards/common/uti
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { CreateOsdWizardFooter } from '~/components/clusters/wizards/osd/CreateOsdWizardFooter';
 import { useGlobalState } from '~/redux/hooks';
-import { QuotaCostList } from '~/types/accounts_mgmt.v1';
 
 import { FieldId } from '../../constants';
 
@@ -28,9 +27,7 @@ export const CloudProviderStepFooter = ({
   const { values } = useFormState();
   const { goToNextStep } = useWizardContext();
   const { ccsCredentialsValidity } = useGlobalState((state) => state.ccsInquiries);
-  const quotaList = useGlobalState(
-    (state) => state.userProfile.organization.quotaList,
-  ) as QuotaCostList;
+  const quotaList = useGlobalState((state) => state.userProfile.organization.quotaList);
   const [pendingValidation, setPendingValidation] = useState(false);
 
   const billingModel = values[FieldId.BillingModel];

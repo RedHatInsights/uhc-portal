@@ -81,6 +81,7 @@ const gcpMarketplaceProps: MachineTypeSelectionProps = {
   ...defaultProps,
   machineTypesResponse,
   billingModel: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
+  enableGCMQuotaBypass: true,
 };
 
 describe('MachineTypeSelection', () => {

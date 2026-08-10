@@ -72,7 +72,8 @@ type MachineTypeSelectionProps = {
   productId: string;
   billingModel: BillingModel;
   allExpanded?: boolean;
-  enableGCMQuotaBypass?: boolean; // Temporary flag to enable GCM quota bypass for day 1 and disable for day 2, this will be removed once the day 1 and day 2 PRs are merged
+  // Temporary opt-in flag for day-1 GCM wizard bypass; defaults false so day-2/other consumers are unchanged. Remove once day-1 and day-2 PRs are merged.
+  enableGCMQuotaBypass?: boolean;
 };
 
 const MachineTypeSelection = ({
@@ -87,7 +88,7 @@ const MachineTypeSelection = ({
   productId,
   billingModel,
   allExpanded = true,
-  enableGCMQuotaBypass = true,
+  enableGCMQuotaBypass = false,
 }: MachineTypeSelectionProps) => {
   const dispatch = useDispatch();
 
