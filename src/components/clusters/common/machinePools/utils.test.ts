@@ -194,6 +194,10 @@ describe('machinePools utils', () => {
         ['version 4.14.28 (4.14.x boundary) allows 500 nodes', '4.14.28', 500],
         ['version 4.14.27 (one below 4.14.x boundary) returns 90', '4.14.27', 90],
         ['version 4.15.15 (4.15.x boundary) allows 500 nodes', '4.15.15', 500],
+        ['version 5.0.0 allows 500 nodes', '5.0.0', 500],
+        ['version 5.1.0 allows 500 nodes', '5.1.0', 500],
+        ['version 5.10.0 allows 500 nodes (not confused with 5.1)', '5.10.0', 500],
+        ['version 5.10.5 allows 500 nodes', '5.10.5', 500],
       ])('%s', (_title: string, version: string | undefined, exptected: number) => {
         // Act
         const result = utils.getMaxNodesHCP(version);
@@ -301,6 +305,10 @@ describe('machinePools utils', () => {
       ['version 4.14.0 returns 180', '4.14.0', 180],
       ['version 4.13.0 returns 180', '4.13.0', 180],
       ['undefined version returns 180', undefined, 180],
+      ['version 5.0.0 returns 249', '5.0.0', 249],
+      ['version 5.1.0 returns 249', '5.1.0', 249],
+      ['version 5.10.0 returns 249 (not confused with 5.1)', '5.10.0', 249],
+      ['version 5.10.5 returns 249', '5.10.5', 249],
     ])('%s', (_title: string, version: string | undefined, expected: number) => {
       const result = utils.getMaxWorkerNodes(version);
       expect(result).toBe(expected);

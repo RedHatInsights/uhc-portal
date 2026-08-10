@@ -29,10 +29,9 @@ import {
 // OSD and ROSA classic - minimal version to allow 249 worker nodes - 4.14.14
 export const getMaxWorkerNodes = (clusterVersionRawId: string | undefined) => {
   if (clusterVersionRawId) {
-    const majorMinor = parseFloat(clusterVersionRawId);
-    const versionPatch = Number(clusterVersionRawId.split('.')[2]);
+    const [major, minor, patch] = splitVersion(clusterVersionRawId);
 
-    if (majorMinor > 4.14 || (majorMinor === 4.14 && versionPatch >= 14)) {
+    if (major > 4 || (major === 4 && minor > 14) || (major === 4 && minor === 14 && patch >= 14)) {
       return MAX_NODES;
     }
   }
@@ -50,20 +49,14 @@ export const getMaxNodesTotalDefaultAutoscaler = (
 
 // HCP - Minimal versions to allow more then 90 nodes - 4.15.15, 4.14.28
 const isOcpVersionSufficient = (ocpVersion: string) => {
-  const majorMinor = parseFloat(ocpVersion);
-  const versionPatch = Number(ocpVersion.split('.')[2]);
-  if (majorMinor >= 4.16) {
-    return true;
-  }
-  if (majorMinor <= 4.13) {
-    return false;
-  }
-  if (majorMinor === 4.14) {
-    return versionPatch >= 28;
-  }
-  if (majorMinor === 4.15) {
-    return versionPatch >= 15;
-  }
+  const [major, minor, patch] = splitVersion(ocpVersion);
+  if (major > 4) return true;
+  if (major < 4) return false;
+  // major === 4
+  if (minor >= 16) return true;
+  if (minor <= 13) return false;
+  if (minor === 14) return patch >= 28;
+  if (minor === 15) return patch >= 15;
   return true;
 };
 
