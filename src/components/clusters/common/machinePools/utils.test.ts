@@ -304,6 +304,7 @@ describe('machinePools utils', () => {
       ['version 4.14.13 (one below boundary) returns 180', '4.14.13', 180],
       ['version 4.14.0 returns 180', '4.14.0', 180],
       ['version 4.13.0 returns 180', '4.13.0', 180],
+      ['version 4.9.0 returns 180', '4.9.0', 180],
       ['undefined version returns 180', undefined, 180],
       ['version 5.0.0 returns 249', '5.0.0', 249],
       ['version 5.1.0 returns 249', '5.1.0', 249],
