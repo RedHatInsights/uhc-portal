@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { Button, ButtonVariant, Stack, StackItem } from '@patternfly/react-core';
 import { ExpandableRowContent, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
+import docLinks from '~/common/docLinks.mjs';
 import { Link } from '~/common/routing';
 import CreateClusterDropDown from '~/components/clusters/CreateClusterPage/CloudTab/components/CreateClusterDropDown';
-import links from '~/components/clusters/CreateClusterPage/CreateClusterConsts';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import ExternalLink from '~/components/common/ExternalLink';
 import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
@@ -58,7 +58,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
     key: rowKeys.osdTrial,
     logo: <img className="partner-logo" src={RedHatLogo} alt="OSD" />,
     offerings: (
-      <ExternalLink href={links.OSD_LEARN_MORE} noIcon>
+      <ExternalLink href={docLinks.WHAT_IS_OSD} noIcon>
         Red Hat OpenShift Dedicated Trial
       </ExternalLink>
     ),
@@ -111,7 +111,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
     key: rowKeys.osd,
     logo: <img className="partner-logo" src={RedHatLogo} alt="OSD" />,
     offerings: (
-      <ExternalLink href={links.OSD_LEARN_MORE} noIcon>
+      <ExternalLink href={docLinks.WHAT_IS_OSD} noIcon>
         Red Hat OpenShift Dedicated
       </ExternalLink>
     ),
@@ -131,7 +131,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
             Hosted on Google Cloud.
           </StackItem>
           <StackItem>
-            <ExternalLink href={links.OSD_LEARN_MORE}>
+            <ExternalLink href={docLinks.WHAT_IS_OSD}>
               Learn more about Red Hat OpenShift Dedicated
             </ExternalLink>
           </StackItem>
@@ -144,7 +144,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
     key: rowKeys.azure,
     logo: <img className="partner-logo" src={MicrosoftLogo} alt="Microsoft" />,
     offerings: (
-      <ExternalLink href={links.AZURE} noIcon>
+      <ExternalLink href={docLinks.AZURE_OPENSHIFT_GET_STARTED} noIcon>
         Azure Red Hat OpenShift
       </ExternalLink>
     ),
@@ -155,7 +155,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
         isButton
         noIcon
         variant={ButtonVariant.secondary}
-        href={links.AZURE}
+        href={docLinks.AZURE_OPENSHIFT_GET_STARTED}
         className="create-button"
       >
         Try it on Azure
@@ -171,7 +171,9 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
             Hosted on Microsoft Azure.
           </StackItem>
           <StackItem>
-            <ExternalLink href={links.AZURE}>Learn more about Azure Red Hat OpenShift</ExternalLink>
+            <ExternalLink href={docLinks.AZURE_OPENSHIFT_GET_STARTED}>
+              Learn more about Azure Red Hat OpenShift
+            </ExternalLink>
           </StackItem>
         </Stack>
       ),
@@ -182,7 +184,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
     key: rowKeys.ibm,
     logo: <img className="partner-logo" src={IBMCloudLogo} alt="IBM Cloud" />,
     offerings: (
-      <ExternalLink href={links.IBM_CLOUD_LEARN_MORE} noIcon>
+      <ExternalLink href={docLinks.IBM_CLOUD_LEARN_MORE} noIcon>
         Red Hat OpenShift on IBM Cloud
       </ExternalLink>
     ),
@@ -192,7 +194,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
       <ExternalLink
         isButton
         noIcon
-        href={links.IBM_CLOUD}
+        href={docLinks.IBM_CLOUD}
         variant={ButtonVariant.secondary}
         className="create-button"
       >
@@ -209,7 +211,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
             Hosted on IBM Cloud.
           </StackItem>
           <StackItem>
-            <ExternalLink href={links.IBM_CLOUD_LEARN_MORE}>
+            <ExternalLink href={docLinks.IBM_CLOUD_LEARN_MORE}>
               Learn more about Red Hat OpenShift on IBM Cloud
             </ExternalLink>
           </StackItem>
@@ -222,7 +224,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
     key: rowKeys.rovs,
     logo: <img className="partner-logo" src={IBMCloudLogo} alt="IBM Cloud" />,
     offerings: (
-      <ExternalLink href={links.IBM_CLOUD_ROVS} noIcon>
+      <ExternalLink href={docLinks.IBM_CLOUD_ROVS} noIcon>
         Red Hat OpenShift Virtualization Service on IBM Cloud
       </ExternalLink>
     ),
@@ -232,7 +234,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
       <ExternalLink
         isButton
         noIcon
-        href={links.IBM_CLOUD_ROVS}
+        href={docLinks.IBM_CLOUD_ROVS}
         variant={ButtonVariant.secondary}
         className="create-button"
         data-testid="rovs-try-it-on-ibm"
@@ -250,7 +252,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
             Hosted on IBM Cloud.
           </StackItem>
           <StackItem>
-            <ExternalLink href={links.IBM_CLOUD_ROVS}>
+            <ExternalLink href={docLinks.IBM_CLOUD_ROVS}>
               Learn more about Red Hat OpenShift Virtualization Service on IBM Cloud
             </ExternalLink>
           </StackItem>
@@ -270,7 +272,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
       />
     ),
     offerings: (
-      <ExternalLink noIcon href={links.AWS}>
+      <ExternalLink noIcon href={docLinks.AWS_LEARN_MORE}>
         Red Hat OpenShift Service on AWS (ROSA)
       </ExternalLink>
     ),
@@ -294,7 +296,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
             Hosted on AWS.
           </StackItem>
           <StackItem>
-            <ExternalLink href={links.AWS}>
+            <ExternalLink href={docLinks.AWS_LEARN_MORE}>
               Learn more about Red Hat OpenShift Service on AWS
             </ExternalLink>
           </StackItem>

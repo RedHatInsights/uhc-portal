@@ -22,7 +22,6 @@ import {
 
 import docLinks from '~/common/docLinks.mjs';
 import { Link } from '~/common/routing';
-import links from '~/components/clusters/CreateClusterPage/CreateClusterConsts';
 import { CreateManagedClusterButtonWithTooltip } from '~/components/common/CreateManagedClusterTooltip';
 import ExternalLink from '~/components/common/ExternalLink';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
@@ -236,9 +235,7 @@ function OfferingCard(props: OfferingCardProps) {
         { descriptionListTerm: 'Billing type', descriptionListDescription: 'Flexible hourly' },
       ];
       offeringCardDocLink = (
-        <ExternalLink href="https://cloud.ibm.com/kubernetes/catalog/create?platformType=openshift">
-          Learn more on IBM
-        </ExternalLink>
+        <ExternalLink href={docLinks.IBM_CLOUD}>Learn more on IBM</ExternalLink>
       );
       cardLogo = <img className="offering-logo" src={IBMLogo} alt="IBM logo" />;
       break;
@@ -251,7 +248,7 @@ function OfferingCard(props: OfferingCardProps) {
         { descriptionListTerm: 'Billing type', descriptionListDescription: 'Flexible hourly' },
       ];
       offeringCardDocLink = (
-        <ExternalLink href={links.IBM_CLOUD_ROVS}>Learn more on IBM</ExternalLink>
+        <ExternalLink href={docLinks.IBM_CLOUD_ROVS}>Learn more on IBM</ExternalLink>
       );
       cardLogo = <img className="offering-logo" src={IBMLogo} alt="IBM logo" />;
       break;

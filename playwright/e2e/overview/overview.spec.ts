@@ -1,5 +1,4 @@
 import docLinks from '../../../src/common/docLinks.mjs';
-import links from '../../../src/components/clusters/CreateClusterPage/CreateClusterConsts';
 import { ROVS_REGISTRATION } from '../../../src/queries/featureGates/featureConstants';
 import { expect, test } from '../../fixtures/pages';
 
@@ -151,7 +150,7 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
 
       await overviewPage.expectLinkOpensInNewTab(
         overviewPage.cardLearnMoreLink('offering-card_ROVS', 'Learn more on IBM'),
-        links.IBM_CLOUD_ROVS,
+        docLinks.IBM_CLOUD_ROVS,
       );
     }
 

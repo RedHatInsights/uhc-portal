@@ -1,6 +1,6 @@
 import React from 'react';
 
-import links from '~/components/clusters/CreateClusterPage/CreateClusterConsts';
+import docLinks from '~/common/docLinks.mjs';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 import { render, screen } from '~/testUtils';
 
@@ -46,6 +46,6 @@ describe('<OfferingCard />', () => {
     expect(
       screen.getByText('Red Hat OpenShift Virtualization Service on IBM Cloud'),
     ).toBeInTheDocument();
-    expect(screen.getByText('Learn more on IBM')).toHaveAttribute('href', links.IBM_CLOUD_ROVS);
+    expect(screen.getByText('Learn more on IBM')).toHaveAttribute('href', docLinks.IBM_CLOUD_ROVS);
   });
 });

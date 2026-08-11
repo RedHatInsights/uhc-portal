@@ -1,6 +1,6 @@
 import React from 'react';
 
-import links from '~/components/clusters/CreateClusterPage/CreateClusterConsts';
+import docLinks from '~/common/docLinks.mjs';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
 import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen } from '~/testUtils';
@@ -60,7 +60,10 @@ describe('<ManagedServicesTable />', () => {
     render(<ManagedServicesTable hasOSDQuota />);
     expect(
       screen.getByText('Red Hat OpenShift Virtualization Service on IBM Cloud'),
-    ).toHaveAttribute('href', links.IBM_CLOUD_ROVS);
-    expect(screen.getByTestId('rovs-try-it-on-ibm')).toHaveAttribute('href', links.IBM_CLOUD_ROVS);
+    ).toHaveAttribute('href', docLinks.IBM_CLOUD_ROVS);
+    expect(screen.getByTestId('rovs-try-it-on-ibm')).toHaveAttribute(
+      'href',
+      docLinks.IBM_CLOUD_ROVS,
+    );
   });
 });

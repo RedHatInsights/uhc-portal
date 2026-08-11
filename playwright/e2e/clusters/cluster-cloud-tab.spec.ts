@@ -1,4 +1,4 @@
-import links from '../../../src/components/clusters/CreateClusterPage/CreateClusterConsts';
+import docLinks from '../../../src/common/docLinks.mjs';
 import { ROVS_REGISTRATION } from '../../../src/queries/featureGates/featureConstants';
 import { test } from '../../fixtures/pages';
 
@@ -119,17 +119,17 @@ test.describe.serial(
 
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Virtualization Service on IBM Cloud',
-        links.IBM_CLOUD_ROVS,
+        docLinks.IBM_CLOUD_ROVS,
       );
 
-      await createClusterPage.checkManagedServiceButton('Try it on IBM', links.IBM_CLOUD_ROVS);
+      await createClusterPage.checkManagedServiceButton('Try it on IBM', docLinks.IBM_CLOUD_ROVS);
 
       await createClusterPage.expandToggle('#rovs4');
       await createClusterPage.isTextVisible(ROVSDescriptionText);
 
       await createClusterPage.checkManagedServiceLink(
         'Learn more about Red Hat OpenShift Virtualization Service on IBM Cloud',
-        links.IBM_CLOUD_ROVS,
+        docLinks.IBM_CLOUD_ROVS,
       );
     });
 
