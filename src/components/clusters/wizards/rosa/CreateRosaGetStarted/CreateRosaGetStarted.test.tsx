@@ -1,6 +1,7 @@
 import React from 'react';
 
 import docLinks from '~/common/docLinks.mjs';
+import installLinks from '~/common/installLinks.mjs';
 import { checkAccessibility, mockUseChrome, render, screen } from '~/testUtils';
 
 import CreateRosaGetStarted from './CreateRosaGetStarted';
@@ -24,7 +25,7 @@ describe('<CreateRosaGetStarted />', () => {
     ).toHaveAttribute('href', docLinks.ROSA_AWS_FEDRAMP);
     expect(
       screen.getByRole('link', { name: 'FedRAMP access request form (new window or tab)' }),
-    ).toHaveAttribute('href', 'https://console.redhat.com/openshift/create/rosa/govcloud');
+    ).toHaveAttribute('href', installLinks.FEDRAMP_ACCESS_REQUEST_FORM);
   });
 
   it('Create VPC command is present', () => {
