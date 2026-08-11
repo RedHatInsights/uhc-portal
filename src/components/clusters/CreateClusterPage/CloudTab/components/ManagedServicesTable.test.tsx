@@ -60,7 +60,7 @@ describe('<ManagedServicesTable />', () => {
     render(<ManagedServicesTable hasOSDQuota />);
     expect(
       screen.getByText('Red Hat OpenShift Virtualization Service on IBM Cloud'),
-    ).toHaveAttribute('href', docLinks.IBM_CLOUD_ROVS);
+    ).toHaveAttribute('href', docLinks.IBM_CLOUD_ROVS_LEARN_MORE);
     expect(screen.getByTestId('rovs-try-it-on-ibm')).toHaveAttribute(
       'href',
       docLinks.IBM_CLOUD_ROVS,

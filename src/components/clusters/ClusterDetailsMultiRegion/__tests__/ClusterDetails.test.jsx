@@ -707,6 +707,33 @@ describe('<ClusterDetailsMultiRegion />', () => {
     });
   });
 
+  describe('unmanaged OCP cluster', () => {
+    const functions = funcs();
+    const props = {
+      ...fixtures,
+      ...functions,
+      clusterDetails: { ...fixtures.OCPClusterDetails },
+    };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      mockTabsRowProps.mockClear();
+      useParams.mockReturnValue({ id: fixtures.OCPClusterDetails.cluster.subscription.id });
+
+      setupDefaultHookMocks(fixtures.OCPClusterDetails.cluster);
+    });
+
+    it('should show Monitoring tab for unmanaged OCP cluster', async () => {
+      withState(initialState, true).render(<ClusterDetails {...props} />);
+
+      await waitForRender();
+
+      expect(mockTabsRowProps).toHaveBeenCalled();
+      const tabsRowCall = mockTabsRowProps.mock.calls[mockTabsRowProps.mock.calls.length - 1][0];
+      expect(tabsRowCall.tabsInfo.monitoring.show).toBe(true);
+    });
+  });
+
   describe('ROVS cluster', () => {
     const functions = funcs();
     const props = {

@@ -37,7 +37,7 @@ test.describe.serial(
 
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Dedicated Trial',
-        'https://cloud.redhat.com/products/dedicated/',
+        docLinks.WHAT_IS_OSD,
       );
 
       await createClusterPage.checkManagedServiceButton(
@@ -53,7 +53,7 @@ test.describe.serial(
     test('Check OSD section contents', async ({ createClusterPage }) => {
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Dedicated',
-        'https://cloud.redhat.com/products/dedicated/',
+        docLinks.WHAT_IS_OSD,
       );
 
       await createClusterPage.checkManagedServiceButton('Create cluster', '/openshift/create/osd');
@@ -67,19 +67,19 @@ test.describe.serial(
 
       await createClusterPage.checkManagedServiceLink(
         'Learn more about Red Hat OpenShift Dedicated',
-        'https://cloud.redhat.com/products/dedicated/',
+        docLinks.WHAT_IS_OSD,
       );
     });
 
     test('Check Azure section contents', async ({ createClusterPage }) => {
       await createClusterPage.checkManagedServiceLink(
         'Azure Red Hat OpenShift',
-        'https://azure.microsoft.com/en-us/services/openshift',
+        docLinks.AZURE_OPENSHIFT_GET_STARTED,
       );
 
       await createClusterPage.checkManagedServiceButton(
         'Try it on Azure',
-        'https://azure.microsoft.com/en-us/services/openshift',
+        docLinks.AZURE_OPENSHIFT_GET_STARTED,
       );
 
       await createClusterPage.expandToggle('#azure2');
@@ -87,7 +87,7 @@ test.describe.serial(
 
       await createClusterPage.checkManagedServiceLink(
         'Learn more about Azure Red Hat OpenShift',
-        'https://azure.microsoft.com/en-us/services/openshift',
+        docLinks.AZURE_OPENSHIFT_GET_STARTED,
       );
     });
 
@@ -119,7 +119,7 @@ test.describe.serial(
 
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Virtualization Service on IBM Cloud',
-        docLinks.IBM_CLOUD_ROVS,
+        docLinks.IBM_CLOUD_ROVS_LEARN_MORE,
       );
 
       await createClusterPage.checkManagedServiceButton('Try it on IBM', docLinks.IBM_CLOUD_ROVS);
@@ -129,7 +129,7 @@ test.describe.serial(
 
       await createClusterPage.checkManagedServiceLink(
         'Learn more about Red Hat OpenShift Virtualization Service on IBM Cloud',
-        docLinks.IBM_CLOUD_ROVS,
+        docLinks.IBM_CLOUD_ROVS_LEARN_MORE,
       );
     });
 

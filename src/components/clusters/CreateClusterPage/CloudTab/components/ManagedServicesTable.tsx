@@ -224,7 +224,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
     key: rowKeys.rovs,
     logo: <img className="partner-logo" src={IBMCloudLogo} alt="IBM Cloud" />,
     offerings: (
-      <ExternalLink href={docLinks.IBM_CLOUD_ROVS} noIcon>
+      <ExternalLink href={docLinks.IBM_CLOUD_ROVS_LEARN_MORE} noIcon>
         Red Hat OpenShift Virtualization Service on IBM Cloud
       </ExternalLink>
     ),
@@ -252,7 +252,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
             Hosted on IBM Cloud.
           </StackItem>
           <StackItem>
-            <ExternalLink href={docLinks.IBM_CLOUD_ROVS}>
+            <ExternalLink href={docLinks.IBM_CLOUD_ROVS_LEARN_MORE}>
               Learn more about Red Hat OpenShift Virtualization Service on IBM Cloud
             </ExternalLink>
           </StackItem>
