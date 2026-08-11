@@ -24,3 +24,18 @@ export function getAuthConfig(username?: string, password?: string): AuthConfig 
     password: envPassword,
   };
 }
+
+/**
+ * Builds a short, cluster-name-safe suffix from a username.
+ * Takes characters until the first special character (e.g. `@` in an email),
+ * then returns the first `length` alphanumeric characters (default 4), lowercased.
+ *
+ * @example
+ * getUsernameSuffix('abcd@redhat.com') // 'abcd'
+ * getUsernameSuffix('abcd') // 'jdoe'
+ */
+export function getUsernameSuffix(username?: string, length = 4): string {
+  const name = username ?? getAuthConfig().username;
+  const untilSpecial = name.match(/^[a-zA-Z0-9]+/)?.[0] ?? '';
+  return untilSpecial.toLowerCase().substring(0, length);
+}

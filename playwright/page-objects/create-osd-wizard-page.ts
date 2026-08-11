@@ -654,6 +654,30 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByTestId('Application-ingress').locator('div');
   }
 
+  computeNodeRangeValue(): Locator {
+    return this.page.getByTestId('Compute-node-range').locator('div');
+  }
+
+  routeSelectorsValue(): Locator {
+    return this.page.getByTestId('Route-selectors');
+  }
+
+  excludedNamespacesValue(): Locator {
+    return this.page.getByTestId('Excluded-namespaces');
+  }
+
+  excludeNamespaceSelectorsValue(): Locator {
+    return this.page.getByTestId('Exclude-namespace-selectors');
+  }
+
+  wildcardPolicyValue(): Locator {
+    return this.page.getByTestId('Wildcard-policy').locator('div');
+  }
+
+  namespaceOwnershipValue(): Locator {
+    return this.page.getByTestId('Namespace-ownership-policy').locator('div');
+  }
+
   machineCIDRValue(): Locator {
     return this.page.getByTestId('Machine-CIDR').locator('div');
   }
@@ -1037,7 +1061,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
 
   // Networking validation selectors
   applicationIngressCustomSettingsRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-applicationIngress-custom-field"]');
+    return this.page.getByRole('radio', { name: 'Custom settings' });
   }
 
   applicationIngressRouterSelectorsInput(): Locator {
@@ -1046,6 +1070,22 @@ export class CreateOSDWizardPage extends BaseWizardPage {
 
   applicationIngressExcludedNamespacesInput(): Locator {
     return this.page.locator('input[name="defaultRouterExcludedNamespacesFlag"]');
+  }
+
+  applicationIngressExcludeNamespaceSelectorKeyInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Exclude namespace selector key' });
+  }
+
+  applicationIngressExcludeNamespaceSelectorValuesInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Exclude namespace selector values' });
+  }
+
+  applicationIngressNamespaceOwnershipPolicyRadio(): Locator {
+    return this.page.getByRole('switch', { name: /^(Strict|Inter-namespace ownership allowed)$/ });
+  }
+
+  applicationIngressWildcardPolicyAllowedRadio(): Locator {
+    return this.page.getByRole('switch', { name: /^(Allowed|Disallowed)$/ });
   }
 
   // Validation helper methods

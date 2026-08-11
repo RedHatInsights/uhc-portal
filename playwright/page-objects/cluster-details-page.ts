@@ -694,11 +694,7 @@ export class ClusterDetailsPage extends BasePage {
     contractedAccountId: string,
     billingAccountIds: string[] = [],
   ): Promise<void> {
-    await mockQuotaCostRouteWithBillingContract(
-      this.page,
-      contractedAccountId,
-      billingAccountIds,
-    );
+    await mockQuotaCostRouteWithBillingContract(this.page, contractedAccountId, billingAccountIds);
   }
 
   async clearQuotaCostMock(): Promise<void> {
@@ -1307,9 +1303,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   idpHintDescription(): Locator {
-    return this.page.getByText(
-      'Identity providers determine how you can log into the cluster',
-    );
+    return this.page.getByText('Identity providers determine how you can log into the cluster');
   }
 
   createIdentityProviderButton(): Locator {
@@ -1335,9 +1329,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   productCard(productName: string): Locator {
-    return this.page
-      .getByTestId('product-overview-card')
-      .filter({ hasText: productName });
+    return this.page.getByTestId('product-overview-card').filter({ hasText: productName });
   }
 
   productCardLearnMoreButton(productName: string): Locator {
@@ -1391,5 +1383,10 @@ export class ClusterDetailsPage extends BasePage {
   async dismissRecommendedOperatorsAlert(): Promise<void> {
     await this.recommendedOperatorsAlertCloseButton().click();
     await expect(this.recommendedOperatorsAlert()).toBeHidden({ timeout: 10000 });
+  }
+
+  async getDomainPrefix(): Promise<string> {
+    await expect(this.clusterDomainPrefixLabelValue()).toBeVisible({ timeout: 30000 });
+    return (await this.clusterDomainPrefixLabelValue().innerText()).trim();
   }
 }
