@@ -43,6 +43,7 @@ import {
 } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import { ChannelSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelSelectField';
 import { ClassicEtcdEncryptionSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdEncryptionSection';
+import { ClassicV5CreationWarning } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicV5CreationWarning/ClassicV5CreationWarning';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
 import { FipsCryptographySection } from '~/components/clusters/wizards/common/ClusterSettings/Details/FipsCryptographySection';
 import { useResetMaxNodesTotal } from '~/components/clusters/wizards/common/ClusterSettings/Details/useResetMaxNodesTotal/useResetMaxNodesTotal';
@@ -452,6 +453,7 @@ function Details() {
           ) : null}
 
           <GridItem>
+            <ClassicV5CreationWarning isClassic product="osd" cloudProvider={cloudProvider} />
             <VersionSelectField
               name={FieldId.ClusterVersion}
               channelGroup={channelGroup}
