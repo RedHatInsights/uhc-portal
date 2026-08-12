@@ -1,10 +1,11 @@
 import React from 'react';
 import * as reactRedux from 'react-redux';
 
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import { getSupportStatus } from '~/redux/actions/supportStatusActions';
 import { useGlobalState } from '~/redux/hooks';
 import { SupportStatusState } from '~/redux/reducers/supportStatusReducer';
-import { checkAccessibility, render, screen } from '~/testUtils';
+import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
 import SupportStatusLabel from '../SupportStatusLabel';
 
@@ -28,6 +29,7 @@ const useGlobalStateMock = useGlobalState as jest.Mock;
 const getSupportStatusMock = getSupportStatus as jest.Mock;
 
 const supportStatuses = {
+  '5.0': 'Full Support',
   4.5: 'Full Support',
   4.4: 'Maintenance Support',
   4.3: 'Extended Update Support',
@@ -68,6 +70,25 @@ describe('<SupportStatusLabel />', () => {
 
     // Assert
     expect(getSupportStatusMock).toHaveBeenCalledWith(false);
+  });
+
+  it('should render support status for a 5.x cluster when OCP5_SUPPORT is enabled', () => {
+    mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+    useGlobalStateMock.mockReturnValue(defaultState);
+
+    render(<SupportStatusLabel clusterVersion="5.0" />);
+
+    expect(getSupportStatusMock).toHaveBeenCalledWith(true);
+
+    useGlobalStateMock.mockReturnValue({
+      ...defaultState,
+      fulfilled: true,
+      supportStatus: supportStatuses,
+    });
+
+    render(<SupportStatusLabel clusterVersion="5.0" />);
+
+    expect(screen.getByText('Full support')).toHaveClass('pf-v6-c-label__text');
   });
 
   it('should render skeleton when pending', () => {

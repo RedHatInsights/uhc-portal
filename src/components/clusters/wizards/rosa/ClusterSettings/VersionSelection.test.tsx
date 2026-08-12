@@ -4,9 +4,17 @@ import { Formik } from 'formik';
 import * as helpers from '~/common/helpers';
 import * as versionSelectHelper from '~/components/clusters/wizards/common/ClusterSettings/Details/versionSelectHelper';
 import * as ReleaseHooks from '~/components/releases/hooks';
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import { clustersActions } from '~/redux/actions/clustersActions';
 import type { GlobalState } from '~/redux/stateTypes';
-import { checkAccessibility, screen, waitFor, within, withState } from '~/testUtils';
+import {
+  checkAccessibility,
+  mockUseFeatureGate,
+  screen,
+  waitFor,
+  within,
+  withState,
+} from '~/testUtils';
 import { ProductLifeCycle } from '~/types/product-life-cycles';
 
 import { FieldId } from '../constants';
@@ -189,6 +197,22 @@ const onChangeMock = jest.fn();
 const defaultProps = {
   onChange: onChangeMock,
   label: 'Version select label',
+};
+
+const ocp5Version = {
+  ami_overrides: [],
+  channel_group: 'stable',
+  default: false,
+  enabled: true,
+  end_of_life_timestamp: '2026-09-17T00:00:00Z',
+  hosted_control_plane_enabled: true,
+  href: '/api/clusters_mgmt/v1/versions/openshift-v5.0.1',
+  id: 'openshift-v5.0.1',
+  kind: 'Version',
+  raw_id: '5.0.1',
+  release_image:
+    'quay.io/openshift-release-dev/ocp-release@sha256:b9d6ccb5ba5a878141e468e56fa62912ad7c04864acfec0c0056d2b41e3259cc',
+  rosa_enabled: true,
 };
 
 describe('<VersionSelection />', () => {
@@ -805,6 +829,35 @@ describe('<VersionSelection />', () => {
         name: 'Select options list for Full support',
       });
       expect(within(fullSupportList).getAllByRole('option')).toHaveLength(1);
+      expect(within(fullSupportList).getByRole('option', { name: '4.12.1' })).toBeInTheDocument();
+    });
+
+    it('shows 5.x versions in full support group when OCP5_SUPPORT is enabled', async () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      const state = {
+        clusters: {
+          clusterVersions: {
+            ...fulfilledVersionsState,
+            versions: [...versions, ocp5Version],
+          },
+        },
+      };
+      const { user } = withState(state).render(
+        <Formik
+          onSubmit={() => {}}
+          initialValues={{ ...defaultFields, [FieldId.RosaMaxOsVersion]: '5.0' }}
+        >
+          <VersionSelection {...defaultProps} />
+        </Formik>,
+      );
+
+      await user.click(screen.getByRole('button', { name: componentText.SELECT_TOGGLE.label }));
+
+      const fullSupportList = screen.getByRole('listbox', {
+        name: 'Select options list for Full support',
+      });
+      expect(within(fullSupportList).getByRole('option', { name: '5.0.1' })).toBeInTheDocument();
       expect(within(fullSupportList).getByRole('option', { name: '4.12.1' })).toBeInTheDocument();
     });
 

@@ -47,6 +47,10 @@ describe('<Releases />', () => {
     // 5.0 has concrete EUS dates in the mock; 5.1 does not
     expect(screen.getByText('eus-5.0')).toBeInTheDocument();
     expect(screen.getByText('No 5.1 EUS channel')).toBeInTheDocument();
+    // 4.x versions still render alongside 5.x when flag is on
+    expect(screen.getByTestId('version-4.12')).toBeInTheDocument();
+    expect(screen.getByText('eus-4.12')).toBeInTheDocument();
+    expect(screen.getByText('No 4.11 EUS channel')).toBeInTheDocument();
   });
 
   describe('in restricted env', () => {

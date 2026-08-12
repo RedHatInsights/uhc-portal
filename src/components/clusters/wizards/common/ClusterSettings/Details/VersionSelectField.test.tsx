@@ -8,9 +8,10 @@ import {
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/VersionSelectField.fixtures';
 import { CloudProviderType, FieldId } from '~/components/clusters/wizards/common/constants';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
-import { checkAccessibility, screen, withState } from '~/testUtils';
+import { checkAccessibility, mockUseFeatureGate, screen, withState } from '~/testUtils';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import * as versionsSelectHelper from './versionSelectHelper';
@@ -212,6 +213,26 @@ describe('<VersionSelectField />', () => {
       }),
     );
     expect(screen.getByText('Full support')).toBeInTheDocument();
+  });
+
+  it('shows 5.x version in full support group when OCP5_SUPPORT is enabled', async () => {
+    mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+    const { user } = withState(loadedState).render(
+      <Formik initialValues={standardValues} onSubmit={() => {}}>
+        <VersionSelectField {...defaultProps} />
+      </Formik>,
+    );
+
+    await user.click(
+      screen.getByRole('button', {
+        name: /options menu/i,
+      }),
+    );
+
+    expect(screen.getByText('Full support')).toBeInTheDocument();
+    expect(screen.getByText('5.0.1')).toBeInTheDocument();
+    expect(getOCPLifeCycleStatus).toHaveBeenCalledWith(true);
   });
 
   it('shows only filtered version by channel group when isEUSEnabled', async () => {

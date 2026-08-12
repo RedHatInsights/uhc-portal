@@ -42,6 +42,26 @@ export const mockOCPLifeCycleStatusData = [
       ],
       versions: [
         {
+          name: '5.0',
+          type: 'Full Support',
+          last_minor_release: null,
+          final_minor_release: null,
+          extra_header_value: null,
+          phases: [
+            {
+              name: 'General availability',
+              date: '2026-09-01T00:00:00.000Z',
+              date_format: 'date',
+            },
+            {
+              name: 'Extended update support',
+              date: '2028-03-01T00:00:00.000Z',
+              date_format: 'date',
+            },
+          ],
+          extra_dependences: [],
+        },
+        {
           name: '4.20',
           type: 'Full Support',
           last_minor_release: null,
