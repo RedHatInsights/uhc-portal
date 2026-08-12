@@ -7,8 +7,8 @@ import * as useFetchClusters from '~/queries/ClusterListQueries/useFetchClusters
 import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
 import { mockRestrictedEnv, mockUseFeatureGate, screen, within, withState } from '~/testUtils';
 
-import { normalizedProducts } from '../../../common/subscriptionTypes';
 import * as queryHelpers from '../../../common/queryHelpers';
+import { normalizedProducts } from '../../../common/subscriptionTypes';
 import { viewConstants } from '../../../redux/constants';
 import { SET_TOTAL_ITEMS } from '../../../redux/constants/viewPaginationConstants';
 import fixtures, { funcs } from '../ClusterDetailsMultiRegion/__tests__/ClusterDetails.fixtures';
@@ -475,7 +475,7 @@ describe('<ClusterList />', () => {
       useDispatchSpy?.mockRestore();
     });
 
-    const renderWithSavedClusterTypes = (savedPlanIds) => {
+    const getSubscriptionFilterActionForSavedTypes = (savedPlanIds) => {
       mockUseFeatureGate([[ROVS_REGISTRATION, false]]);
       mockedGetFetchedClusters.mockReturnValue({
         data: { items: [fixtures.clusterDetails.cluster] },
@@ -534,28 +534,30 @@ describe('<ClusterList />', () => {
     });
 
     it('drops stale ROVS from sessionStorage when feature flag is disabled', () => {
-      const listFlagsAction = renderWithSavedClusterTypes([normalizedProducts.ROVS]);
+      const subscriptionFilterAction = getSubscriptionFilterActionForSavedTypes([
+        normalizedProducts.ROVS,
+      ]);
 
-      expect(listFlagsAction.payload).toEqual({
+      expect(subscriptionFilterAction.payload).toEqual({
         key: 'subscriptionFilter',
         value: { plan_id: [] },
         viewType: viewConstants.CLUSTERS_VIEW,
       });
-      expect(listFlagsAction.payload.value.plan_id).not.toContain(normalizedProducts.ROVS);
+      expect(subscriptionFilterAction.payload.value.plan_id).not.toContain(normalizedProducts.ROVS);
     });
 
     it('keeps allowed cluster types from sessionStorage when ROVS is stale', () => {
-      const listFlagsAction = renderWithSavedClusterTypes([
+      const subscriptionFilterAction = getSubscriptionFilterActionForSavedTypes([
         normalizedProducts.ROVS,
         normalizedProducts.OSD,
       ]);
 
-      expect(listFlagsAction.payload).toEqual({
+      expect(subscriptionFilterAction.payload).toEqual({
         key: 'subscriptionFilter',
         value: { plan_id: [normalizedProducts.OSD] },
         viewType: viewConstants.CLUSTERS_VIEW,
       });
-      expect(listFlagsAction.payload.value.plan_id).not.toContain(normalizedProducts.ROVS);
+      expect(subscriptionFilterAction.payload.value.plan_id).not.toContain(normalizedProducts.ROVS);
     });
 
     it('filter by already set state and URL param reacts accordingly', async () => {
