@@ -101,7 +101,7 @@ const getMinNodesRequired = (
         nonHypershiftProps?.isMultiAz,
       );
 
-const getMinNodesRequiredMaxReplicas = (
+const getAutoscaleMaxReplicasFloor = (
   isHypershiftCluster: boolean,
   minNodes: number | undefined,
   numMachinePools: number,
@@ -384,7 +384,7 @@ export {
   countReplicasWithoutTaints,
   getClusterMinNodes,
   getMinNodesRequired,
-  getMinNodesRequiredMaxReplicas,
+  getAutoscaleMaxReplicasFloor,
   getNodeIncrement,
   getNodeIncrementHypershift,
   getSubnetIds,

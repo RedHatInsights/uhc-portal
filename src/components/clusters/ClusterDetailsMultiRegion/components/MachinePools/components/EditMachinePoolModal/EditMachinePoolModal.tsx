@@ -25,7 +25,10 @@ import {
 import { getErrorMessage } from '~/common/errors';
 import getClusterName from '~/common/getClusterName';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
-import { getMaxNodesHCP, getNodeCount } from '~/components/clusters/common/machinePools/utils';
+import {
+  getMaxSupportedNodesHCP,
+  getNodeCount,
+} from '~/components/clusters/common/machinePools/utils';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { ShieldedVM } from '~/components/clusters/wizards/common/ShieldedVM';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
@@ -161,7 +164,7 @@ const EditMachinePoolModal = ({
   let hcpMaxDifference;
   if (machinePoolsResponse && isHypershift) {
     hcpMaxDifference =
-      getMaxNodesHCP(cluster.version?.raw_id) -
+      getMaxSupportedNodesHCP(cluster.version?.raw_id) -
       getNodeCount(
         machinePoolsResponse,
         isHypershift,
