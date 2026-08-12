@@ -37,7 +37,7 @@ describe('machinePools utils', () => {
       editMachinePoolId: 'workers-1',
     } as unknown as utils.GetMaxNodeCountForMachinePoolParams;
 
-    const maxNodesHCP = utils.getMaxNodesHCP(defaultArgs.cluster.version?.raw_id);
+    const maxNodesHCP = utils.getMaxSupportedNodesHCP(defaultArgs.cluster.version?.raw_id);
 
     // In order to make  testing a little easier, mocking quota method
     const getAvailableQuotaMock = jest.spyOn(utils, 'getAvailableQuota').mockReturnValue(50990);
@@ -181,7 +181,7 @@ describe('machinePools utils', () => {
       });
     });
 
-    describe('getMaxNodesHCP', () => {
+    describe('getMaxSupportedNodesHCP', () => {
       it.each([
         ['returns the default max nodes for HCP', '4.16.0', 500],
         ['version 4.14.19 gets insufficient version', '4.14.19', 90],
@@ -200,7 +200,7 @@ describe('machinePools utils', () => {
         ['version 5.10.5 allows 500 nodes', '5.10.5', 500],
       ])('%s', (_title: string, version: string | undefined, exptected: number) => {
         // Act
-        const result = utils.getMaxNodesHCP(version);
+        const result = utils.getMaxSupportedNodesHCP(version);
 
         // Assert
         expect(result).toEqual(exptected);
