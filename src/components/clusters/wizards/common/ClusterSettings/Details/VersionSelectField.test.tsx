@@ -94,6 +94,7 @@ describe('<VersionSelectField />', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it.each([
