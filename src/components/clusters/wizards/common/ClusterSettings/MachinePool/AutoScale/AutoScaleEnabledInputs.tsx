@@ -9,10 +9,10 @@ import { normalizedProducts } from '~/common/subscriptionTypes';
 import { required, validateNumericInput } from '~/common/validators';
 import {
   getMinNodesRequired,
-  getMinNodesRequiredMaxReplicas,
+  getAutoscaleMaxReplicasFloor,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
-import { getMaxNodesHCP, getMaxWorkerNodes } from '~/components/clusters/common/machinePools/utils';
+import { getMaxNodeCount } from '~/components/clusters/common/machinePools/utils';
 import getMinNodesAllowed from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId as RosaFieldId } from '~/components/clusters/wizards/rosa/constants';
@@ -129,24 +129,23 @@ export const AutoScaleEnabledInputs = () => {
   }, [product, isByoc, isMultiAz, defaultMinAllowed, isHypershiftSelected, autoscalingEnabled]);
 
   const maxNodes = useMemo(() => {
-    const maxWorkerNodes = getMaxWorkerNodes(clusterVersion?.raw_id);
-    if (isHypershiftSelected) {
-      return Math.floor(getMaxNodesHCP(clusterVersion?.raw_id) / poolsLength);
-    }
-    if (isMultiAz) {
-      return maxWorkerNodes / 3;
-    }
-    return maxWorkerNodes;
+    const increment = isHypershiftSelected ? poolsLength : isMultiAz ? 3 : 1;
+    const totalMax = getMaxNodeCount({
+      available: Infinity,
+      included: 0,
+      isEditingCluster: false,
+      currentNodeCount: 0,
+      minNodes: 0,
+      isHypershift: isHypershiftSelected,
+      clusterVersion: clusterVersion?.raw_id,
+      increment,
+    });
+    return totalMax / increment;
   }, [isMultiAz, isHypershiftSelected, poolsLength, clusterVersion?.raw_id]);
 
   const minRequiredMaxReplicas = useMemo(
     () =>
-      getMinNodesRequiredMaxReplicas(
-        isHypershiftSelected,
-        minNodes,
-        poolsLength,
-        autoscalingEnabled,
-      ),
+      getAutoscaleMaxReplicasFloor(isHypershiftSelected, minNodes, poolsLength, autoscalingEnabled),
     [isHypershiftSelected, minNodes, poolsLength, autoscalingEnabled],
   );
 

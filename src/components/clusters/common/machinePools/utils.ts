@@ -60,7 +60,7 @@ const isOcpVersionSufficient = (ocpVersion: string) => {
   return true;
 };
 
-export const getMaxNodesHCP = (ocpVersion?: string) => {
+export const getMaxSupportedNodesHCP = (ocpVersion?: string) => {
   if (ocpVersion && !isOcpVersionSufficient(ocpVersion)) {
     return MAX_NODES_HCP_INSUFFICIEN_VERSION;
   }
@@ -107,19 +107,19 @@ export const getMaxNodeCount = ({
   clusterVersion: string | undefined;
   increment?: number;
 }): number => {
-  const maxNodesHCP = getMaxNodesHCP(clusterVersion);
+  const maxSupportedNodesHCP = getMaxSupportedNodesHCP(clusterVersion);
   // no extra node quota = only base cluster size is available
   const optionsAvailable = available > 0 || isEditingCluster;
   let maxValue = isEditingCluster ? available + currentNodeCount : available + included;
 
-  const maxNumberOfNodes = isHypershift ? maxNodesHCP : getMaxWorkerNodes(clusterVersion);
+  const maxNumberOfNodes = isHypershift ? maxSupportedNodesHCP : getMaxWorkerNodes(clusterVersion);
 
   if (maxValue > maxNumberOfNodes) {
     maxValue = maxNumberOfNodes;
   }
 
-  if (isHypershift && isEditingCluster && maxValue > maxNodesHCP - currentNodeCount) {
-    maxValue = maxNodesHCP - currentNodeCount;
+  if (isHypershift && isEditingCluster && maxValue > maxSupportedNodesHCP - currentNodeCount) {
+    maxValue = maxSupportedNodesHCP - currentNodeCount;
   }
 
   const result = optionsAvailable ? maxValue : minNodes;
