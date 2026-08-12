@@ -27,15 +27,26 @@ export function getAuthConfig(username?: string, password?: string): AuthConfig 
 
 /**
  * Builds a short, cluster-name-safe suffix from a username.
- * Takes characters until the first special character (e.g. `@` in an email),
- * then returns the first `length` alphanumeric characters (default 4), lowercased.
+ * Strips all non-alphanumeric characters, lowercases, then returns the first
+ * `length` characters (default 4). Throws when no alphanumeric characters remain
+ * so cluster names never end with a bare `-`.
  *
  * @example
  * getUsernameSuffix('abcd@redhat.com') // 'abcd'
- * getUsernameSuffix('abcd') // 'jdoe'
+ * getUsernameSuffix('abcd') // 'abcd'
+ * getUsernameSuffix('_cypress-bot') // 'cypr'
  */
 export function getUsernameSuffix(username?: string, length = 4): string {
   const name = username ?? getAuthConfig().username;
-  const untilSpecial = name.match(/^[a-zA-Z0-9]+/)?.[0] ?? '';
-  return untilSpecial.toLowerCase().substring(0, length);
+  const suffix = name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().substring(0, length);
+
+  if (!suffix) {
+    throw new Error(
+      `getUsernameSuffix: cannot derive a non-empty cluster-name suffix from username "${name}". ` +
+        'Username must contain at least one alphanumeric character ' +
+        '(TEST_WITHQUOTA_USER / E2E_USER).',
+    );
+  }
+
+  return suffix;
 }
