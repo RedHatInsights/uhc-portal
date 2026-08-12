@@ -47,7 +47,7 @@ describe('<ManagedServicesTable />', () => {
     (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
       canCreateManagedCluster: true,
     });
-    render(<ManagedServicesTable hasOSDQuota />);
+    render(<ManagedServicesTable />);
     expect(
       screen.queryByText('Red Hat OpenShift Virtualization Service on IBM Cloud'),
     ).not.toBeInTheDocument();
@@ -57,7 +57,7 @@ describe('<ManagedServicesTable />', () => {
     (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
       canCreateManagedCluster: true,
     });
-    render(<ManagedServicesTable hasOSDQuota />);
+    render(<ManagedServicesTable />);
     expect(
       screen.getByText('Red Hat OpenShift Virtualization Service on IBM Cloud'),
     ).toHaveAttribute('href', docLinks.IBM_CLOUD_ROVS_LEARN_MORE);
