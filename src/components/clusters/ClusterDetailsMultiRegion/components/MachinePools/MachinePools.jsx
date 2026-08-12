@@ -19,7 +19,7 @@ import { normalizedProducts } from '~/common/subscriptionTypes';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
 import { LoadingSkeletonCard } from '~/components/clusters/common/LoadingSkeletonCard/LoadingSkeletonCard';
 import { MachineConfiguration } from '~/components/clusters/common/MachineConfiguration';
-import { getMaxNodesTotalDefaultAutoscaler } from '~/components/clusters/common/machinePools/utils';
+import { getClusterAutoscalerMax } from '~/components/clusters/common/machinePools/utils';
 import {
   refetchClusterAutoscalerData,
   useFetchClusterAutoscaler,
@@ -183,7 +183,7 @@ const MachinePools = ({ cluster }) => {
   ]);
 
   const maxNodesTotalDefault = useMemo(
-    () => getMaxNodesTotalDefaultAutoscaler(cluster.version?.raw_id, cluster.multi_az),
+    () => getClusterAutoscalerMax(cluster.version?.raw_id, cluster.multi_az),
     [cluster.version?.raw_id, cluster.multi_az],
   );
 

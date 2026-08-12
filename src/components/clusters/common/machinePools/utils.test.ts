@@ -85,7 +85,9 @@ describe('machinePools utils', () => {
 
         const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
 
-        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
+        const expectedMaxNodes = utils.getMaxSupportedNodesClassic(
+          defaultArgs.cluster.version?.raw_id,
+        );
         expect(maxNodeCount).toBe(expectedMaxNodes);
       });
 
@@ -108,7 +110,9 @@ describe('machinePools utils', () => {
 
         const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
 
-        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
+        const expectedMaxNodes = utils.getMaxSupportedNodesClassic(
+          defaultArgs.cluster.version?.raw_id,
+        );
         expect(maxNodeCount).toBe(expectedMaxNodes);
       });
     });
@@ -153,7 +157,9 @@ describe('machinePools utils', () => {
 
         const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
 
-        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
+        const expectedMaxNodes = utils.getMaxSupportedNodesClassic(
+          defaultArgs.cluster.version?.raw_id,
+        );
         expect(maxNodeCount).toBe(expectedMaxNodes);
       });
 
@@ -176,7 +182,9 @@ describe('machinePools utils', () => {
 
         const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
 
-        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
+        const expectedMaxNodes = utils.getMaxSupportedNodesClassic(
+          defaultArgs.cluster.version?.raw_id,
+        );
         expect(maxNodeCount).toBe(expectedMaxNodes);
       });
     });
@@ -260,7 +268,7 @@ describe('machinePools utils', () => {
         ['returns 180 + masterNodes + infraNodes for 4.13.0 multi AZ', '4.13.0', true, 180 + 3 + 3],
       ])('%s', (_title: string, version: string, isMultiAZ: boolean, exptected: number) => {
         // Act
-        const result = utils.getMaxNodesTotalDefaultAutoscaler(version, isMultiAZ);
+        const result = utils.getClusterAutoscalerMax(version, isMultiAZ);
 
         // Assert
         expect(result).toEqual(exptected);
@@ -296,7 +304,7 @@ describe('machinePools utils', () => {
     });
   });
 
-  describe('getMaxWorkerNodes', () => {
+  describe('getMaxSupportedNodesClassic', () => {
     it.each([
       ['version 4.16.0 returns 249', '4.16.0', 249],
       ['version 4.15.0 returns 249', '4.15.0', 249],
@@ -311,7 +319,7 @@ describe('machinePools utils', () => {
       ['version 5.10.0 returns 249 (not confused with 5.1)', '5.10.0', 249],
       ['version 5.10.5 returns 249', '5.10.5', 249],
     ])('%s', (_title: string, version: string | undefined, expected: number) => {
-      const result = utils.getMaxWorkerNodes(version);
+      const result = utils.getMaxSupportedNodesClassic(version);
       expect(result).toBe(expected);
     });
   });
