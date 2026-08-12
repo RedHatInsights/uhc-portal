@@ -265,11 +265,16 @@ const ClusterList = ({
     } else if (savedClusterTypes && savedClusterTypes !== '[]') {
       const planId = JSON.parse(savedClusterTypes);
       if (Array.isArray(planId) && planId.length > 0) {
+        const allowedProducts = {};
+        getProductFilterOptions(isRovsRegistrationEnabled).forEach((option) => {
+          allowedProducts[option.key] = true;
+        });
+        const sanitizedPlanId = planId.filter((value) => allowedProducts[value]);
         dispatch(
           onListFlagsSet(
             'subscriptionFilter',
             {
-              plan_id: planId,
+              plan_id: sanitizedPlanId,
             },
             viewType,
           ),

@@ -110,11 +110,13 @@ const createViewQueryObject = (
         // The values we got are internal normalizedProducts values,
         // but we have to query backend with pre-normalization values.
         const backendValues = items.flatMap(
-          (v: unknown) => productFilterOptions.find((opt) => opt.key === v)?.plansToQuery,
+          (v: unknown) => productFilterOptions.find((opt) => opt.key === v)?.plansToQuery ?? [],
         );
 
         const quotedItems = backendValues.map(sqlString);
-        clauses.push(`plan_id IN (${quotedItems.join(',')})`);
+        if (quotedItems.length > 0) {
+          clauses.push(`plan_id IN (${quotedItems.join(',')})`);
+        }
       }
     }
     queryObject.filter = clauses

@@ -206,6 +206,21 @@ describe('createViewQueryObject()', () => {
     );
   });
 
+  it('ignores stale ROVS plan_id values when includeRovs is disabled', () => {
+    const viewOptions = {
+      ...baseViewOptions,
+      flags: {
+        subscriptionFilter: {
+          plan_id: ['ROVS'],
+        },
+      },
+    };
+
+    expect(createViewQueryObject(viewOptions, undefined, { includeRovs: false })).toEqual(
+      baseResult,
+    );
+  });
+
   it('correctly applies filtering by username', () => {
     const username = 'test@test.com';
     const viewOptions = {

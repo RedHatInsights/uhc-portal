@@ -8,6 +8,7 @@ import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
 import { mockRestrictedEnv, mockUseFeatureGate, screen, within, withState } from '~/testUtils';
 
 import { normalizedProducts } from '../../../common/subscriptionTypes';
+import * as queryHelpers from '../../../common/queryHelpers';
 import { viewConstants } from '../../../redux/constants';
 import { SET_TOTAL_ITEMS } from '../../../redux/constants/viewPaginationConstants';
 import fixtures, { funcs } from '../ClusterDetailsMultiRegion/__tests__/ClusterDetails.fixtures';
@@ -461,10 +462,38 @@ describe('<ClusterList />', () => {
   });
 
   describe('cluster filter', () => {
+    let getQueryParamSpy;
+    let useDispatchSpy;
+
     beforeEach(() => {
       mockNavigate.mockClear();
       sessionStorage.clear();
     });
+
+    afterEach(() => {
+      getQueryParamSpy?.mockRestore();
+      useDispatchSpy?.mockRestore();
+    });
+
+    const renderWithSavedClusterTypes = (savedPlanIds) => {
+      mockUseFeatureGate([[ROVS_REGISTRATION, false]]);
+      mockedGetFetchedClusters.mockReturnValue({
+        data: { items: [fixtures.clusterDetails.cluster] },
+        errors: [],
+      });
+      getQueryParamSpy = jest.spyOn(queryHelpers, 'getQueryParam').mockReturnValue('');
+      sessionStorage.setItem('clusterListSelectedTypes', JSON.stringify(savedPlanIds));
+
+      useDispatchSpy = jest.spyOn(reactRedux, 'useDispatch');
+      const mockedDispatch = jest.fn();
+      useDispatchSpy.mockReturnValue(mockedDispatch);
+
+      withState({}, true).render(<ClusterList {...props} />);
+
+      return mockedDispatch.mock.calls.find(
+        ([action]) => action?.type === 'VIEW_SET_LIST_FLAGS',
+      )?.[0];
+    };
 
     it('filter by clicking on cluster type', async () => {
       // Arrange
@@ -502,6 +531,31 @@ describe('<ClusterList />', () => {
       await user.click(screen.getByText('ROVS'));
 
       expect(mockNavigate).toHaveBeenLastCalledWith({ search: 'plan_id=ROVS' }, { replace: true });
+    });
+
+    it('drops stale ROVS from sessionStorage when feature flag is disabled', () => {
+      const listFlagsAction = renderWithSavedClusterTypes([normalizedProducts.ROVS]);
+
+      expect(listFlagsAction.payload).toEqual({
+        key: 'subscriptionFilter',
+        value: { plan_id: [] },
+        viewType: viewConstants.CLUSTERS_VIEW,
+      });
+      expect(listFlagsAction.payload.value.plan_id).not.toContain(normalizedProducts.ROVS);
+    });
+
+    it('keeps allowed cluster types from sessionStorage when ROVS is stale', () => {
+      const listFlagsAction = renderWithSavedClusterTypes([
+        normalizedProducts.ROVS,
+        normalizedProducts.OSD,
+      ]);
+
+      expect(listFlagsAction.payload).toEqual({
+        key: 'subscriptionFilter',
+        value: { plan_id: [normalizedProducts.OSD] },
+        viewType: viewConstants.CLUSTERS_VIEW,
+      });
+      expect(listFlagsAction.payload.value.plan_id).not.toContain(normalizedProducts.ROVS);
     });
 
     it('filter by already set state and URL param reacts accordingly', async () => {
