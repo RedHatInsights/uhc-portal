@@ -38,6 +38,12 @@ Here is the process to move a PR from draft to merged:
 
 1. :notebook: Pre-merge testing — reviewer performs pre-merge testing locally (download from the respective PR and run the local server)
 
+   :warning: **Important — pre-merge testing covers:**
+   - Finding functional issues for the PR/feature: deviations from acceptance criteria, missing or incomplete acceptance criteria, and gaps between criteria and the actual implementation (wrong result, missing control, broken submit, confusing empty state, UX/usability issues)
+   - Hunting regressions on nearby flows touched by the diff (shared pages, toolbars, wizards, links, filters, navigation, permissions, error paths)
+   - Auditing the commits/diff before merge to understand scope and impact
+   - Validating test coverage for the new feature (E2E gaps)
+
 1. :notebook: Pre-merge testing — reviewer reports bugs or issues and reflects pre-merge testing feedback in the PR
 
 1. :notebook: Pre-merge testing — reviewer ensures that any changes introduced in the PR do not break existing E2E smoke tests
@@ -47,7 +53,7 @@ Here is the process to move a PR from draft to merged:
    - :warning: The parent PR will be blocked if the Playwright E2E spec PR is handled separately
    - :handshake: Both the author and reviewer must align on the changes and coordinate the merge process, ensuring that both PRs are merged sequentially to maintain test integrity
 
-1. :notebook: Pre-merge testing — reviewer updates/creates Polarion test cases (if needed)
+1. :notebook: Pre-merge testing — reviewer updates/creates Polarion test cases (if needed). Polarion test cases are not needed if coverage is already done via E2E tests, or is planned as part of the E2E requirement for the associated feature epic.
 
 1. :notebook: Pre-merge testing — reviewer requests Polarion test-case review from the author (if needed)
 
