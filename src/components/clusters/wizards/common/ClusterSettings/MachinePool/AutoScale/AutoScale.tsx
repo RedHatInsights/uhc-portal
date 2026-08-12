@@ -7,7 +7,7 @@ import docLinks from '~/common/docLinks.mjs';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
-import { getMaxNodesTotalDefaultAutoscaler } from '~/components/clusters/common/machinePools/utils';
+import { getClusterAutoscalerMax } from '~/components/clusters/common/machinePools/utils';
 import { CheckboxField } from '~/components/clusters/wizards/form/CheckboxField';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId as RosaFieldId } from '~/components/clusters/wizards/rosa/constants';
@@ -40,7 +40,7 @@ export const AutoScale = () => {
   const isByoc = byoc === 'true';
   const isRosaClassicOrOsdCcs = !isHypershiftSelected && isByoc;
   const maxNodesTotalDefault = useMemo(
-    () => getMaxNodesTotalDefaultAutoscaler(ClusterVersion?.raw_id, multiAz === 'true'),
+    () => getClusterAutoscalerMax(ClusterVersion?.raw_id, multiAz === 'true'),
     [ClusterVersion?.raw_id, multiAz],
   );
   const defaultAutoscalerValues = useMemo(

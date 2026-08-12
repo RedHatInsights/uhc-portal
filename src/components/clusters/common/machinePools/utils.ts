@@ -27,7 +27,7 @@ import {
 } from './constants';
 
 // OSD and ROSA classic - minimal version to allow 249 worker nodes - 4.14.14
-export const getMaxWorkerNodes = (clusterVersionRawId: string | undefined) => {
+export const getMaxSupportedNodesClassic = (clusterVersionRawId: string | undefined) => {
   if (clusterVersionRawId) {
     const [major, minor, patch] = splitVersion(clusterVersionRawId);
 
@@ -38,13 +38,13 @@ export const getMaxWorkerNodes = (clusterVersionRawId: string | undefined) => {
   return MAX_NODES_INSUFFICIEN_VERSION;
 };
 
-export const getMaxNodesTotalDefaultAutoscaler = (
+export const getClusterAutoscalerMax = (
   clusterVersionRawId: string | undefined,
   isMultiAz: boolean,
 ) => {
   const MASTER_NODES = 3;
   const infraNodes = isMultiAz ? 3 : 2;
-  return getMaxWorkerNodes(clusterVersionRawId) + MASTER_NODES + infraNodes;
+  return getMaxSupportedNodesClassic(clusterVersionRawId) + MASTER_NODES + infraNodes;
 };
 
 // HCP - Minimal versions to allow more then 90 nodes - 4.15.15, 4.14.28
@@ -112,7 +112,9 @@ export const getMaxNodeCount = ({
   const optionsAvailable = available > 0 || isEditingCluster;
   let maxValue = isEditingCluster ? available + currentNodeCount : available + included;
 
-  const maxNumberOfNodes = isHypershift ? maxSupportedNodesHCP : getMaxWorkerNodes(clusterVersion);
+  const maxNumberOfNodes = isHypershift
+    ? maxSupportedNodesHCP
+    : getMaxSupportedNodesClassic(clusterVersion);
 
   if (maxValue > maxNumberOfNodes) {
     maxValue = maxNumberOfNodes;
