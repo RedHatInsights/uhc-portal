@@ -67,7 +67,8 @@ export const isManualUpdateSchedulingRequired = (
   }
 
   const { toMajor, toMinor, fromMajor, fromMinor } = versionParts;
-  const minorPlusUpgrade = toMajor > fromMajor || toMinor > fromMinor;
+  const isMajorUpgrade = toMajor > fromMajor;
+  const isMinorUpgrade = toMajor === fromMajor && toMinor > fromMinor;
 
   // is the ControlPlaneUpgradePolicy schedule type automatic and is enable_minor_version_upgrades true?
   const automaticUpdatePolicyExists = !!schedules?.find(
@@ -77,7 +78,10 @@ export const isManualUpdateSchedulingRequired = (
     (policy) => policy?.enable_minor_version_upgrades === true,
   );
 
-  return minorPlusUpgrade && automaticUpdatePolicyExists && !enableMinorVersionUpgrade;
+  return (
+    automaticUpdatePolicyExists &&
+    (isMajorUpgrade || (isMinorUpgrade && !enableMinorVersionUpgrade))
+  );
 };
 
 export const isMajorVersionUpgrade = (cluster: AugmentedCluster): boolean => {

@@ -463,13 +463,36 @@ describe('UpgradeAcknowledgeHelpers', () => {
       expect(isManualUpdateSchedulingRequired(automaticSchedule, cluster)).toBe(true);
     });
 
-    it('returns false when minor version upgrades are enabled', () => {
+    it('returns true for a major upgrade when minor version upgrades are enabled', () => {
       const cluster = {
         ...mockGCPCluster,
         version: {
           ...mockGCPCluster.version,
           raw_id: '4.22.1',
           available_upgrades: ['5.0.0'],
+        },
+      } as unknown as AugmentedCluster;
+
+      expect(
+        isManualUpdateSchedulingRequired(
+          [
+            {
+              schedule_type: 'automatic',
+              enable_minor_version_upgrades: true,
+            },
+          ] as UpgradePolicyWithState[],
+          cluster,
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false for a Y-stream upgrade when minor version upgrades are enabled', () => {
+      const cluster = {
+        ...mockGCPCluster,
+        version: {
+          ...mockGCPCluster.version,
+          raw_id: '4.21.20',
+          available_upgrades: ['4.22.0'],
         },
       } as unknown as AugmentedCluster;
 
