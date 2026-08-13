@@ -21,7 +21,6 @@ import {
   SPOT_MIN_PRICE,
 } from '~/components/clusters/common/machinePools/constants';
 import {
-  getMaxNodeCountForMachinePool,
   getWorkerNodeVolumeSizeMaxGiB,
   getWorkerNodeVolumeSizeMinGiB,
 } from '~/components/clusters/common/machinePools/utils';
@@ -31,7 +30,7 @@ import { MachinePool, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 import { ClusterFromSubscription } from '~/types/types';
 
-import { getClusterMinNodes } from '../../../machinePoolsHelper';
+import { getClusterMinNodes, getMaxNodeCountForMachinePool } from '../../../machinePoolsHelper';
 import { CapacityReservationPreference } from '../fields/CapacityReservationField';
 import { TaintEffect } from '../fields/TaintEffectField';
 

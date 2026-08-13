@@ -4,7 +4,7 @@ import { useFormikContext } from 'formik';
 import { Flex, FlexItem, Spinner } from '@patternfly/react-core';
 
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
-import { getMaxNodeCountForMachinePool } from '~/components/clusters/common/machinePools/utils';
+import { getMaxNodeCountForMachinePool } from '../../../machinePoolsHelper';
 import { MachineTypesResponse } from '~/queries/types';
 import { useGlobalState } from '~/redux/hooks';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
