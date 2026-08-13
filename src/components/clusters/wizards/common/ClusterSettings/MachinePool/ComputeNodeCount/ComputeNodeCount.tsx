@@ -11,6 +11,7 @@ import {
   getNodeIncrement,
   getNodeIncrementHypershift,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import {
   getAvailableQuota as getAvailableQuotaUtil,
   getIncludedNodes,
@@ -97,6 +98,7 @@ const ComputeNodeCount = ({
 
   const machineTypes = useGlobalState((state) => state.machineTypes);
   const quota = useGlobalState((state) => state.userProfile.organization.quotaList);
+  const bypassQuotaForMaxNodes = isGcpMarketplaceBilling(billingModel);
 
   const [nodesComputeErrorMessage, setNodesComputeErrorMessage] = useState<string>();
 
@@ -128,29 +130,32 @@ const ComputeNodeCount = ({
     [isHypershiftSelected, isMultiAzSelected, poolsLength],
   );
 
-  const available = React.useMemo(
-    () =>
-      getAvailableQuotaUtil({
-        quota,
-        isByoc,
-        billingModel,
-        cloudProviderID,
-        isMultiAz: isMultiAzSelected,
-        machineTypes,
-        machineTypeId: machineType?.id,
-        product,
-      }),
-    [
+  // Available quota is Infinity for GCP Marketplace billing model, to adjust to no quota checks for GCP Marketplace.
+  const available = React.useMemo(() => {
+    if (bypassQuotaForMaxNodes) {
+      return Infinity;
+    }
+    return getAvailableQuotaUtil({
       quota,
       isByoc,
       billingModel,
       cloudProviderID,
-      isMultiAzSelected,
+      isMultiAz: isMultiAzSelected,
       machineTypes,
-      machineType,
+      machineTypeId: machineType?.id,
       product,
-    ],
-  );
+    });
+  }, [
+    bypassQuotaForMaxNodes,
+    quota,
+    isByoc,
+    billingModel,
+    cloudProviderID,
+    isMultiAzSelected,
+    machineTypes,
+    machineType?.id,
+    product,
+  ]);
 
   const totalMaxNodes = React.useMemo(
     () =>

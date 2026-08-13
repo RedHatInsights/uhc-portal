@@ -191,6 +191,13 @@ describe('machinePools utils', () => {
         ['version 4.16.0 allows 500 nodes', '4.16.0', 500],
         ['undefined version and undefined options gets default version', undefined, 500],
         ['undefined version and max nodes 500', undefined, 500],
+        ['version 4.14.28 (4.14.x boundary) allows 500 nodes', '4.14.28', 500],
+        ['version 4.14.27 (one below 4.14.x boundary) returns 90', '4.14.27', 90],
+        ['version 4.15.15 (4.15.x boundary) allows 500 nodes', '4.15.15', 500],
+        ['version 5.0.0 allows 500 nodes', '5.0.0', 500],
+        ['version 5.1.0 allows 500 nodes', '5.1.0', 500],
+        ['version 5.10.0 allows 500 nodes (not confused with 5.1)', '5.10.0', 500],
+        ['version 5.10.5 allows 500 nodes', '5.10.5', 500],
       ])('%s', (_title: string, version: string | undefined, exptected: number) => {
         // Act
         const result = utils.getMaxNodesHCP(version);
@@ -286,6 +293,160 @@ describe('machinePools utils', () => {
     ])('%s', (_title, version, expected) => {
       const result = utils.getWorkerNodeVolumeSizeMaxGiB(version);
       expect(result).toEqual(expected);
+    });
+  });
+
+  describe('getMaxWorkerNodes', () => {
+    it.each([
+      ['version 4.16.0 returns 249', '4.16.0', 249],
+      ['version 4.15.0 returns 249', '4.15.0', 249],
+      ['version 4.14.14 (boundary) returns 249', '4.14.14', 249],
+      ['version 4.14.13 (one below boundary) returns 180', '4.14.13', 180],
+      ['version 4.14.0 returns 180', '4.14.0', 180],
+      ['version 4.13.0 returns 180', '4.13.0', 180],
+      ['version 4.9.0 returns 180', '4.9.0', 180],
+      ['undefined version returns 180', undefined, 180],
+      ['version 5.0.0 returns 249', '5.0.0', 249],
+      ['version 5.1.0 returns 249', '5.1.0', 249],
+      ['version 5.10.0 returns 249 (not confused with 5.1)', '5.10.0', 249],
+      ['version 5.10.5 returns 249', '5.10.5', 249],
+    ])('%s', (_title: string, version: string | undefined, expected: number) => {
+      const result = utils.getMaxWorkerNodes(version);
+      expect(result).toBe(expected);
+    });
+  });
+
+  describe('getMaxNodeCount', () => {
+    const baseArgs = {
+      available: 100,
+      isEditingCluster: false,
+      currentNodeCount: 0,
+      minNodes: 2,
+      included: 0,
+      clusterVersion: '4.16.0' as string | undefined,
+    };
+
+    it('is not capped when available count is below the HCP version ceiling', () => {
+      const result = utils.getMaxNodeCount({ ...baseArgs, isHypershift: true, available: 100 });
+      expect(result).toBe(100);
+    });
+
+    it('caps at HCP ceiling (500) when quota exceeds version limit', () => {
+      const result = utils.getMaxNodeCount({ ...baseArgs, isHypershift: true, available: 600 });
+      expect(result).toBe(500);
+    });
+
+    it('caps at HCP insufficient-version ceiling (90)', () => {
+      const result = utils.getMaxNodeCount({
+        ...baseArgs,
+        isHypershift: true,
+        clusterVersion: '4.14.19',
+        available: 200,
+      });
+      expect(result).toBe(90);
+    });
+
+    it('is not capped when available count is below the Classic version ceiling', () => {
+      const result = utils.getMaxNodeCount({ ...baseArgs, isHypershift: false, available: 100 });
+      expect(result).toBe(100);
+    });
+
+    it('caps at Classic ceiling (249) when quota exceeds version limit', () => {
+      const result = utils.getMaxNodeCount({ ...baseArgs, isHypershift: false, available: 300 });
+      expect(result).toBe(249);
+    });
+
+    it('caps at Classic insufficient-version ceiling (180)', () => {
+      const result = utils.getMaxNodeCount({
+        ...baseArgs,
+        isHypershift: false,
+        clusterVersion: '4.14.12',
+        available: 300,
+      });
+      expect(result).toBe(180);
+    });
+
+    it('returns HCP version ceiling when available is Infinity (quota bypass)', () => {
+      const result = utils.getMaxNodeCount({
+        ...baseArgs,
+        isHypershift: true,
+        available: Infinity,
+      });
+      expect(result).toBe(500);
+    });
+
+    it('returns Classic version ceiling when available is Infinity (quota bypass)', () => {
+      const result = utils.getMaxNodeCount({
+        ...baseArgs,
+        isHypershift: false,
+        available: Infinity,
+      });
+      expect(result).toBe(249);
+    });
+
+    it('floors result to nearest multiple of increment for HCP with 3 pools', () => {
+      // floor(500 / 3) * 3 = 498; caller then divides by 3 to get 166 per pool
+      const result = utils.getMaxNodeCount({
+        ...baseArgs,
+        isHypershift: true,
+        available: Infinity,
+        increment: 3,
+      });
+      expect(result).toBe(498);
+    });
+
+    it('floors result to nearest multiple of increment when quota is not a multiple', () => {
+      // available=100 < ceiling; floor(100 / 3) * 3 = 99
+      const result = utils.getMaxNodeCount({
+        ...baseArgs,
+        isHypershift: false,
+        available: 100,
+        increment: 3,
+      });
+      expect(result).toBe(99);
+    });
+
+    it('adds included nodes to available when not editing', () => {
+      // non-editing path: maxValue = available + included
+      const result = utils.getMaxNodeCount({
+        ...baseArgs,
+        isHypershift: true,
+        available: 90,
+        included: 4,
+      });
+      expect(result).toBe(94);
+    });
+
+    it('uses available + currentNodeCount for Classic edit without HCP cap', () => {
+      // Classic edit: maxValue = available + currentNodeCount, HCP cap is skipped
+      const result = utils.getMaxNodeCount({
+        ...baseArgs,
+        isHypershift: false,
+        isEditingCluster: true,
+        available: 100,
+        currentNodeCount: 50,
+      });
+      expect(result).toBe(150);
+    });
+
+    it('caps HCP edit-mode result to maxNodesHCP minus other-pool node count', () => {
+      // currentNodeCount=450 (other pools) + available=100 would give 550, capped to 500 by version
+      // limit, then further capped to maxNodesHCP - currentNodeCount = 500 - 450 = 50
+      const result = utils.getMaxNodeCount({
+        isHypershift: true,
+        isEditingCluster: true,
+        available: 100,
+        currentNodeCount: 450,
+        included: 0,
+        minNodes: 2,
+        clusterVersion: '4.16.0',
+      });
+      expect(result).toBe(50);
+    });
+
+    it('falls back to minNodes when quota is zero and not editing', () => {
+      const result = utils.getMaxNodeCount({ ...baseArgs, available: 0, isEditingCluster: false });
+      expect(result).toBe(baseArgs.minNodes);
     });
   });
 });

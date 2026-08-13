@@ -1,9 +1,10 @@
 import links, { tools } from '~/common/installLinks.mjs';
 
+import { INSTALL_OPENSHIFT_PREFIX, INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 
 export const ArmAwsProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | AWS (ARM)',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | AWS (ARM)`,
   providerTitle: 'AWS (ARM)',
   providerSpecificFeatures: {
     ipi: ['Hosts controlled with AWS Provider'],
@@ -21,8 +22,7 @@ export const ArmAwsProps = {
 };
 
 export const ArmAWSIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | AWS Installer-Provisioned ARM Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | AWS Installer-Provisioned ARM Infrastructure`,
   providerTitle: instructionsMapping.aws.arm.ipi.title,
   customizations: instructionsMapping.aws.customizations,
   cloudProviderId: 'aws',
@@ -36,8 +36,7 @@ export const ArmAWSIPIProps = {
 };
 
 export const ArmAWSUPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | AWS User-Provisioned ARM Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | AWS User-Provisioned ARM Infrastructure`,
   providerTitle: instructionsMapping.aws.arm.upi.title,
   cloudProviderId: 'aws',
   isUPI: true,
@@ -51,8 +50,7 @@ export const ArmAWSUPIProps = {
 };
 
 export const ArmAzureIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Azure Installer-Provisioned ARM Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Azure Installer-Provisioned ARM Infrastructure`,
   providerTitle: instructionsMapping.azure.arm.ipi.title,
   customizations: instructionsMapping.azure.customizations,
   cloudProviderId: 'azure',
@@ -66,7 +64,7 @@ export const ArmAzureIPIProps = {
 };
 
 export const ArmBareMetalProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | ARM Bare Metal',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | ARM Bare Metal`,
   providerTitle: 'ARM Bare Metal',
   name: 'arm',
   ipiPageLink: '/install/arm/installer-provisioned',
@@ -93,8 +91,7 @@ export const ArmBareMetalProps = {
 };
 
 export const ArmBareMetalABIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Bare Metal Agent-based installer',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Bare Metal Agent-based installer`,
   providerTitle: instructionsMapping.baremetal.arm.abi.title,
   cloudProviderId: 'baremetal',
   installationTypeId: 'local-agent-based',
@@ -109,8 +106,7 @@ export const ArmBareMetalABIProps = {
 };
 
 export const ArmBareMetalIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | ARM Bare Metal Installer-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | ARM Bare Metal Installer-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.baremetal.arm.ipi.title,
   cloudProviderId: 'baremetal',
   breadCrumbsPaths: [
@@ -123,8 +119,7 @@ export const ArmBareMetalIPIProps = {
 };
 
 export const ArmBareMetalUPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | ARM Bare Metal User-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | ARM Bare Metal User-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.baremetal.arm.upi.title,
   cloudProviderId: 'baremetal',
   breadCrumbsPaths: [
@@ -138,8 +133,8 @@ export const ArmBareMetalUPIProps = {
 };
 
 export const ArmPreReleaseProps = {
-  appPageTitle: 'Install OpenShift 4 | ARM | Experimental Developer Preview Builds',
-  providerTitle: 'Install OpenShift Container Platform 4 on ARM',
+  appPageTitle: `${INSTALL_OPENSHIFT_PREFIX} | ARM | Experimental Developer Preview Builds`,
+  providerTitle: 'Install OpenShift Container Platform on ARM',
   installer: tools.ARMINSTALLER,
   breadCrumbsPaths: [
     { label: 'Cluster List' },
