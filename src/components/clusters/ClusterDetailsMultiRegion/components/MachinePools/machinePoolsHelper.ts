@@ -6,6 +6,13 @@ import { GlobalState } from '~/redux/stateTypes';
 import { Cluster, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
+import {
+  getAvailableQuota,
+  getIncludedNodes,
+  getMaxNodeCount,
+  getNodeCount,
+} from '~/components/clusters/common/machinePools/utils';
+
 import { asArray } from '../../../../../common/helpers';
 import { isMultiAZ } from '../../clusterDetailsHelper';
 
@@ -378,6 +385,86 @@ const getCapacityPreferenceLabel = (
   return 'N/A';
 };
 
+type GetMaxNodeCountForMachinePoolParams = {
+  cluster: ClusterFromSubscription;
+  quota: GlobalState['userProfile']['organization']['quotaList'];
+  machineTypes: MachineTypesResponse;
+  machineTypeId: string | undefined;
+  machinePools: MachinePool[];
+  machinePool: MachinePool | undefined;
+  minNodes: number;
+  editMachinePoolId?: string;
+  /** Number of availability zones for the machine pool. Used to calculate increment for multi-AZ pools. */
+  mpAvailZones?: number;
+};
+
+/**
+ * Gets the maximum node count for a machine pool based on cluster configuration and quota.
+ * Used in Day 2 operations (editing existing clusters).
+ *
+ * For multi-AZ machine pools, the returned max is rounded down to the nearest multiple
+ * of 3 to ensure per-zone values are integers.
+ */
+const getMaxNodeCountForMachinePool = ({
+  cluster,
+  quota,
+  machineTypes,
+  machineTypeId,
+  machinePools,
+  minNodes,
+  editMachinePoolId,
+  mpAvailZones,
+}: GetMaxNodeCountForMachinePoolParams): number => {
+  const clusterIsMultiAz = isMultiAZ(cluster);
+
+  const available = getAvailableQuota({
+    quota,
+    machineTypes,
+    machineTypeId,
+    isMultiAz: clusterIsMultiAz,
+    isByoc: !!cluster.ccs?.enabled,
+    cloudProviderID: cluster.cloud_provider?.id,
+    billingModel:
+      (cluster as Cluster).billing_model ??
+      ((cluster as ClusterFromSubscription).subscription
+        ?.cluster_billing_model as Cluster['billing_model']),
+    product: cluster.product?.id,
+  });
+
+  const isHypershift = isHypershiftCluster(cluster);
+
+  const included = getIncludedNodes({
+    isHypershift,
+    isMultiAz: clusterIsMultiAz,
+  });
+
+  const currentNodeCount = getNodeCount(
+    machinePools,
+    isHypershift,
+    editMachinePoolId,
+    machineTypeId,
+  );
+
+  // Determine if this is a multi-zone machine pool (same logic as isMPoolAz)
+  // Multi-zone if: cluster is multi-AZ AND (mpAvailZones > 1 OR mpAvailZones is undefined)
+  const isMultizoneMachinePool =
+    clusterIsMultiAz && (mpAvailZones === undefined || mpAvailZones > 1);
+  const increment = isMultizoneMachinePool ? 3 : undefined;
+
+  return getMaxNodeCount({
+    available,
+    isEditingCluster: true,
+    included,
+    currentNodeCount,
+    minNodes,
+    isHypershift: isHypershiftCluster(cluster),
+    clusterVersion: cluster.version?.raw_id,
+    increment,
+  });
+};
+
+export type { GetMaxNodeCountForMachinePoolParams };
+
 export {
   actionResolver,
   canUseSpotInstances,
@@ -393,6 +480,7 @@ export {
   hasSubnets,
   isEnforcedDefaultMachinePool,
   isMinimumCountWithoutTaints,
+  getMaxNodeCountForMachinePool,
   normalizeNodePool,
   hasAwsTags,
   getCapacityPreferenceLabel,
