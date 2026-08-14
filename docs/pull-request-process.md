@@ -44,6 +44,8 @@ Here is the process to move a PR from draft to merged:
    - Auditing the commits/diff before merge to understand scope and impact
    - Validating test coverage for the new feature (E2E gaps)
 
+   Reviewers must have solid product knowledge of the changed area to judge impact. Use product docs, existing Playwright E2E specs, and manual test-case definitions as references — for example [OCM Polarion test cases](https://polarion.engineering.redhat.com/polarion/#/project/OSE/workitems?query=casecomponent.KEY%3Ahacinfraocm%20AND%20NOT%20status%3Ainactive).
+
 1. :notebook: Pre-merge testing — reviewer reports bugs or issues and reflects pre-merge testing feedback in the PR
 
 1. :notebook: Pre-merge testing — reviewer ensures that any changes introduced in the PR do not break existing E2E smoke tests
