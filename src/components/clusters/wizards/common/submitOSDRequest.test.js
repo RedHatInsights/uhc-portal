@@ -1,5 +1,6 @@
 import pick from 'lodash/pick';
 
+import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { mockLogForwardingGroupTree } from '~/components/common/GroupsApplicationsSelector/logForwardingGroupTreeData';
@@ -826,6 +827,25 @@ describe('createClusterRequest', () => {
             },
           ],
         });
+      });
+
+      it('includes spot_termination_handler_queue_url for enhanced Spot interruption handling', () => {
+        const data = {
+          ...rosaFormData,
+          cloud_provider: 'aws',
+          byoc: 'true',
+          hypershift: 'true',
+          cluster_privacy: 'external',
+          ...hcpSubnetDetails,
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]:
+            'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        };
+
+        const request = createClusterRequest({}, data);
+        expect(request.aws.spot_termination_handler_queue_url).toEqual(
+          'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        );
       });
 
       it('includes Other-group applications as individual applications in the request', () => {

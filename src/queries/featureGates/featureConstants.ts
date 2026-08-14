@@ -48,6 +48,7 @@ export const ENABLE_AUTO_NODE = 'ocmui-enable-auto-node';
 export const HCP_LOG_FORWARDING = 'ocmui-hcp-log-forwarding';
 export const OCM_ROLE_NO_CONSOLE = 'ocmui-ocm-role-no-console';
 export const BILLING_CONTRACT_NOTIFICATION = 'ocmui-billing-contract-notification';
+export const HCP_SPOT_INSTANCES = 'ocmui-hcp-spot-instance-support';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -84,4 +85,5 @@ export default {
   HCP_LOG_FORWARDING,
   OCM_ROLE_NO_CONSOLE,
   BILLING_CONTRACT_NOTIFICATION,
+  HCP_SPOT_INSTANCES,
 } as const;

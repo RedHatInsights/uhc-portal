@@ -20,6 +20,7 @@ import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/excl
 import { hasExternalAuthenticationCapability } from '~/common/externalAuthHelper';
 import { hasSelectedSecurityGroups } from '~/common/securityGroupsHelpers';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
+import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { canSelectImds } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { getUserRoleForSelectedAWSAccount } from '~/components/clusters/wizards/rosa/AccountsRolesScreen/AccountsRolesScreen';
@@ -39,6 +40,7 @@ import {
   CREATE_CLUSTER_YAML_EDITOR,
   FIPS_FOR_HYPERSHIFT,
   HCP_LOG_FORWARDING,
+  HCP_SPOT_INSTANCES,
   HYPERSHIFT_WIZARD_FEATURE,
   IMDS_SELECTION,
   MULTIREGION_PREVIEW_ENABLED,
@@ -106,6 +108,7 @@ const ReviewClusterScreen = ({
       [FieldId.CustomerManagedKey]: customerManagedKey,
       [FieldId.ClusterName]: clusterName,
       [FieldId.MachineTypeAvailability]: machineTypeAvailability,
+      [FieldId.SpotInterruptionHandling]: spotInterruptionHandling,
     },
     values: formValues,
     setFieldValue,
@@ -123,6 +126,7 @@ const ReviewClusterScreen = ({
   const clusterVersionRawId = clusterVersion?.raw_id;
   const showKMSKey = customerManagedKey === 'true' && !!hasCustomKeyARN;
   const hasSecurityGroups = hasSelectedSecurityGroups(securityGroups, isHypershiftSelected);
+
   const { organization } = useOrganization();
   const hasExternalAuth = hasExternalAuthenticationCapability(organization?.capabilities);
 
@@ -130,6 +134,9 @@ const ReviewClusterScreen = ({
   const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
   const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
+  const isHcpSpotInstancesEnabled = useFeatureGate(HCP_SPOT_INSTANCES);
+
+  const showSpotInterruptionHandling = isHypershiftSelected && isHcpSpotInstancesEnabled;
 
   const clusterSettingsFields = [
     FieldId.ClusterName,
@@ -440,6 +447,10 @@ const ReviewClusterScreen = ({
             ReviewItem(FieldId.SecurityGroups, {
               [FieldId.SelectedVpc]: selectedVpc,
             })}
+          {showSpotInterruptionHandling && ReviewItem(FieldId.SpotInterruptionHandling)}
+          {showSpotInterruptionHandling &&
+            spotInterruptionHandling === SpotInterruptionMode.Enhanced &&
+            ReviewItem(FieldId.SpotTerminationHandlerQueueUrl)}
         </ReviewSection>
         <ReviewSection
           title={getStepName('NETWORKING')}

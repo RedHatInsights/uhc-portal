@@ -1,3 +1,4 @@
+import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { validateLogForwardingFields } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation';
 
@@ -279,5 +280,140 @@ describe('rosaWizardFormValidator', () => {
     ).toEqual({});
 
     expect(mockValidateLogForwardingFields).not.toHaveBeenCalled();
+  });
+
+  describe('spot interruption handling validation', () => {
+    it('returns required error when enhanced mode is selected and SQS URL is empty on Hypershift', () => {
+      const result = rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: null,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]: '',
+          ...logForwardingOff,
+        },
+        logForwardingStep,
+      );
+
+      expect(result).toEqual({
+        [FieldId.SpotTerminationHandlerQueueUrl]: 'SQS queue URL is required.',
+      });
+    });
+
+    it('returns URL validation error when enhanced mode SQS URL is invalid', () => {
+      const result = rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: null,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.Region]: 'us-east-1',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]: 'invalid-url',
+          ...logForwardingOff,
+        },
+        logForwardingStep,
+      );
+
+      expect(result).toEqual({
+        [FieldId.SpotTerminationHandlerQueueUrl]:
+          'The URL should include the scheme prefix (http://, https://)',
+      });
+    });
+
+    it('returns region mismatch error when SQS URL region does not match cluster region', () => {
+      const result = rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: null,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.Region]: 'us-west-2',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]:
+            'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+          ...logForwardingOff,
+        },
+        logForwardingStep,
+      );
+
+      expect(result).toEqual({
+        [FieldId.SpotTerminationHandlerQueueUrl]:
+          'The SQS queue URL must be in the cluster region (us-west-2).',
+      });
+    });
+
+    it('returns no spot interruption errors when enhanced mode SQS URL is valid', () => {
+      const result = rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: null,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.Region]: 'us-east-1',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]:
+            'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+          ...logForwardingOff,
+        },
+        logForwardingStep,
+      );
+
+      expect(result).toEqual({});
+    });
+
+    it('skips spot interruption validation in simple mode', () => {
+      const result = rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: null,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Simple,
+          [FieldId.SpotTerminationHandlerQueueUrl]: '',
+          ...logForwardingOff,
+        },
+        logForwardingStep,
+      );
+
+      expect(result).toEqual({});
+    });
+
+    it('skips spot interruption validation for classic control plane', () => {
+      const result = rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: null,
+          [FieldId.Hypershift]: 'false',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]: '',
+          ...logForwardingOff,
+        },
+        logForwardingStep,
+      );
+
+      expect(result).toEqual({});
+    });
+
+    it('merges spot interruption and autoscaling errors when both apply', () => {
+      const result = rosaWizardFormValidator(
+        {
+          [FieldId.ClusterAutoscaling]: {
+            resource_limits: {
+              cores: { min: 2, max: 1 },
+              memory: { min: 0, max: 50 },
+            },
+          },
+          [FieldId.Hypershift]: 'true',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]: '',
+          ...logForwardingOff,
+        },
+        logForwardingStep,
+      );
+
+      expect(result).toEqual({
+        cluster_autoscaling: {
+          resource_limits: {
+            cores: {
+              min: 'The minimum cannot be above the maximum value.',
+              max: 'The minimum cannot be above the maximum value.',
+            },
+          },
+        },
+        [FieldId.SpotTerminationHandlerQueueUrl]: 'SQS queue URL is required.',
+      });
+    });
   });
 });

@@ -1,11 +1,12 @@
 import React from 'react';
 import { Formik } from 'formik';
 
+import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { IMDSType } from '~/components/clusters/wizards/common/constants';
 import * as wizardHooks from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import * as useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
-import { IMDS_SELECTION } from '~/queries/featureGates/featureConstants';
+import { HCP_SPOT_INSTANCES, IMDS_SELECTION } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen, userEvent } from '~/testUtils';
 
 import ScaleSection from './ScaleSection';
@@ -43,6 +44,8 @@ const mockValues = {
   [FieldId.SecurityGroups]: {
     worker: [],
   },
+  [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Simple,
+  [FieldId.SpotTerminationHandlerQueueUrl]: '',
 };
 
 const formStateBaseMock = {
@@ -471,6 +474,120 @@ describe('<ScaleSection />', () => {
         'You cannot add or edit security groups associated with machine pools that were created during cluster creation.',
       );
       expect(alertText).toBeInTheDocument();
+    });
+  });
+
+  describe('"spot interruption handling" section', () => {
+    it('is rendered for Hypershift below machine pool settings', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      useFormStateMock.mockReturnValue({
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+        },
+      });
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      expect(
+        screen.getByRole('button', { name: 'Spot interruption handling' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Configure how Spot instance interruptions are handled for this cluster.'),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /Simple Spot instances/i })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeInTheDocument();
+    });
+
+    it('is not rendered for classic architecture', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      expect(
+        screen.queryByText(
+          'Configure how Spot instance interruptions are handled for this cluster.',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    it('invokes setFieldValue when selecting enhanced mode', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const formStateMock = {
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+        },
+      };
+      useFormStateMock.mockReturnValue(formStateMock);
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      await userEvent.click(screen.getByRole('radio', { name: /Enhanced Spot instances/i }));
+
+      expect(formStateMock.setFieldValue).toHaveBeenCalledWith(
+        FieldId.SpotInterruptionHandling,
+        SpotInterruptionMode.Enhanced,
+      );
+    });
+
+    it('shows region mismatch error for SQS queue URL in enhanced mode', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      useFormStateMock.mockReturnValue({
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.Region]: 'us-west-2',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]:
+            'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        },
+      });
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      expect(
+        screen.getByText('The SQS queue URL must be in the cluster region (us-west-2).'),
+      ).toBeInTheDocument();
+    });
+
+    it('is not rendered when HCP_SPOT_INSTANCES feature gate is disabled', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, false]]);
+      useFormStateMock.mockReturnValue({
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+        },
+      });
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      expect(
+        screen.queryByRole('button', { name: 'Spot interruption handling' }),
+      ).not.toBeInTheDocument();
     });
   });
 });

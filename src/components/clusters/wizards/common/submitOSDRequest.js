@@ -22,6 +22,8 @@ import { DEFAULT_FLAVOUR_ID } from '~/redux/actions/flavourActions';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 import { NamespaceOwnershipPolicy, WildcardPolicy } from '~/types/clusters_mgmt.v1/enums';
 
+import { SpotInterruptionMode } from '../../common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
+
 import {
   canConfigureDayOneManagedIngress,
   canConfigureDayOnePrivateServiceConnect,
@@ -266,6 +268,15 @@ export const createClusterRequest = (
 
       if (formData.imds) {
         clusterRequest.aws.ec2_metadata_http_tokens = formData.imds;
+      }
+
+      if (
+        isHypershiftSelected &&
+        formData.spot_interruption_handling === SpotInterruptionMode.Enhanced &&
+        formData.spot_termination_handler_queue_url?.trim()
+      ) {
+        clusterRequest.aws.spot_termination_handler_queue_url =
+          formData.spot_termination_handler_queue_url.trim();
       }
 
       clusterRequest.ccs.disable_scp_checks = formData.disable_scp_checks;
