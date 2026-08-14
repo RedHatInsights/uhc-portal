@@ -20,6 +20,9 @@ import {
   isMachineTypeIncludedInFilteredSet,
   shouldUseRegionFilteredData,
 } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/machineTypeSelectionHelper';
+import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
+import { SpotInterruptionHandlingFields } from '~/components/clusters/common/SpotInterruptionHandling/SpotInterruptionHandlingFields';
+import { validateSpotTerminationHandlerQueueUrl } from '~/common/validators';
 import { AutoScale } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/AutoScale/AutoScale';
 import { canSelectImds } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -27,7 +30,7 @@ import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import FormKeyValueList from '~/components/common/FormikFormComponents/FormKeyValueList';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypes';
-import { IMDS_SELECTION } from '~/queries/featureGates/featureConstants';
+import { HCP_SPOT_INSTANCES, IMDS_SELECTION } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { getMachineTypesByRegionARN } from '~/redux/actions/machineTypesActions';
 import { useGlobalState } from '~/redux/hooks';
@@ -54,12 +57,15 @@ function ScaleSection() {
       [FieldId.BillingModel]: billingModel,
       [FieldId.IMDS]: imds,
       [FieldId.MachineType]: instanceType,
+      [FieldId.SpotInterruptionHandling]: spotInterruptionHandling,
+      [FieldId.SpotTerminationHandlerQueueUrl]: spotTerminationHandlerQueueUrl,
     },
     setFieldValue,
   } = useFormState();
   const dispatch = useDispatch();
 
   const isImdsEnabledHypershift = useFeatureGate(IMDS_SELECTION);
+  const isHcpSpotInstancesEnabled = useFeatureGate(HCP_SPOT_INSTANCES);
 
   const isByoc = true;
   const isMultiAzSelected = isMultiAz === 'true';
@@ -67,8 +73,13 @@ function ScaleSection() {
   const isAutoscalingEnabled = !!autoscalingEnabled;
   const hasNodeLabels = nodeLabels?.[0]?.key ?? false;
   const [isNodeLabelsExpanded, setIsNodeLabelsExpanded] = useState(!!hasNodeLabels);
+  const [isSpotInterruptionExpanded, setIsSpotInterruptionExpanded] = useState(false);
   const canAutoScale = useCanClusterAutoscale(product, billingModel) ?? false;
   const clusterVersionRawId = clusterVersion?.raw_id;
+  const sqsQueueUrlValidationError =
+    spotInterruptionHandling === SpotInterruptionMode.Enhanced
+      ? validateSpotTerminationHandlerQueueUrl(spotTerminationHandlerQueueUrl, region)
+      : undefined;
 
   const { minWorkerVolumeSizeGiB, maxWorkerVolumeSizeGiB } = useMemo(() => {
     const minWorkerVolumeSizeGiB = getWorkerNodeVolumeSizeMinGiB(isHypershiftSelected);
@@ -216,6 +227,28 @@ function ScaleSection() {
         selectedVPC={selectedVpc}
         isHypershiftSelected={isHypershiftSelected}
       />
+      {isHypershiftSelected && isHcpSpotInstancesEnabled ? (
+        <GridItem md={10}>
+          <ExpandableSection
+            toggleText="Spot interruption handling"
+            isExpanded={isSpotInterruptionExpanded}
+            isIndented
+            onToggle={(_event, isExpanded) => setIsSpotInterruptionExpanded(isExpanded)}
+          >
+            <SpotInterruptionHandlingFields
+              mode={spotInterruptionHandling || SpotInterruptionMode.Simple}
+              onModeChange={(value) => setFieldValue(FieldId.SpotInterruptionHandling, value)}
+              sqsQueueUrl={spotTerminationHandlerQueueUrl || ''}
+              onSqsQueueUrlChange={(value) =>
+                setFieldValue(FieldId.SpotTerminationHandlerQueueUrl, value)
+              }
+              sqsQueueUrlValidated={sqsQueueUrlValidationError ? 'error' : 'default'}
+              sqsQueueUrlHelperText={sqsQueueUrlValidationError ?? undefined}
+              setupDocumentationHref="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-instance-termination-notices.html"
+            />
+          </ExpandableSection>
+        </GridItem>
+      ) : null}
     </>
   );
 }

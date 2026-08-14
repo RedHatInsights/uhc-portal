@@ -28,6 +28,7 @@ import validators, {
   domainPrefixAsyncValidation,
   domainPrefixValidation,
   required,
+  getSqsQueueRegionFromUrl,
   validateAWSKMSKeyARN,
   validateExcludeNamespaceSelectorKey,
   validateExcludeNamespaceSelectorValue,
@@ -46,6 +47,7 @@ import validators, {
   validateRoleARN,
   validateSecureURL,
   validateServiceAccountObject,
+  validateSpotTerminationHandlerQueueUrl,
   validateUniqueAZ,
   validateUserOrGroupARN,
 } from '../validators';
@@ -1364,6 +1366,46 @@ describe('createPessimisticValidator', () => {
   it('returns undefined when validationProvider is missing', () => {
     const validatorFunction = createPessimisticValidator();
     expect(validatorFunction('')).toBeUndefined();
+  });
+});
+
+describe('validateSpotTerminationHandlerQueueUrl', () => {
+  const validQueueUrl = 'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot';
+
+  describe('getSqsQueueRegionFromUrl', () => {
+    it('returns the region from a valid SQS queue URL', () => {
+      expect(getSqsQueueRegionFromUrl(validQueueUrl)).toBe('us-east-1');
+    });
+
+    it('returns undefined for a non-SQS URL', () => {
+      expect(getSqsQueueRegionFromUrl('https://example.com/queue')).toBeUndefined();
+    });
+  });
+
+  it('returns required error when the URL is empty', () => {
+    expect(validateSpotTerminationHandlerQueueUrl('', 'us-east-1')).toBe(
+      'SQS queue URL is required.',
+    );
+  });
+
+  it('returns URL format error when the URL is invalid', () => {
+    expect(validateSpotTerminationHandlerQueueUrl('invalid-url', 'us-east-1')).toBe(
+      'The URL should include the scheme prefix (http://, https://)',
+    );
+  });
+
+  it('returns no error when the URL region matches the cluster region', () => {
+    expect(validateSpotTerminationHandlerQueueUrl(validQueueUrl, 'us-east-1')).toBeUndefined();
+  });
+
+  it('returns region mismatch error when the URL region does not match the cluster region', () => {
+    expect(validateSpotTerminationHandlerQueueUrl(validQueueUrl, 'us-west-2')).toBe(
+      'The SQS queue URL must be in the cluster region (us-west-2).',
+    );
+  });
+
+  it('skips region validation when cluster region is not provided', () => {
+    expect(validateSpotTerminationHandlerQueueUrl(validQueueUrl)).toBeUndefined();
   });
 });
 

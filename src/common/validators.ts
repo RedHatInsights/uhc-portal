@@ -826,6 +826,45 @@ const validateUrl = (value: string, protocol: string | string[] = 'http'): strin
 
 const validateUrlHttpsAndHttp = (value: string) => validateUrl(value, ['http', 'https']);
 
+const SQS_QUEUE_HOSTNAME_PATTERN = /^sqs\.([a-z0-9-]+)\.amazonaws\.com$/i;
+
+const getSqsQueueRegionFromUrl = (url: string): string | undefined => {
+  try {
+    const { hostname } = new URL(url);
+    const regionMatch = hostname.match(SQS_QUEUE_HOSTNAME_PATTERN);
+    return regionMatch?.[1];
+  } catch {
+    return undefined;
+  }
+};
+
+const validateSpotTerminationHandlerQueueUrl = (
+  value: string,
+  region?: string,
+): string | undefined => {
+  const trimmedValue = value?.trim();
+
+  if (!trimmedValue) {
+    return 'SQS queue URL is required.';
+  }
+
+  const urlError = validateUrlHttpsAndHttp(trimmedValue);
+  if (urlError) {
+    return urlError;
+  }
+
+  const queueRegion = getSqsQueueRegionFromUrl(trimmedValue);
+  if (!queueRegion) {
+    return 'Enter a valid Amazon SQS queue URL.';
+  }
+
+  if (region && queueRegion !== region) {
+    return `The SQS queue URL must be in the cluster region (${region}).`;
+  }
+
+  return undefined;
+};
+
 const validateCA = (value: string): string | undefined => {
   if (!value) {
     return undefined;
@@ -1989,6 +2028,7 @@ export {
   domainPrefixAsyncValidation,
   domainPrefixValidation,
   evaluateClusterNameAsyncValidation,
+  getSqsQueueRegionFromUrl,
   MAX_CLUSTER_NAME_LENGTH,
   MAX_CUSTOM_OPERATOR_ROLES_PREFIX_LENGTH,
   required,
@@ -2020,6 +2060,7 @@ export {
   validateSecureURL,
   validateSecurityGroups,
   validateServiceAccountObject,
+  validateSpotTerminationHandlerQueueUrl,
   validateTlsHostname,
   validateTlsSecretName,
   validateUniqueAZ,

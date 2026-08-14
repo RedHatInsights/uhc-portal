@@ -49,6 +49,8 @@ export enum RosaFieldId {
   LogForwardingCloudWatchLogGroupName = 'log_forwarding_cloudwatch_log_group_name',
   LogForwardingCloudWatchRoleArn = 'log_forwarding_cloudwatch_role_arn',
   LogForwardingCloudWatchSelectedItems = 'log_forwarding_cloudwatch_selected_items',
+  SpotInterruptionHandling = 'spot_interruption_handling',
+  SpotTerminationHandlerQueueUrl = 'spot_termination_handler_queue_url',
 }
 
 export const FieldId = { ...CommonFieldId, ...RosaFieldId };
@@ -105,6 +107,8 @@ export const initialValuesHypershift = (isHypershift: boolean, isMultiRegionEnab
         [FieldId.ClusterPrivacyPublicSubnetId]: '',
         [FieldId.InstallToVpc]: true,
         [FieldId.NodeLabels]: [{ id: getRandomID() }],
+        [FieldId.SpotInterruptionHandling]: 'simple',
+        [FieldId.SpotTerminationHandlerQueueUrl]: '',
         [FieldId.SharedVpc]: { is_allowed: false },
         [FieldId.UpgradePolicy]: 'automatic',
         [FieldId.Region]: isMultiRegionEnabled ? undefined : AWS_DEFAULT_REGION,

@@ -5,6 +5,7 @@ import { Grid, GridItem, Label, LabelGroup } from '@patternfly/react-core';
 import { stringToArrayTrimmed, strToKeyValueObject } from '~/common/helpers';
 import { STANDARD_TRIAL_BILLING_MODEL_TYPE } from '~/common/subscriptionTypes';
 import { humanizeValueWithUnitGiB } from '~/common/units';
+import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import parseUpdateSchedule from '~/components/clusters/common/Upgrades/parseUpdateSchedule';
 import { IMDSType } from '~/components/clusters/wizards/common';
 import {
@@ -237,6 +238,16 @@ const reviewValues = {
       [IMDSType.V1AndV2]: 'IMDSv1 and IMDSv2',
       [IMDSType.V2Only]: 'IMDSv2 only',
     },
+  },
+  spot_interruption_handling: {
+    title: 'Spot interruption handling',
+    values: {
+      [SpotInterruptionMode.Simple]: 'Simple Spot instances',
+      [SpotInterruptionMode.Enhanced]: 'Enhanced Spot instances',
+    },
+  },
+  spot_termination_handler_queue_url: {
+    title: 'SQS queue URL',
   },
   nodes_compute: {
     title: 'Compute node count',
