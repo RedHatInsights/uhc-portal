@@ -160,7 +160,7 @@ test.describe(
         clusterProperties.UpdateStrategy,
       );
       await expect(createOSDWizardPage.nodeDrainingValue()).toContainText(
-        `${parseInt(clusterProperties.NodeDraining, 10) * 60} minutes`,
+        clusterProperties.NodeDraining,
       );
     });
 

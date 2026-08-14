@@ -173,7 +173,14 @@ const reviewValues = {
   },
   node_drain_grace_period: {
     title: 'Node draining',
-    valueTransform: (value) => `${value} minutes`,
+    values: {
+      15: '15 minutes',
+      30: '30 minutes',
+      60: '1 hour',
+      120: '2 hours',
+      240: '4 hours',
+      480: '8 hours',
+    },
   },
   etcd_encryption: {
     title: 'Additional etcd encryption',

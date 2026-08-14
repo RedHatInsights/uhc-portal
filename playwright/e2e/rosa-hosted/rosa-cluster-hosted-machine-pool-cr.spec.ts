@@ -1,8 +1,9 @@
 import { test, expect } from '../../fixtures/pages';
+import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const clusterProperties = clusterProfiles['rosa-hosted-public-advanced']['day1-profile'];
-const clusterName = clusterProperties.ClusterName;
+const clusterName = process.env.CLUSTER_NAME || clusterProperties.ClusterName;
 const region = clusterProperties.Region.split(',')[0];
 const qeInfrastructure = JSON.parse(process.env.QE_INFRA_REGIONS || '{}')[region]?.[0] || {};
 
@@ -48,7 +49,7 @@ test.describe.serial(
           `The PRIVATE_SUBNET_NAME is not defined in QE_INFRA_REGIONS for region "${region}"`,
         );
       }
-      await navigateTo('cluster-list');
+      await navigateTo(CLUSTER_LIST_ROUTE);
       await clusterListPage.waitForDataReady();
     });
 
@@ -60,7 +61,7 @@ test.describe.serial(
       // Filter for the specific cluster and open it
       await clusterListPage.filterTxtField().fill(clusterName);
       await clusterListPage.waitForDataReady();
-      await clusterListPage.openClusterDefinition(clusterName);
+      await clusterListPage.openClusterDefinition(clusterName, 'startsWith');
       await machinePoolsPage.goToMachinePoolsTab();
     });
 

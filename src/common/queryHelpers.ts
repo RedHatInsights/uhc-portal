@@ -6,6 +6,7 @@ import { GetClusterHistoryParams } from '~/services/serviceLogService';
 import { ViewOptions } from '../types/types';
 
 import { getLocation } from './location';
+import { expandSeverityTypesForFilter } from './serviceLogSeverity';
 import { allowedProducts, productFilterOptions } from './subscriptionTypes';
 
 type QueryObject = { [key: string]: string | number | boolean };
@@ -170,7 +171,7 @@ const createServiceLogQueryObject = (
     if (viewOptions.flags) {
       const { severityTypes = [], logTypes = [] } = viewOptions.flags.conditionalFilterFlags;
       if (severityTypes.length > 0) {
-        const quotedItems = severityTypes.map(sqlString);
+        const quotedItems = expandSeverityTypesForFilter(severityTypes).map(sqlString);
         clauses.push(`severity IN (${quotedItems.join(',')})`);
       }
       if (logTypes.length > 0) {

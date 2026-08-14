@@ -46,7 +46,7 @@ export const rosaLinkTextLabelLinkCardContents: LinkTextLabelLinkCardContents = 
   cardClassName: 'pf-v6-u-mb-lg',
   textLabelLinkItems: [
     {
-      listItemText: 'Product Documentation for Red Hat OpenShift Service on AWS 4',
+      listItemText: 'Product Documentation for Red Hat OpenShift Service on AWS',
       listItemLabel: <Label color="yellow">Documentation</Label>,
       listItemLink: <ExternalLink href={supportLinks.ROSA_CP_DOCS}>Learn More</ExternalLink>,
     },
