@@ -475,6 +475,147 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/service_logs/v1/clusters/cluster_logs/notifications': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get notification status for service logs of a cluster
+     * @description Returns notification bookkeeping fields for service logs on a cluster
+     *     identified by cluster_id and/or cluster_uuid (via any-id). Supported
+     *     query parameters are any-id, page, size, search, and orderBy. Unlike
+     *     GET /api/service_logs/v1/clusters/cluster_logs, this endpoint does not
+     *     support fields, format, or fetchAccounts.
+     *
+     *     Field semantics:
+     *     - notification_uuid is null until the log matches a notification trigger
+     *       and is queued; a pending notification has a uuid and a null notified_at.
+     *     - notified_at is set when the async trigger job finishes processing the
+     *       log (all matched actions for that run completed).
+     *     - completed_actions lists each successfully executed trigger action
+     *       (opaque hash, type, status, completed_at). Empty until at least one
+     *       action has completed.
+     *
+     */
+    get: {
+      parameters: {
+        query: {
+          'any-id': components['parameters']['any_id'];
+          /** @description Page number of record list when record list exceeds specified page size
+           *      */
+          page?: components['parameters']['page'];
+          /** @description Maximum number of records to return */
+          size?: components['parameters']['size'];
+          /** @description Specifies the search criteria. The syntax of this parameter is
+           *     similar to the syntax of the _where_ clause of an SQL statement,
+           *     using the names of the json attributes / column names of the account.
+           *     For example, in order to retrieve all the accounts with a username
+           *     starting with `my`:
+           *     ```sql
+           *     username like 'my%'\n
+           *     ```
+           *
+           *     > **Important Note**:
+           *     OCM Service Log uses **KSUID** as an **ID** field.
+           *     KSUID contains a timestamp component that allows them to be sorted by generation time.
+           *     As this field uses an index, please use it to sort by instead of `created_at` field.
+           *
+           *     The search criteria can also be applied on related resource.
+           *     For example, in order to retrieve all the subscriptions
+           *     labeled by `foo=bar`,
+           *
+           *     ```sql
+           *     subscription_labels.key = 'foo' and subscription_labels.value = 'bar'
+           *     ```
+           *
+           *     If the parameter isn't provided, or if the value is empty, then
+           *     all the accounts that the user has permission to see will be returned."
+           *      */
+          search?: components['parameters']['search'];
+          /** @description Specifies the order by criteria. The syntax of this parameter is
+           *     similar to the syntax of the _order by_ clause of an SQL statement,
+           *     but using the names of the json attributes / column of the account.
+           *     For example, in order to retrieve all accounts ordered by username:
+           *
+           *     ```sql
+           *     username asc
+           *     ```
+           *
+           *     Or in order to retrieve all accounts ordered by username _and_
+           *     first name:
+           *
+           *     ```sql
+           *     username asc, firstName asc
+           *     ```
+           *
+           *     If the parameter isn't provided, or if the value is empty, then
+           *     no explicit ordering will be applied. */
+          orderBy?: components['parameters']['orderBy'];
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Notification status for matching service logs */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ClusterLogNotificationList'];
+          };
+        };
+        /** @description Bad request: At least one of cluster_uuid and cluster_id is required */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+        /** @description Auth token is invalid */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+        /** @description Unauthorized to perform operation */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+        /** @description Unexpected error occurred */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/service_logs/v1/clusters/{uuid}/cluster_logs': {
     parameters: {
       query?: never;
@@ -784,7 +925,48 @@ export interface components {
     ClusterLogList: components['schemas']['List'] & {
       items?: components['schemas']['ClusterLog'][];
     };
+    ClusterLogNotification: components['schemas']['ObjectReference'] & {
+      /** @description Per-action completion records for this log. Empty (or omitted)
+       *     until at least one trigger action has completed successfully.
+       *      */
+      completed_actions?: components['schemas']['CompletedAction'][];
+      /** @description UUID assigned when the log matches a notification trigger and is
+       *     queued. Null if the log has never been selected for notification.
+       *      */
+      notification_uuid?: string | null;
+      /**
+       * Format: date-time
+       * @description Timestamp when the async trigger job finished processing this
+       *     log. Null while still pending (even if notification_uuid is set)
+       *     or if never notified. Per-action detail is in completed_actions.
+       *
+       */
+      notified_at?: string | null;
+    };
+    ClusterLogNotificationList: components['schemas']['List'] & {
+      items?: components['schemas']['ClusterLogNotification'][];
+    };
     ClusterLogRequest: components['schemas']['ClusterLog'] & Record<string, never>;
+    CompletedAction: {
+      /**
+       * Format: date-time
+       * @description When this action finished successfully.
+       */
+      completed_at: string;
+      /** @description Opaque SHA-256 digest of the trigger action identity (Action.Hash).
+       *     Does not contain raw webhook URLs, tokens, or other secrets.
+       *      */
+      hash: string;
+      /** @description Completion status. Currently always "completed"; reserved for
+       *     future states (e.g. failed / skipped).
+       *      */
+      status: string;
+      /**
+       * @description Trigger action type that completed.
+       * @enum {string}
+       */
+      type?: CompletedActionType;
+    };
     Error: components['schemas']['ObjectReference'] & {
       code?: string;
       operation_id?: string;
@@ -908,7 +1090,10 @@ export interface components {
 }
 export type ClusterLog = components['schemas']['ClusterLog'];
 export type ClusterLogList = components['schemas']['ClusterLogList'];
+export type ClusterLogNotification = components['schemas']['ClusterLogNotification'];
+export type ClusterLogNotificationList = components['schemas']['ClusterLogNotificationList'];
 export type ClusterLogRequest = components['schemas']['ClusterLogRequest'];
+export type CompletedAction = components['schemas']['CompletedAction'];
 export type Error = components['schemas']['Error'];
 export type ErrorList = components['schemas']['ErrorList'];
 export type List = components['schemas']['List'];
@@ -959,5 +1144,10 @@ export enum ClusterLogSeverity {
   Low = 'Low',
   Moderate = 'Moderate',
   Important = 'Important',
+}
+export enum CompletedActionType {
+  email = 'email',
+  webhook = 'webhook',
+  support_case = 'support_case',
 }
 export type operations = Record<string, never>;
