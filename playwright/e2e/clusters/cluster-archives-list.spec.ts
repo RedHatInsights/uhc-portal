@@ -43,6 +43,7 @@ test.describe.serial('OCM Cluster archives page', { tag: ['@ci', '@smoke'] }, ()
       await expect(clusterListPage.filterTxtField()).toBeVisible();
       await clusterListPage.filterTxtField().click();
       await clusterListPage.clickClusterTypeFilters();
+      await clusterListPage.expectClusterTypeFilterOption('ROVS', isRovsRegistrationEnabled);
       await clusterListPage.clickClusterTypes('OCP');
       await clusterListPage.filterTxtField().click();
       await clusterListPage.clusterListRefresh();

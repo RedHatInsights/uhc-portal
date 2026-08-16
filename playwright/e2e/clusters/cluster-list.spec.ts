@@ -42,6 +42,7 @@ test.describe.serial(
 
         // Test cluster type filters
         await clusterListPage.clickClusterTypeFilters();
+        await clusterListPage.expectClusterTypeFilterOption('ROVS', isRovsRegistrationEnabled);
         await clusterListPage.clickClusterTypes('OCP');
         await clusterListPage.clickClusterTypes('OSD');
         await clusterListPage.clickClusterTypes('ROSA');

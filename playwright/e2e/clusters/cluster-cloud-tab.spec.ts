@@ -62,7 +62,7 @@ test.describe.serial(
       await createClusterPage.isCreateOSDPage();
       await createClusterPage.clickBackButton();
 
-      await createClusterPage.expandToggle('#osd1');
+      await createClusterPage.expandManagedServiceRow('osd');
       await createClusterPage.isTextVisible(OSDDescriptionText);
 
       await createClusterPage.checkManagedServiceLink(
@@ -82,7 +82,7 @@ test.describe.serial(
         docLinks.AZURE_OPENSHIFT_GET_STARTED,
       );
 
-      await createClusterPage.expandToggle('#azure2');
+      await createClusterPage.expandManagedServiceRow('azure');
       await createClusterPage.isTextVisible(AzureDescriptionText);
 
       await createClusterPage.checkManagedServiceLink(
@@ -102,7 +102,7 @@ test.describe.serial(
         'https://cloud.ibm.com/kubernetes/catalog/create?platformType=openshift',
       );
 
-      await createClusterPage.expandToggle('#ibm3');
+      await createClusterPage.expandManagedServiceRow('ibm');
       await createClusterPage.isTextVisible(IBMDescriptionText);
 
       await createClusterPage.checkManagedServiceLink(
@@ -124,7 +124,7 @@ test.describe.serial(
 
       await createClusterPage.checkManagedServiceButton('Try it on IBM', docLinks.IBM_CLOUD_ROVS);
 
-      await createClusterPage.expandToggle('#rovs4');
+      await createClusterPage.expandManagedServiceRow('rovs');
       await createClusterPage.isTextVisible(ROVSDescriptionText);
 
       await createClusterPage.checkManagedServiceLink(
@@ -144,8 +144,7 @@ test.describe.serial(
       await createClusterPage.isCreateRosaPage();
       await createClusterPage.clickBackButton();
 
-      // ROVS row shifts ROSA expand id from #rosa4 to #rosa5 when the gate is on
-      await createClusterPage.expandToggle(isRovsRegistrationEnabled ? '#rosa5' : '#rosa4');
+      await createClusterPage.expandManagedServiceRow('rosa');
       await createClusterPage.isTextVisible(ROSADescriptionText);
 
       await createClusterPage.checkManagedServiceLink(

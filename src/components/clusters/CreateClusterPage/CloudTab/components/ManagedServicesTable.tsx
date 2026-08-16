@@ -333,6 +333,7 @@ const ManagedServicesTable = (props: ManagedServicesTableProps) => {
         <Tbody key={row.key} isExpanded={isRowExpanded(row.key)}>
           <Tr key="content-row">
             <Td
+              data-testid={`managed-service-expand-${row.key}`}
               expand={
                 row.expandedSection
                   ? {

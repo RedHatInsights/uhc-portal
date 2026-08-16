@@ -121,6 +121,30 @@ describe('<ClusterActionsDropdown />', () => {
     });
   });
 
+  describe('osd cluster', () => {
+    it('does not show transfer cluster ownership for OSD', async () => {
+      const { user } = render(
+        <ClusterActionsDropdown
+          {...Fixtures.managedReadyProps}
+          canTransferClusterOwnership
+          cluster={{
+            ...Fixtures.managedReadyProps.cluster,
+            subscription: {
+              ...Fixtures.managedReadyProps.cluster.subscription,
+              plan: { type: 'OSD' },
+            },
+          }}
+        />,
+      );
+      await user.click(screen.getByRole('button'));
+      expect(await screen.findByRole('menu')).toBeInTheDocument();
+
+      expect(
+        screen.queryByRole('menuitem', { name: 'Transfer cluster ownership' }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe('rovs cluster', () => {
     it('shows expected options (rovs)', async () => {
       const { user } = render(

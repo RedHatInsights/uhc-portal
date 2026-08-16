@@ -511,7 +511,7 @@ describe('<ClusterList />', () => {
       await user.click(screen.getByText('RHOIC'));
 
       // Assert
-      expect(screen.queryByText('ROVS')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cluster-type-ROVS')).not.toBeInTheDocument();
       expect(mockNavigate).toHaveBeenLastCalledWith(
         { search: 'plan_id=ARO,RHOIC' },
         { replace: true },
@@ -528,6 +528,7 @@ describe('<ClusterList />', () => {
       const { user } = withState({}, true).render(<ClusterList {...props} />);
 
       await user.click(screen.getByRole('button', { name: 'Cluster type' }));
+      expect(screen.getByTestId('cluster-type-ROVS')).toBeInTheDocument();
       await user.click(screen.getByText('ROVS'));
 
       expect(mockNavigate).toHaveBeenLastCalledWith({ search: 'plan_id=ROVS' }, { replace: true });

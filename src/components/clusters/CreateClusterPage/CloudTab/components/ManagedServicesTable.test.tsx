@@ -65,5 +65,6 @@ describe('<ManagedServicesTable />', () => {
       'href',
       docLinks.IBM_CLOUD_ROVS,
     );
+    expect(screen.getByTestId('managed-service-expand-rovs')).toBeInTheDocument();
   });
 });

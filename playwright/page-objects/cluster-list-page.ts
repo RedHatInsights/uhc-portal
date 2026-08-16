@@ -97,6 +97,19 @@ export class ClusterListPage extends BasePage {
     await this.page.getByTestId(`cluster-type-${type}`).click();
   }
 
+  clusterTypeFilterOption(type: string): Locator {
+    return this.page.getByTestId(`cluster-type-${type}`);
+  }
+
+  async expectClusterTypeFilterOption(type: string, visible: boolean): Promise<void> {
+    const option = this.clusterTypeFilterOption(type);
+    if (visible) {
+      await expect(option).toBeVisible();
+    } else {
+      await expect(option).not.toBeVisible();
+    }
+  }
+
   async isCreateClusterBtnVisible(): Promise<void> {
     await expect(this.createClusterButton()).toBeVisible();
   }

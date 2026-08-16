@@ -27,7 +27,16 @@ describe('<ClusterListFilterDropdown />', () => {
     ['OCP', 'OSD', 'ROSA', 'ARO', 'RHOIC'].forEach((clusterType) => {
       expect(screen.getByText(clusterType)).toBeInTheDocument();
     });
+  });
+
+  it('hides ROVS when feature flag is disabled', async () => {
+    mockUseFeatureGate([[ROVS_REGISTRATION, false]]);
+    const { user } = render(<ClusterListFilterDropdown {...defaultProps} />);
+
+    await user.click(screen.getByRole('button'));
+    expect(await screen.findByRole('menu')).toBeInTheDocument();
     expect(screen.queryByText('ROVS')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('cluster-type-ROVS')).not.toBeInTheDocument();
   });
 
   it('shows ROVS when feature flag is enabled', async () => {
@@ -36,6 +45,6 @@ describe('<ClusterListFilterDropdown />', () => {
 
     await user.click(screen.getByRole('button'));
     expect(await screen.findByRole('menu')).toBeInTheDocument();
-    expect(screen.getByText('ROVS')).toBeInTheDocument();
+    expect(screen.getByTestId('cluster-type-ROVS')).toBeInTheDocument();
   });
 });

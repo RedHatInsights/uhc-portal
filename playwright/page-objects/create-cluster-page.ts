@@ -126,6 +126,12 @@ export class CreateClusterPage extends BasePage {
     await element.click();
   }
 
+  async expandManagedServiceRow(rowKey: string): Promise<void> {
+    const expandCell = this.page.getByTestId(`managed-service-expand-${rowKey}`);
+    await expandCell.scrollIntoViewIfNeeded();
+    await expandCell.getByRole('button').click();
+  }
+
   async isTextVisible(text: string): Promise<void> {
     await expect(this.page.getByText(text)).toBeVisible();
   }
