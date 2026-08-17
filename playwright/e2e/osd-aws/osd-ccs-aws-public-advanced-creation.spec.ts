@@ -124,10 +124,10 @@ test.describe.serial(
           createOSDWizardPage.applicationIngressNamespaceOwnershipPolicyRadio(),
         ).toBeChecked();
         await expect(
-          createOSDWizardPage.applicationIngressWildcardPolicyDisallowedRadio(),
+          createOSDWizardPage.applicationIngressWildcardPolicyAllowedRadio(),
         ).toBeVisible();
         await expect(
-          createOSDWizardPage.applicationIngressWildcardPolicyDisallowedRadio(),
+          createOSDWizardPage.applicationIngressWildcardPolicyAllowedRadio(),
         ).not.toBeChecked();
       } else {
         await expect(createOSDWizardPage.applicationIngressDefaultSettingsRadio()).toBeChecked();

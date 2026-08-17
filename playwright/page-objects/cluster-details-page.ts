@@ -320,6 +320,10 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('infrastructureAWSAccount');
   }
 
+  clusterInfrastructureGCPAccountLabelValue(): Locator {
+    return this.page.getByTestId('infrastructureGCPAccount');
+  }
+
   /** Pencil/edit control that opens the billing account modal. */
   clusterBillingMarketplaceAccountLabelValue(): Locator {
     return this.page.getByTestId('billingMarketplaceAccountLink');
