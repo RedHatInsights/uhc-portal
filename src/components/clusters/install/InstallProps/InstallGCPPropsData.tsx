@@ -1,9 +1,10 @@
 import links from '~/common/installLinks.mjs';
 
+import { INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 
 export const GCPProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Google Cloud',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Google Cloud`,
   providerTitle: 'Google Cloud',
   ipiPageLink: '/install/gcp/installer-provisioned',
   ipiLearnMoreLink: links.INSTALL_GCPIPI_LEARN_MORE,
@@ -21,8 +22,7 @@ export const GCPProps = {
 };
 
 export const GCPIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Google Cloud Installer-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Google Cloud Installer-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.gcp.ipi.title,
   cloudProviderId: 'gcp',
   instructionsMapping: instructionsMapping.gcp.ipi,
@@ -36,8 +36,7 @@ export const GCPIPIProps = {
 };
 
 export const GCPUPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Google Cloud User-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Google Cloud User-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.gcp.upi.title,
   cloudProviderId: 'gcp',
   isUPI: true,
