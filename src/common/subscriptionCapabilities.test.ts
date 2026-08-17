@@ -7,6 +7,7 @@ import { SubscriptionCommonFieldsStatus } from '../types/accounts_mgmt.v1';
 
 import { getRandomID } from './helpers';
 import {
+  hasAllowOcp5Capability,
   hasCapability,
   haveCapabilities,
   subscriptionCapabilities,
@@ -185,5 +186,35 @@ describe('haveCapabilities', () => {
     forOwn(results, (res) => {
       expect(res).toBeFalsy();
     });
+  });
+});
+
+describe('hasAllowOcp5Capability', () => {
+  it('is true when the capabilities array contains rosa_osd_allow_ocp_5 set to "true"', () => {
+    const capabilities = [
+      { name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5, value: 'true', inherited: false },
+    ];
+
+    expect(hasAllowOcp5Capability(capabilities)).toBeTruthy();
+  });
+
+  it('is false when the capabilities array contains rosa_osd_allow_ocp_5 set to "false"', () => {
+    const capabilities = [
+      { name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5, value: 'false', inherited: false },
+    ];
+
+    expect(hasAllowOcp5Capability(capabilities)).toBeFalsy();
+  });
+
+  it('is false when the capabilities array does not contain rosa_osd_allow_ocp_5', () => {
+    const capabilities = [
+      { name: subscriptionCapabilities.RESTRICT_OFFLINE_TOKENS, value: 'true', inherited: false },
+    ];
+
+    expect(hasAllowOcp5Capability(capabilities)).toBeFalsy();
+  });
+
+  it('is false when capabilities is undefined', () => {
+    expect(hasAllowOcp5Capability(undefined)).toBeFalsy();
   });
 });
