@@ -320,6 +320,10 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('infrastructureAWSAccount');
   }
 
+  clusterInfrastructureGCPAccountLabelValue(): Locator {
+    return this.page.getByTestId('infrastructureGCPAccount');
+  }
+
   /** Pencil/edit control that opens the billing account modal. */
   clusterBillingMarketplaceAccountLabelValue(): Locator {
     return this.page.getByTestId('billingMarketplaceAccountLink');
@@ -347,6 +351,14 @@ export class ClusterDetailsPage extends BasePage {
 
   clusterHostPrefixLabelValue(): Locator {
     return this.page.getByTestId('hostPrefix');
+  }
+
+  clusterTotalvCPUValue(): Locator {
+    return this.page.getByRole('term').filter({ hasText: 'Total vCPU' });
+  }
+
+  clusterTotalMemoryValue(): Locator {
+    return this.page.getByRole('term').filter({ hasText: 'Total memory' });
   }
 
   // Additional cluster property getters for advanced settings
