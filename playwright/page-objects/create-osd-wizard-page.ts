@@ -424,18 +424,16 @@ export class CreateOSDWizardPage extends BaseWizardPage {
 
   // Networking screen
   clusterPrivacyPublicRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-cluster_privacy-external-field"]');
+    return this.page.getByRole('radio', { name: 'Public' });
   }
 
   applicationIngressDefaultSettingsRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-applicationIngress-default-field"]');
+    return this.page.getByRole('radio', { name: 'Default settings' });
   }
 
   async selectClusterPrivacy(privacy: string): Promise<void> {
     if (privacy.toLowerCase().includes('private')) {
-      await this.page
-        .locator('input[id="form-radiobutton-cluster_privacy-internal-field"]')
-        .check();
+      await this.clusterPrivacyPrivateRadio().check();
     } else {
       await this.clusterPrivacyPublicRadio().check();
     }
@@ -493,7 +491,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   usePrivateServiceConnectCheckBox(): Locator {
-    return this.page.locator('input[id="private_service_connect"]');
+    return this.page.getByRole('checkbox', { name: 'Use Private Service Connect' });
   }
 
   // VPC subnet screen
@@ -516,17 +514,19 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   async selectGcpVPC(vpcName: string): Promise<void> {
-    await this.page.locator('select[aria-label="Existing VPC name"]').selectOption(vpcName);
+    await this.page.getByRole('combobox', { name: 'Existing VPC name' }).selectOption(vpcName);
   }
 
   async selectControlPlaneSubnetName(subnetName: string): Promise<void> {
     await this.page
-      .locator('select[aria-label="Control plane subnet name"]')
+      .getByRole('combobox', { name: 'Control plane subnet name' })
       .selectOption(subnetName);
   }
 
   async selectComputeSubnetName(subnetName: string): Promise<void> {
-    await this.page.locator('select[aria-label="Compute subnet name"]').selectOption(subnetName);
+    await this.page
+      .getByRole('combobox', { name: 'Compute subnet name' })
+      .selectOption(subnetName);
   }
 
   privateServiceConnectSubnetInput(): Locator {
@@ -535,7 +535,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
 
   async selectPrivateServiceConnectSubnetName(pscName: string): Promise<void> {
     await this.page
-      .locator('select[aria-label="Private Service Connect subnet name"]')
+      .getByRole('combobox', { name: 'Private Service Connect subnet name' })
       .selectOption(pscName);
   }
 
@@ -667,28 +667,8 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByTestId('Application-ingress').locator('div');
   }
 
-  computeNodeRangeValue(): Locator {
-    return this.page.getByTestId('Compute-node-range').locator('div');
-  }
-
-  routeSelectorsValue(): Locator {
-    return this.page.getByTestId('Route-selectors');
-  }
-
-  excludedNamespacesValue(): Locator {
-    return this.page.getByTestId('Excluded-namespaces');
-  }
-
   excludeNamespaceSelectorsValue(): Locator {
     return this.page.getByTestId('Exclude-namespace-selectors');
-  }
-
-  wildcardPolicyValue(): Locator {
-    return this.page.getByTestId('Wildcard-policy').locator('div');
-  }
-
-  namespaceOwnershipValue(): Locator {
-    return this.page.getByTestId('Namespace-ownership-policy').locator('div');
   }
 
   machineCIDRValue(): Locator {
@@ -730,7 +710,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
 
   // Cluster privacy private radio
   clusterPrivacyPrivateRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-cluster_privacy-internal-field"]');
+    return this.page.getByRole('radio', { name: 'Private' });
   }
 
   // Persistent storage selection
@@ -887,15 +867,15 @@ export class CreateOSDWizardPage extends BaseWizardPage {
 
   // Advanced encryption settings
   advancedEncryptionLink(): Locator {
-    return this.page.getByText('Advanced Encryption');
+    return this.page.getByRole('button', { name: 'Advanced Encryption' });
   }
 
   enableAdditionalEtcdEncryptionCheckbox(): Locator {
-    return this.page.locator('input[id="etcd_encryption"]');
+    return this.page.getByRole('checkbox', { name: 'Enable additional etcd encryption' });
   }
 
   enableFIPSCryptographyCheckbox(): Locator {
-    return this.page.locator('input[id="fips"]');
+    return this.page.getByRole('checkbox', { name: 'Enable FIPS cryptography' });
   }
 
   async enableAdditionalEtcdEncryption(
@@ -967,40 +947,69 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   useCustomKMSKeyRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-customer_managed_key-true-field"]');
+    return this.page.getByRole('radio', { name: 'Use custom KMS keys' });
   }
 
   useDefaultKMSKeyRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-customer_managed_key-false-field"]');
+    return this.page.getByRole('radio', { name: 'Use default KMS Keys' });
   }
 
   keyArnInput(): Locator {
-    return this.page.locator('span input[id="kms_key_arn"]');
+    return this.page.getByRole('textbox', { name: 'Key ARN' });
+  }
+
+  async selectKeyLocation(location: string): Promise<void> {
+    await this.page.getByRole('combobox', { name: 'KMS location' }).selectOption(location);
+  }
+
+  async selectKeyRing(keyRing: string): Promise<void> {
+    await this.page.getByRole('combobox', { name: 'Key ring' }).selectOption(keyRing);
+  }
+
+  async selectKeyName(keyName: string): Promise<void> {
+    await this.page.getByRole('combobox', { name: 'Key name' }).selectOption(keyName);
+  }
+
+  kmsServiceAccountInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'KMS Service Account' });
+  }
+
+  async configureCustomGcpKmsKey(options: {
+    keyRingLocation: string;
+    keyRing: string;
+    keyName: string;
+    kmsServiceAccount: string;
+  }): Promise<void> {
+    await this.useCustomKMSKeyRadio().check();
+    await this.selectKeyLocation(options.keyRingLocation);
+    await this.selectKeyRing(options.keyRing);
+    await this.selectKeyName(options.keyName);
+    await this.kmsServiceAccountInput().fill(options.kmsServiceAccount);
   }
 
   // Machine pool validation methods
   minimumNodeInput(): Locator {
-    return this.page.locator('input[aria-label="Minimum nodes"]');
+    return this.page.getByRole('spinbutton', { name: 'Minimum nodes' });
   }
 
   maximumNodeInput(): Locator {
-    return this.page.locator('input[aria-label="Maximum nodes"]');
+    return this.page.getByRole('spinbutton', { name: 'Maximum nodes' });
   }
 
   minimumNodeCountMinusButton(): Locator {
-    return this.page.locator('button[aria-label="Minimum nodes minus"]');
+    return this.page.getByRole('button', { name: 'Minimum nodes minus' });
   }
 
   minimumNodeCountPlusButton(): Locator {
-    return this.page.locator('button[aria-label="Minimum nodes plus"]');
+    return this.page.getByRole('button', { name: 'Minimum nodes plus' });
   }
 
   maximumNodeCountMinusButton(): Locator {
-    return this.page.locator('button[aria-label="Maximum nodes minus"]');
+    return this.page.getByRole('button', { name: 'Maximum nodes minus' });
   }
 
   maximumNodeCountPlusButton(): Locator {
-    return this.page.locator('button[aria-label="Maximum nodes plus"]');
+    return this.page.getByRole('button', { name: 'Maximum nodes plus' });
   }
 
   editClusterAutoscalingSettingsButton(): Locator {
@@ -1100,7 +1109,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   applicationIngressWildcardPolicyAllowedRadio(): Locator {
     return this.page.getByRole('switch', { name: /^(Allowed|Disallowed)$/ });
   }
-
+  
   // Validation helper methods
   async enableAutoScaling(): Promise<void> {
     await this.enableAutoscalingCheckbox().check();
@@ -1136,13 +1145,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByRole('button').filter({ hasText: 'Select public subnet' });
   }
 
-  applicationIngressNamespaceOwnershipPolicyRadio(): Locator {
-    return this.page.getByRole('switch', { name: 'Strict', exact: true });
-  }
-
-  applicationIngressWildcardPolicyDisallowedRadio(): Locator {
-    return this.page.getByRole('switch', { name: 'Disallowed', exact: true });
-  }
 
   computeNodeRangeValue(): Locator {
     return this.page.getByTestId('Compute-node-range');
