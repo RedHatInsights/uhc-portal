@@ -454,7 +454,7 @@ function Details() {
           ) : null}
 
           <GridItem>
-            <ClassicV5CreationWarning isClassic product="osd" cloudProvider={cloudProvider} />
+            <ClassicV5CreationWarning isClassic product="osd" />
             <VersionSelectField
               name={FieldId.ClusterVersion}
               channelGroup={channelGroup}

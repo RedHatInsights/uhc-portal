@@ -6,18 +6,14 @@ import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, screen, withState } from '~/testUtils';
 import { Organization } from '~/types/accounts_mgmt.v1';
 
-import { CloudProviderType } from '../../..';
-
 import { ClassicV5CreationWarning } from './ClassicV5CreationWarning';
 
 const useAnalyticsMock = jest.fn();
 jest.mock('~/hooks/useAnalytics', () => jest.fn(() => useAnalyticsMock));
 
 const rosaClassicWarningText =
-  'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for ROSA Classic. To use OpenShift v5, please create a ROSA HCP cluster.';
-const osdClassicGcpWarningText =
-  'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
-const osdClassicAwsWarningText = 'OpenShift v5 is not supported on OSD Classic clusters on AWS.';
+  'OpenShift v5 is not supported on ROSA Classic clusters. To use OpenShift v5, please create a ROSA HCP cluster.';
+const osdClassicWarningText = 'OpenShift v5 is not supported on OSD Classic clusters.';
 
 const orgWithCapability = (value: 'true' | 'false'): Organization =>
   ({
@@ -57,38 +53,27 @@ describe('<ClassicV5CreationWarning />', () => {
     expect(alert).toHaveTextContent(rosaClassicWarningText);
 
     const link = screen.getByRole('link', { name: 'create a ROSA HCP cluster' });
-    expect(link).toHaveAttribute('href', '/openshift/create/rosa/getstarted');
+    expect(link).toHaveAttribute('href', '/openshift/create/rosa/wizard');
+
+    // reloadDocument triggers a full navigation
+    link.addEventListener('click', (event) => event.preventDefault());
 
     useAnalyticsMock.mockClear();
     await user.click(link);
 
     expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.CreateClusterROSA, {
-      url: '/create/rosa/getstarted',
+      url: '/create/rosa/wizard',
       path: window.location.pathname,
     });
   });
 
-  it('renders OSD Classic AWS warning message', () => {
+  it('renders the OSD Classic warning message', () => {
     renderWarning({
       isClassic: true,
       product: 'osd',
-      cloudProvider: CloudProviderType.Aws,
     });
 
-    expect(screen.getByText(osdClassicAwsWarningText)).toBeInTheDocument();
-    expect(
-      screen.queryByRole('link', { name: 'create a ROSA HCP cluster' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders OSD Classic GCP warning message', () => {
-    renderWarning({
-      isClassic: true,
-      product: 'osd',
-      cloudProvider: CloudProviderType.Gcp,
-    });
-
-    expect(screen.getByText(osdClassicGcpWarningText)).toBeInTheDocument();
+    expect(screen.getByText(osdClassicWarningText)).toBeInTheDocument();
     expect(
       screen.queryByRole('link', { name: 'create a ROSA HCP cluster' }),
     ).not.toBeInTheDocument();

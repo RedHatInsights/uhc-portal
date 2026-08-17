@@ -2,47 +2,54 @@ import React from 'react';
 
 import { Alert } from '@patternfly/react-core';
 
+import { trackEvents } from '~/common/analytics';
+import { Link } from '~/common/routing';
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
-import InternalTrackingLink from '~/components/common/InternalTrackingLink';
+import useAnalytics from '~/hooks/useAnalytics';
 import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { Capability } from '~/types/accounts_mgmt.v1';
 
-import { CloudProviderType } from '../../..';
+const ROSA_HCP_WIZARD_PATH = '/create/rosa/wizard';
 
 type ClassicV5CreationWarningProps = {
   isClassic: boolean;
   product: 'rosa' | 'osd';
-  cloudProvider?: string;
 };
 
-const getWarningTitle = (product: 'rosa' | 'osd', cloudProvider?: string): React.ReactNode => {
+const RosaClassicV5CreationWarningTitle = () => {
+  const track = useAnalytics();
+
+  return (
+    <>
+      OpenShift v5 is not supported on ROSA Classic clusters. To use OpenShift v5, please{' '}
+      <Link
+        to={ROSA_HCP_WIZARD_PATH}
+        reloadDocument
+        onClick={() =>
+          track(trackEvents.CreateClusterROSA, {
+            url: ROSA_HCP_WIZARD_PATH,
+            path: window.location.pathname,
+          })
+        }
+      >
+        create a ROSA HCP cluster
+      </Link>
+      .
+    </>
+  );
+};
+
+const getWarningTitle = (product: 'rosa' | 'osd'): React.ReactNode => {
   if (product === 'rosa') {
-    return (
-      <>
-        OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported
-        version for ROSA Classic. To use OpenShift v5, please{' '}
-        <InternalTrackingLink to="/create/rosa/getstarted">
-          create a ROSA HCP cluster
-        </InternalTrackingLink>
-        .
-      </>
-    );
+    return <RosaClassicV5CreationWarningTitle />;
   }
 
-  if (cloudProvider === CloudProviderType.Gcp) {
-    return 'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
-  }
-
-  return 'OpenShift v5 is not supported on OSD Classic clusters on AWS.';
+  return 'OpenShift v5 is not supported on OSD Classic clusters.';
 };
 
-export const ClassicV5CreationWarning = ({
-  isClassic,
-  product,
-  cloudProvider,
-}: ClassicV5CreationWarningProps) => {
+export const ClassicV5CreationWarning = ({ isClassic, product }: ClassicV5CreationWarningProps) => {
   const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
   const organization = useGlobalState((state) => state.userProfile.organization.details);
   const hasOcp5Capability = (organization?.capabilities ?? []).some(
@@ -59,7 +66,7 @@ export const ClassicV5CreationWarning = ({
     <Alert
       variant="warning"
       isInline
-      title={getWarningTitle(product, cloudProvider)}
+      title={getWarningTitle(product)}
       data-testid="classic-v5-creation-warning"
     />
   );
