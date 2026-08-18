@@ -34,8 +34,9 @@ import { useReplaceSchedule } from '~/queries/ClusterDetailsQueries/ClusterSetti
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
-import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { OCP5_SUPPORT, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { useGlobalState } from '~/redux/hooks';
 import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
 import { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
 
@@ -53,6 +54,8 @@ import MinorVersionUpgradeAlert from '../../../common/Upgrades/MinorVersionUpgra
 import UpgradeAcknowledgeWarning from '../../../common/Upgrades/UpgradeAcknowledge/UpgradeAcknowledgeWarning/UpgradeAcknowledgeWarning';
 import UpgradeSettingsFields from '../../../common/Upgrades/UpgradeSettingsFields';
 import UpgradeStatus from '../../../common/Upgrades/UpgradeStatus';
+import { UpgradeToV5Warning } from '../../../common/Upgrades/UpgradeToV5Warning/UpgradeToV5Warning';
+import { shouldShowUpgradeToV5Warning } from '../../../common/Upgrades/UpgradeToV5Warning/UpgradeToV5WarningHelpers';
 import UserWorkloadMonitoringSection from '../../../common/UserWorkloadMonitoringSectionMultiRegion';
 import { UpdateAllMachinePools } from '../MachinePools/UpdateMachinePools';
 import { ChannelEdit } from '../Overview/ChannelEdit/ChannelEdit';
@@ -78,9 +81,16 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
   const { canEdit } = cluster;
 
   const isYStreamEnabled = useFeatureGate(Y_STREAM_CHANNEL);
+  const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
+  const organization = useGlobalState((state) => state.userProfile.organization);
   const isHypershift = isHypershiftCluster(cluster);
   const clusterVersion = getClusterVersion(cluster);
   const isRosa = isROSA(cluster);
+  const showUpgradeToV5Warning = shouldShowUpgradeToV5Warning({
+    cluster,
+    isOcp5SupportEnabled,
+    organizationCapabilities: organization?.details?.capabilities,
+  });
   const { data: schedulesData, isLoading: isGetShcedulesLoading } = useGetSchedules(
     clusterID,
     isHypershift,
@@ -400,6 +410,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                         isHypershift={isHypershift}
                         hasUnmetAcknowledgements={hasVersionGates}
                       />
+                      {showUpgradeToV5Warning && <UpgradeToV5Warning isRosa={isRosa} />}
                       <UpdateAllMachinePools
                         goToMachinePoolTab
                         isHypershift={isHypershift}
