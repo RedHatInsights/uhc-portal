@@ -2,48 +2,29 @@ import React from 'react';
 
 import { Alert } from '@patternfly/react-core';
 
-import { trackEvents } from '~/common/analytics';
-import { Link } from '~/common/routing';
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
-import useAnalytics from '~/hooks/useAnalytics';
+import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { Capability } from '~/types/accounts_mgmt.v1';
-
-const ROSA_HCP_WIZARD_PATH = '/create/rosa/wizard';
 
 type ClassicV5CreationWarningProps = {
   isClassic: boolean;
   product: 'rosa' | 'osd';
 };
 
-const RosaClassicV5CreationWarningTitle = () => {
-  const track = useAnalytics();
-
-  return (
-    <>
-      OpenShift v5 is not supported on ROSA Classic clusters. To use OpenShift v5, please{' '}
-      <Link
-        to={ROSA_HCP_WIZARD_PATH}
-        reloadDocument
-        onClick={() =>
-          track(trackEvents.CreateClusterROSA, {
-            url: ROSA_HCP_WIZARD_PATH,
-            path: window.location.pathname,
-          })
-        }
-      >
-        create a ROSA HCP cluster
-      </Link>
-      .
-    </>
-  );
-};
-
 const getWarningTitle = (product: 'rosa' | 'osd'): React.ReactNode => {
   if (product === 'rosa') {
-    return <RosaClassicV5CreationWarningTitle />;
+    return (
+      <>
+        OpenShift v5 is not supported on ROSA Classic clusters. To use OpenShift v5, please{' '}
+        <InternalTrackingLink to="/create/rosa/getstarted">
+          create a ROSA HCP cluster
+        </InternalTrackingLink>
+        .
+      </>
+    );
   }
 
   return 'OpenShift v5 is not supported on OSD Classic clusters.';

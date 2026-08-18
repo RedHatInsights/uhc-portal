@@ -53,16 +53,13 @@ describe('<ClassicV5CreationWarning />', () => {
     expect(alert).toHaveTextContent(rosaClassicWarningText);
 
     const link = screen.getByRole('link', { name: 'create a ROSA HCP cluster' });
-    expect(link).toHaveAttribute('href', '/openshift/create/rosa/wizard');
-
-    // reloadDocument triggers a full navigation
-    link.addEventListener('click', (event) => event.preventDefault());
+    expect(link).toHaveAttribute('href', '/openshift/create/rosa/getstarted');
 
     useAnalyticsMock.mockClear();
     await user.click(link);
 
     expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.CreateClusterROSA, {
-      url: '/create/rosa/wizard',
+      url: '/create/rosa/getstarted',
       path: window.location.pathname,
     });
   });
