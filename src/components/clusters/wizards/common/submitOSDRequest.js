@@ -273,10 +273,10 @@ export const createClusterRequest = (
       if (
         isHypershiftSelected &&
         formData.spot_interruption_handling === SpotInterruptionMode.Enhanced &&
-        formData.spot_termination_handler_queue_url?.trim()
+        formData.termination_handler_queue_url?.trim()
       ) {
-        clusterRequest.aws.spot_termination_handler_queue_url =
-          formData.spot_termination_handler_queue_url.trim();
+        clusterRequest.aws.termination_handler_queue_url =
+          formData.termination_handler_queue_url.trim();
       }
 
       clusterRequest.ccs.disable_scp_checks = formData.disable_scp_checks;

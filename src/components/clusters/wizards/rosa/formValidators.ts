@@ -1,7 +1,6 @@
 import type { FormikValues } from 'formik';
 
-import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
-import { validateSpotTerminationHandlerQueueUrl } from '~/common/validators';
+import { validateSpotInterruptionFields } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingValidation';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { isRosaHcpLogForwardingSubmitContext } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingTreeFromQueryClient';
 import { validateLogForwardingFields } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation';
@@ -34,21 +33,13 @@ const rosaWizardFormValidator = (values: FormikValues, activeStepId?: string | n
     (activeStepId === stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING ||
       activeStepId === stepId.REVIEW_AND_CREATE);
   const logForwardingErrors = validateLogForwarding ? validateLogForwardingFields(values) : {};
-  const spotInterruptionErrors: Record<string, string> = {};
-  const isHypershiftSelected = values[FieldId.Hypershift] === 'true';
-  const isEnhancedSpotInterruption =
-    values[FieldId.SpotInterruptionHandling] === SpotInterruptionMode.Enhanced;
-  const spotTerminationQueueUrl = values[FieldId.SpotTerminationHandlerQueueUrl];
-
-  if (isHypershiftSelected && isEnhancedSpotInterruption) {
-    const validationError = validateSpotTerminationHandlerQueueUrl(
-      spotTerminationQueueUrl,
-      values[FieldId.Region],
-    );
-    if (validationError) {
-      spotInterruptionErrors[FieldId.SpotTerminationHandlerQueueUrl] = validationError;
-    }
-  }
+  const validateSpotInterruption =
+    values[FieldId.Hypershift] === 'true' &&
+    (activeStepId === stepId.CLUSTER_SETTINGS__MACHINE_POOL ||
+      activeStepId === stepId.REVIEW_AND_CREATE);
+  const spotInterruptionErrors = validateSpotInterruption
+    ? validateSpotInterruptionFields(values)
+    : {};
 
   if (!autoScaler) {
     if (!Object.keys(logForwardingErrors).length && !Object.keys(spotInterruptionErrors).length) {

@@ -9,8 +9,6 @@ const meta: Meta<typeof SpotInterruptionHandlingFields> = {
   args: {
     mode: SpotInterruptionMode.Simple,
     sqsQueueUrl: '',
-    setupDocumentationHref:
-      'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-instance-termination-notices.html',
     onModeChange: () => undefined,
     onSqsQueueUrlChange: () => undefined,
   },

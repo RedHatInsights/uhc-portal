@@ -826,7 +826,7 @@ const validateUrl = (value: string, protocol: string | string[] = 'http'): strin
 
 const validateUrlHttpsAndHttp = (value: string) => validateUrl(value, ['http', 'https']);
 
-const SQS_QUEUE_HOSTNAME_PATTERN = /^sqs\.([a-z0-9-]+)\.amazonaws\.com$/i;
+const SQS_QUEUE_HOSTNAME_PATTERN = /^sqs(?:-fips)?\.([a-z0-9-]+)\.amazonaws\.com$/i;
 
 const getSqsQueueRegionFromUrl = (url: string): string | undefined => {
   try {

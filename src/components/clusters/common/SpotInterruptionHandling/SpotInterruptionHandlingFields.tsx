@@ -14,7 +14,6 @@ import {
   TextInputProps,
 } from '@patternfly/react-core';
 
-import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 
 import {
@@ -32,7 +31,7 @@ export type SpotInterruptionHandlingFieldsProps = {
   onModeChange: (mode: SpotInterruptionMode) => void;
   sqsQueueUrl: string;
   onSqsQueueUrlChange: (url: string) => void;
-  setupDocumentationHref: string;
+  onSqsQueueUrlBlur?: () => void;
   isDisabled?: boolean;
   isModeDisabled?: boolean;
   isSqsQueueUrlDisabled?: boolean;
@@ -47,7 +46,7 @@ export const SpotInterruptionHandlingFields = ({
   onModeChange,
   sqsQueueUrl,
   onSqsQueueUrlChange,
-  setupDocumentationHref,
+  onSqsQueueUrlBlur,
   isDisabled = false,
   isModeDisabled = false,
   isSqsQueueUrlDisabled = false,
@@ -67,7 +66,6 @@ export const SpotInterruptionHandlingFields = ({
           {SPOT_INTERRUPTION_INTRO}{' '}
           <PopoverHint
             buttonAriaLabel="Spot interruption handling information"
-            title="Spot interruption handling"
             hint="Choose how this cluster responds when AWS reclaims a Spot instance. Simple relies on MachineHealthCheck after interruption. Enhanced uses an SQS queue to drain nodes during the 2-minute interruption window."
           />
         </Content>
@@ -113,6 +111,7 @@ export const SpotInterruptionHandlingFields = ({
                       id="spot-interruption-sqs-queue-url"
                       value={sqsQueueUrl}
                       onChange={(_event, value) => onSqsQueueUrlChange(value)}
+                      onBlur={onSqsQueueUrlBlur}
                       placeholder={SQS_QUEUE_URL_PLACEHOLDER}
                       validated={sqsQueueUrlValidated}
                       isDisabled={isUrlDisabled}
@@ -131,9 +130,8 @@ export const SpotInterruptionHandlingFields = ({
                 {showPrereqAlert ? (
                   <StackItem>
                     <Alert variant="info" isInline title={prereqAlertMessage}>
-                      <ExternalLink href={setupDocumentationHref}>
-                        View setup documentation
-                      </ExternalLink>
+                      {/* TODO https://redhat.atlassian.net/browse/OCMUI-5221 */}
+                      {/* <ExternalLink href={}>View setup documentation</ExternalLink> */}
                     </Alert>
                   </StackItem>
                 ) : null}

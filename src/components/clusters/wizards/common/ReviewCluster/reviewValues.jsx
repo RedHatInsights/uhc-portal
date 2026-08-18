@@ -246,7 +246,7 @@ const reviewValues = {
       [SpotInterruptionMode.Enhanced]: 'Enhanced Spot instances',
     },
   },
-  spot_termination_handler_queue_url: {
+  termination_handler_queue_url: {
     title: 'SQS queue URL',
   },
   nodes_compute: {

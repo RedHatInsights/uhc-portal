@@ -420,7 +420,7 @@ describe('<ReviewClusterScreen />', () => {
     const enhancedSpotValues = {
       hypershift: 'true',
       spot_interruption_handling: 'enhanced',
-      spot_termination_handler_queue_url:
+      termination_handler_queue_url:
         'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
     };
 

@@ -829,7 +829,7 @@ describe('createClusterRequest', () => {
         });
       });
 
-      it('includes spot_termination_handler_queue_url for enhanced Spot interruption handling', () => {
+      it('includes termination_handler_queue_url for enhanced Spot interruption handling', () => {
         const data = {
           ...rosaFormData,
           cloud_provider: 'aws',
@@ -843,7 +843,7 @@ describe('createClusterRequest', () => {
         };
 
         const request = createClusterRequest({}, data);
-        expect(request.aws.spot_termination_handler_queue_url).toEqual(
+        expect(request.aws.termination_handler_queue_url).toEqual(
           'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
         );
       });
