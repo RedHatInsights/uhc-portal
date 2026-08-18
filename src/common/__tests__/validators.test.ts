@@ -27,8 +27,8 @@ import validators, {
   createPessimisticValidator,
   domainPrefixAsyncValidation,
   domainPrefixValidation,
-  required,
   getSqsQueueRegionFromUrl,
+  required,
   validateAWSKMSKeyARN,
   validateExcludeNamespaceSelectorKey,
   validateExcludeNamespaceSelectorValue,
@@ -1377,6 +1377,22 @@ describe('validateSpotTerminationHandlerQueueUrl', () => {
       expect(getSqsQueueRegionFromUrl(validQueueUrl)).toBe('us-east-1');
     });
 
+    it('returns the region from a valid GovCloud FIPS SQS queue URL', () => {
+      expect(
+        getSqsQueueRegionFromUrl(
+          'https://sqs-fips.us-gov-west-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        ),
+      ).toBe('us-gov-west-1');
+    });
+
+    it('returns the region from a valid GovCloud SQS queue URL', () => {
+      expect(
+        getSqsQueueRegionFromUrl(
+          'https://sqs.us-gov-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        ),
+      ).toBe('us-gov-east-1');
+    });
+
     it('returns undefined for a non-SQS URL', () => {
       expect(getSqsQueueRegionFromUrl('https://example.com/queue')).toBeUndefined();
     });
@@ -1396,6 +1412,15 @@ describe('validateSpotTerminationHandlerQueueUrl', () => {
 
   it('returns no error when the URL region matches the cluster region', () => {
     expect(validateSpotTerminationHandlerQueueUrl(validQueueUrl, 'us-east-1')).toBeUndefined();
+  });
+
+  it('returns no error when a GovCloud FIPS SQS URL region matches the cluster region', () => {
+    expect(
+      validateSpotTerminationHandlerQueueUrl(
+        'https://sqs-fips.us-gov-west-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        'us-gov-west-1',
+      ),
+    ).toBeUndefined();
   });
 
   it('returns region mismatch error when the URL region does not match the cluster region', () => {

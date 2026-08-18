@@ -544,6 +544,28 @@ describe('<ScaleSection />', () => {
       );
     });
 
+    it('does not show SQS queue URL validation error before the field is touched', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      useFormStateMock.mockReturnValue({
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+        },
+      });
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Spot interruption handling' }));
+      await userEvent.click(screen.getByRole('radio', { name: /Enhanced Spot instances/i }));
+
+      expect(screen.queryByText('SQS queue URL is required.')).not.toBeInTheDocument();
+    });
+
     it('shows region mismatch error for SQS queue URL in enhanced mode', async () => {
       mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
       useFormStateMock.mockReturnValue({

@@ -11,6 +11,7 @@ import {
 } from '@patternfly/react-core';
 
 import { nodeKeyValueTooltipText } from '~/common/helpers';
+import { validateSpotTerminationHandlerQueueUrl } from '~/common/validators';
 import {
   getWorkerNodeVolumeSizeMaxGiB,
   getWorkerNodeVolumeSizeMinGiB,
@@ -22,7 +23,6 @@ import {
 } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/machineTypeSelectionHelper';
 import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { SpotInterruptionHandlingFields } from '~/components/clusters/common/SpotInterruptionHandling/SpotInterruptionHandlingFields';
-import { validateSpotTerminationHandlerQueueUrl } from '~/common/validators';
 import { AutoScale } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/AutoScale/AutoScale';
 import { canSelectImds } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -61,6 +61,8 @@ function ScaleSection() {
       [FieldId.SpotTerminationHandlerQueueUrl]: spotTerminationHandlerQueueUrl,
     },
     setFieldValue,
+    getFieldMeta,
+    setFieldTouched,
   } = useFormState();
   const dispatch = useDispatch();
 
@@ -72,14 +74,21 @@ function ScaleSection() {
   const isHypershiftSelected = isHypershift === 'true';
   const isAutoscalingEnabled = !!autoscalingEnabled;
   const hasNodeLabels = nodeLabels?.[0]?.key ?? false;
+  const isSpotInterruptionEnhanced = spotInterruptionHandling === SpotInterruptionMode.Enhanced;
+
   const [isNodeLabelsExpanded, setIsNodeLabelsExpanded] = useState(!!hasNodeLabels);
-  const [isSpotInterruptionExpanded, setIsSpotInterruptionExpanded] = useState(false);
+  const [isSpotInterruptionExpanded, setIsSpotInterruptionExpanded] = useState(
+    isSpotInterruptionEnhanced,
+  );
   const canAutoScale = useCanClusterAutoscale(product, billingModel) ?? false;
   const clusterVersionRawId = clusterVersion?.raw_id;
-  const sqsQueueUrlValidationError =
-    spotInterruptionHandling === SpotInterruptionMode.Enhanced
-      ? validateSpotTerminationHandlerQueueUrl(spotTerminationHandlerQueueUrl, region)
-      : undefined;
+  const sqsQueueUrlMeta = getFieldMeta(FieldId.SpotTerminationHandlerQueueUrl);
+  const sqsQueueUrlValidationError = isSpotInterruptionEnhanced
+    ? sqsQueueUrlMeta?.error ||
+      (sqsQueueUrlMeta?.touched || !!spotTerminationHandlerQueueUrl?.trim()
+        ? validateSpotTerminationHandlerQueueUrl(spotTerminationHandlerQueueUrl, region)
+        : undefined)
+    : undefined;
 
   const { minWorkerVolumeSizeGiB, maxWorkerVolumeSizeGiB } = useMemo(() => {
     const minWorkerVolumeSizeGiB = getWorkerNodeVolumeSizeMinGiB(isHypershiftSelected);
@@ -242,9 +251,11 @@ function ScaleSection() {
               onSqsQueueUrlChange={(value) =>
                 setFieldValue(FieldId.SpotTerminationHandlerQueueUrl, value)
               }
+              onSqsQueueUrlBlur={() =>
+                setFieldTouched(FieldId.SpotTerminationHandlerQueueUrl, true, false)
+              }
               sqsQueueUrlValidated={sqsQueueUrlValidationError ? 'error' : 'default'}
               sqsQueueUrlHelperText={sqsQueueUrlValidationError ?? undefined}
-              setupDocumentationHref="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-instance-termination-notices.html"
             />
           </ExpandableSection>
         </GridItem>

@@ -6,8 +6,8 @@ import {
   DEFAULT_SPOT_INTERRUPTION_PREREQ_ALERT,
   ENHANCED_SPOT_DESCRIPTION,
   SIMPLE_SPOT_DESCRIPTION,
-  SpotInterruptionMode,
   SPOT_INTERRUPTION_INTRO,
+  SpotInterruptionMode,
   SQS_QUEUE_URL_HELPER_TEXT,
   SQS_QUEUE_URL_PLACEHOLDER,
 } from './spotInterruptionHandlingConstants';
@@ -26,7 +26,6 @@ const renderFields = (overrides: Partial<SpotInterruptionHandlingFieldsProps> = 
     onModeChange: jest.fn(),
     sqsQueueUrl: '',
     onSqsQueueUrlChange: jest.fn(),
-    setupDocumentationHref: setupDocHref,
     ...overrides,
   };
 
@@ -158,6 +157,19 @@ describe('<SpotInterruptionHandlingFields />', () => {
       await user.type(getSqsQueueUrlInput(), 'https://sqs.example.com/queue');
 
       expect(onSqsQueueUrlChange).toHaveBeenCalled();
+    });
+
+    it('calls onSqsQueueUrlBlur when the SQS queue URL field loses focus', async () => {
+      const onSqsQueueUrlBlur = jest.fn();
+      const { user } = renderFields({
+        mode: SpotInterruptionMode.Enhanced,
+        onSqsQueueUrlBlur,
+      });
+
+      await user.click(getSqsQueueUrlInput());
+      await user.tab();
+
+      expect(onSqsQueueUrlBlur).toHaveBeenCalled();
     });
   });
 

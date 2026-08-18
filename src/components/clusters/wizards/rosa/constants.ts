@@ -50,7 +50,7 @@ export enum RosaFieldId {
   LogForwardingCloudWatchRoleArn = 'log_forwarding_cloudwatch_role_arn',
   LogForwardingCloudWatchSelectedItems = 'log_forwarding_cloudwatch_selected_items',
   SpotInterruptionHandling = 'spot_interruption_handling',
-  SpotTerminationHandlerQueueUrl = 'spot_termination_handler_queue_url',
+  SpotTerminationHandlerQueueUrl = 'termination_handler_queue_url',
 }
 
 export const FieldId = { ...CommonFieldId, ...RosaFieldId };
