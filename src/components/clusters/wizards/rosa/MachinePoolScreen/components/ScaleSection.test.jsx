@@ -1,7 +1,10 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
+import {
+  SPOT_INTERRUPTION_INTRO,
+  SpotInterruptionMode,
+} from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { IMDSType } from '~/components/clusters/wizards/common/constants';
 import * as wizardHooks from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
@@ -478,7 +481,11 @@ describe('<ScaleSection />', () => {
   });
 
   describe('"spot interruption handling" section', () => {
-    it('is rendered for Hypershift below machine pool settings', () => {
+    const expandSpotInterruptionSection = async () => {
+      await userEvent.click(screen.getByRole('button', { name: 'Spot interruption handling' }));
+    };
+
+    it('is rendered for Hypershift below machine pool settings', async () => {
       mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
       useFormStateMock.mockReturnValue({
         ...formStateBaseMock,
@@ -497,9 +504,10 @@ describe('<ScaleSection />', () => {
       expect(
         screen.getByRole('button', { name: 'Spot interruption handling' }),
       ).toBeInTheDocument();
-      expect(
-        screen.getByText('Configure how Spot instance interruptions are handled for this cluster.'),
-      ).toBeInTheDocument();
+
+      await expandSpotInterruptionSection();
+
+      expect(screen.getByText(SPOT_INTERRUPTION_INTRO, { exact: false })).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: /Simple Spot instances/i })).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeInTheDocument();
     });
@@ -512,11 +520,7 @@ describe('<ScaleSection />', () => {
         </Formik>,
       );
 
-      expect(
-        screen.queryByText(
-          'Configure how Spot instance interruptions are handled for this cluster.',
-        ),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(SPOT_INTERRUPTION_INTRO, { exact: false })).not.toBeInTheDocument();
     });
 
     it('invokes setFieldValue when selecting enhanced mode', async () => {
@@ -536,6 +540,7 @@ describe('<ScaleSection />', () => {
         </Formik>,
       );
 
+      await expandSpotInterruptionSection();
       await userEvent.click(screen.getByRole('radio', { name: /Enhanced Spot instances/i }));
 
       expect(formStateMock.setFieldValue).toHaveBeenCalledWith(
@@ -560,7 +565,7 @@ describe('<ScaleSection />', () => {
         </Formik>,
       );
 
-      await userEvent.click(screen.getByRole('button', { name: 'Spot interruption handling' }));
+      await expandSpotInterruptionSection();
       await userEvent.click(screen.getByRole('radio', { name: /Enhanced Spot instances/i }));
 
       expect(screen.queryByText('SQS queue URL is required.')).not.toBeInTheDocument();

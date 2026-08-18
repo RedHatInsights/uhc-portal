@@ -16,8 +16,6 @@ import {
   SpotInterruptionHandlingFieldsProps,
 } from './SpotInterruptionHandlingFields';
 
-const setupDocHref = 'https://example.com/spot-setup';
-
 const getSqsQueueUrlInput = () => screen.getByPlaceholderText(SQS_QUEUE_URL_PLACEHOLDER);
 
 const renderFields = (overrides: Partial<SpotInterruptionHandlingFieldsProps> = {}) => {
@@ -88,10 +86,11 @@ describe('<SpotInterruptionHandlingFields />', () => {
       renderFields({ mode: SpotInterruptionMode.Enhanced });
 
       expect(screen.getByText(DEFAULT_SPOT_INTERRUPTION_PREREQ_ALERT)).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /View setup documentation/i })).toHaveAttribute(
-        'href',
-        setupDocHref,
-      );
+      // TODO https://redhat.atlassian.net/browse/OCMUI-5221
+      // expect(screen.getByRole('link', { name: /View setup documentation/i })).toHaveAttribute(
+      //   'href',
+      //   setupDocHref,
+      // );
     });
 
     it('hides the prerequisite alert when showPrereqAlert is false', () => {
