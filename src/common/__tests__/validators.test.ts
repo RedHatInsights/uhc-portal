@@ -1396,6 +1396,10 @@ describe('validateSpotTerminationHandlerQueueUrl', () => {
     it('returns undefined for a non-SQS URL', () => {
       expect(getSqsQueueRegionFromUrl('https://example.com/queue')).toBeUndefined();
     });
+
+    it('returns undefined when the URL cannot be parsed', () => {
+      expect(getSqsQueueRegionFromUrl('not-a-valid-url')).toBeUndefined();
+    });
   });
 
   it('returns required error when the URL is empty', () => {
@@ -1407,6 +1411,18 @@ describe('validateSpotTerminationHandlerQueueUrl', () => {
   it('returns URL format error when the URL is invalid', () => {
     expect(validateSpotTerminationHandlerQueueUrl('invalid-url', 'us-east-1')).toBe(
       'The URL should include the scheme prefix (http://, https://)',
+    );
+  });
+
+  it('returns an error when the URL is not a valid Amazon SQS queue URL', () => {
+    expect(validateSpotTerminationHandlerQueueUrl('https://example.com/queue', 'us-east-1')).toBe(
+      'Enter a valid Amazon SQS queue URL.',
+    );
+  });
+
+  it('returns required error when the URL is only whitespace', () => {
+    expect(validateSpotTerminationHandlerQueueUrl('   ', 'us-east-1')).toBe(
+      'SQS queue URL is required.',
     );
   });
 

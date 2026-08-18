@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 import {
   SPOT_INTERRUPTION_INTRO,
   SpotInterruptionMode,
+  SQS_QUEUE_URL_PLACEHOLDER,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { IMDSType } from '~/components/clusters/wizards/common/constants';
 import * as wizardHooks from '~/components/clusters/wizards/hooks';
@@ -594,6 +595,80 @@ describe('<ScaleSection />', () => {
       expect(
         screen.getByText('The SQS queue URL must be in the cluster region (us-west-2).'),
       ).toBeInTheDocument();
+    });
+
+    it('shows Formik validation errors for the SQS queue URL field', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      useFormStateMock.mockReturnValue({
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+        },
+        getFieldMeta: jest.fn((fieldName) =>
+          fieldName === FieldId.SpotTerminationHandlerQueueUrl
+            ? { touched: true, error: 'SQS queue URL is required.' }
+            : { touched: false, error: undefined },
+        ),
+      });
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      expect(screen.getByText('SQS queue URL is required.')).toBeInTheDocument();
+    });
+
+    it('expands the spot interruption section by default in enhanced mode', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      useFormStateMock.mockReturnValue({
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+        },
+      });
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeInTheDocument();
+    });
+
+    it('marks the SQS queue URL field as touched on blur', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const formStateMock = {
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+        },
+      };
+      useFormStateMock.mockReturnValue(formStateMock);
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      const sqsQueueUrlInput = screen.getByPlaceholderText(SQS_QUEUE_URL_PLACEHOLDER);
+      await userEvent.click(sqsQueueUrlInput);
+      await userEvent.tab();
+
+      expect(formStateMock.setFieldTouched).toHaveBeenCalledWith(
+        FieldId.SpotTerminationHandlerQueueUrl,
+        true,
+        false,
+      );
     });
 
     it('is not rendered when HCP_SPOT_INSTANCES feature gate is disabled', () => {
