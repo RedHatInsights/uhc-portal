@@ -455,7 +455,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   clusterLoadBalancersValue(): Locator {
-    return this.page.getByTestId('load-balancers');
+    return this.page.getByLabel('Load balancers', { exact: true });
   }
 
   clusterComputeNodeCountValue(): Locator {
@@ -463,11 +463,11 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   clusterTotalvCPUValue(): Locator {
-    return this.page.getByTestId('total-vcpu');
+    return this.page.getByLabel('Total vCPU', { exact: true });
   }
 
   clusterTotalMemoryValue(): Locator {
-    return this.page.getByTestId('total-memory');
+    return this.page.getByLabel('Total memory', { exact: true });
   }
 
   // ── Autonode (Red Hat build of Karpenter) ────────────────────────────────
