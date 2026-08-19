@@ -14,7 +14,7 @@ const defaultProps = {
 };
 
 describe('ApiError', () => {
-  it('should render children if no api errors', () => {
+  test('it works', () => {
     const apiError = null;
     render(
       <ApiError {...defaultProps} apiError={apiError}>

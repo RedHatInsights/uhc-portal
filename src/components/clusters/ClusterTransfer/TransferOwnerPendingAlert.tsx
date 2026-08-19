@@ -24,6 +24,7 @@ export const TransferOwnerPendingAlert = () => {
     <Alert
       id="pendingTransferOwnerAlert"
       className="pf-v6-u-mt-md"
+      style={{ borderLeft: '3px solid orange' }}
       variant="warning"
       isInline
       title="Pending Transfer Requests"

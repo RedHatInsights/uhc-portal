@@ -17,6 +17,8 @@ type Props = {
 
 const ApiError = ({ apiRequest, showApiError, children, apiError, clearApiError }: Props) => {
   const location = useLocation();
+  // eslint-disable-next-line no-console
+  console.log('ApiError rendered');
 
   React.useEffect(() => {
     const ejectApiErrorInterceptor = apiErrorInterceptor(apiRequest, showApiError);
