@@ -1,6 +1,8 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from './base-page';
+import { expect,Locator, Page } from '@playwright/test';
+
 import { CustomCommands } from '../support/custom-commands';
+
+import { BasePage } from './base-page';
 
 /**
  * Page object for Cluster Cloud Tab page functionality
@@ -117,13 +119,6 @@ export class CreateClusterPage extends BasePage {
 
   async clickBackButton(): Promise<void> {
     await this.page.goBack();
-  }
-
-  async expandToggle(selector: string): Promise<void> {
-    const element = this.page.locator(selector);
-    await element.scrollIntoViewIfNeeded();
-    await expect(element).toBeVisible();
-    await element.click();
   }
 
   async expandManagedServiceRow(rowKey: string): Promise<void> {
