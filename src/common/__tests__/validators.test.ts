@@ -1410,14 +1410,56 @@ describe('validateSpotTerminationHandlerQueueUrl', () => {
 
   it('returns URL format error when the URL is invalid', () => {
     expect(validateSpotTerminationHandlerQueueUrl('invalid-url', 'us-east-1')).toBe(
-      'The URL should include the scheme prefix (http://, https://)',
+      'The URL should include the scheme prefix (https://)',
     );
+  });
+
+  it('returns URL format error when the URL uses http', () => {
+    expect(
+      validateSpotTerminationHandlerQueueUrl(
+        'http://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        'us-east-1',
+      ),
+    ).toBe('The URL should include the scheme prefix (https://)');
   });
 
   it('returns an error when the URL is not a valid Amazon SQS queue URL', () => {
     expect(validateSpotTerminationHandlerQueueUrl('https://example.com/queue', 'us-east-1')).toBe(
       'Enter a valid Amazon SQS queue URL.',
     );
+  });
+
+  it('returns an error when the SQS URL does not include account ID and queue name', () => {
+    expect(
+      validateSpotTerminationHandlerQueueUrl('https://sqs.us-east-1.amazonaws.com/', 'us-east-1'),
+    ).toBe('Enter a valid Amazon SQS queue URL.');
+  });
+
+  it('returns an error when the SQS URL contains credentials', () => {
+    expect(
+      validateSpotTerminationHandlerQueueUrl(
+        'https://user:pass@sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        'us-east-1',
+      ),
+    ).toBe('Enter a valid Amazon SQS queue URL.');
+  });
+
+  it('returns an error when the SQS URL contains a port', () => {
+    expect(
+      validateSpotTerminationHandlerQueueUrl(
+        'https://sqs.us-east-1.amazonaws.com:8443/123456789012/rosa-cluster-spot',
+        'us-east-1',
+      ),
+    ).toBe('Enter a valid Amazon SQS queue URL.');
+  });
+
+  it('returns an error when the SQS URL contains query or fragment', () => {
+    expect(
+      validateSpotTerminationHandlerQueueUrl(
+        'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot?x=1#frag',
+        'us-east-1',
+      ),
+    ).toBe('Enter a valid Amazon SQS queue URL.');
   });
 
   it('returns required error when the URL is only whitespace', () => {

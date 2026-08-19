@@ -557,6 +557,7 @@ describe('<ScaleSection />', () => {
         values: {
           ...formStateBaseMock.values,
           [FieldId.Hypershift]: 'true',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
       });
 
@@ -567,7 +568,6 @@ describe('<ScaleSection />', () => {
       );
 
       await expandSpotInterruptionSection();
-      await userEvent.click(screen.getByRole('radio', { name: /Enhanced Spot instances/i }));
 
       expect(screen.queryByText('SQS queue URL is required.')).not.toBeInTheDocument();
     });
