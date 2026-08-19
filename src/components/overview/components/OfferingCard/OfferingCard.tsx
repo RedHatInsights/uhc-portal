@@ -235,7 +235,7 @@ function OfferingCard(props: OfferingCardProps) {
         { descriptionListTerm: 'Billing type', descriptionListDescription: 'Flexible hourly' },
       ];
       offeringCardDocLink = (
-        <ExternalLink href={docLinks.IBM_CLOUD}>Learn more on IBM</ExternalLink>
+        <ExternalLink href={docLinks.IBM_CLOUD_LEARN_MORE}>Learn more on IBM</ExternalLink>
       );
       cardLogo = <img className="offering-logo" src={IBMLogo} alt="IBM logo" />;
       break;
@@ -248,7 +248,7 @@ function OfferingCard(props: OfferingCardProps) {
         { descriptionListTerm: 'Billing type', descriptionListDescription: 'Flexible hourly' },
       ];
       offeringCardDocLink = (
-        <ExternalLink href={docLinks.IBM_CLOUD_ROVS}>Learn more on IBM</ExternalLink>
+        <ExternalLink href={docLinks.IBM_CLOUD_ROVS_LEARN_MORE}>Learn more on IBM</ExternalLink>
       );
       cardLogo = <img className="offering-logo" src={IBMLogo} alt="IBM logo" />;
       break;

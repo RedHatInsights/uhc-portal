@@ -46,6 +46,9 @@ describe('<OfferingCard />', () => {
     expect(
       screen.getByText('Red Hat OpenShift Virtualization Service on IBM Cloud'),
     ).toBeInTheDocument();
-    expect(screen.getByText('Learn more on IBM')).toHaveAttribute('href', docLinks.IBM_CLOUD_ROVS);
+    expect(screen.getByText('Learn more on IBM')).toHaveAttribute(
+      'href',
+      docLinks.IBM_CLOUD_ROVS_LEARN_MORE,
+    );
   });
 });

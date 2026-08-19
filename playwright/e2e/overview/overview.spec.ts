@@ -134,7 +134,7 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
 
     await overviewPage.expectLinkOpensInNewTab(
       overviewPage.cardLearnMoreLink('offering-card_RHOIBM', 'Learn more on IBM'),
-      docLinks.IBM_CLOUD,
+      docLinks.IBM_CLOUD_LEARN_MORE,
     );
 
     // Red Hat OpenShift Virtualization Service on IBM Cloud card
@@ -153,7 +153,7 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
 
       await overviewPage.expectLinkOpensInNewTab(
         overviewPage.cardLearnMoreLink('offering-card_ROVS', 'Learn more on IBM'),
-        docLinks.IBM_CLOUD_ROVS,
+        docLinks.IBM_CLOUD_ROVS_LEARN_MORE,
       );
     }
 
