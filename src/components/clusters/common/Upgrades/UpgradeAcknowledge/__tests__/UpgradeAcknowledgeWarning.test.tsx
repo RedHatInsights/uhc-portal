@@ -255,11 +255,52 @@ describe('<UpgradeAcknowledgeWarning>', () => {
       isInfo: true,
     };
 
-    const { container } = render(<UpgradeAcknowledgeWarning showUpgradeWarning {...newProps} />);
-    console.log(container.innerHTML);
+    render(<UpgradeAcknowledgeWarning showUpgradeWarning {...newProps} />);
     expect(
       screen.getByText(
         'Your update strategy is currently set to recurring updates. Update 4.4.10 is a Y stream update and must be individually updated.',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('Display major version alert when upgrade crosses a major boundary', () => {
+    const testCluster: AugmentedCluster = {
+      id: 'muClusterId3',
+      openshift_version: '4.22.1',
+      version: {
+        raw_id: '4.22.1',
+        available_upgrades: ['5.0.0'],
+      },
+      subscription: {
+        id: 'mock-subscription-id',
+        status: 'Active',
+        managed: true,
+        rh_region_id: 'us-east-1',
+      },
+      upgradeGates: [] as VersionGateAgreement[],
+    } as AugmentedCluster;
+
+    const testSchedules: UpgradePolicyWithState[] = [
+      {
+        id: 'myUpgradePolicyID',
+        schedule_type: 'automatic',
+        state: { value: 'pending' },
+        enable_minor_version_upgrades: false,
+      } as UpgradePolicyWithState,
+    ];
+
+    const newProps: UpgradeAcknowledgeWarningProps = {
+      ...defaultProps,
+      cluster: testCluster,
+      schedules: testSchedules,
+      upgradeGates: [],
+      isInfo: true,
+    };
+
+    render(<UpgradeAcknowledgeWarning showUpgradeWarning {...newProps} />);
+    expect(
+      screen.getByText(
+        'Your update strategy is currently set to recurring updates. Update 5.0.0 is a major release update and must be individually updated.',
       ),
     ).toBeInTheDocument();
   });
