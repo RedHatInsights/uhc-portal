@@ -7,7 +7,8 @@ const constants = {
     'Single zone clusters reside in a singular fault domain and lack the resilience of multi-zone clusters.',
   availabilityHintMultiZone:
     'Three availability zones provide resilience to cluster components evenly spread across fault domains.',
-  regionHint: 'The data center where your compute pool will be located.',
+  regionHint:
+    'The geographic location of the AWS data centers where your compute pool will be located.',
   persistentStorageHint: 'The storage quota set on the deployed cluster.',
   loadBalancersHint: 'The load balancer quota set on the deployed cluster.',
   computeNodeInstanceTypeHint: `The instance type for the compute nodes. Instance type
