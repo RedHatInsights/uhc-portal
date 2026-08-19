@@ -20,40 +20,40 @@ For broken doc links ("Get started" / "Learn more"), file a ticket in the **OSDO
 
 | Display Name | Upstream OWNERS | Slack Channel | Notes |
 |-------------|-----------------|---------------|-------|
-| OpenShift CLI (oc) | [openshift/oc/OWNERS](https://github.com/openshift/oc/blob/master/OWNERS) | `#forum-ocp-art` | ART publishes binary |
-| OCM API CLI (ocm) | [openshift-online/ocm-cli/OWNERS](https://github.com/openshift-online/ocm-cli/blob/main/OWNERS) | `#forum-rosa-service-engineering` | |
-| ROSA CLI (rosa) | [openshift/rosa/OWNERS](https://github.com/openshift/rosa/blob/master/OWNERS) | `#forum-rosa-service-engineering` | ping `@rosa-cli-tf-devs` |
-| Knative CLI (kn) | [openshift-knative/client/OWNERS](https://github.com/openshift-knative/client/blob/main/OWNERS) | `#team-serverless` | |
-| Tekton CLI (tkn) | [tektoncd/cli/OWNERS](https://github.com/tektoncd/cli/blob/main/OWNERS) | `#forum-openshift-builds` | |
-| Argo CD CLI (argocd) | [redhat-developer/gitops-operator/OWNERS](https://github.com/redhat-developer/gitops-operator/blob/master/OWNERS) | `#forum-openshift-gitops` | |
-| Shipwright CLI (shp) | [shipwright-io/cli/OWNERS](https://github.com/shipwright-io/cli/blob/main/OWNERS) | `#forum-openshift-builds` | |
+| OpenShift CLI (oc) | [OWNERS](https://github.com/openshift/oc/blob/master/OWNERS) / [ALIASES](https://github.com/openshift/oc/blob/master/OWNERS_ALIASES) | `#forum-ocp-art` | ART publishes binary |
+| OCM API CLI (ocm) | [OWNERS](https://github.com/openshift-online/ocm-cli/blob/main/OWNERS) | `#forum-rosa-service-engineering` | |
+| ROSA CLI (rosa) | [OWNERS](https://github.com/openshift/rosa/blob/master/OWNERS) | `#forum-rosa-service-engineering` | ping `@rosa-cli-tf-devs` |
+| Knative CLI (kn) | [OWNERS](https://github.com/openshift-knative/client/blob/main/OWNERS) / [ALIASES](https://github.com/openshift-knative/client/blob/main/OWNERS_ALIASES) | `#team-serverless` | |
+| Tekton CLI (tkn) | [OWNERS](https://github.com/tektoncd/cli/blob/main/OWNERS) | `#forum-openshift-builds` | |
+| Argo CD CLI (argocd) | [OWNERS](https://github.com/redhat-developer/gitops-operator/blob/master/OWNERS) | `#forum-openshift-gitops` | |
+| Shipwright CLI (shp) | [OWNERS](https://github.com/shipwright-io/cli/blob/main/OWNERS) | `#forum-openshift-builds` | |
 
 ### Developer Tools
 
 | Display Name | Upstream OWNERS | Slack Channel | Notes |
 |-------------|-----------------|---------------|-------|
-| Developer CLI (odo) | [redhat-developer/odo](https://github.com/redhat-developer/odo/blob/main/OWNERS) | — | **DEPRECATED** |
+| Developer CLI (odo) | [OWNERS](https://github.com/redhat-developer/odo/blob/main/OWNERS) | — | **DEPRECATED** |
 | Helm 3 CLI (helm) | [helm/helm](https://github.com/helm/helm) (upstream) | `#forum-helm` | ART publishes RH builds |
-| Operator Package Mgr (opm) | [operator-framework/operator-registry/OWNERS](https://github.com/operator-framework/operator-registry/blob/master/OWNERS) | `#olm-dev` (Kubernetes Slack) | |
-| Operator SDK CLI | [operator-framework/operator-sdk/OWNERS](https://github.com/operator-framework/operator-sdk/blob/master/OWNERS) | `#olm-dev` (Kubernetes Slack) | Removed in OCP 4.19 |
+| Operator Package Mgr (opm) | [OWNERS](https://github.com/operator-framework/operator-registry/blob/master/OWNERS) | `#olm-dev` (Kubernetes Slack) | |
+| Operator SDK CLI | [OWNERS](https://github.com/operator-framework/operator-sdk/blob/master/OWNERS) / [ALIASES](https://github.com/operator-framework/operator-sdk/blob/master/OWNERS_ALIASES) | `#olm-dev` (Kubernetes Slack) | Removed in OCP 4.19 |
 | RHOAS CLI (rhoas) | [redhat-developer/app-services-cli](https://github.com/redhat-developer/app-services-cli) | — | **DEPRECATED** |
 
 ### Installation Tools
 
 | Display Name | Upstream OWNERS | Slack Channel | Notes |
 |-------------|-----------------|---------------|-------|
-| OCP Installer (all archs) | [openshift/installer/OWNERS](https://github.com/openshift/installer/blob/master/OWNERS) | `#forum-ocp-installer` | ART publishes binaries |
-| OpenShift Local (CRC) | [crc-org/crc/OWNERS](https://github.com/crc-org/crc/blob/main/OWNERS) | `#forum-crc` | |
+| OCP Installer (all archs) | [OWNERS](https://github.com/openshift/installer/blob/master/OWNERS) / [ALIASES](https://github.com/openshift/installer/blob/master/OWNERS_ALIASES) | `#forum-ocp-installer` | ART publishes binaries |
+| OpenShift Local (CRC) | [OWNERS](https://github.com/crc-org/crc/blob/main/OWNERS) / [ALIASES](https://github.com/crc-org/crc/blob/main/OWNERS_ALIASES) | `#forum-crc` | |
 
 ### Disconnected / Customization Tools
 
 | Display Name | Upstream OWNERS | Slack Channel | Notes |
 |-------------|-----------------|---------------|-------|
 | Mirror Registry | [quay/mirror-registry](https://github.com/quay/mirror-registry) | `#forum-quay` | OWNERS file empty |
-| oc-mirror Plugin | [openshift/oc-mirror/OWNERS](https://github.com/openshift/oc-mirror/blob/main/OWNERS) | `#forum-ocp-art` | |
-| Butane | [coreos/butane/OWNERS](https://github.com/coreos/butane/blob/main/OWNERS) | `#forum-ocp-installer` | MCO team |
-| CoreOS Installer | [coreos/coreos-installer/OWNERS](https://github.com/coreos/coreos-installer/blob/main/OWNERS) | `#forum-ocp-installer` | MCO team |
-| Cloud Credential Operator (ccoctl) | [openshift/cloud-credential-operator/OWNERS](https://github.com/openshift/cloud-credential-operator/blob/master/OWNERS) | `#forum-cloud-credential-operator` | |
+| oc-mirror Plugin | [OWNERS](https://github.com/openshift/oc-mirror/blob/main/OWNERS) | `#forum-ocp-art` | |
+| Butane | [OWNERS](https://github.com/coreos/butane/blob/main/OWNERS) | `#forum-ocp-installer` | MCO team |
+| CoreOS Installer | [OWNERS](https://github.com/coreos/coreos-installer/blob/main/OWNERS) | `#forum-ocp-installer` | MCO team |
+| Cloud Credential Operator (ccoctl) | [OWNERS](https://github.com/openshift/cloud-credential-operator/blob/master/OWNERS) | `#forum-cloud-credential-operator` | |
 
 ### Tokens
 
