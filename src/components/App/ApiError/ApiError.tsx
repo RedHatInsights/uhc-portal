@@ -17,6 +17,14 @@ type Props = {
 
 const ApiError = ({ apiRequest, showApiError, children, apiError, clearApiError }: Props) => {
   const location = useLocation();
+  const [cachedApiError, setCachedApiError] = React.useState(apiError);
+
+  // eslint-disable-next-line no-console
+  console.log('ApiError rendered');
+
+  React.useEffect(() => {
+    setCachedApiError(apiError);
+  }, [apiError]);
 
   React.useEffect(() => {
     const ejectApiErrorInterceptor = apiErrorInterceptor(apiRequest, showApiError);
@@ -30,10 +38,10 @@ const ApiError = ({ apiRequest, showApiError, children, apiError, clearApiError 
   }, [apiRequest, clearApiError, location]);
 
   // watch only errors that have their own error pages
-  if (apiError && hasOwnErrorPage(apiError)) {
-    const internalErrorCode = getInternalErrorCode(apiError);
+  if (cachedApiError && hasOwnErrorPage(cachedApiError)) {
+    const internalErrorCode = getInternalErrorCode(cachedApiError);
     if (internalErrorCode === TERMS_REQUIRED_CODE) {
-      return <TermsError error={apiError} restore={clearApiError} />;
+      return <TermsError error={cachedApiError as any} restore={clearApiError} />;
     }
     // eslint-disable-next-line no-console
     console.error(`no defined error page: code=${internalErrorCode}`);
