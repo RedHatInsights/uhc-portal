@@ -94,12 +94,12 @@ test.describe.serial(
     test('Check IBM Cloud section contents', async ({ createClusterPage }) => {
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift on IBM Cloud',
-        'https://www.ibm.com/cloud/openshift',
+        docLinks.IBM_CLOUD_LEARN_MORE,
       );
 
       await createClusterPage.checkManagedServiceButton(
         'Try it on IBM',
-        'https://cloud.ibm.com/kubernetes/catalog/create?platformType=openshift',
+        docLinks.IBM_CLOUD,
       );
 
       await createClusterPage.expandManagedServiceRow('ibm');
@@ -107,7 +107,7 @@ test.describe.serial(
 
       await createClusterPage.checkManagedServiceLink(
         'Learn more about Red Hat OpenShift on IBM Cloud',
-        'https://www.ibm.com/cloud/openshift',
+        docLinks.IBM_CLOUD_LEARN_MORE,
       );
     });
 
@@ -136,7 +136,7 @@ test.describe.serial(
     test('Check ROSA section contents', async ({ createClusterPage }) => {
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Service on AWS (ROSA)',
-        'https://cloud.redhat.com/products/amazon-openshift',
+        docLinks.AWS_LEARN_MORE,
       );
 
       await createClusterPage.clickCreateRosaButton();
@@ -149,7 +149,7 @@ test.describe.serial(
 
       await createClusterPage.checkManagedServiceLink(
         'Learn more about Red Hat OpenShift Service on AWS',
-        'https://cloud.redhat.com/products/amazon-openshift',
+        docLinks.AWS_LEARN_MORE,
       );
     });
 

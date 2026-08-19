@@ -134,7 +134,7 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
 
     await overviewPage.expectLinkOpensInNewTab(
       overviewPage.cardLearnMoreLink('offering-card_RHOIBM', 'Learn more on IBM'),
-      'https://cloud.ibm.com/kubernetes/catalog/create?platformType=openshift',
+      docLinks.IBM_CLOUD,
     );
 
     // Red Hat OpenShift Virtualization Service on IBM Cloud card
