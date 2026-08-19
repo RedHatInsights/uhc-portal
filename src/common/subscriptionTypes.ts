@@ -193,14 +193,12 @@ const ocmRoles: Record<string, OcmRoleItem> = {
 };
 
 export {
-  allowedProducts,
   clustersServiceProducts,
   getAllowedProducts,
   getProductFilterOptions,
   knownProducts,
   normalizedProducts,
   ocmRoles,
-  productFilterOptions,
   STANDARD_TRIAL_BILLING_MODEL_TYPE,
   subscriptionSettings,
 };
