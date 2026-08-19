@@ -8,11 +8,7 @@ import { useFetchClusterTransferDetail } from '~/queries/ClusterDetailsQueries/C
 import { useGlobalState } from '~/redux/hooks';
 import { ClusterTransferStatus } from '~/types/accounts_mgmt.v1';
 
-class PendingTransferCount extends React.Component<{ count: number }> {
-  render() {
-    return <strong>{this.props.count}</strong>;
-  }
-}
+const PendingTransferCount = ({ count }: { count: number }) => <strong>{count}</strong>;
 
 export const TransferOwnerPendingAlert = () => {
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
