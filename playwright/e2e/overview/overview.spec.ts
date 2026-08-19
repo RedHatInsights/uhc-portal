@@ -32,6 +32,9 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
     await expect(page).toHaveURL(/\/openshift\/assisted-installer\/clusters\/~new/);
     await navigateTo('overview');
 
+    // Verify central section card count (ROVS card is feature-gated)
+    await overviewPage.centralSectionCardsExpected(isRovsRegistrationEnabled ? 8 : 7);
+
     // ROVS offering card visibility is feature-gated
     await overviewPage.expectOfferingCardVisible('offering-card_ROVS', isRovsRegistrationEnabled);
 
