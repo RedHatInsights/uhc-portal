@@ -827,6 +827,7 @@ const validateUrl = (value: string, protocol: string | string[] = 'http'): strin
 const validateUrlHttpsAndHttp = (value: string) => validateUrl(value, ['http', 'https']);
 
 const SQS_QUEUE_HOSTNAME_PATTERN = /^sqs(?:-fips)?\.([a-z0-9-]+)\.amazonaws\.com$/i;
+const SQS_QUEUE_PATHNAME_PATTERN = /^\/\d{12}\/[^/]+$/;
 
 const getSqsQueueRegionFromUrl = (url: string): string | undefined => {
   try {
@@ -848,12 +849,30 @@ const validateSpotTerminationHandlerQueueUrl = (
     return 'SQS queue URL is required.';
   }
 
-  const urlError = validateUrlHttpsAndHttp(trimmedValue);
+  const urlError = validateUrl(trimmedValue, 'https');
   if (urlError) {
     return urlError;
   }
 
-  const queueRegion = getSqsQueueRegionFromUrl(trimmedValue);
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(trimmedValue);
+  } catch {
+    return 'Enter a valid Amazon SQS queue URL.';
+  }
+
+  const queueRegion = parsedUrl.hostname.match(SQS_QUEUE_HOSTNAME_PATTERN)?.[1];
+  const hasInvalidUrlParts =
+    !!parsedUrl.username ||
+    !!parsedUrl.password ||
+    !!parsedUrl.port ||
+    !!parsedUrl.search ||
+    !!parsedUrl.hash;
+
+  if (hasInvalidUrlParts || !SQS_QUEUE_PATHNAME_PATTERN.test(parsedUrl.pathname)) {
+    return 'Enter a valid Amazon SQS queue URL.';
+  }
+
   if (!queueRegion) {
     return 'Enter a valid Amazon SQS queue URL.';
   }
