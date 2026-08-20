@@ -12,6 +12,7 @@ import {
   GridItem,
   Split,
   SplitItem,
+  Stack,
   Title,
 } from '@patternfly/react-core';
 
@@ -534,15 +535,17 @@ function Details() {
         ) : null}
 
         <GridItem md={6}>
-          <ClassicV5CreationWarning isClassic={!isHypershiftSelected} product="rosa" />
-          <VersionSelection
-            label="Version"
-            onChange={handleVersionChange}
-            channelGroup={channelGroup}
-            isEUSChannelEnabled={isEUSChannelEnabled}
-            isYStreamChannelEnabled={isYStreamChannelEnabled}
-            key={selectedVersion?.id}
-          />
+          <Stack hasGutter>
+            <ClassicV5CreationWarning isClassic={!isHypershiftSelected} product="rosa" />
+            <VersionSelection
+              label="Version"
+              onChange={handleVersionChange}
+              channelGroup={channelGroup}
+              isEUSChannelEnabled={isEUSChannelEnabled}
+              isYStreamChannelEnabled={isYStreamChannelEnabled}
+              key={selectedVersion?.id}
+            />
+          </Stack>
         </GridItem>
         <GridItem md={6} />
 
