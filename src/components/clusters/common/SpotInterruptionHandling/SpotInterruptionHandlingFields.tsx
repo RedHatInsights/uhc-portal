@@ -34,7 +34,6 @@ export type SpotInterruptionHandlingFieldsProps = {
   onSqsQueueUrlChange: (url: string) => void;
   onSqsQueueUrlBlur?: () => void;
   isDisabled?: boolean;
-  isModeDisabled?: boolean;
   isEnhancedDisabled?: boolean;
   enhancedDisabledReason?: React.ReactNode;
   isSqsQueueUrlDisabled?: boolean;
@@ -51,7 +50,6 @@ export const SpotInterruptionHandlingFields = ({
   onSqsQueueUrlChange,
   onSqsQueueUrlBlur,
   isDisabled = false,
-  isModeDisabled = false,
   isEnhancedDisabled = false,
   enhancedDisabledReason,
   isSqsQueueUrlDisabled = false,
