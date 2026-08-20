@@ -12,8 +12,9 @@ const useAnalyticsMock = jest.fn();
 jest.mock('~/hooks/useAnalytics', () => jest.fn(() => useAnalyticsMock));
 
 const rosaClassicWarningText =
-  'OpenShift v5 is not supported on ROSA Classic clusters. To use OpenShift v5, please create a ROSA HCP cluster.';
-const osdClassicWarningText = 'OpenShift v5 is not supported on OSD Classic clusters.';
+  'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for ROSA Classic. To use OpenShift v5, please create a ROSA HCP cluster.';
+const osdClassicWarningText =
+  'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
 
 const orgWithCapability = (value: 'true' | 'false'): Organization =>
   ({

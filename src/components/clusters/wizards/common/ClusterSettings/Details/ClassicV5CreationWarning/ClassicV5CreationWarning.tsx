@@ -17,7 +17,8 @@ const getWarningTitle = (product: 'rosa' | 'osd'): React.ReactNode => {
   if (product === 'rosa') {
     return (
       <>
-        OpenShift v5 is not supported on ROSA Classic clusters. To use OpenShift v5, please{' '}
+        OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported
+        version for ROSA Classic. To use OpenShift v5, please{' '}
         <InternalTrackingLink to="/create/rosa/getstarted">
           create a ROSA HCP cluster
         </InternalTrackingLink>
@@ -26,7 +27,7 @@ const getWarningTitle = (product: 'rosa' | 'osd'): React.ReactNode => {
     );
   }
 
-  return 'OpenShift v5 is not supported on OSD Classic clusters.';
+  return 'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
 };
 
 export const ClassicV5CreationWarning = ({ isClassic, product }: ClassicV5CreationWarningProps) => {
