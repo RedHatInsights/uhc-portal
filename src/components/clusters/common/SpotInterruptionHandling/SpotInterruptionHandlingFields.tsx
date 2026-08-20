@@ -81,7 +81,6 @@ export const SpotInterruptionHandlingFields = ({
           label="Simple Spot instances"
           description={SIMPLE_SPOT_DESCRIPTION}
           isChecked={mode === SpotInterruptionMode.Simple}
-          isDisabled={isEnhancedDisabled}
           onChange={() => onModeChange(SpotInterruptionMode.Simple)}
         />
       </StackItem>
