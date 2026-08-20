@@ -21,7 +21,11 @@ import {
   isMachineTypeIncludedInFilteredSet,
   shouldUseRegionFilteredData,
 } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/machineTypeSelectionHelper';
-import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
+import {
+  ENHANCED_SPOT_VERSION_DISABLED_REASON,
+  isEnhancedSpotVersionSupported,
+  SpotInterruptionMode,
+} from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { SpotInterruptionHandlingFields } from '~/components/clusters/common/SpotInterruptionHandling/SpotInterruptionHandlingFields';
 import { AutoScale } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/AutoScale/AutoScale';
 import { canSelectImds } from '~/components/clusters/wizards/common/constants';
@@ -82,6 +86,7 @@ function ScaleSection() {
   );
   const canAutoScale = useCanClusterAutoscale(product, billingModel) ?? false;
   const clusterVersionRawId = clusterVersion?.raw_id;
+  const isEnhancedSpotVersionValid = isEnhancedSpotVersionSupported(clusterVersionRawId);
   const sqsQueueUrlMeta = getFieldMeta(FieldId.SpotTerminationHandlerQueueUrl);
   const sqsQueueUrlValidationError = isSpotInterruptionEnhanced
     ? sqsQueueUrlMeta?.error ||
@@ -116,6 +121,14 @@ function ScaleSection() {
     setFieldValue(FieldId.MachineTypeAvailability, availabilityOfAMachinePool);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setFieldValue, useRegionFilteredData, instanceType]);
+
+  React.useEffect(() => {
+    // The user can go back and change the cluster version below 4.22.
+    if (!isEnhancedSpotVersionValid && isSpotInterruptionEnhanced) {
+      setFieldValue(FieldId.SpotInterruptionHandling, SpotInterruptionMode.Simple);
+      setFieldValue(FieldId.SpotTerminationHandlerQueueUrl, '');
+    }
+  }, [isEnhancedSpotVersionValid, isSpotInterruptionEnhanced, setFieldValue]);
 
   const LabelsSectionComponent = useCallback(
     () =>
@@ -256,6 +269,10 @@ function ScaleSection() {
               }
               sqsQueueUrlValidated={sqsQueueUrlValidationError ? 'error' : 'default'}
               sqsQueueUrlHelperText={sqsQueueUrlValidationError ?? undefined}
+              isEnhancedDisabled={!isEnhancedSpotVersionValid}
+              enhancedDisabledReason={
+                isEnhancedSpotVersionValid ? undefined : ENHANCED_SPOT_VERSION_DISABLED_REASON
+              }
             />
           </ExpandableSection>
         </GridItem>

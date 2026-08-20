@@ -1,7 +1,19 @@
+import semver from 'semver';
+
 export enum SpotInterruptionMode {
   Simple = 'simple',
   Enhanced = 'enhanced',
 }
+
+export const ENHANCED_SPOT_MIN_VERSION = '4.22.0';
+
+export const ENHANCED_SPOT_VERSION_DISABLED_REASON =
+  'Enhanced Spot instances requires OpenShift version 4.22 or above';
+
+export const isEnhancedSpotVersionSupported = (clusterVersion?: string): boolean => {
+  const coercedVersion = semver.coerce(clusterVersion);
+  return coercedVersion ? semver.gte(coercedVersion, ENHANCED_SPOT_MIN_VERSION) : false;
+};
 
 export const SQS_QUEUE_URL_PLACEHOLDER =
   'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot';
