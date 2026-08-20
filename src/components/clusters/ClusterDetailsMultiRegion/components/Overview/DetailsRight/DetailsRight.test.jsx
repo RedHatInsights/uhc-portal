@@ -5,6 +5,7 @@ import {
   ALLOW_EUS_CHANNEL,
   ENABLE_AUTO_NODE,
   HCP_LOG_FORWARDING,
+  HCP_SPOT_INSTANCES,
 } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
@@ -2191,6 +2192,86 @@ describe('<DetailsRight />', () => {
 
       const link = screen.getByText('Learn more');
       expect(link).toHaveAttribute('href', docLinks.ROSA_AUTONODE);
+    });
+  });
+
+  describe('Spot interruption handling', () => {
+    it('shows section with enhanced mode and queue URL for hypershift when enabled', () => {
+      mockUseFeatureGate([
+        [ENABLE_AUTO_NODE, true],
+        [HCP_SPOT_INSTANCES, true],
+      ]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          canUpdateClusterResource: true,
+          state: 'ready',
+          aws: {
+            ...clusterFixture.aws,
+            termination_handler_queue_url:
+              'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+          },
+        },
+      };
+
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.getByTestId('spotInterruptionHandlingMode')).toHaveTextContent(
+        'Spot instances Enhanced',
+      );
+      expect(
+        screen.getByText(
+          'SQS queue URL: https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('shows simple mode when queue URL is not configured', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          aws: { ...clusterFixture.aws, termination_handler_queue_url: undefined },
+        },
+      };
+
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.getByTestId('spotInterruptionHandlingMode')).toHaveTextContent(
+        'Spot instances Simple',
+      );
+    });
+
+    it('opens edit modal when clicking the spot interruption edit button', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const clusterFixture = defaultProps.cluster;
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...clusterFixture,
+          hypershift: { enabled: true },
+          canUpdateClusterResource: true,
+          state: 'ready',
+        },
+      };
+
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      const { user } = render(<DetailsRight {...newProps} />);
+
+      await user.click(screen.getByTestId('editSpotInterruptionHandlingButton'));
+
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'Spot interruption handling settings' }),
+      ).toBeInTheDocument();
     });
   });
 

@@ -37,7 +37,11 @@ import useAnalytics from '~/hooks/useAnalytics';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useFetchLogForwarders } from '~/queries/ClusterDetailsQueries/useFetchLogForwarders';
-import { ENABLE_AUTO_NODE, HCP_LOG_FORWARDING } from '~/queries/featureGates/featureConstants';
+import {
+  ENABLE_AUTO_NODE,
+  HCP_LOG_FORWARDING,
+  HCP_SPOT_INSTANCES,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
@@ -53,6 +57,7 @@ import { isArchivedSubscription } from '../../../clusterDetailsHelper';
 import SecurityGroupsDisplayByNode from '../../SecurityGroups/SecurityGroupsDetailDisplay';
 import ClusterNetwork from '../ClusterNetwork';
 import EditAutoNodeModal from '../EditAutoNodeModal/EditAutoNodeModal';
+import EditSpotInterruptionHandlingModal from '../EditSpotInterruptionHandlingModal/EditSpotInterruptionHandlingModal';
 
 import DeleteProtection from './DeleteProtection/DeleteProtection';
 import AutoNodeKarpenterCount from './AutoNodeKarpenterCount';
@@ -76,6 +81,7 @@ function DetailsRight({
   const clusterRawVersionID = cluster?.version?.raw_id;
   const isAutoNodeAllowed = useFeatureGate(ENABLE_AUTO_NODE) && isHypershift;
   const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
+  const isHcpSpotInstancesEnabled = useFeatureGate(HCP_SPOT_INSTANCES);
   const showControlPlaneLogForwarding = isHypershift && isHcpLogForwardingEnabled;
   const track = useAnalytics();
   const dispatch = useDispatch();
@@ -101,6 +107,8 @@ function DetailsRight({
   const [hasAutoscaleMachinePools, setHasAutoscaleMachinePools] = React.useState();
   const [limitedSupport, setLimitedSupport] = React.useState();
   const [isEditAutoNodeModalOpen, setIsEditAutoNodeModalOpen] = React.useState(false);
+  const [isEditSpotInterruptionModalOpen, setIsEditSpotInterruptionModalOpen] =
+    React.useState(false);
 
   // Pause auto-refresh while the edit Autonode modal is open.
   const openEditAutoNodeModal = () => {
@@ -111,6 +119,16 @@ function DetailsRight({
 
   const closeEditAutoNodeModal = () => {
     setIsEditAutoNodeModalOpen(false);
+    dispatch(closeModal());
+  };
+
+  const openEditSpotInterruptionModal = () => {
+    setIsEditSpotInterruptionModalOpen(true);
+    dispatch(openModal(modals.EDIT_SPOT_INTERRUPTION));
+  };
+
+  const closeEditSpotInterruptionModal = () => {
+    setIsEditSpotInterruptionModalOpen(false);
     dispatch(closeModal());
   };
 
@@ -189,6 +207,11 @@ function DetailsRight({
   const autoNodeCount = cluster?.auto_node?.status?.node_count;
   const showAutoNodeCount =
     isAutoNodeAllowed && !isArchivedSubscription(cluster) && autoNodeCount != null;
+  const terminationHandlerQueueUrl =
+    cluster?.aws?.termination_handler_queue_url || cluster?.aws?.spot_termination_handler_queue_url;
+  const isSpotInterruptionEnhanced = !!terminationHandlerQueueUrl;
+  const showSpotInterruptionHandling =
+    isHypershift && isHcpSpotInstancesEnabled && !isArchivedSubscription(cluster);
 
   const workerActualNodes = totalActualNodes === false ? '-' : totalActualNodes;
   const workerDesiredNodes = totalDesiredComputeNodes || '-';
@@ -536,6 +559,48 @@ function DetailsRight({
           </DescriptionListGroup>
         </>
       )}
+      {showSpotInterruptionHandling ? (
+        <>
+          {isEditSpotInterruptionModalOpen ? (
+            <EditSpotInterruptionHandlingModal
+              cluster={cluster}
+              region={region}
+              onClose={closeEditSpotInterruptionModal}
+            />
+          ) : null}
+          <DescriptionListGroup>
+            <DescriptionListTerm>
+              Spot interruption handling
+              <PopoverHint
+                id="spot-interruption-handling-hint"
+                iconClassName="nodes-hint"
+                buttonAriaLabel="More information about spot interruption handling"
+                hint="Choose how this cluster responds when AWS reclaims a Spot instance."
+              />
+            </DescriptionListTerm>
+            <DescriptionListDescription>
+              <EditButton
+                data-testid="editSpotInterruptionHandlingButton"
+                ariaLabel="Edit spot interruption handling settings"
+                disableReason={
+                  (!cluster?.canUpdateClusterResource &&
+                    'You do not have permission to edit spot interruption handling settings.') ||
+                  (cluster?.state !== clusterStates.ready &&
+                    'Spot interruption handling settings can only be edited when the cluster is ready.')
+                }
+                onClick={openEditSpotInterruptionModal}
+              >
+                <span data-testid="spotInterruptionHandlingMode">
+                  {isSpotInterruptionEnhanced ? 'Spot instances Enhanced' : 'Spot instances Simple'}
+                </span>
+              </EditButton>
+              {isSpotInterruptionEnhanced ? (
+                <div>SQS queue URL: {terminationHandlerQueueUrl}</div>
+              ) : null}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        </>
+      ) : null}
       {/* Network */}
       <ClusterNetwork cluster={cluster} />
       {/* Secure Boot */}
