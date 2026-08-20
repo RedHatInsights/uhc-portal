@@ -61,8 +61,7 @@ export const SpotInterruptionHandlingFields = ({
   prereqAlertMessage = DEFAULT_SPOT_INTERRUPTION_PREREQ_ALERT,
 }: SpotInterruptionHandlingFieldsProps) => {
   const isEnhanced = mode === SpotInterruptionMode.Enhanced;
-  const areRadiosDisabled = isDisabled || isModeDisabled;
-  const isEnhancedRadioDisabled = areRadiosDisabled || isEnhancedDisabled;
+
   const isUrlDisabled = isDisabled || isSqsQueueUrlDisabled;
 
   return (
@@ -84,14 +83,14 @@ export const SpotInterruptionHandlingFields = ({
           label="Simple Spot instances"
           description={SIMPLE_SPOT_DESCRIPTION}
           isChecked={mode === SpotInterruptionMode.Simple}
-          isDisabled={areRadiosDisabled}
+          isDisabled={isEnhancedDisabled}
           onChange={() => onModeChange(SpotInterruptionMode.Simple)}
         />
       </StackItem>
 
       <StackItem>
         <WithTooltip
-          showTooltip={isEnhancedRadioDisabled && !!enhancedDisabledReason}
+          showTooltip={isEnhancedDisabled && !!enhancedDisabledReason}
           content={enhancedDisabledReason}
         >
           <div>
@@ -101,7 +100,7 @@ export const SpotInterruptionHandlingFields = ({
               label="Enhanced Spot instances"
               description={ENHANCED_SPOT_DESCRIPTION}
               isChecked={isEnhanced}
-              isDisabled={isEnhancedRadioDisabled}
+              isDisabled={isEnhancedDisabled}
               onChange={() => onModeChange(SpotInterruptionMode.Enhanced)}
               body={
                 isEnhanced ? (
