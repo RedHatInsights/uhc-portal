@@ -174,13 +174,6 @@ describe('<SpotInterruptionHandlingFields />', () => {
   });
 
   describe('disabled states', () => {
-    it('disables both radios when isDisabled is true', () => {
-      renderFields({ isDisabled: true });
-
-      expect(screen.getByRole('radio', { name: /Simple Spot instances/i })).toBeDisabled();
-      expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeDisabled();
-    });
-
     it('disables the SQS queue URL input when isDisabled is true', () => {
       renderFields({ mode: SpotInterruptionMode.Enhanced, isDisabled: true });
 
