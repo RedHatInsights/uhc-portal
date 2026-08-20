@@ -323,7 +323,7 @@ function DetailsRight({
                 hint="The actual number of compute nodes may not always match with the number of desired when the cluster is scaling."
               />
             </DescriptionListTerm>
-            <DescriptionListDescription>
+            <DescriptionListDescription aria-label="Nodes">
               <dl className="pf-v6-l-stack">
                 {!isHypershift && (
                   <Flex data-testid="controlPlaneNodesCountContainer">
@@ -360,7 +360,7 @@ function DetailsRight({
         ) : (
           <DescriptionListGroup>
             <DescriptionListTerm>Nodes</DescriptionListTerm>
-            <DescriptionListDescription>
+            <DescriptionListDescription aria-label="Nodes">
               <dl className="pf-v6-l-stack">
                 {!isHypershift && (
                   <Flex data-testid="controlPlaneNodesCountContainer">

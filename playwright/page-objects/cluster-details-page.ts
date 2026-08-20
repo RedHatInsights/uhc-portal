@@ -462,6 +462,16 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('computeNodeCount');
   }
 
+  overviewNodesDescription(): Locator {
+    return this.page.getByLabel('Nodes', { exact: true });
+  }
+
+  async hasOverviewNodeMetrics(): Promise<boolean> {
+    const nodesText = await this.overviewNodesDescription().innerText();
+    // Stub/fake clusters often report master=0 and compute N/A when metrics are absent.
+    return !/Compute:\s*N\/A/i.test(nodesText) && !/Control plane:\s*0\b/.test(nodesText);
+  }
+
   clusterTotalvCPUValue(): Locator {
     return this.page.getByLabel('Total vCPU', { exact: true });
   }

@@ -173,10 +173,10 @@ test.describe.serial(
       await clusterDetailsPage.overviewTab().click();
 
       // Nodes counts come from cluster metrics; stub/fake clusters often show 0 / N/A.
-      await expect(machinePoolsPage.overviewNodesDescription()).toBeVisible();
-      await expect(machinePoolsPage.overviewNodesDescription()).toContainText('Control plane:');
-      await expect(machinePoolsPage.overviewNodesDescription()).toContainText('Compute:');
-      if (await machinePoolsPage.hasOverviewNodeMetrics()) {
+      await expect(clusterDetailsPage.overviewNodesDescription()).toBeVisible();
+      await expect(clusterDetailsPage.overviewNodesDescription()).toContainText('Control plane:');
+      await expect(clusterDetailsPage.overviewNodesDescription()).toContainText('Compute:');
+      if (await clusterDetailsPage.hasOverviewNodeMetrics()) {
         for (const nodeType of ['Control plane', 'Infra', 'Compute'] as const) {
           await machinePoolsPage.verifyOverviewProperty('Nodes', day2.Nodes[nodeType]);
         }
