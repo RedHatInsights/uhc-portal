@@ -12,8 +12,8 @@ import {
   Grid,
   GridItem,
   Split,
-  Stack,
   SplitItem,
+  Stack,
   Title,
 } from '@patternfly/react-core';
 
