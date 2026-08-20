@@ -1,6 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { SpotInterruptionMode } from './spotInterruptionHandlingConstants';
+import {
+  ENHANCED_SPOT_VERSION_DISABLED_REASON,
+  SpotInterruptionMode,
+} from './spotInterruptionHandlingConstants';
 import { SpotInterruptionHandlingFields } from './SpotInterruptionHandlingFields';
 
 const meta: Meta<typeof SpotInterruptionHandlingFields> = {
@@ -52,5 +55,13 @@ export const Disabled: Story = {
     mode: SpotInterruptionMode.Enhanced,
     sqsQueueUrl: 'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
     isDisabled: true,
+  },
+};
+
+export const EnhancedDisabledByVersion: Story = {
+  name: 'Enhanced disabled below 4.22',
+  args: {
+    isEnhancedDisabled: true,
+    enhancedDisabledReason: ENHANCED_SPOT_VERSION_DISABLED_REASON,
   },
 };

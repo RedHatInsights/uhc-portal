@@ -15,6 +15,7 @@ import {
 } from '@patternfly/react-core';
 
 import PopoverHint from '~/components/common/PopoverHint';
+import WithTooltip from '~/components/common/WithTooltip';
 
 import {
   DEFAULT_SPOT_INTERRUPTION_PREREQ_ALERT,
@@ -34,6 +35,8 @@ export type SpotInterruptionHandlingFieldsProps = {
   onSqsQueueUrlBlur?: () => void;
   isDisabled?: boolean;
   isModeDisabled?: boolean;
+  isEnhancedDisabled?: boolean;
+  enhancedDisabledReason?: React.ReactNode;
   isSqsQueueUrlDisabled?: boolean;
   sqsQueueUrlValidated?: TextInputProps['validated'];
   sqsQueueUrlHelperText?: React.ReactNode;
@@ -49,6 +52,8 @@ export const SpotInterruptionHandlingFields = ({
   onSqsQueueUrlBlur,
   isDisabled = false,
   isModeDisabled = false,
+  isEnhancedDisabled = false,
+  enhancedDisabledReason,
   isSqsQueueUrlDisabled = false,
   sqsQueueUrlValidated = 'default',
   sqsQueueUrlHelperText,
@@ -57,6 +62,7 @@ export const SpotInterruptionHandlingFields = ({
 }: SpotInterruptionHandlingFieldsProps) => {
   const isEnhanced = mode === SpotInterruptionMode.Enhanced;
   const areRadiosDisabled = isDisabled || isModeDisabled;
+  const isEnhancedRadioDisabled = areRadiosDisabled || isEnhancedDisabled;
   const isUrlDisabled = isDisabled || isSqsQueueUrlDisabled;
 
   return (
@@ -84,61 +90,68 @@ export const SpotInterruptionHandlingFields = ({
       </StackItem>
 
       <StackItem>
-        <Radio
-          id="spot-interruption-enhanced"
-          name="spot-interruption-mode"
-          label="Enhanced Spot instances"
-          description={ENHANCED_SPOT_DESCRIPTION}
-          isChecked={isEnhanced}
-          isDisabled={areRadiosDisabled}
-          onChange={() => onModeChange(SpotInterruptionMode.Enhanced)}
-          body={
-            isEnhanced ? (
-              <Stack hasGutter>
-                <StackItem>
-                  <FormGroup
-                    label="SQS queue URL"
-                    isRequired
-                    fieldId="spot-interruption-sqs-queue-url"
-                    labelHelp={
-                      <PopoverHint
-                        buttonAriaLabel="SQS queue URL information"
-                        hint="Amazon SQS queue that receives EC2 Spot Instance interruption notices from EventBridge."
-                      />
-                    }
-                  >
-                    <TextInput
-                      id="spot-interruption-sqs-queue-url"
-                      value={sqsQueueUrl}
-                      onChange={(_event, value) => onSqsQueueUrlChange(value)}
-                      onBlur={onSqsQueueUrlBlur}
-                      placeholder={SQS_QUEUE_URL_PLACEHOLDER}
-                      validated={sqsQueueUrlValidated}
-                      isDisabled={isUrlDisabled}
-                      isRequired
-                    />
-                    <HelperText>
-                      <HelperTextItem
-                        variant={sqsQueueUrlValidated === 'error' ? 'error' : 'default'}
+        <WithTooltip
+          showTooltip={isEnhancedRadioDisabled && !!enhancedDisabledReason}
+          content={enhancedDisabledReason}
+        >
+          <div>
+            <Radio
+              id="spot-interruption-enhanced"
+              name="spot-interruption-mode"
+              label="Enhanced Spot instances"
+              description={ENHANCED_SPOT_DESCRIPTION}
+              isChecked={isEnhanced}
+              isDisabled={isEnhancedRadioDisabled}
+              onChange={() => onModeChange(SpotInterruptionMode.Enhanced)}
+              body={
+                isEnhanced ? (
+                  <Stack hasGutter>
+                    <StackItem>
+                      <FormGroup
+                        label="SQS queue URL"
+                        isRequired
+                        fieldId="spot-interruption-sqs-queue-url"
+                        labelHelp={
+                          <PopoverHint
+                            buttonAriaLabel="SQS queue URL information"
+                            hint="Amazon SQS queue that receives EC2 Spot Instance interruption notices from EventBridge."
+                          />
+                        }
                       >
-                        {sqsQueueUrlHelperText ?? SQS_QUEUE_URL_HELPER_TEXT}
-                      </HelperTextItem>
-                    </HelperText>
-                  </FormGroup>
-                </StackItem>
+                        <TextInput
+                          id="spot-interruption-sqs-queue-url"
+                          value={sqsQueueUrl}
+                          onChange={(_event, value) => onSqsQueueUrlChange(value)}
+                          onBlur={onSqsQueueUrlBlur}
+                          placeholder={SQS_QUEUE_URL_PLACEHOLDER}
+                          validated={sqsQueueUrlValidated}
+                          isDisabled={isUrlDisabled}
+                          isRequired
+                        />
+                        <HelperText>
+                          <HelperTextItem
+                            variant={sqsQueueUrlValidated === 'error' ? 'error' : 'default'}
+                          >
+                            {sqsQueueUrlHelperText ?? SQS_QUEUE_URL_HELPER_TEXT}
+                          </HelperTextItem>
+                        </HelperText>
+                      </FormGroup>
+                    </StackItem>
 
-                {showPrereqAlert ? (
-                  <StackItem>
-                    <Alert variant="info" isInline title={prereqAlertMessage}>
-                      {/* TODO https://redhat.atlassian.net/browse/OCMUI-5221 */}
-                      {/* <ExternalLink href={}>View setup documentation</ExternalLink> */}
-                    </Alert>
-                  </StackItem>
-                ) : null}
-              </Stack>
-            ) : undefined
-          }
-        />
+                    {showPrereqAlert ? (
+                      <StackItem>
+                        <Alert variant="info" isInline title={prereqAlertMessage}>
+                          {/* TODO https://redhat.atlassian.net/browse/OCMUI-5221 */}
+                          {/* <ExternalLink href={}>View setup documentation</ExternalLink> */}
+                        </Alert>
+                      </StackItem>
+                    ) : null}
+                  </Stack>
+                ) : undefined
+              }
+            />
+          </div>
+        </WithTooltip>
       </StackItem>
     </Stack>
   );
