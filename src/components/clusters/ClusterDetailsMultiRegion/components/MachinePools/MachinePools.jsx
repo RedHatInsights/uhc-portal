@@ -16,6 +16,7 @@ import {
 import { getOCMResourceType } from '~/common/analytics';
 import { noQuotaTooltip } from '~/common/helpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clusterAutoScalingValues';
 import { LoadingSkeletonCard } from '~/components/clusters/common/LoadingSkeletonCard/LoadingSkeletonCard';
 import { MachineConfiguration } from '~/components/clusters/common/MachineConfiguration';
@@ -187,11 +188,11 @@ const MachinePools = ({ cluster }) => {
     [cluster.version?.raw_id, cluster.multi_az],
   );
 
-  const hasMachinePoolsQuota = hasMachinePoolsQuotaSelector(
-    organization,
-    cluster,
-    machineTypes.types,
-  );
+  const billingModel = cluster.billing_model;
+
+  const hasMachinePoolsQuota =
+    isGcpMarketplaceBilling(billingModel) ||
+    hasMachinePoolsQuotaSelector(organization, cluster, machineTypes.types);
   const machinePoolsActions = cluster?.machinePoolsActions || {}; // Data not defined on the cluster list response
   const hasMachinePools = !!machinePoolData?.length;
   const hasAutoscalingMachinePools = hasDefaultOrExplicitAutoscalingMachinePool(
