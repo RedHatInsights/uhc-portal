@@ -2,6 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import {
+  ENHANCED_SPOT_VERSION_DISABLED_REASON,
   SPOT_INTERRUPTION_INTRO,
   SpotInterruptionMode,
   SQS_QUEUE_URL_PLACEHOLDER,
@@ -531,6 +532,7 @@ describe('<ScaleSection />', () => {
         values: {
           ...formStateBaseMock.values,
           [FieldId.Hypershift]: 'true',
+          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
         },
       };
       useFormStateMock.mockReturnValue(formStateMock);
@@ -557,6 +559,7 @@ describe('<ScaleSection />', () => {
         values: {
           ...formStateBaseMock.values,
           [FieldId.Hypershift]: 'true',
+          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
       });
@@ -580,6 +583,7 @@ describe('<ScaleSection />', () => {
           ...formStateBaseMock.values,
           [FieldId.Hypershift]: 'true',
           [FieldId.Region]: 'us-west-2',
+          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
           [FieldId.SpotTerminationHandlerQueueUrl]:
             'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
@@ -604,6 +608,7 @@ describe('<ScaleSection />', () => {
         values: {
           ...formStateBaseMock.values,
           [FieldId.Hypershift]: 'true',
+          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
         getFieldMeta: jest.fn((fieldName) =>
@@ -629,6 +634,7 @@ describe('<ScaleSection />', () => {
         values: {
           ...formStateBaseMock.values,
           [FieldId.Hypershift]: 'true',
+          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
       });
@@ -649,6 +655,7 @@ describe('<ScaleSection />', () => {
         values: {
           ...formStateBaseMock.values,
           [FieldId.Hypershift]: 'true',
+          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
       };
@@ -668,6 +675,86 @@ describe('<ScaleSection />', () => {
         FieldId.SpotTerminationHandlerQueueUrl,
         true,
         false,
+      );
+    });
+
+    it('disables Enhanced Spot instances when the cluster version is below 4.22', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      useFormStateMock.mockReturnValue({
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.ClusterVersion]: { raw_id: '4.21.9' },
+        },
+      });
+
+      const { user } = render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      await expandSpotInterruptionSection();
+
+      expect(screen.getByRole('radio', { name: /Simple Spot instances/i })).toBeEnabled();
+      expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeDisabled();
+
+      await user.hover(screen.getByRole('radio', { name: /Enhanced Spot instances/i }));
+
+      expect(await screen.findByText(ENHANCED_SPOT_VERSION_DISABLED_REASON)).toBeInTheDocument();
+    });
+
+    it('enables Enhanced Spot instances when the cluster version is 4.22 or higher', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      useFormStateMock.mockReturnValue({
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+        },
+      });
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      await expandSpotInterruptionSection();
+
+      expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeEnabled();
+    });
+
+    it('resets enhanced mode to simple when the cluster version is below 4.22', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const formStateMock = {
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.ClusterVersion]: { raw_id: '4.21.0' },
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]:
+            'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        },
+      };
+      useFormStateMock.mockReturnValue(formStateMock);
+
+      render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      expect(formStateMock.setFieldValue).toHaveBeenCalledWith(
+        FieldId.SpotInterruptionHandling,
+        SpotInterruptionMode.Simple,
+      );
+      expect(formStateMock.setFieldValue).toHaveBeenCalledWith(
+        FieldId.SpotTerminationHandlerQueueUrl,
+        '',
       );
     });
 
