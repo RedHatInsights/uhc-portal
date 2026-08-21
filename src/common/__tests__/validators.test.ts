@@ -1462,6 +1462,21 @@ describe('validateSpotTerminationHandlerQueueUrl', () => {
     ).toBe('Enter a valid Amazon SQS queue URL.');
   });
 
+  it('returns an error when the SQS URL queue name contains whitespace', () => {
+    expect(
+      validateSpotTerminationHandlerQueueUrl(
+        'https://sqs.us-west-2.amazonaws.com/720420066366/rosa-c  luster-spot',
+        'us-west-2',
+      ),
+    ).toBe('Enter a valid Amazon SQS queue URL.');
+  });
+
+  it('returns no error when the SQS URL has leading or trailing whitespace', () => {
+    expect(
+      validateSpotTerminationHandlerQueueUrl(`  ${validQueueUrl}  `, 'us-east-1'),
+    ).toBeUndefined();
+  });
+
   it('returns required error when the URL is only whitespace', () => {
     expect(validateSpotTerminationHandlerQueueUrl('   ', 'us-east-1')).toBe(
       'SQS queue URL is required.',

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { FieldArray } from 'formik';
 import { useDispatch } from 'react-redux';
 
@@ -67,6 +67,8 @@ function ScaleSection() {
     setFieldValue,
     getFieldMeta,
     setFieldTouched,
+    errors,
+    isValidating,
   } = useFormState();
   const dispatch = useDispatch();
 
@@ -88,12 +90,14 @@ function ScaleSection() {
   const clusterVersionRawId = clusterVersion?.raw_id;
   const isEnhancedSpotVersionValid = isEnhancedSpotVersionSupported(clusterVersionRawId);
   const sqsQueueUrlMeta = getFieldMeta(FieldId.SpotTerminationHandlerQueueUrl);
+  const spotInterruptionQueueUrlError = errors[FieldId.SpotTerminationHandlerQueueUrl];
   const sqsQueueUrlValidationError = isSpotInterruptionEnhanced
     ? sqsQueueUrlMeta?.error ||
       (sqsQueueUrlMeta?.touched || !!spotTerminationHandlerQueueUrl?.trim()
         ? validateSpotTerminationHandlerQueueUrl(spotTerminationHandlerQueueUrl, region)
         : undefined)
     : undefined;
+  const wasValidatingRef = useRef(isValidating);
 
   const { minWorkerVolumeSizeGiB, maxWorkerVolumeSizeGiB } = useMemo(() => {
     const minWorkerVolumeSizeGiB = getWorkerNodeVolumeSizeMinGiB(isHypershiftSelected);
@@ -129,6 +133,14 @@ function ScaleSection() {
       setFieldValue(FieldId.SpotTerminationHandlerQueueUrl, '');
     }
   }, [isEnhancedSpotVersionValid, isSpotInterruptionEnhanced, setFieldValue]);
+
+  React.useEffect(() => {
+    if (wasValidatingRef.current && !isValidating && spotInterruptionQueueUrlError) {
+      setIsSpotInterruptionExpanded(true);
+      setFieldTouched(FieldId.SpotTerminationHandlerQueueUrl, true, false);
+    }
+    wasValidatingRef.current = isValidating;
+  }, [isValidating, setFieldTouched, spotInterruptionQueueUrlError]);
 
   const LabelsSectionComponent = useCallback(
     () =>

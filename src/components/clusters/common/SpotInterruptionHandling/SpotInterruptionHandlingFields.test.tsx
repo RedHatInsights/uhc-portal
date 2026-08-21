@@ -171,6 +171,25 @@ describe('<SpotInterruptionHandlingFields />', () => {
 
       expect(onSqsQueueUrlBlur).toHaveBeenCalled();
     });
+
+    it('trims the SQS queue URL when the field loses focus', async () => {
+      const onSqsQueueUrlChange = jest.fn();
+      const onSqsQueueUrlBlur = jest.fn();
+      const { user } = renderFields({
+        mode: SpotInterruptionMode.Enhanced,
+        sqsQueueUrl: '  https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot  ',
+        onSqsQueueUrlChange,
+        onSqsQueueUrlBlur,
+      });
+
+      await user.click(getSqsQueueUrlInput());
+      await user.tab();
+
+      expect(onSqsQueueUrlChange).toHaveBeenCalledWith(
+        'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+      );
+      expect(onSqsQueueUrlBlur).toHaveBeenCalled();
+    });
   });
 
   describe('disabled states', () => {

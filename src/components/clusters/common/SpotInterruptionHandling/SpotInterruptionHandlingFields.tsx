@@ -118,7 +118,13 @@ export const SpotInterruptionHandlingFields = ({
                           id="spot-interruption-sqs-queue-url"
                           value={sqsQueueUrl}
                           onChange={(_event, value) => onSqsQueueUrlChange(value)}
-                          onBlur={onSqsQueueUrlBlur}
+                          onBlur={() => {
+                            const trimmedValue = sqsQueueUrl.trim();
+                            if (trimmedValue !== sqsQueueUrl) {
+                              onSqsQueueUrlChange(trimmedValue);
+                            }
+                            onSqsQueueUrlBlur?.();
+                          }}
                           placeholder={SQS_QUEUE_URL_PLACEHOLDER}
                           validated={sqsQueueUrlValidated}
                           isDisabled={isUrlDisabled}
