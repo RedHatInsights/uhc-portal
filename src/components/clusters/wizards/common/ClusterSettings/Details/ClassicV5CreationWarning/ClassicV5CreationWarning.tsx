@@ -13,22 +13,10 @@ type ClassicV5CreationWarningProps = {
   product: 'rosa' | 'osd';
 };
 
-const getWarningTitle = (product: 'rosa' | 'osd'): React.ReactNode => {
-  if (product === 'rosa') {
-    return (
-      <>
-        OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported
-        version for ROSA Classic. To use OpenShift v5, please{' '}
-        <InternalTrackingLink to="/create/rosa/getstarted">
-          create a ROSA HCP cluster
-        </InternalTrackingLink>
-        .
-      </>
-    );
-  }
-
-  return 'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
-};
+const ROSA_WARNING_TITLE =
+  'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for ROSA Classic.';
+const OSD_WARNING_TITLE =
+  'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
 
 export const ClassicV5CreationWarning = ({ isClassic, product }: ClassicV5CreationWarningProps) => {
   const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
@@ -39,11 +27,28 @@ export const ClassicV5CreationWarning = ({ isClassic, product }: ClassicV5Creati
     return null;
   }
 
+  if (product === 'rosa') {
+    return (
+      <Alert
+        variant="warning"
+        isInline
+        title={ROSA_WARNING_TITLE}
+        data-testid="classic-v5-creation-warning"
+      >
+        To use OpenShift v5, please{' '}
+        <InternalTrackingLink to="/create/rosa/getstarted">
+          create a ROSA HCP cluster
+        </InternalTrackingLink>
+        .
+      </Alert>
+    );
+  }
+
   return (
     <Alert
       variant="warning"
       isInline
-      title={getWarningTitle(product)}
+      title={OSD_WARNING_TITLE}
       data-testid="classic-v5-creation-warning"
     />
   );
