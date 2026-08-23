@@ -188,7 +188,7 @@ const MachinePools = ({ cluster }) => {
     [cluster.version?.raw_id, cluster.multi_az],
   );
 
-  const billingModel = cluster.billing_model;
+  const billingModel = cluster.billing_model ?? cluster.subscription?.cluster_billing_model;
 
   const hasMachinePoolsQuota =
     isGcpMarketplaceBilling(billingModel) ||
