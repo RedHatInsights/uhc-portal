@@ -142,6 +142,15 @@ export class OverviewPage extends BasePage {
     await expect(this.centralSectionCards()).toHaveCount(numberOfCards);
   }
 
+  async expectOfferingCardVisible(cardId: string, visible: boolean): Promise<void> {
+    const card = this.centralSectionCard(cardId);
+    if (visible) {
+      await expect(card).toBeVisible();
+    } else {
+      await expect(card).not.toBeVisible();
+    }
+  }
+
   async featuredProductsExpected(numberOfContents: number): Promise<void> {
     await expect(this.featuredProductCards()).toHaveCount(numberOfContents);
   }

@@ -425,6 +425,7 @@ const ClusterDetails = (props) => {
   const isAROCluster = get(cluster, 'subscription.plan.type', '') === knownProducts.ARO;
   const isOSDTrial = get(cluster, 'subscription.plan.type', '') === knownProducts.OSDTrial;
   const isRHOIC = get(cluster, 'subscription.plan.type', '') === knownProducts.RHOIC;
+  const isROVS = get(cluster, 'subscription.plan.type', '') === knownProducts.ROVS;
   const gotRouters = get(clusterRouters, 'getRouters.routers.length', 0) > 0;
   const isROSA = get(cluster, 'subscription.plan.type') === normalizedProducts.ROSA;
 
@@ -455,6 +456,7 @@ const ClusterDetails = (props) => {
     !cluster.managed &&
     !isAROCluster &&
     !isRHOIC &&
+    !isROVS &&
     !isUninstalledAICluster(cluster) &&
     !isRestrictedEnv();
   const displayAccessControlTab = !isArchived;

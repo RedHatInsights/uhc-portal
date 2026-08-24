@@ -6,16 +6,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, Label, LabelGroup, Split, SplitItem } from '@patternfly/react-core';
 
 import { useNavigate } from '~/common/routing';
+import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { onListFlagsSet } from '~/redux/actions/viewOptionsActions';
 import { ARCHIVED_CLUSTERS_VIEW, CLUSTERS_VIEW } from '~/redux/constants/viewConstants';
 
 import helpers from '../../../../../common/helpers';
 import { buildFilterURLParams } from '../../../../../common/queryHelpers';
-import { productFilterOptions } from '../../../../../common/subscriptionTypes';
+import { getProductFilterOptions } from '../../../../../common/subscriptionTypes';
 
 function ClusterListFilterChipGroup({ archive }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const isRovsRegistrationEnabled = useFeatureGate(ROVS_REGISTRATION);
 
   const view = archive ? ARCHIVED_CLUSTERS_VIEW : CLUSTERS_VIEW;
 
@@ -43,7 +46,7 @@ function ClusterListFilterChipGroup({ archive }) {
     {
       key: 'plan_id',
       label: 'Cluster type',
-      options: productFilterOptions,
+      options: getProductFilterOptions(isRovsRegistrationEnabled),
     },
   ];
 
@@ -60,7 +63,11 @@ function ClusterListFilterChipGroup({ archive }) {
               return (
                 <LabelGroup key={`chipgroup-${group.key}`} categoryName={group.label}>
                   {currentFilter.map((key) => {
-                    const { label } = group.options.find((opt) => opt.key === key);
+                    // Skip keys that may no longer exist in filter options (safeguard).
+                    const option = group.options.find((opt) => opt.key === key);
+                    if (!option) {
+                      return null;
+                    }
                     const deleteItem = () => {
                       setFilterAndQueryParams({
                         ...currentFilters,
@@ -74,7 +81,7 @@ function ClusterListFilterChipGroup({ archive }) {
                         onClose={deleteItem}
                         data-testid="cluster-type-filter-chip"
                       >
-                        {label}
+                        {option.label}
                       </Label>
                     );
                   })}

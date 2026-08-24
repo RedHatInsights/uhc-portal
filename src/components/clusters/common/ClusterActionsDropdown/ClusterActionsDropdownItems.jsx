@@ -361,6 +361,7 @@ function actionResolver(
     normalizedProducts.OCP,
     normalizedProducts.ARO,
     normalizedProducts.RHOIC,
+    normalizedProducts.ROVS,
   ].includes(product);
   const showTransferClusterOwnership =
     cluster.canEdit &&

@@ -1,12 +1,17 @@
-import { test, expect } from '../../fixtures/pages';
+import { ROVS_REGISTRATION } from '../../../src/queries/featureGates/featureConstants';
+import { expect, test } from '../../fixtures/pages';
 
 test.describe.serial('OCM Cluster archives page', { tag: ['@ci', '@smoke'] }, () => {
   test.describe('Check all cluster archives page items presence and its actions (OCP-25329)', () => {
+    let isRovsRegistrationEnabled = false;
+
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
+      const gatePromise = clusterListPage.isFeatureGateEnabled(ROVS_REGISTRATION);
       // Navigate to cluster list and wait for data to load
       await navigateTo('clusters/list');
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
+      isRovsRegistrationEnabled = await gatePromise;
     });
     test('Cluster archives page : ui options & its actions', async ({ clusterListPage }) => {
       await clusterListPage.viewClusterArchives().click();
@@ -38,6 +43,7 @@ test.describe.serial('OCM Cluster archives page', { tag: ['@ci', '@smoke'] }, ()
       await expect(clusterListPage.filterTxtField()).toBeVisible();
       await clusterListPage.filterTxtField().click();
       await clusterListPage.clickClusterTypeFilters();
+      await clusterListPage.expectClusterTypeFilterOption('ROVS', isRovsRegistrationEnabled);
       await clusterListPage.clickClusterTypes('OCP');
       await clusterListPage.filterTxtField().click();
       await clusterListPage.clusterListRefresh();
@@ -47,6 +53,7 @@ test.describe.serial('OCM Cluster archives page', { tag: ['@ci', '@smoke'] }, ()
       await clusterListPage.checkFilteredClusterTypes('OCP', true);
       await clusterListPage.checkFilteredClusterTypes('OSD', false);
       await clusterListPage.checkFilteredClusterTypes('ROSA', false);
+      await clusterListPage.checkFilteredClusterTypes('ROVS', false);
 
       // Only OCP clusters should be in cluster list - first page
       await clusterListPage.checkFilteredClustersFromClusterList('OCP', true);
@@ -61,6 +68,9 @@ test.describe.serial('OCM Cluster archives page', { tag: ['@ci', '@smoke'] }, ()
       await clusterListPage.clickClusterTypes('OSD');
       await clusterListPage.clickClusterTypes('ROSA');
       await clusterListPage.clickClusterTypes('ARO');
+      if (isRovsRegistrationEnabled) {
+        await clusterListPage.clickClusterTypes('ROVS');
+      }
       await clusterListPage.clickClusterTypes('OCP');
       await clusterListPage.clickClusterTypeFilters();
       await clusterListPage.clearFilters();
