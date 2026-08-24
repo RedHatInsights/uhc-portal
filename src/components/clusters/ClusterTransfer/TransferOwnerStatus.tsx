@@ -26,7 +26,7 @@ const PendingStatusLabel = ({ status }: { status: string | undefined }) => {
     return <>Pending</>;
   }
 
-  return <>{capitalizeFirstLetter(status)}</>;
+  return <>{capitalizeFirstLetter(status ?? '')}</>;
 };
 
 const TransferOwnerStatus = ({
