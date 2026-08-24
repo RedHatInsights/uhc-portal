@@ -27,29 +27,22 @@ export const ClassicV5CreationWarning = ({ isClassic, product }: ClassicV5Creati
     return null;
   }
 
-  if (product === 'rosa') {
-    return (
-      <Alert
-        variant="warning"
-        isInline
-        title={ROSA_WARNING_TITLE}
-        data-testid="classic-v5-creation-warning"
-      >
-        To use OpenShift v5, please{' '}
-        <InternalTrackingLink to="/create/rosa/getstarted">
-          create a ROSA HCP cluster
-        </InternalTrackingLink>
-        .
-      </Alert>
-    );
-  }
-
   return (
     <Alert
       variant="warning"
       isInline
-      title={OSD_WARNING_TITLE}
+      title={product === 'rosa' ? ROSA_WARNING_TITLE : OSD_WARNING_TITLE}
       data-testid="classic-v5-creation-warning"
-    />
+    >
+      {product === 'rosa' ? (
+        <>
+          To use OpenShift v5, please{' '}
+          <InternalTrackingLink to="/create/rosa/getstarted">
+            create a ROSA HCP cluster
+          </InternalTrackingLink>
+          .
+        </>
+      ) : null}
+    </Alert>
   );
 };

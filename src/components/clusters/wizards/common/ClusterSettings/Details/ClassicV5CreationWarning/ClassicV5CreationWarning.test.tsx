@@ -99,7 +99,7 @@ describe('<ClassicV5CreationWarning />', () => {
     expect(screen.queryByTestId('classic-v5-creation-warning')).not.toBeInTheDocument();
   });
 
-  it('does not render if organization has ROSA_OSD_ALLOW_OCP_5 capability', () => {
+  it('does not render when ROSA_OSD_ALLOW_OCP_5 capability is "true"', () => {
     renderWarning({
       isClassic: true,
       product: 'rosa',
@@ -107,5 +107,15 @@ describe('<ClassicV5CreationWarning />', () => {
     });
 
     expect(screen.queryByTestId('classic-v5-creation-warning')).not.toBeInTheDocument();
+  });
+
+  it('renders the warning when capability value is "false"', () => {
+    renderWarning({
+      isClassic: true,
+      product: 'rosa',
+      organization: orgWithCapability('false'),
+    });
+
+    expect(screen.getByTestId('classic-v5-creation-warning')).toBeInTheDocument();
   });
 });
