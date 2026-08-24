@@ -21,6 +21,14 @@ type TransferOwnerStatusProps = {
   isOwner: boolean;
 };
 
+const PendingStatusLabel = ({ status }: { status: string | undefined }) => {
+  if (status?.toLowerCase() === ClusterTransferStatus.Pending.toLowerCase()) {
+    return <>Pending</>;
+  }
+
+  return <>{capitalizeFirstLetter(status)}</>;
+};
+
 const TransferOwnerStatus = ({
   status,
   expirationTimestamp,
@@ -83,8 +91,8 @@ const TransferOwnerStatus = ({
         shouldOpen={() => setIsPendingVisible(true)}
         shouldClose={() => setIsPendingVisible(false)}
       >
-        <Button variant="link" isInline component="span">
-          {capitalizeFirstLetter(status)} ({timeUntilExpiryString} left)
+        <Button variant="link" isInline component="span" style={{ textDecoration: 'underline' }}>
+          <PendingStatusLabel status={status} /> ({timeUntilExpiryString} left)
         </Button>
       </Popover>
     </>
