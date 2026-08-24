@@ -49,10 +49,10 @@ For broken doc links ("Get started" / "Learn more"), file a ticket in the **OSDO
 
 | Display Name | Upstream OWNERS | Slack Channel | Notes |
 |-------------|-----------------|---------------|-------|
-| Mirror Registry | [quay/mirror-registry](https://github.com/quay/mirror-registry) | `#forum-quay` | OWNERS file empty |
+| Mirror Registry | [quay/mirror-registry](https://github.com/quay/mirror-registry) | `#forum-quay` | No OWNERS file |
 | oc-mirror Plugin | [OWNERS](https://github.com/openshift/oc-mirror/blob/main/OWNERS) | `#forum-ocp-art` | |
-| Butane | [OWNERS](https://github.com/coreos/butane/blob/main/OWNERS) | `#forum-ocp-installer` | MCO team |
-| CoreOS Installer | [OWNERS](https://github.com/coreos/coreos-installer/blob/main/OWNERS) | `#forum-ocp-installer` | MCO team |
+| Butane | [coreos/butane](https://github.com/coreos/butane) | `#forum-ocp-installer` | MCO team; no OWNERS file |
+| CoreOS Installer | [coreos/coreos-installer](https://github.com/coreos/coreos-installer) | `#forum-ocp-installer` | MCO team; no OWNERS file |
 | Cloud Credential Operator (ccoctl) | [OWNERS](https://github.com/openshift/cloud-credential-operator/blob/master/OWNERS) | `#forum-cloud-credential-operator` | |
 
 ### Tokens

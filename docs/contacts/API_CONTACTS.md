@@ -10,7 +10,7 @@ When you have questions about an API — its behavior, expected response data, c
 ## APIs Consumed by the UI
 
 ### Clusters Management (CS)
-- **Path:** `/api/clusters_mgmt/v1`
+- **Path:** [`/api/clusters_mgmt/v1`](https://api.openshift.com/?urls.primaryName=Clusters+management+service)
 - **UI Areas:**
 
   | Cluster list | Archived cluster list |
@@ -25,10 +25,10 @@ When you have questions about an API — its behavior, expected response data, c
   | Cluster logs | Install cluster pages |
 
 - **Slack:** `#forum-rosa-service-engineering`, `#forum-osd-gcp-eng`
-- **JIRA:** SDA
+- **JIRA:** [ROSAENG](https://redhat.atlassian.net/projects/ROSAENG)
 
 ### Account Management (AMS)
-- **Path:** `/api/accounts_mgmt/v1`
+- **Path:** [`/api/accounts_mgmt/v1`](https://api.openshift.com/?urls.primaryName=Accounts+management+service)
 - **UI Areas:**
 
   | Quota page | Dashboard |
@@ -43,44 +43,44 @@ When you have questions about an API — its behavior, expected response data, c
   | Monitoring tab | Install cluster pages |
 
 - **Slack:** `#forum-rosa-service-engineering`
-- **JIRA:** SDA
+- **JIRA:** [ROSAENG](https://redhat.atlassian.net/projects/ROSAENG)
 
 ### Authorizations
-- **Path:** `/api/authorizations/v1`
+- **Path:** [`/api/authorizations/v1`](https://api.openshift.com/?urls.primaryName=Authorization+service)
 - **UI Areas:**
   - All pages (permission gating)
   - GovCloud form (T&C acceptance)
   - Terms acceptance (create wizards, CLI login)
-  - Feature flags
+  - Feature flags (API call routes here; flag definitions managed in Unleash by our team)
 - **Slack:** `#forum-rosa-service-engineering`
-- **JIRA:** SDA
+- **JIRA:** [ROSAENG](https://redhat.atlassian.net/projects/ROSAENG)
 
 ### Access Transparency
-- **Path:** `/api/access_transparency/v1`
+- **Path:** [`/api/access_transparency/v1`](https://api.openshift.com/?urls.primaryName=Access+Transparency+Service)
 - **UI Areas:**
   - Access request tab
   - Access request detail page
   - Cluster list (pending request badge)
   - Cluster requests page
 - **Slack:** `#forum-rosa-service-engineering`
-- **JIRA:** SDA
+- **JIRA:** [ROSAENG](https://redhat.atlassian.net/projects/ROSAENG)
 
 ### Service Logs
-- **Path:** `/api/service_logs/v1`
+- **Path:** [`/api/service_logs/v1`](https://api.openshift.com/?urls.primaryName=Service+logs)
 - **UI Areas:**
   - Cluster logs tab
 - **Slack:** `#forum-rosa-service-engineering`
-- **JIRA:** SDA
+- **JIRA:** [ROSAENG](https://redhat.atlassian.net/projects/ROSAENG)
 
 ### Upgrades Info
-- **Path:** `/api/upgrades_info/v1`
+- **Path:** [`/api/upgrades_info/v1`](https://api.openshift.com/?urls.primaryName=Upgrades+information+service)
 - **UI Areas:**
   - Releases page
   - ROSA Classic wizard
   - ROSA HCP wizard
   - ROSA Get Started wizard
 - **Slack:** `#forum-rosa-service-engineering`
-- **JIRA:** SDA
+- **JIRA:** [ROSAENG](https://redhat.atlassian.net/projects/ROSAENG)
 
 ### Cost Management
 - **Path:** `/cost-management/v1`
@@ -88,7 +88,7 @@ When you have questions about an API — its behavior, expected response data, c
   - Dashboard (Cost card)
   - Cluster details
 - **Slack:** `#forum-cost-mgmt`
-- **JIRA:** COST
+- **JIRA:** [COST](https://redhat.atlassian.net/projects/COST)
 
 ### Insights Results Aggregator
 - **Path:** `/insights-results-aggregator/v1`, `/v2`
@@ -96,7 +96,7 @@ When you have questions about an API — its behavior, expected response data, c
   - Dashboard (Insights card)
   - Cluster details
 - **Slack:** `#forum-consoledot`
-- **JIRA:** CCX
+- **JIRA:** [CCX](https://redhat.atlassian.net/projects/CCX)
 
 ### FedRAMP Customer Interest
 - **Path:** `/fedramp-customer-interest/incident`
@@ -120,7 +120,7 @@ When you have questions about an API — its behavior, expected response data, c
   | ROSA HCP wizard | ROSA Get Started wizard |
 
 - **Slack:** `#forum-ocp-release`
-- **JIRA:** PLMCORE
+- **JIRA:** [PLMCORE](https://redhat.atlassian.net/projects/PLMCORE)
 
 ### GitHub REST
 - **Path:** `api.github.com/repos/.../releases/latest`
@@ -139,20 +139,20 @@ When you have questions about an API — its behavior, expected response data, c
   - Cluster details
   - Dashboard (empty state)
 - **Slack:** `#forum-assisted-installer`
-- **JIRA:** MGMT
+- **JIRA:** [MGMT](https://redhat.atlassian.net/projects/MGMT)
 
 ---
 
 ## Product Managers
 
-| Product Area | PM(s) | Slack |
-|-------------|--------|-------|
-| ROSA | Bala Chandrasekaran, Aaren de Jong, Sean Y | `@Bala Chandrasekaran`, `@Aaren`, `@Sean Y` |
-| OSD | Shreyans Mulkutkar | `@Shreyans Mulkutkar` |
-| ARO | Jerome Boutaud, Oren Kashi | `@Jerome`, `@Oren Kashi` |
-| OCM | Likhith Nagendra Kumar | `@Likhith` |
-| Marketplace/Billing | Likhith Nagendra Kumar, Jiri Fiala | `@Likhith`, `@Jiri Fiala` |
-| ROSA Hyperfleet | Aaren de Jong, Abhishek Gupta | `@Aaren`, `@Abhishek Gupta` |
+| Product Area | Slack |
+|-------------|-------|
+| ROSA | `@Bala Chandrasekaran`, `@Aaren`, `@Sean Y` |
+| OSD | `@Shreyans Mulkutkar` |
+| ARO | `@Jerome`, `@Oren Kashi` |
+| OCM | `@Likhith` |
+| Marketplace/Billing | `@Likhith`, `@Jiri Fiala` |
+| ROSA Hyperfleet | `@Aaren`, `@Abhishek Gupta` |
 
 ---
 
@@ -162,7 +162,8 @@ When you have questions about an API — its behavior, expected response data, c
 - `#forum-osd-gcp-eng` — OSD GCP-specific cluster issues (WIF, firewall rules, instance types, permissions)
 - `#forum-rosa-eng` — Broader ROSA engineering discussions
 - `#forum-managed-openshift` — Cross-product managed OpenShift discussions (OSD + ROSA)
-- `#forum-consoledot` — HCC platform services (Insights, Cost Management, FedRAMP)
+- `#forum-cost-mgmt` — Cost Management API
+- `#forum-consoledot` — HCC platform services (Insights, FedRAMP)
 - `#forum-ocp-release` — OCP release lifecycle, Product Life Cycles API
 - `#sd-app-sre` — SRE operations for all OCM/HCC services
 - `#ocm-osd-ui` — Inbound channel where backend teams (SRE, ROSA eng, CCS docs, AMS, platform), support (CEE/TAMs), and cross-team stakeholders reach the OCM UI team
