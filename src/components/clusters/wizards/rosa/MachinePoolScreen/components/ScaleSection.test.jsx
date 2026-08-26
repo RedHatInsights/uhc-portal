@@ -652,7 +652,6 @@ describe('<ScaleSection />', () => {
         </Formik>,
       );
 
-      await userEvent.click(screen.getByRole('button', { name: 'Spot interruption handling' }));
       expect(
         screen.queryByRole('radio', { name: /Enhanced Spot instances/i }),
       ).not.toBeInTheDocument();
@@ -708,33 +707,20 @@ describe('<ScaleSection />', () => {
         </Formik>,
       );
 
+      expect(screen.getByText('SQS queue URL is required.')).toBeInTheDocument();
+      expect(
+        screen.queryByRole('radio', { name: /Enhanced Spot instances/i }),
+      ).not.toBeInTheDocument();
+
+      await expandSpotInterruptionSection();
+      expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeInTheDocument();
+
       await userEvent.click(screen.getByRole('button', { name: 'Spot interruption handling' }));
 
       expect(
         screen.queryByRole('radio', { name: /Enhanced Spot instances/i }),
       ).not.toBeInTheDocument();
       expect(screen.getByText('SQS queue URL is required.')).toBeInTheDocument();
-    });
-
-    it('expands the spot interruption section by default in enhanced mode', () => {
-      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
-      useFormStateMock.mockReturnValue({
-        ...formStateBaseMock,
-        values: {
-          ...formStateBaseMock.values,
-          [FieldId.Hypershift]: 'true',
-          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
-          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
-        },
-      });
-
-      render(
-        <Formik initialValues={{}} onSubmit={() => {}}>
-          <ScaleSection />
-        </Formik>,
-      );
-
-      expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeInTheDocument();
     });
 
     it('marks the SQS queue URL field as touched on blur', async () => {

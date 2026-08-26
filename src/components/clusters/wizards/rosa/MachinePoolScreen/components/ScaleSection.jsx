@@ -84,9 +84,7 @@ function ScaleSection() {
   const isSpotInterruptionEnhanced = spotInterruptionHandling === SpotInterruptionMode.Enhanced;
 
   const [isNodeLabelsExpanded, setIsNodeLabelsExpanded] = useState(!!hasNodeLabels);
-  const [isSpotInterruptionExpanded, setIsSpotInterruptionExpanded] = useState(
-    isSpotInterruptionEnhanced,
-  );
+  const [isSpotInterruptionExpanded, setIsSpotInterruptionExpanded] = useState(false);
   const canAutoScale = useCanClusterAutoscale(product, billingModel) ?? false;
   const clusterVersionRawId = clusterVersion?.raw_id;
   const isEnhancedSpotVersionValid = isEnhancedSpotVersionSupported(clusterVersionRawId);
