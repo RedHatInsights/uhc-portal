@@ -4,8 +4,6 @@
 # Map guideline files in /docs to the source paths they govern via applyTo.
 # See: https://docs.coderabbit.ai/knowledge-base/code-guidelines
 
-reviews:
-  profile: assertive
 knowledge_base:
   code_guidelines:
     enabled: true
