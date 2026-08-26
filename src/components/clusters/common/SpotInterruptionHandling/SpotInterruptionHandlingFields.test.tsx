@@ -171,39 +171,38 @@ describe('<SpotInterruptionHandlingFields />', () => {
 
       expect(onSqsQueueUrlBlur).toHaveBeenCalled();
     });
+
+    it('trims the SQS queue URL when the field loses focus', async () => {
+      const onSqsQueueUrlChange = jest.fn();
+      const onSqsQueueUrlBlur = jest.fn();
+      const { user } = renderFields({
+        mode: SpotInterruptionMode.Enhanced,
+        sqsQueueUrl: '  https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot  ',
+        onSqsQueueUrlChange,
+        onSqsQueueUrlBlur,
+      });
+
+      await user.click(getSqsQueueUrlInput());
+      await user.tab();
+
+      expect(onSqsQueueUrlChange).toHaveBeenCalledWith(
+        'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+      );
+      expect(onSqsQueueUrlBlur).toHaveBeenCalled();
+    });
   });
 
   describe('disabled states', () => {
-    it('disables both radios when isDisabled is true', () => {
-      renderFields({ isDisabled: true });
-
-      expect(screen.getByRole('radio', { name: /Simple Spot instances/i })).toBeDisabled();
-      expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeDisabled();
-    });
-
-    it('disables the SQS queue URL input when isDisabled is true', () => {
-      renderFields({ mode: SpotInterruptionMode.Enhanced, isDisabled: true });
-
-      expect(getSqsQueueUrlInput()).toBeDisabled();
-    });
-
-    it('disables the SQS queue URL input when isSqsQueueUrlDisabled is true', () => {
+    it('disables the Enhanced radio and SQS queue URL input when isEnhancedDisabled is true', () => {
       renderFields({
         mode: SpotInterruptionMode.Enhanced,
-        isSqsQueueUrlDisabled: true,
-      });
-
-      expect(getSqsQueueUrlInput()).toBeDisabled();
-    });
-
-    it('disables only the Enhanced radio when isEnhancedDisabled is true', () => {
-      renderFields({
         isEnhancedDisabled: true,
         enhancedDisabledReason: ENHANCED_SPOT_VERSION_DISABLED_REASON,
       });
 
       expect(screen.getByRole('radio', { name: /Simple Spot instances/i })).toBeEnabled();
       expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeDisabled();
+      expect(getSqsQueueUrlInput()).toBeDisabled();
     });
 
     it('shows a disabled popover for Enhanced when a version reason is provided', async () => {

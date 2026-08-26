@@ -6,7 +6,10 @@ import {
   Content,
   ContentVariants,
   ExpandableSection,
+  FormHelperText,
   GridItem,
+  HelperText,
+  HelperTextItem,
   Title,
 } from '@patternfly/react-core';
 
@@ -81,19 +84,19 @@ function ScaleSection() {
   const isSpotInterruptionEnhanced = spotInterruptionHandling === SpotInterruptionMode.Enhanced;
 
   const [isNodeLabelsExpanded, setIsNodeLabelsExpanded] = useState(!!hasNodeLabels);
-  const [isSpotInterruptionExpanded, setIsSpotInterruptionExpanded] = useState(
-    isSpotInterruptionEnhanced,
-  );
+  const [isSpotInterruptionExpanded, setIsSpotInterruptionExpanded] = useState(false);
   const canAutoScale = useCanClusterAutoscale(product, billingModel) ?? false;
   const clusterVersionRawId = clusterVersion?.raw_id;
   const isEnhancedSpotVersionValid = isEnhancedSpotVersionSupported(clusterVersionRawId);
   const sqsQueueUrlMeta = getFieldMeta(FieldId.SpotTerminationHandlerQueueUrl);
-  const sqsQueueUrlValidationError = isSpotInterruptionEnhanced
-    ? sqsQueueUrlMeta?.error ||
-      (sqsQueueUrlMeta?.touched || !!spotTerminationHandlerQueueUrl?.trim()
-        ? validateSpotTerminationHandlerQueueUrl(spotTerminationHandlerQueueUrl, region)
-        : undefined)
-    : undefined;
+  const shouldShowSqsQueueUrlValidation =
+    sqsQueueUrlMeta?.touched || !!spotTerminationHandlerQueueUrl?.trim();
+  const sqsQueueUrlValidationError =
+    isSpotInterruptionEnhanced && shouldShowSqsQueueUrlValidation
+      ? sqsQueueUrlMeta?.error ||
+        validateSpotTerminationHandlerQueueUrl(spotTerminationHandlerQueueUrl, region)
+      : undefined;
+  const collapsedSpotInterruptionError = !isSpotInterruptionExpanded && sqsQueueUrlValidationError;
 
   const { minWorkerVolumeSizeGiB, maxWorkerVolumeSizeGiB } = useMemo(() => {
     const minWorkerVolumeSizeGiB = getWorkerNodeVolumeSizeMinGiB(isHypershiftSelected);
@@ -267,14 +270,25 @@ function ScaleSection() {
               onSqsQueueUrlBlur={() =>
                 setFieldTouched(FieldId.SpotTerminationHandlerQueueUrl, true, false)
               }
-              sqsQueueUrlValidated={sqsQueueUrlValidationError ? 'error' : 'default'}
-              sqsQueueUrlHelperText={sqsQueueUrlValidationError ?? undefined}
+              sqsQueueUrlValidated={
+                isSpotInterruptionExpanded && sqsQueueUrlValidationError ? 'error' : 'default'
+              }
+              sqsQueueUrlHelperText={
+                isSpotInterruptionExpanded ? sqsQueueUrlValidationError : undefined
+              }
               isEnhancedDisabled={!isEnhancedSpotVersionValid}
               enhancedDisabledReason={
                 isEnhancedSpotVersionValid ? undefined : ENHANCED_SPOT_VERSION_DISABLED_REASON
               }
             />
           </ExpandableSection>
+          {collapsedSpotInterruptionError ? (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem variant="error">{collapsedSpotInterruptionError}</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          ) : null}
         </GridItem>
       ) : null}
     </>

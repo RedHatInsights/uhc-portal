@@ -50,11 +50,13 @@ export const EnhancedWithValidationError: Story = {
   },
 };
 
-export const Disabled: Story = {
+export const EnhancedDisabled: Story = {
+  name: 'Enhanced disabled',
   args: {
     mode: SpotInterruptionMode.Enhanced,
     sqsQueueUrl: 'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
-    isDisabled: true,
+    isEnhancedDisabled: true,
+    enhancedDisabledReason: ENHANCED_SPOT_VERSION_DISABLED_REASON,
   },
 };
 

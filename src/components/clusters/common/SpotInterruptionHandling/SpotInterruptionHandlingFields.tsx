@@ -33,10 +33,8 @@ export type SpotInterruptionHandlingFieldsProps = {
   sqsQueueUrl: string;
   onSqsQueueUrlChange: (url: string) => void;
   onSqsQueueUrlBlur?: () => void;
-  isDisabled?: boolean;
   isEnhancedDisabled?: boolean;
   enhancedDisabledReason?: React.ReactNode;
-  isSqsQueueUrlDisabled?: boolean;
   sqsQueueUrlValidated?: TextInputProps['validated'];
   sqsQueueUrlHelperText?: React.ReactNode;
   showPrereqAlert?: boolean;
@@ -49,18 +47,14 @@ export const SpotInterruptionHandlingFields = ({
   sqsQueueUrl,
   onSqsQueueUrlChange,
   onSqsQueueUrlBlur,
-  isDisabled = false,
   isEnhancedDisabled = false,
   enhancedDisabledReason,
-  isSqsQueueUrlDisabled = false,
   sqsQueueUrlValidated = 'default',
   sqsQueueUrlHelperText,
   showPrereqAlert = true,
   prereqAlertMessage = DEFAULT_SPOT_INTERRUPTION_PREREQ_ALERT,
 }: SpotInterruptionHandlingFieldsProps) => {
   const isEnhanced = mode === SpotInterruptionMode.Enhanced;
-
-  const isUrlDisabled = isDisabled || isSqsQueueUrlDisabled;
 
   return (
     <Stack hasGutter>
@@ -118,10 +112,16 @@ export const SpotInterruptionHandlingFields = ({
                           id="spot-interruption-sqs-queue-url"
                           value={sqsQueueUrl}
                           onChange={(_event, value) => onSqsQueueUrlChange(value)}
-                          onBlur={onSqsQueueUrlBlur}
+                          onBlur={() => {
+                            const trimmedValue = sqsQueueUrl.trim();
+                            if (trimmedValue !== sqsQueueUrl) {
+                              onSqsQueueUrlChange(trimmedValue);
+                            }
+                            onSqsQueueUrlBlur?.();
+                          }}
                           placeholder={SQS_QUEUE_URL_PLACEHOLDER}
                           validated={sqsQueueUrlValidated}
-                          isDisabled={isUrlDisabled}
+                          isDisabled={isEnhancedDisabled}
                           isRequired
                         />
                         <HelperText>

@@ -25,13 +25,16 @@ import {
   invalidateClusterDetailsQueries,
   useFetchClusterDetails,
 } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
 
 import { modalActions } from '../../../../common/Modal/ModalActions';
 import modals from '../../../../common/Modal/modals';
-import { isHypershiftCluster } from '../../clusterStates';
+import { isHypershiftCluster, isROSA } from '../../clusterStates';
 import UpgradeAcknowledgeStep from '../UpgradeAcknowledge/UpgradeAcknowledgeStep';
+import { shouldShowUpgradeToV5Warning } from '../UpgradeToV5Warning/UpgradeToV5WarningHelpers';
 
 import VersionSelectionGrid from './VersionSelectionGrid/VersionSelectionGrid';
 import FinishedStep from './FinishedStep';
@@ -67,6 +70,15 @@ const UpgradeWizard = () => {
   const clusterID = cluster?.id;
   const region = cluster?.subscription?.rh_region_id;
   const isHypershift = isHypershiftCluster(cluster);
+  const isRosa = isROSA(cluster);
+
+  const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
+  const organization = useGlobalState((state) => state.userProfile.organization);
+  const showUpgradeToV5Warning = shouldShowUpgradeToV5Warning({
+    cluster,
+    isOcp5SupportEnabled,
+    organizationCapabilities: organization?.details?.capabilities,
+  });
 
   const { mutateAsync: postClusterGateAgreementMutate } =
     usePostClusterGateAgreementAcknowledgeModal(clusterID || '', region);
@@ -236,6 +248,8 @@ const UpgradeWizard = () => {
                   onSelect={selectVersion}
                   isUnMetClusterAcknowledgements={hasVersionGates}
                   isPending={isUnmetAcknowledgementsPending}
+                  showUpgradeToV5Warning={showUpgradeToV5Warning}
+                  isRosa={isRosa}
                 />
               </>
             )}

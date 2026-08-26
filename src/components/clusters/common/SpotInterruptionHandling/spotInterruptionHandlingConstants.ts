@@ -5,14 +5,6 @@ export enum SpotInterruptionMode {
   Enhanced = 'enhanced',
 }
 
-export const ENHANCED_SPOT_MIN_VERSION = '4.22.0';
-
-export const ENHANCED_SPOT_VERSION_DISABLED_REASON =
-  'Enhanced Spot instances require OpenShift version 4.22 or above';
-
-export const SPOT_INTERRUPTION_MODE_ENHANCED_LABEL = 'Spot instances Enhanced';
-export const SPOT_INTERRUPTION_MODE_SIMPLE_LABEL = 'Spot instances Simple';
-
 type ClusterAwsSpotInterruptionHandling = {
   aws?: {
     termination_handler_queue_url?: string | null;
@@ -26,6 +18,14 @@ export const getSpotInterruptionHandlerQueueUrl = (
   const queueUrl = cluster?.aws?.termination_handler_queue_url;
   return queueUrl || undefined;
 };
+
+export const ENHANCED_SPOT_MIN_VERSION = '4.22.0';
+
+export const ENHANCED_SPOT_VERSION_DISABLED_REASON =
+  'Enhanced Spot instances require OpenShift version 4.22 or above';
+
+export const SPOT_INTERRUPTION_MODE_ENHANCED_LABEL = 'Spot instances Enhanced';
+export const SPOT_INTERRUPTION_MODE_SIMPLE_LABEL = 'Spot instances Simple';
 
 export const getSpotInterruptionHandlingModeLabel = (
   cluster: ClusterAwsSpotInterruptionHandling,

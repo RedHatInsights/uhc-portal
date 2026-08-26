@@ -75,6 +75,7 @@ const formStateBaseMock = {
   setFieldTouched: jest.fn(),
   validateField: jest.fn(),
   getFieldMeta: jest.fn().mockReturnValue({ touched: false, error: undefined }),
+  isValidating: false,
 };
 
 describe('<ScaleSection />', () => {
@@ -616,6 +617,9 @@ describe('<ScaleSection />', () => {
             ? { touched: true, error: 'SQS queue URL is required.' }
             : { touched: false, error: undefined },
         ),
+        errors: {
+          [FieldId.SpotTerminationHandlerQueueUrl]: 'SQS queue URL is required.',
+        },
       });
 
       render(
@@ -627,7 +631,56 @@ describe('<ScaleSection />', () => {
       expect(screen.getByText('SQS queue URL is required.')).toBeInTheDocument();
     });
 
-    it('expands the spot interruption section by default in enhanced mode', () => {
+    it('shows a validation error below the section when collapsed after a failed validation attempt', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const formStateMock = {
+        ...formStateBaseMock,
+        values: {
+          ...formStateBaseMock.values,
+          [FieldId.Hypershift]: 'true',
+          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+        },
+        errors: {},
+        getFieldMeta: jest.fn().mockReturnValue({ touched: false, error: undefined }),
+      };
+      useFormStateMock.mockReturnValue(formStateMock);
+
+      const { rerender } = render(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      expect(
+        screen.queryByRole('radio', { name: /Enhanced Spot instances/i }),
+      ).not.toBeInTheDocument();
+
+      useFormStateMock.mockReturnValue({
+        ...formStateMock,
+        errors: {
+          [FieldId.SpotTerminationHandlerQueueUrl]: 'SQS queue URL is required.',
+        },
+        getFieldMeta: jest.fn((fieldName) =>
+          fieldName === FieldId.SpotTerminationHandlerQueueUrl
+            ? { touched: true, error: 'SQS queue URL is required.' }
+            : { touched: false, error: undefined },
+        ),
+      });
+
+      rerender(
+        <Formik initialValues={{}} onSubmit={() => {}}>
+          <ScaleSection />
+        </Formik>,
+      );
+
+      expect(
+        screen.queryByRole('radio', { name: /Enhanced Spot instances/i }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByText('SQS queue URL is required.')).toBeInTheDocument();
+    });
+
+    it('allows collapsing the spot interruption section when a validation error exists', async () => {
       mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
       useFormStateMock.mockReturnValue({
         ...formStateBaseMock,
@@ -637,6 +690,15 @@ describe('<ScaleSection />', () => {
           [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
+        errors: {
+          [FieldId.SpotTerminationHandlerQueueUrl]: 'SQS queue URL is required.',
+        },
+        isValidating: false,
+        getFieldMeta: jest.fn((fieldName) =>
+          fieldName === FieldId.SpotTerminationHandlerQueueUrl
+            ? { touched: true, error: 'SQS queue URL is required.' }
+            : { touched: false, error: undefined },
+        ),
       });
 
       render(
@@ -645,7 +707,20 @@ describe('<ScaleSection />', () => {
         </Formik>,
       );
 
+      expect(screen.getByText('SQS queue URL is required.')).toBeInTheDocument();
+      expect(
+        screen.queryByRole('radio', { name: /Enhanced Spot instances/i }),
+      ).not.toBeInTheDocument();
+
+      await expandSpotInterruptionSection();
       expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Spot interruption handling' }));
+
+      expect(
+        screen.queryByRole('radio', { name: /Enhanced Spot instances/i }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByText('SQS queue URL is required.')).toBeInTheDocument();
     });
 
     it('marks the SQS queue URL field as touched on blur', async () => {

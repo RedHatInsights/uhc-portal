@@ -4,8 +4,10 @@ import * as reactRedux from 'react-redux';
 import * as useGetAccessProtection from '~/queries/AccessRequest/useGetAccessProtection';
 import * as useGetOrganizationalPendingRequests from '~/queries/AccessRequest/useGetOrganizationalPendingRequests';
 import * as useFetchClusters from '~/queries/ClusterListQueries/useFetchClusters';
-import { mockRestrictedEnv, screen, within, withState } from '~/testUtils';
+import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
+import { mockRestrictedEnv, mockUseFeatureGate, screen, within, withState } from '~/testUtils';
 
+import * as queryHelpers from '../../../common/queryHelpers';
 import { normalizedProducts } from '../../../common/subscriptionTypes';
 import { viewConstants } from '../../../redux/constants';
 import { SET_TOTAL_ITEMS } from '../../../redux/constants/viewPaginationConstants';
@@ -460,12 +462,42 @@ describe('<ClusterList />', () => {
   });
 
   describe('cluster filter', () => {
+    let getQueryParamSpy;
+    let useDispatchSpy;
+
     beforeEach(() => {
       mockNavigate.mockClear();
+      sessionStorage.clear();
     });
+
+    afterEach(() => {
+      getQueryParamSpy?.mockRestore();
+      useDispatchSpy?.mockRestore();
+    });
+
+    const getSubscriptionFilterActionForSavedTypes = (savedPlanIds) => {
+      mockUseFeatureGate([[ROVS_REGISTRATION, false]]);
+      mockedGetFetchedClusters.mockReturnValue({
+        data: { items: [fixtures.clusterDetails.cluster] },
+        errors: [],
+      });
+      getQueryParamSpy = jest.spyOn(queryHelpers, 'getQueryParam').mockReturnValue('');
+      sessionStorage.setItem('clusterListSelectedTypes', JSON.stringify(savedPlanIds));
+
+      useDispatchSpy = jest.spyOn(reactRedux, 'useDispatch');
+      const mockedDispatch = jest.fn();
+      useDispatchSpy.mockReturnValue(mockedDispatch);
+
+      withState({}, true).render(<ClusterList {...props} />);
+
+      return mockedDispatch.mock.calls.find(
+        ([action]) => action?.type === 'VIEW_SET_LIST_FLAGS',
+      )?.[0];
+    };
 
     it('filter by clicking on cluster type', async () => {
       // Arrange
+      mockUseFeatureGate([[ROVS_REGISTRATION, false]]);
       mockedGetFetchedClusters.mockReturnValue({
         data: { items: [fixtures.clusterDetails.cluster] },
         errors: [],
@@ -479,14 +511,59 @@ describe('<ClusterList />', () => {
       await user.click(screen.getByText('RHOIC'));
 
       // Assert
+      expect(screen.queryByTestId('cluster-type-ROVS')).not.toBeInTheDocument();
       expect(mockNavigate).toHaveBeenLastCalledWith(
         { search: 'plan_id=ARO,RHOIC' },
         { replace: true },
       );
     });
 
+    it('includes ROVS in cluster type filter when feature flag is enabled', async () => {
+      mockUseFeatureGate([[ROVS_REGISTRATION, true]]);
+      mockedGetFetchedClusters.mockReturnValue({
+        data: { items: [fixtures.clusterDetails.cluster] },
+        errors: [],
+      });
+
+      const { user } = withState({}, true).render(<ClusterList {...props} />);
+
+      await user.click(screen.getByRole('button', { name: 'Cluster type' }));
+      expect(screen.getByTestId('cluster-type-ROVS')).toBeInTheDocument();
+      await user.click(screen.getByText('ROVS'));
+
+      expect(mockNavigate).toHaveBeenLastCalledWith({ search: 'plan_id=ROVS' }, { replace: true });
+    });
+
+    it('drops stale ROVS from sessionStorage when feature flag is disabled', () => {
+      const subscriptionFilterAction = getSubscriptionFilterActionForSavedTypes([
+        normalizedProducts.ROVS,
+      ]);
+
+      expect(subscriptionFilterAction.payload).toEqual({
+        key: 'subscriptionFilter',
+        value: { plan_id: [] },
+        viewType: viewConstants.CLUSTERS_VIEW,
+      });
+      expect(subscriptionFilterAction.payload.value.plan_id).not.toContain(normalizedProducts.ROVS);
+    });
+
+    it('keeps allowed cluster types from sessionStorage when ROVS is stale', () => {
+      const subscriptionFilterAction = getSubscriptionFilterActionForSavedTypes([
+        normalizedProducts.ROVS,
+        normalizedProducts.OSD,
+      ]);
+
+      expect(subscriptionFilterAction.payload).toEqual({
+        key: 'subscriptionFilter',
+        value: { plan_id: [normalizedProducts.OSD] },
+        viewType: viewConstants.CLUSTERS_VIEW,
+      });
+      expect(subscriptionFilterAction.payload.value.plan_id).not.toContain(normalizedProducts.ROVS);
+    });
+
     it('filter by already set state and URL param reacts accordingly', async () => {
       // Arrange
+      mockUseFeatureGate([[ROVS_REGISTRATION, false]]);
       mockedGetFetchedClusters.mockReturnValue({
         data: { items: [fixtures.clusterDetails.cluster] },
         errors: [],

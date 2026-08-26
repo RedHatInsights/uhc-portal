@@ -10462,6 +10462,346 @@ export interface paths {
     };
     trace?: never;
   };
+  '/api/clusters_mgmt/v1/gcp/firewall_rule_templates': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Lists all available firewall rule templates. */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Index of the requested page, where one corresponds to the first page. */
+          page?: number;
+          /** @description Maximum number of items that will be contained in the returned page. */
+          size?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @description Retrieved list of firewall rule templates. */
+              items?: components['schemas']['GcpFirewallRuleTemplate'][];
+              /**
+               * Format: int32
+               * @description Index of the requested page, where one corresponds to the first page.
+               */
+              page?: number;
+              /**
+               * Format: int32
+               * @description Maximum number of items that will be contained in the returned page.
+               */
+              size?: number;
+              /**
+               * Format: int32
+               * @description Total number of items of the collection.
+               */
+              total?: number;
+            };
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/clusters_mgmt/v1/gcp/firewall_rule_templates/{gcp_firewall_rule_template_version_id}/profiles/{gcp_firewall_rule_template_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the details of the firewall rule template. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          gcp_firewall_rule_template_version_id: string;
+          gcp_firewall_rule_template_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['GcpFirewallRuleTemplate'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/clusters_mgmt/v1/gcp/firewall_rules': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Lists the GCP firewall rules. */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Index of the requested page, where one corresponds to the first page. */
+          page?: number;
+          /** @description Maximum number of items that will be contained in the returned page. */
+          size?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @description Retrieved list of GCP firewall rules. */
+              items?: components['schemas']['GcpFirewallRule'][];
+              /**
+               * Format: int32
+               * @description Index of the requested page, where one corresponds to the first page.
+               */
+              page?: number;
+              /**
+               * Format: int32
+               * @description Maximum number of items that will be contained in the returned page.
+               */
+              size?: number;
+              /**
+               * Format: int32
+               * @description Total number of items of the collection.
+               */
+              total?: number;
+            };
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    /** @description Creates a new GCP firewall rule. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['GcpFirewallRule'];
+        };
+      };
+      responses: {
+        /** @description Success. */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['GcpFirewallRule'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/clusters_mgmt/v1/gcp/firewall_rules/{gcp_firewall_rule_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the details of the firewall rule. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          gcp_firewall_rule_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['GcpFirewallRule'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    /** @description Deletes the firewall rule. */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          gcp_firewall_rule_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/clusters_mgmt/v1/gcp/firewall_rules/{gcp_firewall_rule_id}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the status of the firewall rules. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          gcp_firewall_rule_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['GcpFirewallRulesStatus'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/clusters_mgmt/v1/gcp/wif_configs': {
     parameters: {
       query?: never;
@@ -13678,6 +14018,10 @@ export interface components {
       tags?: {
         [key: string]: string;
       };
+      /** @description URL of the SQS queue used for graceful Spot instance interruption handling.
+       *     When set, HyperShift deploys the AWS Node Termination Handler in the hosted
+       *     control plane. Queue must be in the same region as the cluster. */
+      termination_handler_queue_url?: string;
       /** @description Role ARN for VPC Endpoint Service cross account role. */
       vpc_endpoint_role_arn?: string;
       /** @description Zero egress configuration. */
@@ -13834,6 +14178,8 @@ export interface components {
       instance_type?: string;
       /** @description AWS Volume specification to be used to set custom worker disk size */
       root_volume?: components['schemas']['AWSVolume'];
+      /** @description Use spot instances on this node pool to reduce cost. */
+      spot_market_options?: components['schemas']['AwsNodePoolSpotMarketOptions'];
       /** @description Associates nodepool subnets with AWS Outposts. */
       subnet_outposts?: {
         [key: string]: string;
@@ -14133,6 +14479,8 @@ export interface components {
       compute_subnet?: string;
       /** @description Control plane subnet used by the cluster. */
       control_plane_subnet?: string;
+      /** @description ID of the GCP firewall rule set associated with this cluster. */
+      firewall_rules_id?: string;
     };
     /** @description Holds settings for an GCP storage volume. */
     GCPVolume: {
@@ -14667,6 +15015,18 @@ export interface components {
     AwsEtcdEncryption: {
       /** @description ARN of the KMS to be used for the etcd encryption */
       kms_key_arn?: string;
+    };
+    /** @description Spot market options for AWS node pool. */
+    AwsNodePoolSpotMarketOptions: {
+      /** @description Indicates the type of this object. Will be 'AwsNodePoolSpotMarketOptions' if this is a complete object or 'AwsNodePoolSpotMarketOptionsLink' if it is just a link. */
+      kind?: string;
+      /** @description Unique identifier of the object. */
+      id?: string;
+      /** @description Self link. */
+      href?: string;
+      /** @description The max price for spot instance. Optional.
+       *     If not set, use the on-demand price. */
+      max_price?: string;
     };
     /** @description Microsoft Azure settings of a cluster. */
     Azure: {
@@ -16090,6 +16450,116 @@ export interface components {
       network_id?: string;
       /** @description ProjectId is the Google Cloud Platform project identifier where the DNS zone is hosted. */
       project_id?: string;
+    };
+    /** @description GCP firewall rule configuration for BYO (Bring Your Own) firewall workflow.
+     *     These are organization-level resources that can be created before cluster
+     *     provisioning and reused after cluster deletion. */
+    GcpFirewallRule: {
+      /** @description Indicates the type of this object. Will be 'GcpFirewallRule' if this is a complete object or 'GcpFirewallRuleLink' if it is just a link. */
+      kind?: string;
+      /** @description Unique identifier of the object. */
+      id?: string;
+      /** @description Self link. */
+      href?: string;
+      /** @description GCP network configuration. */
+      gcp_network?: components['schemas']['GcpFirewallRuleGcpNetwork'];
+      /** @description Firewall rule name (unique per organization). */
+      name?: string;
+      /** @description Link to the organization that owns this firewall rule. */
+      organization?: components['schemas']['OrganizationLink'];
+      /** @description Profile type (e.g. "public", "private"). */
+      profile?: string;
+      /** @description Status containing the rendered firewall rules. */
+      status?: components['schemas']['GcpFirewallRuleStatus'];
+      /** @description Template version and profile reference. */
+      template?: components['schemas']['GcpFirewallRuleTemplateRef'];
+      /** @description Link to the WIF config used by this firewall rule. */
+      wif_config?: components['schemas']['WifConfig'];
+    };
+    /** @description Allowed protocol and ports for a GCP firewall rule. */
+    GcpFirewallRuleAllowed: {
+      /** @description IP protocol (e.g. "tcp", "udp", "icmp"). */
+      ip_protocol?: string;
+      /** @description Ports to allow (e.g. "6443", "10250"). */
+      ports?: string[];
+    };
+    /** @description GCP network configuration for a firewall rule. */
+    GcpFirewallRuleGcpNetwork: {
+      /** @description Machine CIDR block. */
+      machine_cidr?: string;
+      /** @description GCP project ID. */
+      project_id?: string;
+      /** @description VPC network name. */
+      vpc_name?: string;
+    };
+    /** @description A single rendered GCP firewall rule specification. */
+    GcpFirewallRuleSpec: {
+      /** @description Allowed protocols and ports. */
+      allowed?: components['schemas']['GcpFirewallRuleAllowed'][];
+      /** @description Direction of traffic (INGRESS or EGRESS). */
+      direction?: string;
+      /** @description Name of the firewall rule. */
+      name?: string;
+      /** @description GCP network URL. */
+      network?: string;
+      /**
+       * Format: int32
+       * @description Priority of the rule (0-65535).
+       */
+      priority?: number;
+      /** @description Source IP CIDR ranges. */
+      source_ranges?: string[];
+      /** @description Source service accounts. */
+      source_service_accounts?: string[];
+      /** @description Target service accounts. */
+      target_service_accounts?: string[];
+    };
+    /** @description Status of a GCP firewall rule set, containing the rendered rules. */
+    GcpFirewallRuleStatus: {
+      /** @description Rendered firewall rule specifications. */
+      rules?: components['schemas']['GcpFirewallRuleSpec'][];
+    };
+    /** @description GCP firewall rule template definition.
+     *     Templates define the set of firewall rules that will be created for a cluster.
+     *     Each template has a version and one or more profiles (e.g. "public", "private"). */
+    GcpFirewallRuleTemplate: {
+      /** @description Human-readable description of this template profile. */
+      description?: string;
+      /** @description Self link to the template resource. */
+      href?: string;
+      /** @description Profile name (e.g. "public", "private"). */
+      profile?: string;
+      /** @description Template version identifier (e.g. "v1"). */
+      version?: string;
+    };
+    /** @description Template version and profile reference for a firewall rule. */
+    GcpFirewallRuleTemplateRef: {
+      /** @description Self link to the template resource. */
+      href?: string;
+      /** @description Template version identifier. */
+      version?: string;
+    };
+    /** @description Status of GCP firewall rules verification. */
+    GcpFirewallRulesStatus: {
+      /** @description Description of the current status. */
+      description?: string;
+      /** @description Kind is the resource type identifier. */
+      kind?: string;
+      /** @description Individual firewall rule status entries. */
+      rules?: components['schemas']['GcpFirewallRulesStatusEntry'][];
+      /** @description Overall state of the firewall rules (e.g. "ready", "incomplete", "not_found"). */
+      state?: string;
+    };
+    /** @description Status of an individual GCP firewall rule. */
+    GcpFirewallRulesStatusEntry: {
+      /** @description Whether the firewall rule is configured correctly. */
+      configured_correctly?: boolean;
+      /** @description Description of each firewall rule */
+      description?: string;
+      /** @description Whether the firewall rule exists in GCP. */
+      exists?: boolean;
+      /** @description Name of the firewall rule in GCP. */
+      name?: string;
     };
     /** @description Google cloud platform private service connect configuration of a cluster. */
     GcpPrivateServiceConnect: {
@@ -17874,6 +18344,8 @@ export type SchemaAutoscalerResourceLimitsGpuLimit =
 export type SchemaAutoscalerScaleDownConfig = components['schemas']['AutoscalerScaleDownConfig'];
 export type SchemaAwsAutoNode = components['schemas']['AwsAutoNode'];
 export type SchemaAwsEtcdEncryption = components['schemas']['AwsEtcdEncryption'];
+export type SchemaAwsNodePoolSpotMarketOptions =
+  components['schemas']['AwsNodePoolSpotMarketOptions'];
 export type SchemaAzure = components['schemas']['Azure'];
 export type SchemaAzureControlPlaneManagedIdentity =
   components['schemas']['AzureControlPlaneManagedIdentity'];
@@ -17962,6 +18434,16 @@ export type SchemaFlavour = components['schemas']['Flavour'];
 export type SchemaFlavourNodes = components['schemas']['FlavourNodes'];
 export type SchemaGcpAuthentication = components['schemas']['GcpAuthentication'];
 export type SchemaGcpDnsDomain = components['schemas']['GcpDnsDomain'];
+export type SchemaGcpFirewallRule = components['schemas']['GcpFirewallRule'];
+export type SchemaGcpFirewallRuleAllowed = components['schemas']['GcpFirewallRuleAllowed'];
+export type SchemaGcpFirewallRuleGcpNetwork = components['schemas']['GcpFirewallRuleGcpNetwork'];
+export type SchemaGcpFirewallRuleSpec = components['schemas']['GcpFirewallRuleSpec'];
+export type SchemaGcpFirewallRuleStatus = components['schemas']['GcpFirewallRuleStatus'];
+export type SchemaGcpFirewallRuleTemplate = components['schemas']['GcpFirewallRuleTemplate'];
+export type SchemaGcpFirewallRuleTemplateRef = components['schemas']['GcpFirewallRuleTemplateRef'];
+export type SchemaGcpFirewallRulesStatus = components['schemas']['GcpFirewallRulesStatus'];
+export type SchemaGcpFirewallRulesStatusEntry =
+  components['schemas']['GcpFirewallRulesStatusEntry'];
 export type SchemaGcpPrivateServiceConnect = components['schemas']['GcpPrivateServiceConnect'];
 export type SchemaGcpSecurity = components['schemas']['GcpSecurity'];
 export type SchemaGithubIdentityProvider = components['schemas']['GithubIdentityProvider'];
