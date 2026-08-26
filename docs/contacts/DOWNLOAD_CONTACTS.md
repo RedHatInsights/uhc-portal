@@ -33,7 +33,7 @@ For broken doc links ("Get started" / "Learn more"), file a ticket in the **OSDO
 | Display Name | Upstream OWNERS | Slack Channel | Notes |
 |-------------|-----------------|---------------|-------|
 | Developer CLI (odo) | [OWNERS](https://github.com/redhat-developer/odo/blob/main/OWNERS) | — | **DEPRECATED** |
-| Helm 3 CLI (helm) | [helm/helm](https://github.com/helm/helm) (upstream) | `#forum-helm` | ART publishes RH builds |
+| Helm 3 CLI (helm) | [helm/helm](https://github.com/helm/helm) (upstream) | `#forum-helm`, `#helm-eng` | ART publishes RH builds |
 | Operator Package Mgr (opm) | [OWNERS](https://github.com/operator-framework/operator-registry/blob/master/OWNERS) | `#olm-dev` (Kubernetes Slack) | |
 | Operator SDK CLI | [OWNERS](https://github.com/operator-framework/operator-sdk/blob/master/OWNERS) / [ALIASES](https://github.com/operator-framework/operator-sdk/blob/master/OWNERS_ALIASES) | `#olm-dev` (Kubernetes Slack) | Removed in OCP 4.19 |
 | RHOAS CLI (rhoas) | [redhat-developer/app-services-cli](https://github.com/redhat-developer/app-services-cli) | — | **DEPRECATED** |
