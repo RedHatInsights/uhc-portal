@@ -399,7 +399,12 @@ function Details() {
           label="Region"
           isRequired
           fieldId={FieldId.Region}
-          labelHelp={<PopoverHint hint={constants.regionHint} />}
+          labelHelp={
+            <PopoverHint
+              hint={constants.regionHint()}
+              buttonAriaLabel="More information about region"
+            />
+          }
         >
           {isMultiRegionEnabled ? (
             <Field

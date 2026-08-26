@@ -7,8 +7,8 @@ const constants = {
     'Single zone clusters reside in a singular fault domain and lack the resilience of multi-zone clusters.',
   availabilityHintMultiZone:
     'Three availability zones provide resilience to cluster components evenly spread across fault domains.',
-  regionHint:
-    'The geographic location of the AWS data centers where your compute pool will be located.',
+  regionHint: (cloud = 'AWS') =>
+    `The geographic location of the ${cloud} data centers where your compute pool will be located.`,
   persistentStorageHint: 'The storage quota set on the deployed cluster.',
   loadBalancersHint: 'The load balancer quota set on the deployed cluster.',
   computeNodeInstanceTypeHint: `The instance type for the compute nodes. Instance type
@@ -45,7 +45,7 @@ const constants = {
   keyName:
     'A cryptographic key is a resource that is used for encrypting and decrypting data or for producing and verifying digital signatures',
   keylocation:
-    'A key location represent the geographical regions where a Cloud KMS resource is stored and can be accessed.',
+    'A key location represents the geographical regions where a Cloud KMS resource is stored and can be accessed.',
   kmsserviceAccount: 'Compute Engine default service account.',
   enableUserWorkloadMonitoringHint:
     'Monitor your own projects in isolation from Red Hat Site Reliability Engineering (SRE) platform metrics.',
