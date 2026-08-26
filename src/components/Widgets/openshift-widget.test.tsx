@@ -16,15 +16,14 @@ describe('OpenShiftWidget', () => {
 
   it('should render an internal link titled "OpenShift" pointing to /openshift', () => {
     render(<OpenShiftWidget />);
-    const link = screen.getByRole('link', { name: /OpenShift/ });
+    const link = screen.getByRole('link', { name: /^OpenShift$/i });
     expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute('href', expect.stringContaining('/openshift'));
+    expect(link).toHaveAttribute('href', '/openshift');
   });
 
   it('should render an internal link, not an external one', () => {
     render(<OpenShiftWidget />);
-    const link = screen.getByRole('link', { name: /OpenShift/ });
-    // OpenShiftWidget does not pass isExternal, so it should use the internal Link component
+    const link = screen.getByRole('link', { name: /^OpenShift$/i });
     expect(link).not.toHaveAttribute('target', '_blank');
     expect(link).not.toHaveAttribute('rel', 'noopener noreferrer');
   });

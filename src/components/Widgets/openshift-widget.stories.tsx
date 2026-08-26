@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from '@storybook/test';
 
@@ -10,8 +11,20 @@ const meta: Meta<typeof OpenShiftWidget> = {
   component: OpenShiftWidget,
   decorators: [
     (Story) => (
-      <div style={{ maxWidth: '400px', padding: '1em' }}>
-        <Story />
+      <div style={{ maxWidth: '400px' }}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Red Hat OpenShift *</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <Story />
+          </CardBody>
+        </Card>
+        <p style={{ fontSize: '12px', marginTop: '8px', color: '#6a6e73' }}>
+          * Title is only defined in Storybook. The HCC home-page dashboard supplies the card
+          chrome, title, icon, kebab menu, and drag handle. Our widget only provides the body
+          content and link.
+        </p>
       </div>
     ),
   ],
@@ -22,24 +35,20 @@ export default meta;
 type Story = StoryObj<typeof OpenShiftWidget>;
 
 export const Default: Story = {
-  name: 'Default',
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Verify the widget body text renders
+    await expect(
+      await canvas.findByRole('heading', { name: /Red Hat OpenShift/ }),
+    ).toBeInTheDocument();
+
     await expect(
       await canvas.findByText(/Build, run, and scale container-based applications/),
     ).toBeInTheDocument();
 
-    // Verify the link text renders
-    const link = await canvas.findByRole('link', { name: /OpenShift/i });
+    const link = await canvas.findByRole('link', { name: /^OpenShift$/i });
     await expect(link).toBeInTheDocument();
-
-    // Verify the link points to the correct internal route
     await expect(link).toHaveAttribute('href', '/openshift');
-
-    // Verify the card structure is present (PatternFly plain card)
-    const card = canvasElement.querySelector('.pf-v6-c-card');
-    await expect(card).toBeInTheDocument();
+    await expect(link).not.toHaveAttribute('target', '_blank');
   },
 };
