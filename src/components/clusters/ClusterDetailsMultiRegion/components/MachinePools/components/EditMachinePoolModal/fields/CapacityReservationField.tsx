@@ -15,10 +15,14 @@ import {
 
 import docLinks from '~/common/docLinks.mjs';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
-import { CAPACITY_RESERVATION_MIN_VERSION as requiredVersion } from '~/components/clusters/common/machinePools/constants';
+import {
+  CAPACITY_RESERVATION_MIN_VERSION as requiredVersion,
+  SPOT_CAPACITY_RESERVATION_CONFLICT_REASON,
+} from '~/components/clusters/common/machinePools/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import TextField from '~/components/common/formik/TextField';
 import PopoverHint from '~/components/common/PopoverHint';
+import WithTooltip from '~/components/common/WithTooltip';
 import useFormikOnChange from '~/hooks/useFormikOnChange';
 import { CAPACITY_RESERVATION_ID_FIELD } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -101,6 +105,7 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
   const { setValue } = helpers;
   const isCROnly = capacityPreferenceField.value === 'capacity-reservations-only';
   const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
+  const isSpotInstancesEnabled = !!useField('useSpotInstances')[0].value;
 
   const isValidVersion = semver.valid(clusterVersion)
     ? semver.gte(clusterVersion, requiredVersion)
@@ -135,26 +140,39 @@ const CapacityReservationField = ({ cluster, isEdit }: CapacityReservationFieldP
       <Flex className="pf-v6-u-ml-sm">
         <FlexItem>Reservation Preference: </FlexItem>
         <FlexItem>
-          <SelectField
-            value={capacityPreferenceField.value}
-            fieldId={crPreferenceFieldId}
-            label={selectedOption.label}
-            onSelect={OnChange}
-            isDisabled={!isValidVersion}
-            ariaLabel="Reservation Preference"
+          <WithTooltip
+            showTooltip={isSpotInstancesEnabled}
+            content={SPOT_CAPACITY_RESERVATION_CONFLICT_REASON}
+            position="top-start"
           >
-            {options.map((option) => (
-              <SelectOption key={option.value} value={option.value}>
-                {option.label}
-              </SelectOption>
-            ))}
-          </SelectField>
+            <span className="pf-v6-u-display-inline-block">
+              <SelectField
+                value={capacityPreferenceField.value}
+                fieldId={crPreferenceFieldId}
+                label={selectedOption.label}
+                onSelect={OnChange}
+                isDisabled={!isValidVersion || isSpotInstancesEnabled}
+                ariaLabel="Reservation Preference"
+              >
+                {options.map((option) => (
+                  <SelectOption key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectOption>
+                ))}
+              </SelectField>
+            </span>
+          </WithTooltip>
         </FlexItem>
       </Flex>
       {isCROnly ? (
         <Grid className="pf-v6-u-ml-sm pf-v6-u-mt-sm">
           <GridItem span={4}>
-            <TextField fieldId={crIdFieldId} label="Reservation Id" trimOnBlur />
+            <TextField
+              fieldId={crIdFieldId}
+              label="Reservation Id"
+              trimOnBlur
+              isDisabled={isSpotInstancesEnabled}
+            />
           </GridItem>
         </Grid>
       ) : null}

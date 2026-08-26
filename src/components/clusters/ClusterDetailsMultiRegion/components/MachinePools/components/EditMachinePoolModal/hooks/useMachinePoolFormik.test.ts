@@ -200,6 +200,72 @@ describe('useMachinePoolFormik', () => {
     });
   });
 
+  describe('initialValues spot instances (HCP)', () => {
+    it('parses the string max_price from an existing HCP node pool into a number', () => {
+      const machinePoolWithSpot = {
+        kind: 'NodePool',
+        id: 'spot-pool',
+        aws_node_pool: {
+          spot_market_options: { max_price: '3.5' },
+        },
+      };
+
+      const { initialValues } = renderHook(() =>
+        useMachinePoolFormik({
+          cluster: hyperShiftCluster,
+          machinePool: machinePoolWithSpot,
+          machineTypes: defaultMachineTypes,
+          machinePools: [machinePoolWithSpot],
+        }),
+      ).result.current;
+
+      expect(initialValues.useSpotInstances).toBe(true);
+      expect(initialValues.spotInstanceType).toBe('maximum');
+      expect(initialValues.maxPrice).toBe(3.5);
+    });
+
+    it('defaults to on-demand pricing when the HCP node pool uses spot with no max_price', () => {
+      const machinePoolWithSpot = {
+        kind: 'NodePool',
+        id: 'spot-pool',
+        aws_node_pool: {
+          spot_market_options: {},
+        },
+      };
+
+      const { initialValues } = renderHook(() =>
+        useMachinePoolFormik({
+          cluster: hyperShiftCluster,
+          machinePool: machinePoolWithSpot,
+          machineTypes: defaultMachineTypes,
+          machinePools: [machinePoolWithSpot],
+        }),
+      ).result.current;
+
+      expect(initialValues.useSpotInstances).toBe(true);
+      expect(initialValues.spotInstanceType).toBe('onDemand');
+    });
+
+    it('does not enable spot instances when the HCP node pool has no spot_market_options', () => {
+      const machinePoolWithoutSpot = {
+        kind: 'NodePool',
+        id: 'no-spot-pool',
+        aws_node_pool: {},
+      };
+
+      const { initialValues } = renderHook(() =>
+        useMachinePoolFormik({
+          cluster: hyperShiftCluster,
+          machinePool: machinePoolWithoutSpot,
+          machineTypes: defaultMachineTypes,
+          machinePools: [machinePoolWithoutSpot],
+        }),
+      ).result.current;
+
+      expect(initialValues.useSpotInstances).toBe(false);
+    });
+  });
+
   describe('validationSchema', () => {
     describe('autoscaleMin', () => {
       it('should allow 0 min nodes for HCP clusters with autoscaling enabled', async () => {
@@ -406,6 +472,86 @@ describe('useMachinePoolFormik', () => {
         await expect(validationSchema.validateAt('autoscaleMax', values)).rejects.toThrow(
           'Max nodes must be greater than 0.',
         );
+      });
+    });
+
+    describe('maxPrice', () => {
+      it('rejects a max price above $10/hour for HCP clusters', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          spotInstanceType: 'maximum',
+          maxPrice: 10.01,
+        };
+
+        await expect(validationSchema.validateAt('maxPrice', values)).rejects.toThrow(
+          'Price cannot exceed $10 per hour.',
+        );
+      });
+
+      it('allows a max price of exactly $10/hour for HCP clusters', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          spotInstanceType: 'maximum',
+          maxPrice: 10,
+        };
+
+        await expect(validationSchema.validateAt('maxPrice', values)).resolves.toBe(10);
+      });
+
+      it('allows a max price above $10/hour for non-HCP clusters', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: defaultCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          spotInstanceType: 'maximum',
+          maxPrice: 50,
+        };
+
+        await expect(validationSchema.validateAt('maxPrice', values)).resolves.toBe(50);
+      });
+
+      it('does not validate the guardrail when on-demand pricing is selected', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          spotInstanceType: 'onDemand',
+          maxPrice: 500,
+        };
+
+        await expect(validationSchema.validateAt('maxPrice', values)).resolves.toBe(500);
       });
     });
 

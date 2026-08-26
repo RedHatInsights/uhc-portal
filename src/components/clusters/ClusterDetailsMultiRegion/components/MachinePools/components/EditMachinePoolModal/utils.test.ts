@@ -155,16 +155,33 @@ describe('buildNodePoolRequest', () => {
     });
 
     it('adds capacity preference and reservation ROSA Hypershift clusters', () => {
-      const nodePool = buildNodePoolRequest(defaultValues, {
-        isEdit: false,
-        isMultiZoneMachinePool: false,
-        canUseCapacityReservation: true,
-      });
+      const nodePool = buildNodePoolRequest(
+        { ...defaultValues, useSpotInstances: false },
+        {
+          isEdit: false,
+          isMultiZoneMachinePool: false,
+          canUseCapacityReservation: true,
+        },
+      );
 
       expect(nodePool.aws_node_pool?.capacity_reservation?.id).toEqual('cr-111');
       expect(nodePool.aws_node_pool?.capacity_reservation?.preference).toEqual(
         'capacity-reservations-only',
       );
+    });
+
+    it('omits capacity_reservation when spot instances are enabled, even with a reservation configured', () => {
+      const nodePool = buildNodePoolRequest(
+        { ...defaultValues, useSpotInstances: true },
+        {
+          isEdit: false,
+          isMultiZoneMachinePool: false,
+          canUseCapacityReservation: true,
+        },
+      );
+
+      expect(nodePool.aws_node_pool?.capacity_reservation).toBeUndefined();
+      expect((nodePool.aws_node_pool as any)?.spot_market_options).toBeDefined();
     });
 
     it('does not add capacity preference and reservation for invalid version clusters', () => {
@@ -188,6 +205,34 @@ describe('buildNodePoolRequest', () => {
       const badPool = nodePool as MachinePool;
       expect(badPool.root_volume).toBeUndefined();
       expect(badPool.aws).toBeUndefined();
+    });
+
+    it('adds spot price settings when enabled', () => {
+      const nodePool = buildNodePoolRequest(defaultValues, {
+        isEdit: false,
+        isMultiZoneMachinePool: false,
+        canUseCapacityReservation: true,
+      });
+
+      expect((nodePool.aws_node_pool as any)?.spot_market_options).toEqual({ max_price: '0.04' });
+    });
+
+    it('adds spot settings with no max price for on-demand pricing', () => {
+      const nodePool = buildNodePoolRequest(
+        { ...defaultValues, spotInstanceType: 'onDemand' },
+        { isEdit: false, isMultiZoneMachinePool: false, canUseCapacityReservation: true },
+      );
+
+      expect((nodePool.aws_node_pool as any)?.spot_market_options).toEqual({});
+    });
+
+    it('does not add spot price settings if it is not enabled', () => {
+      const nodePool = buildNodePoolRequest(
+        { ...defaultValues, useSpotInstances: false },
+        { isEdit: false, isMultiZoneMachinePool: false, canUseCapacityReservation: true },
+      );
+
+      expect((nodePool.aws_node_pool as any)?.spot_market_options).toBeUndefined();
     });
   });
   describe('when editing', () => {

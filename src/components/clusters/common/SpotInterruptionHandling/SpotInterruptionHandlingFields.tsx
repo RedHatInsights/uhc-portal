@@ -34,7 +34,6 @@ export type SpotInterruptionHandlingFieldsProps = {
   onSqsQueueUrlChange: (url: string) => void;
   onSqsQueueUrlBlur?: () => void;
   isDisabled?: boolean;
-  isModeDisabled?: boolean;
   isEnhancedDisabled?: boolean;
   enhancedDisabledReason?: React.ReactNode;
   isSqsQueueUrlDisabled?: boolean;
@@ -51,7 +50,6 @@ export const SpotInterruptionHandlingFields = ({
   onSqsQueueUrlChange,
   onSqsQueueUrlBlur,
   isDisabled = false,
-  isModeDisabled = false,
   isEnhancedDisabled = false,
   enhancedDisabledReason,
   isSqsQueueUrlDisabled = false,
@@ -61,8 +59,7 @@ export const SpotInterruptionHandlingFields = ({
   prereqAlertMessage = DEFAULT_SPOT_INTERRUPTION_PREREQ_ALERT,
 }: SpotInterruptionHandlingFieldsProps) => {
   const isEnhanced = mode === SpotInterruptionMode.Enhanced;
-  const areRadiosDisabled = isDisabled || isModeDisabled;
-  const isEnhancedRadioDisabled = areRadiosDisabled || isEnhancedDisabled;
+
   const isUrlDisabled = isDisabled || isSqsQueueUrlDisabled;
 
   return (
@@ -84,14 +81,13 @@ export const SpotInterruptionHandlingFields = ({
           label="Simple Spot instances"
           description={SIMPLE_SPOT_DESCRIPTION}
           isChecked={mode === SpotInterruptionMode.Simple}
-          isDisabled={areRadiosDisabled}
           onChange={() => onModeChange(SpotInterruptionMode.Simple)}
         />
       </StackItem>
 
       <StackItem>
         <WithTooltip
-          showTooltip={isEnhancedRadioDisabled && !!enhancedDisabledReason}
+          showTooltip={isEnhancedDisabled && !!enhancedDisabledReason}
           content={enhancedDisabledReason}
         >
           <div>
@@ -101,7 +97,7 @@ export const SpotInterruptionHandlingFields = ({
               label="Enhanced Spot instances"
               description={ENHANCED_SPOT_DESCRIPTION}
               isChecked={isEnhanced}
-              isDisabled={isEnhancedRadioDisabled}
+              isDisabled={isEnhancedDisabled}
               onChange={() => onModeChange(SpotInterruptionMode.Enhanced)}
               body={
                 isEnhanced ? (

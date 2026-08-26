@@ -1,3 +1,4 @@
+import { AwsNodePoolWithSpotMarketOptions } from '~/components/clusters/common/machinePools/types';
 import { ENABLE_AWS_TAGS_EDITING } from '~/queries/featureGates/featureConstants';
 import { AwsMachinePool, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
@@ -147,20 +148,34 @@ export const buildNodePoolRequest = (
 
   if (!isEdit) {
     nodePool.subnet = values.privateSubnetId;
-    nodePool.aws_node_pool = {
+    // NOTE: `spot_market_options` is not yet part of the generated `AWSNodePool` OpenAPI
+    // type (unlike its classic `AWSMachinePool` counterpart). See AwsNodePoolWithSpotMarketOptions.
+    const awsNodePool: AwsNodePoolWithSpotMarketOptions = {
       instance_type: values.instanceType?.id,
       ec2_metadata_http_tokens: values.imds,
       additional_security_group_ids: values.securityGroupIds,
       root_volume: {
         size: values.diskSize,
       },
-      ...(canUseCapacityReservation && {
-        capacity_reservation: {
-          id: values.capacityReservationId,
-          preference: values.capacityReservationPreference,
-        },
-      }),
+      // Spot instances and Capacity Reservations are mutually exclusive on the API side
+      // so omit `capacity_reservation` entirely when Spot is selected.
+      ...(canUseCapacityReservation &&
+        !values.useSpotInstances && {
+          capacity_reservation: {
+            id: values.capacityReservationId,
+            preference: values.capacityReservationPreference,
+          },
+        }),
     };
+
+    if (values.useSpotInstances) {
+      // Unlike the classic `AWSSpotMarketOptions.max_price` (a number), the API expects
+      // `max_price` here as a string.
+      awsNodePool.spot_market_options =
+        values.spotInstanceType === 'maximum' ? { max_price: values.maxPrice.toString() } : {};
+    }
+
+    nodePool.aws_node_pool = awsNodePool;
   }
 
   if (ENABLE_AWS_TAGS_EDITING || !isEdit) {

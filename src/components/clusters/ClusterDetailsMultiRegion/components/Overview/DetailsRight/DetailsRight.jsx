@@ -28,6 +28,7 @@ import clusterStates, {
   isROSA,
 } from '~/components/clusters/common/clusterStates';
 import ClusterStatusErrorDisplay from '~/components/clusters/common/ClusterStatusErrorDisplay';
+import { isEnhancedSpotVersionSupported } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
 import { IMDSType } from '~/components/clusters/wizards/common';
 import EditButton from '~/components/common/EditButton';
@@ -138,6 +139,8 @@ function DetailsRight({
   const isAutoNodeVersionValid = coercedVersion
     ? semver.gte(coercedVersion, AUTO_NODE_MIN_VERSION)
     : false;
+
+  const isEnhancedSpotVersionValid = isEnhancedSpotVersionSupported(clusterVersion);
 
   const {
     hasMachinePoolWithAutoscaling,
@@ -566,6 +569,7 @@ function DetailsRight({
               cluster={cluster}
               region={region}
               onClose={closeEditSpotInterruptionModal}
+              isEnhancedDisabled={!isEnhancedSpotVersionValid}
             />
           ) : null}
           <DescriptionListGroup>

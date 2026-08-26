@@ -8,7 +8,31 @@ export enum SpotInterruptionMode {
 export const ENHANCED_SPOT_MIN_VERSION = '4.22.0';
 
 export const ENHANCED_SPOT_VERSION_DISABLED_REASON =
-  'Enhanced Spot instances requires OpenShift version 4.22 or above';
+  'Enhanced Spot instances require OpenShift version 4.22 or above';
+
+export const SPOT_INTERRUPTION_MODE_ENHANCED_LABEL = 'Spot instances Enhanced';
+export const SPOT_INTERRUPTION_MODE_SIMPLE_LABEL = 'Spot instances Simple';
+
+type ClusterAwsSpotInterruptionHandling = {
+  aws?: {
+    termination_handler_queue_url?: string | null;
+    spot_termination_handler_queue_url?: string | null;
+  };
+};
+
+export const getSpotInterruptionHandlerQueueUrl = (
+  cluster: ClusterAwsSpotInterruptionHandling,
+): string | undefined => {
+  const queueUrl = cluster?.aws?.termination_handler_queue_url;
+  return queueUrl || undefined;
+};
+
+export const getSpotInterruptionHandlingModeLabel = (
+  cluster: ClusterAwsSpotInterruptionHandling,
+): string =>
+  getSpotInterruptionHandlerQueueUrl(cluster)
+    ? SPOT_INTERRUPTION_MODE_ENHANCED_LABEL
+    : SPOT_INTERRUPTION_MODE_SIMPLE_LABEL;
 
 export const isEnhancedSpotVersionSupported = (clusterVersion?: string): boolean => {
   const coercedVersion = semver.coerce(clusterVersion);

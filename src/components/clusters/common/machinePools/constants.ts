@@ -5,6 +5,8 @@ export const MAX_NODES_HCP_INSUFFICIEN_VERSION = 90; // HCP clusters - Minimal O
 
 export const SPOT_MIN_PRICE = 0.01;
 
+export const SPOT_MAX_PRICE_HCP = 10;
+
 export const PIDS_LIMIT_MIN = 4096;
 export const PIDS_LIMIT_MAX = 16_384;
 export const PIDS_LIMIT_MAX_OVERRIDE = 3_694_303;
@@ -16,3 +18,7 @@ export const defaultWorkerNodeVolumeSizeGiB = 300;
 export const MAINTENANCE_MIN_VALUE = 0;
 
 export const CAPACITY_RESERVATION_MIN_VERSION = '4.19.0';
+
+// Spot Instances and Capacity Reservations are mutually exclusive on the same machine pool.
+export const SPOT_CAPACITY_RESERVATION_CONFLICT_REASON =
+  'Spot Instances and Capacity Reservations cannot both be enabled on the same machine pool.';

@@ -98,7 +98,8 @@ export const MachinePoolsTable = ({
         machinePool?.aws?.additional_security_group_ids ||
         machinePool?.aws_node_pool?.additional_security_group_ids ||
         [];
-      const spotMarketOptions = machinePool?.aws?.spot_market_options;
+      const spotMarketOptions =
+        machinePool?.aws?.spot_market_options || machinePool?.aws_node_pool?.spot_market_options;
       const hasAutoRepair = isHypershift;
 
       return (

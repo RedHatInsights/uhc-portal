@@ -13,7 +13,10 @@ import {
 
 import { validateSpotTerminationHandlerQueueUrl } from '~/common/validators';
 import { queryClient } from '~/components/App/queryClient';
-import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
+import {
+  ENHANCED_SPOT_VERSION_DISABLED_REASON,
+  SpotInterruptionMode,
+} from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { SpotInterruptionHandlingFields } from '~/components/clusters/common/SpotInterruptionHandling/SpotInterruptionHandlingFields';
 import ErrorBox from '~/components/common/ErrorBox';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
@@ -23,6 +26,7 @@ import { ClusterFromSubscription } from '~/types/types';
 type EditSpotInterruptionHandlingModalProps = {
   cluster: ClusterFromSubscription;
   region?: string;
+  isEnhancedDisabled?: boolean;
   onClose: () => void;
 };
 
@@ -32,6 +36,7 @@ const getTerminationHandlerQueueUrl = (cluster: ClusterFromSubscription): string
 const EditSpotInterruptionHandlingModal = ({
   cluster,
   region,
+  isEnhancedDisabled,
   onClose,
 }: EditSpotInterruptionHandlingModalProps) => {
   const clusterRegion = cluster?.region?.id || region;
@@ -111,6 +116,10 @@ const EditSpotInterruptionHandlingModal = ({
             onSqsQueueUrlBlur={() => setIsTouched(true)}
             sqsQueueUrlValidated={validationError ? 'error' : 'default'}
             sqsQueueUrlHelperText={validationError}
+            isEnhancedDisabled={isEnhancedDisabled}
+            enhancedDisabledReason={
+              isEnhancedDisabled ? ENHANCED_SPOT_VERSION_DISABLED_REASON : undefined
+            }
           />
         </Form>
       </ModalBody>
