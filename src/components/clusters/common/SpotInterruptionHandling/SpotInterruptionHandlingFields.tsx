@@ -33,10 +33,8 @@ export type SpotInterruptionHandlingFieldsProps = {
   sqsQueueUrl: string;
   onSqsQueueUrlChange: (url: string) => void;
   onSqsQueueUrlBlur?: () => void;
-  isDisabled?: boolean;
   isEnhancedDisabled?: boolean;
   enhancedDisabledReason?: React.ReactNode;
-  isSqsQueueUrlDisabled?: boolean;
   sqsQueueUrlValidated?: TextInputProps['validated'];
   sqsQueueUrlHelperText?: React.ReactNode;
   showPrereqAlert?: boolean;
@@ -49,18 +47,14 @@ export const SpotInterruptionHandlingFields = ({
   sqsQueueUrl,
   onSqsQueueUrlChange,
   onSqsQueueUrlBlur,
-  isDisabled = false,
   isEnhancedDisabled = false,
   enhancedDisabledReason,
-  isSqsQueueUrlDisabled = false,
   sqsQueueUrlValidated = 'default',
   sqsQueueUrlHelperText,
   showPrereqAlert = true,
   prereqAlertMessage = DEFAULT_SPOT_INTERRUPTION_PREREQ_ALERT,
 }: SpotInterruptionHandlingFieldsProps) => {
   const isEnhanced = mode === SpotInterruptionMode.Enhanced;
-
-  const isUrlDisabled = isDisabled || isSqsQueueUrlDisabled;
 
   return (
     <Stack hasGutter>
@@ -127,7 +121,7 @@ export const SpotInterruptionHandlingFields = ({
                           }}
                           placeholder={SQS_QUEUE_URL_PLACEHOLDER}
                           validated={sqsQueueUrlValidated}
-                          isDisabled={isUrlDisabled}
+                          isDisabled={isEnhancedDisabled}
                           isRequired
                         />
                         <HelperText>

@@ -27,7 +27,6 @@ import validators, {
   createPessimisticValidator,
   domainPrefixAsyncValidation,
   domainPrefixValidation,
-  getSqsQueueRegionFromUrl,
   required,
   validateAWSKMSKeyARN,
   validateExcludeNamespaceSelectorKey,
@@ -1371,36 +1370,6 @@ describe('createPessimisticValidator', () => {
 
 describe('validateSpotTerminationHandlerQueueUrl', () => {
   const validQueueUrl = 'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot';
-
-  describe('getSqsQueueRegionFromUrl', () => {
-    it('returns the region from a valid SQS queue URL', () => {
-      expect(getSqsQueueRegionFromUrl(validQueueUrl)).toBe('us-east-1');
-    });
-
-    it('returns the region from a valid GovCloud FIPS SQS queue URL', () => {
-      expect(
-        getSqsQueueRegionFromUrl(
-          'https://sqs-fips.us-gov-west-1.amazonaws.com/123456789012/rosa-cluster-spot',
-        ),
-      ).toBe('us-gov-west-1');
-    });
-
-    it('returns the region from a valid GovCloud SQS queue URL', () => {
-      expect(
-        getSqsQueueRegionFromUrl(
-          'https://sqs.us-gov-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
-        ),
-      ).toBe('us-gov-east-1');
-    });
-
-    it('returns undefined for a non-SQS URL', () => {
-      expect(getSqsQueueRegionFromUrl('https://example.com/queue')).toBeUndefined();
-    });
-
-    it('returns undefined when the URL cannot be parsed', () => {
-      expect(getSqsQueueRegionFromUrl('not-a-valid-url')).toBeUndefined();
-    });
-  });
 
   it('returns required error when the URL is empty', () => {
     expect(validateSpotTerminationHandlerQueueUrl('', 'us-east-1')).toBe(

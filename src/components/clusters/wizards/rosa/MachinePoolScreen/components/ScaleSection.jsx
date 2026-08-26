@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FieldArray } from 'formik';
 import { useDispatch } from 'react-redux';
 
@@ -6,7 +6,10 @@ import {
   Content,
   ContentVariants,
   ExpandableSection,
+  FormHelperText,
   GridItem,
+  HelperText,
+  HelperTextItem,
   Title,
 } from '@patternfly/react-core';
 
@@ -67,8 +70,6 @@ function ScaleSection() {
     setFieldValue,
     getFieldMeta,
     setFieldTouched,
-    errors,
-    isValidating,
   } = useFormState();
   const dispatch = useDispatch();
 
@@ -90,14 +91,14 @@ function ScaleSection() {
   const clusterVersionRawId = clusterVersion?.raw_id;
   const isEnhancedSpotVersionValid = isEnhancedSpotVersionSupported(clusterVersionRawId);
   const sqsQueueUrlMeta = getFieldMeta(FieldId.SpotTerminationHandlerQueueUrl);
-  const spotInterruptionQueueUrlError = errors[FieldId.SpotTerminationHandlerQueueUrl];
-  const sqsQueueUrlValidationError = isSpotInterruptionEnhanced
-    ? sqsQueueUrlMeta?.error ||
-      (sqsQueueUrlMeta?.touched || !!spotTerminationHandlerQueueUrl?.trim()
-        ? validateSpotTerminationHandlerQueueUrl(spotTerminationHandlerQueueUrl, region)
-        : undefined)
-    : undefined;
-  const wasValidatingRef = useRef(isValidating);
+  const shouldShowSqsQueueUrlValidation =
+    sqsQueueUrlMeta?.touched || !!spotTerminationHandlerQueueUrl?.trim();
+  const sqsQueueUrlValidationError =
+    isSpotInterruptionEnhanced && shouldShowSqsQueueUrlValidation
+      ? sqsQueueUrlMeta?.error ||
+        validateSpotTerminationHandlerQueueUrl(spotTerminationHandlerQueueUrl, region)
+      : undefined;
+  const collapsedSpotInterruptionError = !isSpotInterruptionExpanded && sqsQueueUrlValidationError;
 
   const { minWorkerVolumeSizeGiB, maxWorkerVolumeSizeGiB } = useMemo(() => {
     const minWorkerVolumeSizeGiB = getWorkerNodeVolumeSizeMinGiB(isHypershiftSelected);
@@ -133,14 +134,6 @@ function ScaleSection() {
       setFieldValue(FieldId.SpotTerminationHandlerQueueUrl, '');
     }
   }, [isEnhancedSpotVersionValid, isSpotInterruptionEnhanced, setFieldValue]);
-
-  React.useEffect(() => {
-    if (wasValidatingRef.current && !isValidating && spotInterruptionQueueUrlError) {
-      setIsSpotInterruptionExpanded(true);
-      setFieldTouched(FieldId.SpotTerminationHandlerQueueUrl, true, false);
-    }
-    wasValidatingRef.current = isValidating;
-  }, [isValidating, setFieldTouched, spotInterruptionQueueUrlError]);
 
   const LabelsSectionComponent = useCallback(
     () =>
@@ -279,14 +272,25 @@ function ScaleSection() {
               onSqsQueueUrlBlur={() =>
                 setFieldTouched(FieldId.SpotTerminationHandlerQueueUrl, true, false)
               }
-              sqsQueueUrlValidated={sqsQueueUrlValidationError ? 'error' : 'default'}
-              sqsQueueUrlHelperText={sqsQueueUrlValidationError ?? undefined}
+              sqsQueueUrlValidated={
+                isSpotInterruptionExpanded && sqsQueueUrlValidationError ? 'error' : 'default'
+              }
+              sqsQueueUrlHelperText={
+                isSpotInterruptionExpanded ? sqsQueueUrlValidationError ?? undefined : undefined
+              }
               isEnhancedDisabled={!isEnhancedSpotVersionValid}
               enhancedDisabledReason={
                 isEnhancedSpotVersionValid ? undefined : ENHANCED_SPOT_VERSION_DISABLED_REASON
               }
             />
           </ExpandableSection>
+          {collapsedSpotInterruptionError ? (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem variant="error">{collapsedSpotInterruptionError}</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          ) : null}
         </GridItem>
       ) : null}
     </>

@@ -829,16 +829,6 @@ const validateUrlHttpsAndHttp = (value: string) => validateUrl(value, ['http', '
 const SQS_QUEUE_HOSTNAME_PATTERN = /^sqs(?:-fips)?\.([a-z0-9-]+)\.amazonaws\.com$/i;
 const SQS_QUEUE_PATHNAME_PATTERN = /^\/\d{12}\/[a-zA-Z0-9_-]+(\.fifo)?$/;
 
-const getSqsQueueRegionFromUrl = (url: string): string | undefined => {
-  try {
-    const { hostname } = new URL(url);
-    const regionMatch = hostname.match(SQS_QUEUE_HOSTNAME_PATTERN);
-    return regionMatch?.[1];
-  } catch {
-    return undefined;
-  }
-};
-
 const validateSpotTerminationHandlerQueueUrl = (
   value: string,
   region?: string,
@@ -2047,7 +2037,6 @@ export {
   domainPrefixAsyncValidation,
   domainPrefixValidation,
   evaluateClusterNameAsyncValidation,
-  getSqsQueueRegionFromUrl,
   MAX_CLUSTER_NAME_LENGTH,
   MAX_CUSTOM_OPERATOR_ROLES_PREFIX_LENGTH,
   required,

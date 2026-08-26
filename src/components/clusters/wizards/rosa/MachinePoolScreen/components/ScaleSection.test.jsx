@@ -631,7 +631,7 @@ describe('<ScaleSection />', () => {
       expect(screen.getByText('SQS queue URL is required.')).toBeInTheDocument();
     });
 
-    it('expands the spot interruption section after a failed validation attempt while collapsed', async () => {
+    it('shows a validation error below the section when collapsed after a failed validation attempt', async () => {
       mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
       const formStateMock = {
         ...formStateBaseMock,
@@ -642,7 +642,6 @@ describe('<ScaleSection />', () => {
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
         errors: {},
-        isValidating: false,
         getFieldMeta: jest.fn().mockReturnValue({ touched: false, error: undefined }),
       };
       useFormStateMock.mockReturnValue(formStateMock);
@@ -660,18 +659,6 @@ describe('<ScaleSection />', () => {
 
       useFormStateMock.mockReturnValue({
         ...formStateMock,
-        isValidating: true,
-      });
-
-      rerender(
-        <Formik initialValues={{}} onSubmit={() => {}}>
-          <ScaleSection />
-        </Formik>,
-      );
-
-      useFormStateMock.mockReturnValue({
-        ...formStateMock,
-        isValidating: false,
         errors: {
           [FieldId.SpotTerminationHandlerQueueUrl]: 'SQS queue URL is required.',
         },
@@ -688,13 +675,10 @@ describe('<ScaleSection />', () => {
         </Formik>,
       );
 
-      expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeInTheDocument();
+      expect(
+        screen.queryByRole('radio', { name: /Enhanced Spot instances/i }),
+      ).not.toBeInTheDocument();
       expect(screen.getByText('SQS queue URL is required.')).toBeInTheDocument();
-      expect(formStateMock.setFieldTouched).toHaveBeenCalledWith(
-        FieldId.SpotTerminationHandlerQueueUrl,
-        true,
-        false,
-      );
     });
 
     it('allows collapsing the spot interruption section when a validation error exists', async () => {
@@ -729,6 +713,7 @@ describe('<ScaleSection />', () => {
       expect(
         screen.queryByRole('radio', { name: /Enhanced Spot instances/i }),
       ).not.toBeInTheDocument();
+      expect(screen.getByText('SQS queue URL is required.')).toBeInTheDocument();
     });
 
     it('expands the spot interruption section by default in enhanced mode', () => {
