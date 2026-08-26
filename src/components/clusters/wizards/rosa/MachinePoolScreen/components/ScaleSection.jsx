@@ -276,7 +276,7 @@ function ScaleSection() {
                 isSpotInterruptionExpanded && sqsQueueUrlValidationError ? 'error' : 'default'
               }
               sqsQueueUrlHelperText={
-                isSpotInterruptionExpanded ? sqsQueueUrlValidationError ?? undefined : undefined
+                isSpotInterruptionExpanded ? sqsQueueUrlValidationError : undefined
               }
               isEnhancedDisabled={!isEnhancedSpotVersionValid}
               enhancedDisabledReason={
