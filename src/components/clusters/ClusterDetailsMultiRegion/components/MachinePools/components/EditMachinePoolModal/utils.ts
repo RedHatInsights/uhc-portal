@@ -1,6 +1,5 @@
-import { AwsNodePoolWithSpotMarketOptions } from '~/components/clusters/common/machinePools/types';
 import { ENABLE_AWS_TAGS_EDITING } from '~/queries/featureGates/featureConstants';
-import { AwsMachinePool, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
+import { AwsMachinePool, AwsNodePool, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 
 import { EditMachinePoolValues } from './hooks/useMachinePoolFormik';
@@ -148,9 +147,7 @@ export const buildNodePoolRequest = (
 
   if (!isEdit) {
     nodePool.subnet = values.privateSubnetId;
-    // NOTE: `spot_market_options` is not yet part of the generated `AWSNodePool` OpenAPI
-    // type (unlike its classic `AWSMachinePool` counterpart). See AwsNodePoolWithSpotMarketOptions.
-    const awsNodePool: AwsNodePoolWithSpotMarketOptions = {
+    const awsNodePool: AwsNodePool = {
       instance_type: values.instanceType?.id,
       ec2_metadata_http_tokens: values.imds,
       additional_security_group_ids: values.securityGroupIds,
@@ -169,8 +166,6 @@ export const buildNodePoolRequest = (
     };
 
     if (values.useSpotInstances) {
-      // Unlike the classic `AWSSpotMarketOptions.max_price` (a number), the API expects
-      // `max_price` here as a string.
       awsNodePool.spot_market_options =
         values.spotInstanceType === 'maximum' ? { max_price: values.maxPrice.toString() } : {};
     }

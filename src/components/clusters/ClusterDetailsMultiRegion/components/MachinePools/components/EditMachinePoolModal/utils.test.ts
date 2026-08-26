@@ -181,7 +181,7 @@ describe('buildNodePoolRequest', () => {
       );
 
       expect(nodePool.aws_node_pool?.capacity_reservation).toBeUndefined();
-      expect((nodePool.aws_node_pool as any)?.spot_market_options).toBeDefined();
+      expect(nodePool.aws_node_pool?.spot_market_options).toBeDefined();
     });
 
     it('does not add capacity preference and reservation for invalid version clusters', () => {
@@ -214,7 +214,7 @@ describe('buildNodePoolRequest', () => {
         canUseCapacityReservation: true,
       });
 
-      expect((nodePool.aws_node_pool as any)?.spot_market_options).toEqual({ max_price: '0.04' });
+      expect(nodePool.aws_node_pool?.spot_market_options).toEqual({ max_price: '0.04' });
     });
 
     it('adds spot settings with no max price for on-demand pricing', () => {
@@ -223,7 +223,7 @@ describe('buildNodePoolRequest', () => {
         { isEdit: false, isMultiZoneMachinePool: false, canUseCapacityReservation: true },
       );
 
-      expect((nodePool.aws_node_pool as any)?.spot_market_options).toEqual({});
+      expect(nodePool.aws_node_pool?.spot_market_options).toEqual({});
     });
 
     it('does not add spot price settings if it is not enabled', () => {
@@ -232,7 +232,7 @@ describe('buildNodePoolRequest', () => {
         { isEdit: false, isMultiZoneMachinePool: false, canUseCapacityReservation: true },
       );
 
-      expect((nodePool.aws_node_pool as any)?.spot_market_options).toBeUndefined();
+      expect(nodePool.aws_node_pool?.spot_market_options).toBeUndefined();
     });
   });
   describe('when editing', () => {

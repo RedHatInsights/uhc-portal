@@ -28,7 +28,10 @@ import clusterStates, {
   isROSA,
 } from '~/components/clusters/common/clusterStates';
 import ClusterStatusErrorDisplay from '~/components/clusters/common/ClusterStatusErrorDisplay';
-import { isEnhancedSpotVersionSupported } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
+import {
+  getSpotInterruptionHandlerQueueUrl,
+  isEnhancedSpotVersionSupported,
+} from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
 import { IMDSType } from '~/components/clusters/wizards/common';
 import EditButton from '~/components/common/EditButton';
@@ -210,8 +213,7 @@ function DetailsRight({
   const autoNodeCount = cluster?.auto_node?.status?.node_count;
   const showAutoNodeCount =
     isAutoNodeAllowed && !isArchivedSubscription(cluster) && autoNodeCount != null;
-  const terminationHandlerQueueUrl =
-    cluster?.aws?.termination_handler_queue_url || cluster?.aws?.spot_termination_handler_queue_url;
+  const terminationHandlerQueueUrl = getSpotInterruptionHandlerQueueUrl(cluster);
   const isSpotInterruptionEnhanced = !!terminationHandlerQueueUrl;
   const showSpotInterruptionHandling =
     isHypershift && isHcpSpotInstancesEnabled && !isArchivedSubscription(cluster);

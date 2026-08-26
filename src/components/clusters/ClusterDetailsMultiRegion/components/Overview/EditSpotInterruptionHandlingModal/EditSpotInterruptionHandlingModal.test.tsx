@@ -154,7 +154,7 @@ describe('<EditSpotInterruptionHandlingModal />', () => {
         clusterID: 'test-cluster-id',
         cluster: {
           aws: {
-            termination_handler_queue_url: null,
+            termination_handler_queue_url: '',
           },
         },
       },

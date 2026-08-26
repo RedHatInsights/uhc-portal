@@ -38,16 +38,6 @@ describe('getSpotInterruptionHandlingModeLabel', () => {
     ).toBe(SPOT_INTERRUPTION_MODE_ENHANCED_LABEL);
   });
 
-  it('returns Enhanced when spot_termination_handler_queue_url is set', () => {
-    expect(
-      getSpotInterruptionHandlingModeLabel({
-        aws: {
-          spot_termination_handler_queue_url: 'https://sqs.us-east-1.amazonaws.com/123/queue',
-        },
-      }),
-    ).toBe(SPOT_INTERRUPTION_MODE_ENHANCED_LABEL);
-  });
-
   it('returns Simple when no queue URL is set', () => {
     expect(getSpotInterruptionHandlingModeLabel({ aws: {} })).toBe(
       SPOT_INTERRUPTION_MODE_SIMPLE_LABEL,

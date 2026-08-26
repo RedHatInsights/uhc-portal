@@ -21,7 +21,6 @@ import {
   SPOT_MAX_PRICE_HCP,
   SPOT_MIN_PRICE,
 } from '~/components/clusters/common/machinePools/constants';
-import { AwsNodePoolWithSpotMarketOptions } from '~/components/clusters/common/machinePools/types';
 import {
   getMaxNodeCountForMachinePool,
   getWorkerNodeVolumeSizeMaxGiB,
@@ -149,12 +148,10 @@ const useMachinePoolFormik = ({
       maxPrice = machinePool.aws?.spot_market_options?.max_price;
       diskSize = machinePool.root_volume?.aws?.size || machinePool.root_volume?.gcp?.size;
     } else if (isNodePool(machinePool)) {
-      const awsNodePool = machinePool.aws_node_pool as AwsNodePoolWithSpotMarketOptions | undefined;
+      const awsNodePool = machinePool.aws_node_pool;
       const nodePoolMaxPrice = awsNodePool?.spot_market_options?.max_price;
       useSpotInstances = !!awsNodePool?.spot_market_options;
       spotInstanceType = nodePoolMaxPrice ? 'maximum' : 'onDemand';
-      // Unlike the classic `AWSSpotMarketOptions.max_price` (a number), the API returns
-      // this value as a string for HCP node pools.
       maxPrice = nodePoolMaxPrice ? parseFloat(nodePoolMaxPrice) : undefined;
       diskSize = machinePool.aws_node_pool?.root_volume?.size;
       capacityReservationId = machinePool.aws_node_pool?.capacity_reservation?.id;

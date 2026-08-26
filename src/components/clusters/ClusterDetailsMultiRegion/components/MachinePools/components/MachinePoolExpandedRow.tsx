@@ -14,7 +14,6 @@ import {
 } from '@patternfly/react-core';
 
 import { truncateTextWithEllipsis } from '~/common/helpers';
-import { AwsNodePoolWithSpotMarketOptions } from '~/components/clusters/common/machinePools/types';
 import { useAWSVPCFromCluster } from '~/components/clusters/common/useAWSVPCFromCluster';
 import {
   AWS_TAGS_NEW_MP,
@@ -100,9 +99,7 @@ const MachinePoolExpandedRow = ({
   const awsTagsNewMP = useFeatureGate(AWS_TAGS_NEW_MP);
   const isCapacityReservationIdFieldEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
   const { clusterVpc } = useAWSVPCFromCluster(cluster, region);
-  const nodePoolAwsConfig = (machinePool as NodePool)?.aws_node_pool as
-    | AwsNodePoolWithSpotMarketOptions
-    | undefined;
+  const nodePoolAwsConfig = (machinePool as NodePool)?.aws_node_pool;
   const spotMarketOptions =
     machinePool?.aws?.spot_market_options || nodePoolAwsConfig?.spot_market_options;
   const securityGroupIds =

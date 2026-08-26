@@ -15,6 +15,7 @@ import { validateSpotTerminationHandlerQueueUrl } from '~/common/validators';
 import { queryClient } from '~/components/App/queryClient';
 import {
   ENHANCED_SPOT_VERSION_DISABLED_REASON,
+  getSpotInterruptionHandlerQueueUrl,
   SpotInterruptionMode,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { SpotInterruptionHandlingFields } from '~/components/clusters/common/SpotInterruptionHandling/SpotInterruptionHandlingFields';
@@ -31,7 +32,7 @@ type EditSpotInterruptionHandlingModalProps = {
 };
 
 const getTerminationHandlerQueueUrl = (cluster: ClusterFromSubscription): string =>
-  cluster?.aws?.termination_handler_queue_url || '';
+  getSpotInterruptionHandlerQueueUrl(cluster) || '';
 
 const EditSpotInterruptionHandlingModal = ({
   cluster,

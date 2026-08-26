@@ -1,23 +1,17 @@
 import semver from 'semver';
 
+import { Cluster } from '~/types/clusters_mgmt.v1';
+
 export enum SpotInterruptionMode {
   Simple = 'simple',
   Enhanced = 'enhanced',
 }
 
-type ClusterAwsSpotInterruptionHandling = {
-  aws?: {
-    termination_handler_queue_url?: string | null;
-    spot_termination_handler_queue_url?: string | null;
-  };
-};
+type ClusterAwsSpotInterruptionHandling = Pick<Cluster, 'aws'>;
 
 export const getSpotInterruptionHandlerQueueUrl = (
   cluster: ClusterAwsSpotInterruptionHandling,
-): string | undefined => {
-  const queueUrl = cluster?.aws?.termination_handler_queue_url;
-  return queueUrl || undefined;
-};
+): string | undefined => cluster?.aws?.termination_handler_queue_url || undefined;
 
 export const ENHANCED_SPOT_MIN_VERSION = '4.22.0';
 
