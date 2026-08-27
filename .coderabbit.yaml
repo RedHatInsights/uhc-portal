@@ -8,7 +8,7 @@ reviews:
   path_instructions:
     - path: "src/**/*.{ts,tsx,js,jsx}"
       instructions: |
-        Follow the coding standards in docs/code-guide.md.
+        Follow the coding standards in docs/code-guide.md and enforce the rules when reviewing the code.
 knowledge_base:
   code_guidelines:
     enabled: true
