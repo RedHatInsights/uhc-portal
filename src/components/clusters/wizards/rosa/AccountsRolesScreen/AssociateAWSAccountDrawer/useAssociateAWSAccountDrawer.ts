@@ -27,8 +27,11 @@ export const useAssociateAWSAccountDrawer = (isHypershiftSelected: boolean) => {
   const track = useAnalytics();
   const openOnCloseRef = useRef<(() => void) | undefined>(undefined);
   const skipNextOnCloseRef = useRef(false);
+  const isDrawerOpenRef = useRef(false);
 
   const handleDrawerClosed = useCallback(() => {
+    isDrawerOpenRef.current = false;
+
     if (skipNextOnCloseRef.current) {
       skipNextOnCloseRef.current = false;
       openOnCloseRef.current = undefined;
@@ -47,7 +50,7 @@ export const useAssociateAWSAccountDrawer = (isHypershiftSelected: boolean) => {
   const closeDrawer: CloseAssociateAWSAccountDrawer = useCallback(
     (args = {}) => {
       const { skipOnClose = false } = args;
-      if (skipOnClose) {
+      if (skipOnClose && isDrawerOpenRef.current) {
         skipNextOnCloseRef.current = true;
       }
       close();
@@ -70,6 +73,7 @@ export const useAssociateAWSAccountDrawer = (isHypershiftSelected: boolean) => {
           onClose: close,
         }),
       });
+      isDrawerOpenRef.current = true;
     },
     [close, isHypershiftSelected, open, track],
   );
