@@ -34,6 +34,7 @@ const accountRolesScreenProps: AccountsRolesScreenProps = {
   organizationID: 'org-id',
   isHypershiftEnabled: true,
   isHypershiftSelected: false,
+  openDrawer: jest.fn(),
 };
 
 const buildTestComponent = (children: React.ReactNode, formValues = {}) => (

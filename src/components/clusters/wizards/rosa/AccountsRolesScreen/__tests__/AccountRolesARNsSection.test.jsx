@@ -99,6 +99,7 @@ describe('<AccountRolesARNsSection />', () => {
     },
     clearGetAWSAccountRolesARNsResponse: jest.fn(),
     isHypershiftSelected: true,
+    openDrawer: jest.fn(),
     onAccountChanged: jest.fn(),
   };
 

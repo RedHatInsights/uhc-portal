@@ -21,12 +21,15 @@ import { FieldId, initialValues } from '../../constants';
 
 import AWSBillingAccount from './AWSBillingAccount';
 
+const openDrawer = jest.fn();
+
 const useAnalyticsMock = jest.fn();
 jest.mock('~/hooks/useAnalytics', () => jest.fn(() => useAnalyticsMock));
 
 const defaultProps = {
   selectedAWSBillingAccountID: '123',
   selectedAWSAccountID: '123',
+  openDrawer,
 };
 
 const defaultState = {
@@ -626,6 +629,7 @@ describe('<AWSBillingAccount />', () => {
       mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
 
       const newProps = {
+        ...defaultProps,
         selectedAWSBillingAccountID: '111',
         selectedAWSAccountID: '111',
       };
@@ -647,6 +651,7 @@ describe('<AWSBillingAccount />', () => {
       mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
 
       const newProps = {
+        ...defaultProps,
         selectedAWSBillingAccountID: '222',
         selectedAWSAccountID: '222',
       };
@@ -667,6 +672,7 @@ describe('<AWSBillingAccount />', () => {
       mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, false]]);
 
       const newProps = {
+        ...defaultProps,
         selectedAWSBillingAccountID: '111',
         selectedAWSAccountID: '111',
       };
@@ -687,6 +693,7 @@ describe('<AWSBillingAccount />', () => {
       mockUseFeatureGate([[BILLING_CONTRACT_NOTIFICATION, true]]);
 
       const newProps = {
+        ...defaultProps,
         selectedAWSBillingAccountID: '111',
         selectedAWSAccountID: '111',
       };
@@ -706,7 +713,11 @@ describe('<AWSBillingAccount />', () => {
 
       const { user } = withState(stateWithMixedContracts).render(
         buildTestComponent(
-          <AWSBillingAccount selectedAWSBillingAccountID="222" selectedAWSAccountID="222" />,
+          <AWSBillingAccount
+            {...defaultProps}
+            selectedAWSBillingAccountID="222"
+            selectedAWSAccountID="222"
+          />,
         ),
       );
 
@@ -722,7 +733,11 @@ describe('<AWSBillingAccount />', () => {
 
       const { user } = withState(stateWithMixedContracts).render(
         buildTestComponent(
-          <AWSBillingAccount selectedAWSBillingAccountID="111" selectedAWSAccountID="111" />,
+          <AWSBillingAccount
+            {...defaultProps}
+            selectedAWSBillingAccountID="111"
+            selectedAWSAccountID="111"
+          />,
         ),
       );
 

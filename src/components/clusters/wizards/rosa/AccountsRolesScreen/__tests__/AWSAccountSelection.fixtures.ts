@@ -29,4 +29,5 @@ export const defaultProps: AWSAccountSelectionProps = {
     error: '',
   },
   clearGetAWSAccountIDsResponse: () => {},
+  openDrawer: jest.fn(),
 };
