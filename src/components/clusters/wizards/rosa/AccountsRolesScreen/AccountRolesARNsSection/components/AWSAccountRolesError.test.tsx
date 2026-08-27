@@ -14,6 +14,7 @@ const defaultProps: ComponentProps<typeof AWSAccountRolesError> = {
   isHypershiftSelected: false,
   isMissingOCMRole: false,
   onRefreshOCMRole: jest.fn(),
+  openDrawer: jest.fn(),
 };
 
 describe('<AWSAccountRolesError />', () => {
