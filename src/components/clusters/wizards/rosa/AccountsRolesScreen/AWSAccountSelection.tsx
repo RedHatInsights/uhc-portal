@@ -24,7 +24,7 @@ import { CloudAccount } from '~/types/accounts_mgmt.v1';
 import { FuzzySelect } from '../../../../common/FuzzySelect/FuzzySelect';
 import PopoverHint from '../../../../common/PopoverHint';
 
-import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/AssociateAWSAccountDrawer';
+import { OpenAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
 import {
   billingAccountSortFn,
   compareAWSAccountLabels,
@@ -74,6 +74,7 @@ export interface AWSAccountSelectionProps {
   };
   isBillingAccount?: boolean;
   clearGetAWSAccountIDsResponse: () => void;
+  openDrawer: OpenAssociateAWSAccountDrawer;
   required?: boolean;
 }
 
@@ -94,6 +95,7 @@ function AWSAccountSelection({
   isBillingAccount = false,
   refresh,
   clearGetAWSAccountIDsResponse,
+  openDrawer,
   required = true,
 }: AWSAccountSelectionProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -101,7 +103,6 @@ function AWSAccountSelection({
   const hasAWSAccounts = accounts?.length > 0;
   const { onRefresh, text } = refresh;
   const { onChange } = inputProps;
-  const { openDrawer } = useAssociateAWSAccountDrawer();
   const isBillingContractNotificationEnabled = useFeatureGate(BILLING_CONTRACT_NOTIFICATION);
   const showEnhancedBillingOptions = isBillingAccount && isBillingContractNotificationEnabled;
 

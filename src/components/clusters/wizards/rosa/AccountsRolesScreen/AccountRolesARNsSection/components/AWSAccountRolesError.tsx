@@ -8,6 +8,7 @@ import ErrorBox from '~/components/common/ErrorBox';
 import InstructionCommand from '~/components/common/InstructionCommand';
 import { GlobalState } from '~/redux/stateTypes';
 
+import { OpenAssociateAWSAccountDrawer } from '../../AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
 import { AwsRoleErrorAlert } from '../../AwsRoleErrorAlert';
 import { RosaCliCommand } from '../../constants/cliCommands';
 
@@ -17,6 +18,7 @@ type Props = {
   isMissingOCMRole: boolean;
   isNoConsoleRole?: boolean;
   isOCMRoleError?: boolean;
+  openDrawer: OpenAssociateAWSAccountDrawer;
   onRefreshOCMRole: () => void;
   isOCMRolePending?: boolean;
 };
@@ -27,6 +29,7 @@ function AWSAccountRolesError({
   isMissingOCMRole,
   isNoConsoleRole,
   isOCMRoleError,
+  openDrawer,
   onRefreshOCMRole,
   isOCMRolePending,
 }: Props) {
@@ -35,7 +38,13 @@ function AWSAccountRolesError({
   }
 
   if (isOCMRoleError) {
-    return <AwsRoleErrorAlert title="Cannot detect an OCM role" targetRole="ocm" />;
+    return (
+      <AwsRoleErrorAlert
+        openDrawer={openDrawer}
+        title="Cannot detect an OCM role"
+        targetRole="ocm"
+      />
+    );
   }
 
   if (getAWSAccountRolesARNsResponse.error) {
@@ -47,7 +56,7 @@ function AWSAccountRolesError({
       : 'Error getting AWS account ARNs';
 
     if (hasFailedToAssumeRoleError || isMissingOCMRole)
-      return <AwsRoleErrorAlert title={alertTitle} targetRole="ocm" />;
+      return <AwsRoleErrorAlert openDrawer={openDrawer} title={alertTitle} targetRole="ocm" />;
 
     return <ErrorBox message={alertTitle} response={getAWSAccountRolesARNsResponse} />;
   }
@@ -70,7 +79,11 @@ function AWSAccountRolesError({
     );
 
   return (
-    <AwsRoleErrorAlert title="Some account roles ARNs were not detected" targetRole="account" />
+    <AwsRoleErrorAlert
+      openDrawer={openDrawer}
+      title="Some account roles ARNs were not detected"
+      targetRole="account"
+    />
   );
 }
 
