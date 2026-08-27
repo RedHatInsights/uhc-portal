@@ -1,27 +1,17 @@
 import React from 'react';
-import { Formik } from 'formik';
 
 import docLinks from '~/common/docLinks.mjs';
-import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { render, screen } from '~/testUtils';
 
 import OCMRoleStep from '../OCMRoleStep';
 
-const buildTestComponent = (formValues = {}) => (
-  <Formik
-    initialValues={{
-      [FieldId.Hypershift]: 'true',
-      ...formValues,
-    }}
-    onSubmit={jest.fn()}
-  >
-    <OCMRoleStep title="" />
-  </Formik>
+const buildTestComponent = (isHypershiftSelected: boolean) => (
+  <OCMRoleStep title="" isHypershiftSelected={isHypershiftSelected} />
 );
 
 describe('<OCMRoleStep />', () => {
   it('AWS account association link is correct when hypershift is selected', async () => {
-    const { user } = render(buildTestComponent());
+    const { user } = render(buildTestComponent(true));
 
     const moreInfoBtn = await screen.findByLabelText(
       'More information on Why do I need to link my account?',
@@ -35,7 +25,7 @@ describe('<OCMRoleStep />', () => {
   });
 
   it('AWS account association link is correct when classic is selected', async () => {
-    const { user } = render(buildTestComponent({ [FieldId.Hypershift]: 'false' }));
+    const { user } = render(buildTestComponent(false));
 
     const moreInfoBtn = await screen.findByLabelText(
       'More information on Why do I need to link my account?',
