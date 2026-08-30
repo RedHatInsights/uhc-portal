@@ -3,10 +3,10 @@ import { ClusterFromSubscription } from '~/types/types';
 
 import {
   countReplicasWithoutTaints,
-  getClusterMinNodes,
   getAutoscaleMaxReplicasFloor,
-  GetMaxNodeCountForMachinePoolParams,
+  getClusterMinNodes,
   getMaxNodeCountForMachinePool,
+  GetMaxNodeCountForMachinePoolParams,
   isMinimumCountWithoutTaints,
 } from './machinePoolsHelper';
 
