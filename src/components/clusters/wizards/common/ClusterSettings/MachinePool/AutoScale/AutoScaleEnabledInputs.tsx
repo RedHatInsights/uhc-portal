@@ -8,8 +8,8 @@ import docLinks from '~/common/docLinks.mjs';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { required, validateNumericInput } from '~/common/validators';
 import {
-  getMinNodesRequired,
   getAutoscaleMaxReplicasFloor,
+  getMinNodesRequired,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { getMaxNodeCount } from '~/components/clusters/common/machinePools/utils';
@@ -129,7 +129,12 @@ export const AutoScaleEnabledInputs = () => {
   }, [product, isByoc, isMultiAz, defaultMinAllowed, isHypershiftSelected, autoscalingEnabled]);
 
   const maxNodes = useMemo(() => {
-    const increment = isHypershiftSelected ? poolsLength : isMultiAz ? 3 : 1;
+    let increment: number;
+    if (isHypershiftSelected) {
+      increment = poolsLength;
+    } else {
+      increment = isMultiAz ? 3 : 1;
+    }
     const totalMax = getMaxNodeCount({
       available: Infinity,
       included: 0,
