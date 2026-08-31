@@ -17,6 +17,7 @@ const VersionSelectionGrid = ({
   isPending = false,
   showUpgradeToV5Warning = false,
   isRosa = false,
+  isHypershift = false,
 }: {
   clusterVersion: string;
   availableUpgrades?: string[];
@@ -26,6 +27,7 @@ const VersionSelectionGrid = ({
   isPending?: boolean;
   showUpgradeToV5Warning?: boolean;
   isRosa?: boolean;
+  isHypershift?: boolean;
 }) => {
   React.useEffect(
     () => {
@@ -115,7 +117,11 @@ const VersionSelectionGrid = ({
       </Title>
       <div id="version-grid-wrapper">
         <Grid hasGutter className="version-selection-grid">
-          <GridItem>{showUpgradeToV5Warning && <UpgradeToV5Warning isRosa={isRosa} />}</GridItem>
+          <GridItem>
+            {showUpgradeToV5Warning && (
+              <UpgradeToV5Warning isRosa={isRosa} isHypershift={isHypershift} />
+            )}
+          </GridItem>
           {recommendedCards(latestInCurrMinor, latestVersion)}
           {otherVersions.length > 0 && (
             <GridItem>

@@ -5,9 +5,11 @@ import { checkAccessibility, render, screen } from '~/testUtils';
 import { UpgradeToV5Warning } from './UpgradeToV5Warning';
 
 const rosaClassicWarningText =
-  'OpenShift v4 reaches end of life on March 31, 2028. Classic clusters cannot be upgraded to v5. To continue with OpenShift v5, create a new ROSA HCP cluster.';
-const osdClassicWarningText =
-  'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
+  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for ROSA Classic (EUS Term 1). To continue with OpenShift v5, create a new ROSA HCP cluster.';
+const rosaHcpWarningText =
+  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for ROSA (EUS Term 1).';
+const osdWarningText =
+  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for OSD Classic (EUS Term 1).';
 
 describe('<UpgradeToV5Warning />', () => {
   it('is accessible', async () => {
@@ -24,11 +26,17 @@ describe('<UpgradeToV5Warning />', () => {
     );
   });
 
+  it('renders the ROSA HCP warning copy when isRosa and isHypershift are true', () => {
+    render(<UpgradeToV5Warning isRosa isHypershift />);
+
+    expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toHaveTextContent(
+      rosaHcpWarningText,
+    );
+  });
+
   it('renders the OSD Classic warning copy when isRosa is false', () => {
     render(<UpgradeToV5Warning isRosa={false} />);
 
-    expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toHaveTextContent(
-      osdClassicWarningText,
-    );
+    expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toHaveTextContent(osdWarningText);
   });
 });

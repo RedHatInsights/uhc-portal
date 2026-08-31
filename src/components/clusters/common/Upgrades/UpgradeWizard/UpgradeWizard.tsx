@@ -40,8 +40,6 @@ import VersionSelectionGrid from './VersionSelectionGrid/VersionSelectionGrid';
 import FinishedStep from './FinishedStep';
 import UpgradeTimeSelection from './UpgradeTimeSelection';
 
-import './UpgradeWizard.scss';
-
 interface UpgradeWizardModalData {
   clusterName: string;
   subscriptionID: string;
@@ -250,6 +248,7 @@ const UpgradeWizard = () => {
                   isPending={isUnmetAcknowledgementsPending}
                   showUpgradeToV5Warning={showUpgradeToV5Warning}
                   isRosa={isRosa}
+                  isHypershift={isHypershift}
                 />
               </>
             )}

@@ -13,10 +13,18 @@ const osdClassicCluster = {
   subscription: { plan: { type: 'OSD' } },
 } as AugmentedCluster;
 
-const rosaHcpCluster = {
+const rosaHcpV4Cluster = {
   product: { id: 'ROSA' },
   subscription: { plan: { type: 'ROSA' } },
   hypershift: { enabled: true },
+  version: { raw_id: '4.19.0' },
+} as AugmentedCluster;
+
+const rosaHcpV5Cluster = {
+  product: { id: 'ROSA' },
+  subscription: { plan: { type: 'ROSA' } },
+  hypershift: { enabled: true },
+  version: { raw_id: '5.0.0' },
 } as AugmentedCluster;
 
 const allowOcp5Capability: Capability[] = [
@@ -54,17 +62,37 @@ describe('shouldShowUpgradeToV5Warning', () => {
     ).toBe(true);
   });
 
-  it('returns false for Hypershift clusters', () => {
+  it('returns true for a ROSA HCP v4 cluster', () => {
     expect(
       shouldShowUpgradeToV5Warning({
-        cluster: rosaHcpCluster,
+        cluster: rosaHcpV4Cluster,
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: undefined,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns false for a ROSA HCP v5 cluster', () => {
+    expect(
+      shouldShowUpgradeToV5Warning({
+        cluster: rosaHcpV5Cluster,
         isOcp5SupportEnabled: true,
         organizationCapabilities: undefined,
       }),
     ).toBe(false);
   });
 
-  it('returns false when the org has the rosa_osd_allow_ocp_5 capability set to "true"', () => {
+  it('returns true for ROSA HCP v4 even when the org has rosa_osd_allow_ocp_5', () => {
+    expect(
+      shouldShowUpgradeToV5Warning({
+        cluster: rosaHcpV4Cluster,
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: allowOcp5Capability,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns false when the org has the rosa_osd_allow_ocp_5 capability set to "true" on Classic', () => {
     expect(
       shouldShowUpgradeToV5Warning({
         cluster: rosaClassicCluster,

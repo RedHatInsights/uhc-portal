@@ -11,11 +11,13 @@ import { ClassicV5CreationWarning } from './ClassicV5CreationWarning';
 const useAnalyticsMock = jest.fn();
 jest.mock('~/hooks/useAnalytics', () => jest.fn(() => useAnalyticsMock));
 
-const rosaWarningTitle =
-  'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for ROSA Classic.';
+const rosaClassicWarningTitle =
+  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for ROSA Classic (EUS Term 1).';
 const rosaWarningBody = 'To use OpenShift v5, please create a ROSA HCP cluster.';
+const rosaHcpWarningTitle =
+  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for ROSA (EUS Term 1).';
 const osdWarningTitle =
-  'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
+  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for OSD Classic (EUS Term 1).';
 
 const orgWithCapability = (value: 'true' | 'false'): Organization =>
   ({
@@ -52,9 +54,10 @@ describe('<ClassicV5CreationWarning />', () => {
     const { user } = renderWarning({ isClassic: true, product: 'rosa' });
 
     const alert = screen.getByTestId('classic-v5-creation-warning');
-    const title = within(alert).getByRole('heading', { name: new RegExp(rosaWarningTitle) });
-    expect(title).toBeInTheDocument();
-    expect(within(title).queryByRole('link')).not.toBeInTheDocument();
+    expect(alert).toHaveTextContent(rosaClassicWarningTitle);
+    expect(within(alert).getByRole('heading')).toBeInTheDocument();
+    expect(within(alert).queryByRole('link')).toBeInTheDocument();
+    expect(within(within(alert).getByRole('heading')).queryByRole('link')).not.toBeInTheDocument();
 
     expect(within(alert).getByText(/To use OpenShift v5, please/i)).toBeInTheDocument();
     expect(alert).toHaveTextContent(rosaWarningBody);
@@ -78,12 +81,45 @@ describe('<ClassicV5CreationWarning />', () => {
     });
 
     const alert = screen.getByTestId('classic-v5-creation-warning');
-    expect(
-      within(alert).getByRole('heading', { name: new RegExp(osdWarningTitle) }),
-    ).toBeInTheDocument();
+    expect(alert).toHaveTextContent(osdWarningTitle);
     expect(
       screen.queryByRole('link', { name: 'create a ROSA HCP cluster' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('renders the ROSA HCP warning when a v4 version is selected', () => {
+    renderWarning({
+      isClassic: false,
+      product: 'rosa',
+      selectedVersion: '4.19.0',
+    });
+
+    const alert = screen.getByTestId('classic-v5-creation-warning');
+    expect(alert).toHaveTextContent(rosaHcpWarningTitle);
+    expect(
+      screen.queryByRole('link', { name: 'create a ROSA HCP cluster' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not render for ROSA HCP when a v5 version is selected', () => {
+    renderWarning({
+      isClassic: false,
+      product: 'rosa',
+      selectedVersion: '5.0.0',
+    });
+
+    expect(screen.queryByTestId('classic-v5-creation-warning')).not.toBeInTheDocument();
+  });
+
+  it('renders ROSA HCP v4 warning even when organization has ROSA_OSD_ALLOW_OCP_5', () => {
+    renderWarning({
+      isClassic: false,
+      product: 'rosa',
+      selectedVersion: '4.19.0',
+      organization: orgWithCapability('true'),
+    });
+
+    expect(screen.getByTestId('classic-v5-creation-warning')).toBeInTheDocument();
   });
 
   it('does not render if OCP5_SUPPORT feature gate is disabled', () => {
@@ -93,13 +129,13 @@ describe('<ClassicV5CreationWarning />', () => {
     expect(screen.queryByTestId('classic-v5-creation-warning')).not.toBeInTheDocument();
   });
 
-  it('does not render if cluster is not Classic', () => {
+  it('does not render for HCP when no version is selected', () => {
     renderWarning({ isClassic: false, product: 'rosa' });
 
     expect(screen.queryByTestId('classic-v5-creation-warning')).not.toBeInTheDocument();
   });
 
-  it('does not render when ROSA_OSD_ALLOW_OCP_5 capability is "true"', () => {
+  it('does not render if organization has ROSA_OSD_ALLOW_OCP_5 capability on Classic', () => {
     renderWarning({
       isClassic: true,
       product: 'rosa',
@@ -107,15 +143,5 @@ describe('<ClassicV5CreationWarning />', () => {
     });
 
     expect(screen.queryByTestId('classic-v5-creation-warning')).not.toBeInTheDocument();
-  });
-
-  it('renders the warning when capability value is "false"', () => {
-    renderWarning({
-      isClassic: true,
-      product: 'rosa',
-      organization: orgWithCapability('false'),
-    });
-
-    expect(screen.getByTestId('classic-v5-creation-warning')).toBeInTheDocument();
   });
 });
