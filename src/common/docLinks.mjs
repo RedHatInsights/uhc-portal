@@ -152,6 +152,7 @@ const docLinks = {
     'https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-identifiers.html',
   CREATE_VPC_WAYS: `https://docs.aws.amazon.com/rosa/latest/userguide/getting-started-hcp.html#create-vpc-hcp`,
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: 'https://aws.amazon.com/windows/resources/licensing/',
+  AWS_LEARN_MORE: 'https://cloud.redhat.com/products/amazon-openshift',
 
   // GCP
   GCP_VPC_PROVISIONING:
@@ -187,6 +188,13 @@ const docLinks = {
   // Telemetry
   TELEMETRY_INFORMATION: `${OCP_DOCS_BASE}/support/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring`,
   REMOTE_HEALTH_INSIGHTS: `${OCP_DOCS_BASE}/support/remote-health-monitoring-with-connected-clusters#insights-operator-advisor-overview_using-insights-to-identify-issues-with-your-cluster`,
+
+  // IBM Cloud
+  IBM_CLOUD_LEARN_MORE: 'https://www.ibm.com/cloud/openshift',
+  IBM_CLOUD: 'https://cloud.ibm.com/kubernetes/catalog/create?platformType=openshift',
+  IBM_CLOUD_ROVS:
+    'https://cloud.ibm.com/containers/cluster-management/rovs/create?catalog_query=aHR0cHM6Ly9jbG91ZC5pYm0uY29tL2NhdGFsb2cjaGlnaGxpZ2h0cw%3D%3D',
+  IBM_CLOUD_ROVS_LEARN_MORE: 'https://www.ibm.com/products/openshift-virtualization',
 
   // Misc
   LEARN_MORE_SSO:

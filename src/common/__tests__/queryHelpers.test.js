@@ -66,6 +66,14 @@ describe('createViewQueryObject()', () => {
   it('properly creates the query object when no filter is defined', () => {
     expect(createViewQueryObject(baseViewOptions)).toEqual(baseResult);
   });
+
+  it('includes ROVS in plan.id filter when includeRovs is enabled', () => {
+    expect(createViewQueryObject(baseViewOptions, undefined, { includeRovs: true })).toEqual({
+      ...baseResult,
+      filter:
+        "(cluster_id!='') AND (plan.id IN ('OSD', 'OSDTrial', 'OCP', 'RHMI', 'ROSA', 'RHOIC', 'MOA', 'MOA-HostedControlPlane', 'ROSA-HyperShift', 'ARO', 'OCP-AssistedInstall', 'ROVS')) AND (status NOT IN ('Deprovisioned', 'Archived'))",
+    });
+  });
   it('sorts correctly (with display_name column name translation)', () => {
     const viewOptions = {
       ...baseViewOptions,
@@ -181,6 +189,36 @@ describe('createViewQueryObject()', () => {
     };
 
     expect(createViewQueryObject(viewOptions)).toEqual(expected);
+  });
+
+  it('maps enabled ROVS filters to the backend plan ID', () => {
+    const viewOptions = {
+      ...baseViewOptions,
+      flags: {
+        subscriptionFilter: {
+          plan_id: ['ROVS'],
+        },
+      },
+    };
+
+    expect(createViewQueryObject(viewOptions, undefined, { includeRovs: true }).filter).toContain(
+      "plan_id IN ('ROVS')",
+    );
+  });
+
+  it('ignores stale ROVS plan_id values when includeRovs is disabled', () => {
+    const viewOptions = {
+      ...baseViewOptions,
+      flags: {
+        subscriptionFilter: {
+          plan_id: ['ROVS'],
+        },
+      },
+    };
+
+    expect(createViewQueryObject(viewOptions, undefined, { includeRovs: false })).toEqual(
+      baseResult,
+    );
   });
 
   it('correctly applies filtering by username', () => {
