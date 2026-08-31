@@ -31,7 +31,7 @@ describe('AccessRequestDetails', () => {
       // Assert
       expect(screen.getByText(/subscription id/i)).toBeInTheDocument();
       expect(screen.getByText(/service request id/i)).toBeInTheDocument();
-      expect(screen.getByText(/created time/i)).toBeInTheDocument();
+      expect(screen.getByText(/created date/i)).toBeInTheDocument();
       expect(screen.getByText(/respond by/i)).toBeInTheDocument();
       expect(screen.getByText(/request duration/i)).toBeInTheDocument();
       expect(screen.getByText(/justification/i)).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe('AccessRequestDetails', () => {
       // Assert
       expect(screen.getByText(/subscription id/i)).toBeInTheDocument();
       expect(screen.getByText(/service request id/i)).toBeInTheDocument();
-      expect(screen.getByText(/created time/i)).toBeInTheDocument();
+      expect(screen.getByText(/created date/i)).toBeInTheDocument();
       expect(screen.getByText(/respond by/i)).toBeInTheDocument();
       expect(screen.getByText(/request duration/i)).toBeInTheDocument();
       expect(screen.getByText(/justification/i)).toBeInTheDocument();
@@ -103,7 +103,7 @@ describe('AccessRequestDetails', () => {
       // Assert
       expect(screen.getByText(/subscription id/i)).toBeInTheDocument();
       expect(screen.getByText(/service request id/i)).toBeInTheDocument();
-      expect(screen.getByText(/created time/i)).toBeInTheDocument();
+      expect(screen.getByText(/created date/i)).toBeInTheDocument();
       expect(screen.getByText(/respond by/i)).toBeInTheDocument();
       expect(screen.getByText(/request duration/i)).toBeInTheDocument();
       expect(screen.getByText(/justification/i)).toBeInTheDocument();
@@ -137,7 +137,7 @@ describe('AccessRequestDetails', () => {
       // Assert
       expect(screen.getByText(/subscription id/i)).toBeInTheDocument();
       expect(screen.getByText(/service request id/i)).toBeInTheDocument();
-      expect(screen.getByText(/created time/i)).toBeInTheDocument();
+      expect(screen.getByText(/created date/i)).toBeInTheDocument();
       expect(screen.getByText(/respond by/i)).toBeInTheDocument();
       expect(screen.getByText(/request duration/i)).toBeInTheDocument();
       expect(screen.getByText(/justification/i)).toBeInTheDocument();
@@ -175,7 +175,7 @@ describe('AccessRequestDetails', () => {
       // Assert
       expect(screen.getByText(/subscription id/i)).toBeInTheDocument();
       expect(screen.getByText(/service request id/i)).toBeInTheDocument();
-      expect(screen.getByText(/created time/i)).toBeInTheDocument();
+      expect(screen.getByText(/created date/i)).toBeInTheDocument();
       expect(screen.getByText(/respond by/i)).toBeInTheDocument();
       expect(screen.getByText(/request duration/i)).toBeInTheDocument();
       expect(screen.getByText(/justification/i)).toBeInTheDocument();
@@ -211,7 +211,7 @@ describe('AccessRequestDetails', () => {
       // Assert
       expect(screen.getByText(/subscription id/i)).toBeInTheDocument();
       expect(screen.getByText(/service request id/i)).toBeInTheDocument();
-      expect(screen.getByText(/created time/i)).toBeInTheDocument();
+      expect(screen.getByText(/created date/i)).toBeInTheDocument();
       expect(screen.getByText(/respond by/i)).toBeInTheDocument();
       expect(screen.getByText(/request duration/i)).toBeInTheDocument();
       expect(screen.getByText(/justification/i)).toBeInTheDocument();

@@ -58,7 +58,7 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
       <GridItem sm={4}>
         <DescriptionList>
           <DescriptionListGroup>
-            <DescriptionListTerm>Created Time</DescriptionListTerm>
+            <DescriptionListTerm>Created Date</DescriptionListTerm>
             <DescriptionListDescription>
               <Timestamp
                 date={new Date(accessRequest?.created_at || '')}
