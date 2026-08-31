@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Field } from 'formik';
 import get from 'lodash/get';
 import { useDispatch, useSelector } from 'react-redux';
@@ -95,7 +95,6 @@ function AccountsRolesScreen({
   const showBillingAccount =
     isHypershiftSelected && (!isRestrictedEnv() || hasBillingInBoundaryFlag);
 
-  const openDrawerButtonRef = useRef(null);
   const hasAWSAccounts = AWSAccountIDs.length > 0;
   const track = useAnalytics();
 
@@ -252,7 +251,6 @@ function AccountsRolesScreen({
             variant="secondary"
             className="pf-v6-u-mt-md"
             data-testid="launch-associate-account-btn"
-            ref={openDrawerButtonRef}
             onClick={onClick}
           >
             How to associate a new AWS account
