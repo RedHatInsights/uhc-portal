@@ -16,7 +16,7 @@ const rosaClassicWarningTitle =
 const rosaWarningBody = 'To use OpenShift v5, please create a ROSA HCP cluster.';
 const rosaHcpWarningTitle =
   'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for ROSA (EUS Term 1).';
-const osdWarningTitle =
+const osdClassicWarningTitle =
   'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for OSD Classic (EUS Term 1).';
 
 const orgWithCapability = (value: 'true' | 'false'): Organization =>
@@ -81,7 +81,7 @@ describe('<ClassicV5CreationWarning />', () => {
     });
 
     const alert = screen.getByTestId('classic-v5-creation-warning');
-    expect(alert).toHaveTextContent(osdWarningTitle);
+    expect(alert).toHaveTextContent(osdClassicWarningTitle);
     expect(
       screen.queryByRole('link', { name: 'create a ROSA HCP cluster' }),
     ).not.toBeInTheDocument();
