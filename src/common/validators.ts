@@ -828,6 +828,7 @@ const validateUrlHttpsAndHttp = (value: string) => validateUrl(value, ['http', '
 
 const SQS_QUEUE_HOSTNAME_PATTERN = /^sqs(?:-fips)?\.([a-z0-9-]+)\.amazonaws\.com$/i;
 const SQS_QUEUE_PATHNAME_PATTERN = /^\/\d{12}\/[a-zA-Z0-9_-]+(\.fifo)?$/;
+const SQS_QUEUE_NAME_MAX_LENGTH = 80;
 
 const validateSpotTerminationHandlerQueueUrl = (
   value: string,
@@ -865,6 +866,11 @@ const validateSpotTerminationHandlerQueueUrl = (
 
   if (!queueRegion) {
     return 'Enter a valid Amazon SQS queue URL.';
+  }
+
+  const queueName = parsedUrl.pathname.split('/')[2];
+  if (queueName.length > SQS_QUEUE_NAME_MAX_LENGTH) {
+    return `The SQS queue name cannot exceed ${SQS_QUEUE_NAME_MAX_LENGTH} characters.`;
   }
 
   if (region && queueRegion !== region) {
