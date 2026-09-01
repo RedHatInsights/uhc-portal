@@ -3,6 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { getClusterAutoscalerMax } from '~/components/clusters/common/machinePools/utils';
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks/useFormState';
+import { Version } from '~/types/clusters_mgmt.v1';
 
 import { useResetMaxNodesTotal } from './useResetMaxNodesTotal';
 
@@ -31,9 +32,9 @@ describe('useResetMaxNodesTotal', () => {
     it('uses clusterVersion param when provided', () => {
       getFieldPropsMock.mockReturnValue({ value: 'false' });
       const { result } = renderHook(() => useResetMaxNodesTotal());
-      const clusterVersion = { raw_id: '4.16.0' };
+      const clusterVersion = { raw_id: '4.16.0' } as Version;
 
-      result.current.resetMaxNodesTotal({ clusterVersion } as any);
+      result.current.resetMaxNodesTotal({ clusterVersion });
 
       expect(getClusterAutoscalerMax).toHaveBeenCalledWith('4.16.0', expect.anything());
       expect(getFieldPropsMock).not.toHaveBeenCalledWith(FieldId.ClusterVersion);
@@ -57,7 +58,7 @@ describe('useResetMaxNodesTotal', () => {
       const { result } = renderHook(() => useResetMaxNodesTotal());
 
       result.current.resetMaxNodesTotal({
-        clusterVersion: { raw_id: '4.16.0' } as any,
+        clusterVersion: { raw_id: '4.16.0' } as Version,
         isMultiAz: true,
       });
 
@@ -69,7 +70,7 @@ describe('useResetMaxNodesTotal', () => {
       const { result } = renderHook(() => useResetMaxNodesTotal());
 
       result.current.resetMaxNodesTotal({
-        clusterVersion: { raw_id: '4.16.0' } as any,
+        clusterVersion: { raw_id: '4.16.0' } as Version,
         isMultiAz: false,
       });
 
@@ -84,7 +85,7 @@ describe('useResetMaxNodesTotal', () => {
       });
 
       const { result } = renderHook(() => useResetMaxNodesTotal());
-      result.current.resetMaxNodesTotal({ clusterVersion: { raw_id: '4.16.0' } as any });
+      result.current.resetMaxNodesTotal({ clusterVersion: { raw_id: '4.16.0' } as Version });
 
       expect(getClusterAutoscalerMax).toHaveBeenCalledWith(expect.anything(), true);
     });
@@ -96,7 +97,7 @@ describe('useResetMaxNodesTotal', () => {
       });
 
       const { result } = renderHook(() => useResetMaxNodesTotal());
-      result.current.resetMaxNodesTotal({ clusterVersion: { raw_id: '4.16.0' } as any });
+      result.current.resetMaxNodesTotal({ clusterVersion: { raw_id: '4.16.0' } as Version });
 
       expect(getClusterAutoscalerMax).toHaveBeenCalledWith(expect.anything(), false);
     });
@@ -107,7 +108,7 @@ describe('useResetMaxNodesTotal', () => {
 
     const { result } = renderHook(() => useResetMaxNodesTotal());
     result.current.resetMaxNodesTotal({
-      clusterVersion: { raw_id: '4.16.0' } as any,
+      clusterVersion: { raw_id: '4.16.0' } as Version,
       isMultiAz: false,
     });
 
