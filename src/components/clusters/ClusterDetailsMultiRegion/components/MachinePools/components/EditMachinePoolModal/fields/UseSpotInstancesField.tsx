@@ -1,11 +1,13 @@
 import * as React from 'react';
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 
 import { Alert, Checkbox, Stack, StackItem } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import WithTooltip from '~/components/common/WithTooltip';
+
+import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
 
 const fieldId = 'useSpotInstances';
 
@@ -23,6 +25,7 @@ const UseSpotInstancesField = ({
   disabledReason,
 }: UseSpotInstancesFieldProps) => {
   const [field] = useField(fieldId);
+  const { setFieldValue, validateField } = useFormikContext<EditMachinePoolValues>();
   const tooltipContent =
     disabledReason || 'This option cannot be edited from its original setting selection.';
 
@@ -35,8 +38,11 @@ const UseSpotInstancesField = ({
               {...field}
               label="Use Amazon EC2 Spot Instance"
               isChecked={field.value as boolean}
-              onChange={(event, checked) => {
-                field.onChange(event);
+              onChange={async (_, checked) => {
+                await setFieldValue(fieldId, checked);
+                if (!checked) {
+                  await validateField('maxPrice');
+                }
               }}
               id={fieldId}
               body={field.value && children}

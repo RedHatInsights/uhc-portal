@@ -2196,21 +2196,20 @@ describe('<DetailsRight />', () => {
   });
 
   describe('Spot interruption handling', () => {
+    const spotInterruptionClusterFixture = {
+      ...fixtures.ROSAHypershiftClusterDetails.cluster,
+      canUpdateClusterResource: true,
+      state: 'ready',
+    };
+
     it('shows section with enhanced mode and queue URL for hypershift when enabled', () => {
-      mockUseFeatureGate([
-        [ENABLE_AUTO_NODE, true],
-        [HCP_SPOT_INSTANCES, true],
-      ]);
-      const clusterFixture = defaultProps.cluster;
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
       const newProps = {
         ...defaultProps,
         cluster: {
-          ...clusterFixture,
-          hypershift: { enabled: true },
-          canUpdateClusterResource: true,
-          state: 'ready',
+          ...spotInterruptionClusterFixture,
           aws: {
-            ...clusterFixture.aws,
+            ...spotInterruptionClusterFixture.aws,
             termination_handler_queue_url:
               'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
           },
@@ -2232,13 +2231,14 @@ describe('<DetailsRight />', () => {
 
     it('shows simple mode when queue URL is not configured', () => {
       mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
-      const clusterFixture = defaultProps.cluster;
       const newProps = {
         ...defaultProps,
         cluster: {
-          ...clusterFixture,
-          hypershift: { enabled: true },
-          aws: { ...clusterFixture.aws, termination_handler_queue_url: undefined },
+          ...spotInterruptionClusterFixture,
+          aws: {
+            ...spotInterruptionClusterFixture.aws,
+            termination_handler_queue_url: undefined,
+          },
         },
       };
 
@@ -2250,17 +2250,27 @@ describe('<DetailsRight />', () => {
       );
     });
 
-    it('opens edit modal when clicking the spot interruption edit button', async () => {
+    it('hides section when cluster does not support spot instances', () => {
       mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
-      const clusterFixture = defaultProps.cluster;
       const newProps = {
         ...defaultProps,
         cluster: {
-          ...clusterFixture,
+          ...defaultProps.cluster,
           hypershift: { enabled: true },
-          canUpdateClusterResource: true,
-          state: 'ready',
         },
+      };
+
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.queryByTestId('spotInterruptionHandlingMode')).not.toBeInTheDocument();
+    });
+
+    it('opens edit modal when clicking the spot interruption edit button', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const newProps = {
+        ...defaultProps,
+        cluster: spotInterruptionClusterFixture,
       };
 
       useFetchMachineOrNodePools.mockReturnValue({ data: [] });

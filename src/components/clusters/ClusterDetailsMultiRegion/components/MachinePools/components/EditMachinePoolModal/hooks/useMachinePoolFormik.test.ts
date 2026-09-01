@@ -488,12 +488,13 @@ describe('useMachinePoolFormik', () => {
 
         const values = {
           ...hyperShiftExpectedInitialValues,
+          useSpotInstances: true,
           spotInstanceType: 'maximum',
           maxPrice: 10.01,
         };
 
         await expect(validationSchema.validateAt('maxPrice', values)).rejects.toThrow(
-          'Price cannot exceed $10 per hour.',
+          'Price must not exceed $10 per hour.',
         );
       });
 
@@ -509,6 +510,7 @@ describe('useMachinePoolFormik', () => {
 
         const values = {
           ...hyperShiftExpectedInitialValues,
+          useSpotInstances: true,
           spotInstanceType: 'maximum',
           maxPrice: 10,
         };
@@ -528,6 +530,7 @@ describe('useMachinePoolFormik', () => {
 
         const values = {
           ...defaultExpectedInitialValues,
+          useSpotInstances: true,
           spotInstanceType: 'maximum',
           maxPrice: 50,
         };
@@ -552,6 +555,26 @@ describe('useMachinePoolFormik', () => {
         };
 
         await expect(validationSchema.validateAt('maxPrice', values)).resolves.toBe(500);
+      });
+
+      it('does not validate max price when spot instances are disabled', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: defaultMachinePool,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...hyperShiftExpectedInitialValues,
+          useSpotInstances: false,
+          spotInstanceType: 'maximum',
+          maxPrice: 11,
+        };
+
+        await expect(validationSchema.validateAt('maxPrice', values)).resolves.toBe(11);
       });
     });
 

@@ -58,6 +58,7 @@ import PopoverHint from '../../../../../common/PopoverHint';
 import { constants } from '../../../../common/CreateOSDFormConstants';
 import totalNodesDataSelector from '../../../../common/totalNodesDataSelector';
 import { isArchivedSubscription } from '../../../clusterDetailsHelper';
+import { canUseSpotInstances } from '../../MachinePools/machinePoolsHelper';
 import SecurityGroupsDisplayByNode from '../../SecurityGroups/SecurityGroupsDetailDisplay';
 import ClusterNetwork from '../ClusterNetwork';
 import EditAutoNodeModal from '../EditAutoNodeModal/EditAutoNodeModal';
@@ -216,7 +217,10 @@ function DetailsRight({
   const terminationHandlerQueueUrl = getSpotInterruptionHandlerQueueUrl(cluster);
   const isSpotInterruptionEnhanced = !!terminationHandlerQueueUrl;
   const showSpotInterruptionHandling =
-    isHypershift && isHcpSpotInstancesEnabled && !isArchivedSubscription(cluster);
+    canUseSpotInstances(cluster) &&
+    isHypershift &&
+    isHcpSpotInstancesEnabled &&
+    !isArchivedSubscription(cluster);
 
   const workerActualNodes = totalActualNodes === false ? '-' : totalActualNodes;
   const workerDesiredNodes = totalDesiredComputeNodes || '-';

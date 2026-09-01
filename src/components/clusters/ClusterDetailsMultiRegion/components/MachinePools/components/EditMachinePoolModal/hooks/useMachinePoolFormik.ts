@@ -453,7 +453,7 @@ const useMachinePoolFormik = ({
             : Yup.number(),
           spotInstanceType: Yup.mixed(),
           maxPrice: (() => {
-            if (values.spotInstanceType !== 'maximum') {
+            if (!values.useSpotInstances || values.spotInstanceType !== 'maximum') {
               return Yup.number();
             }
             let maxPriceValidation = Yup.number().min(
@@ -463,7 +463,7 @@ const useMachinePoolFormik = ({
             if (isHypershift) {
               maxPriceValidation = maxPriceValidation.max(
                 SPOT_MAX_PRICE_HCP,
-                `Price cannot exceed $${SPOT_MAX_PRICE_HCP} per hour.`,
+                `Price must not exceed $${SPOT_MAX_PRICE_HCP} per hour.`,
               );
             }
             return maxPriceValidation;

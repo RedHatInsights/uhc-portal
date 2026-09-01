@@ -30,6 +30,9 @@ import MachinePoolNodesSummary from './MachinePoolNodesSummary';
 import { actionResolver, hasSubnets } from './machinePoolsHelper';
 import { UpdatePoolButton } from './UpdateMachinePools';
 
+const getSpotMarketOptions = (machinePool) =>
+  machinePool?.aws?.spot_market_options || machinePool?.aws_node_pool?.spot_market_options;
+
 const getOpenShiftVersion = (
   machinePool,
   isDisabled,
@@ -98,8 +101,7 @@ export const MachinePoolsTable = ({
         machinePool?.aws?.additional_security_group_ids ||
         machinePool?.aws_node_pool?.additional_security_group_ids ||
         [];
-      const spotMarketOptions =
-        machinePool?.aws?.spot_market_options || machinePool?.aws_node_pool?.spot_market_options;
+      const spotMarketOptions = getSpotMarketOptions(machinePool);
       const hasAutoRepair = isHypershift;
 
       return (
@@ -267,7 +269,7 @@ export const MachinePoolsTable = ({
                 {isHypershift
                   ? machinePool.aws_node_pool?.instance_type
                   : machinePool.instance_type}
-                {machinePool.aws?.spot_market_options && (
+                {getSpotMarketOptions(machinePool) && (
                   <Label variant="outline" className="ocm-c-machine-pools__spot-label">
                     Spot
                   </Label>
