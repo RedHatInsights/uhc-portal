@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { FieldArray } from 'formik';
 import { useDispatch } from 'react-redux';
 
@@ -6,10 +6,7 @@ import {
   Content,
   ContentVariants,
   ExpandableSection,
-  FormHelperText,
   GridItem,
-  HelperText,
-  HelperTextItem,
   Title,
 } from '@patternfly/react-core';
 
@@ -70,6 +67,9 @@ function ScaleSection() {
     setFieldValue,
     getFieldMeta,
     setFieldTouched,
+    setFieldError,
+    errors,
+    isValidating,
   } = useFormState();
   const dispatch = useDispatch();
 
@@ -84,20 +84,24 @@ function ScaleSection() {
   const isSpotInterruptionEnhanced = spotInterruptionHandling === SpotInterruptionMode.Enhanced;
 
   const [isNodeLabelsExpanded, setIsNodeLabelsExpanded] = useState(!!hasNodeLabels);
-  const [isSpotInterruptionExpanded, setIsSpotInterruptionExpanded] = useState(false);
+
   const canAutoScale = useCanClusterAutoscale(product, billingModel) ?? false;
   const clusterVersionRawId = clusterVersion?.raw_id;
   const isEnhancedSpotVersionValid = isEnhancedSpotVersionSupported(clusterVersionRawId);
   const sqsQueueUrlMeta = getFieldMeta(FieldId.SpotTerminationHandlerQueueUrl);
+  const spotInterruptionQueueUrlError = errors[FieldId.SpotTerminationHandlerQueueUrl];
   const shouldShowSqsQueueUrlValidation =
     sqsQueueUrlMeta?.touched || !!spotTerminationHandlerQueueUrl?.trim();
   const sqsQueueUrlValidationError =
     isSpotInterruptionEnhanced && shouldShowSqsQueueUrlValidation
-      ? sqsQueueUrlMeta?.error ||
+      ? spotInterruptionQueueUrlError ||
         validateSpotTerminationHandlerQueueUrl(spotTerminationHandlerQueueUrl, region)
       : undefined;
-  const collapsedSpotInterruptionError = !isSpotInterruptionExpanded && sqsQueueUrlValidationError;
+  const wasValidatingRef = useRef(isValidating);
 
+  const [isSpotInterruptionExpanded, setIsSpotInterruptionExpanded] = useState(
+    !!spotInterruptionQueueUrlError && shouldShowSqsQueueUrlValidation,
+  );
   const { minWorkerVolumeSizeGiB, maxWorkerVolumeSizeGiB } = useMemo(() => {
     const minWorkerVolumeSizeGiB = getWorkerNodeVolumeSizeMinGiB(isHypershiftSelected);
     const maxWorkerVolumeSizeGiB = getWorkerNodeVolumeSizeMaxGiB(clusterVersionRawId);
@@ -132,6 +136,18 @@ function ScaleSection() {
       setFieldValue(FieldId.SpotTerminationHandlerQueueUrl, '');
     }
   }, [isEnhancedSpotVersionValid, isSpotInterruptionEnhanced, setFieldValue]);
+
+  React.useEffect(() => {
+    if (
+      wasValidatingRef.current &&
+      !isValidating &&
+      spotInterruptionQueueUrlError &&
+      sqsQueueUrlMeta?.touched
+    ) {
+      setIsSpotInterruptionExpanded(true);
+    }
+    wasValidatingRef.current = isValidating;
+  }, [isValidating, spotInterruptionQueueUrlError, sqsQueueUrlMeta?.touched]);
 
   const LabelsSectionComponent = useCallback(
     () =>
@@ -191,6 +207,17 @@ function ScaleSection() {
       </>
     ),
     [minWorkerVolumeSizeGiB, maxWorkerVolumeSizeGiB],
+  );
+
+  const handleSpotInterruptionModeChange = useCallback(
+    (value) => {
+      setFieldValue(FieldId.SpotInterruptionHandling, value);
+      if (value === SpotInterruptionMode.Simple && !spotTerminationHandlerQueueUrl?.trim()) {
+        setFieldError(FieldId.SpotTerminationHandlerQueueUrl, undefined);
+        setFieldTouched(FieldId.SpotTerminationHandlerQueueUrl, false, false);
+      }
+    },
+    [setFieldError, setFieldTouched, setFieldValue, spotTerminationHandlerQueueUrl],
   );
 
   return (
@@ -262,7 +289,7 @@ function ScaleSection() {
           >
             <SpotInterruptionHandlingFields
               mode={spotInterruptionHandling || SpotInterruptionMode.Simple}
-              onModeChange={(value) => setFieldValue(FieldId.SpotInterruptionHandling, value)}
+              onModeChange={handleSpotInterruptionModeChange}
               sqsQueueUrl={spotTerminationHandlerQueueUrl || ''}
               onSqsQueueUrlChange={(value) =>
                 setFieldValue(FieldId.SpotTerminationHandlerQueueUrl, value)
@@ -282,13 +309,6 @@ function ScaleSection() {
               }
             />
           </ExpandableSection>
-          {collapsedSpotInterruptionError ? (
-            <FormHelperText>
-              <HelperText>
-                <HelperTextItem variant="error">{collapsedSpotInterruptionError}</HelperTextItem>
-              </HelperText>
-            </FormHelperText>
-          ) : null}
         </GridItem>
       ) : null}
     </>

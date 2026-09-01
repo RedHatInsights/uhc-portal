@@ -1440,6 +1440,28 @@ describe('validateSpotTerminationHandlerQueueUrl', () => {
     ).toBe('Enter a valid Amazon SQS queue URL.');
   });
 
+  it('returns an error when the SQS URL queue name exceeds 80 characters', () => {
+    const queueName = 'a'.repeat(81);
+
+    expect(
+      validateSpotTerminationHandlerQueueUrl(
+        `https://sqs.us-east-1.amazonaws.com/123456789012/${queueName}`,
+        'us-east-1',
+      ),
+    ).toBe('The SQS queue name cannot exceed 80 characters.');
+  });
+
+  it('returns no error when the SQS URL queue name is 80 characters', () => {
+    const queueName = 'a'.repeat(80);
+
+    expect(
+      validateSpotTerminationHandlerQueueUrl(
+        `https://sqs.us-east-1.amazonaws.com/123456789012/${queueName}`,
+        'us-east-1',
+      ),
+    ).toBeUndefined();
+  });
+
   it('returns no error when the SQS URL has leading or trailing whitespace', () => {
     expect(
       validateSpotTerminationHandlerQueueUrl(`  ${validQueueUrl}  `, 'us-east-1'),
