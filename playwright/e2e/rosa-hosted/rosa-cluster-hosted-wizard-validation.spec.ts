@@ -558,6 +558,78 @@ test.describe.serial(
       await createRosaWizardPage.setMinimumNodeCount('2');
     });
 
+    test('Step - Machine pool - Spot interruption handling - widget validations', async ({
+      createRosaWizardPage,
+    }) => {
+      const spot = clusterFieldValidations.ClusterSettings.Machinepool.SpotInterruption;
+      const withRegion = (value: string, urlRegion: string = region) =>
+        value.replace(/\{region\}/g, urlRegion);
+      const mismatchRegion = region === spot.MismatchRegion ? 'us-west-2' : spot.MismatchRegion;
+      const matchingQueueUrl = `https://sqs.${region}.amazonaws.com/${spot.AccountId}/${spot.ValidQueueName}`;
+      const mismatchQueueUrl = `https://sqs.${mismatchRegion}.amazonaws.com/${spot.AccountId}/${spot.ValidQueueName}`;
+      const tooLongQueueUrl = `https://sqs.${region}.amazonaws.com/${spot.AccountId}/${'a'.repeat(
+        spot.QueueNameMaxLength + 1,
+      )}`;
+
+      await createRosaWizardPage.expandSpotInterruptionHandling();
+      await expect(createRosaWizardPage.simpleSpotInstancesRadio()).toBeChecked();
+      await expect(createRosaWizardPage.enhancedSpotInstancesRadio()).not.toBeChecked();
+      await expect(createRosaWizardPage.sqsQueueUrlInput()).toBeHidden();
+
+      await expect(createRosaWizardPage.enhancedSpotInstancesRadio()).toBeEnabled();
+      await createRosaWizardPage.enhancedSpotInstancesRadio().check();
+      await expect(createRosaWizardPage.enhancedSpotInstancesRadio()).toBeChecked();
+      await expect(createRosaWizardPage.simpleSpotInstancesRadio()).not.toBeChecked();
+      await expect(createRosaWizardPage.sqsQueueUrlInput()).toBeVisible();
+
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(spot.RequiredError);
+
+      await createRosaWizardPage.fillSqsQueueUrl(spot.InvalidUrlValue);
+      await createRosaWizardPage.isTextContainsInPage(spot.HttpsSchemeError);
+      await createRosaWizardPage.isTextContainsInPage(spot.RequiredError, false);
+
+      await createRosaWizardPage.fillSqsQueueUrl(withRegion(spot.HttpUrlValue));
+      await createRosaWizardPage.isTextContainsInPage(spot.HttpsSchemeError);
+
+      await createRosaWizardPage.fillSqsQueueUrl(spot.NonSqsUrlValue);
+      await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError);
+      await createRosaWizardPage.isTextContainsInPage(spot.HttpsSchemeError, false);
+
+      await createRosaWizardPage.fillSqsQueueUrl(withRegion(spot.IncompletePathValue));
+      await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError);
+
+      await createRosaWizardPage.fillSqsQueueUrl(withRegion(spot.WhitespaceInNameValue));
+      await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError);
+
+      await createRosaWizardPage.fillSqsQueueUrl(mismatchQueueUrl);
+      await createRosaWizardPage.isTextContainsInPage(
+        withRegion(spot.RegionMismatchError),
+      );
+      await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError, false);
+
+      await createRosaWizardPage.fillSqsQueueUrl(tooLongQueueUrl);
+      await createRosaWizardPage.isTextContainsInPage(spot.QueueNameMaxLengthError);
+      await createRosaWizardPage.isTextContainsInPage(
+        withRegion(spot.RegionMismatchError),
+        false,
+      );
+
+      await createRosaWizardPage.fillSqsQueueUrl(matchingQueueUrl);
+      await createRosaWizardPage.isTextContainsInPage(spot.QueueNameMaxLengthError, false);
+      await createRosaWizardPage.isTextContainsInPage(spot.RequiredError, false);
+      await createRosaWizardPage.isTextContainsInPage(spot.HttpsSchemeError, false);
+      await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError, false);
+      await createRosaWizardPage.isTextContainsInPage(
+        withRegion(spot.RegionMismatchError),
+        false,
+      );
+
+      await createRosaWizardPage.simpleSpotInstancesRadio().check();
+      await expect(createRosaWizardPage.simpleSpotInstancesRadio()).toBeChecked();
+      await expect(createRosaWizardPage.sqsQueueUrlInput()).toBeHidden();
+    });
+
     test('Step - Machine pool - Root disk size - widget validations', async ({
       createRosaWizardPage,
     }) => {

@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # AWS VPC Infrastructure Setup Script
-# Creates: VPC, 2-3 public subnets, 2-3 private subnets (based on available AZs), configurable security groups (no rules)
+# Creates: VPC, 2-3 public subnets, 2-3 private subnets (based on available AZs), configurable security groups (no rules),
+#          SQS queue (EventBridge-wired), and an S3 bucket + prefix for ROSA log forwarding
 # Requires: At least 2 availability zones in the target region
 
 set -e  # Exit on any error
@@ -15,10 +16,16 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PLAYWRIGHT_ENV_FILE="$REPO_ROOT/playwright.env.json"
 
 # Configuration Variables (can be overridden via command line)
-VPC_NAME="${VPC_NAME:-cypress-test-ci}"
+VPC_NAME="${VPC_NAME:-playwright-ocmui}"
 VPC_CIDR="${VPC_CIDR:-10.0.0.0/16}"
 REGION="${REGION:-us-west-2}"
 NUM_SECURITY_GROUPS="${NUM_SECURITY_GROUPS:-2}"  # Number of security groups to create
+# Empty means derive from VPC_NAME after args are parsed (see apply_vpc_scoped_defaults).
+QUEUE_PREFIX="${QUEUE_PREFIX:-}"
+SKIP_SQS_QUEUE="${SKIP_SQS_QUEUE:-false}"  # Set to true to skip SQS queue creation
+S3_BUCKET_NAME="${S3_BUCKET_NAME:-}"
+S3_BUCKET_PREFIX="${S3_BUCKET_PREFIX:-logs}"  # Folder / key prefix inside the S3 bucket
+SKIP_S3_BUCKET="${SKIP_S3_BUCKET:-false}"  # Set to true to skip S3 bucket creation
 
 # Colors for output
 RED='\033[0;31m'
@@ -42,6 +49,33 @@ print_error() {
 
 print_found() {
     printf "${BLUE}[FOUND]${NC} %s\n" "$1"
+}
+
+# SQS/EventBridge/S3 names must be lowercase alphanumeric + hyphen.
+sanitize_aws_name() {
+    echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g; s/--*/-/g; s/^-//; s/-$//'
+}
+
+# Queue, EventBridge rules, and S3 bucket follow the VPC name so create/cleanup stay together.
+apply_vpc_scoped_defaults() {
+    local vpc_slug
+    vpc_slug="$(sanitize_aws_name "$VPC_NAME")"
+    if [ -z "$vpc_slug" ]; then
+        print_error "VPC name '$VPC_NAME' is empty after sanitizing"
+        exit 1
+    fi
+
+    if [ -z "$QUEUE_PREFIX" ]; then
+        QUEUE_PREFIX="$vpc_slug"
+    fi
+
+    if [ -z "$S3_BUCKET_NAME" ]; then
+        S3_BUCKET_NAME="$vpc_slug"
+        if [ ${#S3_BUCKET_NAME} -gt 63 ]; then
+            S3_BUCKET_NAME="${S3_BUCKET_NAME:0:63}"
+            S3_BUCKET_NAME="${S3_BUCKET_NAME%-}"
+        fi
+    fi
 }
 
 # Function to check if AWS CLI is installed
@@ -555,6 +589,182 @@ create_nat_gateway() {
     print_status "Elastic IP allocated: $ELASTIC_IP_ALLOCATION_ID"
 }
 
+# Function to check if the SQS queue already exists (sets QUEUE_URL if found)
+check_sqs_queue_exists() {
+    local queue_name="${QUEUE_PREFIX}-spot-interruption-queue"
+
+    local existing_url
+    existing_url=$(aws sqs get-queue-url \
+        --queue-name "$queue_name" \
+        --region "$REGION" \
+        --query 'QueueUrl' \
+        --output text 2>/dev/null)
+
+    if [[ -n "$existing_url" && "$existing_url" != "None" ]]; then
+        print_found "SQS queue '$queue_name' already exists"
+        QUEUE_URL="$existing_url"
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to create the SQS queue and wire up EventBridge rules/targets
+# for EC2 spot interruption warnings and rebalance recommendations
+create_sqs_queue() {
+    local queue_name="${QUEUE_PREFIX}-spot-interruption-queue"
+
+    if ! check_sqs_queue_exists; then
+        print_status "Creating SQS queue '$queue_name'..."
+        aws sqs create-queue \
+            --queue-name "$queue_name" \
+            --region "$REGION" > /dev/null
+
+        local account_id
+        account_id=$(aws sts get-caller-identity --query Account --output text)
+        QUEUE_URL="https://sqs.${REGION}.amazonaws.com/${account_id}/${queue_name}"
+        print_status "Queue created: $queue_name"
+    fi
+
+    QUEUE_ARN=$(aws sqs get-queue-attributes \
+        --queue-url "$QUEUE_URL" \
+        --attribute-names QueueArn \
+        --region "$REGION" \
+        --query 'Attributes.QueueArn' --output text)
+
+    print_status "Configuring EventBridge rule for spot interruption warnings..."
+    aws events put-rule \
+        --name "${QUEUE_PREFIX}-spot-interruption-warning" \
+        --event-pattern '{"source":["aws.ec2"],"detail-type":["EC2 Spot Instance Interruption Warning"]}' \
+        --region "$REGION" > /dev/null
+
+    aws events put-targets \
+        --rule "${QUEUE_PREFIX}-spot-interruption-warning" \
+        --targets "Id=1,Arn=${QUEUE_ARN}" \
+        --region "$REGION" > /dev/null
+
+    print_status "Configuring EventBridge rule for rebalance recommendations..."
+    aws events put-rule \
+        --name "${QUEUE_PREFIX}-rebalance-recommendation" \
+        --event-pattern '{"source":["aws.ec2"],"detail-type":["EC2 Instance Rebalance Recommendation"]}' \
+        --region "$REGION" > /dev/null
+
+    aws events put-targets \
+        --rule "${QUEUE_PREFIX}-rebalance-recommendation" \
+        --targets "Id=1,Arn=${QUEUE_ARN}" \
+        --region "$REGION" > /dev/null
+
+    print_status "Setting queue policy to allow EventBridge to send messages..."
+    aws sqs set-queue-attributes \
+        --queue-url "$QUEUE_URL" \
+        --region "$REGION" \
+        --attributes '{
+    "Policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"'${QUEUE_ARN}'\"}]}"
+  }'
+
+    print_status "SQS queue configured: $queue_name"
+}
+
+# Function to delete the SQS queue and its EventBridge rules/targets
+cleanup_sqs_queue() {
+    local queue_name="${QUEUE_PREFIX}-spot-interruption-queue"
+
+    print_status "Cleaning up SQS queue and EventBridge rules..."
+
+    if check_sqs_queue_exists; then
+        for rule_name in "${QUEUE_PREFIX}-spot-interruption-warning" "${QUEUE_PREFIX}-rebalance-recommendation"; do
+            if aws events describe-rule --name "$rule_name" --region "$REGION" &> /dev/null; then
+                aws events remove-targets --rule "$rule_name" --ids "1" --region "$REGION" 2>/dev/null || true
+                aws events delete-rule --name "$rule_name" --region "$REGION" 2>/dev/null || true
+                print_status "Deleted EventBridge rule: $rule_name"
+            fi
+        done
+
+        aws sqs delete-queue --queue-url "$QUEUE_URL" --region "$REGION"
+        print_status "Deleted SQS queue: $queue_name"
+    else
+        print_status "SQS queue '$queue_name' not found. Nothing to clean up."
+    fi
+}
+
+# Normalize the S3 prefix so playwright.env.json always stores a folder name without slashes
+normalize_s3_prefix() {
+    local prefix="${1#/}"
+    prefix="${prefix%/}"
+    echo "$prefix"
+}
+
+# Function to check if the S3 bucket already exists
+check_s3_bucket_exists() {
+    if aws s3api head-bucket --bucket "$S3_BUCKET_NAME" --region "$REGION" 2>/dev/null; then
+        print_found "S3 bucket already exists"
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to create the S3 bucket (if missing) and the log-forwarding prefix folder
+create_s3_bucket() {
+    S3_BUCKET_PREFIX="$(normalize_s3_prefix "$S3_BUCKET_PREFIX")"
+
+    if [ -z "$S3_BUCKET_NAME" ]; then
+        print_error "S3 bucket name cannot be empty"
+        exit 1
+    fi
+    if [ -z "$S3_BUCKET_PREFIX" ]; then
+        print_error "S3 bucket prefix cannot be empty"
+        exit 1
+    fi
+
+    if ! check_s3_bucket_exists; then
+        print_status "Creating S3 bucket in region '$REGION'..."
+
+        # us-east-1 is the S3 default and rejects LocationConstraint
+        if [ "$REGION" = "us-east-1" ]; then
+            aws s3api create-bucket \
+                --bucket "$S3_BUCKET_NAME" \
+                --region "$REGION" > /dev/null
+        else
+            aws s3api create-bucket \
+                --bucket "$S3_BUCKET_NAME" \
+                --region "$REGION" \
+                --create-bucket-configuration LocationConstraint="$REGION" > /dev/null
+        fi
+
+        print_status "S3 bucket created"
+    fi
+
+    print_status "Blocking public access on S3 bucket..."
+    aws s3api put-public-access-block \
+        --bucket "$S3_BUCKET_NAME" \
+        --region "$REGION" \
+        --public-access-block-configuration \
+            "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true" \
+        > /dev/null
+
+    local prefix_key="${S3_BUCKET_PREFIX}/"
+    print_status "Ensuring S3 prefix folder exists..."
+    aws s3api put-object \
+        --bucket "$S3_BUCKET_NAME" \
+        --key "$prefix_key" \
+        --region "$REGION" > /dev/null
+
+    print_status "S3 log-forwarding resources configured"
+}
+
+# Function to delete the S3 bucket and all objects (including the prefix folder)
+cleanup_s3_bucket() {
+    print_status "Cleaning up S3 bucket '$S3_BUCKET_NAME'..."
+
+    if check_s3_bucket_exists; then
+        aws s3 rb "s3://${S3_BUCKET_NAME}" --force --region "$REGION" > /dev/null
+        print_status "Deleted S3 bucket: $S3_BUCKET_NAME"
+    else
+        print_status "S3 bucket '$S3_BUCKET_NAME' not found. Nothing to clean up."
+    fi
+}
+
 # Function to validate all resources exist
 validate_resources() {
     print_status "=== Validating Infrastructure ==="
@@ -608,6 +818,22 @@ validate_resources() {
     if ! check_route_table_exists "$VPC_NAME-private-rt" "PRIVATE_RT_ID"; then
         print_error "Private Route Table validation failed"
         validation_failed=true
+    fi
+    
+    # Validate SQS queue (unless skipped)
+    if [ "$SKIP_SQS_QUEUE" != "true" ]; then
+        if ! check_sqs_queue_exists; then
+            print_error "SQS queue validation failed"
+            validation_failed=true
+        fi
+    fi
+
+    # Validate S3 bucket (unless skipped)
+    if [ "$SKIP_S3_BUCKET" != "true" ]; then
+        if ! check_s3_bucket_exists; then
+            print_error "S3 bucket validation failed"
+            validation_failed=true
+        fi
     fi
     
     if [ "$validation_failed" = true ]; then
@@ -697,10 +923,23 @@ output_summary() {
             exit 1
         fi
         
-        # Always overwrite QE_INFRA_REGIONS with the new VPC infrastructure data
+        # Always overwrite QE_INFRA_REGIONS with the new VPC infrastructure data,
+        # record the SQS queue URL (if created) as QE_SPOT_INTERRUPTION_QUEUE_URL,
+        # and record the S3 log-forwarding bucket/prefix (if created)
         print_status "Overwriting QE_INFRA_REGIONS in $PLAYWRIGHT_ENV_FILE"
-        jq --arg region "$REGION" --argjson vpc_data "$NEW_VPC_DATA" \
-            '.QE_INFRA_REGIONS = {($region): [$vpc_data]}' \
+        local s3_bucket=""
+        local s3_prefix=""
+        if [ "$SKIP_S3_BUCKET" != "true" ]; then
+            s3_bucket="$S3_BUCKET_NAME"
+            s3_prefix="$S3_BUCKET_PREFIX"
+        fi
+        jq --arg region "$REGION" --argjson vpc_data "$NEW_VPC_DATA" --arg queue_url "${QUEUE_URL:-}" \
+            --arg s3_bucket "$s3_bucket" --arg s3_prefix "$s3_prefix" \
+            '.QE_INFRA_REGIONS = {($region): [$vpc_data]}
+             | if $queue_url != "" then .QE_SPOT_INTERRUPTION_QUEUE_URL = $queue_url else . end
+             | del(.QE_SQS_QUEUE_URL)
+             | if $s3_bucket != "" then .QE_LOG_FORWARDING_S3_BUCKET_NAME = $s3_bucket else . end
+             | if $s3_prefix != "" then .QE_LOG_FORWARDING_S3_BUCKET_PREFIX = $s3_prefix else . end' \
             "$PLAYWRIGHT_ENV_FILE" > "${PLAYWRIGHT_ENV_FILE}.tmp" && mv "${PLAYWRIGHT_ENV_FILE}.tmp" "$PLAYWRIGHT_ENV_FILE"
         
         if [[ $? -eq 0 ]]; then
@@ -713,14 +952,25 @@ output_summary() {
     else
         print_status "Creating new playwright.env.json file..."
         
-        # Create new playwright.env.json with just the VPC infrastructure data
+        # Create new playwright.env.json with the VPC infrastructure data,
+        # the SQS queue URL (if created), and the S3 log-forwarding bucket/prefix (if created)
+        local extra_fields=""
+        if [[ -n "${QUEUE_URL:-}" ]]; then
+            extra_fields+=",
+  \"QE_SPOT_INTERRUPTION_QUEUE_URL\": \"$QUEUE_URL\""
+        fi
+        if [ "$SKIP_S3_BUCKET" != "true" ]; then
+            extra_fields+=",
+  \"QE_LOG_FORWARDING_S3_BUCKET_NAME\": \"$S3_BUCKET_NAME\",
+  \"QE_LOG_FORWARDING_S3_BUCKET_PREFIX\": \"$S3_BUCKET_PREFIX\""
+        fi
         cat > "$PLAYWRIGHT_ENV_FILE" << EOF
 {
   "QE_INFRA_REGIONS": {
     "$REGION": [
       $NEW_VPC_DATA
     ]
-  }
+  }$extra_fields
 }
 EOF
         print_status "Created new $PLAYWRIGHT_ENV_FILE"
@@ -734,7 +984,10 @@ EOF
 main() {
     print_status "Starting VPC infrastructure creation..."
     print_status "Region: $REGION"
+    print_status "VPC Name: $VPC_NAME"
     print_status "VPC CIDR: $VPC_CIDR"
+    print_status "SQS/EventBridge prefix: $QUEUE_PREFIX"
+    print_status "S3 bucket: $S3_BUCKET_NAME"
     
     check_aws_cli
     check_aws_credentials
@@ -752,6 +1005,20 @@ main() {
     
     # Uncomment the next line if you want to create a NAT Gateway
     create_nat_gateway
+    
+    # Create the SQS queue + EventBridge wiring (unless skipped)
+    if [ "$SKIP_SQS_QUEUE" != "true" ]; then
+        create_sqs_queue
+    else
+        print_status "Skipping SQS queue creation (--skip-sqs-queue)"
+    fi
+
+    # Create the S3 bucket + prefix folder for log forwarding (unless skipped)
+    if [ "$SKIP_S3_BUCKET" != "true" ]; then
+        create_s3_bucket
+    else
+        print_status "Skipping S3 bucket creation (--skip-s3-bucket)"
+    fi
     
     # Validate all resources exist
     if validate_resources; then
@@ -797,6 +1064,12 @@ confirm_cleanup() {
     print_status "  - Internet Gateway"
     print_status "  - NAT Gateway (if exists)"
     print_status "  - Elastic IP (if exists)"
+    if [ "$SKIP_SQS_QUEUE" != "true" ]; then
+        print_status "  - SQS queue and EventBridge rules (prefix: $QUEUE_PREFIX)"
+    fi
+    if [ "$SKIP_S3_BUCKET" != "true" ]; then
+        print_status "  - S3 bucket: $S3_BUCKET_NAME (including all objects)"
+    fi
     echo ""
     print_status "Proceeding with cleanup..."
 }
@@ -1067,7 +1340,16 @@ cleanup_playwright_config() {
         # No backup needed - infrastructure is already deleted
         if jq empty "$PLAYWRIGHT_ENV_FILE" > /dev/null 2>&1; then
             print_status "Removing $REGION from QE_INFRA_REGIONS in $PLAYWRIGHT_ENV_FILE"
-            jq --arg region "$REGION" 'del(.QE_INFRA_REGIONS[$region])' \
+            local jq_filter='del(.QE_INFRA_REGIONS[$region])'
+            if [ "$SKIP_SQS_QUEUE" != "true" ]; then
+                print_status "Removing QE_SPOT_INTERRUPTION_QUEUE_URL from $PLAYWRIGHT_ENV_FILE"
+                jq_filter="$jq_filter | del(.QE_SPOT_INTERRUPTION_QUEUE_URL) | del(.QE_SQS_QUEUE_URL)"
+            fi
+            if [ "$SKIP_S3_BUCKET" != "true" ]; then
+                print_status "Removing S3 log-forwarding keys from $PLAYWRIGHT_ENV_FILE"
+                jq_filter="$jq_filter | del(.QE_LOG_FORWARDING_S3_BUCKET_NAME) | del(.QE_LOG_FORWARDING_S3_BUCKET_PREFIX)"
+            fi
+            jq --arg region "$REGION" "$jq_filter" \
                 "$PLAYWRIGHT_ENV_FILE" > "${PLAYWRIGHT_ENV_FILE}.tmp" && mv "${PLAYWRIGHT_ENV_FILE}.tmp" "$PLAYWRIGHT_ENV_FILE"
             
             # If QE_INFRA_REGIONS is now empty, you might want to keep the structure or remove it entirely
@@ -1086,40 +1368,48 @@ cleanup_infrastructure() {
     print_status "Starting infrastructure cleanup..."
     print_status "Region: $REGION"
     print_status "VPC Name: $VPC_NAME"
+    print_status "SQS/EventBridge prefix: $QUEUE_PREFIX"
+    print_status "S3 bucket: $S3_BUCKET_NAME"
     
     check_aws_cli
     check_aws_credentials
     check_jq
     
-    # Check if VPC exists and get its ID
-    if ! check_vpc_exists; then
-        print_warning "VPC '$VPC_NAME' not found in region '$REGION'"
-        print_status "Nothing to clean up."
-        return 0
+    # Queue and bucket are named from the VPC; delete them even if the VPC is already gone.
+    if [ "$SKIP_SQS_QUEUE" != "true" ]; then
+        cleanup_sqs_queue
+    fi
+
+    if [ "$SKIP_S3_BUCKET" != "true" ]; then
+        cleanup_s3_bucket
     fi
     
-    # Get all resource IDs before deletion for route table cleanup
-    PUBLIC_RT_ID=$(aws ec2 describe-route-tables \
-        --filters "Name=tag:Name,Values=$VPC_NAME-public-rt" "Name=vpc-id,Values=$VPC_ID" \
-        --region $REGION \
-        --query 'RouteTables[0].RouteTableId' \
-        --output text 2>/dev/null)
-    
-    PRIVATE_RT_ID=$(aws ec2 describe-route-tables \
-        --filters "Name=tag:Name,Values=$VPC_NAME-private-rt" "Name=vpc-id,Values=$VPC_ID" \
-        --region $REGION \
-        --query 'RouteTables[0].RouteTableId' \
-        --output text 2>/dev/null)
-    
-    print_status "=== Starting Cleanup Process ==="
-    
-    # Cleanup in reverse order of creation
-    cleanup_nat_gateway
-    cleanup_route_tables
-    cleanup_security_groups
-    cleanup_subnets
-    cleanup_internet_gateway
-    cleanup_vpc
+    if check_vpc_exists; then
+        # Get all resource IDs before deletion for route table cleanup
+        PUBLIC_RT_ID=$(aws ec2 describe-route-tables \
+            --filters "Name=tag:Name,Values=$VPC_NAME-public-rt" "Name=vpc-id,Values=$VPC_ID" \
+            --region $REGION \
+            --query 'RouteTables[0].RouteTableId' \
+            --output text 2>/dev/null)
+        
+        PRIVATE_RT_ID=$(aws ec2 describe-route-tables \
+            --filters "Name=tag:Name,Values=$VPC_NAME-private-rt" "Name=vpc-id,Values=$VPC_ID" \
+            --region $REGION \
+            --query 'RouteTables[0].RouteTableId' \
+            --output text 2>/dev/null)
+        
+        print_status "=== Starting Cleanup Process ==="
+        
+        cleanup_nat_gateway
+        cleanup_route_tables
+        cleanup_security_groups
+        cleanup_subnets
+        cleanup_internet_gateway
+        cleanup_vpc
+    else
+        print_warning "VPC '$VPC_NAME' not found in region '$REGION'"
+    fi
+
     cleanup_playwright_config
     
     print_status "=== Cleanup Completed Successfully ==="
@@ -1134,16 +1424,28 @@ show_usage() {
     echo ""
     echo "Configuration (via CLI args or environment variables):"
     echo "  --region REGION           AWS region (default: us-west-2, env: REGION)"
-    echo "  --vpc-name NAME           VPC name (default: cypress-test-ci, env: VPC_NAME)"
+    echo "  --vpc-name NAME           VPC name (default: playwright-ocmui, env: VPC_NAME)"
     echo "  --vpc-cidr CIDR           VPC CIDR block (default: 10.0.0.0/16, env: VPC_CIDR)"
     echo "  --security-groups COUNT   Number of security groups to create (default: 2, env: NUM_SECURITY_GROUPS)"
+    echo "  --queue-prefix PREFIX     SQS queue / EventBridge rule name prefix (default: sanitized VPC name, env: QUEUE_PREFIX)"
+    echo "  --s3-bucket-name NAME     S3 bucket for ROSA log forwarding (default: sanitized VPC name, env: S3_BUCKET_NAME)"
+    echo "  --s3-bucket-prefix PREFIX S3 folder / key prefix inside the bucket (default: logs, env: S3_BUCKET_PREFIX)"
     echo ""
     echo "Options:"
+    echo "  --skip-sqs-queue          Skip creating/validating/cleaning up the SQS queue (env: SKIP_SQS_QUEUE)"
+    echo "  --skip-s3-bucket          Skip creating/validating/cleaning up the S3 bucket (env: SKIP_S3_BUCKET)"
     echo "  --validate-only           Only validate existing resources, don't create new ones"
     echo "  --cleanup                 Delete all created AWS resources (DESTRUCTIVE)"
     echo "  --help                    Show this help message"
     echo ""
-    echo "Default behavior: Create missing resources and validate everything exists"
+    echo "Default behavior: Create missing resources (including an SQS queue wired to EventBridge"
+    echo "                   spot-interruption/rebalance-recommendation events, and an S3 bucket"
+    echo "                   with a logs prefix for ROSA log forwarding) and validate everything"
+    echo "                   exists. SQS/EventBridge and the S3 bucket are named from the VPC so"
+    echo "                   --cleanup removes the matching queue, rules, and bucket together."
+    echo "                   The queue URL is written to playwright.env.json as QE_SPOT_INTERRUPTION_QUEUE_URL."
+    echo "                   The S3 bucket and prefix are written as QE_LOG_FORWARDING_S3_BUCKET_NAME"
+    echo "                   and QE_LOG_FORWARDING_S3_BUCKET_PREFIX."
 }
 
 # Parse command line arguments
@@ -1171,6 +1473,26 @@ while [[ $# -gt 0 ]]; do
             fi
             shift 2
             ;;
+        --queue-prefix)
+            QUEUE_PREFIX="$2"
+            shift 2
+            ;;
+        --s3-bucket-name)
+            S3_BUCKET_NAME="$2"
+            shift 2
+            ;;
+        --s3-bucket-prefix)
+            S3_BUCKET_PREFIX="$2"
+            shift 2
+            ;;
+        --skip-sqs-queue)
+            SKIP_SQS_QUEUE="true"
+            shift
+            ;;
+        --skip-s3-bucket)
+            SKIP_S3_BUCKET="true"
+            shift
+            ;;
         --validate-only)
             MODE="validate"
             shift
@@ -1190,6 +1512,8 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+apply_vpc_scoped_defaults
 
 # Execute based on mode
 case "$MODE" in
