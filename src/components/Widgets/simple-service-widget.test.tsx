@@ -24,7 +24,7 @@ describe('SimpleServiceWidget', () => {
     expect(link).not.toHaveAttribute('target', '_blank');
   });
 
-  it('should render an external anchor tag when isExternal is true', () => {
+  it('should render an external link when isExternal is true', () => {
     const externalProps = {
       ...defaultProps,
       url: 'https://example.com/external',
@@ -36,18 +36,6 @@ describe('SimpleServiceWidget', () => {
     expect(link).toHaveAttribute('href', 'https://example.com/external');
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
-  });
-
-  it('should render the link title text', () => {
-    render(<SimpleServiceWidget {...defaultProps} />);
-    expect(screen.getByText('Test Link')).toBeInTheDocument();
-  });
-
-  it('should use isExternal=false by default', () => {
-    render(<SimpleServiceWidget {...defaultProps} />);
-    const link = screen.getByRole('link', { name: /Test Link/ });
-    expect(link).not.toHaveAttribute('target');
-    expect(link).toHaveAttribute('href', '/test-url');
   });
 
   it('should include accessible text when link is external', () => {

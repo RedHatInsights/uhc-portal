@@ -70,8 +70,8 @@ const config: StorybookConfig = {
       config.resolve.alias = {
         ...config.resolve.alias,
         '@redhat-cloud-services/frontend-components/useChrome': path.resolve(
-          import.meta.dirname,
-          'mocks/useChrome.ts',
+          process.cwd(),
+          '.storybook/mocks/useChrome.ts',
         ),
       };
     }
