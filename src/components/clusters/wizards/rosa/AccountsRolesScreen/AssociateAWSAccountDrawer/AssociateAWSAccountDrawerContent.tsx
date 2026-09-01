@@ -61,7 +61,7 @@ type AssociateAWSAccountDrawerBodyProps = {
   onClose: () => void;
 };
 
-export const AssociateAWSAccountDrawerBody = ({
+const AssociateAWSAccountDrawerBody = ({
   targetRole,
   isHypershiftSelected,
   onClose,
