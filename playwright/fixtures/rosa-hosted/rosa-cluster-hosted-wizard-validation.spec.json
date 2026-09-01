@@ -62,6 +62,22 @@
       "RootDiskSize": {
         "LimitError": "The worker root disk size must be between 75 GiB and 16384 GiB.",
         "NonSupportedValue": "Decimals are not allowed for the worker root disk size"
+      },
+      "SpotInterruption": {
+        "RequiredError": "SQS queue URL is required.",
+        "HttpsSchemeError": "The URL should include the scheme prefix (https://)",
+        "InvalidSqsUrlError": "Enter a valid Amazon SQS queue URL.",
+        "QueueNameMaxLengthError": "The SQS queue name cannot exceed 80 characters.",
+        "QueueNameMaxLength": 80,
+        "RegionMismatchError": "The SQS queue URL must be in the cluster region ({region}).",
+        "AccountId": "123456789012",
+        "ValidQueueName": "rosa-cluster-spot",
+        "InvalidUrlValue": "invalid-url",
+        "HttpUrlValue": "http://sqs.{region}.amazonaws.com/123456789012/rosa-cluster-spot",
+        "NonSqsUrlValue": "https://example.com/queue",
+        "IncompletePathValue": "https://sqs.{region}.amazonaws.com/",
+        "WhitespaceInNameValue": "https://sqs.{region}.amazonaws.com/123456789012/rosa-c  luster-spot",
+        "MismatchRegion": "us-east-1"
       }
     }
   },

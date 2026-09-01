@@ -13,6 +13,7 @@
     "Compute": "3/3"
   },
   "InstanceMetadataService": "IMDSv2",
+  "SpotInterruptionHandling": "Simple Spot instances",
   "ClusterAutoscaling": "Disabled",
   "ClusterPrivacy": "Public",
   "ClusterWideProxy": "Disabled",

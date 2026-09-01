@@ -51,6 +51,17 @@
         "WindowsLicense": {
           "CompatibleInstanceType": "c5.metal",
           "IncompatibleInstanceType": "m5.xlarge"
+        },
+        "CostSavings": {
+          "SetMaximumPrice": "0.03",
+          "InvalidMaxPrice": "10.01",
+          "MaxPriceLimitError": "Price must not exceed $10 per hour.",
+          "MaxPriceHelper": "Price must not exceed $10 per hour.",
+          "SpotWarning": "Your Spot Instance may be interrupted at any time",
+          "SpotCrConflict": "Spot Instances and Capacity Reservations cannot both be enabled on the same machine pool.",
+          "ImmutableTooltip": "This option cannot be edited from its original setting selection.",
+          "SpotInterruptionHandlingSimple": "Spot instances Simple",
+          "SpotInterruptionHandlingEnhanced": "Spot instances Enhanced"
         }
       },
       "ControlPlaneLogForwarding": {
