@@ -1,4 +1,4 @@
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 
 import { HCP_SPOT_INSTANCES } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, renderHook, screen } from '~/testUtils';
@@ -11,6 +11,7 @@ import { useCostSavingsSubTab } from './CostSavingsSubTab';
 jest.mock('formik', () => ({
   ...jest.requireActual('formik'),
   useField: jest.fn(),
+  useFormikContext: jest.fn(),
 }));
 
 describe('CostSavingsSubTab', () => {
@@ -36,6 +37,12 @@ describe('CostSavingsSubTab', () => {
   };
 
   const mockedUseField = useField as jest.MockedFunction<typeof useField>;
+  const mockedUseFormikContext = useFormikContext as jest.MockedFunction<typeof useFormikContext>;
+
+  mockedUseFormikContext.mockReturnValue({
+    setFieldValue: jest.fn(),
+    validateField: jest.fn().mockResolvedValue(undefined),
+  } as ReturnType<typeof useFormikContext>);
 
   mockedUseField.mockReturnValue([
     {
