@@ -1,60 +1,187 @@
-# OCM UI (uhc-portal)
+# Coding Guidelines
 
-UI for OpenShift Cluster Manager — a React/TypeScript single-page application running on console.redhat.com under the `/openshift` route. Built on PatternFly (design system and component library), React Query (server state). Jest handles unit testing and  Playwright handles E2E against staging.
+This document defines the coding standards for the OCM UI project. All code contributions must follow these guidelines to ensure consistency, maintainability, and code quality.
 
-Some parts of the application are legacy code, using JavaScript and Redux for global state management and data fetching.
+These guidelines serve to:
+- Establish shared conventions for code structure and patterns
+- Improve code reviews by setting clear expectations
+- Maintain a consistent, maintainable codebase
 
-## Documents index
+Use these guidelines during development and code reviews. When in doubt or if a scenario isn't covered, ask the team for help.
 
-All documents are located inside `/docs`. Read the relevant file before writing or reviewing code.
+## General Conventions
 
-```text
-root: docs/
+- Functional components with hooks only — no class components
+- PascalCase for component files and names; camelCase for non-component files, functions, and variables.
+- kebab-case for shell scripts and config files.
+- `UPPER_SNAKE_CASE` for true constants
+- Boolean props prefixed with `is`, `has`, `can`, `should`
+- Circular dependencies checked in CI: `npm run find-circular-dependencies`
+- Before creating a new hook, query, utility, or helper function, search the entire codebase for existing implementations — not just shared folders like `src/queries/` or `src/hooks/`. This is a legacy codebase and existing implementations may live inside other component folders. If you find a duplicate, reuse it and consider extracting it to a shared location.
+- Do not extend existing duplication. If you find the same business logic implemented in multiple places (e.g., the same calculation in different files for Day 1 vs Day 2, or JS vs TS versions), do not add another variant. Flag the duplication and consolidate into a single shared function before using it.
+- Before writing new logic (calculations, conditionals, data transformations), check if the same logic already exists in parent components, sibling components, or nearby files. Reuse existing logic rather than reimplementing it.
+- Do not blindly copy patterns or workarounds from existing code. This is a legacy codebase and some code contains hacks or workarounds (e.g., `setTimeout` around Formik's `setFieldTouched`) that only apply to specific situations. Understand *why* a pattern exists before replicating it — the workaround may not be needed in your context.
 
-UI-components:              code-guide.md
-contributing:               contributing.md
-unit-testing:               unit-testing.md
-e2e-testing:                Playwright-e2e-test-automation-guidelines.md
-e2e-testing FAQ:            Playwright-e2e-test-automation-faq.md
-```
+## Component Structure
 
-For information about the generation of TS models from OpenAPI specs, check the `/openapi/README.md` doc.
+Components should be organized by features. Each feature is represented by a container component in charge of handling logic and rendering other presentational components. The main responsibilities of presentational components are to display data received via props and handle user interactions.
 
-## Project structure
+Components should be properly broken down into UI elements responsible for a single goal. 
 
-```text
-src/
-  bootstrap.ts          # App entry point
-  chrome-main.tsx       # Module federation root
-  common/               # Shared utilities, UI components, and link definitions (docLinks, supportLinks, installLinks)
-  components/           # Feature components organized by domain
-  config/               # Environment and app configuration
-  hoc/                  # Higher-order components
-  hooks/                # Shared custom hooks
-  queries/              # TanStack Query hooks organized by feature/domain
-  redux/                # Legacy Redux store, reducers, actions
-  services/             # API request layer and service functions
-  styles/               # Global styles
-  types/                # OpenAPI-generated TypeScript types
-```
-
-Other relevant top-level directories:
+Example folder structure for a hypothetical `UsersList` component:
 
 ```text
-docs/           # Project documentation and coding guidelines
-openapi/        # OpenAPI specs and type generation
-playwright/     # Playwright E2E tests
-cypress/        # Cypress E2E tests (legacy)
-.storybook/     # Storybook configuration
-mockdata/       # Mock API data for local development
-__mocks__/      # Jest module mocks
+UsersList/
+├── UsersList.tsx           # Container component
+├── UsersList.test.tsx      
+├── UsersList.stories.tsx      
+├── useUsersList.ts         # Feature-specific hooks
+├── components/             # Presentational components (only imported by container)
+├── └── UsersTable.tsx      # Only create a folder if you have many
+├── └── UsersToolbar.tsx
+├── types.ts                # Only if needed      
+└── utils/                  # Feature-specific utilities
 ```
 
-## PR and Commit Conventions
+## Coding Patterns
 
-When opening a pull request, follow the PR template in [`.github/pull_request_template.md`](.github/pull_request_template.md).
+Use the following patterns when designing components:
+- UI components should be a thin wrapper around data, they should handle local state (like `useState`) only when necessary. Even then, you should evaluate if you can flatten the UI state into a basic calculation, deriving data from props.
+- Create a new component abstraction when you're nesting conditional logic or top-level if/else statements. Ternaries are reserved for small, easily readable logic.
+- When complex data manipulation and logic is necessary, make use of custom hooks.
+- Avoid passing whole objects to components when they only need a few properties. It will help clarify which information they rely on.
+- Presentational components should not contain any domain/business logic. Consider the following example:
+  ```tsx
+  // ❌ BAD: Logic is coded inside an input field
+  const SizeInput = (props: { isHypershift: boolean }) => {
+    const { isHypershift } = props;
+    const maxSize = isHypershift ? 200 : 150;
+  
+    return <NumberInput max={maxSize} />;
+  };
+  
+  // ✅ GOOD: Configuration is passed down by parent feature
+  const SizeInput = (props: { maxSize: number }) => {
+    const { maxSize } = props;
 
-## PR Reviews
+    return <NumberInput max={maxSize} />;
+  };  
+  ```
+- Avoid putting state-dependent logic inside `useEffect`; it causes misdirection of what the logic is doing. Choose to explicitly define logic rather than depend on implicit reactive behavior
+- Prefer state machines over multiple related `useState` calls. Multiple interdependent state variables make code harder to reason about.
+- Avoid `setTimeouts`. They are flaky and usually a _hack_, always provide a comment on _why_ you are using them. This doesn't affect if the "code runs" or not most of the time, but they can introduce subtle bugs that can grow into big issues that aren't obvious until someone goes in and has to spend a lot of time refactoring everything.
 
-When reviewing a pull request, follow the process in [`docs/pull-request-process.md`](docs/pull-request-process.md) and verify the code adheres to [`docs/code-guide.md`](docs/code-guide.md) and [`docs/unit-testing.md`](docs/unit-testing.md).
+## React Hooks Patterns
 
+- Avoid using `useMemo` for processes that are not [computationally expensive](https://react.dev/learn/you-might-not-need-an-effect#how-to-tell-if-a-calculation-is-expensive)
+- Functions are memoized with `useCallback` only when necessary:
+  * Functions used as dependencies in `useEffect`, `useMemo`, or other hooks
+  * Functions passed to context providers or returned from custom hooks
+  * Functions passed as props to memoized child components (to prevent unnecessary re-renders)
+- Functions are NOT unnecessarily memoized:
+  * Simple event handlers that aren't passed as props
+  * Functions without dependencies or only used within the same component
+- All hook dependencies (`useEffect`, `useMemo`, `useCallback`) use referentially stable variables
+- No `useEffect`s that take incoming props and compute them for a local `useState`, this is `useMemo` with extra steps
+- Make sure the [exhaustive-deps rule](https://react.dev/reference/eslint-plugin-react-hooks/lints/exhaustive-deps) is applied. If you encounter a file where the ESLint rule is ignored (`// eslint-disable-next-line react-hooks/exhaustive-deps`), re-enable it and fix the dependency array. If for any reason the rule has to be skipped, provide a comment explaining why.
+
+### More On `useEffect`
+
+Make sure to follow React guidelines on `useEffect`: [You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect)
+
+Common cases where `useEffect` is NOT needed:
+
+* Transforming data for rendering (use variables or useMemo instead)
+* Handling user events (use event handlers instead)
+* Resetting state when props change (use key prop or calculate during render)
+* Updating state based on props/state changes (calculate during render)
+* Set default values for input fields
+
+Only use useEffect for:
+
+* Synchronizing with external systems (APIs, DOM, third-party libraries)
+* Cleanup that must happen when component unmounts
+
+## Avoid Custom Styling
+
+It is tempting to “just add a bit of CSS” for minor tweaks, but this usually indicates we are drifting away from native PatternFly behavior and should reconsider the approach. If you feel the need to add CSS or apply "styles" or "className" properties to "adjust" the UI, you're likely going in the wrong direction.
+
+Using PF utility classes to enforce spacing or to fix layout issues is also considered problematic. Spacing and responsiveness should be handled using layout components (`Stack`, `Flex`, `Grid`, etc.) with a proper configuration. Exceptions can be made, but they have to be justified inside PR descriptions or comments.
+
+Sometimes we find scenarios where PF doesn't quite manage something as we wanted. This is usually related to complex component structures, or to components that do not yet support the feature we are trying to implement.
+This should be a rare exception, and we should resort to it sparingly. The more we add customizations, the more we have to deal with PF upgrades breaking them.
+
+## Data Loading and Error States
+
+When displaying data retrieved with asynchronous operations, always take care of the loading and error state of those operations.
+
+While data is being loaded, a proper UI state should be displayed. PF offers `Skeleton` and `Spinner` components for this purpose. Read the corresponding design guidelines to decide how to design/implement loading case by case.
+
+In a similar way you should always handle possible errors. UIs should not fail silently if something went wrong. PF offers an "Alert" component with general indication in the related design guidelines.
+
+## Path Alias
+
+`~` maps to `src/` (configured in `tsconfig.json`, `jest.config.js`, and `fec.config.js`).
+
+## Import Restrictions
+
+The following import rules are enforced by ESLint:
+
+- PatternFly icons: use full ESM path `@patternfly/react-icons/dist/esm/icons/<icon>`
+- PatternFly tokens: use full ESM path `@patternfly/react-tokens/dist/esm/<token>`
+- `apiRequest`: always import from `~/services/apiRequest`
+- Files in `do_not_use` directories must not be imported
+
+## Import Order
+
+Import order is enforced by `simple-import-sort`:
+
+1. `react`, `next`, then packages starting with a letter
+2. Packages starting with `@`
+3. Packages starting with `~` (src alias)
+4. Relative `../` imports
+5. Relative `./` imports
+6. Style imports (`.css`, `.scss`)
+7. Side effect imports
+
+## TypeScript 
+
+This is a legacy codebase. Not all the code has been migrated to TS. Every time you encounter JS files and change them, you are highly encouraged to convert them to TS first. The TS conversion should happen in a separate PR/ticket before further changes are introduced.
+
+Some general rules to follow:
+- Avoid using `any`. If type information is completely absent and cannot be retrieved, use `unknown` instead and implement type guards 
+- Avoid [type assertions](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions) using `as`. They usually mean you are violating TypeScript indications. You probably have a type error that you are trying to bypass. A rare acceptable exception is when working with DOM APIs, e.g.: `const input = event.target as HTMLInputElement;`
+- Provide fallback values when using optional chaining. Do not use optional chaining as a way to manage the absence of data while loading.
+- Optional type properties are optional only when they can be optionally passed, not to overcome type errors or because it's easier to implement them
+- Avoid default exports. All exports should be explicit.
+- Avoid barrel files (`index.ts`) to re-export modules. They make refactoring harder, create a circular dependency risk, complicate tree-shaking.
+- Avoid silencing TS errors with `// @ts-ignore` comments. They should be properly motivated exceptions.
+
+## Third-party Libraries
+
+### Redux
+
+We still use Redux for data fetching and state management in multiple areas, but this implementation is considered legacy. Redux must not be used for any new development.
+
+We switched to [TanStack Query](https://tanstack.com/query/latest) for data-fetching and async state management.
+
+### Lodash
+
+Only use lodash when it's needed. Avoid it when it's possible to achieve the same result with plain TS/JS. A common example is `lodash/get`, you can replace it with optional chaining and nullish coalescing.
+
+## Documenting
+
+Every UI component, representing a feature or a reusable UI block must be properly documented. This is crucial for many reasons:
+- Allow developers to easily discover what is already implemented without having to browse the entire application
+- Allow developers to discover all possible statuses supported by a component, including error states, without having to resort to complex mocking
+- Clearly identify a component interface and its dependencies
+- Improve consistency across components solving similar problems
+- Share knowledge and avoid accidental single-point expertise
+
+We have [a Storybook instance](contributing.md#storybook) for this purpose. Every new component should be documented with a story.
+
+Writing components with clear responsibilities and dependencies is crucial to make it possible to easily document and test them.
+
+### Testing
+
+All code changes must be tested. Follow the [user-centered approach](https://testing-library.com/docs/react-testing-library/intro/#the-problem) introduced by RTL when writing unit tests. You can find more information in the dedicated [unit tests guidelines](unit-testing.md).
