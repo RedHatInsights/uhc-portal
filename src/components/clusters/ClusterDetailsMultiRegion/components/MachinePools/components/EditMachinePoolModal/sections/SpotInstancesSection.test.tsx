@@ -3,6 +3,7 @@ import { Formik } from 'formik';
 
 import { SPOT_CAPACITY_RESERVATION_CONFLICT_REASON } from '~/components/clusters/common/machinePools/constants';
 import {
+  SPOT_INSTANCES_VERSION_DISABLED_REASON,
   SPOT_INTERRUPTION_MODE_ENHANCED_LABEL,
   SPOT_INTERRUPTION_MODE_SIMPLE_LABEL,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
@@ -12,7 +13,12 @@ import { ClusterFromSubscription } from '~/types/types';
 import SpotInstancesSection from './SpotInstancesSection';
 
 const mockHypershiftCluster = {
+  openshift_version: '4.23.0',
   aws: { termination_handler_queue_url: 'https://sqs.us-east-1.amazonaws.com/123/queue' },
+} as ClusterFromSubscription;
+
+const unsupportedSpotVersionCluster = {
+  openshift_version: '4.21.9',
 } as ClusterFromSubscription;
 
 const MockFormikWrapper = ({
@@ -38,7 +44,7 @@ describe('<SpotInstancesSection>', () => {
   it('enables the "Use Amazon EC2 Spot Instance" checkbox when no capacity reservation is configured', () => {
     render(
       <MockFormikWrapper initialValues={defaultValues}>
-        <SpotInstancesSection isEdit={false} isHypershift />
+        <SpotInstancesSection isEdit={false} isHypershift cluster={mockHypershiftCluster} />
       </MockFormikWrapper>,
     );
 
@@ -50,7 +56,7 @@ describe('<SpotInstancesSection>', () => {
     (capacityReservationPreference) => {
       render(
         <MockFormikWrapper initialValues={{ ...defaultValues, capacityReservationPreference }}>
-          <SpotInstancesSection isEdit={false} isHypershift />
+          <SpotInstancesSection isEdit={false} isHypershift cluster={mockHypershiftCluster} />
         </MockFormikWrapper>,
       );
 
@@ -63,7 +69,7 @@ describe('<SpotInstancesSection>', () => {
       <MockFormikWrapper
         initialValues={{ ...defaultValues, capacityReservationPreference: 'none' }}
       >
-        <SpotInstancesSection isEdit={false} isHypershift />
+        <SpotInstancesSection isEdit={false} isHypershift cluster={mockHypershiftCluster} />
       </MockFormikWrapper>,
     );
 
@@ -75,12 +81,57 @@ describe('<SpotInstancesSection>', () => {
       <MockFormikWrapper
         initialValues={{ ...defaultValues, capacityReservationPreference: 'open' }}
       >
-        <SpotInstancesSection isEdit={false} isHypershift />
+        <SpotInstancesSection isEdit={false} isHypershift cluster={mockHypershiftCluster} />
       </MockFormikWrapper>,
     );
 
     await user.hover(screen.getByLabelText('Use Amazon EC2 Spot Instance'));
     expect(await screen.findByText(SPOT_CAPACITY_RESERVATION_CONFLICT_REASON)).toBeInTheDocument();
+  });
+
+  it('disables the checkbox when the cluster version is below 4.22 on Hypershift', () => {
+    render(
+      <MockFormikWrapper initialValues={defaultValues}>
+        <SpotInstancesSection isEdit={false} isHypershift cluster={unsupportedSpotVersionCluster} />
+      </MockFormikWrapper>,
+    );
+
+    expect(screen.getByLabelText('Use Amazon EC2 Spot Instance')).toBeDisabled();
+  });
+
+  it('shows a tooltip when disabled due to an unsupported Hypershift cluster version', async () => {
+    const { user } = render(
+      <MockFormikWrapper initialValues={defaultValues}>
+        <SpotInstancesSection isEdit={false} isHypershift cluster={unsupportedSpotVersionCluster} />
+      </MockFormikWrapper>,
+    );
+
+    await user.hover(screen.getByLabelText('Use Amazon EC2 Spot Instance'));
+    expect(await screen.findByText(SPOT_INSTANCES_VERSION_DISABLED_REASON)).toBeInTheDocument();
+  });
+
+  it('enables the checkbox on classic ROSA when the cluster version is below 4.22', () => {
+    render(
+      <MockFormikWrapper initialValues={defaultValues}>
+        <SpotInstancesSection isEdit={false} cluster={unsupportedSpotVersionCluster} />
+      </MockFormikWrapper>,
+    );
+
+    expect(screen.getByLabelText('Use Amazon EC2 Spot Instance')).toBeEnabled();
+  });
+
+  it('enables the checkbox when the cluster version is 4.22.0', () => {
+    render(
+      <MockFormikWrapper initialValues={defaultValues}>
+        <SpotInstancesSection
+          isEdit={false}
+          isHypershift
+          cluster={{ openshift_version: '4.22.0' } as ClusterFromSubscription}
+        />
+      </MockFormikWrapper>,
+    );
+
+    expect(screen.getByLabelText('Use Amazon EC2 Spot Instance')).toBeEnabled();
   });
 
   it('still disables the checkbox for edit mode regardless of capacity reservation', () => {
@@ -128,7 +179,7 @@ describe('<SpotInstancesSection>', () => {
         <SpotInstancesSection
           isEdit={false}
           isHypershift
-          cluster={{ aws: {} } as ClusterFromSubscription}
+          cluster={{ openshift_version: '4.23.0', aws: {} } as ClusterFromSubscription}
         />
       </MockFormikWrapper>,
     );

@@ -19,6 +19,5 @@ export const MAINTENANCE_MIN_VALUE = 0;
 
 export const CAPACITY_RESERVATION_MIN_VERSION = '4.19.0';
 
-// Spot Instances and Capacity Reservations are mutually exclusive on the same machine pool.
 export const SPOT_CAPACITY_RESERVATION_CONFLICT_REASON =
   'Spot Instances and Capacity Reservations cannot both be enabled on the same machine pool.';

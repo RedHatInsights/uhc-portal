@@ -4,6 +4,10 @@ import { useField } from 'formik';
 import { Form, FormGroup, GridItem, Radio } from '@patternfly/react-core';
 
 import { SPOT_CAPACITY_RESERVATION_CONFLICT_REASON } from '~/components/clusters/common/machinePools/constants';
+import {
+  isEnhancedSpotVersionSupported,
+  SPOT_INSTANCES_VERSION_DISABLED_REASON,
+} from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import PopoverHint from '~/components/common/PopoverHint';
 import { ClusterFromSubscription } from '~/types/types';
 
@@ -38,10 +42,23 @@ const SpotInstancesSection = ({ isEdit, isHypershift, cluster }: SpotInstancesSe
     type: 'radio',
   });
 
-  const isSpotDisabled = isEdit || hasCapacityReservation;
+  const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
+  const isSpotVersionSupported = isEnhancedSpotVersionSupported(clusterVersion);
+  const isSpotVersionBlocked = !!isHypershift && !isSpotVersionSupported;
+  const isSpotDisabled = isEdit || hasCapacityReservation || isSpotVersionBlocked;
 
-  const spotDisabledReason =
-    !isEdit && hasCapacityReservation ? SPOT_CAPACITY_RESERVATION_CONFLICT_REASON : undefined;
+  const spotDisabledReason = (() => {
+    if (isEdit) {
+      return undefined;
+    }
+    if (isSpotVersionBlocked) {
+      return SPOT_INSTANCES_VERSION_DISABLED_REASON;
+    }
+    if (hasCapacityReservation) {
+      return SPOT_CAPACITY_RESERVATION_CONFLICT_REASON;
+    }
+    return undefined;
+  })();
 
   return (
     <GridItem>
