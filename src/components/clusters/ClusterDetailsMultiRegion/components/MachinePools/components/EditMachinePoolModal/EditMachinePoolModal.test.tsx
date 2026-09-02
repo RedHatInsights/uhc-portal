@@ -370,6 +370,7 @@ describe('<EditMachinePoolModal />', () => {
                 product: { id: 'ROSA' },
                 cloud_provider: { id: 'aws' },
                 hypershift: { enabled: true },
+                openshift_version: '4.22.0',
               } as ClusterFromSubscription
             }
             onClose={() => {}}
