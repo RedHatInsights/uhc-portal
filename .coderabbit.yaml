@@ -6,6 +6,10 @@ reviews:
       instructions: |
         Apply docs/code-guide.md to every changed line.
         Report each violation of an explicit rule in docs/code-guide.md.
+        Treat the following as required checks:
+        - Boolean props must use the naming convention defined in docs/code-guide.md.
+        - Do not add useMemo unless its callback performs an expensive computation.
+        - Do not add inline style props unless the pull request description gives a justification.
 knowledge_base:
   code_guidelines:
     enabled: true
