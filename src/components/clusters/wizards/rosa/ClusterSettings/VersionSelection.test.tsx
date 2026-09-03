@@ -219,7 +219,7 @@ describe('<VersionSelection />', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     useOCPLifeCycleStatusDataSpy.mockReturnValue(
-      mockOCPLifeCycleStatusData as [ProductLifeCycle[] | undefined, boolean],
+      mockOCPLifeCycleStatusData as [ProductLifeCycle['versions'] | undefined, boolean],
     );
 
     // Shortcut: prevent request made after mount from modifying state.
