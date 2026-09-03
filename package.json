@@ -191,7 +191,7 @@
     "webpack-bundle-analyzer": "^4.10.1"
   },
   "overrides": {
-    "@cypress/webpack-preprocessor": "6.0.2",
+    "@cypress/webpack-preprocessor": "8.0.0",
     "@redhat-cloud-services/frontend-components-config": {
       "axios": "$axios"
     },
