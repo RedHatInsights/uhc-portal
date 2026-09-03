@@ -28,7 +28,6 @@ import isAssistedInstallSubscription, {
 import clusterStates, {
   hasInflightEgressErrors,
   isHibernating,
-  isHypershiftCluster,
   isROSA,
 } from '../../../common/clusterStates';
 import { getAWSAccountID } from '../../../common/InstallProgress/rosaUtils';
@@ -178,7 +177,7 @@ const Overview = (props) => {
             <Alert variant="success" isInline title="Cluster installed successfully" />
           )}
           <MissingOCMRoleAlert
-            isRosaSts={(isROSA(cluster) || isHypershiftCluster(cluster)) && !!cluster.aws?.sts}
+            isRosaSts={isROSA(cluster) && !!cluster.aws?.sts}
             awsAccountId={getAWSAccountID(cluster)}
           />
           {showInflightErrorIsFixed && (
