@@ -11,7 +11,7 @@ import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/C
 import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
-import { checkAccessibility, mockUseFeatureGate, screen, withState } from '~/testUtils';
+import { checkAccessibility, mockUseFeatureGate, screen, within, withState } from '~/testUtils';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import * as versionsSelectHelper from './versionSelectHelper';
@@ -231,8 +231,10 @@ describe('<VersionSelectField />', () => {
       }),
     );
 
-    expect(screen.getByText('Full support')).toBeInTheDocument();
-    expect(screen.getByText('5.0.1')).toBeInTheDocument();
+    const fullSupportList = screen.getByRole('listbox', {
+      name: 'Select options list for Full support',
+    });
+    expect(within(fullSupportList).getByRole('option', { name: '5.0.1' })).toBeInTheDocument();
     expect(getOCPLifeCycleStatus).toHaveBeenCalledWith(true);
   });
 
