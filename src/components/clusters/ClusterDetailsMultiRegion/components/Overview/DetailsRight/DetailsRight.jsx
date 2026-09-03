@@ -220,6 +220,7 @@ function DetailsRight({
     canUseSpotInstances(cluster) &&
     isHypershift &&
     isHcpSpotInstancesEnabled &&
+    isEnhancedSpotVersionValid &&
     !isArchivedSubscription(cluster);
 
   const workerActualNodes = totalActualNodes === false ? '-' : totalActualNodes;

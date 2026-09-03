@@ -2198,6 +2198,7 @@ describe('<DetailsRight />', () => {
   describe('Spot interruption handling', () => {
     const spotInterruptionClusterFixture = {
       ...fixtures.ROSAHypershiftClusterDetails.cluster,
+      openshift_version: '4.22.0',
       canUpdateClusterResource: true,
       state: 'ready',
     };
@@ -2264,6 +2265,23 @@ describe('<DetailsRight />', () => {
       render(<DetailsRight {...newProps} />);
 
       expect(screen.queryByTestId('spotInterruptionHandlingMode')).not.toBeInTheDocument();
+    });
+
+    it('hides section when cluster version is below 4.22', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...spotInterruptionClusterFixture,
+          openshift_version: '4.21.9',
+        },
+      };
+
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.queryByTestId('spotInterruptionHandlingMode')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('editSpotInterruptionHandlingButton')).not.toBeInTheDocument();
     });
 
     it('opens edit modal when clicking the spot interruption edit button', async () => {
