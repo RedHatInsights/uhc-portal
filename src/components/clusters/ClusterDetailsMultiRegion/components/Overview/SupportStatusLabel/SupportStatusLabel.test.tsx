@@ -4,7 +4,7 @@ import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
-import { SupportStatusLabel } from '../SupportStatusLabel';
+import { SupportStatusLabel } from './SupportStatusLabel';
 
 jest.mock('~/services/productLifeCycleService');
 
