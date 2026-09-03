@@ -5,7 +5,7 @@ const clusterProperties = fixtureData['osd-nonccs-aws-public-advanced']['day1-pr
 const cidrRanges = clusterProperties.networking.CIDRRanges;
 const clusterName = process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 
-test.describe(
+test.describe.serial(
   'OSD Non CCS AWS cluster creation tests for advanced profile',
   { tag: ['@day1', '@osd', '@aws', '@non-ccs', '@advanced', '@public'] },
   () => {

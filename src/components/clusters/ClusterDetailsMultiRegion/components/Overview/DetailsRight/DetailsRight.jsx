@@ -252,7 +252,7 @@ function DetailsRight({
       {showVCPU && (
         <DescriptionListGroup>
           <DescriptionListTerm>Total vCPU</DescriptionListTerm>
-          <DescriptionListDescription>
+          <DescriptionListDescription aria-label="Total vCPU">
             {cluster.metrics.cpu.total.value} vCPU
           </DescriptionListDescription>
         </DescriptionListGroup>
@@ -260,7 +260,7 @@ function DetailsRight({
       {showMemory && (
         <DescriptionListGroup>
           <DescriptionListTerm>Total memory</DescriptionListTerm>
-          <DescriptionListDescription>
+          <DescriptionListDescription aria-label="Total memory">
             {memoryTotalWithUnit.value} {memoryTotalWithUnit.unit}
           </DescriptionListDescription>
         </DescriptionListGroup>
@@ -296,7 +296,7 @@ function DetailsRight({
         <>
           <DescriptionListGroup>
             <DescriptionListTerm>Load balancers</DescriptionListTerm>
-            <DescriptionListDescription>
+            <DescriptionListDescription aria-label="Load balancers">
               {cluster.load_balancer_quota || 'N/A'}
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -323,7 +323,7 @@ function DetailsRight({
                 hint="The actual number of compute nodes may not always match with the number of desired when the cluster is scaling."
               />
             </DescriptionListTerm>
-            <DescriptionListDescription>
+            <DescriptionListDescription aria-label="Nodes">
               <dl className="pf-v6-l-stack">
                 {!isHypershift && (
                   <Flex data-testid="controlPlaneNodesCountContainer">
@@ -360,7 +360,7 @@ function DetailsRight({
         ) : (
           <DescriptionListGroup>
             <DescriptionListTerm>Nodes</DescriptionListTerm>
-            <DescriptionListDescription>
+            <DescriptionListDescription aria-label="Nodes">
               <dl className="pf-v6-l-stack">
                 {!isHypershift && (
                   <Flex data-testid="controlPlaneNodesCountContainer">

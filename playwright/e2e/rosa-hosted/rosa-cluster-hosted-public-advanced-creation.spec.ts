@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { getUsernameSuffix } from '../../support/auth-config';
 import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
 // Import cluster properties JSON
@@ -23,8 +24,9 @@ test.describe.serial(
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
     const clusterNamePrefix = clusterProperties.ClusterName;
-    const clusterName = `${clusterNamePrefix}-${Math.random().toString(36).slice(2, 7)}`;
-    const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2, 13)}`;
+    const userSuffix = getUsernameSuffix();
+    const clusterName = `${clusterNamePrefix}-${userSuffix}`;
+    const clusterDomainPrefix = `rosa${userSuffix}`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
     const logForwardingS3BucketName = process.env.QE_LOG_FORWARDING_S3_BUCKET_NAME || '';
     const logForwardingS3BucketPrefix = process.env.QE_LOG_FORWARDING_S3_BUCKET_PREFIX || '';

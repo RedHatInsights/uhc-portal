@@ -1,0 +1,82 @@
+{
+  "osdccs-aws-public-advanced": {
+    "day1-profile": {
+      "ClusterNamePrefix": "ocmui-playwright-osd-ccs-aws-public-advanced",
+      "Type": "OSD",
+      "CloudProvider": "AWS",
+      "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
+      "SubscriptionBillingModel": "Annual Red Hat subscriptions",
+      "InfrastructureType": "Customer cloud subscription",
+      "Region": "us-west-2, US West, Oregon",
+      "Availability": "Multi-zone",
+      "UserWorkloadMonitoring": "Enabled",
+      "AdditionalEncryption": "Enabled",
+      "FIPSCryptography": "Enabled",
+      "EncryptVolumesWithCustomerKeys": "Disabled",
+      "UpdateStrategy": "Individual updates",
+      "NodeDraining": "1 hour",
+      "MachinePools": [
+        {
+          "InstanceType": "m5.xlarge",
+          "Autoscaling": "Enabled",
+          "MinimumNodeCount": "3",
+          "MaximumNodeCount": "4"
+        }
+      ],
+      "CustomApplicationIngress": "Custom settings",
+      "RouteSelector": {
+        "KeyValue": "ocmui-playwright-routerkey=osd-ccs-aws-public"
+      },
+      "ExcludedNamespaces": {
+        "Values": "availability,multi-zone,namespaces"
+      },
+      "WildcardPolicy": "Disallowed",
+      "NamespaceOwnershipPolicy": "Strict namespace ownership",
+      "ClusterPrivacy": "Public",
+      "InstallIntoExistingVPC": "Enabled",
+      "MachineCIDR": "10.0.0.0/16",
+      "ServiceCIDR": "172.30.0.0/16",
+      "PodCIDR": "10.128.0.0/14",
+      "HostPrefix": "/23"
+    },
+    "day2-profile": {
+      "MachinePoolsValidation": {
+        "SetMaximumPrice": "0.05",
+        "ComputeNodeCount": "4",
+        "Nodes": {
+          "Control plane": "3",
+          "Infra": "3",
+          "Compute": "9"
+        },
+        "NodeLabels": [
+          {
+            "Key": "ocm-tests-key",
+            "Value": "osd-ccs-aws-pub-adv"
+          },
+          {
+            "Key": "Available-zone",
+            "Value": "Multi-zone"
+          }
+        ],
+        "Taints": [
+          {
+            "Key": "ocm-tests-key",
+            "Value": "ccs-advanced",
+            "Effect": "NoExecute"
+          },
+          {
+            "Key": "ocm-tests-taints",
+            "Value": "multi-zone",
+            "Effect": "NoSchedule"
+          }
+        ],
+        "NewMachinePool": {
+          "InstanceType": "m5.xlarge",
+          "MinimumNodeCount": "3",
+          "MaximumNodeCount": "4",
+          "Autoscaling": "Enabled"
+        }
+      }
+    }
+  }
+}

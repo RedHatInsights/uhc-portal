@@ -185,3 +185,5 @@ Writing components with clear responsibilities and dependencies is crucial to ma
 ### Testing
 
 All code changes must be tested. Follow the [user-centered approach](https://testing-library.com/docs/react-testing-library/intro/#the-problem) introduced by RTL when writing unit tests. You can find more information in the dedicated [unit tests guidelines](unit-testing.md).
+
+For end-to-end testing, ensure Playwright E2E specs cover new or changed user-facing behaviour. Follow the [Playwright E2E test automation guidelines](Playwright-e2e-test-automation-guidelines.md) for writing, structuring, and maintaining E2E tests.
