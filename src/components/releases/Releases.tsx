@@ -36,9 +36,7 @@ import './Releases.scss';
 const Releases = () => {
   const clusterListPath = useClusterListPath();
   const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
-  const [statusData] = useOCPLifeCycleStatusData();
-
-  const allVersions = statusData?.[0]?.versions;
+  const [allVersions] = useOCPLifeCycleStatusData();
   // Filter out EOL and dedicated EUS lifecycle rows (EUS status is shown on the base version card)
   const versionsToDisplay = allVersions?.filter(
     (version) => version.type?.toLowerCase() !== 'end of life' && !version.name.includes('EUS'),

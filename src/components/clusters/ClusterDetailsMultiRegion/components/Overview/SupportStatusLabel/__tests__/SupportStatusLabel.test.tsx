@@ -1,174 +1,132 @@
 import React from 'react';
-import * as reactRedux from 'react-redux';
 
 import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
-import { getSupportStatus } from '~/redux/actions/supportStatusActions';
-import { useGlobalState } from '~/redux/hooks';
-import { SupportStatusState } from '~/redux/reducers/supportStatusReducer';
+import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
-import SupportStatusLabel from '../SupportStatusLabel';
+import { SupportStatusLabel } from '../SupportStatusLabel';
 
-jest.mock('~/redux/hooks', () => ({
-  useGlobalState: jest.fn(),
-}));
+jest.mock('~/services/productLifeCycleService');
 
-jest.mock('~/redux/actions/supportStatusActions', () => ({
-  getSupportStatus: jest.fn(),
-}));
+const getOCPLifeCycleStatusMock = getOCPLifeCycleStatus as jest.Mock;
 
-jest.mock('react-redux', () => {
-  const config = {
-    __esModule: true,
-    ...jest.requireActual('react-redux'),
-  };
-  return config;
-});
+const supportVersions = [
+  { name: '5.0', type: 'Full Support' },
+  { name: '4.5', type: 'Full Support' },
+  { name: '4.4', type: 'Maintenance Support' },
+  { name: '4.3', type: 'Extended Update Support' },
+  { name: '4.2', type: 'End Of Life' },
+  { name: '4.1', type: 'some other status' },
+];
 
-const useGlobalStateMock = useGlobalState as jest.Mock;
-const getSupportStatusMock = getSupportStatus as jest.Mock;
-
-const supportStatuses = {
-  '5.0': 'Full Support',
-  4.5: 'Full Support',
-  4.4: 'Maintenance Support',
-  4.3: 'Extended Update Support',
-  4.2: 'End Of Life',
-  4.1: 'some other status',
-};
+const mockSuccessResponse = (versions = supportVersions) =>
+  getOCPLifeCycleStatusMock.mockResolvedValue({
+    data: { data: [{ versions }] },
+  });
 
 describe('<SupportStatusLabel />', () => {
-  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
-  const mockedDispatch = jest.fn();
-  useDispatchMock.mockReturnValue(mockedDispatch);
-
-  const defaultState: SupportStatusState = {
-    pending: false,
-    fulfilled: false,
-    error: false,
-    supportStatus: {},
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('is accessible. Emtpy supportStatus', async () => {
-    // Arrange
-    const { container } = render(<SupportStatusLabel clusterVersion="4.5" />);
+  it('is accessible', async () => {
+    mockSuccessResponse();
 
-    // Assert
+    const { container } = render(<SupportStatusLabel clusterVersion="4.5" />);
+    await screen.findByText('Full support');
+
     await checkAccessibility(container);
   });
 
-  it('should fetch status on initial mount', () => {
-    // Arrange
-    expect(getSupportStatusMock).not.toHaveBeenCalled();
+  it('fetches lifecycle data using the feature flag (flag OFF)', async () => {
+    mockSuccessResponse();
 
-    // Act
     render(<SupportStatusLabel clusterVersion="4.5" />);
+    await screen.findByText('Full support');
 
-    // Assert
-    expect(getSupportStatusMock).toHaveBeenCalledWith(false);
+    expect(getOCPLifeCycleStatusMock).toHaveBeenCalledWith(false);
   });
 
-  it('should render support status for a 5.x cluster when OCP5_SUPPORT is enabled', () => {
+  it('fetches lifecycle data using the v2 endpoint when OCP5_SUPPORT is enabled', async () => {
     mockUseFeatureGate([[OCP5_SUPPORT, true]]);
-    useGlobalStateMock.mockReturnValue(defaultState);
+    mockSuccessResponse();
 
     render(<SupportStatusLabel clusterVersion="5.0" />);
+    await screen.findByText('Full support');
 
-    expect(getSupportStatusMock).toHaveBeenCalledWith(true);
-
-    useGlobalStateMock.mockReturnValue({
-      ...defaultState,
-      fulfilled: true,
-      supportStatus: supportStatuses,
-    });
-
-    render(<SupportStatusLabel clusterVersion="5.0" />);
-
-    expect(screen.getByText('Full support')).toHaveClass('pf-v6-c-label__text');
+    expect(getOCPLifeCycleStatusMock).toHaveBeenCalledWith(true);
   });
 
-  it('should render skeleton when pending', () => {
-    // Arrange
-    useGlobalStateMock.mockReturnValue({ ...defaultState, pending: true });
+  it('renders the support status badge for a 5.x cluster when OCP5_SUPPORT is enabled', async () => {
+    mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+    mockSuccessResponse();
 
-    // Act
+    render(<SupportStatusLabel clusterVersion="5.0" />);
+
+    expect(await screen.findByText('Full support')).toHaveClass('pf-v6-c-label__text');
+  });
+
+  it('shows a loading skeleton while fetching', () => {
+    // Never resolves — keeps the component in loading state
+    getOCPLifeCycleStatusMock.mockReturnValue(new Promise(() => {}));
+
     const { container } = render(<SupportStatusLabel clusterVersion="4.5" />);
 
-    // Assert
     expect(container.querySelector('.inline-skeleton')).toBeInTheDocument();
   });
 
-  it('should show N/A when support status is unknown', () => {
-    // Arrange
-    useGlobalStateMock.mockReturnValue({ ...defaultState, fulfilled: true });
+  it('shows an error alert when the lifecycle API is unavailable', async () => {
+    getOCPLifeCycleStatusMock.mockRejectedValue(new Error('Network error'));
 
-    // Act
     render(<SupportStatusLabel clusterVersion="4.5" />);
 
-    // Assert
-    expect(screen.getByText('N/A')).toBeInTheDocument();
+    expect(await screen.findByText('Unable to load support status')).toBeInTheDocument();
   });
 
-  it('should show N/A for a pre-release version', () => {
-    // Act
+  it('shows N/A when the cluster version has no lifecycle entry', async () => {
+    mockSuccessResponse([]);
+
+    render(<SupportStatusLabel clusterVersion="4.5" />);
+
+    expect(await screen.findByText('N/A')).toBeInTheDocument();
+  });
+
+  it('shows N/A for a pre-release version', async () => {
+    mockSuccessResponse();
+
     render(<SupportStatusLabel clusterVersion="4.5.0-0.nightly-2020-07-14-052310" />);
 
-    // Assert
-    expect(screen.getByText('N/A')).toBeInTheDocument();
+    expect(await screen.findByText('N/A')).toBeInTheDocument();
   });
 
-  describe('should render for every possible support status', () => {
+  describe('renders the correct badge for every supported status', () => {
     beforeEach(() => {
-      jest.clearAllMocks();
-      useGlobalStateMock.mockReturnValue({
-        ...defaultState,
-        fulfilled: true,
-        supportStatus: supportStatuses,
-      });
+      mockSuccessResponse();
     });
 
-    it('renders for Full Support', () => {
-      // Act
+    it('Full Support', async () => {
       render(<SupportStatusLabel clusterVersion="4.5" />);
-
-      // Assert
-      expect(screen.getByText('Full support')).toHaveClass('pf-v6-c-label__text');
+      expect(await screen.findByText('Full support')).toHaveClass('pf-v6-c-label__text');
     });
 
-    it('renders for Maintenance Support', () => {
-      // Act
+    it('Maintenance Support', async () => {
       render(<SupportStatusLabel clusterVersion="4.4" />);
-
-      // Assert
-      expect(screen.getByText('Maintenance support')).toHaveClass('pf-v6-c-label__text');
+      expect(await screen.findByText('Maintenance support')).toHaveClass('pf-v6-c-label__text');
     });
 
-    it('renders for Extended Update Support', () => {
-      // Act
+    it('Extended Update Support', async () => {
       render(<SupportStatusLabel clusterVersion="4.3" />);
-
-      // Assert
-      expect(screen.getByText('Extended update support')).toHaveClass('pf-v6-c-label__text');
+      expect(await screen.findByText('Extended update support')).toHaveClass('pf-v6-c-label__text');
     });
 
-    it('renders for End of Life', () => {
-      // Act
+    it('End of Life', async () => {
       render(<SupportStatusLabel clusterVersion="4.2" />);
-
-      // Assert
-      expect(screen.getByText('End of life')).toHaveClass('pf-v6-c-label__text');
+      expect(await screen.findByText('End of life')).toHaveClass('pf-v6-c-label__text');
     });
 
-    it('renders for an unrecognized status', () => {
-      // Act
+    it('unrecognized status', async () => {
       render(<SupportStatusLabel clusterVersion="4.1" />);
-
-      // Assert
-      expect(screen.getByText('some other status')).toHaveClass('pf-v6-c-label__text');
+      expect(await screen.findByText('some other status')).toHaveClass('pf-v6-c-label__text');
     });
   });
 });

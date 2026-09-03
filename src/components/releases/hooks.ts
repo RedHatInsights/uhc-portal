@@ -1,24 +1,17 @@
 import * as React from 'react';
 import semver from 'semver';
 
-import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
+import { useOCPLifeCycleStatus } from '~/queries/useOCPLifeCycleStatus';
 import getOCPReleaseChannel from '~/services/releaseChannelService';
-import { ProductLifeCycle } from '~/types/product-life-cycles';
 
+/**
+ * Returns OCP lifecycle versions and a loaded flag.
+ * Backed by useOCPLifeCycleStatus (TanStack Query) so errors and retries
+ * are handled consistently — no more infinite-request loops on API failure.
+ */
 export const useOCPLifeCycleStatusData = () => {
-  const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
-  const [statusData, setStatusData] = React.useState<ProductLifeCycle[] | undefined>();
-  React.useEffect(() => {
-    const fetchStatusData = async () => {
-      const result = await getOCPLifeCycleStatus(isOcp5SupportEnabled);
-      setStatusData(result.data.data);
-    };
-    fetchStatusData();
-  }, [isOcp5SupportEnabled]);
-  const loaded = statusData !== undefined;
-  return [statusData, loaded] as const;
+  const { versions, isLoading } = useOCPLifeCycleStatus();
+  return [versions, !isLoading] as const;
 };
 
 export const useOCPLatestVersionInChannel = (releaseChannel: string | undefined) => {
@@ -41,11 +34,10 @@ export const useOCPLatestVersionInChannel = (releaseChannel: string | undefined)
 };
 
 export const useOCPLatestVersion = (releaseChannelPrefix = 'stable') => {
-  const [statusData, statusDataLoaded] = useOCPLifeCycleStatusData();
+  const [versions, versionsLoaded] = useOCPLifeCycleStatusData();
   let latestReleaseChannel: string | undefined;
-  if (statusDataLoaded) {
-    const allVersions = statusData?.[0]?.versions || [];
-    const filteredVersions = allVersions.filter((version) => !version.name.includes('EUS'));
+  if (versionsLoaded) {
+    const filteredVersions = (versions ?? []).filter((version) => !version.name.includes('EUS'));
     const latestMinorVersion = filteredVersions.length > 0 ? filteredVersions[0]?.name : undefined;
     latestReleaseChannel = latestMinorVersion && `${releaseChannelPrefix}-${latestMinorVersion}`;
   }
