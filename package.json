@@ -142,7 +142,7 @@
     "babel-plugin-transform-imports": "^2.0.0",
     "cli-progress": "^3.12.0",
     "concurrently": "^10.0.0",
-    "css-loader": "^7.0.0",
+    "css-loader": "^7.1.4",
     "cypress": "^13.6.2",
     "cypress-each": "^1.14.0",
     "eslint": "^8.56.0",
@@ -159,7 +159,7 @@
     "eslint-plugin-simple-import-sort": "^12.0.0",
     "eslint-plugin-storybook": "0.11.0",
     "eslint-plugin-testing-library": "^7.0.0",
-    "fork-ts-checker-webpack-plugin": "^9.0.0",
+    "fork-ts-checker-webpack-plugin": "^9.1.0",
     "husky": "^9.0.0",
     "inquirer": "^11.0.0",
     "jest": "^30.0.5",
@@ -177,7 +177,7 @@
     "progress": "^2.0.3",
     "redux-mock-store": "^1.5.4",
     "sass": "^1.77.2",
-    "sass-loader": "^14.0.1",
+    "sass-loader": "^14.2.1",
     "sprintf-js": "^1.1.2",
     "storybook": "8.4.4",
     "style-loader": "4.0.0",
@@ -187,8 +187,8 @@
     "tsconfig-paths-webpack-plugin": "4.1.0",
     "typescript": "5.5.3",
     "wait-on": "^9.0.5",
-    "webpack": "^5.89.0",
-    "webpack-bundle-analyzer": "^4.10.1"
+    "webpack": "^5.108.1",
+    "webpack-bundle-analyzer": "^4.10.2"
   },
   "overrides": {
     "@cypress/webpack-preprocessor": "6.0.2",
