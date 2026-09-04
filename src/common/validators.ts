@@ -826,6 +826,60 @@ const validateUrl = (value: string, protocol: string | string[] = 'http'): strin
 
 const validateUrlHttpsAndHttp = (value: string) => validateUrl(value, ['http', 'https']);
 
+const SQS_QUEUE_HOSTNAME_PATTERN = /^sqs(?:-fips)?\.([a-z0-9-]+)\.amazonaws\.com$/i;
+const SQS_QUEUE_PATHNAME_PATTERN = /^\/\d{12}\/[a-zA-Z0-9_-]+(\.fifo)?$/;
+const SQS_QUEUE_NAME_MAX_LENGTH = 80;
+
+const validateSpotTerminationHandlerQueueUrl = (
+  value: string,
+  region?: string,
+): string | undefined => {
+  const trimmedValue = value?.trim();
+
+  if (!trimmedValue) {
+    return 'SQS queue URL is required.';
+  }
+
+  const urlError = validateUrl(trimmedValue, 'https');
+  if (urlError) {
+    return urlError;
+  }
+
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(trimmedValue);
+  } catch {
+    return 'Enter a valid Amazon SQS queue URL.';
+  }
+
+  const queueRegion = parsedUrl.hostname.match(SQS_QUEUE_HOSTNAME_PATTERN)?.[1];
+  const hasInvalidUrlParts =
+    !!parsedUrl.username ||
+    !!parsedUrl.password ||
+    !!parsedUrl.port ||
+    !!parsedUrl.search ||
+    !!parsedUrl.hash;
+
+  if (hasInvalidUrlParts || !SQS_QUEUE_PATHNAME_PATTERN.test(parsedUrl.pathname)) {
+    return 'Enter a valid Amazon SQS queue URL.';
+  }
+
+  if (!queueRegion) {
+    return 'Enter a valid Amazon SQS queue URL.';
+  }
+
+  const queueName = parsedUrl.pathname.split('/')[2];
+  if (queueName.length > SQS_QUEUE_NAME_MAX_LENGTH) {
+    return `The SQS queue name cannot exceed ${SQS_QUEUE_NAME_MAX_LENGTH} characters.`;
+  }
+
+  if (region && queueRegion !== region) {
+    return `The SQS queue URL must be in the cluster region (${region}).`;
+  }
+
+  return undefined;
+};
+
 const validateCA = (value: string): string | undefined => {
   if (!value) {
     return undefined;
@@ -2020,6 +2074,7 @@ export {
   validateSecureURL,
   validateSecurityGroups,
   validateServiceAccountObject,
+  validateSpotTerminationHandlerQueueUrl,
   validateTlsHostname,
   validateTlsSecretName,
   validateUniqueAZ,

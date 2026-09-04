@@ -1,5 +1,7 @@
 import type { FormikValues } from 'formik';
 
+import { isEnhancedSpotVersionSupported } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
+import { validateSpotInterruptionFields } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingValidation';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { isRosaHcpLogForwardingSubmitContext } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingTreeFromQueryClient';
 import { validateLogForwardingFields } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation';
@@ -32,9 +34,23 @@ const rosaWizardFormValidator = (values: FormikValues, activeStepId?: string | n
     (activeStepId === stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING ||
       activeStepId === stepId.REVIEW_AND_CREATE);
   const logForwardingErrors = validateLogForwarding ? validateLogForwardingFields(values) : {};
+  const validateSpotInterruption =
+    values[FieldId.Hypershift] === 'true' &&
+    isEnhancedSpotVersionSupported(values[FieldId.ClusterVersion]?.raw_id) &&
+    (activeStepId === stepId.CLUSTER_SETTINGS__MACHINE_POOL ||
+      activeStepId === stepId.REVIEW_AND_CREATE);
+  const spotInterruptionErrors = validateSpotInterruption
+    ? validateSpotInterruptionFields(values)
+    : {};
 
   if (!autoScaler) {
-    return Object.keys(logForwardingErrors).length ? logForwardingErrors : {};
+    if (!Object.keys(logForwardingErrors).length && !Object.keys(spotInterruptionErrors).length) {
+      return {};
+    }
+    return {
+      ...spotInterruptionErrors,
+      ...logForwardingErrors,
+    };
   }
 
   const { cores, memory } = autoScaler.resource_limits;
@@ -44,7 +60,13 @@ const rosaWizardFormValidator = (values: FormikValues, activeStepId?: string | n
   addMinMaxError(resourceLimitErrors, memory, 'memory');
 
   if (Object.keys(resourceLimitErrors).length === 0) {
-    return Object.keys(logForwardingErrors).length ? logForwardingErrors : {};
+    if (!Object.keys(logForwardingErrors).length && !Object.keys(spotInterruptionErrors).length) {
+      return {};
+    }
+    return {
+      ...spotInterruptionErrors,
+      ...logForwardingErrors,
+    };
   }
 
   const autoscalingErrors = {
@@ -53,12 +75,13 @@ const rosaWizardFormValidator = (values: FormikValues, activeStepId?: string | n
     },
   };
 
-  if (Object.keys(logForwardingErrors).length === 0) {
+  if (!Object.keys(logForwardingErrors).length && !Object.keys(spotInterruptionErrors).length) {
     return autoscalingErrors;
   }
 
   return {
     ...autoscalingErrors,
+    ...spotInterruptionErrors,
     ...logForwardingErrors,
   };
 };
