@@ -14,7 +14,6 @@ import {
 import { validateSpotTerminationHandlerQueueUrl } from '~/common/validators';
 import { queryClient } from '~/components/App/queryClient';
 import {
-  ENHANCED_SPOT_VERSION_DISABLED_REASON,
   getSpotInterruptionHandlerQueueUrl,
   SpotInterruptionMode,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
@@ -117,10 +116,6 @@ const EditSpotInterruptionHandlingModal = ({
             onSqsQueueUrlBlur={() => setIsTouched(true)}
             sqsQueueUrlValidated={validationError ? 'error' : 'default'}
             sqsQueueUrlHelperText={validationError}
-            isEnhancedDisabled={isEnhancedDisabled}
-            enhancedDisabledReason={
-              isEnhancedDisabled ? ENHANCED_SPOT_VERSION_DISABLED_REASON : undefined
-            }
           />
         </Form>
       </ModalBody>
