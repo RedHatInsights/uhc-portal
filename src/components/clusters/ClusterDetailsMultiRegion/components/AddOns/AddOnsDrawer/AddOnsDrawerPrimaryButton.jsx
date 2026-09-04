@@ -86,7 +86,7 @@ function AddOnsPrimaryButton(props) {
   const unchangedReason =
     installedAddOn?.billing?.billing_model === subscription?.billingModel && 'No changes';
 
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const updateAddonAction = (
     <ButtonWithTooltip
       variant="primary"

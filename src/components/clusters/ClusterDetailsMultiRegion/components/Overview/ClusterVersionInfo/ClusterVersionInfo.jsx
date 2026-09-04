@@ -67,7 +67,6 @@ const ClusterVersionInfo = ({ cluster }) => {
                       canEdit={cluster.canEdit}
                       clusterVersion={clusterVersion}
                       scheduledUpgrade={scheduledUpdate}
-                      // eslint-disable-next-line camelcase
                       availableUpgrades={cluster.version?.available_upgrades}
                       onCancelClick={() => setPopoverOpen(false)}
                     />

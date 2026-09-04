@@ -45,6 +45,7 @@ const initialState: State = {
 };
 
 function dnsDomainsReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<DnsDomainsAction>,
 ): State {

@@ -1,4 +1,3 @@
-/* eslint-disable arrow-body-style */
 import React, { ReactNode } from 'react';
 
 import { Card, List, ListItem, Split, SplitItem } from '@patternfly/react-core';

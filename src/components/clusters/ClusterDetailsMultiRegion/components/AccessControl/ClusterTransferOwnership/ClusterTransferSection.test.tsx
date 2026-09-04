@@ -15,7 +15,6 @@ jest.mock(
   }),
 );
 
-// eslint-disable-next-line camelcase
 const testSubscription = {
   ...fixtures.clusterDetails.cluster.subscription,
   managed: true,

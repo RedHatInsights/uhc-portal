@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 import { dump, load } from 'js-yaml';
 
 import { IClusterRequestTranslator } from './IClusterRequestTranslator';

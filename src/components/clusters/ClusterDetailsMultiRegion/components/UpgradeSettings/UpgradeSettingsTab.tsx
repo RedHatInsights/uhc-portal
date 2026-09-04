@@ -226,7 +226,6 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
     scheduledUpgrade &&
     (scheduledUpgrade.state?.value === 'started' || scheduledUpgrade.state?.value === 'delayed');
 
-  // eslint-disable-next-line camelcase
   const availableUpgrades = cluster?.version?.available_upgrades;
 
   const showUpdateButton =

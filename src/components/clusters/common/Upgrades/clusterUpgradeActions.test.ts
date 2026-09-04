@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import createMockStore from 'redux-mock-store';
 
 import clusterService from '../../../../services/clusterService';

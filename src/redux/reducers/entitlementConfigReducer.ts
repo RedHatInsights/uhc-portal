@@ -16,6 +16,7 @@ const initialState: State = {
 };
 
 function entitlementConfigReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<TokensAction>,
 ): State {

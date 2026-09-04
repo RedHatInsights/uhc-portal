@@ -2,6 +2,7 @@ import React, { PropsWithChildren } from 'react';
 
 import { ExpandableSection, Title } from '@patternfly/react-core';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AWSAccountRoles = ['ocm', 'user', 'account'] as const;
 export type AWSAccountRole = (typeof AWSAccountRoles)[number];
 
