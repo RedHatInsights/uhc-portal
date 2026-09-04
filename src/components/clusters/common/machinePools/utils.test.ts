@@ -1,3 +1,5 @@
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
+
 import * as utils from './utils';
 
 describe('machinePools utils', () => {
@@ -87,6 +89,27 @@ describe('machinePools utils', () => {
 
         const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
         expect(maxNodeCount).toBe(expectedMaxNodes);
+      });
+
+      it('returns expected max node count if not hypershift and subscription is GCP Marketplace billing', () => {
+        getAvailableQuotaMock.mockReturnValue(0);
+
+        const gcpMarketplaceArgs = {
+          ...newMachinePoolArgs,
+          cluster: {
+            ...defaultArgs.cluster,
+            hypershift: { enabled: false },
+            billing_model: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
+            product: { id: 'OSD' },
+          },
+          allow249NodesOSDCCSROSA: true,
+        };
+
+        const maxNodeCount = utils.getMaxNodeCountForMachinePool(gcpMarketplaceArgs);
+
+        expect(maxNodeCount).toBe(utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id));
+
+        getAvailableQuotaMock.mockReturnValue(50990);
       });
 
       it('returns expected max node count if not hypershift and different machine types', () => {

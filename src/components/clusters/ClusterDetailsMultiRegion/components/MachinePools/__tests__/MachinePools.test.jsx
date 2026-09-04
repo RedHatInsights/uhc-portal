@@ -4,6 +4,7 @@ import { normalizedProducts } from '~/common/subscriptionTypes';
 import { ENABLE_MACHINE_CONFIGURATION } from '~/queries/featureGates/featureConstants';
 import { baseRequestState } from '~/redux/reduxHelpers';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { useFetchMachineTypes } from '../../../../../../queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypes';
 import { useDeleteMachinePool } from '../../../../../../queries/ClusterDetailsQueries/MachinePoolTab/useDeleteMachinePool';
@@ -447,6 +448,24 @@ describe('<MachinePools />', () => {
       // TODO: The button is not correctly disabled - this is an accessibility issue and should be fixed
       // expect(button).toBeDisabled();
       expect(button).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('should allow adding machine pools for GCP Marketplace clusters without quota', async () => {
+      hasMachinePoolsQuotaSelectorMock.mockReturnValue(false);
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...defaultCluster,
+          billing_model: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
+          ccs: { enabled: true },
+          cloud_provider: { id: 'gcp' },
+          product: { id: normalizedProducts.OSD },
+        },
+      };
+      render(<MachinePools {...newProps} />);
+
+      const button = await screen.findByRole('button', { name: 'Add machine pool' });
+      expect(button).not.toHaveAttribute('aria-disabled');
     });
   });
 
