@@ -576,6 +576,42 @@ describe('<UpgradeSettingsTab>', () => {
         screen.getByText('the last supported version for OSD Classic', { exact: false }),
       ).toBeInTheDocument();
     });
+
+    it('renders for a ROSA HCP v4 cluster when the feature flag is on', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      const rosaHcpV4Cluster = createMockCluster({
+        product: { id: 'ROSA' },
+        subscription: { ...createMockCluster().subscription, plan: { type: 'ROSA' } },
+        hypershift: { enabled: true },
+        version: { ...createMockCluster().version, raw_id: '4.19.0' },
+      });
+
+      renderComponent(rosaHcpV4Cluster);
+
+      expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
+      expect(
+        screen.getByText('the last supported version for ROSA (EUS Term 1)', { exact: false }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('create a new ROSA HCP cluster', { exact: false }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not render for a ROSA HCP v5 cluster', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      const rosaHcpV5Cluster = createMockCluster({
+        product: { id: 'ROSA' },
+        subscription: { ...createMockCluster().subscription, plan: { type: 'ROSA' } },
+        hypershift: { enabled: true },
+        version: { ...createMockCluster().version, raw_id: '5.0.0' },
+      });
+
+      renderComponent(rosaHcpV5Cluster);
+
+      expect(screen.queryByTestId('classic-upgrade-to-v5-warning')).not.toBeInTheDocument();
+    });
   });
 
   describe('handleSubmit', () => {

@@ -2,23 +2,52 @@ import React from 'react';
 
 import { Alert } from '@patternfly/react-core';
 
+import InternalTrackingLink from '~/components/common/InternalTrackingLink';
+
 interface UpgradeToV5WarningProps {
   isRosa: boolean;
+  isHypershift?: boolean;
 }
 
-const getWarningTitle = (isRosa: boolean): string =>
-  isRosa
-    ? 'OpenShift v4 reaches end of life on March 31, 2028. Classic clusters cannot be upgraded to v5. To continue with OpenShift v5, create a new ROSA HCP cluster.'
-    : 'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
+const ROSA_CLASSIC_WARNING_TITLE =
+  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for ROSA Classic (EUS Term 1).';
+const ROSA_HCP_WARNING_TITLE =
+  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for ROSA (EUS Term 1).';
+const OSD_CLASSIC_WARNING_TITLE =
+  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for OSD Classic (EUS Term 1).';
 
-const UpgradeToV5Warning = ({ isRosa }: UpgradeToV5WarningProps) => (
-  <Alert
-    variant="warning"
-    isInline
-    className="pf-v6-u-mb-md"
-    title={getWarningTitle(isRosa)}
-    data-testid="classic-upgrade-to-v5-warning"
-  />
-);
+const getWarningTitle = (isRosa: boolean, isHypershift: boolean): string => {
+  if (isRosa && isHypershift) {
+    return ROSA_HCP_WARNING_TITLE;
+  }
+  if (isRosa) {
+    return ROSA_CLASSIC_WARNING_TITLE;
+  }
+  return OSD_CLASSIC_WARNING_TITLE;
+};
+
+const UpgradeToV5Warning = ({ isRosa, isHypershift = false }: UpgradeToV5WarningProps) => {
+  const showRosaHcpLink = isRosa && !isHypershift;
+
+  return (
+    <Alert
+      variant="warning"
+      isInline
+      className="pf-v6-u-mb-md"
+      title={getWarningTitle(isRosa, isHypershift)}
+      data-testid="classic-upgrade-to-v5-warning"
+    >
+      {showRosaHcpLink ? (
+        <>
+          To continue with OpenShift v5,{' '}
+          <InternalTrackingLink to="/create/rosa/getstarted">
+            create a new ROSA HCP cluster
+          </InternalTrackingLink>
+          .
+        </>
+      ) : null}
+    </Alert>
+  );
+};
 
 export { UpgradeToV5Warning };
