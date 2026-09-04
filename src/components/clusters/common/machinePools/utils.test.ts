@@ -1,270 +1,64 @@
 import * as utils from './utils';
 
 describe('machinePools utils', () => {
-  describe('getMaxNodeCountForMachinePool', () => {
-    const selectedMPNodes = 1;
-    const existingNodes = 4; // total from below)
+  describe('getMaxSupportedNodesHCP', () => {
+    it.each([
+      ['returns the default max nodes for HCP', '4.16.0', 500],
+      ['version 4.14.19 gets insufficient version', '4.14.19', 90],
+      ['version 4.15.14 gets insufficient version', '4.15.14', 90],
+      ['version 4.14.19 gets insufficient version and max nodes', '4.14.19', 90],
+      ['version 4.15.14 gets insufficient version and max nodes', '4.15.14', 90],
+      ['version 4.16.0 allows 500 nodes', '4.16.0', 500],
+      ['undefined version and undefined options gets default version', undefined, 500],
+      ['undefined version and max nodes 500', undefined, 500],
+      ['version 4.14.28 (4.14.x boundary) allows 500 nodes', '4.14.28', 500],
+      ['version 4.14.27 (one below 4.14.x boundary) returns 90', '4.14.27', 90],
+      ['version 4.15.15 (4.15.x boundary) allows 500 nodes', '4.15.15', 500],
+      ['version 5.0.0 allows 500 nodes', '5.0.0', 500],
+      ['version 5.1.0 allows 500 nodes', '5.1.0', 500],
+      ['version 5.10.0 allows 500 nodes (not confused with 5.1)', '5.10.0', 500],
+      ['version 5.10.5 allows 500 nodes', '5.10.5', 500],
+    ])('%s', (_title: string, version: string | undefined, exptected: number) => {
+      // Act
+      const result = utils.getMaxSupportedNodesHCP(version);
 
-    const defaultArgs = {
-      cluster: {
-        hypershift: { enabled: true },
-        multi_az: false,
-        ccs: { enabled: true }, // isByoc
-        cloud_provider: { id: 'aws' },
-        billing_model: 'marketplace-aws',
-        product: { id: 'ROSA' },
-        version: { raw_id: '4.16.0' },
-      },
-      machineTypeId: 'm5.xlarge',
-      machinePools: [
-        {
-          autoscaling: { max_replicas: selectedMPNodes },
-          id: 'workers-1',
-          instance_type: 'm5.xlarge',
-        },
-        {
-          autoscaling: { max_replicas: 1 },
-          id: 'workers-2',
-          instance_type: 'm5.xlarge',
-        },
-        {
-          replicas: 2,
-          id: 'workers-3',
-          instance_type: 'm5.xlarge',
-        },
+      // Assert
+      expect(result).toEqual(exptected);
+    });
+  });
+  describe('getMaxNodes', () => {
+    it.each([
+      ['returns 249 + masterNodes + infraNodes for 4.15.0 single AZ', '4.15.0', false, 249 + 3 + 2],
+      ['returns 249 + masterNodes + infraNodes for 4.15.0 multi AZ', '4.15.0', true, 249 + 3 + 3],
+      [
+        'returns 249 + masterNodes + infraNodes for 4.14.16 single AZ',
+        '4.14.16',
+        false,
+        249 + 3 + 2,
       ],
-      minNodes: 1,
-      editMachinePoolId: 'workers-1',
-    } as unknown as utils.GetMaxNodeCountForMachinePoolParams;
+      ['returns 249 + masterNodes + infraNodes for 4.14.16 multi AZ', '4.14.16', true, 249 + 3 + 3],
+      [
+        'returns 249 + masterNodes + infraNodes for 4.14.14 single AZ',
+        '4.14.14',
+        false,
+        249 + 3 + 2,
+      ],
+      ['returns 249 + masterNodes + infraNodes for 4.14.14 multi AZ', '4.14.14', true, 249 + 3 + 3],
+      [
+        'returns 180 + masterNodes + infraNodes for 4.14.12 single AZ',
+        '4.14.12',
+        false,
+        180 + 3 + 2,
+      ],
+      ['returns 180 + masterNodes + infraNodes for 4.14.12 multi AZ', '4.14.12', true, 180 + 3 + 3],
+      ['returns 180 + masterNodes + infraNodes for 4.13.0 single AZ', '4.13.0', false, 180 + 3 + 2],
+      ['returns 180 + masterNodes + infraNodes for 4.13.0 multi AZ', '4.13.0', true, 180 + 3 + 3],
+    ])('%s', (_title: string, version: string, isMultiAZ: boolean, exptected: number) => {
+      // Act
+      const result = utils.getClusterAutoscalerMax(version, isMultiAZ);
 
-    const maxNodesHCP = utils.getMaxNodesHCP(defaultArgs.cluster.version?.raw_id);
-
-    // In order to make  testing a little easier, mocking quota method
-    const getAvailableQuotaMock = jest.spyOn(utils, 'getAvailableQuota').mockReturnValue(50990);
-    afterAll(() => {
-      getAvailableQuotaMock.mockReset();
-    });
-    describe('Adding a new machine pool', () => {
-      const newMachinePoolArgs = {
-        ...defaultArgs,
-        editMachinePoolId: undefined,
-      };
-      it('returns expected max node count if hypershift and all same machine type', () => {
-        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgs);
-
-        const expectedMaxNodes = maxNodesHCP - existingNodes;
-        expect(maxNodeCount).toBe(expectedMaxNodes);
-      });
-
-      it('returns expected max node count if hypershift and different machine types', () => {
-        const newMachinePoolArgsPlus = {
-          ...newMachinePoolArgs,
-          machinePools: [
-            ...defaultArgs.machinePools,
-            {
-              replicas: 3,
-              id: 'workers-3',
-              instance_type: 'm5.myothertype',
-            },
-          ],
-        };
-        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsPlus);
-
-        const expectedMaxNodes = maxNodesHCP - existingNodes - 3; // "3" is from machine pool added in this test
-        expect(maxNodeCount).toBe(expectedMaxNodes);
-      });
-
-      it('returns expected max node count if not hypershift and all same machine type', () => {
-        const newMachinePoolArgsNotHCP = {
-          ...newMachinePoolArgs,
-          cluster: {
-            ...defaultArgs.cluster,
-            hypershift: { enabled: false },
-          },
-        };
-
-        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
-
-        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
-        expect(maxNodeCount).toBe(expectedMaxNodes);
-      });
-
-      it('returns expected max node count if not hypershift and different machine types', () => {
-        const newMachinePoolArgsNotHCP = {
-          ...newMachinePoolArgs,
-          cluster: {
-            ...defaultArgs.cluster,
-            hypershift: { enabled: false },
-          },
-          machinePools: [
-            ...defaultArgs.machinePools,
-            {
-              replicas: 3,
-              id: 'workers-3',
-              instance_type: 'm5.myothertype',
-            },
-          ],
-        };
-
-        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
-
-        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
-        expect(maxNodeCount).toBe(expectedMaxNodes);
-      });
-    });
-
-    describe('Editing an existing machine pool', () => {
-      it('returns expected max node count if hypershift and all same machine type', () => {
-        const maxNodeCount = utils.getMaxNodeCountForMachinePool(defaultArgs);
-
-        const expectedMaxNodes = maxNodesHCP - existingNodes + selectedMPNodes;
-        expect(maxNodeCount).toBe(expectedMaxNodes);
-      });
-
-      it('returns expected max node count if hypershift and different machine types', () => {
-        const newMachinePoolReplicas = 3;
-
-        const newMachinePoolArgsPlus = {
-          ...defaultArgs,
-          machinePools: [
-            ...defaultArgs.machinePools,
-            {
-              replicas: newMachinePoolReplicas,
-              id: 'workers-3',
-              instance_type: 'm5.myothertype',
-            },
-          ],
-        };
-        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsPlus);
-
-        const existingNodesWithNewMP = existingNodes + newMachinePoolReplicas;
-        const expectedMaxNodes = maxNodesHCP - existingNodesWithNewMP + selectedMPNodes;
-        expect(maxNodeCount).toBe(expectedMaxNodes);
-      });
-
-      it('returns expected max node count if not hypershift and all same machine type', () => {
-        const newMachinePoolArgsNotHCP = {
-          ...defaultArgs,
-          cluster: {
-            ...defaultArgs.cluster,
-            hypershift: { enabled: false },
-          },
-        };
-
-        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
-
-        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
-        expect(maxNodeCount).toBe(expectedMaxNodes);
-      });
-
-      it('returns expected max node count if not hypershift and different machine types', () => {
-        const newMachinePoolArgsNotHCP = {
-          ...defaultArgs,
-          cluster: {
-            ...defaultArgs.cluster,
-            hypershift: { enabled: false },
-          },
-          machinePools: [
-            ...defaultArgs.machinePools,
-            {
-              replicas: 3,
-              id: 'workers-3',
-              instance_type: 'm5.myothertype',
-            },
-          ],
-        };
-
-        const maxNodeCount = utils.getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
-
-        const expectedMaxNodes = utils.getMaxWorkerNodes(defaultArgs.cluster.version?.raw_id);
-        expect(maxNodeCount).toBe(expectedMaxNodes);
-      });
-    });
-
-    describe('getMaxNodesHCP', () => {
-      it.each([
-        ['returns the default max nodes for HCP', '4.16.0', 500],
-        ['version 4.14.19 gets insufficient version', '4.14.19', 90],
-        ['version 4.15.14 gets insufficient version', '4.15.14', 90],
-        ['version 4.14.19 gets insufficient version and max nodes', '4.14.19', 90],
-        ['version 4.15.14 gets insufficient version and max nodes', '4.15.14', 90],
-        ['version 4.16.0 allows 500 nodes', '4.16.0', 500],
-        ['undefined version and undefined options gets default version', undefined, 500],
-        ['undefined version and max nodes 500', undefined, 500],
-        ['version 4.14.28 (4.14.x boundary) allows 500 nodes', '4.14.28', 500],
-        ['version 4.14.27 (one below 4.14.x boundary) returns 90', '4.14.27', 90],
-        ['version 4.15.15 (4.15.x boundary) allows 500 nodes', '4.15.15', 500],
-        ['version 5.0.0 allows 500 nodes', '5.0.0', 500],
-        ['version 5.1.0 allows 500 nodes', '5.1.0', 500],
-        ['version 5.10.0 allows 500 nodes (not confused with 5.1)', '5.10.0', 500],
-        ['version 5.10.5 allows 500 nodes', '5.10.5', 500],
-      ])('%s', (_title: string, version: string | undefined, exptected: number) => {
-        // Act
-        const result = utils.getMaxNodesHCP(version);
-
-        // Assert
-        expect(result).toEqual(exptected);
-      });
-    });
-    describe('getMaxNodes', () => {
-      it.each([
-        [
-          'returns 249 + masterNodes + infraNodes for 4.15.0 single AZ',
-          '4.15.0',
-          false,
-          249 + 3 + 2,
-        ],
-        ['returns 249 + masterNodes + infraNodes for 4.15.0 multi AZ', '4.15.0', true, 249 + 3 + 3],
-        [
-          'returns 249 + masterNodes + infraNodes for 4.14.16 single AZ',
-          '4.14.16',
-          false,
-          249 + 3 + 2,
-        ],
-        [
-          'returns 249 + masterNodes + infraNodes for 4.14.16 multi AZ',
-          '4.14.16',
-          true,
-          249 + 3 + 3,
-        ],
-        [
-          'returns 249 + masterNodes + infraNodes for 4.14.14 single AZ',
-          '4.14.14',
-          false,
-          249 + 3 + 2,
-        ],
-        [
-          'returns 249 + masterNodes + infraNodes for 4.14.14 multi AZ',
-          '4.14.14',
-          true,
-          249 + 3 + 3,
-        ],
-        [
-          'returns 180 + masterNodes + infraNodes for 4.14.12 single AZ',
-          '4.14.12',
-          false,
-          180 + 3 + 2,
-        ],
-        [
-          'returns 180 + masterNodes + infraNodes for 4.14.12 multi AZ',
-          '4.14.12',
-          true,
-          180 + 3 + 3,
-        ],
-        [
-          'returns 180 + masterNodes + infraNodes for 4.13.0 single AZ',
-          '4.13.0',
-          false,
-          180 + 3 + 2,
-        ],
-        ['returns 180 + masterNodes + infraNodes for 4.13.0 multi AZ', '4.13.0', true, 180 + 3 + 3],
-      ])('%s', (_title: string, version: string, isMultiAZ: boolean, exptected: number) => {
-        // Act
-        const result = utils.getMaxNodesTotalDefaultAutoscaler(version, isMultiAZ);
-
-        // Assert
-        expect(result).toEqual(exptected);
-      });
+      // Assert
+      expect(result).toEqual(exptected);
     });
   });
 
@@ -296,7 +90,7 @@ describe('machinePools utils', () => {
     });
   });
 
-  describe('getMaxWorkerNodes', () => {
+  describe('getMaxSupportedNodesClassic', () => {
     it.each([
       ['version 4.16.0 returns 249', '4.16.0', 249],
       ['version 4.15.0 returns 249', '4.15.0', 249],
@@ -311,7 +105,7 @@ describe('machinePools utils', () => {
       ['version 5.10.0 returns 249 (not confused with 5.1)', '5.10.0', 249],
       ['version 5.10.5 returns 249', '5.10.5', 249],
     ])('%s', (_title: string, version: string | undefined, expected: number) => {
-      const result = utils.getMaxWorkerNodes(version);
+      const result = utils.getMaxSupportedNodesClassic(version);
       expect(result).toBe(expected);
     });
   });

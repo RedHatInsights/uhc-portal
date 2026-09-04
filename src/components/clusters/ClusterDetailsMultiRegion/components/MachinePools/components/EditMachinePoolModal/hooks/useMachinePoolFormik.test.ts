@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
-import * as machinePoolUtils from '~/components/clusters/common/machinePools/utils';
+import * as machinePoolUtils from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
 
 import useMachinePoolFormik from './useMachinePoolFormik';
 import {
