@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 
 import { Alert, Checkbox, Stack, StackItem } from '@patternfly/react-core';
 
@@ -7,50 +7,66 @@ import docLinks from '~/common/docLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import WithTooltip from '~/components/common/WithTooltip';
 
+import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
+
 const fieldId = 'useSpotInstances';
 
 type UseSpotInstancesFieldProps = {
   children: React.ReactNode;
+  footer?: React.ReactNode;
   isDisabled: boolean;
+  disabledReason?: string;
 };
 
-const UseSpotInstancesField = ({ children, isDisabled }: UseSpotInstancesFieldProps) => {
+const UseSpotInstancesField = ({
+  children,
+  footer,
+  isDisabled,
+  disabledReason,
+}: UseSpotInstancesFieldProps) => {
   const [field] = useField(fieldId);
+  const { setFieldValue, validateField } = useFormikContext<EditMachinePoolValues>();
+  const tooltipContent =
+    disabledReason || 'This option cannot be edited from its original setting selection.';
+
   return (
-    <WithTooltip
-      showTooltip={isDisabled}
-      content="This option cannot be edited from its original setting selection."
-    >
-      <Stack hasGutter>
+    <Stack hasGutter>
+      <StackItem>
+        <WithTooltip showTooltip={isDisabled} content={tooltipContent} position="top-start">
+          <span className="pf-v6-u-display-inline-block">
+            <Checkbox
+              {...field}
+              label="Use Amazon EC2 Spot Instance"
+              isChecked={field.value as boolean}
+              onChange={async (_, checked) => {
+                await setFieldValue(fieldId, checked);
+                if (!checked) {
+                  await validateField('maxPrice');
+                }
+              }}
+              id={fieldId}
+              body={field.value && children}
+              description="You can save on costs by creating a machine pool running on AWS that deploys machines as non-guaranteed Spot Instances. This cannot be changed after machine pool is created."
+              isDisabled={isDisabled}
+            />
+          </span>
+        </WithTooltip>
+      </StackItem>
+      {field.value ? (
         <StackItem>
-          <Checkbox
-            {...field}
-            label="Use Amazon EC2 Spot Instance"
-            isChecked={field.value as boolean}
-            onChange={(event, checked) => {
-              field.onChange(event);
-            }}
-            id={fieldId}
-            body={field.value && children}
-            description="You can save on costs by creating a machine pool running on AWS that deploys machines as non-guaranteed Spot Instances. This cannot be changed after machine pool is created."
-            isDisabled={isDisabled}
-          />
+          <Alert
+            variant="warning"
+            title="Your Spot Instance may be interrupted at any time. Use Spot Instances for workloads that can tolerate interruptions."
+            isInline
+          >
+            <ExternalLink href={docLinks.AWS_SPOT_INSTANCES}>
+              Learn more about Spot instances
+            </ExternalLink>
+          </Alert>
+          {footer}
         </StackItem>
-        {field.value && (
-          <StackItem>
-            <Alert
-              variant="warning"
-              title="Your Spot Instance may be interrupted at any time. Use Spot Instances for workloads that can tolerate interruptions."
-              isInline
-            >
-              <ExternalLink href={docLinks.AWS_SPOT_INSTANCES}>
-                Learn more about Spot instances
-              </ExternalLink>
-            </Alert>
-          </StackItem>
-        )}
-      </Stack>
-    </WithTooltip>
+      ) : null}
+    </Stack>
   );
 };
 

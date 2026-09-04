@@ -356,7 +356,6 @@ const canUseSpotInstances = (cluster: ClusterFromSubscription) => {
   const product = normalizeProductID(cluster.product?.id);
   return (
     cloudProviderID === 'aws' &&
-    !isHypershiftCluster(cluster) &&
     (product === normalizedProducts.ROSA ||
       (product === normalizedProducts.OSD && cluster.ccs?.enabled))
   );

@@ -5,6 +5,7 @@ import {
   ALLOW_EUS_CHANNEL,
   ENABLE_AUTO_NODE,
   HCP_LOG_FORWARDING,
+  HCP_SPOT_INSTANCES,
 } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
@@ -2192,6 +2193,114 @@ describe('<DetailsRight />', () => {
 
       const link = screen.getByText('Learn more');
       expect(link).toHaveAttribute('href', docLinks.ROSA_AUTONODE);
+    });
+  });
+
+  describe('Spot interruption handling', () => {
+    const spotInterruptionClusterFixture = {
+      ...fixtures.ROSAHypershiftClusterDetails.cluster,
+      openshift_version: '4.22.0',
+      canUpdateClusterResource: true,
+      state: 'ready',
+    };
+
+    it('shows section with enhanced mode and queue URL for hypershift when enabled', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...spotInterruptionClusterFixture,
+          aws: {
+            ...spotInterruptionClusterFixture.aws,
+            termination_handler_queue_url:
+              'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+          },
+        },
+      };
+
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.getByTestId('spotInterruptionHandlingMode')).toHaveTextContent(
+        'Spot instances Enhanced',
+      );
+      expect(
+        screen.getByText(
+          'SQS queue URL: https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('shows simple mode when queue URL is not configured', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...spotInterruptionClusterFixture,
+          aws: {
+            ...spotInterruptionClusterFixture.aws,
+            termination_handler_queue_url: undefined,
+          },
+        },
+      };
+
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.getByTestId('spotInterruptionHandlingMode')).toHaveTextContent(
+        'Spot instances Simple',
+      );
+    });
+
+    it('hides section when cluster does not support spot instances', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...defaultProps.cluster,
+          hypershift: { enabled: true },
+        },
+      };
+
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.queryByTestId('spotInterruptionHandlingMode')).not.toBeInTheDocument();
+    });
+
+    it('hides section when cluster version is below 4.22', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const newProps = {
+        ...defaultProps,
+        cluster: {
+          ...spotInterruptionClusterFixture,
+          openshift_version: '4.21.9',
+        },
+      };
+
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      render(<DetailsRight {...newProps} />);
+
+      expect(screen.queryByTestId('spotInterruptionHandlingMode')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('editSpotInterruptionHandlingButton')).not.toBeInTheDocument();
+    });
+
+    it('opens edit modal when clicking the spot interruption edit button', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const newProps = {
+        ...defaultProps,
+        cluster: spotInterruptionClusterFixture,
+      };
+
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+      const { user } = render(<DetailsRight {...newProps} />);
+
+      await user.click(screen.getByTestId('editSpotInterruptionHandlingButton'));
+
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'Spot interruption handling settings' }),
+      ).toBeInTheDocument();
     });
   });
 

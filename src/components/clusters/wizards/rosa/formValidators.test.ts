@@ -1,3 +1,4 @@
+import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { validateLogForwardingFields } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation';
 
@@ -279,5 +280,87 @@ describe('rosaWizardFormValidator', () => {
     ).toEqual({});
 
     expect(mockValidateLogForwardingFields).not.toHaveBeenCalled();
+  });
+
+  describe('spot interruption handling validation', () => {
+    const machinePoolStep = stepId.CLUSTER_SETTINGS__MACHINE_POOL;
+    const spotInterruptionValues = {
+      [FieldId.ClusterAutoscaling]: null,
+      [FieldId.Hypershift]: 'true',
+      [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+      ...logForwardingOff,
+    };
+
+    it('returns required error on the machine pool step when enhanced mode has no SQS URL', () => {
+      const result = rosaWizardFormValidator(
+        {
+          ...spotInterruptionValues,
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]: '',
+        },
+        machinePoolStep,
+      );
+
+      expect(result).toEqual({
+        [FieldId.SpotTerminationHandlerQueueUrl]: 'SQS queue URL is required.',
+      });
+    });
+
+    it('returns required error on the review step when enhanced mode has no SQS URL', () => {
+      const result = rosaWizardFormValidator(
+        {
+          ...spotInterruptionValues,
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]: '',
+        },
+        stepId.REVIEW_AND_CREATE,
+      );
+
+      expect(result).toEqual({
+        [FieldId.SpotTerminationHandlerQueueUrl]: 'SQS queue URL is required.',
+      });
+    });
+
+    it('skips spot interruption validation when the cluster version is below 4.22', () => {
+      const result = rosaWizardFormValidator(
+        {
+          ...spotInterruptionValues,
+          [FieldId.ClusterVersion]: { raw_id: '4.21.9' },
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]: '',
+        },
+        machinePoolStep,
+      );
+
+      expect(result).toEqual({});
+    });
+
+    it('skips spot interruption validation on other steps', () => {
+      const result = rosaWizardFormValidator(
+        {
+          ...spotInterruptionValues,
+          [FieldId.Region]: 'us-west-2',
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]:
+            'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        },
+        stepId.CLUSTER_SETTINGS__DETAILS,
+      );
+
+      expect(result).toEqual({});
+    });
+
+    it('skips spot interruption validation in simple mode', () => {
+      const result = rosaWizardFormValidator(
+        {
+          ...spotInterruptionValues,
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Simple,
+          [FieldId.SpotTerminationHandlerQueueUrl]: '',
+        },
+        machinePoolStep,
+      );
+
+      expect(result).toEqual({});
+    });
   });
 });

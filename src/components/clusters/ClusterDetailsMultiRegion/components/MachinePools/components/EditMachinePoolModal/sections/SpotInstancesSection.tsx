@@ -3,17 +3,33 @@ import { useField } from 'formik';
 
 import { Form, FormGroup, GridItem, Radio } from '@patternfly/react-core';
 
+import { SPOT_CAPACITY_RESERVATION_CONFLICT_REASON } from '~/components/clusters/common/machinePools/constants';
+import {
+  isEnhancedSpotVersionSupported,
+  SPOT_INSTANCES_VERSION_DISABLED_REASON,
+} from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import PopoverHint from '~/components/common/PopoverHint';
+import { ClusterFromSubscription } from '~/types/types';
 
 import MaxPriceField from '../fields/MaxPriceField';
+import SpotInterruptionHandlingModeField from '../fields/SpotInterruptionHandlingModeField';
 import UseSpotInstancesField from '../fields/UseSpotInstancesField';
 import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
 
 type SpotInstancesSectionProps = {
   isEdit: boolean;
+  isHypershift?: boolean;
+  cluster?: ClusterFromSubscription;
 };
 
-const SpotInstancesSection = ({ isEdit }: SpotInstancesSectionProps) => {
+const SpotInstancesSection = ({ isEdit, isHypershift, cluster }: SpotInstancesSectionProps) => {
+  const [capacityReservationPreferenceField] = useField<
+    EditMachinePoolValues['capacityReservationPreference']
+  >('capacityReservationPreference');
+  const hasCapacityReservation = !!(
+    capacityReservationPreferenceField.value && capacityReservationPreferenceField.value !== 'none'
+  );
+
   const [onDemandTypeField] = useField<EditMachinePoolValues['spotInstanceType']>({
     name: 'spotInstanceType',
     value: 'onDemand',
@@ -26,10 +42,36 @@ const SpotInstancesSection = ({ isEdit }: SpotInstancesSectionProps) => {
     type: 'radio',
   });
 
+  const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
+  const isSpotVersionSupported = isEnhancedSpotVersionSupported(clusterVersion);
+  const isSpotVersionBlocked = !!isHypershift && !isSpotVersionSupported;
+  const isSpotDisabled = isEdit || hasCapacityReservation || isSpotVersionBlocked;
+
+  const spotDisabledReason = (() => {
+    if (isEdit) {
+      return undefined;
+    }
+    if (isSpotVersionBlocked) {
+      return SPOT_INSTANCES_VERSION_DISABLED_REASON;
+    }
+    if (hasCapacityReservation) {
+      return SPOT_CAPACITY_RESERVATION_CONFLICT_REASON;
+    }
+    return undefined;
+  })();
+
   return (
     <GridItem>
       <FormGroup fieldId="spotInstances" label="Cost saving" />
-      <UseSpotInstancesField isDisabled={isEdit}>
+      <UseSpotInstancesField
+        isDisabled={isSpotDisabled}
+        disabledReason={spotDisabledReason}
+        footer={
+          isHypershift && cluster ? (
+            <SpotInterruptionHandlingModeField cluster={cluster} />
+          ) : undefined
+        }
+      >
         <Form>
           <Radio
             {...onDemandTypeField}
@@ -38,7 +80,7 @@ const SpotInstancesSection = ({ isEdit }: SpotInstancesSectionProps) => {
             onChange={(e, _) => onDemandTypeField.onChange(e)}
             label="Use On-Demand instance price"
             description="The maximum price defaults to charge up to the On-Demand Instance price."
-            isDisabled={isEdit}
+            isDisabled={isSpotDisabled}
           />
           <Radio
             {...maximumTypeField}
@@ -55,8 +97,12 @@ const SpotInstancesSection = ({ isEdit }: SpotInstancesSectionProps) => {
               </>
             }
             description="Specify the maximum hourly price for a Spot Instance."
-            isDisabled={isEdit}
-            body={maximumTypeField.checked && <MaxPriceField isEdit={isEdit} />}
+            isDisabled={isSpotDisabled}
+            body={
+              maximumTypeField.checked && (
+                <MaxPriceField isEdit={isEdit} isHypershift={isHypershift} />
+              )
+            }
           />
         </Form>
       </UseSpotInstancesField>

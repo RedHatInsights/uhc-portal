@@ -854,11 +854,11 @@ describe('isEnforcedDefaultMachinePool', () => {
         false,
       ],
       [
-        'aws cloud provider, hypershift and ROSA then false',
+        'aws cloud provider, hypershift and ROSA then true',
         { cloud_provider: { id: 'aws' } },
         true,
         normalizedProducts.ROSA,
-        false,
+        true,
       ],
       [
         'gcp cloud provider, not hypershift and ROSA then false',

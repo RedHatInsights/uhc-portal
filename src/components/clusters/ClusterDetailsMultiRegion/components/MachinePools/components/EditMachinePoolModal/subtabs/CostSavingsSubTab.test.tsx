@@ -1,6 +1,7 @@
 import { useField } from 'formik';
 
-import { render, renderHook, screen } from '~/testUtils';
+import { HCP_SPOT_INSTANCES } from '~/queries/featureGates/featureConstants';
+import { mockUseFeatureGate, render, renderHook, screen } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { useCostSavingsSubTab } from './CostSavingsSubTab';
@@ -10,6 +11,10 @@ import { useCostSavingsSubTab } from './CostSavingsSubTab';
 jest.mock('formik', () => ({
   ...jest.requireActual('formik'),
   useField: jest.fn(),
+  useFormikContext: jest.fn().mockReturnValue({
+    setFieldValue: jest.fn(),
+    validateField: jest.fn().mockResolvedValue(undefined),
+  }),
 }));
 
 describe('CostSavingsSubTab', () => {
@@ -74,9 +79,33 @@ describe('CostSavingsSubTab', () => {
     });
 
     it('does not display tab when cluster does not support spot instances', () => {
-      const noSpotInstancesCluster = { ...mockCluster, hypershift: { enabled: true } };
+      const noSpotInstancesCluster = { ...mockCluster, cloud_provider: { id: 'gcp' } };
       const { result } = renderHook(() =>
         useCostSavingsSubTab({ ...defaultProps, cluster: noSpotInstancesCluster }),
+      );
+      const [tabs] = result.current;
+
+      const { container } = render(tabs({}));
+      expect(container).toBeEmptyDOMElement();
+    });
+
+    it('displays the tab for Hypershift clusters when the feature gate is enabled', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const hypershiftCluster = { ...mockCluster, hypershift: { enabled: true } };
+      const { result } = renderHook(() =>
+        useCostSavingsSubTab({ ...defaultProps, cluster: hypershiftCluster }),
+      );
+      const [tabs] = result.current;
+
+      render(tabs({}));
+      expect(screen.getByRole('tab', { name: 'Cost savings' })).toBeInTheDocument();
+    });
+
+    it('does not display the tab for Hypershift clusters when HCP_SPOT_INSTANCES is disabled', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, false]]);
+      const hypershiftCluster = { ...mockCluster, hypershift: { enabled: true } };
+      const { result } = renderHook(() =>
+        useCostSavingsSubTab({ ...defaultProps, cluster: hypershiftCluster }),
       );
       const [tabs] = result.current;
 
@@ -114,9 +143,33 @@ describe('CostSavingsSubTab', () => {
     });
 
     it('does not display content when cluster does not support spot instances', () => {
-      const noSpotInstancesCluster = { ...mockCluster, hypershift: { enabled: true } };
+      const noSpotInstancesCluster = { ...mockCluster, cloud_provider: { id: 'gcp' } };
       const { result } = renderHook(() =>
         useCostSavingsSubTab({ ...defaultProps, cluster: noSpotInstancesCluster }),
+      );
+      const [_tab, content] = result.current;
+
+      const { container } = render(content());
+      expect(container).toBeEmptyDOMElement();
+    });
+
+    it('displays content for Hypershift clusters when the feature gate is enabled', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+      const hypershiftCluster = { ...mockCluster, hypershift: { enabled: true } };
+      const { result } = renderHook(() =>
+        useCostSavingsSubTab({ ...defaultProps, cluster: hypershiftCluster }),
+      );
+      const [_tab, content] = result.current;
+
+      render(content());
+      expect(screen.getByRole('tabpanel')).toBeInTheDocument();
+    });
+
+    it('does not display content for Hypershift clusters when HCP_SPOT_INSTANCES is disabled', () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, false]]);
+      const hypershiftCluster = { ...mockCluster, hypershift: { enabled: true } };
+      const { result } = renderHook(() =>
+        useCostSavingsSubTab({ ...defaultProps, cluster: hypershiftCluster }),
       );
       const [_tab, content] = result.current;
 

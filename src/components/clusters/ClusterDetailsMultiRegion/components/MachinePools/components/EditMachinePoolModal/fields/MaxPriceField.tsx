@@ -3,7 +3,10 @@ import { useField } from 'formik';
 
 import { FormGroup, NumberInput } from '@patternfly/react-core';
 
-import { SPOT_MIN_PRICE } from '~/components/clusters/common/machinePools/constants';
+import {
+  SPOT_MAX_PRICE_HCP,
+  SPOT_MIN_PRICE,
+} from '~/components/clusters/common/machinePools/constants';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import useFormikOnChange from '~/hooks/useFormikOnChange';
 
@@ -13,11 +16,12 @@ import './MaxPriceField.scss';
 
 type MaxPriceFieldProps = {
   isEdit: boolean;
+  isHypershift?: boolean;
 };
 
 const fieldId = 'maxPrice';
 
-const MaxPriceField = ({ isEdit }: MaxPriceFieldProps) => {
+const MaxPriceField = ({ isEdit, isHypershift }: MaxPriceFieldProps) => {
   const [maxPriceField, { error, touched }] = useField<EditMachinePoolValues['maxPrice']>(fieldId);
 
   const onChange = useFormikOnChange(fieldId);
@@ -43,10 +47,13 @@ const MaxPriceField = ({ isEdit }: MaxPriceFieldProps) => {
         unit={<span className="ocm-spot-instances__unit">$ Hourly</span>}
         widthChars={8}
         min={SPOT_MIN_PRICE}
+        max={isHypershift ? SPOT_MAX_PRICE_HCP : undefined}
         isDisabled={isEdit}
       />
 
-      <FormGroupHelperText touched={touched} error={error} />
+      <FormGroupHelperText touched={touched} error={error}>
+        {isHypershift ? `Price must not exceed $${SPOT_MAX_PRICE_HCP} per hour.` : undefined}
+      </FormGroupHelperText>
     </FormGroup>
   );
 };
