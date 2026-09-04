@@ -33,7 +33,7 @@ const MIRROR_CLIENTS_LATEST_PRE_MULTI =
 const MIRROR_COREOS_INSTALLER_LATEST =
   'https://mirror.openshift.com/pub/openshift-v4/clients/coreos-installer/latest';
 const MIRROR_CRC_LATEST =
-  'https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/crc/latest';
+  'https://developers.redhat.com/content-gateway/rest/mirror/pub/cgw/crc/latest';
 const MIRROR_HELM_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/helm/latest';
 const MIRROR_KN_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/serverless/latest';
 const MIRROR_TKN_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/pipeline/latest';
