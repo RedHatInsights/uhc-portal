@@ -22,7 +22,6 @@ import {
   shouldUseRegionFilteredData,
 } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/machineTypeSelectionHelper';
 import {
-  ENHANCED_SPOT_VERSION_DISABLED_REASON,
   isEnhancedSpotVersionSupported,
   SpotInterruptionMode,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
@@ -279,7 +278,7 @@ function ScaleSection() {
         selectedVPC={selectedVpc}
         isHypershiftSelected={isHypershiftSelected}
       />
-      {isHypershiftSelected && isHcpSpotInstancesEnabled ? (
+      {isHypershiftSelected && isHcpSpotInstancesEnabled && isEnhancedSpotVersionValid ? (
         <GridItem md={10}>
           <ExpandableSection
             toggleText="Spot interruption handling"
@@ -302,10 +301,6 @@ function ScaleSection() {
               }
               sqsQueueUrlHelperText={
                 isSpotInterruptionExpanded ? sqsQueueUrlValidationError : undefined
-              }
-              isEnhancedDisabled={!isEnhancedSpotVersionValid}
-              enhancedDisabledReason={
-                isEnhancedSpotVersionValid ? undefined : ENHANCED_SPOT_VERSION_DISABLED_REASON
               }
             />
           </ExpandableSection>

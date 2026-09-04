@@ -20,7 +20,10 @@ import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/excl
 import { hasExternalAuthenticationCapability } from '~/common/externalAuthHelper';
 import { hasSelectedSecurityGroups } from '~/common/securityGroupsHelpers';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
-import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
+import {
+  isEnhancedSpotVersionSupported,
+  SpotInterruptionMode,
+} from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { canSelectImds } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { getUserRoleForSelectedAWSAccount } from '~/components/clusters/wizards/rosa/AccountsRolesScreen/AccountsRolesScreen';
@@ -136,7 +139,10 @@ const ReviewClusterScreen = ({
   const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
   const isHcpSpotInstancesEnabled = useFeatureGate(HCP_SPOT_INSTANCES);
 
-  const showSpotInterruptionHandling = isHypershiftSelected && isHcpSpotInstancesEnabled;
+  const showSpotInterruptionHandling =
+    isHypershiftSelected &&
+    isHcpSpotInstancesEnabled &&
+    isEnhancedSpotVersionSupported(clusterVersionRawId);
 
   const clusterSettingsFields = [
     FieldId.ClusterName,

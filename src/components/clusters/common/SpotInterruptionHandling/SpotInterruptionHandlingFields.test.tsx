@@ -5,7 +5,6 @@ import { render, screen } from '~/testUtils';
 import {
   DEFAULT_SPOT_INTERRUPTION_PREREQ_ALERT,
   ENHANCED_SPOT_DESCRIPTION,
-  ENHANCED_SPOT_VERSION_DISABLED_REASON,
   SIMPLE_SPOT_DESCRIPTION,
   SPOT_INTERRUPTION_INTRO,
   SpotInterruptionMode,
@@ -189,31 +188,6 @@ describe('<SpotInterruptionHandlingFields />', () => {
         'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
       );
       expect(onSqsQueueUrlBlur).toHaveBeenCalled();
-    });
-  });
-
-  describe('disabled states', () => {
-    it('disables the Enhanced radio and SQS queue URL input when isEnhancedDisabled is true', () => {
-      renderFields({
-        mode: SpotInterruptionMode.Enhanced,
-        isEnhancedDisabled: true,
-        enhancedDisabledReason: ENHANCED_SPOT_VERSION_DISABLED_REASON,
-      });
-
-      expect(screen.getByRole('radio', { name: /Simple Spot instances/i })).toBeEnabled();
-      expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeDisabled();
-      expect(getSqsQueueUrlInput()).toBeDisabled();
-    });
-
-    it('shows a disabled popover for Enhanced when a version reason is provided', async () => {
-      const { user } = renderFields({
-        isEnhancedDisabled: true,
-        enhancedDisabledReason: ENHANCED_SPOT_VERSION_DISABLED_REASON,
-      });
-
-      await user.hover(screen.getByRole('radio', { name: /Enhanced Spot instances/i }));
-
-      expect(await screen.findByText(ENHANCED_SPOT_VERSION_DISABLED_REASON)).toBeInTheDocument();
     });
   });
 });

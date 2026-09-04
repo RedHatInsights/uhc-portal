@@ -17,8 +17,6 @@ export const ENHANCED_SPOT_MIN_VERSION = '4.22.0';
 
 export const ENHANCED_SPOT_VERSION_DISABLED_REASON = `Enhanced Spot instances require OpenShift version ${ENHANCED_SPOT_MIN_VERSION} or above`;
 
-export const SPOT_INSTANCES_VERSION_DISABLED_REASON = `Spot Instances require OpenShift version ${ENHANCED_SPOT_MIN_VERSION} or above`;
-
 export const SPOT_INTERRUPTION_MODE_ENHANCED_LABEL = 'Spot instances Enhanced';
 export const SPOT_INTERRUPTION_MODE_SIMPLE_LABEL = 'Spot instances Simple';
 
