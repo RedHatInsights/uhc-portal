@@ -403,16 +403,6 @@ const trackEvents: { [key: string]: TrackEvent } = {
     link_name: 'billing-contract-warning-shown',
     ocm_resource_type: ocmResourceType.MOA,
   },
-  BillingContractWarningProceed: {
-    event: eventNames.BUTTON_CLICKED,
-    link_name: 'billing-contract-warning-proceed',
-    ocm_resource_type: ocmResourceType.MOA,
-  },
-  BillingContractWarningGoBack: {
-    event: eventNames.BUTTON_CLICKED,
-    link_name: 'billing-contract-warning-go-back',
-    ocm_resource_type: ocmResourceType.MOA,
-  },
 };
 
 /**

@@ -19,7 +19,6 @@ import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/ico
 import { trackEvents } from '~/common/analytics';
 import { shouldRefetchQuota } from '~/common/helpers';
 import links from '~/common/installLinks.mjs';
-import { ConfirmationDialog } from '~/common/modals/ConfirmationDialog';
 import { getAwsBillingAccountsFromQuota } from '~/components/clusters/common/quotaSelectors';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import useAnalytics from '~/hooks/useAnalytics';
@@ -47,19 +46,11 @@ import ContractInfo from './ContractInfo';
 interface AWSBillingAccountProps {
   selectedAWSBillingAccountID: string;
   selectedAWSAccountID: string;
-  onContractCheckChange?: (hasWarning: boolean) => void;
-  isContractDialogOpen?: boolean;
-  onContractDialogContinue?: () => void;
-  onContractDialogClose?: () => void;
 }
 
 const AWSBillingAccount = ({
   selectedAWSBillingAccountID,
   selectedAWSAccountID,
-  onContractCheckChange,
-  isContractDialogOpen = false,
-  onContractDialogContinue,
-  onContractDialogClose = () => {},
 }: AWSBillingAccountProps) => {
   const { setFieldValue, getFieldProps, getFieldMeta, setFieldTouched } = useFormState();
   const dispatch = useDispatch();
@@ -140,45 +131,8 @@ const AWSBillingAccount = ({
     selectedAWSBillingAccountID,
   );
 
-  useEffect(() => {
-    onContractCheckChange?.(hasWarning);
-    // clear the wizard-owned warning when this component is no longer rendered
-    return () => onContractCheckChange?.(false);
-  }, [hasWarning, onContractCheckChange]);
-
-  const handleContractDialogContinue = () => {
-    track(trackEvents.BillingContractWarningProceed);
-    onContractDialogContinue?.();
-  };
-
-  const handleContractDialogGoBack = () => {
-    track(trackEvents.BillingContractWarningGoBack);
-  };
-
   return (
     <>
-      <ConfirmationDialog
-        title="Continue without a contracted billing account?"
-        content={
-          <>
-            <p>
-              The selected account <strong>{selectedAWSBillingAccountID}</strong> does not have any
-              pre-purchased ROSA capacity contracted. However, at least one other billing account
-              linked to your Red Hat account has an active contract.
-            </p>
-            <p>
-              You can go back to select a different billing account, or continue with your current
-              selection. You can change the billing AWS account after the cluster is created.
-            </p>
-          </>
-        }
-        primaryActionLabel="Continue with selection"
-        primaryAction={handleContractDialogContinue}
-        secondaryActionLabel="Go back"
-        secondaryAction={handleContractDialogGoBack}
-        isOpen={isContractDialogOpen}
-        closeCallback={onContractDialogClose}
-      />
       <GridItem span={8}>
         <Title headingLevel="h3">AWS billing account</Title>
         <Content component={ContentVariants.p}>
