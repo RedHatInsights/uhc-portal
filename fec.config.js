@@ -37,13 +37,18 @@ module.exports = {
     '/mockdata': {
       host: 'http://localhost:8010',
     },
+    '/mockServiceWorker.js': {
+      host: 'http://localhost:8003',
+    },
   },
   plugins: [
+    process.env.NODE_ENV !== 'production' && new (require('./src/mocks/MSWPlugin'))(),
     new ForkTsCheckerWebpackPlugin(),
     new webpack.DefinePlugin({
       APP_DEVMODE: process.env.NODE_ENV !== 'production',
       APP_SENTRY_RELEASE_VERSION: JSON.stringify(process.env.SENTRY_VERSION),
       APP_DEV_SERVER: process.env.NODE_ENV !== 'production',
+      APP_MSW_ENABLED: JSON.stringify(process.env.MSW_ENABLED === 'true'),
     }),
     bundleAnalyzer,
     new MonacoWebpackPlugin({
