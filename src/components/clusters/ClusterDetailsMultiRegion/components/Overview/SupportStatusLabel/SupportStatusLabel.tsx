@@ -1,10 +1,8 @@
-import React, { useEffect, useMemo } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useMemo } from 'react';
 
-import { Skeleton } from '@patternfly/react-core';
+import { Alert, Skeleton } from '@patternfly/react-core';
 
-import { getSupportStatus } from '~/redux/actions/supportStatusActions';
-import { useGlobalState } from '~/redux/hooks';
+import { useOCPLifeCycleStatus } from '~/queries/useOCPLifeCycleStatus';
 
 import SupportStatus from '../../../../../common/SupportStatus';
 
@@ -15,35 +13,46 @@ type SupportStatusLabelProps = {
 };
 
 const SupportStatusLabel = ({ clusterVersion }: SupportStatusLabelProps) => {
-  const supportStatus = useGlobalState((state) => state.supportStatus) ?? {};
+  const { versions, isLoading, isError } = useOCPLifeCycleStatus();
+
   const supportedVersionRegex = useMemo(() => /^[4-6]\.\d{1,3}(\.\d{1,3})?$/, []);
-  const status = useMemo(
-    () => supportStatus.supportStatus?.[clusterVersion.split('.', 2).join('.')],
-    [clusterVersion, supportStatus.supportStatus],
-  );
-  const shouldHideComponent = useMemo(
+
+  const supportStatusMap = useMemo(
     () =>
-      !clusterVersion ||
-      clusterVersion === 'N/A' ||
-      supportStatus.error ||
-      !status ||
-      !supportedVersionRegex.test(clusterVersion),
-    [clusterVersion, status, supportStatus.error, supportedVersionRegex],
+      versions?.reduce<Record<string, string>>((acc, { name, type }) => {
+        acc[name] = type;
+        return acc;
+      }, {}),
+    [versions],
   );
 
-  const dispatch = useDispatch();
+  const majorMinorVersion = clusterVersion.split('.', 2).join('.');
+  const status = supportStatusMap?.[majorMinorVersion];
 
-  useEffect(() => {
-    if (!supportStatus.fulfilled && !supportStatus.pending) {
-      dispatch(getSupportStatus());
-    }
-  }, [dispatch, supportStatus.fulfilled, supportStatus.pending]);
+  const shouldHideComponent =
+    !clusterVersion ||
+    clusterVersion === 'N/A' ||
+    !status ||
+    !supportedVersionRegex.test(clusterVersion);
 
-  if (supportStatus.pending) {
+  if (isLoading) {
     return <Skeleton fontSize="sm" className="inline-skeleton" screenreaderText="Loading..." />;
+  }
+
+  if (isError) {
+    return (
+      <Alert
+        variant="warning"
+        isInline
+        isPlain
+        title="Unable to load support status"
+        aria-label="Unable to load support status"
+      />
+    );
   }
 
   return shouldHideComponent ? <>N/A</> : <SupportStatus status={status} />;
 };
 
+export { SupportStatusLabel };
 export default SupportStatusLabel;

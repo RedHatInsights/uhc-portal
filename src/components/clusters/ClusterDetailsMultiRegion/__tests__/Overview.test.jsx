@@ -14,7 +14,7 @@ import Overview from '../components/Overview/Overview';
 
 import fixtures from './ClusterDetails.fixtures';
 
-jest.mock('../components/Overview/SupportStatusLabel');
+jest.mock('../components/Overview/SupportStatusLabel/SupportStatusLabel');
 
 // Mock InsightsAdvisor Chart components with accessible label components
 // This is a temporary workaround for PatternFly Charts accessibility issues

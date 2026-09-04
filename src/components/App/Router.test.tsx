@@ -109,7 +109,7 @@ describe('Router', () => {
     jest.clearAllMocks();
     // /releases route needs this
     useOCPLifeCycleStatusDataSpy.mockReturnValue(
-      mockOCPLifeCycleStatusData as [ProductLifeCycle[] | undefined, boolean],
+      mockOCPLifeCycleStatusData as [ProductLifeCycle['versions'] | undefined, boolean],
     );
   });
 

@@ -85,12 +85,11 @@ function VersionSelection({
   const [versions, setVersions] = useState<Version[]>([]);
   const [rosaVersionError, setRosaVersionError] = useState(false);
   const [showOnlyCompatibleVersions, setShowOnlyCompatibleVersions] = useState(true);
-  const [statusData] = useOCPLifeCycleStatusData();
-  const statusVersions = statusData?.[0]?.versions || [];
+  const [statusVersions] = useOCPLifeCycleStatusData();
 
   const supportVersionMap = Object.fromEntries(
     // version.name is 'major.minor' string e.g. '4.11'.
-    statusVersions.map((version) => [version.name, version.type]),
+    (statusVersions ?? []).map((version) => [version.name, version.type]),
   );
 
   const isValidRosaVersion = React.useCallback(

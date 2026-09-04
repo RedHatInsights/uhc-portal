@@ -53,6 +53,7 @@ import { AUTO_CLUSTER_TRANSFER_OWNERSHIP } from '~/queries/featureGates/featureC
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { findRegionalInstance } from '~/queries/helpers';
 import { useFetchGetAvailableRegionalInstances } from '~/queries/RosaWizardQueries/useFetchGetAvailableRegionalInstances';
+import { refetchOCPLifeCycleStatus } from '~/queries/useOCPLifeCycleStatus';
 import { clearListVpcs } from '~/redux/actions/ccsInquiriesActions';
 import { clusterAutoscalerActions } from '~/redux/actions/clusterAutoscalerActions';
 import { onResetFiltersAndFlags } from '~/redux/actions/viewOptionsActions';
@@ -316,6 +317,7 @@ const ClusterDetails = (props) => {
       refreshRelatedResources(clicked);
     }
     refetchOrganizationQuota(organization?.details?.id);
+    refetchOCPLifeCycleStatus();
   };
 
   React.useEffect(() => {

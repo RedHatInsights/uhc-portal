@@ -63,8 +63,7 @@ export const VersionSelectField = ({
   } = useFormState();
   const [isOpen, setIsOpen] = useState(false);
   const [versions, setVersions] = useState<Version[]>([]);
-  const [statusData] = useOCPLifeCycleStatusData();
-  const statusVersions = statusData?.[0]?.versions;
+  const [statusVersions] = useOCPLifeCycleStatusData();
   const supportVersionMap = statusVersions?.reduce((acc: Record<string, string>, version) => {
     acc[version.name] = version.type;
     return acc;
