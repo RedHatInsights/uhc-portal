@@ -64,6 +64,9 @@ objects:
                 - segmentRef:
                     segmentId: cost-management
                     frontendName: cost-management
+            - segmentRef:
+                segmentId: openshift-migration-advisor
+                frontendName: migration-advisor
             - id: cloud-console-settings
               title: Cloud console settings
               expandable: true
