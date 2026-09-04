@@ -123,7 +123,6 @@ describe('CreateROSAWizardInternal contract-confirmation flow', () => {
     installToVPCSelected: false,
     configureProxySelected: false,
     resetResponse: jest.fn(),
-    closeDrawer: jest.fn(),
     isErrorModalOpen: false,
     openModal: jest.fn(),
     selectedAWSAccountID: '',

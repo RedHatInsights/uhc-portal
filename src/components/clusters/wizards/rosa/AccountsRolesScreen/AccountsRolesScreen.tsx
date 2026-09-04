@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Field } from 'formik';
 import get from 'lodash/get';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,7 +23,7 @@ import { isRestrictedEnv } from '~/restrictedEnv';
 import { FieldId } from '../constants';
 
 import AccountRolesARNsSection from './AccountRolesARNsSection/AccountRolesARNsSection';
-import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/AssociateAWSAccountDrawer';
+import { OpenAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
 import AWSBillingAccount from './AWSBillingAccount/AWSBillingAccount';
 import AWSAccountSelection from './AWSAccountSelection';
 import { AwsRoleErrorAlert } from './AwsRoleErrorAlert';
@@ -46,6 +46,7 @@ export interface AccountsRolesScreenProps {
   organizationID: string;
   isHypershiftEnabled: boolean;
   isHypershiftSelected: boolean;
+  openDrawer: OpenAssociateAWSAccountDrawer;
   onContractCheckChange?: (hasWarning: boolean) => void;
   isContractDialogOpen?: boolean;
   onContractDialogContinue?: () => void;
@@ -64,6 +65,7 @@ function AccountsRolesScreen({
   clearGetUserRoleResponse,
   isHypershiftEnabled,
   isHypershiftSelected,
+  openDrawer,
   onContractCheckChange,
   isContractDialogOpen,
   onContractDialogContinue,
@@ -93,10 +95,8 @@ function AccountsRolesScreen({
   const showBillingAccount =
     isHypershiftSelected && (!isRestrictedEnv() || hasBillingInBoundaryFlag);
 
-  const openDrawerButtonRef = useRef(null);
   const hasAWSAccounts = AWSAccountIDs.length > 0;
   const track = useAnalytics();
-  const { openDrawer } = useAssociateAWSAccountDrawer(isHypershiftSelected);
 
   const machineTypesByRegion = useSelector((state: GlobalState) => state.machineTypesByRegion);
   const dispatch = useDispatch();
@@ -174,8 +174,14 @@ function AccountsRolesScreen({
   }, [getUserRoleResponse?.error, noUserForSelectedAWSAcct]);
 
   const onClick = useCallback(
-    (event: any) => {
-      openDrawer({ focusOnClose: event.target, onClose: clearGetAWSAccountIDsResponse });
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      const focusTarget = event.currentTarget;
+      openDrawer({
+        onClose: () => {
+          clearGetAWSAccountIDsResponse();
+          focusTarget.focus();
+        },
+      });
     },
     [clearGetAWSAccountIDsResponse, openDrawer],
   );
@@ -239,12 +245,12 @@ function AccountsRolesScreen({
             isLoading={refreshButtonClicked && isAWSDataPending}
             isDisabled={isAWSDataPending}
             clearGetAWSAccountIDsResponse={clearGetAWSAccountIDsResponse}
+            openDrawer={openDrawer}
           />
           <Button
             variant="secondary"
             className="pf-v6-u-mt-md"
             data-testid="launch-associate-account-btn"
-            ref={openDrawerButtonRef}
             onClick={onClick}
           >
             How to associate a new AWS account
@@ -255,6 +261,7 @@ function AccountsRolesScreen({
           <AWSBillingAccount
             selectedAWSBillingAccountID={selectedAWSBillingAccountID || ''}
             selectedAWSAccountID={selectedAWSAccountID || ''}
+            openDrawer={openDrawer}
             onContractCheckChange={onContractCheckChange}
             isContractDialogOpen={isContractDialogOpen}
             onContractDialogContinue={onContractDialogContinue}
@@ -270,6 +277,7 @@ function AccountsRolesScreen({
             getAWSAccountRolesARNsResponse={getAWSAccountRolesARNsResponse}
             clearGetAWSAccountRolesARNsResponse={clearGetAWSAccountRolesARNsResponse}
             isHypershiftSelected={isHypershiftSelected}
+            openDrawer={openDrawer}
             onAccountChanged={resetUserRoleFields}
             onOCMRoleRefresh={resetAWSAccountFields}
           />
@@ -277,7 +285,11 @@ function AccountsRolesScreen({
 
         {(getUserRoleResponse?.error || noUserForSelectedAWSAcct) && (
           <GridItem span={8} className="pf-v6-u-mt-sm">
-            <AwsRoleErrorAlert title="A user-role could not be detected" targetRole="user" />
+            <AwsRoleErrorAlert
+              openDrawer={openDrawer}
+              title="A user-role could not be detected"
+              targetRole="user"
+            />
           </GridItem>
         )}
       </Grid>
