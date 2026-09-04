@@ -110,6 +110,10 @@ test.describe.serial(
       await createRosaWizardPage
         .rootDiskSizeInput()
         .fill(clusterProperties.MachinePools[0].RootDiskSize);
+      await createRosaWizardPage.expandSpotInterruptionHandling();
+      await expect(createRosaWizardPage.simpleSpotInstancesRadio()).toBeChecked();
+      await expect(createRosaWizardPage.enhancedSpotInstancesRadio()).not.toBeChecked();
+      await expect(createRosaWizardPage.sqsQueueUrlInput()).toBeHidden();
       await createRosaWizardPage.rosaNextButton().click();
     });
 
@@ -246,6 +250,10 @@ test.describe.serial(
       await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Instance Metadata Service (IMDS)',
         clusterProperties.InstanceMetadataService,
+      );
+      await createRosaWizardPage.isClusterPropertyMatchesValue(
+        'Spot interruption handling',
+        clusterProperties.SpotInterruptionHandling,
       );
     });
 

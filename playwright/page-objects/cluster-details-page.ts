@@ -830,6 +830,116 @@ export class ClusterDetailsPage extends BasePage {
     await expect(historyPanel).toContainText(text, { timeout: 30000 });
   }
 
+  // ── Day 2 Spot interruption handling (Overview) ────────────────────────────
+
+  spotInterruptionHandlingTerm(): Locator {
+    return this.page.getByRole('term').filter({ hasText: 'Spot interruption handling' });
+  }
+
+  spotInterruptionHandlingGroup(): Locator {
+    return this.spotInterruptionHandlingTerm().locator('..');
+  }
+
+  overviewSpotInterruptionMode(): Locator {
+    return this.spotInterruptionHandlingGroup().getByTestId('spotInterruptionHandlingMode');
+  }
+
+  overviewSqsQueueUrl(): Locator {
+    return this.spotInterruptionHandlingGroup().getByText(/SQS queue URL:/);
+  }
+
+  async overviewSqsQueueUrlValue(): Promise<string> {
+    const sqsLocator = this.overviewSqsQueueUrl();
+    if (!(await sqsLocator.isVisible())) {
+      return '';
+    }
+    return (await sqsLocator.innerText()).replace(/^SQS queue URL:\s*/i, '').trim();
+  }
+
+  editSpotInterruptionHandlingButton(): Locator {
+    return this.page.getByRole('button', { name: 'Edit spot interruption handling settings' });
+  }
+
+  editSpotInterruptionHandlingModal(): Locator {
+    return this.page.getByRole('dialog', { name: 'Spot interruption handling settings' });
+  }
+
+  simpleSpotInstancesRadio(): Locator {
+    return this.editSpotInterruptionHandlingModal().getByRole('radio', {
+      name: /Simple Spot instances/i,
+    });
+  }
+
+  enhancedSpotInstancesRadio(): Locator {
+    return this.editSpotInterruptionHandlingModal().getByRole('radio', {
+      name: /Enhanced Spot instances/i,
+    });
+  }
+
+  sqsQueueUrlInput(): Locator {
+    return this.editSpotInterruptionHandlingModal().getByRole('textbox', { name: 'SQS queue URL' });
+  }
+
+  saveSpotInterruptionHandlingButton(): Locator {
+    return this.editSpotInterruptionHandlingModal().getByRole('button', { name: 'Save' });
+  }
+
+  cancelSpotInterruptionHandlingButton(): Locator {
+    return this.editSpotInterruptionHandlingModal().getByRole('button', { name: 'Cancel' });
+  }
+
+  async openEditSpotInterruptionHandlingModal(): Promise<void> {
+    await this.spotInterruptionHandlingTerm().scrollIntoViewIfNeeded();
+    const editButton = this.editSpotInterruptionHandlingButton();
+    await expect(editButton).toBeVisible();
+    await editButton.click();
+    await expect(this.editSpotInterruptionHandlingModal()).toBeVisible({ timeout: 30000 });
+  }
+
+  async fillSqsQueueUrl(queueUrl: string): Promise<void> {
+    await this.sqsQueueUrlInput().clear();
+    await this.sqsQueueUrlInput().fill(queueUrl);
+    await this.sqsQueueUrlInput().blur();
+  }
+
+  async saveSpotInterruptionHandling(): Promise<void> {
+    await expect(this.saveSpotInterruptionHandlingButton()).toBeEnabled();
+    await this.saveSpotInterruptionHandlingButton().click();
+    await expect(this.editSpotInterruptionHandlingModal()).toBeHidden({ timeout: 30000 });
+  }
+
+  async restoreSpotInterruptionHandling(
+    expectedModeLabel: string,
+    enhancedModeLabel: string,
+    queueUrl: string,
+  ): Promise<void> {
+    await this.navigateToOverviewTab();
+    await this.waitForClusterDetailsLoad();
+    await this.spotInterruptionHandlingTerm().scrollIntoViewIfNeeded();
+    await expect(this.overviewSpotInterruptionMode()).toBeVisible();
+    const currentMode = (await this.overviewSpotInterruptionMode().innerText()).trim();
+    const currentQueueUrl = await this.overviewSqsQueueUrlValue();
+    const expectedQueueUrl = expectedModeLabel === enhancedModeLabel ? queueUrl.trim() : '';
+    const needsQueueRestore =
+      expectedModeLabel === enhancedModeLabel && !currentQueueUrl.includes(expectedQueueUrl);
+    if (currentMode !== expectedModeLabel || needsQueueRestore) {
+      await this.openEditSpotInterruptionHandlingModal();
+      if (expectedModeLabel === enhancedModeLabel) {
+        await this.enhancedSpotInstancesRadio().check();
+        await this.fillSqsQueueUrl(queueUrl);
+      } else {
+        await this.simpleSpotInstancesRadio().check();
+      }
+      await this.saveSpotInterruptionHandling();
+    }
+    await expect(this.overviewSpotInterruptionMode()).toHaveText(expectedModeLabel);
+    if (expectedModeLabel === enhancedModeLabel) {
+      await expect(this.overviewSqsQueueUrl()).toContainText(queueUrl);
+    } else {
+      await expect(this.overviewSqsQueueUrl()).toBeHidden();
+    }
+  }
+
   // ── Day 2 Log Forwarding (Settings tab) ──────────────────────────────────
 
   logForwardingSectionHeading(): Locator {

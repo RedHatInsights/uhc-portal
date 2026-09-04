@@ -221,6 +221,22 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByRole('spinbutton', { name: 'Worker root disk size' });
   }
 
+  spotInterruptionHandlingToggle(): Locator {
+    return this.page.getByRole('button', { name: 'Spot interruption handling' });
+  }
+
+  simpleSpotInstancesRadio(): Locator {
+    return this.page.getByRole('radio', { name: /Simple Spot instances/i });
+  }
+
+  enhancedSpotInstancesRadio(): Locator {
+    return this.page.getByRole('radio', { name: /Enhanced Spot instances/i });
+  }
+
+  sqsQueueUrlInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'SQS queue URL' });
+  }
+
   // Networking selectors
   clusterPrivacyPublicRadio(): Locator {
     return this.page.getByTestId('cluster_privacy-external');
@@ -816,6 +832,28 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await this.computeNodeCountInput().clear();
     await this.computeNodeCountInput().fill(count);
     await this.computeNodeCountInput().blur();
+  }
+
+  async expandSpotInterruptionHandling(): Promise<void> {
+    const toggle = this.spotInterruptionHandlingToggle();
+    await expect(toggle).toBeVisible();
+    if (!(await this.simpleSpotInstancesRadio().isVisible())) {
+      await toggle.click();
+    }
+    await expect(this.simpleSpotInstancesRadio()).toBeVisible();
+  }
+
+  async configureEnhancedSpotInterruptionHandling(queueUrl: string): Promise<void> {
+    await this.expandSpotInterruptionHandling();
+    await expect(this.enhancedSpotInstancesRadio()).toBeEnabled();
+    await this.enhancedSpotInstancesRadio().check();
+    await this.fillSqsQueueUrl(queueUrl);
+  }
+
+  async fillSqsQueueUrl(queueUrl: string): Promise<void> {
+    await this.sqsQueueUrlInput().clear();
+    await this.sqsQueueUrlInput().fill(queueUrl);
+    await this.sqsQueueUrlInput().blur();
   }
 
   async selectClusterPrivacy(privacy: string): Promise<void> {
