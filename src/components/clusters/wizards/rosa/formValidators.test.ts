@@ -284,15 +284,19 @@ describe('rosaWizardFormValidator', () => {
 
   describe('spot interruption handling validation', () => {
     const machinePoolStep = stepId.CLUSTER_SETTINGS__MACHINE_POOL;
+    const spotInterruptionValues = {
+      [FieldId.ClusterAutoscaling]: null,
+      [FieldId.Hypershift]: 'true',
+      [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+      ...logForwardingOff,
+    };
 
     it('returns required error on the machine pool step when enhanced mode has no SQS URL', () => {
       const result = rosaWizardFormValidator(
         {
-          [FieldId.ClusterAutoscaling]: null,
-          [FieldId.Hypershift]: 'true',
+          ...spotInterruptionValues,
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
           [FieldId.SpotTerminationHandlerQueueUrl]: '',
-          ...logForwardingOff,
         },
         machinePoolStep,
       );
@@ -305,11 +309,9 @@ describe('rosaWizardFormValidator', () => {
     it('returns required error on the review step when enhanced mode has no SQS URL', () => {
       const result = rosaWizardFormValidator(
         {
-          [FieldId.ClusterAutoscaling]: null,
-          [FieldId.Hypershift]: 'true',
+          ...spotInterruptionValues,
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
           [FieldId.SpotTerminationHandlerQueueUrl]: '',
-          ...logForwardingOff,
         },
         stepId.REVIEW_AND_CREATE,
       );
@@ -319,16 +321,28 @@ describe('rosaWizardFormValidator', () => {
       });
     });
 
+    it('skips spot interruption validation when the cluster version is below 4.22', () => {
+      const result = rosaWizardFormValidator(
+        {
+          ...spotInterruptionValues,
+          [FieldId.ClusterVersion]: { raw_id: '4.21.9' },
+          [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+          [FieldId.SpotTerminationHandlerQueueUrl]: '',
+        },
+        machinePoolStep,
+      );
+
+      expect(result).toEqual({});
+    });
+
     it('skips spot interruption validation on other steps', () => {
       const result = rosaWizardFormValidator(
         {
-          [FieldId.ClusterAutoscaling]: null,
-          [FieldId.Hypershift]: 'true',
+          ...spotInterruptionValues,
           [FieldId.Region]: 'us-west-2',
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
           [FieldId.SpotTerminationHandlerQueueUrl]:
             'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
-          ...logForwardingOff,
         },
         stepId.CLUSTER_SETTINGS__DETAILS,
       );
@@ -339,11 +353,9 @@ describe('rosaWizardFormValidator', () => {
     it('skips spot interruption validation in simple mode', () => {
       const result = rosaWizardFormValidator(
         {
-          [FieldId.ClusterAutoscaling]: null,
-          [FieldId.Hypershift]: 'true',
+          ...spotInterruptionValues,
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Simple,
           [FieldId.SpotTerminationHandlerQueueUrl]: '',
-          ...logForwardingOff,
         },
         machinePoolStep,
       );

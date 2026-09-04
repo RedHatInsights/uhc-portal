@@ -15,7 +15,6 @@ import {
 } from '@patternfly/react-core';
 
 import PopoverHint from '~/components/common/PopoverHint';
-import WithTooltip from '~/components/common/WithTooltip';
 
 import {
   DEFAULT_SPOT_INTERRUPTION_PREREQ_ALERT,
@@ -33,8 +32,6 @@ export type SpotInterruptionHandlingFieldsProps = {
   sqsQueueUrl: string;
   onSqsQueueUrlChange: (url: string) => void;
   onSqsQueueUrlBlur?: () => void;
-  isEnhancedDisabled?: boolean;
-  enhancedDisabledReason?: React.ReactNode;
   sqsQueueUrlValidated?: TextInputProps['validated'];
   sqsQueueUrlHelperText?: React.ReactNode;
   showPrereqAlert?: boolean;
@@ -47,8 +44,6 @@ export const SpotInterruptionHandlingFields = ({
   sqsQueueUrl,
   onSqsQueueUrlChange,
   onSqsQueueUrlBlur,
-  isEnhancedDisabled = false,
-  enhancedDisabledReason,
   sqsQueueUrlValidated = 'default',
   sqsQueueUrlHelperText,
   showPrereqAlert = true,
@@ -80,74 +75,65 @@ export const SpotInterruptionHandlingFields = ({
       </StackItem>
 
       <StackItem>
-        <WithTooltip
-          showTooltip={isEnhancedDisabled && !!enhancedDisabledReason}
-          content={enhancedDisabledReason}
-        >
-          <div>
-            <Radio
-              id="spot-interruption-enhanced"
-              name="spot-interruption-mode"
-              label="Enhanced Spot instances"
-              description={ENHANCED_SPOT_DESCRIPTION}
-              isChecked={isEnhanced}
-              isDisabled={isEnhancedDisabled}
-              onChange={() => onModeChange(SpotInterruptionMode.Enhanced)}
-              body={
-                isEnhanced ? (
-                  <Stack hasGutter>
-                    <StackItem>
-                      <FormGroup
-                        label="SQS queue URL"
-                        isRequired
-                        fieldId="spot-interruption-sqs-queue-url"
-                        labelHelp={
-                          <PopoverHint
-                            buttonAriaLabel="SQS queue URL information"
-                            hint="Amazon SQS queue that receives EC2 Spot Instance interruption notices from EventBridge."
-                          />
+        <Radio
+          id="spot-interruption-enhanced"
+          name="spot-interruption-mode"
+          label="Enhanced Spot instances"
+          description={ENHANCED_SPOT_DESCRIPTION}
+          isChecked={isEnhanced}
+          onChange={() => onModeChange(SpotInterruptionMode.Enhanced)}
+          body={
+            isEnhanced ? (
+              <Stack hasGutter>
+                <StackItem>
+                  <FormGroup
+                    label="SQS queue URL"
+                    isRequired
+                    fieldId="spot-interruption-sqs-queue-url"
+                    labelHelp={
+                      <PopoverHint
+                        buttonAriaLabel="SQS queue URL information"
+                        hint="Amazon SQS queue that receives EC2 Spot Instance interruption notices from EventBridge."
+                      />
+                    }
+                  >
+                    <TextInput
+                      id="spot-interruption-sqs-queue-url"
+                      value={sqsQueueUrl}
+                      onChange={(_event, value) => onSqsQueueUrlChange(value)}
+                      onBlur={() => {
+                        const trimmedValue = sqsQueueUrl.trim();
+                        if (trimmedValue !== sqsQueueUrl) {
+                          onSqsQueueUrlChange(trimmedValue);
                         }
+                        onSqsQueueUrlBlur?.();
+                      }}
+                      placeholder={SQS_QUEUE_URL_PLACEHOLDER}
+                      validated={sqsQueueUrlValidated}
+                      isRequired
+                    />
+                    <HelperText>
+                      <HelperTextItem
+                        variant={sqsQueueUrlValidated === 'error' ? 'error' : 'default'}
                       >
-                        <TextInput
-                          id="spot-interruption-sqs-queue-url"
-                          value={sqsQueueUrl}
-                          onChange={(_event, value) => onSqsQueueUrlChange(value)}
-                          onBlur={() => {
-                            const trimmedValue = sqsQueueUrl.trim();
-                            if (trimmedValue !== sqsQueueUrl) {
-                              onSqsQueueUrlChange(trimmedValue);
-                            }
-                            onSqsQueueUrlBlur?.();
-                          }}
-                          placeholder={SQS_QUEUE_URL_PLACEHOLDER}
-                          validated={sqsQueueUrlValidated}
-                          isDisabled={isEnhancedDisabled}
-                          isRequired
-                        />
-                        <HelperText>
-                          <HelperTextItem
-                            variant={sqsQueueUrlValidated === 'error' ? 'error' : 'default'}
-                          >
-                            {sqsQueueUrlHelperText ?? SQS_QUEUE_URL_HELPER_TEXT}
-                          </HelperTextItem>
-                        </HelperText>
-                      </FormGroup>
-                    </StackItem>
+                        {sqsQueueUrlHelperText ?? SQS_QUEUE_URL_HELPER_TEXT}
+                      </HelperTextItem>
+                    </HelperText>
+                  </FormGroup>
+                </StackItem>
 
-                    {showPrereqAlert ? (
-                      <StackItem>
-                        <Alert variant="info" isInline title={prereqAlertMessage}>
-                          {/* TODO https://redhat.atlassian.net/browse/OCMUI-5221 */}
-                          {/* <ExternalLink href={}>View setup documentation</ExternalLink> */}
-                        </Alert>
-                      </StackItem>
-                    ) : null}
-                  </Stack>
-                ) : undefined
-              }
-            />
-          </div>
-        </WithTooltip>
+                {showPrereqAlert ? (
+                  <StackItem>
+                    <Alert variant="info" isInline title={prereqAlertMessage}>
+                      {/* TODO https://redhat.atlassian.net/browse/OCMUI-5221 */}
+                      {/* <ExternalLink href={}>View setup documentation</ExternalLink> */}
+                    </Alert>
+                  </StackItem>
+                ) : null}
+              </Stack>
+            ) : undefined
+          }
+        />
       </StackItem>
     </Stack>
   );

@@ -2,7 +2,6 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import {
-  ENHANCED_SPOT_VERSION_DISABLED_REASON,
   SPOT_INTERRUPTION_INTRO,
   SpotInterruptionMode,
   SQS_QUEUE_URL_PLACEHOLDER,
@@ -485,6 +484,11 @@ describe('<ScaleSection />', () => {
   });
 
   describe('"spot interruption handling" section', () => {
+    const spotInterruptionHypershiftValues = {
+      [FieldId.Hypershift]: 'true',
+      [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+    };
+
     const expandSpotInterruptionSection = async () => {
       await userEvent.click(screen.getByRole('button', { name: 'Spot interruption handling' }));
     };
@@ -495,7 +499,7 @@ describe('<ScaleSection />', () => {
         ...formStateBaseMock,
         values: {
           ...formStateBaseMock.values,
-          [FieldId.Hypershift]: 'true',
+          ...spotInterruptionHypershiftValues,
         },
       });
 
@@ -533,8 +537,7 @@ describe('<ScaleSection />', () => {
         ...formStateBaseMock,
         values: {
           ...formStateBaseMock.values,
-          [FieldId.Hypershift]: 'true',
-          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+          ...spotInterruptionHypershiftValues,
         },
       };
       useFormStateMock.mockReturnValue(formStateMock);
@@ -560,8 +563,7 @@ describe('<ScaleSection />', () => {
         ...formStateBaseMock,
         values: {
           ...formStateBaseMock.values,
-          [FieldId.Hypershift]: 'true',
-          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+          ...spotInterruptionHypershiftValues,
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
           [FieldId.SpotTerminationHandlerQueueUrl]: '',
         },
@@ -605,8 +607,7 @@ describe('<ScaleSection />', () => {
         ...formStateBaseMock,
         values: {
           ...formStateBaseMock.values,
-          [FieldId.Hypershift]: 'true',
-          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+          ...spotInterruptionHypershiftValues,
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
       });
@@ -656,8 +657,7 @@ describe('<ScaleSection />', () => {
         ...formStateBaseMock,
         values: {
           ...formStateBaseMock.values,
-          [FieldId.Hypershift]: 'true',
-          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+          ...spotInterruptionHypershiftValues,
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
         getFieldMeta: jest.fn((fieldName) =>
@@ -685,8 +685,7 @@ describe('<ScaleSection />', () => {
         ...formStateBaseMock,
         values: {
           ...formStateBaseMock.values,
-          [FieldId.Hypershift]: 'true',
-          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+          ...spotInterruptionHypershiftValues,
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
         errors: {},
@@ -745,8 +744,7 @@ describe('<ScaleSection />', () => {
         ...formStateBaseMock,
         values: {
           ...formStateBaseMock.values,
-          [FieldId.Hypershift]: 'true',
-          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+          ...spotInterruptionHypershiftValues,
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
         errors: {
@@ -782,8 +780,7 @@ describe('<ScaleSection />', () => {
         ...formStateBaseMock,
         values: {
           ...formStateBaseMock.values,
-          [FieldId.Hypershift]: 'true',
-          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+          ...spotInterruptionHypershiftValues,
           [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
         },
       };
@@ -808,7 +805,7 @@ describe('<ScaleSection />', () => {
       );
     });
 
-    it('disables Enhanced Spot instances when the cluster version is below 4.22', async () => {
+    it('is not rendered when the cluster version is below 4.22', async () => {
       mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
       useFormStateMock.mockReturnValue({
         ...formStateBaseMock,
@@ -819,20 +816,15 @@ describe('<ScaleSection />', () => {
         },
       });
 
-      const { user } = render(
+      render(
         <Formik initialValues={{}} onSubmit={() => {}}>
           <ScaleSection />
         </Formik>,
       );
 
-      await expandSpotInterruptionSection();
-
-      expect(screen.getByRole('radio', { name: /Simple Spot instances/i })).toBeEnabled();
-      expect(screen.getByRole('radio', { name: /Enhanced Spot instances/i })).toBeDisabled();
-
-      await user.hover(screen.getByRole('radio', { name: /Enhanced Spot instances/i }));
-
-      expect(await screen.findByText(ENHANCED_SPOT_VERSION_DISABLED_REASON)).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Spot interruption handling' }),
+      ).not.toBeInTheDocument();
     });
 
     it('enables Enhanced Spot instances when the cluster version is 4.22 or higher', async () => {
@@ -841,8 +833,7 @@ describe('<ScaleSection />', () => {
         ...formStateBaseMock,
         values: {
           ...formStateBaseMock.values,
-          [FieldId.Hypershift]: 'true',
-          [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+          ...spotInterruptionHypershiftValues,
         },
       });
 

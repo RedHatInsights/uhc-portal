@@ -1,6 +1,7 @@
 import type { FormikValues } from 'formik';
 
 import { validateSpotInterruptionFields } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingValidation';
+import { isEnhancedSpotVersionSupported } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { isRosaHcpLogForwardingSubmitContext } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingTreeFromQueryClient';
 import { validateLogForwardingFields } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation';
@@ -35,6 +36,7 @@ const rosaWizardFormValidator = (values: FormikValues, activeStepId?: string | n
   const logForwardingErrors = validateLogForwarding ? validateLogForwardingFields(values) : {};
   const validateSpotInterruption =
     values[FieldId.Hypershift] === 'true' &&
+    isEnhancedSpotVersionSupported(values[FieldId.ClusterVersion]?.raw_id) &&
     (activeStepId === stepId.CLUSTER_SETTINGS__MACHINE_POOL ||
       activeStepId === stepId.REVIEW_AND_CREATE);
   const spotInterruptionErrors = validateSpotInterruption

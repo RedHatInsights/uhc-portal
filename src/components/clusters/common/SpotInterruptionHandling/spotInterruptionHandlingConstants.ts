@@ -7,9 +7,6 @@ export enum SpotInterruptionMode {
 
 export const ENHANCED_SPOT_MIN_VERSION = '4.22.0';
 
-export const ENHANCED_SPOT_VERSION_DISABLED_REASON =
-  'Enhanced Spot instances require OpenShift version 4.22 or above';
-
 export const isEnhancedSpotVersionSupported = (clusterVersion?: string): boolean => {
   const coercedVersion = semver.coerce(clusterVersion);
   return coercedVersion ? semver.gte(coercedVersion, ENHANCED_SPOT_MIN_VERSION) : false;

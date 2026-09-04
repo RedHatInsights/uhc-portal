@@ -419,6 +419,9 @@ describe('<ReviewClusterScreen />', () => {
   describe('Spot interruption handling', () => {
     const enhancedSpotValues = {
       hypershift: 'true',
+      cluster_version: {
+        raw_id: '4.22.0',
+      },
       spot_interruption_handling: 'enhanced',
       termination_handler_queue_url:
         'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
@@ -441,6 +444,24 @@ describe('<ReviewClusterScreen />', () => {
       mockUseFeatureGate([[HCP_SPOT_INSTANCES, false]]);
 
       render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />, enhancedSpotValues));
+
+      await waitFor(() => {
+        expect(screen.queryByText('Spot interruption handling')).not.toBeInTheDocument();
+      });
+      expect(screen.queryByText('SQS queue URL')).not.toBeInTheDocument();
+    });
+
+    it('is hidden on review when the cluster version is below 4.22', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+
+      render(
+        buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
+          ...enhancedSpotValues,
+          cluster_version: {
+            raw_id: '4.21.9',
+          },
+        }),
+      );
 
       await waitFor(() => {
         expect(screen.queryByText('Spot interruption handling')).not.toBeInTheDocument();
