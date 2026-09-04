@@ -21,8 +21,8 @@ import { hasExternalAuthenticationCapability } from '~/common/externalAuthHelper
 import { hasSelectedSecurityGroups } from '~/common/securityGroupsHelpers';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
 import {
-  SpotInterruptionMode,
   isEnhancedSpotVersionSupported,
+  SpotInterruptionMode,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { canSelectImds } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
