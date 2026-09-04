@@ -30,7 +30,7 @@ test.describe.serial(
       await navigateTo(CREATE_CLUSTER_ROUTE);
     });
 
-    test(`Open Rosa wizard for private advanced cluster : ${clusterName}`, async ({
+    test(`Open Rosa wizard for private advanced cluster : ${clusterNamePrefix}`, async ({
       page,
       createRosaWizardPage,
     }) => {
@@ -40,14 +40,14 @@ test.describe.serial(
       await expect(page.locator('.spinner-loading-text')).not.toBeVisible();
     });
 
-    test(`Step - Control plane - Select control plane type ${clusterName}`, async ({
+    test(`Step - Control plane - Select control plane type ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await createRosaWizardPage.selectHostedControlPlaneType();
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Accounts and roles - Select Accounts and roles for ${clusterName}`, async ({
+    test(`Step - Accounts and roles - Select Accounts and roles for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await createRosaWizardPage.isAccountsAndRolesScreen();
@@ -60,7 +60,7 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Cluster Settings - Set cluster details for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - Set cluster details for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
       page,
     }) => {
@@ -75,7 +75,7 @@ test.describe.serial(
       await createRosaWizardPage.closePopoverAndNavigateNext();
     });
 
-    test(`Step - Cluster Settings - Set machine pools for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - Set machine pools for ${clusterNamePrefix}`, async ({
       page,
       createRosaWizardPage,
     }) => {
@@ -113,14 +113,14 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Cluster Settings - configuration - cluster privacy for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - configuration - cluster privacy for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await createRosaWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test(`Step - Cluster Settings - CIDR Ranges - CIDR default values for ${clusterName}`, async ({
+    test(`Step - Cluster Settings - CIDR Ranges - CIDR default values for ${clusterNamePrefix}`, async ({
       createRosaWizardPage,
     }) => {
       await expect(createRosaWizardPage.cidrDefaultValuesCheckBox()).toBeChecked();

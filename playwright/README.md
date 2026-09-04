@@ -329,7 +329,6 @@ test.describe.serial('Register cluster flow', () => {
 - `ocmRolesAndAccessPage` - OCM roles management
 - `tokensPage` - Token management
 - `downloadsPage` - Downloads and CLI tools
-- `globalNavPage` - Global navigation menu
 
 ### Configuration Files
 

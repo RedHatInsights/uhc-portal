@@ -176,41 +176,14 @@ export class CreateRosaWizardPage extends BaseWizardPage {
   }
 
   // Input fields
+  /** Locator API for ROSA specs; delegates to shared clusterNameField(). */
   clusterNameInput(): Locator {
-    return this.page.locator('input[name="name"]');
-  }
-
-  createCustomDomainPrefixCheckbox(): Locator {
-    return this.page.locator('input[id="has_domain_prefix"]');
-  }
-
-  domainPrefixInput(): Locator {
-    return this.page.locator('input[name="domain_prefix"]');
-  }
-
-  regionSelect(): Locator {
-    return this.page.locator('select[name="region"]');
+    return this.clusterNameField();
   }
 
   // Machine pool selectors
-  computeNodeTypeButton(): Locator {
-    return this.page.locator('button[aria-label="Machine type select toggle"]');
-  }
-
-  computeNodeTypeSearchInput(): Locator {
-    return this.page.locator('input[aria-label="Machine type select search field"]');
-  }
-
   computeNodeCountSelect(): Locator {
     return this.page.locator('select[name="nodes_compute"]');
-  }
-
-  enableAutoScalingCheckbox(): Locator {
-    return this.page.locator('input[id="autoscalingEnabled"]');
-  }
-
-  useBothIMDSv1AndIMDSv2Radio(): Locator {
-    return this.page.getByTestId('imds-optional');
   }
 
   useIMDSv2Radio(): Locator {
@@ -219,66 +192,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   rootDiskSizeInput(): Locator {
     return this.page.getByRole('spinbutton', { name: 'Worker root disk size' });
-  }
-
-  // Networking selectors
-  clusterPrivacyPublicRadio(): Locator {
-    return this.page.getByTestId('cluster_privacy-external');
-  }
-
-  clusterPrivacyPrivateRadio(): Locator {
-    return this.page.getByTestId('cluster_privacy-internal');
-  }
-
-  // CIDR selectors
-  cidrDefaultValuesCheckBox(): Locator {
-    return this.page.getByRole('checkbox', { name: 'Use default values' });
-  }
-
-  machineCIDRInput(): Locator {
-    return this.page.getByRole('textbox', { name: 'Machine CIDR' });
-  }
-
-  serviceCIDRInput(): Locator {
-    return this.page.getByRole('textbox', { name: 'Service CIDR' });
-  }
-
-  podCIDRInput(): Locator {
-    return this.page.getByRole('textbox', { name: 'Pod CIDR' });
-  }
-
-  hostPrefixInput(): Locator {
-    return this.page.getByRole('textbox', { name: 'Host prefix' });
-  }
-
-  // Update strategy selectors
-  individualUpdateRadio(): Locator {
-    return this.page.getByTestId('upgrade_policy-manual');
-  }
-
-  recurringUpdateRadio(): Locator {
-    return this.page.getByTestId('upgrade_policy-automatic');
-  }
-
-  // Availability zone selectors
-  multiZoneAvilabilityRadio(): Locator {
-    return this.page.getByRole('radio', { name: 'Multi-zone' });
-  }
-
-  singleZoneAvailabilityRadio(): Locator {
-    return this.page.getByRole('radio', { name: 'Single zone' });
-  }
-
-  computeNodeCountInput(): Locator {
-    return this.page.getByRole('spinbutton', { name: 'Compute nodes' });
-  }
-
-  computeNodeCountDecrementButton(): Locator {
-    return this.page.getByRole('button', { name: 'Decrement compute nodes' });
-  }
-
-  computeNodeCountIncrementButton(): Locator {
-    return this.page.getByRole('button', { name: 'Increment compute nodes' });
   }
 
   // Node label selectors
@@ -290,11 +203,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByRole('button', { name: 'Add additional label' });
   }
 
-  // FIPS encryption selectors
-  enableFIPSCryptographyCheckbox(): Locator {
-    return this.page.getByRole('checkbox', { name: 'Enable FIPS cryptography' });
-  }
-
   // VPC installation selector
   installIntoExistingVpcCheckbox(): Locator {
     return this.page.getByRole('checkbox', { name: 'Install into an existing VPC' });
@@ -304,13 +212,7 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByRole('checkbox', { name: 'Use a PrivateLink' });
   }
 
-  // Grace period selector
-  gracePeriodSelect(): Locator {
-    return this.page.getByTestId('grace-period-select');
-  }
-
-  // Additional security groups (shared additionalSecurityGroupsLink /
-  // applySameSecurityGroupsToAllNodeTypes / securityGroupsButton on BaseWizardPage)
+  // ROSA-specific; shared security group locators live on BaseWizardPage.
   securityGroupsFilterInput(): Locator {
     return this.page.locator('input[placeholder="Filter by security group ID / name"]');
   }
@@ -340,14 +242,12 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   async isControlPlaneTypeScreen(): Promise<void> {
     // Wait for h2 with specific text to load and be visible
-    await this.page
-      .locator('h2', { hasText: 'Welcome to Red Hat OpenShift Service on AWS (ROSA)' })
+    await this.page.getByRole('heading', { name: 'Welcome to Red Hat OpenShift Service on AWS (ROSA)' })
       .waitFor({ timeout: 90000, state: 'visible' });
 
     // Wait for h3 with specific text to load and be visible
-    await this.page
-      .locator('h3', {
-        hasText: 'Select the ROSA architecture based on your control plane requirements',
+    await this.page.getByRole('heading', {
+      name: 'Select the ROSA architecture based on your control plane requirements',
       })
       .waitFor({ timeout: 90000, state: 'visible' });
   }
@@ -358,21 +258,10 @@ export class CreateRosaWizardPage extends BaseWizardPage {
       .waitFor({ timeout: 90000, state: 'visible' });
   }
 
-  async isClusterDetailsScreen(): Promise<void> {
-    await expect(this.page.locator('h3:has-text("Cluster details")')).toBeVisible({
-      timeout: 30000,
-    });
-
-    // Wait for cluster version dropdown to be visible to avoid flaky behavior
-    await this.page
-      .locator('button[id="version-selector"]')
-      .waitFor({ state: 'visible', timeout: 80000 });
-  }
-
   async isClusterMachinepoolsScreen(hosted: boolean = false): Promise<void> {
     const machinePoolHeaderText = hosted ? 'Machine pools' : 'Default machine pool';
     await expect(
-      this.page.locator('h3').filter({ hasText: new RegExp(`^${machinePoolHeaderText}$`) }),
+      this.page.getByRole('heading', { name: new RegExp(`^${machinePoolHeaderText}$`) }),
     ).toBeVisible({ timeout: 30000 });
   }
 
@@ -566,40 +455,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     }
   }
 
-  async selectRegion(region: string): Promise<void> {
-    await this.regionSelect().selectOption(region);
-  }
-
-  async setClusterName(clusterName: string): Promise<void> {
-    await this.clusterNameInput().scrollIntoViewIfNeeded();
-    await this.clusterNameInput().selectText();
-    await this.clusterNameInput().fill(clusterName);
-    await this.clusterNameInput().blur();
-  }
-
-  async setDomainPrefix(domainPrefix: string): Promise<void> {
-    await this.domainPrefixInput().scrollIntoViewIfNeeded();
-    await this.domainPrefixInput().selectText();
-    await this.domainPrefixInput().fill(domainPrefix);
-    await this.domainPrefixInput().blur();
-  }
-
-  async closePopoverAndNavigateNext(): Promise<void> {
-    // Popover dialogs keep showing multiple times during next button click
-    // We need to close them all until none are found
-    const maxAttempts = 10;
-    await this.rosaNextButton().click();
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const closeButtons = this.page.locator('button[aria-label="Close"]');
-      const count = await closeButtons.count();
-      if (count === 0) {
-        return;
-      }
-      await this.closePopoverDialogs();
-      await this.rosaNextButton().click();
-    }
-  }
-
   async waitForVPCList(): Promise<void> {
     await this.page.getByRole('progressbar', { name: 'Loading...' }).waitFor({
       state: 'detached',
@@ -690,14 +545,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await this.waitForReviewScreenReady();
   }
 
-  async waitForClusterCreationAndOverview(): Promise<void> {
-    await expect(this.page.locator('h2, h3').filter({ hasText: 'Installing cluster' })).toBeVisible(
-      {
-        timeout: 120000,
-      },
-    );
-  }
-
   async selectMachinePoolPrivateSubnet(
     privateSubnetNameOrId: string,
     machinePoolIndex: number = 1,
@@ -723,9 +570,7 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     machinePoolIndex: number = 1,
   ): Promise<void> {
     const mpIndex = machinePoolIndex - 1;
-    const subnetButton = this.page.locator(
-      `button[id="machinePoolsSubnets[${mpIndex}].privateSubnetId"]`,
-    );
+    const subnetButton = this.page.locator(`button[id="machinePoolsSubnets[${mpIndex}].privateSubnetId"]`);
     await subnetButton.click();
     const viewUsedSubnetsButton = this.page.getByRole('option', { name: 'View Used Subnets' });
     await viewUsedSubnetsButton.scrollIntoViewIfNeeded();
@@ -759,9 +604,7 @@ export class CreateRosaWizardPage extends BaseWizardPage {
       return;
     }
 
-    const machinePoolPublicSubnet = this.page.locator(
-      'button[id="machinePoolsSubnets[0].publicSubnetId"]',
-    );
+    const machinePoolPublicSubnet = this.page.locator('button[id="machinePoolsSubnets[0].publicSubnetId"]');
     if (await machinePoolPublicSubnet.isVisible().catch(() => false)) {
       await machinePoolPublicSubnet.click();
     } else {
@@ -795,43 +638,8 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await this.page.locator('li').filter({ hasText: publicSubnetNameOrId }).click();
   }
 
-  async selectComputeNodeType(computeNodeType: string): Promise<void> {
-    await this.computeNodeTypeButton().click();
-    await this.computeNodeTypeSearchInput().waitFor({ state: 'visible', timeout: 30000 });
-    await this.computeNodeTypeSearchInput().clear();
-    await this.computeNodeTypeSearchInput().fill(computeNodeType);
-    await this.page.getByRole('button', { name: computeNodeType }).click();
-    await expect(this.computeNodeTypeButton()).toContainText(computeNodeType, { timeout: 30000 });
-  }
-
-  async enableAutoScaling(): Promise<void> {
-    await this.enableAutoScalingCheckbox().check();
-  }
-
   async disabledAutoScaling(): Promise<void> {
     await this.enableAutoScalingCheckbox().uncheck();
-  }
-
-  async selectComputeNodeCount(count: string): Promise<void> {
-    await this.computeNodeCountInput().clear();
-    await this.computeNodeCountInput().fill(count);
-    await this.computeNodeCountInput().blur();
-  }
-
-  async selectClusterPrivacy(privacy: string): Promise<void> {
-    if (privacy.toLowerCase() === 'private') {
-      await this.clusterPrivacyPrivateRadio().check();
-    } else {
-      await this.clusterPrivacyPublicRadio().check();
-    }
-  }
-
-  async useCIDRDefaultValues(value: boolean = true): Promise<void> {
-    if (value) {
-      await this.cidrDefaultValuesCheckBox().check();
-    } else {
-      await this.cidrDefaultValuesCheckBox().uncheck();
-    }
   }
 
   async selectOidcConfigId(configID: string): Promise<void> {
@@ -848,24 +656,8 @@ export class CreateRosaWizardPage extends BaseWizardPage {
   }
 
   // Additional selectors for validation tests
-  advancedEncryptionLink(): Locator {
-    return this.page.getByRole('button', { name: 'Advanced Encryption' });
-  }
-
-  useCustomKMSKeyRadio(): Locator {
-    return this.page.getByRole('radio', { name: 'Use custom KMS keys' });
-  }
-
-  useDefaultKMSKeyRadio(): Locator {
-    return this.page.getByRole('radio', { name: 'Use default KMS Keys' });
-  }
-
   customerManageKeyARNInput(): Locator {
     return this.page.getByRole('textbox', { name: 'Key ARN' });
-  }
-
-  enableAdditionalEtcdEncryptionCheckbox(): Locator {
-    return this.page.getByRole('checkbox', { name: 'Enable additional etcd' });
   }
 
   enableEncyptEtcdWithCustomKMSKeyCheckbox(): Locator {
@@ -882,38 +674,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   addMachinePoolLink(): Locator {
     return this.page.getByRole('button', { name: 'Add machine pool' });
-  }
-
-  minimumNodeCountInput(): Locator {
-    return this.page.getByRole('spinbutton', { name: 'Minimum nodes' });
-  }
-
-  maximumNodeCountInput(): Locator {
-    return this.page.getByRole('spinbutton', { name: 'Maximum nodes' });
-  }
-
-  minimumNodeInput(): Locator {
-    return this.page.getByRole('spinbutton', { name: 'Minimum nodes' });
-  }
-
-  maximumNodeInput(): Locator {
-    return this.page.getByRole('spinbutton', { name: 'Maximum nodes' });
-  }
-
-  minimumNodeCountPlusButton(): Locator {
-    return this.page.getByRole('button', { name: 'Minimum nodes plus' });
-  }
-
-  minimumNodeCountMinusButton(): Locator {
-    return this.page.getByRole('button', { name: 'Minimum nodes minus' });
-  }
-
-  maximumNodeCountPlusButton(): Locator {
-    return this.page.getByRole('button', { name: 'Maximum nodes plus' });
-  }
-
-  maximumNodeCountMinusButton(): Locator {
-    return this.page.getByRole('button', { name: 'Maximum nodes minus' });
   }
 
   enableConfigureClusterWideProxyCheckbox(): Locator {
@@ -955,10 +715,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     });
   }
 
-  async isCIDRScreen(): Promise<void> {
-    await expect(this.page.locator('h3:has-text("CIDR ranges")')).toBeVisible({ timeout: 30000 });
-  }
-
   async isClusterRolesAndPoliciesScreen(): Promise<void> {
     await expect(this.page.locator('h3:has-text("Cluster roles and policies")')).toBeVisible({
       timeout: 30000,
@@ -983,18 +739,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await this.page.getByTestId(`remove-machine-pool-${mpIndex}`).click();
   }
 
-  async setMinimumNodeCount(count: string): Promise<void> {
-    await this.minimumNodeCountInput().clear();
-    await this.minimumNodeCountInput().fill(count);
-    await this.minimumNodeCountInput().blur();
-  }
-
-  async setMaximumNodeCount(count: string): Promise<void> {
-    await this.maximumNodeCountInput().clear();
-    await this.maximumNodeCountInput().fill(count);
-    await this.maximumNodeCountInput().blur();
-  }
-
   async enableConfigureClusterWideProxy(): Promise<void> {
     await this.enableConfigureClusterWideProxyCheckbox().check();
   }
@@ -1004,25 +748,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
       await this.createModeAutoRadio().check();
     } else {
       await this.createModeManualRadio().check();
-    }
-  }
-
-  async selectUpdateStratergy(strategy: string): Promise<void> {
-    if (strategy.toLowerCase().includes('individual')) {
-      await this.individualUpdateRadio().check();
-    } else {
-      await this.recurringUpdateRadio().check();
-    }
-  }
-
-  async selectAvailabilityZone(availability: string): Promise<void> {
-    if (
-      availability.toLowerCase().includes('multiple') ||
-      availability.toLowerCase().includes('multi')
-    ) {
-      await this.multiZoneAvilabilityRadio().click();
-    } else {
-      await this.singleZoneAvailabilityRadio().click();
     }
   }
 
@@ -1058,11 +783,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await this.installIntoExistingVpcCheckbox().check();
   }
 
-  async selectGracePeriod(period: string): Promise<void> {
-    await this.gracePeriodSelect().click();
-    await this.page.getByRole('option', { name: period }).click();
-  }
-
   async selectAdditionalSecurityGroups(securityGroup: string): Promise<void> {
     await this.securityGroupsButton().click();
     await this.page.locator('li').filter({ hasText: securityGroup }).click();
@@ -1078,9 +798,7 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   // VPC subnet selection methods for advanced networking
   async selectPrivateSubnet(index: number, subnetName: string): Promise<void> {
-    const privateSubnetButton = this.page.locator(
-      `[id="machinePoolsSubnets[${index}].privateSubnetId"]`,
-    );
+    const privateSubnetButton = this.page.locator(`[id="machinePoolsSubnets[${index}].privateSubnetId"]`);
     await privateSubnetButton.click();
     await this.subnetFilterInput().clear();
     await this.subnetFilterInput().fill(subnetName);
@@ -1088,9 +806,7 @@ export class CreateRosaWizardPage extends BaseWizardPage {
   }
 
   async selectPublicSubnet(index: number, subnetName: string): Promise<void> {
-    const publicSubnetButton = this.page.locator(
-      `[id="machinePoolsSubnets[${index}].publicSubnetId"]`,
-    );
+    const publicSubnetButton = this.page.locator(`[id="machinePoolsSubnets[${index}].publicSubnetId"]`);
     await publicSubnetButton.click();
     await this.subnetFilterInput().clear();
     await this.subnetFilterInput().fill(subnetName);
@@ -1100,23 +816,19 @@ export class CreateRosaWizardPage extends BaseWizardPage {
   // Validation methods for subnet selections
   async isSubnetAvailabilityZoneSelected(zone: string): Promise<void> {
     const zoneButton = this.page
-      .locator('button[aria-label="Options menu"]')
+      .getByRole('button', { name: 'Options menu' })
       .filter({ hasText: zone })
       .first();
     await expect(zoneButton).toBeVisible();
   }
 
   async isPrivateSubnetSelected(index: number, subnetName: string): Promise<void> {
-    const privateSubnetButton = this.page.locator(
-      `[id="machinePoolsSubnets[${index}].privateSubnetId"]`,
-    );
+    const privateSubnetButton = this.page.locator(`[id="machinePoolsSubnets[${index}].privateSubnetId"]`);
     await expect(privateSubnetButton).toContainText(subnetName);
   }
 
   async isPubliceSubnetSelected(index: number, subnetName: string): Promise<void> {
-    const publicSubnetButton = this.page.locator(
-      `[id="machinePoolsSubnets[${index}].publicSubnetId"]`,
-    );
+    const publicSubnetButton = this.page.locator(`[id="machinePoolsSubnets[${index}].publicSubnetId"]`);
     await expect(publicSubnetButton).toContainText(subnetName);
   }
 
@@ -1133,92 +845,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await editButton.click();
   }
 
-  // Cluster autoscaling settings selectors
-  editClusterAutoscalingSettingsButton(): Locator {
-    return this.page.getByTestId('set-cluster-autoscaling-btn');
-  }
-
-  clusterAutoscalingLogVerbosityInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.log_verbosity"]');
-  }
-
-  clusterAutoscalingMaxNodeProvisionTimeInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.max_node_provision_time"]');
-  }
-
-  clusterAutoscalingBalancingIgnoredLabelsInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.balancing_ignored_labels"]');
-  }
-
-  clusterAutoscalingCoresTotalMinInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.cores.min"]');
-  }
-
-  clusterAutoscalingCoresTotalMaxInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.cores.max"]');
-  }
-
-  clusterAutoscalingMemoryTotalMinInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.memory.min"]');
-  }
-
-  clusterAutoscalingMemoryTotalMaxInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.memory.max"]');
-  }
-
-  clusterAutoscalingMaxNodesTotalInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.max_nodes_total"]');
-  }
-
-  clusterAutoscalingGPUsInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.gpus"]');
-  }
-
-  clusterAutoscalingScaleDownUtilizationThresholdInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.scale_down.utilization_threshold"]');
-  }
-
-  clusterAutoscalingScaleDownUnneededTimeInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.scale_down.unneeded_time"]');
-  }
-
-  clusterAutoscalingScaleDownDelayAfterAddInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_add"]');
-  }
-
-  clusterAutoscalingScaleDownDelayAfterDeleteInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_delete"]');
-  }
-
-  clusterAutoscalingScaleDownDelayAfterFailureInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_failure"]');
-  }
-
-  clusterAutoscalingRevertAllToDefaultsButton(): Locator {
-    return this.page.getByRole('button', { name: 'Revert all to defaults' });
-  }
-
-  clusterAutoscalingCloseButton(): Locator {
-    return this.page.getByRole('button', { name: 'Close' });
-  }
-
-  // Application ingress selectors for networking validations
-  applicationIngressDefaultSettingsRadio(): Locator {
-    return this.page.getByTestId('applicationIngress-default');
-  }
-
-  applicationIngressCustomSettingsRadio(): Locator {
-    return this.page.getByRole('radio', { name: 'Custom settings' });
-  }
-
-  applicationIngressRouterSelectorsInput(): Locator {
-    return this.page.locator('#defaultRouterSelectors');
-  }
-
-  applicationIngressExcludedNamespacesInput(): Locator {
-    return this.page.locator('#defaultRouterExcludedNamespacesFlag');
-  }
-
   // Support role inputs for validation
   supportRoleInput(): Locator {
     return this.page.locator('input[name="support_role_arn"]');
@@ -1230,12 +856,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   controlPlaneRoleInput(): Locator {
     return this.page.locator('input[name="control_plane_role_arn"]');
-  }
-
-  async isUpdatesScreen(): Promise<void> {
-    await expect(this.page.locator('h3:has-text("Cluster update strategy")')).toBeVisible({
-      timeout: 30000,
-    });
   }
 
   // Log forwarding screen selectors

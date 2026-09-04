@@ -1,9 +1,16 @@
 import { test, expect } from '../../fixtures/pages';
+import clusterProfiles from '../../fixtures/osd-aws/osd-ccs-aws-ystream-channel.spec.json';
 
-const clusterProfiles = require('../../fixtures/osd-aws/osd-ccs-aws-ystream-channel.spec.json');
 const clusterProperties = clusterProfiles.Clusters;
 const yStream = clusterProfiles.YStreamChannel;
 const day2Fixture = clusterProfiles.Day2;
+
+const UPDATE_STRATEGY_RECURRING = 'Recurring updates';
+const UPDATE_STRATEGY_INDIVIDUAL = 'Individual updates';
+/** Max wait for UI enablement / modal settle (30 seconds). */
+const DEFAULT_UI_TIMEOUT = 30000;
+/** Max wait for clusters-mgmt mutation API / related UI settle (60 seconds). */
+const CLUSTER_MUTATION_TIMEOUT = 60000;
 
 /** Cluster from Day-1 create (osd-ccs-aws-ystream-channel-day1.spec.ts) or env override. */
 const clusterName =
@@ -74,7 +81,7 @@ test.describe.serial(
       await expect(editButton).toBeVisible();
 
       test.skip(
-        !(await editButton.isDisabled()),
+        await editButton.isEnabled(),
         'Cluster edit is enabled because the cluster is ready; re-run against a cluster still installing.',
       );
 
@@ -83,11 +90,13 @@ test.describe.serial(
       await expect(clusterDetailsPage.editChannelModal()).not.toBeVisible();
     });
 
+    // Ensure Individual once, then do channel mutations before Recurring↔Individual thrash
+    // so channel Saves are less likely to hit clusters-mgmt 429s.
     test('Switch to Individual updates so Overview channel edit is enabled', async ({
       clusterDetailsPage,
     }) => {
       // Day-1 should create with Individual updates; this covers existing clusters created with Recurring.
-      await clusterDetailsPage.ensureIndividualUpdatesForChannelEdit();
+      await clusterDetailsPage.ensureIndividualUpdatesForChannelEdit(CLUSTER_MUTATION_TIMEOUT);
     });
 
     test('Edit channel modal opens with Save disabled until selection changes', async ({
@@ -103,7 +112,9 @@ test.describe.serial(
 
     test('Save enabled when selection changes', async ({ clusterDetailsPage }) => {
       await clusterDetailsPage.openOverviewTab();
-      await expect(clusterDetailsPage.channelEditButton()).toBeEnabled({ timeout: 30000 });
+      await expect(clusterDetailsPage.channelEditButton()).toBeEnabled({
+        timeout: DEFAULT_UI_TIMEOUT,
+      });
       await clusterDetailsPage.openEditChannelModal();
 
       await expect(clusterDetailsPage.editChannelModalSaveButton()).toBeDisabled();
@@ -116,25 +127,6 @@ test.describe.serial(
       await expect(clusterDetailsPage.editChannelModal()).not.toBeVisible();
     });
 
-    test('Recurring updates strategy disables channel edit with scheduled-policy tooltip', async ({
-      clusterDetailsPage,
-    }) => {
-      await clusterDetailsPage.openUpgradeSettingsTab();
-      await clusterDetailsPage.ensureUpdateStrategy('Recurring updates');
-      await clusterDetailsPage.expectChannelSettingsEditDisabled();
-    });
-
-    test('Individual updates on a ready cluster enables channel edit without scheduled-policy tooltip', async ({
-      clusterDetailsPage,
-    }) => {
-      await clusterDetailsPage.ensureUpdateStrategy('Individual updates');
-      const editPencil = clusterDetailsPage.channelSettingsEditButton();
-      await editPencil.scrollIntoViewIfNeeded();
-      await editPencil.click();
-      await clusterDetailsPage.editChannelModalCloseButton().click({ force: true });
-      await expect(clusterDetailsPage.editChannelModal()).not.toBeVisible();
-    });
-
     test('Save updates on Overview page Channel row', async ({ clusterDetailsPage }) => {
       test.skip(
         !day2Fixture.AlternateChannel,
@@ -142,7 +134,9 @@ test.describe.serial(
       );
 
       await clusterDetailsPage.openOverviewTab();
-      await expect(clusterDetailsPage.channelEditButton()).toBeEnabled({ timeout: 30000 });
+      await expect(clusterDetailsPage.channelEditButton()).toBeEnabled({
+        timeout: DEFAULT_UI_TIMEOUT,
+      });
       await clusterDetailsPage.openEditChannelModal();
       await clusterDetailsPage.expectEditChannelModalHasOption(day2Fixture.AlternateChannel);
       await clusterDetailsPage.selectEditChannelModalOption(day2Fixture.AlternateChannel);
@@ -150,10 +144,9 @@ test.describe.serial(
         day2Fixture.AlternateChannel,
       );
       await expect(clusterDetailsPage.editChannelModalSaveButton()).toBeEnabled();
-      await clusterDetailsPage.editChannelModalSaveButton().click();
-      await expect(clusterDetailsPage.editChannelModal()).not.toBeVisible({ timeout: 30000 });
-      await expect(clusterDetailsPage.overviewChannelValue()).toContainText(
+      await clusterDetailsPage.saveEditChannelModal(
         day2Fixture.AlternateChannel,
+        CLUSTER_MUTATION_TIMEOUT,
       );
 
       await clusterDetailsPage.openEditChannelModal();
@@ -163,16 +156,40 @@ test.describe.serial(
         yStream.SelectedChannel,
       );
       await expect(clusterDetailsPage.editChannelModalSaveButton()).toBeEnabled();
-      await clusterDetailsPage.editChannelModalSaveButton().click();
-      await expect(clusterDetailsPage.editChannelModal()).not.toBeVisible({ timeout: 30000 });
-      await expect(clusterDetailsPage.overviewChannelValue()).toContainText(
+      await clusterDetailsPage.saveEditChannelModal(
         yStream.SelectedChannel,
+        CLUSTER_MUTATION_TIMEOUT,
       );
     });
 
-    test('Delete OSD AWS Y-stream channel cluster', async ({ clusterDetailsPage }) => {
-      await clusterDetailsPage.deleteClusterByName(clusterName, { cooldownMs: 10_000 });
+    test('Recurring updates strategy disables channel edit with scheduled-policy tooltip', async ({
+      clusterDetailsPage,
+    }) => {
+      await clusterDetailsPage.openUpgradeSettingsTab();
+      // ensureUpdateStrategy asserts disabled edit + scheduled-policy tooltip for Recurring.
+      await clusterDetailsPage.ensureUpdateStrategy(
+        UPDATE_STRATEGY_RECURRING,
+        CLUSTER_MUTATION_TIMEOUT,
+      );
     });
-  
+
+    test('Individual updates on a ready cluster enables channel edit without scheduled-policy tooltip', async ({
+      clusterDetailsPage,
+    }) => {
+      await clusterDetailsPage.ensureUpdateStrategy(
+        UPDATE_STRATEGY_INDIVIDUAL,
+        CLUSTER_MUTATION_TIMEOUT,
+      );
+      await clusterDetailsPage.expectChannelSettingsEditEditable();
+      const editPencil = clusterDetailsPage.channelSettingsEditButton();
+      await editPencil.scrollIntoViewIfNeeded();
+      await editPencil.click();
+      await clusterDetailsPage.editChannelModalCloseButton().click({ force: true });
+      await expect(clusterDetailsPage.editChannelModal()).not.toBeVisible();
+    });
+
+    test('Delete OSD AWS Y-stream channel cluster', async ({ clusterDetailsPage }) => {
+      await clusterDetailsPage.deleteClusterByName(clusterName);
+    });
   },
 );

@@ -29,7 +29,11 @@ export class ClusterListPage extends BasePage {
   }
 
   tooltipviewOnlyMyCluster(): Locator {
-    return this.page.locator('div[class*="popover__body"]');
+    // Scope by accessible description so the PatternFly help popover is not
+    // confused with other role="dialog" elements (e.g. the engagement toast).
+    return this.page.getByRole('dialog', {
+      description: /Show only the clusters you previously/,
+    });
   }
 
 
