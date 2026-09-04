@@ -28,7 +28,9 @@ import isAssistedInstallSubscription, {
 import clusterStates, {
   hasInflightEgressErrors,
   isHibernating,
+  isROSA,
 } from '../../../common/clusterStates';
+import { getAWSAccountID } from '../../../common/InstallProgress/rosaUtils';
 import { metricsStatusMessages } from '../../../common/ResourceUsage/constants';
 import ResourceUsage from '../../../common/ResourceUsage/ResourceUsage';
 import { hasResourceUsageMetrics } from '../Monitoring/monitoringHelper';
@@ -38,6 +40,7 @@ import CostBreakdownCard from './CostBreakdownCard';
 import DetailsLeft from './DetailsLeft';
 import DetailsRight from './DetailsRight';
 import { shouldShowLogs } from './InstallationLogView';
+import { MissingOCMRoleAlert } from './MissingOCMRoleAlert';
 import SubscriptionSettings from './SubscriptionSettings';
 
 import './Overview.scss';
@@ -173,6 +176,10 @@ const Overview = (props) => {
           {showInstallSuccessAlert && (
             <Alert variant="success" isInline title="Cluster installed successfully" />
           )}
+          <MissingOCMRoleAlert
+            isRosaSts={isROSA(cluster) && !!cluster.aws?.sts}
+            awsAccountId={getAWSAccountID(cluster)}
+          />
           {showInflightErrorIsFixed && (
             <Alert
               variant="success"

@@ -35,6 +35,7 @@ const supportLinks = {
   OCM_CLI_DOCS: `${ARTICLES_URL}6114701`,
   ROSA_CREATE_NETWORK: `${ARTICLES_URL}7096266`,
   SEVERITY_LABEL_CHANGE_KB: `${ARTICLES_URL}7145306`,
+  OCM_ROLE_KB: `${ARTICLES_URL}7137057`,
 
   // Support Policies and Classifications
   OPENSHIFT_SUPPORT_POLICY: `${SUPPORT_URL}policy/updates/openshift`,
