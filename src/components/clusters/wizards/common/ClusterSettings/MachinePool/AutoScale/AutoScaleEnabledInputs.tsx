@@ -10,6 +10,8 @@ import { required, validateNumericInput } from '~/common/validators';
 import {
   getAutoscaleMaxReplicasFloor,
   getMinNodesRequired,
+  getNodeIncrement,
+  getNodeIncrementHypershift,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { getMaxNodeCount } from '~/components/clusters/common/machinePools/utils';
@@ -129,12 +131,9 @@ export const AutoScaleEnabledInputs = () => {
   }, [product, isByoc, isMultiAz, defaultMinAllowed, isHypershiftSelected, autoscalingEnabled]);
 
   const maxNodes = useMemo(() => {
-    let increment: number;
-    if (isHypershiftSelected) {
-      increment = poolsLength;
-    } else {
-      increment = isMultiAz ? 3 : 1;
-    }
+    const increment = isHypershiftSelected
+      ? getNodeIncrementHypershift(poolsLength)
+      : getNodeIncrement(isMultiAz);
     const totalMax = getMaxNodeCount({
       available: Infinity,
       included: 0,
