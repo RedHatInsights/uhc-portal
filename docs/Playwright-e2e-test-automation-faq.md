@@ -314,6 +314,51 @@ The key principle: **never let a test produce a cryptic, misleading error becaus
 
 Apply tags at the `test.describe` level for the whole suite, or on individual `test()` calls for granular control. Every test should have at least one tag.
 
+## Q: How do I filter and run smoke tests locally to validate pull request changes?
+
+Use Playwright's `--grep` / `--grep-invert` flags with tags to run a focused subset before opening or updating a PR. `@ci` tests already run automatically in the PR pipeline — use local runs for `@smoke` (and related product tags) when you need critical-path coverage beyond what CI covers.
+
+```bash
+# List matching tests first (no execution) — useful to confirm your filter
+npm run playwright-headless -- --list --grep="@smoke"
+
+# Run the full smoke suite
+npm run playwright-headless -- --grep="@smoke"
+
+# Optional: reproduce @ci failures locally (@ci already runs in the PR pipeline)
+npm run playwright-headless -- --grep="@ci"
+
+# Narrow smoke to a product area affected by your PR
+npm run playwright-headless -- --grep="@smoke" --grep="@rosa"
+npm run playwright-headless -- --grep="@smoke" --grep="@osd"
+
+# Run smoke but skip long-running cluster creation
+npm run playwright-headless -- --grep="@smoke" --grep-invert="@cluster-creation"
+
+# Validate only the specs touched by your PR (path + optional tag)
+npm run playwright-headless -- playwright/e2e/rosa/ --grep="@smoke"
+npm run playwright-headless -- playwright/e2e/downloads/downloads.spec.ts --grep="@smoke"
+
+# Watch the browser while validating a PR change
+npm run playwright-headed -- --grep="@smoke" --grep="@rosa"
+
+# Run in Chromium only (default without BROWSER runs all configured browsers)
+BROWSER=chromium npm run playwright-headless -- --grep="@smoke"
+BROWSER=chromium npm run playwright-headed -- --grep="@smoke"
+
+# Run against a local env (set BASE_URL to your local server URL)
+# Option A: override for this run
+BASE_URL=https://prod.foo.redhat.com:1337/openshift/ BROWSER=chromium npm run playwright-headless -- --grep="@smoke"
+
+# Option B: set in playwright.env.json, then run as usual
+#   "BASE_URL": "https://prod.foo.redhat.com:1337/openshift/",
+#   "BROWSER": "chromium"
+BROWSER=chromium npm run playwright-headless -- --grep="@smoke"
+
+# Interactive UI mode for debugging failures found during PR validation
+npm run playwright-ui
+```
+
 ## Q: Can I use `test.only` or `test.skip` during development?
 
 - **`test.only`:** Fine during local development to focus on a specific test, but never commit it -- it will silently skip all other tests in CI.

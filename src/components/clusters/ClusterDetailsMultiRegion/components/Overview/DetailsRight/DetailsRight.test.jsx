@@ -105,6 +105,7 @@ describe('<DetailsRight />', () => {
 
     // Assert
     await checkAccessibility(container);
+    expect(screen.getByLabelText('Nodes')).toBeInTheDocument();
   });
 
   describe('status', () => {

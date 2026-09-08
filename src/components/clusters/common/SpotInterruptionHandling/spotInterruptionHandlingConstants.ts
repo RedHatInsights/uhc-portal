@@ -9,22 +9,7 @@ export enum SpotInterruptionMode {
 
 type ClusterAwsSpotInterruptionHandling = Pick<Cluster, 'aws'>;
 
-export const getSpotInterruptionHandlerQueueUrl = (
-  cluster: ClusterAwsSpotInterruptionHandling,
-): string | undefined => cluster?.aws?.termination_handler_queue_url || undefined;
-
 export const ENHANCED_SPOT_MIN_VERSION = '4.22.0';
-
-export const SPOT_INSTANCES_VERSION_DISABLED_REASON = `Spot Instances require OpenShift version ${ENHANCED_SPOT_MIN_VERSION} or above`;
-export const SPOT_INTERRUPTION_MODE_ENHANCED_LABEL = 'Spot instances Enhanced';
-export const SPOT_INTERRUPTION_MODE_SIMPLE_LABEL = 'Spot instances Simple';
-
-export const getSpotInterruptionHandlingModeLabel = (
-  cluster: ClusterAwsSpotInterruptionHandling,
-): string =>
-  getSpotInterruptionHandlerQueueUrl(cluster)
-    ? SPOT_INTERRUPTION_MODE_ENHANCED_LABEL
-    : SPOT_INTERRUPTION_MODE_SIMPLE_LABEL;
 
 export const isEnhancedSpotVersionSupported = (clusterVersion?: string): boolean => {
   const coercedVersion = semver.coerce(clusterVersion);
@@ -47,3 +32,18 @@ export const SQS_QUEUE_URL_HELPER_TEXT =
 
 export const DEFAULT_SPOT_INTERRUPTION_PREREQ_ALERT =
   'Ensure your SQS queue, EventBridge rule, and resource policy are configured before enabling Enhanced Spot instances.';
+
+export const SPOT_INSTANCES_VERSION_DISABLED_REASON = `Spot Instances require OpenShift version ${ENHANCED_SPOT_MIN_VERSION} or above`;
+export const SPOT_INTERRUPTION_MODE_ENHANCED_LABEL = 'Spot instances Enhanced';
+export const SPOT_INTERRUPTION_MODE_SIMPLE_LABEL = 'Spot instances Simple';
+
+export const getSpotInterruptionHandlerQueueUrl = (
+  cluster: ClusterAwsSpotInterruptionHandling,
+): string | undefined => cluster?.aws?.termination_handler_queue_url || undefined;
+
+export const getSpotInterruptionHandlingModeLabel = (
+  cluster: ClusterAwsSpotInterruptionHandling,
+): string =>
+  getSpotInterruptionHandlerQueueUrl(cluster)
+    ? SPOT_INTERRUPTION_MODE_ENHANCED_LABEL
+    : SPOT_INTERRUPTION_MODE_SIMPLE_LABEL;

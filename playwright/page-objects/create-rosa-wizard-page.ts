@@ -309,21 +309,8 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByTestId('grace-period-select');
   }
 
-  // Additional security groups selectors
-  additionalSecurityGroupsLink(): Locator {
-    return this.page.getByRole('button', { name: 'Additional security groups' });
-  }
-
-  applySameSecurityGroupsToAllNodeTypes(): Locator {
-    return this.page.getByRole('checkbox', {
-      name: 'Apply the same security groups to all node types',
-    });
-  }
-
-  securityGroupsButton(): Locator {
-    return this.page.locator('button').filter({ hasText: 'Select security groups' });
-  }
-
+  // Additional security groups (shared additionalSecurityGroupsLink /
+  // applySameSecurityGroupsToAllNodeTypes / securityGroupsButton on BaseWizardPage)
   securityGroupsFilterInput(): Locator {
     return this.page.locator('input[placeholder="Filter by security group ID / name"]');
   }
@@ -337,25 +324,13 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByTestId('rosa_roles_provider_creation_mode-manual');
   }
 
-  // VPC and subnet selectors
-  vpcSelectButton(): Locator {
-    return this.page.locator('button').filter({ hasText: 'Select a VPC' });
-  }
-
-  vpcFilterInput(): Locator {
-    return this.page.locator('input[placeholder="Filter by VPC ID / name"]');
-  }
-
+  // VPC and subnet selectors (shared vpcSelectButton / vpcFilterInput / subnetFilterInput on BaseWizardPage)
   publicSubnetButton(): Locator {
     return this.page.locator('button').filter({ hasText: 'Select public subnet' });
   }
 
   clusterPrivacyPublicSubnetButton(): Locator {
     return this.page.locator('button[id="cluster_privacy_public_subnet_id"]');
-  }
-
-  subnetFilterInput(): Locator {
-    return this.page.locator('input[placeholder="Filter by subnet ID / name"]');
   }
 
   // Screen validation methods
@@ -1102,15 +1077,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
   }
 
   // VPC subnet selection methods for advanced networking
-  async selectSubnetAvailabilityZone(zone: string): Promise<void> {
-    await this.page
-      .locator('button')
-      .filter({ hasText: 'Select availability zone' })
-      .first()
-      .click();
-    await this.page.getByRole('option', { name: zone }).click();
-  }
-
   async selectPrivateSubnet(index: number, subnetName: string): Promise<void> {
     const privateSubnetButton = this.page.locator(
       `[id="machinePoolsSubnets[${index}].privateSubnetId"]`,

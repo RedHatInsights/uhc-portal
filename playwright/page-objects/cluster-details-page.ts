@@ -1,5 +1,4 @@
 import { Page, Locator, expect } from '@playwright/test';
-
 import {
   clearQuotaCostMock as clearQuotaCostRouteMock,
   mockQuotaCostWithBillingContract as mockQuotaCostRouteWithBillingContract,
@@ -88,6 +87,7 @@ export class ClusterDetailsPage extends BasePage {
       name: /Success alert: Cluster .* has been unarchived$/,
     });
   }
+
   unarchiveClusterButton(): Locator {
     return this.page.locator('[id="cl-details-btns"]').getByRole('button', { name: 'Unarchive' });
   }
@@ -454,6 +454,32 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('persistent-storage');
   }
 
+  clusterLoadBalancersValue(): Locator {
+    return this.page.getByLabel('Load balancers', { exact: true });
+  }
+
+  clusterComputeNodeCountValue(): Locator {
+    return this.page.getByTestId('computeNodeCount');
+  }
+
+  overviewNodesDescription(): Locator {
+    return this.page.getByLabel('Nodes', { exact: true });
+  }
+
+  async hasOverviewNodeMetrics(): Promise<boolean> {
+    const nodesText = await this.overviewNodesDescription().innerText();
+    // Stub/fake clusters often report master=0 and compute N/A when metrics are absent.
+    return !/Compute:\s*N\/A/i.test(nodesText) && !/Control plane:\s*0\b/.test(nodesText);
+  }
+
+  clusterTotalvCPUValue(): Locator {
+    return this.page.getByLabel('Total vCPU', { exact: true });
+  }
+
+  clusterTotalMemoryValue(): Locator {
+    return this.page.getByLabel('Total memory', { exact: true });
+  }
+
   // ── Autonode (Red Hat build of Karpenter) ────────────────────────────────
 
   autoNodeStatus(): Locator {
@@ -694,11 +720,7 @@ export class ClusterDetailsPage extends BasePage {
     contractedAccountId: string,
     billingAccountIds: string[] = [],
   ): Promise<void> {
-    await mockQuotaCostRouteWithBillingContract(
-      this.page,
-      contractedAccountId,
-      billingAccountIds,
-    );
+    await mockQuotaCostRouteWithBillingContract(this.page, contractedAccountId, billingAccountIds);
   }
 
   async clearQuotaCostMock(): Promise<void> {
@@ -1307,9 +1329,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   idpHintDescription(): Locator {
-    return this.page.getByText(
-      'Identity providers determine how you can log into the cluster',
-    );
+    return this.page.getByText('Identity providers determine how you can log into the cluster');
   }
 
   createIdentityProviderButton(): Locator {
@@ -1335,9 +1355,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   productCard(productName: string): Locator {
-    return this.page
-      .getByTestId('product-overview-card')
-      .filter({ hasText: productName });
+    return this.page.getByTestId('product-overview-card').filter({ hasText: productName });
   }
 
   productCardLearnMoreButton(productName: string): Locator {
@@ -1391,5 +1409,10 @@ export class ClusterDetailsPage extends BasePage {
   async dismissRecommendedOperatorsAlert(): Promise<void> {
     await this.recommendedOperatorsAlertCloseButton().click();
     await expect(this.recommendedOperatorsAlert()).toBeHidden({ timeout: 10000 });
+  }
+
+  async getDomainPrefix(): Promise<string> {
+    await expect(this.clusterDomainPrefixLabelValue()).toBeVisible({ timeout: 30000 });
+    return (await this.clusterDomainPrefixLabelValue().innerText()).trim();
   }
 }

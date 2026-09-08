@@ -6,7 +6,7 @@ Some parts of the application are legacy code, using JavaScript and Redux for gl
 
 ## Documents index
 
-All documents are located inside `/docs`. Read the relevant file before writing or reviewing code.
+All documents are located inside `/docs`. **Read the relevant file BEFORE writing or reviewing code.**
 
 ```text
 root: docs/
