@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+#
+# CodeRabbit auto-detects AGENTS.md but does not follow links to other docs.
+# Map guideline files in /docs to the source paths they govern via applyTo.
+# See: https://docs.coderabbit.ai/knowledge-base/code-guidelines
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      # React/TS application code
+      - files: "docs/code-guide.md"
+        applyTo: "src/**/*.{ts,tsx,js,jsx}"
+
+      # Unit tests (Jest + React Testing Library)
+      - files: "docs/unit-testing.md"
+        applyTo: "src/**/*.test.{ts,tsx,js,jsx}"
+
+      # Playwright E2E tests
+      - files: "docs/Playwright-e2e-test-automation-guidelines.md"
+        applyTo: "playwright/**/*.{ts,tsx}"
+      - files: "docs/Playwright-e2e-test-automation-faq.md"
+        applyTo: "playwright/**/*.{ts,tsx}"
+
+      # Broader contributor conventions (linting, testing overview, PR expectations)
+      - files: "docs/contributing.md"
+        applyTo: "src/**/*.{ts,tsx,js,jsx}"
+      - files: "docs/contributing.md"
+        applyTo: "playwright/**/*.{ts,tsx}"
+
+      # OpenAPI-generated TypeScript models
+      - files: "openapi/README.md"
+        applyTo: "src/types/**/*.{ts,tsx}"

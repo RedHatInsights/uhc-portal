@@ -5,8 +5,8 @@ import { BasePage } from './base-page';
 /**
  * Shared wizard page object for OSD and ROSA create-cluster flows.
  *
- * Holds version/channel locators and common wizard actions that are identical
- * across products. Product-specific logic stays in:
+ * Holds version/channel locators, shared AWS VPC/security-group controls, and
+ * common wizard actions that are identical across products. Product-specific logic stays in:
  *   - CreateRosaWizardPage (ROSA-specific)
  *   - CreateOSDWizardPage (OSD-specific)
  *
@@ -216,5 +216,44 @@ export abstract class BaseWizardPage extends BasePage {
       await channelSelect.selectOption('');
       await expect(channelSelect).toHaveValue('');
     }
+  }
+
+  // Shared AWS VPC / subnet / security group controls (OSD + ROSA). FuzzySelect
+  // toggles use aria-label "Options menu", so match by visible button text.
+  vpcSelectButton(): Locator {
+    return this.page.getByRole('button').filter({ hasText: 'Select a VPC' });
+  }
+
+  vpcFilterInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Filter by VPC ID / name' });
+  }
+
+  subnetFilterInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'Filter by subnet ID / name' });
+  }
+
+  additionalSecurityGroupsLink(): Locator {
+    return this.page.getByRole('button', { name: 'Additional security groups' });
+  }
+
+  applySameSecurityGroupsToAllNodeTypes(): Locator {
+    return this.page.getByRole('checkbox', {
+      name: /Apply the same security groups to all node types/i,
+    });
+  }
+
+  securityGroupsButton(): Locator {
+    return this.page.getByRole('button').filter({ hasText: 'Select security groups' });
+  }
+
+  async selectSubnetAvailabilityZone(zone: string): Promise<void> {
+    await this.page
+      .getByRole('button')
+      .filter({ hasText: 'Select availability zone' })
+      .first()
+      .click();
+    const zoneOption = this.page.getByRole('option').filter({ hasText: zone });
+    await expect(zoneOption).toBeEnabled({ timeout: 30000 });
+    await zoneOption.click();
   }
 }

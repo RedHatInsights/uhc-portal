@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { FieldArray } from 'formik';
 import { useDispatch } from 'react-redux';
 
@@ -11,6 +11,7 @@ import {
 } from '@patternfly/react-core';
 
 import { nodeKeyValueTooltipText } from '~/common/helpers';
+import { validateSpotTerminationHandlerQueueUrl } from '~/common/validators';
 import {
   getWorkerNodeVolumeSizeMaxGiB,
   getWorkerNodeVolumeSizeMinGiB,
@@ -20,6 +21,11 @@ import {
   isMachineTypeIncludedInFilteredSet,
   shouldUseRegionFilteredData,
 } from '~/components/clusters/common/ScaleSection/MachineTypeSelection/machineTypeSelectionHelper';
+import {
+  isEnhancedSpotVersionSupported,
+  SpotInterruptionMode,
+} from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
+import { SpotInterruptionHandlingFields } from '~/components/clusters/common/SpotInterruptionHandling/SpotInterruptionHandlingFields';
 import { AutoScale } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/AutoScale/AutoScale';
 import { canSelectImds } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -27,7 +33,7 @@ import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import FormKeyValueList from '~/components/common/FormikFormComponents/FormKeyValueList';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import { useFetchMachineTypes } from '~/queries/ClusterDetailsQueries/MachinePoolTab/MachineTypes/useFetchMachineTypes';
-import { IMDS_SELECTION } from '~/queries/featureGates/featureConstants';
+import { HCP_SPOT_INSTANCES, IMDS_SELECTION } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { getMachineTypesByRegionARN } from '~/redux/actions/machineTypesActions';
 import { useGlobalState } from '~/redux/hooks';
@@ -54,22 +60,47 @@ function ScaleSection() {
       [FieldId.BillingModel]: billingModel,
       [FieldId.IMDS]: imds,
       [FieldId.MachineType]: instanceType,
+      [FieldId.SpotInterruptionHandling]: spotInterruptionHandling,
+      [FieldId.SpotTerminationHandlerQueueUrl]: spotTerminationHandlerQueueUrl,
     },
     setFieldValue,
+    getFieldMeta,
+    setFieldTouched,
+    setFieldError,
+    errors,
+    isValidating,
   } = useFormState();
   const dispatch = useDispatch();
 
   const isImdsEnabledHypershift = useFeatureGate(IMDS_SELECTION);
+  const isHcpSpotInstancesEnabled = useFeatureGate(HCP_SPOT_INSTANCES);
 
   const isByoc = true;
   const isMultiAzSelected = isMultiAz === 'true';
   const isHypershiftSelected = isHypershift === 'true';
   const isAutoscalingEnabled = !!autoscalingEnabled;
   const hasNodeLabels = nodeLabels?.[0]?.key ?? false;
+  const isSpotInterruptionEnhanced = spotInterruptionHandling === SpotInterruptionMode.Enhanced;
+
   const [isNodeLabelsExpanded, setIsNodeLabelsExpanded] = useState(!!hasNodeLabels);
+
   const canAutoScale = useCanClusterAutoscale(product, billingModel) ?? false;
   const clusterVersionRawId = clusterVersion?.raw_id;
+  const isEnhancedSpotVersionValid = isEnhancedSpotVersionSupported(clusterVersionRawId);
+  const sqsQueueUrlMeta = getFieldMeta(FieldId.SpotTerminationHandlerQueueUrl);
+  const spotInterruptionQueueUrlError = errors[FieldId.SpotTerminationHandlerQueueUrl];
+  const shouldShowSqsQueueUrlValidation =
+    sqsQueueUrlMeta?.touched || !!spotTerminationHandlerQueueUrl?.trim();
+  const sqsQueueUrlValidationError =
+    isSpotInterruptionEnhanced && shouldShowSqsQueueUrlValidation
+      ? spotInterruptionQueueUrlError ||
+        validateSpotTerminationHandlerQueueUrl(spotTerminationHandlerQueueUrl, region)
+      : undefined;
+  const wasValidatingRef = useRef(isValidating);
 
+  const [isSpotInterruptionExpanded, setIsSpotInterruptionExpanded] = useState(
+    !!spotInterruptionQueueUrlError && shouldShowSqsQueueUrlValidation,
+  );
   const { minWorkerVolumeSizeGiB, maxWorkerVolumeSizeGiB } = useMemo(() => {
     const minWorkerVolumeSizeGiB = getWorkerNodeVolumeSizeMinGiB(isHypershiftSelected);
     const maxWorkerVolumeSizeGiB = getWorkerNodeVolumeSizeMaxGiB(clusterVersionRawId);
@@ -96,6 +127,26 @@ function ScaleSection() {
     setFieldValue(FieldId.MachineTypeAvailability, availabilityOfAMachinePool);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setFieldValue, useRegionFilteredData, instanceType]);
+
+  React.useEffect(() => {
+    // The user can go back and change the cluster version below 4.22.
+    if (!isEnhancedSpotVersionValid && isSpotInterruptionEnhanced) {
+      setFieldValue(FieldId.SpotInterruptionHandling, SpotInterruptionMode.Simple);
+      setFieldValue(FieldId.SpotTerminationHandlerQueueUrl, '');
+    }
+  }, [isEnhancedSpotVersionValid, isSpotInterruptionEnhanced, setFieldValue]);
+
+  React.useEffect(() => {
+    if (
+      wasValidatingRef.current &&
+      !isValidating &&
+      spotInterruptionQueueUrlError &&
+      sqsQueueUrlMeta?.touched
+    ) {
+      setIsSpotInterruptionExpanded(true);
+    }
+    wasValidatingRef.current = isValidating;
+  }, [isValidating, spotInterruptionQueueUrlError, sqsQueueUrlMeta?.touched]);
 
   const LabelsSectionComponent = useCallback(
     () =>
@@ -157,6 +208,17 @@ function ScaleSection() {
     [minWorkerVolumeSizeGiB, maxWorkerVolumeSizeGiB],
   );
 
+  const handleSpotInterruptionModeChange = useCallback(
+    (value) => {
+      setFieldValue(FieldId.SpotInterruptionHandling, value);
+      if (value === SpotInterruptionMode.Simple && !spotTerminationHandlerQueueUrl?.trim()) {
+        setFieldError(FieldId.SpotTerminationHandlerQueueUrl, undefined);
+        setFieldTouched(FieldId.SpotTerminationHandlerQueueUrl, false, false);
+      }
+    },
+    [setFieldError, setFieldTouched, setFieldValue, spotTerminationHandlerQueueUrl],
+  );
+
   return (
     <>
       {/* Instance type title (only for Hypershift) */}
@@ -216,6 +278,34 @@ function ScaleSection() {
         selectedVPC={selectedVpc}
         isHypershiftSelected={isHypershiftSelected}
       />
+      {isHypershiftSelected && isHcpSpotInstancesEnabled && isEnhancedSpotVersionValid ? (
+        <GridItem md={10}>
+          <ExpandableSection
+            toggleText="Spot interruption handling"
+            isExpanded={isSpotInterruptionExpanded}
+            isIndented
+            onToggle={(_event, isExpanded) => setIsSpotInterruptionExpanded(isExpanded)}
+          >
+            <SpotInterruptionHandlingFields
+              mode={spotInterruptionHandling || SpotInterruptionMode.Simple}
+              onModeChange={handleSpotInterruptionModeChange}
+              sqsQueueUrl={spotTerminationHandlerQueueUrl || ''}
+              onSqsQueueUrlChange={(value) =>
+                setFieldValue(FieldId.SpotTerminationHandlerQueueUrl, value)
+              }
+              onSqsQueueUrlBlur={() =>
+                setFieldTouched(FieldId.SpotTerminationHandlerQueueUrl, true, false)
+              }
+              sqsQueueUrlValidated={
+                isSpotInterruptionExpanded && sqsQueueUrlValidationError ? 'error' : 'default'
+              }
+              sqsQueueUrlHelperText={
+                isSpotInterruptionExpanded ? sqsQueueUrlValidationError : undefined
+              }
+            />
+          </ExpandableSection>
+        </GridItem>
+      ) : null}
     </>
   );
 }
