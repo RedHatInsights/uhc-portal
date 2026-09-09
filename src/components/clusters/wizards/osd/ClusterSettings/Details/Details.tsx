@@ -475,7 +475,12 @@ function Details() {
               label="Region"
               isRequired
               fieldId={FieldId.Region}
-              labelHelp={<PopoverHint hint={constants.regionHint} />}
+              labelHelp={
+                <PopoverHint
+                  hint={constants.regionHint(isGCP ? 'Google Cloud' : 'AWS')}
+                  buttonAriaLabel="More information about region"
+                />
+              }
             >
               <Field
                 component={CloudRegionSelectField}
