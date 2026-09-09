@@ -575,7 +575,6 @@ function DetailsRight({
               cluster={cluster}
               region={region}
               onClose={closeEditSpotInterruptionModal}
-              isEnhancedDisabled={!isEnhancedSpotVersionValid}
             />
           ) : null}
           <DescriptionListGroup>
