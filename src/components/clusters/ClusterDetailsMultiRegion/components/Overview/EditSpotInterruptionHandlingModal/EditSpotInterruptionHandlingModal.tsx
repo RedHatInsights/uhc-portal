@@ -11,13 +11,13 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import { validateSpotTerminationHandlerQueueUrl } from '~/common/validators';
 import { queryClient } from '~/components/App/queryClient';
 import {
   getSpotInterruptionHandlerQueueUrl,
   SpotInterruptionMode,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { SpotInterruptionHandlingFields } from '~/components/clusters/common/SpotInterruptionHandling/SpotInterruptionHandlingFields';
+import { validateSpotTerminationHandlerQueueUrl } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingValidation';
 import ErrorBox from '~/components/common/ErrorBox';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { queryConstants } from '~/queries/queriesConstants';
@@ -26,7 +26,6 @@ import { ClusterFromSubscription } from '~/types/types';
 type EditSpotInterruptionHandlingModalProps = {
   cluster: ClusterFromSubscription;
   region?: string;
-  isEnhancedDisabled?: boolean;
   onClose: () => void;
 };
 
@@ -36,7 +35,6 @@ const getTerminationHandlerQueueUrl = (cluster: ClusterFromSubscription): string
 const EditSpotInterruptionHandlingModal = ({
   cluster,
   region,
-  isEnhancedDisabled,
   onClose,
 }: EditSpotInterruptionHandlingModalProps) => {
   const clusterRegion = cluster?.region?.id || region;

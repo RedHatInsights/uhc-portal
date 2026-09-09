@@ -217,9 +217,8 @@ function DetailsRight({
   const terminationHandlerQueueUrl = getSpotInterruptionHandlerQueueUrl(cluster);
   const isSpotInterruptionEnhanced = !!terminationHandlerQueueUrl;
   const showSpotInterruptionHandling =
-    canUseSpotInstances(cluster) &&
+    canUseSpotInstances(cluster, isHcpSpotInstancesEnabled) &&
     isHypershift &&
-    isHcpSpotInstancesEnabled &&
     isEnhancedSpotVersionValid &&
     !isArchivedSubscription(cluster);
 

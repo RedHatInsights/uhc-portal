@@ -11,7 +11,6 @@ import {
 } from '@patternfly/react-core';
 
 import { nodeKeyValueTooltipText } from '~/common/helpers';
-import { validateSpotTerminationHandlerQueueUrl } from '~/common/validators';
 import {
   getWorkerNodeVolumeSizeMaxGiB,
   getWorkerNodeVolumeSizeMinGiB,
@@ -26,6 +25,7 @@ import {
   SpotInterruptionMode,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { SpotInterruptionHandlingFields } from '~/components/clusters/common/SpotInterruptionHandling/SpotInterruptionHandlingFields';
+import { validateSpotTerminationHandlerQueueUrl } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingValidation';
 import { AutoScale } from '~/components/clusters/wizards/common/ClusterSettings/MachinePool/AutoScale/AutoScale';
 import { canSelectImds } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';

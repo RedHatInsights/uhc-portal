@@ -3,6 +3,8 @@ import { useField } from 'formik';
 
 import { Form, FormGroup, GridItem, Radio } from '@patternfly/react-core';
 
+import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
+import getClusterVersion from '~/components/clusters/common/getClusterVersion';
 import { SPOT_CAPACITY_RESERVATION_CONFLICT_REASON } from '~/components/clusters/common/machinePools/constants';
 import {
   isEnhancedSpotVersionSupported,
@@ -18,11 +20,11 @@ import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
 
 type SpotInstancesSectionProps = {
   isEdit: boolean;
-  isHypershift?: boolean;
-  cluster?: ClusterFromSubscription;
+  cluster: ClusterFromSubscription;
 };
 
-const SpotInstancesSection = ({ isEdit, isHypershift, cluster }: SpotInstancesSectionProps) => {
+const SpotInstancesSection = ({ isEdit, cluster }: SpotInstancesSectionProps) => {
+  const isHypershift = isHypershiftCluster(cluster);
   const [capacityReservationPreferenceField] = useField<
     EditMachinePoolValues['capacityReservationPreference']
   >('capacityReservationPreference');
@@ -42,7 +44,7 @@ const SpotInstancesSection = ({ isEdit, isHypershift, cluster }: SpotInstancesSe
     type: 'radio',
   });
 
-  const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
+  const clusterVersion = getClusterVersion(cluster);
   const isSpotVersionSupported = isEnhancedSpotVersionSupported(clusterVersion);
   const isSpotVersionBlocked = !!isHypershift && !isSpotVersionSupported;
   const isSpotDisabled = isEdit || hasCapacityReservation || isSpotVersionBlocked;
@@ -66,11 +68,7 @@ const SpotInstancesSection = ({ isEdit, isHypershift, cluster }: SpotInstancesSe
       <UseSpotInstancesField
         isDisabled={isSpotDisabled}
         disabledReason={spotDisabledReason}
-        footer={
-          isHypershift && cluster ? (
-            <SpotInterruptionHandlingModeField cluster={cluster} />
-          ) : undefined
-        }
+        footer={isHypershift ? <SpotInterruptionHandlingModeField cluster={cluster} /> : undefined}
       >
         <Form>
           <Radio

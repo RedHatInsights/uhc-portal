@@ -351,14 +351,18 @@ const hasDefaultOrExplicitAutoscalingMachinePool = (
     ? true
     : hasExplicitAutoscalingMachinePool(machinePools, excludeId);
 
-const canUseSpotInstances = (cluster: ClusterFromSubscription) => {
+const canUseSpotInstances = (
+  cluster: ClusterFromSubscription,
+  isHcpSpotInstancesEnabled: boolean,
+) => {
   const cloudProviderID = cluster.cloud_provider?.id;
   const product = normalizeProductID(cluster.product?.id);
-  return (
+  const supportsSpotInstances =
     cloudProviderID === 'aws' &&
     (product === normalizedProducts.ROSA ||
-      (product === normalizedProducts.OSD && cluster.ccs?.enabled))
-  );
+      (product === normalizedProducts.OSD && cluster.ccs?.enabled));
+
+  return supportsSpotInstances && (!isHypershiftCluster(cluster) || isHcpSpotInstancesEnabled);
 };
 
 const getCapacityPreferenceLabel = (

@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import fixtures from '~/components/clusters/ClusterDetailsMultiRegion/__tests__/ClusterDetails.fixtures';
+import { defaultClusterFromSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import { MAX_NODES_HCP } from '~/components/clusters/common/machinePools/constants';
 import {
   AWS_TAGS_NEW_MP,
@@ -340,6 +341,7 @@ describe('<EditMachinePoolModal />', () => {
           <EditMachinePoolModal
             cluster={
               {
+                ...defaultClusterFromSubscription,
                 product: { id: 'ROSA' },
                 cloud_provider: { id: 'aws' },
                 hypershift: { enabled: false },
@@ -367,10 +369,11 @@ describe('<EditMachinePoolModal />', () => {
           <EditMachinePoolModal
             cluster={
               {
+                ...defaultClusterFromSubscription,
                 product: { id: 'ROSA' },
                 cloud_provider: { id: 'aws' },
                 hypershift: { enabled: true },
-                openshift_version: '4.22.0',
+                openshift_version: '4.23.0',
               } as ClusterFromSubscription
             }
             onClose={() => {}}

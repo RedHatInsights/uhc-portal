@@ -4,7 +4,6 @@ import { FormikErrors } from 'formik';
 import { Form, Tab, TabContent } from '@patternfly/react-core';
 
 import { canUseSpotInstances } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
-import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { HCP_SPOT_INSTANCES } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { ClusterFromSubscription } from '~/types/types';
@@ -34,9 +33,7 @@ export const useCostSavingsSubTab = ({
 ] => {
   const contentRef1 = React.createRef<HTMLElement>();
   const isHcpSpotInstancesEnabled = useFeatureGate(HCP_SPOT_INSTANCES);
-  const isHypershift = isHypershiftCluster(cluster);
-  const showCostSavingsTab =
-    canUseSpotInstances(cluster) && (!isHypershift || isHcpSpotInstancesEnabled);
+  const showCostSavingsTab = canUseSpotInstances(cluster, isHcpSpotInstancesEnabled);
 
   const tab = (errors: FormikErrors<EditMachinePoolValues>) => {
     const tabErrors = hasErrors(errors, fieldsInTab);
@@ -60,7 +57,7 @@ export const useCostSavingsSubTab = ({
         className="pf-v6-u-pt-md"
       >
         <Form>
-          <SpotInstancesSection isEdit={isEdit} isHypershift={isHypershift} cluster={cluster} />
+          <SpotInstancesSection isEdit={isEdit} cluster={cluster} />
         </Form>
       </TabContent>
     ) : null;

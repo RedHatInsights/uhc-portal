@@ -1,5 +1,6 @@
 import { useField } from 'formik';
 
+import { defaultClusterFromSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import { HCP_SPOT_INSTANCES } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, renderHook, screen } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
@@ -19,9 +20,11 @@ jest.mock('formik', () => ({
 
 describe('CostSavingsSubTab', () => {
   const mockCluster: ClusterFromSubscription = {
+    ...defaultClusterFromSubscription,
     id: 'test-cluster',
     cloud_provider: { id: 'aws' },
     product: { id: 'ROSA' },
+    openshift_version: '4.23.0',
   } as ClusterFromSubscription;
 
   const defaultProps = {

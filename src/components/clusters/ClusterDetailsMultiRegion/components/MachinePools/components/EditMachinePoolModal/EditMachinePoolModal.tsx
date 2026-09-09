@@ -186,6 +186,7 @@ const EditMachinePoolModal = ({
   const imdsSectionFeature = useFeatureGate(IMDS_SELECTION);
   const isCapacityReservationEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
   const isHcpSpotInstancesEnabled = useFeatureGate(HCP_SPOT_INSTANCES);
+  const showSpotInstances = canUseSpotInstances(cluster, isHcpSpotInstancesEnabled);
 
   const setCurrentMPId = React.useCallback(
     (id: string) => setCurrentMachinePool(machinePoolsResponse?.find((mp) => mp.id === id)),
@@ -392,14 +393,9 @@ const EditMachinePoolModal = ({
                     </ExpandableSection>
                     {isGCP ? <ShieldedVM isEditModal={!!isEdit} /> : null}
                     <EditSecurityGroupsSection cluster={cluster} isReadOnly={isEdit} isExpandable />
-                    {canUseSpotInstances(cluster) &&
-                      (!isHypershift || isHcpSpotInstancesEnabled) && (
-                        <SpotInstancesSection
-                          isEdit={isEdit}
-                          isHypershift={isHypershift}
-                          cluster={cluster}
-                        />
-                      )}
+                    {showSpotInstances && (
+                      <SpotInstancesSection isEdit={isEdit} cluster={cluster} />
+                    )}
                   </Form>
                 )}
               </div>

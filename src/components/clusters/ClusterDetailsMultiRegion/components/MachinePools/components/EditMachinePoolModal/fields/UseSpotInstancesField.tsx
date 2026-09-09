@@ -24,7 +24,8 @@ const UseSpotInstancesField = ({
   isDisabled,
   disabledReason,
 }: UseSpotInstancesFieldProps) => {
-  const [field] = useField(fieldId);
+  const [field] = useField<EditMachinePoolValues['useSpotInstances']>(fieldId);
+  const { value: isChecked, name, onBlur } = field;
   const { setFieldValue, validateField } = useFormikContext<EditMachinePoolValues>();
   const tooltipContent =
     disabledReason || 'This option cannot be edited from its original setting selection.';
@@ -35,9 +36,10 @@ const UseSpotInstancesField = ({
         <WithTooltip showTooltip={isDisabled} content={tooltipContent} position="top-start">
           <span className="pf-v6-u-display-inline-block">
             <Checkbox
-              {...field}
+              name={name}
+              onBlur={onBlur}
               label="Use Amazon EC2 Spot Instance"
-              isChecked={field.value as boolean}
+              isChecked={isChecked}
               onChange={async (_, checked) => {
                 await setFieldValue(fieldId, checked);
                 if (!checked) {
@@ -45,14 +47,14 @@ const UseSpotInstancesField = ({
                 }
               }}
               id={fieldId}
-              body={field.value && children}
+              body={isChecked && children}
               description="You can save on costs by creating a machine pool running on AWS that deploys machines as non-guaranteed Spot Instances. This cannot be changed after machine pool is created."
               isDisabled={isDisabled}
             />
           </span>
         </WithTooltip>
       </StackItem>
-      {field.value ? (
+      {isChecked ? (
         <StackItem>
           <Alert
             variant="warning"
