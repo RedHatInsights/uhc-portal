@@ -270,8 +270,8 @@ create_vpc() {
     print_status "VPC created with ID: $VPC_ID"
     
     # Enable DNS hostnames and resolution
-    aws ec2 modify-vpc-attribute --vpc-id $VPC_ID --enable-dns-hostnames
-    aws ec2 modify-vpc-attribute --vpc-id $VPC_ID --enable-dns-support
+    aws ec2 modify-vpc-attribute --vpc-id $VPC_ID --enable-dns-hostnames --region $REGION
+    aws ec2 modify-vpc-attribute --vpc-id $VPC_ID --enable-dns-support --region $REGION
     
     print_status "DNS hostnames and resolution enabled for VPC"
 }

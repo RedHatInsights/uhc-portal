@@ -27,12 +27,18 @@ test.describe.serial(
   { tag: ['@day2', '@machine-pool', '@rosa-hosted', '@hcp', '@spot-instances'] },
   () => {
     // HCP node pool names are limited to 15 characters.
+    const enhancedMachinePoolId = `mp-en-${Math.random().toString(36).slice(2, 7)}`;
+    const enhancedMaxPriceMachinePoolId = `mp-em-${Math.random().toString(36).slice(2, 7)}`;
     const onDemandMachinePoolId = `mp-od-${Math.random().toString(36).slice(2, 7)}`;
     const maxPriceMachinePoolId = `mp-mx-${Math.random().toString(36).slice(2, 7)}`;
-    const createdMachinePoolIds = [onDemandMachinePoolId, maxPriceMachinePoolId];
+    const createdMachinePoolIds = [
+      enhancedMachinePoolId,
+      enhancedMaxPriceMachinePoolId,
+      onDemandMachinePoolId,
+      maxPriceMachinePoolId,
+    ];
     let originalSpotMode = '';
     let originalSqsQueueUrl = '';
-    let defaultMachinePoolId = '';
     let restoredSpotInterruptionHandling = false;
 
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
@@ -80,7 +86,7 @@ test.describe.serial(
       }
     });
 
-    test('Validate SQS queue URL and save Enhanced Spot interruption handling', async ({
+    test('Validate SQS queue URL errors and cancel Enhanced Spot interruption handling edit', async ({
       clusterDetailsPage,
     }) => {
       await clusterDetailsPage.openEditSpotInterruptionHandlingModal();
@@ -157,6 +163,73 @@ test.describe.serial(
       );
     });
 
+    test('Verify Cost savings is disabled on a default machine pool', async ({
+      machinePoolsPage,
+    }) => {
+      await machinePoolsPage.goToMachinePoolsTab();
+      const defaultMachinePoolId = await machinePoolsPage.firstExistingMachinePoolId();
+      await machinePoolsPage.editMachinePool(defaultMachinePoolId);
+      await machinePoolsPage.goToCostSavingsTab();
+      await expect(machinePoolsPage.spotInstanceCheckbox()).toBeDisabled();
+      await expect(machinePoolsPage.spotInstanceCheckbox()).not.toBeChecked();
+      await machinePoolsPage.hoverSpotInstanceCheckbox();
+      await expect(machinePoolsPage.spotInstanceImmutableTooltip()).toBeVisible();
+      await machinePoolsPage.cancelMachinePoolModalButton().click();
+    });
+
+    test('Verify Enhanced Spot interruption handling on Cost savings tab and create On-Demand machine pool', async ({
+      machinePoolsPage,
+    }) => {
+      await machinePoolsPage.goToMachinePoolsTab();
+      await machinePoolsPage.openAddMachinePoolModal();
+      await machinePoolsPage.machinePoolIdInput().fill(enhancedMachinePoolId);
+      await machinePoolsPage.selectPrivateSubnet(privateSubnetName);
+      await machinePoolsPage.goToCostSavingsTab();
+      await machinePoolsPage.spotInstanceCheckbox().check();
+      await expect(machinePoolsPage.spotInterruptionHandlingMode()).toBeVisible();
+      await expect(machinePoolsPage.spotInterruptionHandlingMode()).toHaveText(
+        costSavings.SpotInterruptionHandlingEnhanced,
+      );
+      await expect(machinePoolsPage.onDemandPriceRadio()).toBeChecked();
+      await machinePoolsPage.clickAddMachinePoolSubmitButton();
+
+      await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 30000 });
+      await expect(machinePoolsPage.getMachinePoolRow(enhancedMachinePoolId)).toBeVisible({
+        timeout: 60000,
+      });
+      await machinePoolsPage.expandMachinePoolRow(enhancedMachinePoolId);
+      await machinePoolsPage.verifySpotOnDemandPricing(enhancedMachinePoolId);
+    });
+
+    test('Create machine pool with maximum hourly Spot price in Enhanced Spot interruption handling mode', async ({
+      machinePoolsPage,
+      clusterDetailsPage,
+    }) => {
+      await machinePoolsPage.openAddMachinePoolModal();
+      await machinePoolsPage.machinePoolIdInput().fill(enhancedMaxPriceMachinePoolId);
+      await machinePoolsPage.selectPrivateSubnet(privateSubnetName);
+      await machinePoolsPage.goToCostSavingsTab();
+      await machinePoolsPage.spotInstanceCheckbox().check();
+      await expect(machinePoolsPage.spotInterruptionHandlingMode()).toHaveText(
+        costSavings.SpotInterruptionHandlingEnhanced,
+      );
+      await machinePoolsPage.setMaxPriceRadio().check();
+      await machinePoolsPage.maxPriceInput().clear();
+      await machinePoolsPage.maxPriceInput().fill(costSavings.SetMaximumPrice);
+      await machinePoolsPage.clickAddMachinePoolSubmitButton();
+
+      await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 30000 });
+      await expect(machinePoolsPage.getMachinePoolRow(enhancedMaxPriceMachinePoolId)).toBeVisible({
+        timeout: 60000,
+      });
+      await machinePoolsPage.expandMachinePoolRow(enhancedMaxPriceMachinePoolId);
+      await machinePoolsPage.verifySpotInstancePricing(
+        enhancedMaxPriceMachinePoolId,
+        costSavings.SetMaximumPrice,
+      );
+      await clusterDetailsPage.overviewTab().click();
+    });
+
     test('Switch Spot interruption handling from Enhanced to Simple', async ({
       clusterDetailsPage,
     }) => {
@@ -173,14 +246,10 @@ test.describe.serial(
       await expect(clusterDetailsPage.overviewSqsQueueUrl()).toBeHidden();
     });
 
-    test('Navigate to Machine pools tab', async ({ machinePoolsPage }) => {
-      await machinePoolsPage.goToMachinePoolsTab();
-      defaultMachinePoolId = await machinePoolsPage.firstExistingMachinePoolId();
-    });
-
     test('Check Cost savings tab fields in Add machine pool modal', async ({
       machinePoolsPage,
     }) => {
+      await machinePoolsPage.goToMachinePoolsTab();
       await machinePoolsPage.openAddMachinePoolModal();
       await expect(machinePoolsPage.costSavingsTab()).toBeVisible();
       await machinePoolsPage.goToCostSavingsTab();
@@ -248,18 +317,6 @@ test.describe.serial(
       await machinePoolsPage.hoverSpotInstanceCheckbox();
       await expect(machinePoolsPage.spotCapacityReservationConflictTooltip()).toBeVisible();
 
-      await machinePoolsPage.cancelMachinePoolModalButton().click();
-    });
-
-    test('Verify Cost savings is disabled on a default machine pool', async ({
-      machinePoolsPage,
-    }) => {
-      await machinePoolsPage.editMachinePool(defaultMachinePoolId);
-      await machinePoolsPage.goToCostSavingsTab();
-      await expect(machinePoolsPage.spotInstanceCheckbox()).toBeDisabled();
-      await expect(machinePoolsPage.spotInstanceCheckbox()).not.toBeChecked();
-      await machinePoolsPage.hoverSpotInstanceCheckbox();
-      await expect(machinePoolsPage.spotInstanceImmutableTooltip()).toBeVisible();
       await machinePoolsPage.cancelMachinePoolModalButton().click();
     });
 
