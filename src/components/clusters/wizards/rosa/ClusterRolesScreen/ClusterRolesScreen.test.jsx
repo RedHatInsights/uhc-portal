@@ -3,8 +3,8 @@ import { Formik } from 'formik';
 
 import docLinks from '~/common/docLinks.mjs';
 import { OCM_ROLE_NO_CONSOLE_PROFILE } from '~/components/clusters/wizards/rosa/rosaConstants';
+import { useFetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
 import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
-import { useFetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { FieldId } from '../constants';
@@ -13,7 +13,7 @@ import ClusterRolesScreen from './ClusterRolesScreen';
 
 mockUseFeatureGate([]);
 
-jest.mock('~/queries/RosaWizardQueries/useFetchGetOCMRole', () => {
+jest.mock('~/queries/common/useFetchGetOCMRole', () => {
   const impl = {
     useFetchGetOCMRole: jest.fn().mockReturnValue({
       data: { isAdmin: true, arn: 'arn:aws:iam::123456789012:role/AdminOCMRole' },

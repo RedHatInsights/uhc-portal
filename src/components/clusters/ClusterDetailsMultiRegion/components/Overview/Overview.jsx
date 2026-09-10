@@ -143,6 +143,8 @@ const Overview = (props) => {
   const showAssistedInstallerDetailCard = isAvailableAssistedInstallCluster(cluster);
   const showDetailsCard = !cluster.aiCluster || !isUninstalledAICluster(cluster);
   const showSubscriptionSettings = !isDeprovisioned && !isArchived;
+  const awsAccountId = getAWSAccountID(cluster);
+  const showMissingOCMRoleAlert = isROSA(cluster) && !!cluster.aws?.sts && !!awsAccountId;
 
   const resourceUsage = (
     <Card className="ocm-c-overview-resource-usage__card" data-testid="resource-usage">
@@ -176,10 +178,7 @@ const Overview = (props) => {
           {showInstallSuccessAlert && (
             <Alert variant="success" isInline title="Cluster installed successfully" />
           )}
-          <MissingOCMRoleAlert
-            isRosaSts={isROSA(cluster) && !!cluster.aws?.sts}
-            awsAccountId={getAWSAccountID(cluster)}
-          />
+          {showMissingOCMRoleAlert && <MissingOCMRoleAlert awsAccountId={awsAccountId} />}
           {showInflightErrorIsFixed && (
             <Alert
               variant="success"
