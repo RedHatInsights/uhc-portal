@@ -6,7 +6,6 @@ import { SimpleServiceWidget } from './simple-service-widget';
 
 describe('SimpleServiceWidget', () => {
   const defaultProps = {
-    id: 1,
     body: 'Test widget body text',
     linkTitle: 'Test Link',
     url: '/test-url',
@@ -21,12 +20,11 @@ describe('SimpleServiceWidget', () => {
     render(<SimpleServiceWidget {...defaultProps} />);
     const link = screen.getByRole('link', { name: /Test Link/ });
     expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute('href', expect.stringContaining('/test-url'));
-    // Internal links should not open in a new tab
+    expect(link).toHaveAttribute('href', '/test-url');
     expect(link).not.toHaveAttribute('target', '_blank');
   });
 
-  it('should render an external anchor tag when isExternal is true', () => {
+  it('should render an external link when isExternal is true', () => {
     const externalProps = {
       ...defaultProps,
       url: 'https://example.com/external',
@@ -40,17 +38,13 @@ describe('SimpleServiceWidget', () => {
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
-  it('should render the link title text in the footer', () => {
-    render(<SimpleServiceWidget {...defaultProps} />);
-    expect(screen.getByText('Test Link')).toBeInTheDocument();
-  });
-
-  it('should use isExternal=false by default', () => {
-    render(<SimpleServiceWidget {...defaultProps} />);
-    const link = screen.getByRole('link', { name: /Test Link/ });
-    // When isExternal is not set, it should render as a react-router Link (no target="_blank")
-    expect(link).not.toHaveAttribute('target');
-    // And the href should contain the internal URL path
-    expect(link).toHaveAttribute('href', expect.stringContaining('/test-url'));
+  it('should include accessible text when link is external', () => {
+    const externalProps = {
+      ...defaultProps,
+      url: 'https://example.com/external',
+      isExternal: true,
+    };
+    render(<SimpleServiceWidget {...externalProps} />);
+    expect(screen.getByRole('link', { name: /opens new tab/i })).toBeInTheDocument();
   });
 });

@@ -20,7 +20,7 @@ export class MachinePoolsPage extends BasePage {
   }
 
   cancelMachinePoolModalButton(): Locator {
-    return this.page.getByRole('button', { name: 'Cancel' });
+    return this.machinePoolModal().getByRole('button', { name: 'Cancel' });
   }
 
   machinePoolIdInput(): Locator {
@@ -74,7 +74,9 @@ export class MachinePoolsPage extends BasePage {
   }
 
   machinePoolTable(): Locator {
-    return this.page.getByRole('table').filter({ hasText: 'Machine pool' });
+    return this.page.getByRole('grid').or(this.page.getByRole('table')).filter({
+      hasText: 'Machine pool',
+    });
   }
 
   // Windows License Included locators
@@ -158,8 +160,19 @@ export class MachinePoolsPage extends BasePage {
     return this.page.getByRole('tab', { name: /Labels.*Taints/i });
   }
 
+  machinePoolOverviewTab(): Locator {
+    return this.machinePoolModal().getByRole('tab', { name: 'Overview' });
+  }
+
   costSavingsTab(): Locator {
-    return this.page.getByRole('tab', { name: 'Cost savings' });
+    return this.machinePoolModal().getByRole('tab', { name: 'Cost savings' });
+  }
+
+  // TabTitleIcon aria-label is included in the tab accessible name when the tab has errors.
+  costSavingsTabValidationError(): Locator {
+    return this.machinePoolModal().getByRole('tab', {
+      name: /Validation error on this tab\s*Cost savings/,
+    });
   }
 
   securityGroupsTab(): Locator {
@@ -314,6 +327,17 @@ export class MachinePoolsPage extends BasePage {
     return this.page.getByRole('row').filter({ hasText: id });
   }
 
+  async firstExistingMachinePoolId(): Promise<string> {
+    const row = this.page.getByRole('row', { name: /Kebab toggle/ }).first();
+    await expect(row).toBeVisible({ timeout: 30000 });
+    const nameCell = row.getByRole('gridcell').nth(1).or(row.getByRole('cell').nth(1));
+    const name = (await nameCell.innerText()).trim().split('\n')[0];
+    if (!name) {
+      throw new Error('Could not read a machine pool name from the table');
+    }
+    return name;
+  }
+
   async editMachinePool(id: string): Promise<void> {
     const row = this.getMachinePoolRow(id);
     await row.getByRole('button', { name: 'Kebab toggle' }).click();
@@ -403,21 +427,75 @@ export class MachinePoolsPage extends BasePage {
   }
 
   spotInstanceCheckbox(): Locator {
-    return this.page.getByRole('checkbox', { name: 'Use Amazon EC2 Spot Instance' });
+    return this.machinePoolModal().getByRole('checkbox', {
+      name: 'Use Amazon EC2 Spot Instance',
+    });
   }
 
   onDemandPriceRadio(): Locator {
-    return this.page.getByRole('radio', { name: 'Use On-Demand instance price' });
+    return this.machinePoolModal().getByRole('radio', { name: 'Use On-Demand instance price' });
   }
 
   setMaxPriceRadio(): Locator {
-    return this.page.getByRole('radio', { name: /Set maximum price/i });
+    return this.machinePoolModal().getByRole('radio', { name: /Set maximum price/i });
   }
 
   // MaxPriceField's FormGroup has no label prop; the Formik-stable id="maxPrice"
   // on the NumberInput wrapper is the only available identifier.
   maxPriceInput(): Locator {
-    return this.page.locator('#maxPrice').getByRole('spinbutton');
+    return this.machinePoolModal().locator('#maxPrice').getByRole('spinbutton');
+  }
+
+  // PF Label has no distinct accessible name; data-testid is set on the component.
+  spotInterruptionHandlingMode(): Locator {
+    return this.machinePoolModal().getByTestId('spotInterruptionHandlingMode');
+  }
+
+  // PatternFly Alert title is exposed as a heading ("Warning alert: …"), not role="alert".
+  spotInstanceWarningAlert(): Locator {
+    return this.machinePoolModal().getByRole('heading', {
+      name: /Your Spot Instance may be interrupted at any time/,
+    });
+  }
+
+  spotCapacityReservationConflictTooltip(): Locator {
+    return this.page.getByRole('tooltip', {
+      name: /Spot Instances and Capacity Reservations cannot both be enabled on the same machine pool/,
+    });
+  }
+
+  spotInstanceImmutableTooltip(): Locator {
+    return this.page.getByRole('tooltip', {
+      name: /This option cannot be edited from its original setting selection/,
+    });
+  }
+
+  async goToCostSavingsTab(): Promise<void> {
+    await this.costSavingsTab().click();
+    await expect(this.spotInstanceCheckbox()).toBeVisible();
+  }
+
+  async goToMachinePoolOverviewTab(): Promise<void> {
+    await this.machinePoolOverviewTab().click();
+    await expect(this.machinePoolIdInput()).toBeVisible();
+  }
+
+  async hoverSpotInstanceCheckbox(): Promise<void> {
+    // Disabled checkboxes fail Playwright actionability; force is required to open the tooltip.
+    await this.spotInstanceCheckbox().hover({ force: true });
+  }
+
+  async hoverCapacityReservationPreference(): Promise<void> {
+    // Disabled selects fail Playwright actionability; force is required to open the tooltip.
+    await this.capacityReservationPreferenceSelect().hover({ force: true });
+  }
+
+  async dismissMachinePoolModalIfOpen(): Promise<void> {
+    const modal = this.machinePoolModal();
+    if (await modal.isVisible()) {
+      await this.cancelMachinePoolModalButton().click();
+      await expect(modal).toBeHidden({ timeout: 15000 });
+    }
   }
 
   closeMachinePoolModalButton(): Locator {
@@ -525,6 +603,15 @@ export class MachinePoolsPage extends BasePage {
       expanded.getByRole('heading', { name: 'Spot instance pricing' }),
     ).toBeVisible();
     await expect(expanded.getByText(`Maximum hourly price: ${maxPrice}`)).toBeVisible();
+  }
+
+  async verifySpotOnDemandPricing(id: string): Promise<void> {
+    const expanded = this.expandedRowContent(id);
+    await expect(
+      expanded.getByRole('heading', { name: 'Spot instance pricing' }),
+    ).toBeVisible();
+    // On-Demand is a text node next to the heading, not its own element.
+    await expect(expanded).toContainText('On-Demand');
   }
 
   private async getAutoscaleValue(expanded: Locator, headingName: string): Promise<string> {
