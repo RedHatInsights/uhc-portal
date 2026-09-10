@@ -154,42 +154,4 @@ describe('<VersionSelectionGrid />', () => {
 
     expect(screen.queryByRole('separator')).not.toBeInTheDocument();
   });
-
-  describe('Upgrade to v5 warning', () => {
-    it('does not render when showUpgradeToV5Warning is false', () => {
-      render(<VersionSelectionGrid {...defaultProps} showUpgradeToV5Warning={false} />);
-
-      expect(screen.queryByTestId('classic-upgrade-to-v5-warning')).not.toBeInTheDocument();
-    });
-
-    it('renders for a ROSA Classic cluster when showUpgradeToV5Warning is true', () => {
-      render(<VersionSelectionGrid {...defaultProps} showUpgradeToV5Warning isRosa />);
-
-      expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
-      expect(
-        screen.getByText('create a new ROSA HCP cluster', { exact: false }),
-      ).toBeInTheDocument();
-    });
-
-    it('renders for an OSD Classic cluster when showUpgradeToV5Warning is true', () => {
-      render(<VersionSelectionGrid {...defaultProps} showUpgradeToV5Warning isRosa={false} />);
-
-      expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
-      expect(
-        screen.getByText('the last supported version for OSD Classic', { exact: false }),
-      ).toBeInTheDocument();
-    });
-
-    it('renders the ROSA HCP warning copy when isHypershift is true', () => {
-      render(<VersionSelectionGrid {...defaultProps} showUpgradeToV5Warning isRosa isHypershift />);
-
-      expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
-      expect(
-        screen.getByText('the last supported version for ROSA (EUS Term 1)', { exact: false }),
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByText('create a new ROSA HCP cluster', { exact: false }),
-      ).not.toBeInTheDocument();
-    });
-  });
 });

@@ -541,7 +541,7 @@ function Details() {
 
         <GridItem md={6}>
           <Stack hasGutter>
-            {!isHypershiftSelected ? <ClassicV5CreationWarning isClassic product="rosa" /> : null}
+            {!isHypershiftSelected ? <ClassicV5CreationWarning /> : null}
             <VersionSelection
               label="Version"
               onChange={handleVersionChange}
@@ -550,13 +550,6 @@ function Details() {
               isYStreamChannelEnabled={isYStreamChannelEnabled}
               key={selectedVersion?.id}
             />
-            {isHypershiftSelected ? (
-              <ClassicV5CreationWarning
-                isClassic={false}
-                product="rosa"
-                selectedVersion={selectedVersion?.raw_id}
-              />
-            ) : null}
           </Stack>
         </GridItem>
         <GridItem md={6} />

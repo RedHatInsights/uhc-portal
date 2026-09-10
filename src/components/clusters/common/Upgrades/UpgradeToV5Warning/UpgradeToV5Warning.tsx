@@ -5,48 +5,28 @@ import { Alert } from '@patternfly/react-core';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 
 interface UpgradeToV5WarningProps {
-  isRosa: boolean;
-  isHypershift?: boolean;
+  'data-testid'?: string;
 }
 
-const ROSA_CLASSIC_WARNING_TITLE =
-  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for ROSA Classic (EUS Term 1).';
-const ROSA_HCP_WARNING_TITLE =
-  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for ROSA (EUS Term 1).';
-const OSD_CLASSIC_WARNING_TITLE =
-  'OpenShift v4 is reaching end of life. OpenShift 4.23 is the last supported version for OSD Classic (EUS Term 1).';
-
-const getWarningTitle = (isRosa: boolean, isHypershift: boolean): string => {
-  if (isRosa && isHypershift) {
-    return ROSA_HCP_WARNING_TITLE;
-  }
-  if (isRosa) {
-    return ROSA_CLASSIC_WARNING_TITLE;
-  }
-  return OSD_CLASSIC_WARNING_TITLE;
-};
-
-const UpgradeToV5Warning = ({ isRosa, isHypershift = false }: UpgradeToV5WarningProps) => {
-  const showRosaHcpLink = isRosa && !isHypershift;
-
+const UpgradeToV5Warning = ({
+  'data-testid': dataTestId = 'classic-upgrade-to-v5-warning',
+}: UpgradeToV5WarningProps) => {
   return (
     <Alert
       variant="warning"
       isInline
       className="pf-v6-u-mb-md"
-      title={getWarningTitle(isRosa, isHypershift)}
-      data-testid="classic-upgrade-to-v5-warning"
-    >
-      {showRosaHcpLink ? (
+      data-testid={dataTestId}
+      title={
         <>
-          To continue with OpenShift v5,{' '}
+          To use OpenShift v5, please{' '}
           <InternalTrackingLink to="/create/rosa/getstarted">
-            create a new ROSA HCP cluster
+            create a ROSA HCP cluster
           </InternalTrackingLink>
           .
         </>
-      ) : null}
-    </Alert>
+      }
+    />
   );
 };
 

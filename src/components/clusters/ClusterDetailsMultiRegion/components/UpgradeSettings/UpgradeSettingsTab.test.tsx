@@ -545,7 +545,20 @@ describe('<UpgradeSettingsTab>', () => {
       product: { id: 'ROSA' },
       subscription: { ...createMockCluster().subscription, plan: { type: 'ROSA' } },
     });
-    const osdClassicCluster = createMockCluster({ product: { id: 'OSD' } });
+
+    const osdAwsClassicCluster = createMockCluster({
+      product: { id: 'OSD' },
+      subscription: {
+        ...createMockCluster().subscription,
+        plan: { type: 'OSD' },
+        cloud_provider_id: 'aws',
+      },
+    });
+    const osdGcpClassicCluster = createMockCluster({
+      product: { id: 'OSD' },
+      cloud_provider: { id: 'gcp' },
+      subscription: { ...createMockCluster().subscription, plan: { type: 'OSD' } },
+    });
 
     it('does not render when showUpgradeToV5Warning is false', () => {
       mockUseFeatureGate([[OCP5_SUPPORT, false]]);
@@ -561,54 +574,37 @@ describe('<UpgradeSettingsTab>', () => {
       renderComponent(rosaClassicCluster);
 
       expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
-      expect(
-        screen.getByText('create a new ROSA HCP cluster', { exact: false }),
-      ).toBeInTheDocument();
+      expect(screen.getByText('create a ROSA HCP cluster', { exact: false })).toBeInTheDocument();
     });
 
-    it('renders for an OSD Classic cluster when showUpgradeToV5Warning is true', () => {
+    it('renders for an OSD Classic AWS cluster when showUpgradeToV5Warning is true', () => {
       mockUseFeatureGate([[OCP5_SUPPORT, true]]);
 
-      renderComponent(osdClassicCluster);
+      renderComponent(osdAwsClassicCluster);
 
       expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
-      expect(
-        screen.getByText('the last supported version for OSD Classic', { exact: false }),
-      ).toBeInTheDocument();
+      expect(screen.getByText('create a ROSA HCP cluster', { exact: false })).toBeInTheDocument();
     });
 
-    it('renders for a ROSA HCP v4 cluster when the feature flag is on', () => {
+    it('does not render for an OSD Classic GCP cluster', () => {
       mockUseFeatureGate([[OCP5_SUPPORT, true]]);
 
-      const rosaHcpV4Cluster = createMockCluster({
+      renderComponent(osdGcpClassicCluster);
+
+      expect(screen.queryByTestId('classic-upgrade-to-v5-warning')).not.toBeInTheDocument();
+    });
+
+    it('does not render for a ROSA HCP cluster', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      const rosaHcpCluster = createMockCluster({
         product: { id: 'ROSA' },
         subscription: { ...createMockCluster().subscription, plan: { type: 'ROSA' } },
         hypershift: { enabled: true },
         version: { ...createMockCluster().version, raw_id: '4.19.0' },
       });
 
-      renderComponent(rosaHcpV4Cluster);
-
-      expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
-      expect(
-        screen.getByText('the last supported version for ROSA (EUS Term 1)', { exact: false }),
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByText('create a new ROSA HCP cluster', { exact: false }),
-      ).not.toBeInTheDocument();
-    });
-
-    it('does not render for a ROSA HCP v5 cluster', () => {
-      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
-
-      const rosaHcpV5Cluster = createMockCluster({
-        product: { id: 'ROSA' },
-        subscription: { ...createMockCluster().subscription, plan: { type: 'ROSA' } },
-        hypershift: { enabled: true },
-        version: { ...createMockCluster().version, raw_id: '5.0.0' },
-      });
-
-      renderComponent(rosaHcpV5Cluster);
+      renderComponent(rosaHcpCluster);
 
       expect(screen.queryByTestId('classic-upgrade-to-v5-warning')).not.toBeInTheDocument();
     });
