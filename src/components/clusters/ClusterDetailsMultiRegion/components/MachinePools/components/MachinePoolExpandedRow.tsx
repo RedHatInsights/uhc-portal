@@ -99,7 +99,9 @@ const MachinePoolExpandedRow = ({
   const awsTagsNewMP = useFeatureGate(AWS_TAGS_NEW_MP);
   const isCapacityReservationIdFieldEnabled = useFeatureGate(CAPACITY_RESERVATION_ID_FIELD);
   const { clusterVpc } = useAWSVPCFromCluster(cluster, region);
-  const spotMarketOptions = machinePool?.aws?.spot_market_options;
+  const nodePoolAwsConfig = (machinePool as NodePool)?.aws_node_pool;
+  const spotMarketOptions =
+    machinePool?.aws?.spot_market_options || nodePoolAwsConfig?.spot_market_options;
   const securityGroupIds =
     machinePool?.aws?.additional_security_group_ids ||
     (machinePool as NodePool)?.aws_node_pool?.additional_security_group_ids ||

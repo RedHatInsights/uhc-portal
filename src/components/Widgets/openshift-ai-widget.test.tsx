@@ -19,7 +19,7 @@ describe('OpenShiftAiWidget', () => {
   it('should render the "OpenShift AI" link with correct text', () => {
     render(<OpenShiftAiWidget />);
 
-    expect(screen.getByText('OpenShift AI')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /OpenShift AI/i })).toBeInTheDocument();
   });
 
   it('should link to the correct external URL', () => {
@@ -46,11 +46,9 @@ describe('OpenShiftAiWidget', () => {
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
-  it('should render as an anchor tag (not a router Link) since it is external', () => {
+  it('should include accessible text that the link opens a new tab', () => {
     render(<OpenShiftAiWidget />);
 
-    const link = screen.getByRole('link', { name: /OpenShift AI/i });
-    expect(link.tagName).toBe('A');
-    expect(link).toHaveAttribute('href', expect.stringContaining('https://'));
+    expect(screen.getByRole('link', { name: /opens new tab/i })).toBeInTheDocument();
   });
 });

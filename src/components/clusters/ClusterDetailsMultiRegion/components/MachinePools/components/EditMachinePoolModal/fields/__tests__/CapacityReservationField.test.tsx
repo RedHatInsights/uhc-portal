@@ -102,4 +102,52 @@ describe('<CapacityReservationField>', () => {
     );
     expect(screen.queryByText('Capacity Reservation')).not.toBeInTheDocument();
   });
+
+  it('disables the reservation preference dropdown when Spot instances is enabled', () => {
+    mockUseFeatureGate([[CAPACITY_RESERVATION_ID_FIELD, true]]);
+    render(
+      <MockFormikWrapper
+        initialValues={{
+          capacityReservationId: '',
+          capacityReservationPreference: 'none',
+          useSpotInstances: true,
+        }}
+      >
+        <CapacityReservationField cluster={mockHypershiftCluster} isEdit={false} />
+      </MockFormikWrapper>,
+    );
+    expect(screen.getByRole('button', { name: 'Reservation Preference' })).toBeDisabled();
+  });
+
+  it('disables the Reservation Id field when Spot instances is enabled', () => {
+    mockUseFeatureGate([[CAPACITY_RESERVATION_ID_FIELD, true]]);
+    render(
+      <MockFormikWrapper
+        initialValues={{
+          capacityReservationId: '',
+          capacityReservationPreference: 'capacity-reservations-only',
+          useSpotInstances: true,
+        }}
+      >
+        <CapacityReservationField cluster={mockHypershiftCluster} isEdit={false} />
+      </MockFormikWrapper>,
+    );
+    expect(screen.getByLabelText('Reservation Id')).toBeDisabled();
+  });
+
+  it('does not disable the reservation preference dropdown when Spot instances is disabled', () => {
+    mockUseFeatureGate([[CAPACITY_RESERVATION_ID_FIELD, true]]);
+    render(
+      <MockFormikWrapper
+        initialValues={{
+          capacityReservationId: '',
+          capacityReservationPreference: 'none',
+          useSpotInstances: false,
+        }}
+      >
+        <CapacityReservationField cluster={mockHypershiftCluster} isEdit={false} />
+      </MockFormikWrapper>,
+    );
+    expect(screen.getByRole('button', { name: 'Reservation Preference' })).not.toBeDisabled();
+  });
 });
