@@ -37,6 +37,12 @@ import config, { APP_API_ENV } from './config';
 
 import './styles/main.scss';
 
+if (APP_DEVMODE && APP_MSW_ENABLED) {
+  import('./mocks/browser')
+    .then(({ worker }) => worker.start({ onUnhandledRequest: 'bypass' }))
+    .catch((err) => console.error('[MSW] Failed to start worker:', err));
+}
+
 type Props = {
   chrome: Chrome;
   track: Track;

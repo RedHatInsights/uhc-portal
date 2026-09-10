@@ -169,6 +169,7 @@
     "lint-staged": "^15.0.0",
     "madge": "8.0.0",
     "monaco-editor-webpack-plugin": "^7.1.0",
+    "msw": "^2.14.6",
     "node-fetch": "^3.0.0",
     "nyc": "^17.0.0",
     "openapi-typescript": "^7.5.2",
@@ -209,6 +210,8 @@
   "scripts": {
     "dev": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'HOT=true fec dev --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
     "start": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'fec dev-proxy --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
+    "msw": "./start-with-msw.sh",
+    "msw:setup": "./setup-msw.sh",
     "build": "fec build",
     "build:prod": "MODE=prod npm run build",
     "build:prod:monitored": "run/build-prod-monitored.sh",
