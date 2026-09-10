@@ -107,6 +107,7 @@ function AWSAccountSelectionStoryShell({
           error: '',
         }}
         clearGetAWSAccountIDsResponse={() => undefined}
+        openDrawer={() => undefined}
       />
     </QueryClientProvider>
   );

@@ -14,6 +14,7 @@ const defaultProps: ComponentProps<typeof AWSAccountRolesError> = {
   isHypershiftSelected: false,
   isMissingOCMRole: false,
   onRefreshOCMRole: jest.fn(),
+  openDrawer: jest.fn(),
 };
 
 describe('<AWSAccountRolesError />', () => {
@@ -99,6 +100,32 @@ describe('<AWSAccountRolesError />', () => {
       render(<AWSAccountRolesError {...defaultProps} isOCMRoleError={false} />);
 
       expect(screen.queryByText('Cannot detect an OCM role')).not.toBeInTheDocument();
+    });
+
+    it('calls openDrawer with targetRole "ocm" when create the required role is clicked', async () => {
+      const openDrawer = jest.fn();
+      render(<AWSAccountRolesError {...defaultProps} isOCMRoleError openDrawer={openDrawer} />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'create the required role' }));
+
+      expect(openDrawer).toHaveBeenCalledTimes(1);
+      expect(openDrawer).toHaveBeenCalledWith({
+        targetRole: 'ocm',
+        onClose: expect.any(Function),
+      });
+    });
+  });
+
+  it('calls openDrawer with targetRole "account" when create the required role is clicked', async () => {
+    const openDrawer = jest.fn();
+    render(<AWSAccountRolesError {...defaultProps} openDrawer={openDrawer} />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'create the required role' }));
+
+    expect(openDrawer).toHaveBeenCalledTimes(1);
+    expect(openDrawer).toHaveBeenCalledWith({
+      targetRole: 'account',
+      onClose: expect.any(Function),
     });
   });
 });

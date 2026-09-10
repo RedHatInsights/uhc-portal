@@ -85,6 +85,21 @@ describe('AWSAccountSelection tests', () => {
     await checkAccessibility(container);
   });
 
+  it('calls openDrawer when How to associate a new AWS account is clicked', async () => {
+    const openDrawer = jest.fn();
+    const { user } = render(<AWSAccountSelection {...defaultProps} openDrawer={openDrawer} />);
+
+    await user.click(screen.getByText(/select an account/i));
+    await user.click(
+      await screen.findByRole('button', { name: 'How to associate a new AWS account' }),
+    );
+
+    expect(openDrawer).toHaveBeenCalledTimes(1);
+    expect(openDrawer).toHaveBeenCalledWith({
+      onClose: expect.any(Function),
+    });
+  });
+
   it('field is required if required prop is set to true', () => {
     const onChangeMock = jest.fn();
 

@@ -2,18 +2,22 @@ import React, { MouseEventHandler, useCallback } from 'react';
 
 import { Alert, AlertProps, Button, Content, ContentVariants } from '@patternfly/react-core';
 
-import { useAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/AssociateAWSAccountDrawer';
 import { AWSAccountRole } from './AssociateAWSAccountDrawer/common/AssociateAWSAccountStep';
+import { OpenAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
 
 type AwsRoleErrorAlertProps = Pick<AlertProps, 'title'> & {
+  openDrawer: OpenAssociateAWSAccountDrawer;
   targetRole?: AWSAccountRole;
 };
 
-export const AwsRoleErrorAlert = ({ title, targetRole }: AwsRoleErrorAlertProps) => {
-  const { openDrawer } = useAssociateAWSAccountDrawer();
+export const AwsRoleErrorAlert = ({ openDrawer, title, targetRole }: AwsRoleErrorAlertProps) => {
   const onClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     (event) => {
-      openDrawer({ focusOnClose: event.target as HTMLElement, targetRole });
+      const focusTarget = event.currentTarget;
+      openDrawer({
+        targetRole,
+        onClose: () => focusTarget.focus(),
+      });
     },
     [openDrawer, targetRole],
   );

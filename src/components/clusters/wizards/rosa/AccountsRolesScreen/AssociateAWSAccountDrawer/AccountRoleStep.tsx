@@ -4,8 +4,6 @@ import { Alert, AlertVariant, Content, ContentVariants } from '@patternfly/react
 
 import { trackEvents } from '~/common/analytics';
 import docLinks from '~/common/docLinks.mjs';
-import { useFormState } from '~/components/clusters/wizards/hooks';
-import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import InstructionCommand from '~/components/common/InstructionCommand';
 
@@ -15,14 +13,15 @@ import AssociateAWSAccountStep, {
   AssociateAWSAccountStepProps,
 } from './common/AssociateAWSAccountStep';
 
-const AccountRoleStep = (props: AssociateAWSAccountStepProps) => {
-  const {
-    values: { [FieldId.Hypershift]: hypershift },
-  } = useFormState();
-  const isHypershiftSelected = hypershift === 'true';
+type AccountRoleStepProps = AssociateAWSAccountStepProps & {
+  isHypershiftSelected: boolean;
+};
+
+const AccountRoleStep = ({ isHypershiftSelected, ...props }: AccountRoleStepProps) => {
   const accountRolesCommand = isHypershiftSelected
     ? RosaCliCommand.CreateAccountRolesHCP
     : RosaCliCommand.CreateAccountRoles;
+
   return (
     <AssociateAWSAccountStep {...props}>
       <Content component={ContentVariants.p} className="pf-v6-u-mb-lg">
