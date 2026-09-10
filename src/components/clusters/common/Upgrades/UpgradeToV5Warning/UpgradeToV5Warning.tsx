@@ -10,24 +10,22 @@ interface UpgradeToV5WarningProps {
 
 const UpgradeToV5Warning = ({
   'data-testid': dataTestId = 'classic-upgrade-to-v5-warning',
-}: UpgradeToV5WarningProps) => {
-  return (
-    <Alert
-      variant="warning"
-      isInline
-      className="pf-v6-u-mb-md"
-      data-testid={dataTestId}
-      title={
-        <>
-          To use OpenShift v5, please{' '}
-          <InternalTrackingLink to="/create/rosa/getstarted">
-            create a ROSA HCP cluster
-          </InternalTrackingLink>
-          .
-        </>
-      }
-    />
-  );
-};
+}: UpgradeToV5WarningProps) => (
+  <Alert
+    variant="warning"
+    isInline
+    className="pf-v6-u-mb-md"
+    data-testid={dataTestId}
+    title={
+      <>
+        To use OpenShift v5, please{' '}
+        <InternalTrackingLink to="/create/rosa/getstarted">
+          create a ROSA HCP cluster
+        </InternalTrackingLink>
+        .
+      </>
+    }
+  />
+);
 
 export { UpgradeToV5Warning };
