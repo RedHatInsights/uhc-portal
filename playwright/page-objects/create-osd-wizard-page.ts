@@ -565,11 +565,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.locator('input[id="form-radiobutton-upgrade_policy-manual-field"]');
   }
 
-  async selectNodeDraining(nodeDrain: string): Promise<void> {
-    await this.page.getByTestId('grace-period-select').click();
-    await this.page.getByRole('button', { name: nodeDrain }).click();
-  }
-
   // Review screen
   subscriptionTypeValue(): Locator {
     return this.page.getByTestId('Subscription-type').locator('div');
@@ -734,6 +729,10 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   // Persistent storage value in review screen
   persistentStorageValue(): Locator {
     return this.page.getByTestId('Persistent-storage').locator('div');
+  }
+
+  loadBalancersValue(): Locator {
+    return this.page.getByTestId('Load-balancers').locator('div');
   }
 
   // Update strategy recurring radio

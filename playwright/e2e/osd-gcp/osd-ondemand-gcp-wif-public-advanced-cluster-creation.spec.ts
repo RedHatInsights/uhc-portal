@@ -158,7 +158,7 @@ test.describe.serial(
     }) => {
       await createOSDWizardPage.isClusterUpdatesScreen();
       await expect(createOSDWizardPage.updateStrategyIndividualRadio()).toBeChecked();
-      await createOSDWizardPage.selectNodeDraining(clusterProperties.NodeDraining);
+      await createOSDWizardPage.selectGracePeriod(clusterProperties.NodeDraining);
       await createOSDWizardPage.wizardNextButton().click();
     });
 

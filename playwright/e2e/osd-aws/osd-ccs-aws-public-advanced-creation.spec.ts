@@ -196,7 +196,7 @@ test.describe.serial(
       } else {
         await createOSDWizardPage.updateStrategyIndividualRadio().check({ force: true });
       }
-      await createOSDWizardPage.selectNodeDraining(clusterProperties.NodeDraining);
+      await createOSDWizardPage.selectGracePeriod(clusterProperties.NodeDraining);
       await createOSDWizardPage.wizardNextButton().click();
     });
 
