@@ -1,0 +1,50 @@
+{
+  "osd-nonccs-gcp-advanced": {
+    "day1Profile": {
+      "Description": "OSD non-CCS GCP public cluster with multi-zone and custom configuration",
+      "Type": "OSD",
+      "CloudProvider": "Google Cloud",
+      "SubscriptionType": "Annual: Fixed capacity subscription from Red Hat",
+      "SubscriptionBillingModel": "Annual Red Hat subscriptions",
+      "InfrastructureType": "Red Hat cloud account",
+      "DomainPrefix": "osdrhgcpmul",
+      "ClusterName": "ocmui-playwright-osd-nonccs-gcp-advanced",
+      "Region": "us-west1, The Dalles, Oregon, USA",
+      "Availability": "Multi-zone",
+      "EnableSecureBootSupportForSchieldedVMs": "Enabled",
+      "AdditionalEncryption": "Enabled",
+      "FIPSCryptography": "Enabled",
+      "UserWorkloadMonitoring": "Enabled",
+      "PersistentStorage": "600 GiB",
+      "LoadBalancers": "4",
+      "ClusterPrivacy": "Public",
+      "MachinePools": {
+        "InstanceType": "custom-4-16384",
+        "Autoscaling": "Enabled",
+        "MinimumNodeCount": "3",
+        "MaximumNodeCount": "4",
+        "NodeLabel": [
+          {
+            "Key": "name",
+            "Value": "ocmui-playwright-osd-nonccs-gcp-multizone"
+          }
+        ]
+      },
+      "MachineCIDR": "10.0.0.0/16",
+      "ServiceCIDR": "172.30.0.0/16",
+      "PodCIDR": "10.128.0.0/14",
+      "HostPrefix": "/23",
+      "UpdateStrategy": "Recurring updates",
+      "NodeDraining": "2 hours"
+    },
+    "day2Profile": {
+      "Overview": {
+        "ClusterAutoScaling": "Enabled"
+      },
+      "ScaleCluster": {
+        "PersistentStorage": "100 GiB",
+        "LoadBalancers": "0"
+      }
+    }
+  }
+}

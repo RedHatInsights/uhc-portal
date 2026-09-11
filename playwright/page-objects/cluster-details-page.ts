@@ -320,6 +320,10 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('infrastructureAWSAccount');
   }
 
+  clusterInfrastructureGCPAccountLabelValue(): Locator {
+    return this.page.getByTestId('infrastructureGCPAccount');
+  }
+
   /** Pencil/edit control that opens the billing account modal. */
   clusterBillingMarketplaceAccountLabelValue(): Locator {
     return this.page.getByTestId('billingMarketplaceAccountLink');
@@ -456,6 +460,97 @@ export class ClusterDetailsPage extends BasePage {
 
   clusterLoadBalancersValue(): Locator {
     return this.page.getByLabel('Load balancers', { exact: true });
+  }
+
+  editLoadBalancersPersistentStorageMenuItem(): Locator {
+    return this.page.getByRole('menuitem', {
+      name: 'Edit load balancers and persistent storage',
+    });
+  }
+
+  scaleClusterModal(): Locator {
+    return this.page.getByRole('dialog', { name: 'Edit load balancers and persistent storage' });
+  }
+
+  scaleClusterLoadBalancersSelect(): Locator {
+    return this.scaleClusterModal().getByRole('combobox', { name: 'Load Balancers' });
+  }
+
+  scaleClusterPersistentStorageSelect(): Locator {
+    return this.scaleClusterModal().getByRole('combobox', { name: 'Persistent Storage' });
+  }
+
+  scaleClusterApplyButton(): Locator {
+    return this.scaleClusterModal().getByRole('button', { name: 'Apply' });
+  }
+
+  scaleClusterCancelButton(): Locator {
+    return this.scaleClusterModal().getByRole('button', { name: 'Cancel' });
+  }
+
+  async openScaleClusterModal(): Promise<void> {
+    await this.openActionsDropdown();
+    await this.editLoadBalancersPersistentStorageMenuItem().click();
+    await expect(this.scaleClusterModal()).toBeVisible({ timeout: 30000 });
+    await expect(this.scaleClusterLoadBalancersSelect()).toBeEnabled({ timeout: 120000 });
+    await expect(this.scaleClusterPersistentStorageSelect()).toBeEnabled({ timeout: 120000 });
+  }
+
+  loadBalancersOverviewDisplayValue(loadBalancers: string): string {
+    return Number(loadBalancers) > 0 ? loadBalancers : 'N/A';
+  }
+
+  async expectOverviewPersistentStorageAndLoadBalancers(
+    persistentStorage: string,
+    loadBalancers: string,
+  ): Promise<void> {
+    await this.openOverviewTab();
+    await expect(this.clusterPersistentStorageLabelValue()).toContainText(persistentStorage);
+    await expect(this.clusterLoadBalancersValue()).toContainText(
+      this.loadBalancersOverviewDisplayValue(loadBalancers),
+    );
+  }
+
+  async applyScaleClusterModal(): Promise<void> {
+    await expect(this.scaleClusterApplyButton()).toBeEnabled();
+    const patchResponse = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === 'PATCH' &&
+        response.url().includes('/api/clusters_mgmt/') &&
+        response.url().includes('/clusters/') &&
+        response.ok(),
+    );
+    await this.scaleClusterApplyButton().click();
+    await patchResponse;
+    await expect(this.scaleClusterModal()).toBeHidden({ timeout: 60000 });
+  }
+
+  async updateLoadBalancersAndPersistentStorage(
+    loadBalancers: string,
+    persistentStorage: string,
+  ): Promise<void> {
+    await this.openScaleClusterModal();
+    await this.scaleClusterLoadBalancersSelect().selectOption(loadBalancers);
+    await this.scaleClusterPersistentStorageSelect().selectOption({ label: persistentStorage });
+    await this.applyScaleClusterModal();
+    await expect(async () => {
+      await this.clusterDetailsPageRefresh();
+      await this.expectOverviewPersistentStorageAndLoadBalancers(persistentStorage, loadBalancers);
+    }).toPass({ timeout: 120_000, intervals: [5_000, 10_000, 20_000] });
+  }
+
+  async ensureLoadBalancersAndPersistentStorage(
+    loadBalancers: string,
+    persistentStorage: string,
+  ): Promise<void> {
+    await this.navigateToOverviewTab();
+    const storageText = await this.clusterPersistentStorageLabelValue().innerText();
+    const loadBalancersText = await this.clusterLoadBalancersValue().innerText();
+    const expectedLoadBalancers = this.loadBalancersOverviewDisplayValue(loadBalancers);
+    if (storageText.includes(persistentStorage) && loadBalancersText.includes(expectedLoadBalancers)) {
+      return;
+    }
+    await this.updateLoadBalancersAndPersistentStorage(loadBalancers, persistentStorage);
   }
 
   clusterComputeNodeCountValue(): Locator {
