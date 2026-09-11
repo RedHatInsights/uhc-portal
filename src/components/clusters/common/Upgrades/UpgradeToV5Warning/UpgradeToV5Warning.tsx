@@ -2,22 +2,29 @@ import React from 'react';
 
 import { Alert } from '@patternfly/react-core';
 
+import InternalTrackingLink from '~/components/common/InternalTrackingLink';
+
 interface UpgradeToV5WarningProps {
-  isRosa: boolean;
+  'data-testid'?: string;
 }
 
-const getWarningTitle = (isRosa: boolean): string =>
-  isRosa
-    ? 'OpenShift v4 reaches end of life on March 31, 2028. Classic clusters cannot be upgraded to v5. To continue with OpenShift v5, create a new ROSA HCP cluster.'
-    : 'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
-
-const UpgradeToV5Warning = ({ isRosa }: UpgradeToV5WarningProps) => (
+const UpgradeToV5Warning = ({
+  'data-testid': dataTestId = 'classic-upgrade-to-v5-warning',
+}: UpgradeToV5WarningProps) => (
   <Alert
     variant="warning"
     isInline
     className="pf-v6-u-mb-md"
-    title={getWarningTitle(isRosa)}
-    data-testid="classic-upgrade-to-v5-warning"
+    data-testid={dataTestId}
+    title={
+      <>
+        To use OpenShift v5, please{' '}
+        <InternalTrackingLink to="/create/rosa/getstarted">
+          create a ROSA HCP cluster
+        </InternalTrackingLink>
+        .
+      </>
+    }
   />
 );
 

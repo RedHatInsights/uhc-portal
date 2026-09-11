@@ -1,34 +1,41 @@
 import React from 'react';
 
-import { checkAccessibility, render, screen } from '~/testUtils';
+import { trackEvents } from '~/common/analytics';
+import { checkAccessibility, render, screen, within } from '~/testUtils';
 
 import { UpgradeToV5Warning } from './UpgradeToV5Warning';
 
-const rosaClassicWarningText =
-  'OpenShift v4 reaches end of life on March 31, 2028. Classic clusters cannot be upgraded to v5. To continue with OpenShift v5, create a new ROSA HCP cluster.';
-const osdClassicWarningText =
-  'OpenShift v4 reaches end of life on March 31, 2028. OpenShift 4.23 is the last supported version for OSD Classic.';
+const useAnalyticsMock = jest.fn();
+jest.mock('~/hooks/useAnalytics', () => jest.fn(() => useAnalyticsMock));
+
+const warningText = 'To use OpenShift v5, please create a ROSA HCP cluster.';
 
 describe('<UpgradeToV5Warning />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('is accessible', async () => {
-    const { container } = render(<UpgradeToV5Warning isRosa />);
+    const { container } = render(<UpgradeToV5Warning />);
 
     await checkAccessibility(container);
   });
 
-  it('renders the ROSA Classic warning copy when isRosa is true', () => {
-    render(<UpgradeToV5Warning isRosa />);
+  it('renders the warning with a tracked link to create a ROSA HCP cluster', async () => {
+    const { user } = render(<UpgradeToV5Warning />);
 
-    expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toHaveTextContent(
-      rosaClassicWarningText,
-    );
-  });
+    const alert = screen.getByTestId('classic-upgrade-to-v5-warning');
+    expect(alert).toHaveTextContent(warningText);
 
-  it('renders the OSD Classic warning copy when isRosa is false', () => {
-    render(<UpgradeToV5Warning isRosa={false} />);
+    const link = within(alert).getByRole('link', { name: 'create a ROSA HCP cluster' });
+    expect(link).toHaveAttribute('href', '/openshift/create/rosa/getstarted');
 
-    expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toHaveTextContent(
-      osdClassicWarningText,
-    );
+    useAnalyticsMock.mockClear();
+    await user.click(link);
+
+    expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.CreateClusterROSA, {
+      url: '/create/rosa/getstarted',
+      path: window.location.pathname,
+    });
   });
 });

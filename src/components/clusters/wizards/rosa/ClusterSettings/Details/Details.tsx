@@ -12,6 +12,7 @@ import {
   GridItem,
   Split,
   SplitItem,
+  Stack,
   Title,
 } from '@patternfly/react-core';
 
@@ -42,6 +43,7 @@ import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { ChannelGroupSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelGroupSelectField';
 import { ChannelSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelSelectField';
 import { ClassicEtcdEncryptionSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdEncryptionSection';
+import { ClassicV5CreationWarning } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicV5CreationWarning/ClassicV5CreationWarning';
 import CloudRegionSelectField from '~/components/clusters/wizards/common/ClusterSettings/Details/CloudRegionSelectField';
 import { FipsCryptographySection } from '~/components/clusters/wizards/common/ClusterSettings/Details/FipsCryptographySection';
 import { useResetMaxNodesTotal } from '~/components/clusters/wizards/common/ClusterSettings/Details/useResetMaxNodesTotal/useResetMaxNodesTotal';
@@ -538,14 +540,17 @@ function Details() {
         ) : null}
 
         <GridItem md={6}>
-          <VersionSelection
-            label="Version"
-            onChange={handleVersionChange}
-            channelGroup={channelGroup}
-            isEUSChannelEnabled={isEUSChannelEnabled}
-            isYStreamChannelEnabled={isYStreamChannelEnabled}
-            key={selectedVersion?.id}
-          />
+          <Stack hasGutter>
+            {!isHypershiftSelected ? <ClassicV5CreationWarning /> : null}
+            <VersionSelection
+              label="Version"
+              onChange={handleVersionChange}
+              channelGroup={channelGroup}
+              isEUSChannelEnabled={isEUSChannelEnabled}
+              isYStreamChannelEnabled={isYStreamChannelEnabled}
+              key={selectedVersion?.id}
+            />
+          </Stack>
         </GridItem>
         <GridItem md={6} />
 

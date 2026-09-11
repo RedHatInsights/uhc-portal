@@ -409,7 +409,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                         isHypershift={isHypershift}
                         hasUnmetAcknowledgements={hasVersionGates}
                       />
-                      {showUpgradeToV5Warning && <UpgradeToV5Warning isRosa={isRosa} />}
+                      {showUpgradeToV5Warning && <UpgradeToV5Warning />}
                       <UpdateAllMachinePools
                         goToMachinePoolTab
                         isHypershift={isHypershift}
