@@ -61,6 +61,6 @@ export class OCMRolesAndAccessPage extends BasePage {
   deleteRoleConfirm(): Locator {
     return this.page
       .getByRole('dialog', { name: 'Are you sure you want to delete this role?' })
-      .getByRole('button', { name: 'Delete' })
+      .getByRole('button', { name: 'Delete' });
   }
 }

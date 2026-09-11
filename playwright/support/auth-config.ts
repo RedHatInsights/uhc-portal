@@ -34,11 +34,14 @@ export function getAuthConfig(username?: string, password?: string): AuthConfig 
  * @example
  * getUsernameSuffix('abcd@redhat.com') // 'abcd'
  * getUsernameSuffix('abcd') // 'abcd'
- * getUsernameSuffix('_cypress-bot') // 'cypr'
+ * getUsernameSuffix('_qe-bot') // 'qebot' (truncated to length)
  */
 export function getUsernameSuffix(username?: string, length = 4): string {
   const name = username ?? getAuthConfig().username;
-  const suffix = name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().substring(0, length);
+  const suffix = name
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toLowerCase()
+    .substring(0, length);
 
   if (!suffix) {
     throw new Error(
