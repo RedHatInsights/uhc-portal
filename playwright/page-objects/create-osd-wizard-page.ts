@@ -589,6 +589,10 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByTestId('Persistent-storage').locator('div');
   }
 
+  loadBalancersValue(): Locator {
+    return this.page.getByTestId('Load-balancers').locator('div');
+  }
+
   // Additional billing model options
   subscriptionTypeOnDemandFlexibleRadio(): Locator {
     return this.page.locator('input[name="billing_model"][value="marketplace-gcp"]');
