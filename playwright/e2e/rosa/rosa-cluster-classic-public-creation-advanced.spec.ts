@@ -127,9 +127,7 @@ test.describe.serial(
     test('Step - Networking - VPC Settings', async ({ page, createRosaWizardPage }) => {
       await createRosaWizardPage.isVPCSettingsScreen();
       await expect(
-        page.getByText(
-          `Select a VPC to install your cluster into your selected region: ${region}`,
-        ),
+        page.getByText(`Select a VPC to install your cluster into your selected region: ${region}`),
       ).toBeVisible();
       await createRosaWizardPage.waitForVPCList();
       await createRosaWizardPage.selectVPC(qeInfrastructure.VPC_NAME);
@@ -180,9 +178,7 @@ test.describe.serial(
         new RegExp(clusterName.substring(0, 27)),
       );
       await createRosaWizardPage.customOperatorPrefixInput().selectText();
-      await createRosaWizardPage
-        .customOperatorPrefixInput()
-        .fill(clusterName.substring(0, 27));
+      await createRosaWizardPage.customOperatorPrefixInput().fill(clusterName.substring(0, 27));
       await createRosaWizardPage.rosaNextButton().click();
     });
 

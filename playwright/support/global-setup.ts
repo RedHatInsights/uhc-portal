@@ -22,7 +22,7 @@ async function globalSetup(config: FullConfig) {
   // Create a browser instance
   const browser = await chromium.launch();
   const context = await browser.newContext({
-    viewport: { width: 1280, height: 800 }, // Similar to Cypress "macbook-13"
+    viewport: { width: 1280, height: 800 },
     baseURL: baseURL,
     ignoreHTTPSErrors: ignoreHTTPSErrors, // Use the same setting from main config
   });
@@ -34,7 +34,7 @@ async function globalSetup(config: FullConfig) {
   try {
     console.log('🔐 Starting GLOBAL authentication setup (ONCE for all tests)...');
 
-    // Set cookies for disabling CookieConsent dialog (similar to Cypress session setup)
+    // Set cookies for disabling CookieConsent dialog
     await context.addCookies([
       {
         name: 'notice_gdpr_prefs',
@@ -59,7 +59,7 @@ async function globalSetup(config: FullConfig) {
     console.log('🍪 Set session cookies to disable cookie consent dialog');
 
     const page = await context.newPage();
-    // Handle uncaught exceptions (similar to Cypress)
+    // Handle uncaught page errors during setup
     const loggedKnownErrors = new Set<string>();
     page.on('pageerror', (error) => {
       // Filter out known frontend errors from the Red Hat console
@@ -92,7 +92,7 @@ async function globalSetup(config: FullConfig) {
     // Wait a bit after authentication to ensure session is established
     await page.waitForTimeout(3000);
 
-    // Check if we're in GOV_CLOUD environment (similar to Cypress condition)
+    // Check if we're in GOV_CLOUD environment
     const isGovCloud = process.env.GOV_CLOUD === 'true';
     if (!isGovCloud) {
       // Wait for navigation to complete after login

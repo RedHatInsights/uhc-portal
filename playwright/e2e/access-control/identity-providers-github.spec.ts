@@ -151,7 +151,9 @@ test.describe.serial(
       await identityProvidersPage.clickEditIdp(idpName);
       await expect(identityProvidersPage.editIdpHeading()).toBeVisible();
 
-      await expect(identityProvidersPage.mappingMethodValue()).toContainText(testData.MappingMethod);
+      await expect(identityProvidersPage.mappingMethodValue()).toContainText(
+        testData.MappingMethod,
+      );
 
       const clientIdValue = await identityProvidersPage.clientIdInput().inputValue();
       expect(clientIdValue).toBe(clientId);
@@ -200,7 +202,9 @@ test.describe.serial(
       await identityProvidersPage.submitEditAndVerify();
     });
 
-    test('Delete GitHub IDP (Organizations) and verify removal', async ({ identityProvidersPage }) => {
+    test('Delete GitHub IDP (Organizations) and verify removal', async ({
+      identityProvidersPage,
+    }) => {
       await identityProvidersPage.goToAccessControlTab();
       await identityProvidersPage.goToIdentityProvidersTab();
 

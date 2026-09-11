@@ -16,9 +16,7 @@ test.describe.serial(
 
     test.beforeAll(async ({ navigateTo }) => {
       if (!QE_GCP_WIF_CONFIG?.trim()) {
-        throw new Error(
-          'QE_GCP_WIF_CONFIG must be set for GCP WIF Shared VPC DNS tests',
-        );
+        throw new Error('QE_GCP_WIF_CONFIG must be set for GCP WIF Shared VPC DNS tests');
       }
       await navigateTo('create');
     });
@@ -207,7 +205,9 @@ test.describe.serial(
       await expect(createOSDWizardPage.sharedHostProjectIdValue()).toContainText(
         SHARED_VPC_INFRA['HOST_PROJECT_ID'] || '',
       );
-      await expect(createOSDWizardPage.dnsZoneValue()).toContainText(clusterProperties.DomainPrefix);
+      await expect(createOSDWizardPage.dnsZoneValue()).toContainText(
+        clusterProperties.DomainPrefix,
+      );
       await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
         SHARED_VPC_INFRA['VPC_NAME'] || '',
       );

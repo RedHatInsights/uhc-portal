@@ -103,10 +103,7 @@ export class IdentityProvidersPage extends BasePage {
 
   async clickEditIdp(idpName: string): Promise<void> {
     await this.openIdpActionsMenu(idpName);
-    await Promise.all([
-      this.page.waitForURL(/\/edit-idp\//),
-      this.editMenuItem().click(),
-    ]);
+    await Promise.all([this.page.waitForURL(/\/edit-idp\//), this.editMenuItem().click()]);
   }
 
   async clickDeleteIdp(idpName: string): Promise<void> {

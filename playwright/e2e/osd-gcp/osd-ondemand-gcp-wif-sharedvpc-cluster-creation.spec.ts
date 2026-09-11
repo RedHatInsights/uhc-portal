@@ -16,9 +16,7 @@ test.describe.serial(
 
     test.beforeAll(async ({ navigateTo }) => {
       if (!QE_GCP_WIF_CONFIG?.trim()) {
-        throw new Error(
-          'QE_GCP_WIF_CONFIG must be set for GCP WIF Shared VPC tests',
-        );
+        throw new Error('QE_GCP_WIF_CONFIG must be set for GCP WIF Shared VPC tests');
       }
       await navigateTo('create');
     });

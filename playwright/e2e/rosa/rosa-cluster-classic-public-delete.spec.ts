@@ -20,9 +20,7 @@ test.describe.serial(
       await clusterListPage.openClusterDefinition(clusterNamePrefix, 'startsWith');
     });
 
-    test(`Delete the cluster matching ${clusterNamePrefix}`, async ({
-      clusterDetailsPage,
-    }) => {
+    test(`Delete the cluster matching ${clusterNamePrefix}`, async ({ clusterDetailsPage }) => {
       clusterName = await clusterDetailsPage.clusterNameTitle().innerText();
       await clusterDetailsPage.actionsDropdownToggle().click();
       await clusterDetailsPage.deleteClusterDropdownItem().click();
