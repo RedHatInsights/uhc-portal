@@ -38,6 +38,7 @@ import HiddenCheckbox from '~/components/common/FormikFormComponents/HiddenCheck
 import { SyncEditorModal } from '~/components/SyncEditor/SyncEditorModal';
 import config from '~/config';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
+import { refetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
 import {
   ALLOW_EUS_CHANNEL,
   CREATE_CLUSTER_YAML_EDITOR,
@@ -51,7 +52,6 @@ import {
   Y_STREAM_CHANNEL,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import { refetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 
 import { ClusterRequestTranslatorFactory } from '../../common/ClusterRequestTranslator/ClusterRequestTranslatorFactory';
