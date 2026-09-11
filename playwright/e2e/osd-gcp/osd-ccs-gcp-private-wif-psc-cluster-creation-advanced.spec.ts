@@ -9,11 +9,11 @@ const clusterDomainPrefix = `osd${userSuffix}`;
 const authType = `${clusterProperties.AuthenticationType}`;
 const isPscEnabled = 'PrivateServiceConnect';
 
-const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG || '';
-const gcpKeyRingLocation = process.env.QE_GCP_KEY_RING_LOCATION || '';
-const gcpKeyRing = process.env.QE_GCP_KEY_RING || '';
-const gcpKeyName = process.env.QE_GCP_KEY_NAME || '';
-const gcpKMSServiceAccount = process.env.QE_GCP_KMS_SERVICE_ACCOUNT || '';
+const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG?.trim();
+const gcpKeyRingLocation = process.env.QE_GCP_KEY_RING_LOCATION?.trim() ?? '';
+const gcpKeyRing = process.env.QE_GCP_KEY_RING?.trim() ?? '';
+const gcpKeyName = process.env.QE_GCP_KEY_NAME?.trim() ?? '';
+const gcpKMSServiceAccount = process.env.QE_GCP_KMS_SERVICE_ACCOUNT?.trim() ?? '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
 const PSC_INFRA = QE_INFRA_GCP['PSC_INFRA'] || {};
 const region = PSC_INFRA['REGION'] || clusterProperties.Region.split(',')[0];
@@ -30,6 +30,19 @@ test.describe.serial(
   },
   () => {
     test.beforeAll(async ({ navigateTo }) => {
+      if (!QE_GCP_WIF_CONFIG) {
+        throw new Error(
+          'QE_GCP_WIF_CONFIG must be set in playwright.env.json (expected GCP WIF configuration name).',
+        );
+      }
+      if (
+        clusterProperties.EncryptVolumesWithCustomerKeys.includes('Enabled') &&
+        !hasCustomGcpKms
+      ) {
+        throw new Error(
+          'Custom GCP KMS is required for this spec (EncryptVolumesWithCustomerKeys is Enabled). Set QE_GCP_KEY_RING_LOCATION, QE_GCP_KEY_RING, QE_GCP_KEY_NAME, and QE_GCP_KMS_SERVICE_ACCOUNT in playwright.env.json.',
+        );
+      }
       await navigateTo(CREATE_CLUSTER_ROUTE);
     });
 
@@ -55,7 +68,7 @@ test.describe.serial(
       await createOSDWizardPage.isCloudProviderSelectionScreen();
       await createOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
       await createOSDWizardPage.workloadIdentityFederationButton().click();
-      await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG);
+      await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG!);
       await createOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       await createOSDWizardPage.wizardNextButton().click();
     });
@@ -83,10 +96,7 @@ test.describe.serial(
         if (clusterProperties.FIPSCryptography.includes('Enabled')) {
           await createOSDWizardPage.enableFIPSCryptographyCheckbox().check();
         }
-        if (
-          clusterProperties.EncryptVolumesWithCustomerKeys.includes('Enabled') &&
-          hasCustomGcpKms
-        ) {
+        if (clusterProperties.EncryptVolumesWithCustomerKeys.includes('Enabled')) {
           await createOSDWizardPage.configureCustomGcpKmsKey({
             keyRingLocation: gcpKeyRingLocation,
             keyRing: gcpKeyRing,
@@ -214,7 +224,7 @@ test.describe.serial(
       await expect(createOSDWizardPage.authenticationTypeValue()).toContainText(
         clusterProperties.AuthenticationType,
       );
-      await expect(createOSDWizardPage.wifConfigurationValue()).toContainText(QE_GCP_WIF_CONFIG);
+      await expect(createOSDWizardPage.wifConfigurationValue()).toContainText(QE_GCP_WIF_CONFIG!);
       await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
       await expect(createOSDWizardPage.clusterDomainPrefixLabelValue()).toContainText(
         clusterDomainPrefix,
@@ -230,7 +240,7 @@ test.describe.serial(
         clusterProperties.UserWorkloadMonitoring,
       );
       await expect(createOSDWizardPage.encryptVolumesWithCustomerkeysValue()).toContainText(
-        hasCustomGcpKms ? clusterProperties.EncryptVolumesWithCustomerKeys : 'Disabled',
+        clusterProperties.EncryptVolumesWithCustomerKeys,
       );
       await expect(createOSDWizardPage.additionalEtcdEncryptionValue()).toContainText(
         clusterProperties.AdditionalEncryption,
@@ -330,7 +340,7 @@ test.describe.serial(
         clusterProperties.AuthenticationType,
       );
       await expect(clusterDetailsPage.clusterWifConfigurationValue()).toContainText(
-        QE_GCP_WIF_CONFIG,
+        QE_GCP_WIF_CONFIG!,
       );
     });
   },
