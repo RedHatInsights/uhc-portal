@@ -4,14 +4,13 @@ import { useFormikContext } from 'formik';
 import { Flex, FlexItem, Spinner } from '@patternfly/react-core';
 
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
-import { getMaxNodeCountForMachinePool } from '~/components/clusters/common/machinePools/utils';
 import { MachineTypesResponse } from '~/queries/types';
 import { useGlobalState } from '~/redux/hooks';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 import MachinePoolsAutoScalingWarning from '../../../MachinePoolAutoscalingWarning';
-import { getClusterMinNodes } from '../../../machinePoolsHelper';
+import { getClusterMinNodes, getMaxNodeCountForMachinePool } from '../../../machinePoolsHelper';
 import ResizingAlert from '../components/ResizingAlert';
 import AutoscaleMaxReplicasField from '../fields/AutoscaleMaxReplicasField';
 import AutoscaleMinReplicasField from '../fields/AutoscaleMinReplicasField';
