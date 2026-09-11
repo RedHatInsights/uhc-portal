@@ -9,13 +9,17 @@ export class ClusterIdentityProviderPage extends BasePage {
 
   async isIdentityProvidersPage(): Promise<void> {
     await expect(this.page).toHaveURL(/#accessControl/);
+    await expect(this.identityProvidersHeading()).toBeVisible();
     await expect(this.addIdentityProviderDropdown()).toBeVisible({ timeout: 30000 });
   }
 
   // ==================== Navigation ====================
 
   accessControlTab(): Locator {
-    return this.page.getByRole('link', { name: 'Access control' });
+    // Cluster details uses a tab; edit-IDP page uses a breadcrumb link
+    return this.page
+      .getByRole('tab', { name: 'Access control' })
+      .or(this.page.getByRole('link', { name: 'Access control' }));
   }
 
   identityProvidersTab(): Locator {
@@ -24,7 +28,7 @@ export class ClusterIdentityProviderPage extends BasePage {
 
   async goToAccessControlTab(): Promise<void> {
     await this.accessControlTab().click();
-    await expect(this.addIdentityProviderDropdown()).toBeVisible({ timeout: 30000 });
+    await expect(this.page).toHaveURL(/#accessControl/);
   }
 
   async goToIdentityProvidersTab(): Promise<void> {
@@ -32,15 +36,53 @@ export class ClusterIdentityProviderPage extends BasePage {
     await expect(this.addIdentityProviderDropdown()).toBeVisible({ timeout: 30000 });
   }
 
-  // ==================== Add IDP Form ====================
+  identityProvidersHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'Identity providers' });
+  }
+
+  learnMoreLink(): Locator {
+    return this.page.getByRole('link', { name: /Learn more/ });
+  }
+
+  // ==================== Add IDP dropdown ====================
 
   addIdentityProviderDropdown(): Locator {
     return this.page.getByRole('button', { name: 'Add identity provider' });
   }
 
-  htpasswdOption(): Locator {
-    return this.page.getByRole('menuitem', { name: 'htpasswd' });
+  addIdpDropdownItem(idpType: string): Locator {
+    return this.page.getByRole('menuitem', { name: idpType, exact: true });
   }
+
+  htpasswdOption(): Locator {
+    return this.addIdpDropdownItem('htpasswd');
+  }
+
+  async openAddIdpDropdown(): Promise<void> {
+    const dropdown = this.addIdentityProviderDropdown();
+    await dropdown.waitFor({ state: 'visible' });
+    await dropdown.click();
+    // Webkit occasionally fails to register the first click on PF6 MenuToggle
+    if ((await dropdown.getAttribute('aria-expanded')) !== 'true') {
+      await dropdown.click();
+    }
+    await expect(dropdown).toHaveAttribute('aria-expanded', 'true');
+  }
+
+  async selectIdpType(
+    idpType: 'GitHub' | 'Google' | 'OpenID' | 'LDAP' | 'GitLab' | 'htpasswd',
+  ): Promise<void> {
+    await this.openAddIdpDropdown();
+    const item = this.addIdpDropdownItem(idpType);
+    await item.waitFor({ state: 'attached' });
+    await item.click();
+  }
+
+  async openHtpasswdForm(): Promise<void> {
+    await this.selectIdpType('htpasswd');
+  }
+
+  // ==================== Add IDP Form (htpasswd) ====================
 
   uploadHtpasswdRadio(): Locator {
     return this.page.getByRole('radio', { name: 'Upload an htpasswd file' });
@@ -94,6 +136,110 @@ export class ClusterIdentityProviderPage extends BasePage {
     return this.page.locator('button[type="submit"]');
   }
 
+  // ==================== GitHub / generic IDP form ====================
+
+  nameInput(): Locator {
+    return this.page.getByRole('textbox', { name: /^name$/i });
+  }
+
+  clientIdInput(): Locator {
+    return this.page.getByLabel('Client ID');
+  }
+
+  clientSecretInput(): Locator {
+    return this.page.getByLabel('Client secret');
+  }
+
+  mappingMethodValue(): Locator {
+    return this.page.getByRole('button', { name: 'Options menu' });
+  }
+
+  hostnameInput(): Locator {
+    return this.page.getByLabel('Hostname');
+  }
+
+  caFileUpload(): Locator {
+    return this.page.getByTestId('ca-upload-input-file');
+  }
+
+  caFileTextarea(): Locator {
+    return this.page.getByRole('textbox', { name: /CA file/i });
+  }
+
+  useOrganizationsRadio(): Locator {
+    return this.page.getByRole('radio', { name: /Use organizations/i });
+  }
+
+  useTeamsRadio(): Locator {
+    return this.page.getByRole('radio', { name: /Use teams/i });
+  }
+
+  organizationsInput(): Locator {
+    return this.page.getByPlaceholder('e.g. org').first();
+  }
+
+  teamsInput(): Locator {
+    return this.page.getByPlaceholder('e.g. org/team').first();
+  }
+
+  createButton(): Locator {
+    return this.page.getByRole('button', { name: 'Add', exact: true });
+  }
+
+  confirmButton(): Locator {
+    return this.page.getByRole('button', { name: 'Save' });
+  }
+
+  requiredFieldError(): Locator {
+    return this.page.getByText(/Field is required|is required/i);
+  }
+
+  duplicateNameError(): Locator {
+    return this.page.getByText(/is already taken/i);
+  }
+
+  async uploadCaFile(content: string): Promise<void> {
+    await this.caFileUpload().setInputFiles({
+      name: 'ca.crt',
+      mimeType: 'application/x-pem-file',
+      buffer: Buffer.from(content),
+    });
+  }
+
+  async submitCreateAndVerify(): Promise<void> {
+    const [response] = await Promise.all([
+      this.page.waitForResponse(
+        (resp) =>
+          resp.request().method() === 'POST' &&
+          resp.url().includes('/identity_providers') &&
+          resp.status() === 201,
+        { timeout: 30000 },
+      ),
+      this.createButton().click(),
+    ]);
+    expect(response.status()).toBe(201);
+  }
+
+  async submitEditAndVerify(): Promise<void> {
+    const [response] = await Promise.all([
+      this.page.waitForResponse(
+        (resp) =>
+          resp.request().method() === 'PATCH' &&
+          resp.url().includes('/identity_providers/') &&
+          resp.status() === 200,
+        { timeout: 30000 },
+      ),
+      this.confirmButton().click(),
+    ]);
+    expect(response.status()).toBe(200);
+    await expect(this.editIdpPageTitle()).toBeHidden({ timeout: 30000 });
+  }
+
+  async cancelFormAndReturnToIdpTab(): Promise<void> {
+    await this.cancelLink().click();
+    await this.goToIdentityProvidersTab();
+  }
+
   // ==================== Identity Providers Table ====================
 
   identityProvidersTable(): Locator {
@@ -104,12 +250,20 @@ export class ClusterIdentityProviderPage extends BasePage {
     return this.identityProvidersTable().getByRole('row').filter({ hasText: name });
   }
 
+  idpRow(idpName: string): Locator {
+    return this.identityProviderRow(idpName);
+  }
+
   identityProviderExpandToggle(idpName: string): Locator {
     return this.identityProviderRow(idpName).getByRole('button', { name: 'Details' });
   }
 
   kebabToggleInRow(idpName: string): Locator {
     return this.identityProviderRow(idpName).getByRole('button', { name: 'Kebab toggle' });
+  }
+
+  copyCallbackUrlButton(idpName: string): Locator {
+    return this.identityProviderRow(idpName).getByRole('button', { name: /Copy URL to clipboard/i });
   }
 
   editMenuItem(): Locator {
@@ -122,6 +276,22 @@ export class ClusterIdentityProviderPage extends BasePage {
 
   confirmDeleteButton(): Locator {
     return this.page.getByTestId('btn-primary');
+  }
+
+  async hasConfiguredIdps(): Promise<boolean> {
+    await this.goToAccessControlTab();
+    await this.goToIdentityProvidersTab();
+    try {
+      await this.identityProvidersTable().waitFor({ state: 'visible', timeout: 10000 });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async verifyIdpExists(idpName: string, idpType: string): Promise<void> {
+    await expect(this.identityProviderRow(idpName)).toBeVisible({ timeout: 30000 });
+    await expect(this.identityProviderRow(idpName)).toContainText(idpType);
   }
 
   // ==================== Edit IDP - Upload htpasswd File Modal ====================
@@ -171,10 +341,14 @@ export class ClusterIdentityProviderPage extends BasePage {
     await expect(this.uploadFileModal()).toBeHidden({ timeout: 30000 });
   }
 
-  // ==================== Edit IDP Modal ====================
+  // ==================== Edit IDP page ====================
 
   editIdpPageTitle(): Locator {
     return this.page.getByRole('heading', { name: /Edit identity provider:/ });
+  }
+
+  editIdpHeading(): Locator {
+    return this.page.getByRole('heading', { level: 1, name: /Edit identity provider/i });
   }
 
   addUserModalSubmitButton(): Locator {
@@ -211,11 +385,6 @@ export class ClusterIdentityProviderPage extends BasePage {
 
   // ==================== Actions ====================
 
-  async openHtpasswdForm(): Promise<void> {
-    await this.addIdentityProviderDropdown().click();
-    await this.htpasswdOption().click();
-  }
-
   async selectUploadMode(): Promise<void> {
     await this.uploadHtpasswdRadio().click();
     await expect(this.htpasswdFileInput()).toBeAttached();
@@ -245,10 +414,32 @@ export class ClusterIdentityProviderPage extends BasePage {
     await this.editMenuItem().click();
   }
 
+  async clickEditIdp(idpName: string): Promise<void> {
+    await this.kebabToggleInRow(idpName).click();
+    await Promise.all([this.page.waitForURL(/\/edit-idp\//), this.editMenuItem().click()]);
+  }
+
   async deleteHtpasswdIDP(idpName: string): Promise<void> {
     await this.kebabToggleInRow(idpName).click();
     await this.deleteMenuItem().click();
     await this.confirmDeleteButton().click();
+  }
+
+  async deleteIdp(idpName: string): Promise<void> {
+    await this.kebabToggleInRow(idpName).click();
+    await this.deleteMenuItem().click();
+
+    const [response] = await Promise.all([
+      this.page.waitForResponse(
+        (resp) =>
+          resp.request().method() === 'DELETE' && resp.url().includes('/identity_providers/'),
+        { timeout: 30000 },
+      ),
+      this.confirmDeleteButton().click(),
+    ]);
+    expect(response.status()).toBe(204);
+
+    await expect(this.identityProviderRow(idpName)).toBeHidden({ timeout: 30000 });
   }
 
   async scrollToBottom(): Promise<void> {
