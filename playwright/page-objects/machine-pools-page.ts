@@ -194,15 +194,11 @@ export class MachinePoolsPage extends BasePage {
   }
 
   securityGroupsNoEditWarning(): Locator {
-    return this.page.getByText(
-      'This option cannot be edited from its original setting selection.',
-    );
+    return this.page.getByText('This option cannot be edited from its original setting selection.');
   }
 
   securityGroupsEmptyMessage(): Locator {
-    return this.page.getByText(
-      'This machine pool does not have additional security groups.',
-    );
+    return this.page.getByText('This machine pool does not have additional security groups.');
   }
 
   securityGroupsLabel(): Locator {
@@ -540,9 +536,7 @@ export class MachinePoolsPage extends BasePage {
   }
 
   async verifyTableContainsValue(value: string | number): Promise<void> {
-    await expect(
-      this.page.getByRole('rowgroup').getByText(String(value)).first(),
-    ).toBeVisible();
+    await expect(this.page.getByRole('rowgroup').getByText(String(value)).first()).toBeVisible();
   }
 
   async selectComputeNodeCount(count: string): Promise<void> {
@@ -572,8 +566,9 @@ export class MachinePoolsPage extends BasePage {
   }
 
   expandedRowContent(id: string): Locator {
-    return this.getMachinePoolRow(id)
-      .locator('xpath=following-sibling::tr[@data-testid="expandable-row"][1]');
+    return this.getMachinePoolRow(id).locator(
+      'xpath=following-sibling::tr[@data-testid="expandable-row"][1]',
+    );
   }
 
   async verifyLabels(id: string, key: string, value: string): Promise<void> {
@@ -589,27 +584,19 @@ export class MachinePoolsPage extends BasePage {
 
   async verifyTaints(id: string, key: string, value: string, effect: string): Promise<void> {
     const expanded = this.expandedRowContent(id);
-    await expect(
-      expanded.getByRole('heading', { name: 'Taints' }),
-    ).toBeVisible();
-    await expect(
-      expanded.getByText(`${key} = ${value}:${effect}`, { exact: true }),
-    ).toBeVisible();
+    await expect(expanded.getByRole('heading', { name: 'Taints' })).toBeVisible();
+    await expect(expanded.getByText(`${key} = ${value}:${effect}`, { exact: true })).toBeVisible();
   }
 
   async verifySpotInstancePricing(id: string, maxPrice: string): Promise<void> {
     const expanded = this.expandedRowContent(id);
-    await expect(
-      expanded.getByRole('heading', { name: 'Spot instance pricing' }),
-    ).toBeVisible();
+    await expect(expanded.getByRole('heading', { name: 'Spot instance pricing' })).toBeVisible();
     await expect(expanded.getByText(`Maximum hourly price: ${maxPrice}`)).toBeVisible();
   }
 
   async verifySpotOnDemandPricing(id: string): Promise<void> {
     const expanded = this.expandedRowContent(id);
-    await expect(
-      expanded.getByRole('heading', { name: 'Spot instance pricing' }),
-    ).toBeVisible();
+    await expect(expanded.getByRole('heading', { name: 'Spot instance pricing' })).toBeVisible();
     // On-Demand is a text node next to the heading, not its own element.
     await expect(expanded).toContainText('On-Demand');
   }
@@ -622,22 +609,14 @@ export class MachinePoolsPage extends BasePage {
 
   async verifySingleZoneAutoscaling(id: string, minNodes: string, maxNodes: string): Promise<void> {
     const expanded = this.expandedRowContent(id);
-    await expect(
-      expanded.getByRole('heading', { name: 'Autoscaling' }),
-    ).toBeVisible();
+    await expect(expanded.getByRole('heading', { name: 'Autoscaling' })).toBeVisible();
     expect(await this.getAutoscaleValue(expanded, 'Min nodes')).toBe(minNodes);
     expect(await this.getAutoscaleValue(expanded, 'Max nodes')).toBe(maxNodes);
   }
 
-  async verifyMultiZoneAutoscaling(
-    id: string,
-    minNodes: string,
-    maxNodes: string,
-  ): Promise<void> {
+  async verifyMultiZoneAutoscaling(id: string, minNodes: string, maxNodes: string): Promise<void> {
     const expanded = this.expandedRowContent(id);
-    await expect(
-      expanded.getByRole('heading', { name: 'Autoscaling' }),
-    ).toBeVisible();
+    await expect(expanded.getByRole('heading', { name: 'Autoscaling' })).toBeVisible();
     expect(await this.getAutoscaleValue(expanded, 'Min nodes per zone')).toBe(minNodes);
     expect(await this.getAutoscaleValue(expanded, 'Max nodes per zone')).toBe(maxNodes);
   }

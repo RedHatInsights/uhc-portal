@@ -32,7 +32,6 @@ export class ClusterListPage extends BasePage {
     return this.page.locator('div[class*="popover__body"]');
   }
 
-
   viewClusterArchives(): Locator {
     return this.page.locator('a').filter({ hasText: 'View cluster archives' });
   }

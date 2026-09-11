@@ -40,7 +40,6 @@ export class ClusterRequestsPage extends BasePage {
     await expect(this.page).toHaveURL(/\/openshift\/(clusters\/requests)/);
   }
 
-
   async isClusterRequestsScreen(): Promise<void> {
     // Verify "Clusters" heading is visible and "Cluster Request" tab is selected
     await expect(this.page.getByRole('heading', { name: 'Clusters', level: 1 })).toBeVisible();
@@ -147,7 +146,9 @@ export class ClusterRequestsPage extends BasePage {
       this.page.getByRole('heading', { name: /Cancel cluster transfer|Retract/i }),
     ).toBeVisible();
 
-    const confirmButton = this.page.getByRole('dialog').getByRole('button', { name: /Retract|Cancel Transfer/i });
+    const confirmButton = this.page
+      .getByRole('dialog')
+      .getByRole('button', { name: /Retract|Cancel Transfer/i });
     await confirmButton.click();
   }
 }

@@ -446,11 +446,7 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     contractedAccountId: string,
     billingAccountIds: string[] = [],
   ): Promise<void> {
-    await mockQuotaCostRouteWithBillingContract(
-      this.page,
-      contractedAccountId,
-      billingAccountIds,
-    );
+    await mockQuotaCostRouteWithBillingContract(this.page, contractedAccountId, billingAccountIds);
   }
 
   async clearQuotaCostMock(): Promise<void> {
@@ -629,8 +625,8 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await this.vpcFilterInput().waitFor({ state: 'visible', timeout: 50000 });
     await this.vpcFilterInput().clear();
     await this.vpcFilterInput().fill(vpcName);
-    await this.page.locator(`text=${  vpcName}`).scrollIntoViewIfNeeded();
-    await this.page.locator(`text=${  vpcName}`).click();
+    await this.page.locator(`text=${vpcName}`).scrollIntoViewIfNeeded();
+    await this.page.locator(`text=${vpcName}`).click();
   }
 
   machinePoolVpcRegionPrompt(region: string): Locator {

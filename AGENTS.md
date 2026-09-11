@@ -45,7 +45,6 @@ Other relevant top-level directories:
 docs/           # Project documentation and coding guidelines
 openapi/        # OpenAPI specs and type generation
 playwright/     # Playwright E2E tests
-cypress/        # Cypress E2E tests (legacy)
 .storybook/     # Storybook configuration
 mockdata/       # Mock API data for local development
 __mocks__/      # Jest module mocks

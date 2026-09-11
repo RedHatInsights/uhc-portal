@@ -1,4 +1,4 @@
-import { expect,Locator, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 
 import { CustomCommands } from '../support/custom-commands';
 
@@ -40,7 +40,9 @@ export class OverviewPage extends BasePage {
   }
 
   headerCreateClusterWithAssistedInstallerButton(): Locator {
-    return this.page.locator('[data-testid="OverviewHeader"]').getByTestId('create-cluster-assisted-installer');
+    return this.page
+      .locator('[data-testid="OverviewHeader"]')
+      .getByTestId('create-cluster-assisted-installer');
   }
 
   // Central section card methods
@@ -137,7 +139,6 @@ export class OverviewPage extends BasePage {
     await this.drawerCloseButton().click();
   }
 
-  // Methods matching original Cypress naming
   async centralSectionCardsExpected(numberOfCards: number): Promise<void> {
     await expect(this.centralSectionCards()).toHaveCount(numberOfCards);
   }

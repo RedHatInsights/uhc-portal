@@ -173,6 +173,5 @@ test.describe.serial(
     test('Delete OSD AWS Y-stream channel cluster', async ({ clusterDetailsPage }) => {
       await clusterDetailsPage.deleteClusterByName(clusterName, { cooldownMs: 10_000 });
     });
-  
   },
 );
