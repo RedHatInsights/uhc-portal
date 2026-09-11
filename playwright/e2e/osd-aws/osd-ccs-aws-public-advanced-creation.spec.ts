@@ -1,4 +1,4 @@
-import { expect,test } from '../../fixtures/pages';
+import { expect, test } from '../../fixtures/pages';
 
 const clusterProfiles = require('../../fixtures/osd-aws/osd-ccs-aws-public-advanced-creation.spec.json');
 
@@ -31,9 +31,7 @@ test.describe.serial(
         'Set QE_AWS_ID, QE_AWS_ACCESS_KEY_ID, and QE_AWS_ACCESS_KEY_SECRET in playwright.env.json.',
       );
       test.skip(
-        !qeInfrastructure?.VPC_NAME ||
-          selectZones.length === 0 ||
-          securityGroups.length === 0,
+        !qeInfrastructure?.VPC_NAME || selectZones.length === 0 || securityGroups.length === 0,
         `Missing QE_INFRA_REGIONS VPC/SUBNETS.ZONES/SECURITY_GROUPS_NAME for region ${region}.`,
       );
       await navigateTo('create');
@@ -154,7 +152,6 @@ test.describe.serial(
           qeInfrastructure.SUBNETS.ZONES[zone].PUBLIC_SUBNET_NAME,
         );
       }, Promise.resolve());
-
     });
 
     test('Step OSD - AWS CCS wizard - Networking configuration - Select security group definitions', async ({
@@ -200,7 +197,9 @@ test.describe.serial(
       await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test('Step OSD - AWS CCS wizard - Review billing definitions', async ({ createOSDWizardPage }) => {
+    test('Step OSD - AWS CCS wizard - Review billing definitions', async ({
+      createOSDWizardPage,
+    }) => {
       await createOSDWizardPage.isReviewScreen();
       await expect(createOSDWizardPage.subscriptionTypeValue()).toContainText(
         clusterProperties.SubscriptionType,
@@ -322,7 +321,9 @@ test.describe.serial(
         clusterProperties.ServiceCIDR,
       );
       await expect(createOSDWizardPage.podCIDRValue()).toContainText(clusterProperties.PodCIDR);
-      await expect(createOSDWizardPage.hostPrefixValue()).toContainText(clusterProperties.HostPrefix);
+      await expect(createOSDWizardPage.hostPrefixValue()).toContainText(
+        clusterProperties.HostPrefix,
+      );
     });
 
     test('Step OSD - AWS CCS wizard - Review and create : Update definitions', async ({

@@ -3,7 +3,9 @@ import { test, expect } from '../../fixtures/pages';
 const fixtureData = require('../../fixtures/osd-aws/osd-non-ccs-aws-cluster-creation-advanced.spec.json');
 const clusterProperties = fixtureData['osd-nonccs-aws-public-advanced']['day1-profile'];
 const cidrRanges = clusterProperties.networking.CIDRRanges;
-const clusterName = process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
+const clusterName =
+  process.env.CLUSTER_NAME ||
+  `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 
 test.describe.serial(
   'OSD Non CCS AWS cluster creation tests for advanced profile',
@@ -207,9 +209,7 @@ test.describe.serial(
       await expect(clusterDetailsPage.clusterServiceCIDRLabelValue()).toContainText(
         cidrRanges.ServiceCIDR,
       );
-      await expect(clusterDetailsPage.clusterPodCIDRLabelValue()).toContainText(
-        cidrRanges.PodCIDR,
-      );
+      await expect(clusterDetailsPage.clusterPodCIDRLabelValue()).toContainText(cidrRanges.PodCIDR);
       await expect(clusterDetailsPage.clusterHostPrefixLabelValue()).toContainText(
         cidrRanges.HostPrefix.replace('/', ''),
       );

@@ -429,8 +429,7 @@ test.describe.serial(
       await clusterDetailsPage.checkInstallationStepStatus('DNS setup');
       await clusterDetailsPage.checkInstallationStepStatus('Cluster installation');
 
-      const logForwardingDescription =
-        clusterDetailsPage.controlPlaneLogForwardingDescription();
+      const logForwardingDescription = clusterDetailsPage.controlPlaneLogForwardingDescription();
       await expect(logForwardingDescription).toContainText('Amazon S3: Enabled');
       await expect(logForwardingDescription).toContainText('CloudWatch: Enabled');
     });

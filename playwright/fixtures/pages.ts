@@ -352,10 +352,10 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     async ({ authenticatedPage }, use) => {
       const pageObject = new AwsInfrastructureAccessPage(authenticatedPage);
       await use(pageObject);
-      },
-      { scope: 'worker' },
+    },
+    { scope: 'worker' },
   ],
-  
+
   // Worker-scoped: TransferOwnershipPage instance - created once, reused across all tests in suite
   transferOwnershipPage: [
     async ({ authenticatedPage }, use) => {

@@ -231,15 +231,12 @@ test.describe.serial(
       await machinePoolsPage.clickAddMachinePoolSubmitButton();
       await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 60000 });
 
-
-
       // workers-1 node count=0 without autoscaling should be accepted
       await machinePoolsPage.editMachinePool('workers-1');
       await machinePoolsPage.autoscalingCheckbox().uncheck();
       await machinePoolsPage.nodeCountInput().fill('0');
       await machinePoolsPage.clickAddMachinePoolSubmitButton();
       await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 60000 });
-
 
       await machinePoolsPage.editMachinePool('workers-0');
       // For HCP, max=0 is rejected as min max requirement is now 1
