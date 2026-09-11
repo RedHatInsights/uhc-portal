@@ -34,7 +34,7 @@ const MIRROR_COREOS_INSTALLER_LATEST =
   'https://mirror.openshift.com/pub/openshift-v4/clients/coreos-installer/latest';
 const MIRROR_CRC_LATEST =
   'https://developers.redhat.com/content-gateway/rest/mirror/pub/cgw/crc/latest';
-const MIRROR_HELM_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/helm/latest';
+const MIRROR_HELM3_LATEST = 'https://mirror.openshift.com/pub/cgw/helm/latest';
 const MIRROR_KN_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/serverless/latest';
 const MIRROR_TKN_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/pipeline/latest';
 const MIRROR_ODO_LATEST =
@@ -227,7 +227,7 @@ const tools = {
   CCOCTL: 'ccoctl',
   COREOS_INSTALLER: 'coreos-installer',
   CRC: 'crc',
-  HELM: 'helm',
+  HELM3: 'helm3',
   X86INSTALLER: 'x86_64-openshift-install',
   IBMZINSTALLER: 's390x-openshift-install',
   PPCINSTALLER: 'ppc64le-openshift-install',
@@ -431,22 +431,22 @@ const urls = {
     },
   },
 
-  [tools.HELM]: {
+  [tools.HELM3]: {
     [channels.STABLE]: {
       [architectures.x86]: {
-        [operatingSystems.linux]: `${MIRROR_HELM_LATEST}/helm-linux-amd64.tar.gz`,
-        [operatingSystems.mac]: `${MIRROR_HELM_LATEST}/helm-darwin-amd64.tar.gz`,
-        [operatingSystems.windows]: `${MIRROR_HELM_LATEST}/helm-windows-amd64.exe.zip`,
+        [operatingSystems.linux]: `${MIRROR_HELM3_LATEST}/helm-linux-amd64.tar.gz`,
+        [operatingSystems.mac]: `${MIRROR_HELM3_LATEST}/helm-darwin-amd64.tar.gz`,
+        [operatingSystems.windows]: `${MIRROR_HELM3_LATEST}/helm-windows-amd64.exe.zip`,
       },
       [architectures.s390x]: {
-        [operatingSystems.linux]: `${MIRROR_HELM_LATEST}/helm-linux-s390x.tar.gz`,
+        [operatingSystems.linux]: `${MIRROR_HELM3_LATEST}/helm-linux-s390x.tar.gz`,
       },
       [architectures.ppc]: {
-        [operatingSystems.linux]: `${MIRROR_HELM_LATEST}/helm-linux-ppc64le.tar.gz`,
+        [operatingSystems.linux]: `${MIRROR_HELM3_LATEST}/helm-linux-ppc64le.tar.gz`,
       },
       [architectures.arm]: {
-        [operatingSystems.linux]: `${MIRROR_HELM_LATEST}/helm-linux-arm64.tar.gz`,
-        [operatingSystems.mac]: `${MIRROR_HELM_LATEST}/helm-darwin-arm64.tar.gz`,
+        [operatingSystems.linux]: `${MIRROR_HELM3_LATEST}/helm-linux-arm64.tar.gz`,
+        [operatingSystems.mac]: `${MIRROR_HELM3_LATEST}/helm-darwin-arm64.tar.gz`,
       },
     },
   },
