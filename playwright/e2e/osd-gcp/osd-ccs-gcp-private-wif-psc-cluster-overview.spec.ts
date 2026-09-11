@@ -6,7 +6,7 @@ const clusterProperties = require('../../fixtures/osd-gcp/osd-ccs-gcp-private-wi
 const clusterName =
   process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${getUsernameSuffix()}`;
 
-const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG || '';
+const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG?.trim();
 const region =
   JSON.parse(process.env.QE_INFRA_GCP || '{}')?.PSC_INFRA?.REGION ||
   clusterProperties.Region.split(',')[0];
@@ -18,6 +18,11 @@ test.describe.serial(
   },
   () => {
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
+      if (!QE_GCP_WIF_CONFIG) {
+        throw new Error(
+          'QE_GCP_WIF_CONFIG must be set in playwright.env.json (expected GCP WIF configuration name).',
+        );
+      }
       await navigateTo(CLUSTER_LIST_ROUTE);
       await clusterListPage.waitForDataReady();
     });
@@ -66,7 +71,7 @@ test.describe.serial(
         'Workload Identity Federation',
       );
       await expect(clusterDetailsPage.clusterWifConfigurationValue()).toContainText(
-        QE_GCP_WIF_CONFIG,
+        QE_GCP_WIF_CONFIG!,
       );
       await expect(clusterDetailsPage.clusterMachineCIDRLabelValue()).toContainText(
         clusterProperties.MachineCIDR,
