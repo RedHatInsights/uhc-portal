@@ -276,7 +276,7 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByRole('checkbox', { name: 'Use a PrivateLink' });
   }
 
-  // ROSA-specific; shared security group locators live on BaseWizardPage.
+
   securityGroupsFilterInput(): Locator {
     return this.page.locator('input[placeholder="Filter by security group ID / name"]');
   }

@@ -1,5 +1,6 @@
 import { test, expect } from '../../fixtures/pages';
 import { getUsernameSuffix } from '../../support/auth-config';
+import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
 const clusterProperties = require('../../fixtures/osd-gcp/osd-ccs-gcp-private-wif-psc-cluster-creation-advanced.spec.json');
 const userSuffix = getUsernameSuffix();
@@ -29,7 +30,7 @@ test.describe.serial(
   },
   () => {
     test.beforeAll(async ({ navigateTo }) => {
-      await navigateTo('create');
+      await navigateTo(CREATE_CLUSTER_ROUTE);
     });
 
     test(`Launch OSD - ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} cluster wizard`, async ({
@@ -193,7 +194,7 @@ test.describe.serial(
     }) => {
       await createOSDWizardPage.isClusterUpdatesScreen();
       await expect(createOSDWizardPage.updateStrategyIndividualRadio()).toBeChecked();
-      await createOSDWizardPage.selectNodeDraining(clusterProperties.NodeDraining);
+      await createOSDWizardPage.selectGracePeriod(clusterProperties.NodeDraining);
       await createOSDWizardPage.wizardNextButton().click();
     });
 
