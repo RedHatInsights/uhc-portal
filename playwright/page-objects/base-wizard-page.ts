@@ -256,4 +256,15 @@ export abstract class BaseWizardPage extends BasePage {
     await expect(zoneOption).toBeEnabled({ timeout: 30000 });
     await zoneOption.click();
   }
+
+  // ── Cluster updates (node drain grace period) ─────────────────────────────
+
+  gracePeriodSelect(): Locator {
+    return this.page.getByTestId('grace-period-select');
+  }
+
+  async selectGracePeriod(period: string): Promise<void> {
+    await this.gracePeriodSelect().click();
+    await this.page.getByRole('option', { name: period }).click();
+  }
 }
