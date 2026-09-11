@@ -145,9 +145,7 @@ test.describe.serial(
       await expect(clusterDetailsPage.editAutoNodeModal()).toBeHidden();
     });
 
-    test('Verify Karpenter node reference with tooltip', async ({
-      clusterDetailsPage,
-    }) => {
+    test('Verify Karpenter node reference with tooltip', async ({ clusterDetailsPage }) => {
       await expect(clusterDetailsPage.autoNodeKarpenterCountContainer()).toBeVisible({
         timeout: 60000,
       });

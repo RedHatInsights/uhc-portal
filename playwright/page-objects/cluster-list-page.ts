@@ -36,7 +36,6 @@ export class ClusterListPage extends BasePage {
     });
   }
 
-
   viewClusterArchives(): Locator {
     return this.page.locator('a').filter({ hasText: 'View cluster archives' });
   }

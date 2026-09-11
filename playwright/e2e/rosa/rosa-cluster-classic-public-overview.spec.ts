@@ -25,7 +25,9 @@ test.describe.serial(
       await clusterListPage.openClusterDefinition(clusterNamePrefix, 'startsWith');
     });
 
-    test(`Cluster details - Overview tab for ${clusterNamePrefix}`, async ({ clusterDetailsPage }) => {
+    test(`Cluster details - Overview tab for ${clusterNamePrefix}`, async ({
+      clusterDetailsPage,
+    }) => {
       await clusterDetailsPage.isClusterDetailsPage(clusterNamePrefix);
       await clusterDetailsPage.overviewTab().click();
       await expect(clusterDetailsPage.clusterTypeLabelValue()).toContainText(
@@ -43,9 +45,9 @@ test.describe.serial(
         clusterProperties.Availability,
       );
       await expect(clusterDetailsPage.clusterRegionLabelValue()).toContainText(region);
-      await expect(
-        clusterDetailsPage.clusterInfrastructureAWSaccountLabelValue(),
-      ).toContainText(awsAccountID);
+      await expect(clusterDetailsPage.clusterInfrastructureAWSaccountLabelValue()).toContainText(
+        awsAccountID,
+      );
       await expect(clusterDetailsPage.clusterAdditionalEncryptionStatus()).toContainText(
         clusterProperties.AdditionalEncryption,
       );

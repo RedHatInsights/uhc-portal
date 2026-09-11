@@ -1,4 +1,4 @@
-import { expect,Locator, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 
 import { CustomCommands } from '../support/custom-commands';
 
