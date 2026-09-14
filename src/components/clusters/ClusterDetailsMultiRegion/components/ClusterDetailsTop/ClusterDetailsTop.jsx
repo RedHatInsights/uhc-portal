@@ -63,7 +63,6 @@ import GcpOrgPolicyAlert from './components/GcpOrgPolicyAlert';
 import LimitedSupportAlert from './components/LimitedSupportAlert';
 import PlatformPlusMarketplaceAlert from './components/PlatformPlusMarketplaceAlert';
 import { RecommendedOperatorsAlert } from './components/RecommendedOperatorsAlert/RecommendedOperatorsAlert';
-import SeverityLabelChangeAlert from './components/SeverityLabelChangeAlert';
 import SubscriptionCompliancy from './components/SubscriptionCompliancy';
 import TermsAlert from './components/TermsAlert';
 import TransferClusterOwnershipInfo from './components/TransferClusterOwnershipInfo';
@@ -358,7 +357,6 @@ function ClusterDetailsTop(props) {
   const [hasTermsAlert, setHasTermsAlert] = React.useState(false);
   const [hasTransferClusterOwnershipAlert, setHasTransferClusterOwnershipAlert] =
     React.useState(false);
-  const hasSeverityLabelChangeAlert = !isArchived && !isDeprovisioned;
 
   const alerts = [
     hasLimitedSupportAlert,
@@ -372,7 +370,6 @@ function ClusterDetailsTop(props) {
     hasReccomendedOperatorsAlert,
     hasTermsAlert,
     hasTransferClusterOwnershipAlert,
-    hasSeverityLabelChangeAlert,
     showPlatformPlusMarketplaceAlert,
   ];
 
@@ -521,7 +518,6 @@ function ClusterDetailsTop(props) {
                 planType={cluster?.subscription?.plan?.id ?? normalizedProducts.UNKNOWN}
               />
             ) : null}
-            {hasSeverityLabelChangeAlert && <SeverityLabelChangeAlert />}
 
             {showPlatformPlusMarketplaceAlert ? (
               <PlatformPlusMarketplaceAlert
