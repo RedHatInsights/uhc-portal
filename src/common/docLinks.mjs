@@ -80,6 +80,7 @@ const docLinks = {
   ROSA_HCP_CLI_URL: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-sts-creating-a-cluster-quickly`,
   LEARN_MORE_SSO_ROSA: `${ROSA_DOCS_BASE}/cli_tools/rosa-cli#rosa-login-sso_rosa-getting-started-cli`,
   ROSA_AUTONODE: `${ROSA_DOCS_BASE}-single/cluster_administration/index#rosa-nodes-autonode-managing`,
+  ROSA_HCP_SPOT_INTERRUPTION_SET_UP: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-config-aws-spot-instances-cli`,
 
   // OSD
   OSD_DEDICATED_ADMIN_ROLE: `${OSD_DOCS_BASE}/authentication_and_authorization/osd-admin-roles`,
