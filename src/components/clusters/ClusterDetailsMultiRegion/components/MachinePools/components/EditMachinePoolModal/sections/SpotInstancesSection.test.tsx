@@ -12,6 +12,8 @@ import {
 import { render, screen } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
+import UseSpotInstancesField from '../fields/UseSpotInstancesField';
+
 import SpotInstancesSection from './SpotInstancesSection';
 
 const useAnalyticsMock = jest.fn();
@@ -123,6 +125,52 @@ describe('<SpotInstancesSection>', () => {
         customProperties: { value: 'onDemand' },
       },
     );
+  });
+
+  it('does not track on-demand max price type selection for non-HCP clusters', async () => {
+    const { user } = render(
+      <MockFormikWrapper
+        initialValues={{ ...defaultValues, useSpotInstances: true, spotInstanceType: 'maximum' }}
+      >
+        <SpotInstancesSection isEdit={false} cluster={unsupportedSpotVersionCluster} />
+      </MockFormikWrapper>,
+    );
+
+    await user.click(screen.getByLabelText('Use On-Demand instance price'));
+
+    expect(useAnalyticsMock).not.toHaveBeenCalledWith(
+      trackEvents.MachinePoolHcpSpotMaxPriceTypeSelected,
+      expect.anything(),
+    );
+  });
+
+  it('does not track set maximum price type selection for non-HCP clusters', async () => {
+    const { user } = render(
+      <MockFormikWrapper initialValues={{ ...defaultValues, useSpotInstances: true }}>
+        <SpotInstancesSection isEdit={false} cluster={unsupportedSpotVersionCluster} />
+      </MockFormikWrapper>,
+    );
+
+    await user.click(screen.getByRole('radio', { name: /Set maximum price/i }));
+
+    expect(useAnalyticsMock).not.toHaveBeenCalledWith(
+      trackEvents.MachinePoolHcpSpotMaxPriceTypeSelected,
+      expect.anything(),
+    );
+  });
+
+  it('supports toggling spot instances without an onEnabledChange callback', async () => {
+    const { user } = render(
+      <MockFormikWrapper initialValues={defaultValues}>
+        <UseSpotInstancesField isDisabled={false}>
+          <div>Spot price options</div>
+        </UseSpotInstancesField>
+      </MockFormikWrapper>,
+    );
+
+    await user.click(screen.getByLabelText('Use Amazon EC2 Spot Instance'));
+
+    expect(screen.getByText('Spot price options')).toBeVisible();
   });
 
   it('tracks set maximum price type selection on HCP', async () => {
