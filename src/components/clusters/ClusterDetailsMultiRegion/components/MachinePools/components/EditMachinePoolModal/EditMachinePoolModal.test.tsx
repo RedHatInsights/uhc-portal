@@ -9,7 +9,7 @@ import {
   IMDS_SELECTION,
   TABBED_MACHINE_POOL_MODAL,
 } from '~/queries/featureGates/featureConstants';
-import { mockUseFeatureGate, render, screen, within } from '~/testUtils';
+import { mockUseChrome, mockUseFeatureGate, render, screen, within } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
 import EditMachinePoolModal from './EditMachinePoolModal';
@@ -97,6 +97,8 @@ const testCluster = {
     display_name: 'test-cluster-display-name',
   },
 };
+
+mockUseChrome({ analytics: { track: jest.fn() } });
 
 describe('<EditMachinePoolModal />', () => {
   describe('error state', () => {

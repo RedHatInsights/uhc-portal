@@ -1,9 +1,13 @@
 import * as React from 'react';
 
+import { trackEvents } from '~/common/analytics';
 import { render, screen } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
 import EditSpotInterruptionHandlingModal from './EditSpotInterruptionHandlingModal';
+
+const useAnalyticsMock = jest.fn();
+jest.mock('~/hooks/useAnalytics', () => jest.fn(() => useAnalyticsMock));
 
 const mockEditCluster = jest.fn();
 
@@ -111,6 +115,46 @@ describe('<EditSpotInterruptionHandlingModal />', () => {
     expect(
       screen.getByText('The SQS queue URL must be in the cluster region (us-west-2).'),
     ).toBeInTheDocument();
+  });
+
+  it('tracks spot termination queue configured on successful enhanced mode save', async () => {
+    const { user } = render(
+      <EditSpotInterruptionHandlingModal cluster={defaultCluster} onClose={onClose} />,
+    );
+
+    await user.click(screen.getByRole('radio', { name: /Enhanced Spot instances/i }));
+    await user.type(
+      screen.getByPlaceholderText(
+        'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+      ),
+      'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+    );
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    mockEditCluster.mock.calls[0][1].onSuccess();
+
+    expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.SqsQueueUrlConfigured, {
+      customProperties: {
+        context: 'cluster_details',
+        sqs_queue_url: 'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+      },
+    });
+  });
+
+  it('does not track spot termination queue configured when saving simple mode', async () => {
+    const { user } = render(
+      <EditSpotInterruptionHandlingModal cluster={enhancedCluster} onClose={onClose} />,
+    );
+
+    await user.click(screen.getByRole('radio', { name: /Simple Spot instances/i }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    mockEditCluster.mock.calls[0][1].onSuccess();
+
+    expect(useAnalyticsMock).not.toHaveBeenCalledWith(
+      trackEvents.SqsQueueUrlConfigured,
+      expect.anything(),
+    );
   });
 
   it('submits enhanced mode with queue URL', async () => {

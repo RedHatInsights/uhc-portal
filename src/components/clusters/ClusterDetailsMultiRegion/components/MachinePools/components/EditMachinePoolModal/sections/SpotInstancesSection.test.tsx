@@ -1,6 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
+import { trackEvents } from '~/common/analytics';
 import { defaultClusterFromSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import { SPOT_CAPACITY_RESERVATION_CONFLICT_REASON } from '~/components/clusters/common/machinePools/constants';
 import {
@@ -12,6 +13,9 @@ import { render, screen } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
 import SpotInstancesSection from './SpotInstancesSection';
+
+const useAnalyticsMock = jest.fn();
+jest.mock('~/hooks/useAnalytics', () => jest.fn(() => useAnalyticsMock));
 
 const mockHypershiftCluster = {
   ...defaultClusterFromSubscription,
@@ -58,6 +62,86 @@ const defaultCluster = {
 } as ClusterFromSubscription;
 
 describe('<SpotInstancesSection>', () => {
+  afterEach(() => {
+    useAnalyticsMock.mockClear();
+  });
+
+  it('tracks spot instances enabled when the checkbox is checked on HCP', async () => {
+    const { user } = render(
+      <MockFormikWrapper initialValues={defaultValues}>
+        <SpotInstancesSection isEdit={false} cluster={mockHypershiftCluster} />
+      </MockFormikWrapper>,
+    );
+
+    await user.click(screen.getByLabelText('Use Amazon EC2 Spot Instance'));
+
+    expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.MachinePoolHcpSpotInstancesEnabled);
+  });
+
+  it('does not track spot instances enabled when the checkbox is unchecked on HCP', async () => {
+    const { user } = render(
+      <MockFormikWrapper initialValues={{ ...defaultValues, useSpotInstances: true }}>
+        <SpotInstancesSection isEdit={false} cluster={mockHypershiftCluster} />
+      </MockFormikWrapper>,
+    );
+
+    await user.click(screen.getByLabelText('Use Amazon EC2 Spot Instance'));
+
+    expect(useAnalyticsMock).not.toHaveBeenCalledWith(
+      trackEvents.MachinePoolHcpSpotInstancesEnabled,
+    );
+  });
+
+  it('does not track spot instances enabled for non-HCP clusters', async () => {
+    const { user } = render(
+      <MockFormikWrapper initialValues={defaultValues}>
+        <SpotInstancesSection isEdit={false} cluster={unsupportedSpotVersionCluster} />
+      </MockFormikWrapper>,
+    );
+
+    await user.click(screen.getByLabelText('Use Amazon EC2 Spot Instance'));
+
+    expect(useAnalyticsMock).not.toHaveBeenCalledWith(
+      trackEvents.MachinePoolHcpSpotInstancesEnabled,
+    );
+  });
+
+  it('tracks on-demand max price type selection on HCP', async () => {
+    const { user } = render(
+      <MockFormikWrapper
+        initialValues={{ ...defaultValues, useSpotInstances: true, spotInstanceType: 'maximum' }}
+      >
+        <SpotInstancesSection isEdit={false} cluster={mockHypershiftCluster} />
+      </MockFormikWrapper>,
+    );
+
+    await user.click(screen.getByLabelText('Use On-Demand instance price'));
+
+    expect(useAnalyticsMock).toHaveBeenCalledWith(
+      trackEvents.MachinePoolHcpSpotMaxPriceTypeSelected,
+      {
+        customProperties: { value: 'onDemand' },
+      },
+    );
+  });
+
+  it('tracks set maximum price type selection on HCP', async () => {
+    const { user } = render(
+      <MockFormikWrapper initialValues={{ ...defaultValues, useSpotInstances: true }}>
+        <SpotInstancesSection isEdit={false} cluster={mockHypershiftCluster} />
+      </MockFormikWrapper>,
+    );
+
+    await user.click(screen.getByRole('radio', { name: /Set maximum price/i }));
+
+    expect(useAnalyticsMock).toHaveBeenCalledWith(
+      trackEvents.MachinePoolHcpSpotMaxPriceTypeSelected,
+      {
+        customProperties: { value: 'setMaxPrice' },
+      },
+    );
+  });
+
   it('enables the "Use Amazon EC2 Spot Instance" checkbox when no capacity reservation is configured', () => {
     render(
       <MockFormikWrapper initialValues={defaultValues}>

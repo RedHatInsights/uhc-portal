@@ -18,6 +18,7 @@ import { Navigate, useNavigate } from '~/common/routing';
 import { AppDrawerContext } from '~/components/App/AppDrawer';
 import { AppPage } from '~/components/App/AppPage';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { rosaWizardFormValidator } from '~/components/clusters/wizards/rosa/formValidators';
 import { LogForwardingScreen } from '~/components/clusters/wizards/rosa/LogForwarding/LogForwardingScreen';
 import {
@@ -143,6 +144,22 @@ const CreateROSAWizardInternal = ({
       logForwardingConfigured
     ) {
       track('Log Forwarding Configured', { context: 'cluster_creation' });
+    }
+
+    const spotTerminationQueueConfigured =
+      values[FieldId.SpotInterruptionHandling] === SpotInterruptionMode.Enhanced &&
+      values[FieldId.SpotTerminationHandlerQueueUrl];
+    if (
+      fromStepId === stepId.CLUSTER_SETTINGS__MACHINE_POOL &&
+      isHypershiftSelected &&
+      spotTerminationQueueConfigured
+    ) {
+      track(trackEvents.SqsQueueUrlConfigured, {
+        customProperties: {
+          context: 'cluster_creation',
+          sqs_queue_url: values[FieldId.SpotTerminationHandlerQueueUrl],
+        },
+      });
     }
   };
 
