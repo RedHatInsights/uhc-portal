@@ -45,10 +45,6 @@ export interface AccountsRolesScreenProps {
   organizationID: string;
   isHypershiftEnabled: boolean;
   isHypershiftSelected: boolean;
-  onContractCheckChange?: (hasWarning: boolean) => void;
-  isContractDialogOpen?: boolean;
-  onContractDialogContinue?: () => void;
-  onContractDialogClose?: () => void;
 }
 
 function AccountsRolesScreen({
@@ -63,10 +59,6 @@ function AccountsRolesScreen({
   clearGetUserRoleResponse,
   isHypershiftEnabled,
   isHypershiftSelected,
-  onContractCheckChange,
-  isContractDialogOpen,
-  onContractDialogContinue,
-  onContractDialogClose,
 }: AccountsRolesScreenProps) {
   const {
     setFieldValue,
@@ -254,10 +246,6 @@ function AccountsRolesScreen({
           <AWSBillingAccount
             selectedAWSBillingAccountID={selectedAWSBillingAccountID || ''}
             selectedAWSAccountID={selectedAWSAccountID || ''}
-            onContractCheckChange={onContractCheckChange}
-            isContractDialogOpen={isContractDialogOpen}
-            onContractDialogContinue={onContractDialogContinue}
-            onContractDialogClose={onContractDialogClose}
           />
         )}
         {selectedAWSAccountID && hasAWSAccounts && (
