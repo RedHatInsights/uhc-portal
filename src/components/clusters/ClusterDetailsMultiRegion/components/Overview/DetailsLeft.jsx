@@ -54,7 +54,6 @@ function DetailsLeft({
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
   const cloudProviderId = cluster.cloud_provider ? cluster.cloud_provider.id : null;
   const region = cluster?.region?.id;
-  const clusterID = cluster?.id;
   const planType = get(cluster, 'subscription.plan.type');
   const isROSA = planType === normalizedProducts.ROSA;
   const isHypershift = isHypershiftCluster(cluster);

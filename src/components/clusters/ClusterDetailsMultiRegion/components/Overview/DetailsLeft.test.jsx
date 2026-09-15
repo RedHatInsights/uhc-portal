@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import React from 'react';
 
-import { ALLOW_EUS_CHANNEL, FIPS_FOR_HYPERSHIFT } from '~/queries/featureGates/featureConstants';
+import { FIPS_FOR_HYPERSHIFT } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
   mockRestrictedEnv,
