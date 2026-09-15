@@ -32,12 +32,16 @@ test.describe.serial(
     const logForwardingS3BucketPrefix = process.env.QE_LOG_FORWARDING_S3_BUCKET_PREFIX || '';
     const logForwardingCwRoleArn = process.env.QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN || '';
     const logForwardingCwLogGroupName = clusterProperties.CloudWatchLogGroupName;
+    const spotInterruptionQueueUrl = process.env.QE_SPOT_INTERRUPTION_QUEUE_URL || '';
 
     test.beforeAll(async ({ navigateTo }) => {
       if (!logForwardingS3BucketName || !logForwardingS3BucketPrefix || !logForwardingCwRoleArn) {
         throw new Error(
           'Missing required env vars: QE_LOG_FORWARDING_S3_BUCKET_NAME, QE_LOG_FORWARDING_S3_BUCKET_PREFIX, QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN',
         );
+      }
+      if (!spotInterruptionQueueUrl) {
+        throw new Error('Missing required env var: QE_SPOT_INTERRUPTION_QUEUE_URL');
       }
       await navigateTo(CREATE_CLUSTER_ROUTE);
     });
@@ -123,6 +127,11 @@ test.describe.serial(
       } else {
         await createRosaWizardPage.useIMDSv2Radio().check();
       }
+
+      await createRosaWizardPage.configureEnhancedSpotInterruptionHandling(
+        spotInterruptionQueueUrl,
+      );
+
       await createRosaWizardPage.rosaNextButton().click();
     });
 
@@ -297,6 +306,14 @@ test.describe.serial(
       await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Instance Metadata Service (IMDS)',
         clusterProperties.InstanceMetadataService,
+      );
+      await createRosaWizardPage.isClusterPropertyMatchesValue(
+        'Spot interruption handling',
+        'Enhanced Spot instances',
+      );
+      await createRosaWizardPage.isClusterPropertyMatchesValue(
+        'SQS queue URL',
+        spotInterruptionQueueUrl,
       );
     });
 

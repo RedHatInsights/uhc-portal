@@ -1,5 +1,5 @@
 import { ENABLE_AWS_TAGS_EDITING } from '~/queries/featureGates/featureConstants';
-import { AwsMachinePool, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
+import { AwsMachinePool, AwsNodePool, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 
 import { EditMachinePoolValues } from './hooks/useMachinePoolFormik';
@@ -147,20 +147,30 @@ export const buildNodePoolRequest = (
 
   if (!isEdit) {
     nodePool.subnet = values.privateSubnetId;
-    nodePool.aws_node_pool = {
+    const awsNodePool: AwsNodePool = {
       instance_type: values.instanceType?.id,
       ec2_metadata_http_tokens: values.imds,
       additional_security_group_ids: values.securityGroupIds,
       root_volume: {
         size: values.diskSize,
       },
-      ...(canUseCapacityReservation && {
-        capacity_reservation: {
-          id: values.capacityReservationId,
-          preference: values.capacityReservationPreference,
-        },
-      }),
+      // Spot instances and Capacity Reservations are mutually exclusive on the API side
+      // so omit `capacity_reservation` entirely when Spot is selected.
+      ...(canUseCapacityReservation &&
+        !values.useSpotInstances && {
+          capacity_reservation: {
+            id: values.capacityReservationId,
+            preference: values.capacityReservationPreference,
+          },
+        }),
     };
+
+    if (values.useSpotInstances) {
+      awsNodePool.spot_market_options =
+        values.spotInstanceType === 'maximum' ? { max_price: values.maxPrice.toString() } : {};
+    }
+
+    nodePool.aws_node_pool = awsNodePool;
   }
 
   if (ENABLE_AWS_TAGS_EDITING || !isEdit) {

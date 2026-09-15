@@ -64,7 +64,7 @@ import Dashboard from '../dashboard';
 import DownloadsPage from '../downloads/DownloadsPage';
 import Overview from '../overview';
 import Quota from '../quota';
-import Releases from '../releases';
+import Releases from '../releases/Releases';
 import RosaHandsOnPage from '../RosaHandsOn/RosaHandsOnPage';
 import { ServicePage } from '../services/servicePage/ServicePage';
 

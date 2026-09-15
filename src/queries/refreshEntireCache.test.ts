@@ -2,6 +2,7 @@ import { queryClient } from '~/components/App/queryClient';
 import { queryConstants } from '~/queries/queriesConstants';
 
 import { refreshClusterDetails } from './refreshEntireCache';
+import { OCP_LIFECYCLE_QUERY_KEY } from './useOCPLifeCycleStatus';
 
 jest.mock('~/components/App/queryClient', () => ({
   queryClient: {
@@ -14,10 +15,10 @@ describe('refreshClusterDetails', () => {
     jest.clearAllMocks();
   });
 
-  it('invalidates cluster details and control plane log forwarder queries', () => {
+  it('invalidates cluster details, control plane log forwarder, and OCP lifecycle queries', () => {
     refreshClusterDetails();
 
-    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(2);
+    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(3);
 
     const clusterDetailsPredicate = (queryClient.invalidateQueries as jest.Mock).mock.calls[0][0]
       .predicate;
@@ -40,5 +41,9 @@ describe('refreshClusterDetails', () => {
     expect(
       logForwardersPredicate({ queryKey: [queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY] }),
     ).toBe(false);
+
+    expect(queryClient.invalidateQueries).toHaveBeenNthCalledWith(3, {
+      queryKey: [OCP_LIFECYCLE_QUERY_KEY],
+    });
   });
 });

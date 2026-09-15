@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax */
 import { readFile } from 'fs/promises';
 
 const json = JSON.parse(

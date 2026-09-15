@@ -41,7 +41,6 @@ const initialState = {
 
 // eslint-disable-next-line default-param-last
 function insightsReducer(state = initialState, action) {
-  // eslint-disable-next-line consistent-return
   return produce(state, (draft) => {
     switch (action.type) {
       // GET_CLUSTER_INSIGHTS

@@ -49,7 +49,6 @@ export const useFetchGetMultiRegionAvailableRegions = () => {
               );
 
           if (availableRegions?.length > 0) {
-            // eslint-disable-next-line no-restricted-syntax
             for (const availableRegion of availableRegions) {
               const extractRegionName = isProduction
                 ? availableRegion?.id?.substring(4)

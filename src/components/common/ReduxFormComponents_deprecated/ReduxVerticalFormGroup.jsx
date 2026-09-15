@@ -33,7 +33,6 @@ const ReduxVerticalFormGroup = ({
   input,
   disabled,
   isTextArea,
-  // eslint-disable-next-line no-unused-vars
   showHelpTextOnError = true, // this may be used to pass down to child components
   inputPrefix = '',
   formGroupClass,

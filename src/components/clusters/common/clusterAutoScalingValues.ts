@@ -13,9 +13,7 @@ export type ClusterAutoScalingForm = Omit<
   Required<ClusterAutoscaler>,
   'id' | 'kind' | 'href' | 'balancing_ignored_labels' | 'resource_limits'
 > & {
-  // eslint-disable-next-line camelcase
   balancing_ignored_labels: string;
-  // eslint-disable-next-line camelcase
   resource_limits: Omit<Required<AutoscalerResourceLimits>, 'gpus'> & {
     gpus: string;
   };

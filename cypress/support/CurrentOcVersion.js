@@ -8,7 +8,7 @@ class CurrentOcVersion {
   retrieveVersion() {
     if (this.#version) return;
     cy.request({
-      url: 'https://access.redhat.com/product-life-cycles/api/v1/products?name=Openshift+Container+Platform+4',
+      url: 'https://access.redhat.com/product-life-cycles/api/v2/products?name=Red+Hat+OpenShift+Container+Platform',
     }).then((resp) => {
       expect(resp.status).to.eq(200);
       this.#version = resp.body.data[0].versions

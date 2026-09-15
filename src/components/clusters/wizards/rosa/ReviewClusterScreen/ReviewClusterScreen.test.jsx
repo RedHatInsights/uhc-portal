@@ -6,6 +6,7 @@ import useOrganization from '~/components/CLILoginPage/useOrganization';
 import { OCM_ROLE_NO_CONSOLE_PROFILE } from '~/components/clusters/wizards/rosa/rosaConstants';
 import {
   ALLOW_EUS_CHANNEL,
+  HCP_SPOT_INSTANCES,
   OCM_ROLE_NO_CONSOLE,
   Y_STREAM_CHANNEL,
 } from '~/queries/featureGates/featureConstants';
@@ -414,6 +415,61 @@ describe('<ReviewClusterScreen />', () => {
       });
     });
   });
+
+  describe('Spot interruption handling', () => {
+    const enhancedSpotValues = {
+      hypershift: 'true',
+      cluster_version: {
+        raw_id: '4.22.0',
+      },
+      spot_interruption_handling: 'enhanced',
+      termination_handler_queue_url:
+        'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+    };
+
+    it('is shown on review for Hypershift when HCP_SPOT_INSTANCES is enabled', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />, enhancedSpotValues));
+
+      expect(await screen.findByText('Spot interruption handling')).toBeInTheDocument();
+      expect(screen.getByText('Enhanced Spot instances')).toBeInTheDocument();
+      expect(screen.getByText('SQS queue URL')).toBeInTheDocument();
+      expect(
+        screen.getByText('https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot'),
+      ).toBeInTheDocument();
+    });
+
+    it('is hidden on review when HCP_SPOT_INSTANCES is disabled', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, false]]);
+
+      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />, enhancedSpotValues));
+
+      await waitFor(() => {
+        expect(screen.queryByText('Spot interruption handling')).not.toBeInTheDocument();
+      });
+      expect(screen.queryByText('SQS queue URL')).not.toBeInTheDocument();
+    });
+
+    it('is hidden on review when the cluster version is below 4.22', async () => {
+      mockUseFeatureGate([[HCP_SPOT_INSTANCES, true]]);
+
+      render(
+        buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
+          ...enhancedSpotValues,
+          cluster_version: {
+            raw_id: '4.21.9',
+          },
+        }),
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Spot interruption handling')).not.toBeInTheDocument();
+      });
+      expect(screen.queryByText('SQS queue URL')).not.toBeInTheDocument();
+    });
+  });
+
   describe('External Authentication', () => {
     describe('is not shown when', () => {
       it('is not Hypershift', () => {

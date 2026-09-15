@@ -13,6 +13,7 @@ root: docs/
 
 UI-components:              code-guide.md
 contributing:               contributing.md
+console-dot widgets:        console-dot-widgets.md
 unit-testing:               unit-testing.md
 e2e-testing:                Playwright-e2e-test-automation-guidelines.md
 e2e-testing FAQ:            Playwright-e2e-test-automation-faq.md
@@ -27,7 +28,7 @@ src/
   bootstrap.ts          # App entry point
   chrome-main.tsx       # Module federation root
   common/               # Shared utilities, UI components, and link definitions (docLinks, supportLinks, installLinks)
-  components/           # Feature components organized by domain
+  components/           # Feature components organized by domain (including Widgets/ HCC home-page tiles)
   config/               # Environment and app configuration
   hoc/                  # Higher-order components
   hooks/                # Shared custom hooks
