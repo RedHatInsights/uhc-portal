@@ -14,8 +14,6 @@ import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
 import { checkAccessibility, mockUseFeatureGate, screen, within, withState } from '~/testUtils';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
-import * as versionsSelectHelper from './versionSelectHelper';
-
 jest.mock('~/services/productLifeCycleService');
 jest.mock('~/services/clusterService');
 
