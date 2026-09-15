@@ -566,6 +566,45 @@ describe('<EditMachinePoolModal />', () => {
       expect(screen.getAllByRole('button', { name: 'Plus' })[1]).toBeDisabled();
       expect(await screen.findByTestId('submit-btn')).toBeDisabled();
     });
+
+    it('Add Machine Pool button is not aria-disabled when below max replicas', async () => {
+      const { user } = render(
+        <EditMachinePoolModal
+          cluster={
+            {
+              multi_az: false,
+              hypershift: { enabled: true },
+              product: { id: 'ROSA' },
+            } as ClusterFromSubscription
+          }
+          onClose={() => {}}
+          isHypershift
+          {...commonProps}
+          machinePoolsResponse={[
+            {
+              availability_zones: ['us-east-1a'],
+              href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/some-user-mp',
+              id: 'fooId',
+              instance_type: 'm5.xlarge',
+              kind: 'MachinePool',
+              replicas: MAX_NODES_HCP - 1,
+              root_volume: { aws: { size: 300 } },
+            },
+          ]}
+        />,
+      );
+
+      // Give the new pool a name so the form is valid
+      const inputField = await screen.findByRole('textbox');
+      await user.type(inputField, 'test');
+
+      // Assert — submit button is present and not aria-disabled due to max reached
+      const submitBtn = await screen.findByTestId('submit-btn');
+      expect(submitBtn).not.toHaveAttribute('aria-disabled', 'true');
+      expect(
+        screen.queryByText('Maximum cluster node count limit reached'),
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe('GCP cluster machine pool', () => {
