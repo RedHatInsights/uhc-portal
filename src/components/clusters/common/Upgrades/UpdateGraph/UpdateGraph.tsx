@@ -50,8 +50,7 @@ const UpdateGraph = ({
   isHypershift,
   isSTSEnabled,
   unmetAcknowledgements,
-}: UpdateGraphProps) => {
-  return (
+}: UpdateGraphProps) => (
     <div className="ocm-upgrade-graph">
       <GraphContainer>
         <GraphPath>
@@ -96,6 +95,5 @@ const UpdateGraph = ({
       />
     </div>
   );
-};
 
 export default UpdateGraph;

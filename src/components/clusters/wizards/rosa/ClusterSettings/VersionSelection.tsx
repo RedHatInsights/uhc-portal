@@ -272,14 +272,7 @@ function VersionSelection({
       versionsData: processedGroups,
       hasIncompatibleVersions: hasIncompatible,
     };
-  }, [
-    versions,
-    showOnlyCompatibleVersions,
-    incompatibleVersionReason,
-    supportVersionMap,
-    channelGroup,
-    isEUSChannelEnabled,
-  ]);
+  }, [versions, showOnlyCompatibleVersions, incompatibleVersionReason, supportVersionMap]);
 
   const sortFn = (a: FuzzyEntryType, b: FuzzyEntryType) => versionComparator(b.label, a.label);
 
