@@ -1,8 +1,6 @@
 import React, { useCallback } from 'react';
 import { Field } from 'formik';
 import { useDispatch } from 'react-redux';
-import semver from 'semver';
-
 import {
   Alert,
   ExpandableSection,
@@ -66,15 +64,12 @@ import { FieldId, MIN_SECURE_BOOT_VERSION } from '~/components/clusters/wizards/
 import { CheckboxDescription } from '~/components/common/CheckboxDescription';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import { ALLOW_EUS_CHANNEL, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useFetchSearchClusterName } from '~/queries/RosaWizardQueries/useFetchSearchClusterName';
 import { useFetchSearchDomainPrefix } from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
 import { getCloudProviders } from '~/redux/actions/cloudProviderActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { Version } from '~/types/clusters_mgmt.v1';
 
-import { ChannelGroupSelectField } from '../../../common/ClusterSettings/Details/ChannelGroupSelectField';
 import { ShieldedVM } from '../../../common/ShieldedVM';
 import { ClusterPrivacyType } from '../../Networking/constants';
 
@@ -106,13 +101,6 @@ function Details() {
   } = useFormState();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [showSecureBootAlert, setShowSecureBootAlert] = React.useState(false);
-
-  const { clusterVersions: getInstallableVersionsResponse } = useGlobalState(
-    (state) => state.clusters,
-  );
-
-  const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
-  const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
 
   const isByoc = byoc === 'true';
   const isMultiAz = multiAz === 'true';
@@ -261,36 +249,8 @@ function Details() {
 
     resetMaxNodesTotal({ clusterVersion });
 
-    if (isYStreamChannelEnabled) {
-      setFieldValue(FieldId.VersionChannel, '');
-    }
+    setFieldValue(FieldId.VersionChannel, '');
   };
-
-  const availableVersions = isYStreamChannelEnabled
-    ? getInstallableVersionsResponse.versions
-    : getInstallableVersionsResponse.versions.filter(
-        (version: Version) => version.channel_group === channelGroup,
-      );
-
-  React.useEffect(() => {
-    if (isEUSChannelEnabled && availableVersions.length > 0) {
-      const parseVersion = (version: string | undefined) => semver.valid(semver.coerce(version));
-
-      const foundVersion = availableVersions?.find(
-        (version: Version) =>
-          parseVersion(version?.raw_id) === parseVersion(selectedVersion?.raw_id),
-      );
-
-      if (!isYStreamChannelEnabled) {
-        setFieldValue(FieldId.ClusterVersion, foundVersion ?? availableVersions[0]);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    channelGroup,
-    // Re-run when versions load so default channel is set even when user keeps all defaults
-    getInstallableVersionsResponse.fulfilled,
-  ]);
 
   const availabilityZoneOptions: RadioGroupOption[] = [
     {
@@ -424,51 +384,18 @@ function Details() {
             </GridItem>
           )}
 
-          {isEUSChannelEnabled && !isYStreamChannelEnabled ? (
-            <GridItem>
-              <FormGroup
-                label="Channel group"
-                isRequired
-                fieldId={FieldId.ChannelGroup}
-                labelHelp={
-                  <PopoverHint
-                    hint={
-                      <>
-                        {constants.channelGroupHint}{' '}
-                        <ExternalLink href={docLinks.OSD_LIFE_CYCLE_DATES}>
-                          Learn more about the support lifecycle
-                        </ExternalLink>
-                      </>
-                    }
-                  />
-                }
-              >
-                <Field
-                  component={ChannelGroupSelectField}
-                  name={FieldId.ChannelGroup}
-                  getInstallableVersionsResponse={getInstallableVersionsResponse}
-                />
-              </FormGroup>
-            </GridItem>
-          ) : null}
-
           <GridItem>
             <VersionSelectField
               name={FieldId.ClusterVersion}
-              channelGroup={channelGroup}
               label={isMarketplaceGcp ? 'Version (Google Cloud Marketplace enabled)' : 'Version'}
               onChange={handleVersionChange}
               key={channelGroup}
-              isEUSChannelEnabled={isEUSChannelEnabled}
-              isYStreamChannelEnabled={isYStreamChannelEnabled}
             />
           </GridItem>
 
-          {isYStreamChannelEnabled ? (
-            <GridItem>
-              <ChannelSelectField clusterVersion={selectedVersion} />
-            </GridItem>
-          ) : null}
+          <GridItem>
+            <ChannelSelectField clusterVersion={selectedVersion} />
+          </GridItem>
 
           <GridItem>
             <FormGroup

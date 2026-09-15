@@ -39,7 +39,6 @@ import { SyncEditorModal } from '~/components/SyncEditor/SyncEditorModal';
 import config from '~/config';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import {
-  ALLOW_EUS_CHANNEL,
   CREATE_CLUSTER_YAML_EDITOR,
   FIPS_FOR_HYPERSHIFT,
   HCP_LOG_FORWARDING,
@@ -48,7 +47,6 @@ import {
   IMDS_SELECTION,
   MULTIREGION_PREVIEW_ENABLED,
   OCM_ROLE_NO_CONSOLE,
-  Y_STREAM_CHANNEL,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { refetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
@@ -133,8 +131,6 @@ const ReviewClusterScreen = ({
   const { organization } = useOrganization();
   const hasExternalAuth = hasExternalAuthenticationCapability(organization?.capabilities);
 
-  const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
-  const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
   const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
   const isHcpSpotInstancesEnabled = useFeatureGate(HCP_SPOT_INSTANCES);
@@ -147,9 +143,8 @@ const ReviewClusterScreen = ({
   const clusterSettingsFields = [
     FieldId.ClusterName,
     ...(hasDomainPrefix ? [FieldId.DomainPrefix] : []),
-    ...(isEUSChannelEnabled && !isYStreamChannelEnabled ? [FieldId.ChannelGroup] : []),
     FieldId.ClusterVersion,
-    ...(isYStreamChannelEnabled ? [FieldId.VersionChannel] : []),
+    FieldId.VersionChannel,
     FieldId.Region,
     FieldId.MultiAz,
     ...(!isHypershiftSelected ? [FieldId.EnableUserWorkloadMonitoring] : []),

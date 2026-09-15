@@ -79,10 +79,8 @@ describe('<VersionSelectField />', () => {
   const defaultProps = {
     name: FieldId.ClusterVersion,
     label: 'Version',
-    channelGroup: 'stable',
     isDisabled: false,
     onChange: jest.fn(),
-    isEUSChannelEnabled: false,
   };
 
   beforeEach(() => {
@@ -236,34 +234,5 @@ describe('<VersionSelectField />', () => {
     });
     expect(within(fullSupportList).getByRole('option', { name: '5.0.1' })).toBeInTheDocument();
     expect(getOCPLifeCycleStatus).toHaveBeenCalledWith(true);
-  });
-
-  it('shows only filtered version by channel group when isEUSEnabled', async () => {
-    jest.spyOn(versionsSelectHelper, 'hasUnstableVersionsCapability').mockReturnValue(true);
-
-    const newProps = {
-      ...defaultProps,
-      channelGroup: 'eus',
-      isEUSChannelEnabled: true,
-    };
-
-    const { user } = withState(loadedState).render(
-      <Formik initialValues={standardValues} onSubmit={() => {}}>
-        <VersionSelectField {...newProps} />
-      </Formik>,
-    );
-
-    const options = screen.getByRole('button', {
-      name: /options menu/i,
-    });
-
-    expect(clusterService.getInstallableVersions).not.toHaveBeenCalled();
-    expect(await screen.findByText('Version')).toBeInTheDocument();
-    expect(options).toBeInTheDocument();
-    await user.click(options);
-    expect(screen.queryByText('4.13.1')).not.toBeInTheDocument();
-    expect(screen.queryByText('4.12.13')).not.toBeInTheDocument();
-    expect(screen.queryByText('4.17.9 (fast)')).not.toBeInTheDocument();
-    expect(await screen.findByText('4.18.0 (eus)')).toBeInTheDocument();
   });
 });
