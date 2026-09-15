@@ -1,9 +1,12 @@
+import * as machinePoolUtils from '~/components/clusters/common/machinePools/utils';
 import { ClusterFromSubscription } from '~/types/types';
 
 import {
   countReplicasWithoutTaints,
+  getAutoscaleMaxReplicasFloor,
   getClusterMinNodes,
-  getMinNodesRequiredMaxReplicas,
+  getMaxNodeCountForMachinePool,
+  GetMaxNodeCountForMachinePoolParams,
   isMinimumCountWithoutTaints,
 } from './machinePoolsHelper';
 
@@ -376,38 +379,231 @@ describe('machinePoolsHelper', () => {
     });
   });
 
-  describe('getMinNodesRequiredMaxReplicas', () => {
+  describe('getAutoscaleMaxReplicasFloor', () => {
     describe('Hypershift with autoscaling enabled', () => {
       it('returns 2 when there is 1 machine pool', () => {
-        expect(getMinNodesRequiredMaxReplicas(true, 0, 1, true)).toBe(2);
+        expect(getAutoscaleMaxReplicasFloor(true, 0, 1, true)).toBe(2);
       });
 
       it('returns 1 when there are multiple machine pools', () => {
-        expect(getMinNodesRequiredMaxReplicas(true, 0, 3, true)).toBe(1);
+        expect(getAutoscaleMaxReplicasFloor(true, 0, 3, true)).toBe(1);
       });
 
       it('returns 2 when pools are reduced from 3 to 1', () => {
-        expect(getMinNodesRequiredMaxReplicas(true, 0, 3, true)).toBe(1);
-        expect(getMinNodesRequiredMaxReplicas(true, 0, 1, true)).toBe(2);
+        expect(getAutoscaleMaxReplicasFloor(true, 0, 3, true)).toBe(1);
+        expect(getAutoscaleMaxReplicasFloor(true, 0, 1, true)).toBe(2);
       });
     });
 
     describe('Hypershift without autoscaling', () => {
       it('returns minNodes when autoscaling is disabled', () => {
-        expect(getMinNodesRequiredMaxReplicas(true, 2, 1, false)).toBe(2);
-        expect(getMinNodesRequiredMaxReplicas(true, 1, 3, false)).toBe(1);
+        expect(getAutoscaleMaxReplicasFloor(true, 2, 1, false)).toBe(2);
+        expect(getAutoscaleMaxReplicasFloor(true, 1, 3, false)).toBe(1);
       });
     });
 
     describe('non-Hypershift', () => {
       it('returns minNodes regardless of pool count or autoscaling', () => {
-        expect(getMinNodesRequiredMaxReplicas(false, 4, 1, true)).toBe(4);
-        expect(getMinNodesRequiredMaxReplicas(false, 2, 3, false)).toBe(2);
+        expect(getAutoscaleMaxReplicasFloor(false, 4, 1, true)).toBe(4);
+        expect(getAutoscaleMaxReplicasFloor(false, 2, 3, false)).toBe(2);
       });
 
       it('returns undefined when minNodes is undefined', () => {
-        expect(getMinNodesRequiredMaxReplicas(false, undefined, 1, false)).toBeUndefined();
+        expect(getAutoscaleMaxReplicasFloor(false, undefined, 1, false)).toBeUndefined();
       });
+    });
+  });
+});
+
+describe('getMaxNodeCountForMachinePool', () => {
+  const selectedMPNodes = 1;
+  const existingNodes = 4; // total from below
+
+  const defaultArgs = {
+    cluster: {
+      hypershift: { enabled: true },
+      multi_az: false,
+      ccs: { enabled: true }, // isByoc
+      cloud_provider: { id: 'aws' },
+      billing_model: 'marketplace-aws',
+      product: { id: 'ROSA' },
+      version: { raw_id: '4.16.0' },
+    },
+    machineTypeId: 'm5.xlarge',
+    machinePools: [
+      {
+        autoscaling: { max_replicas: selectedMPNodes },
+        id: 'workers-1',
+        instance_type: 'm5.xlarge',
+      },
+      {
+        autoscaling: { max_replicas: 1 },
+        id: 'workers-2',
+        instance_type: 'm5.xlarge',
+      },
+      {
+        replicas: 2,
+        id: 'workers-3',
+        instance_type: 'm5.xlarge',
+      },
+    ],
+    minNodes: 1,
+    editMachinePoolId: 'workers-1',
+  } as unknown as GetMaxNodeCountForMachinePoolParams;
+
+  const maxNodesHCP = machinePoolUtils.getMaxSupportedNodesHCP(defaultArgs.cluster.version?.raw_id);
+
+  // In order to make testing a little easier, mocking quota method
+  const getAvailableQuotaMock = jest
+    .spyOn(machinePoolUtils, 'getAvailableQuota')
+    .mockReturnValue(50990);
+  afterAll(() => {
+    getAvailableQuotaMock.mockReset();
+  });
+
+  describe('Adding a new machine pool', () => {
+    const newMachinePoolArgs = {
+      ...defaultArgs,
+      editMachinePoolId: undefined,
+    };
+
+    it('returns expected max node count if hypershift and all same machine type', () => {
+      const maxNodeCount = getMaxNodeCountForMachinePool(newMachinePoolArgs);
+
+      const expectedMaxNodes = maxNodesHCP - existingNodes;
+      expect(maxNodeCount).toBe(expectedMaxNodes);
+    });
+
+    it('returns expected max node count if hypershift and different machine types', () => {
+      const newMachinePoolArgsPlus = {
+        ...newMachinePoolArgs,
+        machinePools: [
+          ...defaultArgs.machinePools,
+          {
+            replicas: 3,
+            id: 'workers-3',
+            instance_type: 'm5.myothertype',
+          },
+        ],
+      };
+      const maxNodeCount = getMaxNodeCountForMachinePool(newMachinePoolArgsPlus);
+
+      const expectedMaxNodes = maxNodesHCP - existingNodes - 3; // "3" is from machine pool added in this test
+      expect(maxNodeCount).toBe(expectedMaxNodes);
+    });
+
+    it('returns expected max node count if not hypershift and all same machine type', () => {
+      const newMachinePoolArgsNotHCP = {
+        ...newMachinePoolArgs,
+        cluster: {
+          ...defaultArgs.cluster,
+          hypershift: { enabled: false },
+        },
+      };
+
+      const maxNodeCount = getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
+
+      const expectedMaxNodes = machinePoolUtils.getMaxSupportedNodesClassic(
+        defaultArgs.cluster.version?.raw_id,
+      );
+      expect(maxNodeCount).toBe(expectedMaxNodes);
+    });
+
+    it('returns expected max node count if not hypershift and different machine types', () => {
+      const newMachinePoolArgsNotHCP = {
+        ...newMachinePoolArgs,
+        cluster: {
+          ...defaultArgs.cluster,
+          hypershift: { enabled: false },
+        },
+        machinePools: [
+          ...defaultArgs.machinePools,
+          {
+            replicas: 3,
+            id: 'workers-3',
+            instance_type: 'm5.myothertype',
+          },
+        ],
+      };
+
+      const maxNodeCount = getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
+
+      const expectedMaxNodes = machinePoolUtils.getMaxSupportedNodesClassic(
+        defaultArgs.cluster.version?.raw_id,
+      );
+      expect(maxNodeCount).toBe(expectedMaxNodes);
+    });
+  });
+
+  describe('Editing an existing machine pool', () => {
+    it('returns expected max node count if hypershift and all same machine type', () => {
+      const maxNodeCount = getMaxNodeCountForMachinePool(defaultArgs);
+
+      const expectedMaxNodes = maxNodesHCP - existingNodes + selectedMPNodes;
+      expect(maxNodeCount).toBe(expectedMaxNodes);
+    });
+
+    it('returns expected max node count if hypershift and different machine types', () => {
+      const newMachinePoolReplicas = 3;
+
+      const newMachinePoolArgsPlus = {
+        ...defaultArgs,
+        machinePools: [
+          ...defaultArgs.machinePools,
+          {
+            replicas: newMachinePoolReplicas,
+            id: 'workers-3',
+            instance_type: 'm5.myothertype',
+          },
+        ],
+      };
+      const maxNodeCount = getMaxNodeCountForMachinePool(newMachinePoolArgsPlus);
+
+      const existingNodesWithNewMP = existingNodes + newMachinePoolReplicas;
+      const expectedMaxNodes = maxNodesHCP - existingNodesWithNewMP + selectedMPNodes;
+      expect(maxNodeCount).toBe(expectedMaxNodes);
+    });
+
+    it('returns expected max node count if not hypershift and all same machine type', () => {
+      const newMachinePoolArgsNotHCP = {
+        ...defaultArgs,
+        cluster: {
+          ...defaultArgs.cluster,
+          hypershift: { enabled: false },
+        },
+      };
+
+      const maxNodeCount = getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
+
+      const expectedMaxNodes = machinePoolUtils.getMaxSupportedNodesClassic(
+        defaultArgs.cluster.version?.raw_id,
+      );
+      expect(maxNodeCount).toBe(expectedMaxNodes);
+    });
+
+    it('returns expected max node count if not hypershift and different machine types', () => {
+      const newMachinePoolArgsNotHCP = {
+        ...defaultArgs,
+        cluster: {
+          ...defaultArgs.cluster,
+          hypershift: { enabled: false },
+        },
+        machinePools: [
+          ...defaultArgs.machinePools,
+          {
+            replicas: 3,
+            id: 'workers-3',
+            instance_type: 'm5.myothertype',
+          },
+        ],
+      };
+
+      const maxNodeCount = getMaxNodeCountForMachinePool(newMachinePoolArgsNotHCP);
+
+      const expectedMaxNodes = machinePoolUtils.getMaxSupportedNodesClassic(
+        defaultArgs.cluster.version?.raw_id,
+      );
+      expect(maxNodeCount).toBe(expectedMaxNodes);
     });
   });
 });

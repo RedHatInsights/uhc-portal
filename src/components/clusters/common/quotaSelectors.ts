@@ -23,7 +23,6 @@ import { BillingQuota, defaultQuotaQuery, QuotaParams, QuotaQuery } from './quot
 /**
  * Performs an explicit mapping from a given billingModel to the billingModel which should be used to check quotas for
  */
-/* eslint-disable camelcase */
 const getBillingQuotaModel = (
   model: ConsumedQuotaBillingModel | any,
 ): RelatedResourceBillingModel => {
@@ -34,7 +33,6 @@ const getBillingQuotaModel = (
       return model;
   }
 };
-/* eslint-enable camelcase */
 
 /**
  * Returns true if a QuotaCost.related_resources item matches given constraints.

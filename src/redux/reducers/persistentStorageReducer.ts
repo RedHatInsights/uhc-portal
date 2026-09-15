@@ -20,6 +20,7 @@ const initialState: State = {
 };
 
 function persistentStorageReducer(
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<PersistentStorageAction>,
 ): State {

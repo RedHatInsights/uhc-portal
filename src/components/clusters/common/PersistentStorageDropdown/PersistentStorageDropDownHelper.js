@@ -24,7 +24,4 @@ const filterPersistentStorageValuesByQuota = (
   return result;
 };
 
-export {
-  // eslint-disable-next-line import/prefer-default-export
-  filterPersistentStorageValuesByQuota,
-};
+export { filterPersistentStorageValuesByQuota };

@@ -17,7 +17,6 @@ enum SubscriptionDerivedStates {
 
 // see https://github.com/microsoft/TypeScript/issues/17592
 type clusterStates = ClusterState | SubscriptionDerivedStates;
-// eslint-disable-next-line no-redeclare
 const clusterStates = { ...ClusterState, ...SubscriptionDerivedStates };
 
 export type ClusterStateAndDescription = {

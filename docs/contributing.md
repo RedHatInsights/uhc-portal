@@ -70,12 +70,7 @@ Code guidelines are listed [in a separate document](code-guide.md). Make sure to
 
 ## Code Style
 
-To promote consistency in the code base, OCM follows the JavaScript and React [style guides produced
-by airbnb](https://github.com/airbnb/javascript).
-
-To guide and aid developers in style consistency, OCM uses [eslint](https://eslint.org/) and
-the [airbnb eslint
-tools](https://github.com/airbnb/javascript/tree/master/packages/eslint-config-airbnb).
+To guide and aid developers in style consistency, OCM uses [eslint](https://eslint.org/).
 
 ### Linting
 

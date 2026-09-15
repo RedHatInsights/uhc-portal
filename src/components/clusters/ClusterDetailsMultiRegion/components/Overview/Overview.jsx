@@ -76,8 +76,6 @@ const Overview = (props) => {
     ) {
       // we only want to show this alert if the cluster transitioned from installing/pending
       // to Ready while the page was open.
-
-      // eslint-disable-next-line react/no-did-update-set-state
       setShowInstallSuccessAlert(true);
     }
 
@@ -102,7 +100,7 @@ const Overview = (props) => {
     : metricsStatusMessages[cluster.state] || metricsStatusMessages.default;
 
   // TODO: Part of ClusterStatusMonitor story (installation)
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const shouldMonitorStatus =
     [
       clusterStates.waiting,

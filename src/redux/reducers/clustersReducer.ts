@@ -163,6 +163,7 @@ const filterAndSortClusterVersions = (versions: Version[]) => {
 };
 
 const clustersReducer = (
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<ClusterAction | UpgradeGateAction | TechPreviewActions>,
 ): State =>

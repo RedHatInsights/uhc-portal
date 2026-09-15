@@ -119,6 +119,7 @@ initialState[viewConstants.CLUSTER_TRANSFER_VIEW] = Object.assign(
 );
 
 const viewOptionsReducer = (
+  // eslint-disable-next-line default-param-last
   state = initialState,
   action: PromiseActionType<
     | AccessRequestAction

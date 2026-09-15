@@ -63,6 +63,7 @@ const getSupportCases = (subscriptionID: string) =>
     subscriptionID,
   });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const supportActions = {
   clearNotificationContacts,
   clearAddNotificationContacts,

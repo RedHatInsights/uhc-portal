@@ -1,6 +1,5 @@
 /* eslint-disable testing-library/prefer-find-by */
 /* eslint-disable testing-library/no-wait-for-multiple-assertions */
-/* eslint-disable testing-library/await-async-queries */
 import React, { RefObject } from 'react';
 
 import { checkAccessibility, mockUseChrome, render, screen, waitFor } from '~/testUtils';

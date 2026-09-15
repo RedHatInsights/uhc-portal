@@ -25,7 +25,7 @@ import {
 import { getErrorMessage } from '~/common/errors';
 import getClusterName from '~/common/getClusterName';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
-import { getMaxNodesHCP, getNodeCount } from '~/components/clusters/common/machinePools/utils';
+import { getMaxNodeCount, getNodeCount } from '~/components/clusters/common/machinePools/utils';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { ShieldedVM } from '~/components/clusters/wizards/common/ShieldedVM';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
@@ -159,16 +159,22 @@ const EditMachinePoolModal = ({
   const [isEdit, setIsEdit] = React.useState<boolean>(getIsEditValue());
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(STARTING_TAB_KEY);
 
-  let hcpMaxDifference;
+  let hcpMaxDifference: number | undefined;
   if (machinePoolsResponse && isHypershift) {
-    hcpMaxDifference =
-      getMaxNodesHCP(cluster.version?.raw_id) -
-      getNodeCount(
+    hcpMaxDifference = getMaxNodeCount({
+      available: Infinity,
+      isEditingCluster: true,
+      currentNodeCount: getNodeCount(
         machinePoolsResponse,
         isHypershift,
         currentMachinePool?.id,
         currentMachinePool?.instance_type,
-      );
+      ),
+      included: 0,
+      minNodes: 0,
+      isHypershift: true,
+      clusterVersion: cluster.version?.raw_id,
+    });
   }
 
   const isMaxReached = hcpMaxDifference === 0;

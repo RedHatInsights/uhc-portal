@@ -4,7 +4,6 @@ import { render, screen, within } from '~/testUtils';
 
 import LimitedSupportAlert from '../ClusterDetailsTop/components/LimitedSupportAlert';
 
-// eslint-disable-next-line react/prop-types
 jest.mock('~/common/MarkdownParser', () => ({ children }: { children: React.ReactNode }) => (
   <div data-testid="markdownparser-link-mock">{children}</div>
 ));
