@@ -221,6 +221,10 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByRole('textbox', { name: 'SQS queue URL' });
   }
 
+  spotInterruptionSetupDocLink(): Locator {
+    return this.page.getByRole('link', { name: 'View setup documentation' });
+  }
+
   // Networking selectors
   clusterPrivacyPublicRadio(): Locator {
     return this.page.getByTestId('cluster_privacy-external');
