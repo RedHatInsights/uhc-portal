@@ -6,7 +6,7 @@ import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/C
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ReviewAndCreate } from '~/components/clusters/wizards/osd/ReviewAndCreate/ReviewAndCreate';
 import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
-import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
+import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
 const formValues = {
   product: 'OSD',
