@@ -42,7 +42,7 @@ const componentText = {
     label: 'Domain prefix',
   },
   VERSION: { label: 'Version' },
-  CHANNEL_GROUP: { label: 'Channel group', stable: 'Stable', unavailable: 'N/A' },
+  CHANNEL: { label: 'Channel', unavailable: 'N/A' },
   OWNER: { label: 'Owner', NA: 'N/A' },
   SUBSCRIPTION: { label: 'Subscription billing model' },
   INFRASTRUCTURE: { label: 'Infrastructure billing model' },
@@ -58,6 +58,12 @@ const componentText = {
   },
 };
 jest.mock('./SupportStatusLabel/SupportStatusLabel');
+jest.mock('~/queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules', () => ({
+  useGetSchedules: () => ({ data: { items: [] }, isLoading: false }),
+}));
+jest.mock('~/queries/ChannelEditQueries/useEditChannelOnCluster', () => ({
+  useEditChannelOnCluster: () => ({ mutate: jest.fn(), isError: false, isPending: false }),
+}));
 
 const checkForValue = (label, value) => {
   expect(screen.getByText(label)).toBeInTheDocument();
@@ -797,9 +803,8 @@ describe('<DetailsLeft />', () => {
     });
   });
 
-  describe('Channel group HCP cluster', () => {
-    it('Shows channel group if available', async () => {
-      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+  describe('Channel HCP cluster', () => {
+    it('Shows channel row for managed clusters', async () => {
       const ROSAHypershiftClusterFixture = fixtures.ROSAHypershiftClusterDetails.cluster;
       expect(ROSAHypershiftClusterFixture.hypershift.enabled).toBeTruthy();
 
@@ -807,26 +812,20 @@ describe('<DetailsLeft />', () => {
       render(<DetailsLeft {...props} />);
       await checkIfRendered();
 
-      // Assert
-      checkForValue(componentText.CHANNEL_GROUP.label, componentText.CHANNEL_GROUP.stable);
+      checkForValue(componentText.CHANNEL.label, componentText.CHANNEL.unavailable);
     });
 
-    it('Shows N/A if channel group is unavailable', async () => {
-      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
+    it('Shows the cluster channel when set', async () => {
       const ROSAHypershiftClusterFixture = {
         ...fixtures.ROSAHypershiftClusterDetails.cluster,
-        version: {
-          channel_group: 'N/A',
-        },
+        channel: 'stable-4.14',
       };
-      expect(ROSAHypershiftClusterFixture.hypershift.enabled).toBeTruthy();
 
       const props = { ...defaultProps, cluster: ROSAHypershiftClusterFixture };
       render(<DetailsLeft {...props} />);
       await checkIfRendered();
 
-      // Assert
-      checkForValue(componentText.CHANNEL_GROUP.label, componentText.CHANNEL_GROUP.unavailable);
+      checkForValue(componentText.CHANNEL.label, 'stable-4.14');
     });
   });
 
