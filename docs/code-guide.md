@@ -9,18 +9,21 @@ These guidelines serve to:
 
 Use these guidelines during development and code reviews. When in doubt or if a scenario isn't covered, ask the team for help.
 
+When changing legacy code, apply these guidelines to new logic and meaningful refactors. Matching surrounding patterns is acceptable only when the change scope does not include restructuring that area.
+
 ## General Conventions
 
 - Functional components with hooks only — no class components
 - PascalCase for component files and names; camelCase for non-component files, functions, and variables.
 - kebab-case for shell scripts and config files.
 - `UPPER_SNAKE_CASE` for true constants
-- Boolean props prefixed with `is`, `has`, `can`, `should`
+- Boolean props on custom components must be prefixed with `is`, `has`, `can`, or `should`.
 - Circular dependencies checked in CI: `npm run find-circular-dependencies`
 - Before creating a new hook, query, utility, or helper function, search the entire codebase for existing implementations — not just shared folders like `src/queries/` or `src/hooks/`. This is a legacy codebase and existing implementations may live inside other component folders. If you find a duplicate, reuse it and consider extracting it to a shared location.
 - Do not extend existing duplication. If you find the same business logic implemented in multiple places (e.g., the same calculation in different files for Day 1 vs Day 2, or JS vs TS versions), do not add another variant. Flag the duplication and consolidate into a single shared function before using it.
 - Before writing new logic (calculations, conditionals, data transformations), check if the same logic already exists in parent components, sibling components, or nearby files. Reuse existing logic rather than reimplementing it.
 - Do not blindly copy patterns or workarounds from existing code. This is a legacy codebase and some code contains hacks or workarounds (e.g., `setTimeout` around Formik's `setFieldTouched`) that only apply to specific situations. Understand *why* a pattern exists before replicating it — the workaround may not be needed in your context.
+- Do not add `console.log` to application code. Remove debug logging before merging. ESLint enforces `no-console` for application code under `src/`.
 
 ## Component Structure
 
@@ -69,11 +72,11 @@ Use the following patterns when designing components:
   ```
 - Avoid putting state-dependent logic inside `useEffect`; it causes misdirection of what the logic is doing. Choose to explicitly define logic rather than depend on implicit reactive behavior
 - Prefer state machines over multiple related `useState` calls. Multiple interdependent state variables make code harder to reason about.
-- Avoid `setTimeouts`. They are flaky and usually a _hack_, always provide a comment on _why_ you are using them. This doesn't affect if the "code runs" or not most of the time, but they can introduce subtle bugs that can grow into big issues that aren't obvious until someone goes in and has to spend a lot of time refactoring everything.
+- Do not use `setTimeout` with an empty or no-op callback. Other `setTimeout` uses are flaky and usually a _hack_; always provide a comment explaining _why_ one is needed. This does not affect whether the code runs in most cases, but it can introduce subtle bugs that are not obvious until someone spends time refactoring the area.
 
 ## React Hooks Patterns
 
-- Avoid using `useMemo` for processes that are not [computationally expensive](https://react.dev/learn/you-might-not-need-an-effect#how-to-tell-if-a-calculation-is-expensive)
+- Do not use `useMemo` for processes that are not [computationally expensive](https://react.dev/learn/you-might-not-need-an-effect#how-to-tell-if-a-calculation-is-expensive). This includes passthrough values such as returning `children` unchanged.
 - Functions are memoized with `useCallback` only when necessary:
   * Functions used as dependencies in `useEffect`, `useMemo`, or other hooks
   * Functions passed to context providers or returned from custom hooks
@@ -82,7 +85,7 @@ Use the following patterns when designing components:
   * Simple event handlers that aren't passed as props
   * Functions without dependencies or only used within the same component
 - All hook dependencies (`useEffect`, `useMemo`, `useCallback`) use referentially stable variables
-- No `useEffect`s that take incoming props and compute them for a local `useState`, this is `useMemo` with extra steps
+- Do not use `useEffect` to copy an incoming prop or state value into local `useState`. Derive the value during render instead.
 - Make sure the [exhaustive-deps rule](https://react.dev/reference/eslint-plugin-react-hooks/lints/exhaustive-deps) is applied. If you encounter a file where the ESLint rule is ignored (`// eslint-disable-next-line react-hooks/exhaustive-deps`), re-enable it and fix the dependency array. If for any reason the rule has to be skipped, provide a comment explaining why.
 
 ### More On `useEffect`
@@ -91,7 +94,7 @@ Make sure to follow React guidelines on `useEffect`: [You Might Not Need an Effe
 
 Common cases where `useEffect` is NOT needed:
 
-* Transforming data for rendering (use variables or useMemo instead)
+* Transforming data for rendering (derive during render; use `useMemo` only when the transformation is [computationally expensive](https://react.dev/learn/you-might-not-need-an-effect#how-to-tell-if-a-calculation-is-expensive))
 * Handling user events (use event handlers instead)
 * Resetting state when props change (use key prop or calculate during render)
 * Updating state based on props/state changes (calculate during render)
@@ -104,12 +107,12 @@ Only use useEffect for:
 
 ## Avoid Custom Styling
 
-It is tempting to “just add a bit of CSS” for minor tweaks, but this usually indicates we are drifting away from native PatternFly behavior and should reconsider the approach. If you feel the need to add CSS or apply "styles" or "className" properties to "adjust" the UI, you're likely going in the wrong direction.
+Prefer PatternFly components, layout components (`Stack`, `Flex`, `Grid`, etc.), and PatternFly utility classes over custom CSS or inline styles.
 
-Using PF utility classes to enforce spacing or to fix layout issues is also considered problematic. Spacing and responsiveness should be handled using layout components (`Stack`, `Flex`, `Grid`, etc.) with a proper configuration. Exceptions can be made, but they have to be justified inside PR descriptions or comments.
-
-Sometimes we find scenarios where PF doesn't quite manage something as we wanted. This is usually related to complex component structures, or to components that do not yet support the feature we are trying to implement.
-This should be a rare exception, and we should resort to it sparingly. The more we add customizations, the more we have to deal with PF upgrades breaking them.
+- Do not use inline `style` props for layout, spacing, color, or typography — including on native elements that use PatternFly classes. Use PatternFly layout components or utility classes instead.
+- Applying `className` with PatternFly utilities or component-supported props is expected. Do not add ad-hoc CSS or inline styles to work around problems that layout components or utilities can solve.
+- Prefer layout components over utility-only spacing when structuring a page or feature section. Exceptions can be made, but they must be justified in the PR description or a code comment.
+- Custom CSS files should be rare. When PatternFly does not support required behavior, document the exception in the PR description. The more customizations we add, the more PatternFly upgrades can break.
 
 ## Data Loading and Error States
 
@@ -136,7 +139,7 @@ The following import rules are enforced by ESLint:
 
 Import order is enforced by `simple-import-sort`:
 
-1. `react`, `next`, then packages starting with a letter
+1. `react`, then packages starting with a letter
 2. Packages starting with `@`
 3. Packages starting with `~` (src alias)
 4. Relative `../` imports
@@ -167,7 +170,7 @@ We switched to [TanStack Query](https://tanstack.com/query/latest) for data-fetc
 
 ### Lodash
 
-Only use lodash when it's needed. Avoid it when it's possible to achieve the same result with plain TS/JS. A common example is `lodash/get`, you can replace it with optional chaining and nullish coalescing.
+Only use lodash when plain TS/JS cannot express the logic clearly. Do not use `lodash/get`, `lodash/set`, or similar property accessors when optional chaining (`?.`) and nullish coalescing (`??`) achieve the same result.
 
 ## Documenting
 
