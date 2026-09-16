@@ -51,7 +51,7 @@ describe('Install generic component', () => {
         />,
       );
 
-      const title = await screen.findByText('Install OpenShift Container Platform 4 on ARM');
+      const title = await screen.findByText('Install OpenShift Container Platform on ARM');
       expect(title).toBeInTheDocument();
     });
 
@@ -63,7 +63,7 @@ describe('Install generic component', () => {
         />,
       );
 
-      const title = await screen.findByText('Install OpenShift Container Platform 4');
+      const title = await screen.findByText('Install OpenShift Container Platform');
       expect(title).toBeInTheDocument();
     });
   });

@@ -13,7 +13,11 @@ import { useReplaceSchedule } from '~/queries/ClusterDetailsQueries/ClusterSetti
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
-import { HCP_LOG_FORWARDING, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import {
+  HCP_LOG_FORWARDING,
+  OCP5_SUPPORT,
+  Y_STREAM_CHANNEL,
+} from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
   mockUseFeatureGate,
@@ -533,6 +537,44 @@ describe('<UpgradeSettingsTab>', () => {
 
       const link = screen.getByText('Learn more');
       expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_MONITORING);
+    });
+  });
+
+  describe('Upgrade to v5 warning', () => {
+    const rosaClassicCluster = createMockCluster({
+      product: { id: 'ROSA' },
+      subscription: { ...createMockCluster().subscription, plan: { type: 'ROSA' } },
+    });
+    const osdClassicCluster = createMockCluster({ product: { id: 'OSD' } });
+
+    it('does not render when showUpgradeToV5Warning is false', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, false]]);
+
+      renderComponent(rosaClassicCluster);
+
+      expect(screen.queryByTestId('classic-upgrade-to-v5-warning')).not.toBeInTheDocument();
+    });
+
+    it('renders for a ROSA Classic cluster when showUpgradeToV5Warning is true', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      renderComponent(rosaClassicCluster);
+
+      expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
+      expect(
+        screen.getByText('create a new ROSA HCP cluster', { exact: false }),
+      ).toBeInTheDocument();
+    });
+
+    it('renders for an OSD Classic cluster when showUpgradeToV5Warning is true', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      renderComponent(osdClassicCluster);
+
+      expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
+      expect(
+        screen.getByText('the last supported version for OSD Classic', { exact: false }),
+      ).toBeInTheDocument();
     });
   });
 

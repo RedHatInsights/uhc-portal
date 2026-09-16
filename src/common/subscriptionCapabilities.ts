@@ -1,4 +1,4 @@
-import { Subscription, SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
+import { Capability, Subscription, SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
 import { ClusterFromSubscription } from '../types/types';
 
@@ -27,7 +27,16 @@ const subscriptionCapabilities = {
   ALLOW_ETCD_ENCRYPTION: 'capability.account.allow_etcd_encryption',
   ENABLE_ACCESS_PROTECTION: 'capability.cluster.enable_access_protection',
   ENABLE_TERMS_ENFORCEMENT: 'capability.account.enable_terms_enforcement',
+  ROSA_OSD_ALLOW_OCP_5: 'capability.organization.rosa_osd_allow_ocp_5',
 };
+
+const hasCapabilityValue = (capabilities: Capability[] | undefined, name: string): boolean =>
+  (capabilities ?? []).some(
+    (capability) => capability.name === name && capability.value === 'true',
+  );
+
+const hasAllowOcp5Capability = (capabilities: Capability[] | undefined): boolean =>
+  hasCapabilityValue(capabilities, subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5);
 
 const hasCapability = (subscription: Subscription | undefined, name: string): boolean => {
   if (name === subscriptionCapabilities.RELEASE_OCP_CLUSTERS) {
@@ -45,9 +54,7 @@ const hasCapability = (subscription: Subscription | undefined, name: string): bo
     }
   }
 
-  const capabilities = subscription?.capabilities ?? [];
-  const found = capabilities.find((capability) => capability.name === name);
-  return found?.value === 'true';
+  return hasCapabilityValue(subscription?.capabilities, name);
 };
 
 const haveCapabilities = (
@@ -59,4 +66,4 @@ const haveCapabilities = (
     {},
   );
 
-export { hasCapability, haveCapabilities, subscriptionCapabilities };
+export { hasCapability, hasAllowOcp5Capability, haveCapabilities, subscriptionCapabilities };

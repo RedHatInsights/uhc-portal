@@ -1,6 +1,8 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from './base-page';
+import { expect,Locator, Page } from '@playwright/test';
+
 import { CustomCommands } from '../support/custom-commands';
+
+import { BasePage } from './base-page';
 
 /**
  * Page object for Cluster Cloud Tab page functionality
@@ -90,7 +92,10 @@ export class CreateClusterPage extends BasePage {
   }
 
   async checkManagedServiceButton(buttonText: string, expectedUrl: string): Promise<void> {
-    const button = this.managedServicesTable.locator('a').filter({ hasText: buttonText });
+    // Filter by href as well — button labels can repeat across rows (e.g. IBM vs ROVS)
+    const button = this.managedServicesTable
+      .locator(`a[href="${expectedUrl}"]`)
+      .filter({ hasText: buttonText });
     await expect(button).toBeVisible();
     await expect(button).toHaveAttribute('href', expectedUrl);
   }
@@ -116,11 +121,10 @@ export class CreateClusterPage extends BasePage {
     await this.page.goBack();
   }
 
-  async expandToggle(selector: string): Promise<void> {
-    const element = this.page.locator(selector);
-    await element.scrollIntoViewIfNeeded();
-    await expect(element).toBeVisible();
-    await element.click();
+  async expandManagedServiceRow(rowKey: string): Promise<void> {
+    const expandCell = this.page.getByTestId(`managed-service-expand-${rowKey}`);
+    await expandCell.scrollIntoViewIfNeeded();
+    await expandCell.getByRole('button').click();
   }
 
   async isTextVisible(text: string): Promise<void> {

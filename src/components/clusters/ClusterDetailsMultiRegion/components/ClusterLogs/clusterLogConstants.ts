@@ -1,17 +1,11 @@
-import { ClusterLogLog_type as ClusterLogType } from '~/types/service_logs.v1';
+import { ClusterLogLog_type as ClusterLogType, ClusterLogSeverity } from '~/types/service_logs.v1';
 
 const GET_CLUSTER_LOGS = 'GET_CLUSTER_LOGS';
 const RESET_CLUSTER_HISTORY = 'RESET_CLUSTER_HISTORY';
 
-const SEVERITY_TYPES: string[] = [
-  'Debug',
-  'Info',
-  'Warning',
-  'Error',
-  'Major',
-  'Critical',
-  'Fatal',
-];
+// Dual legacy + HCC labels during ROSA-725 transition (ROSAENG-62580 / OCMUI-4718).
+const SEVERITY_TYPES: string[] = Object.values(ClusterLogSeverity);
+
 const LOG_TYPES: string[] = Object.values(ClusterLogType).sort((a, b) =>
   a.localeCompare(b, undefined, { sensitivity: 'case' }),
 );

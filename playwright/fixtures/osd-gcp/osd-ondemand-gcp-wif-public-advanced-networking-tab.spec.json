@@ -1,0 +1,79 @@
+{
+  "NetworkingValidation": {
+    "RouteSelector": [
+      {
+        "UpperCharacterLimitValue": "characterslimtgreaterthan60testingssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+        "Error": "A valid key name must be 63 characters or less"
+      },
+      {
+        "InvalidValue": "Invalid-",
+        "Error": "A valid key name must consist of alphanumeric characters, '-', '.' , '_' or '/' and must start and end with an alphanumeric character"
+      },
+      {
+        "ValidValue": "ocmplaywright-tests-routerkey=osd-gcp-wif-public-adv"
+      }
+    ],
+    "ExcludedNamespaces": [
+      {
+        "UpperCharacterLimitValue": "characterslimtgreaterthan60testingssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+        "Error": "Namespace names may not exceed 63 characters"
+      },
+      {
+        "InvalidValue": "Invalid-",
+        "Error": "Namespace name 'Invalid-' isn't valid, must consist of lower-case alphanumeric characters or '-', start with an alphabetic character, and end with an alphanumeric character. For example, 'my-name', or 'abc-123'."
+      },
+      {
+        "ValidValue": "ocmui-tests,playwright,default"
+      }
+    ],
+    "ExcludeNamespaceSelectors": {
+      "Key": [
+        {
+          "InvalidValue": "Invalid_Label_Key!",
+          "Error": "A valid key name must consist of alphanumeric characters, '-', '.' , '_' or '/' and must start and end with an alphanumeric character"
+        },
+        {
+          "UpperCharacterLimitValue": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "Error": "A valid key name must be 63 characters or less"
+        }
+      ],
+      "Values": [
+        {
+          "EmptyWithKeyError": "Enter at least one value, separated by commas."
+        },
+        {
+          "ValueBeforeKeyError": "Enter a label key before values."
+        },
+        {
+          "InvalidValue": "openshift-console",
+          "Error": "Do not exclude openshift-console or openshift-authentication namespaces; they are vital to cluster operations."
+        },
+        {
+          "InvalidValue": "openshift-authentication",
+          "Error": "Do not exclude openshift-console or openshift-authentication namespaces; they are vital to cluster operations."
+        },
+        {
+          "InvalidValue": "tenant-a,OPENSHIFT-CONSOLE",
+          "Error": "Do not exclude openshift-console or openshift-authentication namespaces; they are vital to cluster operations."
+        }
+      ],
+      "DuplicateKeyError": "Each selector must have a different key.",
+      "SecondSelector": {
+        "Key": "ocmplaywright-exclude-extra",
+        "Values": "extra1"
+      }
+    }
+  },
+  "EditApplicationIngress": {
+    "RouteSelector": {
+      "KeyValue": "ocmplaywright-tests-routerkey=osd-gcp-wif-day2-edit"
+    },
+    "ExcludedNamespaces": {
+      "Values": "day2-edit,playwright-tmp"
+    },
+    "ExcludeNamespaceSelectors": {
+      "Key": "ocmplaywright-exclude-day2",
+      "Values": "edit1,edit2"
+    }
+  }
+}

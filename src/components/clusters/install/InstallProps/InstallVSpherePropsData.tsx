@@ -1,9 +1,10 @@
 import links from '~/common/installLinks.mjs';
 
+import { INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 
 export const VSphereProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | vSphere',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | vSphere`,
   providerTitle: 'VMware vSphere',
   aiPageLink: '/assisted-installer/clusters/~new',
   aiLearnMoreLink: links.INSTALL_ASSISTED_LEARN_MORE,
@@ -30,8 +31,7 @@ export const VSphereProps = {
 };
 
 export const VSpehereABIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | vSphere Agent-based installer',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | vSphere Agent-based installer`,
   providerTitle: instructionsMapping.vsphere.abi.title,
   cloudProviderId: 'vsphere',
   installationTypeId: 'local-agent-based',
@@ -46,8 +46,7 @@ export const VSpehereABIProps = {
 };
 
 export const VSphereUPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | vSphere User-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | vSphere User-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.vsphere.upi.title,
   cloudProviderId: 'vsphere',
   isUPI: true,
@@ -61,8 +60,7 @@ export const VSphereUPIProps = {
 };
 
 export const VSphereIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | vSphere Installer-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | vSphere Installer-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.vsphere.ipi.title,
   cloudProviderId: 'vsphere',
   customizations: instructionsMapping.vsphere.customizations,

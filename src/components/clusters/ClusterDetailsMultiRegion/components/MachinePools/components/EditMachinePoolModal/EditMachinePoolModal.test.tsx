@@ -1,9 +1,11 @@
 import * as React from 'react';
 
 import fixtures from '~/components/clusters/ClusterDetailsMultiRegion/__tests__/ClusterDetails.fixtures';
+import { defaultClusterFromSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import { MAX_NODES_HCP } from '~/components/clusters/common/machinePools/constants';
 import {
   AWS_TAGS_NEW_MP,
+  HCP_SPOT_INSTANCES,
   IMDS_SELECTION,
   TABBED_MACHINE_POOL_MODAL,
 } from '~/queries/featureGates/featureConstants';
@@ -339,6 +341,7 @@ describe('<EditMachinePoolModal />', () => {
           <EditMachinePoolModal
             cluster={
               {
+                ...defaultClusterFromSubscription,
                 product: { id: 'ROSA' },
                 cloud_provider: { id: 'aws' },
                 hypershift: { enabled: false },
@@ -357,8 +360,44 @@ describe('<EditMachinePoolModal />', () => {
         expect(screen.getByLabelText('Use Amazon EC2 Spot Instance')).toBeVisible();
       });
 
-      it('hides the cost savings subtab if ROSA hypershift', async () => {
-        mockUseFeatureGate([[TABBED_MACHINE_POOL_MODAL, true]]);
+      it('shows the cost savings subtab if ROSA hypershift and HCP_SPOT_INSTANCES is enabled', async () => {
+        mockUseFeatureGate([
+          [TABBED_MACHINE_POOL_MODAL, true],
+          [HCP_SPOT_INSTANCES, true],
+        ]);
+        const { user } = render(
+          <EditMachinePoolModal
+            cluster={
+              {
+                ...defaultClusterFromSubscription,
+                product: { id: 'ROSA' },
+                cloud_provider: { id: 'aws' },
+                hypershift: { enabled: true },
+                openshift_version: '4.23.0',
+              } as ClusterFromSubscription
+            }
+            onClose={() => {}}
+            {...commonProps}
+          />,
+        );
+
+        expect(await screen.findByRole('tab', { name: 'Cost savings' })).toBeInTheDocument();
+
+        await user.click(screen.getByRole('tab', { name: 'Cost savings' }));
+
+        expect(screen.getByLabelText('Use Amazon EC2 Spot Instance')).toBeVisible();
+
+        await user.click(screen.getByLabelText('Use Amazon EC2 Spot Instance'));
+        await user.click(screen.getByText('Set maximum price'));
+
+        expect(screen.getByText('Price must not exceed $10 per hour.')).toBeVisible();
+      });
+
+      it('hides the cost savings subtab if ROSA hypershift and HCP_SPOT_INSTANCES is disabled', async () => {
+        mockUseFeatureGate([
+          [TABBED_MACHINE_POOL_MODAL, true],
+          [HCP_SPOT_INSTANCES, false],
+        ]);
         render(
           <EditMachinePoolModal
             cluster={

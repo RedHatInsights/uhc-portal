@@ -824,12 +824,21 @@ describe('isEnforcedDefaultMachinePool', () => {
 
   describe('canUseSpotInstances', () => {
     it.each([
-      ['empty cluster then false', {}, false, undefined, false],
+      ['empty cluster then false', {}, false, undefined, true, false],
       [
         'aws cloud provider, not hypershift and ROSA then true',
         { cloud_provider: { id: 'aws' } },
         false,
         normalizedProducts.ROSA,
+        false,
+        true,
+      ],
+      [
+        'aws cloud provider, not hypershift and ROSA ignores disabled feature gate',
+        { cloud_provider: { id: 'aws' } },
+        false,
+        normalizedProducts.ROSA,
+        true,
         true,
       ],
       [
@@ -837,6 +846,7 @@ describe('isEnforcedDefaultMachinePool', () => {
         { cloud_provider: { id: 'aws' } },
         false,
         normalizedProducts.OSD,
+        true,
         undefined,
       ],
       [
@@ -845,19 +855,30 @@ describe('isEnforcedDefaultMachinePool', () => {
         false,
         normalizedProducts.OSD,
         true,
+        true,
       ],
       [
         'aws cloud provider, not hypershift and OSD ccs not enabled then undefined',
         { cloud_provider: { id: 'aws' }, ccs: { enabled: false } },
         false,
         normalizedProducts.OSD,
+        true,
         false,
       ],
       [
-        'aws cloud provider, hypershift and ROSA then false',
+        'aws cloud provider, hypershift and ROSA with feature gate enabled then true',
         { cloud_provider: { id: 'aws' } },
         true,
         normalizedProducts.ROSA,
+        true,
+        true,
+      ],
+      [
+        'aws cloud provider, hypershift and ROSA with feature gate disabled then false',
+        { cloud_provider: { id: 'aws' } },
+        true,
+        normalizedProducts.ROSA,
+        false,
         false,
       ],
       [
@@ -865,13 +886,24 @@ describe('isEnforcedDefaultMachinePool', () => {
         { cloud_provider: { id: 'gcp' } },
         false,
         normalizedProducts.ROSA,
+        true,
         false,
       ],
-    ])('%p', (title, cluster, isHypershiftClusterResult, normalizeProductIDResult, expected) => {
-      normalizeProductIDMock.mockReturnValue(normalizeProductIDResult);
-      isHypershiftClusterMock.mockReturnValue(isHypershiftClusterResult);
-      expect(canUseSpotInstances(cluster)).toBe(expected);
-    });
+    ])(
+      '%p',
+      (
+        title,
+        cluster,
+        isHypershiftClusterResult,
+        normalizeProductIDResult,
+        isHcpSpotInstancesEnabled,
+        expected,
+      ) => {
+        normalizeProductIDMock.mockReturnValue(normalizeProductIDResult);
+        isHypershiftClusterMock.mockReturnValue(isHypershiftClusterResult);
+        expect(canUseSpotInstances(cluster, isHcpSpotInstancesEnabled)).toBe(expected);
+      },
+    );
   });
 
   describe('getCapacityPreferenceLabel', () => {

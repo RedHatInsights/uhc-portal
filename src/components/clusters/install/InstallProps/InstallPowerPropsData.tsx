@@ -1,9 +1,10 @@
 import links, { tools } from '~/common/installLinks.mjs';
 
+import { INSTALL_OPENSHIFT_PREFIX, INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 
 export const PowerProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | IBM Power (ppc64le)',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | IBM Power (ppc64le)`,
   providerTitle: 'IBM Power (ppc64le)',
   aiPageLink: '/assisted-installer/clusters/~new',
   aiLearnMoreLink: links.INSTALL_ASSISTED_LEARN_MORE,
@@ -29,8 +30,7 @@ export const PowerProps = {
 };
 
 export const PowerABIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | IBM Power (ppc64le) Agent-based installer',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | IBM Power (ppc64le) Agent-based installer`,
   providerTitle: instructionsMapping.baremetal.ppc.abi.title,
   cloudProviderId: 'baremetal',
   isUPI: true,
@@ -45,7 +45,7 @@ export const PowerABIProps = {
 };
 
 export const PowerPreReleaseProps = {
-  appPageTitle: 'Install OpenShift 4 | IBM Power (ppc64le) | Experimental Developer Preview Builds',
+  appPageTitle: `${INSTALL_OPENSHIFT_PREFIX} | IBM Power (ppc64le) | Experimental Developer Preview Builds`,
   providerTitle: 'Install OpenShift on IBM Power (ppc64le) with user-provisioned infrastructure',
   installer: tools.PPCINSTALLER,
   breadCrumbsPaths: [
@@ -57,7 +57,7 @@ export const PowerPreReleaseProps = {
 };
 
 export const PowerUPIProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | IBM Power (ppc64le)',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | IBM Power (ppc64le)`,
   providerTitle: instructionsMapping.baremetal.ppc.upi.title,
   cloudProviderId: 'baremetal',
   isUPI: true,
@@ -71,8 +71,7 @@ export const PowerUPIProps = {
 };
 
 export const PowerVirtualServerIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | IBM Power Systems Virtual Server Installer-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | IBM Power Systems Virtual Server Installer-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.ibmCloud.powervs.ipi.title,
   cloudProviderId: 'ibmCloud',
   showPreReleaseDocs: true,

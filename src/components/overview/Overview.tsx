@@ -7,6 +7,8 @@ import { Link } from '~/common/routing';
 import InternalTrackingLink from '~/components/common/InternalTrackingLink';
 import { DrawerPanelContentNode, useChromeDrawerPanel } from '~/hooks/useChromeDrawerPanel';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
+import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import docLinks from '../../common/docLinks.mjs';
 import OpenShiftProductIcon from '../../styles/images/OpenShiftProductIcon.svg';
@@ -38,6 +40,7 @@ function OverviewEmptyState() {
   useScrollToAnchor();
 
   const { canCreateManagedCluster } = useCanCreateManagedCluster();
+  const isRovsRegistrationEnabled = useFeatureGate(ROVS_REGISTRATION);
 
   const createClusterURL = '/create';
   const CreateClusterLink = useCallback(
@@ -88,6 +91,11 @@ function OverviewEmptyState() {
           <GalleryItem className="pf-v6-u-pt-md" data-testid="offering-card_RHOIBM">
             <OfferingCard offeringType="RHOIBM" />
           </GalleryItem>
+          {isRovsRegistrationEnabled && (
+            <GalleryItem className="pf-v6-u-pt-md" data-testid="offering-card_ROVS">
+              <OfferingCard offeringType="ROVS" />
+            </GalleryItem>
+          )}
           <GalleryItem className="pf-v6-u-pt-md" data-testid="offering-card_DEVSNBX">
             <OfferingCard offeringType="DEVSNBX" />
           </GalleryItem>

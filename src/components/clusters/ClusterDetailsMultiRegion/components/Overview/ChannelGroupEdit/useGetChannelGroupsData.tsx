@@ -1,3 +1,4 @@
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { isHypershiftCluster, isROSA } from '~/components/clusters/common/clusterStates';
 import {
   createChannelGroupLabel,
@@ -6,15 +7,13 @@ import {
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { useFetchInstallableVersions } from '~/queries/ClusterDetailsQueries/useFetchInstallableVersions';
 import { useGlobalState } from '~/redux/hooks';
-import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 import type { AugmentedCluster } from '~/types/types';
 
 export const useGetChannelGroupsData = (cluster: AugmentedCluster) => {
   const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isRosa = isROSA(cluster);
   const isHCP = isHypershiftCluster(cluster);
-  const isMarketplaceGcp =
-    cluster.billing_model === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp;
+  const isMarketplaceGcp = isGcpMarketplaceBilling(cluster.billing_model);
   const isWIF = cluster.gcp?.authentication?.id === GCPAuthType.WorkloadIdentityFederation;
   const organization = useGlobalState((state) => state.userProfile.organization.details);
   const unstableOCPVersionsEnabled = hasUnstableVersionsCapability(organization);

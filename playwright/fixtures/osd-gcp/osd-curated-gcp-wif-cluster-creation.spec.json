@@ -33,7 +33,7 @@
   "HostPrefix": "/23",
   "ApplicationIngress": "Use default settings",
   "UpdateStrategy": "Individual updates",
-  "NodeDraining": "60 minutes",
+  "NodeDraining": "1 hour",
   "MachinePools": [
     {
       "Name": "worker",

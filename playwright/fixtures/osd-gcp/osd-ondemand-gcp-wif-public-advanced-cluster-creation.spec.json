@@ -1,0 +1,53 @@
+{
+  "ClusterName": "ocmui-pw-osd-ondemand-wif-gcp-public-adv",
+  "Type": "OSD",
+  "CloudProvider": "Google Cloud",
+  "SubscriptionType": "On-Demand: Flexible usage billed through Google Cloud Marketplace",
+  "Marketplace": "Google Cloud Marketplace",
+  "SubscriptionBillingModel": "On-demand via Google Cloud Marketplace",
+  "InfrastructureType": "Customer cloud subscription",
+  "AuthenticationType": "Workload Identity Federation",
+  "Availability": "Single zone",
+  "SecureBootSupportForShieldedVMs": "Enabled",
+  "UserWorkloadMonitoring": "Enabled",
+  "EncryptVolumesWithCustomerKeys": "Disabled",
+  "FIPSCryptography": "Disabled",
+  "AdditionalEncryption": "Disabled",
+  "ClusterAutoscaling": "Enabled",
+  "InstallIntoExistingVPC": "Enabled",
+  "ClusterPrivacy": "Public",
+  "MachineCIDR": "10.0.0.0/16",
+  "ServiceCIDR": "172.30.0.0/16",
+  "PodCIDR": "10.128.0.0/14",
+  "HostPrefix": "/23",
+  "ApplicationIngress": "Custom settings",
+  "RouteSelector": {
+    "KeyValue": "ocmplaywright-tests-routerkey=osd-gcp-wif-public-adv"
+  },
+  "ExcludedNamespaces": {
+    "Values": "ocmui-tests,playwright,default"
+  },
+  "ExcludeNamespaceSelectors": {
+    "Key": "ocmplaywright-exclude",
+    "Values": "ns1,ns2"
+  },
+  "WildcardPolicy": "Disallowed",
+  "NamespaceOwnershipPolicy": "Strict namespace ownership",
+  "UpdateStrategy": "Individual updates",
+  "NodeDraining": "1 hour",
+  "MachinePools": [
+    {
+      "Name": "worker",
+      "InstanceType": "e2-standard-4",
+      "Autoscaling": "Enabled",
+      "MinimumNodeCount": "2",
+      "MaximumNodeCount": "2",
+      "Labels": [
+        {
+          "Key": "ocmplaywright-tests",
+          "Value": "osd-gcp-wif-public-adv"
+        }
+      ]
+    }
+  ]
+}

@@ -26,7 +26,6 @@
  */
 import axios, { AxiosError } from 'axios';
 import Keycloak from 'keycloak-js';
-import urijs from 'urijs';
 
 import type { Chrome } from '~/types/types';
 
@@ -110,9 +109,8 @@ export const doOffline = (onDone: (tokenOrError: string, errorReason?: string) =
 
   // clear previous postback
   localStorage.removeItem(OFFLINE_REDIRECT_STORAGE_KEY);
-  const url = urijs(window.location.href);
-  url.removeSearch(noAuthParam);
-  url.addSearch(noAuthParam, offlineToken);
+  const url = new URL(window.location.pathname, window.location.origin);
+  url.searchParams.set(noAuthParam, offlineToken);
   const redirectUri = url.toString();
 
   if (redirectUri) {

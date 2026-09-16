@@ -236,6 +236,36 @@ const rhoicCluster = {
   toggleSubscriptionReleased: jest.fn(),
 };
 
+const rovsCluster = {
+  cluster: {
+    ...cluster,
+    subscription: {
+      plan: {
+        id: 'ROVS',
+        type: 'ROVS',
+      },
+    },
+
+    organization: {
+      ebs_account_id: '123456',
+    },
+    showConsoleButton: true,
+    canSubscribeOCP: true,
+    canHibernateCluster: true,
+    openModal: jest.fn(),
+    toggleSubscriptionReleased: jest.fn(),
+    refreshFunc: jest.fn(),
+  },
+  showConsoleButton: false,
+  openModal: jest.fn(),
+  canSubscribeOCP: false,
+  canHibernateCluster: false,
+  canTransferClusterOwnership: false,
+  isAutoClusterTransferOwnershipEnabled: false,
+  refreshFunc: jest.fn(),
+  toggleSubscriptionReleased: jest.fn(),
+};
+
 const organizationClusterProps = {
   cluster: { ...cluster, canEdit: false, canDelete: false },
   ...props,
@@ -258,4 +288,5 @@ export {
   hibernateClusterModalData,
   hyperShiftReadyProps,
   rhoicCluster,
+  rovsCluster,
 };

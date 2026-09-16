@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { FormGroup, Spinner } from '@patternfly/react-core';
 
 import { versionComparator } from '~/common/versionComparator';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { CloudProviderType, FieldId } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
@@ -12,10 +13,9 @@ import ErrorBox from '~/components/common/ErrorBox';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import { FuzzyEntryType } from '~/components/common/FuzzySelect/types';
-import { useOCPLifeCycleStatusData } from '~/components/releases/hooks';
+import { useOCPLifeCycleStatus } from '~/queries/useOCPLifeCycleStatus';
 import { clustersActions } from '~/redux/actions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
-import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
 import { getVersionsData, hasUnstableVersionsCapability } from './versionSelectHelper';
@@ -63,15 +63,13 @@ export const VersionSelectField = ({
   } = useFormState();
   const [isOpen, setIsOpen] = useState(false);
   const [versions, setVersions] = useState<Version[]>([]);
-  const [statusData] = useOCPLifeCycleStatusData();
-  const statusVersions = statusData?.[0]?.versions;
+  const { versions: statusVersions } = useOCPLifeCycleStatus();
   const supportVersionMap = statusVersions?.reduce((acc: Record<string, string>, version) => {
     acc[version.name] = version.type;
     return acc;
   }, {});
 
-  const isMarketplaceGcp =
-    billingModel === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp;
+  const isMarketplaceGcp = isGcpMarketplaceBilling(billingModel);
   const isWIF =
     gcpAuthType === GCPAuthType.WorkloadIdentityFederation &&
     cloudProvider === CloudProviderType.Gcp;

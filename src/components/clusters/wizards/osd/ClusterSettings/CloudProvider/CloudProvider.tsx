@@ -3,13 +3,13 @@ import { useDispatch } from 'react-redux';
 
 import { Alert, Form, Title } from '@patternfly/react-core';
 
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { clearCcsCredientialsInquiry } from '~/redux/actions/ccsInquiriesActions';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { clusterService } from '~/services';
-import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { GcpByocFields } from './GcpByocFields/GcpByocFields';
 import { AwsByocFields } from './AwsByocFields';
@@ -45,7 +45,7 @@ export const CloudProvider = () => {
 
   return (
     <Form isWidthLimited onSubmit={(e) => e.preventDefault()}>
-      {billingModel !== SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp && (
+      {!isGcpMarketplaceBilling(billingModel) && (
         <Title headingLevel="h3">Select a cloud provider</Title>
       )}
       <CloudProviderTileField />

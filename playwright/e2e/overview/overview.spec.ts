@@ -1,12 +1,20 @@
 import docLinks from '../../../src/common/docLinks.mjs';
+import { ROVS_REGISTRATION } from '../../../src/queries/featureGates/featureConstants';
 import { expect, test } from '../../fixtures/pages';
 
 test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@ci'] }, () => {
-  test.beforeAll(async ({ navigateTo }) => {
-    // Navigate to overview page and wait for it to load
+  let isRovsRegistrationEnabled = false;
+
+  test.beforeAll(async ({ navigateTo, overviewPage }) => {
+    const gatePromise = overviewPage.isFeatureGateEnabled(ROVS_REGISTRATION);
     await navigateTo('overview');
+    isRovsRegistrationEnabled = await gatePromise;
   });
-  test('OCM Overview Page - header and central section', async ({ overviewPage, navigateTo, page }) => {
+  test('OCM Overview Page - header and central section', async ({
+    overviewPage,
+    navigateTo,
+    page,
+  }) => {
     // Verify we're on the overview page
     await overviewPage.isOverviewPage();
 
@@ -24,8 +32,11 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
     await expect(page).toHaveURL(/\/openshift\/assisted-installer\/clusters\/~new/);
     await navigateTo('overview');
 
-    // Verify central section has expected number of cards
-    await overviewPage.centralSectionCardsExpected(7);
+    // Verify central section card count (ROVS card is feature-gated)
+    await overviewPage.centralSectionCardsExpected(isRovsRegistrationEnabled ? 8 : 7);
+
+    // ROVS offering card visibility is feature-gated
+    await overviewPage.expectOfferingCardVisible('offering-card_ROVS', isRovsRegistrationEnabled);
 
     // Red Hat OpenShift Dedicated card
     await overviewPage.expectCardHasText('offering-card_RHOSD', 'Red Hat OpenShift Dedicated');
@@ -123,8 +134,28 @@ test.describe.serial('OCM Overview Page tests (OCP-65189)', { tag: ['@smoke', '@
 
     await overviewPage.expectLinkOpensInNewTab(
       overviewPage.cardLearnMoreLink('offering-card_RHOIBM', 'Learn more on IBM'),
-      'https://cloud.ibm.com/kubernetes/catalog/create?platformType=openshift',
+      docLinks.IBM_CLOUD_LEARN_MORE,
     );
+
+    // Red Hat OpenShift Virtualization Service on IBM Cloud card
+    if (isRovsRegistrationEnabled) {
+      await overviewPage.expectCardHasText(
+        'offering-card_ROVS',
+        'Red Hat OpenShift Virtualization Service on IBM Cloud',
+      );
+      await overviewPage.expectCardHasLabel('offering-card_ROVS', 'Managed service');
+
+      await overviewPage.expectCardDetails('offering-card_ROVS', {
+        'Runs on': 'IBM Cloud',
+        'Purchase through': 'IBM',
+        'Billing type': 'Flexible hourly',
+      });
+
+      await overviewPage.expectLinkOpensInNewTab(
+        overviewPage.cardLearnMoreLink('offering-card_ROVS', 'Learn more on IBM'),
+        docLinks.IBM_CLOUD_ROVS_LEARN_MORE,
+      );
+    }
 
     // Developer Sandbox card
     await overviewPage.expectCardHasText('offering-card_DEVSNBX', 'Developer Sandbox');

@@ -11,6 +11,7 @@ import PageTitle from '../../common/PageTitle';
 
 import PullSecretSection from './instructions/components/PullSecretSection';
 import TokenErrorAlert from './instructions/components/TokenErrorAlert';
+import { INSTALL_OPENSHIFT_PREFIX } from './installConstants';
 
 export const InstallPullSecretAzure = () => {
   const token = useAuthToken();
@@ -29,7 +30,7 @@ export const InstallPullSecretAzure = () => {
   ): obj is ErrorState => obj && typeof obj === 'object' && 'error' in obj;
 
   return (
-    <AppPage title="Install OpenShift 4 | Pull Secret">
+    <AppPage title={`${INSTALL_OPENSHIFT_PREFIX} | Pull Secret`}>
       <PageTitle title="Azure Red Hat OpenShift" />
       <PageSection hasBodyWrapper={false} className="ocp-instructions">
         <>

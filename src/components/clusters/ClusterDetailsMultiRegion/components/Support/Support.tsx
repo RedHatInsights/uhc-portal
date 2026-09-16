@@ -59,7 +59,9 @@ const Support = ({
           ) : null}
         </CardBody>
       </Card>
-      {cluster.subscription?.id && cluster.subscription?.plan?.type !== normalizedProducts.RHOIC ? (
+      {cluster.subscription?.id &&
+      cluster.subscription?.plan?.type !== normalizedProducts.RHOIC &&
+      cluster.subscription?.plan?.type !== normalizedProducts.ROVS ? (
         <Card className="ocm-c-support-support-cases__card">
           <CardTitle className="ocm-c-support-support-cases__card--header">Support cases</CardTitle>
           <CardBody className="ocm-c-support-support-cases__card--body">

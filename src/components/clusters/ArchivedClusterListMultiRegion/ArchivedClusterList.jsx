@@ -35,6 +35,8 @@ import { ONLY_MY_CLUSTERS_TOGGLE_CLUSTER_ARCHIVES_LIST } from '~/common/localSto
 import { Link, useClusterListPath } from '~/common/routing';
 import { AppPage } from '~/components/App/AppPage';
 import { useFetchClusters } from '~/queries/ClusterListQueries/useFetchClusters';
+import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import {
   onListFlagsSet,
   onPageInput,
@@ -47,7 +49,7 @@ import { isRestrictedEnv } from '~/restrictedEnv';
 
 import helpers from '../../../common/helpers';
 import { getQueryParam } from '../../../common/queryHelpers';
-import { normalizedProducts, productFilterOptions } from '../../../common/subscriptionTypes';
+import { getProductFilterOptions, normalizedProducts } from '../../../common/subscriptionTypes';
 import { viewConstants } from '../../../redux/constants';
 import Breadcrumbs from '../../common/Breadcrumbs';
 import ErrorBox from '../../common/ErrorBox';
@@ -102,6 +104,7 @@ const ClusterList = ({
 }) => {
   const dispatch = useDispatch();
   const clusterListPath = useClusterListPath();
+  const isRovsRegistrationEnabled = useFeatureGate(ROVS_REGISTRATION);
 
   const viewType = viewConstants.ARCHIVED_CLUSTERS_VIEW;
   const isArchived = true;
@@ -194,7 +197,7 @@ const ClusterList = ({
 
     if (!isEmpty(planIDFilter)) {
       const allowedProducts = {};
-      productFilterOptions.forEach((option) => {
+      getProductFilterOptions(isRovsRegistrationEnabled).forEach((option) => {
         allowedProducts[option.key] = true;
       });
       const sanitizedFilter = planIDFilter.split(',').filter((value) => allowedProducts[value]);

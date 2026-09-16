@@ -27,6 +27,7 @@ jest.mock('~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodeP
 }));
 
 // @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getApiPatchParams = (index: number) => apiRequestMock.patch.mock.calls[index][1]?.params;
 
 // ********************* Variables ***********************

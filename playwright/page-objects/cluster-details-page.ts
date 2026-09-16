@@ -1,5 +1,4 @@
 import { Page, Locator, expect } from '@playwright/test';
-
 import {
   clearQuotaCostMock as clearQuotaCostRouteMock,
   mockQuotaCostWithBillingContract as mockQuotaCostRouteWithBillingContract,
@@ -88,6 +87,7 @@ export class ClusterDetailsPage extends BasePage {
       name: /Success alert: Cluster .* has been unarchived$/,
     });
   }
+
   unarchiveClusterButton(): Locator {
     return this.page.locator('[id="cl-details-btns"]').getByRole('button', { name: 'Unarchive' });
   }
@@ -454,6 +454,32 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByTestId('persistent-storage');
   }
 
+  clusterLoadBalancersValue(): Locator {
+    return this.page.getByLabel('Load balancers', { exact: true });
+  }
+
+  clusterComputeNodeCountValue(): Locator {
+    return this.page.getByTestId('computeNodeCount');
+  }
+
+  overviewNodesDescription(): Locator {
+    return this.page.getByLabel('Nodes', { exact: true });
+  }
+
+  async hasOverviewNodeMetrics(): Promise<boolean> {
+    const nodesText = await this.overviewNodesDescription().innerText();
+    // Stub/fake clusters often report master=0 and compute N/A when metrics are absent.
+    return !/Compute:\s*N\/A/i.test(nodesText) && !/Control plane:\s*0\b/.test(nodesText);
+  }
+
+  clusterTotalvCPUValue(): Locator {
+    return this.page.getByLabel('Total vCPU', { exact: true });
+  }
+
+  clusterTotalMemoryValue(): Locator {
+    return this.page.getByLabel('Total memory', { exact: true });
+  }
+
   // ── Autonode (Red Hat build of Karpenter) ────────────────────────────────
 
   autoNodeStatus(): Locator {
@@ -694,11 +720,7 @@ export class ClusterDetailsPage extends BasePage {
     contractedAccountId: string,
     billingAccountIds: string[] = [],
   ): Promise<void> {
-    await mockQuotaCostRouteWithBillingContract(
-      this.page,
-      contractedAccountId,
-      billingAccountIds,
-    );
+    await mockQuotaCostRouteWithBillingContract(this.page, contractedAccountId, billingAccountIds);
   }
 
   async clearQuotaCostMock(): Promise<void> {
@@ -806,6 +828,116 @@ export class ClusterDetailsPage extends BasePage {
   async verifyHistoryRowContainsText(text: string): Promise<void> {
     const historyPanel = this.page.getByRole('tabpanel', { name: 'Cluster history' });
     await expect(historyPanel).toContainText(text, { timeout: 30000 });
+  }
+
+  // ── Day 2 Spot interruption handling (Overview) ────────────────────────────
+
+  spotInterruptionHandlingTerm(): Locator {
+    return this.page.getByRole('term').filter({ hasText: 'Spot interruption handling' });
+  }
+
+  spotInterruptionHandlingGroup(): Locator {
+    return this.spotInterruptionHandlingTerm().locator('..');
+  }
+
+  overviewSpotInterruptionMode(): Locator {
+    return this.spotInterruptionHandlingGroup().getByTestId('spotInterruptionHandlingMode');
+  }
+
+  overviewSqsQueueUrl(): Locator {
+    return this.spotInterruptionHandlingGroup().getByText(/SQS queue URL:/);
+  }
+
+  async overviewSqsQueueUrlValue(): Promise<string> {
+    const sqsLocator = this.overviewSqsQueueUrl();
+    if (!(await sqsLocator.isVisible())) {
+      return '';
+    }
+    return (await sqsLocator.innerText()).replace(/^SQS queue URL:\s*/i, '').trim();
+  }
+
+  editSpotInterruptionHandlingButton(): Locator {
+    return this.page.getByRole('button', { name: 'Edit spot interruption handling settings' });
+  }
+
+  editSpotInterruptionHandlingModal(): Locator {
+    return this.page.getByRole('dialog', { name: 'Spot interruption handling settings' });
+  }
+
+  simpleSpotInstancesRadio(): Locator {
+    return this.editSpotInterruptionHandlingModal().getByRole('radio', {
+      name: /Simple Spot instances/i,
+    });
+  }
+
+  enhancedSpotInstancesRadio(): Locator {
+    return this.editSpotInterruptionHandlingModal().getByRole('radio', {
+      name: /Enhanced Spot instances/i,
+    });
+  }
+
+  sqsQueueUrlInput(): Locator {
+    return this.editSpotInterruptionHandlingModal().getByRole('textbox', { name: 'SQS queue URL' });
+  }
+
+  saveSpotInterruptionHandlingButton(): Locator {
+    return this.editSpotInterruptionHandlingModal().getByRole('button', { name: 'Save' });
+  }
+
+  cancelSpotInterruptionHandlingButton(): Locator {
+    return this.editSpotInterruptionHandlingModal().getByRole('button', { name: 'Cancel' });
+  }
+
+  async openEditSpotInterruptionHandlingModal(): Promise<void> {
+    await this.spotInterruptionHandlingTerm().scrollIntoViewIfNeeded();
+    const editButton = this.editSpotInterruptionHandlingButton();
+    await expect(editButton).toBeVisible();
+    await editButton.click();
+    await expect(this.editSpotInterruptionHandlingModal()).toBeVisible({ timeout: 30000 });
+  }
+
+  async fillSqsQueueUrl(queueUrl: string): Promise<void> {
+    await this.sqsQueueUrlInput().clear();
+    await this.sqsQueueUrlInput().fill(queueUrl);
+    await this.sqsQueueUrlInput().blur();
+  }
+
+  async saveSpotInterruptionHandling(): Promise<void> {
+    await expect(this.saveSpotInterruptionHandlingButton()).toBeEnabled();
+    await this.saveSpotInterruptionHandlingButton().click();
+    await expect(this.editSpotInterruptionHandlingModal()).toBeHidden({ timeout: 30000 });
+  }
+
+  async restoreSpotInterruptionHandling(
+    expectedModeLabel: string,
+    enhancedModeLabel: string,
+    queueUrl: string,
+  ): Promise<void> {
+    await this.navigateToOverviewTab();
+    await this.waitForClusterDetailsLoad();
+    await this.spotInterruptionHandlingTerm().scrollIntoViewIfNeeded();
+    await expect(this.overviewSpotInterruptionMode()).toBeVisible();
+    const currentMode = (await this.overviewSpotInterruptionMode().innerText()).trim();
+    const currentQueueUrl = await this.overviewSqsQueueUrlValue();
+    const expectedQueueUrl = expectedModeLabel === enhancedModeLabel ? queueUrl.trim() : '';
+    const needsQueueRestore =
+      expectedModeLabel === enhancedModeLabel && !currentQueueUrl.includes(expectedQueueUrl);
+    if (currentMode !== expectedModeLabel || needsQueueRestore) {
+      await this.openEditSpotInterruptionHandlingModal();
+      if (expectedModeLabel === enhancedModeLabel) {
+        await this.enhancedSpotInstancesRadio().check();
+        await this.fillSqsQueueUrl(queueUrl);
+      } else {
+        await this.simpleSpotInstancesRadio().check();
+      }
+      await this.saveSpotInterruptionHandling();
+    }
+    await expect(this.overviewSpotInterruptionMode()).toHaveText(expectedModeLabel);
+    if (expectedModeLabel === enhancedModeLabel) {
+      await expect(this.overviewSqsQueueUrl()).toContainText(queueUrl);
+    } else {
+      await expect(this.overviewSqsQueueUrl()).toBeHidden();
+    }
   }
 
   // ── Day 2 Log Forwarding (Settings tab) ──────────────────────────────────
@@ -1307,9 +1439,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   idpHintDescription(): Locator {
-    return this.page.getByText(
-      'Identity providers determine how you can log into the cluster',
-    );
+    return this.page.getByText('Identity providers determine how you can log into the cluster');
   }
 
   createIdentityProviderButton(): Locator {
@@ -1335,9 +1465,7 @@ export class ClusterDetailsPage extends BasePage {
   }
 
   productCard(productName: string): Locator {
-    return this.page
-      .getByTestId('product-overview-card')
-      .filter({ hasText: productName });
+    return this.page.getByTestId('product-overview-card').filter({ hasText: productName });
   }
 
   productCardLearnMoreButton(productName: string): Locator {
@@ -1391,5 +1519,10 @@ export class ClusterDetailsPage extends BasePage {
   async dismissRecommendedOperatorsAlert(): Promise<void> {
     await this.recommendedOperatorsAlertCloseButton().click();
     await expect(this.recommendedOperatorsAlert()).toBeHidden({ timeout: 10000 });
+  }
+
+  async getDomainPrefix(): Promise<string> {
+    await expect(this.clusterDomainPrefixLabelValue()).toBeVisible({ timeout: 30000 });
+    return (await this.clusterDomainPrefixLabelValue().innerText()).trim();
   }
 }

@@ -25,11 +25,11 @@ class RosaGetstarted extends Page {
 
   rosaFedRampDoclink = () => cy.getByTestId('rosa-aws-fedramp');
 
+  rosaFedRampRequestFormlink = () => cy.getByTestId('fedramp-access-request-form');
+
   rosaClientDropdown = () => cy.getByTestId('os-dropdown-rosa');
 
   rosaClientButton = () => cy.getByTestId('download-btn-rosa');
-
-  rosaFedRampRequestFormlink = () => cy.getByTestId('fedramp-access-request-form');
 
   deployWithCliCard = () => cy.getByTestId('deploy-with-cli-card');
 

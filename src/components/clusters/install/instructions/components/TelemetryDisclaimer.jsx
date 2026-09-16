@@ -8,8 +8,8 @@ import docLinks from '../../../../../common/docLinks.mjs';
 
 const TelemetryDisclaimer = () => (
   <Content component="small">
-    Red Hat collects a limited amount of telemetry data. By installing OpenShift Container Platform
-    4, you accept our data collection policy.{' '}
+    Red Hat collects a limited amount of telemetry data. By installing OpenShift Container Platform,
+    you accept our data collection policy.{' '}
     <ExternalLink href={docLinks.TELEMETRY_INFORMATION} noIcon>
       Learn more
     </ExternalLink>{' '}

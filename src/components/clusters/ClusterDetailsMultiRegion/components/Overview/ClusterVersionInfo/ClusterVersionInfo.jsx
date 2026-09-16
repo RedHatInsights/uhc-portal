@@ -15,7 +15,7 @@ import { useFetchUpgradeGatesFromApi } from '~/queries/ClusterDetailsQueries/use
 
 import ClusterUpdateLink from '../../../../common/ClusterUpdateLink';
 import UpgradeStatus from '../../../../common/Upgrades/UpgradeStatus';
-import SupportStatusLabel from '../SupportStatusLabel';
+import { SupportStatusLabel } from '../SupportStatusLabel/SupportStatusLabel';
 
 // TODO: Part of the upgrade tab
 const ClusterVersionInfo = ({ cluster }) => {
@@ -67,7 +67,6 @@ const ClusterVersionInfo = ({ cluster }) => {
                       canEdit={cluster.canEdit}
                       clusterVersion={clusterVersion}
                       scheduledUpgrade={scheduledUpdate}
-                      // eslint-disable-next-line camelcase
                       availableUpgrades={cluster.version?.available_upgrades}
                       onCancelClick={() => setPopoverOpen(false)}
                     />

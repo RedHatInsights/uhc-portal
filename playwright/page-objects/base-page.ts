@@ -1,6 +1,11 @@
-import { Page, Locator, expect } from '@playwright/test';
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
+
+import { expect, Locator, Page } from '@playwright/test';
+
+import Features from '../../src/queries/featureGates/featureConstants';
+
+type FeatureGate = (typeof Features)[keyof typeof Features];
 
 /**
  * Base page object containing all methods, selectors and functionality
@@ -67,6 +72,36 @@ export class BasePage {
 
   async isVisible(selector: string | Locator): Promise<boolean> {
     return this.getLocator(selector).isVisible();
+  }
+
+  /**
+   * Reads the live Unleash/authorization state for a feature gate by waiting on the
+   * app's own self_feature_review prefetch (not a second API call).
+   * Start this before the first OCM navigation so the waiter catches the prefetch.
+   * Unknown features (404) / non-OK responses are treated as disabled.
+   */
+  async isFeatureGateEnabled(featureId: FeatureGate): Promise<boolean> {
+    const response = await this.page.waitForResponse(
+      async (res) => {
+        if (!res.url().includes('/api/authorizations/v1/self_feature_review')) {
+          return false;
+        }
+        if (res.request().method() !== 'POST') {
+          return false;
+        }
+        try {
+          return res.request().postDataJSON()?.feature === featureId;
+        } catch {
+          return false;
+        }
+      },
+      { timeout: 30000 },
+    );
+    if (response.status() === 404 || !response.ok()) {
+      return false;
+    }
+    const body = (await response.json()) as { enabled?: boolean };
+    return Boolean(body?.enabled);
   }
 
   async waitForLoadState(

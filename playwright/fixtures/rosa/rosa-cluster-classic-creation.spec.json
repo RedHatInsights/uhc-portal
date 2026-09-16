@@ -28,7 +28,7 @@
     "PodCIDR": "10.128.0.0/14",
     "HostPrefix": "23",
     "UpdateStrategy": "Recurring updates",
-    "NodeDrainingGracePeriod": "60 minutes"
+    "NodeDrainingGracePeriod": "1 hour"
   },
   "rosa-classic-smoke-advanced": {
     "ClusterNamePrefix": "smoke-playwright-rosa-adv",

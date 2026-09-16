@@ -2072,6 +2072,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/settings/currency/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List all ISO 4217 currencies with tenant enablement status */
+    get: operations['getSettingsCurrency'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/settings/cost-groups/': {
     parameters: {
       query?: never;
@@ -2433,6 +2450,24 @@ export interface components {
     };
     Currency: components['schemas']['ListPagination'] & {
       data: components['schemas']['Currencies'][];
+    };
+    CurrencySettingsItem: {
+      /** @example USD */
+      code: string;
+      /** @example $ */
+      symbol: string;
+      /** @example US Dollar */
+      name: string;
+      /** @example USD ($) - US Dollar */
+      description: string;
+      enabled: boolean;
+      has_dynamic_rate: boolean;
+      /** @description Whether this currency can currently be disabled. False if the currency is already disabled, is the sole enabled currency, or is referenced by a cost model, price list, cloud provider billing data, or the system/account default. */
+      is_disableable: boolean;
+      static_rates: components['schemas']['StaticExchangeRateOut'][];
+    };
+    CurrencySettingsPagination: components['schemas']['ListPagination'] & {
+      data: components['schemas']['CurrencySettingsItem'][];
     };
     Currencies: {
       code: string;
@@ -3538,6 +3573,32 @@ export interface components {
        *     ] */
       data: unknown[];
     };
+    StaticExchangeRateOut: {
+      /** Format: uuid */
+      uuid: string;
+      /** @example USD-EUR */
+      name: string;
+      /** @example USD */
+      base_currency: string;
+      /** @example EUR */
+      target_currency: string;
+      /** @example 0.87 */
+      exchange_rate: number;
+      /**
+       * Format: date
+       * @example 2026-04-01
+       */
+      start_date: string;
+      /**
+       * Format: date
+       * @example 2026-06-30
+       */
+      end_date: string;
+      /** Format: date-time */
+      created_timestamp: string;
+      /** Format: date-time */
+      updated_timestamp: string;
+    };
     Status: {
       /** @example OK */
       status: string;
@@ -4172,6 +4233,8 @@ export type SchemaPriceListAffectedCostModel = components['schemas']['PriceListA
 export type SchemaCostTypePagination = components['schemas']['CostTypePagination'];
 export type SchemaCostType = components['schemas']['CostType'];
 export type SchemaCurrency = components['schemas']['Currency'];
+export type SchemaCurrencySettingsItem = components['schemas']['CurrencySettingsItem'];
+export type SchemaCurrencySettingsPagination = components['schemas']['CurrencySettingsPagination'];
 export type SchemaCurrencies = components['schemas']['Currencies'];
 export type SchemaCustomer = components['schemas']['Customer'];
 export type SchemaCustomerOut = components['schemas']['CustomerOut'];
@@ -4278,6 +4341,7 @@ export type SchemaModifyKeySettingsRequestBody =
   components['schemas']['ModifyKeySettingsRequestBody'];
 export type SchemaPutAccountSettingRequestBody =
   components['schemas']['PutAccountSettingRequestBody'];
+export type SchemaStaticExchangeRateOut = components['schemas']['StaticExchangeRateOut'];
 export type SchemaStatus = components['schemas']['Status'];
 export type SchemaTagsFilter = components['schemas']['TagsFilter'];
 export type SchemaTags = components['schemas']['Tags'];
@@ -9136,6 +9200,66 @@ export interface operations {
       };
     };
   };
+  getSettingsCurrency: {
+    parameters: {
+      query?: {
+        /** @description Parameter for selecting the offset of data. */
+        offset?: components['parameters']['QueryOffset'];
+        /** @description Parameter for selecting the amount of data in a returned. */
+        limit?: components['parameters']['QueryLimit'];
+        /** @description Filter by tenant enablement status. Use true or 1 for enabled currencies only; false or 0 for disabled currencies only. Omit to return all currencies with enabled currencies listed first. */
+        'filter[enabled]'?: PathsSettingsCurrencyGetParametersQueryFilterEnabled;
+        /**
+         * @description Filter by currency code using case-insensitive substring match on the ISO 4217 code. Accepts comma-separated values or repeated parameters for multiple search terms (OR filter). Non-matching values return an empty list.
+         * @example [
+         *       "USD",
+         *       "EUR"
+         *     ]
+         */
+        'filter[currency]'?: string[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description A paginated list of currency settings objects */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CurrencySettingsPagination'];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
   getSettingsCostGroups: {
     parameters: {
       query?: {
@@ -9849,6 +9973,12 @@ export enum PathsPriceListsGetParametersQueryOrdering {
   ValueMinuseffective_start_date = '-effective_start_date',
   updated_timestamp = 'updated_timestamp',
   ValueMinusupdated_timestamp = '-updated_timestamp',
+}
+export enum PathsSettingsCurrencyGetParametersQueryFilterEnabled {
+  true = 'true',
+  false = 'false',
+  Value1 = '1',
+  Value0 = '0',
 }
 export enum PathsRecommendationsOpenshiftGetParametersQueryFormat {
   json = 'json',

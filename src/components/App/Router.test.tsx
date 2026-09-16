@@ -2,10 +2,9 @@ import React from 'react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 
 import { CLUSTER_LIST_PATH } from '~/common/routing';
-import { mockOCPLifeCycleStatusData } from '~/components/clusters/wizards/rosa/ClusterSettings/VersionSelection.fixtures';
-import * as ReleaseHooks from '~/components/releases/hooks';
+import { mockOCPLifeCycleStatus } from '~/components/clusters/wizards/rosa/ClusterSettings/VersionSelection.fixtures';
+import * as OCPHooks from '~/queries/useOCPLifeCycleStatus';
 import { mockRestrictedEnv, mockUseChrome, screen, withState } from '~/testUtils';
-import { ProductLifeCycle } from '~/types/product-life-cycles';
 
 import Router from './Router';
 
@@ -94,7 +93,7 @@ const initialState = {
   },
 };
 
-const useOCPLifeCycleStatusDataSpy = jest.spyOn(ReleaseHooks, 'useOCPLifeCycleStatusData');
+const useOCPLifeCycleStatusSpy = jest.spyOn(OCPHooks, 'useOCPLifeCycleStatus');
 
 const xhrMockClass = () => ({
   open: jest.fn(),
@@ -108,9 +107,7 @@ describe('Router', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // /releases route needs this
-    useOCPLifeCycleStatusDataSpy.mockReturnValue(
-      mockOCPLifeCycleStatusData as [ProductLifeCycle[] | undefined, boolean],
-    );
+    useOCPLifeCycleStatusSpy.mockReturnValue(mockOCPLifeCycleStatus);
   });
 
   mockRestrictedEnv();

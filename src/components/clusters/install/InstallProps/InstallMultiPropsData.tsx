@@ -1,10 +1,10 @@
 import { tools } from '~/common/installLinks.mjs';
 
+import { INSTALL_OPENSHIFT_PREFIX, INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 
 export const MultiAWSIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | AWS with Multi-Architecture Compute Machines',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | AWS with Multi-Architecture Compute Machines`,
   providerTitle: instructionsMapping.aws.multi.ipi.title,
   cloudProviderId: 'aws',
   instructionsMapping: instructionsMapping.aws.multi.ipi,
@@ -16,8 +16,7 @@ export const MultiAWSIPIProps = {
 };
 
 export const MultiAzureIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Azure with Multi-Architecture Compute Machines',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Azure with Multi-Architecture Compute Machines`,
   providerTitle: instructionsMapping.azure.multi.ipi.title,
   cloudProviderId: 'azure',
   instructionsMapping: instructionsMapping.azure.multi.ipi,
@@ -29,8 +28,7 @@ export const MultiAzureIPIProps = {
 };
 
 export const MultiBareMetalUPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Baremetal with Multi-Architecture Compute Machines',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Baremetal with Multi-Architecture Compute Machines`,
   providerTitle: instructionsMapping.baremetal.multi.upi.title,
   cloudProviderId: 'baremetal',
   showPreReleaseDocs: true,
@@ -44,8 +42,7 @@ export const MultiBareMetalUPIProps = {
 };
 
 export const MultiPreReleaseProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Multi-architecture clusters | Experimental Developer Preview Builds',
+  appPageTitle: `${INSTALL_OPENSHIFT_PREFIX} | Multi-architecture clusters | Experimental Developer Preview Builds`,
   providerTitle: 'Install OpenShift with multi-architecture compute machines',
   installer: tools.MULTIINSTALLER,
   breadCrumbsPaths: [

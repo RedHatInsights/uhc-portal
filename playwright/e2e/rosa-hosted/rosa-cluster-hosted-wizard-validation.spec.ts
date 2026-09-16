@@ -100,47 +100,27 @@ test.describe.serial(
       await createRosaWizardPage.expectBillingContractWarning(false);
       await createRosaWizardPage.expectContractEnabledForBillingAccount(true);
 
-      // Contracted account: Next advances without confirmation dialog
+      // Contracted account: Next advances directly
       await createRosaWizardPage.rosaNextButton().click();
       await createRosaWizardPage.isClusterDetailsScreen();
-      await createRosaWizardPage.expectBillingContractConfirmationDialog(false);
 
-      // Non-contracted account while another is contracted: warning + dialog on Next
+      // Non-contracted account while another is contracted: warning shown, and
+      // "Next" still advances directly
       await createRosaWizardPage.rosaBackButton().click();
       await createRosaWizardPage.isAccountsAndRolesScreen();
       await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
       await createRosaWizardPage.expectContractEnabledForBillingAccount(false);
       await createRosaWizardPage.expectBillingContractWarning(true, awsBillingAccountID);
       await createRosaWizardPage.rosaNextButton().click();
-      await createRosaWizardPage.expectBillingContractConfirmationShowsAccount(
-        awsBillingAccountID,
-      );
-
-      // Go back keeps the user on Accounts & roles
-      await createRosaWizardPage.dismissBillingContractConfirmation();
-      await createRosaWizardPage.isAccountsAndRolesScreen();
-
-      // Continue with selection advances; confirmed account is not re-prompted
-      await createRosaWizardPage.rosaNextButton().click();
-      await createRosaWizardPage.confirmBillingContractSelection(awsBillingAccountID);
       await createRosaWizardPage.isClusterDetailsScreen();
-      await createRosaWizardPage.rosaBackButton().click();
-      await createRosaWizardPage.isAccountsAndRolesScreen();
-      await createRosaWizardPage.rosaNextButton().click();
-      await createRosaWizardPage.isClusterDetailsScreen();
-      await createRosaWizardPage.expectBillingContractConfirmationDialog(false);
-
-      // Changing billing account clears confirmation; non-contracted selection re-prompts
-      await createRosaWizardPage.rosaBackButton().click();
-      await createRosaWizardPage.isAccountsAndRolesScreen();
-      await createRosaWizardPage.selectAWSBillingAccount(awsSecondaryBillingAccountID);
-      await createRosaWizardPage.selectAWSBillingAccount(awsBillingAccountID);
-      await createRosaWizardPage.rosaNextButton().click();
-      await createRosaWizardPage.confirmBillingContractSelection(awsBillingAccountID);
-      await createRosaWizardPage.isClusterDetailsScreen();
-
-      // Both accounts have no contracts: no warning, Next advances with no dialog
       await createRosaWizardPage.clearQuotaCostMock();
+
+      // Both accounts have no contracts: no warning, Next advances directly
+      // Re-mock with no contracted account    
+      await createRosaWizardPage.mockQuotaCostWithBillingContract('', [
+        awsBillingAccountID,
+        awsSecondaryBillingAccountID,
+      ]);
       await createRosaWizardPage.rosaBackButton().click();
       await createRosaWizardPage.isAccountsAndRolesScreen();
       await createRosaWizardPage.refreshAWSBillingAccounts();
@@ -152,7 +132,7 @@ test.describe.serial(
       await createRosaWizardPage.expectBillingContractWarning(false);
       await createRosaWizardPage.rosaNextButton().click();
       await createRosaWizardPage.isClusterDetailsScreen();
-      await createRosaWizardPage.expectBillingContractConfirmationDialog(false);
+      await createRosaWizardPage.clearQuotaCostMock();
     });
 
     test('Step - Cluster Settings - Details - widget validations', async ({
@@ -556,6 +536,78 @@ test.describe.serial(
       );
       await createRosaWizardPage.setMinimumNodeCount('0');
       await createRosaWizardPage.setMinimumNodeCount('2');
+    });
+
+    test('Step - Machine pool - Spot interruption handling - widget validations', async ({
+      createRosaWizardPage,
+    }) => {
+      const spot = clusterFieldValidations.ClusterSettings.Machinepool.SpotInterruption;
+      const withRegion = (value: string, urlRegion: string = region) =>
+        value.replace(/\{region\}/g, urlRegion);
+      const mismatchRegion = region === spot.MismatchRegion ? 'us-west-2' : spot.MismatchRegion;
+      const matchingQueueUrl = `https://sqs.${region}.amazonaws.com/${spot.AccountId}/${spot.ValidQueueName}`;
+      const mismatchQueueUrl = `https://sqs.${mismatchRegion}.amazonaws.com/${spot.AccountId}/${spot.ValidQueueName}`;
+      const tooLongQueueUrl = `https://sqs.${region}.amazonaws.com/${spot.AccountId}/${'a'.repeat(
+        spot.QueueNameMaxLength + 1,
+      )}`;
+
+      await createRosaWizardPage.expandSpotInterruptionHandling();
+      await expect(createRosaWizardPage.simpleSpotInstancesRadio()).toBeChecked();
+      await expect(createRosaWizardPage.enhancedSpotInstancesRadio()).not.toBeChecked();
+      await expect(createRosaWizardPage.sqsQueueUrlInput()).toBeHidden();
+
+      await expect(createRosaWizardPage.enhancedSpotInstancesRadio()).toBeEnabled();
+      await createRosaWizardPage.enhancedSpotInstancesRadio().check();
+      await expect(createRosaWizardPage.enhancedSpotInstancesRadio()).toBeChecked();
+      await expect(createRosaWizardPage.simpleSpotInstancesRadio()).not.toBeChecked();
+      await expect(createRosaWizardPage.sqsQueueUrlInput()).toBeVisible();
+
+      await createRosaWizardPage.rosaNextButton().click();
+      await createRosaWizardPage.isTextContainsInPage(spot.RequiredError);
+
+      await createRosaWizardPage.fillSqsQueueUrl(spot.InvalidUrlValue);
+      await createRosaWizardPage.isTextContainsInPage(spot.HttpsSchemeError);
+      await createRosaWizardPage.isTextContainsInPage(spot.RequiredError, false);
+
+      await createRosaWizardPage.fillSqsQueueUrl(withRegion(spot.HttpUrlValue));
+      await createRosaWizardPage.isTextContainsInPage(spot.HttpsSchemeError);
+
+      await createRosaWizardPage.fillSqsQueueUrl(spot.NonSqsUrlValue);
+      await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError);
+      await createRosaWizardPage.isTextContainsInPage(spot.HttpsSchemeError, false);
+
+      await createRosaWizardPage.fillSqsQueueUrl(withRegion(spot.IncompletePathValue));
+      await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError);
+
+      await createRosaWizardPage.fillSqsQueueUrl(withRegion(spot.WhitespaceInNameValue));
+      await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError);
+
+      await createRosaWizardPage.fillSqsQueueUrl(mismatchQueueUrl);
+      await createRosaWizardPage.isTextContainsInPage(
+        withRegion(spot.RegionMismatchError),
+      );
+      await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError, false);
+
+      await createRosaWizardPage.fillSqsQueueUrl(tooLongQueueUrl);
+      await createRosaWizardPage.isTextContainsInPage(spot.QueueNameMaxLengthError);
+      await createRosaWizardPage.isTextContainsInPage(
+        withRegion(spot.RegionMismatchError),
+        false,
+      );
+
+      await createRosaWizardPage.fillSqsQueueUrl(matchingQueueUrl);
+      await createRosaWizardPage.isTextContainsInPage(spot.QueueNameMaxLengthError, false);
+      await createRosaWizardPage.isTextContainsInPage(spot.RequiredError, false);
+      await createRosaWizardPage.isTextContainsInPage(spot.HttpsSchemeError, false);
+      await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError, false);
+      await createRosaWizardPage.isTextContainsInPage(
+        withRegion(spot.RegionMismatchError),
+        false,
+      );
+
+      await createRosaWizardPage.simpleSpotInstancesRadio().check();
+      await expect(createRosaWizardPage.simpleSpotInstancesRadio()).toBeChecked();
+      await expect(createRosaWizardPage.sqsQueueUrlInput()).toBeHidden();
     });
 
     test('Step - Machine pool - Root disk size - widget validations', async ({

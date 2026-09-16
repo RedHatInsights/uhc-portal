@@ -54,7 +54,7 @@ const docLinks = {
   ROSA_CIDR_HOST: `${ROSA_DOCS_BASE}/networking_overview/cidr-range-definitions#host-prefix-description`,
   ROSA_CLUSTER_AUTOSCALING: `${ROSA_DOCS_BASE}/cluster_administration/rosa-cluster-autoscaling-hcp`,
   ROSA_MONITORING: `${ROSA_DOCS_BASE}-single/monitoring/index#preparing-to-configure-the-monitoring-stack-uwm`,
-  ROSA_AUTOSCALING: `${ROSA_DOCS_BASE}/cluster_administration/manage-nodes-using-machine-pools#rosa-nodes-about-autoscaling-nodes`,
+  ROSA_AUTOSCALING: `${ROSA_DOCS_BASE}/cluster_administration/managing-compute-nodes-using-machine-pools#rosa-nodes-about-autoscaling-nodes`,
   ROSA_SECURITY_GROUPS: `${ROSA_DOCS_BASE}/prepare_your_environment/rosa-hcp-prereqs#rosa-security-groups_rosa-hcp-prereqs`,
   ROSA_LIFE_CYCLE: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#life-cycle-overview_rosa-life-cycle`,
   ROSA_LIFE_CYCLE_DATES: `${ROSA_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#sd-life-cycle-dates_rosa-hcp-life-cycle`,
@@ -152,6 +152,7 @@ const docLinks = {
     'https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-identifiers.html',
   CREATE_VPC_WAYS: `https://docs.aws.amazon.com/rosa/latest/userguide/getting-started-hcp.html#create-vpc-hcp`,
   WINDOWS_LICENSE_INCLUDED_AWS_DOCS: 'https://aws.amazon.com/windows/resources/licensing/',
+  AWS_LEARN_MORE: 'https://cloud.redhat.com/products/amazon-openshift',
 
   // GCP
   GCP_VPC_PROVISIONING:
@@ -187,6 +188,13 @@ const docLinks = {
   // Telemetry
   TELEMETRY_INFORMATION: `${OCP_DOCS_BASE}/support/remote-health-monitoring-with-connected-clusters#about-remote-health-monitoring`,
   REMOTE_HEALTH_INSIGHTS: `${OCP_DOCS_BASE}/support/remote-health-monitoring-with-connected-clusters#insights-operator-advisor-overview_using-insights-to-identify-issues-with-your-cluster`,
+
+  // IBM Cloud
+  IBM_CLOUD_LEARN_MORE: 'https://www.ibm.com/cloud/openshift',
+  IBM_CLOUD: 'https://cloud.ibm.com/kubernetes/catalog/create?platformType=openshift',
+  IBM_CLOUD_ROVS:
+    'https://cloud.ibm.com/containers/cluster-management/rovs/create?catalog_query=aHR0cHM6Ly9jbG91ZC5pYm0uY29tL2NhdGFsb2cjaGlnaGxpZ2h0cw%3D%3D',
+  IBM_CLOUD_ROVS_LEARN_MORE: 'https://www.ibm.com/products/openshift-virtualization',
 
   // Misc
   LEARN_MORE_SSO:

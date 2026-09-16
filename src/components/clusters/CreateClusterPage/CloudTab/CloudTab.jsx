@@ -18,7 +18,7 @@ import { isRestrictedEnv } from '~/restrictedEnv';
 
 const QuotaLink = (props) => <Link {...props} to="/quota" />;
 
-const CloudTab = ({ hasOSDQuota, trialEnabled }) => (
+const CloudTab = ({ trialEnabled }) => (
   <>
     <PageSection hasBodyWrapper={false}>
       <Stack hasGutter>
@@ -27,7 +27,7 @@ const CloudTab = ({ hasOSDQuota, trialEnabled }) => (
         </StackItem>
         <StackItem>
           Create clusters in the cloud using a managed service.
-          <ManagedServicesTable hasOSDQuota={hasOSDQuota} isTrialEnabled={trialEnabled} />
+          <ManagedServicesTable isTrialEnabled={trialEnabled} />
         </StackItem>
         <StackItem>
           {!isRestrictedEnv() && (
@@ -63,6 +63,5 @@ const CloudTab = ({ hasOSDQuota, trialEnabled }) => (
 export default CloudTab;
 
 CloudTab.propTypes = {
-  hasOSDQuota: PropTypes.bool.isRequired,
   trialEnabled: PropTypes.bool.isRequired,
 };

@@ -190,7 +190,7 @@
     "href": "/api/clusters_mgmt/v1/versions/openshift-v4.21.20",
     "raw_id": "4.21.20",
     "channel_group": "stable",
-    "available_upgrades": []
+    "available_upgrades": ["5.0.0"]
   },
   "identity_providers": {
     "kind": "IdentityProviderListLink",

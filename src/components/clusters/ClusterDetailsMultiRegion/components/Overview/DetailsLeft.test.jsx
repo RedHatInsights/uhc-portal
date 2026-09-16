@@ -57,7 +57,7 @@ const componentText = {
     value: 'FIPS Cryptography enabled',
   },
 };
-jest.mock('./SupportStatusLabel');
+jest.mock('./SupportStatusLabel/SupportStatusLabel');
 
 const checkForValue = (label, value) => {
   expect(screen.getByText(label)).toBeInTheDocument();
@@ -271,6 +271,42 @@ describe('<DetailsLeft />', () => {
         };
 
         const props = { ...defaultProps, cluster: fakedRHOICCluster };
+
+        render(<DetailsLeft {...props} />);
+        await checkIfRendered();
+
+        checkForValueAbsence(componentText.REGION.label);
+      });
+    });
+
+    describe('in ROVS cluster', () => {
+      it('shows region if known', async () => {
+        const OSDClusterFixture = fixtures.clusterDetails.cluster;
+
+        const fakedROVSCluster = {
+          ...OSDClusterFixture,
+          region: { id: 'us-east' },
+          subscription: { plan: { type: 'ROVS' } },
+        };
+
+        const props = { ...defaultProps, cluster: fakedROVSCluster };
+
+        render(<DetailsLeft {...props} />);
+        await checkIfRendered();
+
+        checkForValue(componentText.REGION.label, 'us-east');
+      });
+
+      it('hides region label if region is not known', async () => {
+        const OSDClusterFixture = fixtures.clusterDetails.cluster;
+
+        const fakedROVSCluster = {
+          ...OSDClusterFixture,
+          region: {},
+          subscription: { plan: { type: 'ROVS' } },
+        };
+
+        const props = { ...defaultProps, cluster: fakedROVSCluster };
 
         render(<DetailsLeft {...props} />);
         await checkIfRendered();

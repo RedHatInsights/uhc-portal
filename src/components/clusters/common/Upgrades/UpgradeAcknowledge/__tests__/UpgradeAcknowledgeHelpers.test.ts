@@ -1,8 +1,13 @@
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import type { UpgradePolicy } from '~/types/clusters_mgmt.v1';
-import type { AugmentedCluster } from '~/types/types';
+import type { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
 
-import { getFromVersionFromHelper, getToVersionFromHelper } from '../UpgradeAcknowledgeHelpers';
+import {
+  getFromVersionFromHelper,
+  getToVersionFromHelper,
+  isMajorVersionUpgrade,
+  isManualUpdateSchedulingRequired,
+} from '../UpgradeAcknowledgeHelpers';
 
 const mockGCPCluster = {
   kind: 'Cluster',
@@ -380,6 +385,7 @@ describe('UpgradeAcknowledgeHelpers', () => {
       expect(result).toEqual('4.17.19');
     });
   });
+
   describe('getToVersionFromHelper', () => {
     it('Should return the version from the schedules', () => {
       const result = getToVersionFromHelper(
@@ -388,9 +394,132 @@ describe('UpgradeAcknowledgeHelpers', () => {
       );
       expect(result).toEqual('4.18.2');
     });
+
     it('Should return the highest available upgrade when no schedules set', () => {
       const result = getToVersionFromHelper([], mockGCPCluster as unknown as AugmentedCluster);
       expect(result).toEqual('4.19.0');
+    });
+  });
+
+  describe('isMajorVersionUpgrade', () => {
+    it('returns true when available upgrade crosses a major version boundary', () => {
+      const cluster = {
+        ...mockGCPCluster,
+        version: {
+          ...mockGCPCluster.version,
+          raw_id: '4.22.1',
+          available_upgrades: ['5.0.0'],
+        },
+      } as unknown as AugmentedCluster;
+
+      expect(isMajorVersionUpgrade(cluster)).toBe(true);
+    });
+
+    it('returns false for a Y-stream upgrade', () => {
+      const cluster = {
+        ...mockGCPCluster,
+        version: {
+          ...mockGCPCluster.version,
+          raw_id: '4.21.20',
+          available_upgrades: ['4.22.0'],
+        },
+      } as unknown as AugmentedCluster;
+
+      expect(isMajorVersionUpgrade(cluster)).toBe(false);
+    });
+  });
+
+  describe('isManualUpdateSchedulingRequired', () => {
+    const automaticSchedule = [
+      {
+        schedule_type: 'automatic',
+        enable_minor_version_upgrades: false,
+      },
+    ] as UpgradePolicyWithState[];
+
+    it('returns true for a major upgrade when recurring updates are set', () => {
+      const cluster = {
+        ...mockGCPCluster,
+        version: {
+          ...mockGCPCluster.version,
+          raw_id: '4.22.1',
+          available_upgrades: ['5.0.0'],
+        },
+      } as unknown as AugmentedCluster;
+
+      expect(isManualUpdateSchedulingRequired(automaticSchedule, cluster)).toBe(true);
+    });
+
+    it('returns true for a Y-stream upgrade when recurring updates are set', () => {
+      const cluster = {
+        ...mockGCPCluster,
+        version: {
+          ...mockGCPCluster.version,
+          raw_id: '4.21.20',
+          available_upgrades: ['4.22.0'],
+        },
+      } as unknown as AugmentedCluster;
+
+      expect(isManualUpdateSchedulingRequired(automaticSchedule, cluster)).toBe(true);
+    });
+
+    it('returns true for a major upgrade when minor version upgrades are enabled', () => {
+      const cluster = {
+        ...mockGCPCluster,
+        version: {
+          ...mockGCPCluster.version,
+          raw_id: '4.22.1',
+          available_upgrades: ['5.0.0'],
+        },
+      } as unknown as AugmentedCluster;
+
+      expect(
+        isManualUpdateSchedulingRequired(
+          [
+            {
+              schedule_type: 'automatic',
+              enable_minor_version_upgrades: true,
+            },
+          ] as UpgradePolicyWithState[],
+          cluster,
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false for a Y-stream upgrade when minor version upgrades are enabled', () => {
+      const cluster = {
+        ...mockGCPCluster,
+        version: {
+          ...mockGCPCluster.version,
+          raw_id: '4.21.20',
+          available_upgrades: ['4.22.0'],
+        },
+      } as unknown as AugmentedCluster;
+
+      expect(
+        isManualUpdateSchedulingRequired(
+          [
+            {
+              schedule_type: 'automatic',
+              enable_minor_version_upgrades: true,
+            },
+          ] as UpgradePolicyWithState[],
+          cluster,
+        ),
+      ).toBe(false);
+    });
+
+    it('returns false when versions cannot be parsed', () => {
+      const cluster = {
+        ...mockGCPCluster,
+        version: {
+          ...mockGCPCluster.version,
+          raw_id: 'not-a-version',
+          available_upgrades: ['also-invalid'],
+        },
+      } as unknown as AugmentedCluster;
+
+      expect(isManualUpdateSchedulingRequired(automaticSchedule, cluster)).toBe(false);
     });
   });
 });

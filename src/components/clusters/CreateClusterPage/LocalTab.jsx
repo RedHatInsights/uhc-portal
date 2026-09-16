@@ -69,8 +69,7 @@ const LocalTab = ({ token }) => {
             virtual machine.
           </Content>
           <Content component="p">
-            Then, run <code>crc start</code> to create a minimal OpenShift 4 cluster on your
-            computer.
+            Then, run <code>crc start</code> to create a minimal OpenShift cluster on your computer.
           </Content>
           <Content component="p">
             <a

@@ -1,9 +1,10 @@
 import links from '~/common/installLinks.mjs';
 
+import { INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 
 export const OpenStackProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | OpenStack',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | OpenStack`,
   providerTitle: 'OpenStack',
   ipiPageLink: '/install/openstack/installer-provisioned',
   ipiLearnMoreLink: links.INSTALL_OSPIPI_GETTING_STARTED,
@@ -21,8 +22,7 @@ export const OpenStackProps = {
 };
 
 export const OpenStackUPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | OpenStack User-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | OpenStack User-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.openstack.upi.title,
   cloudProviderId: 'openstack',
   isUPI: true,
@@ -36,8 +36,7 @@ export const OpenStackUPIProps = {
 };
 
 export const OpenStackIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | OpenStack Installer-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | OpenStack Installer-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.openstack.ipi.title,
   cloudProviderId: 'openstack',
   instructionsMapping: instructionsMapping.openstack.ipi,

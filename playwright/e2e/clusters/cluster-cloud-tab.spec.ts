@@ -1,3 +1,5 @@
+import docLinks from '../../../src/common/docLinks.mjs';
+import { ROVS_REGISTRATION } from '../../../src/queries/featureGates/featureConstants';
 import { test } from '../../fixtures/pages';
 
 // Description text constants
@@ -6,6 +8,8 @@ const AzureDescriptionText =
   'A flexible, self-service deployment of OpenShift clusters provided as a fully-managed cloud service by Microsoft and Red Hat';
 const IBMDescriptionText =
   'A preconfigured OpenShift environment provided as a fully-managed cloud service at enterprise scale';
+const ROVSDescriptionText =
+  'A preconfigured OpenShift Virtualization environment provided as a fully-managed cloud service at enterprise scale';
 const ROSADescriptionText =
   'Build, deploy, and manage Kubernetes applications with Red Hat OpenShift running natively on AWS';
 
@@ -13,9 +17,12 @@ test.describe.serial(
   'Test checking elements at create cluster page, in Cloud tab selected - OCP-38888',
   { tag: ['@smoke', '@ci'] },
   () => {
-    test.beforeAll(async ({ navigateTo }) => {
-      // Navigate to cloud create page
+    let isRovsRegistrationEnabled = false;
+
+    test.beforeAll(async ({ navigateTo, createClusterPage }) => {
+      const gatePromise = createClusterPage.isFeatureGateEnabled(ROVS_REGISTRATION);
       await navigateTo('create/cloud');
+      isRovsRegistrationEnabled = await gatePromise;
     });
     test('is Cloud tab selected', async ({ createClusterPage }) => {
       await createClusterPage.isCloudTabPage();
@@ -30,7 +37,7 @@ test.describe.serial(
 
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Dedicated Trial',
-        'https://cloud.redhat.com/products/dedicated/',
+        docLinks.WHAT_IS_OSD,
       );
 
       await createClusterPage.checkManagedServiceButton(
@@ -46,7 +53,7 @@ test.describe.serial(
     test('Check OSD section contents', async ({ createClusterPage }) => {
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Dedicated',
-        'https://cloud.redhat.com/products/dedicated/',
+        docLinks.WHAT_IS_OSD,
       );
 
       await createClusterPage.checkManagedServiceButton('Create cluster', '/openshift/create/osd');
@@ -55,59 +62,81 @@ test.describe.serial(
       await createClusterPage.isCreateOSDPage();
       await createClusterPage.clickBackButton();
 
-      await createClusterPage.expandToggle('#osd1');
+      await createClusterPage.expandManagedServiceRow('osd');
       await createClusterPage.isTextVisible(OSDDescriptionText);
 
       await createClusterPage.checkManagedServiceLink(
         'Learn more about Red Hat OpenShift Dedicated',
-        'https://cloud.redhat.com/products/dedicated/',
+        docLinks.WHAT_IS_OSD,
       );
     });
 
     test('Check Azure section contents', async ({ createClusterPage }) => {
       await createClusterPage.checkManagedServiceLink(
         'Azure Red Hat OpenShift',
-        'https://azure.microsoft.com/en-us/services/openshift',
+        docLinks.AZURE_OPENSHIFT_GET_STARTED,
       );
 
       await createClusterPage.checkManagedServiceButton(
         'Try it on Azure',
-        'https://azure.microsoft.com/en-us/services/openshift',
+        docLinks.AZURE_OPENSHIFT_GET_STARTED,
       );
 
-      await createClusterPage.expandToggle('#azure2');
+      await createClusterPage.expandManagedServiceRow('azure');
       await createClusterPage.isTextVisible(AzureDescriptionText);
 
       await createClusterPage.checkManagedServiceLink(
         'Learn more about Azure Red Hat OpenShift',
-        'https://azure.microsoft.com/en-us/services/openshift',
+        docLinks.AZURE_OPENSHIFT_GET_STARTED,
       );
     });
 
     test('Check IBM Cloud section contents', async ({ createClusterPage }) => {
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift on IBM Cloud',
-        'https://www.ibm.com/cloud/openshift',
+        docLinks.IBM_CLOUD_LEARN_MORE,
       );
 
       await createClusterPage.checkManagedServiceButton(
         'Try it on IBM',
-        'https://cloud.ibm.com/kubernetes/catalog/create?platformType=openshift',
+        docLinks.IBM_CLOUD,
       );
 
-      await createClusterPage.expandToggle('#ibm3');
+      await createClusterPage.expandManagedServiceRow('ibm');
       await createClusterPage.isTextVisible(IBMDescriptionText);
 
       await createClusterPage.checkManagedServiceLink(
         'Learn more about Red Hat OpenShift on IBM Cloud',
-        'https://www.ibm.com/cloud/openshift',
+        docLinks.IBM_CLOUD_LEARN_MORE,
+      );
+    });
+
+    test('Check ROVS section contents', async ({ createClusterPage }) => {
+      test.skip(
+        !isRovsRegistrationEnabled,
+        'ocmui-rovs-registration disabled in this environment',
+      );
+
+      await createClusterPage.checkManagedServiceLink(
+        'Red Hat OpenShift Virtualization Service on IBM Cloud',
+        docLinks.IBM_CLOUD_ROVS_LEARN_MORE,
+      );
+
+      await createClusterPage.checkManagedServiceButton('Try it on IBM', docLinks.IBM_CLOUD_ROVS);
+
+      await createClusterPage.expandManagedServiceRow('rovs');
+      await createClusterPage.isTextVisible(ROVSDescriptionText);
+
+      await createClusterPage.checkManagedServiceLink(
+        'Learn more about Red Hat OpenShift Virtualization Service on IBM Cloud',
+        docLinks.IBM_CLOUD_ROVS_LEARN_MORE,
       );
     });
 
     test('Check ROSA section contents', async ({ createClusterPage }) => {
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Service on AWS (ROSA)',
-        'https://cloud.redhat.com/products/amazon-openshift',
+        docLinks.AWS_LEARN_MORE,
       );
 
       await createClusterPage.clickCreateRosaButton();
@@ -115,12 +144,12 @@ test.describe.serial(
       await createClusterPage.isCreateRosaPage();
       await createClusterPage.clickBackButton();
 
-      await createClusterPage.expandToggle('#rosa4');
+      await createClusterPage.expandManagedServiceRow('rosa');
       await createClusterPage.isTextVisible(ROSADescriptionText);
 
       await createClusterPage.checkManagedServiceLink(
         'Learn more about Red Hat OpenShift Service on AWS',
-        'https://cloud.redhat.com/products/amazon-openshift',
+        docLinks.AWS_LEARN_MORE,
       );
     });
 

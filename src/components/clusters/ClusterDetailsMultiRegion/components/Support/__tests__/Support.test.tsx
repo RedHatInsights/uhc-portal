@@ -143,6 +143,31 @@ describe('<Support />', () => {
       expect(screen.getByTestId('notification-contacts-card')).toBeInTheDocument();
     });
 
+    it('ROVS and with subscription ID', () => {
+      const cluster = {
+        ...defaultClusterFromSubscription,
+        subscription: {
+          ...defaultClusterFromSubscription.subscription,
+          id: 'whatevertheid',
+          managed: true,
+          plan: { type: normalizedProducts.ROVS },
+        },
+      };
+
+      render(
+        <Support
+          cluster={cluster}
+          addNotificationStatus="success"
+          isAddNotificationContactSuccess={isAddNotificationContactSuccessMock}
+          isAddNotificationContactPending={isAddNotificationContactPendingMock}
+        />,
+      );
+
+      expect(screen.getByTestId('add-notification-contact-button')).toBeInTheDocument();
+      expect(screen.queryByTestId('support-cases-card')).not.toBeInTheDocument();
+      expect(screen.getByTestId('notification-contacts-card')).toBeInTheDocument();
+    });
+
     it('with subscription ID', () => {
       // Arrange
       const cluster = {

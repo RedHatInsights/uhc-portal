@@ -1,10 +1,10 @@
 import links from '~/common/installLinks.mjs';
 
+import { INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 
 export const ASHIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Azure Stack Hub Installer-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Azure Stack Hub Installer-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.ash.ipi.title,
   cloudProviderId: 'ash',
   customizations: instructionsMapping.ash.customizations,
@@ -18,8 +18,7 @@ export const ASHIPIProps = {
 };
 
 export const ASHUPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Azure Stack Hub User-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Azure Stack Hub User-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.ash.upi.title,
   cloudProviderId: 'ash',
   isUPI: true,
@@ -33,7 +32,7 @@ export const ASHUPIProps = {
 };
 
 export const AzureProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Azure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Azure`,
   providerTitle: 'Azure',
   ipiPageLink: '/install/azure/installer-provisioned',
   ipiLearnMoreLink: links.INSTALL_AZUREIPI_GETTING_STARTED,
@@ -51,8 +50,7 @@ export const AzureProps = {
 };
 
 export const AzureIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Azure Installer-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Azure Installer-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.azure.x86.ipi.title,
   cloudProviderId: 'azure',
   customizations: instructionsMapping.azure.customizations,
@@ -66,8 +64,7 @@ export const AzureIPIProps = {
 };
 
 export const AzureUPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Azure User-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Azure User-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.azure.x86.upi.title,
   cloudProviderId: 'azure',
   isUPI: true,
@@ -81,7 +78,7 @@ export const AzureUPIProps = {
 };
 
 export const AzureStackHubProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Azure Stack Hub',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Azure Stack Hub`,
   providerTitle: 'Azure Stack Hub',
   ipiPageLink: '/install/azure-stack-hub/installer-provisioned',
   ipiLearnMoreLink: links.INSTALL_ASHIPI_GETTING_STARTED,

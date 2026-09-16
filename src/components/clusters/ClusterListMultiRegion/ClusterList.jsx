@@ -39,7 +39,7 @@ import { useGetAccessProtection } from '~/queries/AccessRequest/useGetAccessProt
 import { useGetOrganizationalPendingRequests } from '~/queries/AccessRequest/useGetOrganizationalPendingRequests';
 import { refetchClusterTransferDetail } from '~/queries/ClusterDetailsQueries/ClusterTransferOwnership/useFetchClusterTransferDetails';
 import { useFetchClusters } from '~/queries/ClusterListQueries/useFetchClusters';
-import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
+import { ROVS_REGISTRATION, TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { clustersActions } from '~/redux/actions';
 import {
@@ -54,7 +54,7 @@ import { isRestrictedEnv } from '~/restrictedEnv';
 
 import helpers from '../../../common/helpers';
 import { getQueryParam } from '../../../common/queryHelpers';
-import { normalizedProducts, productFilterOptions } from '../../../common/subscriptionTypes';
+import { getProductFilterOptions, normalizedProducts } from '../../../common/subscriptionTypes';
 import { viewConstants } from '../../../redux/constants';
 import ErrorBox from '../../common/ErrorBox';
 import Unavailable from '../../common/Unavailable';
@@ -139,6 +139,7 @@ const ClusterList = ({
   const dispatch = useDispatch();
   const viewType = viewConstants.CLUSTERS_VIEW;
   const isTabbedClusters = useFeatureGate(TABBED_CLUSTERS);
+  const isRovsRegistrationEnabled = useFeatureGate(ROVS_REGISTRATION);
   const PAGE_TITLE = showTabbedView
     ? 'Clusters | Red Hat OpenShift Cluster Manager'
     : 'Cluster List | Red Hat OpenShift Cluster Manager';
@@ -247,7 +248,7 @@ const ClusterList = ({
 
     if (!isEmpty(planIDFilter)) {
       const allowedProducts = {};
-      productFilterOptions.forEach((option) => {
+      getProductFilterOptions(isRovsRegistrationEnabled).forEach((option) => {
         allowedProducts[option.key] = true;
       });
       const sanitizedFilter = planIDFilter.split(',').filter((value) => allowedProducts[value]);
@@ -264,11 +265,16 @@ const ClusterList = ({
     } else if (savedClusterTypes && savedClusterTypes !== '[]') {
       const planId = JSON.parse(savedClusterTypes);
       if (Array.isArray(planId) && planId.length > 0) {
+        const allowedProducts = {};
+        getProductFilterOptions(isRovsRegistrationEnabled).forEach((option) => {
+          allowedProducts[option.key] = true;
+        });
+        const sanitizedPlanId = planId.filter((value) => allowedProducts[value]);
         dispatch(
           onListFlagsSet(
             'subscriptionFilter',
             {
-              plan_id: planId,
+              plan_id: sanitizedPlanId,
             },
             viewType,
           ),

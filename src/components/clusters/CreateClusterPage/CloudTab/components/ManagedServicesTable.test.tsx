@@ -1,7 +1,9 @@
 import React from 'react';
 
+import docLinks from '~/common/docLinks.mjs';
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
-import { render, screen } from '~/testUtils';
+import { ROVS_REGISTRATION } from '~/queries/featureGates/featureConstants';
+import { mockUseFeatureGate, render, screen } from '~/testUtils';
 
 import { ManagedServicesTable } from './ManagedServicesTable';
 
@@ -15,6 +17,10 @@ jest.mock('~/queries/ClusterDetailsQueries/useFetchActionsPermissions', () => ({
 }));
 
 describe('<ManagedServicesTable />', () => {
+  beforeEach(() => {
+    mockUseFeatureGate([[ROVS_REGISTRATION, false]]);
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -22,7 +28,7 @@ describe('<ManagedServicesTable />', () => {
     (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
       canCreateManagedCluster: false,
     });
-    render(<ManagedServicesTable hasOSDQuota isTrialEnabled />);
+    render(<ManagedServicesTable isTrialEnabled />);
     expect(screen.getByTestId('osd-create-trial-cluster')).toHaveAttribute('aria-disabled', 'true');
     expect(screen.getByTestId('osd-create-cluster-button')).toHaveAttribute(
       'aria-disabled',
@@ -33,8 +39,32 @@ describe('<ManagedServicesTable />', () => {
     (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
       canCreateManagedCluster: true,
     });
-    render(<ManagedServicesTable hasOSDQuota isTrialEnabled />);
+    render(<ManagedServicesTable isTrialEnabled />);
     expect(screen.getByTestId('osd-create-trial-cluster')).not.toHaveAttribute('aria-disabled');
     expect(screen.getByTestId('osd-create-cluster-button')).not.toHaveAttribute('aria-disabled');
+  });
+  it('hides ROVS row when feature flag is disabled', () => {
+    (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
+      canCreateManagedCluster: true,
+    });
+    render(<ManagedServicesTable />);
+    expect(
+      screen.queryByText('Red Hat OpenShift Virtualization Service on IBM Cloud'),
+    ).not.toBeInTheDocument();
+  });
+  it('shows ROVS row when feature flag is enabled', () => {
+    mockUseFeatureGate([[ROVS_REGISTRATION, true]]);
+    (useCanCreateManagedCluster as jest.Mock).mockReturnValue({
+      canCreateManagedCluster: true,
+    });
+    render(<ManagedServicesTable />);
+    expect(
+      screen.getByText('Red Hat OpenShift Virtualization Service on IBM Cloud'),
+    ).toHaveAttribute('href', docLinks.IBM_CLOUD_ROVS_LEARN_MORE);
+    expect(screen.getByTestId('rovs-try-it-on-ibm')).toHaveAttribute(
+      'href',
+      docLinks.IBM_CLOUD_ROVS,
+    );
+    expect(screen.getByTestId('managed-service-expand-rovs')).toBeInTheDocument();
   });
 });

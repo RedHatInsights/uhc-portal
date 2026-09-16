@@ -36,8 +36,6 @@ import WithCLICard from './WithCLICard';
 import WithTerraformCard from './WithTerraformCard';
 import WithWizardCard from './WithWizardCard';
 
-import '../createROSAWizard.scss';
-
 export const productName = 'Red Hat OpenShift Service on AWS';
 const title = (productName: string = '') => `Set up ${productName} (ROSA)`;
 

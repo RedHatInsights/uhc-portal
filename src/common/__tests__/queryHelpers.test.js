@@ -3,6 +3,7 @@ import * as locationUtils from '~/common/location';
 import {
   buildFilterURLParams,
   buildUrlParams,
+  createServiceLogQueryObject,
   createViewQueryObject,
   getQueryParam,
   sqlString,
@@ -64,6 +65,14 @@ describe('createViewQueryObject()', () => {
 
   it('properly creates the query object when no filter is defined', () => {
     expect(createViewQueryObject(baseViewOptions)).toEqual(baseResult);
+  });
+
+  it('includes ROVS in plan.id filter when includeRovs is enabled', () => {
+    expect(createViewQueryObject(baseViewOptions, undefined, { includeRovs: true })).toEqual({
+      ...baseResult,
+      filter:
+        "(cluster_id!='') AND (plan.id IN ('OSD', 'OSDTrial', 'OCP', 'RHMI', 'ROSA', 'RHOIC', 'MOA', 'MOA-HostedControlPlane', 'ROSA-HyperShift', 'ARO', 'OCP-AssistedInstall', 'ROVS')) AND (status NOT IN ('Deprovisioned', 'Archived'))",
+    });
   });
   it('sorts correctly (with display_name column name translation)', () => {
     const viewOptions = {
@@ -182,6 +191,36 @@ describe('createViewQueryObject()', () => {
     expect(createViewQueryObject(viewOptions)).toEqual(expected);
   });
 
+  it('maps enabled ROVS filters to the backend plan ID', () => {
+    const viewOptions = {
+      ...baseViewOptions,
+      flags: {
+        subscriptionFilter: {
+          plan_id: ['ROVS'],
+        },
+      },
+    };
+
+    expect(createViewQueryObject(viewOptions, undefined, { includeRovs: true }).filter).toContain(
+      "plan_id IN ('ROVS')",
+    );
+  });
+
+  it('ignores stale ROVS plan_id values when includeRovs is disabled', () => {
+    const viewOptions = {
+      ...baseViewOptions,
+      flags: {
+        subscriptionFilter: {
+          plan_id: ['ROVS'],
+        },
+      },
+    };
+
+    expect(createViewQueryObject(viewOptions, undefined, { includeRovs: false })).toEqual(
+      baseResult,
+    );
+  });
+
   it('correctly applies filtering by username', () => {
     const username = 'test@test.com';
     const viewOptions = {
@@ -246,5 +285,55 @@ describe('getQueryParam', () => {
     });
     const result = getQueryParam(queryParam);
     expect(result).toBe(expected);
+  });
+});
+
+describe('createServiceLogQueryObject severity dual support', () => {
+  const baseViewOptions = {
+    currentPage: 1,
+    pageSize: 50,
+    sorting: {
+      sortField: null,
+    },
+    filter: {},
+    flags: {
+      conditionalFilterFlags: {
+        severityTypes: [],
+        logTypes: [],
+      },
+    },
+  };
+
+  it('expands Warning filter to include Moderate', () => {
+    const viewOptions = {
+      ...baseViewOptions,
+      flags: {
+        conditionalFilterFlags: {
+          severityTypes: ['Warning'],
+          logTypes: [],
+        },
+      },
+    };
+
+    const result = createServiceLogQueryObject(viewOptions);
+    expect(result.filter).toContain("'Warning'");
+    expect(result.filter).toContain("'Moderate'");
+    expect(result.filter).toMatch(/severity IN \(/);
+  });
+
+  it('expands Important filter to include Major', () => {
+    const viewOptions = {
+      ...baseViewOptions,
+      flags: {
+        conditionalFilterFlags: {
+          severityTypes: ['Important'],
+          logTypes: [],
+        },
+      },
+    };
+
+    const result = createServiceLogQueryObject(viewOptions);
+    expect(result.filter).toContain("'Important'");
+    expect(result.filter).toContain("'Major'");
   });
 });

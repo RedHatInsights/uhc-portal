@@ -151,22 +151,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByTestId('refresh-aws-accounts').nth(1);
   }
 
-  billingContractConfirmationDialog(): Locator {
-    return this.page.getByRole('dialog', {
-      name: 'Continue without a contracted billing account?',
-    });
-  }
-
-  continueWithBillingSelectionButton(): Locator {
-    return this.billingContractConfirmationDialog().getByRole('button', {
-      name: 'Continue with selection',
-    });
-  }
-
-  goBackFromBillingConfirmationButton(): Locator {
-    return this.billingContractConfirmationDialog().getByRole('button', { name: 'Go back' });
-  }
-
   contractEnabledForBillingAccountButton(): Locator {
     return this.page.getByRole('button', { name: 'Contract enabled for this billing account' });
   }
@@ -219,6 +203,22 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   rootDiskSizeInput(): Locator {
     return this.page.getByRole('spinbutton', { name: 'Worker root disk size' });
+  }
+
+  spotInterruptionHandlingToggle(): Locator {
+    return this.page.getByRole('button', { name: 'Spot interruption handling' });
+  }
+
+  simpleSpotInstancesRadio(): Locator {
+    return this.page.getByRole('radio', { name: /Simple Spot instances/i });
+  }
+
+  enhancedSpotInstancesRadio(): Locator {
+    return this.page.getByRole('radio', { name: /Enhanced Spot instances/i });
+  }
+
+  sqsQueueUrlInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'SQS queue URL' });
   }
 
   // Networking selectors
@@ -309,21 +309,8 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByTestId('grace-period-select');
   }
 
-  // Additional security groups selectors
-  additionalSecurityGroupsLink(): Locator {
-    return this.page.getByRole('button', { name: 'Additional security groups' });
-  }
-
-  applySameSecurityGroupsToAllNodeTypes(): Locator {
-    return this.page.getByRole('checkbox', {
-      name: 'Apply the same security groups to all node types',
-    });
-  }
-
-  securityGroupsButton(): Locator {
-    return this.page.locator('button').filter({ hasText: 'Select security groups' });
-  }
-
+  // Additional security groups (shared additionalSecurityGroupsLink /
+  // applySameSecurityGroupsToAllNodeTypes / securityGroupsButton on BaseWizardPage)
   securityGroupsFilterInput(): Locator {
     return this.page.locator('input[placeholder="Filter by security group ID / name"]');
   }
@@ -337,25 +324,13 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByTestId('rosa_roles_provider_creation_mode-manual');
   }
 
-  // VPC and subnet selectors
-  vpcSelectButton(): Locator {
-    return this.page.locator('button').filter({ hasText: 'Select a VPC' });
-  }
-
-  vpcFilterInput(): Locator {
-    return this.page.locator('input[placeholder="Filter by VPC ID / name"]');
-  }
-
+  // VPC and subnet selectors (shared vpcSelectButton / vpcFilterInput / subnetFilterInput on BaseWizardPage)
   publicSubnetButton(): Locator {
     return this.page.locator('button').filter({ hasText: 'Select public subnet' });
   }
 
   clusterPrivacyPublicSubnetButton(): Locator {
     return this.page.locator('button[id="cluster_privacy_public_subnet_id"]');
-  }
-
-  subnetFilterInput(): Locator {
-    return this.page.locator('input[placeholder="Filter by subnet ID / name"]');
   }
 
   // Screen validation methods
@@ -475,23 +450,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await expect(this.refreshAWSBillingAccountButton()).toBeEnabled({ timeout: 60000 });
   }
 
-  async expectBillingContractConfirmationDialog(visible = true): Promise<void> {
-    if (visible) {
-      await expect(this.billingContractConfirmationDialog()).toBeVisible({ timeout: 15000 });
-    } else {
-      await expect(this.billingContractConfirmationDialog()).toBeHidden({ timeout: 15000 });
-    }
-  }
-
-  async expectBillingContractConfirmationShowsAccount(accountId: string): Promise<void> {
-    await this.expectBillingContractConfirmationDialog(true);
-    await expect(
-      this.billingContractConfirmationDialog().getByText(
-        `The selected account ${accountId} does not have any`,
-      ),
-    ).toBeVisible();
-  }
-
   async expectContractEnabledForBillingAccount(visible = true): Promise<void> {
     if (visible) {
       await expect(this.contractEnabledForBillingAccountButton()).toBeVisible({ timeout: 15000 });
@@ -515,22 +473,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     } else {
       await expect(this.billingContractWarningTitle()).toBeHidden({ timeout: 15000 });
     }
-  }
-
-  async confirmBillingContractSelection(accountId?: string): Promise<void> {
-    if (accountId) {
-      await this.expectBillingContractConfirmationShowsAccount(accountId);
-    } else {
-      await this.expectBillingContractConfirmationDialog(true);
-    }
-    await this.continueWithBillingSelectionButton().click();
-    await this.expectBillingContractConfirmationDialog(false);
-  }
-
-  async dismissBillingContractConfirmation(): Promise<void> {
-    await this.expectBillingContractConfirmationDialog(true);
-    await this.goBackFromBillingConfirmationButton().click();
-    await this.expectBillingContractConfirmationDialog(false);
   }
 
   async waitForARNList(): Promise<void> {
@@ -843,6 +785,28 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await this.computeNodeCountInput().blur();
   }
 
+  async expandSpotInterruptionHandling(): Promise<void> {
+    const toggle = this.spotInterruptionHandlingToggle();
+    await expect(toggle).toBeVisible();
+    if (!(await this.simpleSpotInstancesRadio().isVisible())) {
+      await toggle.click();
+    }
+    await expect(this.simpleSpotInstancesRadio()).toBeVisible();
+  }
+
+  async configureEnhancedSpotInterruptionHandling(queueUrl: string): Promise<void> {
+    await this.expandSpotInterruptionHandling();
+    await expect(this.enhancedSpotInstancesRadio()).toBeEnabled();
+    await this.enhancedSpotInstancesRadio().check();
+    await this.fillSqsQueueUrl(queueUrl);
+  }
+
+  async fillSqsQueueUrl(queueUrl: string): Promise<void> {
+    await this.sqsQueueUrlInput().clear();
+    await this.sqsQueueUrlInput().fill(queueUrl);
+    await this.sqsQueueUrlInput().blur();
+  }
+
   async selectClusterPrivacy(privacy: string): Promise<void> {
     if (privacy.toLowerCase() === 'private') {
       await this.clusterPrivacyPrivateRadio().check();
@@ -1102,15 +1066,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
   }
 
   // VPC subnet selection methods for advanced networking
-  async selectSubnetAvailabilityZone(zone: string): Promise<void> {
-    await this.page
-      .locator('button')
-      .filter({ hasText: 'Select availability zone' })
-      .first()
-      .click();
-    await this.page.getByRole('option', { name: zone }).click();
-  }
-
   async selectPrivateSubnet(index: number, subnetName: string): Promise<void> {
     const privateSubnetButton = this.page.locator(
       `[id="machinePoolsSubnets[${index}].privateSubnetId"]`,

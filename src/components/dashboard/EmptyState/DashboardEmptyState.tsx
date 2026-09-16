@@ -25,7 +25,7 @@ function DashboardEmptyState() {
       >
         <EmptyStateBody>
           You don&#39;t have any clusters yet, but you can easily create or register your first
-          OpenShift 4 cluster.
+          OpenShift cluster.
         </EmptyStateBody>
         <EmptyStateFooter>
           <Link to="/create">

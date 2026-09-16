@@ -17,6 +17,7 @@ import {
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
 import { noMachineTypes } from '~/common/helpers';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -71,6 +72,8 @@ type MachineTypeSelectionProps = {
   productId: string;
   billingModel: BillingModel;
   allExpanded?: boolean;
+  // Temporary opt-in flag for day-1 GCM wizard bypass; defaults false so day-2/other consumers are unchanged. Remove once day-1 and day-2 PRs are merged.
+  enableGCMQuotaBypass?: boolean;
 };
 
 const MachineTypeSelection = ({
@@ -85,6 +88,7 @@ const MachineTypeSelection = ({
   productId,
   billingModel,
   allExpanded = true,
+  enableGCMQuotaBypass = false,
 }: MachineTypeSelectionProps) => {
   const dispatch = useDispatch();
 
@@ -111,7 +115,11 @@ const MachineTypeSelection = ({
   /** Checks whether required data arrived. */
   const isDataReady =
     organization.fulfilled &&
-    machineTypesResponse &&
+    // machineTypesResponse (e.g. from useFetchMachineTypes) is always a defined object,
+    // even before the underlying request resolves, so check typesByID itself instead of
+    // just the object's truthiness. Otherwise the "not enough quota" alert can flash
+    // briefly while machine types are still loading (filteredMachineTypes is momentarily empty).
+    !!machineTypesResponse?.typesByID &&
     // Tolerate flavours error gracefully.
     (flavours.fulfilled || flavours.error);
 
@@ -186,6 +194,10 @@ const MachineTypeSelection = ({
         return false;
       }
 
+      if (enableGCMQuotaBypass && isGcpMarketplaceBilling(billingModel)) {
+        return true;
+      }
+
       const quotaParams = {
         product: productId,
         cloudProviderID,
@@ -233,6 +245,7 @@ const MachineTypeSelection = ({
       isMultiAz,
       productId,
       quota,
+      enableGCMQuotaBypass,
     ],
   );
 

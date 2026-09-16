@@ -4,6 +4,7 @@ import last from 'lodash/last';
 import { Divider, Grid, GridItem, Title } from '@patternfly/react-core';
 
 import { versionRegEx } from '../../../../../../common/versionComparator';
+import { UpgradeToV5Warning } from '../../UpgradeToV5Warning/UpgradeToV5Warning';
 
 import VersionCard from './VersionCard';
 
@@ -14,6 +15,8 @@ const VersionSelectionGrid = ({
   selected,
   isUnMetClusterAcknowledgements,
   isPending = false,
+  showUpgradeToV5Warning = false,
+  isRosa = false,
 }: {
   clusterVersion: string;
   availableUpgrades?: string[];
@@ -21,6 +24,8 @@ const VersionSelectionGrid = ({
   selected?: string;
   isUnMetClusterAcknowledgements?: boolean;
   isPending?: boolean;
+  showUpgradeToV5Warning?: boolean;
+  isRosa?: boolean;
 }) => {
   React.useEffect(
     () => {
@@ -110,6 +115,7 @@ const VersionSelectionGrid = ({
       </Title>
       <div id="version-grid-wrapper">
         <Grid hasGutter className="version-selection-grid">
+          <GridItem>{showUpgradeToV5Warning && <UpgradeToV5Warning isRosa={isRosa} />}</GridItem>
           {recommendedCards(latestInCurrMinor, latestVersion)}
           {otherVersions.length > 0 && (
             <GridItem>

@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { getUsernameSuffix } from '../../support/auth-config';
 import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
 // Import cluster properties JSON
@@ -23,19 +24,24 @@ test.describe.serial(
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-HCP-ROSA-Installer-Role`;
     const clusterNamePrefix = clusterProperties.ClusterName;
-    const clusterName = `${clusterNamePrefix}-${Math.random().toString(36).slice(2, 7)}`;
-    const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2, 13)}`;
+    const userSuffix = getUsernameSuffix();
+    const clusterName = `${clusterNamePrefix}-${userSuffix}`;
+    const clusterDomainPrefix = `rosa${userSuffix}`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
     const logForwardingS3BucketName = process.env.QE_LOG_FORWARDING_S3_BUCKET_NAME || '';
     const logForwardingS3BucketPrefix = process.env.QE_LOG_FORWARDING_S3_BUCKET_PREFIX || '';
     const logForwardingCwRoleArn = process.env.QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN || '';
     const logForwardingCwLogGroupName = clusterProperties.CloudWatchLogGroupName;
+    const spotInterruptionQueueUrl = process.env.QE_SPOT_INTERRUPTION_QUEUE_URL || '';
 
     test.beforeAll(async ({ navigateTo }) => {
       if (!logForwardingS3BucketName || !logForwardingS3BucketPrefix || !logForwardingCwRoleArn) {
         throw new Error(
           'Missing required env vars: QE_LOG_FORWARDING_S3_BUCKET_NAME, QE_LOG_FORWARDING_S3_BUCKET_PREFIX, QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN',
         );
+      }
+      if (!spotInterruptionQueueUrl) {
+        throw new Error('Missing required env var: QE_SPOT_INTERRUPTION_QUEUE_URL');
       }
       await navigateTo(CREATE_CLUSTER_ROUTE);
     });
@@ -121,6 +127,11 @@ test.describe.serial(
       } else {
         await createRosaWizardPage.useIMDSv2Radio().check();
       }
+
+      await createRosaWizardPage.configureEnhancedSpotInterruptionHandling(
+        spotInterruptionQueueUrl,
+      );
+
       await createRosaWizardPage.rosaNextButton().click();
     });
 
@@ -295,6 +306,14 @@ test.describe.serial(
       await createRosaWizardPage.isClusterPropertyMatchesValue(
         'Instance Metadata Service (IMDS)',
         clusterProperties.InstanceMetadataService,
+      );
+      await createRosaWizardPage.isClusterPropertyMatchesValue(
+        'Spot interruption handling',
+        'Enhanced Spot instances',
+      );
+      await createRosaWizardPage.isClusterPropertyMatchesValue(
+        'SQS queue URL',
+        spotInterruptionQueueUrl,
       );
     });
 

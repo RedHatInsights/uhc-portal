@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import { defaultClusterFromSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import { ENABLE_MACHINE_CONFIGURATION } from '~/queries/featureGates/featureConstants';
 import { baseRequestState } from '~/redux/reduxHelpers';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
@@ -76,6 +77,7 @@ const defaultMachinePool = {
 };
 
 const defaultCluster = {
+  ...defaultClusterFromSubscription,
   id: 'my-cluster-id',
   product: {
     id: normalizedProducts.ROSA,

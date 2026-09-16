@@ -1,10 +1,11 @@
 import links from '~/common/installLinks.mjs';
 
+import { INSTALL_PAGE_PREFIX } from '../installConstants';
 import instructionsMapping from '../instructions/instructionsMapping';
 import { InstallProps } from '../models/types';
 
 export const NutanixProps: InstallProps = {
-  appPageTitle: 'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Nutanix AOS',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Nutanix AOS`,
   providerTitle: 'Nutanix AOS',
   aiPageLink: '/assisted-installer/clusters/~new',
   aiLearnMoreLink: links.INSTALL_ASSISTED_LEARN_MORE,
@@ -29,8 +30,7 @@ export const NutanixProps: InstallProps = {
 };
 
 export const NutanixIPIProps = {
-  appPageTitle:
-    'Install OpenShift 4 | Red Hat OpenShift Cluster Manager | Nutanix AOS Installer-Provisioned Infrastructure',
+  appPageTitle: `${INSTALL_PAGE_PREFIX} | Nutanix AOS Installer-Provisioned Infrastructure`,
   providerTitle: instructionsMapping.nutanix.ipi.title,
   cloudProviderId: 'nutanix',
   instructionsMapping: instructionsMapping.nutanix.ipi,
