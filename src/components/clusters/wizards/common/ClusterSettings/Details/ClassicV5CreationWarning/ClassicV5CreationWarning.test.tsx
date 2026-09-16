@@ -44,6 +44,7 @@ describe('<ClassicV5CreationWarning />', () => {
 
     const alert = screen.getByTestId('classic-v5-creation-warning');
     expect(alert).toHaveTextContent(warningText);
+    expect(within(within(alert).getByRole('heading')).queryByRole('link')).not.toBeInTheDocument();
 
     const link = within(alert).getByRole('link', { name: 'create a ROSA HCP cluster' });
     expect(link).toHaveAttribute('href', '/openshift/create/rosa/getstarted');

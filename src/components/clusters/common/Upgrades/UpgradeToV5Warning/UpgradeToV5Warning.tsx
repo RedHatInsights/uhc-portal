@@ -16,16 +16,13 @@ const UpgradeToV5Warning = ({
     isInline
     className="pf-v6-u-mb-md"
     data-testid={dataTestId}
-    title={
-      <>
-        To use OpenShift v5, please{' '}
-        <InternalTrackingLink to="/create/rosa/getstarted">
-          create a ROSA HCP cluster
-        </InternalTrackingLink>
-        .
-      </>
-    }
-  />
+    title="To use OpenShift v5, please "
+  >
+    <InternalTrackingLink to="/create/rosa/getstarted">
+      create a ROSA HCP cluster
+    </InternalTrackingLink>
+    .
+  </Alert>
 );
 
 export { UpgradeToV5Warning };

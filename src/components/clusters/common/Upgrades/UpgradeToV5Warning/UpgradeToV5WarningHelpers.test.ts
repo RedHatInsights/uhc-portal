@@ -1,7 +1,10 @@
 import { Capability } from '~/types/accounts_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
 
-import { shouldShowUpgradeToV5Warning } from './UpgradeToV5WarningHelpers';
+import {
+  isOcp5MigrationWarningEnabledForOrg,
+  shouldShowUpgradeToV5Warning,
+} from './UpgradeToV5WarningHelpers';
 
 const rosaClassicCluster = {
   product: { id: 'ROSA' },
@@ -29,6 +32,35 @@ const rosaHcpV4Cluster = {
 const allowOcp5Capability: Capability[] = [
   { name: 'capability.organization.rosa_osd_allow_ocp_5', value: 'true', inherited: false },
 ];
+
+describe('isOcp5MigrationWarningEnabledForOrg', () => {
+  it('returns false when the feature flag is off', () => {
+    expect(
+      isOcp5MigrationWarningEnabledForOrg({
+        isOcp5SupportEnabled: false,
+        organizationCapabilities: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('returns true when the feature flag is on and the org has no OCP 5 capability', () => {
+    expect(
+      isOcp5MigrationWarningEnabledForOrg({
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: undefined,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns false when the org has rosa_osd_allow_ocp_5 set to "true"', () => {
+    expect(
+      isOcp5MigrationWarningEnabledForOrg({
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: allowOcp5Capability,
+      }),
+    ).toBe(false);
+  });
+});
 
 describe('shouldShowUpgradeToV5Warning', () => {
   it('returns false when the feature flag is off', () => {

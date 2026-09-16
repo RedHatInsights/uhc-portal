@@ -8,18 +8,30 @@ import {
 import { Capability } from '~/types/accounts_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
 
-interface ShowUpgradeToV5WarningParams {
-  cluster: AugmentedCluster | undefined;
+interface Ocp5MigrationWarningOrgParams {
   isOcp5SupportEnabled: boolean;
   organizationCapabilities: Capability[] | undefined;
 }
+
+interface ShowUpgradeToV5WarningParams extends Ocp5MigrationWarningOrgParams {
+  cluster: AugmentedCluster | undefined;
+}
+
+const isOcp5MigrationWarningEnabledForOrg = ({
+  isOcp5SupportEnabled,
+  organizationCapabilities,
+}: Ocp5MigrationWarningOrgParams): boolean =>
+  isOcp5SupportEnabled && !hasAllowOcp5Capability(organizationCapabilities);
 
 const shouldShowUpgradeToV5Warning = ({
   cluster,
   isOcp5SupportEnabled,
   organizationCapabilities,
 }: ShowUpgradeToV5WarningParams): boolean => {
-  if (!isOcp5SupportEnabled || !cluster || hasAllowOcp5Capability(organizationCapabilities)) {
+  if (
+    !cluster ||
+    !isOcp5MigrationWarningEnabledForOrg({ isOcp5SupportEnabled, organizationCapabilities })
+  ) {
     return false;
   }
 
@@ -34,4 +46,4 @@ const shouldShowUpgradeToV5Warning = ({
   return isOSD(cluster) && isAWS(cluster);
 };
 
-export { shouldShowUpgradeToV5Warning };
+export { isOcp5MigrationWarningEnabledForOrg, shouldShowUpgradeToV5Warning };
