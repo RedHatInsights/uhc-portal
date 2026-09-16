@@ -116,7 +116,7 @@ test.describe.serial(
       await createRosaWizardPage.clearQuotaCostMock();
 
       // Both accounts have no contracts: no warning, Next advances directly
-      // Re-mock with no contracted account    
+      // Re-mock with no contracted account
       await createRosaWizardPage.mockQuotaCostWithBillingContract('', [
         awsBillingAccountID,
         awsSecondaryBillingAccountID,
