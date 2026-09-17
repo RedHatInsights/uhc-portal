@@ -1,6 +1,14 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { Button, EmptyState, EmptyStateBody, EmptyStateVariant } from '@patternfly/react-core';
+import {
+  Button,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateVariant,
+  Icon,
+  Spinner,
+} from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { useFetchSupportCases } from '~/queries/ClusterDetailsQueries/ClusterSupportTab/useFetchSupportCases';
@@ -17,6 +25,27 @@ type SupportCasesCardProps = {
   cluster: AugmentedCluster;
 };
 
+const ErrorIcon = (props: React.ComponentProps<typeof Icon>) => (
+  <Icon {...props} status="danger">
+    <ExclamationCircleIcon />
+  </Icon>
+);
+
+const SupportCasesErrorState = ({ onRetry }: { onRetry: () => void }) => (
+  <EmptyState
+    variant={EmptyStateVariant.sm}
+    headingLevel="h4"
+    icon={ErrorIcon}
+    titleText="Support cases could not be loaded"
+  >
+    <EmptyStateBody>
+      <Button variant="link" isInline onClick={onRetry}>
+        Retry
+      </Button>
+    </EmptyStateBody>
+  </EmptyState>
+);
+
 const SupportCasesCard = ({
   subscriptionID,
   isDisabled = false,
@@ -24,7 +53,10 @@ const SupportCasesCard = ({
 }: SupportCasesCardProps) => {
   const product = cluster?.subscription?.plan?.type;
   const isRestricted = isRestrictedEnv();
-  const { supportCases, isLoading, refetch } = useFetchSupportCases(subscriptionID, isRestricted);
+  const { supportCases, isLoading, isError, refetch } = useFetchSupportCases(
+    subscriptionID,
+    isRestricted,
+  );
 
   useEffect(() => {
     if (!isRestrictedEnv()) {
@@ -51,7 +83,9 @@ const SupportCasesCard = ({
           <Button variant="secondary">Open support case</Button>
         </a>
       )}
-      {!isRestrictedEnv() && (
+      {!isRestrictedEnv() && isLoading && <Spinner aria-label="Loading support cases" />}
+      {!isRestrictedEnv() && !isLoading && isError && <SupportCasesErrorState onRetry={refetch} />}
+      {!isRestrictedEnv() && !isLoading && !isError && (
         <>
           <Table
             variant={TableVariant.compact}
