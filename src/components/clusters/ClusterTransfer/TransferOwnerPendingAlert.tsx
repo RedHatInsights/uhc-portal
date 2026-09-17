@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Alert } from '@patternfly/react-core';
+import { get } from 'lodash';
 
 import { Link } from '~/common/routing';
 import { useFetchClusterTransferDetail } from '~/queries/ClusterDetailsQueries/ClusterTransferOwnership/useFetchClusterTransferDetails';
@@ -11,15 +12,16 @@ export const TransferOwnerPendingAlert = () => {
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
 
   const { data: transferData } = useFetchClusterTransferDetail({ username });
-  const totalPendingTransfers = React.useMemo(
-    () =>
-      transferData?.items?.filter(
-        (transfer) =>
-          transfer.status?.toLowerCase() === ClusterTransferStatus.Pending.toLowerCase(),
-      ).length || 0,
-    [transferData],
-  );
+  const totalPendingTransfers =
+    get(transferData, 'items', []).filter(
+      (transfer) => transfer.status?.toLowerCase() === ClusterTransferStatus.Pending.toLowerCase(),
+    ).length || 0;
   const linkUrl = './cluster-request';
+
+  React.useEffect(() => {
+    setTimeout(() => {}, 0);
+  }, [totalPendingTransfers]);
+
   return totalPendingTransfers ? (
     <Alert
       id="pendingTransferOwnerAlert"
@@ -27,6 +29,7 @@ export const TransferOwnerPendingAlert = () => {
       variant="warning"
       isInline
       title="Pending Transfer Requests"
+      style={{ borderWidth: 1 }}
     >
       You have <strong>{totalPendingTransfers}</strong> pending cluster transfer ownership request
       {totalPendingTransfers > 1 ? 's' : ''}{' '}

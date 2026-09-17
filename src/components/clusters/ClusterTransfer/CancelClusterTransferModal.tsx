@@ -39,10 +39,10 @@ export const CancelClusterTransferModal = (props: CancelClusterTransferModalProp
 
   const addNotification = useAddNotification();
 
-  const handleClose = () => {
+  const handleClose = React.useCallback(() => {
     reset();
     setIsOpen(false);
-  };
+  }, [reset]);
 
   return (
     <>

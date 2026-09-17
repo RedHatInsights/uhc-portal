@@ -47,7 +47,8 @@ const TransferOwnerStatus = ({
   );
   const isPending = status?.toLowerCase() === ClusterTransferStatus.Pending.toLowerCase();
   const isAccepted = status?.toLowerCase() === ClusterTransferStatus.Accepted.toLowerCase();
-  const defaultState = isOwner && isPending ? 'Pending' : 'Closed';
+  const maxTransferDays = isOwner ? 14 : 7;
+  const defaultState = isOwner && isPending ? `Pending (${maxTransferDays}d max)` : 'Closed';
   if (isExpired) {
     return <p>Expired</p>;
   }
