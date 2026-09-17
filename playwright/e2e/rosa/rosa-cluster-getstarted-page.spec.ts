@@ -98,7 +98,7 @@ test.describe.serial(
       await rosaGetStartedPage.checkAnchorProperties(
         step11Content.locator('..').getByRole('link', { name: 'Help with ROSA CLI setup' }),
         'Help with ROSA CLI setup',
-        supportLinks.ROSA_CLI_DOCS,
+        docLinks.ROSA_CLI_DOCS,
         true,
       );
 
