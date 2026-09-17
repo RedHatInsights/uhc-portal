@@ -86,12 +86,10 @@ export class CustomCommands {
     this.page = page;
   }
 
-  // Custom getByTestId method (equivalent to Cypress.Commands.add('getByTestId'))
   getByTestId(selector: string): Locator {
     return this.page.locator(`[data-testid="${selector}"]`);
   }
 
-  // Additional helper methods similar to Cypress commands
   async waitForSelector(selector: string, options?: { timeout?: number }): Promise<Locator> {
     const locator = this.page.locator(selector);
     await locator.waitFor(options);

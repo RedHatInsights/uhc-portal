@@ -23,7 +23,6 @@ const testFiles = [
   '**/*.spec.{js,jsx,ts,tsx}',
   '**/*.stories.{js,jsx,ts,tsx}',
   'src/testUtils.tsx',
-  'cypress.config.js',
   'fec.config.js',
   '*.mjs',
   'run/**/*.{js,mjs}',
