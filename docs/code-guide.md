@@ -1,6 +1,6 @@
-# Coding Guidelines
+## Code review rules
 
-This document defines the coding standards for the OCM UI project. All code contributions must follow these guidelines to ensure consistency, maintainability, and code quality.
+When reviewing or writing code in `src/`, enforce these rules:
 
 These guidelines serve to:
 - Establish shared conventions for code structure and patterns
