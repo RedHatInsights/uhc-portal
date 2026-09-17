@@ -9,7 +9,6 @@ import {
   CardBody,
   CardFooter,
   CardTitle,
-  DescriptionList,
   Flex,
   FlexItem,
   Form,
@@ -511,9 +510,9 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
           <Card>
             <CardTitle>Channel settings</CardTitle>
             <CardBody>
-              <DescriptionList>
-                <ChannelEdit cluster={cluster} />
-              </DescriptionList>
+              <Stack hasGutter>
+                <ChannelEdit cluster={cluster} layout="formGroup" />
+              </Stack>
             </CardBody>
           </Card>
         </Stack>
