@@ -4,7 +4,6 @@ import { Content, ContentVariants } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
 import { channels, tools } from '~/common/installLinks.mjs';
-import supportLinks from '~/common/supportLinks.mjs';
 import DownloadAndOSSelection from '~/components/clusters/install/instructions/components/DownloadAndOSSelection';
 import ExternalLink from '~/components/common/ExternalLink';
 
@@ -23,7 +22,7 @@ const StepDownloadROSACli = () => (
           <DownloadAndOSSelection tool={tools.ROSA} channel={channels.STABLE} />
         </div>
         <Content component="p">
-          <ExternalLink href={supportLinks.ROSA_CLI_DOCS}>Help with ROSA CLI setup</ExternalLink>
+          <ExternalLink href={docLinks.ROSA_CLI_DOCS}>Help with ROSA CLI setup</ExternalLink>
         </Content>
       </Content>
       <Content component="li">

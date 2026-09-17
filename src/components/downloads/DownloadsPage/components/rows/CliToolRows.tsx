@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Content } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import installLinks, { channels, tools } from '~/common/installLinks.mjs';
 import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -90,7 +91,7 @@ const CliToolRows = ({
           <Content component="p">
             Manage your Red Hat OpenShift Service on AWS (ROSA) clusters from the command line using
             the ROSA client for OCM and AWS APIs.{' '}
-            <ExternalLink href={supportLinks.ROSA_CLI_DOCS}>Get started</ExternalLink>
+            <ExternalLink href={docLinks.ROSA_CLI_DOCS}>Get started</ExternalLink>
           </Content>
         }
       />
