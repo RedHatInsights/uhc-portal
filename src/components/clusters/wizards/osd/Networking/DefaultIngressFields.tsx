@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Field, FieldArray } from 'formik';
+import { Field, FieldArray, FieldProps } from 'formik';
 
 import {
   FormGroup,
@@ -57,47 +57,52 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
     }
   }, [showExcludeNamespaceSelectors, setFieldValue]);
 
-  const routeSelectorFieldMeta = getFieldMeta(FieldId.DefaultRouterSelectors);
-  const excludedNamespacesFieldMeta = getFieldMeta(FieldId.DefaultRouterExcludedNamespacesFlag);
   return (
     <>
       <GridItem span={9}>
         <FormGroup label="Route selector" labelHelp={<RouteSelectorsPopover />}>
-          <Field
-            as={TextInput}
-            name={FieldId.DefaultRouterSelectors}
-            type="text"
-            validate={checkRouteSelectors}
-            input={{
-              ...getFieldProps(FieldId.DefaultRouterSelectors),
-              onChange: (value: string) =>
-                setFieldValue(FieldId.DefaultRouterSelectors, value, false),
-            }}
-          />
-
-          <FormGroupHelperText touched error={routeSelectorFieldMeta.error}>
-            {RouteSelectorsHelpText}
-          </FormGroupHelperText>
+          <Field name={FieldId.DefaultRouterSelectors} validate={checkRouteSelectors}>
+            {({ field, meta }: FieldProps<string>) => (
+              <>
+                <TextInput
+                  {...field}
+                  id={field.name}
+                  type="text"
+                  value={field.value ?? ''}
+                  validated={meta.touched && meta.error ? 'error' : 'default'}
+                  onChange={(event) => field.onChange(event)}
+                />
+                <FormGroupHelperText touched={meta.touched} error={meta.error}>
+                  {RouteSelectorsHelpText}
+                </FormGroupHelperText>
+              </>
+            )}
+          </Field>
         </FormGroup>
       </GridItem>
 
       <GridItem span={9}>
         <FormGroup label="Excluded namespaces" labelHelp={<ExcludedNamespacesPopover />}>
           <Field
-            as={TextInput}
             name={FieldId.DefaultRouterExcludedNamespacesFlag}
-            type="text"
             validate={validateNamespacesList}
-            input={{
-              ...getFieldProps(FieldId.DefaultRouterExcludedNamespacesFlag),
-              onChange: (value: string) =>
-                setFieldValue(FieldId.DefaultRouterExcludedNamespacesFlag, value, false),
-            }}
-          />
-
-          <FormGroupHelperText touched error={excludedNamespacesFieldMeta.error}>
-            {ExcludedNamespacesHelpText}
-          </FormGroupHelperText>
+          >
+            {({ field, meta }: FieldProps<string>) => (
+              <>
+                <TextInput
+                  {...field}
+                  id={field.name}
+                  type="text"
+                  value={field.value ?? ''}
+                  validated={meta.touched && meta.error ? 'error' : 'default'}
+                  onChange={(event) => field.onChange(event)}
+                />
+                <FormGroupHelperText touched={meta.touched} error={meta.error}>
+                  {ExcludedNamespacesHelpText}
+                </FormGroupHelperText>
+              </>
+            )}
+          </Field>
         </FormGroup>
       </GridItem>
 
