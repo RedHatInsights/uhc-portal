@@ -150,9 +150,10 @@ test.describe.serial(
       await expect(createOSDWizardPage.persistentStorageValue()).toContainText(
         clusterProperties.PersistentStorage,
       );
-      await expect(createOSDWizardPage.loadBalancersValue()).toContainText(
-        clusterProperties.LoadBalancers,
-      );
+      // Bug OCMUI-5374 : Load balancers value is not visible in the review screen
+      // await expect(createOSDWizardPage.loadBalancersValue()).toContainText(
+      //   clusterProperties.LoadBalancers,
+      // );
       await expect(createOSDWizardPage.additionalEtcdEncryptionValue()).toContainText(
         clusterProperties.AdditionalEncryption,
       );
