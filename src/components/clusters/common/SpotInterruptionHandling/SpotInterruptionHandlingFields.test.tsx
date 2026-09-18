@@ -1,5 +1,6 @@
 import React from 'react';
 
+import docLinks from '~/common/docLinks.mjs';
 import { render, screen } from '~/testUtils';
 
 import {
@@ -86,11 +87,10 @@ describe('<SpotInterruptionHandlingFields />', () => {
       renderFields({ mode: SpotInterruptionMode.Enhanced });
 
       expect(screen.getByText(DEFAULT_SPOT_INTERRUPTION_PREREQ_ALERT)).toBeInTheDocument();
-      // TODO https://redhat.atlassian.net/browse/OCMUI-5221
-      // expect(screen.getByRole('link', { name: /View setup documentation/i })).toHaveAttribute(
-      //   'href',
-      //   setupDocHref,
-      // );
+      expect(screen.getByRole('link', { name: /View setup documentation/i })).toHaveAttribute(
+        'href',
+        docLinks.ROSA_HCP_SPOT_INTERRUPTION_SET_UP,
+      );
     });
 
     it('hides the prerequisite alert when showPrereqAlert is false', () => {

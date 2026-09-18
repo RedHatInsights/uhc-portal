@@ -1,3 +1,4 @@
+import docLinks from '../../../src/common/docLinks.mjs';
 import { test, expect } from '../../fixtures/pages';
 import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
@@ -561,6 +562,10 @@ test.describe.serial(
       await expect(createRosaWizardPage.enhancedSpotInstancesRadio()).toBeChecked();
       await expect(createRosaWizardPage.simpleSpotInstancesRadio()).not.toBeChecked();
       await expect(createRosaWizardPage.sqsQueueUrlInput()).toBeVisible();
+      await expect(createRosaWizardPage.spotInterruptionSetupDocLink()).toHaveAttribute(
+        'href',
+        docLinks.ROSA_HCP_SPOT_INTERRUPTION_SET_UP,
+      );
 
       await createRosaWizardPage.rosaNextButton().click();
       await createRosaWizardPage.isTextContainsInPage(spot.RequiredError);

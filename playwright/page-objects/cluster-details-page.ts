@@ -880,6 +880,12 @@ export class ClusterDetailsPage extends BasePage {
     return this.editSpotInterruptionHandlingModal().getByRole('textbox', { name: 'SQS queue URL' });
   }
 
+  spotInterruptionSetupDocLink(): Locator {
+    return this.editSpotInterruptionHandlingModal().getByRole('link', {
+      name: 'View setup documentation',
+    });
+  }
+
   saveSpotInterruptionHandlingButton(): Locator {
     return this.editSpotInterruptionHandlingModal().getByRole('button', { name: 'Save' });
   }
