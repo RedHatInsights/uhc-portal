@@ -304,11 +304,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByRole('checkbox', { name: 'Use a PrivateLink' });
   }
 
-  // Grace period selector
-  gracePeriodSelect(): Locator {
-    return this.page.getByTestId('grace-period-select');
-  }
-
   // Additional security groups (shared additionalSecurityGroupsLink /
   // applySameSecurityGroupsToAllNodeTypes / securityGroupsButton on BaseWizardPage)
   securityGroupsFilterInput(): Locator {
@@ -1045,11 +1040,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   async enableInstallIntoExistingVpc(): Promise<void> {
     await this.installIntoExistingVpcCheckbox().check();
-  }
-
-  async selectGracePeriod(period: string): Promise<void> {
-    await this.gracePeriodSelect().click();
-    await this.page.getByRole('option', { name: period }).click();
   }
 
   async selectAdditionalSecurityGroups(securityGroup: string): Promise<void> {
