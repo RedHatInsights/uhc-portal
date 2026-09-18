@@ -4,16 +4,13 @@ import { Formik } from 'formik';
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
 import { OCM_ROLE_NO_CONSOLE_PROFILE } from '~/components/clusters/wizards/rosa/rosaConstants';
+import { refetchGetOCMRole, useFetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
 import {
   ALLOW_EUS_CHANNEL,
   HCP_SPOT_INSTANCES,
   OCM_ROLE_NO_CONSOLE,
   Y_STREAM_CHANNEL,
 } from '~/queries/featureGates/featureConstants';
-import {
-  refetchGetOCMRole,
-  useFetchGetOCMRole,
-} from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { initialValues } from '../constants';
@@ -23,7 +20,7 @@ import ReviewClusterScreen from './ReviewClusterScreen';
 
 jest.mock('~/components/CLILoginPage/useOrganization');
 
-jest.mock('~/queries/RosaWizardQueries/useFetchGetOCMRole', () => ({
+jest.mock('~/queries/common/useFetchGetOCMRole', () => ({
   useFetchGetOCMRole: jest.fn().mockReturnValue({
     data: { profile: 'standard' },
     isSuccess: true,

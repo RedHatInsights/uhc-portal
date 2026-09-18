@@ -28,6 +28,7 @@ import isAssistedInstallSubscription, {
 import clusterStates, {
   hasInflightEgressErrors,
   isHibernating,
+  isROSA,
 } from '../../../common/clusterStates';
 import { metricsStatusMessages } from '../../../common/ResourceUsage/constants';
 import ResourceUsage from '../../../common/ResourceUsage/ResourceUsage';
@@ -38,6 +39,7 @@ import CostBreakdownCard from './CostBreakdownCard';
 import DetailsLeft from './DetailsLeft';
 import DetailsRight from './DetailsRight';
 import { shouldShowLogs } from './InstallationLogView';
+import { MissingOCMRoleAlert } from './MissingOCMRoleAlert';
 import SubscriptionSettings from './SubscriptionSettings';
 
 import './Overview.scss';
@@ -138,6 +140,9 @@ const Overview = (props) => {
   const showAssistedInstallerDetailCard = isAvailableAssistedInstallCluster(cluster);
   const showDetailsCard = !cluster.aiCluster || !isUninstalledAICluster(cluster);
   const showSubscriptionSettings = !isDeprovisioned && !isArchived;
+  const awsAccountId = cluster.subscription?.cloud_account_id;
+  const shouldCheckOCMRole =
+    isROSA(cluster) && !!cluster.aws?.sts?.enabled === true && !!awsAccountId;
 
   const resourceUsage = (
     <Card className="ocm-c-overview-resource-usage__card" data-testid="resource-usage">
@@ -171,6 +176,7 @@ const Overview = (props) => {
           {showInstallSuccessAlert && (
             <Alert variant="success" isInline title="Cluster installed successfully" />
           )}
+          {shouldCheckOCMRole && <MissingOCMRoleAlert awsAccountId={awsAccountId} />}
           {showInflightErrorIsFixed && (
             <Alert
               variant="success"
