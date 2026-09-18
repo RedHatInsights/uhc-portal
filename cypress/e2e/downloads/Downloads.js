@@ -4,7 +4,8 @@ import Downloads from '../../pageobjects/Downloads.page';
 const ROSARowTitle = 'Manage your Red Hat OpenShift Service on AWS';
 const OCRowTitle =
   'Create applications and manage OpenShift projects from the command line using the OpenShift client oc';
-const HELMRowTitle = 'Define, install, and upgrade application packages as Helm charts using Helm';
+const HELMRowTitle =
+  'Define, install, and upgrade application packages as Helm charts using Helm 4';
 const OSLocalTitle = 'Download and open the OpenShift Local';
 
 describe('Downloads page', { tags: ['ci', 'smoke'] }, () => {
