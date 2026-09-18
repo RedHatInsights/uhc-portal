@@ -141,7 +141,8 @@ const Overview = (props) => {
   const showDetailsCard = !cluster.aiCluster || !isUninstalledAICluster(cluster);
   const showSubscriptionSettings = !isDeprovisioned && !isArchived;
   const awsAccountId = cluster.subscription?.cloud_account_id;
-  const shouldCheckOCMRole = isROSA(cluster) && !!cluster.aws?.sts && !!awsAccountId;
+  const shouldCheckOCMRole =
+    isROSA(cluster) && !!cluster.aws?.sts?.enabled === true && !!awsAccountId;
 
   const resourceUsage = (
     <Card className="ocm-c-overview-resource-usage__card" data-testid="resource-usage">
