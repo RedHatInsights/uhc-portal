@@ -217,9 +217,7 @@ export const ChannelEdit = ({
         />
       )}
       {layout === 'formGroup' ? (
-        <FormGroup label={channelLabel}>
-          {channelValue}
-        </FormGroup>
+        <FormGroup label={channelLabel}>{channelValue}</FormGroup>
       ) : (
         <DescriptionListGroup>
           <DescriptionListTerm>{channelLabel}</DescriptionListTerm>
