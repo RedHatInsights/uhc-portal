@@ -39,6 +39,7 @@ type ChannelEditModalProps = {
   isOpen: boolean;
   onClose: () => void;
   channel: string;
+  region?: string;
   optionsDropdownData: {
     value: string;
     label: string;
@@ -55,6 +56,7 @@ const ChannelEditModal = ({
   isOpen,
   onClose,
   channel,
+  region,
   optionsDropdownData,
 }: ChannelEditModalProps) => {
   const { mutate, isError, error, isPending } = useEditChannelOnCluster();
@@ -65,7 +67,7 @@ const ChannelEditModal = ({
       onSubmit={(values: { channel: string }) => {
         const { channel: newChannel } = values;
         mutate(
-          { clusterID, channel: newChannel },
+          { clusterID, channel: newChannel, region },
           {
             onSuccess: () => {
               onClose();
@@ -168,6 +170,7 @@ export const ChannelEdit = ({ cluster, isClusterDetailsFetching = false }: Chann
           optionsDropdownData={availableDropdownChannels}
           onClose={() => setIsModalOpen(false)}
           channel={channel}
+          region={region}
         />
       )}
       <DescriptionListGroup>
