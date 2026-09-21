@@ -37,7 +37,6 @@ const ClusterListFilter = ({ view, isDisabled }: ClusterListFilterProps) => {
   // setting focus on the TextInput after the value is updated
   React.useLayoutEffect(() => {
     if (!isDisabled && currentFilter) selectRef.current?.focus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDisabled, currentFilter]);
 
   React.useEffect(() => {

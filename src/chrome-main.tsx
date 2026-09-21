@@ -19,9 +19,6 @@ import { Provider } from 'react-redux';
 import { GenerateId } from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { NotificationsProvider } from '@redhat-cloud-services/frontend-components-notifications';
-// No type definitions
-// @ts-ignore
-import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal';
 import * as Sentry from '@sentry/browser';
 import { sessionTimingIntegration } from '@sentry/integrations';
 
@@ -108,7 +105,6 @@ class AppEntry extends React.Component<Props> {
     if (ready) {
       return (
         <Provider store={store}>
-          {/* <NotificationPortal /> */}
           <NotificationsProvider>
             <App />
           </NotificationsProvider>

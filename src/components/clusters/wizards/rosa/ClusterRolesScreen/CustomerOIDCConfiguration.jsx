@@ -228,7 +228,6 @@ function CustomerOIDCConfiguration({
           label="Operator roles prefix"
           type="text"
           isRequired
-          // eslint-disable-next-line import/no-named-as-default-member
           validate={validators.checkCustomOperatorRolesPrefix}
           helpText={`Maximum ${MAX_CUSTOM_OPERATOR_ROLES_PREFIX_LENGTH} characters.  Changing the cluster name will regenerate this value.`}
           extendedHelpText={

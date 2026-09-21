@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { CreationMode } from '../constants';
 
 // TODO: set the proper typing for the different fields

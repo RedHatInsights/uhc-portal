@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { setAutoFreeze } from 'immer';
 import { sprintf } from 'sprintf-js';
 

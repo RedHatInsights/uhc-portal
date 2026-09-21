@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import * as machinePoolUtils from '~/components/clusters/common/machinePools/utils';
+import * as machinePoolUtils from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
 import { render, screen, waitFor } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 

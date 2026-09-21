@@ -151,22 +151,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByTestId('refresh-aws-accounts').nth(1);
   }
 
-  billingContractConfirmationDialog(): Locator {
-    return this.page.getByRole('dialog', {
-      name: 'Continue without a contracted billing account?',
-    });
-  }
-
-  continueWithBillingSelectionButton(): Locator {
-    return this.billingContractConfirmationDialog().getByRole('button', {
-      name: 'Continue with selection',
-    });
-  }
-
-  goBackFromBillingConfirmationButton(): Locator {
-    return this.billingContractConfirmationDialog().getByRole('button', { name: 'Go back' });
-  }
-
   contractEnabledForBillingAccountButton(): Locator {
     return this.page.getByRole('button', { name: 'Contract enabled for this billing account' });
   }
@@ -235,6 +219,10 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   sqsQueueUrlInput(): Locator {
     return this.page.getByRole('textbox', { name: 'SQS queue URL' });
+  }
+
+  spotInterruptionSetupDocLink(): Locator {
+    return this.page.getByRole('link', { name: 'View setup documentation' });
   }
 
   // Networking selectors
@@ -466,23 +454,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     await expect(this.refreshAWSBillingAccountButton()).toBeEnabled({ timeout: 60000 });
   }
 
-  async expectBillingContractConfirmationDialog(visible = true): Promise<void> {
-    if (visible) {
-      await expect(this.billingContractConfirmationDialog()).toBeVisible({ timeout: 15000 });
-    } else {
-      await expect(this.billingContractConfirmationDialog()).toBeHidden({ timeout: 15000 });
-    }
-  }
-
-  async expectBillingContractConfirmationShowsAccount(accountId: string): Promise<void> {
-    await this.expectBillingContractConfirmationDialog(true);
-    await expect(
-      this.billingContractConfirmationDialog().getByText(
-        `The selected account ${accountId} does not have any`,
-      ),
-    ).toBeVisible();
-  }
-
   async expectContractEnabledForBillingAccount(visible = true): Promise<void> {
     if (visible) {
       await expect(this.contractEnabledForBillingAccountButton()).toBeVisible({ timeout: 15000 });
@@ -506,22 +477,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     } else {
       await expect(this.billingContractWarningTitle()).toBeHidden({ timeout: 15000 });
     }
-  }
-
-  async confirmBillingContractSelection(accountId?: string): Promise<void> {
-    if (accountId) {
-      await this.expectBillingContractConfirmationShowsAccount(accountId);
-    } else {
-      await this.expectBillingContractConfirmationDialog(true);
-    }
-    await this.continueWithBillingSelectionButton().click();
-    await this.expectBillingContractConfirmationDialog(false);
-  }
-
-  async dismissBillingContractConfirmation(): Promise<void> {
-    await this.expectBillingContractConfirmationDialog(true);
-    await this.goBackFromBillingConfirmationButton().click();
-    await this.expectBillingContractConfirmationDialog(false);
   }
 
   async waitForARNList(): Promise<void> {
