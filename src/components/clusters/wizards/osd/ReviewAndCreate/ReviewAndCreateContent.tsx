@@ -102,7 +102,7 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
     FieldId.MultiAz,
     ...(isGCP ? [FieldId.SecureBoot] : []),
     FieldId.EnableUserWorkloadMonitoring,
-    ...(isByoc ? [FieldId.CustomerManagedKey] : [FieldId.PersistentStorage]),
+    ...(isByoc ? [FieldId.CustomerManagedKey] : [FieldId.PersistentStorage, FieldId.LoadBalancers]),
     ...(isByoc && isAWS ? [FieldId.DisableScpChecks] : []),
     FieldId.EtcdEncryption,
     FieldId.FipsCryptography,

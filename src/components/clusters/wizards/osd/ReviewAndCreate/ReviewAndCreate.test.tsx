@@ -292,6 +292,42 @@ describe('<ReviewAndCreate />', () => {
     });
   });
 
+  describe('Cluster settings - Persistent storage and Load balancers', () => {
+    it('shows Persistent storage and Load balancers with the selected value for non-CCS clusters', () => {
+      const values = {
+        ...formValues,
+        byoc: 'false',
+        load_balancers: 4,
+      };
+
+      render(
+        <Formik initialValues={values} onSubmit={() => {}}>
+          <ReviewAndCreate />
+        </Formik>,
+      );
+
+      expect(screen.getByText('Persistent storage')).toBeInTheDocument();
+      expect(screen.getByText('Load balancers')).toBeInTheDocument();
+      expect(screen.getByTestId('Load-balancers')).toHaveTextContent('4');
+    });
+
+    it("doesn't show Persistent storage or Load balancers for CCS clusters", () => {
+      const values = {
+        ...formValues,
+        byoc: 'true',
+      };
+
+      render(
+        <Formik initialValues={values} onSubmit={() => {}}>
+          <ReviewAndCreate />
+        </Formik>,
+      );
+
+      expect(screen.queryByText('Persistent storage')).not.toBeInTheDocument();
+      expect(screen.queryByText('Load balancers')).not.toBeInTheDocument();
+    });
+  });
+
   describe('Channel', () => {
     it('is shown when Y_STREAM_CHANNEL feature gate is enabled', async () => {
       mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
