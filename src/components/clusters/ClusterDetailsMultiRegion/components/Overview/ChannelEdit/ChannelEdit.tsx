@@ -217,7 +217,7 @@ export const ChannelEdit = ({
         />
       )}
       {layout === 'formGroup' ? (
-        <FormGroup label={channelLabel} fieldId="cluster-channel">
+        <FormGroup label={channelLabel}>
           {channelValue}
         </FormGroup>
       ) : (
