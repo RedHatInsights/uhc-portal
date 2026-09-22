@@ -148,7 +148,7 @@ describe('<FirewallRulesSelect />', () => {
     const props = createDefaultProps();
     const { user } = render(<FirewallRulesSelect {...props} />);
 
-    await user.click(screen.getByText('Create Firewall Rules'));
+    await user.click(screen.getByText('Create firewall rules'));
 
     expect(screen.getByDisplayValue(props.createFirewallRulesCommand)).toBeInTheDocument();
   });

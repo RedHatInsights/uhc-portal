@@ -108,7 +108,7 @@ describe('<GcpVpcSettings />', () => {
       );
 
       expect(screen.getByText('Firewall Rules')).toBeInTheDocument();
-      expect(screen.getByText('Create Firewall Rules')).toBeInTheDocument();
+      expect(screen.getByText('Create firewall rules')).toBeInTheDocument();
     });
 
     it('hides Firewall Rules when OpenShift version is below 4.21', () => {
@@ -151,13 +151,15 @@ describe('<GcpVpcSettings />', () => {
         }),
       );
 
-      await user.click(screen.getByText('Create Firewall Rules'));
+      await user.click(screen.getByText('Create firewall rules'));
 
       const cliValue = (
         screen.getByLabelText('Copyable create firewall rules command') as HTMLInputElement
       ).value;
       expect(cliValue).toContain('--wif-config=wif-1');
-      expect(cliValue).toContain('--project=wif-project');
+      expect(cliValue).toContain('--project-id=wif-project');
+      expect(cliValue).toContain('--machine-cidr=<machine_cidr>');
+      expect(cliValue).toContain('--output-file=<output_file>');
       expect(cliValue).not.toContain('--profile=private');
     });
 
@@ -177,11 +179,11 @@ describe('<GcpVpcSettings />', () => {
         }),
       );
 
-      await user.click(screen.getByText('Create Firewall Rules'));
+      await user.click(screen.getByText('Create firewall rules'));
 
       expect(
         screen.getByDisplayValue(
-          'ocm gcp create firewall-rules --name=<name> --wif-config=wif-1 --project=host-project --network=shared-vpc --profile=private',
+          'ocm gcp create firewall-rules --name=<name> --wif-config=wif-1 --project-id=host-project --vpc-name=shared-vpc --machine-cidr=<machine_cidr> --output-file=<output_file> --profile=private',
         ),
       ).toBeInTheDocument();
     });

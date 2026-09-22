@@ -138,8 +138,10 @@ export const GcpVpcSettings = () => {
     'ocm gcp create firewall-rules',
     '--name=<name>',
     `--wif-config=${wifConfig?.id ?? '<wif_config_id>'}`,
-    `--project=${firewallProjectId || '<project_id>'}`,
-    `--network=${vpcName || '<vpc_name>'}`,
+    `--project-id=${firewallProjectId || '<project_id>'}`,
+    `--vpc-name=${vpcName || '<vpc_name>'}`,
+    '--machine-cidr=<machine_cidr>',
+    '--output-file=<output_file>',
     ...(firewallProfile === 'private' ? ['--profile=private'] : []),
   ].join(' ');
 

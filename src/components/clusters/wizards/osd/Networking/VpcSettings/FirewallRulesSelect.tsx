@@ -168,7 +168,7 @@ export const FirewallRulesSelect = ({
 
   return (
     <FormGroup>
-      <Stack>
+      <Stack hasGutter>
         <StackItem>
           <Content component={ContentVariants.p} className="pf-v6-u-mt-md">
             To deploy with a smaller permission set, pre-create firewall rules using the CLI and
@@ -178,10 +178,9 @@ export const FirewallRulesSelect = ({
         </StackItem>
         <StackItem>
           <ExpandableSection
-            toggleText="Create Firewall Rules"
+            toggleText="Create firewall rules"
             isExpanded={isExpanded}
             onToggle={onToggle}
-            className="pf-v6-u-mt-md"
           >
             <ClipboardCopy
               textAriaLabel="Copyable create firewall rules command"
@@ -194,45 +193,47 @@ export const FirewallRulesSelect = ({
             </ClipboardCopy>
           </ExpandableSection>
         </StackItem>
-      </Stack>
-      <FormGroup label="Firewall rules">
-        <Flex>
-          <FlexItem grow={{ default: 'grow' }}>
-            <FuzzySelect
-              aria-label="Firewall rules"
-              isOpen={isOpen}
-              onOpenChange={(isOpen) => setIsOpen(isOpen)}
-              onSelect={onSelect}
-              selectedEntryId={selectedFirewallRules?.id}
-              selectionData={selectionData.options}
-              isDisabled={firewallRules?.length === 0 || isFetching}
-              placeholderText={selectionData.placeholder}
-              inlineFilterPlaceholderText="Filter by firewall rule name"
-              isScrollable
-              popperProps={{
-                maxWidth: 'trigger',
-              }}
-              fuzziness={0}
-              isClearable
-            />
-          </FlexItem>
-          <FlexItem>
-            <Button
-              variant="secondary"
-              className="pf-v6-u-mt-md"
-              onClick={refreshGcpFirewallRules}
-              isLoading={isFetching}
-              isDisabled={isFetching}
-            >
-              Refresh
-            </Button>
-          </FlexItem>
-        </Flex>
+        <StackItem>
+          <FormGroup label="Firewall rules">
+            <Flex>
+              <FlexItem grow={{ default: 'grow' }}>
+                <FuzzySelect
+                  aria-label="Firewall rules"
+                  isOpen={isOpen}
+                  onOpenChange={(isOpen) => setIsOpen(isOpen)}
+                  onSelect={onSelect}
+                  selectedEntryId={selectedFirewallRules?.id}
+                  selectionData={selectionData.options}
+                  isDisabled={firewallRules?.length === 0 || isFetching}
+                  placeholderText={selectionData.placeholder}
+                  inlineFilterPlaceholderText="Filter by firewall rule name"
+                  isScrollable
+                  popperProps={{
+                    maxWidth: 'trigger',
+                  }}
+                  fuzziness={0}
+                  isClearable
+                />
+              </FlexItem>
+              <FlexItem>
+                <Button
+                  variant="secondary"
+                  className="pf-v6-u-mt-md"
+                  onClick={refreshGcpFirewallRules}
+                  isLoading={isFetching}
+                  isDisabled={isFetching}
+                >
+                  Refresh
+                </Button>
+              </FlexItem>
+            </Flex>
 
-        <FormGroupHelperText touched={touched} error={error}>
-          Dropdown filtered to rules matching the selected WIF config from Step 2.
-        </FormGroupHelperText>
-      </FormGroup>
+            <FormGroupHelperText touched={touched} error={error}>
+              Dropdown filtered to rules matching the selected WIF config from Step 2.
+            </FormGroupHelperText>
+          </FormGroup>
+        </StackItem>
+      </Stack>
     </FormGroup>
   );
 };
