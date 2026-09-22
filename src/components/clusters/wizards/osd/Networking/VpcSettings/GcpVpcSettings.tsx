@@ -14,20 +14,22 @@ import {
 import links from '~/common/installLinks.mjs';
 import { required, validateGCPHostProjectId, validateGCPSubnet } from '~/common/validators';
 import { versionComparator } from '~/common/versionComparator';
+import { canConfigureDayOneGcpFirewallRules } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId, StepId } from '~/components/clusters/wizards/osd/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
+import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
-import { DnsDomain } from '~/types/clusters_mgmt.v1';
+import { DnsDomain, GcpFirewallRule, WifConfig } from '~/types/clusters_mgmt.v1';
 
 import { CheckboxField, TextInputField } from '../../../form';
 import { ClusterPrivacyType } from '../constants';
 
 import DnsZoneSelect from './DnsZoneSelect';
+import { FirewallRulesSelect } from './FirewallRulesSelect';
 import { GcpVpcNameSelectField } from './GcpVpcNameSelectField';
 import { GcpVpcSubnetSelectField } from './GcpVpcSubnetSelectField';
 
@@ -42,7 +44,11 @@ export const GcpVpcSettings = () => {
       [FieldId.DomainPrefix]: domainPrefix,
       [FieldId.Byoc]: byoc,
       [FieldId.GcpAuthType]: gcpAuthType,
+      [FieldId.GcpWifConfig]: gcpWifConfig,
       [FieldId.DnsZone]: selectedDnsZone,
+      [FieldId.FirewallRules]: selectedFirewallRules,
+      [FieldId.SharedHostProjectID]: sharedHostProjectId,
+      [FieldId.VpcName]: vpcName,
     },
     getFieldProps,
     getFieldMeta,
@@ -50,9 +56,11 @@ export const GcpVpcSettings = () => {
   } = useFormState();
 
   const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
+  const isGcpByoFirewallRulesEnabled = useFeatureGate(GCP_BYO_FIREWALL_RULES);
   const isByoc = byoc === 'true';
   const isWIF = gcpAuthType === GCPAuthType.WorkloadIdentityFederation;
   const organizationId = useGlobalState((state) => state.userProfile.organization.details?.id);
+  const wifConfig = gcpWifConfig as WifConfig | undefined;
 
   const { goToStepById } = useWizardContext();
 
@@ -118,6 +126,22 @@ export const GcpVpcSettings = () => {
 
   const showPSCSubnet = privateServiceConnect && clusterPrivacy === ClusterPrivacyType.Internal;
   const showDnsZone = installToSharedVpc && isByoc && isWIF && isGcpDnsZoneEnabled;
+  const showFirewallRules =
+    isGcpByoFirewallRulesEnabled &&
+    isByoc &&
+    isWIF &&
+    canConfigureDayOneGcpFirewallRules(clusterVersion?.raw_id || '');
+
+  const firewallProjectId = installToSharedVpc ? sharedHostProjectId : wifConfig?.gcp?.project_id;
+  const firewallProfile = showPSCSubnet ? 'private' : 'public';
+  const createFirewallRulesCommand = [
+    'ocm gcp create firewall-rules',
+    '--name=<name>',
+    `--wif-config=${wifConfig?.id ?? '<wif_config_id>'}`,
+    `--project=${firewallProjectId || '<project_id>'}`,
+    `--network=${vpcName || '<vpc_name>'}`,
+    ...(firewallProfile === 'private' ? ['--profile=private'] : []),
+  ].join(' ');
 
   return (
     <>
@@ -308,6 +332,32 @@ export const GcpVpcSettings = () => {
           </div>
         </GridItem>
       )}
+
+      {showFirewallRules ? (
+        <GridItem span={8}>
+          <Title headingLevel="h4" size="md" className="pf-v6-u-mt-md">
+            Firewall Rules
+          </Title>
+          <Field
+            component={FirewallRulesSelect}
+            name={FieldId.FirewallRules}
+            className="pf-v6-u-mt-md"
+            input={{
+              ...getFieldProps(FieldId.FirewallRules),
+              onChange: (newFirewallRulesValue: GcpFirewallRule) => {
+                setFieldValue(FieldId.FirewallRules, newFirewallRulesValue);
+              },
+            }}
+            meta={getFieldMeta(FieldId.FirewallRules)}
+            selectedFirewallRules={selectedFirewallRules}
+            wifConfigId={wifConfig?.id}
+            projectId={firewallProjectId}
+            network={vpcName}
+            profile={firewallProfile}
+            createFirewallRulesCommand={createFirewallRulesCommand}
+          />
+        </GridItem>
+      ) : null}
     </>
   );
 };

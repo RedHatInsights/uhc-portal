@@ -340,6 +340,9 @@ export const createClusterRequest = (
             clusterRequest.dns = { base_domain: formData.dns_zone.id };
           }
         }
+        if (formData.firewall_rules?.id && isWif) {
+          clusterRequest.gcp_network.firewall_rules_id = formData.firewall_rules.id;
+        }
       }
       if (formData.customer_managed_key === 'true') {
         clusterRequest.gcp_encryption_key = {

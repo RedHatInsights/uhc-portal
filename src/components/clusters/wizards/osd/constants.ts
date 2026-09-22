@@ -45,6 +45,7 @@ export enum OsdFieldId {
   NetworkMachineCidrMultiAz = 'network_machine_cidr_multi_az',
   MarketplaceSelection = 'marketplace_selection',
   DnsZone = 'dns_zone',
+  FirewallRules = 'firewall_rules',
 }
 
 export const FieldId = { ...CommonFieldId, ...OsdFieldId };
@@ -133,6 +134,7 @@ export const initialValues: FormikValues = {
   [FieldId.ChannelGroup]: CHANNEL_GROUP_DEFAULT,
   [FieldId.VersionChannel]: '',
   [FieldId.DnsZone]: { id: '' },
+  [FieldId.FirewallRules]: { id: '' },
 };
 
 export const initialTouched = {
