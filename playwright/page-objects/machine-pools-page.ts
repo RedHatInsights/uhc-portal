@@ -1,4 +1,5 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { expect,Locator, Page } from '@playwright/test';
+
 import { BasePage } from './base-page';
 
 export class MachinePoolsPage extends BasePage {
@@ -239,6 +240,25 @@ export class MachinePoolsPage extends BasePage {
   async clickAddMachinePoolSubmitButton(): Promise<void> {
     await expect(this.addMachinePoolSubmitButton()).toBeEnabled();
     await this.addMachinePoolSubmitButton().click();
+  }
+
+  async verifyMaxNodeCount(
+    input: Locator,
+    maxNodes: number,
+    validValue = String(maxNodes - 1),
+    invalidValue = String(maxNodes + 1),
+  ): Promise<void> {
+    const errorText = `Input cannot be more than ${maxNodes}.`;
+
+    await input.fill(validValue);
+    await input.blur();
+    await expect(this.getByText(errorText)).toBeHidden();
+    await expect(this.addMachinePoolSubmitButton()).toBeEnabled();
+
+    await input.fill(invalidValue);
+    await input.blur();
+    await expect(this.getByText(errorText)).toBeVisible();
+    await expect(this.addMachinePoolSubmitButton()).toBeDisabled();
   }
 
   // Actions
