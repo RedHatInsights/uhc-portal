@@ -167,7 +167,7 @@ export const FirewallRulesSelect = ({
   }, [firewallRules, isFetching, isSuccess]);
 
   return (
-    <>
+    <FormGroup>
       <Stack>
         <StackItem>
           <Content component={ContentVariants.p} className="pf-v6-u-mt-md">
@@ -233,6 +233,6 @@ export const FirewallRulesSelect = ({
           Dropdown filtered to rules matching the selected WIF config from Step 2.
         </FormGroupHelperText>
       </FormGroup>
-    </>
+    </FormGroup>
   );
 };
