@@ -382,6 +382,16 @@ const trackEvents: { [key: string]: TrackEvent } = {
     link_name: 'dns-zone-selected',
     ocm_resource_type: ocmResourceType.OSD,
   },
+  RefreshFirewallRules: {
+    event: eventNames.BUTTON_CLICKED,
+    link_name: 'firewall_rules_refresh_clicked',
+    ocm_resource_type: ocmResourceType.OSD,
+  },
+  FirewallRulesSelected: {
+    event: eventNames.VALUE_SELECTED,
+    link_name: 'firewall_rules_selected',
+    ocm_resource_type: ocmResourceType.OSD,
+  },
   OcmIngressExcludeNamespaceSelectorsSet: {
     event: eventNames.VALUE_SELECTED,
     link_name: 'ocm_ingress_exclude_namespace_selectors_set',

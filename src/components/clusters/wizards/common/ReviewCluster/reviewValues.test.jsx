@@ -117,4 +117,25 @@ describe('reviewValues', () => {
       expect(values[minutes]).toBe(label);
     });
   });
+
+  describe('firewall_rules', () => {
+    const { title, valueTransform } = reviewValues.firewall_rules;
+
+    it('uses the expected review title', () => {
+      expect(title).toBe('Firewall rules');
+    });
+
+    it('shows the firewall rule name when present', () => {
+      expect(valueTransform({ id: 'fw-1', name: 'prod-byo-firewall' })).toBe('prod-byo-firewall');
+    });
+
+    it('falls back to the firewall rule id when name is missing', () => {
+      expect(valueTransform({ id: 'fw-1' })).toBe('fw-1');
+    });
+
+    it('returns an empty string when neither name nor id is present', () => {
+      expect(valueTransform({})).toBe('');
+      expect(valueTransform(undefined)).toBe('');
+    });
+  });
 });

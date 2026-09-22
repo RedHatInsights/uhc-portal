@@ -1,13 +1,22 @@
 import React from 'react';
 import { Formik, FormikValues } from 'formik';
 
-import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
+import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen } from '~/testUtils';
 
 import { FieldId, initialValues } from '../../constants';
 import { ClusterPrivacyType } from '../constants';
 
 import { GcpVpcSettings } from './GcpVpcSettings';
+
+jest.mock('~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRules', () => ({
+  useFetchGcpFirewallRules: jest.fn(() => ({
+    data: [],
+    isFetching: false,
+    isSuccess: true,
+  })),
+  refetchGcpFirewallRules: jest.fn(),
+}));
 
 const prepareComponent = (customValues?: FormikValues) => (
   <Formik
@@ -85,6 +94,98 @@ describe('<GcpVpcSettings />', () => {
 
       expect(screen.getByText('DNS Zone')).toBeInTheDocument();
       expect(screen.getByText('Domain prefix required')).toBeInTheDocument();
+    });
+
+    it('renders Firewall Rules when feature gate and version requirements are met', () => {
+      mockUseFeatureGate([[GCP_BYO_FIREWALL_RULES, true]]);
+      render(
+        prepareComponent({
+          [FieldId.Byoc]: 'true',
+          [FieldId.GcpAuthType]: 'workloadIdentityFederation',
+          [FieldId.ClusterVersion]: { raw_id: '4.21.0' },
+          [FieldId.GcpWifConfig]: { id: 'wif-1', gcp: { project_id: 'project-1' } },
+        }),
+      );
+
+      expect(screen.getByText('Firewall Rules')).toBeInTheDocument();
+      expect(screen.getByText('Create firewall rules')).toBeInTheDocument();
+    });
+
+    it('hides Firewall Rules when OpenShift version is below 4.21', () => {
+      mockUseFeatureGate([[GCP_BYO_FIREWALL_RULES, true]]);
+      render(
+        prepareComponent({
+          [FieldId.Byoc]: 'true',
+          [FieldId.GcpAuthType]: 'workloadIdentityFederation',
+          [FieldId.ClusterVersion]: { raw_id: '4.20.0' },
+          [FieldId.GcpWifConfig]: { id: 'wif-1', gcp: { project_id: 'project-1' } },
+        }),
+      );
+
+      expect(screen.queryByText('Firewall Rules')).not.toBeInTheDocument();
+    });
+
+    it('hides Firewall Rules when the feature gate is disabled', () => {
+      mockUseFeatureGate([[GCP_BYO_FIREWALL_RULES, false]]);
+      render(
+        prepareComponent({
+          [FieldId.Byoc]: 'true',
+          [FieldId.GcpAuthType]: 'workloadIdentityFederation',
+          [FieldId.ClusterVersion]: { raw_id: '4.21.0' },
+          [FieldId.GcpWifConfig]: { id: 'wif-1', gcp: { project_id: 'project-1' } },
+        }),
+      );
+
+      expect(screen.queryByText('Firewall Rules')).not.toBeInTheDocument();
+    });
+
+    it('pre-populates the CLI with WIF project and public profile for non-shared VPC', async () => {
+      mockUseFeatureGate([[GCP_BYO_FIREWALL_RULES, true]]);
+      const { user } = render(
+        prepareComponent({
+          [FieldId.Byoc]: 'true',
+          [FieldId.GcpAuthType]: 'workloadIdentityFederation',
+          [FieldId.ClusterVersion]: { raw_id: '4.21.0' },
+          [FieldId.GcpWifConfig]: { id: 'wif-1', gcp: { project_id: 'wif-project' } },
+          [FieldId.VpcName]: 'prod-vpc',
+        }),
+      );
+
+      await user.click(screen.getByText('Create firewall rules'));
+
+      const cliValue = (
+        screen.getByLabelText('Copyable create firewall rules command') as HTMLInputElement
+      ).value;
+      expect(cliValue).toContain('--wif-config=wif-1');
+      expect(cliValue).toContain('--project-id=wif-project');
+      expect(cliValue).toContain('--machine-cidr=<machine_cidr>');
+      expect(cliValue).toContain('--output-file=<output_file>');
+      expect(cliValue).not.toContain('--profile=private');
+    });
+
+    it('pre-populates the CLI with host project and private profile for Shared VPC with PSC', async () => {
+      mockUseFeatureGate([[GCP_BYO_FIREWALL_RULES, true]]);
+      const { user } = render(
+        prepareComponent({
+          [FieldId.Byoc]: 'true',
+          [FieldId.GcpAuthType]: 'workloadIdentityFederation',
+          [FieldId.ClusterVersion]: { raw_id: '4.21.0' },
+          [FieldId.GcpWifConfig]: { id: 'wif-1', gcp: { project_id: 'wif-project' } },
+          [FieldId.InstallToSharedVpc]: true,
+          [FieldId.SharedHostProjectID]: 'host-project',
+          [FieldId.VpcName]: 'shared-vpc',
+          [FieldId.PrivateServiceConnect]: true,
+          [FieldId.ClusterPrivacy]: ClusterPrivacyType.Internal,
+        }),
+      );
+
+      await user.click(screen.getByText('Create firewall rules'));
+
+      expect(
+        screen.getByDisplayValue(
+          'ocm gcp create firewall-rules --name=<name> --wif-config=wif-1 --project-id=host-project --vpc-name=shared-vpc --machine-cidr=<machine_cidr> --output-file=<output_file> --profile=private',
+        ),
+      ).toBeInTheDocument();
     });
   });
 });

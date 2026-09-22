@@ -5,7 +5,7 @@ import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ReviewAndCreate } from '~/components/clusters/wizards/osd/ReviewAndCreate/ReviewAndCreate';
-import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
+import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
 const formValues = {
@@ -130,6 +130,7 @@ const formValues = {
   nodes_compute: 2,
   network_pod_cidr: '10.128.0.0/14',
   dns_zone: { id: '' },
+  firewall_rules: { id: '' },
 };
 
 describe('<ReviewAndCreate />', () => {
@@ -247,6 +248,45 @@ describe('<ReviewAndCreate />', () => {
       expect(screen.getByText('DNS zone')).toBeInTheDocument();
 
       expect(screen.getByText('prefix1.dnsId1 (project1)')).toBeInTheDocument();
+    });
+
+    it('shows firewall rules when selected and feature gate is enabled', () => {
+      mockUseFeatureGate([[GCP_BYO_FIREWALL_RULES, true]]);
+
+      const values = {
+        ...formValues,
+        gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+        byoc: 'true',
+        [FieldId.InstallToVpc]: true,
+        firewall_rules: { id: 'fw-1', name: 'prod-byo-firewall' },
+      };
+      render(
+        <Formik initialValues={values} onSubmit={() => {}}>
+          <ReviewAndCreate />
+        </Formik>,
+      );
+
+      expect(screen.getByText('Firewall rules')).toBeInTheDocument();
+      expect(screen.getByText('prod-byo-firewall')).toBeInTheDocument();
+    });
+
+    it('hides firewall rules when none are selected', () => {
+      mockUseFeatureGate([[GCP_BYO_FIREWALL_RULES, true]]);
+
+      const values = {
+        ...formValues,
+        gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+        byoc: 'true',
+        [FieldId.InstallToVpc]: true,
+        firewall_rules: { id: '' },
+      };
+      render(
+        <Formik initialValues={values} onSubmit={() => {}}>
+          <ReviewAndCreate />
+        </Formik>,
+      );
+
+      expect(screen.queryByText('Firewall rules')).not.toBeInTheDocument();
     });
 
     describe('Private Service Connect field - when "Billing model": Subscription type is On-Demand Flexible usage billed through Google Cloud Marketplace, Infrastructure type: Customer cloud subscription & "Cluster Settings": Cloud provider is Google Cloud, authentication type is Workload Identity Federation & "Network Configuration": cluster privacy is set to Private (internal)', () => {
