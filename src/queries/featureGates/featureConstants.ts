@@ -41,6 +41,7 @@ export const TABBED_CLUSTERS = 'ocmui-tabbed-clusters';
 export const OSD_FOR_GOOGLE_CLOUD = 'ocmui-osd-wizard-for-google-cloud';
 export const FIPS_FOR_HYPERSHIFT = 'ocmui-fips-for-hypershift';
 export const GCP_DNS_ZONE = 'ocmui-gcp-dns-zone';
+export const GCP_BYO_FIREWALL_RULES = 'ocmui-gcp-bring-your-own-firewall-rules';
 export const GCP_EXCLUDE_NAMESPACE_SELECTORS = 'ocmui-gcp-exclude-namespace-selectors';
 export const HTPASSWD_IMPORT = 'ocmui-htpasswd-import';
 export const ENABLE_AUTO_NODE = 'ocmui-enable-auto-node';
@@ -79,6 +80,7 @@ export default {
   OSD_FOR_GOOGLE_CLOUD,
   FIPS_FOR_HYPERSHIFT,
   GCP_DNS_ZONE,
+  GCP_BYO_FIREWALL_RULES,
   GCP_EXCLUDE_NAMESPACE_SELECTORS,
   HTPASSWD_IMPORT,
   ENABLE_AUTO_NODE,
