@@ -4,26 +4,26 @@ import { trackEvents } from '~/common/analytics';
 import useAnalytics from '~/hooks/useAnalytics';
 import { useChromeDrawerPanel } from '~/hooks/useChromeDrawerPanel';
 
-import { AWSAccountRole } from './common/AssociateAWSAccountStep';
+import { AWSAccountRole } from './common/AccountsAndRolesDrawerStep';
 import {
-  buildAssociateAWSAccountDrawerContent,
-  getAssociateAWSAccountDrawerTitle,
-} from './AssociateAWSAccountDrawerContent';
+  buildAccountsAndRolesDrawerContent,
+  getAccountsAndRolesDrawerTitle,
+} from './AccountsAndRolesDrawerContent';
 
-export type OpenAssociateAWSAccountDrawerArgs = {
+export type OpenAccountsAndRolesDrawerArgs = {
   targetRole?: AWSAccountRole;
   onClose?: () => void;
 };
 
-export type OpenAssociateAWSAccountDrawer = (args?: OpenAssociateAWSAccountDrawerArgs) => void;
+export type OpenAccountsAndRolesDrawer = (args?: OpenAccountsAndRolesDrawerArgs) => void;
 
-type CloseAssociateAWSAccountDrawerArgs = {
+type CloseAccountsAndRolesDrawerArgs = {
   skipOnClose?: boolean;
 };
 
-type CloseAssociateAWSAccountDrawer = (args?: CloseAssociateAWSAccountDrawerArgs) => void;
+type CloseAccountsAndRolesDrawer = (args?: CloseAccountsAndRolesDrawerArgs) => void;
 
-export const useAssociateAWSAccountDrawer = (isHypershiftSelected: boolean) => {
+export const useAccountsAndRolesDrawer = (isHypershiftSelected: boolean) => {
   const track = useAnalytics();
   const openOnCloseRef = useRef<(() => void) | undefined>(undefined);
   const skipNextOnCloseRef = useRef(false);
@@ -47,7 +47,7 @@ export const useAssociateAWSAccountDrawer = (isHypershiftSelected: boolean) => {
     onClose: handleDrawerClosed,
   });
 
-  const closeDrawer: CloseAssociateAWSAccountDrawer = useCallback(
+  const closeDrawer: CloseAccountsAndRolesDrawer = useCallback(
     (args = {}) => {
       const { skipOnClose = false } = args;
       if (skipOnClose && isDrawerOpenRef.current) {
@@ -58,7 +58,7 @@ export const useAssociateAWSAccountDrawer = (isHypershiftSelected: boolean) => {
     [close],
   );
 
-  const openDrawer: OpenAssociateAWSAccountDrawer = useCallback(
+  const openDrawer: OpenAccountsAndRolesDrawer = useCallback(
     (args = {}) => {
       const { targetRole, onClose } = args;
 
@@ -66,8 +66,8 @@ export const useAssociateAWSAccountDrawer = (isHypershiftSelected: boolean) => {
       openOnCloseRef.current = onClose;
 
       open({
-        title: getAssociateAWSAccountDrawerTitle(targetRole),
-        content: buildAssociateAWSAccountDrawerContent({
+        title: getAccountsAndRolesDrawerTitle(targetRole),
+        content: buildAccountsAndRolesDrawerContent({
           targetRole,
           isHypershiftSelected,
           onClose: close,

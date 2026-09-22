@@ -3,8 +3,8 @@ import React from 'react';
 import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import { checkAccessibility, render, screen } from '~/testUtils';
 
-import { AWSAccountRole } from './common/AssociateAWSAccountStep';
-import { buildAssociateAWSAccountDrawerContent } from './AssociateAWSAccountDrawerContent';
+import { AWSAccountRole } from './common/AccountsAndRolesDrawerStep';
+import { buildAccountsAndRolesDrawerContent } from './AccountsAndRolesDrawerContent';
 
 const ROSA_CLI_REQUIREMENT = `You must use ROSA CLI version ${ROSA_HOSTED_CLI_MIN_VERSION} or above.`;
 
@@ -17,7 +17,7 @@ const renderDrawerContent = ({
   isHypershiftSelected?: boolean;
   onClose?: () => void;
 } = {}) => {
-  const { head, body } = buildAssociateAWSAccountDrawerContent({
+  const { head, body } = buildAccountsAndRolesDrawerContent({
     targetRole,
     isHypershiftSelected,
     onClose,
@@ -31,7 +31,7 @@ const renderDrawerContent = ({
   );
 };
 
-describe('AssociateAWSAccountDrawerContent', () => {
+describe('AccountsAndRolesDrawerContent', () => {
   it('is accessible on initial render', async () => {
     const { container } = renderDrawerContent();
 

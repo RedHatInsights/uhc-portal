@@ -9,11 +9,11 @@ import InstructionCommand from '~/components/common/InstructionCommand';
 
 import { RosaCliCommand } from '../constants/cliCommands';
 
-import AssociateAWSAccountStep, {
-  AssociateAWSAccountStepProps,
-} from './common/AssociateAWSAccountStep';
+import AccountsAndRolesDrawerStep, {
+  AccountsAndRolesDrawerStepProps,
+} from './common/AccountsAndRolesDrawerStep';
 
-type AccountRoleStepProps = AssociateAWSAccountStepProps & {
+type AccountRoleStepProps = AccountsAndRolesDrawerStepProps & {
   isHypershiftSelected: boolean;
 };
 
@@ -23,7 +23,7 @@ const AccountRoleStep = ({ isHypershiftSelected, ...props }: AccountRoleStepProp
     : RosaCliCommand.CreateAccountRoles;
 
   return (
-    <AssociateAWSAccountStep {...props}>
+    <AccountsAndRolesDrawerStep {...props}>
       <Content component={ContentVariants.p} className="pf-v6-u-mb-lg">
         To create the necessary account-wide roles and policies quickly, use the default auto method
         that&apos;s provided by the ROSA CLI.
@@ -53,7 +53,7 @@ const AccountRoleStep = ({ isHypershiftSelected, ...props }: AccountRoleStepProp
           </>
         }
       />
-    </AssociateAWSAccountStep>
+    </AccountsAndRolesDrawerStep>
   );
 };
 

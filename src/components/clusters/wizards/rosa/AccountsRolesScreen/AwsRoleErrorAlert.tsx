@@ -2,11 +2,11 @@ import React, { MouseEventHandler, useCallback } from 'react';
 
 import { Alert, AlertProps, Button, Content, ContentVariants } from '@patternfly/react-core';
 
-import { AWSAccountRole } from './AssociateAWSAccountDrawer/common/AssociateAWSAccountStep';
-import { OpenAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
+import { AWSAccountRole } from './AccountsAndRolesDrawer/common/AccountsAndRolesDrawerStep';
+import { OpenAccountsAndRolesDrawer } from './AccountsAndRolesDrawer/useAccountsAndRolesDrawer';
 
 type AwsRoleErrorAlertProps = Pick<AlertProps, 'title'> & {
-  openDrawer: OpenAssociateAWSAccountDrawer;
+  openDrawer: OpenAccountsAndRolesDrawer;
   targetRole?: AWSAccountRole;
 };
 

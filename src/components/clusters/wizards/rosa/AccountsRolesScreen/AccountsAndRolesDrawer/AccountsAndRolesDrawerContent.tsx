@@ -14,12 +14,12 @@ import {
 import { ROSA_HOSTED_CLI_MIN_VERSION } from '~/components/clusters/wizards/rosa/rosaConstants';
 import { DrawerPanelContentNode } from '~/hooks/useChromeDrawerPanel';
 
-import { AWSAccountRole } from './common/AssociateAWSAccountStep';
+import { AWSAccountRole } from './common/AccountsAndRolesDrawerStep';
 import AccountRoleStep from './AccountRoleStep';
 import OCMRoleStep from './OCMRoleStep';
 import UserRoleStep from './UserRoleStep';
 
-export const getAssociateAWSAccountDrawerTitle = (targetRole?: AWSAccountRole) => {
+export const getAccountsAndRolesDrawerTitle = (targetRole?: AWSAccountRole) => {
   switch (targetRole) {
     case 'ocm':
       return 'Create OCM role';
@@ -32,7 +32,7 @@ export const getAssociateAWSAccountDrawerTitle = (targetRole?: AWSAccountRole) =
   }
 };
 
-const getAssociateAWSAccountDrawerFooter = (targetRole?: AWSAccountRole) => {
+const getAccountsAndRolesDrawerFooter = (targetRole?: AWSAccountRole) => {
   switch (targetRole) {
     case 'ocm':
       return (
@@ -55,17 +55,17 @@ const getAssociateAWSAccountDrawerFooter = (targetRole?: AWSAccountRole) => {
   }
 };
 
-type AssociateAWSAccountDrawerBodyProps = {
+type AccountsAndRolesDrawerBodyProps = {
   targetRole?: AWSAccountRole;
   isHypershiftSelected: boolean;
   onClose: () => void;
 };
 
-const AssociateAWSAccountDrawerBody = ({
+const AccountsAndRolesDrawerBody = ({
   targetRole,
   isHypershiftSelected,
   onClose,
-}: AssociateAWSAccountDrawerBodyProps) => {
+}: AccountsAndRolesDrawerBodyProps) => {
   const allSteps = !targetRole;
 
   return (
@@ -108,7 +108,7 @@ const AssociateAWSAccountDrawerBody = ({
         )}
         <StackItem>
           <Content component={ContentVariants.p} className="pf-v6-u-mr-md">
-            {getAssociateAWSAccountDrawerFooter(targetRole)}
+            {getAccountsAndRolesDrawerFooter(targetRole)}
           </Content>
         </StackItem>
         <StackItem>
@@ -125,24 +125,24 @@ const AssociateAWSAccountDrawerBody = ({
   );
 };
 
-type BuildAssociateAWSAccountDrawerContentArgs = {
+type BuildAccountsAndRolesDrawerContentArgs = {
   targetRole?: AWSAccountRole;
   isHypershiftSelected: boolean;
   onClose: () => void;
 };
 
-export const buildAssociateAWSAccountDrawerContent = ({
+export const buildAccountsAndRolesDrawerContent = ({
   targetRole,
   isHypershiftSelected,
   onClose,
-}: BuildAssociateAWSAccountDrawerContentArgs): DrawerPanelContentNode => ({
+}: BuildAccountsAndRolesDrawerContentArgs): DrawerPanelContentNode => ({
   head: (
     <Title headingLevel="h2" size="2xl">
-      {getAssociateAWSAccountDrawerTitle(targetRole)}
+      {getAccountsAndRolesDrawerTitle(targetRole)}
     </Title>
   ),
   body: (
-    <AssociateAWSAccountDrawerBody
+    <AccountsAndRolesDrawerBody
       targetRole={targetRole}
       isHypershiftSelected={isHypershiftSelected}
       onClose={onClose}

@@ -32,7 +32,7 @@ import { getAWSBillingAccountIDs } from '../../../../../../redux/actions/rosaAct
 import ErrorBox from '../../../../../common/ErrorBox';
 import ExternalLink from '../../../../../common/ExternalLink';
 import { FieldId } from '../../constants';
-import { OpenAssociateAWSAccountDrawer } from '../AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
+import { OpenAccountsAndRolesDrawer } from '../AccountsAndRolesDrawer/useAccountsAndRolesDrawer';
 import AWSAccountSelection from '../AWSAccountSelection';
 
 import {
@@ -47,7 +47,7 @@ import ContractInfo from './ContractInfo';
 interface AWSBillingAccountProps {
   selectedAWSBillingAccountID: string;
   selectedAWSAccountID: string;
-  openDrawer: OpenAssociateAWSAccountDrawer;
+  openDrawer: OpenAccountsAndRolesDrawer;
 }
 
 const AWSBillingAccount = ({

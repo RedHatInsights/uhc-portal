@@ -42,7 +42,7 @@ import PageTitle from '../../../common/PageTitle';
 import Unavailable from '../../../common/Unavailable';
 import { useClusterWizardResetStepsHook } from '../hooks/useClusterWizardResetStepsHook';
 
-import { useAssociateAWSAccountDrawer } from './AccountsRolesScreen/AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
+import { useAccountsAndRolesDrawer } from './AccountsRolesScreen/AccountsAndRolesDrawer/useAccountsAndRolesDrawer';
 import CIDRScreen from './CIDRScreen/CIDRScreen';
 import ClusterRolesScreen from './ClusterRolesScreen/ClusterRolesScreen';
 import Details from './ClusterSettings/Details/Details';
@@ -107,7 +107,7 @@ const CreateROSAWizardInternal = ({
   createCluster,
 }) => {
   const navigate = useNavigate();
-  const { openDrawer, closeDrawer } = useAssociateAWSAccountDrawer(isHypershiftSelected);
+  const { openDrawer, closeDrawer } = useAccountsAndRolesDrawer(isHypershiftSelected);
   const track = useAnalytics();
   const { resetForm, values } = useFormState();
 

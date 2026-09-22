@@ -10,12 +10,12 @@ import PopoverHintWithTitle from '~/components/common/PopoverHintWithTitle';
 
 import { RosaCliCommand } from '../constants/cliCommands';
 
-import AssociateAWSAccountStep, {
-  AssociateAWSAccountStepProps,
-} from './common/AssociateAWSAccountStep';
+import AccountsAndRolesDrawerStep, {
+  AccountsAndRolesDrawerStepProps,
+} from './common/AccountsAndRolesDrawerStep';
 import ToggleGroupTabs from './common/ToggleGroupTabs';
 
-type OCMRoleStepProps = AssociateAWSAccountStepProps & {
+type OCMRoleStepProps = AccountsAndRolesDrawerStepProps & {
   isHypershiftSelected: boolean;
 };
 
@@ -23,7 +23,7 @@ const OCMRoleStep = ({ isHypershiftSelected, ...props }: OCMRoleStepProps) => {
   const { expandable } = props;
 
   return (
-    <AssociateAWSAccountStep {...props}>
+    <AccountsAndRolesDrawerStep {...props}>
       <Title headingLevel="h4" className="pf-v6-u-mb-md" size="md">
         First, check if a role exists and is linked with:
       </Title>
@@ -139,7 +139,7 @@ const OCMRoleStep = ({ isHypershiftSelected, ...props }: OCMRoleStepProps) => {
           },
         ]}
       />
-    </AssociateAWSAccountStep>
+    </AccountsAndRolesDrawerStep>
   );
 };
 

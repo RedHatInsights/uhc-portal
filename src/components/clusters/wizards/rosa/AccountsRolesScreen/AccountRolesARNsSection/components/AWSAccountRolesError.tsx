@@ -8,7 +8,7 @@ import ErrorBox from '~/components/common/ErrorBox';
 import InstructionCommand from '~/components/common/InstructionCommand';
 import { GlobalState } from '~/redux/stateTypes';
 
-import { OpenAssociateAWSAccountDrawer } from '../../AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
+import { OpenAccountsAndRolesDrawer } from '../../AccountsAndRolesDrawer/useAccountsAndRolesDrawer';
 import { AwsRoleErrorAlert } from '../../AwsRoleErrorAlert';
 import { RosaCliCommand } from '../../constants/cliCommands';
 
@@ -18,7 +18,7 @@ type Props = {
   isMissingOCMRole: boolean;
   isNoConsoleRole?: boolean;
   isOCMRoleError?: boolean;
-  openDrawer: OpenAssociateAWSAccountDrawer;
+  openDrawer: OpenAccountsAndRolesDrawer;
   onRefreshOCMRole: () => void;
   isOCMRolePending?: boolean;
 };

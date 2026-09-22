@@ -24,7 +24,7 @@ import { CloudAccount } from '~/types/accounts_mgmt.v1';
 import { FuzzySelect } from '../../../../common/FuzzySelect/FuzzySelect';
 import PopoverHint from '../../../../common/PopoverHint';
 
-import { OpenAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
+import { OpenAccountsAndRolesDrawer } from './AccountsAndRolesDrawer/useAccountsAndRolesDrawer';
 import {
   billingAccountSortFn,
   compareAWSAccountLabels,
@@ -74,7 +74,7 @@ export interface AWSAccountSelectionProps {
   };
   isBillingAccount?: boolean;
   clearGetAWSAccountIDsResponse: () => void;
-  openDrawer: OpenAssociateAWSAccountDrawer;
+  openDrawer: OpenAccountsAndRolesDrawer;
   required?: boolean;
 }
 

@@ -6,7 +6,7 @@ import { ExpandableSection, Title } from '@patternfly/react-core';
 const AWSAccountRoles = ['ocm', 'user', 'account'] as const;
 export type AWSAccountRole = (typeof AWSAccountRoles)[number];
 
-export type AssociateAWSAccountStepProps = {
+export type AccountsAndRolesDrawerStepProps = {
   title: string;
   headingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5';
   /** Indicates if step should be wrapped in an Expandable to be displayed with other steps;
@@ -16,7 +16,7 @@ export type AssociateAWSAccountStepProps = {
   initiallyExpanded?: boolean;
 };
 
-const AssociateAWSAccountStep: React.FC<PropsWithChildren<AssociateAWSAccountStepProps>> = ({
+const AccountsAndRolesDrawerStep: React.FC<PropsWithChildren<AccountsAndRolesDrawerStepProps>> = ({
   title,
   headingLevel,
   children,
@@ -48,4 +48,4 @@ const AssociateAWSAccountStep: React.FC<PropsWithChildren<AssociateAWSAccountSte
   );
 };
 
-export default AssociateAWSAccountStep;
+export default AccountsAndRolesDrawerStep;

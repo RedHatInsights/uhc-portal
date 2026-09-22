@@ -22,7 +22,7 @@ import { isRestrictedEnv } from '~/restrictedEnv';
 import { FieldId } from '../constants';
 
 import AccountRolesARNsSection from './AccountRolesARNsSection/AccountRolesARNsSection';
-import { OpenAssociateAWSAccountDrawer } from './AssociateAWSAccountDrawer/useAssociateAWSAccountDrawer';
+import { OpenAccountsAndRolesDrawer } from './AccountsAndRolesDrawer/useAccountsAndRolesDrawer';
 import AWSBillingAccount from './AWSBillingAccount/AWSBillingAccount';
 import AWSAccountSelection from './AWSAccountSelection';
 import { AwsRoleErrorAlert } from './AwsRoleErrorAlert';
@@ -45,7 +45,7 @@ export interface AccountsRolesScreenProps {
   organizationID: string;
   isHypershiftEnabled: boolean;
   isHypershiftSelected: boolean;
-  openDrawer: OpenAssociateAWSAccountDrawer;
+  openDrawer: OpenAccountsAndRolesDrawer;
 }
 
 function AccountsRolesScreen({

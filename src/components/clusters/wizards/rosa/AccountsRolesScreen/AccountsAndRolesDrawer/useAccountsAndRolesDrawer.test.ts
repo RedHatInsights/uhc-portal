@@ -4,7 +4,7 @@ import { act, renderHook } from '@testing-library/react';
 import { trackEvents } from '~/common/analytics';
 import useAnalytics from '~/hooks/useAnalytics';
 
-import { useAssociateAWSAccountDrawer } from './useAssociateAWSAccountDrawer';
+import { useAccountsAndRolesDrawer } from './useAccountsAndRolesDrawer';
 
 jest.mock('@redhat-cloud-services/frontend-components/useChrome', () => jest.fn());
 jest.mock('~/hooks/useAnalytics', () => ({
@@ -15,7 +15,7 @@ jest.mock('~/hooks/useAnalytics', () => ({
 const useChromeMock = useChrome as jest.Mock;
 const useAnalyticsMock = useAnalytics as jest.Mock;
 
-describe('useAssociateAWSAccountDrawer', () => {
+describe('useAccountsAndRolesDrawer', () => {
   const track = jest.fn();
   const setDrawerPanelContent = jest.fn();
   const toggleDrawerPanel = jest.fn();
@@ -32,7 +32,7 @@ describe('useAssociateAWSAccountDrawer', () => {
   });
 
   it('sets drawer panel content and opens the drawer', () => {
-    const { result } = renderHook(() => useAssociateAWSAccountDrawer(false));
+    const { result } = renderHook(() => useAccountsAndRolesDrawer(false));
 
     act(() => {
       result.current.openDrawer();
@@ -50,7 +50,7 @@ describe('useAssociateAWSAccountDrawer', () => {
 
   it('closes the drawer and calls the onClose callback when currently open', () => {
     const onClose = jest.fn();
-    const { result } = renderHook(() => useAssociateAWSAccountDrawer(false));
+    const { result } = renderHook(() => useAccountsAndRolesDrawer(false));
 
     act(() => {
       result.current.openDrawer({ onClose });
@@ -66,7 +66,7 @@ describe('useAssociateAWSAccountDrawer', () => {
 
   it('does not call onClose when closeDrawer is called with skipOnClose', () => {
     const onClose = jest.fn();
-    const { result } = renderHook(() => useAssociateAWSAccountDrawer(false));
+    const { result } = renderHook(() => useAccountsAndRolesDrawer(false));
 
     act(() => {
       result.current.openDrawer({ onClose });
@@ -82,7 +82,7 @@ describe('useAssociateAWSAccountDrawer', () => {
 
   it('calls onClose when closing after skipOnClose was used on an already closed drawer', () => {
     const onClose = jest.fn();
-    const { result } = renderHook(() => useAssociateAWSAccountDrawer(false));
+    const { result } = renderHook(() => useAccountsAndRolesDrawer(false));
 
     act(() => {
       result.current.closeDrawer({ skipOnClose: true });
