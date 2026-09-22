@@ -15,6 +15,7 @@ import { trackEvents } from '~/common/analytics';
 import { queryClient } from '~/components/App/queryClient';
 import {
   getSpotInterruptionHandlerQueueUrl,
+  redactSqsQueueUrlAccountId,
   SpotInterruptionMode,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { SpotInterruptionHandlingFields } from '~/components/clusters/common/SpotInterruptionHandling/SpotInterruptionHandlingFields';
@@ -82,7 +83,7 @@ const EditSpotInterruptionHandlingModal = ({
             track(trackEvents.SqsQueueUrlConfigured, {
               customProperties: {
                 context: 'cluster_details',
-                sqs_queue_url: sqsQueueUrl,
+                sqs_queue_url: redactSqsQueueUrlAccountId(sqsQueueUrl),
               },
             });
           }

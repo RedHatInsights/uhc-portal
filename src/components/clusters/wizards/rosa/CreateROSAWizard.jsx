@@ -17,7 +17,10 @@ import { shouldRefetchQuota } from '~/common/helpers';
 import { Navigate, useNavigate } from '~/common/routing';
 import { AppDrawerContext } from '~/components/App/AppDrawer';
 import { AppPage } from '~/components/App/AppPage';
-import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
+import {
+  redactSqsQueueUrlAccountId,
+  SpotInterruptionMode,
+} from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { rosaWizardFormValidator } from '~/components/clusters/wizards/rosa/formValidators';
 import { LogForwardingScreen } from '~/components/clusters/wizards/rosa/LogForwarding/LogForwardingScreen';
@@ -153,7 +156,7 @@ const CreateROSAWizardInternal = ({
       track(trackEvents.SqsQueueUrlConfigured, {
         customProperties: {
           context: 'cluster_creation',
-          sqs_queue_url: values[FieldId.SpotTerminationHandlerQueueUrl],
+          sqs_queue_url: redactSqsQueueUrlAccountId(values[FieldId.SpotTerminationHandlerQueueUrl]),
         },
       });
     }

@@ -136,7 +136,7 @@ describe('<EditSpotInterruptionHandlingModal />', () => {
     expect(useAnalyticsMock).toHaveBeenCalledWith(trackEvents.SqsQueueUrlConfigured, {
       customProperties: {
         context: 'cluster_details',
-        sqs_queue_url: 'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+        sqs_queue_url: 'https://sqs.us-east-1.amazonaws.com/xxxxxxxxxxxx/rosa-cluster-spot',
       },
     });
   });

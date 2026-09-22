@@ -114,7 +114,7 @@ describe('CreateROSAWizardInternal analytics', () => {
       trackEvents.SqsQueueUrlConfigured.event,
       expect.objectContaining({
         context: 'cluster_creation',
-        sqs_queue_url: sqsQueueUrl,
+        sqs_queue_url: 'https://sqs.us-east-1.amazonaws.com/xxxxxxxxxxxx/rosa-cluster-spot',
         link_name: trackEvents.SqsQueueUrlConfigured.link_name,
       }),
     );
