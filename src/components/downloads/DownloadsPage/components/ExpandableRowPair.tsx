@@ -30,7 +30,7 @@ const ExpandableRowPair = ({
   return (
     <Tbody
       isExpanded={isExpanded}
-      ref={toolRefs?.expandKey}
+      ref={toolRefs?.[expandKey]}
       data-testid={`expandable-row-${expandKey}`}
     >
       <Tr>
