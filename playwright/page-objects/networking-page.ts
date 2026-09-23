@@ -25,6 +25,64 @@ export class NetworkingPage extends BasePage {
     ).toBeVisible({ timeout: 60000 });
   }
 
+  /** Alias used by GCP custom-ingress day-2 specs. */
+  async goToNetworkingTab(): Promise<void> {
+    await this.navigateToNetworkingTab();
+  }
+
+  networkConfigurationCard(): Locator {
+    return this.page
+      .locator('.ocm-c-networking-network-configuration__card')
+      .filter({ hasText: 'CIDR ranges' });
+  }
+
+  applicationIngressCard(): Locator {
+    return this.page.locator('.ocm-c-networking-application-ingress__card');
+  }
+
+  descriptionListValue(container: Locator, term: string): Locator {
+    return container
+      .locator('.pf-v6-c-description-list__group')
+      .filter({ hasText: term })
+      .locator('.pf-v6-c-description-list__description');
+  }
+
+  routeSelectorDisplayInput(): Locator {
+    return this.applicationIngressRouteSelectorCardInput();
+  }
+
+  excludedNamespacesDisplayInput(): Locator {
+    return this.applicationIngressExcludedNamespacesCardInput();
+  }
+
+  editModalRouteSelectorInput(): Locator {
+    return this.editApplicationIngressRouteSelectorInput();
+  }
+
+  editModalExcludedNamespacesInput(): Locator {
+    return this.editApplicationIngressExcludedNamespacesInput();
+  }
+
+  editModalSaveButton(): Locator {
+    return this.networkingModalSaveButton();
+  }
+
+  editModalCancelButton(): Locator {
+    return this.networkingModalCancelButton();
+  }
+
+  async closeEditApplicationIngressModal(): Promise<void> {
+    await this.cancelNetworkingModal();
+  }
+
+  async blurRouteSelectorField(): Promise<void> {
+    await this.editModalRouteSelectorInput().blur();
+  }
+
+  async blurExcludedNamespacesField(): Promise<void> {
+    await this.editModalExcludedNamespacesInput().blur();
+  }
+
   editClusterIngressButton(): Locator {
     return this.page.getByRole('button', { name: 'Edit cluster ingress' });
   }
