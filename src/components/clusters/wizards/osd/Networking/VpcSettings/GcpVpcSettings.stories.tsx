@@ -11,10 +11,7 @@ import { CloudProviderType } from '~/components/clusters/wizards/common/constant
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId, initialValues } from '~/components/clusters/wizards/osd/constants';
 import { ClusterPrivacyType } from '~/components/clusters/wizards/osd/Networking/constants';
-import {
-  GCP_BYO_FIREWALL_RULES,
-  GCP_DNS_ZONE,
-} from '~/queries/featureGates/featureConstants';
+import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import type { GcpFirewallRule } from '~/types/clusters_mgmt.v1';
 
 import { GcpVpcSettings } from './GcpVpcSettings';

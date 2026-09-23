@@ -15,10 +15,12 @@ import {
 } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
+import { queryClient } from '~/components/App/queryClient';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import useAnalytics from '~/hooks/useAnalytics';
 import {
+  filterFirewallRules,
   refetchGcpFirewallRules,
   useFetchGcpFirewallRules,
 } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRules';
@@ -43,6 +45,12 @@ interface FirewallRulesSelectProps {
   };
 }
 
+type FirewallRulesQueryData = {
+  data?: {
+    items?: GcpFirewallRule[];
+  };
+};
+
 const formatFirewallRuleLabel = (rule: GcpFirewallRule) =>
   `${rule.name} (${rule.gcp_network?.project_id} / ${rule.gcp_network?.vpc_name})`;
 
@@ -56,27 +64,10 @@ export const FirewallRulesSelect = ({
   input: { name: _name, onBlur: _onBlur, ...inputProps },
   meta: { error, touched },
 }: FirewallRulesSelectProps) => {
-  const [isOpen, setIsOpen] = React.useState<boolean>(false);
-  const [isExpanded, setIsExpanded] = React.useState<boolean>(false);
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(false);
 
   const track = useAnalytics();
-
-  const onToggle = () => {
-    setIsExpanded(!isExpanded);
-  };
-
-  const trackFirewallRulesSelection = (
-    firewallRulesId: string | undefined,
-    gcpProjectId: string | undefined,
-  ) => {
-    track(trackEvents.FirewallRulesSelected, {
-      customProperties: {
-        module: 'openshift',
-        firewall_rules_id: firewallRulesId,
-        gcp_project_id: gcpProjectId,
-      },
-    });
-  };
 
   const {
     data: firewallRules,
@@ -89,6 +80,9 @@ export const FirewallRulesSelect = ({
     network,
   });
 
+  // Derive selection from fetched data during render — no Effect needed to sync Formik.
+  const matchedFirewallRule = firewallRules?.find((rule) => rule.id === selectedFirewallRules?.id);
+
   const onSelect: FuzzySelectProps['onSelect'] = (_event, value) => {
     if (value === '') {
       inputProps.onChange({ id: '' });
@@ -98,40 +92,18 @@ export const FirewallRulesSelect = ({
     const selectedItem = firewallRules?.find((rule) => rule.id === value);
     if (selectedItem) {
       inputProps.onChange(selectedItem);
-      trackFirewallRulesSelection(selectedItem.id, selectedItem.gcp_network?.project_id);
+      track(trackEvents.FirewallRulesSelected, {
+        customProperties: {
+          module: 'openshift',
+          firewall_rules_id: selectedItem.id,
+          gcp_project_id: selectedItem.gcp_network?.project_id,
+        },
+      });
       setIsOpen(false);
     }
   };
 
-  React.useEffect(() => {
-    if (
-      selectedFirewallRules?.id &&
-      firewallRules?.some((item) => item.id === selectedFirewallRules?.id)
-    ) {
-      const selectedItem = firewallRules.find((rule) => rule.id === selectedFirewallRules.id);
-      if (selectedItem) {
-        inputProps.onChange(selectedItem);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firewallRules, selectedFirewallRules?.id]);
-
-  const isSelectedFirewallRulesDeleted = (
-    currentFirewallRules?: GcpFirewallRule,
-    rules?: GcpFirewallRule[],
-  ) =>
-    currentFirewallRules?.id &&
-    rules?.find((rule) => rule.id === currentFirewallRules?.id) === undefined;
-
-  React.useEffect(() => {
-    if (isSelectedFirewallRulesDeleted(selectedFirewallRules, firewallRules)) {
-      inputProps.onChange({ id: '' });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firewallRules]);
-
-  const refreshGcpFirewallRules = () => {
-    refetchGcpFirewallRules();
+  const refreshGcpFirewallRules = async () => {
     track(trackEvents.RefreshFirewallRules, {
       customProperties: {
         module: 'openshift',
@@ -139,32 +111,34 @@ export const FirewallRulesSelect = ({
       },
     });
 
-    if (isSelectedFirewallRulesDeleted(selectedFirewallRules, firewallRules)) {
+    await refetchGcpFirewallRules();
+
+    const cached = queryClient.getQueryData<FirewallRulesQueryData>(['gcpFirewallRules', profile]);
+    const refreshedRules = filterFirewallRules(
+      cached?.data?.items,
+      wifConfigId,
+      projectId,
+      network,
+    );
+    const selectedId = selectedFirewallRules?.id;
+    if (selectedId && !refreshedRules.some((rule) => rule.id === selectedId)) {
       inputProps.onChange({ id: '' });
     }
   };
 
-  const selectionData = React.useMemo(() => {
-    let placeholder = 'Select firewall rules';
+  let placeholder = 'Select firewall rules';
+  if (isFetching) {
+    placeholder = 'Loading...';
+  } else if (firewallRules?.length === 0) {
+    placeholder = 'No firewall rules found';
+  }
 
-    if (isFetching) {
-      placeholder = 'Loading...';
-    } else if (firewallRules?.length === 0) {
-      placeholder = 'No firewall rules found';
-    }
-
-    const firewallOptions = isSuccess
-      ? firewallRules.map((rule: GcpFirewallRule) => ({
-          entryId: rule.id,
-          label: formatFirewallRuleLabel(rule),
-        }))
-      : {};
-
-    return {
-      placeholder,
-      options: firewallOptions,
-    };
-  }, [firewallRules, isFetching, isSuccess]);
+  const firewallOptions = isSuccess
+    ? firewallRules.map((rule: GcpFirewallRule) => ({
+        entryId: rule.id,
+        label: formatFirewallRuleLabel(rule),
+      }))
+    : {};
 
   return (
     <FormGroup>
@@ -180,7 +154,7 @@ export const FirewallRulesSelect = ({
           <ExpandableSection
             toggleText="Create firewall rules"
             isExpanded={isExpanded}
-            onToggle={onToggle}
+            onToggle={() => setIsExpanded(!isExpanded)}
           >
             <ClipboardCopy
               textAriaLabel="Copyable create firewall rules command"
@@ -200,12 +174,12 @@ export const FirewallRulesSelect = ({
                 <FuzzySelect
                   aria-label="Firewall rules"
                   isOpen={isOpen}
-                  onOpenChange={(isOpen) => setIsOpen(isOpen)}
+                  onOpenChange={(nextIsOpen) => setIsOpen(nextIsOpen)}
                   onSelect={onSelect}
-                  selectedEntryId={selectedFirewallRules?.id}
-                  selectionData={selectionData.options}
+                  selectedEntryId={matchedFirewallRule?.id}
+                  selectionData={firewallOptions}
                   isDisabled={firewallRules?.length === 0 || isFetching}
-                  placeholderText={selectionData.placeholder}
+                  placeholderText={placeholder}
                   inlineFilterPlaceholderText="Filter by firewall rule name"
                   isScrollable
                   popperProps={{

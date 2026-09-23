@@ -5,9 +5,8 @@ import { formatErrorData } from '~/queries/helpers';
 import clusterService from '~/services/clusterService';
 import { GcpFirewallRule } from '~/types/clusters_mgmt.v1';
 
-export const refetchGcpFirewallRules = () => {
+export const refetchGcpFirewallRules = () =>
   queryClient.invalidateQueries({ queryKey: ['gcpFirewallRules'] });
-};
 
 type UseFetchGcpFirewallRulesParams = {
   profile: string;
@@ -17,7 +16,7 @@ type UseFetchGcpFirewallRulesParams = {
   isEnabled?: boolean;
 };
 
-const filterFirewallRules = (
+export const filterFirewallRules = (
   rules: GcpFirewallRule[] | undefined,
   wifConfigId?: string,
   projectId?: string,

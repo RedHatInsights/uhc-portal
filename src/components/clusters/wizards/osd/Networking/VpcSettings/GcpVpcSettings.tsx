@@ -69,6 +69,7 @@ export const GcpVpcSettings = () => {
     checked: boolean,
   ) => {
     setFieldValue(FieldId.InstallToSharedVpc, checked);
+    setFieldValue(FieldId.FirewallRules, { id: '' });
   };
 
   const hostProjectId = useMemo<ReactElement | null>(() => {
@@ -134,6 +135,7 @@ export const GcpVpcSettings = () => {
 
   const firewallProjectId = installToSharedVpc ? sharedHostProjectId : wifConfig?.gcp?.project_id;
   const firewallProfile = showPSCSubnet ? 'private' : 'public';
+  const firewallContextKey = `${wifConfig?.id ?? ''}-${firewallProjectId ?? ''}-${vpcName ?? ''}-${firewallProfile}`;
   const createFirewallRulesCommand = [
     'ocm gcp create firewall-rules',
     '--name=<name>',
@@ -246,7 +248,10 @@ export const GcpVpcSettings = () => {
             emptyPlaceholder="No existing VPCs"
             input={{
               ...getFieldProps(FieldId.VpcName),
-              onChange: (value: string) => setFieldValue(FieldId.VpcName, value),
+              onChange: (value: string) => {
+                setFieldValue(FieldId.VpcName, value);
+                setFieldValue(FieldId.FirewallRules, { id: '' });
+              },
             }}
             meta={getFieldMeta(FieldId.VpcName)}
           />
@@ -341,6 +346,7 @@ export const GcpVpcSettings = () => {
             Firewall Rules
           </Title>
           <Field
+            key={firewallContextKey}
             component={FirewallRulesSelect}
             name={FieldId.FirewallRules}
             className="pf-v6-u-mt-md"

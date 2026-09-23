@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { queryClient } from '~/components/App/queryClient';
 import useAnalytics from '~/hooks/useAnalytics';
 import {
   refetchGcpFirewallRules,
@@ -13,11 +14,20 @@ jest.mock('~/hooks/useAnalytics');
 jest.mock('~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRules', () => ({
   useFetchGcpFirewallRules: jest.fn(),
   refetchGcpFirewallRules: jest.fn(),
+  filterFirewallRules: jest.requireActual(
+    '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRules',
+  ).filterFirewallRules,
+}));
+jest.mock('~/components/App/queryClient', () => ({
+  queryClient: {
+    getQueryData: jest.fn(),
+  },
 }));
 
 const useFetchGcpFirewallRulesMock = useFetchGcpFirewallRules as jest.Mock;
 const refetchGcpFirewallRulesMock = refetchGcpFirewallRules as jest.Mock;
 const useAnalyticsMock = useAnalytics as jest.Mock;
+const getQueryDataMock = queryClient.getQueryData as jest.Mock;
 
 const firewallRules = [
   {
@@ -58,6 +68,8 @@ describe('<FirewallRulesSelect />', () => {
 
   beforeEach(() => {
     useAnalyticsMock.mockReturnValue(trackMock);
+    refetchGcpFirewallRulesMock.mockResolvedValue(undefined);
+    getQueryDataMock.mockReturnValue({ data: { items: firewallRules } });
   });
 
   afterEach(() => {
@@ -207,7 +219,7 @@ describe('<FirewallRulesSelect />', () => {
     expect(onChange).toHaveBeenCalledWith({ id: '' });
   });
 
-  it('syncs onChange when the selected firewall rule is present in fetched data', () => {
+  it('shows the matched firewall rule as selected without syncing via onChange', () => {
     useFetchGcpFirewallRulesMock.mockReturnValue({
       isFetching: false,
       data: firewallRules,
@@ -224,10 +236,14 @@ describe('<FirewallRulesSelect />', () => {
       />,
     );
 
-    expect(onChange).toHaveBeenCalledWith(firewallRules[0]);
+    expect(
+      screen.getByText('prod-byo-firewall (my-service-project / prod-us-east1-vpc)'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Clear selection' })).toBeInTheDocument();
+    expect(onChange).not.toHaveBeenCalled();
   });
 
-  it('clears the selection when the previously selected rule is no longer available', () => {
+  it('shows an empty selection when the previously selected rule is no longer available', () => {
     useFetchGcpFirewallRulesMock.mockReturnValue({
       isFetching: false,
       data: firewallRules,
@@ -244,7 +260,8 @@ describe('<FirewallRulesSelect />', () => {
       />,
     );
 
-    expect(onChange).toHaveBeenCalledWith({ id: '' });
+    expect(screen.getByText(/^select firewall rules$/i)).toBeInTheDocument();
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   it('refreshes firewall rules and tracks analytics on Refresh click', async () => {
@@ -270,24 +287,24 @@ describe('<FirewallRulesSelect />', () => {
     );
   });
 
-  it('clears a deleted selection when Refresh is clicked', async () => {
+  it('clears a deleted selection when Refresh finds the rule is gone', async () => {
     useFetchGcpFirewallRulesMock.mockReturnValue({
       isFetching: false,
       data: firewallRules,
       isSuccess: true,
     });
+    getQueryDataMock.mockReturnValue({ data: { items: [] } });
 
     const onChange = jest.fn();
     const { user } = render(
       <FirewallRulesSelect
         {...createDefaultProps({
-          selectedFirewallRules: { id: 'missing-fw' },
+          selectedFirewallRules: firewallRules[0],
           input: { name: '', value: '', onBlur: () => {}, onChange },
         })}
       />,
     );
 
-    onChange.mockClear();
     await user.click(screen.getByRole('button', { name: 'Refresh' }));
 
     expect(onChange).toHaveBeenCalledWith({ id: '' });

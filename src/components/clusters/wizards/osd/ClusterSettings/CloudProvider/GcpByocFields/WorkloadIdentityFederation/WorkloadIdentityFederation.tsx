@@ -12,7 +12,7 @@ import {
 } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
-import { FieldId } from '~/components/clusters/wizards/common/constants';
+import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { useGetWifConfigs } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/WorkloadIdentityFederation/useWifConfigs';
 import { WifConfigSelector } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/WorkloadIdentityFederation/WifConfigSelector';
@@ -45,6 +45,7 @@ const WorkloadIdentityFederation = (props: WorkloadIdentityFederationProps) => {
     const selection = (wifConfigs ?? []).find((config) => config.id === id);
     if (selection) {
       setFieldValue(FieldId.GcpWifConfig, selection, true);
+      setFieldValue(FieldId.FirewallRules, { id: '' });
     }
   };
 
@@ -60,6 +61,7 @@ const WorkloadIdentityFederation = (props: WorkloadIdentityFederationProps) => {
       !wifConfigs.find((config) => config.id === selectedGcpWifConfig.id)
     ) {
       setFieldValue(FieldId.GcpWifConfig, null, true);
+      setFieldValue(FieldId.FirewallRules, { id: '' });
     }
   }, [wifConfigs, selectedGcpWifConfig, setFieldValue]);
 
