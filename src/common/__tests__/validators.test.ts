@@ -37,7 +37,6 @@ import validators, {
   validateHTPasswdPassword,
   validateMaxNodes,
   validateMultipleMachinePoolsSubnets,
-  validateNamespacesList,
   validateNumericInput,
   validatePositive,
   validatePrivateHostedZoneId,
@@ -1453,24 +1452,6 @@ describe('checkRouteSelectors', () => {
     ['foo=a,foo=b', 'Each label should have a unique key. "foo" already exists.'],
   ])('value %p to be %p', (value: string, expected: string | undefined) =>
     expect(checkRouteSelectors(value)).toBe(expected),
-  );
-});
-
-describe('validateNamespacesList', () => {
-  const invalidNamespaceError = (name: string) =>
-    `Namespace name '${name}' isn't valid, must consist of lower-case alphanumeric characters or '-', start with an alphabetic character, and end with an alphanumeric character. For example, 'my-name', or 'abc-123'.`;
-  const longNamespaceName = `a${'b'.repeat(63)}`;
-
-  it.each([
-    ['', undefined],
-    ['foo-bar', undefined],
-    ['foo-bar,my-namespace,abc-123', undefined],
-    ['Invalid_Name', invalidNamespaceError('Invalid_Name')],
-    ['123foo', invalidNamespaceError('123foo')],
-    [longNamespaceName, 'Namespace names may not exceed 63 characters.'],
-    ['foo-bar,Invalid_Name', invalidNamespaceError('Invalid_Name')],
-  ])('value %p to be %p', (value: string, expected: string | undefined) =>
-    expect(validateNamespacesList(value)).toBe(expected),
   );
 });
 

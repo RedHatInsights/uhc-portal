@@ -12,6 +12,9 @@ import { DefaultIngressFields } from './DefaultIngressFields';
 const protectedNamespaceSelectorValidationMessage =
   'Do not exclude openshift-console or openshift-authentication namespaces; they are vital to cluster operations.';
 
+const reservedExcludedNamespaceValidationMessage =
+  "Excluded namespaces value 'openshift' must not include 'openshift' or 'kube'";
+
 const renderWithFormik = (values?: Partial<FormikValues>) =>
   render(
     <Formik initialValues={{ ...initialValues, ...values }} onSubmit={() => {}}>
@@ -23,6 +26,28 @@ describe('DefaultIngressFields', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseFeatureGate([]);
+  });
+
+  describe('Excluded namespaces', () => {
+    it('marks the field invalid when a reserved namespace is entered', async () => {
+      const { container, user } = renderWithFormik();
+
+      const excludedNamespacesInput = container.querySelector<HTMLInputElement>(
+        `input[name="${FieldId.DefaultRouterExcludedNamespacesFlag}"]`,
+      );
+      expect(excludedNamespacesInput).toBeInTheDocument();
+      if (!excludedNamespacesInput) {
+        throw new Error('Excluded namespaces input not found');
+      }
+
+      await user.type(excludedNamespacesInput, 'openshift');
+      await user.tab();
+
+      await waitFor(() => {
+        expect(screen.getByText(reservedExcludedNamespaceValidationMessage)).toBeInTheDocument();
+      });
+      expect(excludedNamespacesInput).toHaveAttribute('aria-invalid', 'true');
+    });
   });
 
   describe('Exclude namespace selectors (GCP + feature gate)', () => {

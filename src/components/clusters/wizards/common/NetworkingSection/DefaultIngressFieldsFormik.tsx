@@ -16,7 +16,6 @@ import {
   checkRouteSelectors,
   validateExcludeNamespaceSelectorKey,
   validateExcludeNamespaceSelectorValue,
-  validateNamespacesList,
   validateTlsHostname,
   validateTlsSecretName,
 } from '~/common/validators';
@@ -46,6 +45,8 @@ import {
 import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { LoadBalancerFlavor } from '~/types/clusters_mgmt.v1/enums';
+
+import { validateNamespacesList } from './networkingValidators';
 
 type DefaultIngressFieldsFormikProps = {
   className?: string;

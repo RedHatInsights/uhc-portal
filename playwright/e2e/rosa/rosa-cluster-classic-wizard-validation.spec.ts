@@ -784,11 +784,47 @@ test.describe.serial(
       );
 
       await createRosaWizardPage.applicationIngressExcludedNamespacesInput().clear();
+      await createRosaWizardPage
+        .applicationIngressExcludedNamespacesInput()
+        .fill(
+          clusterFieldValidations.Networking.Configuration.IngressSettings.CustomSettings
+            .ExcludedNamespaces[2].InvalidValue,
+        );
+      await createRosaWizardPage.applicationIngressExcludedNamespacesInput().blur();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.Networking.Configuration.IngressSettings.CustomSettings
+          .ExcludedNamespaces[2].Error,
+      );
+
+      await createRosaWizardPage.applicationIngressExcludedNamespacesInput().clear();
+      await createRosaWizardPage
+        .applicationIngressExcludedNamespacesInput()
+        .fill(
+          clusterFieldValidations.Networking.Configuration.IngressSettings.CustomSettings
+            .ExcludedNamespaces[3].InvalidValue,
+        );
+      await createRosaWizardPage.applicationIngressExcludedNamespacesInput().blur();
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.Networking.Configuration.IngressSettings.CustomSettings
+          .ExcludedNamespaces[3].Error,
+      );
+
+      await createRosaWizardPage.applicationIngressExcludedNamespacesInput().clear();
       await createRosaWizardPage.applicationIngressExcludedNamespacesInput().fill('abc-123');
       await createRosaWizardPage.applicationIngressExcludedNamespacesInput().blur();
       await createRosaWizardPage.isTextContainsInPage(
         clusterFieldValidations.Networking.Configuration.IngressSettings.CustomSettings
           .ExcludedNamespaces[1].Error,
+        false,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.Networking.Configuration.IngressSettings.CustomSettings
+          .ExcludedNamespaces[2].Error,
+        false,
+      );
+      await createRosaWizardPage.isTextContainsInPage(
+        clusterFieldValidations.Networking.Configuration.IngressSettings.CustomSettings
+          .ExcludedNamespaces[3].Error,
         false,
       );
 
