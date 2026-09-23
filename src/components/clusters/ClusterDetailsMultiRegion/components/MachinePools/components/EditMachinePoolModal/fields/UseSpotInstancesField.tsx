@@ -16,6 +16,7 @@ type UseSpotInstancesFieldProps = {
   footer?: React.ReactNode;
   isDisabled: boolean;
   disabledReason?: string;
+  onEnabledChange?: (checked: boolean) => void;
 };
 
 const UseSpotInstancesField = ({
@@ -23,6 +24,7 @@ const UseSpotInstancesField = ({
   footer,
   isDisabled,
   disabledReason,
+  onEnabledChange,
 }: UseSpotInstancesFieldProps) => {
   const [field] = useField<EditMachinePoolValues['useSpotInstances']>(fieldId);
   const { value: isChecked, name, onBlur } = field;
@@ -42,6 +44,7 @@ const UseSpotInstancesField = ({
               isChecked={isChecked}
               onChange={async (_, checked) => {
                 await setFieldValue(fieldId, checked);
+                onEnabledChange?.(checked);
                 if (!checked) {
                   await validateField('maxPrice');
                 }

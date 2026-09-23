@@ -34,7 +34,7 @@ import { useReplaceSchedule } from '~/queries/ClusterDetailsQueries/ClusterSetti
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
-import { OCP5_SUPPORT, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
 import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
@@ -80,7 +80,6 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
   const clusterID = cluster.id || '';
   const { canEdit } = cluster;
 
-  const isYStreamEnabled = useFeatureGate(Y_STREAM_CHANNEL);
   const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
   const organization = useGlobalState((state) => state.userProfile.organization);
   const isHypershift = isHypershiftCluster(cluster);
@@ -508,16 +507,14 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
               )}
             </CardBody>
           </Card>
-          {isYStreamEnabled && (
-            <Card>
-              <CardTitle>Channel settings</CardTitle>
-              <CardBody>
-                <Stack hasGutter>
-                  <ChannelEdit cluster={cluster} />
-                </Stack>
-              </CardBody>
-            </Card>
-          )}
+          <Card>
+            <CardTitle>Channel settings</CardTitle>
+            <CardBody>
+              <Stack hasGutter>
+                <ChannelEdit cluster={cluster} layout="formGroup" />
+              </Stack>
+            </CardBody>
+          </Card>
         </Stack>
       </GridItem>
     </Grid>

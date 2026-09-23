@@ -51,6 +51,52 @@ describe('<Releases />', () => {
     expect(screen.getByText('No 4.11 EUS channel')).toBeInTheDocument();
   });
 
+  // 4.x and 5.x doc links must both resolve correctly on the same page,
+  // each version card generating its own major.minor URL independently.
+  it('resolves correct, distinct release notes links for 4.x and 5.x cards on the same page', async () => {
+    mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+    render(<Releases />);
+
+    const link5 = (await screen.findByText('OpenShift 5.0')).closest('a');
+    expect(link5).toHaveAttribute(
+      'href',
+      'https://docs.redhat.com/en/documentation/openshift_container_platform/5.0/html/release_notes/ocp-5-0-release-notes',
+    );
+
+    const link4 = screen.getByText('OpenShift 4.12').closest('a');
+    expect(link4).toHaveAttribute(
+      'href',
+      'https://docs.redhat.com/en/documentation/openshift_container_platform/4.12/html/release_notes/ocp-4-12-release-notes',
+    );
+  });
+
+  // No hardcoded '4.7' fallback — the real latest version is used in the
+  // "Channels" description once lifecycle data has loaded.
+  it('shows the actual latest version in the "for example" text when version data is available', async () => {
+    apiRequestMock.get.mockResolvedValue({
+      data: { data: [{ versions: [{ name: '4.99', type: 'Full Support' }] }] },
+    });
+
+    render(<Releases />);
+
+    expect(await screen.findByText(/for example 4\.99/)).toBeInTheDocument();
+  });
+
+  // No hardcoded '4.7' fallback — omit the "Learn more" link entirely
+  // when lifecycle data hasn't loaded / is unavailable.
+  it('omits the "Learn more about updating channels" link when there is no version data', async () => {
+    apiRequestMock.get.mockResolvedValue({ data: { data: [{ versions: [] }] } });
+
+    render(<Releases />);
+
+    await waitFor(() => {
+      expect(apiRequestMock.get).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByText('Learn more about updating channels')).not.toBeInTheDocument();
+  });
+
   it('shows an error alert when release versions fail to load', async () => {
     apiRequestMock.get.mockRejectedValue(new Error('Network error'));
 

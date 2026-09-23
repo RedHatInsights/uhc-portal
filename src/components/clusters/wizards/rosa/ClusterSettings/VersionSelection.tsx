@@ -33,7 +33,6 @@ type VersionSelectionProps = {
   onChange: (version?: Version) => void;
   channelGroup?: string;
   isEUSChannelEnabled?: boolean;
-  isYStreamChannelEnabled?: boolean;
 };
 
 function VersionSelection({
@@ -41,7 +40,6 @@ function VersionSelection({
   onChange,
   channelGroup,
   isEUSChannelEnabled,
-  isYStreamChannelEnabled,
 }: VersionSelectionProps) {
   const [input, { touched, error }, { setValue }] = useField(FieldId.ClusterVersion);
   const {
@@ -244,11 +242,7 @@ function VersionSelection({
       ? versions.filter((version) => !incompatibleVersionReason(version))
       : versions;
 
-    const groupedVersions = getVersionsData(
-      filteredVersions,
-      supportVersionMap,
-      isEUSChannelEnabled && !isYStreamChannelEnabled ? channelGroup : undefined,
-    );
+    const groupedVersions = getVersionsData(filteredVersions, supportVersionMap, undefined);
 
     // If getVersionsData returns an array (specific channel selected), wrap it in an object
     const normalizedVersions = Array.isArray(groupedVersions)
@@ -278,15 +272,7 @@ function VersionSelection({
       versionsData: processedGroups,
       hasIncompatibleVersions: hasIncompatible,
     };
-  }, [
-    versions,
-    showOnlyCompatibleVersions,
-    incompatibleVersionReason,
-    supportVersionMap,
-    channelGroup,
-    isEUSChannelEnabled,
-    isYStreamChannelEnabled,
-  ]);
+  }, [versions, showOnlyCompatibleVersions, incompatibleVersionReason, supportVersionMap]);
 
   const sortFn = (a: FuzzyEntryType, b: FuzzyEntryType) => versionComparator(b.label, a.label);
 

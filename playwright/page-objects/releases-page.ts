@@ -19,20 +19,16 @@ export class ReleasesPage extends BasePage {
    * Get the update channels documentation path for a specific version.
    * Matches the logic in src/components/releases/getCandidateChannelLink.ts
    *
-   * @param major - Major version number (must be 4 for OCP)
+   * @param major - Major version number
    * @param minor - Minor version number
-   * @returns Documentation path or null if not OCP 4.x
+   * @returns Documentation path (legacy paths only apply to OCP 4.x)
    */
-  private static getUpdateChannelsPath(major: number, minor: number): string | null {
-    // Only OCP 4.x is supported (matches source behavior)
-    if (major !== 4) {
-      return null;
-    }
-
-    if (minor < 6) {
-      return `html/updating_clusters/index#candidate-${major}-${minor}-channel`;
-    }
-    if (minor < 14) {
+  private static getUpdateChannelsPath(major: number, minor: number): string {
+    // Legacy URL patterns only ever applied to OCP 4.x; 5.x always uses the current path.
+    if (major === 4 && minor < 14) {
+      if (minor < 6) {
+        return `html/updating_clusters/index#candidate-${major}-${minor}-channel`;
+      }
       return 'html/updating_clusters/understanding-upgrade-channels-releases#candidate-version-channel_understanding-upgrade-channels-releases';
     }
     return 'html/updating_clusters/understanding-openshift-updates-1#understanding-update-channels-releases';
@@ -88,10 +84,9 @@ export class ReleasesPage extends BasePage {
 
     // Verify candidate channels link (URL varies by version)
     const updateChannelsPath = ReleasesPage.getUpdateChannelsPath(major, minor);
-    expect(updateChannelsPath, `Unsupported OCP version: ${version}`).not.toBeNull();
     const candidateChannelLink = this.getContainerPlatformDocLink(
       normalizedVersion,
-      updateChannelsPath!,
+      updateChannelsPath,
     ).last();
     await expect(candidateChannelLink).toContainText('Learn more about candidate channels');
 
@@ -118,10 +113,9 @@ export class ReleasesPage extends BasePage {
 
     // Verify updating channels link
     const updateChannelsPath = ReleasesPage.getUpdateChannelsPath(major, minor);
-    expect(updateChannelsPath, `Unsupported OCP version: ${currentVersion}`).not.toBeNull();
     const updatingChannelsLink = this.getContainerPlatformDocLink(
       normalizedVersion,
-      updateChannelsPath!,
+      updateChannelsPath,
     ).first();
     await expect(updatingChannelsLink).toContainText('Learn more about updating channels');
 

@@ -4,29 +4,26 @@ import { Alert, AlertVariant, Content, ContentVariants, Title } from '@patternfl
 
 import { trackEvents } from '~/common/analytics';
 import docLinks from '~/common/docLinks.mjs';
-import { useFormState } from '~/components/clusters/wizards/hooks';
-import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import InstructionCommand from '~/components/common/InstructionCommand';
 import PopoverHintWithTitle from '~/components/common/PopoverHintWithTitle';
 
 import { RosaCliCommand } from '../constants/cliCommands';
 
-import AssociateAWSAccountStep, {
-  AssociateAWSAccountStepProps,
-} from './common/AssociateAWSAccountStep';
+import AccountsAndRolesDrawerStep, {
+  AccountsAndRolesDrawerStepProps,
+} from './common/AccountsAndRolesDrawerStep';
 import ToggleGroupTabs from './common/ToggleGroupTabs';
 
-const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
+type OCMRoleStepProps = AccountsAndRolesDrawerStepProps & {
+  isHypershiftSelected: boolean;
+};
+
+const OCMRoleStep = ({ isHypershiftSelected, ...props }: OCMRoleStepProps) => {
   const { expandable } = props;
 
-  const {
-    values: { [FieldId.Hypershift]: hypershiftValue },
-  } = useFormState();
-  const isHypershiftSelected = hypershiftValue === 'true';
-
   return (
-    <AssociateAWSAccountStep {...props}>
+    <AccountsAndRolesDrawerStep {...props}>
       <Title headingLevel="h4" className="pf-v6-u-mb-md" size="md">
         First, check if a role exists and is linked with:
       </Title>
@@ -142,7 +139,7 @@ const OCMRoleStep = (props: AssociateAWSAccountStepProps) => {
           },
         ]}
       />
-    </AssociateAWSAccountStep>
+    </AccountsAndRolesDrawerStep>
   );
 };
 

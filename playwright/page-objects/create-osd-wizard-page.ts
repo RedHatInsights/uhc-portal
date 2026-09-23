@@ -85,46 +85,12 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     await super.waitAndClick(buttonLocator, timeout);
   }
 
-  // Machine pool selectors
-  computeNodeTypeButton(): Locator {
-    return this.page.locator('button[aria-label="Machine type select toggle"]');
-  }
-
-  computeNodeTypeSearchInput(): Locator {
-    return this.page.locator('input[aria-label="Machine type select search field"]');
-  }
-
-  computeNodeCountInput(): Locator {
-    return this.page.getByRole('spinbutton', { name: 'Compute nodes' });
-  }
-
-  computeNodeCountIncrementButton(): Locator {
-    return this.page.getByRole('button', { name: 'Increment compute nodes' });
-  }
-
-  computeNodeCountDecrementButton(): Locator {
-    return this.page.getByRole('button', { name: 'Decrement compute nodes' });
-  }
-
   get billingModelRedHatCloudAccountOption(): string {
     return 'input[id="form-radiobutton-byoc-false-field"]';
   }
 
   get primaryButton(): string {
     return '[data-testid="wizard-next-button"], button:has-text("Next")';
-  }
-
-  async isClusterDetailsScreen(): Promise<void> {
-    const clusterDetailsHeading = this.page.locator('h3:has-text("Cluster details")');
-    await expect(
-      clusterDetailsHeading.or(this.page.getByRole('heading', { name: 'Cluster details' })),
-    ).toBeVisible({
-      timeout: 90000,
-    });
-    // Wait for cluster version dropdown to be visible to avoid flaky behavior
-    await this.page
-      .getByRole('button', { name: 'Options menu' })
-      .waitFor({ state: 'visible', timeout: 90000 });
   }
 
   clusterSettingsDetailsWizardStep(): Locator {
@@ -240,16 +206,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     });
   }
 
-  async isCIDRScreen(): Promise<void> {
-    await expect(this.page.locator('h3:has-text("CIDR ranges")')).toBeVisible({ timeout: 30000 });
-  }
-
-  async isClusterUpdatesScreen(): Promise<void> {
-    await expect(this.page.locator('h3:has-text("Cluster update strategy")')).toBeVisible({
-      timeout: 30000,
-    });
-  }
-
   async isTrailDefinitionScreen(): Promise<void> {
     await expect(this.page.getByRole('radio', { name: 'Free trial (upgradeable)' })).toBeChecked();
     await expect(
@@ -329,20 +285,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   // Cluster details screen
-  createCustomDomainPrefixCheckbox(): Locator {
-    return this.page.locator('input[id="has_domain_prefix"]');
-  }
-
-  domainPrefixInput(): Locator {
-    return this.page.locator('input[name="domain_prefix"]');
-  }
-
-  async setClusterName(clusterName: string): Promise<void> {
-    await this.page.locator(this.clusterNameInput).scrollIntoViewIfNeeded();
-    await this.page.locator(this.clusterNameInput).clear();
-    await this.page.locator(this.clusterNameInput).fill(clusterName);
-  }
-
   clusterNameUniqueError(): Locator {
     return this.page
       .locator(this.clusterNameInputError)
@@ -367,25 +309,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     await this.isMachinePoolScreen();
   }
 
-  async setDomainPrefix(domainPrefix: string): Promise<void> {
-    await this.domainPrefixInput().scrollIntoViewIfNeeded();
-    await this.domainPrefixInput().clear();
-    await this.domainPrefixInput().fill(domainPrefix);
-  }
-
-  singleZoneAvilabilityRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-multi_az-false-field"]');
-  }
-
-  multiZoneAvilabilityRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-multi_az-true-field"]');
-  }
-
-  async selectRegion(region: string): Promise<void> {
-    const regionValue = region.split(',')[0]; // Take first part before comma
-    await this.page.locator('select[name="region"]').selectOption(regionValue);
-  }
-
   enableSecureBootSupportForSchieldedVMsCheckbox(): Locator {
     return this.page.locator('input[id="secure_boot"]');
   }
@@ -402,45 +325,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.locator('input[id="enable_user_workload_monitoring"]');
   }
 
-  // Machine pool screen
-  async selectComputeNodeType(computeNodeType: string): Promise<void> {
-    await this.computeNodeTypeButton().click();
-    await this.computeNodeTypeSearchInput().clear();
-    await this.computeNodeTypeSearchInput().fill(computeNodeType);
-    await this.page.getByRole('button', { name: computeNodeType }).click();
-  }
-
-  async selectComputeNodeCount(nodeCount: number): Promise<void> {
-    await this.page.getByRole('spinbutton', { name: 'Compute nodes' }).fill(nodeCount.toString());
-  }
-
-  enableAutoscalingCheckbox(): Locator {
-    return this.page.locator('input[id="autoscalingEnabled"]');
-  }
-
-  useBothIMDSv1AndIMDSv2Radio(): Locator {
-    return this.page.getByTestId('imds-optional');
-  }
-
   // Networking screen
-  clusterPrivacyPublicRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-cluster_privacy-external-field"]');
-  }
-
-  applicationIngressDefaultSettingsRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-applicationIngress-default-field"]');
-  }
-
-  async selectClusterPrivacy(privacy: string): Promise<void> {
-    if (privacy.toLowerCase().includes('private')) {
-      await this.page
-        .locator('input[id="form-radiobutton-cluster_privacy-internal-field"]')
-        .check();
-    } else {
-      await this.clusterPrivacyPublicRadio().check();
-    }
-  }
-
   installIntoSharedVpcCheckBox(): Locator {
     return this.page.getByRole('checkbox', { name: 'Install into Google Cloud Shared VPC' });
   }
@@ -537,37 +422,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     await this.page
       .locator('select[aria-label="Private Service Connect subnet name"]')
       .selectOption(pscName);
-  }
-
-  // CIDR selectors
-  cidrDefaultValuesCheckBox(): Locator {
-    return this.page.getByRole('checkbox', { name: 'Use default values' });
-  }
-
-  machineCIDRInput(): Locator {
-    return this.page.getByRole('textbox', { name: 'Machine CIDR' });
-  }
-
-  serviceCIDRInput(): Locator {
-    return this.page.getByRole('textbox', { name: 'Service CIDR' });
-  }
-
-  podCIDRInput(): Locator {
-    return this.page.getByRole('textbox', { name: 'Pod CIDR' });
-  }
-
-  hostPrefixInput(): Locator {
-    return this.page.getByRole('textbox', { name: 'Host prefix' });
-  }
-
-  // Updates screen
-  updateStrategyIndividualRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-upgrade_policy-manual-field"]');
-  }
-
-  async selectNodeDraining(nodeDrain: string): Promise<void> {
-    await this.page.getByTestId('grace-period-select').click();
-    await this.page.getByRole('button', { name: nodeDrain }).click();
   }
 
   // Review screen
@@ -691,6 +545,10 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByTestId('Namespace-ownership-policy').locator('div');
   }
 
+  securityGroupsValue(): Locator {
+    return this.page.getByTestId('Security-groups');
+  }
+
   machineCIDRValue(): Locator {
     return this.page.getByTestId('Machine-CIDR').locator('div');
   }
@@ -719,20 +577,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByRole('button', { name: 'Create cluster' });
   }
 
-  /** After Create cluster, wait for redirect to the cluster installation (overview) page. */
-  async waitForClusterCreationAndOverview(): Promise<void> {
-    await expect(this.page.locator('h2, h3').filter({ hasText: 'Installing cluster' })).toBeVisible(
-      {
-        timeout: 120000,
-      },
-    );
-  }
-
-  // Cluster privacy private radio
-  clusterPrivacyPrivateRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-cluster_privacy-internal-field"]');
-  }
-
   // Persistent storage selection
   async selectPersistentStorage(storage: string): Promise<void> {
     // This would be a dropdown or input field for persistent storage
@@ -754,11 +598,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   // Persistent storage value in review screen
   persistentStorageValue(): Locator {
     return this.page.getByTestId('Persistent-storage').locator('div');
-  }
-
-  // Update strategy recurring radio
-  updateStrategyRecurringRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-upgrade_policy-automatic-field"]');
   }
 
   // Additional billing model options
@@ -877,27 +716,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
   }
 
-  async selectAvailabilityZone(az: string): Promise<void> {
-    if (az.toLowerCase().includes('single')) {
-      await this.singleZoneAvilabilityRadio().check();
-    } else {
-      await this.page.locator('input[id="form-radiobutton-multi_az-true-field"]').check();
-    }
-  }
-
-  // Advanced encryption settings
-  advancedEncryptionLink(): Locator {
-    return this.page.getByText('Advanced Encryption');
-  }
-
-  enableAdditionalEtcdEncryptionCheckbox(): Locator {
-    return this.page.locator('input[id="etcd_encryption"]');
-  }
-
-  enableFIPSCryptographyCheckbox(): Locator {
-    return this.page.locator('input[id="fips"]');
-  }
-
   async enableAdditionalEtcdEncryption(
     enable: boolean,
     fipsCryptography: boolean = false,
@@ -931,20 +749,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     await this.page.locator(`input[id="node_labels.${index}.value"]`).blur();
   }
 
-  // CIDR range helpers
-  async useCIDRDefaultValues(value: boolean = true): Promise<void> {
-    if (value) {
-      await this.cidrDefaultValuesCheckBox().check();
-    } else {
-      await this.cidrDefaultValuesCheckBox().uncheck();
-    }
-  }
-
-  // Updates screen validation
-  async isUpdatesScreen(): Promise<void> {
-    await expect(this.page.getByRole('heading', { name: 'Cluster update strategy' })).toBeVisible();
-  }
-
   // Review screen node labels value
   nodeLabelsValue(labelText: string): Locator {
     return this.page.getByTestId('Node-labels').getByText(labelText);
@@ -966,125 +770,11 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByTestId('gcp-wif-command').locator('input');
   }
 
-  useCustomKMSKeyRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-customer_managed_key-true-field"]');
-  }
-
-  useDefaultKMSKeyRadio(): Locator {
-    return this.page.locator('input[id="form-radiobutton-customer_managed_key-false-field"]');
-  }
-
   keyArnInput(): Locator {
     return this.page.locator('span input[id="kms_key_arn"]');
   }
 
-  // Machine pool validation methods
-  minimumNodeInput(): Locator {
-    return this.page.locator('input[aria-label="Minimum nodes"]');
-  }
-
-  maximumNodeInput(): Locator {
-    return this.page.locator('input[aria-label="Maximum nodes"]');
-  }
-
-  minimumNodeCountMinusButton(): Locator {
-    return this.page.locator('button[aria-label="Minimum nodes minus"]');
-  }
-
-  minimumNodeCountPlusButton(): Locator {
-    return this.page.locator('button[aria-label="Minimum nodes plus"]');
-  }
-
-  maximumNodeCountMinusButton(): Locator {
-    return this.page.locator('button[aria-label="Maximum nodes minus"]');
-  }
-
-  maximumNodeCountPlusButton(): Locator {
-    return this.page.locator('button[aria-label="Maximum nodes plus"]');
-  }
-
-  editClusterAutoscalingSettingsButton(): Locator {
-    return this.page.getByTestId('set-cluster-autoscaling-btn');
-  }
-
-  // Cluster autoscaling selectors
-  clusterAutoscalingLogVerbosityInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.log_verbosity"]');
-  }
-
-  clusterAutoscalingMaxNodeProvisionTimeInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.max_node_provision_time"]');
-  }
-
-  clusterAutoscalingBalancingIgnoredLabelsInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.balancing_ignored_labels"]');
-  }
-
-  clusterAutoscalingCoresTotalMinInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.cores.min"]');
-  }
-
-  clusterAutoscalingCoresTotalMaxInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.cores.max"]');
-  }
-
-  clusterAutoscalingMemoryTotalMinInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.memory.min"]');
-  }
-
-  clusterAutoscalingMemoryTotalMaxInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.memory.max"]');
-  }
-
-  clusterAutoscalingMaxNodesTotalInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.max_nodes_total"]');
-  }
-
-  clusterAutoscalingGPUsInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.resource_limits.gpus"]');
-  }
-
-  clusterAutoscalingScaleDownUtilizationThresholdInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.scale_down.utilization_threshold"]');
-  }
-
-  clusterAutoscalingScaleDownUnneededTimeInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.scale_down.unneeded_time"]');
-  }
-
-  clusterAutoscalingScaleDownDelayAfterAddInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_add"]');
-  }
-
-  clusterAutoscalingScaleDownDelayAfterDeleteInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_delete"]');
-  }
-
-  clusterAutoscalingScaleDownDelayAfterFailureInput(): Locator {
-    return this.page.locator('input[id="cluster_autoscaling.scale_down.delay_after_failure"]');
-  }
-
-  clusterAutoscalingRevertAllToDefaultsButton(): Locator {
-    return this.page.getByRole('button', { name: 'Revert all to defaults' });
-  }
-
-  clusterAutoscalingCloseButton(): Locator {
-    return this.page.getByRole('button', { name: 'Close' });
-  }
-
-  // Networking validation selectors
-  applicationIngressCustomSettingsRadio(): Locator {
-    return this.page.getByRole('radio', { name: 'Custom settings' });
-  }
-
-  applicationIngressRouterSelectorsInput(): Locator {
-    return this.page.locator('input[name="defaultRouterSelectors"]');
-  }
-
-  applicationIngressExcludedNamespacesInput(): Locator {
-    return this.page.locator('input[name="defaultRouterExcludedNamespacesFlag"]');
-  }
-
+  // OSD-only application ingress selectors (shared ingress locators live on BaseWizardPage).
   applicationIngressExcludeNamespaceSelectorKeyInput(): Locator {
     return this.page.getByRole('textbox', { name: 'Exclude namespace selector key' });
   }
@@ -1102,28 +792,12 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   // Validation helper methods
-  async enableAutoScaling(): Promise<void> {
-    await this.enableAutoscalingCheckbox().check();
-  }
-
   async selectAutoScaling(autoScale: string): Promise<void> {
     if (autoScale.toLowerCase() === 'disabled') {
       await this.enableAutoscalingCheckbox().uncheck();
     } else {
       await this.enableAutoscalingCheckbox().check();
     }
-  }
-
-  async setMinimumNodeCount(nodeCount: string): Promise<void> {
-    await this.minimumNodeInput().click();
-    await this.minimumNodeInput().press('Control+a');
-    await this.minimumNodeInput().fill(nodeCount);
-  }
-
-  async setMaximumNodeCount(nodeCount: string): Promise<void> {
-    await this.maximumNodeInput().click();
-    await this.maximumNodeInput().press('Control+a');
-    await this.maximumNodeInput().fill(nodeCount);
   }
 
   // AWS VPC / subnet / security group selectors (role-first; filter by text where FuzzySelect
@@ -1136,36 +810,8 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByRole('button').filter({ hasText: 'Select public subnet' });
   }
 
-  applicationIngressNamespaceOwnershipPolicyRadio(): Locator {
-    return this.page.getByRole('switch', { name: 'Strict', exact: true });
-  }
-
   applicationIngressWildcardPolicyDisallowedRadio(): Locator {
     return this.page.getByRole('switch', { name: 'Disallowed', exact: true });
-  }
-
-  computeNodeRangeValue(): Locator {
-    return this.page.getByTestId('Compute-node-range');
-  }
-
-  routeSelectorsValue(): Locator {
-    return this.page.getByTestId('Route-selectors');
-  }
-
-  excludedNamespacesValue(): Locator {
-    return this.page.getByTestId('Excluded-namespaces');
-  }
-
-  wildcardPolicyValue(): Locator {
-    return this.page.getByTestId('Wildcard-policy');
-  }
-
-  namespaceOwnershipValue(): Locator {
-    return this.page.getByTestId('Namespace-ownership-policy');
-  }
-
-  securityGroupsValue(): Locator {
-    return this.page.getByTestId('Security-groups');
   }
 
   async waitForVPCRefresh(): Promise<void> {

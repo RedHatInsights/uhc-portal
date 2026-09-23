@@ -3,6 +3,7 @@ import { useField } from 'formik';
 
 import { Form, FormGroup, GridItem, Radio } from '@patternfly/react-core';
 
+import { trackEvents } from '~/common/analytics';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import getClusterVersion from '~/components/clusters/common/getClusterVersion';
 import { SPOT_CAPACITY_RESERVATION_CONFLICT_REASON } from '~/components/clusters/common/machinePools/constants';
@@ -11,6 +12,7 @@ import {
   SPOT_INSTANCES_VERSION_DISABLED_REASON,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import PopoverHint from '~/components/common/PopoverHint';
+import useAnalytics from '~/hooks/useAnalytics';
 import { ClusterFromSubscription } from '~/types/types';
 
 import MaxPriceField from '../fields/MaxPriceField';
@@ -24,6 +26,7 @@ type SpotInstancesSectionProps = {
 };
 
 const SpotInstancesSection = ({ isEdit, cluster }: SpotInstancesSectionProps) => {
+  const track = useAnalytics();
   const isHypershift = isHypershiftCluster(cluster);
   const [capacityReservationPreferenceField] = useField<
     EditMachinePoolValues['capacityReservationPreference']
@@ -69,13 +72,25 @@ const SpotInstancesSection = ({ isEdit, cluster }: SpotInstancesSectionProps) =>
         isDisabled={isSpotDisabled}
         disabledReason={spotDisabledReason}
         footer={isHypershift ? <SpotInterruptionHandlingModeField cluster={cluster} /> : undefined}
+        onEnabledChange={(checked) => {
+          if (isHypershift && checked) {
+            track(trackEvents.MachinePoolHcpSpotInstancesEnabled);
+          }
+        }}
       >
         <Form>
           <Radio
             {...onDemandTypeField}
             isChecked={onDemandTypeField.checked}
             id="spotinstance-ondemand"
-            onChange={(e, _) => onDemandTypeField.onChange(e)}
+            onChange={(e, _) => {
+              onDemandTypeField.onChange(e);
+              if (isHypershift) {
+                track(trackEvents.MachinePoolHcpSpotMaxPriceTypeSelected, {
+                  customProperties: { value: 'onDemand' },
+                });
+              }
+            }}
             label="Use On-Demand instance price"
             description="The maximum price defaults to charge up to the On-Demand Instance price."
             isDisabled={isSpotDisabled}
@@ -83,7 +98,14 @@ const SpotInstancesSection = ({ isEdit, cluster }: SpotInstancesSectionProps) =>
           <Radio
             {...maximumTypeField}
             isChecked={maximumTypeField.checked}
-            onChange={(e, _) => maximumTypeField.onChange(e)}
+            onChange={(e, _) => {
+              maximumTypeField.onChange(e);
+              if (isHypershift) {
+                track(trackEvents.MachinePoolHcpSpotMaxPriceTypeSelected, {
+                  customProperties: { value: 'setMaxPrice' },
+                });
+              }
+            }}
             id="spotinstance-max"
             label={
               <>

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Field } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
-import semver from 'semver';
 
 import {
   Alert,
@@ -40,7 +39,6 @@ import {
   getNodesCount,
 } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
-import { ChannelGroupSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelGroupSelectField';
 import { ChannelSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelSelectField';
 import { ClassicEtcdEncryptionSection } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicEtcdEncryptionSection';
 import { ClassicV5CreationWarning } from '~/components/clusters/wizards/common/ClusterSettings/Details/ClassicV5CreationWarning/ClassicV5CreationWarning';
@@ -59,10 +57,8 @@ import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import {
-  ALLOW_EUS_CHANNEL,
   FIPS_FOR_HYPERSHIFT,
   MULTIREGION_PREVIEW_ENABLED,
-  Y_STREAM_CHANNEL,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { findRegionalInstance } from '~/queries/helpers';
@@ -120,44 +116,11 @@ function Details() {
   const isHypershiftSelected = hypershiftValue === 'true';
   const isMultiAz = multiAz === 'true';
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED) && isHypershiftSelected;
-  const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
-  const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
 
   const monitoringLink = isHypershiftSelected
     ? docLinks.ROSA_MONITORING
     : docLinks.ROSA_CLASSIC_MONITORING;
-  const getInstallableVersionsResponse = useGlobalState((state) => state.clusters.clusterVersions);
-
-  React.useEffect(() => {
-    if (isEUSChannelEnabled) {
-      const parseVersion = (version: string | undefined) => semver.valid(semver.coerce(version));
-
-      const availableVersions = isYStreamChannelEnabled
-        ? getInstallableVersionsResponse.versions
-        : getInstallableVersionsResponse.versions.filter(
-            (version: Version) => version.channel_group === channelGroup,
-          );
-
-      const foundVersion =
-        availableVersions.length > 0
-          ? availableVersions?.find(
-              (version: Version) =>
-                parseVersion(version?.raw_id) === parseVersion(selectedVersion?.raw_id),
-            )
-          : null;
-
-      if (!isYStreamChannelEnabled) {
-        setFieldValue(FieldId.ClusterVersion, foundVersion ?? availableVersions[0]);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    channelGroup,
-    // Re-run when versions load so default channel is set even when user keeps all defaults
-    getInstallableVersionsResponse.fulfilled,
-  ]);
-
   const [isExpanded, setIsExpanded] = useState(false);
   const onToggle = () => {
     setIsExpanded(!isExpanded);
@@ -290,9 +253,7 @@ function Details() {
 
   const handleVersionChange = (clusterVersion: Version | undefined) => {
     if (!clusterVersion) {
-      if (isYStreamChannelEnabled) {
-        setFieldValue(FieldId.VersionChannel, '');
-      }
+      setFieldValue(FieldId.VersionChannel, '');
       return;
     }
     // If features become incompatible with the new version, clear their settings
@@ -309,9 +270,7 @@ function Details() {
       resetMaxNodesTotal({ clusterVersion });
     }
 
-    if (isYStreamChannelEnabled) {
-      setFieldValue(FieldId.VersionChannel, '');
-    }
+    setFieldValue(FieldId.VersionChannel, '');
   };
 
   const handleCloudRegionChange = () => {
@@ -508,37 +467,6 @@ function Details() {
           </>
         )}
 
-        {isEUSChannelEnabled && !isYStreamChannelEnabled ? (
-          <>
-            <GridItem md={6}>
-              <FormGroup
-                label="Channel group"
-                isRequired
-                fieldId={FieldId.ChannelGroup}
-                labelHelp={
-                  <PopoverHint
-                    hint={
-                      <>
-                        {constants.channelGroupHint}{' '}
-                        <ExternalLink href={docLinks.ROSA_LIFE_CYCLE_DATES}>
-                          Learn more about the support lifecycle
-                        </ExternalLink>
-                      </>
-                    }
-                  />
-                }
-              >
-                <Field
-                  component={ChannelGroupSelectField}
-                  name={FieldId.ChannelGroup}
-                  getInstallableVersionsResponse={getInstallableVersionsResponse}
-                />
-              </FormGroup>
-            </GridItem>
-            <GridItem md={6} />
-          </>
-        ) : null}
-
         <GridItem md={6}>
           <Stack hasGutter>
             {!isHypershiftSelected ? <ClassicV5CreationWarning /> : null}
@@ -554,14 +482,10 @@ function Details() {
         </GridItem>
         <GridItem md={6} />
 
-        {isYStreamChannelEnabled ? (
-          <>
-            <GridItem md={6}>
-              <ChannelSelectField clusterVersion={selectedVersion} />
-            </GridItem>
-            <GridItem md={6} />
-          </>
-        ) : null}
+        <GridItem md={6}>
+          <ChannelSelectField clusterVersion={selectedVersion} />
+        </GridItem>
+        <GridItem md={6} />
 
         {!isMultiRegionEnabled ? RegionField : null}
 

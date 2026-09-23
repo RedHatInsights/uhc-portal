@@ -13,11 +13,7 @@ import { useReplaceSchedule } from '~/queries/ClusterDetailsQueries/ClusterSetti
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
-import {
-  HCP_LOG_FORWARDING,
-  OCP5_SUPPORT,
-  Y_STREAM_CHANNEL,
-} from '~/queries/featureGates/featureConstants';
+import { HCP_LOG_FORWARDING, OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
   mockUseFeatureGate,
@@ -460,29 +456,6 @@ describe('<UpgradeSettingsTab>', () => {
   });
 
   describe('Channel settings', () => {
-    beforeEach(() => {
-      mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
-    });
-
-    it('does not render channel settings when Y_STREAM_CHANNEL feature gate is disabled', () => {
-      mockUseFeatureGate([[Y_STREAM_CHANNEL, false]]);
-
-      renderComponent(
-        createMockCluster({
-          channel: 'stable-4.12',
-          version: {
-            id: '4.12.0',
-            raw_id: 'openshift-v4.12.0',
-            available_upgrades: ['4.12.1', '4.12.2'],
-            available_channels: ['stable-4.12', 'eus-4.12'],
-          },
-        }),
-      );
-
-      expect(screen.queryByText('Channel settings')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
-    });
-
     it('renders channel settings card with current channel and edit button', () => {
       renderComponent(
         createMockCluster({
@@ -532,8 +505,8 @@ describe('<UpgradeSettingsTab>', () => {
       });
 
       const { user } = renderComponent(rosaCluster);
-      const moreInfoBtn = await screen.findByLabelText('More information');
-      await user.click(moreInfoBtn);
+      const [monitoringMoreInfoBtn] = await screen.findAllByLabelText('More information');
+      await user.click(monitoringMoreInfoBtn);
 
       const link = screen.getByText('Learn more');
       expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_MONITORING);
