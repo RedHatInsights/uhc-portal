@@ -13,7 +13,6 @@ import {
   GridItem,
   Split,
   SplitItem,
-  Stack,
   Title,
 } from '@patternfly/react-core';
 
@@ -454,17 +453,15 @@ function Details() {
           ) : null}
 
           <GridItem>
-            <Stack hasGutter>
-              <VersionSelectField
-                name={FieldId.ClusterVersion}
-                channelGroup={channelGroup}
-                label={isMarketplaceGcp ? 'Version (Google Cloud Marketplace enabled)' : 'Version'}
-                onChange={handleVersionChange}
-                key={channelGroup}
-                isEUSChannelEnabled={isEUSChannelEnabled}
-                isYStreamChannelEnabled={isYStreamChannelEnabled}
-              />
-            </Stack>
+            <VersionSelectField
+              name={FieldId.ClusterVersion}
+              channelGroup={channelGroup}
+              label={isMarketplaceGcp ? 'Version (Google Cloud Marketplace enabled)' : 'Version'}
+              onChange={handleVersionChange}
+              key={channelGroup}
+              isEUSChannelEnabled={isEUSChannelEnabled}
+              isYStreamChannelEnabled={isYStreamChannelEnabled}
+            />
           </GridItem>
 
           {isYStreamChannelEnabled ? (
