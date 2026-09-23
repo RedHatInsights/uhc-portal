@@ -11,14 +11,17 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import { trackEvents } from '~/common/analytics';
 import { queryClient } from '~/components/App/queryClient';
 import {
   getSpotInterruptionHandlerQueueUrl,
+  redactSqsQueueUrlAccountId,
   SpotInterruptionMode,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { SpotInterruptionHandlingFields } from '~/components/clusters/common/SpotInterruptionHandling/SpotInterruptionHandlingFields';
 import { validateSpotTerminationHandlerQueueUrl } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingValidation';
 import ErrorBox from '~/components/common/ErrorBox';
+import useAnalytics from '~/hooks/useAnalytics';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { queryConstants } from '~/queries/queriesConstants';
 import { ClusterFromSubscription } from '~/types/types';
@@ -56,6 +59,7 @@ const EditSpotInterruptionHandlingModal = ({
   const isValid =
     mode === SpotInterruptionMode.Simple || (!!sqsQueueUrl.trim() && !validationError);
 
+  const track = useAnalytics();
   const { mutate: editCluster, isPending: isSubmitting, isError, error } = useEditCluster(region);
 
   const handleSave = () => {
@@ -75,6 +79,14 @@ const EditSpotInterruptionHandlingModal = ({
       },
       {
         onSuccess: () => {
+          if (mode === SpotInterruptionMode.Enhanced) {
+            track(trackEvents.SqsQueueUrlConfigured, {
+              customProperties: {
+                context: 'cluster_details',
+                sqs_queue_url: redactSqsQueueUrlAccountId(sqsQueueUrl),
+              },
+            });
+          }
           queryClient.invalidateQueries({
             queryKey: [
               queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
