@@ -402,6 +402,21 @@ const trackEvents: { [key: string]: TrackEvent } = {
     link_name: 'billing-contract-warning-shown',
     ocm_resource_type: ocmResourceType.MOA,
   },
+  MachinePoolHcpSpotInstancesEnabled: {
+    event: eventNames.CHECKBOX_CLICKED,
+    link_name: 'machine-pool-hcp-spot-instances-enabled',
+    ocm_resource_type: ocmResourceType.MOA,
+  },
+  MachinePoolHcpSpotMaxPriceTypeSelected: {
+    event: eventNames.RADIOBUTTON_CLICKED,
+    link_name: 'machine-pool-hcp-spot-max-price-type-selected',
+    ocm_resource_type: ocmResourceType.MOA,
+  },
+  SqsQueueUrlConfigured: {
+    event: 'SQS Queue URL Configured',
+    link_name: 'sqs-queue-url-configured',
+    ocm_resource_type: ocmResourceType.MOA,
+  },
 };
 
 /**

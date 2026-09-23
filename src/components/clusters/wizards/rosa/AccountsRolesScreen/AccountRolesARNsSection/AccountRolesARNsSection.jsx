@@ -105,6 +105,7 @@ function AccountRolesARNsSection({
   getAWSAccountRolesARNsResponse,
   clearGetAWSAccountRolesARNsResponse,
   isHypershiftSelected,
+  openDrawer,
   onAccountChanged,
   onOCMRoleRefresh,
 }) {
@@ -371,6 +372,7 @@ function AccountRolesARNsSection({
             isMissingOCMRole={isMissingOCMRole}
             isNoConsoleRole={isNoConsoleRole}
             isOCMRoleError={isOCMRoleError}
+            openDrawer={openDrawer}
             onRefreshOCMRole={() => {
               refetchGetOCMRole(selectedAWSAccountID);
               onOCMRoleRefresh?.();
@@ -591,6 +593,7 @@ AccountRolesARNsSection.propTypes = {
   getAWSAccountRolesARNsResponse: PropTypes.object.isRequired,
   clearGetAWSAccountRolesARNsResponse: PropTypes.func.isRequired,
   isHypershiftSelected: PropTypes.bool,
+  openDrawer: PropTypes.func.isRequired,
   onAccountChanged: PropTypes.func.isRequired,
   onOCMRoleRefresh: PropTypes.func,
 };

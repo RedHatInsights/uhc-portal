@@ -6,6 +6,7 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  FormGroup,
   Modal,
   ModalBody,
   ModalFooter,
@@ -39,6 +40,7 @@ type ChannelEditModalProps = {
   isOpen: boolean;
   onClose: () => void;
   channel: string;
+  region?: string;
   optionsDropdownData: {
     value: string;
     label: string;
@@ -48,6 +50,8 @@ type ChannelEditModalProps = {
 type ChannelEditProps = {
   cluster: AugmentedCluster;
   isClusterDetailsFetching?: boolean;
+  /** Use on upgrade settings and other cards; overview uses description list items. */
+  layout?: 'descriptionListItem' | 'formGroup';
 };
 
 const ChannelEditModal = ({
@@ -55,6 +59,7 @@ const ChannelEditModal = ({
   isOpen,
   onClose,
   channel,
+  region,
   optionsDropdownData,
 }: ChannelEditModalProps) => {
   const { mutate, isError, error, isPending } = useEditChannelOnCluster();
@@ -65,7 +70,7 @@ const ChannelEditModal = ({
       onSubmit={(values: { channel: string }) => {
         const { channel: newChannel } = values;
         mutate(
-          { clusterID, channel: newChannel },
+          { clusterID, channel: newChannel, region },
           {
             onSuccess: () => {
               onClose();
@@ -134,7 +139,11 @@ const ChannelEditModal = ({
   ) : null;
 };
 
-export const ChannelEdit = ({ cluster, isClusterDetailsFetching = false }: ChannelEditProps) => {
+export const ChannelEdit = ({
+  cluster,
+  isClusterDetailsFetching = false,
+  layout = 'descriptionListItem',
+}: ChannelEditProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isClusterReady = cluster.state === clusterStates.ready;
@@ -159,6 +168,42 @@ export const ChannelEdit = ({ cluster, isClusterDetailsFetching = false }: Chann
     (channel) => channel.value !== currentChannel,
   );
 
+  const channelLabel = (
+    <>
+      Channel
+      <PopoverHint
+        iconClassName="pf-v6-u-ml-sm"
+        hint={
+          <>
+            {constants.channelHint}{' '}
+            <ExternalLink href={docLinks.OCP_UPDATE_CHANNELS}>Learn more</ExternalLink>
+          </>
+        }
+      />
+    </>
+  );
+
+  const channelValue = isClusterDetailsFetching ? (
+    <Spinner size="sm" aria-label="Loading channel" />
+  ) : (
+    <>
+      {channel || 'N/A'}
+      {canUpdateClusterResource && hasAlternativeChannelOption ? (
+        <EditButton
+          data-testid="channelModal"
+          ariaLabel="Edit channel"
+          onClick={() => {
+            if (!hasScheduledUpgradePolicy && !isSchedulesLoading && isClusterReady) {
+              setIsModalOpen(true);
+            }
+          }}
+          isAriaDisabled={!isClusterReady || isSchedulesLoading}
+          disableReason={scheduledUpgradePolicyReason}
+        />
+      ) : null}
+    </>
+  );
+
   return (
     <>
       {isModalOpen && (
@@ -168,44 +213,17 @@ export const ChannelEdit = ({ cluster, isClusterDetailsFetching = false }: Chann
           optionsDropdownData={availableDropdownChannels}
           onClose={() => setIsModalOpen(false)}
           channel={channel}
+          region={region}
         />
       )}
-      <DescriptionListGroup>
-        <DescriptionListTerm>
-          Channel
-          <PopoverHint
-            iconClassName="pf-v6-u-ml-sm"
-            hint={
-              <>
-                {constants.channelHint}{' '}
-                <ExternalLink href={docLinks.OCP_UPDATE_CHANNELS}>Learn more</ExternalLink>
-              </>
-            }
-          />
-        </DescriptionListTerm>
-        <DescriptionListDescription>
-          {isClusterDetailsFetching ? (
-            <Spinner size="sm" aria-label="Loading channel" />
-          ) : (
-            <>
-              {channel || 'N/A'}
-              {canUpdateClusterResource && hasAlternativeChannelOption ? (
-                <EditButton
-                  data-testid="channelModal"
-                  ariaLabel="Edit channel"
-                  onClick={() => {
-                    if (!hasScheduledUpgradePolicy && !isSchedulesLoading && isClusterReady) {
-                      setIsModalOpen(true);
-                    }
-                  }}
-                  isAriaDisabled={!isClusterReady || isSchedulesLoading}
-                  disableReason={scheduledUpgradePolicyReason}
-                />
-              ) : null}
-            </>
-          )}
-        </DescriptionListDescription>
-      </DescriptionListGroup>
+      {layout === 'formGroup' ? (
+        <FormGroup label={channelLabel}>{channelValue}</FormGroup>
+      ) : (
+        <DescriptionListGroup>
+          <DescriptionListTerm>{channelLabel}</DescriptionListTerm>
+          <DescriptionListDescription>{channelValue}</DescriptionListDescription>
+        </DescriptionListGroup>
+      )}
     </>
   );
 };

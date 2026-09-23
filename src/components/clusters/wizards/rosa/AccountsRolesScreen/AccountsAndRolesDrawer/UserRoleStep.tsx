@@ -8,15 +8,15 @@ import PopoverHint from '~/components/common/PopoverHint';
 
 import { RosaCliCommand } from '../constants/cliCommands';
 
-import AssociateAWSAccountStep, {
-  AssociateAWSAccountStepProps,
-} from './common/AssociateAWSAccountStep';
+import AccountsAndRolesDrawerStep, {
+  AccountsAndRolesDrawerStepProps,
+} from './common/AccountsAndRolesDrawerStep';
 import ToggleGroupTabs from './common/ToggleGroupTabs';
 
-const UserRoleStep = (props: AssociateAWSAccountStepProps) => {
+const UserRoleStep = (props: AccountsAndRolesDrawerStepProps) => {
   const { expandable } = props;
   return (
-    <AssociateAWSAccountStep {...props}>
+    <AccountsAndRolesDrawerStep {...props}>
       <Title headingLevel="h3" className="pf-v6-u-mb-md" size="md">
         First, check if a role exists and is linked with:
       </Title>
@@ -79,7 +79,7 @@ const UserRoleStep = (props: AssociateAWSAccountStepProps) => {
           },
         ]}
       />
-    </AssociateAWSAccountStep>
+    </AccountsAndRolesDrawerStep>
   );
 };
 

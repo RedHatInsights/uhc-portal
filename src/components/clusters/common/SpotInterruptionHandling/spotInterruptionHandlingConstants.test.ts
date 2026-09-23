@@ -2,6 +2,7 @@ import {
   ENHANCED_SPOT_MIN_VERSION,
   getSpotInterruptionHandlingModeLabel,
   isEnhancedSpotVersionSupported,
+  redactSqsQueueUrlAccountId,
   SPOT_INTERRUPTION_MODE_ENHANCED_LABEL,
   SPOT_INTERRUPTION_MODE_SIMPLE_LABEL,
 } from './spotInterruptionHandlingConstants';
@@ -26,6 +27,22 @@ describe('isEnhancedSpotVersionSupported', () => {
   it('returns false when the version is missing', () => {
     expect(isEnhancedSpotVersionSupported(undefined)).toBe(false);
     expect(isEnhancedSpotVersionSupported('')).toBe(false);
+  });
+});
+
+describe('redactSqsQueueUrlAccountId', () => {
+  it('replaces the 12-digit AWS account ID with xxxxxxxxxxxx', () => {
+    expect(
+      redactSqsQueueUrlAccountId(
+        'https://sqs.us-east-1.amazonaws.com/123456789012/rosa-cluster-spot',
+      ),
+    ).toBe('https://sqs.us-east-1.amazonaws.com/xxxxxxxxxxxx/rosa-cluster-spot');
+  });
+
+  it('leaves the URL unchanged when no account ID segment is present', () => {
+    expect(redactSqsQueueUrlAccountId('https://sqs.us-east-1.amazonaws.com/queue')).toBe(
+      'https://sqs.us-east-1.amazonaws.com/queue',
+    );
   });
 });
 

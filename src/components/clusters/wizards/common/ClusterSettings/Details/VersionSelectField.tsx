@@ -24,23 +24,17 @@ const sortFn = (a: FuzzyEntryType, b: FuzzyEntryType) => versionComparator(b.lab
 interface VersionSelectFieldProps {
   label: string;
   name: string;
-  channelGroup: string;
   onChange: (version: Version) => void;
   key?: string;
   isDisabled?: boolean;
-  isEUSChannelEnabled?: boolean;
-  isYStreamChannelEnabled?: boolean;
 }
 
 export const VersionSelectField = ({
   name,
   label,
-  channelGroup,
   isDisabled,
   onChange,
   key,
-  isEUSChannelEnabled,
-  isYStreamChannelEnabled,
 }: VersionSelectFieldProps) => {
   const dispatch = useDispatch();
   const organization = useGlobalState((state) => state.userProfile.organization.details);
@@ -146,13 +140,8 @@ export const VersionSelectField = ({
   };
 
   const versionsData = React.useMemo(
-    () =>
-      getVersionsData(
-        versions,
-        supportVersionMap,
-        isEUSChannelEnabled && !isYStreamChannelEnabled ? channelGroup : undefined,
-      ),
-    [supportVersionMap, versions, channelGroup, isEUSChannelEnabled, isYStreamChannelEnabled],
+    () => getVersionsData(versions, supportVersionMap, undefined),
+    [supportVersionMap, versions],
   );
 
   return (
