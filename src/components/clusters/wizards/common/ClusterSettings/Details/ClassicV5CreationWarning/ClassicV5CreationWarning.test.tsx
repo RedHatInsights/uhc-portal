@@ -66,7 +66,14 @@ describe('<ClassicV5CreationWarning />', () => {
     expect(screen.queryByTestId('classic-v5-creation-warning')).not.toBeInTheDocument();
   });
 
-  it('does not render if organization has ROSA_OSD_ALLOW_OCP_5 capability', () => {
+  it('renders when organization has ROSA_OSD_ALLOW_OCP_5 capability set to "false"', () => {
+    renderWarning({ organization: orgWithCapability('false') });
+
+    expect(screen.getByTestId('classic-v5-creation-warning')).toBeInTheDocument();
+    expect(screen.getByTestId('classic-v5-creation-warning')).toHaveTextContent(warningText);
+  });
+
+  it('does not render if organization has ROSA_OSD_ALLOW_OCP_5 capability set to "true"', () => {
     renderWarning({ organization: orgWithCapability('true') });
 
     expect(screen.queryByTestId('classic-v5-creation-warning')).not.toBeInTheDocument();

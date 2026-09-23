@@ -1,6 +1,8 @@
 {
   "ClusterSettings": {
     "Details": {
+      "Ocp5MigrationWarningText": "To use OpenShift v5, please create a ROSA HCP cluster.",
+      "Ocp5MigrationWarningHcpLinkHref": "/openshift/create/rosa/getstarted",
       "InvalidClusterNamesValues": [
         "rosalongclusternamesexceeds54characterstestingnamesssssssss",
         "rosaclusterNAMES",

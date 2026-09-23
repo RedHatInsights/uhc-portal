@@ -474,8 +474,6 @@ function Details() {
               label="Version"
               onChange={handleVersionChange}
               channelGroup={channelGroup}
-              isEUSChannelEnabled={isEUSChannelEnabled}
-              isYStreamChannelEnabled={isYStreamChannelEnabled}
               key={selectedVersion?.id}
             />
           </Stack>

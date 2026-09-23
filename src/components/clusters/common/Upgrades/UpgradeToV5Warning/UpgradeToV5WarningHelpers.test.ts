@@ -33,6 +33,10 @@ const allowOcp5Capability: Capability[] = [
   { name: 'capability.organization.rosa_osd_allow_ocp_5', value: 'true', inherited: false },
 ];
 
+const denyOcp5Capability: Capability[] = [
+  { name: 'capability.organization.rosa_osd_allow_ocp_5', value: 'false', inherited: false },
+];
+
 describe('isOcp5MigrationWarningEnabledForOrg', () => {
   it('returns false when the feature flag is off', () => {
     expect(
@@ -48,6 +52,15 @@ describe('isOcp5MigrationWarningEnabledForOrg', () => {
       isOcp5MigrationWarningEnabledForOrg({
         isOcp5SupportEnabled: true,
         organizationCapabilities: undefined,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns true when the org has rosa_osd_allow_ocp_5 set to "false"', () => {
+    expect(
+      isOcp5MigrationWarningEnabledForOrg({
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: denyOcp5Capability,
       }),
     ).toBe(true);
   });
@@ -111,6 +124,16 @@ describe('shouldShowUpgradeToV5Warning', () => {
         organizationCapabilities: undefined,
       }),
     ).toBe(false);
+  });
+
+  it('returns true when the org has rosa_osd_allow_ocp_5 set to "false"', () => {
+    expect(
+      shouldShowUpgradeToV5Warning({
+        cluster: rosaClassicCluster,
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: denyOcp5Capability,
+      }),
+    ).toBe(true);
   });
 
   it('returns false when the org has the rosa_osd_allow_ocp_5 capability set to "true"', () => {
