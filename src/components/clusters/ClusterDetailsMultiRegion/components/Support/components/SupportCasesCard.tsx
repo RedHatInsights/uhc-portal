@@ -1,11 +1,10 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import {
   Button,
   EmptyState,
   EmptyStateBody,
   EmptyStateVariant,
-  Icon,
   Spinner,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
@@ -25,17 +24,11 @@ type SupportCasesCardProps = {
   cluster: AugmentedCluster;
 };
 
-const ErrorIcon = (props: React.ComponentProps<typeof Icon>) => (
-  <Icon {...props} status="danger">
-    <ExclamationCircleIcon />
-  </Icon>
-);
-
 const SupportCasesErrorState = ({ onRetry }: { onRetry: () => void }) => (
   <EmptyState
-    variant={EmptyStateVariant.sm}
     headingLevel="h4"
-    icon={ErrorIcon}
+    icon={ExclamationCircleIcon}
+    status="danger"
     titleText="Support cases could not be loaded"
   >
     <EmptyStateBody>
@@ -58,15 +51,6 @@ const SupportCasesCard = ({
     isRestricted,
   );
 
-  useEffect(() => {
-    if (!isRestrictedEnv()) {
-      if (supportCases.subscriptionID !== subscriptionID || !isLoading) {
-        refetch();
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscriptionID, supportCases.subscriptionID]);
-
   const rows = useMemo(() => supportCases.cases?.map(supportCaseRow), [supportCases.cases]);
   const hasRows = useMemo(() => rows && rows.length > 0, [rows]);
   const showOpenSupportCaseButton = product !== normalizedProducts.OSDTrial && !isDisabled;
@@ -83,9 +67,9 @@ const SupportCasesCard = ({
           <Button variant="secondary">Open support case</Button>
         </a>
       )}
-      {!isRestrictedEnv() && isLoading && <Spinner aria-label="Loading support cases" />}
-      {!isRestrictedEnv() && !isLoading && isError && <SupportCasesErrorState onRetry={refetch} />}
-      {!isRestrictedEnv() && !isLoading && !isError && (
+      {!isRestricted && isLoading && <Spinner aria-label="Loading support cases" />}
+      {!isRestricted && !isLoading && isError && <SupportCasesErrorState onRetry={refetch} />}
+      {!isRestricted && !isLoading && !isError && (
         <>
           <Table
             variant={TableVariant.compact}

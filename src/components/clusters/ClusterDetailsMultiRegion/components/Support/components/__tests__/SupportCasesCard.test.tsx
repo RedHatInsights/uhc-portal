@@ -169,7 +169,7 @@ describe('<SupportCasesCard />', () => {
     it('calls refetch when the retry button is clicked', async () => {
       // Arrange
       const { user } = render(<SupportCasesCard {...defaultProps} />);
-      refetch.mockClear();
+      expect(refetch).not.toHaveBeenCalled();
 
       // Act
       await user.click(screen.getByRole('button', { name: 'Retry' }));
