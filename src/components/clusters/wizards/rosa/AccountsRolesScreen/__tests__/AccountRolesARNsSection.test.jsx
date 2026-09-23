@@ -6,8 +6,8 @@ import {
   OCM_ROLE_NO_CONSOLE_PROFILE,
   ROSA_HOSTED_CLI_MIN_VERSION,
 } from '~/components/clusters/wizards/rosa/rosaConstants';
+import * as useFetchGetOCMRoleModule from '~/queries/common/useFetchGetOCMRole';
 import { HCP_USE_UNMANAGED, OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
-import * as useFetchGetOCMRoleModule from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
 import { initialValues } from '../../constants';

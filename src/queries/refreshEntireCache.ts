@@ -12,6 +12,9 @@ export const refreshClusterDetails = () => {
   queryClient.invalidateQueries({
     predicate: (query) => query.queryKey[0] === queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
   });
+  queryClient.invalidateQueries({
+    predicate: (query) => query.queryKey[0] === queryConstants.FETCH_GET_OCM_ROLE,
+  });
   invalidateAllLogForwarderQueries();
   refetchOCPLifeCycleStatus();
 };
