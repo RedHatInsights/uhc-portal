@@ -10,9 +10,7 @@ const config: StorybookConfig = {
     '@storybook/addon-webpack5-compiler-swc',
     '@storybook/addon-onboarding',
     '@storybook/addon-links',
-    '@storybook/addon-essentials',
     '@chromatic-com/storybook',
-    '@storybook/addon-interactions',
     '@storybook/addon-docs',
     {
       name: '@storybook/addon-styling-webpack',
@@ -48,7 +46,7 @@ const config: StorybookConfig = {
           },
         ],
       },
-    },
+    }
   ],
   framework: {
     name: '@storybook/react-webpack5',

@@ -1,8 +1,8 @@
 import React from 'react';
+import { expect, within } from 'storybook/test';
 
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core';
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, within } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 
 import OpenShiftAiWidget from './openshift-ai-widget';
 
