@@ -1,3 +1,4 @@
+import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { test, expect } from '../../fixtures/pages';
 
 // Import cluster properties JSON
@@ -14,10 +15,14 @@ test.describe.serial(
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-Installer-Role`;
     const clusterName = `${clusterProperties.ClusterNamePrefix}-${Math.random().toString(36).substring(7)}`;
     const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2, 13)}`;
+    let isOcp5SupportEnabled = false;
 
-    test.beforeAll(async ({ navigateTo, createClusterPage }) => {
+    test.beforeAll(async ({ navigateTo, createClusterPage, clusterDetailsPage }) => {
+      // Capture Unleash state before the create page loads and prefetches feature gates
+      const gatePromise = clusterDetailsPage.isFeatureGateEnabled(OCP5_SUPPORT);
       // Navigate to create page
       await navigateTo('create');
+      isOcp5SupportEnabled = await gatePromise;
       // Navigate to create cluster page
       await createClusterPage.isCreateClusterPageHeaderVisible();
     });
@@ -295,6 +300,24 @@ test.describe.serial(
         clusterProperties.PodCIDR,
       );
       await expect(clusterDetailsPage.clusterHostPrefixLabelValue()).toContainText('23');
+    });
+
+    test('Settings tab - OCP v5 migration warning renders in Update strategy section for ROSA Classic', async ({
+      clusterDetailsPage,
+      rosaGetStartedPage,
+      page,
+    }) => {
+      await clusterDetailsPage.openUpgradeSettingsTab();
+
+      if (isOcp5SupportEnabled) {
+        await expect(clusterDetailsPage.ocp5UpgradeWarning()).toBeVisible();
+        await clusterDetailsPage.ocp5UpgradeWarningHcpLink().click();
+        await rosaGetStartedPage.isRosaGetStartedPage();
+        await page.goBack();
+        await clusterDetailsPage.openUpgradeSettingsTab();
+      } else {
+        await expect(clusterDetailsPage.ocp5UpgradeWarning()).not.toBeVisible();
+      }
     });
 
     test('Delete the cluster', async ({ page, clusterDetailsPage }) => {

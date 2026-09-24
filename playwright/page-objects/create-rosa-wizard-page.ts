@@ -443,6 +443,17 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByTestId('Control-plane');
   }
 
+  /** OCP v5 migration warning on ROSA Classic Cluster Settings → Details. */
+  classicV5CreationWarning(): Locator {
+    return this.page.getByTestId('classic-v5-creation-warning');
+  }
+
+  classicV5CreationWarningHcpLink(): Locator {
+    return this.classicV5CreationWarning().getByRole('link', {
+      name: 'create a ROSA HCP cluster',
+    });
+  }
+
   /**
    * Waits for the Review screen to be fully loaded and ready for interaction.
    * This is a special case for the Review screen where we need to wait for the spinners to disappear.

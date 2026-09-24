@@ -1,3 +1,4 @@
+import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { test, expect } from '../../fixtures/pages';
 
 // Import cluster field validations JSON
@@ -12,10 +13,13 @@ test.describe.serial(
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-Installer-Role`;
     const clusterName = `ocmui-playwright-smoke-rosa-${Math.random().toString(36).substring(7)}`;
+    let isOcp5SupportEnabled = false;
 
-    test.beforeAll(async ({ navigateTo }) => {
-      // Navigate to create
+    test.beforeAll(async ({ navigateTo, createRosaWizardPage }) => {
+      // Capture Unleash state before the create page loads and prefetches feature gates
+      const gatePromise = createRosaWizardPage.isFeatureGateEnabled(OCP5_SUPPORT);
       await navigateTo('create');
+      isOcp5SupportEnabled = await gatePromise;
     });
     test('Open Rosa cluster wizard', async ({ page, createRosaWizardPage }) => {
       await createRosaWizardPage.waitAndClick(createRosaWizardPage.rosaCreateClusterButton());
@@ -43,8 +47,28 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test('Step - Cluster Settings - widget validations', async ({ createRosaWizardPage }) => {
+    test('Step - Cluster Settings - widget validations', async ({
+      page,
+      createRosaWizardPage,
+      rosaGetStartedPage,
+    }) => {
       await createRosaWizardPage.isClusterDetailsScreen();
+
+      const warningDetails = clusterFieldValidations.ClusterSettings.Details;
+      const ocp5Warning = createRosaWizardPage.classicV5CreationWarning();
+      if (isOcp5SupportEnabled) {
+        await expect(ocp5Warning).toBeVisible();
+        await expect(ocp5Warning).toContainText(warningDetails.Ocp5MigrationWarningText);
+
+        await createRosaWizardPage.classicV5CreationWarningHcpLink().click();
+        await rosaGetStartedPage.isRosaGetStartedPage();
+
+        await page.goBack();
+        await createRosaWizardPage.isClusterDetailsScreen();
+      } else {
+        await expect(ocp5Warning).not.toBeVisible();
+      }
+
       await createRosaWizardPage.setClusterName(
         clusterFieldValidations.ClusterSettings.Details.InvalidClusterNamesValues[0],
       );

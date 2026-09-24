@@ -1,3 +1,4 @@
+import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { test, expect } from '../../fixtures/pages';
 const clusterProperties = require('../../fixtures/osd-aws/osd-ccs-aws-cluster-creation.spec.json');
 
@@ -11,9 +12,14 @@ test.describe.serial(
   'OSD AWS CCS cluster creation tests (OCP-35992, OCP-26750)',
   { tag: ['@smoke', '@osd'] },
   () => {
-    test.beforeAll(async ({ navigateTo }) => {
+    let isOcp5SupportEnabled = false;
+
+    test.beforeAll(async ({ navigateTo, clusterDetailsPage }) => {
+      // Capture Unleash state before the create page loads and prefetches feature gates
+      const gatePromise = clusterDetailsPage.isFeatureGateEnabled(OCP5_SUPPORT);
       // Navigate to create
       await navigateTo('create');
+      isOcp5SupportEnabled = await gatePromise;
     });
     test(`Launch OSD - ${clusterProperties.CloudProvider} cluster wizard`, async ({
       createOSDWizardPage,
@@ -251,6 +257,19 @@ test.describe.serial(
       await expect(clusterDetailsPage.clusterInfrastructureBillingModelValue()).toContainText(
         clusterProperties.InfrastructureType,
       );
+    });
+
+    test(`Settings tab - OCP v5 migration warning renders in Update strategy section for OSD CCS AWS`, async ({
+      clusterDetailsPage,
+    }) => {
+      await clusterDetailsPage.openUpgradeSettingsTab();
+
+      if (isOcp5SupportEnabled) {
+        await expect(clusterDetailsPage.ocp5UpgradeWarning()).toBeVisible();
+        await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toBeVisible();
+      } else {
+        await expect(clusterDetailsPage.ocp5UpgradeWarning()).not.toBeVisible();
+      }
     });
 
     test(`Delete OSD ${clusterProperties.CloudProvider}  cluster`, async ({
