@@ -1177,6 +1177,15 @@ export class ClusterDetailsPage extends BasePage {
     return this.settingsTab();
   }
 
+  /** OCP v5 migration warning alert in the Update strategy section of the Settings tab. */
+  ocp5UpgradeWarning(): Locator {
+    return this.upgradeSettingsPanel().getByTestId('classic-upgrade-to-v5-warning');
+  }
+
+  ocp5UpgradeWarningHcpLink(): Locator {
+    return this.ocp5UpgradeWarning().getByRole('link', { name: 'create a ROSA HCP cluster' });
+  }
+
   upgradeSettingsPanel(): Locator {
     return this.page.getByRole('tabpanel', { name: 'Upgrade settings' });
   }
