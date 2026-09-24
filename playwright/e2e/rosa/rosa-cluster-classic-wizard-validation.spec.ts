@@ -47,7 +47,11 @@ test.describe.serial(
       await createRosaWizardPage.rosaNextButton().click();
     });
 
-    test('Step - Cluster Settings - widget validations', async ({ createRosaWizardPage }) => {
+    test('Step - Cluster Settings - widget validations', async ({
+      page,
+      createRosaWizardPage,
+      rosaGetStartedPage,
+    }) => {
       await createRosaWizardPage.isClusterDetailsScreen();
 
       const warningDetails = clusterFieldValidations.ClusterSettings.Details;
@@ -55,10 +59,12 @@ test.describe.serial(
       if (isOcp5SupportEnabled) {
         await expect(ocp5Warning).toBeVisible();
         await expect(ocp5Warning).toContainText(warningDetails.Ocp5MigrationWarningText);
-        await expect(createRosaWizardPage.classicV5CreationWarningHcpLink()).toHaveAttribute(
-          'href',
-          warningDetails.Ocp5MigrationWarningHcpLinkHref,
-        );
+
+        await createRosaWizardPage.classicV5CreationWarningHcpLink().click();
+        await rosaGetStartedPage.isRosaGetStartedPage();
+
+        await page.goBack();
+        await createRosaWizardPage.isClusterDetailsScreen();
       } else {
         await expect(ocp5Warning).not.toBeVisible();
       }
