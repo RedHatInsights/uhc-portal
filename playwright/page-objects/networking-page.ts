@@ -364,9 +364,7 @@ export class NetworkingPage extends BasePage {
     return `${key}=[${values.join(', ')}]`;
   }
 
-  excludeNamespaceSelectorsCardValues(
-    selectors: { key: string; values: string }[],
-  ): string {
+  excludeNamespaceSelectorsCardValues(selectors: { key: string; values: string }[]): string {
     return selectors
       .filter((selector) => selector.key)
       .map((selector) => this.excludeNamespaceSelectorsCardValue(selector.key, selector.values))
@@ -388,9 +386,12 @@ export class NetworkingPage extends BasePage {
     excludeNamespaceSelectorKey: string;
     excludeNamespaceSelectorValues: string;
   }): Promise<void> {
-    await expect(this.applicationIngressRouteSelectorCardInput()).toHaveValue(fields.routeSelector, {
-      timeout: 60000,
-    });
+    await expect(this.applicationIngressRouteSelectorCardInput()).toHaveValue(
+      fields.routeSelector,
+      {
+        timeout: 60000,
+      },
+    );
     await expect(this.applicationIngressExcludedNamespacesCardInput()).toHaveValue(
       fields.excludedNamespaces,
     );

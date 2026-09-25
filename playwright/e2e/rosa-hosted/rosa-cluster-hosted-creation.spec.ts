@@ -372,7 +372,7 @@ test.describe.serial(
       );
     });
 
-    test('Delete the cluster', async ({clusterDetailsPage }) => {
+    test('Delete the cluster', async ({ clusterDetailsPage }) => {
       await clusterDetailsPage.actionsDropdownToggle().click();
       await clusterDetailsPage.deleteClusterDropdownItem().click();
       await clusterDetailsPage.deleteClusterNameInput().clear();

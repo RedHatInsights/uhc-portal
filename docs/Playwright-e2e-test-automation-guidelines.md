@@ -1,7 +1,5 @@
 # Test Automation Guidelines
 
-> **Note:** Legacy Cypress E2E tests exist in `cypress/` but Playwright is the active framework. Use Playwright for all new E2E tests.
-
 ## Table of Contents
 
 1. [Project Structure](#project-structure)

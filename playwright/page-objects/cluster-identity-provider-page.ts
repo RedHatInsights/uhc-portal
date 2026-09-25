@@ -263,7 +263,9 @@ export class ClusterIdentityProviderPage extends BasePage {
   }
 
   copyCallbackUrlButton(idpName: string): Locator {
-    return this.identityProviderRow(idpName).getByRole('button', { name: /Copy URL to clipboard/i });
+    return this.identityProviderRow(idpName).getByRole('button', {
+      name: /Copy URL to clipboard/i,
+    });
   }
 
   editMenuItem(): Locator {
