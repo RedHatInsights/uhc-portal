@@ -522,6 +522,18 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByTestId('Application-ingress').locator('div');
   }
 
+  computeNodeRangeValue(): Locator {
+    return this.page.getByTestId('Compute-node-range').locator('div');
+  }
+
+  routeSelectorsValue(): Locator {
+    return this.page.getByTestId('Route-selectors');
+  }
+
+  excludedNamespacesValue(): Locator {
+    return this.page.getByTestId('Excluded-namespaces');
+  }
+
   excludeNamespaceSelectorsValue(): Locator {
     return this.page.getByTestId('Exclude-namespace-selectors');
   }

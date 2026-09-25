@@ -5,7 +5,7 @@ import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 const clusterProperties = require('../../fixtures/osd-gcp/osd-ccs-gcp-private-wif-psc-cluster-creation-advanced.spec.json');
 const userSuffix = getUsernameSuffix();
 const clusterName = `${clusterProperties.ClusterName}-${userSuffix}`;
-const clusterDomainPrefix = `osd${userSuffix}`;
+const clusterDomainPrefix = `osdpvt${userSuffix}`;
 const authType = `${clusterProperties.AuthenticationType}`;
 const isPscEnabled = 'PrivateServiceConnect';
 
