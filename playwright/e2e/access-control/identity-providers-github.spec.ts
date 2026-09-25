@@ -115,7 +115,9 @@ test.describe.serial(
       await clusterIdentityProviderPage.submitCreateAndVerify();
     });
 
-    test('Verify Teams-based GitHub IDP appears in table', async ({ clusterIdentityProviderPage }) => {
+    test('Verify Teams-based GitHub IDP appears in table', async ({
+      clusterIdentityProviderPage,
+    }) => {
       await clusterIdentityProviderPage.goToAccessControlTab();
       await clusterIdentityProviderPage.goToIdentityProvidersTab();
 
@@ -212,7 +214,9 @@ test.describe.serial(
       await expect(clusterIdentityProviderPage.idpRow(idpName)).toBeHidden({ timeout: 30000 });
     });
 
-    test('Delete GitHub IDP (Teams) and verify removal', async ({ clusterIdentityProviderPage }) => {
+    test('Delete GitHub IDP (Teams) and verify removal', async ({
+      clusterIdentityProviderPage,
+    }) => {
       await clusterIdentityProviderPage.deleteIdp(idpNameTeams);
       await expect(clusterIdentityProviderPage.idpRow(idpNameTeams)).toBeHidden({ timeout: 30000 });
     });

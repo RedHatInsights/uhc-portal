@@ -1297,9 +1297,7 @@ export class ClusterDetailsPage extends BasePage {
     return this.upgradeSettingsPanel().getByRole('button', { name: 'Save' });
   }
 
-  async saveUpgradeSettingsIfNeeded(
-    timeout: number = DEFAULT_NAVIGATION_TIMEOUT,
-  ): Promise<void> {
+  async saveUpgradeSettingsIfNeeded(timeout: number = DEFAULT_NAVIGATION_TIMEOUT): Promise<void> {
     const saveButton = this.upgradeSettingsSaveButton();
     await saveButton.scrollIntoViewIfNeeded();
 
@@ -1385,9 +1383,7 @@ export class ClusterDetailsPage extends BasePage {
     return this.page.getByLabel('Loading channel');
   }
 
-  async waitForOverviewChannelReady(
-    timeout: number = DEFAULT_NAVIGATION_TIMEOUT,
-  ): Promise<void> {
+  async waitForOverviewChannelReady(timeout: number = DEFAULT_NAVIGATION_TIMEOUT): Promise<void> {
     await this.openOverviewTab();
     await this.waitForClusterDetailsLoad();
     await expect(this.channelLoadingIndicator()).not.toBeVisible({ timeout });
