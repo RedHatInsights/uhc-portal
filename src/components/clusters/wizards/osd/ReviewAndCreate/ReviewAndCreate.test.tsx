@@ -53,7 +53,7 @@ const formValues = {
   load_balancers: 0,
   disable_scp_checks: false,
   customer_managed_key: 'false',
-  imds: 'optional',
+  imds: 'required',
   applicationIngress: 'default',
   defaultRouterExcludedNamespacesFlag: '',
   defaultRouterExcludeNamespaceSelectors: [{ id: 't1', key: '', value: '' }],

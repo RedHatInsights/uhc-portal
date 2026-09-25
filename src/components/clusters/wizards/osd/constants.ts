@@ -117,7 +117,7 @@ export const initialValues: FormikValues = {
   [FieldId.LoadBalancers]: 0,
   [FieldId.DisableScpChecks]: false,
   [FieldId.CustomerManagedKey]: 'false',
-  [FieldId.IMDS]: IMDSType.V1AndV2,
+  [FieldId.IMDS]: IMDSType.V2Only,
   [FieldId.ApplicationIngress]: ApplicationIngressType.Default,
   [FieldId.DefaultRouterExcludedNamespacesFlag]: '',
   [FieldId.DefaultRouterExcludeNamespaceSelectors]: [{ id: getRandomID(), key: '', value: '' }],
