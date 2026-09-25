@@ -96,7 +96,9 @@ test.describe.serial(
       clusterDetailsPage,
     }) => {
       // Day-1 should create with Individual updates; this covers existing clusters created with Recurring.
-      await clusterDetailsPage.ensureIndividualUpdatesForChannelEdit(CLUSTER_MUTATION_SETTLE_TIMEOUT);
+      await clusterDetailsPage.ensureIndividualUpdatesForChannelEdit(
+        CLUSTER_MUTATION_SETTLE_TIMEOUT,
+      );
     });
 
     test('Edit channel modal opens with Save disabled until selection changes', async ({

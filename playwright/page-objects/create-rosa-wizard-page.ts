@@ -306,12 +306,14 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   async isControlPlaneTypeScreen(): Promise<void> {
     // Wait for h2 with specific text to load and be visible
-    await this.page.getByRole('heading', { name: 'Welcome to Red Hat OpenShift Service on AWS (ROSA)' })
+    await this.page
+      .getByRole('heading', { name: 'Welcome to Red Hat OpenShift Service on AWS (ROSA)' })
       .waitFor({ timeout: 90000, state: 'visible' });
 
     // Wait for h3 with specific text to load and be visible
-    await this.page.getByRole('heading', {
-      name: 'Select the ROSA architecture based on your control plane requirements',
+    await this.page
+      .getByRole('heading', {
+        name: 'Select the ROSA architecture based on your control plane requirements',
       })
       .waitFor({ timeout: 90000, state: 'visible' });
   }
@@ -597,7 +599,9 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     machinePoolIndex: number = 1,
   ): Promise<void> {
     const mpIndex = machinePoolIndex - 1;
-    const subnetButton = this.page.locator(`button[id="machinePoolsSubnets[${mpIndex}].privateSubnetId"]`);
+    const subnetButton = this.page.locator(
+      `button[id="machinePoolsSubnets[${mpIndex}].privateSubnetId"]`,
+    );
     await subnetButton.click();
     const viewUsedSubnetsButton = this.page.getByRole('option', { name: 'View Used Subnets' });
     await viewUsedSubnetsButton.scrollIntoViewIfNeeded();
@@ -631,7 +635,9 @@ export class CreateRosaWizardPage extends BaseWizardPage {
       return;
     }
 
-    const machinePoolPublicSubnet = this.page.locator('button[id="machinePoolsSubnets[0].publicSubnetId"]');
+    const machinePoolPublicSubnet = this.page.locator(
+      'button[id="machinePoolsSubnets[0].publicSubnetId"]',
+    );
     if (await machinePoolPublicSubnet.isVisible().catch(() => false)) {
       await machinePoolPublicSubnet.click();
     } else {
@@ -869,7 +875,9 @@ export class CreateRosaWizardPage extends BaseWizardPage {
 
   // VPC subnet selection methods for advanced networking
   async selectPrivateSubnet(index: number, subnetName: string): Promise<void> {
-    const privateSubnetButton = this.page.locator(`[id="machinePoolsSubnets[${index}].privateSubnetId"]`);
+    const privateSubnetButton = this.page.locator(
+      `[id="machinePoolsSubnets[${index}].privateSubnetId"]`,
+    );
     await privateSubnetButton.click();
     await this.subnetFilterInput().clear();
     await this.subnetFilterInput().fill(subnetName);
@@ -877,7 +885,9 @@ export class CreateRosaWizardPage extends BaseWizardPage {
   }
 
   async selectPublicSubnet(index: number, subnetName: string): Promise<void> {
-    const publicSubnetButton = this.page.locator(`[id="machinePoolsSubnets[${index}].publicSubnetId"]`);
+    const publicSubnetButton = this.page.locator(
+      `[id="machinePoolsSubnets[${index}].publicSubnetId"]`,
+    );
     await publicSubnetButton.click();
     await this.subnetFilterInput().clear();
     await this.subnetFilterInput().fill(subnetName);
@@ -894,12 +904,16 @@ export class CreateRosaWizardPage extends BaseWizardPage {
   }
 
   async isPrivateSubnetSelected(index: number, subnetName: string): Promise<void> {
-    const privateSubnetButton = this.page.locator(`[id="machinePoolsSubnets[${index}].privateSubnetId"]`);
+    const privateSubnetButton = this.page.locator(
+      `[id="machinePoolsSubnets[${index}].privateSubnetId"]`,
+    );
     await expect(privateSubnetButton).toContainText(subnetName);
   }
 
   async isPubliceSubnetSelected(index: number, subnetName: string): Promise<void> {
-    const publicSubnetButton = this.page.locator(`[id="machinePoolsSubnets[${index}].publicSubnetId"]`);
+    const publicSubnetButton = this.page.locator(
+      `[id="machinePoolsSubnets[${index}].publicSubnetId"]`,
+    );
     await expect(publicSubnetButton).toContainText(subnetName);
   }
 
