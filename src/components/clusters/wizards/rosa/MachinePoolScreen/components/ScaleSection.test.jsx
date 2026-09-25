@@ -43,7 +43,7 @@ const mockValues = {
   [FieldId.InstallerRoleArn]: 'arn:aws:iam::123456789:role/test-role',
   [FieldId.Region]: 'us-east-1',
   [FieldId.BillingModel]: 'standard',
-  [FieldId.IMDS]: IMDSType.V1AndV2,
+  [FieldId.IMDS]: IMDSType.V2Only,
   [FieldId.NodesCompute]: 3,
   [FieldId.SecurityGroups]: {
     worker: [],
@@ -282,7 +282,6 @@ describe('<ScaleSection />', () => {
         ...formStateBaseMock,
         values: {
           ...formStateBaseMock.values,
-          [FieldId.IMDS]: 'optional',
           // a compatible cluster version needs to be specified in order to
           // render the imds field inner contents (i.e. the radio buttons)
           [FieldId.ClusterVersion]: { raw_id: '4.11.0' },
@@ -294,11 +293,11 @@ describe('<ScaleSection />', () => {
           <ScaleSection />
         </Formik>,
       );
-      const imdsRadioSecondOption = screen.getByLabelText('Use IMDSv2 only');
-      await userEvent.click(imdsRadioSecondOption);
+      const imdsV1AndV2Option = screen.getByLabelText('Use both IMDSv1 and IMDSv2');
+      await userEvent.click(imdsV1AndV2Option);
       expect(formStateMock.setFieldValue).toHaveBeenLastCalledWith(
         'imds',
-        'required',
+        'optional',
         expect.anything(),
       );
     });
