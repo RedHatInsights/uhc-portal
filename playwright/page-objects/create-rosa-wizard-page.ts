@@ -170,10 +170,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.locator('select[name="nodes_compute"]');
   }
 
-  useIMDSv2Radio(): Locator {
-    return this.page.getByTestId('imds-required');
-  }
-
   rootDiskSizeInput(): Locator {
     return this.page.getByRole('spinbutton', { name: 'Worker root disk size' });
   }
