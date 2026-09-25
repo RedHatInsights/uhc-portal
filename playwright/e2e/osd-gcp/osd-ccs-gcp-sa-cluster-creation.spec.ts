@@ -131,7 +131,7 @@ test.describe.serial(
     }) => {
       await createOSDWizardPage.isClusterUpdatesScreen();
       await expect(createOSDWizardPage.updateStrategyIndividualRadio()).toBeChecked();
-      await createOSDWizardPage.selectNodeDraining(gcpClusterProperties.NodeDraining);
+      await createOSDWizardPage.selectGracePeriod(gcpClusterProperties.NodeDraining);
       await page.locator(createOSDWizardPage.primaryButton).click();
     });
 
