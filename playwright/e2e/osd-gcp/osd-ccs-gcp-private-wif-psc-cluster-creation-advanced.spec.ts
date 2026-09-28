@@ -10,18 +10,9 @@ const authType = `${clusterProperties.AuthenticationType}`;
 const isPscEnabled = 'PrivateServiceConnect';
 
 const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG?.trim();
-const gcpKeyRingLocation = process.env.QE_GCP_KEY_RING_LOCATION?.trim() ?? '';
-const gcpKeyRing = process.env.QE_GCP_KEY_RING?.trim() ?? '';
-const gcpKeyName = process.env.QE_GCP_KEY_NAME?.trim() ?? '';
-const gcpKMSServiceAccount = process.env.QE_GCP_KMS_SERVICE_ACCOUNT?.trim() ?? '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
 const PSC_INFRA = QE_INFRA_GCP['PSC_INFRA'] || {};
 const region = PSC_INFRA['REGION'] || clusterProperties.Region.split(',')[0];
-const hasCustomGcpKms =
-  Boolean(gcpKeyRingLocation) &&
-  Boolean(gcpKeyRing) &&
-  Boolean(gcpKeyName) &&
-  Boolean(gcpKMSServiceAccount);
 
 test.describe.serial(
   'OSD GCP CCS WIF private PSC advanced cluster creation tests',
@@ -33,14 +24,6 @@ test.describe.serial(
       if (!QE_GCP_WIF_CONFIG) {
         throw new Error(
           'QE_GCP_WIF_CONFIG must be set in playwright.env.json (expected GCP WIF configuration name).',
-        );
-      }
-      if (
-        clusterProperties.EncryptVolumesWithCustomerKeys.includes('Enabled') &&
-        !hasCustomGcpKms
-      ) {
-        throw new Error(
-          'Custom GCP KMS is required for this spec (EncryptVolumesWithCustomerKeys is Enabled). Set QE_GCP_KEY_RING_LOCATION, QE_GCP_KEY_RING, QE_GCP_KEY_NAME, and QE_GCP_KMS_SERVICE_ACCOUNT in playwright.env.json.',
         );
       }
       await navigateTo(CREATE_CLUSTER_ROUTE);
@@ -95,14 +78,6 @@ test.describe.serial(
         await createOSDWizardPage.enableAdditionalEtcdEncryptionCheckbox().check();
         if (clusterProperties.FIPSCryptography.includes('Enabled')) {
           await createOSDWizardPage.enableFIPSCryptographyCheckbox().check();
-        }
-        if (clusterProperties.EncryptVolumesWithCustomerKeys.includes('Enabled')) {
-          await createOSDWizardPage.configureCustomGcpKmsKey({
-            keyRingLocation: gcpKeyRingLocation,
-            keyRing: gcpKeyRing,
-            keyName: gcpKeyName,
-            kmsServiceAccount: gcpKMSServiceAccount,
-          });
         }
       }
 

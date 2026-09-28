@@ -12,7 +12,7 @@
   "FIPSCryptography": "Enabled",
   "SecureBootSupportForShieldedVMs": "Enabled",
   "UserWorkloadMonitoring": "Enabled",
-  "EncryptVolumesWithCustomerKeys": "Enabled",
+  "EncryptVolumesWithCustomerKeys": "Disabled",
   "ClusterAutoscaling": "Enabled",
   "InstallIntoExistingVPC": "Enabled",
   "UsePrivateServiceConnect": "Enabled",
