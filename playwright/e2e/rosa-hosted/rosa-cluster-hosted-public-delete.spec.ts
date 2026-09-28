@@ -12,7 +12,11 @@ test.describe.serial(
   () => {
     let clusterName: string;
 
-    test(`Open cluster matching ${clusterNamePrefix}`, async ({ navigateTo, clusterListPage, clusterDetailsPage }) => {
+    test(`Open cluster matching ${clusterNamePrefix}`, async ({
+      navigateTo,
+      clusterListPage,
+      clusterDetailsPage,
+    }) => {
       await navigateTo(CLUSTER_LIST_ROUTE);
       await clusterListPage.waitForDataReady();
       await clusterListPage.filterTxtField().click();
