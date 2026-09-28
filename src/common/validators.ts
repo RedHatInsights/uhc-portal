@@ -104,8 +104,8 @@ const AWS_KMS_MULTI_REGION_SERVICE_ACCOUNT_REGEX =
  */
 const LABEL_KEY_NAME_REGEX = /^([a-z0-9][a-z0-9-_.]*)?[a-z0-9]$/i;
 
-// Tag keys and values may only contain alphanumeric characters and the following symbols: [_ . : / = + - @].
-const AWS_TAG_KEY_VALUE_REGEX = /^([a-z0-9-_.:/=+-@]*)$/i;
+// Tag keys and values may only contain alphanumeric characters, spaces, and the following symbols: [_ . : / = + - @].
+const AWS_TAG_KEY_VALUE_REGEX = /^([a-z0-9_.:/=+\-@ ]*)$/i;
 
 const AWS_TAG_KEY_MAX_LENGTH = 128;
 const AWS_TAG_VALUE_MAX_LENGTH = 256;
@@ -621,7 +621,7 @@ const awsTagKeyValidations = (value: string | undefined): Validations => [
   { validated: !!value && value.length > 0, text: 'Required' },
   {
     validated: !!value && AWS_TAG_KEY_VALUE_REGEX.test(value),
-    text: "A valid AWS Tag key must consist of alphanumeric characters or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
+    text: "A valid AWS Tag key must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
   },
 
   {
@@ -638,7 +638,7 @@ const awsTagKeyValidations = (value: string | undefined): Validations => [
 const awsTagValueValidations = (value: string | undefined): Validations => [
   {
     validated: !value || (!!value && AWS_TAG_KEY_VALUE_REGEX.test(value)),
-    text: "A valid AWS Tag value must consist of alphanumeric characters or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
+    text: "A valid AWS Tag value must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
   },
 
   {

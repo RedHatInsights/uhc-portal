@@ -1457,7 +1457,7 @@ describe('checkRouteSelectors', () => {
 
 describe('AWS Tag Key Validation', () => {
   const validationErrorMessage =
-    "A valid AWS Tag key must consist of alphanumeric characters or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'";
+    "A valid AWS Tag key must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'";
   it.each([
     [undefined, 'Required'],
     ['', 'Required'],
@@ -1469,6 +1469,7 @@ describe('AWS Tag Key Validation', () => {
     ['valid=key', undefined],
     ['valid+key', undefined],
     ['valid-key@domain', undefined],
+    ['key with spaces', undefined],
     ['123valid', undefined],
     ['UPPERCASE', undefined],
     ['aws:something', 'AWS Tag keys cannot start with "aws"'],
@@ -1476,6 +1477,9 @@ describe('AWS Tag Key Validation', () => {
     ['aws-test', 'AWS Tag keys cannot start with "aws"'],
     ['!invalid', validationErrorMessage],
     ['invalid@#$', validationErrorMessage],
+    ['key,with,comma', validationErrorMessage],
+    ['key<with>brackets', validationErrorMessage],
+    ['key?with?question', validationErrorMessage],
     ['a'.repeat(129), 'A valid AWS Tag key must be 128 characters or less'],
     ['a'.repeat(128), undefined],
   ])(
@@ -1488,7 +1492,7 @@ describe('AWS Tag Key Validation', () => {
 
 describe('AWS Tag Value Validation', () => {
   const validationErrorMessage =
-    "A valid AWS Tag value must consist of alphanumeric characters or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'";
+    "A valid AWS Tag value must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'";
   it.each([
     [undefined, undefined],
     ['', undefined],
@@ -1502,9 +1506,12 @@ describe('AWS Tag Value Validation', () => {
     ['valid-value@domain', undefined],
     ['123valid', undefined],
     ['UPPERCASE', undefined],
-    ['value with spaces', validationErrorMessage],
+    ['value with spaces', undefined],
     ['!invalid', validationErrorMessage],
     ['invalid@#$', validationErrorMessage],
+    ['value,with,comma', validationErrorMessage],
+    ['value<with>brackets', validationErrorMessage],
+    ['value?with?question', validationErrorMessage],
     ['a'.repeat(257), 'A valid AWS Tag key must be 256 characters or less'],
     ['a'.repeat(256), undefined],
   ])(
