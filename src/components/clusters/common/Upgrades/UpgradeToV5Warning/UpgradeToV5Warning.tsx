@@ -14,7 +14,6 @@ const UpgradeToV5Warning = ({
   <Alert
     variant="warning"
     isInline
-    className="pf-v6-u-mb-md"
     data-testid={dataTestId}
     title={
       <>
