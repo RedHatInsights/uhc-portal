@@ -742,5 +742,139 @@ describe('useMachinePoolFormik', () => {
         );
       });
     });
+
+    describe('awsTags', () => {
+      it('skips tag validation when editing an existing pool (day-2 tags are not editable)', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: { kind: 'NodePool', id: 'np-1', replicas: 2 },
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          awsTags: [
+            { key: 'env', value: '' },
+            { key: 'bad,key', value: 'value' },
+            { key: ' ', value: 'true' },
+          ],
+        };
+
+        await expect(validationSchema.validateAt('awsTags', values)).resolves.toEqual(
+          values.awsTags,
+        );
+      });
+
+      it('rejects empty tag values when adding a new HCP machine pool', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: undefined,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          awsTags: [{ key: 'env', value: '' }],
+        };
+
+        await expect(validationSchema.validateAt('awsTags[0].value', values)).rejects.toThrow(
+          'Required',
+        );
+      });
+
+      it('allows an empty placeholder tag row when adding a new machine pool', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: undefined,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          awsTags: [{ key: '', value: '' }],
+        };
+
+        await expect(validationSchema.validateAt('awsTags[0].key', values)).resolves.toBe('');
+        await expect(validationSchema.validateAt('awsTags[0].value', values)).resolves.toBe('');
+      });
+
+      it('rejects invalid and duplicate tag keys when adding a new machine pool', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: undefined,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        await expect(
+          validationSchema.validateAt('awsTags[0].key', {
+            ...defaultExpectedInitialValues,
+            awsTags: [{ key: 'bad,key', value: 'ok' }],
+          }),
+        ).rejects.toThrow(/alphanumeric characters, spaces/);
+
+        await expect(
+          validationSchema.validateAt('awsTags[0].key', {
+            ...defaultExpectedInitialValues,
+            awsTags: [
+              { key: 'env', value: 'one' },
+              { key: 'env', value: 'two' },
+            ],
+          }),
+        ).rejects.toThrow('Each AWS Tag must have a different key.');
+      });
+
+      it('rejects a tag value without a key when adding a new machine pool', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: undefined,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        await expect(
+          validationSchema.validateAt('awsTags[0].value', {
+            ...defaultExpectedInitialValues,
+            awsTags: [{ key: '', value: 'orphan' }],
+          }),
+        ).rejects.toThrow('AWS Tag key has to be defined');
+      });
+
+      it('accepts a valid tag key and value when adding a new HCP machine pool', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: hyperShiftCluster,
+            machinePool: undefined,
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          awsTags: [{ key: 'env name', value: 'prod west' }],
+        };
+
+        await expect(validationSchema.validateAt('awsTags[0].key', values)).resolves.toBe(
+          'env name',
+        );
+        await expect(validationSchema.validateAt('awsTags[0].value', values)).resolves.toBe(
+          'prod west',
+        );
+      });
+    });
   });
 });
