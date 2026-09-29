@@ -533,6 +533,29 @@ describe('getMaxNodeCountForMachinePool', () => {
       );
       expect(maxNodeCount).toBe(expectedMaxNodes);
     });
+
+    it('returns expected max node count if not hypershift and subscription is GCP Marketplace billing, ignoring org quota', () => {
+      getAvailableQuotaMock.mockReturnValue(0);
+
+      const gcpMarketplaceArgs = {
+        ...newMachinePoolArgs,
+        cluster: {
+          ...defaultArgs.cluster,
+          hypershift: { enabled: false },
+          billing_model: 'marketplace-gcp' as const,
+          product: { id: 'OSD' },
+        },
+      };
+
+      const maxNodeCount = getMaxNodeCountForMachinePool(gcpMarketplaceArgs);
+
+      const expectedMaxNodes = machinePoolUtils.getMaxSupportedNodesClassic(
+        defaultArgs.cluster.version?.raw_id,
+      );
+      expect(maxNodeCount).toBe(expectedMaxNodes);
+
+      getAvailableQuotaMock.mockReturnValue(50990);
+    });
   });
 
   describe('Editing an existing machine pool', () => {
