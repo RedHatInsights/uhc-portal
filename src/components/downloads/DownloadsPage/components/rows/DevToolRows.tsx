@@ -71,6 +71,24 @@ const DevToolRows = ({
 
       <ToolAndDescriptionRows
         {...commonProps}
+        tool={tools.HELM}
+        channel={channels.STABLE}
+        name={
+          <>
+            Helm 4 CLI (<code>helm</code>)
+          </>
+        }
+        description={
+          <Content component="p">
+            Define, install, and upgrade application packages as Helm charts using Helm 4, a package
+            manager for Kubernetes.{' '}
+            <ExternalLink href={installLinks.HELM_DOCS}>Learn more</ExternalLink>
+          </Content>
+        }
+      />
+
+      <ToolAndDescriptionRows
+        {...commonProps}
         tool={tools.OPM}
         channel={channels.STABLE}
         name={
