@@ -26,6 +26,8 @@ const MIRROR_COREOS_INSTALLER_LATEST = `https://mirror.openshift.com/pub/${MIRRO
 const MIRROR_CRC_LATEST =
   'https://developers.redhat.com/content-gateway/rest/mirror/pub/cgw/crc/latest';
 const MIRROR_HELM3_LATEST = 'https://mirror.openshift.com/pub/cgw/helm/latest';
+// Helm v4 has no `latest`/`stable` pointer; pin to a numbered release.
+const MIRROR_HELM_LATEST = 'https://mirror.openshift.com/pub/cgw/helm/4.3.0';
 const MIRROR_KN_LATEST = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/clients/serverless/latest`;
 const MIRROR_TKN_LATEST = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/clients/pipeline/latest`;
 // odo is deprecated/EOL and is not published under /openshift-v5/; keep the v4 path.
@@ -214,6 +216,7 @@ const tools = {
   COREOS_INSTALLER: 'coreos-installer',
   CRC: 'crc',
   HELM3: 'helm3',
+  HELM: 'helm',
   X86INSTALLER: 'x86_64-openshift-install',
   IBMZINSTALLER: 's390x-openshift-install',
   PPCINSTALLER: 'ppc64le-openshift-install',
@@ -433,6 +436,27 @@ const urls = {
       [architectures.arm]: {
         [operatingSystems.linux]: `${MIRROR_HELM3_LATEST}/helm-linux-arm64.tar.gz`,
         [operatingSystems.mac]: `${MIRROR_HELM3_LATEST}/helm-darwin-arm64.tar.gz`,
+      },
+    },
+  },
+
+  [tools.HELM]: {
+    [channels.STABLE]: {
+      [architectures.x86]: {
+        [operatingSystems.linux]: `${MIRROR_HELM_LATEST}/helm-linux-amd64.tar.gz`,
+        [operatingSystems.mac]: `${MIRROR_HELM_LATEST}/helm-darwin-amd64.tar.gz`,
+        [operatingSystems.windows]: `${MIRROR_HELM_LATEST}/helm-windows-amd64.zip`,
+      },
+      [architectures.s390x]: {
+        [operatingSystems.linux]: `${MIRROR_HELM_LATEST}/helm-linux-s390x.tar.gz`,
+      },
+      [architectures.ppc]: {
+        [operatingSystems.linux]: `${MIRROR_HELM_LATEST}/helm-linux-ppc64le.tar.gz`,
+      },
+      [architectures.arm]: {
+        [operatingSystems.linux]: `${MIRROR_HELM_LATEST}/helm-linux-arm64.tar.gz`,
+        [operatingSystems.mac]: `${MIRROR_HELM_LATEST}/helm-darwin-arm64.tar.gz`,
+        [operatingSystems.windows]: `${MIRROR_HELM_LATEST}/helm-windows-arm64.zip`,
       },
     },
   },
