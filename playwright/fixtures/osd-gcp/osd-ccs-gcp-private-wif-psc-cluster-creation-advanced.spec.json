@@ -6,7 +6,7 @@
   "SubscriptionBillingModel": "Annual Red Hat subscriptions",
   "InfrastructureType": "Customer cloud subscription",
   "AuthenticationType": "Workload Identity Federation",
-  "Region": "us-central1, Council Bluffs, Iowa, USA",
+  "Region": "us-west2, Los Angeles, California, USA",
   "Availability": "Multi-zone",
   "AdditionalEncryption": "Enabled",
   "FIPSCryptography": "Enabled",
