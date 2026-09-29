@@ -19,9 +19,9 @@ type MissingOCMRoleAlertProps = {
 };
 
 export const MissingOCMRoleAlert = ({ awsAccountId }: MissingOCMRoleAlertProps) => {
-  const { isError } = useFetchGetOCMRole(awsAccountId);
+  const { error } = useFetchGetOCMRole(awsAccountId);
 
-  if (!isError) {
+  if (error?.errorCode !== 404) {
     return null;
   }
 

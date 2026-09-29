@@ -72,20 +72,15 @@ describe('<MissingOCMRoleAlert />', () => {
     expect(screen.getByRole('heading', { name: ALERT_TITLE })).toBeInTheDocument();
   });
 
-  it.each([
-    { errorCode: 400, label: '400' },
-    { errorCode: 403, label: '403' },
-    { errorCode: 503, label: '503' },
-    { errorCode: undefined, label: 'no HTTP status (e.g. network)' },
-  ])('shows the warning banner when getOCMRole fails with $label', ({ errorCode }) => {
-    mockUseFetchGetOCMRole.mockReturnValue(ocmRoleResponse({ isError: true, errorCode }));
-
+  it('does not show the banner when an OCM role is already linked', () => {
     render(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
 
-    expect(screen.getByRole('heading', { name: ALERT_TITLE })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: ALERT_TITLE })).not.toBeInTheDocument();
   });
 
-  it('does not show the banner when an OCM role is already linked', () => {
+  it('does not show the banner when getOCMRole fails with a non-404 error', () => {
+    mockUseFetchGetOCMRole.mockReturnValue(ocmRoleResponse({ isError: true, errorCode: 400 }));
+
     render(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
 
     expect(screen.queryByRole('heading', { name: ALERT_TITLE })).not.toBeInTheDocument();
