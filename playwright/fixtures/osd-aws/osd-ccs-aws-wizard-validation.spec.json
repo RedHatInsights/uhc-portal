@@ -141,6 +141,14 @@
                 {
                   "InvalidValue": "Invalid-",
                   "Error": "Namespace name 'Invalid-' isn't valid, must consist of lower-case alphanumeric characters or '-', start with an alphabetic character, and end with an alphanumeric character. For example, 'my-name', or 'abc-123'."
+                },
+                {
+                  "InvalidValue": "openshift",
+                  "Error": "Excluded namespaces value 'openshift' must not include 'openshift' or 'kube'"
+                },
+                {
+                  "InvalidValue": "kube",
+                  "Error": "Excluded namespaces value 'kube' must not include 'openshift' or 'kube'"
                 }
               ]
             }
