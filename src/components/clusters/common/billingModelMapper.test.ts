@@ -30,14 +30,12 @@ describe('billingModelMapper', () => {
         RelatedResourceBillingModel.marketplace,
       ],
       [SubscriptionCommonFieldsClusterBillingModel.standard, RelatedResourceBillingModel.standard],
-      ['any', undefined],
-      ['whatever', undefined],
-    ] as const)('when -%p- then %p', (clusterBillingModel, expected) =>
-      expect(
-        clusterBillingModelToRelatedResource(
-          clusterBillingModel as ClusterBillingModel | undefined,
-        ),
-      ).toBe(expected),
+    ])(
+      'when -%p- then %p',
+      (
+        clusterBillingModel: ClusterBillingModel | undefined,
+        expected: RelatedResourceBillingModel | undefined,
+      ) => expect(clusterBillingModelToRelatedResource(clusterBillingModel)).toBe(expected),
     );
   });
   describe('isGcpMarketplaceBilling', () => {

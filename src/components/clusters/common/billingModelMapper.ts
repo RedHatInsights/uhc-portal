@@ -10,7 +10,7 @@ export const clusterBillingModelToRelatedResource = (
   clusterBillingModel?: ClusterBillingModel,
 ): RelatedResourceBillingModel | undefined => {
   switch (true) {
-    case clusterBillingModel?.toLowerCase().startsWith('marketplace'):
+    case clusterBillingModel?.startsWith('marketplace'):
       return RelatedResourceBillingModel.marketplace;
     case clusterBillingModel === SubscriptionCommonFieldsClusterBillingModel.standard:
       return RelatedResourceBillingModel.standard;
