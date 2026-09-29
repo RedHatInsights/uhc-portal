@@ -1,38 +1,50 @@
 import React from 'react';
 
 import supportLinks from '~/common/supportLinks.mjs';
-import { useFetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
+import { refetchGetOCMRole, useFetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
 import { checkAccessibility, render, screen } from '~/testUtils';
 
 import { MissingOCMRoleAlert, MissingOCMRoleAlertContent } from './MissingOCMRoleAlert';
 
 jest.mock('~/queries/common/useFetchGetOCMRole', () => ({
   useFetchGetOCMRole: jest.fn(),
+  refetchGetOCMRole: jest.fn(),
 }));
 
 const mockUseFetchGetOCMRole = useFetchGetOCMRole as jest.Mock;
+const mockRefetchGetOCMRole = refetchGetOCMRole as jest.Mock;
 
 const AWS_ACCOUNT_ID = '123456789012';
 const ALERT_TITLE = /Missing or unlinked OCM role/;
+const REFRESH_BUTTON = /Refresh OCM role/i;
 
 const ocmRoleResponse = ({
   isError = false,
   errorCode,
+  isFetching = false,
 }: {
   isError?: boolean;
   errorCode?: number;
+  isFetching?: boolean;
 } = {}) => ({
   data: isError ? undefined : { arn: 'arn:aws:iam::123456789012:role/OCM-Role' },
   isError,
   error: isError ? { errorCode } : null,
   isPending: false,
+  isFetching,
   isSuccess: !isError,
   status: isError ? 'error' : 'success',
 });
 
 describe('<MissingOCMRoleAlertContent />', () => {
+  const onRefresh = jest.fn();
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('shows the warning banner copy and knowledge base link', () => {
-    render(<MissingOCMRoleAlertContent />);
+    render(<MissingOCMRoleAlertContent onRefresh={onRefresh} />);
 
     expect(screen.getByRole('heading', { name: ALERT_TITLE })).toBeInTheDocument();
     expect(
@@ -41,6 +53,7 @@ describe('<MissingOCMRoleAlertContent />', () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByText(/The OCM role is required by October 1, 2026/i)).toBeInTheDocument();
+    expect(screen.getByText(/After linking your OCM role, check again:/i)).toBeInTheDocument();
     expect(
       screen.getByRole('link', {
         name: 'Learn more. (new window or tab)',
@@ -48,8 +61,28 @@ describe('<MissingOCMRoleAlertContent />', () => {
     ).toHaveAttribute('href', supportLinks.OCM_ROLE_KB);
   });
 
+  it('calls onRefresh when Refresh OCM role is clicked', async () => {
+    const { user } = render(<MissingOCMRoleAlertContent onRefresh={onRefresh} />);
+
+    await user.click(screen.getByRole('button', { name: 'Refresh OCM role' }));
+
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables and shows loading on Refresh OCM role button when isRefreshPending is true', () => {
+    render(<MissingOCMRoleAlertContent onRefresh={onRefresh} isRefreshPending />);
+
+    expect(screen.getByRole('button', { name: REFRESH_BUTTON })).toBeDisabled();
+  });
+
+  it('does not disable Refresh OCM role button when isRefreshPending is false', () => {
+    render(<MissingOCMRoleAlertContent onRefresh={onRefresh} isRefreshPending={false} />);
+
+    expect(screen.getByRole('button', { name: 'Refresh OCM role' })).not.toBeDisabled();
+  });
+
   it('is accessible', async () => {
-    const { container } = render(<MissingOCMRoleAlertContent />);
+    const { container } = render(<MissingOCMRoleAlertContent onRefresh={onRefresh} />);
 
     await checkAccessibility(container);
   });
@@ -90,5 +123,25 @@ describe('<MissingOCMRoleAlert />', () => {
     render(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
 
     expect(mockUseFetchGetOCMRole).toHaveBeenCalledWith(AWS_ACCOUNT_ID);
+  });
+
+  it('calls refetchGetOCMRole with the AWS account ID when Refresh OCM role is clicked', async () => {
+    mockUseFetchGetOCMRole.mockReturnValue(ocmRoleResponse({ isError: true, errorCode: 404 }));
+
+    const { user } = render(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
+
+    await user.click(screen.getByRole('button', { name: 'Refresh OCM role' }));
+
+    expect(mockRefetchGetOCMRole).toHaveBeenCalledWith(AWS_ACCOUNT_ID);
+  });
+
+  it('disables Refresh OCM role while the OCM role query is fetching', () => {
+    mockUseFetchGetOCMRole.mockReturnValue(
+      ocmRoleResponse({ isError: true, errorCode: 404, isFetching: true }),
+    );
+
+    render(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
+
+    expect(screen.getByRole('button', { name: REFRESH_BUTTON })).toBeDisabled();
   });
 });
