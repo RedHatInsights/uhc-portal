@@ -4,7 +4,8 @@ import Downloads from '../../pageobjects/Downloads.page';
 const ROSARowTitle = 'Manage your Red Hat OpenShift Service on AWS';
 const OCRowTitle =
   'Create applications and manage OpenShift projects from the command line using the OpenShift client oc';
-const HELMRowTitle = 'Define, install, and upgrade application packages as Helm charts using Helm';
+const HELM3RowTitle =
+  'Define, install, and upgrade application packages as Helm charts using Helm 3';
 const OSLocalTitle = 'Download and open the OpenShift Local';
 
 describe('Downloads page', { tags: ['ci', 'smoke'] }, () => {
@@ -31,29 +32,29 @@ describe('Downloads page', { tags: ['ci', 'smoke'] }, () => {
   it('expand/collapse affects only selected category', () => {
     Downloads.isHiddenRowContaining(ROSARowTitle);
     Downloads.isHiddenRowContaining(OCRowTitle);
-    Downloads.isHiddenRowContaining(HELMRowTitle);
+    Downloads.isHiddenRowContaining(HELM3RowTitle);
 
     Downloads.filterByCategory('Command-line interface (CLI) tools');
     Downloads.clickExpandAll();
     Downloads.isVisibleRowContaining(ROSARowTitle);
     Downloads.isVisibleRowContaining(OCRowTitle);
-    Downloads.rowDoesNotExist('expanded-row-helm');
+    Downloads.rowDoesNotExist('expanded-row-helm3');
 
     Downloads.filterByCategory('All categories');
     Downloads.isVisibleRowContaining(ROSARowTitle);
     Downloads.isVisibleRowContaining(OCRowTitle);
-    Downloads.isHiddenRowContaining(HELMRowTitle);
+    Downloads.isHiddenRowContaining(HELM3RowTitle);
 
     // Given mixed state, first click expands all.
     Downloads.clickExpandAll();
     Downloads.isVisibleRowContaining(ROSARowTitle);
-    Downloads.isVisibleRowContaining(HELMRowTitle);
+    Downloads.isVisibleRowContaining(HELM3RowTitle);
 
     // Once all expanded, second click collapses all.
     Downloads.clickCollapseAll();
     Downloads.isHiddenRowContaining(ROSARowTitle);
     Downloads.isHiddenRowContaining(OCRowTitle);
-    Downloads.isHiddenRowContaining(HELMRowTitle);
+    Downloads.isHiddenRowContaining(HELM3RowTitle);
   });
 
   it('selecting OS affects architecture options & href', () => {
@@ -100,9 +101,9 @@ describe('Downloads page', { tags: ['ci', 'smoke'] }, () => {
   });
 
   it('selecting a category preserves OS & architecture of invisible sections', () => {
-    cy.getByTestId('os-dropdown-helm').select('Linux');
+    cy.getByTestId('os-dropdown-helm3').select('Linux');
 
-    cy.getByTestId('arch-dropdown-helm').select('s390x');
+    cy.getByTestId('arch-dropdown-helm3').select('s390x');
 
     // OpenShift Local
     cy.getByTestId('os-dropdown-crc').select('Windows');
@@ -110,18 +111,18 @@ describe('Downloads page', { tags: ['ci', 'smoke'] }, () => {
     Downloads.filterByCategory('Tokens');
 
     Downloads.rowDoesNotExist('expanded-row-rosa');
-    Downloads.rowDoesNotExist('expanded-row-helm');
+    Downloads.rowDoesNotExist('expanded-row-helm3');
     Downloads.rowDoesNotExist('expanded-row-crc');
 
     Downloads.filterByCategory('All categories');
     Downloads.clickExpandAll();
 
     Downloads.isVisibleRowContaining(ROSARowTitle);
-    Downloads.isVisibleRowContaining(HELMRowTitle);
+    Downloads.isVisibleRowContaining(HELM3RowTitle);
     Downloads.isVisibleRowContaining(OSLocalTitle);
 
-    cy.getByTestId('os-dropdown-helm').should('have.value', 'linux');
-    cy.getByTestId('arch-dropdown-helm').should('have.value', 's390x');
+    cy.getByTestId('os-dropdown-helm3').should('have.value', 'linux');
+    cy.getByTestId('arch-dropdown-helm3').should('have.value', 's390x');
     // OpenShift Local
     cy.getByTestId('os-dropdown-crc').should('have.value', 'windows');
   });
