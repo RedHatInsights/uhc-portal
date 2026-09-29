@@ -182,6 +182,16 @@ const scrollToFirstField = (
   return false;
 };
 
+const CHROME_PAGE_MAIN_SELECTOR = 'main.pf-v6-c-page__main';
+
+/**
+ * Scrolls Hybrid Cloud Console's PatternFly page main (and the window) to the top.
+ * In-app React Router navigation does not reset those scroll positions on its own.
+ */
+const scrollAppToTop = (): void => {
+  document.querySelector<HTMLElement>(CHROME_PAGE_MAIN_SELECTOR)?.scrollTo(0, 0);
+};
+
 /**
  * Converts redux form structure to the structure expected by OCM API.
  * Pairs with missing keys are omitted.
@@ -401,6 +411,7 @@ export {
   strToCleanObject,
   shouldRefetchQuota,
   scrollToFirstField,
+  scrollAppToTop,
   parseReduxFormKeyValueList,
   parseReduxFormTaints,
   goZeroTime,
