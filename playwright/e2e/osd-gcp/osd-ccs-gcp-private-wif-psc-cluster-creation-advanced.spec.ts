@@ -12,7 +12,7 @@ const isPscEnabled = 'PrivateServiceConnect';
 const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG?.trim();
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
 const PSC_INFRA = QE_INFRA_GCP['PSC_INFRA'] || {};
-const region = PSC_INFRA['REGION'] || clusterProperties.Region.split(',')[0];
+const region = PSC_INFRA['REGION'];
 
 test.describe.serial(
   'OSD GCP CCS WIF private PSC advanced cluster creation tests',
@@ -24,6 +24,17 @@ test.describe.serial(
       if (!QE_GCP_WIF_CONFIG) {
         throw new Error(
           'QE_GCP_WIF_CONFIG must be set in playwright.env.json (expected GCP WIF configuration name).',
+        );
+      }
+      if (
+        !PSC_INFRA['REGION'] ||
+        !PSC_INFRA['VPC_NAME'] ||
+        !PSC_INFRA['CONTROLPLANE_SUBNET'] ||
+        !PSC_INFRA['COMPUTE_SUBNET'] ||
+        !PSC_INFRA['PRIVATE_SERVICE_CONNECT_SUBNET']
+      ) {
+        throw new Error(
+          'QE_INFRA_GCP.PSC_INFRA must include REGION, VPC_NAME, CONTROLPLANE_SUBNET, COMPUTE_SUBNET, and PRIVATE_SERVICE_CONNECT_SUBNET',
         );
       }
       await navigateTo(CREATE_CLUSTER_ROUTE);
@@ -148,13 +159,11 @@ test.describe.serial(
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isVPCSubnetScreen();
-      await createOSDWizardPage.selectGcpVPC(PSC_INFRA['VPC_NAME'] || '');
-      await createOSDWizardPage.selectControlPlaneSubnetName(
-        PSC_INFRA['CONTROLPLANE_SUBNET'] || '',
-      );
-      await createOSDWizardPage.selectComputeSubnetName(PSC_INFRA['COMPUTE_SUBNET'] || '');
+      await createOSDWizardPage.selectGcpVPC(PSC_INFRA['VPC_NAME']);
+      await createOSDWizardPage.selectControlPlaneSubnetName(PSC_INFRA['CONTROLPLANE_SUBNET']);
+      await createOSDWizardPage.selectComputeSubnetName(PSC_INFRA['COMPUTE_SUBNET']);
       await createOSDWizardPage.selectPrivateServiceConnectSubnetName(
-        PSC_INFRA['PRIVATE_SERVICE_CONNECT_SUBNET'] || '',
+        PSC_INFRA['PRIVATE_SERVICE_CONNECT_SUBNET'],
       );
       await createOSDWizardPage.wizardNextButton().click();
     });
@@ -235,6 +244,8 @@ test.describe.serial(
       await expect(createOSDWizardPage.computeNodeRangeValue()).toContainText(
         `Maximum nodes per zone: ${clusterProperties.MachinePools[0].MaximumNodeCount}`,
       );
+      const label = `${clusterProperties.MachinePools[0].Labels[0].Key} = ${clusterProperties.MachinePools[0].Labels[0].Value}`;
+      await expect(createOSDWizardPage.nodeLabelsValue(label)).toBeVisible();
       await expect(createOSDWizardPage.clusterPrivacyValue()).toContainText(
         clusterProperties.ClusterPrivacy,
       );

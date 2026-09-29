@@ -23,13 +23,15 @@ test.describe.serial(
     ],
   },
   () => {
+    test.beforeAll(async ({ navigateTo, clusterListPage }) => {
+      await navigateTo(CLUSTER_LIST_ROUTE);
+      await clusterListPage.waitForDataReady();
+    });
+
     test(`Open OSD - ${clusterProperties.CloudProvider} Workload Identity Federation PrivateServiceConnect cluster`, async ({
-      navigateTo,
       clusterListPage,
       clusterDetailsPage,
     }) => {
-      await navigateTo(CLUSTER_LIST_ROUTE);
-      await clusterListPage.waitForDataReady();
       await clusterListPage.filterTxtField().click();
       await clusterListPage.filterTxtField().clear();
       await clusterListPage.filterTxtField().fill(clusterName);

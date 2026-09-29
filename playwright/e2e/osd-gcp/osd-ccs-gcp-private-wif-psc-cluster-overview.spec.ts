@@ -14,7 +14,7 @@ const region =
 test.describe.serial(
   'OSD GCP CCS WIF private PSC cluster overview tests',
   {
-    tag: ['@advanced', '@day2', '@osd', '@ccs', '@gcp', '@private', '@wif', '@psc', '@multizone'],
+    tag: ['@advanced', '@day2', '@osd', '@ccs', '@gcp', '@private', '@wif', '@psc', '@multizone','@overview'],
   },
   () => {
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {

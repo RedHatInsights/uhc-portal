@@ -46,7 +46,7 @@ test.describe.serial(
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isClusterDetailsScreen();
-      await createOSDWizardPage.setClusterNameAndWaitForAvailability(clusterName);
+      await createOSDWizardPage.setClusterName(clusterName);
       await createOSDWizardPage.closePopoverDialogs();
       await createOSDWizardPage.createCustomDomainPrefixCheckbox().check();
       await createOSDWizardPage.setDomainPrefix(clusterDomainPrefix);
@@ -150,10 +150,9 @@ test.describe.serial(
       await expect(createOSDWizardPage.persistentStorageValue()).toContainText(
         clusterProperties.PersistentStorage,
       );
-      // Bug OCMUI-5374 : Load balancers value is not visible in the review screen
-      // await expect(createOSDWizardPage.loadBalancersValue()).toContainText(
-      //   clusterProperties.LoadBalancers,
-      // );
+      await expect(createOSDWizardPage.loadBalancersValue()).toContainText(
+        clusterProperties.LoadBalancers,
+      );
       await expect(createOSDWizardPage.additionalEtcdEncryptionValue()).toContainText(
         clusterProperties.AdditionalEncryption,
       );
