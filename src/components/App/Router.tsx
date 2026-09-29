@@ -21,6 +21,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
+import { scrollAppToTop } from '~/common/helpers';
 import {
   CLUSTER_LIST_PATH,
   Navigate,
@@ -107,6 +108,10 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
       ...(is404() ? { title: '404 Not Found' } : {}),
     });
   }, [pathname, planType, clusterId, externalClusterId, setPageMetadata]);
+
+  useEffect(() => {
+    scrollAppToTop();
+  }, [pathname]);
 
   return (
     <ApiError apiRequest={apiRequest}>

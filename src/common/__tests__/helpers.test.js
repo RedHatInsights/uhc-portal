@@ -6,6 +6,7 @@ import helpers, {
   parseCIDRSubnetLength,
   parseReduxFormKeyValueList,
   parseReduxFormTaints,
+  scrollAppToTop,
   scrollToFirstField,
   shouldRefetchQuota,
   strToKeyValueObject,
@@ -163,6 +164,22 @@ describe('scrollToFirstField', () => {
 
     // Assert
     expect(document.activeElement.id).toBe(expectedId);
+  });
+});
+
+describe('scrollAppToTop', () => {
+  it('scrolls the Chrome page main to the top', () => {
+    const pageMain = document.createElement('main');
+    pageMain.className = 'pf-v6-c-page__main';
+    const pageMainScrollTo = jest.fn();
+    pageMain.scrollTo = pageMainScrollTo;
+    document.body.appendChild(pageMain);
+
+    scrollAppToTop();
+
+    expect(pageMainScrollTo).toHaveBeenCalledWith(0, 0);
+
+    pageMain.remove();
   });
 });
 
