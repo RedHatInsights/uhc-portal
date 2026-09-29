@@ -90,10 +90,9 @@ const trackEvents: { [key: string]: TrackEvent } = {
     link_name: 'crc',
     ocm_resource_type: ocmResourceType.CRC,
   },
-  [tools.HELM]: {
-    deprecated_name: 'Download-HELM-CLI',
+  [tools.HELM3]: {
     event: eventNames.FILE_DOWNLOADED,
-    link_name: 'helm-cli',
+    link_name: 'helm3-cli',
     ocm_resource_type: ocmResourceType.ALL,
   },
   [tools.X86INSTALLER]: {

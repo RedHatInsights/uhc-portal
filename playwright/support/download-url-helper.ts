@@ -10,7 +10,7 @@ import {
   operatingSystems,
 } from '../../src/common/installLinks.mjs';
 
-type Tool = 'rosa' | 'odo' | 'oc' | 'helm' | 'ocm';
+type Tool = 'rosa' | 'odo' | 'oc' | 'helm3' | 'ocm';
 type OS = 'linux' | 'mac' | 'windows';
 type Arch = 'x86' | 'arm' | 'ppc' | 's390x';
 
@@ -37,7 +37,7 @@ export function getDownloadUrl(tool: Tool, os: OS, arch: Arch = 'x86'): string {
     rosa: tools.ROSA,
     odo: tools.ODO,
     oc: tools.OC,
-    helm: tools.HELM,
+    helm3: tools.HELM3,
     ocm: tools.OCM,
   };
 

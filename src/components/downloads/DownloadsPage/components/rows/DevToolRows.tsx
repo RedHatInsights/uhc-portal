@@ -53,7 +53,7 @@ const DevToolRows = ({
 
       <ToolAndDescriptionRows
         {...commonProps}
-        tool={tools.HELM}
+        tool={tools.HELM3}
         channel={channels.STABLE}
         name={
           <>
