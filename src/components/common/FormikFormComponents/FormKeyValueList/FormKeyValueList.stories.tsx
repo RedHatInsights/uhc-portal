@@ -1,7 +1,7 @@
 import React from 'react';
 import { FieldArray, Formik } from 'formik';
 
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 

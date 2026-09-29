@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { OCP5_SUPPORT, TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
