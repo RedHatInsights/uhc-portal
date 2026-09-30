@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik, type FormikTouched, type FormikValues } from 'formik';
 
 import { Form, Grid } from '@patternfly/react-core';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
