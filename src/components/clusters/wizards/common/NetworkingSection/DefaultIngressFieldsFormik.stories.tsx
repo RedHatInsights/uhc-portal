@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik, type FormikValues } from 'formik';
 
 import { Form } from '@patternfly/react-core';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
