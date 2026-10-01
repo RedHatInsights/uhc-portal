@@ -1,6 +1,13 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
-import { Button, EmptyState, EmptyStateBody, EmptyStateVariant } from '@patternfly/react-core';
+import {
+  Button,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateVariant,
+  Spinner,
+} from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { useFetchSupportCases } from '~/queries/ClusterDetailsQueries/ClusterSupportTab/useFetchSupportCases';
@@ -17,6 +24,21 @@ type SupportCasesCardProps = {
   cluster: AugmentedCluster;
 };
 
+const SupportCasesErrorState = ({ onRetry }: { onRetry: () => void }) => (
+  <EmptyState
+    headingLevel="h4"
+    icon={ExclamationCircleIcon}
+    status="danger"
+    titleText="Support cases could not be loaded"
+  >
+    <EmptyStateBody>
+      <Button variant="link" isInline onClick={onRetry}>
+        Retry
+      </Button>
+    </EmptyStateBody>
+  </EmptyState>
+);
+
 const SupportCasesCard = ({
   subscriptionID,
   isDisabled = false,
@@ -24,16 +46,10 @@ const SupportCasesCard = ({
 }: SupportCasesCardProps) => {
   const product = cluster?.subscription?.plan?.type;
   const isRestricted = isRestrictedEnv();
-  const { supportCases, isLoading, refetch } = useFetchSupportCases(subscriptionID, isRestricted);
-
-  useEffect(() => {
-    if (!isRestrictedEnv()) {
-      if (supportCases.subscriptionID !== subscriptionID || !isLoading) {
-        refetch();
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscriptionID, supportCases.subscriptionID]);
+  const { supportCases, isLoading, isError, refetch } = useFetchSupportCases(
+    subscriptionID,
+    isRestricted,
+  );
 
   const rows = useMemo(() => supportCases.cases?.map(supportCaseRow), [supportCases.cases]);
   const hasRows = useMemo(() => rows && rows.length > 0, [rows]);
@@ -51,7 +67,9 @@ const SupportCasesCard = ({
           <Button variant="secondary">Open support case</Button>
         </a>
       )}
-      {!isRestrictedEnv() && (
+      {!isRestricted && isLoading && <Spinner aria-label="Loading support cases" />}
+      {!isRestricted && !isLoading && isError && <SupportCasesErrorState onRetry={refetch} />}
+      {!isRestricted && !isLoading && !isError && (
         <>
           <Table
             variant={TableVariant.compact}
