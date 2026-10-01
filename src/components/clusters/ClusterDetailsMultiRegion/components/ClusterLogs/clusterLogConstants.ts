@@ -3,8 +3,15 @@ import { ClusterLogLog_type as ClusterLogType, ClusterLogSeverity } from '~/type
 const GET_CLUSTER_LOGS = 'GET_CLUSTER_LOGS';
 const RESET_CLUSTER_HISTORY = 'RESET_CLUSTER_HISTORY';
 
-// Dual legacy + HCC labels during ROSA-725 transition (ROSAENG-62580 / OCMUI-4718).
-const SEVERITY_TYPES: string[] = Object.values(ClusterLogSeverity);
+// HCC severity labels only (ROSA-725 / OCMUI-4306). Legacy Info/Warning/Major are no longer
+// offered in the UI; ClusterLogSeverity may still list them from the OpenAPI model.
+const SEVERITY_TYPES: string[] = [
+  ClusterLogSeverity.Debug,
+  ClusterLogSeverity.Low,
+  ClusterLogSeverity.Moderate,
+  ClusterLogSeverity.Important,
+  ClusterLogSeverity.Critical,
+];
 
 const LOG_TYPES: string[] = Object.values(ClusterLogType).sort((a, b) =>
   a.localeCompare(b, undefined, { sensitivity: 'case' }),
