@@ -21,17 +21,14 @@ const REFRESH_BUTTON = /Refresh OCM role/i;
 const ocmRoleResponse = ({
   isError = false,
   errorCode,
-  isFetching = false,
 }: {
   isError?: boolean;
   errorCode?: number;
-  isFetching?: boolean;
 } = {}) => ({
   data: isError ? undefined : { arn: 'arn:aws:iam::123456789012:role/OCM-Role' },
   isError,
   error: isError ? { errorCode } : null,
   isPending: false,
-  isFetching,
   isSuccess: !isError,
   status: isError ? 'error' : 'success',
 });
@@ -91,6 +88,7 @@ describe('<MissingOCMRoleAlertContent />', () => {
 describe('<MissingOCMRoleAlert />', () => {
   beforeEach(() => {
     mockUseFetchGetOCMRole.mockReturnValue(ocmRoleResponse());
+    mockRefetchGetOCMRole.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -135,13 +133,26 @@ describe('<MissingOCMRoleAlert />', () => {
     expect(mockRefetchGetOCMRole).toHaveBeenCalledWith(AWS_ACCOUNT_ID);
   });
 
-  it('disables Refresh OCM role while the OCM role query is fetching', () => {
-    mockUseFetchGetOCMRole.mockReturnValue(
-      ocmRoleResponse({ isError: true, errorCode: 404, isFetching: true }),
+  it('disables Refresh OCM role only while a click-triggered refetch is in flight', async () => {
+    let resolveRefetch: (value?: unknown) => void = () => undefined;
+    mockRefetchGetOCMRole.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRefetch = resolve;
+        }),
     );
+    mockUseFetchGetOCMRole.mockReturnValue(ocmRoleResponse({ isError: true, errorCode: 404 }));
 
-    render(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
+    const { user } = render(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
+
+    expect(screen.getByRole('button', { name: 'Refresh OCM role' })).not.toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Refresh OCM role' }));
 
     expect(screen.getByRole('button', { name: REFRESH_BUTTON })).toBeDisabled();
+
+    resolveRefetch();
+
+    expect(await screen.findByRole('button', { name: 'Refresh OCM role' })).not.toBeDisabled();
   });
 });

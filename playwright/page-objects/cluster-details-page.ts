@@ -1,9 +1,12 @@
-import { Page, Locator, expect, Response } from '@playwright/test';
+import { expect, Locator, Page, Response } from '@playwright/test';
+
+import supportLinks from '../../src/common/supportLinks.mjs';
+import { DEFAULT_NAVIGATION_TIMEOUT } from '../support/playwright-constants';
 import {
   clearQuotaCostMock as clearQuotaCostRouteMock,
   mockQuotaCostWithBillingContract as mockQuotaCostRouteWithBillingContract,
 } from '../support/quota-mock-helper';
-import { DEFAULT_NAVIGATION_TIMEOUT } from '../support/playwright-constants';
+
 import { BasePage } from './base-page';
 import type { ClusterListPage } from './cluster-list-page';
 
@@ -1499,6 +1502,79 @@ export class ClusterDetailsPage extends BasePage {
     if (isExpanded !== 'true') {
       await toggle.click();
     }
+  }
+
+  // ── Missing / unlinked OCM role (Overview) ──────────────────────────────
+
+  /** Toolbar Refresh control */
+  clusterDetailsRefreshButton(): Locator {
+    return this.page.getByRole('button', { name: 'Refresh', exact: true });
+  }
+
+  missingOcmRoleAlertHeading(): Locator {
+    return this.page.getByRole('heading', { name: /Missing or unlinked OCM role/ });
+  }
+
+  missingOcmRoleAlertBody(): Locator {
+    return this.page.getByText(
+      /does not currently have an OCM Role configured for the AWS account/,
+    );
+  }
+
+  missingOcmRoleRequiredByText(): Locator {
+    return this.page.getByText(/The OCM role is required by October 1, 2026/i);
+  }
+
+  missingOcmRoleRefreshPrompt(): Locator {
+    return this.page.getByText(/After linking your OCM role, check again:/i);
+  }
+
+  missingOcmRoleLearnMoreLink(): Locator {
+    return this.page.locator(`a[href="${supportLinks.OCM_ROLE_KB}"]`);
+  }
+
+  refreshOcmRoleButton(): Locator {
+    return this.page.getByRole('button', { name: 'Refresh OCM role' });
+  }
+
+  /**
+   * Intercepts POST .../aws_inquiries/sts_ocm_role.
+   * Flip `state.isLinked` between calls to switch 404 (missing) vs 200 (linked)
+   * without re-registering the route.
+   */
+  async mockStsOcmRoleInquiry(state: { isLinked: boolean }): Promise<void> {
+    await this.page.unroute('**/aws_inquiries/sts_ocm_role**');
+    await this.page.route('**/aws_inquiries/sts_ocm_role**', async (route) => {
+      if (!state.isLinked) {
+        await route.fulfill({
+          status: 404,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            kind: 'Error',
+            id: '404',
+            href: '/api/clusters_mgmt/v1/errors/404',
+            code: 'CLUSTERS-MGMT-404',
+            reason: 'OCM role not found',
+          }),
+        });
+        return;
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          arn: 'arn:aws:iam::123456789012:role/ManagedOpenShift-OCM-Role-1515115',
+          type: 'OCMRole',
+          isAdmin: true,
+          roleVersion: '4.10',
+        }),
+      });
+    });
+  }
+
+  async clearStsOcmRoleInquiryMock(): Promise<void> {
+    await this.page.unroute('**/aws_inquiries/sts_ocm_role**');
   }
 
   // ── Identity Provider Hint Alert ────────────────────────────────────────

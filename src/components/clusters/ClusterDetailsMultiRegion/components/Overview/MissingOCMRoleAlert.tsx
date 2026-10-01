@@ -47,16 +47,23 @@ type MissingOCMRoleAlertProps = {
 };
 
 export const MissingOCMRoleAlert = ({ awsAccountId }: MissingOCMRoleAlertProps) => {
-  const { error, isFetching } = useFetchGetOCMRole(awsAccountId);
+  const { error } = useFetchGetOCMRole(awsAccountId);
+  const [isRefreshPending, setIsRefreshPending] = React.useState(false);
 
   if (error?.errorCode !== 404) {
     return null;
   }
 
+  const handleRefresh = async () => {
+    setIsRefreshPending(true);
+    try {
+      await refetchGetOCMRole(awsAccountId);
+    } finally {
+      setIsRefreshPending(false);
+    }
+  };
+
   return (
-    <MissingOCMRoleAlertContent
-      onRefresh={() => refetchGetOCMRole(awsAccountId)}
-      isRefreshPending={isFetching}
-    />
+    <MissingOCMRoleAlertContent onRefresh={handleRefresh} isRefreshPending={isRefreshPending} />
   );
 };

@@ -6,12 +6,11 @@ import { accountsService } from '~/services';
 import { formatErrorData } from '../helpers';
 import { queryConstants } from '../queriesConstants';
 
-export const refetchGetOCMRole = (awsAccountID: string) => {
+export const refetchGetOCMRole = (awsAccountID: string) =>
   queryClient.invalidateQueries({ queryKey: [queryConstants.FETCH_GET_OCM_ROLE, awsAccountID] });
-};
 
 export const useFetchGetOCMRole = (awsAccountID: string) => {
-  const { data, isError, error, isLoading, isPending, isFetching, isSuccess, status } = useQuery({
+  const { data, isError, error, isLoading, isPending, isSuccess, status } = useQuery({
     queryKey: [queryConstants.FETCH_GET_OCM_ROLE, awsAccountID],
     queryFn: async () => {
       const response = await accountsService.getOCMRole(awsAccountID);
@@ -29,7 +28,6 @@ export const useFetchGetOCMRole = (awsAccountID: string) => {
     isError,
     error: isError ? errorData.error : null,
     isPending,
-    isFetching,
     isSuccess,
     status,
   };
