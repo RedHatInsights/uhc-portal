@@ -89,15 +89,15 @@ jobs:
           fi
 
       - name: Create playwright.env.json from secret
+        env:
+          PLAYWRIGHT_ENV_JSON: ${{ secrets.PLAYWRIGHT_ENV_JSON }}
+          BUILD_ID: ${{ github.run_id }}
         run: |
           echo "Creating playwright.env.json..."
-          echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' > playwright.env.json
+          printf '%s' "$PLAYWRIGHT_ENV_JSON" > playwright.env.json
 
           # Restrict file permissions for security
           chmod 600 playwright.env.json
-
-          # Add unique identifiers to avoid resource conflicts
-          BUILD_ID="${{ github.run_id }}"
 
           # Add build identifier to avoid conflicts
           jq ". + {\"BUILD_IDENTIFIER\": \"${BUILD_ID}\"}" playwright.env.json > tmp.json && mv tmp.json playwright.env.json
@@ -199,7 +199,22 @@ jobs:
             echo "AWS authentication check failed, but continuing..."
           fi
 
-          # Setup AWS cloud resources (suppress sensitive output)
+          # Setup AWS cloud resources (suppress sensitive output).
+          # Empty values skip CloudWatch and AutoNode role creation.
+          CENTRAL_LOG_ARN_ROLE=$(jq -r '.CENTRAL_LOG_ARN_ROLE // empty' playwright.env.json)
+          OIDC_CONFIG_ISSUER_URL=$(jq -r '.OIDC_CONFIG_ISSUER_URL // empty' playwright.env.json)
+          export CENTRAL_LOG_ARN_ROLE
+          export OIDC_CONFIG_ISSUER_URL
+          if [ -n "$CENTRAL_LOG_ARN_ROLE" ]; then
+            echo "Central log role ARN is set"
+          else
+            echo "Central log role ARN is empty; CloudWatch role creation will be skipped"
+          fi
+          if [ -n "$OIDC_CONFIG_ISSUER_URL" ]; then
+            echo "OIDC issuer URL is set"
+          else
+            echo "OIDC issuer URL is empty; AutoNode role creation will be skipped"
+          fi
           echo "Setting up AWS cloud resources..."
           chmod +x ./qe-helper-scripts/create-vpc-infrastructure.sh
           if ./qe-helper-scripts/create-vpc-infrastructure.sh >/dev/null 2>&1; then

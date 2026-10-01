@@ -2,7 +2,9 @@
 
 # AWS VPC Infrastructure Setup Script
 # Creates: VPC, 2-3 public subnets, 2-3 private subnets (based on available AZs), configurable security groups (no rules),
-#          SQS queue (EventBridge-wired), and an S3 bucket + prefix for ROSA log forwarding
+#          SQS queue (EventBridge-wired), an S3 bucket + prefix for ROSA log forwarding,
+#          and (only when --central-log-role-arn is set) an IAM role for CloudWatch log forwarding.
+#          When --oidc-config-issuer-url is set, also creates two AutoNode IAM roles.
 # Requires: At least 2 availability zones in the target region
 
 set -e  # Exit on any error
@@ -26,6 +28,23 @@ SKIP_SQS_QUEUE="${SKIP_SQS_QUEUE:-false}"  # Set to true to skip SQS queue creat
 S3_BUCKET_NAME="${S3_BUCKET_NAME:-}"
 S3_BUCKET_PREFIX="${S3_BUCKET_PREFIX:-logs}"  # Folder / key prefix inside the S3 bucket
 SKIP_S3_BUCKET="${SKIP_S3_BUCKET:-false}"  # Set to true to skip S3 bucket creation
+# CLI flags override these. When both the flag and the env vars are empty, CloudWatch is skipped.
+ENV_CENTRAL_LOG_ARN_ROLE="${CENTRAL_LOG_ARN_ROLE:-}"
+ENV_CENTRAL_LOG_ROLE_ARN="${CENTRAL_LOG_ROLE_ARN:-}"
+CENTRAL_LOG_ROLE_ARN=""
+CENTRAL_LOG_ARG_SET=0
+CLOUDWATCH_ROLE_NAME="${CLOUDWATCH_ROLE_NAME:-}"
+CLOUDWATCH_ROLE_ARN=""
+# CLI flag overrides this. When both the flag and the env var are empty, AutoNode is skipped.
+ENV_OIDC_CONFIG_ISSUER_URL="${OIDC_CONFIG_ISSUER_URL:-}"
+OIDC_CONFIG_ISSUER_URL=""
+OIDC_ARG_SET=0
+OIDC_ENDPOINT_URL=""
+AWS_ACCOUNT_ID=""
+AUTONODE_ROLE_NAME="${AUTONODE_ROLE_NAME:-}"
+AUTONODE_ROLE_NAME_SECONDARY="${AUTONODE_ROLE_NAME_SECONDARY:-}"
+AUTONODE_ROLE_ARN=""
+AUTONODE_ROLE_ARN_SECONDARY=""
 
 # Colors for output
 RED='\033[0;31m'
@@ -57,7 +76,38 @@ sanitize_aws_name() {
 }
 
 # Queue, EventBridge rules, and S3 bucket follow the VPC name so create/cleanup stay together.
+# Parameter wins. Otherwise use the environment. Otherwise leave the value empty so creation is skipped.
+resolve_cloudwatch_and_autonode_inputs() {
+    if [ "$CENTRAL_LOG_ARG_SET" != "1" ]; then
+        if [ -n "$ENV_CENTRAL_LOG_ARN_ROLE" ]; then
+            CENTRAL_LOG_ROLE_ARN="$ENV_CENTRAL_LOG_ARN_ROLE"
+        elif [ -n "$ENV_CENTRAL_LOG_ROLE_ARN" ]; then
+            CENTRAL_LOG_ROLE_ARN="$ENV_CENTRAL_LOG_ROLE_ARN"
+        else
+            CENTRAL_LOG_ROLE_ARN=""
+        fi
+    fi
+
+    if [ "$OIDC_ARG_SET" != "1" ]; then
+        if [ -n "$ENV_OIDC_CONFIG_ISSUER_URL" ]; then
+            OIDC_CONFIG_ISSUER_URL="$ENV_OIDC_CONFIG_ISSUER_URL"
+        else
+            OIDC_CONFIG_ISSUER_URL=""
+        fi
+    fi
+}
+
 apply_vpc_scoped_defaults() {
+    resolve_cloudwatch_and_autonode_inputs
+    CENTRAL_LOG_ROLE_ARN="${CENTRAL_LOG_ROLE_ARN//[[:space:]]/}"
+    OIDC_CONFIG_ISSUER_URL="${OIDC_CONFIG_ISSUER_URL//[[:space:]]/}"
+    OIDC_ENDPOINT_URL=""
+    if [ -n "$OIDC_CONFIG_ISSUER_URL" ]; then
+        OIDC_ENDPOINT_URL="${OIDC_CONFIG_ISSUER_URL#https://}"
+        OIDC_ENDPOINT_URL="${OIDC_ENDPOINT_URL#http://}"
+        OIDC_ENDPOINT_URL="${OIDC_ENDPOINT_URL%/}"
+    fi
+
     local vpc_slug
     vpc_slug="$(sanitize_aws_name "$VPC_NAME")"
     if [ -z "$vpc_slug" ]; then
@@ -76,6 +126,40 @@ apply_vpc_scoped_defaults() {
             S3_BUCKET_NAME="${S3_BUCKET_NAME%-}"
         fi
     fi
+
+    if [ -z "$CLOUDWATCH_ROLE_NAME" ]; then
+        local role_prefix="CustomerLogDistribution-"
+        local role_slug="$vpc_slug"
+        local max_slug=$((64 - ${#role_prefix}))
+        if [ ${#role_slug} -gt "$max_slug" ]; then
+            role_slug="${role_slug:0:$max_slug}"
+            role_slug="${role_slug%-}"
+        fi
+        CLOUDWATCH_ROLE_NAME="${role_prefix}${role_slug}"
+    fi
+
+    local autonode_prefix="AutoNode-"
+    local autonode_secondary_suffix="-secondary"
+    local autonode_slug="$vpc_slug"
+    local autonode_max_slug=$((64 - ${#autonode_prefix} - ${#autonode_secondary_suffix}))
+    if [ ${#autonode_slug} -gt "$autonode_max_slug" ]; then
+        autonode_slug="${autonode_slug:0:$autonode_max_slug}"
+        autonode_slug="${autonode_slug%-}"
+    fi
+    if [ -z "$AUTONODE_ROLE_NAME" ]; then
+        AUTONODE_ROLE_NAME="${autonode_prefix}${autonode_slug}"
+    fi
+    if [ -z "$AUTONODE_ROLE_NAME_SECONDARY" ]; then
+        AUTONODE_ROLE_NAME_SECONDARY="${autonode_prefix}${autonode_slug}${autonode_secondary_suffix}"
+    fi
+}
+
+autonode_roles_requested() {
+    [ -n "$OIDC_CONFIG_ISSUER_URL" ]
+}
+
+cloudwatch_role_requested() {
+    [ -n "$CENTRAL_LOG_ROLE_ARN" ]
 }
 
 # Function to check if AWS CLI is installed
@@ -116,7 +200,7 @@ check_vpc_exists() {
         --output text 2>/dev/null)
     
     if [[ "$EXISTING_VPC_ID" != "None" && "$EXISTING_VPC_ID" != "" ]]; then
-        print_found "VPC '$VPC_NAME' already exists with ID: $EXISTING_VPC_ID"
+        print_found "VPC '$VPC_NAME' already exists"
         VPC_ID=$EXISTING_VPC_ID
         return 0
     else
@@ -136,7 +220,7 @@ check_internet_gateway_exists() {
         --output text 2>/dev/null)
     
     if [[ "$EXISTING_IGW_ID" != "None" && "$EXISTING_IGW_ID" != "" ]]; then
-        print_found "Internet Gateway already exists with ID: $EXISTING_IGW_ID"
+        print_found "Internet Gateway already exists"
         IGW_ID=$EXISTING_IGW_ID
         return 0
     else
@@ -157,7 +241,7 @@ check_subnet_exists() {
         --output text 2>/dev/null)
     
     if [[ "$existing_subnet_id" != "None" && "$existing_subnet_id" != "" ]]; then
-        print_found "Subnet '$subnet_name' already exists with ID: $existing_subnet_id"
+        print_found "Subnet '$subnet_name' already exists"
         eval "$subnet_var_name=$existing_subnet_id"
         return 0
     else
@@ -177,7 +261,7 @@ check_security_group_exists() {
         --output text 2>/dev/null)
     
     if [[ "$existing_sg_id" != "None" && "$existing_sg_id" != "" ]]; then
-        print_found "Security Group '$sg_name' already exists with ID: $existing_sg_id"
+        print_found "Security Group '$sg_name' already exists"
         eval "$sg_var_name=$existing_sg_id"
         return 0
     else
@@ -197,7 +281,7 @@ check_route_table_exists() {
         --output text 2>/dev/null)
     
     if [[ "$existing_rt_id" != "None" && "$existing_rt_id" != "" ]]; then
-        print_found "Route Table '$rt_name' already exists with ID: $existing_rt_id"
+        print_found "Route Table '$rt_name' already exists"
         eval "$rt_var_name=$existing_rt_id"
         return 0
     else
@@ -216,7 +300,7 @@ check_nat_gateway_exists() {
         --output text 2>/dev/null)
     
     if [[ "$EXISTING_NAT_GW_ID" != "None" && "$EXISTING_NAT_GW_ID" != "" ]]; then
-        print_found "NAT Gateway already exists with ID: $EXISTING_NAT_GW_ID"
+        print_found "NAT Gateway already exists"
         NAT_GW_ID=$EXISTING_NAT_GW_ID
         return 0
     else
@@ -248,8 +332,7 @@ validate_availability_zones() {
         exit 1
     fi
     
-    print_status "Found $num_azs available AZ(s): ${azs[*]}"
-    echo $num_azs
+    print_status "Found $num_azs available availability zones"
 }
 
 # Function to create VPC
@@ -267,7 +350,7 @@ create_vpc() {
         --query 'Vpc.VpcId' \
         --output text)
     
-    print_status "VPC created with ID: $VPC_ID"
+    print_status "VPC created"
     
     # Enable DNS hostnames and resolution
     aws ec2 modify-vpc-attribute --vpc-id $VPC_ID --enable-dns-hostnames --region $REGION
@@ -290,7 +373,7 @@ create_internet_gateway() {
         --query 'InternetGateway.InternetGatewayId' \
         --output text)
     
-    print_status "Internet Gateway created with ID: $IGW_ID"
+    print_status "Internet Gateway created"
     
     # Attach Internet Gateway to VPC
     aws ec2 attach-internet-gateway \
@@ -334,10 +417,10 @@ create_public_subnets() {
                 --query 'Subnet.SubnetId' \
                 --output text)
             eval "$subnet_var=$subnet_id"
-            print_status "Created Public Subnet $subnet_num: $subnet_id ($az)"
+            print_status "Created public subnet $subnet_num in $az"
         else
             local subnet_id=$(eval echo \$$subnet_var)
-            print_status "Using existing Public Subnet $subnet_num: $subnet_id ($az)"
+            print_status "Using existing public subnet $subnet_num in $az"
         fi
         
         # Store subnet ID
@@ -351,7 +434,7 @@ create_public_subnets() {
     for i in $(seq 0 $((num_azs - 1))); do
         local subnet_num=$((i + 1))
         local subnet_var="PUBLIC_SUBNET_${subnet_num}_ID"
-        print_status "  Public Subnet $subnet_num: $(eval echo \$$subnet_var) (${AZS[$i]})"
+        print_status "  Public subnet $subnet_num (${AZS[$i]})"
     done
 }
 
@@ -388,10 +471,10 @@ create_private_subnets() {
                 --query 'Subnet.SubnetId' \
                 --output text)
             eval "$subnet_var=$subnet_id"
-            print_status "Created Private Subnet $subnet_num: $subnet_id ($az)"
+            print_status "Created private subnet $subnet_num in $az"
         else
             local subnet_id=$(eval echo \$$subnet_var)
-            print_status "Using existing Private Subnet $subnet_num: $subnet_id ($az)"
+            print_status "Using existing private subnet $subnet_num in $az"
         fi
         
         # Store subnet ID
@@ -402,7 +485,7 @@ create_private_subnets() {
     for i in $(seq 0 $((num_azs - 1))); do
         local subnet_num=$((i + 1))
         local subnet_var="PRIVATE_SUBNET_${subnet_num}_ID"
-        print_status "  Private Subnet $subnet_num: $(eval echo \$$subnet_var) (${AZS[$i]})"
+        print_status "  Private subnet $subnet_num (${AZS[$i]})"
     done
 }
 
@@ -418,7 +501,7 @@ create_route_tables() {
             --tag-specifications "ResourceType=route-table,Tags=[{Key=Name,Value=$VPC_NAME-public-rt}]" \
             --query 'RouteTable.RouteTableId' \
             --output text)
-        print_status "Created public route table: $PUBLIC_RT_ID"
+        print_status "Created public route table"
     fi
     
     # Check and create private route table
@@ -429,7 +512,7 @@ create_route_tables() {
             --tag-specifications "ResourceType=route-table,Tags=[{Key=Name,Value=$VPC_NAME-private-rt}]" \
             --query 'RouteTable.RouteTableId' \
             --output text)
-        print_status "Created private route table: $PRIVATE_RT_ID"
+        print_status "Created private route table"
     fi
     
     # Add route to internet gateway for public route table (if not exists)
@@ -444,7 +527,7 @@ create_route_tables() {
             --route-table-id $PUBLIC_RT_ID \
             --destination-cidr-block 0.0.0.0/0 \
             --gateway-id $IGW_ID \
-            --region $REGION
+            --region $REGION > /dev/null
         print_status "Added internet route to public route table"
     else
         print_found "Internet route already exists in public route table"
@@ -460,9 +543,7 @@ create_route_tables() {
         associate_subnet_with_route_table $subnet_id $PRIVATE_RT_ID
     done
     
-    print_status "Route tables configured:"
-    print_status "  Public Route Table: $PUBLIC_RT_ID"
-    print_status "  Private Route Table: $PRIVATE_RT_ID"
+    print_status "Route tables configured"
 }
 
 # Helper function to associate subnet with route table
@@ -478,10 +559,10 @@ associate_subnet_with_route_table() {
         --output text 2>/dev/null)
     
     if [[ "$EXISTING_ASSOCIATION" == "" || "$EXISTING_ASSOCIATION" == "None" ]]; then
-        aws ec2 associate-route-table --subnet-id $subnet_id --route-table-id $route_table_id --region $REGION
-        print_status "Associated subnet $subnet_id with route table $route_table_id"
+        aws ec2 associate-route-table --subnet-id $subnet_id --route-table-id $route_table_id --region $REGION > /dev/null
+        print_status "Associated subnet with route table"
     else
-        print_found "Subnet $subnet_id already associated with route table $route_table_id"
+        print_found "Subnet already associated with route table"
     fi
 }
 
@@ -508,7 +589,7 @@ create_security_groups() {
                 --tag-specifications "ResourceType=security-group,Tags=[{Key=Name,Value=$SG_NAME},{Key=Index,Value=$i}]" \
                 --query 'GroupId' \
                 --output text)
-            print_status "Created security group $i: $SG_ID ($SG_NAME)"
+            print_status "Created security group $SG_NAME"
             eval "$SG_VAR_NAME=$SG_ID"
         else
             # Get the ID from the variable that was set by check_security_group_exists
@@ -524,7 +605,7 @@ create_security_groups() {
     # Rules can be added later as needed
     print_status "Security groups configured:"
     for i in $(seq 1 $NUM_SECURITY_GROUPS); do
-        print_status "  SG $i: ${SECURITY_GROUP_IDS[$((i-1))]} (${SECURITY_GROUP_NAMES[$((i-1))]})"
+        print_status "  ${SECURITY_GROUP_NAMES[$((i-1))]}"
     done
 }
 
@@ -579,14 +660,14 @@ create_nat_gateway() {
             --route-table-id $PRIVATE_RT_ID \
             --destination-cidr-block 0.0.0.0/0 \
             --nat-gateway-id $NAT_GW_ID \
-            --region $REGION
+            --region $REGION > /dev/null
         print_status "Added NAT Gateway route to private route table"
     else
         print_found "NAT Gateway route already exists in private route table"
     fi
     
-    print_status "NAT Gateway created: $NAT_GW_ID"
-    print_status "Elastic IP allocated: $ELASTIC_IP_ALLOCATION_ID"
+    print_status "NAT Gateway created"
+    print_status "Elastic IP allocated"
 }
 
 # Function to check if the SQS queue already exists (sets QUEUE_URL if found)
@@ -660,7 +741,7 @@ create_sqs_queue() {
         --region "$REGION" \
         --attributes '{
     "Policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"'${QUEUE_ARN}'\"}]}"
-  }'
+  }' > /dev/null
 
     print_status "SQS queue configured: $queue_name"
 }
@@ -674,7 +755,7 @@ cleanup_sqs_queue() {
     if check_sqs_queue_exists; then
         for rule_name in "${QUEUE_PREFIX}-spot-interruption-warning" "${QUEUE_PREFIX}-rebalance-recommendation"; do
             if aws events describe-rule --name "$rule_name" --region "$REGION" &> /dev/null; then
-                aws events remove-targets --rule "$rule_name" --ids "1" --region "$REGION" 2>/dev/null || true
+                aws events remove-targets --rule "$rule_name" --ids "1" --region "$REGION" > /dev/null 2>&1 || true
                 aws events delete-rule --name "$rule_name" --region "$REGION" 2>/dev/null || true
                 print_status "Deleted EventBridge rule: $rule_name"
             fi
@@ -765,6 +846,253 @@ cleanup_s3_bucket() {
     fi
 }
 
+# Trust policy that lets the ROSA central log role assume the customer CloudWatch role.
+cloudwatch_trust_policy_json() {
+    jq -c -n --arg principal "$CENTRAL_LOG_ROLE_ARN" '{
+        Version: "2012-10-17",
+        Statement: [
+            {
+                Effect: "Allow",
+                Principal: { AWS: $principal },
+                Action: "sts:AssumeRole"
+            }
+        ]
+    }'
+}
+
+validate_central_log_role_arn() {
+    if [[ ! "$CENTRAL_LOG_ROLE_ARN" =~ ^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+ ]]; then
+        print_error "Invalid --central-log-role-arn"
+        print_error "Expected an IAM role ARN: arn:aws:iam::<account>:role/<name>"
+        exit 1
+    fi
+}
+
+check_cloudwatch_role_exists() {
+    local arn
+    arn="$(aws iam get-role --role-name "$CLOUDWATCH_ROLE_NAME" --query 'Role.Arn' --output text 2>/dev/null)" || return 1
+    if [[ -z "$arn" || "$arn" == "None" ]]; then
+        return 1
+    fi
+    print_found "CloudWatch log-forwarding role already exists"
+    CLOUDWATCH_ROLE_ARN="$arn"
+    return 0
+}
+
+# Create the customer IAM role whose ARN is written to QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN.
+create_cloudwatch_role() {
+    validate_central_log_role_arn
+    local trust_policy
+    trust_policy="$(cloudwatch_trust_policy_json)"
+
+    if check_cloudwatch_role_exists; then
+        print_status "Updating trust policy on '$CLOUDWATCH_ROLE_NAME'..."
+        aws iam update-assume-role-policy \
+            --role-name "$CLOUDWATCH_ROLE_NAME" \
+            --policy-document "$trust_policy" \
+            >/dev/null
+    else
+        print_status "Creating CloudWatch log-forwarding role '$CLOUDWATCH_ROLE_NAME'..."
+        CLOUDWATCH_ROLE_ARN="$(aws iam create-role \
+            --role-name "$CLOUDWATCH_ROLE_NAME" \
+            --assume-role-policy-document "$trust_policy" \
+            --description "ROSA control plane log forwarding role for Playwright" \
+            --query 'Role.Arn' \
+            --output text)"
+        print_status "CloudWatch role created"
+    fi
+
+    print_status "CloudWatch log-forwarding role configured"
+}
+
+cleanup_cloudwatch_role() {
+    print_status "Cleaning up CloudWatch log-forwarding role '$CLOUDWATCH_ROLE_NAME'..."
+
+    if aws iam get-role --role-name "$CLOUDWATCH_ROLE_NAME" >/dev/null 2>&1; then
+        local attached inline policy_arn
+        attached="$(aws iam list-attached-role-policies \
+            --role-name "$CLOUDWATCH_ROLE_NAME" \
+            --query 'AttachedPolicies[].PolicyArn' \
+            --output text)"
+        if [[ -n "$attached" && "$attached" != "None" ]]; then
+            for policy_arn in $attached; do
+                print_status "Detaching an attached policy from '$CLOUDWATCH_ROLE_NAME'"
+                aws iam detach-role-policy \
+                    --role-name "$CLOUDWATCH_ROLE_NAME" \
+                    --policy-arn "$policy_arn" \
+                    >/dev/null
+            done
+        fi
+
+        inline="$(aws iam list-role-policies \
+            --role-name "$CLOUDWATCH_ROLE_NAME" \
+            --query 'PolicyNames[]' \
+            --output text)"
+        if [[ -n "$inline" && "$inline" != "None" ]]; then
+            for policy_arn in $inline; do
+                print_status "Deleting an inline policy from '$CLOUDWATCH_ROLE_NAME'"
+                aws iam delete-role-policy \
+                    --role-name "$CLOUDWATCH_ROLE_NAME" \
+                    --policy-name "$policy_arn"
+            done
+        fi
+
+        aws iam delete-role --role-name "$CLOUDWATCH_ROLE_NAME"
+        print_status "Deleted CloudWatch role: $CLOUDWATCH_ROLE_NAME"
+    else
+        print_status "CloudWatch role '$CLOUDWATCH_ROLE_NAME' not found. Nothing to clean up."
+    fi
+}
+
+validate_oidc_issuer_url() {
+    if [ -z "$OIDC_ENDPOINT_URL" ]; then
+        print_error "Invalid --oidc-config-issuer-url"
+        print_error "Expected an OIDC issuer URL such as https://<host>/<id>"
+        exit 1
+    fi
+    if [[ "$OIDC_ENDPOINT_URL" == *"://"* || ! "$OIDC_ENDPOINT_URL" =~ ^[A-Za-z0-9.-]+/.+ ]]; then
+        print_error "Invalid OIDC issuer URL"
+        print_error "Expected https://<host>/<path>"
+        exit 1
+    fi
+}
+
+# Trust policy that lets the Karpenter service account assume each AutoNode role.
+autonode_trust_policy_json() {
+    local federated="arn:aws:iam::${AWS_ACCOUNT_ID}:oidc-provider/${OIDC_ENDPOINT_URL}"
+    local sub_key="${OIDC_ENDPOINT_URL}:sub"
+    jq -c -n --arg federated "$federated" --arg sub_key "$sub_key" '{
+        Version: "2012-10-17",
+        Statement: [
+            {
+                Effect: "Allow",
+                Principal: { Federated: $federated },
+                Action: "sts:AssumeRoleWithWebIdentity",
+                Condition: {
+                    StringEquals: {
+                        ($sub_key): "system:serviceaccount:kube-system:karpenter"
+                    }
+                }
+            }
+        ]
+    }'
+}
+
+lookup_autonode_role_arn() {
+    local role_name="$1"
+    local arn
+    arn="$(aws iam get-role --role-name "$role_name" --query 'Role.Arn' --output text 2>/dev/null)" || return 1
+    if [[ -z "$arn" || "$arn" == "None" ]]; then
+        return 1
+    fi
+    printf '%s' "$arn"
+}
+
+remember_autonode_role_arn() {
+    local which="$1"
+    local arn="$2"
+    if [ "$which" = "secondary" ]; then
+        AUTONODE_ROLE_ARN_SECONDARY="$arn"
+    else
+        AUTONODE_ROLE_ARN="$arn"
+    fi
+}
+
+check_autonode_role_exists() {
+    local role_name="$1"
+    local which="$2"
+    local arn
+    arn="$(lookup_autonode_role_arn "$role_name")" || return 1
+    print_found "AutoNode role already exists"
+    remember_autonode_role_arn "$which" "$arn"
+    return 0
+}
+
+upsert_autonode_role() {
+    local role_name="$1"
+    local which="$2"
+    local trust_policy="$3"
+    local arn
+    if arn="$(lookup_autonode_role_arn "$role_name")"; then
+        print_found "AutoNode role already exists"
+        print_status "Updating trust policy on '$role_name'..."
+        aws iam update-assume-role-policy \
+            --role-name "$role_name" \
+            --policy-document "$trust_policy" \
+            >/dev/null
+    else
+        print_status "Creating AutoNode role '$role_name'..."
+        arn="$(aws iam create-role \
+            --role-name "$role_name" \
+            --assume-role-policy-document "$trust_policy" \
+            --description "ROSA AutoNode role for Playwright" \
+            --query 'Role.Arn' \
+            --output text)"
+        print_status "AutoNode role created"
+    fi
+    remember_autonode_role_arn "$which" "$arn"
+}
+
+create_autonode_roles() {
+    validate_oidc_issuer_url
+    if [ "$AUTONODE_ROLE_NAME" = "$AUTONODE_ROLE_NAME_SECONDARY" ]; then
+        print_error "AutoNode role names must be different: '$AUTONODE_ROLE_NAME'"
+        exit 1
+    fi
+
+    AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+
+    local trust_policy
+    trust_policy="$(autonode_trust_policy_json)"
+    upsert_autonode_role "$AUTONODE_ROLE_NAME" "primary" "$trust_policy"
+    upsert_autonode_role "$AUTONODE_ROLE_NAME_SECONDARY" "secondary" "$trust_policy"
+    print_status "AutoNode roles configured"
+}
+
+delete_iam_role_by_name() {
+    local role_name="$1"
+    if aws iam get-role --role-name "$role_name" >/dev/null 2>&1; then
+        local attached inline policy_arn
+        attached="$(aws iam list-attached-role-policies \
+            --role-name "$role_name" \
+            --query 'AttachedPolicies[].PolicyArn' \
+            --output text)"
+        if [[ -n "$attached" && "$attached" != "None" ]]; then
+            for policy_arn in $attached; do
+                print_status "Detaching an attached policy from '$role_name'"
+                aws iam detach-role-policy \
+                    --role-name "$role_name" \
+                    --policy-arn "$policy_arn" \
+                    >/dev/null
+            done
+        fi
+
+        inline="$(aws iam list-role-policies \
+            --role-name "$role_name" \
+            --query 'PolicyNames[]' \
+            --output text)"
+        if [[ -n "$inline" && "$inline" != "None" ]]; then
+            for policy_arn in $inline; do
+                print_status "Deleting an inline policy from '$role_name'"
+                aws iam delete-role-policy \
+                    --role-name "$role_name" \
+                    --policy-name "$policy_arn"
+            done
+        fi
+
+        aws iam delete-role --role-name "$role_name"
+        print_status "Deleted IAM role: $role_name"
+    else
+        print_status "IAM role '$role_name' not found. Nothing to clean up."
+    fi
+}
+
+cleanup_autonode_roles() {
+    print_status "Cleaning up AutoNode roles..."
+    delete_iam_role_by_name "$AUTONODE_ROLE_NAME"
+    delete_iam_role_by_name "$AUTONODE_ROLE_NAME_SECONDARY"
+}
+
 # Function to validate all resources exist
 validate_resources() {
     print_status "=== Validating Infrastructure ==="
@@ -832,6 +1160,26 @@ validate_resources() {
     if [ "$SKIP_S3_BUCKET" != "true" ]; then
         if ! check_s3_bucket_exists; then
             print_error "S3 bucket validation failed"
+            validation_failed=true
+        fi
+    fi
+
+    # Validate CloudWatch role only when a central log role ARN was passed
+    if cloudwatch_role_requested; then
+        if ! check_cloudwatch_role_exists; then
+            print_error "CloudWatch role validation failed"
+            validation_failed=true
+        fi
+    fi
+
+    # Validate AutoNode roles only when an OIDC issuer URL was passed
+    if autonode_roles_requested; then
+        if ! check_autonode_role_exists "$AUTONODE_ROLE_NAME" "primary"; then
+            print_error "AutoNode role validation failed"
+            validation_failed=true
+        fi
+        if ! check_autonode_role_exists "$AUTONODE_ROLE_NAME_SECONDARY" "secondary"; then
+            print_error "Secondary AutoNode role validation failed"
             validation_failed=true
         fi
     fi
@@ -935,11 +1283,17 @@ output_summary() {
         fi
         jq --arg region "$REGION" --argjson vpc_data "$NEW_VPC_DATA" --arg queue_url "${QUEUE_URL:-}" \
             --arg s3_bucket "$s3_bucket" --arg s3_prefix "$s3_prefix" \
+            --arg cw_role_arn "${CLOUDWATCH_ROLE_ARN:-}" \
+            --arg autonode_role_arn "${AUTONODE_ROLE_ARN:-}" \
+            --arg autonode_role_arn_secondary "${AUTONODE_ROLE_ARN_SECONDARY:-}" \
             '.QE_INFRA_REGIONS = {($region): [$vpc_data]}
              | if $queue_url != "" then .QE_SPOT_INTERRUPTION_QUEUE_URL = $queue_url else . end
              | del(.QE_SQS_QUEUE_URL)
              | if $s3_bucket != "" then .QE_LOG_FORWARDING_S3_BUCKET_NAME = $s3_bucket else . end
-             | if $s3_prefix != "" then .QE_LOG_FORWARDING_S3_BUCKET_PREFIX = $s3_prefix else . end' \
+             | if $s3_prefix != "" then .QE_LOG_FORWARDING_S3_BUCKET_PREFIX = $s3_prefix else . end
+             | if $cw_role_arn != "" then .QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN = $cw_role_arn else . end
+             | if $autonode_role_arn != "" then .QE_AUTONODE_ROLE_ARN = $autonode_role_arn else . end
+             | if $autonode_role_arn_secondary != "" then .QE_AUTONODE_ROLE_ARN_SECONDARY = $autonode_role_arn_secondary else . end' \
             "$PLAYWRIGHT_ENV_FILE" > "${PLAYWRIGHT_ENV_FILE}.tmp" && mv "${PLAYWRIGHT_ENV_FILE}.tmp" "$PLAYWRIGHT_ENV_FILE"
         
         if [[ $? -eq 0 ]]; then
@@ -963,6 +1317,15 @@ output_summary() {
             extra_fields+=",
   \"QE_LOG_FORWARDING_S3_BUCKET_NAME\": \"$S3_BUCKET_NAME\",
   \"QE_LOG_FORWARDING_S3_BUCKET_PREFIX\": \"$S3_BUCKET_PREFIX\""
+        fi
+        if [ -n "${CLOUDWATCH_ROLE_ARN:-}" ]; then
+            extra_fields+=",
+  \"QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN\": \"$CLOUDWATCH_ROLE_ARN\""
+        fi
+        if [ -n "${AUTONODE_ROLE_ARN:-}" ]; then
+            extra_fields+=",
+  \"QE_AUTONODE_ROLE_ARN\": \"$AUTONODE_ROLE_ARN\",
+  \"QE_AUTONODE_ROLE_ARN_SECONDARY\": \"$AUTONODE_ROLE_ARN_SECONDARY\""
         fi
         cat > "$PLAYWRIGHT_ENV_FILE" << EOF
 {
@@ -988,6 +1351,16 @@ main() {
     print_status "VPC CIDR: $VPC_CIDR"
     print_status "SQS/EventBridge prefix: $QUEUE_PREFIX"
     print_status "S3 bucket: $S3_BUCKET_NAME"
+    if cloudwatch_role_requested; then
+        print_status "CloudWatch role: $CLOUDWATCH_ROLE_NAME"
+    else
+        print_status "CloudWatch role: skipped (no central log role ARN)"
+    fi
+    if autonode_roles_requested; then
+        print_status "AutoNode roles: $AUTONODE_ROLE_NAME, $AUTONODE_ROLE_NAME_SECONDARY"
+    else
+        print_status "AutoNode roles: skipped (no OIDC issuer URL)"
+    fi
     
     check_aws_cli
     check_aws_credentials
@@ -1018,6 +1391,20 @@ main() {
         create_s3_bucket
     else
         print_status "Skipping S3 bucket creation (--skip-s3-bucket)"
+    fi
+
+    # Create the CloudWatch log-forwarding role only when the ROSA principal ARN was passed
+    if cloudwatch_role_requested; then
+        create_cloudwatch_role
+    else
+        print_status "Skipping CloudWatch role creation (no central log role ARN)"
+    fi
+
+    # Create the AutoNode roles only when an OIDC issuer URL was passed
+    if autonode_roles_requested; then
+        create_autonode_roles
+    else
+        print_status "Skipping AutoNode role creation (no OIDC issuer URL)"
     fi
     
     # Validate all resources exist
@@ -1070,6 +1457,9 @@ confirm_cleanup() {
     if [ "$SKIP_S3_BUCKET" != "true" ]; then
         print_status "  - S3 bucket: $S3_BUCKET_NAME (including all objects)"
     fi
+    print_status "  - CloudWatch IAM role: $CLOUDWATCH_ROLE_NAME"
+    print_status "  - AutoNode IAM role: $AUTONODE_ROLE_NAME"
+    print_status "  - AutoNode IAM role: $AUTONODE_ROLE_NAME_SECONDARY"
     echo ""
     print_status "Proceeding with cleanup..."
 }
@@ -1086,7 +1476,7 @@ cleanup_nat_gateway() {
         --output text 2>/dev/null)
     
     if [[ "$NAT_GW_ID" != "None" && "$NAT_GW_ID" != "" ]]; then
-        print_status "Found NAT Gateway: $NAT_GW_ID"
+        print_status "Found NAT Gateway"
         
         # Get the Elastic IP allocation ID before deleting NAT Gateway
         ELASTIC_IP_ALLOCATION_ID=$(aws ec2 describe-nat-gateways \
@@ -1101,12 +1491,12 @@ cleanup_nat_gateway() {
             aws ec2 delete-route \
                 --route-table-id $PRIVATE_RT_ID \
                 --destination-cidr-block 0.0.0.0/0 \
-                --region $REGION 2>/dev/null || true
+                --region $REGION > /dev/null 2>&1 || true
         fi
         
         # Delete NAT Gateway
-        print_status "Deleting NAT Gateway: $NAT_GW_ID"
-        aws ec2 delete-nat-gateway --nat-gateway-id $NAT_GW_ID --region $REGION
+        print_status "Deleting NAT Gateway"
+        aws ec2 delete-nat-gateway --nat-gateway-id $NAT_GW_ID --region $REGION > /dev/null
         
         # Wait for NAT Gateway to be deleted
         print_status "Waiting for NAT Gateway to be deleted..."
@@ -1114,7 +1504,7 @@ cleanup_nat_gateway() {
         
         # Release Elastic IP
         if [[ "$ELASTIC_IP_ALLOCATION_ID" != "None" && "$ELASTIC_IP_ALLOCATION_ID" != "" ]]; then
-            print_status "Releasing Elastic IP: $ELASTIC_IP_ALLOCATION_ID"
+            print_status "Releasing Elastic IP"
             aws ec2 release-address --allocation-id $ELASTIC_IP_ALLOCATION_ID --region $REGION
         fi
         
@@ -1140,11 +1530,11 @@ remove_custom_routes() {
     
     for route in $routes; do
         if [[ "$route" != "None" && "$route" != "" ]]; then
-            print_status "Removing route: $route from $route_table_name"
+            print_status "Removing route from $route_table_name"
             aws ec2 delete-route \
                 --route-table-id $route_table_id \
                 --destination-cidr-block $route \
-                --region $REGION 2>/dev/null || true
+                --region $REGION > /dev/null 2>&1 || true
         fi
     done
 }
@@ -1168,7 +1558,7 @@ cleanup_route_tables() {
     
     # Clean up public route table
     if [[ "$PUBLIC_RT_ID" != "None" && "$PUBLIC_RT_ID" != "" ]]; then
-        print_status "Cleaning up public route table: $PUBLIC_RT_ID"
+        print_status "Cleaning up public route table"
         
         # Remove associations
         ASSOCIATIONS=$(aws ec2 describe-route-tables \
@@ -1179,8 +1569,8 @@ cleanup_route_tables() {
         
         for association in $ASSOCIATIONS; do
             if [[ "$association" != "None" && "$association" != "" ]]; then
-                print_status "Removing association: $association"
-                aws ec2 disassociate-route-table --association-id $association --region $REGION 2>/dev/null || true
+                print_status "Removing route table association"
+                aws ec2 disassociate-route-table --association-id $association --region $REGION > /dev/null 2>&1 || true
             fi
         done
         
@@ -1191,22 +1581,15 @@ cleanup_route_tables() {
         sleep 2
         
         # Delete route table
-        print_status "Deleting public route table: $PUBLIC_RT_ID"
-        if ! aws ec2 delete-route-table --route-table-id $PUBLIC_RT_ID --region $REGION 2>/dev/null; then
-            print_warning "Failed to delete public route table $PUBLIC_RT_ID - it may still have dependencies"
-            print_status "Listing remaining associations..."
-            REMAINING=$(aws ec2 describe-route-tables \
-                --route-table-ids $PUBLIC_RT_ID \
-                --region $REGION \
-                --query 'RouteTables[0].Associations[?Main==`false`].{AssocId:RouteTableAssociationId,SubnetId:SubnetId}' \
-                --output table 2>/dev/null || echo "Unable to retrieve details")
-            echo "$REMAINING"
+        print_status "Deleting public route table"
+        if ! aws ec2 delete-route-table --route-table-id $PUBLIC_RT_ID --region $REGION > /dev/null 2>&1; then
+            print_warning "Failed to delete public route table. It may still have dependencies."
         fi
     fi
     
     # Clean up private route table
     if [[ "$PRIVATE_RT_ID" != "None" && "$PRIVATE_RT_ID" != "" ]]; then
-        print_status "Cleaning up private route table: $PRIVATE_RT_ID"
+        print_status "Cleaning up private route table"
         
         # Remove associations
         ASSOCIATIONS=$(aws ec2 describe-route-tables \
@@ -1217,8 +1600,8 @@ cleanup_route_tables() {
         
         for association in $ASSOCIATIONS; do
             if [[ "$association" != "None" && "$association" != "" ]]; then
-                print_status "Removing association: $association"
-                aws ec2 disassociate-route-table --association-id $association --region $REGION 2>/dev/null || true
+                print_status "Removing route table association"
+                aws ec2 disassociate-route-table --association-id $association --region $REGION > /dev/null 2>&1 || true
             fi
         done
         
@@ -1229,16 +1612,9 @@ cleanup_route_tables() {
         sleep 2
         
         # Delete route table
-        print_status "Deleting private route table: $PRIVATE_RT_ID"
-        if ! aws ec2 delete-route-table --route-table-id $PRIVATE_RT_ID --region $REGION 2>/dev/null; then
-            print_warning "Failed to delete private route table $PRIVATE_RT_ID - it may still have dependencies"
-            print_status "Listing remaining associations..."
-            REMAINING=$(aws ec2 describe-route-tables \
-                --route-table-ids $PRIVATE_RT_ID \
-                --region $REGION \
-                --query 'RouteTables[0].Associations[?Main==`false`].{AssocId:RouteTableAssociationId,SubnetId:SubnetId}' \
-                --output table 2>/dev/null || echo "Unable to retrieve details")
-            echo "$REMAINING"
+        print_status "Deleting private route table"
+        if ! aws ec2 delete-route-table --route-table-id $PRIVATE_RT_ID --region $REGION > /dev/null 2>&1; then
+            print_warning "Failed to delete private route table. It may still have dependencies."
         fi
     fi
     
@@ -1258,7 +1634,7 @@ cleanup_security_groups() {
     
     for sg_id in $SECURITY_GROUPS; do
         if [[ "$sg_id" != "None" && "$sg_id" != "" ]]; then
-            print_status "Deleting security group: $sg_id"
+            print_status "Deleting security group"
             aws ec2 delete-security-group --group-id $sg_id --region $REGION
         fi
     done
@@ -1279,7 +1655,7 @@ cleanup_subnets() {
     
     for subnet_id in $SUBNETS; do
         if [[ "$subnet_id" != "None" && "$subnet_id" != "" ]]; then
-            print_status "Deleting subnet: $subnet_id"
+            print_status "Deleting subnet"
             aws ec2 delete-subnet --subnet-id $subnet_id --region $REGION
         fi
     done
@@ -1299,7 +1675,7 @@ cleanup_internet_gateway() {
         --output text 2>/dev/null)
     
     if [[ "$IGW_ID" != "None" && "$IGW_ID" != "" ]]; then
-        print_status "Found Internet Gateway: $IGW_ID"
+        print_status "Found Internet Gateway"
         
         # Detach from VPC
         print_status "Detaching Internet Gateway from VPC..."
@@ -1309,7 +1685,7 @@ cleanup_internet_gateway() {
             --region $REGION
         
         # Delete Internet Gateway
-        print_status "Deleting Internet Gateway: $IGW_ID"
+        print_status "Deleting Internet Gateway"
         aws ec2 delete-internet-gateway --internet-gateway-id $IGW_ID --region $REGION
         
         print_status "Internet Gateway cleaned up successfully"
@@ -1323,7 +1699,7 @@ cleanup_vpc() {
     print_status "Cleaning up VPC..."
     
     if [[ -n "$VPC_ID" && "$VPC_ID" != "None" ]]; then
-        print_status "Deleting VPC: $VPC_ID"
+        print_status "Deleting VPC"
         aws ec2 delete-vpc --vpc-id $VPC_ID --region $REGION
         print_status "VPC deleted successfully"
     else
@@ -1349,6 +1725,8 @@ cleanup_playwright_config() {
                 print_status "Removing S3 log-forwarding keys from $PLAYWRIGHT_ENV_FILE"
                 jq_filter="$jq_filter | del(.QE_LOG_FORWARDING_S3_BUCKET_NAME) | del(.QE_LOG_FORWARDING_S3_BUCKET_PREFIX)"
             fi
+            print_status "Removing CloudWatch and AutoNode role ARNs from $PLAYWRIGHT_ENV_FILE"
+            jq_filter="$jq_filter | del(.QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN) | del(.QE_AUTONODE_ROLE_ARN) | del(.QE_AUTONODE_ROLE_ARN_SECONDARY)"
             jq --arg region "$REGION" "$jq_filter" \
                 "$PLAYWRIGHT_ENV_FILE" > "${PLAYWRIGHT_ENV_FILE}.tmp" && mv "${PLAYWRIGHT_ENV_FILE}.tmp" "$PLAYWRIGHT_ENV_FILE"
             
@@ -1370,6 +1748,8 @@ cleanup_infrastructure() {
     print_status "VPC Name: $VPC_NAME"
     print_status "SQS/EventBridge prefix: $QUEUE_PREFIX"
     print_status "S3 bucket: $S3_BUCKET_NAME"
+    print_status "CloudWatch role: $CLOUDWATCH_ROLE_NAME"
+    print_status "AutoNode roles: $AUTONODE_ROLE_NAME, $AUTONODE_ROLE_NAME_SECONDARY"
     
     check_aws_cli
     check_aws_credentials
@@ -1383,6 +1763,9 @@ cleanup_infrastructure() {
     if [ "$SKIP_S3_BUCKET" != "true" ]; then
         cleanup_s3_bucket
     fi
+
+    cleanup_cloudwatch_role
+    cleanup_autonode_roles
     
     if check_vpc_exists; then
         # Get all resource IDs before deletion for route table cleanup
@@ -1430,6 +1813,22 @@ show_usage() {
     echo "  --queue-prefix PREFIX     SQS queue / EventBridge rule name prefix (default: sanitized VPC name, env: QUEUE_PREFIX)"
     echo "  --s3-bucket-name NAME     S3 bucket for ROSA log forwarding (default: sanitized VPC name, env: S3_BUCKET_NAME)"
     echo "  --s3-bucket-prefix PREFIX S3 folder / key prefix inside the bucket (default: logs, env: S3_BUCKET_PREFIX)"
+    echo "  --central-log-role-arn ARN"
+    echo "                            ROSA-CentralLogDistributionRole ARN used as the CloudWatch role trust principal"
+    echo "                            CLI value wins. Otherwise CENTRAL_LOG_ARN_ROLE or CENTRAL_LOG_ROLE_ARN."
+    echo "                            If the flag and both env vars are empty, CloudWatch is skipped."
+    echo "  --cloudwatch-role-name NAME"
+    echo "                            Customer IAM role to create (default: CustomerLogDistribution-<vpc name>,"
+    echo "                            env: CLOUDWATCH_ROLE_NAME)"
+    echo "  --oidc-config-issuer-url URL"
+    echo "                            OIDC issuer URL for AutoNode roles. CLI value wins."
+    echo "                            Otherwise OIDC_CONFIG_ISSUER_URL. If the flag and env var are empty, AutoNode is skipped."
+    echo "  --autonode-role-name NAME"
+    echo "                            Primary AutoNode IAM role (default: AutoNode-<vpc name>,"
+    echo "                            env: AUTONODE_ROLE_NAME)"
+    echo "  --autonode-role-name-secondary NAME"
+    echo "                            Secondary AutoNode IAM role (default: AutoNode-<vpc name>-secondary,"
+    echo "                            env: AUTONODE_ROLE_NAME_SECONDARY)"
     echo ""
     echo "Options:"
     echo "  --skip-sqs-queue          Skip creating/validating/cleaning up the SQS queue (env: SKIP_SQS_QUEUE)"
@@ -1446,6 +1845,15 @@ show_usage() {
     echo "                   The queue URL is written to playwright.env.json as QE_SPOT_INTERRUPTION_QUEUE_URL."
     echo "                   The S3 bucket and prefix are written as QE_LOG_FORWARDING_S3_BUCKET_NAME"
     echo "                   and QE_LOG_FORWARDING_S3_BUCKET_PREFIX."
+    echo "                   When a central log role ARN is provided, the script creates an IAM role that trusts"
+    echo "                   that ARN (sts:AssumeRole) and writes the new role ARN as"
+    echo "                   QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN."
+    echo "                   --cleanup deletes CustomerLogDistribution-<vpc name> by name."
+    echo "                   When an OIDC issuer URL is provided, the script creates two IAM roles that trust"
+    echo "                   arn:aws:iam::<account>:oidc-provider/<issuer-host-and-path> for"
+    echo "                   sts:AssumeRoleWithWebIdentity (kube-system:karpenter) and writes them as"
+    echo "                   QE_AUTONODE_ROLE_ARN and QE_AUTONODE_ROLE_ARN_SECONDARY."
+    echo "                   --cleanup deletes AutoNode-<vpc name> and AutoNode-<vpc name>-secondary by name."
 }
 
 # Parse command line arguments
@@ -1483,6 +1891,30 @@ while [[ $# -gt 0 ]]; do
             ;;
         --s3-bucket-prefix)
             S3_BUCKET_PREFIX="$2"
+            shift 2
+            ;;
+        --central-log-role-arn)
+            CENTRAL_LOG_ARG_SET=1
+            CENTRAL_LOG_ROLE_ARN="$2"
+            CENTRAL_LOG_ROLE_ARN="${CENTRAL_LOG_ROLE_ARN//[[:space:]]/}"
+            shift 2
+            ;;
+        --cloudwatch-role-name)
+            CLOUDWATCH_ROLE_NAME="$2"
+            shift 2
+            ;;
+        --oidc-config-issuer-url)
+            OIDC_ARG_SET=1
+            OIDC_CONFIG_ISSUER_URL="$2"
+            OIDC_CONFIG_ISSUER_URL="${OIDC_CONFIG_ISSUER_URL//[[:space:]]/}"
+            shift 2
+            ;;
+        --autonode-role-name)
+            AUTONODE_ROLE_NAME="$2"
+            shift 2
+            ;;
+        --autonode-role-name-secondary)
+            AUTONODE_ROLE_NAME_SECONDARY="$2"
             shift 2
             ;;
         --skip-sqs-queue)
