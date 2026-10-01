@@ -325,7 +325,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.locator('input[id="enable_user_workload_monitoring"]');
   }
 
-  // Networking screen
   installIntoSharedVpcCheckBox(): Locator {
     return this.page.getByRole('checkbox', { name: 'Install into Google Cloud Shared VPC' });
   }
@@ -378,7 +377,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   usePrivateServiceConnectCheckBox(): Locator {
-    return this.page.locator('input[id="private_service_connect"]');
+    return this.page.getByRole('checkbox', { name: 'Use Private Service Connect' });
   }
 
   // VPC subnet screen
@@ -401,17 +400,19 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   async selectGcpVPC(vpcName: string): Promise<void> {
-    await this.page.locator('select[aria-label="Existing VPC name"]').selectOption(vpcName);
+    await this.page.getByRole('combobox', { name: 'Existing VPC name' }).selectOption(vpcName);
   }
 
   async selectControlPlaneSubnetName(subnetName: string): Promise<void> {
     await this.page
-      .locator('select[aria-label="Control plane subnet name"]')
+      .getByRole('combobox', { name: 'Control plane subnet name' })
       .selectOption(subnetName);
   }
 
   async selectComputeSubnetName(subnetName: string): Promise<void> {
-    await this.page.locator('select[aria-label="Compute subnet name"]').selectOption(subnetName);
+    await this.page
+      .getByRole('combobox', { name: 'Compute subnet name' })
+      .selectOption(subnetName);
   }
 
   privateServiceConnectSubnetInput(): Locator {
@@ -420,7 +421,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
 
   async selectPrivateServiceConnectSubnetName(pscName: string): Promise<void> {
     await this.page
-      .locator('select[aria-label="Private Service Connect subnet name"]')
+      .getByRole('combobox', { name: 'Private Service Connect subnet name' })
       .selectOption(pscName);
   }
 
@@ -600,6 +601,10 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByTestId('Persistent-storage').locator('div');
   }
 
+  loadBalancersValue(): Locator {
+    return this.page.getByTestId('Load-balancers').locator('div');
+  }
+
   // Additional billing model options
   subscriptionTypeOnDemandFlexibleRadio(): Locator {
     return this.page.locator('input[name="billing_model"][value="marketplace-gcp"]');
@@ -771,7 +776,36 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   keyArnInput(): Locator {
-    return this.page.locator('span input[id="kms_key_arn"]');
+    return this.page.getByRole('textbox', { name: 'Key ARN' });
+  }
+
+  async selectKeyLocation(location: string): Promise<void> {
+    await this.page.getByRole('combobox', { name: 'KMS location' }).selectOption(location);
+  }
+
+  async selectKeyRing(keyRing: string): Promise<void> {
+    await this.page.getByRole('combobox', { name: 'Key ring' }).selectOption(keyRing);
+  }
+
+  async selectKeyName(keyName: string): Promise<void> {
+    await this.page.getByRole('combobox', { name: 'Key name' }).selectOption(keyName);
+  }
+
+  kmsServiceAccountInput(): Locator {
+    return this.page.getByRole('textbox', { name: 'KMS Service Account' });
+  }
+
+  async configureCustomGcpKmsKey(options: {
+    keyRingLocation: string;
+    keyRing: string;
+    keyName: string;
+    kmsServiceAccount: string;
+  }): Promise<void> {
+    await this.useCustomKMSKeyRadio().check();
+    await this.selectKeyLocation(options.keyRingLocation);
+    await this.selectKeyRing(options.keyRing);
+    await this.selectKeyName(options.keyName);
+    await this.kmsServiceAccountInput().fill(options.kmsServiceAccount);
   }
 
   // OSD-only application ingress selectors (shared ingress locators live on BaseWizardPage).
@@ -790,7 +824,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   applicationIngressWildcardPolicyAllowedRadio(): Locator {
     return this.page.getByRole('switch', { name: /^(Allowed|Disallowed)$/ });
   }
-
+  
   // Validation helper methods
   async selectAutoScaling(autoScale: string): Promise<void> {
     if (autoScale.toLowerCase() === 'disabled') {
@@ -813,7 +847,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   applicationIngressWildcardPolicyDisallowedRadio(): Locator {
     return this.page.getByRole('switch', { name: 'Disallowed', exact: true });
   }
-
+  
   async waitForVPCRefresh(): Promise<void> {
     await this.page.getByRole('progressbar', { name: 'Loading...' }).waitFor({
       state: 'detached',
