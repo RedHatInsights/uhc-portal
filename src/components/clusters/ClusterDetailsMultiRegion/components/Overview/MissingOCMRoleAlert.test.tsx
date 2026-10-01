@@ -16,7 +16,6 @@ const mockRefetchGetOCMRole = refetchGetOCMRole as jest.Mock;
 
 const AWS_ACCOUNT_ID = '123456789012';
 const ALERT_TITLE = /Missing or unlinked OCM role/;
-const REFRESH_BUTTON = /Refresh OCM role/i;
 
 const ocmRoleResponse = ({
   isError = false,
@@ -66,10 +65,10 @@ describe('<MissingOCMRoleAlertContent />', () => {
     expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 
-  it('disables and shows loading on Refresh OCM role button when isRefreshPending is true', () => {
+  it('disables Refresh OCM role button when isRefreshPending is true', () => {
     render(<MissingOCMRoleAlertContent onRefresh={onRefresh} isRefreshPending />);
 
-    expect(screen.getByRole('button', { name: REFRESH_BUTTON })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Refresh OCM role' })).toBeDisabled();
   });
 
   it('does not disable Refresh OCM role button when isRefreshPending is false', () => {
@@ -149,7 +148,7 @@ describe('<MissingOCMRoleAlert />', () => {
 
     await user.click(screen.getByRole('button', { name: 'Refresh OCM role' }));
 
-    expect(screen.getByRole('button', { name: REFRESH_BUTTON })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Refresh OCM role' })).toBeDisabled();
 
     resolveRefetch();
 

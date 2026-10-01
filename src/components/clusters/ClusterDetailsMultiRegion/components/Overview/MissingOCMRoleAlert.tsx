@@ -30,7 +30,6 @@ export const MissingOCMRoleAlertContent = ({
         <Button
           variant="link"
           isInline
-          isLoading={isRefreshPending}
           isDisabled={isRefreshPending}
           onClick={onRefresh}
           style={{ marginLeft: 'var(--pf-t--global--spacer--sm)' }}
