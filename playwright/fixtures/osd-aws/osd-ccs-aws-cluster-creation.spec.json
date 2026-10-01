@@ -17,7 +17,7 @@
     "Infra": "2/2",
     "Compute": "3/3"
   },
-  "InstanceMetadataService": "IMDSv1 and IMDSv2",
+  "InstanceMetadataService": "IMDSv2 only",
   "InstallIntoExistingVPC": "Disabled",
   "ClusterPrivacy": "Public",
   "MachineCIDR": "10.0.0.0/16",

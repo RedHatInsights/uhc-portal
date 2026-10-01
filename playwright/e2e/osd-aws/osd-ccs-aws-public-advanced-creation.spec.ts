@@ -97,7 +97,7 @@ test.describe.serial(
       await createOSDWizardPage.setMaximumNodeCount(
         clusterProperties.MachinePools[0].MaximumNodeCount,
       );
-      await expect(createOSDWizardPage.useBothIMDSv1AndIMDSv2Radio()).toBeChecked();
+      await expect(createOSDWizardPage.useIMDSv2Radio()).toBeChecked();
       await createOSDWizardPage.wizardNextButton().click();
     });
 

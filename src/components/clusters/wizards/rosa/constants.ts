@@ -154,7 +154,7 @@ export const initialValues: (hypershiftDefault?: boolean) => FormikValues = (
   [FieldId.EtcdKeyArn]: '',
   [FieldId.FipsCryptography]: false,
   [FieldId.Hypershift]: `${hypershiftDefaultSelected}`,
-  [FieldId.IMDS]: IMDSType.V1AndV2,
+  [FieldId.IMDS]: IMDSType.V2Only,
   [FieldId.IsDefaultRouterNamespaceOwnershipPolicyStrict]: true,
   [FieldId.IsDefaultRouterWildcardPolicyAllowed]: false,
   [FieldId.KmsKeyArn]: '',
