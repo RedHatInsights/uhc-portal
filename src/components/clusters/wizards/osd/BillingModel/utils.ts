@@ -1,4 +1,7 @@
-import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
+import {
+  ClusterBillingModel,
+  isGcpMarketplaceBilling,
+} from '~/components/clusters/common/billingModelMapper';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import type { useGetBillingQuotas } from './useGetBillingQuotas';
@@ -15,7 +18,10 @@ export const getDefaultBillingModel = (
   return SubscriptionCommonFieldsClusterBillingModel.standard;
 };
 
-export const getDefaultByoc = (quotas: BillingQuotas, billingModel: string): 'true' | 'false' => {
+export const getDefaultByoc = (
+  quotas: BillingQuotas,
+  billingModel: ClusterBillingModel,
+): 'true' | 'false' => {
   if (isGcpMarketplaceBilling(billingModel)) {
     return 'true';
   }
