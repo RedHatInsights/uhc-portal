@@ -52,8 +52,8 @@ describe('<ClusterCreatedIndicator />', () => {
     expect(container).toHaveTextContent('01 Jan 2020');
   });
 
-  it('should have "will expire" popover when cluster is in 60-day trial', async () => {
-    const creationTimeStamp = '2020-01-01T00:00:00Z';
+  it('should have "not supported" popover when cluster has Eval support level', async () => {
+    const creationTimeStamp = '2020-06-15T12:00:00Z';
     const cluster = {
       managed: false,
       subscription: {
@@ -63,12 +63,25 @@ describe('<ClusterCreatedIndicator />', () => {
     };
 
     const { user } = render(<ClusterCreatedIndicator cluster={cluster} />);
+
+    expect(screen.getByText('15 Jun 2020')).toBeInTheDocument();
+
     await user.click(screen.getByRole('button'));
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
 
-    expect(
-      screen.getByText('Your OCP cluster evaluation will expire in', { exact: false }),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Your OCP cluster is not', { exact: false })).toBeInTheDocument();
+  });
+
+  it('should show "N/A" with warning when Eval cluster has no creation timestamp', () => {
+    const cluster = {
+      managed: false,
+      subscription: {
+        [SUPPORT_LEVEL]: SubscriptionCommonFieldsSupportLevel.Eval,
+      },
+    };
+
+    render(<ClusterCreatedIndicator cluster={cluster} />);
+    expect(screen.getByText('N/A')).toBeInTheDocument();
   });
 
   it('should have "expired" popover when trial expired', async () => {
@@ -84,8 +97,7 @@ describe('<ClusterCreatedIndicator />', () => {
     await user.click(screen.getByRole('button'));
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
 
-    expect(
-      screen.getByText('Your 60-day evaluation has expired.', { exact: false }),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Your cluster is not', { exact: false })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /supported/i })).toBeInTheDocument();
   });
 });
