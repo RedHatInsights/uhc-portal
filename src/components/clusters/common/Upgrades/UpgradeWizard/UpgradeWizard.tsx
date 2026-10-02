@@ -32,15 +32,14 @@ import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
 
 import { modalActions } from '../../../../common/Modal/ModalActions';
 import modals from '../../../../common/Modal/modals';
-import { isHypershiftCluster, isROSA } from '../../clusterStates';
+import { isHypershiftCluster } from '../../clusterStates';
 import UpgradeAcknowledgeStep from '../UpgradeAcknowledge/UpgradeAcknowledgeStep';
+import { UpgradeToV5Warning } from '../UpgradeToV5Warning/UpgradeToV5Warning';
 import { shouldShowUpgradeToV5Warning } from '../UpgradeToV5Warning/UpgradeToV5WarningHelpers';
 
 import VersionSelectionGrid from './VersionSelectionGrid/VersionSelectionGrid';
 import FinishedStep from './FinishedStep';
 import UpgradeTimeSelection from './UpgradeTimeSelection';
-
-import './UpgradeWizard.scss';
 
 interface UpgradeWizardModalData {
   clusterName: string;
@@ -70,7 +69,6 @@ const UpgradeWizard = () => {
   const clusterID = cluster?.id;
   const region = cluster?.subscription?.rh_region_id;
   const isHypershift = isHypershiftCluster(cluster);
-  const isRosa = isROSA(cluster);
 
   const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
   const organization = useGlobalState((state) => state.userProfile.organization);
@@ -241,6 +239,11 @@ const UpgradeWizard = () => {
                     <GridItem span={1} />
                   </Grid>
                 )}
+                {showUpgradeToV5Warning && (
+                  <div className="wizard-step-title">
+                    <UpgradeToV5Warning />
+                  </div>
+                )}
                 <VersionSelectionGrid
                   availableUpgrades={cluster?.version?.available_upgrades}
                   clusterVersion={cluster?.openshift_version || cluster?.version?.id || ''}
@@ -248,8 +251,6 @@ const UpgradeWizard = () => {
                   onSelect={selectVersion}
                   isUnMetClusterAcknowledgements={hasVersionGates}
                   isPending={isUnmetAcknowledgementsPending}
-                  showUpgradeToV5Warning={showUpgradeToV5Warning}
-                  isRosa={isRosa}
                 />
               </>
             )}

@@ -1,7 +1,15 @@
 import React from 'react';
 import * as reactRedux from 'react-redux';
 
-import { checkAccessibility, render, screen, waitFor, withState } from '~/testUtils';
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
+import {
+  checkAccessibility,
+  mockUseFeatureGate,
+  render,
+  screen,
+  waitFor,
+  withState,
+} from '~/testUtils';
 import { AugmentedCluster } from '~/types/types';
 
 import { useFetchClusterDetails } from '../../../../../queries/ClusterDetailsQueries/useFetchClusterDetails';
@@ -12,6 +20,10 @@ import UpgradeWizard from './UpgradeWizard';
 jest.mock('react-redux', () => ({
   __esModule: true,
   ...jest.requireActual('react-redux'),
+}));
+
+jest.mock('~/queries/featureGates/useFetchFeatureGate', () => ({
+  useFeatureGate: jest.fn(() => false),
 }));
 
 jest.mock('../../../../../queries/ClusterDetailsQueries/useFetchClusterDetails', () => ({
@@ -129,5 +141,40 @@ describe('<UpgradeWizard />', () => {
     expect(screen.getByRole('button', { name: 'Select version' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Schedule update' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Confirmation' })).toBeInTheDocument();
+  });
+
+  describe('UpgradeToV5Warning', () => {
+    const osdAwsCluster = {
+      ...fixtures.clusterDetails.cluster,
+      subscription: {
+        ...fixtures.clusterDetails.cluster.subscription,
+        id: 'mySubscriptionId',
+      },
+    };
+
+    it('does not render when the OCP5_SUPPORT feature flag is off', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, false]]);
+      mockedUseFetchClusterDetails.mockReturnValue({
+        ...defaultClusterDetailsResponse,
+        cluster: osdAwsCluster,
+      });
+
+      withState(initialState, true).render(<UpgradeWizard />);
+
+      expect(screen.queryByTestId('classic-upgrade-to-v5-warning')).not.toBeInTheDocument();
+    });
+
+    it('renders in the Select version step when the OCP5_SUPPORT feature flag is on', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+      mockedUseFetchClusterDetails.mockReturnValue({
+        ...defaultClusterDetailsResponse,
+        cluster: osdAwsCluster,
+      });
+
+      withState(initialState, true).render(<UpgradeWizard />);
+
+      expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
+      expect(screen.getByText('create a ROSA HCP cluster', { exact: false })).toBeInTheDocument();
+    });
   });
 });
