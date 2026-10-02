@@ -351,5 +351,13 @@ describe('clusterService', () => {
         size: -1,
       });
     });
+
+    it('retrieves a firewall rule by id', async () => {
+      await clusterService.getGcpFirewallRule('fw-rules-1');
+
+      expect(apiRequestMock.get).toHaveBeenCalledWith(
+        '/api/clusters_mgmt/v1/gcp/firewall_rules/fw-rules-1',
+      );
+    });
   });
 });
