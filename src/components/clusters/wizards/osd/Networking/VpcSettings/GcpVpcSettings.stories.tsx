@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 
 import { Form, Grid, GridItem, Title } from '@patternfly/react-core';
 import { configureStore } from '@reduxjs/toolkit';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
