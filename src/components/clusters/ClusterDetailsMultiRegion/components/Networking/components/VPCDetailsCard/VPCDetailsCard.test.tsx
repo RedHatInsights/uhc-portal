@@ -5,6 +5,7 @@ import { useFetchGcpFirewallRule } from '~/queries/ClusterDetailsQueries/Network
 import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { mockRestrictedEnv, mockUseFeatureGate, render, screen } from '~/testUtils';
 import { ClusterState } from '~/types/clusters_mgmt.v1/enums';
+import type { AugmentedCluster } from '~/types/types';
 
 import VPCDetailsCard from './VPCDetailsCard';
 
@@ -45,7 +46,7 @@ describe('<VPCDetailsCard />', () => {
       aws: {
         subnet_ids: ['subnet-05281fa2678b6d8cd', 'subnet-03f3654ffc25369ac'],
       },
-    },
+    } as AugmentedCluster,
   };
 
   beforeEach(() => {
@@ -89,13 +90,15 @@ describe('<VPCDetailsCard />', () => {
     ])('renders PrivateLink as %s for classic ROSA clusters', (label, privateLink) => {
       render(
         <VPCDetailsCard
-          cluster={{
-            aws: {
-              subnet_ids: ['subnet-05281fa2678b6d8cd'],
-              private_link: privateLink,
-            },
-            hypershift: { enabled: false },
-          }}
+          cluster={
+            {
+              aws: {
+                subnet_ids: ['subnet-05281fa2678b6d8cd'],
+                private_link: privateLink,
+              },
+              hypershift: { enabled: false },
+            } as AugmentedCluster
+          }
         />,
       );
 
@@ -106,13 +109,15 @@ describe('<VPCDetailsCard />', () => {
     it('does not render PrivateLink for HCP clusters', () => {
       render(
         <VPCDetailsCard
-          cluster={{
-            aws: {
-              subnet_ids: ['subnet-05281fa2678b6d8cd'],
-              private_link: false,
-            },
-            hypershift: { enabled: true },
-          }}
+          cluster={
+            {
+              aws: {
+                subnet_ids: ['subnet-05281fa2678b6d8cd'],
+                private_link: false,
+              },
+              hypershift: { enabled: true },
+            } as AugmentedCluster
+          }
         />,
       );
 
@@ -123,13 +128,13 @@ describe('<VPCDetailsCard />', () => {
   describe('When Private Service Connect Subnet is provided', () => {
     const props = {
       cluster: {
-        gcp_network: 'gcpNetwork',
+        gcp_network: {},
         gcp: {
           private_service_connect: {
             service_attachment_subnet: 'gcpPrivateServiceConnect',
           },
         },
-      },
+      } as AugmentedCluster,
     };
 
     it('renders Private Service Connect Subnet', () => {
@@ -155,7 +160,7 @@ describe('<VPCDetailsCard />', () => {
         dns: {
           base_domain: baseDomain,
         },
-      },
+      } as AugmentedCluster,
     };
 
     it('renders shared vpc details when shared vpc exists', () => {
@@ -187,7 +192,7 @@ describe('<VPCDetailsCard />', () => {
             compute_subnet: 'test-vpc1-worker',
             vpc_project_id: '',
           },
-        },
+        } as AugmentedCluster,
       };
 
       render(<VPCDetailsCard {...newProps} />);
@@ -207,25 +212,27 @@ describe('<VPCDetailsCard />', () => {
 
       render(
         <VPCDetailsCard
-          cluster={{
-            ...props.cluster,
-            gcp_network: {
-              ...props.cluster.gcp_network,
-              firewall_rules_id: firewallRule.id,
-            },
-          }}
+          cluster={
+            {
+              ...props.cluster,
+              gcp_network: {
+                ...props.cluster.gcp_network,
+                firewall_rules_id: firewallRule.id,
+              },
+            } as AugmentedCluster
+          }
         />,
       );
 
       expect(screen.getByText('Shared VPC')).toBeInTheDocument();
-      expect(screen.getByText('Firewall Rules')).toBeInTheDocument();
+      expect(screen.getByText('Firewall rules')).toBeInTheDocument();
       expect(screen.getByText('prod-byo-firewall')).toBeInTheDocument();
       expect(useFetchGcpFirewallRuleMock).toHaveBeenCalledWith(firewallRule.id, true);
     });
   });
 
   describe('Firewall Rules for non-shared VPC', () => {
-    it('renders Firewall Rules under VPC Details when firewall_rules_id is present', () => {
+    it('renders Firewall rules under VPC Details when firewall_rules_id is present', () => {
       useFetchGcpFirewallRuleMock.mockReturnValue({ data: firewallRule });
       mockUseFeatureGate([
         [GCP_DNS_ZONE, false],
@@ -234,19 +241,21 @@ describe('<VPCDetailsCard />', () => {
 
       render(
         <VPCDetailsCard
-          cluster={{
-            cloud_provider: { id: 'gcp' },
-            gcp_network: {
-              vpc_name: 'mipereir-byo-vpc',
-              firewall_rules_id: firewallRule.id,
-            },
-          }}
+          cluster={
+            {
+              cloud_provider: { id: 'gcp' },
+              gcp_network: {
+                vpc_name: 'mipereir-byo-vpc',
+                firewall_rules_id: firewallRule.id,
+              },
+            } as AugmentedCluster
+          }
         />,
       );
 
       expect(screen.getByText('VPC Details')).toBeInTheDocument();
       expect(screen.queryByText('Shared VPC')).not.toBeInTheDocument();
-      expect(screen.getByText('Firewall Rules')).toBeInTheDocument();
+      expect(screen.getByText('Firewall rules')).toBeInTheDocument();
       expect(screen.getByText('prod-byo-firewall')).toBeInTheDocument();
     });
 
@@ -259,17 +268,19 @@ describe('<VPCDetailsCard />', () => {
 
       render(
         <VPCDetailsCard
-          cluster={{
-            cloud_provider: { id: 'gcp' },
-            gcp_network: {
-              vpc_name: 'mipereir-byo-vpc',
-              firewall_rules_id: firewallRule.id,
-            },
-          }}
+          cluster={
+            {
+              cloud_provider: { id: 'gcp' },
+              gcp_network: {
+                vpc_name: 'mipereir-byo-vpc',
+                firewall_rules_id: firewallRule.id,
+              },
+            } as AugmentedCluster
+          }
         />,
       );
 
-      expect(screen.queryByText('Firewall Rules')).not.toBeInTheDocument();
+      expect(screen.queryByText('Firewall rules')).not.toBeInTheDocument();
       expect(useFetchGcpFirewallRuleMock).toHaveBeenCalledWith(firewallRule.id, false);
     });
   });
@@ -308,7 +319,7 @@ describe('<VPCDetailsCard />', () => {
       cluster: {
         ...defaultProps.cluster,
         ...clusterProps,
-      },
+      } as AugmentedCluster,
     };
 
     it('Edit button is disabled', () => {
@@ -329,7 +340,7 @@ describe('<VPCDetailsCard />', () => {
         status: {
           configuration_mode: 'full',
         },
-      },
+      } as AugmentedCluster,
     };
 
     it('Edit button is enabled', () => {

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -27,12 +26,25 @@ import { useFetchGcpFirewallRule } from '~/queries/ClusterDetailsQueries/Network
 import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
+import type { AugmentedCluster } from '~/types/types';
 
 import EditClusterWideProxyDialog from '../EditClusterWideProxyDialog';
 
 import './VPCDetailsCard.scss';
 
-const resolveDisableEditReason = ({ isReadOnly, clusterHibernating, canUpdateClusterResource }) => {
+type VPCDetailsCardProps = {
+  cluster: AugmentedCluster;
+};
+
+const resolveDisableEditReason = ({
+  isReadOnly,
+  clusterHibernating,
+  canUpdateClusterResource,
+}: {
+  isReadOnly: boolean;
+  clusterHibernating: boolean;
+  canUpdateClusterResource?: boolean;
+}): string | false | undefined => {
   const readOnlyReason = isReadOnly && 'This operation is not available during maintenance';
   const hibernatingReason =
     clusterHibernating && 'This operation is not available while cluster is hibernating';
@@ -42,17 +54,17 @@ const resolveDisableEditReason = ({ isReadOnly, clusterHibernating, canUpdateClu
   return readOnlyReason || hibernatingReason || canNotEditReason;
 };
 
-const VPCDetailsCard = ({ cluster }) => {
+const VPCDetailsCard = ({ cluster }: VPCDetailsCardProps) => {
   const dispatch = useDispatch();
 
   const privateLink = cluster.aws?.private_link;
-  const isGCP = cluster?.cloud_provider?.id === CloudProviderType.Gcp;
+  const isGCP = cluster.cloud_provider?.id === CloudProviderType.Gcp;
   const httpProxyUrl = cluster.proxy?.http_proxy;
   const httpsProxyUrl = cluster.proxy?.https_proxy;
   const noProxyDomains = stringToArray(cluster.proxy?.no_proxy);
   const additionalTrustBundle = cluster.additional_trust_bundle;
   const gcpVPCName = cluster.gcp_network?.vpc_name;
-  const isBYOVPC = cluster.aws?.subnet_ids || cluster.gcp_network;
+  const isBYOVPC = Boolean(cluster.aws?.subnet_ids || cluster.gcp_network);
   const gcpPrivateServiceConnect = cluster.gcp?.private_service_connect?.service_attachment_subnet;
   const hostProjectId = cluster.gcp_network?.vpc_project_id;
   const firewallRulesId = cluster.gcp_network?.firewall_rules_id;
@@ -64,7 +76,8 @@ const VPCDetailsCard = ({ cluster }) => {
   const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
   const isGcpByoFirewallRulesEnabled = useFeatureGate(GCP_BYO_FIREWALL_RULES);
 
-  const { data: dnsZone } = useFetchGcpDnsZone(cluster.dns?.base_domain, isGCP);
+  const { data: dnsZoneResponse } = useFetchGcpDnsZone(cluster.dns?.base_domain ?? '', isGCP);
+  const dnsZone = Array.isArray(dnsZoneResponse) ? dnsZoneResponse[0] : dnsZoneResponse;
   const hasPreSelectedDnsZone = !!dnsZone?.gcp?.domain_prefix;
 
   const shouldFetchFirewallRules = isGCP && isGcpByoFirewallRulesEnabled && !!firewallRulesId;
@@ -75,7 +88,7 @@ const VPCDetailsCard = ({ cluster }) => {
   const showSharedVpcSection = isSharedVpc && (isGcpDnsZoneEnabled || showFirewallRules);
 
   const { canUpdateClusterResource } = cluster;
-  const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
+  const isReadOnly = cluster.status?.configuration_mode === 'read_only';
   const clusterHibernating = isHibernating(cluster);
 
   const disableEditReason = resolveDisableEditReason({
@@ -90,13 +103,15 @@ const VPCDetailsCard = ({ cluster }) => {
 
   const renderNoProxyDomains = noProxyDomains
     ? noProxyDomains.map((domain) => (
-        <Label isCompact color="blue">
+        <Label key={domain} isCompact color="blue">
           {domain}
         </Label>
       ))
     : 'N/A';
 
-  if (!isBYOVPC) return null;
+  if (!isBYOVPC) {
+    return null;
+  }
 
   return (
     <Card className="ocm-c-networking-vpc-details__card">
@@ -126,7 +141,7 @@ const VPCDetailsCard = ({ cluster }) => {
               ) : null}
               {!isSharedVpc && showFirewallRules ? (
                 <DescriptionListGroup>
-                  <DescriptionListTerm>Firewall Rules</DescriptionListTerm>
+                  <DescriptionListTerm>Firewall rules</DescriptionListTerm>
                   <DescriptionListDescription>{firewallRulesName}</DescriptionListDescription>
                 </DescriptionListGroup>
               ) : null}
@@ -163,7 +178,7 @@ const VPCDetailsCard = ({ cluster }) => {
                 <DescriptionListTerm>Host project ID</DescriptionListTerm>
                 <DescriptionListDescription>{hostProjectId}</DescriptionListDescription>
               </DescriptionListGroup>
-              {isGcpDnsZoneEnabled && hasPreSelectedDnsZone ? (
+              {isGcpDnsZoneEnabled && hasPreSelectedDnsZone && dnsZone?.gcp?.domain_prefix ? (
                 <DescriptionListGroup>
                   <DescriptionListTerm>DNS Zone</DescriptionListTerm>
                   <DescriptionListDescription>
@@ -173,7 +188,7 @@ const VPCDetailsCard = ({ cluster }) => {
               ) : null}
               {showFirewallRules ? (
                 <DescriptionListGroup>
-                  <DescriptionListTerm>Firewall Rules</DescriptionListTerm>
+                  <DescriptionListTerm>Firewall rules</DescriptionListTerm>
                   <DescriptionListDescription>{firewallRulesName}</DescriptionListDescription>
                 </DescriptionListGroup>
               ) : null}
@@ -206,7 +221,7 @@ const VPCDetailsCard = ({ cluster }) => {
             </DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>
-        <EditClusterWideProxyDialog region={region} cluster={cluster} />
+        <EditClusterWideProxyDialog region={region ?? ''} cluster={cluster} />
       </CardBody>
       {!isRestrictedEnv() && (
         <CardFooter>
@@ -222,10 +237,6 @@ const VPCDetailsCard = ({ cluster }) => {
       )}
     </Card>
   );
-};
-
-VPCDetailsCard.propTypes = {
-  cluster: PropTypes.object.isRequired,
 };
 
 export default VPCDetailsCard;
