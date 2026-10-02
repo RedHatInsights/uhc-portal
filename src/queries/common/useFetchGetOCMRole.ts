@@ -6,9 +6,8 @@ import { accountsService } from '~/services';
 import { formatErrorData } from '../helpers';
 import { queryConstants } from '../queriesConstants';
 
-export const refetchGetOCMRole = (awsAccountID: string) => {
+export const refetchGetOCMRole = (awsAccountID: string) =>
   queryClient.invalidateQueries({ queryKey: [queryConstants.FETCH_GET_OCM_ROLE, awsAccountID] });
-};
 
 export const useFetchGetOCMRole = (awsAccountID: string) => {
   const { data, isError, error, isLoading, isPending, isSuccess, status } = useQuery({

@@ -319,6 +319,10 @@ export abstract class BaseWizardPage extends BasePage {
     return this.page.getByTestId('imds-optional');
   }
 
+  useIMDSv2Radio(): Locator {
+    return this.page.getByTestId('imds-required');
+  }
+
   // ── CIDR ──────────────────────────────────────────────────────────────────
 
   cidrDefaultValuesCheckBox(): Locator {

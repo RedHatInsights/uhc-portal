@@ -85,7 +85,7 @@ test.describe.serial(
       await createOSDWizardPage.selectComputeNodeCount(clusterProperties.MachinePools[0].NodeCount);
       await expect(createOSDWizardPage.enableAutoscalingCheckbox()).not.toBeChecked();
       if (clusterProperties.CloudProvider.includes('AWS')) {
-        await expect(createOSDWizardPage.useBothIMDSv1AndIMDSv2Radio()).toBeChecked();
+        await expect(createOSDWizardPage.useIMDSv2Radio()).toBeChecked();
       }
       await page.locator(createOSDWizardPage.primaryButton).click();
     });
