@@ -477,6 +477,9 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
       });
     },
 
+    getGcpFirewallRule: (id: string) =>
+      apiRequest.get<GcpFirewallRule>(`/api/clusters_mgmt/v1/gcp/firewall_rules/${id}`),
+
     createNewDnsDomain: () => apiRequest.post<DnsDomain>('/api/clusters_mgmt/v1/dns_domains', {}),
 
     deleteDnsDomain: (id: string) =>

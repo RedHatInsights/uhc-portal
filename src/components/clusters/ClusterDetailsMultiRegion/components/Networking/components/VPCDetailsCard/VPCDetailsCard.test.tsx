@@ -1,7 +1,8 @@
 import * as React from 'react';
 
 import { useFetchGcpDnsZone } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpDnsZone';
-import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
+import { useFetchGcpFirewallRule } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRule';
+import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { mockRestrictedEnv, mockUseFeatureGate, render, screen } from '~/testUtils';
 import { ClusterState } from '~/types/clusters_mgmt.v1/enums';
 
@@ -10,8 +11,12 @@ import VPCDetailsCard from './VPCDetailsCard';
 jest.mock('~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpDnsZone', () => ({
   useFetchGcpDnsZone: jest.fn(),
 }));
+jest.mock('~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRule', () => ({
+  useFetchGcpFirewallRule: jest.fn(),
+}));
 
 const useFetchGcpDnsZoneMock = useFetchGcpDnsZone as jest.Mock;
+const useFetchGcpFirewallRuleMock = useFetchGcpFirewallRule as jest.Mock;
 
 const dnsZone = {
   Kind: 'DnsDomain',
@@ -29,6 +34,11 @@ const dnsZone = {
   },
 };
 
+const firewallRule = {
+  id: 'fw-1',
+  name: 'prod-byo-firewall',
+};
+
 describe('<VPCDetailsCard />', () => {
   const defaultProps = {
     cluster: {
@@ -37,6 +47,15 @@ describe('<VPCDetailsCard />', () => {
       },
     },
   };
+
+  beforeEach(() => {
+    useFetchGcpDnsZoneMock.mockReturnValue({ data: undefined });
+    useFetchGcpFirewallRuleMock.mockReturnValue({ data: undefined });
+    mockUseFeatureGate([
+      [GCP_DNS_ZONE, false],
+      [GCP_BYO_FIREWALL_RULES, false],
+    ]);
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -121,14 +140,11 @@ describe('<VPCDetailsCard />', () => {
   });
 
   describe('When shared vpc is provided', () => {
-    useFetchGcpDnsZoneMock.mockReturnValue({
-      data: dnsZone,
-    });
-    mockUseFeatureGate([[GCP_DNS_ZONE, true]]);
     const baseDomain = 'wnsb.s2.devshift.org';
     const sharedVpc = 'shared-vpc1';
     const props = {
       cluster: {
+        cloud_provider: { id: 'gcp' },
         gcp_network: {
           vpc_name: 'test-vpc1',
           control_plane_subnet: 'test-vpc1-control-plane',
@@ -146,6 +162,10 @@ describe('<VPCDetailsCard />', () => {
       useFetchGcpDnsZoneMock.mockReturnValue({
         data: dnsZone,
       });
+      mockUseFeatureGate([
+        [GCP_DNS_ZONE, true],
+        [GCP_BYO_FIREWALL_RULES, false],
+      ]);
       render(<VPCDetailsCard {...props} />);
       expect(screen.queryByText('Shared VPC')).toBeInTheDocument();
       expect(screen.queryByText(sharedVpc)).toBeInTheDocument();
@@ -154,6 +174,10 @@ describe('<VPCDetailsCard />', () => {
     });
 
     it('does not show shared vpc details when shared vpc does not exist', () => {
+      mockUseFeatureGate([
+        [GCP_DNS_ZONE, true],
+        [GCP_BYO_FIREWALL_RULES, false],
+      ]);
       const newProps = {
         cluster: {
           ...props.cluster,
@@ -171,6 +195,82 @@ describe('<VPCDetailsCard />', () => {
       expect(screen.queryByText(sharedVpc)).not.toBeInTheDocument();
       expect(screen.queryByText('DNS Zone')).not.toBeInTheDocument();
       expect(screen.queryByText(baseDomain)).not.toBeInTheDocument();
+    });
+
+    it('renders Firewall Rules under Shared VPC when firewall_rules_id is present', () => {
+      useFetchGcpDnsZoneMock.mockReturnValue({ data: dnsZone });
+      useFetchGcpFirewallRuleMock.mockReturnValue({ data: firewallRule });
+      mockUseFeatureGate([
+        [GCP_DNS_ZONE, true],
+        [GCP_BYO_FIREWALL_RULES, true],
+      ]);
+
+      render(
+        <VPCDetailsCard
+          cluster={{
+            ...props.cluster,
+            gcp_network: {
+              ...props.cluster.gcp_network,
+              firewall_rules_id: firewallRule.id,
+            },
+          }}
+        />,
+      );
+
+      expect(screen.getByText('Shared VPC')).toBeInTheDocument();
+      expect(screen.getByText('Firewall Rules')).toBeInTheDocument();
+      expect(screen.getByText('prod-byo-firewall')).toBeInTheDocument();
+      expect(useFetchGcpFirewallRuleMock).toHaveBeenCalledWith(firewallRule.id, true);
+    });
+  });
+
+  describe('Firewall Rules for non-shared VPC', () => {
+    it('renders Firewall Rules under VPC Details when firewall_rules_id is present', () => {
+      useFetchGcpFirewallRuleMock.mockReturnValue({ data: firewallRule });
+      mockUseFeatureGate([
+        [GCP_DNS_ZONE, false],
+        [GCP_BYO_FIREWALL_RULES, true],
+      ]);
+
+      render(
+        <VPCDetailsCard
+          cluster={{
+            cloud_provider: { id: 'gcp' },
+            gcp_network: {
+              vpc_name: 'mipereir-byo-vpc',
+              firewall_rules_id: firewallRule.id,
+            },
+          }}
+        />,
+      );
+
+      expect(screen.getByText('VPC Details')).toBeInTheDocument();
+      expect(screen.queryByText('Shared VPC')).not.toBeInTheDocument();
+      expect(screen.getByText('Firewall Rules')).toBeInTheDocument();
+      expect(screen.getByText('prod-byo-firewall')).toBeInTheDocument();
+    });
+
+    it('does not render Firewall Rules when the feature gate is disabled', () => {
+      useFetchGcpFirewallRuleMock.mockReturnValue({ data: firewallRule });
+      mockUseFeatureGate([
+        [GCP_DNS_ZONE, false],
+        [GCP_BYO_FIREWALL_RULES, false],
+      ]);
+
+      render(
+        <VPCDetailsCard
+          cluster={{
+            cloud_provider: { id: 'gcp' },
+            gcp_network: {
+              vpc_name: 'mipereir-byo-vpc',
+              firewall_rules_id: firewallRule.id,
+            },
+          }}
+        />,
+      );
+
+      expect(screen.queryByText('Firewall Rules')).not.toBeInTheDocument();
+      expect(useFetchGcpFirewallRuleMock).toHaveBeenCalledWith(firewallRule.id, false);
     });
   });
 

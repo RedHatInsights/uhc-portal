@@ -23,7 +23,8 @@ import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { useFetchGcpDnsZone } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpDnsZone';
-import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
+import { useFetchGcpFirewallRule } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRule';
+import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 
@@ -54,15 +55,24 @@ const VPCDetailsCard = ({ cluster }) => {
   const isBYOVPC = cluster.aws?.subnet_ids || cluster.gcp_network;
   const gcpPrivateServiceConnect = cluster.gcp?.private_service_connect?.service_attachment_subnet;
   const hostProjectId = cluster.gcp_network?.vpc_project_id;
+  const firewallRulesId = cluster.gcp_network?.firewall_rules_id;
 
   const region = cluster.subscription?.rh_region_id;
 
   const isPrivateLinkInitialized = typeof privateLink !== 'undefined';
   const showPrivateLink = isPrivateLinkInitialized && !isHypershiftCluster(cluster);
   const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
+  const isGcpByoFirewallRulesEnabled = useFeatureGate(GCP_BYO_FIREWALL_RULES);
 
   const { data: dnsZone } = useFetchGcpDnsZone(cluster.dns?.base_domain, isGCP);
   const hasPreSelectedDnsZone = !!dnsZone?.gcp?.domain_prefix;
+
+  const shouldFetchFirewallRules = isGCP && isGcpByoFirewallRulesEnabled && !!firewallRulesId;
+  const { data: firewallRule } = useFetchGcpFirewallRule(firewallRulesId, shouldFetchFirewallRules);
+  const firewallRulesName = firewallRule?.name || firewallRulesId;
+  const showFirewallRules = shouldFetchFirewallRules && !!firewallRulesName;
+  const isSharedVpc = !!hostProjectId;
+  const showSharedVpcSection = isSharedVpc && (isGcpDnsZoneEnabled || showFirewallRules);
 
   const { canUpdateClusterResource } = cluster;
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
@@ -96,7 +106,10 @@ const VPCDetailsCard = ({ cluster }) => {
         </Title>
       </CardTitle>
       <CardBody className="ocm-c-networking-vpc-details__card--body pf-v6-l-stack pf-m-gutter">
-        {gcpVPCName || showPrivateLink || gcpPrivateServiceConnect ? (
+        {gcpVPCName ||
+        showPrivateLink ||
+        gcpPrivateServiceConnect ||
+        (!isSharedVpc && showFirewallRules) ? (
           <>
             <Title headingLevel="h3" className="pf-v6-l-stack__item">
               VPC Details
@@ -109,6 +122,12 @@ const VPCDetailsCard = ({ cluster }) => {
                 <DescriptionListGroup>
                   <DescriptionListTerm>VPC name</DescriptionListTerm>
                   <DescriptionListDescription>{gcpVPCName}</DescriptionListDescription>
+                </DescriptionListGroup>
+              ) : null}
+              {!isSharedVpc && showFirewallRules ? (
+                <DescriptionListGroup>
+                  <DescriptionListTerm>Firewall Rules</DescriptionListTerm>
+                  <DescriptionListDescription>{firewallRulesName}</DescriptionListDescription>
                 </DescriptionListGroup>
               ) : null}
               {showPrivateLink ? (
@@ -131,7 +150,7 @@ const VPCDetailsCard = ({ cluster }) => {
           </>
         ) : null}
 
-        {hostProjectId && isGcpDnsZoneEnabled ? (
+        {showSharedVpcSection ? (
           <>
             <Title headingLevel="h3" className="pf-v6-l-stack__item --">
               Shared VPC
@@ -144,12 +163,18 @@ const VPCDetailsCard = ({ cluster }) => {
                 <DescriptionListTerm>Host project ID</DescriptionListTerm>
                 <DescriptionListDescription>{hostProjectId}</DescriptionListDescription>
               </DescriptionListGroup>
-              {hasPreSelectedDnsZone ? (
+              {isGcpDnsZoneEnabled && hasPreSelectedDnsZone ? (
                 <DescriptionListGroup>
                   <DescriptionListTerm>DNS Zone</DescriptionListTerm>
                   <DescriptionListDescription>
                     {dnsZone.gcp.domain_prefix}.{dnsZone.id}
                   </DescriptionListDescription>
+                </DescriptionListGroup>
+              ) : null}
+              {showFirewallRules ? (
+                <DescriptionListGroup>
+                  <DescriptionListTerm>Firewall Rules</DescriptionListTerm>
+                  <DescriptionListDescription>{firewallRulesName}</DescriptionListDescription>
                 </DescriptionListGroup>
               ) : null}
             </DescriptionList>
