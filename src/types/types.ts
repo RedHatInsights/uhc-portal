@@ -66,6 +66,7 @@ export type FakeCluster = // AICluster &
     | 'gcp'
     | 'gcp_network'
     | 'dns'
+    | 'network'
     | 'status'
     | 'multi_az'
     | 'proxy'
