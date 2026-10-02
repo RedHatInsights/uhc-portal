@@ -141,7 +141,7 @@ const VPCDetailsCard = ({ cluster }: VPCDetailsCardProps) => {
               ) : null}
               {!isSharedVpc && showFirewallRules ? (
                 <DescriptionListGroup>
-                  <DescriptionListTerm>Firewall Rules</DescriptionListTerm>
+                  <DescriptionListTerm>Firewall rules</DescriptionListTerm>
                   <DescriptionListDescription>{firewallRulesName}</DescriptionListDescription>
                 </DescriptionListGroup>
               ) : null}
@@ -188,7 +188,7 @@ const VPCDetailsCard = ({ cluster }: VPCDetailsCardProps) => {
               ) : null}
               {showFirewallRules ? (
                 <DescriptionListGroup>
-                  <DescriptionListTerm>Firewall Rules</DescriptionListTerm>
+                  <DescriptionListTerm>Firewall rules</DescriptionListTerm>
                   <DescriptionListDescription>{firewallRulesName}</DescriptionListDescription>
                 </DescriptionListGroup>
               ) : null}

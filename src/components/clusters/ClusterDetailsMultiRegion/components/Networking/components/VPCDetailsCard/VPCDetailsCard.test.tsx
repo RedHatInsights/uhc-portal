@@ -225,14 +225,14 @@ describe('<VPCDetailsCard />', () => {
       );
 
       expect(screen.getByText('Shared VPC')).toBeInTheDocument();
-      expect(screen.getByText('Firewall Rules')).toBeInTheDocument();
+      expect(screen.getByText('Firewall rules')).toBeInTheDocument();
       expect(screen.getByText('prod-byo-firewall')).toBeInTheDocument();
       expect(useFetchGcpFirewallRuleMock).toHaveBeenCalledWith(firewallRule.id, true);
     });
   });
 
   describe('Firewall Rules for non-shared VPC', () => {
-    it('renders Firewall Rules under VPC Details when firewall_rules_id is present', () => {
+    it('renders Firewall rules under VPC Details when firewall_rules_id is present', () => {
       useFetchGcpFirewallRuleMock.mockReturnValue({ data: firewallRule });
       mockUseFeatureGate([
         [GCP_DNS_ZONE, false],
@@ -255,7 +255,7 @@ describe('<VPCDetailsCard />', () => {
 
       expect(screen.getByText('VPC Details')).toBeInTheDocument();
       expect(screen.queryByText('Shared VPC')).not.toBeInTheDocument();
-      expect(screen.getByText('Firewall Rules')).toBeInTheDocument();
+      expect(screen.getByText('Firewall rules')).toBeInTheDocument();
       expect(screen.getByText('prod-byo-firewall')).toBeInTheDocument();
     });
 
@@ -280,7 +280,7 @@ describe('<VPCDetailsCard />', () => {
         />,
       );
 
-      expect(screen.queryByText('Firewall Rules')).not.toBeInTheDocument();
+      expect(screen.queryByText('Firewall rules')).not.toBeInTheDocument();
       expect(useFetchGcpFirewallRuleMock).toHaveBeenCalledWith(firewallRule.id, false);
     });
   });
