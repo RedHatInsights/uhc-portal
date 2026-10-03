@@ -159,6 +159,7 @@ export const Configuration = () => {
   ) => {
     trackCheckedState(trackEvents.PrivateServiceConnect, checked);
     setFieldValue(FieldId.PrivateServiceConnect, checked);
+    setFieldValue(FieldId.FirewallRules, { id: '' });
     if (checked && !installToVpc) {
       setFieldValue(FieldId.InstallToVpc, true);
       trackCheckedState(trackEvents.InstallIntoVPC, checked);
