@@ -3,6 +3,7 @@ import { architectures, channels, operatingSystems, tools, urls } from '~/common
 import {
   allArchitecturesForTool,
   allOperatingSystemsForTool,
+  architecturesForToolOS,
   initialSelection,
 } from '../downloadUtils';
 
@@ -15,9 +16,18 @@ describe('allArchitecturesForTool', () => {
     expect(values).toEqual([x86, arm, ppc, s390x]);
   });
 
-  it('has only x86 for rosa', () => {
+  it('includes arm for rosa', () => {
     const values = allArchitecturesForTool(urls, tools.ROSA, channels.STABLE).map((o) => o.value);
-    expect(values).toEqual([x86]);
+    expect(values).toEqual([x86, arm]);
+  });
+});
+
+describe('architecturesForToolOS', () => {
+  it.each([linux, mac, windows])('includes arm for rosa on %s', (os) => {
+    const values = architecturesForToolOS(urls, tools.ROSA, channels.STABLE, os).map(
+      (o) => o.value,
+    );
+    expect(values).toContain(arm);
   });
 });
 
