@@ -243,11 +243,15 @@ test.describe(
     test(`Settings tab - OCP v5 migration warning renders in Update strategy section for OSD AWS`, async ({
       clusterDetailsPage,
     }) => {
-      await clusterDetailsPage.openUpgradeSettingsTab();
+      await clusterDetailsPage.navigateToSettingsTab();
 
       if (isOcp5SupportEnabled) {
         await expect(clusterDetailsPage.ocp5UpgradeWarning()).toBeVisible();
         await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toBeVisible();
+        await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toHaveAttribute(
+          'href',
+          /\/create\/rosa\/getstarted/,
+        );
       } else {
         await expect(clusterDetailsPage.ocp5UpgradeWarning()).not.toBeVisible();
       }

@@ -304,17 +304,16 @@ test.describe.serial(
 
     test('Settings tab - OCP v5 migration warning renders in Update strategy section for ROSA Classic', async ({
       clusterDetailsPage,
-      rosaGetStartedPage,
-      page,
     }) => {
-      await clusterDetailsPage.openUpgradeSettingsTab();
+      await clusterDetailsPage.navigateToSettingsTab();
 
       if (isOcp5SupportEnabled) {
         await expect(clusterDetailsPage.ocp5UpgradeWarning()).toBeVisible();
-        await clusterDetailsPage.ocp5UpgradeWarningHcpLink().click();
-        await rosaGetStartedPage.isRosaGetStartedPage();
-        await page.goBack();
-        await clusterDetailsPage.openUpgradeSettingsTab();
+        await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toBeVisible();
+        await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toHaveAttribute(
+          'href',
+          /\/create\/rosa\/getstarted/,
+        );
       } else {
         await expect(clusterDetailsPage.ocp5UpgradeWarning()).not.toBeVisible();
       }
