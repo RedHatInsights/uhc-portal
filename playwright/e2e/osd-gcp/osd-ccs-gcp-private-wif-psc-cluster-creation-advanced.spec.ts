@@ -1,62 +1,73 @@
 import { test, expect } from '../../fixtures/pages';
 import { getUsernameSuffix } from '../../support/auth-config';
+import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
-const clusterProperties = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-advanced-cluster-creation.spec.json');
+const clusterProperties = require('../../fixtures/osd-gcp/osd-ccs-gcp-private-wif-psc-cluster-creation-advanced.spec.json');
 const userSuffix = getUsernameSuffix();
 const clusterName = `${clusterProperties.ClusterName}-${userSuffix}`;
-const clusterDomainPrefix = `osd${userSuffix}`;
+const clusterDomainPrefix = `osdpvt${userSuffix}`;
+const authType = `${clusterProperties.AuthenticationType}`;
+const isPscEnabled = 'PrivateServiceConnect';
 
-const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG || '';
+const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG?.trim();
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
+const PSC_INFRA = QE_INFRA_GCP['PSC_INFRA'] || {};
+const region = PSC_INFRA['REGION'];
 
 test.describe.serial(
-  'OSD On-Demand GCP WIF public advanced cluster creation',
-  { tag: ['@day1', '@osd', '@gcp', '@wif', '@ondemand', '@public', '@advanced'] },
+  'OSD GCP CCS WIF private PSC advanced cluster creation tests',
+  {
+    tag: ['@advanced', '@day1', '@osd', '@ccs', '@gcp', '@private', '@wif', '@psc', '@multizone'],
+  },
   () => {
     test.beforeAll(async ({ navigateTo }) => {
-      if (!QE_GCP_WIF_CONFIG?.trim()) {
-        throw new Error('QE_GCP_WIF_CONFIG must be set for GCP WIF public advanced tests');
-      }
-      if (
-        !QE_INFRA_GCP.REGION ||
-        !QE_INFRA_GCP.VPC_NAME ||
-        !QE_INFRA_GCP.CONTROLPLANE_SUBNET ||
-        !QE_INFRA_GCP.COMPUTE_SUBNET
-      ) {
+      if (!QE_GCP_WIF_CONFIG) {
         throw new Error(
-          'QE_INFRA_GCP must include top-level REGION, VPC_NAME, CONTROLPLANE_SUBNET, and COMPUTE_SUBNET',
+          'QE_GCP_WIF_CONFIG must be set in playwright.env.json (expected GCP WIF configuration name).',
         );
       }
-      await navigateTo('create');
+      if (
+        !PSC_INFRA['REGION'] ||
+        !PSC_INFRA['VPC_NAME'] ||
+        !PSC_INFRA['CONTROLPLANE_SUBNET'] ||
+        !PSC_INFRA['COMPUTE_SUBNET'] ||
+        !PSC_INFRA['PRIVATE_SERVICE_CONNECT_SUBNET']
+      ) {
+        throw new Error(
+          'QE_INFRA_GCP.PSC_INFRA must include REGION, VPC_NAME, CONTROLPLANE_SUBNET, COMPUTE_SUBNET, and PRIVATE_SERVICE_CONNECT_SUBNET',
+        );
+      }
+      await navigateTo(CREATE_CLUSTER_ROUTE);
     });
 
-    test(`Launch OSD - ${clusterProperties.CloudProvider} WIF public advanced wizard`, async ({
+    test(`Launch OSD - ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} cluster wizard`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
       await createOSDWizardPage.isCreateOSDPage();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} WIF wizard - Billing model and its definitions`, async ({
+    test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Billing model and its definitions`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isBillingModelScreen();
-      await createOSDWizardPage.selectSubscriptionType(clusterProperties.SubscriptionType);
-      await createOSDWizardPage.selectInfrastructureType(clusterProperties.InfrastructureType);
+      await expect(createOSDWizardPage.subscriptionTypeAnnualFixedCapacityRadio()).toBeChecked();
+      await createOSDWizardPage.infrastructureTypeClusterCloudSubscriptionRadio().check();
       await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} WIF wizard - Cluster Settings - Cloud provider definitions`, async ({
+    test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Cluster Settings - Cloud provider definitions`, async ({
       createOSDWizardPage,
     }) => {
-      await createOSDWizardPage.isOnlyGCPCloudProviderSelectionScreen();
+      await createOSDWizardPage.isCloudProviderSelectionScreen();
+      await createOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
       await createOSDWizardPage.workloadIdentityFederationButton().click();
-      await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG);
+      await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG!);
       await createOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} WIF wizard - Cluster Settings - Cluster details definitions`, async ({
+    test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Cluster Settings - Cluster details definitions`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isClusterDetailsScreen();
@@ -66,85 +77,104 @@ test.describe.serial(
       await createOSDWizardPage.closePopoverDialogs();
       await createOSDWizardPage.setDomainPrefix(clusterDomainPrefix);
       await createOSDWizardPage.closePopoverDialogs();
-      await expect(createOSDWizardPage.singleZoneAvilabilityRadio()).toBeChecked();
-      await createOSDWizardPage.selectVersion(
-        clusterProperties.Version || process.env.VERSION || '',
-      );
-      await createOSDWizardPage.selectRegion(QE_INFRA_GCP.REGION);
-      await createOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+      await createOSDWizardPage.selectAvailabilityZone(clusterProperties.Availability);
+      await createOSDWizardPage.selectRegion(region);
+      if (clusterProperties.CloudProvider.includes('Google Cloud')) {
+        await createOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
+      }
       await expect(createOSDWizardPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
+
+      if (clusterProperties.AdditionalEncryption.includes('Enabled')) {
+        await createOSDWizardPage.advancedEncryptionLink().click();
+        await createOSDWizardPage.enableAdditionalEtcdEncryptionCheckbox().check();
+        if (clusterProperties.FIPSCryptography.includes('Enabled')) {
+          await createOSDWizardPage.enableFIPSCryptographyCheckbox().check();
+        }
+      }
+
       await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} WIF wizard - Cluster Settings - Default machinepool definitions`, async ({
+    test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Cluster Settings - Default machinepool definitions`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isMachinePoolScreen();
       await createOSDWizardPage.selectComputeNodeType(
         clusterProperties.MachinePools[0].InstanceType,
       );
-      await createOSDWizardPage.enableAutoscalingCheckbox().check();
-      await createOSDWizardPage.setMinimumNodeCount(
-        clusterProperties.MachinePools[0].MinimumNodeCount,
-      );
-      await createOSDWizardPage.setMaximumNodeCount(
-        clusterProperties.MachinePools[0].MaximumNodeCount,
-      );
-      await createOSDWizardPage.addNodeLabelLink().click();
-      await createOSDWizardPage.addNodeLabelKeyAndValue(
-        clusterProperties.MachinePools[0].Labels[0].Key,
-        clusterProperties.MachinePools[0].Labels[0].Value,
-      );
+      if (clusterProperties.MachinePools[0].Autoscaling.includes('Enabled')) {
+        await createOSDWizardPage.enableAutoscalingCheckbox().check();
+        await createOSDWizardPage.setMinimumNodeCount(
+          clusterProperties.MachinePools[0].MinimumNodeCount,
+        );
+        await createOSDWizardPage.setMaximumNodeCount(
+          clusterProperties.MachinePools[0].MaximumNodeCount,
+        );
+      } else {
+        await expect(createOSDWizardPage.enableAutoscalingCheckbox()).not.toBeChecked();
+        await createOSDWizardPage.selectComputeNodeCount(
+          clusterProperties.MachinePools[0].NodeCount,
+        );
+      }
+      if (clusterProperties.MachinePools[0].Labels?.length) {
+        await createOSDWizardPage.addNodeLabelLink().click();
+        await createOSDWizardPage.addNodeLabelKeyAndValue(
+          clusterProperties.MachinePools[0].Labels[0].Key,
+          clusterProperties.MachinePools[0].Labels[0].Value,
+          0,
+        );
+      }
       await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} WIF wizard - Networking configuration - cluster privacy definitions`, async ({
+    test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Networking configuration - cluster privacy definitions`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isNetworkingScreen();
-      await expect(createOSDWizardPage.clusterPrivacyPublicRadio()).toBeChecked();
       await createOSDWizardPage.selectClusterPrivacy(clusterProperties.ClusterPrivacy);
-      await createOSDWizardPage.installIntoExistingVpcCheckBox().check();
-      await createOSDWizardPage.applicationIngressCustomSettingsRadio().check();
-      await createOSDWizardPage
-        .applicationIngressRouterSelectorsInput()
-        .fill(clusterProperties.RouteSelector.KeyValue);
-      await createOSDWizardPage
-        .applicationIngressExcludedNamespacesInput()
-        .fill(clusterProperties.ExcludedNamespaces.Values);
-      await createOSDWizardPage
-        .applicationIngressExcludeNamespaceSelectorKeyInput()
-        .fill(clusterProperties.ExcludeNamespaceSelectors.Key);
-      await createOSDWizardPage
-        .applicationIngressExcludeNamespaceSelectorValuesInput()
-        .fill(clusterProperties.ExcludeNamespaceSelectors.Values);
-      await expect(
-        createOSDWizardPage.applicationIngressNamespaceOwnershipPolicyRadio(),
-      ).toBeChecked();
-      await expect(
-        createOSDWizardPage.applicationIngressWildcardPolicyAllowedRadio(),
-      ).not.toBeChecked();
+      await expect(createOSDWizardPage.installIntoExistingVpcCheckBox()).toBeChecked();
+      await expect(createOSDWizardPage.usePrivateServiceConnectCheckBox()).toBeChecked();
+
+      if (clusterProperties.ApplicationIngress.includes('Custom settings')) {
+        await createOSDWizardPage.applicationIngressCustomSettingsRadio().check();
+        await createOSDWizardPage
+          .applicationIngressRouterSelectorsInput()
+          .fill(clusterProperties.RouteSelector.KeyValue);
+        await createOSDWizardPage
+          .applicationIngressExcludedNamespacesInput()
+          .fill(clusterProperties.ExcludedNamespaces.Values);
+        await expect(
+          createOSDWizardPage.applicationIngressNamespaceOwnershipPolicyRadio(),
+        ).toBeChecked();
+        await expect(
+          createOSDWizardPage.applicationIngressWildcardPolicyAllowedRadio(),
+        ).not.toBeChecked();
+      } else {
+        await expect(createOSDWizardPage.applicationIngressDefaultSettingsRadio()).toBeChecked();
+      }
       await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} WIF wizard - VPC and subnet definitions`, async ({
+    test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Networking configuration - VPC and subnet definitions`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isVPCSubnetScreen();
-      await createOSDWizardPage.selectGcpVPC(QE_INFRA_GCP.VPC_NAME);
-      await createOSDWizardPage.selectControlPlaneSubnetName(QE_INFRA_GCP.CONTROLPLANE_SUBNET);
-      await createOSDWizardPage.selectComputeSubnetName(QE_INFRA_GCP.COMPUTE_SUBNET);
+      await createOSDWizardPage.selectGcpVPC(PSC_INFRA['VPC_NAME']);
+      await createOSDWizardPage.selectControlPlaneSubnetName(PSC_INFRA['CONTROLPLANE_SUBNET']);
+      await createOSDWizardPage.selectComputeSubnetName(PSC_INFRA['COMPUTE_SUBNET']);
+      await createOSDWizardPage.selectPrivateServiceConnectSubnetName(
+        PSC_INFRA['PRIVATE_SERVICE_CONNECT_SUBNET'],
+      );
       await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} WIF wizard - CIDR configuration - cidr definitions`, async ({
+    test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - CIDR configuration - cidr definitions`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isCIDRScreen();
-      await expect(createOSDWizardPage.cidrDefaultValuesCheckBox()).toBeChecked();
-      await expect(createOSDWizardPage.machineCIDRInput()).toHaveValue(
-        clusterProperties.MachineCIDR,
-      );
+      await createOSDWizardPage.cidrDefaultValuesCheckBox().uncheck();
+      await createOSDWizardPage.machineCIDRInput().clear();
+      await createOSDWizardPage.machineCIDRInput().fill(clusterProperties.MachineCIDR);
       await expect(createOSDWizardPage.serviceCIDRInput()).toHaveValue(
         clusterProperties.ServiceCIDR,
       );
@@ -153,7 +183,7 @@ test.describe.serial(
       await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} WIF wizard - Cluster updates definitions`, async ({
+    test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Cluster updates definitions`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isClusterUpdatesScreen();
@@ -162,7 +192,7 @@ test.describe.serial(
       await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} WIF wizard - Review and create page and its definitions`, async ({
+    test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Review and create page and its definitions`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isReviewScreen();
@@ -178,12 +208,12 @@ test.describe.serial(
       await expect(createOSDWizardPage.authenticationTypeValue()).toContainText(
         clusterProperties.AuthenticationType,
       );
-      await expect(createOSDWizardPage.wifConfigurationValue()).toContainText(QE_GCP_WIF_CONFIG);
+      await expect(createOSDWizardPage.wifConfigurationValue()).toContainText(QE_GCP_WIF_CONFIG!);
+      await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
       await expect(createOSDWizardPage.clusterDomainPrefixLabelValue()).toContainText(
         clusterDomainPrefix,
       );
-      await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
-      await expect(createOSDWizardPage.regionValue()).toContainText(QE_INFRA_GCP.REGION);
+      await expect(createOSDWizardPage.regionValue()).toContainText(region);
       await expect(createOSDWizardPage.availabilityValue()).toContainText(
         clusterProperties.Availability,
       );
@@ -209,10 +239,10 @@ test.describe.serial(
         clusterProperties.MachinePools[0].Autoscaling,
       );
       await expect(createOSDWizardPage.computeNodeRangeValue()).toContainText(
-        `Minimum nodes: ${clusterProperties.MachinePools[0].MinimumNodeCount}`,
+        `Minimum nodes per zone: ${clusterProperties.MachinePools[0].MinimumNodeCount}`,
       );
       await expect(createOSDWizardPage.computeNodeRangeValue()).toContainText(
-        `Maximum nodes: ${clusterProperties.MachinePools[0].MaximumNodeCount}`,
+        `Maximum nodes per zone: ${clusterProperties.MachinePools[0].MaximumNodeCount}`,
       );
       const label = `${clusterProperties.MachinePools[0].Labels[0].Key} = ${clusterProperties.MachinePools[0].Labels[0].Value}`;
       await expect(createOSDWizardPage.nodeLabelsValue(label)).toBeVisible();
@@ -222,27 +252,26 @@ test.describe.serial(
       await expect(createOSDWizardPage.installIntoExistingVpcValue()).toContainText(
         clusterProperties.InstallIntoExistingVPC,
       );
-      await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
-        QE_INFRA_GCP.VPC_NAME,
-      );
-      await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
-        QE_INFRA_GCP.CONTROLPLANE_SUBNET,
-      );
-      await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
-        QE_INFRA_GCP.COMPUTE_SUBNET,
+      await expect(createOSDWizardPage.privateServiceConnectValue()).toContainText(
+        clusterProperties.UsePrivateServiceConnect,
       );
       await expect(createOSDWizardPage.applicationIngressValue()).toContainText(
         clusterProperties.ApplicationIngress,
       );
+      const [routeSelectorKey, routeSelectorValue] =
+        clusterProperties.RouteSelector.KeyValue.split('=');
       await expect(createOSDWizardPage.routeSelectorsValue()).toContainText(
-        clusterProperties.RouteSelector.KeyValue.replace('=', ' = '),
+        `${routeSelectorKey} = ${routeSelectorValue}`,
       );
+      const excludedNamespacesMoreButton = createOSDWizardPage
+        .excludedNamespacesValue()
+        .getByRole('button', { name: /\d+ more/ });
+      if (await excludedNamespacesMoreButton.isVisible()) {
+        await excludedNamespacesMoreButton.click();
+      }
       for (const namespace of clusterProperties.ExcludedNamespaces.Values.split(',')) {
         await expect(createOSDWizardPage.excludedNamespacesValue()).toContainText(namespace.trim());
       }
-      await expect(createOSDWizardPage.excludeNamespaceSelectorsValue()).toContainText(
-        `${clusterProperties.ExcludeNamespaceSelectors.Key} = ${clusterProperties.ExcludeNamespaceSelectors.Values.split(',').join(', ')}`,
-      );
       await expect(createOSDWizardPage.wildcardPolicyValue()).toContainText(
         clusterProperties.WildcardPolicy,
       );
@@ -267,7 +296,7 @@ test.describe.serial(
       );
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} WIF wizard - Cluster submission & overview definitions`, async ({
+    test(`OSD ${clusterProperties.CloudProvider} ${authType} ${isPscEnabled} wizard - Cluster submission & overview definitions`, async ({
       createOSDWizardPage,
       clusterDetailsPage,
     }) => {
@@ -277,50 +306,27 @@ test.describe.serial(
       await expect(clusterDetailsPage.clusterInstallationHeader()).toContainText(
         'Installing cluster',
       );
+      await expect(clusterDetailsPage.clusterInstallationHeader()).toBeVisible();
       await expect(clusterDetailsPage.clusterInstallationExpectedText()).toContainText(
         'Cluster creation usually takes 30 to 60 minutes to complete',
       );
+      await expect(clusterDetailsPage.clusterInstallationExpectedText()).toBeVisible();
       await expect(clusterDetailsPage.downloadOcCliLink()).toContainText('Download OC CLI');
+      await expect(clusterDetailsPage.downloadOcCliLink()).toBeVisible();
 
       await clusterDetailsPage.clusterDetailsPageRefresh();
       await clusterDetailsPage.checkInstallationStepStatus('Account setup');
       await clusterDetailsPage.checkInstallationStepStatus('Network settings');
       await clusterDetailsPage.checkInstallationStepStatus('DNS setup');
       await clusterDetailsPage.checkInstallationStepStatus('Cluster installation');
-
       await expect(clusterDetailsPage.clusterTypeLabelValue()).toContainText(
         clusterProperties.Type,
-      );
-      await expect(clusterDetailsPage.clusterRegionLabelValue()).toContainText(QE_INFRA_GCP.REGION);
-      await expect(clusterDetailsPage.clusterAvailabilityLabelValue()).toContainText(
-        clusterProperties.Availability,
-      );
-      await expect(clusterDetailsPage.clusterMachineCIDRLabelValue()).toContainText(
-        clusterProperties.MachineCIDR,
-      );
-      await expect(clusterDetailsPage.clusterServiceCIDRLabelValue()).toContainText(
-        clusterProperties.ServiceCIDR,
-      );
-      await expect(clusterDetailsPage.clusterPodCIDRLabelValue()).toContainText(
-        clusterProperties.PodCIDR,
-      );
-      await expect(clusterDetailsPage.clusterHostPrefixLabelValue()).toContainText(
-        clusterProperties.HostPrefix.replace('/', ''),
-      );
-      await expect(clusterDetailsPage.clusterSubscriptionBillingModelValue()).toContainText(
-        clusterProperties.SubscriptionBillingModel,
-      );
-      await expect(clusterDetailsPage.clusterInfrastructureBillingModelValue()).toContainText(
-        clusterProperties.InfrastructureType,
-      );
-      await expect(clusterDetailsPage.clusterSecureBootSupportForShieldedVMsValue()).toContainText(
-        clusterProperties.SecureBootSupportForShieldedVMs,
       );
       await expect(clusterDetailsPage.clusterAuthenticationTypeLabelValue()).toContainText(
         clusterProperties.AuthenticationType,
       );
       await expect(clusterDetailsPage.clusterWifConfigurationValue()).toContainText(
-        QE_GCP_WIF_CONFIG,
+        QE_GCP_WIF_CONFIG!,
       );
     });
   },
