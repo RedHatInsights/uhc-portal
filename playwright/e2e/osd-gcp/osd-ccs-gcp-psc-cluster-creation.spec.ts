@@ -7,6 +7,9 @@ const authType = `${gcpClusterProperties.AuthenticationType}`;
 const isPscEnabled = 'PrivateServiceConnect';
 // Environment variables
 const QE_GCP = process.env.QE_GCP_OSDCCSADMIN_JSON;
+const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
+const PSC_INFRA = QE_INFRA_GCP.PSC_INFRA || {};
+const region = PSC_INFRA.REGION || gcpClusterProperties.Region.split(',')[0];
 
 test.describe.serial(
   'OSD GCP(Service Authentication) CCS PSC cluster creation tests (OCP-35992, OCP-26750)',
@@ -69,7 +72,7 @@ test.describe.serial(
       await createOSDWizardPage.selectVersion(
         gcpClusterProperties.Version || process.env.VERSION || '',
       );
-      await createOSDWizardPage.selectRegion(gcpClusterProperties.Region);
+      await createOSDWizardPage.selectRegion(region);
       await createOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
 
       await expect(createOSDWizardPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
@@ -119,16 +122,13 @@ test.describe.serial(
         createOSDWizardPage,
       }) => {
         await createOSDWizardPage.isVPCSubnetScreen();
-        const qeInfraGcp = JSON.parse(process.env.QE_INFRA_GCP || '{}');
-        await createOSDWizardPage.selectGcpVPC(qeInfraGcp?.PSC_INFRA?.VPC_NAME || '');
+        await createOSDWizardPage.selectGcpVPC(PSC_INFRA.VPC_NAME || '');
         await createOSDWizardPage.selectControlPlaneSubnetName(
-          qeInfraGcp?.PSC_INFRA?.CONTROLPLANE_SUBNET || '',
+          PSC_INFRA.CONTROLPLANE_SUBNET || '',
         );
-        await createOSDWizardPage.selectComputeSubnetName(
-          qeInfraGcp?.PSC_INFRA?.COMPUTE_SUBNET || '',
-        );
+        await createOSDWizardPage.selectComputeSubnetName(PSC_INFRA.COMPUTE_SUBNET || '');
         await createOSDWizardPage.selectPrivateServiceConnectSubnetName(
-          qeInfraGcp?.PSC_INFRA?.PRIVATE_SERVICE_CONNECT_SUBNET || '',
+          PSC_INFRA.PRIVATE_SERVICE_CONNECT_SUBNET || '',
         );
         await createOSDWizardPage.wizardNextButton().click();
       });
@@ -191,9 +191,7 @@ test.describe.serial(
         clusterDomainPrefix,
       );
       await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
-      await expect(createOSDWizardPage.regionValue()).toContainText(
-        gcpClusterProperties.Region.split(',')[0],
-      );
+      await expect(createOSDWizardPage.regionValue()).toContainText(region);
       await expect(createOSDWizardPage.availabilityValue()).toContainText(
         gcpClusterProperties.Availability,
       );
@@ -289,9 +287,7 @@ test.describe.serial(
       await expect(clusterDetailsPage.clusterTypeLabelValue()).toContainText(
         gcpClusterProperties.Type,
       );
-      await expect(clusterDetailsPage.clusterRegionLabelValue()).toContainText(
-        gcpClusterProperties.Region.split(',')[0],
-      );
+      await expect(clusterDetailsPage.clusterRegionLabelValue()).toContainText(region);
       await expect(clusterDetailsPage.clusterAvailabilityLabelValue()).toContainText(
         gcpClusterProperties.Availability,
       );
