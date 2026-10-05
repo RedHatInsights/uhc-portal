@@ -99,8 +99,12 @@ test.describe.serial(
       await createOSDWizardPage.isCIDRScreen();
       await expect(createOSDWizardPage.cidrDefaultValuesCheckBox()).toBeChecked();
       await createOSDWizardPage.cidrDefaultValuesCheckBox().uncheck();
-      await expect(createOSDWizardPage.machineCIDRInput()).toHaveValue(clusterProperties.MachineCIDR);
-      await expect(createOSDWizardPage.serviceCIDRInput()).toHaveValue(clusterProperties.ServiceCIDR);
+      await expect(createOSDWizardPage.machineCIDRInput()).toHaveValue(
+        clusterProperties.MachineCIDR,
+      );
+      await expect(createOSDWizardPage.serviceCIDRInput()).toHaveValue(
+        clusterProperties.ServiceCIDR,
+      );
       await expect(createOSDWizardPage.podCIDRInput()).toHaveValue(clusterProperties.PodCIDR);
       await expect(createOSDWizardPage.hostPrefixInput()).toHaveValue(clusterProperties.HostPrefix);
       await createOSDWizardPage.wizardNextButton().click();
@@ -178,10 +182,16 @@ test.describe.serial(
       await expect(createOSDWizardPage.clusterPrivacyValue()).toContainText(
         clusterProperties.ClusterPrivacy,
       );
-      await expect(createOSDWizardPage.machineCIDRValue()).toContainText(clusterProperties.MachineCIDR);
-      await expect(createOSDWizardPage.serviceCIDRValue()).toContainText(clusterProperties.ServiceCIDR);
+      await expect(createOSDWizardPage.machineCIDRValue()).toContainText(
+        clusterProperties.MachineCIDR,
+      );
+      await expect(createOSDWizardPage.serviceCIDRValue()).toContainText(
+        clusterProperties.ServiceCIDR,
+      );
       await expect(createOSDWizardPage.podCIDRValue()).toContainText(clusterProperties.PodCIDR);
-      await expect(createOSDWizardPage.hostPrefixValue()).toContainText(clusterProperties.HostPrefix);
+      await expect(createOSDWizardPage.hostPrefixValue()).toContainText(
+        clusterProperties.HostPrefix,
+      );
       await expect(createOSDWizardPage.updateStratergyValue()).toContainText(
         clusterProperties.UpdateStrategy,
       );
@@ -197,7 +207,9 @@ test.describe.serial(
       await createOSDWizardPage.createClusterButton().click();
       await clusterDetailsPage.waitForInstallerScreenToLoad();
       await expect(clusterDetailsPage.clusterNameTitle()).toContainText(clusterName);
-      await expect(clusterDetailsPage.clusterInstallationHeader()).toContainText('Installing cluster');
+      await expect(clusterDetailsPage.clusterInstallationHeader()).toContainText(
+        'Installing cluster',
+      );
       await expect(clusterDetailsPage.clusterInstallationHeader()).toBeVisible();
       await expect(clusterDetailsPage.clusterInstallationExpectedText()).toContainText(
         'Cluster creation usually takes 30 to 60 minutes to complete',
@@ -209,7 +221,9 @@ test.describe.serial(
       await clusterDetailsPage.checkInstallationStepStatus('Network settings');
       await clusterDetailsPage.checkInstallationStepStatus('DNS setup');
       await clusterDetailsPage.checkInstallationStepStatus('Cluster installation');
-      await expect(clusterDetailsPage.clusterTypeLabelValue()).toContainText(clusterProperties.Type);
+      await expect(clusterDetailsPage.clusterTypeLabelValue()).toContainText(
+        clusterProperties.Type,
+      );
       await expect(clusterDetailsPage.clusterPersistentStorageLabelValue()).toContainText(
         clusterProperties.PersistentStorage,
       );

@@ -12,8 +12,7 @@ const clusterProperties = clusterProfile.day1Profile;
 const scaleClusterProperties = clusterProfile.day2Profile.ScaleCluster;
 
 const userSuffix = getUsernameSuffix();
-const clusterName = process.env.CLUSTER_NAME ||
-  `${clusterProperties.ClusterName}-${userSuffix}`;
+const clusterName = process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${userSuffix}`;
 const clusterDomainPrefix = `${clusterProperties.DomainPrefix}${userSuffix}`;
 
 test.describe.serial(
@@ -39,7 +38,9 @@ test.describe.serial(
       await clusterDetailsPage.isClusterDetailsPage(clusterName);
       await clusterDetailsPage.openOverviewTab();
       await expect(clusterDetailsPage.clusterNameTitle()).toContainText(clusterName);
-      await expect(clusterDetailsPage.clusterTypeLabelValue()).toContainText(clusterProperties.Type);
+      await expect(clusterDetailsPage.clusterTypeLabelValue()).toContainText(
+        clusterProperties.Type,
+      );
       await expect(clusterDetailsPage.clusterDomainPrefixLabelValue()).toContainText(
         clusterDomainPrefix,
       );

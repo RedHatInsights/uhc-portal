@@ -410,9 +410,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   async selectComputeSubnetName(subnetName: string): Promise<void> {
-    await this.page
-      .getByRole('combobox', { name: 'Compute subnet name' })
-      .selectOption(subnetName);
+    await this.page.getByRole('combobox', { name: 'Compute subnet name' }).selectOption(subnetName);
   }
 
   privateServiceConnectSubnetInput(): Locator {
@@ -824,7 +822,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   applicationIngressWildcardPolicyAllowedRadio(): Locator {
     return this.page.getByRole('switch', { name: /^(Allowed|Disallowed)$/ });
   }
-  
+
   // Validation helper methods
   async selectAutoScaling(autoScale: string): Promise<void> {
     if (autoScale.toLowerCase() === 'disabled') {
@@ -847,7 +845,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   applicationIngressWildcardPolicyDisallowedRadio(): Locator {
     return this.page.getByRole('switch', { name: 'Disallowed', exact: true });
   }
-  
+
   async waitForVPCRefresh(): Promise<void> {
     await this.page.getByRole('progressbar', { name: 'Loading...' }).waitFor({
       state: 'detached',

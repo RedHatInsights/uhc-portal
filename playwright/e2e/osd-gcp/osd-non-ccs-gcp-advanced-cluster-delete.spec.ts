@@ -6,8 +6,7 @@ const clusterDetails = require('../../fixtures/osd-gcp/osd-non-ccs-gcp-advanced-
 const clusterProperties = clusterDetails['osd-nonccs-gcp-advanced'].day1Profile;
 
 const userSuffix = getUsernameSuffix();
-const clusterName = process.env.CLUSTER_NAME ||
-  `${clusterProperties.ClusterName}-${userSuffix}`;
+const clusterName = process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${userSuffix}`;
 
 test.describe.serial(
   'OSD non-CCS GCP multi-zone cluster delete',

@@ -582,7 +582,10 @@ export class ClusterDetailsPage extends BasePage {
     const storageText = await this.clusterPersistentStorageLabelValue().innerText();
     const loadBalancersText = await this.clusterLoadBalancersValue().innerText();
     const expectedLoadBalancers = this.loadBalancersOverviewDisplayValue(loadBalancers);
-    if (storageText.includes(persistentStorage) && loadBalancersText.includes(expectedLoadBalancers)) {
+    if (
+      storageText.includes(persistentStorage) &&
+      loadBalancersText.includes(expectedLoadBalancers)
+    ) {
       return;
     }
     await this.updateLoadBalancersAndPersistentStorage(loadBalancers, persistentStorage);

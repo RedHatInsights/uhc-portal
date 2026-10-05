@@ -14,7 +14,18 @@ const region =
 test.describe.serial(
   'OSD GCP CCS WIF private PSC cluster overview tests',
   {
-    tag: ['@advanced', '@day2', '@osd', '@ccs', '@gcp', '@private', '@wif', '@psc', '@multizone','@overview'],
+    tag: [
+      '@advanced',
+      '@day2',
+      '@osd',
+      '@ccs',
+      '@gcp',
+      '@private',
+      '@wif',
+      '@psc',
+      '@multizone',
+      '@overview',
+    ],
   },
   () => {
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
@@ -37,9 +48,7 @@ test.describe.serial(
       await clusterListPage.openClusterDefinition(clusterName, 'startsWith');
     });
 
-    test(`Checks on overview tab : ${clusterName} cluster`, async ({
-      clusterDetailsPage,
-    }) => {
+    test(`Checks on overview tab : ${clusterName} cluster`, async ({ clusterDetailsPage }) => {
       await clusterDetailsPage.waitForClusterDetailsLoad();
       await clusterDetailsPage.isClusterDetailsPage(clusterName);
       await clusterDetailsPage.openOverviewTab();

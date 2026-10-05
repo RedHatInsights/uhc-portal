@@ -272,7 +272,6 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByRole('checkbox', { name: 'Use a PrivateLink' });
   }
 
-
   securityGroupsFilterInput(): Locator {
     return this.page.locator('input[placeholder="Filter by security group ID / name"]');
   }
