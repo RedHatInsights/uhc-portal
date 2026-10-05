@@ -15,9 +15,9 @@ describe('allArchitecturesForTool', () => {
     expect(values).toEqual([x86, arm, ppc, s390x]);
   });
 
-  it('has only x86 for rosa', () => {
+  it('includes x86 and arm for rosa', () => {
     const values = allArchitecturesForTool(urls, tools.ROSA, channels.STABLE).map((o) => o.value);
-    expect(values).toEqual([x86]);
+    expect(values).toEqual([x86, arm]);
   });
 });
 
