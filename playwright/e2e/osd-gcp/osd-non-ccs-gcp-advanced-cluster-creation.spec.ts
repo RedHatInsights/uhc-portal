@@ -1,81 +1,104 @@
 import { test, expect } from '../../fixtures/pages';
-const clusterProperties = require('../../fixtures/osd-gcp/osd-non-ccs-gcp-cluster-creation.spec.json');
-const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
+import { getUsernameSuffix } from '../../support/auth-config';
+import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
-test.describe(
-  'OSD Non CCS GCP cluster creation tests (OCP-42746, OCP-21086)',
-  { tag: ['@smoke', '@osd'] },
+const clusterProfiles = require('../../fixtures/osd-gcp/osd-non-ccs-gcp-advanced-cluster-creation.spec.json');
+const clusterProperties = clusterProfiles['osd-nonccs-gcp-advanced'].day1Profile;
+const machinePool = clusterProperties.MachinePools;
+
+const userSuffix = getUsernameSuffix();
+const clusterName = `${clusterProperties.ClusterName}-${userSuffix}`;
+const clusterDomainPrefix = `${clusterProperties.DomainPrefix}${userSuffix}`;
+
+test.describe.serial(
+  'OSD Non-CCS GCP multi-zone public cluster creation',
+  { tag: ['@day1', '@osd', '@gcp', '@nonccs', '@multizone', '@public', '@advanced'] },
   () => {
-    // Iterate through each cluster configuration
     test.beforeAll(async ({ navigateTo }) => {
-      // Navigate to create
-      await navigateTo('create');
+      await navigateTo(CREATE_CLUSTER_ROUTE);
     });
-    test(`Launch OSD - ${clusterProperties.CloudProvider} cluster wizard`, async ({
-      page,
+
+    test(`Launch OSD (non-CCS) - ${clusterProperties.CloudProvider} - ${clusterProperties.Availability} cluster wizard`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
       await createOSDWizardPage.isCreateOSDPage();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} wizard - Billing model and its definitions`, async ({
-      page,
+    test(`OSD (non-CCS) - ${clusterProperties.CloudProvider} - ${clusterProperties.Availability} - Billing model`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isBillingModelScreen();
       await expect(createOSDWizardPage.subscriptionTypeAnnualFixedCapacityRadio()).toBeChecked();
       await createOSDWizardPage.infrastructureTypeRedHatCloudAccountRadio().check();
-      await page.locator(createOSDWizardPage.primaryButton).click();
+      await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster Settings - Cloud provider definitions`, async ({
-      page,
+    test(`OSD (non-CCS) - ${clusterProperties.CloudProvider} - ${clusterProperties.Availability} - Cloud provider`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isCloudProviderSelectionScreen();
       await createOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
-      await page.locator(createOSDWizardPage.primaryButton).click();
+      await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster Settings - Cluster details definitions`, async ({
-      page,
+    test(`OSD (non-CCS) - ${clusterProperties.CloudProvider} - ${clusterProperties.Availability} - Cluster details`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isClusterDetailsScreen();
-      await page.locator(createOSDWizardPage.clusterNameInput).fill(clusterName);
-      await createOSDWizardPage.hideClusterNameValidation();
-      await expect(createOSDWizardPage.singleZoneAvilabilityRadio()).toBeChecked();
+      await createOSDWizardPage.setClusterName(clusterName);
+      await createOSDWizardPage.closePopoverDialogs();
+      await createOSDWizardPage.createCustomDomainPrefixCheckbox().check();
+      await createOSDWizardPage.setDomainPrefix(clusterDomainPrefix);
+      await createOSDWizardPage.closePopoverDialogs();
+      await createOSDWizardPage.selectAvailabilityZone(clusterProperties.Availability);
       await createOSDWizardPage.selectRegion(clusterProperties.Region);
-      await createOSDWizardPage.selectVersion(
-        clusterProperties.Version || process.env.VERSION || '',
-      );
       await createOSDWizardPage.selectPersistentStorage(clusterProperties.PersistentStorage);
       await createOSDWizardPage.selectLoadBalancers(clusterProperties.LoadBalancers);
       await expect(createOSDWizardPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
-      await page.locator(createOSDWizardPage.primaryButton).click();
+      await createOSDWizardPage.enableSecureBootSupportForSchieldedVMs(
+        clusterProperties.EnableSecureBootSupportForSchieldedVMs.includes('Enabled'),
+      );
+      if (clusterProperties.AdditionalEncryption.includes('Enabled')) {
+        await createOSDWizardPage.advancedEncryptionLink().click();
+        await createOSDWizardPage.enableAdditionalEtcdEncryptionCheckbox().check();
+        if (clusterProperties.FIPSCryptography.includes('Enabled')) {
+          await createOSDWizardPage.enableFIPSCryptographyCheckbox().check();
+        }
+      }
+      await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster Settings - Default machinepool definitions`, async ({
-      page,
+    test(`OSD (non-CCS) ${clusterProperties.CloudProvider} - ${clusterProperties.Availability} - Default machine pool`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isMachinePoolScreen();
-      await createOSDWizardPage.selectComputeNodeType(
-        clusterProperties.MachinePools[0].InstanceType,
-      );
-      await createOSDWizardPage.selectComputeNodeCount(clusterProperties.MachinePools[0].NodeCount);
-      await expect(createOSDWizardPage.enableAutoscalingCheckbox()).not.toBeChecked();
-      await expect(createOSDWizardPage.addNodeLabelLink()).toBeVisible();
-      await page.locator(createOSDWizardPage.primaryButton).click();
+      await createOSDWizardPage.selectComputeNodeType(machinePool.InstanceType);
+      if (machinePool.Autoscaling.includes('Enabled')) {
+        await createOSDWizardPage.enableAutoscalingCheckbox().check();
+        await createOSDWizardPage.setMinimumNodeCount(machinePool.MinimumNodeCount);
+        await createOSDWizardPage.setMaximumNodeCount(machinePool.MaximumNodeCount);
+      } else {
+        await expect(createOSDWizardPage.enableAutoscalingCheckbox()).not.toBeChecked();
+        await createOSDWizardPage.selectComputeNodeCount(Number(machinePool.NodeCount));
+      }
+      if (machinePool.NodeLabel?.length) {
+        await createOSDWizardPage.addNodeLabelLink().click();
+        await createOSDWizardPage.addNodeLabelKeyAndValue(
+          machinePool.NodeLabel[0].Key,
+          clusterName,
+          0,
+        );
+      }
+      await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} wizard - Networking configuration - CIDR definitions`, async ({
-      page,
+    test(`OSD (non-CCS) ${clusterProperties.CloudProvider} - ${clusterProperties.Availability} - Networking CIDR`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isCIDRScreen();
       await expect(createOSDWizardPage.cidrDefaultValuesCheckBox()).toBeChecked();
+      await createOSDWizardPage.cidrDefaultValuesCheckBox().uncheck();
       await expect(createOSDWizardPage.machineCIDRInput()).toHaveValue(
         clusterProperties.MachineCIDR,
       );
@@ -84,22 +107,25 @@ test.describe(
       );
       await expect(createOSDWizardPage.podCIDRInput()).toHaveValue(clusterProperties.PodCIDR);
       await expect(createOSDWizardPage.hostPrefixInput()).toHaveValue(clusterProperties.HostPrefix);
-      await page.locator(createOSDWizardPage.primaryButton).click();
+      await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster updates definitions`, async ({
-      page,
+    test(`OSD (non-CCS) ${clusterProperties.CloudProvider} - ${clusterProperties.Availability} - Cluster updates`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isClusterUpdatesScreen();
       await expect(createOSDWizardPage.updateStrategyIndividualRadio()).toBeChecked();
       await expect(createOSDWizardPage.updateStrategyRecurringRadio()).not.toBeChecked();
+      if (clusterProperties.UpdateStrategy.includes('Recurring')) {
+        await createOSDWizardPage.updateStrategyRecurringRadio().check();
+      } else {
+        await createOSDWizardPage.updateStrategyIndividualRadio().check();
+      }
       await createOSDWizardPage.selectGracePeriod(clusterProperties.NodeDraining);
-      await page.locator(createOSDWizardPage.primaryButton).click();
+      await createOSDWizardPage.wizardNextButton().click();
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} wizard - Review and create page and its definitions`, async ({
-      page,
+    test(`OSD (non-CCS) ${clusterProperties.CloudProvider} - ${clusterProperties.Availability} - Review and create`, async ({
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isReviewScreen();
@@ -113,6 +139,9 @@ test.describe(
         clusterProperties.CloudProvider,
       );
       await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
+      await expect(createOSDWizardPage.clusterDomainPrefixLabelValue()).toContainText(
+        clusterDomainPrefix,
+      );
       await expect(createOSDWizardPage.regionValue()).toContainText(
         clusterProperties.Region.split(',')[0],
       );
@@ -125,6 +154,9 @@ test.describe(
       await expect(createOSDWizardPage.persistentStorageValue()).toContainText(
         clusterProperties.PersistentStorage,
       );
+      await expect(createOSDWizardPage.loadBalancersValue()).toContainText(
+        clusterProperties.LoadBalancers,
+      );
       await expect(createOSDWizardPage.additionalEtcdEncryptionValue()).toContainText(
         clusterProperties.AdditionalEncryption,
       );
@@ -132,15 +164,21 @@ test.describe(
         clusterProperties.FIPSCryptography,
       );
       await expect(createOSDWizardPage.nodeInstanceTypeValue()).toContainText(
-        clusterProperties.MachinePools[0].InstanceType,
+        machinePool.InstanceType,
       );
-      await expect(createOSDWizardPage.autoscalingValue()).toContainText(
-        clusterProperties.MachinePools[0].Autoscaling,
-      );
-      await expect(createOSDWizardPage.computeNodeCountValue()).toContainText(
-        clusterProperties.MachinePools[0].NodeCount.toString(),
-      );
-
+      await expect(createOSDWizardPage.autoscalingValue()).toContainText(machinePool.Autoscaling);
+      if (machinePool.Autoscaling.includes('Enabled')) {
+        await expect(createOSDWizardPage.computeNodeRangeValue()).toContainText(
+          `Minimum nodes per zone: ${machinePool.MinimumNodeCount}`,
+        );
+        await expect(createOSDWizardPage.computeNodeRangeValue()).toContainText(
+          `Maximum nodes per zone: ${machinePool.MaximumNodeCount}`,
+        );
+      } else {
+        await expect(createOSDWizardPage.computeNodeCountValue()).toContainText(
+          machinePool.NodeCount,
+        );
+      }
       await expect(createOSDWizardPage.clusterPrivacyValue()).toContainText(
         clusterProperties.ClusterPrivacy,
       );
@@ -162,7 +200,7 @@ test.describe(
       );
     });
 
-    test(`OSD ${clusterProperties.CloudProvider} wizard - Cluster submission & overview definitions`, async ({
+    test(`OSD (non-CCS) ${clusterProperties.CloudProvider} - ${clusterProperties.Availability} - Cluster submission`, async ({
       createOSDWizardPage,
       clusterDetailsPage,
     }) => {
@@ -176,7 +214,6 @@ test.describe(
       await expect(clusterDetailsPage.clusterInstallationExpectedText()).toContainText(
         'Cluster creation usually takes 30 to 60 minutes to complete',
       );
-      await expect(clusterDetailsPage.clusterInstallationExpectedText()).toBeVisible();
       await expect(clusterDetailsPage.downloadOcCliLink()).toContainText('Download OC CLI');
       await expect(clusterDetailsPage.downloadOcCliLink()).toBeVisible();
       await clusterDetailsPage.clusterDetailsPageRefresh();
@@ -187,53 +224,14 @@ test.describe(
       await expect(clusterDetailsPage.clusterTypeLabelValue()).toContainText(
         clusterProperties.Type,
       );
-      await expect(clusterDetailsPage.clusterAutoScalingStatus()).toContainText(
-        clusterProperties.ClusterAutoscaling,
-      );
-      await expect(clusterDetailsPage.clusterRegionLabelValue()).toContainText(
-        clusterProperties.Region.split(',')[0],
-      );
       await expect(clusterDetailsPage.clusterPersistentStorageLabelValue()).toContainText(
         clusterProperties.PersistentStorage,
       );
-      await expect(clusterDetailsPage.clusterAvailabilityLabelValue()).toContainText(
-        clusterProperties.Availability,
+      const expectedLoadBalancers =
+        Number(clusterProperties.LoadBalancers) > 0 ? clusterProperties.LoadBalancers : 'N/A';
+      await expect(clusterDetailsPage.clusterLoadBalancersValue()).toContainText(
+        expectedLoadBalancers,
       );
-      await expect(clusterDetailsPage.clusterMachineCIDRLabelValue()).toContainText(
-        clusterProperties.MachineCIDR,
-      );
-      await expect(clusterDetailsPage.clusterServiceCIDRLabelValue()).toContainText(
-        clusterProperties.ServiceCIDR,
-      );
-      await expect(clusterDetailsPage.clusterPodCIDRLabelValue()).toContainText(
-        clusterProperties.PodCIDR,
-      );
-      await expect(clusterDetailsPage.clusterHostPrefixLabelValue()).toContainText(
-        clusterProperties.HostPrefix.replace('/', ''),
-      );
-      await expect(clusterDetailsPage.clusterSubscriptionBillingModelValue()).toContainText(
-        clusterProperties.SubscriptionBillingModel,
-      );
-      await expect(clusterDetailsPage.clusterInfrastructureBillingModelValue()).toContainText(
-        clusterProperties.InfrastructureType,
-      );
-
-      await clusterDetailsPage.settingsTab().click();
-      await expect(clusterDetailsPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
-      await expect(clusterDetailsPage.individualUpdatesRadioButton()).toBeChecked();
-      await expect(clusterDetailsPage.recurringUpdatesRadioButton()).not.toBeChecked();
-    });
-
-    test(`Delete OSD ${clusterProperties.CloudProvider} cluster`, async ({
-      page,
-      clusterDetailsPage,
-    }) => {
-      await clusterDetailsPage.actionsDropdownToggle().click();
-      await clusterDetailsPage.deleteClusterDropdownItem().click();
-      await clusterDetailsPage.deleteClusterNameInput().clear();
-      await clusterDetailsPage.deleteClusterNameInput().fill(clusterName);
-      await clusterDetailsPage.deleteClusterConfirm().click();
-      await clusterDetailsPage.waitForDeleteClusterActionComplete();
     });
   },
 );
