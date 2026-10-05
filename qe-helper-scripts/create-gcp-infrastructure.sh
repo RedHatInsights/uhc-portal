@@ -3,7 +3,7 @@
 # GCP VPC + KMS infrastructure for OSD GCP tests (custom VPC, PSC, etcd/disk encryption)
 # Creates: custom VPC, control-plane/compute/PSC subnets, Cloud NAT (optional),
 #          Cloud KMS key ring + crypto key + KMS service account (optional)
-# Default region: us-central1; default KMS key ring location: global
+# Default region: us-central1; KMS key ring location follows that region unless overridden
 # Optionally updates playwright.env.json (QE_INFRA_GCP, PSC_INFRA, QE_GCP_KEY_*)
 
 set -euo pipefail
@@ -31,11 +31,13 @@ COMPUTE_CIDR="${COMPUTE_CIDR:-10.0.16.0/20}"
 PSC_CIDR="${PSC_CIDR:-10.0.32.0/29}"
 
 CREATE_CLOUD_NAT="${CREATE_CLOUD_NAT:-true}"
+CREATE_PSC="${CREATE_PSC:-true}"
 CREATE_KMS="${CREATE_KMS:-true}"
 UPDATE_PLAYWRIGHT_ENV="${UPDATE_PLAYWRIGHT_ENV:-true}"
 
-# Cloud KMS names follow VPC_NAME unless set explicitly (default VPC: playwright-osd)
-KEY_RING_LOCATION="${KEY_RING_LOCATION:-global}"
+# Cloud KMS names follow VPC_NAME unless set explicitly (default VPC: playwright-osd).
+# Key ring location follows REGION unless --key-ring-location is set.
+KEY_RING_LOCATION="${KEY_RING_LOCATION:-}"
 KEY_RING_NAME="${KEY_RING_NAME:-}"
 KEY_NAME="${KEY_NAME:-}"
 # Account ID only (email: ${KMS_SA_ID}@${PROJECT_ID}.iam.gserviceaccount.com)
@@ -45,11 +47,29 @@ KMS_SERVICE_ACCOUNT="${KMS_SERVICE_ACCOUNT:-}"
 CREATE_KMS_SA="${CREATE_KMS_SA:-true}"
 
 derive_resource_names() {
-  CONTROLPLANE_SUBNET="${CONTROLPLANE_SUBNET:-${VPC_NAME}-controlplane}"
-  COMPUTE_SUBNET="${COMPUTE_SUBNET:-${VPC_NAME}-compute}"
-  PSC_SUBNET="${PSC_SUBNET:-${VPC_NAME}-psc}"
-  ROUTER_NAME="${ROUTER_NAME:-${VPC_NAME}-router}"
-  NAT_NAME="${NAT_NAME:-${VPC_NAME}-nat}"
+  # playwright-osd -> playwright-psc-osd (insert -psc- after the first segment)
+  if [[ -z "${PSC_VPC_NAME:-}" ]]; then
+    if [[ "${VPC_NAME}" == *-* ]]; then
+      PSC_VPC_NAME="${VPC_NAME%%-*}-psc-${VPC_NAME#*-}"
+    else
+      PSC_VPC_NAME="${VPC_NAME}-psc"
+    fi
+  fi
+
+  CONTROLPLANE_SUBNET="${CONTROLPLANE_SUBNET:-${PSC_VPC_NAME}-controlplane}"
+  COMPUTE_SUBNET="${COMPUTE_SUBNET:-${PSC_VPC_NAME}-compute}"
+  PSC_SUBNET="${PSC_SUBNET:-${PSC_VPC_NAME}-psc}"
+  ROUTER_NAME="${ROUTER_NAME:-${PSC_VPC_NAME}-router}"
+  NAT_NAME="${NAT_NAME:-${PSC_VPC_NAME}-nat}"
+
+  # Custom VPC without PSC uses the base name (default: playwright-osd).
+  NON_PSC_VPC_NAME="${NON_PSC_VPC_NAME:-${VPC_NAME}}"
+  NON_PSC_CONTROLPLANE_SUBNET="${NON_PSC_CONTROLPLANE_SUBNET:-${NON_PSC_VPC_NAME}-controlplane}"
+  NON_PSC_COMPUTE_SUBNET="${NON_PSC_COMPUTE_SUBNET:-${NON_PSC_VPC_NAME}-compute}"
+  NON_PSC_ROUTER_NAME="${NON_PSC_ROUTER_NAME:-${NON_PSC_VPC_NAME}-router}"
+  NON_PSC_NAT_NAME="${NON_PSC_NAT_NAME:-${NON_PSC_VPC_NAME}-nat}"
+
+  KEY_RING_LOCATION="${KEY_RING_LOCATION:-${REGION}}"
 
   local key_ring="${VPC_NAME}-keyring"
   local key_name="${VPC_NAME}-key"
@@ -111,7 +131,8 @@ check_prereqs() {
 }
 
 network_exists() {
-  gcloud compute networks describe "${VPC_NAME}" \
+  local name=${1:-${VPC_NAME}}
+  gcloud compute networks describe "${name}" \
     --project="${PROJECT_ID}" \
     --format='value(name)' &>/dev/null
 }
@@ -125,16 +146,19 @@ subnet_exists() {
 }
 
 router_exists() {
-  gcloud compute routers describe "${ROUTER_NAME}" \
+  local name=${1:-${ROUTER_NAME}}
+  gcloud compute routers describe "${name}" \
     --project="${PROJECT_ID}" \
     --region="${REGION}" \
     --format='value(name)' &>/dev/null
 }
 
 nat_exists() {
-  gcloud compute routers nats describe "${NAT_NAME}" \
+  local nat_name=${1:-${NAT_NAME}}
+  local router_name=${2:-${ROUTER_NAME}}
+  gcloud compute routers nats describe "${nat_name}" \
     --project="${PROJECT_ID}" \
-    --router="${ROUTER_NAME}" \
+    --router="${router_name}" \
     --region="${REGION}" \
     --format='value(name)' &>/dev/null
 }
@@ -190,6 +214,31 @@ create_subnets() {
   create_subnet "${COMPUTE_SUBNET}" "${COMPUTE_CIDR}"
   # Required for OSD PSC installs; purpose must be PRIVATE_SERVICE_CONNECT
   create_subnet "${PSC_SUBNET}" "${PSC_CIDR}" "PRIVATE_SERVICE_CONNECT"
+}
+
+create_non_psc_vpc() {
+  local saved_vpc="${VPC_NAME}"
+  local saved_cp="${CONTROLPLANE_SUBNET}"
+  local saved_compute="${COMPUTE_SUBNET}"
+  local saved_router="${ROUTER_NAME}"
+  local saved_nat="${NAT_NAME}"
+
+  VPC_NAME="${NON_PSC_VPC_NAME}"
+  CONTROLPLANE_SUBNET="${NON_PSC_CONTROLPLANE_SUBNET}"
+  COMPUTE_SUBNET="${NON_PSC_COMPUTE_SUBNET}"
+  ROUTER_NAME="${NON_PSC_ROUTER_NAME}"
+  NAT_NAME="${NON_PSC_NAT_NAME}"
+
+  create_vpc
+  create_subnet "${CONTROLPLANE_SUBNET}" "${CONTROLPLANE_CIDR}"
+  create_subnet "${COMPUTE_SUBNET}" "${COMPUTE_CIDR}"
+  create_cloud_nat
+
+  VPC_NAME="${saved_vpc}"
+  CONTROLPLANE_SUBNET="${saved_cp}"
+  COMPUTE_SUBNET="${saved_compute}"
+  ROUTER_NAME="${saved_router}"
+  NAT_NAME="${saved_nat}"
 }
 
 create_cloud_nat() {
@@ -330,37 +379,60 @@ validate_resources() {
   print_status "=== Validating GCP infrastructure ==="
   local failed=false
 
-  if ! network_exists; then
-    print_error "VPC '${VPC_NAME}' is missing"
-    failed=true
+  if [[ "${CREATE_PSC}" == "true" ]]; then
+    if ! network_exists "${PSC_VPC_NAME}"; then
+      print_error "VPC '${PSC_VPC_NAME}' is missing"
+      failed=true
+    fi
+
+    for subnet in "${CONTROLPLANE_SUBNET}" "${COMPUTE_SUBNET}" "${PSC_SUBNET}"; do
+      if ! subnet_exists "${subnet}"; then
+        print_error "Subnet '${subnet}' is missing"
+        failed=true
+      fi
+    done
+
+    local psc_purpose
+    psc_purpose=$(gcloud compute networks subnets describe "${PSC_SUBNET}" \
+      --project="${PROJECT_ID}" \
+      --region="${REGION}" \
+      --format='value(purpose)' 2>/dev/null || true)
+    if [[ "${psc_purpose}" != "PRIVATE_SERVICE_CONNECT" ]]; then
+      print_error "Subnet '${PSC_SUBNET}' purpose is '${psc_purpose:-unknown}', expected PRIVATE_SERVICE_CONNECT"
+      failed=true
+    else
+      print_status "PSC subnet purpose OK: PRIVATE_SERVICE_CONNECT"
+    fi
+
+    if [[ "${CREATE_CLOUD_NAT}" == "true" ]]; then
+      if ! router_exists; then
+        print_error "Cloud Router '${ROUTER_NAME}' is missing"
+        failed=true
+      fi
+      if ! nat_exists; then
+        print_error "Cloud NAT '${NAT_NAME}' is missing"
+        failed=true
+      fi
+    fi
   fi
 
-  for subnet in "${CONTROLPLANE_SUBNET}" "${COMPUTE_SUBNET}" "${PSC_SUBNET}"; do
+  if ! network_exists "${NON_PSC_VPC_NAME}"; then
+    print_error "VPC '${NON_PSC_VPC_NAME}' is missing"
+    failed=true
+  fi
+  for subnet in "${NON_PSC_CONTROLPLANE_SUBNET}" "${NON_PSC_COMPUTE_SUBNET}"; do
     if ! subnet_exists "${subnet}"; then
       print_error "Subnet '${subnet}' is missing"
       failed=true
     fi
   done
-
-  local psc_purpose
-  psc_purpose=$(gcloud compute networks subnets describe "${PSC_SUBNET}" \
-    --project="${PROJECT_ID}" \
-    --region="${REGION}" \
-    --format='value(purpose)' 2>/dev/null || true)
-  if [[ "${psc_purpose}" != "PRIVATE_SERVICE_CONNECT" ]]; then
-    print_error "Subnet '${PSC_SUBNET}' purpose is '${psc_purpose:-unknown}', expected PRIVATE_SERVICE_CONNECT"
-    failed=true
-  else
-    print_status "PSC subnet purpose OK: PRIVATE_SERVICE_CONNECT"
-  fi
-
   if [[ "${CREATE_CLOUD_NAT}" == "true" ]]; then
-    if ! router_exists; then
-      print_error "Cloud Router '${ROUTER_NAME}' is missing"
+    if ! router_exists "${NON_PSC_ROUTER_NAME}"; then
+      print_error "Cloud Router '${NON_PSC_ROUTER_NAME}' is missing"
       failed=true
     fi
-    if ! nat_exists; then
-      print_error "Cloud NAT '${NAT_NAME}' is missing"
+    if ! nat_exists "${NON_PSC_NAT_NAME}" "${NON_PSC_ROUTER_NAME}"; then
+      print_error "Cloud NAT '${NON_PSC_NAT_NAME}' is missing"
       failed=true
     fi
   fi
@@ -390,16 +462,29 @@ validate_resources() {
 }
 
 print_summary() {
+  local psc_summary="PSC VPC:              skipped (--psc false)"
+  if [[ "${CREATE_PSC}" == "true" ]]; then
+    psc_summary=$(cat <<EOF
+PSC VPC:              ${PSC_VPC_NAME}
+  Control plane:      ${CONTROLPLANE_SUBNET} (${CONTROLPLANE_CIDR})
+  Compute:            ${COMPUTE_SUBNET} (${COMPUTE_CIDR})
+  PSC subnet:         ${PSC_SUBNET} (${PSC_CIDR}, purpose=PRIVATE_SERVICE_CONNECT)
+  Router / NAT:       ${ROUTER_NAME} / ${NAT_NAME}
+EOF
+)
+  fi
+
   cat <<EOF
 
 === GCP OSD VPC summary ===
 Project:              ${PROJECT_ID}
 Region:               ${REGION}
-VPC:                  ${VPC_NAME}
-Control plane subnet: ${CONTROLPLANE_SUBNET} (${CONTROLPLANE_CIDR})
-Compute subnet:       ${COMPUTE_SUBNET} (${COMPUTE_CIDR})
-PSC subnet:           ${PSC_SUBNET} (${PSC_CIDR}, purpose=PRIVATE_SERVICE_CONNECT)
-Cloud Router / NAT:   ${ROUTER_NAME} / ${NAT_NAME} (enabled=${CREATE_CLOUD_NAT})
+${psc_summary}
+Non-PSC VPC:          ${NON_PSC_VPC_NAME}
+  Control plane:      ${NON_PSC_CONTROLPLANE_SUBNET} (${CONTROLPLANE_CIDR})
+  Compute:            ${NON_PSC_COMPUTE_SUBNET} (${COMPUTE_CIDR})
+  Router / NAT:       ${NON_PSC_ROUTER_NAME} / ${NON_PSC_NAT_NAME}
+Cloud NAT enabled:    ${CREATE_CLOUD_NAT}
 Cloud KMS:            ${KEY_RING_NAME} / ${KEY_NAME} @ ${KEY_RING_LOCATION} (enabled=${CREATE_KMS})
 KMS service account:  ${KMS_SA_EMAIL:-<set when CREATE_KMS=true>}
 
@@ -407,8 +492,8 @@ Suggested Machine CIDR for OSD wizard: 10.0.0.0/16
   (must contain all three subnet ranges)
 
 Use for:
-  - OSD custom VPC: VPC + control-plane + compute
-  - OSD PSC:        VPC + control-plane + compute + PSC subnet
+  - OSD custom VPC: ${NON_PSC_VPC_NAME} + control-plane + compute
+  - OSD PSC:        ${PSC_VPC_NAME} + control-plane + compute + PSC subnet
 
 EOF
 }
@@ -425,7 +510,10 @@ merge_playwright_env_json() {
     --arg kms_sa "${KMS_SA_EMAIL}" \
     '
       .QE_INFRA_GCP = ((.QE_INFRA_GCP // {}) + $gcp)
-      | .QE_INFRA_GCP.PSC_INFRA = ((.QE_INFRA_GCP.PSC_INFRA // {}) + $gcp.PSC_INFRA)
+      | if ($gcp | has("PSC_INFRA")) then
+          .QE_INFRA_GCP.PSC_INFRA = ((.QE_INFRA_GCP.PSC_INFRA // {}) + $gcp.PSC_INFRA)
+        else .
+        end
       | if $kms_enabled == "true" then
           .QE_GCP_KEY_RING_LOCATION = $key_loc
           | .QE_GCP_KEY_RING = $key_ring
@@ -447,25 +535,42 @@ update_playwright_env() {
   fi
 
   local gcp_infra_json
-  gcp_infra_json=$(jq -n \
-    --arg region "${REGION}" \
-    --arg vpc "${VPC_NAME}" \
-    --arg cp "${CONTROLPLANE_SUBNET}" \
-    --arg compute "${COMPUTE_SUBNET}" \
-    --arg psc "${PSC_SUBNET}" \
-    '{
-      REGION: $region,
-      VPC_NAME: $vpc,
-      CONTROLPLANE_SUBNET: $cp,
-      COMPUTE_SUBNET: $compute,
-      PSC_INFRA: {
+  if [[ "${CREATE_PSC}" == "true" ]]; then
+    gcp_infra_json=$(jq -n \
+      --arg region "${REGION}" \
+      --arg vpc "${NON_PSC_VPC_NAME}" \
+      --arg cp "${NON_PSC_CONTROLPLANE_SUBNET}" \
+      --arg compute "${NON_PSC_COMPUTE_SUBNET}" \
+      --arg psc_vpc "${PSC_VPC_NAME}" \
+      --arg psc_cp "${CONTROLPLANE_SUBNET}" \
+      --arg psc_compute "${COMPUTE_SUBNET}" \
+      --arg psc "${PSC_SUBNET}" \
+      '{
         REGION: $region,
         VPC_NAME: $vpc,
         CONTROLPLANE_SUBNET: $cp,
         COMPUTE_SUBNET: $compute,
-        PRIVATE_SERVICE_CONNECT_SUBNET: $psc
-      }
-    }')
+        PSC_INFRA: {
+          REGION: $region,
+          VPC_NAME: $psc_vpc,
+          CONTROLPLANE_SUBNET: $psc_cp,
+          COMPUTE_SUBNET: $psc_compute,
+          PRIVATE_SERVICE_CONNECT_SUBNET: $psc
+        }
+      }')
+  else
+    gcp_infra_json=$(jq -n \
+      --arg region "${REGION}" \
+      --arg vpc "${NON_PSC_VPC_NAME}" \
+      --arg cp "${NON_PSC_CONTROLPLANE_SUBNET}" \
+      --arg compute "${NON_PSC_COMPUTE_SUBNET}" \
+      '{
+        REGION: $region,
+        VPC_NAME: $vpc,
+        CONTROLPLANE_SUBNET: $cp,
+        COMPUTE_SUBNET: $compute
+      }')
+  fi
 
   if [[ -f "${PLAYWRIGHT_ENV_FILE}" ]]; then
     if ! jq empty "${PLAYWRIGHT_ENV_FILE}" >/dev/null 2>&1; then
@@ -522,6 +627,7 @@ cleanup_cloud_nat() {
 
 cleanup_subnets() {
   for subnet in "${PSC_SUBNET}" "${COMPUTE_SUBNET}" "${CONTROLPLANE_SUBNET}"; do
+    [[ -z "${subnet}" ]] && continue
     if subnet_exists "${subnet}"; then
       print_status "Deleting subnet '${subnet}'..."
       gcloud compute networks subnets delete "${subnet}" \
@@ -614,7 +720,9 @@ cleanup_playwright_env() {
   fi
 
   print_status "Clearing matching QE_INFRA_GCP / PSC_INFRA / QE_GCP_KEY_* entries from ${PLAYWRIGHT_ENV_FILE}"
-  jq --arg vpc "${VPC_NAME}" \
+  jq --arg vpc "${NON_PSC_VPC_NAME}" \
+    --arg psc_vpc "${PSC_VPC_NAME}" \
+    --arg psc_enabled "${CREATE_PSC}" \
     --arg kms_enabled "${CREATE_KMS}" \
     --arg key_ring "${KEY_RING_NAME}" \
     --arg kms_sa "${KMS_SA_EMAIL:-}" \
@@ -622,7 +730,7 @@ cleanup_playwright_env() {
     if (.QE_INFRA_GCP.VPC_NAME // "") == $vpc then
       del(.QE_INFRA_GCP.VPC_NAME, .QE_INFRA_GCP.CONTROLPLANE_SUBNET, .QE_INFRA_GCP.COMPUTE_SUBNET, .QE_INFRA_GCP.REGION)
     else . end
-    | if (.QE_INFRA_GCP.PSC_INFRA.VPC_NAME // "") == $vpc then
+    | if $psc_enabled == "true" and (.QE_INFRA_GCP.PSC_INFRA.VPC_NAME // "") == $psc_vpc then
         del(.QE_INFRA_GCP.PSC_INFRA)
       else . end
     | if $kms_enabled == "true"
@@ -640,9 +748,20 @@ cleanup_playwright_env() {
     && mv "${PLAYWRIGHT_ENV_FILE}.tmp" "${PLAYWRIGHT_ENV_FILE}"
 }
 
-cleanup_infrastructure() {
-  print_warning "This will DELETE VPC '${VPC_NAME}' (and related subnets/NAT), KMS resources when enabled, in ${REGION} / ${KEY_RING_LOCATION} (${PROJECT_ID})"
-  check_prereqs
+cleanup_named_vpc() {
+  local saved_vpc="${VPC_NAME}"
+  local saved_router="${ROUTER_NAME}"
+  local saved_nat="${NAT_NAME}"
+  local saved_cp="${CONTROLPLANE_SUBNET}"
+  local saved_compute="${COMPUTE_SUBNET}"
+  local saved_psc="${PSC_SUBNET}"
+
+  VPC_NAME=$1
+  ROUTER_NAME=$2
+  NAT_NAME=$3
+  CONTROLPLANE_SUBNET=$4
+  COMPUTE_SUBNET=$5
+  PSC_SUBNET=$6
 
   if network_exists; then
     cleanup_cloud_nat
@@ -652,6 +771,29 @@ cleanup_infrastructure() {
     print_warning "VPC '${VPC_NAME}' not found; skipping VPC/NAT cleanup"
   fi
 
+  VPC_NAME="${saved_vpc}"
+  ROUTER_NAME="${saved_router}"
+  NAT_NAME="${saved_nat}"
+  CONTROLPLANE_SUBNET="${saved_cp}"
+  COMPUTE_SUBNET="${saved_compute}"
+  PSC_SUBNET="${saved_psc}"
+}
+
+cleanup_infrastructure() {
+  local targets="'${NON_PSC_VPC_NAME}'"
+  if [[ "${CREATE_PSC}" == "true" ]]; then
+    targets="'${NON_PSC_VPC_NAME}' and PSC VPC '${PSC_VPC_NAME}'"
+  fi
+  print_warning "This will DELETE VPC ${targets} (and related subnets/NAT), KMS resources when enabled, in ${REGION} / ${KEY_RING_LOCATION} (${PROJECT_ID})"
+  check_prereqs
+
+  if [[ "${CREATE_PSC}" == "true" ]]; then
+    cleanup_named_vpc "${PSC_VPC_NAME}" "${ROUTER_NAME}" "${NAT_NAME}" \
+      "${CONTROLPLANE_SUBNET}" "${COMPUTE_SUBNET}" "${PSC_SUBNET}"
+  fi
+  cleanup_named_vpc "${NON_PSC_VPC_NAME}" "${NON_PSC_ROUTER_NAME}" "${NON_PSC_NAT_NAME}" \
+    "${NON_PSC_CONTROLPLANE_SUBNET}" "${NON_PSC_COMPUTE_SUBNET}" ""
+
   cleanup_kms
   cleanup_playwright_env
   print_status "Cleanup completed"
@@ -660,9 +802,17 @@ cleanup_infrastructure() {
 main() {
   print_status "Starting GCP VPC (+ optional KMS) setup for OSD GCP tests"
   check_prereqs
-  create_vpc
-  create_subnets
-  create_cloud_nat
+  if [[ "${CREATE_PSC}" == "true" ]]; then
+    local saved_vpc="${VPC_NAME}"
+    VPC_NAME="${PSC_VPC_NAME}"
+    create_vpc
+    create_subnets
+    create_cloud_nat
+    VPC_NAME="${saved_vpc}"
+  else
+    print_warning "Skipping PSC VPC and PSC_INFRA (--psc false)."
+  fi
+  create_non_psc_vpc
   create_kms
 
   if validate_resources; then
@@ -692,26 +842,25 @@ Create a Google Cloud custom VPC for OSD custom-VPC and OSD PSC installs
 in us-central1 (or another region).
 
 Creates:
-  - Custom VPC
-  - Control plane subnet
-  - Compute (worker) subnet
-  - PSC subnet with purpose=PRIVATE_SERVICE_CONNECT (/29+)
-  - Cloud Router + Cloud NAT (outbound internet; recommended for OSD)
+  - Non-PSC VPC (default: playwright-osd) with control plane and compute subnets
+  - PSC VPC (default: playwright-psc-osd) with control plane, compute, and PSC subnets
+  - Cloud Router + Cloud NAT on each VPC (outbound internet; recommended for OSD)
   - Cloud KMS key ring + crypto key + service account (for OSD custom encryption; default on)
 
 Configuration (CLI or env):
   --project PROJECT_ID          GCP project (default: gcloud config project)
   --region REGION               Region (default: us-central1)
-  --vpc-name NAME               VPC name (default: playwright-osd)
+  --vpc-name NAME               Non-PSC VPC name (default: playwright-osd; PSC VPC: playwright-psc-osd)
   --controlplane-subnet NAME    Control plane subnet name
   --compute-subnet NAME         Compute subnet name
   --psc-subnet NAME             PSC subnet name
   --controlplane-cidr CIDR      Default: 10.0.0.0/20
   --compute-cidr CIDR           Default: 10.0.16.0/20
   --psc-cidr CIDR               Default: 10.0.32.0/29
+  --psc true|false              Create PSC VPC and PSC_INFRA (default: true)
   --skip-nat                    Do not create Cloud Router / NAT
   --skip-kms                    Do not create Cloud KMS / QE_GCP_KEY_* env keys
-  --key-ring-location LOC       KMS key ring location (default: global)
+  --key-ring-location LOC       KMS key ring location (default: the --region value)
   --key-ring-name NAME          KMS key ring (default: <vpc-name>-keyring)
   --key-name NAME               KMS crypto key (default: <vpc-name>-key)
   --kms-sa-id ID                KMS service account ID (default: <vpc-name>-sa)
@@ -726,6 +875,7 @@ Modes:
 Examples:
   $0 --project my-gcp-project
   $0 --project my-gcp-project --vpc-name jaya-osd-psc-vpc
+  $0 --project my-gcp-project --psc false
   $0 --project my-gcp-project --validate-only
   $0 --project my-gcp-project --vpc-name jaya-osd-psc-vpc --cleanup
 EOF
@@ -768,6 +918,16 @@ while [[ $# -gt 0 ]]; do
       ;;
     --psc-cidr)
       PSC_CIDR="$2"
+      shift 2
+      ;;
+    --psc)
+      case "$2" in
+        true|false) CREATE_PSC="$2" ;;
+        *)
+          print_error "--psc must be true or false"
+          exit 1
+          ;;
+      esac
       shift 2
       ;;
     --skip-nat)
