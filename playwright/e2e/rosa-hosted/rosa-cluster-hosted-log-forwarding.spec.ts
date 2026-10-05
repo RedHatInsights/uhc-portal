@@ -78,7 +78,11 @@ test.describe.serial(
         clusterDetailsPage.logForwardingPropertyValue('CloudWatch', 'Configuration', 'Enabled'),
       ).toBeVisible();
       await expect(
-        clusterDetailsPage.logForwardingPropertyValue('CloudWatch', 'Log group name', cwLogGroupName),
+        clusterDetailsPage.logForwardingPropertyValue(
+          'CloudWatch',
+          'Log group name',
+          cwLogGroupName,
+        ),
       ).toBeVisible();
       await expect(
         clusterDetailsPage.logForwardingPropertyValue('CloudWatch', 'Role ARN', cwRoleArn),
@@ -293,8 +297,7 @@ test.describe.serial(
       await expect(clusterDetailsPage.logForwardingCardKebab('Amazon S3')).toBeVisible();
       await expect(clusterDetailsPage.logForwardingEmptyState()).toBeHidden();
 
-      const logForwardingDescription =
-        clusterDetailsPage.controlPlaneLogForwardingDescription();
+      const logForwardingDescription = clusterDetailsPage.controlPlaneLogForwardingDescription();
       await clusterDetailsPage.navigateToOverviewTab();
       await expect(logForwardingDescription).toContainText('Amazon S3: Enabled');
       await expect(logForwardingDescription).toContainText('CloudWatch: Disabled');
@@ -343,7 +346,11 @@ test.describe.serial(
         clusterDetailsPage.logForwardingPropertyValue('CloudWatch', 'Configuration', 'Enabled'),
       ).toBeVisible();
       await expect(
-        clusterDetailsPage.logForwardingPropertyValue('CloudWatch', 'Log group name', updatedCwLogGroupName),
+        clusterDetailsPage.logForwardingPropertyValue(
+          'CloudWatch',
+          'Log group name',
+          updatedCwLogGroupName,
+        ),
       ).toBeVisible();
       await expect(
         clusterDetailsPage.logForwardingPropertyValue('CloudWatch', 'Role ARN', cwRoleArn),
@@ -357,8 +364,7 @@ test.describe.serial(
       const tooltip = await clusterDetailsPage.hoverAddConfigurationButton();
       await expect(tooltip).toBeVisible();
 
-      const logForwardingDescription =
-        clusterDetailsPage.controlPlaneLogForwardingDescription();
+      const logForwardingDescription = clusterDetailsPage.controlPlaneLogForwardingDescription();
       await clusterDetailsPage.navigateToOverviewTab();
       await expect(logForwardingDescription).toContainText('Amazon S3: Enabled');
       await expect(logForwardingDescription).toContainText('CloudWatch: Enabled');
@@ -382,7 +388,11 @@ test.describe.serial(
       clusterDetailsPage,
     }) => {
       await expect(
-        clusterDetailsPage.logForwardingPropertyValue('Amazon S3', 'Bucket prefix', updatedS3BucketPrefix),
+        clusterDetailsPage.logForwardingPropertyValue(
+          'Amazon S3',
+          'Bucket prefix',
+          updatedS3BucketPrefix,
+        ),
       ).toBeVisible({ timeout: 30000 });
       await expect(
         clusterDetailsPage.logForwardingPropertyValue('Amazon S3', 'Bucket name', s3BucketName),
@@ -413,7 +423,11 @@ test.describe.serial(
       clusterDetailsPage,
     }) => {
       await expect(
-        clusterDetailsPage.logForwardingPropertyValue('CloudWatch', 'Log group name', editedCwLogGroupName),
+        clusterDetailsPage.logForwardingPropertyValue(
+          'CloudWatch',
+          'Log group name',
+          editedCwLogGroupName,
+        ),
       ).toBeVisible({ timeout: 30000 });
       await expect(
         clusterDetailsPage.logForwardingPropertyValue('CloudWatch', 'Role ARN', cwRoleArn),
@@ -445,8 +459,7 @@ test.describe.serial(
       await expect(clusterDetailsPage.logForwardingCardTitle('Amazon S3')).toBeVisible();
       await expect(clusterDetailsPage.addConfigurationButton()).toBeEnabled();
 
-      const logForwardingDescription =
-        clusterDetailsPage.controlPlaneLogForwardingDescription();
+      const logForwardingDescription = clusterDetailsPage.controlPlaneLogForwardingDescription();
       await clusterDetailsPage.navigateToOverviewTab();
       await expect(logForwardingDescription).toContainText('Amazon S3: Enabled');
       await expect(logForwardingDescription).toContainText('CloudWatch: Disabled');
@@ -472,8 +485,7 @@ test.describe.serial(
       await expect(clusterDetailsPage.logForwardingCardTitle('CloudWatch')).toBeVisible();
       await expect(clusterDetailsPage.addConfigurationButton()).toBeDisabled();
 
-      const logForwardingDescription =
-        clusterDetailsPage.controlPlaneLogForwardingDescription();
+      const logForwardingDescription = clusterDetailsPage.controlPlaneLogForwardingDescription();
       await clusterDetailsPage.navigateToOverviewTab();
       await expect(logForwardingDescription).toContainText('Amazon S3: Enabled');
       await expect(logForwardingDescription).toContainText('CloudWatch: Enabled');

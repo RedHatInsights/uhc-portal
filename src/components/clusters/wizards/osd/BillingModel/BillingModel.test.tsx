@@ -150,6 +150,49 @@ describe('<BillingModel />', () => {
 
       expect(onDemandRadioOption).toBeChecked();
     });
+
+    it('selects customer cloud subscription when switching to On-Demand', async () => {
+      const quotas = {
+        ...defaultQuotas,
+        byoc: false,
+        marketplaceByoc: false,
+        marketplaceRhInfra: false,
+      };
+      mockUseGetBillingQuotas.mockReturnValue(quotas);
+
+      const { user } = render(buildTestComponent(false, quotas));
+
+      expect(screen.getByRole('radio', { name: /red hat cloud account/i })).toBeChecked();
+
+      await user.click(
+        screen.getByRole('radio', { name: /On-Demand: Flexible usage billed through/i }),
+      );
+
+      expect(screen.getByRole('radio', { name: /customer cloud subscription/i })).toBeChecked();
+      expect(screen.getByRole('radio', { name: /customer cloud subscription/i })).toBeEnabled();
+      expect(screen.getByRole('radio', { name: /red hat cloud account/i })).toBeDisabled();
+    });
+
+    it('selects Red Hat cloud account when switching from On-Demand to Annual without BYOC quota', async () => {
+      const quotas = {
+        ...defaultQuotas,
+        byoc: false,
+      };
+      mockUseGetBillingQuotas.mockReturnValue(quotas);
+
+      const { user } = render(buildTestComponent(false, quotas));
+
+      await user.click(
+        screen.getByRole('radio', { name: /On-Demand: Flexible usage billed through/i }),
+      );
+      await user.click(
+        screen.getByRole('radio', {
+          name: /Annual: Fixed capacity subscription from Red Hat/i,
+        }),
+      );
+
+      expect(screen.getByRole('radio', { name: /red hat cloud account/i })).toBeChecked();
+    });
   });
 
   describe('When creating a cluster coming from google cloud console', () => {

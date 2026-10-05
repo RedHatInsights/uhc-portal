@@ -18,27 +18,24 @@ test.describe.serial(
   'OSD AWS CCS Public Cluster - Machine pools validation (OCP-35970, OCP-35971, OCP-40585)',
   { tag: ['@advanced', '@day2', '@osd', '@aws', '@public', '@multizone', '@machine-pools'] },
   () => {
-    test.beforeAll(async ({
-      navigateTo,
-      clusterListPage,
-      clusterDetailsPage,
-      machinePoolsPage,
-    }) => {
-      test.skip(
-        !clusterNamePrefix,
-        'Set CLUSTER_NAME to the day-1 advanced CCS cluster name (random suffix).',
-      );
-      await navigateTo(CLUSTER_LIST_FULL_PATH);
-      await clusterListPage.waitForDataReady();
-      await clusterListPage.isClusterListScreen();
-      await clusterListPage.filterTxtField().click();
-      await clusterListPage.filterTxtField().clear();
-      await clusterListPage.filterTxtField().fill(clusterNamePrefix);
-      await clusterListPage.waitForDataReady();
-      await clusterListPage.openClusterDefinition(clusterNamePrefix, 'startsWith');
-      await clusterDetailsPage.waitForClusterDetailsLoad();
-      await machinePoolsPage.goToMachinePoolsTab();
-    });
+    test.beforeAll(
+      async ({ navigateTo, clusterListPage, clusterDetailsPage, machinePoolsPage }) => {
+        test.skip(
+          !clusterNamePrefix,
+          'Set CLUSTER_NAME to the day-1 advanced CCS cluster name (random suffix).',
+        );
+        await navigateTo(CLUSTER_LIST_FULL_PATH);
+        await clusterListPage.waitForDataReady();
+        await clusterListPage.isClusterListScreen();
+        await clusterListPage.filterTxtField().click();
+        await clusterListPage.filterTxtField().clear();
+        await clusterListPage.filterTxtField().fill(clusterNamePrefix);
+        await clusterListPage.waitForDataReady();
+        await clusterListPage.openClusterDefinition(clusterNamePrefix, 'startsWith');
+        await clusterDetailsPage.waitForClusterDetailsLoad();
+        await machinePoolsPage.goToMachinePoolsTab();
+      },
+    );
 
     test('Verify machine pools table headers and default values', async ({ machinePoolsPage }) => {
       await machinePoolsPage.verifyTableHeader('Machine pool');
@@ -182,10 +179,7 @@ test.describe.serial(
         }
       }
 
-      await machinePoolsPage.verifyOverviewProperty(
-        'Autoscale',
-        day2.NewMachinePool.Autoscaling,
-      );
+      await machinePoolsPage.verifyOverviewProperty('Autoscale', day2.NewMachinePool.Autoscaling);
 
       const expectedMin =
         (Number(defaultPool.MinimumNodeCount) + Number(day2.NewMachinePool.MinimumNodeCount)) *
