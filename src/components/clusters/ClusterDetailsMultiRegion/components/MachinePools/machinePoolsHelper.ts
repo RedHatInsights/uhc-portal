@@ -1,5 +1,6 @@
 import { normalizeProductID } from '~/common/normalize';
 import { normalizedProducts } from '~/common/subscriptionTypes';
+import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import {
   getAvailableQuota,
@@ -419,19 +420,23 @@ const getMaxNodeCountForMachinePool = ({
 }: GetMaxNodeCountForMachinePoolParams): number => {
   const clusterIsMultiAz = isMultiAZ(cluster);
 
-  const available = getAvailableQuota({
-    quota,
-    machineTypes,
-    machineTypeId,
-    isMultiAz: clusterIsMultiAz,
-    isByoc: !!cluster.ccs?.enabled,
-    cloudProviderID: cluster.cloud_provider?.id,
-    billingModel:
-      (cluster as Cluster).billing_model ??
-      ((cluster as ClusterFromSubscription).subscription
-        ?.cluster_billing_model as Cluster['billing_model']),
-    product: cluster.product?.id,
-  });
+  const billingModel =
+    (cluster as Cluster).billing_model ??
+    ((cluster as ClusterFromSubscription).subscription
+      ?.cluster_billing_model as Cluster['billing_model']);
+
+  const available = isGcpMarketplaceBilling(billingModel)
+    ? Infinity
+    : getAvailableQuota({
+        quota,
+        machineTypes,
+        machineTypeId,
+        isMultiAz: clusterIsMultiAz,
+        isByoc: !!cluster.ccs?.enabled,
+        cloudProviderID: cluster.cloud_provider?.id,
+        billingModel,
+        product: cluster.product?.id,
+      });
 
   const isHypershift = isHypershiftCluster(cluster);
 

@@ -203,13 +203,13 @@ describe('<EditMachinePoolModal />', () => {
       const imdsV1AndV2Radio = screen.getByRole('radio', { name: /Use both IMDSv1 and IMDSv2/i });
       const imdsV2Radio = screen.getByRole('radio', { name: /Use IMDSv2 only/i });
 
-      expect(imdsV1AndV2Radio).toBeChecked();
-      expect(imdsV2Radio).not.toBeChecked();
-
-      await user.click(imdsV2Radio);
-
       expect(imdsV2Radio).toBeChecked();
       expect(imdsV1AndV2Radio).not.toBeChecked();
+
+      await user.click(imdsV1AndV2Radio);
+
+      expect(imdsV1AndV2Radio).toBeChecked();
+      expect(imdsV2Radio).not.toBeChecked();
     });
 
     it('Shows IMDS radio buttons with enabled feature gate AND tabbed machine pool modal', async () => {
@@ -230,13 +230,13 @@ describe('<EditMachinePoolModal />', () => {
       const imdsV1AndV2Radio = screen.getByRole('radio', { name: /Use both IMDSv1 and IMDSv2/i });
       const imdsV2Radio = screen.getByRole('radio', { name: /Use IMDSv2 only/i });
 
-      expect(imdsV1AndV2Radio).toBeChecked();
-      expect(imdsV2Radio).not.toBeChecked();
-
-      await user.click(imdsV2Radio);
-
       expect(imdsV2Radio).toBeChecked();
       expect(imdsV1AndV2Radio).not.toBeChecked();
+
+      await user.click(imdsV1AndV2Radio);
+
+      expect(imdsV1AndV2Radio).toBeChecked();
+      expect(imdsV2Radio).not.toBeChecked();
     });
 
     describe('tabs', () => {

@@ -7,60 +7,46 @@
 
 import { combineAndSortLinks } from './linkUtils.mjs';
 
-const MIRROR_BUTANE_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest';
-const MIRROR_CLIENTS_STABLE_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/';
-const MIRROR_CLIENTS_CANDIDATE_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/candidate/';
-const MIRROR_CLIENTS_STABLE_IBMZ =
-  'https://mirror.openshift.com/pub/openshift-v4/s390x/clients/ocp/stable/';
-const MIRROR_CLIENTS_STABLE_PPC =
-  'https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/stable/';
-const MIRROR_CLIENTS_STABLE_ARM =
-  'https://mirror.openshift.com/pub/openshift-v4/aarch64/clients/ocp/stable/';
-const MIRROR_CLIENTS_STABLE_MULTI =
-  'https://mirror.openshift.com/pub/openshift-v4/multi/clients/ocp/stable/';
-const MIRROR_CLIENTS_LATEST_PRE_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp-dev-preview/pre-release/';
-const MIRROR_CLIENTS_LATEST_PRE_IBMZ =
-  'https://mirror.openshift.com/pub/openshift-v4/s390x/clients/ocp-dev-preview/pre-release/';
-const MIRROR_CLIENTS_LATEST_PRE_PPC =
-  'https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp-dev-preview/pre-release/';
-const MIRROR_CLIENTS_LATEST_PRE_ARM =
-  'https://mirror.openshift.com/pub/openshift-v4/aarch64/clients/ocp-dev-preview/pre-release/';
-const MIRROR_CLIENTS_LATEST_PRE_MULTI =
-  'https://mirror.openshift.com/pub/openshift-v4/multi/clients/ocp-dev-preview/pre-release/';
-const MIRROR_COREOS_INSTALLER_LATEST =
-  'https://mirror.openshift.com/pub/openshift-v4/clients/coreos-installer/latest';
+// Prefer the v5 path so download URLs match the OpenShift major version customers use.
+const MIRROR_VERSION_PATH = 'openshift-v5';
+
+const MIRROR_BUTANE_LATEST = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/clients/butane/latest`;
+const MIRROR_CLIENTS_STABLE_X86 = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/x86_64/clients/ocp/stable/`;
+const MIRROR_CLIENTS_CANDIDATE_X86 = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/x86_64/clients/ocp/candidate/`;
+const MIRROR_CLIENTS_STABLE_IBMZ = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/s390x/clients/ocp/stable/`;
+const MIRROR_CLIENTS_STABLE_PPC = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/ppc64le/clients/ocp/stable/`;
+const MIRROR_CLIENTS_STABLE_ARM = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/aarch64/clients/ocp/stable/`;
+const MIRROR_CLIENTS_STABLE_MULTI = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/multi/clients/ocp/stable/`;
+const MIRROR_CLIENTS_LATEST_PRE_X86 = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/x86_64/clients/ocp-dev-preview/pre-release/`;
+const MIRROR_CLIENTS_LATEST_PRE_IBMZ = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/s390x/clients/ocp-dev-preview/pre-release/`;
+const MIRROR_CLIENTS_LATEST_PRE_PPC = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/ppc64le/clients/ocp-dev-preview/pre-release/`;
+const MIRROR_CLIENTS_LATEST_PRE_ARM = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/aarch64/clients/ocp-dev-preview/pre-release/`;
+const MIRROR_CLIENTS_LATEST_PRE_MULTI = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/multi/clients/ocp-dev-preview/pre-release/`;
+const MIRROR_COREOS_INSTALLER_LATEST = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/clients/coreos-installer/latest`;
 const MIRROR_CRC_LATEST =
   'https://developers.redhat.com/content-gateway/rest/mirror/pub/cgw/crc/latest';
 const MIRROR_HELM_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/helm/latest';
-const MIRROR_KN_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/serverless/latest';
-const MIRROR_TKN_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/pipeline/latest';
+const MIRROR_KN_LATEST = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/clients/serverless/latest`;
+const MIRROR_TKN_LATEST = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/clients/pipeline/latest`;
+// odo is deprecated/EOL and is not published under /openshift-v5/; keep the v4 path.
 const MIRROR_ODO_LATEST =
   'https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/odo/latest';
-const MIRROR_OSDK_LATEST_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/operator-sdk/latest';
-const MIRROR_OSDK_LATEST_IBMZ =
-  'https://mirror.openshift.com/pub/openshift-v4/s390x/clients/operator-sdk/latest';
-const MIRROR_OSDK_LATEST_PPC =
-  'https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/operator-sdk/latest';
-const MIRROR_OSDK_LATEST_ARM =
-  'https://mirror.openshift.com/pub/openshift-v4/aarch64/clients/operator-sdk/latest';
-const MIRROR_RHCOS_LATEST_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/latest';
-const MIRROR_RHCOS_LATEST_IBMZ =
-  'https://mirror.openshift.com/pub/openshift-v4/s390x/dependencies/rhcos/latest';
-const MIRROR_RHCOS_LATEST_PPC =
-  'https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/latest';
-const MIRROR_RHCOS_LATEST_ARM =
-  'https://mirror.openshift.com/pub/openshift-v4/aarch64/dependencies/rhcos/latest';
+const MIRROR_OSDK_LATEST_X86 = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/x86_64/clients/operator-sdk/latest`;
+const MIRROR_OSDK_LATEST_IBMZ = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/s390x/clients/operator-sdk/latest`;
+const MIRROR_OSDK_LATEST_PPC = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/ppc64le/clients/operator-sdk/latest`;
+const MIRROR_OSDK_LATEST_ARM = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/aarch64/clients/operator-sdk/latest`;
+const MIRROR_RHCOS_LATEST_X86 = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/x86_64/dependencies/rhcos/latest`;
+const MIRROR_RHCOS_LATEST_IBMZ = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/s390x/dependencies/rhcos/latest`;
+const MIRROR_RHCOS_LATEST_PPC = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/ppc64le/dependencies/rhcos/latest`;
+const MIRROR_RHCOS_LATEST_ARM = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/aarch64/dependencies/rhcos/latest`;
 const MIRROR_ROSA_LATEST = 'https://mirror.openshift.com/pub/cgw/rosa/latest';
 const MIRROR_MIRROR_REGISTRY_LATEST = 'https://mirror.openshift.com/pub/cgw/mirror-registry/latest';
 const MIRROR_OC_MIRROR_LATEST = 'https://mirror.openshift.com/pub/cgw/oc-mirror/latest';
 
+// OpenShift GitOps has moved under /cgw/; pin to the latest published release
+// (no cgw/.../latest/ pointer exists, and openshift-v4/.../latest/ is empty).
 const ARGO_CD_CLI_LATEST =
-  'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-gitops/latest/';
+  'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/openshift-gitops/1.21.0/';
 
 const SHP_CLI_LATEST =
   'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/openshift-builds/latest/';

@@ -11,7 +11,6 @@ import { BasePage } from './base-page';
  *   BasePage → BaseWizardPage → CreateOSDWizardPage | CreateRosaWizardPage
  */
 export abstract class BaseWizardPage extends BasePage {
-
   wizardNextButton(): Locator {
     return this.page.getByTestId('wizard-next-button');
   }
@@ -317,6 +316,10 @@ export abstract class BaseWizardPage extends BasePage {
 
   useBothIMDSv1AndIMDSv2Radio(): Locator {
     return this.page.getByTestId('imds-optional');
+  }
+
+  useIMDSv2Radio(): Locator {
+    return this.page.getByTestId('imds-required');
   }
 
   // ── CIDR ──────────────────────────────────────────────────────────────────
