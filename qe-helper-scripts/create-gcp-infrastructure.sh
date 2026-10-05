@@ -369,6 +369,7 @@ create_kms() {
   fi
 
   derive_kms_service_account_email
+  print_status "KMS resources use the '${VPC_NAME}' prefix; creating only the ones that are missing"
   create_kms_keyring
   create_kms_crypto_key
   create_kms_service_account
@@ -515,10 +516,10 @@ merge_playwright_env_json() {
         else .
         end
       | if $kms_enabled == "true" then
-          .QE_GCP_KEY_RING_LOCATION = $key_loc
-          | .QE_GCP_KEY_RING = $key_ring
-          | .QE_GCP_KEY_NAME = $key_name
-          | .QE_GCP_KMS_SERVICE_ACCOUNT = $kms_sa
+          .QE_GCP_KEY_RING_LOCATION = (if (.QE_GCP_KEY_RING_LOCATION // "") == "" then $key_loc else .QE_GCP_KEY_RING_LOCATION end)
+          | .QE_GCP_KEY_RING = (if (.QE_GCP_KEY_RING // "") == "" then $key_ring else .QE_GCP_KEY_RING end)
+          | .QE_GCP_KEY_NAME = (if (.QE_GCP_KEY_NAME // "") == "" then $key_name else .QE_GCP_KEY_NAME end)
+          | .QE_GCP_KMS_SERVICE_ACCOUNT = (if (.QE_GCP_KMS_SERVICE_ACCOUNT // "") == "" then $kms_sa else .QE_GCP_KMS_SERVICE_ACCOUNT end)
         else .
         end
     ' "${input_file}"
@@ -579,7 +580,7 @@ update_playwright_env() {
     fi
 
     cp "${PLAYWRIGHT_ENV_FILE}" "${PLAYWRIGHT_ENV_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
-    print_status "Merging QE_INFRA_GCP (and QE_GCP_KEY_* when KMS enabled) into ${PLAYWRIGHT_ENV_FILE}"
+    print_status "Merging QE_INFRA_GCP into ${PLAYWRIGHT_ENV_FILE}; filling only missing QE_GCP_KEY_* values"
     merge_playwright_env_json "${PLAYWRIGHT_ENV_FILE}" "${gcp_infra_json}" > "${PLAYWRIGHT_ENV_FILE}.tmp" \
       && mv "${PLAYWRIGHT_ENV_FILE}.tmp" "${PLAYWRIGHT_ENV_FILE}"
   else
@@ -647,65 +648,6 @@ cleanup_vpc() {
   fi
 }
 
-destroy_kms_key_versions() {
-  local version version_id versions
-  versions=$(gcloud kms keys versions list \
-    --project="${PROJECT_ID}" \
-    --key="${KEY_NAME}" \
-    --keyring="${KEY_RING_NAME}" \
-    --location="${KEY_RING_LOCATION}" \
-    --filter="state=ENABLED" \
-    --format='value(name)' 2>/dev/null || true)
-
-  while IFS= read -r version; do
-    [[ -z "${version}" ]] && continue
-    version_id="${version##*/}"
-    print_status "Scheduling destruction of KMS key version '${version_id}'..."
-    gcloud kms keys versions destroy "${version_id}" \
-      --project="${PROJECT_ID}" \
-      --key="${KEY_NAME}" \
-      --keyring="${KEY_RING_NAME}" \
-      --location="${KEY_RING_LOCATION}" \
-      --quiet || print_warning "Could not destroy KMS key version '${version_id}'"
-  done <<EOF
-${versions}
-EOF
-}
-
-cleanup_kms() {
-  if [[ "${CREATE_KMS}" != "true" ]]; then
-    return 0
-  fi
-
-  derive_kms_service_account_email
-
-  if kms_key_exists; then
-    destroy_kms_key_versions
-    if keyring_exists; then
-      print_status "Deleting KMS key ring '${KEY_RING_NAME}' (${KEY_RING_LOCATION})..."
-      if ! gcloud kms keyrings delete "${KEY_RING_NAME}" \
-        --project="${PROJECT_ID}" \
-        --location="${KEY_RING_LOCATION}" \
-        --quiet 2>/dev/null; then
-        print_warning "Key ring not deleted yet (destroy key versions first or wait for scheduled destruction)"
-      fi
-    fi
-  elif keyring_exists; then
-    print_status "Deleting empty KMS key ring '${KEY_RING_NAME}'..."
-    gcloud kms keyrings delete "${KEY_RING_NAME}" \
-      --project="${PROJECT_ID}" \
-      --location="${KEY_RING_LOCATION}" \
-      --quiet
-  fi
-
-  if [[ "${CREATE_KMS_SA}" == "true" ]] && kms_service_account_exists; then
-    print_status "Deleting KMS service account '${KMS_SA_EMAIL}'..."
-    gcloud iam service-accounts delete "${KMS_SA_EMAIL}" \
-      --project="${PROJECT_ID}" \
-      --quiet
-  fi
-}
-
 cleanup_playwright_env() {
   if [[ ! -f "${PLAYWRIGHT_ENV_FILE}" ]]; then
     return 0
@@ -715,33 +657,16 @@ cleanup_playwright_env() {
     return 0
   fi
 
-  if [[ "${CREATE_KMS}" == "true" ]]; then
-    derive_kms_service_account_email
-  fi
-
-  print_status "Clearing matching QE_INFRA_GCP / PSC_INFRA / QE_GCP_KEY_* entries from ${PLAYWRIGHT_ENV_FILE}"
+  print_status "Clearing matching QE_INFRA_GCP / PSC_INFRA entries from ${PLAYWRIGHT_ENV_FILE}"
   jq --arg vpc "${NON_PSC_VPC_NAME}" \
     --arg psc_vpc "${PSC_VPC_NAME}" \
     --arg psc_enabled "${CREATE_PSC}" \
-    --arg kms_enabled "${CREATE_KMS}" \
-    --arg key_ring "${KEY_RING_NAME}" \
-    --arg kms_sa "${KMS_SA_EMAIL:-}" \
     '
     if (.QE_INFRA_GCP.VPC_NAME // "") == $vpc then
       del(.QE_INFRA_GCP.VPC_NAME, .QE_INFRA_GCP.CONTROLPLANE_SUBNET, .QE_INFRA_GCP.COMPUTE_SUBNET, .QE_INFRA_GCP.REGION)
     else . end
     | if $psc_enabled == "true" and (.QE_INFRA_GCP.PSC_INFRA.VPC_NAME // "") == $psc_vpc then
         del(.QE_INFRA_GCP.PSC_INFRA)
-      else . end
-    | if $kms_enabled == "true"
-        and (.QE_GCP_KEY_RING // "") == $key_ring
-        and (.QE_GCP_KMS_SERVICE_ACCOUNT // "") == $kms_sa then
-        del(
-          .QE_GCP_KEY_RING_LOCATION,
-          .QE_GCP_KEY_RING,
-          .QE_GCP_KEY_NAME,
-          .QE_GCP_KMS_SERVICE_ACCOUNT
-        )
       else .
       end
   ' "${PLAYWRIGHT_ENV_FILE}" > "${PLAYWRIGHT_ENV_FILE}.tmp" \
@@ -784,7 +709,7 @@ cleanup_infrastructure() {
   if [[ "${CREATE_PSC}" == "true" ]]; then
     targets="'${NON_PSC_VPC_NAME}' and PSC VPC '${PSC_VPC_NAME}'"
   fi
-  print_warning "This will DELETE VPC ${targets} (and related subnets/NAT), KMS resources when enabled, in ${REGION} / ${KEY_RING_LOCATION} (${PROJECT_ID})"
+  print_warning "This will DELETE VPC ${targets} (and related subnets/NAT) in ${REGION} (${PROJECT_ID}). KMS keys and QE_GCP_KEY_* values are left in place."
   check_prereqs
 
   if [[ "${CREATE_PSC}" == "true" ]]; then
@@ -794,7 +719,6 @@ cleanup_infrastructure() {
   cleanup_named_vpc "${NON_PSC_VPC_NAME}" "${NON_PSC_ROUTER_NAME}" "${NON_PSC_NAT_NAME}" \
     "${NON_PSC_CONTROLPLANE_SUBNET}" "${NON_PSC_COMPUTE_SUBNET}" ""
 
-  cleanup_kms
   cleanup_playwright_env
   print_status "Cleanup completed"
 }
@@ -864,7 +788,7 @@ Configuration (CLI or env):
   --key-ring-name NAME          KMS key ring (default: <vpc-name>-keyring)
   --key-name NAME               KMS crypto key (default: <vpc-name>-key)
   --kms-sa-id ID                KMS service account ID (default: <vpc-name>-sa)
-  --kms-service-account EMAIL   Use existing SA email (no SA create on cleanup)
+  --kms-service-account EMAIL   Use existing SA email (do not create another account)
   --skip-env-update             Do not update playwright.env.json
 
 Modes:
