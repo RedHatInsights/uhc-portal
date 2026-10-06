@@ -80,8 +80,18 @@ export const FirewallRulesSelect = ({
     network,
   });
 
-  // Derive selection from fetched data during render — no Effect needed to sync Formik.
+  // Derive the displayed selection from fetched data.
   const matchedFirewallRule = firewallRules?.find((rule) => rule.id === selectedFirewallRules?.id);
+
+  // Clear Formik when a successful fetch no longer contains the selected ID so a stale
+  // value cannot reach the review step or submitOSDRequest.
+  React.useEffect(() => {
+    const selectedId = selectedFirewallRules?.id;
+    if (isSuccess && selectedId && !matchedFirewallRule) {
+      inputProps.onChange({ id: '' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when fetch result or selection id changes
+  }, [isSuccess, matchedFirewallRule, selectedFirewallRules?.id]);
 
   const onSelect: FuzzySelectProps['onSelect'] = (_event, value) => {
     if (value === '') {

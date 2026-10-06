@@ -41,7 +41,9 @@ fi
 NAME=""
 DELETE=false
 PROJECT="$(gcloud config get-value project 2>/dev/null || true)"
-PROJECT="${PROJECT:-ocm-ui-dev}"
+if [[ -z "$PROJECT" || "$PROJECT" == "(unset)" ]]; then
+  PROJECT="ocm-ui-dev"
+fi
 REGION="us-west1"
 
 while [[ $# -gt 0 ]]; do
@@ -116,7 +118,7 @@ delete_resources() {
   local fw_rules
   fw_rules="$(gcloud compute firewall-rules list \
     --project="$PROJECT" \
-    --filter="network:$NETWORK" \
+    --filter="network=https://www.googleapis.com/compute/v1/projects/${PROJECT}/global/networks/${NETWORK}" \
     --format="value(name)" 2>/dev/null || true)"
   if [[ -z "$fw_rules" ]]; then
     echo "    (no firewall rules found)"
@@ -139,9 +141,18 @@ delete_resources() {
   done
 
   echo "==> Deleting VPC network: $NETWORK"
-  gcloud compute networks delete "$NETWORK" \
+  if ! gcloud compute networks describe "$NETWORK" \
     --project="$PROJECT" \
-    --quiet || echo "    (network not found or already deleted)"
+    --format="value(name)" >/dev/null 2>&1; then
+    echo "    (network not found or already deleted)"
+  elif gcloud compute networks delete "$NETWORK" \
+    --project="$PROJECT" \
+    --quiet; then
+    :
+  else
+    echo "ERROR: failed to delete VPC network: $NETWORK" >&2
+    return 1
+  fi
 
   echo
   echo "Done. Deleted resources for: $NETWORK"

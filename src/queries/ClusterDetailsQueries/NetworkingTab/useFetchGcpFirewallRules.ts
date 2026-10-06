@@ -48,7 +48,7 @@ export const useFetchGcpFirewallRules = ({
   if (isError) {
     const formattedError = formatErrorData(isLoading, isError, error);
     return {
-      data: data?.data?.items ?? [],
+      data: [],
       isLoading,
       isFetching,
       isError,

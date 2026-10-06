@@ -243,7 +243,7 @@ describe('<FirewallRulesSelect />', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  it('shows an empty selection when the previously selected rule is no longer available', () => {
+  it('clears Formik when the previously selected rule is no longer available', () => {
     useFetchGcpFirewallRulesMock.mockReturnValue({
       isFetching: false,
       data: firewallRules,
@@ -261,6 +261,29 @@ describe('<FirewallRulesSelect />', () => {
     );
 
     expect(screen.getByText(/^select firewall rules$/i)).toBeInTheDocument();
+    expect(onChange).toHaveBeenCalledWith({ id: '' });
+  });
+
+  it('preserves Formik when the fetched rules still contain the selected ID', () => {
+    useFetchGcpFirewallRulesMock.mockReturnValue({
+      isFetching: false,
+      data: firewallRules,
+      isSuccess: true,
+    });
+
+    const onChange = jest.fn();
+    render(
+      <FirewallRulesSelect
+        {...createDefaultProps({
+          selectedFirewallRules: { id: 'fw-1' },
+          input: { name: '', value: '', onBlur: () => {}, onChange },
+        })}
+      />,
+    );
+
+    expect(
+      screen.getByText('prod-byo-firewall (my-service-project / prod-us-east1-vpc)'),
+    ).toBeInTheDocument();
     expect(onChange).not.toHaveBeenCalled();
   });
 
