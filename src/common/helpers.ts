@@ -182,14 +182,22 @@ const scrollToFirstField = (
   return false;
 };
 
-const CHROME_PAGE_MAIN_SELECTOR = 'main.pf-v6-c-page__main';
-
 /**
- * Scrolls Hybrid Cloud Console's PatternFly page main (and the window) to the top.
+ * Scrolls each scrollable ancestor of the app root back to the top.
  * In-app React Router navigation does not reset those scroll positions on its own.
+ * The page scroller lives in the console chrome, above this app, so this walks
+ * up from #app-outer-div instead of depending on a chrome-specific selector.
  */
 const scrollAppToTop = (): void => {
-  document.querySelector<HTMLElement>(CHROME_PAGE_MAIN_SELECTOR)?.scrollTo(0, 0);
+  let node = document.getElementById('app-outer-div')?.parentElement ?? null;
+
+  while (node) {
+    const { overflowY } = getComputedStyle(node);
+    if (overflowY === 'auto' || overflowY === 'scroll') {
+      node.scrollTo(0, 0);
+    }
+    node = node.parentElement;
+  }
 };
 
 /**
