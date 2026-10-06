@@ -168,18 +168,31 @@ describe('scrollToFirstField', () => {
 });
 
 describe('scrollAppToTop', () => {
-  it('scrolls the Chrome page main to the top', () => {
-    const pageMain = document.createElement('main');
-    pageMain.className = 'pf-v6-c-page__main';
-    const pageMainScrollTo = jest.fn();
-    pageMain.scrollTo = pageMainScrollTo;
-    document.body.appendChild(pageMain);
+  it('scrolls each scrollable ancestor of the app root to the top', () => {
+    document.body.innerHTML = '';
+
+    const page = document.createElement('div');
+    page.style.overflowY = 'auto';
+    const pageScrollTo = jest.fn();
+    page.scrollTo = pageScrollTo;
+
+    const staticParent = document.createElement('div');
+    const staticScrollTo = jest.fn();
+    staticParent.scrollTo = staticScrollTo;
+
+    const appRoot = document.createElement('div');
+    appRoot.id = 'app-outer-div';
+
+    staticParent.appendChild(appRoot);
+    page.appendChild(staticParent);
+    document.body.appendChild(page);
 
     scrollAppToTop();
 
-    expect(pageMainScrollTo).toHaveBeenCalledWith(0, 0);
+    expect(pageScrollTo).toHaveBeenCalledWith(0, 0);
+    expect(staticScrollTo).not.toHaveBeenCalled();
 
-    pageMain.remove();
+    document.body.innerHTML = '';
   });
 });
 
