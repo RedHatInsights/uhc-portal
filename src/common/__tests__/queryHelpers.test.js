@@ -288,7 +288,7 @@ describe('getQueryParam', () => {
   });
 });
 
-describe('createServiceLogQueryObject severity dual support', () => {
+describe('createServiceLogQueryObject severity filter', () => {
   const baseViewOptions = {
     currentPage: 1,
     pageSize: 50,
@@ -304,29 +304,12 @@ describe('createServiceLogQueryObject severity dual support', () => {
     },
   };
 
-  it('expands Warning filter to include Moderate', () => {
+  it('filters by selected HCC severity labels only', () => {
     const viewOptions = {
       ...baseViewOptions,
       flags: {
         conditionalFilterFlags: {
-          severityTypes: ['Warning'],
-          logTypes: [],
-        },
-      },
-    };
-
-    const result = createServiceLogQueryObject(viewOptions);
-    expect(result.filter).toContain("'Warning'");
-    expect(result.filter).toContain("'Moderate'");
-    expect(result.filter).toMatch(/severity IN \(/);
-  });
-
-  it('expands Important filter to include Major', () => {
-    const viewOptions = {
-      ...baseViewOptions,
-      flags: {
-        conditionalFilterFlags: {
-          severityTypes: ['Important'],
+          severityTypes: ['Important', 'Moderate'],
           logTypes: [],
         },
       },
@@ -334,6 +317,9 @@ describe('createServiceLogQueryObject severity dual support', () => {
 
     const result = createServiceLogQueryObject(viewOptions);
     expect(result.filter).toContain("'Important'");
-    expect(result.filter).toContain("'Major'");
+    expect(result.filter).toContain("'Moderate'");
+    expect(result.filter).not.toContain("'Major'");
+    expect(result.filter).not.toContain("'Warning'");
+    expect(result.filter).toMatch(/severity IN \(/);
   });
 });
