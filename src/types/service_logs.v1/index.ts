@@ -1137,13 +1137,10 @@ export enum ClusterLogLog_type {
 }
 export enum ClusterLogSeverity {
   Debug = 'Debug',
-  Info = 'Info',
-  Warning = 'Warning',
-  Major = 'Major',
-  Critical = 'Critical',
   Low = 'Low',
   Moderate = 'Moderate',
   Important = 'Important',
+  Critical = 'Critical',
 }
 export enum CompletedActionType {
   email = 'email',
