@@ -23,7 +23,7 @@ export const filterFirewallRules = (
   network?: string,
 ) =>
   // Skip empty criteria so Shared VPC works while Host project ID / VPC name are
-  // still being typed (strict '' === 'ocm-ui-dev' would hide all matches).
+  // still being typed.
   rules?.filter(
     (rule) =>
       (!wifConfigId || rule.wif_config?.id === wifConfigId) &&
