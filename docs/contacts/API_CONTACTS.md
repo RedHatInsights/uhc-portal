@@ -125,7 +125,7 @@ When you have questions about an API — its behavior, expected response data, c
   - Downloads page
   - Install cluster instruction pages
 - **Slack:** `#ocm-osd-ui`
-- **Notes:** No external owner — OCMUI owns this integration. File issues in [ROSAENG](https://redhat.atlassian.net/projects/ROSAENG) with component field = OCMUI.
+- **Notes:** No external owner — OCMUI owns this integration. File issues in [ROSAENG](https://redhat.atlassian.net/projects/ROSAENG) with Components field = OCMUI.
 
 ### Assisted Installer (OCP clusters)
 - **Path:** Federated (module federation remote)
