@@ -48,6 +48,7 @@ export const useFetchGcpFirewallRules = ({
   });
 
   if (isError) {
+    // Empty list + isError: UI shows fetch failure; do not restore unfiltered cache.
     const formattedError = formatErrorData(isLoading, isError, error);
     return {
       data: [],

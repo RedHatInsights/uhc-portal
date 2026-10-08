@@ -73,6 +73,7 @@ export const FirewallRulesSelect = ({
     data: firewallRules,
     isFetching,
     isSuccess,
+    isError,
   } = useFetchGcpFirewallRules({
     profile,
     wifConfigId,
@@ -139,6 +140,8 @@ export const FirewallRulesSelect = ({
   let placeholder = 'Select firewall rules';
   if (isFetching) {
     placeholder = 'Loading...';
+  } else if (isError) {
+    placeholder = 'Error loading firewall rules';
   } else if (firewallRules?.length === 0) {
     placeholder = 'No firewall rules found';
   }

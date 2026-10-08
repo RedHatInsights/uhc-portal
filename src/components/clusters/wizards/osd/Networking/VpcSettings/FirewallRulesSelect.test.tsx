@@ -143,11 +143,26 @@ describe('<FirewallRulesSelect />', () => {
       isFetching: false,
       data: [],
       isSuccess: true,
+      isError: false,
     });
 
     render(<FirewallRulesSelect {...createDefaultProps()} />);
 
     expect(await screen.findByText(/No firewall rules found/i)).toBeInTheDocument();
+  });
+
+  it('shows an error message when the firewall rules request fails', async () => {
+    useFetchGcpFirewallRulesMock.mockReturnValue({
+      isFetching: false,
+      data: [],
+      isSuccess: false,
+      isError: true,
+    });
+
+    render(<FirewallRulesSelect {...createDefaultProps()} />);
+
+    expect(await screen.findByText(/Error loading firewall rules/i)).toBeInTheDocument();
+    expect(screen.queryByText(/No firewall rules found/i)).not.toBeInTheDocument();
   });
 
   it('shows create firewall rules CLI command', async () => {

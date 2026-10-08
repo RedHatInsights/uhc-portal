@@ -141,16 +141,26 @@ delete_resources() {
   done
 
   echo "==> Deleting VPC network: $NETWORK"
-  if ! gcloud compute networks describe "$NETWORK" \
+  local describe_err=""
+  local describe_rc=0
+  # Capture stderr only; treat not-found as absent, fail on permission/API errors.
+  describe_err="$(gcloud compute networks describe "$NETWORK" \
     --project="$PROJECT" \
-    --format="value(name)" >/dev/null 2>&1; then
+    --format="value(name)" 2>&1 >/dev/null)" || describe_rc=$?
+  if [[ "$describe_rc" -eq 0 ]]; then
+    if gcloud compute networks delete "$NETWORK" \
+      --project="$PROJECT" \
+      --quiet; then
+      :
+    else
+      echo "ERROR: failed to delete VPC network: $NETWORK" >&2
+      return 1
+    fi
+  elif [[ "$describe_err" == *"was not found"* || "$describe_err" == *"NOT_FOUND"* ]]; then
     echo "    (network not found or already deleted)"
-  elif gcloud compute networks delete "$NETWORK" \
-    --project="$PROJECT" \
-    --quiet; then
-    :
   else
-    echo "ERROR: failed to delete VPC network: $NETWORK" >&2
+    echo "ERROR: failed to look up VPC network: $NETWORK" >&2
+    echo "$describe_err" >&2
     return 1
   fi
 
