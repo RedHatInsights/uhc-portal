@@ -155,6 +155,33 @@ describe('useFetchGcpFirewallRules', () => {
     expect(result.current.data).toEqual([]);
   });
 
+  it('returns no rules when WIF config ID is cleared after a successful fetch', async () => {
+    getGcpFirewallRulesMock.mockResolvedValue({
+      data: { items: [matchingRule, nonMatchingRule] },
+    });
+
+    const { result, rerender } = renderHook(
+      ({ wifConfigId }: { wifConfigId?: string }) =>
+        useFetchGcpFirewallRules({
+          profile: 'public',
+          wifConfigId,
+          projectId: 'project-1',
+          network: 'vpc-1',
+        }),
+      { initialProps: { wifConfigId: 'wif-1' as string | undefined } },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+    expect(result.current.data).toEqual([matchingRule]);
+
+    rerender({ wifConfigId: undefined });
+
+    expect(result.current.data).toEqual([]);
+    expect(getGcpFirewallRulesMock).toHaveBeenCalledTimes(1);
+  });
+
   it('does not fetch when isEnabled is false', async () => {
     const { result } = renderHook(() =>
       useFetchGcpFirewallRules({

@@ -60,8 +60,14 @@ export const useFetchGcpFirewallRules = ({
     };
   }
 
+  // Query key is profile-only; without WIF (or when disabled) do not filter cached
+  // results with absent criteria — that would skip the WIF match and leak rules.
+  const hasRequiredContext = isEnabled && !!profile && !!wifConfigId;
+
   return {
-    data: filterFirewallRules(data?.data?.items, wifConfigId, projectId, network),
+    data: hasRequiredContext
+      ? filterFirewallRules(data?.data?.items, wifConfigId, projectId, network)
+      : [],
     isLoading,
     isFetching,
     isError,

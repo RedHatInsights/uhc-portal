@@ -115,11 +115,17 @@ delete_resources() {
     --quiet || echo "    (router not found or already deleted)"
 
   echo "==> Deleting firewall rules for network: $NETWORK"
-  local fw_rules
+  local fw_rules=""
+  local fw_list_rc=0
   fw_rules="$(gcloud compute firewall-rules list \
     --project="$PROJECT" \
     --filter="network=https://www.googleapis.com/compute/v1/projects/${PROJECT}/global/networks/${NETWORK}" \
-    --format="value(name)" 2>/dev/null || true)"
+    --format="value(name)" 2>&1)" || fw_list_rc=$?
+  if [[ "$fw_list_rc" -ne 0 ]]; then
+    echo "ERROR: failed to list firewall rules for network: $NETWORK" >&2
+    echo "$fw_rules" >&2
+    return 1
+  fi
   if [[ -z "$fw_rules" ]]; then
     echo "    (no firewall rules found)"
   else

@@ -62,7 +62,7 @@ describe('useFetchGcpFirewallRule', () => {
     expect(getGcpFirewallRuleMock).not.toHaveBeenCalled();
   });
 
-  it('returns a formatted error when the request fails', async () => {
+  it('returns a formatted error and no data when the request fails', async () => {
     const apiError = new Error('network error');
     getGcpFirewallRuleMock.mockRejectedValue(apiError);
     formatErrorDataMock.mockReturnValue({ error: 'formatted error' });
@@ -75,5 +75,6 @@ describe('useFetchGcpFirewallRule', () => {
 
     expect(formatErrorDataMock).toHaveBeenCalled();
     expect(result.current.error).toBe('formatted error');
+    expect(result.current.data).toBeUndefined();
   });
 });
