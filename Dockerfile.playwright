@@ -1,0 +1,196 @@
+# Lightweight Playwright E2E image for OpenShift CI / local runs.
+# Base: UBI9 Node.js 24 (not mcr.microsoft.com/playwright) + manual browser install.
+# Multi-arch: build with --platform linux/amd64,linux/arm64,linux/s390x,linux/ppc64le
+# Keep browser install in sync with @playwright/test in package.json (currently 1.60.0).
+#
+# Architecture notes:
+#   amd64/arm64  – full support: all CLIs + Playwright browsers
+#   s390x/ppc64le – CLIs installed when upstream publishes binaries;
+#                   Playwright does not ship browser binaries for these arches,
+#                   so only API / non-browser tests can run.
+FROM registry.access.redhat.com/ubi9/nodejs-24:latest
+
+USER root
+WORKDIR /app
+
+# Populated automatically by BuildKit/Buildah for each target platform.
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETARCH
+
+# System libraries for Playwright browsers on RHEL/UBI.
+# playwright install-deps is apt-only and does not work here.
+# Chromium + Firefox run with this set; WebKit binaries are installed but
+# need Ubuntu-specific libs (libicu74, flite, …) that are not in UBI — use chromium for CI.
+# Keep the package set lean (avoid gtk4 / full mesa-dri / gstreamer) for image size.
+RUN dnf install -y --setopt=install_weak_deps=False --nodocs \
+      alsa-lib \
+      atk \
+      at-spi2-atk \
+      at-spi2-core \
+      cairo \
+      cups-libs \
+      dbus-libs \
+      expat \
+      findutils \
+      gdk-pixbuf2 \
+      git \
+      gtk3 \
+      harfbuzz-icu \
+      jq \
+      libX11 \
+      libX11-xcb \
+      libXcomposite \
+      libXcursor \
+      libXdamage \
+      libXext \
+      libXfixes \
+      libXi \
+      libXrandr \
+      libXtst \
+      libatomic \
+      libdrm \
+      libwayland-client \
+      libxcb \
+      libxkbcommon \
+      libxshmfence \
+      libxslt \
+      mesa-libgbm \
+      nspr \
+      nss \
+      nss-util \
+      pango \
+      python3 \
+      tar \
+      unzip \
+      which \
+      zlib \
+      ca-certificates \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf /var/log/dnf* /var/log/yum.* \
+    && set -eux; \
+    arch="${TARGETARCH:-}"; \
+    if [ -z "${arch}" ]; then \
+      raw="$(uname -m)"; \
+      case "${raw}" in \
+        x86_64)  arch=amd64  ;; \
+        aarch64) arch=arm64  ;; \
+        *)       arch="${raw}" ;; \
+      esac; \
+    fi; \
+    echo "Building for architecture: ${arch}"; \
+    case "${arch}" in \
+      amd64)   OCM_ARCH=amd64;   AWS_ARCH=x86_64;  ROSA_ARCH=amd64  ;; \
+      arm64)   OCM_ARCH=arm64;   AWS_ARCH=aarch64;  ROSA_ARCH=arm64  ;; \
+      s390x)   OCM_ARCH=s390x;   AWS_ARCH="";       ROSA_ARCH=s390x  ;; \
+      ppc64le) OCM_ARCH=ppc64le; AWS_ARCH="";       ROSA_ARCH=ppc64le ;; \
+      *)       echo "WARNING: unsupported arch '${arch}', skipping CLI installs"; \
+               OCM_ARCH=""; AWS_ARCH=""; ROSA_ARCH="" ;; \
+    esac; \
+    # --- OCM CLI ----------------------------------------------------------- \
+    if [ -n "${OCM_ARCH}" ]; then \
+      echo "Installing OCM CLI (${OCM_ARCH})"; \
+      if curl -fsSL -o /usr/local/bin/ocm \
+        "https://github.com/openshift-online/ocm-cli/releases/latest/download/ocm-linux-${OCM_ARCH}"; then \
+        chmod +x /usr/local/bin/ocm; \
+      else \
+        echo "WARNING: OCM CLI not available for ${OCM_ARCH}, skipping"; \
+        rm -f /usr/local/bin/ocm; \
+      fi; \
+    fi; \
+    # --- ROSA CLI ---------------------------------------------------------- \
+    if [ -n "${ROSA_ARCH}" ]; then \
+      echo "Installing ROSA CLI (${ROSA_ARCH})"; \
+      ROSA_URL="$(curl -fsSL https://api.github.com/repos/openshift/rosa/releases/latest \
+        | jq -r --arg arch "${ROSA_ARCH}" \
+          '.assets[] | select(.name | test("(?i)linux.*" + $arch)) | .browser_download_url' \
+        | head -n1)"; \
+      if [ -n "${ROSA_URL}" ] && [ "${ROSA_URL}" != "null" ]; then \
+        echo "Downloading ROSA CLI from ${ROSA_URL}"; \
+        curl -fsSL -o /tmp/rosa-cli.archive "${ROSA_URL}"; \
+        mkdir -p /tmp/rosa-cli; \
+        case "${ROSA_URL}" in \
+          *.zip) unzip -q /tmp/rosa-cli.archive -d /tmp/rosa-cli ;; \
+          *) tar -xzf /tmp/rosa-cli.archive -C /tmp/rosa-cli ;; \
+        esac; \
+        install -m 0755 "$(find /tmp/rosa-cli -type f -name rosa | head -n1)" /usr/local/bin/rosa; \
+        rm -rf /tmp/rosa-cli.archive /tmp/rosa-cli; \
+      else \
+        echo "WARNING: ROSA CLI not available for ${ROSA_ARCH}, skipping"; \
+      fi; \
+    fi; \
+    # --- AWS CLI ----------------------------------------------------------- \
+    if [ -n "${AWS_ARCH}" ]; then \
+      echo "Installing AWS CLI (${AWS_ARCH})"; \
+      curl -fsSL -o /tmp/awscliv2.zip \
+        "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip"; \
+      unzip -q /tmp/awscliv2.zip -d /tmp; \
+      /tmp/aws/install; \
+      rm -rf /tmp/awscliv2.zip /tmp/aws; \
+    else \
+      echo "WARNING: AWS CLI not available for ${arch} (no upstream binary), skipping"; \
+    fi; \
+    command -v ocm  >/dev/null 2>&1 && ocm version  || echo "ocm  not installed"; \
+    command -v rosa >/dev/null 2>&1 && rosa version  || echo "rosa not installed"; \
+    command -v aws  >/dev/null 2>&1 && aws --version  || echo "aws  not installed"
+
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright \
+    NPM_CONFIG_UPDATE_NOTIFIER=false \
+    NPM_CONFIG_FUND=false
+
+# Install npm deps first for better layer caching.
+# Do not use playwright install --with-deps (apt-based); OS libs were installed above.
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts \
+    && npm rebuild \
+    && npm cache clean --force \
+    && rm -rf /tmp/* /root/.npm /opt/app-root/src/.npm
+
+# Install Playwright browsers available for the target architecture.
+# Playwright ships pre-built binaries for amd64 and arm64 only.
+# On other arches the image can still run API / non-browser tests.
+# Branded chrome/msedge channels are apt/deb-only — use chromium instead.
+RUN set -eux; \
+    arch="${TARGETARCH:-}"; \
+    if [ -z "${arch}" ]; then \
+      raw="$(uname -m)"; \
+      case "${raw}" in x86_64) arch=amd64;; aarch64) arch=arm64;; *) arch="${raw}";; esac; \
+    fi; \
+    mkdir -p "${PLAYWRIGHT_BROWSERS_PATH}"; \
+    case "${arch}" in \
+      amd64|arm64) \
+        echo "Installing Playwright browsers for ${arch}"; \
+        npx playwright install chromium firefox webkit ;; \
+      *) \
+        echo "WARNING: Playwright does not ship browser binaries for ${arch}."; \
+        echo "Only API / non-browser tests will be available." ;; \
+    esac; \
+    rm -rf /tmp/*
+
+# App sources needed to run Playwright + option-1 cloud executor.
+COPY playwright.config.ts tsconfig.json ./
+COPY playwright ./playwright
+COPY src ./src
+COPY run ./run
+COPY qe-helper-scripts ./qe-helper-scripts
+
+# ubi9/nodejs-24 runs as UID 1001 by default.
+RUN chmod +x \
+      playwright/scripts/playwright-qe-executor.sh \
+      playwright/scripts/run-rosa-in-container.sh \
+      qe-helper-scripts/create-vpc-infrastructure.sh \
+    && chown -R 1001:0 /app "${PLAYWRIGHT_BROWSERS_PATH}" \
+    && chmod -R g+rwX /app "${PLAYWRIGHT_BROWSERS_PATH}"
+
+USER 1001
+
+ENV CI=true \
+    BROWSER=chromium \
+    PLAYWRIGHT_HTML_REPORT=/app/playwright-artifacts/reports \
+    SETUP_CLOUD=true \
+    HOME=/app
+
+# Env file is supplied at runtime (Vault mount or local playwright.env.json). Do not COPY secrets.
+# Default entry runs option-1 executor (VPC → ROSA roles → Playwright → cleanup).
+# Override entrypoint to `npx` for Playwright-only runs without cloud setup.
+ENTRYPOINT ["/app/playwright/scripts/playwright-qe-executor.sh"]

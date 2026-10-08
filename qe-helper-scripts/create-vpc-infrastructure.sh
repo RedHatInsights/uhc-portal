@@ -12,8 +12,8 @@ set -e  # Exit on any error
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Configuration file location (always in repo root)
-PLAYWRIGHT_ENV_FILE="$REPO_ROOT/playwright.env.json"
+# Configuration file location (repo root by default; override for CI work copies)
+PLAYWRIGHT_ENV_FILE="${PLAYWRIGHT_ENV_FILE:-$REPO_ROOT/playwright.env.json}"
 
 # Configuration Variables (can be overridden via command line)
 VPC_NAME="${VPC_NAME:-playwright-ocmui}"
