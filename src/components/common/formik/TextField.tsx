@@ -16,6 +16,7 @@ type TextFieldProps = {
   isReadOnly?: boolean;
   ariaLabelledBy?: string;
   trimOnBlur?: boolean;
+  shouldShowError?: boolean;
 };
 
 const TextField = ({
@@ -28,8 +29,12 @@ const TextField = ({
   isReadOnly,
   ariaLabelledBy,
   trimOnBlur,
+  shouldShowError,
 }: TextFieldProps) => {
   const [field, { error, touched }, { setValue }] = useField(fieldId);
+  const isInvalid = (touched || shouldShowError) && !!error;
+  const helperTextId = `${fieldId}-helper`;
+  const showHelperText = isInvalid || !!helpText;
 
   const labelIcon = helpText ? (
     <Popover bodyContent={<p>{helpText}</p>}>
@@ -50,7 +55,7 @@ const TextField = ({
       <TextInput
         {...field}
         id={fieldId}
-        validated={touched && error ? 'error' : 'default'}
+        validated={isInvalid ? 'error' : 'default'}
         onChange={(event, value) => {
           field.onChange(event);
         }}
@@ -64,9 +69,11 @@ const TextField = ({
         placeholder={placeHolderText}
         readOnlyVariant={isReadOnly ? 'default' : undefined}
         aria-labelledby={ariaLabelledBy}
+        aria-describedby={showHelperText ? helperTextId : undefined}
+        aria-errormessage={isInvalid ? helperTextId : undefined}
       />
 
-      <FormGroupHelperText touched={touched} error={error}>
+      <FormGroupHelperText id={helperTextId} touched={touched || shouldShowError} error={error}>
         {helpText}
       </FormGroupHelperText>
     </FormGroup>
