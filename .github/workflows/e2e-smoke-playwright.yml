@@ -201,6 +201,13 @@ jobs:
 
           # Setup AWS cloud resources (suppress sensitive output).
           # Empty values skip CloudWatch and AutoNode role creation.
+          BUILD_IDENTIFIER=$(jq -r '.BUILD_IDENTIFIER // empty' playwright.env.json)
+          if [ -z "$BUILD_IDENTIFIER" ]; then
+            echo "ERROR: BUILD_IDENTIFIER is missing from playwright.env.json"
+            exit 1
+          fi
+          VPC_NAME="ocmui-${BUILD_IDENTIFIER: -5}"
+          echo "Using VPC name: $VPC_NAME"
           CENTRAL_LOG_ARN_ROLE=$(jq -r '.CENTRAL_LOG_ARN_ROLE // empty' playwright.env.json)
           OIDC_CONFIG_ISSUER_URL=$(jq -r '.OIDC_CONFIG_ISSUER_URL // empty' playwright.env.json)
           export CENTRAL_LOG_ARN_ROLE
@@ -217,7 +224,7 @@ jobs:
           fi
           echo "Setting up AWS cloud resources..."
           chmod +x ./qe-helper-scripts/create-vpc-infrastructure.sh
-          if ./qe-helper-scripts/create-vpc-infrastructure.sh --vpc-name ocmui-smoke >/dev/null 2>&1; then
+          if ./qe-helper-scripts/create-vpc-infrastructure.sh --vpc-name "$VPC_NAME" >/dev/null 2>&1; then
             echo "AWS VPC infrastructure setup completed successfully"
           else
             echo "AWS VPC infrastructure setup completed with warnings"
@@ -499,8 +506,25 @@ jobs:
         continue-on-error: true
         run: |
           echo "Cleaning up AWS cloud resources..."
+          # Match setup: empty values skip CloudWatch and AutoNode role deletion.
+          BUILD_IDENTIFIER=""
+          CENTRAL_LOG_ARN_ROLE=""
+          OIDC_CONFIG_ISSUER_URL=""
+          if [ -f playwright.env.json ]; then
+            BUILD_IDENTIFIER=$(jq -r '.BUILD_IDENTIFIER // empty' playwright.env.json)
+            CENTRAL_LOG_ARN_ROLE=$(jq -r '.CENTRAL_LOG_ARN_ROLE // empty' playwright.env.json)
+            OIDC_CONFIG_ISSUER_URL=$(jq -r '.OIDC_CONFIG_ISSUER_URL // empty' playwright.env.json)
+          fi
+          if [ -z "$BUILD_IDENTIFIER" ]; then
+            echo "BUILD_IDENTIFIER is missing; skipping AWS cleanup"
+            exit 0
+          fi
+          VPC_NAME="ocmui-${BUILD_IDENTIFIER: -5}"
+          echo "Cleaning up VPC name: $VPC_NAME"
+          export CENTRAL_LOG_ARN_ROLE
+          export OIDC_CONFIG_ISSUER_URL
           chmod +x ./qe-helper-scripts/create-vpc-infrastructure.sh
-          if ./qe-helper-scripts/create-vpc-infrastructure.sh --vpc-name ocmui-smoke --cleanup >/dev/null 2>&1; then
+          if ./qe-helper-scripts/create-vpc-infrastructure.sh --vpc-name "$VPC_NAME" --cleanup >/dev/null 2>&1; then
             echo "AWS cloud resources cleanup completed successfully"
           else
             echo "Cleanup completed with some warnings/errors, but continuing..."

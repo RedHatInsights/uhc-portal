@@ -1488,9 +1488,13 @@ confirm_cleanup() {
     if [ "$SKIP_S3_BUCKET" != "true" ]; then
         print_status "  - S3 bucket: $S3_BUCKET_NAME (including all objects)"
     fi
-    print_status "  - CloudWatch IAM role: $CLOUDWATCH_ROLE_NAME"
-    print_status "  - AutoNode IAM role: $AUTONODE_ROLE_NAME"
-    print_status "  - AutoNode IAM role: $AUTONODE_ROLE_NAME_SECONDARY"
+    if cloudwatch_role_requested; then
+        print_status "  - CloudWatch IAM role: $CLOUDWATCH_ROLE_NAME"
+    fi
+    if autonode_roles_requested; then
+        print_status "  - AutoNode IAM role: $AUTONODE_ROLE_NAME"
+        print_status "  - AutoNode IAM role: $AUTONODE_ROLE_NAME_SECONDARY"
+    fi
     echo ""
     print_status "Proceeding with cleanup..."
 }
@@ -1756,8 +1760,14 @@ cleanup_playwright_config() {
                 print_status "Removing S3 log-forwarding keys from $PLAYWRIGHT_ENV_FILE"
                 jq_filter="$jq_filter | del(.QE_LOG_FORWARDING_S3_BUCKET_NAME) | del(.QE_LOG_FORWARDING_S3_BUCKET_PREFIX)"
             fi
-            print_status "Removing CloudWatch and AutoNode role ARNs from $PLAYWRIGHT_ENV_FILE"
-            jq_filter="$jq_filter | del(.QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN) | del(.QE_AUTONODE_ROLE_ARN) | del(.QE_AUTONODE_ROLE_ARN_SECONDARY)"
+            if cloudwatch_role_requested; then
+                print_status "Removing CloudWatch role ARN from $PLAYWRIGHT_ENV_FILE"
+                jq_filter="$jq_filter | del(.QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN)"
+            fi
+            if autonode_roles_requested; then
+                print_status "Removing AutoNode role ARNs from $PLAYWRIGHT_ENV_FILE"
+                jq_filter="$jq_filter | del(.QE_AUTONODE_ROLE_ARN) | del(.QE_AUTONODE_ROLE_ARN_SECONDARY)"
+            fi
             jq --arg region "$REGION" "$jq_filter" \
                 "$PLAYWRIGHT_ENV_FILE" > "${PLAYWRIGHT_ENV_FILE}.tmp" && mv "${PLAYWRIGHT_ENV_FILE}.tmp" "$PLAYWRIGHT_ENV_FILE"
             
@@ -1779,8 +1789,16 @@ cleanup_infrastructure() {
     print_status "VPC Name: $VPC_NAME"
     print_status "SQS/EventBridge prefix: $QUEUE_PREFIX"
     print_status "S3 bucket: $S3_BUCKET_NAME"
-    print_status "CloudWatch role: $CLOUDWATCH_ROLE_NAME"
-    print_status "AutoNode roles: $AUTONODE_ROLE_NAME, $AUTONODE_ROLE_NAME_SECONDARY"
+    if cloudwatch_role_requested; then
+        print_status "CloudWatch role: $CLOUDWATCH_ROLE_NAME"
+    else
+        print_status "CloudWatch role: skipped (no central log role ARN)"
+    fi
+    if autonode_roles_requested; then
+        print_status "AutoNode roles: $AUTONODE_ROLE_NAME, $AUTONODE_ROLE_NAME_SECONDARY"
+    else
+        print_status "AutoNode roles: skipped (no OIDC issuer URL)"
+    fi
     
     check_aws_cli
     check_aws_credentials
@@ -1795,8 +1813,17 @@ cleanup_infrastructure() {
         cleanup_s3_bucket
     fi
 
-    cleanup_cloudwatch_role
-    cleanup_autonode_roles
+    if cloudwatch_role_requested; then
+        cleanup_cloudwatch_role
+    else
+        print_status "Skipping CloudWatch role cleanup (no central log role ARN)"
+    fi
+
+    if autonode_roles_requested; then
+        cleanup_autonode_roles
+    else
+        print_status "Skipping AutoNode role cleanup (no OIDC issuer URL)"
+    fi
     
     if check_vpc_exists; then
         # Get all resource IDs before deletion for route table cleanup
@@ -1879,12 +1906,12 @@ show_usage() {
     echo "                   When a central log role ARN is provided, the script creates an IAM role that trusts"
     echo "                   that ARN (sts:AssumeRole) and writes the new role ARN as"
     echo "                   QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN."
-    echo "                   --cleanup deletes CustomerLogDistribution-<vpc name> by name."
+    echo "                   --cleanup deletes that role only when a central log role ARN was provided."
     echo "                   When an OIDC issuer URL is provided, the script creates two IAM roles that trust"
     echo "                   arn:aws:iam::<account>:oidc-provider/<issuer-host-and-path> for"
     echo "                   sts:AssumeRoleWithWebIdentity (kube-system:karpenter) and writes them as"
     echo "                   QE_AUTONODE_ROLE_ARN and QE_AUTONODE_ROLE_ARN_SECONDARY."
-    echo "                   --cleanup deletes AutoNode-<vpc name> and AutoNode-<vpc name>-secondary by name."
+    echo "                   --cleanup deletes those roles only when an OIDC issuer URL was provided."
 }
 
 # Parse command line arguments
