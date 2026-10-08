@@ -24,6 +24,7 @@ import type {
   ExternalAuth,
   Flavour,
   Gcp,
+  GcpFirewallRule,
   Group,
   IdentityProvider,
   InflightCheck,
@@ -456,6 +457,28 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
         },
       });
     },
+
+    getGcpFirewallRules: (options?: { profile?: string }) => {
+      const clauses = [`cluster.id=''`];
+      if (options?.profile) {
+        clauses.push(`profile=${sqlString(options.profile)}`);
+      }
+      const search = clauses.join(' AND ');
+      return apiRequest.get<{
+        items?: Array<GcpFirewallRule>;
+        page?: number;
+        size?: number;
+        total?: number;
+      }>('/api/clusters_mgmt/v1/gcp/firewall_rules', {
+        params: {
+          search,
+          size: -1,
+        },
+      });
+    },
+
+    getGcpFirewallRule: (id: string) =>
+      apiRequest.get<GcpFirewallRule>(`/api/clusters_mgmt/v1/gcp/firewall_rules/${id}`),
 
     createNewDnsDomain: () => apiRequest.post<DnsDomain>('/api/clusters_mgmt/v1/dns_domains', {}),
 
