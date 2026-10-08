@@ -16,7 +16,8 @@ export const useFetchGcpFirewallRule = (id: string | undefined, isEnabled: boole
   if (isError) {
     const formattedError = formatErrorData(isLoading, isError, error);
     return {
-      data: data?.data,
+      // Do not surface stale data from a prior successful fetch.
+      data: undefined,
       isLoading,
       isError,
       error: formattedError.error,
