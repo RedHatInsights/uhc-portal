@@ -217,7 +217,7 @@ jobs:
           fi
           echo "Setting up AWS cloud resources..."
           chmod +x ./qe-helper-scripts/create-vpc-infrastructure.sh
-          if ./qe-helper-scripts/create-vpc-infrastructure.sh >/dev/null 2>&1; then
+          if ./qe-helper-scripts/create-vpc-infrastructure.sh --vpc-name ocmui-smoke >/dev/null 2>&1; then
             echo "AWS VPC infrastructure setup completed successfully"
           else
             echo "AWS VPC infrastructure setup completed with warnings"
@@ -500,7 +500,7 @@ jobs:
         run: |
           echo "Cleaning up AWS cloud resources..."
           chmod +x ./qe-helper-scripts/create-vpc-infrastructure.sh
-          if ./qe-helper-scripts/create-vpc-infrastructure.sh --cleanup >/dev/null 2>&1; then
+          if ./qe-helper-scripts/create-vpc-infrastructure.sh --vpc-name ocmui-smoke --cleanup >/dev/null 2>&1; then
             echo "AWS cloud resources cleanup completed successfully"
           else
             echo "Cleanup completed with some warnings/errors, but continuing..."

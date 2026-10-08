@@ -775,17 +775,33 @@ normalize_s3_prefix() {
     echo "$prefix"
 }
 
-# Function to check if the S3 bucket already exists
+# Function to check if the S3 bucket already exists.
+# A redirect means the name is already taken in another region; that must not be treated as missing.
 check_s3_bucket_exists() {
-    if aws s3api head-bucket --bucket "$S3_BUCKET_NAME" --region "$REGION" 2>/dev/null; then
-        print_found "S3 bucket already exists"
+    local head_output
+    local head_status=0
+    head_output=$(aws s3api head-bucket --bucket "$S3_BUCKET_NAME" --region "$REGION" 2>&1) || head_status=$?
+
+    if [ "$head_status" -eq 0 ]; then
+        print_found "S3 bucket '$S3_BUCKET_NAME' already exists"
         return 0
-    else
-        return 1
     fi
+
+    if echo "$head_output" | grep -Eqi 'PermanentRedirect|Moved Permanently|\(301\)'; then
+        print_found "S3 bucket '$S3_BUCKET_NAME' already exists"
+        return 0
+    fi
+
+    return 1
 }
 
-# Function to create the S3 bucket (if missing) and the log-forwarding prefix folder
+# True when create-bucket failed only because the bucket name is already taken.
+s3_bucket_already_exists_error() {
+    echo "$1" | grep -Eqi 'BucketAlreadyOwnedByYou|BucketAlreadyExists'
+}
+
+# Function to create the S3 bucket (if missing) and the log-forwarding prefix folder.
+# An existing bucket is reused. Creation is skipped and the script continues.
 create_s3_bucket() {
     S3_BUCKET_PREFIX="$(normalize_s3_prefix "$S3_BUCKET_PREFIX")"
 
@@ -798,23 +814,38 @@ create_s3_bucket() {
         exit 1
     fi
 
-    if ! check_s3_bucket_exists; then
-        print_status "Creating S3 bucket in region '$REGION'..."
-
-        # us-east-1 is the S3 default and rejects LocationConstraint
-        if [ "$REGION" = "us-east-1" ]; then
-            aws s3api create-bucket \
-                --bucket "$S3_BUCKET_NAME" \
-                --region "$REGION" > /dev/null
-        else
-            aws s3api create-bucket \
-                --bucket "$S3_BUCKET_NAME" \
-                --region "$REGION" \
-                --create-bucket-configuration LocationConstraint="$REGION" > /dev/null
-        fi
-
-        print_status "S3 bucket created"
+    if check_s3_bucket_exists; then
+        print_status "Skipping S3 bucket creation"
+        return 0
     fi
+
+    print_status "Creating S3 bucket in region '$REGION'..."
+
+    local create_output
+    local create_status=0
+    # us-east-1 is the S3 default and rejects LocationConstraint
+    if [ "$REGION" = "us-east-1" ]; then
+        create_output=$(aws s3api create-bucket \
+            --bucket "$S3_BUCKET_NAME" \
+            --region "$REGION" 2>&1) || create_status=$?
+    else
+        create_output=$(aws s3api create-bucket \
+            --bucket "$S3_BUCKET_NAME" \
+            --region "$REGION" \
+            --create-bucket-configuration LocationConstraint="$REGION" 2>&1) || create_status=$?
+    fi
+
+    if [ "$create_status" -ne 0 ]; then
+        if s3_bucket_already_exists_error "$create_output"; then
+            print_found "S3 bucket '$S3_BUCKET_NAME' already exists"
+            print_status "Skipping S3 bucket creation"
+            return 0
+        fi
+        print_error "Failed to create S3 bucket '$S3_BUCKET_NAME': $create_output"
+        exit 1
+    fi
+
+    print_status "S3 bucket created"
 
     print_status "Blocking public access on S3 bucket..."
     aws s3api put-public-access-block \
