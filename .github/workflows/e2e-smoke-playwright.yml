@@ -209,6 +209,9 @@ jobs:
           VPC_NAME="ocmui-${BUILD_IDENTIFIER: -5}"
           echo "Using VPC name: $VPC_NAME"
           CENTRAL_LOG_ARN_ROLE=$(jq -r '.CENTRAL_LOG_ARN_ROLE // empty' playwright.env.json)
+          if [ -z "$CENTRAL_LOG_ARN_ROLE" ]; then
+            CENTRAL_LOG_ARN_ROLE=$(jq -r '.CENTRAL_LOG_ROLE_ARN // empty' playwright.env.json)
+          fi
           OIDC_CONFIG_ISSUER_URL=$(jq -r '.OIDC_CONFIG_ISSUER_URL // empty' playwright.env.json)
           export CENTRAL_LOG_ARN_ROLE
           export OIDC_CONFIG_ISSUER_URL
@@ -513,6 +516,9 @@ jobs:
           if [ -f playwright.env.json ]; then
             BUILD_IDENTIFIER=$(jq -r '.BUILD_IDENTIFIER // empty' playwright.env.json)
             CENTRAL_LOG_ARN_ROLE=$(jq -r '.CENTRAL_LOG_ARN_ROLE // empty' playwright.env.json)
+            if [ -z "$CENTRAL_LOG_ARN_ROLE" ]; then
+              CENTRAL_LOG_ARN_ROLE=$(jq -r '.CENTRAL_LOG_ROLE_ARN // empty' playwright.env.json)
+            fi
             OIDC_CONFIG_ISSUER_URL=$(jq -r '.OIDC_CONFIG_ISSUER_URL // empty' playwright.env.json)
           fi
           if [ -z "$BUILD_IDENTIFIER" ]; then

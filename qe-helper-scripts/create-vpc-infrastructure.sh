@@ -26,6 +26,7 @@ NUM_SECURITY_GROUPS="${NUM_SECURITY_GROUPS:-2}"  # Number of security groups to 
 QUEUE_PREFIX="${QUEUE_PREFIX:-}"
 SKIP_SQS_QUEUE="${SKIP_SQS_QUEUE:-false}"  # Set to true to skip SQS queue creation
 S3_BUCKET_NAME="${S3_BUCKET_NAME:-}"
+S3_BUCKET_ARG_SET=0
 S3_BUCKET_PREFIX="${S3_BUCKET_PREFIX:-logs}"  # Folder / key prefix inside the S3 bucket
 SKIP_S3_BUCKET="${SKIP_S3_BUCKET:-false}"  # Set to true to skip S3 bucket creation
 # CLI flags override these. When both the flag and the env vars are empty, CloudWatch is skipped.
@@ -775,52 +776,49 @@ normalize_s3_prefix() {
     echo "$prefix"
 }
 
-# Function to check if the S3 bucket already exists.
-# A redirect means the name is already taken in another region; that must not be treated as missing.
+# ListBuckets returns only buckets owned by the caller.
+s3_bucket_owned_by_caller() {
+    local found
+    found="$(aws s3api list-buckets \
+        --query "Buckets[?Name=='${S3_BUCKET_NAME}'].Name | [0]" \
+        --output text 2>/dev/null)" || return 1
+    [ -n "$found" ] && [ "$found" = "$S3_BUCKET_NAME" ]
+}
+
+# LocationConstraint is null when the bucket is in us-east-1.
+s3_bucket_region() {
+    local location
+    location="$(aws s3api get-bucket-location \
+        --bucket "$S3_BUCKET_NAME" \
+        --query 'LocationConstraint' \
+        --output text 2>/dev/null)" || return 1
+    if [ -z "$location" ] || [ "$location" = "None" ] || [ "$location" = "null" ]; then
+        printf '%s' "us-east-1"
+    else
+        printf '%s' "$location"
+    fi
+}
+
+# A bucket is usable only when this account owns it and it is in the target region.
+s3_bucket_usable() {
+    s3_bucket_owned_by_caller || return 1
+    local bucket_region
+    bucket_region="$(s3_bucket_region)" || return 1
+    [ "$bucket_region" = "$REGION" ]
+}
+
+# Function to check if this account can use the S3 bucket in the target region.
 check_s3_bucket_exists() {
-    local head_output
-    local head_status=0
-    head_output=$(aws s3api head-bucket --bucket "$S3_BUCKET_NAME" --region "$REGION" 2>&1) || head_status=$?
-
-    if [ "$head_status" -eq 0 ]; then
+    if s3_bucket_usable; then
         print_found "S3 bucket '$S3_BUCKET_NAME' already exists"
         return 0
     fi
-
-    if echo "$head_output" | grep -Eqi 'PermanentRedirect|Moved Permanently|\(301\)'; then
-        print_found "S3 bucket '$S3_BUCKET_NAME' already exists"
-        return 0
-    fi
-
     return 1
 }
 
-# True when create-bucket failed only because the bucket name is already taken.
-s3_bucket_already_exists_error() {
-    echo "$1" | grep -Eqi 'BucketAlreadyOwnedByYou|BucketAlreadyExists'
-}
-
-# Function to create the S3 bucket (if missing) and the log-forwarding prefix folder.
-# An existing bucket is reused. Creation is skipped and the script continues.
-create_s3_bucket() {
-    S3_BUCKET_PREFIX="$(normalize_s3_prefix "$S3_BUCKET_PREFIX")"
-
-    if [ -z "$S3_BUCKET_NAME" ]; then
-        print_error "S3 bucket name cannot be empty"
-        exit 1
-    fi
-    if [ -z "$S3_BUCKET_PREFIX" ]; then
-        print_error "S3 bucket prefix cannot be empty"
-        exit 1
-    fi
-
-    if check_s3_bucket_exists; then
-        print_status "Skipping S3 bucket creation"
-        return 0
-    fi
-
-    print_status "Creating S3 bucket in region '$REGION'..."
-
+# Create the current bucket name.
+# 0 created, 10 owned by this account, 11 owned by another account, 1 other failure.
+create_s3_bucket_api() {
     local create_output
     local create_status=0
     # us-east-1 is the S3 default and rejects LocationConstraint
@@ -835,18 +833,68 @@ create_s3_bucket() {
             --create-bucket-configuration LocationConstraint="$REGION" 2>&1) || create_status=$?
     fi
 
-    if [ "$create_status" -ne 0 ]; then
-        if s3_bucket_already_exists_error "$create_output"; then
-            print_found "S3 bucket '$S3_BUCKET_NAME' already exists"
-            print_status "Skipping S3 bucket creation"
-            return 0
-        fi
-        print_error "Failed to create S3 bucket '$S3_BUCKET_NAME': $create_output"
-        exit 1
+    if [ "$create_status" -eq 0 ]; then
+        return 0
+    fi
+    if echo "$create_output" | grep -q 'BucketAlreadyOwnedByYou'; then
+        return 10
+    fi
+    if echo "$create_output" | grep -q 'BucketAlreadyExists'; then
+        return 11
+    fi
+    print_error "Failed to create S3 bucket '$S3_BUCKET_NAME': $create_output"
+    return 1
+}
+
+# Bucket names are global. A foreign owner or another region cannot be reused.
+select_usable_s3_bucket() {
+    local rejected="$S3_BUCKET_NAME"
+    local account_id
+    account_id="$(aws sts get-caller-identity --query Account --output text)"
+    local suffix="-${account_id}"
+    local max_base=$((63 - ${#suffix}))
+    local base="$rejected"
+    if [ ${#base} -gt "$max_base" ]; then
+        base="${base:0:$max_base}"
+        base="${base%-}"
+    fi
+    S3_BUCKET_NAME="${base}${suffix}"
+    print_warning "S3 bucket '$rejected' is not owned by this account in region '$REGION'"
+    print_status "Using S3 bucket '$S3_BUCKET_NAME'"
+
+    if s3_bucket_usable; then
+        print_found "S3 bucket '$S3_BUCKET_NAME' already exists"
+        print_status "Skipping S3 bucket creation"
+        return 0
     fi
 
-    print_status "S3 bucket created"
+    print_status "Creating S3 bucket in region '$REGION'..."
+    local create_status=0
+    create_s3_bucket_api || create_status=$?
+    case "$create_status" in
+        0)
+            print_status "S3 bucket created"
+            ;;
+        10)
+            if s3_bucket_usable; then
+                print_found "S3 bucket '$S3_BUCKET_NAME' already exists"
+                print_status "Skipping S3 bucket creation"
+            else
+                print_error "S3 bucket '$S3_BUCKET_NAME' is owned by this account in another region"
+                exit 1
+            fi
+            ;;
+        11)
+            print_error "S3 bucket '$S3_BUCKET_NAME' is owned by another account"
+            exit 1
+            ;;
+        *)
+            exit 1
+            ;;
+    esac
+}
 
+configure_s3_bucket_access_and_prefix() {
     print_status "Blocking public access on S3 bucket..."
     aws s3api put-public-access-block \
         --bucket "$S3_BUCKET_NAME" \
@@ -865,15 +913,75 @@ create_s3_bucket() {
     print_status "S3 log-forwarding resources configured"
 }
 
+# Function to create the S3 bucket (if missing) and the log-forwarding prefix folder.
+# Creation is skipped when this account already owns the bucket in the target region.
+# Public access block and the prefix are still applied to that bucket.
+create_s3_bucket() {
+    S3_BUCKET_PREFIX="$(normalize_s3_prefix "$S3_BUCKET_PREFIX")"
+
+    if [ -z "$S3_BUCKET_NAME" ]; then
+        print_error "S3 bucket name cannot be empty"
+        exit 1
+    fi
+    if [ -z "$S3_BUCKET_PREFIX" ]; then
+        print_error "S3 bucket prefix cannot be empty"
+        exit 1
+    fi
+
+    if s3_bucket_usable; then
+        print_found "S3 bucket '$S3_BUCKET_NAME' already exists"
+        print_status "Skipping S3 bucket creation"
+    else
+        print_status "Creating S3 bucket in region '$REGION'..."
+        local create_status=0
+        create_s3_bucket_api || create_status=$?
+        case "$create_status" in
+            0)
+                print_status "S3 bucket created"
+                ;;
+            10)
+                if s3_bucket_usable; then
+                    print_found "S3 bucket '$S3_BUCKET_NAME' already exists"
+                    print_status "Skipping S3 bucket creation"
+                else
+                    select_usable_s3_bucket
+                fi
+                ;;
+            11)
+                select_usable_s3_bucket
+                ;;
+            *)
+                exit 1
+                ;;
+        esac
+    fi
+
+    configure_s3_bucket_access_and_prefix
+}
+
+# Cleanup deletes the bucket recorded by the last create when no name was passed.
+use_recorded_s3_bucket_name() {
+    if [ "$S3_BUCKET_ARG_SET" = "1" ] || [ ! -f "$PLAYWRIGHT_ENV_FILE" ]; then
+        return 0
+    fi
+    local recorded
+    recorded="$(jq -r '.QE_LOG_FORWARDING_S3_BUCKET_NAME // empty' "$PLAYWRIGHT_ENV_FILE" 2>/dev/null)" || return 0
+    if [ -n "$recorded" ]; then
+        S3_BUCKET_NAME="$recorded"
+    fi
+}
+
 # Function to delete the S3 bucket and all objects (including the prefix folder)
 cleanup_s3_bucket() {
     print_status "Cleaning up S3 bucket '$S3_BUCKET_NAME'..."
 
-    if check_s3_bucket_exists; then
+    if s3_bucket_usable; then
         aws s3 rb "s3://${S3_BUCKET_NAME}" --force --region "$REGION" > /dev/null
         print_status "Deleted S3 bucket: $S3_BUCKET_NAME"
+    elif s3_bucket_owned_by_caller; then
+        print_warning "S3 bucket '$S3_BUCKET_NAME' is not in region '$REGION'. Skipping delete."
     else
-        print_status "S3 bucket '$S3_BUCKET_NAME' not found. Nothing to clean up."
+        print_status "S3 bucket '$S3_BUCKET_NAME' is not owned by this account. Nothing to clean up."
     fi
 }
 
@@ -1784,6 +1892,7 @@ cleanup_playwright_config() {
 
 # Main cleanup function
 cleanup_infrastructure() {
+    use_recorded_s3_bucket_name
     print_status "Starting infrastructure cleanup..."
     print_status "Region: $REGION"
     print_status "VPC Name: $VPC_NAME"
@@ -1903,6 +2012,8 @@ show_usage() {
     echo "                   The queue URL is written to playwright.env.json as QE_SPOT_INTERRUPTION_QUEUE_URL."
     echo "                   The S3 bucket and prefix are written as QE_LOG_FORWARDING_S3_BUCKET_NAME"
     echo "                   and QE_LOG_FORWARDING_S3_BUCKET_PREFIX."
+    echo "                   A name owned by another account, or a bucket in another region, is not reused."
+    echo "                   The script creates an account-scoped bucket instead and records that name."
     echo "                   When a central log role ARN is provided, the script creates an IAM role that trusts"
     echo "                   that ARN (sts:AssumeRole) and writes the new role ARN as"
     echo "                   QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN."
@@ -1944,6 +2055,7 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --s3-bucket-name)
+            S3_BUCKET_ARG_SET=1
             S3_BUCKET_NAME="$2"
             shift 2
             ;;
