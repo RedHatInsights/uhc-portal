@@ -69,6 +69,13 @@ export const GcpVpcSettings = () => {
     checked: boolean,
   ) => {
     setFieldValue(FieldId.InstallToSharedVpc, checked);
+    // Dropdown vs free-text fields swap on this toggle; clear so stale VPC/subnet
+    // names (and filtered firewall rules) are not carried into the other mode.
+    setFieldValue(FieldId.VpcName, '');
+    setFieldValue(FieldId.ControlPlaneSubnet, '');
+    setFieldValue(FieldId.ComputeSubnet, '');
+    setFieldValue(FieldId.PSCSubnet, '');
+    setFieldValue(FieldId.SharedHostProjectID, '');
     setFieldValue(FieldId.FirewallRules, { id: '' });
   };
 

@@ -75,6 +75,54 @@ describe('useFetchGcpFirewallRules', () => {
     expect(result.current.isError).toBe(false);
   });
 
+  it('refilters client-side when the network (VPC name) changes without refetching', async () => {
+    getGcpFirewallRulesMock.mockResolvedValue({
+      data: { items: [matchingRule, nonMatchingRule] },
+    });
+
+    const { result, rerender } = renderHook(
+      ({ network }) =>
+        useFetchGcpFirewallRules({
+          profile: 'public',
+          wifConfigId: 'wif-1',
+          projectId: 'project-1',
+          network,
+        }),
+      { initialProps: { network: 'vpc-1' } },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+    expect(result.current.data).toEqual([matchingRule]);
+
+    rerender({ network: 'typed-vpc' });
+
+    expect(result.current.data).toEqual([]);
+    expect(getGcpFirewallRulesMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('matches by WIF and VPC name when project ID is still empty (Shared VPC typing)', async () => {
+    getGcpFirewallRulesMock.mockResolvedValue({
+      data: { items: [matchingRule, nonMatchingRule] },
+    });
+
+    const { result } = renderHook(() =>
+      useFetchGcpFirewallRules({
+        profile: 'public',
+        wifConfigId: 'wif-1',
+        projectId: '',
+        network: 'vpc-1',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(result.current.data).toEqual([matchingRule]);
+  });
+
   it('returns an empty list when API items are missing', async () => {
     getGcpFirewallRulesMock.mockResolvedValue({ data: {} });
 

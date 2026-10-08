@@ -187,5 +187,46 @@ describe('<GcpVpcSettings />', () => {
         ),
       ).toBeInTheDocument();
     });
+
+    it('clears VPC and subnet fields when Shared VPC checkbox is toggled on', async () => {
+      const { user } = render(
+        prepareComponent({
+          [FieldId.VpcName]: 'selected-vpc',
+          [FieldId.ControlPlaneSubnet]: 'cp-subnet',
+          [FieldId.ComputeSubnet]: 'compute-subnet',
+          [FieldId.PSCSubnet]: 'psc-subnet',
+          [FieldId.FirewallRules]: { id: 'fw-1' },
+        }),
+      );
+
+      await user.click(screen.getByLabelText('Install into Google Cloud Shared VPC'));
+
+      expect(screen.getByRole('textbox', { name: /Existing VPC name/i })).toHaveValue('');
+      expect(screen.getByRole('textbox', { name: /Control plane subnet name/i })).toHaveValue('');
+      expect(screen.getByRole('textbox', { name: /Compute subnet name/i })).toHaveValue('');
+      expect(screen.getByRole('textbox', { name: /Host project ID/i })).toHaveValue('');
+    });
+
+    it('clears VPC and subnet fields when Shared VPC checkbox is toggled off', async () => {
+      const { user } = render(
+        prepareComponent({
+          [FieldId.InstallToSharedVpc]: true,
+          [FieldId.SharedHostProjectID]: 'host-project',
+          [FieldId.VpcName]: 'shared-vpc',
+          [FieldId.ControlPlaneSubnet]: 'cp-subnet',
+          [FieldId.ComputeSubnet]: 'compute-subnet',
+        }),
+      );
+
+      expect(screen.getByRole('textbox', { name: /Existing VPC name/i })).toHaveValue('shared-vpc');
+
+      await user.click(screen.getByLabelText('Install into Google Cloud Shared VPC'));
+
+      // After toggle-off, fields switch back to dropdowns; values must be cleared.
+      expect(screen.queryByDisplayValue('shared-vpc')).not.toBeInTheDocument();
+      expect(screen.queryByDisplayValue('cp-subnet')).not.toBeInTheDocument();
+      expect(screen.queryByDisplayValue('compute-subnet')).not.toBeInTheDocument();
+      expect(screen.queryByDisplayValue('host-project')).not.toBeInTheDocument();
+    });
   });
 });

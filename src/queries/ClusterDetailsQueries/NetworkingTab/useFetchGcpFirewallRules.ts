@@ -22,11 +22,13 @@ export const filterFirewallRules = (
   projectId?: string,
   network?: string,
 ) =>
+  // Skip empty criteria so Shared VPC works while Host project ID / VPC name are
+  // still being typed (strict '' === 'ocm-ui-dev' would hide all matches).
   rules?.filter(
     (rule) =>
-      rule.wif_config?.id === wifConfigId &&
-      rule.gcp_network?.project_id === projectId &&
-      rule.gcp_network?.vpc_name === network,
+      (!wifConfigId || rule.wif_config?.id === wifConfigId) &&
+      (!projectId || rule.gcp_network?.project_id === projectId) &&
+      (!network || rule.gcp_network?.vpc_name === network),
   ) ?? [];
 
 export const useFetchGcpFirewallRules = ({
