@@ -102,8 +102,7 @@ test.describe.serial(
       await createRosaWizardPage.selectComputeNodeCount(
         clusterProperties.MachinePools[0].NodeCount,
       );
-      await expect(createRosaWizardPage.useBothIMDSv1AndIMDSv2Radio()).toBeChecked();
-      await createRosaWizardPage.useIMDSv2Radio().check();
+      await expect(createRosaWizardPage.useIMDSv2Radio()).toBeChecked();
       await expect(createRosaWizardPage.rootDiskSizeInput()).toHaveValue('300');
       await createRosaWizardPage.rootDiskSizeInput().clear();
       await createRosaWizardPage.rootDiskSizeInput().selectText();
@@ -372,7 +371,7 @@ test.describe.serial(
       );
     });
 
-    test('Delete the cluster', async ({clusterDetailsPage }) => {
+    test('Delete the cluster', async ({ clusterDetailsPage }) => {
       await clusterDetailsPage.actionsDropdownToggle().click();
       await clusterDetailsPage.deleteClusterDropdownItem().click();
       await clusterDetailsPage.deleteClusterNameInput().clear();

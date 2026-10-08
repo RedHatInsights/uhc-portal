@@ -26,6 +26,7 @@ import {
   getWorkerNodeVolumeSizeMinGiB,
 } from '~/components/clusters/common/machinePools/utils';
 import { CloudProviderType, IMDSType } from '~/components/clusters/wizards/common';
+import { ENABLE_AWS_TAGS_EDITING } from '~/queries/featureGates/featureConstants';
 import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
@@ -204,7 +205,7 @@ const useMachinePoolFormik = ({
       diskSize: diskSize || defaultWorkerNodeVolumeSizeGiB,
       instanceType,
       privateSubnetId: undefined,
-      imds: IMDSType.V1AndV2,
+      imds: IMDSType.V2Only,
       securityGroupIds:
         (machinePool as MachinePool)?.aws?.additional_security_group_ids ||
         (machinePool as NodePool)?.aws_node_pool?.additional_security_group_ids ||
@@ -311,40 +312,57 @@ const useMachinePoolFormik = ({
               }),
             }),
           ),
-          awsTags: Yup.array().of(
-            Yup.object().shape({
-              key: Yup.string().test('awsTag-key', '', function test(value) {
-                if (values.awsTags.length === 1 && (!value || value.length === 0)) {
-                  return true;
-                }
-                const err = checkAwsTagKey(value);
-                if (err) {
-                  return new Yup.ValidationError(err, value, this.path);
-                }
+          // Day-2 tag edits are disabled; skip validation so existing
+          // (possibly non-compliant) tags do not block other pool updates.
+          awsTags:
+            hasMachinePool && !ENABLE_AWS_TAGS_EDITING
+              ? Yup.array()
+              : Yup.array().of(
+                  Yup.object().shape({
+                    key: Yup.string().test('awsTag-key', '', function test(value) {
+                      if (values.awsTags.length === 1 && (!value || value.length === 0)) {
+                        return true;
+                      }
+                      const err = checkAwsTagKey(value);
+                      if (err) {
+                        return new Yup.ValidationError(err, value, this.path);
+                      }
 
-                if (values.awsTags.filter(({ key }: { key: any }) => key === value).length > 1) {
-                  return new Yup.ValidationError(
-                    'Each AWS Tag must have a different key.',
-                    value,
-                    this.path,
-                  );
-                }
-                return true;
-              }),
-              value: Yup.string().test('awsTag-value', '', function test(value) {
-                const err = checkAwsTagValue(value);
-                if (err) {
-                  return new Yup.ValidationError(err, value, this.path);
-                }
+                      if (
+                        values.awsTags.filter(({ key }: { key: any }) => key === value).length > 1
+                      ) {
+                        return new Yup.ValidationError(
+                          'Each AWS Tag must have a different key.',
+                          value,
+                          this.path,
+                        );
+                      }
+                      return true;
+                    }),
+                    value: Yup.string().test('awsTag-value', '', function test(value) {
+                      const awsTagKey = this.parent.key;
+                      // Allow an empty placeholder row (no key and no value) even on HCP,
+                      // where non-empty values are otherwise required.
+                      if (!awsTagKey && (!value || value.length === 0)) {
+                        return true;
+                      }
 
-                const awsTagKey = this.parent.key;
-                if (value && !awsTagKey) {
-                  return new Yup.ValidationError('AWS Tag key has to be defined', value, this.path);
-                }
-                return true;
-              }),
-            }),
-          ),
+                      const err = checkAwsTagValue(value, { isHypershift });
+                      if (err) {
+                        return new Yup.ValidationError(err, value, this.path);
+                      }
+
+                      if (value && !awsTagKey) {
+                        return new Yup.ValidationError(
+                          'AWS Tag key has to be defined',
+                          value,
+                          this.path,
+                        );
+                      }
+                      return true;
+                    }),
+                  }),
+                ),
           taints: Yup.array().of(
             Yup.object().shape({
               key: Yup.string().test('taint-key', '', function test(value) {

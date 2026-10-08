@@ -36,9 +36,7 @@ export class TransferOwnershipPage extends BasePage {
   }
 
   initiateTransferButtonFromModel(): Locator {
-    return this.page
-      .getByRole('dialog')
-      .getByRole('button', { name: 'Initiate transfer' });
+    return this.page.getByRole('dialog').getByRole('button', { name: 'Initiate transfer' });
   }
 
   cancelTransferButton(): Locator {
@@ -46,9 +44,7 @@ export class TransferOwnershipPage extends BasePage {
   }
 
   cancelTransferButtonFromModel(): Locator {
-    return this.page
-      .getByRole('dialog')
-      .getByRole('button', { name: 'Cancel transfer' });
+    return this.page.getByRole('dialog').getByRole('button', { name: 'Cancel transfer' });
   }
 
   cancelButtonFromModel(): Locator {
@@ -79,15 +75,11 @@ export class TransferOwnershipPage extends BasePage {
   }
 
   async isTransferOwnershipDialogHeader(title: string): Promise<void> {
-    await expect(
-      this.page.getByRole('heading', { name: title }),
-    ).toBeVisible({ timeout: 30000 });
+    await expect(this.page.getByRole('heading', { name: title })).toBeVisible({ timeout: 30000 });
   }
 
   async isTransferOwnershipProgressDialogHeader(title: string): Promise<void> {
-    await expect(
-      this.page.getByRole('heading', { name: title }),
-    ).toBeVisible({ timeout: 30000 });
+    await expect(this.page.getByRole('heading', { name: title })).toBeVisible({ timeout: 30000 });
   }
 
   async isTransferOwnershipProgressDialogDetails(
@@ -103,9 +95,9 @@ export class TransferOwnershipPage extends BasePage {
   }
 
   async isTransferPendingHeaders(): Promise<void> {
-    await expect(
-      this.page.getByRole('heading', { name: /transfer pending/i }),
-    ).toBeVisible({ timeout: 30000 });
+    await expect(this.page.getByRole('heading', { name: /transfer pending/i })).toBeVisible({
+      timeout: 30000,
+    });
   }
 
   async isTransferDetailsSection(
@@ -123,9 +115,9 @@ export class TransferOwnershipPage extends BasePage {
   }
 
   async isCancelTransferModel(): Promise<void> {
-    await expect(
-      this.page.getByRole('heading', { name: /Cancel/i }),
-    ).toBeVisible({ timeout: 30000 });
+    await expect(this.page.getByRole('heading', { name: /Cancel/i })).toBeVisible({
+      timeout: 30000,
+    });
   }
 
   async isTransferFieldValidationShown(errorMessage: string): Promise<void> {
@@ -144,9 +136,9 @@ export class TransferOwnershipPage extends BasePage {
 
   async submitTransferAndWaitForAlert(): Promise<void> {
     await this.initiateTransferButtonFromModel().click();
-    await expect(
-      this.page.getByRole('heading', { name: /Success alert/i }),
-    ).toBeVisible({ timeout: 30000 });
+    await expect(this.page.getByRole('heading', { name: /Success alert/i })).toBeVisible({
+      timeout: 30000,
+    });
   }
 
   async closeAlert(): Promise<void> {
@@ -165,8 +157,8 @@ export class TransferOwnershipPage extends BasePage {
 
   async cancelTransferAndWaitForAlert(): Promise<void> {
     await this.cancelTransferButtonFromModel().click();
-    await expect(
-      this.page.getByRole('heading', { name: /Success alert/i }),
-    ).toBeVisible({ timeout: 30000 });
+    await expect(this.page.getByRole('heading', { name: /Success alert/i })).toBeVisible({
+      timeout: 30000,
+    });
   }
 }

@@ -16,7 +16,6 @@ const config = {
     '<rootDir>/node_modules/(?!(@patternfly|react-monaco-editor|monaco-.*|lodash-es|screenfull|uuid|@openshift/dynamic-plugin-sdk|cidr-tools|ip-bigint)/)',
   ],
   testPathIgnorePatterns: [
-    '<rootDir>/cache/Cypress/',
     '^.+\\.(fixtures?)\\.[jt]sx?$',
     '.*(TestUtils|Utils|Helper)(?!.*\\.(test|spec))\\.[jt]sx?$',
   ],

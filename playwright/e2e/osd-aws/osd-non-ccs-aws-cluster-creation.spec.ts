@@ -1,3 +1,4 @@
+import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { test, expect } from '../../fixtures/pages';
 
 const clusterProperties = require('../../fixtures/osd-aws/osd-non-ccs-aws-cluster-creation.spec.json');
@@ -8,9 +9,14 @@ test.describe(
   { tag: ['@smoke', '@osd'] },
   () => {
     // Iterate through each cluster configuration
-    test.beforeAll(async ({ navigateTo }) => {
+    let isOcp5SupportEnabled = false;
+
+    test.beforeAll(async ({ navigateTo, clusterDetailsPage }) => {
+      // Capture Unleash state before the create page loads and prefetches feature gates
+      const gatePromise = clusterDetailsPage.isFeatureGateEnabled(OCP5_SUPPORT);
       // Navigate to create
       await navigateTo('create');
+      isOcp5SupportEnabled = await gatePromise;
     });
     test(`Launch OSD - ${clusterProperties.CloudProvider} cluster wizard`, async ({
       createOSDWizardPage,
@@ -104,7 +110,7 @@ test.describe(
       await createOSDWizardPage.isClusterUpdatesScreen();
       await expect(createOSDWizardPage.updateStrategyIndividualRadio()).toBeChecked();
       await expect(createOSDWizardPage.updateStrategyRecurringRadio()).not.toBeChecked();
-      await createOSDWizardPage.selectNodeDraining(clusterProperties.NodeDraining);
+      await createOSDWizardPage.selectGracePeriod(clusterProperties.NodeDraining);
       await page.locator(createOSDWizardPage.primaryButton).click();
     });
 
@@ -232,6 +238,23 @@ test.describe(
       await expect(clusterDetailsPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
       await expect(clusterDetailsPage.individualUpdatesRadioButton()).toBeChecked();
       await expect(clusterDetailsPage.recurringUpdatesRadioButton()).not.toBeChecked();
+    });
+
+    test(`Settings tab - OCP v5 migration warning renders in Update strategy section for OSD AWS`, async ({
+      clusterDetailsPage,
+    }) => {
+      await clusterDetailsPage.navigateToSettingsTab();
+
+      if (isOcp5SupportEnabled) {
+        await expect(clusterDetailsPage.ocp5UpgradeWarning()).toBeVisible();
+        await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toBeVisible();
+        await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toHaveAttribute(
+          'href',
+          /\/create\/rosa\/getstarted/,
+        );
+      } else {
+        await expect(clusterDetailsPage.ocp5UpgradeWarning()).not.toBeVisible();
+      }
     });
 
     test(`Delete OSD ${clusterProperties.CloudProvider} cluster`, async ({
