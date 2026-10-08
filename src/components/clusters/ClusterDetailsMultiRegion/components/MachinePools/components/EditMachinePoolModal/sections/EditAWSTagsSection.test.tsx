@@ -58,6 +58,35 @@ describe('<EditAWSTagsSection>', () => {
     });
   });
 
+  it('shows the AWS Tag value error when a key is entered without touching the value field', async () => {
+    const { user } = render(
+      <Formik
+        initialValues={{ awsTags: [{ key: '', value: '' }] }}
+        validate={(values) => {
+          const awsTags = values.awsTags.map((tag: { key: string; value: string }) => {
+            if (tag.key && !tag.value) {
+              return { value: 'Required' };
+            }
+            return {};
+          });
+          return { awsTags };
+        }}
+        onSubmit={() => {}}
+      >
+        <EditAWSTagsSection isNewMachinePool />
+      </Formik>,
+    );
+
+    await user.type(screen.getByLabelText('Key'), 'env');
+
+    const valueInput = screen.getByLabelText('Value');
+    expect(valueInput).toBeInvalid();
+    expect(valueInput).toHaveAttribute('aria-errormessage', 'awsTags[0].value-helper');
+    expect(valueInput).toHaveAttribute('aria-describedby', 'awsTags[0].value-helper');
+    expect(screen.getByText('Required')).toBeInTheDocument();
+    expect(document.getElementById('awsTags[0].value-helper')).toHaveTextContent('Required');
+  });
+
   it('AWS Tags are displayed but disabled for existing machine pool', () => {
     render(
       <MockFormikWrapper initialValues={{ awsTags: [{ key: 'testKey', value: 'testValue' }] }}>
