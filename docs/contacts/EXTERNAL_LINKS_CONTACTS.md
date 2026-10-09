@@ -2,7 +2,7 @@
 
 When the weekly link checker reports a broken doc or support link, use this map to find who to contact.
 
-> **Note:** For download-specific binary URLs, see [`docs/contacts/DOWNLOAD_CONTACTS.md`](DOWNLOAD_CONTACTS.md).
+> **Note:** For download-specific binary URLs, see [`src/common/downloadContacts.json`](../../src/common/downloadContacts.json).
 
 ## docs.redhat.com — Product Documentation
 
