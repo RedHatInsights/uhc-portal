@@ -30,6 +30,7 @@ const formatErrorDataMock = formatErrorData as jest.Mock;
 const matchingRule = {
   id: 'fw-1',
   name: 'prod-byo-firewall',
+  profile: 'public',
   wif_config: { id: 'wif-1' },
   gcp_network: {
     project_id: 'project-1',
@@ -40,10 +41,22 @@ const matchingRule = {
 const nonMatchingRule = {
   id: 'fw-2',
   name: 'other-firewall',
+  profile: 'public',
   wif_config: { id: 'wif-2' },
   gcp_network: {
     project_id: 'project-2',
     vpc_name: 'vpc-2',
+  },
+};
+
+const privateProfileRule = {
+  id: 'fw-3',
+  name: 'private-byo-firewall',
+  profile: 'private',
+  wif_config: { id: 'wif-1' },
+  gcp_network: {
+    project_id: 'project-1',
+    vpc_name: 'vpc-1',
   },
 };
 
@@ -52,9 +65,9 @@ describe('useFetchGcpFirewallRules', () => {
     jest.clearAllMocks();
   });
 
-  it('returns filtered firewall rules for the current WIF config, project, and network', async () => {
+  it('returns filtered firewall rules for the current profile, WIF config, project, and network', async () => {
     getGcpFirewallRulesMock.mockResolvedValue({
-      data: { items: [matchingRule, nonMatchingRule] },
+      data: { items: [matchingRule, nonMatchingRule, privateProfileRule] },
     });
 
     const { result } = renderHook(() =>
@@ -73,6 +86,27 @@ describe('useFetchGcpFirewallRules', () => {
     expect(getGcpFirewallRulesMock).toHaveBeenCalledWith({ profile: 'public' });
     expect(result.current.data).toEqual([matchingRule]);
     expect(result.current.isError).toBe(false);
+  });
+
+  it('filters out rules that do not match the requested profile', async () => {
+    getGcpFirewallRulesMock.mockResolvedValue({
+      data: { items: [matchingRule, privateProfileRule] },
+    });
+
+    const { result } = renderHook(() =>
+      useFetchGcpFirewallRules({
+        profile: 'private',
+        wifConfigId: 'wif-1',
+        projectId: 'project-1',
+        network: 'vpc-1',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(result.current.data).toEqual([privateProfileRule]);
   });
 
   it('refilters client-side when the network (VPC name) changes without refetching', async () => {

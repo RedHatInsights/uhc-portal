@@ -18,14 +18,17 @@ type UseFetchGcpFirewallRulesParams = {
 
 export const filterFirewallRules = (
   rules: GcpFirewallRule[] | undefined,
+  profile?: string,
   wifConfigId?: string,
   projectId?: string,
   network?: string,
 ) =>
   // Skip empty criteria so Shared VPC works while Host project ID / VPC name are
   // still being typed (strict '' === 'ocm-ui-dev' would hide all matches).
+  // Also filter by profile client-side; the list API does not reliably honor profile.
   rules?.filter(
     (rule) =>
+      (!profile || rule.profile === profile) &&
       (!wifConfigId || rule.wif_config?.id === wifConfigId) &&
       (!projectId || rule.gcp_network?.project_id === projectId) &&
       (!network || rule.gcp_network?.vpc_name === network),
@@ -66,7 +69,7 @@ export const useFetchGcpFirewallRules = ({
 
   return {
     data: hasRequiredContext
-      ? filterFirewallRules(data?.data?.items, wifConfigId, projectId, network)
+      ? filterFirewallRules(data?.data?.items, profile, wifConfigId, projectId, network)
       : [],
     isLoading,
     isFetching,
