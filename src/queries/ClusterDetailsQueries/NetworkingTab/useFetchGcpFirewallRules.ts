@@ -41,14 +41,29 @@ export const useFetchGcpFirewallRules = ({
   network,
   isEnabled = true,
 }: UseFetchGcpFirewallRulesParams) => {
+  // Query key is profile-only; without WIF (or when disabled) do not expose cached
+  // results or a prior error — that would leak rules / stale failure UI.
+  const hasRequiredContext = isEnabled && !!profile && !!wifConfigId;
+
   const { data, isLoading, isFetching, isError, error, isSuccess } = useQuery({
     queryKey: ['gcpFirewallRules', profile],
     queryFn: async () => {
       const response = await clusterService.getGcpFirewallRules({ profile });
       return response;
     },
-    enabled: isEnabled && !!profile && !!wifConfigId,
+    enabled: hasRequiredContext,
   });
+
+  if (!hasRequiredContext) {
+    return {
+      data: [],
+      isLoading,
+      isFetching,
+      isError: false,
+      error: undefined,
+      isSuccess: false,
+    };
+  }
 
   if (isError) {
     // Empty list + isError: UI shows fetch failure; do not restore unfiltered cache.
@@ -63,14 +78,8 @@ export const useFetchGcpFirewallRules = ({
     };
   }
 
-  // Query key is profile-only; without WIF (or when disabled) do not filter cached
-  // results with absent criteria — that would skip the WIF match and leak rules.
-  const hasRequiredContext = isEnabled && !!profile && !!wifConfigId;
-
   return {
-    data: hasRequiredContext
-      ? filterFirewallRules(data?.data?.items, profile, wifConfigId, projectId, network)
-      : [],
+    data: filterFirewallRules(data?.data?.items, profile, wifConfigId, projectId, network),
     isLoading,
     isFetching,
     isError,
