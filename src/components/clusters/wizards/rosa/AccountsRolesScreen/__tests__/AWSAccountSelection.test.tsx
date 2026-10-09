@@ -113,7 +113,8 @@ describe('AWSAccountSelection tests', () => {
     const { container } = render(<AWSAccountSelection {...newProps} />);
 
     // Unfortunately the only way to tell if the field is required is to find the hidden "*" in the label tag
-    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account *');
+    // Note: PatternFly renders a non-breaking space (\u00A0) before the asterisk
+    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account\u00A0*');
   });
 
   it('field is not required if required prop is set to false', () => {
@@ -129,7 +130,8 @@ describe('AWSAccountSelection tests', () => {
     const { container } = render(<AWSAccountSelection {...newProps} />);
 
     // Unfortunately the only way to tell if the field is required is to find the hidden "*" in the label tag
-    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account *');
+    // Note: PatternFly renders a non-breaking space (\u00A0) before the asterisk
+    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account\u00A0*');
   });
 
   it('field is required if required prop is not set (aka default to required)', () => {
@@ -145,7 +147,8 @@ describe('AWSAccountSelection tests', () => {
     const { container } = render(<AWSAccountSelection {...newProps} />);
 
     // Unfortunately the only way to tell if the field is required is to find the hidden "*" in the label tag
-    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account *');
+    // Note: PatternFly renders a non-breaking space (\u00A0) before the asterisk
+    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account\u00A0*');
   });
 
   describe('billing contract notification enhancements', () => {

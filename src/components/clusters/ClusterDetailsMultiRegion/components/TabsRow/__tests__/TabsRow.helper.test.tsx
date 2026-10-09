@@ -69,7 +69,7 @@ describe('getTabs', () => {
 
     // Assert
     expect(JSON.stringify(tabs[1].title)).toStrictEqual(
-      '{"key":null,"ref":null,"props":{"children":[{"key":null,"ref":null,"props":{"children":"Monitoring"},"_owner":null,"_store":{}},{"key":null,"ref":null,"props":{"id":"monitoring-issues-icon","children":{"key":null,"ref":null,"props":{"className":"danger"},"_owner":null,"_store":{}}},"_owner":null,"_store":{}}]},"_owner":null,"_store":{}}',
+      '{"key":null,"ref":null,"props":{"children":[{"key":null,"ref":null,"props":{"children":"Monitoring"},"_owner":null,"_store":{}},{"key":null,"ref":null,"props":{"id":"monitoring-issues-icon","children":{"key":null,"ref":null,"props":{"className":"danger","noDefaultStyle":false},"_owner":null,"_store":{}}},"_owner":null,"_store":{}}]},"_owner":null,"_store":{}}',
     );
   });
 });
