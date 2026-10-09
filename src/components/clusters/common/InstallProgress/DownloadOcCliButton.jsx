@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { Button } from '@patternfly/react-core';
 import { DownloadIcon } from '@patternfly/react-icons/dist/esm/icons/download-icon';
 
-import { architecturesForToolOS, detectOS } from '~/components/downloads/downloadUtils';
+import { defaultArchitectureForOS, detectOS } from '~/components/downloads/downloadUtils';
 
 import { channels, tools, urlsSelector } from '../../../../common/installLinks.mjs';
 
@@ -13,14 +13,15 @@ function DownloadOcCliButton() {
   const githubReleases = useSelector((state) => state.githubReleases) || {};
   const urls = urlsSelector(githubReleases);
   const detectedOs = detectOS();
-  const osArchitectures = architecturesForToolOS(urls, tools.OC, channels.STABLE, detectedOs);
-  let detectedOsArchitecture;
-  let href;
-
-  if (osArchitectures?.length) {
-    detectedOsArchitecture = osArchitectures[0].value;
-    href = urls[tools.OC][channels.STABLE][detectedOsArchitecture][detectedOs];
-  }
+  const detectedOsArchitecture = defaultArchitectureForOS(
+    urls,
+    tools.OC,
+    channels.STABLE,
+    detectedOs,
+  );
+  const href = detectedOsArchitecture
+    ? urls[tools.OC][channels.STABLE][detectedOsArchitecture][detectedOs]
+    : undefined;
 
   return href ? (
     <Button

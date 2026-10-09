@@ -2,6 +2,7 @@ import { has } from 'lodash';
 
 import {
   architectureOptions,
+  architectures,
   operatingSystemOptions,
   operatingSystems,
   urls as URLS,
@@ -41,6 +42,26 @@ const architecturesForToolOS = (
   );
 
 /**
+ * Default architecture for a tool/OS.
+ * On macOS, prefer arm (aarch64) when that binary exists; otherwise first available.
+ */
+const defaultArchitectureForOS = (
+  urls: typeof URLS,
+  tool: string,
+  channel: string,
+  OS: string | null,
+): string | undefined => {
+  const options = architecturesForToolOS(urls, tool, channel, OS);
+  if (OS === operatingSystems.mac) {
+    const armOption = options.find(({ value }) => value === architectures.arm);
+    if (armOption) {
+      return armOption.value;
+    }
+  }
+  return options[0]?.value;
+};
+
+/**
  * Returns relevant subset of `architectureOptions`
  * (not all of them valid for currently chosen OS, but form _some_ OS).
  */
@@ -78,13 +99,14 @@ const initialSelection = (
   // click Download directly without having to change selections.
   const OSes = allOperatingSystemsForTool(urls, tool, channel).map((os) => os.value);
   const OS = detectedOS && OSes.includes(detectedOS) ? detectedOS : OSes?.[0];
-  const architecture = architecturesForToolOS(urls, tool, channel, OS)?.[0]?.value;
+  const architecture = defaultArchitectureForOS(urls, tool, channel, OS);
   return { OS, architecture };
 };
 
 export {
   detectOS,
   architecturesForToolOS,
+  defaultArchitectureForOS,
   allArchitecturesForTool,
   allOperatingSystemsForTool,
   initialSelection,

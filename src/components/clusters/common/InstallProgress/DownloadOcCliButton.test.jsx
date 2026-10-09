@@ -19,7 +19,7 @@ jest.mock('react-redux', () => {
 describe('<DownloadOcCliButton />', () => {
   const useSelectorSpy = jest.spyOn(ReactRedux, 'useSelector');
   const detectOsSpy = jest.spyOn(DownloadUtils, 'detectOS');
-  const osArchitecturesSpy = jest.spyOn(DownloadUtils, 'architecturesForToolOS');
+  const defaultArchitectureSpy = jest.spyOn(DownloadUtils, 'defaultArchitectureForOS');
 
   beforeAll(() => {
     useSelectorSpy.mockReturnValue(() => ({
@@ -65,7 +65,7 @@ describe('<DownloadOcCliButton />', () => {
 
   it('hides download link when unable to detect an OS architecture', () => {
     // Arrange
-    osArchitecturesSpy.mockReturnValueOnce(null);
+    defaultArchitectureSpy.mockReturnValueOnce(undefined);
     render(<DownloadOcCliButton />);
 
     // Assert
