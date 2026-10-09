@@ -330,7 +330,7 @@ describe('clusterService', () => {
   });
 
   describe('getGcpFirewallRules', () => {
-    it('searches for unused firewall rules when no profile is provided', async () => {
+    it('requests unused firewall rules when no profile is provided', async () => {
       await clusterService.getGcpFirewallRules();
 
       expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
@@ -338,16 +338,17 @@ describe('clusterService', () => {
         '/api/clusters_mgmt/v1/gcp/firewall_rules',
       );
       expect(getApiGetParams()).toEqual({
-        search: 'unused=true',
+        unused: true,
         size: -1,
       });
     });
 
-    it('includes profile in the search when provided', async () => {
+    it('includes profile as a query param when provided', async () => {
       await clusterService.getGcpFirewallRules({ profile: 'private' });
 
       expect(getApiGetParams()).toEqual({
-        search: "unused=true AND profile='private'",
+        unused: true,
+        profile: 'private',
         size: -1,
       });
     });

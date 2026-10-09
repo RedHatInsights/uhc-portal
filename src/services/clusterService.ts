@@ -458,24 +458,19 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
       });
     },
 
-    getGcpFirewallRules: (options?: { profile?: string }) => {
-      const clauses = ['unused=true'];
-      if (options?.profile) {
-        clauses.push(`profile=${sqlString(options.profile)}`);
-      }
-      const search = clauses.join(' AND ');
-      return apiRequest.get<{
+    getGcpFirewallRules: (options?: { profile?: string }) =>
+      apiRequest.get<{
         items?: Array<GcpFirewallRule>;
         page?: number;
         size?: number;
         total?: number;
       }>('/api/clusters_mgmt/v1/gcp/firewall_rules', {
         params: {
-          search,
+          unused: true,
+          ...(options?.profile ? { profile: options.profile } : {}),
           size: -1,
         },
-      });
-    },
+      }),
 
     getGcpFirewallRule: (id: string) =>
       apiRequest.get<GcpFirewallRule>(`/api/clusters_mgmt/v1/gcp/firewall_rules/${id}`),
