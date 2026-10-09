@@ -254,6 +254,35 @@ describe('useFetchGcpFirewallRules', () => {
     expect(result.current.data).toEqual([]);
   });
 
+  it('masks a previous error when WIF config ID is cleared after a failed request', async () => {
+    getGcpFirewallRulesMock.mockRejectedValue({ message: 'denied' });
+    formatErrorDataMock.mockReturnValue({ error: 'formatted error' });
+
+    const { result, rerender } = renderHook(
+      ({ wifConfigId }: { wifConfigId?: string }) =>
+        useFetchGcpFirewallRules({
+          profile: 'public',
+          wifConfigId,
+          projectId: 'project-1',
+          network: 'vpc-1',
+        }),
+      { initialProps: { wifConfigId: 'wif-1' as string | undefined } },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+    expect(result.current.error).toBe('formatted error');
+
+    formatErrorDataMock.mockClear();
+    rerender({ wifConfigId: undefined });
+
+    expect(result.current.data).toEqual([]);
+    expect(result.current.isError).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(formatErrorDataMock).not.toHaveBeenCalled();
+  });
+
   it('invalidates the gcpFirewallRules query key on refresh', () => {
     refetchGcpFirewallRules();
 
