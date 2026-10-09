@@ -127,6 +127,7 @@ export const FirewallRulesSelect = ({
     const cached = queryClient.getQueryData<FirewallRulesQueryData>(['gcpFirewallRules', profile]);
     const refreshedRules = filterFirewallRules(
       cached?.data?.items,
+      profile,
       wifConfigId,
       projectId,
       network,
