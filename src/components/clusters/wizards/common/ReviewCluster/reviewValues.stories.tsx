@@ -158,6 +158,10 @@ const buildFullReviewFormValues = (): FormikValues => {
       id: 'dns-zone-ocm-demo',
       gcp: { domain_prefix: 'apps', project_id: 'gcp-billing-project-456' },
     },
+    firewall_rules: {
+      id: 'fw-rules-demo-id',
+      name: 'prod-byo-firewall',
+    },
     billing_account_id: '987654321098',
     installer_role_arn: 'arn:aws:iam::123456789012:role/ocm-installer-demo',
     support_role_arn: 'arn:aws:iam::123456789012:role/ocm-support-demo',
