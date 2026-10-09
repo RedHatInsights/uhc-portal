@@ -183,6 +183,24 @@ const scrollToFirstField = (
 };
 
 /**
+ * Scrolls each scrollable ancestor of the app root back to the top.
+ * In-app React Router navigation does not reset those scroll positions on its own.
+ * The page scroller lives in the console chrome, above this app, so this walks
+ * up from #app-outer-div instead of depending on a chrome-specific selector.
+ */
+const scrollAppToTop = (): void => {
+  let node = document.getElementById('app-outer-div')?.parentElement ?? null;
+
+  while (node) {
+    const { overflowY } = getComputedStyle(node);
+    if (overflowY === 'auto' || overflowY === 'scroll') {
+      node.scrollTo(0, 0);
+    }
+    node = node.parentElement;
+  }
+};
+
+/**
  * Converts redux form structure to the structure expected by OCM API.
  * Pairs with missing keys are omitted.
  *
@@ -401,6 +419,7 @@ export {
   strToCleanObject,
   shouldRefetchQuota,
   scrollToFirstField,
+  scrollAppToTop,
   parseReduxFormKeyValueList,
   parseReduxFormTaints,
   goZeroTime,
