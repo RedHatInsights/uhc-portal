@@ -4,14 +4,14 @@
  */
 
 import { combineAndSortLinks } from './linkUtils.mjs';
+import { getRosaDocsBase } from './rosaDocsBase.mjs';
 
 const ROSA_CLASSIC_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws_classic_architecture/4/html';
 const OCP_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/openshift_container_platform/latest/html';
 const OSD_DOCS_BASE = 'https://docs.redhat.com/en/documentation/openshift_dedicated/4/html';
-const ROSA_DOCS_BASE =
-  'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html';
+const ROSA_DOCS_BASE = getRosaDocsBase();
 const RH_BASE = 'https://www.redhat.com/en';
 const OCM_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html/managing_clusters';
