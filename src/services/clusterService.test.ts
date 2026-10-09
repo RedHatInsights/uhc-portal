@@ -338,7 +338,7 @@ describe('clusterService', () => {
         '/api/clusters_mgmt/v1/gcp/firewall_rules',
       );
       expect(getApiGetParams()).toEqual({
-        search: "cluster.id=''",
+        search: 'unused=true',
         size: -1,
       });
     });
@@ -347,7 +347,7 @@ describe('clusterService', () => {
       await clusterService.getGcpFirewallRules({ profile: 'private' });
 
       expect(getApiGetParams()).toEqual({
-        search: "cluster.id='' AND profile='private'",
+        search: "unused=true AND profile='private'",
         size: -1,
       });
     });

@@ -459,7 +459,7 @@ export function getClusterService(apiRequest: APIRequest = defaultApiRequest) {
     },
 
     getGcpFirewallRules: (options?: { profile?: string }) => {
-      const clauses = [`cluster.id=''`];
+      const clauses = ['unused=true'];
       if (options?.profile) {
         clauses.push(`profile=${sqlString(options.profile)}`);
       }
