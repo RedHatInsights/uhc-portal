@@ -14,7 +14,7 @@ const meta: Meta<typeof OpenShiftAiWidget> = {
       <div style={{ maxWidth: '400px' }}>
         <Card>
           <CardHeader>
-            <CardTitle>Red Hat OpenShift AI *</CardTitle>
+            <CardTitle component="h2">Red Hat OpenShift AI *</CardTitle>
           </CardHeader>
           <CardBody>
             <Story />
