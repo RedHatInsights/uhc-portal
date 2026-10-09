@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Making a Legacy Codebase AI-Friendly</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1a1a2e;color:#e2e8f0;line-height:1.6;padding:32px;max-width:1100px;margin:0 auto}
+h1{font-size:28px;font-weight:700;margin-bottom:4px}
+h2{font-size:20px;font-weight:600;margin-bottom:8px;color:#e2e8f0}
+h3{font-size:15px;font-weight:600;margin-bottom:6px;color:#cbd5e1}
+.subtitle{color:#94a3b8;font-size:14px;margin-bottom:16px}
+hr{border:none;border-top:1px solid #334155;margin:28px 0}
+.grid{display:grid;gap:16px}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+.card{background:#1e293b;border:1px solid #334155;border-radius:8px;overflow:hidden}
+.card-header{padding:10px 16px;font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center}
+.card-body{padding:16px}
+.stat{text-align:center}
+.stat-value{font-size:28px;font-weight:700;color:#e2e8f0}
+.stat-label{font-size:12px;color:#94a3b8;margin-top:2px}
+.pill{display:inline-block;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #475569;color:#94a3b8;background:transparent;margin:2px}
+.pill.active{background:#3b82f6;border-color:#3b82f6;color:#fff}
+.pill.sm{padding:2px 8px;font-size:11px}
+.callout{border-radius:8px;padding:14px 18px;margin:8px 0;font-size:13px}
+.callout-neutral{background:#1e293b;border-left:3px solid #475569}
+.callout-info{background:#172554;border-left:3px solid #3b82f6}
+.callout-warning{background:#451a03;border-left:3px solid #f59e0b}
+.callout-title{font-weight:600;margin-bottom:4px;font-size:13px}
+.callout-info .callout-title{color:#93c5fd}
+.callout-warning .callout-title{color:#fbbf24}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th{text-align:left;padding:8px 12px;background:#1e293b;border-bottom:2px solid #334155;font-weight:600;color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:0.3px}
+td{padding:8px 12px;border-bottom:1px solid #1e293b}
+tr.striped:nth-child(even){background:#1e293b}
+.text-secondary{color:#94a3b8}
+.text-semibold{font-weight:600}
+.italic{font-style:italic}
+.text-sm{font-size:13px}
+.mb-4{margin-bottom:4px}
+.mb-8{margin-bottom:8px}
+.mb-16{margin-bottom:16px}
+.mt-8{margin-top:8px}
+.delta-pos{color:#4ade80}
+.delta-neg{color:#f87171}
+.delta-zero{color:#94a3b8}
+.phase-content{display:none}
+.phase-content.active{display:block}
+.pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.divider-light{border:none;border-top:1px solid #334155;margin:12px 0}
+.col-right{text-align:right}
+@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<h1>Making a Legacy Codebase AI-Friendly</h1>
+<p class="subtitle">How we built, tested, and evolved sub-AGENTS.md files for uhc-portal &mdash; and what we learned about AI-assisted documentation along the way.</p>
+
+<hr>
+
+<h2>The Problem</h2>
+<div class="grid grid-3 mb-16">
+  <div class="card">
+    <div class="card-header">uhc-portal</div>
+    <div class="card-body">
+      <div class="stat mb-8"><div class="stat-value">554+</div><div class="stat-label">Files in cluster details alone</div></div>
+      <p class="text-secondary text-sm">Mixed JS/TS, Redux + React Query, 5 coexisting refresh paths, 11 tabs</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">The Gap</div>
+    <div class="card-body text-sm">
+      <p class="mb-4">AI tools explore code well but can't infer:</p>
+      <p class="text-semibold">- Migration direction (Redux is legacy)</p>
+      <p class="text-semibold">- Dependency boundaries (wizards never import from day-2)</p>
+      <p class="text-semibold">- Team decisions (don't add to refreshRelatedResources)</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">The Approach</div>
+    <div class="card-body text-sm">
+      <p class="mb-4">Sub-AGENTS.md files using the Linux Foundation AAIF standard:</p>
+      <p class="text-semibold">- Scoped to directories (like .gitignore)</p>
+      <p class="text-semibold">- Predictable headings AI tools recognize</p>
+      <p class="text-semibold">- Overview (humans) + Constraints (AI)</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<h2>How the Project Evolved</h2>
+<p class="subtitle">Click a phase to see the prompts, insights, and lessons learned.</p>
+
+<div class="pill-row" id="phase-pills"></div>
+<div id="phase-content"></div>
+
+<hr>
+
+<h2>Evaluation Results: Opus 4.6 vs Sonnet 4.6</h2>
+<p class="subtitle">8 prompts, 2 conditions (baseline vs with sub-AGENTS.md), 2 models, AI-as-judge grading on a 1&ndash;5 rubric.</p>
+
+<div class="grid grid-2 mb-16">
+  <div class="card">
+    <div class="card-header">Opus 4.6 High <span class="pill sm active" style="cursor:default">Primary</span></div>
+    <div class="card-body">
+      <div class="grid grid-3">
+        <div class="stat"><div class="stat-value">4.88</div><div class="stat-label">Baseline Avg</div></div>
+        <div class="stat"><div class="stat-value">4.94</div><div class="stat-label">With Docs Avg</div></div>
+        <div class="stat"><div class="stat-value delta-pos">+0.06</div><div class="stat-label">Delta</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Sonnet 4.6 Medium</div>
+    <div class="card-body">
+      <div class="grid grid-3">
+        <div class="stat"><div class="stat-value">4.59</div><div class="stat-label">Baseline Avg</div></div>
+        <div class="stat"><div class="stat-value">4.59</div><div class="stat-label">With Docs Avg</div></div>
+        <div class="stat"><div class="stat-value delta-zero">0.00</div><div class="stat-label">Delta</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<table>
+<thead><tr><th>#</th><th>Prompt</th><th class="col-right">Opus &Delta;</th><th class="col-right">Sonnet &Delta;</th><th>Signal</th></tr></thead>
+<tbody>
+<tr class="striped"><td>P1</td><td>Migration boundary (Redux vs React Query)</td><td class="col-right delta-pos">+0.25</td><td class="col-right delta-neg">-0.50</td><td>Sonnet over-guided</td></tr>
+<tr class="striped"><td>P2</td><td>Refresh mechanism debugging</td><td class="col-right delta-zero">+0.00</td><td class="col-right delta-zero">+0.00</td><td>Both models traced correctly</td></tr>
+<tr class="striped"><td>P3</td><td>Anti-pattern detection</td><td class="col-right delta-zero">+0.00</td><td class="col-right delta-zero">+0.00</td><td>Code alone is sufficient</td></tr>
+<tr class="striped"><td>P4</td><td>Refresh architecture &mdash; modal interaction</td><td class="col-right delta-pos">+0.25</td><td class="col-right delta-pos">+1.00</td><td>Biggest win: 4x more impact for Sonnet</td></tr>
+<tr class="striped"><td>P5</td><td>State management boundary</td><td class="col-right delta-zero">+0.00</td><td class="col-right delta-neg">-0.75</td><td>Docs over-guided toward prop drilling</td></tr>
+<tr class="striped"><td>P6</td><td>ROSA wizard HCP-only section</td><td class="col-right delta-zero">+0.00</td><td class="col-right delta-pos">+0.25</td><td>Slight improvement</td></tr>
+<tr class="striped"><td>P7</td><td>ROSA submit debugging</td><td class="col-right delta-zero">+0.00</td><td class="col-right delta-zero">+0.00</td><td>Both models perfect</td></tr>
+<tr class="striped"><td>P8</td><td>Cross-feature code reuse</td><td class="col-right delta-zero">+0.00</td><td class="col-right delta-zero">+0.00</td><td>Run 1 showed +1.25 (dependency direction)</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>Honest Assessment</h2>
+<div class="grid grid-2 mb-16">
+  <div class="card">
+    <div class="card-header">Where Sub-AGENTS.md Helps</div>
+    <div class="card-body text-sm">
+      <p class="text-semibold mb-4">Architectural judgment calls</p>
+      <p class="text-secondary mb-8">P4: Sonnet improved +1.0 when docs explained the 5-path refresh model and which paths are intentionally different</p>
+      <hr class="divider-light">
+      <p class="text-semibold mb-4 mt-8">Dependency direction</p>
+      <p class="text-secondary mb-8">Run 1 P8: +1.25 when baseline mischaracterized wizard-to-day2 coupling direction</p>
+      <hr class="divider-light">
+      <p class="text-semibold mb-4 mt-8">Human onboarding</p>
+      <p class="text-secondary">First real domain documentation for cluster details and wizards. New engineers can understand the refresh architecture without reading 800 lines of JSX</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Where It Doesn't</div>
+    <div class="card-body text-sm">
+      <p class="text-semibold mb-4">Code structure comprehension</p>
+      <p class="text-secondary mb-8">Models score 4.88+ baseline by exploring code. They don't need docs to understand file organization</p>
+      <hr class="divider-light">
+      <p class="text-semibold mb-4 mt-8">Over-guidance risk</p>
+      <p class="text-secondary mb-8">Sonnet regressed on P1 and P5: docs pushed it toward documented patterns instead of exploring independently</p>
+      <hr class="divider-light">
+      <p class="text-semibold mb-4 mt-8">Code generation (untested)</p>
+      <p class="text-secondary">We tested comprehension, not whether AI writes better code with docs. That's the real use case and a gap in our evaluation</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<h2>Methodology Lessons</h2>
+<div class="callout callout-warning mb-16">
+  <div class="callout-title">Evaluation Bias</div>
+  <p class="text-sm">Our "correct answers" were AI-generated (by Opus 4.6 with full codebase access). The AI judge compared AI responses against AI-generated answers. This creates circular validation &mdash; a model can score 5.0 by arriving at the same conclusions through code analysis alone, making the docs look unnecessary even if they'd prevent mistakes during code generation.</p>
+</div>
+
+<h2>Prompting Patterns That Worked</h2>
+<table>
+<thead><tr><th>Pattern</th><th>Example</th><th>Why It Worked</th></tr></thead>
+<tbody>
+<tr class="striped"><td class="text-semibold">Challenge the AI's output</td><td class="text-sm">"I don't think ClusterDetailsTop.jsx is the only component"</td><td class="text-sm">AI gives shallow first drafts. Human domain knowledge catches gaps</td></tr>
+<tr class="striped"><td class="text-semibold">Ask for evaluation design upfront</td><td class="text-sm">"How will the prompts be graded? Will it compare both against each other?"</td><td class="text-sm">Forces rigor before running experiments</td></tr>
+<tr class="striped"><td class="text-semibold">Confront uncomfortable results</td><td class="text-sm">"It doesn't appear sub AGENTS.md is worth doing?"</td><td class="text-sm">Leads to honest analysis instead of confirmation bias</td></tr>
+<tr class="striped"><td class="text-semibold">Pivot when data says to</td><td class="text-sm">"I'm curious about human usage of these files"</td><td class="text-sm">Found the real value (onboarding docs) after AI-uplift proved marginal</td></tr>
+<tr class="striped"><td class="text-semibold">Separate concerns with git branches</td><td class="text-sm">"eval-baseline vs eval-with-docs branches"</td><td class="text-sm">Clean A/B testing without manual file juggling</td></tr>
+<tr class="striped"><td class="text-semibold">Iterate on format, not just content</td><td class="text-sm">"Shouldn't Constraints follow the documentation router pattern?"</td><td class="text-sm">Structure matters as much as content for AI consumption</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>What We'd Do Differently</h2>
+<div class="grid grid-2 mb-16">
+  <div class="card">
+    <div class="card-header">Evaluation</div>
+    <div class="card-body text-sm">
+      <p>- Test code generation, not just comprehension</p>
+      <p>- Use human grading for at least a subset of responses</p>
+      <p>- Add defect-injection tests (does the model catch anti-patterns?)</p>
+      <p>- Track real-world proxy: corrections per chat session over a sprint</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Documentation</div>
+    <div class="card-body text-sm">
+      <p>- Start with constraints only (skip structural descriptions)</p>
+      <p>- Focus on what code can't tell you: migration direction, team decisions</p>
+      <p>- Keep Overview section for human onboarding value</p>
+      <p>- Plan for maintenance: constraints change with team decisions, not code</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div class="callout callout-info">
+  <div class="callout-title">Bottom Line</div>
+  <p class="text-sm">Sub-AGENTS.md files provide marginal measurable AI uplift for top-tier models (+0.06 for Opus). Their real value is dual: (1) documenting constraints and team decisions that code alone can't convey, and (2) serving as the first real domain onboarding documentation for the most complex areas of the codebase. The process of building and testing them &mdash; including the honest confrontation with disappointing results &mdash; was itself a valuable exercise in understanding how AI tools interact with our code.</p>
+</div>
+
+<script>
+var PHASES = [
+  {
+    title: "Phase 1: Analysis & Strategy",
+    subtitle: "Understanding the problem",
+    prompts: [
+      "Analyse the entire uhc-portal codebase. This is enterprise level, mature, some would say legacy. It is so complex that I fear asking AI to add any feature requires a lot of prompting. What strides could we take to 'iron out' some of the bad smell areas?",
+      "Can you search the web, are there proven AI documentation techniques already, beyond README files?"
+    ],
+    insights: [
+      "Identified the Linux Foundation AAIF standard for AGENTS.md files",
+      "Discovered the 'documentation router' pattern with predictable headings",
+      "Decided sub-AGENTS.md files > one giant ARCHITECTURE.md because they scope to the code being edited"
+    ],
+    lesson: "Start broad, let the AI survey the landscape and propose a strategy before committing to an approach. The AI found the AAIF standard that we wouldn't have known to look for."
+  },
+  {
+    title: "Phase 2: Iterative Authoring",
+    subtitle: "Building the first AGENTS.md",
+    prompts: [
+      "Create the AGENTS.md for src/components/clusters/ClusterDetailsMultiRegion/",
+      "'should we give a blurb about what toggleSubscriptionReleased is/does?', 'how is this helpful if we don't explain ClusterStatusMonitor?', 'I realize we don't want a complete dependency tree, but where is the line?'"
+    ],
+    insights: [
+      "First draft was too shallow \u2014 human review caught missing context",
+      "Challenge the AI's output: 'I don't think ClusterDetailsTop.jsx is the only component'",
+      "The AI doesn't know your codebase as well as you do \u2014 iterate together",
+      "Corrected wrong terminology: 'what exactly is managed vs unmanaged?'"
+    ],
+    lesson: "Treat AI as a first-draft writer, not a final authority. The best AGENTS.md files came from 3-4 rounds of human review pushing back on incomplete or inaccurate content."
+  },
+  {
+    title: "Phase 3: Evaluation Framework",
+    subtitle: "Testing if docs actually help",
+    prompts: [
+      "How do I test in a totally 'green field' Cursor? How can I run test prompts in a clean environment, then with AGENTS.md?",
+      "How will the prompt responses be graded/evaluated?",
+      "Will the judgment compare both prompts against each other? Not just evaluate each independently?"
+    ],
+    insights: [
+      "Created git branches: eval-baseline (no docs) vs eval-with-docs",
+      "8 test prompts covering architectural judgment, debugging, anti-patterns, code structure",
+      "AI-as-judge with 4-dimension rubric (Correctness, Completeness, Anti-patterns, Specificity)",
+      "Automated via Cursor subagents \u2014 no manual copy-pasting of prompts/results"
+    ],
+    lesson: "Don't just write docs and hope. Build a repeatable evaluation framework. Even if the results surprise you, the process forces you to articulate what 'good' looks like."
+  },
+  {
+    title: "Phase 4: Surprising Results",
+    subtitle: "Confronting the data honestly",
+    prompts: [
+      "It doesn't appear sub AGENTS.md, with a +0.06 for Opus and net 0 for Sonnet, is worth doing?",
+      "Are we sure our AI judging is correct? Is that comparing AI to AI assumptions?"
+    ],
+    insights: [
+      "Opus 4.6 scores 4.88/5.0 baseline \u2014 the model is already near-perfect at codebase exploration",
+      "Sonnet showed +1.0 on architectural judgment (P4) but -0.75 regressions where docs over-guided",
+      "Test measured comprehension, not code generation \u2014 the real use case",
+      "AI-generated 'correct answers' judged by AI creates circular bias"
+    ],
+    lesson: "Be willing to challenge your own results. The evaluation methodology had blind spots (comprehension vs generation, AI judging AI). Honest assessment > confirmation bias."
+  },
+  {
+    title: "Phase 5: Pivot & Restructure",
+    subtitle: "Finding the real value",
+    prompts: [
+      "I'm also curious about the human usage of the sub AGENTS.md files. Would they be good for overall understanding?",
+      "Shouldn't the Constraints section follow the documentation router pattern?"
+    ],
+    insights: [
+      "Restructured files: Overview (for humans) + Constraints (AAIF pattern for AI)",
+      "The human onboarding value may be stronger than the AI value",
+      "Stripped structural descriptions, focused constraints on things code alone can't tell you",
+      "Migration direction, dependency rules, and team decisions are the high-value content"
+    ],
+    lesson: "When quantitative results disappoint, look for qualitative value. The AGENTS.md files became the first real domain documentation for our most complex features."
+  }
+];
+
+var activePhase = 0;
+var pillsEl = document.getElementById('phase-pills');
+var contentEl = document.getElementById('phase-content');
+
+function renderPhase() {
+  pillsEl.innerHTML = '';
+  for (var i = 0; i < PHASES.length; i++) {
+    var btn = document.createElement('button');
+    btn.className = 'pill' + (i === activePhase ? ' active' : '');
+    btn.textContent = 'Phase ' + (i + 1);
+    btn.setAttribute('data-idx', i);
+    btn.onclick = function() { activePhase = parseInt(this.getAttribute('data-idx')); renderPhase(); };
+    pillsEl.appendChild(btn);
+  }
+
+  var p = PHASES[activePhase];
+  var h = '<div class="card"><div class="card-header">' + p.title + ' <span class="pill sm" style="cursor:default">' + p.subtitle + '</span></div><div class="card-body">';
+  h += '<h3>Prompts Used</h3>';
+  for (var i = 0; i < p.prompts.length; i++) {
+    h += '<div class="callout callout-neutral"><p class="text-sm italic">' + p.prompts[i] + '</p></div>';
+  }
+  h += '<h3 class="mt-8">What We Learned</h3>';
+  for (var i = 0; i < p.insights.length; i++) {
+    h += '<p class="text-sm">- ' + p.insights[i] + '</p>';
+  }
+  h += '<div class="callout callout-info mt-8"><div class="callout-title">Key Takeaway</div><p class="text-sm">' + p.lesson + '</p></div>';
+  h += '</div></div>';
+  contentEl.innerHTML = h;
+}
+
+renderPhase();
+</script>
+</body>
+</html>
