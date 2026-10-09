@@ -96,42 +96,42 @@ test.describe.serial(
       page,
       clusterSupportPage,
     }) => {
-      try {
-        // Replace with a forced AMS failure.
-        await clusterSupportPage.clearSupportCasesMock();
-        await clusterSupportPage.mockSupportCasesError();
+      // Replace with a forced AMS failure.
+      await clusterSupportPage.clearSupportCasesMock();
+      await clusterSupportPage.mockSupportCasesError();
 
-        // Full reload clears the React Query cache.
-        const failedSupportCases = clusterSupportPage.waitForSupportCasesResponse(500);
-        await page.reload();
-        await clusterSupportPage.goToSupportTab();
-        await clusterSupportPage.isClusterSupportPage();
-        await failedSupportCases;
+      // Full reload clears the React Query cache.
+      const failedSupportCases = clusterSupportPage.waitForSupportCasesResponse(500);
+      await page.reload();
+      await clusterSupportPage.goToSupportTab();
+      await clusterSupportPage.isClusterSupportPage();
+      await failedSupportCases;
 
-        await expect(clusterSupportPage.supportCasesErrorHeading()).toHaveText(
-          supportCases.LoadErrorHeading,
-        );
-        await expect(clusterSupportPage.supportCasesTable()).toBeHidden();
-        await expect(clusterSupportPage.noOpenSupportCasesMessage()).toBeHidden();
-        await expect(clusterSupportPage.openSupportCaseButton()).toBeVisible();
-        await expect(clusterSupportPage.retrySupportCasesButton()).toBeVisible();
+      await expect(clusterSupportPage.supportCasesErrorHeading()).toHaveText(
+        supportCases.LoadErrorHeading,
+      );
+      await expect(clusterSupportPage.supportCasesTable()).toBeHidden();
+      await expect(clusterSupportPage.noOpenSupportCasesMessage()).toBeHidden();
+      await expect(clusterSupportPage.openSupportCaseButton()).toBeVisible();
+      await expect(clusterSupportPage.retrySupportCasesButton()).toBeVisible();
 
-        const retriedFailure = clusterSupportPage.waitForSupportCasesResponse(500);
-        await clusterSupportPage.retrySupportCasesButton().click();
-        await retriedFailure;
-        await expect(clusterSupportPage.supportCasesErrorHeading()).toBeVisible();
+      const retriedFailure = clusterSupportPage.waitForSupportCasesResponse(500);
+      await clusterSupportPage.retrySupportCasesButton().click();
+      await retriedFailure;
+      await expect(clusterSupportPage.supportCasesErrorHeading()).toBeVisible();
 
-        // Swap back to a 200 mock so Retry recovery does not depend on real AMS.
-        await clusterSupportPage.clearSupportCasesMock();
-        await clusterSupportPage.mockSupportCasesSuccess();
-        const recoveredSupportCases = clusterSupportPage.waitForSupportCasesResponse(200);
-        await clusterSupportPage.retrySupportCasesButton().click();
-        await recoveredSupportCases;
-        await expect(clusterSupportPage.supportCasesErrorHeading()).toBeHidden();
-        await expect(clusterSupportPage.supportCasesTable()).toBeVisible();
-      } finally {
-        await clusterSupportPage.clearSupportCasesMock();
-      }
+      // Swap back to a 200 mock so Retry recovery does not depend on real AMS.
+      await clusterSupportPage.clearSupportCasesMock();
+      await clusterSupportPage.mockSupportCasesSuccess();
+      const recoveredSupportCases = clusterSupportPage.waitForSupportCasesResponse(200);
+      await clusterSupportPage.retrySupportCasesButton().click();
+      await recoveredSupportCases;
+      await expect(clusterSupportPage.supportCasesErrorHeading()).toBeHidden();
+      await expect(clusterSupportPage.supportCasesTable()).toBeVisible();
+    });
+
+    test.afterAll(async ({ clusterSupportPage }) => {
+      await clusterSupportPage.clearSupportCasesMock();
     });
   },
 );
