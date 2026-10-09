@@ -661,6 +661,11 @@ const urls = {
         [operatingSystems.mac]: `${MIRROR_ROSA_LATEST}/rosa-macosx.tar.gz`,
         [operatingSystems.windows]: `${MIRROR_ROSA_LATEST}/rosa-windows.zip`,
       },
+      [architectures.arm]: {
+        [operatingSystems.linux]: `${MIRROR_ROSA_LATEST}/rosa-linux-arm64.tar.gz`,
+        [operatingSystems.mac]: `${MIRROR_ROSA_LATEST}/rosa-macos-arm64.tar.gz`,
+        [operatingSystems.windows]: `${MIRROR_ROSA_LATEST}/rosa-windows-arm64.zip`,
+      },
     },
   },
 
