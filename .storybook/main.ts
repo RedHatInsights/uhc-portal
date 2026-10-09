@@ -26,7 +26,7 @@ const config: StorybookConfig = {
                 loader: 'sass-loader',
                 options: {
                   sassOptions: {
-                    includePaths: ['./src'],
+                    loadPaths: ['./src'],
                   },
                 },
               },
