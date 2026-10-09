@@ -2,6 +2,8 @@ import { expect, Locator, Page } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
+const SUPPORT_CASES_ROUTE = '**/support_cases*';
+
 export class ClusterSupportPage extends BasePage {
   constructor(page: Page) {
     super(page);
@@ -50,6 +52,18 @@ export class ClusterSupportPage extends BasePage {
 
   supportCasesTable(): Locator {
     return this.page.getByTestId('support-cases-table');
+  }
+
+  supportCasesErrorHeading(): Locator {
+    return this.page.getByRole('heading', { name: 'Support cases could not be loaded' });
+  }
+
+  retrySupportCasesButton(): Locator {
+    return this.page.getByRole('button', { name: 'Retry' });
+  }
+
+  noOpenSupportCasesMessage(): Locator {
+    return this.page.getByText('You have no open support cases');
   }
 
   addNotificationContactModalHeading(): Locator {
@@ -139,5 +153,58 @@ export class ClusterSupportPage extends BasePage {
     await expect(row).toBeVisible();
     await expect(row.getByRole('gridcell', { name: firstName, exact: true })).toBeVisible();
     await expect(row.getByRole('gridcell', { name: lastName, exact: true })).toBeVisible();
+  }
+
+  async mockSupportCasesSuccess(): Promise<void> {
+    await this.mockSupportCases({
+      status: 200,
+      body: { response: { docs: [] } },
+    });
+  }
+
+  async mockSupportCasesError(): Promise<void> {
+    await this.mockSupportCases({
+      status: 500,
+      body: {
+        kind: 'Error',
+        id: '500',
+        href: '/api/accounts_mgmt/v1/errors/500',
+        code: 'ACCT-MGMT-500',
+        reason: 'Error calling OCM Account Manager',
+      },
+    });
+  }
+
+  private async mockSupportCases({
+    status,
+    body,
+  }: {
+    status: number;
+    body: Record<string, unknown>;
+  }): Promise<void> {
+    await this.page.route(SUPPORT_CASES_ROUTE, async (route) => {
+      if (route.request().method() !== 'GET') {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status,
+        contentType: 'application/json',
+        body: JSON.stringify(body),
+      });
+    });
+  }
+
+  async clearSupportCasesMock(): Promise<void> {
+    await this.page.unroute(SUPPORT_CASES_ROUTE);
+  }
+
+  waitForSupportCasesResponse(status: number) {
+    return this.page.waitForResponse(
+      (response) =>
+        response.url().includes('/support_cases') &&
+        response.request().method() === 'GET' &&
+        response.status() === status,
+    );
   }
 }
