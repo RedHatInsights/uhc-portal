@@ -1,0 +1,226 @@
+[
+  {
+    "key": "oc",
+    "displayName": "OpenShift CLI (oc)",
+    "urlPattern": "openshift-client-",
+    "slackChannels": [
+      "#forum-ocp-art"
+    ],
+    "owners": "https://github.com/openshift/oc/blob/master/OWNERS"
+  },
+  {
+    "key": "butane",
+    "displayName": "Butane (butane)",
+    "urlPattern": "\\/clients\\/butane\\/",
+    "slackChannels": [
+      "#forum-ocp-installer"
+    ],
+    "owners": "https://github.com/coreos/butane"
+  },
+  {
+    "key": "ccoctl",
+    "displayName": "Cloud Credential Operator (ccoctl)",
+    "urlPattern": "ccoctl-",
+    "slackChannels": [
+      "#forum-cloud-credential-operator"
+    ],
+    "owners": "https://github.com/openshift/cloud-credential-operator/blob/master/OWNERS"
+  },
+  {
+    "key": "coreos-installer",
+    "displayName": "CoreOS Installer (coreos-installer)",
+    "urlPattern": "\\/clients\\/coreos-installer\\/",
+    "slackChannels": [
+      "#forum-ocp-installer"
+    ],
+    "owners": "https://github.com/coreos/coreos-installer"
+  },
+  {
+    "key": "crc",
+    "displayName": "OpenShift Local (crc)",
+    "urlPattern": "\\/pub\\/cgw\\/crc\\/",
+    "slackChannels": [
+      "#forum-crc"
+    ],
+    "owners": "https://github.com/crc-org/crc/blob/main/OWNERS"
+  },
+  {
+    "key": "helm",
+    "displayName": "Helm 3 CLI (helm)",
+    "urlPattern": "\\/clients\\/helm\\/",
+    "slackChannels": [
+      "#forum-helm",
+      "#helm-eng"
+    ],
+    "owners": "https://github.com/helm/helm"
+  },
+  {
+    "key": "x86_64-openshift-install",
+    "displayName": "OpenShift Installer (x86_64-openshift-install)",
+    "urlPattern": "\\/x86_64\\/clients\\/ocp.*openshift-install",
+    "slackChannels": [
+      "#forum-ocp-installer"
+    ],
+    "owners": "https://github.com/openshift/installer/blob/master/OWNERS"
+  },
+  {
+    "key": "s390x-openshift-install",
+    "displayName": "OpenShift Installer (s390x-openshift-install)",
+    "urlPattern": "\\/s390x\\/clients\\/ocp.*openshift-install",
+    "slackChannels": [
+      "#forum-ocp-installer"
+    ],
+    "owners": "https://github.com/openshift/installer/blob/master/OWNERS"
+  },
+  {
+    "key": "ppc64le-openshift-install",
+    "displayName": "OpenShift Installer (ppc64le-openshift-install)",
+    "urlPattern": "\\/ppc64le\\/clients\\/ocp.*openshift-install",
+    "slackChannels": [
+      "#forum-ocp-installer"
+    ],
+    "owners": "https://github.com/openshift/installer/blob/master/OWNERS"
+  },
+  {
+    "key": "aarch64-openshift-install",
+    "displayName": "OpenShift Installer (aarch64-openshift-install)",
+    "urlPattern": "\\/aarch64\\/clients\\/ocp.*openshift-install",
+    "slackChannels": [
+      "#forum-ocp-installer"
+    ],
+    "owners": "https://github.com/openshift/installer/blob/master/OWNERS"
+  },
+  {
+    "key": "multi-openshift-install",
+    "displayName": "OpenShift Installer (multi-openshift-install)",
+    "urlPattern": "\\/multi\\/clients\\/ocp.*openshift-install",
+    "slackChannels": [
+      "#forum-ocp-installer"
+    ],
+    "owners": "https://github.com/openshift/installer/blob/master/OWNERS"
+  },
+  {
+    "key": "kn",
+    "displayName": "Knative CLI (kn)",
+    "urlPattern": "\\/clients\\/serverless\\/",
+    "slackChannels": [
+      "#team-serverless"
+    ],
+    "owners": "https://github.com/openshift-knative/client/blob/main/OWNERS"
+  },
+  {
+    "key": "ocm",
+    "displayName": "OCM API CLI (ocm)",
+    "urlPattern": "\\/pub\\/cgw\\/ocm\\/",
+    "slackChannels": [
+      "#forum-rosa-eng"
+    ],
+    "owners": "https://github.com/openshift-online/ocm-cli/blob/main/OWNERS"
+  },
+  {
+    "key": "odo",
+    "displayName": "Developer CLI (odo)",
+    "urlPattern": "\\/clients\\/odo\\/",
+    "slackChannels": [],
+    "owners": "https://github.com/redhat-developer/odo/blob/main/OWNERS",
+    "deprecated": true
+  },
+  {
+    "key": "opm",
+    "displayName": "Operator Package Manager (opm)",
+    "urlPattern": "opm-(linux|mac|windows)",
+    "slackChannels": [
+      "#olm-dev"
+    ],
+    "owners": "https://github.com/operator-framework/operator-registry/blob/master/OWNERS"
+  },
+  {
+    "key": "operator-sdk",
+    "displayName": "Operator SDK CLI (operator-sdk)",
+    "urlPattern": "\\/clients\\/operator-sdk\\/",
+    "slackChannels": [
+      "#olm-dev"
+    ],
+    "owners": "https://github.com/operator-framework/operator-sdk/blob/master/OWNERS"
+  },
+  {
+    "key": "rhcos",
+    "displayName": "RHCOS (rhcos)",
+    "urlPattern": "\\/dependencies\\/rhcos\\/",
+    "slackChannels": [
+      "#forum-ocp-art"
+    ],
+    "owners": "https://github.com/openshift/os/blob/master/OWNERS"
+  },
+  {
+    "key": "rhoas",
+    "displayName": "RHOAS CLI (rhoas)",
+    "urlPattern": "app-services-cli",
+    "slackChannels": [],
+    "owners": "https://github.com/redhat-developer/app-services-cli",
+    "deprecated": true
+  },
+  {
+    "key": "rosa",
+    "displayName": "ROSA CLI (rosa)",
+    "urlPattern": "\\/pub\\/cgw\\/rosa\\/",
+    "slackChannels": [
+      "#forum-rosa-eng"
+    ],
+    "owners": "https://github.com/openshift/rosa/blob/master/OWNERS"
+  },
+  {
+    "key": "mirror-registry",
+    "displayName": "Mirror Registry (mirror-registry)",
+    "urlPattern": "\\/pub\\/cgw\\/mirror-registry\\/",
+    "slackChannels": [
+      "#forum-quay"
+    ],
+    "owners": "https://github.com/quay/mirror-registry"
+  },
+  {
+    "key": "oc-mirror-plugin",
+    "displayName": "oc-mirror Plugin (oc-mirror-plugin)",
+    "urlPattern": "\\/pub\\/cgw\\/oc-mirror\\/",
+    "slackChannels": [
+      "#forum-ocp-art"
+    ],
+    "owners": "https://github.com/openshift/oc-mirror/blob/main/OWNERS"
+  },
+  {
+    "key": "tkn",
+    "displayName": "Tekton CLI (tkn)",
+    "urlPattern": "\\/clients\\/pipeline\\/",
+    "slackChannels": [
+      "#forum-openshift-builds"
+    ],
+    "owners": "https://github.com/tektoncd/cli/blob/main/OWNERS"
+  },
+  {
+    "key": "copy-pull-secret",
+    "displayName": "Pull Secret (copy-pull-secret)",
+    "urlPattern": "accounts_mgmt/v1/access_token",
+    "slackChannels": [
+      "#forum-managed-openshift"
+    ],
+    "owners": ""
+  },
+  {
+    "key": "argo-cd",
+    "displayName": "Argo CD CLI (argo-cd)",
+    "urlPattern": "\\/pub\\/cgw\\/openshift-gitops\\/",
+    "slackChannels": [
+      "#forum-openshift-gitops"
+    ],
+    "owners": "https://github.com/redhat-developer/gitops-operator/blob/master/OWNERS"
+  },
+  {
+    "key": "shp-cli",
+    "displayName": "Shipwright CLI (shp-cli)",
+    "urlPattern": "\\/pub\\/cgw\\/openshift-builds\\/",
+    "slackChannels": [
+      "#forum-openshift-builds"
+    ],
+    "owners": "https://github.com/shipwright-io/cli/blob/main/OWNERS"
+  }
+]
