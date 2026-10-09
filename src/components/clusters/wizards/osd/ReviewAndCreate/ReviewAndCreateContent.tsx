@@ -26,6 +26,7 @@ import { FieldId, StepId } from '~/components/clusters/wizards/osd/constants';
 import config from '~/config';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import {
+  GCP_BYO_FIREWALL_RULES,
   GCP_DNS_ZONE,
   GCP_EXCLUDE_NAMESPACE_SELECTORS,
 } from '~/queries/featureGates/featureConstants';
@@ -58,12 +59,14 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
       [FieldId.GcpAuthType]: gcpAuthType,
       [FieldId.GcpWifConfig]: wifConfig,
       [FieldId.DnsZone]: dnsZone,
+      [FieldId.FirewallRules]: firewallRules,
     },
     values: formValues,
   } = useFormState();
   const canAutoScale = useCanClusterAutoscale(product, billingModel);
   const autoscalingEnabled = canAutoScale && !!formValues[FieldId.AutoscalingEnabled];
   const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
+  const isGcpByoFirewallRulesEnabled = useFeatureGate(GCP_BYO_FIREWALL_RULES);
   const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
 
   const isByoc = byoc === 'true';
@@ -83,6 +86,13 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
     hasDomainPrefix &&
     isGcpDnsZoneEnabled &&
     dnsZone.id &&
+    gcpAuthType === GCPAuthType.WorkloadIdentityFederation;
+  const showFirewallRules =
+    isByoc &&
+    isGCP &&
+    installToVpc &&
+    isGcpByoFirewallRulesEnabled &&
+    firewallRules?.id &&
     gcpAuthType === GCPAuthType.WorkloadIdentityFederation;
 
   const clusterSettingsFields = [
@@ -175,6 +185,7 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
           <ReviewItem name={FieldId.SharedHostProjectID} formValues={formValues} />
         )}
         {showDnsZone && <ReviewItem name={FieldId.DnsZone} formValues={formValues} />}
+        {showFirewallRules && <ReviewItem name={FieldId.FirewallRules} formValues={formValues} />}
         {isByoc && installToVpc && (
           <ReviewItem name={isAWS ? 'aws_standalone_vpc' : 'gpc_vpc'} formValues={formValues} />
         )}
