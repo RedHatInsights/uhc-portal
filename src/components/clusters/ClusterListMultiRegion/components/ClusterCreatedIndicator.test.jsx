@@ -1,5 +1,6 @@
 import React from 'react';
 
+import docLinks from '~/common/docLinks.mjs';
 import { checkAccessibility, render, screen } from '~/testUtils';
 
 import { subscriptionSettings } from '../../../../common/subscriptionTypes';
@@ -52,26 +53,64 @@ describe('<ClusterCreatedIndicator />', () => {
     expect(container).toHaveTextContent('01 Jan 2020');
   });
 
-  it('should have "will expire" popover when cluster is in 60-day trial', async () => {
-    const creationTimeStamp = '2020-01-01T00:00:00Z';
+  it('should have "not supported" popover when cluster has Eval support level', async () => {
+    const creationTimeStamp = '2020-06-15T12:00:00Z';
     const cluster = {
       managed: false,
       subscription: {
         [SUPPORT_LEVEL]: SubscriptionCommonFieldsSupportLevel.Eval,
+        eval_expiration_date: '2020-08-15T12:00:00Z',
       },
       creation_timestamp: creationTimeStamp,
     };
 
     const { user } = render(<ClusterCreatedIndicator cluster={cluster} />);
-    await user.click(screen.getByRole('button'));
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
 
-    expect(
-      screen.getByText('Your OCP cluster evaluation will expire in', { exact: false }),
-    ).toBeInTheDocument();
+    expect(screen.getByText('15 Jun 2020')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button'));
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveTextContent(/Your OCP cluster is not/i);
+    expect(dialog).toHaveTextContent(/Please enable the support by/i);
+    expect(dialog).not.toHaveTextContent(/Invalid Date/i);
+    expect(screen.getByRole('link', { name: /OCP subscriptions/i })).toHaveAttribute(
+      'href',
+      docLinks.RH_OCP_SUBSCRIPTIONS,
+    );
   });
 
-  it('should have "expired" popover when trial expired', async () => {
+  it('should omit support deadline when Eval cluster has no eval_expiration_date', async () => {
+    const cluster = {
+      managed: false,
+      subscription: {
+        [SUPPORT_LEVEL]: SubscriptionCommonFieldsSupportLevel.Eval,
+      },
+      creation_timestamp: '2020-06-15T12:00:00Z',
+    };
+
+    const { user } = render(<ClusterCreatedIndicator cluster={cluster} />);
+    await user.click(screen.getByRole('button'));
+    const dialog = await screen.findByRole('dialog');
+
+    expect(dialog).toHaveTextContent(/Your OCP cluster is not/i);
+    expect(dialog).toHaveTextContent(/Your cluster will remain functional/i);
+    expect(dialog).not.toHaveTextContent(/Please enable the support by/i);
+    expect(dialog).not.toHaveTextContent(/Invalid Date/i);
+  });
+
+  it('should show "N/A" with warning when Eval cluster has no creation timestamp', () => {
+    const cluster = {
+      managed: false,
+      subscription: {
+        [SUPPORT_LEVEL]: SubscriptionCommonFieldsSupportLevel.Eval,
+      },
+    };
+
+    render(<ClusterCreatedIndicator cluster={cluster} />);
+    expect(screen.getByText('N/A')).toBeInTheDocument();
+  });
+
+  it('should have "not supported" popover when support level is None', async () => {
     const creationTimeStamp = '2020-01-01T00:00:00Z';
     const cluster = {
       managed: false,
@@ -84,8 +123,11 @@ describe('<ClusterCreatedIndicator />', () => {
     await user.click(screen.getByRole('button'));
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
 
-    expect(
-      screen.getByText('Your 60-day evaluation has expired.', { exact: false }),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Your cluster is not', { exact: false })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /supported/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /OCP subscriptions/i })).toHaveAttribute(
+      'href',
+      docLinks.RH_OCP_SUBSCRIPTIONS,
+    );
   });
 });

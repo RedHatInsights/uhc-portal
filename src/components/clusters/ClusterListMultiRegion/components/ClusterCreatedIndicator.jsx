@@ -14,8 +14,8 @@ import {
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
+import docLinks from '~/common/docLinks.mjs';
 import { getTrialEndDate, getTrialExpiresInDays } from '~/common/getTrialExpiresDates';
-import installLinks from '~/common/installLinks.mjs';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import supportLinks from '~/common/supportLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -83,8 +83,21 @@ function ClusterCreatedIndicator({ cluster }) {
     return (
       <Popover
         position={PopoverPosition.top}
-        bodyContent="Your 60-day evaluation has expired. Edit subscription settings to continue using this cluster, or archive this cluster if it no longer exists."
-        aria-label="Evaluation expired"
+        bodyContent={
+          <p>
+            Your cluster is not{' '}
+            <ExternalLink href={supportLinks.OPENSHIFT_POLICY_UPDATES} noIcon>
+              supported
+            </ExternalLink>
+            . Edit subscription settings to continue using this cluster, or archive this cluster if
+            it no longer exists. To get Red Hat support for clusters, learn more about{' '}
+            <ExternalLink href={docLinks.RH_OCP_SUBSCRIPTIONS} noIcon>
+              OCP subscriptions
+            </ExternalLink>
+            .
+          </p>
+        }
+        aria-label="Cluster not supported"
       >
         <Button
           variant="link"
@@ -96,46 +109,51 @@ function ClusterCreatedIndicator({ cluster }) {
             </Icon>
           }
         >
-          Evaluation expired
+          Not supported
         </Button>
       </Popover>
     );
   }
-  const OCPTrialExpiresStr = getTrialExpiresInDays(cluster, false);
+  const clusterCreationTime = get(cluster, 'creation_timestamp', false);
   const OCPTrialBodyContent = (
     <>
       <h1>
         <strong>OCP Cluster</strong>
       </h1>
       <p>
-        Your OCP cluster evaluation will expire in&nbsp;
-        {OCPTrialExpiresStr}
-        &nbsp;on&nbsp;
-        <strong>
-          <Timestamp
-            date={new Date(subscription.eval_expiration_date)}
-            dateFormat={TimestampFormat.medium}
-            locale="en-GB"
-          />
-        </strong>
-        .&nbsp;Your cluster is not&nbsp;
+        Your OCP cluster is not&nbsp;
         <ExternalLink href={supportLinks.OPENSHIFT_POLICY_UPDATES} noIcon>
           supported
         </ExternalLink>
-        . To get Red Hat support for clusters, learn more about{' '}
-        <ExternalLink href={installLinks.RH_OCP_SUBSCRIPTIONS} noIcon>
+        . Your cluster will remain functional.
+        {subscription.eval_expiration_date && (
+          <>
+            {' '}
+            Please enable the support by&nbsp;
+            <strong>
+              <Timestamp
+                date={new Date(subscription.eval_expiration_date)}
+                dateFormat={TimestampFormat.medium}
+                locale="en-GB"
+              />
+            </strong>
+            .{' '}
+          </>
+        )}{' '}
+        To get Red Hat support for clusters, learn more about{' '}
+        <ExternalLink href={docLinks.RH_OCP_SUBSCRIPTIONS} noIcon>
           OCP subscriptions
         </ExternalLink>
-        . Though your cluster will be functional.
+        .
       </p>
     </>
   );
-  // display "xx days remaining" for grace period
+  // display creation date with warning icon for unsupported OCP clusters
   return (
     <Popover
       position={PopoverPosition.top}
       bodyContent={OCPTrialBodyContent}
-      aria-label="Trial Expiration date"
+      aria-label="Cluster not supported"
     >
       <Button
         variant="link"
@@ -147,8 +165,7 @@ function ClusterCreatedIndicator({ cluster }) {
           </Icon>
         }
       >
-        {OCPTrialExpiresStr}
-        &nbsp; left
+        {clusterCreationTime ? dayjs(clusterCreationTime).format('DD MMM YYYY') : 'N/A'}
       </Button>
     </Popover>
   );
