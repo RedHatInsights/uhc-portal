@@ -2,7 +2,6 @@ import React from 'react';
 
 import docLinks from '~/common/docLinks.mjs';
 import {
-  ALLOW_EUS_CHANNEL,
   ENABLE_AUTO_NODE,
   HCP_LOG_FORWARDING,
   HCP_SPOT_INSTANCES,
@@ -231,7 +230,6 @@ describe('<DetailsRight />', () => {
     });
 
     it('shows delete protection', () => {
-      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
       useFetchMachineOrNodePools.mockReturnValue({ data: [] });
       // Arrange
       render(<DetailsRight {...defaultProps} />);

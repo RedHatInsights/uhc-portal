@@ -5,11 +5,7 @@ import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
 import { OCM_ROLE_NO_CONSOLE_PROFILE } from '~/components/clusters/wizards/rosa/rosaConstants';
 import { refetchGetOCMRole, useFetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
-import {
-  ALLOW_EUS_CHANNEL,
-  HCP_SPOT_INSTANCES,
-  OCM_ROLE_NO_CONSOLE,
-} from '~/queries/featureGates/featureConstants';
+import { HCP_SPOT_INSTANCES, OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { initialValues } from '../constants';
@@ -505,23 +501,7 @@ describe('<ReviewClusterScreen />', () => {
   });
 
   describe('Channel group', () => {
-    it('is not shown when ALLOW_EUS_CHANNEL feature gate is enabled', async () => {
-      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
-
-      render(
-        buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
-          channel_group: 'stable',
-        }),
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Channel group')).not.toBeInTheDocument();
-      });
-    });
-
-    it('is not shown when ALLOW_EUS_CHANNEL feature gate is disabled', async () => {
-      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, false]]);
-
+    it('is not shown', async () => {
       render(
         buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
           channel_group: 'stable',
