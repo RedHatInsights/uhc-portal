@@ -7,7 +7,8 @@ import { getDownloadUrl } from '../../support/download-url-helper';
 const ROSARowTitle = 'Manage your Red Hat OpenShift Service on AWS';
 const OCRowTitle =
   'Create applications and manage OpenShift projects from the command line using the OpenShift client oc';
-const HELMRowTitle = 'Define, install, and upgrade application packages as Helm charts using Helm';
+const HELMRowTitle =
+  'Define, install, and upgrade application packages as Helm charts using Helm 4';
 const OSLocalTitle = 'Download and open the OpenShift Local';
 
 test.describe.serial('Downloads page', { tag: ['@ci', '@smoke'] }, () => {
@@ -42,7 +43,7 @@ test.describe.serial('Downloads page', { tag: ['@ci', '@smoke'] }, () => {
     // Test filtering by CLI tools category
     expect(await downloadsPage.isRowExpanded('rosa')).toBe(false);
     expect(await downloadsPage.isRowExpanded('ocm')).toBe(false);
-    expect(await downloadsPage.isRowExpanded('helm')).toBe(false);
+    expect(await downloadsPage.isRowExpanded('Helm 4')).toBe(false);
 
     await downloadsPage.filterByCategory('Command-line interface (CLI) tools');
     await downloadsPage.clickExpandAll();
@@ -58,17 +59,17 @@ test.describe.serial('Downloads page', { tag: ['@ci', '@smoke'] }, () => {
     // ROSA and OC should still be visible from previous expansion
     expect(await downloadsPage.isRowExpanded('rosa')).toBe(true);
     expect(await downloadsPage.isRowExpanded('ocm')).toBe(true);
-    expect(await downloadsPage.isRowExpanded('helm')).toBe(false);
+    expect(await downloadsPage.isRowExpanded('Helm 4')).toBe(false);
     await expect(page.getByText(ROSARowTitle)).toBeVisible();
     await expect(page.getByText(OCRowTitle)).toBeVisible();
-    // HELM should not be visible since it wasn't expanded in CLI tools filter
+    // Helm should not be visible since it wasn't expanded in CLI tools filter
     await expect(page.getByText(HELMRowTitle)).not.toBeVisible();
 
     // Expand all to show everything
     await downloadsPage.clickExpandAll();
     expect(await downloadsPage.isRowExpanded('rosa')).toBe(true);
     expect(await downloadsPage.isRowExpanded('ocm')).toBe(true);
-    expect(await downloadsPage.isRowExpanded('helm')).toBe(true);
+    expect(await downloadsPage.isRowExpanded('Helm 4')).toBe(true);
     await expect(page.getByText(ROSARowTitle)).toBeVisible();
     await expect(page.getByText(OCRowTitle)).toBeVisible();
     await expect(page.getByText(HELMRowTitle)).toBeVisible();
@@ -80,7 +81,7 @@ test.describe.serial('Downloads page', { tag: ['@ci', '@smoke'] }, () => {
     await expect(page.getByText(HELMRowTitle)).not.toBeVisible();
     expect(await downloadsPage.isRowExpanded('rosa')).toBe(false);
     expect(await downloadsPage.isRowExpanded('ocm')).toBe(false);
-    expect(await downloadsPage.isRowExpanded('helm')).toBe(false);
+    expect(await downloadsPage.isRowExpanded('Helm 4')).toBe(false);
   });
 
   test('selecting OS affects architecture options & href', async ({ page, downloadsPage }) => {
