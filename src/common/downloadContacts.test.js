@@ -13,6 +13,7 @@ describe('downloadContacts', () => {
   it('gives non-deprecated tools at least one Slack channel', () => {
     Object.values(tools).forEach((tool) => {
       const entry = contactsByKey.get(tool);
+      expect(entry).toBeDefined();
       if (entry?.deprecated) {
         return;
       }

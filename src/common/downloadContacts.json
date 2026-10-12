@@ -45,6 +45,13 @@
     "owners": "https://github.com/crc-org/crc/blob/main/OWNERS"
   },
   {
+  "key": "helm3",
+  "displayName": "Helm 3 CLI (helm3)",
+  "urlPattern": "\\/clients\\/helm\\/",
+  "slackChannels": ["#forum-helm", "#helm-eng"],
+  "owners": "https://github.com/helm/helm"
+  },
+  {
     "key": "helm",
     "displayName": "Helm 3 CLI (helm)",
     "urlPattern": "\\/clients\\/helm\\/",
