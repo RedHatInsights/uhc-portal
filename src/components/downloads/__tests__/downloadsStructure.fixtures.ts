@@ -7,7 +7,7 @@ export const allCategories = [
   {
     key: 'DEV',
     title: 'Developer tools',
-    tools: ['odo', 'helm', 'opm', 'operator-sdk', 'rhoas'],
+    tools: ['odo', 'helm3', 'helm', 'opm', 'operator-sdk', 'rhoas'],
   },
   {
     key: 'INSTALLATION',
@@ -79,6 +79,7 @@ export const isRestrictedEnvFalseExpected = [
       'argo-cd',
       'shp-cli',
       'odo',
+      'helm3',
       'helm',
       'opm',
       'operator-sdk',
@@ -106,7 +107,7 @@ export const isRestrictedEnvFalseExpected = [
   {
     key: 'DEV',
     title: 'Developer tools',
-    tools: ['odo', 'helm', 'opm', 'operator-sdk', 'rhoas'],
+    tools: ['odo', 'helm3', 'helm', 'opm', 'operator-sdk', 'rhoas'],
   },
   {
     key: 'INSTALLATION',
@@ -143,6 +144,7 @@ export const expectedExpandedKeys = {
   CCOCTL: 'ccoctl',
   COREOS_INSTALLER: 'coreos-installer',
   CRC: 'crc',
+  HELM3: 'helm3',
   HELM: 'helm',
   X86INSTALLER: 'x86_64-openshift-install',
   IBMZINSTALLER: 's390x-openshift-install',

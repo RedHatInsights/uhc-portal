@@ -29,7 +29,7 @@ const categories: Categories[] = [
   {
     key: 'DEV',
     title: 'Developer tools',
-    tools: [tools.ODO, tools.HELM, tools.OPM, tools.OPERATOR_SDK, tools.RHOAS],
+    tools: [tools.ODO, tools.HELM3, tools.HELM, tools.OPM, tools.OPERATOR_SDK, tools.RHOAS],
   },
   {
     key: 'INSTALLATION',
