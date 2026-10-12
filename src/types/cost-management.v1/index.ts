@@ -2079,7 +2079,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List all ISO 4217 currencies with tenant enablement status */
+    /**
+     * List current tender ISO 4217 currencies with tenant enablement status (JSON), or export static exchange rates (CSV)
+     * @description Returns current (active) ISO 4217 tender currencies with enablement flags for the tenant. Already-enabled inactive or withdrawn codes are still included so they remain visible and disableable. Omits non-tender codes (e.g. XXX) and withdrawn currencies that are not enabled. With Accept: text/csv, returns a flat unpaginated CSV of static exchange rates instead of the nested currency catalog.
+     */
     get: operations['getSettingsCurrency'];
     put?: never;
     post?: never;
@@ -2462,7 +2465,7 @@ export interface components {
       description: string;
       enabled: boolean;
       has_dynamic_rate: boolean;
-      /** @description Whether this currency can currently be disabled. False if the currency is already disabled, is the sole enabled currency, or is referenced by a cost model, price list, cloud provider billing data, or the system/account default. */
+      /** @description Whether the enable/disable toggle is available for this currency. Always true when the currency is disabled (so it can be re-enabled). When enabled, false if it is the sole enabled currency, or is referenced by a cost model, price list, cloud provider billing data, or the system/account default. */
       is_disableable: boolean;
       static_rates: components['schemas']['StaticExchangeRateOut'][];
     };
@@ -3578,11 +3581,20 @@ export interface components {
       uuid: string;
       /** @example USD-EUR */
       name: string;
-      /** @example USD */
+      /**
+       * @description ISO 4217 code for the source currency in the directional pair.
+       * @example USD
+       */
       base_currency: string;
-      /** @example EUR */
+      /**
+       * @description ISO 4217 code for the destination currency. Use this as the display units for exchange_rate (e.g. format 0.87 as "0.87 EUR").
+       * @example EUR
+       */
       target_currency: string;
-      /** @example 0.87 */
+      /**
+       * @description Directional multiplier: units of target_currency per 1 unit of base_currency. Example: base=AED, target=EUR, exchange_rate=0.92 means 1 AED = 0.92 EUR. Conversion is amount_in_base × exchange_rate → amount_in_target. There is no separate exchange_rate_units field; format using target_currency.
+       * @example 0.87
+       */
       exchange_rate: number;
       /**
        * Format: date
@@ -9207,16 +9219,18 @@ export interface operations {
         offset?: components['parameters']['QueryOffset'];
         /** @description Parameter for selecting the amount of data in a returned. */
         limit?: components['parameters']['QueryLimit'];
-        /** @description Filter by tenant enablement status. Use true or 1 for enabled currencies only; false or 0 for disabled currencies only. Omit to return all currencies with enabled currencies listed first. */
+        /** @description Filter by tenant enablement status. JSON: true/1 returns enabled currencies only; false/0 returns disabled current-tender currencies only; omit returns current tender currencies (plus any already-enabled inactive codes) sorted by code. CSV: true/1 keeps static rates whose base currency is enabled; false/0 keeps rates whose base is disabled; omit returns all matching rates. */
         'filter[enabled]'?: PathsSettingsCurrencyGetParametersQueryFilterEnabled;
         /**
-         * @description Filter by currency code using case-insensitive substring match on the ISO 4217 code. Accepts comma-separated values or repeated parameters for multiple search terms (OR filter). Non-matching values return an empty list.
+         * @description Case-insensitive substring match. Accepts comma-separated values or repeated parameters (OR). JSON: matches the currency catalog code (base only). CSV: matches a static rate if the term appears in base_currency or target_currency (e.g. EUR includes USD→EUR rows). Non-matching values return an empty list.
          * @example [
          *       "USD",
          *       "EUR"
          *     ]
          */
         'filter[currency]'?: string[];
+        /** @description Sort currencies by ISO 4217 code. Defaults to asc when omitted. */
+        'order_by[code]'?: PathsSettingsCurrencyGetParametersQueryOrder_byCode;
       };
       header?: never;
       path?: never;
@@ -9224,13 +9238,14 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description A paginated list of currency settings objects */
+      /** @description A paginated list of currency settings objects (JSON), or an unpaginated flat CSV of static exchange rates when Accept is text/csv */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
           'application/json': components['schemas']['CurrencySettingsPagination'];
+          'text/csv': string;
         };
       };
       /** @description Bad Request */
@@ -9240,6 +9255,7 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['Error'];
+          'text/csv': components['schemas']['Error'];
         };
       };
       /** @description Unauthorized */
@@ -9256,6 +9272,7 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['Error'];
+          'text/csv': components['schemas']['Error'];
         };
       };
     };
@@ -9979,6 +9996,10 @@ export enum PathsSettingsCurrencyGetParametersQueryFilterEnabled {
   false = 'false',
   Value1 = '1',
   Value0 = '0',
+}
+export enum PathsSettingsCurrencyGetParametersQueryOrder_byCode {
+  asc = 'asc',
+  desc = 'desc',
 }
 export enum PathsRecommendationsOpenshiftGetParametersQueryFormat {
   json = 'json',
