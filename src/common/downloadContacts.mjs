@@ -1,5 +1,5 @@
 /**
- * Ownership map for download/binary URLs used by check-links.mjs -s.
+ * Ownership map for download/binary URLs used by check-links.mjs --slack.
  * Loads downloadContacts.json and compiles urlPattern strings to RegExp.
  */
 

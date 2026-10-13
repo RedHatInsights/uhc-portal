@@ -36,7 +36,7 @@ const verboseMode = args.includes('-v') || args.includes('--verbose');
 const helpMode = args.includes('-h') || args.includes('--help');
 const redirectsMode = args.includes('-r') || args.includes('--redirects');
 const summaryMode = args.includes('--summary');
-const slackMode = args.includes('-s') || args.includes('--slack');
+const slackMode = args.includes('--slack');
 const listChannelsMode = args.includes('-l') || args.includes('--list-channels');
 const updateChannelIndex = args.indexOf('--update-channel');
 const updateChannelMode = updateChannelIndex !== -1;
@@ -159,7 +159,7 @@ Options:
                  (By default, only error URLs are displayed)
   -r, --redirects Show ONLY redirected URLs with their redirect targets
   --summary      Print summary table and broken links only
-  -s, --slack    List real 4xx broken links (false positives excluded),
+  --slack        List real 4xx broken links (false positives excluded),
                  then draft copy/paste Slack messages for selected URLs
   -l, --list-channels
                  Print downloadContacts.json entries (key, name, channels)
@@ -876,11 +876,11 @@ function displayUsageNotes(verbose) {
       '\nNote: Run with -v or --verbose to see URLs for successful requests and redirects',
     );
     console.log('      Run with -r or --redirects to see ONLY redirected URLs with targets');
-    console.log('      Run with -s or --slack to draft Slack messages for broken download links');
+    console.log('      Run with --slack to draft Slack messages for broken download links');
     console.log('      Run with -h or --help for more information');
   } else {
     console.log('\nNote: Run with -r or --redirects to see ONLY redirected URLs with targets');
-    console.log('      Run with -s or --slack to draft Slack messages for broken download links');
+    console.log('      Run with --slack to draft Slack messages for broken download links');
     console.log('      Run with -h or --help for more information');
   }
 }
@@ -1174,7 +1174,7 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
 }
 
 /**
- * 4xx errors that are not known false positives — the only URLs -s drafts for.
+ * 4xx errors that are not known false positives — the only URLs --slack drafts for.
  * @param {Object} categories - Categorized results
  * @returns {Array<{url: string, status: number}>}
  */
@@ -1246,7 +1246,7 @@ function printSlackDraft(displayNumber, item, contact) {
 }
 
 /**
- * -s flow: numbered 4xx list → user selection → Slack drafts (never posts).
+ * --slack flow: numbered 4xx list → user selection → Slack drafts (never posts).
  * @param {Object} categories
  */
 async function runSlackDraftFlow(categories) {

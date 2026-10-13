@@ -1,4 +1,4 @@
-// Parses -s Slack draft selection input ("1,2", "all", or empty to skip).
+// Parses --slack draft selection input ("1,2", "all", or empty to skip).
 
 /**
  * @param {string} answer
