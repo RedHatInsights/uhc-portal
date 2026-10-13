@@ -61,7 +61,7 @@ function SubscriptionSettings({
   let supportLevelStr = supportLevel;
   let titleIcon = null;
   if (supportLevel === SubscriptionCommonFieldsSupportLevel.Eval) {
-    supportLevelStr = 'Self-Support 60-day evaluation';
+    supportLevelStr = 'Self-Support (unsupported)';
     if (isEditViewable) {
       titleIcon = <ExclamationTriangleIcon className="subscription-settings warning-title-icon" />;
     }

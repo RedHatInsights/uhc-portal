@@ -44,7 +44,7 @@ describe('getOptions', () => {
       expect(options).toEqual([
         ...expectedOptions,
         {
-          label: 'Self-Support 60-day evaluation',
+          label: 'Self-Support (unsupported)',
           value: SubscriptionCommonFieldsSupportLevel.Eval,
         },
       ]);
@@ -66,7 +66,7 @@ describe('getOptions', () => {
         { label: 'Self-Support', value: SubscriptionCommonFieldsSupportLevel.Self_Support },
         {
           isChecked: true,
-          label: 'Self-Support 60-day evaluation',
+          label: 'Self-Support (unsupported)',
           value: SubscriptionCommonFieldsSupportLevel.Eval,
         },
       ]);
