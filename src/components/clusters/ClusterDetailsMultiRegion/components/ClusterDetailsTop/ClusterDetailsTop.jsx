@@ -150,9 +150,9 @@ function ClusterDetailsTop(props) {
   const [showPlatformPlusMarketplaceAlert, setShowPlatformPlusMarketplaceAlert] = useState(
     isROSA && !hasOppAlertBeenDismissed && !isArchived && !isDeprovisioned,
   );
-  const [showAroPlatformPlusMarketplaceAlert, setShowAroPlatformPlusMarketplaceAlert] = useState(
-    isARO && !hasAroOppAlertBeenDismissed && !isArchived && !isDeprovisioned,
-  );
+  const [isAroPlatformPlusMarketplaceAlertVisible, setIsAroPlatformPlusMarketplaceAlertVisible] =
+    useState(!hasAroOppAlertBeenDismissed && !isArchived && !isDeprovisioned);
+  const showAroPlatformPlusMarketplaceAlert = isARO && isAroPlatformPlusMarketplaceAlertVisible;
 
   let topCard = null;
   // Temporary solution needs update inside the component. (class based into functional) - OCMUI-2357
@@ -537,7 +537,7 @@ function ClusterDetailsTop(props) {
 
             {showAroPlatformPlusMarketplaceAlert ? (
               <AroPlatformPlusMarketplaceAlert
-                onDismiss={() => setShowAroPlatformPlusMarketplaceAlert(false)}
+                onDismiss={() => setIsAroPlatformPlusMarketplaceAlertVisible(false)}
               />
             ) : null}
           </ExpandableSection>
