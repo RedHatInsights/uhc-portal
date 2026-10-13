@@ -7,5 +7,8 @@
     "InvalidUsernameSymbolsError": "Username includes illegal symbols",
     "ValidUsernameNotFound": "admintest",
     "UsernameNotFoundError": "Could not find any account identified by admintest"
+  },
+  "SupportCases": {
+    "LoadErrorHeading": "Support cases could not be loaded"
   }
 }

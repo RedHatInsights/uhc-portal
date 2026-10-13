@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { userEvent, within } from 'storybook/test';
+import { screen, userEvent, within } from 'storybook/test';
 
 import { Button } from '@patternfly/react-core';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
@@ -205,10 +205,9 @@ export const FilterValidation: Story = {
     inlineFilterPlaceholderText: 'Filter by account ID',
     filterValidate: { pattern: /^\d*$/, message: 'Please enter numeric digits only.' },
   },
-  play: async ({ context, canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ context }) => {
     await Footer.play?.(context);
-    const filterInput = canvas.getByLabelText('Filter by account ID', {
+    const filterInput = screen.getByLabelText('Filter by account ID', {
       selector: 'input',
     });
     await userEvent.type(filterInput, 'abc', {
