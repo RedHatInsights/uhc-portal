@@ -435,5 +435,93 @@ describe('<ClusterDetailsTop />', () => {
       expect(screen.queryByText(alertTitle)).not.toBeInTheDocument();
       expect(localStorage.getItem('hasUserDismissedRosaOppMarketplaceAlert')).toEqual('true');
     });
+
+    it('shows ARO Platform Plus Marketplace alert for ARO clusters', async () => {
+      const cluster = {
+        ...defaultCluster,
+        subscription: {
+          ...defaultCluster.subscription,
+          plan: { type: normalizedProducts.ARO },
+        },
+      };
+      const { user } = render(<ClusterDetailsTop {...props} cluster={cluster} />);
+
+      await user.click(screen.getByText('Alerts and recommendations'));
+
+      expect(
+        screen.getByText(
+          'Red Hat OpenShift Platform Plus is now available for Azure Red Hat OpenShift',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', {
+          name: 'Azure Marketplace listing for EMEA (new window or tab)',
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it('does not show ARO Platform Plus Marketplace alert for non-ARO clusters', async () => {
+      const cluster = {
+        ...defaultCluster,
+        subscription: {
+          ...defaultCluster.subscription,
+          plan: { type: normalizedProducts.OSD },
+        },
+      };
+      const { user } = render(<ClusterDetailsTop {...props} cluster={cluster} />);
+
+      await user.click(screen.getByText('Alerts and recommendations'));
+
+      expect(
+        screen.queryByText(
+          'Red Hat OpenShift Platform Plus is now available for Azure Red Hat OpenShift',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not show ARO Platform Plus Marketplace alert for ARO clusters if user has dismissed it', async () => {
+      localStorage.setItem('hasUserDismissedAroOppMarketplaceAlert', 'true');
+
+      const cluster = {
+        ...defaultCluster,
+        subscription: {
+          ...defaultCluster.subscription,
+          plan: { type: normalizedProducts.ARO },
+        },
+      };
+      const { user } = render(<ClusterDetailsTop {...props} cluster={cluster} />);
+
+      await user.click(screen.getByText('Alerts and recommendations'));
+
+      expect(
+        screen.queryByText(
+          'Red Hat OpenShift Platform Plus is now available for Azure Red Hat OpenShift',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    it('hides ARO Platform Plus Marketplace alert when dismissed', async () => {
+      const cluster = {
+        ...defaultCluster,
+        subscription: {
+          ...defaultCluster.subscription,
+          plan: { type: normalizedProducts.ARO },
+        },
+      };
+      const { user } = render(<ClusterDetailsTop {...props} cluster={cluster} />);
+
+      await user.click(screen.getByText('Alerts and recommendations'));
+
+      const alertTitle =
+        'Red Hat OpenShift Platform Plus is now available for Azure Red Hat OpenShift';
+      const alertTitleElement = screen.getByText(alertTitle);
+      expect(alertTitleElement).toBeInTheDocument();
+
+      const alert = alertTitleElement.closest('.pf-v6-c-alert');
+      await user.click(within(alert).getByRole('button', { name: /close/i }));
+
+      expect(screen.queryByText(alertTitle)).not.toBeInTheDocument();
+      expect(localStorage.getItem('hasUserDismissedAroOppMarketplaceAlert')).toEqual('true');
+    });
   });
 });
