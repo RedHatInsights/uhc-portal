@@ -27,6 +27,49 @@ export const AWS_TAG_MAX_COUNT = Infinity; // only exported for testing
 
 const canNotEditMessage = 'This option cannot be edited from its original setting selection.';
 
+const AWSTagRow = ({
+  index,
+  disabled,
+  input,
+  onRemove,
+  onPush,
+}: {
+  index: number;
+  disabled: boolean;
+  input: ReturnType<typeof useField<EditMachinePoolValues['awsTags']>>[0];
+  onRemove: (index: number) => void;
+  onPush: () => void;
+}) => {
+  const keyField = `awsTags[${index}].key`;
+  const valueField = `awsTags[${index}].value`;
+  const [keyInput] = useField<string>(keyField);
+
+  return (
+    <>
+      <GridItem span={4}>
+        <TextField fieldId={keyField} isReadOnly={disabled} ariaLabelledBy="awsTags-key-label" />
+      </GridItem>
+      <GridItem span={4}>
+        <TextField
+          fieldId={valueField}
+          isReadOnly={disabled}
+          ariaLabelledBy="awsTags-value-label"
+          shouldShowError={!disabled && !!keyInput.value}
+        />
+      </GridItem>
+      <GridItem span={4}>
+        <FieldArrayRemoveButton
+          input={input}
+          index={index}
+          onRemove={onRemove}
+          onPush={onPush}
+          disabled={disabled}
+        />
+      </GridItem>
+    </>
+  );
+};
+
 const EditAWSTagsSection = ({ isNewMachinePool }: { isNewMachinePool: boolean }) => {
   const [input] = useField<EditMachinePoolValues['awsTags']>('awsTags');
 
@@ -83,39 +126,17 @@ const EditAWSTagsSection = ({ isNewMachinePool }: { isNewMachinePool: boolean })
               </GridItem>
             </Grid>
             <Grid hasGutter>
-              {input.value.map((_, index) => {
-                const keyField = `awsTags[${index}].key`;
-                const valueField = `awsTags[${index}].value`;
-
-                return (
-                  // eslint-disable-next-line react/no-array-index-key
-                  <React.Fragment key={index}>
-                    <GridItem span={4}>
-                      <TextField
-                        fieldId={keyField}
-                        isReadOnly={disabled}
-                        ariaLabelledBy="awsTags-key-label"
-                      />
-                    </GridItem>
-                    <GridItem span={4}>
-                      <TextField
-                        fieldId={valueField}
-                        isReadOnly={disabled}
-                        ariaLabelledBy="awsTags-value-label"
-                      />
-                    </GridItem>
-                    <GridItem span={4}>
-                      <FieldArrayRemoveButton
-                        input={input}
-                        index={index}
-                        onRemove={remove}
-                        onPush={() => push({ key: '', value: '' })}
-                        disabled={disabled}
-                      />
-                    </GridItem>
-                  </React.Fragment>
-                );
-              })}
+              {input.value.map((_, index) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <AWSTagRow
+                  key={index}
+                  index={index}
+                  disabled={disabled}
+                  input={input}
+                  onRemove={remove}
+                  onPush={() => push({ key: '', value: '' })}
+                />
+              ))}
               <GridItem span={6}>
                 <ButtonWithTooltip
                   icon={<PlusCircleIcon />}

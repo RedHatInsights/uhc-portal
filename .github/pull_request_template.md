@@ -8,7 +8,7 @@
 # Jira
 
 <!-- link to the corresponding Jira item -->
-<!-- for example: Fixes [OCMUI-XXXX](https://redhat.atlassian.net/browse/OCMUI-XXXX) -->
+<!-- for example: Fixes [ROSAENG-XXXXX](https://redhat.atlassian.net/browse/ROSAENG-XXXXX) -->
 
 # Additional information
 

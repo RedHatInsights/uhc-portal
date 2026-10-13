@@ -1,13 +1,27 @@
 import { hasAllowOcp5Capability } from '~/common/subscriptionCapabilities';
-import { isHypershiftCluster, isOSD, isROSA } from '~/components/clusters/common/clusterStates';
+import {
+  isAWS,
+  isHypershiftCluster,
+  isOSD,
+  isROSA,
+} from '~/components/clusters/common/clusterStates';
 import { Capability } from '~/types/accounts_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
 
-interface ShowUpgradeToV5WarningParams {
-  cluster: AugmentedCluster | undefined;
+interface Ocp5MigrationWarningOrgParams {
   isOcp5SupportEnabled: boolean;
   organizationCapabilities: Capability[] | undefined;
 }
+
+interface ShowUpgradeToV5WarningParams extends Ocp5MigrationWarningOrgParams {
+  cluster: AugmentedCluster | undefined;
+}
+
+const isOcp5MigrationWarningEnabledForOrg = ({
+  isOcp5SupportEnabled,
+  organizationCapabilities,
+}: Ocp5MigrationWarningOrgParams): boolean =>
+  isOcp5SupportEnabled && !hasAllowOcp5Capability(organizationCapabilities);
 
 const shouldShowUpgradeToV5Warning = ({
   cluster,
@@ -15,14 +29,21 @@ const shouldShowUpgradeToV5Warning = ({
   organizationCapabilities,
 }: ShowUpgradeToV5WarningParams): boolean => {
   if (
-    !isOcp5SupportEnabled ||
-    isHypershiftCluster(cluster) ||
-    hasAllowOcp5Capability(organizationCapabilities)
+    !cluster ||
+    !isOcp5MigrationWarningEnabledForOrg({ isOcp5SupportEnabled, organizationCapabilities })
   ) {
     return false;
   }
 
-  return isROSA(cluster) || (!!cluster && isOSD(cluster));
+  if (isHypershiftCluster(cluster)) {
+    return false;
+  }
+
+  if (isROSA(cluster)) {
+    return true;
+  }
+
+  return isOSD(cluster) && isAWS(cluster);
 };
 
-export { shouldShowUpgradeToV5Warning };
+export { isOcp5MigrationWarningEnabledForOrg, shouldShowUpgradeToV5Warning };
