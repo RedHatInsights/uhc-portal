@@ -114,7 +114,7 @@
     "@sentry/cli": "^2.21.2",
     "@storybook/addon-links": "9.1.20",
     "@storybook/addon-onboarding": "9.1.20",
-    "@storybook/addon-styling-webpack": "2.0.0",
+    "@storybook/addon-styling-webpack": "3.0.2",
     "@storybook/addon-webpack5-compiler-swc": "4.0.3",
     "@storybook/react-webpack5": "9.1.20",
     "@testing-library/dom": "^10.2.0",
