@@ -16,7 +16,17 @@ test.describe.serial(
   { tag: ['@smoke', '@osd'] },
   () => {
     test.beforeAll(async ({ navigateTo }) => {
-      // Navigate to create
+      if (
+        !PSC_INFRA.REGION ||
+        !PSC_INFRA.VPC_NAME ||
+        !PSC_INFRA.CONTROLPLANE_SUBNET ||
+        !PSC_INFRA.COMPUTE_SUBNET ||
+        !PSC_INFRA.PRIVATE_SERVICE_CONNECT_SUBNET
+      ) {
+        throw new Error(
+          'QE_INFRA_GCP.PSC_INFRA must include REGION, VPC_NAME, CONTROLPLANE_SUBNET, COMPUTE_SUBNET, and PRIVATE_SERVICE_CONNECT_SUBNET',
+        );
+      }
       await navigateTo('create');
     });
 
@@ -122,11 +132,11 @@ test.describe.serial(
         createOSDWizardPage,
       }) => {
         await createOSDWizardPage.isVPCSubnetScreen();
-        await createOSDWizardPage.selectGcpVPC(PSC_INFRA.VPC_NAME || '');
-        await createOSDWizardPage.selectControlPlaneSubnetName(PSC_INFRA.CONTROLPLANE_SUBNET || '');
-        await createOSDWizardPage.selectComputeSubnetName(PSC_INFRA.COMPUTE_SUBNET || '');
+        await createOSDWizardPage.selectGcpVPC(PSC_INFRA.VPC_NAME);
+        await createOSDWizardPage.selectControlPlaneSubnetName(PSC_INFRA.CONTROLPLANE_SUBNET);
+        await createOSDWizardPage.selectComputeSubnetName(PSC_INFRA.COMPUTE_SUBNET);
         await createOSDWizardPage.selectPrivateServiceConnectSubnetName(
-          PSC_INFRA.PRIVATE_SERVICE_CONNECT_SUBNET || '',
+          PSC_INFRA.PRIVATE_SERVICE_CONNECT_SUBNET,
         );
         await createOSDWizardPage.wizardNextButton().click();
       });
