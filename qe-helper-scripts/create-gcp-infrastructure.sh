@@ -3,7 +3,7 @@
 # GCP VPC + KMS infrastructure for OSD GCP tests (custom VPC, PSC, etcd/disk encryption)
 # Creates: custom VPC, control-plane/compute/PSC subnets, Cloud NAT (optional),
 #          Cloud KMS key ring + crypto key + KMS service account (optional)
-# Default region: us-central1; KMS key ring location follows that region unless overridden
+# Default region: asia-south2; KMS key ring location follows that region unless overridden
 # Optionally updates playwright.env.json (QE_INFRA_GCP, PSC_INFRA, QE_GCP_KEY_*)
 
 set -euo pipefail
@@ -14,7 +14,7 @@ PLAYWRIGHT_ENV_FILE="$REPO_ROOT/playwright.env.json"
 
 # Configuration (override via CLI flags or env vars)
 PROJECT_ID="${PROJECT_ID:-$(gcloud config get-value project 2>/dev/null || true)}"
-REGION="${REGION:-us-central1}"
+REGION="${REGION:-asia-south2}"
 VPC_NAME="${VPC_NAME:-playwright-osd}"
 
 # Optional explicit names (empty => derived from VPC_NAME after CLI parse)
@@ -24,10 +24,11 @@ PSC_SUBNET="${PSC_SUBNET:-}"
 ROUTER_NAME="${ROUTER_NAME:-}"
 NAT_NAME="${NAT_NAME:-}"
 
-# CIDRs must sit inside the OSD Machine CIDR (default 10.0.0.0/16)
+# Every subnet CIDR must be a network address inside this OSD machine CIDR.
+MACHINE_CIDR="${MACHINE_CIDR:-10.0.0.0/16}"
 CONTROLPLANE_CIDR="${CONTROLPLANE_CIDR:-10.0.0.0/20}"
 COMPUTE_CIDR="${COMPUTE_CIDR:-10.0.16.0/20}"
-# PSC subnet must be /29 or larger and dedicated to one cluster
+# PSC subnet must be /29 or larger (prefix length 29 or less) and dedicated to one cluster.
 PSC_CIDR="${PSC_CIDR:-10.0.32.0/29}"
 
 CREATE_CLOUD_NAT="${CREATE_CLOUD_NAT:-true}"
@@ -130,19 +131,261 @@ check_prereqs() {
   print_status "Region: ${REGION}"
 }
 
-network_exists() {
+# 0 = VPC exists, 1 = confirmed absent, 2 = describe failed for another reason.
+# Absence is only "was not found" / NOT_FOUND. Permission and transport errors
+# are not absence; their gcloud diagnostic is printed.
+network_lookup() {
   local name=${1:-${VPC_NAME}}
-  gcloud compute networks describe "${name}" \
-    --project="${PROJECT_ID}" \
-    --format='value(name)' &>/dev/null
+  local err_file
+  err_file=$(mktemp)
+  if gcloud compute networks describe "${name}" \
+      --project="${PROJECT_ID}" \
+      --format='value(name)' >/dev/null 2>"${err_file}"; then
+    rm -f "${err_file}"
+    return 0
+  fi
+  if grep -Eq 'not found|NOT_FOUND' "${err_file}"; then
+    rm -f "${err_file}"
+    return 1
+  fi
+  cat "${err_file}" >&2
+  rm -f "${err_file}"
+  return 2
 }
 
-subnet_exists() {
+network_exists() {
+  local name=${1:-${VPC_NAME}}
+  local result=0
+  network_lookup "${name}" || result=$?
+  if [[ "${result}" -eq 0 ]]; then
+    return 0
+  fi
+  if [[ "${result}" -eq 1 ]]; then
+    return 1
+  fi
+  print_error "Unable to describe VPC '${name}' in project '${PROJECT_ID}'"
+  exit 1
+}
+
+ip_to_int() {
+  local o1 o2 o3 o4
+  IFS=. read -r o1 o2 o3 o4 <<< "$1"
+  echo $(( (10#${o1} << 24) + (10#${o2} << 16) + (10#${o3} << 8) + 10#${o4} ))
+}
+
+prefix_mask() {
+  # Force base 10 so a prefix like 08 is not parsed as octal.
+  local prefix=$((10#$1))
+  echo $(( (0xFFFFFFFF << (32 - prefix)) & 0xFFFFFFFF ))
+}
+
+cidr_is_valid() {
+  local cidr=$1
+  [[ "${cidr}" =~ ^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})/([0-9]{1,2})$ ]] || return 1
+  local o1=${BASH_REMATCH[1]} o2=${BASH_REMATCH[2]} o3=${BASH_REMATCH[3]} o4=${BASH_REMATCH[4]}
+  local prefix=${BASH_REMATCH[5]}
+  (( 10#${o1} <= 255 && 10#${o2} <= 255 && 10#${o3} <= 255 && 10#${o4} <= 255 && 10#${prefix} <= 32 ))
+}
+
+cidr_network_int() {
+  local cidr=$1
+  local ip=${cidr%/*}
+  local prefix=${cidr#*/}
+  echo $(( $(ip_to_int "${ip}") & $(prefix_mask "${prefix}") ))
+}
+
+cidr_broadcast_int() {
+  local cidr=$1
+  local raw_prefix=${cidr#*/}
+  local prefix=$((10#${raw_prefix}))
+  local network
+  network=$(cidr_network_int "${cidr}")
+  echo $(( network + (1 << (32 - prefix)) - 1 ))
+}
+
+cidr_is_aligned() {
+  local cidr=$1
+  local ip=${cidr%/*}
+  [[ "$(ip_to_int "${ip}")" -eq "$(cidr_network_int "${cidr}")" ]]
+}
+
+cidr_is_network() {
+  local cidr=$1
+  cidr_is_valid "${cidr}" && cidr_is_aligned "${cidr}"
+}
+
+cidr_canonical() {
+  local cidr=$1
+  local raw_prefix=${cidr#*/}
+  local prefix=$((10#${raw_prefix}))
+  local network o1 o2 o3 o4
+  network=$(cidr_network_int "${cidr}")
+  o1=$(( (network >> 24) & 255 ))
+  o2=$(( (network >> 16) & 255 ))
+  o3=$(( (network >> 8) & 255 ))
+  o4=$(( network & 255 ))
+  echo "${o1}.${o2}.${o3}.${o4}/${prefix}"
+}
+
+cidr_is_within() {
+  local inner=$1
+  local outer=$2
+  cidr_is_network "${inner}" || return 1
+  cidr_is_network "${outer}" || return 1
+  local inner_prefix=${inner#*/}
+  local outer_prefix=${outer#*/}
+  (( 10#${inner_prefix} >= 10#${outer_prefix} )) || return 1
+  local outer_net inner_net outer_mask
+  outer_net=$(cidr_network_int "${outer}")
+  inner_net=$(cidr_network_int "${inner}")
+  outer_mask=$(prefix_mask "${outer_prefix}")
+  (( (inner_net & outer_mask) == outer_net ))
+}
+
+ranges_overlap() {
+  local a_start a_end b_start b_end
+  a_start=$(cidr_network_int "$1")
+  a_end=$(cidr_broadcast_int "$1")
+  b_start=$(cidr_network_int "$2")
+  b_end=$(cidr_broadcast_int "$2")
+  (( a_start <= b_end && b_start <= a_end ))
+}
+
+validate_one_cidr() {
+  local label=$1
+  local cidr=$2
+  if ! cidr_is_valid "${cidr}"; then
+    print_error "${label} CIDR '${cidr}' is not a valid IPv4 CIDR"
+    return 1
+  fi
+  if ! cidr_is_aligned "${cidr}"; then
+    print_error "${label} CIDR '${cidr}' is not a network address"
+    return 1
+  fi
+  if ! cidr_is_within "${cidr}" "${MACHINE_CIDR}"; then
+    print_error "${label} CIDR '${cidr}' is outside machine CIDR '${MACHINE_CIDR}'"
+    return 1
+  fi
+  return 0
+}
+
+validate_configured_cidrs() {
+  local failed=false
+  local psc_prefix
+
+  if ! cidr_is_valid "${MACHINE_CIDR}" || ! cidr_is_aligned "${MACHINE_CIDR}"; then
+    print_error "Machine CIDR '${MACHINE_CIDR}' is not a valid IPv4 network address"
+    exit 1
+  fi
+
+  validate_one_cidr "Control plane" "${CONTROLPLANE_CIDR}" || failed=true
+  validate_one_cidr "Compute" "${COMPUTE_CIDR}" || failed=true
+
+  if [[ "${CREATE_PSC}" == "true" ]]; then
+    if ! cidr_is_valid "${PSC_CIDR}"; then
+      print_error "PSC CIDR '${PSC_CIDR}' is not a valid IPv4 CIDR"
+      failed=true
+    elif ! cidr_is_aligned "${PSC_CIDR}"; then
+      print_error "PSC CIDR '${PSC_CIDR}' is not a network address"
+      failed=true
+    else
+      psc_prefix=${PSC_CIDR#*/}
+      if (( 10#${psc_prefix} > 29 )); then
+        print_error "PSC CIDR '${PSC_CIDR}' must be /29 or larger (prefix length 29 or less)"
+        failed=true
+      elif ! cidr_is_within "${PSC_CIDR}" "${MACHINE_CIDR}"; then
+        print_error "PSC CIDR '${PSC_CIDR}' is outside machine CIDR '${MACHINE_CIDR}'"
+        failed=true
+      fi
+    fi
+  fi
+
+  if [[ "${failed}" == "false" ]]; then
+    if ranges_overlap "${CONTROLPLANE_CIDR}" "${COMPUTE_CIDR}"; then
+      print_error "Control plane CIDR '${CONTROLPLANE_CIDR}' overlaps compute CIDR '${COMPUTE_CIDR}'"
+      failed=true
+    fi
+    if [[ "${CREATE_PSC}" == "true" ]]; then
+      if ranges_overlap "${CONTROLPLANE_CIDR}" "${PSC_CIDR}" || ranges_overlap "${COMPUTE_CIDR}" "${PSC_CIDR}"; then
+        print_error "PSC CIDR '${PSC_CIDR}' overlaps the control plane or compute CIDR"
+        failed=true
+      fi
+    fi
+  fi
+
+  if [[ "${failed}" == "true" ]]; then
+    exit 1
+  fi
+}
+
+# Prints "vpc<TAB>cidr<TAB>purpose". Fails when the subnet name is absent.
+subnet_attributes() {
   local subnet_name=$1
-  gcloud compute networks subnets describe "${subnet_name}" \
+  local json
+  json=$(gcloud compute networks subnets describe "${subnet_name}" \
     --project="${PROJECT_ID}" \
     --region="${REGION}" \
-    --format='value(name)' &>/dev/null
+    --format=json 2>/dev/null) || return 1
+  jq -r '[((.network // "") | split("/") | last), (.ipCidrRange // ""), (.purpose // "")] | @tsv' <<< "${json}"
+}
+
+subnet_attrs_match() {
+  local name=$1
+  local attrs=$2
+  local expected_vpc=$3
+  local expected_cidr=$4
+  local expected_purpose=${5:-}
+  local network actual_cidr actual_purpose
+  local failed=false
+
+  IFS=$'\t' read -r network actual_cidr actual_purpose <<< "${attrs}"
+
+  if [[ "${network}" != "${expected_vpc}" ]]; then
+    print_error "Subnet '${name}' belongs to VPC '${network:-unknown}', expected '${expected_vpc}'"
+    failed=true
+  fi
+
+  if ! cidr_is_network "${actual_cidr}"; then
+    print_error "Subnet '${name}' CIDR '${actual_cidr:-unknown}' is not a valid network CIDR"
+    failed=true
+  elif ! cidr_is_network "${expected_cidr}"; then
+    print_error "Configured CIDR '${expected_cidr}' for subnet '${name}' is not a valid network CIDR"
+    failed=true
+  elif [[ "$(cidr_canonical "${actual_cidr}")" != "$(cidr_canonical "${expected_cidr}")" ]]; then
+    print_error "Subnet '${name}' CIDR is '${actual_cidr}', expected '${expected_cidr}'"
+    failed=true
+  fi
+
+  if [[ -n "${expected_purpose}" ]]; then
+    if [[ "${actual_purpose}" != "${expected_purpose}" ]]; then
+      print_error "Subnet '${name}' purpose is '${actual_purpose:-unknown}', expected '${expected_purpose}'"
+      failed=true
+    fi
+  elif [[ -n "${actual_purpose}" && "${actual_purpose}" != "PRIVATE" ]]; then
+    print_error "Subnet '${name}' purpose is '${actual_purpose}'; expected a regular subnet"
+    failed=true
+  fi
+
+  if [[ "${failed}" == "true" ]]; then
+    return 1
+  fi
+  return 0
+}
+
+subnet_matches() {
+  local name=$1
+  local expected_vpc=$2
+  local expected_cidr=$3
+  local expected_purpose=${4:-}
+  local attrs
+  if ! attrs=$(subnet_attributes "${name}"); then
+    print_error "Subnet '${name}' is missing"
+    return 1
+  fi
+  if ! subnet_attrs_match "${name}" "${attrs}" "${expected_vpc}" "${expected_cidr}" "${expected_purpose}"; then
+    return 1
+  fi
+  return 0
 }
 
 router_exists() {
@@ -181,9 +424,13 @@ create_subnet() {
   local name=$1
   local cidr=$2
   local purpose=${3:-}
+  local attrs
 
-  if subnet_exists "${name}"; then
-    print_found "Subnet '${name}' already exists"
+  if attrs=$(subnet_attributes "${name}"); then
+    if ! subnet_attrs_match "${name}" "${attrs}" "${VPC_NAME}" "${cidr}" "${purpose}"; then
+      exit 1
+    fi
+    print_found "Subnet '${name}' already exists on VPC '${VPC_NAME}' (${cidr})"
     return 0
   fi
 
@@ -386,23 +633,16 @@ validate_resources() {
       failed=true
     fi
 
-    for subnet in "${CONTROLPLANE_SUBNET}" "${COMPUTE_SUBNET}" "${PSC_SUBNET}"; do
-      if ! subnet_exists "${subnet}"; then
-        print_error "Subnet '${subnet}' is missing"
-        failed=true
-      fi
-    done
-
-    local psc_purpose
-    psc_purpose=$(gcloud compute networks subnets describe "${PSC_SUBNET}" \
-      --project="${PROJECT_ID}" \
-      --region="${REGION}" \
-      --format='value(purpose)' 2>/dev/null || true)
-    if [[ "${psc_purpose}" != "PRIVATE_SERVICE_CONNECT" ]]; then
-      print_error "Subnet '${PSC_SUBNET}' purpose is '${psc_purpose:-unknown}', expected PRIVATE_SERVICE_CONNECT"
+    if ! subnet_matches "${CONTROLPLANE_SUBNET}" "${PSC_VPC_NAME}" "${CONTROLPLANE_CIDR}"; then
       failed=true
-    else
+    fi
+    if ! subnet_matches "${COMPUTE_SUBNET}" "${PSC_VPC_NAME}" "${COMPUTE_CIDR}"; then
+      failed=true
+    fi
+    if subnet_matches "${PSC_SUBNET}" "${PSC_VPC_NAME}" "${PSC_CIDR}" "PRIVATE_SERVICE_CONNECT"; then
       print_status "PSC subnet purpose OK: PRIVATE_SERVICE_CONNECT"
+    else
+      failed=true
     fi
 
     if [[ "${CREATE_CLOUD_NAT}" == "true" ]]; then
@@ -421,12 +661,12 @@ validate_resources() {
     print_error "VPC '${NON_PSC_VPC_NAME}' is missing"
     failed=true
   fi
-  for subnet in "${NON_PSC_CONTROLPLANE_SUBNET}" "${NON_PSC_COMPUTE_SUBNET}"; do
-    if ! subnet_exists "${subnet}"; then
-      print_error "Subnet '${subnet}' is missing"
-      failed=true
-    fi
-  done
+  if ! subnet_matches "${NON_PSC_CONTROLPLANE_SUBNET}" "${NON_PSC_VPC_NAME}" "${CONTROLPLANE_CIDR}"; then
+    failed=true
+  fi
+  if ! subnet_matches "${NON_PSC_COMPUTE_SUBNET}" "${NON_PSC_VPC_NAME}" "${COMPUTE_CIDR}"; then
+    failed=true
+  fi
   if [[ "${CREATE_CLOUD_NAT}" == "true" ]]; then
     if ! router_exists "${NON_PSC_ROUTER_NAME}"; then
       print_error "Cloud Router '${NON_PSC_ROUTER_NAME}' is missing"
@@ -489,7 +729,7 @@ Cloud NAT enabled:    ${CREATE_CLOUD_NAT}
 Cloud KMS:            ${KEY_RING_NAME} / ${KEY_NAME} @ ${KEY_RING_LOCATION} (enabled=${CREATE_KMS})
 KMS service account:  ${KMS_SA_EMAIL:-<set when CREATE_KMS=true>}
 
-Suggested Machine CIDR for OSD wizard: 10.0.0.0/16
+Suggested Machine CIDR for OSD wizard: ${MACHINE_CIDR}
   (must contain all three subnet ranges)
 
 Use for:
@@ -499,16 +739,40 @@ Use for:
 EOF
 }
 
+# Replace dest with the command's stdout only when the command succeeds.
+# A failure removes dest.tmp and returns non-zero; dest is left unchanged.
+replace_file_from_stdout() {
+  local dest=$1
+  shift
+  local tmp="${dest}.tmp"
+  if ! "$@" > "${tmp}"; then
+    rm -f "${tmp}"
+    return 1
+  fi
+  if ! mv "${tmp}" "${dest}"; then
+    rm -f "${tmp}"
+    return 1
+  fi
+  return 0
+}
+
 merge_playwright_env_json() {
   local input_file=$1
   local gcp_json=$2
+  # KMS_SA_EMAIL is set only when KMS creation is enabled. The merge filter
+  # reads $kms_sa only in that case; skip the expansion so --skip-kms does not
+  # trip set -u while merging an existing env file.
+  local kms_sa=""
+  if [[ "${CREATE_KMS}" == "true" ]]; then
+    kms_sa="${KMS_SA_EMAIL}"
+  fi
   jq \
     --argjson gcp "${gcp_json}" \
     --arg kms_enabled "${CREATE_KMS}" \
     --arg key_loc "${KEY_RING_LOCATION}" \
     --arg key_ring "${KEY_RING_NAME}" \
     --arg key_name "${KEY_NAME}" \
-    --arg kms_sa "${KMS_SA_EMAIL}" \
+    --arg kms_sa "${kms_sa}" \
     '
       .QE_INFRA_GCP = ((.QE_INFRA_GCP // {}) + $gcp)
       | if ($gcp | has("PSC_INFRA")) then
@@ -581,8 +845,11 @@ update_playwright_env() {
 
     cp "${PLAYWRIGHT_ENV_FILE}" "${PLAYWRIGHT_ENV_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
     print_status "Merging QE_INFRA_GCP into ${PLAYWRIGHT_ENV_FILE}; filling only missing QE_GCP_KEY_* values"
-    merge_playwright_env_json "${PLAYWRIGHT_ENV_FILE}" "${gcp_infra_json}" > "${PLAYWRIGHT_ENV_FILE}.tmp" \
-      && mv "${PLAYWRIGHT_ENV_FILE}.tmp" "${PLAYWRIGHT_ENV_FILE}"
+    if ! replace_file_from_stdout "${PLAYWRIGHT_ENV_FILE}" \
+      merge_playwright_env_json "${PLAYWRIGHT_ENV_FILE}" "${gcp_infra_json}"; then
+      print_error "Failed to merge QE_INFRA_GCP into ${PLAYWRIGHT_ENV_FILE}"
+      exit 1
+    fi
   else
     print_status "Creating ${PLAYWRIGHT_ENV_FILE}"
     if [[ "${CREATE_KMS}" == "true" ]]; then
@@ -627,15 +894,22 @@ cleanup_cloud_nat() {
 }
 
 cleanup_subnets() {
+  local subnet attrs network
   for subnet in "${PSC_SUBNET}" "${COMPUTE_SUBNET}" "${CONTROLPLANE_SUBNET}"; do
     [[ -z "${subnet}" ]] && continue
-    if subnet_exists "${subnet}"; then
-      print_status "Deleting subnet '${subnet}'..."
-      gcloud compute networks subnets delete "${subnet}" \
-        --project="${PROJECT_ID}" \
-        --region="${REGION}" \
-        --quiet
+    if ! attrs=$(subnet_attributes "${subnet}"); then
+      continue
     fi
+    IFS=$'\t' read -r network _ _ <<< "${attrs}"
+    if [[ "${network}" != "${VPC_NAME}" ]]; then
+      print_warning "Subnet '${subnet}' belongs to VPC '${network:-unknown}', not '${VPC_NAME}'; leaving it in place"
+      continue
+    fi
+    print_status "Deleting subnet '${subnet}'..."
+    gcloud compute networks subnets delete "${subnet}" \
+      --project="${PROJECT_ID}" \
+      --region="${REGION}" \
+      --quiet
   done
 }
 
@@ -658,19 +932,22 @@ cleanup_playwright_env() {
   fi
 
   print_status "Clearing matching QE_INFRA_GCP / PSC_INFRA entries from ${PLAYWRIGHT_ENV_FILE}"
-  jq --arg vpc "${NON_PSC_VPC_NAME}" \
-    --arg psc_vpc "${PSC_VPC_NAME}" \
-    --arg psc_enabled "${CREATE_PSC}" \
-    '
-    if (.QE_INFRA_GCP.VPC_NAME // "") == $vpc then
-      del(.QE_INFRA_GCP.VPC_NAME, .QE_INFRA_GCP.CONTROLPLANE_SUBNET, .QE_INFRA_GCP.COMPUTE_SUBNET, .QE_INFRA_GCP.REGION)
-    else . end
-    | if $psc_enabled == "true" and (.QE_INFRA_GCP.PSC_INFRA.VPC_NAME // "") == $psc_vpc then
-        del(.QE_INFRA_GCP.PSC_INFRA)
-      else .
-      end
-  ' "${PLAYWRIGHT_ENV_FILE}" > "${PLAYWRIGHT_ENV_FILE}.tmp" \
-    && mv "${PLAYWRIGHT_ENV_FILE}.tmp" "${PLAYWRIGHT_ENV_FILE}"
+  if ! replace_file_from_stdout "${PLAYWRIGHT_ENV_FILE}" \
+    jq --arg vpc "${NON_PSC_VPC_NAME}" \
+      --arg psc_vpc "${PSC_VPC_NAME}" \
+      --arg psc_enabled "${CREATE_PSC}" \
+      '
+      if (.QE_INFRA_GCP.VPC_NAME // "") == $vpc then
+        del(.QE_INFRA_GCP.VPC_NAME, .QE_INFRA_GCP.CONTROLPLANE_SUBNET, .QE_INFRA_GCP.COMPUTE_SUBNET, .QE_INFRA_GCP.REGION)
+      else . end
+      | if $psc_enabled == "true" and (.QE_INFRA_GCP.PSC_INFRA.VPC_NAME // "") == $psc_vpc then
+          del(.QE_INFRA_GCP.PSC_INFRA)
+        else .
+        end
+      ' "${PLAYWRIGHT_ENV_FILE}"; then
+    print_error "Failed to clear QE_INFRA_GCP entries from ${PLAYWRIGHT_ENV_FILE}"
+    exit 1
+  fi
 }
 
 cleanup_named_vpc() {
@@ -725,6 +1002,7 @@ cleanup_infrastructure() {
 
 main() {
   print_status "Starting GCP VPC (+ optional KMS) setup for OSD GCP tests"
+  validate_configured_cidrs
   check_prereqs
   if [[ "${CREATE_PSC}" == "true" ]]; then
     local saved_vpc="${VPC_NAME}"
@@ -749,6 +1027,7 @@ main() {
 }
 
 validate_only() {
+  validate_configured_cidrs
   check_prereqs
   if validate_resources; then
     print_summary
@@ -763,7 +1042,7 @@ show_usage() {
 Usage: $0 [OPTIONS]
 
 Create a Google Cloud custom VPC for OSD custom-VPC and OSD PSC installs
-in us-central1 (or another region).
+in asia-south2 (or another region).
 
 Creates:
   - Non-PSC VPC (default: playwright-osd) with control plane and compute subnets
@@ -773,14 +1052,15 @@ Creates:
 
 Configuration (CLI or env):
   --project PROJECT_ID          GCP project (default: gcloud config project)
-  --region REGION               Region (default: us-central1)
+  --region REGION               Region (default: asia-south2)
   --vpc-name NAME               Non-PSC VPC name (default: playwright-osd; PSC VPC: playwright-psc-osd)
   --controlplane-subnet NAME    Control plane subnet name
   --compute-subnet NAME         Compute subnet name
   --psc-subnet NAME             PSC subnet name
-  --controlplane-cidr CIDR      Default: 10.0.0.0/20
-  --compute-cidr CIDR           Default: 10.0.16.0/20
-  --psc-cidr CIDR               Default: 10.0.32.0/29
+  --machine-cidr CIDR           OSD machine CIDR; every subnet must fit inside it (default: 10.0.0.0/16)
+  --controlplane-cidr CIDR      Default: 10.0.0.0/20 (must be inside the machine CIDR)
+  --compute-cidr CIDR           Default: 10.0.16.0/20 (must be inside the machine CIDR)
+  --psc-cidr CIDR               Default: 10.0.32.0/29 (/29 or larger, inside the machine CIDR)
   --psc true|false              Create PSC VPC and PSC_INFRA (default: true)
   --skip-nat                    Do not create Cloud Router / NAT
   --skip-kms                    Do not create Cloud KMS / QE_GCP_KEY_* env keys
@@ -830,6 +1110,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --psc-subnet)
       PSC_SUBNET="$2"
+      shift 2
+      ;;
+    --machine-cidr)
+      MACHINE_CIDR="$2"
       shift 2
       ;;
     --controlplane-cidr)
