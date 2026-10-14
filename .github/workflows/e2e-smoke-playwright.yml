@@ -57,6 +57,8 @@ jobs:
         os: [ubuntu-latest]
         node-version: [24.x]
     runs-on: ${{ matrix.os }}
+    env:
+      RUN_GCP_INFRA: ${{ contains(inputs.grep_tags || '@smoke', '@smoke') || contains(inputs.grep_tags || '@smoke', '@osd') }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -142,6 +144,7 @@ jobs:
           rosa version
 
       - name: Install Google Cloud CLI
+        if: env.RUN_GCP_INFRA == 'true'
         run: |
           if ! command -v gcloud &> /dev/null; then
             echo "Installing Google Cloud CLI..."
@@ -224,6 +227,7 @@ jobs:
           fi
 
       - name: Configure gcloud and setup GCP resources
+        if: env.RUN_GCP_INFRA == 'true'
         env:
           CLOUDSDK_CORE_DISABLE_PROMPTS: '1'
         run: |
@@ -559,7 +563,7 @@ jobs:
           fi
 
       - name: Cleanup GCP cloud resources
-        if: always()
+        if: always() && env.RUN_GCP_INFRA == 'true'
         continue-on-error: true
         env:
           CLOUDSDK_CORE_DISABLE_PROMPTS: '1'
