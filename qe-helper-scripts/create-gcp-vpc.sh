@@ -117,15 +117,20 @@ delete_resources() {
   echo "==> Deleting firewall rules for network: $NETWORK"
   local fw_rules=""
   local fw_list_rc=0
+  local fw_list_err_file
+  fw_list_err_file="$(mktemp)"
+  # Keep stderr separate so warning text is never treated as a rule name.
   fw_rules="$(gcloud compute firewall-rules list \
     --project="$PROJECT" \
     --filter="network=https://www.googleapis.com/compute/v1/projects/${PROJECT}/global/networks/${NETWORK}" \
-    --format="value(name)" 2>&1)" || fw_list_rc=$?
+    --format="value(name)" 2>"$fw_list_err_file")" || fw_list_rc=$?
   if [[ "$fw_list_rc" -ne 0 ]]; then
     echo "ERROR: failed to list firewall rules for network: $NETWORK" >&2
-    echo "$fw_rules" >&2
+    cat "$fw_list_err_file" >&2
+    rm -f "$fw_list_err_file"
     return 1
   fi
+  rm -f "$fw_list_err_file"
   if [[ -z "$fw_rules" ]]; then
     echo "    (no firewall rules found)"
   else
