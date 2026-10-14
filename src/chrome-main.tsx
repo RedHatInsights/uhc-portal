@@ -16,7 +16,6 @@ limitations under the License.
 import React from 'react';
 import { Provider } from 'react-redux';
 
-import { GenerateId } from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { NotificationsProvider } from '@redhat-cloud-services/frontend-components-notifications';
 import * as Sentry from '@sentry/browser';
@@ -81,11 +80,11 @@ class AppEntry extends React.Component<Props> {
           }
         }
       });
-      // avoid collisions with generated PF IDs in masthead
-      // workaround for:
-      //   https://issues.redhat.com/browse/RHCLOUD-31437
-      //   https://github.com/patternfly/patternfly-react/issues/10160
-      GenerateId.defaultProps = { prefix: 'pf-random-ocmui-id-', isRandom: true };
+      // NOTE: the workaround previously here for PF's GenerateId ID collisions
+      // (https://issues.redhat.com/browse/RHCLOUD-31437,
+      // https://github.com/patternfly/patternfly-react/issues/10160) is no longer needed:
+      // PatternFly's GenerateId now derives ids via useSSRSafeId(), which uses React's
+      // useId() (React 18+) and is guaranteed to be unique app-wide.
     });
 
     if (
