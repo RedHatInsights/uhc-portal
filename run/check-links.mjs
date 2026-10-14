@@ -256,6 +256,12 @@ function applyChannelUpdate() {
     .split(',')
     .map((channel) => channel.trim())
     .filter(Boolean);
+
+  if (slackChannels.length === 0) {
+    console.error('Error: at least one channel is required. Use "#channel" format.');
+    return false;
+  }
+
   const updated = updateSlackChannels(key, slackChannels);
 
   console.log(`Updated ${key} slackChannels to ${JSON.stringify(updated.slackChannels)}`);
