@@ -16,10 +16,9 @@ const SubscriptionAndSupport = () => {
     <Content>
       <Content component="h2">Subscription and support</Content>
       <Content component="p">
-        Your cluster will be automatically registered with a 60 day evaluation subscription which
-        does not include support. In order to receive support for your cluster, you will need to
-        edit the subscription settings from the cluster details page here in OpenShift Cluster
-        Manager.
+        Your cluster will be automatically registered without any support. In order to receive
+        support for your cluster, you will need to edit the subscription settings from the cluster
+        details page here in OpenShift Cluster Manager.
       </Content>
       <List>
         <ListItem>{bullet1}</ListItem>
