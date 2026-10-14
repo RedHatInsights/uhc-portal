@@ -20,6 +20,10 @@ export class CreateRosaWizardPage extends BaseWizardPage {
     return this.page.getByTestId('rosa-create-cluster-button');
   }
 
+  mainRegion(): Locator {
+    return this.page.getByRole('main');
+  }
+
   /** Alias kept for existing ROSA specs; same as shared wizardNextButton(). */
   rosaNextButton(): Locator {
     return this.wizardNextButton();
