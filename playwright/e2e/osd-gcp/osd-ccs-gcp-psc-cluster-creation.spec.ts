@@ -123,9 +123,7 @@ test.describe.serial(
       }) => {
         await createOSDWizardPage.isVPCSubnetScreen();
         await createOSDWizardPage.selectGcpVPC(PSC_INFRA.VPC_NAME || '');
-        await createOSDWizardPage.selectControlPlaneSubnetName(
-          PSC_INFRA.CONTROLPLANE_SUBNET || '',
-        );
+        await createOSDWizardPage.selectControlPlaneSubnetName(PSC_INFRA.CONTROLPLANE_SUBNET || '');
         await createOSDWizardPage.selectComputeSubnetName(PSC_INFRA.COMPUTE_SUBNET || '');
         await createOSDWizardPage.selectPrivateServiceConnectSubnetName(
           PSC_INFRA.PRIVATE_SERVICE_CONNECT_SUBNET || '',
