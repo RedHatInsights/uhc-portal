@@ -1,6 +1,6 @@
 import { produce } from 'immer';
 
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { clusterCapabilities } from '~/common/capabilities';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { normalizedProducts } from '../../../../common/subscriptionTypes';
@@ -304,12 +304,12 @@ const clusterDetails = {
       console_url: 'https://console-openshift-console.apps.test-liza.wiex.s1.devshift.org',
       capabilities: [
         {
-          name: subscriptionCapabilities.SUBSCRIBED_OCP,
+          name: clusterCapabilities.SUBSCRIBED_OCP,
           value: 'true',
           inherited: true,
         },
         {
-          name: subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
+          name: clusterCapabilities.MANAGE_CLUSTER_ADMIN,
           value: 'true',
           inherited: true,
         },

@@ -1,6 +1,10 @@
 import get from 'lodash/get';
 
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import {
+  clusterCapabilities,
+  hasCapabilityValue,
+  organizationCapabilities,
+} from '~/common/capabilities';
 import { QuotaParams, QuotaTypes } from '~/components/clusters/common/quotaModel';
 import { OrganizationState } from '~/redux/reducers/userReducer';
 import { PromiseReducerState } from '~/redux/stateTypes';
@@ -67,21 +71,11 @@ const hasMachinePoolsQuotaSelector = <E extends ClusterFromSubscription>(
   return false;
 };
 
-const hasOrgLevelAutoscaleCapability = (organization?: Organization) => {
-  const capabilities = organization?.capabilities ?? [];
-  const autoScaleClusters = capabilities.find(
-    (capability) => capability.name === subscriptionCapabilities.AUTOSCALE_CLUSTERS,
-  );
-
-  return !!(autoScaleClusters && autoScaleClusters.value === 'true');
-};
+const hasOrgLevelAutoscaleCapability = (organization?: Organization) =>
+  hasCapabilityValue(organization?.capabilities, clusterCapabilities.AUTOSCALE_CLUSTERS);
 
 const hasOrgLevelBypassPIDsLimitCapability = (organization?: Organization) =>
-  (organization?.capabilities ?? []).some(
-    (capability) =>
-      capability.name === subscriptionCapabilities.BYPASS_PIDS_LIMITS &&
-      capability.value === 'true',
-  );
+  hasCapabilityValue(organization?.capabilities, organizationCapabilities.BYPASS_PIDS_LIMITS);
 
 export {
   hasMachinePoolsQuotaSelector,

@@ -1,4 +1,4 @@
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { clusterCapabilities, organizationCapabilities } from '~/common/capabilities';
 import { OrganizationState } from '~/redux/reducers/userReducer';
 import { baseRequestState } from '~/redux/reduxHelpers';
 import { PromiseReducerState } from '~/redux/stateTypes';
@@ -19,14 +19,14 @@ describe('machinePoolsSelector', () => {
       organization: {
         details: {
           capabilities: [
-            { name: subscriptionCapabilities.CREATE_MOA_CLUSTERS, value: 'true', inherited: false },
+            { name: organizationCapabilities.HIBERNATE_CLUSTER, value: 'true', inherited: false },
             {
-              name: subscriptionCapabilities.ALLOW_ETCD_ENCRYPTION,
+              name: organizationCapabilities.RESTRICT_OFFLINE_TOKENS,
               value: 'false',
               inherited: false,
             },
-            { name: subscriptionCapabilities.AUTOSCALE_CLUSTERS, value: 'false', inherited: false },
-            { name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'true', inherited: false },
+            { name: clusterCapabilities.AUTOSCALE_CLUSTERS, value: 'false', inherited: false },
+            { name: clusterCapabilities.SUBSCRIBED_OCP, value: 'true', inherited: false },
           ],
         },
       },
@@ -38,14 +38,14 @@ describe('machinePoolsSelector', () => {
       organization: {
         details: {
           capabilities: [
-            { name: subscriptionCapabilities.CREATE_MOA_CLUSTERS, value: 'true', inherited: false },
+            { name: organizationCapabilities.HIBERNATE_CLUSTER, value: 'true', inherited: false },
             {
-              name: subscriptionCapabilities.ALLOW_ETCD_ENCRYPTION,
+              name: organizationCapabilities.RESTRICT_OFFLINE_TOKENS,
               value: 'false',
               inherited: false,
             },
-            { name: subscriptionCapabilities.AUTOSCALE_CLUSTERS, value: 'true', inherited: false },
-            { name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'true', inherited: false },
+            { name: clusterCapabilities.AUTOSCALE_CLUSTERS, value: 'true', inherited: false },
+            { name: clusterCapabilities.SUBSCRIBED_OCP, value: 'true', inherited: false },
           ],
         },
       },
@@ -94,7 +94,7 @@ describe('machinePoolsSelector', () => {
       const organization = {
         capabilities: [
           {
-            name: subscriptionCapabilities.BYPASS_PIDS_LIMITS,
+            name: organizationCapabilities.BYPASS_PIDS_LIMITS,
             value: capabilityValue,
             inherited: false,
           },
