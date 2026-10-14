@@ -1,4 +1,4 @@
-import { hasCapability, subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { clusterCapabilities, hasCapabilityValue } from '~/common/capabilities';
 import {
   defaultClusterFromSubscription,
   defaultSubscription,
@@ -11,15 +11,16 @@ import {
   canTransferClusterOwnershipSelector,
 } from '../transferClusterOwnershipDialogSelectors';
 
-// Mock the hasCapability function
-jest.mock('../../../../../../common/subscriptionCapabilities', () => ({
-  hasCapability: jest.fn(),
-  subscriptionCapabilities: {
+// Mock the hasCapabilityValue function
+jest.mock('../../../../../../common/capabilities', () => ({
+  hasCapabilityValue: jest.fn(),
+  haveCapabilities: jest.fn(),
+  clusterCapabilities: {
     RELEASE_OCP_CLUSTERS: 'RELEASE_OCP_CLUSTERS',
   },
 }));
 
-const hasCapabilityMock = hasCapability as jest.Mock;
+const hasCapabilityValueMock = hasCapabilityValue as jest.Mock;
 
 describe('Utility functions', () => {
   describe('canTransferClusterOwnershipSelector', () => {
@@ -29,19 +30,19 @@ describe('Utility functions', () => {
           details: {
             cluster: {
               subscription: {
-                capabilities: [subscriptionCapabilities.RELEASE_OCP_CLUSTERS],
+                capabilities: [clusterCapabilities.RELEASE_OCP_CLUSTERS],
               },
             },
           },
         },
       } as any as GlobalState;
-      hasCapabilityMock.mockReturnValue(true);
+      hasCapabilityValueMock.mockReturnValue(true);
 
       const result = canTransferClusterOwnershipSelector(state);
       expect(result).toBe(true);
-      expect(hasCapability).toHaveBeenCalledWith(
-        { capabilities: [subscriptionCapabilities.RELEASE_OCP_CLUSTERS] },
-        subscriptionCapabilities.RELEASE_OCP_CLUSTERS,
+      expect(hasCapabilityValue).toHaveBeenCalledWith(
+        [clusterCapabilities.RELEASE_OCP_CLUSTERS],
+        clusterCapabilities.RELEASE_OCP_CLUSTERS,
       );
     });
 
@@ -57,14 +58,11 @@ describe('Utility functions', () => {
           },
         },
       } as any as GlobalState;
-      hasCapabilityMock.mockReturnValue(false);
+      hasCapabilityValueMock.mockReturnValue(false);
 
       const result = canTransferClusterOwnershipSelector(state);
       expect(result).toBe(false);
-      expect(hasCapability).toHaveBeenCalledWith(
-        { capabilities: [] },
-        subscriptionCapabilities.RELEASE_OCP_CLUSTERS,
-      );
+      expect(hasCapabilityValue).toHaveBeenCalledWith([], clusterCapabilities.RELEASE_OCP_CLUSTERS);
     });
   });
 
@@ -75,17 +73,17 @@ describe('Utility functions', () => {
         subscription: {
           ...defaultSubscription,
           capabilities: [
-            { name: subscriptionCapabilities.RELEASE_OCP_CLUSTERS, inherited: false, value: '' },
+            { name: clusterCapabilities.RELEASE_OCP_CLUSTERS, inherited: false, value: '' },
           ],
         },
       };
-      hasCapabilityMock.mockReturnValue(true);
+      hasCapabilityValueMock.mockReturnValue(true);
 
       const result = canTransferClusterOwnershipMultiRegion(cluster);
       expect(result).toBe(true);
-      expect(hasCapability).toHaveBeenCalledWith(
-        cluster.subscription,
-        subscriptionCapabilities.RELEASE_OCP_CLUSTERS,
+      expect(hasCapabilityValue).toHaveBeenCalledWith(
+        cluster.subscription?.capabilities,
+        clusterCapabilities.RELEASE_OCP_CLUSTERS,
       );
     });
 
@@ -97,14 +95,11 @@ describe('Utility functions', () => {
           capabilities: [],
         },
       };
-      hasCapabilityMock.mockReturnValue(false);
+      hasCapabilityValueMock.mockReturnValue(false);
 
       const result = canTransferClusterOwnershipMultiRegion(cluster);
       expect(result).toBe(false);
-      expect(hasCapability).toHaveBeenCalledWith(
-        { capabilities: [], managed: false },
-        subscriptionCapabilities.RELEASE_OCP_CLUSTERS,
-      );
+      expect(hasCapabilityValue).toHaveBeenCalledWith([], clusterCapabilities.RELEASE_OCP_CLUSTERS);
     });
   });
 });

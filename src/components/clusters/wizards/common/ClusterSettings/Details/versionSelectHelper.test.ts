@@ -1,4 +1,4 @@
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { clusterCapabilities, organizationCapabilities } from '~/common/capabilities';
 import { Version } from '~/types/clusters_mgmt.v1';
 
 import {
@@ -146,19 +146,19 @@ const stableExpected = {
 
 const stateWithNonStableChannelGroupCapability = {
   capabilities: [
-    { name: subscriptionCapabilities.NON_STABLE_CHANNEL_GROUP, value: 'true', inherited: false },
-    { name: subscriptionCapabilities.ALLOW_ETCD_ENCRYPTION, value: 'false', inherited: false },
-    { name: subscriptionCapabilities.AUTOSCALE_CLUSTERS, value: 'true', inherited: false },
-    { name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'false', inherited: false },
+    { name: organizationCapabilities.NON_STABLE_CHANNEL_GROUP, value: 'true', inherited: false },
+    { name: organizationCapabilities.RESTRICT_OFFLINE_TOKENS, value: 'false', inherited: false },
+    { name: clusterCapabilities.AUTOSCALE_CLUSTERS, value: 'true', inherited: false },
+    { name: clusterCapabilities.SUBSCRIBED_OCP, value: 'false', inherited: false },
   ],
 };
 
 const stateWithoutNonStableChannelGroupCapability = {
   capabilities: [
-    { name: subscriptionCapabilities.NON_STABLE_CHANNEL_GROUP, value: 'false', inherited: false },
-    { name: subscriptionCapabilities.ALLOW_ETCD_ENCRYPTION, value: 'false', inherited: false },
-    { name: subscriptionCapabilities.AUTOSCALE_CLUSTERS, value: 'true', inherited: false },
-    { name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'false', inherited: false },
+    { name: organizationCapabilities.NON_STABLE_CHANNEL_GROUP, value: 'false', inherited: false },
+    { name: organizationCapabilities.RESTRICT_OFFLINE_TOKENS, value: 'false', inherited: false },
+    { name: clusterCapabilities.AUTOSCALE_CLUSTERS, value: 'true', inherited: false },
+    { name: clusterCapabilities.SUBSCRIBED_OCP, value: 'false', inherited: false },
   ],
 };
 
