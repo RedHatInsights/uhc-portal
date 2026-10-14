@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { clusterCapabilities, hasCapabilityValue } from '~/common/capabilities';
 import { GlobalState } from '~/redux/stateTypes';
 import { Capability } from '~/types/accounts_mgmt.v1';
 
@@ -10,11 +10,8 @@ const hasOrgLevelsubscribeOCPCapability = (state: GlobalState): boolean => {
     'userProfile.organization.details.capabilities',
     [],
   );
-  const subscribeOCP = capabilites.find(
-    (capability) => capability.name === subscriptionCapabilities.SUBSCRIBED_OCP,
-  );
 
-  return !!(subscribeOCP && subscribeOCP.value === 'true');
+  return hasCapabilityValue(capabilites, clusterCapabilities.SUBSCRIBED_OCP);
 };
 
 export { hasOrgLevelsubscribeOCPCapability };

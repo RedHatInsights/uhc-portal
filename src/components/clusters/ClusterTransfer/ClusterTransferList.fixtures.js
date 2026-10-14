@@ -1,4 +1,4 @@
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { clusterCapabilities, organizationCapabilities } from '~/common/capabilities';
 
 const transfers = [
   {
@@ -18,22 +18,22 @@ const transfers = [
       capabilities: [
         {
           inherited: false,
-          name: subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
+          name: clusterCapabilities.MANAGE_CLUSTER_ADMIN,
           value: 'true',
         },
         {
           inherited: true,
-          name: subscriptionCapabilities.ENABLE_ACCESS_PROTECTION,
+          name: organizationCapabilities.HIBERNATE_CLUSTER,
           value: 'true',
         },
         {
           inherited: true,
-          name: subscriptionCapabilities.SUBSCRIBED_OCP,
+          name: clusterCapabilities.SUBSCRIBED_OCP,
           value: 'true',
         },
         {
           inherited: true,
-          name: subscriptionCapabilities.AUTOSCALE_CLUSTERS,
+          name: clusterCapabilities.AUTOSCALE_CLUSTERS,
           value: 'true',
         },
       ],
