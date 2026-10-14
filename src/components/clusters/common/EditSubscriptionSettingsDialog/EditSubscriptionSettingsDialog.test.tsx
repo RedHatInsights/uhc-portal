@@ -1,7 +1,7 @@
 import React from 'react';
 import * as reactRedux from 'react-redux';
 
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { clusterCapabilities } from '~/common/capabilities';
 import { defaultSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import * as useEditSubscription from '~/queries/common/useEditSubscription';
 import { checkAccessibility, screen, withState } from '~/testUtils';
@@ -153,7 +153,7 @@ describe('<EditSubscriptionSettingsDialog />', () => {
             subscription: {
               ...defaultSubscription,
               id: 'mySubscriptionId',
-              capabilities: [{ name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'true' }],
+              capabilities: [{ name: clusterCapabilities.SUBSCRIBED_OCP, value: 'true' }],
             },
             name: 'myClusterName',
             shouldDisplayClusterName: true,
@@ -197,7 +197,7 @@ describe('<EditSubscriptionSettingsDialog />', () => {
             subscription: {
               ...defaultSubscription,
               support_level: 'Self-Support',
-              capabilities: [{ name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'true' }],
+              capabilities: [{ name: clusterCapabilities.SUBSCRIBED_OCP, value: 'true' }],
               socket_total: 20,
               cpu_total: 10,
               system_units: 'Sockets',
@@ -253,7 +253,7 @@ describe('<EditSubscriptionSettingsDialog />', () => {
             subscription: {
               ...defaultSubscription,
               support_level: 'Self-Support',
-              capabilities: [{ name: subscriptionCapabilities.SUBSCRIBED_OCP, value: 'true' }],
+              capabilities: [{ name: clusterCapabilities.SUBSCRIBED_OCP, value: 'true' }],
               socket_total: 20,
               cpu_total: 10,
               system_units: 'Cores/vCPU',
