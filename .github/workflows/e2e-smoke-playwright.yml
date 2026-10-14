@@ -264,8 +264,7 @@ jobs:
 
           echo "Setting up GCP VPC and KMS resources..."
           chmod +x ./qe-helper-scripts/create-gcp-infrastructure.sh
-          BUILD_ID="${{ github.run_id }}"
-          VPC_NAME="ocmui-${BUILD_ID: -5}"
+          VPC_NAME="ocmui-${{ github.run_id }}-${{ github.run_attempt }}"
           echo "Using GCP VPC name: $VPC_NAME"
           # KMS names stay fixed. Cleanup does not delete keys, so a per-build
           # VPC name must not create a new key ring, key, and service account.
@@ -599,8 +598,7 @@ jobs:
           gcloud auth activate-service-account "$CLIENT_EMAIL" --key-file="$SA_KEY" --project="$PROJECT_ID"
           gcloud config set project "$PROJECT_ID"
           chmod +x ./qe-helper-scripts/create-gcp-infrastructure.sh
-          BUILD_ID="${{ github.run_id }}"
-          VPC_NAME="ocmui-${BUILD_ID: -5}"
+          VPC_NAME="ocmui-${{ github.run_id }}-${{ github.run_attempt }}"
           echo "Cleaning up GCP VPC name: $VPC_NAME"
           ./qe-helper-scripts/create-gcp-infrastructure.sh \
             --project "$PROJECT_ID" \
