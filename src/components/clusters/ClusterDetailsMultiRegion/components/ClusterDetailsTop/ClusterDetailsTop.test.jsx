@@ -512,15 +512,12 @@ describe('<ClusterDetailsTop />', () => {
 
       await user.click(screen.getByText('Alerts and recommendations'));
 
-      const alertTitle =
-        'Red Hat OpenShift Platform Plus is now available for Azure Red Hat OpenShift';
-      const alertTitleElement = screen.getByText(alertTitle);
-      expect(alertTitleElement).toBeInTheDocument();
+      const alert = screen.getByTestId('aro-platform-plus-marketplace-alert');
+      expect(alert).toBeInTheDocument();
 
-      const alert = alertTitleElement.closest('.pf-v6-c-alert');
       await user.click(within(alert).getByRole('button', { name: /close/i }));
 
-      expect(screen.queryByText(alertTitle)).not.toBeInTheDocument();
+      expect(screen.queryByTestId('aro-platform-plus-marketplace-alert')).not.toBeInTheDocument();
       expect(localStorage.getItem('hasUserDismissedAroOppMarketplaceAlert')).toEqual('true');
     });
   });
