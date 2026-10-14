@@ -40,10 +40,8 @@ fi
 
 NAME=""
 DELETE=false
-PROJECT="$(gcloud config get-value project 2>/dev/null || true)"
-if [[ -z "$PROJECT" || "$PROJECT" == "(unset)" ]]; then
-  PROJECT="ocm-ui-dev"
-fi
+PROJECT=""
+PROJECT_EXPLICIT=false
 REGION="us-west1"
 
 while [[ $# -gt 0 ]]; do
@@ -57,6 +55,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --project)
       PROJECT="$2"
+      PROJECT_EXPLICIT=true
       shift 2
       ;;
     --region)
@@ -80,6 +79,22 @@ done
 
 if [[ -z "$NAME" ]]; then
   usage
+fi
+
+# Resolve project after args so --project still works if gcloud config is broken.
+if [[ "$PROJECT_EXPLICIT" != true ]]; then
+  gcloud_project=""
+  gcloud_rc=0
+  gcloud_project="$(gcloud config get-value project 2>/dev/null)" || gcloud_rc=$?
+  if [[ "$gcloud_rc" -ne 0 ]]; then
+    echo "ERROR: failed to read gcloud project. Pass --project PROJECT or fix gcloud config." >&2
+    exit 1
+  fi
+  if [[ -z "$gcloud_project" || "$gcloud_project" == "(unset)" ]]; then
+    PROJECT="ocm-ui-dev"
+  else
+    PROJECT="$gcloud_project"
+  fi
 fi
 
 NETWORK="$NAME"
