@@ -6,6 +6,7 @@ import { Form, Grid, GridItem, Title } from '@patternfly/react-core';
 import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { userEvent, within } from 'storybook/test';
 
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
@@ -231,7 +232,7 @@ export const SharedVpcWithSelectedFirewallRules: Story = {
 };
 
 export const SharedVpcPrivateServiceConnect: Story = {
-  name: 'Shared VPC — Private + PSC (private profile CLI)',
+  name: 'Shared VPC — Private + PSC (private profile)',
   args: {
     formValues: {
       [FieldId.ClusterPrivacy]: ClusterPrivacyType.Internal,
@@ -271,9 +272,23 @@ export const FeatureGateDisabled: Story = {
   },
 };
 
+/** Empty list enables Create firewall rules (disabled when matching rules already exist). */
 export const NoMatchingFirewallRules: Story = {
-  name: 'No matching firewall rules',
+  name: 'No matching firewall rules — Create enabled',
   args: {
     firewallRules: [],
+  },
+};
+
+/** Opens the create modal so the inline CLI reference is visible in Storybook. */
+export const CreateFirewallRulesModalOpen: Story = {
+  name: 'Create firewall rules modal open',
+  args: {
+    firewallRules: [],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Create firewall rules' }));
+    await within(document.body).findByText('Add firewall rule for vpc ocmdev-shared-vpc');
   },
 };
