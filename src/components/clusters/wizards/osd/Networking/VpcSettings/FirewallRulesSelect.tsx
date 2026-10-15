@@ -85,11 +85,12 @@ export const FirewallRulesSelect = ({
     network,
   });
 
-  const createDisableReason = !network
-    ? 'Select a VPC name before creating firewall rules'
-    : firewallRules?.length
-      ? 'Firewall rules already exist for the selected WIF config and VPC'
-      : undefined;
+  let createDisableReason: string | undefined;
+  if (!network) {
+    createDisableReason = 'Select a VPC name before creating firewall rules';
+  } else if (firewallRules?.length) {
+    createDisableReason = 'Firewall rules already exist for the selected WIF config and VPC';
+  }
 
   // Derive the displayed selection from fetched data.
   const matchedFirewallRule = firewallRules?.find((rule) => rule.id === selectedFirewallRules?.id);
