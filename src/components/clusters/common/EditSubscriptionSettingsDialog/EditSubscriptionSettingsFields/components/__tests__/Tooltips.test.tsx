@@ -24,7 +24,10 @@ describe('<Tooltips />', () => {
     render(<Tooltips isShown />);
 
     // Assert
-    expect(consoleErrorMock).toHaveBeenCalledTimes(4);
+    // PatternFly's Tooltip now invokes triggerRef twice per instance (once for Popper
+    // positioning, once for its aria-attribute wiring added in patternfly-react#11953),
+    // so each of the 4 tooltips logs its "target not found" error twice.
+    expect(consoleErrorMock).toHaveBeenCalledTimes(8);
   });
 
   it('is not shown', () => {
