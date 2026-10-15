@@ -351,6 +351,11 @@ export const GcpVpcSettings = () => {
         <GridItem span={8}>
           <Title headingLevel="h4" size="md" className="pf-v6-u-mt-md">
             Firewall Rules
+            <PopoverHint
+              iconClassName="pf-v6-u-ml-sm"
+              buttonAriaLabel="More information about Firewall Rules"
+              hint="To deploy with a smaller permission set, pre-create firewall rules and select them below. If you skip this step, firewall rules will be created automatically during deployment. The dropdown is filtered to rules matching the selected WIF config from Step 2."
+            />
           </Title>
           <Field
             key={firewallContextKey}

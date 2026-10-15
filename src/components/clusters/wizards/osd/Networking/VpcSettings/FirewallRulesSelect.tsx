@@ -1,15 +1,7 @@
 import React from 'react';
 
-import {
-  Button,
-  Content,
-  ContentVariants,
-  Flex,
-  FlexItem,
-  FormGroup,
-  Stack,
-  StackItem,
-} from '@patternfly/react-core';
+import { Button, Flex, FlexItem, FormGroup } from '@patternfly/react-core';
+import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 
 import { trackEvents } from '~/common/analytics';
 import { queryClient } from '~/components/App/queryClient';
@@ -162,78 +154,65 @@ export const FirewallRulesSelect = ({
     : {};
 
   return (
-    <FormGroup>
-      <Stack hasGutter>
-        <StackItem>
-          <Content component={ContentVariants.p} className="pf-v6-u-mt-md">
-            To deploy with a smaller permission set, pre-create firewall rules and select them
-            below. If you skip this step, firewall rules will be created automatically during
-            deployment.
-          </Content>
-        </StackItem>
-        <StackItem>
-          <FormGroup>
-            <Flex>
-              <FlexItem grow={{ default: 'grow' }}>
-                <FuzzySelect
-                  aria-label="Firewall rules"
-                  isOpen={isOpen}
-                  onOpenChange={(nextIsOpen) => setIsOpen(nextIsOpen)}
-                  onSelect={onSelect}
-                  selectedEntryId={matchedFirewallRule?.id}
-                  selectionData={firewallOptions}
-                  isDisabled={firewallRules?.length === 0 || isFetching}
-                  placeholderText={placeholder}
-                  inlineFilterPlaceholderText="Filter by firewall rule name"
-                  isScrollable
-                  popperProps={{
-                    maxWidth: 'trigger',
-                  }}
-                  fuzziness={0}
-                  isClearable
-                />
-              </FlexItem>
-              <FlexItem>
-                <ButtonWithTooltip
-                  variant="secondary"
-                  className="pf-v6-u-mt-md"
-                  onClick={() => setIsCreateModalOpen(true)}
-                  disableReason={createDisableReason}
-                >
-                  Create firewall rules
-                </ButtonWithTooltip>
-              </FlexItem>
-              <FlexItem>
-                <Button
-                  variant="secondary"
-                  className="pf-v6-u-mt-md"
-                  onClick={refreshGcpFirewallRules}
-                  isLoading={isFetching}
-                  isDisabled={isFetching}
-                >
-                  Refresh
-                </Button>
-              </FlexItem>
-            </Flex>
+    <FormGroup className="pf-v6-u-mt-md">
+      <Flex>
+        <FlexItem grow={{ default: 'grow' }}>
+          <FuzzySelect
+            aria-label="Firewall rules"
+            isOpen={isOpen}
+            onOpenChange={(nextIsOpen) => setIsOpen(nextIsOpen)}
+            onSelect={onSelect}
+            selectedEntryId={matchedFirewallRule?.id}
+            selectionData={firewallOptions}
+            isDisabled={firewallRules?.length === 0 || isFetching}
+            placeholderText={placeholder}
+            inlineFilterPlaceholderText="Filter by firewall rule name"
+            isScrollable
+            popperProps={{
+              maxWidth: 'trigger',
+            }}
+            fuzziness={0}
+            isClearable
+          />
+        </FlexItem>
+        <FlexItem>
+          <Button
+            variant="secondary"
+            className="pf-v6-u-mt-md"
+            onClick={refreshGcpFirewallRules}
+            isLoading={isFetching}
+            isDisabled={isFetching}
+          >
+            Refresh
+          </Button>
+        </FlexItem>
+      </Flex>
 
-            <FormGroupHelperText touched={touched} error={error}>
-              Dropdown filtered to rules matching the selected WIF config from Step 2.
-            </FormGroupHelperText>
-          </FormGroup>
-          {network ? (
-            <CreateFirewallRulesModal
-              isOpen={isCreateModalOpen}
-              onClose={() => setIsCreateModalOpen(false)}
-              onSuccess={refreshGcpFirewallRules}
-              network={network}
-              projectId={projectId}
-              wifConfigId={wifConfigId}
-              profile={profile}
-              createFirewallRulesCommand={createFirewallRulesCommand}
-            />
-          ) : null}
-        </StackItem>
-      </Stack>
+      <ButtonWithTooltip
+        onClick={() => setIsCreateModalOpen(true)}
+        icon={<PlusCircleIcon />}
+        variant="link"
+        isInline
+        className="pf-v6-u-mt-sm"
+        disableReason={createDisableReason}
+      >
+        Create firewall rules
+      </ButtonWithTooltip>
+
+      <FormGroupHelperText touched={touched} error={error} />
+
+      {network ? (
+        <CreateFirewallRulesModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={refreshGcpFirewallRules}
+          network={network}
+          projectId={projectId}
+          wifConfigId={wifConfigId}
+          profile={profile}
+          createFirewallRulesCommand={createFirewallRulesCommand}
+        />
+      ) : null}
     </FormGroup>
   );
 };

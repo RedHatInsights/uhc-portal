@@ -97,9 +97,9 @@ describe('<GcpVpcSettings />', () => {
       expect(screen.getByText('Domain prefix required')).toBeInTheDocument();
     });
 
-    it('renders Firewall Rules when feature gate and version requirements are met', () => {
+    it('renders Firewall Rules when feature gate and version requirements are met', async () => {
       mockUseFeatureGate([[GCP_BYO_FIREWALL_RULES, true]]);
-      render(
+      const { user } = render(
         prepareComponent({
           [FieldId.Byoc]: 'true',
           [FieldId.GcpAuthType]: 'workloadIdentityFederation',
@@ -110,6 +110,19 @@ describe('<GcpVpcSettings />', () => {
 
       expect(screen.getByText('Firewall Rules')).toBeInTheDocument();
       expect(screen.getByText('Create firewall rules')).toBeInTheDocument();
+      expect(
+        screen.queryByText(/To deploy with a smaller permission set/i),
+      ).not.toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole('button', { name: 'More information about Firewall Rules' }),
+      );
+
+      expect(
+        await screen.findByText(
+          /To deploy with a smaller permission set, pre-create firewall rules and select them below\. If you skip this step, firewall rules will be created automatically during deployment\. The dropdown is filtered to rules matching the selected WIF config from Step 2\./,
+        ),
+      ).toBeInTheDocument();
     });
 
     it('hides Firewall Rules when OpenShift version is below 4.21', () => {
