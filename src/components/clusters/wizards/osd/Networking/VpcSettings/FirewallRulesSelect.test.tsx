@@ -165,67 +165,62 @@ describe('<FirewallRulesSelect />', () => {
     expect(screen.queryByText(/No firewall rules found/i)).not.toBeInTheDocument();
   });
 
-  it('shows create firewall rules CLI command', async () => {
+  it('opens the create modal with the CLI command for reference', async () => {
     useFetchGcpFirewallRulesMock.mockReturnValue({
       isFetching: false,
-      data: firewallRules,
+      data: [],
       isSuccess: true,
     });
 
     const props = createDefaultProps();
     const { user } = render(<FirewallRulesSelect {...props} />);
 
-    await user.click(screen.getByText('Create firewall rules'));
+    await user.click(screen.getByRole('button', { name: 'Create firewall rules' }));
 
+    expect(screen.getByText(`Add firewall rule for vpc ${props.network}`)).toBeInTheDocument();
     expect(screen.getByDisplayValue(props.createFirewallRulesCommand)).toBeInTheDocument();
   });
 
-  it('disables Create with UI until a VPC name is selected', async () => {
+  it('disables Create firewall rules until a VPC name is selected', () => {
     useFetchGcpFirewallRulesMock.mockReturnValue({
       isFetching: false,
       data: [],
       isSuccess: true,
     });
 
-    const { user } = render(<FirewallRulesSelect {...createDefaultProps({ network: '' })} />);
+    render(<FirewallRulesSelect {...createDefaultProps({ network: '' })} />);
 
-    await user.click(screen.getByText('Create firewall rules'));
-
-    expect(screen.getByRole('button', { name: 'Create with UI' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Create firewall rules' })).toHaveAttribute(
       'aria-disabled',
       'true',
     );
   });
 
-  it('disables Create with UI when firewall rules already exist for the VPC', async () => {
+  it('disables Create firewall rules when matching rules already exist for the VPC', () => {
     useFetchGcpFirewallRulesMock.mockReturnValue({
       isFetching: false,
       data: firewallRules,
       isSuccess: true,
     });
 
-    const { user } = render(<FirewallRulesSelect {...createDefaultProps()} />);
+    render(<FirewallRulesSelect {...createDefaultProps()} />);
 
-    await user.click(screen.getByText('Create firewall rules'));
-
-    expect(screen.getByRole('button', { name: 'Create with UI' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Create firewall rules' })).toHaveAttribute(
       'aria-disabled',
       'true',
     );
   });
 
-  it('enables Create with UI when a VPC is selected and no matching rules exist', async () => {
+  it('enables Create firewall rules when a VPC is selected and no matching rules exist', () => {
     useFetchGcpFirewallRulesMock.mockReturnValue({
       isFetching: false,
       data: [],
       isSuccess: true,
     });
 
-    const { user } = render(<FirewallRulesSelect {...createDefaultProps()} />);
+    render(<FirewallRulesSelect {...createDefaultProps()} />);
 
-    await user.click(screen.getByText('Create firewall rules'));
-
-    expect(screen.getByRole('button', { name: 'Create with UI' })).not.toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Create firewall rules' })).not.toHaveAttribute(
       'aria-disabled',
       'true',
     );

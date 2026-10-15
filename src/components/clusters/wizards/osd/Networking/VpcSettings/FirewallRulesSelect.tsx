@@ -2,11 +2,8 @@ import React from 'react';
 
 import {
   Button,
-  ClipboardCopy,
-  ClipboardCopyVariant,
   Content,
   ContentVariants,
-  ExpandableSection,
   Flex,
   FlexItem,
   FormGroup,
@@ -68,7 +65,6 @@ export const FirewallRulesSelect = ({
   meta: { error, touched },
 }: FirewallRulesSelectProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [isExpanded, setIsExpanded] = React.useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
 
   const track = useAnalytics();
@@ -170,54 +166,13 @@ export const FirewallRulesSelect = ({
       <Stack hasGutter>
         <StackItem>
           <Content component={ContentVariants.p} className="pf-v6-u-mt-md">
-            To deploy with a smaller permission set, pre-create firewall rules using the CLI or the
-            create button below, then select them. If you skip this step, firewall rules will be
-            created automatically during deployment.
+            To deploy with a smaller permission set, pre-create firewall rules and select them
+            below. If you skip this step, firewall rules will be created automatically during
+            deployment.
           </Content>
         </StackItem>
         <StackItem>
-          <ExpandableSection
-            toggleText="Create firewall rules"
-            isExpanded={isExpanded}
-            onToggle={() => setIsExpanded(!isExpanded)}
-          >
-            <Stack hasGutter>
-              <StackItem>
-                <ClipboardCopy
-                  textAriaLabel="Copyable create firewall rules command"
-                  variant={ClipboardCopyVariant.inline}
-                  isReadOnly
-                  hoverTip="Copy"
-                  clickTip="Copied"
-                >
-                  {createFirewallRulesCommand}
-                </ClipboardCopy>
-              </StackItem>
-              <StackItem>
-                <ButtonWithTooltip
-                  variant="secondary"
-                  onClick={() => setIsCreateModalOpen(true)}
-                  disableReason={createDisableReason}
-                >
-                  Create with UI
-                </ButtonWithTooltip>
-              </StackItem>
-            </Stack>
-          </ExpandableSection>
-          {network ? (
-            <CreateFirewallRulesModal
-              isOpen={isCreateModalOpen}
-              onClose={() => setIsCreateModalOpen(false)}
-              onSuccess={refreshGcpFirewallRules}
-              network={network}
-              projectId={projectId}
-              wifConfigId={wifConfigId}
-              profile={profile}
-            />
-          ) : null}
-        </StackItem>
-        <StackItem>
-          <FormGroup label="Firewall rules">
+          <FormGroup>
             <Flex>
               <FlexItem grow={{ default: 'grow' }}>
                 <FuzzySelect
@@ -239,6 +194,16 @@ export const FirewallRulesSelect = ({
                 />
               </FlexItem>
               <FlexItem>
+                <ButtonWithTooltip
+                  variant="secondary"
+                  className="pf-v6-u-mt-md"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  disableReason={createDisableReason}
+                >
+                  Create firewall rules
+                </ButtonWithTooltip>
+              </FlexItem>
+              <FlexItem>
                 <Button
                   variant="secondary"
                   className="pf-v6-u-mt-md"
@@ -255,6 +220,18 @@ export const FirewallRulesSelect = ({
               Dropdown filtered to rules matching the selected WIF config from Step 2.
             </FormGroupHelperText>
           </FormGroup>
+          {network ? (
+            <CreateFirewallRulesModal
+              isOpen={isCreateModalOpen}
+              onClose={() => setIsCreateModalOpen(false)}
+              onSuccess={refreshGcpFirewallRules}
+              network={network}
+              projectId={projectId}
+              wifConfigId={wifConfigId}
+              profile={profile}
+              createFirewallRulesCommand={createFirewallRulesCommand}
+            />
+          ) : null}
         </StackItem>
       </Stack>
     </FormGroup>

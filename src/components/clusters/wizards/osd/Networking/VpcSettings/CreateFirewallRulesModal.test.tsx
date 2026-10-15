@@ -22,6 +22,8 @@ const defaultProps = {
   projectId: 'ocm-ui-dev',
   wifConfigId: 'wif-1',
   profile: 'public',
+  createFirewallRulesCommand:
+    'ocm gcp create firewall-rules --name=<name> --wif-config=wif-1 --project-id=ocm-ui-dev --vpc-name=zac-vpc-6',
 };
 
 describe('<CreateFirewallRulesModal />', () => {
@@ -34,6 +36,7 @@ describe('<CreateFirewallRulesModal />', () => {
 
     expect(screen.getByText('Add firewall rule for vpc zac-vpc-6')).toBeInTheDocument();
     expect(screen.getByLabelText(/Machine CIDR/i)).toHaveValue('10.0.0.0/16');
+    expect(screen.getByDisplayValue(defaultProps.createFirewallRulesCommand)).toBeInTheDocument();
   });
 
   it('creates firewall rules and closes on success', async () => {

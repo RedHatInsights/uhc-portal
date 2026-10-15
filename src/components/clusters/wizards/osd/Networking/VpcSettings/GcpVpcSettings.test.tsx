@@ -1,6 +1,7 @@
 import React from 'react';
 import { Formik, FormikValues } from 'formik';
 
+import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen } from '~/testUtils';
 
@@ -139,7 +140,7 @@ describe('<GcpVpcSettings />', () => {
       expect(screen.queryByText('Firewall Rules')).not.toBeInTheDocument();
     });
 
-    it('pre-populates the CLI with WIF project and public profile for non-shared VPC', async () => {
+    it('pre-populates the CLI in the create modal with WIF project and public profile for non-shared VPC', async () => {
       mockUseFeatureGate([[GCP_BYO_FIREWALL_RULES, true]]);
       const { user } = render(
         prepareComponent({
@@ -148,14 +149,35 @@ describe('<GcpVpcSettings />', () => {
           [FieldId.ClusterVersion]: { raw_id: '4.21.0' },
           [FieldId.GcpWifConfig]: { id: 'wif-1', gcp: { project_id: 'wif-project' } },
           [FieldId.VpcName]: 'prod-vpc',
+          [FieldId.Region]: 'us-east1',
         }),
+        undefined,
+        {
+          userProfile: {
+            organization: { details: { id: 'org-1' } },
+          },
+          ccsInquiries: {
+            vpcs: {
+              pending: false,
+              fulfilled: true,
+              error: false,
+              cloudProvider: CloudProviderType.Gcp,
+              credentials: 'wif-1',
+              region: 'us-east1',
+              data: {
+                items: [{ name: 'prod-vpc', subnets: [] }],
+              },
+            },
+          },
+        },
       );
 
-      await user.click(screen.getByText('Create firewall rules'));
+      await user.click(screen.getByRole('button', { name: 'Create firewall rules' }));
 
-      const cliValue = (
-        screen.getByLabelText('Copyable create firewall rules command') as HTMLInputElement
-      ).value;
+      expect(await screen.findByText('Add firewall rule for vpc prod-vpc')).toBeInTheDocument();
+
+      const cliValue = (screen.getByDisplayValue(/ocm gcp create firewall-rules/) as HTMLInputElement)
+        .value;
       expect(cliValue).toContain('--wif-config=wif-1');
       expect(cliValue).toContain('--project-id=wif-project');
       expect(cliValue).toContain('--machine-cidr=<machine_cidr>');
@@ -163,7 +185,7 @@ describe('<GcpVpcSettings />', () => {
       expect(cliValue).not.toContain('--profile=private');
     });
 
-    it('pre-populates the CLI with host project and private profile for Shared VPC with PSC', async () => {
+    it('pre-populates the CLI in the create modal with host project and private profile for Shared VPC with PSC', async () => {
       mockUseFeatureGate([[GCP_BYO_FIREWALL_RULES, true]]);
       const { user } = render(
         prepareComponent({
@@ -179,7 +201,7 @@ describe('<GcpVpcSettings />', () => {
         }),
       );
 
-      await user.click(screen.getByText('Create firewall rules'));
+      await user.click(screen.getByRole('button', { name: 'Create firewall rules' }));
 
       expect(
         screen.getByDisplayValue(

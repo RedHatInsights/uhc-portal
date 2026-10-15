@@ -4,6 +4,8 @@ import axios from 'axios';
 import {
   Alert,
   Button,
+  ClipboardCopy,
+  ClipboardCopyVariant,
   Form,
   FormGroup,
   Modal,
@@ -30,6 +32,7 @@ type CreateFirewallRulesModalProps = {
   projectId?: string;
   wifConfigId?: string;
   profile: string;
+  createFirewallRulesCommand: string;
 };
 
 const getCreateErrorMessage = (err: unknown): string => {
@@ -55,6 +58,7 @@ export const CreateFirewallRulesModal = ({
   projectId,
   wifConfigId,
   profile,
+  createFirewallRulesCommand,
 }: CreateFirewallRulesModalProps) => {
   const [name, setName] = React.useState('');
   const [machineCidr, setMachineCidr] = React.useState(DEFAULT_MACHINE_CIDR);
@@ -163,6 +167,18 @@ export const CreateFirewallRulesModal = ({
               validated={cidrError ? 'error' : 'default'}
             />
             <FormGroupHelperText touched error={cidrError} validateOnSubmit />
+          </FormGroup>
+          <FormGroup label="CLI reference" fieldId="firewall-rule-cli-reference">
+            <ClipboardCopy
+              id="firewall-rule-cli-reference"
+              textAriaLabel="Copyable create firewall rules command"
+              variant={ClipboardCopyVariant.inline}
+              isReadOnly
+              hoverTip="Copy"
+              clickTip="Copied"
+            >
+              {createFirewallRulesCommand}
+            </ClipboardCopy>
           </FormGroup>
         </Form>
       </ModalBody>
