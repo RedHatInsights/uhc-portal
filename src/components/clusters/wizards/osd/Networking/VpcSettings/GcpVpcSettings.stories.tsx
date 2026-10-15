@@ -1,12 +1,12 @@
 import React from 'react';
 import { Formik, type FormikValues } from 'formik';
 import { Provider } from 'react-redux';
+import { userEvent, within } from 'storybook/test';
 
 import { Form, Grid, GridItem, Title } from '@patternfly/react-core';
 import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { userEvent, within } from 'storybook/test';
 
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';

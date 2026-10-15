@@ -189,8 +189,9 @@ describe('<GcpVpcSettings />', () => {
 
       expect(await screen.findByText('Add firewall rule for vpc prod-vpc')).toBeInTheDocument();
 
-      const cliValue = (screen.getByDisplayValue(/ocm gcp create firewall-rules/) as HTMLInputElement)
-        .value;
+      const cliValue = (
+        screen.getByDisplayValue(/ocm gcp create firewall-rules/) as HTMLInputElement
+      ).value;
       expect(cliValue).toContain('--wif-config=wif-1');
       expect(cliValue).toContain('--project-id=wif-project');
       expect(cliValue).toContain('--machine-cidr=<machine_cidr>');
